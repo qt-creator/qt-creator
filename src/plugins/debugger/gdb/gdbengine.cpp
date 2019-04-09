@@ -4257,6 +4257,8 @@ void GdbEngine::handleAttach(const DebuggerResponse &response)
                 notifyEngineRunAndInferiorStopOk();
                 if (runParameters().continueAfterAttach)
                     continueInferiorInternal();
+                else
+                    updateAll();
             }
             break;
         case ResultError:

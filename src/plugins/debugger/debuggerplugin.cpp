@@ -1740,6 +1740,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(kit);
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setAttachPid(ProcessHandle(process.pid));
     debugger->setRunControlName(tr("Process %1").arg(process.pid));
