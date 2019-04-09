@@ -687,11 +687,9 @@ void QmlProfilerTool::clientsDisconnected()
             d->m_profilerModelManager->finalize();
         } else if (d->m_profilerState->serverRecording()) {
             // If the application stopped by itself, check if we have all the data
-            if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying ||
-                    d->m_profilerState->currentState() == QmlProfilerStateManager::Idle) {
+            if (d->m_profilerState->currentState() != QmlProfilerStateManager::AppStopRequested) {
                 showNonmodalWarning(tr("Application finished before loading profiled data.\n"
                                        "Please use the stop button instead."));
-                d->m_profilerModelManager->clearAll();
             }
         }
     }
