@@ -372,6 +372,13 @@ bool smartVeryFuzzyCompare(const QVariant &value1, const QVariant &value2)
     return false;
 }
 
+bool smartColorCompare(const QVariant &value1, const QVariant &value2)
+{
+    if ((value1.type() == QVariant::Color) || (value2.type() == QVariant::Color))
+        return value1.value<QColor>().rgba() == value2.value<QColor>().rgba();
+    return false;
+}
+
 bool equals(const QVariant &a, const QVariant &b)
 {
     if (a.canConvert<QmlDesigner::Enumeration>() && b.canConvert<QmlDesigner::Enumeration>())
@@ -379,6 +386,8 @@ bool equals(const QVariant &a, const QVariant &b)
     if (a == b)
         return true;
     if (smartVeryFuzzyCompare(a, b))
+        return true;
+    if (smartColorCompare(a, b))
         return true;
     return false;
 }

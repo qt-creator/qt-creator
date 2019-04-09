@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -24,55 +24,30 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import HelperWidgets 2.0
+import QtQuick.Controls.Private 1.0 // showing a ToolTip
 
 Item {
-    id: colorCheckButtonRoot
-    property bool checked: false
-    property alias buttonColor: checkBox.color
-    width: 30
-    height: 24
+    width: 300
+    height: 60
 
+    property alias currentColor : colorLine.color
 
-    Rectangle {
-        id: backgroundBox
-        width: 24
-        height: 24
-        anchors.right: parent.right
-
-        color: "white"
-        border.color: "white"
-        border.width: 1
-
-        Rectangle {
-            id: checkBox
-            width: 22
-            height: 22
-            anchors.centerIn: parent
-
-            border.color: "black"
-            border.width: 1
-        }
-    }
-
-    Image {
-        id: arrowImage
-        width: 8
-        height: 4
-        source: "image://icons/down-arrow"
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: backgroundBox.left
-        anchors.rightMargin: 2
-        opacity: colorToolTip.containsMouse ? 1 : 0.8
-        rotation: colorCheckButtonRoot.checked ? 0.0 : 270.0
-    }
-
-    ToolTipArea {
-        id: colorToolTip
-
-        onClicked: checked = !checked
-        hoverEnabled: true
+    Column {
         anchors.fill: parent
-        anchors.leftMargin: -arrowImage.width
-        tooltip: qsTr("Toggle color picker view")
+
+        Item {
+            width: 1
+            height: 40
+        }
+        Rectangle {
+            height: 16
+            width: parent.width
+            border.color: "#555555"
+            border.width: 1
+
+            id: colorLine
+            color: "white"
+        }
     }
 }

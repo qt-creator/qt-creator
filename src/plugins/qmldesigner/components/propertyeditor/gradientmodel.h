@@ -77,6 +77,8 @@ public:
 
     Q_INVOKABLE void savePreset();
 
+    Q_INVOKABLE void updateGradient();
+
 signals:
     void anchorBackendChanged();
     void hasGradientChanged();

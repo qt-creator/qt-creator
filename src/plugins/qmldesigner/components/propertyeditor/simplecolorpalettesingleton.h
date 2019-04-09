@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,39 +23,50 @@
 **
 ****************************************************************************/
 
-#include "quick2propertyeditorview.h"
+#pragma once
 
-#include "propertyeditorvalue.h"
-#include "fileresourcesmodel.h"
-#include "gradientmodel.h"
-#include "gradientpresetdefaultlistmodel.h"
-#include "gradientpresetcustomlistmodel.h"
-#include "simplecolorpalettemodel.h"
-#include "qmlanchorbindingproxy.h"
-#include "theme.h"
+#include <QObject>
+#include <QAbstractListModel>
+#include <QtQml/qqml.h>
+#include <QList>
+#include <QColor>
 
 namespace QmlDesigner {
 
-Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickWidget(parent)
-{
-    setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theme::setupTheme(engine());
-}
+class PaletteColor;
 
-void Quick2PropertyEditorView::registerQmlTypes()
+class SimpleColorPaletteSingleton : public QObject
 {
-    static bool declarativeTypesRegistered = false;
-    if (!declarativeTypesRegistered) {
-        declarativeTypesRegistered = true;
-        PropertyEditorValue::registerDeclarativeTypes();
-        FileResourcesModel::registerDeclarativeType();
-        GradientModel::registerDeclarativeType();
-        GradientPresetDefaultListModel::registerDeclarativeType();
-        GradientPresetCustomListModel::registerDeclarativeType();
-        SimpleColorPaletteModel::registerDeclarativeType();
-        Internal::QmlAnchorBindingProxy::registerDeclarativeType();
-    }
-}
+    Q_OBJECT
+public:
+    static SimpleColorPaletteSingleton &getInstance();
 
-} //QmlDesigner
+    bool readPalette();
+    void writePalette();
+
+    void addItem(const PaletteColor &item);
+    QList<PaletteColor> getItems() const;
+
+    int getPaletteSize() const;
+    int getFavoriteOffset() const;
+
+    void sortItems();
+
+    void toggleFavorite(int id);
+
+    SimpleColorPaletteSingleton(const SimpleColorPaletteSingleton &) = delete;
+    void operator=(const SimpleColorPaletteSingleton &) = delete;
+
+signals:
+    void paletteChanged();
+
+private:
+    SimpleColorPaletteSingleton();
+
+private:
+    QList<PaletteColor> m_items;
+    const int m_paletteSize = 6;
+    int m_favoriteOffset;
+};
+
+} // namespace QmlDesigner

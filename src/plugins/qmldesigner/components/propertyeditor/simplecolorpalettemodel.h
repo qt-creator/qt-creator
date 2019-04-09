@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,39 +23,55 @@
 **
 ****************************************************************************/
 
-#include "quick2propertyeditorview.h"
+#pragma once
 
-#include "propertyeditorvalue.h"
-#include "fileresourcesmodel.h"
-#include "gradientmodel.h"
-#include "gradientpresetdefaultlistmodel.h"
-#include "gradientpresetcustomlistmodel.h"
-#include "simplecolorpalettemodel.h"
-#include "qmlanchorbindingproxy.h"
-#include "theme.h"
+#include <QAbstractListModel>
+#include <QtQml/qqml.h>
+#include <QList>
 
 namespace QmlDesigner {
 
-Quick2PropertyEditorView::Quick2PropertyEditorView(QWidget *parent) :
-    QQuickWidget(parent)
-{
-    setResizeMode(QQuickWidget::SizeRootObjectToView);
-    Theme::setupTheme(engine());
-}
+class PaletteColor;
 
-void Quick2PropertyEditorView::registerQmlTypes()
+class SimpleColorPaletteModel : public QAbstractListModel
 {
-    static bool declarativeTypesRegistered = false;
-    if (!declarativeTypesRegistered) {
-        declarativeTypesRegistered = true;
-        PropertyEditorValue::registerDeclarativeTypes();
-        FileResourcesModel::registerDeclarativeType();
-        GradientModel::registerDeclarativeType();
-        GradientPresetDefaultListModel::registerDeclarativeType();
-        GradientPresetCustomListModel::registerDeclarativeType();
-        SimpleColorPaletteModel::registerDeclarativeType();
-        Internal::QmlAnchorBindingProxy::registerDeclarativeType();
-    }
-}
+    Q_OBJECT
+public:
+    explicit SimpleColorPaletteModel(QObject *parent = nullptr);
+    ~SimpleColorPaletteModel() override;
 
-} //QmlDesigner
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
+
+    void clearItems();
+    Q_INVOKABLE void addItem(const QString &item);
+    void addItem(const PaletteColor &item);
+
+    const QList<PaletteColor> &items() const;
+
+    void sortItems();
+
+    static void registerDeclarativeType();
+
+    Q_INVOKABLE void toggleFavorite(int id);
+
+    bool read();
+    void write();
+
+private slots:
+    void setPalette();
+
+private:
+    void enqueue(const PaletteColor &item);
+
+private:
+    int m_paletteSize;
+    int m_favoriteOffset;
+    QList<PaletteColor> m_items;
+    QHash<int, QByteArray> m_roleNames;
+};
+
+} // namespace QmlDesigner
+
+QML_DECLARE_TYPE(QmlDesigner::SimpleColorPaletteModel)
