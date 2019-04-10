@@ -30,6 +30,7 @@
 #include <sourcelocations.h>
 
 #include <filepathstoragesources.h>
+#include <pchpaths.h>
 #include <projectpartartefact.h>
 #include <projectpartcontainer.h>
 #include <projectpartpch.h>
@@ -120,11 +121,11 @@ public:
     MOCK_METHOD1(valueReturnProjectPartContainer,
                  Utils::optional<ClangBackEnd::ProjectPartContainer>(int));
     MOCK_METHOD1(valuesReturnProjectPartContainers, ClangBackEnd::ProjectPartContainers(std::size_t));
-    MOCK_METHOD1(valueReturnProjectPartPch,
-                 Utils::optional<ClangBackEnd::ProjectPartPch>(int));
+    MOCK_METHOD1(valueReturnProjectPartPch, Utils::optional<ClangBackEnd::ProjectPartPch>(int));
 
-    MOCK_METHOD3(valuesReturnSymbols,
-                 Symbols(std::size_t, int, Utils::SmallStringView));
+    MOCK_METHOD1(valueReturnPchPaths, Utils::optional<ClangBackEnd::PchPaths>(int));
+
+    MOCK_METHOD3(valuesReturnSymbols, Symbols(std::size_t, int, Utils::SmallStringView));
 
     MOCK_METHOD4(valuesReturnSymbols,
                  Symbols(std::size_t, int, int, Utils::SmallStringView));
@@ -266,6 +267,10 @@ MockSqliteReadStatement::value<ClangBackEnd::ProjectPartArtefact, 8>(const int&)
 template<>
 Utils::optional<ClangBackEnd::ProjectPartContainer>
 MockSqliteReadStatement::value<ClangBackEnd::ProjectPartContainer, 8>(const int &);
+
+template<>
+Utils::optional<ClangBackEnd::PchPaths> MockSqliteReadStatement::value<ClangBackEnd::PchPaths, 2>(
+    const int &);
 
 template<>
 ClangBackEnd::ProjectPartContainers MockSqliteReadStatement::values<ClangBackEnd::ProjectPartContainer,

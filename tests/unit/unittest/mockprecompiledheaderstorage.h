@@ -49,4 +49,6 @@ public:
                  ClangBackEnd::FilePath(ClangBackEnd::ProjectPartId projectPartId));
     MOCK_CONST_METHOD1(fetchPrecompiledHeader,
                        ClangBackEnd::FilePath(ClangBackEnd::ProjectPartId projectPartId));
+    MOCK_CONST_METHOD1(fetchPrecompiledHeaders,
+                       ClangBackEnd::PchPaths(ClangBackEnd::ProjectPartId projectPartId));
 };

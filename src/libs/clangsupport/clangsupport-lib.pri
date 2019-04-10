@@ -110,6 +110,7 @@ HEADERS += \
     $$PWD/clangsupportexceptions.h \
     $$PWD/completionsmessage.h \
     $$PWD/executeinloop.h \
+    $$PWD/pchpaths.h \
     $$PWD/projectpartid.h \
     $$PWD/projectpartsstorage.h \
     $$PWD/projectpartsstorageinterface.h \

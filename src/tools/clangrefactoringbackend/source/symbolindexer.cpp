@@ -101,26 +101,36 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
         if (!m_modifiedTimeChecker.isUpToDate(dependentTimeStamps)) {
             auto indexing = [projectPart = std::move(projectPart), sourcePathId, this](
                                 SymbolsCollectorInterface &symbolsCollector) {
-                const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(
-                    projectPart.projectPartId);
+                auto collect = [&](const FilePath &pchPath) {
+                    using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
+                    Builder commandLineBuilder{projectPart,
+                                               projectPart.toolChainArguments,
+                                               InputFileType::Source,
+                                               {},
+                                               {},
+                                               pchPath};
+                    symbolsCollector.setFile(sourcePathId, commandLineBuilder.commandLine);
 
-                using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
-                Builder commandLineBuilder{projectPart,
-                                           projectPart.toolChainArguments,
-                                           InputFileType::Source,
-                                           {},
-                                           {},
-                                           pchPath};
-                symbolsCollector.setFile(sourcePathId, commandLineBuilder.commandLine);
+                    return symbolsCollector.collectSymbols();
+                };
 
-                bool success = symbolsCollector.collectSymbols();
-
-                if (success) {
+                auto store = [&] {
                     Sqlite::ImmediateTransaction transaction{m_transactionInterface};
                     m_symbolStorage.insertOrUpdateIndexingTimeStamps(symbolsCollector.fileStatuses());
                     m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                                  symbolsCollector.sourceLocations());
                     transaction.commit();
+                };
+
+                const PchPaths pchPaths = m_precompiledHeaderStorage.fetchPrecompiledHeaders(
+                    projectPart.projectPartId);
+
+                if (pchPaths.projectPchPath.size() && collect(pchPaths.projectPchPath)) {
+                    store();
+                } else if (pchPaths.systemPchPath.size() && collect(pchPaths.systemPchPath)) {
+                    store();
+                } else if (collect({})) {
+                    store();
                 }
             };
 
@@ -166,23 +176,34 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 
     auto indexing = [optionalArtefact = std::move(optionalArtefact), filePathId, this](
                         SymbolsCollectorInterface &symbolsCollector) {
-        const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(
-            optionalArtefact->projectPartId);
-        const ProjectPartArtefact &artefact = *optionalArtefact;
+        auto collect = [&](const FilePath &pchPath) {
+            const ProjectPartArtefact &artefact = *optionalArtefact;
 
-        CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector> builder{
-            artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
+            using Builder = CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector>;
+            Builder builder{artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
 
-        symbolsCollector.setFile(filePathId, builder.commandLine);
+            symbolsCollector.setFile(filePathId, builder.commandLine);
 
-        bool success = symbolsCollector.collectSymbols();
+            return symbolsCollector.collectSymbols();
+        };
 
-        if (success) {
+        auto store = [&] {
             Sqlite::ImmediateTransaction transaction{m_transactionInterface};
             m_symbolStorage.insertOrUpdateIndexingTimeStamps(symbolsCollector.fileStatuses());
             m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                          symbolsCollector.sourceLocations());
             transaction.commit();
+        };
+
+        const PchPaths pchPaths = m_precompiledHeaderStorage.fetchPrecompiledHeaders(
+            optionalArtefact->projectPartId);
+
+        if (pchPaths.projectPchPath.size() && collect(pchPaths.projectPchPath)) {
+            store();
+        } else if (pchPaths.systemPchPath.size() && collect(pchPaths.systemPchPath)) {
+            store();
+        } else if (collect({})) {
+            store();
         }
     };
 

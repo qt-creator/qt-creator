@@ -200,9 +200,15 @@ MockSqliteReadStatement::value<ClangBackEnd::ProjectPartPch, 3>(const int &proje
     return valueReturnProjectPartPch(projectPartId);
 }
 
-template <>
-Utils::optional<Utils::SmallString>
-MockSqliteReadStatement::value<Utils::SmallString>(const int &sourceId)
+template<>
+Utils::optional<ClangBackEnd::PchPaths> MockSqliteReadStatement::value<ClangBackEnd::PchPaths, 2>(
+    const int &projectPartId)
+{
+    return valueReturnPchPaths(projectPartId);
+}
+
+template<>
+Utils::optional<Utils::SmallString> MockSqliteReadStatement::value<Utils::SmallString>(const int &sourceId)
 {
     return valueReturnSmallString(sourceId);
 }

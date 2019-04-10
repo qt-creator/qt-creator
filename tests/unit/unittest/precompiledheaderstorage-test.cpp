@@ -47,7 +47,8 @@ protected:
     MockSqliteWriteStatement &insertSystemPrecompiledHeaderStatement = storage.insertSystemPrecompiledHeaderStatement;
     MockSqliteWriteStatement &deleteSystemPrecompiledHeaderStatement = storage.deleteSystemPrecompiledHeaderStatement;
     MockSqliteReadStatement &fetchSystemPrecompiledHeaderPathStatement = storage.fetchSystemPrecompiledHeaderPathStatement;
-    MockSqliteReadStatement &getPrecompiledHeader = storage.getPrecompiledHeader;
+    MockSqliteReadStatement &fetchPrecompiledHeaderStatement = storage.fetchPrecompiledHeaderStatement;
+    MockSqliteReadStatement &fetchPrecompiledHeadersStatement = storage.fetchPrecompiledHeadersStatement;
 };
 
 TEST_F(PrecompiledHeaderStorage, UseTransaction)
@@ -251,7 +252,7 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderReturnsNullOptional
 TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCallsValueInStatement)
 {
     EXPECT_CALL(database, deferredBegin());
-    EXPECT_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25)));
+    EXPECT_CALL(fetchPrecompiledHeaderStatement, valueReturnFilePath(Eq(25)));
     EXPECT_CALL(database, commit());
 
     storage.fetchPrecompiledHeader(25);
@@ -262,11 +263,11 @@ TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderIsBusy)
     InSequence s;
 
     EXPECT_CALL(database, deferredBegin());
-    EXPECT_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25)))
+    EXPECT_CALL(fetchPrecompiledHeaderStatement, valueReturnFilePath(Eq(25)))
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
     EXPECT_CALL(database, rollback());
     EXPECT_CALL(database, deferredBegin());
-    EXPECT_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25)));
+    EXPECT_CALL(fetchPrecompiledHeaderStatement, valueReturnFilePath(Eq(25)));
     EXPECT_CALL(database, commit());
 
     storage.fetchPrecompiledHeader(25);
@@ -275,7 +276,8 @@ TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderIsBusy)
 TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeader)
 {
     ClangBackEnd::FilePath pchFilePath{"/path/to/pch"};
-    ON_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25))).WillByDefault(Return(pchFilePath));
+    ON_CALL(fetchPrecompiledHeaderStatement, valueReturnFilePath(Eq(25)))
+        .WillByDefault(Return(pchFilePath));
 
     auto path = storage.fetchPrecompiledHeader(25);
 
@@ -288,4 +290,49 @@ TEST_F(PrecompiledHeaderStorage, FetchEmptyPrecompiledHeader)
 
     ASSERT_THAT(path, IsEmpty());
 }
+
+TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCalls)
+{
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchPrecompiledHeadersStatement, valueReturnPchPaths(Eq(25)));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchPrecompiledHeaders(25);
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeadersIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchPrecompiledHeadersStatement, valueReturnPchPaths(Eq(25)))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(database, rollback());
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchPrecompiledHeadersStatement, valueReturnPchPaths(Eq(25)));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchPrecompiledHeaders(25);
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaders)
+{
+    ClangBackEnd::PchPaths pchFilePaths{"/project/pch", "/system/pch"};
+    ON_CALL(fetchPrecompiledHeadersStatement, valueReturnPchPaths(Eq(25)))
+        .WillByDefault(Return(pchFilePaths));
+
+    auto paths = storage.fetchPrecompiledHeaders(25);
+
+    ASSERT_THAT(paths, Eq(pchFilePaths));
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchEmptyPrecompiledHeaders)
+{
+    auto paths = storage.fetchPrecompiledHeaders(25);
+
+    ASSERT_THAT(paths,
+                AllOf(Field(&ClangBackEnd::PchPaths::projectPchPath, IsEmpty()),
+                      Field(&ClangBackEnd::PchPaths::systemPchPath, IsEmpty())));
+}
+
 } // namespace

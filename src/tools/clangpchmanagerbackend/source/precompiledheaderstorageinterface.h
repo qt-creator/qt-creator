@@ -27,7 +27,7 @@
 
 #include "projectpartpch.h"
 
-#include <filepath.h>
+#include <pchpaths.h>
 #include <projectpartid.h>
 
 #include <utils/smallstringvector.h>
@@ -56,6 +56,7 @@ public:
     virtual void deleteSystemPrecompiledHeaders(const ProjectPartIds &projectPartIds) = 0;
     virtual FilePath fetchSystemPrecompiledHeaderPath(ProjectPartId projectPartId) = 0;
     virtual FilePath fetchPrecompiledHeader(ProjectPartId projectPartId) const = 0;
+    virtual PchPaths fetchPrecompiledHeaders(ProjectPartId projectPartId) const = 0;
 
 protected:
     ~PrecompiledHeaderStorageInterface() = default;

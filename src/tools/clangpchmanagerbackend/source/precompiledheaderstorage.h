@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "pchpaths.h"
 #include "precompiledheaderstorageinterface.h"
 
 #include <sqlitetransaction.h>
@@ -147,7 +148,8 @@ public:
         try {
             Sqlite::DeferredTransaction transaction{database};
 
-            auto value = getPrecompiledHeader.template value<FilePath>(projectPartId.projectPathId);
+            auto value = fetchPrecompiledHeaderStatement.template value<FilePath>(
+                projectPartId.projectPathId);
 
             if (value)
                 return *value;
@@ -158,6 +160,25 @@ public:
         }
 
         return FilePath("");
+    }
+
+    PchPaths fetchPrecompiledHeaders(ProjectPartId projectPartId) const
+    {
+        try {
+            Sqlite::DeferredTransaction transaction{database};
+
+            auto value = fetchPrecompiledHeadersStatement.template value<PchPaths, 2>(
+                projectPartId.projectPathId);
+
+            if (value)
+                return *value;
+
+            transaction.commit();
+        } catch (const Sqlite::StatementIsBusy) {
+            return fetchPrecompiledHeaders(projectPartId);
+        }
+
+        return {};
     }
 
 public:
@@ -183,9 +204,12 @@ public:
         database};
     ReadStatement fetchSystemPrecompiledHeaderPathStatement{
         "SELECT systemPchPath FROM precompiledHeaders WHERE projectPartId = ?", database};
-    mutable ReadStatement getPrecompiledHeader{
+    mutable ReadStatement fetchPrecompiledHeaderStatement{
         "SELECT ifnull(nullif(projectPchPath, ''), systemPchPath) "
         "FROM precompiledHeaders WHERE projectPartId = ?",
+        database};
+    mutable ReadStatement fetchPrecompiledHeadersStatement{
+        "SELECT projectPchPath, systemPchPath FROM precompiledHeaders WHERE projectPartId = ?",
         database};
 };
 

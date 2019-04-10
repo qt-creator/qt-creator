@@ -39,27 +39,28 @@
 #include <clangpathwatcher.h>
 #include <clangrefactoringmessages.h>
 #include <clangreferencescollector.h>
-#include <filestatus.h>
 #include <filepath.h>
 #include <filepathcaching.h>
+#include <filepathview.h>
+#include <filestatus.h>
 #include <fulltokeninfo.h>
 #include <includesearchpath.h>
 #include <nativefilepath.h>
+#include <pchpaths.h>
 #include <pchtask.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <projectpartartefact.h>
+#include <projectpartentry.h>
 #include <projectpartid.h>
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
-#include <tokenprocessor.h>
-#include <filepathview.h>
+#include <symbol.h>
 #include <symbolentry.h>
 #include <symbolindexertaskqueue.h>
-#include <symbol.h>
-#include <tooltipinfo.h>
+#include <tokenprocessor.h>
 #include <toolchainargumentscache.h>
-#include <projectpartentry.h>
+#include <tooltipinfo.h>
 #include <usedmacro.h>
 
 #include <cpptools/usages.h>
@@ -1289,6 +1290,10 @@ std::ostream &operator<<(std::ostream &out, const ProjectPartId &projectPathId)
     return out << projectPathId.projectPathId;
 }
 
+std::ostream &operator<<(std::ostream &out, const PchPaths &pchPaths)
+{
+    return out << "(" << pchPaths.projectPchPath << ", " << pchPaths.systemPchPath << ")";
+}
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;
