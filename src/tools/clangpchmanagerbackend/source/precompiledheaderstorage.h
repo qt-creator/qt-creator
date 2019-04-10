@@ -144,10 +144,18 @@ public:
 
     FilePath fetchPrecompiledHeader(ProjectPartId projectPartId) const
     {
-        auto value = getPrecompiledHeader.template value<FilePath>(projectPartId.projectPathId);
+        try {
+            Sqlite::DeferredTransaction transaction{database};
 
-        if (value)
-            return *value;
+            auto value = getPrecompiledHeader.template value<FilePath>(projectPartId.projectPathId);
+
+            if (value)
+                return *value;
+
+            transaction.commit();
+        } catch (const Sqlite::StatementIsBusy) {
+            return fetchPrecompiledHeader(projectPartId);
+        }
 
         return FilePath("");
     }

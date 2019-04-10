@@ -439,9 +439,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrder)
 {
     InSequence s;
 
-    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(projectPart1.projectPartId)));
-    EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
                 setFile(main1PathId,
                         ElementsAre("clang++",
@@ -479,9 +477,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsInOrderButGetsAnErrorForCollectingS
 {
     InSequence s;
 
-    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(projectPart1.projectPartId)));
-    EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockCollector,
                 setFile(main1PathId,
                         ElementsAre("clang++",
@@ -647,8 +643,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrder)
     EXPECT_CALL(mockProjectPartsStorage,
                 fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
         .WillOnce(Return(artefact));
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockCollector,
                 setFile(Eq(sourceFileIds[0]),
                         ElementsAre("clang++",
@@ -689,8 +685,8 @@ TEST_F(SymbolIndexer, HandleEmptyOptionalArtifactInUpdateChangedPath)
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(sourceFileIds[0]))
         .WillOnce(Return(nullArtefact));
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(_)).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(_)).Times(0);
     EXPECT_CALL(mockCollector, setFile(_, _)).Times(0);
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin()).Times(0);
@@ -708,8 +704,8 @@ TEST_F(SymbolIndexer, UpdateChangedPathCallsInOrderButGetsAnErrorForCollectingSy
     EXPECT_CALL(mockProjectPartsStorage,
                 fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
         .WillOnce(Return(artefact));
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
+    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)));
     EXPECT_CALL(mockCollector,
                 setFile(Eq(sourceFileIds[0]),
                         ElementsAre("clang++",

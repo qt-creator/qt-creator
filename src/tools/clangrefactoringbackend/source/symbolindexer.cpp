@@ -90,12 +90,8 @@ void SymbolIndexer::updateProjectParts(ProjectPartContainers &&projectParts)
 
 void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
 {
-    Sqlite::DeferredTransaction transaction{m_transactionInterface};
-
     ProjectPartId projectPartId = projectPart.projectPartId;
     const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(projectPartId);
-
-    transaction.commit();
 
     using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
     Builder commandLineBuilder{
@@ -157,17 +153,16 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
         optionalArtefact = m_projectPartsStorage.fetchProjectPartArtefact(filePathId);
     if (!optionalArtefact)
         return;
+    transaction.commit();
 
     const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(
         optionalArtefact->projectPartId);
-    transaction.commit();
-
     SourceTimeStamps dependentTimeStamps = m_symbolStorage.fetchIncludedIndexingTimeStamps(filePathId);
 
     const ProjectPartArtefact &artefact = *optionalArtefact;
 
-    CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector>
-        builder{artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
+    CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector> builder{
+        artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
 
     auto indexing = [arguments = builder.commandLine, filePathId, this](
                         SymbolsCollectorInterface &symbolsCollector) {

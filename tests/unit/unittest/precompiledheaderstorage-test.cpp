@@ -250,7 +250,24 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderReturnsNullOptional
 
 TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCallsValueInStatement)
 {
+    EXPECT_CALL(database, deferredBegin());
     EXPECT_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25)));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchPrecompiledHeader(25);
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25)))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(database, rollback());
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25)));
+    EXPECT_CALL(database, commit());
 
     storage.fetchPrecompiledHeader(25);
 }
@@ -271,4 +288,4 @@ TEST_F(PrecompiledHeaderStorage, FetchEmptyPrecompiledHeader)
 
     ASSERT_THAT(path, IsEmpty());
 }
-}
+} // namespace
