@@ -55,7 +55,7 @@ public:
         = 0;
     virtual void deleteSystemPrecompiledHeaders(const ProjectPartIds &projectPartIds) = 0;
     virtual FilePath fetchSystemPrecompiledHeaderPath(ProjectPartId projectPartId) = 0;
-    virtual Utils::optional<ProjectPartPch> fetchPrecompiledHeader(ProjectPartId projectPartId) const = 0;
+    virtual FilePath fetchPrecompiledHeader(ProjectPartId projectPartId) const = 0;
 
 protected:
     ~PrecompiledHeaderStorageInterface() = default;

@@ -241,7 +241,7 @@ protected:
     ClangBackEnd::FileStatuses fileStatuses1{{1, 0, 32}};
     ClangBackEnd::FileStatuses fileStatuses2{{2, 0, 35}};
     Utils::optional<ClangBackEnd::ProjectPartArtefact > nullArtefact;
-    ClangBackEnd::ProjectPartPch projectPartPch{74, "/path/to/pch", 4};
+    ClangBackEnd::FilePath projectPchPath{"/path/to/pch"};
     NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
     NiceMock<MockSymbolStorage> mockSymbolStorage;
     NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
@@ -309,7 +309,7 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesInCollector)
 TEST_F(SymbolIndexer, UpdateProjectPartsCallsAddFilesWithPrecompiledHeaderInCollector)
 {
     ON_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(projectPart1.projectPartId)))
-        .WillByDefault(Return(projectPartPch));
+        .WillByDefault(Return(projectPchPath));
 
     EXPECT_CALL(mockCollector,
                 setFile(main1PathId,
@@ -748,7 +748,7 @@ TEST_F(SymbolIndexer, UpdateChangedPathIsUsingPrecompiledHeader)
     ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(TypedEq<FilePathId>(sourceFileIds[0])))
         .WillByDefault(Return(artefact));
     ON_CALL(mockPrecompiledHeaderStorage, fetchPrecompiledHeader(Eq(artefact.projectPartId)))
-        .WillByDefault(Return(projectPartPch));
+        .WillByDefault(Return(projectPchPath));
     std::vector<SymbolIndexerTask> symbolIndexerTask;
 
     EXPECT_CALL(mockCollector,

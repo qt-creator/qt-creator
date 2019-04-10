@@ -142,9 +142,14 @@ public:
         return FilePath("");
     }
 
-    Utils::optional<ProjectPartPch> fetchPrecompiledHeader(ProjectPartId projectPartId) const
+    FilePath fetchPrecompiledHeader(ProjectPartId projectPartId) const
     {
-        return getPrecompiledHeader.template value<ProjectPartPch, 3>(projectPartId.projectPathId);
+        auto value = getPrecompiledHeader.template value<FilePath>(projectPartId.projectPathId);
+
+        if (value)
+            return *value;
+
+        return FilePath("");
     }
 
 public:
@@ -171,8 +176,8 @@ public:
     ReadStatement fetchSystemPrecompiledHeaderPathStatement{
         "SELECT systemPchPath FROM precompiledHeaders WHERE projectPartId = ?", database};
     mutable ReadStatement getPrecompiledHeader{
-        "SELECT projectPartId, ifnull(nullif(projectPchPath, ''), systemPchPath), "
-        "projectPchBuildTime FROM precompiledHeaders WHERE projectPartId = ?",
+        "SELECT ifnull(nullif(projectPchPath, ''), systemPchPath) "
+        "FROM precompiledHeaders WHERE projectPartId = ?",
         database};
 };
 

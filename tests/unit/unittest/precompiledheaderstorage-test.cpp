@@ -250,18 +250,25 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderReturnsNullOptional
 
 TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCallsValueInStatement)
 {
-    EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25)));
+    EXPECT_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25)));
 
     storage.fetchPrecompiledHeader(25);
 }
 
 TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeader)
 {
-    ClangBackEnd::ProjectPartPch pch{{}, "/path/to/pch", 131};
-    EXPECT_CALL(getPrecompiledHeader, valueReturnProjectPartPch(Eq(25))).WillRepeatedly(Return(pch));
+    ClangBackEnd::FilePath pchFilePath{"/path/to/pch"};
+    ON_CALL(getPrecompiledHeader, valueReturnFilePath(Eq(25))).WillByDefault(Return(pchFilePath));
 
-    auto precompiledHeader = storage.fetchPrecompiledHeader(25);
+    auto path = storage.fetchPrecompiledHeader(25);
 
-    ASSERT_THAT(precompiledHeader.value(), Eq(pch));
+    ASSERT_THAT(path, Eq(pchFilePath));
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchEmptyPrecompiledHeader)
+{
+    auto path = storage.fetchPrecompiledHeader(25);
+
+    ASSERT_THAT(path, IsEmpty());
 }
 }

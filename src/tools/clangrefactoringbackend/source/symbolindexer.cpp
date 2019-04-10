@@ -93,20 +93,13 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
     Sqlite::DeferredTransaction transaction{m_transactionInterface};
 
     ProjectPartId projectPartId = projectPart.projectPartId;
-    const Utils::optional<ProjectPartPch> optionalProjectPartPch
-        = m_precompiledHeaderStorage.fetchPrecompiledHeader(projectPartId);
+    const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(projectPartId);
 
     transaction.commit();
 
     using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
-    Builder commandLineBuilder{projectPart,
-                               projectPart.toolChainArguments,
-                               InputFileType::Source,
-                               {},
-                               {},
-                               optionalProjectPartPch
-                                   ? FilePathView{optionalProjectPartPch->pchPath}
-                                   : FilePathView{}};
+    Builder commandLineBuilder{
+        projectPart, projectPart.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
@@ -165,15 +158,13 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
     if (!optionalArtefact)
         return;
 
-    const Utils::optional<ProjectPartPch> optionalProjectPartPch
-        = m_precompiledHeaderStorage.fetchPrecompiledHeader(optionalArtefact->projectPartId);
+    const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(
+        optionalArtefact->projectPartId);
     transaction.commit();
 
     SourceTimeStamps dependentTimeStamps = m_symbolStorage.fetchIncludedIndexingTimeStamps(filePathId);
 
     const ProjectPartArtefact &artefact = *optionalArtefact;
-
-    auto pchPath = optionalProjectPartPch ? optionalProjectPartPch->pchPath : FilePath{};
 
     CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector>
         builder{artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
