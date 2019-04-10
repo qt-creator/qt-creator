@@ -591,7 +591,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
             issues << version->reportIssues(projectPath, buildDir);
         if (QmakeSettings::warnAgainstUnalignedBuildDir()
                 && !QmakeBuildConfiguration::isBuildDirAtSafeLocation(
-                    QDir(projectPath).absolutePath(), QDir(buildDir).absolutePath())) {
+                    QFileInfo(projectPath).absoluteDir().path(), QDir(buildDir).absolutePath())) {
             issues.append(Task(Task::Warning, QmakeBuildConfiguration::unalignedBuildDirWarning(),
                                Utils::FileName(), -1,
                                ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
