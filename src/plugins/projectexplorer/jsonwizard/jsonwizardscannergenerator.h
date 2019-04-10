@@ -43,13 +43,11 @@ public:
     Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
                                   const QString &wizardDir, const QString &projectDir,
                                   QString *errorMessage) override;
-
 private:
     Core::GeneratedFiles scan(const QString &dir, const QDir &base);
     bool matchesSubdirectoryPattern(const QString &path);
 
     QString m_binaryPattern;
-    QString m_firstProjectOnly;
     QList<QRegularExpression> m_subDirectoryExpressions;
 };
 

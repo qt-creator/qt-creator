@@ -42,6 +42,8 @@
 #include <QDir>
 #include <QVariant>
 
+#include <limits>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -70,8 +72,6 @@ bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessa
         m_subDirectoryExpressions << regexp;
     }
 
-    m_firstProjectOnly = gen.value(QLatin1String("firstProjectOnly"), QLatin1String("true")).toString();
-
     return true;
 }
 
@@ -97,17 +97,28 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
         }
     }
 
-    bool onlyFirst = JsonWizard::boolFromVariant(m_firstProjectOnly, expander);
-
     result = scan(project.absolutePath(), project);
 
-    int projectCount = 0;
+    static const auto getDepth = [](const QString &filePath) { return filePath.count('/'); };
+    int minDepth = std::numeric_limits<int>::max();
     for (auto it = result.begin(); it != result.end(); ++it) {
         const QString relPath = project.relativeFilePath(it->path());
         it->setBinary(binaryPattern.match(relPath).hasMatch());
         bool found = ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(relPath));
-        if (found && !(onlyFirst && projectCount++))
+        if (found) {
             it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
+            minDepth = std::min(minDepth, getDepth(it->path()));
+        }
+    }
+
+    // Project files that appear on a lower level in the file system hierarchy than
+    // other project files are not candidates for opening.
+    for (Core::GeneratedFile &f : result) {
+        if (f.attributes().testFlag(Core::GeneratedFile::OpenProjectAttribute)
+                && getDepth(f.path()) > minDepth) {
+            f.setAttributes(f.attributes().setFlag(Core::GeneratedFile::OpenProjectAttribute,
+                                                   false));
+        }
     }
 
     return result;

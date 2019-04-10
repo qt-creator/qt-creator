@@ -36,11 +36,19 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/itemviews.h>
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 #include <utils/wizardpage.h>
 
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QDir>
 #include <QFileInfo>
+#include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <QVariant>
 
 #ifdef WITH_TESTS
@@ -48,6 +56,92 @@
 #endif
 
 namespace ProjectExplorer {
+
+namespace Internal {
+
+class ProjectFileTreeItem : public Utils::TreeItem
+{
+public:
+    ProjectFileTreeItem(JsonWizard::GeneratorFile *candidate) : m_candidate(candidate)
+    {
+        toggleProjectFileStatus(false);
+    }
+
+    void toggleProjectFileStatus(bool on)
+    {
+        m_candidate->file.setAttributes(m_candidate->file.attributes()
+                                        .setFlag(Core::GeneratedFile::OpenProjectAttribute, on));
+    }
+
+private:
+    QVariant data(int column, int role) const override
+    {
+        if (column != 0 || role != Qt::DisplayRole)
+            return QVariant();
+        return QDir::toNativeSeparators(m_candidate->file.path());
+    }
+
+    JsonWizard::GeneratorFile * const m_candidate;
+};
+
+class ProjectFilesModel : public Utils::TreeModel<Utils::TreeItem, ProjectFileTreeItem>
+{
+public:
+    ProjectFilesModel(const QList<JsonWizard::GeneratorFile *> &candidates, QObject *parent)
+        : TreeModel(parent)
+    {
+        setHeader({QCoreApplication::translate("ProjectExplorer::JsonWizard", "Project File")});
+        for (JsonWizard::GeneratorFile * const candidate : candidates)
+            rootItem()->appendChild(new ProjectFileTreeItem(candidate));
+    }
+};
+
+class ProjectFileChooser : public QDialog
+{
+public:
+    ProjectFileChooser(const QList<JsonWizard::GeneratorFile *> &candidates, QWidget *parent)
+        : QDialog(parent), m_view(new Utils::TreeView(this))
+    {
+        setWindowTitle(QCoreApplication::translate("ProjectExplorer::JsonWizard",
+                                                   "Choose project file"));
+        const auto model = new ProjectFilesModel(candidates, this);
+        m_view->setSelectionMode(Utils::TreeView::ExtendedSelection);
+        m_view->setSelectionBehavior(Utils::TreeView::SelectRows);
+        m_view->setModel(model);
+        const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
+        const auto updateOkButton = [buttonBox, this] {
+            buttonBox->button(QDialogButtonBox::Ok)
+                    ->setEnabled(m_view->selectionModel()->hasSelection());
+        };
+        connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged,
+                this, updateOkButton);
+        updateOkButton();
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        const auto layout = new QVBoxLayout(this);
+        layout->addWidget(new QLabel(QCoreApplication::translate("ProjectExplorer::JsonWizard",
+            "The project contains more than one project file. "
+            "Please select the one you would like to use.")));
+        layout->addWidget(m_view);
+        layout->addWidget(buttonBox);
+    }
+
+private:
+    void accept() override
+    {
+        const QModelIndexList selected = m_view->selectionModel()->selectedRows();
+        const auto * const model = static_cast<ProjectFilesModel *>(m_view->model());
+        for (const QModelIndex &index : selected) {
+            const auto item = static_cast<ProjectFileTreeItem *>(model->itemForIndex(index));
+            QTC_ASSERT(item, continue);
+            item->toggleProjectFileStatus(true);
+        }
+        QDialog::accept();
+    }
+
+    Utils::TreeView * const m_view;
+};
+
+} // namespace Internal
 
 JsonWizard::JsonWizard(QWidget *parent) : Utils::Wizard(parent)
 {
@@ -112,6 +206,14 @@ JsonWizard::GeneratorFiles JsonWizard::generateFileList()
         reject();
         return GeneratorFiles();
     }
+
+    QList<GeneratorFile *> projectFiles;
+    for (JsonWizard::GeneratorFile &f : list) {
+        if (f.file.attributes().testFlag(Core::GeneratedFile::OpenProjectAttribute))
+            projectFiles << &f;
+    }
+    if (projectFiles.count() > 1)
+        Internal::ProjectFileChooser(projectFiles, this).exec();
 
     return list;
 }

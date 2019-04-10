@@ -981,9 +981,6 @@
             as the top level directory. This setting defaults to an empty list
             and no subdirectories will be scanned.
 
-        \li \c firstProjectOnly is a boolean value, which will determine whether
-            all project files that were found will be opened as a project or
-            only the first one. This setting defaults to \c true.
     \endlist
 
 */
