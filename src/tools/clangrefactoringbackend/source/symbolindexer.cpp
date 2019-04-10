@@ -91,11 +91,6 @@ void SymbolIndexer::updateProjectParts(ProjectPartContainers &&projectParts)
 void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
 {
     ProjectPartId projectPartId = projectPart.projectPartId;
-    const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(projectPartId);
-
-    using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
-    Builder commandLineBuilder{
-        projectPart, projectPart.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
@@ -104,9 +99,19 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
             sourcePathId);
 
         if (!m_modifiedTimeChecker.isUpToDate(dependentTimeStamps)) {
-            auto indexing = [arguments = commandLineBuilder.commandLine, sourcePathId, this](
+            auto indexing = [projectPart = std::move(projectPart), sourcePathId, this](
                                 SymbolsCollectorInterface &symbolsCollector) {
-                symbolsCollector.setFile(sourcePathId, arguments);
+                const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(
+                    projectPart.projectPartId);
+
+                using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
+                Builder commandLineBuilder{projectPart,
+                                           projectPart.toolChainArguments,
+                                           InputFileType::Source,
+                                           {},
+                                           {},
+                                           pchPath};
+                symbolsCollector.setFile(sourcePathId, commandLineBuilder.commandLine);
 
                 bool success = symbolsCollector.collectSymbols();
 
@@ -155,18 +160,20 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
         return;
     transaction.commit();
 
-    const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(
-        optionalArtefact->projectPartId);
+    ProjectPartId projectPartId = optionalArtefact->projectPartId;
+
     SourceTimeStamps dependentTimeStamps = m_symbolStorage.fetchIncludedIndexingTimeStamps(filePathId);
 
-    const ProjectPartArtefact &artefact = *optionalArtefact;
-
-    CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector> builder{
-        artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
-
-    auto indexing = [arguments = builder.commandLine, filePathId, this](
+    auto indexing = [optionalArtefact = std::move(optionalArtefact), filePathId, this](
                         SymbolsCollectorInterface &symbolsCollector) {
-        symbolsCollector.setFile(filePathId, arguments);
+        const FilePath pchPath = m_precompiledHeaderStorage.fetchPrecompiledHeader(
+            optionalArtefact->projectPartId);
+        const ProjectPartArtefact &artefact = *optionalArtefact;
+
+        CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector> builder{
+            artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
+
+        symbolsCollector.setFile(filePathId, builder.commandLine);
 
         bool success = symbolsCollector.collectSymbols();
 
@@ -179,7 +186,7 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
         }
     };
 
-    symbolIndexerTask.emplace_back(filePathId, optionalArtefact->projectPartId, std::move(indexing));
+    symbolIndexerTask.emplace_back(filePathId, projectPartId, std::move(indexing));
 }
 
 bool SymbolIndexer::compilerMacrosOrIncludeSearchPathsAreDifferent(
