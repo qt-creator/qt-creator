@@ -213,6 +213,7 @@ void LanguageClientSettingsPageWidget::addItem()
 {
     const int row = m_settings.rowCount();
     m_settings.insertRows(row);
+    m_view->setCurrentIndex(m_settings.index(row));
 }
 
 void LanguageClientSettingsPageWidget::deleteItem()
