@@ -80,6 +80,12 @@ class TargetSetupPageWrapper : public QWidget
 public:
     explicit TargetSetupPageWrapper(Project *project);
 
+    void ensureSetupPage()
+    {
+        if (!m_targetSetupPage)
+            addTargetSetupPage();
+    }
+
 protected:
     void keyReleaseEvent(QKeyEvent *event) override
     {
@@ -91,20 +97,20 @@ protected:
     {
         if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
             event->accept();
-            done();
+            if (m_targetSetupPage)
+                done();
         }
     }
 
 private:
     void done()
     {
+        QTC_ASSERT(m_targetSetupPage, return);
+        m_targetSetupPage->disconnect();
         m_targetSetupPage->setupProject(m_project);
+        m_targetSetupPage->deleteLater();
+        m_targetSetupPage = nullptr;
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
-    }
-
-    void cancel()
-    {
-        ProjectExplorerPlugin::unloadProject(m_project);
     }
 
     void kitUpdated(ProjectExplorer::Kit *k)
@@ -115,29 +121,21 @@ private:
 
     void completeChanged()
     {
-        m_configureButton->setEnabled(m_targetSetupPage->isComplete());
+        m_configureButton->setEnabled(m_targetSetupPage && m_targetSetupPage->isComplete());
     }
 
     void updateNoteText();
+    void addTargetSetupPage();
 
-    Project *m_project;
-    TargetSetupPage *m_targetSetupPage;
-    QPushButton *m_configureButton;
+    Project * const m_project;
+    TargetSetupPage *m_targetSetupPage = nullptr;
+    QPushButton *m_configureButton = nullptr;
+    QVBoxLayout *m_setupPageContainer = nullptr;
 };
 
 TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     : m_project(project)
 {
-    m_targetSetupPage = new TargetSetupPage(this);
-    m_targetSetupPage->setUseScrollArea(false);
-    m_targetSetupPage->setProjectPath(project->projectFilePath().toString());
-    m_targetSetupPage->setRequiredKitPredicate(project->requiredKitPredicate());
-    m_targetSetupPage->setPreferredKitPredicate(project->preferredKitPredicate());
-    m_targetSetupPage->setProjectImporter(project->projectImporter());
-    m_targetSetupPage->initializePage();
-    m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    updateNoteText();
-
     auto box = new QDialogButtonBox(this);
 
     m_configureButton = new QPushButton(this);
@@ -150,20 +148,13 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
 
     auto layout = new QVBoxLayout(this);
     layout->setMargin(0);
-    layout->addWidget(m_targetSetupPage);
+    m_setupPageContainer = new QVBoxLayout;
+    layout->addLayout(m_setupPageContainer);
     layout->addLayout(hbox);
     layout->addStretch(10);
-
     completeChanged();
-
     connect(m_configureButton, &QAbstractButton::clicked,
             this, &TargetSetupPageWrapper::done);
-    connect(m_targetSetupPage, &QWizardPage::completeChanged,
-            this, &TargetSetupPageWrapper::completeChanged);
-    connect(KitManager::instance(), &KitManager::defaultkitChanged,
-            this, &TargetSetupPageWrapper::updateNoteText);
-    connect(KitManager::instance(), &KitManager::kitUpdated,
-            this, &TargetSetupPageWrapper::kitUpdated);
 }
 
 void TargetSetupPageWrapper::updateNoteText()
@@ -198,6 +189,29 @@ void TargetSetupPageWrapper::updateNoteText()
     m_targetSetupPage->showOptionsHint(showHint);
 }
 
+void TargetSetupPageWrapper::addTargetSetupPage()
+{
+    m_targetSetupPage = new TargetSetupPage(this);
+    m_targetSetupPage->setUseScrollArea(false);
+    m_targetSetupPage->setProjectPath(m_project->projectFilePath().toString());
+    m_targetSetupPage->setRequiredKitPredicate(m_project->requiredKitPredicate());
+    m_targetSetupPage->setPreferredKitPredicate(m_project->preferredKitPredicate());
+    m_targetSetupPage->setProjectImporter(m_project->projectImporter());
+    m_targetSetupPage->initializePage();
+    m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    m_setupPageContainer->addWidget(m_targetSetupPage);
+    updateNoteText();
+
+    completeChanged();
+
+    connect(m_targetSetupPage, &QWizardPage::completeChanged,
+            this, &TargetSetupPageWrapper::completeChanged);
+    connect(KitManager::instance(), &KitManager::defaultkitChanged,
+            this, &TargetSetupPageWrapper::updateNoteText);
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &TargetSetupPageWrapper::kitUpdated);
+}
+
 //
 // TargetSettingsPanelItem
 //
@@ -228,6 +242,7 @@ public:
     QPointer<QWidget> m_noKitLabel;
     QPointer<QWidget> m_configurePage;
     QPointer<QWidget> m_configuredPage;
+    TargetSetupPageWrapper *m_targetSetupPageWrapper = nullptr;
 };
 
 void TargetGroupItemPrivate::ensureWidget()
@@ -253,12 +268,13 @@ void TargetGroupItemPrivate::ensureWidget()
     }
 
     if (!m_configurePage) {
-        auto widget = new TargetSetupPageWrapper(m_project);
+        m_targetSetupPageWrapper = new TargetSetupPageWrapper(m_project);
         m_configurePage = new PanelsWidget(tr("Configure Project"),
                                            QIcon(":/projectexplorer/images/unconfigured.png"),
-                                           widget);
-        m_configurePage->setFocusProxy(widget);
+                                           m_targetSetupPageWrapper);
+        m_configurePage->setFocusProxy(m_targetSetupPageWrapper);
     }
+    m_targetSetupPageWrapper->ensureSetupPage();
 
     if (!m_configuredPage) {
         auto widget = new QWidget;
