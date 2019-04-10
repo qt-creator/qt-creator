@@ -151,6 +151,7 @@ void ImageView::drawBackground(QPainter *p, const QRectF &)
 {
     p->save();
     p->resetTransform();
+    p->setRenderHint(QPainter::SmoothPixmapTransform, false);
     p->drawTiledPixmap(viewport()->rect(), backgroundBrush().texture());
     p->restore();
 }
