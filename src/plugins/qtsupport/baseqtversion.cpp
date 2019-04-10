@@ -403,6 +403,11 @@ QList<Task> BaseQtVersion::validateKit(const Kit *k)
             result << Task(fuzzyMatch ? Task::Warning : Task::Error, message, FileName(), -1,
                            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
         }
+    } else if (ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID)) {
+        const QString message = QCoreApplication::translate("BaseQtVersion",
+            "The kit has a Qt version, but no C++ compiler.");
+        result << Task(Task::Warning, message, FileName(), -1,
+                       ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     }
     return result;
 }
