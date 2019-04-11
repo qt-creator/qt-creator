@@ -118,7 +118,7 @@ public:
     DetectionSettingsDialog(const ToolchainDetectionSettings &settings, QWidget *parent)
         : QDialog(parent)
     {
-        setWindowTitle(ToolChainOptionsPage::tr("TGoolchain Auto-detection Settings"));
+        setWindowTitle(ToolChainOptionsPage::tr("Toolchain Auto-detection Settings"));
         const auto layout = new QVBoxLayout(this);
         m_detectX64AsX32CheckBox.setText(ToolChainOptionsPage::tr("Detect x86_64 GCC compilers "
                                                                   "as x86_64 and x86"));
