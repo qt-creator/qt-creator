@@ -263,6 +263,7 @@ AppOutputPane::AppOutputPane() :
     m_filterOutputLineEdit->setButtonIcon(Utils::FancyLineEdit::Left, Utils::Icons::MAGNIFIER.icon());
     m_filterOutputLineEdit->setFiltering(true);
     m_filterOutputLineEdit->setEnabled(false);
+    m_filterOutputLineEdit->setHistoryCompleter("AppOutputPane.Filter");
     connect(m_filterOutputLineEdit, &Utils::FancyLineEdit::textChanged, this, &AppOutputPane::updateFilter);
     connect(m_filterOutputLineEdit, &Utils::FancyLineEdit::returnPressed, this, &AppOutputPane::updateFilter);
 
