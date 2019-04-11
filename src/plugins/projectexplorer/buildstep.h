@@ -28,6 +28,7 @@
 #include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
+#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QFutureInterface>
@@ -88,6 +89,10 @@ public:
     bool widgetExpandedByDefault() const;
     void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
 
+    bool hasUserExpansionState() const { return m_wasExpanded.has_value(); }
+    bool wasUserExpanded() const { return m_wasExpanded.value_or(false); }
+    void setUserExpanded(bool expanded) { m_wasExpanded = expanded; }
+
     bool isImmutable() const { return m_immutable; }
     void setImmutable(bool immutable) { m_immutable = immutable; }
 
@@ -123,6 +128,7 @@ private:
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
     bool m_runInGuiThread = true;
+    Utils::optional<bool> m_wasExpanded;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepInfo
