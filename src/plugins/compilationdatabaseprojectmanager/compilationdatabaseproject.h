@@ -58,6 +58,7 @@ private:
 
     void reparseProject();
     void buildTreeAndProjectParts(const Utils::FileName &projectFile);
+    Utils::FileName rootPathFromSettings() const;
 
     QFutureWatcher<void> m_parserWatcher;
     std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;

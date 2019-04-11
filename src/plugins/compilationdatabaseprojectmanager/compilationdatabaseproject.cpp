@@ -83,7 +83,8 @@ QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &flagsCache
 
 bool isGccCompiler(const QString &compilerName)
 {
-    return compilerName.contains("gcc") || compilerName.contains("g++");
+    return compilerName.contains("gcc")
+           || (compilerName.contains("g++") && !compilerName.contains("clang"));
 }
 
 Core::Id getCompilerId(QString compilerName)
@@ -119,11 +120,17 @@ QString compilerPath(QString pathFlag)
         return pathFlag;
 #ifdef Q_OS_WIN
     // Handle short DOS style file names (cmake can generate them).
-    const DWORD pathLength = GetLongPathNameW((LPCWSTR)pathFlag.utf16(), 0, 0);
-    wchar_t* buffer = new wchar_t[pathLength];
-    GetLongPathNameW((LPCWSTR)pathFlag.utf16(), buffer, pathLength);
-    pathFlag = QString::fromUtf16((ushort *)buffer, pathLength - 1);
-    delete[] buffer;
+    const DWORD pathLength = GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()),
+                                              nullptr,
+                                              0);
+    if (pathLength > 0) {
+        // Works only with existing paths.
+        wchar_t *buffer = new wchar_t[pathLength];
+        GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), buffer, pathLength);
+        pathFlag = QString::fromUtf16(reinterpret_cast<ushort *>(buffer),
+                                      static_cast<int>(pathLength - 1));
+        delete[] buffer;
+    }
 #endif
     return QDir::fromNativeSeparators(pathFlag);
 }
@@ -171,11 +178,13 @@ Utils::FileName jsonObjectFilename(const QJsonObject &object)
     return fileName;
 }
 
-void addDriverModeFlagIfNeeded(const ToolChain *toolchain, QStringList &flags)
+void addDriverModeFlagIfNeeded(const ToolChain *toolchain,
+                               QStringList &flags,
+                               const QStringList &originalFlags)
 {
     if (toolchain->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID
-            && !flags.empty() && !flags.front().endsWith("cl")
-            && !flags.front().endsWith("cl.exe")) {
+        && !originalFlags.empty() && !originalFlags.front().endsWith("cl")
+        && !originalFlags.front().endsWith("cl.exe")) {
         flags.prepend("--driver-mode=g++");
     }
 }
@@ -215,7 +224,7 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
                                             ProjectExplorer::Constants::C_LANGUAGE_ID);
             ToolChainKitAspect::setToolChain(kit, cToolchain);
         }
-        addDriverModeFlagIfNeeded(cToolchain, flags);
+        addDriverModeFlagIfNeeded(cToolchain, flags, originalFlags);
         rpp.setFlagsForC({cToolchain, flags});
     } else {
         if (!cxxToolchain) {
@@ -223,7 +232,7 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
                                               ProjectExplorer::Constants::CXX_LANGUAGE_ID);
             ToolChainKitAspect::setToolChain(kit, cxxToolchain);
         }
-        addDriverModeFlagIfNeeded(cxxToolchain, flags);
+        addDriverModeFlagIfNeeded(cxxToolchain, flags, originalFlags);
         rpp.setFlagsForCxx({cxxToolchain, flags});
     }
 
@@ -378,6 +387,9 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
     CppTools::KitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
+    // Reset toolchains to pick them based on the database entries.
+    kitInfo.cToolChain = nullptr;
+    kitInfo.cxxToolChain = nullptr;
     CppTools::RawProjectParts rpps;
 
     std::sort(array.begin(), array.end(), [](const Entry &lhs, const Entry &rhs) {
@@ -474,13 +486,22 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
             &CompilationDatabaseProject::reparseProject);
 }
 
+Utils::FileName CompilationDatabaseProject::rootPathFromSettings() const
+{
+#ifdef WITH_TESTS
+    return Utils::FileName::fromString(projectDirectory().fileName());
+#else
+    return Utils::FileName::fromString(
+        namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
+#endif
+}
+
 Project::RestoreResult CompilationDatabaseProject::fromMap(const QVariantMap &map,
                                                            QString *errorMessage)
 {
     Project::RestoreResult result = Project::fromMap(map, errorMessage);
     if (result == Project::RestoreResult::Ok) {
-        const Utils::FileName rootPath = Utils::FileName::fromString(
-            namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
+        const Utils::FileName rootPath = rootPathFromSettings();
         if (rootPath.isEmpty())
             changeRootProjectDirectory(); // This triggers reparse itself.
         else
@@ -494,8 +515,7 @@ void CompilationDatabaseProject::reparseProject()
 {
     emitParsingStarted();
 
-    const Utils::FileName rootPath = Utils::FileName::fromString(
-        namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
+    const Utils::FileName rootPath = rootPathFromSettings();
     if (!rootPath.isEmpty()) {
         m_treeScanner.asyncScanForFiles(rootPath);
 

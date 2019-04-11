@@ -33,6 +33,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <utils/algorithm.h>
 
 #include <QtTest>
 
