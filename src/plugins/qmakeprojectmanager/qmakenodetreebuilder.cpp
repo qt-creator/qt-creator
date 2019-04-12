@@ -61,8 +61,6 @@ const FileTypeDataStorage fileTypeDataStorage[] = {
       ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
     { FileType::Source, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Sources"),
       ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
-    { FileType::PythonSource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Python sources"),
-      ProjectExplorer::Constants::FILEOVERLAY_PY, "*.py;" },
     { FileType::Form, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Forms"),
       ProjectExplorer::Constants::FILEOVERLAY_UI, "*.ui;" },
     { FileType::StateChart, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "State charts"),

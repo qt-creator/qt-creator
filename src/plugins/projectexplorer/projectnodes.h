@@ -49,7 +49,6 @@ enum class FileType : quint16 {
     Unknown = 0,
     Header,
     Source,
-    PythonSource,
     Form,
     StateChart,
     Resource,
