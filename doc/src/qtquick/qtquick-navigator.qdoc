@@ -52,10 +52,9 @@
     When you copy an item, all its child items are also copied. When
     you remove an item, the child items are also removed.
 
-    You can show and hide items on the canvas to focus on specific parts of the
-    application. Click the \inlineimage icon_color_none.png
-    (\uicontrol Transparent) button to change the visibility of an item on the
-    canvas. To change the visibility of an item in the application, select the
+    To show and hide items on the canvas when focusing on specific parts of the
+    application, click \inlineimage eye_open.png
+    . To change the visibility of an item in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties pane or select
     \uicontrol Edit > \uicontrol Visibility in the context menu.
 
@@ -86,16 +85,14 @@
     Items with the same stacking value are drawn in the order they are listed,
     from the last item up.
 
-    To raise or lower the stack value of an item, select \inlineimage raise.png
-    (\uicontrol Raise) or \inlineimage lower.png
-    (\uicontrol Lower) on the toolbar.
-
     To move an item to the front or back of all its siblings, right-click it in
     the navigator or the \uicontrol {Form Editor} and select
-    \uicontrol {Stack (z)}. To remove the \c z property, select
+    \uicontrol {Stack (z)} > \uicontrol {To Front} or \uicontrol {To Back}.
+    To raise or lower the stack value of an item, select \uicontrol Raise
+    or \uicontrol Lower. To remove the \c z property, select
     \uicontrol {Reset z Property}.
 
-    You can also use a \uicontrol StackLayout item (Qt Quick Controls 2) to
+    You can also use a \uicontrol StackLayout item (Qt Quick Controls) to
     create a stacked view. For more information, see \l {Using Layouts}.
 
     \section1 Switching Parent Items

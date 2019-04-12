@@ -45,7 +45,7 @@
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
 :DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='GlobalLogDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.BreakpointManagerDockWidget' type='QDockWidget' visible='1'}
-:DebugModeWidget.Debugger.Docks.LocalsAndInspectorDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.LocalsAndInspectorDockWidget' type='QDockWidget' visible='1'}
+:DebugModeWidget.Debugger.Docks.LocalsAndInspectorDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name~='Debugger\\\\.Dock\\\\.LocalsAndInspector\\\\.\\\\d+DockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.OK_QPushButton	{container=':Qt Creator.DebugModeWidget_QSplitter' text='OK' type='QPushButton' unnamed='1' visible='1'}
 :DebugModeWidget.Toolbar_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Toolbar' type='QDockWidget' visible='1'}
 :DebugModeWidget_Debugger::Internal::ConsoleView	{container=':Qt Creator.DebugModeWidget_QSplitter' type='Debugger::Internal::ConsoleView' unnamed='1' visible='1'}
@@ -54,7 +54,7 @@
 :Debugger Toolbar.Exit Debugger_QToolButton	{container=':DebugModeWidget.Toolbar_QDockWidget' text='Stop Debugger' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.StatusText_Utils::StatusLabel	{container=':DebugModeWidget.Toolbar_QDockWidget' type='Utils::StatusLabel' unnamed='1'}
 :Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame	{container=':DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget' name='Debugger.Docks.BreakpointManager' type='QFrame' visible='1'}
-:Debugger.Docks.LocalsAndWatchersDockWidget.Inspector_QFrame	{container=':DebugModeWidget.Debugger.Docks.LocalsAndInspectorDockWidget_QDockWidget' name='Inspector' type='QFrame' visible='1'}
+:Debugger.Docks.LocalsAndWatchersDockWidget.Inspector_QFrame	{container=':DebugModeWidget.Debugger.Docks.LocalsAndInspectorDockWidget_QDockWidget' name~='Debugger\\\\.Dock\\\\.Inspector\\\\.\\\\d+' type='QFrame' visible='1'}
 :Debugger::Internal::ConsoleEdit	{columnIndex='0' container=':DebugModeWidget_Debugger::Internal::ConsoleView' rowIndex='0' type='Debugger::Internal::ConsoleEdit' unnamed='1' visible='1'}
 :Description.description_Utils::CompletingTextEdit	{container=':splitter.Description_QGroupBox' name='description' type='Utils::CompletingTextEdit' visible='1'}
 :Dialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}

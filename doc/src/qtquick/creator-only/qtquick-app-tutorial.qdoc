@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -51,8 +51,7 @@
     For more information about developing Qt Quick applications in the Design
     mode, see \l{Developing Qt Quick Applications}.
 
-    For examples of using Qt Quick Controls 2, see
-    \l{Qt Quick Controls 2 Examples}.
+    For examples of using Qt Quick Controls, see \l{Qt Quick Controls Examples}.
 
     \include creator-tutorial-create-qq-project.qdocinc qt quick application
 

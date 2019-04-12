@@ -444,7 +444,10 @@ void DebuggerMainWindow::restorePersistentSettings()
 
     qCDebug(perspectivesLog) << "LOADED DOCKS:" << theMainWindow->d->m_persistentChangedDocks;
 
+    QTC_ASSERT(theMainWindow, return);
+    QTC_ASSERT(theMainWindow->d, return);
     for (Perspective *perspective : theMainWindow->d->m_perspectives) {
+        QTC_ASSERT(perspective, continue);
         qCDebug(perspectivesLog) << "RESTORING PERSPECTIVE" << perspective->d->m_id;
         for (DockOperation &op : perspective->d->m_dockOperations) {
             if (op.operationType != Perspective::Raise) {
@@ -477,6 +480,7 @@ void DebuggerMainWindow::savePersistentSettings()
 
     QSet<QString> changedDocks = theMainWindow->d->m_persistentChangedDocks;
     for (Perspective *perspective : theMainWindow->d->m_perspectives) {
+        QTC_ASSERT(perspective, continue);
         qCDebug(perspectivesLog) << "SAVE PERSPECTIVE" << perspective->d->m_id;
         for (const DockOperation &op : perspective->d->m_dockOperations) {
             if (op.operationType != Perspective::Raise) {

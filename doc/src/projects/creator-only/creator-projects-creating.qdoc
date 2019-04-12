@@ -118,7 +118,7 @@
 
                 Create a Qt Quick application that uses
                 \l{http://doc.qt.io/qt-5/qtquickcontrols2-index.html}
-                {Qt Quick Controls 2} to implement a scrollable list (requires
+                {Qt Quick Controls} to implement a scrollable list (requires
                 Qt 5.9 or later) or a set of pages with a stack-based or
                 swipe-based navigation model (requires Qt 5.7 or later).
 

@@ -52,6 +52,8 @@
     \image studio-edit-mode.png
     \endif
 
+    \section2 Navigating Between Open Files and Symbols
+
     Use the toolbar to navigate between open files and symbols in use. To browse
     backward or forward through your location history, click
     \inlineimage prev.png
@@ -59,8 +61,12 @@
     (\uicontrol {Go Forward}).
 
     To go to any open file, select it from the \uicontrol {Open files} drop-down
-    menu (1). Right-click the menu title and select \uicontrol {Copy Full Path}
-    to copy the path and name of the current file to the clipboard.
+    menu (1). To open a context menu that contains commands for managing open
+    files, right-click the file name or icon on the toolbar. In addition to the
+    commands also available in the \uicontrol File menu, you can copy the path
+    and name of the current file and the number of the line where the cursor is
+    currently located to the clipboard by selecting \uicontrol {Copy Full Path},
+    \uicontrol {Copy File Name}, or \uicontrol {Copy Path and Line Number}.
 
     To jump to any symbol used in the current file, select it from the
     \uicontrol Symbols drop-down menu (2). By default, the symbols are displayed
@@ -70,10 +76,16 @@
 
     To jump to a line and column in the current file, select the line and column
     indicator (3) or press \key {Ctrl+K} (or \key {Cmd+K} on \macos) to open the
-    locator. Enter the line number and column number in the locator, separated
-    by a colon (:).
+    \l{Searching with the Locator}{locator}. Enter the line number and column
+    number in the locator, separated by a colon (:).
+
+    \note Other convenient ways of navigating in \QC are provided
+    by the \l{Keyboard Shortcuts} {keyboard shortcuts} and the
+    \l{Browsing Project Contents}{sidebar}.
 
     \if defined(qtcreator)
+    \section2 Selecting Parse Context
+
     Code might be interpreted differently in different contexts. A file can be
     used by different projects or subprojects with different defines, or it can
     be included in the context of C, C++, Objective-C, or Objective-C++. To
@@ -86,18 +98,21 @@
     incorrect, select \uicontrol {Additional Preprocessor Directives} to
     add preprocessor directives.
 
+    \section2 Changing Text Encoding
+
     To show the file encoding of the current file on the editor toolbar (5),
     select \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
-    \uicontrol Display > \uicontrol {Display file encoding}. To change the
-    encoding, click it on the toolbar and select new encoding in the
-    \uicontrol {Text Encoding} dialog. To reload the file with the selected
-    encoding, select \uicontrol {Reload with Encoding}. To save the file with
+    \uicontrol Display > \uicontrol {Display file encoding}.
+
+    To change the text encoding, click it on the toolbar and select new
+    encoding in the \uicontrol {Text Encoding} dialog:
+
+    \image qtcreator-text-encoding.png "Text Encoding dialog"
+
+    To reload the file with the selected encoding, select
+    \uicontrol {Reload with Encoding}. To save the file with
     the new encoding, select \uicontrol {Save with Encoding}.
     \endif
-
-    \note Other convenient ways of navigating in \QC are provided by the
-    \l{Searching with the Locator}{locator}, \l{Keyboard Shortcuts}
-    {keyboard shortcuts}, and the \l{Browsing Project Contents}{sidebar}.
 
     \section1 Splitting the Editor View
 

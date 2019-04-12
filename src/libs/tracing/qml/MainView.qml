@@ -55,19 +55,7 @@ Rectangle {
         onRangeChanged: {
             zoomSliderToolBar.updateZoomLevel();
             content.scroll();
-
-            // If you select something in the main view and then resize the current range by some
-            // other means, the selection should stay where it was.
-            var oldTimePerPixel = selectionRange.viewTimePerPixel;
-            selectionRange.viewTimePerPixel = zoomControl.rangeDuration / content.width;
-            if (selectionRange.creationState === selectionRange.creationFinished &&
-                    oldTimePerPixel != selectionRange.viewTimePerPixel) {
-                var newWidth = selectionRange.rangeWidth * oldTimePerPixel /
-                        selectionRange.viewTimePerPixel;
-                selectionRange.rangeLeft = selectionRange.rangeLeft * oldTimePerPixel /
-                        selectionRange.viewTimePerPixel;
-                selectionRange.rangeRight = selectionRange.rangeLeft + newWidth;
-            }
+            selectionRange.update();
         }
         onWindowChanged: {
             content.scroll();
@@ -216,6 +204,8 @@ Rectangle {
             buttonsBar.updateLockButton(selectionLocked);
         }
 
+        onWidthChanged: selectionRange.update();
+
         onPropagateSelection: {
             if (lockItemSelection || (newModel === selectedModel && newItem === selectedItem))
                 return;
@@ -312,6 +302,18 @@ Rectangle {
                 else
                     zoomControl.setRange(zoomer.selectionStart, zoomer.selectionEnd);
                 root.selectionRangeMode = false;
+            }
+
+            function update() {
+                // If you select something in the main view and then resize the current range by some
+                // other means, the selection should stay where it was.
+                var oldTimePerPixel = viewTimePerPixel;
+                viewTimePerPixel = zoomControl.rangeDuration / content.width;
+                if (creationState === creationFinished && oldTimePerPixel != viewTimePerPixel) {
+                    var newWidth = rangeWidth * oldTimePerPixel / viewTimePerPixel;
+                    rangeLeft = rangeLeft * oldTimePerPixel / viewTimePerPixel;
+                    rangeRight = rangeLeft + newWidth;
+                }
             }
 
         }

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -55,7 +55,7 @@
 
        \li \l{Creating a Mobile Application}
 
-            Learn how to create a Qt Quick application using Qt Quick Controls 2
+            Learn how to create a Qt Quick application using Qt Quick Controls
             for Android and iOS devices.
 
     \endlist

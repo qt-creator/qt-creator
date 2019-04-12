@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -120,6 +120,12 @@
             support for \l{http://doc.qt.io/qt-5/qtvirtualkeyboard-index.html}
             {Qt Virtual Keyboard} to the application.
 
+            \note If you have not installed the Qt Virtual Keyboard module when
+            you installed Qt, an error message will appear when you try to open
+            the \e main.qml in the \uicontrol {Form Editor} in the Design mode.
+            You can use the \l {Installing Qt}{Qt Maintenance Tool} to install
+            Qt Virtual Keyboard.
+
         \li Select \uicontrol Next.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building
@@ -136,7 +142,7 @@
     \QC generates a QML file, \e main.qml, that you can modify in the Design
     mode.
 
-    \section1 Creating Qt Quick Controls 2 Applications
+    \section1 Creating Qt Quick Controls Applications
 
     \list 1
 
@@ -155,7 +161,7 @@
             use for building and running the project: \l qmake,
             \l {Setting Up CMake}{CMake}, or \l {Setting Up Qbs}{Qbs}.
 
-        \li In the \uicontrol {Qt Quick Controls 2 Style} field, select one of
+        \li In the \uicontrol {Qt Quick Controls Style} field, select one of
             the predefined \l{Styling Qt Quick Controls 2}{UI styles} to use,
             and then select \uicontrol Next.
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -38,7 +38,7 @@
     \title Creating a Mobile Application
 
     This tutorial describes developing Qt Quick applications for Android and iOS
-    devices using Qt Quick Controls 2.
+    devices using Qt Quick Controls.
     We use \QC to implement a Qt Quick application
     that accelerates an SVG (Scalable Vector Graphics) image based on the
     changing accelerometer values.

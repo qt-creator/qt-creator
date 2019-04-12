@@ -298,13 +298,15 @@ void QmlProfilerStatisticsMainView::displayTypeIndex(int typeIndex)
         QAbstractItemModel *sourceModel = sortModel->sourceModel();
         QTC_ASSERT(sourceModel, return);
 
-        QModelIndex sourceIndex = sourceModel->index(qMin(typeIndex, sourceModel->rowCount() - 1),
-                                                     MainCallCount);
-        QTC_ASSERT(sourceIndex.data(TypeIdRole).toInt() == typeIndex, return);
-
-        setCurrentIndex(sourceIndex.data(SortRole).toInt() > 0
-                        ? sortModel->mapFromSource(sourceIndex)
-                        : QModelIndex());
+        if (typeIndex < sourceModel->rowCount()) {
+            QModelIndex sourceIndex = sourceModel->index(typeIndex, MainCallCount);
+            QTC_ASSERT(sourceIndex.data(TypeIdRole).toInt() == typeIndex, return);
+            setCurrentIndex(sourceIndex.data(SortRole).toInt() > 0
+                            ? sortModel->mapFromSource(sourceIndex)
+                            : QModelIndex());
+        } else {
+            setCurrentIndex(QModelIndex());
+        }
     }
 
     // show in callers/callees subwindow

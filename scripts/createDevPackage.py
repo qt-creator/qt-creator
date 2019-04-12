@@ -122,7 +122,7 @@ def main():
     copy_regexp(build_include_regexp, arguments.build, arguments.target_directory, arguments.verbose)
 
     if arguments.sevenzip_target:
-        subprocess.check_call([arguments.sevenzip, 'a', '-mx9', arguments.sevenzip_target,
+        subprocess.check_call([arguments.sevenzip, 'a', '-mx9', '-mmt2', arguments.sevenzip_target,
             os.path.join(arguments.target_directory, '*')])
 
 if __name__ == "__main__":

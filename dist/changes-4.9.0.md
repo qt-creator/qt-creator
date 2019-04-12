@@ -46,6 +46,7 @@ All Projects
   (QTCREATORBUG-20577)
 * Fixed that dragging file from `Projects` view to desktop moved the file
   (QTCREATORBUG-14494)
+* Fixed regression with `QTC_EXTENSION` environment variable
 
 QMake Projects
 
@@ -96,11 +97,13 @@ C++ Support
     * Added option to format code instead of only indenting code
     * Added `Open Used .clang-format Configuration File` to editor's
       context menu
+    * Fixed indentation issue after empty line (QTCREATORBUG-22238)
 
 QML Support
 
 * Updated to parser from Qt 5.12, adding support for ECMAScript 7
   (QTCREATORBUG-20341, QTCREATORBUG-21301)
+* Added Qt 5.13 as option to the wizards
 * Improved error handling in Qt Quick Application project template (QTBUG-39469)
 * Fixed crash on `Find Usages`
 
@@ -114,15 +117,19 @@ Nim Support
 
 Debugging
 
+* Added pretty printing of `QSizePolicy`
 * Fixed that debugger toolbar could force large minimum window size
   (QTCREATORBUG-21885)
-* Added pretty printing of `QSizePolicy`
+* Fixed restoring of debugger layout (QTCREATORBUG-21083)
 * Fixed pretty printing of standard maps and sets from `libc++`
   (QTCREATORBUG-18536)
 * GDB
     * Added support for rvalue references in function arguments
+    * Fixed `Break on Abort` with GDB > 8.1 (QTBUG-73993)
 * LLDB
     * Fixed `Source Paths Mappings` functionality (QTCREATORBUG-17468)
+* QML
+    * Fixed loading QML stack (QTCREATORBUG-22209)
 
 Clang Analyzer Tools
 
@@ -142,6 +149,8 @@ Qt Quick Designer
 
 * Made QML Live Preview integration opensource
 * Added support for `Dialog` (QTCREATORBUG-22120)
+* Fixed layout icons (QDS-538)
+* Fixed crash when creating item inside `TabView` tab (QTCREATORBUG-21542)
 
 Version Control Systems
 
@@ -192,6 +201,7 @@ Windows
 * Fixed issue with UNC paths in `.pro` files (QTCREATORBUG-21881)
 * Fixed language version detections with MSVC and precompiled headers
   (QTCREATORBUG-21860)
+* Fixed submenu arrow styling (QTCREATORBUG-21376)
 
 Linux
 

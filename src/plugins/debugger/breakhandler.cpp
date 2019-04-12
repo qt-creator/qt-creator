@@ -2031,14 +2031,18 @@ void BreakHandler::setWatchpointAtExpression(const QString &exp)
 
 void BreakHandler::releaseAllBreakpoints()
 {
+    GlobalBreakpoints gbps;
     for (Breakpoint bp : breakpoints()) {
         bp->removeChildren();
         bp->destroyMarker();
-        if (GlobalBreakpoint gbp = bp->globalBreakpoint())
-            gbp->updateMarker();
+        gbps.append(bp->globalBreakpoint());
     }
     clear();
-    // The now-unclaimed breakpoints are globally visible again.
+    // Make now-unclaimed breakpoints globally visible again.
+    for (GlobalBreakpoint gbp: qAsConst(gbps)) {
+        if (gbp)
+            gbp->updateMarker();
+    }
 }
 
 QString BreakpointItem::msgWatchpointByExpressionTriggered(const QString &expr) const
