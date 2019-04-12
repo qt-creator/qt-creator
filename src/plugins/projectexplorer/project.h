@@ -27,6 +27,7 @@
 
 #include "projectexplorer_export.h"
 
+#include "deploymentdata.h"
 #include "kit.h"
 #include "subscription.h"
 
@@ -164,6 +165,10 @@ public:
     // The build system is able to report all executables that can be built, independent
     // of configuration.
     virtual bool knowsAllBuildExecutables() const;
+
+    virtual DeploymentKnowledge deploymentKnowledge() const { return DeploymentKnowledge::Bad; }
+    virtual bool hasMakeInstallEquivalent() const { return false; }
+    virtual MakeInstallCommand makeInstallCommand(const Target *target, const QString &installRoot);
 
     void setup(const QList<BuildInfo> &infoList);
     Utils::MacroExpander *macroExpander() const;

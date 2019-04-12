@@ -34,10 +34,13 @@
 
     \section1 Deploying CMake Projects to Embedded Linux Devices
 
-    \QC cannot extract files to be installed from a CMake project, and
-    therefore, only executable targets are automatically added to deployment
-    files. You must specify all other files in the \c {QtCreatorDeployment.txt}
-    file that you create and place in either the root directory of the CMake
+    \QC cannot directly extract files to be installed from a CMake project.
+    Therefore, a special deploy step is created that installs the project into
+    a local directory. The files in that directory are then deployed to the
+    remote device.
+    Alternatively, you can provide a \c {QtCreatorDeployment.txt} file in which
+    you must specify all files to be deployed which are not executables or
+    libraries. You place this file in either the root directory of the CMake
     project or the build directory of the active build configuration.
     Currently, \QC first checks the root directory and only if no
     \c {QtCreatorDeployment.txt} exists it checks the active build directory.

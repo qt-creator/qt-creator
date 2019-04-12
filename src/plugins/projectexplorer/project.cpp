@@ -30,6 +30,7 @@
 #include "deployconfiguration.h"
 #include "editorconfiguration.h"
 #include "kit.h"
+#include "makestep.h"
 #include "projectexplorer.h"
 #include "projectnodes.h"
 #include "target.h"
@@ -845,6 +846,20 @@ void Project::configureAsExampleProject(const QSet<Core::Id> &platforms)
 bool Project::knowsAllBuildExecutables() const
 {
     return true;
+}
+
+MakeInstallCommand Project::makeInstallCommand(const Target *target, const QString &installRoot)
+{
+    QTC_ASSERT(hasMakeInstallEquivalent(), return MakeInstallCommand());
+    MakeInstallCommand cmd;
+    if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
+        if (const auto makeStep = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+                ->firstOfType<MakeStep>()) {
+            cmd.command = Utils::FileName::fromString(makeStep->effectiveMakeCommand());
+        }
+    }
+    cmd.arguments << "install" << ("INSTALL_ROOT=" + QDir::toNativeSeparators(installRoot));
+    return cmd;
 }
 
 void Project::setup(const QList<BuildInfo> &infoList)

@@ -230,11 +230,11 @@ DeploymentData CMakeBuildConfiguration::deploymentData() const
         deploymentFilePath = buildDir.filePath("QtCreatorDeployment.txt");
         hasDeploymentFile = QFileInfo::exists(deploymentFilePath);
     }
-    if (hasDeploymentFile) {
-        deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath,
-                                                             sourceDir.absolutePath());
-    }
+    if (!hasDeploymentFile)
+        return result;
 
+    deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath,
+                                                             sourceDir.absolutePath());
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
             if (!ct.executable.isEmpty()) {

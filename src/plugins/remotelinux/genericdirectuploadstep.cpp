@@ -73,7 +73,6 @@ GenericDirectUploadStep::~GenericDirectUploadStep()
 
 bool GenericDirectUploadStep::initInternal(QString *error)
 {
-    d->deployService.setDeployableFiles(target()->deploymentData().allFiles());
     d->deployService.setIncrementalDeployment(d->incrementalAspect->value());
     d->deployService.setIgnoreMissingFiles(d->ignoreMissingFilesAspect->value());
     return d->deployService.isDeploymentPossible(error);
@@ -82,6 +81,12 @@ bool GenericDirectUploadStep::initInternal(QString *error)
 GenericDirectUploadService *GenericDirectUploadStep::deployService() const
 {
     return &d->deployService;
+}
+
+void GenericDirectUploadStep::doRun()
+{
+    d->deployService.setDeployableFiles(target()->deploymentData().allFiles());
+    AbstractRemoteLinuxDeployStep::doRun();
 }
 
 Core::Id GenericDirectUploadStep::stepId()

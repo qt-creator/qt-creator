@@ -103,6 +103,11 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers() const;
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
 
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+    bool hasMakeInstallEquivalent() const override { return true; }
+    ProjectExplorer::MakeInstallCommand makeInstallCommand(const ProjectExplorer::Target *target,
+                                                           const QString &installRoot) override;
+
     // TODO probably need a CMake specific node structure
     QList<CMakeBuildTarget> m_buildTargets;
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;

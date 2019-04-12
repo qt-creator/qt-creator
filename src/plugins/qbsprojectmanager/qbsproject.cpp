@@ -201,6 +201,11 @@ QVariant QbsProject::additionalData(Id id, const Target *target) const
     return Project::additionalData(id, target);
 }
 
+ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const
+{
+    return DeploymentKnowledge::Perfect;
+}
+
 QStringList QbsProject::filesGeneratedFrom(const QString &sourceFile) const
 {
     QStringList generated;

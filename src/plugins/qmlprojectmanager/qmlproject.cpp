@@ -347,6 +347,11 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
     return RestoreResult::Ok;
 }
 
+ProjectExplorer::DeploymentKnowledge QmlProject::deploymentKnowledge() const
+{
+    return DeploymentKnowledge::Perfect;
+}
+
 void QmlProject::generateProjectTree()
 {
     if (!m_projectItem)

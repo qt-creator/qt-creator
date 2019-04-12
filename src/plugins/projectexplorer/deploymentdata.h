@@ -28,9 +28,21 @@
 #include "deployablefile.h"
 #include "projectexplorer_export.h"
 
+#include <utils/environment.h>
+
 #include <QList>
 
 namespace ProjectExplorer {
+
+enum class DeploymentKnowledge { Perfect, Approximative, Bad };
+
+class PROJECTEXPLORER_EXPORT MakeInstallCommand
+{
+public:
+    Utils::FileName command;
+    QStringList arguments;
+    Utils::Environment environment;
+};
 
 class PROJECTEXPLORER_EXPORT DeploymentData
 {

@@ -83,6 +83,8 @@ protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private:
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+
     void generateProjectTree();
     void updateDeploymentData(ProjectExplorer::Target *target);
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);

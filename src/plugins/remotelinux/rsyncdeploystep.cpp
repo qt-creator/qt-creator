@@ -201,7 +201,6 @@ RsyncDeployStep::~RsyncDeployStep()
 
 bool RsyncDeployStep::initInternal(QString *error)
 {
-    d->deployService.setDeployableFiles(target()->deploymentData().allFiles());
     d->deployService.setIgnoreMissingFiles(d->ignoreMissingFilesAspect->value());
     return d->deployService.isDeploymentPossible(error);
 }
@@ -209,6 +208,12 @@ bool RsyncDeployStep::initInternal(QString *error)
 AbstractRemoteLinuxDeployService *RsyncDeployStep::deployService() const
 {
     return &d->deployService;
+}
+
+void RsyncDeployStep::doRun()
+{
+    d->deployService.setDeployableFiles(target()->deploymentData().allFiles());
+    AbstractRemoteLinuxDeployStep::doRun();
 }
 
 Core::Id RsyncDeployStep::stepId()

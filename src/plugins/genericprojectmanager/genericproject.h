@@ -58,6 +58,8 @@ protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private:
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+
     bool saveRawFileList(const QStringList &rawFileList);
     bool saveRawList(const QStringList &rawList, const QString &fileName);
     void parseProject(RefreshOptions options);

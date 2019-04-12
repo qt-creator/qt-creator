@@ -1,0 +1,205 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "makeinstallstep.h"
+
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/processparameters.h>
+#include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/task.h>
+#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+
+#include <QDirIterator>
+#include <QFileInfo>
+#include <QFormLayout>
+#include <QTemporaryDir>
+
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace RemoteLinux {
+namespace Internal {
+
+const char MakeAspectId[] = "RemoteLinux.MakeInstall.Make";
+const char InstallRootAspectId[] = "RemoteLinux.MakeInstall.InstallRoot";
+const char CleanInstallRootAspectId[] = "RemoteLinux.MakeInstall.CleanInstallRoot";
+const char FullCommandLineAspectId[] = "RemoteLinux.MakeInstall.FullCommandLine";
+
+MakeInstallStep::MakeInstallStep(BuildStepList *parent) : MakeStep(parent, stepId())
+{
+    setDefaultDisplayName(displayName());
+
+    const auto makeAspect = addAspect<ExecutableAspect>();
+    makeAspect->setId(MakeAspectId);
+    makeAspect->setSettingsKey(MakeAspectId);
+    makeAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    makeAspect->setLabelText(tr("Command:"));
+    connect(makeAspect, &ExecutableAspect::changed,
+            this, &MakeInstallStep::updateCommandFromAspect);
+
+    const auto installRootAspect = addAspect<BaseStringAspect>();
+    installRootAspect->setId(InstallRootAspectId);
+    installRootAspect->setSettingsKey(InstallRootAspectId);
+    installRootAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    installRootAspect->setExpectedKind(PathChooser::Directory);
+    installRootAspect->setLabelText(tr("Install root:"));
+    connect(installRootAspect, &BaseStringAspect::changed,
+            this, &MakeInstallStep::updateArgsFromAspect);
+
+    const auto cleanInstallRootAspect = addAspect<BaseBoolAspect>();
+    cleanInstallRootAspect->setId(CleanInstallRootAspectId);
+    cleanInstallRootAspect->setSettingsKey(CleanInstallRootAspectId);
+    cleanInstallRootAspect->setLabel(tr("Clean install root first"));
+    cleanInstallRootAspect->setValue(false);
+
+    const auto commandLineAspect = addAspect<BaseStringAspect>();
+    commandLineAspect->setId(FullCommandLineAspectId);
+    commandLineAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
+    commandLineAspect->setLabelText(tr("Full command line:"));
+
+    QTemporaryDir tmpDir;
+    installRootAspect->setFileName(FileName::fromString(tmpDir.path()));
+    const MakeInstallCommand cmd = target()->makeInstallCommand(tmpDir.path());
+    QTC_ASSERT(!cmd.command.isEmpty(), return);
+    makeAspect->setExecutable(cmd.command);
+}
+
+Core::Id MakeInstallStep::stepId()
+{
+    return "RemoteLinux.MakeInstall";
+}
+
+QString MakeInstallStep::displayName()
+{
+    return tr("Install into temporary host directory");
+}
+
+BuildStepConfigWidget *MakeInstallStep::createConfigWidget()
+{
+    return BuildStep::createConfigWidget();
+}
+
+bool MakeInstallStep::init()
+{
+    if (!MakeStep::init())
+        return false;
+    const QString rootDirPath = installRoot().toString();
+    if (rootDirPath.isEmpty()) {
+        emit addTask(Task(Task::Error, tr("You must provide an install root."), FileName(), -1,
+                     Constants::TASK_CATEGORY_BUILDSYSTEM));
+        return false;
+    }
+    QDir rootDir(rootDirPath);
+    if (cleanInstallRoot() && !rootDir.removeRecursively()) {
+        emit addTask(Task(Task::Error, tr("The install root '%1' could not be cleaned.")
+                          .arg(installRoot().toUserOutput()),
+                          FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
+        return false;
+    }
+    if (!rootDir.exists() && !QDir::root().mkpath(rootDirPath)) {
+        emit addTask(Task(Task::Error, tr("The install root '%1' could not be created.")
+                          .arg(installRoot().toUserOutput()),
+                          FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
+        return false;
+    }
+    if (this == deployConfiguration()->stepList()->steps().last()) {
+        emit addTask(Task(Task::Warning, tr("The \"make install\" step should probably not be "
+                                            "last in the list of deploy steps. "
+                                            "Consider moving it up."), FileName(), -1,
+                          Constants::TASK_CATEGORY_BUILDSYSTEM));
+    }
+    const MakeInstallCommand cmd = target()->makeInstallCommand(installRoot().toString());
+    if (cmd.environment.size() > 0) {
+        Environment env = processParameters()->environment();
+        for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it)
+            env.set(it.key(), it.value());
+        processParameters()->setEnvironment(env);
+    }
+    return true;
+}
+
+void MakeInstallStep::finish(bool success)
+{
+    if (success) {
+        m_deploymentData = DeploymentData();
+        m_deploymentData.setLocalInstallRoot(installRoot());
+        QDirIterator dit(installRoot().toString(), QDir::Files, QDirIterator::Subdirectories);
+        while (dit.hasNext()) {
+            dit.next();
+            const QFileInfo fi = dit.fileInfo();
+            m_deploymentData.addFile(fi.filePath(),
+                                     fi.dir().path().mid(installRoot().toString().length()));
+        }
+        target()->setDeploymentData(m_deploymentData);
+    }
+    MakeStep::finish(success);
+}
+
+FileName MakeInstallStep::installRoot() const
+{
+    return static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->fileName();
+}
+
+bool MakeInstallStep::cleanInstallRoot() const
+{
+    return static_cast<BaseBoolAspect *>(aspect(CleanInstallRootAspectId))->value();
+}
+
+void MakeInstallStep::updateCommandFromAspect()
+{
+    setMakeCommand(aspect<ExecutableAspect>()->executable().toString());
+    updateFullCommandLine();
+}
+
+void MakeInstallStep::updateArgsFromAspect()
+{
+    setUserArguments(QtcProcess::joinArgs(target()->makeInstallCommand(
+        static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->fileName().toString())
+                                          .arguments));
+    updateFullCommandLine();
+}
+
+void MakeInstallStep::updateFullCommandLine()
+{
+    static_cast<BaseStringAspect *>(aspect(FullCommandLineAspectId))->setValue(
+                QDir::toNativeSeparators(QtcProcess::quoteArg(effectiveMakeCommand()))
+                + ' '  + userArguments());
+}
+
+bool MakeInstallStep::fromMap(const QVariantMap &map)
+{
+    if (!MakeStep::fromMap(map))
+        return false;
+    updateCommandFromAspect();
+    updateArgsFromAspect();
+    return true;
+}
+
+} // namespace Internal
+} // namespace RemoteLinux

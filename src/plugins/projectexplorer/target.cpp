@@ -694,6 +694,11 @@ QVariant Target::additionalData(Core::Id id) const
     return project()->additionalData(id, this);
 }
 
+MakeInstallCommand Target::makeInstallCommand(const QString &installRoot) const
+{
+    return project()->makeInstallCommand(this, installRoot);
+}
+
 void Target::updateDeviceState()
 {
     IDevice::ConstPtr current = DeviceKitAspect::device(kit());

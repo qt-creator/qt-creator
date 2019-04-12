@@ -26,6 +26,7 @@
 #include "cmakeproject.h"
 
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildstep.h"
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
@@ -37,6 +38,7 @@
 #include <cpptools/generatedcodemodelsupport.h>
 #include <cpptools/projectinfo.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
@@ -617,6 +619,28 @@ QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
         // TODO: Other types will be added when adapters for their compilers become available.
         return QStringList();
     }
+}
+
+ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const
+{
+    return contains(files(AllFiles), [](const FileName &f) {
+        return f.fileName() == "QtCreatorDeployment.txt";
+    }) ? DeploymentKnowledge::Approximative : DeploymentKnowledge::Bad;
+}
+
+MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
+                                                    const QString &installRoot)
+{
+    MakeInstallCommand cmd;
+    if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
+        if (const auto cmakeStep = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+                ->firstOfType<CMakeBuildStep>()) {
+            cmd.command = FileName::fromString(cmakeStep->cmakeCommand());
+        }
+    }
+    cmd.arguments << "--build" << "." << "--target" << "install";
+    cmd.environment.set("DESTDIR", QDir::toNativeSeparators(installRoot));
+    return cmd;
 }
 
 bool CMakeProject::mustUpdateCMakeStateBeforeBuild()

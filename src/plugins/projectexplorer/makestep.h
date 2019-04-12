@@ -80,9 +80,11 @@ public:
 
     Utils::Environment environment(BuildConfiguration *bc) const;
 
+protected:
+    bool fromMap(const QVariantMap &map) override;
+
 private:
     QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
     static int defaultJobCount();
     QStringList jobArguments() const;
 

@@ -203,6 +203,11 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
     return RestoreResult::Ok;
 }
 
+DeploymentKnowledge QmakeProject::deploymentKnowledge() const
+{
+    return DeploymentKnowledge::Approximative; // E.g. QTCREATORBUG-21855
+}
+
 void QmakeProject::updateCodeModels()
 {
     if (activeTarget() && !activeTarget()->activeBuildConfiguration())

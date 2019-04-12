@@ -55,6 +55,7 @@ public:
 
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+
     void reparseProject();
     void buildTreeAndProjectParts(const Utils::FileName &projectFile);
 

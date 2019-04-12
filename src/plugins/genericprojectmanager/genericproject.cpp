@@ -566,5 +566,10 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
     return RestoreResult::Ok;
 }
 
+ProjectExplorer::DeploymentKnowledge GenericProject::deploymentKnowledge() const
+{
+    return DeploymentKnowledge::Approximative;
+}
+
 } // namespace Internal
 } // namespace GenericProjectManager

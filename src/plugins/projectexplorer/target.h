@@ -41,6 +41,7 @@ class BuildTargetInfo;
 class DeployConfiguration;
 class DeploymentData;
 class Kit;
+class MakeInstallCommand;
 class Project;
 class RunConfiguration;
 
@@ -118,6 +119,7 @@ public:
     void setNamedSettings(const QString &name, const QVariant &value);
 
     QVariant additionalData(Core::Id id) const;
+    MakeInstallCommand makeInstallCommand(const QString &installRoot) const;
 
     template<typename S, typename R, typename T>
     void subscribeSignal(void (S::*sig)(), R*recv, T (R::*sl)()) {

@@ -27,6 +27,7 @@
 
 #include "genericdirectuploadstep.h"
 #include "linuxdevice.h"
+#include "makeinstallstep.h"
 #include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxkillappstep.h"
 #include "remotelinux_constants.h"
@@ -60,6 +61,11 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
                                                       "Deploy to Remote Linux Host"));
     setUseDeploymentDataView();
 
+    addInitialStep(MakeInstallStep::stepId(), [](Target *target) {
+        const Project * const prj = target->project();
+        return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+                && prj->hasMakeInstallEquivalent();
+    });
     addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
     addInitialStep(RemoteLinuxKillAppStep::stepId());
     addInitialStep(RsyncDeployStep::stepId(), [](Target *target) {

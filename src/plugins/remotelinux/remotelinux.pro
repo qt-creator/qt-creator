@@ -4,6 +4,7 @@ include(../../qtcreatorplugin.pri)
 
 HEADERS += \
     embeddedlinuxqtversion.h \
+    makeinstallstep.h \
     remotelinuxenvironmentaspect.h \
     remotelinuxenvironmentaspectwidget.h \
     remotelinuxplugin.h \
@@ -47,6 +48,7 @@ HEADERS += \
 
 SOURCES += \
     embeddedlinuxqtversion.cpp \
+    makeinstallstep.cpp \
     remotelinuxenvironmentaspect.cpp \
     remotelinuxenvironmentaspectwidget.cpp \
     remotelinuxplugin.cpp \

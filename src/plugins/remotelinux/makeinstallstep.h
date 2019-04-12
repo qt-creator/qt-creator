@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,31 +25,38 @@
 
 #pragma once
 
-#include "abstractremotelinuxdeploystep.h"
-#include "genericdirectuploadservice.h"
-#include "remotelinux_export.h"
+#include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/makestep.h>
+
+namespace Utils { class FileName; }
 
 namespace RemoteLinux {
-namespace Internal { class GenericDirectUploadStepPrivate; }
+namespace Internal {
 
-class REMOTELINUX_EXPORT GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
+class MakeInstallStep : public ProjectExplorer::MakeStep
 {
     Q_OBJECT
-
 public:
-    explicit GenericDirectUploadStep(ProjectExplorer::BuildStepList *bsl);
-    ~GenericDirectUploadStep() override;
-
-    bool initInternal(QString *error = nullptr) override;
+    MakeInstallStep(ProjectExplorer::BuildStepList *parent);
 
     static Core::Id stepId();
     static QString displayName();
 
 private:
-    GenericDirectUploadService *deployService() const override;
-    void doRun() override;
+    bool fromMap(const QVariantMap &map) override;
+    ProjectExplorer::BuildStepConfigWidget * createConfigWidget() override;
+    bool init() override;
+    void finish(bool success) override;
 
-    Internal::GenericDirectUploadStepPrivate *d;
+    Utils::FileName installRoot() const;
+    bool cleanInstallRoot() const;
+
+    void updateCommandFromAspect();
+    void updateArgsFromAspect();
+    void updateFullCommandLine();
+
+    ProjectExplorer::DeploymentData m_deploymentData;
 };
 
-} //namespace RemoteLinux
+} // namespace Internal
+} // namespace RemoteLinux

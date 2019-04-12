@@ -134,6 +134,8 @@ private:
     ProjectExplorer::ProjectImporter *projectImporter() const override;
     QVariant additionalData(Core::Id id, const ProjectExplorer::Target *target) const final;
 
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+
     static bool ensureWriteableQbsFile(const QString &file);
 
     template<typename Options> qbs::AbstractJob *buildOrClean(const Options &opts,

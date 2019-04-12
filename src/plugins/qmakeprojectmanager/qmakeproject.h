@@ -30,6 +30,7 @@
 #include "qmakenodes.h"
 #include "qmakeparsernodes.h"
 
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 
 #include <QStringList>
@@ -120,6 +121,9 @@ protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
 
 private:
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
+    bool hasMakeInstallEquivalent() const override { return true; }
+
     void asyncUpdate();
     void buildFinished(bool success);
     void activeTargetWasChanged();

@@ -35,6 +35,7 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include "genericdirectuploadstep.h"
+#include "makeinstallstep.h"
 #include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxcustomcommanddeploymentstep.h"
@@ -80,6 +81,7 @@ public:
     GenericDeployStepFactory<RemoteLinuxCheckForFreeDiskSpaceStep>
         checkForFreeDiskSpaceStepFactory;
     GenericDeployStepFactory<RemoteLinuxKillAppStep> remoteLinuxKillAppStepFactory;
+    GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
     EmbeddedLinuxQtVersionFactory embeddedLinuxQtVersionFactory;
 };
 
