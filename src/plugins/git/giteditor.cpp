@@ -313,7 +313,7 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
                                                &output, &errorMessage);
 
         const QStringList tags = output.split('\n');
-        BranchAddDialog dialog(tags, BranchAddDialog::Type::AddTag, nullptr);
+        BranchAddDialog dialog(tags, BranchAddDialog::Type::AddTag, Core::ICore::dialogParent());
 
         if (dialog.exec() == QDialog::Rejected)
             return;
