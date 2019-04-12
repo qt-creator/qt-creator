@@ -35,6 +35,11 @@
         \list
             \li \l{IDE Overview}
             \li \l{User Interface}
+                \list
+                    \li \l{Selecting Modes}
+                    \li \l{Browsing Project Contents}
+                    \li \l{Viewing Output}
+                 \endlist
             \li \l{Configuring Qt Creator}
             \li \l{Building and Running an Example}
             \li \l{Tutorials}
