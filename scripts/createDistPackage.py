@@ -58,7 +58,7 @@ def main():
             common.codesign(tempdir)
         # package
         zip_source = os.path.join(tempdir, '*') if arguments.exclude_toplevel else tempdir
-        subprocess.check_call([arguments.sevenzip, 'a',
+        subprocess.check_call([arguments.sevenzip, 'a', '-mmt2',
             arguments.target_archive, zip_source])
     finally:
         shutil.rmtree(tempdir_base)
