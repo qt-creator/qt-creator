@@ -15,13 +15,8 @@ SUBDIRS   += \
     glsl \
     ssh \
     clangsupport \
-    languageserverprotocol
-
-
-QTC_DISABLE_CLANG_REFACTORING=$$(QTC_DISABLE_CLANG_REFACTORING)
-isEmpty(QTC_DISABLE_CLANG_REFACTORING) {
-    SUBDIRS +=     sqlite
-}
+    languageserverprotocol \
+    sqlite
 
 qtHaveModule(quick) {
     SUBDIRS += \
