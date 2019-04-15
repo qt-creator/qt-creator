@@ -132,8 +132,8 @@
     \uicontrol {Sibling item spacing} field, specify the distance in pixels between
     sibling items and the snapping lines.
 
-    The following image shows the snapping lines when \uicontrol {Parent item padding}
-    is set to 5 pixels.
+    The following image shows the snapping lines (1) when
+    \uicontrol {Parent item padding} is set to 5 pixels.
 
     \image qmldesigner-snap-margins.png "Snapping lines on canvas"
 
@@ -164,8 +164,8 @@
 
     To experiment with different component sizes, enter values in the
     \uicontrol {Override Width} and \uicontrol {Override Height} fields (1) on
-    the canvas toolbar. The changes are
-    displayed in the \uicontrol State pane (2) and on the canvas (3), but the property
+    the canvas toolbar. The changes are displayed on the canvas (2)
+    and in the \uicontrol States pane (3), but the property
     values are not changed permanently in the QML file. You can permanently
     change the property values in the \uicontrol Properties pane (4).
 
@@ -186,7 +186,7 @@
     not be displayed correctly on the canvas.
 
     To refresh the image on the canvas, press \key R or select the
-    \inlineimage qmldesigner-reset-view.png
+    \inlineimage reset.png
     (\uicontrol {Reset View}) button.
 
 */
