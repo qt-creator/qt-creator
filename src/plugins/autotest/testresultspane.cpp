@@ -647,7 +647,8 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
         QModelIndex current = m_model->index(row, 0, parent);
         const TestResult *result = m_model->testResult(current);
         QTC_ASSERT(result, continue);
-        output.append(TestResult::resultToString(result->result())).append('\t');
+        if (auto item = m_model->itemForIndex(current))
+            output.append(item->resultString()).append('\t');
         output.append(result->outputString(true)).append('\n');
         output.append(getWholeOutput(current));
     }

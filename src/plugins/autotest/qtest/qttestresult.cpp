@@ -84,7 +84,7 @@ bool QtTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermed
         return false;
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
 
-    if (TestResult::isMessageCaseStart(result())) {
+    if (result() == ResultType::TestStart) {
         if (qtOther->isDataTag()) {
             if (qtOther->m_function == m_function) {
                 if (m_dataTag.isEmpty()) {

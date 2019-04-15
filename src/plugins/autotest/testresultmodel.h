@@ -32,6 +32,7 @@
 #include <QFont>
 #include <QSet>
 
+#include <utils/optional.h>
 #include <utils/treemodel.h>
 
 namespace Autotest {
@@ -44,13 +45,29 @@ public:
     QVariant data(int column, int role) const override;
     const TestResult *testResult() const { return m_testResult.data(); }
     void updateDescription(const QString &description);
-    void updateResult(bool &changed, ResultType addedChildType);
+
+    struct SummaryEvaluation
+    {
+        bool failed = false;
+        bool warnings = false;
+
+        bool operator==(const SummaryEvaluation &other) const
+        { return failed == other.failed && warnings == other.warnings; }
+        bool operator!=(const SummaryEvaluation &other) const
+        { return !(*this == other); }
+    };
+
+    void updateResult(bool &changed, ResultType addedChildType,
+                      const Utils::optional<SummaryEvaluation> &summary);
 
     TestResultItem *intermediateFor(const TestResultItem *item) const;
     TestResultItem *createAndAddIntermediateFor(const TestResultItem *child);
+    QString resultString() const;
+    Utils::optional<SummaryEvaluation> summaryResult() const { return m_summaryResult; }
 
 private:
     TestResultPtr m_testResult;
+    Utils::optional<SummaryEvaluation> m_summaryResult;
 };
 
 class TestResultModel : public Utils::TreeModel<TestResultItem>
@@ -96,6 +113,7 @@ public:
     void clearTestResults();
     bool hasResults();
     const TestResult *testResult(const QModelIndex &index) const;
+    TestResultItem *itemForIndex(const QModelIndex &index) const;
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;

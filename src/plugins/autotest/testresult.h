@@ -61,12 +61,8 @@ enum class ResultType {
     MessageLocation,
     // anything below is an internal message (or a pure message without icon)
     MessageInternal, INTERNAL_MESSAGES_BEGIN = MessageInternal,
-    // TODO make the following 5 a single start item (get icon/short text depending on children)
+    // start item (get icon/short text depending on children)
     TestStart,
-    MessageTestCaseSuccess,
-    MessageTestCaseSuccessWarn,
-    MessageTestCaseFail,
-    MessageTestCaseFailWarn,
     // usually no icon/short text - more or less an indicator (and can contain test duration)
     TestEnd,
     // special global (temporary) message
@@ -108,7 +104,6 @@ public:
     static ResultType toResultType(int rt);
     static QString resultToString(const ResultType type);
     static QColor colorForType(const ResultType type);
-    static bool isMessageCaseStart(const ResultType type);
 
     virtual bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const;
     virtual bool isIntermediateFor(const TestResult *other) const;

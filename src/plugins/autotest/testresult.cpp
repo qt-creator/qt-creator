@@ -97,12 +97,8 @@ QString TestResult::resultToString(const ResultType type)
 {
     switch (type) {
     case ResultType::Pass:
-    case ResultType::MessageTestCaseSuccess:
-    case ResultType::MessageTestCaseSuccessWarn:
         return QString("PASS");
     case ResultType::Fail:
-    case ResultType::MessageTestCaseFail:
-    case ResultType::MessageTestCaseFailWarn:
         return QString("FAIL");
     case ResultType::ExpectedFail:
         return QString("XFAIL");
@@ -172,13 +168,6 @@ QColor TestResult::colorForType(const ResultType type)
     default:
         return creatorTheme->color(Utils::Theme::OutputPanes_StdOutTextColor);
     }
-}
-
-bool TestResult::isMessageCaseStart(const ResultType type)
-{
-    return type == ResultType::TestStart || type == ResultType::MessageTestCaseSuccess
-            || type == ResultType::MessageTestCaseFail || type == ResultType::MessageTestCaseSuccessWarn
-            || type == ResultType::MessageTestCaseFailWarn;
 }
 
 bool TestResult::isDirectParentOf(const TestResult *other, bool * /*needsIntermediate*/) const
