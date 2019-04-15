@@ -64,16 +64,18 @@ namespace Internal {
 
 namespace {
 
-QStringList jsonObjectFlags(const QJsonObject &object)
+QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &flagsCache)
 {
     QStringList flags;
     const QJsonArray arguments = object["arguments"].toArray();
     if (arguments.isEmpty()) {
-        flags = splitCommandLine(object["command"].toString());
+        flags = splitCommandLine(object["command"].toString(), flagsCache);
     } else {
         flags.reserve(arguments.size());
-        for (const QJsonValue &arg : arguments)
-            flags.append(arg.toString());
+        for (const QJsonValue &arg : arguments) {
+            auto flagIt = flagsCache.insert(arg.toString());
+            flags.append(*flagIt);
+        }
     }
 
     return flags;
@@ -339,6 +341,7 @@ std::vector<Entry> readJsonObjects(const QString &filePath)
     int objectStart = contents.indexOf('{');
     int objectEnd = contents.indexOf('}', objectStart + 1);
 
+    QSet<QString> flagsCache;
     while (objectStart >= 0 && objectEnd >= 0) {
         const QJsonDocument document = QJsonDocument::fromJson(
                     contents.mid(objectStart, objectEnd - objectStart + 1));
@@ -350,8 +353,8 @@ std::vector<Entry> readJsonObjects(const QString &filePath)
 
         const QJsonObject object = document.object();
         const Utils::FileName fileName = jsonObjectFilename(object);
-        const QStringList flags
-                = filterFromFileName(jsonObjectFlags(object), fileName.toFileInfo().baseName());
+        const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
+                                                     fileName.toFileInfo().baseName());
         result.push_back({flags, fileName, object["directory"].toString()});
 
         objectStart = contents.indexOf('{', objectEnd + 1);

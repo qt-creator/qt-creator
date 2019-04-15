@@ -33,6 +33,7 @@
 
 #include <QDir>
 #include <QRegularExpression>
+#include <QSet>
 
 using namespace ProjectExplorer;
 
@@ -205,7 +206,7 @@ void filteredFlags(const QString &fileName,
     flags = filtered;
 }
 
-QStringList splitCommandLine(QString commandLine)
+QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache)
 {
     QStringList result;
     bool insideQuotes = false;
@@ -215,12 +216,19 @@ QStringList splitCommandLine(QString commandLine)
     for (const QString &part : commandLine.split(QRegularExpression("\""))) {
         if (insideQuotes) {
             const QString quotedPart = "\"" + part + "\"";
-            if (result.last().endsWith("="))
-                result.last().append(quotedPart);
-            else
-                result.append(quotedPart);
+            if (result.last().endsWith("=")) {
+                auto flagIt = flagsCache.insert(result.last() + quotedPart);
+                result.last() = *flagIt;
+            } else {
+                auto flagIt = flagsCache.insert(quotedPart);
+                result.append(*flagIt);
+            }
         } else { // If 's' is outside quotes ...
-            result.append(part.split(QRegularExpression("\\s+"), QString::SkipEmptyParts));
+            for (const QString &flag :
+                 part.split(QRegularExpression("\\s+"), QString::SkipEmptyParts)) {
+                auto flagIt = flagsCache.insert(flag);
+                result.append(*flagIt);
+            }
         }
         insideQuotes = !insideQuotes;
     }

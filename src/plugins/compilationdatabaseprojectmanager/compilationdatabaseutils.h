@@ -47,6 +47,6 @@ void filteredFlags(const QString &fileName,
                    QVector<ProjectExplorer::Macro> &macros,
                    CppTools::ProjectFile::Kind &fileKind);
 
-QStringList splitCommandLine(QString commandLine);
+QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache);
 
 } // namespace CompilationDatabaseProjectManager
