@@ -3750,6 +3750,31 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
         menu->addAction(Tr::tr("C&heckout %1").arg(change), [workingDir, change] {
             gitClient().checkout(workingDir, change);
         });
+        menu->addAction(tr("Create &Branch from %1...").arg(change), [workingDir, change] {
+            const QStringList localBranches =
+                gitClient().synchronousRepositoryBranches(workingDir.toFSPathString());
+            BranchAddDialog dialog(localBranches, BranchAddDialog::Type::AddBranch,
+                                   Core::ICore::dialogParent());
+            dialog.setBranchName(suggestedLocalBranchName(workingDir, localBranches, change,
+                                                          BranchTargetType::Commit));
+            dialog.setCheckoutVisible(true);
+            if (dialog.exec() != QDialog::Accepted)
+                return;
+
+            const QString newBranch = dialog.branchName();
+            QString output;
+            QString errorMessage;
+            if (!gitClient().synchronousBranchCmd(workingDir,
+                                                  {"--no-track", newBranch, change},
+                                                  &output, &errorMessage)) {
+                VcsOutputWindow::appendError(errorMessage);
+                return;
+            }
+
+            if (dialog.checkout())
+                gitClient().checkout(workingDir, newBranch);
+        });
+
         connect(menu->addAction(Tr::tr("&Interactive Rebase from %1...").arg(change)),
                 &QAction::triggered, [workingDir, change] {
             startRebaseFromCommit(workingDir, change);
