@@ -354,7 +354,6 @@ void CMakeBuildSettingsWidget::setError(const QString &message)
     m_unsetButton->setEnabled(!showError);
     m_resetButton->setEnabled(!showError);
     m_showAdvancedCheckBox->setEnabled(!showError);
-    m_filterEdit->setEnabled(!showError);
 }
 
 void CMakeBuildSettingsWidget::setWarning(const QString &message)
