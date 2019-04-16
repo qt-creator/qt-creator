@@ -492,7 +492,7 @@ void TestResultsPane::checkAllFilter(bool checked)
         if (action->isCheckable())
             action->setChecked(checked);
     }
-    m_filterModel->enableAllResultTypes();
+    m_filterModel->enableAllResultTypes(checked);
 }
 
 void TestResultsPane::filterMenuTriggered(QAction *action)

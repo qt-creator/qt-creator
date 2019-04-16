@@ -90,7 +90,7 @@ class TestResultFilterModel : public QSortFilterProxyModel
 public:
     explicit TestResultFilterModel(TestResultModel *sourceModel, QObject *parent = nullptr);
 
-    void enableAllResultTypes();
+    void enableAllResultTypes(bool enabled);
     void toggleTestResultType(Result::Type type);
     void clearTestResults();
     bool hasResults();

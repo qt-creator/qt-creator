@@ -381,22 +381,27 @@ TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObje
       m_sourceModel(sourceModel)
 {
     setSourceModel(sourceModel);
-    enableAllResultTypes();
+    enableAllResultTypes(true);
 }
 
-void TestResultFilterModel::enableAllResultTypes()
+void TestResultFilterModel::enableAllResultTypes(bool enabled)
 {
-    m_enabled << Result::Pass << Result::Fail << Result::ExpectedFail
-              << Result::UnexpectedPass << Result::Skip << Result::MessageDebug
-              << Result::MessageWarn << Result::MessageInternal << Result::MessageLocation
-              << Result::MessageFatal << Result::Invalid << Result::BlacklistedPass
-              << Result::BlacklistedFail << Result::BlacklistedXFail << Result::BlacklistedXPass
-              << Result::Benchmark << Result::MessageIntermediate
-              << Result::MessageCurrentTest << Result::MessageTestCaseStart
-              << Result::MessageTestCaseSuccess << Result::MessageTestCaseSuccessWarn
-              << Result::MessageTestCaseFail << Result::MessageTestCaseFailWarn
-              << Result::MessageTestCaseEnd
-              << Result::MessageInfo << Result::MessageSystem << Result::Application;
+    if (enabled) {
+        m_enabled << Result::Pass << Result::Fail << Result::ExpectedFail
+                  << Result::UnexpectedPass << Result::Skip << Result::MessageDebug
+                  << Result::MessageWarn << Result::MessageInternal << Result::MessageLocation
+                  << Result::MessageFatal << Result::Invalid << Result::BlacklistedPass
+                  << Result::BlacklistedFail << Result::BlacklistedXFail << Result::BlacklistedXPass
+                  << Result::Benchmark << Result::MessageIntermediate
+                  << Result::MessageCurrentTest << Result::MessageTestCaseStart
+                  << Result::MessageTestCaseSuccess << Result::MessageTestCaseSuccessWarn
+                  << Result::MessageTestCaseFail << Result::MessageTestCaseFailWarn
+                  << Result::MessageTestCaseEnd
+                  << Result::MessageInfo << Result::MessageSystem << Result::Application;
+    } else {
+        m_enabled.clear();
+        m_enabled << Result::MessageFatal << Result::MessageSystem;
+    }
     invalidateFilter();
 }
 
