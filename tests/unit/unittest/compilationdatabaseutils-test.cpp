@@ -38,6 +38,12 @@ namespace {
 class CompilationDatabaseUtils : public ::testing::Test
 {
 protected:
+    QStringList splitCommandLine(const QString &commandLine)
+    {
+        QSet<QString> flagsCache;
+        return CompilationDatabaseProjectManager::splitCommandLine(commandLine, flagsCache);
+    }
+
     HeaderPaths headerPaths;
     Macros macros;
     CppTools::ProjectFile::Kind fileKind = CppTools::ProjectFile::Unclassified;
