@@ -58,7 +58,7 @@
     \section1 Creating the Main View
 
     The main view of the application displays a Qt logo in the top left corner
-    of the screen and two empty rectangles.
+    of the view and two empty rectangles.
 
     To use the \e qt-logo.png image in your application, you must copy it from
     the Qt examples directory to the project directory (same subdirectory as
@@ -149,7 +149,7 @@
 
             \li In \uicontrol {Layout}, select the vertical center anchor button and
                 then the right anchor button to
-                anchor the rectangle to the middle right margin of the screen.
+                anchor the rectangle to the middle right margin of its parent.
 
             \li In the \uicontrol Margin field, select \e 10 for the right
                 anchor and \e 0 for the vertical center anchor.
@@ -163,7 +163,7 @@
             \li In the \uicontrol Id field, enter \e bottomLeftRect.
 
             \li In \uicontrol {Layout}, select the bottom and left anchor buttons to
-                anchor the rectangle to the bottom left margin of the screen.
+                anchor the rectangle to the bottom left margin of its parent.
 
             \li In the \uicontrol Margin field, select \e 20 for the bottom
                 anchor and \e 10 for the left anchor.

@@ -142,14 +142,14 @@
     \l{SwipeDelegate}{Swipe Delegate} delegate components are also available
     in the \uicontrol Library.
 
-    \section1 Positioning Items on Screens
+    \section1 Positioning Items in UIs
 
-    The position of an item on the canvas can be either absolute or relative
-    to other items. If you are designing a static user interface,
+    The position of an item in the UI can be either absolute or
+    relative to other items. If you are designing a static UI,
     \l{Important Concepts In Qt Quick - Positioning#manual-positioning}
-    {manual positioning} provides the most efficient form of positioning items
-    on the screen. For a dynamic user interface, you can employ the following
-    positioning methods provided by Qt Quick:
+    {manual positioning} provides the most efficient form of positioning
+    items. For a dynamic UI, you can employ the following positioning
+    methods provided by Qt Quick:
 
     \list
         \li \l{Setting Bindings}
@@ -264,7 +264,7 @@
     the layout managers used with standard Qt widgets, except that they are
     also containers in their own right.
 
-    You can use the following positioners to arrange items on screens:
+    You can use the following positioners to arrange items in UIs:
 
     \list
         \li \l[QML] {Column} arranges its child items vertically.
@@ -283,11 +283,11 @@
     \section2 Using Layouts
 
     Since Qt 5.1, you can use QML types in the \l{qtquicklayouts-index.html}
-    {Qt Quick Layouts} module to arrange Qt Quick items on screens. Unlike
+    {Qt Quick Layouts} module to arrange Qt Quick items in UIs. Unlike
     positioners, they manage both the positions and sizes of items in a
-    declarative interface. They are well suited for resizable user interfaces.
+    declarative interface. They are well suited for resizable UIs.
 
-    You can use the following layout types to arrange items on screens:
+    You can use the following layout types to arrange items in UIs:
 
     \list
         \li \l{Layout} provides attached properties for items pushed onto a
@@ -337,7 +337,7 @@
     \section2 Organizing Items
 
     Since Qt 5.7, you can use the following \l{Qt Quick Controls} types to
-    organize items on screens:
+    organize items in UIs:
 
     \list
         \li \l [QtQuickControls]{Frame} places a logical group of controls
@@ -357,7 +357,7 @@
     \section1 Adding User Interaction Methods
 
     You can use the following QML types to add basic interaction methods to
-    screens:
+    UIs:
 
     \list
         \li \l{Flickable}
@@ -441,7 +441,7 @@
     \section1 History of Qt Quick Controls
 
     In Qt 4, ready-made Qt Quick 1 Components were provided for creating
-    screens with a native look and feel for a particular target platform.
+    UIs with a native look and feel for a particular target platform.
     In Qt 5.1, Qt Quick Controls, Dialogs, and Layouts were added for
     creating classic desktop-style user interfaces using Qt Quick 2.1. The
     Qt Quick Controls Styles could be used to customize Qt Quick Controls.

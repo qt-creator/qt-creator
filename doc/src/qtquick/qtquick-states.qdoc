@@ -60,7 +60,7 @@
         \li Start, stop or pause animations.
         \li Execute some script required in the new state.
         \li Change a property value for a particular item.
-        \li Show a different view or screen.
+        \li Show a different view.
     \endlist
 
     The \uicontrol States pane displays the different \l{State}{states}
@@ -73,7 +73,7 @@
     To add states, click the \inlineimage plus.png
     button. Then modify the new state in the editor. For example, to change the
     appearance of a button, you can hide the button image and show another image
-    in its place. Or, to add movement to the screen, you can change the position
+    in its place. Or, to add movement to the view, you can change the position
     of an object on the canvas and then add animation to the change between the
     states.
 
@@ -88,7 +88,7 @@
 
     QML states typically describe user interface configurations, such as the UI
     controls, their properties and behavior and the available actions. For
-    example, you can use states to create two screens.
+    example, you can use states to create two views.
 
     To add states, click the empty slot in the \uicontrol States pane.
     Then modify the new state in the \uicontrol {Form Editor} or the
@@ -106,7 +106,7 @@
     This allows you to:
 
     \list
-        \li Align items on different screens with each other.
+        \li Align items on different views with each other.
         \li Avoid excessive property changes. If an item is invisible in the
             base state, you must define all changes to its child types as
             property changes, which leads to complicated QML code.
@@ -116,13 +116,13 @@
             states.
     \endlist
 
-    To create screens for an application by using states:
+    To create views for an application by using states:
 
     \list 1
         \li In the base state, add all items you will need in the application
-            (1). While you work on one screen, you can click the
+            (1). While you work on one view, you can click the
             \inlineimage eye_open.png
-            icon to hide items on the canvas that are not part of a screen.
+            icon to hide items on the canvas that are not part of a view.
         \li In the \uicontrol States pane, click the empty slot to create a
             new state and give it a name. For example, \c Normal.
         \li In the \uicontrol Properties pane (2), deselect the
@@ -130,9 +130,9 @@
             for each item that is not needed in this view. If you specify
             the setting for the parent item, all child items inherit it and
             are also hidden.
-            \image qmldesigner-screen-design.png "Designing screens"
-        \li Create additional states for each screen and set the visibility
-            or opacity of the items in the screen.
+            \image qmldesigner-screen-design.png "Designing views"
+        \li Create additional states for each view and set the visibility
+            or opacity of the items in the view.
         \li To determine which view opens when the application starts, use the
             \uicontrol {Text Editor} to set the state of the root item of the
            .qml file, as specified by the following code snippet:
