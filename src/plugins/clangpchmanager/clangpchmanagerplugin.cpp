@@ -96,6 +96,8 @@ ClangPchManagerPlugin::~ClangPchManagerPlugin() = default;
 
 bool ClangPchManagerPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
+    QDir{}.mkpath(Core::ICore::cacheResourcePath());
+
     d = std::make_unique<ClangPchManagerPluginData>();
 
     startBackend();
