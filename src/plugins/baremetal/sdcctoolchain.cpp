@@ -69,7 +69,7 @@ static QString compilerTargetFlag(const Abi &abi)
 {
     switch (abi.architecture()) {
     case Abi::Architecture::Mcs51Architecture:
-        return "-mmcs51";
+        return QString("-mmcs51");
     default:
         return {};
     }
