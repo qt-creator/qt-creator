@@ -98,15 +98,22 @@
 
     \section1 Using Variables in Wizards
 
-    You can use variables (\c {%\{<variableName>\}}) in the configuration and
-    template source files. A set of variables is predefined by the wizards and
-    their pages. You can introduce new variables as shortcuts to be used later.
-    Define the variable key names and values in the \c options section in the
+    You can use variables (\c {%\{<variableName>\}}) in strings in the JSON configuration
+    file and in template source files.
+    A set of variables is predefined by the wizards and their pages.
+    You can introduce new variables as shortcuts to be used later by
+    defining the variable key names and values in the \c options section in the
     \c {wizard.json} file.
 
-    The variables always return strings. In places where a boolean value is
-    expected and a string is given, an empty string as well as the string
-    \c {"false"} is treated as \c false and anything else as \c true.
+    There is a special variable \c {%\{JS:<JavaScript expression>\}} which evaluates the given
+    JavaScript expression and converts the resulting JavaScript value to a string.
+    In the JavaScript expression you can refer to variables defined by the wizard with
+    \c {value('<variableName>')}. The returned JavaScript object has the type that the value
+    of the variable has, which can be a string, list, dictionary or boolean.
+
+    In places where a boolean value is expected and a string is given,
+    an empty string as well as the string \c {"false"} is treated as
+    \c false and anything else as \c true.
 
     \section1 Localizing Wizards
 
@@ -221,7 +228,7 @@
                 "trDisplayName": "C++ Class",
                 "trDisplayCategory": "C++",
                 "icon": "../../global/genericfilewizard.png",
-                "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
+                "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
                 \endcode
 
             \list
@@ -295,11 +302,11 @@
                     { "key": "TargetPath", "value": "%{Path}" },
                     { "key": "HdrPath", "value": "%{Path}/%{HdrFileName}" },
                     { "key": "SrcPath", "value": "%{Path}/%{SrcFileName}" },
-                    { "key": "CN", "value": "%{JS: Cpp.className('%{Class}')}" },
-                    { "key": "Base", "value": "%{JS: ( '%{BaseCB}' === '' ) ? '%{BaseEdit}' : '%{BaseCB}'}" },
-                    { "key": "isQObject", "value": "%{JS: ('%{Base}' === 'QObject' || '%{Base}' === 'QWidget' || '%{Base}' === 'QMainWindow' || '%{Base}' === 'QDeclarativeItem' || '%{Base}' === 'QQuickItem' ) ? 'yes' : ''}" },
-                    { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" },
-                    { "key": "SharedDataInit", "value": "%{JS: ('%{IncludeQSharedData}') ? 'data(new %{CN}Data)' : '' }" }
+                    { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
+                    { "key": "Base", "value": "%{JS: value('BaseCB') === '' ? value('BaseEdit') : value('BaseCB')}" },
+                    { "key": "isQObject", "value": "%{JS: (value('Base') === 'QObject' || value('Base') === 'QWidget' || value('Base') === 'QMainWindow' || value('Base') === 'QDeclarativeItem' || value('Base') === 'QQuickItem' ) ? 'true' : 'false'}" },
+                    { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Util.preferredSuffix('text/x-c++hdr'))}" },
+                    { "key": "SharedDataInit", "value": "%{JS: value('IncludeQSharedData') ? 'data(new %{CN}Data)' : '' }" }
                 ],
                 \endcode
 
@@ -712,7 +719,7 @@
         {
             "checkedValue": "QObject",
             "uncheckedValue": "",
-            "checked": "%{JS: ('%{BaseCB}' === 'QObject' ) ? 'yes' : ''}"
+            "checked": "%{JS: value('BaseCB') === 'QObject' ? 'true' : 'false'}"
         }
     },
     \endcode
@@ -788,7 +795,7 @@
         "name": "LabelQQC_2_0",
         "type": "Label",
         "span": true,
-        "visible": "%{( '%{CS}' === 'QQC_2_0' )}",
+        "visible": "%{JS: value('CS') === 'QQC_2_0'}",
         "data":
         {
             "wordWrap": true,
@@ -819,7 +826,7 @@
     {
         "name": "BaseEdit",
         "type": "LineEdit",
-        "enabled": "%{JS: ( '%{BaseCB}' === '' ) ? 'yes' : ''}",
+        "enabled": "%{JS: value('BaseCB') === '' ? 'true' : 'false'}",
         "mandatory": false,
         "data":
         {

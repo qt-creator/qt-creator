@@ -7,7 +7,7 @@
     "trDisplayName": "Nim File",
     "trDisplayCategory": "Nim",
     "icon": "../../projects/nim/icon.png",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('Nim') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('Nim') >= 0}",
 
     "pages" :
     [
@@ -29,7 +29,7 @@
             "data":
             {
                 "source": "file.nim",
-                "target": "%{JS: Util.fileName('%{TargetPath}', 'nim')}",
+                "target": "%{JS: Util.fileName(value('TargetPath'), 'nim')}",
                 "openInEditor": true
             }
         }

@@ -7,7 +7,7 @@
     "trDisplayName": "Scratch Buffer",
     "trDisplayCategory": "General",
     "platformIndependent": true,
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('TextEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('TextEditor') >= 0}",
 
     "options": [ { "key": "TargetPath", "value": "%{JS: Util.mktemp('scratch-XXXXXX.txt')}" } ],
 

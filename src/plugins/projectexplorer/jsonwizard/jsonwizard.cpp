@@ -45,6 +45,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QJSEngine>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -143,7 +144,8 @@ private:
 
 } // namespace Internal
 
-JsonWizard::JsonWizard(QWidget *parent) : Utils::Wizard(parent)
+JsonWizard::JsonWizard(QWidget *parent)
+    : Utils::Wizard(parent)
 {
     setMinimumSize(800, 500);
     m_expander.registerExtraResolver([this](const QString &name, QString *ret) -> bool {
@@ -157,7 +159,10 @@ JsonWizard::JsonWizard(QWidget *parent) : Utils::Wizard(parent)
         const QString key = QString::fromLatin1("%{") + value + QLatin1Char('}');
         return m_expander.expand(key) == key ? QString() : QLatin1String("true");
     });
-
+    // override default JS macro by custom one that adds Wizard specific features
+    m_jsExpander.registerObject("Wizard", new Internal::JsonWizardJsExtension(this));
+    m_jsExpander.engine().evaluate("var value = Wizard.value");
+    m_jsExpander.registerForExpander(&m_expander);
 }
 
 JsonWizard::~JsonWizard()
@@ -520,4 +525,17 @@ bool JsonWizard::OptionDefinition::condition(Utils::MacroExpander &expander) con
     return JsonWizard::boolFromVariant(m_condition, &expander);
 }
 
+namespace Internal {
+
+JsonWizardJsExtension::JsonWizardJsExtension(JsonWizard *wizard)
+    : m_wizard(wizard)
+{}
+
+QVariant JsonWizardJsExtension::value(const QString &name) const
+{
+    const QVariant value = m_wizard->value(name);
+    return m_wizard->expander()->expandVariant(m_wizard->value(name));
+}
+
+} // namespace Internal
 } // namespace ProjectExplorer

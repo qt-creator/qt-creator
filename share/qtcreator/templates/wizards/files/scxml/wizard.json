@@ -8,11 +8,11 @@
     "trDisplayCategory": "Modeling",
     "iconText": "scxml",
     "platformIndependent": true,
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('ScxmlEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('ScxmlEditor') >= 0}",
 
     "options":
     [
-        { "key": "TargetPath", "value": "%{JS: Util.fileName('%{Location}/%{FileName}', '%{JS: Util.preferredSuffix('application/scxml+xml')}')}" },
+        { "key": "TargetPath", "value": "%{JS: Util.fileName(value('Location') + '/' + value('FileName'), Util.preferredSuffix('application/scxml+xml'))}" },
         { "key": "FileName", "value": "%{Name}" }
     ],
 
@@ -34,8 +34,8 @@
                     "name": "Location",
                     "trDisplayName": "Location:",
                     "type": "PathChooser",
-                    "isComplete": "%{JS: '%{Location}' === '' || !Util.exists('%{TargetPath}')}",
-                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
+                    "isComplete": "%{JS: value('Location') === '' || !Util.exists(value('TargetPath'))}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators(value('TargetPath'))}\" exists in the filesystem.",
                     "data":
                     {
                         "kind": "directory",

@@ -8,11 +8,11 @@
     "trDisplayCategory": "Other Project",
     "icon": "../../../global/guiapplication.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}",
     "options":
     [
-        { "key": "ProFileName", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
-        { "key": "IsTopLevelProject", "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}'}" }
+        { "key": "ProFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
+        { "key": "IsTopLevelProject", "value": "%{JS: !value('Exists:ProjectExplorer.Profile.Ids')}" }
     ],
 
     "pages":
@@ -50,7 +50,7 @@
                 {
                     "source": "../../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
-                    "condition": "%{JS: %{IsTopLevelProject} && '%{VersionControl}' === 'G.Git'}"
+                    "condition": "%{JS: value('IsTopLevelProject') && value('VersionControl') === 'G.Git'}"
                 }
             ]
         }

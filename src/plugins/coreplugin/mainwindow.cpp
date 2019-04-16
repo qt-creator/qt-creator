@@ -100,25 +100,26 @@ namespace Internal {
 
 enum { debugMainWindow = 0 };
 
-MainWindow::MainWindow() :
-    AppMainWindow(),
-    m_coreImpl(new ICore(this)),
-    m_lowPrioAdditionalContexts(Constants::C_GLOBAL),
-    m_settingsDatabase(new SettingsDatabase(QFileInfo(PluginManager::settings()->fileName()).path(),
-                                            QLatin1String(Constants::IDE_CASED_ID),
-                                            this)),
-    m_progressManager(new ProgressManagerPrivate),
-    m_jsExpander(new JsExpander),
-    m_vcsManager(new VcsManager),
-    m_modeStack(new FancyTabWidget(this)),
-    m_generalSettings(new GeneralSettings),
-    m_systemSettings(new SystemSettings),
-    m_shortcutSettings(new ShortcutSettings),
-    m_toolSettings(new ToolSettings),
-    m_mimeTypeSettings(new MimeTypeSettings),
-    m_systemEditor(new SystemEditor),
-    m_toggleLeftSideBarButton(new QToolButton),
-    m_toggleRightSideBarButton(new QToolButton)
+MainWindow::MainWindow()
+    : AppMainWindow()
+    , m_coreImpl(new ICore(this))
+    , m_lowPrioAdditionalContexts(Constants::C_GLOBAL)
+    , m_settingsDatabase(
+          new SettingsDatabase(QFileInfo(PluginManager::settings()->fileName()).path(),
+                               QLatin1String(Constants::IDE_CASED_ID),
+                               this))
+    , m_progressManager(new ProgressManagerPrivate)
+    , m_jsExpander(JsExpander::createGlobalJsExpander())
+    , m_vcsManager(new VcsManager)
+    , m_modeStack(new FancyTabWidget(this))
+    , m_generalSettings(new GeneralSettings)
+    , m_systemSettings(new SystemSettings)
+    , m_shortcutSettings(new ShortcutSettings)
+    , m_toolSettings(new ToolSettings)
+    , m_mimeTypeSettings(new MimeTypeSettings)
+    , m_systemEditor(new SystemEditor)
+    , m_toggleLeftSideBarButton(new QToolButton)
+    , m_toggleRightSideBarButton(new QToolButton)
 {
     (void) new DocumentManager(this);
 

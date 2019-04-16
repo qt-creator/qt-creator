@@ -8,12 +8,12 @@
     "trDisplayCategory": "Modeling",
     "iconText": "qmodel",
     "platformIndependent": true,
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('ModelEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('ModelEditor') >= 0}",
 
     "options":
     [
-        { "key": "TargetPath", "value": "%{JS: Util.fileName('%{Location}/%{FileName}', '%{JS: Util.preferredSuffix('text/vnd.qtcreator.model')}')}" },
-        { "key": "FileName", "value": "%{JS: Modeling.elementNameToFileName('%{Name}')}" }
+        { "key": "TargetPath", "value": "%{JS: Util.fileName(value('Location') + '/' + value('FileName'), Util.preferredSuffix('text/vnd.qtcreator.model'))}" },
+        { "key": "FileName", "value": "%{JS: Modeling.elementNameToFileName(value('Name'))}" }
     ],
 
     "pages" :
@@ -34,8 +34,8 @@
                     "name": "Location",
                     "trDisplayName": "Location:",
                     "type": "PathChooser",
-                    "isComplete": "%{JS: '%{Location}' === '' || !Util.exists('%{TargetPath}')}",
-                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
+                    "isComplete": "%{JS: value('Location') === '' || !Util.exists(value('TargetPath'))}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators(value('TargetPath'))}\" exists in the filesystem.",
                     "data":
                     {
                         "kind": "directory",

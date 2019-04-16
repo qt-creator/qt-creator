@@ -117,7 +117,7 @@ bool FormTemplateWizardPage::validatePage()
         QMessageBox::critical(this, tr("%1 - Error").arg(title()), errorMessage);
         return false;
     }
-    wizard()->setProperty("FormContents", m_templateContents.split('\n'));
+    wizard()->setProperty("FormContents", m_templateContents);
     return true;
 }
 

@@ -7,31 +7,31 @@
     "trDisplayName": "C++ Library",
     "trDisplayCategory": "Library",
     "icon": "../../global/lib.png",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0 && ([ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 || [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0)}",
+    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0 && (value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0)}",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: '%{BuildSystem}' === 'qmake' ? '%{ProFile}' : '%{CMakeFile}'}" },
-        { "key": "ProFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'qmake' ? value('ProFile') : value('CMakeFile')}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
-        { "key": "PluginJsonFile", "value": "%{JS: Util.fileName('%{ProjectName}', 'json')}" },
-        { "key": "IsShared", "value": "%{JS: '%{Type}' === 'shared'}" },
-        { "key": "IsStatic", "value": "%{JS: '%{Type}' === 'static'}" },
-        { "key": "IsQtPlugin", "value": "%{JS: '%{Type}' === 'qtplugin'}" },
-        { "key": "BaseClassName", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][0] : ''}" },
-        { "key": "PluginTargetPath", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][1] : ''}" },
-        { "key": "PluginInterface", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][2] : ''}" },
-        { "key": "PluginModule", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][3] : ''}" },
-        { "key": "PluginMethods", "value": "%{JS: [%{BaseClassInfo}].length ? [%{BaseClassInfo}][4] : ''}" },
-        { "key": "QtModule", "value": "%{JS: %{IsQtPlugin} ? '%{PluginModule}' : '%{LibraryQtModule}'}" },
-        { "key": "QtModuleUpperCase", "value": "%{JS: '%{QtModule}'.charAt(0).toUpperCase() + '%{QtModule}'.slice(1)}" },
-        { "key": "LibraryDefine", "value": "%{JS: Cpp.headerGuard('%{ProjectName}') + '_LIBRARY'}" },
-        { "key": "LibraryExport", "value": "%{JS: Cpp.headerGuard('%{ProjectName}') + '_EXPORT'}" },
-        { "key": "GlobalHdrFileName", "value": "%{JS: Util.fileName('%{ProjectName}_global', Util.preferredSuffix('text/x-c++hdr'))}" },
-        { "key": "TargetInstallPath", "value": "%{JS: %{IsShared} ? '/usr/lib' : (%{IsQtPlugin} && '%{PluginTargetPath}' ? '$$[QT_INSTALL_PLUGINS]/%{PluginTargetPath}' : '')}" },
-        { "key": "CN", "value": "%{JS: Cpp.className('%{Class}')}" },
-        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard('%{HdrFileName}')}" },
-        { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard('%{GlobalHdrFileName}')}" }
+        { "key": "PluginJsonFile", "value": "%{JS: Util.fileName(value('ProjectName'), 'json')}" },
+        { "key": "IsShared", "value": "%{JS: value('Type') === 'shared'}" },
+        { "key": "IsStatic", "value": "%{JS: value('Type') === 'static'}" },
+        { "key": "IsQtPlugin", "value": "%{JS: value('Type') === 'qtplugin'}" },
+        { "key": "BaseClassName", "value": "%{JS: value('BaseClassInfo').BaseClassName }" },
+        { "key": "PluginTargetPath", "value": "%{JS: value('BaseClassInfo').PluginTargetPath }" },
+        { "key": "PluginInterface", "value": "%{JS: value('BaseClassInfo').PluginInterface }" },
+        { "key": "PluginModule", "value": "%{JS: value('BaseClassInfo').PluginModule }" },
+        { "key": "PluginMethods", "value": "%{JS: value('BaseClassInfo').PluginMethods }" },
+        { "key": "QtModule", "value": "%{JS: value('IsQtPlugin') ? value('PluginModule') : value('LibraryQtModule')}" },
+        { "key": "QtModuleUpperCase", "value": "%{JS: value('QtModule').charAt(0).toUpperCase() + value('QtModule').slice(1)}" },
+        { "key": "LibraryDefine", "value": "%{JS: Cpp.headerGuard(value('ProjectName')) + '_LIBRARY'}" },
+        { "key": "LibraryExport", "value": "%{JS: Cpp.headerGuard(value('ProjectName')) + '_EXPORT'}" },
+        { "key": "GlobalHdrFileName", "value": "%{JS: Util.fileName(value('ProjectName') + '_global', Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "TargetInstallPath", "value": "%{JS: value('IsShared') ? '/usr/lib' : (value('IsQtPlugin') && value('PluginTargetPath') ? '$$[QT_INSTALL_PLUGINS]/' + value('PluginTargetPath') : '')}" },
+        { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
+        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" },
+        { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard(value('GlobalHdrFileName'))}" }
     ],
 
     "pages":
@@ -46,7 +46,7 @@
             "trDisplayName": "Define Build System",
             "trShortTitle": "Build System",
             "typeId": "Fields",
-            "enabled": "%{JS: ! %{IsSubproject}}",
+            "enabled": "%{JS: !value('IsSubproject')}",
             "data":
             [
                 {
@@ -61,12 +61,12 @@
                             {
                                 "trKey": "Qmake",
                                 "value": "qmake",
-                                "condition": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
                             },
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
-                                "condition": "%{JS: [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -124,14 +124,14 @@
                     "data":
                     {
                         "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
-                        "trText": "%{JS: '%{Type}' === 'qtplugin' ? '%{BaseClassName}'.slice(1) : ('%{ProjectName}'.charAt(0).toUpperCase() + '%{ProjectName}'.slice(1))}"
+                        "trText": "%{JS: value('Type') === 'qtplugin' ? value('BaseClassName').slice(1) : (value('ProjectName').charAt(0).toUpperCase() + value('ProjectName').slice(1))}"
                     }
                 },
                 {
                     "name": "BaseClassInfo",
                     "trDisplayName": "Base class:",
                     "type": "ComboBox",
-                    "visible": "%{JS: '%{Type}' === 'qtplugin'}",
+                    "visible": "%{JS: value('Type') === 'qtplugin'}",
                     "data":
                     {
                         "index": 1,
@@ -139,31 +139,80 @@
                         [
                             {
                                 "trKey": "QAccessiblePlugin",
-                                "value": "'QAccessiblePlugin', 'accessible', 'QAccessibleFactoryInterface', 'gui', 'QAccessibleInterface *create(const QString &key, QObject *object)'"
+                                "value":
+                                {
+                                    "BaseClassName": "QAccessiblePlugin",
+                                    "PluginTargetPath": "accessible",
+                                    "PluginInterface": "QAccessibleFactoryInterface",
+                                    "PluginModule": "gui",
+                                    "PluginMethods": "QAccessibleInterface *create(const QString &key, QObject *object)"
+                                }
                             },
                             {
                                 "trKey": "QGenericPlugin",
-                                "value": "'QGenericPlugin', 'generic', 'QGenericPluginFactoryInterface', 'gui', 'QObject *create(const QString &name, const QString &spec)'"
+                                "value":
+                                {
+                                    "BaseClassName": "QGenericPlugin",
+                                    "PluginTargetPath": "generic",
+                                    "PluginInterface": "QGenericPluginFactoryInterface",
+                                    "PluginModule": "gui",
+                                    "PluginMethods": "QObject *create(const QString &name, const QString &spec)"
+                                }
                             },
                             {
                                 "trKey": "QIconEnginePlugin",
-                                "value": "'QIconEnginePlugin', 'imageformats', 'QIconEngineFactoryInterface', 'gui', 'QIconEngine *create(const QString &filename)'"
+                                "value":
+                                {
+                                    "BaseClassName": "QIconEnginePlugin",
+                                    "PluginTargetPath": "imageformats",
+                                    "PluginInterface": "QIconEngineFactoryInterface",
+                                    "PluginModule": "gui",
+                                    "PluginMethods": "QIconEngine *create(const QString &filename)"
+                                }
                             },
                             {
                                 "trKey": "QImageIOPlugin",
-                                "value": "'QImageIOPlugin', 'imageformats', 'QImageIOHandlerFactoryInterface', 'gui', 'QImageIOPlugin::Capabilities capabilities(QIODevice *device, const QByteArray &format) const|QImageIOHandler *create(QIODevice *device, const QByteArray &format) const'"
+                                "value":
+                                {
+                                    "BaseClassName": "QImageIOPlugin",
+                                    "PluginTargetPath": "imageformats",
+                                    "PluginInterface": "QImageIOHandlerFactoryInterface",
+                                    "PluginModule": "gui",
+                                    "PluginMethods": "QImageIOPlugin::Capabilities capabilities(QIODevice *device, const QByteArray &format) const|QImageIOHandler *create(QIODevice *device, const QByteArray &format) const"
+                                }
                             },
                             {
                                 "trKey": "QScriptExtensionPlugin",
-                                "value": "'QScriptExtensionPlugin', '', 'QScriptExtensionInterface', 'script', 'void initialize(const QString &key, QScriptEngine *engine)|QStringList keys() const'"
+                                "value":
+                                {
+                                    "BaseClassName": "QScriptExtensionPlugin",
+                                    "PluginTargetPath": "",
+                                    "PluginInterface": "QScriptExtensionInterface",
+                                    "PluginModule": "script",
+                                    "PluginMethods": "void initialize(const QString &key, QScriptEngine *engine)|QStringList keys() const"
+                                }
                             },
                             {
                                 "trKey": "QSqlDriverPlugin",
-                                "value": "'QSqlDriverPlugin', 'sqldrivers', 'QSqlDriverFactoryInterface', 'sql', 'QSqlDriver *create(const QString &key)'"
+                                "value":
+                                {
+                                    "BaseClassName": "QSqlDriverPlugin",
+                                    "PluginTargetPath": "sqldrivers",
+                                    "PluginInterface": "QSqlDriverFactoryInterface",
+                                    "PluginModule": "sql",
+                                    "PluginMethods": "QSqlDriver *create(const QString &key)"
+                                }
                             },
                             {
                                 "trKey": "QStylePlugin",
-                                "value": "'QStylePlugin', 'styles', 'QStyleFactoryInterface', 'widgets', 'QStyle *create(const QString &key)'"
+                                "value":
+                                {
+                                    "BaseClassName": "QStylePlugin",
+                                    "PluginTargetPath": "styles",
+                                    "PluginInterface": "QStyleFactoryInterface",
+                                    "PluginModule": "widgets",
+                                    "PluginMethods": "QStyle *create(const QString &key)"
+                                }
                             }
                         ]
                     }
@@ -172,7 +221,7 @@
                     "name": "LibraryQtModule",
                     "trDisplayName": "Qt module:",
                     "type": "ComboBox",
-                    "visible": "%{JS: '%{Type}' != 'qtplugin'}",
+                    "visible": "%{JS: value('Type') != 'qtplugin'}",
                     "data":
                     {
                         "index": 1,
@@ -206,14 +255,14 @@
                     "type": "LineEdit",
                     "trDisplayName": "Header file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" }
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-c++hdr'))}" }
                 },
                 {
                     "name": "SrcFileName",
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++src')}')}" }
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-c++src'))}" }
                 }
             ]
         },
@@ -221,7 +270,7 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: ! %{IsSubproject}}",
+            "enabled": "%{JS: !value('IsSubproject')}",
             "data": { "projectFilePath": "%{ProjectFile}" }
         },
         {
@@ -240,12 +289,12 @@
                     "source": "project.pro",
                     "target": "%{ProFile}",
                     "openAsProject": true,
-                    "condition": "%{JS: '%{BuildSystem}' === 'qmake'}"
+                    "condition": "%{JS: value('BuildSystem') === 'qmake'}"
                 },
                 {
                     "source": "CMakeLists.txt",
                     "openAsProject": true,
-                    "condition": "%{JS: '%{BuildSystem}' === 'cmake'}"
+                    "condition": "%{JS: value('BuildSystem') === 'cmake'}"
                 },
                 {
                     "source": "lib.cpp",
@@ -259,17 +308,17 @@
                 {
                     "source": "lib_global.h",
                     "target": "%{GlobalHdrFileName}",
-                    "condition": "%{JS: '%{Type}' === 'shared'}"
+                    "condition": "%{JS: value('Type') === 'shared'}"
                 },
                 {
                     "source": "project.json",
                     "target": "%{PluginJsonFile}",
-                    "condition": "%{JS: '%{Type}' === 'qtplugin'}"
+                    "condition": "%{JS: value('Type') === 'qtplugin'}"
                 },
                 {
                     "source": "../git.ignore",
                     "target": ".gitignore",
-                    "condition": "%{JS: ! %{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
                 }
             ]
         }

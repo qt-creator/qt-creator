@@ -35,7 +35,7 @@ class JsExtension : public QObject
     Q_OBJECT
 
 public:
-    JsExtension(QObject *parent = nullptr) : QObject(parent) { }
+    JsExtension() {}
 
     Q_INVOKABLE QString fileNameToElementName(const QString &file);
     Q_INVOKABLE QString elementNameToFileName(const QString &element);

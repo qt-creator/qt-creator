@@ -29,6 +29,7 @@
 
 #include <QSet>
 #include <QString>
+#include <QVariant>
 #include <QWizardPage>
 
 #include <functional>
@@ -41,30 +42,30 @@ namespace Internal {
 class QTCREATOR_UTILS_EXPORT ObjectToFieldWidgetConverter : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(QString text READ text NOTIFY textChanged)
+    Q_PROPERTY(QVariant value READ value NOTIFY valueChanged)
 
 public:
-    template <class T, typename... Arguments>
-    static ObjectToFieldWidgetConverter *create(T *sender, void (T::*member)(Arguments...), const std::function<QString()> &toTextFunction)
+    template<class T, typename... Arguments>
+    static ObjectToFieldWidgetConverter *create(T *sender,
+                                                void (T::*member)(Arguments...),
+                                                const std::function<QVariant()> &toVariantFunction)
     {
         auto widget = new ObjectToFieldWidgetConverter();
-        widget->toTextFunction = toTextFunction;
+        widget->toVariantFunction = toVariantFunction;
         connect(sender, &QObject::destroyed, widget, &QObject::deleteLater);
-        connect(sender, member, widget, [widget] () {
-            emit widget->textChanged(widget->text());
-        });
+        connect(sender, member, widget, [widget]() { emit widget->valueChanged(widget->value()); });
         return widget;
     }
 
 signals:
-    void textChanged(const QString&);
+    void valueChanged(const QVariant &);
 
 private:
     ObjectToFieldWidgetConverter () = default;
 
-    // is used by the property text
-    QString text() {return toTextFunction();}
-    std::function<QString()> toTextFunction;
+    // is used by the property value
+    QVariant value() { return toVariantFunction(); }
+    std::function<QVariant()> toVariantFunction;
 };
 
 } // Internal
@@ -79,10 +80,17 @@ public:
     virtual void pageWasAdded(); // called when this page was added to a Utils::Wizard
 
     template<class T, typename... Arguments>
-    void registerObjectAsFieldWithName(const QString &name, T *sender, void (T::*changeSignal)(Arguments...),
-        const std::function<QString()> &senderToString)
+    void registerObjectAsFieldWithName(const QString &name,
+                                       T *sender,
+                                       void (T::*changeSignal)(Arguments...),
+                                       const std::function<QVariant()> &senderToVariant)
     {
-        registerFieldWithName(name, Internal::ObjectToFieldWidgetConverter::create(sender, changeSignal, senderToString), "text", SIGNAL(textChanged(QString)));
+        registerFieldWithName(name,
+                              Internal::ObjectToFieldWidgetConverter::create(sender,
+                                                                             changeSignal,
+                                                                             senderToVariant),
+                              "value",
+                              SIGNAL(valueChanged(QValue)));
     }
 
     void registerFieldWithName(const QString &name, QWidget *widget,

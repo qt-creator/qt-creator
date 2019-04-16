@@ -119,4 +119,23 @@ private:
     friend class ProjectExplorerPluginPrivate;
 };
 
-} //namespace ProjectExplorer
+namespace Internal {
+
+class JsonWizardFactoryJsExtension : public QObject
+{
+    Q_OBJECT
+public:
+    JsonWizardFactoryJsExtension(Core::Id platformId,
+                                 const QSet<Core::Id> &availableFeatures,
+                                 const QSet<Core::Id> &pluginFeatures);
+
+    Q_INVOKABLE QVariant value(const QString &name) const;
+
+private:
+    Core::Id m_platformId;
+    QSet<Core::Id> m_availableFeatures;
+    QSet<Core::Id> m_pluginFeatures;
+};
+
+} // namespace Internal
+} // namespace ProjectExplorer

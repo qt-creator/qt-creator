@@ -7,7 +7,7 @@
     "trDisplayName": "Qt for Python - Window",
     "trDisplayCategory": "Application",
     "icon": "icon.png",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('PythonEditor') >= 0}",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.6" ],
 
     "options":
@@ -52,14 +52,14 @@
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-python')}')}" }
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-python'))}" }
                 },
                 {
                     "name": "ProjectFileName",
                     "type": "LineEdit",
                     "trDisplayName": "Project file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', 'pyproject')}" }
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), 'pyproject')}" }
                 }
             ]
         },

@@ -7,12 +7,12 @@
     "trDisplayName": "Qt Designer Form",
     "trDisplayCategory": "Qt",
     "iconText": "ui",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('Designer') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('Designer') >= 0}",
 
     "options": [
-        { "key": "UiClass", "value": "%{JS: QtSupport.uiClassName([ %{FormContents} ].join('\\n'))}" },
+        { "key": "UiClass", "value": "%{JS: QtSupport.uiClassName(value('FormContents'))}" },
         { "key": "Extension", "value": "%{JS: Util.preferredSuffix('application/x-designer')}"},
-        { "key": "InitialFileName", "value": "%{JS: Cpp.classToFileName('%{UiClass}', '%{Extension}') }" }
+        { "key": "InitialFileName", "value": "%{JS: Cpp.classToFileName(value('UiClass'), value('Extension')) }" }
     ],
 
     "pages":
@@ -41,7 +41,7 @@
             "data":
             {
                 "source": "file.ui",
-                "target": "%{JS: Util.fileName('%{TargetPath}', '%{Extension}')}",
+                "target": "%{JS: Util.fileName(value('TargetPath'), value('Extension'))}",
                 "openInEditor": true
             }
         }

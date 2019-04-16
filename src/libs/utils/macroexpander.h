@@ -56,6 +56,7 @@ public:
 
     QString expand(const QString &stringWithVariables) const;
     QByteArray expand(const QByteArray &stringWithVariables) const;
+    QVariant expandVariant(const QVariant &v) const;
 
     QString expandProcessArgs(const QString &argsWithVariables) const;
 

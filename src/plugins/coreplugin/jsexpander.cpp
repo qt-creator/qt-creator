@@ -34,8 +34,26 @@
 #include <QDebug>
 #include <QJSEngine>
 
-namespace Core {
+#include <unordered_map>
 
+namespace std {
+template<> struct hash<QString>
+{
+    using argument_type = QString;
+    using result_type = size_t;
+    result_type operator()(const argument_type &v) const
+    {
+        return hash<string>()(v.toStdString());
+    }
+};
+} // namespace std
+
+using ExtensionMap = std::unordered_map<QString, Core::JsExpander::ObjectFactory>;
+Q_GLOBAL_STATIC(ExtensionMap, globalJsExtensions);
+
+static Core::JsExpander *globalExpander = nullptr;
+
+namespace Core {
 namespace Internal {
 
 class JsExpanderPrivate {
@@ -45,9 +63,14 @@ public:
 
 } // namespace Internal
 
-static Internal::JsExpanderPrivate *d;
+void JsExpander::registerGlobalObject(const QString &name, const ObjectFactory &factory)
+{
+    globalJsExtensions->insert({name, factory});
+    if (globalExpander)
+        globalExpander->registerObject(name, factory());
+}
 
-void JsExpander::registerQObjectForJs(const QString &name, QObject *obj)
+void JsExpander::registerObject(const QString &name, QObject *obj)
 {
     QJSValue jsObj = d->m_engine.newQObject(obj);
     d->m_engine.globalObject().setProperty(name, jsObj);
@@ -77,16 +100,21 @@ QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
     return QString();
 }
 
-JsExpander::JsExpander()
+QJSEngine &JsExpander::engine()
 {
-    d = new Internal::JsExpanderPrivate;
-    Utils::globalMacroExpander()->registerPrefix("JS",
+    return d->m_engine;
+}
+
+void JsExpander::registerForExpander(Utils::MacroExpander *macroExpander)
+{
+    macroExpander->registerPrefix(
+        "JS",
         QCoreApplication::translate("Core::JsExpander",
                                     "Evaluate simple JavaScript statements.<br>"
                                     "The statements may not contain '{' nor '}' characters."),
-        [](QString in) -> QString {
+        [this](QString in) -> QString {
             QString errorMessage;
-            QString result = JsExpander::evaluate(in, &errorMessage);
+            QString result = evaluate(in, &errorMessage);
             if (!errorMessage.isEmpty()) {
                 qWarning() << errorMessage;
                 return errorMessage;
@@ -94,8 +122,21 @@ JsExpander::JsExpander()
                 return result;
             }
         });
+}
 
-    registerQObjectForJs(QLatin1String("Util"), new Internal::UtilsJsExtension);
+JsExpander *JsExpander::createGlobalJsExpander()
+{
+    globalExpander = new JsExpander();
+    registerGlobalObject<Internal::UtilsJsExtension>("Util");
+    globalExpander->registerForExpander(Utils::globalMacroExpander());
+    return globalExpander;
+}
+
+JsExpander::JsExpander()
+{
+    d = new Internal::JsExpanderPrivate;
+    for (const std::pair<const QString, ObjectFactory> &obj : *globalJsExtensions)
+        registerObject(obj.first, obj.second());
 }
 
 JsExpander::~JsExpander()

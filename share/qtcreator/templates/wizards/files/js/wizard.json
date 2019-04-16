@@ -7,7 +7,7 @@
     "trDisplayName": "JS File",
     "trDisplayCategory": "Qt",
     "iconText": "js",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlJSEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('QmlJSEditor') >= 0}",
 
     "pages" :
     [
@@ -47,7 +47,7 @@
             "data":
             {
                 "source": "file.js",
-                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/javascript')}')}",
+                "target": "%{JS: Util.fileName(value('TargetPath'), Util.preferredSuffix('application/javascript'))}",
                 "openInEditor": true
             }
         }

@@ -8,22 +8,22 @@
     "trDisplayCategory": "Application",
     "icon": "icon.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.7" ],
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 || [ %{Plugins} ].indexOf('QbsProjectManager') >= 0 || [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0}",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: '%{BuildSystem}' === 'qmake' ? '%{ProFile}' : ('%{BuildSystem}' === 'cmake' ? '%{CMakeFile}' : '%{QbsFile}')}" },
-        { "key": "ProFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
-        { "key": "QbsFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qbs')}" },
+        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'qmake' ? value('ProFile') : (value('BuildSystem') === 'cmake' ? value('CMakeFile') : value('QbsFile'))}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
+        { "key": "QbsFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qbs')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
-        { "key": "QtQuickVersion", "value": "%{JS: %{QtVersion}.QtQuickVersion}" },
-        { "key": "QtQuickControlsVersion", "value": "%{JS: %{QtVersion}.QtQuickControlsVersion}" },
-        { "key": "QtQuickVirtualKeyboardImport", "value": "%{JS: %{QtVersion}.QtQuickVirtualKeyboardImport}" },
-        { "key": "QtQuickControlsStyle", "value": "%{JS: %{ControlsStyle}.QtQuickControlsStyle}" },
-        { "key": "QtQuickControlsStyleTheme", "value": "%{JS: %{ControlsStyle}.QtQuickControlsStyleTheme}" },
+        { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
+        { "key": "QtQuickControlsVersion", "value": "%{JS: value('QtVersion').QtQuickControlsVersion}" },
+        { "key": "QtQuickVirtualKeyboardImport", "value": "%{JS: value('QtVersion').QtQuickVirtualKeyboardImport}" },
+        { "key": "QtQuickControlsStyle", "value": "%{JS: value('ControlsStyle').QtQuickControlsStyle}" },
+        { "key": "QtQuickControlsStyleTheme", "value": "%{JS: value('ControlsStyle').QtQuickControlsStyleTheme}" },
         { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
-        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: [ %{Plugins} ].indexOf('Boot2Qt') >= 0 || [ %{Plugins} ].indexOf('Boot2QtQdb') >= 0}" },
+        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
         { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" }
     ],
 
@@ -38,7 +38,7 @@
             "trDisplayName": "Define Build System",
             "trShortTitle": "Build System",
             "typeId": "Fields",
-            "enabled": "%{JS: ! %{IsSubproject}}",
+            "enabled": "%{JS: !value('IsSubproject')}",
             "data":
             [
                 {
@@ -53,17 +53,17 @@
                             {
                                 "trKey": "qmake",
                                 "value": "qmake",
-                                "condition": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
                             },
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
-                                "condition": "%{JS: [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
                             },
                             {
                                 "trKey": "Qbs",
                                 "value": "qbs",
-                                "condition": "%{JS: [ %{Plugins} ].indexOf('QbsProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -88,65 +88,65 @@
                             {
                                 "trKey": "Qt 5.13",
                                 "value":
-                                "({
-                                    'QtQuickVersion': '2.13',
-                                    'QtQuickControlsVersion': '2.13',
-                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.4'
-                                })"
+                                {
+                                    "QtQuickVersion": "2.13",
+                                    "QtQuickControlsVersion": "2.13",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4"
+                                }
                             },
                             {
                                 "trKey": "Qt 5.12",
                                 "value":
-                                "({
-                                    'QtQuickVersion': '2.12',
-                                    'QtQuickControlsVersion': '2.5',
-                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.4'
-                                })"
+                                {
+                                    "QtQuickVersion": "2.12",
+                                    "QtQuickControlsVersion": "2.5",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4"
+                                }
                             },
                             {
                                 "trKey": "Qt 5.11",
                                 "value":
-                                "({
-                                    'QtQuickVersion': '2.11',
-                                    'QtQuickControlsVersion': '2.4',
-                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
-                                })"
+                                {
+                                    "QtQuickVersion": "2.11",
+                                    "QtQuickControlsVersion": "2.4",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.3"
+                                }
                             },
                             {
                                 "trKey": "Qt 5.10",
                                 "value":
-                                "({
-                                    'QtQuickVersion': '2.10',
-                                    'QtQuickControlsVersion': '2.3',
-                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.3'
-                                })"
+                                {
+                                    "QtQuickVersion": "2.10",
+                                    "QtQuickControlsVersion": "2.3",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.3"
+                                }
                             },
                             {
                                 "trKey": "Qt 5.9",
                                 "value":
-                                "({
-                                    'QtQuickVersion': '2.9',
-                                    'QtQuickControlsVersion': '2.2',
-                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.2'
-                                })"
+                                {
+                                    "QtQuickVersion": "2.9",
+                                    "QtQuickControlsVersion": "2.2",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.2"
+                                }
                             },
                             {
                                 "trKey": "Qt 5.8",
                                 "value":
-                                "({
-                                    'QtQuickVersion': '2.8',
-                                    'QtQuickControlsVersion': '2.1',
-                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
-                                })"
+                                {
+                                    "QtQuickVersion": "2.8",
+                                    "QtQuickControlsVersion": "2.1",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.1"
+                                }
                             },
                             {
                                 "trKey": "Qt 5.7",
                                 "value":
-                                "({
-                                    'QtQuickVersion': '2.7',
-                                    'QtQuickControlsVersion': '2.0',
-                                    'QtQuickVirtualKeyboardImport': 'QtQuick.VirtualKeyboard 2.1'
-                                })"
+                                {
+                                    "QtQuickVersion": "2.7",
+                                    "QtQuickControlsVersion": "2.0",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.1"
+                                }
                             }
                         ]
                     }
@@ -163,66 +163,66 @@
                             {
                                 "trKey": "Default",
                                 "value":
-                                "({
-                                    'QtQuickControlsStyle': 'Default',
-                                    'QtQuickControlsStyleTheme': ''
-                                })"
+                                {
+                                    "QtQuickControlsStyle": "Default",
+                                    "QtQuickControlsStyleTheme": ""
+                                }
                             },
                             {
                                 "trKey": "Material Light",
                                 "value":
-                                "({
-                                    'QtQuickControlsStyle': 'Material',
-                                    'QtQuickControlsStyleTheme': 'Light'
-                                })"
+                                {
+                                    "QtQuickControlsStyle": "Material",
+                                    "QtQuickControlsStyleTheme": "Light"
+                                }
                             },
                             {
                                 "trKey": "Material Dark",
                                 "value":
-                                "({
-                                    'QtQuickControlsStyle': 'Material',
-                                    'QtQuickControlsStyleTheme': 'Dark'
-                                })"
+                                {
+                                    "QtQuickControlsStyle": "Material",
+                                    "QtQuickControlsStyleTheme": "Dark"
+                                }
                             },
                             {
                                 "trKey": "Universal Light",
                                 "value":
-                                "({
-                                    'QtQuickControlsStyle': 'Universal',
-                                    'QtQuickControlsStyleTheme': 'Light'
-                                })"
+                                {
+                                    "QtQuickControlsStyle": "Universal",
+                                    "QtQuickControlsStyleTheme": "Light"
+                                }
                             },
                             {
                                 "trKey": "Universal Dark",
                                 "value":
-                                "({
-                                    'QtQuickControlsStyle': 'Universal',
-                                    'QtQuickControlsStyleTheme': 'Dark'
-                                })"
+                                {
+                                    "QtQuickControlsStyle": "Universal",
+                                    "QtQuickControlsStyleTheme": "Dark"
+                                }
                             },
                             {
                                 "trKey": "Universal System",
                                 "value":
-                                "({
-                                    'QtQuickControlsStyle': 'Universal',
-                                    'QtQuickControlsStyleTheme': 'System'
-                                })"
+                                {
+                                    "QtQuickControlsStyle": "Universal",
+                                    "QtQuickControlsStyleTheme": "System"
+                                }
                             },
                             {
                                 "trKey": "Fusion (Qt 5.10+)",
                                 "value":
-                                "({
-                                    'QtQuickControlsStyle': 'Fusion',
-                                    'QtQuickControlsStyleTheme': ''
-                                })"
+                                {
+                                    "QtQuickControlsStyle": "Fusion",
+                                    "QtQuickControlsStyleTheme": ""
+                                }
                             },
                             {
                                 "trKey": "Imagine (Qt 5.10+)",
                                 "value":
-                                "({
-                                    'QtQuickControlsStyle': 'Imagine',
-                                    'QtQuickControlsStyleTheme': ''
-                                })"
+                                {
+                                    "QtQuickControlsStyle": "Imagine",
+                                    "QtQuickControlsStyleTheme": ""
+                                }
                             }
                         ]
                     }
@@ -242,7 +242,7 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: ! %{IsSubproject}}",
+            "enabled": "%{JS: !value('IsSubproject')}",
             "data": {
                 "projectFilePath": "%{ProjectFile}",
                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "%{QtQuickFeature}" ]
@@ -264,19 +264,19 @@
                     "source": "../app.pro",
                     "target": "%{ProFile}",
                     "openAsProject": true,
-                    "condition": "%{JS: '%{BuildSystem}' === 'qmake'}"
+                    "condition": "%{JS: value('BuildSystem') === 'qmake'}"
                 },
                 {
                     "source": "../CMakeLists.txt",
                     "target": "CMakeLists.txt",
                     "openAsProject": true,
-                    "condition": "%{JS: '%{BuildSystem}' === 'cmake'}"
+                    "condition": "%{JS: value('BuildSystem') === 'cmake'}"
                 },
                 {
                     "source": "../app.qbs",
                     "target": "%{QbsFile}",
                     "openAsProject": true,
-                    "condition": "%{JS: '%{BuildSystem}' === 'qbs'}"
+                    "condition": "%{JS: value('BuildSystem') === 'qbs'}"
                 },
                 {
                     "source": "../main.cpp",
@@ -309,7 +309,7 @@
                 {
                     "source": "../../git.ignore",
                     "target": ".gitignore",
-                    "condition": "%{JS: !%{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
                 }
             ]
         }

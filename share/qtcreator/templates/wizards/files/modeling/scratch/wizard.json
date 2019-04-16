@@ -8,7 +8,7 @@
     "trDisplayCategory": "Modeling",
     "iconText": "qmodel",
     "platformIndependent": true,
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('ModelEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('ModelEditor') >= 0}",
 
     "options": [ { "key": "TargetPath", "value": "%{JS: Util.mktemp('model-XXXXXX.qmodel')}" } ],
 

@@ -8,18 +8,18 @@
     "trDisplayCategory": "Application",
     "icon": "../../global/guiapplication.png",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0 || [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0  || [ %{Plugins} ].indexOf('QbsProjectManager') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0}",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: '%{BuildSystem}' === 'qmake' ? '%{ProFile}' : '%{BuildSystem}' === 'cmake' ? '%{CMakeFile}' : '%{QbsFile}'}" },
-        { "key": "ProFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'pro')}" },
+        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'qmake' ? value('ProFile') : value('BuildSystem') === 'cmake' ? value('CMakeFile') : value('QbsFile')}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
-        { "key": "QbsFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'qbs')}" },
+        { "key": "QbsFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qbs')}" },
         { "key": "MainFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
-        { "key": "UiHdrFileName", "value": "%{JS: ('%{BuildSystem}' === 'cmake' ? (Util.path('%{FormFileName}') + '/') : '') + 'ui_' + Util.completeBaseName('%{FormFileName}') + '.h'}" },
-        { "key": "CN", "value": "%{JS: Cpp.className('%{Class}')}" },
-        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard('%{HdrFileName}')}" }
+        { "key": "UiHdrFileName", "value": "%{JS: (value('BuildSystem') === 'cmake' ? (Util.path(value('FormFileName')) + '/') : '') + 'ui_' + Util.completeBaseName(value('FormFileName')) + '.h'}" },
+        { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
+        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" }
     ],
 
     "pages":
@@ -34,7 +34,7 @@
             "trDisplayName": "Define Build System",
             "trShortTitle": "Build System",
             "typeId": "Fields",
-            "enabled": "%{JS: ! %{IsSubproject}}",
+            "enabled": "%{JS: !value('IsSubproject')}",
             "data":
             [
                 {
@@ -47,19 +47,19 @@
                         "items":
                         [
                             {
-                                "trKey": "QMake",
+                                "trKey": "qmake",
                                 "value": "qmake",
-                                "condition": "%{JS: [ %{Plugins} ].indexOf('QmakeProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
                             },
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
-                                "condition": "%{JS: [ %{Plugins} ].indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
                             },
                             {
                                 "trKey": "Qbs",
                                 "value": "qbs",
-                                "condition": "%{JS: [ %{Plugins} ].indexOf('QbsProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
                             }
                         ]
                     }
@@ -93,7 +93,7 @@
                     "data":
                     {
                         "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
-                        "trText": "%{JS: '%{BaseClass}'.slice(1)}"
+                        "trText": "%{JS: value('BaseClass') ? value('BaseClass').slice(1) : 'MyClass'}"
                     }
                 },
                 {
@@ -114,14 +114,14 @@
                     "type": "LineEdit",
                     "trDisplayName": "Header file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" }
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-c++hdr'))}" }
                 },
                 {
                     "name": "SrcFileName",
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-c++src')}')}" }
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-c++src'))}" }
                 },
                 {
                     "name": "GenerateForm",
@@ -135,7 +135,7 @@
                     "trDisplayName": "Form file:",
                     "enabled": "%{GenerateForm}",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName('%{Class}', 'ui')}" }
+                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), 'ui')}" }
                 }
             ]
         },
@@ -143,7 +143,7 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: ! %{IsSubproject}}",
+            "enabled": "%{JS: !value('IsSubproject')}",
             "data": { "projectFilePath": "%{ProjectFile}" }
         },
         {
@@ -162,18 +162,18 @@
                     "source": "project.pro",
                     "target": "%{ProFile}",
                     "openAsProject": true,
-                    "condition": "%{JS: '%{BuildSystem}' === 'qmake'}"
+                    "condition": "%{JS: value('BuildSystem') === 'qmake'}"
                 },
                 {
                     "source": "CMakeLists.txt",
                     "openAsProject": true,
-                    "condition": "%{JS: '%{BuildSystem}' === 'cmake'}"
+                    "condition": "%{JS: value('BuildSystem') === 'cmake'}"
                 },
                 {
                     "source": "project.qbs",
                     "target": "%{QbsFile}",
                     "openAsProject": true,
-                    "condition": "%{JS: '%{BuildSystem}' === 'qbs'}"
+                    "condition": "%{JS: value('BuildSystem') === 'qbs'}"
                 },
                 {
                     "source": "main.cpp",
@@ -196,7 +196,7 @@
                 {
                     "source": "../git.ignore",
                     "target": ".gitignore",
-                    "condition": "%{JS: ! %{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
                 }
             ]
         }

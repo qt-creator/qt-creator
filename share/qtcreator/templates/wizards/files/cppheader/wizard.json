@@ -7,9 +7,9 @@
     "trDisplayName": "C++ Header File",
     "trDisplayCategory": "C++",
     "iconText": "h",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
 
-    "options": { "key": "FileName", "value": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" },
+    "options": { "key": "FileName", "value": "%{JS: Util.fileName(value('TargetPath'), Util.preferredSuffix('text/x-c++hdr'))}" },
 
     "pages" :
     [
@@ -33,7 +33,7 @@
                 "source": "file.h",
                 "target": "%{FileName}",
                 "openInEditor": true,
-                "options": { "key": "Cpp:License:FileName", "value": "%{JS: Util.fileName('%{FileName}')}" }
+                "options": { "key": "Cpp:License:FileName", "value": "%{JS: Util.fileName(value('FileName'))}" }
             }
         }
     ]

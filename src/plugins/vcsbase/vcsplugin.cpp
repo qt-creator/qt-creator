@@ -98,7 +98,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     JsonWizardFactory::registerPageFactory(new Internal::VcsConfigurationPageFactory);
     JsonWizardFactory::registerPageFactory(new Internal::VcsCommandPageFactory);
 
-    JsExpander::registerQObjectForJs(QLatin1String("Vcs"), new VcsJsExtension);
+    JsExpander::registerGlobalObject<VcsJsExtension>("Vcs");
 
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
     expander->registerVariable(Constants::VAR_VCS_NAME,

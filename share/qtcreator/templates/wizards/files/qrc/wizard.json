@@ -7,7 +7,7 @@
     "trDisplayName": "Qt Resource File",
     "trDisplayCategory": "Qt",
     "iconText": "qrc",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('ResourceEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('ResourceEditor') >= 0}",
 
     "pages" :
     [
@@ -29,7 +29,7 @@
             "data":
             {
                 "source": "file.qrc",
-                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/vnd.qt.xml.resource')}')}",
+                "target": "%{JS: Util.fileName(value('TargetPath'), Util.preferredSuffix('application/vnd.qt.xml.resource'))}",
                 "openInEditor": true
             }
         }

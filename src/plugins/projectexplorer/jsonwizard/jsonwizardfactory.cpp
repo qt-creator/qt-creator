@@ -34,6 +34,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/jsexpander.h>
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -46,10 +47,11 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QMap>
+#include <QJSEngine>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QMap>
 #include <QUuid>
 
 namespace ProjectExplorer {
@@ -513,9 +515,17 @@ bool JsonWizardFactory::isAvailable(Core::Id platformId) const
                               [platformId]() { return platformId.toString(); });
     expander.registerVariable("Features", tr("The features available to this wizard."),
                               [this, e, platformId]() { return JsonWizard::stringListToArrayString(Core::Id::toStringList(availableFeatures(platformId)), e); });
-    expander.registerVariable("Plugins", tr("The plugins loaded."),
-                              [this, e]() { return JsonWizard::stringListToArrayString(Core::Id::toStringList(pluginFeatures()), e); });
-
+    expander.registerVariable("Plugins", tr("The plugins loaded."), [this, e]() {
+        return JsonWizard::stringListToArrayString(Core::Id::toStringList(pluginFeatures()), e);
+    });
+    Core::JsExpander jsExpander;
+    jsExpander.registerObject("Wizard",
+                              new Internal::JsonWizardFactoryJsExtension(platformId,
+                                                                         availableFeatures(
+                                                                             platformId),
+                                                                         pluginFeatures()));
+    jsExpander.engine().evaluate("var value = Wizard.value");
+    jsExpander.registerForExpander(e);
     return JsonWizard::boolFromVariant(m_enabledExpression, &expander);
 }
 
@@ -660,4 +670,26 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const QDir &baseDir,
     return errorMessage->isEmpty();
 }
 
+namespace Internal {
+
+JsonWizardFactoryJsExtension::JsonWizardFactoryJsExtension(Core::Id platformId,
+                                                           const QSet<Core::Id> &availableFeatures,
+                                                           const QSet<Core::Id> &pluginFeatures)
+    : m_platformId(platformId)
+    , m_availableFeatures(availableFeatures)
+    , m_pluginFeatures(pluginFeatures)
+{}
+
+QVariant JsonWizardFactoryJsExtension::value(const QString &name) const
+{
+    if (name == "Platform")
+        return m_platformId.toString();
+    if (name == "Features")
+        return Core::Id::toStringList(m_availableFeatures);
+    if (name == "Plugins")
+        return Core::Id::toStringList(m_pluginFeatures);
+    return QVariant();
+}
+
+} // namespace Internal
 } // namespace ProjectExplorer

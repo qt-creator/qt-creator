@@ -92,7 +92,7 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
     d->modelFactory = new ModelEditorFactory(d->uiController, this);
     d->settingsController = new SettingsController(this);
 
-    Core::JsExpander::registerQObjectForJs(QLatin1String("Modeling"), new JsExtension(this));
+    Core::JsExpander::registerGlobalObject<JsExtension>("Modeling");
 
     connect(d->settingsController, &SettingsController::saveSettings,
             d->uiController, &UiController::saveSettings);

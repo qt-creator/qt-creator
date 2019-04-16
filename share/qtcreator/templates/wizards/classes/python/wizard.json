@@ -7,11 +7,11 @@
     "trDisplayName": "Python Class",
     "trDisplayCategory": "Python",
     "icon": "../../files/python/icon.png",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('PythonEditor') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('PythonEditor') >= 0}",
 
     "options":
     [
-        { "key": "Base", "value":"%{JS: ( '%{BaseCB}' === '' ) ? '%{BaseEdit}' : '%{BaseCB}'}" },
+        { "key": "Base", "value":"%{JS: value('BaseCB') === '' ? value('BaseEdit') : value('BaseCB')}" },
         { "key": "Imports", "value": "%{ImportQtCore}%{ImportQtWidgets}%{ImportQtDeclarative}"}
     ],
 
@@ -52,7 +52,7 @@
                 {
                     "name": "BaseEdit",
                     "type": "LineEdit",
-                    "enabled": "%{JS: '%{BaseCB}' === ''}",
+                    "enabled": "%{JS: value('BaseCB') === ''}",
                     "mandatory": false,
                     "data": { "trText": "%{BaseCB}" }
                 },
@@ -71,7 +71,7 @@
                     {
                         "checkedValue": "QtCore",
                         "uncheckedValue": "",
-                        "checked": "%{JS: '%{Base}' !== ''}"
+                        "checked": "%{JS: value('Base') !== ''}"
                     }
                 },
                 {
@@ -82,7 +82,7 @@
                     {
                         "checkedValue": "QtWidgets",
                         "uncheckedValue": "",
-                        "checked": "%{JS: '%{Base}' === 'QWidget'}"
+                        "checked": "%{JS: value('Base') === 'QWidget'}"
                     }
                 },
                 {
@@ -93,7 +93,7 @@
                     {
                         "checkedValue": "QtQuick",
                         "uncheckedValue": "",
-                        "checked": "%{JS: '%{Base}' === 'QQuickItem'}"
+                        "checked": "%{JS: value('Base') === 'QQuickItem'}"
                     }
                 },
                 {
@@ -108,7 +108,7 @@
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Util.fileName('%{Class}', '%{JS: Util.preferredSuffix('text/x-python')}')}" }
+                    "data": { "trText": "%{JS: Util.fileName(value('Class'), Util.preferredSuffix('text/x-python'))}" }
                 },
                 {
                     "name": "TargetPath",

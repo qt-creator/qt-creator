@@ -85,7 +85,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     ProFileEvaluator::initialize();
     new ProFileCacheManager(this);
 
-    JsExpander::registerQObjectForJs(QLatin1String("QtSupport"), new CodeGenerator);
+    JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
 
     d = new QtSupportPluginPrivate;
 

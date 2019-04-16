@@ -127,7 +127,9 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
                 *ret = options.value(n);
                 return true;
             });
-            nested.registerExtraResolver([expander](QString n, QString *ret) { return expander->resolveMacro(n, ret); });
+            nested.registerExtraResolver([expander](QString n, QString *ret) {
+                return expander->resolveMacro(n, ret);
+            });
 
             gf.setContents(Utils::TemplateEngine::processText(&nested, QString::fromUtf8(reader.data()),
                                                               errorMessage));

@@ -295,6 +295,29 @@ QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const
     return expand(QString::fromLatin1(stringWithVariables)).toLatin1();
 }
 
+QVariant MacroExpander::expandVariant(const QVariant &v) const
+{
+    const auto type = QMetaType::Type(v.type());
+    if (type == QMetaType::QString) {
+        return expand(v.toString());
+    } else if (type == QMetaType::QStringList) {
+        return Utils::transform(v.toStringList(),
+                                [this](const QString &s) -> QVariant { return expand(s); });
+    } else if (type == QMetaType::QVariantList) {
+        return Utils::transform(v.toList(), [this](const QVariant &v) { return expandVariant(v); });
+    } else if (type == QMetaType::QVariantMap) {
+        const auto map = v.toMap();
+        QVariantMap result;
+        QMapIterator<QString, QVariant> it(map);
+        while (it.hasNext()) {
+            it.next();
+            result.insert(it.key(), expandVariant(it.value()));
+        }
+        return result;
+    }
+    return v;
+}
+
 QString MacroExpander::expandProcessArgs(const QString &argsWithVariables) const
 {
     return QtcProcess::expandMacros(argsWithVariables, d);

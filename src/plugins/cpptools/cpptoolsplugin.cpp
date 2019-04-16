@@ -172,7 +172,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     d = new CppToolsPluginPrivate;
 
-    JsExpander::registerQObjectForJs(QLatin1String("Cpp"), new CppToolsJsExtension);
+    JsExpander::registerGlobalObject<CppToolsJsExtension>("Cpp");
 
     // Menus
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);

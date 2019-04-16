@@ -29,6 +29,7 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <coreplugin/generatedfile.h>
+#include <coreplugin/jsexpander.h>
 
 #include <utils/wizard.h>
 #include <utils/macroexpander.h>
@@ -37,7 +38,24 @@
 
 namespace ProjectExplorer {
 
+class JsonWizard;
 class JsonWizardGenerator;
+
+namespace Internal {
+
+class JsonWizardJsExtension : public QObject
+{
+    Q_OBJECT
+public:
+    JsonWizardJsExtension(JsonWizard *wizard);
+
+    Q_INVOKABLE QVariant value(const QString &name) const;
+
+private:
+    JsonWizard *m_wizard;
+};
+
+} // namespace Internal
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT JsonWizard : public Utils::Wizard
@@ -126,6 +144,7 @@ private:
 
     GeneratorFiles m_files;
     Utils::MacroExpander m_expander;
+    Core::JsExpander m_jsExpander;
 };
 
 } // namespace ProjectExplorer

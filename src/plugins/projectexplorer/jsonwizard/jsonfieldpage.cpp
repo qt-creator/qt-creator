@@ -810,7 +810,7 @@ std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &it
     if (item.type() == QVariant::Map) {
         QVariantMap tmp = item.toMap();
         const QString key = JsonWizardFactory::localizedString(consumeValue(tmp, "trKey", QString()).toString());
-        const QString value = consumeValue(tmp, "value", key).toString();
+        const QVariant value = consumeValue(tmp, "value", key);
 
         if (key.isNull() || key.isEmpty()) {
             *errorMessage  = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
@@ -920,7 +920,7 @@ void ListField::initializeData(MacroExpander *expander)
         if (item.get() == currentItem)
             currentItem = expandedValuesItem;
         expandedValuesItem->setText(expander->expand(item->text()));
-        expandedValuesItem->setData(expander->expand(item->data(ValueRole).toString()), ValueRole);
+        expandedValuesItem->setData(expander->expandVariant(item->data(ValueRole)), ValueRole);
         expandedValuesItem->setData(expander->expand(item->data(IconStringRole).toString()), IconStringRole);
         expandedValuesItem->setData(condition, ConditionRole);
 
@@ -1020,8 +1020,8 @@ void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
     page->registerObjectAsFieldWithName<QItemSelectionModel>(name, selectionModel(), &QItemSelectionModel::selectionChanged, [this]() {
         const QModelIndex i = selectionModel()->currentIndex();
         if (i.isValid())
-            return i.data(ValueRole).toString();
-        return QString();
+            return i.data(ValueRole);
+        return QVariant();
     });
     QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, page, [page]() {
         emit page->completeChanged();
@@ -1058,8 +1058,8 @@ void IconListField::setup(JsonFieldPage *page, const QString &name)
     page->registerObjectAsFieldWithName<QItemSelectionModel>(name, selectionModel(), &QItemSelectionModel::selectionChanged, [this]() {
         const QModelIndex i = selectionModel()->currentIndex();
         if (i.isValid())
-            return i.data(ValueRole).toString();
-        return QString();
+            return i.data(ValueRole);
+        return QVariant();
     });
     QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, page, [page]() {
         emit page->completeChanged();

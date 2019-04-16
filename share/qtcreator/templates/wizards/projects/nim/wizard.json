@@ -8,13 +8,13 @@
     "trDisplayCategory": "Non-Qt Project",
     "featuresRequired": [ "ToolChain.Nim.NimToolChain" ],
     "icon": "icon.png",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('Nim') >= 0 }",
+    "enabled": "%{JS: value('Plugins').indexOf('Nim') >= 0 }",
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: '%{NimProjectFile}'}" },
-        { "key": "NimProjectFile", "value": "%{JS: Util.fileName('%{ProjectDirectory}/%{ProjectName}', 'nimproject')}" },
-        { "key": "NimFileName", "value": "%{JS: 'main.nim'}" }
+        { "key": "ProjectFile", "value": "%{NimProjectFile}" },
+        { "key": "NimProjectFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'nimproject')}" },
+        { "key": "NimFileName", "value": "main.nim" }
     ],
 
     "pages":
@@ -28,7 +28,7 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: ! %{IsSubproject}}",
+            "enabled": "%{JS: !value('IsSubproject')}",
             "data": { "projectFilePath": "%{ProjectFile}" }
         },
         {
@@ -56,7 +56,7 @@
                 {
                     "source": "../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
-                    "condition": "%{JS: ! %{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
                 }
             ]
         }
