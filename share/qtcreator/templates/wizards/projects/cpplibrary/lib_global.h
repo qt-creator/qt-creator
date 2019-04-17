@@ -23,7 +23,7 @@
 #else
 #  define %{LibraryExport} Q_DECL_IMPORT
 #endif
-
 @if ! '%{Cpp:PragmaOnce}'
+
 #endif // %{GLOBAL_GUARD}
 @endif

@@ -17,14 +17,12 @@
 @if %{IsShared}
 class %{LibraryExport} %{CN}
 {
-
 public:
     %{CN}();
 };
 @elsif %{IsStatic}
 class %{CN}
 {
-
 public:
     %{CN}();
 };
