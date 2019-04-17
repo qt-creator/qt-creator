@@ -37,7 +37,6 @@ class StudioWelcomePlugin : public ExtensionSystem::IPlugin
 
 public slots:
     void closeSplashScreen();
-    void handleSplashCheckBoxChanged();
 
 public:
     ~StudioWelcomePlugin() final;

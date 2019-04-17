@@ -35,6 +35,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/checkablemessagebox.h>
 #include <utils/icon.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
@@ -54,7 +55,7 @@
 namespace StudioWelcome {
 namespace Internal {
 
-const char SHOW_SPLASHSCREEN[] = "Studiowelcomeplugin/showSplashScreen";
+const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
 QPointer<QQuickWidget> s_view = nullptr;
 
@@ -165,17 +166,14 @@ private:
 
 void StudioWelcomePlugin::closeSplashScreen()
 {
-    if (!s_view.isNull())
+    if (!s_view.isNull()) {
+        const bool doNotShowAgain = s_view->rootObject()->property("doNotShowAgain").toBool();
+        if (doNotShowAgain)
+            Utils::CheckableMessageBox::doNotAskAgain(Core::ICore::settings(),
+                                                      DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY);
+
         s_view->deleteLater();
-}
-
-void StudioWelcomePlugin::handleSplashCheckBoxChanged()
-{
-    if (s_view.isNull())
-        return;
-
-    bool show = s_view->rootObject()->property("showSplashScreen").toBool();
-    Core::ICore::settings()->setValue(SHOW_SPLASHSCREEN, !show);
+    }
 }
 
 StudioWelcomePlugin::~StudioWelcomePlugin()
@@ -197,7 +195,8 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
 void StudioWelcomePlugin::extensionsInitialized()
 {
     Core::ModeManager::activateMode(m_welcomeMode->id());
-    if (Core::ICore::settings()->value(SHOW_SPLASHSCREEN, true).toBool()) {
+    if (Utils::CheckableMessageBox::shouldAskAgain(Core::ICore::settings(),
+                                                   DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY)) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] (){
             s_view = new QQuickWidget(Core::ICore::dialogParent());
             s_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -219,7 +218,6 @@ void StudioWelcomePlugin::extensionsInitialized()
                        return);
 
             connect(s_view->rootObject(), SIGNAL(closeClicked()), this, SLOT(closeSplashScreen()));
-            connect(s_view->rootObject(), SIGNAL(checkBoxToggled()), this, SLOT(handleSplashCheckBoxChanged()));
 
             s_view->show();
             s_view->raise();

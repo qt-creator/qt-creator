@@ -33,11 +33,10 @@ Item {
     signal closeClicked
     signal checkBoxToggled
 
-    property alias showSplashScreen: welcome_splash.showSplashScreen
+    property alias doNotShowAgain: welcome_splash.doNotShowAgain
     property alias loadingPlugins: welcome_splash.loadingPlugins
 
     Welcome_splash {
-        onShowSplashScreenChanged: root.checkBoxToggled()
         id: welcome_splash
         x: 0
         y: 0

@@ -37,7 +37,7 @@ Image {
     signal goNext
     signal closeClicked
 
-    property alias showSplashScreen: do_not_show_checkBox.checked
+    property alias doNotShowAgain: do_not_show_checkBox.checked
     property bool loadingPlugins: true
 
     Image {
