@@ -816,20 +816,31 @@ void GitPlugin::recoverDeletedFiles()
 
 void GitPlugin::startRebase()
 {
-    if (!DocumentManager::saveAllModifiedDocuments())
-        return;
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     const QString topLevel = state.topLevel();
-    if (topLevel.isEmpty() || !m_gitClient->canRebase(topLevel))
+
+    startRebaseFromCommit(topLevel, QString());
+}
+
+void GitPlugin::startRebaseFromCommit(const QString &workingDirectory, QString commit)
+{
+    if (!DocumentManager::saveAllModifiedDocuments())
         return;
-    LogChangeDialog dialog(false, ICore::dialogParent());
-    RebaseItemDelegate delegate(dialog.widget());
-    dialog.setWindowTitle(tr("Interactive Rebase"));
-    if (!dialog.runDialog(topLevel))
+    if (workingDirectory.isEmpty() || !m_gitClient->canRebase(workingDirectory))
         return;
-    if (m_gitClient->beginStashScope(topLevel, "Rebase-i"))
-        m_gitClient->interactiveRebase(topLevel, dialog.commit(), false);
+
+    if (commit.isEmpty()) {
+        LogChangeDialog dialog(false, ICore::dialogParent());
+        RebaseItemDelegate delegate(dialog.widget());
+        dialog.setWindowTitle(tr("Interactive Rebase"));
+        if (!dialog.runDialog(workingDirectory))
+            return;
+        commit = dialog.commit();
+    }
+
+    if (m_gitClient->beginStashScope(workingDirectory, "Rebase-i"))
+        m_gitClient->interactiveRebase(workingDirectory, commit, false);
 }
 
 void GitPlugin::startChangeRelatedAction(const Id &id)

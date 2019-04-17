@@ -95,6 +95,7 @@ public:
                            const QStringList &args) override;
     void manageRemotes();
     void initRepository();
+    void startRebaseFromCommit(const QString &workingDirectory, QString commit);
 
 protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState) override;

@@ -303,6 +303,10 @@ void GitEditorWidget::addChangeActions(QMenu *menu, const QString &change)
     menu->addAction(tr("C&heckout Change %1").arg(change), this, [this] {
         GitPlugin::client()->checkout(sourceWorkingDirectory(), m_currentChange);
     });
+    connect(menu->addAction(tr("&Interactive Rebase from Change %1...").arg(change)),
+            &QAction::triggered, this, [this] {
+        GitPlugin::instance()->startRebaseFromCommit(sourceWorkingDirectory(), m_currentChange);
+    });
     menu->addAction(tr("&Log for Change %1").arg(change), this, [this] {
         GitPlugin::client()->log(sourceWorkingDirectory(), QString(), false, {m_currentChange});
     });
