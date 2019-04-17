@@ -391,15 +391,20 @@ int OutputWindow::maxCharCount() const
 
 bool OutputWindow::isReadOnly() const
 {
-    if (d->formatter)
-        return d->formatter->plainTextEdit()->isReadOnly();
-    return false;
+    if (d->formatter) {
+        if (QPlainTextEdit *formatterEditor = d->formatter->plainTextEdit())
+            return formatterEditor->isReadOnly();
+    }
+    return QPlainTextEdit::isReadOnly();
 }
 
 void OutputWindow::setReadOnly(bool readOnly)
 {
-    if (d->formatter)
-        d->formatter->plainTextEdit()->setReadOnly(readOnly);
+    QPlainTextEdit::setReadOnly(readOnly);
+    if (d->formatter) {
+        if (QPlainTextEdit *formatterEditor = d->formatter->plainTextEdit())
+            formatterEditor->setReadOnly(readOnly);
+    }
 }
 
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)
