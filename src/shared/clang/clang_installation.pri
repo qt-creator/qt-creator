@@ -176,7 +176,8 @@ isEmpty(LLVM_VERSION) {
         GCC_MAJOR_VERSION = $$section(GCC_VERSION, ., 0, 0)
         # GCC8 warns about memset/memcpy for types with copy ctor. Clang has some of these.
         greaterThan(GCC_MAJOR_VERSION, 7):QMAKE_CXXFLAGS += -Wno-class-memaccess
-        QMAKE_CXXFLAGS += -Wno-unused-parameter
+        # clang/Format/Format.h has intentional multiline comments
+        QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-comment
     }
 
     LLVM_LIBDIR = $$quote($$system($$llvm_config --libdir, lines))
