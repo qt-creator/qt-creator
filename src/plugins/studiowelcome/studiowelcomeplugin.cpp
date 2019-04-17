@@ -203,6 +203,7 @@ void StudioWelcomePlugin::extensionsInitialized()
             s_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
             s_view->setWindowFlag(Qt::SplashScreen, true);
             s_view->setWindowModality(Qt::ApplicationModal);
+            s_view->engine()->addImportPath("qrc:/studiofonts");
         #ifdef QT_DEBUG
             s_view->engine()->addImportPath(QLatin1Literal(STUDIO_QML_PATH)
                                             + "splashscreen/imports");
