@@ -141,6 +141,11 @@ FileName BaseStringAspect::fileName() const
     return FileName::fromString(d->m_value);
 }
 
+void BaseStringAspect::setFileName(const FileName &val)
+{
+    setValue(val.toString());
+}
+
 void BaseStringAspect::setLabelText(const QString &labelText)
 {
     d->m_labelText = labelText;
