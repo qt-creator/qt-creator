@@ -59,6 +59,7 @@ private:
     void onTableChanged();
 
     bool eventFilter(QObject *object, QEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
     void showOrHideWidgets();
     void initChecksAndPreview();

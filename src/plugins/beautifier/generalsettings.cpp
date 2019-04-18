@@ -29,14 +29,13 @@
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/genericconstants.h>
 #include <utils/mimetypes/mimedatabase.h>
 
 namespace Beautifier {
 namespace Internal {
 
 namespace {
-const char GROUP[]                            = "General";
-const char AUTO_FORMAT_ON_SAVE[]              = "autoFormatOnSave";
 const char AUTO_FORMAT_TOOL[]                 = "autoFormatTool";
 const char AUTO_FORMAT_MIME[]                 = "autoFormatMime";
 const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "autoFormatOnlyCurrentProject";
@@ -50,9 +49,9 @@ GeneralSettings::GeneralSettings()
 void GeneralSettings::read()
 {
     QSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::SETTINGS_GROUP);
-    s->beginGroup(GROUP);
-    m_autoFormatOnSave = s->value(AUTO_FORMAT_ON_SAVE, false).toBool();
+    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
+    s->beginGroup(Utils::Constants::BEAUTIFIER_GENERAL_GROUP);
+    m_autoFormatOnSave = s->value(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE, false).toBool();
     m_autoFormatTool = s->value(AUTO_FORMAT_TOOL, QString()).toString();
     setAutoFormatMime(s->value(AUTO_FORMAT_MIME, "text/x-c++src;text/x-c++hdr").toString());
     m_autoFormatOnlyCurrentProject = s->value(AUTO_FORMAT_ONLY_CURRENT_PROJECT, true).toBool();
@@ -63,9 +62,9 @@ void GeneralSettings::read()
 void GeneralSettings::save()
 {
     QSettings *s = Core::ICore::settings();
-    s->beginGroup(Constants::SETTINGS_GROUP);
-    s->beginGroup(GROUP);
-    s->setValue(AUTO_FORMAT_ON_SAVE, m_autoFormatOnSave);
+    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
+    s->beginGroup(Utils::Constants::BEAUTIFIER_GENERAL_GROUP);
+    s->setValue(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE, m_autoFormatOnSave);
     s->setValue(AUTO_FORMAT_TOOL, m_autoFormatTool);
     s->setValue(AUTO_FORMAT_MIME, autoFormatMimeAsString());
     s->setValue(AUTO_FORMAT_ONLY_CURRENT_PROJECT, m_autoFormatOnlyCurrentProject);

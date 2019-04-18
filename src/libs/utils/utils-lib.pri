@@ -132,6 +132,7 @@ win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
 
 HEADERS += \
+    $$PWD/genericconstants.h \
     $$PWD/globalfilechangeblocker.h \
     $$PWD/benchmarker.h \
     $$PWD/environment.h \

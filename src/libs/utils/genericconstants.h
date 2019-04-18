@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Lorenz Haas
+** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,22 +25,13 @@
 
 #pragma once
 
-#include <QtGlobal>
+namespace Utils {
 
-namespace Beautifier {
 namespace Constants {
 
-const char ACTION_ID[]              = "Beautifier.Action";
-const char MENU_ID[]                = "Beautifier.Menu";
-const char OPTION_CATEGORY[]        = "II.Beautifier";
-const char OPTION_GENERAL_ID[]      = "aaa.General";
-const char SETTINGS_DIRNAME[]       = "beautifier";
-const char DOCUMENTATION_DIRNAME[]  = "documentation";
-const char DOCUMENTATION_XMLROOT[]  = "beautifier_documentation";
-const char DOCUMENTATION_XMLENTRY[] = "entry";
-const char DOCUMENTATION_XMLKEYS[]  = "keys";
-const char DOCUMENTATION_XMLKEY[]   = "key";
-const char DOCUMENTATION_XMLDOC[]   = "doc";
+const char BEAUTIFIER_SETTINGS_GROUP[] = "Beautifier";
+const char BEAUTIFIER_GENERAL_GROUP[] = "General";
+const char BEAUTIFIER_AUTO_FORMAT_ON_SAVE[] = "autoFormatOnSave";
 
 } // namespace Constants
-} // namespace Beautifier
+} // namespace Utils

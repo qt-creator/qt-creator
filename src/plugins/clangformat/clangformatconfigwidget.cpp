@@ -37,6 +37,8 @@
 #include <coreplugin/icore.h>
 #include <cppeditor/cpphighlighter.h>
 #include <cpptools/cppcodestylesnippets.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <texteditor/displaysettings.h>
@@ -45,6 +47,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
+#include <utils/genericconstants.h>
 
 #include <QFile>
 #include <QMessageBox>
@@ -55,6 +58,36 @@ using namespace ProjectExplorer;
 
 namespace ClangFormat {
 
+static const char kFileSaveWarning[]
+    = "Disable formatting on file save in the Beautifier plugin to enable this check";
+
+static bool isBeautifierPluginActivated()
+{
+    const QList<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
+    return std::find_if(specs.begin(),
+                        specs.end(),
+                        [](ExtensionSystem::PluginSpec *spec) {
+                            return spec->name() == "Beautifier";
+                        })
+           != specs.end();
+}
+
+static bool isBeautifierOnSaveActivated()
+{
+    if (!isBeautifierPluginActivated())
+        return false;
+
+    QSettings *s = Core::ICore::settings();
+    bool activated = false;
+    s->beginGroup(Utils::Constants::BEAUTIFIER_SETTINGS_GROUP);
+    s->beginGroup(Utils::Constants::BEAUTIFIER_GENERAL_GROUP);
+    if (s->value(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE, false).toBool())
+        activated = true;
+    s->endGroup();
+    s->endGroup();
+    return activated;
+}
+
 bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Wheel && qobject_cast<QComboBox *>(object)) {
@@ -62,6 +95,22 @@ bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
         return true;
     }
     return QWidget::eventFilter(object, event);
+}
+
+void ClangFormatConfigWidget::showEvent(QShowEvent *event)
+{
+    TextEditor::CodeStyleEditorWidget::showEvent(event);
+    if (isBeautifierOnSaveActivated()) {
+        bool wasEnabled = m_ui->formatOnSave->isEnabled();
+        m_ui->formatOnSave->setChecked(false);
+        m_ui->formatOnSave->setEnabled(false);
+        m_ui->fileSaveWarning->setText(tr(kFileSaveWarning));
+        if (wasEnabled)
+            apply();
+    } else {
+        m_ui->formatOnSave->setEnabled(true);
+        m_ui->fileSaveWarning->setText("");
+    }
 }
 
 ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *project, QWidget *parent)
@@ -183,6 +232,11 @@ void ClangFormatConfigWidget::showGlobalCheckboxes()
 
     m_ui->formatOnSave->setChecked(ClangFormatSettings::instance().formatOnSave());
     m_ui->formatOnSave->show();
+    if (isBeautifierOnSaveActivated()) {
+        m_ui->formatOnSave->setChecked(false);
+        m_ui->formatOnSave->setEnabled(false);
+        m_ui->fileSaveWarning->setText(tr(kFileSaveWarning));
+    }
 }
 
 static bool projectConfigExists()
