@@ -41,7 +41,7 @@
             "data":
             {
                 "source": "file.ui",
-                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{Extension}')}",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{Extension}')}",
                 "openInEditor": true
             }
         }

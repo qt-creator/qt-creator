@@ -45,12 +45,10 @@ public:
     // Generate header guard:
     Q_INVOKABLE QString headerGuard(const QString &in) const;
 
-    // Fix the filename casing as configured in C++/File Naming:
-    Q_INVOKABLE QString fileName(const QString &path, const QString &extension) const;
-
     // Work with classes:
     Q_INVOKABLE QStringList namespaces(const QString &klass) const;
     Q_INVOKABLE QString className(const QString &klass) const;
+    // Fix the filename casing as configured in C++/File Naming:
     Q_INVOKABLE QString classToFileName(const QString &klass,
                                         const QString &extension) const;
     Q_INVOKABLE QString classToHeaderGuard(const QString &klass, const QString &extension) const;

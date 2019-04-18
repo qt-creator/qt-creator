@@ -29,7 +29,7 @@
             "data":
             {
                 "source": "file.qrc",
-                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/vnd.qt.xml.resource')}')}",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/vnd.qt.xml.resource')}')}",
                 "openInEditor": true
             }
         }

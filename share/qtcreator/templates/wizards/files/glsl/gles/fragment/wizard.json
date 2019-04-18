@@ -30,7 +30,7 @@
             "data":
             {
                 "source": "file.fsh",
-                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-glsl-es-frag')}')}",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-glsl-es-frag')}')}",
                 "openInEditor": true
             }
         }

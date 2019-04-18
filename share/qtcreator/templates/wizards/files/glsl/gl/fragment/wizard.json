@@ -30,7 +30,7 @@
             "data":
             {
                 "source": "file.frag",
-                "target": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-glsl-frag')}')}",
+                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-glsl-frag')}')}",
                 "openInEditor": true
             }
         }

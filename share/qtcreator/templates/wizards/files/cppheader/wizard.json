@@ -9,7 +9,7 @@
     "iconText": "h",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('CppEditor') >= 0}",
 
-    "options": { "key": "FileName", "value": "%{JS: Cpp.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" },
+    "options": { "key": "FileName", "value": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('text/x-c++hdr')}')}" },
 
     "pages" :
     [
