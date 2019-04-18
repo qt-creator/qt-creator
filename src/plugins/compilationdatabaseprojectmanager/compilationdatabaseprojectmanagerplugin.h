@@ -48,6 +48,7 @@ private:
     QList<QObject *> createTestObjects() const final;
 
     CompilationDatabaseEditorFactory factory;
+    CompilationDatabaseBuildConfigurationFactory buildConfigFactory;
     QAction *m_changeProjectRootDirectoryAction;
 };
 

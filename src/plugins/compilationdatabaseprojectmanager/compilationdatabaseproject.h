@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/treescanner.h>
 #include <texteditor/texteditor.h>
@@ -51,7 +52,7 @@ public:
     explicit CompilationDatabaseProject(const Utils::FileName &filename);
     ~CompilationDatabaseProject() override;
     bool needsConfiguration() const override { return false; }
-    bool needsBuildConfigurations() const override { return false; }
+    bool needsBuildConfigurations() const override { return true; }
 
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
@@ -75,6 +76,31 @@ class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory
 
 public:
     CompilationDatabaseEditorFactory();
+};
+
+class CompilationDatabaseBuildConfiguration : public ProjectExplorer::BuildConfiguration
+{
+    Q_OBJECT
+public:
+    CompilationDatabaseBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    ProjectExplorer::NamedWidget *createConfigWidget() override;
+    BuildType buildType() const override;
+
+protected:
+    void initialize(const ProjectExplorer::BuildInfo &info) override;
+};
+
+class CompilationDatabaseBuildConfigurationFactory
+    : public ProjectExplorer::BuildConfigurationFactory
+{
+    Q_OBJECT
+public:
+    CompilationDatabaseBuildConfigurationFactory();
+
+    QList<ProjectExplorer::BuildInfo> availableBuilds(
+        const ProjectExplorer::Target *parent) const override;
+    QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
+                                                      const QString &projectPath) const override;
 };
 
 } // namespace Internal

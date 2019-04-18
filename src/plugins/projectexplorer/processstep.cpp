@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include "processstep.h"
-#include "buildstep.h"
 #include "buildconfiguration.h"
+#include "buildstep.h"
+#include "kit.h"
 #include "processparameters.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
-#include "kit.h"
 
 #include <coreplugin/variablechooser.h>
 
@@ -38,7 +38,6 @@
 #include <QFormLayout>
 
 namespace ProjectExplorer {
-namespace Internal {
 
 const char PROCESS_STEP_ID[] = "ProjectExplorer.ProcessStep";
 const char PROCESS_COMMAND_KEY[] = "ProjectExplorer.ProcessStep.Command";
@@ -137,5 +136,4 @@ ProcessStepFactory::ProcessStepFactory()
     setDisplayName(ProcessStep::tr("Custom Process Step", "item in combobox"));
 }
 
-} // Internal
 } // ProjectExplorer

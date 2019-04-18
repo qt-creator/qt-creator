@@ -27,9 +27,9 @@
 
 #include "abstractprocessstep.h"
 #include "projectconfigurationaspects.h"
+#include "projectexplorer_export.h"
 
 namespace ProjectExplorer {
-namespace Internal {
 
 class ProcessStepFactory : public BuildStepFactory
 {
@@ -37,7 +37,7 @@ public:
     ProcessStepFactory();
 };
 
-class ProcessStep : public AbstractProcessStep
+class PROJECTEXPLORER_EXPORT ProcessStep : public AbstractProcessStep
 {
     Q_OBJECT
     friend class ProcessStepFactory;
@@ -56,5 +56,4 @@ private:
     ProjectExplorer::BaseStringAspect *m_workingDirectory;
 };
 
-} // namespace Internal
 } // namespace ProjectExplorer

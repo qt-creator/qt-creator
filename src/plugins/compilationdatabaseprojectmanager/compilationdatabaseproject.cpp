@@ -33,10 +33,15 @@
 #include <cpptools/cppkitinfo.h>
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/projectinfo.h>
+#include <projectexplorer/buildinfo.h>
+#include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/namedwidget.h>
+#include <projectexplorer/processstep.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
@@ -558,6 +563,66 @@ CompilationDatabaseEditorFactory::CompilationDatabaseEditorFactory()
     setUseGenericHighlighter(true);
     setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setCodeFoldingSupported(true);
+}
+
+CompilationDatabaseBuildConfiguration::CompilationDatabaseBuildConfiguration(
+    ProjectExplorer::Target *target, Core::Id id)
+    : ProjectExplorer::BuildConfiguration(target, id)
+{
+    BuildTargetInfoList appTargetList;
+    BuildTargetInfo bti;
+    appTargetList.list.append(bti);
+    target->setApplicationTargets(appTargetList);
+}
+
+void CompilationDatabaseBuildConfiguration::initialize(const ProjectExplorer::BuildInfo &info)
+{
+    ProjectExplorer::BuildConfiguration::initialize(info);
+    BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    buildSteps->appendStep(new ProjectExplorer::ProcessStep(buildSteps));
+}
+
+ProjectExplorer::NamedWidget *CompilationDatabaseBuildConfiguration::createConfigWidget()
+{
+    return new ProjectExplorer::NamedWidget();
+}
+
+ProjectExplorer::BuildConfiguration::BuildType CompilationDatabaseBuildConfiguration::buildType() const
+{
+    return ProjectExplorer::BuildConfiguration::Release;
+}
+
+CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurationFactory()
+{
+    registerBuildConfiguration<CompilationDatabaseBuildConfiguration>(
+        "CompilationDatabase.CompilationDatabaseBuildConfiguration");
+
+    setSupportedProjectType(Constants::COMPILATIONDATABASEPROJECT_ID);
+    setSupportedProjectMimeTypeName(Constants::COMPILATIONDATABASEMIMETYPE);
+}
+
+static QList<ProjectExplorer::BuildInfo> defaultBuildInfos(
+    const ProjectExplorer::BuildConfigurationFactory *factory, const QString &name)
+{
+    ProjectExplorer::BuildInfo info(factory);
+    info.typeName = name;
+    info.displayName = name;
+    info.buildType = BuildConfiguration::Release;
+    QList<ProjectExplorer::BuildInfo> buildInfos;
+    buildInfos << info;
+    return buildInfos;
+}
+
+QList<ProjectExplorer::BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableBuilds(
+    const ProjectExplorer::Target * /*parent*/) const
+{
+    return defaultBuildInfos(this, tr("Release"));
+}
+
+QList<ProjectExplorer::BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableSetups(
+    const ProjectExplorer::Kit * /*k*/, const QString & /*projectPath*/) const
+{
+    return defaultBuildInfos(this, tr("Release"));
 }
 
 } // namespace Internal
