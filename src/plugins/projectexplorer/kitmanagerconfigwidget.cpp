@@ -160,10 +160,13 @@ QIcon KitManagerConfigWidget::icon() const
 void KitManagerConfigWidget::apply()
 {
     const auto copyIntoKit = [this](Kit *k) { k->copyFrom(m_modifiedKit.get()); };
-    if (m_kit)
+    if (m_kit) {
         copyIntoKit(m_kit);
-    else
+    } else {
+        m_isRegistering = true;
         m_kit = KitManager::registerKit(copyIntoKit);
+        m_isRegistering = false;
+    }
     if (m_isDefaultKit)
         KitManager::setDefaultKit(m_kit);
     emit dirty();

@@ -65,6 +65,7 @@ public:
 
     Kit *workingCopy() const;
     bool configures(Kit *k) const;
+    bool isRegistering() const { return m_isRegistering; }
     void setIsDefaultKit(bool d);
     bool isDefaultKit() const;
     void removeKit();
@@ -104,6 +105,7 @@ private:
     bool m_isDefaultKit = false;
     bool m_fixingKit = false;
     bool m_hasUniqueName = true;
+    bool m_isRegistering = false;
     QList<QAction *> m_actions;
     mutable QString m_cachedDisplayName;
 };

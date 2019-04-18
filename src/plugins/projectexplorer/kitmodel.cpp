@@ -309,7 +309,7 @@ void KitModel::addKit(Kit *k)
 {
     for (TreeItem *n : *m_manualRoot) {
         // Was added by us
-        if (static_cast<KitNode *>(n)->widget->configures(k))
+        if (static_cast<KitNode *>(n)->widget->isRegistering())
             return;
     }
 
