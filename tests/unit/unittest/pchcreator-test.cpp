@@ -243,6 +243,15 @@ TEST_F(PchCreatorVerySlowTest, PchCreationTimeStampsAreUpdated)
     creator.doInMainThreadAfterFinished();
 }
 
+TEST_F(PchCreator, DoNothingInTheMainThreadIfGenerateWasNotCalled)
+{
+    EXPECT_CALL(mockBuildDependenciesStorage, updatePchCreationTimeStamp(_, _)).Times(0);
+    EXPECT_CALL(mockClangPathWatcher, updateIdPaths(_)).Times(0);
+    EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(_)).Times(0);
+
+    creator.doInMainThreadAfterFinished();
+}
+
 TEST_F(PchCreatorVerySlowTest, ProjectPartPchForCreatesPchForPchTask)
 {
     creator.generatePch(std::move(pchTask1));

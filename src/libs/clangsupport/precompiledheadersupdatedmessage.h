@@ -33,7 +33,11 @@ class PrecompiledHeadersUpdatedMessage
 {
 public:
     PrecompiledHeadersUpdatedMessage() = default;
-    PrecompiledHeadersUpdatedMessage(std::vector<ProjectPartPch> &&projectPartPchs)
+    PrecompiledHeadersUpdatedMessage(ProjectPartPch projectPartPch)
+    {
+        projectPartPchs.push_back(projectPartPch);
+    }
+    PrecompiledHeadersUpdatedMessage(ProjectPartPchs &&projectPartPchs)
         : projectPartPchs(std::move(projectPartPchs))
     {}
 
@@ -68,7 +72,7 @@ public:
     }
 
 public:
-    std::vector<ProjectPartPch> projectPartPchs;
+    ProjectPartPchs projectPartPchs;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const PrecompiledHeadersUpdatedMessage &message);

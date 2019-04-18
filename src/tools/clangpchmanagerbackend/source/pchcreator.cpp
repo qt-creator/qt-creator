@@ -111,6 +111,8 @@ Utils::SmallStringVector PchCreator::generateClangCompilerArguments(const PchTas
 
 void PchCreator::generatePch(PchTask &&pchTask)
 {
+    m_projectPartPch.projectPartId = pchTask.projectPartId();
+
     m_projectPartPch.lastModified = QDateTime::currentSecsSinceEpoch();
     auto content = generatePchIncludeFileContent(pchTask.includes);
     auto pchOutputPath = generatePchFilePath();
@@ -120,8 +122,6 @@ void PchCreator::generatePch(PchTask &&pchTask)
 
     m_clangTool.addFile(std::move(headerFilePath), content.clone(), std::move(commandLine));
     bool success = generatePch(NativeFilePath{headerFilePath}, content);
-
-    m_projectPartPch.projectPartId = pchTask.projectPartId();
 
     if (success) {
         m_sources = pchTask.sources;
@@ -168,17 +168,19 @@ void PchCreator::clear()
 
 void PchCreator::doInMainThreadAfterFinished()
 {
-    FilePathIds existingSources;
-    existingSources.reserve(m_sources.size());
-    std::set_difference(m_sources.begin(),
-                        m_sources.end(),
-                        m_generatedFilePathIds.begin(),
-                        m_generatedFilePathIds.end(),
-                        std::back_inserter(existingSources));
-    m_buildDependenciesStorage.updatePchCreationTimeStamp(m_projectPartPch.lastModified,
-                                                          m_projectPartPch.projectPartId);
-    m_clangPathwatcher.updateIdPaths({{m_projectPartPch.projectPartId, existingSources}});
-    m_pchManagerClient.precompiledHeadersUpdated(ProjectPartPchs{m_projectPartPch});
+    if (m_projectPartPch.projectPartId.isValid()) {
+        FilePathIds existingSources;
+        existingSources.reserve(m_sources.size());
+        std::set_difference(m_sources.begin(),
+                            m_sources.end(),
+                            m_generatedFilePathIds.begin(),
+                            m_generatedFilePathIds.end(),
+                            std::back_inserter(existingSources));
+        m_buildDependenciesStorage.updatePchCreationTimeStamp(m_projectPartPch.lastModified,
+                                                              m_projectPartPch.projectPartId);
+        m_clangPathwatcher.updateIdPaths({{m_projectPartPch.projectPartId, existingSources}});
+        m_pchManagerClient.precompiledHeadersUpdated({m_projectPartPch});
+    }
 }
 
 const FilePathCaching &PchCreator::filePathCache()

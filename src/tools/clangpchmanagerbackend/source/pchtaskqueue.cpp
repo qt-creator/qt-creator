@@ -144,15 +144,19 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createProjectTasks(PchTasks &&pchT
     auto convert = [this](auto &&pchTask) {
         return [pchTask = std::move(pchTask), this](PchCreatorInterface &pchCreator) mutable {
             const auto projectPartId = pchTask.projectPartId();
-            pchTask.systemPchPath = m_precompiledHeaderStorage.fetchSystemPrecompiledHeaderPath(
-                projectPartId);
-            pchCreator.generatePch(std::move(pchTask));
-            const auto &projectPartPch = pchCreator.projectPartPch();
-            if (projectPartPch.pchPath.empty()) {
-                m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(projectPartId);
+            if (pchTask.includes.size()) {
+                pchTask.systemPchPath = m_precompiledHeaderStorage.fetchSystemPrecompiledHeaderPath(
+                    projectPartId);
+                pchCreator.generatePch(std::move(pchTask));
+                const auto &projectPartPch = pchCreator.projectPartPch();
+                if (projectPartPch.pchPath.empty()) {
+                    m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(projectPartId);
+                } else {
+                    m_precompiledHeaderStorage.insertProjectPrecompiledHeader(
+                        projectPartId, projectPartPch.pchPath, projectPartPch.lastModified);
+                }
             } else {
-                m_precompiledHeaderStorage.insertProjectPrecompiledHeader(
-                    projectPartId, projectPartPch.pchPath, projectPartPch.lastModified);
+                m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(projectPartId);
             }
         };
     };
@@ -173,14 +177,17 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createSystemTasks(PchTasks &&pchTa
     auto convert = [this](auto &&pchTask) {
         return [pchTask = std::move(pchTask), this](PchCreatorInterface &pchCreator) mutable {
             const auto projectPartIds = pchTask.projectPartIds;
-            pchCreator.generatePch(std::move(pchTask));
-            const auto &projectPartPch = pchCreator.projectPartPch();
-            if (projectPartPch.pchPath.empty()) {
-                m_precompiledHeaderStorage.deleteSystemPrecompiledHeaders(projectPartIds);
+            if (pchTask.includes.size()) {
+                pchCreator.generatePch(std::move(pchTask));
+                const auto &projectPartPch = pchCreator.projectPartPch();
+                if (projectPartPch.pchPath.empty()) {
+                    m_precompiledHeaderStorage.deleteSystemPrecompiledHeaders(projectPartIds);
+                } else {
+                    m_precompiledHeaderStorage.insertSystemPrecompiledHeaders(
+                        projectPartIds, projectPartPch.pchPath, projectPartPch.lastModified);
+                }
             } else {
-                m_precompiledHeaderStorage.insertSystemPrecompiledHeaders(projectPartIds,
-                                                                          projectPartPch.pchPath,
-                                                                          projectPartPch.lastModified);
+                m_precompiledHeaderStorage.deleteSystemPrecompiledHeaders(projectPartIds);
             }
         };
     };
