@@ -197,7 +197,6 @@ QList<QToolButton *> TestNavigationWidget::createToolButtons()
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
     m_filterButton->setToolTip(tr("Filter Test Tree"));
     m_filterButton->setProperty("noArrow", true);
-    m_filterButton->setAutoRaise(true);
     m_filterButton->setPopupMode(QToolButton::InstantPopup);
     m_filterMenu = new QMenu(m_filterButton);
     initializeFilterMenu();

@@ -128,7 +128,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_defaultToolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     d->m_activeToolBar = d->m_defaultToolBar;
 
-    d->m_lockButton->setAutoRaise(true);
     d->m_lockButton->setEnabled(false);
 
     d->m_dragHandle->setProperty("noArrow", true);
@@ -149,7 +148,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_editorList->setMaxVisibleItems(40);
     d->m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    d->m_closeEditorButton->setAutoRaise(true);
     d->m_closeEditorButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     d->m_closeEditorButton->setEnabled(false);
     d->m_closeEditorButton->setProperty("showborder", true);
@@ -170,7 +168,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     splitMenu->addAction(d->m_splitNewWindowAction);
     d->m_splitButton->setMenu(splitMenu);
 
-    d->m_closeSplitButton->setAutoRaise(true);
     d->m_closeSplitButton->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
 
     auto toplayout = new QHBoxLayout(this);

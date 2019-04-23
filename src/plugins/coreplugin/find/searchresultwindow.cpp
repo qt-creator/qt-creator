@@ -135,7 +135,6 @@ namespace Internal {
         m_widget->addWidget(newSearchArea);
 
         m_expandCollapseButton = new QToolButton(m_widget);
-        m_expandCollapseButton->setAutoRaise(true);
 
         m_expandCollapseAction->setCheckable(true);
         m_expandCollapseAction->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());

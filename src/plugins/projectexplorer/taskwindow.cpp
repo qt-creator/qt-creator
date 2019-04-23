@@ -237,7 +237,6 @@ static QToolButton *createFilterButton(const QIcon &icon, const QString &toolTip
     button->setToolTip(toolTip);
     button->setCheckable(true);
     button->setChecked(true);
-    button->setAutoRaise(true);
     button->setEnabled(true);
     QObject::connect(button, &QToolButton::toggled, receiver, lambda);
     return button;
@@ -283,7 +282,6 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     d->m_categoriesButton->setIcon(Utils::Icons::FILTER.icon());
     d->m_categoriesButton->setToolTip(tr("Filter by categories"));
     d->m_categoriesButton->setProperty("noArrow", true);
-    d->m_categoriesButton->setAutoRaise(true);
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
 
     d->m_categoriesMenu = new QMenu(d->m_categoriesButton);

@@ -194,7 +194,6 @@ AppOutputPane::AppOutputPane() :
     // Rerun
     m_reRunButton->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR.icon());
     m_reRunButton->setToolTip(tr("Re-run this run-configuration"));
-    m_reRunButton->setAutoRaise(true);
     m_reRunButton->setEnabled(false);
     connect(m_reRunButton, &QToolButton::clicked,
             this, &AppOutputPane::reRunRunControl);
@@ -208,7 +207,6 @@ AppOutputPane::AppOutputPane() :
     cmd->setDescription(m_stopAction->toolTip());
 
     m_stopButton->setDefaultAction(cmd->action());
-    m_stopButton->setAutoRaise(true);
 
     connect(m_stopAction, &QAction::triggered,
             this, &AppOutputPane::stopRunControl);
@@ -217,7 +215,6 @@ AppOutputPane::AppOutputPane() :
     m_attachButton->setToolTip(msgAttachDebuggerTooltip());
     m_attachButton->setEnabled(false);
     m_attachButton->setIcon(Icons::DEBUG_START_SMALL_TOOLBAR.icon());
-    m_attachButton->setAutoRaise(true);
 
     connect(m_attachButton, &QToolButton::clicked,
             this, &AppOutputPane::attachToRunControl);
@@ -227,7 +224,6 @@ AppOutputPane::AppOutputPane() :
 
     m_settingsButton->setToolTip(tr("Open Settings Page"));
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
-    m_settingsButton->setAutoRaise(true);
     connect(m_settingsButton, &QToolButton::clicked, this, [] {
         Core::ICore::showOptionsDialog(OPTIONS_PAGE_ID);
     });

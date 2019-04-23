@@ -100,7 +100,6 @@ Console::Console()
     vbox->addWidget(new Core::FindToolBarPlaceHolder(m_consoleWidget));
 
     m_showDebugButton = new QToolButton(m_consoleWidget);
-    m_showDebugButton->setAutoRaise(true);
 
     m_showDebugButtonAction = new Utils::SavedAction(this);
     m_showDebugButtonAction->setDefaultValue(true);
@@ -114,7 +113,6 @@ Console::Console()
     m_showDebugButton->setDefaultAction(m_showDebugButtonAction);
 
     m_showWarningButton = new QToolButton(m_consoleWidget);
-    m_showWarningButton->setAutoRaise(true);
 
     m_showWarningButtonAction = new Utils::SavedAction(this);
     m_showWarningButtonAction->setDefaultValue(true);
@@ -128,7 +126,6 @@ Console::Console()
     m_showWarningButton->setDefaultAction(m_showWarningButtonAction);
 
     m_showErrorButton = new QToolButton(m_consoleWidget);
-    m_showErrorButton->setAutoRaise(true);
 
     m_showErrorButtonAction = new Utils::SavedAction(this);
     m_showErrorButtonAction->setDefaultValue(true);
