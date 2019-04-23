@@ -50,6 +50,8 @@ QtcPlugin {
         "qtcreatorclangqueryfindfilter.h",
         "qtcreatoreditormanager.cpp",
         "qtcreatoreditormanager.h",
+        "qtcreatorrefactoringprojectupdater.cpp",
+        "qtcreatorrefactoringprojectupdater.h",
         "qtcreatorsearch.cpp",
         "qtcreatorsearch.h",
         "qtcreatorsearchhandle.cpp",
@@ -70,11 +72,11 @@ QtcPlugin {
         "searchinterface.h",
         "sourcelocations.h",
         "symbol.h",
+        "symbolquery.h",
+        "symbolqueryinterface.h"
         "symbolsfindfilter.cpp",
         "symbolsfindfilter.h",
         "symbolsfindfilterconfigwidget.cpp",
         "symbolsfindfilterconfigwidget.h",
-        "symbolquery.h",
-        "symbolqueryinterface.h"
     ]
 }
