@@ -227,7 +227,7 @@ RsyncCommandLine RsyncDeployStep::rsyncCommand(const SshConnection &sshConnectio
                 QStringList{SshSettings::sshFilePath().toUserOutput()}
                 << sshConnection.connectionOptions());
     const SshConnectionParameters sshParams = sshConnection.connectionParameters();
-    return RsyncCommandLine(QStringList{"-e", sshCmdLine, "-avz"},
+    return RsyncCommandLine(QStringList{"-e", sshCmdLine, "-av"},
                             sshParams.userName() + '@' + sshParams.host());
 }
 
