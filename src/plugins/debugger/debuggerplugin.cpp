@@ -1013,8 +1013,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QAction *act;
 
     // Populate Windows->Views menu with standard actions.
-    Context debugcontext(Constants::C_DEBUGMODE);
-
     act = new QAction(tr("Memory..."), this);
     act->setVisible(false);
     act->setEnabled(false);
@@ -1029,9 +1027,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     m_debuggerSettings = new DebuggerSettings;
     m_debuggerSettings->readSettings();
-
-    const Context cppDebuggercontext(C_CPPDEBUGGER);
-    const Context qmljsDebuggercontext(C_QMLDEBUGGER);
 
     const auto addLabel = [](QWidget *widget, const QString &text) {
         auto vbox = qobject_cast<QVBoxLayout *>(widget->layout());
