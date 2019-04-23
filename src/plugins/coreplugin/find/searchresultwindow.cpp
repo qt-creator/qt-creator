@@ -167,11 +167,13 @@ namespace Internal {
             if (focus)
                 m_widget->currentWidget()->setFocus();
             m_expandCollapseAction->setEnabled(false);
+            m_newSearchButton->setEnabled(false);
         } else {
             if (focus)
                 m_searchResultWidgets.at(visibleSearchIndex())->setFocusInternally();
             m_searchResultWidgets.at(visibleSearchIndex())->notifyVisibilityChanged(true);
             m_expandCollapseAction->setEnabled(true);
+            m_newSearchButton->setEnabled(true);
         }
         q->navigateStateChanged();
     }
