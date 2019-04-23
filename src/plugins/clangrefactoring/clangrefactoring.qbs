@@ -73,7 +73,7 @@ QtcPlugin {
         "sourcelocations.h",
         "symbol.h",
         "symbolquery.h",
-        "symbolqueryinterface.h"
+        "symbolqueryinterface.h",
         "symbolsfindfilter.cpp",
         "symbolsfindfilter.h",
         "symbolsfindfilterconfigwidget.cpp",
