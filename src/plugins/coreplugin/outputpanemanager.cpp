@@ -98,14 +98,10 @@ IOutputPane::IOutputPane(QObject *parent)
 
     m_zoomInButton->setToolTip(tr("Increase Font Size"));
     m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-    m_zoomInButton->setAutoRaise(true);
-    m_zoomInButton->setVisible(false);
     connect(m_zoomInButton, &QToolButton::clicked, this, [this] { emit zoomIn(1); });
 
     m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
     m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
-    m_zoomOutButton->setAutoRaise(true);
-    m_zoomOutButton->setVisible(false);
     connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOut(1); });
 }
 
@@ -137,9 +133,7 @@ void IOutputPane::setWheelZoomEnabled(bool enabled)
 void IOutputPane::setZoomButtonsEnabled(bool enabled)
 {
     m_zoomInButton->setEnabled(enabled);
-    m_zoomInButton->setVisible(true);
     m_zoomOutButton->setEnabled(enabled);
-    m_zoomOutButton->setVisible(true);
 }
 
 namespace Internal {

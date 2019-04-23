@@ -170,7 +170,6 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
                     TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
     };
 
-    setZoomButtonsEnabled(true);
     updateFontSettings();
     updateZoomEnabled();
 

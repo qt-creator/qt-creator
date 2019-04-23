@@ -282,6 +282,8 @@ AppOutputPane::AppOutputPane() :
 
     connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
             this, &AppOutputPane::aboutToUnloadSession);
+
+    setZoomButtonsEnabled(false);
 }
 
 AppOutputPane::~AppOutputPane()

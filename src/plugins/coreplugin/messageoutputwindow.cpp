@@ -54,7 +54,6 @@ MessageOutputWindow::MessageOutputWindow()
     p.setColor(QPalette::HighlightedText, activeHighlightedText);
     m_widget->setPalette(p);
 
-    setZoomButtonsEnabled(true);
     connect(this, &IOutputPane::zoomIn, m_widget, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOut, m_widget, &Core::OutputWindow::zoomOut);
     connect(this, &IOutputPane::fontChanged, m_widget, &OutputWindow::setBaseFont);

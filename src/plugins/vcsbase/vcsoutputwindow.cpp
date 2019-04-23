@@ -300,7 +300,6 @@ VcsOutputWindow::VcsOutputWindow()
                     TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
     };
 
-    setZoomButtonsEnabled(true);
     updateFontSettings();
     updateBehaviorSettings();
 
