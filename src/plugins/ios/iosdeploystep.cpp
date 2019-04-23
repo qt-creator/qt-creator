@@ -31,6 +31,7 @@
 #include "iostoolhandler.h"
 
 #include <coreplugin/messagemanager.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -197,7 +198,16 @@ void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 
 BuildStepConfigWidget *IosDeployStep::createConfigWidget()
 {
-    return new IosDeployStepWidget(this);
+    auto widget = new BuildStepConfigWidget(this);
+
+    widget->setObjectName("IosDeployStepWidget");
+    widget->setDisplayName(QString("<b>%1</b>").arg(displayName()));
+    widget->setSummaryText(widget->displayName());
+
+    connect(this, &ProjectConfiguration::displayNameChanged,
+            widget, &BuildStepConfigWidget::updateSummary);
+
+    return widget;
 }
 
 bool IosDeployStep::fromMap(const QVariantMap &map)
