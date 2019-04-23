@@ -47,6 +47,7 @@ public:
 
     // Work with classes:
     Q_INVOKABLE QStringList namespaces(const QString &klass) const;
+    Q_INVOKABLE bool hasNamespaces(const QString &klass) const;
     Q_INVOKABLE QString className(const QString &klass) const;
     // Fix the filename casing as configured in C++/File Naming:
     Q_INVOKABLE QString classToFileName(const QString &klass,

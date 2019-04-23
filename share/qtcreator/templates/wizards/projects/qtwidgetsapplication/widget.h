@@ -10,7 +10,13 @@
 %{JS: Cpp.openNamespaces('%{Class}')}\
 @if %{GenerateForm}
 
+@if ! %{JS: Cpp.hasNamespaces('%{Class}')}
+QT_BEGIN_NAMESPACE
+@endif
 namespace Ui { class %{CN}; }
+@if ! %{JS: Cpp.hasNamespaces('%{Class}')}
+QT_END_NAMESPACE
+@endif
 @endif
 
 class %{CN} : public %{BaseClass}

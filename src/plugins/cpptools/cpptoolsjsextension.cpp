@@ -60,6 +60,11 @@ QStringList CppToolsJsExtension::namespaces(const QString &klass) const
     return result;
 }
 
+bool CppToolsJsExtension::hasNamespaces(const QString &klass) const
+{
+    return !namespaces(klass).empty();
+}
+
 QString CppToolsJsExtension::className(const QString &klass) const
 {
     QStringList result = parts(klass);
