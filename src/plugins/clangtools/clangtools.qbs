@@ -24,7 +24,6 @@ QtcPlugin {
 
     condition: libclang.present
 
-    cpp.defines: base.concat("CLANGPCHMANAGER_LIB")
     cpp.includePaths: base.concat(libclang.llvmIncludeDir)
     cpp.libraryPaths: base.concat(libclang.llvmLibDir)
     cpp.dynamicLibraries: base.concat(libclang.llvmLibs)

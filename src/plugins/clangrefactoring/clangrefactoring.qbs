@@ -17,7 +17,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
 
-    cpp.defines: base.concat("CLANGPCHMANAGER_LIB")
     cpp.includePaths: ["."]
 
     files: [
