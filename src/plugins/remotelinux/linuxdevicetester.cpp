@@ -230,7 +230,8 @@ void GenericLinuxDeviceTester::testRsync()
             this, [this] {
         handleRsyncFinished();
     });
-    const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*d->connection);
+    const RsyncCommandLine cmdLine = RsyncDeployStep::rsyncCommand(*d->connection,
+                                                                   RsyncDeployStep::defaultFlags());
     const QStringList args = QStringList(cmdLine.options)
             << "-n" << "--exclude=*" << (cmdLine.remoteHostSpec + ":/tmp");
     d->rsyncProcess.start("rsync", args);

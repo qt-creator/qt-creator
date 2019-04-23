@@ -51,7 +51,9 @@ public:
     static Core::Id stepId();
     static QString displayName();
 
-    static RsyncCommandLine rsyncCommand(const QSsh::SshConnection &sshConnection);
+    static QString defaultFlags();
+    static RsyncCommandLine rsyncCommand(const QSsh::SshConnection &sshConnection,
+                                         const QString &flags);
 
 private:
     AbstractRemoteLinuxDeployService *deployService() const override;
