@@ -33,4 +33,5 @@ HEADERS += \
     clangformatutils.h
 
 FORMS += \
+    clangformatchecks.ui \
     clangformatconfigwidget.ui

@@ -70,9 +70,6 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QPlainTextEdit" name="clangFormatOptionsTable"/>
-     </item>
     </layout>
    </item>
    <item>

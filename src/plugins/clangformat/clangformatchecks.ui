@@ -1,0 +1,3296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ClangFormat::ClangFormatChecksWidget</class>
+ <widget class="QWidget" name="ClangFormat::ClangFormatChecksWidget">
+  <property name="maximumSize">
+   <size>
+    <width>450</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <layout class="QGridLayout" name="checksLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelBasedOnStyle">
+     <property name="text">
+      <string>BasedOnStyle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="BasedOnStyle">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>LLVM</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Google</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Chromium</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mozilla</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>WebKit</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="labelAccessModifierOffset">
+     <property name="text">
+      <string>AccessModifierOffset</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="AccessModifierOffset">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setAccessModifierOffset">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="labelAlignAfterOpenBracket">
+     <property name="text">
+      <string>AlignAfterOpenBracket</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="AlignAfterOpenBracket">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Align</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>DontAlign</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>AlwaysBreak</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="labelAlignConsecutiveAssignments">
+     <property name="text">
+      <string>AlignConsecutiveAssignments</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QComboBox" name="AlignConsecutiveAssignments">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="labelAlignConsecutiveDeclarations">
+     <property name="text">
+      <string>AlignConsecutiveDeclarations</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QComboBox" name="AlignConsecutiveDeclarations">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="labelAlignEscapedNewlines">
+     <property name="text">
+      <string>AlignEscapedNewlines</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QComboBox" name="AlignEscapedNewlines">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>DontAlign</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Left</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Right</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="labelAlignOperands">
+     <property name="text">
+      <string>AlignOperands</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QComboBox" name="AlignOperands">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="labelAlignTrailingComments">
+     <property name="text">
+      <string>AlignTrailingComments</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QComboBox" name="AlignTrailingComments">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="labelAllowAllParametersOfDeclarationOnNextLine">
+     <property name="text">
+      <string>AllowAllParametersOfDeclarationOnNextLine</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QComboBox" name="AllowAllParametersOfDeclarationOnNextLine">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="labelAllowShortBlocksOnASingleLine">
+     <property name="text">
+      <string>AllowShortBlocksOnASingleLine</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QComboBox" name="AllowShortBlocksOnASingleLine">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="labelAllowShortCaseLabelsOnASingleLine">
+     <property name="text">
+      <string>AllowShortCaseLabelsOnASingleLine</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QComboBox" name="AllowShortCaseLabelsOnASingleLine">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="labelAllowShortFunctionsOnASingleLine">
+     <property name="text">
+      <string>AllowShortFunctionsOnASingleLine</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QComboBox" name="AllowShortFunctionsOnASingleLine">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>InlineOnly</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Empty</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Inline</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>All</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="12" column="0">
+    <widget class="QLabel" name="labelAllowShortIfStatementsOnASingleLine">
+     <property name="text">
+      <string>AllowShortIfStatementsOnASingleLine</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QComboBox" name="AllowShortIfStatementsOnASingleLine">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="13" column="0">
+    <widget class="QLabel" name="labelAllowShortLoopsOnASingleLine">
+     <property name="text">
+      <string>AllowShortLoopsOnASingleLine</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <widget class="QComboBox" name="AllowShortLoopsOnASingleLine">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="14" column="0">
+    <widget class="QLabel" name="labelAlwaysBreakAfterDefinitionReturnType">
+     <property name="text">
+      <string>AlwaysBreakAfterDefinitionReturnType</string>
+     </property>
+    </widget>
+   </item>
+   <item row="14" column="1">
+    <widget class="QComboBox" name="AlwaysBreakAfterDefinitionReturnType">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>All</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>TopLevel</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="15" column="0">
+    <widget class="QLabel" name="labelAlwaysBreakAfterReturnType">
+     <property name="text">
+      <string>AlwaysBreakAfterReturnType</string>
+     </property>
+    </widget>
+   </item>
+   <item row="15" column="1">
+    <widget class="QComboBox" name="AlwaysBreakAfterReturnType">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>All</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>TopLevel</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>AllDefinitions</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>TopLevelDefinitions</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="16" column="0">
+    <widget class="QLabel" name="labelAlwaysBreakBeforeMultilineStrings">
+     <property name="text">
+      <string>AlwaysBreakBeforeMultilineStrings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="1">
+    <widget class="QComboBox" name="AlwaysBreakBeforeMultilineStrings">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="17" column="0">
+    <widget class="QLabel" name="labelAlwaysBreakTemplateDeclarations">
+     <property name="text">
+      <string>AlwaysBreakTemplateDeclarations</string>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="1">
+    <widget class="QComboBox" name="AlwaysBreakTemplateDeclarations">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>No</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MultiLine</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Yes</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="18" column="0">
+    <widget class="QLabel" name="labelBinPackArguments">
+     <property name="text">
+      <string>BinPackArguments</string>
+     </property>
+    </widget>
+   </item>
+   <item row="18" column="1">
+    <widget class="QComboBox" name="BinPackArguments">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="19" column="0">
+    <widget class="QLabel" name="labelBinPackParameters">
+     <property name="text">
+      <string>BinPackParameters</string>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="1">
+    <widget class="QComboBox" name="BinPackParameters">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="20" column="0">
+    <widget class="QLabel" name="labelBraceWrapping">
+     <property name="text">
+      <string>BraceWrapping</string>
+     </property>
+    </widget>
+   </item>
+   <item row="21" column="0">
+    <widget class="QLabel" name="labelAfterClass">
+     <property name="text">
+      <string>  AfterClass</string>
+     </property>
+    </widget>
+   </item>
+   <item row="21" column="1">
+    <widget class="QComboBox" name="AfterClass">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="22" column="0">
+    <widget class="QLabel" name="labelAfterControlStatement">
+     <property name="text">
+      <string>  AfterControlStatement</string>
+     </property>
+    </widget>
+   </item>
+   <item row="22" column="1">
+    <widget class="QComboBox" name="AfterControlStatement">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="23" column="0">
+    <widget class="QLabel" name="labelAfterEnum">
+     <property name="text">
+      <string>  AfterEnum</string>
+     </property>
+    </widget>
+   </item>
+   <item row="23" column="1">
+    <widget class="QComboBox" name="AfterEnum">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="24" column="0">
+    <widget class="QLabel" name="labelAfterFunction">
+     <property name="text">
+      <string>  AfterFunction</string>
+     </property>
+    </widget>
+   </item>
+   <item row="24" column="1">
+    <widget class="QComboBox" name="AfterFunction">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="25" column="0">
+    <widget class="QLabel" name="labelAfterNamespace">
+     <property name="text">
+      <string>  AfterNamespace</string>
+     </property>
+    </widget>
+   </item>
+   <item row="25" column="1">
+    <widget class="QComboBox" name="AfterNamespace">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="26" column="0">
+    <widget class="QLabel" name="labelAfterObjCDeclaration">
+     <property name="text">
+      <string>  AfterObjCDeclaration</string>
+     </property>
+    </widget>
+   </item>
+   <item row="26" column="1">
+    <widget class="QComboBox" name="AfterObjCDeclaration">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="27" column="0">
+    <widget class="QLabel" name="labelAfterStruct">
+     <property name="text">
+      <string>  AfterStruct</string>
+     </property>
+    </widget>
+   </item>
+   <item row="27" column="1">
+    <widget class="QComboBox" name="AfterStruct">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="28" column="0">
+    <widget class="QLabel" name="labelAfterUnion">
+     <property name="text">
+      <string>  AfterUnion</string>
+     </property>
+    </widget>
+   </item>
+   <item row="28" column="1">
+    <widget class="QComboBox" name="AfterUnion">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="29" column="0">
+    <widget class="QLabel" name="labelAfterExternBlock">
+     <property name="text">
+      <string>  AfterExternBlock</string>
+     </property>
+    </widget>
+   </item>
+   <item row="29" column="1">
+    <widget class="QComboBox" name="AfterExternBlock">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="30" column="0">
+    <widget class="QLabel" name="labelBeforeCatch">
+     <property name="text">
+      <string>  BeforeCatch</string>
+     </property>
+    </widget>
+   </item>
+   <item row="30" column="1">
+    <widget class="QComboBox" name="BeforeCatch">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="31" column="0">
+    <widget class="QLabel" name="labelBeforeElse">
+     <property name="text">
+      <string>  BeforeElse</string>
+     </property>
+    </widget>
+   </item>
+   <item row="31" column="1">
+    <widget class="QComboBox" name="BeforeElse">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="32" column="0">
+    <widget class="QLabel" name="labelIndentBraces">
+     <property name="text">
+      <string>  IndentBraces</string>
+     </property>
+    </widget>
+   </item>
+   <item row="32" column="1">
+    <widget class="QComboBox" name="IndentBraces">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="33" column="0">
+    <widget class="QLabel" name="labelSplitEmptyFunction">
+     <property name="text">
+      <string>  SplitEmptyFunction</string>
+     </property>
+    </widget>
+   </item>
+   <item row="33" column="1">
+    <widget class="QComboBox" name="SplitEmptyFunction">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="34" column="0">
+    <widget class="QLabel" name="labelSplitEmptyRecord">
+     <property name="text">
+      <string>  SplitEmptyRecord</string>
+     </property>
+    </widget>
+   </item>
+   <item row="34" column="1">
+    <widget class="QComboBox" name="SplitEmptyRecord">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="35" column="0">
+    <widget class="QLabel" name="labelSplitEmptyNamespace">
+     <property name="text">
+      <string>  SplitEmptyNamespace</string>
+     </property>
+    </widget>
+   </item>
+   <item row="35" column="1">
+    <widget class="QComboBox" name="SplitEmptyNamespace">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="36" column="0">
+    <widget class="QLabel" name="labelBreakAfterJavaFieldAnnotations">
+     <property name="text">
+      <string>BreakAfterJavaFieldAnnotations</string>
+     </property>
+    </widget>
+   </item>
+   <item row="36" column="1">
+    <widget class="QComboBox" name="BreakAfterJavaFieldAnnotations">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="37" column="0">
+    <widget class="QLabel" name="labelBreakBeforeBinaryOperators">
+     <property name="text">
+      <string>BreakBeforeBinaryOperators</string>
+     </property>
+    </widget>
+   </item>
+   <item row="37" column="1">
+    <widget class="QComboBox" name="BreakBeforeBinaryOperators">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>NonAssignment</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>All</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="38" column="0">
+    <widget class="QLabel" name="labelBreakBeforeBraces">
+     <property name="text">
+      <string>BreakBeforeBraces</string>
+     </property>
+    </widget>
+   </item>
+   <item row="38" column="1">
+    <widget class="QComboBox" name="BreakBeforeBraces">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Attach</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Linux</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mozilla</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Stroustrup</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Allman</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>GNU</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>WebKit</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Custom</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="39" column="0">
+    <widget class="QLabel" name="labelBreakBeforeTernaryOperators">
+     <property name="text">
+      <string>BreakBeforeTernaryOperators</string>
+     </property>
+    </widget>
+   </item>
+   <item row="39" column="1">
+    <widget class="QComboBox" name="BreakBeforeTernaryOperators">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="40" column="0">
+    <widget class="QLabel" name="labelBreakConstructorInitializers">
+     <property name="text">
+      <string>BreakConstructorInitializers</string>
+     </property>
+    </widget>
+   </item>
+   <item row="40" column="1">
+    <widget class="QComboBox" name="BreakConstructorInitializers">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>BeforeColon</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>BeforeComma</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>AfterColon</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="41" column="0">
+    <widget class="QLabel" name="labelBreakInheritanceList">
+     <property name="text">
+      <string>BreakInheritanceList</string>
+     </property>
+    </widget>
+   </item>
+   <item row="41" column="1">
+    <widget class="QComboBox" name="BreakInheritanceList">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>BeforeColon</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>BeforeComma</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>AfterColon</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="42" column="0">
+    <widget class="QLabel" name="labelBreakStringLiterals">
+     <property name="text">
+      <string>BreakStringLiterals</string>
+     </property>
+    </widget>
+   </item>
+   <item row="42" column="1">
+    <widget class="QComboBox" name="BreakStringLiterals">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="43" column="0">
+    <widget class="QLabel" name="labelColumnLimit">
+     <property name="text">
+      <string>ColumnLimit</string>
+     </property>
+    </widget>
+   </item>
+   <item row="43" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="ColumnLimit">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setColumnLimit">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="44" column="0">
+    <widget class="QLabel" name="labelCommentPragmas">
+     <property name="text">
+      <string>CommentPragmas</string>
+     </property>
+    </widget>
+   </item>
+   <item row="44" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="CommentPragmas">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setCommentPragmas">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="45" column="0">
+    <widget class="QLabel" name="labelCompactNamespaces">
+     <property name="text">
+      <string>CompactNamespaces</string>
+     </property>
+    </widget>
+   </item>
+   <item row="45" column="1">
+    <widget class="QComboBox" name="CompactNamespaces">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="46" column="0">
+    <widget class="QLabel" name="labelConstructorInitializerAllOnOneLineOrOnePerLine">
+     <property name="text">
+      <string>ConstructorInitializerAllOnOneLineOrOnePerLine</string>
+     </property>
+    </widget>
+   </item>
+   <item row="46" column="1">
+    <widget class="QComboBox" name="ConstructorInitializerAllOnOneLineOrOnePerLine">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="47" column="0">
+    <widget class="QLabel" name="labelConstructorInitializerIndentWidth">
+     <property name="text">
+      <string>ConstructorInitializerIndentWidth</string>
+     </property>
+    </widget>
+   </item>
+   <item row="47" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="ConstructorInitializerIndentWidth">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setConstructorInitializerIndentWidth">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="48" column="0">
+    <widget class="QLabel" name="labelContinuationIndentWidth">
+     <property name="text">
+      <string>ContinuationIndentWidth</string>
+     </property>
+    </widget>
+   </item>
+   <item row="48" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="ContinuationIndentWidth">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setContinuationIndentWidth">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="49" column="0">
+    <widget class="QLabel" name="labelCpp11BracedListStyle">
+     <property name="text">
+      <string>Cpp11BracedListStyle</string>
+     </property>
+    </widget>
+   </item>
+   <item row="49" column="1">
+    <widget class="QComboBox" name="Cpp11BracedListStyle">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="50" column="0">
+    <widget class="QLabel" name="labelDerivePointerAlignment">
+     <property name="text">
+      <string>DerivePointerAlignment</string>
+     </property>
+    </widget>
+   </item>
+   <item row="50" column="1">
+    <widget class="QComboBox" name="DerivePointerAlignment">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="51" column="0">
+    <widget class="QLabel" name="labelDisableFormat">
+     <property name="text">
+      <string>DisableFormat</string>
+     </property>
+    </widget>
+   </item>
+   <item row="51" column="1">
+    <widget class="QComboBox" name="DisableFormat">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="52" column="0">
+    <widget class="QLabel" name="labelExperimentalAutoDetectBinPacking">
+     <property name="text">
+      <string>ExperimentalAutoDetectBinPacking</string>
+     </property>
+    </widget>
+   </item>
+   <item row="52" column="1">
+    <widget class="QComboBox" name="ExperimentalAutoDetectBinPacking">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="53" column="0">
+    <widget class="QLabel" name="labelFixNamespaceComments">
+     <property name="text">
+      <string>FixNamespaceComments</string>
+     </property>
+    </widget>
+   </item>
+   <item row="53" column="1">
+    <widget class="QComboBox" name="FixNamespaceComments">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="54" column="0">
+    <widget class="QLabel" name="labelForEachMacros">
+     <property name="text">
+      <string>ForEachMacros</string>
+     </property>
+    </widget>
+   </item>
+   <item row="54" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QPlainTextEdit" name="ForEachMacros">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed"/>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setForEachMacros">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="55" column="0">
+    <widget class="QLabel" name="labelIncludeBlocks">
+     <property name="text">
+      <string>IncludeBlocks</string>
+     </property>
+    </widget>
+   </item>
+   <item row="55" column="1">
+    <widget class="QComboBox" name="IncludeBlocks">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Preserve</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Merge</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Regroup</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="56" column="0">
+    <widget class="QLabel" name="labelIncludeCategories">
+     <property name="text">
+      <string>IncludeCategories</string>
+     </property>
+    </widget>
+   </item>
+   <item row="56" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QPlainTextEdit" name="IncludeCategories">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed"/>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setIncludeCategories">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="57" column="0">
+    <widget class="QLabel" name="labelIncludeIsMainRegex">
+     <property name="text">
+      <string>IncludeIsMainRegex</string>
+     </property>
+    </widget>
+   </item>
+   <item row="57" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="IncludeIsMainRegex">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setIncludeIsMainRegex">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="58" column="0">
+    <widget class="QLabel" name="labelIndentCaseLabels">
+     <property name="text">
+      <string>IndentCaseLabels</string>
+     </property>
+    </widget>
+   </item>
+   <item row="58" column="1">
+    <widget class="QComboBox" name="IndentCaseLabels">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="59" column="0">
+    <widget class="QLabel" name="labelIndentPPDirectives">
+     <property name="text">
+      <string>IndentPPDirectives</string>
+     </property>
+    </widget>
+   </item>
+   <item row="59" column="1">
+    <widget class="QComboBox" name="IndentPPDirectives">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>AfterHash</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="60" column="0">
+    <widget class="QLabel" name="labelIndentWidth">
+     <property name="text">
+      <string>IndentWidth</string>
+     </property>
+    </widget>
+   </item>
+   <item row="60" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="IndentWidth">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setIndentWidth">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="61" column="0">
+    <widget class="QLabel" name="labelIndentWrappedFunctionNames">
+     <property name="text">
+      <string>IndentWrappedFunctionNames</string>
+     </property>
+    </widget>
+   </item>
+   <item row="61" column="1">
+    <widget class="QComboBox" name="IndentWrappedFunctionNames">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="62" column="0">
+    <widget class="QLabel" name="labelJavaImportGroups">
+     <property name="text">
+      <string>JavaImportGroups</string>
+     </property>
+    </widget>
+   </item>
+   <item row="62" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QPlainTextEdit" name="JavaImportGroups">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed"/>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setJavaImportGroups">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="63" column="0">
+    <widget class="QLabel" name="labelJavaScriptQuotes">
+     <property name="text">
+      <string>JavaScriptQuotes</string>
+     </property>
+    </widget>
+   </item>
+   <item row="63" column="1">
+    <widget class="QComboBox" name="JavaScriptQuotes">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Leave</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Single</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Double</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="64" column="0">
+    <widget class="QLabel" name="labelJavaScriptWrapImports">
+     <property name="text">
+      <string>JavaScriptWrapImports</string>
+     </property>
+    </widget>
+   </item>
+   <item row="64" column="1">
+    <widget class="QComboBox" name="JavaScriptWrapImports">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="65" column="0">
+    <widget class="QLabel" name="labelKeepEmptyLinesAtTheStartOfBlocks">
+     <property name="text">
+      <string>KeepEmptyLinesAtTheStartOfBlocks</string>
+     </property>
+    </widget>
+   </item>
+   <item row="65" column="1">
+    <widget class="QComboBox" name="KeepEmptyLinesAtTheStartOfBlocks">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="66" column="0">
+    <widget class="QLabel" name="labelLanguage">
+     <property name="text">
+      <string>Language</string>
+     </property>
+    </widget>
+   </item>
+   <item row="66" column="1">
+    <widget class="QComboBox" name="Language">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Cpp</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Java</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>JavaScript</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ObjC</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Proto</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>TableGen</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>TextProto</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="67" column="0">
+    <widget class="QLabel" name="labelMacroBlockBegin">
+     <property name="text">
+      <string>MacroBlockBegin</string>
+     </property>
+    </widget>
+   </item>
+   <item row="67" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="MacroBlockBegin">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setMacroBlockBegin">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="68" column="0">
+    <widget class="QLabel" name="labelMacroBlockEnd">
+     <property name="text">
+      <string>MacroBlockEnd</string>
+     </property>
+    </widget>
+   </item>
+   <item row="68" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="MacroBlockEnd">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setMacroBlockEnd">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="69" column="0">
+    <widget class="QLabel" name="labelMaxEmptyLinesToKeep">
+     <property name="text">
+      <string>MaxEmptyLinesToKeep</string>
+     </property>
+    </widget>
+   </item>
+   <item row="69" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="MaxEmptyLinesToKeep">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setMaxEmptyLinesToKeep">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="70" column="0">
+    <widget class="QLabel" name="labelNamespaceIndentation">
+     <property name="text">
+      <string>NamespaceIndentation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="70" column="1">
+    <widget class="QComboBox" name="NamespaceIndentation">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>None</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Inner</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>All</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="71" column="0">
+    <widget class="QLabel" name="labelObjCBinPackProtocolList">
+     <property name="text">
+      <string>ObjCBinPackProtocolList</string>
+     </property>
+    </widget>
+   </item>
+   <item row="71" column="1">
+    <widget class="QComboBox" name="ObjCBinPackProtocolList">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Auto</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Always</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Never</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="72" column="0">
+    <widget class="QLabel" name="labelObjCBlockIndentWidth">
+     <property name="text">
+      <string>ObjCBlockIndentWidth</string>
+     </property>
+    </widget>
+   </item>
+   <item row="72" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="ObjCBlockIndentWidth">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setObjCBlockIndentWidth">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="73" column="0">
+    <widget class="QLabel" name="labelObjCSpaceAfterProperty">
+     <property name="text">
+      <string>ObjCSpaceAfterProperty</string>
+     </property>
+    </widget>
+   </item>
+   <item row="73" column="1">
+    <widget class="QComboBox" name="ObjCSpaceAfterProperty">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="74" column="0">
+    <widget class="QLabel" name="labelObjCSpaceBeforeProtocolList">
+     <property name="text">
+      <string>ObjCSpaceBeforeProtocolList</string>
+     </property>
+    </widget>
+   </item>
+   <item row="74" column="1">
+    <widget class="QComboBox" name="ObjCSpaceBeforeProtocolList">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="75" column="0">
+    <widget class="QLabel" name="labelPenaltyBreakAssignment">
+     <property name="text">
+      <string>PenaltyBreakAssignment</string>
+     </property>
+    </widget>
+   </item>
+   <item row="75" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="PenaltyBreakAssignment">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setPenaltyBreakAssignment">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="76" column="0">
+    <widget class="QLabel" name="labelPenaltyBreakBeforeFirstCallParameter">
+     <property name="text">
+      <string>PenaltyBreakBeforeFirstCallParameter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="76" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="PenaltyBreakBeforeFirstCallParameter">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setPenaltyBreakBeforeFirstCallParameter">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="77" column="0">
+    <widget class="QLabel" name="labelPenaltyBreakComment">
+     <property name="text">
+      <string>PenaltyBreakComment</string>
+     </property>
+    </widget>
+   </item>
+   <item row="77" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="PenaltyBreakComment">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setPenaltyBreakComment">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="78" column="0">
+    <widget class="QLabel" name="labelPenaltyBreakFirstLessLess">
+     <property name="text">
+      <string>PenaltyBreakFirstLessLess</string>
+     </property>
+    </widget>
+   </item>
+   <item row="78" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="PenaltyBreakFirstLessLess">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setPenaltyBreakFirstLessLess">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="79" column="0">
+    <widget class="QLabel" name="labelPenaltyBreakString">
+     <property name="text">
+      <string>PenaltyBreakString</string>
+     </property>
+    </widget>
+   </item>
+   <item row="79" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="PenaltyBreakString">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setPenaltyBreakString">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="80" column="0">
+    <widget class="QLabel" name="labelPenaltyBreakTemplateDeclaration">
+     <property name="text">
+      <string>PenaltyBreakTemplateDeclaration</string>
+     </property>
+    </widget>
+   </item>
+   <item row="80" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="PenaltyBreakTemplateDeclaration">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setPenaltyBreakTemplateDeclaration">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="81" column="0">
+    <widget class="QLabel" name="labelPenaltyExcessCharacter">
+     <property name="text">
+      <string>PenaltyExcessCharacter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="81" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="PenaltyExcessCharacter">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setPenaltyExcessCharacter">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="82" column="0">
+    <widget class="QLabel" name="labelPenaltyReturnTypeOnItsOwnLine">
+     <property name="text">
+      <string>PenaltyReturnTypeOnItsOwnLine</string>
+     </property>
+    </widget>
+   </item>
+   <item row="82" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="PenaltyReturnTypeOnItsOwnLine">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setPenaltyReturnTypeOnItsOwnLine">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="83" column="0">
+    <widget class="QLabel" name="labelPointerAlignment">
+     <property name="text">
+      <string>PointerAlignment</string>
+     </property>
+    </widget>
+   </item>
+   <item row="83" column="1">
+    <widget class="QComboBox" name="PointerAlignment">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Left</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Right</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Middle</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="84" column="0">
+    <widget class="QLabel" name="labelRawStringFormats">
+     <property name="text">
+      <string>RawStringFormats</string>
+     </property>
+    </widget>
+   </item>
+   <item row="84" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QPlainTextEdit" name="RawStringFormats">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed"/>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setRawStringFormats">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="85" column="0">
+    <widget class="QLabel" name="labelReflowComments">
+     <property name="text">
+      <string>ReflowComments</string>
+     </property>
+    </widget>
+   </item>
+   <item row="85" column="1">
+    <widget class="QComboBox" name="ReflowComments">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="86" column="0">
+    <widget class="QLabel" name="labelSortIncludes">
+     <property name="text">
+      <string>SortIncludes</string>
+     </property>
+    </widget>
+   </item>
+   <item row="86" column="1">
+    <widget class="QComboBox" name="SortIncludes">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="87" column="0">
+    <widget class="QLabel" name="labelSortUsingDeclarations">
+     <property name="text">
+      <string>SortUsingDeclarations</string>
+     </property>
+    </widget>
+   </item>
+   <item row="87" column="1">
+    <widget class="QComboBox" name="SortUsingDeclarations">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="88" column="0">
+    <widget class="QLabel" name="labelSpaceAfterCStyleCast">
+     <property name="text">
+      <string>SpaceAfterCStyleCast</string>
+     </property>
+    </widget>
+   </item>
+   <item row="88" column="1">
+    <widget class="QComboBox" name="SpaceAfterCStyleCast">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="89" column="0">
+    <widget class="QLabel" name="labelSpaceAfterTemplateKeyword">
+     <property name="text">
+      <string>SpaceAfterTemplateKeyword</string>
+     </property>
+    </widget>
+   </item>
+   <item row="89" column="1">
+    <widget class="QComboBox" name="SpaceAfterTemplateKeyword">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="90" column="0">
+    <widget class="QLabel" name="labelSpaceBeforeAssignmentOperators">
+     <property name="text">
+      <string>SpaceBeforeAssignmentOperators</string>
+     </property>
+    </widget>
+   </item>
+   <item row="90" column="1">
+    <widget class="QComboBox" name="SpaceBeforeAssignmentOperators">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="91" column="0">
+    <widget class="QLabel" name="labelSpaceBeforeCpp11BracedList">
+     <property name="text">
+      <string>SpaceBeforeCpp11BracedList</string>
+     </property>
+    </widget>
+   </item>
+   <item row="91" column="1">
+    <widget class="QComboBox" name="SpaceBeforeCpp11BracedList">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="92" column="0">
+    <widget class="QLabel" name="labelSpaceBeforeCtorInitializerColon">
+     <property name="text">
+      <string>SpaceBeforeCtorInitializerColon</string>
+     </property>
+    </widget>
+   </item>
+   <item row="92" column="1">
+    <widget class="QComboBox" name="SpaceBeforeCtorInitializerColon">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="93" column="0">
+    <widget class="QLabel" name="labelSpaceBeforeInheritanceColon">
+     <property name="text">
+      <string>SpaceBeforeInheritanceColon</string>
+     </property>
+    </widget>
+   </item>
+   <item row="93" column="1">
+    <widget class="QComboBox" name="SpaceBeforeInheritanceColon">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="94" column="0">
+    <widget class="QLabel" name="labelSpaceBeforeParens">
+     <property name="text">
+      <string>SpaceBeforeParens</string>
+     </property>
+    </widget>
+   </item>
+   <item row="94" column="1">
+    <widget class="QComboBox" name="SpaceBeforeParens">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Never</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ControlStatements</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Always</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="95" column="0">
+    <widget class="QLabel" name="labelSpaceBeforeRangeBasedForLoopColon">
+     <property name="text">
+      <string>SpaceBeforeRangeBasedForLoopColon</string>
+     </property>
+    </widget>
+   </item>
+   <item row="95" column="1">
+    <widget class="QComboBox" name="SpaceBeforeRangeBasedForLoopColon">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="96" column="0">
+    <widget class="QLabel" name="labelSpaceInEmptyParentheses">
+     <property name="text">
+      <string>SpaceInEmptyParentheses</string>
+     </property>
+    </widget>
+   </item>
+   <item row="96" column="1">
+    <widget class="QComboBox" name="SpaceInEmptyParentheses">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="97" column="0">
+    <widget class="QLabel" name="labelSpacesBeforeTrailingComments">
+     <property name="text">
+      <string>SpacesBeforeTrailingComments</string>
+     </property>
+    </widget>
+   </item>
+   <item row="97" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="SpacesBeforeTrailingComments">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setSpacesBeforeTrailingComments">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="98" column="0">
+    <widget class="QLabel" name="labelSpacesInAngles">
+     <property name="text">
+      <string>SpacesInAngles</string>
+     </property>
+    </widget>
+   </item>
+   <item row="98" column="1">
+    <widget class="QComboBox" name="SpacesInAngles">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="99" column="0">
+    <widget class="QLabel" name="labelSpacesInCStyleCastParentheses">
+     <property name="text">
+      <string>SpacesInCStyleCastParentheses</string>
+     </property>
+    </widget>
+   </item>
+   <item row="99" column="1">
+    <widget class="QComboBox" name="SpacesInCStyleCastParentheses">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="100" column="0">
+    <widget class="QLabel" name="labelSpacesInContainerLiterals">
+     <property name="text">
+      <string>SpacesInContainerLiterals</string>
+     </property>
+    </widget>
+   </item>
+   <item row="100" column="1">
+    <widget class="QComboBox" name="SpacesInContainerLiterals">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="101" column="0">
+    <widget class="QLabel" name="labelSpacesInParentheses">
+     <property name="text">
+      <string>SpacesInParentheses</string>
+     </property>
+    </widget>
+   </item>
+   <item row="101" column="1">
+    <widget class="QComboBox" name="SpacesInParentheses">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="102" column="0">
+    <widget class="QLabel" name="labelSpacesInSquareBrackets">
+     <property name="text">
+      <string>SpacesInSquareBrackets</string>
+     </property>
+    </widget>
+   </item>
+   <item row="102" column="1">
+    <widget class="QComboBox" name="SpacesInSquareBrackets">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>true</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>false</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="103" column="0">
+    <widget class="QLabel" name="labelStandard">
+     <property name="text">
+      <string>Standard</string>
+     </property>
+    </widget>
+   </item>
+   <item row="103" column="1">
+    <widget class="QComboBox" name="Standard">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Cpp03</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Cpp11</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Auto</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="104" column="0">
+    <widget class="QLabel" name="labelStatementMacros">
+     <property name="text">
+      <string>StatementMacros</string>
+     </property>
+    </widget>
+   </item>
+   <item row="104" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QPlainTextEdit" name="StatementMacros">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed"/>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setStatementMacros">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="105" column="0">
+    <widget class="QLabel" name="labelTabWidth">
+     <property name="text">
+      <string>TabWidth</string>
+     </property>
+    </widget>
+   </item>
+   <item row="105" column="1">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLineEdit" name="TabWidth">
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="setTabWidth">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Set</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="106" column="0">
+    <widget class="QLabel" name="labelUseTab">
+     <property name="text">
+      <string>UseTab</string>
+     </property>
+    </widget>
+   </item>
+   <item row="106" column="1">
+    <widget class="QComboBox" name="UseTab">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Never</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ForIndentation</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>ForContinuationAndIndentation</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Always</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

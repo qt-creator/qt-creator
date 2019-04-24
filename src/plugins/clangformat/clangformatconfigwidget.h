@@ -40,6 +40,7 @@ namespace ClangFormat {
 
 namespace Ui {
 class ClangFormatConfigWidget;
+class ClangFormatChecksWidget;
 }
 
 class ClangFormatConfigWidget : public TextEditor::CodeStyleEditorWidget
@@ -53,16 +54,24 @@ public:
     void apply() override;
 
 private:
+    void onTableChanged();
+
+    bool eventFilter(QObject *object, QEvent *event) override;
+
     void initialize();
     void fillTable();
+    std::string tableToString(QObject *sender);
 
     void hideGlobalCheckboxes();
     void showGlobalCheckboxes();
 
+    void saveConfig(const std::string &text) const;
     void updatePreview();
 
     ProjectExplorer::Project *m_project;
+    QWidget *m_checksWidget;
     TextEditor::SnippetEditorWidget *m_preview;
+    std::unique_ptr<Ui::ClangFormatChecksWidget> m_checks;
     std::unique_ptr<Ui::ClangFormatConfigWidget> m_ui;
 };
 
