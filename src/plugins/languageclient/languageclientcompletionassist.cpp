@@ -312,6 +312,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     --line; // line is 0 based in the protocol
     --column; // column is 0 based in the protocol
     params.setPosition({line, column});
+    params.setContext(context);
     params.setTextDocument(
                 DocumentUri::fromFileName(Utils::FileName::fromString(interface->fileName())));
     completionRequest.setResponseCallback([this](auto response) {
