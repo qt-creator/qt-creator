@@ -273,23 +273,14 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
     if checks:
         __verifyFileCreation__(path, expectedFiles)
 
-def createNewQtQuickApplication(workingDir, projectName = None,
+def createNewQtQuickApplication(workingDir, projectName=None,
                                 targets=Targets.desktopTargetClasses(), minimumQtVersion="5.6",
-                                withControls = False, fromWelcome = False, buildSystem = None):
-    if withControls:
-        template = "Qt Quick Application - Swipe"
-    else:
-        template = "Qt Quick Application - Empty"
+                                template="Qt Quick Application - Empty", fromWelcome=False,
+                                buildSystem=None):
     available = __createProjectOrFileSelectType__("  Application", template, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     __handleBuildSystem__(buildSystem)
-    if withControls:
-        requiredQt = "5.7"
-        # TODO use parameter to define style to choose
-        test.log("Using default controls style")
-        clickButton(waitForObject(":Next_QPushButton"))
-    else:
-        requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
+    requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
