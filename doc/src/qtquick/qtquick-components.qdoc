@@ -212,7 +212,7 @@
 
     \image qmldesigner-anchor-buttons.png "Anchor buttons"
 
-    For convenience, you can click the \inlineimage anchor_fill.png
+    For convenience, you can click the \inlineimage anchor-fill.png
     (\uicontrol {Fill to Parent}) toolbar button to apply fill anchors to an
     item and the \inlineimage qtcreator-anchors-reset-icon.png
     (\uicontrol {Reset Anchors}) button to reset the anchors to their saved

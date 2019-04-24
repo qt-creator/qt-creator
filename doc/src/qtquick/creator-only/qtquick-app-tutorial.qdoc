@@ -117,14 +117,16 @@
             \li In the \uicontrol {Border color} field, set the border color to
                 \e #808080.
 
-            \li Click \uicontrol {Layout}, and then click the top and left
-                anchor buttons to anchor the rectangle to the top left corner of
-                the page.
-
-                \image qmldesigner-tutorial-topleftrect-layout.png "Layout tab"
+            \li Click \uicontrol {Layout}, and then click the
+                \inlineimage anchor-top.png
+                (\uicontrol Top) and \inlineimage anchor-left.png
+                (\uicontrol Left) anchor buttons to anchor the
+                rectangle to the top left corner of the page.
 
             \li In the \uicontrol Margin field, select \e 20 for the top anchor
                 and \e 10 for the left anchor.
+
+                \image qmldesigner-tutorial-topleftrect-layout.png "Anchor margins"
 
         \endlist
 
@@ -132,7 +134,7 @@
             \uicontrol Library to \e topLeftRect in the navigator.
 
         \li Click \uicontrol {Layout}, and then click the
-            \inlineimage anchor_fill.png
+            \inlineimage anchor-fill.png
             (\uicontrol {Fill to Parent}) button to anchor the mouse area to the
             rectangle.
 
@@ -147,9 +149,12 @@
 
             \li In the \uicontrol Id field, enter \e middleRightRect.
 
-            \li In \uicontrol {Layout}, select the vertical center anchor button and
-                then the right anchor button to
-                anchor the rectangle to the middle right margin of its parent.
+            \li In \uicontrol {Layout}, select the
+                \inlineimage anchor-vertical-center.png
+                (\uicontrol {Vertical Center} anchor button and then the
+                \inlineimage anchor-right.png
+                (\uicontrol Right) anchor button to anchor the rectangle
+                to the middle right margin of its parent.
 
             \li In the \uicontrol Margin field, select \e 10 for the right
                 anchor and \e 0 for the vertical center anchor.
@@ -162,8 +167,11 @@
 
             \li In the \uicontrol Id field, enter \e bottomLeftRect.
 
-            \li In \uicontrol {Layout}, select the bottom and left anchor buttons to
-                anchor the rectangle to the bottom left margin of its parent.
+            \li In \uicontrol {Layout}, select the
+                \inlineimage anchor-bottom.png
+                (\uicontrol Bottom) and \inlineimage anchor-left.png
+                (\uicontrol Left) anchor buttons to anchor the rectangle
+                to the bottom left margin of its parent.
 
             \li In the \uicontrol Margin field, select \e 20 for the bottom
                 anchor and \e 10 for the left anchor.
