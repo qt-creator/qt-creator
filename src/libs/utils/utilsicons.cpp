@@ -458,6 +458,10 @@ QIcon CodeModelIcon::iconForType(CodeModelIcon::Type type)
         }, Icon::Tint).icon());
         return icon;
     }
+    case Unknown: {
+        const static QIcon icon(Icons::EMPTY16.icon());
+        return icon;
+    }
     default:
         break;
     }

@@ -140,8 +140,7 @@ QIcon LanguageClientCompletionItem::icon() const
     case CompletionItemKind::Snippet: icon = QIcon(":/texteditor/images/snippet.png"); break;
     case CompletionItemKind::EnumMember: icon = iconForType(Enumerator); break;
     case CompletionItemKind::Struct: icon = iconForType(Struct); break;
-    default:
-        break;
+    default: icon = iconForType(Unknown); break;
     }
     return icon;
 }
