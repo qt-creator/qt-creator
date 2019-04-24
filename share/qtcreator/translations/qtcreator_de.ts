@@ -40,7 +40,7 @@
     </message>
     <message>
         <source>New Folder</source>
-        <translation>Neuer Ordner</translation>
+        <translation>Neues Verzeichnis</translation>
     </message>
     <message>
         <source>Bookmarks</source>
@@ -48,15 +48,15 @@
     </message>
     <message>
         <source>Delete Folder</source>
-        <translation>Ordner löschen</translation>
+        <translation>Verzeichnis löschen</translation>
     </message>
     <message>
         <source>Rename Folder</source>
-        <translation>Ordner umbenennen</translation>
+        <translation>Verzeichnis umbenennen</translation>
     </message>
     <message>
         <source>Add in folder:</source>
-        <translation>Im Ordner:</translation>
+        <translation>Im Verzeichnis:</translation>
     </message>
 </context>
 <context>
@@ -71,11 +71,11 @@
     </message>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
-        <translation>Beim Löschen eines Ordners wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortsetzen?</translation>
+        <translation>Beim Löschen eines Verzeichnisses wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortsetzen?</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation>Neuer Ordner</translation>
+        <translation>Neues Verzeichnis</translation>
     </message>
     <message>
         <source>Bookmark</source>
@@ -86,11 +86,11 @@
     <name>BookmarkWidget</name>
     <message>
         <source>Delete Folder</source>
-        <translation>Ordner löschen</translation>
+        <translation>Verzeichnis löschen</translation>
     </message>
     <message>
         <source>Rename Folder</source>
-        <translation>Ordner umbenennen</translation>
+        <translation>Verzeichnis umbenennen</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -4288,7 +4288,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
-        <translation>Name und Ordner des Projekts</translation>
+        <translation>Name und Verzeichnis des Projekts</translation>
     </message>
     <message>
         <source>Project name:</source>
@@ -4339,7 +4339,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Select Git Directory</source>
-        <translation>Git-Ordner auswählen</translation>
+        <translation>Git-Verzeichnis auswählen</translation>
     </message>
     <message>
         <source>Error: Unknown reference</source>
@@ -5157,11 +5157,11 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Gitk for folder of Current File</source>
-        <translation>Gitk für Ordner der Datei</translation>
+        <translation>Gitk für Verzeichnis der Datei</translation>
     </message>
     <message>
         <source>Gitk for folder of &quot;%1&quot;</source>
-        <translation>Gitk für Ordner von &quot;%1&quot;</translation>
+        <translation>Gitk für Verzeichnis von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Git Gui</source>
@@ -7082,7 +7082,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>A version control system repository could not be created in &quot;%1&quot;.</source>
-        <translation>Das Versionskontrollsystem konnte im Ordner &quot;%1&quot; kein Repository anlegen.</translation>
+        <translation>Das Versionskontrollsystem konnte im Verzeichnis &quot;%1&quot; kein Repository anlegen.</translation>
     </message>
     <message>
         <source>Failed to add &quot;%1&quot; to the version control system.</source>
@@ -8937,7 +8937,7 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>Choose Directory</source>
-        <translation>Ordner wählen</translation>
+        <translation>Verzeichnis wählen</translation>
     </message>
     <message>
         <source>Choose Executable</source>
@@ -9047,7 +9047,7 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>Use as default project location</source>
-        <translation>Als Vorgabe für Projektordner verwenden</translation>
+        <translation>Als Vorgabe für Projektverzeichnis verwenden</translation>
     </message>
     <message>
         <source>Introduction and Project Location</source>
@@ -9742,7 +9742,7 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
     <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expandiert zu&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;Ordner der aktuellen Datei&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;Dateiname mit vollständigem Pfad&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;Dateiname (ohne Pfad)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expandiert zu&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;Verzeichnis der aktuellen Datei&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;Dateiname mit vollständigem Pfad&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;Dateiname (ohne Pfad)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
 </context>
 <context>
@@ -10718,7 +10718,7 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     </message>
     <message>
         <source>Choose Repository Directory</source>
-        <translation>Ordner für Repository wählen</translation>
+        <translation>Verzeichnis für Repository wählen</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; could not be deleted.</source>
@@ -10730,7 +10730,7 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     </message>
     <message>
         <source>The directory &quot;%1&quot; is already managed by a version control system (%2). Would you like to specify another directory?</source>
-        <translation>Der Ordner &quot;%1&quot; steht bereits unter Verwaltung eines Versionskontrollsystems (%2). Möchten Sie einen anderen Ordner angeben?</translation>
+        <translation>Das Verzeichnis &quot;%1&quot; steht bereits unter Verwaltung eines Versionskontrollsystems (%2). Möchten Sie einen anderes Verzeichnis angeben?</translation>
     </message>
     <message>
         <source>Repository already under version control</source>
@@ -10746,7 +10746,7 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     </message>
     <message>
         <source>A version control repository has been created in %1.</source>
-        <translation>Ein Repository für Versionskontrolle wurde im Ordner %1 erstellt.</translation>
+        <translation>Ein Repository für Versionskontrolle wurde im Verzeichnis %1 erstellt.</translation>
     </message>
     <message>
         <source>Commit</source>
@@ -10755,7 +10755,7 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     </message>
     <message>
         <source>A version control repository could not be created in %1.</source>
-        <translation>Im Ordner %1 konnte kein Repository für die Versionskontrolle erstellt werden.</translation>
+        <translation>Im Verzeichnis %1 konnte kein Repository für die Versionskontrolle erstellt werden.</translation>
     </message>
 </context>
 <context>
@@ -11379,7 +11379,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Qt Creator build:</source>
-        <translation>Qt Creator-Build-Ordner:</translation>
+        <translation>Qt Creator-Build-Verzeichnis:</translation>
     </message>
     <message>
         <source>Deploy into:</source>
@@ -12333,11 +12333,11 @@ Wenn Sie %2 aus den Quelltexten erstellen und eine ausführbare CDB-Datei mit ei
     </message>
     <message>
         <source>The folder &quot;%1&quot; could not be created.</source>
-        <translation>Der Ordner &quot;%1&quot; konnte nicht angelegt werden.</translation>
+        <translation>Das Verzeichnis &quot;%1&quot; konnte nicht angelegt werden.</translation>
     </message>
     <message>
         <source>Cannot Create</source>
-        <translation>Ordner kann nicht angelegt werden</translation>
+        <translation>Verzeichnis kann nicht angelegt werden</translation>
     </message>
 </context>
 <context>
@@ -13179,7 +13179,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     <name>Debugger::Internal::StartRemoteCdbDialog</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching %1 CDB extension (&lt;code&gt;%2&lt;/code&gt; or &lt;code&gt;%3&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%4&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%5 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Der entfernte CDB muss die passende CDB-Erweiterungsbibliothek von %1 (&lt;code&gt;%2&lt;/code&gt; beziehungsweise &lt;code&gt;%3&lt;/code&gt;) laden.&lt;/p&gt;&lt;p&gt;Kopieren Sie sie auf den entfernten Rechner und setzen Sie die Umgebungsvariable &lt;code&gt;%4&lt;/code&gt; auf den Ordner.&lt;/p&gt;&lt;p&gt;Starten Sie den entfernten CDB als &lt;code&gt;%5 &amp;lt;ausführbare Datei&amp;gt;&lt;/code&gt; um TCP/IP als Kommunikationsprotokoll zu verwenden.&lt;/p&gt;&lt;p&gt;Geben Sie die Verbindungsparameter wie folgt an:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Der entfernte CDB muss die passende CDB-Erweiterungsbibliothek von %1 (&lt;code&gt;%2&lt;/code&gt; beziehungsweise &lt;code&gt;%3&lt;/code&gt;) laden.&lt;/p&gt;&lt;p&gt;Kopieren Sie sie auf den entfernten Rechner und setzen Sie die Umgebungsvariable &lt;code&gt;%4&lt;/code&gt; auf das Verzeichnis.&lt;/p&gt;&lt;p&gt;Starten Sie den entfernten CDB als &lt;code&gt;%5 &amp;lt;ausführbare Datei&amp;gt;&lt;/code&gt; um TCP/IP als Kommunikationsprotokoll zu verwenden.&lt;/p&gt;&lt;p&gt;Geben Sie die Verbindungsparameter wie folgt an:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Start a CDB Remote Session</source>
@@ -14026,7 +14026,7 @@ Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit e
     </message>
     <message>
         <source>Use existing directory</source>
-        <translation>Vorhandenen Ordner verwenden</translation>
+        <translation>Vorhandenes Verzeichnis verwenden</translation>
     </message>
     <message>
         <source>Create prefix</source>
@@ -14063,8 +14063,8 @@ Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit e
     <message>
         <source>By default, push will fail if the target directory exists, but does not already have a control directory.
 This flag will allow push to proceed.</source>
-        <translation>Normalerweise schlägt eine push-Operation fehl, wenn das Zielverzeichnis vorhanden ist, aber keinen Versionskontroll-Ordner hat.
-Die Einstellung gestattet es, unter diesem Umständen fortzusetzen.</translation>
+        <translation>Normalerweise schlägt eine push-Operation fehl, wenn das Zielverzeichnis vorhanden ist, aber kein Versionskontrollverzeichnis hat.
+Die Einstellung gestattet es, unter diesen Umständen fortzusetzen.</translation>
     </message>
     <message>
         <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
@@ -14898,7 +14898,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Directory</source>
-        <translation>Ordner</translation>
+        <translation>Verzeichnis</translation>
     </message>
     <message>
         <source>File</source>
@@ -16507,7 +16507,7 @@ Wollen Sie die Daten vorher speichern?</translation>
     <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
-        <translation>Der Snippet-Ordner des Nutzers konnte nicht erstellt werden: %1</translation>
+        <translation>Das Snippet-Verzeichnis des Nutzers konnte nicht erstellt werden: %1</translation>
     </message>
 </context>
 <context>
@@ -17279,7 +17279,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Show Containing Folder</source>
-        <translation>Beinhaltenden Ordner anzeigen</translation>
+        <translation>Beinhaltendes Verzeichnis anzeigen</translation>
     </message>
     <message>
         <source>Open Command Prompt Here</source>
@@ -17302,7 +17302,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
-        <translation>Der Ordner %1 kann nicht erstellt werden.</translation>
+        <translation>Das Verzeichnis %1 kann nicht erstellt werden.</translation>
     </message>
 </context>
 <context>
@@ -17789,11 +17789,11 @@ Außer: %3
     </message>
     <message>
         <source>Director&amp;y:</source>
-        <translation>&amp;Ordner:</translation>
+        <translation>&amp;Verzeichnis:</translation>
     </message>
     <message>
         <source>Directory to Search</source>
-        <translation>Suchordner</translation>
+        <translation>Suchverzeichnis</translation>
     </message>
 </context>
 <context>
@@ -18937,7 +18937,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Reset information about which version control system handles which directory.</source>
-        <translation>Die Zuordnung, welches Versionsverwaltungssystem welchen Ordner behandelt, zurücksetzen.</translation>
+        <translation>Die Zuordnung, welches Versionsverwaltungssystem welches Verzeichnis behandelt, zurücksetzen.</translation>
     </message>
     <message>
         <source>Reset VCS Cache</source>
@@ -19053,7 +19053,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Build Location</source>
-        <translation>Build-Ordner</translation>
+        <translation>Build-Verzeichnis</translation>
     </message>
 </context>
 <context>
@@ -20063,7 +20063,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Select Android SDK folder</source>
-        <translation>Android-SDK-Ordner auswählen</translation>
+        <translation>Android-SDK-Verzeichnis auswählen</translation>
     </message>
     <message>
         <source>JDK path exists.</source>
@@ -20123,7 +20123,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Select Android NDK folder</source>
-        <translation>Android-NDK-Ordner auswählen</translation>
+        <translation>Android-NDK-Verzeichnis auswählen</translation>
     </message>
     <message>
         <source>Android SDK installation is missing necessary packages. Do you want to install the missing packages?</source>
@@ -20483,7 +20483,7 @@ were not verified among remotes in %3. Select different folder?</source>
         <translation>Change host %1
 und Projekt %2
 
-gehören nicht zu den verifizierten Remotes in %3. Anderen Ordner angeben?</translation>
+gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?</translation>
     </message>
     <message>
         <source>Enter Local Repository for &quot;%1&quot; (%2)</source>
@@ -21515,7 +21515,7 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     </message>
     <message>
         <source>DiffUtils is available for free download at http://gnuwin32.sourceforge.net/packages/diffutils.htm. Extract it to a directory in your PATH.</source>
-        <translation>DiffUtils sind kostenlos erhältlich unter http://gnuwin32.sourceforge.net/packages/diffutils.htm . Bitte entpacken Sie sie in einen im Suchpfad befindlichen Ordner.</translation>
+        <translation>DiffUtils sind kostenlos erhältlich unter http://gnuwin32.sourceforge.net/packages/diffutils.htm . Bitte entpacken Sie sie in ein im Suchpfad befindliches Verzeichnis.</translation>
     </message>
 </context>
 <context>
@@ -21814,7 +21814,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
-        <translation>Sys-Root &quot;%1&quot; ist kein Ordner.</translation>
+        <translation>Sys-Root &quot;%1&quot; ist kein Verzeichnis.</translation>
     </message>
     <message>
         <source>Sys Root &quot;%1&quot; is empty.</source>
@@ -23033,7 +23033,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>File or directory does not exist.</source>
-        <translation>Datei oder Ordner existiert nicht.</translation>
+        <translation>Datei oder Verzeichnis existiert nicht.</translation>
     </message>
     <message>
         <source>Invalid color.</source>
@@ -26562,7 +26562,7 @@ Möchten Sie das vorhandene Paket deinstallieren?</translation>
     </message>
     <message>
         <source>Library inside &quot;debug&quot; or &quot;release&quot; subfolder</source>
-        <translation>Bibliothek innerhalb &quot;debug&quot; oder &quot;release&quot; Unterordner</translation>
+        <translation>Bibliothek innerhalb &quot;debug&quot; oder &quot;release&quot; Unterverzeichnis</translation>
     </message>
     <message>
         <source>Add &quot;d&quot; suffix for debug version</source>
@@ -27212,7 +27212,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>A build for a different project exists in %1, which will be overwritten.</source>
         <comment>%1 build directory</comment>
-        <translation>Im Ordner %1 existiert bereits ein Build eines anderen Projektes, welcher überschrieben wird.</translation>
+        <translation>Im Verzeichnis %1 existiert bereits ein Build eines anderen Projektes, welcher überschrieben wird.</translation>
     </message>
 </context>
 <context>
@@ -27826,7 +27826,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
-        <translation>Locator-Filter, die ihre gespeicherten Daten nicht unmittelbar aktualisieren (wie die benutzerdefinierten Filter für Ordner), aktualisieren ihre Daten nach diesem Intervall.</translation>
+        <translation>Locator-Filter, die ihre gespeicherten Daten nicht unmittelbar aktualisieren (wie die benutzerdefinierten Filter für Verzeichnisse), aktualisieren ihre Daten nach diesem Intervall.</translation>
     </message>
     <message>
         <source>Refresh interval:</source>
@@ -28825,7 +28825,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Remote directory:</source>
-        <translation>Entfernter Ordner:</translation>
+        <translation>Entferntes Verzeichnis:</translation>
     </message>
     <message>
         <source>Close</source>
@@ -30198,7 +30198,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <source>The following files already exist in the folder
 %1.
 Would you like to overwrite them?</source>
-        <translation>Die folgenden Dateien existieren bereits im Ordner
+        <translation>Die folgenden Dateien existieren bereits im Verzeichnis
 %1.
 Sollen sie überschrieben werden?</translation>
     </message>
@@ -37461,9 +37461,9 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Not showing %n files that are outside of the base directory.
 These files are preserved.</source>
         <translation>
-            <numerusform>Eine Datei, die sich außerhalb des Basisordners befindet, wird nicht angezeigt.
+            <numerusform>Eine Datei, die sich außerhalb des Basisverzeichnisses befindet, wird nicht angezeigt.
 Sie wird erhalten.</numerusform>
-            <numerusform>%n Dateien, die sich außerhalb des Basisordners befinden, werden nicht angezeigt.
+            <numerusform>%n Dateien, die sich außerhalb des Basisverzeichnisses befinden, werden nicht angezeigt.
 Sie werden erhalten.</numerusform>
         </translation>
     </message>
