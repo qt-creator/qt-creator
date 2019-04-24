@@ -698,6 +698,11 @@
     single instructions, such as \uicontrol {Step Into} and \uicontrol {Step Over}.
     By default, the \uicontrol Disassembler view is hidden.
 
+    To access the \uicontrol Disassembler view, check
+    \uicontrol Debug > \uicontrol {Operate by Instruction} while the debugger is
+    running. Alternatively, click the \inlineimage debugger_singleinstructionmode.png
+    (\uicontrol {Operate by Instruction}) tool button on the debugger tool bar.
+
     \section2 Viewing and Editing Register State
 
     The \uicontrol Registers view displays the current state of the CPU registers.
