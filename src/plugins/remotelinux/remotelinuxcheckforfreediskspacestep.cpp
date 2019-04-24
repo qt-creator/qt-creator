@@ -45,11 +45,6 @@ public:
     explicit RemoteLinuxCheckForFreeDiskSpaceStepWidget(RemoteLinuxCheckForFreeDiskSpaceStep &step)
             : BuildStepConfigWidget(&step), m_step(step)
     {
-        const QString displayName = QLatin1String("<b>")
-                + RemoteLinuxCheckForFreeDiskSpaceStep::displayName() + QLatin1String("</b>");
-        setDisplayName(displayName);
-        setSummaryText(displayName);
-
         m_ui.setupUi(this);
         m_ui.requiredSpaceSpinBox->setSuffix(tr("MB"));
         m_ui.requiredSpaceSpinBox->setMinimum(1);
