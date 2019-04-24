@@ -80,14 +80,13 @@ RemoteLinuxCheckForFreeDiskSpaceStep::~RemoteLinuxCheckForFreeDiskSpaceStep()
     delete d;
 }
 
-bool RemoteLinuxCheckForFreeDiskSpaceStep::initInternal(QString *error)
+CheckResult RemoteLinuxCheckForFreeDiskSpaceStep::initInternal()
 {
-    Q_UNUSED(error);
     d->deployService.setPathToCheck(
         static_cast<BaseStringAspect *>(aspect(PathToCheckAspectId))->value());
     d->deployService.setRequiredSpaceInBytes(
         static_cast<BaseIntegerAspect *>(aspect(RequiredSpaceAspectId))->value());
-    return true;
+    return CheckResult::success();
 }
 
 AbstractRemoteLinuxDeployService *RemoteLinuxCheckForFreeDiskSpaceStep::deployService() const

@@ -58,10 +58,10 @@ RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep(
     delete d;
 }
 
-bool RemoteLinuxCustomCommandDeploymentStep::initInternal(QString *error)
+CheckResult RemoteLinuxCustomCommandDeploymentStep::initInternal()
 {
     d->service.setCommandLine(d->commandLineAspect->value().trimmed());
-    return d->service.isDeploymentPossible(error);
+    return d->service.isDeploymentPossible();
 }
 
 AbstractRemoteLinuxDeployService *RemoteLinuxCustomCommandDeploymentStep::deployService() const

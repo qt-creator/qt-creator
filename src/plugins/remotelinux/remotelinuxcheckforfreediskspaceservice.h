@@ -49,7 +49,7 @@ private:
     void doDeviceSetup() override { handleDeviceSetupDone(true); }
     void stopDeviceSetup() override { handleDeviceSetupDone(false); }
 
-    bool isDeploymentPossible(QString *whyNot) const override;
+    CheckResult isDeploymentPossible() const override;
     void doDeploy() override;
     void stopDeployment() override;
 

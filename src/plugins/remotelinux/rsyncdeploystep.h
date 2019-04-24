@@ -57,7 +57,7 @@ private:
     AbstractRemoteLinuxDeployService *deployService() const override;
     void doRun() override;
 
-    bool initInternal(QString *error = nullptr) override;
+    CheckResult initInternal() override;
 
     class RsyncDeployStepPrivate;
     RsyncDeployStepPrivate * const d;

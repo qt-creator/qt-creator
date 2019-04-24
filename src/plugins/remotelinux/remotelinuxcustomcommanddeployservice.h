@@ -41,7 +41,7 @@ public:
     void setCommandLine(const QString &commandLine);
 
     bool isDeploymentNecessary() const override { return true; }
-    bool isDeploymentPossible(QString *whyNot = nullptr) const override;
+    CheckResult isDeploymentPossible() const override;
 
 protected:
     void doDeviceSetup() override { handleDeviceSetupDone(true); }

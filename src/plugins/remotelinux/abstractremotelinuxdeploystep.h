@@ -27,12 +27,11 @@
 
 #include "remotelinux_export.h"
 
+#include "abstractremotelinuxdeployservice.h"
+
 #include <projectexplorer/buildstep.h>
 
-#include <QVariantMap>
-
 namespace RemoteLinux {
-class AbstractRemoteLinuxDeployService;
 
 namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
 
@@ -52,7 +51,7 @@ protected:
     void doCancel() override;
 
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-    virtual bool initInternal(QString *error = nullptr) = 0;
+    virtual CheckResult initInternal() = 0;
 
 private:
     void handleProgressMessage(const QString &message);

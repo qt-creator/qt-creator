@@ -41,7 +41,7 @@ public:
     static QString displayName();
 
 protected:
-    bool initInternal(QString *error) override;
+    CheckResult initInternal() override;
     AbstractRemoteLinuxDeployService *deployService() const override;
 
 private:

@@ -102,18 +102,15 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
     stopDeployment();
 }
 
-bool RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible(QString *whyNot) const
+CheckResult RemoteLinuxCheckForFreeDiskSpaceService::isDeploymentPossible() const
 {
-    if (!AbstractRemoteLinuxDeployService::isDeploymentPossible(whyNot))
-        return false;
     if (!d->pathToCheck.startsWith(QLatin1Char('/'))) {
-        if (whyNot) {
-            *whyNot = tr("Cannot check for free disk space: \"%1\" is not an absolute path.")
-                    .arg(d->pathToCheck);
-        }
-        return false;
+        return CheckResult::failure(
+           tr("Cannot check for free disk space: \"%1\" is not an absolute path.")
+                    .arg(d->pathToCheck));
     }
-    return true;
+
+    return AbstractRemoteLinuxDeployService::isDeploymentPossible();
 }
 
 void RemoteLinuxCheckForFreeDiskSpaceService::doDeploy()

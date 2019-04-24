@@ -66,19 +66,14 @@ void RemoteLinuxCustomCommandDeployService::setCommandLine(const QString &comman
     d->commandLine = commandLine;
 }
 
-bool RemoteLinuxCustomCommandDeployService::isDeploymentPossible(QString *whyNot) const
+CheckResult RemoteLinuxCustomCommandDeployService::isDeploymentPossible() const
 {
-    QTC_ASSERT(d->state == Inactive, return false);
+    QTC_ASSERT(d->state == Inactive, return CheckResult::failure());
 
-    if (!AbstractRemoteLinuxDeployService::isDeploymentPossible(whyNot))
-        return false;
-    if (d->commandLine.isEmpty()) {
-        if (whyNot)
-            *whyNot = tr("No command line given.");
-        return false;
-    }
+    if (d->commandLine.isEmpty())
+        return CheckResult::failure(tr("No command line given."));
 
-    return true;
+    return AbstractRemoteLinuxDeployService::isDeploymentPossible();
 }
 
 void RemoteLinuxCustomCommandDeployService::doDeploy()

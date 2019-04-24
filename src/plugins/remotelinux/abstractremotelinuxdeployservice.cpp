@@ -126,9 +126,9 @@ void AbstractRemoteLinuxDeployService::start()
 {
     QTC_ASSERT(d->state == Inactive, return);
 
-    QString errorMsg;
-    if (!isDeploymentPossible(&errorMsg)) {
-        emit errorMessage(errorMsg);
+    const CheckResult check = isDeploymentPossible();
+    if (!check) {
+        emit errorMessage(check.errorMessage());
         emit finished();
         return;
     }
@@ -165,14 +165,11 @@ void AbstractRemoteLinuxDeployService::stop()
     }
 }
 
-bool AbstractRemoteLinuxDeployService::isDeploymentPossible(QString *whyNot) const
+CheckResult AbstractRemoteLinuxDeployService::isDeploymentPossible() const
 {
-    if (!deviceConfiguration()) {
-        if (whyNot)
-            *whyNot = tr("No device configuration set.");
-        return false;
-    }
-    return true;
+    if (!deviceConfiguration())
+        return CheckResult::failure(tr("No device configuration set."));
+    return CheckResult::success();
 }
 
 QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const

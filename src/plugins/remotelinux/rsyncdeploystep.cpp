@@ -199,10 +199,10 @@ RsyncDeployStep::~RsyncDeployStep()
     delete d;
 }
 
-bool RsyncDeployStep::initInternal(QString *error)
+CheckResult RsyncDeployStep::initInternal()
 {
     d->deployService.setIgnoreMissingFiles(d->ignoreMissingFilesAspect->value());
-    return d->deployService.isDeploymentPossible(error);
+    return d->deployService.isDeploymentPossible();
 }
 
 AbstractRemoteLinuxDeployService *RsyncDeployStep::deployService() const

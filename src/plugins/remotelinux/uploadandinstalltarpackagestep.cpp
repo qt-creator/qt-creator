@@ -69,7 +69,7 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
     setWidgetExpandedByDefault(false);
 }
 
-bool UploadAndInstallTarPackageStep::initInternal(QString *error)
+CheckResult UploadAndInstallTarPackageStep::initInternal()
 {
     const TarPackageCreationStep *pStep = nullptr;
 
@@ -79,13 +79,11 @@ bool UploadAndInstallTarPackageStep::initInternal(QString *error)
         if ((pStep = dynamic_cast<TarPackageCreationStep *>(step)))
             break;
     }
-    if (!pStep) {
-        if (error)
-            *error = tr("No tarball creation step found.");
-        return false;
-    }
+    if (!pStep)
+        return CheckResult::failure(tr("No tarball creation step found."));
+
     m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return m_deployService->isDeploymentPossible(error);
+    return m_deployService->isDeploymentPossible();
 }
 
 Core::Id UploadAndInstallTarPackageStep::stepId()

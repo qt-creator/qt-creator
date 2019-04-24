@@ -71,11 +71,11 @@ GenericDirectUploadStep::~GenericDirectUploadStep()
     delete d;
 }
 
-bool GenericDirectUploadStep::initInternal(QString *error)
+CheckResult GenericDirectUploadStep::initInternal()
 {
     d->deployService.setIncrementalDeployment(d->incrementalAspect->value());
     d->deployService.setIgnoreMissingFiles(d->ignoreMissingFilesAspect->value());
-    return d->deployService.isDeploymentPossible(error);
+    return d->deployService.isDeploymentPossible();
 }
 
 GenericDirectUploadService *GenericDirectUploadStep::deployService() const

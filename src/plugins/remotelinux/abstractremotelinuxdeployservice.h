@@ -43,6 +43,22 @@ class Target;
 namespace RemoteLinux {
 namespace Internal { class AbstractRemoteLinuxDeployServicePrivate; }
 
+class REMOTELINUX_EXPORT CheckResult
+{
+public:
+    static CheckResult success() { return {true, {}}; }
+    static CheckResult failure(const QString &error = {}) { return {false, error}; }
+
+    operator bool() const { return m_ok; }
+    QString errorMessage() const { return m_error; }
+
+private:
+    CheckResult(bool ok, const QString &error) : m_ok(ok), m_error(error) {}
+
+    bool m_ok = false;
+    QString m_error;
+};
+
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployService : public QObject
 {
     Q_OBJECT
@@ -60,7 +76,7 @@ public:
     QVariantMap exportDeployTimes() const;
     void importDeployTimes(const QVariantMap &map);
 
-    virtual bool isDeploymentPossible(QString *whyNot = nullptr) const;
+    virtual CheckResult isDeploymentPossible() const;
 
 signals:
     void errorMessage(const QString &message);
