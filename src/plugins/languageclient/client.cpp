@@ -289,6 +289,11 @@ bool Client::openDocument(Core::IDocument *document)
     if (textDocument) {
         textDocument->completionAssistProvider();
         m_resetAssistProvider << textDocument;
+        m_completionProvider.setTriggerCharacters(
+            m_serverCapabilities.completionProvider()
+                .value_or(ServerCapabilities::CompletionOptions())
+                .triggerCharacters()
+                .value_or(QList<QString>()));
         textDocument->setCompletionAssistProvider(&m_completionProvider);
         textDocument->setQuickFixAssistProvider(&m_quickFixProvider);
         connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
