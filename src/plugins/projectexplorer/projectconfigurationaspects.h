@@ -123,14 +123,15 @@ public:
 
     void addToConfigurationLayout(QFormLayout *layout) override;
 
-    int value() const;
-    void setValue(int val);
+    qint64 value() const;
+    void setValue(qint64 val);
 
-    void setRange(int min, int max);
+    void setRange(qint64 min, qint64 max);
     void setLabel(const QString &label);
     void setPrefix(const QString &prefix);
     void setSuffix(const QString &suffix);
     void setDisplayIntegerBase(int base);
+    void setDisplayScaleFactor(qint64 factor);
 
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
