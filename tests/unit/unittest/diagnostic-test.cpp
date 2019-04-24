@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
 #include "diagnosticcontainer-matcher.h"
+#include "googletest.h"
 #include "rundocumentparse-utility.h"
-#include "testenvironment.h"
+#include "unittest-utility-functions.h"
 
 #include <diagnostic.h>
 #include <diagnosticcontainer.h>
@@ -87,7 +87,7 @@ protected:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/diagnostic_diagnostic.cpp"),
-                      TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")}),
+                      UnitTest::addPlatformArguments({Utf8StringLiteral("-std=c++11")}),
                       {},
                       documents};
     UnitTest::RunDocumentParse _1{document};

@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-#include "googletest.h"
 #include "diagnosticcontainer-matcher.h"
-#include "testenvironment.h"
+#include "googletest.h"
+#include "unittest-utility-functions.h"
 
 #include <clangsupport_global.h>
 #include <clangdocument.h>
@@ -64,7 +64,7 @@ protected:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Utf8StringVector compilationArguments{
-        TestEnvironment::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
+        UnitTest::addPlatformArguments({Utf8StringLiteral("-pedantic")})};
     Document document{Utf8StringLiteral(TESTDATA_DIR "/diagnostic_diagnosticset.cpp"),
                       compilationArguments,
                       {},

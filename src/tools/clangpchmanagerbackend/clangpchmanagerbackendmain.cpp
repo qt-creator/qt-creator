@@ -95,23 +95,22 @@ public:
 class ApplicationEnvironment final : public ClangBackEnd::Environment
 {
 public:
-    ApplicationEnvironment(const QString &pchsPath)
-        : m_pchBuildDirectoryPath(pchsPath)
+    ApplicationEnvironment(const QString &pchsPath, const QString &preIncludeSearchPath)
+        : m_pchBuildDirectoryPath(pchsPath.toStdString())
+        , m_preIncludeSearchPath(ClangBackEnd::FilePath{preIncludeSearchPath})
     {
     }
 
-    QString pchBuildDirectory() const override
+    Utils::PathString pchBuildDirectory() const override { return m_pchBuildDirectoryPath; }
+    uint hardwareConcurrency() const override { return std::thread::hardware_concurrency(); }
+    ClangBackEnd::NativeFilePathView preIncludeSearchPath() const override
     {
-        return m_pchBuildDirectoryPath;
-    }
-
-    uint hardwareConcurrency() const override
-    {
-        return std::thread::hardware_concurrency();
+        return m_preIncludeSearchPath;
     }
 
 private:
-    QString m_pchBuildDirectoryPath;
+    Utils::PathString m_pchBuildDirectoryPath;
+    ClangBackEnd::NativeFilePath m_preIncludeSearchPath;
 };
 
 QStringList processArguments(QCoreApplication &application)
@@ -123,6 +122,7 @@ QStringList processArguments(QCoreApplication &application)
     parser.addPositionalArgument(QStringLiteral("connection"), QStringLiteral("Connection"));
     parser.addPositionalArgument(QStringLiteral("databasepath"), QStringLiteral("Database path"));
     parser.addPositionalArgument(QStringLiteral("pchspath"), QStringLiteral("PCHs path"));
+    parser.addPositionalArgument(QStringLiteral("resourcepath"), QStringLiteral("Resource path"));
 
     parser.process(application);
 
@@ -172,9 +172,9 @@ struct Data // because we have a cycle dependency
 {
     using TaskScheduler = ClangBackEnd::TaskScheduler<PchCreatorManager, ClangBackEnd::PchTaskQueue::Task>;
 
-    Data(const QString &databasePath, const QString &pchsPath)
+    Data(const QString &databasePath, const QString &pchsPath, const QString &preIncludeSearchPath)
         : database{Utils::PathString{databasePath}, 100000ms}
-        , environment{pchsPath}
+        , environment{pchsPath, preIncludeSearchPath}
     {}
     Sqlite::Database database;
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
@@ -205,7 +205,8 @@ struct Data // because we have a cycle dependency
                                             projectTaskScheduler,
                                             pchCreationProgressCounter,
                                             preCompiledHeaderStorage,
-                                            database};
+                                            database,
+                                            environment};
     ClangBackEnd::PchTasksMerger pchTaskMerger{pchTaskQueue};
     ClangBackEnd::BuildDependenciesStorage<> buildDependencyStorage{database};
     ClangBackEnd::BuildDependencyCollector buildDependencyCollector{filePathCache,
@@ -266,8 +267,9 @@ int main(int argc, char *argv[])
         const QString connectionName = arguments[0];
         const QString databasePath = arguments[1];
         const QString pchsPath = arguments[2];
+        const QString preIncludeSearchPath = arguments[3] + "/indexer_preincludes";
 
-        Data data{databasePath, pchsPath};
+        Data data{databasePath, pchsPath, preIncludeSearchPath};
 
         data.includeWatcher.setNotifier(&data.clangPchManagerServer);
 

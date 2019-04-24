@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
-#include "testenvironment.h"
+#include "unittest-utility-functions.h"
 
 #include <clangcodecompleteresults.h>
 #include <clangdocument.h>
@@ -148,7 +148,7 @@ protected:
 protected:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
-    Utf8StringVector compilationArguments{TestEnvironment::addPlatformArguments()};
+    Utf8StringVector compilationArguments{UnitTest::addPlatformArguments()};
     Document functionDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_function.cpp"), compilationArguments, {},  documents};
     Document functionOverloadDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_functionoverload.cpp"), compilationArguments, {},  documents};
     Document variableDocument{Utf8StringLiteral(TESTDATA_DIR"/complete_extractor_variable.cpp"), compilationArguments, {},  documents};

@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QString>
+#include <nativefilepath.h>
 
 namespace ClangBackEnd {
 
@@ -36,8 +36,9 @@ public:
     Environment(const Environment &) = delete;
     Environment &operator=(const Environment &) = delete;
 
-    virtual QString pchBuildDirectory() const = 0;
+    virtual Utils::PathString pchBuildDirectory() const = 0;
     virtual uint hardwareConcurrency() const = 0;
+    virtual NativeFilePathView preIncludeSearchPath() const = 0;
 
 protected:
     ~Environment() = default;

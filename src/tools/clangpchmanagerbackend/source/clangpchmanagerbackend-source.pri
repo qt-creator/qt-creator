@@ -12,7 +12,6 @@ HEADERS += \
     $$PWD/pchmanagerserver.h \
     $$PWD/clangpchmanagerbackend_global.h \
     $$PWD/pchnotcreatederror.h \
-    $$PWD/environment.h \
     $$PWD/pchcreatorinterface.h \
     $$PWD/projectpartsmanager.h \
     $$PWD/projectpartsmanagerinterface.h \

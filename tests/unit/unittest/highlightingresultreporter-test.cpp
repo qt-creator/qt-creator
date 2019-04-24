@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
-#include "testenvironment.h"
+#include "unittest-utility-functions.h"
 
 #include <chunksreportedmonitor.h>
 #include <clangdocument.h>
@@ -51,7 +51,7 @@ struct Data {
     UnsavedFiles unsavedFiles;
     Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR "/highlightingmarks.cpp"),
-                      TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")}),
+                      UnitTest::addPlatformArguments({Utf8StringLiteral("-std=c++14")}),
                       Utf8StringVector(),
                       documents};
 };

@@ -153,7 +153,6 @@ QStringList ProjectUpdater::toolChainArguments(CppTools::ProjectPart *projectPar
     CompilerOptionsBuilder builder(*projectPart, CppTools::UseSystemHeader::Yes);
 
     builder.addWordWidth();
-    builder.addPicIfCompilerFlagsContainsIt();
     // builder.addTargetTriple(); TODO resarch why target triples are different
     builder.addExtraCodeModelFlags();
     builder.undefineClangVersionMacrosForMsvc();

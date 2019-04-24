@@ -36,6 +36,7 @@ namespace {
 template<typename ProjectInfo>
 using Builder = ClangBackEnd::CommandLineBuilder<ProjectInfo>;
 
+using ClangBackEnd::FilePath;
 using ClangBackEnd::IncludeSearchPathType;
 using ClangBackEnd::InputFileType;
 
@@ -136,8 +137,6 @@ TYPED_TEST(CommandLineBuilder, CHeader)
                             "c-header",
                             "-std=c11",
                             "-nostdinc",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.c")));
 }
 
@@ -156,8 +155,6 @@ TYPED_TEST(CommandLineBuilder, CSource)
                             "c",
                             "-std=c11",
                             "-nostdinc",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.c")));
 }
 
@@ -177,8 +174,6 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCHeader)
                             "objective-c-header",
                             "-std=c11",
                             "-nostdinc",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.c")));
 }
 
@@ -198,8 +193,6 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCSource)
                             "objective-c",
                             "-std=c11",
                             "-nostdinc",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.c")));
 }
 
@@ -219,8 +212,6 @@ TYPED_TEST(CommandLineBuilder, CppHeader)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.cpp")));
 }
 
@@ -240,8 +231,6 @@ TYPED_TEST(CommandLineBuilder, CppSource)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.cpp")));
 }
 
@@ -262,8 +251,6 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppHeader)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.cpp")));
 }
 
@@ -284,8 +271,6 @@ TYPED_TEST(CommandLineBuilder, ObjectiveCppSource)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.cpp")));
 }
 
@@ -509,7 +494,13 @@ TYPED_TEST(CommandLineBuilder, IncludesOrder)
                                           {"/system/foo", 3, IncludeSearchPathType::Framework},
                                           {"/builtin/bar", 2, IncludeSearchPathType::BuiltIn},
                                           {"/builtin/foo", 1, IncludeSearchPathType::BuiltIn}};
-    Builder<TypeParam> builder{this->emptyProjectInfo, {}, InputFileType::Header, "/source/file.cpp"};
+    Builder<TypeParam> builder{this->emptyProjectInfo,
+                               {},
+                               InputFileType::Header,
+                               "/source/file.cpp",
+                               {},
+                               {},
+                               ClangBackEnd::NativeFilePath{FilePath{"/resource/path"}}};
 
     ASSERT_THAT(builder.commandLine,
                 ElementsAre("clang++",
@@ -520,8 +511,8 @@ TYPED_TEST(CommandLineBuilder, IncludesOrder)
                             "-std=c++11",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
+                            "-isystem",
+                            toNativePath("/resource/path"),
                             "-I",
                             toNativePath("/include/foo"),
                             "-I",
@@ -549,9 +540,7 @@ TYPED_TEST(CommandLineBuilder, EmptySourceFile)
                             "c++-header",
                             "-std=c++98",
                             "-nostdinc",
-                            "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath())));
+                            "-nostdinc++"));
 }
 
 TYPED_TEST(CommandLineBuilder, SourceFile)
@@ -567,8 +556,6 @@ TYPED_TEST(CommandLineBuilder, SourceFile)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.cpp")));
 }
 
@@ -586,8 +573,6 @@ TYPED_TEST(CommandLineBuilder, EmptyOutputFile)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
                             toNativePath("/source/file.cpp")));
 }
 
@@ -608,11 +593,22 @@ TYPED_TEST(CommandLineBuilder, OutputFile)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
                             "-o",
                             toNativePath("/output/file.o"),
                             toNativePath("/source/file.cpp")));
+}
+
+TYPED_TEST(CommandLineBuilder, PreIncludeSearchPath)
+{
+    Builder<TypeParam> builder{this->emptyProjectInfo,
+                               {},
+                               {},
+                               {},
+                               {},
+                               {},
+                               ClangBackEnd::NativeFilePath{FilePath{"/resource/path"}}};
+
+    ASSERT_THAT(builder.commandLine, Contains(toNativePath("/resource/path")));
 }
 
 TYPED_TEST(CommandLineBuilder, IncludePchPath)
@@ -633,8 +629,6 @@ TYPED_TEST(CommandLineBuilder, IncludePchPath)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
                             "-Xclang",
                             "-include-pch",
                             "-Xclang",
@@ -660,9 +654,7 @@ TYPED_TEST(CommandLineBuilder, CompilerMacros)
                             "-nostdinc",
                             "-nostdinc++",
                             "-DER=2",
-                            "-DYI=1",
-                            "-I",
-                            toNativePath(resourcePath())));
+                            "-DYI=1"));
 }
 
 } // namespace

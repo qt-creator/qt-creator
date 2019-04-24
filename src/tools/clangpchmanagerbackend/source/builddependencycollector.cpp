@@ -33,7 +33,7 @@
 #include <utils/smallstring.h>
 
 #include <algorithm>
-#include <iostream>
+
 namespace ClangBackEnd {
 
 namespace {
@@ -68,18 +68,26 @@ FilePaths generatedFilePaths(const V2::FileContainers &containers) {
 
 BuildDependency BuildDependencyCollector::create(const ProjectPartContainer &projectPart)
 {
-    CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>
-        builder{projectPart, projectPart.toolChainArguments, InputFileType::Source};
+    if (projectPart.sourcePathIds.size()) {
+        CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector> builder{
+            projectPart,
+            projectPart.toolChainArguments,
+            InputFileType::Source,
+            {},
+            {},
+            {},
+            m_environment.preIncludeSearchPath()};
 
-    addFiles(projectPart.sourcePathIds, std::move(builder.commandLine));
+        addFiles(projectPart.sourcePathIds, std::move(builder.commandLine));
 
-    setExcludedFilePaths(m_filePathCache.filePaths(projectPart.headerPathIds +
-                                                   projectPart.sourcePathIds) +
-                         generatedFilePaths(m_generatedFiles.fileContainers()));
+        setExcludedFilePaths(
+            m_filePathCache.filePaths(projectPart.headerPathIds + projectPart.sourcePathIds)
+            + generatedFilePaths(m_generatedFiles.fileContainers()));
 
-    addUnsavedFiles(m_generatedFiles.fileContainers());
+        addUnsavedFiles(m_generatedFiles.fileContainers());
 
-    collect();
+        collect();
+    }
 
     auto buildDependency = std::move(m_buildDependency);
 
@@ -147,7 +155,7 @@ void BuildDependencyCollector::setExcludedFilePaths(ClangBackEnd::FilePaths &&ex
 void BuildDependencyCollector::addFiles(const FilePathIds &filePathIds,
                                         Utils::SmallStringVector &&arguments)
 {
-    m_clangTool.addFile(FilePath{m_environment.pchBuildDirectory().toStdString(), "dummy.cpp"},
+    m_clangTool.addFile(FilePath{m_environment.pchBuildDirectory(), "dummy.cpp"},
                         generateFakeFileContent(filePathIds),
                         std::move(arguments));
     m_buildDependency.sourceFiles.insert(m_buildDependency.sourceFiles.end(),

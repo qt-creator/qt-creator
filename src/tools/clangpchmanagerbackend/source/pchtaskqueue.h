@@ -36,6 +36,7 @@ namespace ClangBackEnd {
 class PchCreatorInterface;
 class PrecompiledHeaderStorageInterface;
 class ProgressCounter;
+class Environment;
 
 class PchTaskQueue final : public PchTaskQueueInterface
 {
@@ -46,12 +47,14 @@ public:
                  TaskSchedulerInterface<Task> &projectPchTaskScheduler,
                  ProgressCounter &progressCounter,
                  PrecompiledHeaderStorageInterface &precompiledHeaderStorage,
-                 Sqlite::TransactionInterface &transactionsInterface)
+                 Sqlite::TransactionInterface &transactionsInterface,
+                 const Environment &environment)
         : m_systemPchTaskScheduler(systemPchTaskScheduler)
         , m_projectPchTaskScheduler(projectPchTaskScheduler)
         , m_precompiledHeaderStorage(precompiledHeaderStorage)
         , m_transactionsInterface(transactionsInterface)
         , m_progressCounter(progressCounter)
+        , m_environment(environment)
     {}
 
     void addSystemPchTasks(PchTasks &&pchTasks) override;
@@ -80,6 +83,7 @@ private:
     PrecompiledHeaderStorageInterface &m_precompiledHeaderStorage;
     Sqlite::TransactionInterface &m_transactionsInterface;
     ProgressCounter &m_progressCounter;
+    const Environment &m_environment;
 };
 
 } // namespace ClangBackEnd

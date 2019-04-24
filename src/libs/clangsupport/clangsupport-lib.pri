@@ -217,6 +217,7 @@ HEADERS += \
     $$PWD/projectpartcontainer.h \
     $$PWD/sourceentry.h \
     $$PWD/modifiedtimecheckerinterface.h \
+    $$PWD/environment.h \
     $$PWD/modifiedtimechecker.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

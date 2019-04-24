@@ -25,9 +25,11 @@
 
 #pragma once
 
+#include <utils/hostosinfo.h>
 #include <utils/smallstring.h>
-
 #include <utils/temporarydirectory.h>
+
+#include <utf8stringvector.h>
 
 inline
 bool operator==(const QString &first, const char *second)
@@ -41,5 +43,13 @@ inline
 Utils::PathString temporaryDirPath()
 {
     return Utils::PathString::fromQString(Utils::TemporaryDirectory::masterDirectoryPath());
+}
+
+inline QVector<Utf8String> addPlatformArguments(std::initializer_list<Utf8String> arguments = {})
+{
+    QVector<Utf8String> result{arguments};
+    if (Utils::HostOsInfo::isWindowsHost())
+        result.append(Utf8StringLiteral("-fno-delayed-template-parsing"));
+    return result;
 }
 } // namespace UnitTest

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
-#include "testenvironment.h"
+#include "unittest-utility-functions.h"
 
 #include <clangsupport_global.h>
 #include <clangreferencescollector.h>
@@ -59,7 +59,7 @@ struct Data {
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Document document{Utf8StringLiteral(TESTDATA_DIR"/references.cpp"),
-                      TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")}),
+                      UnitTest::addPlatformArguments({Utf8StringLiteral("-std=c++14")}),
                       {},
                       documents};
 };

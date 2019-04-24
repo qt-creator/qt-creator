@@ -737,10 +737,16 @@ TEST_F(BuildDependencyCollector, Create)
         1,
         {},
         {},
-        {{TESTDATA_DIR "/builddependencycollector/system", 1, IncludeSearchPathType::System}},
+        {{TESTDATA_DIR "/builddependencycollector/system",
+          1,
+          ClangBackEnd::IncludeSearchPathType::System}},
         {
-            {TESTDATA_DIR "/builddependencycollector/project", 1, IncludeSearchPathType::User},
-            {TESTDATA_DIR "/builddependencycollector/external", 2, IncludeSearchPathType::User},
+            {TESTDATA_DIR "/builddependencycollector/project",
+             1,
+             ClangBackEnd::IncludeSearchPathType::User},
+            {TESTDATA_DIR "/builddependencycollector/external",
+             2,
+             ClangBackEnd::IncludeSearchPathType::User},
         },
         {
             id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
@@ -771,6 +777,7 @@ TEST_F(BuildDependencyCollector, Create)
                                  "/builddependencycollector/external/indirect_external2.h"),
                       fileStatus(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
                       fileStatus(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
+                      fileStatus(TESTDATA_DIR "/preincludes/system1.h"),
                       fileStatus(TESTDATA_DIR "/builddependencycollector/system/indirect_system.h"),
                       fileStatus(TESTDATA_DIR
                                  "/builddependencycollector/system/indirect_system2.h"),
@@ -804,7 +811,7 @@ TEST_F(BuildDependencyCollector, Create)
                     HasSource(id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
                               SourceType::TopProjectInclude),
                     HasSource(id(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
-                              SourceType::TopSystemInclude),
+                              SourceType::SystemInclude),
                     HasSource(id(TESTDATA_DIR "/builddependencycollector/system/indirect_system.h"),
                               SourceType::SystemInclude),
                     HasSource(id(TESTDATA_DIR
@@ -813,7 +820,8 @@ TEST_F(BuildDependencyCollector, Create)
                     HasSource(id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
                               SourceType::UserInclude),
                     HasSource(id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"),
-                              SourceType::UserInclude))),
+                              SourceType::UserInclude),
+                    HasSource(id(TESTDATA_DIR "/preincludes/system1.h"), SourceType::TopSystemInclude))),
             Field(&BuildDependency::usedMacros,
                   UnorderedElementsAre(
                       UsedMacro{"IFDEF", id(TESTDATA_DIR "/builddependencycollector/project/macros.h")},
@@ -830,6 +838,7 @@ TEST_F(BuildDependencyCollector, Create)
                       id(TESTDATA_DIR "/builddependencycollector/external/indirect_external2.h"),
                       id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
                       id(TESTDATA_DIR "/builddependencycollector/system/system1.h"),
+                      id(TESTDATA_DIR "/preincludes/system1.h"),
                       id(TESTDATA_DIR "/builddependencycollector/system/indirect_system.h"),
                       id(TESTDATA_DIR "/builddependencycollector/system/indirect_system2.h"),
                       id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
@@ -854,6 +863,8 @@ TEST_F(BuildDependencyCollector, Create)
                                      id(TESTDATA_DIR
                                         "/builddependencycollector/external/external2.h")),
                     SourceDependency(id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp"),
+                                     id(TESTDATA_DIR "/preincludes/system1.h")),
+                    SourceDependency(id(TESTDATA_DIR "/preincludes/system1.h"),
                                      id(TESTDATA_DIR "/builddependencycollector/system/system1.h")),
                     SourceDependency(id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp"),
                                      id(TESTDATA_DIR "/builddependencycollector/project/macros.h")),
@@ -888,10 +899,42 @@ TEST_F(BuildDependencyCollector, Clear)
         1,
         {},
         {},
-        {{TESTDATA_DIR "/builddependencycollector/system", 1, IncludeSearchPathType::System}},
+        {{TESTDATA_DIR "/builddependencycollector/system",
+          1,
+          ClangBackEnd::IncludeSearchPathType::System}},
         {
-            {TESTDATA_DIR "/builddependencycollector/project", 1, IncludeSearchPathType::User},
-            {TESTDATA_DIR "/builddependencycollector/external", 2, IncludeSearchPathType::User},
+            {TESTDATA_DIR "/builddependencycollector/project",
+             1,
+             ClangBackEnd::IncludeSearchPathType::User},
+            {TESTDATA_DIR "/builddependencycollector/external",
+             2,
+             ClangBackEnd::IncludeSearchPathType::User},
+        },
+        {
+            id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
+        },
+        {id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp")},
+        Utils::Language::Cxx,
+        Utils::LanguageVersion::CXX11,
+        Utils::LanguageExtension::None};
+    collector.create(projectPart);
+    ClangBackEnd::ProjectPartContainer emptyProjectPart{
+        1,
+        {},
+        {},
+        {{TESTDATA_DIR "/builddependencycollector/system",
+          1,
+          ClangBackEnd::IncludeSearchPathType::System}},
+        {
+            {TESTDATA_DIR "/builddependencycollector/project",
+             1,
+             ClangBackEnd::IncludeSearchPathType::User},
+            {TESTDATA_DIR "/builddependencycollector/external",
+             2,
+             ClangBackEnd::IncludeSearchPathType::User},
         },
         {
             id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
@@ -903,10 +946,46 @@ TEST_F(BuildDependencyCollector, Clear)
         Utils::Language::Cxx,
         Utils::LanguageVersion::CXX11,
         Utils::LanguageExtension::None};
-    collector.create(projectPart);
+
+    auto buildDependency = collector.create(emptyProjectPart);
+
+    ASSERT_THAT(buildDependency.sources, IsEmpty());
+}
+
+TEST_F(BuildDependencyCollector, PreIncludes)
+{
+    using ClangBackEnd::IncludeSearchPathType;
+    ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles, environment};
+    ClangBackEnd::ProjectPartContainer projectPart{
+        1,
+        {},
+        {},
+        {{TESTDATA_DIR "/builddependencycollector/system",
+          1,
+          ClangBackEnd::IncludeSearchPathType::System}},
+        {
+            {TESTDATA_DIR "/builddependencycollector/project",
+             1,
+             ClangBackEnd::IncludeSearchPathType::User},
+            {TESTDATA_DIR "/builddependencycollector/external",
+             2,
+             ClangBackEnd::IncludeSearchPathType::User},
+        },
+        {
+            id(TESTDATA_DIR "/builddependencycollector/project/header1.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/missingfile.h"),
+            id(TESTDATA_DIR "/builddependencycollector/project/macros.h"),
+        },
+        {id(TESTDATA_DIR "/builddependencycollector/project/main4.cpp")},
+        Utils::Language::Cxx,
+        Utils::LanguageVersion::CXX11,
+        Utils::LanguageExtension::None};
 
     auto buildDependency = collector.create(projectPart);
 
-    ASSERT_THAT(buildDependency.sources, IsEmpty());
+    ASSERT_THAT(buildDependency.sources,
+                Contains(HasSource(id(TESTDATA_DIR "/preincludes/system1.h"),
+                                   SourceType::TopSystemInclude)));
 }
 } // namespace

@@ -85,7 +85,8 @@ public:
     SymbolIndexing(Sqlite::Database &database,
                    FilePathCachingInterface &filePathCache,
                    const GeneratedFiles &generatedFiles,
-                   ProgressCounter::SetProgressCallback &&setProgressCallback)
+                   ProgressCounter::SetProgressCallback &&setProgressCallback,
+                   const Environment &environment)
         : m_filePathCache(filePathCache)
         , m_buildDependencyStorage(database)
         , m_precompiledHeaderStorage(database)
@@ -93,6 +94,17 @@ public:
         , m_symbolStorage(database)
         , m_collectorManger(generatedFiles, database)
         , m_progressCounter(std::move(setProgressCallback))
+        , m_indexer(m_indexerQueue,
+                    m_symbolStorage,
+                    m_buildDependencyStorage,
+                    m_precompiledHeaderStorage,
+                    m_sourceWatcher,
+                    m_filePathCache,
+                    m_fileStatusCache,
+                    m_symbolStorage.database,
+                    m_projectPartsStorage,
+                    m_modifiedTimeChecker,
+                    environment)
         , m_indexerScheduler(m_collectorManger,
                              m_indexerQueue,
                              m_progressCounter,
@@ -139,16 +151,7 @@ private:
         }};
     ModifiedTimeChecker<ClangBackEnd::SourceTimeStamps> m_modifiedTimeChecker{getModifiedTime,
                                                                               m_filePathCache};
-    SymbolIndexer m_indexer{m_indexerQueue,
-                            m_symbolStorage,
-                            m_buildDependencyStorage,
-                            m_precompiledHeaderStorage,
-                            m_sourceWatcher,
-                            m_filePathCache,
-                            m_fileStatusCache,
-                            m_symbolStorage.database,
-                            m_projectPartsStorage,
-                            m_modifiedTimeChecker};
+    SymbolIndexer m_indexer;
     SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler, m_progressCounter};
     SymbolIndexerTaskScheduler m_indexerScheduler;
 };

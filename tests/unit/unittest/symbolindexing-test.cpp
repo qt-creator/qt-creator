@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "testenvironment.h"
 
 #include <symbolindexing.h>
 #include <symbolquery.h>
@@ -85,7 +86,12 @@ protected:
     ClangBackEnd::GeneratedFiles generatedFiles;
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProjectPartsStorage<Sqlite::Database> projectPartStorage{database};
-    ClangBackEnd::SymbolIndexing indexing{database, filePathCache, generatedFiles, mockSetProgressCallback.AsStdFunction()};
+    TestEnvironment testEnvironment;
+    ClangBackEnd::SymbolIndexing indexing{database,
+                                          filePathCache,
+                                          generatedFiles,
+                                          mockSetProgressCallback.AsStdFunction(),
+                                          testEnvironment};
     StatementFactory queryFactory{database};
     Query query{queryFactory};
     PathString main1Path = TESTDATA_DIR "/symbolindexing_main1.cpp";

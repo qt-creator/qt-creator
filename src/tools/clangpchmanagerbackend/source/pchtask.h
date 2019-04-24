@@ -94,8 +94,8 @@ public:
                && first.systemIncludeSearchPaths == second.systemIncludeSearchPaths
                && first.projectIncludeSearchPaths == second.projectIncludeSearchPaths
                && first.toolChainArguments == second.toolChainArguments
-               && first.language == second.language
-               && first.languageVersion == second.languageVersion
+               && first.preIncludeSearchPath == second.preIncludeSearchPath
+               && first.language == second.language && first.languageVersion == second.languageVersion
                && first.languageExtension == second.languageExtension;
     }
 
@@ -110,6 +110,7 @@ public:
     IncludeSearchPaths systemIncludeSearchPaths;
     IncludeSearchPaths projectIncludeSearchPaths;
     Utils::SmallStringVector toolChainArguments;
+    NativeFilePathView preIncludeSearchPath;
     Utils::Language language = Utils::Language::Cxx;
     Utils::LanguageVersion languageVersion = Utils::LanguageVersion::CXX98;
     Utils::LanguageExtension languageExtension = Utils::LanguageExtension::None;

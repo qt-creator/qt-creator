@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
-#include "testenvironment.h"
+#include "unittest-utility-functions.h"
 
 #include <clangsupport_global.h>
 #include <clangfollowsymboljob.h>
@@ -113,7 +113,7 @@ public:
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Utf8StringVector compilationArguments{
-        TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++14")})};
+        UnitTest::addPlatformArguments({Utf8StringLiteral("-std=c++14")})};
     Document document = {sourceFilePath, compilationArguments, {}, documents};
     Document headerDocument = {headerFilePath, compilationArguments, {}, documents};
     QVector<Utf8String> deps{sourceFilePath, cursorPath};

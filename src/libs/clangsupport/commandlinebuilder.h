@@ -49,7 +49,8 @@ public:
                        InputFileType sourceType = InputFileType::Header,
                        FilePathView sourcePath = {},
                        FilePathView outputPath = {},
-                       FilePathView includePchPath = {})
+                       FilePathView includePchPath = {},
+                       NativeFilePathView preIncludeSearchPath = {})
     {
         commandLine.reserve(1024);
 
@@ -61,7 +62,7 @@ public:
         addLanguageVersion(projectInfo);
         addNoStdIncAndNoStdLibInc(projectInfo.language);
         addCompilerMacros(projectInfo.compilerMacros);
-        addPreIncludeSearchPath();
+        addPreIncludeSearchPath(preIncludeSearchPath);
         addProjectIncludeSearchPaths(
             sortedIncludeSearchPaths(projectInfo.projectIncludeSearchPaths));
         addSystemAndBuiltInIncludeSearchPaths(
@@ -220,18 +221,12 @@ public:
             commandLine.emplace_back(Utils::SmallString{"-D", macro.key, "=", macro.value});
     }
 
-    QString resourcePath() const
+    void addPreIncludeSearchPath(NativeFilePathView preIncludeSearchPath)
     {
-        return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH
-                               + "/indexing_preincludes");
-    }
-
-    void addPreIncludeSearchPath()
-    {
-        static NativeFilePath preIncludeSearchPath{FilePath{resourcePath()}};
-
-        commandLine.emplace_back("-I");
-        commandLine.emplace_back(preIncludeSearchPath);
+        if (!preIncludeSearchPath.empty()) {
+            commandLine.emplace_back("-isystem");
+            commandLine.emplace_back(preIncludeSearchPath);
+        }
     }
 
     IncludeSearchPaths sortedIncludeSearchPaths(const IncludeSearchPaths &unsortedPaths)

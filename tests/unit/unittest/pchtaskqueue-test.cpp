@@ -29,6 +29,7 @@
 #include "mockprecompiledheaderstorage.h"
 #include "mocksqlitetransactionbackend.h"
 #include "mocktaskscheduler.h"
+#include "testenvironment.h"
 
 #include <pchtaskqueue.h>
 #include <progresscounter.h>
@@ -50,11 +51,13 @@ protected:
     MockSqliteTransactionBackend mockSqliteTransactionBackend;
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
+    TestEnvironment testEnvironment;
     ClangBackEnd::PchTaskQueue queue{mockSytemPchTaskScheduler,
                                      mockProjectPchTaskScheduler,
                                      progressCounter,
                                      mockPrecompiledHeaderStorage,
-                                     mockSqliteTransactionBackend};
+                                     mockSqliteTransactionBackend,
+                                     testEnvironment};
     IncludeSearchPaths systemIncludeSearchPaths{
         {"/includes", 1, IncludeSearchPathType::BuiltIn},
         {"/other/includes", 2, IncludeSearchPathType::System}};
@@ -297,6 +300,7 @@ TEST_F(PchTaskQueue, CreateProjectTaskFromPchTask)
     auto tasks = queue.createProjectTasks({projectTask1});
     auto projectTask = projectTask1;
     projectTask.systemPchPath = "/path/to/pch";
+    projectTask.preIncludeSearchPath = testEnvironment.preIncludeSearchPath();
 
     EXPECT_CALL(mockPrecompiledHeaderStorage, fetchSystemPrecompiledHeaderPath(Eq(1)))
         .WillOnce(Return(ClangBackEnd::FilePath{"/path/to/pch"}));
@@ -316,6 +320,7 @@ TEST_F(PchTaskQueue, DeleteProjectPchEntryInDatabaseIfNoPchIsGenerated)
     auto tasks = queue.createProjectTasks({projectTask1});
     auto projectTask = projectTask1;
     projectTask.systemPchPath = "/path/to/pch";
+    projectTask.preIncludeSearchPath = testEnvironment.preIncludeSearchPath();
 
     EXPECT_CALL(mockPrecompiledHeaderStorage, fetchSystemPrecompiledHeaderPath(Eq(1)))
         .WillOnce(Return(ClangBackEnd::FilePath{"/path/to/pch"}));
@@ -355,8 +360,10 @@ TEST_F(PchTaskQueue, CreateSystemTaskFromPchTask)
     MockPchCreator mockPchCreator;
     ClangBackEnd::ProjectPartPch projectPartPch{{}, "/path/to/pch", 99};
     auto tasks = queue.createSystemTasks({systemTask4});
+    auto systemTask = systemTask4;
+    systemTask.preIncludeSearchPath = testEnvironment.preIncludeSearchPath();
 
-    EXPECT_CALL(mockPchCreator, generatePch(Eq(systemTask4)));
+    EXPECT_CALL(mockPchCreator, generatePch(Eq(systemTask)));
     EXPECT_CALL(mockPchCreator, projectPartPch()).WillOnce(ReturnRef(projectPartPch));
     EXPECT_CALL(mockPrecompiledHeaderStorage,
                 insertSystemPrecompiledHeaders(UnorderedElementsAre(1, 3), Eq("/path/to/pch"), 99));
@@ -370,8 +377,10 @@ TEST_F(PchTaskQueue, DeleteSystemPchEntryInDatabaseIfNoPchIsGenerated)
     MockPchCreator mockPchCreator;
     ClangBackEnd::ProjectPartPch projectPartPch{{}, "", 0};
     auto tasks = queue.createSystemTasks({systemTask4});
+    auto systemTask = systemTask4;
+    systemTask.preIncludeSearchPath = testEnvironment.preIncludeSearchPath();
 
-    EXPECT_CALL(mockPchCreator, generatePch(Eq(systemTask4)));
+    EXPECT_CALL(mockPchCreator, generatePch(Eq(systemTask)));
     EXPECT_CALL(mockPchCreator, projectPartPch()).WillOnce(ReturnRef(projectPartPch));
     EXPECT_CALL(mockPrecompiledHeaderStorage,
                 deleteSystemPrecompiledHeaders(UnorderedElementsAre(1, 3)));

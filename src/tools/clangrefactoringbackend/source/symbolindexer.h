@@ -40,6 +40,7 @@
 namespace ClangBackEnd {
 
 class SymbolsCollectorInterface;
+class Environment;
 
 class SymbolIndexer final : public ClangPathWatcherNotifier
 {
@@ -53,7 +54,8 @@ public:
                   FileStatusCache &fileStatusCache,
                   Sqlite::TransactionInterface &transactionInterface,
                   ProjectPartsStorageInterface &projectPartsStorage,
-                  ModifiedTimeCheckerInterface<SourceTimeStamps> &modifiedTimeChecker);
+                  ModifiedTimeCheckerInterface<SourceTimeStamps> &modifiedTimeChecker,
+                  const Environment &environment);
 
     void updateProjectParts(ProjectPartContainers &&projectParts);
     void updateProjectPart(ProjectPartContainer &&projectPart);
@@ -84,6 +86,7 @@ private:
     Sqlite::TransactionInterface &m_transactionInterface;
     ProjectPartsStorageInterface &m_projectPartsStorage;
     ModifiedTimeCheckerInterface<SourceTimeStamps> &m_modifiedTimeChecker;
+    const Environment &m_environment;
 };
 
 } // namespace ClangBackEnd

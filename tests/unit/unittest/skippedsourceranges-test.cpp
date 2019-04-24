@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "googletest.h"
-#include "testenvironment.h"
+#include "unittest-utility-functions.h"
 
 #include <cursor.h>
 #include <clangdocument.h>
@@ -89,7 +89,7 @@ struct Data {
     ClangBackEnd::UnsavedFiles unsavedFiles;
     ClangBackEnd::Documents documents{unsavedFiles};
     Utf8String filePath = Utf8StringLiteral(TESTDATA_DIR"/skippedsourceranges.cpp");
-    Utf8StringVector compilationArguments{TestEnvironment::addPlatformArguments(
+    Utf8StringVector compilationArguments{UnitTest::addPlatformArguments(
         {Utf8StringLiteral("-std=c++11"), {}, Utf8StringLiteral("-DBLAH")})};
     Document document{filePath, compilationArguments, {}, documents};
     TranslationUnit translationUnit{filePath,

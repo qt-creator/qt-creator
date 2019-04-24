@@ -25,7 +25,7 @@
 
 #include "googletest.h"
 
-#include "testenvironment.h"
+#include "unittest-utility-functions.h"
 
 #include <clangdocument.h>
 #include <clangdocuments.h>
@@ -55,7 +55,7 @@ struct Data {
     ClangBackEnd::Documents documents{unsavedFiles};
     Utf8String filePath{Utf8StringLiteral(TESTDATA_DIR"/token.cpp")};
     Utf8StringVector compilationArguments{
-        TestEnvironment::addPlatformArguments({Utf8StringLiteral("-std=c++11")})};
+        UnitTest::addPlatformArguments({Utf8StringLiteral("-std=c++11")})};
     Document document{filePath, compilationArguments, {}, documents};
     TranslationUnit translationUnit{filePath,
                                     filePath,

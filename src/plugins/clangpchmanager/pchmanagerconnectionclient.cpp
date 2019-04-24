@@ -56,7 +56,8 @@ ClangPchManager::PchManagerConnectionClient::PchManagerConnectionClient(
     pchsDirectory.cd("pchs");
     m_processCreator.setArguments({connectionName(),
                                    Core::ICore::cacheResourcePath() + "/symbol-experimental-v1.db",
-                                   pchsDirectory.absolutePath()});
+                                   pchsDirectory.absolutePath(),
+                                   Core::ICore::resourcePath()});
 
     stdErrPrefixer().setPrefix("PchManagerConnectionClient.stderr: ");
     stdOutPrefixer().setPrefix("PchManagerConnectionClient.stdout: ");

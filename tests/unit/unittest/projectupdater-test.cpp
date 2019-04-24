@@ -351,7 +351,6 @@ TEST_F(ProjectUpdater, ToolChainArguments)
 
     ASSERT_THAT(arguments,
                 ElementsAre(QString{"-m32"},
-                            QString{"-fPIC"},
                             QString{"extraflags"},
                             QString{"-include"},
                             QString{"config.h"}));

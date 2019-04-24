@@ -27,6 +27,7 @@
 
 #include "fakeprocess.h"
 #include "filesystem-utilities.h"
+#include "testenvironment.h"
 
 #include "mockbuilddependenciesstorage.h"
 #include "mockclangpathwatcher.h"
@@ -79,7 +80,11 @@ MATCHER_P2(HasIdAndType,
 class PchCreator: public ::testing::Test
 {
 protected:
-    PchCreator() { creator.setUnsavedFiles({generatedFile}); }
+    PchCreator()
+    {
+        creator.setUnsavedFiles({generatedFile});
+        pchTask1.preIncludeSearchPath = testEnvironment.preIncludeSearchPath();
+    }
 
     ClangBackEnd::FilePathId id(ClangBackEnd::FilePathView path)
     {
@@ -121,6 +126,7 @@ protected:
          {TESTDATA_DIR "/builddependencycollector/external", 1, IncludeSearchPathType::System}},
         {{TESTDATA_DIR "/builddependencycollector/project", 1, IncludeSearchPathType::User}},
     };
+    TestEnvironment testEnvironment;
 };
 using PchCreatorSlowTest = PchCreator;
 using PchCreatorVerySlowTest = PchCreator;
@@ -148,8 +154,8 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArguments)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
+                            "-isystem",
+                            toNativePath(TESTDATA_DIR "/preincludes"),
                             "-I",
                             toNativePath(TESTDATA_DIR "/builddependencycollector/project"),
                             "-isystem",
@@ -175,8 +181,8 @@ TEST_F(PchCreator, CreateProjectPartClangCompilerArgumentsWithSystemPch)
                             "-std=c++98",
                             "-nostdinc",
                             "-nostdinc++",
-                            "-I",
-                            toNativePath(resourcePath()),
+                            "-isystem",
+                            toNativePath(TESTDATA_DIR "/preincludes"),
                             "-I",
                             toNativePath(TESTDATA_DIR "/builddependencycollector/project"),
                             "-isystem",

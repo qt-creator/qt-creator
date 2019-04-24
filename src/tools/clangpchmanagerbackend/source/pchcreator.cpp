@@ -104,7 +104,8 @@ Utils::SmallStringVector PchCreator::generateClangCompilerArguments(const PchTas
                                         InputFileType::Header,
                                         {},
                                         pchOutputPath,
-                                        pchTask.systemPchPath};
+                                        pchTask.systemPchPath,
+                                        pchTask.preIncludeSearchPath};
 
     return builder.commandLine;
 }
@@ -117,7 +118,7 @@ void PchCreator::generatePch(PchTask &&pchTask)
     auto content = generatePchIncludeFileContent(pchTask.includes);
     auto pchOutputPath = generatePchFilePath();
 
-    FilePath headerFilePath{m_environment.pchBuildDirectory().toStdString(), "dummy.h"};
+    FilePath headerFilePath{m_environment.pchBuildDirectory(), "dummy.h"};
     Utils::SmallStringVector commandLine = generateClangCompilerArguments(pchTask, pchOutputPath);
 
     m_clangTool.addFile(std::move(headerFilePath), content.clone(), std::move(commandLine));

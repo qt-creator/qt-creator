@@ -1,0 +1,1 @@
+../qglobal.h

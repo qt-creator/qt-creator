@@ -29,6 +29,7 @@
 #include "symbolindexertaskqueue.h"
 
 #include <commandlinebuilder.h>
+#include <environment.h>
 
 #include <chrono>
 #include <iostream>
@@ -67,7 +68,8 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
                              FileStatusCache &fileStatusCache,
                              Sqlite::TransactionInterface &transactionInterface,
                              ProjectPartsStorageInterface &projectPartsStorage,
-                             ModifiedTimeCheckerInterface<SourceTimeStamps> &modifiedTimeChecker)
+                             ModifiedTimeCheckerInterface<SourceTimeStamps> &modifiedTimeChecker,
+                             const Environment &environment)
     : m_symbolIndexerTaskQueue(symbolIndexerTaskQueue)
     , m_symbolStorage(symbolStorage)
     , m_buildDependencyStorage(buildDependenciesStorage)
@@ -78,6 +80,7 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
     , m_transactionInterface(transactionInterface)
     , m_projectPartsStorage(projectPartsStorage)
     , m_modifiedTimeChecker(modifiedTimeChecker)
+    , m_environment(environment)
 {
     pathWatcher.setNotifier(this);
 }
@@ -99,8 +102,10 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
             sourcePathId);
 
         if (!m_modifiedTimeChecker.isUpToDate(dependentTimeStamps)) {
-            auto indexing = [projectPart = std::move(projectPart), sourcePathId, this](
-                                SymbolsCollectorInterface &symbolsCollector) {
+            auto indexing = [projectPart = std::move(projectPart),
+                             sourcePathId,
+                             preIncludeSearchPath = m_environment.preIncludeSearchPath(),
+                             this](SymbolsCollectorInterface &symbolsCollector) {
                 auto collect = [&](const FilePath &pchPath) {
                     using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
                     Builder commandLineBuilder{projectPart,
@@ -108,7 +113,8 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
                                                InputFileType::Source,
                                                {},
                                                {},
-                                               pchPath};
+                                               pchPath,
+                                               preIncludeSearchPath};
                     symbolsCollector.setFile(sourcePathId, commandLineBuilder.commandLine);
 
                     return symbolsCollector.collectSymbols();
@@ -174,13 +180,21 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 
     SourceTimeStamps dependentTimeStamps = m_symbolStorage.fetchIncludedIndexingTimeStamps(filePathId);
 
-    auto indexing = [optionalArtefact = std::move(optionalArtefact), filePathId, this](
-                        SymbolsCollectorInterface &symbolsCollector) {
+    auto indexing = [optionalArtefact = std::move(optionalArtefact),
+                     filePathId,
+                     preIncludeSearchPath = m_environment.preIncludeSearchPath(),
+                     this](SymbolsCollectorInterface &symbolsCollector) {
         auto collect = [&](const FilePath &pchPath) {
             const ProjectPartArtefact &artefact = *optionalArtefact;
 
             using Builder = CommandLineBuilder<ProjectPartArtefact, Utils::SmallStringVector>;
-            Builder builder{artefact, artefact.toolChainArguments, InputFileType::Source, {}, {}, pchPath};
+            Builder builder{artefact,
+                            artefact.toolChainArguments,
+                            InputFileType::Source,
+                            {},
+                            {},
+                            pchPath,
+                            preIncludeSearchPath};
 
             symbolsCollector.setFile(filePathId, builder.commandLine);
 
