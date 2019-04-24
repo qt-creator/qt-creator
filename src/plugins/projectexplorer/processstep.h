@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "ui_processstep.h"
 #include "abstractprocessstep.h"
+#include "projectconfigurationaspects.h"
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -47,40 +47,13 @@ public:
 
     BuildStepConfigWidget *createConfigWidget() override;
 
-    QString command() const;
-    QString arguments() const;
-    QString workingDirectory() const;
-
-    void setCommand(const QString &command);
-    void setArguments(const QString &arguments);
-    void setWorkingDirectory(const QString &workingDirectory);
-
 private:
     bool init() override;
-    void doRun() override;
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
+    void setupProcessParameters(ProcessParameters *pp);
 
-    QString m_command;
-    QString m_arguments;
-    QString m_workingDirectory;
-};
-
-class ProcessStepConfigWidget : public BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    ProcessStepConfigWidget(ProcessStep *step);
-    virtual QString displayName() const;
-    virtual QString summaryText() const;
-private:
-    void commandLineEditTextEdited();
-    void workingDirectoryLineEditTextEdited();
-    void commandArgumentsLineEditTextEdited();
-    void updateDetails();
-    ProcessStep *m_step;
-    Ui::ProcessStepWidget m_ui;
-    QString m_summaryText;
+    ProjectExplorer::BaseStringAspect *m_command;
+    ProjectExplorer::BaseStringAspect *m_arguments;
+    ProjectExplorer::BaseStringAspect *m_workingDirectory;
 };
 
 } // namespace Internal
