@@ -37,20 +37,10 @@ public:
     explicit RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl);
     ~RemoteLinuxCheckForFreeDiskSpaceStep() override;
 
-    void setPathToCheck(const QString &path);
-    QString pathToCheck() const;
-
-    void setRequiredSpaceInBytes(quint64 space);
-    quint64 requiredSpaceInBytes() const;
-
     static Core::Id stepId();
     static QString displayName();
 
 protected:
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
     bool initInternal(QString *error) override;
     AbstractRemoteLinuxDeployService *deployService() const override;
 

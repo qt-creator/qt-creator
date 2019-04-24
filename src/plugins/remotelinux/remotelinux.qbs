@@ -60,7 +60,6 @@ Project {
             "remotelinuxcheckforfreediskspaceservice.h",
             "remotelinuxcheckforfreediskspacestep.cpp",
             "remotelinuxcheckforfreediskspacestep.h",
-            "remotelinuxcheckforfreediskspacestepwidget.ui",
             "remotelinuxcustomcommanddeploymentstep.cpp",
             "remotelinuxcustomcommanddeploymentstep.h",
             "remotelinuxcustomcommanddeployservice.cpp",

@@ -90,8 +90,7 @@ SOURCES += \
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
-    genericlinuxdeviceconfigurationwidget.ui \
-    remotelinuxcheckforfreediskspacestepwidget.ui
+    genericlinuxdeviceconfigurationwidget.ui
 
 RESOURCES += remotelinux.qrc
 
