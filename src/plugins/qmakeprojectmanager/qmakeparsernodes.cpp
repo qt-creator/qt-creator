@@ -1623,25 +1623,38 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
             m_wildcardWatcher = std::make_unique<Utils::FileSystemWatcher>();
             QObject::connect(
                 m_wildcardWatcher.get(), &Utils::FileSystemWatcher::directoryChanged,
-                [this]() {
-                    scheduleUpdate();
+                [this](QString path) {
+                    QStringList directoryContents = QDir(path).entryList();
+                    if (m_wildcardDirectoryContents.value(path) != directoryContents) {
+                        m_wildcardDirectoryContents.insert(path, directoryContents);
+                        scheduleUpdate();
+                    }
                 });
         }
-        m_wildcardWatcher->addDirectories(
-            Utils::filtered<QStringList>(result->directoriesWithWildcards.toList(),
-                [this](const QString &path) {
-                    return !m_wildcardWatcher->watchesDirectory(path);
-                }), Utils::FileSystemWatcher::WatchModifiedDate);
+        const QStringList directoriesToAdd = Utils::filtered<QStringList>(
+            result->directoriesWithWildcards.toList(),
+            [this](const QString &path) {
+                return !m_wildcardWatcher->watchesDirectory(path);
+            });
+        for (QString path : directoriesToAdd)
+            m_wildcardDirectoryContents.insert(path, QDir(path).entryList());
+        m_wildcardWatcher->addDirectories(directoriesToAdd,
+                                          Utils::FileSystemWatcher::WatchModifiedDate);
     }
     if (m_wildcardWatcher) {
         if (result->directoriesWithWildcards.isEmpty()) {
             m_wildcardWatcher.reset();
+            m_wildcardDirectoryContents.clear();
         } else {
-            m_wildcardWatcher->removeDirectories(
-                Utils::filtered<QStringList>(m_wildcardWatcher->directories(),
+            const QStringList directoriesToRemove =
+                Utils::filtered<QStringList>(
+                    m_wildcardWatcher->directories(),
                     [&result](const QString &path) {
                         return !result->directoriesWithWildcards.contains(path);
-                    }));
+                    });
+            m_wildcardWatcher->removeDirectories(directoriesToRemove);
+            for (QString path : directoriesToRemove)
+                m_wildcardDirectoryContents.remove(path);
         }
     }
 
