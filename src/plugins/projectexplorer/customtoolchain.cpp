@@ -169,7 +169,7 @@ ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
     const HeaderPaths builtInHeaderPaths = m_builtInHeaderPaths;
 
     // This runner must be thread-safe!
-    return [builtInHeaderPaths](const QStringList &cxxFlags, const QString &) {
+    return [builtInHeaderPaths](const QStringList &cxxFlags, const QString &, const QString &) {
         HeaderPaths flagHeaderPaths;
         for (const QString &cxxFlag : cxxFlags) {
             if (cxxFlag.startsWith(QLatin1String("-I"))) {
@@ -184,7 +184,7 @@ ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
 HeaderPaths CustomToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
                                                const FileName &fileName) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString());
+    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
 }
 
 void CustomToolChain::addToEnvironment(Environment &env) const

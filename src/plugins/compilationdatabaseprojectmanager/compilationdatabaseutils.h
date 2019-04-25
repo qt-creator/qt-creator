@@ -45,7 +45,8 @@ void filteredFlags(const QString &fileName,
                    QStringList &flags,
                    QVector<ProjectExplorer::HeaderPath> &headerPaths,
                    QVector<ProjectExplorer::Macro> &macros,
-                   CppTools::ProjectFile::Kind &fileKind);
+                   CppTools::ProjectFile::Kind &fileKind,
+                   QString &sysRoot);
 
 QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache);
 

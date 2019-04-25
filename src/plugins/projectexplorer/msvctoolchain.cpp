@@ -1131,7 +1131,7 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
     Utils::Environment env(m_lastEnvironment);
     addToEnvironment(env);
 
-    return [this, env](const QStringList &, const QString &) {
+    return [this, env](const QStringList &, const QString &, const QString &) {
         QMutexLocker locker(m_headerPathsMutex);
         if (m_headerPaths.isEmpty()) {
             foreach (const QString &path,
@@ -1146,7 +1146,7 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
 HeaderPaths MsvcToolChain::builtInHeaderPaths(const QStringList &cxxflags,
                                               const Utils::FileName &sysRoot) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxflags, sysRoot.toString());
+    return createBuiltInHeaderPathsRunner()(cxxflags, sysRoot.toString(), "");
 }
 
 void MsvcToolChain::addToEnvironment(Utils::Environment &env) const

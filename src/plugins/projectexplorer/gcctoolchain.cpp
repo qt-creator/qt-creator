@@ -569,52 +569,83 @@ void GccToolChain::initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extra
     m_extraHeaderPathsFunction = std::move(extraHeaderPathsFunction);
 }
 
+HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
+                                             const Utils::FileName &compilerCommand,
+                                             const QStringList &platformCodeGenFlags,
+                                             OptionsReinterpreter reinterpretOptions,
+                                             std::shared_ptr<Cache<HeaderPaths>> headerCache,
+                                             Core::Id languageId,
+                                             ExtraHeaderPathsFunction extraHeaderPathsFunction,
+                                             const QStringList &flags,
+                                             const QString &sysRoot,
+                                             const QString &originalTargetTriple)
+{
+    QStringList arguments = gccPrepareArguments(flags,
+                                                sysRoot,
+                                                platformCodeGenFlags,
+                                                languageId,
+                                                reinterpretOptions);
+
+    // Must be clang case only.
+    if (!originalTargetTriple.isEmpty())
+        arguments << "-target" << originalTargetTriple;
+
+    const Utils::optional<HeaderPaths> cachedPaths = headerCache->check(arguments);
+    if (cachedPaths)
+        return cachedPaths.value();
+
+    HeaderPaths paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
+                                       arguments,
+                                       env.toStringList());
+    extraHeaderPathsFunction(paths);
+    headerCache->insert(arguments, paths);
+
+    qCDebug(gccLog) << "Reporting header paths to code model:";
+    for (const HeaderPath &hp : paths) {
+        qCDebug(gccLog) << compilerCommand.toUserOutput()
+                        << (languageId == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
+                        << arguments.join(", ") << "]" << hp.path;
+    }
+
+    return paths;
+}
+
 ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner() const
 {
     // Using a clean environment breaks ccache/distcc/etc.
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
 
-    const Utils::FileName compilerCommand = m_compilerCommand;
-    const QStringList platformCodeGenFlags = m_platformCodeGenFlags;
-    OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
-    QTC_CHECK(reinterpretOptions);
-    std::shared_ptr<Cache<HeaderPaths>> headerCache = m_headerPathsCache;
-    Core::Id languageId = language();
-
     // This runner must be thread-safe!
-    return [env, compilerCommand, platformCodeGenFlags, reinterpretOptions, headerCache, languageId,
-            extraHeaderPathsFunction = m_extraHeaderPathsFunction]
-            (const QStringList &flags, const QString &sysRoot) {
-
-        QStringList arguments = gccPrepareArguments(flags, sysRoot, platformCodeGenFlags,
-                                                    languageId, reinterpretOptions);
-
-        const Utils::optional<HeaderPaths> cachedPaths = headerCache->check(arguments);
-        if (cachedPaths)
-            return cachedPaths.value();
-
-        HeaderPaths paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
-                                           arguments, env.toStringList());
-        extraHeaderPathsFunction(paths);
-        headerCache->insert(arguments, paths);
-
-        qCDebug(gccLog) << "Reporting header paths to code model:";
-        for (const HeaderPath &hp : paths) {
-            qCDebug(gccLog) << compilerCommand.toUserOutput()
-                            << (languageId == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
-                            << arguments.join(", ") << "]"
-                            << hp.path;
-        }
-
-        return paths;
+    return [env,
+            compilerCommand = m_compilerCommand,
+            platformCodeGenFlags = m_platformCodeGenFlags,
+            reinterpretOptions = m_optionsReinterpreter,
+            headerCache = m_headerPathsCache,
+            languageId = language(),
+            extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
+                                                                   const QString &sysRoot,
+                                                                   const QString &) {
+        return builtInHeaderPaths(env,
+                                  compilerCommand,
+                                  platformCodeGenFlags,
+                                  reinterpretOptions,
+                                  headerCache,
+                                  languageId,
+                                  extraHeaderPathsFunction,
+                                  flags,
+                                  sysRoot,
+                                  /*target=*/""); // Target must be empty for gcc.
     };
 }
 
 HeaderPaths GccToolChain::builtInHeaderPaths(const QStringList &flags,
-                                             const FileName &sysRoot) const
+                                             const FileName &sysRootPath) const
 {
-    return createBuiltInHeaderPathsRunner()(flags, sysRoot.toString());
+    return createBuiltInHeaderPathsRunner()(flags,
+                                            sysRootPath.isEmpty() ? sysRoot()
+                                                                  : sysRootPath.toString(),
+                                            originalTargetTriple());
 }
 
 void GccToolChain::addCommandPathToEnvironment(const FileName &command, Environment &env)
@@ -1396,6 +1427,35 @@ QString ClangToolChain::sysRoot() const
 
     const FileName mingwCompiler = parentTC->compilerCommand();
     return mingwCompiler.parentDir().parentDir().toString();
+}
+
+ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunner() const
+{
+    // Using a clean environment breaks ccache/distcc/etc.
+    Environment env = Environment::systemEnvironment();
+    addToEnvironment(env);
+
+    // This runner must be thread-safe!
+    return [env,
+            compilerCommand = m_compilerCommand,
+            platformCodeGenFlags = m_platformCodeGenFlags,
+            reinterpretOptions = m_optionsReinterpreter,
+            headerCache = m_headerPathsCache,
+            languageId = language(),
+            extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
+                                                                   const QString &sysRoot,
+                                                                   const QString &target) {
+        return builtInHeaderPaths(env,
+                                  compilerCommand,
+                                  platformCodeGenFlags,
+                                  reinterpretOptions,
+                                  headerCache,
+                                  languageId,
+                                  extraHeaderPathsFunction,
+                                  flags,
+                                  sysRoot,
+                                  target);
+    };
 }
 
 std::unique_ptr<ToolChainConfigWidget> ClangToolChain::createConfigurationWidget()

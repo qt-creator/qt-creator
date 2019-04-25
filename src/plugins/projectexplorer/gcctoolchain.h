@@ -86,7 +86,7 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
     HeaderPaths builtInHeaderPaths(const QStringList &flags,
-                                   const Utils::FileName &sysRoot) const override;
+                                   const Utils::FileName &sysRootPath) const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
     QString makeCommand(const Utils::Environment &environment) const override;
@@ -151,6 +151,17 @@ protected:
     using ExtraHeaderPathsFunction = std::function<void(HeaderPaths &)>;
     void initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extraHeaderPathsFunction) const;
 
+    static HeaderPaths builtInHeaderPaths(const Utils::Environment &env,
+                                          const Utils::FileName &compilerCommand,
+                                          const QStringList &platformCodeGenFlags,
+                                          OptionsReinterpreter reinterpretOptions,
+                                          std::shared_ptr<Cache<HeaderPaths>> headerCache,
+                                          Core::Id languageId,
+                                          ExtraHeaderPathsFunction extraHeaderPathsFunction,
+                                          const QStringList &flags,
+                                          const QString &sysRoot,
+                                          const QString &originalTargetTriple);
+
     static HeaderPaths gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args,
                                       const QStringList &env);
 
@@ -179,12 +190,16 @@ private:
                                            Core::Id languageId,
                                            OptionsReinterpreter reinterpretOptions);
 
+protected:
     Utils::FileName m_compilerCommand;
     QStringList m_platformCodeGenFlags;
     QStringList m_platformLinkerFlags;
 
     OptionsReinterpreter m_optionsReinterpreter = [](const QStringList &v) { return v; };
+    mutable std::shared_ptr<Cache<HeaderPaths>> m_headerPathsCache;
+    mutable ExtraHeaderPathsFunction m_extraHeaderPathsFunction = [](HeaderPaths &) {};
 
+private:
     Abi m_targetAbi;
     mutable QList<Abi> m_supportedAbis;
     mutable QString m_originalTargetTriple;
@@ -192,8 +207,6 @@ private:
     mutable QString m_version;
 
     mutable std::shared_ptr<Cache<MacroInspectionReport, 64>> m_predefinedMacrosCache;
-    mutable std::shared_ptr<Cache<HeaderPaths>> m_headerPathsCache;
-    mutable ExtraHeaderPathsFunction m_extraHeaderPathsFunction = [](HeaderPaths &) {};
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;
@@ -225,6 +238,8 @@ public:
 
     QString originalTargetTriple() const override;
     QString sysRoot() const override;
+
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 

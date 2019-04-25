@@ -302,13 +302,13 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
 
     HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
 
-    return [env, compilerCommand, headerPathsCache, languageId]
-            (const QStringList &flags, const QString &fileName) {
+    return [env, compilerCommand, headerPathsCache, languageId](const QStringList &flags,
+                                                                const QString &fileName,
+                                                                const QString &) {
         Q_UNUSED(flags)
         Q_UNUSED(fileName)
 
-        const HeaderPaths paths = dumpHeaderPaths(compilerCommand, languageId,
-                                                  env.toStringList());
+        const HeaderPaths paths = dumpHeaderPaths(compilerCommand, languageId, env.toStringList());
         headerPathsCache->insert({}, paths);
 
         return paths;
@@ -318,7 +318,7 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
 HeaderPaths IarToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
                                              const FileName &fileName) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString());
+    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
 }
 
 void IarToolChain::addToEnvironment(Environment &env) const

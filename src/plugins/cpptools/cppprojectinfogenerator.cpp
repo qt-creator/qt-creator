@@ -182,7 +182,9 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
     // Header paths
     if (tcInfo.headerPathsRunner) {
         const ProjectExplorer::HeaderPaths builtInHeaderPaths
-            = tcInfo.headerPathsRunner(flags.commandLineFlags, tcInfo.sysRootPath);
+            = tcInfo.headerPathsRunner(flags.commandLineFlags,
+                                       tcInfo.sysRootPath,
+                                       tcInfo.targetTriple);
 
         ProjectExplorer::HeaderPaths &headerPaths = part->headerPaths;
         for (const ProjectExplorer::HeaderPath &header : builtInHeaderPaths) {

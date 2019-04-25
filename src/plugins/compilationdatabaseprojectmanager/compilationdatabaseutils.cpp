@@ -98,7 +98,8 @@ void filteredFlags(const QString &fileName,
                    QStringList &flags,
                    HeaderPaths &headerPaths,
                    Macros &macros,
-                   CppTools::ProjectFile::Kind &fileKind)
+                   CppTools::ProjectFile::Kind &fileKind,
+                   QString &sysRoot)
 {
     if (flags.empty())
         return;
@@ -179,6 +180,12 @@ void filteredFlags(const QString &fileName,
 
         if (flag == "-D" || flag == "-U" || flag == "/D" || flag == "/U") {
             macroType = (flag == "-D" || flag == "/D") ? MacroType::Define : MacroType::Undefine;
+            continue;
+        }
+
+        if (flag.startsWith("--sysroot=")) {
+            if (sysRoot.isEmpty())
+                sysRoot = flag.mid(10);
             continue;
         }
 

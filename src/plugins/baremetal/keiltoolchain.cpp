@@ -315,8 +315,8 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunne
 
     HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
 
-    return [compilerCommand, headerPathsCache]
-            (const QStringList &flags, const QString &fileName) {
+    return [compilerCommand,
+            headerPathsCache](const QStringList &flags, const QString &fileName, const QString &) {
         Q_UNUSED(flags)
         Q_UNUSED(fileName)
 
@@ -330,7 +330,7 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunne
 HeaderPaths KeilToolchain::builtInHeaderPaths(const QStringList &cxxFlags,
                                               const FileName &fileName) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString());
+    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
 }
 
 void KeilToolchain::addToEnvironment(Environment &env) const

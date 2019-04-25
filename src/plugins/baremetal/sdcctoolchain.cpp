@@ -298,13 +298,13 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
 
     HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
 
-    return [env, compilerCommand, headerPathsCache, languageId, abi]
-            (const QStringList &flags, const QString &fileName) {
+    return [env, compilerCommand, headerPathsCache, languageId, abi](const QStringList &flags,
+                                                                     const QString &fileName,
+                                                                     const QString &) {
         Q_UNUSED(flags)
         Q_UNUSED(fileName)
 
-        const HeaderPaths paths = dumpHeaderPaths(compilerCommand, env.toStringList(),
-                                                  abi);
+        const HeaderPaths paths = dumpHeaderPaths(compilerCommand, env.toStringList(), abi);
         headerPathsCache->insert({}, paths);
 
         return paths;
@@ -312,9 +312,9 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
 }
 
 HeaderPaths SdccToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                             const FileName &fileName) const
+                                              const FileName &fileName) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString());
+    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
 }
 
 void SdccToolChain::addToEnvironment(Environment &env) const

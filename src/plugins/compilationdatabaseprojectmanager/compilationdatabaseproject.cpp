@@ -92,6 +92,11 @@ bool isGccCompiler(const QString &compilerName)
            || (compilerName.contains("g++") && !compilerName.contains("clang"));
 }
 
+bool isClCompatibleCompiler(const QString &compilerName)
+{
+    return compilerName.endsWith("cl");
+}
+
 Core::Id getCompilerId(QString compilerName)
 {
     if (Utils::HostOsInfo::isWindowsHost()) {
@@ -99,9 +104,9 @@ Core::Id getCompilerId(QString compilerName)
             compilerName.chop(4);
         if (isGccCompiler(compilerName))
             return ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
-
-        // Default is clang-cl
-        return ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID;
+        if (isClCompatibleCompiler(compilerName))
+            return ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID;
+        return ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID;
     }
     if (isGccCompiler(compilerName))
         return ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
@@ -196,8 +201,7 @@ void addDriverModeFlagIfNeeded(const ToolChain *toolchain,
 
 CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
                                             Kit *kit,
-                                            ToolChain *&cToolchain,
-                                            ToolChain *&cxxToolchain,
+                                            CppTools::KitInfo &kitInfo,
                                             const QString &workingDir,
                                             const Utils::FileName &fileName,
                                             QStringList flags)
@@ -212,7 +216,8 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
                   flags,
                   headerPaths,
                   macros,
-                  fileKind);
+                  fileKind,
+                  kitInfo.sysRootPath);
 
     CppTools::RawProjectPart rpp;
     rpp.setProjectFileLocation(projectFile.toString());
@@ -224,21 +229,23 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
 
     if (fileKind == CppTools::ProjectFile::Kind::CHeader
             || fileKind == CppTools::ProjectFile::Kind::CSource) {
-        if (!cToolchain) {
-            cToolchain = toolchainFromFlags(kit, originalFlags,
-                                            ProjectExplorer::Constants::C_LANGUAGE_ID);
-            ToolChainKitAspect::setToolChain(kit, cToolchain);
+        if (!kitInfo.cToolChain) {
+            kitInfo.cToolChain = toolchainFromFlags(kit,
+                                                    originalFlags,
+                                                    ProjectExplorer::Constants::C_LANGUAGE_ID);
+            ToolChainKitAspect::setToolChain(kit, kitInfo.cToolChain);
         }
-        addDriverModeFlagIfNeeded(cToolchain, flags, originalFlags);
-        rpp.setFlagsForC({cToolchain, flags});
+        addDriverModeFlagIfNeeded(kitInfo.cToolChain, flags, originalFlags);
+        rpp.setFlagsForC({kitInfo.cToolChain, flags});
     } else {
-        if (!cxxToolchain) {
-            cxxToolchain = toolchainFromFlags(kit, originalFlags,
-                                              ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-            ToolChainKitAspect::setToolChain(kit, cxxToolchain);
+        if (!kitInfo.cxxToolChain) {
+            kitInfo.cxxToolChain = toolchainFromFlags(kit,
+                                                      originalFlags,
+                                                      ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+            ToolChainKitAspect::setToolChain(kit, kitInfo.cxxToolChain);
         }
-        addDriverModeFlagIfNeeded(cxxToolchain, flags, originalFlags);
-        rpp.setFlagsForCxx({cxxToolchain, flags});
+        addDriverModeFlagIfNeeded(kitInfo.cxxToolChain, flags, originalFlags);
+        rpp.setFlagsForCxx({kitInfo.cxxToolChain, flags});
     }
 
     return rpp;
@@ -433,8 +440,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
         CppTools::RawProjectPart rpp = makeRawProjectPart(projectFile,
                                                           m_kit.get(),
-                                                          kitInfo.cToolChain,
-                                                          kitInfo.cxxToolChain,
+                                                          kitInfo,
                                                           entry.workingDir,
                                                           entry.fileName,
                                                           entry.flags);
