@@ -11,7 +11,8 @@ SUBDIRS = qtpromaker \
 
 isEmpty(QTC_SKIP_SDKTOOL): SUBDIRS += sdktool
 
-qtHaveModule(quick-private): SUBDIRS += qml2puppet
+DO_NOT_BUILD_QMLDESIGNER = $$(DO_NOT_BUILD_QMLDESIGNER)
+isEmpty(DO_NOT_BUILD_QMLDESIGNER):qtHaveModule(quick-private): SUBDIRS += qml2puppet
 
 win32 {
     SUBDIRS += qtcdebugger \
