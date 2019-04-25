@@ -2011,17 +2011,20 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
 
     bool shouldReindent = true;
     if (m_commentDefinition.isValid()) {
-        QString trimmedText(text.trimmed());
-
-        if (m_commentDefinition.hasSingleLineStyle()) {
-            if (trimmedText.startsWith(m_commentDefinition.singleLine))
-                shouldReindent = false;
-        }
-        if (shouldReindent && m_commentDefinition.hasMultiLineStyle()) {
+        if (m_commentDefinition.hasMultiLineStyle()) {
             // Don't have any single line comments; try multi line.
-            if (trimmedText.startsWith(m_commentDefinition.multiLineStart)
-                && trimmedText.endsWith(m_commentDefinition.multiLineEnd)) {
+            if (text.startsWith(m_commentDefinition.multiLineStart)
+                && text.endsWith(m_commentDefinition.multiLineEnd)) {
                 shouldReindent = false;
+            }
+        }
+        if (shouldReindent && m_commentDefinition.hasSingleLineStyle()) {
+            shouldReindent = false;
+            QTextBlock block = move.block();
+            while (block.isValid() && block.position() < end) {
+                if (!block.text().startsWith(m_commentDefinition.singleLine))
+                    shouldReindent = true;
+                block = block.next();
             }
         }
     }
