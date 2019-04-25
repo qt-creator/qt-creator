@@ -28,6 +28,7 @@ QtcPlugin {
     files: [
         "clangformatbaseindenter.h",
         "clangformatbaseindenter.cpp",
+        "clangformatchecks.ui",
         "clangformatconfigwidget.cpp",
         "clangformatconfigwidget.h",
         "clangformatconfigwidget.ui",
