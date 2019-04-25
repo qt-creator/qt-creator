@@ -102,7 +102,7 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
             sourcePathId);
 
         if (!m_modifiedTimeChecker.isUpToDate(dependentTimeStamps)) {
-            auto indexing = [projectPart = std::move(projectPart),
+            auto indexing = [projectPart,
                              sourcePathId,
                              preIncludeSearchPath = m_environment.preIncludeSearchPath(),
                              this](SymbolsCollectorInterface &symbolsCollector) {

@@ -1743,4 +1743,68 @@ TEST_F(SymbolIndexer, DISABLED_UpToDateFilesAreNotParsedInUpdateProjectParts)
     indexer.updateProjectParts({projectPart1});
 }
 
+TEST_F(SymbolIndexer, MultipleSourceFiles)
+{
+    ProjectPartContainer projectPart{0,
+                                     {},
+                                     {{"BAR", "1", 1}, {"FOO", "1", 2}},
+                                     Utils::clone(systemIncludeSearchPaths),
+                                     Utils::clone(projectIncludeSearchPaths),
+                                     {header1PathId, header2PathId},
+                                     {main1PathId, main2PathId},
+                                     Utils::Language::Cxx,
+                                     Utils::LanguageVersion::CXX14,
+                                     Utils::LanguageExtension::None};
+
+    EXPECT_CALL(mockCollector,
+                setFile(main1PathId,
+                        ElementsAre("clang++",
+                                    "-w",
+                                    "-DNOMINMAX",
+                                    "-x",
+                                    "c++",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdinc++",
+                                    "-DBAR=1",
+                                    "-DFOO=1",
+                                    "-isystem",
+                                    toNativePath(TESTDATA_DIR "/preincludes"),
+                                    "-I",
+                                    toNativePath("/project/includes"),
+                                    "-I",
+                                    toNativePath("/other/project/includes"),
+                                    "-isystem",
+                                    toNativePath(TESTDATA_DIR),
+                                    "-isystem",
+                                    toNativePath("/other/includes"),
+                                    "-isystem",
+                                    toNativePath("/includes"))));
+    EXPECT_CALL(mockCollector,
+                setFile(main2PathId,
+                        ElementsAre("clang++",
+                                    "-w",
+                                    "-DNOMINMAX",
+                                    "-x",
+                                    "c++",
+                                    "-std=c++14",
+                                    "-nostdinc",
+                                    "-nostdinc++",
+                                    "-DBAR=1",
+                                    "-DFOO=1",
+                                    "-isystem",
+                                    toNativePath(TESTDATA_DIR "/preincludes"),
+                                    "-I",
+                                    toNativePath("/project/includes"),
+                                    "-I",
+                                    toNativePath("/other/project/includes"),
+                                    "-isystem",
+                                    toNativePath(TESTDATA_DIR),
+                                    "-isystem",
+                                    toNativePath("/other/includes"),
+                                    "-isystem",
+                                    toNativePath("/includes"))));
+
+    indexer.updateProjectParts({projectPart});
 }
+} // namespace
