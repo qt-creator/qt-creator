@@ -42,10 +42,8 @@ namespace CompilationDatabaseProjectManager {
 static QString updatedPathFlag(const QString &pathStr, const QString &workingDir)
 {
     QString result = pathStr;
-    if (!QDir(pathStr).exists()
-            && QDir(workingDir + "/" + pathStr).exists()) {
+    if (QDir(pathStr).isRelative())
         result = workingDir + "/" + pathStr;
-    }
 
     return result;
 }
