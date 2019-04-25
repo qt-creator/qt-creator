@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include "iosdeploystepwidget.h"
 #include "iosdeploystep.h"
 #include "iosbuildstep.h"
 #include "iosconstants.h"
