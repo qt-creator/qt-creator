@@ -43,11 +43,11 @@
 #include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 
 #include <QFile>
 #include <QMessageBox>
-#include <QScrollArea>
 
 #include <sstream>
 
@@ -72,32 +72,8 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
 {
     m_ui->setupUi(this);
 
-    QScrollArea *scrollArea = new QScrollArea();
-    m_checksWidget = new QWidget();
-    m_checks->setupUi(m_checksWidget);
-    scrollArea->setWidget(m_checksWidget);
-    scrollArea->setMaximumWidth(470);
+    initChecksAndPreview();
 
-    m_ui->horizontalLayout_2->addWidget(scrollArea);
-
-    for (QObject *child : m_checksWidget->children()) {
-        auto comboBox = qobject_cast<QComboBox *>(child);
-        if (comboBox != nullptr) {
-            connect(comboBox,
-                    QOverload<int>::of(&QComboBox::currentIndexChanged),
-                    this,
-                    &ClangFormatConfigWidget::onTableChanged);
-            comboBox->installEventFilter(this);
-            continue;
-        }
-
-        auto button = qobject_cast<QPushButton *>(child);
-        if (button != nullptr)
-            connect(button, &QPushButton::clicked, this, &ClangFormatConfigWidget::onTableChanged);
-    }
-
-    m_preview = new TextEditor::SnippetEditorWidget(this);
-    m_ui->horizontalLayout_2->addWidget(m_preview);
     if (m_project) {
         m_ui->applyButton->show();
         hideGlobalCheckboxes();
@@ -118,15 +94,53 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
         initialize();
     });
     initialize();
+
+    connectChecks();
+}
+
+void ClangFormatConfigWidget::initChecksAndPreview()
+{
+    m_checksScrollArea = new QScrollArea();
+    m_checksWidget = new QWidget;
+    m_checks->setupUi(m_checksWidget);
+    m_checksScrollArea->setWidget(m_checksWidget);
+    m_checksScrollArea->setMaximumWidth(500);
+
+    m_ui->horizontalLayout_2->addWidget(m_checksScrollArea);
+
+    m_preview = new TextEditor::SnippetEditorWidget(this);
+    m_ui->horizontalLayout_2->addWidget(m_preview);
+}
+
+void ClangFormatConfigWidget::connectChecks()
+{
+    for (QObject *child : m_checksWidget->children()) {
+        auto comboBox = qobject_cast<QComboBox *>(child);
+        if (comboBox != nullptr) {
+            connect(comboBox,
+                    qOverload<int>(&QComboBox::currentIndexChanged),
+                    this,
+                    &ClangFormatConfigWidget::onTableChanged);
+            comboBox->installEventFilter(this);
+            continue;
+        }
+
+        auto button = qobject_cast<QPushButton *>(child);
+        if (button != nullptr)
+            connect(button, &QPushButton::clicked, this, &ClangFormatConfigWidget::onTableChanged);
+    }
 }
 
 void ClangFormatConfigWidget::onTableChanged()
 {
+    if (m_disableTableUpdate)
+        return;
+
     const std::string newConfig = tableToString(sender());
     if (newConfig.empty())
         return;
-    clang::format::FormatStyle style = m_project ? currentProjectStyle() : currentGlobalStyle();
-    const std::string oldConfig = clang::format::configurationAsText(style);
+    const std::string oldConfig = m_project ? currentProjectConfigText()
+                                            : currentGlobalConfigText();
     saveConfig(newConfig);
     fillTable();
     updatePreview();
@@ -180,13 +194,13 @@ void ClangFormatConfigWidget::initialize()
 
     if (!m_ui->overrideDefault->isChecked() && m_project) {
         // Show the fallback configuration only globally.
-        m_checksWidget->hide();
+        m_checksScrollArea->hide();
         m_preview->hide();
         m_ui->verticalLayout->addStretch(1);
         return;
     }
 
-    m_checksWidget->show();
+    m_checksScrollArea->show();
     m_preview->show();
 
     Utils::FileName fileName;
@@ -238,12 +252,61 @@ static inline void trim(std::string &s)
     rtrim(s);
 }
 
+static void fillPlainText(QPlainTextEdit *plainText, const std::string &text, size_t index)
+{
+    if (index == std::string::npos) {
+        plainText->setPlainText("");
+        return;
+    }
+    size_t valueStart = text.find('\n', index + 1);
+    size_t valueEnd;
+    std::string value;
+    QTC_ASSERT(valueStart != std::string::npos, return;);
+    do {
+        valueEnd = text.find('\n', valueStart + 1);
+        if (valueEnd == std::string::npos)
+            break;
+        // Skip also 2 spaces - start with valueStart + 1 + 2.
+        std::string line = text.substr(valueStart + 3, valueEnd - valueStart - 3);
+        rtrim(line);
+        value += value.empty() ? line : '\n' + line;
+        valueStart = valueEnd;
+    } while (valueEnd < text.size() - 1 && text.at(valueEnd + 1) == ' ');
+    plainText->setPlainText(QString::fromStdString(value));
+}
+
+static void fillComboBoxOrLineEdit(QObject *object, const std::string &text, size_t index)
+{
+    auto *comboBox = qobject_cast<QComboBox *>(object);
+    auto *lineEdit = qobject_cast<QLineEdit *>(object);
+    if (index == std::string::npos) {
+        if (comboBox)
+            comboBox->setCurrentIndex(0);
+        else
+            lineEdit->setText("");
+        return;
+    }
+
+    const size_t valueStart = text.find(':', index + 1);
+    QTC_ASSERT(valueStart != std::string::npos, return;);
+    const size_t valueEnd = text.find('\n', valueStart + 1);
+    QTC_ASSERT(valueEnd != std::string::npos, return;);
+    std::string value = text.substr(valueStart + 1, valueEnd - valueStart - 1);
+    trim(value);
+
+    if (comboBox)
+        comboBox->setCurrentText(QString::fromStdString(value));
+    else
+        lineEdit->setText(QString::fromStdString(value));
+}
+
 void ClangFormatConfigWidget::fillTable()
 {
-    clang::format::FormatStyle style = m_project ? currentProjectStyle() : currentGlobalStyle();
+    Utils::ExecuteOnDestruction executeOnDestruction([this]() { m_disableTableUpdate = false; });
+    m_disableTableUpdate = true;
 
-    using namespace std;
-    const string configText = clang::format::configurationAsText(style);
+    const std::string configText = m_project ? currentProjectConfigText()
+                                             : currentGlobalConfigText();
 
     for (QObject *child : m_checksWidget->children()) {
         if (!qobject_cast<QComboBox *>(child) && !qobject_cast<QLineEdit *>(child)
@@ -251,52 +314,14 @@ void ClangFormatConfigWidget::fillTable()
             continue;
         }
 
-        const size_t index = configText.find(child->objectName().toStdString());
+        size_t index = configText.find('\n' + child->objectName().toStdString());
+        if (index == std::string::npos)
+            index = configText.find("\n  " + child->objectName().toStdString());
 
-        auto *plainText = qobject_cast<QPlainTextEdit *>(child);
-        if (plainText) {
-            if (index == string::npos) {
-                plainText->setPlainText("");
-                continue;
-            }
-            size_t valueStart = configText.find('\n', index);
-            size_t valueEnd;
-            string value;
-            QTC_ASSERT(valueStart != string::npos, continue;);
-            do {
-                valueEnd = configText.find('\n', valueStart + 1);
-                if (valueEnd == string::npos)
-                    break;
-                // Skip also 2 spaces - start with valueStart + 1 + 2.
-                string line = configText.substr(valueStart + 3, valueEnd - valueStart - 3);
-                rtrim(line);
-                value += value.empty() ? line : '\n' + line;
-                valueStart = valueEnd;
-            } while (valueEnd < configText.size() - 1 && configText.at(valueEnd + 1) == ' ');
-            plainText->setPlainText(QString::fromStdString(value));
-        } else {
-            auto *comboBox = qobject_cast<QComboBox *>(child);
-            auto *lineEdit = qobject_cast<QLineEdit *>(child);
-            if (index == string::npos) {
-                if (comboBox)
-                    comboBox->setCurrentIndex(0);
-                else
-                    lineEdit->setText("");
-                continue;
-            }
-
-            const size_t valueStart = configText.find(':', index);
-            QTC_ASSERT(valueStart != string::npos, continue;);
-            const size_t valueEnd = configText.find('\n', valueStart + 1);
-            QTC_ASSERT(valueEnd != string::npos, continue;);
-            string value = configText.substr(valueStart + 1, valueEnd - valueStart - 1);
-            trim(value);
-
-            if (comboBox)
-                comboBox->setCurrentText(QString::fromStdString(value));
-            else
-                lineEdit->setText(QString::fromStdString(value));
-        }
+        if (qobject_cast<QPlainTextEdit *>(child))
+            fillPlainText(qobject_cast<QPlainTextEdit *>(child), configText, index);
+        else
+            fillComboBoxOrLineEdit(child, configText, index);
     }
 }
 

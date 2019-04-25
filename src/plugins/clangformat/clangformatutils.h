@@ -40,6 +40,9 @@ void createStyleFileIfNeeded(bool isGlobal);
 
 QString currentProjectUniqueId();
 
+std::string currentProjectConfigText();
+std::string currentGlobalConfigText();
+
 clang::format::FormatStyle currentProjectStyle();
 clang::format::FormatStyle currentGlobalStyle();
 

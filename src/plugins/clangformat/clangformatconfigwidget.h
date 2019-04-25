@@ -27,6 +27,8 @@
 
 #include <texteditor/icodestylepreferencesfactory.h>
 
+#include <QScrollArea>
+
 #include <memory>
 
 namespace ProjectExplorer {
@@ -59,6 +61,9 @@ private:
     bool eventFilter(QObject *object, QEvent *event) override;
 
     void initialize();
+    void initChecksAndPreview();
+    void connectChecks();
+
     void fillTable();
     std::string tableToString(QObject *sender);
 
@@ -70,9 +75,11 @@ private:
 
     ProjectExplorer::Project *m_project;
     QWidget *m_checksWidget;
+    QScrollArea *m_checksScrollArea;
     TextEditor::SnippetEditorWidget *m_preview;
     std::unique_ptr<Ui::ClangFormatChecksWidget> m_checks;
     std::unique_ptr<Ui::ClangFormatConfigWidget> m_ui;
+    bool m_disableTableUpdate = false;
 };
 
 } // namespace ClangFormat

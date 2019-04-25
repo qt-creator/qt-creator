@@ -318,6 +318,32 @@ clang::format::FormatStyle styleForFile(Utils::FileName fileName)
     return styleForFile(fileName, true);
 }
 
+static std::string readFile(const QString &path)
+{
+    QFile file(path);
+    if (!file.open(QFile::ReadOnly)) {
+        clang::format::FormatStyle defaultStyle = qtcStyle();
+        return clang::format::configurationAsText(defaultStyle);
+    }
+
+    const QByteArray content = file.readAll();
+    file.close();
+
+    return content.toStdString();
+}
+
+std::string currentProjectConfigText()
+{
+    const QString configPath = projectPath().appendPath(Constants::SETTINGS_FILE_NAME).toString();
+    return readFile(configPath);
+}
+
+std::string currentGlobalConfigText()
+{
+    const QString configPath = globalPath().appendPath(Constants::SETTINGS_FILE_NAME).toString();
+    return readFile(configPath);
+}
+
 clang::format::FormatStyle currentProjectStyle()
 {
     return styleForFile(projectPath().appendPath(Constants::SAMPLE_FILE_NAME), false);

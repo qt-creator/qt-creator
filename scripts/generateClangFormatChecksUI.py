@@ -38,7 +38,7 @@ def full_ui_content(checks):
  <widget class="QWidget" name="ClangFormat::ClangFormatChecksWidget">
   <property name="maximumSize">
    <size>
-    <width>450</width>
+    <width>480</width>
     <height>16777215</height>
    </size>
   </property>
@@ -198,6 +198,11 @@ def createItem(key, value, index):
     <widget class="QComboBox" name="''' + key + '''">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
+     </property>
+'''
+            if key == 'Language':
+                value_item += '''     <property name="enabled">
+      <bool>false</bool>
      </property>
 '''
             if index > 0:

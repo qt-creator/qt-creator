@@ -4,7 +4,7 @@
  <widget class="QWidget" name="ClangFormat::ClangFormatChecksWidget">
   <property name="maximumSize">
    <size>
-    <width>450</width>
+    <width>480</width>
     <height>16777215</height>
    </size>
   </property>
@@ -2044,6 +2044,9 @@
     <widget class="QComboBox" name="Language">
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="enabled">
+      <bool>false</bool>
      </property>
      <item>
       <property name="text">
