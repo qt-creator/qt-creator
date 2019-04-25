@@ -1,12 +1,12 @@
 import qbs
 
-CppApplication {
+Application {
     Depends { name: "Qt.quick" }
 
     // Additional import path used to resolve QML modules in Qt Creator's code model
     property pathList qmlImportPaths: []
 
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxLanguageVersion: "c++14"
 
     cpp.defines: [
         // The following define makes your compiler emit warnings if you use
