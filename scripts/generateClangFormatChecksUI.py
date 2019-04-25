@@ -68,7 +68,7 @@ def createItem(key, value, index):
     label = '''   <item row="''' + str(index) + '''" column="0">
     <widget class="QLabel" name="label''' + key + '''">
      <property name="text">
-      <string>''' + key + '''</string>
+      <string notr="true">''' + key + '''</string>
      </property>
     </widget>
    </item>
@@ -82,17 +82,17 @@ def createItem(key, value, index):
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -114,7 +114,7 @@ def createItem(key, value, index):
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -146,7 +146,7 @@ def createItem(key, value, index):
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -165,7 +165,7 @@ def createItem(key, value, index):
                 value_item += '''   <item row="''' + str(index) + '''" column="0">
     <widget class="QLabel" name="label''' + val + '''">
      <property name="text">
-      <string>  ''' + val + '''</string>
+      <string notr="true">  ''' + val + '''</string>
      </property>
     </widget>
    </item>
@@ -177,17 +177,17 @@ def createItem(key, value, index):
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -203,7 +203,7 @@ def createItem(key, value, index):
             if index > 0:
                 value_item += '''     <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
 '''
@@ -214,7 +214,7 @@ def createItem(key, value, index):
                 val = val[underline_index + 1:]
                 value_item += '''     <item>
       <property name="text">
-       <string>''' + val + '''</string>
+       <string notr="true">''' + val + '''</string>
       </property>
      </item>
 '''

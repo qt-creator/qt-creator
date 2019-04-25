@@ -12,7 +12,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="labelBasedOnStyle">
      <property name="text">
-      <string>BasedOnStyle</string>
+      <string notr="true">BasedOnStyle</string>
      </property>
     </widget>
    </item>
@@ -23,27 +23,27 @@
      </property>
      <item>
       <property name="text">
-       <string>LLVM</string>
+       <string notr="true">LLVM</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Google</string>
+       <string notr="true">Google</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Chromium</string>
+       <string notr="true">Chromium</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Mozilla</string>
+       <string notr="true">Mozilla</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>WebKit</string>
+       <string notr="true">WebKit</string>
       </property>
      </item>
     </widget>
@@ -51,7 +51,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="labelAccessModifierOffset">
      <property name="text">
-      <string>AccessModifierOffset</string>
+      <string notr="true">AccessModifierOffset</string>
      </property>
     </widget>
    </item>
@@ -70,7 +70,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -79,7 +79,7 @@
    <item row="2" column="0">
     <widget class="QLabel" name="labelAlignAfterOpenBracket">
      <property name="text">
-      <string>AlignAfterOpenBracket</string>
+      <string notr="true">AlignAfterOpenBracket</string>
      </property>
     </widget>
    </item>
@@ -90,22 +90,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Align</string>
+       <string notr="true">Align</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>DontAlign</string>
+       <string notr="true">DontAlign</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>AlwaysBreak</string>
+       <string notr="true">AlwaysBreak</string>
       </property>
      </item>
     </widget>
@@ -113,7 +113,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="labelAlignConsecutiveAssignments">
      <property name="text">
-      <string>AlignConsecutiveAssignments</string>
+      <string notr="true">AlignConsecutiveAssignments</string>
      </property>
     </widget>
    </item>
@@ -124,17 +124,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -142,7 +142,7 @@
    <item row="4" column="0">
     <widget class="QLabel" name="labelAlignConsecutiveDeclarations">
      <property name="text">
-      <string>AlignConsecutiveDeclarations</string>
+      <string notr="true">AlignConsecutiveDeclarations</string>
      </property>
     </widget>
    </item>
@@ -153,17 +153,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -171,7 +171,7 @@
    <item row="5" column="0">
     <widget class="QLabel" name="labelAlignEscapedNewlines">
      <property name="text">
-      <string>AlignEscapedNewlines</string>
+      <string notr="true">AlignEscapedNewlines</string>
      </property>
     </widget>
    </item>
@@ -182,22 +182,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>DontAlign</string>
+       <string notr="true">DontAlign</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Left</string>
+       <string notr="true">Left</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Right</string>
+       <string notr="true">Right</string>
       </property>
      </item>
     </widget>
@@ -205,7 +205,7 @@
    <item row="6" column="0">
     <widget class="QLabel" name="labelAlignOperands">
      <property name="text">
-      <string>AlignOperands</string>
+      <string notr="true">AlignOperands</string>
      </property>
     </widget>
    </item>
@@ -216,17 +216,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -234,7 +234,7 @@
    <item row="7" column="0">
     <widget class="QLabel" name="labelAlignTrailingComments">
      <property name="text">
-      <string>AlignTrailingComments</string>
+      <string notr="true">AlignTrailingComments</string>
      </property>
     </widget>
    </item>
@@ -245,17 +245,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -263,7 +263,7 @@
    <item row="8" column="0">
     <widget class="QLabel" name="labelAllowAllParametersOfDeclarationOnNextLine">
      <property name="text">
-      <string>AllowAllParametersOfDeclarationOnNextLine</string>
+      <string notr="true">AllowAllParametersOfDeclarationOnNextLine</string>
      </property>
     </widget>
    </item>
@@ -274,17 +274,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -292,7 +292,7 @@
    <item row="9" column="0">
     <widget class="QLabel" name="labelAllowShortBlocksOnASingleLine">
      <property name="text">
-      <string>AllowShortBlocksOnASingleLine</string>
+      <string notr="true">AllowShortBlocksOnASingleLine</string>
      </property>
     </widget>
    </item>
@@ -303,17 +303,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -321,7 +321,7 @@
    <item row="10" column="0">
     <widget class="QLabel" name="labelAllowShortCaseLabelsOnASingleLine">
      <property name="text">
-      <string>AllowShortCaseLabelsOnASingleLine</string>
+      <string notr="true">AllowShortCaseLabelsOnASingleLine</string>
      </property>
     </widget>
    </item>
@@ -332,17 +332,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -350,7 +350,7 @@
    <item row="11" column="0">
     <widget class="QLabel" name="labelAllowShortFunctionsOnASingleLine">
      <property name="text">
-      <string>AllowShortFunctionsOnASingleLine</string>
+      <string notr="true">AllowShortFunctionsOnASingleLine</string>
      </property>
     </widget>
    </item>
@@ -361,32 +361,32 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>None</string>
+       <string notr="true">None</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>InlineOnly</string>
+       <string notr="true">InlineOnly</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Empty</string>
+       <string notr="true">Empty</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Inline</string>
+       <string notr="true">Inline</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>All</string>
+       <string notr="true">All</string>
       </property>
      </item>
     </widget>
@@ -394,7 +394,7 @@
    <item row="12" column="0">
     <widget class="QLabel" name="labelAllowShortIfStatementsOnASingleLine">
      <property name="text">
-      <string>AllowShortIfStatementsOnASingleLine</string>
+      <string notr="true">AllowShortIfStatementsOnASingleLine</string>
      </property>
     </widget>
    </item>
@@ -405,17 +405,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -423,7 +423,7 @@
    <item row="13" column="0">
     <widget class="QLabel" name="labelAllowShortLoopsOnASingleLine">
      <property name="text">
-      <string>AllowShortLoopsOnASingleLine</string>
+      <string notr="true">AllowShortLoopsOnASingleLine</string>
      </property>
     </widget>
    </item>
@@ -434,17 +434,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -452,7 +452,7 @@
    <item row="14" column="0">
     <widget class="QLabel" name="labelAlwaysBreakAfterDefinitionReturnType">
      <property name="text">
-      <string>AlwaysBreakAfterDefinitionReturnType</string>
+      <string notr="true">AlwaysBreakAfterDefinitionReturnType</string>
      </property>
     </widget>
    </item>
@@ -463,22 +463,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>None</string>
+       <string notr="true">None</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>All</string>
+       <string notr="true">All</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>TopLevel</string>
+       <string notr="true">TopLevel</string>
       </property>
      </item>
     </widget>
@@ -486,7 +486,7 @@
    <item row="15" column="0">
     <widget class="QLabel" name="labelAlwaysBreakAfterReturnType">
      <property name="text">
-      <string>AlwaysBreakAfterReturnType</string>
+      <string notr="true">AlwaysBreakAfterReturnType</string>
      </property>
     </widget>
    </item>
@@ -497,32 +497,32 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>None</string>
+       <string notr="true">None</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>All</string>
+       <string notr="true">All</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>TopLevel</string>
+       <string notr="true">TopLevel</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>AllDefinitions</string>
+       <string notr="true">AllDefinitions</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>TopLevelDefinitions</string>
+       <string notr="true">TopLevelDefinitions</string>
       </property>
      </item>
     </widget>
@@ -530,7 +530,7 @@
    <item row="16" column="0">
     <widget class="QLabel" name="labelAlwaysBreakBeforeMultilineStrings">
      <property name="text">
-      <string>AlwaysBreakBeforeMultilineStrings</string>
+      <string notr="true">AlwaysBreakBeforeMultilineStrings</string>
      </property>
     </widget>
    </item>
@@ -541,17 +541,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -559,7 +559,7 @@
    <item row="17" column="0">
     <widget class="QLabel" name="labelAlwaysBreakTemplateDeclarations">
      <property name="text">
-      <string>AlwaysBreakTemplateDeclarations</string>
+      <string notr="true">AlwaysBreakTemplateDeclarations</string>
      </property>
     </widget>
    </item>
@@ -570,22 +570,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>No</string>
+       <string notr="true">No</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>MultiLine</string>
+       <string notr="true">MultiLine</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Yes</string>
+       <string notr="true">Yes</string>
       </property>
      </item>
     </widget>
@@ -593,7 +593,7 @@
    <item row="18" column="0">
     <widget class="QLabel" name="labelBinPackArguments">
      <property name="text">
-      <string>BinPackArguments</string>
+      <string notr="true">BinPackArguments</string>
      </property>
     </widget>
    </item>
@@ -604,17 +604,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -622,7 +622,7 @@
    <item row="19" column="0">
     <widget class="QLabel" name="labelBinPackParameters">
      <property name="text">
-      <string>BinPackParameters</string>
+      <string notr="true">BinPackParameters</string>
      </property>
     </widget>
    </item>
@@ -633,17 +633,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -651,14 +651,14 @@
    <item row="20" column="0">
     <widget class="QLabel" name="labelBraceWrapping">
      <property name="text">
-      <string>BraceWrapping</string>
+      <string notr="true">BraceWrapping</string>
      </property>
     </widget>
    </item>
    <item row="21" column="0">
     <widget class="QLabel" name="labelAfterClass">
      <property name="text">
-      <string>  AfterClass</string>
+      <string notr="true">  AfterClass</string>
      </property>
     </widget>
    </item>
@@ -669,17 +669,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -687,7 +687,7 @@
    <item row="22" column="0">
     <widget class="QLabel" name="labelAfterControlStatement">
      <property name="text">
-      <string>  AfterControlStatement</string>
+      <string notr="true">  AfterControlStatement</string>
      </property>
     </widget>
    </item>
@@ -698,17 +698,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -716,7 +716,7 @@
    <item row="23" column="0">
     <widget class="QLabel" name="labelAfterEnum">
      <property name="text">
-      <string>  AfterEnum</string>
+      <string notr="true">  AfterEnum</string>
      </property>
     </widget>
    </item>
@@ -727,17 +727,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -745,7 +745,7 @@
    <item row="24" column="0">
     <widget class="QLabel" name="labelAfterFunction">
      <property name="text">
-      <string>  AfterFunction</string>
+      <string notr="true">  AfterFunction</string>
      </property>
     </widget>
    </item>
@@ -756,17 +756,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -774,7 +774,7 @@
    <item row="25" column="0">
     <widget class="QLabel" name="labelAfterNamespace">
      <property name="text">
-      <string>  AfterNamespace</string>
+      <string notr="true">  AfterNamespace</string>
      </property>
     </widget>
    </item>
@@ -785,17 +785,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -803,7 +803,7 @@
    <item row="26" column="0">
     <widget class="QLabel" name="labelAfterObjCDeclaration">
      <property name="text">
-      <string>  AfterObjCDeclaration</string>
+      <string notr="true">  AfterObjCDeclaration</string>
      </property>
     </widget>
    </item>
@@ -814,17 +814,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -832,7 +832,7 @@
    <item row="27" column="0">
     <widget class="QLabel" name="labelAfterStruct">
      <property name="text">
-      <string>  AfterStruct</string>
+      <string notr="true">  AfterStruct</string>
      </property>
     </widget>
    </item>
@@ -843,17 +843,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -861,7 +861,7 @@
    <item row="28" column="0">
     <widget class="QLabel" name="labelAfterUnion">
      <property name="text">
-      <string>  AfterUnion</string>
+      <string notr="true">  AfterUnion</string>
      </property>
     </widget>
    </item>
@@ -872,17 +872,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -890,7 +890,7 @@
    <item row="29" column="0">
     <widget class="QLabel" name="labelAfterExternBlock">
      <property name="text">
-      <string>  AfterExternBlock</string>
+      <string notr="true">  AfterExternBlock</string>
      </property>
     </widget>
    </item>
@@ -901,17 +901,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -919,7 +919,7 @@
    <item row="30" column="0">
     <widget class="QLabel" name="labelBeforeCatch">
      <property name="text">
-      <string>  BeforeCatch</string>
+      <string notr="true">  BeforeCatch</string>
      </property>
     </widget>
    </item>
@@ -930,17 +930,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -948,7 +948,7 @@
    <item row="31" column="0">
     <widget class="QLabel" name="labelBeforeElse">
      <property name="text">
-      <string>  BeforeElse</string>
+      <string notr="true">  BeforeElse</string>
      </property>
     </widget>
    </item>
@@ -959,17 +959,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -977,7 +977,7 @@
    <item row="32" column="0">
     <widget class="QLabel" name="labelIndentBraces">
      <property name="text">
-      <string>  IndentBraces</string>
+      <string notr="true">  IndentBraces</string>
      </property>
     </widget>
    </item>
@@ -988,17 +988,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1006,7 +1006,7 @@
    <item row="33" column="0">
     <widget class="QLabel" name="labelSplitEmptyFunction">
      <property name="text">
-      <string>  SplitEmptyFunction</string>
+      <string notr="true">  SplitEmptyFunction</string>
      </property>
     </widget>
    </item>
@@ -1017,17 +1017,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1035,7 +1035,7 @@
    <item row="34" column="0">
     <widget class="QLabel" name="labelSplitEmptyRecord">
      <property name="text">
-      <string>  SplitEmptyRecord</string>
+      <string notr="true">  SplitEmptyRecord</string>
      </property>
     </widget>
    </item>
@@ -1046,17 +1046,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1064,7 +1064,7 @@
    <item row="35" column="0">
     <widget class="QLabel" name="labelSplitEmptyNamespace">
      <property name="text">
-      <string>  SplitEmptyNamespace</string>
+      <string notr="true">  SplitEmptyNamespace</string>
      </property>
     </widget>
    </item>
@@ -1075,17 +1075,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1093,7 +1093,7 @@
    <item row="36" column="0">
     <widget class="QLabel" name="labelBreakAfterJavaFieldAnnotations">
      <property name="text">
-      <string>BreakAfterJavaFieldAnnotations</string>
+      <string notr="true">BreakAfterJavaFieldAnnotations</string>
      </property>
     </widget>
    </item>
@@ -1104,17 +1104,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1122,7 +1122,7 @@
    <item row="37" column="0">
     <widget class="QLabel" name="labelBreakBeforeBinaryOperators">
      <property name="text">
-      <string>BreakBeforeBinaryOperators</string>
+      <string notr="true">BreakBeforeBinaryOperators</string>
      </property>
     </widget>
    </item>
@@ -1133,22 +1133,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>None</string>
+       <string notr="true">None</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>NonAssignment</string>
+       <string notr="true">NonAssignment</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>All</string>
+       <string notr="true">All</string>
       </property>
      </item>
     </widget>
@@ -1156,7 +1156,7 @@
    <item row="38" column="0">
     <widget class="QLabel" name="labelBreakBeforeBraces">
      <property name="text">
-      <string>BreakBeforeBraces</string>
+      <string notr="true">BreakBeforeBraces</string>
      </property>
     </widget>
    </item>
@@ -1167,47 +1167,47 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Attach</string>
+       <string notr="true">Attach</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Linux</string>
+       <string notr="true">Linux</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Mozilla</string>
+       <string notr="true">Mozilla</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Stroustrup</string>
+       <string notr="true">Stroustrup</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Allman</string>
+       <string notr="true">Allman</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>GNU</string>
+       <string notr="true">GNU</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>WebKit</string>
+       <string notr="true">WebKit</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Custom</string>
+       <string notr="true">Custom</string>
       </property>
      </item>
     </widget>
@@ -1215,7 +1215,7 @@
    <item row="39" column="0">
     <widget class="QLabel" name="labelBreakBeforeTernaryOperators">
      <property name="text">
-      <string>BreakBeforeTernaryOperators</string>
+      <string notr="true">BreakBeforeTernaryOperators</string>
      </property>
     </widget>
    </item>
@@ -1226,17 +1226,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1244,7 +1244,7 @@
    <item row="40" column="0">
     <widget class="QLabel" name="labelBreakConstructorInitializers">
      <property name="text">
-      <string>BreakConstructorInitializers</string>
+      <string notr="true">BreakConstructorInitializers</string>
      </property>
     </widget>
    </item>
@@ -1255,22 +1255,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>BeforeColon</string>
+       <string notr="true">BeforeColon</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>BeforeComma</string>
+       <string notr="true">BeforeComma</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>AfterColon</string>
+       <string notr="true">AfterColon</string>
       </property>
      </item>
     </widget>
@@ -1278,7 +1278,7 @@
    <item row="41" column="0">
     <widget class="QLabel" name="labelBreakInheritanceList">
      <property name="text">
-      <string>BreakInheritanceList</string>
+      <string notr="true">BreakInheritanceList</string>
      </property>
     </widget>
    </item>
@@ -1289,22 +1289,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>BeforeColon</string>
+       <string notr="true">BeforeColon</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>BeforeComma</string>
+       <string notr="true">BeforeComma</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>AfterColon</string>
+       <string notr="true">AfterColon</string>
       </property>
      </item>
     </widget>
@@ -1312,7 +1312,7 @@
    <item row="42" column="0">
     <widget class="QLabel" name="labelBreakStringLiterals">
      <property name="text">
-      <string>BreakStringLiterals</string>
+      <string notr="true">BreakStringLiterals</string>
      </property>
     </widget>
    </item>
@@ -1323,17 +1323,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1341,7 +1341,7 @@
    <item row="43" column="0">
     <widget class="QLabel" name="labelColumnLimit">
      <property name="text">
-      <string>ColumnLimit</string>
+      <string notr="true">ColumnLimit</string>
      </property>
     </widget>
    </item>
@@ -1360,7 +1360,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1369,7 +1369,7 @@
    <item row="44" column="0">
     <widget class="QLabel" name="labelCommentPragmas">
      <property name="text">
-      <string>CommentPragmas</string>
+      <string notr="true">CommentPragmas</string>
      </property>
     </widget>
    </item>
@@ -1388,7 +1388,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1397,7 +1397,7 @@
    <item row="45" column="0">
     <widget class="QLabel" name="labelCompactNamespaces">
      <property name="text">
-      <string>CompactNamespaces</string>
+      <string notr="true">CompactNamespaces</string>
      </property>
     </widget>
    </item>
@@ -1408,17 +1408,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1426,7 +1426,7 @@
    <item row="46" column="0">
     <widget class="QLabel" name="labelConstructorInitializerAllOnOneLineOrOnePerLine">
      <property name="text">
-      <string>ConstructorInitializerAllOnOneLineOrOnePerLine</string>
+      <string notr="true">ConstructorInitializerAllOnOneLineOrOnePerLine</string>
      </property>
     </widget>
    </item>
@@ -1437,17 +1437,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1455,7 +1455,7 @@
    <item row="47" column="0">
     <widget class="QLabel" name="labelConstructorInitializerIndentWidth">
      <property name="text">
-      <string>ConstructorInitializerIndentWidth</string>
+      <string notr="true">ConstructorInitializerIndentWidth</string>
      </property>
     </widget>
    </item>
@@ -1474,7 +1474,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1483,7 +1483,7 @@
    <item row="48" column="0">
     <widget class="QLabel" name="labelContinuationIndentWidth">
      <property name="text">
-      <string>ContinuationIndentWidth</string>
+      <string notr="true">ContinuationIndentWidth</string>
      </property>
     </widget>
    </item>
@@ -1502,7 +1502,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1511,7 +1511,7 @@
    <item row="49" column="0">
     <widget class="QLabel" name="labelCpp11BracedListStyle">
      <property name="text">
-      <string>Cpp11BracedListStyle</string>
+      <string notr="true">Cpp11BracedListStyle</string>
      </property>
     </widget>
    </item>
@@ -1522,17 +1522,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1540,7 +1540,7 @@
    <item row="50" column="0">
     <widget class="QLabel" name="labelDerivePointerAlignment">
      <property name="text">
-      <string>DerivePointerAlignment</string>
+      <string notr="true">DerivePointerAlignment</string>
      </property>
     </widget>
    </item>
@@ -1551,17 +1551,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1569,7 +1569,7 @@
    <item row="51" column="0">
     <widget class="QLabel" name="labelDisableFormat">
      <property name="text">
-      <string>DisableFormat</string>
+      <string notr="true">DisableFormat</string>
      </property>
     </widget>
    </item>
@@ -1580,17 +1580,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1598,7 +1598,7 @@
    <item row="52" column="0">
     <widget class="QLabel" name="labelExperimentalAutoDetectBinPacking">
      <property name="text">
-      <string>ExperimentalAutoDetectBinPacking</string>
+      <string notr="true">ExperimentalAutoDetectBinPacking</string>
      </property>
     </widget>
    </item>
@@ -1609,17 +1609,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1627,7 +1627,7 @@
    <item row="53" column="0">
     <widget class="QLabel" name="labelFixNamespaceComments">
      <property name="text">
-      <string>FixNamespaceComments</string>
+      <string notr="true">FixNamespaceComments</string>
      </property>
     </widget>
    </item>
@@ -1638,17 +1638,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1656,7 +1656,7 @@
    <item row="54" column="0">
     <widget class="QLabel" name="labelForEachMacros">
      <property name="text">
-      <string>ForEachMacros</string>
+      <string notr="true">ForEachMacros</string>
      </property>
     </widget>
    </item>
@@ -1684,7 +1684,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1693,7 +1693,7 @@
    <item row="55" column="0">
     <widget class="QLabel" name="labelIncludeBlocks">
      <property name="text">
-      <string>IncludeBlocks</string>
+      <string notr="true">IncludeBlocks</string>
      </property>
     </widget>
    </item>
@@ -1704,22 +1704,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Preserve</string>
+       <string notr="true">Preserve</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Merge</string>
+       <string notr="true">Merge</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Regroup</string>
+       <string notr="true">Regroup</string>
       </property>
      </item>
     </widget>
@@ -1727,7 +1727,7 @@
    <item row="56" column="0">
     <widget class="QLabel" name="labelIncludeCategories">
      <property name="text">
-      <string>IncludeCategories</string>
+      <string notr="true">IncludeCategories</string>
      </property>
     </widget>
    </item>
@@ -1755,7 +1755,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1764,7 +1764,7 @@
    <item row="57" column="0">
     <widget class="QLabel" name="labelIncludeIsMainRegex">
      <property name="text">
-      <string>IncludeIsMainRegex</string>
+      <string notr="true">IncludeIsMainRegex</string>
      </property>
     </widget>
    </item>
@@ -1783,7 +1783,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1792,7 +1792,7 @@
    <item row="58" column="0">
     <widget class="QLabel" name="labelIndentCaseLabels">
      <property name="text">
-      <string>IndentCaseLabels</string>
+      <string notr="true">IndentCaseLabels</string>
      </property>
     </widget>
    </item>
@@ -1803,17 +1803,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1821,7 +1821,7 @@
    <item row="59" column="0">
     <widget class="QLabel" name="labelIndentPPDirectives">
      <property name="text">
-      <string>IndentPPDirectives</string>
+      <string notr="true">IndentPPDirectives</string>
      </property>
     </widget>
    </item>
@@ -1832,17 +1832,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>None</string>
+       <string notr="true">None</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>AfterHash</string>
+       <string notr="true">AfterHash</string>
       </property>
      </item>
     </widget>
@@ -1850,7 +1850,7 @@
    <item row="60" column="0">
     <widget class="QLabel" name="labelIndentWidth">
      <property name="text">
-      <string>IndentWidth</string>
+      <string notr="true">IndentWidth</string>
      </property>
     </widget>
    </item>
@@ -1869,7 +1869,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1878,7 +1878,7 @@
    <item row="61" column="0">
     <widget class="QLabel" name="labelIndentWrappedFunctionNames">
      <property name="text">
-      <string>IndentWrappedFunctionNames</string>
+      <string notr="true">IndentWrappedFunctionNames</string>
      </property>
     </widget>
    </item>
@@ -1889,17 +1889,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -1907,7 +1907,7 @@
    <item row="62" column="0">
     <widget class="QLabel" name="labelJavaImportGroups">
      <property name="text">
-      <string>JavaImportGroups</string>
+      <string notr="true">JavaImportGroups</string>
      </property>
     </widget>
    </item>
@@ -1935,7 +1935,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -1944,7 +1944,7 @@
    <item row="63" column="0">
     <widget class="QLabel" name="labelJavaScriptQuotes">
      <property name="text">
-      <string>JavaScriptQuotes</string>
+      <string notr="true">JavaScriptQuotes</string>
      </property>
     </widget>
    </item>
@@ -1955,22 +1955,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Leave</string>
+       <string notr="true">Leave</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Single</string>
+       <string notr="true">Single</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Double</string>
+       <string notr="true">Double</string>
       </property>
      </item>
     </widget>
@@ -1978,7 +1978,7 @@
    <item row="64" column="0">
     <widget class="QLabel" name="labelJavaScriptWrapImports">
      <property name="text">
-      <string>JavaScriptWrapImports</string>
+      <string notr="true">JavaScriptWrapImports</string>
      </property>
     </widget>
    </item>
@@ -1989,17 +1989,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2007,7 +2007,7 @@
    <item row="65" column="0">
     <widget class="QLabel" name="labelKeepEmptyLinesAtTheStartOfBlocks">
      <property name="text">
-      <string>KeepEmptyLinesAtTheStartOfBlocks</string>
+      <string notr="true">KeepEmptyLinesAtTheStartOfBlocks</string>
      </property>
     </widget>
    </item>
@@ -2018,17 +2018,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2036,7 +2036,7 @@
    <item row="66" column="0">
     <widget class="QLabel" name="labelLanguage">
      <property name="text">
-      <string>Language</string>
+      <string notr="true">Language</string>
      </property>
     </widget>
    </item>
@@ -2047,47 +2047,47 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>None</string>
+       <string notr="true">None</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Cpp</string>
+       <string notr="true">Cpp</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Java</string>
+       <string notr="true">Java</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>JavaScript</string>
+       <string notr="true">JavaScript</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ObjC</string>
+       <string notr="true">ObjC</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Proto</string>
+       <string notr="true">Proto</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>TableGen</string>
+       <string notr="true">TableGen</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>TextProto</string>
+       <string notr="true">TextProto</string>
       </property>
      </item>
     </widget>
@@ -2095,7 +2095,7 @@
    <item row="67" column="0">
     <widget class="QLabel" name="labelMacroBlockBegin">
      <property name="text">
-      <string>MacroBlockBegin</string>
+      <string notr="true">MacroBlockBegin</string>
      </property>
     </widget>
    </item>
@@ -2114,7 +2114,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2123,7 +2123,7 @@
    <item row="68" column="0">
     <widget class="QLabel" name="labelMacroBlockEnd">
      <property name="text">
-      <string>MacroBlockEnd</string>
+      <string notr="true">MacroBlockEnd</string>
      </property>
     </widget>
    </item>
@@ -2142,7 +2142,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2151,7 +2151,7 @@
    <item row="69" column="0">
     <widget class="QLabel" name="labelMaxEmptyLinesToKeep">
      <property name="text">
-      <string>MaxEmptyLinesToKeep</string>
+      <string notr="true">MaxEmptyLinesToKeep</string>
      </property>
     </widget>
    </item>
@@ -2170,7 +2170,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2179,7 +2179,7 @@
    <item row="70" column="0">
     <widget class="QLabel" name="labelNamespaceIndentation">
      <property name="text">
-      <string>NamespaceIndentation</string>
+      <string notr="true">NamespaceIndentation</string>
      </property>
     </widget>
    </item>
@@ -2190,22 +2190,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>None</string>
+       <string notr="true">None</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Inner</string>
+       <string notr="true">Inner</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>All</string>
+       <string notr="true">All</string>
       </property>
      </item>
     </widget>
@@ -2213,7 +2213,7 @@
    <item row="71" column="0">
     <widget class="QLabel" name="labelObjCBinPackProtocolList">
      <property name="text">
-      <string>ObjCBinPackProtocolList</string>
+      <string notr="true">ObjCBinPackProtocolList</string>
      </property>
     </widget>
    </item>
@@ -2224,22 +2224,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Auto</string>
+       <string notr="true">Auto</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Always</string>
+       <string notr="true">Always</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Never</string>
+       <string notr="true">Never</string>
       </property>
      </item>
     </widget>
@@ -2247,7 +2247,7 @@
    <item row="72" column="0">
     <widget class="QLabel" name="labelObjCBlockIndentWidth">
      <property name="text">
-      <string>ObjCBlockIndentWidth</string>
+      <string notr="true">ObjCBlockIndentWidth</string>
      </property>
     </widget>
    </item>
@@ -2266,7 +2266,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2275,7 +2275,7 @@
    <item row="73" column="0">
     <widget class="QLabel" name="labelObjCSpaceAfterProperty">
      <property name="text">
-      <string>ObjCSpaceAfterProperty</string>
+      <string notr="true">ObjCSpaceAfterProperty</string>
      </property>
     </widget>
    </item>
@@ -2286,17 +2286,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2304,7 +2304,7 @@
    <item row="74" column="0">
     <widget class="QLabel" name="labelObjCSpaceBeforeProtocolList">
      <property name="text">
-      <string>ObjCSpaceBeforeProtocolList</string>
+      <string notr="true">ObjCSpaceBeforeProtocolList</string>
      </property>
     </widget>
    </item>
@@ -2315,17 +2315,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2333,7 +2333,7 @@
    <item row="75" column="0">
     <widget class="QLabel" name="labelPenaltyBreakAssignment">
      <property name="text">
-      <string>PenaltyBreakAssignment</string>
+      <string notr="true">PenaltyBreakAssignment</string>
      </property>
     </widget>
    </item>
@@ -2352,7 +2352,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2361,7 +2361,7 @@
    <item row="76" column="0">
     <widget class="QLabel" name="labelPenaltyBreakBeforeFirstCallParameter">
      <property name="text">
-      <string>PenaltyBreakBeforeFirstCallParameter</string>
+      <string notr="true">PenaltyBreakBeforeFirstCallParameter</string>
      </property>
     </widget>
    </item>
@@ -2380,7 +2380,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2389,7 +2389,7 @@
    <item row="77" column="0">
     <widget class="QLabel" name="labelPenaltyBreakComment">
      <property name="text">
-      <string>PenaltyBreakComment</string>
+      <string notr="true">PenaltyBreakComment</string>
      </property>
     </widget>
    </item>
@@ -2408,7 +2408,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2417,7 +2417,7 @@
    <item row="78" column="0">
     <widget class="QLabel" name="labelPenaltyBreakFirstLessLess">
      <property name="text">
-      <string>PenaltyBreakFirstLessLess</string>
+      <string notr="true">PenaltyBreakFirstLessLess</string>
      </property>
     </widget>
    </item>
@@ -2436,7 +2436,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2445,7 +2445,7 @@
    <item row="79" column="0">
     <widget class="QLabel" name="labelPenaltyBreakString">
      <property name="text">
-      <string>PenaltyBreakString</string>
+      <string notr="true">PenaltyBreakString</string>
      </property>
     </widget>
    </item>
@@ -2464,7 +2464,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2473,7 +2473,7 @@
    <item row="80" column="0">
     <widget class="QLabel" name="labelPenaltyBreakTemplateDeclaration">
      <property name="text">
-      <string>PenaltyBreakTemplateDeclaration</string>
+      <string notr="true">PenaltyBreakTemplateDeclaration</string>
      </property>
     </widget>
    </item>
@@ -2492,7 +2492,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2501,7 +2501,7 @@
    <item row="81" column="0">
     <widget class="QLabel" name="labelPenaltyExcessCharacter">
      <property name="text">
-      <string>PenaltyExcessCharacter</string>
+      <string notr="true">PenaltyExcessCharacter</string>
      </property>
     </widget>
    </item>
@@ -2520,7 +2520,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2529,7 +2529,7 @@
    <item row="82" column="0">
     <widget class="QLabel" name="labelPenaltyReturnTypeOnItsOwnLine">
      <property name="text">
-      <string>PenaltyReturnTypeOnItsOwnLine</string>
+      <string notr="true">PenaltyReturnTypeOnItsOwnLine</string>
      </property>
     </widget>
    </item>
@@ -2548,7 +2548,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2557,7 +2557,7 @@
    <item row="83" column="0">
     <widget class="QLabel" name="labelPointerAlignment">
      <property name="text">
-      <string>PointerAlignment</string>
+      <string notr="true">PointerAlignment</string>
      </property>
     </widget>
    </item>
@@ -2568,22 +2568,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Left</string>
+       <string notr="true">Left</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Right</string>
+       <string notr="true">Right</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Middle</string>
+       <string notr="true">Middle</string>
       </property>
      </item>
     </widget>
@@ -2591,7 +2591,7 @@
    <item row="84" column="0">
     <widget class="QLabel" name="labelRawStringFormats">
      <property name="text">
-      <string>RawStringFormats</string>
+      <string notr="true">RawStringFormats</string>
      </property>
     </widget>
    </item>
@@ -2619,7 +2619,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -2628,7 +2628,7 @@
    <item row="85" column="0">
     <widget class="QLabel" name="labelReflowComments">
      <property name="text">
-      <string>ReflowComments</string>
+      <string notr="true">ReflowComments</string>
      </property>
     </widget>
    </item>
@@ -2639,17 +2639,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2657,7 +2657,7 @@
    <item row="86" column="0">
     <widget class="QLabel" name="labelSortIncludes">
      <property name="text">
-      <string>SortIncludes</string>
+      <string notr="true">SortIncludes</string>
      </property>
     </widget>
    </item>
@@ -2668,17 +2668,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2686,7 +2686,7 @@
    <item row="87" column="0">
     <widget class="QLabel" name="labelSortUsingDeclarations">
      <property name="text">
-      <string>SortUsingDeclarations</string>
+      <string notr="true">SortUsingDeclarations</string>
      </property>
     </widget>
    </item>
@@ -2697,17 +2697,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2715,7 +2715,7 @@
    <item row="88" column="0">
     <widget class="QLabel" name="labelSpaceAfterCStyleCast">
      <property name="text">
-      <string>SpaceAfterCStyleCast</string>
+      <string notr="true">SpaceAfterCStyleCast</string>
      </property>
     </widget>
    </item>
@@ -2726,17 +2726,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2744,7 +2744,7 @@
    <item row="89" column="0">
     <widget class="QLabel" name="labelSpaceAfterTemplateKeyword">
      <property name="text">
-      <string>SpaceAfterTemplateKeyword</string>
+      <string notr="true">SpaceAfterTemplateKeyword</string>
      </property>
     </widget>
    </item>
@@ -2755,17 +2755,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2773,7 +2773,7 @@
    <item row="90" column="0">
     <widget class="QLabel" name="labelSpaceBeforeAssignmentOperators">
      <property name="text">
-      <string>SpaceBeforeAssignmentOperators</string>
+      <string notr="true">SpaceBeforeAssignmentOperators</string>
      </property>
     </widget>
    </item>
@@ -2784,17 +2784,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2802,7 +2802,7 @@
    <item row="91" column="0">
     <widget class="QLabel" name="labelSpaceBeforeCpp11BracedList">
      <property name="text">
-      <string>SpaceBeforeCpp11BracedList</string>
+      <string notr="true">SpaceBeforeCpp11BracedList</string>
      </property>
     </widget>
    </item>
@@ -2813,17 +2813,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2831,7 +2831,7 @@
    <item row="92" column="0">
     <widget class="QLabel" name="labelSpaceBeforeCtorInitializerColon">
      <property name="text">
-      <string>SpaceBeforeCtorInitializerColon</string>
+      <string notr="true">SpaceBeforeCtorInitializerColon</string>
      </property>
     </widget>
    </item>
@@ -2842,17 +2842,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2860,7 +2860,7 @@
    <item row="93" column="0">
     <widget class="QLabel" name="labelSpaceBeforeInheritanceColon">
      <property name="text">
-      <string>SpaceBeforeInheritanceColon</string>
+      <string notr="true">SpaceBeforeInheritanceColon</string>
      </property>
     </widget>
    </item>
@@ -2871,17 +2871,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2889,7 +2889,7 @@
    <item row="94" column="0">
     <widget class="QLabel" name="labelSpaceBeforeParens">
      <property name="text">
-      <string>SpaceBeforeParens</string>
+      <string notr="true">SpaceBeforeParens</string>
      </property>
     </widget>
    </item>
@@ -2900,22 +2900,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Never</string>
+       <string notr="true">Never</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ControlStatements</string>
+       <string notr="true">ControlStatements</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Always</string>
+       <string notr="true">Always</string>
       </property>
      </item>
     </widget>
@@ -2923,7 +2923,7 @@
    <item row="95" column="0">
     <widget class="QLabel" name="labelSpaceBeforeRangeBasedForLoopColon">
      <property name="text">
-      <string>SpaceBeforeRangeBasedForLoopColon</string>
+      <string notr="true">SpaceBeforeRangeBasedForLoopColon</string>
      </property>
     </widget>
    </item>
@@ -2934,17 +2934,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2952,7 +2952,7 @@
    <item row="96" column="0">
     <widget class="QLabel" name="labelSpaceInEmptyParentheses">
      <property name="text">
-      <string>SpaceInEmptyParentheses</string>
+      <string notr="true">SpaceInEmptyParentheses</string>
      </property>
     </widget>
    </item>
@@ -2963,17 +2963,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -2981,7 +2981,7 @@
    <item row="97" column="0">
     <widget class="QLabel" name="labelSpacesBeforeTrailingComments">
      <property name="text">
-      <string>SpacesBeforeTrailingComments</string>
+      <string notr="true">SpacesBeforeTrailingComments</string>
      </property>
     </widget>
    </item>
@@ -3000,7 +3000,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -3009,7 +3009,7 @@
    <item row="98" column="0">
     <widget class="QLabel" name="labelSpacesInAngles">
      <property name="text">
-      <string>SpacesInAngles</string>
+      <string notr="true">SpacesInAngles</string>
      </property>
     </widget>
    </item>
@@ -3020,17 +3020,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -3038,7 +3038,7 @@
    <item row="99" column="0">
     <widget class="QLabel" name="labelSpacesInCStyleCastParentheses">
      <property name="text">
-      <string>SpacesInCStyleCastParentheses</string>
+      <string notr="true">SpacesInCStyleCastParentheses</string>
      </property>
     </widget>
    </item>
@@ -3049,17 +3049,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -3067,7 +3067,7 @@
    <item row="100" column="0">
     <widget class="QLabel" name="labelSpacesInContainerLiterals">
      <property name="text">
-      <string>SpacesInContainerLiterals</string>
+      <string notr="true">SpacesInContainerLiterals</string>
      </property>
     </widget>
    </item>
@@ -3078,17 +3078,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -3096,7 +3096,7 @@
    <item row="101" column="0">
     <widget class="QLabel" name="labelSpacesInParentheses">
      <property name="text">
-      <string>SpacesInParentheses</string>
+      <string notr="true">SpacesInParentheses</string>
      </property>
     </widget>
    </item>
@@ -3107,17 +3107,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -3125,7 +3125,7 @@
    <item row="102" column="0">
     <widget class="QLabel" name="labelSpacesInSquareBrackets">
      <property name="text">
-      <string>SpacesInSquareBrackets</string>
+      <string notr="true">SpacesInSquareBrackets</string>
      </property>
     </widget>
    </item>
@@ -3136,17 +3136,17 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>true</string>
+       <string notr="true">true</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>false</string>
+       <string notr="true">false</string>
       </property>
      </item>
     </widget>
@@ -3154,7 +3154,7 @@
    <item row="103" column="0">
     <widget class="QLabel" name="labelStandard">
      <property name="text">
-      <string>Standard</string>
+      <string notr="true">Standard</string>
      </property>
     </widget>
    </item>
@@ -3165,22 +3165,22 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Cpp03</string>
+       <string notr="true">Cpp03</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Cpp11</string>
+       <string notr="true">Cpp11</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Auto</string>
+       <string notr="true">Auto</string>
       </property>
      </item>
     </widget>
@@ -3188,7 +3188,7 @@
    <item row="104" column="0">
     <widget class="QLabel" name="labelStatementMacros">
      <property name="text">
-      <string>StatementMacros</string>
+      <string notr="true">StatementMacros</string>
      </property>
     </widget>
    </item>
@@ -3216,7 +3216,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -3225,7 +3225,7 @@
    <item row="105" column="0">
     <widget class="QLabel" name="labelTabWidth">
      <property name="text">
-      <string>TabWidth</string>
+      <string notr="true">TabWidth</string>
      </property>
     </widget>
    </item>
@@ -3244,7 +3244,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string notr="true">Set</string>
        </property>
       </widget>
      </item>
@@ -3253,7 +3253,7 @@
    <item row="106" column="0">
     <widget class="QLabel" name="labelUseTab">
      <property name="text">
-      <string>UseTab</string>
+      <string notr="true">UseTab</string>
      </property>
     </widget>
    </item>
@@ -3264,27 +3264,27 @@
      </property>
      <item>
       <property name="text">
-       <string>Default</string>
+       <string notr="true">Default</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Never</string>
+       <string notr="true">Never</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ForIndentation</string>
+       <string notr="true">ForIndentation</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>ForContinuationAndIndentation</string>
+       <string notr="true">ForContinuationAndIndentation</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Always</string>
+       <string notr="true">Always</string>
       </property>
      </item>
     </widget>
