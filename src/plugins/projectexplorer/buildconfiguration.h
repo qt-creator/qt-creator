@@ -103,6 +103,7 @@ public:
     void setConfigWidgetDisplayName(const QString &display);
     void setBuildDirectoryHistoryCompleter(const QString &history);
     void setConfigWidgetHasFrame(bool configWidgetHasFrame);
+    void setBuildDirectorySettingsKey(const QString &key);
 
 signals:
     void environmentChanged();

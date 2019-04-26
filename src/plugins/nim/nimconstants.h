@@ -39,19 +39,11 @@ const char C_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Nim
 const char C_NIMTOOLCHAIN_TYPEID[] = "Nim.NimToolChain";
 const char C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY[] = "Nim.NimToolChain.CompilerCommand";
 
-// NimRunConfiguration
-const QString C_NIMRUNCONFIGURATION_EXECUTABLE_KEY = QStringLiteral("Nim.NimRunConfiguration.Executable");
-
 // NimProject
 const char C_NIMPROJECT_EXCLUDEDFILES[] = "Nim.NimProjectExcludedFiles";
 
 // NimBuildConfiguration
 const char C_NIMBUILDCONFIGURATION_ID[] = "Nim.NimBuildConfiguration";
-const QString C_NIMBUILDCONFIGURATION_DISPLAY_KEY = QStringLiteral("Nim.NimBuildConfiguration.Display");
-const QString C_NIMBUILDCONFIGURATION_BUILDDIRECTORY_KEY = QStringLiteral("Nim.NimBuildConfiguration.BuildDirectory");
-
-// NimBuildConfigurationWidget
-const char C_NIMBUILDCONFIGURATIONWIDGET_DISPLAY[] = QT_TRANSLATE_NOOP("NimBuildConfigurationWidget","General");
 
 // NimCompilerBuildStep
 const char C_NIMCOMPILERBUILDSTEP_ID[] = "Nim.NimCompilerBuildStep";

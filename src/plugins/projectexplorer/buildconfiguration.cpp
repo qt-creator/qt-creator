@@ -263,6 +263,11 @@ void BuildConfiguration::setConfigWidgetHasFrame(bool configWidgetHasFrame)
     m_configWidgetHasFrame = configWidgetHasFrame;
 }
 
+void BuildConfiguration::setBuildDirectorySettingsKey(const QString &key)
+{
+    m_buildDirectoryAspect->setSettingsKey(key);
+}
+
 Target *BuildConfiguration::target() const
 {
     return static_cast<Target *>(parent());
