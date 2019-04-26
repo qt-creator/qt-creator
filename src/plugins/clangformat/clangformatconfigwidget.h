@@ -60,7 +60,7 @@ private:
 
     bool eventFilter(QObject *object, QEvent *event) override;
 
-    void initialize();
+    void showOrHideWidgets();
     void initChecksAndPreview();
     void connectChecks();
 

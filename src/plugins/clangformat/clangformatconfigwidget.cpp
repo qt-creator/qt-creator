@@ -89,11 +89,12 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
     }
 
     connect(m_ui->overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
-        if (checked)
-            createStyleFileIfNeeded(!m_project);
-        initialize();
+        showOrHideWidgets();
     });
-    initialize();
+    showOrHideWidgets();
+
+    fillTable();
+    updatePreview();
 
     connectChecks();
 }
@@ -110,6 +111,24 @@ void ClangFormatConfigWidget::initChecksAndPreview()
 
     m_preview = new TextEditor::SnippetEditorWidget(this);
     m_ui->horizontalLayout_2->addWidget(m_preview);
+
+    TextEditor::DisplaySettings displaySettings = m_preview->displaySettings();
+    displaySettings.m_visualizeWhitespace = true;
+    m_preview->setDisplaySettings(displaySettings);
+    m_preview->setPlainText(QLatin1String(CppTools::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
+    m_preview->textDocument()->setIndenter(new ClangFormatIndenter(m_preview->document()));
+    m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
+    m_preview->textDocument()->setSyntaxHighlighter(new CppEditor::CppHighlighter);
+
+    Utils::FileName fileName;
+    if (m_project) {
+        connect(m_ui->applyButton, &QPushButton::clicked, this, &ClangFormatConfigWidget::apply);
+        fileName = m_project->projectFilePath().appendPath("snippet.cpp");
+    } else {
+        fileName = Utils::FileName::fromString(Core::ICore::userResourcePath())
+                       .appendPath("snippet.cpp");
+    }
+    m_preview->textDocument()->indenter()->setFileName(fileName);
 }
 
 void ClangFormatConfigWidget::connectChecks()
@@ -175,18 +194,9 @@ static bool projectConfigExists()
         .exists();
 }
 
-void ClangFormatConfigWidget::initialize()
+void ClangFormatConfigWidget::showOrHideWidgets()
 {
     m_ui->projectHasClangFormat->hide();
-
-    m_preview->setPlainText(QLatin1String(CppTools::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-    m_preview->textDocument()->setIndenter(new ClangFormatIndenter(m_preview->document()));
-    m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
-    m_preview->textDocument()->setSyntaxHighlighter(new CppEditor::CppHighlighter);
-
-    TextEditor::DisplaySettings displaySettings = m_preview->displaySettings();
-    displaySettings.m_visualizeWhitespace = true;
-    m_preview->setDisplaySettings(displaySettings);
 
     QLayoutItem *lastItem = m_ui->verticalLayout->itemAt(m_ui->verticalLayout->count() - 1);
     if (lastItem->spacerItem())
@@ -200,14 +210,12 @@ void ClangFormatConfigWidget::initialize()
         return;
     }
 
+    createStyleFileIfNeeded(!m_project);
     m_checksScrollArea->show();
     m_preview->show();
 
-    Utils::FileName fileName;
     if (m_project) {
         m_ui->projectHasClangFormat->hide();
-        connect(m_ui->applyButton, &QPushButton::clicked, this, &ClangFormatConfigWidget::apply);
-        fileName = m_project->projectFilePath().appendPath("snippet.cpp");
     } else {
         const Project *currentProject = SessionManager::startupProject();
         if (!currentProject || !projectConfigExists()) {
@@ -218,13 +226,7 @@ void ClangFormatConfigWidget::initialize()
                 tr("Current project has its own overridden .clang-format file "
                    "and can be configured in Projects > Code Style > C++."));
         }
-        fileName = Utils::FileName::fromString(Core::ICore::userResourcePath())
-                       .appendPath("snippet.cpp");
     }
-
-    m_preview->textDocument()->indenter()->setFileName(fileName);
-    fillTable();
-    updatePreview();
 }
 
 void ClangFormatConfigWidget::updatePreview()
