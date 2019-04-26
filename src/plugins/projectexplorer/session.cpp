@@ -1002,11 +1002,8 @@ bool SessionManager::loadSession(const QString &session)
 
         d->m_future.setProgressRange(0, projectPathsToLoad.count() + 1/*initialization above*/ + 1/*editors*/);
         d->m_future.setProgressValue(1);
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
-        // if one processEvents doesn't get the job done
-        // just use two!
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         d->restoreProjects(projectPathsToLoad);
         d->sessionLoadingProgress();
         d->restoreDependencies(reader);
