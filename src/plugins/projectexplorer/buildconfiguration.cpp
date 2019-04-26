@@ -28,6 +28,7 @@
 #include "buildenvironmentwidget.h"
 #include "buildinfo.h"
 #include "buildsteplist.h"
+#include "namedwidget.h"
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
@@ -47,6 +48,7 @@
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QDebug>
+#include <QFormLayout>
 
 static const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 static const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
@@ -101,6 +103,23 @@ void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
         return;
     m_buildDirectory = dir;
     emitBuildDirectoryChanged();
+}
+
+NamedWidget *BuildConfiguration::createConfigWidget()
+{
+    auto widget = new NamedWidget;
+    widget->setDisplayName(m_configWidgetDisplayName);
+
+    auto formLayout = new QFormLayout(widget);
+    formLayout->setMargin(0);
+    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
+    for (ProjectConfigurationAspect *aspect : aspects()) {
+        if (aspect->isVisible())
+            aspect->addToConfigurationLayout(formLayout);
+    }
+
+    return widget;
 }
 
 void BuildConfiguration::initialize(const BuildInfo &info)
@@ -192,6 +211,11 @@ void BuildConfiguration::emitBuildDirectoryChanged()
         m_lastEmmitedBuildDirectory = buildDirectory();
         emit buildDirectoryChanged();
     }
+}
+
+void BuildConfiguration::setConfigWidgetDisplayName(const QString &display)
+{
+    m_configWidgetDisplayName = display;
 }
 
 Target *BuildConfiguration::target() const

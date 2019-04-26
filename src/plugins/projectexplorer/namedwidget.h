@@ -39,12 +39,10 @@ public:
     explicit NamedWidget(QWidget *parent = nullptr);
 
     QString displayName() const;
+    void setDisplayName(const QString &displayName);
 
 signals:
     void displayNameChanged(const QString &);
-
-protected:
-    void setDisplayName(const QString &displayName);
 
 private:
     QString m_displayName;

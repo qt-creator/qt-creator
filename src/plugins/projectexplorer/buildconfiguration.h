@@ -55,7 +55,7 @@ public:
     Utils::FileName rawBuildDirectory() const;
     void setBuildDirectory(const Utils::FileName &dir);
 
-    virtual NamedWidget *createConfigWidget() = 0;
+    virtual NamedWidget *createConfigWidget();
     virtual QList<NamedWidget *> createSubConfigWidgets();
 
     // Maybe the BuildConfiguration is not the best place for the environment
@@ -99,6 +99,8 @@ public:
     static void prependCompilerPathToEnvironment(Kit *k, Utils::Environment &env);
     void updateCacheAndEmitEnvironmentChanged();
 
+    void setConfigWidgetDisplayName(const QString &display);
+
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
@@ -117,6 +119,7 @@ private:
     Utils::FileName m_buildDirectory;
     Utils::FileName m_lastEmmitedBuildDirectory;
     mutable Utils::Environment m_cachedEnvironment;
+    QString m_configWidgetDisplayName;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigurationFactory : public QObject
