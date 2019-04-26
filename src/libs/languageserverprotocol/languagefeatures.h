@@ -332,8 +332,22 @@ public:
     using variant::variant;
     DocumentSymbolsResult() : variant(nullptr) {}
     DocumentSymbolsResult(const QJsonValue &value);
+    DocumentSymbolsResult(const DocumentSymbolsResult &other) : variant(other) {}
+    DocumentSymbolsResult(DocumentSymbolsResult &&other) : variant(std::move(other)) {}
+
     using variant::operator=;
+    DocumentSymbolsResult &operator =(DocumentSymbolsResult &&other)
+    {
+        variant::operator=(std::move(other));
+        return *this;
+    }
+    DocumentSymbolsResult &operator =(const DocumentSymbolsResult &other)
+    {
+        variant::operator=(other);
+        return *this;
+    }
 };
+
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentSymbolsRequest
         : public Request<DocumentSymbolsResult, std::nullptr_t, DocumentSymbolParams>
