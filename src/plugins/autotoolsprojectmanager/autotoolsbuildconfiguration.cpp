@@ -26,7 +26,6 @@
 ****************************************************************************/
 
 #include "autotoolsbuildconfiguration.h"
-#include "autotoolsbuildsettingswidget.h"
 #include "makestep.h"
 #include "autotoolsproject.h"
 #include "autotoolsprojectconstants.h"
@@ -44,15 +43,13 @@
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
-#include <QInputDialog>
-
-using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Constants;
-using namespace Internal;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Constants;
+using namespace Utils;
 
+namespace AutotoolsProjectManager {
+namespace Internal {
 
 // AutotoolsBuildConfiguration
 
@@ -62,6 +59,15 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
     // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
     // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
     setBuildDirectory(Utils::FileName::fromString("/<foobar>"));
+    setConfigWidgetDisplayName(tr("Autotools Manager"));
+
+    BaseStringAspect *bd = buildDirectoryAspect();
+    bd->setLabelText(tr("Build directory:"));
+    bd->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    bd->setExpectedKind(PathChooser::Directory);
+    bd->setBaseFileName(parent->project()->projectDirectory());
+    bd->setEnvironment(environment());
+    bd->setHistoryCompleter("AutoTools.BuildDir.History");
 }
 
 void AutotoolsBuildConfiguration::initialize(const BuildInfo &info)
@@ -95,11 +101,6 @@ void AutotoolsBuildConfiguration::initialize(const BuildInfo &info)
     BuildStepList *cleanSteps = stepList(BUILDSTEPS_CLEAN);
     auto cleanMakeStep = new MakeStep(cleanSteps);
     cleanSteps->appendStep(cleanMakeStep);
-}
-
-NamedWidget *AutotoolsBuildConfiguration::createConfigWidget()
-{
-    return new AutotoolsBuildSettingsWidget(this);
 }
 
 
@@ -143,3 +144,6 @@ BuildConfiguration::BuildType AutotoolsBuildConfiguration::buildType() const
     // TODO: Should I return something different from Unknown?
     return Unknown;
 }
+
+} // Internal
+} // AutotoolsProjectManager

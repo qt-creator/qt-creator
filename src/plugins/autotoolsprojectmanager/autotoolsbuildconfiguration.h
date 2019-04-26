@@ -42,7 +42,6 @@ class AutotoolsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     void initialize(const ProjectExplorer::BuildInfo &info) override;
-    ProjectExplorer::NamedWidget *createConfigWidget() override;
     BuildType buildType() const override;
 };
 

@@ -88,6 +88,10 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
 
     m_buildDirectoryAspect = addAspect<BaseStringAspect>();
     m_buildDirectoryAspect->setSettingsKey(BUILDDIRECTORY_KEY);
+
+    connect(this, &BuildConfiguration::environmentChanged, this, [this] {
+        m_buildDirectoryAspect->setEnvironment(environment());
+    });
 }
 
 Utils::FileName BuildConfiguration::buildDirectory() const

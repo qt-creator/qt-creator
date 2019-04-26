@@ -79,6 +79,7 @@ public:
     QPointer<PathChooser> m_pathChooserDisplay;
     QPointer<QTextEdit> m_textEditDisplay;
     QPixmap m_labelPixmap;
+    Utils::FileName m_baseFileName;
 };
 
 class BaseIntegerAspectPrivate
@@ -213,6 +214,13 @@ void BaseStringAspect::setEnvironment(const Environment &env)
         d->m_pathChooserDisplay->setEnvironment(env);
 }
 
+void BaseStringAspect::setBaseFileName(const FileName &baseFileName)
+{
+    d->m_baseFileName = baseFileName;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setBaseFileName(baseFileName);
+}
+
 void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!d->m_label);
@@ -231,6 +239,7 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
+        d->m_pathChooserDisplay->setBaseFileName(d->m_baseFileName);
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
                 this, &BaseStringAspect::setValue);
         hbox->addWidget(d->m_pathChooserDisplay);

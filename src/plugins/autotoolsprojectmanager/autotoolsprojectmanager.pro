@@ -3,7 +3,6 @@ include(../../qtcreatorplugin.pri)
 HEADERS = autotoolsprojectplugin.h\
           autotoolsopenprojectwizard.h\
           autotoolsproject.h\
-          autotoolsbuildsettingswidget.h\
           autotoolsbuildconfiguration.h\
           autotoolsprojectconstants.h\
           makestep.h\
@@ -16,7 +15,6 @@ HEADERS = autotoolsprojectplugin.h\
 SOURCES = autotoolsprojectplugin.cpp\
           autotoolsopenprojectwizard.cpp\
           autotoolsproject.cpp\
-          autotoolsbuildsettingswidget.cpp\
           autotoolsbuildconfiguration.cpp\
           makestep.cpp\
           autogenstep.cpp\
