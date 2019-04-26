@@ -299,23 +299,35 @@ FileType fileTypeForName(const QString &fileName)
     return FileType::Source;
 }
 
-void createTree(FolderNode *root,
+void addChild(FolderNode *root, const Utils::FileName &fileName)
+{
+    FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
+    if (!parentNode->fileNode(fileName)) {
+        parentNode->addNode(
+            std::make_unique<FileNode>(fileName, fileTypeForName(fileName.fileName())));
+    }
+}
+
+void createTree(std::unique_ptr<ProjectNode> &root,
                 const Utils::FileName &rootPath,
                 const CppTools::RawProjectParts &rpps,
                 const QList<FileNode *> &scannedFiles = QList<FileNode *>())
 {
     root->setAbsoluteFilePathAndLine(rootPath, -1);
+    std::unique_ptr<FolderNode> secondRoot;
 
     for (const CppTools::RawProjectPart &rpp : rpps) {
         for (const QString &filePath : rpp.files) {
             Utils::FileName fileName = Utils::FileName::fromString(filePath);
-            if (!fileName.isChildOf(rootPath))
-                continue;
-
-            FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
-            if (!parentNode->fileNode(fileName)) {
-                parentNode->addNode(std::make_unique<FileNode>(fileName,
-                                                               fileTypeForName(fileName.fileName())));
+            if (!fileName.isChildOf(rootPath)) {
+                if (fileName.isChildOf(Utils::FileName::fromString(rpp.buildSystemTarget))) {
+                    if (!secondRoot)
+                        secondRoot = std::make_unique<ProjectNode>(
+                            Utils::FileName::fromString(rpp.buildSystemTarget));
+                    addChild(secondRoot.get(), fileName);
+                }
+            } else {
+                addChild(root.get(), fileName);
             }
         }
     }
@@ -327,7 +339,7 @@ void createTree(FolderNode *root,
         const Utils::FileName fileName = node->filePath();
         if (!fileName.isChildOf(rootPath))
             continue;
-        FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
+        FolderNode *parentNode = createFoldersIfNeeded(root.get(), fileName.parentDir());
         if (!parentNode->fileNode(fileName)) {
             std::unique_ptr<FileNode> headerNode(node->clone());
             headerNode->setEnabled(false);
@@ -335,6 +347,14 @@ void createTree(FolderNode *root,
         }
     }
     qDeleteAll(scannedFiles);
+
+    if (secondRoot) {
+        std::unique_ptr<ProjectNode> firstRoot = std::move(root);
+        root = std::make_unique<ProjectNode>(firstRoot->filePath());
+        firstRoot->setDisplayName(rootPath.fileName());
+        root->addNode(std::move(firstRoot));
+        root->addNode(std::move(secondRoot));
+    }
 }
 
 struct Entry
@@ -426,9 +446,9 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
     QCoreApplication::processEvents();
 
     if (m_treeScanner.future().isCanceled())
-        createTree(root.get(), rootProjectDirectory(), rpps);
+        createTree(root, rootProjectDirectory(), rpps);
     else
-        createTree(root.get(), rootProjectDirectory(), rpps, m_treeScanner.release());
+        createTree(root, rootProjectDirectory(), rpps, m_treeScanner.release());
 
     root->addNode(std::make_unique<FileNode>(projectFile, FileType::Project));
 
