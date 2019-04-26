@@ -158,7 +158,7 @@ QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &fi
         return QDateTime();
     }
     bool isNumber;
-    const qint64 secsSinceEpoch = columns.at(12).toLongLong(&isNumber);
+    const qint64 secsSinceEpoch = columns.at(11).toLongLong(&isNumber);
     if (!isNumber) {
         emit warningMessage(warningString);
         return QDateTime();
