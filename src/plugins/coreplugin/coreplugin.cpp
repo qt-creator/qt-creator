@@ -276,7 +276,7 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
         });
         menu->insertAction(firstAction, showInGraphicalShell);
 
-        auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalAction(), menu);
+        auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalHereAction(), menu);
         connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser]() {
             Core::FileUtils::openTerminal(pathChooser->path());
         });

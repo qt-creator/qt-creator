@@ -835,13 +835,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
     // Open Terminal submenu
-#if !defined(Q_OS_UNIX) || QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     ActionContainer * const openTerminal =
             ActionManager::createMenu(ProjectExplorer::Constants::M_OPENTERMINALCONTEXT);
     openTerminal->setOnAllDisabledBehavior(ActionContainer::Show);
     dd->m_openTerminalMenu = openTerminal->menu();
-    dd->m_openTerminalMenu->setTitle(FileUtils::msgTerminalAction());
-#endif
+    dd->m_openTerminalMenu->setTitle(FileUtils::msgTerminalWithAction());
 
     // "open with" submenu
     ActionContainer * const openWith =
@@ -909,23 +907,16 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
-#if !defined(Q_OS_UNIX) || QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
     // Open Terminal Here menu
-    mfileContextMenu->addMenu(openTerminal, Constants::G_FILE_OPEN);
-    mfolderContextMenu->addMenu(openTerminal, Constants::G_FOLDER_FILES);
-
-    dd->m_openTerminalHere = new QAction(tr("System Environment"), this);
-    cmd = ActionManager::registerAction(dd->m_openTerminalHere, Constants::OPENTERMINALHERE,
-                                        projecTreeContext);
-    dd->m_openTerminalMenu->addAction(dd->m_openTerminalHere);
-#else
-    dd->m_openTerminalHere = new QAction(FileUtils::msgTerminalAction(), this);
+    dd->m_openTerminalHere = new QAction(FileUtils::msgTerminalHereAction(), this);
     cmd = ActionManager::registerAction(dd->m_openTerminalHere, Constants::OPENTERMINALHERE,
                                         projecTreeContext);
 
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
-#endif
+
+    mfileContextMenu->addMenu(openTerminal, Constants::G_FILE_OPEN);
+    mfolderContextMenu->addMenu(openTerminal, Constants::G_FOLDER_FILES);
 
     dd->m_openTerminalHereBuildEnv = new QAction(tr("Build Environment"), this);
     dd->m_openTerminalHereRunEnv = new QAction(tr("Run Environment"), this);

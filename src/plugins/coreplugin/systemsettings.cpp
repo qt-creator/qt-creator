@@ -68,7 +68,7 @@ QWidget *SystemSettings::widget()
         m_widget = new QWidget;
         m_page->setupUi(m_widget);
         m_page->terminalOpenArgs->setToolTip(
-            tr("Command line arguments used for \"%1\".").arg(FileUtils::msgTerminalAction()));
+            tr("Command line arguments used for \"%1\".").arg(FileUtils::msgTerminalHereAction()));
 
         m_page->reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
         if (HostOsInfo::isAnyUnixHost()) {
