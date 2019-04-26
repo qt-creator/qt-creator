@@ -25,7 +25,6 @@
 
 #include "qbsbuildconfiguration.h"
 
-#include "qbsbuildconfigurationwidget.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
 #include "qbsinstallstep.h"
@@ -34,7 +33,6 @@
 #include "qbsprojectmanagersettings.h"
 
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/icore.h>
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
@@ -54,15 +52,12 @@
 #include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
-#include <QInputDialog>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QbsProjectManager {
 namespace Internal {
-
-static QString configNameKey() { return QStringLiteral("Qbs.configName"); }
 
 static FileName defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
                                       const QString &bcName,
@@ -82,6 +77,15 @@ static FileName defaultBuildDirectory(const QString &projectFilePath, const Kit 
 QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
     : BuildConfiguration(target, id)
 {
+    setConfigWidgetHasFrame(true);
+
+    m_configurationName = addAspect<BaseStringAspect>();
+    m_configurationName->setLabelText(tr("Configuration name:"));
+    m_configurationName->setSettingsKey("Qbs.configName");
+    m_configurationName->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    connect(m_configurationName, &BaseStringAspect::changed,
+            this, &BuildConfiguration::buildDirectoryChanged);
+
     connect(project(), &Project::parsingStarted, this, &BuildConfiguration::enabledChanged);
     connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
 }
@@ -109,7 +113,8 @@ void QbsBuildConfiguration::initialize(const BuildInfo &info)
         configName = "qtc_" + target()->kit()->fileSystemFriendlyName() + '_'
                 + Utils::FileUtils::fileSystemFriendlyName(info.displayName);
     }
-    setConfigurationName(configName);
+
+    m_configurationName->setValue(configName);
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto bs = new QbsBuildStep(buildSteps);
@@ -130,12 +135,11 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_configurationName = map.value(configNameKey()).toString();
-    if (m_configurationName.isEmpty()) { // pre-4.4 backwards compatibility
+    if (m_configurationName->value().isEmpty()) { // pre-4.4 backwards compatibility
         const QString profileName = QbsManager::profileForKit(target()->kit());
         const QString buildVariant = qbsConfiguration()
                 .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
-        m_configurationName = profileName + QLatin1Char('-') + buildVariant;
+        m_configurationName->setValue(profileName + '-' + buildVariant);
     }
     BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     // Fix up the existing build steps:
@@ -146,18 +150,6 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
     }
 
     return true;
-}
-
-QVariantMap QbsBuildConfiguration::toMap() const
-{
-    QVariantMap map = BuildConfiguration::toMap();
-    map.insert(configNameKey(), m_configurationName);
-    return map;
-}
-
-NamedWidget *QbsBuildConfiguration::createConfigWidget()
-{
-    return new QbsBuildConfigurationWidget(this);
 }
 
 QbsBuildStep *QbsBuildConfiguration::qbsStep() const
@@ -241,17 +233,9 @@ void QbsBuildConfiguration::emitBuildTypeChanged()
     emit buildTypeChanged();
 }
 
-void QbsBuildConfiguration::setConfigurationName(const QString &configName)
-{
-    if (m_configurationName == configName)
-        return;
-    m_configurationName = configName;
-    emit buildDirectoryChanged();
-}
-
 QString QbsBuildConfiguration::configurationName() const
 {
-    return m_configurationName;
+    return m_configurationName->value();
 }
 
 class StepProxy

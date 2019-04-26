@@ -66,8 +66,6 @@ QtcPlugin {
         "propertyprovider.h",
         "qbsbuildconfiguration.cpp",
         "qbsbuildconfiguration.h",
-        "qbsbuildconfigurationwidget.cpp",
-        "qbsbuildconfigurationwidget.h",
         "qbsbuildstep.cpp",
         "qbsbuildstep.h",
         "qbsbuildstepconfigwidget.ui",

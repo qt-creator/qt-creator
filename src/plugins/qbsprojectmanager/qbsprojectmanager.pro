@@ -20,7 +20,6 @@ HEADERS = \
     defaultpropertyprovider.h \
     propertyprovider.h \
     qbsbuildconfiguration.h \
-    qbsbuildconfigurationwidget.h \
     qbsbuildstep.h \
     qbscleanstep.h \
     qbskitinformation.h \
@@ -45,7 +44,6 @@ SOURCES = \
     customqbspropertiesdialog.cpp \
     defaultpropertyprovider.cpp \
     qbsbuildconfiguration.cpp \
-    qbsbuildconfigurationwidget.cpp \
     qbsbuildstep.cpp \
     qbscleanstep.cpp \
     qbsinstallstep.cpp \

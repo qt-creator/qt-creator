@@ -43,6 +43,7 @@
 #include <coreplugin/idocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/detailswidget.h>
 #include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/mimetypes/mimetype.h>
@@ -123,8 +124,23 @@ void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
 
 NamedWidget *BuildConfiguration::createConfigWidget()
 {
-    auto widget = new NamedWidget;
-    widget->setDisplayName(m_configWidgetDisplayName);
+    NamedWidget *named = new NamedWidget;
+    named->setDisplayName(m_configWidgetDisplayName);
+
+    QWidget *widget = nullptr;
+
+    if (m_configWidgetHasFrame) {
+        auto container = new Utils::DetailsWidget(named);
+        widget = new QWidget(container);
+        container->setState(Utils::DetailsWidget::NoSummary);
+        container->setWidget(widget);
+
+        auto vbox = new QVBoxLayout(named);
+        vbox->setMargin(0);
+        vbox->addWidget(container);
+    } else {
+        widget = named;
+    }
 
     auto formLayout = new QFormLayout(widget);
     formLayout->setMargin(0);
@@ -135,7 +151,7 @@ NamedWidget *BuildConfiguration::createConfigWidget()
             aspect->addToConfigurationLayout(formLayout);
     }
 
-    return widget;
+    return named;
 }
 
 void BuildConfiguration::initialize(const BuildInfo &info)
@@ -240,6 +256,11 @@ void BuildConfiguration::setConfigWidgetDisplayName(const QString &display)
 void BuildConfiguration::setBuildDirectoryHistoryCompleter(const QString &history)
 {
     m_buildDirectoryAspect->setHistoryCompleter(history);
+}
+
+void BuildConfiguration::setConfigWidgetHasFrame(bool configWidgetHasFrame)
+{
+    m_configWidgetHasFrame = configWidgetHasFrame;
 }
 
 Target *BuildConfiguration::target() const

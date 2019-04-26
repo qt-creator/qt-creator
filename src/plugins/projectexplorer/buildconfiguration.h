@@ -102,6 +102,7 @@ public:
     ProjectExplorer::BaseStringAspect *buildDirectoryAspect() const;
     void setConfigWidgetDisplayName(const QString &display);
     void setBuildDirectoryHistoryCompleter(const QString &history);
+    void setConfigWidgetHasFrame(bool configWidgetHasFrame);
 
 signals:
     void environmentChanged();
@@ -122,6 +123,7 @@ private:
     Utils::FileName m_lastEmmitedBuildDirectory;
     mutable Utils::Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
+    bool m_configWidgetHasFrame = false;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigurationFactory : public QObject

@@ -37,7 +37,6 @@ namespace ProjectExplorer { class BuildStep; }
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsBuildConfigurationWidget;
 class QbsBuildStep;
 class QbsProject;
 
@@ -50,7 +49,6 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
 public:
     void initialize(const ProjectExplorer::BuildInfo &info) override;
-    ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     QbsBuildStep *qbsStep() const;
     QVariantMap qbsConfiguration() const;
@@ -73,7 +71,6 @@ public:
 
     void emitBuildTypeChanged();
 
-    void setConfigurationName(const QString &configName);
     QString configurationName() const;
 
     QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;
@@ -83,16 +80,13 @@ signals:
 
 private:
     bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
 
     bool m_isParsing = true;
     bool m_parsingError = false;
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;
-    QString m_configurationName;
-
-    friend class QbsBuildConfigurationWidget;
+    ProjectExplorer::BaseStringAspect *m_configurationName;
 };
 
 class QbsBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
