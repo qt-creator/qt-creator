@@ -33,6 +33,7 @@
 #include "kitinformation.h"
 #include "kitmanager.h"
 #include "project.h"
+#include "projectconfigurationaspects.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectmacroexpander.h"
@@ -84,24 +85,28 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     // Many macroexpanders are based on the current project, so they may change the environment:
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
+
+    m_buildDirectoryAspect = addAspect<BaseStringAspect>();
+    m_buildDirectoryAspect->setSettingsKey(BUILDDIRECTORY_KEY);
 }
 
 Utils::FileName BuildConfiguration::buildDirectory() const
 {
-    const QString path = QDir::cleanPath(macroExpander()->expand(environment().expandVariables(m_buildDirectory.toString())));
+    QString path = environment().expandVariables(m_buildDirectoryAspect->value());
+    path = QDir::cleanPath(macroExpander()->expand(path));
     return Utils::FileName::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory().toString()).absoluteFilePath(path)));
 }
 
 Utils::FileName BuildConfiguration::rawBuildDirectory() const
 {
-    return m_buildDirectory;
+    return m_buildDirectoryAspect->fileName();
 }
 
 void BuildConfiguration::setBuildDirectory(const Utils::FileName &dir)
 {
-    if (dir == m_buildDirectory)
+    if (dir == m_buildDirectoryAspect->fileName())
         return;
-    m_buildDirectory = dir;
+    m_buildDirectoryAspect->setFileName(dir);
     emitBuildDirectoryChanged();
 }
 
@@ -152,7 +157,6 @@ QVariantMap BuildConfiguration::toMap() const
     QVariantMap map(ProjectConfiguration::toMap());
     map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    map.insert(QLatin1String(BUILDDIRECTORY_KEY), m_buildDirectory.toString());
 
     map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), m_stepLists.count());
     for (int i = 0; i < m_stepLists.count(); ++i)
@@ -165,7 +169,6 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
 {
     m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
-    m_buildDirectory = Utils::FileName::fromString(map.value(QLatin1String(BUILDDIRECTORY_KEY)).toString());
 
     updateCacheAndEmitEnvironmentChanged();
 
@@ -211,6 +214,11 @@ void BuildConfiguration::emitBuildDirectoryChanged()
         m_lastEmmitedBuildDirectory = buildDirectory();
         emit buildDirectoryChanged();
     }
+}
+
+ProjectExplorer::BaseStringAspect *BuildConfiguration::buildDirectoryAspect() const
+{
+    return m_buildDirectoryAspect;
 }
 
 void BuildConfiguration::setConfigWidgetDisplayName(const QString &display)

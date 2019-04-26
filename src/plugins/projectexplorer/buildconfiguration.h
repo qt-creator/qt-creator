@@ -33,14 +33,14 @@
 
 namespace ProjectExplorer {
 
+class BaseStringAspect;
 class BuildInfo;
-class NamedWidget;
 class BuildStepList;
-class Node;
 class Kit;
+class NamedWidget;
+class Node;
 class Target;
 class Task;
-class IOutputParser;
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
@@ -99,6 +99,7 @@ public:
     static void prependCompilerPathToEnvironment(Kit *k, Utils::Environment &env);
     void updateCacheAndEmitEnvironmentChanged();
 
+    ProjectExplorer::BaseStringAspect *buildDirectoryAspect() const;
     void setConfigWidgetDisplayName(const QString &display);
 
 signals:
@@ -116,7 +117,7 @@ private:
     bool m_clearSystemEnvironment = false;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
-    Utils::FileName m_buildDirectory;
+    ProjectExplorer::BaseStringAspect *m_buildDirectoryAspect = nullptr;
     Utils::FileName m_lastEmmitedBuildDirectory;
     mutable Utils::Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
