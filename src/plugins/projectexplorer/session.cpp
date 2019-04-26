@@ -55,6 +55,12 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#ifdef WITH_TESTS
+#include <QTemporaryFile>
+#include <QTest>
+#include <vector>
+#endif
+
 using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer::Internal;
@@ -1072,5 +1078,59 @@ QStringList SessionManager::projectsForSessionName(const QString &session)
     }
     return reader.restoreValue(QLatin1String("ProjectList")).toStringList();
 }
+
+#ifdef WITH_TESTS
+
+void ProjectExplorerPlugin::testSessionSwitch()
+{
+    QVERIFY(SessionManager::createSession("session1"));
+    QVERIFY(SessionManager::createSession("session2"));
+    QTemporaryFile cppFile("main.cpp");
+    QVERIFY(cppFile.open());
+    cppFile.close();
+    QTemporaryFile projectFile1("XXXXXX.pro");
+    QTemporaryFile projectFile2("XXXXXX.pro");
+    struct SessionSpec {
+        SessionSpec(const QString &n, QTemporaryFile &f) : name(n), projectFile(f) {}
+        const QString name;
+        QTemporaryFile &projectFile;
+    };
+    std::vector<SessionSpec> sessionSpecs{SessionSpec("session1", projectFile1),
+                SessionSpec("session2", projectFile2)};
+    for (const SessionSpec &sessionSpec : sessionSpecs) {
+        static const QByteArray proFileContents
+                = "TEMPLATE = app\n"
+                  "CONFIG -= qt\n"
+                  "SOURCES = " + cppFile.fileName().toLocal8Bit();
+        QVERIFY(sessionSpec.projectFile.open());
+        sessionSpec.projectFile.write(proFileContents);
+        sessionSpec.projectFile.close();
+        QVERIFY(SessionManager::loadSession(sessionSpec.name));
+        const OpenProjectResult openResult
+                = ProjectExplorerPlugin::openProject(sessionSpec.projectFile.fileName());
+        if (openResult.errorMessage().contains("text/plain"))
+            QSKIP("This test requires the presence of QmakeProjectManager to be fully functional");
+        QVERIFY(openResult);
+        QCOMPARE(openResult.projects().count(), 1);
+        QVERIFY(openResult.project());
+        QCOMPARE(SessionManager::projects().count(), 1);
+    }
+    for (int i = 0; i < 30; ++i) {
+        QVERIFY(SessionManager::loadSession("session1"));
+        QCOMPARE(SessionManager::activeSession(), "session1");
+        QCOMPARE(SessionManager::projects().count(), 1);
+        QVERIFY(SessionManager::loadSession("session2"));
+        QCOMPARE(SessionManager::activeSession(), "session2");
+        QCOMPARE(SessionManager::projects().count(), 1);
+    }
+    QVERIFY(SessionManager::loadSession("session1"));
+    SessionManager::closeAllProjects();
+    QVERIFY(SessionManager::loadSession("session2"));
+    SessionManager::closeAllProjects();
+    QVERIFY(SessionManager::deleteSession("session1"));
+    QVERIFY(SessionManager::deleteSession("session2"));
+}
+
+#endif // WITH_TESTS
 
 } // namespace ProjectExplorer

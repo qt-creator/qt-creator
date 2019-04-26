@@ -257,6 +257,8 @@ private slots:
     void testProject_parsingSuccess();
     void testProject_parsingFail();
     void testProject_projectTree();
+
+    void testSessionSwitch();
 #endif // WITH_TESTS
 };
 
