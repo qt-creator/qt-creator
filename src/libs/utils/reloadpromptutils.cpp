@@ -50,7 +50,10 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FileName &fileName,
         msg = QCoreApplication::translate("Utils::reloadPrompt",
                 "The file <i>%1</i> has been changed on disk. Do you want to reload it?");
     }
-    msg = msg.arg(fileName.fileName());
+    msg = "<p>" + msg.arg(fileName.fileName()) + "</p><p>" +
+            QCoreApplication::translate("Utils::reloadPrompt",
+                "The default behavior can be set in Tools > Options > Environment > System.")
+            + "</p>";
     return reloadPrompt(title, msg, fileName.toUserOutput(), enableDiffOption, parent);
 }
 
