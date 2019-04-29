@@ -118,7 +118,7 @@ void ClangFormatConfigWidget::connectChecks()
         auto comboBox = qobject_cast<QComboBox *>(child);
         if (comboBox != nullptr) {
             connect(comboBox,
-                    qOverload<int>(&QComboBox::currentIndexChanged),
+                    QOverload<int>::of(&QComboBox::currentIndexChanged),
                     this,
                     &ClangFormatConfigWidget::onTableChanged);
             comboBox->installEventFilter(this);
