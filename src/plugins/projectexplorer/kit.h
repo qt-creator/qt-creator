@@ -99,6 +99,7 @@ public:
     QIcon icon() const;
     Utils::FileName iconPath() const;
     void setIconPath(const Utils::FileName &path);
+    void setDeviceTypeForIcon(Core::Id deviceType);
 
     QList<Core::Id> allKeys() const;
     QVariant value(Core::Id key, const QVariant &unset = QVariant()) const;

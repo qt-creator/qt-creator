@@ -24,18 +24,21 @@
 ****************************************************************************/
 
 #include "kitmanagerconfigwidget.h"
-#include "projectexplorerconstants.h"
 
+#include "devicesupport/idevicefactory.h"
 #include "kit.h"
+#include "kitinformation.h"
 #include "kitmanager.h"
+#include "projectexplorerconstants.h"
 #include "task.h"
 
 #include <coreplugin/variablechooser.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
-#include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
+#include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QRegularExpression>
@@ -44,6 +47,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPainter>
 #include <QPushButton>
 #include <QToolButton>
@@ -96,7 +100,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     label = createLabel(tr("Name:"), tr("Kit name and icon."));
     m_layout->addWidget(label, 0, LabelColumn, alignment);
     m_iconButton->setToolTip(tr("Kit icon."));
-    auto setIconAction = new QAction(tr("Select Icon File"), this);
+    auto setIconAction = new QAction(tr("Select Icon..."), this);
     m_iconButton->addAction(setIconAction);
     auto resetIconAction = new QAction(tr("Reset to Device Default Icon"), this);
     m_iconButton->addAction(resetIconAction);
@@ -311,19 +315,44 @@ void KitManagerConfigWidget::removeKit()
 
 void KitManagerConfigWidget::setIcon()
 {
-    const QString path = QFileDialog::getOpenFileName(this, tr("Select Icon"),
-                                                      m_modifiedKit->iconPath().toString(),
-                                                      tr("Images (*.png *.xpm *.jpg)"));
-    if (path.isEmpty())
-        return;
-
-    const QIcon icon(path);
-    if (icon.isNull())
-        return;
-
-    m_iconButton->setIcon(icon);
-    m_modifiedKit->setIconPath(Utils::FileName::fromString(path));
-    emit dirty();
+    const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(m_modifiedKit.get());
+    QList<IDeviceFactory *> allDeviceFactories = IDeviceFactory::allDeviceFactories();
+    if (deviceType.isValid()) {
+        const auto less = [deviceType](const IDeviceFactory *f1, const IDeviceFactory *f2) {
+            if (f1->deviceType() == deviceType)
+                return true;
+            if (f2->deviceType() == deviceType)
+                return false;
+            return f1->displayName() < f2->displayName();
+        };
+        Utils::sort(allDeviceFactories, less);
+    }
+    QMenu iconMenu;
+    for (const IDeviceFactory * const factory : qAsConst(allDeviceFactories)) {
+        if (factory->icon().isNull())
+            continue;
+        iconMenu.addAction(factory->icon(), tr("Default for %1").arg(factory->displayName()),
+                           [this, factory] {
+            m_iconButton->setIcon(factory->icon());
+            m_modifiedKit->setDeviceTypeForIcon(factory->deviceType());
+            emit dirty();
+        });
+    }
+    iconMenu.addSeparator();
+    iconMenu.addAction(Utils::PathChooser::browseButtonLabel(), [this] {
+        const QString path = QFileDialog::getOpenFileName(this, tr("Select Icon"),
+                                                          m_modifiedKit->iconPath().toString(),
+                                                          tr("Images (*.png *.xpm *.jpg)"));
+        if (path.isEmpty())
+            return;
+        const QIcon icon(path);
+        if (icon.isNull())
+            return;
+        m_iconButton->setIcon(icon);
+        m_modifiedKit->setIconPath(Utils::FileName::fromString(path));
+        emit dirty();
+    });
+    iconMenu.exec(mapToGlobal(m_iconButton->pos()));
 }
 
 void KitManagerConfigWidget::resetIcon()
