@@ -59,15 +59,8 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
     // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
     // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
     setBuildDirectory(Utils::FileName::fromString("/<foobar>"));
+    setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
     setConfigWidgetDisplayName(tr("Autotools Manager"));
-
-    BaseStringAspect *bd = buildDirectoryAspect();
-    bd->setLabelText(tr("Build directory:"));
-    bd->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
-    bd->setExpectedKind(PathChooser::Directory);
-    bd->setBaseFileName(parent->project()->projectDirectory());
-    bd->setEnvironment(environment());
-    bd->setHistoryCompleter("AutoTools.BuildDir.History");
 }
 
 void AutotoolsBuildConfiguration::initialize(const BuildInfo &info)

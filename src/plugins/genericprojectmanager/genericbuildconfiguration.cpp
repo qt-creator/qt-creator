@@ -53,14 +53,7 @@ GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id
     : BuildConfiguration(parent, id)
 {
     setConfigWidgetDisplayName(tr("Generic Manager"));
-
-    BaseStringAspect *bd = buildDirectoryAspect();
-    bd->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
-    bd->setExpectedKind(PathChooser::Directory);
-    bd->setHistoryCompleter("Generic.BuildDir.History");
-    bd->setLabelText(tr("Build directory:"));
-    bd->setBaseFileName(parent->project()->projectDirectory());
-    bd->setEnvironment(environment());
+    setBuildDirectoryHistoryCompleter("Generic.BuildDir.History");
 
     updateCacheAndEmitEnvironmentChanged();
 }

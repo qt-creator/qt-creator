@@ -42,11 +42,11 @@
 
 #include <coreplugin/idocument.h>
 
-#include <utils/qtcassert.h>
-#include <utils/macroexpander.h>
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimetype.h>
+#include <utils/macroexpander.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/mimetypes/mimetype.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QFormLayout>
@@ -88,6 +88,13 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
 
     m_buildDirectoryAspect = addAspect<BaseStringAspect>();
     m_buildDirectoryAspect->setSettingsKey(BUILDDIRECTORY_KEY);
+    m_buildDirectoryAspect->setLabelText(tr("Build directory:"));
+    m_buildDirectoryAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
+    m_buildDirectoryAspect->setExpectedKind(Utils::PathChooser::Directory);
+    m_buildDirectoryAspect->setBaseFileName(target->project()->projectDirectory());
+    m_buildDirectoryAspect->setEnvironment(environment());
+    connect(m_buildDirectoryAspect, &BaseStringAspect::changed,
+            this, &BuildConfiguration::buildDirectoryChanged);
 
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         m_buildDirectoryAspect->setEnvironment(environment());
@@ -228,6 +235,11 @@ ProjectExplorer::BaseStringAspect *BuildConfiguration::buildDirectoryAspect() co
 void BuildConfiguration::setConfigWidgetDisplayName(const QString &display)
 {
     m_configWidgetDisplayName = display;
+}
+
+void BuildConfiguration::setBuildDirectoryHistoryCompleter(const QString &history)
+{
+    m_buildDirectoryAspect->setHistoryCompleter(history);
 }
 
 Target *BuildConfiguration::target() const

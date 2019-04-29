@@ -101,6 +101,7 @@ public:
 
     ProjectExplorer::BaseStringAspect *buildDirectoryAspect() const;
     void setConfigWidgetDisplayName(const QString &display);
+    void setBuildDirectoryHistoryCompleter(const QString &history);
 
 signals:
     void environmentChanged();
