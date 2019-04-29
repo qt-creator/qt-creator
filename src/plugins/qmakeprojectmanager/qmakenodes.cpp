@@ -36,6 +36,7 @@
 #include <utils/stringutils.h>
 
 #include <android/androidconstants.h>
+#include <ios/iosconstants.h>
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -291,6 +292,18 @@ QVariant QmakeProFileNode::data(Core::Id role) const
 
     if (role == Android::Constants::AndroidTargets)
         return {};
+
+    if (role == Ios::Constants::IosTarget) {
+        const TargetInformation info = targetInformation();
+        if (info.valid)
+            return info.target;
+    }
+
+    if (role == Ios::Constants::IosBuildDir) {
+        const TargetInformation info = targetInformation();
+        if (info.valid)
+            return info.buildDir.toString();
+    }
 
     QTC_CHECK(false);
     return {};

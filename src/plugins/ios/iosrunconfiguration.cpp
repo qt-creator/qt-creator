@@ -34,12 +34,10 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
-
-#include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
@@ -62,7 +60,6 @@
 #include <QWidget>
 
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 using namespace Utils;
 
 namespace Ios {
@@ -160,11 +157,9 @@ void IosRunConfiguration::updateEnabledState()
 QString IosRunConfiguration::applicationName() const
 {
     Project *project = target()->project();
-    if (auto pro = dynamic_cast<const QmakeProFileNode *>(project->findNodeForBuildKey(buildKey()))) {
-        TargetInformation ti = pro->targetInformation();
-        if (ti.valid)
-            return ti.target;
-    }
+    if (ProjectNode *node = project->findNodeForBuildKey(buildKey()))
+        return node->data(Constants::IosTarget).toString();
+
     return QString();
 }
 
@@ -179,12 +174,8 @@ FileName IosRunConfiguration::bundleDirectory() const
     }
     if (BuildConfiguration *bc = target()->activeBuildConfiguration()) {
         Project *project = target()->project();
-        auto pro = dynamic_cast<const QmakeProFileNode *>(project->findNodeForBuildKey(buildKey()));
-        if (pro) {
-            TargetInformation ti = pro->targetInformation();
-            if (ti.valid)
-                res = ti.buildDir;
-        }
+        if (ProjectNode *node = project->findNodeForBuildKey(buildKey()))
+            res = FileName::fromString(node->data(Constants::IosBuildDir).toString());
         if (res.isEmpty())
             res = bc->buildDirectory();
         switch (bc->buildType()) {
@@ -400,7 +391,6 @@ IosRunConfigurationFactory::IosRunConfigurationFactory()
     registerRunConfiguration<IosRunConfiguration>("Qt4ProjectManager.IosRunConfiguration:");
     addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
-    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
 }
 
 } // namespace Internal
