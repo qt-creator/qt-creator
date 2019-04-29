@@ -57,7 +57,7 @@
                     "mandatory": true,
                     "data":
                     {
-                        "kind": "existingDirectory",
+                        "kind": "directory",
                         "basePath": "%{InitialPath}",
                         "path": "%{InitialPath}"
                     }

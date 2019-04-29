@@ -38,7 +38,7 @@
                     "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
                     "data":
                     {
-                        "kind": "existingDirectory",
+                        "kind": "directory",
                         "basePath": "%{InitialPath}",
                         "path": "%{InitialPath}"
                     }
