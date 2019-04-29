@@ -140,25 +140,34 @@ bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::G
 }
 
 // ----------------- BaseQmakeProjectWizardDialog
-BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                                           bool showModulesPage, QWidget *parent,
-                                                           const Core::WizardDialogParameters &parameters) :
-    ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters),
-    m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
-                 .value<QList<Core::Id> >())
+BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
+    const Core::BaseFileWizardFactory *factory,
+    bool showModulesPage,
+    QWidget *parent,
+    const Core::WizardDialogParameters &parameters)
+    : ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters)
 {
+    m_profileIds = Utils::transform(parameters.extraValues()
+                                        .value(ProjectExplorer::Constants::PROJECT_KIT_IDS)
+                                        .toStringList(),
+                                    &Core::Id::fromString);
+
     init(showModulesPage);
 }
 
-BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                                           bool showModulesPage,
-                                                           Utils::ProjectIntroPage *introPage,
-                                                           int introId, QWidget *parent,
-                                                           const Core::WizardDialogParameters &parameters) :
-    ProjectExplorer::BaseProjectWizardDialog(factory, introPage, introId, parent, parameters),
-    m_profileIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
-                 .value<QList<Core::Id> >())
+BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
+    const Core::BaseFileWizardFactory *factory,
+    bool showModulesPage,
+    Utils::ProjectIntroPage *introPage,
+    int introId,
+    QWidget *parent,
+    const Core::WizardDialogParameters &parameters)
+    : ProjectExplorer::BaseProjectWizardDialog(factory, introPage, introId, parent, parameters)
 {
+    m_profileIds = Utils::transform(parameters.extraValues()
+                                        .value(ProjectExplorer::Constants::PROJECT_KIT_IDS)
+                                        .toStringList(),
+                                    &Core::Id::fromString);
     init(showModulesPage);
 }
 

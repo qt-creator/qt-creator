@@ -3327,8 +3327,10 @@ void ProjectExplorerPluginPrivate::addNewFile()
     map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(static_cast<void *>(currentNode)));
     map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, currentNode->filePath().toString());
     if (Project *p = ProjectTree::currentProject()) {
-        QList<Id> profileIds = Utils::transform(p->targets(), &Target::id);
-        map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
+        const QStringList profileIds = Utils::transform(p->targets(), [](const Target *t) {
+            return t->id().toString();
+        });
+        map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), profileIds);
         map.insert(Constants::PROJECT_POINTER, QVariant::fromValue(static_cast<void *>(p)));
     }
     ICore::showNewItemDialog(ProjectExplorerPlugin::tr("New File", "Title of dialog"),
@@ -3352,8 +3354,11 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
         Project *project = ProjectTree::currentProject();
         Core::Id projectType;
         if (project) {
-            QList<Id> profileIds = Utils::transform(ProjectTree::currentProject()->targets(), &Target::id);
-            map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
+            const QStringList profileIds = Utils::transform(ProjectTree::currentProject()->targets(),
+                                                            [](const Target *t) {
+                                                                return t->id().toString();
+                                                            });
+            map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), profileIds);
             projectType = project->id();
         }
 
