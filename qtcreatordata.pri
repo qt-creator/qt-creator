@@ -30,8 +30,11 @@ defineReplace(stripStaticBase) {
         win32:copy2build.commands = $$QMAKE_COPY \"${QMAKE_FILE_IN}\" \"${QMAKE_FILE_OUT}\"
         unix:copy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
         copy2build.name = COPY ${QMAKE_FILE_IN}
-        copy2build.config += no_link
+        copy2build.CONFIG += no_link no_clean
         QMAKE_EXTRA_COMPILERS += copy2build
+        for(static_file, STATIC_FILES) {
+            QMAKE_DISTCLEAN += $$STATIC_OUTPUT_BASE/$$stripStaticBase($$static_file)
+        }
     }
 
     static.files = $$STATIC_FILES
