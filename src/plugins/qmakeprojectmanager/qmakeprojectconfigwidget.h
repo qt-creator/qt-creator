@@ -27,6 +27,11 @@
 
 #include <projectexplorer/namedwidget.h>
 
+#include <utils/pathchooser.h>
+
+#include <QCheckBox>
+#include <QLabel>
+
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
 QT_END_NAMESPACE
@@ -37,14 +42,12 @@ namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
 
 namespace Internal {
-namespace Ui { class QmakeProjectConfigWidget; }
 
 class QmakeProjectConfigWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
 public:
     QmakeProjectConfigWidget(QmakeBuildConfiguration *bc);
-    ~QmakeProjectConfigWidget() override;
 
 private:
     // User changes in our widgets
@@ -60,12 +63,19 @@ private:
     void updateDetails();
     void setProblemLabel(const QString &text);
 
-    Ui::QmakeProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
     QmakeBuildConfiguration *m_buildConfiguration;
     Utils::DetailsWidget *m_detailsContainer;
     QString m_defaultShadowBuildDir;
     bool m_ignoreChange = false;
+
+    QLabel *shadowBuildLabel;
+    QCheckBox *shadowBuildCheckBox;
+    QLabel *buildDirLabel;
+    Utils::PathChooser *shadowBuildDirEdit;
+    Utils::PathChooser *inSourceBuildDirEdit;
+    QLabel *warningLabel;
+    QLabel *problemLabel;
 };
 
 } // namespace Internal

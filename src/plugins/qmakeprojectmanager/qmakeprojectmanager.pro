@@ -75,7 +75,6 @@ SOURCES += \
 
 FORMS += \
     qmakestep.ui \
-    qmakeprojectconfigwidget.ui \
     librarydetailswidget.ui
 
 RESOURCES += qmakeprojectmanager.qrc \

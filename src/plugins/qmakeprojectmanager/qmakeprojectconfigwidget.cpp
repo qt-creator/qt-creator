@@ -29,8 +29,8 @@
 #include "qmakebuildconfiguration.h"
 #include "qmakenodes.h"
 #include "qmakesettings.h"
-#include "ui_qmakeprojectconfigwidget.h"
 
+#include <QBoxLayout>
 #include <coreplugin/coreicons.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/target.h>
@@ -48,57 +48,96 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     : NamedWidget(),
       m_buildConfiguration(bc)
 {
+    const bool isShadowBuild = bc->isShadowBuild();
+    Project *project = bc->target()->project();
+
     m_defaultShadowBuildDir
-            = QmakeBuildConfiguration::shadowBuildDirectory(bc->target()->project()->projectFilePath().toString(),
+            = QmakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath().toString(),
                                                             bc->target()->kit(),
                                                             Utils::FileUtils::qmakeFriendlyName(bc->displayName()),
                                                             bc->buildType());
 
-    auto *vbox = new QVBoxLayout(this);
-    vbox->setMargin(0);
     m_detailsContainer = new Utils::DetailsWidget(this);
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
+
+    auto vbox = new QVBoxLayout(this);
+    vbox->setMargin(0);
     vbox->addWidget(m_detailsContainer);
-    QWidget *details = new QWidget(m_detailsContainer);
+
+    auto details = new QWidget(m_detailsContainer);
     m_detailsContainer->setWidget(details);
-    m_ui = new Ui::QmakeProjectConfigWidget();
-    m_ui->setupUi(details);
 
-    m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
+    shadowBuildLabel = new QLabel(details);
+    shadowBuildLabel->setText(tr("Shadow build:"));
 
-    m_ui->warningLabel->setPixmap(Utils::Icons::WARNING.pixmap());
-    m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
-    m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_ui->shadowBuildDirEdit->setHistoryCompleter(QLatin1String("Qmake.BuildDir.History"));
-    m_ui->shadowBuildDirEdit->setEnvironment(bc->environment());
-    m_ui->shadowBuildDirEdit->setBaseFileName(bc->target()->project()->projectDirectory());
-    bool isShadowBuild = bc->isShadowBuild();
+    shadowBuildCheckBox = new QCheckBox(details);
+    shadowBuildCheckBox->setChecked(isShadowBuild);
+
+    buildDirLabel = new QLabel(details);
+    buildDirLabel->setText(tr("Build directory:"));
+
+    shadowBuildDirEdit = new Utils::PathChooser(details);
+
+    inSourceBuildDirEdit = new Utils::PathChooser(details);
+
+    warningLabel = new QLabel(details);
+    warningLabel->setPixmap(Utils::Icons::WARNING.pixmap());
+
+    problemLabel = new QLabel(details);
+    QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    sizePolicy2.setHorizontalStretch(10);
+    sizePolicy2.setVerticalStretch(0);
+    problemLabel->setSizePolicy(sizePolicy2);
+    problemLabel->setWordWrap(true);
+
+    auto horizontalLayout_2 = new QHBoxLayout();
+    horizontalLayout_2->addWidget(warningLabel);
+    horizontalLayout_2->addWidget(problemLabel);
+
+    auto horizontalLayout = new QHBoxLayout();
+    horizontalLayout->addWidget(shadowBuildDirEdit);
+    horizontalLayout->addWidget(inSourceBuildDirEdit);
+
+    auto layout = new QGridLayout(details);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(shadowBuildLabel, 0, 0, 1, 1);
+    layout->addWidget(shadowBuildCheckBox, 0, 1, 1, 1);
+    layout->addWidget(buildDirLabel, 1, 0, 1, 1);
+    layout->addLayout(horizontalLayout, 1, 1, 1, 1);
+    layout->addLayout(horizontalLayout_2, 2, 1, 1, 1);
+
+    problemLabel->setText(tr("problemLabel"));
+
+    m_browseButton = shadowBuildDirEdit->buttonAtIndex(0);
+
+    shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
+    shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    shadowBuildDirEdit->setHistoryCompleter(QLatin1String("Qmake.BuildDir.History"));
+    shadowBuildDirEdit->setEnvironment(bc->environment());
+    shadowBuildDirEdit->setBaseFileName(project->projectDirectory());
     if (isShadowBuild) {
-        m_ui->shadowBuildDirEdit->setPath(bc->rawBuildDirectory().toString());
-        m_ui->inSourceBuildDirEdit->setVisible(false);
+        shadowBuildDirEdit->setPath(bc->rawBuildDirectory().toString());
+        inSourceBuildDirEdit->setVisible(false);
     } else {
-        m_ui->shadowBuildDirEdit->setPath(m_defaultShadowBuildDir);
-        m_ui->shadowBuildDirEdit->setVisible(false);
+        shadowBuildDirEdit->setPath(m_defaultShadowBuildDir);
+        shadowBuildDirEdit->setVisible(false);
     }
-    m_ui->inSourceBuildDirEdit->setFileName(bc->target()->project()->projectDirectory());
-    m_ui->inSourceBuildDirEdit->setReadOnly(true);
-    m_ui->inSourceBuildDirEdit->setEnabled(false);
+    inSourceBuildDirEdit->setFileName(project->projectDirectory());
+    inSourceBuildDirEdit->setReadOnly(true);
+    inSourceBuildDirEdit->setEnabled(false);
 
     auto chooser = new Core::VariableChooser(this);
-    chooser->addSupportedWidget(m_ui->shadowBuildDirEdit->lineEdit());
+    chooser->addSupportedWidget(shadowBuildDirEdit->lineEdit());
 
-    m_ui->shadowBuildCheckBox->setChecked(isShadowBuild);
-
-    connect(m_ui->shadowBuildCheckBox, &QAbstractButton::clicked,
+    connect(shadowBuildCheckBox, &QAbstractButton::clicked,
             this, &QmakeProjectConfigWidget::shadowBuildClicked);
 
-    connect(m_ui->shadowBuildDirEdit, &Utils::PathChooser::beforeBrowsing,
+    connect(shadowBuildDirEdit, &Utils::PathChooser::beforeBrowsing,
             this, &QmakeProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed);
 
-    connect(m_ui->shadowBuildDirEdit, &Utils::PathChooser::rawPathChanged,
+    connect(shadowBuildDirEdit, &Utils::PathChooser::rawPathChanged,
             this, &QmakeProjectConfigWidget::shadowBuildEdited);
 
-    auto *project = static_cast<QmakeProject *>(bc->target()->project());
     project->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
         if (static_cast<BuildConfiguration *>(sender())->isActive())
             environmentChanged();
@@ -108,9 +147,11 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
         if (pc && pc->isActive())
             environmentChanged();
     });
-    connect(project, &QmakeProject::buildDirectoryInitialized,
+
+    auto qmakeProject = static_cast<QmakeProject *>(bc->target()->project());
+    connect(qmakeProject, &QmakeProject::buildDirectoryInitialized,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
-    connect(project, &Project::parsingFinished,
+    connect(qmakeProject, &Project::parsingFinished,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
     connect(&QmakeSettings::instance(), &QmakeSettings::settingsChanged,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
@@ -128,11 +169,6 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     updateProblemLabel();
 }
 
-QmakeProjectConfigWidget::~QmakeProjectConfigWidget()
-{
-    delete m_ui;
-}
-
 void QmakeProjectConfigWidget::updateDetails()
 {
     m_detailsContainer->setSummaryText(
@@ -142,14 +178,14 @@ void QmakeProjectConfigWidget::updateDetails()
 
 void QmakeProjectConfigWidget::setProblemLabel(const QString &text)
 {
-    m_ui->warningLabel->setVisible(!text.isEmpty());
-    m_ui->problemLabel->setVisible(!text.isEmpty());
-    m_ui->problemLabel->setText(text);
+    warningLabel->setVisible(!text.isEmpty());
+    problemLabel->setVisible(!text.isEmpty());
+    problemLabel->setText(text);
 }
 
 void QmakeProjectConfigWidget::environmentChanged()
 {
-    m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
+    shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
 }
 
 void QmakeProjectConfigWidget::buildDirectoryChanged()
@@ -157,14 +193,14 @@ void QmakeProjectConfigWidget::buildDirectoryChanged()
     if (m_ignoreChange)
         return;
 
-    bool shadowBuild = m_ui->shadowBuildCheckBox->isChecked();
-    m_ui->inSourceBuildDirEdit->setVisible(!shadowBuild);
+    bool shadowBuild = shadowBuildCheckBox->isChecked();
+    inSourceBuildDirEdit->setVisible(!shadowBuild);
 
-    m_ui->shadowBuildDirEdit->setVisible(shadowBuild);
-    m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
+    shadowBuildDirEdit->setVisible(shadowBuild);
+    shadowBuildDirEdit->setEnabled(shadowBuild);
     m_browseButton->setEnabled(shadowBuild);
 
-    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->rawBuildDirectory().toString());
+    shadowBuildDirEdit->setPath(m_buildConfiguration->rawBuildDirectory().toString());
 
     updateDetails();
     updateProblemLabel();
@@ -174,22 +210,22 @@ void QmakeProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
 {
     Utils::FileName initialDirectory = m_buildConfiguration->target()->project()->projectDirectory();
     if (!initialDirectory.isEmpty())
-        m_ui->shadowBuildDirEdit->setInitialBrowsePathBackup(initialDirectory.toString());
+        shadowBuildDirEdit->setInitialBrowsePathBackup(initialDirectory.toString());
 }
 
 void QmakeProjectConfigWidget::shadowBuildClicked(bool checked)
 {
-    m_ui->shadowBuildDirEdit->setEnabled(checked);
+    shadowBuildDirEdit->setEnabled(checked);
     m_browseButton->setEnabled(checked);
 
-    m_ui->shadowBuildDirEdit->setVisible(checked);
-    m_ui->inSourceBuildDirEdit->setVisible(!checked);
+    shadowBuildDirEdit->setVisible(checked);
+    inSourceBuildDirEdit->setVisible(!checked);
 
     m_ignoreChange = true;
     if (checked)
-        m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(m_ui->shadowBuildDirEdit->rawPath()));
+        m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(shadowBuildDirEdit->rawPath()));
     else
-        m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(m_ui->inSourceBuildDirEdit->rawPath()));
+        m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(inSourceBuildDirEdit->rawPath()));
     m_ignoreChange = false;
 
     updateDetails();
@@ -198,17 +234,17 @@ void QmakeProjectConfigWidget::shadowBuildClicked(bool checked)
 
 void QmakeProjectConfigWidget::shadowBuildEdited()
 {
-    if (m_buildConfiguration->rawBuildDirectory().toString() == m_ui->shadowBuildDirEdit->rawPath())
+    if (m_buildConfiguration->rawBuildDirectory().toString() == shadowBuildDirEdit->rawPath())
         return;
 
     m_ignoreChange = true;
-    m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(m_ui->shadowBuildDirEdit->rawPath()));
+    m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(shadowBuildDirEdit->rawPath()));
     m_ignoreChange = false;
 }
 
 void QmakeProjectConfigWidget::updateProblemLabel()
 {
-    m_ui->shadowBuildDirEdit->triggerChanged();
+    shadowBuildDirEdit->triggerChanged();
     ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();
     const QString proFileName = m_buildConfiguration->target()->project()->projectFilePath().toString();
 
