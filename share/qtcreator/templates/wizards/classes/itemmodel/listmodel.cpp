@@ -1,5 +1,5 @@
 %{Cpp:LicenseTemplate}\
-#include "%{HdrFileName}"
+#include "%{JS: Util.relativeFilePath('%{Path}/%{HdrFileName}', '%{Path}' + '/' + Util.path('%{SrcFileName}'))}"
 %{JS: Cpp.openNamespaces('%{Class}')}\
 
 %{CN}::%{CN}(QObject *parent)
