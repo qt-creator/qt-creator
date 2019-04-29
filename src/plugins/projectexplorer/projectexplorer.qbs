@@ -100,7 +100,7 @@ Project {
                 "osparser.cpp", "osparser.h",
                 "panelswidget.cpp", "panelswidget.h",
                 "processparameters.cpp", "processparameters.h",
-                "processstep.cpp", "processstep.h", "processstep.ui",
+                "processstep.cpp", "processstep.h",
                 "project.cpp", "project.h",
                 "projectconfiguration.cpp", "projectconfiguration.h",
                 "projectconfigurationaspects.cpp", "projectconfigurationaspects.h",

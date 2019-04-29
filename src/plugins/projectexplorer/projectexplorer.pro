@@ -306,7 +306,7 @@ SOURCES += projectexplorer.cpp \
     projectconfigurationaspects.cpp \
     treescanner.cpp
 
-FORMS += processstep.ui \
+FORMS += \
     editorsettingspropertiespage.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
