@@ -25,20 +25,16 @@
 #pragma once
 
 #include <coreplugin/id.h>
-#include "projectexplorer/namedwidget.h"
 
-#include <QWidget>
+#include <projectexplorer/namedwidget.h>
 
-namespace Utils {
-class DetailsWidget;
-}
-
+#include <QCheckBox>
+#include <QComboBox>
+#include <QLabel>
+#include <QPushButton>
 
 namespace Ios {
 namespace Internal {
-namespace Ui {
-    class IosBuildSettingsWidget;
-}
 
 class IosBuildSettingsWidget : public ProjectExplorer::NamedWidget
 {
@@ -47,7 +43,6 @@ class IosBuildSettingsWidget : public ProjectExplorer::NamedWidget
 public:
     explicit IosBuildSettingsWidget(const Core::Id &deviceType, const QString &signingIdentifier,
                                     bool isSigningAutoManaged, QWidget *parent = nullptr);
-    ~IosBuildSettingsWidget() override;
 
     bool isSigningAutomaticallyManaged() const;
 
@@ -67,11 +62,18 @@ private:
     void updateWarningText();
 
 private:
-    Ui::IosBuildSettingsWidget *ui;
-    Utils::DetailsWidget *m_detailsWidget;
     QString m_lastProfileSelection;
     QString m_lastTeamSelection;
     const Core::Id m_deviceType;
+
+    QPushButton *m_qmakeDefaults;
+    QComboBox *m_signEntityCombo;
+    QCheckBox *m_autoSignCheckbox;
+    QLabel *m_signEntityLabel;
+    QLabel *m_infoIconLabel;
+    QLabel *m_infoLabel;
+    QLabel *m_warningIconLabel;
+    QLabel *m_warningLabel;
 };
 
 } // namespace Internal

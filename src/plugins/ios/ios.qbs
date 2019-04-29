@@ -22,7 +22,6 @@ QtcPlugin {
         "iosbuildconfiguration.h",
         "iosbuildsettingswidget.cpp",
         "iosbuildsettingswidget.h",
-        "iosbuildsettingswidget.ui",
         "iosbuildstep.cpp",
         "iosbuildstep.h",
         "iosbuildstep.ui",

@@ -41,8 +41,6 @@
 #include <QLoggingCategory>
 #include <QVBoxLayout>
 
-using namespace QmakeProjectManager;
-
 namespace Ios {
 namespace Internal {
 
@@ -56,109 +54,168 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(const Core::Id &deviceType,
                                                const QString &signingIdentifier,
                                                bool isSigningAutoManaged, QWidget *parent) :
     ProjectExplorer::NamedWidget(parent),
-    ui(new Ui::IosBuildSettingsWidget),
-    m_detailsWidget(new Utils::DetailsWidget(this)),
     m_deviceType(deviceType)
 {
-    auto rootLayout = new QVBoxLayout(this);
-    rootLayout->setMargin(0);
-    rootLayout->addWidget(m_detailsWidget);
+    const bool isDevice = m_deviceType == Constants::IOS_DEVICE_TYPE;
 
-    auto container = new QWidget(m_detailsWidget);
-    ui->setupUi(container);
-    ui->m_autoSignCheckbox->setChecked(isSigningAutoManaged);
-    connect(ui->m_qmakeDefaults, &QPushButton::clicked, this, &IosBuildSettingsWidget::onReset);
+    auto detailsWidget = new Utils::DetailsWidget(this);
+    auto container = new QWidget(detailsWidget);
 
-    ui->m_infoIconLabel->hide();
-    ui->m_infoIconLabel->setPixmap(Utils::Icons::INFO.pixmap());
-    ui->m_infoLabel->hide();
+    m_qmakeDefaults = new QPushButton(container);
+    QSizePolicy sizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    m_qmakeDefaults->setSizePolicy(sizePolicy);
+    m_qmakeDefaults->setText(tr("Reset"));
+    m_qmakeDefaults->setEnabled(isDevice);
 
-    ui->m_warningIconLabel->hide();
-    ui->m_warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
-    ui->m_warningLabel->hide();
+    m_signEntityCombo = new QComboBox(container);
+    QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    sizePolicy1.setHorizontalStretch(0);
+    sizePolicy1.setVerticalStretch(0);
+    m_signEntityCombo->setSizePolicy(sizePolicy1);
 
-    m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
-    m_detailsWidget->setWidget(container);
+    m_autoSignCheckbox = new QCheckBox(container);
+    QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    sizePolicy2.setHorizontalStretch(0);
+    sizePolicy2.setVerticalStretch(0);
+    m_autoSignCheckbox->setSizePolicy(sizePolicy2);
+    m_autoSignCheckbox->setChecked(true);
+    m_autoSignCheckbox->setText(tr("Automatically manage signing"));
+    m_autoSignCheckbox->setChecked(isSigningAutoManaged);
+    m_autoSignCheckbox->setEnabled(isDevice);
+
+    m_signEntityLabel = new QLabel(container);
+
+    m_infoIconLabel = new QLabel(container);
+    QSizePolicy sizePolicy3(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    sizePolicy3.setHorizontalStretch(0);
+    sizePolicy3.setVerticalStretch(0);
+    m_infoIconLabel->setSizePolicy(sizePolicy3);
+
+    m_infoLabel = new QLabel(container);
+    QSizePolicy sizePolicy4(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    sizePolicy4.setHorizontalStretch(0);
+    sizePolicy4.setVerticalStretch(0);
+    m_infoLabel->setSizePolicy(sizePolicy4);
+    m_infoLabel->setWordWrap(false);
+
+    m_warningIconLabel = new QLabel(container);
+    m_warningIconLabel->setSizePolicy(sizePolicy3);
+
+    m_warningLabel = new QLabel(container);
+    m_warningLabel->setSizePolicy(sizePolicy4);
+    m_warningLabel->setWordWrap(true);
+
+    m_signEntityLabel->setText(QApplication::translate("Ios::Internal::IosBuildSettingsWidget", "Development team:", nullptr));
+
+    connect(m_qmakeDefaults, &QPushButton::clicked, this, &IosBuildSettingsWidget::onReset);
+
+    m_infoIconLabel->hide();
+    m_infoIconLabel->setPixmap(Utils::Icons::INFO.pixmap());
+    m_infoLabel->hide();
+
+    m_warningIconLabel->hide();
+    m_warningIconLabel->setPixmap(Utils::Icons::WARNING.pixmap());
+    m_warningLabel->hide();
+
+    detailsWidget->setState(Utils::DetailsWidget::NoSummary);
+    detailsWidget->setWidget(container);
 
     setDisplayName(tr("iOS Settings"));
 
-    const bool isDevice = m_deviceType == Constants::IOS_DEVICE_TYPE;
     if (isDevice) {
         connect(IosConfigurations::instance(), &IosConfigurations::provisioningDataChanged,
                 this, &IosBuildSettingsWidget::populateDevelopmentTeams);
-        connect(ui->m_signEntityCombo, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_signEntityCombo, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
                 this, &IosBuildSettingsWidget::onSigningEntityComboIndexChanged);
-        connect(ui->m_autoSignCheckbox, &QCheckBox::toggled,
+        connect(m_autoSignCheckbox, &QCheckBox::toggled,
                 this, &IosBuildSettingsWidget::configureSigningUi);
-        configureSigningUi(ui->m_autoSignCheckbox->isChecked());
+        configureSigningUi(m_autoSignCheckbox->isChecked());
         setDefaultSigningIdentfier(signingIdentifier);
     }
 
-    ui->m_autoSignCheckbox->setEnabled(isDevice);
-    ui->m_signEntityCombo->setEnabled(isDevice);
-    ui->m_qmakeDefaults->setEnabled(isDevice);
-    ui->m_signEntityLabel->setEnabled(isDevice);
+    m_signEntityCombo->setEnabled(isDevice);
+    m_signEntityLabel->setEnabled(isDevice);
     adjustSize();
-}
 
-IosBuildSettingsWidget::~IosBuildSettingsWidget()
-{
-    delete ui;
+    auto rootLayout = new QVBoxLayout(this);
+    rootLayout->setMargin(0);
+    rootLayout->addWidget(detailsWidget);
+
+    auto gridLayout = new QGridLayout();
+    gridLayout->addWidget(m_signEntityLabel, 0, 0, 1, 1);
+    gridLayout->addWidget(m_signEntityCombo, 0, 1, 1, 1);
+    gridLayout->addWidget(m_autoSignCheckbox, 0, 2, 1, 1);
+    gridLayout->addWidget(m_qmakeDefaults, 1, 1, 1, 1);
+
+    auto horizontalLayout = new QHBoxLayout();
+    horizontalLayout->addWidget(m_infoIconLabel);
+    horizontalLayout->addWidget(m_infoLabel);
+
+    auto horizontalLayout_2 = new QHBoxLayout();
+    horizontalLayout_2->addWidget(m_warningIconLabel);
+    horizontalLayout_2->addWidget(m_warningLabel);
+
+    auto verticalLayout = new QVBoxLayout(container);
+    verticalLayout->addLayout(gridLayout);
+    verticalLayout->addLayout(horizontalLayout);
+    verticalLayout->addLayout(horizontalLayout_2);
 }
 
 void IosBuildSettingsWidget::setDefaultSigningIdentfier(const QString &identifier) const
 {
     if (identifier.isEmpty()) {
-        ui->m_signEntityCombo->setCurrentIndex(0);
+        m_signEntityCombo->setCurrentIndex(0);
         return;
     }
 
     int defaultIndex = -1;
-    for (int index = 0; index < ui->m_signEntityCombo->count(); ++index) {
-        QString teamID = ui->m_signEntityCombo->itemData(index, IdentifierRole).toString();
+    for (int index = 0; index < m_signEntityCombo->count(); ++index) {
+        QString teamID = m_signEntityCombo->itemData(index, IdentifierRole).toString();
         if (teamID == identifier) {
             defaultIndex = index;
             break;
         }
     }
     if (defaultIndex > -1) {
-        ui->m_signEntityCombo->setCurrentIndex(defaultIndex);
+        m_signEntityCombo->setCurrentIndex(defaultIndex);
     } else {
         // Reset to default
-        ui->m_signEntityCombo->setCurrentIndex(0);
+        m_signEntityCombo->setCurrentIndex(0);
         qCDebug(iosSettingsLog) << "Cannot find default"
-                                << (ui->m_autoSignCheckbox->isChecked() ? "team": "provisioning profile")
+                                << (m_autoSignCheckbox->isChecked() ? "team": "provisioning profile")
                                 << ". Identifier: " << identifier;
     }
 }
 
 bool IosBuildSettingsWidget::isSigningAutomaticallyManaged() const
 {
-    return ui->m_autoSignCheckbox->isChecked() && ui->m_signEntityCombo->currentIndex() > 0;
+    return m_autoSignCheckbox->isChecked() && m_signEntityCombo->currentIndex() > 0;
 }
 
 void IosBuildSettingsWidget::onSigningEntityComboIndexChanged()
 {
     QString identifier = selectedIdentifier();
-    (ui->m_autoSignCheckbox->isChecked() ? m_lastTeamSelection : m_lastProfileSelection) = identifier;
+    (m_autoSignCheckbox->isChecked() ? m_lastTeamSelection : m_lastProfileSelection) = identifier;
 
     updateInfoText();
     updateWarningText();
-    emit signingSettingsChanged(ui->m_autoSignCheckbox->isChecked(), identifier);
+    emit signingSettingsChanged(m_autoSignCheckbox->isChecked(), identifier);
 }
 
 void IosBuildSettingsWidget::onReset()
 {
     m_lastTeamSelection.clear();
     m_lastProfileSelection.clear();
-    ui->m_autoSignCheckbox->setChecked(true);
+    m_autoSignCheckbox->setChecked(true);
     setDefaultSigningIdentfier("");
 }
 
 void IosBuildSettingsWidget::configureSigningUi(bool autoManageSigning)
 {
-    ui->m_signEntityLabel->setText(autoManageSigning ? tr("Development team:")
-                                                     : tr("Provisioning profile:"));
+    m_signEntityLabel->setText(autoManageSigning ? tr("Development team:")
+                                                 : tr("Provisioning profile:"));
     if (autoManageSigning)
         populateDevelopmentTeams();
     else
@@ -171,15 +228,15 @@ void IosBuildSettingsWidget::configureSigningUi(bool autoManageSigning)
 void IosBuildSettingsWidget::populateDevelopmentTeams()
 {
     {
-        QSignalBlocker blocker(ui->m_signEntityCombo);
+        QSignalBlocker blocker(m_signEntityCombo);
         // Populate Team id's
-        ui->m_signEntityCombo->clear();
-        ui->m_signEntityCombo->addItem(tr("Default"));
+        m_signEntityCombo->clear();
+        m_signEntityCombo->addItem(tr("Default"));
         foreach (auto team, IosConfigurations::developmentTeams()) {
-            ui->m_signEntityCombo->addItem(team->displayName());
-            const int index = ui->m_signEntityCombo->count() - 1;
-            ui->m_signEntityCombo->setItemData(index, team->identifier(), IdentifierRole);
-            ui->m_signEntityCombo->setItemData(index, team->details(), Qt::ToolTipRole);
+            m_signEntityCombo->addItem(team->displayName());
+            const int index = m_signEntityCombo->count() - 1;
+            m_signEntityCombo->setItemData(index, team->identifier(), IdentifierRole);
+            m_signEntityCombo->setItemData(index, team->details(), Qt::ToolTipRole);
         }
     }
     // Maintain previous selection.
@@ -191,18 +248,18 @@ void IosBuildSettingsWidget::populateProvisioningProfiles()
 {
     {
         // Populate Team id's
-        QSignalBlocker blocker(ui->m_signEntityCombo);
-        ui->m_signEntityCombo->clear();
-        ProvisioningProfiles profiles = IosConfigurations::provisioningProfiles();
+        QSignalBlocker blocker(m_signEntityCombo);
+        m_signEntityCombo->clear();
+        const ProvisioningProfiles profiles = IosConfigurations::provisioningProfiles();
         if (profiles.count() > 0) {
-            foreach (auto profile, profiles) {
-                ui->m_signEntityCombo->addItem(profile->displayName());
-                const int index = ui->m_signEntityCombo->count() - 1;
-                ui->m_signEntityCombo->setItemData(index, profile->identifier(), IdentifierRole);
-                ui->m_signEntityCombo->setItemData(index, profile->details(), Qt::ToolTipRole);
+            for (auto profile : profiles) {
+                m_signEntityCombo->addItem(profile->displayName());
+                const int index = m_signEntityCombo->count() - 1;
+                m_signEntityCombo->setItemData(index, profile->identifier(), IdentifierRole);
+                m_signEntityCombo->setItemData(index, profile->details(), Qt::ToolTipRole);
             }
         } else {
-            ui->m_signEntityCombo->addItem(tr("None"));
+            m_signEntityCombo->addItem(tr("None"));
         }
     }
     // Maintain previous selection.
@@ -212,7 +269,7 @@ void IosBuildSettingsWidget::populateProvisioningProfiles()
 
 QString IosBuildSettingsWidget::selectedIdentifier() const
 {
-    return ui->m_signEntityCombo->currentData(IdentifierRole).toString();
+    return m_signEntityCombo->currentData(IdentifierRole).toString();
 }
 
 void IosBuildSettingsWidget::updateInfoText()
@@ -228,7 +285,7 @@ void IosBuildSettingsWidget::updateInfoText()
     };
 
     QString identifier = selectedIdentifier();
-    bool configuringTeams = ui->m_autoSignCheckbox->isChecked();
+    bool configuringTeams = m_autoSignCheckbox->isChecked();
 
     if (identifier.isEmpty()) {
         // No signing entity selection.
@@ -256,9 +313,9 @@ void IosBuildSettingsWidget::updateInfoText()
         }
     }
 
-    ui->m_infoIconLabel->setVisible(!infoMessage.isEmpty());
-    ui->m_infoLabel->setVisible(!infoMessage.isEmpty());
-    ui->m_infoLabel->setText(infoMessage);
+    m_infoIconLabel->setVisible(!infoMessage.isEmpty());
+    m_infoLabel->setVisible(!infoMessage.isEmpty());
+    m_infoLabel->setText(infoMessage);
 }
 
 void IosBuildSettingsWidget::updateWarningText()
@@ -267,8 +324,8 @@ void IosBuildSettingsWidget::updateWarningText()
         return;
 
     QString warningText;
-    bool configuringTeams = ui->m_autoSignCheckbox->isChecked();
-    if (ui->m_signEntityCombo->count() < 2) {
+    bool configuringTeams = m_autoSignCheckbox->isChecked();
+    if (m_signEntityCombo->count() < 2) {
         warningText = tr("%1 not configured. Use Xcode and Apple developer account to configure the "
                          "provisioning profiles and teams.")
                 .arg(configuringTeams ? tr("Development teams") : tr("Provisioning profiles"));
@@ -287,9 +344,9 @@ void IosBuildSettingsWidget::updateWarningText()
         }
     }
 
-    ui->m_warningLabel->setVisible(!warningText.isEmpty());
-    ui->m_warningIconLabel->setVisible(!warningText.isEmpty());
-    ui->m_warningLabel->setText(warningText);
+    m_warningLabel->setVisible(!warningText.isEmpty());
+    m_warningIconLabel->setVisible(!warningText.isEmpty());
+    m_warningLabel->setText(warningText);
 }
 
 } // namespace Internal

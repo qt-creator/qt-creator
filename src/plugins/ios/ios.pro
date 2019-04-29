@@ -57,7 +57,6 @@ FORMS += \
     iossettingswidget.ui \
     iosbuildstep.ui \
     iospresetbuildstep.ui \
-    iosbuildsettingswidget.ui \
     createsimulatordialog.ui \
     simulatoroperationdialog.ui
 
