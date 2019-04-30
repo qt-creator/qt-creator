@@ -21,9 +21,9 @@ VS_VERSION_INFO VERSIONINFO
        // U.S. English - Windows, Multilingual
        BLOCK "040904E4"
        {
-          VALUE "FileDescription", "Qt Creator"
+          VALUE "FileDescription", STRINGIFY(RC_APPLICATION_NAME)
           VALUE "FileVersion", STRINGIFY(RC_VERSION_STRING)
-          VALUE "ProductName", "Qt Creator"
+          VALUE "ProductName", STRINGIFY(RC_APPLICATION_NAME)
           VALUE "ProductVersion", STRINGIFY(RC_VERSION_STRING)
           VALUE "LegalCopyright", STRINGIFY(RC_COPYRIGHT)
         }

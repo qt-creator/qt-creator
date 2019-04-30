@@ -52,6 +52,16 @@ const char OBSOLETE_VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion
 const char SHARED_SETTINGS[] = "SharedSettings";
 const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
 
+#ifdef PROJECT_USER_FILE_EXTENSION
+#define STRINGIFY_INTERNAL(x) #x
+#define STRINGIFY(x) STRINGIFY_INTERNAL(x)
+
+const char FILE_EXTENSION_STR[] = STRINGIFY(PROJECT_USER_FILE_EXTENSION);
+#else
+const char FILE_EXTENSION_STR[] = ".user";
+
+#endif
+
 // Version 14 Move builddir into BuildConfiguration
 class UserFileVersion14Upgrader : public VersionUpgrader
 {
@@ -379,7 +389,7 @@ FileName UserFileAccessor::projectUserFile() const
 {
     static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
     FileName projectUserFile = m_project->projectFilePath();
-    projectUserFile.appendString(generateSuffix(qtcExt.isEmpty() ? ".user" : qtcExt));
+    projectUserFile.appendString(generateSuffix(qtcExt.isEmpty() ? PROJECT_USER_FILE_EXTENSION_STR : qtcExt));
     return projectUserFile;
 }
 
@@ -387,7 +397,7 @@ FileName UserFileAccessor::externalUserFile() const
 {
     static const QString qtcExt = QFile::decodeName(qgetenv("QTC_EXTENSION"));
     return externalUserFilePath(m_project->projectFilePath(),
-                                generateSuffix(qtcExt.isEmpty() ? ".user" : qtcExt));
+                                generateSuffix(qtcExt.isEmpty() ? PROJECT_USER_FILE_EXTENSION_STR : qtcExt));
 }
 
 FileName UserFileAccessor::sharedFile() const

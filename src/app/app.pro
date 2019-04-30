@@ -23,7 +23,10 @@ win32 {
     #  RC_VERSION_STRING="4.4.0-beta1" (free text)
     # Also, we need to replace space with \x20 to be able to work with both rc and windres
     COPYRIGHT = "2008-$${QTCREATOR_COPYRIGHT_YEAR} The Qt Company Ltd"
-    DEFINES += RC_VERSION=$$replace(QTCREATOR_VERSION, "\\.", ","),0 \
+    APPLICATION_NAME = "$${IDE_DISPLAY_NAME}"
+    DEFINES += \
+        RC_APPLICATION_NAME=\"$$replace(APPLICATION_NAME, " ", "\\x20")\" \
+        RC_VERSION=$$replace(QTCREATOR_VERSION, "\\.", ","),0 \
         RC_VERSION_STRING=\"$${QTCREATOR_DISPLAY_VERSION}\" \
         RC_COPYRIGHT=\"$$replace(COPYRIGHT, " ", "\\x20")\"
     RC_FILE = qtcreator.rc

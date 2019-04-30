@@ -124,7 +124,7 @@ macx {
     BINDIST_EXCLUDE_ARG.debug = $${BINDIST_EXCLUDE_ARG.release}
     deployqt.commands = python -u $$PWD/scripts/deployqt.py -i \"$(INSTALL_ROOT)$$QTC_PREFIX/bin/$${IDE_APP_TARGET}\" \"$(QMAKE)\"
     deployqt.depends = install
-    win32 {
+    win32:!isEmpty(BINARY_ARTIFACTS_BRANCH) {
         deployartifacts.depends = install
         deployartifacts.commands = git clone --depth 1 -b $$BINARY_ARTIFACTS_BRANCH \
                 "http://code.qt.io/qt-creator/binary-artifacts.git" \
