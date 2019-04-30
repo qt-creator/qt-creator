@@ -52,6 +52,12 @@ const char autoManagedSigningKey[] = "Ios.AutoManagedSigning";
 IosBuildConfiguration::IosBuildConfiguration(Target *target, Core::Id id)
     : QmakeBuildConfiguration(target, id)
 {
+    m_signingIdentifier = addAspect<BaseStringAspect>();
+    m_signingIdentifier->setSettingsKey(signingIdentifierKey);
+
+    m_autoManagedSigning = addAspect<BaseBoolAspect>();
+    m_autoManagedSigning->setDefaultValue(true);
+    m_autoManagedSigning->setSettingsKey(autoManagedSigningKey);
 }
 
 QList<ProjectExplorer::NamedWidget *> IosBuildConfiguration::createSubConfigWidgets()
@@ -60,40 +66,29 @@ QList<ProjectExplorer::NamedWidget *> IosBuildConfiguration::createSubConfigWidg
 
     Core::Id devType = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(target()->kit());
     // Ownership of this widget is with BuildSettingsWidget
-    auto buildSettingsWidget = new IosBuildSettingsWidget(devType, m_signingIdentifier,
-                                                          m_autoManagedSigning);
+    auto buildSettingsWidget = new IosBuildSettingsWidget(devType,
+                                                          m_signingIdentifier->value(),
+                                                          m_autoManagedSigning->value());
     subConfigWidgets.prepend(buildSettingsWidget);
     connect(buildSettingsWidget, &IosBuildSettingsWidget::signingSettingsChanged,
-            this, &IosBuildConfiguration::onSigningSettingsChanged);
-    return subConfigWidgets;
-}
+            this, [this](bool autoManagedSigning, QString identifier) {
+        if (m_signingIdentifier->value().compare(identifier) != 0
+                || m_autoManagedSigning->value() != autoManagedSigning) {
+            m_autoManagedSigning->setValue(autoManagedSigning);
+            m_signingIdentifier->setValue(identifier);
+            updateQmakeCommand();
+        }
+    });
 
-QVariantMap IosBuildConfiguration::toMap() const
-{
-    QVariantMap map(QmakeBuildConfiguration::toMap());
-    map.insert(signingIdentifierKey, m_signingIdentifier);
-    map.insert(autoManagedSigningKey, m_autoManagedSigning);
-    return map;
+    return subConfigWidgets;
 }
 
 bool IosBuildConfiguration::fromMap(const QVariantMap &map)
 {
     if (!QmakeBuildConfiguration::fromMap(map))
         return false;
-    m_autoManagedSigning = map.value(autoManagedSigningKey).toBool();
-    m_signingIdentifier = map.value(signingIdentifierKey).toString();
     updateQmakeCommand();
     return true;
-}
-
-void IosBuildConfiguration::onSigningSettingsChanged(bool autoManagedSigning, QString identifier)
-{
-    if (m_signingIdentifier.compare(identifier) != 0
-            || m_autoManagedSigning != autoManagedSigning) {
-        m_autoManagedSigning = autoManagedSigning;
-        m_signingIdentifier = identifier;
-        updateQmakeCommand();
-    }
 }
 
 void IosBuildConfiguration::updateQmakeCommand()
@@ -110,25 +105,26 @@ void IosBuildConfiguration::updateQmakeCommand()
         });
 
         // Set force ovveride qmake switch
-        if (!m_signingIdentifier.isEmpty() )
+        const QString signingIdentifier =  m_signingIdentifier->value();
+        if (signingIdentifier.isEmpty() )
             extraArgs << forceOverrideArg;
 
         Core::Id devType = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(target()->kit());
-        if (devType == Constants::IOS_DEVICE_TYPE && !m_signingIdentifier.isEmpty()) {
-            if (m_autoManagedSigning) {
-                extraArgs << qmakeIosTeamSettings + m_signingIdentifier;
+        if (devType == Constants::IOS_DEVICE_TYPE && !signingIdentifier.isEmpty()) {
+            if (m_autoManagedSigning->value()) {
+                extraArgs << qmakeIosTeamSettings + signingIdentifier;
             } else {
                 // Get the team id from provisioning profile
                 ProvisioningProfilePtr profile =
-                        IosConfigurations::provisioningProfile(m_signingIdentifier);
+                        IosConfigurations::provisioningProfile(signingIdentifier);
                 QString teamId;
                 if (profile)
                     teamId = profile->developmentTeam()->identifier();
                 else
-                    qCDebug(iosLog) << "No provisioing profile found for id:"<< m_signingIdentifier;
+                    qCDebug(iosLog) << "No provisioing profile found for id:" << signingIdentifier;
 
                 if (!teamId.isEmpty()) {
-                    extraArgs << qmakeProvisioningProfileSettings + m_signingIdentifier;
+                    extraArgs << qmakeProvisioningProfileSettings + signingIdentifier;
                     extraArgs << qmakeIosTeamSettings + teamId;
                 } else {
                     qCDebug(iosLog) << "Development team unavailable for profile:" << profile;
