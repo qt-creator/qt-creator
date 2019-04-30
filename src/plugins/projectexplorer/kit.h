@@ -137,6 +137,9 @@ public:
     bool hasFeatures(const QSet<Core::Id> &features) const;
     Utils::MacroExpander *macroExpander() const;
 
+    QString newKitName(const QList<Kit *> &allKits) const;
+    static QString newKitName(const QString &name, const QList<Kit *> &allKits);
+
 private:
     void setSdkProvided(bool sdkProvided);
 

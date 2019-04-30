@@ -71,6 +71,8 @@ public:
 
     void updateVisibility();
 
+    QString newKitName(const QString &sourceName) const;
+
 signals:
     void kitStateChanged();
 

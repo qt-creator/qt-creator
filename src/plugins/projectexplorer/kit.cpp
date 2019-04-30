@@ -38,6 +38,7 @@
 #include <utils/macroexpander.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QApplication>
 #include <QFileInfo>
@@ -202,8 +203,7 @@ Kit *Kit::clone(bool keepName) const
     if (keepName)
         k->d->m_unexpandedDisplayName = d->m_unexpandedDisplayName;
     else
-        k->d->m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Clone of %1")
-                .arg(d->m_unexpandedDisplayName);
+        k->d->m_unexpandedDisplayName = newKitName(KitManager::kits());
     k->d->m_autodetected = false;
     k->d->m_data = d->m_data;
     // Do not clone m_fileSystemFriendlyName, needs to be unique
@@ -672,6 +672,19 @@ bool Kit::hasFeatures(const QSet<Id> &features) const
 MacroExpander *Kit::macroExpander() const
 {
     return &d->m_macroExpander;
+}
+
+QString Kit::newKitName(const QList<Kit *> &allKits) const
+{
+    return newKitName(unexpandedDisplayName(), allKits);
+}
+
+QString Kit::newKitName(const QString &name, const QList<Kit *> &allKits)
+{
+    const QString baseName = name.isEmpty()
+            ? QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed")
+            : QCoreApplication::translate("ProjectExplorer::Kit", "Clone of %1").arg(name);
+    return Utils::makeUniquelyNumbered(baseName, transform(allKits, &Kit::unexpandedDisplayName));
 }
 
 void Kit::kitUpdated()

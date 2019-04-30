@@ -247,6 +247,7 @@ void KitModel::markForRemoval(Kit *k)
 
 Kit *KitModel::markForAddition(Kit *baseKit)
 {
+    const QString newName = newKitName(baseKit ? baseKit->unexpandedDisplayName() : QString());
     KitNode *node = createNode(nullptr);
     m_manualRoot->appendChild(node);
     Kit *k = node->widget->workingCopy();
@@ -255,10 +256,10 @@ Kit *KitModel::markForAddition(Kit *baseKit)
         k->copyFrom(baseKit);
         k->setAutoDetected(false); // Make sure we have a manual kit!
         k->setSdkProvided(false);
-        k->setUnexpandedDisplayName(tr("Clone of %1").arg(k->unexpandedDisplayName()));
     } else {
         k->setup();
     }
+    k->setUnexpandedDisplayName(newName);
 
     if (!m_defaultNode)
         setDefaultNode(node);
@@ -271,6 +272,15 @@ void KitModel::updateVisibility()
     forItemsAtLevel<2>([](const TreeItem *ti) {
         static_cast<const KitNode *>(ti)->widget->updateVisibility();
     });
+}
+
+QString KitModel::newKitName(const QString &sourceName) const
+{
+    QList<Kit *> allKits;
+    forItemsAtLevel<2>([&allKits](const TreeItem *ti) {
+        allKits << static_cast<const KitNode *>(ti)->widget->workingCopy();
+    });
+    return Kit::newKitName(sourceName, allKits);
 }
 
 KitNode *KitModel::findWorkingCopy(Kit *k) const
