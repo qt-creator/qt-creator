@@ -48,8 +48,6 @@ public:
     void notifyChanged(const Utils::FileName &name);
 
     // Context information used in the slot implementations
-    static ProjectExplorer::Node *contextNode();
-    static ProjectExplorer::Project *contextProject();
     static ProjectExplorer::FileNode *contextBuildableFileNode();
 
     enum Action { BUILD, REBUILD, CLEAN };

@@ -376,7 +376,7 @@ void QmakeProjectManagerPluginPrivate::updateContextActions()
     const auto *proFileNode = dynamic_cast<const QmakeProFileNode *>(containerNode ? containerNode->rootProjectNode() : node);
 
     m_addLibraryActionContextMenu->setEnabled(proFileNode);
-    auto *qmakeProject = qobject_cast<QmakeProject *>(QmakeManager::contextProject());
+    auto *qmakeProject = qobject_cast<QmakeProject *>(project);
     QmakeProFileNode *subProjectNode = nullptr;
     disableBuildFileMenus();
     if (node) {
