@@ -104,7 +104,7 @@ Project *ProjectTree::currentProject()
     return s_instance->m_currentProject;
 }
 
-Node *ProjectTree::findCurrentNode()
+Node *ProjectTree::currentNode()
 {
     s_instance->update();
     return s_instance->m_currentNode;
@@ -112,8 +112,8 @@ Node *ProjectTree::findCurrentNode()
 
 FileName ProjectTree::currentFilePath()
 {
-    Node *currentNode = findCurrentNode();
-    return currentNode ? currentNode->filePath() : FileName();
+    Node *node = currentNode();
+    return node ? node->filePath() : FileName();
 }
 
 void ProjectTree::registerWidget(ProjectTreeWidget *widget)

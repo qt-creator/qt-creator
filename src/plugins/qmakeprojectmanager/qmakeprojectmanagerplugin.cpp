@@ -369,7 +369,7 @@ void QmakeProjectManagerPluginPrivate::updateRunQMakeAction()
 
 void QmakeProjectManagerPluginPrivate::updateContextActions()
 {
-    const Node *node = ProjectTree::findCurrentNode();
+    const Node *node = ProjectTree::currentNode();
     Project *project = ProjectTree::currentProject();
 
     const ContainerNode *containerNode = node ? node->asContainerNode() : nullptr;

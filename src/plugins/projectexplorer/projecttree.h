@@ -53,7 +53,7 @@ public:
     static ProjectTree *instance();
 
     static Project *currentProject();
-    static Node *findCurrentNode();
+    static Node *currentNode();
     static Utils::FileName currentFilePath();
 
     // Integration with ProjectTreeWidget

@@ -67,7 +67,7 @@ static QmakeProFileNode *buildableFileProFile(Node *node)
 
 FileNode *QmakeManager::contextBuildableFileNode()
 {
-    Node *node = ProjectTree::findCurrentNode();
+    Node *node = ProjectTree::currentNode();
 
     QmakeProFileNode *subProjectNode = buildableFileProFile(node);
     FileNode *fileNode = node ? node->asFileNode() : nullptr;
@@ -87,7 +87,7 @@ void QmakeManager::addLibraryContextMenu()
 {
     QString projectPath;
 
-    Node *node = ProjectTree::findCurrentNode();
+    Node *node = ProjectTree::currentNode();
     if (ContainerNode *cn = node->asContainerNode())
         projectPath = cn->project()->projectFilePath().toString();
     else if (dynamic_cast<QmakeProFileNode *>(node))
@@ -132,7 +132,7 @@ void QmakeManager::runQMake()
 
 void QmakeManager::runQMakeContextMenu()
 {
-    runQMakeImpl(ProjectTree::currentProject(), ProjectTree::findCurrentNode());
+    runQMakeImpl(ProjectTree::currentProject(), ProjectTree::currentNode());
 }
 
 void QmakeManager::runQMakeImpl(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
@@ -199,7 +199,7 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
     handleSubDirContextMenu(action,
                             isFileBuild,
                             ProjectTree::currentProject(),
-                            buildableFileProFile(ProjectTree::findCurrentNode()),
+                            buildableFileProFile(ProjectTree::currentNode()),
                             contextBuildableFileNode());
 }
 

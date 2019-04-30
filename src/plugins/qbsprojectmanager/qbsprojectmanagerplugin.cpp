@@ -283,7 +283,7 @@ void QbsProjectManagerPlugin::projectWasAdded(Project *project)
 void QbsProjectManagerPlugin::updateContextActions()
 {
     auto project = qobject_cast<Internal::QbsProject *>(ProjectTree::currentProject());
-    const Node *node = ProjectTree::findCurrentNode();
+    const Node *node = ProjectTree::currentNode();
     bool isEnabled = !BuildManager::isBuilding(project)
             && project && !project->isParsing()
             && node && node->isEnabled();
@@ -375,7 +375,7 @@ void QbsProjectManagerPlugin::projectChanged()
 
 void QbsProjectManagerPlugin::buildFileContextMenu()
 {
-    const Node *node = ProjectTree::findCurrentNode();
+    const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
     auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
@@ -412,7 +412,7 @@ void QbsProjectManagerPlugin::rebuildProductContextMenu()
 
 void QbsProjectManagerPlugin::runStepsForProductContextMenu(const QList<Core::Id> &stepTypes)
 {
-    const Node *node = ProjectTree::findCurrentNode();
+    const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
     auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
@@ -477,7 +477,7 @@ void QbsProjectManagerPlugin::rebuildSubprojectContextMenu()
 
 void QbsProjectManagerPlugin::runStepsForSubprojectContextMenu(const QList<Core::Id> &stepTypes)
 {
-    const Node *node = ProjectTree::findCurrentNode();
+    const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
     auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);

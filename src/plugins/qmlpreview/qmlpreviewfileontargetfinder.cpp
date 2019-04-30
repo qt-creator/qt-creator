@@ -72,7 +72,7 @@ QString QmlPreviewFileOnTargetFinder::findPath(const QString &filePath, bool *su
 
     // Try the current node first. It's likely that this is the one we're looking for and if there
     // is any ambiguity (same file mapped to multiple qrc paths) it should take precedence.
-    ProjectExplorer::Node *currentNode = ProjectExplorer::ProjectTree::findCurrentNode();
+    ProjectExplorer::Node *currentNode = ProjectExplorer::ProjectTree::currentNode();
     if (currentNode && currentNode->filePath().toString() == filePath) {
         const QString path = resourceNodePath(currentNode);
         if (!path.isEmpty())

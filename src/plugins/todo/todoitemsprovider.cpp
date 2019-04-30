@@ -149,7 +149,7 @@ void TodoItemsProvider::setItemsListWithinStartupProject()
 void TodoItemsProvider::setItemsListWithinSubproject()
 {
     // TODO prefer current editor as source of sub-project
-    const Node *node = ProjectTree::findCurrentNode();
+    const Node *node = ProjectTree::currentNode();
     if (node) {
         ProjectNode *projectNode = node->parentProjectNode();
         if (projectNode) {

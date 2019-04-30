@@ -143,7 +143,7 @@ bool QmlPreviewPlugin::initialize(const QStringList &arguments, QString *errorSt
                     Constants::G_FILE_OTHER);
     action->setVisible(false);
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, action, [action]() {
-        const Node *node = ProjectTree::findCurrentNode();
+        const Node *node = ProjectTree::currentNode();
         const FileNode *fileNode = node ? node->asFileNode() : nullptr;
         action->setVisible(fileNode ? fileNode->fileType() == FileType::QML : false);
     });
@@ -297,7 +297,7 @@ void QmlPreviewPlugin::setFileLoader(QmlPreviewFileLoader fileLoader)
 
 void QmlPreviewPlugin::previewCurrentFile()
 {
-    const Node *currentNode = ProjectTree::findCurrentNode();
+    const Node *currentNode = ProjectTree::currentNode();
     if (!currentNode || !currentNode->asFileNode()
             || currentNode->asFileNode()->fileType() != FileType::QML)
         return;

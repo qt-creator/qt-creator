@@ -250,7 +250,7 @@ void ModelsManager::onAboutToShowContextMenu(ProjectExplorer::Project *project,
 
 void ModelsManager::onOpenDiagramFromProjectExplorer()
 {
-    if (ProjectExplorer::ProjectTree::findCurrentNode() == d->contextMenuOwnerNode) {
+    if (ProjectExplorer::ProjectTree::currentNode() == d->contextMenuOwnerNode) {
         qmt::MDiagram *diagram = nullptr;
         foreach (const ManagedModel &managedModel, d->managedModels) {
             if ((diagram = managedModel.m_documentController->pxNodeController()->findDiagramForExplorerNode(d->contextMenuOwnerNode))) {

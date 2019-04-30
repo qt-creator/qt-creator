@@ -298,7 +298,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
     connect(m_toggleSync, &QAbstractButton::clicked,
             this, &ProjectTreeWidget::toggleAutoSynchronization);
 
-    setCurrentItem(ProjectTree::findCurrentNode());
+    setCurrentItem(ProjectTree::currentNode());
     setAutoSynchronization(true);
 
     m_projectTreeWidgets << this;
