@@ -30,6 +30,7 @@
 #include <coreplugin/locator/ilocatorfilter.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/workspace.h>
 
 namespace Core { class IEditor; }
 
@@ -63,9 +64,6 @@ private:
                        const LanguageServerProtocol::DocumentSymbolsResult &symbols);
     void resetSymbols();
 
-    Core::LocatorFilterEntry generateLocatorEntry(
-        const LanguageServerProtocol::SymbolInformation &info);
-    Core::LocatorFilterEntry generateLocatorEntry(const LanguageServerProtocol::DocumentSymbol &info);
     template<class T>
     QList<Core::LocatorFilterEntry> generateEntries(const QList<T> &list, const QString &filter);
 
@@ -73,6 +71,49 @@ private:
     QMetaObject::Connection m_updateSymbolsConnection;
     QMetaObject::Connection m_resetSymbolsConnection;
     Utils::optional<LanguageServerProtocol::DocumentSymbolsResult> m_currentSymbols;
+};
+
+class WorkspaceLocatorFilter : public Core::ILocatorFilter
+{
+    Q_OBJECT
+public:
+    WorkspaceLocatorFilter();
+
+    void prepareSearch(const QString &entry) override;
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override;
+    void accept(Core::LocatorFilterEntry selection,
+                QString *newText,
+                int *selectionStart,
+                int *selectionLength) const override;
+    void refresh(QFutureInterface<void> &future) override;
+
+signals:
+    void allRequestsFinished(QPrivateSignal);
+
+protected:
+    explicit WorkspaceLocatorFilter(const QVector<LanguageServerProtocol::SymbolKind> &filter);
+
+private:
+    void handleResponse(Client *client,
+                        const LanguageServerProtocol::WorkspaceSymbolRequest::Response &response);
+
+    QMutex m_mutex;
+    QMap<Client *, LanguageServerProtocol::MessageId> m_pendingRequests;
+    QVector<LanguageServerProtocol::SymbolInformation> m_results;
+    QVector<LanguageServerProtocol::SymbolKind> m_filterKinds;
+};
+
+class WorkspaceClassLocatorFilter : public WorkspaceLocatorFilter
+{
+public:
+    WorkspaceClassLocatorFilter();
+};
+
+class WorkspaceMethodLocatorFilter : public WorkspaceLocatorFilter
+{
+public:
+    WorkspaceMethodLocatorFilter();
 };
 
 } // namespace LanguageClient

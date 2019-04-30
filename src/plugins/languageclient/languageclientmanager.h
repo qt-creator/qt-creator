@@ -107,5 +107,8 @@ private:
     QMap<QString, QVector<Client *>> m_clientsForSetting;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
     DocumentLocatorFilter m_currentDocumentLocatorFilter;
+    WorkspaceLocatorFilter m_workspaceLocatorFilter;
+    WorkspaceClassLocatorFilter m_workspaceClassLocatorFilter;
+    WorkspaceMethodLocatorFilter m_workspaceMethodLocatorFilter;
 };
 } // namespace LanguageClient

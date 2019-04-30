@@ -67,6 +67,8 @@ public:
     using Utils::variant<QList<T>, std::nullptr_t>::variant;
     using Utils::variant<QList<T>, std::nullptr_t>::operator=;
 
+    LanguageClientArray() {}
+
     LanguageClientArray(const QList<T> &list)
     { *this = list; }
 
