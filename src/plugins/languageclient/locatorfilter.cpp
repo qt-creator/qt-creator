@@ -47,7 +47,7 @@ DocumentLocatorFilter::DocumentLocatorFilter()
     setId(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_ID);
     setDisplayName(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME);
     setShortcutString(".");
-    setIncludedByDefault(true);
+    setIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &DocumentLocatorFilter::updateCurrentClient);
