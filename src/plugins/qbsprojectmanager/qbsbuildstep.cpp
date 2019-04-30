@@ -128,6 +128,11 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
 
+    auto qbsBuildConfig = qobject_cast<QbsBuildConfiguration *>(buildConfiguration());
+    QTC_CHECK(qbsBuildConfig);
+    connect(this, &QbsBuildStep::qbsConfigurationChanged,
+            qbsBuildConfig, &QbsBuildConfiguration::qbsConfigurationChanged);
+
 //    setQbsConfiguration(other->qbsConfiguration(PreserveVariables));
 }
 

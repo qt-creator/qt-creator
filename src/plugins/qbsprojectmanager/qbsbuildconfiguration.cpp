@@ -126,7 +126,6 @@ void QbsBuildConfiguration::initialize(const BuildInfo &info)
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     cleanSteps->appendStep(new QbsCleanStep(cleanSteps));
 
-    connect(bs, &QbsBuildStep::qbsConfigurationChanged, this, &QbsBuildConfiguration::qbsConfigurationChanged);
     emit qbsConfigurationChanged();
 }
 
@@ -140,13 +139,6 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
         const QString buildVariant = qbsConfiguration()
                 .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
         m_configurationName->setValue(profileName + '-' + buildVariant);
-    }
-    BuildStepList *bsl = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    // Fix up the existing build steps:
-    for (int i = 0; i < bsl->count(); ++i) {
-        auto bs = qobject_cast<QbsBuildStep *>(bsl->at(i));
-        if (bs)
-            connect(bs, &QbsBuildStep::qbsConfigurationChanged, this, &QbsBuildConfiguration::qbsConfigurationChanged);
     }
 
     return true;
