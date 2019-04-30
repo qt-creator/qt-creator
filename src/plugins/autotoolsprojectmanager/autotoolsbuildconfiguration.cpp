@@ -115,8 +115,8 @@ QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds(const Targe
 
 QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    BuildInfo info = createBuildInfo(k,
-                                     Utils::FileName::fromString(AutotoolsProject::defaultBuildDirectory(projectPath)));
+    const QString path = QFileInfo(projectPath).absolutePath();
+    BuildInfo info = createBuildInfo(k, Utils::FileName::fromString(path));
     //: The name of the build configuration created by default for a autotools project.
     info.displayName = tr("Default");
     return {info};

@@ -91,11 +91,6 @@ AutotoolsProject::~AutotoolsProject()
     }
 }
 
-QString AutotoolsProject::defaultBuildDirectory(const QString &projectPath)
-{
-    return QFileInfo(projectPath).absolutePath();
-}
-
 // This function, is called at the very beginning, to
 // restore the settings if there are some stored.
 Project::RestoreResult AutotoolsProject::fromMap(const QVariantMap &map, QString *errorMessage)
