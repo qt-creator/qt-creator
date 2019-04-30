@@ -62,6 +62,7 @@ private:
     bool m_scriptTarget = false;
     QString m_makeFileToCheck;
     bool m_unalignedBuildDir;
+    bool m_ignoredNonTopLevelBuild = false;
 };
 
 } // QmakeProjectManager

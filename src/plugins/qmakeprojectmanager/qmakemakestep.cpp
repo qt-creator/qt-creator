@@ -83,6 +83,10 @@ bool QmakeMakeStep::init()
         return false;
     }
 
+    // Ignore all but the first make step for a non-top-level build. See QTCREATORBUG-15794.
+    m_ignoredNonTopLevelBuild = (bc->fileNodeBuild() || bc->subNodeBuild())
+            && static_cast<BuildStepList *>(parent())->firstOfType<QmakeMakeStep>() != this;
+
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
 
@@ -177,7 +181,7 @@ bool QmakeMakeStep::init()
 
 void QmakeMakeStep::doRun()
 {
-    if (m_scriptTarget) {
+    if (m_scriptTarget || m_ignoredNonTopLevelBuild) {
         emit finished(true);
         return;
     }
