@@ -43,13 +43,18 @@ namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
 const char CHANGEROOTDIR[] = "CompilationDatabaseProjectManager.ChangeRootDirectory";
+const char COMPILE_COMMANDS_JSON[] = "compile_commands.json";
 
 bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
-    Core::FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFileName(),
-                                                           "compile_commands.json");
+    Core::FileIconProvider::registerIconOverlayForFilename(
+                Utils::Icons::PROJECT.imageFileName(),
+                COMPILE_COMMANDS_JSON);
+    Core::FileIconProvider::registerIconOverlayForFilename(
+                Utils::Icons::PROJECT.imageFileName(),
+                QString(COMPILE_COMMANDS_JSON) + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
 
     ProjectExplorer::ProjectManager::registerProjectType<CompilationDatabaseProject>(
                 Constants::COMPILATIONDATABASEMIMETYPE);

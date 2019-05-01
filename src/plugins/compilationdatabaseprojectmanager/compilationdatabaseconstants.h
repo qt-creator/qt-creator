@@ -30,6 +30,7 @@ namespace Constants {
 
 const char COMPILATIONDATABASEMIMETYPE[]  = "text/x-compilation-database-project";
 const char COMPILATIONDATABASEPROJECT_ID[] = "CompilationDatabase.CompilationDatabaseEditor";
+const char COMPILATIONDATABASEPROJECT_FILES_SUFFIX[] = ".files";
 
 } // Constants
 } // CompilationDatabaseProjectManager

@@ -405,12 +405,38 @@ std::vector<Entry> readJsonObjects(const QString &filePath)
     return result;
 }
 
+QStringList readExtraFiles(const QString &filePath)
+{
+    QStringList result;
+
+    QFile file(filePath);
+    if (file.open(QFile::ReadOnly)) {
+        QTextStream stream(&file);
+
+        while (!stream.atEnd()) {
+            QString line = stream.readLine();
+            line = line.trimmed();
+
+            if (line.isEmpty() || line.startsWith('#'))
+                continue;
+
+            result.push_back(line);
+        }
+    }
+
+    return result;
+}
+
 } // anonymous namespace
 
 void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName &projectFile)
 {
     std::vector<Entry> array = readJsonObjects(projectFilePath().toString());
-    if (array.empty()) {
+    const QString jsonExtraFilename = projectFilePath().toString() +
+                                      Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX;
+    const QStringList &extras = readExtraFiles(jsonExtraFilename);
+
+    if (array.empty() && extras.empty()) {
         emitParsingFinished(false);
         return;
     }
@@ -448,6 +474,21 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
         rpps.append(rpp);
     }
 
+    if (!extras.empty()) {
+        const QString baseDir = projectFile.parentDir().toString();
+
+        QStringList extraFiles;
+        for (const QString &extra : extras) {
+            auto extraFile = Utils::FileName::fromString(baseDir);
+            extraFile.appendPath(extra);
+            extraFiles.append(extraFile.toString());
+        }
+
+        CppTools::RawProjectPart rppExtra;
+        rppExtra.setFiles(extraFiles);
+        rpps.append(rppExtra);
+    }
+
     m_treeScanner.future().waitForFinished();
     QCoreApplication::processEvents();
 
@@ -457,6 +498,10 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
         createTree(root, rootProjectDirectory(), rpps, m_treeScanner.release());
 
     root->addNode(std::make_unique<FileNode>(projectFile, FileType::Project));
+
+    if (QFile::exists(jsonExtraFilename))
+        root->addNode(std::make_unique<FileNode>(Utils::FileName::fromString(jsonExtraFilename),
+                                                 FileType::Project));
 
     setRootProjectNode(std::move(root));
 
@@ -511,6 +556,8 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
             &CompilationDatabaseProject::reparseProject);
 
     m_fileSystemWatcher.addFile(projectFile.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
+    m_fileSystemWatcher.addFile(projectFile.toString() + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX,
+                                Utils::FileSystemWatcher::WatchModifiedDate);
     connect(&m_fileSystemWatcher,
             &Utils::FileSystemWatcher::fileChanged,
             this,
