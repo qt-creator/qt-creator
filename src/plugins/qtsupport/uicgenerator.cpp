@@ -65,10 +65,9 @@ Utils::FileName UicGenerator::command() const
     return Utils::FileName::fromString(version->uicCommand());
 }
 
-void UicGenerator::handleProcessStarted(QProcess *process, const QByteArray &sourceContents)
+QStringList UicGenerator::arguments() const
 {
-    process->write(sourceContents);
-    process->closeWriteChannel();
+    return {source().toString()};
 }
 
 FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)

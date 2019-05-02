@@ -41,7 +41,7 @@ public:
 
 protected:
     Utils::FileName command() const override;
-    void handleProcessStarted(QProcess *process, const QByteArray &sourceContents) override;
+    QStringList arguments() const override;
     ProjectExplorer::FileNameToContentsHash handleProcessFinished(QProcess *process) override;
 };
 
