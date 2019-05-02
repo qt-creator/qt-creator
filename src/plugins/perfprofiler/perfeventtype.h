@@ -55,6 +55,7 @@ public:
         TracePointFormat,
         TracePointSample,
         AttributesDefinition,
+        ContextSwitchDefinition,
         InvalidFeature
     };
 
@@ -66,7 +67,8 @@ public:
 
     static quint64 metaFeatures()
     {
-        return (1ull << ThreadStart) | (1ull << ThreadEnd) | (1ull << LostDefinition);
+        return (1ull << ThreadStart) | (1ull << ThreadEnd) | (1ull << LostDefinition)
+               | (1ull << ContextSwitchDefinition);
     }
 
     static quint64 locationFeatures()
@@ -143,6 +145,7 @@ public:
         case ThreadStart:
         case ThreadEnd:
         case LostDefinition:
+        case ContextSwitchDefinition:
             return true;
         default:
             return false;

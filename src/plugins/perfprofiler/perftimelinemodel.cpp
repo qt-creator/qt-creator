@@ -198,6 +198,10 @@ QVariantMap PerfTimelineModel::details(int index) const
         result.insert(tr("Details"), tr("lost sample"));
         result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
                                                             manager->traceDuration()));
+    } else if (typeId == PerfEvent::ContextSwitchTypeId) {
+        result.insert(tr("Details"), tr("context switch"));
+        result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                            manager->traceDuration()));
     } else {
         const PerfProfilerTraceManager::Symbol &symbol
                 = manager->symbol(manager->aggregateAddresses()
@@ -436,6 +440,11 @@ void PerfTimelineModel::loadEvent(const PerfEvent &event, int numConcurrentThrea
         // No updateTraceData() here
         updateFrames(guessed, numConcurrentThreads, 0, 0);
         addSample(guessed, 0, 0);
+        break;
+    }
+    case PerfEvent::ContextSwitchTypeId: {
+        const int id = TimelineModel::insert(event.timestamp(), 1, PerfEvent::ContextSwitchTypeId);
+        m_data.insert(id, StackFrame::sampleFrame());
         break;
     }
     case PerfEvent::ThreadStartTypeId: {

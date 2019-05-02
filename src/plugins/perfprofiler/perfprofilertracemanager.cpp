@@ -217,6 +217,8 @@ void PerfProfilerTraceManager::resetAttributes()
                                                            tr("Thread ended")));
     setEventType(PerfEvent::LostTypeId, PerfEventType(PerfEventType::LostDefinition,
                                                       tr("Samples lost")));
+    setEventType(PerfEvent::ContextSwitchTypeId,
+                 PerfEventType(PerfEventType::ContextSwitchDefinition, tr("Context switch")));
 }
 
 void PerfProfilerTraceManager::finalize()

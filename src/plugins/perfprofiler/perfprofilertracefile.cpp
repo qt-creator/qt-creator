@@ -237,6 +237,7 @@ void PerfProfilerTraceFile::readMessages(const QByteArray &buffer)
         case PerfEventType::ThreadStart:
         case PerfEventType::ThreadEnd:
         case PerfEventType::LostDefinition:
+        case PerfEventType::ContextSwitchDefinition:
             if (acceptsSamples())
                 traceManager->appendEvent(std::move(event));
             break;

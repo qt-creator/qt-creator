@@ -50,7 +50,8 @@ public:
         ThreadStartTypeId      = -2,
         ThreadEndTypeId        = -3,
         LostTypeId             = -4,
-        LastSpecialTypeId      = -5
+        ContextSwitchTypeId    = -5,
+        LastSpecialTypeId      = -256
     };
 
     const QVector<qint32> &origFrames() const { return m_origFrames; }
@@ -72,6 +73,9 @@ public:
 
     quint8 feature() const { return m_feature; }
 
+    quint8 extra() const { return m_extra; }
+    void setExtra(quint8 extra) { m_extra = extra; }
+
 private:
     friend QDataStream &operator>>(QDataStream &stream, PerfEvent &event);
     friend QDataStream &operator<<(QDataStream &stream, const PerfEvent &event);
@@ -86,6 +90,7 @@ private:
     quint8 m_origNumGuessedFrames = 0;
     quint8 m_numGuessedFrames = 0;
     quint8 m_feature = PerfEventType::InvalidFeature;
+    quint8 m_extra = 0;
 };
 
 inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
@@ -109,6 +114,7 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     case PerfEventType::Sample43:
     case PerfEventType::Sample:
     case PerfEventType::TracePointSample:
+    case PerfEventType::ContextSwitchDefinition:
         break;
     case PerfEventType::InvalidFeature:
         QTC_ASSERT(false, return stream);
@@ -129,6 +135,12 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
         break;
     case PerfEventType::LostDefinition:
         event.setTypeIndex(PerfEvent::LostTypeId);
+        break;
+    case PerfEventType::ContextSwitchDefinition:
+        event.setTypeIndex(PerfEvent::ContextSwitchTypeId);
+        bool isSwitchOut;
+        stream >> isSwitchOut;
+        event.setExtra(isSwitchOut);
         break;
     default: {
         qint32 typeIndex;
@@ -154,6 +166,9 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
     case PerfEventType::ThreadStart:
     case PerfEventType::ThreadEnd:
     case PerfEventType::LostDefinition:
+        break;
+    case PerfEventType::ContextSwitchDefinition:
+        stream << bool(event.extra());
         break;
     case PerfEventType::Sample43:
     case PerfEventType::Sample:
