@@ -114,11 +114,11 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
                  "Comparing content of file before and after renaming")
     test.verify(waitFor("newname in safeReadFile(proFile)", 2000),
                 "Verify that new filename '%s' was added to pro-file." % newname)
-    if not oldname in newname:
-        test.verify(not oldname in readFile(proFile),
+    if oldname not in newname:
+        test.verify(oldname not in readFile(proFile),
                     "Verify that old filename '%s' was removed from pro-file." % oldname)
     if not (oldname.lower() == newname.lower() and platform.system() in ('Windows', 'Microsoft')):
-        test.verify(not oldname in os.listdir(projectDir),
+        test.verify(oldname not in os.listdir(projectDir),
                     "Verify that file with old name does not exist: %s" % oldFilePath)
 
 def safeReadFile(filename):

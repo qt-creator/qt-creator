@@ -255,7 +255,7 @@ def verifyBreakPoint(bpToVerify):
 def __isWinFirewallRunning__():
     if hasattr(__isWinFirewallRunning__, "fireWallState"):
         return __isWinFirewallRunning__.fireWallState
-    if not platform.system() in ('Microsoft' 'Windows'):
+    if platform.system() not in ('Microsoft' 'Windows'):
         __isWinFirewallRunning__.fireWallState = False
         return False
     result = getOutputFromCmdline(["netsh", "firewall", "show", "state"])

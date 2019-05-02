@@ -292,7 +292,7 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
             if not os.path.exists(folder):
                 os.makedirs(folder)
         for ff in f:
-            if not ff in omitFiles:
+            if ff not in omitFiles:
                 shutil.copy(os.path.join(r, ff), currentPath)
     if platform.system() in ('Linux', 'Darwin'):
         substituteTildeWithinToolchains(tmpSettingsDir)

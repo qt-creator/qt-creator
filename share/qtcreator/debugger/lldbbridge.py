@@ -2216,7 +2216,7 @@ class SyntheticChildrenProvider(SummaryProvider):
         SummaryProvider.update(self)
 
         self.synthetic_children = []
-        if not 'children' in self.summary:
+        if 'children' not in self.summary:
             return
 
         dereference_child = None

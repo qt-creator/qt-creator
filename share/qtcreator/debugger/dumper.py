@@ -1078,7 +1078,7 @@ class DumperBase:
 
         reslist = []
         for item in res.get('variables', {}):
-            if not 'iname' in item:
+            if 'iname' not in item:
                 item['iname'] = '.' + item.get('name')
             reslist.append(self.variablesToMi(item, 'local'))
 
