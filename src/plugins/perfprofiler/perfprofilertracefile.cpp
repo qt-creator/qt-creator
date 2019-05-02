@@ -242,7 +242,9 @@ void PerfProfilerTraceFile::readMessages(const QByteArray &buffer)
                 traceManager->appendEvent(std::move(event));
             break;
         case PerfEventType::Sample43:
+        case PerfEventType::Sample49:
         case PerfEventType::Sample:
+        case PerfEventType::TracePointSample49:
         case PerfEventType::TracePointSample:
             if (acceptsSamples())
                 traceManager->appendSampleEvent(std::move(event));

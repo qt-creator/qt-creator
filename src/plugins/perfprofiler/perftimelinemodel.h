@@ -88,7 +88,7 @@ public:
         return selectionId(index) <= PerfEvent::LastSpecialTypeId;
     }
 
-    int period(int index) const;
+    int value(int index) const;
     int weight(int index) const;
 
     QHash<qint32, QVariant> extraData(int index) const { return m_extraData.value(index); }
@@ -105,7 +105,7 @@ private:
         int numExpectedParallelSamples = 1;
         int displayRowCollapsed = MaximumSpecialRow;
         int displayRowExpanded = MaximumSpecialRow;
-        int period = 0;
+        int value = 0;
         int weight = 0;
 
         qint64 resourcePeak = 0;

@@ -50,18 +50,21 @@ public:
         LostDefinition,
         FeaturesDefinition,
         Error,
-        Sample,
+        Sample49,
         Progress,
         TracePointFormat,
-        TracePointSample,
+        TracePointSample49,
         AttributesDefinition,
         ContextSwitchDefinition,
+        Sample,
+        TracePointSample,
         InvalidFeature
     };
 
     static quint64 attributeFeatures()
     {
-        return (1ull << Sample43) | (1ull << Sample) | (1ull << TracePointSample)
+        return (1ull << Sample43) | (1ull << Sample49) | (1ull << Sample)
+               | (1ull << TracePointSample49) | (1ull << TracePointSample)
                | (1ull << AttributesDefinition49) | (1ull << AttributesDefinition);
     }
 
@@ -130,9 +133,11 @@ public:
     {
         switch (feature()) {
         case Sample43:
+        case Sample49:
         case Sample:
         case AttributesDefinition49:
         case AttributesDefinition:
+        case TracePointSample49:
         case TracePointSample:
             return true;
         default:
