@@ -1315,25 +1315,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
                                             << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
                                             << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("mipsel-linux-android") << int(Abi::MipsArchitecture)
-                                          << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                          << int(Abi::ElfFormat) << 32;
-
-    QTest::newRow("mipsel-unknown-linux-android") << int(Abi::MipsArchitecture)
-                                                  << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                                  << int(Abi::ElfFormat) << 32;
-
     QTest::newRow("mips-linux-gnu") << int(Abi::MipsArchitecture)
                                     << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
                                     << int(Abi::ElfFormat) << 32;
-
-    QTest::newRow("mips64el-linux-android") << int(Abi::MipsArchitecture)
-                                            << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                            << int(Abi::ElfFormat) << 64;
-
-    QTest::newRow("mips64el-unknown-linux-android") << int(Abi::MipsArchitecture)
-                                                    << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                                    << int(Abi::ElfFormat) << 64;
 
     QTest::newRow("mips64-linux-octeon-gnu") << int(Abi::MipsArchitecture)
                                              << int(Abi::LinuxOS) << int(Abi::GenericFlavor)

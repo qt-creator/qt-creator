@@ -98,22 +98,16 @@ namespace {
 
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
-    const QLatin1String MipsToolchainPrefix("mipsel-linux-android");
-    const QLatin1String Mips64ToolchainPrefix("mips64el-linux-android");
     const QLatin1String AArch64ToolchainPrefix("aarch64-linux-android");
     const QLatin1String X86_64ToolchainPrefix("x86_64");
 
     const QLatin1String ArmToolsPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolsPrefix("i686-linux-android");
-    const QLatin1String MipsToolsPrefix("mipsel-linux-android");
-    const QLatin1String Mips64ToolsPrefix("mips64el-linux-android");
     const QLatin1String AArch64ToolsPrefix("aarch64-linux-android");
     const QLatin1String X86_64ToolsPrefix("x86_64-linux-android");
 
     const QLatin1String ArmToolsDisplayName("arm");
     const QLatin1String X86ToolsDisplayName("i686");
-    const QLatin1String MipsToolsDisplayName("mipsel");
-    const QLatin1String Mips64ToolsDisplayName("mips64el");
     const QLatin1String AArch64ToolsDisplayName("aarch64");
     const QLatin1String X86_64ToolsDisplayName("x86_64");
 
@@ -168,16 +162,11 @@ Abi AndroidConfig::abiForToolChainPrefix(const QString &toolchainPrefix)
         arch = Abi::ArmArchitecture;
     } else if (toolchainPrefix == X86ToolchainPrefix) {
         arch = Abi::X86Architecture;
-    } else if (toolchainPrefix == MipsToolchainPrefix) {
-        arch = Abi::MipsArchitecture;
     } else if (toolchainPrefix == AArch64ToolchainPrefix) {
         arch = Abi::ArmArchitecture;
         wordWidth = 64;
     } else if (toolchainPrefix == X86_64ToolchainPrefix) {
         arch = Abi::X86Architecture;
-        wordWidth = 64;
-    } else if (toolchainPrefix == Mips64ToolchainPrefix) {
-        arch = Abi::MipsArchitecture;
         wordWidth = 64;
     }
 
@@ -195,10 +184,6 @@ QLatin1String AndroidConfig::toolchainPrefix(const Abi &abi)
         if (abi.wordWidth() == 64)
             return X86_64ToolchainPrefix;
         return X86ToolchainPrefix;
-    case Abi::MipsArchitecture:
-        if (abi.wordWidth() == 64)
-            return Mips64ToolchainPrefix;
-        return MipsToolchainPrefix;
     default:
         return Unknown;
     }
@@ -215,10 +200,6 @@ QLatin1String AndroidConfig::toolsPrefix(const Abi &abi)
         if (abi.wordWidth() == 64)
             return X86_64ToolsPrefix;
         return X86ToolsPrefix;
-    case Abi::MipsArchitecture:
-        if (abi.wordWidth() == 64)
-            return Mips64ToolsPrefix;
-        return MipsToolsPrefix;
     default:
         return Unknown;
     }
@@ -235,10 +216,6 @@ QLatin1String AndroidConfig::displayName(const Abi &abi)
         if (abi.wordWidth() == 64)
             return X86_64ToolsDisplayName;
         return X86ToolsDisplayName;
-    case Abi::MipsArchitecture:
-        if (abi.wordWidth() == 64)
-            return Mips64ToolsDisplayName;
-        return MipsToolsDisplayName;
     default:
         return Unknown;
     }
