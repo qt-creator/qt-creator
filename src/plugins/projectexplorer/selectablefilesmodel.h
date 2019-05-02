@@ -241,6 +241,7 @@ private:
     QLabel *m_preservedFilesLabel;
 
     QLabel *m_progressLabel;
+    bool m_filteringScheduled = false;
 };
 
 class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog

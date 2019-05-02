@@ -601,6 +601,10 @@ SelectableFilesWidget::SelectableFilesWidget(const Utils::FileName &path,
 void SelectableFilesWidget::setAddFileFilter(const QString &filter)
 {
     m_selectFilesFilterEdit->setText(filter);
+    if (m_applyFiltersButton->isEnabled())
+        applyFilter();
+    else
+        m_filteringScheduled = true;
 }
 
 void SelectableFilesWidget::setBaseDirEditable(bool edit)
@@ -675,6 +679,7 @@ void SelectableFilesWidget::enableWidgets(bool enabled)
 
 void SelectableFilesWidget::applyFilter()
 {
+    m_filteringScheduled = false;
     if (m_model)
         m_model->applyFilter(m_selectFilesFilterEdit->text(), m_hideFilesFilterEdit->text());
 }
@@ -711,6 +716,8 @@ void SelectableFilesWidget::parsingFinished()
                                       "These files are preserved.", nullptr, preservedFiles.count()));
 
     enableWidgets(true);
+    if (m_filteringScheduled)
+        applyFilter();
 }
 
 void SelectableFilesWidget::smartExpand(const QModelIndex &idx)
