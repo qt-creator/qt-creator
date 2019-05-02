@@ -179,7 +179,7 @@ void PerfProfilerTraceManager::clearTypeStorage()
 
 const Timeline::TraceEventType &PerfProfilerEventTypeStorage::get(int typeId) const
 {
-    static const PerfEventType emptyAttribute(PerfEventType::AttributesDefinition);
+    static const PerfEventType emptyAttribute(PerfEventType::AttributesDefinition49);
     static const PerfEventType emptyLocation(PerfEventType::LocationDefinition);
 
     if (typeId >= 0) {

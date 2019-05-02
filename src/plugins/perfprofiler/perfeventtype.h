@@ -45,7 +45,7 @@ public:
         Command,
         LocationDefinition,
         SymbolDefinition,
-        AttributesDefinition,
+        AttributesDefinition49,
         StringDefinition,
         LostDefinition,
         FeaturesDefinition,
@@ -54,13 +54,14 @@ public:
         Progress,
         TracePointFormat,
         TracePointSample,
+        AttributesDefinition,
         InvalidFeature
     };
 
     static quint64 attributeFeatures()
     {
         return (1ull << Sample43) | (1ull << Sample) | (1ull << TracePointSample)
-                | (1ull << AttributesDefinition);
+               | (1ull << AttributesDefinition49) | (1ull << AttributesDefinition);
     }
 
     static quint64 metaFeatures()
@@ -128,6 +129,7 @@ public:
         switch (feature()) {
         case Sample43:
         case Sample:
+        case AttributesDefinition49:
         case AttributesDefinition:
         case TracePointSample:
             return true;

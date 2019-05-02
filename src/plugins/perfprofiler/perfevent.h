@@ -95,6 +95,7 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     case PerfEventType::Command:
     case PerfEventType::LocationDefinition:
     case PerfEventType::SymbolDefinition:
+    case PerfEventType::AttributesDefinition49:
     case PerfEventType::AttributesDefinition:
     case PerfEventType::StringDefinition:
     case PerfEventType::FeaturesDefinition:

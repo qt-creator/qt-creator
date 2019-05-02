@@ -188,9 +188,15 @@ void PerfProfilerTraceFile::readMessages(const QByteArray &buffer)
             traceManager->setSymbol(id, symbol);
             break;
         }
+        case PerfEventType::AttributesDefinition49:
         case PerfEventType::AttributesDefinition: {
-            PerfEventType attributes(PerfEventType::AttributesDefinition);
+            PerfEventType attributes(PerfEventType::AttributesDefinition49);
             dataStream >> id >> attributes;
+            if (event.feature() == PerfEventType::AttributesDefinition) {
+                bool usesFrequency;
+                quint64 frequencyOrPeriod;
+                dataStream >> usesFrequency >> frequencyOrPeriod;
+            }
             traceManager->setEventType(PerfEvent::LastSpecialTypeId - id, std::move(attributes));
             break;
         }
@@ -451,7 +457,7 @@ void PerfProfilerTraceFile::writeToDevice()
 
     {
         CompressedDataStream bufferStream(m_device.data());
-        const quint8 feature = PerfEventType::AttributesDefinition;
+        const quint8 feature = PerfEventType::AttributesDefinition49;
         qint32 id = 0;
         for (const PerfEventType &attribute : traceManager->attributes()) {
             if (!attribute.isAttribute())
