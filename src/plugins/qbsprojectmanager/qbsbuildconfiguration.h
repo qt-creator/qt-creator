@@ -69,8 +69,6 @@ public:
     void setProducts(const QStringList &products);
     QStringList products() const;
 
-    void emitBuildTypeChanged();
-
     QString configurationName() const;
 
     QString equivalentCommandLine(const ProjectExplorer::BuildStep *buildStep) const;

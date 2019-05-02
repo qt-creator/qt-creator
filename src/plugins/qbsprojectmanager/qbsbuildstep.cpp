@@ -227,9 +227,8 @@ void QbsBuildStep::setQbsConfiguration(const QVariantMap &config)
     if (tmp == m_qbsConfiguration)
         return;
     m_qbsConfiguration = tmp;
-    auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-    if (bc)
-        bc->emitBuildTypeChanged();
+    if (ProjectExplorer::BuildConfiguration *bc = buildConfiguration())
+        emit bc->buildTypeChanged();
     emit qbsConfigurationChanged();
 }
 
@@ -417,9 +416,8 @@ void QbsBuildStep::setBuildVariant(const QString &variant)
         return;
     m_qbsConfiguration.insert(Constants::QBS_CONFIG_VARIANT_KEY, variant);
     emit qbsConfigurationChanged();
-    auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-    if (bc)
-        bc->emitBuildTypeChanged();
+    if (ProjectExplorer::BuildConfiguration *bc = buildConfiguration())
+        emit bc->buildTypeChanged();
 }
 
 QString QbsBuildStep::profile() const

@@ -220,11 +220,6 @@ QStringList QbsBuildConfiguration::products() const
     return m_products;
 }
 
-void QbsBuildConfiguration::emitBuildTypeChanged()
-{
-    emit buildTypeChanged();
-}
-
 QString QbsBuildConfiguration::configurationName() const
 {
     return m_configurationName->value();
