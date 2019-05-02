@@ -72,7 +72,8 @@ private:
     void mkspecWasChanged(const QString &text)
     {
         m_ignoreChange = true;
-        QmakeKitAspect::setMkspec(m_kit, Utils::FileName::fromString(text));
+        QmakeKitAspect::setMkspec(m_kit, Utils::FileName::fromString(text),
+                                  QmakeKitAspect::MkspecSource::User);
         m_ignoreChange = false;
     }
 
@@ -191,10 +192,11 @@ FileName QmakeKitAspect::effectiveMkspec(const Kit *k)
     return spec;
 }
 
-void QmakeKitAspect::setMkspec(Kit *k, const FileName &fn)
+void QmakeKitAspect::setMkspec(Kit *k, const FileName &fn, MkspecSource source)
 {
     QTC_ASSERT(k, return);
-    k->setValue(QmakeKitAspect::id(), fn == defaultMkspec(k) ? QString() : fn.toString());
+    k->setValue(QmakeKitAspect::id(), source == MkspecSource::Code && fn == defaultMkspec(k)
+                ? QString() : fn.toString());
 }
 
 FileName QmakeKitAspect::defaultMkspec(const Kit *k)

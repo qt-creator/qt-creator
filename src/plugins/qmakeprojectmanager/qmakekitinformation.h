@@ -47,7 +47,8 @@ public:
     void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const override;
 
     static Core::Id id();
-    static void setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn);
+    enum class MkspecSource { User, Code };
+    static void setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn, MkspecSource source);
     static Utils::FileName mkspec(const ProjectExplorer::Kit *k);
     static Utils::FileName effectiveMkspec(const ProjectExplorer::Kit *k);
     static Utils::FileName defaultMkspec(const ProjectExplorer::Kit *k);

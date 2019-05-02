@@ -302,7 +302,7 @@ Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersion
         for (ToolChain * const tc : preferredToolChains(data.qt, parsedSpec, archConfig))
             ToolChainKitAspect::setToolChain(k, tc);
         if (parsedSpec != data.qt->mkspec())
-            QmakeKitAspect::setMkspec(k, parsedSpec);
+            QmakeKitAspect::setMkspec(k, parsedSpec, QmakeKitAspect::MkspecSource::Code);
     });
 }
 
