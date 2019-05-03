@@ -95,7 +95,6 @@ public:
 
     bool isActive() const override;
 
-    void prependCompilerPathToEnvironment(Utils::Environment &env) const;
     static void prependCompilerPathToEnvironment(Kit *k, Utils::Environment &env);
     void updateCacheAndEmitEnvironmentChanged();
 

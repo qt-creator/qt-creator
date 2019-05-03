@@ -373,10 +373,6 @@ bool BuildConfiguration::isActive() const
  * PATH. This is used to in build configurations targeting broken build systems
  * to provide hints about which compiler to use.
  */
-void BuildConfiguration::prependCompilerPathToEnvironment(Utils::Environment &env) const
-{
-    return prependCompilerPathToEnvironment(target()->kit(), env);
-}
 
 void BuildConfiguration::prependCompilerPathToEnvironment(Kit *k, Utils::Environment &env)
 {
