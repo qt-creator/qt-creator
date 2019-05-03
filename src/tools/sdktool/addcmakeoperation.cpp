@@ -203,20 +203,13 @@ QVariantMap AddCMakeOperation::addCMake(const QVariantMap &map, const QString &i
         return QVariantMap();
     }
 
-    // Sanity check: Make sure displayName is unique.
-    QStringList nameKeys = FindKeyOperation::findKey(map, DISPLAYNAME_KEY);
-    QStringList nameList;
-    foreach (const QString &nameKey, nameKeys)
-        nameList << GetOperation::get(map, nameKey).toString();
-    const QString uniqueName = makeUnique(displayName, nameList);
-
     QVariantMap result = RmKeysOperation::rmKeys(map, {COUNT});
 
     const QString cm = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
     data << KeyValuePair({cm, ID_KEY}, QVariant(id));
-    data << KeyValuePair({cm, DISPLAYNAME_KEY}, QVariant(uniqueName));
+    data << KeyValuePair({cm, DISPLAYNAME_KEY}, QVariant(displayName));
     data << KeyValuePair({cm, AUTODETECTED_KEY}, QVariant(true));
     data << KeyValuePair({cm, PATH_KEY}, QVariant(path));
     KeyValuePairList extraList;
