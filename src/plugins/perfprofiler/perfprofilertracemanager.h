@@ -86,10 +86,11 @@ public:
     };
 
     struct Symbol {
-        Symbol() : name(-1), binary(-1), isKernel(false) {}
+        Symbol() : name(-1), binary(-1), path(-1), isKernel(false) {}
 
         qint32 name;
         qint32 binary;
+        qint32 path;
         bool isKernel;
     };
 
@@ -217,12 +218,12 @@ private:
 
 inline QDataStream &operator>>(QDataStream &stream, PerfProfilerTraceManager::Symbol &symbol)
 {
-    return stream >> symbol.name >> symbol.binary >> symbol.isKernel;
+    return stream >> symbol.name >> symbol.binary >> symbol.path >> symbol.isKernel;
 }
 
 inline QDataStream &operator<<(QDataStream &stream, const PerfProfilerTraceManager::Symbol &symbol)
 {
-    return stream << symbol.name << symbol.binary << symbol.isKernel;
+    return stream << symbol.name << symbol.binary << symbol.path << symbol.isKernel;
 }
 
 inline QDataStream &operator>>(QDataStream &stream,
