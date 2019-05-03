@@ -28,42 +28,50 @@
 #include <utils/mimetypes/mimedatabase.h>
 
 #include <QHash>
+#include <QLoggingCategory>
 #include <QVector>
 
 namespace LanguageServerProtocol {
 
+Q_LOGGING_CATEGORY(conversionLog, "qtc.languageserverprotocol.conversion", QtWarningMsg)
+
 template<>
 QString fromJsonValue<QString>(const QJsonValue &value)
 {
-    QTC_ASSERT(value.isString(), return QString());
+    if (conversionLog().isDebugEnabled() && !value.isString())
+        qCDebug(conversionLog) << "Expected String in json value but got: " << value;
     return value.toString();
 }
 
 template<>
 int fromJsonValue<int>(const QJsonValue &value)
 {
-    QTC_ASSERT(value.isDouble(), return 0);
-    return int(value.toDouble());
+    if (conversionLog().isDebugEnabled() && !value.isDouble())
+        qCDebug(conversionLog) << "Expected double in json value but got: " << value;
+    return value.toInt();
 }
 
 template<>
 double fromJsonValue<double>(const QJsonValue &value)
 {
-    QTC_ASSERT(value.isDouble(), return 0);
+    if (conversionLog().isDebugEnabled() && !value.isDouble())
+        qCDebug(conversionLog) << "Expected double in json value but got: " << value;
     return value.toDouble();
 }
 
 template<>
 bool fromJsonValue<bool>(const QJsonValue &value)
 {
-    QTC_ASSERT(value.isBool(), return false);
+    if (conversionLog().isDebugEnabled() && !value.isBool())
+        qCDebug(conversionLog) << "Expected bool in json value but got: " << value;
     return value.toBool();
 }
 
 template<>
 QJsonArray fromJsonValue<QJsonArray>(const QJsonValue &value)
 {
-    QTC_ASSERT(value.isArray(), return QJsonArray());
+    if (conversionLog().isDebugEnabled() && !value.isArray())
+        qCDebug(conversionLog) << "Expected Array in json value but got: " << value;
     return value.toArray();
 }
 
