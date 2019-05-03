@@ -88,6 +88,7 @@ private:
     quint32 m_pid = 0;
     quint32 m_tid = 0;
     quint64 m_value = 0;
+    quint32 m_cpu = 0;
     quint8 m_origNumGuessedFrames = 0;
     quint8 m_numGuessedFrames = 0;
     quint8 m_feature = PerfEventType::InvalidFeature;
@@ -120,7 +121,7 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     }
 
     quint64 timestamp;
-    stream >> event.m_pid >> event.m_tid >> timestamp;
+    stream >> event.m_pid >> event.m_tid >> timestamp >> event.m_cpu;
 
     static const quint64 qint64Max = static_cast<quint64>(std::numeric_limits<qint64>::max());
     event.setTimestamp(static_cast<qint64>(qMin(timestamp, qint64Max)));
@@ -169,7 +170,8 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
 {
     quint8 feature = event.feature();
     stream << feature << event.m_pid << event.m_tid
-           << (event.timestamp() < 0ll ? 0ull : static_cast<quint64>(event.timestamp()));
+           << (event.timestamp() < 0ll ? 0ull : static_cast<quint64>(event.timestamp()))
+           << event.m_cpu;
     switch (feature) {
     case PerfEventType::ThreadStart:
     case PerfEventType::ThreadEnd:
