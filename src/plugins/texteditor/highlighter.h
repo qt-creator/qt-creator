@@ -66,6 +66,7 @@ public:
 protected:
     void highlightBlock(const QString &text) override;
     void applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format) override;
+    void applyFolding(int offset, int length, KSyntaxHighlighting::FoldingRegion region) override;
 };
 
 } // namespace TextEditor
