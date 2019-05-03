@@ -31,6 +31,7 @@
 #include "qmakebuildconfiguration.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakesettings.h"
+#include "qmakestep.h"
 
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/target.h>
@@ -175,6 +176,15 @@ bool QmakeMakeStep::init()
 
     m_scriptTarget = (static_cast<QmakeProject *>(bc->target()->project())->rootProjectNode()->projectType() == ProjectType::ScriptTemplate);
     m_unalignedBuildDir = !bc->isBuildDirAtSafeLocation();
+
+    // A user doing "make clean" indicates they want a proper rebuild, so make sure to really
+    // execute qmake on the next build.
+    if (static_cast<BuildStepList *>(parent())->id()
+            == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        const auto qmakeStep = bc->qmakeStep();
+        if (qmakeStep)
+            qmakeStep->setForced(true);
+    }
 
     return AbstractProcessStep::init();
 }
