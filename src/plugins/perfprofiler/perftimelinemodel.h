@@ -89,7 +89,6 @@ public:
     }
 
     int value(int index) const;
-    int weight(int index) const;
 
     QHash<qint32, QVariant> extraData(int index) const { return m_extraData.value(index); }
 
@@ -106,7 +105,6 @@ private:
         int displayRowCollapsed = MaximumSpecialRow;
         int displayRowExpanded = MaximumSpecialRow;
         int value = 0;
-        int weight = 0;
 
         qint64 resourcePeak = 0;
         qint64 resourceDelta = 0;

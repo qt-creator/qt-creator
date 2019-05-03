@@ -167,8 +167,6 @@ QVariantMap PerfTimelineModel::details(int index) const
         const int guessedFrames = -frame.numSamples;
         if (guessedFrames > 0)
             result.insert(tr("Guessed"), tr("%n frames", nullptr, guessedFrames));
-        if (const int sampleWeight = weight(index))
-            result.insert(tr("Weight"), sampleWeight);
         if (const int sampleValue = value(index))
             result.insert(tr("Value"), sampleValue);
         if (attribute.type == PerfEventType::TypeTracepoint) {
@@ -406,13 +404,11 @@ void PerfTimelineModel::addSample(const PerfEvent &event, qint64 resourceDelta, 
 {
     static const int intMax = std::numeric_limits<int>::max();
     const int value = static_cast<int>(qMin(static_cast<quint64>(intMax), event.value()));
-    const int weight = static_cast<int>(qMin(static_cast<quint64>(intMax), event.weight()));
 
     const int id = TimelineModel::insert(event.timestamp(), 1, event.typeIndex());
     StackFrame sample = StackFrame::sampleFrame();
     sample.numSamples = event.numGuessedFrames() > 0 ? -event.numGuessedFrames() : 1;
     sample.value = value;
-    sample.weight = weight;
     sample.resourcePeak = m_resourceBlocks.currentTotal();
     sample.resourceDelta = resourceDelta;
     sample.resourceGuesses = resourceGuesses;
@@ -615,11 +611,6 @@ float PerfTimelineModel::resourceUsage(int index) const
 int PerfTimelineModel::value(int index) const
 {
     return m_data[index].value;
-}
-
-int PerfTimelineModel::weight(int index) const
-{
-    return m_data[index].weight;
 }
 
 bool PerfTimelineModel::handlesTypeId(int typeId) const

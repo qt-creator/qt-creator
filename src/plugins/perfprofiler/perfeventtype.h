@@ -39,21 +39,17 @@ public:
     static const qint32 staticClassId = 0x70726674; // 'prft'
 
     enum Feature {
-        Sample43, // Only used until QtC/perfparser 4.3
         ThreadStart,
         ThreadEnd,
         Command,
         LocationDefinition,
         SymbolDefinition,
-        AttributesDefinition49,
         StringDefinition,
         LostDefinition,
         FeaturesDefinition,
         Error,
-        Sample49,
         Progress,
         TracePointFormat,
-        TracePointSample49,
         AttributesDefinition,
         ContextSwitchDefinition,
         Sample,
@@ -63,9 +59,7 @@ public:
 
     static quint64 attributeFeatures()
     {
-        return (1ull << Sample43) | (1ull << Sample49) | (1ull << Sample)
-               | (1ull << TracePointSample49) | (1ull << TracePointSample)
-               | (1ull << AttributesDefinition49) | (1ull << AttributesDefinition);
+        return (1ull << Sample) | (1ull << TracePointSample) | (1ull << AttributesDefinition);
     }
 
     static quint64 metaFeatures()
@@ -96,8 +90,10 @@ public:
 
     struct Attribute {
         quint64 config = std::numeric_limits<quint64>::max();
+        quint64 frequencyOrPeriod = std::numeric_limits<quint64>::max();
         quint32 type = std::numeric_limits<quint32>::max();
         qint32 name = -1;
+        bool usesFrequency = false;
     };
 
     struct Location {
@@ -132,12 +128,8 @@ public:
     bool isAttribute() const
     {
         switch (feature()) {
-        case Sample43:
-        case Sample49:
         case Sample:
-        case AttributesDefinition49:
         case AttributesDefinition:
-        case TracePointSample49:
         case TracePointSample:
             return true;
         default:
@@ -188,12 +180,14 @@ private:
 
 inline QDataStream &operator>>(QDataStream &stream, PerfEventType::Attribute &attribute)
 {
-    return stream >> attribute.type >> attribute.config >> attribute.name;
+    return stream >> attribute.type >> attribute.config >> attribute.name
+                  >> attribute.usesFrequency >> attribute.frequencyOrPeriod;
 }
 
 inline QDataStream &operator<<(QDataStream &stream, const PerfEventType::Attribute &attribute)
 {
-    return stream << attribute.type << attribute.config << attribute.name;
+    return stream << attribute.type << attribute.config << attribute.name
+                  << attribute.usesFrequency << attribute.frequencyOrPeriod;
 }
 
 inline QDataStream &operator>>(QDataStream &stream, PerfEventType::Location &location)

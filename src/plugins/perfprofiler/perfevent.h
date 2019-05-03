@@ -69,7 +69,6 @@ public:
     void setNumGuessedFrames(quint8 numGuessedFrames) { m_numGuessedFrames = numGuessedFrames; }
 
     quint64 period() const { return m_value; }
-    quint64 weight() const { return m_weight; }
     quint64 value() const { return m_value; }
 
     quint8 feature() const { return m_feature; }
@@ -87,7 +86,6 @@ private:
     quint32 m_pid = 0;
     quint32 m_tid = 0;
     quint64 m_value = 0;
-    quint64 m_weight = 0;
     quint8 m_origNumGuessedFrames = 0;
     quint8 m_numGuessedFrames = 0;
     quint8 m_feature = PerfEventType::InvalidFeature;
@@ -101,7 +99,6 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     case PerfEventType::Command:
     case PerfEventType::LocationDefinition:
     case PerfEventType::SymbolDefinition:
-    case PerfEventType::AttributesDefinition49:
     case PerfEventType::AttributesDefinition:
     case PerfEventType::StringDefinition:
     case PerfEventType::FeaturesDefinition:
@@ -112,8 +109,6 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     case PerfEventType::ThreadStart:
     case PerfEventType::ThreadEnd:
     case PerfEventType::LostDefinition:
-    case PerfEventType::Sample43:
-    case PerfEventType::Sample49:
     case PerfEventType::Sample:
     case PerfEventType::TracePointSample:
     case PerfEventType::ContextSwitchDefinition:
@@ -147,21 +142,14 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     default: {
         qint32 typeIndex;
         stream >> event.m_origFrames >> event.m_origNumGuessedFrames;
-        if (event.m_feature == PerfEventType::Sample43 || event.m_feature == PerfEventType::Sample49
-            || event.m_feature == PerfEventType::TracePointSample49) {
-            stream >> typeIndex;
-            if (event.m_feature != PerfEventType::Sample43)
-                stream >> event.m_value >> event.m_weight;
+        QVector<QPair<qint32, quint64>> values;
+        stream >> values;
+        if (values.isEmpty()) {
+            typeIndex = 0;
         } else {
-            QVector<QPair<qint32, quint64>> values;
-            stream >> values;
-            if (values.isEmpty()) {
-                typeIndex = 0;
-            } else {
-                typeIndex = values.first().first;
-                event.m_value = values.first().second;
-                // TODO: support multiple values per event.
-            }
+            typeIndex = values.first().first;
+            event.m_value = values.first().second;
+            // TODO: support multiple values per event.
         }
         if (event.m_feature == PerfEventType::TracePointSample)
             stream >> event.m_traceData;
@@ -185,29 +173,18 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
     case PerfEventType::ContextSwitchDefinition:
         stream << bool(event.extra());
         break;
-    case PerfEventType::Sample43:
-    case PerfEventType::Sample49:
     case PerfEventType::Sample:
-    case PerfEventType::TracePointSample49:
-    case PerfEventType::TracePointSample:
+    case PerfEventType::TracePointSample: {
         stream << event.m_origFrames << event.m_origNumGuessedFrames;
 
-        if (feature == PerfEventType::Sample43 || feature == PerfEventType::Sample49 ||
-            feature == PerfEventType::TracePointSample49) {
-            stream << static_cast<qint32>(PerfEvent::LastSpecialTypeId - event.typeIndex());
-            if (feature != PerfEventType::Sample43)
-                stream << event.m_value << event.m_weight;
-        } else {
-            QVector<QPair<qint32, quint64>> values;
-            values.push_back({ PerfEvent::LastSpecialTypeId - event.typeIndex(), event.m_value });
-            stream << values;
-        }
+        QVector<QPair<qint32, quint64>> values;
+        values.push_back({ PerfEvent::LastSpecialTypeId - event.typeIndex(), event.m_value });
+        stream << values;
 
-        if (feature == PerfEventType::TracePointSample
-            || feature == PerfEventType::TracePointSample49) {
+        if (feature == PerfEventType::TracePointSample)
             stream << event.m_traceData;
-        }
         break;
+    }
     default:
         QTC_CHECK(false);
     }

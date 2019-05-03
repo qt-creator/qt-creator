@@ -71,7 +71,6 @@ protected:
     quint32 m_messageSize;
     qint32 m_dataStreamVersion;
     bool m_compressed;
-    bool m_mangledPackets;
 };
 
 } // namespace Internal

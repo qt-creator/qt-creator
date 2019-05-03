@@ -613,7 +613,7 @@ void PerfProfilerTool::showLoadTraceDialog()
 
     QString filename = QFileDialog::getOpenFileName(
                 ICore::mainWindow(), tr("Load Trace File"),
-                "", tr("Trace File (*.ptr)"));
+                "", tr("Trace File (*.ptq)"));
     if (filename.isEmpty())
         return;
 
@@ -633,11 +633,11 @@ void PerfProfilerTool::showSaveTraceDialog()
 
     QString filename = QFileDialog::getSaveFileName(
                 ICore::mainWindow(), tr("Save Trace File"),
-                "", tr("Trace File (*.ptr)"));
+                "", tr("Trace File (*.ptq)"));
     if (filename.isEmpty())
         return;
-    if (!filename.endsWith(".ptr"))
-        filename += ".ptr";
+    if (!filename.endsWith(".ptq"))
+        filename += ".ptq";
 
     setToolActionsEnabled(false);
     m_traceManager->saveToTraceFile(filename);
