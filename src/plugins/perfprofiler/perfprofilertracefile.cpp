@@ -177,6 +177,14 @@ void PerfProfilerTraceFile::readMessages(const QByteArray &buffer)
     case PerfEventType::LocationDefinition: {
         PerfEventType location(PerfEventType::LocationDefinition);
         dataStream >> id >> location;
+        for (int parent = location.location().parentLocationId; parent != -1;
+             parent = traceManager->location(parent).parentLocationId) {
+            if (parent == id) {
+                qWarning() << "A location cannot be its own parent location:" << id;
+                location = PerfEventType(PerfEventType::LocationDefinition);
+                break;
+            }
+        }
         traceManager->setEventType(id, std::move(location));
         break;
     }

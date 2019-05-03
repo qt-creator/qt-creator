@@ -143,6 +143,7 @@ public:
         case ThreadEnd:
         case LostDefinition:
         case ContextSwitchDefinition:
+        case InvalidFeature:
             return true;
         default:
             return false;

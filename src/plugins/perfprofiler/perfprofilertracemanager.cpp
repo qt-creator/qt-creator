@@ -219,6 +219,8 @@ void PerfProfilerTraceManager::resetAttributes()
                                                       tr("Samples lost")));
     setEventType(PerfEvent::ContextSwitchTypeId,
                  PerfEventType(PerfEventType::ContextSwitchDefinition, tr("Context switch")));
+    setEventType(PerfEvent::LastSpecialTypeId,
+                 PerfEventType(PerfEventType::InvalidFeature, tr("Invalid")));
 }
 
 void PerfProfilerTraceManager::finalize()

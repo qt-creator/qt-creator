@@ -51,7 +51,7 @@ public:
         ThreadEndTypeId        = -3,
         LostTypeId             = -4,
         ContextSwitchTypeId    = -5,
-        LastSpecialTypeId      = -256
+        LastSpecialTypeId      = -6
     };
 
     int numAttributes() const { return m_values.length() + 1; }
