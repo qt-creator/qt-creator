@@ -642,10 +642,7 @@ CompilationDatabaseBuildConfiguration::CompilationDatabaseBuildConfiguration(
     ProjectExplorer::Target *target, Core::Id id)
     : ProjectExplorer::BuildConfiguration(target, id)
 {
-    BuildTargetInfoList appTargetList;
-    BuildTargetInfo bti;
-    appTargetList.list.append(bti);
-    target->setApplicationTargets(appTargetList);
+    target->setApplicationTargets({BuildTargetInfo()});
 }
 
 void CompilationDatabaseBuildConfiguration::initialize(const ProjectExplorer::BuildInfo &info)

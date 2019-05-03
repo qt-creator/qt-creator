@@ -64,7 +64,7 @@ public:
 
     QStringList buildTargetTitles() const;
     const QList<CMakeBuildTarget> &buildTargets() const;
-    ProjectExplorer::BuildTargetInfoList appTargets() const;
+    const QList<ProjectExplorer::BuildTargetInfo> appTargets() const;
     ProjectExplorer::DeploymentData deploymentData() const;
 
     static Utils::FileName

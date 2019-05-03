@@ -86,8 +86,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
         currentBuildTarget = rc->buildKey();
 
     m_comboBox = new QComboBox(this);
-    const BuildTargetInfoList buildTargets = wizard->target()->applicationTargets();
-    for (const BuildTargetInfo &bti : buildTargets.list) {
+    for (const BuildTargetInfo &bti : wizard->target()->applicationTargets()) {
         const QString displayName = bti.buildKey;
         m_comboBox->addItem(displayName, QVariant(bti.buildKey)); // TODO something more?
         if (bti.buildKey == currentBuildTarget)
@@ -214,15 +213,15 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
 {
     setWindowTitle(tr("Create Android Template Files Wizard"));
 
-    const BuildTargetInfoList buildTargets = target->applicationTargets();
+    const QList<BuildTargetInfo> buildTargets = target->applicationTargets();
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_copyGradle = version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 4, 0);
 
-    if (buildTargets.list.isEmpty()) {
+    if (buildTargets.isEmpty()) {
         // oh uhm can't create anything
         addPage(new NoApplicationProFilePage(this));
-    } else if (buildTargets.list.size() == 1) {
-        setBuildKey(buildTargets.list.first().buildKey);
+    } else if (buildTargets.size() == 1) {
+        setBuildKey(buildTargets.first().buildKey);
         addPage(new ChooseDirectoryPage(this));
     } else {
         addPage(new ChooseProFilePage(this));

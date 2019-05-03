@@ -947,7 +947,7 @@ void QmakeProject::updateBuildSystemData()
     collectData(file, deploymentData);
     target->setDeploymentData(deploymentData);
 
-    BuildTargetInfoList appTargetList;
+    QList<BuildTargetInfo> appTargetList;
 
     rootProjectNode()->forEachProjectNode([this, target, &appTargetList](const ProjectNode *pn) {
         auto node = dynamic_cast<const QmakeProFileNode *>(pn);
@@ -1031,7 +1031,7 @@ void QmakeProject::updateBuildSystemData()
                 env.prependOrSetLibrarySearchPaths(libraryPaths);
         };
 
-        appTargetList.list.append(bti);
+        appTargetList.append(bti);
     });
 
     target->setApplicationTargets(appTargetList);

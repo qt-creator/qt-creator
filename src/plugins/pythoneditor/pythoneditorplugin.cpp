@@ -551,7 +551,7 @@ void PythonProject::refresh(Target *target)
     parseProject();
 
     const QDir baseDir(projectDirectory().toString());
-    BuildTargetInfoList appTargets;
+    QList<BuildTargetInfo> appTargets;
     auto newRoot = std::make_unique<PythonProjectNode>(this);
     for (const QString &f : qAsConst(m_files)) {
         const QString displayName = baseDir.relativeFilePath(f);
@@ -564,7 +564,7 @@ void PythonProject::refresh(Target *target)
             bti.buildKey = f;
             bti.targetFilePath = FileName::fromString(f);
             bti.projectFilePath = projectFilePath();
-            appTargets.list.append(bti);
+            appTargets.append(bti);
         }
     }
     setRootProjectNode(std::move(newRoot));

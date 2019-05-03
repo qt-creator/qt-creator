@@ -192,9 +192,9 @@ bool CMakeBuildConfiguration::isParsing() const
     return project()->isParsing() && isActive();
 }
 
-BuildTargetInfoList CMakeBuildConfiguration::appTargets() const
+const QList<BuildTargetInfo> CMakeBuildConfiguration::appTargets() const
 {
-    BuildTargetInfoList appTargetList;
+    QList<BuildTargetInfo> appTargetList;
     bool forAndroid = DeviceTypeKitAspect::deviceTypeId(target()->kit()) == Android::Constants::ANDROID_DEVICE_TYPE;
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == UtilityType)
@@ -208,7 +208,7 @@ BuildTargetInfoList CMakeBuildConfiguration::appTargets() const
             bti.projectFilePath.appendString('/');
             bti.workingDirectory = ct.workingDirectory;
             bti.buildKey = CMakeTargetNode::generateId(ct.sourceDirectory, ct.title);
-            appTargetList.list.append(bti);
+            appTargetList.append(bti);
         }
     }
 

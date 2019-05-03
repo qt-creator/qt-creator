@@ -140,7 +140,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     const QSet<QString> buildSystemTargets = m_buildTargets;
     qCDebug(LOG) << "BuildSystemTargets\n    " << buildSystemTargets;
     BuildTargetInfo targetInfo
-            = Utils::findOrDefault(target->applicationTargets().list,
+            = Utils::findOrDefault(target->applicationTargets(),
                                    [&buildSystemTargets] (const BuildTargetInfo &bti) {
         return buildSystemTargets.contains(bti.buildKey);
     });
@@ -148,7 +148,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     // there would be no BuildTargetInfo that could match
     if (targetInfo.targetFilePath.isEmpty()) {
         qCDebug(LOG) << "BuildTargetInfos";
-        const QList<BuildTargetInfo> buildTargets = target->applicationTargets().list;
+        const QList<BuildTargetInfo> buildTargets = target->applicationTargets();
         // if there is only one build target just use it (but be honest that we're deducing)
         if (buildTargets.size() == 1) {
             targetInfo = buildTargets.first();

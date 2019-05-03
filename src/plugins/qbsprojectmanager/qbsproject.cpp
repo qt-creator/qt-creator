@@ -1079,7 +1079,7 @@ void QbsProject::updateQmlJsCodeModel()
 
 void QbsProject::updateApplicationTargets()
 {
-    BuildTargetInfoList applications;
+    QList<BuildTargetInfo> applications;
     foreach (const qbs::ProductData &productData, m_projectData.allProducts()) {
         if (!productData.isEnabled() || !productData.isRunnable())
             continue;
@@ -1125,7 +1125,7 @@ void QbsProject::updateApplicationTargets()
             }
         };
 
-        applications.list.append(bti);
+        applications.append(bti);
     }
     if (activeTarget())
         activeTarget()->setApplicationTargets(applications);

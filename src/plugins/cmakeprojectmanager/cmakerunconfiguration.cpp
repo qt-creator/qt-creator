@@ -78,7 +78,7 @@ void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo
 
 bool CMakeRunConfiguration::isBuildTargetValid() const
 {
-    return Utils::anyOf(target()->applicationTargets().list, [this](const BuildTargetInfo &bti) {
+    return Utils::anyOf(target()->applicationTargets(), [this](const BuildTargetInfo &bti) {
         return bti.buildKey == buildKey();
     });
 }

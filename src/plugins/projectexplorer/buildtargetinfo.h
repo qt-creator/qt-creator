@@ -32,7 +32,6 @@
 #include <utils/fileutils.h>
 
 #include <QList>
-#include <QSet>
 
 namespace ProjectExplorer {
 
@@ -75,11 +74,5 @@ inline uint qHash(const BuildTargetInfo &ti)
 {
     return qHash(ti.displayName) ^ qHash(ti.buildKey);
 }
-
-class PROJECTEXPLORER_EXPORT BuildTargetInfoList
-{
-public:
-    QList<BuildTargetInfo> list;
-};
 
 } // namespace ProjectExplorer

@@ -453,7 +453,7 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
 QList<RunConfigurationCreationInfo>
 RunConfigurationFactory::availableCreators(Target *parent) const
 {
-    const QList<BuildTargetInfo> buildTargets = parent->applicationTargets().list;
+    const QList<BuildTargetInfo> buildTargets = parent->applicationTargets();
     const bool hasAnyQtcRunnable = Utils::anyOf(buildTargets,
                                             Utils::equal(&BuildTargetInfo::isQtcRunnable, true));
     return Utils::transform(buildTargets, [&](const BuildTargetInfo &ti) {
@@ -495,8 +495,6 @@ void RunConfigurationFactory::setDecorateDisplayNames(bool on)
 {
     m_decorateDisplayNames = on;
 }
-
-
 
 void RunConfigurationFactory::addSupportedProjectType(Core::Id id)
 {
