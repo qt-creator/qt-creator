@@ -389,7 +389,7 @@ FileName UserFileAccessor::projectUserFile() const
 {
     static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
     FileName projectUserFile = m_project->projectFilePath();
-    projectUserFile.appendString(generateSuffix(qtcExt.isEmpty() ? PROJECT_USER_FILE_EXTENSION_STR : qtcExt));
+    projectUserFile.appendString(generateSuffix(qtcExt.isEmpty() ? FILE_EXTENSION_STR : qtcExt));
     return projectUserFile;
 }
 
@@ -397,7 +397,7 @@ FileName UserFileAccessor::externalUserFile() const
 {
     static const QString qtcExt = QFile::decodeName(qgetenv("QTC_EXTENSION"));
     return externalUserFilePath(m_project->projectFilePath(),
-                                generateSuffix(qtcExt.isEmpty() ? PROJECT_USER_FILE_EXTENSION_STR : qtcExt));
+                                generateSuffix(qtcExt.isEmpty() ? FILE_EXTENSION_STR : qtcExt));
 }
 
 FileName UserFileAccessor::sharedFile() const
