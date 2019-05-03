@@ -138,8 +138,7 @@ QString breakPointCdbId(const Breakpoint &bp)
 
 QString cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
                                 const QList<QPair<QString, QString> > &sourcePathMapping,
-                                const QString &responseId,
-                                bool oneshot)
+                                const QString &responseId)
 {
     const BreakpointParameters params = fixWinMSVCBreakpoint(bpIn);
     QString rc;
@@ -154,7 +153,7 @@ QString cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
     str << (params.type == WatchpointAtAddress ? "ba" : "bu")
         << responseId
         << ' ';
-    if (oneshot)
+    if (params.oneShot)
         str << "/1 ";
     switch (params.type) {
     case BreakpointAtFork:
