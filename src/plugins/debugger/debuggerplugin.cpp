@@ -1036,6 +1036,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     };
 
     m_breakpointManagerView = new BaseTreeView;
+    m_breakpointManagerView->setActivationMode(Utils::DoubleClickActivation);
     m_breakpointManagerView->setIconSize(QSize(10, 10));
     m_breakpointManagerView->setWindowIcon(Icons::BREAKPOINTS.icon());
     m_breakpointManagerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
