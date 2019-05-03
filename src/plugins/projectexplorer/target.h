@@ -85,7 +85,6 @@ public:
     void setApplicationTargets(const BuildTargetInfoList &appTargets);
     BuildTargetInfoList applicationTargets() const;
     BuildTargetInfo buildTarget(const QString &buildKey) const;
-    bool hasBuildTarget(const QString &buildKey) const;
 
     QList<ProjectConfiguration *> projectConfigurations() const;
 

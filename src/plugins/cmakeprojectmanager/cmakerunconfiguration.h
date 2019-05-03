@@ -38,8 +38,13 @@ public:
     CMakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 private:
+    QString disabledReason() const override;
+
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
+    bool isBuildTargetValid() const;
     void updateTargetInformation();
+
+    void updateEnabledState() final;
 };
 
 class CMakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

@@ -365,13 +365,6 @@ BuildTargetInfo Target::buildTarget(const QString &buildKey) const
     });
 }
 
-bool Target::hasBuildTarget(const QString &buildKey) const
-{
-    return Utils::anyOf(d->m_appTargets.list, [buildKey](const BuildTargetInfo &bti) {
-        return bti.buildKey == buildKey;
-    });
-}
-
 QList<ProjectConfiguration *> Target::projectConfigurations() const
 {
     QList<ProjectConfiguration *> result;
