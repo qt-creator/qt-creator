@@ -54,6 +54,10 @@ public:
         LastSpecialTypeId      = -256
     };
 
+    int numAttributes() const { return m_values.length() + 1; }
+    qint32 attributeId(int i) const { return i == 0 ? typeIndex() : m_values[i - 1].first; }
+    quint64 attributeValue(int i) const { return i == 0 ? m_value : m_values[i - 1].second; }
+
     const QVector<qint32> &origFrames() const { return m_origFrames; }
     quint8 origNumGuessedFrames() const { return m_origNumGuessedFrames; }
 
@@ -68,9 +72,6 @@ public:
     quint8 numGuessedFrames() const { return m_numGuessedFrames; }
     void setNumGuessedFrames(quint8 numGuessedFrames) { m_numGuessedFrames = numGuessedFrames; }
 
-    quint64 period() const { return m_value; }
-    quint64 value() const { return m_value; }
-
     quint8 feature() const { return m_feature; }
 
     quint8 extra() const { return m_extra; }
@@ -80,6 +81,7 @@ private:
     friend QDataStream &operator>>(QDataStream &stream, PerfEvent &event);
     friend QDataStream &operator<<(QDataStream &stream, const PerfEvent &event);
 
+    QVector<QPair<qint32, quint64>> m_values;
     QVector<qint32> m_origFrames;
     QVector<qint32> m_frames;
     QHash<qint32, QVariant> m_traceData;
@@ -140,20 +142,23 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
         event.setExtra(isSwitchOut);
         break;
     default: {
-        qint32 typeIndex;
+        qint32 firstAttributeId;
         stream >> event.m_origFrames >> event.m_origNumGuessedFrames;
         QVector<QPair<qint32, quint64>> values;
         stream >> values;
         if (values.isEmpty()) {
-            typeIndex = 0;
+            firstAttributeId = PerfEvent::LastSpecialTypeId;
         } else {
-            typeIndex = values.first().first;
+            firstAttributeId = PerfEvent::LastSpecialTypeId - values.first().first;
             event.m_value = values.first().second;
-            // TODO: support multiple values per event.
+            for (auto it = values.constBegin() + 1, end = values.constEnd(); it != end; ++it) {
+                event.m_values.push_back({ PerfEvent::LastSpecialTypeId - it->first,
+                                           it->second });
+            }
         }
         if (event.m_feature == PerfEventType::TracePointSample)
             stream >> event.m_traceData;
-        event.setTypeIndex(PerfEvent::LastSpecialTypeId - typeIndex);
+        event.setTypeIndex(firstAttributeId);
     }
     }
 
@@ -178,7 +183,10 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfEvent &event)
         stream << event.m_origFrames << event.m_origNumGuessedFrames;
 
         QVector<QPair<qint32, quint64>> values;
-        values.push_back({ PerfEvent::LastSpecialTypeId - event.typeIndex(), event.m_value });
+        for (int i = 0, end = event.numAttributes(); i < end; ++i) {
+            values.push_back({ PerfEvent::LastSpecialTypeId - event.attributeId(i),
+                               event.attributeValue(i) });
+        }
         stream << values;
 
         if (feature == PerfEventType::TracePointSample)

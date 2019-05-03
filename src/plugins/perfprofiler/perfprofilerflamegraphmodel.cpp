@@ -227,8 +227,12 @@ void PerfProfilerFlameGraphData::updateTraceData(const PerfEvent &event, const P
                                                  PerfProfilerFlameGraphModel::Data *data,
                                                  int numSamples)
 {
-    const PerfEventType::Attribute &attribute = type.attribute();
-    if (attribute.type == PerfEventType::TypeTracepoint) {
+    Q_UNUSED(type);
+    for (int i = 0, end = event.numAttributes(); i < end; ++i) {
+        const PerfEventType::Attribute &attribute = manager->attribute(event.attributeId(i));
+        if (attribute.type != PerfEventType::TypeTracepoint)
+            continue;
+
         const PerfProfilerTraceManager::TracePoint &tracePoint
                 = manager->tracePoint(static_cast<int>(attribute.config));
 

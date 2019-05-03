@@ -281,7 +281,7 @@ void PerfProfilerTraceManager::replayPerfEvents(PerfEventLoader loader, Initiali
         QTC_ASSERT(traceEvent.is<PerfEvent>(), return false);
         PerfEvent &&event = traceEvent.asRvalueRef<PerfEvent>();
         processSample(event);
-        loader(event, eventType(event.typeIndex()));
+        loader(event, eventType(event.attributeId(0)));
         return true;
     });
 
