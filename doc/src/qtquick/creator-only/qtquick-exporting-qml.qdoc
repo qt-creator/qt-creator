@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -32,7 +32,7 @@
 /*!
 
     \contentspage index.html
-    \previouspage qtquick-iso-icon-browser.html
+    \previouspage creator-quick-ui-forms.html
     \page quick-export-to-qml.html
     \nextpage creator-qml-modules-with-plugins.html
 

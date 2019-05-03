@@ -1,0 +1,322 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Design Studio Manual}
+    \previouspage qtquick-properties.html
+    \page studio-timeline.html
+    \nextpage qmldesigner-connections.html
+
+    \title Creating Animations
+
+    You can use the timeline and keyframe based editor in the
+    \uicontrol Timeline view to animate the properties of UI components.
+    Animating properties enables their values to move through intermediate
+    values instead of immediately changing to the target value. For example,
+    to move an item in a scene, you can animate the properties that control
+    the item's position, x and y, so that the item's position changes at
+    keyframes on the way to the target position. Similarly, you could change
+    the color and scale properties of the item at keyframes to make it appear
+    to move closer or farther away.
+
+    Qt Quick allows you to declare various UI states in \l State objects.
+    These states are comprised of property changes from a base state, and
+    can be a useful way of organizing your UI logic. Transitions are objects
+    you can associate with an item to define how its properties will animate
+    when they change due to a state change.
+
+    You can find a video tutorial about creating timelines and adding keyframes
+    \l{https://resources.qt.io/development-topic-ui-design/qtdesignstudio-clustertutorial-parttwo}
+    {here}.
+
+    \if defined(qtcreator)
+    \section1 Enabling the Timeline Editor
+
+    The \uicontrol Timeline view is not visible in \QC by default. To enable
+    it, select \uicontrol Tools > \uicontrol Options > \uicontrol {Qt Quick} >
+    \uicontrol {Qt Quick Designer} > \uicontrol {Enable Timeline editor}. You
+    need to restart \QC for the \uicontrol Timeline view to appear.
+
+    To be able to create timelines, you also need the Qt Quick Timeline module.
+    At the time of this writing, the module is not available as a library in
+    the Qt installer, and therefore you must check out the repository and build
+    the module yourself using the same Qt version that you used to build \QC.
+
+    You can check out the module from
+    \l{https://codereview.qt-project.org/#/admin/projects/qt/qtquicktimeline}
+    {Qt Code Review Tool}.
+    \endif
+
+    \section1 Creating Timelines
+
+    You specify settings for the timeline and for running the animation in the
+    \uicontrol {Timeline Settings} dialog.
+
+    \image studio-timeline-settings.png "Timeline Settings dialog"
+
+    To create a timeline to animate a UI component:
+
+    \list 1
+        \li In the \uicontrol Navigator, select the item to animate.
+        \li Select the \uicontrol Timeline tab to open the \uicontrol Timeline
+            view.
+        \li Select the \inlineimage plus.png
+            (\uicontrol {Add Timeline (A)}) button, or press \key {A} to
+            specify settings for the timeline and running the animation
+            in the \uicontrol {Timeline Settings} dialog.
+        \li In the \uicontrol {Timeline ID} field, enter a name that describes
+            the animated item.
+        \li In the \uicontrol {End frame} field, set the duration of the
+            animation.
+        \li To use bindings to specify the properties, select the
+            \uicontrol {Expression binding} radio button and enter the binding
+            in the \uicontrol {Expression binding} field. For more information
+            about property binding, see \l{Setting Bindings}.
+        \li To create a timeline animation, select the \uicontrol Animation
+            radio button.
+        \li In the \uicontrol timelineAnimation tab, \uicontrol {Animation ID}
+            field, enter a name for the animation.
+        \li Select the \uicontrol {Running in Base State} check box to use the
+            settings in this tab when previewing the UI. Deselect the check box
+            to use the default settings.
+        \li In the \uicontrol {Start frame} field, set the first frame of the
+            animation.
+        \li In the \uicontrol {End frame} field, set the last frame of the
+            animation.
+        \li In the \uicontrol {Duration} field, set the length of the
+            animation from the start frame to the end frame. If you set a
+            shorter duration than the number of frames, frames are left out
+            from the end of the animation when viewing it.
+        \li Select the \uicontrol Continuous check box to loop the animation
+            indefinitely.
+        \li In the \uicontrol Loops field, select the number of times to run
+            the animation as a loop. The default number of loops is one, which
+            means that you must restart the animation to see it again
+        \li Select the \uicontrol {Ping pong} check box to play the animation
+            backwards back to the beginning when it reaches the end.
+        \li In the \uicontrol {Transitions to states} field, select the state
+            to switch to when the animation finishes.
+        \li Select \uicontrol Close to close the dialog and save the settings.
+    \endlist
+
+    To create additional timelines, select the \inlineimage plus.png
+    (\uicontrol {Add Timeline}) button next to the \uicontrol timeline tab.
+
+    To specify settings for running the timeline animations, select the
+    \inlineimage plus.png
+    (\uicontrol {Add Animation}) button next to the
+    \uicontrol {Animation Settings} group. For example, you could create
+    settings for running a part of the timeline animation between specified
+    frames or for running the animation backwards from the last frame to the
+    first.
+
+    To modify the settings, select the \inlineimage animation.png
+    (\uicontrol {Timeline Settings (S)}) button on the toolbar
+    (or press \key S) in the \uicontrol Timeline view.
+
+    \section2 Binding Animations to States
+
+    The table at the bottom of the \uicontrol {Timeline Settings} dialog lists
+    the available states. Double-click the values in the \uicontrol Timeline
+    and \uicontrol Animation column to bind the states to animations. In the
+    \uicontrol {Fixed Frame} column, you can bind the states that don't have
+    animations to fixed frames.
+
+    \section1 Managing Keyframes
+
+    To animate components in the \uicontrol Timeline view, move to a frame
+    on the timeline and specify changes in the values of a property. \QDS
+    automatically adds keyframes between two keyframes, and sets their values
+    evenly to create an appearance of movement or transformation.
+
+    \section2 Navigating the Timeline
+
+    \image studio-timeline.png "Timeline view"
+
+    You can navigate the timeline in the following ways:
+
+    \list
+        \li Drag the playhead (1) to a frame.
+        \li Click on the ruler (2) to move to a frame.
+        \li Select the \uicontrol {To Start (Home)}, \uicontrol {Previous (,)},
+            or \uicontrol {Next (.)} buttons (3), or use the keyboard shortcuts
+            to move to the first, previous, or next frame on the timeline.
+        \li Enter the number of a frame in the field (4) to move to that frame.
+        \li Select the \uicontrol Previous and \uicontrol Next buttons next to
+            a property name on the timeline (5) to move to the previous or next
+            keyframe for that property.
+    \endlist
+
+    \section2 Setting Keyframe Values
+
+    You can insert keyframes for all the properties of all the components that
+    you want to animate first, and then record the changes in their values by
+    selecting the \inlineimage recordfill.png
+    (\uicontrol {Per Property Recording}) button for one property at a time.
+    For example, you can hide and show items by turning their visibility off and
+    on or by setting their opacity to 0 or 1.
+
+    You can also select the \uicontrol {Auto Key (K)} button (or press \key K)
+    to record changes in property values, but you need to be more careful about
+    which property values you are changing to avoid surprises.
+
+    To record the changes of property values:
+
+    \list 1
+        \li In the \uicontrol Navigator, select the item to animate.
+        \li In the \uicontrol Properties view, select \uicontrol Settings >
+            \uicontrol {Insert Keyframe} for the property that you want to
+            animate.
+        \li Select the \uicontrol {Per Property Recording} button to start
+            recording property changes.
+        \li Check that the playhead is in frame 0 and enter the value of the
+            property in the field next to the property name on the timeline.
+            Press \key Enter to save the value.
+        \li Move the playhead to another frame on the timeline and specify
+            the value at that frame.
+        \li When you have specified as many values as you need, select
+            \uicontrol {Per Property Recording} again to stop recording.
+    \endlist
+
+    To remove all the changes you recorded for a property, right-click the
+    property name on the timeline and select \uicontrol {Remove Property}.
+
+    Keyframes a marked on the timeline by using markers of different colors and
+    shapes, depending on whether they are active or inactive or whether you have
+    applied easing curves to them, for example.
+
+    To edit the value of the selected keyframe, select
+    \uicontrol {Edit Value for Keyframe} in the context menu.
+
+    You can copy the keyframes from the keyframe track for an item and
+    paste them to the keyframe track of another item. To copy all
+    keyframes from one item to another one, select an item, and then
+    select \uicontrol {Copy All Keyframes} in the context menu. Then
+    select the other item and select \uicontrol {Paste Keyframes} in
+    the  context menu.
+
+    To delete the selected keyframe, select \uicontrol {Delete Keyframe} in the
+    context menu.
+
+    To delete all keyframes from the selected item, select
+    \uicontrol {Delete All Keyframes} in the context menu.
+
+    To add keyframes to the keyframe track of an item at the current position
+    of the playhead select \uicontrol {Add Keyframes at Current Frame}.
+
+    \section1 Viewing the Animation
+
+    You can view the animation on the canvas by moving the playhead along the
+    timeline.
+
+    \if defined(qtdesignstudio)
+    To preview the animation, select the \uicontrol {Play (Space)}
+    button or press \key Space. To preview the whole UI, select the
+    \inlineimage live_preview.png
+    (\uicontrol {Show Live Preview}) button on the canvas toolbar
+    or press \key {Alt+P}.
+    \endif
+
+    \section1 Editing Easing Curves
+
+    \e Easing specifies the rate of a property value over time, so that
+    components can appear to pick up speed, slow down, or bounce back at the
+    end of the animation. By default, the animations you specify on the
+    timeline are \e linear, which means that they move from the beginning to
+    the end at a constant speed. You can use the curve picker to edit the
+    easing curve at a keyframe.
+
+    \image studio-curve-picker.png
+
+    You can use the preset curves or modify them by dragging the curve handlers
+    around. You can add points to the curve and drag them and the point handlers
+    to modify the curve. When you are happy with the curve, you can save it as a
+    custom curve. For more information about easing curve types, see the
+    documentation for \l [QML] {PropertyAnimation}{easing curves}.
+
+    To zoom into and out of the easing curve editor, use the mouse roller. To
+    reset the zoom factor, right-click in the editor and select
+    \uicontrol {Reset Zoom}.
+
+    To select easing curves:
+
+    \list 1
+        \li Select a keyframe on the timeline.
+        \li Select \uicontrol {Curve Picker (C)} on the toolbar, or press
+            \key C to open the \uicontrol {Easing Curve Editor} dialog.
+        \li Select an easing curve in the \uicontrol Presets tab.
+        \li In the \uicontrol {Duration (ms)} field, select the duration of the
+            easing function in milliseconds.
+        \li Select \uicontrol Preview to preview the curve.
+        \li Select \uicontrol OK to attach the easing curve to the keyframe
+            and to close the curve picker.
+    \endlist
+
+    When you attach easing curves to keyframes, the shape of the keyframe
+    marker changes from \inlineimage keyframe_linear_inactive.png
+    to \inlineimage keyframe_manualbezier_inactive.png
+    .
+
+    To customize easing curves:
+
+    \list 1
+        \li In the \uicontrol {Easing Curve Editor} dialog, select an easing
+            curve in the \uicontrol Presets tab.
+        \li Drag the curve handlers to modify the curve.
+        \li Right-click in the editor, and select \uicontrol {Add Point} to add
+            points to the curve.
+        \li Drag the points or the point handlers to modify the curve. If the
+            curve becomes invalid, it turns red in the editor and the
+            \uicontrol Save button is disabled.
+        \li Select \uicontrol Save to save your changes to the curve.
+        \li In the \uicontrol Name field, enter a name for the custom curve,
+            and then select \uicontrol OK to save the curve in the
+            \uicontrol Custom tab.
+    \endlist
+
+    To paste easing curve definitions to the curve picker as text, select
+    the \uicontrol Text tab.
+
+    \section1 Rotating Items
+
+    To animate components that rotate around a central point, you can use the
+    \l Item QML type as a parent for the rotating component. Then create a
+    timeline for the Item and set the rotation property for the start and end
+    keyframes.
+
+    \if defined(qtdesignstudio)
+    \section1 Animating Shapes
+
+    You can use the Studio components to animate the following shapes:
+
+    \list
+        \li Arc
+        \li Border
+        \li Pie
+        \li Rectangle
+        \li Triangle
+    \endlist
+    \endif
+*/

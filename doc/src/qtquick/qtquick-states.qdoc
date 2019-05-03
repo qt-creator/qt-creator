@@ -31,7 +31,7 @@
     \nextpage studio-fonts.html
     \else
     \previouspage quick-connections-backend.html
-    \nextpage qtquick-iso-icon-browser.html
+    \nextpage qmldesigner-pathview-editor.html
     \endif
 
     \title Adding States
