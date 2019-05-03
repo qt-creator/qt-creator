@@ -51,11 +51,12 @@ protected:
     QStringList flags;
     QString fileName;
     QString workingDir;
+    QString sysRoot;
 };
 
 TEST_F(CompilationDatabaseUtils, FilterEmptyFlags)
 {
-    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind, sysRoot);
 
     ASSERT_THAT(flags.isEmpty(), true);
 }
@@ -95,10 +96,11 @@ TEST_F(CompilationDatabaseUtils, FilterArguments)
                     QString::fromUtf8(HostOsInfo::isWindowsHost() ? winPath2 : otherPath2),
                     "-x",
                     "c++",
+                    "--sysroot=C:\\sysroot\\embedded",
                     "C:\\qt-creator\\src\\plugins\\cpptools\\compileroptionsbuilder.cpp"},
         "compileroptionsbuilder");
 
-    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind, sysRoot);
 
     ASSERT_THAT(flags,
                 Eq(QStringList{"-m32",
@@ -117,6 +119,7 @@ TEST_F(CompilationDatabaseUtils, FilterArguments)
                           {"RELATIVE_PLUGIN_PATH", "\"../lib/qtcreator/plugins\""},
                           {"QT_CREATOR", "1"}}));
     ASSERT_THAT(fileKind, CppTools::ProjectFile::Kind::CXXSource);
+    ASSERT_THAT(sysRoot, QString("C:\\sysroot\\embedded"));
 }
 
 static QString kCmakeCommand
@@ -170,7 +173,7 @@ TEST_F(CompilationDatabaseUtils, FilterCommand)
     workingDir = "C:/build-qt_llvm-msvc2017_64bit-Debug";
     flags = filterFromFileName(splitCommandLine(kCmakeCommand), "SemaCodeComplete");
 
-    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind, sysRoot);
 
     ASSERT_THAT(flags, Eq(QStringList{"/Zc:inline", "/Zc:strictStrings", "/Zc:rvalueCast", "/Zi"}));
     ASSERT_THAT(headerPaths,
@@ -186,7 +189,7 @@ TEST_F(CompilationDatabaseUtils, FileKindDifferentFromExtension)
     fileName = "foo.c";
     flags = QStringList{"-xc++"};
 
-    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind, sysRoot);
 
     ASSERT_THAT(fileKind, CppTools::ProjectFile::Kind::CXXSource);
 }
@@ -196,7 +199,7 @@ TEST_F(CompilationDatabaseUtils, FileKindDifferentFromExtension2)
     fileName = "foo.cpp";
     flags = QStringList{"-x", "c"};
 
-    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind, sysRoot);
 
     ASSERT_THAT(fileKind, CppTools::ProjectFile::Kind::CSource);
 }
@@ -205,7 +208,7 @@ TEST_F(CompilationDatabaseUtils, SkipOutputFiles)
 {
     flags = filterFromFileName(QStringList{"-o", "foo.o"}, "foo");
 
-    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind);
+    filteredFlags(fileName, workingDir, flags, headerPaths, macros, fileKind, sysRoot);
 
     ASSERT_THAT(flags.isEmpty(), true);
 }

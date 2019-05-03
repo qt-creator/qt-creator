@@ -42,7 +42,8 @@ public:
 
     Abi targetAbi() const { return Abi(); }
 
-    using BuiltInHeaderPathsRunner = std::function<HeaderPaths(const QStringList &cxxflags, const QString &sysRoot)>;
+    using BuiltInHeaderPathsRunner = std::function<HeaderPaths(
+        const QStringList &cxxflags, const QString &sysRoot, const QString &originalTargetTriple)>;
     virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const { return BuiltInHeaderPathsRunner(); }
 
     class MacroInspectionReport

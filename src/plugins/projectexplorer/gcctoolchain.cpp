@@ -245,8 +245,8 @@ GccToolChain::GccToolChain(Detection d) :
 
 GccToolChain::GccToolChain(Core::Id typeId, Detection d) :
     ToolChain(typeId, d),
-    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
-    m_headerPathsCache(std::make_shared<Cache<HeaderPaths>>())
+    m_headerPathsCache(std::make_shared<Cache<HeaderPaths>>()),
+    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>())
 { }
 
 void GccToolChain::setCompilerCommand(const FileName &path)
