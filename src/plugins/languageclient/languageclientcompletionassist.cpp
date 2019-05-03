@@ -99,16 +99,11 @@ void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manip
     if (auto edit = m_item.textEdit()) {
         applyTextEdit(manipulator, *edit);
     } else {
-        const QString textToInsert(m_item.insertText().value_or(text()));
-        int length = 0;
-        for (auto it = textToInsert.crbegin(); it != textToInsert.crend(); ++it) {
-            auto ch = *it;
-            if (ch == manipulator.characterAt(pos - length - 1))
-                ++length;
-            else if (length != 0)
-                length = 0;
-        }
-        manipulator.replace(pos - length, length, textToInsert);
+        QTextCursor cursor = manipulator.textCursorAt(pos);
+        cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+        manipulator.replace(cursor.position(),
+                            cursor.selectionEnd() - cursor.selectionStart(),
+                            m_item.insertText().value_or(m_item.label()));
     }
 
     if (auto additionalEdits = m_item.additionalTextEdits()) {
