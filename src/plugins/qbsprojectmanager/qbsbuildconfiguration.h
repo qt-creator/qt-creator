@@ -79,8 +79,6 @@ signals:
 private:
     bool fromMap(const QVariantMap &map) override;
 
-    bool m_isParsing = true;
-    bool m_parsingError = false;
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;
