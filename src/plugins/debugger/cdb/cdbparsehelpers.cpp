@@ -122,6 +122,8 @@ static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
     case BreakpointAtMain: {
         BreakpointParameters rc(BreakpointByFunction);
         rc.functionName = "main";
+        rc.module = p.module;
+        rc.oneShot = true;
         return rc;
     }
     } // switch

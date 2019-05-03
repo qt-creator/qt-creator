@@ -524,14 +524,17 @@ void CdbEngine::handleInitialSessionIdle()
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
     if (rp.breakOnMain) {
-        // FIXME:
-//        const BreakpointParameters bp(BreakpointAtMain);
-//        BreakpointModelId id(quint16(-1));
-//        QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings, id, true);
-//        runCommand({function, BuiltinCommand,
-//                    [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); }});
+        BreakpointParameters bp(BreakpointAtMain);
+        if (rp.startMode == StartInternal || rp.startMode == StartExternal) {
+            const QString &moduleFileName = Utils::FileName::fromString(rp.inferior.executable)
+                                                .fileName();
+            bp.module = moduleFileName.left(moduleFileName.indexOf('.'));
+        }
+        QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings);
+        runCommand({function, BuiltinCommand, [this](const DebuggerResponse &r) {
+                        handleBreakInsert(r, Breakpoint());
+                    }});
     }
-
     // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
     BreakpointManager::claimBreakpointsForEngine(this);
     runCommand({".symopt+0x8000"}); // disable searching public symbol table - improving the symbol lookup speed
