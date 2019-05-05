@@ -199,11 +199,14 @@ public:
 class BranchModel::Private
 {
 public:
-    Private(GitClient *client) :
+    explicit Private(GitClient *client) :
         client(client),
         rootNode(new BranchNode)
     {
     }
+
+    Private(const Private &) = delete;
+    Private &operator=(const Private &) = delete;
 
     ~Private()
     {
@@ -648,8 +651,6 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         startSha = sha(startPoint);
         branchDateTime = dateTime(startPoint);
     } else {
-        QString output;
-        QString errorMessage;
         const QStringList arguments({"-n1", "--format=%H %ct"});
         if (d->client->synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
                                       VcsCommand::SuppressCommandLogging)) {
