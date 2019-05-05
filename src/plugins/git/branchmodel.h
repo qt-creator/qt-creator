@@ -71,7 +71,6 @@ public:
     QStringList localBranchNames() const;
     QString sha(const QModelIndex &idx) const;
     QDateTime dateTime(const QModelIndex &idx) const;
-    bool hasTags() const;
     bool isHead(const QModelIndex &idx) const;
     bool isLocal(const QModelIndex &idx) const;
     bool isLeaf(const QModelIndex &idx) const;
@@ -87,7 +86,6 @@ public:
     Utils::optional<QString> remoteName(const QModelIndex &idx) const;
 
 private:
-    void parseOutputLine(const QString &line);
     void setCurrentBranch();
     BranchNode *indexToNode(const QModelIndex &index) const;
     QModelIndex nodeToIndex(BranchNode *node, int column) const;
