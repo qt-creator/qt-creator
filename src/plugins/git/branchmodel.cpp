@@ -36,6 +36,8 @@
 #include <QDateTime>
 #include <QFont>
 
+#include <set>
+
 using namespace VcsBase;
 
 namespace Git {
@@ -214,7 +216,8 @@ public:
     }
 
     bool hasTags() const { return rootNode->children.count() > Tags; }
-    void parseOutputLine(const QString &line);
+    void parseOutputLine(const QString &line, bool force = false);
+    void flushOldEntries();
 
     GitClient *client;
     QString workingDirectory;
@@ -226,6 +229,17 @@ public:
     QStringList obsoleteLocalBranches;
     Utils::FileSystemWatcher fsWatcher;
     bool oldBranchesIncluded = false;
+
+    struct OldEntry
+    {
+        QString line;
+        QDateTime dateTime;
+        bool operator<(const OldEntry &other) const { return dateTime < other.dateTime; }
+    };
+
+    BranchNode *currentRoot = nullptr;
+    QString currentRemote;
+    std::set<OldEntry> oldEntries;
 };
 
 // --------------------------------------------------------------------------
@@ -410,6 +424,7 @@ bool BranchModel::refresh(const QString &workingDirectory, QString *errorMessage
     const QStringList lines = output.split('\n');
     for (const QString &l : lines)
         d->parseOutputLine(l);
+    d->flushOldEntries();
 
     if (d->currentBranch) {
         if (d->currentBranch->isLocal())
@@ -723,7 +738,7 @@ Utils::optional<QString> BranchModel::remoteName(const QModelIndex &idx) const
     return Utils::nullopt;
 }
 
-void BranchModel::Private::parseOutputLine(const QString &line)
+void BranchModel::Private::parseOutputLine(const QString &line, bool force)
 {
     if (line.size() < 3)
         return;
@@ -744,14 +759,10 @@ void BranchModel::Private::parseOutputLine(const QString &line)
         dateTime = QDateTime::fromSecsSinceEpoch(timeT);
     }
 
-    if (!oldBranchesIncluded && !current && dateTime.isValid()) {
+    bool isOld = false;
+    if (!oldBranchesIncluded && !force && !current && dateTime.isValid()) {
         const qint64 age = dateTime.daysTo(QDateTime::currentDateTime());
-        if (age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS) {
-            const QString heads = "refs/heads/";
-            if (fullName.startsWith(heads))
-                obsoleteLocalBranches.append(fullName.mid(heads.size()));
-            return;
-        }
+        isOld = age > Constants::OBSOLETE_COMMIT_AGE_IN_DAYS;
     }
     bool showTags = client->settings().boolValue(GitSettings::showTagsKey);
 
@@ -760,18 +771,45 @@ void BranchModel::Private::parseOutputLine(const QString &line)
     nameParts.removeFirst(); // remove refs...
 
     BranchNode *root = nullptr;
+    BranchNode *oldEntriesRoot = nullptr;
+    RootNodes rootType;
     if (nameParts.first() == "heads") {
-        root = rootNode->children.at(LocalBranches);
+        rootType = LocalBranches;
+        if (isOld)
+            obsoleteLocalBranches.append(fullName.mid(sizeof("refs/heads/")-1));
     } else if (nameParts.first() == "remotes") {
-        root = rootNode->children.at(RemoteBranches);
+        rootType = RemoteBranches;
+        const QString remoteName = nameParts.at(1);
+        root = rootNode->children.at(rootType);
+        oldEntriesRoot = root->childOfName(remoteName);
+        if (!oldEntriesRoot)
+            oldEntriesRoot = root->append(new BranchNode(remoteName));
     } else if (showTags && nameParts.first() == "tags") {
         if (!hasTags()) // Tags is missing, add it
             rootNode->append(new BranchNode(tr("Tags"), "refs/tags"));
-        root = rootNode->children.at(Tags);
+        rootType = Tags;
     } else {
         return;
     }
 
+    root = rootNode->children.at(rootType);
+    if (!oldEntriesRoot)
+        oldEntriesRoot = root;
+    if (isOld) {
+        if (oldEntriesRoot->children.size() > Constants::MAX_OBSOLETE_COMMITS_TO_DISPLAY)
+            return;
+        if (currentRoot != oldEntriesRoot) {
+            flushOldEntries();
+            currentRoot = oldEntriesRoot;
+        }
+        const bool eraseOldestEntry = oldEntries.size() >= Constants::MAX_OBSOLETE_COMMITS_TO_DISPLAY;
+        if (!eraseOldestEntry || dateTime > oldEntries.begin()->dateTime) {
+            if (eraseOldestEntry)
+                oldEntries.erase(oldEntries.begin());
+            oldEntries.insert(Private::OldEntry{line, dateTime});
+        }
+        return;
+    }
     nameParts.removeFirst();
 
     // limit depth of list. Git basically only ever wants one / and considers the rest as part of
@@ -788,6 +826,18 @@ void BranchModel::Private::parseOutputLine(const QString &line)
     root->insert(nameParts, newNode);
     if (current)
         currentBranch = newNode;
+}
+
+void BranchModel::Private::flushOldEntries()
+{
+    if (!currentRoot)
+        return;
+    for (int size = currentRoot->children.size(); size > 0 && !oldEntries.empty(); --size)
+        oldEntries.erase(oldEntries.begin());
+    for (const Private::OldEntry &entry : oldEntries)
+        parseOutputLine(entry.line, true);
+    oldEntries.clear();
+    currentRoot = nullptr;
 }
 
 BranchNode *BranchModel::indexToNode(const QModelIndex &index) const
