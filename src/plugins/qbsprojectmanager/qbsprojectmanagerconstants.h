@@ -88,6 +88,7 @@ const char CPP_CCOMPILERNAME[] = "cpp.cCompilerName";
 const char CPP_CXXCOMPILERNAME[] = "cpp.cxxCompilerName";
 const char CPP_PLATFORMCOMMONCOMPILERFLAGS[] = "cpp.platformCommonCompilerFlags";
 const char CPP_PLATFORMLINKERFLAGS[] = "cpp.platformLinkerFlags";
+const char CPP_VCVARSALLPATH[] = "cpp.vcvarsallPath";
 const char XCODE_DEVELOPERPATH[] = "xcode.developerPath";
 const char XCODE_SDK[] = "xcode.sdk";
 

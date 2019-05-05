@@ -176,7 +176,7 @@ protected:
     QString m_varsBatArg; // Argument
 };
 
-class ClangClToolChain : public MsvcToolChain
+class PROJECTEXPLORER_EXPORT ClangClToolChain : public MsvcToolChain
 {
 public:
     ClangClToolChain(const QString &name, const QString &llvmDir, Detection d);
