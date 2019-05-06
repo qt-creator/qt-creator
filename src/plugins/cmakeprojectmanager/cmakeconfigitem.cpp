@@ -42,12 +42,6 @@ namespace CMakeProjectManager {
 
 CMakeConfigItem::CMakeConfigItem() = default;
 
-CMakeConfigItem::CMakeConfigItem(const CMakeConfigItem &other) : // What about inCMakeCache?
-    key(other.key), type(other.type), isAdvanced(other.isAdvanced),
-    isUnset(other.isUnset), value(other.value),
-    documentation(other.documentation), values(other.values)
-{}
-
 CMakeConfigItem::CMakeConfigItem(const QByteArray &k, Type t,
                                  const QByteArray &d, const QByteArray &v) :
     key(k), type(t), value(v), documentation(d)

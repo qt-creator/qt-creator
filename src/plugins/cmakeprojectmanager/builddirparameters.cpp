@@ -90,6 +90,7 @@ CMakeTool *BuildDirParameters::cmakeTool() const
 }
 
 BuildDirParameters::BuildDirParameters(const BuildDirParameters &) = default;
+BuildDirParameters &BuildDirParameters::operator=(const BuildDirParameters &) = default;
 
 } // namespace Internal
 } // namespace CMakeProjectManager

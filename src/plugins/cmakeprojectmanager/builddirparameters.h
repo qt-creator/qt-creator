@@ -44,6 +44,7 @@ public:
     BuildDirParameters();
     BuildDirParameters(CMakeBuildConfiguration *bc);
     BuildDirParameters(const BuildDirParameters &other);
+    BuildDirParameters &operator=(const BuildDirParameters &other);
 
     bool isValid() const;
     CMakeTool *cmakeTool() const;
