@@ -47,6 +47,8 @@ public:
         compilerInstance.getPreprocessorOpts().DisablePCHValidation = true;
         compilerInstance.getPreprocessorOpts().AllowPCHWithCompilerErrors = true;
         compilerInstance.getDiagnosticOpts().ErrorLimit = 0;
+        compilerInstance.getFrontendOpts().SkipFunctionBodies = true;
+        compilerInstance.getFrontendOpts().IncludeTimestamps = true;
         std::unique_ptr<llvm::MemoryBuffer> Input = llvm::MemoryBuffer::getMemBuffer(m_fileContent);
         compilerInstance.getPreprocessorOpts().addRemappedFile(m_filePath, Input.release());
 
