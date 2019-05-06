@@ -26,9 +26,11 @@
 #include "qbsrunconfiguration.h"
 
 #include "qbsnodes.h"
+#include "qbspmlogging.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsproject.h"
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
@@ -123,8 +125,13 @@ void QbsRunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
         return;
     }
     BuildTargetInfo bti = buildTargetInfo();
-    if (bti.runEnvModifier)
+    if (bti.runEnvModifier) {
+        if (project()->isParsing() || BuildManager::isBuilding(target())) {
+            qCDebug(qbsPmLog) << "qbs project in flux, cannot modify environment";
+            return; // Intentionally skips the cache update below.
+        }
         bti.runEnvModifier(env, usingLibraryPaths);
+    }
     m_envCache.insert(key, env);
 }
 
