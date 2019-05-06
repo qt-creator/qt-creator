@@ -8,6 +8,11 @@
 #ifndef MPARK_VARIANT_HPP
 #define MPARK_VARIANT_HPP
 
+#if defined(__GNUC__) && __GNUC__ >= 9
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#endif
+
 /*
    variant synopsis
 
@@ -2452,5 +2457,9 @@ namespace std {
   };
 
 }  // namespace std
+
+#if defined(__GNUC__) && __GNUC__ >= 9
+#pragma GCC diagnostic pop
+#endif
 
 #endif  // MPARK_VARIANT_HPP
