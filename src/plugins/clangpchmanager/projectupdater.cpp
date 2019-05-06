@@ -156,12 +156,26 @@ QStringList ProjectUpdater::toolChainArguments(CppTools::ProjectPart *projectPar
     // builder.addTargetTriple(); TODO resarch why target triples are different
     builder.addExtraCodeModelFlags();
     builder.undefineClangVersionMacrosForMsvc();
+
     builder.undefineCppLanguageFeatureMacrosForMsvc2015();
     builder.addProjectConfigFileInclude();
     builder.addMsvcCompatibilityVersion();
 
     return builder.options();
 }
+
+namespace {
+void cleanupMacros(ClangBackEnd::CompilerMacros &macros)
+{
+    auto newEnd = std::partition(macros.begin(),
+                                 macros.end(),
+                                 [](const ClangBackEnd::CompilerMacro &macro) {
+                                     return macro.key != "QT_TESTCASE_BUILDDIR";
+                                 });
+
+    macros.erase(newEnd, macros.end());
+}
+} // namespace
 
 ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(const ProjectExplorer::Macros &projectMacros)
 {
@@ -170,6 +184,8 @@ ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(const ProjectE
         projectMacros, [&](const ProjectExplorer::Macro &macro) {
             return ClangBackEnd::CompilerMacro{macro.key, macro.value, ++index};
         });
+
+    cleanupMacros(macros);
 
     std::sort(macros.begin(), macros.end());
 
