@@ -58,6 +58,8 @@ EasingCurve::EasingCurve(const QPointF &start, const QVector<QPointF> &points)
     fromCubicSpline(points);
 }
 
+EasingCurve &EasingCurve::operator=(const EasingCurve &curve) = default;
+
 EasingCurve::~EasingCurve() = default;
 
 bool EasingCurve::IsValidIndex(int idx)

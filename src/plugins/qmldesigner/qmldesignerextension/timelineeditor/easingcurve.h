@@ -46,6 +46,8 @@ public:
 
     virtual ~EasingCurve();
 
+    EasingCurve &operator=(const EasingCurve &curve);
+
     static bool IsValidIndex(int idx);
 
     static void registerStreamOperators();
