@@ -62,7 +62,6 @@ class ProFile;
 class ProString {
 public:
     ProString();
-    ProString(const ProString &other);
     PROITEM_EXPLICIT ProString(const QString &str);
     PROITEM_EXPLICIT ProString(const QStringRef &str);
     PROITEM_EXPLICIT ProString(const char *str);

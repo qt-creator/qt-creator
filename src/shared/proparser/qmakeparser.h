@@ -107,7 +107,6 @@ private:
 
     struct BlockScope {
         BlockScope() : start(0), braceLevel(0), special(false), inBranch(false), nest(NestNone) {}
-        BlockScope(const BlockScope &other) { *this = other; }
         ushort *start; // Where this block started; store length here
         int braceLevel; // Nesting of braces in scope
         bool special; // Single-line conditionals inside loops, etc. cannot have else branches
