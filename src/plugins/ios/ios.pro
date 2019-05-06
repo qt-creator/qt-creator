@@ -25,7 +25,6 @@ HEADERS += \
     iosdeploystep.h \
     simulatorcontrol.h \
     iosbuildconfiguration.h \
-    iosbuildsettingswidget.h \
     createsimulatordialog.h \
     simulatoroperationdialog.h \
     simulatorinfomodel.h
@@ -48,7 +47,6 @@ SOURCES += \
     iosdeploystep.cpp \
     simulatorcontrol.cpp \
     iosbuildconfiguration.cpp \
-    iosbuildsettingswidget.cpp \
     createsimulatordialog.cpp \
     simulatoroperationdialog.cpp \
     simulatorinfomodel.cpp
