@@ -692,6 +692,8 @@ QList<Task> CMakeGeneratorKitAspect::validate(const Kit *k) const
 
 void CMakeGeneratorKitAspect::setup(Kit *k)
 {
+    if (!k || k->hasValue(id()))
+        return;
     GeneratorInfo info;
     info.fromVariant(defaultValue(k));
     setGeneratorInfo(k, info);

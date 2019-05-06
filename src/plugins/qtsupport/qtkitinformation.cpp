@@ -163,6 +163,8 @@ QtKitAspect::QtKitAspect()
 
 void QtKitAspect::setup(ProjectExplorer::Kit *k)
 {
+    if (!k || k->hasValue(id()))
+        return;
     const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
     const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
 

@@ -805,7 +805,7 @@ DeviceTypeKitAspect::DeviceTypeKitAspect()
 
 void DeviceTypeKitAspect::setup(Kit *k)
 {
-    if (k)
+    if (k && !k->hasValue(id()))
         k->setValue(id(), QByteArray(Constants::DESKTOP_DEVICE_TYPE));
 }
 
