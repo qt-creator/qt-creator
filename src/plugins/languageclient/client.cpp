@@ -187,8 +187,11 @@ static ClientCapabilities generateClientCapabilities()
          CompletionItemKind::Constant,     CompletionItemKind::Struct,
          CompletionItemKind::Event,        CompletionItemKind::Operator,
          CompletionItemKind::TypeParameter});
-
     completionCapabilities.setCompletionItemKind(completionItemKindCapabilities);
+    TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemCapbilities
+        completionItemCapbilities;
+    completionItemCapbilities.setSnippetSupport(false);
+    completionCapabilities.setCompletionItem(completionItemCapbilities);
     documentCapabilities.setCompletion(completionCapabilities);
 
     TextDocumentClientCapabilities::CodeActionCapabilities codeActionCapabilities;
