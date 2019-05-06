@@ -133,7 +133,11 @@ public:
 
     void makeEmpty();
 
+    // Files of the specified type declared in this file.
     QSet<Utils::FileName> files(const ProjectExplorer::FileType &type) const;
+
+    // Files of the specified type declared in this file and in included .pri files.
+    const QSet<Utils::FileName> collectFiles(const ProjectExplorer::FileType &type) const;
 
     void update(const Internal::QmakePriFileEvalResult &result);
 
