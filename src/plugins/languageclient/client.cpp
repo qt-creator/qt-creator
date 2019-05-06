@@ -191,6 +191,7 @@ static ClientCapabilities generateClientCapabilities()
     TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemCapbilities
         completionItemCapbilities;
     completionItemCapbilities.setSnippetSupport(false);
+    completionItemCapbilities.setCommitCharacterSupport(true);
     completionCapabilities.setCompletionItem(completionItemCapbilities);
     documentCapabilities.setCompletion(completionCapabilities);
 

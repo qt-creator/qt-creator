@@ -76,6 +76,7 @@ public:
 
 private:
     CompletionItem m_item;
+    mutable QChar m_triggeredCommitCharacter;
     mutable QString m_sortText;
 };
 
@@ -89,8 +90,14 @@ QString LanguageClientCompletionItem::text() const
 bool LanguageClientCompletionItem::implicitlyApplies() const
 { return false; }
 
-bool LanguageClientCompletionItem::prematurelyApplies(const QChar &/*typedCharacter*/) const
-{ return false; }
+bool LanguageClientCompletionItem::prematurelyApplies(const QChar &typedCharacter) const
+{
+    if (m_item.commitCharacters().has_value() && m_item.commitCharacters().value().contains(typedCharacter)) {
+        m_triggeredCommitCharacter = typedCharacter;
+        return true;
+    }
+    return false;
+}
 
 void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
                                          int /*basePosition*/) const
@@ -110,6 +117,8 @@ void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manip
         for (const auto &edit : *additionalEdits)
             applyTextEdit(manipulator, edit);
     }
+    if (!m_triggeredCommitCharacter.isNull())
+        manipulator.insertCodeSnippet(manipulator.currentPosition(), m_triggeredCommitCharacter);
 }
 
 QIcon LanguageClientCompletionItem::icon() const
