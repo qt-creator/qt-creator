@@ -55,7 +55,6 @@ public:
     };
 
     InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression = GlobalSuppressionDisabled);
-    InfoBarEntry(const InfoBarEntry &other) { *this = other; }
 
     using CallBack = std::function<void()>;
     void setCustomButtonInfo(const QString &_buttonText, CallBack callBack);
