@@ -223,6 +223,7 @@ public:
     explicit ClangToolChain(Detection d);
     ClangToolChain(Core::Id typeId, Detection d);
     ClangToolChain(const ClangToolChain &other);
+    ~ClangToolChain() override;
     QString typeDisplayName() const override;
     QString makeCommand(const Utils::Environment &environment) const override;
 

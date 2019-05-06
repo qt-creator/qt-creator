@@ -1333,6 +1333,12 @@ ClangToolChain::ClangToolChain(const ClangToolChain &other)
     , m_parentToolChainId(other.m_parentToolChainId)
 {}
 
+ClangToolChain::~ClangToolChain()
+{
+    QObject::disconnect(m_thisToolchainRemovedConnection);
+    QObject::disconnect(m_mingwToolchainAddedConnection);
+}
+
 QString ClangToolChain::typeDisplayName() const
 {
     return ClangToolChainFactory::tr("Clang");
