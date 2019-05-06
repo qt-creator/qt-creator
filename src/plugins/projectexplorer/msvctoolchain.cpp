@@ -206,7 +206,7 @@ static Utils::optional<VisualStudioInstallation> installationFromPathAndVersion(
     installation.vsName = versionString;
     installation.vcVarsPath = vcVarsPath;
     installation.vcVarsAll = vcVarsAllPath;
-    return std::move(installation);
+    return installation;
 }
 
 // Detect build tools introduced with MSVC2017
