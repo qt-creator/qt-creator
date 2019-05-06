@@ -82,7 +82,6 @@ private:
     void removeKit(ProjectExplorer::Kit *k);
     void changeDefaultKit();
     void validateKitNames();
-    void isAutoDetectedChanged();
 
     KitNode *findWorkingCopy(Kit *k) const;
     KitNode *createNode(Kit *k);

@@ -44,9 +44,21 @@ namespace Internal {
 class KitNode : public TreeItem
 {
 public:
-    KitNode(Kit *k)
+    KitNode(Kit *k, KitModel *m)
     {
         widget = new KitManagerConfigWidget(k);
+
+        QObject::connect(widget, &KitManagerConfigWidget::dirty, m, [this] { update(); });
+
+        QObject::connect(widget, &KitManagerConfigWidget::isAutoDetectedChanged, m, [this, m] {
+            TreeItem *oldParent = parent();
+            TreeItem *newParent =
+                    m->rootItem()->childAt(widget->workingCopy()->isAutoDetected() ? 0 : 1);
+            if (oldParent && oldParent != newParent) {
+                m->takeItem(this);
+                newParent->appendChild(this);
+            }
+        });
     }
 
     ~KitNode() override
@@ -159,35 +171,6 @@ KitManagerConfigWidget *KitModel::widget(const QModelIndex &index)
     return n ? n->widget : nullptr;
 }
 
-void KitModel::isAutoDetectedChanged()
-{
-    auto w = qobject_cast<KitManagerConfigWidget *>(sender());
-    int idx = -1;
-    idx = Utils::indexOf(*m_manualRoot, [w](TreeItem *node) {
-        return static_cast<KitNode *>(node)->widget == w;
-    });
-    TreeItem *oldParent = nullptr;
-    TreeItem *newParent = w->workingCopy()->isAutoDetected() ? m_autoRoot : m_manualRoot;
-    if (idx != -1) {
-        oldParent = m_manualRoot;
-    } else {
-        idx = Utils::indexOf(*m_autoRoot, [w](TreeItem *node) {
-            return static_cast<KitNode *>(node)->widget == w;
-        });
-        if (idx != -1) {
-            oldParent = m_autoRoot;
-        }
-    }
-
-    if (oldParent && oldParent != newParent) {
-        beginMoveRows(indexForItem(oldParent), idx, idx, indexForItem(newParent), newParent->childCount());
-        TreeItem *n = oldParent->childAt(idx);
-        takeItem(n);
-        newParent->appendChild(n);
-        endMoveRows();
-    }
-}
-
 void KitModel::validateKitNames()
 {
     QHash<QString, int> nameHash;
@@ -290,15 +273,8 @@ KitNode *KitModel::findWorkingCopy(Kit *k) const
 
 KitNode *KitModel::createNode(Kit *k)
 {
-    auto node = new KitNode(k);
+    auto node = new KitNode(k, this);
     m_parentLayout->addWidget(node->widget);
-    connect(node->widget, &KitManagerConfigWidget::dirty, [this, node] {
-        if (m_autoRoot->indexOf(node) != -1 || m_manualRoot->indexOf(node) != -1)
-            node->update();
-    });
-    connect(node->widget, &KitManagerConfigWidget::isAutoDetectedChanged,
-            this, &KitModel::isAutoDetectedChanged);
-
     return node;
 }
 
