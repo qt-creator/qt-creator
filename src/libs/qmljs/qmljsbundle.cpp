@@ -35,11 +35,6 @@
 namespace QmlJS {
 typedef PersistentTrie::Trie Trie;
 
-QmlBundle::QmlBundle(const QmlBundle &o)
-    : m_name(o.m_name), m_searchPaths(o.searchPaths()), m_installPaths(o.installPaths()),
-      m_supportedImports(o.m_supportedImports), m_implicitImports(o.m_implicitImports)
-{ }
-
 QmlBundle::QmlBundle()
 { }
 

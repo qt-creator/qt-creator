@@ -230,7 +230,6 @@ class QMLJS_EXPORT Snapshot
 
 public:
     Snapshot();
-    Snapshot(const Snapshot &o);
     ~Snapshot();
 
     typedef Base::iterator iterator;

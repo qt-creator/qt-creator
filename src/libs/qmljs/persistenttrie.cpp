@@ -545,7 +545,6 @@ QDebug &operator<<(QDebug &dbg, const Trie &trie)
 }
 Trie::Trie() {}
 Trie::Trie(const TrieNode::Ptr &trie) : trie(trie) {}
-Trie::Trie(const Trie &o) : trie(o.trie){}
 
 QStringList Trie::complete(const QString &root, const QString &base,
     LookupFlags flags) const

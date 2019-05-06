@@ -1038,6 +1038,7 @@ class QMLJS_EXPORT Import {
 public:
     Import();
     Import(const Import &other);
+    Import &operator=(const Import &other);
 
     // const!
     ObjectValue *object;

@@ -51,7 +51,6 @@ class QMLJS_EXPORT QmlBundle
 {
     typedef PersistentTrie::Trie Trie;
 public:
-    QmlBundle(const QmlBundle &o);
     QmlBundle();
     QmlBundle(const QString &name,
               const Trie &searchPaths,

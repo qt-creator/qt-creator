@@ -458,14 +458,6 @@ Snapshot::~Snapshot()
 {
 }
 
-Snapshot::Snapshot(const Snapshot &o)
-    : _documents(o._documents),
-      _documentsByPath(o._documentsByPath),
-      _libraries(o._libraries),
-      _dependencies(o._dependencies)
-{
-}
-
 void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
 {
     if (document && (allowInvalid || document->qmlProgram() || document->jsProgram())) {

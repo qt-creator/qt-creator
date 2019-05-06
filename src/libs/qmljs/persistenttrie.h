@@ -79,7 +79,6 @@ class QMLJS_EXPORT Trie
 public:
     Trie();
     Trie(const TrieNode::Ptr &t);
-    Trie(const Trie &o);
 
     QStringList complete(const QString &root, const QString &base = QString(),
         LookupFlags flags = LookupFlags(CaseInsensitive|Partial)) const;

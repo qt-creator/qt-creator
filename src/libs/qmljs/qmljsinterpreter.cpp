@@ -2340,6 +2340,16 @@ Import::Import(const Import &other)
       valid(other.valid), used(false)
 { }
 
+Import &Import::operator=(const Import &other)
+{
+    object = other.object;
+    info = other.info;
+    libraryPath = other.libraryPath;
+    valid = other.valid;
+    used = false;
+    return *this;
+}
+
 TypeScope::TypeScope(const Imports *imports, ValueOwner *valueOwner)
     : ObjectValue(valueOwner)
     , m_imports(imports)

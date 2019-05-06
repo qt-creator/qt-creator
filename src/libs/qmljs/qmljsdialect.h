@@ -79,9 +79,6 @@ QMLJS_EXPORT QDebug operator << (QDebug &dbg, const Dialect &dialect);
 class QMLJS_EXPORT PathAndLanguage {
 public:
     PathAndLanguage(const Utils::FileName &path = Utils::FileName(), Dialect language = Dialect::AnyLanguage);
-    PathAndLanguage(const PathAndLanguage &o)
-        : m_path(o.path()), m_language(o.language())
-    { }
     Utils::FileName path() const {
         return m_path;
     }
@@ -129,9 +126,6 @@ public:
     { }
     explicit PathsAndLanguages(const QList<PathAndLanguage> &list)
         : m_list(list)
-    { }
-    PathsAndLanguages(const PathsAndLanguages &o)
-        : m_list(o.m_list)
     { }
 
     bool maybeInsert(const Utils::FileName &path, Dialect language = Dialect::AnyLanguage) {
