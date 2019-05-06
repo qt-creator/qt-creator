@@ -34,9 +34,16 @@
 
 #include <windows.h>
 #define KDEXT_64BIT
-#pragma warning( disable : 4838  )
-#include <wdbgexts.h>
-#pragma warning( default : 4838  )
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wc++11-narrowing"
+#  include <wdbgexts.h>
+#  pragma clang diagnostic pop
+#else
+#  pragma warning( disable : 4838  )
+#  include <wdbgexts.h>
+#  pragma warning( default : 4838  )
+#endif // __clang__
 #include <dbgeng.h>
 
 typedef IDebugControl3 CIDebugControl;
