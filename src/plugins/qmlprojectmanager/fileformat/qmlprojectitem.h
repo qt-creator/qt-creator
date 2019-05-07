@@ -65,7 +65,7 @@ public:
 
     void appendContent(QmlProjectContentItem *item) { m_content.append(item); }
 
-    QList<Utils::EnvironmentItem> environment() const;
+    Utils::EnvironmentItems environment() const;
     void addToEnviroment(const QString &key, const QString &value);
 
 signals:
@@ -77,7 +77,7 @@ protected:
     QStringList m_importPaths;
     QStringList m_fileSelectors;
     QString m_mainFile;
-    QList<Utils::EnvironmentItem> m_environment;
+    Utils::EnvironmentItems m_environment;
     QList<QmlProjectContentItem *> m_content; // content property
 };
 

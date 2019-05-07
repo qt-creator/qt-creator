@@ -71,7 +71,7 @@ public:
     QString workingDirectory() const;
     Id baseEnvironmentProviderId() const;
     Utils::Environment baseEnvironment() const;
-    QList<Utils::EnvironmentItem> environmentUserChanges() const;
+    Utils::EnvironmentItems environmentUserChanges() const;
 
     void setFileName(const QString &fileName);
     void setPreset(QSharedPointer<ExternalTool> preset);
@@ -101,7 +101,7 @@ public:
     void setInput(const QString &input);
     void setWorkingDirectory(const QString &workingDirectory);
     void setBaseEnvironmentProviderId(Id id);
-    void setEnvironmentUserChanges(const QList<Utils::EnvironmentItem> &items);
+    void setEnvironmentUserChanges(const Utils::EnvironmentItems &items);
 
 private:
     QString m_id;
@@ -114,7 +114,7 @@ private:
     QString m_input;
     QString m_workingDirectory;
     Id m_baseEnvironmentProviderId;
-    QList<Utils::EnvironmentItem> m_environment;
+    Utils::EnvironmentItems m_environment;
     OutputHandling m_outputHandling = ShowInPane;
     OutputHandling m_errorHandling = ShowInPane;
     bool m_modifiesCurrentDocument = false;

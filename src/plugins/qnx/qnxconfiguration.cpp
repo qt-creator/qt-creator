@@ -107,7 +107,7 @@ FilePath QnxConfiguration::qccCompilerPath() const
     return m_qccCompiler;
 }
 
-QList<EnvironmentItem> QnxConfiguration::qnxEnv() const
+EnvironmentItems QnxConfiguration::qnxEnv() const
 {
     return m_qnxEnv;
 }

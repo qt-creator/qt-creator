@@ -1150,7 +1150,7 @@ private:
 
     void refresh() override
     {
-        const QList<Utils::EnvironmentItem> changes = currentEnvironment();
+        const Utils::EnvironmentItems changes = currentEnvironment();
         QString shortSummary = Utils::EnvironmentItem::toStringList(changes).join(QLatin1String("; "));
         QFontMetrics fm(m_summaryLabel->font());
         shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_summaryLabel->width());
@@ -1159,32 +1159,29 @@ private:
 
     void editEnvironmentChanges()
     {
-        bool ok;
         Utils::MacroExpander *expander = m_kit->macroExpander();
         Utils::EnvironmentDialog::Polisher polisher = [expander](QWidget *w) {
             Core::VariableChooser::addSupportForChildWidgets(w, expander);
         };
-        QList<Utils::EnvironmentItem>
-                changes = Utils::EnvironmentDialog::getEnvironmentItems(&ok,
-                                                                        m_summaryLabel,
-                                                                        currentEnvironment(),
-                                                                        QString(),
-                                                                        polisher);
-        if (!ok)
+        auto changes = Utils::EnvironmentDialog::getEnvironmentItems(m_summaryLabel,
+                                                                     currentEnvironment(),
+                                                                     QString(),
+                                                                     polisher);
+        if (!changes)
             return;
 
         if (Utils::HostOsInfo::isWindowsHost()) {
             const Utils::EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
-            if (m_vslangCheckbox->isChecked() && changes.indexOf(forceMSVCEnglishItem) < 0)
-                changes.append(forceMSVCEnglishItem);
+            if (m_vslangCheckbox->isChecked() && changes->indexOf(forceMSVCEnglishItem) < 0)
+                changes->append(forceMSVCEnglishItem);
         }
 
-        EnvironmentKitAspect::setEnvironmentChanges(m_kit, changes);
+        EnvironmentKitAspect::setEnvironmentChanges(m_kit, *changes);
     }
 
-    QList<Utils::EnvironmentItem> currentEnvironment() const
+    Utils::EnvironmentItems currentEnvironment() const
     {
-        QList<Utils::EnvironmentItem> changes = EnvironmentKitAspect::environmentChanges(m_kit);
+        Utils::EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
 
         if (Utils::HostOsInfo::isWindowsHost()) {
             const Utils::EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
@@ -1207,8 +1204,7 @@ private:
                                         "just forces UTF-8 output (may vary depending on the used MSVC "
                                         "compiler)."));
         connect(m_vslangCheckbox, &QCheckBox::toggled, this, [this](bool checked) {
-            QList<Utils::EnvironmentItem> changes
-                    = EnvironmentKitAspect::environmentChanges(m_kit);
+            Utils::EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
             const Utils::EnvironmentItem forceMSVCEnglishItem("VSLANG", "1033");
             if (!checked && changes.indexOf(forceMSVCEnglishItem) >= 0)
                 changes.removeAll(forceMSVCEnglishItem);
@@ -1254,7 +1250,7 @@ void EnvironmentKitAspect::fix(Kit *k)
     const QVariant variant = k->value(EnvironmentKitAspect::id());
     if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
         qWarning("Kit \"%s\" has a wrong environment value set.", qPrintable(k->displayName()));
-        setEnvironmentChanges(k, QList<Utils::EnvironmentItem>());
+        setEnvironmentChanges(k, Utils::EnvironmentItems());
     }
 }
 
@@ -1283,14 +1279,14 @@ Core::Id EnvironmentKitAspect::id()
     return "PE.Profile.Environment";
 }
 
-QList<Utils::EnvironmentItem> EnvironmentKitAspect::environmentChanges(const Kit *k)
+Utils::EnvironmentItems EnvironmentKitAspect::environmentChanges(const Kit *k)
 {
      if (k)
          return Utils::EnvironmentItem::fromStringList(k->value(EnvironmentKitAspect::id()).toStringList());
-     return QList<Utils::EnvironmentItem>();
+     return Utils::EnvironmentItems();
 }
 
-void EnvironmentKitAspect::setEnvironmentChanges(Kit *k, const QList<Utils::EnvironmentItem> &changes)
+void EnvironmentKitAspect::setEnvironmentChanges(Kit *k, const Utils::EnvironmentItems &changes)
 {
     if (k)
         k->setValue(EnvironmentKitAspect::id(), Utils::EnvironmentItem::toStringList(changes));

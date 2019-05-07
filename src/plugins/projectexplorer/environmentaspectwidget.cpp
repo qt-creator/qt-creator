@@ -132,7 +132,7 @@ void EnvironmentAspectWidget::userChangesEdited()
     m_ignoreChange = false;
 }
 
-void EnvironmentAspectWidget::changeUserChanges(QList<Utils::EnvironmentItem> changes)
+void EnvironmentAspectWidget::changeUserChanges(Utils::EnvironmentItems changes)
 {
     if (m_ignoreChange)
         return;

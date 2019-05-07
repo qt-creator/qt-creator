@@ -1,0 +1,68 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "preprocessormacrocollector.h"
+
+namespace ClangPchManager {
+
+namespace {
+PreprocessorMacros toSortedMacros(const ProjectExplorer::Macros &macros)
+{
+    PreprocessorMacros sortedMacros;
+    sortedMacros.reserve(macros.size());
+
+    for (const ProjectExplorer::Macro &macro : macros)
+        if (macro.type == ProjectExplorer::MacroType::Define)
+            sortedMacros.push_back({QString::fromUtf8(macro.key), QString::fromUtf8(macro.value)});
+
+    std::sort(sortedMacros.begin(), sortedMacros.end());
+
+    return sortedMacros;
+}
+} // namespace
+
+void PreprocessorMacroCollector::add(const ProjectExplorer::Macros &macros)
+{
+    PreprocessorMacros sortedMacros = toSortedMacros(macros);
+    std::sort(sortedMacros.begin(), sortedMacros.end());
+
+    PreprocessorMacros mergedMacros;
+    mergedMacros.reserve(sortedMacros.size() + m_macros.size());
+
+    std::set_union(m_macros.begin(),
+                   m_macros.end(),
+                   sortedMacros.begin(),
+                   sortedMacros.end(),
+                   std::back_inserter(mergedMacros));
+
+    m_macros = mergedMacros;
+}
+
+const PreprocessorMacros &PreprocessorMacroCollector::macros() const
+{
+    return m_macros;
+}
+
+} // namespace ClangPchManager

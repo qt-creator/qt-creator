@@ -25,36 +25,20 @@
 
 #pragma once
 
-#include "utils_global.h"
 #include "environment.h"
-
-#include <QDialog>
+#include "namevaluesdialog.h"
+#include <thread>
 
 namespace Utils {
 
-namespace Internal { class EnvironmentDialogPrivate; }
-
-class QTCREATOR_UTILS_EXPORT EnvironmentDialog : public QDialog
+class QTCREATOR_UTILS_EXPORT EnvironmentDialog : public NameValuesDialog
 {
     Q_OBJECT
 public:
-    explicit EnvironmentDialog(QWidget *parent = nullptr);
-    ~EnvironmentDialog() override;
-
-    void setEnvironmentItems(const QList<EnvironmentItem> &items);
-    QList<EnvironmentItem> environmentItems() const;
-
-    void setPlaceholderText(const QString &text);
-
-    using Polisher = std::function<void(QWidget*)>;
-    static QList<EnvironmentItem> getEnvironmentItems(bool *ok,
-                        QWidget *parent = nullptr,
-                        const QList<EnvironmentItem> &initial = QList<EnvironmentItem>(),
-                        const QString &placeholderText = QString(),
-                        Polisher polish = Polisher());
-
-private:
-    Internal::EnvironmentDialogPrivate *d;
+    static Utils::optional<EnvironmentItems> getEnvironmentItems(QWidget *parent = nullptr,
+                                                                 const EnvironmentItems &initial = {},
+                                                                 const QString &placeholderText = {},
+                                                                 Polisher polish = {});
 };
 
 } // namespace Utils

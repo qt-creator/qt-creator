@@ -61,7 +61,7 @@ private:
     void baseEnvironmentSelected(int idx);
     void changeBaseEnvironment();
     void userChangesEdited();
-    void changeUserChanges(QList<Utils::EnvironmentItem> changes);
+    void changeUserChanges(Utils::EnvironmentItems changes);
     void environmentChanged();
 
     EnvironmentAspect *m_aspect;

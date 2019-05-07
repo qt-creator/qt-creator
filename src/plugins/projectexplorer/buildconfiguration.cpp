@@ -319,12 +319,12 @@ bool BuildConfiguration::useSystemEnvironment() const
     return !m_clearSystemEnvironment;
 }
 
-QList<Utils::EnvironmentItem> BuildConfiguration::userEnvironmentChanges() const
+Utils::EnvironmentItems BuildConfiguration::userEnvironmentChanges() const
 {
     return m_userEnvironmentChanges;
 }
 
-void BuildConfiguration::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
+void BuildConfiguration::setUserEnvironmentChanges(const Utils::EnvironmentItems &diff)
 {
     if (m_userEnvironmentChanges == diff)
         return;

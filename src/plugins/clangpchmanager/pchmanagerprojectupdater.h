@@ -35,8 +35,9 @@ public:
     PchManagerProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
                              PchManagerClient &client,
                              ClangBackEnd::FilePathCachingInterface &filePathCache,
-                             ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage)
-        : ProjectUpdater(server, filePathCache, projectPartsStorage)
+                             ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage,
+                             ClangIndexingSettingsManager &settingsManager)
+        : ProjectUpdater(server, filePathCache, projectPartsStorage, settingsManager)
         , m_client(client)
     {}
 

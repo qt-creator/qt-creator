@@ -27,6 +27,8 @@
 
 #include "pchmanagerclient.h"
 
+#include <clangindexingprojectsettings.h>
+#include <clangindexingsettingsmanager.h>
 #include <filepathid.h>
 #include <pchmanagerserverinterface.h>
 #include <removegeneratedfilesmessage.h>
@@ -42,6 +44,7 @@
 #include <projectexplorer/buildconfiguration.h>
 
 #include <utils/algorithm.h>
+#include <utils/namevalueitem.h>
 
 #include <algorithm>
 #include <functional>
@@ -175,9 +178,63 @@ void cleanupMacros(ClangBackEnd::CompilerMacros &macros)
 
     macros.erase(newEnd, macros.end());
 }
+
+void updateWithSettings(ClangBackEnd::CompilerMacros &macros,
+                        Utils::NameValueItems &&settingsItems,
+                        int &index)
+{
+    std::sort(settingsItems.begin(), settingsItems.end(), [](const auto &first, const auto &second) {
+        return std::tie(first.operation, first.name, first.value)
+               < std::tie(first.operation, second.name, second.value);
+    });
+
+    auto point = std::partition_point(settingsItems.begin(), settingsItems.end(), [](const auto &entry) {
+        return entry.operation == Utils::NameValueItem::Set;
+    });
+
+    std::transform(
+        settingsItems.begin(),
+        point,
+        std::back_inserter(macros),
+        [&](const Utils::NameValueItem &settingsMacro) {
+            return ClangBackEnd::CompilerMacro{settingsMacro.name, settingsMacro.value, ++index};
+        });
+
+    std::sort(macros.begin(), macros.end(), [](const auto &first, const auto &second) {
+        return std::tie(first.key, first.value) < std::tie(second.key, second.value);
+    });
+
+    ClangBackEnd::CompilerMacros result;
+    result.reserve(macros.size());
+
+    ClangBackEnd::CompilerMacros convertedSettingsMacros;
+    convertedSettingsMacros.resize(std::distance(point, settingsItems.end()));
+    std::transform(
+        point,
+        settingsItems.end(),
+        std::back_inserter(convertedSettingsMacros),
+        [&](const Utils::NameValueItem &settingsMacro) {
+            return ClangBackEnd::CompilerMacro{settingsMacro.name, settingsMacro.value, ++index};
+        });
+
+    std::set_difference(macros.begin(),
+                        macros.end(),
+                        convertedSettingsMacros.begin(),
+                        convertedSettingsMacros.end(),
+                        std::back_inserter(result),
+                        [](const ClangBackEnd::CompilerMacro &first,
+                           const ClangBackEnd::CompilerMacro &second) {
+                            return std::tie(first.key, first.value)
+                                   < std::tie(second.key, second.value);
+                        });
+
+    macros = std::move(result);
+}
+
 } // namespace
 
-ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(const ProjectExplorer::Macros &projectMacros)
+ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(
+    const ProjectExplorer::Macros &projectMacros, Utils::NameValueItems &&settingsMacros) const
 {
     int index = 0;
     auto macros = Utils::transform<ClangBackEnd::CompilerMacros>(
@@ -186,6 +243,7 @@ ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(const ProjectE
         });
 
     cleanupMacros(macros);
+    updateWithSettings(macros, std::move(settingsMacros), index);
 
     std::sort(macros.begin(), macros.end());
 
@@ -291,9 +349,12 @@ ClangBackEnd::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
     ClangBackEnd::ProjectPartId projectPartId = m_projectPartsStorage.fetchProjectPartId(
         projectPartName);
 
+    ClangIndexingProjectSettings *settings = m_settingsManager.settings(projectPart->project);
+
     return ClangBackEnd::ProjectPartContainer(projectPartId,
                                               Utils::SmallStringVector(arguments),
-                                              createCompilerMacros(projectPart->projectMacros),
+                                              createCompilerMacros(projectPart->projectMacros,
+                                                                   settings->readMacros()),
                                               std::move(includeSearchPaths.system),
                                               std::move(includeSearchPaths.project),
                                               std::move(headerAndSources.headers),

@@ -64,12 +64,14 @@ QtCreatorRefactoringProjectUpdater::QtCreatorRefactoringProjectUpdater(
     ClangBackEnd::ProjectManagementServerInterface &server,
     ClangPchManager::PchManagerClient &pchManagerClient,
     ClangBackEnd::FilePathCachingInterface &filePathCache,
-    ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage)
+    ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage,
+    ClangPchManager::ClangIndexingSettingsManager &settingsManager)
     : RefactoringProjectUpdater(server,
                                 pchManagerClient,
                                 *cppModelManager(),
                                 filePathCache,
-                                projectPartsStorage)
+                                projectPartsStorage,
+                                settingsManager)
 {
     connectToCppModelManager();
 }

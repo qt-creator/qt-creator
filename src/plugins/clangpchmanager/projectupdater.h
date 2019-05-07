@@ -37,6 +37,8 @@
 
 #include <projectexplorer/headerpath.h>
 
+#include <utils/environmentfwd.h>
+
 namespace ProjectExplorer {
 class Macro;
 using Macros = QVector<Macro>;
@@ -59,6 +61,8 @@ namespace ClangPchManager {
 
 class HeaderAndSources;
 class PchManagerClient;
+class ClangIndexingSettingsManager;
+class ClangIndexingProjectSettings;
 
 class CLANGPCHMANAGER_EXPORT ProjectUpdater
 {
@@ -71,10 +75,12 @@ public:
 
     ProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
                    ClangBackEnd::FilePathCachingInterface &filePathCache,
-                   ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage)
+                   ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage,
+                   ClangIndexingSettingsManager &settingsManager)
         : m_server(server)
         , m_filePathCache(filePathCache)
         , m_projectPartsStorage(projectPartsStorage)
+        , m_settingsManager(settingsManager)
     {}
 
     void updateProjectParts(const std::vector<CppTools::ProjectPart *> &projectParts,
@@ -98,8 +104,8 @@ public:
     void addToHeaderAndSources(HeaderAndSources &headerAndSources,
                                const CppTools::ProjectFile &projectFile) const;
     static QStringList toolChainArguments(CppTools::ProjectPart *projectPart);
-    static ClangBackEnd::CompilerMacros createCompilerMacros(
-            const ProjectExplorer::Macros &projectMacros);
+    ClangBackEnd::CompilerMacros createCompilerMacros(const ProjectExplorer::Macros &projectMacros,
+                                                      Utils::NameValueItems &&settingsMacros) const;
     static SystemAndProjectIncludeSearchPaths createIncludeSearchPaths(
         const CppTools::ProjectPart &projectPart);
     static ClangBackEnd::FilePaths createExcludedPaths(
@@ -115,6 +121,7 @@ private:
     ClangBackEnd::ProjectManagementServerInterface &m_server;
     ClangBackEnd::FilePathCachingInterface &m_filePathCache;
     ClangBackEnd::ProjectPartsStorageInterface &m_projectPartsStorage;
+    ClangIndexingSettingsManager &m_settingsManager;
 };
 
 } // namespace ClangPchManager

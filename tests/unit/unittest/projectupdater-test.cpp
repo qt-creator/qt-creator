@@ -35,6 +35,8 @@
 
 #include <pchmanagerprojectupdater.h>
 
+#include <clangindexingprojectsettings.h>
+#include <clangindexingsettingsmanager.h>
 #include <filepathcaching.h>
 #include <pchmanagerclient.h>
 #include <precompiledheaderstorage.h>
@@ -52,6 +54,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/namevalueitem.h>
 
 namespace {
 
@@ -94,7 +97,7 @@ protected:
         projectPart.files.push_back(source2ProjectFile);
         projectPart.files.push_back(nonActiveProjectFile);
         projectPart.displayName = "projectb";
-        projectPart.projectMacros = {{"FOO", "2"}, {"BAR", "1"}};
+        projectPart.projectMacros = {{"FOO", "2"}, {"BAR", "1"}, {"POO", "3"}};
         projectPartId = projectPartsStorage.fetchProjectPartId(Utils::SmallString{projectPart.id()});
 
         projectPart2.project = &project;
@@ -138,6 +141,9 @@ protected:
                               Utils::Language::Cxx,
                               Utils::LanguageVersion::LatestCxx,
                               Utils::LanguageExtension::None};
+
+        auto settings = settingsManager.settings(&project);
+        settings->saveMacros({{"POO", "3", Utils::NameValueItem::Unset}});
     }
 
 protected:
@@ -151,7 +157,11 @@ protected:
                                                        mockDependencyCreationProgressManager};
     MockPchManagerNotifier mockPchManagerNotifier{pchManagerClient};
     NiceMock<MockPchManagerServer> mockPchManagerServer;
-    ClangPchManager::ProjectUpdater updater{mockPchManagerServer, filePathCache, projectPartsStorage};
+    ClangPchManager::ClangIndexingSettingsManager settingsManager;
+    ClangPchManager::ProjectUpdater updater{mockPchManagerServer,
+                                            filePathCache,
+                                            projectPartsStorage,
+                                            settingsManager};
     ClangBackEnd::ProjectPartId projectPartId;
     ClangBackEnd::ProjectPartId projectPartId2;
     Utils::PathStringVector headerPaths = {"/path/to/header1.h", "/path/to/header2.h"};
@@ -243,10 +253,12 @@ TEST_F(ProjectUpdater, CallRemoveProjectParts)
 
 TEST_F(ProjectUpdater, CallPrecompiledHeaderRemovedInPchManagerProjectUpdater)
 {
+    ClangPchManager::ClangIndexingSettingsManager settingManager;
     ClangPchManager::PchManagerProjectUpdater pchUpdater{mockPchManagerServer,
                                                          pchManagerClient,
                                                          filePathCache,
-                                                         projectPartsStorage};
+                                                         projectPartsStorage,
+                                                         settingManager};
     ClangBackEnd::RemoveProjectPartsMessage message{{projectPartId, projectPartId2}};
 
     EXPECT_CALL(mockPchManagerNotifier, precompiledHeaderRemoved(projectPartId));
@@ -283,9 +295,11 @@ TEST_F(ProjectUpdater, CallStorageInsideTransaction)
     MockProjectPartsStorage mockProjectPartsStorage;
     ON_CALL(mockProjectPartsStorage, transactionBackend())
         .WillByDefault(ReturnRef(mockSqliteTransactionBackend));
+    ClangPchManager::ClangIndexingSettingsManager settingsManager;
     ClangPchManager::ProjectUpdater updater{mockPchManagerServer,
                                             filePathCache,
-                                            mockProjectPartsStorage};
+                                            mockProjectPartsStorage,
+                                            settingsManager};
 
     EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartId(Eq(projectPartName)));
 
@@ -303,7 +317,7 @@ TEST_F(ProjectUpdater, CreateSortedExcludedPaths)
 
 TEST_F(ProjectUpdater, CreateSortedCompilerMacros)
 {
-    auto paths = updater.createCompilerMacros({{"DEFINE", "1"}, {"FOO", "2"}, {"BAR", "1"}});
+    auto paths = updater.createCompilerMacros({{"DEFINE", "1"}, {"FOO", "2"}, {"BAR", "1"}}, {});
 
     ASSERT_THAT(paths, ElementsAre(CompilerMacro{"BAR", "1", 1},
                                    CompilerMacro{"FOO", "2", 2},
@@ -312,10 +326,26 @@ TEST_F(ProjectUpdater, CreateSortedCompilerMacros)
 
 TEST_F(ProjectUpdater, FilterCompilerMacros)
 {
-    auto paths = updater.createCompilerMacros(
-        {{"DEFINE", "1"}, {"QT_TESTCASE_BUILDDIR", "2"}, {"BAR", "1"}});
+    auto paths = updater.createCompilerMacros({{"DEFINE", "1"},
+                                               {"QT_TESTCASE_BUILDDIR", "2"},
+                                               {"BAR", "1"}},
+                                              {});
 
     ASSERT_THAT(paths, ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"DEFINE", "1", 3}));
+}
+
+TEST_F(ProjectUpdater, FilterSettingsMacros)
+{
+    auto paths = updater.createCompilerMacros({{"YI", "1"}, {"SAN", "3"}, {"SE", "4"}, {"WU", "5"}},
+                                              {{"SE", "44", Utils::NameValueItem::Unset},
+                                               {"ER", "2", Utils::NameValueItem::Set},
+                                               {"WU", "5", Utils::NameValueItem::Unset}});
+
+    ASSERT_THAT(paths,
+                ElementsAre(CompilerMacro{"ER", "2", 3},
+                            CompilerMacro{"SE", "4", 3},
+                            CompilerMacro{"YI", "1", 1},
+                            CompilerMacro{"SAN", "3", 2}));
 }
 
 TEST_F(ProjectUpdater, CreateSortedIncludeSearchPaths)

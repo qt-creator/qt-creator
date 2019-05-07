@@ -98,7 +98,7 @@ bool QmlProjectItem::matchesFile(const QString &filePath) const
     return false;
 }
 
-QList<Utils::EnvironmentItem> QmlProjectItem::environment() const
+Utils::EnvironmentItems QmlProjectItem::environment() const
 {
     return m_environment;
 }

@@ -70,11 +70,11 @@ class QnxUtils
 public:
     static QString addQuotes(const QString &string);
     static QString cpuDirShortDescription(const QString &cpuDir);
-    static QList<Utils::EnvironmentItem> qnxEnvironmentFromEnvFile(const QString &fileName);
+    static Utils::EnvironmentItems qnxEnvironmentFromEnvFile(const QString &fileName);
     static QString envFilePath(const QString &sdpPath);
     static QString defaultTargetVersion(const QString &sdpPath);
     static QList<ConfigInstallInformation> installedConfigs(const QString &configPath = QString());
-    static QList<Utils::EnvironmentItem> qnxEnvironment(const QString &sdpPath);
+    static Utils::EnvironmentItems qnxEnvironment(const QString &sdpPath);
     static QList<QnxTarget> findTargets(const Utils::FilePath &basePath);
     static ProjectExplorer::Abi convertAbi(const ProjectExplorer::Abi &abi);
     static ProjectExplorer::Abis convertAbis(const ProjectExplorer::Abis &abis);

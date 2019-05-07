@@ -184,7 +184,7 @@ void QnxQtVersion::updateEnvironment() const
     }
 }
 
-QList<Utils::EnvironmentItem> QnxQtVersion::environment() const
+Utils::EnvironmentItems QnxQtVersion::environment() const
 {
     return QnxUtils::qnxEnvironment(sdpPath());
 }

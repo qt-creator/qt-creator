@@ -33,6 +33,8 @@ SOURCES += \
     $$UTILS/environment.cpp \
     $$UTILS/fileutils.cpp \
     $$UTILS/hostosinfo.cpp \
+    $$UTILS/namevaluedictionary.cpp \
+    $$UTILS/namevalueitem.cpp \
     $$UTILS/persistentsettings.cpp \
     $$UTILS/qtcassert.cpp \
     $$UTILS/qtcprocess.cpp \
@@ -63,6 +65,8 @@ HEADERS += \
     $$UTILS/environment.h \
     $$UTILS/fileutils.h \
     $$UTILS/hostosinfo.h \
+    $$UTILS/namevaluedictionary.h \
+    $$UTILS/namevalueitem.h \
     $$UTILS/persistentsettings.h \
     $$UTILS/qtcassert.h \
     $$UTILS/qtcprocess.h \

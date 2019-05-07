@@ -62,8 +62,8 @@ public:
     Utils::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
     Utils::Environment environment() const;
-    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
-    QList<Utils::EnvironmentItem> userEnvironmentChanges() const;
+    void setUserEnvironmentChanges(const Utils::EnvironmentItems &diff);
+    Utils::EnvironmentItems userEnvironmentChanges() const;
     bool useSystemEnvironment() const;
     void setUseSystemEnvironment(bool b);
 
@@ -117,7 +117,7 @@ private:
     void emitBuildDirectoryChanged();
 
     bool m_clearSystemEnvironment = false;
-    QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
+    Utils::EnvironmentItems m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
     ProjectExplorer::BaseStringAspect *m_buildDirectoryAspect = nullptr;
     Utils::FilePath m_lastEmmitedBuildDirectory;

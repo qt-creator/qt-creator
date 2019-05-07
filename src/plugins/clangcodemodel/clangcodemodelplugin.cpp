@@ -60,9 +60,8 @@ static void addProjectPanelWidget()
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
     panelFactory->setPriority(60);
     panelFactory->setDisplayName(ClangProjectSettingsWidget::tr("Clang Code Model"));
-    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
-        return new ClangProjectSettingsWidget(project);
-    });
+    panelFactory->setCreateWidgetFunction(
+        [&](ProjectExplorer::Project *project) { return new ClangProjectSettingsWidget(project); });
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 }
 

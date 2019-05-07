@@ -27,13 +27,13 @@
 
 #include "../externaltool.h"
 
+#include <utils/environmentfwd.h>
+
 #include <QAbstractItemModel>
 #include <QDialog>
 #include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
-
-namespace Utils { class EnvironmentItem; }
 
 namespace Core {
 namespace Internal {
@@ -108,9 +108,9 @@ private:
     void updateEnvironmentLabel();
 
     Ui::ExternalToolConfig *ui;
-    QList<Utils::EnvironmentItem> m_environment;
+    Utils::EnvironmentItems m_environment;
     ExternalToolModel *m_model;
 };
 
 } // Internal
-} // Core
+} // namespace Core

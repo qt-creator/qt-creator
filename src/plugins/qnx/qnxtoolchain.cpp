@@ -50,7 +50,7 @@ static Abis detectTargetAbis(const FilePath &sdpPath)
     FilePath qnxTarget;
 
     if (!sdpPath.fileName().isEmpty()) {
-        QList<Utils::EnvironmentItem> environment = QnxUtils::qnxEnvironment(sdpPath.toString());
+        Utils::EnvironmentItems environment = QnxUtils::qnxEnvironment(sdpPath.toString());
         foreach (const Utils::EnvironmentItem &item, environment) {
             if (item.name == QLatin1Literal("QNX_TARGET"))
                 qnxTarget = FilePath::fromString(item.value);
@@ -72,12 +72,11 @@ static Abis detectTargetAbis(const FilePath &sdpPath)
     return result;
 }
 
-static void setQnxEnvironment(Environment &env, const QList<EnvironmentItem> &qnxEnv)
+static void setQnxEnvironment(Environment &env, const EnvironmentItems &qnxEnv)
 {
     // We only need to set QNX_HOST and QNX_TARGET needed when running qcc
     foreach (const EnvironmentItem &item, qnxEnv) {
-        if (item.name == QLatin1String("QNX_HOST") ||
-                item.name == QLatin1String("QNX_TARGET") )
+        if (item.name == QLatin1String("QNX_HOST") || item.name == QLatin1String("QNX_TARGET"))
             env.set(item.name, item.value);
     }
 }

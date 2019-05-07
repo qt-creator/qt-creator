@@ -254,7 +254,7 @@ Utils::Environment ExtraCompiler::buildEnvironment() const
         if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
             return bc->environment();
         } else {
-            QList<Utils::EnvironmentItem> changes =
+            Utils::EnvironmentItems changes =
                     EnvironmentKitAspect::environmentChanges(target->kit());
             Utils::Environment env = Utils::Environment::systemEnvironment();
             env.modify(changes);

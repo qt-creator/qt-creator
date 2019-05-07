@@ -47,6 +47,7 @@ DEFINES += CPPTOOLS_JSON=\"R\\\"xxx($${cpptoolsjson.output})xxx\\\"\"
 
 SOURCES += \
     changedfilepathcompressor-test.cpp \
+    clangindexingsettingsmanager-test.cpp \
     clangpathwatcher-test.cpp \
     clangqueryexamplehighlightmarker-test.cpp \
     clangqueryhighlightmarker-test.cpp \
@@ -67,6 +68,7 @@ SOURCES += \
     pchmanagerclientserverinprocess-test.cpp \
     pchmanagerclient-test.cpp \
     pchmanagerserver-test.cpp \
+    preprocessormacrocollector-test.cpp \
     processevents-utilities.cpp \
     projectpartsmanager-test.cpp \
     projectpartsstorage-test.cpp \

@@ -630,19 +630,16 @@ void ExternalToolConfig::updateEffectiveArguments()
 
 void ExternalToolConfig::editEnvironmentChanges()
 {
-    bool ok;
     const QString placeholderText = Utils::HostOsInfo::isWindowsHost()
             ? tr("PATH=C:\\dev\\bin;${PATH}")
             : tr("PATH=/opt/bin:${PATH}");
-    const QList<Utils::EnvironmentItem> newItems =
-            Utils::EnvironmentDialog::getEnvironmentItems(&ok, ui->environmentLabel,
-                                                          m_environment,
-                                                          placeholderText);
-    if (!ok)
-        return;
-
-    m_environment = newItems;
-    updateEnvironmentLabel();
+    const auto newItems = Utils::EnvironmentDialog::getEnvironmentItems(ui->environmentLabel,
+                                                                        m_environment,
+                                                                        placeholderText);
+    if (newItems) {
+        m_environment = *newItems;
+        updateEnvironmentLabel();
+    }
 }
 
 void ExternalToolConfig::updateEnvironmentLabel()

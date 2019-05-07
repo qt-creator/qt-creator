@@ -42,8 +42,8 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <refactoringdatabaseinitializer.h>
 #include <filepathcaching.h>
@@ -103,16 +103,13 @@ public:
     QtCreatorRefactoringProjectUpdater projectUpdate{connectionClient.serverProxy(),
                                                      ClangPchManagerPlugin::pchManagerClient(),
                                                      filePathCache,
-                                                     projectPartsStorage};
+                                                     projectPartsStorage,
+                                                     ClangPchManagerPlugin::settingsManager()};
 };
 
-ClangRefactoringPlugin::ClangRefactoringPlugin()
-{
-}
+ClangRefactoringPlugin::ClangRefactoringPlugin() = default;
 
-ClangRefactoringPlugin::~ClangRefactoringPlugin()
-{
-}
+ClangRefactoringPlugin::~ClangRefactoringPlugin() = default;
 
 static bool useClangFilters()
 {
@@ -131,8 +128,8 @@ bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QStri
     connectBackend();
     startBackend();
 
-    CppTools::CppModelManager::addRefactoringEngine(
-                CppTools::RefactoringEngineType::ClangRefactoring, &refactoringEngine());
+    CppTools::CppModelManager::addRefactoringEngine(CppTools::RefactoringEngineType::ClangRefactoring,
+                                                    &refactoringEngine());
 
     initializeFilters();
 

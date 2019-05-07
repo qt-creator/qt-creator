@@ -62,7 +62,7 @@ void EnvironmentAspect::setBaseEnvironmentBase(int base)
     }
 }
 
-void EnvironmentAspect::setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff)
+void EnvironmentAspect::setUserEnvironmentChanges(const Utils::EnvironmentItems &diff)
 {
     if (m_userChanges != diff) {
         m_userChanges = diff;

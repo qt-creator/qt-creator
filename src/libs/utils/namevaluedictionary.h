@@ -1,0 +1,92 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#pragma once
+
+#include "fileutils.h"
+#include "hostosinfo.h"
+#include "namevalueitem.h"
+
+namespace Utils {
+
+using NameValuePair = std::pair<QString, QString>;
+using NameValuePairs = QVector<NameValuePair>;
+using NameValueMap = QMap<QString, QString>;
+
+class QTCREATOR_UTILS_EXPORT NameValueDictionary
+{
+public:
+    using const_iterator = NameValueMap::const_iterator;
+
+    explicit NameValueDictionary(OsType osType = HostOsInfo::hostOs())
+        : m_osType(osType)
+    {}
+    explicit NameValueDictionary(const QStringList &env, OsType osType = HostOsInfo::hostOs());
+    explicit NameValueDictionary(const NameValuePairs &nameValues);
+
+    QStringList toStringList() const;
+    QString value(const QString &key) const;
+    void set(const QString &key, const QString &value);
+    void unset(const QString &key);
+    void modify(const NameValueItems &items);
+    /// Return the KeyValueDictionary changes necessary to modify this into the other environment.
+    NameValueItems diff(const NameValueDictionary &other, bool checkAppendPrepend = false) const;
+    bool hasKey(const QString &key) const;
+    OsType osType() const;
+
+    QString userName() const;
+
+    void clear();
+    int size() const;
+
+    QString key(NameValueDictionary::const_iterator it) const { return it.key(); }
+
+    QString value(NameValueDictionary::const_iterator it) const { return it.value(); }
+
+    NameValueDictionary::const_iterator constBegin() const { return m_values.constBegin(); }
+
+    NameValueDictionary::const_iterator constEnd() const { return m_values.constEnd(); }
+
+    NameValueDictionary::const_iterator constFind(const QString &name) const;
+
+    QString expandVariables(const QString &input) const;
+    QStringList expandVariables(const QStringList &input) const;
+
+    friend bool operator!=(const NameValueDictionary &first, const NameValueDictionary &second)
+    {
+        return !(first == second);
+    }
+
+    friend bool operator==(const NameValueDictionary &first, const NameValueDictionary &second)
+    {
+        return first.m_osType == second.m_osType && first.m_values == second.m_values;
+    }
+
+protected:
+    NameValueMap m_values;
+    OsType m_osType;
+};
+
+} // namespace Utils

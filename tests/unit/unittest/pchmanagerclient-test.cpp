@@ -34,10 +34,11 @@
 #include <pchmanagerclient.h>
 #include <pchmanagerprojectupdater.h>
 
+#include <clangindexingsettingsmanager.h>
 #include <filepathcaching.h>
-#include <refactoringdatabaseinitializer.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <progressmessage.h>
+#include <refactoringdatabaseinitializer.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
 #include <updategeneratedfilesmessage.h>
@@ -60,10 +61,12 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
+    ClangPchManager::ClangIndexingSettingsManager settingsManager;
     ClangPchManager::PchManagerProjectUpdater projectUpdater{mockPchManagerServer,
                                                              client,
                                                              filePathCache,
-                                                             mockProjectPartsStorage};
+                                                             mockProjectPartsStorage,
+                                                             settingsManager};
     ClangBackEnd::ProjectPartId projectPartId{1};
     ClangBackEnd::FilePath pchFilePath{"/path/to/pch"};
     PrecompiledHeadersUpdatedMessage message{{{projectPartId, pchFilePath.clone(), 1}}};

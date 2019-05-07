@@ -190,7 +190,7 @@ Environment ExternalTool::baseEnvironment() const
     return Environment::systemEnvironment();
 }
 
-QList<EnvironmentItem> ExternalTool::environmentUserChanges() const
+EnvironmentItems ExternalTool::environmentUserChanges() const
 {
     return m_environment;
 }
@@ -297,7 +297,7 @@ void ExternalTool::setBaseEnvironmentProviderId(Id id)
     m_baseEnvironmentProviderId = id;
 }
 
-void ExternalTool::setEnvironmentUserChanges(const QList<EnvironmentItem> &items)
+void ExternalTool::setEnvironmentUserChanges(const EnvironmentItems &items)
 {
     m_environment = items;
 }
@@ -600,10 +600,10 @@ bool ExternalToolRunner::resolve()
     m_resolvedEnvironment = m_tool->baseEnvironment();
 
     MacroExpander *expander = globalMacroExpander();
-    QList<EnvironmentItem> expandedEnvironment
-        = Utils::transform(m_tool->environmentUserChanges(), [expander](const EnvironmentItem &item) {
-              return EnvironmentItem(item.name, expander->expand(item.value), item.operation);
-          });
+    EnvironmentItems expandedEnvironment = Utils::transform(
+        m_tool->environmentUserChanges(), [expander](const EnvironmentItem &item) {
+            return EnvironmentItem(item.name, expander->expand(item.value), item.operation);
+        });
     m_resolvedEnvironment.modify(expandedEnvironment);
 
     {

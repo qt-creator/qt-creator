@@ -715,7 +715,7 @@ void MsvcToolChain::environmentModifications(
     const Utils::Environment inEnv = Utils::Environment::systemEnvironment();
     Utils::Environment outEnv;
     QMap<QString, QString> envPairs;
-    QList<Utils::EnvironmentItem> diff;
+    Utils::EnvironmentItems diff;
     Utils::optional<QString> error = generateEnvironmentSettings(inEnv,
                                                                  vcvarsBat,
                                                                  varsBatArg,
@@ -764,7 +764,7 @@ void MsvcToolChain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
     m_envModWatcher.setFuture(future);
 }
 
-void MsvcToolChain::updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications)
+void MsvcToolChain::updateEnvironmentModifications(Utils::EnvironmentItems modifications)
 {
     Utils::EnvironmentItem::sort(&modifications);
     if (modifications != m_environmentModifications) {

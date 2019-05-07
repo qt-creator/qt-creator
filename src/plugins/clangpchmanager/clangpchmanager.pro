@@ -12,8 +12,15 @@ win32 {
 
 HEADERS += \
     $$PWD/clangpchmanagerplugin.h \
+    clangindexingprojectsettingswidget.h \
+    preprocessormacrowidget.h \
     qtcreatorprojectupdater.h
 
 SOURCES += \
     $$PWD/clangpchmanagerplugin.cpp \
+    clangindexingprojectsettingswidget.cpp \
+    preprocessormacrowidget.cpp \
     qtcreatorprojectupdater.cpp
+
+FORMS += \
+    clangindexingprojectsettingswidget.ui

@@ -32,11 +32,11 @@ namespace ClangRefactoring {
 class QtCreatorRefactoringProjectUpdater final : public RefactoringProjectUpdater
 {
 public:
-    QtCreatorRefactoringProjectUpdater(
-        ClangBackEnd::ProjectManagementServerInterface &server,
-        ClangPchManager::PchManagerClient &pchManagerClient,
-        ClangBackEnd::FilePathCachingInterface &filePathCache,
-        ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage);
+    QtCreatorRefactoringProjectUpdater(ClangBackEnd::ProjectManagementServerInterface &server,
+                                       ClangPchManager::PchManagerClient &pchManagerClient,
+                                       ClangBackEnd::FilePathCachingInterface &filePathCache,
+                                       ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage,
+                                       ClangPchManager::ClangIndexingSettingsManager &settingsManager);
 
 private:
     void abstractEditorUpdated(const QString &filePath, const QByteArray &contents);

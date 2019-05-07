@@ -28,6 +28,7 @@
 #include "abi.h"
 #include "abiwidget.h"
 #include "toolchain.h"
+#include "toolchaincache.h"
 #include "toolchainconfigwidget.h"
 
 #include <QFutureWatcher>
@@ -142,7 +143,7 @@ protected:
     struct GenerateEnvResult
     {
         Utils::optional<QString> error;
-        QList<Utils::EnvironmentItem> environmentItems;
+        Utils::EnvironmentItems environmentItems;
     };
     static void environmentModifications(QFutureInterface<GenerateEnvResult> &future,
                                          QString vcvarsBat,
@@ -154,11 +155,11 @@ protected:
     mutable HeaderPaths m_headerPaths;
 
 private:
-    void updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications);
+    void updateEnvironmentModifications(Utils::EnvironmentItems modifications);
     void rescanForCompiler();
     void detectInstalledAbis();
 
-    mutable QList<Utils::EnvironmentItem> m_environmentModifications;
+    mutable Utils::EnvironmentItems m_environmentModifications;
     mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
 
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.

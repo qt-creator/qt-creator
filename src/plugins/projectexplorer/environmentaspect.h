@@ -49,8 +49,8 @@ public:
     int baseEnvironmentBase() const;
     void setBaseEnvironmentBase(int base);
 
-    QList<Utils::EnvironmentItem> userEnvironmentChanges() const { return m_userChanges; }
-    void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
+    Utils::EnvironmentItems userEnvironmentChanges() const { return m_userChanges; }
+    void setUserEnvironmentChanges(const Utils::EnvironmentItems &diff);
 
     void addSupportedBaseEnvironment(const QString &displayName,
                                      const std::function<Utils::Environment()> &getter);
@@ -70,7 +70,7 @@ public:
 
 signals:
     void baseEnvironmentChanged();
-    void userEnvironmentChangesChanged(const QList<Utils::EnvironmentItem> &diff);
+    void userEnvironmentChangesChanged(const Utils::EnvironmentItems &diff);
     void environmentChanged();
 
 protected:
@@ -88,7 +88,7 @@ private:
         QString displayName;
     };
 
-    QList<Utils::EnvironmentItem> m_userChanges;
+    Utils::EnvironmentItems m_userChanges;
     QList<EnvironmentModifier> m_modifiers;
     QList<BaseEnvironment> m_baseEnvironments;
     int m_base = -1;

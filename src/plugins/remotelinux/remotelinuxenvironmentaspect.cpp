@@ -34,7 +34,7 @@ const char DISPLAY_KEY[] = "DISPLAY";
 const char VERSION_KEY[] = "RemoteLinux.EnvironmentAspect.Version";
 const int ENVIRONMENTASPECT_VERSION = 1; // Version was introduced in 4.3 with the value 1
 
-static bool displayAlreadySet(const QList<Utils::EnvironmentItem> &changes)
+static bool displayAlreadySet(const Utils::EnvironmentItems &changes)
 {
     return Utils::contains(changes, [](const Utils::EnvironmentItem &item) {
         return item.name == DISPLAY_KEY;

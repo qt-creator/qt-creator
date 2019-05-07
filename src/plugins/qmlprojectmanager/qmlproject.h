@@ -69,7 +69,7 @@ public:
     Utils::FilePath targetFile(const Utils::FilePath &sourceFile,
                                const ProjectExplorer::Target *target) const;
 
-    QList<Utils::EnvironmentItem> environment() const;
+    Utils::EnvironmentItems environment() const;
     QStringList customImportPaths() const;
     QStringList customFileSelectors() const;
 

@@ -186,8 +186,8 @@ public:
     ItemList toUserOutput(const Kit *k) const override;
 
     static Core::Id id();
-    static QList<Utils::EnvironmentItem> environmentChanges(const Kit *k);
-    static void setEnvironmentChanges(Kit *k, const QList<Utils::EnvironmentItem> &changes);
+    static Utils::EnvironmentItems environmentChanges(const Kit *k);
+    static void setEnvironmentChanges(Kit *k, const Utils::EnvironmentItems &changes);
 };
 
 } // namespace ProjectExplorer

@@ -32,10 +32,11 @@
 
 #include <sqlitedatabase.h>
 
+#include <clangindexingsettingsmanager.h>
+#include <clangrefactoringservermessages.h>
 #include <filepathcaching.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <refactoringdatabaseinitializer.h>
-#include <clangrefactoringservermessages.h>
 
 #include <pchmanagerclient.h>
 
@@ -84,11 +85,13 @@ protected:
                                                        mockDependencyCreationProgressManager};
     MockCppModelManager mockCppModelManager;
     ProjectExplorer::Project project;
+    ClangPchManager::ClangIndexingSettingsManager settingsManager;
     ClangRefactoring::RefactoringProjectUpdater updater{mockRefactoringServer,
                                                         pchManagerClient,
                                                         mockCppModelManager,
                                                         filePathCache,
-                                                        mockProjectPartsStorage};
+                                                        mockProjectPartsStorage,
+                                                        settingsManager};
     Utils::SmallString projectPartId;
 };
 

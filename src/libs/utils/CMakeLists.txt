@@ -87,6 +87,11 @@ add_qtc_library(Utils
     mimetypes/mimeprovider.cpp mimetypes/mimeprovider_p.h
     mimetypes/mimetype.cpp mimetypes/mimetype.h mimetypes/mimetype_p.h
     mimetypes/mimetypeparser.cpp mimetypes/mimetypeparser_p.h
+    namevaluedictionary.cpp namevaluedictionary.h
+    namevalueitem.cpp namevalueitem.h
+    namevaluemodel.cpp namevaluemodel.h
+    namevaluesdialog.cpp namevaluesdialog.h
+    namevaluevalidator.cpp namevaluevalidator.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h
     newclasswidget.cpp newclasswidget.h newclasswidget.ui

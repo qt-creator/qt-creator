@@ -73,13 +73,13 @@ protected:
 private:
     void updateEnvironment() const;
 
-    QList<Utils::EnvironmentItem> environment() const;
+    Utils::EnvironmentItems environment() const;
 
     QString m_sdpPath;
 
     mutable QString m_cpuDir;
     mutable bool m_environmentUpToDate = false;
-    mutable QList<Utils::EnvironmentItem> m_qnxEnv;
+    mutable Utils::EnvironmentItems m_qnxEnv;
 };
 
 class QnxQtVersionFactory : public QtSupport::QtVersionFactory

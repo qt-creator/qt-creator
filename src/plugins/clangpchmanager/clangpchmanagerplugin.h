@@ -33,6 +33,7 @@
 
 namespace ClangPchManager {
 
+class ClangIndexingSettingsManager;
 class ClangPchManagerPluginData;
 class PchManagerClient;
 
@@ -50,6 +51,7 @@ public:
     ShutdownFlag aboutToShutdown();
 
     static PchManagerClient &pchManagerClient();
+    static ClangIndexingSettingsManager &settingsManager();
 
 private:
     void startBackend();

@@ -40,8 +40,9 @@ public:
                               ClangPchManager::PchManagerClient &pchManagerClient,
                               CppTools::CppModelManagerInterface &cppModelManager,
                               ClangBackEnd::FilePathCachingInterface &filePathCache,
-                              ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage)
-        : ClangPchManager::ProjectUpdater(server, filePathCache, projectPartsStorage)
+                              ClangBackEnd::ProjectPartsStorageInterface &projectPartsStorage,
+                              ClangPchManager::ClangIndexingSettingsManager &settingsManager)
+        : ClangPchManager::ProjectUpdater(server, filePathCache, projectPartsStorage, settingsManager)
         , ClangPchManager::PchManagerNotifierInterface(pchManagerClient)
         , m_cppModelManager(cppModelManager)
     {

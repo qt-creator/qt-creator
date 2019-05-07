@@ -27,6 +27,10 @@ SOURCES += \
     $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/environmentdialog.cpp \
+    $$PWD/namevaluedictionary.cpp \
+    $$PWD/namevalueitem.cpp \
+    $$PWD/namevaluemodel.cpp \
+    $$PWD/namevaluesdialog.cpp \
     $$PWD/qrcparser.cpp \
     $$PWD/qtcprocess.cpp \
     $$PWD/reloadpromptutils.cpp \
@@ -125,19 +129,24 @@ SOURCES += \
     $$PWD/fixedsizeclicklabel.cpp \
     $$PWD/removefiledialog.cpp \
     $$PWD/differ.cpp \
-    $$PWD/jsontreeitem.cpp
-
+    $$PWD/jsontreeitem.cpp \
+    $$PWD/namevaluevalidator.cpp
 
 win32:SOURCES += $$PWD/consoleprocess_win.cpp
 else:SOURCES += $$PWD/consoleprocess_unix.cpp
 
 HEADERS += \
+    $$PWD/environmentfwd.h \
     $$PWD/genericconstants.h \
     $$PWD/globalfilechangeblocker.h \
     $$PWD/benchmarker.h \
     $$PWD/environment.h \
     $$PWD/environmentmodel.h \
     $$PWD/environmentdialog.h \
+    $$PWD/namevaluedictionary.h \
+    $$PWD/namevalueitem.h \
+    $$PWD/namevaluemodel.h \
+    $$PWD/namevaluesdialog.h \
     $$PWD/pointeralgorithm.h \
     $$PWD/qrcparser.h \
     $$PWD/qtcprocess.h \
@@ -270,7 +279,8 @@ HEADERS += \
     $$PWD/differ.h \
     $$PWD/cpplanguage_details.h \
     $$PWD/jsontreeitem.h \
-    $$PWD/listmodel.h
+    $$PWD/listmodel.h \
+    $$PWD/namevaluevalidator.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/newclasswidget.ui \

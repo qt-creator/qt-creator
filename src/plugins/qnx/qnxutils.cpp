@@ -73,9 +73,9 @@ QString QnxUtils::cpuDirShortDescription(const QString &cpuDir)
     return cpuDir;
 }
 
-QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
+Utils::EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const QString &fileName)
 {
-    QList <Utils::EnvironmentItem> items;
+    Utils::EnvironmentItems items;
 
     if (!QFileInfo::exists(fileName))
         return items;
@@ -206,7 +206,7 @@ QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &config
     return sdpList;
 }
 
-QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdpPath)
+Utils::EnvironmentItems QnxUtils::qnxEnvironment(const QString &sdpPath)
 {
     return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
 }

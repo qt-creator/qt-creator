@@ -35,144 +35,19 @@
 
 namespace Utils {
 
-namespace Internal {
-
-static QList<EnvironmentItem> cleanUp(
-        const QList<EnvironmentItem> &items)
+Utils::optional<EnvironmentItems> EnvironmentDialog::getEnvironmentItems(
+    QWidget *parent, const EnvironmentItems &initial, const QString &placeholderText, Polisher polisher)
 {
-    QList<EnvironmentItem> uniqueItems;
-    QSet<QString> uniqueSet;
-    for (int i = items.count() - 1; i >= 0; i--) {
-        EnvironmentItem item = items.at(i);
-        if (HostOsInfo::isWindowsHost())
-            item.name = item.name.toUpper();
-        const QString &itemName = item.name;
-        QString emptyName = itemName;
-        emptyName.remove(QLatin1Char(' '));
-        if (!emptyName.isEmpty() && !uniqueSet.contains(itemName)) {
-            uniqueItems.prepend(item);
-            uniqueSet.insert(itemName);
-        }
-    }
-    return uniqueItems;
-}
-
-class EnvironmentItemsWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit EnvironmentItemsWidget(QWidget *parent = nullptr);
-
-    void setEnvironmentItems(const QList<EnvironmentItem> &items);
-    QList<EnvironmentItem> environmentItems() const;
-
-    void setPlaceholderText(const QString &text);
-
-private:
-    QPlainTextEdit *m_editor;
-};
-
-EnvironmentItemsWidget::EnvironmentItemsWidget(QWidget *parent) :
-    QWidget(parent)
-{
-    m_editor = new QPlainTextEdit(this);
-    auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
-    layout->addWidget(m_editor);
-}
-
-void EnvironmentItemsWidget::setEnvironmentItems(const QList<EnvironmentItem> &items)
-{
-    QList<EnvironmentItem> sortedItems = items;
-    EnvironmentItem::sort(&sortedItems);
-    const QStringList list = EnvironmentItem::toStringList(sortedItems);
-    m_editor->document()->setPlainText(list.join(QLatin1Char('\n')));
-}
-
-QList<EnvironmentItem> EnvironmentItemsWidget::environmentItems() const
-{
-    const QStringList list = m_editor->document()->toPlainText().split(QLatin1String("\n"));
-    QList<EnvironmentItem> items = EnvironmentItem::fromStringList(list);
-    return cleanUp(items);
-}
-
-void EnvironmentItemsWidget::setPlaceholderText(const QString &text)
-{
-    m_editor->setPlaceholderText(text);
-}
-
-class EnvironmentDialogPrivate
-{
-public:
-    EnvironmentItemsWidget *m_editor;
-};
-
-} // namespace Internal
-
-EnvironmentDialog::EnvironmentDialog(QWidget *parent) :
-    QDialog(parent), d(new Internal::EnvironmentDialogPrivate)
-{
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    resize(640, 480);
-    d->m_editor = new Internal::EnvironmentItemsWidget(this);
-    auto box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(box, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
-    auto helpLabel = new QLabel(this);
-    helpLabel->setText(tr("Enter one environment variable per line.\n"
-                          "To set or change a variable, use VARIABLE=VALUE.\n"
-                          "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
-                          "To clear a variable, put its name on a line with nothing else on it."));
-
-    auto layout = new QVBoxLayout(this);
-    layout->addWidget(d->m_editor);
-    layout->addWidget(helpLabel);
-
-    layout->addWidget(box);
-
-    setWindowTitle(tr("Edit Environment"));
-}
-
-EnvironmentDialog::~EnvironmentDialog()
-{
-    delete d;
-}
-
-void EnvironmentDialog::setEnvironmentItems(const QList<EnvironmentItem> &items)
-{
-    d->m_editor->setEnvironmentItems(items);
-}
-
-QList<EnvironmentItem> EnvironmentDialog::environmentItems() const
-{
-    return d->m_editor->environmentItems();
-}
-
-void EnvironmentDialog::setPlaceholderText(const QString &text)
-{
-    d->m_editor->setPlaceholderText(text);
-}
-
-QList<EnvironmentItem> EnvironmentDialog::getEnvironmentItems(bool *ok,
-                QWidget *parent,
-                const QList<EnvironmentItem> &initial,
-                const QString &placeholderText,
-                Polisher polisher)
-{
-    EnvironmentDialog dlg(parent);
-    if (polisher)
-        polisher(&dlg);
-    dlg.setEnvironmentItems(initial);
-    dlg.setPlaceholderText(placeholderText);
-    bool result = dlg.exec() == QDialog::Accepted;
-    if (ok)
-        *ok = result;
-    if (result)
-        return dlg.environmentItems();
-    return QList<EnvironmentItem>();
+    return getNameValueItems(
+        parent,
+        initial,
+        placeholderText,
+        polisher,
+        tr("Edit Environment"),
+        tr("Enter one environment variable per line.\n"
+           "To set or change a variable, use VARIABLE=VALUE.\n"
+           "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
+           "To clear a variable, put its name on a line with nothing else on it."));
 }
 
 } // namespace Utils
-
-#include "environmentdialog.moc"

@@ -150,7 +150,7 @@ static QString constructOmittedDetailsString(const QStringList &omitted)
                           "configuration page for \"%1\":") + '\n' + omitted.join('\n');
 }
 
-static QString constructOmittedVariablesDetailsString(const QList<Utils::EnvironmentItem> &diff)
+static QString constructOmittedVariablesDetailsString(const Utils::EnvironmentItems &diff)
 {
     auto removedVars = Utils::transform<QStringList>(diff, [](const Utils::EnvironmentItem &it) {
         return it.name;
@@ -204,10 +204,10 @@ void TestRunner::scheduleNext()
     m_currentProcess->setWorkingDirectory(m_currentConfig->workingDirectory());
     const Utils::Environment &original = m_currentConfig->environment();
     Utils::Environment environment =  m_currentConfig->filteredEnvironment(original);
-    const QList<Utils::EnvironmentItem> removedVariables
-            = Utils::filtered(original.diff(environment), [](const Utils::EnvironmentItem &it) {
-        return it.operation == Utils::EnvironmentItem::Unset;
-    });
+    const Utils::EnvironmentItems removedVariables = Utils::filtered(
+        original.diff(environment), [](const Utils::EnvironmentItem &it) {
+            return it.operation == Utils::EnvironmentItem::Unset;
+        });
     if (!removedVariables.isEmpty()) {
         const QString &details = constructOmittedVariablesDetailsString(removedVariables)
                 .arg(m_currentConfig->displayName());
@@ -560,10 +560,10 @@ void TestRunner::debugTests()
     }
     Utils::Environment original(inferior.environment);
     inferior.environment = config->filteredEnvironment(original);
-    const QList<Utils::EnvironmentItem> removedVariables
-            = Utils::filtered(original.diff(inferior.environment), [](const Utils::EnvironmentItem &it) {
-        return it.operation == Utils::EnvironmentItem::Unset;
-    });
+    const Utils::EnvironmentItems removedVariables = Utils::filtered(
+        original.diff(inferior.environment), [](const Utils::EnvironmentItem &it) {
+            return it.operation == Utils::EnvironmentItem::Unset;
+        });
     if (!removedVariables.isEmpty()) {
         const QString &details = constructOmittedVariablesDetailsString(removedVariables)
                 .arg(config->displayName());

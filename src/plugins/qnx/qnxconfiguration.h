@@ -61,7 +61,7 @@ public:
     Utils::FilePath qnxTarget() const;
     Utils::FilePath qnxHost() const;
     Utils::FilePath qccCompilerPath() const;
-    QList<Utils::EnvironmentItem> qnxEnv() const;
+    Utils::EnvironmentItems qnxEnv() const;
     QnxVersionNumber version() const;
     QVariantMap toMap() const;
 
@@ -97,7 +97,7 @@ private:
     Utils::FilePath m_qnxTarget;
     Utils::FilePath m_qnxHost;
     Utils::FilePath m_qccCompiler;
-    QList<Utils::EnvironmentItem> m_qnxEnv;
+    Utils::EnvironmentItems m_qnxEnv;
     QnxVersionNumber m_version;
 
     class Target

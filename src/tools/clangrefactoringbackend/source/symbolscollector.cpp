@@ -102,6 +102,7 @@ newFrontendActionFactory(Factory *consumerFactory,
             bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
             {
                 compilerInstance.getPreprocessorOpts().AllowPCHWithCompilerErrors = true;
+                compilerInstance.getDiagnosticOpts().ErrorLimit = 1;
 
                 return clang::ASTFrontendAction::BeginInvocation(compilerInstance);
             }

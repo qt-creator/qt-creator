@@ -206,7 +206,7 @@ Utils::FilePath QmlProject::targetFile(const Utils::FilePath &sourceFile,
     return Utils::FilePath::fromString(QDir::cleanPath(targetDir.absoluteFilePath(relative)));
 }
 
-QList<Utils::EnvironmentItem> QmlProject::environment() const
+Utils::EnvironmentItems QmlProject::environment() const
 {
     if (m_projectItem)
         return m_projectItem.data()->environment();
