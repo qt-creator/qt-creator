@@ -64,6 +64,7 @@
 static const char varsBatKeyC[] = KEY_ROOT "VarsBat";
 static const char varsBatArgKeyC[] = KEY_ROOT "VarsBatArg";
 static const char supportedAbiKeyC[] = KEY_ROOT "SupportedAbi";
+static const char supportedAbisKeyC[] = KEY_ROOT "SupportedAbis";
 static const char environModsKeyC[] = KEY_ROOT "environmentModifications";
 
 enum { debug = 0 };
@@ -771,6 +772,33 @@ void MsvcToolChain::updateEnvironmentModifications(QList<Utils::EnvironmentItem>
     }
 }
 
+void MsvcToolChain::detectInstalledAbis()
+{
+    m_supportedAbis.clear();
+    Abi baseAbi = targetAbi();
+    const QString vcVarsBase = m_vcvarsBat.left(m_vcvarsBat.lastIndexOf('/'));
+    for (MsvcPlatform platform : platforms) {
+        bool toolchainInstalled = false;
+        QString perhapsVcVarsPath = vcVarsBase + QLatin1Char('/') + QLatin1String(platform.bat);
+        const Platform p = platform.platform;
+        if (QFileInfo(perhapsVcVarsPath).isFile()) {
+            toolchainInstalled = true;
+        } else {
+            // MSVC 2015 and below had various versions of vcvars scripts in subfolders. Try these
+            // as fallbacks.
+            perhapsVcVarsPath = vcVarsBase + platform.prefix + QLatin1Char('/')
+                    + QLatin1String(platform.bat);
+            toolchainInstalled = QFileInfo(perhapsVcVarsPath).isFile();
+        }
+        if (hostSupportsPlatform(platform.platform) && toolchainInstalled) {
+            Abi newAbi(archForPlatform(p), baseAbi.os(), baseAbi.osFlavor(), baseAbi.binaryFormat(),
+                       wordWidthForPlatform(p));
+            if (!m_supportedAbis.contains(newAbi))
+                m_supportedAbis.append(newAbi);
+        }
+    }
+}
+
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment &env) const
 {
     Utils::Environment resultEnv = env;
@@ -811,6 +839,7 @@ MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
     , m_lastEnvironment(other.m_lastEnvironment)
     , m_resultEnvironment(other.m_resultEnvironment)
     , m_abi(other.m_abi)
+    , m_supportedAbis(other.m_supportedAbis)
     , m_vcvarsBat(other.m_vcvarsBat)
     , m_varsBatArg(other.m_varsBatArg)
 {
@@ -851,6 +880,7 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
     , m_vcvarsBat(varsBat)
     , m_varsBatArg(varsBatArg)
 {
+    detectInstalledAbis();
     addToAvailableMsvcToolchains(this);
 
     initEnvModWatcher(Utils::runAsync(envModThreadPool(),
@@ -899,6 +929,11 @@ MsvcToolChain::~MsvcToolChain()
 Abi MsvcToolChain::targetAbi() const
 {
     return m_abi;
+}
+
+QList<Abi> MsvcToolChain::supportedAbis() const
+{
+    return m_supportedAbis;
 }
 
 bool MsvcToolChain::isValid() const
@@ -982,6 +1017,8 @@ QVariantMap MsvcToolChain::toMap() const
     if (!m_varsBatArg.isEmpty())
         data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
     data.insert(QLatin1String(supportedAbiKeyC), m_abi.toString());
+    const QStringList abiList = Utils::transform(m_supportedAbis, &Abi::toString);
+    data.insert(supportedAbisKeyC, abiList);
     Utils::EnvironmentItem::sort(&m_environmentModifications);
     data.insert(QLatin1String(environModsKeyC),
                 Utils::EnvironmentItem::toVariantList(m_environmentModifications));
@@ -998,6 +1035,14 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
 
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi::fromString(abiString);
+    const QStringList abiList = data.value(supportedAbisKeyC).toStringList();
+    m_supportedAbis.clear();
+    for (const QString &a : abiList) {
+        Abi abi = Abi::fromString(a);
+        if (!abi.isValid())
+            continue;
+        m_supportedAbis.append(abi);
+    }
     m_environmentModifications = Utils::EnvironmentItem::itemsFromVariantList(
         data.value(QLatin1String(environModsKeyC)).toList());
     rescanForCompiler();
@@ -1239,6 +1284,7 @@ void MsvcToolChain::changeVcVarsCall(const QString &varsBat, const QString &vars
     m_varsBatArg = varsBatArg;
 
     if (!varsBat.isEmpty()) {
+        detectInstalledAbis();
         initEnvModWatcher(Utils::runAsync(envModThreadPool(),
                                           &ClangClToolChain::environmentModifications,
                                           m_vcvarsBat,
