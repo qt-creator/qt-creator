@@ -857,7 +857,8 @@ MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
         }
     }
 
-    setDisplayName(other.displayName());
+    setDisplayName(QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
+            .arg(other.displayName()));
 }
 
 static void addToAvailableMsvcToolchains(const MsvcToolChain *toolchain)
