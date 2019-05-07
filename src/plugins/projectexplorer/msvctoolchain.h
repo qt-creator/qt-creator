@@ -100,6 +100,7 @@ public:
     QString varsBatArg() const { return m_varsBatArg; }
     QString varsBat() const { return m_vcvarsBat; }
     void setVarsBatArg(const QString &varsBA) { m_varsBatArg = varsBA; }
+    void changeVcVarsCall(const QString &varsBat, const QString &varsBatArgs = QString());
 
     bool operator==(const ToolChain &) const override;
 

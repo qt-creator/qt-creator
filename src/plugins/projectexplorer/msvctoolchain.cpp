@@ -1228,6 +1228,19 @@ IOutputParser *MsvcToolChain::outputParser() const
     return new MsvcParser;
 }
 
+void MsvcToolChain::changeVcVarsCall(const QString &varsBat, const QString &varsBatArg)
+{
+    m_vcvarsBat = varsBat;
+    m_varsBatArg = varsBatArg;
+
+    if (!varsBat.isEmpty()) {
+        initEnvModWatcher(Utils::runAsync(envModThreadPool(),
+                                          &ClangClToolChain::environmentModifications,
+                                          m_vcvarsBat,
+                                          m_varsBatArg));
+    }
+}
+
 // --------------------------------------------------------------------------
 // MsvcBasedToolChainConfigWidget: Creates a simple GUI without error label
 // to display name and varsBat. Derived classes should add the error label and
@@ -1563,18 +1576,12 @@ void ClangClToolChain::resetMsvcToolChain(const MsvcToolChain *base)
 {
     if (!base) {
         m_abi = Abi();
-        m_vcvarsBat.clear();
-        setVarsBatArg("");
+        changeVcVarsCall("");
         return;
     }
-    m_abi = base->targetAbi();
-    m_vcvarsBat = base->varsBat();
-    setVarsBatArg(base->varsBatArg());
 
-    initEnvModWatcher(Utils::runAsync(envModThreadPool(),
-                                      &ClangClToolChain::environmentModifications,
-                                      m_vcvarsBat,
-                                      base->varsBatArg()));
+    m_abi = base->targetAbi();
+    changeVcVarsCall(base->varsBat(), base->varsBatArg());
 }
 
 bool ClangClToolChain::operator==(const ToolChain &other) const
