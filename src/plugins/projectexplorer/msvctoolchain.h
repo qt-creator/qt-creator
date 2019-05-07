@@ -26,6 +26,7 @@
 #pragma once
 
 #include "abi.h"
+#include "abiwidget.h"
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
 
@@ -65,6 +66,7 @@ public:
 
     Abi targetAbi() const override;
     QList<Abi> supportedAbis() const override;
+    void setTargetAbi(const Abi &abi);
 
     bool isValid() const override;
 
@@ -225,6 +227,9 @@ public:
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
+    bool canCreate() const override;
+    ToolChain *create() override;
+
     static QString vcVarsBatFor(const QString &basePath,
                                 MsvcToolChain::Platform platform,
                                 const QVersionNumber &v);
@@ -277,6 +282,24 @@ class MsvcToolChainConfigWidget : public MsvcBasedToolChainConfigWidget
 
 public:
     explicit MsvcToolChainConfigWidget(ToolChain *);
+
+private:
+    void applyImpl() override;
+    void discardImpl() override;
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override;
+
+    void setFromMsvcToolChain();
+
+    void handleVcVarsChange(const QString &vcVars);
+    void handleVcVarsArchChange(const QString &arch);
+
+    QString vcVarsArguments() const;
+
+    QComboBox *m_varsBatPathCombo;
+    QComboBox *m_varsBatArchCombo;
+    QLineEdit *m_varsBatArgumentsEdit;
+    AbiWidget *m_abiWidget;
 };
 
 // --------------------------------------------------------------------------
@@ -293,6 +316,7 @@ public:
 protected:
     void applyImpl() override;
     void discardImpl() override;
+    bool isDirtyImpl() const override { return false; }
     void makeReadOnlyImpl() override;
 
 private:

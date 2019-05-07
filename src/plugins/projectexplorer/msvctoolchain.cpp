@@ -936,6 +936,14 @@ QList<Abi> MsvcToolChain::supportedAbis() const
     return m_supportedAbis;
 }
 
+void MsvcToolChain::setTargetAbi(const Abi &abi)
+{
+    if (m_abi == abi)
+        return;
+
+    m_abi = abi;
+}
+
 bool MsvcToolChain::isValid() const
 {
     if (m_vcvarsBat.isEmpty())
@@ -1333,9 +1341,142 @@ void MsvcBasedToolChainConfigWidget::setFromMsvcToolChain()
 
 MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     : MsvcBasedToolChainConfigWidget(tc)
+    , m_varsBatPathCombo(new QComboBox(this))
+    , m_varsBatArchCombo(new QComboBox(this))
+    , m_varsBatArgumentsEdit(new QLineEdit(this))
+    , m_abiWidget(new AbiWidget)
 {
+    m_mainLayout->removeRow(m_mainLayout->rowCount() - 1);
+
+    QHBoxLayout *hLayout = new QHBoxLayout();
+    m_varsBatPathCombo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    for (const MsvcToolChain *tmpTc : g_availableMsvcToolchains) {
+        if (!tmpTc->varsBat().isEmpty() && m_varsBatPathCombo->findText(tmpTc->varsBat()) == -1) {
+            m_varsBatPathCombo->addItem(tmpTc->varsBat());
+        }
+    }
+    const bool isAmd64
+            = Utils::HostOsInfo::hostArchitecture() == Utils::HostOsInfo::HostArchitectureAMD64;
+     // TODO: Add missing values to MsvcToolChain::Platform
+    m_varsBatArchCombo->addItem(tr("<empty>"), isAmd64 ? MsvcToolChain::amd64 : MsvcToolChain::x86);
+    m_varsBatArchCombo->addItem("x86", MsvcToolChain::x86);
+    m_varsBatArchCombo->addItem("amd64", MsvcToolChain::amd64);
+    m_varsBatArchCombo->addItem("arm", MsvcToolChain::arm);
+    m_varsBatArchCombo->addItem("x86_amd64", MsvcToolChain::x86_amd64);
+    m_varsBatArchCombo->addItem("x86_arm", MsvcToolChain::x86_arm);
+//    m_varsBatArchCombo->addItem("x86_arm64", MsvcToolChain::x86_arm64);
+    m_varsBatArchCombo->addItem("amd64_x86", MsvcToolChain::amd64_x86);
+    m_varsBatArchCombo->addItem("amd64_arm", MsvcToolChain::amd64_arm);
+//    m_varsBatArchCombo->addItem("amd64_arm64", MsvcToolChain::amd64_arm64);
+    m_varsBatArchCombo->addItem("ia64", MsvcToolChain::ia64);
+    m_varsBatArchCombo->addItem("x86_ia64", MsvcToolChain::x86_ia64);
+    m_varsBatArgumentsEdit->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    m_varsBatArgumentsEdit->setToolTip(tr("Additional arguments for the vcvarsall.bat call"));
+    hLayout->addWidget(m_varsBatPathCombo);
+    hLayout->addWidget(m_varsBatArchCombo);
+    hLayout->addWidget(m_varsBatArgumentsEdit);
+    m_mainLayout->addRow(tr("Initialization:"), hLayout);
+    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
     addErrorLabel();
     setFromMsvcToolChain();
+
+    connect(m_varsBatPathCombo, &QComboBox::currentTextChanged,
+            this, &MsvcToolChainConfigWidget::handleVcVarsChange);
+    connect(m_varsBatArchCombo, &QComboBox::currentTextChanged,
+            this, &MsvcToolChainConfigWidget::handleVcVarsArchChange);
+    connect(m_varsBatArgumentsEdit, &QLineEdit::textChanged,
+            this, &ToolChainConfigWidget::dirty);
+    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
+}
+
+void MsvcToolChainConfigWidget::applyImpl()
+{
+    auto *tc = static_cast<MsvcToolChain *>(toolChain());
+    QTC_ASSERT(tc, return );
+    tc->setTargetAbi(m_abiWidget->currentAbi());
+    tc->changeVcVarsCall(m_varsBatPathCombo->currentText(), vcVarsArguments());
+    setFromMsvcToolChain();
+}
+
+void MsvcToolChainConfigWidget::discardImpl()
+{
+    setFromMsvcToolChain();
+}
+
+bool MsvcToolChainConfigWidget::isDirtyImpl() const
+{
+    auto msvcToolChain = static_cast<MsvcToolChain *>(toolChain());
+
+    return msvcToolChain->varsBat() != m_varsBatPathCombo->currentText()
+            || msvcToolChain->varsBatArg() != vcVarsArguments()
+            || msvcToolChain->targetAbi() != m_abiWidget->currentAbi();
+}
+
+void MsvcToolChainConfigWidget::makeReadOnlyImpl()
+{
+    m_varsBatPathCombo->setEnabled(false);
+    m_varsBatArchCombo->setEnabled(false);
+    m_varsBatArgumentsEdit->setEnabled(false);
+    m_abiWidget->setEnabled(false);
+}
+
+void MsvcToolChainConfigWidget::setFromMsvcToolChain()
+{
+    const auto *tc = static_cast<const MsvcToolChain *>(toolChain());
+    QTC_ASSERT(tc, return );
+    m_nameDisplayLabel->setText(tc->displayName());
+    QString args = tc->varsBatArg();
+    QStringList argList = args.split(' ');
+    for (int i = 0; i < argList.count(); ++i) {
+        if (m_varsBatArchCombo->findText(argList.at(i).trimmed()) != -1) {
+            const QString arch = argList.takeAt(i);
+            m_varsBatArchCombo->setCurrentText(arch);
+            args = argList.join(QLatin1Char(' '));
+            break;
+        }
+    }
+    m_varsBatPathCombo->setCurrentText(tc->varsBat());
+    m_varsBatArgumentsEdit->setText(args);
+    m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
+}
+
+void MsvcToolChainConfigWidget::handleVcVarsChange(const QString &vcVars)
+{
+    const auto *currentTc = static_cast<const MsvcToolChain *>(toolChain());
+    QTC_ASSERT(currentTc, return );
+    const MsvcToolChain::Platform platform = m_varsBatArchCombo->currentData().value<MsvcToolChain::Platform>();
+    const Abi::Architecture arch = archForPlatform(platform);
+    const unsigned char wordWidth = wordWidthForPlatform(platform);
+
+    for (const MsvcToolChain *tc : g_availableMsvcToolchains) {
+        if (tc->varsBat() == vcVars && tc->targetAbi().wordWidth() == wordWidth
+                && tc->targetAbi().architecture() == arch) {
+            m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
+            break;
+        }
+    }
+    emit dirty();
+}
+
+void MsvcToolChainConfigWidget::handleVcVarsArchChange(const QString &)
+{
+    Abi currentAbi = m_abiWidget->currentAbi();
+    const MsvcToolChain::Platform platform = m_varsBatArchCombo->currentData().value<MsvcToolChain::Platform>();
+    Abi newAbi(archForPlatform(platform), currentAbi.os(), currentAbi.osFlavor(),
+               currentAbi.binaryFormat(), wordWidthForPlatform(platform));
+    if (currentAbi != newAbi)
+        m_abiWidget->setAbis(m_abiWidget->supportedAbis(), newAbi);
+    emit dirty();
+}
+
+QString MsvcToolChainConfigWidget::vcVarsArguments() const
+{
+    QString varsBatArg
+            = m_varsBatArchCombo->currentText() == tr("<empty>")
+            ? "" : m_varsBatArchCombo->currentText();
+    if (!m_varsBatArgumentsEdit->text().isEmpty())
+        varsBatArg += QLatin1Char(' ') + m_varsBatArgumentsEdit->text();
+    return varsBatArg;
 }
 
 // --------------------------------------------------------------------------
@@ -2040,6 +2181,17 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     return Utils::nullopt;
 }
 
+bool MsvcToolChainFactory::canCreate() const
+{
+    return !g_availableMsvcToolchains.isEmpty();
+}
+
+ToolChain *MsvcToolChainFactory::create()
+{
+    return new MsvcToolChain("Microsoft Visual C++ Compiler",
+                             Abi::hostAbi(), g_availableMsvcToolchains.first()->varsBat(), "");
+}
+
 MsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags)
     : m_flags(flags)
 {
@@ -2080,3 +2232,5 @@ bool MsvcToolChain::WarningFlagAdder::triggered() const
 
 } // namespace Internal
 } // namespace ProjectExplorer
+
+Q_DECLARE_METATYPE(ProjectExplorer::Internal::MsvcToolChain::Platform)
