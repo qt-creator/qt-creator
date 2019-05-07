@@ -349,33 +349,50 @@ static QVector<VisualStudioInstallation> detectVisualStudio()
     return detectVisualStudioFromRegistry();
 }
 
+static unsigned char wordWidthForPlatform(MsvcToolChain::Platform platform)
+{
+    switch (platform) {
+    case ProjectExplorer::Internal::MsvcToolChain::x86:
+    case ProjectExplorer::Internal::MsvcToolChain::arm:
+    case ProjectExplorer::Internal::MsvcToolChain::x86_arm:
+    case ProjectExplorer::Internal::MsvcToolChain::amd64_arm:
+    case ProjectExplorer::Internal::MsvcToolChain::amd64_x86:
+        return 32;
+    case ProjectExplorer::Internal::MsvcToolChain::amd64:
+    case ProjectExplorer::Internal::MsvcToolChain::x86_amd64:
+    case ProjectExplorer::Internal::MsvcToolChain::ia64:
+    case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
+        return 64;
+    }
+
+    return 0;
+}
+
+static Abi::Architecture archForPlatform(MsvcToolChain::Platform platform)
+{
+    switch (platform) {
+    case ProjectExplorer::Internal::MsvcToolChain::x86:
+    case ProjectExplorer::Internal::MsvcToolChain::amd64:
+    case ProjectExplorer::Internal::MsvcToolChain::x86_amd64:
+    case ProjectExplorer::Internal::MsvcToolChain::amd64_x86:
+        return Abi::X86Architecture;
+    case ProjectExplorer::Internal::MsvcToolChain::arm:
+    case ProjectExplorer::Internal::MsvcToolChain::x86_arm:
+    case ProjectExplorer::Internal::MsvcToolChain::amd64_arm:
+        return Abi::ArmArchitecture;
+    case ProjectExplorer::Internal::MsvcToolChain::ia64:
+    case ProjectExplorer::Internal::MsvcToolChain::x86_ia64:
+        return Abi::ItaniumArchitecture;
+    }
+
+    return Abi::UnknownArchitecture;
+}
+
 static Abi findAbiOfMsvc(MsvcToolChain::Type type,
                          MsvcToolChain::Platform platform,
                          const QString &version)
 {
-    Abi::Architecture arch = Abi::X86Architecture;
     Abi::OSFlavor flavor = Abi::UnknownFlavor;
-    int wordWidth = 64;
-
-    switch (platform) {
-    case MsvcToolChain::x86:
-    case MsvcToolChain::amd64_x86:
-        wordWidth = 32;
-        break;
-    case MsvcToolChain::ia64:
-    case MsvcToolChain::x86_ia64:
-        arch = Abi::ItaniumArchitecture;
-        break;
-    case MsvcToolChain::amd64:
-    case MsvcToolChain::x86_amd64:
-        break;
-    case MsvcToolChain::arm:
-    case MsvcToolChain::x86_arm:
-    case MsvcToolChain::amd64_arm:
-        arch = Abi::ArmArchitecture;
-        wordWidth = 32;
-        break;
-    };
 
     QString msvcVersionString = version;
     if (type == MsvcToolChain::WindowsSDK) {
@@ -400,7 +417,8 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type,
         flavor = Abi::WindowsMsvc2008Flavor;
     else
         flavor = Abi::WindowsMsvc2005Flavor;
-    const Abi result = Abi(arch, Abi::WindowsOS, flavor, Abi::PEFormat, wordWidth);
+    const Abi result = Abi(archForPlatform(platform), Abi::WindowsOS, flavor, Abi::PEFormat,
+                           wordWidthForPlatform(platform));
     if (!result.isValid())
         qWarning("Unable to completely determine the ABI of MSVC version %s (%s).",
                  qPrintable(version),
