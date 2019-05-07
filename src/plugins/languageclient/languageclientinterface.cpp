@@ -144,7 +144,7 @@ void StdIOClientInterface::sendData(const QByteArray &data)
 void StdIOClientInterface::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     if (exitStatus == QProcess::CrashExit)
-        emit error(tr("Crashed with exit code %1: %2").arg(exitCode, m_process.error()));
+        emit error(tr("Crashed with exit code %1: %2").arg(exitCode).arg(m_process.errorString()));
     emit finished();
 }
 
