@@ -27,6 +27,7 @@
 
 #include "devicemanager.h"
 #include "deviceprocesslist.h"
+#include "idevicefactory.h"
 
 #include "../kit.h"
 #include "../kitinformation.h"
@@ -166,13 +167,6 @@ void IDevice::setupId(Origin origin, Core::Id id)
     d->origin = origin;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
-}
-
-IDevice::IDevice(const IDevice &other)
-    : QEnableSharedFromThis<IDevice>(other)
-    , d(std::make_unique<Internal::IDevicePrivate>())
-{
-    *d = *other.d;
 }
 
 IDevice::~IDevice() = default;
@@ -393,6 +387,16 @@ QVariantMap IDevice::toMap() const
     map.insert(ExtraDataKey, d->extraData);
 
     return map;
+}
+
+IDevice::Ptr IDevice::clone() const
+{
+    IDeviceFactory *factory = IDeviceFactory::find(d->type);
+    QTC_ASSERT(factory, return {});
+    IDevice::Ptr device = factory->construct();
+    QTC_ASSERT(device, return {});
+    device->fromMap(toMap());
+    return device;
 }
 
 QString IDevice::deviceStateToString() const

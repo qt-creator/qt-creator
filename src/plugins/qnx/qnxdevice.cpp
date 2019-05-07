@@ -151,11 +151,6 @@ QVariantMap QnxDevice::toMap() const
     return map;
 }
 
-IDevice::Ptr QnxDevice::clone() const
-{
-    return Ptr(new QnxDevice(*this));
-}
-
 PortsGatheringMethod::Ptr QnxDevice::portsGatheringMethod() const
 {
     return PortsGatheringMethod::Ptr(new QnxPortsGatheringMethod);

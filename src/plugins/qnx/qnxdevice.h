@@ -41,7 +41,6 @@ public:
     using ConstPtr = QSharedPointer<const QnxDevice>;
 
     static Ptr create() { return Ptr(new QnxDevice); }
-    ProjectExplorer::IDevice::Ptr clone() const override;
 
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const override;
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;

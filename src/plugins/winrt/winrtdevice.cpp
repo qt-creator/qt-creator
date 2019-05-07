@@ -106,11 +106,6 @@ Utils::OsType WinRtDevice::osType() const
     return Utils::OsTypeWindows;
 }
 
-IDevice::Ptr WinRtDevice::clone() const
-{
-    return IDevice::Ptr(new WinRtDevice(*this));
-}
-
 QString WinRtDevice::displayNameForType(Core::Id type)
 {
     if (type == Constants::WINRT_DEVICE_TYPE_LOCAL)

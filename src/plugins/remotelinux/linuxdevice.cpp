@@ -219,11 +219,6 @@ LinuxDevice::LinuxDevice()
     }
 }
 
-IDevice::Ptr LinuxDevice::clone() const
-{
-    return Ptr(new LinuxDevice(*this));
-}
-
 DeviceProcess *LinuxDevice::createProcess(QObject *parent) const
 {
     return new LinuxDeviceProcess(sharedFromThis(), parent);

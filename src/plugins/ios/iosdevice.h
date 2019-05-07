@@ -54,7 +54,6 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QString displayType() const override;
 
-    ProjectExplorer::IDevice::Ptr clone() const override;
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     QString uniqueDeviceID() const;
@@ -69,7 +68,6 @@ protected:
     friend class IosDeviceFactory;
     friend class Ios::Internal::IosDeviceManager;
     IosDevice();
-    IosDevice(const IosDevice &other);
     IosDevice(const QString &uid);
 
     Dict m_extraInfo;

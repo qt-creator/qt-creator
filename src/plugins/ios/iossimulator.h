@@ -76,13 +76,12 @@ public:
     bool canAutoDetectPorts() const override;
     Utils::OsType osType() const override;
 
-    ProjectExplorer::IDevice::Ptr clone() const override;
 protected:
     friend class IosSimulatorFactory;
     friend class IosConfigurations;
     IosSimulator();
     IosSimulator(Core::Id id);
-    IosSimulator(const IosSimulator &other);
+
 private:
     mutable quint16 m_lastPort;
 };

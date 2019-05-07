@@ -130,11 +130,6 @@ QVariantMap BareMetalDevice::toMap() const
     return map;
 }
 
-BareMetalDevice::IDevice::Ptr BareMetalDevice::clone() const
-{
-    return Ptr(new BareMetalDevice(*this));
-}
-
 DeviceProcessSignalOperation::Ptr BareMetalDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr();
@@ -160,13 +155,7 @@ DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const
     return new GdbServerProviderProcess(sharedFromThis(), parent);
 }
 
-BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)
-    : IDevice(other)
-{
-    setGdbServerProviderId(other.gdbServerProviderId());
-}
-
-// BareMetalDeviceFactory
+// Factory
 
 BareMetalDeviceFactory::BareMetalDeviceFactory()
     : IDeviceFactory(Constants::BareMetalOsType)

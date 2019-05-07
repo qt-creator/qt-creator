@@ -92,8 +92,6 @@ IosDevice::IosDevice()
     setFreePorts(ports);
 }
 
-IosDevice::IosDevice(const IosDevice &other) = default;
-
 IosDevice::IosDevice(const QString &uid)
     : m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
@@ -131,11 +129,6 @@ IDeviceWidget *IosDevice::createWidget()
 DeviceProcessSignalOperation::Ptr IosDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr();
-}
-
-IDevice::Ptr IosDevice::clone() const
-{
-    return IDevice::Ptr(new IosDevice(*this));
 }
 
 void IosDevice::fromMap(const QVariantMap &map)
@@ -236,8 +229,8 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
         qCDebug(detectLog) << "updating ios device " << uid;
         IosDevice *newDev = nullptr;
         if (dev->type() == devType) {
-            auto iosDev = static_cast<const IosDevice *>(dev.data());
-            newDev = new IosDevice(*iosDev);
+            newDev = new IosDevice();
+            newDev->fromMap(dev->toMap());
         } else {
             newDev = new IosDevice(uid);
         }
@@ -294,7 +287,8 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
             skipUpdate = true;
             newDev = const_cast<IosDevice *>(iosDev);
         } else {
-            newDev = new IosDevice(*iosDev);
+            newDev = new IosDevice();
+            newDev->fromMap(iosDev->toMap());
         }
     } else {
         newDev = new IosDevice(uid);

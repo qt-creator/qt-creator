@@ -47,7 +47,6 @@ public:
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     Utils::OsType osType() const override;
-    ProjectExplorer::IDevice::Ptr clone() const override;
 
     static QString displayNameForType(Core::Id type);
     int deviceId() const { return m_deviceId; }

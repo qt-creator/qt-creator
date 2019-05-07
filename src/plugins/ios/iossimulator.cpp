@@ -64,14 +64,6 @@ IosSimulator::IosSimulator()
     setDeviceState(DeviceReadyToUse);
 }
 
-IosSimulator::IosSimulator(const IosSimulator &other)
-    : IDevice(other), m_lastPort(other.m_lastPort)
-{
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
-    setDeviceState(DeviceReadyToUse);
-}
-
-
 IDevice::DeviceInfo IosSimulator::deviceInformation() const
 {
     return IDevice::DeviceInfo();
@@ -90,11 +82,6 @@ IDeviceWidget *IosSimulator::createWidget()
 DeviceProcessSignalOperation::Ptr IosSimulator::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr();
-}
-
-IDevice::Ptr IosSimulator::clone() const
-{
-    return IDevice::Ptr(new IosSimulator(*this));
 }
 
 Utils::Port IosSimulator::nextPort() const

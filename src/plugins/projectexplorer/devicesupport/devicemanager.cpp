@@ -414,10 +414,8 @@ public:
 
     static Core::Id testTypeId() { return "TestType"; }
 private:
-    TestDevice(const TestDevice &other) = default;
     QString displayType() const override { return QLatin1String("blubb"); }
     IDeviceWidget *createWidget() override { return nullptr; }
-    Ptr clone() const override { return Ptr(new TestDevice(*this)); }
     DeviceProcessSignalOperation::Ptr signalOperation() const override
     {
         return DeviceProcessSignalOperation::Ptr();
@@ -425,8 +423,19 @@ private:
     Utils::OsType osType() const override { return Utils::HostOsInfo::hostOs(); }
 };
 
+class TestDeviceFactory : public IDeviceFactory
+{
+public:
+    TestDeviceFactory() : IDeviceFactory(TestDevice::testTypeId())
+    {
+        setConstructionFunction([] { return IDevice::Ptr(new TestDevice); });
+    }
+};
+
 void ProjectExplorerPlugin::testDeviceManager()
 {
+    TestDeviceFactory factory;
+
     TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
     dev->setDisplayName(QLatin1String("blubbdiblubbfurz!"));
     QVERIFY(dev->isAutoDetected());

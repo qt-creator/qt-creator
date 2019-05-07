@@ -47,7 +47,6 @@ public:
     QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     Utils::OsType osType() const override;
-    ProjectExplorer::IDevice::Ptr clone() const override;
 
     bool canCreateProcess() const override { return true; }
     ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;

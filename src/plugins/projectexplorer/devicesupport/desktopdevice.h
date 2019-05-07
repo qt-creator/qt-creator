@@ -53,11 +53,8 @@ public:
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     Utils::OsType osType() const override;
 
-    IDevice::Ptr clone() const override;
-
 protected:
     DesktopDevice();
-    DesktopDevice(const DesktopDevice &other);
 
     friend class ProjectExplorerPlugin;
     friend class Internal::DesktopDeviceFactory;

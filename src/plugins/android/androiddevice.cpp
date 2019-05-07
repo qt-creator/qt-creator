@@ -90,11 +90,6 @@ Utils::OsType AndroidDevice::osType() const
     return Utils::OsTypeOtherUnix;
 }
 
-IDevice::Ptr AndroidDevice::clone() const
-{
-    return IDevice::Ptr(new AndroidDevice(*this));
-}
-
 QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;

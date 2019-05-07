@@ -60,8 +60,6 @@ DesktopDevice::DesktopDevice()
     setFreePorts(Utils::PortList::fromString(portRange));
 }
 
-DesktopDevice::DesktopDevice(const DesktopDevice &other) = default;
-
 IDevice::DeviceInfo DesktopDevice::deviceInformation() const
 {
     return DeviceInfo();
@@ -175,11 +173,6 @@ QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
 Utils::OsType DesktopDevice::osType() const
 {
     return Utils::HostOsInfo::hostOs();
-}
-
-IDevice::Ptr DesktopDevice::clone() const
-{
-    return Ptr(new DesktopDevice(*this));
 }
 
 } // namespace ProjectExplorer
