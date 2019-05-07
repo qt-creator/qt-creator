@@ -70,6 +70,7 @@ public:
 
     bool isNull() const;
     void clear();
+    void setFile(const Utils::FileName &file);
 
     unsigned int taskId = 0;
     TaskType type = Unknown;

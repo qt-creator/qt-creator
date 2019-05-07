@@ -65,17 +65,11 @@ Task::Task(TaskType type_, const QString &description_,
            const Utils::FileName &file_, int line_, Core::Id category_,
            const QIcon &icon, Options options) :
     taskId(s_nextId), type(type_), options(options), description(description_),
-    file(file_), line(line_), movedLine(line_), category(category_),
+    line(line_), movedLine(line_), category(category_),
     icon(icon.isNull() ? taskTypeIcon(type_) : icon)
 {
     ++s_nextId;
-    if (!file.isEmpty() && !file.toFileInfo().isAbsolute()) {
-        Utils::FileNameList possiblePaths = Internal::findFileInSession(file);
-        if (possiblePaths.length() == 1)
-            file = possiblePaths.first();
-        else
-            fileCandidates = possiblePaths;
-    }
+    setFile(file_);
 }
 
 Task Task::compilerMissingTask()
@@ -124,6 +118,18 @@ void Task::clear()
     icon = QIcon();
     formats.clear();
     m_mark.clear();
+}
+
+void Task::setFile(const Utils::FileName &file_)
+{
+    file = file_;
+    if (!file.isEmpty() && !file.toFileInfo().isAbsolute()) {
+        Utils::FileNameList possiblePaths = Internal::findFileInSession(file);
+        if (possiblePaths.length() == 1)
+            file = possiblePaths.first();
+        else
+            fileCandidates = possiblePaths;
+    }
 }
 
 //

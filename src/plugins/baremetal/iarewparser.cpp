@@ -97,7 +97,7 @@ void IarParser::amendFilePath()
     QString filePath;
     while (!m_filePathParts.isEmpty())
         filePath.append(m_filePathParts.takeFirst().trimmed());
-    m_lastTask.file = Utils::FileName::fromUserInput(filePath);
+    m_lastTask.setFile(Utils::FileName::fromUserInput(filePath));
     m_expectFilePath = false;
 }
 
