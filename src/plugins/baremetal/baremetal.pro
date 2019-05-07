@@ -25,6 +25,7 @@ SOURCES += baremetalplugin.cpp \
     sdcctoolchain.cpp \
     iarewparser.cpp \
     keilparser.cpp \
+    sdccparser.cpp \
 
 HEADERS += baremetalplugin.h \
     baremetalconstants.h \
@@ -49,6 +50,7 @@ HEADERS += baremetalplugin.h \
     sdcctoolchain.h \
     iarewparser.h \
     keilparser.h \
+    sdccparser.h \
 
 RESOURCES += \
     baremetal.qrc

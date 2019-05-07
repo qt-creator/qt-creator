@@ -37,5 +37,6 @@ QtcPlugin {
         "sdcctoolchain.cpp", "sdcctoolchain.h",
         "iarewparser.cpp", "iarewparser.h",
         "keilparser.cpp", "keilparser.h",
+        "sdccparser.cpp", "sdccparser.h",
     ]
 }

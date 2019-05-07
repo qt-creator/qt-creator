@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "baremetalconstants.h"
+#include "sdccparser.h"
 #include "sdcctoolchain.h"
 
 #include <projectexplorer/abiwidget.h>
@@ -327,7 +328,7 @@ void SdccToolChain::addToEnvironment(Environment &env) const
 
 IOutputParser *SdccToolChain::outputParser() const
 {
-    return nullptr;
+    return new SdccParser;
 }
 
 QVariantMap SdccToolChain::toMap() const
