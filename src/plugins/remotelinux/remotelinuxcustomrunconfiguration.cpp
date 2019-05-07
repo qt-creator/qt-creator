@@ -104,8 +104,8 @@ QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
 Runnable RemoteLinuxCustomRunConfiguration::runnable() const
 {
     ProjectExplorer::Runnable r = RunConfiguration::runnable();
-    r.extraData.insert("Ssh.X11ForwardToDisplay",
-                       aspect<X11ForwardingAspect>()->display(macroExpander()));
+    if (const auto * const forwardingAspect = aspect<X11ForwardingAspect>())
+        r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display(macroExpander()));
     return r;
 }
 
