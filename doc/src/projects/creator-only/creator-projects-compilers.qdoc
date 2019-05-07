@@ -74,6 +74,26 @@
 
     \endlist
 
+    In addition, the \QC Bare Metal Device plugin provides support for the
+    following compilers:
+
+    \list
+
+        \li \l{https://www.iar.com/iar-embedded-workbench/}{IAREW} is a group of
+            C and C++ bare-metal compilers from the various IAR Embedded Workbench
+            development environments.
+            \note Currently supported architectures are \c 8051, \c AVR, and \c ARM.
+
+        \li \l{https://www.keil.com}{KEIL} is a group of C and C++ bare-metal
+            compilers from the various KEIL development environments.
+            \note Currently supported architectures are \c 8051 and \c ARM.
+
+        \li \l{https://sdcc.sourceforge.net}{SDCC} is a retargetable, optimizing
+            C bare-metal compiler for various architectures.
+            \note Currently supported architecture is \c 8051.
+
+    \endlist
+
     To build an application using GCC, MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available
