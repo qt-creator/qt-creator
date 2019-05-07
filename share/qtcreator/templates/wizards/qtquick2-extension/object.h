@@ -13,8 +13,8 @@ class %ObjectName% : public QQuickItem
     Q_DISABLE_COPY(%ObjectName%)
 
 public:
-    %ObjectName%(QQuickItem *parent = nullptr);
-    ~%ObjectName%();
+    explicit %ObjectName%(QQuickItem *parent = nullptr);
+    ~%ObjectName%() override;
 };
 
 @if ! '%{Cpp:PragmaOnce}'
