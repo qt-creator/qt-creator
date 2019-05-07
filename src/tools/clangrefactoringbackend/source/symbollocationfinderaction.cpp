@@ -93,7 +93,7 @@ std::unique_ptr<clang::ASTConsumer> SymbolLocationFinderAction::newASTConsumer()
 
   consumer->setSourceLocations(&m_sourceLocations);
 
-  return std::move(consumer);
+  return consumer;
 }
 
 } // namespace ClangBackEnd
