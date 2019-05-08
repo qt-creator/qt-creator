@@ -124,10 +124,6 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig config, const CreateAv
                                                  Utils::equal(&SystemImage::abiName, result.abi));
         if (image && image->isValid()) {
             arguments << "-k" << image->sdkStylePath();
-            // Google api system images requires explicit abi as
-            // google-apis/ABI or --tag "google-apis"
-            if (image->sdkStylePath().contains(googleApiTag))
-                arguments << "--tag" << googleApiTag;
         } else {
             QString name = result.sdkPlatform->displayText();
             qCDebug(avdManagerLog) << "AVD Create failed. Cannot find system image for the platform"

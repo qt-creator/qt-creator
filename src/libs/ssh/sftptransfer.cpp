@@ -157,6 +157,7 @@ void SftpTransfer::doStart()
         }
     }
     for (const FileToTransfer &f : d->files) {
+        QString sourceFileOrLinkTarget;
         bool link = false;
         if (d->transferType == Internal::FileTransferType::Upload) {
             QFileInfo fi(f.sourceFile);
@@ -164,10 +165,13 @@ void SftpTransfer::doStart()
                 link = true;
                 d->batchFile.write("-rm " + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit()
                                    + '\n');
+                sourceFileOrLinkTarget = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
+            } else {
+                sourceFileOrLinkTarget = f.sourceFile;
             }
          }
          d->batchFile.write(d->transferCommand(link) + ' '
-                            + QtcProcess::quoteArgUnix(f.sourceFile).toLocal8Bit() + ' '
+                            + QtcProcess::quoteArgUnix(sourceFileOrLinkTarget).toLocal8Bit() + ' '
                             + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit() + '\n');
     }
     d->batchFile.flush();

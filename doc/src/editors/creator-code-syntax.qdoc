@@ -38,17 +38,20 @@
     structure.
 
     \if defined(qtcreator)
-    \list
-        \li Syntax errors are underlined in red.
+    In the following screenshot, \QC points out an error, because a semicolon is
+    missing at the end of the line:
 
-            In the following screenshot, a semicolon is missing at the end
-            of the line.
-            \image qtcreator-syntaxerror.png
-        \li Semantic errors and warnings are underlined in olive.
+    \image qtcreator-syntaxerror.png
 
-            In the following screenshot, the variable is not used.
-            \image qtcreator-semanticerror.png
-    \endlist
+    In the following screenshot, \QC issues a warning, because the variable is
+    not used:
+
+    \image qtcreator-semanticerror.png
+
+    To modify the colors used for underlining errors and warnings, select
+    \uicontrol Tools > \uicontrol Options > \uicontrol {Text Editor} >
+    \uicontrol {Fonts & Colors} > \uicontrol Copy, and select new colors for
+    \uicontrol Error and \uicontrol Warning.
 
     \section1 Viewing Annotations
 

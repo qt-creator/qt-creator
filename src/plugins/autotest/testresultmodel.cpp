@@ -410,19 +410,24 @@ TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObje
       m_sourceModel(sourceModel)
 {
     setSourceModel(sourceModel);
-    enableAllResultTypes();
+    enableAllResultTypes(true);
 }
 
-void TestResultFilterModel::enableAllResultTypes()
+void TestResultFilterModel::enableAllResultTypes(bool enabled)
 {
-    m_enabled << ResultType::Pass << ResultType::Fail << ResultType::ExpectedFail
-              << ResultType::UnexpectedPass << ResultType::Skip << ResultType::MessageDebug
-              << ResultType::MessageWarn << ResultType::MessageInternal << ResultType::MessageLocation
-              << ResultType::MessageFatal << ResultType::Invalid << ResultType::BlacklistedPass
-              << ResultType::BlacklistedFail << ResultType::BlacklistedXFail << ResultType::BlacklistedXPass
-              << ResultType::Benchmark
-              << ResultType::MessageCurrentTest << ResultType::TestStart << ResultType::TestEnd
-              << ResultType::MessageInfo << ResultType::MessageSystem << ResultType::Application;
+    if (enabled) {
+        m_enabled << ResultType::Pass << ResultType::Fail << ResultType::ExpectedFail
+                  << ResultType::UnexpectedPass << ResultType::Skip << ResultType::MessageDebug
+                  << ResultType::MessageWarn << ResultType::MessageInternal << ResultType::MessageLocation
+                  << ResultType::MessageFatal << ResultType::Invalid << ResultType::BlacklistedPass
+                  << ResultType::BlacklistedFail << ResultType::BlacklistedXFail << ResultType::BlacklistedXPass
+                  << ResultType::Benchmark
+                  << ResultType::MessageCurrentTest << ResultType::TestStart << ResultType::TestEnd
+                  << ResultType::MessageInfo << ResultType::MessageSystem << ResultType::Application;
+    } else {
+        m_enabled.clear();
+        m_enabled << ResultType::MessageFatal << ResultType::MessageSystem;
+    }
     invalidateFilter();
 }
 

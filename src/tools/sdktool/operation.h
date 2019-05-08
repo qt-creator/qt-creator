@@ -63,5 +63,4 @@ public:
     bool save(const QVariantMap &map, const QString &file) const;
 
     static QVariant valueFromString(const QString &v);
-    static QString makeUnique(const QString &name, const QStringList &inUse);
 };

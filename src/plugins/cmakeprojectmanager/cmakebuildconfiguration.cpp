@@ -237,7 +237,8 @@ DeploymentData CMakeBuildConfiguration::deploymentData() const
                                                              sourceDir.absolutePath());
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
-            if (!ct.executable.isEmpty()) {
+            if (!ct.executable.isEmpty()
+                    && !result.deployableForLocalFile(ct.executable.toString()).isValid()) {
                 result.addFile(ct.executable.toString(),
                                deploymentPrefix + buildDir.relativeFilePath(ct.executable.toFileInfo().dir().path()),
                                DeployableFile::TypeExecutable);

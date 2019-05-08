@@ -27,6 +27,7 @@
 
 #include "highlightersettings.h"
 #include "textdocumentlayout.h"
+#include "tabsettings.h"
 #include "texteditorsettings.h"
 
 #include <coreplugin/icore.h>
@@ -35,6 +36,7 @@
 
 #include <DefinitionDownloader>
 #include <Format>
+#include <FoldingRegion>
 #include <Repository>
 #include <SyntaxHighlighter>
 
@@ -272,10 +274,16 @@ void Highlighter::highlightBlock(const QString &text)
 {
     if (!definition().isValid())
         return;
-    QTextBlock block = currentBlock();
-    KSyntaxHighlighting::State state = TextDocumentLayout::userData(block)->syntaxState();
+    const QTextBlock block = currentBlock();
+    KSyntaxHighlighting::State state;
+    setCurrentBlockState(qMax(0, previousBlockState()));
+    if (TextBlockUserData *data = TextDocumentLayout::testUserData(block)) {
+        state = data->syntaxState();
+        data->setFoldingStartIncluded(false);
+        data->setFoldingEndIncluded(false);
+    }
     state = highlightLine(text, state);
-    block = block.next();
+    const QTextBlock nextBlock = block.next();
 
     Parentheses parentheses;
     int pos = 0;
@@ -288,12 +296,44 @@ void Highlighter::highlightBlock(const QString &text)
     }
     TextDocumentLayout::setParentheses(currentBlock(), parentheses);
 
-    if (block.isValid())
-        TextDocumentLayout::userData(block)->setSyntaxState(state);
+    if (nextBlock.isValid()) {
+        TextBlockUserData *data = TextDocumentLayout::userData(nextBlock);
+        data->setSyntaxState(state);
+        data->setFoldingIndent(currentBlockState());
+    }
+
     formatSpaces(text);
 }
 
 void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format)
 {
     setFormat(offset, length, formatForCategory(format.textStyle()));
+}
+
+void Highlighter::applyFolding(int offset,
+                               int length,
+                               KSyntaxHighlighting::FoldingRegion region)
+{
+    if (!region.isValid())
+        return;
+    const QTextBlock &block = currentBlock();
+    const QString &text = block.text();
+    TextBlockUserData *data = TextDocumentLayout::userData(currentBlock());
+    const bool fromStart = TabSettings::firstNonSpace(text) == offset;
+    const bool toEnd = (offset + length) == (text.length() - TabSettings::trailingWhitespaces(text));
+    if (region.type() == KSyntaxHighlighting::FoldingRegion::Begin) {
+        setCurrentBlockState(currentBlockState() + 1);
+        // if there is only a folding begin in the line move the current block into the fold
+        if (fromStart && toEnd) {
+            data->setFoldingIndent(currentBlockState());
+            data->setFoldingStartIncluded(true);
+        }
+    } else if (region.type() == KSyntaxHighlighting::FoldingRegion::End) {
+        setCurrentBlockState(qMax(0, currentBlockState() - 1));
+        // if the folding end is at the end of the line move the current block into the fold
+        if (toEnd)
+            data->setFoldingEndIncluded(true);
+        else
+            data->setFoldingIndent(currentBlockState());
+    }
 }

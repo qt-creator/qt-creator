@@ -372,6 +372,7 @@ private:
     QStringList m_featureRoots;
 
     std::unique_ptr<Utils::FileSystemWatcher> m_wildcardWatcher;
+    QMap<QString, QStringList> m_wildcardDirectoryContents;
 
     // Async stuff
     QFutureWatcher<Internal::QmakeEvalResult *> m_parseFutureWatcher;

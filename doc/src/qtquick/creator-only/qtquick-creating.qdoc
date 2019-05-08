@@ -242,7 +242,7 @@
             files in the project folder belong to the project. Therefore, you do
             not need to individually list all the files in the project.
 
-        \li .qml file defines an UI item, such as a component, screen, or the
+        \li .qml file defines an UI item, such as a component or the
             whole application UI.
 
         \li ui.qml file defines a form for the application UI. This file is

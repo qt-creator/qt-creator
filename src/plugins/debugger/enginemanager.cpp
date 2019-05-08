@@ -166,7 +166,13 @@ public:
     Core::Id m_previousMode;
     QPointer<QComboBox> m_engineChooser;
     bool m_shuttingDown = false;
-    Context m_currentAdditionalContext;
+
+    // This contains the contexts that need to be removed when switching
+    // away from the current engine item. Since the plugin itself adds
+    // C_DEBUGGER_NOTRUNNING on initialization this is set here as well,
+    // so it can be removed when switching away from the initial (null)
+    // engine. See QTCREATORBUG-22330.
+    Context m_currentAdditionalContext{Constants::C_DEBUGGER_NOTRUNNING};
 };
 
 ////////////////////////////////////////////////////////////////////////

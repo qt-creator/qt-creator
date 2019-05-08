@@ -524,14 +524,17 @@ void CdbEngine::handleInitialSessionIdle()
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
     if (rp.breakOnMain) {
-        // FIXME:
-//        const BreakpointParameters bp(BreakpointAtMain);
-//        BreakpointModelId id(quint16(-1));
-//        QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings, id, true);
-//        runCommand({function, BuiltinCommand,
-//                    [this, id](const DebuggerResponse &r) { handleBreakInsert(r, id); }});
+        BreakpointParameters bp(BreakpointAtMain);
+        if (rp.startMode == StartInternal || rp.startMode == StartExternal) {
+            const QString &moduleFileName = Utils::FileName::fromString(rp.inferior.executable)
+                                                .fileName();
+            bp.module = moduleFileName.left(moduleFileName.indexOf('.'));
+        }
+        QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings);
+        runCommand({function, BuiltinCommand, [this](const DebuggerResponse &r) {
+                        handleBreakInsert(r, Breakpoint());
+                    }});
     }
-
     // Take ownership of the breakpoint. Requests insertion. TODO: Cpp only?
     BreakpointManager::claimBreakpointsForEngine(this);
     runCommand({".symopt+0x8000"}); // disable searching public symbol table - improving the symbol lookup speed
@@ -866,6 +869,7 @@ void CdbEngine::executeRunToLine(const ContextData &data)
 {
     // Add one-shot breakpoint
     BreakpointParameters bp;
+    bp.oneShot = true;
     if (data.address) {
         bp.type =BreakpointByAddress;
         bp.address = data.address;
@@ -875,7 +879,7 @@ void CdbEngine::executeRunToLine(const ContextData &data)
         bp.lineNumber = data.lineNumber;
     }
 
-    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings, {}, true), BuiltinCommand,
+    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings), BuiltinCommand,
                [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); }});
     continueInferior();
 }
@@ -885,7 +889,8 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
     // Add one-shot breakpoint
     BreakpointParameters bp(BreakpointByFunction);
     bp.functionName = functionName;
-    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings, {}, true), BuiltinCommand,
+    bp.oneShot = true;
+    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings), BuiltinCommand,
                [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); }});
     continueInferior();
 }
@@ -1947,7 +1952,7 @@ void CdbEngine::handleBreakInsert(const DebuggerResponse &response, const Breakp
             functionName = functionName.mid(functionStart);
         sub->params.functionName = functionName;
         sub->displayName = bp->displayName() + '.' + QString::number(subBreakPointID);
-        runCommand({cdbAddBreakpointCommand(sub->params, m_sourcePathMappings, sub->responseId, false), NoFlags});
+        runCommand({cdbAddBreakpointCommand(sub->params, m_sourcePathMappings, sub->responseId), NoFlags});
     }
 }
 
@@ -2506,10 +2511,10 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
             && boolSetting(CdbBreakPointCorrection)) {
         response.lineNumber = int(lineCorrection->fixLineNumber(
                                       parameters.fileName, unsigned(parameters.lineNumber)));
-        QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, responseId, false);
+        QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
     } else {
-        QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, responseId, false);
+        QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
     }
     if (!parameters.enabled)
@@ -2564,7 +2569,7 @@ void CdbEngine::updateBreakpoint(const Breakpoint &bp)
     } else {
         // Delete and re-add, triggering update
         runCommand({cdbClearBreakpointCommand(bp), NoFlags});
-        QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, responseId, false);
+        QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
         m_pendingBreakpointMap.insert(bp);
         listBreakpoints();

@@ -32,17 +32,123 @@
 /*!
 
     \contentspage index.html
-    \previouspage creator-design-mode.html
     \page creator-visual-editor.html
+    \if defined(qtdesignstudio)
+    \previouspage quick-converting-ui-projects.html
+    \nextpage quick-components.html
+    \else
+    \previouspage creator-design-mode.html
     \nextpage quick-projects.html
+    \endif
 
     \title Developing Qt Quick Applications
 
+    \if defined(qtdesignstudio)
+    When you install \QDS, everything you'll need to design UIs
+    using \l{Qt Quick} and to preview them on the desktop or on Android or
+    embedded Linux devices is automatically installed and configured correctly
+    for you.
+    \endif
+
+    Qt Quick enables you to build UIs around the behavior of
+    \e components and how they connect with one another. You
+    create components using Qt Quick and QML types that are available in
+    the Design mode. You can specify values for the \e properties of a
+    component to change its appearance and behavior. All QML types have a
+    set of predefined properties, some of which control things that are
+    visible to users, while others are used behind the scene.
+
+    While it is useful to learn the basics of Qt Quick, you can also rely on
+    \QDS to write the code for you when you drag-and-drop the ready-made
+    components to the working area and change them to your liking by modifying
+    their properties in the Design mode. You can always check up details in
+    the extensive Qt Quick documentation by pressing \key F1.
+
     \list
 
+        \if defined(qtcreator)
         \li \l {Creating Qt Quick Projects}
 
             You can use wizards to create Qt Quick projects.
+
+        \li \l {Editing QML Files in Design Mode}
+
+            You can use the \uicontrol {Form Editor} or the
+            \uicontrol {Text Editor} in the Design mode to
+            develop Qt Quick applications.
+        \endif
+
+        \li \l {Creating Components}
+
+            In addition to your imported artwork, you can use the Design
+            mode to customize ready-made components or design any custom form
+            and shape directly as QML types. You can import visual assets in
+            various formats, such as PNG, JPG, and SVG for use in the
+            components.
+
+       \li \l {Managing Item Hierarchy}
+
+            You can manage the items in the current QML file and their
+            relationships in the \uicontrol Navigator.
+
+        \li \l {Specifying Item Properties}
+
+            You can specify values for the properties of a component to change
+            its appearance and behavior. All QML types have a set of predefined
+            properties. Some properties, such as position, size, and visibility,
+            are common to all QML types, whereas others are specific to the QML
+            type. You can specify properties for your components in the
+            \uicontrol Properties pane.
+
+        \li \l {Creating Animations}
+
+            You can use a timeline and keyframe based editor in the
+            \uicontrol Timeline view to animate the properties of UI
+            components. Animating properties enables their values to
+            move through intermediate values at specified keyframes
+            instead of immediately changing to the target value.
+
+        \li \l {Adding Connections}
+
+            You can create connections between the UI components and
+            the application to enable them to communicate with each other. For
+            example, how does the appearance of a button change on a mouse click
+            and which action does the application need to perform in response to
+            it.
+
+            You can also create connections between UI components by
+            binding their properties together. This way, when the value of a
+            property changes in a parent component, it can be automatically
+            changed in all the child components, for example.
+
+        \li \l {Adding States}
+
+            Qt Quick allows you to declare various UI states that describe
+            how component properties change from a base state. Therefore,
+            states can be a useful way of organizing your UI
+            logic. You can associate transitions with items to define
+            how their properties will animate when they change due to a state
+            change.
+    \endlist
+
+    \section1 Related Topics
+
+    \list
+        \if defined(qtdesignstudio)
+        \li \l {Using Custom Fonts}
+
+            You can load custom fonts to \QDS and use them in your designs.
+        \endif
+
+        \li \l {Editing PathView Properties}
+
+            You can use a graphical spline editor to specify \l{PathView} paths.
+            A path view lays out data provided by data models on a \l{Path}.
+
+        \li \l {Browsing ISO 7000 Icons}
+
+            You can add ISO 7000 icons from a library delivered with \QC to
+            UIs and change their color.
 
         \li \l{Qt Quick UI Forms}
 
@@ -50,54 +156,13 @@
             (.ui.qml files). The forms use a purely declarative subset of the
             QML language and you can edit them in the Design mode.
 
-        \li \l {Editing QML Files in Design Mode}
-
-            You can use the \uicontrol {Form Editor} or the
-            \uicontrol {Text Editor} in the Design mode to
-            develop Qt Quick applications.
-
-        \li \l {Creating Components}
-
-            You can use basic QML types to create your own components that you
-            can combine with ready-made Qt Quick Controls and Layouts
-            (available since Qt 5.7).
-
-        \li \l {Managing Item Hierarchy}
-
-            You can manage the items in the current QML file and their
-            relationships in the \uicontrol Navigator.
-
-        \li \l {Specifying Item Properties}
-
-            You can specify properties for your components in the
-            \uicontrol Properties pane.
-
-        \li \l {Editing PathView Properties}
-
-            You can use a graphical spline editor to specify \l{PathView} paths.
-            A path view lays out data provided by data models on a \l{Path}.
-
-        \li \l {Adding Connections}
-
-            You can connect objects to signals, specify dynamic properties for
-            objects, and create bindings between the properties of two objects.
-
-        \li \l {Adding States}
-
-            You can use states to describe user interface configurations, such
-            as the UI controls, their properties and behavior, and the available
-            actions.
-
-        \li \l {Browsing ISO 7000 Icons}
-
-            You can add ISO 7000 icons from a library delivered with \QC to Qt
-            Quick applications and change their color (commercial only).
-
+        \if defined(qtcreator)
         \li \l {Exporting Designs from Graphics Software}
 
             You can export designs from graphics software, such as Adobe
             Photoshop and GIMP, to QML files. You can then edit QML files in
             \QC.
+
         \li \l {Using QML Modules with Plugins}
 
             QML modules may use plugins to expose components defined in C++ to
@@ -105,12 +170,14 @@
             details of the contained components, and therefore, the modules must
             provide extra type information for code completion and the semantic
             checks to work correctly.
+
         \li \l {Converting UI Projects to Applications}
 
             Qt Quick UI projects (.qmlproject) are useful for creating user
             interfaces. To use them for application development, you have to
             convert them to Qt Quick Application projects that contain .pro,
             .cpp, and .qrc files.
+        \endif
 
     \endlist
 

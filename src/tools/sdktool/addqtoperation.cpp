@@ -296,20 +296,13 @@ QVariantMap AddQtOperation::addQt(const QVariantMap &map,
     }
     const QString qt = QString::fromLatin1(PREFIX) + QString::number(versionCount);
 
-    // Sanity check: Make sure displayName is unique.
-    QStringList nameKeys = FindKeyOperation::findKey(map, QLatin1String(DISPLAYNAME));
-    QStringList nameList;
-    foreach (const QString &nameKey, nameKeys)
-        nameList << GetOperation::get(map, nameKey).toString();
-    const QString uniqueName = makeUnique(displayName, nameList);
-
     // Sanitize qmake path:
     QString saneQmake = QDir::cleanPath(QDir::fromNativeSeparators(qmake));
 
     // insert data:
     KeyValuePairList data;
     data << KeyValuePair(QStringList() << qt << QLatin1String(ID), QVariant(-1));
-    data << KeyValuePair(QStringList() << qt << QLatin1String(DISPLAYNAME), QVariant(uniqueName));
+    data << KeyValuePair(QStringList() << qt << QLatin1String(DISPLAYNAME), QVariant(displayName));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTED), QVariant(true));
     data << KeyValuePair(QStringList() << qt << QLatin1String(AUTODETECTION_SOURCE), QVariant(sdkId));
     data << KeyValuePair(QStringList() << qt << QLatin1String(QMAKE), QVariant(saneQmake));

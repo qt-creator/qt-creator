@@ -167,18 +167,6 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
                 qWarning() << "Error registering namespace '" << nameSpace
                     << "' from file '" << file << "':" << helpEngine.error();
             }
-        } else {
-            const QLatin1String key("CreationDate");
-            const QString &newDate = helpEngine.metaData(file, key).toString();
-            const QString &oldDate = helpEngine.metaData(
-                helpEngine.documentationFileName(nameSpace), key).toString();
-            if (QDateTime::fromString(newDate, Qt::ISODate)
-                > QDateTime::fromString(oldDate, Qt::ISODate)) {
-                if (helpEngine.unregisterDocumentation(nameSpace)) {
-                    docsChanged = true;
-                    helpEngine.registerDocumentation(file);
-                }
-            }
         }
     }
     futureInterface.reportResult(docsChanged);

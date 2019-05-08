@@ -36,7 +36,6 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/temporarydirectory.h>
 
 #include <QByteArrayList>
 #include <QDir>
@@ -149,7 +148,7 @@ struct SshConnection::SshConnectionPrivate
     SshConnectionInfo connInfo;
     SshProcess masterProcess;
     QString errorString;
-    std::unique_ptr<TemporaryDirectory> masterSocketDir;
+    std::unique_ptr<QTemporaryDir> masterSocketDir;
     State state = Unconnected;
     const bool sharingEnabled = SshSettings::connectionSharingEnabled();
 };
@@ -351,8 +350,7 @@ void SshConnection::doConnectToHost()
     }
     if (!d->sharingEnabled)
         emitConnected();
-    QTC_ASSERT(TemporaryDirectory::masterTemporaryDirectory(), return);
-    d->masterSocketDir.reset(new TemporaryDirectory("ssh-XXXXXX"));
+    d->masterSocketDir.reset(new QTemporaryDir);
     if (!d->masterSocketDir->isValid()) {
         emitError(tr("Cannot establish SSH connection: Failed to create temporary "
                      "directory for control socket: %1")

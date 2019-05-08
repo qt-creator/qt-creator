@@ -24,15 +24,19 @@
 ****************************************************************************/
 
 /*!
-//! [using sidebar views]
+    \contentspage index.html
+    \page creator-sidebar-views.html
+    \previouspage creator-modes.html
+    \nextpage creator-output-panes.html
 
-    \section1 Browsing Project Contents
+    \title Browsing Project Contents
 
-    A left and right sidebar are available in most \QC modes. The availability
-    of the sidebars and their contents depend on the mode.
+    A left and right sidebar are available in most \QC \l{Selecting Modes}
+    {modes}. The availability of the sidebars and their contents depend on
+    the mode.
 
-    In the \uicontrol Edit mode, you can use the sidebars to browse the project
-    contents.
+    In the \uicontrol Edit and \uicontrol Design mode, you can use the sidebars
+    to browse the project contents.
 
     \image qtcreator-sidebar.png
 
@@ -97,11 +101,7 @@
     In some views, right-clicking opens a context menu that contains functions
     for managing the objects listed in the view.
 
-//! [using sidebar views]
-
-//! [projects view]
-
-    \section2 Viewing Project Files
+    \section1 Viewing Project Files
 
     The sidebar displays projects in a project tree. The project tree contains
     a list of all projects open in the current session. For each project, the
@@ -196,11 +196,7 @@
     files, as well as compare the selected file with the currently open file
     in the diff editor. For more information, see \l{Comparing Files}.
 
-//! [projects view]
-
-//! [open documents view]
-
-    \section2 Viewing Open Documents
+    \section1 Viewing Open Documents
 
     To see a list of open documents, switch to the \uicontrol {Open Documents}
     view. By right-clicking an open document, you can:
@@ -210,11 +206,7 @@
             closed when \uicontrol {Close All} is used.
     \endlist
 
-//! [open documents view]
-
-//! [file system view]
-
-    \section2 Viewing the File System
+    \section1 Viewing the File System
 
     If you cannot see a file in the \uicontrol Projects view, switch to the
     \uicontrol {File System} view, which shows all the files in the file system.
@@ -282,11 +274,7 @@
 
     \endlist
 
-//! [file system view]
-
-//! [outline view]
-
-    \section2 Viewing Defined Types and Symbols
+    \section1 Viewing Defined Types and Symbols
 
     The \uicontrol Outline view shows an overview of defined types and other
     symbols, as well as their properties and hierarchy in a source file.
@@ -298,12 +286,7 @@
             editor, deselect \uicontrol {Synchronize with Editor}.
     \endlist
 
-//! [outline view]
-
-
-//! [class view]
-
-    \section2 Viewing the Class Hierarchy
+    \section1 Viewing the Class Hierarchy
 
     The \uicontrol {Class View} shows the class hierarchy of the currently
     open projects. To organize the view by subprojects, click
@@ -313,22 +296,12 @@
     To visit all parts of a namespace, double-click on the namespace item
     multiple times.
 
-//! [class view]
-
-
-//! [type hierarchy view]
-
-    \section2 Viewing Type Hierarchy
+    \section1 Viewing Type Hierarchy
 
     To view the base classes of a class, right-click the class and select
     \uicontrol {Open Type Hierarchy} or press \key {Ctrl+Shift+T}.
 
-//! [type hierarchy view]
-
-
-//! [include hierarchy view]
-
-    \section2 Viewing Include Hierarchy
+    \section1 Viewing Include Hierarchy
 
     To view which files are included in the current file and which files include
     the current file, right-click in the editor and select
@@ -336,6 +309,4 @@
 
     To keep the view synchronized with the file currently opened in the editor,
     select \uicontrol {Synchronize with Editor}.
-
-//! [include hierarchy view]
 */

@@ -303,15 +303,22 @@ def createNewQtQuickApplication(workingDir, projectName = None,
     return checkedTargets, projectName
 
 def createNewQtQuickUI(workingDir, qtVersion = "5.6"):
-    __createProjectOrFileSelectType__("  Other Project", 'Qt Quick UI Prototype')
+    available = __createProjectOrFileSelectType__("  Other Project", 'Qt Quick UI Prototype')
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
-    __createProjectHandleQtQuickSelection__(qtVersion)
-    __createProjectHandleLastPage__()
-    progressBarWait(10000)
+    requiredQt = __createProjectHandleQtQuickSelection__(qtVersion)
+    __modifyAvailableTargets__(available, requiredQt)
+    snooze(1)
+    checkedTargets = __chooseTargets__(available, available)
+    if len(checkedTargets):
+        clickButton(waitForObject(":Next_QPushButton"))
+        __createProjectHandleLastPage__()
+        progressBarWait(10000)
+    else:
+        clickButton(waitForObject("{type='QPushButton' text='Cancel' visible='1'}"))
 
-    return projectName
+    return checkedTargets, projectName
 
 def createNewQmlExtension(workingDir, targets=[Targets.DESKTOP_5_6_1_DEFAULT]):
     available = __createProjectOrFileSelectType__("  Library", "Qt Quick 2 Extension Plugin")

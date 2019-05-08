@@ -58,7 +58,7 @@ QString breakPointCdbId(const Breakpoint &bp);
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).
 QString cdbAddBreakpointCommand(const BreakpointParameters &d,
                                 const QList<QPair<QString, QString> > &sourcePathMapping,
-                                const QString &responseId = QString(), bool oneshot = false);
+                                const QString &responseId = QString());
 QString cdbClearBreakpointCommand(const Breakpoint &bp);
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded

@@ -252,7 +252,7 @@ QList<ModelNode> filteredList(const NodeListProperty &property, bool filter)
         return property.toModelNodeList();
 
     return Utils::filtered(property.toModelNodeList(), [] (const ModelNode &arg) {
-        return QmlItemNode::isValidQmlItemNode(arg);
+        return QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
     });
 }
 
