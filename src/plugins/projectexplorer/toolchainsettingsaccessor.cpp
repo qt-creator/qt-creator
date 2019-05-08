@@ -295,8 +295,8 @@ using TCList = QList<ToolChain *>;
 class TTC : public ToolChain
 {
 public:
-    TTC(ToolChain::Detection d, const QByteArray &t, bool v = true) :
-        ToolChain("TestToolChainType", d),
+    TTC(const QByteArray &t, bool v = true) :
+        ToolChain("TestToolChainType"),
         token(t),
         m_valid(v)
     {
@@ -333,7 +333,7 @@ public:
 
 private:
     TTC(const TTC &other) :
-        ToolChain(other.typeId(), other.detection()),
+        ToolChain(other.typeId()),
         token(other.token)
     {}
 
@@ -375,19 +375,29 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
     TTC *auto3i = nullptr;
 
     if (!TTC::hasToolChains()) {
-        system1 = new TTC(ToolChain::AutoDetection, "system1"); Q_UNUSED(system1);
+        system1 = new TTC("system1");
+        system1->setDetection(ToolChain::AutoDetection);
         system1c = system1->clone(); Q_UNUSED(system1c);
-        system2 = new TTC(ToolChain::AutoDetection, "system2"); Q_UNUSED(system2);
-        system3i = new TTC(ToolChain::AutoDetection, "system3", false); Q_UNUSED(system3i);
-        user1 = new TTC(ToolChain::ManualDetection, "user1"); Q_UNUSED(user1);
+        system2 = new TTC("system2");
+        system2->setDetection(ToolChain::AutoDetection);
+        system3i = new TTC("system3", false);
+        system3i->setDetection(ToolChain::AutoDetection);
+        user1 = new TTC("user1");
+        user1->setDetection(ToolChain::ManualDetection);
         user1c = user1->clone(); Q_UNUSED(user1c);
-        user2 = new TTC(ToolChain::ManualDetection, "user2"); Q_UNUSED(user2);
-        user3i = new TTC(ToolChain::ManualDetection, "user3", false); Q_UNUSED(user3i);
-        auto1 = new TTC(ToolChain::AutoDetectionFromSettings, "auto1"); Q_UNUSED(auto1);
+        user2 = new TTC("user2");
+        user2->setDetection(ToolChain::ManualDetection);
+        user3i = new TTC("user3", false);
+        user3i->setDetection(ToolChain::ManualDetection);
+        auto1 = new TTC("auto1");
+        auto1->setDetection(ToolChain::AutoDetectionFromSettings);
         auto1c = auto1->clone(); Q_UNUSED(auto1c);
-        auto1_2 = new TTC(ToolChain::AutoDetectionFromSettings, "auto1"); Q_UNUSED(auto1_2);
-        auto2 = new TTC(ToolChain::AutoDetectionFromSettings, "auto2"); Q_UNUSED(auto2);
-        auto3i = new TTC(ToolChain::AutoDetectionFromSettings, "auto3", false); Q_UNUSED(auto3i);
+        auto1_2 = new TTC("auto1");
+        auto1_2->setDetection(ToolChain::AutoDetectionFromSettings);
+        auto2 = new TTC("auto2");
+        auto2->setDetection(ToolChain::AutoDetectionFromSettings);
+        auto3i = new TTC("auto3", false);
+        auto3i->setDetection(ToolChain::AutoDetectionFromSettings);
     }
 
     QTest::newRow("no toolchains")

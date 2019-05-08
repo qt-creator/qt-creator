@@ -117,7 +117,7 @@ protected:
     CustomToolChain(const CustomToolChain &) = default;
 
 private:
-    explicit CustomToolChain(Detection d);
+    CustomToolChain();
 
     Utils::FileName m_compilerCommand;
     Utils::FileName m_makeCommand;

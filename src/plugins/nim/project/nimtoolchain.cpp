@@ -39,12 +39,12 @@ using namespace Utils;
 
 namespace Nim {
 
-NimToolChain::NimToolChain(ToolChain::Detection d)
-    : NimToolChain(Constants::C_NIMTOOLCHAIN_TYPEID, d)
+NimToolChain::NimToolChain()
+    : NimToolChain(Constants::C_NIMTOOLCHAIN_TYPEID)
 {}
 
-NimToolChain::NimToolChain(Core::Id typeId, ToolChain::Detection d)
-    : ToolChain(typeId, d)
+NimToolChain::NimToolChain(Core::Id typeId)
+    : ToolChain(typeId)
     , m_compilerCommand(FileName())
     , m_version(std::make_tuple(-1,-1,-1))
 {
@@ -52,7 +52,7 @@ NimToolChain::NimToolChain(Core::Id typeId, ToolChain::Detection d)
 }
 
 NimToolChain::NimToolChain(const NimToolChain &other)
-    : ToolChain(other.typeId(), other.detection())
+    : ToolChain(other.typeId())
     , m_compilerCommand(other.m_compilerCommand)
     , m_version(other.m_version)
 {

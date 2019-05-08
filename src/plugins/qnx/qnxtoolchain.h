@@ -34,7 +34,7 @@ namespace Internal {
 class QnxToolChain : public ProjectExplorer::GccToolChain
 {
 public:
-    explicit QnxToolChain(Detection d);
+    QnxToolChain();
 
     QString typeDisplayName() const override;
 

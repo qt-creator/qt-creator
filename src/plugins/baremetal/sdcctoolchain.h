@@ -89,7 +89,7 @@ protected:
     SdccToolChain(const SdccToolChain &tc) = default;
 
 private:
-    explicit SdccToolChain(Detection d);
+    SdccToolChain();
 
     ProjectExplorer::Abi m_targetAbi;
     Utils::FileName m_compilerCommand;

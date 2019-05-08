@@ -225,19 +225,20 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(CToolChainList
 
 // for fromMap
 AndroidToolChain::AndroidToolChain()
-    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_ID, ToolChain::ManualDetection)
+    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_ID)
 {
 }
 
 
 AndroidToolChain::AndroidToolChain(const QString& target, Core::Id languageId)
-    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_ID, ToolChain::AutoDetection)
+    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_ID)
 {
     setOriginalTargetTriple(target);
     setLanguage(languageId);
     setTargetAbi(ClangTargets[target]);
     setPlatformCodeGenFlags({"-target", target});
     setPlatformLinkerFlags({"-target", target});
+    setDetection(AutoDetection);
     setDisplayName(QString::fromLatin1("Android Clang (%1, %2)")
                    .arg(ToolChainManager::displayNameOfLanguageId(languageId),
                         AndroidConfig::displayName(targetAbi())));

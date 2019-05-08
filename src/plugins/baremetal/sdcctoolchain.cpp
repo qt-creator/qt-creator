@@ -216,8 +216,8 @@ static Utils::FileName compilerPathFromEnvironment(const QString &compilerName)
 
 // SdccToolChain
 
-SdccToolChain::SdccToolChain(Detection d) :
-    ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID, d)
+SdccToolChain::SdccToolChain() :
+    ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID)
 { }
 
 QString SdccToolChain::typeDisplayName() const
@@ -442,12 +442,12 @@ bool SdccToolChainFactory::canCreate()
 
 ToolChain *SdccToolChainFactory::create()
 {
-    return new SdccToolChain(ToolChain::ManualDetection);
+    return new SdccToolChain;
 }
 
 ToolChain *SdccToolChainFactory::restore(const QVariantMap &data)
 {
-    const auto tc = new SdccToolChain(ToolChain::ManualDetection);
+    const auto tc = new SdccToolChain;
     if (tc->fromMap(data))
         return tc;
 
@@ -489,7 +489,8 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
         return {};
     const Abi abi = guessAbi(macros);
 
-    const auto tc = new SdccToolChain(ToolChain::AutoDetection);
+    const auto tc = new SdccToolChain;
+    tc->setDetection(ToolChain::AutoDetection);
     tc->setLanguage(language);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->setTargetAbi(abi);

@@ -33,8 +33,8 @@ namespace Nim {
 class NimToolChain : public ProjectExplorer::ToolChain
 {
 public:
-    NimToolChain(Detection d);
-    NimToolChain(Core::Id typeId, Detection d);
+    NimToolChain();
+    explicit NimToolChain(Core::Id typeId);
 
     QString typeDisplayName() const override;
     ProjectExplorer::Abi targetAbi() const override;

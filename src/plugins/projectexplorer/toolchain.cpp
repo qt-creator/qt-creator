@@ -55,10 +55,9 @@ class ToolChainPrivate
 public:
     using Detection = ToolChain::Detection;
 
-    explicit ToolChainPrivate(Core::Id typeId, Detection d) :
+    explicit ToolChainPrivate(Core::Id typeId) :
         m_id(QUuid::createUuid().toByteArray()),
         m_typeId(typeId),
-        m_detection(d),
         m_predefinedMacrosCache(new ToolChain::MacrosCache::element_type()),
         m_headerPathsCache(new ToolChain::HeaderPathsCache::element_type())
     {
@@ -71,7 +70,7 @@ public:
     mutable QString m_displayName;
     Core::Id m_typeId;
     Core::Id m_language;
-    Detection m_detection;
+    Detection m_detection = ToolChain::UninitializedDetection;
 
     ToolChain::MacrosCache m_predefinedMacrosCache;
     ToolChain::HeaderPathsCache m_headerPathsCache;
@@ -121,16 +120,18 @@ QString languageId(Language l)
 
 // --------------------------------------------------------------------------
 
-ToolChain::ToolChain(Core::Id typeId, Detection d) :
-    d(std::make_unique<Internal::ToolChainPrivate>(typeId, d))
+ToolChain::ToolChain(Core::Id typeId) :
+    d(std::make_unique<Internal::ToolChainPrivate>(typeId))
 {
 }
 
-ToolChain::ToolChain(const ToolChain &other) : ToolChain(other.d->m_typeId, ManualDetection)
+ToolChain::ToolChain(const ToolChain &other) : ToolChain(other.d->m_typeId)
 {
     d->m_language = other.d->m_language;
 
-    // leave the autodetection bit at false.
+    // leave the autodetection bit at false.  // FIXME: <- is this comment valid.
+    d->m_detection = ManualDetection;
+
     d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
             .arg(other.displayName());
 }
@@ -246,8 +247,12 @@ void ToolChain::setDetection(ToolChain::Detection de)
 {
     if (d->m_detection == de)
         return;
-    d->m_detection = de;
-    toolChainUpdated();
+    if (d->m_detection == ToolChain::UninitializedDetection) {
+        d->m_detection = de;
+    } else {
+        d->m_detection = de;
+        toolChainUpdated();
+    }
 }
 
 /*!

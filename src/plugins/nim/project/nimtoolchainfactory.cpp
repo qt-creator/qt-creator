@@ -54,12 +54,12 @@ bool NimToolChainFactory::canCreate()
 
 ToolChain *NimToolChainFactory::create()
 {
-    return new NimToolChain(ToolChain::ManualDetection);
+    return new NimToolChain;
 }
 
 ToolChain *NimToolChainFactory::restore(const QVariantMap &data)
 {
-    auto tc = new NimToolChain(ToolChain::AutoDetection);
+    auto tc = new NimToolChain;
     if (tc->fromMap(data))
         return tc;
     delete tc;
@@ -83,7 +83,8 @@ QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     if (!result.empty())
         return result;
 
-    auto tc = new NimToolChain(ToolChain::AutoDetection);
+    auto tc = new NimToolChain;
+    tc->setDetection(ToolChain::AutoDetection);
     tc->setCompilerCommand(compilerPath);
     result.append(tc);
     return result;
@@ -93,7 +94,8 @@ QList<ToolChain *> NimToolChainFactory::autoDetect(const FileName &compilerPath,
 {
     QList<ToolChain *> result;
     if (language == Constants::C_NIMLANGUAGE_ID) {
-        auto tc = new NimToolChain(ToolChain::ManualDetection);
+        auto tc = new NimToolChain;
+        tc->setDetection(ToolChain::ManualDetection); // FIXME: sure?
         tc->setCompilerCommand(compilerPath);
         result.append(tc);
     }

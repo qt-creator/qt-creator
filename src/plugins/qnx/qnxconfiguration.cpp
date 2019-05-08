@@ -265,7 +265,8 @@ QVariant QnxConfiguration::createDebugger(const Target &target)
 
 QnxToolChain *QnxConfiguration::createToolChain(const Target &target)
 {
-    auto toolChain = new QnxToolChain(ToolChain::AutoDetection);
+    auto toolChain = new QnxToolChain;
+    toolChain->setDetection(ToolChain::AutoDetection);
     toolChain->setLanguage(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     toolChain->setTargetAbi(target.m_abi);
     toolChain->setDisplayName(

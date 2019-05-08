@@ -781,9 +781,8 @@ Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environmen
 MsvcToolChain::MsvcToolChain(const QString &name,
                              const Abi &abi,
                              const QString &varsBat,
-                             const QString &varsBatArg,
-                             Detection d)
-    : MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, d)
+                             const QString &varsBatArg)
+    : MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg)
 {}
 
 MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
@@ -826,9 +825,8 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
                              const QString &name,
                              const Abi &abi,
                              const QString &varsBat,
-                             const QString &varsBatArg,
-                             Detection d)
-    : ToolChain(typeId, d)
+                             const QString &varsBatArg)
+    : ToolChain(typeId)
     , m_headerPathsMutex(new QMutex)
     , m_lastEnvironment(Utils::Environment::systemEnvironment())
     , m_abi(abi)
@@ -848,8 +846,7 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
 }
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId)
-    : ToolChain(typeId, ManualDetection)
-    , m_lastEnvironment(Utils::Environment::systemEnvironment())
+    : ToolChain(typeId)
 {}
 
 void MsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
@@ -1421,7 +1418,8 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
                                                           clangClPath);
             }));
         if (!tc) {
-            tc = new ClangClToolChain(name, clangClPath, ToolChain::AutoDetection);
+            tc = new ClangClToolChain(name, clangClPath);
+            tc->setDetection(ToolChain::AutoDetection);
             tc->setLanguage(language);
             tc->resetMsvcToolChain(toolChain);
         }
@@ -1483,9 +1481,8 @@ void ClangClToolChainConfigWidget::makeReadOnlyImpl()
 // --------------------------------------------------------------------------
 
 ClangClToolChain::ClangClToolChain(const QString &name,
-                                   const QString &clangPath,
-                                   Detection d)
-    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, name, Abi(), "", "", d)
+                                   const QString &clangPath)
+    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, name, Abi(), "", "")
     , m_clangPath(clangPath)
 {}
 
@@ -1656,8 +1653,7 @@ static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alread
                                                 const QString &name,
                                                 const Abi &abi,
                                                 const QString &varsBat,
-                                                const QString &varsBatArg,
-                                                ToolChain::Detection d = ToolChain::ManualDetection)
+                                                const QString &varsBatArg)
 {
     QList<ToolChain *> res;
     for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
@@ -1672,7 +1668,7 @@ static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alread
             return mtc->varsBat() == varsBat && mtc->varsBatArg() == varsBatArg;
         });
         if (!tc) {
-            tc = new MsvcToolChain(name, abi, varsBat, varsBatArg, d);
+            tc = new MsvcToolChain(name, abi, varsBat, varsBatArg);
             tc->setLanguage(language);
         }
         res << tc;
@@ -1712,8 +1708,8 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
             auto tc = new MsvcToolChain(name + QLatin1String(e.postFix),
                                         abi,
                                         vcVarsBat,
-                                        QLatin1String(e.varsBatArg),
-                                        ToolChain::AutoDetection);
+                                        QLatin1String(e.varsBatArg));
+            tc->setDetection(ToolChain::AutoDetection);
             tc->setLanguage(language);
             list->append(tc);
         }
@@ -1761,8 +1757,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                                                                platform.first,
                                                                sdkKey),
                                                  fi.absoluteFilePath(),
-                                                 "/" + platform.second,
-                                                 ToolChain::AutoDetection));
+                                                 "/" + platform.second));
             }
             // Make sure the default is front.
             if (folder == defaultSdkPath)
@@ -1797,13 +1792,15 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
                                           generateDisplayName(i.vsName, MsvcToolChain::VS, platform),
                                           findAbiOfMsvc(MsvcToolChain::VS, platform, i.vsName),
                                           i.vcVarsAll,
-                                          platformName(platform),
-                                          ToolChain::AutoDetection));
+                                          platformName(platform)));
             }
         }
     }
 
     detectCppBuildTools2015(&results);
+
+    for (ToolChain *tc : results)
+        tc->setDetection(ToolChain::AutoDetection);
 
     return results;
 }
@@ -1862,7 +1859,7 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
 
 ToolChain *ClangClToolChainFactory::create()
 {
-    return new ClangClToolChain("clang-cl", "", ToolChain::ManualDetection);
+    return new ClangClToolChain("clang-cl", "");
 }
 
 bool MsvcToolChain::operator==(const ToolChain &other) const

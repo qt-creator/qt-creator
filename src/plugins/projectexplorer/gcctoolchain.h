@@ -67,7 +67,7 @@ inline const QStringList gccPredefinedMacrosOptions(Core::Id languageId)
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
-    GccToolChain(Core::Id typeId, Detection d);
+    GccToolChain(Core::Id typeId);
     QString typeDisplayName() const override;
     Abi targetAbi() const override;
     QString originalTargetTriple() const override;
@@ -179,7 +179,7 @@ protected:
     };
 
 private:
-    explicit GccToolChain(Detection d);
+    explicit GccToolChain();
 
     void updateSupportedAbis() const;
     static QStringList gccPrepareArguments(const QStringList &flags,
@@ -215,8 +215,8 @@ private:
 class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
 public:
-    explicit ClangToolChain(Detection d);
-    ClangToolChain(Core::Id typeId, Detection d);
+    ClangToolChain();
+    explicit ClangToolChain(Core::Id typeId);
     ClangToolChain(const ClangToolChain &other);
     ~ClangToolChain() override;
     QString typeDisplayName() const override;
@@ -271,7 +271,7 @@ public:
     Utils::FileNameList suggestedMkspecList() const override;
 
 private:
-    explicit MingwToolChain(Detection d);
+    MingwToolChain();
 
     friend class Internal::MingwToolChainFactory;
     friend class ToolChainFactory;
@@ -294,7 +294,7 @@ public:
     Utils::FileNameList suggestedMkspecList() const override;
 
 private:
-    explicit LinuxIccToolChain(Detection d);
+    LinuxIccToolChain();
 
     friend class Internal::LinuxIccToolChainFactory;
     friend class ToolChainFactory;

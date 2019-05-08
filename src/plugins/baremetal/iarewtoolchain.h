@@ -89,7 +89,7 @@ protected:
     IarToolChain(const IarToolChain &tc) = default;
 
 private:
-    explicit IarToolChain(Detection d);
+    IarToolChain();
 
     ProjectExplorer::Abi m_targetAbi;
     Utils::FileName m_compilerCommand;

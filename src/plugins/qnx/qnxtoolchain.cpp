@@ -100,8 +100,8 @@ static QStringList reinterpretOptions(const QStringList &args)
     return arguments;
 }
 
-QnxToolChain::QnxToolChain(ToolChain::Detection d)
-    : GccToolChain(Constants::QNX_TOOLCHAIN_ID, d)
+QnxToolChain::QnxToolChain()
+    : GccToolChain(Constants::QNX_TOOLCHAIN_ID)
 {
     setOptionsReinterpreter(&reinterpretOptions);
 }
@@ -223,7 +223,7 @@ QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
 
 ToolChain *QnxToolChainFactory::restore(const QVariantMap &data)
 {
-    auto tc = new QnxToolChain(ToolChain::ManualDetection);
+    auto tc = new QnxToolChain;
     if (tc->fromMap(data))
         return tc;
 
@@ -238,7 +238,7 @@ bool QnxToolChainFactory::canCreate()
 
 ToolChain *QnxToolChainFactory::create()
 {
-    return new QnxToolChain(ToolChain::ManualDetection);
+    return new QnxToolChain;
 }
 
 //---------------------------------------------------------------------------------

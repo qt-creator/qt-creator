@@ -586,7 +586,8 @@ static ClangToolChain *createToolChain(const XcodePlatform &platform,
             && l != Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
         return nullptr;
 
-    auto toolChain = new ClangToolChain(ToolChain::AutoDetection);
+    auto toolChain = new ClangToolChain;
+    toolChain->setDetection(ToolChain::AutoDetection);
     toolChain->setLanguage(l);
     toolChain->setDisplayName(target.name);
     toolChain->setPlatformCodeGenFlags(target.backendFlags);

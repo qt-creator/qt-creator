@@ -225,8 +225,8 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 
 // IarToolChain
 
-IarToolChain::IarToolChain(Detection d) :
-    ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID, d)
+IarToolChain::IarToolChain() :
+    ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID)
 { }
 
 QString IarToolChain::typeDisplayName() const
@@ -466,12 +466,12 @@ bool IarToolChainFactory::canCreate()
 
 ToolChain *IarToolChainFactory::create()
 {
-    return new IarToolChain(ToolChain::ManualDetection);
+    return new IarToolChain;
 }
 
 ToolChain *IarToolChainFactory::restore(const QVariantMap &data)
 {
-    const auto tc = new IarToolChain(ToolChain::ManualDetection);
+    const auto tc = new IarToolChain;
     if (tc->fromMap(data))
         return tc;
 
@@ -516,7 +516,8 @@ QList<ToolChain *> IarToolChainFactory::autoDetectToolchain(
         return {};
     const Abi abi = guessAbi(macros);
 
-    const auto tc = new IarToolChain(ToolChain::AutoDetection);
+    const auto tc = new IarToolChain;
+    tc->setDetection(ToolChain::AutoDetection);
     tc->setLanguage(languageId);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->setTargetAbi(abi);

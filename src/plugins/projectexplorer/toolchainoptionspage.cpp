@@ -513,6 +513,7 @@ void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory, const Co
     if (!tc)
         return;
 
+    tc->setDetection(ToolChain::ManualDetection);
     tc->setLanguage(language);
 
     auto item = insertToolChain(tc, true);
@@ -526,10 +527,12 @@ void ToolChainOptionsWidget::cloneToolChain()
     ToolChainTreeItem *current = currentTreeItem();
     if (!current)
         return;
-    ToolChain *tc = current->toolChain->clone();
 
+    ToolChain *tc = current->toolChain->clone();
     if (!tc)
         return;
+
+    tc->setDetection(ToolChain::ManualDetection);
 
     auto item = insertToolChain(tc, true);
     m_toAddList.append(item);

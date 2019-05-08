@@ -81,8 +81,8 @@ static const char warningExampleKeyC[] = "ProjectExplorer.CustomToolChain.Warnin
 // CustomToolChain
 // --------------------------------------------------------------------------
 
-CustomToolChain::CustomToolChain(Detection d) :
-    ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID, d),
+CustomToolChain::CustomToolChain() :
+    ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID),
     m_outputParserId(GccParser::id())
 { }
 
@@ -430,12 +430,12 @@ bool CustomToolChainFactory::canCreate()
 
 ToolChain *CustomToolChainFactory::create()
 {
-    return new CustomToolChain(ToolChain::ManualDetection);
+    return new CustomToolChain;
 }
 
 ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)
 {
-    auto tc = new CustomToolChain(ToolChain::ManualDetection);
+    auto tc = new CustomToolChain;
     if (tc->fromMap(data))
         return tc;
 

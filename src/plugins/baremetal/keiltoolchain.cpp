@@ -239,8 +239,8 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 
 // KeilToolchain
 
-KeilToolchain::KeilToolchain(Detection d) :
-    ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID, d)
+KeilToolchain::KeilToolchain() :
+    ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
 { }
 
 QString KeilToolchain::typeDisplayName() const
@@ -465,12 +465,12 @@ bool KeilToolchainFactory::canCreate()
 
 ToolChain *KeilToolchainFactory::create()
 {
-    return new KeilToolchain(ToolChain::ManualDetection);
+    return new KeilToolchain;
 }
 
 ToolChain *KeilToolchainFactory::restore(const QVariantMap &data)
 {
-    const auto tc = new KeilToolchain(ToolChain::ManualDetection);
+    const auto tc = new KeilToolchain;
     if (tc->fromMap(data))
         return tc;
 
@@ -521,7 +521,8 @@ QList<ToolChain *> KeilToolchainFactory::autoDetectToolchain(
         return {};
     }
 
-    const auto tc = new KeilToolchain(ToolChain::AutoDetection);
+    const auto tc = new KeilToolchain;
+    tc->setDetection(ToolChain::AutoDetection);
     tc->setLanguage(language);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->setTargetAbi(abi);

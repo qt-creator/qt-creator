@@ -89,7 +89,7 @@ protected:
     KeilToolchain(const KeilToolchain &tc) = default;
 
 private:
-    explicit KeilToolchain(Detection d);
+    KeilToolchain();
 
     ProjectExplorer::Abi m_targetAbi;
     Utils::FileName m_compilerCommand;

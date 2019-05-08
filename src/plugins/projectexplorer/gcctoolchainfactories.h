@@ -63,7 +63,7 @@ public:
     ToolChain *restore(const QVariantMap &data) override;
 
 protected:
-    virtual GccToolChain *createToolChain(bool autoDetect);
+    virtual GccToolChain *createToolChain();
 
     Utils::FileName compilerPathFromEnvironment(const QString &compilerName);
 
@@ -150,7 +150,7 @@ public:
     QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 
 protected:
-    GccToolChain *createToolChain(bool autoDetect) override;
+    GccToolChain *createToolChain() override;
 };
 
 // --------------------------------------------------------------------------
@@ -168,7 +168,7 @@ public:
     QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 
 protected:
-    GccToolChain *createToolChain(bool autoDetect) override;
+    GccToolChain *createToolChain() override;
 };
 
 // --------------------------------------------------------------------------
@@ -186,7 +186,7 @@ public:
     QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 
 protected:
-    GccToolChain *createToolChain(bool autoDetect) override;
+    GccToolChain *createToolChain() override;
 };
 
 } // namespace Internal

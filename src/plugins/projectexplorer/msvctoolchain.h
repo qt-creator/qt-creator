@@ -58,8 +58,7 @@ public:
     explicit MsvcToolChain(const QString &name,
                            const Abi &abi,
                            const QString &varsBat,
-                           const QString &varsBatArg,
-                           Detection d = ManualDetection);
+                           const QString &varsBatArg);
     MsvcToolChain(const MsvcToolChain &other);
     MsvcToolChain();
     ~MsvcToolChain() override;
@@ -127,8 +126,7 @@ protected:
                            const QString &name,
                            const Abi &abi,
                            const QString &varsBat,
-                           const QString &varsBatArg,
-                           Detection d);
+                           const QString &varsBatArg);
     explicit MsvcToolChain(Core::Id typeId);
 
     static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
@@ -179,7 +177,7 @@ protected:
 class PROJECTEXPLORER_EXPORT ClangClToolChain : public MsvcToolChain
 {
 public:
-    ClangClToolChain(const QString &name, const QString &llvmDir, Detection d);
+    ClangClToolChain(const QString &name, const QString &llvmDir);
     ClangClToolChain();
 
     bool isValid() const override;
