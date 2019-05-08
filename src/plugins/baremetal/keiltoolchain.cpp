@@ -62,7 +62,7 @@ namespace Internal {
 static const char compilerCommandKeyC[] = "BareMetal.KeilToolchain.CompilerPath";
 static const char targetAbiKeyC[] = "BareMetal.KeilToolchain.TargetAbi";
 
-static bool isCompilerExists(const FileName &compilerPath)
+static bool compilerExists(const FileName &compilerPath)
 {
     const QFileInfo fi = compilerPath.toFileInfo();
     return fi.exists() && fi.isExecutable() && fi.isFile();
@@ -463,7 +463,7 @@ QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &al
             // Build full compiler path.
             compilerPath += entry.subExePath;
             const FileName fn = FileName::fromString(compilerPath);
-            if (isCompilerExists(fn)) {
+            if (compilerExists(fn)) {
                 QString version = registry.value("Version").toString();
                 if (version.startsWith('V'))
                     version.remove(0, 1);
@@ -611,14 +611,14 @@ void KeilToolchainConfigWidget::setFromToolchain()
     const auto tc = static_cast<KeilToolchain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_abiWidget->setAbis({}, tc->targetAbi());
-    const bool haveCompiler = isCompilerExists(m_compilerCommand->fileName());
+    const bool haveCompiler = compilerExists(m_compilerCommand->fileName());
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
 void KeilToolchainConfigWidget::handleCompilerCommandChange()
 {
     const FileName compilerPath = m_compilerCommand->fileName();
-    const bool haveCompiler = isCompilerExists(compilerPath);
+    const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
         m_macros = dumpPredefinedMacros(compilerPath, env.toStringList());

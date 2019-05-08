@@ -60,7 +60,7 @@ namespace Internal {
 static const char compilerCommandKeyC[] = "BareMetal.IarToolChain.CompilerPath";
 static const char targetAbiKeyC[] = "BareMetal.IarToolChain.TargetAbi";
 
-static bool isCompilerExists(const FileName &compilerPath)
+static bool compilerExists(const FileName &compilerPath)
 {
     const QFileInfo fi = compilerPath.toFileInfo();
     return fi.exists() && fi.isExecutable() && fi.isFile();
@@ -452,7 +452,7 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
                         // Build full compiler path.
                         compilerPath += entry.subExePath;
                         const FileName fn = FileName::fromString(compilerPath);
-                        if (isCompilerExists(fn)) {
+                        if (compilerExists(fn)) {
                             // Note: threeLevelKey is a guessed toolchain version.
                             candidates.push_back({fn, threeLevelKey});
                         }
@@ -605,14 +605,14 @@ void IarToolChainConfigWidget::setFromToolchain()
     const auto tc = static_cast<IarToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_abiWidget->setAbis({}, tc->targetAbi());
-    const bool haveCompiler = isCompilerExists(m_compilerCommand->fileName());
+    const bool haveCompiler = compilerExists(m_compilerCommand->fileName());
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
 void IarToolChainConfigWidget::handleCompilerCommandChange()
 {
     const FileName compilerPath = m_compilerCommand->fileName();
-    const bool haveCompiler = isCompilerExists(compilerPath);
+    const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
         m_macros = dumpPredefinedMacros(compilerPath, env.toStringList());
