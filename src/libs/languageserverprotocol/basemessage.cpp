@@ -37,6 +37,8 @@
 
 namespace LanguageServerProtocol {
 
+Q_LOGGING_CATEGORY(parseLog, "qtc.languageserverprotocol.parse", QtWarningMsg)
+
 BaseMessage::BaseMessage()
     : mimeType(JsonRpcMessageHandler::jsonRpcMimeType())
 { }
@@ -68,8 +70,7 @@ bool BaseMessage::operator==(const BaseMessage &other) const
     return true;
 }
 
-static QPair<QByteArray, QByteArray> splitHeaderFieldLine(
-        const QByteArray &headerFieldLine, QString &parseError)
+static QPair<QByteArray, QByteArray> splitHeaderFieldLine(const QByteArray &headerFieldLine)
 {
     static const int fieldSeparatorLength = int(std::strlen(headerFieldSeparator));
     int assignmentIndex = headerFieldLine.indexOf(headerFieldSeparator);
@@ -77,8 +78,7 @@ static QPair<QByteArray, QByteArray> splitHeaderFieldLine(
         return {headerFieldLine.mid(0, assignmentIndex),
                     headerFieldLine.mid(assignmentIndex + fieldSeparatorLength)};
     }
-    parseError = BaseMessage::tr("Unexpected header line \"%1\".")
-            .arg(QLatin1String(headerFieldLine));
+    qCWarning(parseLog) << "Unexpected header line:" << QLatin1String(headerFieldLine);
     return {};
 }
 
@@ -134,8 +134,7 @@ void BaseMessage::parse(QBuffer *data, QString &parseError, BaseMessage &message
                 message.content = data->read(message.contentLength);
             return;
         }
-        const QPair<QByteArray, QByteArray> nameAndValue =
-                splitHeaderFieldLine(headerFieldLine, parseError);
+        const QPair<QByteArray, QByteArray> nameAndValue = splitHeaderFieldLine(headerFieldLine);
         const QByteArray &headerFieldName = nameAndValue.first.trimmed();
         const QByteArray &headerFieldValue = nameAndValue.second.trimmed();
 
@@ -146,9 +145,8 @@ void BaseMessage::parse(QBuffer *data, QString &parseError, BaseMessage &message
         } else if (headerFieldName == contentTypeFieldName) {
             parseContentType(message, headerFieldValue, parseError);
         } else {
-            parseError = tr("Unexpected header field \"%1\" in \"%2\".")
-                    .arg(QLatin1String(headerFieldName),
-                         QLatin1String(headerFieldLine));
+            qCWarning(parseLog) << "Unexpected header field" << QLatin1String(headerFieldName)
+                                  << "in" << QLatin1String(headerFieldLine);
         }
     }
 

@@ -31,6 +31,7 @@
 
 #include <QByteArray>
 #include <QCoreApplication>
+#include <QLoggingCategory>
 
 QT_BEGIN_NAMESPACE
 class QBuffer;
@@ -38,6 +39,8 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace LanguageServerProtocol {
+
+LANGUAGESERVERPROTOCOL_EXPORT Q_DECLARE_LOGGING_CATEGORY(parseLog)
 
 class LANGUAGESERVERPROTOCOL_EXPORT BaseMessage
 {
