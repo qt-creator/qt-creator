@@ -142,6 +142,7 @@ public:
     static QString newKitName(const QString &name, const QList<Kit *> &allKits);
 
 private:
+    static void copyKitCommon(Kit *target, const Kit *source);
     void setSdkProvided(bool sdkProvided);
 
     // Unimplemented.

@@ -200,41 +200,40 @@ void Kit::unblockNotification()
         kitUpdated();
 }
 
+void Kit::copyKitCommon(Kit *target, const Kit *source)
+{
+    target->d->m_data = source->d->m_data;
+    target->d->m_iconPath = source->d->m_iconPath;
+    target->d->m_deviceTypeForIcon = source->d->m_deviceTypeForIcon;
+    target->d->m_cachedIcon = source->d->m_cachedIcon;
+    target->d->m_sticky = source->d->m_sticky;
+    target->d->m_mutable = source->d->m_mutable;
+    target->d->m_irrelevantAspects = source->d->m_irrelevantAspects;
+}
+
 Kit *Kit::clone(bool keepName) const
 {
     auto k = new Kit;
+    copyKitCommon(k, this);
     if (keepName)
         k->d->m_unexpandedDisplayName = d->m_unexpandedDisplayName;
     else
         k->d->m_unexpandedDisplayName = newKitName(KitManager::kits());
     k->d->m_autodetected = false;
-    k->d->m_data = d->m_data;
     // Do not clone m_fileSystemFriendlyName, needs to be unique
-    k->d->m_hasError = d->m_hasError;
-    k->d->m_cachedIcon = d->m_cachedIcon;
-    k->d->m_iconPath = d->m_iconPath;
-    k->d->m_deviceTypeForIcon = d->m_deviceTypeForIcon;
-    k->d->m_sticky = d->m_sticky;
-    k->d->m_mutable = d->m_mutable;
-    k->d->m_irrelevantAspects = d->m_irrelevantAspects;
+    k->d->m_hasError = d->m_hasError;  // TODO: Is this intentionally not done for copyFrom()?
     return k;
 }
 
 void Kit::copyFrom(const Kit *k)
 {
     KitGuard g(this);
-    d->m_data = k->d->m_data;
-    d->m_iconPath = k->d->m_iconPath;
-    d->m_deviceTypeForIcon = k->d->m_deviceTypeForIcon;
-    d->m_cachedIcon = k->d->m_cachedIcon;
+    copyKitCommon(this, k);
     d->m_autodetected = k->d->m_autodetected;
     d->m_autoDetectionSource = k->d->m_autoDetectionSource;
     d->m_unexpandedDisplayName = k->d->m_unexpandedDisplayName;
     d->m_fileSystemFriendlyName = k->d->m_fileSystemFriendlyName;
     d->m_mustNotify = true;
-    d->m_sticky = k->d->m_sticky;
-    d->m_mutable = k->d->m_mutable;
-    d->m_irrelevantAspects = k->d->m_irrelevantAspects;
 }
 
 bool Kit::isValid() const
