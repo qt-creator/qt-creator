@@ -105,7 +105,7 @@ void GdbServerProviderManager::restoreProviders()
 
         const QVariantMap map = data.value(key).toMap();
         bool restored = false;
-        foreach (GdbServerProviderFactory *f, m_factories) {
+        for (GdbServerProviderFactory *f : qAsConst(m_factories)) {
             if (f->canRestore(map)) {
                 if (GdbServerProvider *p = f->restore(map)) {
                     registerProvider(p);
@@ -129,7 +129,7 @@ void GdbServerProviderManager::saveProviders()
     data.insert(QLatin1String(fileVersionKeyC), 1);
 
     int count = 0;
-    foreach (const GdbServerProvider *p, m_providers) {
+    for (const GdbServerProvider *p : qAsConst(m_providers)) {
         if (p->isValid()) {
             const QVariantMap tmp = p->toMap();
             if (tmp.isEmpty())

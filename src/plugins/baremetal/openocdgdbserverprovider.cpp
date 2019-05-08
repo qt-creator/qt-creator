@@ -95,7 +95,7 @@ QString OpenOcdGdbServerProvider::channel() const
         QStringList args;
         // In the pipe mode need to add quotes to each item of arguments;
         // otherwise running will be stuck.
-        foreach (const QString &a, arguments()) {
+        for (const QString &a : arguments()) {
             if (a.startsWith(QLatin1Char('\"')) && a.endsWith(QLatin1Char('\"')))
                 continue;
             args << (QLatin1Char('\"') + a + QLatin1Char('\"'));

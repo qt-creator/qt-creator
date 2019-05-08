@@ -124,7 +124,7 @@ GdbServerProviderNode *GdbServerProviderModel::nodeForIndex(const QModelIndex &i
 void GdbServerProviderModel::apply()
 {
     // Remove unused providers
-    foreach (GdbServerProvider *provider, m_providersToRemove)
+    for (GdbServerProvider *provider : qAsConst(m_providersToRemove))
         GdbServerProviderManager::deregisterProvider(provider);
     QTC_ASSERT(m_providersToRemove.isEmpty(), m_providersToRemove.clear());
 
@@ -144,7 +144,7 @@ void GdbServerProviderModel::apply()
 
     // Add new (and already updated) providers
     QStringList skippedProviders;
-    foreach (GdbServerProvider *provider, m_providersToAdd) {
+    for (GdbServerProvider *provider: qAsConst(m_providersToAdd)) {
         if (!GdbServerProviderManager::registerProvider(provider))
             skippedProviders << provider->displayName();
     }

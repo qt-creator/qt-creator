@@ -112,7 +112,7 @@ void BareMetalDebugSupport::start()
     QString commands;
     if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
         if (BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
-            foreach (const BareMetalGdbCommandsDeployStep *bs, bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
+            for (const BareMetalGdbCommandsDeployStep *bs : bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
                 if (!commands.endsWith("\n"))
                     commands.append("\n");
                 commands.append(bs->gdbCommands());
