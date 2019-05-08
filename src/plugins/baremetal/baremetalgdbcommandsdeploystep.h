@@ -27,23 +27,25 @@
 
 #include <projectexplorer/buildstep.h>
 
-#include <QVariantMap>
 #include <QPlainTextEdit>
+#include <QVariantMap>
 
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalGdbCommandsDeployStep : public ProjectExplorer::BuildStep
+// BareMetalGdbCommandsDeployStep
+
+class BareMetalGdbCommandsDeployStep final : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
 
 public:
     explicit BareMetalGdbCommandsDeployStep(ProjectExplorer::BuildStepList *bsl);
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() final;
 
     static Core::Id stepId();
     static QString displayName();
@@ -52,13 +54,16 @@ public:
     QString gdbCommands() const;
 
 private:
-    bool init() override;
-    void doRun() override;
+    bool init() final;
+    void doRun() final;
 
     QString m_gdbCommands;
 };
 
-class BareMetalGdbCommandsDeployStepWidget: public ProjectExplorer::BuildStepConfigWidget
+// BareMetalGdbCommandsDeployStepWidget
+
+class BareMetalGdbCommandsDeployStepWidget final
+        : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 
@@ -71,7 +76,7 @@ private:
     QString summaryText() const;
 
     BareMetalGdbCommandsDeployStep &m_step;
-    QPlainTextEdit *m_commands;
+    QPlainTextEdit *m_commands = nullptr;
 };
 
 } // namespace Internal

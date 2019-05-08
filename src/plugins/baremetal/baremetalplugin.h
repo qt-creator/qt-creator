@@ -31,7 +31,9 @@
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalPlugin : public ExtensionSystem::IPlugin
+// BareMetalPlugin
+
+class BareMetalPlugin final : public ExtensionSystem::IPlugin
 {
    Q_OBJECT
    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
@@ -41,7 +43,7 @@ class BareMetalPlugin : public ExtensionSystem::IPlugin
    bool initialize(const QStringList &arguments, QString *errorString) final;
    void extensionsInitialized() final;
 
-   class BareMetalPluginPrivate *d;
+   class BareMetalPluginPrivate *d = nullptr;
 
 #ifdef WITH_TESTS
 private slots:

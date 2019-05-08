@@ -38,7 +38,7 @@ class IarParser final : public ProjectExplorer::IOutputParser
     Q_OBJECT
 
 public:
-    IarParser();
+    explicit IarParser();
     static Core::Id id();
 
 private:
@@ -46,9 +46,9 @@ private:
     void amendDescription();
     void amendFilePath();
 
-    void stdError(const QString &line) override;
-    void stdOutput(const QString &line) override;
-    void doFlush() override;
+    void stdError(const QString &line) final;
+    void stdOutput(const QString &line) final;
+    void doFlush() final;
 
     ProjectExplorer::Task m_lastTask;
     int m_lines = 0;

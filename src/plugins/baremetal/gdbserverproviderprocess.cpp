@@ -29,13 +29,15 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
+
+// GdbServerProviderProcess
 
 GdbServerProviderProcess::GdbServerProviderProcess(
         const QSharedPointer<const ProjectExplorer::IDevice> &device,

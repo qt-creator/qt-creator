@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "baremetalconstants.h"
+
 #include "keilparser.h"
 #include "keiltoolchain.h"
 

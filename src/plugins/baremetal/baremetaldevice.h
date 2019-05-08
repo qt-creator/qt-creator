@@ -34,50 +34,54 @@ namespace Internal {
 
 class GdbServerProvider;
 
-class BareMetalDevice : public ProjectExplorer::IDevice
+// BareMetalDevice
+
+class BareMetalDevice final : public ProjectExplorer::IDevice
 {
 public:
     using Ptr = QSharedPointer<BareMetalDevice>;
     using ConstPtr = QSharedPointer<const BareMetalDevice>;
 
     static Ptr create() { return Ptr(new BareMetalDevice); }
-    ~BareMetalDevice() override;
+    ~BareMetalDevice() final;
 
-    QString displayType() const override;
-    ProjectExplorer::IDeviceWidget *createWidget() override;
-    Utils::OsType osType() const override;
-    ProjectExplorer::IDevice::Ptr clone() const override;
+    QString displayType() const final;
+    ProjectExplorer::IDeviceWidget *createWidget() final;
+    Utils::OsType osType() const final;
+    ProjectExplorer::IDevice::Ptr clone() const final;
 
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const final;
 
-    bool canCreateProcess() const override { return true; }
-    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
+    bool canCreateProcess() const final { return true; }
+    ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const final;
 
     QString gdbServerProviderId() const;
     void setGdbServerProviderId(const QString &id);
     void unregisterProvider(GdbServerProvider *provider);
     void providerUpdated(GdbServerProvider *provider);
 
-    void fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void fromMap(const QVariantMap &map) final;
+    QVariantMap toMap() const final;
 
 private:
-    BareMetalDevice() = default;
-    BareMetalDevice(const BareMetalDevice &other);
+    explicit BareMetalDevice() = default;
+    explicit BareMetalDevice(const BareMetalDevice &other);
 
     void setChannelByServerProvider(GdbServerProvider *provider);
     BareMetalDevice &operator=(const BareMetalDevice &);
     QString m_gdbServerProviderId;
 };
 
-class BareMetalDeviceFactory : public ProjectExplorer::IDeviceFactory
+// BareMetalDeviceFactory
+
+class BareMetalDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
     Q_OBJECT
 
 public:
-   BareMetalDeviceFactory();
+   explicit BareMetalDeviceFactory();
 
-   ProjectExplorer::IDevice::Ptr create() const override;
+   ProjectExplorer::IDevice::Ptr create() const final;
 };
 
 } //namespace Internal

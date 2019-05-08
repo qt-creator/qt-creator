@@ -39,7 +39,9 @@ namespace Internal {
 
 class GdbServerProvider;
 
-class GdbServerProviderChooser : public QWidget
+// GdbServerProviderChooser
+
+class GdbServerProviderChooser final : public QWidget
 {
     Q_OBJECT
 
@@ -60,8 +62,8 @@ private:
     bool providerMatches(const GdbServerProvider *) const;
     QString providerText(const GdbServerProvider *) const;
 
-    QComboBox *m_chooser;
-    QPushButton *m_manageButton;
+    QComboBox *m_chooser = nullptr;
+    QPushButton *m_manageButton = nullptr;
 };
 
 } // namespace Internal

@@ -30,8 +30,8 @@
 #include "gdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
 
-#include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -52,10 +52,12 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
+// BareMetalDebugSupport
+
 BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
     : Debugger::DebuggerRunTool(runControl)
 {
-    auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+    const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
     if (!dev) {
         reportFailure(tr("Cannot debug: Kit has no device."));
         return;

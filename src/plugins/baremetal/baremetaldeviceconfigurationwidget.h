@@ -33,7 +33,9 @@ namespace Internal {
 
 class GdbServerProviderChooser;
 
-class BareMetalDeviceConfigurationWidget
+// BareMetalDeviceConfigurationWidget
+
+class BareMetalDeviceConfigurationWidget final
       : public ProjectExplorer::IDeviceWidget
 {
     Q_OBJECT
@@ -44,9 +46,9 @@ public:
 
 private:
     void gdbServerProviderChanged();
-    void updateDeviceFromUi() override;
+    void updateDeviceFromUi() final;
 
-    GdbServerProviderChooser *m_gdbServerProviderChooser;
+    GdbServerProviderChooser *m_gdbServerProviderChooser = nullptr;
 };
 
 } // namespace Internal

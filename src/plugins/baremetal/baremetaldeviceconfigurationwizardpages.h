@@ -37,23 +37,25 @@ namespace Internal {
 
 class GdbServerProviderChooser;
 
-class BareMetalDeviceConfigurationWizardSetupPage : public QWizardPage
+// BareMetalDeviceConfigurationWizardSetupPage
+
+class BareMetalDeviceConfigurationWizardSetupPage final : public QWizardPage
 {
     Q_OBJECT
 
 public:
     explicit BareMetalDeviceConfigurationWizardSetupPage(QWidget *parent = nullptr);
 
-    void initializePage() override;
-    bool isComplete() const override;
+    void initializePage() final;
+    bool isComplete() const final;
     QString configurationName() const;
     QString gdbServerProviderId() const;
 
     virtual QString defaultConfigurationName() const;
 
 private:
-    QLineEdit *m_nameLineEdit;
-    GdbServerProviderChooser *m_gdbServerProviderChooser;
+    QLineEdit *m_nameLineEdit = nullptr;
+    GdbServerProviderChooser *m_gdbServerProviderChooser = nullptr;
 };
 
 } // namespace Internal

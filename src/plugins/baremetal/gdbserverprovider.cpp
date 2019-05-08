@@ -23,22 +23,21 @@
 **
 ****************************************************************************/
 
+#include "baremetaldevice.h"
 #include "gdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
-#include "baremetaldevice.h"
 
-#include <utils/qtcassert.h>
 #include <utils/environment.h>
+#include <utils/qtcassert.h>
 
-#include <QCoreApplication>
-#include <QUuid>
-
-#include <QFormLayout>
-#include <QLineEdit>
-#include <QLabel>
 #include <QComboBox>
-#include <QSpinBox>
+#include <QCoreApplication>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QSpinBox>
+#include <QUuid>
 
 namespace BareMetal {
 namespace Internal {
@@ -56,9 +55,10 @@ static QString createId(const QString &id)
     return newId;
 }
 
+// GdbServerProvider
+
 GdbServerProvider::GdbServerProvider(const QString &id)
     : m_id(createId(id))
-    , m_startupMode(NoStartup)
 {
 }
 
@@ -204,6 +204,8 @@ bool GdbServerProvider::fromMap(const QVariantMap &data)
     return true;
 }
 
+// GdbServerProviderFactory
+
 QString GdbServerProviderFactory::id() const
 {
     return m_id;
@@ -233,6 +235,8 @@ void GdbServerProviderFactory::idToMap(QVariantMap &data, const QString &id)
 {
     data.insert(QLatin1String(idKeyC), id);
 }
+
+// GdbServerProviderConfigWidget
 
 GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
         GdbServerProvider *provider)
@@ -373,6 +377,8 @@ QString GdbServerProviderConfigWidget::defaultResetCommandsTooltip()
                                        "The MCU should be halted after these commands.");
 }
 
+// HostWidget
+
 HostWidget::HostWidget(QWidget *parent)
     : QWidget(parent)
 {
@@ -383,7 +389,7 @@ HostWidget::HostWidget(QWidget *parent)
     m_portSpinBox->setRange(0, 65535);
     m_portSpinBox->setToolTip(tr("Enter TCP/IP port which will be listened by "
                                  "the GDB server provider."));
-    auto layout = new QHBoxLayout(this);
+    const auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_hostLineEdit);
     layout->addWidget(m_portSpinBox);

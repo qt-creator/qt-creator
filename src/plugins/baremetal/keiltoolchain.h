@@ -53,40 +53,40 @@ class KeilToolchain final : public ProjectExplorer::ToolChain
     Q_DECLARE_TR_FUNCTIONS(KeilToolchain)
 
 public:
-    QString typeDisplayName() const override;
+    QString typeDisplayName() const final;
 
     void setTargetAbi(const ProjectExplorer::Abi &abi);
-    ProjectExplorer::Abi targetAbi() const override;
+    ProjectExplorer::Abi targetAbi() const final;
 
-    bool isValid() const override;
+    bool isValid() const final;
 
-    MacroInspectionRunner createMacroInspectionRunner() const override;
-    ProjectExplorer::Macros predefinedMacros(const QStringList &cxxflags) const override;
+    MacroInspectionRunner createMacroInspectionRunner() const final;
+    ProjectExplorer::Macros predefinedMacros(const QStringList &cxxflags) const final;
 
-    Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
-    ProjectExplorer::WarningFlags warningFlags(const QStringList &cxxflags) const override;
+    Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const final;
+    ProjectExplorer::WarningFlags warningFlags(const QStringList &cxxflags) const final;
 
-    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const final;
     ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &cxxFlags,
-                                                    const Utils::FileName &) const override;
-    void addToEnvironment(Utils::Environment &env) const override;
-    ProjectExplorer::IOutputParser *outputParser() const override;
+                                                    const Utils::FileName &) const final;
+    void addToEnvironment(Utils::Environment &env) const final;
+    ProjectExplorer::IOutputParser *outputParser() const final;
 
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &data) override;
+    QVariantMap toMap() const final;
+    bool fromMap(const QVariantMap &data) final;
 
-    std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() override;
+    std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
 
-    bool operator ==(const ToolChain &other) const override;
+    bool operator ==(const ToolChain &other) const final;
 
     void setCompilerCommand(const Utils::FileName &file);
-    Utils::FileName compilerCommand() const override;
+    Utils::FileName compilerCommand() const final;
 
-    QString makeCommand(const Utils::Environment &env) const override;
+    QString makeCommand(const Utils::Environment &env) const final;
 
-    ToolChain *clone() const override;
+    ToolChain *clone() const final;
 
-    void toolChainUpdated() override;
+    void toolChainUpdated() final;
 
 protected:
     KeilToolchain(const KeilToolchain &tc) = default;
@@ -116,17 +116,17 @@ class KeilToolchainFactory final : public ProjectExplorer::ToolChainFactory
     Q_OBJECT
 
 public:
-    KeilToolchainFactory();
-    QSet<Core::Id> supportedLanguages() const override;
+    explicit KeilToolchainFactory();
+    QSet<Core::Id> supportedLanguages() const final;
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
-            const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
+            const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
 
-    bool canCreate() override;
-    ProjectExplorer::ToolChain *create(Core::Id language) override;
+    bool canCreate() final;
+    ProjectExplorer::ToolChain *create(Core::Id language) final;
 
-    bool canRestore(const QVariantMap &data) override;
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
+    bool canRestore(const QVariantMap &data) final;
+    ProjectExplorer::ToolChain *restore(const QVariantMap &data) final;
 
 private:
     // File path + version.
@@ -149,10 +149,10 @@ public:
     explicit KeilToolchainConfigWidget(KeilToolchain *tc);
 
 private:
-    void applyImpl() override;
-    void discardImpl() override { setFromToolchain(); }
-    bool isDirtyImpl() const override;
-    void makeReadOnlyImpl() override;
+    void applyImpl() final;
+    void discardImpl() final { setFromToolchain(); }
+    bool isDirtyImpl() const final;
+    void makeReadOnlyImpl() final;
 
     void setFromToolchain();
     void handleCompilerCommandChange();

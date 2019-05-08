@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "baremetalconstants.h"
+
 #include "iarewparser.h"
 #include "iarewtoolchain.h"
 

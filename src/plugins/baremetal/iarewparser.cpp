@@ -38,6 +38,8 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
+// Helpers:
+
 static Task::TaskType taskType(const QString &msgType)
 {
     if (msgType == "Warning")
@@ -46,6 +48,8 @@ static Task::TaskType taskType(const QString &msgType)
         return Task::TaskType::Error;
     return Task::TaskType::Unknown;
 }
+
+// IarParser
 
 IarParser::IarParser()
 {

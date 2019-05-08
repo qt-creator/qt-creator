@@ -24,12 +24,13 @@
 **
 ****************************************************************************/
 
-#include "baremetaldevice.h"
-
 #include "baremetalconstants.h"
+#include "baremetaldevice.h"
 #include "baremetaldeviceconfigurationwidget.h"
 #include "baremetaldeviceconfigurationwizard.h"
+
 #include "defaultgdbserverprovider.h"
+
 #include "gdbserverprovidermanager.h"
 #include "gdbserverproviderprocess.h"
 
@@ -46,6 +47,8 @@ namespace BareMetal {
 namespace Internal {
 
 const char gdbServerProviderIdKeyC[] = "GdbServerProviderId";
+
+// BareMetalDevice
 
 BareMetalDevice::~BareMetalDevice()
 {
@@ -163,8 +166,7 @@ BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)
     setGdbServerProviderId(other.gdbServerProviderId());
 }
 
-
-// Factory
+// BareMetalDeviceFactory
 
 BareMetalDeviceFactory::BareMetalDeviceFactory()
     : IDeviceFactory(Constants::BareMetalOsType)

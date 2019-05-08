@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "baremetalconstants.h"
+
 #include "sdccparser.h"
 #include "sdcctoolchain.h"
 

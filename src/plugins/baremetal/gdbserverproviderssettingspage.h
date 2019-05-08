@@ -46,13 +46,15 @@ class GdbServerProviderFactory;
 class GdbServerProviderNode;
 class GdbServerProvidersSettingsWidget;
 
-class GdbServerProviderModel
+// GdbServerProviderModel
+
+class GdbServerProviderModel final
     : public Utils::TreeModel<Utils::TypedTreeItem<GdbServerProviderNode>, GdbServerProviderNode>
 {
     Q_OBJECT
 
 public:
-    GdbServerProviderModel();
+    explicit GdbServerProviderModel();
 
     GdbServerProvider *provider(const QModelIndex &) const;
     GdbServerProviderConfigWidget *widget(const QModelIndex &) const;
@@ -78,7 +80,9 @@ private:
     QList<GdbServerProvider *> m_providersToRemove;
 };
 
-class GdbServerProvidersSettingsPage : public Core::IOptionsPage
+// GdbServerProvidersSettingsPage
+
+class GdbServerProvidersSettingsPage final : public Core::IOptionsPage
 {
     Q_OBJECT
 
@@ -86,9 +90,9 @@ public:
     explicit GdbServerProvidersSettingsPage(QObject *parent = nullptr);
 
 private:
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
+    QWidget *widget() final;
+    void apply() final;
+    void finish() final;
 
     GdbServerProvidersSettingsWidget *m_configWidget = nullptr;
 };

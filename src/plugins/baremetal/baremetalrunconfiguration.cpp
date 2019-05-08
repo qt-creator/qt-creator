@@ -23,9 +23,8 @@
 **
 ****************************************************************************/
 
-#include "baremetalrunconfiguration.h"
-
 #include "baremetalconstants.h"
+#include "baremetalrunconfiguration.h"
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/project.h>
@@ -43,7 +42,7 @@ namespace Internal {
 BareMetalRunConfiguration::BareMetalRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    auto exeAspect = addAspect<ExecutableAspect>();
+    const auto exeAspect = addAspect<ExecutableAspect>();
     exeAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
     exeAspect->setPlaceHolderText(tr("Unknown"));
 

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include <QObject>
 #include <QList>
+#include <QObject>
 
 #include <utils/fileutils.h>
 
@@ -40,13 +40,15 @@ class BareMetalPluginPrivate;
 class GdbServerProvider;
 class GdbServerProviderFactory;
 
-class GdbServerProviderManager : public QObject
+// GdbServerProviderManager
+
+class GdbServerProviderManager final : public QObject
 {
     Q_OBJECT
 
 public:
     static GdbServerProviderManager *instance();
-    ~GdbServerProviderManager() override;
+    ~GdbServerProviderManager() final;
 
     static QList<GdbServerProvider *> providers();
     static QList<GdbServerProviderFactory *> factories();
@@ -69,7 +71,7 @@ private:
     void restoreProviders();
     static void notifyAboutUpdate(GdbServerProvider *);
 
-    Utils::PersistentSettingsWriter *m_writer;
+    Utils::PersistentSettingsWriter *m_writer = nullptr;
     QList<GdbServerProvider *> m_providers;
     const Utils::FileName m_configFile;
     const QList<GdbServerProviderFactory *> m_factories;

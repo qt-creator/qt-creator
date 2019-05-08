@@ -24,31 +24,33 @@
 **
 ****************************************************************************/
 
-#include "baremetalplugin.h"
 #include "baremetalconstants.h"
 #include "baremetalcustomrunconfiguration.h"
-#include "baremetaldevice.h"
 #include "baremetaldebugsupport.h"
+#include "baremetaldevice.h"
+#include "baremetalplugin.h"
 #include "baremetalrunconfiguration.h"
 
-#include "gdbserverproviderssettingspage.h"
 #include "gdbserverprovidermanager.h"
+#include "gdbserverproviderssettingspage.h"
 
 #include "iarewtoolchain.h"
 #include "keiltoolchain.h"
 #include "sdcctoolchain.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 
 using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
+
+// BareMetalPluginPrivate
 
 class BareMetalPluginPrivate
 {
@@ -62,6 +64,8 @@ public:
     GdbServerProvidersSettingsPage gdbServerProviderSettinsPage;
     GdbServerProviderManager gdbServerProviderManager;
 };
+
+// BareMetalPlugin
 
 BareMetalPlugin::~BareMetalPlugin()
 {

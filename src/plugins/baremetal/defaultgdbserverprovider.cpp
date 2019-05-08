@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-#include "defaultgdbserverprovider.h"
 #include "baremetalconstants.h"
+#include "defaultgdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
 
 #include <utils/qtcassert.h>
@@ -40,10 +40,10 @@ namespace Internal {
 static const char hostKeyC[] = "BareMetal.DefaultGdbServerProvider.Host";
 static const char portKeyC[] = "BareMetal.DefaultGdbServerProvider.Port";
 
+// DefaultGdbServerProvider
+
 DefaultGdbServerProvider::DefaultGdbServerProvider()
     : GdbServerProvider(QLatin1String(Constants::DEFAULT_PROVIDER_ID))
-    , m_host(QLatin1String("localhost"))
-    , m_port(3333)
 {
 }
 
@@ -132,6 +132,8 @@ GdbServerProviderConfigWidget *DefaultGdbServerProvider::configurationWidget()
     return new DefaultGdbServerProviderConfigWidget(this);
 }
 
+// DefaultGdbServerProviderFactory
+
 DefaultGdbServerProviderFactory::DefaultGdbServerProviderFactory()
 {
     setId(QLatin1String(Constants::DEFAULT_PROVIDER_ID));
@@ -152,13 +154,15 @@ bool DefaultGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 
 GdbServerProvider *DefaultGdbServerProviderFactory::restore(const QVariantMap &data)
 {
-    auto p = new DefaultGdbServerProvider;
+    const auto p = new DefaultGdbServerProvider;
     auto updated = data;
     if (p->fromMap(updated))
         return p;
     delete p;
     return nullptr;
 }
+
+// GdbServerProviderConfigWidget
 
 DefaultGdbServerProviderConfigWidget::DefaultGdbServerProviderConfigWidget(
         DefaultGdbServerProvider *provider)
@@ -179,7 +183,7 @@ DefaultGdbServerProviderConfigWidget::DefaultGdbServerProviderConfigWidget(
     addErrorLabel();
     setFromProvider();
 
-    auto chooser = new Core::VariableChooser(this);
+    const auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_initCommandsTextEdit);
     chooser->addSupportedWidget(m_resetCommandsTextEdit);
 

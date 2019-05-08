@@ -33,17 +33,19 @@ namespace Internal {
 
 class BareMetalDeviceConfigurationWizardSetupPage;
 
-class BareMetalDeviceConfigurationWizard : public Utils::Wizard
+// BareMetalDeviceConfigurationWizard
+
+class BareMetalDeviceConfigurationWizard final : public Utils::Wizard
 {
     Q_OBJECT
 
 public:
-    BareMetalDeviceConfigurationWizard(QWidget *parent = nullptr);
+    explicit BareMetalDeviceConfigurationWizard(QWidget *parent = nullptr);
 
     ProjectExplorer::IDevice::Ptr device() const;
 
 private:
-    BareMetalDeviceConfigurationWizardSetupPage *m_setupPage;
+    BareMetalDeviceConfigurationWizardSetupPage *m_setupPage = nullptr;
 };
 
 } // namespace Internal

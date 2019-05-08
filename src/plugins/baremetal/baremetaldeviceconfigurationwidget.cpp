@@ -24,11 +24,11 @@
 **
 ****************************************************************************/
 
-#include "baremetaldeviceconfigurationwidget.h"
 #include "baremetaldevice.h"
+#include "baremetaldeviceconfigurationwidget.h"
 
-#include "gdbserverproviderchooser.h"
 #include "gdbserverprovider.h"
+#include "gdbserverproviderchooser.h"
 
 #include <utils/qtcassert.h>
 
@@ -37,6 +37,8 @@
 namespace BareMetal {
 namespace Internal {
 
+// BareMetalDeviceConfigurationWidget
+
 BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
         const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent)
     : IDeviceWidget(deviceConfig, parent)
@@ -44,7 +46,7 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
     const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
     QTC_ASSERT(dev, return);
 
-    auto formLayout = new QFormLayout(this);
+    const auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     m_gdbServerProviderChooser = new GdbServerProviderChooser(true, this);
@@ -58,7 +60,7 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
 
 void BareMetalDeviceConfigurationWidget::gdbServerProviderChanged()
 {
-    auto dev = qSharedPointerCast<BareMetalDevice>(device());
+    const auto dev = qSharedPointerCast<BareMetalDevice>(device());
     QTC_ASSERT(dev, return);
     dev->setGdbServerProviderId(m_gdbServerProviderChooser->currentProviderId());
 }

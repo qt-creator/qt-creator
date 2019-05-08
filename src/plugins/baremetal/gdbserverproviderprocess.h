@@ -32,7 +32,9 @@ namespace Utils { class QtcProcess; }
 namespace BareMetal {
 namespace Internal {
 
-class GdbServerProviderProcess : public ProjectExplorer::DeviceProcess
+// GdbServerProviderProcess
+
+class GdbServerProviderProcess final : public ProjectExplorer::DeviceProcess
 {
     Q_OBJECT
 public:
@@ -40,23 +42,23 @@ public:
             const QSharedPointer<const ProjectExplorer::IDevice> &device,
             QObject *parent = nullptr);
 
-    void start(const ProjectExplorer::Runnable &runnable) override;
-    void interrupt() override;
-    void terminate() override;
-    void kill() override;
+    void start(const ProjectExplorer::Runnable &runnable) final;
+    void interrupt() final;
+    void terminate() final;
+    void kill() final;
 
-    QProcess::ProcessState state() const override;
-    QProcess::ExitStatus exitStatus() const override;
-    int exitCode() const override;
-    QString errorString() const override;
+    QProcess::ProcessState state() const final;
+    QProcess::ExitStatus exitStatus() const final;
+    int exitCode() const final;
+    QString errorString() const final;
 
-    QByteArray readAllStandardOutput() override;
-    QByteArray readAllStandardError() override;
+    QByteArray readAllStandardOutput() final;
+    QByteArray readAllStandardError() final;
 
-    qint64 write(const QByteArray &data) override;
+    qint64 write(const QByteArray &data) final;
 
 private:
-    Utils::QtcProcess *m_process;
+    Utils::QtcProcess *m_process = nullptr;
 };
 
 } // namespace Internal

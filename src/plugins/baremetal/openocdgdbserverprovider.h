@@ -35,7 +35,9 @@ namespace Internal {
 class OpenOcdGdbServerProviderConfigWidget;
 class OpenOcdGdbServerProviderFactory;
 
-class OpenOcdGdbServerProvider : public GdbServerProvider
+// OpenOcdGdbServerProvider
+
+class OpenOcdGdbServerProvider final : public GdbServerProvider
 {
 public:
     QString typeDisplayName() const final;
@@ -62,9 +64,9 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    QString m_host;
-    quint16 m_port;
-    QString m_executableFile;
+    QString m_host = QLatin1String("localhost");
+    quint16 m_port = 3333;
+    QString m_executableFile = QLatin1String("openocd");
     QString m_rootScriptsDir;
     QString m_configurationFile;
     QString m_additionalArguments;
@@ -73,7 +75,9 @@ private:
     friend class OpenOcdGdbServerProviderFactory;
 };
 
-class OpenOcdGdbServerProviderFactory : public GdbServerProviderFactory
+// OpenOcdGdbServerProviderFactory
+
+class OpenOcdGdbServerProviderFactory final : public GdbServerProviderFactory
 {
     Q_OBJECT
 
@@ -88,7 +92,9 @@ public:
     GdbServerProviderConfigWidget *configurationWidget(GdbServerProvider *);
 };
 
-class OpenOcdGdbServerProviderConfigWidget : public GdbServerProviderConfigWidget
+// OpenOcdGdbServerProviderConfigWidget
+
+class OpenOcdGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
 {
     Q_OBJECT
 
@@ -103,13 +109,13 @@ private:
 
     void setFromProvider();
 
-    HostWidget *m_hostWidget;
-    Utils::PathChooser *m_executableFileChooser;
-    Utils::PathChooser *m_rootScriptsDirChooser;
-    Utils::PathChooser *m_configurationFileChooser;
-    QLineEdit *m_additionalArgumentsLineEdit;
-    QPlainTextEdit *m_initCommandsTextEdit;
-    QPlainTextEdit *m_resetCommandsTextEdit;
+    HostWidget *m_hostWidget = nullptr;
+    Utils::PathChooser *m_executableFileChooser = nullptr;
+    Utils::PathChooser *m_rootScriptsDirChooser = nullptr;
+    Utils::PathChooser *m_configurationFileChooser = nullptr;
+    QLineEdit *m_additionalArgumentsLineEdit = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
 };
 
 } // namespace Internal

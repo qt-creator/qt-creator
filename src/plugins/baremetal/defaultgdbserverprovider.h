@@ -33,7 +33,9 @@ namespace Internal {
 class DefaultGdbServerProviderConfigWidget;
 class DefaultGdbServerProviderFactory;
 
-class DefaultGdbServerProvider : public GdbServerProvider
+// DefaultGdbServerProvider
+
+class DefaultGdbServerProvider final : public GdbServerProvider
 {
 public:
     QString typeDisplayName() const final;
@@ -60,15 +62,17 @@ private:
     explicit DefaultGdbServerProvider();
     explicit DefaultGdbServerProvider(const DefaultGdbServerProvider &);
 
-    QString m_host;
-    quint16 m_port;
+    QString m_host = QLatin1String("localhost");
+    quint16 m_port = 3333;
 
     friend class DefaultGdbServerProviderConfigWidget;
     friend class DefaultGdbServerProviderFactory;
     friend class BareMetalDevice;
 };
 
-class DefaultGdbServerProviderFactory : public GdbServerProviderFactory
+// DefaultGdbServerProviderFactory
+
+class DefaultGdbServerProviderFactory final : public GdbServerProviderFactory
 {
     Q_OBJECT
 
@@ -81,7 +85,9 @@ public:
     GdbServerProvider *restore(const QVariantMap &data) final;
 };
 
-class DefaultGdbServerProviderConfigWidget : public GdbServerProviderConfigWidget
+// DefaultGdbServerProviderConfigWidget
+
+class DefaultGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
 {
     Q_OBJECT
 
@@ -94,9 +100,9 @@ private:
 
     void setFromProvider();
 
-    HostWidget *m_hostWidget;
-    QPlainTextEdit *m_initCommandsTextEdit;
-    QPlainTextEdit *m_resetCommandsTextEdit;
+    HostWidget *m_hostWidget = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
 };
 
 } // namespace Internal

@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "gdbserverproviderchooser.h"
-
-#include "gdbserverprovidermanager.h"
-#include "gdbserverprovider.h"
 #include "baremetalconstants.h"
+
+#include "gdbserverprovider.h"
+#include "gdbserverproviderchooser.h"
+#include "gdbserverprovidermanager.h"
 
 #include <coreplugin/icore.h>
 
@@ -39,6 +39,8 @@
 namespace BareMetal {
 namespace Internal {
 
+// GdbServerProviderChooser
+
 GdbServerProviderChooser::GdbServerProviderChooser(
         bool useManageButton, QWidget *parent)
     : QWidget(parent)
@@ -49,7 +51,7 @@ GdbServerProviderChooser::GdbServerProviderChooser(
     m_manageButton->setEnabled(useManageButton);
     m_manageButton->setVisible(useManageButton);
 
-    auto layout = new QHBoxLayout(this);
+    const auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_chooser);
     layout->addWidget(m_manageButton);

@@ -24,15 +24,17 @@
 **
 ****************************************************************************/
 
+#include "baremetalconstants.h"
+#include "baremetaldevice.h"
 #include "baremetaldeviceconfigurationwizard.h"
 #include "baremetaldeviceconfigurationwizardpages.h"
-#include "baremetaldevice.h"
-#include "baremetalconstants.h"
 
 namespace BareMetal {
 namespace Internal {
 
 enum PageId { SetupPageId };
+
+// BareMetalDeviceConfigurationWizard
 
 BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *parent) :
    Utils::Wizard(parent),
@@ -45,7 +47,7 @@ BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *
 
 ProjectExplorer::IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
 {
-    auto dev = BareMetalDevice::create();
+    const auto dev = BareMetalDevice::create();
     dev->setupId(ProjectExplorer::IDevice::ManuallyAdded, Core::Id());
     dev->setDisplayName(m_setupPage->configurationName());
     dev->setType(Constants::BareMetalOsType);

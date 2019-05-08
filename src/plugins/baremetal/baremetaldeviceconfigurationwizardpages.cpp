@@ -24,8 +24,8 @@
 **
 ****************************************************************************/
 
-#include "baremetaldeviceconfigurationwizardpages.h"
 #include "baremetaldevice.h"
+#include "baremetaldeviceconfigurationwizardpages.h"
 
 #include "gdbserverproviderchooser.h"
 
@@ -38,13 +38,15 @@
 namespace BareMetal {
 namespace Internal {
 
+// BareMetalDeviceConfigurationWizardSetupPage
+
 BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardSetupPage(
         QWidget *parent)
     : QWizardPage(parent)
 {
     setTitle(tr("Set up GDB Server or Hardware Debugger"));
 
-    auto formLayout = new QFormLayout(this);
+    const auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     m_nameLineEdit = new QLineEdit(this);
     formLayout->addRow(tr("Name:"), m_nameLineEdit);

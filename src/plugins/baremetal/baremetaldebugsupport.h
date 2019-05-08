@@ -30,15 +30,17 @@
 namespace BareMetal {
 namespace Internal {
 
-class BareMetalDebugSupport : public Debugger::DebuggerRunTool
+// BareMetalDebugSupport
+
+class BareMetalDebugSupport final : public Debugger::DebuggerRunTool
 {
     Q_OBJECT
 
 public:
-    BareMetalDebugSupport(ProjectExplorer::RunControl *runControl);
+    explicit BareMetalDebugSupport(ProjectExplorer::RunControl *runControl);
 
 private:
-    void start() override;
+    void start() final;
 
     ProjectExplorer::SimpleTargetRunner *m_gdbServer = nullptr;
 };

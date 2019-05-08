@@ -38,16 +38,16 @@ class SdccParser final : public ProjectExplorer::IOutputParser
     Q_OBJECT
 
 public:
-    SdccParser();
+    explicit SdccParser();
     static Core::Id id();
 
 private:
     void newTask(const ProjectExplorer::Task &task);
     void amendDescription(const QString &desc);
 
-    void stdError(const QString &line) override;
-    void stdOutput(const QString &line) override;
-    void doFlush() override;
+    void stdError(const QString &line) final;
+    void stdOutput(const QString &line) final;
+    void doFlush() final;
 
     ProjectExplorer::Task m_lastTask;
     int m_lines = 0;

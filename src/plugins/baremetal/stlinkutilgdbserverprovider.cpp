@@ -23,25 +23,25 @@
 **
 ****************************************************************************/
 
-#include "stlinkutilgdbserverprovider.h"
 #include "baremetalconstants.h"
-#include "gdbserverprovidermanager.h"
 
+#include "gdbserverprovidermanager.h"
+#include "stlinkutilgdbserverprovider.h"
+
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
 
 #include <coreplugin/variablechooser.h>
 
-#include <QString>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QFileInfo>
-
 #include <QFormLayout>
 #include <QLineEdit>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QCheckBox>
 #include <QPlainTextEdit>
+#include <QSpinBox>
+#include <QString>
 
 namespace BareMetal {
 namespace Internal {
@@ -54,15 +54,10 @@ const char extendedModeKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.ExtendedM
 const char resetBoardKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.ResetBoard";
 const char transportLayerKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.TransportLayer";
 
+// StLinkUtilGdbServerProvider
+
 StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
     : GdbServerProvider(QLatin1String(Constants::STLINK_UTIL_PROVIDER_ID))
-    , m_host(QLatin1String("localhost"))
-    , m_port(4242)
-    , m_executableFile(QLatin1String("st-util"))
-    , m_verboseLevel(0)
-    , m_extendedMode(false)
-    , m_resetBoard(true)
-    , m_transport(RawUsb)
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
@@ -213,6 +208,8 @@ GdbServerProviderConfigWidget *StLinkUtilGdbServerProvider::configurationWidget(
     return new StLinkUtilGdbServerProviderConfigWidget(this);
 }
 
+// StLinkUtilGdbServerProviderFactory
+
 StLinkUtilGdbServerProviderFactory::StLinkUtilGdbServerProviderFactory()
 {
     setId(QLatin1String(Constants::STLINK_UTIL_PROVIDER_ID));
@@ -233,13 +230,15 @@ bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data) con
 
 GdbServerProvider *StLinkUtilGdbServerProviderFactory::restore(const QVariantMap &data)
 {
-    auto p = new StLinkUtilGdbServerProvider;
+    const auto p = new StLinkUtilGdbServerProvider;
     auto updated = data;
     if (p->fromMap(updated))
         return p;
     delete p;
     return nullptr;
 }
+
+// StLinkUtilGdbServerProviderConfigWidget
 
 StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget(
         StLinkUtilGdbServerProvider *p)
@@ -283,7 +282,7 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
     addErrorLabel();
     setFromProvider();
 
-    auto chooser = new Core::VariableChooser(this);
+    const auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_initCommandsTextEdit);
     chooser->addSupportedWidget(m_resetCommandsTextEdit);
 
@@ -332,7 +331,7 @@ void StLinkUtilGdbServerProviderConfigWidget::startupModeChanged()
 
 void StLinkUtilGdbServerProviderConfigWidget::applyImpl()
 {
-    auto p = static_cast<StLinkUtilGdbServerProvider *>(provider());
+    const auto p = static_cast<StLinkUtilGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
     p->m_host = m_hostWidget->host();

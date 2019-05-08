@@ -23,24 +23,24 @@
 **
 ****************************************************************************/
 
-#include "openocdgdbserverprovider.h"
 #include "baremetalconstants.h"
-#include "gdbserverprovidermanager.h"
 
+#include "gdbserverprovidermanager.h"
+#include "openocdgdbserverprovider.h"
+
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 
 #include <coreplugin/variablechooser.h>
 
-#include <QString>
+#include <QComboBox>
 #include <QFileInfo>
-
 #include <QFormLayout>
 #include <QLineEdit>
-#include <QComboBox>
 #include <QPlainTextEdit>
+#include <QString>
 
 namespace BareMetal {
 namespace Internal {
@@ -52,11 +52,10 @@ const char rootScriptsDirKeyC[] = "BareMetal.OpenOcdGdbServerProvider.RootScript
 const char configurationFileKeyC[] = "BareMetal.OpenOcdGdbServerProvider.ConfigurationPath";
 const char additionalArgumentsKeyC[] = "BareMetal.OpenOcdGdbServerProvider.AdditionalArguments";
 
+// OpenOcdGdbServerProvider
+
 OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
     : GdbServerProvider(QLatin1String(Constants::OPENOCD_PROVIDER_ID))
-    , m_host(QLatin1String("localhost"))
-    , m_port(3333)
-    , m_executableFile(QLatin1String("openocd"))
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
@@ -212,6 +211,8 @@ GdbServerProviderConfigWidget *OpenOcdGdbServerProvider::configurationWidget()
     return new OpenOcdGdbServerProviderConfigWidget(this);
 }
 
+// OpenOcdGdbServerProviderFactory
+
 OpenOcdGdbServerProviderFactory::OpenOcdGdbServerProviderFactory()
 {
     setId(QLatin1String(Constants::OPENOCD_PROVIDER_ID));
@@ -232,13 +233,15 @@ bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 
 GdbServerProvider *OpenOcdGdbServerProviderFactory::restore(const QVariantMap &data)
 {
-    auto p = new OpenOcdGdbServerProvider;
+    const auto p = new OpenOcdGdbServerProvider;
     auto updated = data;
     if (p->fromMap(updated))
         return p;
     delete p;
     return nullptr;
 }
+
+// OpenOcdGdbServerProviderConfigWidget
 
 OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
         OpenOcdGdbServerProvider *p)
@@ -276,7 +279,7 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
     addErrorLabel();
     setFromProvider();
 
-    auto chooser = new Core::VariableChooser(this);
+    const auto chooser = new Core::VariableChooser(this);
     chooser->addSupportedWidget(m_initCommandsTextEdit);
     chooser->addSupportedWidget(m_resetCommandsTextEdit);
 
@@ -318,7 +321,7 @@ void OpenOcdGdbServerProviderConfigWidget::startupModeChanged()
 
 void OpenOcdGdbServerProviderConfigWidget::applyImpl()
 {
-    auto p = static_cast<OpenOcdGdbServerProvider *>(provider());
+    const auto p = static_cast<OpenOcdGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
     p->m_host = m_hostWidget->host();

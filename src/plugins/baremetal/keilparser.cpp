@@ -38,6 +38,8 @@ using namespace ProjectExplorer;
 namespace BareMetal {
 namespace Internal {
 
+// Helpers:
+
 static Task::TaskType taskType(const QString &msgType)
 {
     if (msgType == "Warning" || msgType == "WARNING") {
@@ -48,6 +50,8 @@ static Task::TaskType taskType(const QString &msgType)
     }
     return Task::TaskType::Unknown;
 }
+
+// KeilParser
 
 KeilParser::KeilParser()
 {

@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-#include "gdbserverprovidermanager.h"
 #include "gdbserverprovider.h"
+#include "gdbserverprovidermanager.h"
 
-#include "openocdgdbserverprovider.h"
 #include "defaultgdbserverprovider.h"
+#include "openocdgdbserverprovider.h"
 #include "stlinkutilgdbserverprovider.h"
 
 #include <coreplugin/icore.h>
@@ -35,8 +35,8 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 #include <utils/persistentsettings.h>
+#include <utils/qtcassert.h>
 
 #include <QDir>
 
@@ -49,6 +49,8 @@ const char fileVersionKeyC[] = "Version";
 const char fileNameKeyC[] = "/gdbserverproviders.xml";
 
 static GdbServerProviderManager *m_instance = nullptr;
+
+// GdbServerProviderManager
 
 GdbServerProviderManager::GdbServerProviderManager()
     : m_configFile(Utils::FileName::fromString(Core::ICore::userResourcePath() + fileNameKeyC))

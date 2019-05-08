@@ -39,7 +39,9 @@ namespace Internal {
 class StLinkUtilGdbServerProviderConfigWidget;
 class StLinkUtilGdbServerProviderFactory;
 
-class StLinkUtilGdbServerProvider : public GdbServerProvider
+// StLinkUtilGdbServerProvider
+
+class StLinkUtilGdbServerProvider final : public GdbServerProvider
 {
 public:
     enum TransportLayer { ScsiOverUsb = 1, RawUsb = 2 };
@@ -67,19 +69,21 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    QString m_host;
-    quint16 m_port;
-    QString m_executableFile;
-    int m_verboseLevel; // 0..99
-    bool m_extendedMode; // Listening for connections after disconnect
-    bool m_resetBoard;
-    TransportLayer m_transport;
+    QString m_host = QLatin1String("localhost");
+    quint16 m_port = 4242;
+    QString m_executableFile = QLatin1String("st-util");
+    int m_verboseLevel = 0; // 0..99
+    bool m_extendedMode = false; // Listening for connections after disconnect
+    bool m_resetBoard = true;
+    TransportLayer m_transport = RawUsb;
 
     friend class StLinkUtilGdbServerProviderConfigWidget;
     friend class StLinkUtilGdbServerProviderFactory;
 };
 
-class StLinkUtilGdbServerProviderFactory : public GdbServerProviderFactory
+// StLinkUtilGdbServerProviderFactory
+
+class StLinkUtilGdbServerProviderFactory final : public GdbServerProviderFactory
 {
     Q_OBJECT
 
@@ -94,7 +98,10 @@ public:
     GdbServerProviderConfigWidget *configurationWidget(GdbServerProvider *);
 };
 
-class StLinkUtilGdbServerProviderConfigWidget : public GdbServerProviderConfigWidget
+// StLinkUtilGdbServerProviderConfigWidget
+
+class StLinkUtilGdbServerProviderConfigWidget final
+        : public GdbServerProviderConfigWidget
 {
     Q_OBJECT
 
@@ -114,14 +121,14 @@ private:
     void populateTransportLayers();
     void setFromProvider();
 
-    HostWidget *m_hostWidget;
-    Utils::PathChooser *m_executableFileChooser;
-    QSpinBox *m_verboseLevelSpinBox;
-    QCheckBox *m_extendedModeCheckBox;
-    QCheckBox *m_resetBoardCheckBox;
-    QComboBox *m_transportLayerComboBox;
-    QPlainTextEdit *m_initCommandsTextEdit;
-    QPlainTextEdit *m_resetCommandsTextEdit;
+    HostWidget *m_hostWidget = nullptr;
+    Utils::PathChooser *m_executableFileChooser = nullptr;
+    QSpinBox *m_verboseLevelSpinBox = nullptr;
+    QCheckBox *m_extendedModeCheckBox = nullptr;
+    QCheckBox *m_resetBoardCheckBox = nullptr;
+    QComboBox *m_transportLayerComboBox = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
 };
 
 } // namespace Internal
