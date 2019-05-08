@@ -253,13 +253,6 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
         return QVariantMap();
     }
 
-    // Sanity check: Make sure displayName is unique.
-    QStringList nameKeys = FindKeyOperation::findKey(map, DISPLAYNAME);
-    QStringList nameList;
-    foreach (const QString &nameKey, nameKeys)
-        nameList << GetOperation::get(map, nameKey).toString();
-    const QString uniqueName = makeUnique(displayName, nameList);
-
     QVariantMap result = RmKeysOperation::rmKeys(map, {COUNT});
 
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
@@ -290,7 +283,7 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
         data << KeyValuePair({tc, LANGUAGE_KEY}, QVariant(oldLang));
     if (!newLang.isEmpty())
         data << KeyValuePair({tc, LANGUAGE_KEY_V2}, QVariant(newLang));
-    data << KeyValuePair({tc, DISPLAYNAME}, QVariant(uniqueName));
+    data << KeyValuePair({tc, DISPLAYNAME}, QVariant(displayName));
     data << KeyValuePair({tc, AUTODETECTED}, QVariant(true));
     data << KeyValuePair({tc, PATH}, QVariant(path));
     data << KeyValuePair({tc, TARGET_ABI}, QVariant(abi));

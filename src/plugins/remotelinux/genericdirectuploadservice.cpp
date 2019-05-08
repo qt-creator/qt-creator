@@ -153,12 +153,12 @@ QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &fi
         return QDateTime();
     }
     const QByteArrayList columns = output.mid(file.remoteFilePath().toUtf8().size() + 1).split(' ');
-    if (columns.size() < 15) { // Normal Linux stat: 16 columns, busybox stat: 15 columns
+    if (columns.size() < 14) { // Normal Linux stat: 16 columns in total, busybox stat: 15 columns
         emit warningMessage(warningString);
         return QDateTime();
     }
     bool isNumber;
-    const qint64 secsSinceEpoch = columns.at(12).toLongLong(&isNumber);
+    const qint64 secsSinceEpoch = columns.at(11).toLongLong(&isNumber);
     if (!isNumber) {
         emit warningMessage(warningString);
         return QDateTime();

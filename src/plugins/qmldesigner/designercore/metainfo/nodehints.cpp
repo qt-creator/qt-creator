@@ -201,6 +201,19 @@ bool NodeHints::takesOverRenderingOfChildren() const
     return evaluateBooleanExpression("takesOverRenderingOfChildren", false);
 }
 
+bool NodeHints::visibleInNavigator() const
+{
+    if (!isValid())
+        return false;
+
+    return evaluateBooleanExpression("visibleInNavigator", false);
+}
+
+bool NodeHints::visibleInLibrary() const
+{
+    return evaluateBooleanExpression("visibleInLibrary", true);
+}
+
 QHash<QString, QString> NodeHints::hints() const
 {
     return m_hints;

@@ -4720,13 +4720,13 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
                 replacement.prepend(nextBlock.text().trimmed().at(0));
         }
 
-        QTextBlock nextVisibleBlock = TextEditor::nextVisibleBlock(data.block, data.doc);
-        if (!nextVisibleBlock.isValid())
-            nextVisibleBlock = data.doc->lastBlock();
+        QTextBlock lastInvisibleBlock = TextEditor::nextVisibleBlock(data.block, data.doc).previous();
+        if (!lastInvisibleBlock.isValid())
+            lastInvisibleBlock = data.doc->lastBlock();
 
-        if (TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(nextVisibleBlock)) {
+        if (TextBlockUserData *blockUserData = TextDocumentLayout::testUserData(lastInvisibleBlock)) {
             if (blockUserData->foldingEndIncluded()) {
-                QString right = nextVisibleBlock.text().trimmed();
+                QString right = lastInvisibleBlock.text().trimmed();
                 if (right.endsWith(QLatin1Char(';'))) {
                     right.chop(1);
                     right = right.trimmed();

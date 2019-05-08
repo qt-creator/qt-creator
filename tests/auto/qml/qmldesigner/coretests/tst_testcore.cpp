@@ -4534,6 +4534,64 @@ void tst_TestCore::testImplicitComponents()
     QCOMPARE(delegate.nodeSourceType(), ModelNode::NodeWithComponentSource);
 }
 
+void tst_TestCore::testRevisionedProperties()
+{
+#if QT_VERSION > QT_VERSION_CHECK(5, 11, 0)
+    const char* qmlString
+            =   "import QtQuick 2.12\n"
+                "import QtQuick.Controls 2.0\n"
+                "import QtQuick.Layouts 1.0\n"
+                "\n"
+                "Item {\n"
+                     "width: 640\n"
+                     "height: 480\n"
+                     "Rectangle {\n"
+                       "gradient: Gradient {\n"
+                       "orientation: Qt.Vertical\n"
+                       "}\n"
+                     "}\n"
+                     "TextEdit {\n"
+                       "leftPadding: 10\n"
+                       "rightPadding: 10\n"
+                       "topPadding: 10\n"
+                       "bottomPadding: 10\n"
+                     "}\n"
+                "}\n";
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(QLatin1String(qmlString));
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+    QVERIFY(model.data());
+    QScopedPointer<TestView> view(new TestView(model.data()));
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    TestRewriterView *testRewriterView = new TestRewriterView(model.data());
+    testRewriterView->setCheckSemanticErrors(true);
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView);
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode(view->rootModelNode());
+
+    QVERIFY(rootModelNode.isValid());
+
+    NodeMetaInfo metaInfo12 = model->metaInfo("QtQuick.Gradient", 2, 12);
+    NodeMetaInfo metaInfo11 = model->metaInfo("QtQuick.Gradient", -1, -1);
+    NodeMetaInfo metaInfoU = model->metaInfo("QtQuick.Gradient", -1, -1);
+
+    QVERIFY(metaInfo12.isValid());
+    QVERIFY(metaInfoU.isValid());
+
+    QVERIFY(metaInfo12.hasProperty("orientation"));
+    QVERIFY(metaInfoU.hasProperty("orientation"));
+
+#endif
+}
+
 void tst_TestCore::testStatesRewriter()
 {
     QPlainTextEdit textEdit;

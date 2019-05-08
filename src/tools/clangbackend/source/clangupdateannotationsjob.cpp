@@ -44,7 +44,7 @@ static QSet<Utf8String> unresolvedFilePaths(const QVector<DiagnosticContainer> &
     QSet<Utf8String> unresolved;
 
     for (const DiagnosticContainer &diagnostic : diagnostics) {
-        if (diagnostic.severity == DiagnosticSeverity::Fatal
+        if (diagnostic.severity == DiagnosticSeverity::Error
                 && diagnostic.category == Utf8StringLiteral("Lexical or Preprocessor Issue")) {
             const QString path = re.match(diagnostic.text).captured(1);
             if (!path.isEmpty())

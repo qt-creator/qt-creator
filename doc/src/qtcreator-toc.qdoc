@@ -35,6 +35,11 @@
         \list
             \li \l{IDE Overview}
             \li \l{User Interface}
+                \list
+                    \li \l{Selecting Modes}
+                    \li \l{Browsing Project Contents}
+                    \li \l{Viewing Output}
+                 \endlist
             \li \l{Configuring Qt Creator}
             \li \l{Building and Running an Example}
             \li \l{Tutorials}
@@ -86,7 +91,6 @@
             \li \l{Developing Qt Quick Applications}
             \list
                 \li \l {Creating Qt Quick Projects}
-                \li \l {Qt Quick UI Forms}
                 \li \l {Editing QML Files in Design Mode}
                 \li \l {Creating Components}
                     \list
@@ -95,7 +99,7 @@
                     \endlist
                 \li \l {Managing Item Hierarchy}
                 \li \l {Specifying Item Properties}
-                \li \l {Editing PathView Properties}
+                \li \l {Creating Animations}
                 \li \l {Adding Connections}
                 \list
                     \li \l{Connecting Objects to Signals}
@@ -104,7 +108,9 @@
                     \li \l{Managing C++ Backend Objects}
                 \endlist
                 \li \l {Adding States}
+                \li \l {Editing PathView Properties}
                 \li \l {Browsing ISO 7000 Icons}
+                \li \l {Qt Quick UI Forms}
                 \li \l {Exporting Designs from Graphics Software}
                 \li \l {Using QML Modules with Plugins}
                 \li \l {Converting UI Projects to Applications}

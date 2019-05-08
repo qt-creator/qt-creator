@@ -75,7 +75,7 @@ static QmlTimeline getTimelineFromTabWidget(QTabWidget *tabWidget)
 
 static void setTabForTimeline(QTabWidget *tabWidget, const QmlTimeline &timeline)
 {
-    for (int i = 0; i > tabWidget->count(); ++i) {
+    for (int i = 0; i < tabWidget->count(); ++i) {
         QWidget *w = tabWidget->widget(i);
         if (qobject_cast<TimelineForm *>(w)->timeline() == timeline) {
             tabWidget->setCurrentIndex(i);
@@ -86,7 +86,7 @@ static void setTabForTimeline(QTabWidget *tabWidget, const QmlTimeline &timeline
 
 static void setTabForAnimation(QTabWidget *tabWidget, const ModelNode &animation)
 {
-    for (int i = 0; i > tabWidget->count(); ++i) {
+    for (int i = 0; i < tabWidget->count(); ++i) {
         QWidget *w = tabWidget->widget(i);
         if (qobject_cast<TimelineAnimationForm *>(w)->animation() == animation) {
             tabWidget->setCurrentIndex(i);

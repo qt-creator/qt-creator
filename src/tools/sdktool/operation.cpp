@@ -62,15 +62,6 @@ QVariant Operation::valueFromString(const QString &v)
     return QVariant();
 }
 
-QString Operation::makeUnique(const QString &name, const QStringList &inUse)
-{
-    QString unique = name;
-    int i = 1;
-    while (inUse.contains(unique))
-        unique = name + QString::number(++i);
-    return unique;
-}
-
 Operation::KeyValuePair::KeyValuePair(const QString &k, const QString &v) :
     value(valueFromString(v))
 {

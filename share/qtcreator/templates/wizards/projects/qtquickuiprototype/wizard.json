@@ -130,6 +130,16 @@
             ]
         },
         {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: ! %{IsSubproject}}",
+            "data": {
+                "projectFilePath": "%{QmlProjectFileName}",
+                "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "%{QtQuickFeature}" ]
+            }
+        },
+        {
             "trDisplayName": "Project Management",
             "trShortTitle": "Summary",
             "typeId": "Summary"

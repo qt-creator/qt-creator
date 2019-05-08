@@ -35,6 +35,8 @@
 
 #include <QtCore/qstring.h>
 
+QT_BEGIN_NAMESPACE
+
 namespace QMakeInternal {
 
 /**
@@ -53,3 +55,5 @@ QString qt_readRegistryKey(HKEY parentHandle, const QString &rSubkey,
                            unsigned long options = 0);
 
 }  // namespace QMakeInternal
+
+QT_END_NAMESPACE

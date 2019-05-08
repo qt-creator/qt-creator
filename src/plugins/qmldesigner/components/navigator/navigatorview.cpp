@@ -48,6 +48,7 @@
 #include <utils/utilsicons.h>
 
 #include <QHeaderView>
+#include <QTimer>
 
 
 static inline void setScenePos(const QmlDesigner::ModelNode &modelNode,const QPointF &pos)
@@ -147,15 +148,21 @@ void NavigatorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    m_currentModelInterface->setFilter(
-                DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
-
     QTreeView *treeView = treeWidget();
-    treeView->expandAll();
 
     treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     treeView->header()->resizeSection(1,26);
     treeView->setIndentation(20);
+
+    m_currentModelInterface->setFilter(false);
+
+
+    QTimer::singleShot(0, this, [this, treeView]() {
+        m_currentModelInterface->setFilter(
+                    DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
+        treeView->expandAll();
+    });
+
 #ifdef _LOCK_ITEMS_
     treeView->header()->resizeSection(2,20);
 #endif
