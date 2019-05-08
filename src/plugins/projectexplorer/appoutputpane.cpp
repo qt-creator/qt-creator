@@ -886,9 +886,11 @@ public:
         layout->addWidget(&m_popUpForRunOutputCheckBox);
         layout->addWidget(&m_popUpForDebugOutputCheckBox);
         const auto maxCharsLayout = new QHBoxLayout;
-        maxCharsLayout->addWidget(new QLabel(tr("Limit output to"))); // TODO: This looks problematic i18n-wise
+        const QString msg = tr("Limit output to %1 characters");
+        const QStringList parts = msg.split("%1") << QString() << QString();
+        maxCharsLayout->addWidget(new QLabel(parts.at(0).trimmed()));
         maxCharsLayout->addWidget(&m_maxCharsBox);
-        maxCharsLayout->addWidget(new QLabel(tr("characters")));
+        maxCharsLayout->addWidget(new QLabel(parts.at(1).trimmed()));
         maxCharsLayout->addStretch(1);
         layout->addLayout(maxCharsLayout);
         layout->addStretch(1);
