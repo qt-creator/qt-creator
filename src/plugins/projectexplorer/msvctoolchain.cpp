@@ -1641,11 +1641,7 @@ MsvcToolChainFactory::MsvcToolChainFactory()
 {
     setDisplayName(tr("MSVC"));
     setSupportedToolChainType(Constants::MSVC_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> MsvcToolChainFactory::supportedLanguages() const
-{
-    return {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID};
+    setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
 }
 
 QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath,

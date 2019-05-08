@@ -876,11 +876,7 @@ GccToolChainFactory::GccToolChainFactory()
 {
     setDisplayName(tr("GCC"));
     setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> GccToolChainFactory::supportedLanguages() const
-{
-    return {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID};
+    setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
 }
 
 bool GccToolChainFactory::canCreate()
@@ -1495,12 +1491,7 @@ ClangToolChainFactory::ClangToolChainFactory()
 {
     setDisplayName(tr("Clang"));
     setSupportedToolChainType(Constants::CLANG_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> ClangToolChainFactory::supportedLanguages() const
-{
-    return {Constants::CXX_LANGUAGE_ID,
-            Constants::C_LANGUAGE_ID};
+    setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
 }
 
 QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -1709,12 +1700,7 @@ MingwToolChainFactory::MingwToolChainFactory()
 {
     setDisplayName(tr("MinGW"));
     setSupportedToolChainType(Constants::MINGW_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> MingwToolChainFactory::supportedLanguages() const
-{
-    return {Constants::CXX_LANGUAGE_ID,
-            Constants::C_LANGUAGE_ID};
+    setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
 }
 
 QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -1809,11 +1795,7 @@ LinuxIccToolChainFactory::LinuxIccToolChainFactory()
 {
     setDisplayName(tr("Linux ICC"));
     setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> LinuxIccToolChainFactory::supportedLanguages() const
-{
-    return {Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID};
+    setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

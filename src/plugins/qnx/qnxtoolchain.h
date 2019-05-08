@@ -76,8 +76,6 @@ public:
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
 
-    QSet<Core::Id> supportedLanguages() const override;
-
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     bool canCreate() override;

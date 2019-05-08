@@ -426,11 +426,7 @@ CustomToolChainFactory::CustomToolChainFactory()
 {
     setDisplayName(tr("Custom"));
     setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> CustomToolChainFactory::supportedLanguages() const
-{
-    return ToolChainManager::allLanguages();
+    setSupportsAllLanguages(true);
 }
 
 bool CustomToolChainFactory::canCreate()

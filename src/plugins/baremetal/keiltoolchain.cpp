@@ -410,12 +410,8 @@ KeilToolchainFactory::KeilToolchainFactory()
 {
     setDisplayName(tr("KEIL"));
     setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> KeilToolchainFactory::supportedLanguages() const
-{
-    return {ProjectExplorer::Constants::C_LANGUAGE_ID,
-            ProjectExplorer::Constants::CXX_LANGUAGE_ID};
+    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
+                           ProjectExplorer::Constants::CXX_LANGUAGE_ID});
 }
 
 QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

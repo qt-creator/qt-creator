@@ -155,11 +155,7 @@ AndroidToolChainFactory::AndroidToolChainFactory()
 {
     setDisplayName(tr("Android Clang"));
     setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_ID);
-}
-
-QSet<Core::Id> Android::Internal::AndroidToolChainFactory::supportedLanguages() const
-{
-    return {ProjectExplorer::Constants::CXX_LANGUAGE_ID};
+    setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
 }
 
 ToolChainList AndroidToolChainFactory::autoDetect(CToolChainList &alreadyKnown)

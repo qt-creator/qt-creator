@@ -144,7 +144,6 @@ class CustomToolChainFactory : public ToolChainFactory
 
 public:
     CustomToolChainFactory();
-    QSet<Core::Id> supportedLanguages() const override;
 
     bool canCreate() override;
     ToolChain *create(Core::Id language) override;

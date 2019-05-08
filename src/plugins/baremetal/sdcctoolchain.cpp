@@ -395,11 +395,7 @@ SdccToolChainFactory::SdccToolChainFactory()
 {
     setDisplayName(tr("SDCC"));
     setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> SdccToolChainFactory::supportedLanguages() const
-{
-    return {ProjectExplorer::Constants::C_LANGUAGE_ID};
+    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID});
 }
 
 QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

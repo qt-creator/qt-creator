@@ -107,7 +107,6 @@ class IarToolChainFactory final : public ProjectExplorer::ToolChainFactory
 
 public:
     explicit IarToolChainFactory();
-    QSet<Core::Id> supportedLanguages() const final;
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;

@@ -224,7 +224,6 @@ class MsvcToolChainFactory : public ToolChainFactory
 
 public:
     MsvcToolChainFactory();
-    QSet<Core::Id> supportedLanguages() const override;
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 

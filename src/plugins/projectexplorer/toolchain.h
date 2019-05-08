@@ -206,11 +206,13 @@ public:
     static Core::Id typeIdFromMap(const QVariantMap &data);
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 
-    virtual QSet<Core::Id> supportedLanguages() const = 0;
+    QSet<Core::Id> supportedLanguages() const;
 
 protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
     void setSupportedToolChainType(const Core::Id &supportedToolChainType);
+    void setSupportedLanguages(const QSet<Core::Id> &supportedLanguages);
+    void setSupportsAllLanguages(bool supportsAllLanguages);
 
     class Candidate {
     public:
@@ -228,6 +230,8 @@ protected:
 private:
     QString m_displayName;
     Core::Id m_supportedToolChainType;
+    QSet<Core::Id> m_supportedLanguages;
+    bool m_supportsAllLanguages = false;
 };
 
 } // namespace ProjectExplorer

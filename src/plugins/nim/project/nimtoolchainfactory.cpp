@@ -44,6 +44,7 @@ NimToolChainFactory::NimToolChainFactory()
 {
     setDisplayName(tr("Nim"));
     setSupportedToolChainType(Constants::C_NIMTOOLCHAIN_TYPEID);
+    setSupportedLanguages({Constants::C_NIMLANGUAGE_ID});
 }
 
 bool NimToolChainFactory::canCreate()
@@ -67,11 +68,6 @@ ToolChain *NimToolChainFactory::restore(const QVariantMap &data)
         return tc;
     delete tc;
     return nullptr;
-}
-
-QSet<Core::Id> NimToolChainFactory::supportedLanguages() const
-{
-    return {Constants::C_NIMLANGUAGE_ID};
 }
 
 QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

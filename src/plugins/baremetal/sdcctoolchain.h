@@ -107,7 +107,6 @@ class SdccToolChainFactory final : public ProjectExplorer::ToolChainFactory
 
 public:
     explicit SdccToolChainFactory();
-    QSet<Core::Id> supportedLanguages() const final;
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;

@@ -477,6 +477,11 @@ void ToolChainFactory::autoDetectionToMap(QVariantMap &data, bool detected)
     data.insert(QLatin1String(AUTODETECT_KEY), detected);
 }
 
+QSet<Core::Id> ToolChainFactory::supportedLanguages() const
+{
+    return m_supportsAllLanguages ? ToolChainManager::allLanguages() : m_supportedLanguages;
+}
+
 Core::Id ToolChainFactory::supportedToolChainType() const
 {
     return m_supportedToolChainType;
@@ -485,6 +490,16 @@ Core::Id ToolChainFactory::supportedToolChainType() const
 void ToolChainFactory::setSupportedToolChainType(const Core::Id &supportedToolChain)
 {
     m_supportedToolChainType = supportedToolChain;
+}
+
+void ToolChainFactory::setSupportedLanguages(const QSet<Core::Id> &supportedLanguages)
+{
+    m_supportedLanguages = supportedLanguages;
+}
+
+void ToolChainFactory::setSupportsAllLanguages(bool supportsAllLanguages)
+{
+    m_supportsAllLanguages = supportsAllLanguages;
 }
 
 } // namespace ProjectExplorer

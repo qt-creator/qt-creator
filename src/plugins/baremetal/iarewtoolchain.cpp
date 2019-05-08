@@ -400,12 +400,8 @@ IarToolChainFactory::IarToolChainFactory()
 {
     setDisplayName(tr("IAREW"));
     setSupportedToolChainType(Constants::IAREW_TOOLCHAIN_TYPEID);
-}
-
-QSet<Core::Id> IarToolChainFactory::supportedLanguages() const
-{
-    return {ProjectExplorer::Constants::C_LANGUAGE_ID,
-            ProjectExplorer::Constants::CXX_LANGUAGE_ID};
+    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
+                           ProjectExplorer::Constants::CXX_LANGUAGE_ID});
 }
 
 QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

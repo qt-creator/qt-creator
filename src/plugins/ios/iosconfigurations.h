@@ -98,7 +98,8 @@ class IosToolChainFactory : public ProjectExplorer::ToolChainFactory
     Q_OBJECT
 
 public:
-    QSet<Core::Id> supportedLanguages() const override;
+    IosToolChainFactory();
+
     QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &existingToolChains) override;
 };
 
