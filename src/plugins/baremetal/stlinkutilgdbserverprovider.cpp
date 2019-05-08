@@ -292,14 +292,14 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
             this, &GdbServerProviderConfigWidget::dirty);
 
     connect(m_verboseLevelSpinBox,
-            static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            QOverload<int>::of(&QSpinBox::valueChanged),
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_extendedModeCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetBoardCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_transportLayerComboBox,
-            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &GdbServerProviderConfigWidget::dirty);
 
     connect(m_initCommandsTextEdit, &QPlainTextEdit::textChanged,
@@ -308,7 +308,7 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
             this, &GdbServerProviderConfigWidget::dirty);
 
     connect(m_startupModeComboBox,
-            static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &StLinkUtilGdbServerProviderConfigWidget::startupModeChanged);
 }
 

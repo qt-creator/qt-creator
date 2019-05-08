@@ -57,7 +57,7 @@ GdbServerProviderChooser::GdbServerProviderChooser(
     layout->addWidget(m_manageButton);
     setFocusProxy(m_manageButton);
 
-    connect(m_chooser, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_chooser, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &GdbServerProviderChooser::currentIndexChanged);
     connect(m_manageButton, &QAbstractButton::clicked,
             this, &GdbServerProviderChooser::manageButtonClicked);
