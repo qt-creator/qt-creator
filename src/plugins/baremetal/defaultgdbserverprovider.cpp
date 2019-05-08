@@ -31,6 +31,7 @@
 
 #include <coreplugin/variablechooser.h>
 
+#include <QCheckBox>
 #include <QFormLayout>
 #include <QPlainTextEdit>
 
@@ -173,6 +174,9 @@ DefaultGdbServerProviderConfigWidget::DefaultGdbServerProviderConfigWidget(
     m_hostWidget = new HostWidget(this);
     m_mainLayout->addRow(tr("Host:"), m_hostWidget);
 
+    m_useExtendedRemoteCheckBox = new QCheckBox(this);
+    m_useExtendedRemoteCheckBox->setToolTip("Use GDB target extended-remote");
+    m_mainLayout->addRow(tr("Extended mode:"), m_useExtendedRemoteCheckBox);
     m_initCommandsTextEdit = new QPlainTextEdit(this);
     m_initCommandsTextEdit->setToolTip(defaultInitCommandsTooltip());
     m_mainLayout->addRow(tr("Init commands:"), m_initCommandsTextEdit);
@@ -189,6 +193,8 @@ DefaultGdbServerProviderConfigWidget::DefaultGdbServerProviderConfigWidget(
 
     connect(m_hostWidget, &HostWidget::dataChanged,
             this, &GdbServerProviderConfigWidget::dirty);
+    connect(m_useExtendedRemoteCheckBox, &QCheckBox::stateChanged,
+            this, &GdbServerProviderConfigWidget::dirty);
     connect(m_initCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
@@ -202,6 +208,7 @@ void DefaultGdbServerProviderConfigWidget::applyImpl()
 
     p->setHost(m_hostWidget->host());
     p->setPort(m_hostWidget->port());
+    p->setUseExtendedRemote(m_useExtendedRemoteCheckBox->isChecked());
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
 }
@@ -219,6 +226,7 @@ void DefaultGdbServerProviderConfigWidget::setFromProvider()
     const QSignalBlocker blocker(this);
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);
+    m_useExtendedRemoteCheckBox->setChecked(p->useExtendedRemote());
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());
 }

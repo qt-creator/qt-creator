@@ -101,6 +101,7 @@ private:
     void setFromProvider();
 
     HostWidget *m_hostWidget = nullptr;
+    QCheckBox *m_useExtendedRemoteCheckBox = nullptr;
     QPlainTextEdit *m_initCommandsTextEdit = nullptr;
     QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
 };

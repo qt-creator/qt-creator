@@ -133,6 +133,7 @@ void BareMetalDebugSupport::start()
     setCommandsForReset(p->resetCommands());
     setRemoteChannel(p->channel());
     setUseContinueInsteadOfRun(true);
+    setUseExtendedRemote(p->useExtendedRemote());
 
     DebuggerRunTool::start();
 }

@@ -47,6 +47,7 @@ const char displayNameKeyC[] = "BareMetal.GdbServerProvider.DisplayName";
 const char startupModeKeyC[] = "BareMetal.GdbServerProvider.Mode";
 const char initCommandsKeyC[] = "BareMetal.GdbServerProvider.InitCommands";
 const char resetCommandsKeyC[] = "BareMetal.GdbServerProvider.ResetCommands";
+const char useExtendedRemoteKeyC[] = "BareMetal.GdbServerProvider.UseExtendedRemote";
 
 static QString createId(const QString &id)
 {
@@ -67,6 +68,7 @@ GdbServerProvider::GdbServerProvider(const GdbServerProvider &other)
     , m_startupMode(other.m_startupMode)
     , m_initCommands(other.m_initCommands)
     , m_resetCommands(other.m_resetCommands)
+    , m_useExtendedRemote(other.useExtendedRemote())
 {
     m_displayName = QCoreApplication::translate(
                 "BareMetal::GdbServerProvider", "Clone of %1")
@@ -121,6 +123,16 @@ void GdbServerProvider::setInitCommands(const QString &cmds)
     m_initCommands = cmds;
 }
 
+bool GdbServerProvider::useExtendedRemote() const
+{
+    return m_useExtendedRemote;
+}
+
+void GdbServerProvider::setUseExtendedRemote(bool useExtendedRemote)
+{
+    m_useExtendedRemote = useExtendedRemote;
+}
+
 QString GdbServerProvider::resetCommands() const
 {
     return m_resetCommands;
@@ -153,7 +165,8 @@ bool GdbServerProvider::operator==(const GdbServerProvider &other) const
     return thisId == otherId
             && m_startupMode == other.m_startupMode
             && m_initCommands == other.m_initCommands
-            && m_resetCommands == other.m_resetCommands;
+            && m_resetCommands == other.m_resetCommands
+            && m_useExtendedRemote == other.m_useExtendedRemote;
 }
 
 QVariantMap GdbServerProvider::toMap() const
@@ -163,7 +176,8 @@ QVariantMap GdbServerProvider::toMap() const
         {QLatin1String(displayNameKeyC), m_displayName},
         {QLatin1String(startupModeKeyC), m_startupMode},
         {QLatin1String(initCommandsKeyC), m_initCommands},
-        {QLatin1String(resetCommandsKeyC), m_resetCommands}
+        {QLatin1String(resetCommandsKeyC), m_resetCommands},
+        {QLatin1String(useExtendedRemoteKeyC), m_useExtendedRemote},
     };
 }
 
@@ -201,6 +215,7 @@ bool GdbServerProvider::fromMap(const QVariantMap &data)
     m_startupMode = static_cast<StartupMode>(data.value(QLatin1String(startupModeKeyC)).toInt());
     m_initCommands = data.value(QLatin1String(initCommandsKeyC)).toString();
     m_resetCommands = data.value(QLatin1String(resetCommandsKeyC)).toString();
+    m_useExtendedRemote = data.value(QLatin1String(useExtendedRemoteKeyC)).toBool();
     return true;
 }
 
