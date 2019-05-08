@@ -1000,11 +1000,6 @@ std::unique_ptr<ToolChainConfigWidget> MsvcToolChain::createConfigurationWidget(
     return std::make_unique<MsvcToolChainConfigWidget>(this);
 }
 
-bool MsvcToolChain::canClone() const
-{
-    return true;
-}
-
 ToolChain *MsvcToolChain::clone() const
 {
     return new MsvcToolChain(*this);

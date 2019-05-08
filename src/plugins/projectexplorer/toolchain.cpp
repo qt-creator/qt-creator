@@ -197,11 +197,6 @@ Core::Id ToolChain::language() const
     return d->m_language;
 }
 
-bool ToolChain::canClone() const
-{
-    return true;
-}
-
 bool ToolChain::operator == (const ToolChain &tc) const
 {
     if (this == &tc)

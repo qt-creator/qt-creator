@@ -79,7 +79,6 @@ public:
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 
-    bool canClone() const override;
     ToolChain *clone() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;

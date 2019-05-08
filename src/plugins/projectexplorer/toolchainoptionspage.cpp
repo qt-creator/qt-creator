@@ -543,7 +543,7 @@ void ToolChainOptionsWidget::updateState()
     bool canDelete = false;
     if (ToolChainTreeItem *item = currentTreeItem()) {
         ToolChain *tc = item->toolChain;
-        canCopy = tc->isValid() && tc->canClone();
+        canCopy = tc->isValid();
         canDelete = tc->detection() != ToolChain::AutoDetection;
     }
 
