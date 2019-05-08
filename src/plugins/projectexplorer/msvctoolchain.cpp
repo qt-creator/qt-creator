@@ -782,9 +782,8 @@ MsvcToolChain::MsvcToolChain(const QString &name,
                              const Abi &abi,
                              const QString &varsBat,
                              const QString &varsBatArg,
-                             Core::Id l,
                              Detection d)
-    : MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, l, d)
+    : MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg, d)
 {}
 
 MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
@@ -828,7 +827,6 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
                              const Abi &abi,
                              const QString &varsBat,
                              const QString &varsBatArg,
-                             Core::Id l,
                              Detection d)
     : ToolChain(typeId, d)
     , m_headerPathsMutex(new QMutex)
@@ -839,7 +837,6 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
 {
     addToAvailableMsvcToolchains(this);
 
-    setLanguage(l);
     initEnvModWatcher(Utils::runAsync(envModThreadPool(),
                                       &MsvcToolChain::environmentModifications,
                                       varsBat,
@@ -1429,7 +1426,8 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
                                                           clangClPath);
             }));
         if (!tc) {
-            tc = new ClangClToolChain(name, clangClPath, language, ToolChain::AutoDetection);
+            tc = new ClangClToolChain(name, clangClPath, ToolChain::AutoDetection);
+            tc->setLanguage(language);
             tc->resetMsvcToolChain(toolChain);
         }
         res << tc;
@@ -1491,9 +1489,8 @@ void ClangClToolChainConfigWidget::makeReadOnlyImpl()
 
 ClangClToolChain::ClangClToolChain(const QString &name,
                                    const QString &clangPath,
-                                   Core::Id language,
                                    Detection d)
-    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, name, Abi(), "", "", language, d)
+    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, name, Abi(), "", "", d)
     , m_clangPath(clangPath)
 {}
 
@@ -1679,8 +1676,10 @@ static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alread
             auto mtc = static_cast<MsvcToolChain *>(tc);
             return mtc->varsBat() == varsBat && mtc->varsBatArg() == varsBatArg;
         });
-        if (!tc)
-            tc = new MsvcToolChain(name, abi, varsBat, varsBatArg, language, d);
+        if (!tc) {
+            tc = new MsvcToolChain(name, abi, varsBat, varsBatArg, d);
+            tc->setLanguage(language);
+        }
         res << tc;
     }
     return res;
@@ -1715,12 +1714,13 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
                       e.format,
                       e.wordSize);
         for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
-            list->append(new MsvcToolChain(name + QLatin1String(e.postFix),
-                                           abi,
-                                           vcVarsBat,
-                                           QLatin1String(e.varsBatArg),
-                                           language,
-                                           ToolChain::AutoDetection));
+            auto tc = new MsvcToolChain(name + QLatin1String(e.postFix),
+                                        abi,
+                                        vcVarsBat,
+                                        QLatin1String(e.varsBatArg),
+                                        ToolChain::AutoDetection);
+            tc->setLanguage(language);
+            list->append(tc);
         }
     }
 }
@@ -1865,9 +1865,9 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     return results;
 }
 
-ToolChain *ClangClToolChainFactory::create(Core::Id l)
+ToolChain *ClangClToolChainFactory::create()
 {
-    return new ClangClToolChain("clang-cl", "", l, ToolChain::ManualDetection);
+    return new ClangClToolChain("clang-cl", "", ToolChain::ManualDetection);
 }
 
 bool MsvcToolChain::operator==(const ToolChain &other) const

@@ -220,12 +220,6 @@ SdccToolChain::SdccToolChain(Detection d) :
     ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID, d)
 { }
 
-SdccToolChain::SdccToolChain(Core::Id language, Detection d) :
-    SdccToolChain(d)
-{
-    setLanguage(language);
-}
-
 QString SdccToolChain::typeDisplayName() const
 {
     return Internal::SdccToolChainFactory::tr("SDCC");
@@ -446,9 +440,9 @@ bool SdccToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *SdccToolChainFactory::create(Core::Id language)
+ToolChain *SdccToolChainFactory::create()
 {
-    return new SdccToolChain(language, ToolChain::ManualDetection);
+    return new SdccToolChain(ToolChain::ManualDetection);
 }
 
 ToolChain *SdccToolChainFactory::restore(const QVariantMap &data)

@@ -106,13 +106,6 @@ QnxToolChain::QnxToolChain(ToolChain::Detection d)
     setOptionsReinterpreter(&reinterpretOptions);
 }
 
-QnxToolChain::QnxToolChain(Core::Id l, ToolChain::Detection d)
-    : QnxToolChain(d)
-{
-    setLanguage(l);
-}
-
-
 QString QnxToolChain::typeDisplayName() const
 {
     return QnxToolChainFactory::tr("QCC");
@@ -243,9 +236,9 @@ bool QnxToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *QnxToolChainFactory::create(Core::Id l)
+ToolChain *QnxToolChainFactory::create()
 {
-    return new QnxToolChain(l, ToolChain::ManualDetection);
+    return new QnxToolChain(ToolChain::ManualDetection);
 }
 
 //---------------------------------------------------------------------------------

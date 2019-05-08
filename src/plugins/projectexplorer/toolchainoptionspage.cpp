@@ -509,9 +509,11 @@ void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory, const Co
     QTC_ASSERT(factory->canCreate(), return);
     QTC_ASSERT(language.isValid(), return);
 
-    ToolChain *tc = factory->create(language);
+    ToolChain *tc = factory->create();
     if (!tc)
         return;
+
+    tc->setLanguage(language);
 
     auto item = insertToolChain(tc, true);
     m_toAddList.append(item);

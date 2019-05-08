@@ -58,7 +58,7 @@ public:
     QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) override;
 
     bool canCreate() override;
-    ToolChain *create(Core::Id language) override;
+    ToolChain *create() override;
 
     ToolChain *restore(const QVariantMap &data) override;
 

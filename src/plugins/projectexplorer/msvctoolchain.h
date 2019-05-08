@@ -59,7 +59,6 @@ public:
                            const Abi &abi,
                            const QString &varsBat,
                            const QString &varsBatArg,
-                           Core::Id l,
                            Detection d = ManualDetection);
     MsvcToolChain(const MsvcToolChain &other);
     MsvcToolChain();
@@ -130,7 +129,6 @@ protected:
                            const Abi &abi,
                            const QString &varsBat,
                            const QString &varsBatArg,
-                           Core::Id l,
                            Detection d);
     explicit MsvcToolChain(Core::Id typeId);
 
@@ -182,7 +180,7 @@ protected:
 class ClangClToolChain : public MsvcToolChain
 {
 public:
-    ClangClToolChain(const QString &name, const QString &llvmDir, Core::Id language, Detection d);
+    ClangClToolChain(const QString &name, const QString &llvmDir, Detection d);
     ClangClToolChain();
 
     bool isValid() const override;
@@ -246,7 +244,7 @@ public:
     ToolChain *restore(const QVariantMap &data) override;
 
     bool canCreate() override;
-    ToolChain *create(Core::Id l) override;
+    ToolChain *create() override;
 };
 
 // --------------------------------------------------------------------------

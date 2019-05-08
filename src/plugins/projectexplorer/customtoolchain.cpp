@@ -86,12 +86,6 @@ CustomToolChain::CustomToolChain(Detection d) :
     m_outputParserId(GccParser::id())
 { }
 
-CustomToolChain::CustomToolChain(Core::Id language, Detection d) : CustomToolChain(d)
-{
-    setLanguage(language);
-}
-
-
 QString CustomToolChain::typeDisplayName() const
 {
     return Internal::CustomToolChainFactory::tr("Custom");
@@ -434,9 +428,9 @@ bool CustomToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *CustomToolChainFactory::create(Core::Id language)
+ToolChain *CustomToolChainFactory::create()
 {
-    return new CustomToolChain(language, ToolChain::ManualDetection);
+    return new CustomToolChain(ToolChain::ManualDetection);
 }
 
 ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)

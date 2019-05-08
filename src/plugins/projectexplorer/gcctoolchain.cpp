@@ -884,11 +884,9 @@ bool GccToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *GccToolChainFactory::create(Core::Id language)
+ToolChain *GccToolChainFactory::create()
 {
-    ToolChain *tc = createToolChain(false);
-    tc->setLanguage(language);
-    return tc;
+    return createToolChain(false);
 }
 
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

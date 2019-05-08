@@ -226,12 +226,6 @@ IarToolChain::IarToolChain(Detection d) :
     ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID, d)
 { }
 
-IarToolChain::IarToolChain(Core::Id language, Detection d) :
-    IarToolChain(d)
-{
-    setLanguage(language);
-}
-
 QString IarToolChain::typeDisplayName() const
 {
     return Internal::IarToolChainFactory::tr("IAREW");
@@ -465,9 +459,9 @@ bool IarToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *IarToolChainFactory::create(Core::Id language)
+ToolChain *IarToolChainFactory::create()
 {
-    return new IarToolChain(language, ToolChain::ManualDetection);
+    return new IarToolChain(ToolChain::ManualDetection);
 }
 
 ToolChain *IarToolChainFactory::restore(const QVariantMap &data)

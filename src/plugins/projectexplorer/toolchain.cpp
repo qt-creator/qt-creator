@@ -443,9 +443,8 @@ bool ToolChainFactory::canCreate()
     return false;
 }
 
-ToolChain *ToolChainFactory::create(Core::Id l)
+ToolChain *ToolChainFactory::create()
 {
-    Q_UNUSED(l);
     return nullptr;
 }
 

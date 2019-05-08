@@ -35,7 +35,6 @@ class QnxToolChain : public ProjectExplorer::GccToolChain
 {
 public:
     explicit QnxToolChain(Detection d);
-    explicit QnxToolChain(Core::Id l, Detection d);
 
     QString typeDisplayName() const override;
 
@@ -79,7 +78,7 @@ public:
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     bool canCreate() override;
-    ProjectExplorer::ToolChain *create(Core::Id l) override;
+    ProjectExplorer::ToolChain *create() override;
 };
 
 //----------------------------------------------------------------------------

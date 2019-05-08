@@ -198,7 +198,7 @@ public:
     virtual QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language);
 
     virtual bool canCreate();
-    virtual ToolChain *create(Core::Id l);
+    virtual ToolChain *create();
 
     virtual ToolChain *restore(const QVariantMap &data);
 

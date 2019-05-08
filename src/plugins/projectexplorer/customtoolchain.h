@@ -118,7 +118,6 @@ protected:
 
 private:
     explicit CustomToolChain(Detection d);
-    explicit CustomToolChain(Core::Id language, Detection d);
 
     Utils::FileName m_compilerCommand;
     Utils::FileName m_makeCommand;
@@ -146,7 +145,7 @@ public:
     CustomToolChainFactory();
 
     bool canCreate() override;
-    ToolChain *create(Core::Id language) override;
+    ToolChain *create() override;
 
     ToolChain *restore(const QVariantMap &data) override;
 };

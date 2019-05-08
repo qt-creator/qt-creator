@@ -52,13 +52,9 @@ bool NimToolChainFactory::canCreate()
     return true;
 }
 
-ToolChain *NimToolChainFactory::create(Core::Id l)
+ToolChain *NimToolChainFactory::create()
 {
-    if (l != Constants::C_NIMLANGUAGE_ID)
-        return nullptr;
-    auto result = new NimToolChain(ToolChain::ManualDetection);
-    result->setLanguage(l);
-    return result;
+    return new NimToolChain(ToolChain::ManualDetection);
 }
 
 ToolChain *NimToolChainFactory::restore(const QVariantMap &data)

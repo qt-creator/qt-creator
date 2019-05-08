@@ -90,7 +90,6 @@ protected:
 
 private:
     explicit IarToolChain(Detection d);
-    explicit IarToolChain(Core::Id language, Detection d);
 
     ProjectExplorer::Abi m_targetAbi;
     Utils::FileName m_compilerCommand;
@@ -112,7 +111,7 @@ public:
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
 
     bool canCreate() final;
-    ProjectExplorer::ToolChain *create(Core::Id language) final;
+    ProjectExplorer::ToolChain *create() final;
 
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) final;
 

@@ -243,12 +243,6 @@ KeilToolchain::KeilToolchain(Detection d) :
     ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID, d)
 { }
 
-KeilToolchain::KeilToolchain(Core::Id language, Detection d) :
-    KeilToolchain(d)
-{
-    setLanguage(language);
-}
-
 QString KeilToolchain::typeDisplayName() const
 {
     return Internal::KeilToolchainFactory::tr("KEIL");
@@ -469,9 +463,9 @@ bool KeilToolchainFactory::canCreate()
     return true;
 }
 
-ToolChain *KeilToolchainFactory::create(Core::Id language)
+ToolChain *KeilToolchainFactory::create()
 {
-    return new KeilToolchain(language, ToolChain::ManualDetection);
+    return new KeilToolchain(ToolChain::ManualDetection);
 }
 
 ToolChain *KeilToolchainFactory::restore(const QVariantMap &data)
