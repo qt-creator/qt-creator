@@ -231,8 +231,10 @@ static Abi guessAbi(const Macros &macros)
 static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
                                 const QString &version)
 {
+    const auto archName = Abi::toString(arch);
+    const auto langName = ToolChainManager::displayNameOfLanguageId(language);
     return KeilToolchain::tr("KEIL %1 (%2, %3)")
-            .arg(version, language.toString(), Abi::toString(arch));
+            .arg(version, langName, archName);
 }
 
 // KeilToolchain

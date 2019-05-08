@@ -202,8 +202,10 @@ static Abi guessAbi(const Macros &macros)
 static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
                                 const QString &version)
 {
+    const auto archName = Abi::toString(arch);
+    const auto langName = ToolChainManager::displayNameOfLanguageId(language);
     return SdccToolChain::tr("SDCC %1 (%2, %3)")
-            .arg(version, language.toString(), Abi::toString(arch));
+            .arg(version, langName, archName);
 }
 
 static Utils::FileName compilerPathFromEnvironment(const QString &compilerName)
