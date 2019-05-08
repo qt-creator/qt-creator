@@ -41,6 +41,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QRegExp>
+#include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QTime>
@@ -106,11 +107,23 @@ void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manip
     if (auto edit = m_item.textEdit()) {
         applyTextEdit(manipulator, *edit);
     } else {
+        const QString textToInsert(m_item.insertText().value_or(text()));
+        int length = 0;
+        for (auto it = textToInsert.crbegin(), end = textToInsert.crend(); it != end; ++it) {
+            if (it->toLower() != manipulator.characterAt(pos - length - 1).toLower()) {
+                length = 0;
+                break;
+            }
+            ++length;
+        }
         QTextCursor cursor = manipulator.textCursorAt(pos);
-        cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
-        manipulator.replace(cursor.position(),
-                            cursor.selectionEnd() - cursor.selectionStart(),
-                            m_item.insertText().value_or(m_item.label()));
+        cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+        const QString blockTextUntilPosition = cursor.selectedText();
+        static QRegularExpression identifier("[a-zA-Z_][a-zA-Z0-9_]*$");
+        QRegularExpressionMatch match = identifier.match(blockTextUntilPosition);
+        int matchLength = match.hasMatch() ? match.capturedLength(0) : 0;
+        length = qMax(length, matchLength);
+        manipulator.replace(pos - length, length, textToInsert);
     }
 
     if (auto additionalEdits = m_item.additionalTextEdits()) {
