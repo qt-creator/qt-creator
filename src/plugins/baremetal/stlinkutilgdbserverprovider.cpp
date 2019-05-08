@@ -231,7 +231,7 @@ bool StLinkUtilGdbServerProviderFactory::canRestore(const QVariantMap &data) con
 GdbServerProvider *StLinkUtilGdbServerProviderFactory::restore(const QVariantMap &data)
 {
     const auto p = new StLinkUtilGdbServerProvider;
-    auto updated = data;
+    const auto updated = data;
     if (p->fromMap(updated))
         return p;
     delete p;
@@ -312,7 +312,6 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
             this, &StLinkUtilGdbServerProviderConfigWidget::startupModeChanged);
 }
 
-
 void StLinkUtilGdbServerProviderConfigWidget::startupModeChanged()
 {
     const GdbServerProvider::StartupMode m = startupMode();
@@ -390,7 +389,7 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
     const auto p = static_cast<StLinkUtilGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    QSignalBlocker blocker(this);
+    const QSignalBlocker blocker(this);
     startupModeChanged();
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);

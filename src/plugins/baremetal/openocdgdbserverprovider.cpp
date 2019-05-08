@@ -234,7 +234,7 @@ bool OpenOcdGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 GdbServerProvider *OpenOcdGdbServerProviderFactory::restore(const QVariantMap &data)
 {
     const auto p = new OpenOcdGdbServerProvider;
-    auto updated = data;
+    const auto updated = data;
     if (p->fromMap(updated))
         return p;
     delete p;
@@ -344,7 +344,7 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     const auto p = static_cast<OpenOcdGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    QSignalBlocker blocker(this);
+    const QSignalBlocker blocker(this);
     startupModeChanged();
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);

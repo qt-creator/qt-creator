@@ -155,7 +155,7 @@ bool DefaultGdbServerProviderFactory::canRestore(const QVariantMap &data) const
 GdbServerProvider *DefaultGdbServerProviderFactory::restore(const QVariantMap &data)
 {
     const auto p = new DefaultGdbServerProvider;
-    auto updated = data;
+    const auto updated = data;
     if (p->fromMap(updated))
         return p;
     delete p;
@@ -216,7 +216,7 @@ void DefaultGdbServerProviderConfigWidget::setFromProvider()
     const auto p = static_cast<DefaultGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    QSignalBlocker blocker(this);
+    const QSignalBlocker blocker(this);
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);
     m_initCommandsTextEdit->setPlainText(p->initCommands());

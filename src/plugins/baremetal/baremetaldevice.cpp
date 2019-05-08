@@ -110,7 +110,7 @@ void BareMetalDevice::fromMap(const QVariantMap &map)
             gdbServerProvider = provider->id();
         } else {
             const QSsh::SshConnectionParameters sshParams = sshParameters();
-            auto newProvider = new DefaultGdbServerProvider;
+            const auto newProvider = new DefaultGdbServerProvider;
             newProvider->setDisplayName(name);
             newProvider->m_host = sshParams.host();
             newProvider->m_port = sshParams.port();

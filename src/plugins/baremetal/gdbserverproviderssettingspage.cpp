@@ -107,7 +107,7 @@ GdbServerProviderModel::GdbServerProviderModel()
 
 GdbServerProvider *GdbServerProviderModel::provider(const QModelIndex &index) const
 {
-    if (GdbServerProviderNode *node = nodeForIndex(index))
+    if (const GdbServerProviderNode *node = nodeForIndex(index))
         return node->provider;
 
     return nullptr;
@@ -130,7 +130,7 @@ void GdbServerProviderModel::apply()
 
     // Update providers
     for (TreeItem *item : *rootItem()) {
-        auto n = static_cast<GdbServerProviderNode *>(item);
+        const auto n = static_cast<GdbServerProviderNode *>(item);
         if (!n->changed)
             continue;
 
@@ -172,7 +172,7 @@ GdbServerProviderNode *GdbServerProviderModel::findNode(const GdbServerProvider 
 
 QModelIndex GdbServerProviderModel::indexForProvider(GdbServerProvider *provider) const
 {
-    GdbServerProviderNode *n = findNode(provider);
+    const GdbServerProviderNode *n = findNode(provider);
     return n ? indexForItem(n) : QModelIndex();
 }
 
@@ -342,7 +342,7 @@ void GdbServerProvidersSettingsWidget::providerSelectionChanged()
     if (w)
         w->setVisible(false);
 
-    GdbServerProviderNode *node = m_model.nodeForIndex(current);
+    const GdbServerProviderNode *node = m_model.nodeForIndex(current);
     w = node ? node->widget : nullptr;
     m_container->setWidget(w);
     m_container->setVisible(w != nullptr);
@@ -353,7 +353,7 @@ void GdbServerProvidersSettingsWidget::createProvider(GdbServerProviderFactory *
 {
     GdbServerProvider *provider = nullptr;
     if (!f) {
-        GdbServerProvider *old = m_model.provider(currentIndex());
+        const GdbServerProvider *old = m_model.provider(currentIndex());
         if (!old)
             return;
         provider = old->clone();

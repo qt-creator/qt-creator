@@ -103,7 +103,7 @@ QString GdbServerProviderChooser::providerText(const GdbServerProvider *provider
 
 void GdbServerProviderChooser::populate()
 {
-    QSignalBlocker blocker(m_chooser);
+    const QSignalBlocker blocker(m_chooser);
     m_chooser->clear();
     m_chooser->addItem(tr("None"));
 

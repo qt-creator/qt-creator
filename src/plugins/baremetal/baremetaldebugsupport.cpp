@@ -101,7 +101,7 @@ void BareMetalDebugSupport::start()
     const Target *target = runControl()->target();
     QTC_ASSERT(target, reportFailure(); return);
 
-    auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+    const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
     QTC_ASSERT(dev, reportFailure(); return);
     const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
     QTC_ASSERT(p, reportFailure(); return);
@@ -124,7 +124,7 @@ void BareMetalDebugSupport::start()
 
     Runnable inferior;
     inferior.executable = bin;
-    if (auto aspect = runControl()->aspect<ArgumentsAspect>())
+    if (const auto aspect = runControl()->aspect<ArgumentsAspect>())
         inferior.commandLineArguments = aspect->arguments(runControl()->macroExpander());
     setInferior(inferior);
     setSymbolFile(bin);

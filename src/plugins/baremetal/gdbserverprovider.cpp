@@ -358,7 +358,7 @@ void GdbServerProviderConfigWidget::clearErrorMessage()
 
 void GdbServerProviderConfigWidget::setFromProvider()
 {
-    QSignalBlocker blocker(this);
+    const QSignalBlocker blocker(this);
     m_nameLineEdit->setText(m_provider->displayName());
     setStartupMode(m_provider->startupMode());
 }
@@ -402,7 +402,7 @@ HostWidget::HostWidget(QWidget *parent)
 
 void HostWidget::setHost(const QString &host)
 {
-    QSignalBlocker blocker(this);
+    const QSignalBlocker blocker(this);
     m_hostLineEdit->setText(host);
 }
 
@@ -413,7 +413,7 @@ QString HostWidget::host() const
 
 void HostWidget::setPort(const quint16 &port)
 {
-    QSignalBlocker blocker(this);
+    const QSignalBlocker blocker(this);
     m_portSpinBox->setValue(port);
 }
 
