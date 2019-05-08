@@ -331,8 +331,10 @@ void OutputWindow::filterNewContent()
 
     auto &lastBlock = d->lastFilteredBlock;
 
-    if (!lastBlock.isValid())
+    if (!lastBlock.isValid() || lastBlock.blockNumber() >= document->blockCount()
+            || document->findBlockByNumber(lastBlock.blockNumber()) != lastBlock) {
         lastBlock = document->begin();
+    }
 
     if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
         QRegularExpression regExp(d->filterText);
