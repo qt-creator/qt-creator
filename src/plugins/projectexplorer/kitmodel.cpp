@@ -226,6 +226,7 @@ void KitModel::markForRemoval(Kit *k)
         delete node;
     else
         m_toRemoveList.append(node);
+    validateKitNames();
 }
 
 Kit *KitModel::markForAddition(Kit *baseKit)
@@ -321,6 +322,7 @@ void KitModel::removeKit(Kit *k)
             if (m_defaultNode == n)
                 m_defaultNode = nullptr;
             delete n;
+            validateKitNames();
             return;
         }
     }
