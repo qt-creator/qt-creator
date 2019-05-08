@@ -119,10 +119,6 @@ public:
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) final;
 
 private:
-    // File path + version.
-    using Candidate = QPair<Utils::FileName, QString>;
-    using Candidates = QVector<Candidate>;
-
     QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,
                                                              const QList<ProjectExplorer::ToolChain *> &alreadyKnown) const;
     QList<ProjectExplorer::ToolChain *> autoDetectToolchain(

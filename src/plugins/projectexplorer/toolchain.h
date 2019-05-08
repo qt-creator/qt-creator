@@ -211,6 +211,19 @@ public:
 protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
 
+    class Candidate {
+    public:
+        Utils::FileName compilerPath;
+        QString compilerVersion;
+
+        bool operator==(const ToolChainFactory::Candidate &other) const {
+            return compilerPath == other.compilerPath
+                    && compilerVersion == other.compilerVersion;
+        }
+    };
+
+    using Candidates = QVector<Candidate>;
+
 private:
     QString m_displayName;
 };

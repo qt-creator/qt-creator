@@ -436,7 +436,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
         const auto env = Environment::systemEnvironment();
         const auto macros = dumpPredefinedMacros(fn, env.toStringList(), {});
         const QString version = guessVersion(macros);
-        const Candidate candidate(fn, version);
+        const Candidate candidate = {fn, version};
         if (!candidates.contains(candidate))
             candidates.push_back(candidate);
     }
@@ -478,7 +478,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchains(
         const QList<ToolChain *> filtered = Utils::filtered(
                     alreadyKnown, [candidate](ToolChain *tc) {
             return tc->typeId() == Constants::SDCC_TOOLCHAIN_TYPEID
-                && tc->compilerCommand() == candidate.first
+                && tc->compilerCommand() == candidate.compilerPath
                 && (tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID);
         });
 
@@ -498,16 +498,16 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
         const Candidate &candidate, Core::Id language) const
 {
     const auto env = Environment::systemEnvironment();
-    const Macros macros = dumpPredefinedMacros(candidate.first, env.toStringList(), {});
+    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, env.toStringList(), {});
     if (macros.isEmpty())
         return {};
     const Abi abi = guessAbi(macros);
 
     const auto tc = new SdccToolChain(ToolChain::AutoDetection);
     tc->setLanguage(language);
-    tc->setCompilerCommand(candidate.first);
+    tc->setCompilerCommand(candidate.compilerPath);
     tc->setTargetAbi(abi);
-    tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.second));
+    tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.compilerVersion));
 
     const auto languageVersion = ToolChain::languageVersion(language, macros);
     tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
