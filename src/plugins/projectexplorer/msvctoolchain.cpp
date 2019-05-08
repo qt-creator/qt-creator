@@ -1640,6 +1640,7 @@ ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeader
 MsvcToolChainFactory::MsvcToolChainFactory()
 {
     setDisplayName(tr("MSVC"));
+    setSupportedToolChainType(Constants::MSVC_TOOLCHAIN_TYPEID);
 }
 
 QSet<Core::Id> MsvcToolChainFactory::supportedLanguages() const
@@ -1819,6 +1820,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
 ClangClToolChainFactory::ClangClToolChainFactory()
 {
     setDisplayName(tr("clang-cl"));
+    setSupportedToolChainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
 }
 
 bool ClangClToolChainFactory::canCreate()
@@ -1983,12 +1985,6 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     return Utils::nullopt;
 }
 
-bool MsvcToolChainFactory::canRestore(const QVariantMap &data)
-{
-    const Core::Id id = typeIdFromMap(data);
-    return id == Constants::MSVC_TOOLCHAIN_TYPEID;
-}
-
 template<class ToolChainType>
 ToolChainType *readFromMap(const QVariantMap &data)
 {
@@ -2002,12 +1998,6 @@ ToolChainType *readFromMap(const QVariantMap &data)
 ToolChain *MsvcToolChainFactory::restore(const QVariantMap &data)
 {
     return readFromMap<MsvcToolChain>(data);
-}
-
-bool ClangClToolChainFactory::canRestore(const QVariantMap &data)
-{
-    const Core::Id id = typeIdFromMap(data);
-    return id == Constants::CLANG_CL_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *ClangClToolChainFactory::restore(const QVariantMap &data)

@@ -43,7 +43,6 @@ public:
 
     bool canCreate() final;
     ProjectExplorer::ToolChain *create(Core::Id l) final;
-    bool canRestore(const QVariantMap &data) final;
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) final;
     QSet<Core::Id> supportedLanguages() const final;
     QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;

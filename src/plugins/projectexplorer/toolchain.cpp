@@ -449,11 +449,6 @@ ToolChain *ToolChainFactory::create(Core::Id l)
     return nullptr;
 }
 
-bool ToolChainFactory::canRestore(const QVariantMap &)
-{
-    return false;
-}
-
 ToolChain *ToolChainFactory::restore(const QVariantMap &)
 {
     return nullptr;
@@ -480,6 +475,16 @@ Core::Id ToolChainFactory::typeIdFromMap(const QVariantMap &data)
 void ToolChainFactory::autoDetectionToMap(QVariantMap &data, bool detected)
 {
     data.insert(QLatin1String(AUTODETECT_KEY), detected);
+}
+
+Core::Id ToolChainFactory::supportedToolChainType() const
+{
+    return m_supportedToolChainType;
+}
+
+void ToolChainFactory::setSupportedToolChainType(const Core::Id &supportedToolChain)
+{
+    m_supportedToolChainType = supportedToolChain;
 }
 
 } // namespace ProjectExplorer

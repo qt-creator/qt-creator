@@ -149,8 +149,6 @@ public:
     bool canCreate() override;
     ToolChain *create(Core::Id language) override;
 
-    // Used by the ToolChainManager to restore user-generated tool chains
-    bool canRestore(const QVariantMap &data) override;
     ToolChain *restore(const QVariantMap &data) override;
 };
 

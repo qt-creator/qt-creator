@@ -213,6 +213,7 @@ bool QnxToolChain::operator ==(const ToolChain &other) const
 QnxToolChainFactory::QnxToolChainFactory()
 {
     setDisplayName(tr("QCC"));
+    setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
 }
 
 QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
@@ -229,11 +230,6 @@ QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
 QSet<Core::Id> QnxToolChainFactory::supportedLanguages() const
 {
     return {ProjectExplorer::Constants::CXX_LANGUAGE_ID};
-}
-
-bool QnxToolChainFactory::canRestore(const QVariantMap &data)
-{
-    return typeIdFromMap(data) == Constants::QNX_TOOLCHAIN_ID;
 }
 
 ToolChain *QnxToolChainFactory::restore(const QVariantMap &data)

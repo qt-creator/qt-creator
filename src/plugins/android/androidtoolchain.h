@@ -67,7 +67,6 @@ public:
     QSet<Core::Id> supportedLanguages() const override;
 
     ToolChainList autoDetect(CToolChainList &alreadyKnown) override;
-    bool canRestore(const QVariantMap &data) override;
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     class AndroidToolChainInformation

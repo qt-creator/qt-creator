@@ -192,6 +192,7 @@ public:
     static const QList<ToolChainFactory *> allToolChainFactories();
 
     QString displayName() const { return m_displayName; }
+    Core::Id supportedToolChainType() const;
 
     virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
     virtual QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language);
@@ -199,7 +200,6 @@ public:
     virtual bool canCreate();
     virtual ToolChain *create(Core::Id l);
 
-    virtual bool canRestore(const QVariantMap &data);
     virtual ToolChain *restore(const QVariantMap &data);
 
     static QByteArray idFromMap(const QVariantMap &data);
@@ -210,6 +210,7 @@ public:
 
 protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
+    void setSupportedToolChainType(const Core::Id &supportedToolChainType);
 
     class Candidate {
     public:
@@ -226,6 +227,7 @@ protected:
 
 private:
     QString m_displayName;
+    Core::Id m_supportedToolChainType;
 };
 
 } // namespace ProjectExplorer

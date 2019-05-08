@@ -61,7 +61,6 @@ public:
     bool canCreate() override;
     ToolChain *create(Core::Id language) override;
 
-    bool canRestore(const QVariantMap &data) override;
     ToolChain *restore(const QVariantMap &data) override;
 
 protected:
@@ -152,8 +151,6 @@ public:
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
     QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 
-    bool canRestore(const QVariantMap &data) override;
-
 protected:
     GccToolChain *createToolChain(bool autoDetect) override;
 };
@@ -173,8 +170,6 @@ public:
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
     QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 
-    bool canRestore(const QVariantMap &data) override;
-
 protected:
     GccToolChain *createToolChain(bool autoDetect) override;
 };
@@ -193,8 +188,6 @@ public:
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
     QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
-
-    bool canRestore(const QVariantMap &data) override;
 
 protected:
     GccToolChain *createToolChain(bool autoDetect) override;

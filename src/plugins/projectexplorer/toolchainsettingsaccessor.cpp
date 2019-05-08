@@ -253,18 +253,21 @@ QList<ToolChain *> ToolChainSettingsAccessor::toolChains(const QVariantMap &data
         const QVariantMap tcMap = data.value(key).toMap();
 
         bool restored = false;
-        for (ToolChainFactory *f : factories) {
-            if (f->canRestore(tcMap)) {
-                if (ToolChain *tc = f->restore(tcMap)) {
-                    result.append(tc);
-                    restored = true;
-                    break;
+        const Core::Id tcType = ToolChainFactory::typeIdFromMap(tcMap);
+        if (tcType.isValid()) {
+            for (ToolChainFactory *f : factories) {
+                if (f->supportedToolChainType() == tcType) {
+                    if (ToolChain *tc = f->restore(tcMap)) {
+                        result.append(tc);
+                        restored = true;
+                        break;
+                    }
                 }
             }
         }
         if (!restored)
             qWarning("Warning: Unable to restore compiler type '%s' for tool chain %s.",
-                     qPrintable(ToolChainFactory::typeIdFromMap(tcMap).toString()),
+                     qPrintable(tcType.toString()),
                      qPrintable(QString::fromUtf8(ToolChainFactory::idFromMap(tcMap))));
     }
 

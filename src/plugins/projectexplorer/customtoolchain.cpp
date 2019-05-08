@@ -425,6 +425,7 @@ namespace Internal {
 CustomToolChainFactory::CustomToolChainFactory()
 {
     setDisplayName(tr("Custom"));
+    setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
 }
 
 QSet<Core::Id> CustomToolChainFactory::supportedLanguages() const
@@ -440,12 +441,6 @@ bool CustomToolChainFactory::canCreate()
 ToolChain *CustomToolChainFactory::create(Core::Id language)
 {
     return new CustomToolChain(language, ToolChain::ManualDetection);
-}
-
-// Used by the ToolChainManager to restore user-generated tool chains
-bool CustomToolChainFactory::canRestore(const QVariantMap &data)
-{
-    return typeIdFromMap(data) == Constants::CUSTOM_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)

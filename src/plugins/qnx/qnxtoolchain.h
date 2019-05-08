@@ -78,7 +78,6 @@ public:
 
     QSet<Core::Id> supportedLanguages() const override;
 
-    bool canRestore(const QVariantMap &data) override;
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     bool canCreate() override;

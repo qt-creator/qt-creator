@@ -115,7 +115,6 @@ public:
     bool canCreate() final;
     ProjectExplorer::ToolChain *create(Core::Id language) final;
 
-    bool canRestore(const QVariantMap &data) final;
     ProjectExplorer::ToolChain *restore(const QVariantMap &data) final;
 
 private:

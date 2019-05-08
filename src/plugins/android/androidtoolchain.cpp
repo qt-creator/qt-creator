@@ -154,6 +154,7 @@ GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 AndroidToolChainFactory::AndroidToolChainFactory()
 {
     setDisplayName(tr("Android Clang"));
+    setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_ID);
 }
 
 QSet<Core::Id> Android::Internal::AndroidToolChainFactory::supportedLanguages() const
@@ -164,11 +165,6 @@ QSet<Core::Id> Android::Internal::AndroidToolChainFactory::supportedLanguages() 
 ToolChainList AndroidToolChainFactory::autoDetect(CToolChainList &alreadyKnown)
 {
     return autodetectToolChainsForNdk(alreadyKnown);
-}
-
-bool AndroidToolChainFactory::canRestore(const QVariantMap &data)
-{
-    return typeIdFromMap(data) == Constants::ANDROID_TOOLCHAIN_ID;
 }
 
 ToolChain *AndroidToolChainFactory::restore(const QVariantMap &data)

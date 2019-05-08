@@ -394,6 +394,7 @@ ToolChain *SdccToolChain::clone() const
 SdccToolChainFactory::SdccToolChainFactory()
 {
     setDisplayName(tr("SDCC"));
+    setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
 }
 
 QSet<Core::Id> SdccToolChainFactory::supportedLanguages() const
@@ -452,11 +453,6 @@ bool SdccToolChainFactory::canCreate()
 ToolChain *SdccToolChainFactory::create(Core::Id language)
 {
     return new SdccToolChain(language, ToolChain::ManualDetection);
-}
-
-bool SdccToolChainFactory::canRestore(const QVariantMap &data)
-{
-    return typeIdFromMap(data) == Constants::SDCC_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *SdccToolChainFactory::restore(const QVariantMap &data)

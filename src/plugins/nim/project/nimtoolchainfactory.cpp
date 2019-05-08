@@ -43,6 +43,7 @@ namespace Nim {
 NimToolChainFactory::NimToolChainFactory()
 {
     setDisplayName(tr("Nim"));
+    setSupportedToolChainType(Constants::C_NIMTOOLCHAIN_TYPEID);
 }
 
 bool NimToolChainFactory::canCreate()
@@ -57,11 +58,6 @@ ToolChain *NimToolChainFactory::create(Core::Id l)
     auto result = new NimToolChain(ToolChain::ManualDetection);
     result->setLanguage(l);
     return result;
-}
-
-bool NimToolChainFactory::canRestore(const QVariantMap &data)
-{
-    return typeIdFromMap(data) == Constants::C_NIMTOOLCHAIN_TYPEID;
 }
 
 ToolChain *NimToolChainFactory::restore(const QVariantMap &data)

@@ -399,6 +399,7 @@ ToolChain *IarToolChain::clone() const
 IarToolChainFactory::IarToolChainFactory()
 {
     setDisplayName(tr("IAREW"));
+    setSupportedToolChainType(Constants::IAREW_TOOLCHAIN_TYPEID);
 }
 
 QSet<Core::Id> IarToolChainFactory::supportedLanguages() const
@@ -471,11 +472,6 @@ bool IarToolChainFactory::canCreate()
 ToolChain *IarToolChainFactory::create(Core::Id language)
 {
     return new IarToolChain(language, ToolChain::ManualDetection);
-}
-
-bool IarToolChainFactory::canRestore(const QVariantMap &data)
-{
-    return typeIdFromMap(data) == Constants::IAREW_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *IarToolChainFactory::restore(const QVariantMap &data)

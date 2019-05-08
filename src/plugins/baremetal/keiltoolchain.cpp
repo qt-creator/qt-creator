@@ -409,6 +409,7 @@ ToolChain *KeilToolchain::clone() const
 KeilToolchainFactory::KeilToolchainFactory()
 {
     setDisplayName(tr("KEIL"));
+    setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
 }
 
 QSet<Core::Id> KeilToolchainFactory::supportedLanguages() const
@@ -475,11 +476,6 @@ bool KeilToolchainFactory::canCreate()
 ToolChain *KeilToolchainFactory::create(Core::Id language)
 {
     return new KeilToolchain(language, ToolChain::ManualDetection);
-}
-
-bool KeilToolchainFactory::canRestore(const QVariantMap &data)
-{
-    return typeIdFromMap(data) == Constants::KEIL_TOOLCHAIN_TYPEID;
 }
 
 ToolChain *KeilToolchainFactory::restore(const QVariantMap &data)
