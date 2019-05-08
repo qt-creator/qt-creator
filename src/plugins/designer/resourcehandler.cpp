@@ -96,9 +96,28 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
     // Does the file belong to a project?
     if (project) {
         // Collect project resource files.
-        ProjectNode *root = project->rootProjectNode();
+
+        // Find the (sub-)project the file belongs to. We don't want to find resources
+        // from other parts of the project tree, e.g. via a qmake subdirs project.
+        ProjectNode *projectNode = project->rootProjectNode();
+        Node * const fileNode = projectNode->findNode([&fileName](const Node *n) {
+            return n->filePath().toString() == fileName;
+        });
+        if (fileNode) {
+            // Slightly hacky:
+            //       The node types do not tell us whether we are dealing with a proper "product",
+            //       e.g. a qbs product or qmake .pro file. We do *not* want qbs groups
+            //       or qmake .pri files here, as they contain only a subset of the relevant
+            //       files. Luckily, the "show in simplified tree" property appears to match
+            //       exactly what we want here.
+            do
+                projectNode = fileNode->parentProjectNode();
+            while (projectNode && !projectNode->showInSimpleTree());
+        }
+        QTC_ASSERT(projectNode, projectNode = project->rootProjectNode());
+
         QStringList projectQrcFiles;
-        root->forEachNode([&](FileNode *node) {
+        projectNode->forEachNode([&](FileNode *node) {
             if (node->fileType() == FileType::Resource)
                 projectQrcFiles.append(node->filePath().toString());
         }, [&](FolderNode *node) {
@@ -114,7 +133,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
             }
             if (!qrcPathsToBeAdded.isEmpty()) {
                 m_handlingResources = true;
-                root->addFiles(qrcPathsToBeAdded);
+                projectNode->addFiles(qrcPathsToBeAdded);
                 m_handlingResources = false;
                 projectQrcFiles += qrcPathsToBeAdded;
             }
