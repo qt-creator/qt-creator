@@ -105,7 +105,7 @@ QString OpenOcdGdbServerProvider::channel() const
         return args.join(QLatin1Char(' '));
     }
     default: // wrong
-        return QString();
+        return {};
     }
 }
 

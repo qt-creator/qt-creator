@@ -133,12 +133,12 @@ void GdbServerProvider::setResetCommands(const QString &cmds)
 
 QString GdbServerProvider::executable() const
 {
-    return QString();
+    return {};
 }
 
 QStringList GdbServerProvider::arguments() const
 {
-    return QStringList();
+    return {};
 }
 
 bool GdbServerProvider::operator==(const GdbServerProvider &other) const

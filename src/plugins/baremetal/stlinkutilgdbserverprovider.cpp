@@ -83,7 +83,7 @@ QString StLinkUtilGdbServerProvider::defaultInitCommands()
 
 QString StLinkUtilGdbServerProvider::defaultResetCommands()
 {
-    return QLatin1String("");
+    return {};
 }
 
 QString StLinkUtilGdbServerProvider::typeDisplayName() const
@@ -101,9 +101,9 @@ QString StLinkUtilGdbServerProvider::channel() const
         return m_host + QLatin1Char(':') + QString::number(m_port);
     case StartupOnPipe:
         // Unsupported mode
-        return QString();
+        return {};
     default: // wrong
-        return QString();
+        return {};
     }
 }
 

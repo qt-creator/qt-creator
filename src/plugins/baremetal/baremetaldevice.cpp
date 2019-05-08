@@ -182,7 +182,7 @@ IDevice::Ptr BareMetalDeviceFactory::create() const
 {
     BareMetalDeviceConfigurationWizard wizard;
     if (wizard.exec() != QDialog::Accepted)
-        return IDevice::Ptr();
+        return {};
     return wizard.device();
 }
 
