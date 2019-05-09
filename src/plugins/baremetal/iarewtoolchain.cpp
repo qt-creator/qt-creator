@@ -66,7 +66,8 @@ static bool compilerExists(const FileName &compilerPath)
     return fi.exists() && fi.isExecutable() && fi.isFile();
 }
 
-static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &env)
+static Macros dumpPredefinedMacros(const FileName &compiler, const Core::Id languageId,
+                                   const QStringList &env)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
         return {};
@@ -86,6 +87,8 @@ static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &
 
     QStringList arguments;
     arguments.push_back(fakeIn.fileName());
+    if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+        arguments.push_back("--ec++");
     arguments.push_back("--predef_macros");
     arguments.push_back(outpath);
 
@@ -255,18 +258,20 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
     addToEnvironment(env);
 
     const Utils::FileName compilerCommand = m_compilerCommand;
-    const Core::Id lang = language();
+    const Core::Id languageId = language();
 
     MacrosCache macrosCache = predefinedMacrosCache();
 
     return [env, compilerCommand,
             macrosCache,
-            lang]
+            languageId]
             (const QStringList &flags) {
         Q_UNUSED(flags)
 
-        const Macros macros = dumpPredefinedMacros(compilerCommand, env.toStringList());
-        const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
+        const Macros macros = dumpPredefinedMacros(compilerCommand, languageId,
+                                                   env.toStringList());
+        const auto languageVersion = ToolChain::languageVersion(languageId, macros);
+        const auto report = MacroInspectionReport{macros, languageVersion};
         macrosCache->insert({}, report);
 
         return report;
@@ -502,21 +507,23 @@ QList<ToolChain *> IarToolChainFactory::autoDetectToolchains(
 }
 
 QList<ToolChain *> IarToolChainFactory::autoDetectToolchain(
-        const Candidate &candidate, Core::Id language) const
+        const Candidate &candidate, Core::Id languageId) const
 {
     const auto env = Environment::systemEnvironment();
-    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, env.toStringList());
+    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, languageId,
+                                               env.toStringList());
     if (macros.isEmpty())
         return {};
     const Abi abi = guessAbi(macros);
 
     const auto tc = new IarToolChain(ToolChain::AutoDetection);
-    tc->setLanguage(language);
+    tc->setLanguage(languageId);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->setTargetAbi(abi);
-    tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.compilerVersion));
+    tc->setDisplayName(buildDisplayName(abi.architecture(), languageId,
+                                        candidate.compilerVersion));
 
-    const auto languageVersion = ToolChain::languageVersion(language, macros);
+    const auto languageVersion = ToolChain::languageVersion(languageId, macros);
     tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
     return {tc};
 }
@@ -594,7 +601,9 @@ void IarToolChainConfigWidget::handleCompilerCommandChange()
     const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
-        m_macros = dumpPredefinedMacros(compilerPath, env.toStringList());
+        const auto languageId = toolChain()->language();
+        m_macros = dumpPredefinedMacros(compilerPath, languageId,
+                                        env.toStringList());
         const Abi guessed = guessAbi(m_macros);
         m_abiWidget->setAbis({}, guessed);
     }
