@@ -126,7 +126,7 @@ void LanguageClientManager::startClient(BaseSettings *setting, ProjectExplorer::
     QTC_ASSERT(client, return);
     client->setCurrentProject(project);
     startClient(client);
-    managerInstance->m_clientsForSetting[setting->m_id].append(QPointer<Client>(client));
+    managerInstance->m_clientsForSetting[setting->m_id].append(client);
 }
 
 QVector<Client *> LanguageClientManager::clients()
@@ -151,12 +151,24 @@ void LanguageClientManager::reportFinished(const MessageId &id, Client *byClient
     managerInstance->m_exclusiveRequests.remove(id);
 }
 
+void LanguageClientManager::shutdownClient(Client *client)
+{
+    if (!client)
+        return;
+    if (client->reachable())
+        client->shutdown();
+    else if (client->state() != Client::Shutdown && client->state() != Client::ShutdownRequested)
+        deleteClient(client);
+}
+
 void LanguageClientManager::deleteClient(Client *client)
 {
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
     client->disconnect();
     managerInstance->m_clients.removeAll(client);
+    for (QVector<Client *> &clients : managerInstance->m_clientsForSetting)
+        clients.removeAll(client);
     if (managerInstance->m_shuttingDown)
         delete client;
     else
@@ -169,12 +181,8 @@ void LanguageClientManager::shutdown()
     if (managerInstance->m_shuttingDown)
         return;
     managerInstance->m_shuttingDown = true;
-    for (auto interface : managerInstance->m_clients) {
-        if (interface->reachable())
-            interface->shutdown();
-        else
-            deleteClient(interface);
-    }
+    for (Client *client : managerInstance->m_clients)
+        shutdownClient(client);
     QTimer::singleShot(3000, managerInstance, [](){
         for (auto interface : managerInstance->m_clients)
             deleteClient(interface);
@@ -213,12 +221,8 @@ void LanguageClientManager::applySettings()
     });
 
     for (BaseSettings *setting : restarts) {
-        for (const QPointer<Client> &client : clientForSetting(setting)) {
-            if (client->reachable())
-                client->shutdown();
-            else
-                deleteClient(client);
-        }
+        for (Client *client : clientForSetting(setting))
+            shutdownClient(client);
         if (!setting->isValid() || !setting->m_enabled)
             continue;
         switch (setting->m_startBehavior) {
@@ -258,17 +262,18 @@ QList<BaseSettings *> LanguageClientManager::currentSettings()
     return managerInstance->m_currentSettings;
 }
 
-QVector<QPointer<Client>> LanguageClientManager::clientForSetting(const BaseSettings *setting)
+QVector<Client *> LanguageClientManager::clientForSetting(const BaseSettings *setting)
 {
     QTC_ASSERT(managerInstance, return {});
-    return managerInstance->m_clientsForSetting.value(setting->m_id);
+    auto instance = managerInstance;
+    return instance->m_clientsForSetting.value(setting->m_id);
 }
 
 const BaseSettings *LanguageClientManager::settingForClient(Client *client)
 {
     QTC_ASSERT(managerInstance, return nullptr);
     for (const QString &id : managerInstance->m_clientsForSetting.keys()) {
-        for (const QPointer<Client> &settingClient : managerInstance->m_clientsForSetting[id]) {
+        for (const Client *settingClient : managerInstance->m_clientsForSetting[id]) {
             if (settingClient == client) {
                 return Utils::findOrDefault(managerInstance->m_currentSettings,
                                             [id](BaseSettings *setting) {
@@ -365,7 +370,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
 {
     // check whether we have to start servers for this document
     for (BaseSettings *setting : LanguageClientSettings::currentPageSettings()) {
-        const QVector<QPointer<Client>> clients = clientForSetting(setting);
+        const QVector<Client *> clients = clientForSetting(setting);
         if (setting->isValid() && setting->m_enabled
             && setting->m_languageFilter.isSupported(document)) {
             if (setting->m_startBehavior == BaseSettings::RequiresProject) {
@@ -522,7 +527,7 @@ void LanguageClientManager::projectAdded(ProjectExplorer::Project *project)
                                      [project](QPointer<Client> client) {
                                          return client->project() == project;
                                      })
-                    .isNull()) {
+                    == nullptr) {
                 for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
                     if (setting->m_languageFilter.isSupported(doc)) {
                         if (project->isKnownFile(doc->filePath()))

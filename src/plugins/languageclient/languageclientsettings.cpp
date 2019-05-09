@@ -262,12 +262,8 @@ void LanguageClientSettingsPage::apply()
     LanguageClientManager::applySettings();
 
     for (BaseSettings *setting : m_model.removed()) {
-        for (Client *client : LanguageClientManager::clientForSetting(setting)) {
-            if (client->reachable())
-                client->shutdown();
-            else
-                LanguageClientManager::deleteClient(client);
-        }
+        for (Client *client : LanguageClientManager::clientForSetting(setting))
+            LanguageClientManager::shutdownClient(client);
     }
 
     if (m_widget) {
@@ -386,12 +382,12 @@ QWidget *BaseSettings::createSettingsWidget(QWidget *parent) const
 
 bool BaseSettings::needsRestart() const
 {
-    const QVector<QPointer<Client>> clients = LanguageClientManager::clientForSetting(this);
+    const QVector<Client *> clients = LanguageClientManager::clientForSetting(this);
     if (clients.isEmpty())
         return m_enabled;
     if (!m_enabled)
         return true;
-    return Utils::anyOf(clients, [this](const QPointer<Client> &client) {
+    return Utils::anyOf(clients, [this](const Client *client) {
         return client->needsRestart(this);
     });
 }
@@ -603,7 +599,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     };
 
     mainLayout->addWidget(new QLabel(tr("Capabilities:")), ++row, 0, Qt::AlignTop);
-    QVector<QPointer<Client> > clients = LanguageClientManager::clientForSetting(settings);
+    QVector<Client *> clients = LanguageClientManager::clientForSetting(settings);
     if (clients.isEmpty()) {
         mainLayout->addWidget(createInfoLabel());
     } else { // TODO move the capabilities view into a new widget outside of the settings

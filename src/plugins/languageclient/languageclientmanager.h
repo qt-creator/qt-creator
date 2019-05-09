@@ -63,6 +63,7 @@ public:
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
     static void reportFinished(const LanguageServerProtocol::MessageId &id, Client *byClient);
 
+    static void shutdownClient(Client *client);
     static void deleteClient(Client *client);
 
     static void shutdown();
@@ -73,7 +74,7 @@ public:
 
     static void applySettings();
     static QList<BaseSettings *> currentSettings();
-    static QVector<QPointer<Client> > clientForSetting(const BaseSettings *setting);
+    static QVector<Client *> clientForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
     static Client *clientForEditor(Core::IEditor *editor);
 
@@ -103,7 +104,7 @@ private:
     bool m_shuttingDown = false;
     QVector<Client *> m_clients;
     QList<BaseSettings *>  m_currentSettings; // owned
-    QMap<QString, QVector<QPointer<Client>>> m_clientsForSetting;
+    QMap<QString, QVector<Client *>> m_clientsForSetting;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
     DocumentLocatorFilter m_currentDocumentLocatorFilter;
 };
