@@ -44,6 +44,10 @@
 #endif
 
 #ifdef Q_OS_WIN
+// We need defines for Windows 8
+#undef _WIN32_WINNT
+#define _WIN32_WINNT _WIN32_WINNT_WIN8
+
 #include <qt_windows.h>
 #include <shlobj.h>
 #endif
@@ -359,14 +363,6 @@ FileName FileUtils::commonPath(const FileName &oldCommonPath, const FileName &fi
 
 // Copied from qfilesystemengine_win.cpp
 #ifdef Q_OS_WIN
-#if WINVER < 0x0602 //  Windows 8 onwards
-
-typedef struct _FILE_ID_INFO {
-    ULONGLONG VolumeSerialNumber;
-    FILE_ID_128 FileId;
-} FILE_ID_INFO, *PFILE_ID_INFO;
-
-#endif // if WINVER < 0x0602
 
 // File ID for Windows up to version 7.
 static inline QByteArray fileIdWin7(HANDLE handle)
