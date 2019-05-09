@@ -512,7 +512,14 @@ QList<ToolChain *> KeilToolchainFactory::autoDetectToolchain(
     const Macros macros = dumpPredefinedMacros(candidate.compilerPath, env.toStringList());
     if (macros.isEmpty())
         return {};
+
     const Abi abi = guessAbi(macros);
+    const Abi::Architecture arch = abi.architecture();
+    if (arch == Abi::Architecture::Mcs51Architecture
+            && language == ProjectExplorer::Constants::CXX_LANGUAGE_ID) {
+        // KEIL C51 compiler does not support C++ language.
+        return {};
+    }
 
     const auto tc = new KeilToolchain(ToolChain::AutoDetection);
     tc->setLanguage(language);
