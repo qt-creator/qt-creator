@@ -91,6 +91,10 @@
                             {
                                 "trKey": "Boost Test",
                                 "value": "BoostTest"
+                            },
+                            {
+                                "trKey": "Catch2",
+                                "value": "Catch2"
                             }
 
                         ]
@@ -165,6 +169,25 @@
                     "type": "PathChooser",
                     "data": {
                         "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "CatchIncDir",
+                    "trDisplayName": "Catch2 include directory (optional):",
+                    "visible": "%{JS: value('TestFrameWork') === 'Catch2'}",
+                    "mandatory": false,
+                    "type": "PathChooser",
+                    "data": {
+                        "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "Catch2NeedsQt",
+                    "trDisplayName": "Use Qt libraries",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'Catch2'}",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": true
                     }
                 },
                 {
@@ -267,13 +290,19 @@
                 {
                     "source": "files/tst_main.cpp",
                     "target": "%{MainCppName}",
-                    "condition": "%{JS: ['GTest', 'QtQuickTest', 'BoostTest'].indexOf(value('TestFrameWork')) >= 0}",
+                    "condition": "%{JS: ['GTest', 'QtQuickTest', 'BoostTest', 'Catch2'].indexOf(value('TestFrameWork')) >= 0}",
                     "openInEditor": true
                 },
                 {
                     "source": "files/tst_qml.tmpl",
                     "target": "%{TestCaseFileWithQmlSuffix}",
                     "condition": "%{JS: value('TestFrameWork') === 'QtQuickTest'}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "files/catch2_tst.cpp",
+                    "target": "%{TestCaseFileWithCppSuffix}",
+                    "condition": "%{JS: '%{TestFrameWork}' === 'Catch2'}",
                     "openInEditor": true
                 },
                 {

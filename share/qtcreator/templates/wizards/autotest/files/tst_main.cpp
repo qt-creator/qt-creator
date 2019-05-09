@@ -24,3 +24,20 @@ BOOST_AUTO_TEST_CASE( %{TestCaseName} )
   BOOST_TEST( true /* test assertion */ );
 }
 @endif
+@if "%{TestFrameWork}" == "Catch2"
+@if "%{Catch2NeedsQt}" == "true"
+#define CATCH_CONFIG_RUNNER
+@else
+#define CATCH_CONFIG_MAIN
+@endif
+#include <catch2/catch.hpp>
+@if "%{Catch2NeedsQt}" == "true"
+#include <QtGui/QGuiApplication>
+
+int main(int argc, char** argv)
+{
+    QGuiApplication app(argc, argv);
+    return Catch::Session().run(argc, argv);
+}
+@endif
+@endif

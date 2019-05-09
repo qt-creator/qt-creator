@@ -116,3 +116,27 @@ elseif (EXISTS ${BOOST_INCLUDE_DIR})
     include_directories(${BOOST_INCLUDE_DIR})
 endif ()
 @endif
+@if "%{TestFrameWork}" == "Catch2"
+SET(CMAKE_CXX_STANDARD 11)
+
+@if "%{Catch2NeedsQt}" == "true"
+find_package(Qt5Gui REQUIRED)
+@endif
+
+add_executable(${PROJECT_NAME} %{TestCaseFileWithCppSuffix} main.cpp)
+
+@if "%{Catch2NeedsQt}" == "true"
+target_link_libraries(%{TestCaseName} PRIVATE Qt5::Gui)
+@endif
+
+if (DEFINED ENV{CATCH_INCLUDE_DIR})
+    set(CATCH_INCLUDE_DIR $ENV{CATCH_INCLUDE_DIR})
+else ()
+    set(CATCH_INCLUDE_DIR "%{CatchIncDir}") # set by Qt Creator wizard
+endif ()
+if (CATCH_INCLUDE_DIR STREQUAL "")
+    message("CATCH_INCLUDE_DIR is not set, assuming Catch2 can be found automatically in your system")
+elseif (EXISTS ${CATCH_INCLUDE_DIR})
+    include_directories(${CATCH_INCLUDE_DIR})
+endif ()
+@endif

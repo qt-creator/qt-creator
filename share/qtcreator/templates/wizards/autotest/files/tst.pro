@@ -64,3 +64,30 @@ isEmpty(BOOST_INCLUDE_DIR): {
 SOURCES += \\
     %{MainCppName}
 @endif
+@if "%{TestFrameWork}" == "Catch2"
+TEMPLATE = app
+@if "%{Catch2NeedsQt}" == "true"
+QT += gui
+@else
+CONFIG -= qt
+CONFIG -= app_bundle
+CONFIG += console
+@endif
+
+CONFIG += c++11
+
+isEmpty(CATCH_INCLUDE_DIR): CATCH_INCLUDE_DIR=$$(CATCH_INCLUDE_DIR)
+@if "%{CatchIncDir}" != ""
+# set by Qt Creator wizard
+isEmpty(CATCH_INCLUDE_DIR): CATCH_INCLUDE_DIR="%{CatchIncDir}"
+@endif
+!isEmpty(CATCH_INCLUDE_DIR): INCLUDEPATH *= $${CATCH_INCLUDE_DIR}
+
+isEmpty(CATCH_INCLUDE_DIR): {
+    message("CATCH_INCLUDE_DIR is not set, assuming Catch2 can be found automatically in your system")
+}
+
+SOURCES += \
+    main.cpp \
+    %{TestCaseFileWithCppSuffix}
+@endif

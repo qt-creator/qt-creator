@@ -7,6 +7,10 @@ import "googlecommon.js" as googleCommon
 import qbs.Environment
 import qbs.File
 @endif
+@if "%{TestFrameWork}" == "Catch2"
+import qbs.Environment
+import qbs.File
+@endif
 
 CppApplication {
 @if "%{TestFrameWork}" == "QtTest"
@@ -104,4 +108,35 @@ CppApplication {
     files: [ "%{MainCppName}" ]
 
 @endif
+@if "%{TestFrameWork}" == "Catch2"
+    type: "application"
+
+@if "%{Catch2NeedsQt}" == "true"
+    Depends { name: "Qt.gui" }
+@endif
+
+    property string catchIncDir: {
+        if (typeof Environment.getEnv("CATCH_INCLUDE_DIR") !== 'undefined')
+            return Environment.getEnv("CATCH_INCLUDE_DIR");
+        return "%{CatchIncDir}"; // set by Qt Creator wizard
+    }
+
+    Properties {
+        condition: catchIncDir && File.exists(catchIncDir)
+        cpp.includePaths: [catchIncDir];
+    }
+
+    condition: {
+        if (!catchIncDir)
+            console.log("CATCH_INCLUDE_DIR is not set, assuming Catch2 can be "
+                        + "found automatically in your system");
+        return true;
+    }
+
+    files: [
+        "%{MainCppName}",
+        "%{TestCaseFileWithCppSuffix}",
+    ]
+@endif
+
 }
