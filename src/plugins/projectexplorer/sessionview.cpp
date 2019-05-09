@@ -141,5 +141,16 @@ void SessionView::showEvent(QShowEvent *event)
     setFocus();
 }
 
+void SessionView::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() != Qt::Key_Delete) {
+        TreeView::keyPressEvent(event);
+        return;
+    }
+    const QString session = currentSession();
+    if (!session.isEmpty() && session != "default" && session != SessionManager::activeSession())
+        deleteCurrentSession();
+}
+
 } // namespace Internal
 } // namespace ProjectExplorer

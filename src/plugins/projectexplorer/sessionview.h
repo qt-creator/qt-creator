@@ -51,15 +51,15 @@ public:
     void selectActiveSession();
     void selectSession(const QString &sessionName);
 
-protected:
-    void showEvent(QShowEvent* event) override;
-
 signals:
     void activated(const QString &session);
     void selected(const QString &session);
     void sessionSwitched();
 
 private:
+    void showEvent(QShowEvent* event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+
     SessionModel m_sessionModel;
 };
 
