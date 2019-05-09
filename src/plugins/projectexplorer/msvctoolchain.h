@@ -111,7 +111,6 @@ public:
                                                                 const QString &batchFile,
                                                                 const QString &batchArgs,
                                                                 QMap<QString, QString> &envPairs);
-
 protected:
     class WarningFlagAdder
     {
@@ -163,6 +162,7 @@ protected:
 
 private:
     void updateEnvironmentModifications(QList<Utils::EnvironmentItem> modifications);
+    void rescanForCompiler();
 
     mutable QList<Utils::EnvironmentItem> m_environmentModifications;
     mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
@@ -173,6 +173,8 @@ private:
 
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
+
+    Utils::FileName m_compilerCommand;
 
 protected:
     Abi m_abi;

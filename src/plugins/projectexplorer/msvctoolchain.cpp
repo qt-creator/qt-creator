@@ -748,6 +748,7 @@ void MsvcToolChain::updateEnvironmentModifications(QList<Utils::EnvironmentItem>
     Utils::EnvironmentItem::sort(&modifications);
     if (modifications != m_environmentModifications) {
         m_environmentModifications = modifications;
+        rescanForCompiler();
         toolChainUpdated();
     }
 }
@@ -995,6 +996,7 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
     m_abi = Abi::fromString(abiString);
     m_environmentModifications = Utils::EnvironmentItem::itemsFromVariantList(
         data.value(QLatin1String(environModsKeyC)).toList());
+    rescanForCompiler();
 
     initEnvModWatcher(Utils::runAsync(envModThreadPool(),
                                       &MsvcToolChain::environmentModifications,
@@ -1207,10 +1209,15 @@ QString MsvcToolChain::makeCommand(const Utils::Environment &environment) const
 
 Utils::FileName MsvcToolChain::compilerCommand() const
 {
+    return m_compilerCommand;
+}
+
+void MsvcToolChain::rescanForCompiler()
+{
     Utils::Environment env = Utils::Environment::systemEnvironment();
     addToEnvironment(env);
 
-    Utils::FileName clexe
+    m_compilerCommand
         = env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FileName &name) {
               QDir dir(QDir::cleanPath(name.toFileInfo().absolutePath() + QStringLiteral("/..")));
               do {
@@ -1220,7 +1227,6 @@ Utils::FileName MsvcToolChain::compilerCommand() const
               } while (dir.cdUp() && !dir.isRoot());
               return false;
           });
-    return clexe;
 }
 
 IOutputParser *MsvcToolChain::outputParser() const
