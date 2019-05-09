@@ -384,6 +384,17 @@ QString Utils::toString(CPlusPlus::Kind kind)
     return QString();
 }
 
+QString Utils::toString(ProjectPart::ToolChainWordWidth width)
+{
+    switch (width) {
+    case ProjectPart::ToolChainWordWidth::WordWidth32Bit:
+        return "32";
+    case ProjectPart::ToolChainWordWidth::WordWidth64Bit:
+        return "64";
+    }
+    return QString();
+}
+
 QString Utils::partsForFile(const QString &fileName)
 {
     const QList<ProjectPart::Ptr> parts
@@ -503,16 +514,20 @@ void Dumper::dumpProjectInfos( const QList<ProjectInfo> &projectInfos)
             if (!part->projectConfigFile.isEmpty())
                 m_out << i3 << "Project Config File: " << part->projectConfigFile << "\n";
             m_out << i2 << "Project Part \"" << part->id() << "\"{{{3\n";
-            m_out << i3 << "Project Part Name    : " << part->displayName << "\n";
-            m_out << i3 << "Project Name         : " << projectName << "\n";
-            m_out << i3 << "Project File         : " << projectFilePath << "\n";
-            m_out << i3 << "Compiler Flags       : " << part->compilerFlags.join(", ") << "\n";
-            m_out << i3 << "Selected For Building: " << part->selectedForBuilding << "\n";
-            m_out << i3 << "Build Target Type    : " << Utils::toString(part->buildTargetType) << "\n";
-            m_out << i3 << "Lanugage Version     : " << Utils::toString(part->languageVersion)<<"\n";
-            m_out << i3 << "Lanugage Extensions  : " << Utils::toString(part->languageExtensions)
+            m_out << i3 << "Project Part Name      : " << part->displayName << "\n";
+            m_out << i3 << "Project Name           : " << projectName << "\n";
+            m_out << i3 << "Project File           : " << projectFilePath << "\n";
+            m_out << i3 << "ToolChain Type         : " << part->toolchainType.toString() << "\n";
+            m_out << i3 << "ToolChain Target Triple: " << part->toolChainTargetTriple << "\n";
+            m_out << i3 << "ToolChain Word Width   : " << part->toolChainWordWidth << "\n";
+            m_out << i3 << "Compiler Flags         : " << part->compilerFlags.join(", ") << "\n";
+            m_out << i3 << "Selected For Building  : " << part->selectedForBuilding << "\n";
+            m_out << i3 << "Build System Target    : " << part->buildSystemTarget << "\n";
+            m_out << i3 << "Build Target Type      : " << Utils::toString(part->buildTargetType) << "\n";
+            m_out << i3 << "Language Version       : " << Utils::toString(part->languageVersion)<<"\n";
+            m_out << i3 << "Language Extensions    : " << Utils::toString(part->languageExtensions)
                   << "\n";
-            m_out << i3 << "Qt Version           : " << Utils::toString(part->qtVersion) << "\n";
+            m_out << i3 << "Qt Version             : " << Utils::toString(part->qtVersion) << "\n";
 
             if (!part->files.isEmpty()) {
                 m_out << i3 << "Files:{{{4\n";

@@ -54,6 +54,7 @@ struct CPPTOOLS_EXPORT Utils
     static QString toString(const QVector<CppTools::ProjectFile> &projectFiles);
     static QString toString(CppTools::ProjectFile::Kind kind);
     static QString toString(CPlusPlus::Kind kind);
+    static QString toString(ProjectPart::ToolChainWordWidth width);
     static QString partsForFile(const QString &fileName);
     static QString unresolvedFileNameWithDelimiters(const CPlusPlus::Document::Include &include);
     static QString pathListToString(const QStringList &pathList);
