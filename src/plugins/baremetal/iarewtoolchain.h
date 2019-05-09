@@ -27,7 +27,6 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchaincache.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 
 QT_BEGIN_NAMESPACE
@@ -86,8 +85,6 @@ public:
 
     ToolChain *clone() const final;
 
-    void toolChainUpdated() final;
-
 protected:
     IarToolChain(const IarToolChain &tc) = default;
 
@@ -97,13 +94,6 @@ private:
 
     ProjectExplorer::Abi m_targetAbi;
     Utils::FileName m_compilerCommand;
-
-    using MacrosCache = std::shared_ptr<ProjectExplorer::Cache<MacroInspectionReport, 64>>;
-    mutable MacrosCache m_predefinedMacrosCache;
-
-    using HeaderPathsCache = ProjectExplorer::Cache<ProjectExplorer::HeaderPaths>;
-    using HeaderPathsCachePtr = std::shared_ptr<HeaderPathsCache>;
-    mutable HeaderPathsCachePtr m_headerPathsCache;
 
     friend class IarToolChainFactory;
     friend class IarToolChainConfigWidget;

@@ -30,6 +30,7 @@
 
 #include "headerpath.h"
 #include "projectmacro.h"
+#include "toolchaincache.h"
 
 #include <coreplugin/id.h>
 
@@ -120,6 +121,9 @@ public:
         Utils::LanguageVersion languageVersion;
     };
 
+    using MacrosCache = std::shared_ptr<Cache<ToolChain::MacroInspectionReport, 64>>;
+    using HeaderPathsCache = std::shared_ptr<Cache<HeaderPaths>>;
+
     // A MacroInspectionRunner is created in the ui thread and runs in another thread.
     using MacroInspectionRunner = std::function<MacroInspectionReport(const QStringList &cxxflags)>;
     virtual MacroInspectionRunner createMacroInspectionRunner() const = 0;
@@ -159,6 +163,9 @@ public:
 protected:
     explicit ToolChain(Core::Id typeId, Detection d);
     explicit ToolChain(const ToolChain &);
+
+    const MacrosCache &predefinedMacrosCache() const;
+    const HeaderPathsCache &headerPathsCache() const;
 
     virtual void toolChainUpdated();
 

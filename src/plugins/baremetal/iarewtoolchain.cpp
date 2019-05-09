@@ -223,9 +223,7 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 // IarToolChain
 
 IarToolChain::IarToolChain(Detection d) :
-    ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID, d),
-    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
-    m_headerPathsCache(std::make_shared<HeaderPathsCache>())
+    ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID, d)
 { }
 
 IarToolChain::IarToolChain(Core::Id language, Detection d) :
@@ -265,9 +263,11 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
     const Utils::FileName compilerCommand = m_compilerCommand;
     const Core::Id lang = language();
 
-    MacrosCache macrosCache = m_predefinedMacrosCache;
+    MacrosCache macrosCache = predefinedMacrosCache();
 
-    return [env, compilerCommand, macrosCache, lang]
+    return [env, compilerCommand,
+            macrosCache,
+            lang]
             (const QStringList &flags) {
         Q_UNUSED(flags)
 
@@ -303,16 +303,16 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
     const Utils::FileName compilerCommand = m_compilerCommand;
     const Core::Id languageId = language();
 
-    HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
+    HeaderPathsCache headerPaths = headerPathsCache();
 
-    return [env, compilerCommand, headerPathsCache, languageId](const QStringList &flags,
+    return [env, compilerCommand, headerPaths, languageId](const QStringList &flags,
                                                                 const QString &fileName,
                                                                 const QString &) {
         Q_UNUSED(flags)
         Q_UNUSED(fileName)
 
         const HeaderPaths paths = dumpHeaderPaths(compilerCommand, languageId, env.toStringList());
-        headerPathsCache->insert({}, paths);
+        headerPaths->insert({}, paths);
 
         return paths;
     };
@@ -392,13 +392,6 @@ QString IarToolChain::makeCommand(const Environment &env) const
 ToolChain *IarToolChain::clone() const
 {
     return new IarToolChain(*this);
-}
-
-void IarToolChain::toolChainUpdated()
-{
-    m_predefinedMacrosCache->invalidate();
-    m_headerPathsCache->invalidate();
-    ToolChain::toolChainUpdated();
 }
 
 // IarToolChainFactory
@@ -538,7 +531,7 @@ QList<ToolChain *> IarToolChainFactory::autoDetectToolchain(
     tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.second));
 
     const auto languageVersion = ToolChain::languageVersion(language, macros);
-    tc->m_predefinedMacrosCache->insert({}, {macros, languageVersion});
+    tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
     return {tc};
 }
 
@@ -580,7 +573,7 @@ void IarToolChainConfigWidget::applyImpl()
         return;
 
     const auto languageVersion = ToolChain::languageVersion(tc->language(), m_macros);
-    tc->m_predefinedMacrosCache->insert({}, {m_macros, languageVersion});
+    tc->predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
 
     setFromToolchain();
 }

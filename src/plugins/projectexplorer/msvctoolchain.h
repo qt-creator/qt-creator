@@ -27,7 +27,6 @@
 
 #include "abi.h"
 #include "toolchain.h"
-#include "toolchaincache.h"
 #include "toolchainconfigwidget.h"
 
 #include <QFutureWatcher>
@@ -136,7 +135,6 @@ protected:
     explicit MsvcToolChain(Core::Id typeId);
 
     static void inferWarningsForLevel(int warningLevel, WarningFlags &flags);
-    void toolChainUpdated() override;
 
     Utils::Environment readEnvironmentSetting(const Utils::Environment &env) const;
     // Function must be thread-safe!
@@ -168,8 +166,6 @@ private:
     mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
 
     Utils::FileName m_debuggerCommand;
-
-    mutable std::shared_ptr<Cache<MacroInspectionReport, 64>> m_predefinedMacrosCache;
 
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
@@ -213,9 +209,6 @@ public:
                                                const Macros &macros) const override;
 
     bool operator==(const ToolChain &) const override;
-
-private:
-    void toolChainUpdated() override;
 
 private:
     QString m_clangPath;

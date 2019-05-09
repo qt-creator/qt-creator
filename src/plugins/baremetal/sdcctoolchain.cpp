@@ -217,9 +217,7 @@ static Utils::FileName compilerPathFromEnvironment(const QString &compilerName)
 // SdccToolChain
 
 SdccToolChain::SdccToolChain(Detection d) :
-    ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID, d),
-    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
-    m_headerPathsCache(std::make_shared<HeaderPathsCache>())
+    ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID, d)
 { }
 
 SdccToolChain::SdccToolChain(Core::Id language, Detection d) :
@@ -260,7 +258,7 @@ ToolChain::MacroInspectionRunner SdccToolChain::createMacroInspectionRunner() co
     const Core::Id lang = language();
     const Abi abi = m_targetAbi;
 
-    MacrosCache macrosCache = m_predefinedMacrosCache;
+    MacrosCache macrosCache = predefinedMacrosCache();
 
     return [env, compilerCommand, macrosCache, lang, abi]
             (const QStringList &flags) {
@@ -300,16 +298,16 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
     const Core::Id languageId = language();
     const Abi abi = m_targetAbi;
 
-    HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
+    HeaderPathsCache headerPaths = headerPathsCache();
 
-    return [env, compilerCommand, headerPathsCache, languageId, abi](const QStringList &flags,
-                                                                     const QString &fileName,
-                                                                     const QString &) {
+    return [env, compilerCommand, headerPaths, languageId, abi](const QStringList &flags,
+                                                                const QString &fileName,
+                                                                const QString &) {
         Q_UNUSED(flags)
         Q_UNUSED(fileName)
 
         const HeaderPaths paths = dumpHeaderPaths(compilerCommand, env.toStringList(), abi);
-        headerPathsCache->insert({}, paths);
+        headerPaths->insert({}, paths);
 
         return paths;
     };
@@ -389,13 +387,6 @@ QString SdccToolChain::makeCommand(const Environment &env) const
 ToolChain *SdccToolChain::clone() const
 {
     return new SdccToolChain(*this);
-}
-
-void SdccToolChain::toolChainUpdated()
-{
-    m_predefinedMacrosCache->invalidate();
-    m_headerPathsCache->invalidate();
-    ToolChain::toolChainUpdated();
 }
 
 // SdccToolChainFactory
@@ -519,7 +510,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
     tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.second));
 
     const auto languageVersion = ToolChain::languageVersion(language, macros);
-    tc->m_predefinedMacrosCache->insert({}, {macros, languageVersion});
+    tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
     return {tc};
 }
 
@@ -561,7 +552,7 @@ void SdccToolChainConfigWidget::applyImpl()
         return;
 
     const auto languageVersion = ToolChain::languageVersion(tc->language(), m_macros);
-    tc->m_predefinedMacrosCache->insert({}, {m_macros, languageVersion});
+    tc->predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
 
     setFromToolchain();
 }

@@ -792,7 +792,6 @@ MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
     , m_headerPathsMutex(new QMutex)
     , m_environmentModifications(other.m_environmentModifications)
     , m_debuggerCommand(other.m_debuggerCommand)
-    , m_predefinedMacrosCache(other.m_predefinedMacrosCache)
     , m_lastEnvironment(other.m_lastEnvironment)
     , m_resultEnvironment(other.m_resultEnvironment)
     , m_abi(other.m_abi)
@@ -833,7 +832,6 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
                              Detection d)
     : ToolChain(typeId, d)
     , m_headerPathsMutex(new QMutex)
-    , m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>())
     , m_lastEnvironment(Utils::Environment::systemEnvironment())
     , m_abi(abi)
     , m_vcvarsBat(varsBat)
@@ -854,7 +852,6 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId)
     : ToolChain(typeId, ManualDetection)
-    , m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>())
     , m_lastEnvironment(Utils::Environment::systemEnvironment())
 {}
 
@@ -875,11 +872,6 @@ void MsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
     }
     if (warningLevel >= 4)
         flags |= WarningFlags::UnusedParams;
-}
-
-void MsvcToolChain::toolChainUpdated()
-{
-    m_predefinedMacrosCache->invalidate();
 }
 
 MsvcToolChain::MsvcToolChain()
@@ -1039,7 +1031,7 @@ ToolChain::MacroInspectionRunner MsvcToolChain::createMacroInspectionRunner() co
 {
     Utils::Environment env(m_lastEnvironment);
     addToEnvironment(env);
-    std::shared_ptr<Cache<MacroInspectionReport, 64>> macroCache = m_predefinedMacrosCache;
+    MacrosCache macroCache = predefinedMacrosCache();
     const Core::Id lang = language();
 
     // This runner must be thread-safe!
@@ -1629,12 +1621,6 @@ Utils::LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &
     if (cxxflags.contains("--driver-mode=g++"))
         return ToolChain::languageVersion(language, macros);
     return MsvcToolChain::msvcLanguageVersion(cxxflags, language, macros);
-}
-
-void ClangClToolChain::toolChainUpdated()
-{
-    MsvcToolChain::toolChainUpdated();
-    ToolChain::toolChainUpdated();
 }
 
 ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeaderPathsRunner() const

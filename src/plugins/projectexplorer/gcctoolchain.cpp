@@ -167,13 +167,6 @@ HeaderPaths GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList 
     return builtInHeaderPaths;
 }
 
-void GccToolChain::toolChainUpdated()
-{
-    m_predefinedMacrosCache->invalidate();
-    m_headerPathsCache->invalidate();
-    ToolChain::toolChainUpdated();
-}
-
 static QList<Abi> guessGccAbi(const QString &m, const ProjectExplorer::Macros &macros)
 {
     QList<Abi> abiList;
@@ -244,9 +237,7 @@ GccToolChain::GccToolChain(Detection d) :
 { }
 
 GccToolChain::GccToolChain(Core::Id typeId, Detection d) :
-    ToolChain(typeId, d),
-    m_headerPathsCache(std::make_shared<Cache<HeaderPaths>>()),
-    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>())
+    ToolChain(typeId, d)
 { }
 
 void GccToolChain::setCompilerCommand(const FileName &path)
@@ -382,7 +373,7 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
     const QStringList platformCodeGenFlags = m_platformCodeGenFlags;
     OptionsReinterpreter reinterpretOptions = m_optionsReinterpreter;
     QTC_CHECK(reinterpretOptions);
-    std::shared_ptr<Cache<MacroInspectionReport, 64>> macroCache = m_predefinedMacrosCache;
+    MacrosCache macroCache = predefinedMacrosCache();
     Core::Id lang = language();
 
     // This runner must be thread-safe!
@@ -573,7 +564,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
                                              const Utils::FileName &compilerCommand,
                                              const QStringList &platformCodeGenFlags,
                                              OptionsReinterpreter reinterpretOptions,
-                                             std::shared_ptr<Cache<HeaderPaths>> headerCache,
+                                             HeaderPathsCache headerCache,
                                              Core::Id languageId,
                                              ExtraHeaderPathsFunction extraHeaderPathsFunction,
                                              const QStringList &flags,
@@ -621,7 +612,7 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
             compilerCommand = m_compilerCommand,
             platformCodeGenFlags = m_platformCodeGenFlags,
             reinterpretOptions = m_optionsReinterpreter,
-            headerCache = m_headerPathsCache,
+            headerCache = headerPathsCache(),
             languageId = language(),
             extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
                                                                    const QString &sysRoot,
@@ -1064,7 +1055,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const FileName &comp
             return result;
 
         tc->setLanguage(language);
-        tc->m_predefinedMacrosCache
+        tc->predefinedMacrosCache()
             ->insert(QStringList(),
                      ToolChain::MacroInspectionReport{macros,
                                                       ToolChain::languageVersion(language, macros)});
@@ -1138,7 +1129,7 @@ void GccToolChainConfigWidget::applyImpl()
     if (m_macros.isEmpty())
         return;
 
-    tc->m_predefinedMacrosCache
+    tc->predefinedMacrosCache()
         ->insert(tc->platformCodeGenFlags(),
                  ToolChain::MacroInspectionReport{m_macros,
                                                   ToolChain::languageVersion(tc->language(),
@@ -1446,7 +1437,7 @@ ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunn
             compilerCommand = m_compilerCommand,
             platformCodeGenFlags = m_platformCodeGenFlags,
             reinterpretOptions = m_optionsReinterpreter,
-            headerCache = m_headerPathsCache,
+            headerCache = headerPathsCache(),
             languageId = language(),
             extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
                                                                    const QString &sysRoot,

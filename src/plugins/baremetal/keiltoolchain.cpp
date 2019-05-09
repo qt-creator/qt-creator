@@ -240,9 +240,7 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 // KeilToolchain
 
 KeilToolchain::KeilToolchain(Detection d) :
-    ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID, d),
-    m_predefinedMacrosCache(std::make_shared<Cache<MacroInspectionReport, 64>>()),
-    m_headerPathsCache(std::make_shared<HeaderPathsCache>())
+    ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID, d)
 { }
 
 KeilToolchain::KeilToolchain(Core::Id language, Detection d) :
@@ -282,7 +280,7 @@ ToolChain::MacroInspectionRunner KeilToolchain::createMacroInspectionRunner() co
     const Utils::FileName compilerCommand = m_compilerCommand;
     const Core::Id lang = language();
 
-    MacrosCache macroCache = m_predefinedMacrosCache;
+    MacrosCache macroCache = predefinedMacrosCache();
 
     return [env, compilerCommand, macroCache, lang]
             (const QStringList &flags) {
@@ -316,15 +314,15 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunne
 {
     const Utils::FileName compilerCommand = m_compilerCommand;
 
-    HeaderPathsCachePtr headerPathsCache = m_headerPathsCache;
+    HeaderPathsCache headerPaths = headerPathsCache();
 
     return [compilerCommand,
-            headerPathsCache](const QStringList &flags, const QString &fileName, const QString &) {
+            headerPaths](const QStringList &flags, const QString &fileName, const QString &) {
         Q_UNUSED(flags)
         Q_UNUSED(fileName)
 
         const HeaderPaths paths = dumpHeaderPaths(compilerCommand);
-        headerPathsCache->insert({}, paths);
+        headerPaths->insert({}, paths);
 
         return paths;
     };
@@ -404,13 +402,6 @@ QString KeilToolchain::makeCommand(const Environment &env) const
 ToolChain *KeilToolchain::clone() const
 {
     return new KeilToolchain(*this);
-}
-
-void KeilToolchain::toolChainUpdated()
-{
-    m_predefinedMacrosCache->invalidate();
-    m_headerPathsCache->invalidate();
-    ToolChain::toolChainUpdated();
 }
 
 // KeilToolchainFactory
@@ -544,7 +535,7 @@ QList<ToolChain *> KeilToolchainFactory::autoDetectToolchain(
     tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.second));
 
     const auto languageVersion = ToolChain::languageVersion(language, macros);
-    tc->m_predefinedMacrosCache->insert({}, {macros, languageVersion});
+    tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
     return {tc};
 }
 
@@ -586,7 +577,7 @@ void KeilToolchainConfigWidget::applyImpl()
         return;
 
     const auto languageVersion = ToolChain::languageVersion(tc->language(), m_macros);
-    tc->m_predefinedMacrosCache->insert({}, {m_macros, languageVersion});
+    tc->predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
 
     setFromToolchain();
 }

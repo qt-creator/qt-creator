@@ -29,7 +29,6 @@
 
 #include "projectexplorerconstants.h"
 #include "toolchain.h"
-#include "toolchaincache.h"
 #include "abi.h"
 #include "headerpath.h"
 
@@ -155,7 +154,7 @@ protected:
                                           const Utils::FileName &compilerCommand,
                                           const QStringList &platformCodeGenFlags,
                                           OptionsReinterpreter reinterpretOptions,
-                                          std::shared_ptr<Cache<HeaderPaths>> headerCache,
+                                          HeaderPathsCache headerCache,
                                           Core::Id languageId,
                                           ExtraHeaderPathsFunction extraHeaderPathsFunction,
                                           const QStringList &flags,
@@ -178,7 +177,6 @@ protected:
         bool m_doesEnable = false;
         bool m_triggered = false;
     };
-    void toolChainUpdated() override;
 
 private:
     explicit GccToolChain(Detection d);
@@ -196,7 +194,6 @@ protected:
     QStringList m_platformLinkerFlags;
 
     OptionsReinterpreter m_optionsReinterpreter = [](const QStringList &v) { return v; };
-    mutable std::shared_ptr<Cache<HeaderPaths>> m_headerPathsCache;
     mutable ExtraHeaderPathsFunction m_extraHeaderPathsFunction = [](HeaderPaths &) {};
 
 private:
@@ -205,8 +202,6 @@ private:
     mutable QString m_originalTargetTriple;
     mutable HeaderPaths m_headerPaths;
     mutable QString m_version;
-
-    mutable std::shared_ptr<Cache<MacroInspectionReport, 64>> m_predefinedMacrosCache;
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;

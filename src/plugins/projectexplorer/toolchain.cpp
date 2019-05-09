@@ -58,7 +58,9 @@ public:
     explicit ToolChainPrivate(Core::Id typeId, Detection d) :
         m_id(QUuid::createUuid().toByteArray()),
         m_typeId(typeId),
-        m_detection(d)
+        m_detection(d),
+        m_predefinedMacrosCache(new ToolChain::MacrosCache::element_type()),
+        m_headerPathsCache(new ToolChain::HeaderPathsCache::element_type())
     {
         QTC_ASSERT(m_typeId.isValid(), return);
         QTC_ASSERT(!m_typeId.toString().contains(QLatin1Char(':')), return);
@@ -70,6 +72,9 @@ public:
     Core::Id m_typeId;
     Core::Id m_language;
     Detection m_detection;
+
+    ToolChain::MacrosCache m_predefinedMacrosCache;
+    ToolChain::HeaderPathsCache m_headerPathsCache;
 };
 
 
@@ -236,6 +241,9 @@ QVariantMap ToolChain::toMap() const
 
 void ToolChain::toolChainUpdated()
 {
+    d->m_predefinedMacrosCache->invalidate();
+    d->m_headerPathsCache->invalidate();
+
     ToolChainManager::notifyAboutUpdate(this);
 }
 
@@ -284,6 +292,16 @@ bool ToolChain::fromMap(const QVariantMap &data)
         d->m_language = Core::Id(Constants::CXX_LANGUAGE_ID);
 
     return true;
+}
+
+const ToolChain::HeaderPathsCache &ToolChain::headerPathsCache() const
+{
+    return d->m_headerPathsCache;
+}
+
+const ToolChain::MacrosCache &ToolChain::predefinedMacrosCache() const
+{
+    return d->m_predefinedMacrosCache;
 }
 
 static long toLanguageVersionAsLong(QByteArray dateAsByteArray)
