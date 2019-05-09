@@ -99,10 +99,18 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FileName &importPath
 
     const Utils::FileName absoluteImportPath = Utils::FileName::fromString(fi.absoluteFilePath());
 
+    const auto handleFailure = [this, importPath, silent] {
+        if (silent)
+            return;
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("No Build Found"),
+                              tr("No build found in %1 matching project %2.")
+                              .arg(importPath.toUserOutput(), projectFilePath().toUserOutput()));
+    };
     qCDebug(log) << "Examining directory" << absoluteImportPath.toString();
     QList<void *> dataList = examineDirectory(absoluteImportPath);
     if (dataList.isEmpty()) {
         qCDebug(log) << "Nothing to import found in" << absoluteImportPath.toString();
+        handleFailure();
         return result;
     }
 
@@ -141,11 +149,8 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FileName &importPath
         deleteDirectoryData(dd);
     dataList.clear();
 
-    if (result.isEmpty() && !silent)
-        QMessageBox::critical(Core::ICore::mainWindow(),
-                              QCoreApplication::translate("ProjectExplorer::ProjectImporter", "No Build Found"),
-                              QCoreApplication::translate("ProjectExplorer::ProjectImporter", "No build found in %1 matching project %2.")
-                .arg(importPath.toUserOutput()).arg(projectFilePath().toUserOutput()));
+    if (result.isEmpty())
+        handleFailure();
 
     return result;
 }

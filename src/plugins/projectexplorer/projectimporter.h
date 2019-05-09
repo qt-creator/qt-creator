@@ -44,6 +44,7 @@ class ToolChain;
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT ProjectImporter : public QObject
 {
+    Q_OBJECT
 public:
     struct ToolChainData {
         QList<ToolChain *> tcs;
