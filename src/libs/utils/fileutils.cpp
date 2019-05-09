@@ -648,17 +648,32 @@ QFileInfo FileName::toFileInfo() const
     return QFileInfo(m_data);
 }
 
+FileName FileName::fromUrl(const QUrl &url)
+{
+    FileName fn;
+    fn.m_url = url;
+    fn.m_data = url.path();
+    return fn;
+}
+
 /// \returns a QString for passing on to QString based APIs
 const QString &FileName::toString() const
 {
     return m_data;
 }
 
+QUrl FileName::toUrl() const
+{
+    return m_url;
+}
+
 /// \returns a QString to display to the user
 /// Converts the separators to the native format
 QString FileName::toUserOutput() const
 {
-    return QDir::toNativeSeparators(toString());
+    if (m_url.isEmpty())
+        return QDir::toNativeSeparators(toString());
+    return m_url.toString();
 }
 
 QString FileName::fileName(int pathComponents) const
@@ -769,6 +784,20 @@ FileName FileName::fromUtf8(const char *filename, int filenameSize)
     return FileName::fromString(QString::fromUtf8(filename, filenameSize));
 }
 
+FileName FileName::fromVariant(const QVariant &variant)
+{
+    if (variant.type() == QVariant::Url)
+        return FileName::fromUrl(variant.toUrl());
+    return FileName::fromString(variant.toString());
+}
+
+QVariant FileName::toVariant() const
+{
+    if (!m_url.isEmpty())
+        return m_url;
+    return m_data;
+}
+
 bool FileName::operator==(const FileName &other) const
 {
     return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) == 0;
@@ -830,6 +859,11 @@ bool FileName::isChildOf(const QDir &dir) const
 bool FileName::endsWith(const QString &s) const
 {
     return m_data.endsWith(s, HostOsInfo::fileNameCaseSensitivity());
+}
+
+bool FileName::isLocal() const
+{
+    return m_url.isEmpty() || m_url.isLocalFile();
 }
 
 /// \returns the relativeChildPath of FileName to parent if FileName is a child of parent

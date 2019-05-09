@@ -33,6 +33,7 @@
 #include <QXmlStreamWriter> // Mac.
 #include <QMetaType>
 #include <QStringList>
+#include <QUrl>
 
 #include <functional>
 #include <memory>
@@ -71,9 +72,12 @@ public:
     static FileName fromLatin1(const QByteArray &filename);
     static FileName fromUserInput(const QString &filename);
     static FileName fromUtf8(const char *filename, int filenameSize = -1);
+    static FileName fromVariant(const QVariant &variant);
 
     const QString &toString() const;
     QFileInfo toFileInfo() const;
+    QVariant toVariant() const;
+
     QString toUserOutput() const;
     QString fileName(int pathComponents = 0) const;
     bool exists() const;
@@ -91,6 +95,7 @@ public:
     bool isChildOf(const FileName &s) const;
     bool isChildOf(const QDir &dir) const;
     bool endsWith(const QString &s) const;
+    bool isLocal() const;
 
     FileName relativeChildPath(const FileName &parent) const;
     FileName &appendPath(const QString &s);
@@ -102,8 +107,14 @@ public:
 
     uint hash(uint seed) const;
 
+    // NOTE: FileName operations on FileName created from URL currenly
+    // do not work except for .toVariant() and .toUrl().
+    static FileName fromUrl(const QUrl &url);
+    QUrl toUrl() const;
+
 private:
     QString m_data;
+    QUrl m_url;
 };
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FileName &fn);
