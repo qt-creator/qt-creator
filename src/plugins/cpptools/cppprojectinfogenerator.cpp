@@ -89,10 +89,13 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                rawProjectPart.files,
                                rawProjectPart.fileClassifier);
 
-    if (cat.hasParts()) {
-        const ProjectPart::Ptr part = projectPartFromRawProjectPart(rawProjectPart,
-                                                                    m_projectUpdateInfo.project);
+    if (!cat.hasParts())
+        return result;
 
+    const ProjectPart::Ptr part = projectPartFromRawProjectPart(rawProjectPart,
+                                                                m_projectUpdateInfo.project);
+
+    if (m_projectUpdateInfo.cxxToolChain) {
         if (cat.hasCxxSources()) {
             result << createProjectPart(rawProjectPart,
                                         part,
@@ -101,7 +104,6 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         Language::Cxx,
                                         LanguageExtension::None);
         }
-
         if (cat.hasObjcxxSources()) {
             result << createProjectPart(rawProjectPart,
                                         part,
@@ -110,7 +112,9 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         Language::Cxx,
                                         LanguageExtension::ObjectiveC);
         }
+    }
 
+    if (m_projectUpdateInfo.cToolChain) {
         if (cat.hasCSources()) {
             result << createProjectPart(rawProjectPart,
                                         part,
@@ -129,6 +133,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
                                         LanguageExtension::ObjectiveC);
         }
     }
+
     return result;
 }
 
