@@ -26,6 +26,8 @@
 #include "sessiondialog.h"
 #include "session.h"
 
+#include <utils/algorithm.h>
+
 #include <QInputDialog>
 #include <QValidator>
 
@@ -131,7 +133,7 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
     connect(m_ui.btClone, &QAbstractButton::clicked,
         m_ui.sessionView, &SessionView::cloneCurrentSession);
     connect(m_ui.btDelete, &QAbstractButton::clicked,
-        m_ui.sessionView, &SessionView::deleteCurrentSession);
+        m_ui.sessionView, &SessionView::deleteSelectedSessions);
     connect(m_ui.btSwitch, &QAbstractButton::clicked,
         m_ui.sessionView, &SessionView::switchToCurrentSession);
     connect(m_ui.btRename, &QAbstractButton::clicked,
@@ -157,21 +159,23 @@ bool SessionDialog::autoLoadSession() const
     return m_ui.autoLoadCheckBox->checkState() == Qt::Checked;
 }
 
-void SessionDialog::updateActions(const QString &session)
+void SessionDialog::updateActions(const QStringList &sessions)
 {
-    if (session.isEmpty()) {
+    if (sessions.isEmpty()) {
         m_ui.btDelete->setEnabled(false);
         m_ui.btRename->setEnabled(false);
         m_ui.btClone->setEnabled(false);
         m_ui.btSwitch->setEnabled(false);
-    } else {
-        bool isDefault = (session == QLatin1String("default"));
-        bool isActive = (session == SessionManager::activeSession());
-        m_ui.btDelete->setEnabled(!isActive && !isDefault);
-        m_ui.btRename->setEnabled(!isDefault);
-        m_ui.btClone->setEnabled(true);
-        m_ui.btSwitch->setEnabled(true);
+        return;
     }
+    const bool defaultIsSelected = sessions.contains("default");
+    const bool activeIsSelected = Utils::anyOf(sessions, [](const QString &session) {
+        return session == SessionManager::activeSession();
+    });
+    m_ui.btDelete->setEnabled(!defaultIsSelected && !activeIsSelected);
+    m_ui.btRename->setEnabled(sessions.size() == 1 && !defaultIsSelected);
+    m_ui.btClone->setEnabled(sessions.size() == 1);
+    m_ui.btSwitch->setEnabled(sessions.size() == 1);
 }
 
 } // namespace Internal

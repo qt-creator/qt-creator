@@ -399,7 +399,7 @@ public:
                 else if (m_activeActionRects[1].contains(pos))
                     sessionModel->renameSession(ICore::mainWindow(), sessionName);
                 else if (m_activeActionRects[2].contains(pos))
-                    sessionModel->deleteSession(sessionName);
+                    sessionModel->deleteSessions(QStringList(sessionName));
                 return true;
             }
         }

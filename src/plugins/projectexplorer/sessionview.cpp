@@ -27,9 +27,12 @@
 
 #include "session.h"
 
-#include <QItemSelection>
-#include <QStyledItemDelegate>
+#include <utils/algorithm.h>
+
 #include <QHeaderView>
+#include <QItemSelection>
+#include <QStringList>
+#include <QStyledItemDelegate>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -57,7 +60,7 @@ SessionView::SessionView(QWidget *parent)
 {
     setItemDelegate(new RemoveItemFocusDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
     setWordWrap(false);
     setRootIsDecorated(false);
 
@@ -74,9 +77,8 @@ SessionView::SessionView(QWidget *parent)
     connect(this, &Utils::TreeView::activated, [this](const QModelIndex &index){
         emit activated(m_sessionModel.sessionAt(index.row()));
     });
-    connect(selectionModel(), &QItemSelectionModel::currentRowChanged, [this]
-            (const QModelIndex &index) {
-        emit selected(m_sessionModel.sessionAt(index.row()));
+    connect(selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
+        emit selected(selectedSessions());
     });
 
     connect(&m_sessionModel, &SessionModel::sessionSwitched,
@@ -92,9 +94,14 @@ void SessionView::createNewSession()
     m_sessionModel.newSession(this);
 }
 
-void SessionView::deleteCurrentSession()
+void SessionView::deleteSelectedSessions()
 {
-    m_sessionModel.deleteSession(currentSession());
+    deleteSessions(selectedSessions());
+}
+
+void SessionView::deleteSessions(const QStringList &sessions)
+{
+    m_sessionModel.deleteSessions(sessions);
 }
 
 void SessionView::cloneCurrentSession()
@@ -147,9 +154,18 @@ void SessionView::keyPressEvent(QKeyEvent *event)
         TreeView::keyPressEvent(event);
         return;
     }
-    const QString session = currentSession();
-    if (!session.isEmpty() && session != "default" && session != SessionManager::activeSession())
-        deleteCurrentSession();
+    const QStringList sessions = selectedSessions();
+    if (!sessions.contains("default") && !Utils::anyOf(sessions,
+            [](const QString &session) { return session == SessionManager::activeSession(); })) {
+        deleteSessions(sessions);
+    }
+}
+
+QStringList SessionView::selectedSessions() const
+{
+    return Utils::transform(selectionModel()->selectedRows(), [this](const QModelIndex &index) {
+        return m_sessionModel.sessionAt(index.row());
+    });
 }
 
 } // namespace Internal

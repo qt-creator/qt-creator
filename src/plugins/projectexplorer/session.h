@@ -63,8 +63,9 @@ public:
 
     static bool createSession(const QString &session);
 
-    static bool confirmSessionDelete(const QString &session);
+    static bool confirmSessionDelete(const QStringList &sessions);
     static bool deleteSession(const QString &session);
+    static void deleteSessions(const QStringList &sessions);
 
     static bool cloneSession(const QString &original, const QString &clone);
     static bool renameSession(const QString &original, const QString &newName);

@@ -41,7 +41,7 @@ public:
     explicit SessionView(QWidget *parent = nullptr);
 
     void createNewSession();
-    void deleteCurrentSession();
+    void deleteSelectedSessions();
     void cloneCurrentSession();
     void renameCurrentSession();
     void switchToCurrentSession();
@@ -53,12 +53,15 @@ public:
 
 signals:
     void activated(const QString &session);
-    void selected(const QString &session);
+    void selected(const QStringList &sessions);
     void sessionSwitched();
 
 private:
     void showEvent(QShowEvent* event) override;
     void keyPressEvent(QKeyEvent *event) override;
+
+    void deleteSessions(const QStringList &sessions);
+    QStringList selectedSessions() const;
 
     SessionModel m_sessionModel;
 };

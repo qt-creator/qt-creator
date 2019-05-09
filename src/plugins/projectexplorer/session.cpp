@@ -792,11 +792,15 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
 /*!
     \brief Shows a dialog asking the user to confirm deleting the session \p session
 */
-bool SessionManager::confirmSessionDelete(const QString &session)
+bool SessionManager::confirmSessionDelete(const QStringList &sessions)
 {
+    const QString title = sessions.size() == 1 ? tr("Delete Session") : tr("Delete Sessions");
+    const QString question = sessions.size() == 1
+            ? tr("Delete session %1?").arg(sessions.first())
+            : tr("Delete these sessions?\n    %1").arg(sessions.join("\n    "));
     return QMessageBox::question(ICore::mainWindow(),
-                                 tr("Delete Session"),
-                                 tr("Delete session %1?").arg(session),
+                                 title,
+                                 question,
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
 }
 
@@ -812,6 +816,12 @@ bool SessionManager::deleteSession(const QString &session)
     if (fi.exists())
         return fi.remove();
     return false;
+}
+
+void SessionManager::deleteSessions(const QStringList &sessions)
+{
+    for (const QString &session : sessions)
+        deleteSession(session);
 }
 
 bool SessionManager::cloneSession(const QString &original, const QString &clone)

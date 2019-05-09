@@ -55,7 +55,7 @@ int SessionModel::indexOfSession(const QString &session)
     return SessionManager::sessions().indexOf(session);
 }
 
-QString SessionModel::sessionAt(int row)
+QString SessionModel::sessionAt(int row) const
 {
     return SessionManager::sessions().value(row, QString());
 }
@@ -209,12 +209,12 @@ void SessionModel::cloneSession(QWidget *parent, const QString &session)
     });
 }
 
-void SessionModel::deleteSession(const QString &session)
+void SessionModel::deleteSessions(const QStringList &sessions)
 {
-    if (!SessionManager::confirmSessionDelete(session))
+    if (!SessionManager::confirmSessionDelete(sessions))
         return;
     beginResetModel();
-    SessionManager::deleteSession(session);
+    SessionManager::deleteSessions(sessions);
     endResetModel();
 }
 

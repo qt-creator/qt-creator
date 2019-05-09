@@ -49,7 +49,7 @@ public:
     bool autoLoadSession() const;
 
 private:
-    void updateActions(const QString &session);
+    void updateActions(const QStringList &sessions);
 
     Ui::SessionDialog m_ui;
 };
