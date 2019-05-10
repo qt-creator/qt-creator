@@ -42,9 +42,6 @@ public:
     PchManagerClientProxy(const PchManagerClientProxy&) = delete;
     const PchManagerClientProxy &operator=(const PchManagerClientProxy&) = delete;
 
-    PchManagerClientProxy(PchManagerClientProxy &&other) = default;
-    PchManagerClientProxy &operator=(PchManagerClientProxy &&other) = default;
-
     void readMessages();
 
     void alive() override;
