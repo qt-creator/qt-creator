@@ -139,12 +139,10 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
 bool GTestParser::processDocument(QFutureInterface<TestParseResultPtr> futureInterface,
                                   const QString &fileName)
 {
-    if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
+    CPlusPlus::Document::Ptr doc = document(fileName);
+    if (doc.isNull() || !includesGTest(doc, m_cppSnapshot) || !hasGTestNames(doc))
         return false;
-    CPlusPlus::Document::Ptr document = m_cppSnapshot.find(fileName).value();
-    if (!includesGTest(document, m_cppSnapshot) || !hasGTestNames(document))
-        return false;
-    return handleGTest(futureInterface, document, m_cppSnapshot, id());
+    return handleGTest(futureInterface, doc, m_cppSnapshot, id());
 }
 
 } // namespace Internal

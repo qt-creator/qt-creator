@@ -81,6 +81,8 @@ public:
     static QByteArray getFileContent(const QString &filePath);
     void release() override;
 
+    CPlusPlus::Document::Ptr document(const QString &fileName);
+
 protected:
     CPlusPlus::Snapshot m_cppSnapshot;
     CppTools::WorkingCopy m_workingCopy;

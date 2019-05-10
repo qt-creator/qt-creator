@@ -78,5 +78,10 @@ void CppParser::release()
     m_workingCopy = CppTools::WorkingCopy();
 }
 
+CPlusPlus::Document::Ptr CppParser::document(const QString &fileName)
+{
+    return selectedForBuilding(fileName) ? m_cppSnapshot.document(fileName) : nullptr;
+}
+
 } // namespace Internal
 } // namespace Autotest
