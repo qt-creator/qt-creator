@@ -82,7 +82,6 @@ public:
     enum Detection {
         ManualDetection,
         AutoDetection,
-        AutoDetectionFromSettings,
         AutoDetectionFromSdk,
         UninitializedDetection,
     };

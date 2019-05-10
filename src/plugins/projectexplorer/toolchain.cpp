@@ -273,7 +273,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
     d->m_id = id.mid(pos + 1).toUtf8();
 
     const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
-    d->m_detection = autoDetect ? AutoDetectionFromSettings : ManualDetection;
+    d->m_detection = autoDetect ? AutoDetection : ManualDetection;
 
     if (data.contains(LANGUAGE_KEY_V2)) {
         // remove hack to trim language id in 4.4: This is to fix up broken language

@@ -390,14 +390,14 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
         user3i = new TTC("user3", false);
         user3i->setDetection(ToolChain::ManualDetection);
         auto1 = new TTC("auto1");
-        auto1->setDetection(ToolChain::AutoDetectionFromSettings);
+        auto1->setDetection(ToolChain::AutoDetection);
         auto1c = auto1->clone(); Q_UNUSED(auto1c);
         auto1_2 = new TTC("auto1");
-        auto1_2->setDetection(ToolChain::AutoDetectionFromSettings);
+        auto1_2->setDetection(ToolChain::AutoDetection);
         auto2 = new TTC("auto2");
-        auto2->setDetection(ToolChain::AutoDetectionFromSettings);
+        auto2->setDetection(ToolChain::AutoDetection);
         auto3i = new TTC("auto3", false);
-        auto3i->setDetection(ToolChain::AutoDetectionFromSettings);
+        auto3i->setDetection(ToolChain::AutoDetection);
     }
 
     QTest::newRow("no toolchains")
