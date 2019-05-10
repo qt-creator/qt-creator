@@ -97,7 +97,6 @@ public:
 
     using QString::clear;
     using QString::isEmpty;
-    using QString::isNull;
 
 private:
     FileName(const QString &string);

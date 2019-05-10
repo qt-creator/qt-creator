@@ -71,7 +71,7 @@ Abi NimToolChain::targetAbi() const
 
 bool NimToolChain::isValid() const
 {
-    if (m_compilerCommand.isNull())
+    if (m_compilerCommand.isEmpty())
         return false;
     QFileInfo fi = compilerCommand().toFileInfo();
     return fi.isExecutable();

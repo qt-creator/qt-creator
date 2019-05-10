@@ -329,7 +329,7 @@ QList<Abi> GccToolChain::supportedAbis() const
 
 bool GccToolChain::isValid() const
 {
-    if (m_compilerCommand.isNull())
+    if (m_compilerCommand.isEmpty())
         return false;
 
     QFileInfo fi = compilerCommand().toFileInfo();

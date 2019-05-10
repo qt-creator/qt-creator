@@ -259,15 +259,15 @@ bool QbsBuildStep::hasCustomInstallRoot() const
 
 Utils::FileName QbsBuildStep::installRoot(VariableHandling variableHandling) const
 {
-    Utils::FileName root = Utils::FileName::fromString(qbsConfiguration(variableHandling)
-            .value(Constants::QBS_INSTALL_ROOT_KEY).toString());
-    if (root.isNull()) {
-        const QbsBuildConfiguration * const bc
-                = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-        root = bc->buildDirectory().appendPath(bc->configurationName())
-                .appendPath(qbs::InstallOptions::defaultInstallRoot());
-    }
-    return root;
+    const QString root =
+            qbsConfiguration(variableHandling).value(Constants::QBS_INSTALL_ROOT_KEY).toString();
+    if (!root.isNull())
+        return Utils::FileName::fromString(root);
+
+    const QbsBuildConfiguration * const bc
+            = static_cast<QbsBuildConfiguration *>(buildConfiguration());
+    return bc->buildDirectory().appendPath(bc->configurationName())
+            .appendPath(qbs::InstallOptions::defaultInstallRoot());
 }
 
 int QbsBuildStep::maxJobs() const

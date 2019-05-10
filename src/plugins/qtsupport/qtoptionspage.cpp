@@ -549,7 +549,7 @@ void QtOptionsPageWidget::addQtDir()
                                              BuildableHelperLibrary::filterForQmakeFileDialog(),
                                              0,
                                              QFileDialog::DontResolveSymlinks));
-    if (qtVersion.isNull())
+    if (qtVersion.isEmpty())
         return;
 
     QFileInfo fi = qtVersion.toFileInfo();
@@ -621,7 +621,7 @@ void QtOptionsPageWidget::editPath()
                                              BuildableHelperLibrary::filterForQmakeFileDialog(),
                                              0,
                                              QFileDialog::DontResolveSymlinks));
-    if (qtVersion.isNull())
+    if (qtVersion.isEmpty())
         return;
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
     if (!version)
