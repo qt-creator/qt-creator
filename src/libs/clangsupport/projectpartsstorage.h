@@ -134,7 +134,7 @@ public:
         }
     }
 
-    Utils::PathString fetchProjectPartName(ProjectPartId projectPartId) const
+    Utils::PathString fetchProjectPartName(ProjectPartId projectPartId) const override
     {
         try {
             Sqlite::DeferredTransaction transaction{database};
