@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "directoryfilter.h"
+#include "ui_directoryfilter.h"
+
+#include "locator.h"
 
 #include <coreplugin/coreconstants.h>
 #include <utils/algorithm.h>
@@ -32,8 +35,7 @@
 #include <QFileDialog>
 #include <QTimer>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core {
 
 DirectoryFilter::DirectoryFilter(Id id)
     : m_filters({"*.h", "*.cpp", "*.ui", "*.qrc"}),
@@ -64,12 +66,13 @@ void DirectoryFilter::restoreState(const QByteArray &state)
     QMutexLocker locker(&m_lock);
 
     QString name;
+    QStringList directories;
     QString shortcut;
     bool defaultFilter;
 
     QDataStream in(state);
     in >> name;
-    in >> m_directories;
+    in >> directories;
     in >> m_filters;
     in >> shortcut;
     in >> defaultFilter;
@@ -79,6 +82,8 @@ void DirectoryFilter::restoreState(const QByteArray &state)
     else
         m_exclusionFilters.clear();
 
+    if (m_isCustomFilter)
+        m_directories = directories;
     setDisplayName(name);
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
@@ -88,60 +93,83 @@ void DirectoryFilter::restoreState(const QByteArray &state)
 
 bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
+    if (!m_ui) {
+        m_ui = new Internal::Ui::DirectoryFilterOptions;
+    }
     bool success = false;
     QDialog dialog(parent);
     m_dialog = &dialog;
-    m_ui.setupUi(&dialog);
+    m_ui->setupUi(&dialog);
     dialog.setWindowTitle(ILocatorFilter::msgConfigureDialogTitle());
-    m_ui.prefixLabel->setText(ILocatorFilter::msgPrefixLabel());
-    m_ui.prefixLabel->setToolTip(ILocatorFilter::msgPrefixToolTip());
-    m_ui.defaultFlag->setText(ILocatorFilter::msgIncludeByDefault());
-    m_ui.defaultFlag->setToolTip(ILocatorFilter::msgIncludeByDefaultToolTip());
-    connect(m_ui.addButton, &QPushButton::clicked,
-            this, &DirectoryFilter::addDirectory, Qt::DirectConnection);
-    connect(m_ui.editButton, &QPushButton::clicked,
-            this, &DirectoryFilter::editDirectory, Qt::DirectConnection);
-    connect(m_ui.removeButton, &QPushButton::clicked,
-            this, &DirectoryFilter::removeDirectory, Qt::DirectConnection);
-    connect(m_ui.directoryList, &QListWidget::itemSelectionChanged,
-            this, &DirectoryFilter::updateOptionButtons, Qt::DirectConnection);
-    m_ui.nameEdit->setText(displayName());
-    m_ui.nameEdit->selectAll();
-    m_ui.directoryList->clear();
-    m_ui.directoryList->addItems(m_directories);
-    m_ui.filePatternLabel->setText(Utils::msgFilePatternLabel());
-    m_ui.filePatternLabel->setBuddy(m_ui.filePattern);
-    m_ui.filePattern->setToolTip(Utils::msgFilePatternToolTip());
-    m_ui.filePattern->setText(Utils::transform(m_filters, &QDir::toNativeSeparators).join(','));
-    m_ui.exclusionPatternLabel->setText(Utils::msgExclusionPatternLabel());
-    m_ui.exclusionPatternLabel->setBuddy(m_ui.exclusionPattern);
-    m_ui.exclusionPattern->setToolTip(Utils::msgFilePatternToolTip());
-    m_ui.exclusionPattern->setText(Utils::transform(m_exclusionFilters, &QDir::toNativeSeparators)
-                                   .join(','));
-    m_ui.shortcutEdit->setText(shortcutString());
-    m_ui.defaultFlag->setChecked(isIncludedByDefault());
+    m_ui->prefixLabel->setText(ILocatorFilter::msgPrefixLabel());
+    m_ui->prefixLabel->setToolTip(ILocatorFilter::msgPrefixToolTip());
+    m_ui->defaultFlag->setText(ILocatorFilter::msgIncludeByDefault());
+    m_ui->defaultFlag->setToolTip(ILocatorFilter::msgIncludeByDefaultToolTip());
+    m_ui->nameEdit->setText(displayName());
+    m_ui->nameEdit->selectAll();
+    connect(m_ui->addButton,
+            &QPushButton::clicked,
+            this,
+            &DirectoryFilter::handleAddDirectory,
+            Qt::DirectConnection);
+    connect(m_ui->editButton,
+            &QPushButton::clicked,
+            this,
+            &DirectoryFilter::handleEditDirectory,
+            Qt::DirectConnection);
+    connect(m_ui->removeButton,
+            &QPushButton::clicked,
+            this,
+            &DirectoryFilter::handleRemoveDirectory,
+            Qt::DirectConnection);
+    connect(m_ui->directoryList,
+            &QListWidget::itemSelectionChanged,
+            this,
+            &DirectoryFilter::updateOptionButtons,
+            Qt::DirectConnection);
+    m_ui->directoryList->clear();
+    m_ui->directoryList->addItems(m_directories);
+    m_ui->nameLabel->setVisible(m_isCustomFilter);
+    m_ui->nameEdit->setVisible(m_isCustomFilter);
+    m_ui->directoryLabel->setVisible(m_isCustomFilter);
+    m_ui->directoryList->setVisible(m_isCustomFilter);
+    m_ui->addButton->setVisible(m_isCustomFilter);
+    m_ui->editButton->setVisible(m_isCustomFilter);
+    m_ui->removeButton->setVisible(m_isCustomFilter);
+    m_ui->filePatternLabel->setText(Utils::msgFilePatternLabel());
+    m_ui->filePatternLabel->setBuddy(m_ui->filePattern);
+    m_ui->filePattern->setToolTip(Utils::msgFilePatternToolTip());
+    m_ui->filePattern->setText(Utils::transform(m_filters, &QDir::toNativeSeparators).join(','));
+    m_ui->exclusionPatternLabel->setText(Utils::msgExclusionPatternLabel());
+    m_ui->exclusionPatternLabel->setBuddy(m_ui->exclusionPattern);
+    m_ui->exclusionPattern->setToolTip(Utils::msgFilePatternToolTip());
+    m_ui->exclusionPattern->setText(
+        Utils::transform(m_exclusionFilters, &QDir::toNativeSeparators).join(','));
+    m_ui->shortcutEdit->setText(shortcutString());
+    m_ui->defaultFlag->setChecked(isIncludedByDefault());
     updateOptionButtons();
+    dialog.adjustSize();
     if (dialog.exec() == QDialog::Accepted) {
         QMutexLocker locker(&m_lock);
         bool directoriesChanged = false;
         const QStringList oldDirectories = m_directories;
         const QStringList oldFilters = m_filters;
         const QStringList oldExclusionFilters = m_exclusionFilters;
-        setDisplayName(m_ui.nameEdit->text().trimmed());
+        setDisplayName(m_ui->nameEdit->text().trimmed());
         m_directories.clear();
         const int oldCount = oldDirectories.count();
-        const int newCount = m_ui.directoryList->count();
+        const int newCount = m_ui->directoryList->count();
         if (oldCount != newCount)
             directoriesChanged = true;
         for (int i = 0; i < newCount; ++i) {
-            m_directories.append(m_ui.directoryList->item(i)->text());
+            m_directories.append(m_ui->directoryList->item(i)->text());
             if (!directoriesChanged && m_directories.at(i) != oldDirectories.at(i))
                 directoriesChanged = true;
         }
-        m_filters = Utils::splitFilterUiText(m_ui.filePattern->text());
-        m_exclusionFilters = Utils::splitFilterUiText(m_ui.exclusionPattern->text());
-        setShortcutString(m_ui.shortcutEdit->text().trimmed());
-        setIncludedByDefault(m_ui.defaultFlag->isChecked());
+        m_filters = Utils::splitFilterUiText(m_ui->filePattern->text());
+        m_exclusionFilters = Utils::splitFilterUiText(m_ui->exclusionPattern->text());
+        setShortcutString(m_ui->shortcutEdit->text().trimmed());
+        setIncludedByDefault(m_ui->defaultFlag->isChecked());
         needsRefresh = directoriesChanged || oldFilters != m_filters
                 || oldExclusionFilters != m_exclusionFilters;
         success = true;
@@ -149,37 +177,37 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     return success;
 }
 
-void DirectoryFilter::addDirectory()
+void DirectoryFilter::handleAddDirectory()
 {
     QString dir = QFileDialog::getExistingDirectory(m_dialog, tr("Select Directory"));
     if (!dir.isEmpty())
-        m_ui.directoryList->addItem(dir);
+        m_ui->directoryList->addItem(dir);
 }
 
-void DirectoryFilter::editDirectory()
+void DirectoryFilter::handleEditDirectory()
 {
-    if (m_ui.directoryList->selectedItems().count() < 1)
+    if (m_ui->directoryList->selectedItems().count() < 1)
         return;
-    QListWidgetItem *currentItem = m_ui.directoryList->selectedItems().at(0);
+    QListWidgetItem *currentItem = m_ui->directoryList->selectedItems().at(0);
     QString dir = QFileDialog::getExistingDirectory(m_dialog, tr("Select Directory"),
                                                     currentItem->text());
     if (!dir.isEmpty())
         currentItem->setText(dir);
 }
 
-void DirectoryFilter::removeDirectory()
+void DirectoryFilter::handleRemoveDirectory()
 {
-    if (m_ui.directoryList->selectedItems().count() < 1)
+    if (m_ui->directoryList->selectedItems().count() < 1)
         return;
-    QListWidgetItem *currentItem = m_ui.directoryList->selectedItems().at(0);
-    delete m_ui.directoryList->takeItem(m_ui.directoryList->row(currentItem));
+    QListWidgetItem *currentItem = m_ui->directoryList->selectedItems().at(0);
+    delete m_ui->directoryList->takeItem(m_ui->directoryList->row(currentItem));
 }
 
 void DirectoryFilter::updateOptionButtons()
 {
-    bool haveSelectedItem = (m_ui.directoryList->selectedItems().count() > 0);
-    m_ui.editButton->setEnabled(haveSelectedItem);
-    m_ui.removeButton->setEnabled(haveSelectedItem);
+    bool haveSelectedItem = (m_ui->directoryList->selectedItems().count() > 0);
+    m_ui->editButton->setEnabled(haveSelectedItem);
+    m_ui->removeButton->setEnabled(haveSelectedItem);
 }
 
 void DirectoryFilter::updateFileIterator()
@@ -225,3 +253,45 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         future.setProgressValueAndText(subDirIterator.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));
     }
 }
+
+void DirectoryFilter::setIsCustomFilter(bool value)
+{
+    m_isCustomFilter = value;
+}
+
+void DirectoryFilter::setDirectories(const QStringList &directories)
+{
+    if (directories == m_directories)
+        return;
+    m_directories = directories;
+    Internal::Locator::instance()->refresh({this});
+}
+
+void DirectoryFilter::addDirectory(const QString &directory)
+{
+    setDirectories(m_directories + QStringList(directory));
+}
+
+void DirectoryFilter::removeDirectory(const QString &directory)
+{
+    QStringList directories = m_directories;
+    directories.removeOne(directory);
+    setDirectories(directories);
+}
+
+QStringList DirectoryFilter::directories() const
+{
+    return m_directories;
+}
+
+void DirectoryFilter::setFilters(const QStringList &filters)
+{
+    m_filters = filters;
+}
+
+void DirectoryFilter::setExclusionFilters(const QStringList &exclusionFilters)
+{
+    m_exclusionFilters = exclusionFilters;
+}
+
+} // namespace Core

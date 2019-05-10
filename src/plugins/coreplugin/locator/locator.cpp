@@ -56,7 +56,6 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QFuture>
 #include <QSettings>
 #include <QtPlugin>
 
@@ -339,10 +338,22 @@ void Locator::setRefreshInterval(int interval)
 
 void Locator::refresh(QList<ILocatorFilter *> filters)
 {
-    QFuture<void> task = Utils::map(filters, &ILocatorFilter::refresh, Utils::MapReduceOption::Unordered);
-    FutureProgress *progress =
-        ProgressManager::addTask(task, tr("Updating Locator Caches"), Constants::TASK_INDEX);
-    connect(progress, &FutureProgress::finished, this, &Locator::saveSettings);
+    if (m_refreshTask.isRunning()) {
+        m_refreshTask.cancel();
+        // this is not ideal because some of the previous filters might have finished, but we
+        // currently cannot find out which part of a map-reduce has finished
+        filters = Utils::filteredUnique(m_refreshingFilters + filters);
+    }
+    m_refreshingFilters = filters;
+    m_refreshTask = Utils::map(filters, &ILocatorFilter::refresh, Utils::MapReduceOption::Unordered);
+    ProgressManager::addTask(m_refreshTask, tr("Updating Locator Caches"), Constants::TASK_INDEX);
+    Utils::onFinished(m_refreshTask, this, [this](const QFuture<void> &future) {
+        if (!future.isCanceled()) {
+            saveSettings();
+            m_refreshingFilters.clear();
+            m_refreshTask = QFuture<void>();
+        }
+    });
 }
 
 } // namespace Internal

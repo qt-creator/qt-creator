@@ -600,4 +600,59 @@ const QFuture<T> &onResultReady(const QFuture<T> &future, Function f)
     return future;
 }
 
-} // Utils
+/*!
+    Adds a handler for when the future is finished.
+    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
+    or create a QFutureWatcher already for other reasons.
+*/
+template<typename R, typename T>
+const QFuture<T> &onFinished(const QFuture<T> &future,
+                             R *receiver,
+                             void (R::*member)(const QFuture<T> &))
+{
+    auto watcher = new QFutureWatcher<T>();
+    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
+    QObject::connect(watcher,
+                     &QFutureWatcherBase::finished,
+                     receiver,
+                     [receiver, member, watcher]() { (receiver->*member)(watcher->future()); });
+    watcher->setFuture(future);
+    return future;
+}
+
+/*!
+    Adds a handler for when the future is finished. The guard object determines the lifetime of
+    the connection.
+    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
+    or create a QFutureWatcher already for other reasons.
+*/
+template<typename T, typename Function>
+const QFuture<T> &onFinished(const QFuture<T> &future, QObject *guard, Function f)
+{
+    auto watcher = new QFutureWatcher<T>();
+    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
+    QObject::connect(watcher, &QFutureWatcherBase::finished, guard, [f, watcher]() {
+        f(watcher->future());
+    });
+    watcher->setFuture(future);
+    return future;
+}
+
+/*!
+    Adds a handler for when the future is finished.
+    This creates a new QFutureWatcher. Do not use if you intend to react on multiple conditions
+    or create a QFutureWatcher already for other reasons.
+*/
+template<typename T, typename Function>
+const QFuture<T> &onFinished(const QFuture<T> &future, Function f)
+{
+    auto watcher = new QFutureWatcher<T>();
+    QObject::connect(watcher, &QFutureWatcherBase::finished, watcher, &QObject::deleteLater);
+    QObject::connect(watcher, &QFutureWatcherBase::finished, [f, watcher]() {
+        f(watcher->future());
+    });
+    watcher->setFuture(future);
+    return future;
+}
+
+} // namespace Utils

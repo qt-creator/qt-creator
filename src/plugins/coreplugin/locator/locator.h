@@ -30,6 +30,7 @@
 
 #include <coreplugin/actionmanager/command.h>
 
+#include <QFuture>
 #include <QObject>
 #include <QTimer>
 
@@ -80,6 +81,8 @@ private:
     QList<ILocatorFilter *> m_customFilters;
     QMap<Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
+    QFuture<void> m_refreshTask;
+    QList<ILocatorFilter *> m_refreshingFilters;
 };
 
 } // namespace Internal

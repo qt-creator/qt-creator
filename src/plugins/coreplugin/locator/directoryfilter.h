@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "ui_directoryfilter.h"
 #include "basefilefilter.h"
+
+#include <coreplugin/core_global.h>
 
 #include <QString>
 #include <QByteArray>
@@ -35,8 +36,12 @@
 
 namespace Core {
 namespace Internal {
+namespace Ui {
+class DirectoryFilterOptions;
+} // namespace Ui
+} // namespace Internal
 
-class DirectoryFilter : public BaseFileFilter
+class CORE_EXPORT DirectoryFilter : public BaseFileFilter
 {
     Q_OBJECT
 
@@ -47,10 +52,20 @@ public:
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
     void refresh(QFutureInterface<void> &future) override;
 
+    void setIsCustomFilter(bool value);
+    void setDirectories(const QStringList &directories);
+    void addDirectory(const QString &directory);
+    void removeDirectory(const QString &directory);
+    QStringList directories() const;
+    void setFilters(const QStringList &filters);
+    void setExclusionFilters(const QStringList &exclusionFilters);
+
+    using ILocatorFilter::setDisplayName;
+
 private:
-    void addDirectory();
-    void editDirectory();
-    void removeDirectory();
+    void handleAddDirectory();
+    void handleEditDirectory();
+    void handleRemoveDirectory();
     void updateOptionButtons();
     void updateFileIterator();
 
@@ -60,10 +75,10 @@ private:
     // Our config dialog, uses in addDirectory and editDirectory
     // to give their dialogs the right parent
     QDialog *m_dialog = nullptr;
-    Ui::DirectoryFilterOptions m_ui;
+    Internal::Ui::DirectoryFilterOptions *m_ui = nullptr;
     mutable QMutex m_lock;
     QStringList m_files;
+    bool m_isCustomFilter = true;
 };
 
-} // namespace Internal
 } // namespace Core

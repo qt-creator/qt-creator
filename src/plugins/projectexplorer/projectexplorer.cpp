@@ -100,31 +100,32 @@
 #include "projectwelcomepage.h"
 
 #include <app/app_version.h>
-#include <extensionsystem/pluginspec.h>
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/id.h>
-#include <coreplugin/idocumentfactory.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/imode.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/diffservice.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/findplaceholder.h>
-#include <coreplugin/vcsmanager.h>
-#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/fileutils.h>
-#include <coreplugin/diffservice.h>
+#include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/idocumentfactory.h>
+#include <coreplugin/imode.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/locator/directoryfilter.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/vcsmanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshsettings.h>
 #include <texteditor/findinfiles.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
-#include <ssh/sshconnection.h>
-#include <ssh/sshsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -320,6 +321,8 @@ class ProjectExplorerPluginPrivate : public QObject
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ProjectExplorerPlugin)
 
 public:
+    ProjectExplorerPluginPrivate();
+
     void deploy(QList<Project *>);
     int queue(QList<Project *>, QList<Id> stepIds);
     void updateContextMenuActions();
@@ -537,6 +540,7 @@ public:
 
     AllProjectsFilter m_allProjectsFilter;
     CurrentProjectFilter m_currentProjectFilter;
+    DirectoryFilter m_allProjectDirectoriesFilter;
 
     ProcessStepFactory m_processStepFactory;
 
@@ -647,8 +651,21 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateActions);
     connect(sessionManager, &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::updateActions);
-    connect(sessionManager, &SessionManager::sessionLoaded,
-            dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
+    connect(sessionManager,
+            &SessionManager::sessionLoaded,
+            dd,
+            &ProjectExplorerPluginPrivate::updateWelcomePage);
+
+    connect(sessionManager, &SessionManager::projectAdded, dd, [](ProjectExplorer::Project *project) {
+        dd->m_allProjectDirectoriesFilter.addDirectory(project->projectDirectory().toString());
+    });
+    connect(sessionManager,
+            &SessionManager::projectRemoved,
+            dd,
+            [](ProjectExplorer::Project *project) {
+                dd->m_allProjectDirectoriesFilter.removeDirectory(
+                    project->projectDirectory().toString());
+            });
 
     ProjectTree *tree = &dd->m_projectTree;
     connect(tree, &ProjectTree::currentProjectChanged,
@@ -2505,6 +2522,16 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
 
 //NBS handle case where there is no activeBuildConfiguration
 // because someone delete all build configurations
+
+ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate()
+    : m_allProjectDirectoriesFilter("Files in All Project Directories")
+{
+    m_allProjectDirectoriesFilter.setDisplayName(m_allProjectDirectoriesFilter.id().toString());
+    m_allProjectDirectoriesFilter.setShortcutString("a");      // shared with "Files in Any Project"
+    m_allProjectDirectoriesFilter.setIncludedByDefault(false); // but not included in default
+    m_allProjectDirectoriesFilter.setFilters({});
+    m_allProjectDirectoriesFilter.setIsCustomFilter(false);
+}
 
 void ProjectExplorerPluginPrivate::deploy(QList<Project *> projects)
 {
