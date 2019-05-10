@@ -1819,7 +1819,7 @@ FileNameList BaseQtVersion::qtCorePaths() const
                 && file.startsWith("QtCore")
                 && file.endsWith(".framework")) {
             // handle Framework
-            FileName lib(info);
+            FileName lib = FileName::fromFileInfo(info);
             dynamicLibs.append(lib.appendPath(file.left(file.lastIndexOf('.'))));
         } else if (info.isReadable()) {
             if (file.startsWith("libQtCore")
@@ -1827,12 +1827,12 @@ FileNameList BaseQtVersion::qtCorePaths() const
                     || file.startsWith("QtCore")
                     || file.startsWith("Qt5Core")) {
                 if (file.endsWith(".a") || file.endsWith(".lib"))
-                    staticLibs.append(FileName(info));
+                    staticLibs.append(FileName::fromFileInfo(info));
                 else if (file.endsWith(".dll")
                          || file.endsWith(QString::fromLatin1(".so.") + versionString)
                          || file.endsWith(".so")
                          || file.endsWith(QLatin1Char('.') + versionString + ".dylib"))
-                    dynamicLibs.append(FileName(info));
+                    dynamicLibs.append(FileName::fromFileInfo(info));
             }
         }
     }

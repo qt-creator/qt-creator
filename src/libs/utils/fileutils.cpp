@@ -641,9 +641,9 @@ FileName::FileName()
 }
 
 /// Constructs a FileName from \a info
-FileName::FileName(const QFileInfo &info)
-    : QString(info.absoluteFilePath())
+FileName FileName::fromFileInfo(const QFileInfo &info)
 {
+    return FileName::fromString(info.absoluteFilePath());
 }
 
 /// \returns a QFileInfo

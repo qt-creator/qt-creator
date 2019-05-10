@@ -91,11 +91,11 @@ void XcodeProbe::setupDefaultToolchains(const QString &devPath)
 
     const QFileInfo clangCInfo = getClangInfo("clang");
     if (clangCInfo.exists())
-        clangProfile.cCompilerPath = Utils::FileName(clangCInfo);
+        clangProfile.cCompilerPath = Utils::FileName::fromFileInfo(clangCInfo);
 
     const QFileInfo clangCppInfo = getClangInfo("clang++");
     if (clangCppInfo.exists())
-        clangProfile.cxxCompilerPath = Utils::FileName(clangCppInfo);
+        clangProfile.cxxCompilerPath = Utils::FileName::fromFileInfo(clangCppInfo);
 
     QSet<QString> allArchitectures;
     static const std::map<QString, QStringList> sdkConfigs {

@@ -128,7 +128,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
     d->m_checkUpdatesCommand->setDisplayName(tr("Checking for Updates"));
     connect(d->m_checkUpdatesCommand, &ShellCommand::stdOutText, this, &UpdateInfoPlugin::collectCheckForUpdatesOutput);
     connect(d->m_checkUpdatesCommand, &ShellCommand::finished, this, &UpdateInfoPlugin::checkForUpdatesFinished);
-    d->m_checkUpdatesCommand->addJob(Utils::FileName(QFileInfo(d->m_maintenanceTool)), QStringList(QLatin1String("--checkupdates")),
+    d->m_checkUpdatesCommand->addJob(Utils::FileName::fromFileInfo(d->m_maintenanceTool), {"--checkupdates"},
                                      60 * 3, // 3 minutes timeout
                                      /*workingDirectory=*/QString(),
                                      [](int /*exitCode*/) { return Utils::SynchronousProcessResponse::Finished; });

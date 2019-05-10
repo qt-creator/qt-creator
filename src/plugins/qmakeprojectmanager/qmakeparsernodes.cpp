@@ -280,7 +280,7 @@ QSet<FileName> QmakePriFile::recursiveEnumerate(const QString &folder)
         if (file.isDir() && !file.isSymLink())
             result += recursiveEnumerate(file.absoluteFilePath());
         else if (!Core::EditorManager::isAutoSaveFile(file.fileName()))
-            result += FileName(file);
+            result += FileName::fromFileInfo(file);
     }
     return result;
 }

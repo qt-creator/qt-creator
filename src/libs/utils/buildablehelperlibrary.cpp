@@ -94,7 +94,7 @@ static FileName findQmakeInDir(const FileName &path)
         if (fi.fileName() == qmake)
             continue;
         if (isQmake(fi.absoluteFilePath()))
-            return FileName(fi);
+            return FileName::fromFileInfo(fi);
     }
     return FileName();
 }

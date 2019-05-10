@@ -64,14 +64,16 @@ class QTCREATOR_UTILS_EXPORT FileName : private QString
 {
 public:
     FileName();
-    explicit FileName(const QFileInfo &info);
-    QFileInfo toFileInfo() const;
+
     static FileName fromString(const QString &filename);
+    static FileName fromFileInfo(const QFileInfo &info);
     static FileName fromStringWithExtension(const QString &filename, const QString &defaultExtension);
     static FileName fromLatin1(const QByteArray &filename);
     static FileName fromUserInput(const QString &filename);
     static FileName fromUtf8(const char *filename, int filenameSize = -1);
+
     const QString &toString() const;
+    QFileInfo toFileInfo() const;
     QString toUserOutput() const;
     QString fileName(int pathComponents = 0) const;
     bool exists() const;

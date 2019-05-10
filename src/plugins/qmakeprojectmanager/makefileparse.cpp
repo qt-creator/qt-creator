@@ -260,7 +260,7 @@ static FileName findQMakeBinaryFromMakefile(const QString &makefile)
                 // Is qmake still installed?
                 QFileInfo fi(qmakePath);
                 if (fi.exists())
-                    return FileName(fi);
+                    return FileName::fromFileInfo(fi);
             }
         }
     }

@@ -283,7 +283,7 @@ int ReadOnlyFilesDialog::exec()
         result = static_cast<ReadOnlyResult>(buttongroup.group->checkedId());
         switch (result) {
         case RO_MakeWritable:
-            if (!Utils::FileUtils::makeWritable(Utils::FileName(QFileInfo(buttongroup.fileName)))) {
+            if (!Utils::FileUtils::makeWritable(Utils::FileName::fromFileInfo(buttongroup.fileName))) {
                 failedToMakeWritable << buttongroup.fileName;
                 continue;
             }
@@ -403,7 +403,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const QStringList &fileNames)
         auto item = new QTreeWidgetItem(ui.treeWidget);
         item->setText(FileName, visibleName);
         item->setIcon(FileName, FileIconProvider::icon(fileName));
-        item->setText(Folder, Utils::FileUtils::shortNativePath(Utils::FileName(QFileInfo(directory))));
+        item->setText(Folder, Utils::FileUtils::shortNativePath(Utils::FileName::fromFileInfo(directory)));
         auto radioButtonGroup = new QButtonGroup;
 
         // Add a button for opening the file with a version control system

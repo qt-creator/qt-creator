@@ -128,7 +128,7 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FileName &baseDir, Tree
     bool allChecked = true;
     bool allUnchecked = true;
     for (const QFileInfo &fileInfo : fileInfoList) {
-        Utils::FileName fn = Utils::FileName(fileInfo);
+        Utils::FileName fn = Utils::FileName::fromFileInfo(fileInfo);
         if (m_futureCount % 100) {
             emit parsingProgress(fn);
             if (fi.isCanceled())
