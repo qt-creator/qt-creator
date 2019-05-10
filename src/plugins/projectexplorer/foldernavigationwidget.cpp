@@ -655,9 +655,9 @@ int FolderNavigationWidget::bestRootForFile(const Utils::FileName &filePath)
     int commonLength = 0;
     for (int i = 1; i < m_rootSelector->count(); ++i) {
         const auto root = m_rootSelector->itemData(i).value<Utils::FileName>();
-        if (filePath.isChildOf(root) && root.length() > commonLength) {
+        if (filePath.isChildOf(root) && root.toString().size() > commonLength) {
             index = i;
-            commonLength = root.length();
+            commonLength = root.toString().size();
         }
     }
     return index;

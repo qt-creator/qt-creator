@@ -140,7 +140,7 @@ void CppcheckRunner::checkQueued()
     m_currentFiles.clear();
     int argumentsLength = arguments.length();
     while (!files.isEmpty()) {
-        argumentsLength += files.first().length() + 1; // +1 for separator
+        argumentsLength += files.first().toString().size() + 1; // +1 for separator
         if (argumentsLength >= m_maxArgumentsLength)
             break;
         m_currentFiles.push_back(files.first());

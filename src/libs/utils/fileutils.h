@@ -96,11 +96,9 @@ public:
     FileName &appendString(QChar str);
 
     using QString::clear;
-    using QString::count;
     using QString::isEmpty;
     using QString::isNull;
-    using QString::length;
-    using QString::size;
+
 private:
     FileName(const QString &string);
 };
