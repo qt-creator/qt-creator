@@ -39,7 +39,6 @@ class ClangCodeCompleteResults;
 class CodeCompleter
 {
 public:
-    CodeCompleter() = default;
     CodeCompleter(const TranslationUnit &translationUnit,
                   const UnsavedFiles &unsavedFiles);
 
