@@ -92,7 +92,7 @@ Locator::Locator()
 {
     m_instance = this;
     m_refreshTimer.setSingleShot(false);
-    connect(&m_refreshTimer, &QTimer::timeout, this, [this]() { refresh(); });
+    connect(&m_refreshTimer, &QTimer::timeout, this, [this]() { refresh(filters()); });
 }
 
 Locator::~Locator()
@@ -339,8 +339,6 @@ void Locator::setRefreshInterval(int interval)
 
 void Locator::refresh(QList<ILocatorFilter *> filters)
 {
-    if (filters.isEmpty())
-        filters = m_filters;
     QFuture<void> task = Utils::map(filters, &ILocatorFilter::refresh, Utils::MapReduceOption::Unordered);
     FutureProgress *progress =
         ProgressManager::addTask(task, tr("Updating Locator Caches"), Constants::TASK_INDEX);

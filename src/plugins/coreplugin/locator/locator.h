@@ -64,7 +64,7 @@ signals:
     void filtersChanged();
 
 public slots:
-    void refresh(QList<ILocatorFilter *> filters = QList<ILocatorFilter *>());
+    void refresh(QList<ILocatorFilter *> filters);
     void saveSettings() const;
 
 private:
