@@ -635,9 +635,7 @@ TempFileSaver::~TempFileSaver()
 */
 
 FileName::FileName()
-    : QString()
 {
-
 }
 
 /// Constructs a FileName from \a info
@@ -649,13 +647,13 @@ FileName FileName::fromFileInfo(const QFileInfo &info)
 /// \returns a QFileInfo
 QFileInfo FileName::toFileInfo() const
 {
-    return QFileInfo(*this);
+    return QFileInfo(m_data);
 }
 
 /// \returns a QString for passing on to QString based APIs
 const QString &FileName::toString() const
 {
-    return *this;
+    return m_data;
 }
 
 /// \returns a QString to display to the user
@@ -668,31 +666,33 @@ QString FileName::toUserOutput() const
 QString FileName::fileName(int pathComponents) const
 {
     if (pathComponents < 0)
-        return *this;
+        return m_data;
     const QChar slash = QLatin1Char('/');
-    int i = lastIndexOf(slash);
+    int i = m_data.lastIndexOf(slash);
     if (pathComponents == 0 || i == -1)
-        return mid(i + 1);
+        return m_data.mid(i + 1);
     int component = i + 1;
     // skip adjacent slashes
-    while (i > 0 && at(--i) == slash);
+    while (i > 0 && m_data.at(--i) == slash)
+        ;
     while (i >= 0 && --pathComponents >= 0) {
-        i = lastIndexOf(slash, i);
+        i = m_data.lastIndexOf(slash, i);
         component = i + 1;
-        while (i > 0 && at(--i) == slash);
+        while (i > 0 && m_data.at(--i) == slash)
+            ;
     }
 
     // If there are no more slashes before the found one, return the entire string
-    if (i > 0 && lastIndexOf(slash, i) != -1)
-        return mid(component);
-    return *this;
+    if (i > 0 && m_data.lastIndexOf(slash, i) != -1)
+        return m_data.mid(component);
+    return m_data;
 }
 
 /// \returns a bool indicating whether a file with this
 /// FileName exists.
 bool FileName::exists() const
 {
-    return !isEmpty() && QFileInfo::exists(*this);
+    return !isEmpty() && QFileInfo::exists(m_data);
 }
 
 /// Find the parent directory of a given directory.
@@ -722,7 +722,9 @@ FileName FileName::parentDir() const
 /// \a filename is not checked for validity.
 FileName FileName::fromString(const QString &filename)
 {
-    return FileName(filename);
+    FileName fn;
+    fn.m_data = filename;
+    return fn;
 }
 
 /// Constructs a FileName from \a fileName. The \a defaultExtension is appended
@@ -731,7 +733,7 @@ FileName FileName::fromString(const QString &filename)
 FileName FileName::fromStringWithExtension(const QString &filename, const QString &defaultExtension)
 {
     if (filename.isEmpty() || defaultExtension.isEmpty())
-        return filename;
+        return FileName::fromString(filename);
 
     QString rc = filename;
     QFileInfo fi(filename);
@@ -742,14 +744,14 @@ FileName FileName::fromStringWithExtension(const QString &filename, const QStrin
             rc += dot;
         rc += defaultExtension;
     }
-    return rc;
+    return FileName::fromString(rc);
 }
 
 /// Constructs a FileName from \a fileName
 /// \a fileName is not checked for validity.
 FileName FileName::fromLatin1(const QByteArray &filename)
 {
-    return FileName(QString::fromLatin1(filename));
+    return FileName::fromString(QString::fromLatin1(filename));
 }
 
 /// Constructs a FileName from \a fileName
@@ -759,57 +761,49 @@ FileName FileName::fromUserInput(const QString &filename)
     QString clean = QDir::cleanPath(filename);
     if (clean.startsWith(QLatin1String("~/")))
         clean = QDir::homePath() + clean.mid(1);
-    return FileName(clean);
+    return FileName::fromString(clean);
 }
 
 /// Constructs a FileName from \a fileName, which is encoded as UTF-8.
 /// \a fileName is not checked for validity.
 FileName FileName::fromUtf8(const char *filename, int filenameSize)
 {
-    return FileName(QString::fromUtf8(filename, filenameSize));
-}
-
-FileName::FileName(const QString &string)
-    : QString(string)
-{
-
+    return FileName::fromString(QString::fromUtf8(filename, filenameSize));
 }
 
 bool FileName::operator==(const FileName &other) const
 {
-    return QString::compare(*this, other, HostOsInfo::fileNameCaseSensitivity()) == 0;
+    return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) == 0;
 }
 
 bool FileName::operator!=(const FileName &other) const
 {
-    return !(*this == other);
+    return !(m_data == other.m_data);
 }
 
 bool FileName::operator<(const FileName &other) const
 {
-    return QString::compare(*this, other, HostOsInfo::fileNameCaseSensitivity()) < 0;
+    return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) < 0;
 }
 
 bool FileName::operator<=(const FileName &other) const
 {
-    return QString::compare(*this, other, HostOsInfo::fileNameCaseSensitivity()) <= 0;
+    return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) <= 0;
 }
 
 bool FileName::operator>(const FileName &other) const
 {
-    return other < *this;
+    return other.m_data < m_data;
 }
 
 bool FileName::operator>=(const FileName &other) const
 {
-    return other <= *this;
+    return other.m_data <= m_data;
 }
 
 FileName FileName::operator+(const QString &s) const
 {
-    FileName result(*this);
-    result.appendString(s);
-    return result;
+    return FileName::fromString(m_data + s);
 }
 
 /// \returns whether FileName is a child of \a s
@@ -817,15 +811,15 @@ bool FileName::isChildOf(const FileName &s) const
 {
     if (s.isEmpty())
         return false;
-    if (!QString::startsWith(s, HostOsInfo::fileNameCaseSensitivity()))
+    if (!m_data.startsWith(s.m_data, HostOsInfo::fileNameCaseSensitivity()))
         return false;
-    if (size() <= s.size())
+    if (m_data.size() <= s.m_data.size())
         return false;
     // s is root, '/' was already tested in startsWith
-    if (s.QString::endsWith(QLatin1Char('/')))
+    if (s.m_data.endsWith(QLatin1Char('/')))
         return true;
     // s is a directory, next character should be '/' (/tmpdir is NOT a child of /tmp)
-    return at(s.size()) == QLatin1Char('/');
+    return m_data.at(s.m_data.size()) == QLatin1Char('/');
 }
 
 /// \overload
@@ -837,7 +831,7 @@ bool FileName::isChildOf(const QDir &dir) const
 /// \returns whether FileName endsWith \a s
 bool FileName::endsWith(const QString &s) const
 {
-    return QString::endsWith(s, HostOsInfo::fileNameCaseSensitivity());
+    return m_data.endsWith(s, HostOsInfo::fileNameCaseSensitivity());
 }
 
 /// \returns the relativeChildPath of FileName to parent if FileName is a child of parent
@@ -847,7 +841,7 @@ FileName FileName::relativeChildPath(const FileName &parent) const
 {
     if (!isChildOf(parent))
         return FileName();
-    return FileName(QString::mid(parent.size() + 1, -1));
+    return FileName::fromString(m_data.mid(parent.m_data.size() + 1, -1));
 }
 
 /// Appends \a s, ensuring a / between the parts
@@ -855,22 +849,29 @@ FileName &FileName::appendPath(const QString &s)
 {
     if (s.isEmpty())
         return *this;
-    if (!isEmpty() && !QString::endsWith(QLatin1Char('/')))
-        appendString(QLatin1Char('/'));
-    appendString(s);
+    if (!isEmpty() && !m_data.endsWith(QLatin1Char('/')))
+        m_data.append('/');
+    m_data.append(s);
     return *this;
 }
 
 FileName &FileName::appendString(const QString &str)
 {
-    QString::append(str);
+    m_data.append(str);
     return *this;
 }
 
 FileName &FileName::appendString(QChar str)
 {
-    QString::append(str);
+    m_data.append(str);
     return *this;
+}
+
+uint FileName::hash(uint seed) const
+{
+    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
+        return qHash(m_data.toUpper(), seed);
+    return qHash(m_data, seed);
 }
 
 QTextStream &operator<<(QTextStream &s, const FileName &fn)
@@ -887,14 +888,4 @@ void withNtfsPermissions(const std::function<void()> &task)
     qt_ntfs_permission_lookup--;
 }
 #endif
-
 } // namespace Utils
-
-QT_BEGIN_NAMESPACE
-uint qHash(const Utils::FileName &a)
-{
-    if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
-        return qHash(a.toString().toUpper());
-    return qHash(a.toString());
-}
-QT_END_NAMESPACE

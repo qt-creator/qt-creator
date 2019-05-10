@@ -60,7 +60,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT FileName : private QString
+class QTCREATOR_UTILS_EXPORT FileName
 {
 public:
     FileName();
@@ -97,11 +97,13 @@ public:
     FileName &appendString(const QString &str);
     FileName &appendString(QChar str);
 
-    using QString::clear;
-    using QString::isEmpty;
+    void clear() { m_data.clear(); }
+    bool isEmpty() const { return m_data.isEmpty(); }
+
+    uint hash(uint seed) const;
 
 private:
-    FileName(const QString &string);
+    QString m_data;
 };
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FileName &fn);
@@ -239,11 +241,9 @@ private:
     bool m_autoRemove = true;
 };
 
-} // namespace Utils
+inline uint qHash(const Utils::FileName &a, uint seed = 0) { return a.hash(seed); }
 
-QT_BEGIN_NAMESPACE
-QTCREATOR_UTILS_EXPORT uint qHash(const Utils::FileName &a);
-QT_END_NAMESPACE
+} // namespace Utils
 
 namespace std {
 template<> struct hash<Utils::FileName>
