@@ -60,8 +60,6 @@ public:
     bool canCreate() override;
 
 protected:
-    Utils::FileName compilerPathFromEnvironment(const QString &compilerName);
-
     enum class DetectVariants { Yes, No };
     using ToolchainChecker = std::function<bool(const ToolChain *)>;
     QList<ToolChain *> autoDetectToolchains(

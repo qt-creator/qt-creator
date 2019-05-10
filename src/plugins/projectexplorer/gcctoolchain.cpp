@@ -914,12 +914,6 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const FileName &compilerPath,
     return QList<ToolChain *>();
 }
 
-Utils::FileName GccToolChainFactory::compilerPathFromEnvironment(const QString &compilerName)
-{
-    Environment systemEnvironment = Environment::systemEnvironment();
-    return systemEnvironment.searchInPath(compilerName);
-}
-
 QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
         const QString &compilerName, DetectVariants detectVariants, Core::Id language,
         const Core::Id requiredTypeId, const QList<ToolChain *> &alreadyKnown,
