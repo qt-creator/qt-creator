@@ -215,7 +215,7 @@
                     "type": "CheckBox",
                     "data":
                     {
-                        "checked": "%{JS: %{UseVirtualKeyboardByDefault}}"
+                        "checked": "%{UseVirtualKeyboardByDefault}"
                     }
                 }
             ]

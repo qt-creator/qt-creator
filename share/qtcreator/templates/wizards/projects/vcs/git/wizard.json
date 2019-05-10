@@ -7,7 +7,7 @@
     "trDisplayName": "Git Clone",
     "trDisplayCategory": "Import Project",
     "icon": "icon.png",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('Git') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('Git') >= 0}",
 
     "options":
     [

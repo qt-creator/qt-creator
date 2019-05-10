@@ -7,7 +7,7 @@
     "trDisplayName": "Subversion Checkout",
     "trDisplayCategory": "Import Project",
     "icon": "icon.png",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('Subversion') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('Subversion') >= 0}",
 
     "options":
     [

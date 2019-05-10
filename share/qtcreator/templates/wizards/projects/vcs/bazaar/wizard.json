@@ -7,7 +7,7 @@
     "trDisplayName": "Bazaar Clone (Or Branch)",
     "trDisplayCategory": "Import Project",
     "icon": "icon.png",
-    "enabled": "%{JS: [ %{Plugins} ].indexOf('Bazaar') >= 0}",
+    "enabled": "%{JS: value('Plugins').indexOf('Bazaar') >= 0}",
 
     "options":
     [
