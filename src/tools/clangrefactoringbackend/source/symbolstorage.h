@@ -70,7 +70,7 @@ public:
         deleteNewLocationsTable();
     }
 
-    void insertOrUpdateIndexingTimeStamps(const FilePathIds &filePathIds, TimeStamp indexingTimeStamp)
+    void insertOrUpdateIndexingTimeStamps(const FilePathIds &filePathIds, TimeStamp indexingTimeStamp) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{database};
@@ -94,7 +94,7 @@ public:
         }
     }
 
-    SourceTimeStamps fetchIndexingTimeStamps() const
+    SourceTimeStamps fetchIndexingTimeStamps() const override
     {
         try {
             Sqlite::DeferredTransaction transaction{database};
@@ -110,7 +110,7 @@ public:
         }
     }
 
-    SourceTimeStamps fetchIncludedIndexingTimeStamps(FilePathId sourcePathId) const
+    SourceTimeStamps fetchIncludedIndexingTimeStamps(FilePathId sourcePathId) const override
     {
         try {
             Sqlite::DeferredTransaction transaction{database};

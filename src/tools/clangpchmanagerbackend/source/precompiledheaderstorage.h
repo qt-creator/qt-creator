@@ -143,7 +143,7 @@ public:
         return FilePath("");
     }
 
-    FilePath fetchPrecompiledHeader(ProjectPartId projectPartId) const
+    FilePath fetchPrecompiledHeader(ProjectPartId projectPartId) const override
     {
         try {
             Sqlite::DeferredTransaction transaction{database};
@@ -162,7 +162,7 @@ public:
         return FilePath("");
     }
 
-    PchPaths fetchPrecompiledHeaders(ProjectPartId projectPartId) const
+    PchPaths fetchPrecompiledHeaders(ProjectPartId projectPartId) const override
     {
         try {
             Sqlite::DeferredTransaction transaction{database};
