@@ -42,8 +42,7 @@ public:
     NimToolChainFactory();
 
     bool canCreate() final;
-    ProjectExplorer::ToolChain *create() final;
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data) final;
+
     QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
     QList<ProjectExplorer::ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) final;
 };

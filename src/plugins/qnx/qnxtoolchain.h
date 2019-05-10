@@ -75,10 +75,7 @@ public:
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
 
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
-
     bool canCreate() override;
-    ProjectExplorer::ToolChain *create() override;
 };
 
 //----------------------------------------------------------------------------

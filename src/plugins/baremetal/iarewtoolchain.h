@@ -105,15 +105,12 @@ class IarToolChainFactory final : public ProjectExplorer::ToolChainFactory
     Q_OBJECT
 
 public:
-    explicit IarToolChainFactory();
+    IarToolChainFactory();
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
 
     bool canCreate() final;
-    ProjectExplorer::ToolChain *create() final;
-
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data) final;
 
 private:
     QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,

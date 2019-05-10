@@ -877,16 +877,12 @@ GccToolChainFactory::GccToolChainFactory()
     setDisplayName(tr("GCC"));
     setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
+    setToolchainConstructor([] { return new GccToolChain; });
 }
 
 bool GccToolChainFactory::canCreate()
 {
     return true;
-}
-
-ToolChain *GccToolChainFactory::create()
-{
-    return createToolChain();
 }
 
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -916,21 +912,6 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const FileName &compilerPath,
             return tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor;
         });
     return QList<ToolChain *>();
-}
-
-ToolChain *GccToolChainFactory::restore(const QVariantMap &data)
-{
-    GccToolChain *tc = createToolChain();
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return nullptr;
-}
-
-GccToolChain *GccToolChainFactory::createToolChain()
-{
-    return new GccToolChain;
 }
 
 Utils::FileName GccToolChainFactory::compilerPathFromEnvironment(const QString &compilerName)
@@ -1039,7 +1020,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolChain(const FileName &comp
                                                                       systemEnvironment.toStringList(),
                                                                       macros);
     for (const Abi &abi : detectedAbis.supportedAbis) {
-        std::unique_ptr<GccToolChain> tc(createToolChain());
+        std::unique_ptr<GccToolChain> tc(dynamic_cast<GccToolChain *>(create()));
         if (!tc)
             return result;
 
@@ -1491,6 +1472,7 @@ ClangToolChainFactory::ClangToolChainFactory()
     setDisplayName(tr("Clang"));
     setSupportedToolChainType(Constants::CLANG_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
+    setToolchainConstructor([] { return new ClangToolChain; });
 }
 
 QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -1523,11 +1505,6 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const FileName &compilerPat
             || (language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("clang++")))
         return autoDetectToolChain(compilerPath, language);
     return QList<ToolChain *>();
-}
-
-GccToolChain *ClangToolChainFactory::createToolChain()
-{
-    return new ClangToolChain;
 }
 
 ClangToolChainConfigWidget::ClangToolChainConfigWidget(ClangToolChain *tc) :
@@ -1700,6 +1677,7 @@ MingwToolChainFactory::MingwToolChainFactory()
     setDisplayName(tr("MinGW"));
     setSupportedToolChainType(Constants::MINGW_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
+    setToolchainConstructor([] { return new MingwToolChain; });
 }
 
 QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -1728,11 +1706,6 @@ QList<ToolChain *> MingwToolChainFactory::autoDetect(const FileName &compilerPat
             return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
         });
     return QList<ToolChain *>();
-}
-
-GccToolChain *MingwToolChainFactory::createToolChain()
-{
-    return new MingwToolChain;
 }
 
 // --------------------------------------------------------------------------
@@ -1795,6 +1768,7 @@ LinuxIccToolChainFactory::LinuxIccToolChainFactory()
     setDisplayName(tr("Linux ICC"));
     setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
+    setToolchainConstructor([] { return new LinuxIccToolChain; });
 }
 
 QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -1814,11 +1788,6 @@ QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const FileName &compiler
         (language == Constants::C_LANGUAGE_ID && fileName.startsWith("icc")))
         return autoDetectToolChain(compilerPath, language);
     return {};
-}
-
-GccToolChain *LinuxIccToolChainFactory::createToolChain()
-{
-    return new LinuxIccToolChain;
 }
 
 GccToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags) :

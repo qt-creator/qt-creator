@@ -208,6 +208,7 @@ QnxToolChainFactory::QnxToolChainFactory()
     setDisplayName(tr("QCC"));
     setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
     setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+    setToolchainConstructor([] { return new QnxToolChain; });
 }
 
 QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
@@ -221,24 +222,9 @@ QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
     return tcs;
 }
 
-ToolChain *QnxToolChainFactory::restore(const QVariantMap &data)
-{
-    auto tc = new QnxToolChain;
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return nullptr;
-}
-
 bool QnxToolChainFactory::canCreate()
 {
     return true;
-}
-
-ToolChain *QnxToolChainFactory::create()
-{
-    return new QnxToolChain;
 }
 
 //---------------------------------------------------------------------------------

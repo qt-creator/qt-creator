@@ -390,6 +390,7 @@ SdccToolChainFactory::SdccToolChainFactory()
     setDisplayName(tr("SDCC"));
     setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID});
+    setToolchainConstructor([] { return new SdccToolChain; });
 }
 
 QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -438,21 +439,6 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
 bool SdccToolChainFactory::canCreate()
 {
     return true;
-}
-
-ToolChain *SdccToolChainFactory::create()
-{
-    return new SdccToolChain;
-}
-
-ToolChain *SdccToolChainFactory::restore(const QVariantMap &data)
-{
-    const auto tc = new SdccToolChain;
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return nullptr;
 }
 
 QList<ToolChain *> SdccToolChainFactory::autoDetectToolchains(

@@ -212,6 +212,7 @@ protected:
     void setSupportedToolChainType(const Core::Id &supportedToolChainType);
     void setSupportedLanguages(const QSet<Core::Id> &supportedLanguages);
     void setSupportsAllLanguages(bool supportsAllLanguages);
+    void setToolchainConstructor(const std::function<ToolChain *()> &constructor);
 
     class Candidate {
     public:
@@ -231,6 +232,7 @@ private:
     Core::Id m_supportedToolChainType;
     QSet<Core::Id> m_supportedLanguages;
     bool m_supportsAllLanguages = false;
+    std::function<ToolChain *()> m_toolchainConstructor;
 };
 
 } // namespace ProjectExplorer

@@ -45,25 +45,12 @@ NimToolChainFactory::NimToolChainFactory()
     setDisplayName(tr("Nim"));
     setSupportedToolChainType(Constants::C_NIMTOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_NIMLANGUAGE_ID});
+    setToolchainConstructor([] { return new NimToolChain; });
 }
 
 bool NimToolChainFactory::canCreate()
 {
     return true;
-}
-
-ToolChain *NimToolChainFactory::create()
-{
-    return new NimToolChain;
-}
-
-ToolChain *NimToolChainFactory::restore(const QVariantMap &data)
-{
-    auto tc = new NimToolChain;
-    if (tc->fromMap(data))
-        return tc;
-    delete tc;
-    return nullptr;
 }
 
 QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

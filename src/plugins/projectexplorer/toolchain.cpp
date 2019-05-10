@@ -445,11 +445,21 @@ bool ToolChainFactory::canCreate()
 
 ToolChain *ToolChainFactory::create()
 {
-    return nullptr;
+    return m_toolchainConstructor ? m_toolchainConstructor() : nullptr;
 }
 
-ToolChain *ToolChainFactory::restore(const QVariantMap &)
+ToolChain *ToolChainFactory::restore(const QVariantMap &data)
 {
+    if (!m_toolchainConstructor)
+        return nullptr;
+
+    ToolChain *tc = m_toolchainConstructor();
+    QTC_ASSERT(tc, return nullptr);
+
+    if (tc->fromMap(data))
+        return tc;
+
+    delete tc;
     return nullptr;
 }
 
@@ -499,6 +509,12 @@ void ToolChainFactory::setSupportedLanguages(const QSet<Core::Id> &supportedLang
 void ToolChainFactory::setSupportsAllLanguages(bool supportsAllLanguages)
 {
     m_supportsAllLanguages = supportsAllLanguages;
+}
+
+void ToolChainFactory::setToolchainConstructor
+    (const std::function<ToolChain *()> &toolchainContructor)
+{
+    m_toolchainConstructor = toolchainContructor;
 }
 
 } // namespace ProjectExplorer

@@ -66,7 +66,6 @@ public:
     AndroidToolChainFactory();
 
     ToolChainList autoDetect(CToolChainList &alreadyKnown) override;
-    ProjectExplorer::ToolChain *restore(const QVariantMap &data) override;
 
     class AndroidToolChainInformation
     {

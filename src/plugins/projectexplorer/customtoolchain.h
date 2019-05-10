@@ -145,9 +145,6 @@ public:
     CustomToolChainFactory();
 
     bool canCreate() override;
-    ToolChain *create() override;
-
-    ToolChain *restore(const QVariantMap &data) override;
 };
 
 // --------------------------------------------------------------------------

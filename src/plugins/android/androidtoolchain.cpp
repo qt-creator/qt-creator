@@ -156,21 +156,12 @@ AndroidToolChainFactory::AndroidToolChainFactory()
     setDisplayName(tr("Android Clang"));
     setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_ID);
     setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+    setToolchainConstructor([] { return new AndroidToolChain; });
 }
 
 ToolChainList AndroidToolChainFactory::autoDetect(CToolChainList &alreadyKnown)
 {
     return autodetectToolChainsForNdk(alreadyKnown);
-}
-
-ToolChain *AndroidToolChainFactory::restore(const QVariantMap &data)
-{
-    auto tc = new AndroidToolChain();
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return nullptr;
 }
 
 static FileName clangPlusPlusPath(const FileName &clangPath)

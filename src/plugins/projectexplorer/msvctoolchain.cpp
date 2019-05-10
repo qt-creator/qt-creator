@@ -1695,6 +1695,7 @@ MsvcToolChainFactory::MsvcToolChainFactory()
     setDisplayName(tr("MSVC"));
     setSupportedToolChainType(Constants::MSVC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
+    setToolchainConstructor([] { return new MsvcToolChain; });
 }
 
 QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath,
@@ -1874,6 +1875,7 @@ ClangClToolChainFactory::ClangClToolChainFactory()
     setDisplayName(tr("clang-cl"));
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setSupportedToolChainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
+    setToolchainConstructor([] { return new ClangClToolChain; });
 }
 
 bool ClangClToolChainFactory::canCreate()
@@ -2036,26 +2038,6 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     }
 
     return Utils::nullopt;
-}
-
-template<class ToolChainType>
-ToolChainType *readFromMap(const QVariantMap &data)
-{
-    auto result = new ToolChainType;
-    if (result->fromMap(data))
-        return result;
-    delete result;
-    return nullptr;
-}
-
-ToolChain *MsvcToolChainFactory::restore(const QVariantMap &data)
-{
-    return readFromMap<MsvcToolChain>(data);
-}
-
-ToolChain *ClangClToolChainFactory::restore(const QVariantMap &data)
-{
-    return readFromMap<ClangClToolChain>(data);
 }
 
 MsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags)

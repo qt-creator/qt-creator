@@ -225,8 +225,6 @@ public:
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
-    ToolChain *restore(const QVariantMap &data) override;
-
     static QString vcVarsBatFor(const QString &basePath,
                                 MsvcToolChain::Platform platform,
                                 const QVersionNumber &v);
@@ -240,8 +238,6 @@ public:
     ClangClToolChainFactory();
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
-
-    ToolChain *restore(const QVariantMap &data) override;
 
     bool canCreate() override;
     ToolChain *create() override;

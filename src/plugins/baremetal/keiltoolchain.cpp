@@ -406,6 +406,7 @@ KeilToolchainFactory::KeilToolchainFactory()
     setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+    setToolchainConstructor([] { return new KeilToolchain; });
 }
 
 QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -461,21 +462,6 @@ QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &al
 bool KeilToolchainFactory::canCreate()
 {
     return true;
-}
-
-ToolChain *KeilToolchainFactory::create()
-{
-    return new KeilToolchain;
-}
-
-ToolChain *KeilToolchainFactory::restore(const QVariantMap &data)
-{
-    const auto tc = new KeilToolchain;
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return nullptr;
 }
 
 QList<ToolChain *> KeilToolchainFactory::autoDetectToolchains(

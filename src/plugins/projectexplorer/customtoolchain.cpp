@@ -421,26 +421,12 @@ CustomToolChainFactory::CustomToolChainFactory()
     setDisplayName(tr("Custom"));
     setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
     setSupportsAllLanguages(true);
+    setToolchainConstructor([] { return new CustomToolChain; });
 }
 
 bool CustomToolChainFactory::canCreate()
 {
     return true;
-}
-
-ToolChain *CustomToolChainFactory::create()
-{
-    return new CustomToolChain;
-}
-
-ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)
-{
-    auto tc = new CustomToolChain;
-    if (tc->fromMap(data))
-        return tc;
-
-    delete tc;
-    return nullptr;
 }
 
 // --------------------------------------------------------------------------
