@@ -1872,6 +1872,7 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect(const QList<ToolChain *> &al
 ClangClToolChainFactory::ClangClToolChainFactory()
 {
     setDisplayName(tr("clang-cl"));
+    setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setSupportedToolChainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
 }
 

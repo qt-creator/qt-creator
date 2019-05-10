@@ -232,7 +232,7 @@ public:
                                 const QVersionNumber &v);
 };
 
-class ClangClToolChainFactory : public MsvcToolChainFactory
+class ClangClToolChainFactory : public ToolChainFactory
 {
     Q_OBJECT
 
