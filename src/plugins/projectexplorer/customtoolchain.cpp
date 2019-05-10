@@ -422,11 +422,7 @@ CustomToolChainFactory::CustomToolChainFactory()
     setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
     setSupportsAllLanguages(true);
     setToolchainConstructor([] { return new CustomToolChain; });
-}
-
-bool CustomToolChainFactory::canCreate()
-{
-    return true;
+    setUserCreatable(true);
 }
 
 // --------------------------------------------------------------------------

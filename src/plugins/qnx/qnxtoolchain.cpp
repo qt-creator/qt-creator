@@ -209,6 +209,7 @@ QnxToolChainFactory::QnxToolChainFactory()
     setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
     setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new QnxToolChain; });
+    setUserCreatable(true);
 }
 
 QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
@@ -220,11 +221,6 @@ QList<ProjectExplorer::ToolChain *> QnxToolChainFactory::autoDetect(
     foreach (QnxConfiguration *configuration, configurations)
         tcs += configuration->autoDetect(alreadyKnown);
     return tcs;
-}
-
-bool QnxToolChainFactory::canCreate()
-{
-    return true;
 }
 
 //---------------------------------------------------------------------------------

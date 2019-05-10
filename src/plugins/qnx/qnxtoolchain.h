@@ -74,8 +74,6 @@ public:
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) override;
-
-    bool canCreate() override;
 };
 
 //----------------------------------------------------------------------------

@@ -407,6 +407,7 @@ KeilToolchainFactory::KeilToolchainFactory()
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new KeilToolchain; });
+    setUserCreatable(true);
 }
 
 QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -457,11 +458,6 @@ QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &al
     }
 
     return autoDetectToolchains(candidates, alreadyKnown);
-}
-
-bool KeilToolchainFactory::canCreate()
-{
-    return true;
 }
 
 QList<ToolChain *> KeilToolchainFactory::autoDetectToolchains(

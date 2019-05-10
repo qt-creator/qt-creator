@@ -46,11 +46,7 @@ NimToolChainFactory::NimToolChainFactory()
     setSupportedToolChainType(Constants::C_NIMTOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_NIMLANGUAGE_ID});
     setToolchainConstructor([] { return new NimToolChain; });
-}
-
-bool NimToolChainFactory::canCreate()
-{
-    return true;
+    setUserCreatable(true);
 }
 
 QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

@@ -196,7 +196,7 @@ public:
     virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
     virtual QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language);
 
-    virtual bool canCreate();
+    virtual bool canCreate() const;
     virtual ToolChain *create();
 
     virtual ToolChain *restore(const QVariantMap &data);
@@ -206,6 +206,8 @@ public:
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 
     QSet<Core::Id> supportedLanguages() const;
+
+    void setUserCreatable(bool userCreatable);
 
 protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
@@ -232,6 +234,7 @@ private:
     Core::Id m_supportedToolChainType;
     QSet<Core::Id> m_supportedLanguages;
     bool m_supportsAllLanguages = false;
+    bool m_userCreatable = false;
     std::function<ToolChain *()> m_toolchainConstructor;
 };
 

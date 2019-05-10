@@ -143,8 +143,6 @@ class CustomToolChainFactory : public ToolChainFactory
 
 public:
     CustomToolChainFactory();
-
-    bool canCreate() override;
 };
 
 // --------------------------------------------------------------------------

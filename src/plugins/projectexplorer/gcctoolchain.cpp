@@ -878,11 +878,7 @@ GccToolChainFactory::GccToolChainFactory()
     setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new GccToolChain; });
-}
-
-bool GccToolChainFactory::canCreate()
-{
-    return true;
+    setUserCreatable(true);
 }
 
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

@@ -391,6 +391,7 @@ SdccToolChainFactory::SdccToolChainFactory()
     setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new SdccToolChain; });
+    setUserCreatable(true);
 }
 
 QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -434,11 +435,6 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
     }
 
     return autoDetectToolchains(candidates, alreadyKnown);
-}
-
-bool SdccToolChainFactory::canCreate()
-{
-    return true;
 }
 
 QList<ToolChain *> SdccToolChainFactory::autoDetectToolchains(

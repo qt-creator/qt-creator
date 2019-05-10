@@ -1878,7 +1878,7 @@ ClangClToolChainFactory::ClangClToolChainFactory()
     setToolchainConstructor([] { return new ClangClToolChain; });
 }
 
-bool ClangClToolChainFactory::canCreate()
+bool ClangClToolChainFactory::canCreate() const
 {
     return !g_availableMsvcToolchains.isEmpty();
 }

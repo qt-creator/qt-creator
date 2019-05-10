@@ -239,7 +239,7 @@ public:
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
-    bool canCreate() override;
+    bool canCreate() const override;
     ToolChain *create() override;
 };
 

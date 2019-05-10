@@ -110,8 +110,6 @@ public:
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
 
-    bool canCreate() final;
-
 private:
     QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) const;

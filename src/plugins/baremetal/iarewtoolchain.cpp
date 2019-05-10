@@ -402,6 +402,7 @@ IarToolChainFactory::IarToolChainFactory()
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new IarToolChain; });
+    setUserCreatable(true);
 }
 
 QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
@@ -458,11 +459,6 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
 #endif // Q_OS_WIN
 
     return autoDetectToolchains(candidates, alreadyKnown);
-}
-
-bool IarToolChainFactory::canCreate()
-{
-    return true;
 }
 
 QList<ToolChain *> IarToolChainFactory::autoDetectToolchains(

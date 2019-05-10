@@ -57,8 +57,6 @@ public:
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
     QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language) override;
 
-    bool canCreate() override;
-
 protected:
     enum class DetectVariants { Yes, No };
     using ToolchainChecker = std::function<bool(const ToolChain *)>;

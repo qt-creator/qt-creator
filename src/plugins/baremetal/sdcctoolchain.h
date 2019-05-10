@@ -105,12 +105,10 @@ class SdccToolChainFactory final : public ProjectExplorer::ToolChainFactory
     Q_OBJECT
 
 public:
-    explicit SdccToolChainFactory();
+    SdccToolChainFactory();
 
     QList<ProjectExplorer::ToolChain *> autoDetect(
             const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
-
-    bool canCreate() final;
 
 private:
     QList<ProjectExplorer::ToolChain *> autoDetectToolchains(const Candidates &candidates,

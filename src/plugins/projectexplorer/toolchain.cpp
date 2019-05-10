@@ -438,9 +438,9 @@ QList<ToolChain *> ToolChainFactory::autoDetect(const Utils::FileName &compilerP
     return QList<ToolChain *>();
 }
 
-bool ToolChainFactory::canCreate()
+bool ToolChainFactory::canCreate() const
 {
-    return false;
+    return m_userCreatable;
 }
 
 ToolChain *ToolChainFactory::create()
@@ -515,6 +515,11 @@ void ToolChainFactory::setToolchainConstructor
     (const std::function<ToolChain *()> &toolchainContructor)
 {
     m_toolchainConstructor = toolchainContructor;
+}
+
+void ToolChainFactory::setUserCreatable(bool userCreatable)
+{
+    m_userCreatable = userCreatable;
 }
 
 } // namespace ProjectExplorer
