@@ -58,6 +58,7 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <proparser/qmakevfs.h>
+#include <proparser/qmakeglobals.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>

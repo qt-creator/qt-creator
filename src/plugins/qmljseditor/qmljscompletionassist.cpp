@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmljscompletionassist.h"
+#include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljsreuse.h"
 #include "qmlexpressionundercursor.h"

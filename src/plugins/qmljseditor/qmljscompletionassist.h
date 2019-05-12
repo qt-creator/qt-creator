@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "qmljseditor.h"
+#include "qmljseditor_global.h"
 
+#include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/completionassistprovider.h>

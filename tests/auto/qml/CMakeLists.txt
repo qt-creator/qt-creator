@@ -1,0 +1,8 @@
+add_subdirectory(codemodel)
+add_subdirectory(persistenttrie)
+add_subdirectory(qmldesigner)
+add_subdirectory(qmleditor)
+add_subdirectory(qmljssimplereader)
+add_subdirectory(qmlprojectmanager)
+add_subdirectory(qrcparser)
+add_subdirectory(reformatter)

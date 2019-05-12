@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "qmljseditor_global.h"
 #include "qmljsquickfix.h"
 
 namespace QmlJSEditor {

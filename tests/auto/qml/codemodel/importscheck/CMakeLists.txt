@@ -1,0 +1,9 @@
+add_qtc_test(tst_qml_importscheck
+  DEPENDS qmljs QmlJSTools Utils CPlusPlus
+  INCLUDES "${CMAKE_SOURCE_DIR}/src/plugins"
+  DEFINES
+    QT_CREATOR
+    QTCREATORDIR="${CMAKE_SOURCE_DIR}"
+    TESTSRCDIR="${CMAKE_CURRENT_SOURCE_DIR}"
+  SOURCES tst_importscheck.cpp
+)

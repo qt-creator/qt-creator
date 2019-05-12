@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "qmljseditor.h"
-
 #include <texteditor/ioutlinewidget.h>
 
 #include <QSortFilterProxyModel>
@@ -42,6 +40,7 @@ namespace QmlJS { class Editor; }
 namespace QmlJSEditor {
 namespace Internal {
 
+class QmlJSEditorWidget;
 class QmlJSOutlineTreeView;
 
 class QmlJSOutlineFilterModel : public QSortFilterProxyModel

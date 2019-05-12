@@ -25,6 +25,7 @@
 
 #include "cppoutline.h"
 
+#include "cppeditor.h"
 #include <cpptools/cppeditoroutline.h>
 
 #include <cpptools/cppoverviewmodel.h>

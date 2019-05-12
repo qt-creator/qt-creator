@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "qmljsquickfixassist.h"
+#include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
 

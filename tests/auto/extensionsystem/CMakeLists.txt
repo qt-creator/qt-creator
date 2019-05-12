@@ -1,0 +1,2 @@
+add_subdirectory(pluginmanager)
+add_subdirectory(pluginspec)

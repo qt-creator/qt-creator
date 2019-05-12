@@ -45,6 +45,7 @@ wrapper.sh
 *.pyqtc.user*
 *.qbs.user*
 *.qmlproject.user*
+CMakeLists.txt.user
 /share/qtcreator/externaltools
 /share/qtcreator/fonts/
 /share/qtcreator/generic-highlighter/

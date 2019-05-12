@@ -1,0 +1,431 @@
+# Not in the main CMakeLists.txt file because some tests fail if we have the flags set as default
+list(APPEND DEFAULT_DEFINES
+  QT_CREATOR QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII
+  QT_DISABLE_DEPRECATED_BEFORE=0x050900
+  QT_USE_FAST_OPERATOR_PLUS
+  QT_USE_FAST_CONCATENATION
+)
+
+function(compare_sources_with_existing_disk_files target_name sources)
+  if(NOT WITH_DEBUG_CMAKE)
+    return()
+  endif()
+
+  file(GLOB_RECURSE existing_files RELATIVE ${CMAKE_CURRENT_LIST_DIR} "*.cpp" "*.hpp" "*.c" "*.h" "*.ui" "*.qrc")
+  foreach(file IN LISTS existing_files)
+    if(NOT ${file} IN_LIST sources)
+      if (NOT WITH_TESTS AND ${file} MATCHES "test")
+        continue()
+      endif()
+      message(STATUS "${target_name} doesn't include ${file}")
+    endif()
+  endforeach()
+
+  foreach(source IN LISTS "${sources}")
+    if(NOT ${source} IN_LIST existing_files)
+      if (NOT WITH_TESTS AND ${file} MATCHES "test")
+        continue()
+      endif()
+      message(STATUS "${target_name} contains non existing ${source}")
+    endif()
+  endforeach()
+endfunction(compare_sources_with_existing_disk_files)
+
+function(separate_object_libraries libraries REGULAR_LIBS OBJECT_LIBS OBJECT_LIB_OBJECTS)
+  if (CMAKE_VERSION VERSION_LESS 3.14)
+    foreach(lib IN LISTS libraries)
+      if (TARGET ${lib})
+        get_target_property(lib_type ${lib} TYPE)
+        if (lib_type STREQUAL "OBJECT_LIBRARY")
+          list(APPEND object_libs ${lib})
+          list(APPEND object_libs_objects $<TARGET_OBJECTS:${lib}>)
+        else()
+          list(APPEND regular_libs ${lib})
+        endif()
+      else()
+        list(APPEND regular_libs ${lib})
+      endif()
+      set(${REGULAR_LIBS} ${regular_libs} PARENT_SCOPE)
+      set(${OBJECT_LIBS} ${object_libs} PARENT_SCOPE)
+      set(${OBJECT_LIB_OBJECTS} ${object_libs_objects} PARENT_SCOPE)
+    endforeach()
+  else()
+    set(${REGULAR_LIBS} ${libraries} PARENT_SCOPE)
+    unset(${OBJECT_LIBS} PARENT_SCOPE)
+    unset(${OBJECT_LIB_OBJECTS} PARENT_SCOPE)
+  endif()
+endfunction(separate_object_libraries)
+
+function(add_qtc_library name)
+  cmake_parse_arguments(_arg "STATIC;OBJECT" ""
+    "DEFINES;DEPENDS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
+  )
+
+  if (${_arg_UNPARSED_ARGUMENTS})
+    message(FATAL_ERROR "add_qtc_library had unparsed arguments")
+  endif()
+
+  compare_sources_with_existing_disk_files(${name} "${_arg_SOURCES}")
+
+  set(library_type SHARED)
+  if (_arg_STATIC)
+    set(library_type STATIC)
+  endif()
+  if (_arg_OBJECT)
+    set(library_type OBJECT)
+  endif()
+
+  separate_object_libraries("${_arg_DEPENDS}"
+    depends object_lib_depends object_lib_depends_objects)
+  separate_object_libraries("${_arg_PUBLIC_DEPENDS}"
+    public_depends object_public_depends object_public_depends_objects)
+
+  add_library(${name} ${library_type} ${_arg_SOURCES}
+    ${object_lib_depends_objects} ${object_public_depends_objects})
+
+  if (${name} MATCHES "^[^0-9]+")
+    string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
+  endif()
+
+  if (WITH_TESTS)
+    set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  endif()
+
+  if (NOT (${library_type} STREQUAL "OBJECT" AND CMAKE_VERSION VERSION_LESS 3.14))
+    target_link_libraries(${name}
+      PRIVATE ${depends} ${_TEST_DEPENDS}
+      PUBLIC ${public_depends}
+    )
+  else()
+    foreach(list depends public_depends)
+      foreach(lib IN LISTS ${list})
+        if (TARGET ${lib})
+          target_compile_definitions(${name} PUBLIC $<TARGET_PROPERTY:${lib},INTERFACE_COMPILE_DEFINITIONS>)
+          target_include_directories(${name} PUBLIC $<TARGET_PROPERTY:${lib},INTERFACE_INCLUDE_DIRECTORIES>)
+        endif()
+      endforeach()
+    endforeach()
+  endif()
+
+  target_include_directories(${name}
+    PRIVATE ${_arg_INCLUDES}
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/.." ${_arg_PUBLIC_INCLUDES}
+  )
+  target_compile_definitions(${name}
+    PRIVATE ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
+    PUBLIC ${_arg_PUBLIC_DEFINES}
+  )
+  foreach(obj_lib IN LISTS object_lib_depends)
+    target_compile_definitions(${name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
+    target_include_directories(${name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
+  endforeach()
+  foreach(obj_lib IN LISTS object_public_depends)
+    target_compile_definitions(${name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
+    target_include_directories(${name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
+  endforeach()
+
+  foreach(file IN LISTS _arg_EXPLICIT_MOC)
+    set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
+    qt5_wrap_cpp(file_moc ${file})
+    target_sources(${name} PRIVATE ${file_moc})
+  endforeach()
+
+  foreach(file IN LISTS _arg_SKIP_AUTOMOC)
+    set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
+  endforeach()
+
+  set_target_properties(${name} PROPERTIES
+    VERSION "${PROJECT_VERSION}"
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+    BUILD_RPATH "${_LIB_RPATH}"
+    INSTALL_RPATH "${_LIB_RPATH}"
+    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_BIN_PATH}"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_LIBRARY_PATH}"
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_LIBRARY_PATH}"
+    ${_arg_PROPERTIES}
+  )
+
+  if (NOT (${library_type} STREQUAL "OBJECT" AND CMAKE_VERSION VERSION_LESS 3.14))
+    install(TARGETS ${name}
+      RUNTIME DESTINATION "${IDE_BIN_PATH}"
+      LIBRARY DESTINATION "${IDE_LIBRARY_PATH}"
+      ARCHIVE DESTINATION "${IDE_LIBRARY_PATH}"
+    )
+  endif()
+
+endfunction(add_qtc_library)
+
+function(find_dependent_plugins varName)
+  set(_RESULT ${ARGN})
+
+  foreach(i ${ARGN})
+    get_property(_dep TARGET "${i}" PROPERTY _arg_DEPENDS)
+    if (_dep)
+      find_dependent_plugins(_REC ${_dep})
+      list(APPEND _RESULT ${_REC})
+    endif()
+  endforeach()
+
+  if (_RESULT)
+    list(REMOVE_DUPLICATES _RESULT)
+    list(SORT _RESULT)
+  endif()
+
+  set("${varName}" ${_RESULT} PARENT_SCOPE)
+endfunction()
+
+function(add_qtc_plugin target_name)
+  cmake_parse_arguments(_arg
+    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK"
+    "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;INCLUDES;PUBLIC_INCLUDES;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;SOURCES;EXPLICIT_MOC"
+    ${ARGN}
+  )
+
+  if (${_arg_UNPARSED_ARGUMENTS})
+    message(FATAL_ERROR "add_qtc_plugin had unparsed arguments")
+  endif()
+
+  set(name ${target_name})
+  if (_arg_PLUGIN_NAME)
+    set(name ${_arg_PLUGIN_NAME})
+  endif()
+
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+    set(_extra_text "")
+  else()
+    string(REPLACE ";" " " _contents "${_arg_CONDITION}")
+    set(_extra_text "with CONDITION ${_contents}")
+  endif()
+
+  if (${_arg_CONDITION})
+    set(_plugin_enabled ON)
+  else()
+    set(_plugin_enabled OFF)
+  endif()
+
+  add_feature_info("Plugin ${name}" _plugin_enabled "${_extra_text}")
+  if (NOT _plugin_enabled)
+    return()
+  endif()
+
+  ### Generate plugin.json file:
+  if (NOT _arg_VERSION)
+    set(_arg_VERSION ${PROJECT_VERSION})
+  endif()
+  if (NOT _arg_COMPAT_VERSION)
+    set(_arg_COMPAT_VERSION ${_arg_VERSION})
+  endif()
+
+  if (NOT _arg_SKIP_DEBUG_CMAKE_FILE_CHECK)
+    compare_sources_with_existing_disk_files(${target_name} "${_arg_SOURCES}")
+  endif()
+
+  # Generate dependency list:
+  find_dependent_plugins(_DEP_PLUGINS ${_arg_PLUGIN_DEPENDS})
+
+  set(_arg_DEPENDENCY_STRING "\"Dependencies\" : [\n")
+  foreach(i IN LISTS _DEP_PLUGINS)
+    get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
+    string(APPEND _arg_DEPENDENCY_STRING
+      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\" }"
+    )
+  endforeach(i)
+  string(REPLACE "}        {" "},\n        {"
+    _arg_DEPENDENCY_STRING "${_arg_DEPENDENCY_STRING}"
+  )
+  foreach(i IN LISTS ${_arg_RECOMMENDS})
+    get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
+    string(APPEND _arg_DEPENDENCY_STRING
+      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"optional\" }"
+    )
+  endforeach(i)
+  string(APPEND _arg_DEPENDENCY_STRING "\n    ]")
+  if (_arg_EXPERIMENTAL)
+    string(APPEND _arg_DEPENDENCY_STRING ",\n    \"Experimental\" : true")
+  endif()
+
+  set(IDE_PLUGIN_DEPENDENCY_STRING ${_arg_DEPENDENCY_STRING})
+
+  ### Configure plugin.json file:
+  if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}.json.in")
+    file(READ "${name}.json.in" plugin_json_in)
+    string(REPLACE "\\\"" "\"" plugin_json_in ${plugin_json_in})
+    string(REPLACE "\\'" "'" plugin_json_in ${plugin_json_in})
+    string(REPLACE "$$QTCREATOR_VERSION" "\${IDE_VERSION}" plugin_json_in ${plugin_json_in})
+    string(REPLACE "$$QTCREATOR_COMPAT_VERSION" "\${IDE_VERSION_COMPAT}" plugin_json_in ${plugin_json_in})
+    string(REPLACE "$$QTCREATOR_COPYRIGHT_YEAR" "\${IDE_COPYRIGHT_YEAR}" plugin_json_in ${plugin_json_in})
+    string(REPLACE "$$dependencyList" "\${IDE_PLUGIN_DEPENDENCY_STRING}" plugin_json_in ${plugin_json_in})
+    if(_arg_PLUGIN_JSON_IN)
+        #e.g. UPDATEINFO_EXPERIMENTAL_STR=true
+        string(REGEX REPLACE "=.*$" "" json_key ${_arg_PLUGIN_JSON_IN})
+        string(REGEX REPLACE "^.*=" "" json_value ${_arg_PLUGIN_JSON_IN})
+        string(REPLACE "$$${json_key}" "${json_value}" plugin_json_in ${plugin_json_in})
+    endif()
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${name}.json.cmakein" ${plugin_json_in})
+
+    configure_file("${CMAKE_CURRENT_BINARY_DIR}/${name}.json.cmakein" "${name}.json")
+  endif()
+
+  separate_object_libraries("${_arg_DEPENDS}"
+    depends object_lib_depends object_lib_depends_objects)
+  separate_object_libraries("${_arg_PUBLIC_DEPENDS}"
+    public_depends object_public_depends object_public_depends_objects)
+
+  add_library(${target_name} SHARED ${_arg_SOURCES}
+    ${object_lib_depends_objects} ${object_public_depends_objects})
+
+  ### Generate EXPORT_SYMBOL
+  string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
+
+  if (WITH_TESTS)
+    set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  endif()
+
+  target_link_libraries(${target_name}
+    PRIVATE ${_DEP_PLUGINS} ${depends} ${_TEST_DEPENDS}
+    PUBLIC ${public_depends}
+  )
+  target_include_directories(${target_name}
+    PRIVATE ${_arg_INCLUDES} "${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}"
+      "${CMAKE_BINARY_DIR}/src"
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/.." ${_arg_PUBLIC_INCLUDES}
+  )
+  target_compile_definitions(${target_name}
+    PRIVATE ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
+  )
+
+  foreach(obj_lib IN LISTS object_lib_depends)
+    target_compile_definitions(${target_name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
+    target_include_directories(${target_name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
+  endforeach()
+  foreach(obj_lib IN LISTS object_public_depends)
+    target_compile_definitions(${target_name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
+    target_include_directories(${target_name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
+  endforeach()
+
+  set(plugin_dir "${IDE_PLUGIN_PATH}")
+  if (_arg_PLUGIN_PATH)
+    set(plugin_dir "${_arg_PLUGIN_PATH}")
+  endif()
+
+  set_target_properties(${target_name} PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+    _arg_DEPENDS "${_arg_PLUGIN_DEPENDS}"
+    _arg_VERSION "${_arg_VERSION}"
+    BUILD_RPATH "${_PLUGIN_RPATH}"
+    INSTALL_RPATH "${_PLUGIN_RPATH}"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${plugin_dir}"
+    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${plugin_dir}"
+    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${plugin_dir}"
+    OUTPUT_NAME "${name}"
+    ${_arg_PROPERTIES}
+  )
+
+  foreach(file IN LISTS _arg_EXPLICIT_MOC)
+    set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
+    qt5_wrap_cpp(file_moc ${file})
+    target_sources(${target_name} PRIVATE ${file_moc})
+  endforeach()
+
+  install(TARGETS ${target_name}
+          LIBRARY DESTINATION "${plugin_dir}"
+          ARCHIVE DESTINATION "${plugin_dir}"
+          RUNTIME DESTINATION "${plugin_dir}"
+  )
+endfunction()
+
+function(add_qtc_executable name)
+  cmake_parse_arguments(_arg "" "DESTINATION" "DEFINES;DEPENDS;INCLUDES;SOURCES;PROPERTIES" ${ARGN})
+
+  if ($_arg_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
+  endif()
+
+  set(_DESTINATION "${IDE_LIBEXEC_PATH}")
+  if (_arg_DESTINATION)
+    set(_DESTINATION "${_arg_DESTINATION}")
+  endif()
+
+  set(_EXECUTABLE_PATH "${_DESTINATION}")
+  if (APPLE)
+    # path of executable might be inside app bundle instead of DESTINATION directly
+    cmake_parse_arguments(_prop "" "MACOSX_BUNDLE;OUTPUT_NAME" "" "${_arg_PROPERTIES}")
+    if (_prop_MACOSX_BUNDLE)
+      set(_BUNDLE_NAME "${name}")
+      if (_prop_OUTPUT_NAME)
+        set(_BUNDLE_NAME "${_prop_OUTPUT_NAME}")
+      endif()
+      set(_EXECUTABLE_PATH "${_DESTINATION}/${_BUNDLE_NAME}.app/Contents/MacOS")
+    endif()
+  endif()
+
+  file(RELATIVE_PATH _RELATIVE_LIB_PATH "/${_EXECUTABLE_PATH}" "/${IDE_LIBRARY_PATH}")
+
+  add_executable("${name}" ${_arg_SOURCES})
+  target_include_directories("${name}" PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
+  target_compile_definitions("${name}" PRIVATE ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES})
+  target_link_libraries("${name}" PRIVATE ${_arg_DEPENDS} ${_TEST_DEPENDS})
+  set_target_properties("${name}" PROPERTIES
+    BUILD_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
+    INSTALL_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
+    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${_DESTINATION}"
+    ${_arg_PROPERTIES}
+  )
+
+  install(TARGETS ${name} DESTINATION "${_DESTINATION}")
+endfunction()
+
+function(add_qtc_test name)
+  cmake_parse_arguments(_arg "" "" "DEFINES;DEPENDS;INCLUDES;SOURCES" ${ARGN})
+
+  if ($_arg_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
+  endif()
+
+  set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
+
+  separate_object_libraries("${_arg_DEPENDS}"
+    depends object_lib_depends object_lib_depends_objects)
+
+  add_executable(${name} ${_arg_SOURCES} ${object_lib_depends_objects})
+
+  target_include_directories(${name} PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
+  target_compile_definitions(${name} PRIVATE ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES})
+  target_link_libraries(${name} PRIVATE ${depends} ${_TEST_DEPENDS})
+  foreach(obj_lib IN LISTS object_lib_depends)
+    target_compile_definitions(${name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
+    target_include_directories(${name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
+  endforeach()
+  set_target_properties(${name} PROPERTIES
+    BUILD_RPATH "${_RPATH_BASE}/${_RPATH}"
+    INSTALL_RPATH "${_RPATH_BASE}/${_RPATH}"
+  )
+
+  add_test(NAME ${name} COMMAND ${name})
+
+  if (WIN32)
+    list(APPEND env_path $ENV{PATH})
+    list(APPEND env_path ${CMAKE_BINARY_DIR}/${IDE_PLUGIN_PATH})
+    list(APPEND env_path ${CMAKE_BINARY_DIR}/${IDE_BIN_PATH})
+
+    string(REPLACE "/" "\\" env_path "${env_path}")
+    string(REPLACE ";" "\\;" env_path "${env_path}")
+
+    set_tests_properties(${name} PROPERTIES ENVIRONMENT "PATH=${env_path}")
+  endif()
+endfunction()
+
+add_library(app_version INTERFACE)
+target_include_directories(app_version INTERFACE ${CMAKE_CURRENT_BINARY_DIR})
+
+add_subdirectory(libs)
+add_subdirectory(share)
+add_subdirectory(shared)
+add_subdirectory(app)
+add_subdirectory(plugins)
+add_subdirectory(tools)

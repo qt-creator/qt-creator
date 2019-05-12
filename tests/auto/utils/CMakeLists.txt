@@ -1,0 +1,7 @@
+add_subdirectory(ansiescapecodehandler)
+add_subdirectory(fileutils)
+add_subdirectory(fuzzymatcher)
+add_subdirectory(settings)
+add_subdirectory(stringutils)
+add_subdirectory(templateengine)
+add_subdirectory(treemodel)

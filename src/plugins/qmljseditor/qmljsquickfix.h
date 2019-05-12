@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "qmljseditor.h"
-
 #include <texteditor/quickfix.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>

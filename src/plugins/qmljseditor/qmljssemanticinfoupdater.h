@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include "qmljseditor.h"
+#include <qmljs/qmljsdocument.h>
+#include <qmljstools/qmljssemanticinfo.h>
 
 #include <QWaitCondition>
 #include <QModelIndex>
