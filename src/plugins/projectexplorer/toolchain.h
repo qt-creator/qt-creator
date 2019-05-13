@@ -199,7 +199,7 @@ public:
     virtual bool canCreate() const;
     virtual ToolChain *create();
 
-    virtual ToolChain *restore(const QVariantMap &data);
+    ToolChain *restore(const QVariantMap &data);
 
     static QByteArray idFromMap(const QVariantMap &data);
     static Core::Id typeIdFromMap(const QVariantMap &data);
