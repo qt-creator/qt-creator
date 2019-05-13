@@ -66,4 +66,8 @@
     initiates mouse dragging and what is the rate at which a flick will
     decelerate.
 
+    \if defined(qtdesignstudio)
+    \note You can also use the \l SvgPath Qt Quick Studio Component to
+    specify an SVG path data string that draws a path.
+    \endif
 */
