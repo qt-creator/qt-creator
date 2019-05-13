@@ -146,8 +146,10 @@ Core::LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(const Docum
 void DocumentLocatorFilter::prepareSearch(const QString &/*entry*/)
 {
     QMutexLocker locker(&m_mutex);
-    if (m_symbolCache && !m_currentSymbols.has_value())
+    if (m_symbolCache && !m_currentSymbols.has_value()) {
+        locker.unlock();
         m_symbolCache->requestSymbols(m_currentUri);
+    }
 }
 
 QList<Core::LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
