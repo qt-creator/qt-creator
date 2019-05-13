@@ -145,6 +145,7 @@ static LanguageFeatures languageFeatures()
     features.qtKeywordsEnabled = false;
     features.qtMocRunEnabled = false;
     features.cxx11Enabled = true;
+    features.cxx14Enabled = true;
     features.cxxEnabled = true;
     features.c99Enabled = true;
     features.objCEnabled = true;

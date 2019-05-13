@@ -277,7 +277,10 @@ void tst_SimpleLexer::literals()
     QFETCH(QByteArray, source);
     QFETCH(TokenKindList, expectedTokenKindList);
 
-    run(source, toTokens(expectedTokenKindList), false, CompareKind);
+    LanguageFeatures features;
+    features.cxx14Enabled = true;
+    run(source, toTokens(expectedTokenKindList), false, CompareKind, false,
+        features);
 }
 
 void tst_SimpleLexer::literals_data()
@@ -320,14 +323,18 @@ void tst_SimpleLexer::literals_data()
     source = // these are all the same
             "42\n"
             "0b101010u\n"
+            "0b101'010u\n"
             "052ll\n"
+            "0'5'2ll\n"
             "0x2aL\n"
+            "0x2'aL\n"
             "123FOO\n"
             "0xfOo\n"
             "33_\n"
             ;
     expectedTokenKindList =
             TokenKindList() << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
+                            << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL << T_NUMERIC_LITERAL
                             << T_NUMERIC_LITERAL << T_ERROR << T_ERROR << T_ERROR
                                ;
     QTest::newRow("integer-literals") << source << expectedTokenKindList;

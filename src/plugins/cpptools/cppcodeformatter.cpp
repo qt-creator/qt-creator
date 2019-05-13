@@ -1054,6 +1054,8 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
     features.qtKeywordsEnabled = true;
     features.cxxEnabled = true;
     features.objCEnabled = true;
+    features.cxx11Enabled = true;
+    features.cxx14Enabled = true;
 
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
