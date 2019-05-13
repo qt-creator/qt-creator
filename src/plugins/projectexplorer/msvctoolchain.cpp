@@ -774,9 +774,16 @@ void MsvcToolChain::updateEnvironmentModifications(QList<Utils::EnvironmentItem>
 
 void MsvcToolChain::detectInstalledAbis()
 {
-    m_supportedAbis.clear();
-    Abi baseAbi = targetAbi();
-    const QString vcVarsBase = m_vcvarsBat.left(m_vcvarsBat.lastIndexOf('/'));
+    static QMap<QString, QList<Abi>> abiCache;
+    const QString vcVarsBase
+            = QDir::fromNativeSeparators(m_vcvarsBat).left(m_vcvarsBat.lastIndexOf('/'));
+    if (abiCache.contains(vcVarsBase)) {
+        m_supportedAbis = abiCache.value(vcVarsBase);
+        return;
+    }
+
+    QTC_ASSERT(m_supportedAbis.isEmpty(), return);
+    const Abi baseAbi = targetAbi();
     for (MsvcPlatform platform : platforms) {
         bool toolchainInstalled = false;
         QString perhapsVcVarsPath = vcVarsBase + QLatin1Char('/') + QLatin1String(platform.bat);
@@ -797,6 +804,7 @@ void MsvcToolChain::detectInstalledAbis()
                 m_supportedAbis.append(newAbi);
         }
     }
+    abiCache.insert(vcVarsBase, m_supportedAbis);
 }
 
 Utils::Environment MsvcToolChain::readEnvironmentSetting(const Utils::Environment &env) const
@@ -866,7 +874,8 @@ static void addToAvailableMsvcToolchains(const MsvcToolChain *toolchain)
     if (toolchain->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
         return;
 
-    g_availableMsvcToolchains.push_back(toolchain);
+    if (!g_availableMsvcToolchains.contains(toolchain))
+        g_availableMsvcToolchains.push_back(toolchain);
 }
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId,
@@ -1040,6 +1049,7 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
         return false;
     m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
+    detectInstalledAbis();
     addToAvailableMsvcToolchains(this);
 
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
