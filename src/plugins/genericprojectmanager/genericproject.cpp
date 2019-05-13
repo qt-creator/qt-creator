@@ -382,6 +382,23 @@ void GenericProject::parseProject(RefreshOptions options)
     }
 }
 
+QString GenericProject::findCommonSourceRoot(const QStringList &list)
+{
+    QString root = list.front();
+    for (const QString &item : list) {
+        if (root.length() > item.length())
+            root.truncate(item.length());
+
+        for (int i = 0; i < root.length(); ++i) {
+            if (root[i] != item[i]) {
+                root.truncate(i);
+                break;
+            }
+        }
+    }
+    return QFileInfo(root).absolutePath();
+}
+
 void GenericProject::refresh(RefreshOptions options)
 {
     emitParsingStarted();
@@ -390,11 +407,14 @@ void GenericProject::refresh(RefreshOptions options)
     if (options & Files) {
         auto newRoot = std::make_unique<GenericProjectNode>(this);
 
+        // find the common base directory of all source files
+        Utils::FileName baseDir = FileName::fromFileInfo(QFileInfo(findCommonSourceRoot(m_files)));
+
         for (const QString &f : m_files) {
             FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
-            newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(f), fileType));
+            newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(f), fileType), baseDir);
         }
 
         newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_filesFileName),
@@ -408,6 +428,7 @@ void GenericProject::refresh(RefreshOptions options)
         newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_cflagsFileName),
                                                           FileType::Project));
 
+        newRoot->compress();
         setRootProjectNode(std::move(newRoot));
     }
 
