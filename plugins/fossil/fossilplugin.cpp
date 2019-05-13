@@ -145,7 +145,7 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
     m_commandLocator = new Core::CommandLocator("Fossil", "fossil", "fossil", this);
 
     ProjectExplorer::JsonWizardFactory::addWizardPath(Utils::FileName::fromString(Constants::WIZARD_PATH));
-    Core::JsExpander::registerQObjectForJs("Fossil", new FossilJsExtension);
+    Core::JsExpander::registerGlobalObject<FossilJsExtension>("Fossil");
 
     createMenu(context);
 

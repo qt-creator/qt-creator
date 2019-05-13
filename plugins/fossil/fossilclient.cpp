@@ -641,8 +641,9 @@ bool FossilClient::synchronousCreateRepository(const QString &workingDirectory, 
     // @TODO: handle spaces in the path
     // @TODO: what about --template options?
 
+    const Utils::FileName fullRepoName = Utils::FileName::fromStringWithExtension(repoName, Constants::FOSSIL_FILE_SUFFIX);
     const Utils::FileName repoFilePath = Utils::FileName::fromString(repoPath)
-            .appendPath(Utils::FileName::fromString(repoName, Constants::FOSSIL_FILE_SUFFIX).toString());
+            .appendPath(fullRepoName.toString());
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     if (!adminUser.isEmpty())
         args << "--admin-user" << adminUser;
