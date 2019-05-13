@@ -140,6 +140,11 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
             &DocumentSymbolCache::gotSymbols,
             this,
             &LanguageClientOutlineWidget::handleResponse);
+    connect(editor->textDocument(), &TextEditor::TextDocument::contentsChanged, this, [this]() {
+        if (m_client)
+            m_client->documentSymbolCache()->requestSymbols(m_uri);
+    });
+
     client->documentSymbolCache()->requestSymbols(m_uri);
 
     auto *layout = new QVBoxLayout;
