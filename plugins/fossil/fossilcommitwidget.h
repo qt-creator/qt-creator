@@ -59,7 +59,7 @@ public:
     bool isPrivateOptionEnabled() const;
 
 protected:
-    bool canSubmit() const;
+    bool canSubmit(QString *whyNot = nullptr) const;
 
 private slots:
     void branchChanged();

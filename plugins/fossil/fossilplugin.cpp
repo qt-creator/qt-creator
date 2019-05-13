@@ -663,10 +663,8 @@ bool FossilPlugin::submitEditorAboutToClose()
     QTC_ASSERT(editorDocument, return true);
 
     bool promptOnSubmit = false;
-    const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult response =
-            commitEditor->promptSubmit(tr("Close Commit Editor"), tr("Do you want to commit the changes?"),
-                                       tr("Message check failed. Do you want to proceed?"),
-                                       &promptOnSubmit, !m_submitActionTriggered);
+    const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult response
+        = commitEditor->promptSubmit(this, &promptOnSubmit, !m_submitActionTriggered);
     m_submitActionTriggered = false;
 
     switch (response) {
