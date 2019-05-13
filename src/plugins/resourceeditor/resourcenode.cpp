@@ -160,7 +160,6 @@ public:
                      const QString &prefix, const QString &lang, FileName absolutePath,
                      ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode);
 
-    QString displayName() const final;
     bool supportsAction(ProjectAction, const Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) final;
     bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) final;
@@ -173,32 +172,23 @@ public:
 
 private:
     QString m_folderName;
-    QString m_displayName;
     QString m_prefix;
     QString m_lang;
     ResourceTopLevelNode *m_topLevelNode;
     ResourceFolderNode *m_prefixNode;
 };
 
-QString SimpleResourceFolderNode::displayName() const
-{
-    if (!m_displayName.isEmpty())
-        return m_displayName;
-    return FolderNode::displayName();
-}
-
 SimpleResourceFolderNode::SimpleResourceFolderNode(const QString &afolderName, const QString &displayName,
                                    const QString &prefix, const QString &lang,
                                    FileName absolutePath, ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode)
     : FolderNode(absolutePath)
     , m_folderName(afolderName)
-    , m_displayName(displayName)
     , m_prefix(prefix)
     , m_lang(lang)
     , m_topLevelNode(topLevel)
     , m_prefixNode(prefixNode)
 {
-
+    setDisplayName(displayName);
 }
 
 bool SimpleResourceFolderNode::supportsAction(ProjectAction action, const Node *) const
@@ -267,6 +257,17 @@ ResourceTopLevelNode::~ResourceTopLevelNode()
     if (m_document)
         DocumentManager::removeDocument(m_document);
     delete m_document;
+}
+
+static void compressTree(FolderNode *n)
+{
+    if (const auto compressable = dynamic_cast<SimpleResourceFolderNode *>(n)) {
+        compressable->compress();
+        return;
+    }
+    const QList<FolderNode *> childFolders = n->folderNodes();
+    for (FolderNode * const c : childFolders)
+        compressTree(c);
 }
 
 void ResourceTopLevelNode::addInternalNodes()
@@ -354,6 +355,7 @@ void ResourceTopLevelNode::addInternalNodes()
                                                                qrcPath, displayName));
         }
     }
+    compressTree(this);
 }
 
 bool ResourceTopLevelNode::supportsAction(ProjectAction action, const Node *node) const
