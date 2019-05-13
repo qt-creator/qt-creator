@@ -146,7 +146,7 @@ public:
     virtual bool operator ==(const ToolChain &) const;
 
     virtual std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() = 0;
-    virtual ToolChain *clone() const = 0;
+    ToolChain *clone() const;
 
     // Used by the toolchainmanager to save user-generated tool chains.
     // Make sure to call this function when deriving!
@@ -163,7 +163,6 @@ public:
 
 protected:
     explicit ToolChain(Core::Id typeId);
-    explicit ToolChain(const ToolChain &);
 
     const MacrosCache &predefinedMacrosCache() const;
     const HeaderPathsCache &headerPathsCache() const;
@@ -174,6 +173,9 @@ protected:
     virtual bool fromMap(const QVariantMap &data);
 
 private:
+    ToolChain(const ToolChain &) = delete;
+    ToolChain &operator=(const ToolChain &) = delete;
+
     const std::unique_ptr<Internal::ToolChainPrivate> d;
 
     friend class Internal::ToolChainSettingsAccessor;

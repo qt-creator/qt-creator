@@ -388,11 +388,6 @@ FileName IarToolChain::makeCommand(const Environment &env) const
     return {};
 }
 
-ToolChain *IarToolChain::clone() const
-{
-    return new IarToolChain(*this);
-}
-
 // IarToolChainFactory
 
 IarToolChainFactory::IarToolChainFactory()

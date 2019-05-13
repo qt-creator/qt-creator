@@ -289,11 +289,6 @@ QString CustomToolChain::mkspecs() const
     return list;
 }
 
-ToolChain *CustomToolChain::clone() const
-{
-    return new CustomToolChain(*this);
-}
-
 QVariantMap CustomToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();

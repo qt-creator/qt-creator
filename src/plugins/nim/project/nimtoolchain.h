@@ -55,7 +55,6 @@ public:
     void setCompilerCommand(const Utils::FileName &compilerCommand);
     ProjectExplorer::IOutputParser *outputParser() const final;
     std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
-    ProjectExplorer::ToolChain *clone() const final;
 
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;

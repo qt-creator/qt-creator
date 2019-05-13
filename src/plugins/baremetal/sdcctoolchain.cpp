@@ -378,11 +378,6 @@ FileName SdccToolChain::makeCommand(const Environment &env) const
     return {};
 }
 
-ToolChain *SdccToolChain::clone() const
-{
-    return new SdccToolChain(*this);
-}
-
 // SdccToolChainFactory
 
 SdccToolChainFactory::SdccToolChainFactory()

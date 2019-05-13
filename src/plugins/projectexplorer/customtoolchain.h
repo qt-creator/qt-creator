@@ -105,16 +105,11 @@ public:
     void setMkspecs(const QString &);
     QString mkspecs() const;
 
-    ToolChain *clone() const override;
-
     Core::Id outputParserId() const;
     void setOutputParserId(Core::Id parserId);
     CustomParserSettings customParserSettings() const;
     void setCustomParserSettings(const CustomParserSettings &settings);
     static QList<CustomToolChain::Parser> parsers();
-
-protected:
-    CustomToolChain(const CustomToolChain &) = default;
 
 private:
     CustomToolChain();

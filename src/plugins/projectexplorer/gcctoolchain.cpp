@@ -646,8 +646,6 @@ void GccToolChain::addCommandPathToEnvironment(const FileName &command, Environm
         env.prependOrSetPath(compilerDir.toString());
 }
 
-GccToolChain::GccToolChain(const GccToolChain &) = default;
-
 void GccToolChain::addToEnvironment(Environment &env) const
 {
     // On Windows gcc invokes cc1plus which is in libexec directory.
@@ -773,11 +771,6 @@ void GccToolChain::setPlatformLinkerFlags(const QStringList &flags)
 QStringList GccToolChain::platformLinkerFlags() const
 {
     return m_platformLinkerFlags;
-}
-
-ToolChain *GccToolChain::clone() const
-{
-    return new GccToolChain(*this);
 }
 
 QVariantMap GccToolChain::toMap() const
@@ -1279,11 +1272,6 @@ ClangToolChain::ClangToolChain(Core::Id typeId) :
     syncAutodetectedWithParentToolchains();
 }
 
-ClangToolChain::ClangToolChain(const ClangToolChain &other)
-    : GccToolChain(other)
-    , m_parentToolChainId(other.m_parentToolChainId)
-{}
-
 ClangToolChain::~ClangToolChain()
 {
     QObject::disconnect(m_thisToolchainRemovedConnection);
@@ -1445,11 +1433,6 @@ LanguageExtensions ClangToolChain::defaultLanguageExtensions() const
 IOutputParser *ClangToolChain::outputParser() const
 {
     return new ClangParser;
-}
-
-ToolChain *ClangToolChain::clone() const
-{
-    return new ClangToolChain(*this);
 }
 
 // --------------------------------------------------------------------------
@@ -1652,11 +1635,6 @@ FileName MingwToolChain::makeCommand(const Environment &environment) const
     return FileName::fromString(makes.first());
 }
 
-ToolChain *MingwToolChain::clone() const
-{
-    return new MingwToolChain(*this);
-}
-
 // --------------------------------------------------------------------------
 // MingwToolChainFactory
 // --------------------------------------------------------------------------
@@ -1741,11 +1719,6 @@ FileNameList LinuxIccToolChain::suggestedMkspecList() const
 {
     return FileNameList()
             << FileName::fromString(QString::fromLatin1("linux-icc-") + QString::number(targetAbi().wordWidth()));
-}
-
-ToolChain *LinuxIccToolChain::clone() const
-{
-    return new LinuxIccToolChain(*this);
 }
 
 // --------------------------------------------------------------------------

@@ -393,11 +393,6 @@ FileName KeilToolchain::makeCommand(const Environment &env) const
     return {};
 }
 
-ToolChain *KeilToolchain::clone() const
-{
-    return new KeilToolchain(*this);
-}
-
 // KeilToolchainFactory
 
 KeilToolchainFactory::KeilToolchainFactory()

@@ -43,6 +43,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QCheckBox>
+#include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
@@ -533,6 +534,8 @@ void ToolChainOptionsWidget::cloneToolChain()
         return;
 
     tc->setDetection(ToolChain::ManualDetection);
+    tc->setDisplayName(QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
+                        .arg(current->toolChain->displayName()));
 
     auto item = insertToolChain(tc, true);
     m_toAddList.append(item);

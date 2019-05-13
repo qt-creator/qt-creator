@@ -60,7 +60,6 @@ public:
                            const Abi &abi,
                            const QString &varsBat,
                            const QString &varsBatArg);
-    MsvcToolChain(const MsvcToolChain &other);
     MsvcToolChain();
     ~MsvcToolChain() override;
 
@@ -80,8 +79,6 @@ public:
     bool fromMap(const QVariantMap &data) override;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
-
-    ToolChain *clone() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
@@ -191,7 +188,6 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FileName compilerCommand() const override;
     IOutputParser *outputParser() const override;
-    ToolChain *clone() const override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;

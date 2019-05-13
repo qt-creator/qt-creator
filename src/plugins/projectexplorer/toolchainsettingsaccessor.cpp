@@ -292,11 +292,17 @@ namespace ProjectExplorer {
 
 using TCList = QList<ToolChain *>;
 
+const char TestTokenKey[] = "TestTokenKey";
+const char TestToolChainType[] = "TestToolChainType";
+
+
 class TTC : public ToolChain
 {
 public:
+    TTC() : ToolChain(TestToolChainType) {}
+
     TTC(const QByteArray &t, bool v = true) :
-        ToolChain("TestToolChainType"),
+        ToolChain(TestToolChainType),
         token(t),
         m_valid(v)
     {
@@ -322,21 +328,29 @@ public:
     FileName compilerCommand() const override { return Utils::FileName::fromString("/tmp/test/gcc"); }
     IOutputParser *outputParser() const override { return nullptr; }
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override { return nullptr; }
-    TTC *clone() const override { return new TTC(*this); }
     bool operator ==(const ToolChain &other) const override {
         if (!ToolChain::operator==(other))
             return false;
         return static_cast<const TTC *>(&other)->token == token;
     }
 
+    bool fromMap(const QVariantMap &data) final
+    {
+        ToolChain::fromMap(data);
+        token = data.value(TestTokenKey).toByteArray();
+        return true;
+    }
+
+    QVariantMap toMap() const final
+    {
+        QVariantMap data = ToolChain::toMap();
+        data[TestTokenKey] = token;
+        return data;
+    }
+
     QByteArray token;
 
 private:
-    TTC(const TTC &other) :
-        ToolChain(other.typeId()),
-        token(other.token)
-    {}
-
     bool m_valid = false;
 
     static QList<TTC *> m_toolChains;
@@ -354,6 +368,17 @@ namespace ProjectExplorer {
 
 void ProjectExplorerPlugin::testToolChainMerging_data()
 {
+    class TestToolChainFactory : ToolChainFactory
+    {
+    public:
+        TestToolChainFactory() {
+            setSupportedToolChainType(TestToolChainType);
+            setToolchainConstructor([] { return new TTC; });
+        }
+    };
+
+    TestToolChainFactory factory;
+
     QTest::addColumn<TCList>("system");
     QTest::addColumn<TCList>("user");
     QTest::addColumn<TCList>("autodetect");
@@ -361,15 +386,15 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
     QTest::addColumn<TCList>("toRegister");
 
     TTC *system1 = nullptr;
-    TTC *system1c = nullptr;
+    ToolChain *system1c = nullptr;
     TTC *system2 = nullptr;
     TTC *system3i = nullptr;
     TTC *user1 = nullptr;
-    TTC *user1c = nullptr;
+    ToolChain *user1c = nullptr;
     TTC *user3i = nullptr;
     TTC *user2 = nullptr;
     TTC *auto1 = nullptr;
-    TTC *auto1c = nullptr;
+    ToolChain *auto1c = nullptr;
     TTC *auto1_2 = nullptr;
     TTC *auto2 = nullptr;
     TTC *auto3i = nullptr;
@@ -377,21 +402,21 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
     if (!TTC::hasToolChains()) {
         system1 = new TTC("system1");
         system1->setDetection(ToolChain::AutoDetection);
-        system1c = system1->clone(); Q_UNUSED(system1c);
+        system1c = system1->clone(); Q_UNUSED(system1c)
         system2 = new TTC("system2");
         system2->setDetection(ToolChain::AutoDetection);
         system3i = new TTC("system3", false);
         system3i->setDetection(ToolChain::AutoDetection);
         user1 = new TTC("user1");
         user1->setDetection(ToolChain::ManualDetection);
-        user1c = user1->clone(); Q_UNUSED(user1c);
+        user1c = user1->clone(); Q_UNUSED(user1c)
         user2 = new TTC("user2");
         user2->setDetection(ToolChain::ManualDetection);
         user3i = new TTC("user3", false);
         user3i->setDetection(ToolChain::ManualDetection);
         auto1 = new TTC("auto1");
         auto1->setDetection(ToolChain::AutoDetection);
-        auto1c = auto1->clone(); Q_UNUSED(auto1c);
+        auto1c = auto1->clone();
         auto1_2 = new TTC("auto1");
         auto1_2->setDetection(ToolChain::AutoDetection);
         auto2 = new TTC("auto2");

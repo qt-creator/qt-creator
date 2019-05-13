@@ -46,6 +46,8 @@ static const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2"; //
 namespace ProjectExplorer {
 namespace Internal {
 
+static QList<ToolChainFactory *> g_toolChainFactories;
+
 // --------------------------------------------------------------------------
 // ToolChainPrivate
 // --------------------------------------------------------------------------
@@ -125,17 +127,6 @@ ToolChain::ToolChain(Core::Id typeId) :
 {
 }
 
-ToolChain::ToolChain(const ToolChain &other) : ToolChain(other.d->m_typeId)
-{
-    d->m_language = other.d->m_language;
-
-    // leave the autodetection bit at false.  // FIXME: <- is this comment valid.
-    d->m_detection = ManualDetection;
-
-    d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
-            .arg(other.displayName());
-}
-
 void ToolChain::setLanguage(Core::Id language)
 {
     QTC_ASSERT(!d->m_language.isValid() || isAutoDetected(), return);
@@ -207,6 +198,22 @@ bool ToolChain::operator == (const ToolChain &tc) const
     return typeId() == tc.typeId()
             && isAutoDetected() == tc.isAutoDetected()
             && language() == tc.language();
+}
+
+ToolChain *ToolChain::clone() const
+{
+    for (ToolChainFactory *f : Internal::g_toolChainFactories) {
+        if (f->supportedToolChainType() == d->m_typeId) {
+            ToolChain *tc = f->create();
+            QTC_ASSERT(tc, return nullptr);
+            tc->fromMap(toMap());
+            // New ID for the clone. It's different.
+            tc->d->m_id = QUuid::createUuid().toByteArray();
+            return tc;
+        }
+    }
+    QTC_CHECK(false);
+    return nullptr;
 }
 
 /*!
@@ -408,21 +415,19 @@ QString ToolChain::sysRoot() const
     Used by the tool chain manager to restore user-generated tool chains.
 */
 
-static QList<ToolChainFactory *> g_toolChainFactories;
-
 ToolChainFactory::ToolChainFactory()
 {
-    g_toolChainFactories.append(this);
+    Internal::g_toolChainFactories.append(this);
 }
 
 ToolChainFactory::~ToolChainFactory()
 {
-    g_toolChainFactories.removeOne(this);
+    Internal::g_toolChainFactories.removeOne(this);
 }
 
 const QList<ToolChainFactory *> ToolChainFactory::allToolChainFactories()
 {
-    return g_toolChainFactories;
+    return Internal::g_toolChainFactories;
 }
 
 QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)

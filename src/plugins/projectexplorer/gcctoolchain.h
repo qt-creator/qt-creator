@@ -107,8 +107,6 @@ public:
     void setPlatformLinkerFlags(const QStringList &);
     QStringList platformLinkerFlags() const;
 
-    ToolChain *clone() const override;
-
     static void addCommandPathToEnvironment(const Utils::FileName &command, Utils::Environment &env);
 
     class DetectedAbisResult {
@@ -127,8 +125,6 @@ public:
 protected:
     using CacheItem = QPair<QStringList, Macros>;
     using GccCache = QVector<CacheItem>;
-
-    GccToolChain(const GccToolChain &);
 
     void setCompilerCommand(const Utils::FileName &path);
     void setSupportedAbis(const QList<Abi> &m_abis);
@@ -227,8 +223,6 @@ public:
 
     IOutputParser *outputParser() const override;
 
-    ToolChain *clone() const override;
-
     Utils::FileNameList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
@@ -266,8 +260,6 @@ public:
     QString typeDisplayName() const override;
     Utils::FileName makeCommand(const Utils::Environment &environment) const override;
 
-    ToolChain *clone() const override;
-
     Utils::FileNameList suggestedMkspecList() const override;
 
 private:
@@ -288,8 +280,6 @@ public:
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     IOutputParser *outputParser() const override;
-
-    ToolChain *clone() const override;
 
     Utils::FileNameList suggestedMkspecList() const override;
 

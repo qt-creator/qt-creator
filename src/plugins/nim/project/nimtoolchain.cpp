@@ -140,11 +140,6 @@ std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> NimToolChain::createConf
     return std::make_unique<NimToolChainConfigWidget>(this);
 }
 
-ToolChain *NimToolChain::clone() const
-{
-    return new NimToolChain(*this);
-}
-
 QVariantMap NimToolChain::toMap() const
 {
     QVariantMap data = ToolChain::toMap();

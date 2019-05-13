@@ -841,36 +841,6 @@ MsvcToolChain::MsvcToolChain(const QString &name,
     : MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg)
 {}
 
-MsvcToolChain::MsvcToolChain(const MsvcToolChain &other)
-    : ToolChain(other)
-    , m_headerPathsMutex(new QMutex)
-    , m_environmentModifications(other.m_environmentModifications)
-    , m_debuggerCommand(other.m_debuggerCommand)
-    , m_lastEnvironment(other.m_lastEnvironment)
-    , m_resultEnvironment(other.m_resultEnvironment)
-    , m_abi(other.m_abi)
-    , m_supportedAbis(other.m_supportedAbis)
-    , m_vcvarsBat(other.m_vcvarsBat)
-    , m_varsBatArg(other.m_varsBatArg)
-{
-    if (other.m_envModWatcher.isRunning()) {
-        initEnvModWatcher(other.m_envModWatcher.future());
-    } else if (m_environmentModifications.isEmpty() && other.m_envModWatcher.future().isFinished()
-               && !other.m_envModWatcher.future().isCanceled()) {
-        const GenerateEnvResult &result = m_envModWatcher.result();
-        if (result.error) {
-            const QString &errorMessage = *result.error;
-            if (!errorMessage.isEmpty())
-                TaskHub::addTask(Task::Error, errorMessage, Constants::TASK_CATEGORY_COMPILE);
-        } else {
-            updateEnvironmentModifications(result.environmentItems);
-        }
-    }
-
-    setDisplayName(QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
-            .arg(other.displayName()));
-}
-
 static void addToAvailableMsvcToolchains(const MsvcToolChain *toolchain)
 {
     if (toolchain->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
@@ -1079,11 +1049,6 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
 std::unique_ptr<ToolChainConfigWidget> MsvcToolChain::createConfigurationWidget()
 {
     return std::make_unique<MsvcToolChainConfigWidget>(this);
-}
-
-ToolChain *MsvcToolChain::clone() const
-{
-    return new MsvcToolChain(*this);
 }
 
 bool static hasFlagEffectOnMacros(const QString &flag)
@@ -1746,11 +1711,6 @@ QList<Utils::FileName> ClangClToolChain::suggestedMkspecList() const
 IOutputParser *ClangClToolChain::outputParser() const
 {
     return new ClangClParser;
-}
-
-ToolChain *ClangClToolChain::clone() const
-{
-    return new ClangClToolChain(*this);
 }
 
 static inline QString llvmDirKey()

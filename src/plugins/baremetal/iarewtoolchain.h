@@ -83,11 +83,6 @@ public:
 
     Utils::FileName makeCommand(const Utils::Environment &env) const final;
 
-    ToolChain *clone() const final;
-
-protected:
-    IarToolChain(const IarToolChain &tc) = default;
-
 private:
     IarToolChain();
 
