@@ -172,6 +172,13 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     updateFontSettings();
     updateZoomEnabled();
+    const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::fontSettings();
+    m_outputWindow->setHighlightBgColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
+                                        .background().color());
+    m_outputWindow->setHighlightTextColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
+                                          .foreground().color());
+    setupFilterUi("CompileOutputPane.Filter");
+    setFilteringEnabled(true);
 
     connect(this, &IOutputPane::zoomIn, m_outputWindow, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOut, m_outputWindow, &Core::OutputWindow::zoomOut);
@@ -345,6 +352,11 @@ void CompileOutputWindow::setSettings(const CompileOutputSettings &settings)
     m_settings = settings;
     storeSettings();
     updateFromSettings();
+}
+
+void CompileOutputWindow::updateFilter()
+{
+    m_outputWindow->setFilterText(filterText());
 }
 
 void CompileOutputWindow::loadSettings()

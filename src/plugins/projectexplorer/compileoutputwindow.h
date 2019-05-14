@@ -88,6 +88,8 @@ public:
     void setSettings(const CompileOutputSettings &settings);
 
 private:
+    void updateFilter() override;
+
     void loadSettings();
     void storeSettings() const;
     void updateFromSettings();
