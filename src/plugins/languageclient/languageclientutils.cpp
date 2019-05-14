@@ -238,7 +238,7 @@ const QIcon symbolIcon(int type)
     if (type < int(SymbolKind::FirstSymbolKind) || type > int(SymbolKind::LastSymbolKind))
         return {};
     auto kind = static_cast<SymbolKind>(type);
-    if (icons.contains(kind)) {
+    if (!icons.contains(kind)) {
         switch (kind) {
         case SymbolKind::File: icons[kind] = Utils::Icons::NEWFILE.icon(); break;
         case SymbolKind::Module: icons[kind] = iconForType(Namespace); break;
