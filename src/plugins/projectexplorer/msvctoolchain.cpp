@@ -1361,6 +1361,7 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
 
     QHBoxLayout *hLayout = new QHBoxLayout();
     m_varsBatPathCombo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    m_varsBatPathCombo->setEditable(true);
     for (const MsvcToolChain *tmpTc : g_availableMsvcToolchains) {
         const QString nativeVcVars = QDir::toNativeSeparators(tmpTc->varsBat());
         if (!tmpTc->varsBat().isEmpty()
