@@ -326,7 +326,7 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
 
     switch (type()) {
     case TestCase:
-        return modifyTestCaseContent(result);
+        return modifyTestCaseOrSuiteContent(result);
     case TestFunctionOrSet:
     case TestDataFunction:
     case TestSpecialFunction:

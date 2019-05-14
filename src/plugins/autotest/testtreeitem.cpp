@@ -47,6 +47,7 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
     switch (m_type) {
     case Root:
     case GroupNode:
+    case TestSuite:
     case TestCase:
     case TestFunctionOrSet:
         m_checked = Qt::Checked;
@@ -62,6 +63,7 @@ static QIcon testTreeIcon(TestTreeItem::Type type)
     static QIcon icons[] = {
         QIcon(),
         Utils::Icons::OPENFILE.icon(),
+        QIcon(":/autotest/images/suite.png"),
         Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Class),
         Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::SlotPrivate),
         QIcon(":/autotest/images/data.png")
@@ -120,6 +122,7 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     case Root:
     case GroupNode:
         return Qt::ItemIsEnabled | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
+    case TestSuite:
     case TestCase:
         return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     case TestFunctionOrSet:
@@ -129,7 +132,7 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     }
 }
 
-bool TestTreeItem::modifyTestCaseContent(const TestParseResult *result)
+bool TestTreeItem::modifyTestCaseOrSuiteContent(const TestParseResult *result)
 {
     bool hasBeenModified = modifyName(result->name);
     hasBeenModified |= modifyLineAndColumn(result);
@@ -170,6 +173,7 @@ Qt::CheckState TestTreeItem::checked() const
     switch (m_type) {
     case Root:
     case GroupNode:
+    case TestSuite:
     case TestCase:
     case TestFunctionOrSet:
     case TestDataTag:

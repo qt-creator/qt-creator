@@ -171,10 +171,10 @@ QList<TestTreeItem *> TestTreeModel::testItemsByName(TestTreeItem *root, const Q
     QList<TestTreeItem *> result;
 
     root->forFirstLevelChildren([&testName, &result, this](TestTreeItem *node) {
-        if (node->type() == TestTreeItem::TestCase) {
+        if (node->type() == TestTreeItem::TestSuite || node->type() == TestTreeItem::TestCase) {
             if (node->name() == testName) {
                 result << node;
-                return; // prioritize Tests over TestCases
+                return; // prioritize test suites and cases over test functions
             }
             TestTreeItem *testCase = node->findFirstLevelChild([&testName](TestTreeItem *it) {
                 QTC_ASSERT(it, return false);

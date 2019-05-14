@@ -364,7 +364,7 @@ bool QuickTestTreeItem::modify(const TestParseResult *result)
 
     switch (type()) {
     case TestCase:
-        return result->name.isEmpty() ? false : modifyTestCaseContent(result);
+        return result->name.isEmpty() ? false : modifyTestCaseOrSuiteContent(result);
     case TestFunctionOrSet:
     case TestDataFunction:
     case TestSpecialFunction:

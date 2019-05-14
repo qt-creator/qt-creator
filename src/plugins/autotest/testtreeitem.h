@@ -59,6 +59,7 @@ public:
     {
         Root,
         GroupNode,
+        TestSuite,
         TestCase,
         TestFunctionOrSet,
         TestDataTag,
@@ -78,7 +79,7 @@ public:
     virtual QVariant data(int column, int role) const override;
     virtual bool setData(int column, const QVariant &data, int role) override;
     virtual Qt::ItemFlags flags(int column) const override;
-    bool modifyTestCaseContent(const TestParseResult *result);
+    bool modifyTestCaseOrSuiteContent(const TestParseResult *result);
     bool modifyTestFunctionContent(const TestParseResult *result);
     bool modifyDataTagContent(const TestParseResult *result);
     bool modifyLineAndColumn(const TestParseResult *result);
