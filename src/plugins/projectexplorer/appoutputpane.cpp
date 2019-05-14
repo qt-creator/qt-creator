@@ -410,19 +410,6 @@ void AppOutputPane::updateFilter()
         m_runControlTabs.at(index).window->setFilterText(filter);
 }
 
-void AppOutputPane::configureCurrentWindow()
-{
-    using Core::OutputWindow;
-    const QString filter = m_filterOutputLineEdit->text();
-    const int index = currentIndex();
-    if (index != -1) {
-        Core::OutputWindow *currWindow = m_runControlTabs.at(index).window;
-        currWindow->setFilterText(filter);
-        currWindow->setFilterMode(OutputWindow::FilterModeFlag::RegExp, m_filterRegexp);
-        currWindow->setFilterMode(OutputWindow::FilterModeFlag::CaseSensitive, m_filterCaseSensitive);
-    }
-}
-
 void AppOutputPane::filterOutputButtonClicked()
 {
     auto popup = new Core::OptionsPopup(m_filterOutputLineEdit,

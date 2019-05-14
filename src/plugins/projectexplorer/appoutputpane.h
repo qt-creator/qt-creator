@@ -144,7 +144,6 @@ private:
     void handleOldOutput(Core::OutputWindow *window) const;
     void updateCloseActions();
     void updateFilter();
-    void configureCurrentWindow();
     void filterOutputButtonClicked();
 
     void setCaseSensitive(bool caseSensitive);
