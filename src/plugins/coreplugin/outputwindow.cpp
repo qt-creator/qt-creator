@@ -295,14 +295,14 @@ void OutputWindow::setFilterText(const QString &filterText)
 
         // Update textedit's background color
         if (filterText.isEmpty()) {
-            d->formatter->plainTextEdit()->setPalette({});
+            setPalette({});
         } else {
             QPalette pal;
             pal.setColor(QPalette::Active, QPalette::Base, d->m_highlightBgColor);
             pal.setColor(QPalette::Inactive, QPalette::Base, d->m_highlightBgColor.darker(120));
-            pal.setColor(QPalette::Active, QPalette::Text, d->m_highlightTextColor);
-            pal.setColor(QPalette::Inactive, QPalette::Text, d->m_highlightTextColor.darker(120));
-            d->formatter->plainTextEdit()->setPalette(pal);
+            pal.setColor(QPalette::Active, QPalette::Text, d->m_highlightBgColor);
+            pal.setColor(QPalette::Inactive, QPalette::Text, d->m_highlightBgColor.darker(120));
+            setPalette(pal);
         }
 
         setReadOnly(!filterText.isEmpty());
@@ -327,17 +327,12 @@ void OutputWindow::setFilterMode(OutputWindow::FilterModeFlag filterMode, bool e
 void OutputWindow::filterNewContent()
 {
     bool atBottom = isScrollbarAtBottom();
-    QPlainTextEdit *textEdit = d->formatter->plainTextEdit();
-    if (!textEdit)
-        return;
-
-    QTextDocument *document = textEdit->document();
 
     auto &lastBlock = d->lastFilteredBlock;
 
-    if (!lastBlock.isValid() || lastBlock.blockNumber() >= document->blockCount()
-            || document->findBlockByNumber(lastBlock.blockNumber()) != lastBlock) {
-        lastBlock = document->begin();
+    if (!lastBlock.isValid() || lastBlock.blockNumber() >= document()->blockCount()
+            || document()->findBlockByNumber(lastBlock.blockNumber()) != lastBlock) {
+        lastBlock = document()->begin();
     }
 
     if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
@@ -345,23 +340,25 @@ void OutputWindow::filterNewContent()
         if (!d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive))
             regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
 
-        for (; lastBlock != document->end(); lastBlock = lastBlock.next())
+        for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
             lastBlock.setVisible(d->filterText.isEmpty()
                                  || regExp.match(lastBlock.text()).hasMatch());
     } else {
         if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)) {
-            for (; lastBlock != document->end(); lastBlock = lastBlock.next())
+            for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
                 lastBlock.setVisible(d->filterText.isEmpty()
                                      || lastBlock.text().contains(d->filterText));
         } else {
-            for (; lastBlock != document->end(); lastBlock = lastBlock.next())
+            for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
                 lastBlock.setVisible(d->filterText.isEmpty()
                                      || lastBlock.text().toLower().contains(d->filterText.toLower()));
         }
     }
 
-    lastBlock = document->lastBlock();
-    textEdit->setDocument(document);
+    lastBlock = document()->lastBlock();
+
+    // FIXME: Why on earth is this necessary? We should probably do something else instead...
+    setDocument(document());
 
     if (atBottom)
         scrollToBottom();
@@ -393,24 +390,6 @@ void OutputWindow::setMaxCharCount(int count)
 int OutputWindow::maxCharCount() const
 {
     return d->maxCharCount;
-}
-
-bool OutputWindow::isReadOnly() const
-{
-    if (d->formatter) {
-        if (QPlainTextEdit *formatterEditor = d->formatter->plainTextEdit())
-            return formatterEditor->isReadOnly();
-    }
-    return QPlainTextEdit::isReadOnly();
-}
-
-void OutputWindow::setReadOnly(bool readOnly)
-{
-    QPlainTextEdit::setReadOnly(readOnly);
-    if (d->formatter) {
-        if (QPlainTextEdit *formatterEditor = d->formatter->plainTextEdit())
-            formatterEditor->setReadOnly(readOnly);
-    }
 }
 
 void OutputWindow::appendMessage(const QString &output, OutputFormat format)

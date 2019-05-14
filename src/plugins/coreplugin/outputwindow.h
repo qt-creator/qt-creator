@@ -72,9 +72,6 @@ public:
     void setMaxCharCount(int count);
     int maxCharCount() const;
 
-    bool isReadOnly() const;
-    void setReadOnly(bool readOnly);
-
     void setBaseFont(const QFont &newFont);
     float fontZoom() const;
     void setFontZoom(float zoom);
