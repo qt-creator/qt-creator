@@ -1362,8 +1362,10 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     QHBoxLayout *hLayout = new QHBoxLayout();
     m_varsBatPathCombo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     for (const MsvcToolChain *tmpTc : g_availableMsvcToolchains) {
-        if (!tmpTc->varsBat().isEmpty() && m_varsBatPathCombo->findText(tmpTc->varsBat()) == -1) {
-            m_varsBatPathCombo->addItem(tmpTc->varsBat());
+        const QString nativeVcVars = QDir::toNativeSeparators(tmpTc->varsBat());
+        if (!tmpTc->varsBat().isEmpty()
+                && m_varsBatPathCombo->findText(nativeVcVars) == -1) {
+            m_varsBatPathCombo->addItem(nativeVcVars);
         }
     }
     const bool isAmd64
@@ -1405,7 +1407,8 @@ void MsvcToolChainConfigWidget::applyImpl()
     auto *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return );
     tc->setTargetAbi(m_abiWidget->currentAbi());
-    tc->changeVcVarsCall(m_varsBatPathCombo->currentText(), vcVarsArguments());
+    const QString vcVars = QDir::fromNativeSeparators(m_varsBatPathCombo->currentText());
+    tc->changeVcVarsCall(vcVars, vcVarsArguments());
     setFromMsvcToolChain();
 }
 
@@ -1418,7 +1421,7 @@ bool MsvcToolChainConfigWidget::isDirtyImpl() const
 {
     auto msvcToolChain = static_cast<MsvcToolChain *>(toolChain());
 
-    return msvcToolChain->varsBat() != m_varsBatPathCombo->currentText()
+    return msvcToolChain->varsBat() != QDir::fromNativeSeparators(m_varsBatPathCombo->currentText())
             || msvcToolChain->varsBatArg() != vcVarsArguments()
             || msvcToolChain->targetAbi() != m_abiWidget->currentAbi();
 }
@@ -1446,13 +1449,14 @@ void MsvcToolChainConfigWidget::setFromMsvcToolChain()
             break;
         }
     }
-    m_varsBatPathCombo->setCurrentText(tc->varsBat());
+    m_varsBatPathCombo->setCurrentText(QDir::toNativeSeparators(tc->varsBat()));
     m_varsBatArgumentsEdit->setText(args);
     m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
 }
 
 void MsvcToolChainConfigWidget::handleVcVarsChange(const QString &vcVars)
 {
+    const QString normalizedVcVars = QDir::fromNativeSeparators(vcVars);
     const auto *currentTc = static_cast<const MsvcToolChain *>(toolChain());
     QTC_ASSERT(currentTc, return );
     const MsvcToolChain::Platform platform = m_varsBatArchCombo->currentData().value<MsvcToolChain::Platform>();
@@ -1460,7 +1464,7 @@ void MsvcToolChainConfigWidget::handleVcVarsChange(const QString &vcVars)
     const unsigned char wordWidth = wordWidthForPlatform(platform);
 
     for (const MsvcToolChain *tc : g_availableMsvcToolchains) {
-        if (tc->varsBat() == vcVars && tc->targetAbi().wordWidth() == wordWidth
+        if (tc->varsBat() == normalizedVcVars && tc->targetAbi().wordWidth() == wordWidth
                 && tc->targetAbi().architecture() == arch) {
             m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
             break;
