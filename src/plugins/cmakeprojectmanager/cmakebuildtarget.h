@@ -57,8 +57,6 @@ public:
     QStringList compilerOptions;
     ProjectExplorer::Macros macros;
     QList<Utils::FileName> files;
-
-    void clear();
 };
 
 } // namespace CMakeProjectManager

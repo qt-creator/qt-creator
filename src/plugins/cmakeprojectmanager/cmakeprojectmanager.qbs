@@ -32,7 +32,6 @@ QtcPlugin {
         "cmakebuildsettingswidget.h",
         "cmakebuildstep.cpp",
         "cmakebuildstep.h",
-        "cmakebuildtarget.cpp",
         "cmakebuildtarget.h",
         "cmakecbpparser.cpp",
         "cmakecbpparser.h",

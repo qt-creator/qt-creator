@@ -234,7 +234,7 @@ void CMakeCbpParser::parseBuild()
 
 void CMakeCbpParser::parseBuildTarget()
 {
-    m_buildTarget.clear();
+    m_buildTarget = CMakeBuildTarget();
 
     if (attributes().hasAttribute("title"))
         m_buildTarget.title = attributes().value("title").toString();
