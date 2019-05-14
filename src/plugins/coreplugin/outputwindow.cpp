@@ -68,6 +68,7 @@ public:
     bool linksActive = true;
     bool m_zoomEnabled = false;
     float m_originalFontSize = 0.;
+    bool m_originalReadOnly = false;
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
     Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     QTextCursor cursor;
@@ -291,6 +292,7 @@ void OutputWindow::setFilterText(const QString &filterText)
 {
     if (d->filterText != filterText) {
         d->lastFilteredBlock = {};
+        const bool filterTextWasEmpty = d->filterText.isEmpty();
         d->filterText = filterText;
 
         // Update textedit's background color
@@ -305,7 +307,14 @@ void OutputWindow::setFilterText(const QString &filterText)
             setPalette(pal);
         }
 
-        setReadOnly(!filterText.isEmpty());
+        if (filterText.isEmpty()) {
+            setReadOnly(d->m_originalReadOnly);
+        } else {
+            if (filterTextWasEmpty)
+                d->m_originalReadOnly = isReadOnly();
+            setReadOnly(true);
+        }
+
         filterNewContent();
     }
 }

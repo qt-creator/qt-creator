@@ -37,6 +37,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/find/optionspopup.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -117,7 +118,10 @@ IOutputPane::~IOutputPane()
 
 QList<QWidget *> IOutputPane::toolBarWidgets() const
 {
-    return {m_zoomInButton, m_zoomOutButton};
+    QList<QWidget *> widgets;
+    if (m_filterOutputLineEdit)
+        widgets << m_filterOutputLineEdit;
+    return widgets << m_zoomInButton << m_zoomOutButton;
 }
 
 void IOutputPane::setFont(const QFont &font)
@@ -130,10 +134,82 @@ void IOutputPane::setWheelZoomEnabled(bool enabled)
     emit wheelZoomEnabledChanged(enabled);
 }
 
+void IOutputPane::setupFilterUi(const QString &historyKey)
+{
+    m_filterOutputLineEdit = new FancyLineEdit;
+    m_filterActionRegexp = new QAction(this);
+    m_filterActionRegexp->setCheckable(true);
+    m_filterActionRegexp->setText(tr("Use Regular Expressions"));
+    connect(m_filterActionRegexp, &QAction::toggled, this, &IOutputPane::setRegularExpressions);
+    Core::ActionManager::registerAction(m_filterActionRegexp, filterRegexpActionId());
+
+    m_filterActionCaseSensitive = new QAction(this);
+    m_filterActionCaseSensitive->setCheckable(true);
+    m_filterActionCaseSensitive->setText(tr("Case Sensitive"));
+    connect(m_filterActionCaseSensitive, &QAction::toggled, this, &IOutputPane::setCaseSensitive);
+    Core::ActionManager::registerAction(m_filterActionCaseSensitive,
+                                        filterCaseSensitivityActionId());
+
+    m_filterOutputLineEdit->setPlaceholderText(tr("Filter output..."));
+    m_filterOutputLineEdit->setButtonVisible(FancyLineEdit::Left, true);
+    m_filterOutputLineEdit->setButtonIcon(FancyLineEdit::Left, Icons::MAGNIFIER.icon());
+    m_filterOutputLineEdit->setFiltering(true);
+    m_filterOutputLineEdit->setEnabled(false);
+    m_filterOutputLineEdit->setHistoryCompleter(historyKey);
+    connect(m_filterOutputLineEdit, &FancyLineEdit::textChanged,
+            this, &IOutputPane::updateFilter);
+    connect(m_filterOutputLineEdit, &FancyLineEdit::returnPressed,
+            this, &IOutputPane::updateFilter);
+    connect(m_filterOutputLineEdit, &FancyLineEdit::leftButtonClicked,
+            this, &IOutputPane::filterOutputButtonClicked);
+}
+
+QString IOutputPane::filterText() const
+{
+    return m_filterOutputLineEdit->text();
+}
+
+void IOutputPane::setFilteringEnabled(bool enable)
+{
+    m_filterOutputLineEdit->setEnabled(enable);
+}
+
 void IOutputPane::setZoomButtonsEnabled(bool enabled)
 {
     m_zoomInButton->setEnabled(enabled);
     m_zoomOutButton->setEnabled(enabled);
+}
+
+void IOutputPane::updateFilter()
+{
+    QTC_ASSERT(false, qDebug() << "updateFilter() needs to get re-implemented");
+}
+
+void IOutputPane::filterOutputButtonClicked()
+{
+    auto popup = new Core::OptionsPopup(m_filterOutputLineEdit,
+    {filterRegexpActionId(), filterCaseSensitivityActionId()});
+    popup->show();
+}
+
+void IOutputPane::setRegularExpressions(bool regularExpressions)
+{
+    m_filterRegexp = regularExpressions;
+}
+
+Id IOutputPane::filterRegexpActionId() const
+{
+    return Id("OutputFilter.RegularExpressions").withSuffix(metaObject()->className());
+}
+
+Id IOutputPane::filterCaseSensitivityActionId() const
+{
+    return Id("OutputFilter.CaseSensitive").withSuffix(metaObject()->className());
+}
+
+void IOutputPane::setCaseSensitive(bool caseSensitive)
+{
+    m_filterCaseSensitive = caseSensitive;
 }
 
 namespace Internal {

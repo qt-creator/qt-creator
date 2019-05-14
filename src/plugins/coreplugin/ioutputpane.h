@@ -26,12 +26,16 @@
 #pragma once
 
 #include "core_global.h"
+#include "id.h"
+
+#include <utils/fancylineedit.h>
 
 #include <QObject>
 #include <QList>
 #include <QString>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QToolButton;
 class QWidget;
 QT_END_NAMESPACE
@@ -93,11 +97,28 @@ signals:
     void fontChanged(const QFont &font);
 
 protected:
+    void setupFilterUi(const QString &historyKey);
+    QString filterText() const;
+    void setFilteringEnabled(bool enable);
+
     void setZoomButtonsEnabled(bool enabled);
 
 private:
+    virtual void updateFilter();
+
+    void filterOutputButtonClicked();
+    void setCaseSensitive(bool caseSensitive);
+    void setRegularExpressions(bool regularExpressions);
+    Id filterRegexpActionId() const;
+    Id filterCaseSensitivityActionId() const;
+
     QToolButton * const m_zoomInButton = nullptr;
     QToolButton * const m_zoomOutButton = nullptr;
+    QAction *m_filterActionRegexp = nullptr;
+    QAction *m_filterActionCaseSensitive = nullptr;
+    Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
+    bool m_filterRegexp = false;
+    bool m_filterCaseSensitive = false;
 };
 
 } // namespace Core

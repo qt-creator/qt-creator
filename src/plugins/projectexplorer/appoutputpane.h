@@ -30,7 +30,6 @@
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/fancylineedit.h>
 #include <utils/outputformat.h>
 
 #include <QPointer>
@@ -143,11 +142,7 @@ private:
     int tabWidgetIndexOf(int runControlIndex) const;
     void handleOldOutput(Core::OutputWindow *window) const;
     void updateCloseActions();
-    void updateFilter();
-    void filterOutputButtonClicked();
-
-    void setCaseSensitive(bool caseSensitive);
-    void setRegularExpressions(bool regularExpressions);
+    void updateFilter() override;
 
     void loadSettings();
     void storeSettings() const;
@@ -164,13 +159,8 @@ private:
     QToolButton *m_stopButton;
     QToolButton *m_attachButton;
     QToolButton * const m_settingsButton;
-    QAction *m_filterActionRegexp = nullptr;
-    QAction *m_filterActionCaseSensitive = nullptr;
-    Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
     QWidget *m_formatterWidget;
     AppOutputSettings m_settings;
-    bool m_filterRegexp = false;
-    bool m_filterCaseSensitive = false;
 };
 
 class AppOutputSettingsPage : public Core::IOptionsPage
