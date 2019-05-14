@@ -74,6 +74,7 @@ public:
     QTextCursor cursor;
     QString filterText;
     QTextBlock lastFilteredBlock;
+    QPalette originalPalette;
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
 };
 
@@ -297,21 +298,19 @@ void OutputWindow::setFilterText(const QString &filterText)
 
         // Update textedit's background color
         if (filterText.isEmpty()) {
-            setPalette({});
+            setPalette(d->originalPalette);
+            setReadOnly(d->m_originalReadOnly);
         } else {
+            if (filterTextWasEmpty) {
+                d->m_originalReadOnly = isReadOnly();
+                d->originalPalette = palette();
+            }
             QPalette pal;
             pal.setColor(QPalette::Active, QPalette::Base, d->m_highlightBgColor);
             pal.setColor(QPalette::Inactive, QPalette::Base, d->m_highlightBgColor.darker(120));
             pal.setColor(QPalette::Active, QPalette::Text, d->m_highlightTextColor);
             pal.setColor(QPalette::Inactive, QPalette::Text, d->m_highlightTextColor.darker(120));
             setPalette(pal);
-        }
-
-        if (filterText.isEmpty()) {
-            setReadOnly(d->m_originalReadOnly);
-        } else {
-            if (filterTextWasEmpty)
-                d->m_originalReadOnly = isReadOnly();
             setReadOnly(true);
         }
 

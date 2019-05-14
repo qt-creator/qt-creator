@@ -64,6 +64,8 @@ public:
     bool canNavigate() const override;
 
 private:
+    void updateFilter() override;
+
     OutputWindow *m_widget;
 };
 
