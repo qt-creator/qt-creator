@@ -312,11 +312,11 @@
     You can use the Studio components to animate the following shapes:
 
     \list
-        \li Arc
-        \li Border
-        \li Pie
-        \li Rectangle
-        \li Triangle
+        \li \l Arc
+        \li \l Border
+        \li \l Pie
+        \li \l Rectangle
+        \li \l Triangle
     \endlist
     \endif
 */
