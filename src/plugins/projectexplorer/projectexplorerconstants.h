@@ -186,6 +186,7 @@ const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
 const char VAR_CURRENTBUILD_ENV[] = "CurrentBuild:Env";
 const char VAR_CURRENTRUN_NAME[] = "CurrentRun:Name";
+const char VAR_CURRENTRUN_WORKINGDIR[] = "CurrentRun:WorkingDir";
 
 // JsonWizard:
 const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";

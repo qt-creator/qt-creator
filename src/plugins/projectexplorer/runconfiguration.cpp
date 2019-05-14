@@ -186,6 +186,14 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
         const auto envAspect = aspect<EnvironmentAspect>();
         return envAspect ? envAspect->environment().value(var) : QString();
     });
+
+    expander->registerVariable(Constants::VAR_CURRENTRUN_WORKINGDIR,
+                               tr("The currently active run configuration's working directory"),
+                               [this, expander] {
+        const auto wdAspect = aspect<WorkingDirectoryAspect>();
+        return wdAspect ? wdAspect->workingDirectory(expander).toString() : QString();
+    });
+
     expander->registerVariable(Constants::VAR_CURRENTRUN_NAME,
             QCoreApplication::translate("ProjectExplorer", "The currently active run configuration's name."),
             [this] { return displayName(); }, false);
