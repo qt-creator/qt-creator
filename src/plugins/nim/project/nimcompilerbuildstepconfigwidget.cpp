@@ -104,7 +104,7 @@ void NimCompilerBuildStepConfigWidget::updateCommandLineText()
     ProcessParameters *parameters = m_buildStep->processParameters();
 
     QStringList command;
-    command << parameters->command();
+    command << parameters->command().toString();
     command << parameters->arguments();
 
     // Remove empty args

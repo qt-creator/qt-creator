@@ -87,11 +87,11 @@ bool IosBuildStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
+    pp->setWorkingDirectory(bc->buildDirectory());
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    pp->setCommand(buildCommand());
+    pp->setCommand(Utils::FileName::fromString(buildCommand()));
     pp->setArguments(Utils::QtcProcess::joinArgs(allArguments()));
     pp->resolveAll();
 
@@ -251,9 +251,9 @@ void IosBuildStepConfigWidget::updateDetails()
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
+    param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    param.setCommand(m_buildStep->buildCommand());
+    param.setCommand(Utils::FileName::fromString(m_buildStep->buildCommand()));
     param.setArguments(Utils::QtcProcess::joinArgs(m_buildStep->allArguments()));
 
     setSummaryText(param.summary(displayName()));

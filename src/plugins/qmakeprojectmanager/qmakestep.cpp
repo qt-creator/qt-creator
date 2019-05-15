@@ -223,7 +223,7 @@ bool QMakeStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(qmakeBc->macroExpander());
-    pp->setWorkingDirectory(workingDirectory);
+    pp->setWorkingDirectory(Utils::FileName::fromString(workingDirectory));
     pp->setEnvironment(qmakeBc->environment());
 
     setOutputParser(new QMakeParser);
@@ -314,7 +314,7 @@ void QMakeStep::finish(bool success)
 void QMakeStep::startOneCommand(const QString &command, const QString &args)
 {
     ProcessParameters *pp = processParameters();
-    pp->setCommand(command);
+    pp->setCommand(Utils::FileName::fromString(command));
     pp->setArguments(args);
     pp->resolveAll();
 
@@ -343,7 +343,7 @@ void QMakeStep::runNextCommand()
     case State::RUN_MAKE_QMAKE_ALL:
         {
             auto *parser = new GnuMakeParser;
-            parser->setWorkingDirectory(processParameters()->workingDirectory());
+            parser->setWorkingDirectory(processParameters()->workingDirectory().toString());
             setOutputParser(parser);
             m_nextState = State::POST_PROCESS;
             startOneCommand(m_makeExecutable, m_makeArguments);
@@ -439,7 +439,7 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
 QString QMakeStep::makeCommand() const
 {
     auto *ms = qobject_cast<BuildStepList *>(parent())->firstOfType<MakeStep>();
-    return ms ? ms->effectiveMakeCommand() : QString();
+    return ms ? ms->effectiveMakeCommand().toString() : QString();
 }
 
 QString QMakeStep::makeArguments(const QString &makefile) const

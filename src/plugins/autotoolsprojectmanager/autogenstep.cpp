@@ -77,9 +77,8 @@ bool AutogenStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
-    const QString projectDir(bc->target()->project()->projectDirectory().toString());
-    pp->setWorkingDirectory(projectDir);
-    pp->setCommand("./autogen.sh");
+    pp->setWorkingDirectory(bc->target()->project()->projectDirectory());
+    pp->setCommand(Utils::FileName::fromString("./autogen.sh"));
     pp->setArguments(m_additionalArgumentsAspect->value());
     pp->resolveAll();
 
@@ -122,9 +121,8 @@ BuildStepConfigWidget *AutogenStep::createConfigWidget()
         ProcessParameters param;
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
-        const QString projectDir(bc->target()->project()->projectDirectory().toString());
-        param.setWorkingDirectory(projectDir);
-        param.setCommand("./autogen.sh");
+        param.setWorkingDirectory(bc->target()->project()->projectDirectory());
+        param.setCommand(Utils::FileName::fromString("./autogen.sh"));
         param.setArguments(m_additionalArgumentsAspect->value());
 
         widget->setSummaryText(param.summary(displayName()));

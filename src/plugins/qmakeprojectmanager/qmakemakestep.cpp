@@ -75,7 +75,7 @@ bool QmakeMakeStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    const QString make = effectiveMakeCommand();
+    Utils::FileName make = effectiveMakeCommand();
     if (make.isEmpty())
         emit addTask(makeCommandMissingTask());
 
@@ -96,7 +96,7 @@ bool QmakeMakeStep::init()
         workingDirectory = bc->subNodeBuild()->buildDir();
     else
         workingDirectory = bc->buildDirectory().toString();
-    pp->setWorkingDirectory(workingDirectory);
+    pp->setWorkingDirectory(Utils::FileName::fromString(workingDirectory));
 
     pp->setCommand(make);
 
@@ -148,7 +148,8 @@ bool QmakeMakeStep::init()
                     objectsDir += "/release";
             }
         }
-        QString relObjectsDir = QDir(pp->workingDirectory()).relativeFilePath(objectsDir);
+        QString relObjectsDir = QDir(pp->workingDirectory().toString())
+                .relativeFilePath(objectsDir);
         if (relObjectsDir == ".")
             relObjectsDir.clear();
         if (!relObjectsDir.isEmpty())

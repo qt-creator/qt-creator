@@ -68,11 +68,11 @@ bool IosDsymBuildStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
+    pp->setWorkingDirectory(bc->buildDirectory());
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    pp->setCommand(command());
+    pp->setCommand(Utils::FileName::fromString(command()));
     pp->setArguments(Utils::QtcProcess::joinArgs(arguments()));
     pp->resolveAll();
 
@@ -268,9 +268,9 @@ void IosDsymBuildStepConfigWidget::updateDetails()
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
+    param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    param.setCommand(m_buildStep->command());
+    param.setCommand(Utils::FileName::fromString(m_buildStep->command()));
     param.setArguments(Utils::QtcProcess::joinArgs(m_buildStep->arguments()));
 
     setSummaryText(param.summary(displayName()));

@@ -200,7 +200,7 @@ bool AbstractProcessStep::init()
 
 void AbstractProcessStep::doRun()
 {
-    QDir wd(d->m_param.effectiveWorkingDirectory());
+    QDir wd(d->m_param.effectiveWorkingDirectory().toString());
     if (!wd.exists()) {
         if (!wd.mkpath(wd.absolutePath())) {
             emit addOutput(tr("Could not create directory \"%1\"")
@@ -211,7 +211,7 @@ void AbstractProcessStep::doRun()
         }
     }
 
-    QString effectiveCommand = d->m_param.effectiveCommand();
+    QString effectiveCommand = d->m_param.effectiveCommand().toString();
     if (!QFileInfo::exists(effectiveCommand)) {
         processStartupFailed();
         finish(false);
@@ -275,7 +275,7 @@ void AbstractProcessStep::cleanUp(QProcess *process)
 void AbstractProcessStep::processStarted()
 {
     emit addOutput(tr("Starting: \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand()),
+                   .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand().toString()),
                         d->m_param.prettyArguments()),
                    BuildStep::OutputFormat::NormalMessage);
 }
@@ -291,7 +291,7 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
     if (d->m_outputParserChain)
         d->m_outputParserChain->flush();
 
-    QString command = QDir::toNativeSeparators(d->m_param.effectiveCommand());
+    QString command = QDir::toNativeSeparators(d->m_param.effectiveCommand().toString());
     if (status == QProcess::NormalExit && exitCode == 0) {
         emit addOutput(tr("The process \"%1\" exited normally.").arg(command),
                        BuildStep::OutputFormat::NormalMessage);
@@ -313,7 +313,7 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
 void AbstractProcessStep::processStartupFailed()
 {
     emit addOutput(tr("Could not start process \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand()),
+                   .arg(QDir::toNativeSeparators(d->m_param.effectiveCommand().toString()),
                         d->m_param.prettyArguments()),
                    BuildStep::OutputFormat::ErrorMessage);
 }

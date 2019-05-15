@@ -66,7 +66,7 @@ public:
 
     QString allArguments(const CMakeRunConfiguration *rc) const;
 
-    QString cmakeCommand() const;
+    Utils::FileName cmakeCommand() const;
 
     QVariantMap toMap() const override;
 

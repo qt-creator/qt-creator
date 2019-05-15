@@ -173,7 +173,7 @@ bool MakeInstallStep::cleanInstallRoot() const
 
 void MakeInstallStep::updateCommandFromAspect()
 {
-    setMakeCommand(aspect<ExecutableAspect>()->executable().toString());
+    setMakeCommand(aspect<ExecutableAspect>()->executable());
     updateFullCommandLine();
 }
 
@@ -188,7 +188,8 @@ void MakeInstallStep::updateArgsFromAspect()
 void MakeInstallStep::updateFullCommandLine()
 {
     static_cast<BaseStringAspect *>(aspect(FullCommandLineAspectId))->setValue(
-                QDir::toNativeSeparators(QtcProcess::quoteArg(effectiveMakeCommand()))
+                QDir::toNativeSeparators(
+                    QtcProcess::quoteArg(effectiveMakeCommand().toString()))
                 + ' '  + userArguments());
 }
 

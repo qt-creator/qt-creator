@@ -690,6 +690,11 @@ QString Environment::expandVariables(const QString &input) const
     return result;
 }
 
+FileName Environment::expandVariables(const FileName &variables) const
+{
+    return FileName::fromString(expandVariables(variables.toString()));
+}
+
 QStringList Environment::expandVariables(const QStringList &variables) const
 {
     return Utils::transform(variables, [this](const QString &i) { return expandVariables(i); });

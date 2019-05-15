@@ -207,6 +207,11 @@ void IOutputParser::setWorkingDirectory(const QString &workingDirectory)
         m_parser->setWorkingDirectory(workingDirectory);
 }
 
+void IOutputParser::setWorkingDirectory(const Utils::FileName &fn)
+{
+    setWorkingDirectory(fn.toString());
+}
+
 void IOutputParser::flush()
 {
     doFlush();

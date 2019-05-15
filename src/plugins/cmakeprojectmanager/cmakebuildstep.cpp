@@ -218,7 +218,7 @@ bool CMakeBuildStep::init()
     if (!env.value("NINJA_STATUS").startsWith(m_ninjaProgressString))
         env.set("NINJA_STATUS", m_ninjaProgressString + "%o/sec] ");
     pp->setEnvironment(env);
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
+    pp->setWorkingDirectory(bc->buildDirectory());
     pp->setCommand(cmakeCommand());
     pp->setArguments(arguments);
     pp->resolveAll();
@@ -373,10 +373,10 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
     return arguments;
 }
 
-QString CMakeBuildStep::cmakeCommand() const
+Utils::FileName CMakeBuildStep::cmakeCommand() const
 {
     CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
-    return tool ? tool->cmakeExecutable().toString() : QString();
+    return tool ? tool->cmakeExecutable() : Utils::FileName();
 }
 
 QString CMakeBuildStep::cleanTarget()
@@ -531,7 +531,7 @@ void CMakeBuildStepConfigWidget::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
+    param.setWorkingDirectory(bc->buildDirectory());
     param.setCommand(m_buildStep->cmakeCommand());
     param.setArguments(m_buildStep->allArguments(nullptr));
 

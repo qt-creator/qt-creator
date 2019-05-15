@@ -135,6 +135,7 @@ public:
     bool isSameExecutable(const QString &exe1, const QString &exe2) const;
 
     QString expandVariables(const QString &input) const;
+    FileName expandVariables(const FileName &input) const;
     QStringList expandVariables(const QStringList &input) const;
 
     bool operator!=(const Environment &other) const;

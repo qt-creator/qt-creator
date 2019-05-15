@@ -70,6 +70,7 @@
 #include <memory>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 using namespace Android::Internal;
 
 namespace {
@@ -90,10 +91,10 @@ static void setupProcessParameters(ProcessParameters *pp,
                                    const QString &command)
 {
     pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
+    pp->setWorkingDirectory(bc->buildDirectory());
     Utils::Environment env = bc->environment();
     pp->setEnvironment(env);
-    pp->setCommand(command);
+    pp->setCommand(FileName::fromString(command));
     pp->setArguments(Utils::QtcProcess::joinArgs(arguments));
     pp->resolveAll();
 }
@@ -279,7 +280,7 @@ bool AndroidBuildApkStep::init()
     // Generate arguments with keystore password concealed
     ProjectExplorer::ProcessParameters pp2;
     setupProcessParameters(&pp2, bc, argumentsPasswordConcealed, command);
-    m_command = pp2.effectiveCommand();
+    m_command = pp2.effectiveCommand().toString();
     m_argumentsPasswordConcealed = pp2.prettyArguments();
 
     return true;

@@ -37,6 +37,7 @@ namespace Utils {
 
 namespace Internal { class MacroExpanderPrivate; }
 
+class FileName;
 class MacroExpander;
 using MacroExpanderProvider = std::function<MacroExpander *()>;
 using MacroExpanderProviders = QVector<MacroExpanderProvider>;
@@ -55,6 +56,7 @@ public:
     QString value(const QByteArray &variable, bool *found = nullptr) const;
 
     QString expand(const QString &stringWithVariables) const;
+    FileName expand(const FileName &fileNameWithVariables) const;
     QByteArray expand(const QByteArray &stringWithVariables) const;
     QVariant expandVariant(const QVariant &v) const;
 

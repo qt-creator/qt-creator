@@ -635,7 +635,7 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
         if (const auto cmakeStep = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
                 ->firstOfType<CMakeBuildStep>()) {
-            cmd.command = FileName::fromString(cmakeStep->cmakeCommand());
+            cmd.command = cmakeStep->cmakeCommand();
         }
     }
     cmd.arguments << "--build" << "." << "--target" << "install";

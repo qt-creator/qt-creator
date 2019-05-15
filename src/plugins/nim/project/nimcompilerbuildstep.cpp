@@ -228,14 +228,14 @@ void NimCompilerBuildStep::updateCommand()
     Kit *kit = target()->kit();
     auto tc = dynamic_cast<NimToolChain*>(ToolChainKitAspect::toolChain(kit, Constants::C_NIMLANGUAGE_ID));
     QTC_ASSERT(tc, return);
-    processParameters()->setCommand(tc->compilerCommand().toString());
+    processParameters()->setCommand(tc->compilerCommand());
 }
 
 void NimCompilerBuildStep::updateWorkingDirectory()
 {
     auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
     QTC_ASSERT(bc, return);
-    processParameters()->setWorkingDirectory(bc->buildDirectory().toString());
+    processParameters()->setWorkingDirectory(bc->buildDirectory());
 }
 
 void NimCompilerBuildStep::updateArguments()

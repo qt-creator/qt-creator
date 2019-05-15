@@ -855,7 +855,7 @@ MakeInstallCommand Project::makeInstallCommand(const Target *target, const QStri
     if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
         if (const auto makeStep = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
                 ->firstOfType<MakeStep>()) {
-            cmd.command = Utils::FileName::fromString(makeStep->effectiveMakeCommand());
+            cmd.command = makeStep->effectiveMakeCommand();
         }
     }
     cmd.arguments << "install" << ("INSTALL_ROOT=" + QDir::toNativeSeparators(installRoot));

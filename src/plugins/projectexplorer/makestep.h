@@ -28,6 +28,8 @@
 #include "abstractprocessstep.h"
 #include "projectexplorer_global.h"
 
+#include <utils/fileutils.h>
+
 QT_FORWARD_DECLARE_CLASS(QListWidgetItem);
 
 namespace Utils { class Environment; }
@@ -56,16 +58,16 @@ public:
     QString allArguments() const;
     QString userArguments() const;
     void setUserArguments(const QString &args);
-    QString makeCommand() const;
-    void setMakeCommand(const QString &command);
-    QString effectiveMakeCommand() const;
+    Utils::FileName makeCommand() const;
+    void setMakeCommand(const Utils::FileName &command);
+    Utils::FileName effectiveMakeCommand() const;
 
     void setClean(bool clean);
     bool isClean() const;
 
     static QString defaultDisplayName();
 
-    QString defaultMakeCommand() const;
+    Utils::FileName defaultMakeCommand() const;
     static QString msgNoMakeCommand();
     static Task makeCommandMissingTask();
 
@@ -91,7 +93,7 @@ private:
     QStringList m_buildTargets;
     QStringList m_availableTargets;
     QString m_makeArguments;
-    QString m_makeCommand;
+    Utils::FileName m_makeCommand;
     int m_userJobCount = 4;
     bool m_overrideMakeflags = false;
     bool m_clean = false;

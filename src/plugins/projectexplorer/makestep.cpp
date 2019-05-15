@@ -79,7 +79,7 @@ bool MakeStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    const QString make = effectiveMakeCommand();
+    const FileName make = effectiveMakeCommand();
     if (make.isEmpty())
         emit addTask(makeCommandMissingTask());
 
@@ -90,7 +90,7 @@ bool MakeStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
+    pp->setWorkingDirectory(bc->buildDirectory());
     pp->setEnvironment(environment(bc));
     pp->setCommand(make);
     pp->setArguments(allArguments());
@@ -105,7 +105,7 @@ bool MakeStep::init()
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)
         appendOutputParser(parser);
-    outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
+    outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory().toString());
 
     return AbstractProcessStep::init();
 }
@@ -143,18 +143,18 @@ static const QList<ToolChain *> preferredToolChains(const Kit *kit)
     return tcs;
 }
 
-QString MakeStep::defaultMakeCommand() const
+FileName MakeStep::defaultMakeCommand() const
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
-        return QString();
+        return {};
     const Utils::Environment env = environment(bc);
     for (const ToolChain *tc : preferredToolChains(target()->kit())) {
         FileName make = tc->makeCommand(env);
         if (!make.isEmpty())
-            return make.toString();
+            return make;
     }
-    return QString();
+    return {};
 }
 
 QString MakeStep::msgNoMakeCommand()
@@ -260,7 +260,7 @@ Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
     return env;
 }
 
-void MakeStep::setMakeCommand(const QString &command)
+void MakeStep::setMakeCommand(const FileName &command)
 {
     m_makeCommand = command;
 }
@@ -271,7 +271,7 @@ QVariantMap MakeStep::toMap() const
 
     map.insert(id().withSuffix(BUILD_TARGETS_SUFFIX).toString(), m_buildTargets);
     map.insert(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString(), m_makeArguments);
-    map.insert(id().withSuffix(MAKE_COMMAND_SUFFIX).toString(), m_makeCommand);
+    map.insert(id().withSuffix(MAKE_COMMAND_SUFFIX).toString(), m_makeCommand.toString());
     map.insert(id().withSuffix(CLEAN_SUFFIX).toString(), m_clean);
     const QString jobCountKey = id().withSuffix(JOBCOUNT_SUFFIX).toString();
     if (m_userJobCount != defaultJobCount())
@@ -286,7 +286,8 @@ bool MakeStep::fromMap(const QVariantMap &map)
 {
     m_buildTargets = map.value(id().withSuffix(BUILD_TARGETS_SUFFIX).toString()).toStringList();
     m_makeArguments = map.value(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString()).toString();
-    m_makeCommand = map.value(id().withSuffix(MAKE_COMMAND_SUFFIX).toString()).toString();
+    m_makeCommand = FileName::fromString(
+                map.value(id().withSuffix(MAKE_COMMAND_SUFFIX).toString()).toString());
     m_clean = map.value(id().withSuffix(CLEAN_SUFFIX).toString()).toBool();
     m_overrideMakeflags = map.value(id().withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString(), false).toBool();
     m_userJobCount = map.value(id().withSuffix(JOBCOUNT_SUFFIX).toString(), defaultJobCount()).toInt();
@@ -324,12 +325,12 @@ void MakeStep::setUserArguments(const QString &args)
     m_makeArguments = args;
 }
 
-QString MakeStep::makeCommand() const
+FileName MakeStep::makeCommand() const
 {
     return m_makeCommand;
 }
 
-QString MakeStep::effectiveMakeCommand() const
+FileName MakeStep::effectiveMakeCommand() const
 {
     if (!m_makeCommand.isEmpty())
         return m_makeCommand;
@@ -386,7 +387,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     m_ui->makeLineEdit->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->makeLineEdit->setBaseDirectory(Utils::PathChooser::homePath());
     m_ui->makeLineEdit->setHistoryCompleter("PE.MakeCommand.History");
-    m_ui->makeLineEdit->setPath(m_makeStep->makeCommand());
+    m_ui->makeLineEdit->setPath(m_makeStep->makeCommand().toString());
     m_ui->makeArgumentsLineEdit->setText(m_makeStep->userArguments());
     m_ui->nonOverrideWarning->setToolTip("<html><body><p>" +
         tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
@@ -459,7 +460,7 @@ void MakeStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
 
-    const QString defaultMake = m_makeStep->defaultMakeCommand();
+    const QString defaultMake = m_makeStep->defaultMakeCommand().toString();
     if (defaultMake.isEmpty())
         m_ui->makeLabel->setText(tr("Make:"));
     else
@@ -484,14 +485,14 @@ void MakeStepConfigWidget::updateDetails()
 
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
+    param.setWorkingDirectory(bc->buildDirectory());
     param.setCommand(m_makeStep->effectiveMakeCommand());
-
     param.setArguments(m_makeStep->allArguments());
     param.setEnvironment(m_makeStep->environment(bc));
 
     if (param.commandMissing())
-        setSummaryText(tr("<b>Make:</b> %1 not found in the environment.").arg(param.command())); // Override display text
+        setSummaryText(tr("<b>Make:</b> %1 not found in the environment.")
+                       .arg(param.command().toString())); // Override display text
     else
         setSummaryText(param.summaryInWorkdir(displayName()));
 }
@@ -504,7 +505,7 @@ void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 
 void MakeStepConfigWidget::makeLineEditTextEdited()
 {
-    m_makeStep->setMakeCommand(m_ui->makeLineEdit->rawPath());
+    m_makeStep->setMakeCommand(FileName::fromString(m_ui->makeLineEdit->rawPath()));
     updateDetails();
 }
 

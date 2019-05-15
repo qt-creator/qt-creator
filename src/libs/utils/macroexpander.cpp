@@ -290,6 +290,11 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
     return res;
 }
 
+FileName MacroExpander::expand(const FileName &fileNameWithVariables) const
+{
+    return FileName::fromString(expand(fileNameWithVariables.toString()));
+}
+
 QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const
 {
     return expand(QString::fromLatin1(stringWithVariables)).toLatin1();

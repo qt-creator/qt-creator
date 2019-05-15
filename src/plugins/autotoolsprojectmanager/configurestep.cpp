@@ -97,8 +97,8 @@ bool ConfigureStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
-    pp->setWorkingDirectory(bc->buildDirectory().toString());
-    pp->setCommand(projectDirRelativeToBuildDir(bc) + "configure");
+    pp->setWorkingDirectory(bc->buildDirectory());
+    pp->setCommand(Utils::FileName::fromString(projectDirRelativeToBuildDir(bc) + "configure"));
     pp->setArguments(m_additionalArgumentsAspect->value());
     pp->resolveAll();
 
@@ -158,8 +158,8 @@ void ConfigureStep::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory().toString());
-    param.setCommand(projectDirRelativeToBuildDir(bc) + "configure");
+    param.setWorkingDirectory(bc->buildDirectory());
+    param.setCommand(Utils::FileName::fromString(projectDirRelativeToBuildDir(bc) + "configure"));
     param.setArguments(m_additionalArgumentsAspect->value());
 
     m_widget->setSummaryText(param.summaryInWorkdir(displayName()));

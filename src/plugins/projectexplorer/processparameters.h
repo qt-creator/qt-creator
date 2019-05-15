@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 
 namespace Utils { class MacroExpander; }
 
@@ -39,14 +40,14 @@ class PROJECTEXPLORER_EXPORT ProcessParameters
 public:
     ProcessParameters();
 
-    void setCommand(const QString &cmd);
-    QString command() const { return m_command; }
+    void setCommand(const Utils::FileName &cmd);
+    Utils::FileName command() const { return m_command; }
 
     void setArguments(const QString &arguments);
     QString arguments() const { return m_arguments; }
 
-    void setWorkingDirectory(const QString &workingDirectory);
-    QString workingDirectory() const { return m_workingDirectory; }
+    void setWorkingDirectory(const Utils::FileName &workingDirectory);
+    Utils::FileName workingDirectory() const { return m_workingDirectory; }
 
     void setEnvironment(const Utils::Environment &env) { m_environment = env; }
     Utils::Environment environment() const { return m_environment; }
@@ -55,9 +56,9 @@ public:
     Utils::MacroExpander *macroExpander() const { return m_macroExpander; }
 
     /// Get the fully expanded working directory:
-    QString effectiveWorkingDirectory() const;
+    Utils::FileName effectiveWorkingDirectory() const;
     /// Get the fully expanded command name to run:
-    QString effectiveCommand() const;
+    Utils::FileName effectiveCommand() const;
     /// Get the fully expanded arguments to use:
     QString effectiveArguments() const;
 
@@ -71,14 +72,14 @@ public:
 
     void resolveAll();
 private:
-    QString m_workingDirectory;
-    QString m_command;
+    Utils::FileName m_workingDirectory;
+    Utils::FileName m_command;
     QString m_arguments;
     Utils::Environment m_environment;
     Utils::MacroExpander *m_macroExpander;
 
-    mutable QString m_effectiveWorkingDirectory;
-    mutable QString m_effectiveCommand;
+    mutable Utils::FileName m_effectiveWorkingDirectory;
+    mutable Utils::FileName m_effectiveCommand;
     mutable QString m_effectiveArguments;
     mutable bool m_commandMissing;
 };

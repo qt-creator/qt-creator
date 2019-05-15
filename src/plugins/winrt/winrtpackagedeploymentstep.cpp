@@ -107,7 +107,7 @@ bool WinRtPackageDeploymentStep::init()
                     QDir::toNativeSeparators(qt->binPath().toString())));
         return false;
     }
-    params->setCommand(windeployqtPath);
+    params->setCommand(Utils::FileName::fromString(windeployqtPath));
     params->setArguments(args);
     params->setEnvironment(buildConfiguration()->environment());
 
