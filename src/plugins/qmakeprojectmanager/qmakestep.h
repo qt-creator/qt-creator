@@ -26,13 +26,12 @@
 #pragma once
 
 #include "qmakeprojectmanager_global.h"
+
 #include <projectexplorer/abstractprocessstep.h>
 
-#include <QStringList>
+#include <utils/fileutils.h>
 
 #include <memory>
-
-namespace Utils { class FileName; }
 
 namespace ProjectExplorer {
 class Abi;
@@ -145,7 +144,7 @@ public:
     bool separateDebugInfo() const;
     void setSeparateDebugInfo(bool enable);
 
-    QString makeCommand() const;
+    Utils::FileName makeCommand() const;
     QString makeArguments(const QString &makefile) const;
     QString effectiveQMakeCall() const;
 
@@ -167,12 +166,12 @@ private:
     void doCancel() override;
     void finish(bool success) override;
 
-    void startOneCommand(const QString &command, const QString &args);
+    void startOneCommand(const Utils::FileName &command, const QString &args);
     void runNextCommand();
 
-    QString m_qmakeExecutable;
+    Utils::FileName m_qmakeExecutable;
     QString m_qmakeArguments;
-    QString m_makeExecutable;
+    Utils::FileName m_makeExecutable;
     QString m_makeArguments;
     QString m_userArgs;
     // Extra arguments for qmake.

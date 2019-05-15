@@ -182,7 +182,7 @@ bool QMakeStep::init()
     else
         workingDirectory = qmakeBc->buildDirectory().toString();
 
-    m_qmakeExecutable = qtVersion->qmakeCommand().toString();
+    m_qmakeExecutable = qtVersion->qmakeCommand();
     m_qmakeArguments = allArguments(qtVersion);
     m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
 
@@ -311,10 +311,10 @@ void QMakeStep::finish(bool success)
     runNextCommand();
 }
 
-void QMakeStep::startOneCommand(const QString &command, const QString &args)
+void QMakeStep::startOneCommand(const FileName &command, const QString &args)
 {
     ProcessParameters *pp = processParameters();
-    pp->setCommand(Utils::FileName::fromString(command));
+    pp->setCommand(command);
     pp->setArguments(args);
     pp->resolveAll();
 
@@ -436,10 +436,10 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
     qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
-QString QMakeStep::makeCommand() const
+FileName QMakeStep::makeCommand() const
 {
-    auto *ms = qobject_cast<BuildStepList *>(parent())->firstOfType<MakeStep>();
-    return ms ? ms->effectiveMakeCommand().toString() : QString();
+    auto ms = qobject_cast<BuildStepList *>(parent())->firstOfType<MakeStep>();
+    return ms ? ms->effectiveMakeCommand() : FileName();
 }
 
 QString QMakeStep::makeArguments(const QString &makefile) const
@@ -459,7 +459,7 @@ QString QMakeStep::effectiveQMakeCall() const
     QString qmake = qtVersion ? qtVersion->qmakeCommand().toUserOutput() : QString();
     if (qmake.isEmpty())
         qmake = tr("<no Qt version>");
-    QString make = makeCommand();
+    QString make = makeCommand().toString();
     if (make.isEmpty())
         make = tr("<no Make step found>");
 
