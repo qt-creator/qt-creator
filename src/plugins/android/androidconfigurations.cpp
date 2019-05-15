@@ -271,8 +271,7 @@ void AndroidConfig::updateNdkInformation() const
     if (m_NdkInformationUpToDate)
         return;
     m_availableNdkPlatforms.clear();
-    FileName path = ndkLocation();
-    QDirIterator it(path.appendPath("platforms").toString(), QStringList("android-*"), QDir::Dirs);
+    QDirIterator it(m_ndkLocation.pathAppended("platforms").toString(), QStringList("android-*"), QDir::Dirs);
     while (it.hasNext()) {
         const QString &fileName = it.next();
         m_availableNdkPlatforms.push_back(fileName.midRef(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
@@ -294,8 +293,7 @@ void AndroidConfig::updateNdkInformation() const
     default: /* unknown host */ return;
     }
 
-    path = ndkLocation();
-    QDirIterator jt(path.appendPath(QLatin1String("prebuilt")).toString(), hostPatterns, QDir::Dirs);
+    QDirIterator jt(m_ndkLocation.pathAppended("prebuilt").toString(), hostPatterns, QDir::Dirs);
     if (jt.hasNext()) {
         jt.next();
         m_toolchainHost = jt.fileName();
@@ -317,8 +315,7 @@ QString AndroidConfig::apiLevelNameFor(const SdkPlatform *platform)
 
 FileName AndroidConfig::adbToolPath() const
 {
-    FileName path = m_sdkLocation;
-    return path.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX));
+    return m_sdkLocation.pathAppended("platform-tools/adb" QTC_HOST_EXE_SUFFIX);
 }
 
 FileName AndroidConfig::androidToolPath() const
@@ -326,35 +323,28 @@ FileName AndroidConfig::androidToolPath() const
     if (HostOsInfo::isWindowsHost()) {
         // I want to switch from using android.bat to using an executable. All it really does is call
         // Java and I've made some progress on it. So if android.exe exists, return that instead.
-        FileName path = m_sdkLocation;
-        path.appendPath(QLatin1String("tools/android" QTC_HOST_EXE_SUFFIX));
+        const FileName path = m_sdkLocation.pathAppended("tools/android" QTC_HOST_EXE_SUFFIX);
         if (path.exists())
             return path;
-        path = m_sdkLocation;
-        return path.appendPath(QLatin1String("tools/android" ANDROID_BAT_SUFFIX));
-    } else {
-        FileName path = m_sdkLocation;
-        return path.appendPath(QLatin1String("tools/android"));
+        return m_sdkLocation.pathAppended("tools/android" ANDROID_BAT_SUFFIX);
     }
+    return m_sdkLocation.pathAppended("tools/android");
 }
 
 FileName AndroidConfig::emulatorToolPath() const
 {
-    FileName path = m_sdkLocation;
     QString relativePath = "emulator/emulator";
     if (sdkToolsVersion() < QVersionNumber(25, 3, 0))
         relativePath = "tools/emulator";
-    return path.appendPath(relativePath + QTC_HOST_EXE_SUFFIX);
+    return m_sdkLocation.pathAppended(relativePath + QTC_HOST_EXE_SUFFIX);
 }
 
 FileName AndroidConfig::sdkManagerToolPath() const
 {
-    FileName sdkPath = m_sdkLocation;
     QString toolPath = "tools/bin/sdkmanager";
     if (HostOsInfo::isWindowsHost())
         toolPath += ANDROID_BAT_SUFFIX;
-    sdkPath = sdkPath.appendPath(toolPath);
-    return sdkPath;
+    return m_sdkLocation.pathAppended(toolPath);
 }
 
 FileName AndroidConfig::avdManagerToolPath() const
@@ -380,10 +370,8 @@ FileName AndroidConfig::aaptToolPath() const
 
 FileName AndroidConfig::clangPath() const
 {
-    FileName clangPath = m_ndkLocation;
-    clangPath.appendPath("toolchains/llvm/prebuilt/");
-    FileName oldNdkClangPath = m_ndkLocation;
-    oldNdkClangPath.appendPath("toolchains/llvm-3.6/prebuilt/");
+    const FileName clangPath = m_ndkLocation.pathAppended("toolchains/llvm/prebuilt/");
+    const FileName oldNdkClangPath = m_ndkLocation.pathAppended("toolchains/llvm-3.6/prebuilt/");
     const QVector<FileName> clangSearchPaths{clangPath, oldNdkClangPath};
 
     // detect toolchain host
@@ -430,22 +418,21 @@ FileName AndroidConfig::gdbPath(const ProjectExplorer::Abi &abi) const
 
 FileName AndroidConfig::makePath() const
 {
-    FileName path = m_ndkLocation;
-    path.appendPath(QString("prebuilt/%1/bin/make%2").arg(toolchainHost(), QTC_HOST_EXE_SUFFIX));
-    return path;
+    return m_ndkLocation.pathAppended(
+                QString("prebuilt/%1/bin/make%2").arg(toolchainHost(), QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfig::openJDKBinPath() const
 {
-    FileName path = m_openJDKLocation;
+    const FileName path = m_openJDKLocation;
     if (!path.isEmpty())
-        return path.appendPath(QLatin1String("bin"));
+        return path.pathAppended("bin");
     return path;
 }
 
 FileName AndroidConfig::keytoolPath() const
 {
-    return openJDKBinPath().appendPath(keytoolName);
+    return openJDKBinPath().pathAppended(keytoolName);
 }
 
 QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const

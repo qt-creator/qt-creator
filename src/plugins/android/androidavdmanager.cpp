@@ -433,8 +433,7 @@ bool AvdManagerOutputParser::parseAvd(const QStringList &deviceInfo, AndroidDevi
             if (avdPath.exists())
             {
                 // Get ABI.
-                Utils::FileName configFile = avdPath;
-                configFile.appendPath("config.ini");
+                const Utils::FileName configFile = avdPath.pathAppended("config.ini");
                 QSettings config(configFile.toString(), QSettings::IniFormat);
                 value = config.value(avdInfoAbiKey).toString();
                 if (!value.isEmpty())

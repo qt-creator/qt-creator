@@ -166,10 +166,8 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
         QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot
                                                     | QDir::Hidden | QDir::System);
         foreach (const QString &fileName, fileNames) {
-            FileName newSrcFilePath = srcFilePath;
-            newSrcFilePath.appendPath(fileName);
-            FileName newTgtFilePath = tgtFilePath;
-            newTgtFilePath.appendPath(fileName);
+            const FileName newSrcFilePath = srcFilePath.pathAppended(fileName);
+            const FileName newTgtFilePath = tgtFilePath.pathAppended(fileName);
             if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
                 return false;
         }
@@ -853,6 +851,17 @@ FileName &FileName::appendPath(const QString &s)
         m_data.append('/');
     m_data.append(s);
     return *this;
+}
+
+FileName FileName::pathAppended(const QString &str) const
+{
+    FileName fn = *this;
+    if (str.isEmpty())
+        return fn;
+    if (!isEmpty() && !m_data.endsWith(QLatin1Char('/')))
+        fn.m_data.append('/');
+    fn.m_data.append(str);
+    return fn;
 }
 
 FileName FileName::stringAppended(const QString &str) const
