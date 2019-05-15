@@ -1015,6 +1015,43 @@ void tst_TestCore::testRewriterUnicodeChars()
     const QLatin1String unicodeChar("\nimport QtQuick 2.1\n\nText {\n    text: \"\\u2795\"}\n");
 
      QCOMPARE(textEdit.toPlainText(), unicodeChar);
+
+void tst_TestCore::testRewriterTransactionAddingAfterReparenting()
+{
+    const QLatin1String qmlString("\n"
+                                  "import QtQuick 2.0\n"
+                                  "\n"
+                                  "Item {\n"
+                                  "}\n");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle"));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(0, RewriterView::Amend));
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode = testRewriterView->rootModelNode();
+    QVERIFY(rootModelNode.isValid());
+
+    {
+        /* Regression test
+         * If a node is not a direct child node of the root item we did get an exception when adding properties
+         * after the reparent */
+
+        RewriterTransaction transaction = testRewriterView->beginRewriterTransaction("TEST");
+        ModelNode rectangle = testRewriterView->createModelNode("QtQuick.Rectangle", 2, 0);
+        rootModelNode.nodeListProperty("data").reparentHere(rectangle);
+        ModelNode rectangle2 = testRewriterView->createModelNode("QtQuick.Rectangle", 2, 0);
+        rectangle.nodeListProperty("data").reparentHere(rectangle2);
+
+        rectangle2.variantProperty("width").setValue(100);
+    }
 }
 
 void tst_TestCore::testRewriterForGradientMagic()
