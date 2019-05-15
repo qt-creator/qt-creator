@@ -137,7 +137,7 @@ private:
                        int *errorLine, int *errorColumn);
     enum IconDPI { LowDPI, MediumDPI, HighDPI };
     QIcon icon(const QString &baseDir, IconDPI dpi);
-    QString iconPath(const QString &baseDir, IconDPI dpi);
+    QString iconPath(IconDPI dpi);
     void copyIcon(IconDPI dpi, const QString &baseDir, const QString &filePath);
 
     void updateInfoBar(const QString &errorMessage, int line, int column);
