@@ -146,7 +146,7 @@ bool MessageOutputWindow::canNavigate() const
 
 void MessageOutputWindow::updateFilter()
 {
-    m_widget->setFilterText(filterText());
+    m_widget->updateFilterProperties(filterText(), filterCaseSensitivity(), filterUsesRegexp());
 }
 
 } // namespace Internal

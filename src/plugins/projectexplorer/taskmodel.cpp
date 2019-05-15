@@ -341,6 +341,25 @@ void TaskFilterModel::setFilterIncludesWarnings(bool b)
     invalidateFilter();
 }
 
+void TaskFilterModel::updateFilterProperties(const QString &filterText,
+                                             Qt::CaseSensitivity caseSensitivity, bool isRegexp)
+{
+    if (filterText == m_filterText && m_filterCaseSensitivity == caseSensitivity
+            && m_filterStringIsRegexp == isRegexp) {
+        return;
+    }
+    m_filterText = filterText;
+    m_filterCaseSensitivity = caseSensitivity;
+    m_filterStringIsRegexp = isRegexp;
+    if (m_filterStringIsRegexp) {
+        m_filterRegexp.setPattern(m_filterText);
+        m_filterRegexp.setPatternOptions(m_filterCaseSensitivity == Qt::CaseInsensitive
+                                         ? QRegularExpression::CaseInsensitiveOption
+                                         : QRegularExpression::NoPatternOption);
+    }
+    invalidateFilter();
+}
+
 bool TaskFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     Q_UNUSED(source_parent);
@@ -365,9 +384,13 @@ bool TaskFilterModel::filterAcceptsTask(const Task &task) const
     if (accept && m_categoryIds.contains(task.category))
         accept = false;
 
-    if (accept && !filterRegExp().isEmpty() && !task.file.toString().contains(filterRegExp())
-            && !task.description.contains(filterRegExp())) {
-        accept = false;
+    if (accept && !m_filterText.isEmpty()) {
+        const auto accepts = [this](const QString &s) {
+            return m_filterStringIsRegexp ? m_filterRegexp.isValid() && s.contains(m_filterRegexp)
+                                          : s.contains(m_filterText, m_filterCaseSensitivity);
+        };
+        if (!accepts(task.file.toString()) && !accepts(task.description))
+            accept = false;
     }
 
     return accept;

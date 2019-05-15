@@ -79,11 +79,7 @@ public:
     void setHighlightBgColor(const QColor &bgColor);
     void setHighlightTextColor(const QColor &textColor);
 
-    QString filterText() const;
-    void setFilterText(const QString &filterText);
-
-    FilterModeFlags filterMode() const;
-    void setFilterMode(FilterModeFlag filterMode, bool enabled);
+    void updateFilterProperties(const QString &filterText, Qt::CaseSensitivity caseSensitivity, bool regexp);
 
 signals:
     void wheelZoom();

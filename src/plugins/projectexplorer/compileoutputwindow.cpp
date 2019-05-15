@@ -356,7 +356,8 @@ void CompileOutputWindow::setSettings(const CompileOutputSettings &settings)
 
 void CompileOutputWindow::updateFilter()
 {
-    m_outputWindow->setFilterText(filterText());
+    m_outputWindow->updateFilterProperties(filterText(), filterCaseSensitivity(),
+                                           filterUsesRegexp());
 }
 
 void CompileOutputWindow::loadSettings()

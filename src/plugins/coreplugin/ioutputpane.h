@@ -99,6 +99,8 @@ signals:
 protected:
     void setupFilterUi(const QString &historyKey);
     QString filterText() const;
+    bool filterUsesRegexp() const { return m_filterRegexp; }
+    Qt::CaseSensitivity filterCaseSensitivity() const { return m_filterCaseSensitivity; }
     void setFilteringEnabled(bool enable);
     QWidget *filterWidget() const { return m_filterOutputLineEdit; }
 
@@ -119,7 +121,7 @@ private:
     QAction *m_filterActionCaseSensitive = nullptr;
     Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
     bool m_filterRegexp = false;
-    bool m_filterCaseSensitive = false;
+    Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
 };
 
 } // namespace Core

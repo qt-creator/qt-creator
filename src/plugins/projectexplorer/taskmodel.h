@@ -28,6 +28,7 @@
 #include <QSortFilterProxyModel>
 
 #include <QIcon>
+#include <QRegularExpression>
 
 #include "task.h"
 
@@ -143,6 +144,9 @@ public:
     bool hasFile(const QModelIndex &index) const
     { return taskModel()->hasFile(mapToSource(index)); }
 
+    void updateFilterProperties(const QString &filterText, Qt::CaseSensitivity caseSensitivity,
+                                bool isRegex);
+
 private:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
     bool filterAcceptsTask(const Task &task) const;
@@ -151,7 +155,11 @@ private:
     bool m_includeUnknowns;
     bool m_includeWarnings;
     bool m_includeErrors;
+    bool m_filterStringIsRegexp = false;
+    Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
     QList<Core::Id> m_categoryIds;
+    QString m_filterText;
+    QRegularExpression m_filterRegexp;
 };
 
 } // namespace Internal

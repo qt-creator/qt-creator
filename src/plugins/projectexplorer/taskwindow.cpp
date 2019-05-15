@@ -669,7 +669,7 @@ void TaskWindow::goToPrev()
 
 void TaskWindow::updateFilter()
 {
-    d->m_filter->setFilterRegExp(filterText());
+    d->m_filter->updateFilterProperties(filterText(), filterCaseSensitivity(), filterUsesRegexp());
 }
 
 bool TaskWindow::canNavigate() const
