@@ -47,6 +47,7 @@
 #include <QThread>
 
 using namespace Core;
+using namespace Utils;
 
 const char BUILD_TARGETS_SUFFIX[] = ".BuildTargets";
 const char MAKE_ARGUMENTS_SUFFIX[] = ".MakeArguments";
@@ -149,9 +150,9 @@ QString MakeStep::defaultMakeCommand() const
         return QString();
     const Utils::Environment env = environment(bc);
     for (const ToolChain *tc : preferredToolChains(target()->kit())) {
-        const QString make = tc->makeCommand(env);
+        FileName make = tc->makeCommand(env);
         if (!make.isEmpty())
-            return make;
+            return make.toString();
     }
     return QString();
 }

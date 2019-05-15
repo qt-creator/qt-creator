@@ -73,7 +73,7 @@ bool AndroidPackageInstallationStep::init()
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory().toString());
-    pp->setCommand(tc->makeCommand(bc->environment()));
+    pp->setCommand(tc->makeCommand(bc->environment()).toString());
     Environment env = bc->environment();
     Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);

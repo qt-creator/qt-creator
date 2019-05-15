@@ -49,7 +49,7 @@ public:
     ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &flags,
                                                     const Utils::FileName &sysRoot) const final;
     void addToEnvironment(Utils::Environment &env) const final;
-    QString makeCommand(const Utils::Environment &env) const final;
+    Utils::FileName makeCommand(const Utils::Environment &env) const final;
     Utils::FileName compilerCommand() const final;
     QString compilerVersion() const;
     void setCompilerCommand(const Utils::FileName &compilerCommand);

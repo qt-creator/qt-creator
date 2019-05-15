@@ -130,11 +130,11 @@ FileNameList AndroidToolChain::suggestedMkspecList() const
                           << FileName::fromLatin1("android-clang");
 }
 
-QString AndroidToolChain::makeCommand(const Environment &env) const
+FileName AndroidToolChain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env);
     FileName makePath = AndroidConfigurations::currentConfig().makePath();
-    return makePath.exists() ? makePath.toString() : "make";
+    return makePath.exists() ? makePath : FileName::fromString("make");
 }
 
 GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const

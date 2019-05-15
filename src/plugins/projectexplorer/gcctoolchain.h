@@ -88,7 +88,7 @@ public:
                                    const Utils::FileName &sysRootPath) const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
-    QString makeCommand(const Utils::Environment &environment) const override;
+    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
     Utils::FileNameList suggestedMkspecList() const override;
     IOutputParser *outputParser() const override;
 
@@ -220,7 +220,7 @@ public:
     ClangToolChain(const ClangToolChain &other);
     ~ClangToolChain() override;
     QString typeDisplayName() const override;
-    QString makeCommand(const Utils::Environment &environment) const override;
+    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
@@ -264,7 +264,7 @@ class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
 public:
     QString typeDisplayName() const override;
-    QString makeCommand(const Utils::Environment &environment) const override;
+    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
 
     ToolChain *clone() const override;
 

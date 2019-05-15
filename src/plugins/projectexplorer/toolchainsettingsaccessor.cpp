@@ -318,7 +318,7 @@ public:
     HeaderPaths builtInHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const override
     { Q_UNUSED(cxxflags); Q_UNUSED(sysRoot); return {}; }
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env); }
-    QString makeCommand(const Environment &env) const override { Q_UNUSED(env); return QString("make"); }
+    FileName makeCommand(const Environment &) const override { return FileName::fromString("make"); }
     FileName compilerCommand() const override { return Utils::FileName::fromString("/tmp/test/gcc"); }
     IOutputParser *outputParser() const override { return nullptr; }
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override { return nullptr; }

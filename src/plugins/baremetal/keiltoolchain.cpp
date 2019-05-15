@@ -387,7 +387,7 @@ FileName KeilToolchain::compilerCommand() const
     return m_compilerCommand;
 }
 
-QString KeilToolchain::makeCommand(const Environment &env) const
+FileName KeilToolchain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
     return {};

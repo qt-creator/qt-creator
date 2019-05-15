@@ -81,7 +81,7 @@ public:
     void setCompilerCommand(const Utils::FileName &file);
     Utils::FileName compilerCommand() const final;
 
-    QString makeCommand(const Utils::Environment &env) const final;
+    Utils::FileName makeCommand(const Utils::Environment &env) const final;
 
     ToolChain *clone() const final;
 

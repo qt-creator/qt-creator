@@ -382,7 +382,7 @@ FileName IarToolChain::compilerCommand() const
     return m_compilerCommand;
 }
 
-QString IarToolChain::makeCommand(const Environment &env) const
+FileName IarToolChain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
     return {};

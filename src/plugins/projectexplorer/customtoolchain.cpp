@@ -250,9 +250,9 @@ void CustomToolChain::setMakeCommand(const FileName &path)
     toolChainUpdated();
 }
 
-QString CustomToolChain::makeCommand(const Environment &) const
+FileName CustomToolChain::makeCommand(const Environment &) const
 {
-    return m_makeCommand.toString();
+    return m_makeCommand;
 }
 
 void CustomToolChain::setCxx11Flags(const QStringList &flags)
@@ -602,7 +602,7 @@ void CustomToolChainConfigWidget::setFromToolchain()
     QSignalBlocker blocker(this);
     auto tc = static_cast<CustomToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
-    m_makeCommand->setFileName(FileName::fromString(tc->makeCommand(Environment())));
+    m_makeCommand->setFileName(tc->makeCommand(Environment()));
     m_abiWidget->setAbis(QList<Abi>(), tc->targetAbi());
     const QStringList macroLines = Utils::transform<QList>(tc->rawPredefinedMacros(), [](const Macro &m) {
         return QString::fromUtf8(m.toKeyValue(QByteArray()));
@@ -621,7 +621,7 @@ bool CustomToolChainConfigWidget::isDirtyImpl() const
     auto tc = static_cast<CustomToolChain *>(toolChain());
     Q_ASSERT(tc);
     return m_compilerCommand->fileName() != tc->compilerCommand()
-            || m_makeCommand->path() != tc->makeCommand(Environment())
+            || m_makeCommand->path() != tc->makeCommand(Environment()).toString()
             || m_abiWidget->currentAbi() != tc->targetAbi()
             || Macro::toMacros(m_predefinedDetails->text().toUtf8()) != tc->rawPredefinedMacros()
             || m_headerDetails->entries() != tc->headerPathsList()

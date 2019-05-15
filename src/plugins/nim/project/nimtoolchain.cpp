@@ -113,11 +113,10 @@ void NimToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir().toString());
 }
 
-QString NimToolChain::makeCommand(const Environment &env) const
+FileName NimToolChain::makeCommand(const Environment &env) const
 {
-    QString make = "make";
-    FileName tmp = env.searchInPath(make);
-    return tmp.isEmpty() ? make : tmp.toString();
+    const FileName tmp = env.searchInPath("make");
+    return tmp.isEmpty() ? FileName::fromString("make") : tmp;
 }
 
 FileName NimToolChain::compilerCommand() const

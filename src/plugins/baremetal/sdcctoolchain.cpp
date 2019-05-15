@@ -372,7 +372,7 @@ FileName SdccToolChain::compilerCommand() const
     return m_compilerCommand;
 }
 
-QString SdccToolChain::makeCommand(const Environment &env) const
+FileName SdccToolChain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
     return {};

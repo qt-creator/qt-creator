@@ -510,7 +510,7 @@ QString PuppetCreator::buildCommand() const
                                                                   ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (toolChain)
-        return toolChain->makeCommand(environment);
+        return toolChain->makeCommand(environment).toString();
 
     return QString();
 }

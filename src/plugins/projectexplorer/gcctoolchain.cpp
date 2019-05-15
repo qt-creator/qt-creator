@@ -695,11 +695,10 @@ FileNameList GccToolChain::suggestedMkspecList() const
     return FileNameList();
 }
 
-QString GccToolChain::makeCommand(const Environment &environment) const
+FileName GccToolChain::makeCommand(const Environment &environment) const
 {
-    QString make = "make";
-    FileName tmp = environment.searchInPath(make);
-    return tmp.isEmpty() ? make : tmp.toString();
+    const FileName tmp = environment.searchInPath("make");
+    return tmp.isEmpty() ? FileName::fromString("make") : tmp;
 }
 
 IOutputParser *GccToolChain::outputParser() const
@@ -1296,7 +1295,7 @@ QString ClangToolChain::typeDisplayName() const
     return ClangToolChainFactory::tr("Clang");
 }
 
-QString ClangToolChain::makeCommand(const Environment &environment) const
+FileName ClangToolChain::makeCommand(const Environment &environment) const
 {
     const QStringList makes
             = HostOsInfo::isWindowsHost() ? QStringList({"mingw32-make.exe", "make.exe"}) : QStringList({"make"});
@@ -1305,9 +1304,9 @@ QString ClangToolChain::makeCommand(const Environment &environment) const
     for (const QString &make : makes) {
         tmp = environment.searchInPath(make);
         if (!tmp.isEmpty())
-            return tmp.toString();
+            return tmp;
     }
-    return makes.first();
+    return FileName::fromString(makes.first());
 }
 
 /**
@@ -1639,7 +1638,7 @@ FileNameList MingwToolChain::suggestedMkspecList() const
     return FileNameList();
 }
 
-QString MingwToolChain::makeCommand(const Environment &environment) const
+FileName MingwToolChain::makeCommand(const Environment &environment) const
 {
     const QStringList makes
             = HostOsInfo::isWindowsHost() ? QStringList({"mingw32-make.exe", "make.exe"}) : QStringList({"make"});
@@ -1648,9 +1647,9 @@ QString MingwToolChain::makeCommand(const Environment &environment) const
     foreach (const QString &make, makes) {
         tmp = environment.searchInPath(make);
         if (!tmp.isEmpty())
-            return tmp.toString();
+            return tmp;
     }
-    return makes.first();
+    return FileName::fromString(makes.first());
 }
 
 ToolChain *MingwToolChain::clone() const

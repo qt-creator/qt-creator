@@ -60,6 +60,8 @@
 #include <QComboBox>
 #include <QFormLayout>
 
+using namespace Utils;
+
 #define KEY_ROOT "ProjectExplorer.MsvcToolChain."
 static const char varsBatKeyC[] = KEY_ROOT "VarsBat";
 static const char varsBatArgKeyC[] = KEY_ROOT "VarsBatArg";
@@ -1239,33 +1241,33 @@ static QString wrappedMakeCommand(const QString &command)
     return wrapperPath;
 }
 
-QString MsvcToolChain::makeCommand(const Utils::Environment &environment) const
+FileName MsvcToolChain::makeCommand(const Environment &environment) const
 {
     bool useJom = ProjectExplorerPlugin::projectExplorerSettings().useJom;
     const QString jom("jom.exe");
     const QString nmake("nmake.exe");
     Utils::FileName tmp;
 
-    QString command;
+    FileName command;
     if (useJom) {
         tmp = environment.searchInPath(jom,
                                        {Utils::FileName::fromString(
                                            QCoreApplication::applicationDirPath())});
         if (!tmp.isEmpty())
-            command = tmp.toString();
+            command = tmp;
     }
 
     if (command.isEmpty()) {
         tmp = environment.searchInPath(nmake);
         if (!tmp.isEmpty())
-            command = tmp.toString();
+            command = tmp;
     }
 
     if (command.isEmpty())
-        command = useJom ? jom : nmake;
+        command = FileName::fromString(useJom ? jom : nmake);
 
     if (environment.hasKey("VSLANG"))
-        return wrappedMakeCommand(command);
+        return FileName::fromString(wrappedMakeCommand(command.toString()));
 
     return command;
 }

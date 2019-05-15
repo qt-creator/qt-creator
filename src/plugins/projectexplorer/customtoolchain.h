@@ -97,7 +97,7 @@ public:
     void setCompilerCommand(const Utils::FileName &);
     Utils::FileName compilerCommand() const override;
     void setMakeCommand(const Utils::FileName &);
-    QString makeCommand(const Utils::Environment &environment) const override;
+    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
 
     void setCxx11Flags(const QStringList &);
     const QStringList &cxx11Flags() const;

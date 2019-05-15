@@ -92,7 +92,7 @@ public:
                                    const Utils::FileName &sysRoot) const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
-    QString makeCommand(const Utils::Environment &environment) const override;
+    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
     Utils::FileName compilerCommand() const override;
     IOutputParser *outputParser() const override;
 

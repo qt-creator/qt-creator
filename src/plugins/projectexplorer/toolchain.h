@@ -136,7 +136,7 @@ public:
     virtual HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
                                            const Utils::FileName &sysRoot) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
-    virtual QString makeCommand(const Utils::Environment &env) const = 0;
+    virtual Utils::FileName makeCommand(const Utils::Environment &env) const = 0;
 
     Core::Id language() const;
 
