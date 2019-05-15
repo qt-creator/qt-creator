@@ -215,7 +215,7 @@ void TestTreeModel::syncTestFrameworks()
 void TestTreeModel::filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled)
 {
     TestTreeItem *filtered = item->applyFilters();
-    if (item->type() != TestTreeItem::TestCase || item->childCount())
+    if (item->shouldBeAddedAfterFiltering())
         insertItemInParent(item, root, groupingEnabled);
     else // might be that all children have been filtered out
         delete item;

@@ -74,6 +74,7 @@ public:
     bool isGroupNodeFor(const TestTreeItem *other) const override;
     bool isGroupable() const override;
     TestTreeItem *applyFilters() override;
+    bool shouldBeAddedAfterFiltering() const override;
 private:
     bool modifyTestSetContent(const GTestParseResult *result);
     QList<TestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;

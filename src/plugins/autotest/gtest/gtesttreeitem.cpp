@@ -540,5 +540,10 @@ TestTreeItem *GTestTreeItem::applyFilters()
     return filtered;
 }
 
+bool GTestTreeItem::shouldBeAddedAfterFiltering() const
+{
+    return type() == TestTreeItem::TestFunctionOrSet || childCount();
+}
+
 } // namespace Internal
 } // namespace Autotest

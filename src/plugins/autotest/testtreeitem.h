@@ -126,6 +126,8 @@ public:
     // based on (internal) filters this will be used to filter out sub items (and remove them)
     // returns a copy of the item that contains the filtered out children or nullptr
     virtual TestTreeItem *applyFilters() { return nullptr; }
+    // decide whether an item should still be added to the treemodel
+    virtual bool shouldBeAddedAfterFiltering() const { return true; }
     virtual QSet<QString> internalTargets() const;
 protected:
     void copyBasicDataFrom(const TestTreeItem *other);
