@@ -362,6 +362,8 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                         });
                     });
             updateEditorToolBar(editor);
+            for (auto client : reachableClients())
+                widget->addHoverHandler(client->hoverHandler());
         }
     }
 }

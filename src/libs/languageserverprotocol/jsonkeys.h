@@ -69,6 +69,7 @@ constexpr char contentChangesKey[] = "contentChanges";
 constexpr char contentCharsetName[] = "charset";
 constexpr char contentFormatKey[] = "contentFormat";
 constexpr char contentKey[] = "value";
+constexpr char contentsKey[] = "contents";
 constexpr char contentLengthFieldName[] = "Content-Length";
 constexpr char contentTypeFieldName[] = "Content-Type";
 constexpr char contextKey[] = "context";

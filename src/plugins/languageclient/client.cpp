@@ -96,6 +96,7 @@ Client::Client(BaseClientInterface *clientInterface)
     , m_quickFixProvider(this)
     , m_clientInterface(clientInterface)
     , m_documentSymbolCache(this)
+    , m_hoverHandler(this)
 {
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
                             &JsonRpcMessageHandler::parseContent);
@@ -129,6 +130,7 @@ Client::~Client()
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
             TextEditorWidget *widget = textEditor->editorWidget();
             widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
+            widget->removeHoverHandler(&m_hoverHandler);
         }
     }
     for (const DocumentUri &uri : m_diagnostics.keys())
@@ -204,6 +206,12 @@ static ClientCapabilities generateClientCapabilities()
             CodeActionKind(QList<QString>{"*"}));
     codeActionCapabilities.setCodeActionLiteralSupport(literalSupport);
     documentCapabilities.setCodeAction(codeActionCapabilities);
+
+    TextDocumentClientCapabilities::HoverCapabilities hover;
+    hover.setContentFormat({MarkupKind::plaintext});
+    hover.setDynamicRegistration(true);
+    documentCapabilities.setHover(hover);
+
     documentCapabilities.setReferences(allowDynamicRegistration);
     documentCapabilities.setDocumentHighlight(allowDynamicRegistration);
     documentCapabilities.setDefinition(allowDynamicRegistration);
@@ -915,6 +923,11 @@ DocumentSymbolCache *Client::documentSymbolCache()
     return &m_documentSymbolCache;
 }
 
+HoverHandler *Client::hoverHandler()
+{
+    return &m_hoverHandler;
+}
+
 void Client::log(const ShowMessageParams &message,
                      Core::MessageManager::PrintToOutputPaneFlag flag)
 {
@@ -1112,6 +1125,10 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
             for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(openedDocument))
                 updateEditorToolBar(editor);
         }
+    }
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForOpenedDocuments()) {
+        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
+            textEditor->editorWidget()->addHoverHandler(&m_hoverHandler);
     }
     emit initialized(m_serverCapabilities);
 }

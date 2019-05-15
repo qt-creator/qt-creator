@@ -22,6 +22,8 @@ QtcPlugin {
         "dynamiccapabilities.h",
         "languageclient.qrc",
         "languageclient_global.h",
+        "languageclienthoverhandler.cpp",
+        "languageclienthoverhandler.h",
         "languageclientinterface.cpp",
         "languageclientinterface.h",
         "languageclientcompletionassist.cpp",

@@ -30,6 +30,7 @@
 #include "languageclientcompletionassist.h"
 #include "languageclientquickfix.h"
 #include "languageclientsettings.h"
+#include "languageclienthoverhandler.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/messagemanager.h>
@@ -155,6 +156,7 @@ public:
     const DynamicCapabilities &dynamicCapabilities() const;
     const BaseClientInterface *clientInterface() const;
     DocumentSymbolCache *documentSymbolCache();
+    HoverHandler *hoverHandler();
 
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);
@@ -205,6 +207,7 @@ private:
     QScopedPointer<BaseClientInterface> m_clientInterface;
     QMap<LanguageServerProtocol::DocumentUri, QList<TextMark *>> m_diagnostics;
     DocumentSymbolCache m_documentSymbolCache;
+    HoverHandler m_hoverHandler;
     const ProjectExplorer::Project *m_project = nullptr;
 };
 

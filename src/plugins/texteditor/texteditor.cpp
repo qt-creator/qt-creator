@@ -5822,6 +5822,11 @@ void TextEditorWidget::addHoverHandler(BaseHoverHandler *handler)
     d->m_hoverHandlers.append(handler);
 }
 
+void TextEditorWidget::removeHoverHandler(BaseHoverHandler *handler)
+{
+    d->m_hoverHandlers.removeAll(handler);
+}
+
 void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
 {
     d->extraAreaPreviousMarkTooltipRequestedLine = -1;

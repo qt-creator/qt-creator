@@ -415,4 +415,20 @@ Utils::FileName DocumentUri::toFileName() const
                          : Utils::FileName();
 }
 
+MarkupKind::MarkupKind(const QJsonValue &value)
+{
+    m_value = value.toString() == "markdown" ? markdown : plaintext;
+}
+
+LanguageServerProtocol::MarkupKind::operator const QJsonValue() const
+{
+    switch (m_value) {
+    case MarkupKind::markdown:
+        return "markdown";
+    case MarkupKind::plaintext:
+        return "plaintext";
+    }
+    return {};
+}
+
 } // namespace LanguageServerProtocol

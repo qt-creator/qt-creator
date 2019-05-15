@@ -49,19 +49,19 @@ constexpr const char DocumentOnTypeFormattingRequest::methodName[];
 constexpr const char RenameRequest::methodName[];
 constexpr const char SignatureHelpRequest::methodName[];
 
-MarkedString LanguageServerProtocol::Hover::content() const
+HoverContent LanguageServerProtocol::Hover::content() const
 {
-    return MarkedString(value(contentKey));
+    return HoverContent(value(contentsKey));
 }
 
-void Hover::setContent(const MarkedString &content)
+void Hover::setContent(const HoverContent &content)
 {
-    if (auto val = Utils::get_if<MarkedLanguageString>(&content))
-        insert(contentKey, *val);
+    if (auto val = Utils::get_if<MarkedString>(&content))
+        insert(contentsKey, *val);
     else if (auto val = Utils::get_if<MarkupContent>(&content))
-        insert(contentKey, *val);
-    else if (auto val = Utils::get_if<QList<MarkedLanguageString>>(&content))
-        insert(contentKey, LanguageClientArray<MarkedLanguageString>(*val).toJson());
+        insert(contentsKey, *val);
+    else if (auto val = Utils::get_if<QList<MarkedString>>(&content))
+        insert(contentsKey, LanguageClientArray<MarkedString>(*val).toJson());
     else
         QTC_ASSERT_STRING("LanguageClient Using unknown type Hover::setContent");
 }
@@ -334,31 +334,52 @@ DocumentHighlightsResult::DocumentHighlightsResult(const QJsonValue &value)
 
 MarkedString::MarkedString(const QJsonValue &value)
 {
+    if (value.isObject()) {
+        MarkedLanguageString string(value.toObject());
+        if (string.isValid(nullptr))
+            emplace<MarkedLanguageString>(string);
+    } else if (value.isString()) {
+        emplace<QString>(value.toString());
+    }
+}
+
+LanguageServerProtocol::MarkedString::operator const QJsonValue() const
+{
+    if (auto val = Utils::get_if<QString>(this))
+        return *val;
+    if (auto val = Utils::get_if<MarkedLanguageString>(this))
+        return QJsonValue(*val);
+    return {};
+}
+
+HoverContent::HoverContent(const QJsonValue &value)
+{
     if (value.isArray()) {
-        emplace<QList<MarkedLanguageString>>(
-            LanguageClientArray<MarkedLanguageString>(value).toList());
+        emplace<QList<MarkedString>>(LanguageClientArray<MarkedString>(value).toList());
     } else if (value.isObject()) {
         const QJsonObject &object = value.toObject();
         MarkedLanguageString markedLanguageString(object);
         if (markedLanguageString.isValid(nullptr))
-            emplace<MarkedLanguageString>(markedLanguageString);
+            emplace<MarkedString>(markedLanguageString);
         else
             emplace<MarkupContent>(MarkupContent(object));
+    } else if (value.isString()) {
+        emplace<MarkedString>(MarkedString(value.toString()));
     }
 }
 
-bool MarkedString::isValid(QStringList *errorHierarchy) const
+bool HoverContent::isValid(QStringList *errorHierarchy) const
 {
-    if (Utils::holds_alternative<MarkedLanguageString>(*this)
+    if (Utils::holds_alternative<MarkedString>(*this)
             || Utils::holds_alternative<MarkupContent>(*this)
-            || Utils::holds_alternative<QList<MarkedLanguageString>>(*this)) {
+            || Utils::holds_alternative<QList<MarkedString>>(*this)) {
         return true;
     }
     if (errorHierarchy) {
         *errorHierarchy << QCoreApplication::translate(
-                               "LanguageServerProtocol::MarkedString",
-                               "MarkedString should be either MarkedLanguageString, "
-                               "MarkupContent, or QList<MarkedLanguageString>.");
+                               "LanguageServerProtocol::HoverContent",
+                               "HoverContent should be either MarkedString, "
+                               "MarkupContent, or QList<MarkedString>.");
     }
     return false;
 }

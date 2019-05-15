@@ -474,6 +474,9 @@ public:
 
     Core::HighlightScrollBarController *highlightScrollBarController() const;
 
+    void addHoverHandler(BaseHoverHandler *handler);
+    void removeHoverHandler(BaseHoverHandler *handler);
+
 signals:
     void assistFinished(); // Used in tests.
     void readOnlyChanged();
@@ -533,8 +536,6 @@ protected:
     virtual void finalizeInitialization() {}
     virtual void finalizeInitializationAfterDuplication(TextEditorWidget *) {}
     static QTextCursor flippedCursor(const QTextCursor &cursor);
-
-    void addHoverHandler(BaseHoverHandler *handler);
 
 public:
     QString selectedText() const;
