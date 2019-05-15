@@ -66,7 +66,7 @@ private:
     static QString compileScope(const QString &scope);
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(ProWriter::PutFlags)
-
 } // namespace Internal
 } // namespace QmakeProjectManager
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QmakeProjectManager::Internal::ProWriter::PutFlags)

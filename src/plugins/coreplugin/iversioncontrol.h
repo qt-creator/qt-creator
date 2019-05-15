@@ -226,9 +226,9 @@ private:
     TopicCache *m_topicCache;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IVersionControl::SettingsFlags)
-
 } // namespace Core
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IVersionControl::SettingsFlags)
 
 #if defined(WITH_TESTS)
 

@@ -92,8 +92,6 @@ private:
     QString m_proFile;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(AddLibraryWizard::Platforms)
-
 class LibraryTypePage : public QWizardPage
 {
     Q_OBJECT
@@ -139,3 +137,5 @@ private:
 
 } // namespace Internal
 } // namespace QmakeProjectManager
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QmakeProjectManager::Internal::AddLibraryWizard::Platforms)
