@@ -107,10 +107,8 @@ void ClangToolsProjectSettings::load()
         if (message.isEmpty())
             continue;
         Utils::FileName fullPath = Utils::FileName::fromString(fp);
-        if (fullPath.toFileInfo().isRelative()) {
-            fullPath = m_project->projectDirectory();
-            fullPath.appendPath(fp);
-        }
+        if (fullPath.toFileInfo().isRelative())
+            fullPath = m_project->projectDirectory().pathAppended(fp);
         if (!fullPath.exists())
             continue;
         const QString contextKind = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXTKIND).toString();

@@ -349,23 +349,19 @@ FileName AndroidConfig::sdkManagerToolPath() const
 
 FileName AndroidConfig::avdManagerToolPath() const
 {
-    FileName avdManagerPath = m_sdkLocation;
     QString toolPath = "tools/bin/avdmanager";
     if (HostOsInfo::isWindowsHost())
         toolPath += ANDROID_BAT_SUFFIX;
-    avdManagerPath = avdManagerPath.appendPath(toolPath);
-    return avdManagerPath;
+    return m_sdkLocation.pathAppended(toolPath);
 }
 
 FileName AndroidConfig::aaptToolPath() const
 {
-    Utils::FileName aaptToolPath = m_sdkLocation;
-    aaptToolPath.appendPath("build-tools");
+    const Utils::FileName aaptToolPath = m_sdkLocation.pathAppended("build-tools");
     QString toolPath = QString("%1/aapt").arg(buildToolsVersion().toString());
     if (HostOsInfo::isWindowsHost())
         toolPath += QTC_HOST_EXE_SUFFIX;
-    aaptToolPath.appendPath(toolPath);
-    return aaptToolPath;
+    return aaptToolPath.pathAppended(toolPath);
 }
 
 FileName AndroidConfig::clangPath() const

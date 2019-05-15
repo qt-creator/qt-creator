@@ -107,7 +107,7 @@ bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
         QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden
                                               | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
         foreach (const QString &fileName, fileNames) {
-            if (!removeRecursively(FileName(filePath).appendPath(fileName), error))
+            if (!removeRecursively(filePath.pathAppended(fileName), error))
                 return false;
         }
         if (!QDir::root().rmdir(dir.path())) {
@@ -205,7 +205,7 @@ bool FileUtils::isFileNewerThan(const FileName &filePath, const QDateTime &timeS
         const QStringList dirContents = QDir(filePath.toString())
             .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
         foreach (const QString &curFileName, dirContents) {
-            if (isFileNewerThan(FileName(filePath).appendPath(curFileName), timeStamp))
+            if (isFileNewerThan(filePath.pathAppended(curFileName), timeStamp))
                 return true;
         }
     }

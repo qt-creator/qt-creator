@@ -50,6 +50,7 @@
 #include <QSet>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -310,8 +311,8 @@ void BuildDirManager::clearCache()
     QTC_ASSERT(m_parameters.isValid(), return);
     QTC_ASSERT(!m_isHandlingError, return);
 
-    auto cmakeCache = m_parameters.workDirectory.appendPath("CMakeCache.txt");
-    auto cmakeFiles = m_parameters.workDirectory.appendPath("CMakeFiles");
+    const FileName cmakeCache = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
+    const FileName cmakeFiles = m_parameters.workDirectory.pathAppended("CMakeFiles");
 
     const bool mustCleanUp = cmakeCache.exists() || cmakeFiles.exists();
     if (!mustCleanUp)

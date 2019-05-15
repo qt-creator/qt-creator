@@ -318,8 +318,7 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
 
     // check if absolute path is found in sysroot
     if (!m_sysroot.isEmpty()) {
-        FileName sysrootPath = m_sysroot;
-        sysrootPath.appendPath(originalPath);
+        const FileName sysrootPath = m_sysroot.pathAppended(originalPath);
         if (checkPath(sysrootPath.toString(), origLength, fileHandler, directoryHandler)) {
             return handleSuccess(originalPath, QStringList(sysrootPath.toString()), origLength,
                                  "in sysroot");

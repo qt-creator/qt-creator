@@ -109,7 +109,7 @@ void CMakeBuildConfiguration::initialize(const BuildInfo &info)
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"CMAKE_TOOLCHAIN_FILE",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::PATH,
                                                                             "Android CMake toolchain file",
-                                                                            ndkLocation.appendPath("build/cmake/android.toolchain.cmake").toUserOutput().toUtf8()});
+                                                                            ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").toUserOutput().toUtf8()});
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_ABI",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::STRING,
                                                                             "Android ABI",
