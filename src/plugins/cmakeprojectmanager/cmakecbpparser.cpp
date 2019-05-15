@@ -296,8 +296,7 @@ void CMakeCbpParser::parseBuildTargetOption()
         if (m_buildTarget.sourceDirectory.isEmpty()) {
             QDir dir(m_buildDirectory.toString());
             const QString relative = dir.relativeFilePath(m_buildTarget.workingDirectory.toString());
-            m_buildTarget.sourceDirectory = m_sourceDirectory;
-            m_buildTarget.sourceDirectory.appendPath(relative).toString();
+            m_buildTarget.sourceDirectory = m_sourceDirectory.pathAppended(relative);
         }
     }
     while (!atEnd()) {
