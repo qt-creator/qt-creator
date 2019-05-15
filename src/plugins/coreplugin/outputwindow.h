@@ -112,10 +112,6 @@ private:
     QString doNewlineEnforcement(const QString &out);
     void filterNewContent();
 
-    QColor m_highlightBgColor;
-    QColor m_highlightTextColor;
-    const QString m_settingsKey;
-
     Internal::OutputWindowPrivate *d;
 };
 

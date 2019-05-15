@@ -59,6 +59,9 @@ public:
 
     IContext *outputWindowContext = nullptr;
     Utils::OutputFormatter *formatter = nullptr;
+    QColor m_highlightBgColor;
+    QColor m_highlightTextColor;
+    QString m_settingsKey;
 
     bool enforceNewline = false;
     bool scrollToBottom = true;
@@ -79,7 +82,6 @@ public:
 
 OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget *parent)
     : QPlainTextEdit(parent)
-    , m_settingsKey(settingsKey)
     , d(new Internal::OutputWindowPrivate(document()))
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -87,6 +89,8 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     setFrameShape(QFrame::NoFrame);
     setMouseTracking(true);
     setUndoRedoEnabled(false);
+
+    d->m_settingsKey = settingsKey;
 
     d->outputWindowContext = new IContext;
     d->outputWindowContext->setContext(context);
@@ -119,8 +123,8 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     connect(this, &QPlainTextEdit::copyAvailable, cutAction, &QAction::setEnabled);  // OutputWindow never read-only
     connect(this, &QPlainTextEdit::copyAvailable, copyAction, &QAction::setEnabled);
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested, this, [this] {
-        if (!m_settingsKey.isEmpty())
-            Core::ICore::settings()->setValue(m_settingsKey, fontZoom());
+        if (!d->m_settingsKey.isEmpty())
+            Core::ICore::settings()->setValue(d->m_settingsKey, fontZoom());
     });
 
     undoAction->setEnabled(false);
@@ -136,8 +140,8 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
 
     d->m_originalFontSize = font().pointSizeF();
 
-    if (!m_settingsKey.isEmpty()) {
-        float zoom = Core::ICore::settings()->value(m_settingsKey).toFloat();
+    if (!d->m_settingsKey.isEmpty()) {
+        float zoom = Core::ICore::settings()->value(d->m_settingsKey).toFloat();
         setFontZoom(zoom);
     }
 }
@@ -270,12 +274,12 @@ void OutputWindow::setWheelZoomEnabled(bool enabled)
 
 void OutputWindow::setHighlightBgColor(const QColor &bgColor)
 {
-    m_highlightBgColor = bgColor;
+    d->m_highlightBgColor = bgColor;
 }
 
 void OutputWindow::setHighlightTextColor(const QColor &textColor)
 {
-    m_highlightTextColor = textColor;
+    d->m_highlightTextColor = textColor;
 }
 
 QString OutputWindow::filterText() const
@@ -294,10 +298,10 @@ void OutputWindow::setFilterText(const QString &filterText)
             d->formatter->plainTextEdit()->setPalette({});
         } else {
             QPalette pal;
-            pal.setColor(QPalette::Active, QPalette::Base, m_highlightBgColor);
-            pal.setColor(QPalette::Inactive, QPalette::Base, m_highlightBgColor.darker(120));
-            pal.setColor(QPalette::Active, QPalette::Text, m_highlightTextColor);
-            pal.setColor(QPalette::Inactive, QPalette::Text, m_highlightTextColor.darker(120));
+            pal.setColor(QPalette::Active, QPalette::Base, d->m_highlightBgColor);
+            pal.setColor(QPalette::Inactive, QPalette::Base, d->m_highlightBgColor.darker(120));
+            pal.setColor(QPalette::Active, QPalette::Text, d->m_highlightTextColor);
+            pal.setColor(QPalette::Inactive, QPalette::Text, d->m_highlightTextColor.darker(120));
             d->formatter->plainTextEdit()->setPalette(pal);
         }
 
