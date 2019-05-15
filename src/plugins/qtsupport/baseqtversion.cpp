@@ -444,12 +444,10 @@ FileName BaseQtVersion::binPath() const
 
 FileName BaseQtVersion::mkspecsPath() const
 {
-    FileName result = FileName::fromUserInput(qmakeProperty("QT_HOST_DATA"));
+    const FileName result = FileName::fromUserInput(qmakeProperty("QT_HOST_DATA"));
     if (result.isEmpty())
-        result = FileName::fromUserInput(qmakeProperty("QMAKE_MKSPECS"));
-    else
-        result.appendPath("mkspecs");
-    return result;
+        return FileName::fromUserInput(qmakeProperty("QMAKE_MKSPECS"));
+    return result.pathAppended("mkspecs");
 }
 
 FileName BaseQtVersion::qmlBinPath() const
@@ -906,7 +904,7 @@ void BaseQtVersion::updateMkspec() const
         m_mkspec = m_mkspec.relativeChildPath(baseMkspecDir);
 //        qDebug() << "Setting mkspec to"<<mkspec;
     } else {
-        FileName sourceMkSpecPath = sourcePath().appendPath("mkspecs");
+        const FileName sourceMkSpecPath = sourcePath().pathAppended("mkspecs");
         if (m_mkspec.isChildOf(sourceMkSpecPath)) {
             m_mkspec = m_mkspec.relativeChildPath(sourceMkSpecPath);
         } else {
@@ -1819,8 +1817,8 @@ FileNameList BaseQtVersion::qtCorePaths() const
                 && file.startsWith("QtCore")
                 && file.endsWith(".framework")) {
             // handle Framework
-            FileName lib = FileName::fromFileInfo(info);
-            dynamicLibs.append(lib.appendPath(file.left(file.lastIndexOf('.'))));
+            const FileName lib = FileName::fromFileInfo(info);
+            dynamicLibs.append(lib.pathAppended(file.left(file.lastIndexOf('.'))));
         } else if (info.isReadable()) {
             if (file.startsWith("libQtCore")
                     || file.startsWith("libQt5Core")

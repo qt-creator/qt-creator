@@ -354,7 +354,7 @@ void QnxConfiguration::setVersion(const QnxVersionNumber &version)
 
 void QnxConfiguration::readInformation()
 {
-    QString qConfigPath = FileName(m_qnxConfiguration).appendPath("qconfig").toString();
+    const QString qConfigPath = m_qnxConfiguration.pathAppended("qconfig").toString();
     QList <ConfigInstallInformation> installInfoList = QnxUtils::installedConfigs(qConfigPath);
     if (installInfoList.isEmpty())
         return;
@@ -418,13 +418,13 @@ void QnxConfiguration::updateTargets()
 
 void QnxConfiguration::assignDebuggersToTargets()
 {
-    QDir hostUsrBinDir(FileName(m_qnxHost).appendPath("usr/bin").toString());
+    const QDir hostUsrBinDir(m_qnxHost.pathAppended("usr/bin").toString());
     QStringList debuggerNames = hostUsrBinDir.entryList(
                 QStringList(HostOsInfo::withExecutableSuffix(QLatin1String("nto*-gdb"))),
                 QDir::Files);
     foreach (const QString &debuggerName, debuggerNames) {
-        FileName debuggerPath = FileName::fromString(hostUsrBinDir.path())
-                .appendPath(debuggerName);
+        const FileName debuggerPath = FileName::fromString(hostUsrBinDir.path())
+                .pathAppended(debuggerName);
         DebuggerItem item;
         item.setCommand(debuggerPath);
         item.reinitializeFromFile();

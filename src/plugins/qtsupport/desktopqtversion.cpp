@@ -94,8 +94,8 @@ QString DesktopQtVersion::qmlsceneCommand() const
 
     ensureMkSpecParsed();
 
-    QString path =
-        qmlBinPath().appendPath(Utils::HostOsInfo::withExecutableSuffix("qmlscene")).toString();
+    const QString path =
+        qmlBinPath().pathAppended(Utils::HostOsInfo::withExecutableSuffix("qmlscene")).toString();
 
     m_qmlsceneCommand = QFileInfo(path).isFile() ? path : QString();
 

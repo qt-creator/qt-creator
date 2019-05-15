@@ -219,7 +219,7 @@ QList<QnxTarget> QnxUtils::findTargets(const Utils::FileName &basePath)
     QDirIterator iterator(basePath.toString());
     while (iterator.hasNext()) {
         iterator.next();
-        FileName libc = FileName::fromString(iterator.filePath()).appendPath("lib/libc.so");
+        const FileName libc = FileName::fromString(iterator.filePath()).pathAppended("lib/libc.so");
         if (libc.exists()) {
             auto abis = Abi::abisOfBinary(libc);
             if (abis.isEmpty()) {
