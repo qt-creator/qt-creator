@@ -146,8 +146,8 @@ QStringList IosDsymBuildStep::defaultCleanCmdList() const
 QStringList IosDsymBuildStep::defaultCmdList() const
 {
     QString dsymutilCmd = "dsymutil";
-    Utils::FileName dsymUtilPath = IosConfigurations::developerPath()
-            .appendPath("Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil");
+    const Utils::FileName dsymUtilPath = IosConfigurations::developerPath()
+            .pathAppended("Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil");
     if (dsymUtilPath.exists())
         dsymutilCmd = dsymUtilPath.toUserOutput();
     auto runConf = qobject_cast<const IosRunConfiguration *>(target()->activeRunConfiguration());

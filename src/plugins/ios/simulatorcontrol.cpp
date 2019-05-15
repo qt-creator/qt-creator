@@ -96,7 +96,7 @@ static bool runSimCtlCommand(QStringList args, QString *output)
 static bool launchSimulator(const QString &simUdid) {
     QTC_ASSERT(!simUdid.isEmpty(), return false);
     const QString simulatorAppPath = IosConfigurations::developerPath()
-            .appendPath("Applications/Simulator.app/Contents/MacOS/Simulator").toString();
+            .pathAppended("Applications/Simulator.app/Contents/MacOS/Simulator").toString();
 
     if (IosConfigurations::xcodeVersion() >= QVersionNumber(9)) {
         // For XCode 9 boot the second device instead of launching simulator app twice.

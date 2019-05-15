@@ -449,9 +449,9 @@ void IosDebugSupport::start()
         if (deviceSdk1.toFileInfo().isDir()) {
             deviceSdk = deviceSdk1.toString();
         } else {
-            FileName deviceSdk2 = IosConfigurations::developerPath()
-                    .appendPath("Platforms/iPhoneOS.platform/DeviceSupport/")
-                    .appendPath(osVersion).appendPath("Symbols");
+            const FileName deviceSdk2 = IosConfigurations::developerPath()
+                    .pathAppended("Platforms/iPhoneOS.platform/DeviceSupport/"
+                                  + osVersion + "/Symbols");
             if (deviceSdk2.toFileInfo().isDir()) {
                 deviceSdk = deviceSdk2.toString();
             } else {

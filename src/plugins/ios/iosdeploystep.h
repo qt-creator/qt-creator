@@ -76,7 +76,6 @@ private:
     IosSimulator::ConstPtr iossimulator() const;
 
     QString deviceId() const;
-    QString appBundle() const;
     void raiseError(const QString &error);
     void writeOutput(const QString &text, OutputFormat = OutputFormat::NormalMessage);
     void checkProvisioningProfile();
@@ -84,7 +83,7 @@ private:
     TransferStatus m_transferStatus = NoTransfer;
     IosToolHandler *m_toolHandler = nullptr;
     ProjectExplorer::IDevice::ConstPtr m_device;
-    QString m_bundlePath;
+    Utils::FileName m_bundlePath;
     IosDeviceType m_deviceType;
     static const Core::Id Id;
     bool m_expectFail = false;

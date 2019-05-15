@@ -214,7 +214,7 @@ static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolCh
 
 static QVersionNumber findXcodeVersion(const Utils::FileName &developerPath)
 {
-    FileName xcodeInfo = developerPath.parentDir().appendPath("Info.plist");
+    const FileName xcodeInfo = developerPath.parentDir().pathAppended("Info.plist");
     if (xcodeInfo.exists()) {
         QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
         return QVersionNumber::fromString(settings.value("CFBundleShortVersionString").toString());

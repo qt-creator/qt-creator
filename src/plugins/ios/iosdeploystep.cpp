@@ -50,6 +50,7 @@
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Ios {
 namespace Internal {
@@ -86,7 +87,7 @@ bool IosDeployStep::init()
     auto runConfig = qobject_cast<const IosRunConfiguration *>(
         this->target()->activeRunConfiguration());
     QTC_ASSERT(runConfig, return false);
-    m_bundlePath = runConfig->bundleDirectory().toString();
+    m_bundlePath = runConfig->bundleDirectory();
 
     if (iosdevice()) {
         m_deviceType = IosDeviceType(IosDeviceType::IosDevice, deviceId());
@@ -122,7 +123,7 @@ void IosDeployStep::doRun()
     connect(m_toolHandler, &IosToolHandler::errorMsg,
             this, &IosDeployStep::handleErrorMsg);
     checkProvisioningProfile();
-    m_toolHandler->requestTransferApp(appBundle(), m_deviceType.identifier);
+    m_toolHandler->requestTransferApp(m_bundlePath.toString(), m_deviceType.identifier);
 }
 
 void IosDeployStep::doCancel()
@@ -227,11 +228,6 @@ QString IosDeployStep::deviceId() const
     return iosdevice()->uniqueDeviceID();
 }
 
-QString IosDeployStep::appBundle() const
-{
-    return m_bundlePath;
-}
-
 void IosDeployStep::raiseError(const QString &errorString)
 {
     emit addTask(Task(Task::Error, errorString, Utils::FileName::fromString(QString()), -1,
@@ -249,8 +245,7 @@ void IosDeployStep::checkProvisioningProfile()
     if (device.isNull())
         return;
 
-    Utils::FileName provisioningFilePath = Utils::FileName::fromString(appBundle());
-    provisioningFilePath.appendPath(QLatin1String("embedded.mobileprovision"));
+    const FileName provisioningFilePath = m_bundlePath.pathAppended("embedded.mobileprovision");
 
     // the file is a signed plist stored in DER format
     // we simply search for start and end of the plist instead of decoding the DER payload

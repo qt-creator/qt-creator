@@ -165,13 +165,13 @@ QString IosRunConfiguration::applicationName() const
 
 FileName IosRunConfiguration::bundleDirectory() const
 {
-    FileName res;
     Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
         qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
-        return res;
+        return {};
     }
+    FileName res;
     if (BuildConfiguration *bc = target()->activeBuildConfiguration()) {
         Project *project = target()->project();
         if (ProjectNode *node = project->findNodeForBuildKey(buildKey()))
@@ -182,29 +182,28 @@ FileName IosRunConfiguration::bundleDirectory() const
         case BuildConfiguration::Debug :
         case BuildConfiguration::Unknown :
             if (isDevice)
-                res.appendPath(QLatin1String("Debug-iphoneos"));
+                res = res.pathAppended("Debug-iphoneos");
             else
-                res.appendPath(QLatin1String("Debug-iphonesimulator"));
+                res = res.pathAppended("Debug-iphonesimulator");
             break;
         case BuildConfiguration::Profile :
         case BuildConfiguration::Release :
             if (isDevice)
-                res.appendPath(QLatin1String("Release-iphoneos"));
+                res = res.pathAppended("Release-iphoneos");
             else
-                res.appendPath(QLatin1String("Release-iphonesimulator"));
+                res = res.pathAppended("Release-iphonesimulator");
             break;
         default:
             qCWarning(iosLog) << "IosBuildStep had an unknown buildType "
                      << target()->activeBuildConfiguration()->buildType();
         }
     }
-    res.appendPath(applicationName() + QLatin1String(".app"));
-    return res;
+    return res.pathAppended(applicationName() + ".app");
 }
 
 FileName IosRunConfiguration::localExecutable() const
 {
-    return bundleDirectory().appendPath(applicationName());
+    return bundleDirectory().pathAppended(applicationName());
 }
 
 void IosDeviceTypeAspect::fromMap(const QVariantMap &map)
