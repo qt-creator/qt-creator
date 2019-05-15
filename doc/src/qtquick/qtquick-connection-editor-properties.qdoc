@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -46,13 +46,16 @@
     \list 1
         \li In the \uicontrol {Connections} view, select the
             \uicontrol {Properties} tab.
-        \li Select \uicontrol Item to select the object to specify the property
-            for.
-        \li Select \uicontrol Property to give a name to the property.
-        \li Select \uicontrol {Property Type} to specify the type of the
-            property.
-        \li Select \uicontrol {Property Value} to specify the value of the
-            property.
+        \li Select the \inlineimage plus.png
+            (\uicontrol Add) button to add a dynamic property for the currently
+            selected item. The item ID is displayed in the \uicontrol Item
+            column.
+        \li Double-click the value in the \uicontrol Property column to give a
+            name to the property.
+        \li Double-click the value in the \uicontrol {Property Type} column to
+            specify the type of the property.
+        \li Double-click the value in the \uicontrol {Property Value} column
+            to specify the value of the property.
     \endlist
 
 */
