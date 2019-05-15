@@ -219,16 +219,15 @@ void Client::initialize()
     QTC_ASSERT(m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << m_displayName;
     auto initRequest = new InitializeRequest();
+    auto params = initRequest->params().value_or(InitializeParams());
+    params.setCapabilities(generateClientCapabilities());
     if (m_project) {
-        auto params = initRequest->params().value_or(InitializeParams());
-        params.setCapabilities(generateClientCapabilities());
         params.setRootUri(DocumentUri::fromFileName(m_project->projectDirectory()));
-        initRequest->setParams(params);
         params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro){
             return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
         }));
-        initRequest->setParams(params);
     }
+    initRequest->setParams(params);
     initRequest->setResponseCallback([this](const InitializeRequest::Response &initResponse){
         intializeCallback(initResponse);
     });
