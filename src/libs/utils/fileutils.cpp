@@ -855,16 +855,11 @@ FileName &FileName::appendPath(const QString &s)
     return *this;
 }
 
-FileName &FileName::appendString(const QString &str)
+FileName FileName::stringAppended(const QString &str) const
 {
-    m_data.append(str);
-    return *this;
-}
-
-FileName &FileName::appendString(QChar str)
-{
-    m_data.append(str);
-    return *this;
+    FileName fn = *this;
+    fn.m_data.append(str);
+    return fn;
 }
 
 uint FileName::hash(uint seed) const

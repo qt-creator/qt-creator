@@ -204,8 +204,7 @@ const QList<BuildTargetInfo> CMakeBuildConfiguration::appTargets() const
             BuildTargetInfo bti;
             bti.displayName = ct.title;
             bti.targetFilePath = ct.executable;
-            bti.projectFilePath = ct.sourceDirectory;
-            bti.projectFilePath.appendString('/');
+            bti.projectFilePath = ct.sourceDirectory.stringAppended("/");
             bti.workingDirectory = ct.workingDirectory;
             bti.buildKey = CMakeTargetNode::generateId(ct.sourceDirectory, ct.title);
             appTargetList.append(bti);

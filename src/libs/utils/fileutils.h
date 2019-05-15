@@ -94,8 +94,7 @@ public:
 
     FileName relativeChildPath(const FileName &parent) const;
     FileName &appendPath(const QString &s);
-    FileName &appendString(const QString &str);
-    FileName &appendString(QChar str);
+    FileName stringAppended(const QString &str) const;
 
     void clear() { m_data.clear(); }
     bool isEmpty() const { return m_data.isEmpty(); }

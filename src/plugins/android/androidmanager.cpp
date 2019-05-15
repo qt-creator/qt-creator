@@ -286,9 +286,9 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
     settings["useLLVM"] = true;
     settings["ndk-host"] = AndroidConfigurations::currentConfig().toolchainHost();
     settings["stdcpp-path"] = AndroidConfigurations::currentConfig().ndkLocation()
-            .appendPath("/sources/cxx-stl/llvm-libc++/libs/")
-            .appendString(targetArch(target))
-            .appendPath("libc++_shared.so").toString();
+            .appendPath("/sources/cxx-stl/llvm-libc++/libs/"
+                        + targetArch(target)
+                        + "/libc++_shared.so").toString();
     return settings;
 }
 

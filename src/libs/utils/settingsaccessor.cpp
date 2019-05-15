@@ -244,9 +244,7 @@ BackUpStrategy::backupName(const QVariantMap &oldData, const FileName &path, con
 {
     if (oldData == data)
         return nullopt;
-    FileName backup = path;
-    backup.appendString(".bak");
-    return backup;
+    return path.stringAppended(".bak");
 }
 
 BackingUpSettingsAccessor::BackingUpSettingsAccessor(const QString &docType,
@@ -370,13 +368,14 @@ VersionedBackUpStrategy::backupName(const QVariantMap &oldData, const FileName &
     const int oldVersion = versionFromMap(oldData);
 
     if (!oldEnvironmentId.isEmpty() && oldEnvironmentId != m_accessor->settingsId())
-        backupName.appendString('.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7));
+        backupName = backupName.stringAppended
+                ('.' + QString::fromLatin1(oldEnvironmentId).mid(1, 7));
     if (oldVersion != m_accessor->currentVersion()) {
         VersionUpgrader *upgrader = m_accessor->upgrader(oldVersion);
         if (upgrader)
-            backupName.appendString('.' + upgrader->backupExtension());
+            backupName = backupName.stringAppended('.' + upgrader->backupExtension());
         else
-            backupName.appendString('.' + QString::number(oldVersion));
+            backupName = backupName.stringAppended('.' + QString::number(oldVersion));
     }
     if (backupName == path)
         return nullopt;

@@ -71,6 +71,5 @@ Utils::FileName Settings::getPath(const QString &file)
         result.appendPath(lowerFile);
     else
         result.appendPath(file); // handle arbitrary file names not known yet
-    result.appendString(".xml");
-    return result;
+    return result.stringAppended(".xml");
 }

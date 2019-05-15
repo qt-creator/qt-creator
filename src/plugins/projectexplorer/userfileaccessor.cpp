@@ -242,17 +242,16 @@ static QString makeRelative(QString path)
 // Return complete file path of the .user file.
 static FileName externalUserFilePath(const Utils::FileName &projectFilePath, const QString &suffix)
 {
-    FileName result;
     static const optional<QString> externalUserFileDir = defineExternalUserFileDir();
 
     if (externalUserFileDir) {
         // Recreate the relative project file hierarchy under the shared directory.
         // PersistentSettingsWriter::write() takes care of creating the path.
-        result = FileName::fromString(externalUserFileDir.value());
-        result.appendString('/' + makeRelative(projectFilePath.toString()));
-        result.appendString(suffix);
+        return FileName::fromString(externalUserFileDir.value()
+                                    + '/' + makeRelative(projectFilePath.toString())
+                                    + suffix);
     }
-    return result;
+    return {};
 }
 
 } // namespace
@@ -388,9 +387,8 @@ QVariant UserFileAccessor::retrieveSharedSettings() const
 FileName UserFileAccessor::projectUserFile() const
 {
     static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
-    FileName projectUserFile = m_project->projectFilePath();
-    projectUserFile.appendString(generateSuffix(qtcExt.isEmpty() ? FILE_EXTENSION_STR : qtcExt));
-    return projectUserFile;
+    return m_project->projectFilePath()
+            .stringAppended(generateSuffix(qtcExt.isEmpty() ? FILE_EXTENSION_STR : qtcExt));
 }
 
 FileName UserFileAccessor::externalUserFile() const
@@ -403,9 +401,8 @@ FileName UserFileAccessor::externalUserFile() const
 FileName UserFileAccessor::sharedFile() const
 {
     static const QString qtcExt = QLatin1String(qgetenv("QTC_SHARED_EXTENSION"));
-    FileName sharedFile = m_project->projectFilePath();
-    sharedFile.appendString(generateSuffix(qtcExt.isEmpty() ? ".shared" : qtcExt));
-    return sharedFile;
+    return m_project->projectFilePath()
+            .stringAppended(generateSuffix(qtcExt.isEmpty() ? ".shared" : qtcExt));
 }
 
 QVariantMap UserFileAccessor::postprocessMerge(const QVariantMap &main,

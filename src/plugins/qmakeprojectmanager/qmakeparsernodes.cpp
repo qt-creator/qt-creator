@@ -1941,12 +1941,10 @@ FileNameList QmakeProFile::generatedFiles(const FileName &buildDir,
             return { };
         FileName location = buildDir;
         location.appendPath(sourceFile.toFileInfo().completeBaseName());
-        FileName header = location;
-        header.appendString(singleVariableValue(Variable::HeaderExtension));
-        FileName cpp = location;
-        cpp.appendString(singleVariableValue(Variable::CppExtension));
-
-        return { header, cpp };
+        return {
+            location.stringAppended(singleVariableValue(Variable::HeaderExtension)),
+            location.stringAppended(singleVariableValue(Variable::CppExtension))
+        };
     }
     return { };
 }
