@@ -255,12 +255,12 @@ Column {
                                 anchors.leftMargin: 12
                                 anchors.rightMargin: 6
 
-                                anchors.topMargin: 24
+                                anchors.topMargin: 28
                                 anchors.bottomMargin: 6
 
                                 Label {
                                     text: "X1"
-                                    width: 16
+                                    width: 18
                                     tooltip: qsTr("Defines the start point for color interpolation.")
                                 }
 
@@ -270,7 +270,7 @@ Column {
 
                                 Label {
                                     text: "X2"
-                                    width: 16
+                                    width: 18
                                     tooltip: qsTr("Defines the end point for color interpolation.")
                                 }
 
@@ -280,7 +280,7 @@ Column {
 
                                 Label {
                                     text: "y1"
-                                    width: 16
+                                    width: 18
                                     tooltip: qsTr("Defines the start point for color interpolation.")
                                 }
 
@@ -290,7 +290,7 @@ Column {
 
                                 Label {
                                     text: "Y2"
-                                    width: 16
+                                    width: 18
                                     tooltip: qsTr("Defines the end point for color interpolation.")
                                 }
 
@@ -321,7 +321,6 @@ Column {
                         GradientDialogPopup {
                             id: gradientDialogPopupRadial
                             dialogHeight: 140
-                            dialogWidth: 340
                             content: GridLayout {
                                 rowSpacing: 4
                                 anchors.fill: parent
@@ -333,12 +332,12 @@ Column {
                                 anchors.leftMargin: 12
                                 anchors.rightMargin: 6
 
-                                anchors.topMargin: 24
+                                anchors.topMargin: 28
                                 anchors.bottomMargin: 6
 
                                 Label {
                                     text: "CenterX"
-                                    width: 54
+                                    width: 64
                                     tooltip: qsTr("Defines the center point.")
                                 }
 
@@ -348,7 +347,7 @@ Column {
 
                                 Label {
                                     text: "CenterY"
-                                    width: 54
+                                    width: 64
                                     tooltip: qsTr("Defines the center point.")
                                 }
 
@@ -358,7 +357,7 @@ Column {
 
                                 Label {
                                     text: "FocalX"
-                                    width: 54
+                                    width: 64
                                     tooltip: qsTr("Defines the focal point.")
                                 }
 
@@ -368,7 +367,7 @@ Column {
 
                                 Label {
                                     text: "FocalY"
-                                    width: 54
+                                    width: 64
                                     tooltip: qsTr("Defines the focal point.")
                                 }
 
@@ -378,7 +377,7 @@ Column {
 
                                 Label {
                                     text: "Center Radius"
-                                    width: 54
+                                    width: 64
                                     tooltip: qsTr("Defines the center point.")
                                 }
 
@@ -388,7 +387,7 @@ Column {
 
                                 Label {
                                     text: "Focal Radius"
-                                    width: 54
+                                    width: 64
                                     tooltip: qsTr("Defines the focal radius. Set to 0 for simple radial gradients.")
                                 }
 
@@ -431,12 +430,12 @@ Column {
                                 anchors.leftMargin: 12
                                 anchors.rightMargin: 6
 
-                                anchors.topMargin: 24
+                                anchors.topMargin: 28
                                 anchors.bottomMargin: 6
 
                                 Label {
                                     text: "CenterX"
-                                    width: 32
+                                    width: 64
                                     tooltip: qsTr("Defines the center point.")
                                 }
 
@@ -446,7 +445,7 @@ Column {
 
                                 Label {
                                     text: "CenterY"
-                                    width: 32
+                                    width: 64
                                     tooltip: qsTr("Defines the center point.")
                                 }
 
@@ -456,7 +455,7 @@ Column {
 
                                 Label {
                                     text: "Angle"
-                                    width: 32
+                                    width: 64
                                     tooltip: qsTr("Defines the start angle for the conical gradient. The value is in degrees (0-360).")
                                 }
 
