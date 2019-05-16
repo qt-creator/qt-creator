@@ -161,8 +161,6 @@ private:
     mutable QList<Utils::EnvironmentItem> m_environmentModifications;
     mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
 
-    Utils::FileName m_debuggerCommand;
-
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
 
