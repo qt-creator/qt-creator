@@ -53,7 +53,6 @@ protected:
 
 private:
     explicit AndroidToolChain();
-    AndroidToolChain(const QString &target, Core::Id languageId);
 
     friend class AndroidToolChainFactory;
 };

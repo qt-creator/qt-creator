@@ -197,12 +197,22 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(CToolChainList
         auto targetItr = ClangTargets.constBegin();
         while (targetItr != ClangTargets.constEnd()) {
             const Abi &abi = targetItr.value();
-            ToolChain *tc = findToolChain(compilerCommand, lang, targetItr.key(), alreadyKnown);
+            const QString target = targetItr.key();
+            ToolChain *tc = findToolChain(compilerCommand, lang, target, alreadyKnown);
             if (tc) {
                 qCDebug(androidTCLog) << "Tool chain already known" << abi.toString() << lang;
             } else {
                 qCDebug(androidTCLog) << "New Clang toolchain found" << abi.toString() << lang;
-                auto atc = new AndroidToolChain(targetItr.key(), lang);
+                auto atc = new AndroidToolChain;
+                atc->setOriginalTargetTriple(target);
+                atc->setLanguage(lang);
+                atc->setTargetAbi(ClangTargets[target]);
+                atc->setPlatformCodeGenFlags({"-target", target});
+                atc->setPlatformLinkerFlags({"-target", target});
+                atc->setDetection(ToolChain::AutoDetection);
+                atc->setDisplayName(QString("Android Clang (%1, %2)")
+                               .arg(ToolChainManager::displayNameOfLanguageId(lang),
+                                    AndroidConfig::displayName(abi)));
                 atc->resetToolChain(compilerCommand);
                 tc = atc;
             }
@@ -220,20 +230,6 @@ AndroidToolChain::AndroidToolChain()
 {
 }
 
-
-AndroidToolChain::AndroidToolChain(const QString& target, Core::Id languageId)
-    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_ID)
-{
-    setOriginalTargetTriple(target);
-    setLanguage(languageId);
-    setTargetAbi(ClangTargets[target]);
-    setPlatformCodeGenFlags({"-target", target});
-    setPlatformLinkerFlags({"-target", target});
-    setDetection(AutoDetection);
-    setDisplayName(QString::fromLatin1("Android Clang (%1, %2)")
-                   .arg(ToolChainManager::displayNameOfLanguageId(languageId),
-                        AndroidConfig::displayName(targetAbi())));
-}
 
 } // namespace Internal
 } // namespace Android
