@@ -26,10 +26,9 @@
 #include "compilationdatabaseproject.h"
 
 #include "compilationdatabaseconstants.h"
-#include "compilationdatabaseutils.h"
+#include "compilationdbparser.h"
 
 #include <coreplugin/icontext.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppkitinfo.h>
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/projectinfo.h>
@@ -54,9 +53,7 @@
 #include <utils/runextensions.h>
 
 #include <QFileDialog>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QTimer>
 
 #ifdef Q_OS_WIN
 #include <Windows.h>
@@ -69,22 +66,6 @@ namespace Internal {
 
 namespace {
 
-QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &flagsCache)
-{
-    QStringList flags;
-    const QJsonArray arguments = object["arguments"].toArray();
-    if (arguments.isEmpty()) {
-        flags = splitCommandLine(object["command"].toString(), flagsCache);
-    } else {
-        flags.reserve(arguments.size());
-        for (const QJsonValue &arg : arguments) {
-            auto flagIt = flagsCache.insert(arg.toString());
-            flags.append(*flagIt);
-        }
-    }
-
-    return flags;
-}
 
 bool isGccCompiler(const QString &compilerName)
 {
@@ -174,16 +155,6 @@ ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Co
     toolchain = ToolChainKitAspect::toolChain(kit, language);
     qWarning() << "No matching toolchain found, use the default.";
     return toolchain;
-}
-
-Utils::FileName jsonObjectFilename(const QJsonObject &object)
-{
-    const QString workingDir = QDir::fromNativeSeparators(object["directory"].toString());
-    Utils::FileName fileName = Utils::FileName::fromString(
-                QDir::fromNativeSeparators(object["file"].toString()));
-    if (fileName.toFileInfo().isRelative())
-        fileName = Utils::FileName::fromString(workingDir + "/" + fileName.toString()).canonicalPath();
-    return fileName;
 }
 
 void addDriverModeFlagIfNeeded(const ToolChain *toolchain,
@@ -362,85 +333,11 @@ void createTree(std::unique_ptr<ProjectNode> &root,
     }
 }
 
-struct Entry
-{
-    QStringList flags;
-    Utils::FileName fileName;
-    QString workingDir;
-};
-
-std::vector<Entry> readJsonObjects(const QString &filePath)
-{
-    std::vector<Entry> result;
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly))
-        return result;
-
-    const QByteArray contents = file.readAll();
-    int objectStart = contents.indexOf('{');
-    int objectEnd = contents.indexOf('}', objectStart + 1);
-
-    QSet<QString> flagsCache;
-    while (objectStart >= 0 && objectEnd >= 0) {
-        const QJsonDocument document = QJsonDocument::fromJson(
-                    contents.mid(objectStart, objectEnd - objectStart + 1));
-        if (document.isNull()) {
-            // The end was found incorrectly, search for the next one.
-            objectEnd = contents.indexOf('}', objectEnd + 1);
-            continue;
-        }
-
-        const QJsonObject object = document.object();
-        const Utils::FileName fileName = jsonObjectFilename(object);
-        const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
-                                                     fileName.toFileInfo().baseName());
-        result.push_back({flags, fileName, object["directory"].toString()});
-
-        objectStart = contents.indexOf('{', objectEnd + 1);
-        objectEnd = contents.indexOf('}', objectStart + 1);
-    }
-
-    return result;
-}
-
-QStringList readExtraFiles(const QString &filePath)
-{
-    QStringList result;
-
-    QFile file(filePath);
-    if (file.open(QFile::ReadOnly)) {
-        QTextStream stream(&file);
-
-        while (!stream.atEnd()) {
-            QString line = stream.readLine();
-            line = line.trimmed();
-
-            if (line.isEmpty() || line.startsWith('#'))
-                continue;
-
-            result.push_back(line);
-        }
-    }
-
-    return result;
-}
 
 } // anonymous namespace
 
-void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName &projectFile)
+void CompilationDatabaseProject::buildTreeAndProjectParts()
 {
-    std::vector<Entry> array = readJsonObjects(projectFilePath().toString());
-    const QString jsonExtraFilename = projectFilePath().toString() +
-                                      Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX;
-    const QStringList &extras = readExtraFiles(jsonExtraFilename);
-
-    if (array.empty() && extras.empty()) {
-        emitParsingFinished(false);
-        return;
-    }
-
-    auto root = std::make_unique<ProjectNode>(projectDirectory());
-
     CppTools::KitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
     // Reset toolchains to pick them based on the database entries.
@@ -448,13 +345,10 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
     kitInfo.cxxToolChain = nullptr;
     CppTools::RawProjectParts rpps;
 
-    std::sort(array.begin(), array.end(), [](const Entry &lhs, const Entry &rhs) {
-        return std::lexicographical_compare(lhs.flags.begin(), lhs.flags.end(),
-                                            rhs.flags.begin(), rhs.flags.end());
-    });
-
-    const Entry *prevEntry = nullptr;
-    for (const Entry &entry : array) {
+    QTC_ASSERT(m_parser, return);
+    const DbContents dbContents = m_parser->dbContents();
+    const DbEntry *prevEntry = nullptr;
+    for (const DbEntry &entry : dbContents.entries) {
         if (prevEntry && prevEntry->flags == entry.flags) {
             rpps.back().files.append(entry.fileName.toString());
             continue;
@@ -462,7 +356,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
 
         prevEntry = &entry;
 
-        CppTools::RawProjectPart rpp = makeRawProjectPart(projectFile,
+        CppTools::RawProjectPart rpp = makeRawProjectPart(projectFilePath(),
                                                           m_kit.get(),
                                                           kitInfo,
                                                           entry.workingDir,
@@ -472,11 +366,11 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
         rpps.append(rpp);
     }
 
-    if (!extras.empty()) {
-        const Utils::FileName baseDir = projectFile.parentDir();
+    if (!dbContents.extras.empty()) {
+        const Utils::FileName baseDir = projectFilePath().parentDir();
 
         QStringList extraFiles;
-        for (const QString &extra : extras)
+        for (const QString &extra : dbContents.extras)
             extraFiles.append(baseDir.pathAppended(extra).toString());
 
         CppTools::RawProjectPart rppExtra;
@@ -484,30 +378,25 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
         rpps.append(rppExtra);
     }
 
-    m_treeScanner.future().waitForFinished();
-    QCoreApplication::processEvents();
 
-    if (m_treeScanner.future().isCanceled())
-        createTree(root, rootProjectDirectory(), rpps);
-    else
-        createTree(root, rootProjectDirectory(), rpps, m_treeScanner.release());
+    auto root = std::make_unique<ProjectNode>(projectDirectory());
+    createTree(root, rootProjectDirectory(), rpps, m_parser->scannedFiles());
 
-    root->addNode(std::make_unique<FileNode>(projectFile, FileType::Project));
+    root->addNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
-    if (QFile::exists(jsonExtraFilename))
-        root->addNode(std::make_unique<FileNode>(Utils::FileName::fromString(jsonExtraFilename),
+    if (QFile::exists(dbContents.extraFileName))
+        root->addNode(std::make_unique<FileNode>(Utils::FileName::fromString(dbContents.extraFileName),
                                                  FileType::Project));
 
     setRootProjectNode(std::move(root));
 
     m_cppCodeModelUpdater->update({this, kitInfo, rpps});
-
-    emitParsingFinished(true);
 }
 
 CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &projectFile)
     : Project(Constants::COMPILATIONDATABASEMIMETYPE, projectFile)
     , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>())
+    , m_parseDelay(new QTimer(this))
 {
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -523,40 +412,17 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
         }
     });
 
-    m_treeScanner.setFilter([this](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
-        // Mime checks requires more resources, so keep it last in check list
-        auto isIgnored = fn.toString().startsWith(projectFilePath().toString() + ".user")
-                         || TreeScanner::isWellKnownBinary(mimeType, fn);
-
-        // Cache mime check result for speed up
-        if (!isIgnored) {
-            auto it = m_mimeBinaryCache.find(mimeType.name());
-            if (it != m_mimeBinaryCache.end()) {
-                isIgnored = *it;
-            } else {
-                isIgnored = TreeScanner::isMimeBinary(mimeType, fn);
-                m_mimeBinaryCache[mimeType.name()] = isIgnored;
-            }
-        }
-
-        return isIgnored;
-    });
-    m_treeScanner.setTypeFactory([](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
-        return TreeScanner::genericFileType(mimeType, fn);
-    });
-
-    connect(this,
-            &CompilationDatabaseProject::rootProjectDirectoryChanged,
-            this,
-            &CompilationDatabaseProject::reparseProject);
+    connect(this, &CompilationDatabaseProject::rootProjectDirectoryChanged,
+            m_parseDelay, qOverload<>(&QTimer::start));
 
     m_fileSystemWatcher.addFile(projectFile.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
     m_fileSystemWatcher.addFile(projectFile.toString() + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX,
                                 Utils::FileSystemWatcher::WatchModifiedDate);
-    connect(&m_fileSystemWatcher,
-            &Utils::FileSystemWatcher::fileChanged,
-            this,
-            &CompilationDatabaseProject::reparseProject);
+    connect(&m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
+            m_parseDelay, qOverload<>(&QTimer::start));
+    connect(m_parseDelay, &QTimer::timeout, this, &CompilationDatabaseProject::reparseProject);
+    m_parseDelay->setSingleShot(true);
+    m_parseDelay->setInterval(1000);
 }
 
 Utils::FileName CompilationDatabaseProject::rootPathFromSettings() const
@@ -586,23 +452,21 @@ Project::RestoreResult CompilationDatabaseProject::fromMap(const QVariantMap &ma
 
 void CompilationDatabaseProject::reparseProject()
 {
-    emitParsingStarted();
-
-    const Utils::FileName rootPath = rootPathFromSettings();
-    if (!rootPath.isEmpty()) {
-        m_treeScanner.asyncScanForFiles(rootPath);
-
-        Core::ProgressManager::addTask(m_treeScanner.future(),
-                                       tr("Scan \"%1\" project tree").arg(displayName()),
-                                       "CompilationDatabase.Scan.Tree");
+    if (m_parser) {
+        QTC_CHECK(isParsing());
+        m_parser->stop();
+        emitParsingFinished(false);
     }
-
-    const QFuture<void> future = ::Utils::runAsync(
-        [this]() { buildTreeAndProjectParts(projectFilePath()); });
-    Core::ProgressManager::addTask(future,
-                                   tr("Parse \"%1\" project").arg(displayName()),
-                                   "CompilationDatabase.Parse");
-    m_parserWatcher.setFuture(future);
+    m_parser = new CompilationDbParser(displayName(), projectFilePath(), rootPathFromSettings(),
+                                       m_mimeBinaryCache, this);
+    connect(m_parser, &CompilationDbParser::finished, this, [this](bool success) {
+        if (success)
+            buildTreeAndProjectParts();
+        m_parser = nullptr;
+        emitParsingFinished(success);
+    });
+    emitParsingStarted();
+    m_parser->start();
 }
 
 CompilationDatabaseProject::~CompilationDatabaseProject()

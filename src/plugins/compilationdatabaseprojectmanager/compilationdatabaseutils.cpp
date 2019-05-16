@@ -38,6 +38,7 @@
 using namespace ProjectExplorer;
 
 namespace CompilationDatabaseProjectManager {
+namespace Internal {
 
 static QString updatedPathFlag(const QString &pathStr, const QString &workingDir)
 {
@@ -240,4 +241,5 @@ QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache)
     return result;
 }
 
+} // namespace Internal
 } // namespace CompilationDatabaseProjectManager

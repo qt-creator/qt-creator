@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,49 +25,54 @@
 
 #pragma once
 
-#include "compilationdatabaseconstants.h"
+#include "compilationdatabaseutils.h"
 
-#include <cpptools/cppprojectfile.h>
 #include <utils/fileutils.h>
 
-#include <QHash>
+#include <QFutureWatcher>
+#include <QList>
+#include <QObject>
 #include <QStringList>
 
+#include <vector>
+
 namespace ProjectExplorer {
-class HeaderPath;
-class Macro;
+class FileNode;
+class TreeScanner;
 }
 
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
-class DbEntry {
+class CompilationDbParser : public QObject
+{
+    Q_OBJECT
 public:
-    QStringList flags;
-    Utils::FileName fileName;
-    QString workingDir;
+    explicit CompilationDbParser(const QString &projectName, const Utils::FileName &projectPath,
+                                 const Utils::FileName &rootPath, MimeBinaryCache &mimeBinaryCache,
+                                 QObject *parent = nullptr);
+
+    void start();
+    void stop();
+
+    QList<ProjectExplorer::FileNode *> scannedFiles() const;
+    DbContents dbContents() const { return m_dbContents; }
+
+signals:
+    void finished(bool success);
+
+private:
+    void finish();
+    DbContents parseProject();
+
+    const QString m_projectName;
+    const Utils::FileName m_projectFilePath;
+    const Utils::FileName m_rootPath;
+    MimeBinaryCache &m_mimeBinaryCache;
+    ProjectExplorer::TreeScanner *m_treeScanner = nullptr;
+    QFutureWatcher<DbContents> m_parserWatcher;
+    DbContents m_dbContents;
 };
-
-class DbContents {
-public:
-    std::vector<DbEntry> entries;
-    QString extraFileName;
-    QStringList extras;
-};
-
-using MimeBinaryCache = QHash<QString, bool>;
-
-QStringList filterFromFileName(const QStringList &flags, QString baseName);
-
-void filteredFlags(const QString &fileName,
-                   const QString &workingDir,
-                   QStringList &flags,
-                   QVector<ProjectExplorer::HeaderPath> &headerPaths,
-                   QVector<ProjectExplorer::Macro> &macros,
-                   CppTools::ProjectFile::Kind &fileKind,
-                   QString &sysRoot);
-
-QStringList splitCommandLine(QString commandLine, QSet<QString> &flagsCache);
 
 } // namespace Internal
 } // namespace CompilationDatabaseProjectManager

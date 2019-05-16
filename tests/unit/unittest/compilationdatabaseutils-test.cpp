@@ -33,6 +33,7 @@
 
 using namespace ProjectExplorer;
 using namespace CompilationDatabaseProjectManager;
+using namespace CompilationDatabaseProjectManager::Internal;
 
 namespace {
 
@@ -42,7 +43,7 @@ protected:
     QStringList splitCommandLine(const QString &commandLine)
     {
         QSet<QString> flagsCache;
-        return CompilationDatabaseProjectManager::splitCommandLine(commandLine, flagsCache);
+        return CompilationDatabaseProjectManager::Internal::splitCommandLine(commandLine, flagsCache);
     }
 
     HeaderPaths headerPaths;

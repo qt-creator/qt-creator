@@ -17,6 +17,8 @@ QtcPlugin {
         "compilationdatabaseutils.h",
         "compilationdatabaseprojectmanagerplugin.cpp",
         "compilationdatabaseprojectmanagerplugin.h",
+        "compilationdbparser.cpp",
+        "compilationdbparser.h",
     ]
 
     Group {
