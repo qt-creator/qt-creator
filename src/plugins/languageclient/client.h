@@ -199,7 +199,7 @@ private:
     DynamicCapabilities m_dynamicCapabilities;
     LanguageClientCompletionAssistProvider m_completionProvider;
     LanguageClientQuickFixProvider m_quickFixProvider;
-    QSet<TextEditor::TextDocument *> m_resetAssistProvider;
+    QMap<TextEditor::TextDocument *, QPointer<TextEditor::CompletionAssistProvider>> m_resetAssistProvider;
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;

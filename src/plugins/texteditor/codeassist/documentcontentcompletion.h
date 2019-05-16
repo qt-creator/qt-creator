@@ -35,6 +35,8 @@ class AssistInterface;
 
 class TEXTEDITOR_EXPORT DocumentContentCompletionProvider : public CompletionAssistProvider
 {
+    Q_OBJECT
+
 public:
     DocumentContentCompletionProvider(
             const QString &snippetGroup = QString(Constants::TEXT_SNIPPET_GROUP_ID));

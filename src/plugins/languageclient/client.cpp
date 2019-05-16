@@ -36,12 +36,13 @@
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/workspace.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
+#include <texteditor/codeassist/documentcontentcompletion.h>
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/session.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
@@ -119,8 +120,9 @@ Client::~Client()
     using namespace TextEditor;
     // FIXME: instead of replacing the completion provider in the text document store the
     // completion provider as a prioritised list in the text document
-    for (TextDocument *document : m_resetAssistProvider) {
-        document->setCompletionAssistProvider(nullptr);
+    for (TextDocument *document : m_resetAssistProvider.keys()) {
+        if (document->completionAssistProvider() == &m_completionProvider)
+            document->setCompletionAssistProvider(m_resetAssistProvider[document]);
         document->setQuickFixAssistProvider(nullptr);
     }
     for (Core::IEditor * editor : Core::DocumentModel::editorsForOpenedDocuments()) {
@@ -293,14 +295,18 @@ bool Client::openDocument(Core::IDocument *document)
                 [this, textDocument](int position, int charsRemoved, int charsAdded) {
                     documentContentsChanged(textDocument, position, charsRemoved, charsAdded);
                 });
-        textDocument->completionAssistProvider();
-        m_resetAssistProvider << textDocument;
-        m_completionProvider.setTriggerCharacters(
-            m_serverCapabilities.completionProvider()
-                .value_or(ServerCapabilities::CompletionOptions())
-                .triggerCharacters()
-                .value_or(QList<QString>()));
-        textDocument->setCompletionAssistProvider(&m_completionProvider);
+        auto *oldCompletionProvider = qobject_cast<TextEditor::DocumentContentCompletionProvider *>(
+            textDocument->completionAssistProvider());
+        if (oldCompletionProvider || !textDocument->completionAssistProvider()) {
+            // only replace the completion assist provider if it is the default one or null
+            m_completionProvider.setTriggerCharacters(
+                m_serverCapabilities.completionProvider()
+                    .value_or(ServerCapabilities::CompletionOptions())
+                    .triggerCharacters()
+                    .value_or(QList<QString>()));
+            textDocument->setCompletionAssistProvider(&m_completionProvider);
+        }
+        m_resetAssistProvider[textDocument] = oldCompletionProvider;
         textDocument->setQuickFixAssistProvider(&m_quickFixProvider);
         connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
             m_resetAssistProvider.remove(textDocument);
