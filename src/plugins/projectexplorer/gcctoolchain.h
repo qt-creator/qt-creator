@@ -213,8 +213,8 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 public:
     ClangToolChain();
     explicit ClangToolChain(Core::Id typeId);
-    ClangToolChain(const ClangToolChain &other);
     ~ClangToolChain() override;
+
     QString typeDisplayName() const override;
     Utils::FileName makeCommand(const Utils::Environment &environment) const override;
 
