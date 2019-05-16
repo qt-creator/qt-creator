@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,59 +25,24 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
-
-#include "kit.h"
-
-#include <QWidget>
-
-#include <functional>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QPushButton;
-QT_END_NAMESPACE
-
-namespace Core { class Id; }
+#include <QDialog>
 
 namespace ProjectExplorer {
+namespace Internal {
 
-// Let the user pick a kit.
-class PROJECTEXPLORER_EXPORT KitChooser : public QWidget
+class ParseIssuesDialog : public QDialog
 {
     Q_OBJECT
-
 public:
-    explicit KitChooser(QWidget *parent = nullptr);
-
-    void setCurrentKitId(Core::Id id);
-    Core::Id currentKitId() const;
-
-    void setKitPredicate(const Kit::Predicate &predicate);
-
-    Kit *currentKit() const;
-    bool hasStartupKit() const { return m_hasStartupKit; }
-
-signals:
-    void currentIndexChanged();
-    void activated();
-
-public slots:
-    void populate();
-
-protected:
-    virtual QString kitText(const Kit *k) const;
-    virtual QString kitToolTip(Kit *k) const;
+    ParseIssuesDialog(QWidget *parent = nullptr);
+    ~ParseIssuesDialog() override;
 
 private:
-    void onActivated();
-    void onCurrentIndexChanged();
-    void onManageButtonClicked();
+    void accept() override;
 
-    Kit::Predicate m_kitPredicate;
-    QComboBox *m_chooser;
-    QPushButton *m_manageButton;
-    bool m_hasStartupKit = false;
+    class Private;
+    Private * const d;
 };
 
+} // namespace Internal
 } // namespace ProjectExplorer

@@ -160,6 +160,7 @@ HEADERS += projectexplorer.h \
     customexecutablerunconfiguration.h \
     projectmacro.h \
     makestep.h \
+    parseissuesdialog.h \
     projectconfigurationaspects.h \
     treescanner.h
 
@@ -303,6 +304,7 @@ SOURCES += projectexplorer.cpp \
     customexecutablerunconfiguration.cpp \
     projectmacro.cpp \
     makestep.cpp \
+    parseissuesdialog.cpp \
     projectconfigurationaspects.cpp \
     treescanner.cpp
 

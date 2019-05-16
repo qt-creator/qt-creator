@@ -50,6 +50,7 @@
 #include "kitfeatureprovider.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
+#include "parseissuesdialog.h"
 #include "target.h"
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
@@ -1812,6 +1813,16 @@ void ProjectExplorerPlugin::extensionsInitialized()
         return searchPaths;
     };
     QSsh::SshSettings::setExtraSearchPathRetriever(searchPathRetriever);
+
+    const auto parseIssuesAction = new QAction(tr("Parse Build Output..."), this);
+    ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    Command * const cmd = ActionManager::registerAction(parseIssuesAction,
+                                                        "ProjectExplorer.ParseIssuesAction");
+    connect(parseIssuesAction, &QAction::triggered, this, [] {
+        ParseIssuesDialog dlg(ICore::mainWindow());
+        dlg.exec();
+    });
+    mtools->addAction(cmd);
 
     // delay restoring kits until UI is shown for improved perceived startup performance
     QTimer::singleShot(0, this, &ProjectExplorerPlugin::restoreKits);
