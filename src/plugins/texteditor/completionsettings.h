@@ -70,6 +70,7 @@ public:
     bool m_highlightAutoComplete = true;
     bool m_skipAutoCompletedText = true;
     bool m_autoRemove = true;
+    bool m_overwriteClosingChars = false;
 };
 
 inline bool operator==(const CompletionSettings &t1, const CompletionSettings &t2) { return t1.equals(t2); }

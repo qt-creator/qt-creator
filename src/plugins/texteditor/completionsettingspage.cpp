@@ -102,6 +102,7 @@ QWidget *CompletionSettingsPage::widget()
         m_page->spaceAfterFunctionName->setChecked(m_completionSettings.m_spaceAfterFunctionName);
         m_page->autoSplitStrings->setChecked(m_completionSettings.m_autoSplitStrings);
         m_page->animateAutoComplete->setChecked(m_completionSettings.m_animateAutoComplete);
+        m_page->overwriteClosingChars->setChecked(m_completionSettings.m_overwriteClosingChars);
         m_page->highlightAutoComplete->setChecked(m_completionSettings.m_highlightAutoComplete);
         m_page->skipAutoComplete->setChecked(m_completionSettings.m_skipAutoCompletedText);
         m_page->removeAutoComplete->setChecked(m_completionSettings.m_autoRemove);
@@ -181,6 +182,7 @@ void CompletionSettingsPage::settingsFromUi(CompletionSettings &completion, Comm
     completion.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
     completion.m_autoSplitStrings = m_page->autoSplitStrings->isChecked();
     completion.m_animateAutoComplete = m_page->animateAutoComplete->isChecked();
+    completion.m_overwriteClosingChars = m_page->overwriteClosingChars->isChecked();
     completion.m_highlightAutoComplete = m_page->highlightAutoComplete->isChecked();
     completion.m_skipAutoCompletedText = m_page->skipAutoComplete->isChecked();
     completion.m_autoRemove = m_page->removeAutoComplete->isChecked();

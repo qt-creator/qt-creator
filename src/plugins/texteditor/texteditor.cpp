@@ -7521,6 +7521,7 @@ void TextEditorWidget::setCompletionSettings(const CompletionSettings &completio
     d->m_autoCompleter->setSurroundWithBracketsEnabled(completionSettings.m_surroundingAutoBrackets);
     d->m_autoCompleter->setAutoInsertQuotesEnabled(completionSettings.m_autoInsertQuotes);
     d->m_autoCompleter->setSurroundWithQuotesEnabled(completionSettings.m_surroundingAutoQuotes);
+    d->m_autoCompleter->setOverwriteClosingCharsEnabled(completionSettings.m_overwriteClosingChars);
     d->m_animateAutoComplete = completionSettings.m_animateAutoComplete;
     d->m_highlightAutoComplete = completionSettings.m_highlightAutoComplete;
     d->m_skipAutoCompletedText = completionSettings.m_skipAutoCompletedText;

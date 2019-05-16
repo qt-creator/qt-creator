@@ -53,6 +53,9 @@ public:
     void setSurroundWithQuotesEnabled(bool b) { m_surroundWithQuotes = b; }
     bool isSurroundWithQuotesEnabled() const { return m_surroundWithQuotes; }
 
+    void setOverwriteClosingCharsEnabled(bool b) { m_overwriteClosingChars = b; }
+    bool isOverwriteClosingCharsEnabled() const { return m_overwriteClosingChars; }
+
     void setTabSettings(const TabSettings &tabSettings) { m_tabSettings = tabSettings; }
     const TabSettings &tabSettings() const { return m_tabSettings; }
 
@@ -103,6 +106,7 @@ private:
     bool m_surroundWithBrackets;
     bool m_autoInsertQuotes;
     bool m_surroundWithQuotes;
+    bool m_overwriteClosingChars;
 };
 
 } // TextEditor

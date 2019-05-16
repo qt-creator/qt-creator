@@ -37,7 +37,8 @@ AutoCompleter::AutoCompleter() :
     m_autoInsertBrackets(true),
     m_surroundWithBrackets(true),
     m_autoInsertQuotes(true),
-    m_surroundWithQuotes(true)
+    m_surroundWithQuotes(true),
+    m_overwriteClosingChars(false)
 {}
 
 AutoCompleter::~AutoCompleter() = default;
@@ -190,6 +191,9 @@ QString AutoCompleter::autoComplete(QTextCursor &cursor, const QString &textToIn
 
     QTextDocument *doc = cursor.document();
     const QChar lookAhead = doc->characterAt(cursor.selectionEnd());
+
+    if (m_overwriteClosingChars && (textToInsert == lookAhead))
+        skipChars = true;
 
     int skippedChars = 0;
 
