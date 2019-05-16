@@ -64,14 +64,9 @@ QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl)
     }
 }
 
-QmakeBuildConfiguration *QmakeMakeStep::qmakeBuildConfiguration() const
-{
-    return static_cast<QmakeBuildConfiguration *>(buildConfiguration());
-}
-
 bool QmakeMakeStep::init()
 {
-    QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
+    const auto bc = static_cast<QmakeBuildConfiguration *>(buildConfiguration());
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 

@@ -30,9 +30,6 @@
 #include <projectexplorer/makestep.h>
 
 namespace QmakeProjectManager {
-
-class QmakeBuildConfiguration;
-
 namespace Internal {
 
 class QmakeMakeStepFactory : public ProjectExplorer::BuildStepFactory
@@ -51,8 +48,6 @@ class QMAKEPROJECTMANAGER_EXPORT QmakeMakeStep : public ProjectExplorer::MakeSte
 
 public:
     explicit QmakeMakeStep(ProjectExplorer::BuildStepList *bsl);
-
-    QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 
 private:
     void finish(bool success) override;
