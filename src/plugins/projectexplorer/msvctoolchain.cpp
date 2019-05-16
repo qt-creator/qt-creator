@@ -2019,7 +2019,7 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     if (!qtCreatorsClang.isEmpty()) {
         qtCreatorsClang = Utils::FileName::fromString(qtCreatorsClang)
                               .parentDir()
-                              .appendPath("clang-cl.exe")
+                              .pathAppended("clang-cl.exe")
                               .toString();
         results.append(detectClangClToolChainInPath(qtCreatorsClang, alreadyKnown, "", true));
         known.append(results);

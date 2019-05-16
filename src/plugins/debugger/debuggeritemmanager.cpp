@@ -653,8 +653,7 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
         // Pre Windows SDK 8: Check 'Debugging Tools for Windows'
         for (const QFileInfo &fi : dir.entryInfoList({"Debugging Tools for Windows*"},
                                                      QDir::Dirs | QDir::NoDotAndDotDot)) {
-            FileName filePath = FileName::fromFileInfo(fi);
-            filePath.appendPath("cdb.exe");
+            const FileName filePath = FileName::fromFileInfo(fi).pathAppended("cdb.exe");
             if (!cdbs.contains(filePath))
                 cdbs.append(filePath);
         }

@@ -782,14 +782,13 @@ QString GitClient::findRepositoryForDirectory(const QString &directory) const
     QFileInfo fileInfo;
     FileName parent;
     for (FileName dir = FileName::fromString(directory); !dir.isEmpty(); dir = dir.parentDir()) {
-        FileName gitName = FileName(dir).appendPath(GIT_DIRECTORY);
+        const FileName gitName = dir.pathAppended(GIT_DIRECTORY);
         if (!gitName.exists())
             continue; // parent might exist
         fileInfo.setFile(gitName.toString());
         if (fileInfo.isFile())
             return dir.toString();
-        gitName.appendPath("config");
-        if (gitName.exists())
+        if (gitName.pathAppended("config").exists())
             return dir.toString();
     }
     return QString();

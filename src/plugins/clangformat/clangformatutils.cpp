@@ -174,7 +174,7 @@ static Utils::FileName projectPath()
 {
     const Project *project = SessionManager::startupProject();
     if (project)
-        return globalPath().appendPath("clang-format").appendPath(currentProjectUniqueId());
+        return globalPath().pathAppended("clang-format/" + currentProjectUniqueId());
 
     return Utils::FileName();
 }
@@ -219,7 +219,7 @@ QString configForFile(Utils::FileName fileName)
 Utils::FileName assumedPathForConfig(const QString &configFile)
 {
     Utils::FileName fileName = Utils::FileName::fromString(configFile);
-    return fileName.parentDir().appendPath("test.cpp");
+    return fileName.parentDir().pathAppended("test.cpp");
 }
 
 static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = QByteArray())

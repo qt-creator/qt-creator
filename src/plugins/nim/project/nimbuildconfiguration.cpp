@@ -65,9 +65,7 @@ static FileName defaultBuildDirectory(const Kit *k,
         return FileName::fromString(buildDirectory);
 
     auto projectDir = FileName::fromString(projectFileInfo.absoluteDir().absolutePath());
-    auto result = projectDir.appendPath(buildDirectory);
-
-    return result;
+    return projectDir.pathAppended(buildDirectory);
 }
 
 NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
@@ -128,7 +126,7 @@ BuildConfiguration::BuildType NimBuildConfiguration::buildType() const
 
 FileName NimBuildConfiguration::cacheDirectory() const
 {
-    return buildDirectory().appendPath(QStringLiteral("nimcache"));
+    return buildDirectory().pathAppended("nimcache");
 }
 
 FileName NimBuildConfiguration::outFilePath() const

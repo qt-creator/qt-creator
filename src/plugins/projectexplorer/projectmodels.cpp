@@ -219,8 +219,8 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
     Node *node = nodeForIndex(index);
     QTC_ASSERT(node, return false);
 
-    Utils::FileName orgFilePath = node->filePath();
-    Utils::FileName newFilePath = orgFilePath.parentDir().appendPath(value.toString());
+    const Utils::FileName orgFilePath = node->filePath();
+    const Utils::FileName newFilePath = orgFilePath.parentDir().pathAppended(value.toString());
 
     ProjectExplorerPlugin::renameFile(node, newFilePath.toString());
     emit renamed(orgFilePath, newFilePath);
@@ -596,9 +596,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
 
     // Some helper functions for the file operations.
     const auto targetFilePath = [&targetDir](const QString &sourceFilePath) {
-        FileName targetFile = targetDir;
-        targetFile.appendPath(QFileInfo(sourceFilePath).fileName());
-        return targetFile.toString();
+        return targetDir.pathAppended(QFileInfo(sourceFilePath).fileName()).toString();
     };
 
     struct VcsInfo {

@@ -488,11 +488,11 @@ void GenericProject::updateDeploymentData()
     Utils::FileName deploymentFilePath;
     if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
         deploymentFilePath = activeTarget()->activeBuildConfiguration()->buildDirectory()
-                .appendPath(fileName);
+                .pathAppended(fileName);
     }
     bool hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
     if (!hasDeploymentData) {
-        deploymentFilePath = projectDirectory().appendPath(fileName);
+        deploymentFilePath = projectDirectory().pathAppended(fileName);
         hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
     }
     if (hasDeploymentData) {

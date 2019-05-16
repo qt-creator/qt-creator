@@ -73,8 +73,7 @@ void JavaParser::parse(const QString &line)
         Utils::FileName file = Utils::FileName::fromUserInput(m_javaRegExp.cap(2));
         if (file.isChildOf(m_buildDirectory)) {
             Utils::FileName relativePath = file.relativeChildPath(m_buildDirectory);
-            file = m_sourceDirectory;
-            file.appendPath(relativePath.toString());
+            file = m_sourceDirectory.pathAppended(relativePath.toString());
         }
 
         if (file.toFileInfo().isRelative()) {
