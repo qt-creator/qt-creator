@@ -175,17 +175,3 @@ def testHovering():
     expectedValues = ["#D1DBBD", {"text":'<table><tr><td valign=middle>number</td><td>&nbsp;&nbsp;<img src=":/utils/tooltip/images/f1.png"></td></tr></table>'}]
     alternativeValues = ["#D6DBBD", None]
     verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
-
-def __getUnmaskedFilename__(maskedFilename):
-    name = maskedFilename.split("\\.")
-    path = name[0].rsplit(".", 1)
-    if len(path) < 2:
-        return ".".join(name)
-    else:
-        return ".".join((path[1], ".".join(name[1:])))
-
-def maskSpecialCharsForProjectTree(filename):
-    filename = filename.replace("\\", "/").replace("_", "\\_").replace(".","\\.")
-    # undoing mask operations on chars masked by mistake
-    filename = filename.replace("/?","\\?").replace("/*","\\*")
-    return filename
