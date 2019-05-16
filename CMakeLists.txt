@@ -191,6 +191,8 @@ if (WITH_TESTS)
   add_subdirectory(tests)
 endif()
 
+add_subdirectory(doc)
+
 feature_summary(INCLUDE_QUIET_PACKAGES WHAT
   PACKAGES_FOUND PACKAGES_NOT_FOUND
   ENABLED_FEATURES DISABLED_FEATURES
