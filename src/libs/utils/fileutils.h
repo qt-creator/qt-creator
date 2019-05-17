@@ -102,6 +102,8 @@ public:
     FileName pathAppended(const QString &str) const;
     FileName stringAppended(const QString &str) const;
 
+    FileName canonicalPath() const;
+
     void clear() { m_data.clear(); }
     bool isEmpty() const { return m_data.isEmpty(); }
 
@@ -129,7 +131,6 @@ public:
             const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = nullptr);
     static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
-    static FileName canonicalPath(const FileName &path);
     static QString shortNativePath(const FileName &path);
     static QString fileSystemFriendlyName(const QString &name);
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);

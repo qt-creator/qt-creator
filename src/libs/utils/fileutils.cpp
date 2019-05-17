@@ -234,17 +234,17 @@ FileName FileUtils::resolveSymlinks(const FileName &path)
 }
 
 /*!
-  Recursively resolves possibly present symlinks in \a filePath.
+  Recursively resolves possibly present symlinks in this file name.
   Unlike QFileInfo::canonicalFilePath(), this function will not return an empty
   string if path doesn't exist.
 
   Returns the canonical path.
 */
-FileName FileUtils::canonicalPath(const FileName &path)
+FileName FileName::canonicalPath() const
 {
-    const QString result = path.toFileInfo().canonicalFilePath();
+    const QString result = toFileInfo().canonicalFilePath();
     if (result.isEmpty())
-        return path;
+        return *this;
     return FileName::fromString(result);
 }
 
@@ -356,7 +356,7 @@ FileName FileUtils::commonPath(const FileName &oldCommonPath, const FileName &fi
     FileName newCommonPath = oldCommonPath;
     while (!newCommonPath.isEmpty() && !fileName.isChildOf(newCommonPath))
         newCommonPath = newCommonPath.parentDir();
-    return canonicalPath(newCommonPath);
+    return newCommonPath.canonicalPath();
 }
 
 // Copied from qfilesystemengine_win.cpp

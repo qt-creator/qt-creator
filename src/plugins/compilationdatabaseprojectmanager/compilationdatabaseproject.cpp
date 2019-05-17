@@ -181,10 +181,8 @@ Utils::FileName jsonObjectFilename(const QJsonObject &object)
     const QString workingDir = QDir::fromNativeSeparators(object["directory"].toString());
     Utils::FileName fileName = Utils::FileName::fromString(
                 QDir::fromNativeSeparators(object["file"].toString()));
-    if (fileName.toFileInfo().isRelative()) {
-        fileName = Utils::FileUtils::canonicalPath(
-                    Utils::FileName::fromString(workingDir + "/" + fileName.toString()));
-    }
+    if (fileName.toFileInfo().isRelative())
+        fileName = Utils::FileName::fromString(workingDir + "/" + fileName.toString()).canonicalPath();
     return fileName;
 }
 

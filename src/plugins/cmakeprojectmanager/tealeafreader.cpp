@@ -250,8 +250,8 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
 
     const FileName sourceOfBuildDir
             = FileName::fromUtf8(CMakeConfigItem::valueOf("CMAKE_HOME_DIRECTORY", result));
-    const FileName canonicalSourceOfBuildDir = FileUtils::canonicalPath(sourceOfBuildDir);
-    const FileName canonicalSourceDirectory = FileUtils::canonicalPath(m_parameters.sourceDirectory);
+    const FileName canonicalSourceOfBuildDir = sourceOfBuildDir.canonicalPath();
+    const FileName canonicalSourceDirectory = m_parameters.sourceDirectory.canonicalPath();
     if (canonicalSourceOfBuildDir != canonicalSourceDirectory) { // Uses case-insensitive compare where appropriate
         emit errorOccured(tr("The build directory is not for %1 but for %2")
                           .arg(canonicalSourceOfBuildDir.toUserOutput(),
