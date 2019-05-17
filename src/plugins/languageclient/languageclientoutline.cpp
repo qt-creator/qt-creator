@@ -205,6 +205,8 @@ void LanguageClientOutlineWidget::updateSelectionInTree(const QTextCursor &curre
             selection.select(m_model.indexForItem(item), m_model.indexForItem(item));
     });
     m_view.selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
+    if (!selection.isEmpty())
+        m_view.scrollTo(selection.indexes().first());
 }
 
 void LanguageClientOutlineWidget::onItemActivated(const QModelIndex &index)
