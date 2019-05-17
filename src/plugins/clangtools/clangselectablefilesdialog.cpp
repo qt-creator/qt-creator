@@ -248,7 +248,7 @@ private:
                 // Create needed extra dir nodes
                 FileName currentDirPath = parentDir;
                 for (const QString &dirName : dirsToCreate) {
-                    currentDirPath.appendPath(dirName);
+                    currentDirPath = currentDirPath.pathAppended(dirName);
 
                     Tree *newDirNode = createDirNode(dirName, currentDirPath);
                     linkDirNode(parentNode, newDirNode);

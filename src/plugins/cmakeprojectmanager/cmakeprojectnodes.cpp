@@ -144,8 +144,7 @@ bool CMakeListsNode::supportsAction(ProjectExplorer::ProjectAction action, const
 
 Utils::optional<Utils::FileName> CMakeListsNode::visibleAfterAddFileAction() const
 {
-    Utils::FileName projFile{filePath()};
-    return projFile.appendPath("CMakeLists.txt");
+    return filePath().pathAppended("CMakeLists.txt");
 }
 
 CMakeProjectNode::CMakeProjectNode(const Utils::FileName &directory) :
@@ -251,8 +250,7 @@ bool CMakeTargetNode::addFiles(const QStringList &filePaths, QStringList *)
 
 Utils::optional<Utils::FileName> CMakeTargetNode::visibleAfterAddFileAction() const
 {
-    Utils::FileName projFile{filePath()};
-    return projFile.appendPath("CMakeLists.txt");
+    return filePath().pathAppended("CMakeLists.txt");
 }
 
 void CMakeTargetNode::setTargetInformation(const QList<Utils::FileName> &artifacts,

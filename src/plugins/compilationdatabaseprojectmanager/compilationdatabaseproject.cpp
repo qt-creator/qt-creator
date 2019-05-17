@@ -475,14 +475,11 @@ void CompilationDatabaseProject::buildTreeAndProjectParts(const Utils::FileName 
     }
 
     if (!extras.empty()) {
-        const QString baseDir = projectFile.parentDir().toString();
+        const Utils::FileName baseDir = projectFile.parentDir();
 
         QStringList extraFiles;
-        for (const QString &extra : extras) {
-            auto extraFile = Utils::FileName::fromString(baseDir);
-            extraFile.appendPath(extra);
-            extraFiles.append(extraFile.toString());
-        }
+        for (const QString &extra : extras)
+            extraFiles.append(baseDir.pathAppended(extra).toString());
 
         CppTools::RawProjectPart rppExtra;
         rppExtra.setFiles(extraFiles);

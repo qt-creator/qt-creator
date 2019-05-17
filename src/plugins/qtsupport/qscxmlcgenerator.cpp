@@ -118,8 +118,7 @@ FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(QProcess *process
     const Utils::FileName wd = workingDirectory();
     FileNameToContentsHash result;
     forEachTarget([&](const Utils::FileName &target) {
-        Utils::FileName file = wd;
-        file.appendPath(target.fileName());
+        const Utils::FileName file = wd.pathAppended(target.fileName());
         QFile generated(file.toString());
         if (!generated.open(QIODevice::ReadOnly))
             return;

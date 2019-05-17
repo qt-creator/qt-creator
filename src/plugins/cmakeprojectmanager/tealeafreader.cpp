@@ -235,8 +235,7 @@ QList<CMakeBuildTarget> TeaLeafReader::takeBuildTargets()
 
 CMakeConfig TeaLeafReader::takeParsedConfiguration()
 {
-    FileName cacheFile = m_parameters.workDirectory;
-    cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
+    const FileName cacheFile = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
 
     if (!cacheFile.exists())
         return { };
@@ -432,8 +431,7 @@ void TeaLeafReader::extractData()
     m_cmakeFiles.insert(cbpFile);
 
     // Add CMakeCache.txt file:
-    FileName cacheFile = m_parameters.workDirectory;
-    cacheFile.appendPath(QLatin1String("CMakeCache.txt"));
+    const FileName cacheFile = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
     if (cacheFile.toFileInfo().exists())
         m_cmakeFiles.insert(cacheFile);
 

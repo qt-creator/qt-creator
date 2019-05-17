@@ -119,9 +119,7 @@ QString CodeStylePool::settingsDir() const
 
 Utils::FileName CodeStylePool::settingsPath(const QByteArray &id) const
 {
-    Utils::FileName path = Utils::FileName::fromString(settingsDir());
-    path.appendPath(QString::fromUtf8(id + ".xml"));
-    return path;
+    return Utils::FileName::fromString(settingsDir()).pathAppended(QString::fromUtf8(id + ".xml"));
 }
 
 QList<ICodeStylePreferences *> CodeStylePool::codeStyles() const

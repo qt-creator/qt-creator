@@ -159,8 +159,8 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                     it->replace(projectDir, targetDir);
 
                 foreach (const QString &dependency, dependencies) {
-                    FileName targetFile = FileName::fromString(targetDir);
-                    targetFile.appendPath(QDir(dependency).dirName());
+                    const FileName targetFile = FileName::fromString(targetDir)
+                            .pathAppended(QDir(dependency).dirName());
                     if (!FileUtils::copyRecursively(FileName::fromString(dependency), targetFile,
                             &error)) {
                         QMessageBox::warning(ICore::mainWindow(), tr("Cannot Copy Project"), error);

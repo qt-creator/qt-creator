@@ -469,7 +469,7 @@ FileNameList BaseQtVersion::directoriesToIgnoreInProjectTree() const
 
     FileName mkspecPathSrc = FileName::fromUserInput(qmakeProperty("QT_HOST_DATA", PropertyVariantSrc));
     if (!mkspecPathSrc.isEmpty()) {
-        mkspecPathSrc.appendPath("mkspecs");
+        mkspecPathSrc = mkspecPathSrc.pathAppended("mkspecs");
         if (mkspecPathSrc != mkspecPathGet)
             result.append(mkspecPathSrc);
     }

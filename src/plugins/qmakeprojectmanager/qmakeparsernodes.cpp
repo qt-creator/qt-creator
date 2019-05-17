@@ -1942,15 +1942,14 @@ FileNameList QmakeProFile::generatedFiles(const FileName &buildDir,
             location = buildDir;
         if (location.isEmpty())
             return { };
-        location.appendPath(QLatin1String("ui_")
-                            + sourceFile.toFileInfo().completeBaseName()
-                            + singleVariableValue(Variable::HeaderExtension));
+        location = location.pathAppended("ui_"
+                                         + sourceFile.toFileInfo().completeBaseName()
+                                         + singleVariableValue(Variable::HeaderExtension));
         return { Utils::FileName::fromString(QDir::cleanPath(location.toString())) };
     } else if (sourceFileType == FileType::StateChart) {
         if (buildDir.isEmpty())
             return { };
-        FileName location = buildDir;
-        location.appendPath(sourceFile.toFileInfo().completeBaseName());
+        const FileName location = buildDir.pathAppended(sourceFile.toFileInfo().completeBaseName());
         return {
             location.stringAppended(singleVariableValue(Variable::HeaderExtension)),
             location.stringAppended(singleVariableValue(Variable::CppExtension))

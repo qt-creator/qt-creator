@@ -1123,7 +1123,7 @@ void QmakeProject::collectLibraryData(const QmakeProFile *file, DeploymentData &
     case Abi::DarwinOS: {
         FileName destDir = destDirFor(ti);
         if (config.contains(QLatin1String("lib_bundle"))) {
-            destDir.appendPath(ti.target + ".framework");
+            destDir = destDir.pathAppended(ti.target + ".framework");
         } else {
             if (!(isPlugin && config.contains(QLatin1String("no_plugin_name_prefix"))))
                 targetFileName.prepend(QLatin1String("lib"));

@@ -190,8 +190,7 @@ QVariantMap CMakeTool::toMap() const
 Utils::FileName CMakeTool::cmakeExecutable() const
 {
     if (Utils::HostOsInfo::isMacHost() && m_executable.endsWith(".app")) {
-        Utils::FileName toTest = m_executable;
-        toTest = toTest.appendPath("Contents/bin/cmake");
+        const Utils::FileName toTest = m_executable.pathAppended("Contents/bin/cmake");
         if (toTest.exists())
             return toTest;
     }

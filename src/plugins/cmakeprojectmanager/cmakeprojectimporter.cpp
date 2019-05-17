@@ -207,9 +207,7 @@ static Utils::FileName qmakeFromCMakeCache(const CMakeConfig &config)
 
                     // Eat the leading "}/" and trailing "
                     const QByteArray locationPart =  origLine.mid(sp + 2, ep - 2 - sp);
-                    Utils::FileName result = baseQtDir;
-                    result.appendPath(QString::fromUtf8(locationPart));
-                    return result;
+                    return baseQtDir.pathAppended(QString::fromUtf8(locationPart));
                 }
             }
         }

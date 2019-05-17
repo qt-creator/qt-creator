@@ -148,9 +148,8 @@ void HeaderPathFilter::tweakHeaderPaths()
 void HeaderPathFilter::addPreIncludesPath()
 {
     if (projectDirectory.size()) {
-        Utils::FileName rootProjectDirectory = Utils::FileName::fromString(projectDirectory);
-
-        rootProjectDirectory.appendPath(".pre_includes");
+        const Utils::FileName rootProjectDirectory = Utils::FileName::fromString(projectDirectory)
+                .pathAppended(".pre_includes");
 
         systemHeaderPaths.push_back(
             {rootProjectDirectory.toString(), ProjectExplorer::HeaderPathType::System});

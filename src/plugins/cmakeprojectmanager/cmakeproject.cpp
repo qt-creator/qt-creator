@@ -276,7 +276,8 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     {
         CMakeConfigItem settingFileItem;
         settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
-        settingFileItem.value = bc->buildDirectory().appendPath("android_deployment_settings.json").toString().toUtf8();
+        settingFileItem.value = bc->buildDirectory()
+                .pathAppended("android_deployment_settings.json").toString().toUtf8();
         patchedConfig.append(settingFileItem);
     }
 

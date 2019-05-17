@@ -266,8 +266,8 @@ Utils::FileName QbsBuildStep::installRoot(VariableHandling variableHandling) con
 
     const QbsBuildConfiguration * const bc
             = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-    return bc->buildDirectory().appendPath(bc->configurationName())
-            .appendPath(qbs::InstallOptions::defaultInstallRoot());
+    return bc->buildDirectory().pathAppended(bc->configurationName())
+            .pathAppended(qbs::InstallOptions::defaultInstallRoot());
 }
 
 int QbsBuildStep::maxJobs() const

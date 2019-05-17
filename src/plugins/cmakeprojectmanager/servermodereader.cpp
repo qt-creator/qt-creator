@@ -813,8 +813,7 @@ static void createProjectNode(const QHash<Utils::FileName, ProjectNode *> &cmake
     ProjectNode *cmln = cmakeListsNodes.value(dir);
     QTC_ASSERT(cmln, qDebug() << dir.toUserOutput(); return);
 
-    Utils::FileName projectName = dir;
-    projectName.appendPath(".project::" + displayName);
+    const Utils::FileName projectName = dir.pathAppended(".project::" + displayName);
 
     ProjectNode *pn = cmln->projectNode(projectName);
     if (!pn) {
@@ -865,8 +864,7 @@ void ServerModeReader::addTargets(const QHash<Utils::FileName, ProjectExplorer::
         tNode->setTargetInformation(t->artifacts, t->type);
         QList<FolderNode::LocationInfo> info;
         // Set up a default target path:
-        FileName targetPath = t->sourceDirectory;
-        targetPath.appendPath("CMakeLists.txt");
+        FileName targetPath = t->sourceDirectory.pathAppended("CMakeLists.txt");
         for (CrossReference *cr : qAsConst(t->crossReferences)) {
             BacktraceItem *bt = cr->backtrace.isEmpty() ? nullptr : cr->backtrace.at(0);
             if (bt) {

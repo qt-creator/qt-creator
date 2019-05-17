@@ -149,7 +149,7 @@ static bool parseTaskFile(QString *errorString, const FileName &name)
             file = QDir::fromNativeSeparators(file);
             QFileInfo fi(file);
             if (fi.isRelative())
-                file = FileName(parentDir).appendPath(file).toString();
+                file = parentDir.pathAppended(file).toString();
         }
         description = unescape(description);
 

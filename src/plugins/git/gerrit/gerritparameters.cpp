@@ -60,8 +60,7 @@ static inline QString detectApp(const char *defaultExe)
     const FileName gitBinDir = GerritPlugin::gitBinDirectory();
     if (gitBinDir.isEmpty())
         return QString();
-    FileName path = gitBinDir;
-    path.appendPath(defaultApp);
+    FileName path = gitBinDir.pathAppended(defaultApp);
     if (path.exists())
         return path.toString();
 
@@ -74,7 +73,7 @@ static inline QString detectApp(const char *defaultExe)
     const QStringList entries = dir.entryList({"mingw*"});
     if (entries.isEmpty())
         return QString();
-    path.appendPath(entries.first()).appendPath("bin").appendPath(defaultApp);
+    path = path.pathAppended(entries.first()).pathAppended("bin").pathAppended(defaultApp);
     if (path.exists())
         return path.toString();
     return QString();
