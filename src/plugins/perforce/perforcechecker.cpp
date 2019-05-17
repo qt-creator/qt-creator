@@ -175,10 +175,27 @@ static inline QString clientRootFromOutput(const QString &in)
     return QString();
 }
 
+// When p4 port and p4 user is set a preconfigured Root: is given, which doesn't relate with
+// the current mapped project. In this case "Client:" has the same value as "Host:", which is an
+// invalid case.
+static inline bool clientAndHostAreEqual(const QString &in)
+{
+    QString client = findTerm(in, QLatin1String("Client:"));
+    QString host = findTerm(in, QLatin1String("Host:"));
+
+    return client == host;
+}
+
 void PerforceChecker::parseOutput(const QString &response)
 {
     if (!response.contains(QLatin1String("View:")) && !response.contains(QLatin1String("//depot/"))) {
         emitFailed(tr("The client does not seem to contain any mapped files."));
+        return;
+    }
+
+    if (clientAndHostAreEqual(response)) {
+        // Is an invalid case. But not an error. QtC checks cmake install directories for
+        // p4 repositories, or the %temp% directory.
         return;
     }
 
