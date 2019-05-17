@@ -1599,8 +1599,7 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<ProKey, ProString> &ve
     else
         qt5 = true;
 
-    FileName mkspecFullPath = baseMkspecDir;
-    mkspecFullPath.appendPath(theSpec);
+    FileName mkspecFullPath = baseMkspecDir.pathAppended(theSpec);
 
     // qDebug() << "default mkspec is located at" << mkspecFullPath;
 

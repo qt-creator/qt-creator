@@ -1077,9 +1077,7 @@ QProcessEnvironment AndroidConfigurations::toolsEnvironment(const AndroidConfig 
     Utils::FileName jdkLocation = config.openJDKLocation();
     if (!jdkLocation.isEmpty()) {
         env.set("JAVA_HOME", jdkLocation.toUserOutput());
-        Utils::FileName binPath = jdkLocation;
-        binPath.appendPath("bin");
-        env.prependOrSetPath(binPath.toUserOutput());
+        env.prependOrSetPath(jdkLocation.pathAppended("bin").toUserOutput());
     }
     return env.toProcessEnvironment();
 }

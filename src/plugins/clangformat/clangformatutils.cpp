@@ -243,16 +243,16 @@ static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = Q
 
 void createStyleFileIfNeeded(bool isGlobal)
 {
-    Utils::FileName path = isGlobal ? globalPath() : projectPath();
-    const QString configFile = path.appendPath(Constants::SETTINGS_FILE_NAME).toString();
+    const Utils::FileName path = isGlobal ? globalPath() : projectPath();
+    const QString configFile = path.pathAppended(Constants::SETTINGS_FILE_NAME).toString();
 
     if (QFile::exists(configFile))
         return;
 
-    QDir().mkpath(path.parentDir().toString());
+    QDir().mkpath(path.toString());
     if (!isGlobal) {
         const Project *project = SessionManager::startupProject();
-        Utils::FileName possibleProjectConfig = project->rootProjectDirectory().appendPath(
+        Utils::FileName possibleProjectConfig = project->rootProjectDirectory().pathAppended(
             Constants::SETTINGS_FILE_NAME);
         if (possibleProjectConfig.exists()) {
             // Just copy th .clang-format if current project has one.
@@ -296,7 +296,7 @@ static clang::format::FormatStyle styleForFile(Utils::FileName fileName, bool ch
     if (configFile.isEmpty()) {
         // If no configuration is found create a global one (if it does not yet exist) and use it.
         createStyleFileIfNeeded(true);
-        configFile = globalPath().appendPath(Constants::SETTINGS_FILE_NAME).toString();
+        configFile = globalPath().pathAppended(Constants::SETTINGS_FILE_NAME).toString();
     }
 
     fileName = assumedPathForConfig(configFile);
@@ -334,23 +334,23 @@ static std::string readFile(const QString &path)
 
 std::string currentProjectConfigText()
 {
-    const QString configPath = projectPath().appendPath(Constants::SETTINGS_FILE_NAME).toString();
+    const QString configPath = projectPath().pathAppended(Constants::SETTINGS_FILE_NAME).toString();
     return readFile(configPath);
 }
 
 std::string currentGlobalConfigText()
 {
-    const QString configPath = globalPath().appendPath(Constants::SETTINGS_FILE_NAME).toString();
+    const QString configPath = globalPath().pathAppended(Constants::SETTINGS_FILE_NAME).toString();
     return readFile(configPath);
 }
 
 clang::format::FormatStyle currentProjectStyle()
 {
-    return styleForFile(projectPath().appendPath(Constants::SAMPLE_FILE_NAME), false);
+    return styleForFile(projectPath().pathAppended(Constants::SAMPLE_FILE_NAME), false);
 }
 
 clang::format::FormatStyle currentGlobalStyle()
 {
-    return styleForFile(globalPath().appendPath(Constants::SAMPLE_FILE_NAME), false);
+    return styleForFile(globalPath().pathAppended(Constants::SAMPLE_FILE_NAME), false);
 }
 } // namespace ClangFormat

@@ -54,7 +54,7 @@ QString testDataDir = QLatin1String(SRCDIR "/data");
 static QmlProjectItem *loadQmlProject(QString name, QString *error)
 {
     return QmlProjectFileFormat::parseProjectFile(
-                Utils::FileName::fromString(testDataDir).appendPath(name + ".qmlproject"), error);
+                Utils::FileName::fromString(testDataDir).pathAppended(name + ".qmlproject"), error);
 }
 
 void tst_FileFormat::testFileFilter()

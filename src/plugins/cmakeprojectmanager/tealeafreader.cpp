@@ -416,7 +416,7 @@ void TeaLeafReader::extractData()
 
     const FileName srcDir = m_parameters.sourceDirectory;
     const FileName bldDir = m_parameters.workDirectory;
-    const FileName topCMake = Utils::FileName(srcDir).appendPath("CMakeLists.txt");
+    const FileName topCMake = srcDir.pathAppended("CMakeLists.txt");
 
     resetData();
 

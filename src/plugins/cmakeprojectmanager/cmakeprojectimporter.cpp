@@ -47,6 +47,7 @@
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
+using namespace Utils;
 
 namespace {
 
@@ -232,8 +233,7 @@ QVector<CMakeToolChainData> extractToolChainsFromCache(const CMakeConfig &config
 QList<void *> CMakeProjectImporter::examineDirectory(const Utils::FileName &importPath) const
 {
     qCInfo(cmInputLog()) << "Examining directory:" << importPath.toUserOutput();
-    Utils::FileName cacheFile = importPath;
-    cacheFile.appendPath("CMakeCache.txt");
+    const FileName cacheFile = importPath.pathAppended("CMakeCache.txt");
 
     if (!cacheFile.exists()) {
         qCDebug(cmInputLog()) << cacheFile.toUserOutput() << "does not exist, returning.";
