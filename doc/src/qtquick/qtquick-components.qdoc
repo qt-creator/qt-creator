@@ -92,24 +92,24 @@
     You can use the following QML types to create components:
 
     \list
-        \li \l [QML]{AnimatedImage}{Animated Image} provides a way to play
+        \li \l [QtQuick]{AnimatedImage}{Animated Image} provides a way to play
             animations stored as images containing a series of frames, such
             as those stored in GIF files.
-        \li \l [QML]{BorderImage}{Border Image} uses an image as a border or
+        \li \l [QtQuick]{BorderImage}{Border Image} uses an image as a border or
             background.
-        \li \l [QML]{Image} adds a bitmap to the scene. You can stretch and
+        \li \l [QtQuick]{Image} adds a bitmap to the scene. You can stretch and
             tile images.
-        \li \l [QML]{Item} is the most basic of all visual types in QML. Even
+        \li \l [QtQuick]{Item} is the most basic of all visual types in QML. Even
             though it has no visual appearance, it defines all the properties
             that are common across visual types, such as the x and y position,
             width and height, anchoring, and key handling.
-        \li \l [QML]{Rectangle} adds a rectangle that is painted with a solid
+        \li \l [QtQuick] {Rectangle} adds a rectangle that is painted with a solid
             fill color and an optional border. You can use the radius property
             to create rounded rectangles.
-        \li \l [QML]{Text} adds formatted read-only text.
-        \li \l [QML]{TextEdit}{Text Edit} adds a single line of editable
+        \li \l [QtQuick]{Text} adds formatted read-only text.
+        \li \l [QtQuick]{TextEdit}{Text Edit} adds a single line of editable
             formatted text that can be validated.
-        \li \l [QML]{TextInput}{Text Input} adds a single line of editable
+        \li \l [QtQuick]{TextInput}{Text Input} adds a single line of editable
             plain text that can be validated.
     \endlist
 
@@ -267,12 +267,12 @@
     You can use the following positioners to arrange items in UIs:
 
     \list
-        \li \l[QML] {Column} arranges its child items vertically.
-        \li \l[QML] {Row} arranges its child items horizontally.
-        \li \l[QML] {Grid}
+        \li \l[QtQuick] {Column} arranges its child items vertically.
+        \li \l[QtQuick] {Row} arranges its child items horizontally.
+        \li \l[QtQuick] {Grid}
             arranges its child items so that they are aligned in a grid and
             are not overlapping.
-        \li \l[QML] {Flow}
+        \li \l[QtQuick] {Flow}
             arranges its child items side by side, wrapping as necessary.
     \endlist
 
@@ -365,7 +365,7 @@
         \li \l{FocusScope}{Focus Scope}
             assists in keyboard focus handling when building reusable QML
             components.
-        \li \l [QML]{MouseArea}{Mouse Area} enables simple mouse handling.
+        \li \l [QtQuick]{MouseArea}{Mouse Area} enables simple mouse handling.
     \endlist
 
     Since Qt 5.7, you can also use the following \l{Qt Quick Controls} types

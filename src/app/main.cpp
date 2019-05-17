@@ -234,8 +234,12 @@ static inline QStringList getPluginPaths()
                                     Core::Constants::IDE_DISPLAY_NAME :
                                     Core::Constants::IDE_ID);
     pluginPath += QLatin1String("/plugins/");
-    pluginPath += QLatin1String(Core::Constants::IDE_VERSION_LONG);
-    rc.push_back(pluginPath);
+    // Qt Creator X.Y.Z can load plugins from X.Y.(Z-1) etc, so add current and previous
+    // patch versions
+    const QString minorVersion = QString::number(IDE_VERSION_MAJOR) + '.'
+                                 + QString::number(IDE_VERSION_MINOR) + '.';
+    for (int patchVersion = IDE_VERSION_RELEASE; patchVersion >= 0; --patchVersion)
+        rc.push_back(pluginPath + minorVersion + QString::number(patchVersion));
     return rc;
 }
 

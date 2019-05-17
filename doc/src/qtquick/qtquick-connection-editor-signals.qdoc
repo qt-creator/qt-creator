@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -61,11 +61,18 @@
             \uicontrol {Connections} tab.
         \li Select the \inlineimage plus.png
             (\uicontrol Add) button to add a connection.
-        \li Select \uicontrol Target to add the object to connect to a signal.
-        \li Select \uicontrol {Signal Handler} to select the signal that the
-            connection will listen to from a list of all signals available for
-            the object.
-        \li Select \uicontrol Actions to specify the action to perform when
-            the signal is emitted. You use JavaScript to specify the actions.
+        \li Double-click the value in the \uicontrol Target column to add the
+            object to connect to a signal.
+        \li Double-click the value in the \uicontrol {Signal Handler} column to
+            select the signal that the connection will listen to from a list of
+            all signals available for the object.
+        \li Double-click the value in the \uicontrol Actions column to specify
+            the action to perform when the signal is emitted. You use JavaScript
+            to specify the actions.
     \endlist
+
+    \if defined(qtdesignstudio)
+    For an example of connecting the \c clicked signal of a button to a
+    \l{Adding States}{state}, see \l {Log In UI - Part 3}.
+    \endif
 */

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -56,14 +56,14 @@
         \li In the \uicontrol {Connections} view, select the
             \uicontrol {Bindings} tab.
         \li Select the \inlineimage plus.png
-            (\uicontrol Add) button to add a binding.
-        \li Select \uicontrol Item to select the target object whose property
-            you want to change dynamically.
-        \li Select \uicontrol Property to select the property to bind to a
-            source property.
-        \li Select \uicontrol {Source Item} to select the object whose property
-            you want to use to determine the behavior of the target object.
-        \li Select \uicontrol {Source Property} to select the property to bind
-            the target property to.
+            (\uicontrol Add) button to add a binding for the currently selected
+            item. The ID is displayed in the \uicontrol Item column.
+          \li Double-click the value in the \uicontrol Property column to select
+            the property to bind to a source property.
+        \li Double-click the value in the \uicontrol {Source Item} column to
+            select the object whose property you want to use to determine the
+            behavior of the target object.
+        \li Double-click the value in the \uicontrol {Source Property} column
+            to select the property to bind the target property to.
     \endlist
 */

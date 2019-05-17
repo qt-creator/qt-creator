@@ -31,6 +31,8 @@ import QtQuick.Controls.Styles 1.1
 
 DoubleSpinBox {
     id: spinBox
+    width: 82
+    Layout.minimumWidth: 82
 
     property string propertyName
 

@@ -33,10 +33,11 @@
 
     \contentspage index.html
     \page creator-quick-ui-forms.html
-    \previouspage qtquick-iso-icon-browser.html
     \if defined(qtdesignstudio)
+    \previouspage qmldesigner-pathview-editor.html
     \nextpage studio-live-preview.html
     \else
+    \previouspage qtquick-iso-icon-browser.html
     \nextpage quick-export-to-qml.html
     \endif
 

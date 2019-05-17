@@ -869,6 +869,16 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
             cFlags << "-std=c99";
         else if (!cLanguageVersion.isEmpty())
             cFlags << ("-std=" + cLanguageVersion.first());
+
+        if (targetOS.contains("darwin")) {
+            const auto darwinVersion = getCppProp("minimumDarwinVersion").toString();
+            if (!darwinVersion.isEmpty()) {
+                const auto darwinVersionFlag = getCppProp("minimumDarwinVersionCompilerFlag")
+                        .toString();
+                if (!darwinVersionFlag.isEmpty())
+                    cxxFlags << (darwinVersionFlag + '=' + darwinVersion);
+            }
+        }
     } else if (toolchain.contains("msvc")) {
         if (enableExceptions.toBool()) {
             const QString exceptionModel = getCppProp("exceptionHandlingModel").toString();

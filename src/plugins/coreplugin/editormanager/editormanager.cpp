@@ -2306,7 +2306,9 @@ void EditorManagerPrivate::findInDirectory()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    emit m_instance->findOnFileSystemRequest(d->m_contextMenuEntry->fileName().parentDir().toString());
+    const FileName path = d->m_contextMenuEntry->fileName();
+    emit m_instance->findOnFileSystemRequest(
+        (path.toFileInfo().isDir() ? path : path.parentDir()).toString());
 }
 
 void EditorManagerPrivate::togglePinned()

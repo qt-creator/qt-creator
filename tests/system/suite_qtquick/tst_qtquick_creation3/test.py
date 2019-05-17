@@ -25,21 +25,39 @@
 
 source("../../shared/qtcreator.py")
 
+def _exactlyOne_(iterable):
+    trueElements = 0
+    for element in iterable:
+        if element:
+            trueElements += 1
+    return trueElements == 1
+
 def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    available = ["5.6"]
+    available = ["5.6", "5.10"]
 
     for qtVersion in available:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
-        createNewQtQuickUI(workingDir, qtVersion)
-        if runAndCloseApp(True) == None:
-            checkCompile()
-        else:
-            appOutput = logApplicationOutput()
-            test.verify(not ("untitled.qml" in appOutput or "MainForm.ui.qml" in appOutput),
-                        "Does the Application Output indicate QML errors?")
+        checkedKits, projectName = createNewQtQuickUI(workingDir, qtVersion)
+        checkedKitNames = Targets.getTargetsAsStrings(checkedKits)
+        test.verify(_exactlyOne_(map(lambda name: qtVersion in name, checkedKitNames)),
+                    "The requested kit should have been checked")
+        if qtVersion == "5.10":
+            test.verify(not any(map(lambda name: "5.6" in name, checkedKitNames)),
+                        "The 5.6 kit should not have been checked when 5.10 is required")
+        clickButton(waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton"))
+        if not waitForProcessRunning():
+            test.fatal("Couldn't start application - leaving test")
+            continue
+        if test.verify(not waitForProcessRunning(False), "The application should keep running"):
+            __closeSubprocessByPushingStop__(True)
+        appOutput = logApplicationOutput()
+        test.verify(_exactlyOne_(map(lambda ver: ver in appOutput, available)),
+                    "Does Creator use qmlscene from a checked kit?")
+        test.verify(projectName + ".qml:" not in appOutput,
+                    "Does the Application Output indicate QML errors?")
         invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")
