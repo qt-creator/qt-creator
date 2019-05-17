@@ -1015,6 +1015,7 @@ void tst_TestCore::testRewriterUnicodeChars()
     const QLatin1String unicodeChar("\nimport QtQuick 2.1\n\nText {\n    text: \"\\u2795\"}\n");
 
      QCOMPARE(textEdit.toPlainText(), unicodeChar);
+}
 
 void tst_TestCore::testRewriterTransactionAddingAfterReparenting()
 {
