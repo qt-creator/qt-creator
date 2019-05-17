@@ -295,9 +295,11 @@ void TimelineSettingsModel::updateTimeline(int row)
                     propertyChanges.modelNode().variantProperty("enabled").setValue(false);
             }
 
-            QmlPropertyChanges propertyChanges(modelState.propertyChanges(timeline));
-            if (propertyChanges.isValid())
-                propertyChanges.modelNode().variantProperty("enabled").setValue(true);
+            if (timeline.isValid()) {
+                QmlPropertyChanges propertyChanges(modelState.propertyChanges(timeline));
+                if (propertyChanges.isValid())
+                    propertyChanges.modelNode().variantProperty("enabled").setValue(true);
+            }
         }
 
     } catch (Exception &e) {
@@ -345,9 +347,11 @@ void TimelineSettingsModel::updateAnimation(int row)
                 }
             }
 
-            QmlPropertyChanges propertyChanges(modelState.propertyChanges(animation));
-            if (propertyChanges.isValid())
-                propertyChanges.modelNode().variantProperty("running").setValue(true);
+            if (animation.isValid()) {
+                QmlPropertyChanges propertyChanges(modelState.propertyChanges(animation));
+                if (propertyChanges.isValid())
+                    propertyChanges.modelNode().variantProperty("running").setValue(true);
+            }
         }
     } catch (Exception &e) {
         m_exceptionError = e.description();
