@@ -71,7 +71,7 @@ public:
     {}
     explicit MarkedString(const QJsonValue &value);
 
-    operator const QJsonValue() const;
+    operator QJsonValue() const;
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT HoverContent

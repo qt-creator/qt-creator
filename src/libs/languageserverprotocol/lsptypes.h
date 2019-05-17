@@ -388,7 +388,7 @@ public:
     {}
     MarkupKind(const QJsonValue &value);
 
-    operator const QJsonValue() const;
+    operator QJsonValue() const;
     Value value() const { return m_value; }
 
     bool operator==(const Value &value) const { return m_value == value; }

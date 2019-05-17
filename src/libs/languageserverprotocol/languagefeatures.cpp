@@ -343,7 +343,7 @@ MarkedString::MarkedString(const QJsonValue &value)
     }
 }
 
-LanguageServerProtocol::MarkedString::operator const QJsonValue() const
+LanguageServerProtocol::MarkedString::operator QJsonValue() const
 {
     if (auto val = Utils::get_if<QString>(this))
         return *val;

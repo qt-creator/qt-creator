@@ -420,7 +420,7 @@ MarkupKind::MarkupKind(const QJsonValue &value)
     m_value = value.toString() == "markdown" ? markdown : plaintext;
 }
 
-LanguageServerProtocol::MarkupKind::operator const QJsonValue() const
+LanguageServerProtocol::MarkupKind::operator QJsonValue() const
 {
     switch (m_value) {
     case MarkupKind::markdown:
