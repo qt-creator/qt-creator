@@ -38,9 +38,11 @@ win32 {
     QMAKE_ASSET_CATALOGS_APP_ICON = qtcreator
 
     infoplist = $$cat($$PWD/app-Info.plist, blob)
-    infoplist = $$replace(infoplist, @MACOSX_DEPLOYMENT_TARGET@, $$QMAKE_MACOSX_DEPLOYMENT_TARGET)
-    infoplist = $$replace(infoplist, @QTCREATOR_COPYRIGHT_YEAR@, $$QTCREATOR_COPYRIGHT_YEAR)
-    infoplist = $$replace(infoplist, @PRODUCT_BUNDLE_IDENTIFIER@, $$PRODUCT_BUNDLE_IDENTIFIER)
+    infoplist = $$replace(infoplist, \\$\\{MACOSX_DEPLOYMENT_TARGET\\}, $$QMAKE_MACOSX_DEPLOYMENT_TARGET)
+    infoplist = $$replace(infoplist, \\$\\{IDE_COPYRIGHT_YEAR\\}, $$QTCREATOR_COPYRIGHT_YEAR)
+    infoplist = $$replace(infoplist, \\$\\{IDE_APP_TARGET\\}, $$IDE_APP_TARGET)
+    infoplist = $$replace(infoplist, \\$\\{IDE_BUNDLE_IDENTIFIER\\}, $$PRODUCT_BUNDLE_IDENTIFIER)
+    infoplist = $$replace(infoplist, \\$\\{IDE_VERSION\\}, $$QTCREATOR_VERSION)
     write_file($$OUT_PWD/Info.plist, infoplist)
 
     QMAKE_INFO_PLIST = $$OUT_PWD/Info.plist

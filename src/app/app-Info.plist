@@ -235,7 +235,7 @@
 		</dict>
 	</array>
 	<key>NSHumanReadableCopyright</key>
-	<string>(C) @QTCREATOR_COPYRIGHT_YEAR@ The Qt Company Ltd</string>
+	<string>(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd</string>
 	<key>CFBundleIconFile</key>
 	<string>qtcreator</string>
 	<key>CFBundlePackageType</key>
@@ -243,15 +243,15 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>@EXECUTABLE@</string>
+	<string>${IDE_APP_TARGET}</string>
 	<key>CFBundleIdentifier</key>
-	<string>@PRODUCT_BUNDLE_IDENTIFIER@</string>
+	<string>${IDE_BUNDLE_IDENTIFIER}</string>
 	<key>CFBundleVersion</key>
-	<string>@FULL_VERSION@</string>
+	<string>${IDE_VERSION}</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@SHORT_VERSION@</string>
+	<string>${IDE_VERSION}</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>@MACOSX_DEPLOYMENT_TARGET@</string>
+	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>This application wants to run AppleScript.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
