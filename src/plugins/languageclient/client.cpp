@@ -93,6 +93,7 @@ private:
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
     , m_completionProvider(this)
+    , m_functionHintProvider(this)
     , m_quickFixProvider(this)
     , m_clientInterface(clientInterface)
     , m_documentSymbolCache(this)
@@ -124,6 +125,7 @@ Client::~Client()
     for (TextDocument *document : m_resetAssistProvider.keys()) {
         if (document->completionAssistProvider() == &m_completionProvider)
             document->setCompletionAssistProvider(m_resetAssistProvider[document]);
+        document->setFunctionHintAssistProvider(nullptr);
         document->setQuickFixAssistProvider(nullptr);
     }
     for (Core::IEditor * editor : Core::DocumentModel::editorsForOpenedDocuments()) {
@@ -315,6 +317,13 @@ bool Client::openDocument(Core::IDocument *document)
             textDocument->setCompletionAssistProvider(&m_completionProvider);
         }
         m_resetAssistProvider[textDocument] = oldCompletionProvider;
+        m_functionHintProvider.setTriggerCharacters(
+            m_serverCapabilities.signatureHelpProvider()
+                .value_or(ServerCapabilities::SignatureHelpOptions())
+                .triggerCharacters()
+                .value_or(QList<QString>()));
+        textDocument->setCompletionAssistProvider(&m_completionProvider);
+        textDocument->setFunctionHintAssistProvider(&m_functionHintProvider);
         textDocument->setQuickFixAssistProvider(&m_quickFixProvider);
         connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
             m_resetAssistProvider.remove(textDocument);

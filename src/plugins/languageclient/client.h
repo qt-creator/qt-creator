@@ -28,6 +28,7 @@
 #include "documentsymbolcache.h"
 #include "dynamiccapabilities.h"
 #include "languageclientcompletionassist.h"
+#include "languageclientfunctionhint.h"
 #include "languageclientquickfix.h"
 #include "languageclientsettings.h"
 #include "languageclienthoverhandler.h"
@@ -200,6 +201,7 @@ private:
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;
     LanguageClientCompletionAssistProvider m_completionProvider;
+    FunctionHintAssistProvider m_functionHintProvider;
     LanguageClientQuickFixProvider m_quickFixProvider;
     QMap<TextEditor::TextDocument *, QPointer<TextEditor::CompletionAssistProvider>> m_resetAssistProvider;
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;

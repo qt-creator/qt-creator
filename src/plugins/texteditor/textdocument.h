@@ -141,6 +141,8 @@ public:
 
     void setCompletionAssistProvider(CompletionAssistProvider *provider);
     virtual CompletionAssistProvider *completionAssistProvider() const;
+    void setFunctionHintAssistProvider(CompletionAssistProvider *provider);
+    virtual CompletionAssistProvider *functionHintAssistProvider() const;
     void setQuickFixAssistProvider(IAssistProvider *provider) const;
     virtual IAssistProvider *quickFixAssistProvider() const;
 

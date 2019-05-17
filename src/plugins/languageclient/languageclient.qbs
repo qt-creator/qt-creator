@@ -24,6 +24,8 @@ QtcPlugin {
         "languageclient_global.h",
         "languageclienthoverhandler.cpp",
         "languageclienthoverhandler.h",
+        "languageclientfunctionhint.cpp",
+        "languageclientfunctionhint.h",
         "languageclientinterface.cpp",
         "languageclientinterface.h",
         "languageclientcompletionassist.cpp",

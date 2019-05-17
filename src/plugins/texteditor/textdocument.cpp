@@ -100,6 +100,7 @@ public:
     QTextDocument m_document;
     SyntaxHighlighter *m_highlighter = nullptr;
     CompletionAssistProvider *m_completionAssistProvider = nullptr;
+    CompletionAssistProvider *m_functionHintAssistProvider = nullptr;
     IAssistProvider *m_quickFixProvider = nullptr;
     QScopedPointer<Indenter> m_indenter;
 
@@ -392,6 +393,16 @@ void TextDocument::setCompletionAssistProvider(CompletionAssistProvider *provide
 CompletionAssistProvider *TextDocument::completionAssistProvider() const
 {
     return d->m_completionAssistProvider;
+}
+
+void TextDocument::setFunctionHintAssistProvider(CompletionAssistProvider *provider)
+{
+    d->m_functionHintAssistProvider = provider;
+}
+
+CompletionAssistProvider *TextDocument::functionHintAssistProvider() const
+{
+    return d->m_functionHintAssistProvider;
 }
 
 void TextDocument::setQuickFixAssistProvider(IAssistProvider *provider) const
