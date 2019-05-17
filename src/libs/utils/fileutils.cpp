@@ -189,23 +189,23 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
 }
 
 /*!
-  If \a filePath is a directory, the function will recursively check all files and return
-  true if one of them is newer than \a timeStamp. If \a filePath is a single file, true will
+  If this is a directory, the function will recursively check all files and return
+  true if one of them is newer than \a timeStamp. If this is a single file, true will
   be returned if the file is newer than \a timeStamp.
 
   Returns whether at least one file in \a filePath has a newer date than
   \a timeStamp.
 */
-bool FileUtils::isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp)
+bool FileName::isNewerThan(const QDateTime &timeStamp) const
 {
-    QFileInfo fileInfo = filePath.toFileInfo();
+    const QFileInfo fileInfo = toFileInfo();
     if (!fileInfo.exists() || fileInfo.lastModified() >= timeStamp)
         return true;
     if (fileInfo.isDir()) {
-        const QStringList dirContents = QDir(filePath.toString())
+        const QStringList dirContents = QDir(toString())
             .entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        foreach (const QString &curFileName, dirContents) {
-            if (isFileNewerThan(filePath.pathAppended(curFileName), timeStamp))
+        for (const QString &curFileName : dirContents) {
+            if (pathAppended(curFileName).isNewerThan(timeStamp))
                 return true;
         }
     }

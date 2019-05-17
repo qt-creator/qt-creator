@@ -97,6 +97,8 @@ public:
     bool endsWith(const QString &s) const;
     bool isLocal() const;
 
+    bool isNewerThan(const QDateTime &timeStamp) const;
+
     FileName relativeChildPath(const FileName &parent) const;
     FileName &appendPath(const QString &s);
     FileName pathAppended(const QString &str) const;
@@ -129,7 +131,6 @@ public:
     static bool copyRecursively(
             const FileName &srcFilePath, const FileName &tgtFilePath, QString *error = nullptr,
             const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = nullptr);
-    static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
     static QString shortNativePath(const FileName &path);
     static QString fileSystemFriendlyName(const QString &name);
