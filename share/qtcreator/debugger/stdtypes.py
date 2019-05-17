@@ -952,15 +952,44 @@ def qdump__std__vector(d, value):
 def qdumpHelper__std__vector(d, value, isLibCpp):
     innerType = value.type[0]
     isBool = innerType.name == 'bool'
+
+    try:
+        allocator = value.type[1].name
+    except:
+        allocator = ''
+
+    isStdAllocator = allocator == 'std::allocator<%s>' % innerType.name
+
     if isBool:
         if isLibCpp:
-            (start, size) = value.split("pp")  # start is 'unsigned long *'
+            if isStdAllocator:
+                (start, size) = value.split("pp")  # start is 'unsigned long *'
+            else:
+                start = value["__begin_"].pointer()
+                size = value["__size_"]
             alloc = size
         else:
-            (start, soffset, pad, finish, foffset, pad, alloc) = value.split("pI@pI@p")
+            if isStdAllocator:
+                (start, soffset, pad, finish, foffset, pad, alloc) = value.split("pI@pI@p")
+            else:
+                start = value["_M_start"]["_M_p"].pointer()
+                soffset = value["_M_start"]["_M_offset"]
+                finish = value["_M_finish"]["_M_p"].pointer()
+                foffset = value["_M_finish"]["_M_offset"]
+                alloc = value["_M_end_of_storage"].pointer()
             size = (finish - start) * 8 + foffset - soffset # 8 is CHAR_BIT.
     else:
-        (start, finish, alloc) = value.split("ppp")
+        if isStdAllocator:
+            (start, finish, alloc) = value.split("ppp")
+        else:
+            if isLibCpp:
+                start = value["__begin_"].pointer()
+                finish = value["__end_"].pointer()
+                alloc = value["__end_cap_"].pointer()
+            else:
+                start = value["_M_start"].pointer()
+                finish = value["_M_finish"].pointer()
+                alloc = value["_M_end_of_storage"].pointer()
         size = int((finish - start) / innerType.size())
         d.check(finish <= alloc)
         if size > 0:
