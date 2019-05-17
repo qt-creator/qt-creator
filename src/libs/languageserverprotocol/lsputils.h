@@ -35,13 +35,17 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLoggingCategory>
 
 namespace LanguageServerProtocol {
+
+LANGUAGESERVERPROTOCOL_EXPORT Q_DECLARE_LOGGING_CATEGORY(conversionLog)
 
 template <typename T>
 T fromJsonValue(const QJsonValue &value)
 {
-    QTC_ASSERT(value.isObject(), return T());
+    if (conversionLog().isDebugEnabled() && !value.isObject())
+        qCDebug(conversionLog) << "Expected Object in json value but got: " << value;
     return T(value.toObject());
 }
 

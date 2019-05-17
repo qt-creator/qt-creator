@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -161,4 +161,8 @@
 
     You can use the \uicontrol {Text Editor} to specify transitions. For more
     information, see \l{Transition}.
+
+    Alternatively, you can use the \uicontrol Timeline view to animate the
+    properties of UI components and to bind the animations to states. For more
+    information, see \l {Binding Animations to States}.
 */

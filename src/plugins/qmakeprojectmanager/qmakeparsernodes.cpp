@@ -234,6 +234,16 @@ QSet<FileName> QmakePriFile::files(const FileType &type) const
     return m_files.value(type);
 }
 
+const QSet<FileName> QmakePriFile::collectFiles(const FileType &type) const
+{
+    QSet<FileName> allFiles = files(type);
+    for (const QmakePriFile * const priFile : qAsConst(m_children)) {
+        if (!dynamic_cast<const QmakeProFile *>(priFile))
+            allFiles.unite(priFile->collectFiles(type));
+    }
+    return allFiles;
+}
+
 QmakePriFile::~QmakePriFile()
 {
     watchFolders( {} );
@@ -1957,11 +1967,10 @@ QList<ExtraCompiler *> QmakeProFile::extraCompilers() const
 void QmakeProFile::setupExtraCompiler(const FileName &buildDir,
                                        const FileType &fileType, ExtraCompilerFactory *factory)
 {
-    foreach (const FileName &fn, files(fileType)) {
+    for (const FileName &fn : collectFiles(fileType)) {
         const FileNameList generated = generatedFiles(buildDir, fn, fileType);
-        if (!generated.isEmpty()) {
+        if (!generated.isEmpty())
             m_extraCompilers.append(factory->create(m_project, fn, generated));
-        }
     }
 }
 

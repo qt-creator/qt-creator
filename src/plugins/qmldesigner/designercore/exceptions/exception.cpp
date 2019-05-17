@@ -85,7 +85,6 @@ void Exception::setShouldAssert(bool assert)
 
 bool Exception::shouldAssert()
 {
-    return true;
     return s_shouldAssert;
 }
 

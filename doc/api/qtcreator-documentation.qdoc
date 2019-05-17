@@ -339,24 +339,17 @@
     Besides \c docs, you have the following options:
 
     \list
-        \li  html_docs - build \QC Manual in help format, but do not generate a
-             help file
+        \li html_docs_qtcreator - build \QC Manual in help format, but do not
+            generate a help file
 
-        \li  dev_html_docs - build Extending \QC Manual in help format, but do
-             not generate a help file
+        \li html_docs_qtcreator-dev - build Extending \QC Manual in help
+            format, but do not generate a help file
 
-        \li  qch_docs - build \QC Manual in help format and generate a help file
-             (.qch)
+        \li qch_docs_qtcreator - build \QC Manual in help format and generate
+            a help file (.qch)
 
-        \li  dev_qch_docs - build Extending \QC Manual in help format and
-             generate a help file (.qch)
-
-        \li  docs_online - build \QC Manual and Extending \QC Manual in online
-             format
-
-        \li  html_docs_online - build \QC Manual in online format
-
-        \li  dev_html_docs_online - build Extending \QC Manual in online format
+        \li qch_docs_qtcreator-dev - build Extending \QC Manual in help format
+            and generate a help file (.qch)
     \endlist
 
 */

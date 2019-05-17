@@ -45,7 +45,8 @@
                 {
                     "source": "file.pro",
                     "target": "%{ProFileName}",
-                    "openAsProject": true
+                    "openAsProject": true,
+                    "openInEditor": true
                 },
                 {
                     "source": "../../git.ignore",

@@ -44,7 +44,7 @@ Loader {
     property Component content
 
     property int dialogHeight: 240
-    property int dialogWidth: 280
+    property int dialogWidth: 440
 
     sourceComponent: Component {
         FocusScope {

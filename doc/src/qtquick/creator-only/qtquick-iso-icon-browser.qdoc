@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -26,13 +26,8 @@
 /*!
     \contentspage index.html
     \page qtquick-iso-icon-browser.html
-    \if defined(qtdesignstudio)
     \previouspage qmldesigner-pathview-editor.html
     \nextpage creator-quick-ui-forms.html
-    \else
-    \previouspage quick-states.html
-    \nextpage quick-export-to-qml.html
-    \endif
 
     \title Browsing ISO 7000 Icons
 

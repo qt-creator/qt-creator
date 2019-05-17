@@ -28,10 +28,12 @@
     \page qmldesigner-pathview-editor.html
     \if defined(qtdesignstudio)
     \previouspage studio-fonts.html
+    \nextpage creator-quick-ui-forms.html
     \else
     \previouspage quick-states.html
-    \endif
     \nextpage qtquick-iso-icon-browser.html
+    \endif
+
 
     \title Editing PathView Properties
 
@@ -64,4 +66,8 @@
     initiates mouse dragging and what is the rate at which a flick will
     decelerate.
 
+    \if defined(qtdesignstudio)
+    \note You can also use the \l SvgPath Qt Quick Studio Component to
+    specify an SVG path data string that draws a path.
+    \endif
 */
