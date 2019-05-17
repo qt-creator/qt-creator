@@ -35,7 +35,7 @@ endif()
 #   add_subdirectory(iostool) ## mac only
 # endif()
 
-# add_subdirectory(qml2puppet) ## ???
+add_subdirectory(qml2puppet)
 # add_subdirectory(qtcdebugger) ## windows only
 # add_subdirectory(qtcrashhandler)
 add_subdirectory(qtcreatorcrashhandler)
