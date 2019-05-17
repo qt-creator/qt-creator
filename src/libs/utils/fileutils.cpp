@@ -254,16 +254,16 @@ FileName FileName::canonicalPath() const
 
   Returns the possibly shortened path with native separators.
 */
-QString FileUtils::shortNativePath(const FileName &path)
+QString FileName::shortNativePath() const
 {
     if (HostOsInfo::isAnyUnixHost()) {
         const FileName home = FileName::fromString(QDir::cleanPath(QDir::homePath()));
-        if (path.isChildOf(home)) {
+        if (isChildOf(home)) {
             return QLatin1Char('~') + QDir::separator()
-                + QDir::toNativeSeparators(path.relativeChildPath(home).toString());
+                + QDir::toNativeSeparators(relativeChildPath(home).toString());
         }
     }
-    return path.toUserOutput();
+    return toUserOutput();
 }
 
 QString FileUtils::fileSystemFriendlyName(const QString &name)

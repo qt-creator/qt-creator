@@ -70,7 +70,7 @@ void CMakeLocatorFilter::prepareSearch(const QString &entry)
             const int index = title.indexOf(entry);
             if (index >= 0) {
                 Core::LocatorFilterEntry filterEntry(this, title, cmakeProject->projectFilePath().toString());
-                filterEntry.extraInfo = FileUtils::shortNativePath(cmakeProject->projectFilePath());
+                filterEntry.extraInfo = cmakeProject->projectFilePath().shortNativePath();
                 filterEntry.highlightInfo = {index, entry.length()};
                 m_result.append(filterEntry);
             }

@@ -166,8 +166,8 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
     MyTestDataDir testDirectory("testdata_basic");
     const QString testFile = testDirectory.file("file1.cpp");
     const QString objTestFile = testDirectory.file("file1.mm");
-    const QString testFileShort = FileUtils::shortNativePath(FileName::fromString(testFile));
-    const QString objTestFileShort = FileUtils::shortNativePath(FileName::fromString(objTestFile));
+    const QString testFileShort = FileName::fromString(testFile).shortNativePath();
+    const QString objTestFileShort = FileName::fromString(objTestFile).shortNativePath();
 
     QTest::newRow("CppFunctionsFilter")
         << testFile

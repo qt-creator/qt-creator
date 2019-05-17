@@ -79,6 +79,8 @@ public:
     QVariant toVariant() const;
 
     QString toUserOutput() const;
+    QString shortNativePath() const;
+
     QString fileName(int pathComponents = 0) const;
     bool exists() const;
 
@@ -132,7 +134,6 @@ public:
             const FileName &srcFilePath, const FileName &tgtFilePath, QString *error = nullptr,
             const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper = nullptr);
     static FileName resolveSymlinks(const FileName &path);
-    static QString shortNativePath(const FileName &path);
     static QString fileSystemFriendlyName(const QString &name);
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
     static QString qmakeFriendlyName(const QString &name);

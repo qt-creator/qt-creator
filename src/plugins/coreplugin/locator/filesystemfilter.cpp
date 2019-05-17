@@ -142,8 +142,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     const QString fullFilePath = dirInfo.filePath(fileName);
     if (!QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
         LocatorFilterEntry createAndOpen(this, tr("Create and Open \"%1\"").arg(entry), fullFilePath);
-        createAndOpen.extraInfo = Utils::FileUtils::shortNativePath(
-                    Utils::FileName::fromString(dirInfo.absolutePath()));
+        createAndOpen.extraInfo = Utils::FileName::fromString(dirInfo.absolutePath()).shortNativePath();
         betterEntries.append(createAndOpen);
     }
 

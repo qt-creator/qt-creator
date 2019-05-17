@@ -403,7 +403,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const QStringList &fileNames)
         auto item = new QTreeWidgetItem(ui.treeWidget);
         item->setText(FileName, visibleName);
         item->setIcon(FileName, FileIconProvider::icon(fileName));
-        item->setText(Folder, Utils::FileUtils::shortNativePath(Utils::FileName::fromFileInfo(directory)));
+        item->setText(Folder, Utils::FileName::fromFileInfo(directory).shortNativePath());
         auto radioButtonGroup = new QButtonGroup;
 
         // Add a button for opening the file with a version control system
