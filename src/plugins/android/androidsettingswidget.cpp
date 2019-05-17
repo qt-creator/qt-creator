@@ -377,8 +377,7 @@ void AndroidSettingsWidget::validateJdk()
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
     summaryWidget->setPointValid(JavaPathExistsRow, jdkPathExists);
 
-    Utils::FileName bin = m_androidConfig.openJDKLocation();
-    bin.appendPath(QLatin1String("bin/javac" QTC_HOST_EXE_SUFFIX));
+    const Utils::FileName bin = m_androidConfig.openJDKLocation().pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
     summaryWidget->setPointValid(JavaJdkValidRow, jdkPathExists && bin.exists());
     updateUI();
 }
@@ -391,12 +390,9 @@ void AndroidSettingsWidget::validateNdk()
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
     summaryWidget->setPointValid(NdkPathExistsRow, m_androidConfig.ndkLocation().exists());
 
-    Utils::FileName ndkPlatformsDir(ndkPath);
-    ndkPlatformsDir.appendPath("platforms");
-    Utils::FileName ndkToolChainsDir(ndkPath);
-    ndkToolChainsDir.appendPath("toolchains");
-    Utils::FileName ndkSourcesDir(ndkPath);
-    ndkSourcesDir.appendPath("sources/cxx-stl");
+    const Utils::FileName ndkPlatformsDir = ndkPath.pathAppended("platforms");
+    const Utils::FileName ndkToolChainsDir = ndkPath.pathAppended("toolchains");
+    const Utils::FileName ndkSourcesDir = ndkPath.pathAppended("sources/cxx-stl");
     summaryWidget->setPointValid(NdkDirStructureRow,
                                  ndkPlatformsDir.exists()
                                  && ndkToolChainsDir.exists()

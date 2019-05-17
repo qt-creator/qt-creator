@@ -191,9 +191,9 @@ void AndroidDebugSupport::start()
 
         int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
         Utils::FileName sysRoot = AndroidConfigurations::currentConfig().ndkLocation()
-                .appendPath("platforms")
-                .appendPath(QString("android-%1").arg(sdkVersion))
-                .appendPath(toNdkArch(AndroidManager::targetArch(target)));
+                .pathAppended("platforms")
+                .pathAppended(QString("android-%1").arg(sdkVersion))
+                .pathAppended(toNdkArch(AndroidManager::targetArch(target)));
         setSysRoot(sysRoot);
         qCDebug(androidDebugSupportLog) << "Sysroot: " << sysRoot;
     }

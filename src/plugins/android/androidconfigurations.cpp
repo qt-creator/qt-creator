@@ -389,9 +389,8 @@ FileName AndroidConfig::clangPath() const
         QDirIterator iter(path.toString(), hostPatterns, QDir::Dirs);
         if (iter.hasNext()) {
             iter.next();
-            FileName found = path;
-            return found.appendPath(iter.fileName())
-                .appendPath(HostOsInfo::withExecutableSuffix("bin/clang"));
+            return path.pathAppended(iter.fileName())
+                .pathAppended(HostOsInfo::withExecutableSuffix("bin/clang"));
         }
     }
 
@@ -400,16 +399,13 @@ FileName AndroidConfig::clangPath() const
 
 FileName AndroidConfig::gdbPath(const ProjectExplorer::Abi &abi) const
 {
-    FileName path = m_ndkLocation;
-    path.appendPath(QString("prebuilt/%1/bin/gdb%2").arg(toolchainHost(), QTC_HOST_EXE_SUFFIX));
+    const FileName path = m_ndkLocation.pathAppended(
+                QString("prebuilt/%1/bin/gdb%2").arg(toolchainHost(), QTC_HOST_EXE_SUFFIX));
     if (path.exists())
         return path;
     // fallback for old NDKs (e.g. 10e)
-    path = m_ndkLocation;
-    path.appendPath(
-        QString("toolchains/%1-4.9/prebuilt/%2/bin/%3-gdb%4")
+    return m_ndkLocation.pathAppended(QString("toolchains/%1-4.9/prebuilt/%2/bin/%3-gdb%4")
             .arg(toolchainPrefix(abi), toolchainHost(), toolsPrefix(abi), QTC_HOST_EXE_SUFFIX));
-    return path;
 }
 
 FileName AndroidConfig::makePath() const
@@ -703,8 +699,8 @@ QVersionNumber AndroidConfig::sdkToolsVersion() const
 {
     QVersionNumber version;
     if (m_sdkLocation.exists()) {
-        Utils::FileName sdkToolsPropertiesPath(m_sdkLocation);
-        sdkToolsPropertiesPath.appendPath("tools/source.properties");
+        const Utils::FileName sdkToolsPropertiesPath
+                = m_sdkLocation.pathAppended("tools/source.properties");
         QSettings settings(sdkToolsPropertiesPath.toString(), QSettings::IniFormat);
         auto versionStr = settings.value(sdkToolsVersionKey).toString();
         version = QVersionNumber::fromString(versionStr);
@@ -715,9 +711,7 @@ QVersionNumber AndroidConfig::sdkToolsVersion() const
 QVersionNumber AndroidConfig::buildToolsVersion() const
 {
     QVersionNumber maxVersion;
-    Utils::FileName buildtoolsDir = m_sdkLocation;
-    buildtoolsDir.appendPath("build-tools");
-    QDir buildToolsDir(buildtoolsDir.toString());
+    QDir buildToolsDir(m_sdkLocation.pathAppended("build-tools").toString());
     for (const QFileInfo &file: buildToolsDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot))
         maxVersion = qMax(maxVersion, QVersionNumber::fromString(file.fileName()));
     return maxVersion;
@@ -752,8 +746,8 @@ static inline QString gdbServerArch(const Abi &abi)
 
 FileName AndroidConfig::gdbServer(const ProjectExplorer::Abi &abi) const
 {
-    FileName path = AndroidConfigurations::currentConfig().ndkLocation();
-    path.appendPath(QString::fromLatin1("prebuilt/android-%1/gdbserver/gdbserver")
+    const FileName path = AndroidConfigurations::currentConfig().ndkLocation()
+            .pathAppended(QString("prebuilt/android-%1/gdbserver/gdbserver")
                     .arg(gdbServerArch(abi)));
     if (path.exists())
         return path;
@@ -769,8 +763,7 @@ QVersionNumber AndroidConfig::ndkVersion() const
         return version;
     }
 
-    Utils::FileName ndkPropertiesPath(m_ndkLocation);
-    ndkPropertiesPath.appendPath("source.properties");
+    const FileName ndkPropertiesPath = m_ndkLocation.pathAppended("source.properties");
     if (ndkPropertiesPath.exists()) {
         // source.properties files exists in NDK version > 11
         QSettings settings(ndkPropertiesPath.toString(), QSettings::IniFormat);
@@ -778,8 +771,7 @@ QVersionNumber AndroidConfig::ndkVersion() const
         version = QVersionNumber::fromString(versionStr);
     } else {
         // No source.properties. There should be a file named RELEASE.TXT
-        Utils::FileName ndkReleaseTxtPath(m_ndkLocation);
-        ndkReleaseTxtPath.appendPath("RELEASE.TXT");
+        const FileName ndkReleaseTxtPath = m_ndkLocation.pathAppended("RELEASE.TXT");
         Utils::FileReader reader;
         QString errorString;
         if (reader.fetch(ndkReleaseTxtPath.toString(), &errorString)) {

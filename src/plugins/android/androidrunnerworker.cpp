@@ -589,7 +589,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     }
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
-    auto jdbPath = AndroidConfigurations::currentConfig().openJDKLocation().appendPath("bin");
+    auto jdbPath = AndroidConfigurations::currentConfig().openJDKLocation().pathAppended("bin");
     if (Utils::HostOsInfo::isWindowsHost())
         jdbPath.appendPath("jdb.exe");
     else

@@ -168,7 +168,7 @@ bool AndroidBuildApkStep::init()
 
     const QVersionNumber sdkToolsVersion = AndroidConfigurations::currentConfig().sdkToolsVersion();
     if (sdkToolsVersion >= gradleScriptRevokedSdkVersion) {
-        if (!version->sourcePath().appendPath("src/3rdparty/gradle").exists()) {
+        if (!version->sourcePath().pathAppended("src/3rdparty/gradle").exists()) {
             emit addOutput(tr("The installed SDK tools version (%1) does not include Gradle "
                               "scripts. The minimum Qt version required for Gradle build to work "
                               "is %2").arg(sdkToolsVersion.toString()).arg("5.9.0/5.6.3"),
@@ -203,7 +203,7 @@ bool AndroidBuildApkStep::init()
 
     QFileInfo sourceDirInfo(sourceDirName);
     parser->setSourceDirectory(Utils::FileName::fromString(sourceDirInfo.canonicalFilePath()));
-    parser->setBuildDirectory(Utils::FileName::fromString(bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString()));
+    parser->setBuildDirectory(bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY));
     setOutputParser(parser);
 
     m_openPackageLocationForRun = m_openPackageLocation;
@@ -220,7 +220,7 @@ bool AndroidBuildApkStep::init()
     if (Utils::HostOsInfo::isWindowsHost())
         command += ".exe";
 
-    QString outputDir = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
+    QString outputDir = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 
     QString inputFile;
     if (node)
@@ -376,8 +376,8 @@ void AndroidBuildApkStep::doRun()
     auto setup = [this] {
         auto bc = target()->activeBuildConfiguration();
         Utils::FileName androidLibsDir = bc->buildDirectory()
-                .appendPath("android-build/libs")
-                .appendPath(AndroidManager::targetArch(target()));
+                .pathAppended("android-build/libs")
+                .pathAppended(AndroidManager::targetArch(target()));
         if (!androidLibsDir.exists() && !QDir{bc->buildDirectory().toString()}.mkpath(androidLibsDir.toString()))
             return false;
 
@@ -396,7 +396,7 @@ void AndroidBuildApkStep::doRun()
 
         // Copy targets to android build folder
         for (const auto &target : targets) {
-            if (!copyFileIfNewer(target, androidLibsDir.appendPath(QFileInfo{target}.fileName()).toString()))
+            if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
                 return false;
         }
 

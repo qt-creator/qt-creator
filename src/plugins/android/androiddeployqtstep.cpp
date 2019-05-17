@@ -254,7 +254,7 @@ bool AndroidDeployQtStep::init()
                 m_command += QLatin1Char('/');
             m_command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
 
-            m_workingDirectory = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
+            m_workingDirectory = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 
             Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--verbose"));
             Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--output"));

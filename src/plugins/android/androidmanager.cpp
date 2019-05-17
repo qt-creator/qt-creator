@@ -286,7 +286,7 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
     settings["useLLVM"] = true;
     settings["ndk-host"] = AndroidConfigurations::currentConfig().toolchainHost();
     settings["stdcpp-path"] = AndroidConfigurations::currentConfig().ndkLocation()
-            .appendPath("/sources/cxx-stl/llvm-libc++/libs/"
+            .pathAppended("/sources/cxx-stl/llvm-libc++/libs/"
                         + targetArch(target)
                         + "/libc++_shared.so").toString();
     return settings;
@@ -295,7 +295,7 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
 Utils::FileName AndroidManager::dirPath(const ProjectExplorer::Target *target)
 {
     if (target->activeBuildConfiguration())
-        return target->activeBuildConfiguration()->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY));
+        return target->activeBuildConfiguration()->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
     return Utils::FileName();
 }
 
@@ -313,7 +313,7 @@ Utils::FileName AndroidManager::apkPath(const ProjectExplorer::Target *target)
     else
         apkPath += QLatin1String("debug.apk");
 
-    return dirPath(target).appendPath(apkPath);
+    return dirPath(target).pathAppended(apkPath);
 }
 
 Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
@@ -335,7 +335,7 @@ Utils::FileName AndroidManager::manifestPath(ProjectExplorer::Target *target)
     QVariant manifest = target->namedSettings(AndroidManifestName);
     if (manifest.isValid())
         return manifest.value<FileName>();
-    return dirPath(target).appendPath(AndroidManifestName);
+    return dirPath(target).pathAppended(AndroidManifestName);
 }
 
 void AndroidManager::setManifestPath(Target *target, const FileName &path)
@@ -345,7 +345,7 @@ void AndroidManager::setManifestPath(Target *target, const FileName &path)
 
 Utils::FileName AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *target)
 {
-    return dirPath(target).appendPath(AndroidDefaultPropertiesName);
+    return dirPath(target).pathAppended(AndroidDefaultPropertiesName);
 }
 
 QString AndroidManager::deviceSerialNumber(ProjectExplorer::Target *target)

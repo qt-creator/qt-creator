@@ -61,7 +61,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
 bool AndroidPackageInstallationStep::init()
 {
     BuildConfiguration *bc = buildConfiguration();
-    QString dirPath = bc->buildDirectory().appendPath(Constants::ANDROID_BUILDDIRECTORY).toString();
+    QString dirPath = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
     if (HostOsInfo::isWindowsHost())
         if (bc->environment().searchInPath("sh.exe").isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);

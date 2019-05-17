@@ -95,8 +95,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     const Utils::FileName javaHome = AndroidConfigurations::currentConfig().openJDKLocation();
     if (!javaHome.isEmpty() && javaHome.toFileInfo().exists()) {
         env.set(QLatin1String("JAVA_HOME"), javaHome.toString());
-        Utils::FileName javaBin = javaHome;
-        javaBin.appendPath(QLatin1String("bin"));
+        const FileName javaBin = javaHome.pathAppended("bin");
         if (!Utils::contains(env.path(), [&javaBin](const Utils::FileName &p) { return p == javaBin; }))
             env.prependOrSetPath(javaBin.toUserOutput());
     }
@@ -166,7 +165,7 @@ ToolChainList AndroidToolChainFactory::autoDetect(CToolChainList &alreadyKnown)
 
 static FileName clangPlusPlusPath(const FileName &clangPath)
 {
-    return clangPath.parentDir().appendPath(
+    return clangPath.parentDir().pathAppended(
                 HostOsInfo::withExecutableSuffix(
                     QFileInfo(clangPath.toString()).baseName() + "++"));
 }
