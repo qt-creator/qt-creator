@@ -250,17 +250,18 @@ def qdump__Core__GeneratedFile(d, value):
     d.putStringValue(value["m_d"]["d"]["path"])
     d.putPlainChildren(value)
 
-def qdump__ProjectExplorer__Node(d, value):
-    d.putStringValue(value["m_filePath"])
-    d.putPlainChildren(value)
+#def qdump__ProjectExplorer__Node(d, value):
+#    d.putStringValue(value["m_filePath"])
+#    d.putPlainChildren(value)
+#
+#def qdump__ProjectExplorer__FolderNode(d, value):
+#    d.putStringValue(value["m_displayName"])
+#    d.putPlainChildren(value)
 
-def qdump__ProjectExplorer__FolderNode(d, value):
-    d.putStringValue(value["m_displayName"])
-    d.putPlainChildren(value)
-
-def qdump__ProjectExplorer__ToolChain(d, value):
-    d.putStringValue(value["d"]["m_displayName"])
-    d.putPlainChildren(value)
+# Broke when moving to unique_ptr
+#def qdump__ProjectExplorer__ToolChain(d, value):
+#    d.putStringValue(value["d"]["m_displayName"])
+#    d.putPlainChildren(value)
 
 # Broke when moving to unique_ptr
 #def qdump__ProjectExplorer__Kit(d, value):
