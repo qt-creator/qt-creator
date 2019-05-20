@@ -121,8 +121,9 @@ Column {
                     default:
                         buttonRow.initalChecked = 1
                     }
+                } else {
+                    buttonRow.initalChecked = 1
                 }
-
                 colorEditor.color = gradientLine.currentColor
             } else {
                 buttonRow.initalChecked = 0
