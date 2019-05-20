@@ -44,3 +44,23 @@ HEADERS += \\
 SOURCES += \\
         %{MainCppName}
 @endif
+@if "%{TestFrameWork}" == "BoostTest"
+TEMPLATE = app
+CONFIG -= qt
+CONFIG -= app_bundle
+CONFIG += console
+
+isEmpty(BOOST_INCLUDE_DIR): BOOST_INCLUDE_DIR=$$(BOOST_INCLUDE_DIR)
+@if "%{BoostIncDir}" != ""
+# set by Qt Creator wizard
+isEmpty(BOOST_INCLUDE_DIR): BOOST_INCLUDE_DIR="%{BoostIncDir}"
+@endif
+!isEmpty(BOOST_INCLUDE_DIR): INCLUDEPATH *= $${BOOST_INCLUDE_DIR}
+
+isEmpty(BOOST_INCLUDE_DIR): {
+    message("BOOST_INCLUDE_DIR is not set, assuming Boost can be found automatically in your system")
+}
+
+SOURCES += \\
+    %{MainCppName}
+@endif

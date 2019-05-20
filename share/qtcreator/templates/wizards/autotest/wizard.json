@@ -87,6 +87,10 @@
                             {
                                 "trKey": "Qt Quick Test",
                                 "value": "QtQuickTest"
+                            },
+                            {
+                                "trKey": "Boost Test",
+                                "value": "BoostTest"
                             }
 
                         ]
@@ -100,6 +104,14 @@
                     "data": {
                         "checked": false
                     }
+                },
+                {
+                    "name": "TestSuiteName",
+                    "trDisplayName": "Test suite name:",
+                    "visible": "%{JS: value('TestFrameWork') === 'BoostTest'}",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": { "validator": "^[a-zA-Z_0-9]+$" }
                 },
                 {
                     "name": "TestCaseName",
@@ -146,6 +158,16 @@
                     "name": "GTestRepository",
                     "trDisplayName": "Googletest repository:",
                     "visible": "%{JS: value('TestFrameWork') === 'GTest'}",
+                    "type": "PathChooser",
+                    "data": {
+                        "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "BoostIncDir",
+                    "trDisplayName": "Boost include dir (optional):",
+                    "visible": "%{JS: value('TestFrameWork') == 'BoostTest'}",
+                    "mandatory": false,
                     "type": "PathChooser",
                     "data": {
                         "kind": "existingDirectory"
@@ -250,7 +272,7 @@
                 {
                     "source": "files/tst_main.cpp",
                     "target": "%{MainCppName}",
-                    "condition": "%{JS: ['GTest', 'QtQuickTest'].indexOf(value('TestFrameWork')) >= 0}",
+                    "condition": "%{JS: ['GTest', 'QtQuickTest', 'BoostTest'].indexOf(value('TestFrameWork')) >= 0}",
                     "openInEditor": true
                 },
                 {

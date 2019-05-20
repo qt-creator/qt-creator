@@ -3,6 +3,10 @@ import qbs
 import qbs.Environment
 import "googlecommon.js" as googleCommon
 @endif
+@if "%{TestFrameWork}" == "BoostTest"
+import qbs.Environment
+import qbs.File
+@endif
 
 CppApplication {
 @if "%{TestFrameWork}" == "QtTest"
@@ -71,5 +75,29 @@ CppApplication {
     }
 
     cpp.defines: base.concat("QUICK_TEST_SOURCE_DIR=\\"" + path + "\\"")
+@endif
+@if "%{TestFrameWork}" == "BoostTest"
+    type: "application"
+
+    property string boostIncDir: {
+        if (typeof Environment.getEnv("BOOST_INCLUDE_DIR") !== 'undefined')
+            return Environment.getEnv("BOOST_INCLUDE_DIR");
+        return "%{BoostIncDir}"; // set by Qt Creator wizard
+    }
+
+    Properties {
+        condition: boostIncDir && File.exists(boostIncDir)
+        cpp.includePaths: [boostIncDir];
+    }
+
+    condition: {
+        if (!boostIncDir)
+            console.log("BOOST_INCLUDE_DIR is not set, assuming Boost can be "
+                        + "found automatically in your system");
+        return true;
+    }
+
+    files: [ "%{MainCppName}" ]
+
 @endif
 }

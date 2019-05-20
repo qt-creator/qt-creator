@@ -75,3 +75,19 @@ add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
 @endif
+@if "%{TestFrameWork}" == "BoostTest"
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+ENABLE_TESTING()
+
+add_executable(${PROJECT_NAME} %{MainCppName})
+add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+
+if ($ENV{BOOST_INC_DIR})
+    set(BOOST_INC_DIR $ENV{BOOST_INC_DIR})
+else ()
+    set(BOOST_INC_DIR "%{BoostIncDir}") # set by Qt Creator wizard
+endif ()
+if (EXISTS ${BOOST_INC_DIR})
+    include_directories(${BOOST_INC_DIR})
+endif ()
+@endif
