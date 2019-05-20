@@ -118,6 +118,7 @@ add_qtc_plugin(ProjectExplorer
     namedwidget.cpp namedwidget.h
     osparser.cpp osparser.h
     panelswidget.cpp panelswidget.h
+    parseissuesdialog.cpp parseissuesdialog.h
     processparameters.cpp processparameters.h
     processstep.cpp processstep.h
     project.cpp project.h
