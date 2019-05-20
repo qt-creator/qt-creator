@@ -880,17 +880,6 @@ FileName FileName::relativeChildPath(const FileName &parent) const
     return FileName::fromString(m_data.mid(parent.m_data.size() + 1, -1));
 }
 
-/// Appends \a s, ensuring a / between the parts
-FileName &FileName::appendPath(const QString &s)
-{
-    if (s.isEmpty())
-        return *this;
-    if (!isEmpty() && !m_data.endsWith(QLatin1Char('/')))
-        m_data.append('/');
-    m_data.append(s);
-    return *this;
-}
-
 FileName FileName::pathAppended(const QString &str) const
 {
     FileName fn = *this;
