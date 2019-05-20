@@ -62,13 +62,16 @@ QString backendProcessPath()
             + QStringLiteral(QTC_HOST_EXE_SUFFIX);
 }
 
-void addIndexingProjectPaneWidget(ClangIndexingSettingsManager &settingsManager)
+void addIndexingProjectPaneWidget(ClangIndexingSettingsManager &settingsManager,
+                                  QtCreatorProjectUpdater<PchManagerProjectUpdater> &projectUpdater)
 {
     auto factory = new ProjectExplorer::ProjectPanelFactory;
     factory->setPriority(120);
     factory->setDisplayName(ClangIndexingProjectSettingsWidget::tr("Clang Indexing"));
     factory->setCreateWidgetFunction([&](ProjectExplorer::Project *project) {
-        auto widget = new ClangIndexingProjectSettingsWidget(settingsManager.settings(project));
+        auto widget = new ClangIndexingProjectSettingsWidget(settingsManager.settings(project),
+                                                             project,
+                                                             projectUpdater);
 
         widget->onProjectPartsUpdated(project);
 
@@ -108,11 +111,11 @@ public:
     PchManagerClient pchManagerClient{pchCreationProgressManager, dependencyCreationProgressManager};
     PchManagerConnectionClient connectionClient{&pchManagerClient};
     ClangIndexingSettingsManager settingsManager;
-    QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdate{connectionClient.serverProxy(),
-                                                                    pchManagerClient,
-                                                                    filePathCache,
-                                                                    projectPartsStorage,
-                                                                    settingsManager};
+    QtCreatorProjectUpdater<PchManagerProjectUpdater> projectUpdater{connectionClient.serverProxy(),
+                                                                     pchManagerClient,
+                                                                     filePathCache,
+                                                                     projectPartsStorage,
+                                                                     settingsManager};
 };
 
 std::unique_ptr<ClangPchManagerPluginData> ClangPchManagerPlugin::d;
@@ -128,7 +131,7 @@ bool ClangPchManagerPlugin::initialize(const QStringList & /*arguments*/, QStrin
 
     startBackend();
 
-    addIndexingProjectPaneWidget(d->settingsManager);
+    addIndexingProjectPaneWidget(d->settingsManager, d->projectUpdater);
 
     return true;
 }

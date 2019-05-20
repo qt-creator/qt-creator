@@ -29,15 +29,23 @@
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/project.h>
 
+#include "pchmanagerprojectupdater.h"
 #include "preprocessormacrocollector.h"
 #include "preprocessormacrowidget.h"
+#include "qtcreatorprojectupdater.h"
 
 namespace ClangPchManager {
-ClangIndexingProjectSettingsWidget::ClangIndexingProjectSettingsWidget(ClangIndexingProjectSettings *settings)
+ClangIndexingProjectSettingsWidget::ClangIndexingProjectSettingsWidget(
+    ClangIndexingProjectSettings *settings,
+    ProjectExplorer::Project *project,
+    QtCreatorProjectUpdater<PchManagerProjectUpdater> &projectUpdater)
     : ui(new Ui::ClangIndexingProjectSettingsWidget)
+    , m_project(project)
+    , m_projectUpdater(projectUpdater)
 {
     ui->setupUi(this);
     ui->preprocessorMacrosWidget->setSettings(settings);
+    connect(ui->reindexButton, &QPushButton::clicked, this, &ClangIndexingProjectSettingsWidget::reindex);
 }
 
 ClangIndexingProjectSettingsWidget::~ClangIndexingProjectSettingsWidget()
@@ -56,6 +64,11 @@ void ClangIndexingProjectSettingsWidget::onProjectPartsUpdated(ProjectExplorer::
         collector.add(projectPart->projectMacros);
 
     ui->preprocessorMacrosWidget->setBasePreprocessorMacros(collector.macros());
+}
+
+void ClangIndexingProjectSettingsWidget::reindex()
+{
+    m_projectUpdater.projectPartsUpdated(m_project);
 }
 
 } // namespace ClangPchManager

@@ -37,6 +37,10 @@ class ClangIndexingProjectSettingsWidget;
 
 namespace ClangPchManager {
 
+template<typename T>
+class QtCreatorProjectUpdater;
+class PchManagerProjectUpdater;
+
 class ClangIndexingProjectSettings;
 
 class ClangIndexingProjectSettingsWidget : public QWidget
@@ -44,13 +48,19 @@ class ClangIndexingProjectSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ClangIndexingProjectSettingsWidget(ClangIndexingProjectSettings *settings);
+    explicit ClangIndexingProjectSettingsWidget(
+        ClangIndexingProjectSettings *settings,
+        ProjectExplorer::Project *project,
+        QtCreatorProjectUpdater<PchManagerProjectUpdater> &projectUpdater);
     ~ClangIndexingProjectSettingsWidget();
 
     void onProjectPartsUpdated(ProjectExplorer::Project *project);
+    void reindex();
 
 private:
     Ui::ClangIndexingProjectSettingsWidget *ui;
+    ProjectExplorer::Project *m_project;
+    QtCreatorProjectUpdater<PchManagerProjectUpdater> &m_projectUpdater;
 };
 
 } // namespace ClangPchManager
