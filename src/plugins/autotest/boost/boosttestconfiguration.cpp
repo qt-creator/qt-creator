@@ -90,6 +90,7 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     auto boostSettings = getBoostSettings();
     arguments << "-l" << BoostTestSettings::logLevelToOption(boostSettings->logLevel);
     arguments << "-r" << BoostTestSettings::reportLevelToOption(boostSettings->reportLevel);
+    arguments << "--no_color_output"; // ensure that colored output is not used as default
 
     if (boostSettings->randomize)
         arguments << QString("--random=").append(boostSettings->seed);
