@@ -41,7 +41,7 @@ for (doc_file, DOC_FILES) {
     DOC_TARGETDIR = $$DOC_TARGET
     DOC_OUTPUTDIR = $${DOCS_BASE_OUTDIR}/$${DOC_TARGETDIR}$${DOC_OUTDIR_POSTFIX}
 
-    html_docs_$${DOC_TARGET}.commands = $$QDOC -outputdir $$shell_quote($$DOC_OUTPUTDIR) $$doc_file $$DOC_INDEXES
+    html_docs_$${DOC_TARGET}.commands = $$QDOC -outputdir $$shell_quote($$DOC_OUTPUTDIR) $$doc_file $$DOC_INDEXES $$DOC_INCLUDES
     QMAKE_EXTRA_TARGETS += html_docs_$${DOC_TARGET}
 
     !isEmpty(html_docs.commands): html_docs.commands += &&

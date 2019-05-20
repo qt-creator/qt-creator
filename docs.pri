@@ -41,4 +41,17 @@ DOC_HTML_INSTALLDIR = $$INSTALL_DOC_PATH
 DOC_QCH_OUTDIR = $$IDE_DOC_PATH
 DOC_QCH_INSTALLDIR = $$INSTALL_DOC_PATH
 
+minQtVersion(5, 11, 0) {
+    for (include_path, INCLUDEPATH): \
+        DOC_INCLUDES += -I $$shell_quote($$include_path)
+    for (module, QT) {
+        MOD_INCLUDES = $$eval(QT.$${module}.includes)
+        for (include_path, MOD_INCLUDES): \
+            DOC_INCLUDES += -I $$shell_quote($$include_path)
+    }
+    for (include_path, QMAKE_DEFAULT_INCDIRS): \
+        DOC_INCLUDES += -I $$shell_quote($$include_path)
+    macos: DOC_INCLUDES += -F $$shell_quote($$[QT_INSTALL_LIBS])
+}
+
 include(doc/doc_targets.pri)
