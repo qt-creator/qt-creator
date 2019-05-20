@@ -198,13 +198,6 @@ struct StringDataLayout {
         shortString.string[0] = '\0';
     }
 
-    StringDataLayout &operator=(const StringDataLayout &other)
-    {
-        this->shortString = other.shortString;
-
-        return *this;
-    }
-
     union {
         AllocatedLayout<MaximumShortStringDataAreaSize> allocated;
         ReferenceLayout<MaximumShortStringDataAreaSize> reference;
