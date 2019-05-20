@@ -538,11 +538,11 @@ public:
         if (result.size() == 1) {
             switch (result.at(0).toLatin1()) {
             case '\n':
-                return "\\n";
+                return QString("\\n");
             case '\t':
-                return "\\t";
+                return QString("\\t");
             case '\r':
-                return "\\r";
+                return QString("\\r");
             }
         }
         return result;
