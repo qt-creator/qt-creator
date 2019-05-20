@@ -129,9 +129,7 @@ FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(QProcess *process
 
 Utils::FileName QScxmlcGenerator::tmpFile() const
 {
-    Utils::FileName wd = workingDirectory();
-    wd.appendPath(source().fileName());
-    return wd;
+    return workingDirectory().pathAppended(source().fileName());
 }
 
 FileType QScxmlcGeneratorFactory::sourceType() const

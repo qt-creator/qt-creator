@@ -1645,7 +1645,7 @@ FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<ProKey, ProString> &ve
                             if (value.contains("XCODE")) {
                                 // we don't want to generate xcode projects...
                                 // qDebug() << "default mkspec is xcode, falling back to g++";
-                                return baseMkspecDir.appendPath("macx-g++");
+                                return baseMkspecDir.pathAppended("macx-g++");
                             }
                         }
                         break;

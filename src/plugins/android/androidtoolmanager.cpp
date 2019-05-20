@@ -244,9 +244,8 @@ AndroidDeviceInfoList AndroidToolManager::androidVirtualDevices(const Utils::Fil
                 if (lastIndex == -1) // skip line
                     break;
                 QString tmp = line.mid(lastIndex).remove(QLatin1Char(')')).trimmed();
-                Utils::FileName platformPath = sdkLocationPath;
-                platformPath.appendPath(QString("/platforms/android-%1").arg(tmp));
-                dev.sdk = AndroidManager::findApiLevel(platformPath);
+                dev.sdk = AndroidManager::findApiLevel(
+                    sdkLocationPath.pathAppended(QString("/platforms/android-%1").arg(tmp)));
             }
             if (line.contains(QLatin1String("Tag/ABI:"))) {
                 int lastIndex = line.lastIndexOf(QLatin1Char('/')) + 1;
@@ -312,10 +311,8 @@ void AndroidToolOutputParser::parseTargetListing(const QString &output,
                 continue;
             QString androidTarget = line.mid(index + 1, line.length() - index - 2);
             const QString tmp = androidTarget.mid(androidTarget.lastIndexOf(QLatin1Char('-')) + 1);
-            Utils::FileName platformPath = sdkLocation;
-            platformPath.appendPath(QString("/platforms/android-%1").arg(tmp));
-            platformParams.installedLocation = platformPath;
-            platformParams.apiLevel = AndroidManager::findApiLevel(platformPath);
+            platformParams.installedLocation = sdkLocation.pathAppended(QString("/platforms/android-%1").arg(tmp));
+            platformParams.apiLevel = AndroidManager::findApiLevel(platformParams.installedLocation);
         } else if (line.startsWith(QLatin1String("Name:"))) {
             platformParams.description = line.mid(6);
         } else if (line.startsWith(QLatin1String("Revision:"))) {

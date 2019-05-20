@@ -682,8 +682,7 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
 int AndroidManager::findApiLevel(const Utils::FileName &platformPath)
 {
     int apiLevel = -1;
-    Utils::FileName propertiesPath = platformPath;
-    propertiesPath.appendPath("/source.properties");
+    const Utils::FileName propertiesPath = platformPath.pathAppended("/source.properties");
     if (propertiesPath.exists()) {
         QSettings sdkProperties(propertiesPath.toString(), QSettings::IniFormat);
         bool validInt = false;

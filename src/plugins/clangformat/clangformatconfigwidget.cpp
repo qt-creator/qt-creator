@@ -242,9 +242,9 @@ void ClangFormatConfigWidget::showGlobalCheckboxes()
 static bool projectConfigExists()
 {
     return Utils::FileName::fromString(Core::ICore::userResourcePath())
-        .appendPath("clang-format")
-        .appendPath(currentProjectUniqueId())
-        .appendPath((Constants::SETTINGS_FILE_NAME))
+        .pathAppended("clang-format")
+        .pathAppended(currentProjectUniqueId())
+        .pathAppended((Constants::SETTINGS_FILE_NAME))
         .exists();
 }
 

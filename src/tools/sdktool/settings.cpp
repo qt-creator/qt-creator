@@ -61,14 +61,14 @@ Utils::FileName Settings::getPath(const QString &file)
             = QStringList({ "android", "cmaketools", "debuggers", "devices",
                             "profiles", "qtversions", "toolchains", "abi" });
     if (lowerFile == "cmake")
-        result.appendPath("cmaketools");
+        result = result.pathAppended("cmaketools");
     else if (lowerFile == "kits")
-        result.appendPath("profiles");
+        result = result.pathAppended("profiles");
     else if (lowerFile == "qtversions")
-        result.appendPath("qtversion");
+        result = result.pathAppended("qtversion");
     else if (identical.contains(lowerFile))
-        result.appendPath(lowerFile);
+        result = result.pathAppended(lowerFile);
     else
-        result.appendPath(file); // handle arbitrary file names not known yet
+        result = result.pathAppended(file); // handle arbitrary file names not known yet
     return result.stringAppended(".xml");
 }

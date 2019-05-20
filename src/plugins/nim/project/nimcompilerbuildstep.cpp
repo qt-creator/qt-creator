@@ -217,8 +217,7 @@ void NimCompilerBuildStep::updateOutFilePath()
     auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
     QTC_ASSERT(bc, return);
     const QString targetName = Utils::HostOsInfo::withExecutableSuffix(m_targetNimFile.toFileInfo().baseName());
-    FileName outFilePath = bc->buildDirectory().appendPath(targetName);
-    setOutFilePath(outFilePath);
+    setOutFilePath(bc->buildDirectory().pathAppended(targetName));
 }
 
 void NimCompilerBuildStep::updateCommand()
