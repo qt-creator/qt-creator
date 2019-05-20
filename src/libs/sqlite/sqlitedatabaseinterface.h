@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,39 +25,13 @@
 
 #pragma once
 
-#include "googletest.h"
-
-#include "mocksqlitereadstatement.h"
-#include "mocksqlitetransactionbackend.h"
-#include "mocksqlitewritestatement.h"
-
-#include <sqlitedatabaseinterface.h>
-#include <sqlitetable.h>
-#include <sqlitetransaction.h>
-
-#include <utils/smallstringview.h>
-
-class MockSqliteDatabase : public MockSqliteTransactionBackend, public Sqlite::DatabaseInterface
+namespace Sqlite {
+class DatabaseInterface
 {
 public:
-    using ReadStatement = NiceMock<MockSqliteReadStatement>;
-    using WriteStatement = NiceMock<MockSqliteWriteStatement>;
+    virtual void walCheckpointFull() = 0;
 
-    MOCK_METHOD1(execute,
-                 void (Utils::SmallStringView sqlStatement));
-
-    MOCK_CONST_METHOD0(lastInsertedRowId,
-                       int64_t ());
-
-    MOCK_CONST_METHOD1(setLastInsertedRowId,
-                       void (int64_t));
-
-    MOCK_CONST_METHOD0(isInitialized,
-                      bool ());
-
-    MOCK_METHOD1(setIsInitialized,
-                 void (bool));
-
-    MOCK_METHOD0(walCheckpointFull, void());
+protected:
+    ~DatabaseInterface() = default;
 };
-
+} // namespace Sqlite

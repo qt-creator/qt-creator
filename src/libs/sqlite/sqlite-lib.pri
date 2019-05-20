@@ -29,6 +29,7 @@ SOURCES += \
 HEADERS += \
     $$PWD/createtablesqlstatementbuilder.h \
     $$PWD/sqlitedatabasebackend.h \
+    $$PWD/sqlitedatabaseinterface.h \
     $$PWD/sqliteexception.h \
     $$PWD/sqliteglobal.h \
     $$PWD/sqlitereadstatement.h \
