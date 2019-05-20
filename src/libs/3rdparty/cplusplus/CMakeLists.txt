@@ -42,4 +42,5 @@ add_qtc_library(3rd_cplusplus OBJECT
     Type.cpp Type.h
     TypeVisitor.cpp TypeVisitor.h
     cppassert.h
+  PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
