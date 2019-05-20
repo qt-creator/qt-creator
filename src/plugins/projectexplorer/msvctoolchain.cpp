@@ -1021,8 +1021,6 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
         return false;
     m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
     m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
-    detectInstalledAbis();
-    addToAvailableMsvcToolchains(this);
 
     const QString abiString = data.value(QLatin1String(supportedAbiKeyC)).toString();
     m_abi = Abi::fromString(abiString);
@@ -1043,7 +1041,15 @@ bool MsvcToolChain::fromMap(const QVariantMap &data)
                                       m_vcvarsBat,
                                       m_varsBatArg));
 
-    return !m_vcvarsBat.isEmpty() && m_abi.isValid();
+    // supported Abis were not stored in the map in previous versions of the settings. Re-detect
+    if (m_supportedAbis.isEmpty())
+        detectInstalledAbis();
+
+    const bool valid = !m_vcvarsBat.isEmpty() && m_abi.isValid() && !m_supportedAbis.isEmpty();
+    if (valid)
+        addToAvailableMsvcToolchains(this);
+
+    return valid;
 }
 
 std::unique_ptr<ToolChainConfigWidget> MsvcToolChain::createConfigurationWidget()
