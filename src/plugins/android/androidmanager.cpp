@@ -643,12 +643,12 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
 
     const QString sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
     QFileInfo sourceDirInfo(sourceDirName);
-    FileName packageSourceDir = FileName::fromString(sourceDirInfo.canonicalFilePath());
-    if (!packageSourceDir.appendPath("gradlew").exists())
+    const FileName packageSourceDir = FileName::fromString(sourceDirInfo.canonicalFilePath())
+            .pathAppended("gradlew");
+    if (!packageSourceDir.exists())
         return false;
 
-    Utils::FileName wrapperProps = packageSourceDir;
-    wrapperProps.appendPath(QLatin1String("gradle/wrapper/gradle-wrapper.properties"));
+    const FileName wrapperProps = packageSourceDir.pathAppended("gradle/wrapper/gradle-wrapper.properties");
     if (wrapperProps.exists()) {
         GradleProperties wrapperProperties = readGradleProperties(wrapperProps.toString());
         QString distributionUrl = QString::fromLocal8Bit(wrapperProperties["distributionUrl"]);
@@ -661,10 +661,11 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
 
     GradleProperties localProperties;
     localProperties["sdk.dir"] = AndroidConfigurations::currentConfig().sdkLocation().toString().toLocal8Bit();
-    if (!mergeGradleProperties(packageSourceDir.appendPath("local.properties").toString(), localProperties))
+    const FileName localPropertiesFile = packageSourceDir.pathAppended("local.properties");
+    if (!mergeGradleProperties(localPropertiesFile.toString(), localProperties))
         return false;
 
-    QString gradlePropertiesPath = packageSourceDir.appendPath("gradle.properties").toString();
+    const QString gradlePropertiesPath = packageSourceDir.pathAppended("gradle.properties").toString();
     GradleProperties gradleProperties = readGradleProperties(gradlePropertiesPath);
     gradleProperties["qt5AndroidDir"] = version->qmakeProperty("QT_INSTALL_PREFIX")
             .append(QLatin1String("/src/android/java")).toLocal8Bit();
