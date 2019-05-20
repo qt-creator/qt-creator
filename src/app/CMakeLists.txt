@@ -13,6 +13,26 @@ add_qtc_executable(qtcreator
   DESTINATION "${IDE_APP_PATH}"
 )
 
+if (WIN32)
+  set(RC_APPLICATION_NAME "${IDE_DISPLAY_NAME}")
+  set(RC_VERSION "${IDE_VERSION}.0")
+  set(RC_VERSION_STRING "${IDE_VERSION_DISPLAY}")
+  set(RC_COPYRIGHT "2008-${IDE_COPYRIGHT_YEAR} The Qt Company Ltd")
+
+  string(REPLACE " " "\\x20" RC_APPLICATION_NAME "${RC_APPLICATION_NAME}")
+  string(REPLACE " " "\\X20" RC_COPYRIGHT "${RC_COPYRIGHT}")
+  string(REPLACE "." "," RC_VERSION ${RC_VERSION})
+
+  target_compile_definitions(qtcreator PRIVATE
+    RC_APPLICATION_NAME="${RC_APPLICATION_NAME}"
+    RC_VERSION="${RC_VERSION}"
+    RC_VERSION_STRING="${RC_VERSION_STRING}"
+    RC_COPYRIGHT="${RC_COPYRIGHT}"
+  )
+
+  target_sources(qtcreator PRIVATE qtcreator.rc)
+endif()
+
 add_custom_command(TARGET qtcreator POST_BUILD
   COMMAND "${CMAKE_COMMAND}" -E copy_directory
           "${PROJECT_SOURCE_DIR}/share/qtcreator"
