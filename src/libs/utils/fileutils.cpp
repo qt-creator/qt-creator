@@ -800,32 +800,36 @@ QVariant FileName::toVariant() const
 
 bool FileName::operator==(const FileName &other) const
 {
+    if (!m_url.isEmpty())
+        return m_url == other.m_url;
     return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) == 0;
 }
 
 bool FileName::operator!=(const FileName &other) const
 {
-    return !(m_data == other.m_data);
+    return !(*this == other);
 }
 
 bool FileName::operator<(const FileName &other) const
 {
+    if (!m_url.isEmpty())
+        return m_url < other.m_url;
     return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) < 0;
 }
 
 bool FileName::operator<=(const FileName &other) const
 {
-    return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) <= 0;
+    return !(other < *this);
 }
 
 bool FileName::operator>(const FileName &other) const
 {
-    return other.m_data < m_data;
+    return other < *this;
 }
 
 bool FileName::operator>=(const FileName &other) const
 {
-    return other.m_data <= m_data;
+    return !(*this < other);
 }
 
 FileName FileName::operator+(const QString &s) const
