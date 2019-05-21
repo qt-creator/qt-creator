@@ -62,6 +62,31 @@ function(set_explicit_moc target_name file)
   target_sources(${target_name} PRIVATE "${file_moc}")
 endfunction()
 
+function(add_qtc_depends target_name)
+  cmake_parse_arguments(_arg "" "" "PRIVATE;PUBLIC" ${ARGN})
+  if (${_arg_UNPARSED_ARGUMENTS})
+    message(FATAL_ERROR "add_qtc_depends had unparsed arguments")
+  endif()
+
+  separate_object_libraries("${_arg_PRIVATE}"
+    depends object_lib_depends object_lib_depends_objects)
+  separate_object_libraries("${_arg_PUBLIC}"
+    public_depends object_public_depends object_public_depends_objects)
+
+  target_sources(${target_name} PRIVATE ${object_lib_depends_objects} ${object_public_depends_objects})
+  target_link_libraries(${target_name} PRIVATE ${depends} PUBLIC ${public_depends})
+
+  foreach(obj_lib IN LISTS object_lib_depends)
+    target_compile_definitions(${target_name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
+    target_include_directories(${target_name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
+  endforeach()
+  foreach(obj_lib IN LISTS object_public_depends)
+    target_compile_definitions(${target_name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
+    target_include_directories(${target_name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
+  endforeach()
+
+endfunction()
+
 function(add_qtc_library name)
   cmake_parse_arguments(_arg "STATIC;OBJECT" ""
     "DEFINES;DEPENDS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
@@ -179,6 +204,11 @@ function(find_dependent_plugins varName)
   set("${varName}" ${_RESULT} PARENT_SCOPE)
 endfunction()
 
+function(qtc_plugin_enabled varName name)
+  string(TOUPPER "BUILD_PLUGIN_${name}" _build_plugin_var)
+  set(${varName} ${${_build_plugin_var}} PARENT_SCOPE)
+endfunction()
+
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK"
@@ -204,7 +234,10 @@ function(add_qtc_plugin target_name)
     set(_extra_text "with CONDITION ${_contents}")
   endif()
 
-  if (${_arg_CONDITION})
+  string(TOUPPER "BUILD_PLUGIN_${target_name}" _build_plugin_var)
+  set(${_build_plugin_var} "ON" CACHE BOOL "Build plugin ${name}.")
+
+  if ((${_arg_CONDITION}) AND ${_build_plugin_var})
     set(_plugin_enabled ON)
   else()
     set(_plugin_enabled OFF)
@@ -273,13 +306,7 @@ function(add_qtc_plugin target_name)
     configure_file("${CMAKE_CURRENT_BINARY_DIR}/${name}.json.cmakein" "${name}.json")
   endif()
 
-  separate_object_libraries("${_arg_DEPENDS}"
-    depends object_lib_depends object_lib_depends_objects)
-  separate_object_libraries("${_arg_PUBLIC_DEPENDS}"
-    public_depends object_public_depends object_public_depends_objects)
-
-  add_library(${target_name} SHARED ${_arg_SOURCES}
-    ${object_lib_depends_objects} ${object_public_depends_objects})
+  add_library(${target_name} SHARED ${_arg_SOURCES})
 
   ### Generate EXPORT_SYMBOL
   string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
@@ -288,10 +315,7 @@ function(add_qtc_plugin target_name)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
-  target_link_libraries(${target_name}
-    PRIVATE ${_DEP_PLUGINS} ${depends} ${_TEST_DEPENDS}
-    PUBLIC ${public_depends}
-  )
+  target_link_libraries(${target_name} PRIVATE ${_DEP_PLUGINS} ${_TEST_DEPENDS})
   target_include_directories(${target_name}
     PRIVATE ${_arg_INCLUDES} "${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}"
       "${CMAKE_BINARY_DIR}/src"
@@ -301,14 +325,10 @@ function(add_qtc_plugin target_name)
     PRIVATE ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
   )
 
-  foreach(obj_lib IN LISTS object_lib_depends)
-    target_compile_definitions(${target_name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
-    target_include_directories(${target_name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
-  endforeach()
-  foreach(obj_lib IN LISTS object_public_depends)
-    target_compile_definitions(${target_name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
-    target_include_directories(${target_name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
-  endforeach()
+  add_qtc_depends(${target_name}
+    PRIVATE ${_arg_DEPENDS}
+    PUBLIC ${_arg_PUBLIC_DEPENDS}
+  )
 
   set(plugin_dir "${IDE_PLUGIN_PATH}")
   if (_arg_PLUGIN_PATH)
@@ -338,6 +358,44 @@ function(add_qtc_plugin target_name)
           ARCHIVE DESTINATION "${plugin_dir}"
           RUNTIME DESTINATION "${plugin_dir}"
   )
+endfunction()
+
+function(extend_qtc_plugin target_name)
+  cmake_parse_arguments(_arg
+    ""
+    "SOURCES_PREFIX"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC"
+    ${ARGN}
+  )
+
+  if (${_arg_UNPARSED_ARGUMENTS})
+    message(FATAL_ERROR "extend_qtc_plugin had unparsed arguments")
+  endif()
+
+  qtc_plugin_enabled(_plugin_enabled ${target_name})
+  if (NOT _arg_CONDITION)
+    set(_arg_CONDITION ON)
+  endif()
+  if ((NOT (${_arg_CONDITION})) OR (NOT _plugin_enabled))
+    return()
+  endif()
+
+  add_qtc_depends(${target_name}
+    PRIVATE ${_arg_DEPENDS}
+    PUBLIC ${_arg_PUBLIC_DEPENDS}
+  )
+  target_compile_definitions(${target_name} PRIVATE ${_arg_DEFINES})
+  target_include_directories(${target_name} PRIVATE ${_arg_INCLUDES} PUBLIC ${_arg_PUBLIC_INCLUDES})
+
+  if (_arg_SOURCES_PREFIX)
+    list(TRANSFORM _arg_SOURCES PREPEND "${_arg_SOURCES_PREFIX}/")
+    target_include_directories(${target_name} PUBLIC "${_arg_SOURCES_PREFIX}")
+  endif()
+  target_sources(${target_name} PRIVATE ${_arg_SOURCES})
+
+  foreach(file IN LISTS _arg_EXPLICIT_MOC)
+    set_explicit_moc(${target_name} "${file}")
+  endforeach()
 endfunction()
 
 function(add_qtc_executable name)

@@ -32,10 +32,10 @@ add_qtc_plugin(ClangTools
     clangtoolsutils.cpp clangtoolsutils.h
 )
 
-if (WITH_TESTS)
-  target_sources(ClangTools PRIVATE
+extend_qtc_plugin(ClangTools
+  CONDITION WITH_TESTS
+  SOURCES
     clangtoolspreconfiguredsessiontests.cpp clangtoolspreconfiguredsessiontests.h
     clangtoolsunittests.cpp clangtoolsunittests.h
     clangtoolsunittests.qrc
-  )
-endif()
+)

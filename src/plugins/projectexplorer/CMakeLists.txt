@@ -183,26 +183,31 @@ add_qtc_plugin(ProjectExplorer
 if (TARGET libclang)
   set(CLANG_BINDIR "$<TARGET_FILE_DIR:libclang>")
 endif()
-target_compile_definitions(ProjectExplorer PRIVATE CLANG_BINDIR="${CLANG_BINDIR}")
+extend_qtc_plugin(ProjectExplorer
+  DEFINES "CLANG_BINDIR=\"${CLANG_BINDIR}\""
+)
 
-if (WIN32)
-  target_sources(ProjectExplorer PRIVATE
-    windebuginterface.cpp windebuginterface.h)
-  target_compile_definitions(ProjectExplorer PRIVATE UNICODE _UNICODE)
-endif()
+extend_qtc_plugin(ProjectExplorer
+  CONDITION WIN32
+  SOURCES windebuginterface.cpp windebuginterface.h
+  DEFINES UNICODE _UNICODE
+)
 
-if (journald)
-  target_sources(ProjectExplorer PRIVATE
-    journaldwatcher.cpp journaldwatcher.h)
-  target_compile_definitions(ProjectExplorer PRIVATE WITH_JOURNALD)
-  target_link_libraries(ProjectExplorer PRIVATE systemd)
-endif()
+extend_qtc_plugin(ProjectExplorer
+  CONDITION journald
+  DEPENDS systemd
+  SOURCES journaldwatcher.cpp journaldwatcher.h
+  DEFINES WITH_JOURNALD
+)
 
-if (WITH_TESTS)
-  target_sources(ProjectExplorer PRIVATE
+extend_qtc_plugin(ProjectExplorer
+  CONDITION WITH_TESTS
+  SOURCES
     jsonwizard/jsonwizard_test.cpp
     outputparser_test.cpp outputparser_test.h
-  )
+)
+qtc_plugin_enabled(_projectexplorer_enabled ProjectExplorer)
+if (WITH_TESTS AND _projectexplorer_enabled)
   set_source_files_properties(jsonwizard/jsonwizard_test.cpp
     PROPERTIES HEADER_FILE_ONLY ON
   )

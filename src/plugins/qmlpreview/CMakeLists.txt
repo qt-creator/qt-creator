@@ -10,9 +10,9 @@ add_qtc_plugin(QmlPreview
     qmlpreview_global.h
 )
 
-if (WITH_TESTS)
-  target_sources(QmlPreview PRIVATE
+extend_qtc_plugin(QmlPreview
+  CONDITION WITH_TESTS
+  SOURCES
     tests/qmlpreviewclient_test.cpp tests/qmlpreviewclient_test.h
     tests/qmlpreviewplugin_test.cpp tests/qmlpreviewplugin_test.h
-  )
-endif()
+)

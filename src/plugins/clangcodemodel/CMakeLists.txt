@@ -47,11 +47,11 @@ add_qtc_plugin(ClangCodeModel
   EXPLICIT_MOC clangcodemodelplugin.h
 )
 
-if (WITH_TESTS)
-  target_sources(ClangCodeModel PRIVATE
+extend_qtc_plugin(ClangCodeModel
+  CONDITION WITH_TESTS
+  SOURCES
     test/clangautomationutils.cpp test/clangautomationutils.h
     test/clangbatchfileprocessor.cpp test/clangbatchfileprocessor.h
     test/clangcodecompletion_test.cpp test/clangcodecompletion_test.h
     test/data/clangtestdata.qrc
- )
-endif()
+)

@@ -45,19 +45,19 @@ add_qtc_plugin(Valgrind
     xmlprotocol/threadedparser.cpp xmlprotocol/threadedparser.h
 )
 
-if (WIN32)
-  target_compile_definitions(Valgrind PRIVATE UNICODE _UNICODE)
-endif()
+extend_qtc_plugin(Valgrind
+  CONDITION WIN32
+  DEFINES UNICODE _UNICODE
+)
 
-if (WITH_TESTS)
-  target_sources(Valgrind PRIVATE
+extend_qtc_plugin(Valgrind
+  CONDITION WITH_TESTS
+  SOURCES
     valgrindmemcheckparsertest.cpp valgrindmemcheckparsertest.h
     valgrindtestrunnertest.cpp valgrindtestrunnertest.h
-  )
-  target_compile_definitions(Valgrind PRIVATE
+  DEFINES
     PARSERTESTS_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/unit_testdata"
     VALGRIND_FAKE_PATH="${PROJECT_SOURCE_DIR}/src/tools/valgrindfake"
     TESTRUNNER_SRC_DIR="${PROJECT_SOURCE_DIR}/tests/auto/valgrind/memcheck/testapps"
     TESTRUNNER_APP_DIR="${PROJECT_BINARY_DIR}/tests/auto/valgrind/memcheck/testapps"
-  )
-endif()
+)

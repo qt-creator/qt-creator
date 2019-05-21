@@ -29,17 +29,22 @@ add_qtc_plugin(Help
     xbelsupport.cpp xbelsupport.h
 )
 
-if (APPLE)
-  find_library(FWWebKit WebKit)
-  find_library(FWAppKit AppKit)
-  target_link_libraries(Help PRIVATE ${FWWebKit} ${FWAppKit})
-  target_compile_definitions(Help PRIVATE QTC_MAC_NATIVE_HELPVIEWER)
-  target_sources(Help PRIVATE macwebkithelpviewer.h macwebkithelpviewer.mm)
-endif()
+find_library(FWWebKit WebKit)
+find_library(FWAppKit AppKit)
+extend_qtc_plugin(Help
+  CONDITION APPLE AND FWWebKit AND FWAppKit
+  DEPENDS ${FWWebKit} ${FWAppKit}
+  DEFINES QTC_MAC_NATIVE_HELPVIEWER
+  SOURCES
+    macwebkithelpviewer.h
+    macwebkithelpviewer.mm
+)
 
 find_package(Qt5WebEngineWidgets QUIET)
-
-if (TARGET Qt5::WebEngineWidgets)
-  target_sources(Help PRIVATE webenginehelpviewer.cpp webenginehelpviewer.h)
-  target_link_libraries(Help PRIVATE Qt5::WebEngineWidgets)
-endif()
+extend_qtc_plugin(Help
+  CONDITION TARGET Qt5::WebEngineWidgets
+  DEPENDS Qt5::WebEngineWidgets
+  SOURCES
+    webenginehelpviewer.cpp
+    webenginehelpviewer.h
+)

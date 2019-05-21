@@ -9,8 +9,7 @@ add_qtc_plugin(CompilationDatabaseProjectManager
     compilationdatabaseutils.cpp compilationdatabaseutils.h
 )
 
-if (WITH_TESTS)
-  target_sources(CompilationDatabaseProjectManager PRIVATE
-    compilationdatabasetests.cpp compilationdatabasetests.h
-  )
-endif()
+extend_qtc_plugin(CompilationDatabaseProjectManager
+  CONDITION WITH_TESTS
+  SOURCES compilationdatabasetests.cpp compilationdatabasetests.h
+)

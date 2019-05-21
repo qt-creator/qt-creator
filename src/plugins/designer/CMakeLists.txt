@@ -36,6 +36,7 @@ add_qtc_plugin(Designer
     settingspage.cpp settingspage.h
 )
 
-if (WITH_TESTS)
-  target_sources(Designer PRIVATE gotoslot_test.cpp)
-endif()
+extend_qtc_plugin(Designer
+  CONDITION WITH_TESTS AND TARGET Qt5::DesignerComponents AND TARGET Qt5::Designer
+  SOURCES gotoslot_test.cpp
+)

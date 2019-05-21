@@ -112,8 +112,9 @@ add_qtc_plugin(CppTools
     wrappablelineedit.cpp wrappablelineedit.h
 )
 
-if (WITH_TESTS)
-  target_sources(CppTools PRIVATE
+extend_qtc_plugin(CppTools
+  CONDITION WITH_TESTS
+  SOURCES
     cppcodegen_test.cpp
     cppcompletion_test.cpp
     cppheadersource_test.cpp
@@ -127,5 +128,4 @@ if (WITH_TESTS)
     modelmanagertesthelper.cpp modelmanagertesthelper.h
     symbolsearcher_test.cpp
     typehierarchybuilder_test.cpp
-  )
-endif()
+)

@@ -33,6 +33,7 @@ add_qtc_plugin(VcsBase
     wizard/vcsjsextension.cpp wizard/vcsjsextension.h
 )
 
-if (WITH_TESTS)
-  target_compile_definitions(VcsBase PRIVATE SRC_DIR="${IDE_SOURCE_TREE}")
-endif()
+extend_qtc_plugin(VcsBase
+  CONDITION WITH_TESTS
+  DEFINES SRC_DIR="${IDE_SOURCE_TREE}"
+)

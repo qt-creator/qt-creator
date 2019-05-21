@@ -13,6 +13,7 @@ add_qtc_plugin(FakeVim
     fakevimtr.h
 )
 
-if (WITH_TESTS)
-  target_sources(FakeVim PRIVATE fakevim_test.cpp)
-endif()
+extend_qtc_plugin(FakeVim
+  CONDITION WITH_TESTS
+  SOURCES fakevim_test.cpp
+)

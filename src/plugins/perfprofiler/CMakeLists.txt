@@ -32,10 +32,10 @@ add_qtc_plugin(PerfProfiler
     perftracepointdialog.cpp perftracepointdialog.h perftracepointdialog.ui
 )
 
-if (WITH_TESTS)
-  target_sources(PerfProfiler PRIVATE
+extend_qtc_plugin(PerfProfiler
+  CONDITION WITH_TESTS
+  SOURCES
     tests/perfprofilertracefile_test.cpp tests/perfprofilertracefile_test.h
     tests/perfresourcecounter_test.cpp tests/perfresourcecounter_test.h
     tests/tests.qrc
-  )
-endif()
+)

@@ -31,8 +31,9 @@ add_qtc_plugin(CppEditor
   EXPLICIT_MOC cppeditor.h
 )
 
-if (WITH_TESTS)
-  target_sources(CppEditor PRIVATE
+extend_qtc_plugin(CppEditor
+  CONDITION WITH_TESTS
+  SOURCES
     cppdoxygen_test.cpp cppdoxygen_test.h
     cppeditortestcase.cpp cppeditortestcase.h
     cppincludehierarchy_test.cpp
@@ -40,7 +41,7 @@ if (WITH_TESTS)
     cppuseselections_test.cpp
     fileandtokenactions_test.cpp
     followsymbol_switchmethoddecldef_test.cpp
-  )
-  set_explicit_moc(CppEditor cppdoxygen_test.h)
-  set_explicit_moc(CppEditor cppquickfix_test.h)
-endif()
+  EXPLICIT_MOC
+    cppdoxygen_test.h
+    cppquickfix_test.h
+)

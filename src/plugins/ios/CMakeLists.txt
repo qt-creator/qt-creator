@@ -26,8 +26,9 @@ add_qtc_plugin(Ios
     simulatoroperationdialog.cpp simulatoroperationdialog.h simulatoroperationdialog.ui
 )
 
-if (APPLE)
-  find_library(FWCoreFoundation CoreFoundation)
-  find_library(FWIOKit IOKit)
-  target_link_libraries(Ios PRIVATE ${FWCoreFoundation} ${FWIOKit})
-endif()
+find_library(FWCoreFoundation CoreFoundation)
+find_library(FWIOKit IOKit)
+extend_qtc_plugin(Ios
+  CONDITION APPLE AND FWCoreFoundation AND FWIOKit
+  DEPENDS ${FWCoreFoundation} ${FWIOKit}
+)

@@ -102,6 +102,7 @@ add_qtc_plugin(TextEditor
     typingsettings.cpp typingsettings.h
 )
 
-if (WITH_TESTS)
-  target_sources(TextEditor PRIVATE texteditor_test.cpp)
-endif()
+extend_qtc_plugin(TextEditor
+  CONDITION WITH_TESTS
+  SOURCES texteditor_test.cpp
+)

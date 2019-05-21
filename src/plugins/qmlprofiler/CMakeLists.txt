@@ -47,8 +47,9 @@ add_qtc_plugin(QmlProfiler
     scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
 )
 
-if (WITH_TESTS)
-  target_sources(QmlProfiler PRIVATE
+extend_qtc_plugin(QmlProfiler
+  CONDITION WITH_TESTS
+  SOURCES
     tests/debugmessagesmodel_test.cpp tests/debugmessagesmodel_test.h
     tests/fakedebugserver.cpp tests/fakedebugserver.h
     tests/flamegraphmodel_test.cpp tests/flamegraphmodel_test.h
@@ -71,5 +72,4 @@ if (WITH_TESTS)
     tests/qmlprofilertraceclient_test.cpp tests/qmlprofilertraceclient_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/tests.qrc
-  )
-endif()
+)

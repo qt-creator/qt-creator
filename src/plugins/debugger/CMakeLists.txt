@@ -95,16 +95,15 @@ add_qtc_plugin(Debugger
     watchwindow.cpp watchwindow.h
 )
 
-if (WIN32)
-  target_sources(Debugger PRIVATE
-    registerpostmortemaction.cpp registerpostmortemaction.h
-  )
-  target_compile_definitions(Debugger PRIVATE UNICODE _UNICODE)
-endif()
+extend_qtc_plugin(Debugger
+  CONDITION WIN32
+  SOURCES registerpostmortemaction.cpp registerpostmortemaction.h
+  DEFINES UNICODE _UNICODE
+)
 
-if (WITH_TESTS)
-  target_sources(Debugger PRIVATE
+extend_qtc_plugin(Debugger
+  CONDITION WITH_TESTS
+  SOURCES
     debuggerunittests.qrc
     unit-tests/simple/main.cpp
-  )
-endif()
+)

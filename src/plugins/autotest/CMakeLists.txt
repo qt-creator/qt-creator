@@ -74,8 +74,7 @@ add_qtc_plugin(AutoTest
   EXPLICIT_MOC boost/boosttestsettingspage.h
 )
 
-if (WITH_TESTS)
-  target_sources(AutoTest PRIVATE
-    autotestunittests.cpp autotestunittests.h
-  )
-endif()
+extend_qtc_plugin(AutoTest
+  CONDITION WITH_TESTS
+  SOURCES autotestunittests.cpp autotestunittests.h
+)

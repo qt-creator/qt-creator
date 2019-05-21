@@ -151,22 +151,29 @@ add_qtc_plugin(Core
   EXPLICIT_MOC dialogs/filepropertiesdialog.h
 )
 
-if (WITH_TESTS)
-  target_sources(Core PRIVATE
+extend_qtc_plugin(Core
+  CONDITION WITH_TESTS
+  SOURCES
     locator/locator_test.cpp
     locator/locatorfiltertest.cpp locator/locatorfiltertest.h
     testdatadir.cpp testdatadir.h
-  )
-endif()
+)
 
-if (WIN32)
-  target_sources(Core PRIVATE progressmanager/progressmanager_win.cpp)
-elseif (APPLE)
-  find_library(FWAppKit AppKit)
-  target_link_libraries(Core PRIVATE ${FWAppKit})
-  target_sources(Core PRIVATE
+extend_qtc_plugin(Core
+  CONDITION WIN32
+  SOURCES progressmanager/progressmanager_win.cpp
+)
+
+find_library(FWAppKit AppKit)
+extend_qtc_plugin(Core
+  CONDITION APPLE AND FWAppKit
+  DEPENDS ${FWAppKit}
+  SOURCES
     progressmanager/progressmanager_mac.mm
-    locator/spotlightlocatorfilter.h locator/spotlightlocatorfilter.mm)
-else()
-  target_sources(Core PRIVATE progressmanager/progressmanager_x11.cpp)
-endif()
+    locator/spotlightlocatorfilter.h locator/spotlightlocatorfilter.mm
+)
+
+extend_qtc_plugin(Core
+  CONDITION (NOT WIN32) AND (NOT APPLE)
+  SOURCES progressmanager/progressmanager_x11.cpp
+)

@@ -16,6 +16,7 @@ add_qtc_plugin(GenericProjectManager
     genericprojectwizard.cpp genericprojectwizard.h
 )
 
-if (WITH_TESTS)
-  target_sources(GenericProjectManager PRIVATE genericprojectplugin_test.cpp)
-endif()
+extend_qtc_plugin(GenericProjectManager
+  CONDITION WITH_TESTS
+  SOURCES genericprojectplugin_test.cpp
+)

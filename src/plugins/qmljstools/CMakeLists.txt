@@ -20,6 +20,7 @@ add_qtc_plugin(QmlJSTools
     qmljstoolssettings.cpp qmljstoolssettings.h
 )
 
-if (WITH_TESTS)
-  target_sources(QmlJSTools PRIVATE qmljstools_test.cpp)
-endif()
+extend_qtc_plugin(QmlJSTools
+  CONDITION WITH_TESTS
+  SOURCES qmljstools_test.cpp
+)
