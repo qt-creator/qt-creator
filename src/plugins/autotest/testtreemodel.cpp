@@ -481,22 +481,28 @@ void TestTreeModel::removeTestRootNodes()
 
 #ifdef WITH_TESTS
 // we're inside tests - so use some internal knowledge to make testing easier
-TestTreeItem *qtRootNode()
+static TestTreeItem *qtRootNode()
 {
     return TestFrameworkManager::instance()->rootNodeForTestFramework(
                 Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtTest"));
 }
 
-TestTreeItem *quickRootNode()
+static TestTreeItem *quickRootNode()
 {
     return TestFrameworkManager::instance()->rootNodeForTestFramework(
                 Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("QtQuickTest"));
 }
 
-TestTreeItem *gtestRootNode()
+static TestTreeItem *gtestRootNode()
 {
     return TestFrameworkManager::instance()->rootNodeForTestFramework(
                 Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("GTest"));
+}
+
+static TestTreeItem *boostTestRootNode()
+{
+    return TestFrameworkManager::instance()->rootNodeForTestFramework(
+                Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix("Boost"));
 }
 
 int TestTreeModel::autoTestsCount() const
@@ -570,6 +576,25 @@ QMultiMap<QString, int> TestTreeModel::gtestNamesAndSets() const
     }
     return result;
 }
+
+int TestTreeModel::boostTestNamesCount() const
+{
+    TestTreeItem *rootNode = boostTestRootNode();
+    return rootNode ? rootNode->childCount() : 0;
+}
+
+QMultiMap<QString, int> TestTreeModel::boostTestSuitesAndTests() const
+{
+    QMultiMap<QString, int> result;
+
+    if (TestTreeItem *rootNode = boostTestRootNode()) {
+        rootNode->forFirstLevelChildren([&result](TestTreeItem *child) {
+            result.insert(child->name(), child->childCount());
+        });
+    }
+    return result;
+}
+
 #endif
 
 /***************************** Sort/Filter Model **********************************/

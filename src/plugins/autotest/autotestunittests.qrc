@@ -72,5 +72,22 @@
         <file>unit_test/mixed_atp/tests/auto/quickauto3/quickauto3.qbs</file>
         <file>unit_test/mixed_atp/tests/auto/quickauto3/tst_test1.qml</file>
         <file>unit_test/mixed_atp/tests/auto/quickauto3/tst_test2.qml</file>
+        <file>unit_test/simple_boost/simple_boost.pro</file>
+        <file>unit_test/simple_boost/simple_boost.qbs</file>
+        <file>unit_test/simple_boost/src/main.cpp</file>
+        <file>unit_test/simple_boost/src/src.pro</file>
+        <file>unit_test/simple_boost/src/src.qbs</file>
+        <file>unit_test/simple_boost/tests/tests.pro</file>
+        <file>unit_test/simple_boost/tests/tests.qbs</file>
+        <file>unit_test/simple_boost/tests/deco/deco.pro</file>
+        <file>unit_test/simple_boost/tests/deco/deco.qbs</file>
+        <file>unit_test/simple_boost/tests/deco/enab.h</file>
+        <file>unit_test/simple_boost/tests/deco/main.cpp</file>
+        <file>unit_test/simple_boost/tests/fix/fix.cpp</file>
+        <file>unit_test/simple_boost/tests/fix/fix.pro</file>
+        <file>unit_test/simple_boost/tests/fix/fix.qbs</file>
+        <file>unit_test/simple_boost/tests/params/main.cpp</file>
+        <file>unit_test/simple_boost/tests/params/params.pro</file>
+        <file>unit_test/simple_boost/tests/params/params.qbs</file>
     </qresource>
 </RCC>
