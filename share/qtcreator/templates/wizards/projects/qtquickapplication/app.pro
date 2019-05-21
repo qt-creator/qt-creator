@@ -1,4 +1,9 @@
+@if "%{UseVirtualKeyboard}" == "true"
+QT += quick virtualkeyboard
+@else
 QT += quick
+@endif
+
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
