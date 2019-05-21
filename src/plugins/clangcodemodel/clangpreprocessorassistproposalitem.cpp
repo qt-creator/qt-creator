@@ -131,6 +131,11 @@ QString ClangPreprocessorAssistProposalItem::detail() const
     return QString();
 }
 
+Qt::TextFormat ClangPreprocessorAssistProposalItem::detailFormat() const
+{
+    return Qt::RichText;
+}
+
 bool ClangPreprocessorAssistProposalItem::isSnippet() const
 {
     return false;

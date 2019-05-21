@@ -53,6 +53,7 @@ public:
 
     virtual QIcon icon(int index) const;
     virtual QString detail(int index) const;
+    virtual Qt::TextFormat detailFormat(int index) const;
     virtual int persistentId(int index) const;
     virtual bool containsDuplicates() const;
     virtual void removeDuplicates();

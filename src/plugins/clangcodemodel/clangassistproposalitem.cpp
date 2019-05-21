@@ -495,6 +495,11 @@ bool ClangAssistProposalItem::isKeyword() const
     return m_codeCompletions[0].completionKind == CodeCompletion::KeywordCompletionKind;
 }
 
+Qt::TextFormat ClangAssistProposalItem::detailFormat() const
+{
+    return Qt::RichText;
+}
+
 bool ClangAssistProposalItem::isSnippet() const
 {
     return false;

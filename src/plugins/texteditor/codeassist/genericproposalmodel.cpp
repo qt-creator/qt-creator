@@ -262,6 +262,11 @@ QString GenericProposalModel::detail(int index) const
     return m_currentItems.at(index)->detail();
 }
 
+Qt::TextFormat GenericProposalModel::detailFormat(int index) const
+{
+    return m_currentItems.at(index)->detailFormat();
+}
+
 void GenericProposalModel::removeDuplicates()
 {
     if (m_duplicatesRemoved)

@@ -51,6 +51,8 @@ public:
     void setDetail(const QString &detail);
     QString detail() const final;
 
+    Qt::TextFormat detailFormat() const final;
+
     bool isSnippet() const final;
     bool isValid() const final;
 
