@@ -8,7 +8,7 @@ option(WITH_ONLINE_DOCS "Build online documentation" OFF)
 add_feature_info("Build online documentation" WITH_ONLINE_DOCS "")
 
 option(BUILD_DEVELOPER_DOCS "Include developer documentation" OFF)
-add_feature_info("Include developer documentation" WITH_DEVELOPER_DOCS "")
+add_feature_info("Include developer documentation" BUILD_DEVELOPER_DOCS "")
 
 
 # Find programs:
