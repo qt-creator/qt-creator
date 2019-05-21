@@ -535,7 +535,7 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
 // Factory
 
 IosDeviceFactory::IosDeviceFactory()
-    : IDeviceFactory(Constants::IOS_DEVICE_ID)
+    : IDeviceFactory(Constants::IOS_DEVICE_TYPE)
 {
     setObjectName(QLatin1String("IosDeviceFactory"));
     setDisplayName(IosDevice::name());
