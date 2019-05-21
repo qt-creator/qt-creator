@@ -159,7 +159,7 @@ bool QtTestResult::matches(const TestTreeItem *item) const
         if (item->proFile() != m_projectFile)
             return false;
         return matchesTestCase(item);
-    case TestTreeItem::TestFunctionOrSet:
+    case TestTreeItem::TestFunction:
     case TestTreeItem::TestSpecialFunction:
         if (!isTestFunction())
             return false;

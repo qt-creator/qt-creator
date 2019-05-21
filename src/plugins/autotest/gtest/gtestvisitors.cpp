@@ -78,7 +78,7 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
         locationAndType.m_name = testName;
         locationAndType.m_line = line;
         locationAndType.m_column = column - 1;
-        locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
+        locationAndType.m_type = TestTreeItem::TestCase;
         locationAndType.m_state = disabled ? GTestTreeItem::Disabled
                                            : GTestTreeItem::Enabled;
         GTestCaseSpec spec;

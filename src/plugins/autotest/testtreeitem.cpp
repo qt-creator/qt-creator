@@ -49,7 +49,7 @@ TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type ty
     case GroupNode:
     case TestSuite:
     case TestCase:
-    case TestFunctionOrSet:
+    case TestFunction:
         m_checked = Qt::Checked;
         break;
     default:
@@ -125,7 +125,7 @@ Qt::ItemFlags TestTreeItem::flags(int /*column*/) const
     case TestSuite:
     case TestCase:
         return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
-    case TestFunctionOrSet:
+    case TestFunction:
         return defaultFlags | Qt::ItemIsUserCheckable;
     default:
         return defaultFlags;
@@ -175,7 +175,7 @@ Qt::CheckState TestTreeItem::checked() const
     case GroupNode:
     case TestSuite:
     case TestCase:
-    case TestFunctionOrSet:
+    case TestFunction:
     case TestDataTag:
         return m_checked;
     default:

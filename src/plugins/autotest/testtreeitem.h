@@ -61,7 +61,7 @@ public:
         GroupNode,
         TestSuite,
         TestCase,
-        TestFunctionOrSet,
+        TestFunction,
         TestDataTag,
         TestDataFunction,
         TestSpecialFunction

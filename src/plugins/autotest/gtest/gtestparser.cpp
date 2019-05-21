@@ -36,7 +36,7 @@ namespace Internal {
 
 TestTreeItem *GTestParseResult::createTestTreeItem() const
 {
-    if (itemType != TestTreeItem::TestCase && itemType != TestTreeItem::TestFunctionOrSet)
+    if (itemType != TestTreeItem::TestSuite && itemType != TestTreeItem::TestCase)
         return nullptr;
     GTestTreeItem *item = new GTestTreeItem(name, fileName, itemType);
     item->setProFile(proFile);
@@ -110,7 +110,7 @@ static bool handleGTest(QFutureInterface<TestParseResultPtr> futureInterface,
 
     for (const GTestCaseSpec &testSpec : result.keys()) {
         GTestParseResult *parseResult = new GTestParseResult(id);
-        parseResult->itemType = TestTreeItem::TestCase;
+        parseResult->itemType = TestTreeItem::TestSuite;
         parseResult->fileName = filePath;
         parseResult->name = testSpec.testCaseName;
         parseResult->parameterized = testSpec.parameterized;

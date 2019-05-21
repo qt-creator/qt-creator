@@ -82,7 +82,7 @@ Qt::ItemFlags QtTestTreeItem::flags(int column) const
     switch (type()) {
     case TestDataTag:
         return defaultFlags | Qt::ItemIsUserCheckable;
-    case TestFunctionOrSet:
+    case TestFunction:
         return defaultFlags | Qt::ItemIsAutoTristate | Qt::ItemIsUserCheckable;
     default:
         return TestTreeItem::flags(column);
@@ -93,7 +93,7 @@ bool QtTestTreeItem::canProvideTestConfiguration() const
 {
     switch (type()) {
     case TestCase:
-    case TestFunctionOrSet:
+    case TestFunction:
     case TestDataTag:
         return true;
     default:
@@ -119,7 +119,7 @@ TestConfiguration *QtTestTreeItem::testConfiguration() const
         config->setProjectFile(proFile());
         config->setProject(project);
         break;
-    case TestFunctionOrSet: {
+    case TestFunction: {
         TestTreeItem *parent = parentItem();
         config = new QtTestConfiguration();
         config->setTestCases(QStringList(name()));
@@ -245,7 +245,7 @@ QList<TestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const Ut
     QHash<TestTreeItem *, QStringList> testFunctions;
     const QString &file = fileName.toString();
     forAllChildren([&testFunctions, &file](TestTreeItem *node) {
-        if (node->type() == Type::TestFunctionOrSet && node->filePath() == file) {
+        if (node->type() == Type::TestFunction && node->filePath() == file) {
             QTC_ASSERT(node->parentItem(), return);
             TestTreeItem *testCase = node->parentItem();
             QTC_ASSERT(testCase->type() == Type::TestCase, return);
@@ -287,7 +287,7 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
         const QtTestParseResult *qtResult = static_cast<const QtTestParseResult *>(result);
         return findChildByNameAndInheritance(qtResult->displayName, qtResult->inherited());
     }
-    case TestFunctionOrSet:
+    case TestFunction:
     case TestDataFunction:
     case TestSpecialFunction:
         return findChildByName(result->name);
@@ -306,12 +306,12 @@ TestTreeItem *QtTestTreeItem::findChild(const TestTreeItem *other)
     case GroupNode:
         return otherType == TestCase ? findChildByFile(other->filePath()) : nullptr;
     case TestCase: {
-        if (otherType != TestFunctionOrSet && otherType != TestDataFunction && otherType != TestSpecialFunction)
+        if (otherType != TestFunction && otherType != TestDataFunction && otherType != TestSpecialFunction)
             return nullptr;
         auto qtOther = static_cast<const QtTestTreeItem *>(other);
         return findChildByNameAndInheritance(other->filePath(), qtOther->inherited());
     }
-    case TestFunctionOrSet:
+    case TestFunction:
     case TestDataFunction:
     case TestSpecialFunction:
         return otherType == TestDataTag ? findChildByName(other->name()) : nullptr;
@@ -327,7 +327,7 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
     switch (type()) {
     case TestCase:
         return modifyTestCaseOrSuiteContent(result);
-    case TestFunctionOrSet:
+    case TestFunction:
     case TestDataFunction:
     case TestSpecialFunction:
         return modifyTestFunctionContent(result);

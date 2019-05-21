@@ -82,7 +82,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 else if (name.endsWith("_data"))
                     locationAndType.m_type = TestTreeItem::TestDataFunction;
                 else
-                    locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
+                    locationAndType.m_type = TestTreeItem::TestFunction;
                 locationAndType.m_inherited = m_inherited;
                 m_privSlots.insert(className + "::" + name, locationAndType);
             }

@@ -178,7 +178,7 @@ QList<TestTreeItem *> TestTreeModel::testItemsByName(TestTreeItem *root, const Q
             }
             TestTreeItem *testCase = node->findFirstLevelChild([&testName](TestTreeItem *it) {
                 QTC_ASSERT(it, return false);
-                return it->type() == TestTreeItem::TestFunctionOrSet && it->name() == testName;
+                return it->type() == TestTreeItem::TestFunction && it->name() == testName;
             }); // collect only actual tests, not special functions like init, cleanup etc.
             if (testCase)
                 result << testCase;

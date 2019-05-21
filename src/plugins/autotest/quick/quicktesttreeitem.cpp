@@ -65,7 +65,7 @@ QVariant QuickTestTreeItem::data(int column, int role) const
             return QVariant();
         case TestCase:
             return name().isEmpty() ? QVariant() : checked();
-        case TestFunctionOrSet:
+        case TestFunction:
             return (parentItem() && !parentItem()->name().isEmpty()) ? checked() : QVariant();
         default:
             return checked();
@@ -78,7 +78,7 @@ QVariant QuickTestTreeItem::data(int column, int role) const
             return true;
         case TestCase:
             return name().isEmpty();
-        case TestFunctionOrSet:
+        case TestFunction:
             return parentItem() ? parentItem()->name().isEmpty() : false;
         default:
             return false;
@@ -97,7 +97,7 @@ Qt::ItemFlags QuickTestTreeItem::flags(int column) const
         if (name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         break;
-    case TestFunctionOrSet:
+    case TestFunction:
         if (parentItem()->name().isEmpty())
             return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         break;
@@ -111,7 +111,7 @@ bool QuickTestTreeItem::canProvideTestConfiguration() const
     switch (type()) {
     case TestCase:
         return !name().isEmpty();
-    case TestFunctionOrSet:
+    case TestFunction:
         return !parentItem()->name().isEmpty();
     default:
         return false;
@@ -134,7 +134,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
         const QString testName = name();
         QStringList testFunctions;
         forFirstLevelChildren([&testFunctions, &testName](TestTreeItem *child) {
-            if (child->type() == TestTreeItem::TestFunctionOrSet)
+            if (child->type() == TestTreeItem::TestFunction)
                 testFunctions << testName + "::" + child->name();
         });
         config = new QuickTestConfiguration;
@@ -143,7 +143,7 @@ TestConfiguration *QuickTestTreeItem::testConfiguration() const
         config->setProject(project);
         break;
     }
-    case TestFunctionOrSet: {
+    case TestFunction: {
         TestTreeItem *parent = parentItem();
         QStringList testFunction(parent->name() + "::" + name());
         config = new QuickTestConfiguration;
@@ -177,7 +177,7 @@ static void testConfigurationFromCheckState(const TestTreeItem *item,
     const QString testName = item->name();
     QStringList testFunctions;
     item->forFirstLevelChildren([&testFunctions, &testName](TestTreeItem *child) {
-        if (child->checked() == Qt::Checked && child->type() == TestTreeItem::TestFunctionOrSet)
+        if (child->checked() == Qt::Checked && child->type() == TestTreeItem::TestFunction)
             testFunctions << testName + "::" + child->name();
     });
     if (foundProFiles.contains(item->proFile())) {
@@ -290,7 +290,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getTestConfigurationsForFile(const
     QHash<TestTreeItem *, QStringList> testFunctions;
     const QString &file = fileName.toString();
     forAllChildren([&testFunctions, &file](TestTreeItem *node) {
-        if (node->type() == Type::TestFunctionOrSet && node->filePath() == file) {
+        if (node->type() == Type::TestFunction && node->filePath() == file) {
             QTC_ASSERT(node->parentItem(), return);
             TestTreeItem *testCase = node->parentItem();
             QTC_ASSERT(testCase->type() == Type::TestCase, return);
@@ -349,7 +349,7 @@ TestTreeItem *QuickTestTreeItem::findChild(const TestTreeItem *other)
     case GroupNode:
         return findChildByFileAndType(other->filePath(), otherType);
     case TestCase:
-        if (otherType != TestFunctionOrSet && otherType != TestDataFunction && otherType != TestSpecialFunction)
+        if (otherType != TestFunction && otherType != TestDataFunction && otherType != TestSpecialFunction)
             return nullptr;
         return name().isEmpty() ? findChildByNameAndFile(other->name(), other->filePath())
                                 : findChildByName(other->name());
@@ -365,7 +365,7 @@ bool QuickTestTreeItem::modify(const TestParseResult *result)
     switch (type()) {
     case TestCase:
         return result->name.isEmpty() ? false : modifyTestCaseOrSuiteContent(result);
-    case TestFunctionOrSet:
+    case TestFunction:
     case TestDataFunction:
     case TestSpecialFunction:
         return name().isEmpty() ? modifyLineAndColumn(result)

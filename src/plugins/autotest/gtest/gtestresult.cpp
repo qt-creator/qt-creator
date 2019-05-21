@@ -118,7 +118,7 @@ bool GTestResult::matches(const TestTreeItem *treeItem) const
 
 bool GTestResult::matchesTestFunctionOrSet(const TestTreeItem *treeItem) const
 {
-    if (treeItem->type() != TestTreeItem::TestFunctionOrSet)
+    if (treeItem->type() != TestTreeItem::TestCase)
         return false;
 
     const QString testItemTestSet = treeItem->parentItem()->name() + '.' + treeItem->name();
@@ -127,7 +127,7 @@ bool GTestResult::matchesTestFunctionOrSet(const TestTreeItem *treeItem) const
 
 bool GTestResult::matchesTestCase(const TestTreeItem *treeItem) const
 {
-    if (treeItem->type() != TestTreeItem::TestCase)
+    if (treeItem->type() != TestTreeItem::TestSuite)
         return false;
 
     return treeItem->name() == normalizeTestName(name());

@@ -146,7 +146,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         else if (name.endsWith("_data"))
             locationAndType.m_type = TestTreeItem::TestDataFunction;
         else
-            locationAndType.m_type = TestTreeItem::TestFunctionOrSet;
+            locationAndType.m_type = TestTreeItem::TestFunction;
 
         m_testFunctions.insert(name.toString(), locationAndType);
     }
