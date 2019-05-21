@@ -59,6 +59,9 @@ public:
     QList<Utils::EnvironmentItem> userChanges() const;
     void setUserChanges(const QList<Utils::EnvironmentItem> &list);
 
+    using OpenTerminalFunc = std::function<void(const Utils::Environment &env)>;
+    void setOpenTerminalFunc(const OpenTerminalFunc &func);
+
 signals:
     void userChangesChanged();
     void detailsVisibleChanged(bool visible);
@@ -71,7 +74,6 @@ private:
     void appendPathButtonClicked();
     void prependPathButtonClicked();
     void batchEditEnvironmentButtonClicked();
-    void openTerminal();
     void environmentCurrentIndexChanged(const QModelIndex &current);
     void invalidateCurrentIndex();
     void updateSummaryText();

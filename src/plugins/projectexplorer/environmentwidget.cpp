@@ -127,6 +127,7 @@ public:
     Utils::EnvironmentModel *m_model;
 
     QString m_baseEnvironmentText;
+    EnvironmentWidget::OpenTerminalFunc m_openTerminalFunc;
     Utils::DetailsWidget *m_detailsContainer;
     QTreeView *m_environmentView;
     QPushButton *m_editButton;
@@ -227,6 +228,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     d->m_terminalButton = new QPushButton(this);
     d->m_terminalButton->setText(tr("Open &Terminal"));
     d->m_terminalButton->setToolTip(tr("Open a terminal with this environment set up."));
+    d->m_terminalButton->setEnabled(type == TypeLocal);
     buttonLayout->addWidget(d->m_terminalButton);
     buttonLayout->addStretch();
 
@@ -251,7 +253,14 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     connect(d->m_environmentView->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &EnvironmentWidget::environmentCurrentIndexChanged);
     connect(d->m_terminalButton, &QAbstractButton::clicked,
-            this, &EnvironmentWidget::openTerminal);
+            this, [this] {
+        Utils::Environment env = d->m_model->baseEnvironment();
+        env.modify(d->m_model->userChanges());
+        if (d->m_openTerminalFunc)
+            d->m_openTerminalFunc(env);
+        else
+            Core::FileUtils::openTerminal(QDir::currentPath(), env);
+    });
     connect(d->m_detailsContainer, &Utils::DetailsWidget::linkActivated,
             this, &EnvironmentWidget::linkActivated);
 
@@ -301,6 +310,12 @@ void EnvironmentWidget::setUserChanges(const QList<Utils::EnvironmentItem> &list
 {
     d->m_model->setUserChanges(list);
     updateSummaryText();
+}
+
+void EnvironmentWidget::setOpenTerminalFunc(const EnvironmentWidget::OpenTerminalFunc &func)
+{
+    d->m_openTerminalFunc = func;
+    d->m_terminalButton->setEnabled(bool(func));
 }
 
 void EnvironmentWidget::updateSummaryText()
@@ -448,13 +463,6 @@ void EnvironmentWidget::batchEditEnvironmentButtonClicked()
         return;
 
     d->m_model->setUserChanges(newChanges);
-}
-
-void EnvironmentWidget::openTerminal()
-{
-    Utils::Environment env = d->m_model->baseEnvironment();
-    env.modify(d->m_model->userChanges());
-    Core::FileUtils::openTerminal(QDir::currentPath(), env);
 }
 
 void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &current)
