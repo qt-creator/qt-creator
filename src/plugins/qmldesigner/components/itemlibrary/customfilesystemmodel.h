@@ -61,6 +61,7 @@ public:
     void setSearchFilter(const QString &nameFilterList);
 
 private:
+    QModelIndex updatePath(const QString &newPath);
     QModelIndex fileSystemModelIndex(const QModelIndex &index) const;
 
     QFileSystemModel *m_fileSystemModel;
