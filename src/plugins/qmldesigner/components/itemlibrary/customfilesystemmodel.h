@@ -63,6 +63,7 @@ public:
 private:
     QModelIndex updatePath(const QString &newPath);
     QModelIndex fileSystemModelIndex(const QModelIndex &index) const;
+    void appendIfNotFiltered(const QString &file);
 
     QFileSystemModel *m_fileSystemModel;
     QStringList m_files;

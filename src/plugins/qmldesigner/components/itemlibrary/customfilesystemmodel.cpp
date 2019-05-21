@@ -88,7 +88,7 @@ void CustomFileSystemModel::setFilter(QDir::Filters)
 
 }
 
-QString filterMetaIcons(const QString &fileName)
+bool filterMetaIcons(const QString &fileName)
 {
 
     QFileInfo info(fileName);
@@ -101,7 +101,7 @@ QString filterMetaIcons(const QString &fileName)
         while (!currentDir.isRoot() && i < 3) {
             if (currentDir.dirName() == "designer") {
                 if (!currentDir.entryList({"*.metainfo"}).isEmpty())
-                    return {};
+                    return false;
             }
 
             currentDir.cdUp();
@@ -109,10 +109,10 @@ QString filterMetaIcons(const QString &fileName)
         }
 
         if (info.dir().dirName() == "designer")
-            return {};
+            return false;
     }
 
-    return fileName;
+    return true;
 }
 
 QModelIndex CustomFileSystemModel::setRootPath(const QString &newPath)
@@ -179,6 +179,12 @@ void CustomFileSystemModel::setSearchFilter(const QString &nameFilterList)
     setRootPath(m_fileSystemModel->rootPath());
 }
 
+void CustomFileSystemModel::appendIfNotFiltered(const QString &file)
+{
+    if (filterMetaIcons(file))
+        m_files.append(file);
+}
+
 QModelIndex CustomFileSystemModel::updatePath(const QString &newPath)
 {
     beginResetModel();
@@ -205,7 +211,7 @@ QModelIndex CustomFileSystemModel::updatePath(const QString &newPath)
     QDirIterator fileIterator(newPath, nameFilterList, QDir::Files, QDirIterator::Subdirectories);
 
     while (fileIterator.hasNext())
-        m_files.append(filterMetaIcons(fileIterator.next()));
+        appendIfNotFiltered(fileIterator.next());
 
     QDirIterator dirIterator(newPath, {}, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (dirIterator.hasNext())
