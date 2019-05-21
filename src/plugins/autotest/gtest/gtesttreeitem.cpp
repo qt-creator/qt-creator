@@ -191,7 +191,7 @@ TestConfiguration *GTestTreeItem::debugConfiguration() const
     return config;
 }
 
-struct TestCases
+struct GTestCases
 {
     QStringList filters;
     int testSetCount = 0;
@@ -199,7 +199,7 @@ struct TestCases
 };
 
 static void collectTestInfo(const GTestTreeItem *item,
-                            QHash<QString, TestCases> &testCasesForProFile,
+                            QHash<QString, GTestCases> &testCasesForProFile,
                             bool ignoreCheckState)
 {
     QTC_ASSERT(item, return);
@@ -239,7 +239,7 @@ QList<TestConfiguration *> GTestTreeItem::getTestConfigurations(bool ignoreCheck
     if (!project || type() != Root)
         return result;
 
-    QHash<QString, TestCases> testCasesForProFile;
+    QHash<QString, GTestCases> testCasesForProFile;
     for (int row = 0, count = childCount(); row < count; ++row) {
         auto child = static_cast<const GTestTreeItem *>(childAt(row));
         collectTestInfo(child, testCasesForProFile, ignoreCheckState);
@@ -278,14 +278,14 @@ QList<TestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Uti
     if (!project || type() != Root)
         return result;
 
-    QHash<QString, TestCases> testCases;
+    QHash<QString, GTestCases> testCases;
     const QString &file = fileName.toString();
     forAllChildren([&testCases, &file](TestTreeItem *node) {
         if (node->type() == Type::TestCase && node->filePath() == file) {
             QTC_ASSERT(node->parentItem(), return);
             const GTestTreeItem *testCase = static_cast<GTestTreeItem *>(node->parentItem());
             QTC_ASSERT(testCase->type() == Type::TestSuite, return);
-            TestCases &cases = testCases[testCase->proFile()];
+            GTestCases &cases = testCases[testCase->proFile()];
             cases.filters.append(
                         gtestFilter(testCase->state()).arg(testCase->name(), node->name()));
             cases.internalTargets.unite(node->internalTargets());
