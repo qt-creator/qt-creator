@@ -111,7 +111,7 @@ public:
     bool sharingEnabled() const;
     ~SshConnection();
 
-    SshRemoteProcessPtr createRemoteProcess(const QByteArray &command);
+    SshRemoteProcessPtr createRemoteProcess(const QString &command);
     SshRemoteProcessPtr createRemoteShell();
     SftpTransferPtr createUpload(const FilesToTransfer &files,
                                  FileTransferErrorHandling errorHandlingMode);

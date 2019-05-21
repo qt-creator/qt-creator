@@ -76,7 +76,7 @@ void AbstractRemoteLinuxPackageInstaller::installPackage(const IDevice::ConstPtr
     QString cmdLine = installCommandLine(packageFilePath);
     if (removePackageFile)
         cmdLine += QLatin1String(" && (rm ") + packageFilePath + QLatin1String(" || :)");
-    d->installer->run(cmdLine.toUtf8(), deviceConfig->sshParameters());
+    d->installer->run(cmdLine, deviceConfig->sshParameters());
     d->isRunning = true;
 }
 
@@ -86,7 +86,7 @@ void AbstractRemoteLinuxPackageInstaller::cancelInstallation()
 
     if (!d->killProcess)
         d->killProcess = new SshRemoteProcessRunner(this);
-    d->killProcess->run(cancelInstallationCommandLine().toUtf8(), d->deviceConfig->sshParameters());
+    d->killProcess->run(cancelInstallationCommandLine(), d->deviceConfig->sshParameters());
     setFinished();
 }
 

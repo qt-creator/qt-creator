@@ -39,9 +39,9 @@ public:
     SshRemoteProcessRunner(QObject *parent = 0);
     ~SshRemoteProcessRunner();
 
-    void run(const QByteArray &command, const SshConnectionParameters &sshParams);
-    void runInTerminal(const QByteArray &command, const SshConnectionParameters &sshParams);
-    QByteArray command() const;
+    void run(const QString &command, const SshConnectionParameters &sshParams);
+    void runInTerminal(const QString &command, const SshConnectionParameters &sshParams);
+    QString command() const;
 
     QString lastConnectionErrorString() const;
 
@@ -69,7 +69,7 @@ private:
     void handleProcessFinished(const QString &error);
     void handleStdout();
     void handleStderr();
-    void runInternal(const QByteArray &command, const QSsh::SshConnectionParameters &sshParams);
+    void runInternal(const QString &command, const QSsh::SshConnectionParameters &sshParams);
     void setState(int newState);
 
     Internal::SshRemoteProcessRunnerPrivate * const d;

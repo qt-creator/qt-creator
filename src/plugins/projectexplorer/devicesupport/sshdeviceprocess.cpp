@@ -188,7 +188,7 @@ void SshDeviceProcess::handleConnected()
 
     d->process = runInTerminal() && d->runnable.executable.isEmpty()
             ? d->connection->createRemoteShell()
-            : d->connection->createRemoteProcess(fullCommandLine(d->runnable).toUtf8());
+            : d->connection->createRemoteProcess(fullCommandLine(d->runnable));
     const QString display = d->displayName();
     if (!display.isEmpty())
         d->process->requestX11Forwarding(display);

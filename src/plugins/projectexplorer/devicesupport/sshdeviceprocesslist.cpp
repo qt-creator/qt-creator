@@ -54,7 +54,7 @@ void SshDeviceProcessList::doUpdate()
             this, &SshDeviceProcessList::handleConnectionError);
     connect(&d->process, &SshRemoteProcessRunner::processClosed,
             this, &SshDeviceProcessList::handleListProcessFinished);
-    d->process.run(listProcessesCommandLine().toUtf8(), device()->sshParameters());
+    d->process.run(listProcessesCommandLine(), device()->sshParameters());
 }
 
 void SshDeviceProcessList::doKillProcess(const DeviceProcessItem &process)

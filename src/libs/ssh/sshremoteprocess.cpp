@@ -54,13 +54,13 @@ using namespace Internal;
 
 struct SshRemoteProcess::SshRemoteProcessPrivate
 {
-    QByteArray remoteCommand;
+    QString remoteCommand;
     QStringList connectionArgs;
     QString displayName;
     bool useTerminal = false;
 };
 
-SshRemoteProcess::SshRemoteProcess(const QByteArray &command, const QStringList &connectionArgs)
+SshRemoteProcess::SshRemoteProcess(const QString &command, const QStringList &connectionArgs)
     : d(new SshRemoteProcessPrivate)
 {
     d->remoteCommand = command;
@@ -127,7 +127,7 @@ QStringList SshRemoteProcess::fullLocalCommandLine() const
     if (!d->displayName.isEmpty())
         args.prepend("-X");
     if (!d->remoteCommand.isEmpty())
-        args << QLatin1String(d->remoteCommand);
+        args << d->remoteCommand;
     args.prepend(SshSettings::sshFilePath().toString());
     return args;
 }

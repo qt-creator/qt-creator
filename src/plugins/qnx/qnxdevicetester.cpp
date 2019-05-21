@@ -113,8 +113,7 @@ void QnxDeviceTester::handleGenericTestFinished(TestResult result)
     m_state = VarRunTest;
     emit progressMessage(tr("Checking that files can be created in /var/run..."));
     m_processRunner->run(QStringLiteral("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1")
-                             .arg("/var/run/qtc_xxxx.pid")
-                             .toLatin1(),
+                             .arg("/var/run/qtc_xxxx.pid"),
                          m_deviceConfiguration->sshParameters());
 }
 
@@ -189,7 +188,7 @@ void QnxDeviceTester::testNextCommand()
     QString command = m_commandsToTest[m_currentCommandIndex];
     emit progressMessage(tr("Checking for %1...").arg(command));
 
-    m_processRunner->run("command -v " + command.toLatin1(), m_deviceConfiguration->sshParameters());
+    m_processRunner->run("command -v " + command, m_deviceConfiguration->sshParameters());
 }
 
 void QnxDeviceTester::setFinished()

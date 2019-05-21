@@ -60,7 +60,7 @@ void RemoteLinuxSignalOperation::run(const QString &command)
             this, &RemoteLinuxSignalOperation::runnerProcessFinished);
     connect(m_runner, &QSsh::SshRemoteProcessRunner::connectionError,
             this, &RemoteLinuxSignalOperation::runnerConnectionError);
-    m_runner->run(command.toLatin1(), m_sshParameters);
+    m_runner->run(command, m_sshParameters);
 }
 
 void RemoteLinuxSignalOperation::finish()

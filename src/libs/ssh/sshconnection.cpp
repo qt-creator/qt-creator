@@ -309,7 +309,7 @@ SshConnection::~SshConnection()
     delete d;
 }
 
-SshRemoteProcessPtr SshConnection::createRemoteProcess(const QByteArray &command)
+SshRemoteProcessPtr SshConnection::createRemoteProcess(const QString &command)
 {
     QTC_ASSERT(state() == Connected, return SshRemoteProcessPtr());
     return SshRemoteProcessPtr(new SshRemoteProcess(command, d->connectionArgs()));
@@ -317,7 +317,7 @@ SshRemoteProcessPtr SshConnection::createRemoteProcess(const QByteArray &command
 
 SshRemoteProcessPtr SshConnection::createRemoteShell()
 {
-    return createRemoteProcess(QByteArray());
+    return createRemoteProcess({});
 }
 
 SftpTransferPtr SshConnection::createUpload(const FilesToTransfer &files,

@@ -122,7 +122,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::doDeploy()
             this, &RemoteLinuxCheckForFreeDiskSpaceService::handleStdErr);
     const QString command = QString::fromLatin1("df -k %1 |tail -n 1 |sed 's/  */ /g' "
             "|cut -d ' ' -f 4").arg(d->pathToCheck);
-    d->processRunner->run(command.toUtf8(), deviceConfiguration()->sshParameters());
+    d->processRunner->run(command, deviceConfiguration()->sshParameters());
 }
 
 void RemoteLinuxCheckForFreeDiskSpaceService::stopDeployment()

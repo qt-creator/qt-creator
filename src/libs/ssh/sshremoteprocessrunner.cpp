@@ -50,7 +50,7 @@ public:
     SshRemoteProcessPtr m_process;
     SshConnection *m_connection;
     bool m_runInTerminal;
-    QByteArray m_command;
+    QString m_command;
     QString m_lastConnectionErrorString;
     QProcess::ExitStatus m_exitStatus;
     QByteArray m_stdout;
@@ -76,8 +76,7 @@ SshRemoteProcessRunner::~SshRemoteProcessRunner()
     delete d;
 }
 
-void SshRemoteProcessRunner::run(const QByteArray &command,
-    const SshConnectionParameters &sshParams)
+void SshRemoteProcessRunner::run(const QString &command, const SshConnectionParameters &sshParams)
 {
     QTC_ASSERT(d->m_state == Inactive, return);
 
@@ -85,14 +84,14 @@ void SshRemoteProcessRunner::run(const QByteArray &command,
     runInternal(command, sshParams);
 }
 
-void SshRemoteProcessRunner::runInTerminal(const QByteArray &command,
+void SshRemoteProcessRunner::runInTerminal(const QString &command,
                                            const SshConnectionParameters &sshParams)
 {
     d->m_runInTerminal = true;
     runInternal(command, sshParams);
 }
 
-void SshRemoteProcessRunner::runInternal(const QByteArray &command,
+void SshRemoteProcessRunner::runInternal(const QString &command,
     const SshConnectionParameters &sshParams)
 {
     setState(Connecting);
@@ -197,7 +196,7 @@ void SshRemoteProcessRunner::setState(int newState)
     }
 }
 
-QByteArray SshRemoteProcessRunner::command() const { return d->m_command; }
+QString SshRemoteProcessRunner::command() const { return d->m_command; }
 QString SshRemoteProcessRunner::lastConnectionErrorString() const {
     return d->m_lastConnectionErrorString;
 }

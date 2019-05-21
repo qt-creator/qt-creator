@@ -30,10 +30,6 @@
 
 #include <QStringList>
 
-QT_BEGIN_NAMESPACE
-class QByteArray;
-QT_END_NAMESPACE
-
 namespace QSsh {
 class SshConnection;
 
@@ -56,7 +52,7 @@ signals:
     void done(const QString &error);
 
 private:
-    SshRemoteProcess(const QByteArray &command, const QStringList &connectionArgs);
+    SshRemoteProcess(const QString &command, const QStringList &connectionArgs);
     void doStart();
 
     struct SshRemoteProcessPrivate;
