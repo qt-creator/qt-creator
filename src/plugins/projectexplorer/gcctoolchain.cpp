@@ -967,7 +967,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
             } else {
                 existingTcMatches = Environment::systemEnvironment().isSameExecutable(
                             existingCommand.toString(), compilerPath.toString())
-                        || existingCommand.toFileInfo().size() == compilerPath.toFileInfo().size();
+                        || (HostOsInfo::isWindowsHost() && existingCommand.toFileInfo().size()
+                            == compilerPath.toFileInfo().size());
             }
             if (existingTcMatches) {
                 if (!result.contains(existingTc))
