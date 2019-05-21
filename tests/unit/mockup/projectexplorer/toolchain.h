@@ -38,6 +38,7 @@ namespace ProjectExplorer {
 class ToolChain
 {
 public:
+    ToolChain() = default;
     Core::Id typeId() const { return Core::Id(); }
 
     Abi targetAbi() const { return Abi(); }
@@ -57,6 +58,15 @@ public:
 
     virtual QString originalTargetTriple() const { return QString(); }
     virtual QStringList extraCodeModelFlags() const { return QStringList(); }
+};
+
+class ConcreteToolChain : public ToolChain
+{
+public:
+    MacroInspectionRunner createMacroInspectionRunner() const override
+    {
+        return MacroInspectionRunner();
+    }
 };
 
 } // namespace ProjectExplorer
