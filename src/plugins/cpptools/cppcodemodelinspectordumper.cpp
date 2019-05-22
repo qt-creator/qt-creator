@@ -388,9 +388,9 @@ QString Utils::toString(ProjectPart::ToolChainWordWidth width)
 {
     switch (width) {
     case ProjectPart::ToolChainWordWidth::WordWidth32Bit:
-        return "32";
+        return QString("32");
     case ProjectPart::ToolChainWordWidth::WordWidth64Bit:
-        return "64";
+        return QString("64");
     }
     return QString();
 }
