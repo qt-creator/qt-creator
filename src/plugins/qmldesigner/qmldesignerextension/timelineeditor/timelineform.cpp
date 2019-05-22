@@ -98,14 +98,23 @@ TimelineForm::TimelineForm(QWidget *parent)
         if (newId == m_timeline.modelNode().id())
             return;
 
-        if (!m_timeline.modelNode().isValidId(newId)) {
+        bool error = false;
+
+        if (!ModelNode::isValidId(newId)) {
             Core::AsynchronousMessageBox::warning(tr("Invalid Id"),
                                                   tr("%1 is an invalid id.").arg(newId));
+            error = true;
         } else if (m_timeline.view()->hasId(newId)) {
             Core::AsynchronousMessageBox::warning(tr("Invalid Id"),
                                                   tr("%1 already exists.").arg(newId));
+            error = true;
         } else {
             m_timeline.modelNode().setIdWithRefactoring(newId);
+        }
+
+        if (error) {
+            lastString.clear();
+            ui->idLineEdit->setText(m_timeline.modelNode().id());
         }
     });
 
