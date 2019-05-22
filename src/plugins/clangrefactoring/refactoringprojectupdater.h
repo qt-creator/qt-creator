@@ -47,9 +47,7 @@ public:
     {
     }
 
-    void precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId,
-                                  const QString &pchFilePath,
-                                  long long lastModified) override;
+    void precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId) override;
     void precompiledHeaderRemoved(ClangBackEnd::ProjectPartId projectPartId) override;
 
 private:

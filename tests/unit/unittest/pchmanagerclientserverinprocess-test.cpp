@@ -148,7 +148,7 @@ TEST_F(PchManagerClientServerInProcess, SendRemoveGeneratedFilesMessage)
 
 TEST_F(PchManagerClientServerInProcess, SendPrecompiledHeaderUpdatedMessage)
 {
-    PrecompiledHeadersUpdatedMessage message{{{1, "/path/to/pch", 1}}};
+    PrecompiledHeadersUpdatedMessage message{1};
 
     EXPECT_CALL(mockPchManagerClient, precompiledHeadersUpdated(message));
 

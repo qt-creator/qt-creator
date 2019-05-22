@@ -43,6 +43,10 @@ public:
 
     Target *activeTarget() const { return {}; }
 
+    QVariant namedSettings(const QString &name) const { return settings.at(name); }
+    void setNamedSettings(const QString &name, const QVariant &value) { settings[name] = value; }
+
     Utils::FileName rootProjectDirectoryPath;
+    mutable std::map<QString, QVariant> settings;
 };
 } // namespace ProjectExplorer

@@ -204,7 +204,6 @@ HEADERS += \
     $$PWD/nativefilepath.h \
     $$PWD/filepathview.h \
     $$PWD/compilermacro.h \
-    $$PWD/projectpartpchproviderinterface.h \
     $$PWD/updategeneratedfilesmessage.h \
     $$PWD/removegeneratedfilesmessage.h \
     $$PWD/generatedfiles.h \

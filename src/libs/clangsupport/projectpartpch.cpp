@@ -29,8 +29,7 @@ namespace ClangBackEnd {
 
 QDebug operator<<(QDebug debug, const ProjectPartPch &projectPartPch)
 {
-    debug.nospace() << "FileContainer(" << projectPartPch.projectPartId.projectPathId << ", "
-                    << projectPartPch.pchPath << ")";
+    debug.nospace() << "FileContainer(" << projectPartPch.projectPartId.projectPathId << ")";
 
     return debug;
 }

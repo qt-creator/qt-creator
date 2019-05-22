@@ -54,7 +54,7 @@ public:
         return first.projectPathId < second.projectPathId;
     }
 
-    friend QDataStream &operator<<(QDataStream &out, const ProjectPartId &projectPathId)
+    friend QDataStream &operator<<(QDataStream &out, ProjectPartId projectPathId)
     {
         out << projectPathId.projectPathId;
 

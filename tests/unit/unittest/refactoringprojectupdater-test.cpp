@@ -101,7 +101,7 @@ TEST_F(RefactoringProjectUpdater, DontUpdateProjectPartIfNoProjectPartExistsForI
     EXPECT_CALL(mockCppModelManager, projectPartForId(Eq(QString("project1"))));
     EXPECT_CALL(mockRefactoringServer, updateProjectParts(_)).Times(0);
 
-    pchManagerClient.precompiledHeadersUpdated({{{3, "/path/to/pch", 12}}});
+    pchManagerClient.precompiledHeadersUpdated({3});
 }
 
 TEST_F(RefactoringProjectUpdater, UpdateProjectPart)
@@ -118,7 +118,7 @@ TEST_F(RefactoringProjectUpdater, UpdateProjectPart)
                 updateProjectParts(Field(&UpdateProjectPartsMessage::projectsParts,
                                          ElementsAre(IsProjectPartContainer(3)))));
 
-    pchManagerClient.precompiledHeadersUpdated({{{3, "/path/to/pch", 12}}});
+    pchManagerClient.precompiledHeadersUpdated({3});
 }
 
 TEST_F(RefactoringProjectUpdater, RemoveProjectPart)

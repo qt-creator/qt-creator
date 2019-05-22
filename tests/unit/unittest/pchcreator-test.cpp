@@ -203,8 +203,8 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchsSendToPchManagerClient)
 
     EXPECT_CALL(mockPchManagerClient,
                 precompiledHeadersUpdated(
-                    Field(&ClangBackEnd::PrecompiledHeadersUpdatedMessage::projectPartPchs,
-                          ElementsAre(Eq(creator.projectPartPch())))));
+                    Field(&ClangBackEnd::PrecompiledHeadersUpdatedMessage::projectPartIds,
+                          ElementsAre(Eq(creator.projectPartPch().projectPartId)))));
 
     creator.doInMainThreadAfterFinished();
 }

@@ -32,6 +32,8 @@
 
 #include <llvm/ADT/ArrayRef.h>
 
+#include <iostream>
+
 namespace ClangBackEnd {
 
 namespace  {
@@ -136,9 +138,10 @@ bool IndexDataConsumer::handleDeclOccurence(
         if (!namedDeclaration->getIdentifier())
             return true;
 
-        if (skipSymbol(m_sourceManager->getFileID(sourceLocation), symbolRoles))
-
+        if (skipSymbol(m_sourceManager->getFileID(sourceLocation), symbolRoles)) {
+            namedDeclaration->getDeclName().dump();
             return true;
+        }
 
         SymbolIndex globalId = toSymbolIndex(declaration->getCanonicalDecl());
 

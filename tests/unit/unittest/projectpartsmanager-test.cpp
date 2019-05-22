@@ -36,6 +36,7 @@ namespace {
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::ProjectPartContainers;
+using UpToDataProjectParts = ClangBackEnd::ProjectPartsManagerInterface::UpToDataProjectParts;
 
 class ProjectPartsManager : public testing::Test
 {
@@ -111,16 +112,20 @@ protected:
 
 TEST_F(ProjectPartsManager, GetNoProjectPartsForAddingEmptyProjectParts)
 {
-    auto updatedProjectParts = manager.update({});
+    auto projectParts = manager.update({});
 
-    ASSERT_THAT(updatedProjectParts, IsEmpty());
+    ASSERT_THAT(projectParts,
+                AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
+                      Field(&UpToDataProjectParts::notUpToDate, IsEmpty())));
 }
 
 TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPart)
 {
-    auto updatedProjectParts = manager.update({projectPartContainer1});
+    auto projectParts = manager.update({projectPartContainer1});
 
-    ASSERT_THAT(updatedProjectParts, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(projectParts,
+                AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
+                      Field(&UpToDataProjectParts::notUpToDate, ElementsAre(projectPartContainer1))));
 }
 
 TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPartWithProjectPartAlreadyInTheDatabase)
@@ -128,9 +133,11 @@ TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPartWithProjectPartAlr
     ON_CALL(mockProjectPartsStorage, fetchProjectParts(_))
         .WillByDefault(Return(ProjectPartContainers{projectPartContainer1}));
 
-    auto updatedProjectParts = manager.update({projectPartContainer1, projectPartContainer2});
+    auto projectParts = manager.update({projectPartContainer1, projectPartContainer2});
 
-    ASSERT_THAT(updatedProjectParts, ElementsAre(projectPartContainer2));
+    ASSERT_THAT(projectParts,
+                AllOf(Field(&UpToDataProjectParts::upToDate, ElementsAre(projectPartContainer1)),
+                      Field(&UpToDataProjectParts::notUpToDate, ElementsAre(projectPartContainer2))));
 }
 
 TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPartWithOlderProjectPartAlreadyInTheDatabase)
@@ -138,9 +145,12 @@ TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPartWithOlderProjectPa
     ON_CALL(mockProjectPartsStorage, fetchProjectParts(_))
         .WillByDefault(Return(ProjectPartContainers{projectPartContainer1}));
 
-    auto updatedProjectParts = manager.update({updatedProjectPartContainer1, projectPartContainer2});
+    auto projectParts = manager.update({updatedProjectPartContainer1, projectPartContainer2});
 
-    ASSERT_THAT(updatedProjectParts, ElementsAre(updatedProjectPartContainer1, projectPartContainer2));
+    ASSERT_THAT(projectParts,
+                AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
+                      Field(&UpToDataProjectParts::notUpToDate,
+                            ElementsAre(updatedProjectPartContainer1, projectPartContainer2))));
 }
 
 TEST_F(ProjectPartsManager, ProjectPartAdded)
@@ -184,9 +194,11 @@ TEST_F(ProjectPartsManager, DoNotUpdateNotNewProjectPart)
 {
     manager.update({projectPartContainer1});
 
-    auto updatedProjectParts = manager.update({projectPartContainer1});
+    auto projectParts = manager.update({projectPartContainer1});
 
-    ASSERT_THAT(updatedProjectParts, IsEmpty());
+    ASSERT_THAT(projectParts,
+                AllOf(Field(&UpToDataProjectParts::upToDate, ElementsAre(projectPartContainer1)),
+                      Field(&UpToDataProjectParts::notUpToDate, IsEmpty())));
 }
 
 TEST_F(ProjectPartsManager, NoDuplicateProjectPartAfterUpdatingWithNotNewProjectPart)
@@ -216,8 +228,8 @@ TEST_F(ProjectPartsManager, MergeProjectMultipleTimesParts)
 
 TEST_F(ProjectPartsManager, GetNewProjectParts)
 {
-    auto newProjectParts = manager.filterNewProjectParts({projectPartContainer1, projectPartContainer2},
-                                                         {projectPartContainer2});
+    auto newProjectParts = manager.filterProjectParts({projectPartContainer1, projectPartContainer2},
+                                                      {projectPartContainer2});
 
     ASSERT_THAT(newProjectParts, ElementsAre(projectPartContainer1));
 }
@@ -226,9 +238,12 @@ TEST_F(ProjectPartsManager, GetUpdatedProjectPart)
 {
     manager.update({projectPartContainer1, projectPartContainer2});
 
-    auto updatedProjectParts = manager.update({updatedProjectPartContainer1});
+    auto projectParts = manager.update({updatedProjectPartContainer1});
 
-    ASSERT_THAT(updatedProjectParts, ElementsAre(updatedProjectPartContainer1));
+    ASSERT_THAT(projectParts,
+                AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
+                      Field(&UpToDataProjectParts::notUpToDate,
+                            ElementsAre(updatedProjectPartContainer1))));
 }
 
 TEST_F(ProjectPartsManager, ProjectPartIsReplacedWithUpdatedProjectPart)
@@ -280,14 +295,14 @@ TEST_F(ProjectPartsManager, UpdateDeferred)
 
 TEST_F(ProjectPartsManager, NotUpdateDeferred)
 {
-    auto projectPartContainers = manager.update({projectPartContainer1, projectPartContainer2});
+    manager.update({projectPartContainer1, projectPartContainer2});
 
     ASSERT_THAT(manager.deferredUpdates(), IsEmpty());
 }
 
 TEST_F(ProjectPartsManager, UpdateDeferredCleansDeferredUpdates)
 {
-    auto projectPartContainers = manager.update({projectPartContainer1, projectPartContainer2});
+    manager.update({projectPartContainer1, projectPartContainer2});
     manager.updateDeferred({projectPartContainer1});
 
     manager.deferredUpdates();
@@ -386,9 +401,11 @@ TEST_F(ProjectPartsManager,
     ON_CALL(mockProjectPartsStorage, fetchProjectParts(_))
         .WillByDefault(Return(ProjectPartContainers{projectPartContainerWithoutPrecompiledHeader1}));
 
-    auto updatedProjectParts = manager.update({projectPartContainer1});
+    auto projectParts = manager.update({projectPartContainer1});
 
-    ASSERT_THAT(updatedProjectParts, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(projectParts,
+                AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
+                      Field(&UpToDataProjectParts::notUpToDate, ElementsAre(projectPartContainer1))));
 }
 
 TEST_F(ProjectPartsManager, ProjectPartAddedWithProjectPartAlreadyInTheDatabaseButWithoutEntries)

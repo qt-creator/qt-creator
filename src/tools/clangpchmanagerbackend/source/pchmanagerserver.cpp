@@ -34,6 +34,7 @@
 #include <updategeneratedfilesmessage.h>
 #include <updateprojectpartsmessage.h>
 
+#include <utils/algorithm.h>
 #include <utils/smallstring.h>
 
 #include <QApplication>
@@ -57,18 +58,29 @@ void PchManagerServer::end()
     QCoreApplication::exit();
 }
 
+namespace {
+ProjectPartIds toProjectPartIds(const ProjectPartContainers &projectParts)
+{
+    return Utils::transform<ProjectPartIds>(projectParts, [](const auto &projectPart) {
+        return projectPart.projectPartId;
+    });
+}
+} // namespace
+
 void PchManagerServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 {
     m_toolChainsArgumentsCache.update(message.projectsParts, message.toolChainArguments);
 
-    ProjectPartContainers newProjectParts = m_projectPartsManager.update(message.takeProjectsParts());
+    auto upToDateProjectParts = m_projectPartsManager.update(message.takeProjectsParts());
 
     if (m_generatedFiles.isValid()) {
-        m_pchTaskGenerator.addProjectParts(std::move(newProjectParts),
+        m_pchTaskGenerator.addProjectParts(std::move(upToDateProjectParts.notUpToDate),
                                            std::move(message.toolChainArguments));
     } else  {
-        m_projectPartsManager.updateDeferred(newProjectParts);
+        m_projectPartsManager.updateDeferred(upToDateProjectParts.notUpToDate);
     }
+
+    client()->precompiledHeadersUpdated(toProjectPartIds(upToDateProjectParts.upToDate));
 }
 
 void PchManagerServer::removeProjectParts(RemoveProjectPartsMessage &&message)

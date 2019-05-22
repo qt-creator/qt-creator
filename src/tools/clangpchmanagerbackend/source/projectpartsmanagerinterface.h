@@ -32,11 +32,18 @@ namespace ClangBackEnd {
 class ProjectPartsManagerInterface
 {
 public:
+    class UpToDataProjectParts
+    {
+    public:
+        ProjectPartContainers upToDate;
+        ProjectPartContainers notUpToDate;
+    };
+
     ProjectPartsManagerInterface() = default;
     ProjectPartsManagerInterface(const ProjectPartsManagerInterface &) = delete;
     ProjectPartsManagerInterface &operator=(const ProjectPartsManagerInterface &) = delete;
 
-    virtual ProjectPartContainers update(ProjectPartContainers &&projectsParts) = 0;
+    virtual UpToDataProjectParts update(ProjectPartContainers &&projectsParts) = 0;
     virtual void remove(const ProjectPartIds &projectPartIds) = 0;
     virtual ProjectPartContainers projects(const ProjectPartIds &projectPartIds) const = 0;
     virtual void updateDeferred(const ProjectPartContainers &projectsParts) = 0;

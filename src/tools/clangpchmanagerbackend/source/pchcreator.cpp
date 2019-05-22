@@ -180,7 +180,7 @@ void PchCreator::doInMainThreadAfterFinished()
         m_buildDependenciesStorage.updatePchCreationTimeStamp(m_projectPartPch.lastModified,
                                                               m_projectPartPch.projectPartId);
         m_clangPathwatcher.updateIdPaths({{m_projectPartPch.projectPartId, existingSources}});
-        m_pchManagerClient.precompiledHeadersUpdated({m_projectPartPch});
+        m_pchManagerClient.precompiledHeadersUpdated({m_projectPartPch.projectPartId});
     }
 }
 
