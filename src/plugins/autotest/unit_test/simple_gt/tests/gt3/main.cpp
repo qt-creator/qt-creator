@@ -56,8 +56,8 @@ static QMap<const char *, QStringList> testValuesSec = {
     },
 };
 
-INSTANTIATE_TEST_CASE_P(First, DummyTest, ::testing::ValuesIn(testValues.keys()));
-INSTANTIATE_TEST_CASE_P(Second, DummyTest, ::testing::ValuesIn(testValuesSec.keys()));
+INSTANTIATE_TEST_SUITE_P(First, DummyTest, ::testing::ValuesIn(testValues.keys()));
+INSTANTIATE_TEST_SUITE_P(Second, DummyTest, ::testing::ValuesIn(testValuesSec.keys()));
 
 TEST_P(DummyTest, Easy)
 {

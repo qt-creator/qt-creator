@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <gtest/gtest.h>
 #include <QQueue>
 
 class QueueTest : public ::testing::Test

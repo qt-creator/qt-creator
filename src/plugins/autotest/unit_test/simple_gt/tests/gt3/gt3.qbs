@@ -7,8 +7,8 @@ CppApplication {
     type: "application"
     name: "googletest3"
 
-    property string gtestDir: googleCommon.getGTestDir(project.googletestDir)
-    property string gmockDir: googleCommon.getGMockDir(project.googletestDir)
+    property string gtestDir: googleCommon.getGTestDir(qbs, project.googletestDir)
+    property string gmockDir: googleCommon.getGMockDir(qbs, project.googletestDir)
 
     Depends { name: "Qt.core" }
 
@@ -21,8 +21,8 @@ CppApplication {
         return false;
     }
 
-    cpp.includePaths: [].concat(googleCommon.getGTestIncludes(project.googletestDir))
-                        .concat(googleCommon.getGMockIncludes(project.googletestDir))
+    cpp.includePaths: [].concat(googleCommon.getGTestIncludes(qbs, project.googletestDir))
+                        .concat(googleCommon.getGMockIncludes(qbs, project.googletestDir))
 
     cpp.cxxLanguageVersion: "c++11"
     cpp.defines: ["GTEST_LANG_CXX11"]
@@ -31,6 +31,6 @@ CppApplication {
         // own stuff
         "dummytest.h",
         "main.cpp",
-    ].concat(googleCommon.getGTestAll(project.googletestDir))
-     .concat(googleCommon.getGMockAll(project.googletestDir))
+    ].concat(googleCommon.getGTestAll(qbs, project.googletestDir))
+     .concat(googleCommon.getGMockAll(qbs, project.googletestDir))
 }

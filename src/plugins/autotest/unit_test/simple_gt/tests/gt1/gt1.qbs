@@ -7,8 +7,8 @@ CppApplication {
     type: "application"
     name: "googletest1"
 
-    property string gtestDir: googleCommon.getGTestDir(project.googletestDir)
-    property string gmockDir: googleCommon.getGMockDir(project.googletestDir)
+    property string gtestDir: googleCommon.getGTestDir(qbs, project.googletestDir)
+    property string gmockDir: googleCommon.getGMockDir(qbs, project.googletestDir)
 
     condition: {
         if (File.exists(gtestDir) && File.exists(gmockDir))
@@ -19,8 +19,8 @@ CppApplication {
         return false;
     }
 
-    cpp.includePaths: [].concat(googleCommon.getGTestIncludes(project.googletestDir))
-                        .concat(googleCommon.getGMockIncludes(project.googletestDir))
+    cpp.includePaths: [].concat(googleCommon.getGTestIncludes(qbs, project.googletestDir))
+                        .concat(googleCommon.getGMockIncludes(qbs, project.googletestDir))
 
     cpp.cxxLanguageVersion: "c++11"
     cpp.defines: ["GTEST_LANG_CXX11"]
@@ -30,6 +30,6 @@ CppApplication {
         // own stuff
         "further.cpp",
         "main.cpp",
-    ].concat(googleCommon.getGTestAll(project.googletestDir))
-     .concat(googleCommon.getGMockAll(project.googletestDir))
+    ].concat(googleCommon.getGTestAll(qbs, project.googletestDir))
+     .concat(googleCommon.getGMockAll(qbs, project.googletestDir))
 }
