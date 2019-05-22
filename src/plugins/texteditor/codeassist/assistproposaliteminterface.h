@@ -62,6 +62,7 @@ public:
     virtual void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const = 0;
     virtual QIcon icon() const = 0;
     virtual QString detail() const = 0;
+    virtual bool isKeyword() const { return false; };
     virtual bool isSnippet() const = 0;
     virtual bool isValid() const = 0;
     virtual quint64 hash() const = 0; // it is only for removing duplicates

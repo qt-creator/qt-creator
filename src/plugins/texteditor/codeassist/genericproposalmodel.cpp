@@ -214,8 +214,13 @@ bool GenericProposalModel::isPerfectMatch(const QString &prefix) const
         if (match == PerfectMatchType::StartsWith)
             return false;
 
-        if (!hasFullMatch && match == PerfectMatchType::Full)
-            hasFullMatch = true;
+        if (match == PerfectMatchType::Full) {
+            if (proposalItem(i)->isKeyword())
+                return true;
+
+            if (!hasFullMatch)
+                hasFullMatch = true;
+        }
     }
 
     return hasFullMatch;

@@ -138,6 +138,7 @@ private:
                                    CPlusPlus::Scope *cursorScope);
     bool globalCompletion(CPlusPlus::Scope *scope);
 
+    void addKeywordCompletionItem(const QString &text);
     void addCompletionItem(const QString &text,
                            const QIcon &icon = QIcon(),
                            int order = 0,

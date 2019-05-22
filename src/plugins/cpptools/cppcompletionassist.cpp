@@ -92,7 +92,10 @@ public:
     void keepCompletionOperator(unsigned compOp) { m_completionOperator = compOp; }
     void keepTypeOfExpression(const QSharedPointer<TypeOfExpression> &typeOfExp)
     { m_typeOfExpression = typeOfExp; }
-
+    bool isKeyword() const final
+    { return m_isKeyword; }
+    void setIsKeyword(bool isKeyword)
+    { m_isKeyword = isKeyword; }
 
     quint64 hash() const override;
 
@@ -101,6 +104,7 @@ private:
     unsigned m_completionOperator = T_EOF_SYMBOL;
     mutable QChar m_typedChar;
     bool m_isOverloaded = false;
+    bool m_isKeyword = false;
 };
 
 } // Internal
@@ -1531,6 +1535,16 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
     return !m_completions.isEmpty();
 }
 
+void InternalCppCompletionAssistProcessor::addKeywordCompletionItem(const QString &text)
+{
+    auto item = new CppAssistProposalItem;
+    item->setText(text);
+    item->setIcon(Icons::keywordIcon());
+    item->setOrder(KeywordsOrder);
+    item->setIsKeyword(true);
+    m_completions.append(item);
+}
+
 bool InternalCppCompletionAssistProcessor::completeMember(const QList<LookupItem> &baseResults)
 {
     const LookupContext &context = m_model->m_typeOfExpression->context();
@@ -1859,16 +1873,16 @@ void InternalCppCompletionAssistProcessor::addKeywords()
 
     // keyword completion items.
     for (int i = T_FIRST_KEYWORD; i < keywordLimit; ++i)
-        addCompletionItem(QLatin1String(Token::name(i)), Icons::keywordIcon(), KeywordsOrder);
+        addKeywordCompletionItem(QLatin1String(Token::name(i)));
 
     // primitive type completion items.
     for (int i = T_FIRST_PRIMITIVE; i <= T_LAST_PRIMITIVE; ++i)
-        addCompletionItem(QLatin1String(Token::name(i)), Icons::keywordIcon(), KeywordsOrder);
+        addKeywordCompletionItem(QLatin1String(Token::name(i)));
 
     // "Identifiers with special meaning"
     if (m_interface->languageFeatures().cxx11Enabled) {
-        addCompletionItem(QLatin1String("override"), Icons::keywordIcon(), KeywordsOrder);
-        addCompletionItem(QLatin1String("final"), Icons::keywordIcon(), KeywordsOrder);
+        addKeywordCompletionItem(QLatin1String("override"));
+        addKeywordCompletionItem(QLatin1String("final"));
     }
 }
 

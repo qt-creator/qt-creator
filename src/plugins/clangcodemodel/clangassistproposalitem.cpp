@@ -489,6 +489,12 @@ QString ClangAssistProposalItem::detail() const
     return detail;
 }
 
+bool ClangAssistProposalItem::isKeyword() const
+{
+    // KeywordCompletionKind includes real keywords but also "code patterns"/snippets.
+    return m_codeCompletions[0].completionKind == CodeCompletion::KeywordCompletionKind;
+}
+
 bool ClangAssistProposalItem::isSnippet() const
 {
     return false;
