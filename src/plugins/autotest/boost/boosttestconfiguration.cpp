@@ -51,43 +51,70 @@ TestOutputReader *BoostTestConfiguration::outputReader(const QFutureInterface<Te
                                      settings->logLevel, settings->reportLevel);
 }
 
+enum class InterferingType { Options, EnvironmentVariables };
+
+static QStringList interfering(InterferingType type)
+{
+    const QStringList knownInterfering { "log_level", "log_format", "log_sink",
+                                         "report_level", "report_format", "report_sink",
+                                         "output_format", "color_output", "no_color_output",
+                                         "catch_system_errors", "no_catch_system_errors",
+                                         "detect_fp_exceptions", "no_detect_fp_exceptions",
+                                         "detect_memory_leaks", "random", "run_test",
+                                         "show_progress", "result_code", "no_result_code",
+                                         "help", "list_content", "list_labels", "version"
+                                         };
+    switch (type) {
+    case InterferingType::Options:
+        return Utils::transform(knownInterfering, [](const QString &item) {
+            return QString("--" + item);
+        });
+    case InterferingType::EnvironmentVariables:
+        return Utils::transform(knownInterfering, [](const QString &item) {
+            return QString("BOOST_TEST_" + item).toUpper();
+        });
+    }
+    return QStringList();
+}
+
 static QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
 {
-    // TODO complete these...
-    const QSet<QString> knownInterfering { "--log_level=",
-                                           "--report_level=",
-                                           "--color_output=", "--no_color_output",
-                                           "--catch_system_errors", "--detect_fp_exceptions",
-                                           "--detect_memory_leaks", "--random="
-                                         };
-    QSet<QString> allowed = Utils::filtered(provided.toSet(), [&knownInterfering](const QString &arg) {
-        return Utils::allOf(knownInterfering, [&arg](const QString &interfering) {
-            return !arg.startsWith(interfering);
-        });
-    });
-
-    // TODO handle single letter options correctly
-    if (omitted) {
-        QSet<QString> providedSet = provided.toSet();
-        providedSet.subtract(allowed);
-        omitted->append(providedSet.toList());
+    const QStringList knownInterfering = interfering(InterferingType::Options);
+    const QString interferingSingleWithParam = "efklortcpsx?";
+    QStringList allowed;
+    bool filterNextArg = false;
+    bool ignoreRest = false;
+    for (auto arg : provided) {
+        bool filterArg = filterNextArg;
+        filterNextArg = false;
+        if (ignoreRest) {
+            allowed.append(arg);
+            continue;
+        }
+        bool interferes = false;
+        if (filterArg && !arg.startsWith('-')) {
+            interferes = true;
+        } else if (arg.startsWith("--")) {
+            if (arg.size() == 2)
+                ignoreRest = true;
+            else
+                interferes = knownInterfering.contains(arg.left(arg.indexOf('=')));
+        } else if (arg.startsWith('-') && arg.size() > 1) {
+            interferes = interferingSingleWithParam.contains(arg.at(1));
+            filterNextArg = interferes;
+        }
+        if (!interferes)
+            allowed.append(arg);
+        else if (omitted)
+            omitted->append(arg);
     }
-    return allowed.toList();
+    return allowed;
 }
 
 QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
-    QStringList arguments;
-    if (AutotestPlugin::settings()->processArgs) {
-        arguments << filterInterfering(runnable().commandLineArguments.split(
-                                           ' ', QString::SkipEmptyParts), omitted);
-    }
-
-    // TODO improve the test case gathering and arguments building to avoid too long command lines
-    for (const QString &test : testCases())
-        arguments << "-t" << test;
-
     auto boostSettings = getBoostSettings();
+    QStringList arguments;
     arguments << "-l" << BoostTestSettings::logLevelToOption(boostSettings->logLevel);
     arguments << "-r" << BoostTestSettings::reportLevelToOption(boostSettings->reportLevel);
     arguments << "--no_color_output"; // ensure that colored output is not used as default
@@ -101,19 +128,24 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
         arguments << "--detect_fp_exceptions";
     if (!boostSettings->memLeaks)
         arguments << "--detect_memory_leaks=0";
+
+    // TODO improve the test case gathering and arguments building to avoid too long command lines
+    for (const QString &test : testCases())
+        arguments << "-t" << test;
+
+    if (AutotestPlugin::settings()->processArgs) {
+        arguments << filterInterfering(runnable().commandLineArguments.split(
+                                           ' ', QString::SkipEmptyParts), omitted);
+    }
     return arguments;
 }
 
 Utils::Environment BoostTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
 {
-    // TODO complete these..
-    const QStringList interfering{"BOOST_TEST_LOG_FORMAT", "BOOST_TEST_REPORT_FORMAT",
-                                  "BOOST_TEST_COLOR_OUTPUT", "BOOST_TEST_CATCH_SYSTEM_ERRORS",
-                                  "BOOST_TEST_DETECT_FP_EXCEPTIONS", "BOOST_TEST_RANDOM",
-                                  "BOOST_TEST_DETECT_MEMORY_LEAK"};
+    const QStringList interferingEnv = interfering(InterferingType::EnvironmentVariables);
 
     Utils::Environment result = original;
-    for (const QString &key : interfering)
+    for (const QString &key : interferingEnv)
         result.unset(key);
     return result;
 }
