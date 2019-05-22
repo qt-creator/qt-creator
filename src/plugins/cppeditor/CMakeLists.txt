@@ -41,4 +41,6 @@ if (WITH_TESTS)
     fileandtokenactions_test.cpp
     followsymbol_switchmethoddecldef_test.cpp
   )
+  set_explicit_moc(CppEditor cppdoxygen_test.h)
+  set_explicit_moc(CppEditor cppquickfix_test.h)
 endif()

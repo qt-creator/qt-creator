@@ -56,6 +56,12 @@ function(separate_object_libraries libraries REGULAR_LIBS OBJECT_LIBS OBJECT_LIB
   endif()
 endfunction(separate_object_libraries)
 
+function(set_explicit_moc target_name file)
+  set_property(SOURCE "${file}" PROPERTY SKIP_AUTOMOC ON)
+  qt5_wrap_cpp(file_moc "${file}")
+  target_sources(${target_name} PRIVATE "${file_moc}")
+endfunction()
+
 function(add_qtc_library name)
   cmake_parse_arguments(_arg "STATIC;OBJECT" ""
     "DEFINES;DEPENDS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
@@ -125,9 +131,7 @@ function(add_qtc_library name)
   endforeach()
 
   foreach(file IN LISTS _arg_EXPLICIT_MOC)
-    set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
-    qt5_wrap_cpp(file_moc ${file})
-    target_sources(${name} PRIVATE ${file_moc})
+    set_explicit_moc(${name} "${file}")
   endforeach()
 
   foreach(file IN LISTS _arg_SKIP_AUTOMOC)
@@ -326,9 +330,7 @@ function(add_qtc_plugin target_name)
   )
 
   foreach(file IN LISTS _arg_EXPLICIT_MOC)
-    set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
-    qt5_wrap_cpp(file_moc ${file})
-    target_sources(${target_name} PRIVATE ${file_moc})
+    set_explicit_moc(${target_name} "${file}")
   endforeach()
 
   install(TARGETS ${target_name}
