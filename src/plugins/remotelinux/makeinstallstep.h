@@ -47,6 +47,7 @@ private:
     ProjectExplorer::BuildStepConfigWidget * createConfigWidget() override;
     bool init() override;
     void finish(bool success) override;
+    void stdError(const QString &line) override;
 
     Utils::FileName installRoot() const;
     bool cleanInstallRoot() const;
@@ -56,6 +57,8 @@ private:
     void updateFullCommandLine();
 
     ProjectExplorer::DeploymentData m_deploymentData;
+    bool m_noInstallTarget = false;
+    bool m_isCmakeProject = false;
 };
 
 } // namespace Internal

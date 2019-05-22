@@ -25,6 +25,7 @@
 
 #include "makeinstallstep.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/processparameters.h>
@@ -141,6 +142,12 @@ bool MakeInstallStep::init()
             env.set(it.key(), it.value());
         processParameters()->setEnvironment(env);
     }
+    m_noInstallTarget = false;
+    const auto buildStep = buildConfiguration()
+            ->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
+            ->firstOfType<AbstractProcessStep>();
+    m_isCmakeProject = buildStep && buildStep->processParameters()->command().toString()
+            .contains("cmake");
     return true;
 }
 
@@ -157,8 +164,21 @@ void MakeInstallStep::finish(bool success)
                                      fi.dir().path().mid(installRoot().toString().length()));
         }
         target()->setDeploymentData(m_deploymentData);
+    } else if (m_noInstallTarget && m_isCmakeProject) {
+        emit addTask(Task(Task::Warning, tr("You need to add an install statement to your "
+                                            "CMakeLists.txt file for deployment to work."),
+                          FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
     }
     MakeStep::finish(success);
+}
+
+void MakeInstallStep::stdError(const QString &line)
+{
+    // When using Makefiles: "No rule to make target 'install'"
+    // When using ninja: "ninja: error: unknown target 'install'"
+    if (line.contains("target 'install'"))
+        m_noInstallTarget = true;
+    MakeStep::stdError(line);
 }
 
 FileName MakeInstallStep::installRoot() const
