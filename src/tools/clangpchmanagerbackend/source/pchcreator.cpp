@@ -113,8 +113,11 @@ Utils::SmallStringVector PchCreator::generateClangCompilerArguments(const PchTas
 void PchCreator::generatePch(PchTask &&pchTask)
 {
     m_projectPartPch.projectPartId = pchTask.projectPartId();
-
     m_projectPartPch.lastModified = QDateTime::currentSecsSinceEpoch();
+
+    if (pchTask.includes.empty())
+        return;
+
     auto content = generatePchIncludeFileContent(pchTask.includes);
     auto pchOutputPath = generatePchFilePath();
 
