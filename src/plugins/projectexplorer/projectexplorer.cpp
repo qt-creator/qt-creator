@@ -3555,13 +3555,11 @@ void ProjectExplorerPluginPrivate::removeFile()
 
         // Re-read the current node, in case the project is re-parsed while the dialog is open
         if (!ProjectTree::hasNode(currentNode)) {
-            // TODO: Abort the entire operation if there is more than one such file, as we
-            //       don't know which node was originally selected.
-            currentNode = ProjectTreeWidget::nodeForFile(filePath);
-
-            // FIXME: This assertion is not valid, as the file really could have disappeared
-            //        in the mean time. Pop up an info dialog instead.
-            QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
+            QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
+                                 tr("File %1 was not removed, because the project has changed "
+                                    "in the meantime.\nPlease try again.")
+                                 .arg(filePath.toUserOutput()));
+            return;
         }
 
         // remove from project
