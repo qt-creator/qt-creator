@@ -329,6 +329,7 @@ QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
 {
     static QIcon productIcon = Core::FileIconProvider::directoryIcon(Constants::QBS_PRODUCT_OVERLAY_ICON);
     setIcon(productIcon);
+    setIsProduct();
 }
 
 bool QbsProductNode::supportsAction(ProjectAction action, const Node *node) const

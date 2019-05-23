@@ -229,7 +229,9 @@ FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringL
   */
 QmakeProFileNode::QmakeProFileNode(QmakeProject *project, const FileName &filePath, QmakeProFile *pf) :
     QmakePriFileNode(project, this, filePath, pf)
-{ }
+{
+    setIsProduct();
+}
 
 bool QmakeProFileNode::showInSimpleTree() const
 {

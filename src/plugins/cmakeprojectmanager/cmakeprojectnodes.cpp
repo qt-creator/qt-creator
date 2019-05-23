@@ -173,6 +173,7 @@ CMakeTargetNode::CMakeTargetNode(const Utils::FileName &directory, const QString
     setPriority(Node::DefaultProjectPriority + 900);
     setIcon(QIcon(":/projectexplorer/images/build.png")); // TODO: Use proper icon!
     setListInProject(false);
+    setIsProduct();
 }
 
 QString CMakeTargetNode::generateId(const Utils::FileName &directory, const QString &target)

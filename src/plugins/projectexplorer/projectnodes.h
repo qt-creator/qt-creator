@@ -357,8 +357,15 @@ public:
     virtual QVariant data(Core::Id role) const;
     virtual bool setData(Core::Id role, const QVariant &value) const;
 
+    bool isProduct() const { return m_isProduct; }
+
 protected:
+    void setIsProduct() { m_isProduct = true; }
+
     QString m_target;
+
+private:
+    bool m_isProduct = false;
 };
 
 class PROJECTEXPLORER_EXPORT ContainerNode : public FolderNode
