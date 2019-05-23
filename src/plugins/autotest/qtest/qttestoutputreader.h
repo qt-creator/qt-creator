@@ -91,7 +91,7 @@ private:
     QXmlStreamReader m_xmlReader;
     OutputMode m_mode = XML;
     TestType m_testType = TestType::QtTest;
-
+    bool m_expectTag = true;
 };
 
 } // namespace Internal

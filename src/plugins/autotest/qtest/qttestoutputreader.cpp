@@ -34,6 +34,8 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 
+#include <cctype>
+
 namespace Autotest {
 namespace Internal {
 
@@ -188,6 +190,15 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
     if (m_className.isEmpty() && outputLine.trimmed().isEmpty())
         return;
 
+    if (m_expectTag) {
+        for (auto ch : outputLine) {
+            if (std::isspace(ch))
+                continue;
+            if (ch != '<')
+                return;
+            break;
+        }
+    }
     m_xmlReader.addData(QString::fromUtf8(outputLine));
     while (!m_xmlReader.atEnd()) {
         if (m_futureInterface.isCanceled())
@@ -255,6 +266,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             break;
         }
         case QXmlStreamReader::Characters: {
+            m_expectTag = false;
             QStringRef text = m_xmlReader.text().trimmed();
             if (text.isEmpty())
                 break;
@@ -285,6 +297,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             break;
         }
         case QXmlStreamReader::EndElement: {
+            m_expectTag = true;
             m_cdataMode = None;
             const QStringRef currentTag = m_xmlReader.name();
             if (currentTag == QStringLiteral("TestFunction")) {
