@@ -382,7 +382,7 @@ CppTools::RawProjectParts ServerModeReader::createRawProjectParts() const
 
         CppTools::RawProjectPart rpp;
         rpp.setProjectFileLocation(fg->target->sourceDirectory.toString() + "/CMakeLists.txt");
-        rpp.setBuildSystemTarget(fg->target->name + QChar('\n') + fg->target->sourceDirectory.toString() + QChar('/'));
+        rpp.setBuildSystemTarget(CMakeTargetNode::generateId(fg->target->sourceDirectory, fg->target->name));
         rpp.setDisplayName(fg->target->name + QString::number(counter));
         rpp.setMacros(fg->macros);
         rpp.setIncludePaths(includes);
