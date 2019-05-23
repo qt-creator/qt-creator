@@ -298,9 +298,11 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return envModifier(Environment());
     });
 
+    setExecutableGetter([this] { return FileName::fromString(theExecutable()); });
+
     m_qmlViewerAspect = addAspect<BaseStringAspect>();
     m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));
-    m_qmlViewerAspect->setPlaceHolderText(executable());
+    m_qmlViewerAspect->setPlaceHolderText(executable().toString());
     m_qmlViewerAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
 
@@ -314,7 +316,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
             this, &QmlProjectRunConfiguration::updateEnabledState);
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
-
     connect(target, &Target::kitChanged,
             this, &QmlProjectRunConfiguration::updateEnabledState);
 
@@ -325,7 +326,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 Runnable QmlProjectRunConfiguration::runnable() const
 {
     Runnable r;
-    r.executable = executable();
+    r.executable = executable().toString();
     r.commandLineArguments = commandLineArguments();
     r.environment = aspect<EnvironmentAspect>()->environment();
     r.workingDirectory = static_cast<QmlProject *>(project())->targetDirectory(target()).toString();
@@ -338,7 +339,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
         return tr("No script file to execute.");
     if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-            && !QFileInfo::exists(executable())) {
+            && !executable().exists()) {
         return tr("No qmlscene found.");
     }
     if (executable().isEmpty())
@@ -346,7 +347,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
     return RunConfiguration::disabledReason();
 }
 
-QString QmlProjectRunConfiguration::executable() const
+QString QmlProjectRunConfiguration::theExecutable() const
 {
     const QString qmlViewer = m_qmlViewerAspect->value();
     if (!qmlViewer.isEmpty())

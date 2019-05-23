@@ -200,6 +200,12 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
 
     for (const AspectFactory &factory : theAspectFactories)
         m_aspects.append(factory(target));
+
+    m_executableGetter = [this] {
+        if (const auto executableAspect = aspect<ExecutableAspect>())
+            return executableAspect->executable();
+        return FileName();
+    };
 }
 
 RunConfiguration::~RunConfiguration() = default;
@@ -321,6 +327,16 @@ QVariantMap RunConfiguration::toMap() const
     return map;
 }
 
+void RunConfiguration::setExecutableGetter(const RunConfiguration::ExecutableGetter &exeGetter)
+{
+    m_executableGetter = exeGetter;
+}
+
+FileName RunConfiguration::executable() const
+{
+    return m_executableGetter();
+}
+
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
 {
     return target()->buildTarget(m_buildKey);
@@ -376,8 +392,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
 Runnable RunConfiguration::runnable() const
 {
     Runnable r;
-    if (auto executableAspect = aspect<ExecutableAspect>())
-        r.executable = executableAspect->executable().toString();
+    r.executable = executable().toString();
     if (auto argumentsAspect = aspect<ArgumentsAspect>())
         r.commandLineArguments = argumentsAspect->arguments(macroExpander());
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())

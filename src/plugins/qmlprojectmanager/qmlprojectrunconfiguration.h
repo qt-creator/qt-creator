@@ -47,7 +47,7 @@ private:
     void updateEnabledState() final;
 
     QString mainScript() const;
-    QString executable() const;
+    QString theExecutable() const;
     QString commandLineArguments() const;
 
     ProjectExplorer::BaseStringAspect *m_qmlViewerAspect;

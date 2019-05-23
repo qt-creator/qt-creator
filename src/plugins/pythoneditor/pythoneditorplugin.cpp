@@ -279,6 +279,9 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     addAspect<TerminalAspect>();
 
     setOutputFormatter<PythonOutputFormatter>();
+    setExecutableGetter([this] {
+        return FileName::fromString(aspect<InterpreterAspect>()->value());
+    });
 
     connect(target, &Target::applicationTargetsChanged,
             this, &PythonRunConfiguration::updateTargetInformation);
@@ -300,7 +303,7 @@ Runnable PythonRunConfiguration::runnable() const
     QtcProcess::addArg(&r.commandLineArguments, mainScript());
     QtcProcess::addArgs(&r.commandLineArguments,
                         aspect<ArgumentsAspect>()->arguments(macroExpander()));
-    r.executable = aspect<InterpreterAspect>()->value();
+    r.executable = executable().toString();
     r.environment = aspect<EnvironmentAspect>()->environment();
     return r;
 }

@@ -1614,14 +1614,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tr("The currently active run configuration's executable (if applicable)."),
         []() -> QString {
             if (Target *target = activeTarget()) {
-                if (RunConfiguration *rc = target->activeRunConfiguration()) {
-                    // TODO: This duplicates code and is not always correct, but see
-                    // QTCREATORBUG-18317.
-                    // Solution: Re-introduce RunConfiguration::executable()?
-                    if (auto executableAspect = rc->aspect<ExecutableAspect>())
-                        return executableAspect->executable().toString();
-                    return QString();
-                }
+                if (RunConfiguration *rc = target->activeRunConfiguration())
+                    return rc->executable().toString();
             }
             return QString();
         });

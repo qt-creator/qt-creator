@@ -160,6 +160,10 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
+    using ExecutableGetter = std::function<Utils::FileName()>;
+    void setExecutableGetter(const ExecutableGetter &exeGetter);
+    Utils::FileName executable() const;
+
     virtual Runnable runnable() const;
 
     // Return a handle to the build system target that created this run configuration.
@@ -210,6 +214,7 @@ private:
     QString m_buildKey;
     bool m_isEnabled = false;
     std::function<Utils::OutputFormatter *(Project *)> m_outputFormatterCreator;
+    ExecutableGetter m_executableGetter;
 };
 
 class RunConfigurationCreationInfo

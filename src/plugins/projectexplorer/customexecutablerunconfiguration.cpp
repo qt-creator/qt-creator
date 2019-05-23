@@ -256,7 +256,7 @@ Runnable CustomExecutableRunConfiguration::runnable() const
             aspect<WorkingDirectoryAspect>()->workingDirectory(macroExpander());
 
     Runnable r;
-    r.executable = aspect<ExecutableAspect>()->executable().toString();
+    r.executable = executable().toString();
     r.commandLineArguments = aspect<ArgumentsAspect>()->arguments(macroExpander());
     r.environment = aspect<EnvironmentAspect>()->environment();
     r.workingDirectory = workingDirectory.toString();
