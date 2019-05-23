@@ -413,13 +413,13 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
     });
 
     connect(this, &CompilationDatabaseProject::rootProjectDirectoryChanged,
-            m_parseDelay, qOverload<>(&QTimer::start));
+            m_parseDelay, QOverload<>::of(&QTimer::start));
 
     m_fileSystemWatcher.addFile(projectFile.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
     m_fileSystemWatcher.addFile(projectFile.toString() + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX,
                                 Utils::FileSystemWatcher::WatchModifiedDate);
     connect(&m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
-            m_parseDelay, qOverload<>(&QTimer::start));
+            m_parseDelay, QOverload<>::of(&QTimer::start));
     connect(m_parseDelay, &QTimer::timeout, this, &CompilationDatabaseProject::reparseProject);
     m_parseDelay->setSingleShot(true);
     m_parseDelay->setInterval(1000);
