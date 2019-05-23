@@ -42,4 +42,26 @@ if (APPLE)
   set_target_properties(qtcreator PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/app-Info.plist"
   )
+  # icon
+  add_custom_command(
+    OUTPUT qtcreator.icns qtcreator-project.icns
+    COMMAND
+      xcrun actool --app-icon qtcreator --output-partial-info-plist "${CMAKE_CURRENT_BINARY_DIR}/qtcreator.Info.plist"
+      --platform macosx --minimum-deployment-target 10.7 --compile "${CMAKE_CURRENT_BINARY_DIR}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/qtcreator.xcassets"
+      > /dev/null
+    BYPRODUCTS qtcreator.Info.plist
+    VERBATIM
+  )
+  target_sources(qtcreator
+    PRIVATE
+      "${CMAKE_CURRENT_BINARY_DIR}/qtcreator.icns"
+      "${CMAKE_CURRENT_BINARY_DIR}/qtcreator-project.icns"
+  )
+  set_source_files_properties(
+    "${CMAKE_CURRENT_BINARY_DIR}/qtcreator.icns"
+    "${CMAKE_CURRENT_BINARY_DIR}/qtcreator-project.icns"
+    PROPERTIES
+      MACOSX_PACKAGE_LOCATION "Resources"
+  )
 endif()
