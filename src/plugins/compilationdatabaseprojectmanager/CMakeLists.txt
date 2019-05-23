@@ -7,6 +7,7 @@ add_qtc_plugin(CompilationDatabaseProjectManager
     compilationdatabaseprojectmanagerplugin.cpp compilationdatabaseprojectmanagerplugin.h
     compilationdatabasetests.qrc
     compilationdatabaseutils.cpp compilationdatabaseutils.h
+    compilationdbparser.cpp compilationdbparser.h
 )
 
 extend_qtc_plugin(CompilationDatabaseProjectManager
