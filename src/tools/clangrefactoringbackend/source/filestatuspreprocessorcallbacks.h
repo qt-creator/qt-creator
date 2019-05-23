@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -26,29 +26,34 @@
 #pragma once
 
 #include "filestatus.h"
-#include "symbolentry.h"
-#include "sourcedependency.h"
-#include "sourcelocationentry.h"
-#include "usedmacro.h"
+#include "symbolsvisitorbase.h"
 
-#include <processorinterface.h>
+#include <filepathid.h>
 
-#include <utils/smallstringvector.h>
-
-#include <string>
-#include <vector>
+#include <clang/Lex/PPCallbacks.h>
 
 namespace ClangBackEnd {
 
-class SymbolsCollectorInterface : public ProcessorInterface
+class FileStatusPreprocessorCallbacks final : public clang::PPCallbacks, public SymbolsVisitorBase
 {
 public:
-    virtual void setFile(FilePathId filePathId, const Utils::SmallStringVector &arguments) = 0;
-    virtual bool collectSymbols() = 0;
+    FileStatusPreprocessorCallbacks(FileStatuses &fileStatuses,
+                                    const FilePathCachingInterface &filePathCache,
+                                    const clang::SourceManager *sourceManager,
+                                    FilePathIds &filePathIndices)
+        : SymbolsVisitorBase(filePathCache, sourceManager, filePathIndices)
+        , m_fileStatuses(fileStatuses)
+    {}
 
-    virtual const SymbolEntries &symbols() const = 0;
-    virtual const SourceLocationEntries &sourceLocations() const = 0;
-    virtual const FileStatuses &fileStatuses() const = 0;
+    void FileChanged(clang::SourceLocation sourceLocation,
+                     clang::PPCallbacks::FileChangeReason reason,
+                     clang::SrcMgr::CharacteristicKind,
+                     clang::FileID) override;
+
+    void addFileStatus(const clang::FileEntry *fileEntry);
+
+private:
+    FileStatuses &m_fileStatuses;
 };
 
 } // namespace ClangBackEnd

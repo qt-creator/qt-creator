@@ -24,11 +24,13 @@
 ****************************************************************************/
 
 #include "indexdataconsumer.h"
+#include "collectsymbolsaction.h"
+#include "filestatuspreprocessorcallbacks.h"
 
+#include <clang/AST/DeclVisitor.h>
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Index/IndexSymbol.h>
-#include <clang/AST/Decl.h>
-#include <clang/AST/DeclVisitor.h>
+#include <clang/Index/IndexingAction.h>
 
 #include <llvm/ADT/ArrayRef.h>
 
@@ -115,33 +117,41 @@ bool isReference(clang::index::SymbolRoleSet symbolRoles)
     return symbolRoles & (uint(SymbolRole::Reference) | uint(SymbolRole::Call));
 }
 
-}
+} // namespace
 
 bool IndexDataConsumer::skipSymbol(clang::FileID fileId, clang::index::SymbolRoleSet symbolRoles)
 {
-    bool alreadyParsed = isAlreadyParsed(fileId);
-    bool isParsedDeclaration = alreadyParsed && isDeclaration(symbolRoles);
-    bool isParsedReference = alreadyParsed && !dependentFilesAreModified() && isReference(symbolRoles);
-
-    return isParsedDeclaration || isParsedReference;
+    return isAlreadyParsed(fileId, m_symbolSourcesManager)
+           && !m_symbolSourcesManager.dependentFilesModified();
 }
 
-bool IndexDataConsumer::handleDeclOccurence(
-    const clang::Decl *declaration,
-    clang::index::SymbolRoleSet symbolRoles,
-    llvm::ArrayRef<clang::index::SymbolRelation> /*symbolRelations*/,
-    clang::SourceLocation sourceLocation,
-    IndexDataConsumer::ASTNodeInfo /*astNodeInfo*/)
+bool IndexDataConsumer::isAlreadyParsed(clang::FileID fileId, SourcesManager &sourcesManager)
+{
+    const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(fileId);
+    if (!fileEntry)
+        return false;
+    return sourcesManager.alreadyParsed(filePathId(fileEntry), fileEntry->getModificationTime());
+}
+
+void IndexDataConsumer::setPreprocessor(std::shared_ptr<clang::Preprocessor> preprocessor)
+{
+    preprocessor->addPPCallbacks(std::make_unique<FileStatusPreprocessorCallbacks>(
+        m_fileStatuses, m_filePathCache, m_sourceManager, m_filePathIndices));
+}
+
+bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,
+                                            clang::index::SymbolRoleSet symbolRoles,
+                                            llvm::ArrayRef<clang::index::SymbolRelation> /*symbolRelations*/,
+                                            clang::SourceLocation sourceLocation,
+                                            IndexDataConsumer::ASTNodeInfo /*astNodeInfo*/)
 {
     const auto *namedDeclaration = clang::dyn_cast<clang::NamedDecl>(declaration);
     if (namedDeclaration) {
         if (!namedDeclaration->getIdentifier())
             return true;
 
-        if (skipSymbol(m_sourceManager->getFileID(sourceLocation), symbolRoles)) {
-            namedDeclaration->getDeclName().dump();
+        if (skipSymbol(m_sourceManager->getFileID(sourceLocation), symbolRoles))
             return true;
-        }
 
         SymbolIndex globalId = toSymbolIndex(declaration->getCanonicalDecl());
 
@@ -166,6 +176,66 @@ bool IndexDataConsumer::handleDeclOccurence(
     }
 
     return true;
+}
+
+namespace {
+
+SourceLocationKind macroSymbolType(clang::index::SymbolRoleSet roles)
+{
+    if (roles & static_cast<clang::index::SymbolRoleSet>(clang::index::SymbolRole::Definition))
+        return SourceLocationKind::MacroDefinition;
+
+    if (roles & static_cast<clang::index::SymbolRoleSet>(clang::index::SymbolRole::Undefinition))
+        return SourceLocationKind::MacroUndefinition;
+
+    if (roles & static_cast<clang::index::SymbolRoleSet>(clang::index::SymbolRole::Reference))
+        return SourceLocationKind::MacroUsage;
+
+    return SourceLocationKind::None;
+}
+
+} // namespace
+
+bool IndexDataConsumer::handleMacroOccurence(const clang::IdentifierInfo *identifierInfo,
+                                             const clang::MacroInfo *macroInfo,
+                                             clang::index::SymbolRoleSet roles,
+                                             clang::SourceLocation sourceLocation)
+{
+    if (macroInfo && sourceLocation.isFileID()
+        && !isAlreadyParsed(m_sourceManager->getFileID(sourceLocation), m_macroSourcesManager)
+        && !isInSystemHeader(sourceLocation)) {
+        FilePathId fileId = filePathId(sourceLocation);
+        if (fileId.isValid()) {
+            auto macroName = identifierInfo->getName();
+            SymbolIndex globalId = toSymbolIndex(macroInfo);
+
+            auto found = m_symbolEntries.find(globalId);
+            if (found == m_symbolEntries.end()) {
+                Utils::optional<Utils::PathString> usr = generateUSR(macroName, sourceLocation);
+                if (usr) {
+                    m_symbolEntries.emplace(std::piecewise_construct,
+                                            std::forward_as_tuple(globalId),
+                                            std::forward_as_tuple(std::move(*usr),
+                                                                  macroName,
+                                                                  SymbolKind::Macro));
+                }
+            }
+
+            m_sourceLocationEntries.emplace_back(globalId,
+                                                 fileId,
+                                                 lineColum(sourceLocation),
+                                                 macroSymbolType(roles));
+        }
+    }
+
+    return true;
+}
+
+void IndexDataConsumer::finish()
+{
+    m_macroSourcesManager.updateModifiedTimeStamps();
+    m_symbolSourcesManager.updateModifiedTimeStamps();
+    m_filePathIndices.clear();
 }
 
 } // namespace ClangBackEnd

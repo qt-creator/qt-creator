@@ -39,13 +39,11 @@ class CollectUsedMacrosToolActionFactory final : public clang::tooling::Frontend
 public:
     CollectUsedMacrosToolActionFactory(UsedMacros &usedMacros,
                                        FilePathCachingInterface &filePathCache,
-                                       SourcesManager &sourcesManager,
                                        SourceDependencies &sourceDependencies,
                                        FilePathIds &sourceFiles,
                                        FileStatuses &fileStatuses)
         : m_usedMacros(usedMacros),
           m_filePathCache(filePathCache),
-          m_sourcesManager(sourcesManager),
           m_sourceDependencies(sourceDependencies),
           m_sourceFiles(sourceFiles),
           m_fileStatuses(fileStatuses)
@@ -67,7 +65,6 @@ public:
     {
         return new CollectUsedMacrosAction(m_usedMacros,
                                            m_filePathCache,
-                                           m_sourcesManager,
                                            m_sourceDependencies,
                                            m_sourceFiles,
                                            m_fileStatuses);
@@ -76,7 +73,6 @@ public:
 private:
     UsedMacros &m_usedMacros;
     FilePathCachingInterface &m_filePathCache;
-    SourcesManager &m_sourcesManager;
     SourceDependencies &m_sourceDependencies;
     FilePathIds &m_sourceFiles;
     FileStatuses &m_fileStatuses;

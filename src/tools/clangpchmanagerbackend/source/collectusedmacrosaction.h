@@ -41,13 +41,11 @@ class CollectUsedMacrosAction final : public clang::PreprocessOnlyAction
 public:
     CollectUsedMacrosAction(UsedMacros &usedMacros,
                             FilePathCachingInterface &filePathCache,
-                            SourcesManager &sourcesManager,
                             SourceDependencies &sourceDependencies,
                             FilePathIds &sourceFiles,
                             FileStatuses &fileStatuses)
         : m_usedMacros(usedMacros),
           m_filePathCache(filePathCache),
-          m_sourcesManager(sourcesManager),
           m_sourceDependencies(sourceDependencies),
           m_sourceFiles(sourceFiles),
           m_fileStatuses(fileStatuses)
@@ -65,7 +63,6 @@ public:
                       m_usedMacros,
                       m_filePathCache,
                       compilerInstance.getSourceManager(),
-                      m_sourcesManager,
                       compilerInstance.getPreprocessorPtr(),
                       m_sourceDependencies,
                       m_sourceFiles,
@@ -87,7 +84,6 @@ public:
 private:
     UsedMacros &m_usedMacros;
     FilePathCachingInterface &m_filePathCache;
-    SourcesManager &m_sourcesManager;
     SourceDependencies &m_sourceDependencies;
     FilePathIds &m_sourceFiles;
     FileStatuses &m_fileStatuses;

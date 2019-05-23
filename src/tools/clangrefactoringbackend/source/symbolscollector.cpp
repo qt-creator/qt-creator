@@ -32,10 +32,14 @@
 namespace ClangBackEnd {
 
 SymbolsCollector::SymbolsCollector(Sqlite::Database &database)
-    : m_filePathCache(database),
-      m_indexDataConsumer(std::make_shared<IndexDataConsumer>(m_symbolEntries, m_sourceLocationEntries, m_filePathCache, m_sourcesManager)),
-      m_collectSymbolsAction(m_indexDataConsumer),
-      m_collectMacrosSourceFileCallbacks(m_symbolEntries, m_sourceLocationEntries, m_filePathCache, m_sourcesManager)
+    : m_filePathCache(database)
+    , m_indexDataConsumer(std::make_shared<IndexDataConsumer>(m_symbolEntries,
+                                                              m_sourceLocationEntries,
+                                                              m_fileStatuses,
+                                                              m_filePathCache,
+                                                              m_symbolSourcesManager,
+                                                              m_macroSourcesManager))
+    , m_collectSymbolsAction(m_indexDataConsumer)
 {
 }
 
@@ -43,7 +47,6 @@ void SymbolsCollector::addFiles(const FilePathIds &filePathIds,
                                 const Utils::SmallStringVector &arguments)
 {
     m_clangTool.addFiles(m_filePathCache.filePaths(filePathIds), arguments);
-    m_collectMacrosSourceFileCallbacks.addSourceFiles(filePathIds);
 }
 
 void SymbolsCollector::setFile(FilePathId filePathId, const Utils::SmallStringVector &arguments)
@@ -58,90 +61,73 @@ void SymbolsCollector::setUnsavedFiles(const V2::FileContainers &unsavedFiles)
 
 void SymbolsCollector::clear()
 {
-    m_indexDataConsumer->clear();
-    m_collectMacrosSourceFileCallbacks.clear();
     m_symbolEntries.clear();
     m_sourceLocationEntries.clear();
+    m_fileStatuses.clear();
     m_clangTool = ClangTool();
 }
 
-template <typename Factory>
-std::unique_ptr<clang::tooling::FrontendActionFactory>
-newFrontendActionFactory(Factory *consumerFactory,
-                         clang::tooling::SourceFileCallbacks *sourceFileCallbacks)
+std::unique_ptr<clang::tooling::FrontendActionFactory> newFrontendActionFactory(CollectSymbolsAction *action)
 {
     class FrontendActionFactoryAdapter : public clang::tooling::FrontendActionFactory
     {
     public:
-        explicit FrontendActionFactoryAdapter(Factory *consumerFactory,
-                                              clang::tooling::SourceFileCallbacks *sourceFileCallbacks)
-            : m_consumerFactory(consumerFactory),
-              m_sourceFileCallbacks(sourceFileCallbacks)
+        explicit FrontendActionFactoryAdapter(CollectSymbolsAction *consumerFactory)
+            : m_action(consumerFactory)
         {}
 
-        clang::FrontendAction *create() override {
-            return new ConsumerFactoryAdaptor(m_consumerFactory, m_sourceFileCallbacks);
-        }
+        clang::FrontendAction *create() override { return new AdaptorAction(m_action); }
 
     private:
-        class ConsumerFactoryAdaptor : public clang::ASTFrontendAction {
+        class AdaptorAction : public clang::ASTFrontendAction
+        {
         public:
-            ConsumerFactoryAdaptor(Factory *consumerFactory,
-                                   clang::tooling::SourceFileCallbacks *sourceFileCallbacks)
-                : m_consumerFactory(consumerFactory),
-                  m_sourceFileCallbacks(sourceFileCallbacks)
+            AdaptorAction(CollectSymbolsAction *action)
+                : m_action(action)
             {}
 
             std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &instance,
                                                                   llvm::StringRef inFile) override
             {
-                return m_consumerFactory->newASTConsumer(instance, inFile);
+                return m_action->newASTConsumer(instance, inFile);
             }
 
-        protected:
-            bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
+            bool BeginInvocation(clang::CompilerInstance &instance) override
             {
-                compilerInstance.getPreprocessorOpts().AllowPCHWithCompilerErrors = true;
-
-                return clang::ASTFrontendAction::BeginInvocation(compilerInstance);
+                return m_action->BeginInvocation(instance);
             }
-
-            bool BeginSourceFileAction(clang::CompilerInstance &compilerInstance) override
+            bool BeginSourceFileAction(clang::CompilerInstance &instance) override
             {
-                compilerInstance.getPreprocessor().SetSuppressIncludeNotFoundError(true);
-
-                if (!clang::ASTFrontendAction::BeginSourceFileAction(compilerInstance))
-                    return false;
-                if (m_sourceFileCallbacks)
-                    return m_sourceFileCallbacks->handleBeginSource(compilerInstance);
-                return true;
+                return m_action->BeginSourceFileAction(instance);
             }
 
-            void EndSourceFileAction() override
+            bool PrepareToExecuteAction(clang::CompilerInstance &instance) override
             {
-                if (m_sourceFileCallbacks)
-                    m_sourceFileCallbacks->handleEndSource();
-                clang::ASTFrontendAction::EndSourceFileAction();
+                return m_action->PrepareToExecuteAction(instance);
             }
+            void ExecuteAction() override { m_action->ExecuteAction(); }
+            void EndSourceFileAction() override { m_action->EndSourceFileAction(); }
+
+            bool hasPCHSupport() const override { return m_action->hasPCHSupport(); }
+            bool hasASTFileSupport() const override { return m_action->hasASTFileSupport(); }
+            bool hasIRSupport() const override { return false; }
+            bool hasCodeCompletionSupport() const override { return false; }
 
         private:
-            Factory *m_consumerFactory;
-            clang::tooling::SourceFileCallbacks *m_sourceFileCallbacks;
+            CollectSymbolsAction *m_action;
         };
-        Factory *m_consumerFactory;
-        clang::tooling::SourceFileCallbacks *m_sourceFileCallbacks;
+        CollectSymbolsAction *m_action;
     };
 
-  return std::unique_ptr<clang::tooling::FrontendActionFactory>(
-      new FrontendActionFactoryAdapter(consumerFactory, sourceFileCallbacks));
+    return std::unique_ptr<clang::tooling::FrontendActionFactory>(
+        new FrontendActionFactoryAdapter(action));
 }
 
 bool SymbolsCollector::collectSymbols()
 {
     auto tool = m_clangTool.createTool();
 
-    auto actionFactory = ClangBackEnd::newFrontendActionFactory(&m_collectSymbolsAction,
-                                                                &m_collectMacrosSourceFileCallbacks);
+    auto actionFactory = ClangBackEnd::newFrontendActionFactory(&m_collectSymbolsAction);
 
     return tool.run(actionFactory.get()) != 1;
 }
@@ -160,24 +146,9 @@ const SourceLocationEntries &SymbolsCollector::sourceLocations() const
     return m_sourceLocationEntries;
 }
 
-const FilePathIds &SymbolsCollector::sourceFiles() const
-{
-    return m_collectMacrosSourceFileCallbacks.sourceFiles();
-}
-
-const UsedMacros &SymbolsCollector::usedMacros() const
-{
-    return m_collectMacrosSourceFileCallbacks.usedMacros();
-}
-
 const FileStatuses &SymbolsCollector::fileStatuses() const
 {
-    return m_collectMacrosSourceFileCallbacks.fileStatuses();
-}
-
-const SourceDependencies &SymbolsCollector::sourceDependencies() const
-{
-    return m_collectMacrosSourceFileCallbacks.sourceDependencies();
+    return m_fileStatuses;
 }
 
 bool SymbolsCollector::isUsed() const

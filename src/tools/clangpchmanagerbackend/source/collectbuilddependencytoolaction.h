@@ -38,13 +38,11 @@ class CollectBuildDependencyToolAction final : public clang::tooling::FrontendAc
 {
 public:
     CollectBuildDependencyToolAction(BuildDependency &buildDependency,
-                              const FilePathCachingInterface &filePathCache,
-                              const ClangBackEnd::FilePaths &excludedIncludes,
-                              SourcesManager &sourcesManager)
-        : m_buildDependency(buildDependency),
-          m_filePathCache(filePathCache),
-          m_excludedFilePaths(excludedIncludes),
-          m_sourcesManager(sourcesManager)
+                                     const FilePathCachingInterface &filePathCache,
+                                     const ClangBackEnd::FilePaths &excludedIncludes)
+        : m_buildDependency(buildDependency)
+        , m_filePathCache(filePathCache)
+        , m_excludedFilePaths(excludedIncludes)
     {}
 
 
@@ -67,8 +65,7 @@ public:
         return new CollectBuildDependencyAction(m_buildDependency,
                                                 m_filePathCache,
                                                 m_excludedIncludeUIDs,
-                                                m_alreadyIncludedFileUIDs,
-                                                m_sourcesManager);
+                                                m_alreadyIncludedFileUIDs);
     }
 
     std::vector<uint> generateExcludedIncludeFileUIDs(clang::FileManager &fileManager) const
@@ -95,7 +92,6 @@ private:
     BuildDependency &m_buildDependency;
     const FilePathCachingInterface &m_filePathCache;
     const ClangBackEnd::FilePaths &m_excludedFilePaths;
-    SourcesManager &m_sourcesManager;
 };
 
 } // namespace ClangBackEnd

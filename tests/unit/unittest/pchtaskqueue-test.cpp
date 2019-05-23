@@ -331,22 +331,6 @@ TEST_F(PchTaskQueue, DeleteProjectPchEntryInDatabaseIfNoPchIsGenerated)
     tasks.front()(mockPchCreator);
 }
 
-TEST_F(PchTaskQueue, DeleteProjectPchEntryInDatabaseIfTasksHasNoIncludes)
-{
-    InSequence s;
-    MockPchCreator mockPchCreator;
-    ClangBackEnd::ProjectPartPch projectPartPch{{}, "", 0};
-    projectTask1.includes = {};
-    auto tasks = queue.createProjectTasks({projectTask1});
-
-    EXPECT_CALL(mockPrecompiledHeaderStorage, fetchSystemPrecompiledHeaderPath(_)).Times(0);
-    EXPECT_CALL(mockPchCreator, generatePch(_)).Times(0);
-    EXPECT_CALL(mockPchCreator, projectPartPch()).Times(0);
-    EXPECT_CALL(mockPrecompiledHeaderStorage, deleteProjectPrecompiledHeader(Eq(1)));
-
-    tasks.front()(mockPchCreator);
-}
-
 TEST_F(PchTaskQueue, CreateSystemTasksSizeEqualsInputSize)
 {
     auto tasks = queue.createSystemTasks({systemTask1, systemTask2});
@@ -388,19 +372,4 @@ TEST_F(PchTaskQueue, DeleteSystemPchEntryInDatabaseIfNoPchIsGenerated)
     tasks.front()(mockPchCreator);
 }
 
-TEST_F(PchTaskQueue, DeleteSystemPchEntryInDatabaseIfTasksHasNoIncludes)
-{
-    InSequence s;
-    MockPchCreator mockPchCreator;
-    ClangBackEnd::ProjectPartPch projectPartPch{{}, "", 0};
-    systemTask4.includes = {};
-    auto tasks = queue.createSystemTasks({systemTask4});
-
-    EXPECT_CALL(mockPchCreator, generatePch(_)).Times(0);
-    EXPECT_CALL(mockPchCreator, projectPartPch()).Times(0);
-    EXPECT_CALL(mockPrecompiledHeaderStorage,
-                deleteSystemPrecompiledHeaders(UnorderedElementsAre(1, 3)));
-
-    tasks.front()(mockPchCreator);
-}
 } // namespace

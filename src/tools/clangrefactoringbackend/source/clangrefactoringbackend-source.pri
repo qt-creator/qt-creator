@@ -2,6 +2,7 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/clangrefactoringbackend_global.h \
+    $$PWD/filestatuspreprocessorcallbacks.h \
     $$PWD/sourcerangefilter.h \
     $$PWD/symbolindexer.h \
     $$PWD/symbolentry.h \
@@ -64,6 +65,7 @@ HEADERS += \
 }
 
 SOURCES += \
+    $$PWD/filestatuspreprocessorcallbacks.cpp \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolindexer.cpp \
     $$PWD/filestatuscache.cpp

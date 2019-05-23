@@ -48,7 +48,6 @@ void UsedMacroAndSourcesCollector::collect()
     auto action = std::make_unique<CollectUsedMacrosToolActionFactory>(
                 m_usedMacros,
                 m_filePathCache,
-                m_sourcesManager,
                 m_sourceDependencies,
                 m_sourceFiles,
                 m_fileStatuses);

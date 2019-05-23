@@ -74,7 +74,6 @@ public:
 
 private:
     ClangTool m_clangTool;
-    SourcesManager m_sourcesManager;
     UsedMacros m_usedMacros;
     FilePathCachingInterface &m_filePathCache;
     FilePathIds m_sourceFiles;
