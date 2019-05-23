@@ -235,7 +235,11 @@ function(add_qtc_plugin target_name)
   endif()
 
   string(TOUPPER "BUILD_PLUGIN_${target_name}" _build_plugin_var)
-  set(${_build_plugin_var} "ON" CACHE BOOL "Build plugin ${name}.")
+  set(_build_plugin_default "ON")
+  if (DEFINED ENV{QTC_${_build_plugin_var}})
+    set(_build_plugin_default "$ENV{QTC_${_build_plugin_var}}")
+  endif()
+  set(${_build_plugin_var} "${_build_plugin_default}" CACHE BOOL "Build plugin ${name}.")
 
   if ((${_arg_CONDITION}) AND ${_build_plugin_var})
     set(_plugin_enabled ON)
