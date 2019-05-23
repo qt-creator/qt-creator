@@ -550,7 +550,7 @@ void ToolChainOptionsWidget::updateState()
     if (ToolChainTreeItem *item = currentTreeItem()) {
         ToolChain *tc = item->toolChain;
         canCopy = tc->isValid();
-        canDelete = tc->detection() != ToolChain::AutoDetection;
+        canDelete = tc->detection() != ToolChain::AutoDetectionFromSdk;
     }
 
     m_cloneButton->setEnabled(canCopy);
