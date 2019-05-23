@@ -7,4 +7,6 @@ add_qtc_plugin(StudioWelcome
     studiowelcome_global.h
     studiowelcome.qrc
     "${PROJECT_SOURCE_DIR}/src/share/3rdparty/studiofonts/studiofonts.qrc"
+  EXTRA_TRANSLATIONS
+    qml
 )

@@ -28,6 +28,8 @@ add_qtc_plugin(QmlDesigner
     components/propertyeditor/propertyeditorvalue.h
     components/connectioneditor/connectionviewwidget.h
   SKIP_DEBUG_CMAKE_FILE_CHECK
+  EXTRA_TRANSLATIONS
+    "${PROJECT_SOURCE_DIR}/share/qtcreator/qmldesigner"
 )
 
 set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")

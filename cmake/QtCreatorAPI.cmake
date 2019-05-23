@@ -94,6 +94,22 @@ set(__QTC_TESTS "" CACHE INTERNAL "*** Internal ***")
 # Internal functions
 #
 
+function(append_extra_translations target_name)
+  if(NOT ARGN)
+    return()
+  endif()
+
+  if(TARGET "${target_name}")
+    get_target_property(_input "${target_name}" QT_EXTRA_TRANSLATIONS)
+    if (_input)
+      set(_output "${_input}" "${ARGN}")
+    else()
+      set(_output "${ARGN}")
+    endif()
+    set_target_properties("${target_name}" PROPERTIES QT_EXTRA_TRANSLATIONS "${_output}")
+  endif()
+endfunction()
+
 function(update_cached_list name value)
   set(_tmp_list "${${name}}")
   list(APPEND _tmp_list "${value}")
@@ -321,8 +337,8 @@ endfunction()
 #
 
 function(add_qtc_library name)
-  cmake_parse_arguments(_arg "STATIC;OBJECT" ""
-    "DEFINES;DEPENDS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
+  cmake_parse_arguments(_arg "STATIC;OBJECT;SKIP_TRANSLATION" ""
+    "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;PUBLIC_DEFINES;PUBLIC_DEPENDS;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;PROPERTIES" ${ARGN}
   )
 
   if (${_arg_UNPARSED_ARGUMENTS})
@@ -384,6 +400,11 @@ function(add_qtc_library name)
     set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
   endforeach()
 
+  set(skip_translation OFF)
+  if (_arg_SKIP_TRANSLATION)
+    set(skip_translation ON)
+  endif()
+
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${name} PROPERTIES
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -426,13 +447,15 @@ function(add_qtc_library name)
         COMPONENT Devel EXCLUDE_FROM_ALL
     )
   endif()
+
+  append_extra_translations("${name}" "${_arg_EXTRA_TRANSLATIONS}")
 endfunction(add_qtc_library)
 
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
-    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY"
+    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;SOURCES;EXPLICIT_MOC"
+    "CONDITION;DEPENDS;EXTRA_TRANSLATIONS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;SOURCES;EXPLICIT_MOC"
     ${ARGN}
   )
 
@@ -585,6 +608,11 @@ function(add_qtc_plugin target_name)
     set(plugin_dir "${_arg_PLUGIN_PATH}")
   endif()
 
+  set(skip_translation OFF)
+  if (_arg_SKIP_TRANSLATION)
+    set(skip_translation ON)
+  endif()
+
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${target_name} PROPERTIES
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -598,8 +626,10 @@ function(add_qtc_plugin target_name)
     ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${plugin_dir}"
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${plugin_dir}"
     OUTPUT_NAME "${name}"
+    QT_SKIP_TRANSLATION "${skip_translation}"
     ${_arg_PROPERTIES}
   )
+  append_extra_translations("${target_name}" "${_arg_EXTRA_TRANSLATIONS}")
   enable_pch(${target_name})
 
   foreach(file IN LISTS _arg_EXPLICIT_MOC)
@@ -693,7 +723,9 @@ function(extend_qtc_plugin target_name)
 endfunction()
 
 function(add_qtc_executable name)
-  cmake_parse_arguments(_arg "SKIP_INSTALL" "DESTINATION" "DEFINES;DEPENDS;INCLUDES;SOURCES;PROPERTIES" ${ARGN})
+  cmake_parse_arguments(_arg "SKIP_INSTALL;SKIP_TRANSLATION"
+    "DESTINATION"
+    "DEFINES;DEPENDS;EXTRA_TRANSLATIONS;INCLUDES;SOURCES;PROPERTIES" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
@@ -736,13 +768,21 @@ function(add_qtc_executable name)
   target_include_directories("${name}" PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
   target_compile_definitions("${name}" PRIVATE ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES})
   target_link_libraries("${name}" PRIVATE ${_arg_DEPENDS} ${_TEST_DEPENDS})
+
+  set(skip_translation OFF)
+  if (_arg_SKIP_TRANSLATION)
+    set(skip_translation ON)
+  endif()
+
   qtc_output_binary_dir(_output_binary_dir)
   set_target_properties("${name}" PROPERTIES
     BUILD_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
     INSTALL_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
+    QT_SKIP_TRANSLATION "${skip_translation}"
     ${_arg_PROPERTIES}
   )
+  append_extra_translations("${name}" "${_arg_EXTRA_TRANSLATIONS}")
   enable_pch(${name})
 
   if (NOT _arg_SKIP_INSTALL)
@@ -790,6 +830,9 @@ function(add_qtc_test name)
     add_test(NAME ${name} COMMAND ${name})
     fix_test_environment(${name})
   endif()
+
+  # Never translate tests:
+  set_tests_properties(${name} PROPERTIES QT_SKIP_TRANSLATION ON)
 endfunction()
 
 function(finalize_qtc_gtest test_name)

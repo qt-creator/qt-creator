@@ -35,8 +35,8 @@ if (WITH_TESTS)
 endif()
 
 find_package(Qt5
-  COMPONENTS Concurrent Core Network PrintSupport Qml Quick QuickWidgets
-    Sql Widgets ${_TEST_QT_COMPONENT}
+  COMPONENTS Concurrent Core LinguistTools Network PrintSupport Qml Quick
+    QuickWidgets Sql Widgets ${_TEST_QT_COMPONENT}
   REQUIRED
 )
 
