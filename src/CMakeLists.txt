@@ -106,13 +106,7 @@ function(add_qtc_library name)
     set(library_type OBJECT)
   endif()
 
-  separate_object_libraries("${_arg_DEPENDS}"
-    depends object_lib_depends object_lib_depends_objects)
-  separate_object_libraries("${_arg_PUBLIC_DEPENDS}"
-    public_depends object_public_depends object_public_depends_objects)
-
-  add_library(${name} ${library_type} ${_arg_SOURCES}
-    ${object_lib_depends_objects} ${object_public_depends_objects})
+  add_library(${name} ${library_type} ${_arg_SOURCES})
 
   if (${name} MATCHES "^[^0-9]+")
     string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
@@ -122,38 +116,19 @@ function(add_qtc_library name)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
-  if (NOT (${library_type} STREQUAL "OBJECT" AND CMAKE_VERSION VERSION_LESS 3.14))
-    target_link_libraries(${name}
-      PRIVATE ${depends} ${_TEST_DEPENDS}
-      PUBLIC ${public_depends}
-    )
-  else()
-    foreach(list depends public_depends)
-      foreach(lib IN LISTS ${list})
-        if (TARGET ${lib})
-          target_compile_definitions(${name} PUBLIC $<TARGET_PROPERTY:${lib},INTERFACE_COMPILE_DEFINITIONS>)
-          target_include_directories(${name} PUBLIC $<TARGET_PROPERTY:${lib},INTERFACE_INCLUDE_DIRECTORIES>)
-        endif()
-      endforeach()
-    endforeach()
-  endif()
-
   target_include_directories(${name}
     PRIVATE ${_arg_INCLUDES}
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/.." ${_arg_PUBLIC_INCLUDES}
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/.." ${_arg_PUBLIC_INCLUDES}
   )
   target_compile_definitions(${name}
     PRIVATE ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
     PUBLIC ${_arg_PUBLIC_DEFINES}
   )
-  foreach(obj_lib IN LISTS object_lib_depends)
-    target_compile_definitions(${name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
-    target_include_directories(${name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
-  endforeach()
-  foreach(obj_lib IN LISTS object_public_depends)
-    target_compile_definitions(${name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
-    target_include_directories(${name} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
-  endforeach()
+
+  add_qtc_depends(${name}
+    PRIVATE ${_arg_DEPENDS} ${_TEST_DEPENDS}
+    PUBLIC ${_arg_PUBLIC_DEPENDS}
+  )
 
   foreach(file IN LISTS _arg_EXPLICIT_MOC)
     set_explicit_moc(${name} "${file}")
@@ -323,7 +298,7 @@ function(add_qtc_plugin target_name)
   target_include_directories(${target_name}
     PRIVATE ${_arg_INCLUDES} "${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}"
       "${CMAKE_BINARY_DIR}/src"
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/.." ${_arg_PUBLIC_INCLUDES}
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/.." ${_arg_PUBLIC_INCLUDES}
   )
   target_compile_definitions(${target_name}
     PRIVATE ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
@@ -364,7 +339,7 @@ function(add_qtc_plugin target_name)
   )
 endfunction()
 
-function(extend_qtc_plugin target_name)
+function(extend_qtc_target target_name)
   cmake_parse_arguments(_arg
     ""
     "SOURCES_PREFIX"
@@ -373,14 +348,13 @@ function(extend_qtc_plugin target_name)
   )
 
   if (${_arg_UNPARSED_ARGUMENTS})
-    message(FATAL_ERROR "extend_qtc_plugin had unparsed arguments")
+    message(FATAL_ERROR "extend_qtc_target had unparsed arguments")
   endif()
 
-  qtc_plugin_enabled(_plugin_enabled ${target_name})
   if (NOT _arg_CONDITION)
     set(_arg_CONDITION ON)
   endif()
-  if ((NOT (${_arg_CONDITION})) OR (NOT _plugin_enabled))
+  if (NOT (${_arg_CONDITION}))
     return()
   endif()
 
@@ -400,6 +374,16 @@ function(extend_qtc_plugin target_name)
   foreach(file IN LISTS _arg_EXPLICIT_MOC)
     set_explicit_moc(${target_name} "${file}")
   endforeach()
+
+endfunction()
+
+function(extend_qtc_plugin target_name)
+  qtc_plugin_enabled(_plugin_enabled ${target_name})
+  if (NOT _plugin_enabled)
+    return()
+  endif()
+
+  extend_qtc_target(${target_name} ${ARGN})
 endfunction()
 
 function(add_qtc_executable name)
@@ -453,18 +437,15 @@ function(add_qtc_test name)
   set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
 
-  separate_object_libraries("${_arg_DEPENDS}"
-    depends object_lib_depends object_lib_depends_objects)
+  add_executable(${name} ${_arg_SOURCES})
 
-  add_executable(${name} ${_arg_SOURCES} ${object_lib_depends_objects})
+  add_qtc_depends(${name}
+    PRIVATE ${_arg_DEPENDS} ${_TEST_DEPENDS}
+  )
 
   target_include_directories(${name} PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
   target_compile_definitions(${name} PRIVATE ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES})
-  target_link_libraries(${name} PRIVATE ${depends} ${_TEST_DEPENDS})
-  foreach(obj_lib IN LISTS object_lib_depends)
-    target_compile_definitions(${name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
-    target_include_directories(${name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
-  endforeach()
+
   set_target_properties(${name} PROPERTIES
     BUILD_RPATH "${_RPATH_BASE}/${_RPATH}"
     INSTALL_RPATH "${_RPATH_BASE}/${_RPATH}"
