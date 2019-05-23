@@ -3554,8 +3554,13 @@ void ProjectExplorerPluginPrivate::removeFile()
         const bool deleteFile = removeFileDialog.isDeleteFileChecked();
 
         // Re-read the current node, in case the project is re-parsed while the dialog is open
-        if (currentNode != ProjectTree::currentNode()) {
+        if (!ProjectTree::hasNode(currentNode)) {
+            // TODO: Abort the entire operation if there is more than one such file, as we
+            //       don't know which node was originally selected.
             currentNode = ProjectTreeWidget::nodeForFile(filePath);
+
+            // FIXME: This assertion is not valid, as the file really could have disappeared
+            //        in the mean time. Pop up an info dialog instead.
             QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
         }
 
