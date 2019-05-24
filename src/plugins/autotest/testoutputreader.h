@@ -48,6 +48,8 @@ public:
     void createAndReportResult(const QString &message, ResultType type);
     bool hadValidOutput() const { return m_hadValidOutput; }
     int disabledTests() const { return m_disabled; }
+    bool hasSummary() const { return !m_summary.isEmpty(); }
+    QHash<ResultType, int> summary() const { return m_summary; }
     void setId(const QString &id) { m_id = id; }
     QString id() const { return m_id; }
 
@@ -64,6 +66,7 @@ protected:
     QProcess *m_testApplication;  // not owned
     QString m_buildDir;
     QString m_id;
+    QHash<ResultType, int> m_summary;
     int m_disabled = -1;
 private:
     bool m_hadValidOutput = false;

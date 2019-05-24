@@ -270,6 +270,9 @@ void TestRunner::onProcessFinished()
     const int disabled = m_currentOutputReader->disabledTests();
     if (disabled > 0)
         emit hadDisabledTests(disabled);
+    if (m_currentOutputReader->hasSummary())
+        emit reportSummary(m_currentOutputReader->id(), m_currentOutputReader->summary());
+
     resetInternalPointers();
 
     if (!m_fakeFutureInterface) {
