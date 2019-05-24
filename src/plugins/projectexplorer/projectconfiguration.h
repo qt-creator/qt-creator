@@ -41,6 +41,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class Project;
+class ProjectConfigurationAspects;
 
 class PROJECTEXPLORER_EXPORT ProjectConfigurationAspect : public QObject
 {
@@ -68,6 +69,7 @@ public:
     virtual void fromMap(const QVariantMap &) {}
     virtual void toMap(QVariantMap &) const {}
     virtual void addToConfigurationLayout(QFormLayout *) {}
+    virtual void acquaintSiblings(const ProjectConfigurationAspects &) {}
 
 signals:
     void changed();
@@ -167,6 +169,8 @@ public:
 
     ProjectConfigurationAspect *aspect(Core::Id id) const;
     template <typename T> T *aspect() const { return m_aspects.aspect<T>(); }
+
+    void acquaintAspects();
 
 signals:
     void displayNameChanged();

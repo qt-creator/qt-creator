@@ -554,6 +554,7 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
     if (!rc)
         return nullptr;
 
+    rc->acquaintAspects();
     rc->m_buildKey = buildKey;
     rc->doAdditionalSetup(*this);
     rc->setDisplayName(displayName);
@@ -569,6 +570,7 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
             if (id.name().startsWith(factory->m_runConfigBaseId.name())) {
                 QTC_ASSERT(factory->m_creator, continue);
                 RunConfiguration *rc = factory->m_creator(parent);
+                rc->acquaintAspects();
                 if (rc->fromMap(map))
                     return rc;
                 delete rc;

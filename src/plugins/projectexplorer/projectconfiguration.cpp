@@ -181,6 +181,12 @@ ProjectConfigurationAspect *ProjectConfiguration::aspect(Core::Id id) const
     return m_aspects.aspect(id);
 }
 
+void ProjectConfiguration::acquaintAspects()
+{
+    for (ProjectConfigurationAspect *aspect : m_aspects)
+        aspect->acquaintSiblings(m_aspects);
+}
+
 Core::Id ProjectExplorer::idFromMap(const QVariantMap &map)
 {
     return Core::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
