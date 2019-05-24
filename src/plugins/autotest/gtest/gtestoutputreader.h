@@ -48,12 +48,12 @@ protected:
     TestResultPtr createDefaultResult() const override;
 
 private:
-    void setCurrentTestSet(const QString &testSet);
-    void setCurrentTestName(const QString &testName);
+    void setCurrentTestCase(const QString &testCase);
+    void setCurrentTestSuite(const QString &testSuite);
 
     QString m_projectFile;
-    QString m_currentTestName;
-    QString m_currentTestSet;
+    QString m_currentTestSuite;
+    QString m_currentTestCase;
     QString m_description;
     int m_iteration = 1;
 };

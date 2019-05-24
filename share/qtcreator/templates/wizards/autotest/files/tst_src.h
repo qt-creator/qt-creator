@@ -11,7 +11,7 @@
 
 using namespace testing;
 
-TEST(%{TestCaseName}, %{TestSetName})
+TEST(%{TestSuiteName}, %{TestCaseName})
 {
     EXPECT_EQ(1, 1);
     ASSERT_THAT(0, Eq(0));

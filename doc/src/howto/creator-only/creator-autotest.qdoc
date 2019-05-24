@@ -106,11 +106,11 @@
                 \li In the \uicontrol {Test framework} field, select
                     \uicontrol {Google Test}.
 
+                \li In the \uicontrol {Test suite name} field, enter a name for
+                    the test suite.
+
                 \li In the \uicontrol {Test case name} field, enter a name for
                     the test case.
-
-                \li In the \uicontrol {Test set name} field, enter a name for
-                    the test set.
 
                 \li Select the \uicontrol {Enable C++ 11} check box to
                     support C++ 11 features in the test.

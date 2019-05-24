@@ -108,7 +108,7 @@
                 {
                     "name": "TestSuiteName",
                     "trDisplayName": "Test suite name:",
-                    "visible": "%{JS: value('TestFrameWork') === 'BoostTest'}",
+                    "visible": "%{JS: ['BoostTest', 'GTest'].indexOf(value('TestFrameWork')) >= 0}",
                     "mandatory": true,
                     "type": "LineEdit",
                     "data": { "validator": "^[a-zA-Z_0-9]+$" }
@@ -137,13 +137,6 @@
                     "data": {
                         "checked": false
                     }
-                },
-                {
-                    "name": "TestSetName",
-                    "trDisplayName": "Test set name:",
-                    "visible": "%{JS: value('TestFrameWork') === 'GTest'}",
-                    "type": "LineEdit",
-                    "data": { "validator": "^[a-zA-Z0-9]+$" }
                 },
                 {
                     "name": "GTestCXX11",
