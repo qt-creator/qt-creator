@@ -29,10 +29,8 @@ add_qtc_plugin(Help
     xbelsupport.cpp xbelsupport.h
 )
 
-find_library(FWWebKit WebKit)
-find_library(FWAppKit AppKit)
 extend_qtc_plugin(Help
-  CONDITION APPLE AND FWWebKit AND FWAppKit
+  CONDITION FWWebKit AND FWAppKit
   DEPENDS ${FWWebKit} ${FWAppKit}
   DEFINES QTC_MAC_NATIVE_HELPVIEWER
   SOURCES

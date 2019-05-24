@@ -111,6 +111,14 @@ endif()
 find_package(LLVM QUIET)
 find_package(Clang COMPONENTS libclang QUIET)
 
+if (APPLE)
+  find_library(FWCoreFoundation CoreFoundation)
+  find_library(FWFoundation Foundation)
+  find_library(FWAppKit AppKit)
+  find_library(FWIOKit IOKit)
+  find_library(FWWebKit WebKit)
+endif()
+
 set(_IDE_APP_PATH "bin")
 
 if (APPLE)

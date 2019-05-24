@@ -164,9 +164,8 @@ extend_qtc_plugin(Core
   SOURCES progressmanager/progressmanager_win.cpp
 )
 
-find_library(FWAppKit AppKit)
 extend_qtc_plugin(Core
-  CONDITION APPLE AND FWAppKit
+  CONDITION APPLE
   DEPENDS ${FWAppKit}
   SOURCES
     progressmanager/progressmanager_mac.mm
