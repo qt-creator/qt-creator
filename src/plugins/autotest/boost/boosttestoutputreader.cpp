@@ -89,7 +89,7 @@ static QString caseFromContent(const QString &content)
     }
 
     QString result = content.mid(index + 5);
-    static QRegularExpression functionName("([^\\s]+):.*");
+    static QRegularExpression functionName("\"(.+)\":.*");
     const QRegularExpressionMatch matcher = functionName.match(result);
     if (!matcher.hasMatch()) {
         qCDebug(orLog) << "got no match";
