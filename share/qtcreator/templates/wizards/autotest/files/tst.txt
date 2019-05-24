@@ -82,12 +82,14 @@ ENABLE_TESTING()
 add_executable(${PROJECT_NAME} %{MainCppName})
 add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 
-if ($ENV{BOOST_INC_DIR})
-    set(BOOST_INC_DIR $ENV{BOOST_INC_DIR})
+if (DEFINED ENV{BOOST_INCLUDE_DIR})
+    set(BOOST_INCLUDE_DIR $ENV{BOOST_INCLUDE_DIR})
 else ()
-    set(BOOST_INC_DIR "%{BoostIncDir}") # set by Qt Creator wizard
+    set(BOOST_INCLUDE_DIR "%{BoostIncDir}") # set by Qt Creator wizard
 endif ()
-if (EXISTS ${BOOST_INC_DIR})
-    include_directories(${BOOST_INC_DIR})
+if (BOOST_INCLUDE_DIR STREQUAL "")
+    message("BOOST_INCLUDE_DIR is not set, assuming Boost can be found automatically in your system")
+elseif (EXISTS ${BOOST_INCLUDE_DIR})
+    include_directories(${BOOST_INCLUDE_DIR})
 endif ()
 @endif
