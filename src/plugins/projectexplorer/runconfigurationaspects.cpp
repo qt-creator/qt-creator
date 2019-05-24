@@ -131,8 +131,7 @@ bool TerminalAspect::isUserSet() const
     \class ProjectExplorer::WorkingDirectoryAspect
 */
 
-WorkingDirectoryAspect::WorkingDirectoryAspect(EnvironmentAspect *envAspect)
-    : m_envAspect(envAspect)
+WorkingDirectoryAspect::WorkingDirectoryAspect()
 {
     setDisplayName(tr("Working Directory"));
     setId("WorkingDirectoryAspect");
@@ -172,6 +171,11 @@ void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
     hbox->addWidget(m_chooser);
     hbox->addWidget(m_resetButton);
     layout->addRow(tr("Working directory:"), hbox);
+}
+
+void WorkingDirectoryAspect::acquaintSiblings(const ProjectConfigurationAspects &siblings)
+{
+    m_envAspect = siblings.aspect<EnvironmentAspect>();
 }
 
 QString WorkingDirectoryAspect::keyForDefaultWd() const

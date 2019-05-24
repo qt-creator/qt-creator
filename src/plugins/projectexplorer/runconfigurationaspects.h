@@ -67,9 +67,10 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public ProjectConfiguratio
     Q_OBJECT
 
 public:
-    explicit WorkingDirectoryAspect(EnvironmentAspect *envAspect = nullptr);
+    WorkingDirectoryAspect();
 
     void addToConfigurationLayout(QFormLayout *layout) override;
+    void acquaintSiblings(const ProjectConfigurationAspects &) override;
 
     Utils::FileName workingDirectory(const Utils::MacroExpander *expander) const;
     Utils::FileName defaultWorkingDirectory() const;
@@ -84,7 +85,7 @@ private:
     void resetPath();
     QString keyForDefaultWd() const;
 
-    EnvironmentAspect * const m_envAspect = nullptr;
+    EnvironmentAspect *m_envAspect = nullptr;
     Utils::FileName m_workingDirectory;
     Utils::FileName m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;

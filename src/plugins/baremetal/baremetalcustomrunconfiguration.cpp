@@ -50,7 +50,7 @@ BareMetalCustomRunConfiguration::BareMetalCustomRunConfiguration(Target *target,
     exeAspect->setExpectedKind(PathChooser::Any);
 
     addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>(nullptr);
+    addAspect<WorkingDirectoryAspect>();
 
     setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(tr("Custom Executable"), target));
 }

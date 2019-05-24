@@ -60,7 +60,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
 
     addAspect<ExecutableAspect>();
     addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>(envAspect);
+    addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
     connect(target->project(), &Project::parsingFinished,
