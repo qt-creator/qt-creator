@@ -469,6 +469,7 @@ void QbsProject::updateAfterParse()
     updateCppCodeModel();
     updateQmlJsCodeModel();
     emit fileListChanged();
+    m_envCache.clear();
     emit dataChanged();
 }
 
@@ -652,6 +653,7 @@ void QbsProject::updateAfterBuild()
         m_extraCompilersPending = false;
         updateCppCodeModel();
     }
+    m_envCache.clear();
     emit dataChanged();
 }
 
@@ -1115,6 +1117,16 @@ void QbsProject::updateApplicationTargets()
         bti.runEnvModifier = [targetFile, productData, this](Utils::Environment &env, bool usingLibraryPaths) {
             if (!qbsProject().isValid())
                 return;
+
+            const QString key = env.toStringList().join(QChar())
+                    + QbsProject::uniqueProductName(productData)
+                    + QString::number(usingLibraryPaths);
+            const auto it = m_envCache.constFind(key);
+            if (it != m_envCache.constEnd()) {
+                env = it.value();
+                return;
+            }
+
             QProcessEnvironment procEnv = env.toProcessEnvironment();
             procEnv.insert(QLatin1String("QBS_RUN_FILE_PATH"), targetFile);
             QStringList setupRunEnvConfig;
@@ -1133,6 +1145,8 @@ void QbsProject::updateApplicationTargets()
                 foreach (const QString &key, procEnv.keys())
                     env.set(key, procEnv.value(key));
             }
+
+            m_envCache.insert(key, env);
         };
 
         applications.append(bti);

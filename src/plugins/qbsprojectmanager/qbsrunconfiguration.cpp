@@ -59,21 +59,9 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
     envAspect->addModifier([this](Environment &env) {
         bool usingLibraryPaths = aspect<UseLibraryPathsAspect>()->value();
 
-        const auto key = qMakePair(env.toStringList(), usingLibraryPaths);
-        const auto it = m_envCache.constFind(key);
-        if (it != m_envCache.constEnd()) {
-            env = it.value();
-            return;
-        }
         BuildTargetInfo bti = buildTargetInfo();
-        if (bti.runEnvModifier) {
-            if (project()->isParsing() || BuildManager::isBuilding(this->target())) {
-                qCDebug(qbsPmLog) << "qbs project in flux, cannot modify environment";
-                return; // Intentionally skips the cache update below.
-            }
+        if (bti.runEnvModifier)
             bti.runEnvModifier(env, usingLibraryPaths);
-        }
-        m_envCache.insert(key, env);
     });
 
     addAspect<ExecutableAspect>();
@@ -108,7 +96,6 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
             this, &QbsRunConfiguration::updateTargetInformation);
 
     auto qbsProject = static_cast<QbsProject *>(target->project());
-    connect(qbsProject, &QbsProject::dataChanged, this, [this] { m_envCache.clear(); });
     connect(qbsProject, &Project::parsingFinished,
             this, &QbsRunConfiguration::updateTargetInformation);
 }

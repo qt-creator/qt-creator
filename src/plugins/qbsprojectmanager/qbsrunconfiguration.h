@@ -48,9 +48,6 @@ private:
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;
 
     void updateTargetInformation();
-
-    using EnvCache = QHash<QPair<QStringList, bool>, Utils::Environment>;
-    mutable EnvCache m_envCache;
 };
 
 class QbsRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

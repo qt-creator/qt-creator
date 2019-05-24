@@ -164,6 +164,8 @@ private:
     QTimer m_parsingDelay;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     bool m_extraCompilersPending = false;
+
+    QHash<QString, Utils::Environment> m_envCache;
 };
 
 } // namespace Internal
