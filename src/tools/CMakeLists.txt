@@ -31,9 +31,9 @@ if (BUILD_CPLUSPLUS_TOOLS)
   add_qtc_cpp_tool(cplusplus-update-frontend PATH_CPP_FRONTEND=\"${CMAKE_CURRENT_SOURCE_DIR}/../../libs/3rdparty/cplusplus\" PATH_DUMPERS_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../cplusplus-ast2png/dumpers.inc\")
 endif()
 
-# if (APPLE)
-#   add_subdirectory(iostool) ## mac only
-# endif()
+if (APPLE)
+  add_subdirectory(iostool)
+endif()
 
 add_subdirectory(qml2puppet)
 # add_subdirectory(qtcdebugger) ## windows only

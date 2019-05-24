@@ -113,9 +113,12 @@ find_package(Clang COMPONENTS libclang QUIET)
 
 if (APPLE)
   find_library(FWCoreFoundation CoreFoundation)
+  find_library(FWCoreServices CoreServices)
   find_library(FWFoundation Foundation)
   find_library(FWAppKit AppKit)
   find_library(FWIOKit IOKit)
+  find_library(FWSecurity Security)
+  find_library(FWSystemConfiguration SystemConfiguration)
   find_library(FWWebKit WebKit)
 endif()
 
