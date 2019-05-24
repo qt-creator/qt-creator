@@ -302,8 +302,8 @@ void OutputWindow::setFilterText(const QString &filterText)
             QPalette pal;
             pal.setColor(QPalette::Active, QPalette::Base, d->m_highlightBgColor);
             pal.setColor(QPalette::Inactive, QPalette::Base, d->m_highlightBgColor.darker(120));
-            pal.setColor(QPalette::Active, QPalette::Text, d->m_highlightBgColor);
-            pal.setColor(QPalette::Inactive, QPalette::Text, d->m_highlightBgColor.darker(120));
+            pal.setColor(QPalette::Active, QPalette::Text, d->m_highlightTextColor);
+            pal.setColor(QPalette::Inactive, QPalette::Text, d->m_highlightTextColor.darker(120));
             setPalette(pal);
         }
 
