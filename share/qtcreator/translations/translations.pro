@@ -34,7 +34,7 @@ else: \
 for(dir, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/templates/wizards/*, true))):CUSTOMWIZARD_FILES += $$files($$dir/wizard.xml)
 CUSTOMWIZARD_FILES = \"$$join(CUSTOMWIZARD_FILES, "|$$PREFIX", "$$PREFIX")\"
 
-for(file, $$list($$files($$IDE_SOURCE_TREE/src/share/qtcreator/externaltools/*))):EXTERNALTOOLS_FILES += $$files($$file)
+for(file, $$list($$files($$IDE_SOURCE_TREE/src/share/qtcreator/externaltools/*.xml))):EXTERNALTOOLS_FILES += $$files($$file)
 EXTERNALTOOLS_FILES = \"$$join(EXTERNALTOOLS_FILES, "|$$PREFIX", "$$PREFIX")\"
 
 for(file, $$list($$files($$IDE_SOURCE_TREE/share/qtcreator/snippets/*))):SNIPPETS_FILES += $$files($$file)
@@ -50,14 +50,12 @@ QMAKE_EXTRA_TARGETS += extract
 plugin_sources = $$files($$IDE_SOURCE_TREE/src/plugins/*)
 plugin_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
 plugin_sources -= src/plugins/plugins.pro \
-    src/plugins/helloworld \ # just an example
-    # the following ones are dead
-    src/plugins/qtestlib \
-    src/plugins/snippets \
-    src/plugins/regexp
+    src/CMakeLists.txt \
+    src/plugins/helloworld
 shared_sources = $$files($$IDE_SOURCE_TREE/src/shared/*)
 shared_sources ~= s,^$$re_escape($$IDE_SOURCE_TREE/),,g$$i_flag
 shared_sources -= \
+    src/CMakeLists.txt \
     src/shared/qbs \
     src/shared/shared.pro
 sources = src/app src/libs $$plugin_sources $$shared_sources share/qtcreator/qmldesigner
