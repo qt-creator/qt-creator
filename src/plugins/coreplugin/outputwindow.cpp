@@ -59,16 +59,16 @@ public:
 
     IContext *outputWindowContext = nullptr;
     Utils::OutputFormatter *formatter = nullptr;
-    QColor m_highlightBgColor;
-    QColor m_highlightTextColor;
-    QString m_settingsKey;
+    QColor highlightBgColor;
+    QColor highlightTextColor;
+    QString settingsKey;
 
     bool enforceNewline = false;
     bool scrollToBottom = true;
     bool linksActive = true;
-    bool m_zoomEnabled = false;
-    float m_originalFontSize = 0.;
-    bool m_originalReadOnly = false;
+    bool zoomEnabled = false;
+    float originalFontSize = 0.;
+    bool originalReadOnly = false;
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
     Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     QTextCursor cursor;
@@ -92,7 +92,7 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     setMouseTracking(true);
     setUndoRedoEnabled(false);
 
-    d->m_settingsKey = settingsKey;
+    d->settingsKey = settingsKey;
 
     d->outputWindowContext = new IContext;
     d->outputWindowContext->setContext(context);
@@ -125,8 +125,8 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     connect(this, &QPlainTextEdit::copyAvailable, cutAction, &QAction::setEnabled);  // OutputWindow never read-only
     connect(this, &QPlainTextEdit::copyAvailable, copyAction, &QAction::setEnabled);
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested, this, [this] {
-        if (!d->m_settingsKey.isEmpty())
-            Core::ICore::settings()->setValue(d->m_settingsKey, fontZoom());
+        if (!d->settingsKey.isEmpty())
+            Core::ICore::settings()->setValue(d->settingsKey, fontZoom());
     });
 
     undoAction->setEnabled(false);
@@ -140,10 +140,10 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
             this, &OutputWindow::scrollToBottom);
     m_lastMessage.start();
 
-    d->m_originalFontSize = font().pointSizeF();
+    d->originalFontSize = font().pointSizeF();
 
-    if (!d->m_settingsKey.isEmpty()) {
-        float zoom = Core::ICore::settings()->value(d->m_settingsKey).toFloat();
+    if (!d->settingsKey.isEmpty()) {
+        float zoom = Core::ICore::settings()->value(d->settingsKey).toFloat();
         setFontZoom(zoom);
     }
 }
@@ -232,7 +232,7 @@ void OutputWindow::showEvent(QShowEvent *e)
 
 void OutputWindow::wheelEvent(QWheelEvent *e)
 {
-    if (d->m_zoomEnabled) {
+    if (d->zoomEnabled) {
         if (e->modifiers() & Qt::ControlModifier) {
             float delta = e->angleDelta().y() / 120.f;
             zoomInF(delta);
@@ -247,41 +247,41 @@ void OutputWindow::wheelEvent(QWheelEvent *e)
 void OutputWindow::setBaseFont(const QFont &newFont)
 {
     float zoom = fontZoom();
-    d->m_originalFontSize = newFont.pointSizeF();
+    d->originalFontSize = newFont.pointSizeF();
     QFont tmp = newFont;
-    float newZoom = qMax(d->m_originalFontSize + zoom, 4.0f);
+    float newZoom = qMax(d->originalFontSize + zoom, 4.0f);
     tmp.setPointSizeF(newZoom);
     setFont(tmp);
 }
 
 float OutputWindow::fontZoom() const
 {
-    return font().pointSizeF() - d->m_originalFontSize;
+    return font().pointSizeF() - d->originalFontSize;
 }
 
 void OutputWindow::setFontZoom(float zoom)
 {
     QFont f = font();
-    if (f.pointSizeF() == d->m_originalFontSize + zoom)
+    if (f.pointSizeF() == d->originalFontSize + zoom)
         return;
-    float newZoom = qMax(d->m_originalFontSize + zoom, 4.0f);
+    float newZoom = qMax(d->originalFontSize + zoom, 4.0f);
     f.setPointSizeF(newZoom);
     setFont(f);
 }
 
 void OutputWindow::setWheelZoomEnabled(bool enabled)
 {
-    d->m_zoomEnabled = enabled;
+    d->zoomEnabled = enabled;
 }
 
 void OutputWindow::setHighlightBgColor(const QColor &bgColor)
 {
-    d->m_highlightBgColor = bgColor;
+    d->highlightBgColor = bgColor;
 }
 
 void OutputWindow::setHighlightTextColor(const QColor &textColor)
 {
-    d->m_highlightTextColor = textColor;
+    d->highlightTextColor = textColor;
 }
 
 QString OutputWindow::filterText() const
@@ -299,17 +299,17 @@ void OutputWindow::setFilterText(const QString &filterText)
         // Update textedit's background color
         if (filterText.isEmpty()) {
             setPalette(d->originalPalette);
-            setReadOnly(d->m_originalReadOnly);
+            setReadOnly(d->originalReadOnly);
         } else {
             if (filterTextWasEmpty) {
-                d->m_originalReadOnly = isReadOnly();
+                d->originalReadOnly = isReadOnly();
                 d->originalPalette = palette();
             }
             QPalette pal;
-            pal.setColor(QPalette::Active, QPalette::Base, d->m_highlightBgColor);
-            pal.setColor(QPalette::Inactive, QPalette::Base, d->m_highlightBgColor.darker(120));
-            pal.setColor(QPalette::Active, QPalette::Text, d->m_highlightTextColor);
-            pal.setColor(QPalette::Inactive, QPalette::Text, d->m_highlightTextColor.darker(120));
+            pal.setColor(QPalette::Active, QPalette::Base, d->highlightBgColor);
+            pal.setColor(QPalette::Inactive, QPalette::Base, d->highlightBgColor.darker(120));
+            pal.setColor(QPalette::Active, QPalette::Text, d->highlightTextColor);
+            pal.setColor(QPalette::Inactive, QPalette::Text, d->highlightTextColor.darker(120));
             setPalette(pal);
             setReadOnly(true);
         }
