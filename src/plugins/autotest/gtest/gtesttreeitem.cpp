@@ -37,7 +37,7 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Autotest {
 namespace Internal {
@@ -71,6 +71,20 @@ TestTreeItem *GTestTreeItem::copyWithoutChildren()
     return copied;
 }
 
+static QString wildCardPattern(const QString &original)
+{
+    QString pattern = original;
+    pattern.replace('.', "\\.");
+    pattern.replace('$', "\\$");
+    pattern.replace('(', "\\(").replace(')', "\\)");
+    pattern.replace('[', "\\[").replace(']', "\\]");
+    pattern.replace('{', "\\{").replace('}', "\\}");
+    pattern.replace('+', "\\+");
+    pattern.replace('*', ".*");
+    pattern.replace('?', '.');
+    return pattern;
+}
+
 static bool matchesFilter(const QString &filter, const QString &fullTestName)
 {
     QStringList positive;
@@ -88,13 +102,13 @@ static bool matchesFilter(const QString &filter, const QString &fullTestName)
         testName.append('.');
 
     for (const QString &curr : negative) {
-        QRegExp regex(curr, Qt::CaseSensitive, QRegExp::Wildcard);
-        if (regex.exactMatch(testName))
+        QRegularExpression regex(wildCardPattern(curr));
+        if (regex.match(testName).hasMatch())
             return false;
     }
     for (const QString &curr : positive) {
-        QRegExp regex(curr, Qt::CaseSensitive, QRegExp::Wildcard);
-        if (regex.exactMatch(testName))
+        QRegularExpression regex(wildCardPattern(curr));
+        if (regex.match(testName).hasMatch())
             return true;
     }
     return positive.isEmpty();

@@ -31,7 +31,7 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 
 namespace Autotest {
 namespace Internal {
@@ -63,24 +63,31 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResultPtr> &futu
 
 void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLine)
 {
-    static QRegExp newTestStarts("^\\[-{10}\\] \\d+ tests? from (.*)$");
-    static QRegExp testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$");
-    static QRegExp newTestSetStarts("^\\[ RUN      \\] (.*)$");
-    static QRegExp testSetSuccess("^\\[       OK \\] (.*) \\((.*)\\)$");
-    static QRegExp testSetFail("^\\[  FAILED  \\] (.*) \\((\\d+ ms)\\)$");
-    static QRegExp disabledTests("^  YOU HAVE (\\d+) DISABLED TESTS?$");
-    static QRegExp failureLocation("^(.*):(\\d+): Failure$");
-    static QRegExp errorLocation("^(.*)\\((\\d+)\\): error:.*$");
-    static QRegExp iterations("^Repeating all tests \\(iteration (\\d+)\\) \\. \\. \\.$");
+    static const QRegularExpression newTestStarts("^\\[-{10}\\] \\d+ tests? from (.*)$");
+    static const QRegularExpression testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$");
+    static const QRegularExpression newTestSetStarts("^\\[ RUN      \\] (.*)$");
+    static const QRegularExpression testSetSuccess("^\\[       OK \\] (.*) \\((.*)\\)$");
+    static const QRegularExpression testSetFail("^\\[  FAILED  \\] (.*) \\((\\d+ ms)\\)$");
+    static const QRegularExpression disabledTests("^  YOU HAVE (\\d+) DISABLED TESTS?$");
+    static const QRegularExpression failureLocation("^(.*):(\\d+): Failure$");
+    static const QRegularExpression errorLocation("^(.*)\\((\\d+)\\): error:.*$");
+    static const QRegularExpression iterations("^Repeating all tests "
+                                               "\\(iteration (\\d+)\\) \\. \\. \\.$");
 
     const QString line = QString::fromLatin1(chopLineBreak(outputLineWithNewLine));
     if (line.trimmed().isEmpty())
         return;
 
+    struct ExactMatch : public QRegularExpressionMatch
+    {
+        ExactMatch(const QRegularExpressionMatch &other) : QRegularExpressionMatch(other) {}
+        operator bool() const { return hasMatch(); }
+    };
+
     if (!line.startsWith('[')) {
         m_description.append(line).append('\n');
-        if (iterations.exactMatch(line)) {
-            m_iteration = iterations.cap(1).toInt();
+        if (ExactMatch match = iterations.match(line)) {
+            m_iteration = match.captured(1).toInt();
             m_description.clear();
         } else if (line.startsWith(QStringLiteral("Note:"))) {
             m_description = line;
@@ -91,22 +98,22 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             testResult->setDescription(m_description);
             reportResult(testResult);
             m_description.clear();
-        } else if (disabledTests.exactMatch(line)) {
-            m_disabled = disabledTests.cap(1).toInt();
+        } else if (ExactMatch match = disabledTests.match(line)) {
+            m_disabled = match.captured(1).toInt();
             m_description.clear();
         }
         return;
     }
 
-    if (testEnds.exactMatch(line)) {
+    if (ExactMatch match = testEnds.match(line)) {
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(ResultType::TestEnd);
-        testResult->setDescription(tr("Test execution took %1").arg(testEnds.cap(2)));
+        testResult->setDescription(tr("Test execution took %1").arg(match.captured(2)));
         reportResult(testResult);
         m_currentTestSuite.clear();
         m_currentTestCase.clear();
-    } else if (newTestStarts.exactMatch(line)) {
-        setCurrentTestSuite(newTestStarts.cap(1));
+    } else if (ExactMatch match = newTestStarts.match(line)) {
+        setCurrentTestSuite(match.captured(1));
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(ResultType::TestStart);
         if (m_iteration > 1) {
@@ -116,15 +123,15 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             testResult->setDescription(tr("Executing test suite %1").arg(m_currentTestSuite));
         }
         reportResult(testResult);
-    } else if (newTestSetStarts.exactMatch(line)) {
-        setCurrentTestCase(newTestSetStarts.cap(1));
+    } else if (ExactMatch match = newTestSetStarts.match(line)) {
+        setCurrentTestCase(match.captured(1));
         TestResultPtr testResult = TestResultPtr(new GTestResult(QString(), m_projectFile,
                                                                  QString()));
         testResult->setResult(ResultType::MessageCurrentTest);
         testResult->setDescription(tr("Entering test case %1").arg(m_currentTestCase));
         reportResult(testResult);
         m_description.clear();
-    } else if (testSetSuccess.exactMatch(line)) {
+    } else if (ExactMatch match = testSetSuccess.match(line)) {
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(ResultType::Pass);
         testResult->setDescription(m_description);
@@ -132,24 +139,23 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
         m_description.clear();
         testResult = createDefaultResult();
         testResult->setResult(ResultType::MessageInternal);
-        testResult->setDescription(tr("Execution took %1.").arg(testSetSuccess.cap(2)));
+        testResult->setDescription(tr("Execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
-    } else if (testSetFail.exactMatch(line)) {
+    } else if (ExactMatch match = testSetFail.match(line)) {
         TestResultPtr testResult = createDefaultResult();
         testResult->setResult(ResultType::Fail);
         m_description.chop(1);
         QStringList resultDescription;
 
         for (const QString &output : m_description.split('\n')) {
-            QRegExp *match = nullptr;
-            if (failureLocation.exactMatch(output))
-                match = &failureLocation;
-            else if (errorLocation.exactMatch(output))
-                match = &errorLocation;
-            if (!match) {
-                resultDescription << output;
-                continue;
+            QRegularExpressionMatch innerMatch = failureLocation.match(output);
+            if (!innerMatch.hasMatch()) {
+                 innerMatch = errorLocation.match(output);
+                 if (!innerMatch.hasMatch()) {
+                    resultDescription << output;
+                    continue;
+                 }
             }
             testResult->setDescription(resultDescription.join('\n'));
             reportResult(testResult);
@@ -157,8 +163,8 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
 
             testResult = createDefaultResult();
             testResult->setResult(ResultType::MessageLocation);
-            testResult->setLine(match->cap(2).toInt());
-            QString file = constructSourceFilePath(m_buildDir, match->cap(1));
+            testResult->setLine(innerMatch.captured(2).toInt());
+            QString file = constructSourceFilePath(m_buildDir, innerMatch.captured(1));
             if (!file.isEmpty())
                 testResult->setFileName(file);
             resultDescription << output;
@@ -168,7 +174,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
         m_description.clear();
         testResult = createDefaultResult();
         testResult->setResult(ResultType::MessageInternal);
-        testResult->setDescription(tr("Execution took %1.").arg(testSetFail.cap(2)));
+        testResult->setDescription(tr("Execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
         m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
     }

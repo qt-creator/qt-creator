@@ -30,6 +30,8 @@
 
 #include <coreplugin/id.h>
 
+#include <QRegularExpression>
+
 namespace Autotest {
 namespace Internal {
 
@@ -76,7 +78,7 @@ bool GTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermedi
 
 static QString normalizeName(const QString &name)
 {
-    static QRegExp parameterIndex("/\\d+");
+    static QRegularExpression parameterIndex("/\\d+");
 
     QString nameWithoutParameterIndices = name;
     nameWithoutParameterIndices.remove(parameterIndex);
