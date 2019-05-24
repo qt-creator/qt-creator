@@ -358,6 +358,32 @@ static bool isAfterRecordLikeDefinition(const BackwardsScanner &tokens, int inde
     return false;
 }
 
+static bool isControlFlowKeywordRequiringParentheses(const Token &token)
+{
+    return token.is(T_IF)
+        || token.is(T_WHILE)
+        || token.is(T_FOR)
+        || token.is(T_SWITCH)
+        || token.is(T_CATCH);
+}
+
+static bool isAfterControlFlow(const BackwardsScanner &tokens, int index)
+{
+    const Token &token = tokens[index];
+    if (token.is(T_DO) || token.is(T_ELSE) || token.is(T_TRY))
+        return true;
+
+    if (token.is(T_RPAREN)) {
+        const int startIndex = index + 1;
+        const int matchingBraceIndex = tokens.startOfMatchingBrace(startIndex);
+        if (matchingBraceIndex == startIndex)
+            return false; // No matching paren found.
+        return isControlFlowKeywordRequiringParentheses(tokens[matchingBraceIndex - 1]);
+    }
+
+    return false;
+}
+
 static bool allowAutoClosingBrace(const QTextCursor &cursor,
                                   MatchingText::IsNextBlockDeeperIndented isNextIndented)
 {
@@ -368,6 +394,9 @@ static bool allowAutoClosingBrace(const QTextCursor &cursor,
     const int index = tokens.startToken() - 1;
 
     if (tokens[index].isStringLiteral())
+        return false;
+
+    if (isAfterControlFlow(tokens, index))
         return false;
 
     if (isAfterNamespaceDefinition(tokens, index))

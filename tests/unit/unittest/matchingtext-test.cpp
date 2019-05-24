@@ -221,6 +221,41 @@ TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotInTheMiddle)
     ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
 }
 
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotAfterControlFlow_WhileAndFriends)
+{
+    const Document document("while (true) @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotAfterControlFlow_DoAndFriends)
+{
+    const Document document("do @");
+
+    ASSERT_FALSE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_InvalidCode_UnbalancedParens)
+{
+    const Document document(") @");
+
+    ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_InvalidCode_UnbalancedParens2)
+{
+    const Document document("while true) @");
+
+    ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
+TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_InvalidCode_OnlyBalancedParens)
+{
+    const Document document("() @");
+
+    ASSERT_TRUE(MT::contextAllowsAutoParentheses(document.cursor, "{"));
+}
+
 TEST_F(MatchingText, ContextAllowsAutoParentheses_CurlyBrace_NotBeforeNamedNamespace)
 {
     const Document document("namespace X @");
