@@ -70,7 +70,7 @@ add_qtc_library(ClangSupport
     ipcclientinterface.h
     ipcclientprovider.h
     ipcinterface.h
-    ipcserverinterface.cpp ipcserverinterface.h
+    ipcserverinterface.h
     lineprefixer.cpp lineprefixer.h
     messageenvelop.cpp messageenvelop.h
     modifiedtimechecker.h
