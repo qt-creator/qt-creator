@@ -30,17 +30,22 @@
 #include "cmakeproject.h"
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
+#include "cmakeprojectnodes.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
+#include <utils/parameteraction.h>
 
 #include <QAction>
 #include <QDateTime>
@@ -61,6 +66,8 @@ CMakeManager::CMakeManager() :
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     Core::ActionContainer *msubproject =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
+    Core::ActionContainer *mfile =
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
 
     const Core::Context projectContext(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
@@ -90,6 +97,14 @@ CMakeManager::CMakeManager() :
         runCMake(ProjectTree::currentProject());
     });
 
+    m_buildFileContextMenu = new QAction(tr("Build"), this);
+    command = Core::ActionManager::registerAction(m_buildFileContextMenu,
+                                                  Constants::BUILDFILECONTEXTMENU, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    mfile->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
+    connect(m_buildFileContextMenu, &QAction::triggered,
+            this, &CMakeManager::buildFileContextMenu);
+
     command = Core::ActionManager::registerAction(m_rescanProjectAction,
                                                   Constants::RESCANPROJECT, globalContext);
     command->setAttribute(Core::Command::CA_Hide);
@@ -98,9 +113,23 @@ CMakeManager::CMakeManager() :
         rescanProject(ProjectTree::currentProject());
     });
 
+    m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
+                                                   Utils::ParameterAction::AlwaysEnabled, this);
+    command = Core::ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE);
+    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setDescription(m_buildFileAction->text());
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
+    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    connect(m_buildFileAction, &QAction::triggered, this, [this] { buildFile(); });
+
     connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
             this, &CMakeManager::updateCmakeActions);
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
+            this, &CMakeManager::updateCmakeActions);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &CMakeManager::updateBuildFileAction);
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &CMakeManager::updateCmakeActions);
 
     updateCmakeActions();
@@ -113,6 +142,7 @@ void CMakeManager::updateCmakeActions()
     m_runCMakeAction->setVisible(visible);
     m_clearCMakeCacheAction->setVisible(visible);
     m_rescanProjectAction->setVisible(visible);
+    enableBuildFileMenus(ProjectTree::currentNode());
 }
 
 void CMakeManager::clearCMakeCache(Project *project)
@@ -143,4 +173,90 @@ void CMakeManager::rescanProject(Project *project)
         return;
 
     cmakeProject->runCMakeAndScanProjectTree();// by my experience: every rescan run requires cmake run too
+}
+
+void CMakeManager::updateBuildFileAction()
+{
+    Node *node = nullptr;
+    if (Core::IDocument *currentDocument = Core::EditorManager::currentDocument())
+        node = ProjectTree::nodeForFile(currentDocument->filePath());
+    enableBuildFileMenus(node);
+}
+
+void CMakeManager::enableBuildFileMenus(Node *node)
+{
+    m_buildFileAction->setVisible(false);
+    m_buildFileAction->setEnabled(false);
+    m_buildFileAction->setParameter(QString());
+    m_buildFileContextMenu->setEnabled(false);
+
+    if (!node)
+        return;
+    Project *project = ProjectTree::projectForNode(node);
+    if (!project)
+        return;
+    Target *target = project->activeTarget();
+    if (!target)
+        return;
+    const QString generator = CMakeGeneratorKitAspect::generator(target->kit());
+    if (generator != "Ninja" && !generator.contains("Makefiles"))
+        return;
+
+    if (const FileNode *fileNode = node->asFileNode()) {
+        const FileType type = fileNode->fileType();
+        const bool visible = qobject_cast<CMakeProject *>(project)
+                && dynamic_cast<CMakeTargetNode *>(node->parentProjectNode())
+                && (type == FileType::Source || type == FileType::Header);
+
+        const bool enabled = visible && !BuildManager::isBuilding(project);
+        m_buildFileAction->setVisible(visible);
+        m_buildFileAction->setEnabled(enabled);
+        m_buildFileAction->setParameter(node->filePath().fileName());
+        m_buildFileContextMenu->setEnabled(enabled);
+    }
+}
+
+void CMakeManager::buildFile(Node *node)
+{
+    if (!node) {
+        Core::IDocument *currentDocument= Core::EditorManager::currentDocument();
+        if (!currentDocument)
+            return;
+        const Utils::FilePath file = currentDocument->filePath();
+        node = ProjectTree::nodeForFile(file);
+    }
+    FileNode *fileNode  = node ? node->asFileNode() : nullptr;
+    if (!fileNode)
+        return;
+    Project *project = ProjectTree::projectForNode(fileNode);
+    if (!project)
+        return;
+    CMakeTargetNode *targetNode = dynamic_cast<CMakeTargetNode *>(fileNode->parentProjectNode());
+    if (!targetNode)
+        return;
+    auto cmakeProject = static_cast<CMakeProject *>(project);
+    Target *target = cmakeProject->activeTarget();
+    const QString generator = CMakeGeneratorKitAspect::generator(target->kit());
+    const QString relativeSource = fileNode->filePath().relativeChildPath(targetNode->filePath()).toString();
+    const QString objExtension = Utils::HostOsInfo::isWindowsHost() ? QString(".obj") : QString(".o");
+    Utils::FilePath targetBase;
+    if (generator == "Ninja") {
+        BuildConfiguration *bc = target->activeBuildConfiguration();
+        const Utils::FilePath relativeBuildDir = targetNode->buildDirectory().relativeChildPath(
+                    bc->buildDirectory());
+        targetBase = relativeBuildDir
+                .pathAppended("CMakeFiles")
+                .pathAppended(targetNode->displayName() + ".dir");
+    } else if (!generator.contains("Makefiles")) {
+        Core::MessageManager::write(tr("Build File is not supported for generator \"%1\"")
+                                    .arg(generator));
+        return;
+    }
+    cmakeProject->buildCMakeTarget(targetBase.pathAppended(relativeSource).toString() + objExtension);
+}
+
+void CMakeManager::buildFileContextMenu()
+{
+    if (Node *node = ProjectTree::currentNode())
+        buildFile(node);
 }

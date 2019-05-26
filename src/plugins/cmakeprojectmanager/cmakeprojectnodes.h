@@ -69,6 +69,8 @@ public:
 
     QString tooltip() const final;
     QString buildKey() const final;
+    Utils::FilePath buildDirectory() const;
+    void setBuildDirectory(const Utils::FilePath &directory);
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
@@ -79,6 +81,7 @@ public:
 
 private:
     QString m_tooltip;
+    Utils::FilePath m_buildDirectory;
     CMakeConfig m_config;
 };
 

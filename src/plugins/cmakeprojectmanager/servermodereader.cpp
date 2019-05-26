@@ -862,6 +862,7 @@ void ServerModeReader::addTargets(const QHash<Utils::FilePath, ProjectExplorer::
         CMakeTargetNode *tNode = createTargetNode(cmakeListsNodes, t->sourceDirectory, t->name);
         QTC_ASSERT(tNode, qDebug() << "No target node for" << t->sourceDirectory << t->name; continue);
         tNode->setTargetInformation(t->artifacts, t->type);
+        tNode->setBuildDirectory(t->buildDirectory);
         QList<FolderNode::LocationInfo> info;
         // Set up a default target path:
         FilePath targetPath = t->sourceDirectory.pathAppended("CMakeLists.txt");

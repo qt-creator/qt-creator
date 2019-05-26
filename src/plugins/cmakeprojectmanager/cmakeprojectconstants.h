@@ -38,6 +38,8 @@ const char RUNCMAKE[] = "CMakeProject.RunCMake";
 const char CLEARCMAKECACHE[] = "CMakeProject.ClearCache";
 const char RESCANPROJECT[] = "CMakeProject.RescanProject";
 const char RUNCMAKECONTEXTMENU[] = "CMakeProject.RunCMakeContextMenu";
+const char BUILDFILECONTEXTMENU[] = "CMakeProject.BuildFileContextMenu";
+const char BUILDFILE[] = "CMakeProject.BuildFile";
 
 // Project
 const char CMAKEPROJECT_ID[] = "CMakeProjectManager.CMakeProject";

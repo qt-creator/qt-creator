@@ -191,6 +191,16 @@ QString CMakeTargetNode::buildKey() const
     return generateId(filePath(), m_target);
 }
 
+Utils::FilePath CMakeTargetNode::buildDirectory() const
+{
+    return m_buildDirectory;
+}
+
+void CMakeTargetNode::setBuildDirectory(const Utils::FilePath &directory)
+{
+    m_buildDirectory = directory;
+}
+
 QVariant CMakeTargetNode::data(Core::Id role) const
 {
     auto value = [this](const QByteArray &key) -> QVariant {
