@@ -32,7 +32,6 @@
 namespace Help {
 namespace Internal {
 
-
 class CentralWidget : public HelpWidget
 {
     Q_OBJECT

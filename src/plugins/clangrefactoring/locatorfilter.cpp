@@ -31,8 +31,6 @@
 
 namespace ClangRefactoring {
 
-
-
 QList<Core::LocatorFilterEntry> LocatorFilter::matchesFor(
         QFutureInterface<Core::LocatorFilterEntry> &, const QString &searchTerm)
 {

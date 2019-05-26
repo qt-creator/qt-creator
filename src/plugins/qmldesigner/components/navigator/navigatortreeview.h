@@ -29,7 +29,6 @@
 
 namespace QmlDesigner {
 
-
 class NavigatorTreeView : public QTreeView
 {
     Q_OBJECT

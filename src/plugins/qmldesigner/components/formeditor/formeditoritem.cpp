@@ -41,7 +41,6 @@
 
 namespace QmlDesigner {
 
-
 FormEditorScene *FormEditorItem::scene() const {
     return qobject_cast<FormEditorScene*>(QGraphicsItem::scene());
 }

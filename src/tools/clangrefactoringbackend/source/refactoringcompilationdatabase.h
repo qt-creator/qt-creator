@@ -31,7 +31,6 @@
 
 namespace ClangBackEnd {
 
-
 class RefactoringCompilationDatabase : public clang::tooling::CompilationDatabase
 {
 public:

@@ -36,7 +36,6 @@
 
 namespace QmlDesigner {
 
-
 ComponentsPlugin::ComponentsPlugin()
 {
     TabViewIndexModel::registerDeclarativeType();

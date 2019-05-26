@@ -38,7 +38,6 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 
-
 class TEXTEDITOR_EXPORT AssistProposalItemInterface
 {
 public:

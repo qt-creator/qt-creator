@@ -47,7 +47,6 @@ enum {
 namespace QmlJSEditor {
 namespace Internal {
 
-
 QmlJSOutlineFilterModel::QmlJSOutlineFilterModel(QObject *parent) :
     QSortFilterProxyModel(parent)
 {

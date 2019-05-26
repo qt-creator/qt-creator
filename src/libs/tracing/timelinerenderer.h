@@ -35,7 +35,6 @@
 
 namespace Timeline {
 
-
 class TRACING_EXPORT TimelineRenderer : public TimelineAbstractRenderer
 {
     Q_OBJECT

@@ -51,7 +51,6 @@
 
 namespace QmlDesigner {
 
-
 static bool isSwipeView(const ModelNode &node)
 {
     if (node.metaInfo().isValid()

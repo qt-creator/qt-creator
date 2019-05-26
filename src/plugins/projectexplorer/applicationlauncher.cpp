@@ -64,7 +64,6 @@ using namespace Internal;
 
 namespace Internal {
 
-
 class ApplicationLauncherPrivate : public QObject
 {
 public:

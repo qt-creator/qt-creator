@@ -30,7 +30,6 @@
 namespace QmlProfiler {
 namespace Internal {
 
-
 class QmlNoteTest : public QObject
 {
     Q_OBJECT

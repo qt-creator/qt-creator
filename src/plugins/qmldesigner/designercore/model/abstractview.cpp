@@ -44,7 +44,6 @@
 
 namespace QmlDesigner {
 
-
 /*!
 \class QmlDesigner::AbstractView
 \ingroup CoreModel

@@ -39,8 +39,6 @@
 
 namespace QmlDesigner {
 
-
-
 QList<QByteArray> RewriterTransaction::m_identifierList;
 bool RewriterTransaction::m_activeIdentifier = qEnvironmentVariableIsSet("QML_DESIGNER_TRACE_REWRITER_TRANSACTION");
 

@@ -39,7 +39,6 @@ class ItemLibraryEntry;
 
 namespace Internal {
 
-
 class MetaInfoReader : protected QmlJS::SimpleAbstractStreamReader
 {
     Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::MetaInfoReader)

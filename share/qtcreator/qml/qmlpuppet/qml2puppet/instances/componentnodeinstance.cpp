@@ -33,7 +33,6 @@
 namespace QmlDesigner {
 namespace Internal {
 
-
 ComponentNodeInstance::ComponentNodeInstance(QQmlComponent *component)
    : ObjectNodeInstance(component)
 {

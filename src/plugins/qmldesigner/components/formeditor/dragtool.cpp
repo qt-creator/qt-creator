@@ -42,7 +42,6 @@ static Q_LOGGING_CATEGORY(dragToolInfo, "qtc.qmldesigner.formeditor", QtWarningM
 
 namespace QmlDesigner {
 
-
 DragTool::DragTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView),
     m_moveManipulator(editorView->scene()->manipulatorLayerItem(), editorView),

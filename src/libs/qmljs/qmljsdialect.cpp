@@ -30,7 +30,6 @@
 
 namespace QmlJS {
 
-
 bool Dialect::isQmlLikeLanguage() const
 {
     switch (m_dialect) {

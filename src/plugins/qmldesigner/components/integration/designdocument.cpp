@@ -64,7 +64,6 @@ enum {
 
 namespace QmlDesigner {
 
-
 /**
   \class QmlDesigner::DesignDocument
 

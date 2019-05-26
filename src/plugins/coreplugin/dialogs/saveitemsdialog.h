@@ -36,7 +36,6 @@ class IDocument;
 
 namespace Internal {
 
-
 class SaveItemsDialog : public QDialog
 {
     Q_OBJECT

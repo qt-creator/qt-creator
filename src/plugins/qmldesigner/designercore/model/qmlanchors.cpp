@@ -31,7 +31,6 @@
 
 namespace QmlDesigner {
 
-
 static PropertyName lineTypeToString(AnchorLineType lineType)
 {
     switch (lineType) {

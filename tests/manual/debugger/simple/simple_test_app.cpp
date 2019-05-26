@@ -2511,7 +2511,6 @@ namespace qset {
 
 namespace qsharedpointer {
 
-
     class EmployeeData : public QSharedData
     {
     public:
@@ -5007,7 +5006,6 @@ QString fooxx()
 
 
 namespace basic {
-
 
     struct Empty {};
     struct Data { Data() : a(42) {} int a; };

@@ -29,6 +29,5 @@
 namespace PerfProfiler {
 namespace Internal {
 
-
 } // namespace Internal
 } // namespace PerfProfiler

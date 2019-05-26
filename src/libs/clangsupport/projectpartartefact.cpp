@@ -33,8 +33,6 @@
 
 namespace ClangBackEnd {
 
-
-
 Utils::SmallStringVector ProjectPartArtefact::toStringVector(Utils::SmallStringView jsonText)
 {
     if (jsonText.isEmpty())

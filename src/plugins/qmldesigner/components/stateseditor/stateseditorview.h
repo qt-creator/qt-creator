@@ -31,7 +31,6 @@
 
 namespace QmlDesigner {
 
-
 class StatesEditorModel;
 class StatesEditorWidget;
 

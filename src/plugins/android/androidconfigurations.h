@@ -52,7 +52,6 @@ class Project;
 
 namespace Android {
 
-
 namespace Internal {
 class AndroidSdkManager;
 class AndroidPluginPrivate;

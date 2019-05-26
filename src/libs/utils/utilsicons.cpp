@@ -28,7 +28,6 @@
 namespace Utils {
 namespace Icons {
 
-
 const Icon HOME({
         {QLatin1String(":/utils/images/home.png"), Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon HOME_TOOLBAR({

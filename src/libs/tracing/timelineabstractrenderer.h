@@ -35,7 +35,6 @@
 
 namespace Timeline {
 
-
 class TRACING_EXPORT TimelineAbstractRenderer : public QQuickItem
 {
     Q_OBJECT

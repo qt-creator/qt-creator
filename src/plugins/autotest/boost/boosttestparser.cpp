@@ -36,7 +36,6 @@
 namespace Autotest {
 namespace Internal {
 
-
 namespace BoostTestUtils {
 static const QStringList relevant = {
     QStringLiteral("BOOST_AUTO_TEST_CASE"), QStringLiteral("BOOST_TEST_CASE"),

@@ -35,7 +35,6 @@
 
 namespace TextEditor {
 
-
 class TEXTEDITOR_EXPORT AssistProposalItem : public AssistProposalItemInterface
 {
 public:

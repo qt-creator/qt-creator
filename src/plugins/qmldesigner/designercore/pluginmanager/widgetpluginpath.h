@@ -40,8 +40,6 @@ namespace QmlDesigner {
 class IWidgetPlugin;
 namespace Internal {
 
-
-
 // Dumb plugin data structure. Note that whereas QObjects can
 // casted to an interface, QPointer does not work with the
 // interface class, so, we need a separate QPointer as a guard

@@ -36,7 +36,6 @@
 
 namespace QmlDesigner {
 
-
 class CubicSegmentData : public QSharedData
 {
 public:

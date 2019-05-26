@@ -67,7 +67,6 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-
 static const QString pidScript = "pidof -s \"%1\"";
 static const QString pidScriptPreNougat = QStringLiteral("for p in /proc/[0-9]*; "
                                                 "do cat <$p/cmdline && echo :${p##*/}; done");

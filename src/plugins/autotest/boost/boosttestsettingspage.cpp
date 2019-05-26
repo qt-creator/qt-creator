@@ -33,7 +33,6 @@
 namespace Autotest {
 namespace Internal {
 
-
 BoostTestSettingsWidget::BoostTestSettingsWidget(QWidget *parent) :
     QWidget(parent)
 {

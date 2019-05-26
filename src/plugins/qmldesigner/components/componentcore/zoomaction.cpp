@@ -30,7 +30,6 @@
 
 namespace QmlDesigner {
 
-
 ZoomAction::ZoomAction(QObject *parent)
     :  QWidgetAction(parent),
     m_zoomLevel(1.0),

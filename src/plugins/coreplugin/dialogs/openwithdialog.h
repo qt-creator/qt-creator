@@ -29,8 +29,6 @@
 #include "ui_openwithdialog.h"
 
 namespace Core {
-
-
 namespace Internal {
 
 // Present the user with a file name and a list of available

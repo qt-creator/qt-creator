@@ -29,7 +29,6 @@
 
 namespace QmlDesigner {
 
-
 SelectionContext::SelectionContext() = default;
 
 SelectionContext::SelectionContext(AbstractView *view) :

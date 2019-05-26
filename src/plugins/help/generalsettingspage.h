@@ -33,7 +33,6 @@
 namespace Help {
 namespace Internal {
 
-
 class GeneralSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT

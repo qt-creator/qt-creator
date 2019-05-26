@@ -168,7 +168,6 @@ void setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
 
 namespace Internal {
 
-
 QHash<QString,Dialect> ModelManager::initLanguageForSuffix() const
 {
     QHash<QString,Dialect> res = ModelManagerInterface::languageForSuffix();
