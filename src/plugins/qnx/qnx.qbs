@@ -32,8 +32,6 @@ QtcPlugin {
         "qnxdebugsupport.h",
         "qnxdevice.cpp",
         "qnxdevice.h",
-        "qnxdevicefactory.cpp",
-        "qnxdevicefactory.h",
         "qnxdevicewizard.cpp",
         "qnxdevicewizard.h",
         "qnxdeviceprocesslist.cpp",

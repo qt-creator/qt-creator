@@ -12,7 +12,6 @@ add_qtc_plugin(Qnx
     qnxdebugsupport.cpp qnxdebugsupport.h
     qnxdeployqtlibrariesdialog.cpp qnxdeployqtlibrariesdialog.h qnxdeployqtlibrariesdialog.ui
     qnxdevice.cpp qnxdevice.h
-    qnxdevicefactory.cpp qnxdevicefactory.h
     qnxdeviceprocess.cpp qnxdeviceprocess.h
     qnxdeviceprocesslist.cpp qnxdeviceprocesslist.h
     qnxdeviceprocesssignaloperation.cpp qnxdeviceprocesssignaloperation.h

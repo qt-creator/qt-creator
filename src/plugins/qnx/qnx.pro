@@ -5,7 +5,6 @@ include(../../qtcreatorplugin.pri)
 SOURCES += qnxplugin.cpp \
     qnxbaseqtconfigwidget.cpp \
     qnxutils.cpp \
-    qnxdevicefactory.cpp \
     qnxdevicewizard.cpp \
     qnxrunconfiguration.cpp \
     qnxanalyzesupport.cpp \
@@ -29,7 +28,6 @@ HEADERS += qnxplugin.h\
     qnxconstants.h \
     qnxbaseqtconfigwidget.h \
     qnxutils.h \
-    qnxdevicefactory.h \
     qnxdevicewizard.h \
     qnxrunconfiguration.h \
     qnxanalyzesupport.h \

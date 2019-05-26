@@ -30,7 +30,6 @@
 #include "qnxconstants.h"
 #include "qnxdebugsupport.h"
 #include "qnxdevice.h"
-#include "qnxdevicefactory.h"
 #include "qnxqtversion.h"
 #include "qnxrunconfiguration.h"
 #include "qnxsettingspage.h"
