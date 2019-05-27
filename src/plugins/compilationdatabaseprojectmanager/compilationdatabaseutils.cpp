@@ -186,7 +186,7 @@ void filteredFlags(const QString &fileName,
 
         if (flag.startsWith("--sysroot=")) {
             if (sysRoot.isEmpty())
-                sysRoot = flag.mid(10);
+                sysRoot = updatedPathFlag(flag.mid(10), workingDir);
             continue;
         }
 
