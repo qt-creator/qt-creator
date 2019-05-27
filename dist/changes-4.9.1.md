@@ -56,6 +56,7 @@ Remote Linux
       (QTCREATORBUG-22352)
 
 Credits for these changes go to:  
+Aaron Barany  
 André Pönitz  
 BogDan Vatra  
 Christian Kandeler  
@@ -67,6 +68,7 @@ Jonathan Liu
 Leena Miettinen  
 Mitch Curtis  
 Nikolai Kosjar  
+Orgad Shaneh  
 Robert Löhning  
 Thomas Hartmann  
 Ulf Hermann  
