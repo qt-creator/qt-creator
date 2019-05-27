@@ -16,7 +16,6 @@ add_qtc_plugin(LanguageClient
     languageclientquickfix.cpp languageclientquickfix.h
     languageclientsettings.cpp languageclientsettings.h
     languageclientutils.cpp languageclientutils.h
-    languageclient_dependencies.pri
     languageclient_global.h
     locatorfilter.cpp locatorfilter.h
 )
