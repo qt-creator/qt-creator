@@ -234,7 +234,7 @@ bool QMakeStep::init()
     QTC_ASSERT(node, return false);
     QString proFile = node->filePath().toString();
 
-    QList<ProjectExplorer::Task> tasks = qtVersion->reportIssues(proFile, workingDirectory);
+    Tasks tasks = qtVersion->reportIssues(proFile, workingDirectory);
     Utils::sort(tasks);
 
     if (!tasks.isEmpty()) {

@@ -168,7 +168,7 @@ void ProjectExplorerPlugin::testAnsiFilterOutputParser()
     QFETCH(QString, childStdErrLines);
 
     testbench.testParsing(input, inputChannel,
-                          QList<Task>(), childStdOutLines, childStdErrLines,
+                          Tasks(), childStdOutLines, childStdErrLines,
                           QString());
 }
 

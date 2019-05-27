@@ -31,12 +31,12 @@
 #include "abi.h"
 #include "headerpath.h"
 #include "projectmacro.h"
+#include "task.h"
 #include "toolchaincache.h"
 
 #include <coreplugin/id.h>
 
 #include <utils/cpplanguage_details.h>
-#include <utils/fileutils.h>
 
 #include <QObject>
 #include <QSet>
@@ -68,7 +68,6 @@ class Abi;
 class IOutputParser;
 class ToolChainConfigWidget;
 class ToolChainFactory;
-class Task;
 class Kit;
 
 namespace Internal { class ToolChainSettingsAccessor; }
@@ -152,7 +151,7 @@ public:
     // Used by the toolchainmanager to save user-generated tool chains.
     // Make sure to call this function when deriving!
     virtual QVariantMap toMap() const;
-    virtual QList<Task> validateKit(const Kit *k) const;
+    virtual Tasks validateKit(const Kit *k) const;
 
     virtual bool isJobCountSupported() const { return true; }
 

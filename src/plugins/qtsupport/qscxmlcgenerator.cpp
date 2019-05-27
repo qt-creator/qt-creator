@@ -52,9 +52,9 @@ QScxmlcGenerator::QScxmlcGenerator(const Project *project,
     m_impl = m_tmpdir.path() + QLatin1Char('/') + targets[1].fileName();
 }
 
-QList<Task> QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
+Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 {
-    QList<Task> issues;
+    Tasks issues;
     foreach (const QByteArray &line, processStderr.split('\n')) {
         QByteArrayList tokens = line.split(':');
 

@@ -382,9 +382,9 @@ Utils::LanguageVersion ToolChain::languageVersion(const Core::Id &language, cons
     Used by the tool chain kit information to validate the kit.
 */
 
-QList<Task> ToolChain::validateKit(const Kit *) const
+Tasks ToolChain::validateKit(const Kit *) const
 {
-    return QList<Task>();
+    return {};
 }
 
 QString ToolChain::sysRoot() const

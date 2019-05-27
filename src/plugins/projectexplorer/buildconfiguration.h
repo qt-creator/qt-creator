@@ -27,6 +27,7 @@
 
 #include "projectexplorer_export.h"
 #include "projectconfiguration.h"
+#include "task.h"
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -40,7 +41,6 @@ class Kit;
 class NamedWidget;
 class Node;
 class Target;
-class Task;
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
@@ -150,10 +150,10 @@ public:
     static BuildConfigurationFactory *find(const Kit *k, const QString &projectPath);
     static BuildConfigurationFactory *find(Target *parent);
 
-    using IssueReporter = std::function<QList<ProjectExplorer::Task>(Kit *, const QString &, const QString &)>;
+    using IssueReporter = std::function<Tasks(Kit *, const QString &, const QString &)>;
     void setIssueReporter(const IssueReporter &issueReporter);
-    const QList<Task> reportIssues(ProjectExplorer::Kit *kit,
-                                   const QString &projectPath, const QString &buildDir) const;
+    const Tasks reportIssues(ProjectExplorer::Kit *kit,
+                             const QString &projectPath, const QString &buildDir) const;
 
 protected:
     virtual QList<BuildInfo> availableBuilds(const Target *parent) const = 0;

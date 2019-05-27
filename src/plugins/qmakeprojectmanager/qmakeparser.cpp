@@ -110,26 +110,26 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<Tasks >("tasks");
     QTest::addColumn<QString>("outputLines");
 
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<ProjectExplorer::Task>()
+            << Tasks()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("Sometext\n")
-            << QList<ProjectExplorer::Task>()
+            << Tasks()
             << QString();
 
     QTest::newRow("qMake error")
             << QString::fromLatin1("Project ERROR: undefined file")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QLatin1String("undefined file"),
                         Utils::FileName(), -1,
@@ -140,7 +140,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << QString::fromLatin1("e:\\project.pro:14: Parse Error ('sth odd')")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QLatin1String("Parse Error ('sth odd')"),
                         Utils::FileName::fromUserInput(QLatin1String("e:\\project.pro")),
@@ -152,7 +152,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << QString::fromLatin1("Project WARNING: bearer module might require ReadUserData capability")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (Tasks()
                 << Task(Task::Warning,
                         QLatin1String("bearer module might require ReadUserData capability"),
                         Utils::FileName(), -1,
@@ -163,7 +163,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << QString::fromLatin1("WARNING: Failure to find: blackberrycreatepackagestepconfigwidget.cpp")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (Tasks()
                 << Task(Task::Warning,
                         QLatin1String("Failure to find: blackberrycreatepackagestepconfigwidget.cpp"),
                         Utils::FileName(), -1,
@@ -174,7 +174,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << QString::fromLatin1("WARNING: e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl:1: Unescaped backslashes are deprecated.")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (Tasks()
                 << Task(Task::Warning,
                         QLatin1String("Unescaped backslashes are deprecated."),
                         Utils::FileName::fromUserInput(QLatin1String("e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl")), 1,
@@ -184,7 +184,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::Task>()
+            << (Tasks()
                 << Task(Task::Unknown,
                         QLatin1String("Note: No relevant classes found. No output generated."),
                         Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
@@ -198,7 +198,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers()
     testbench.appendOutputParser(new QMakeParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
-    QFETCH(QList<Task>, tasks);
+    QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
     QFETCH(QString, outputLines);

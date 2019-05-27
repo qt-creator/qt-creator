@@ -343,9 +343,9 @@ Runnable DebuggerKitAspect::runnable(const Kit *kit)
     return runnable;
 }
 
-QList<Task> DebuggerKitAspect::validateDebugger(const Kit *k)
+Tasks DebuggerKitAspect::validateDebugger(const Kit *k)
 {
-    QList<Task> result;
+    Tasks result;
 
     const ConfigurationErrors errors = configurationErrors(k);
     if (errors == NoConfigurationError)

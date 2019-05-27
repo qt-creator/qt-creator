@@ -86,9 +86,9 @@ void AndroidGdbServerKitAspect::setup(Kit *kit)
         kit->setValue(id(), autoDetect(kit).toString());
 }
 
-QList<Task> AndroidGdbServerKitAspect::validate(const Kit *) const
+Tasks AndroidGdbServerKitAspect::validate(const Kit *) const
 {
-    return QList<Task>();
+    return {};
 }
 
 bool AndroidGdbServerKitAspect::isApplicableToKit(const Kit *k) const

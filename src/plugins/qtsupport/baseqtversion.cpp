@@ -352,9 +352,9 @@ QSet<Id> BaseQtVersion::availableFeatures() const
     return features;
 }
 
-QList<Task> BaseQtVersion::validateKit(const Kit *k)
+Tasks BaseQtVersion::validateKit(const Kit *k)
 {
-    QList<Task> result;
+    Tasks result;
 
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
     Q_ASSERT(version == this);
@@ -1466,11 +1466,11 @@ void BaseQtVersion::recheckDumper()
     m_versionInfoUpToDate = false;
 }
 
-QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
+Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
 {
     Q_UNUSED(proFile);
     Q_UNUSED(buildDir);
-    QList<Task> results;
+    Tasks results;
 
     if (!isValid()) {
         //: %1: Reason for being invalid
@@ -1492,9 +1492,9 @@ QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QStrin
     return results;
 }
 
-QList<Task> BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir) const
+Tasks BaseQtVersion::reportIssues(const QString &proFile, const QString &buildDir) const
 {
-    QList<Task> results = reportIssuesImpl(proFile, buildDir);
+    Tasks results = reportIssuesImpl(proFile, buildDir);
     Utils::sort(results);
     return results;
 }

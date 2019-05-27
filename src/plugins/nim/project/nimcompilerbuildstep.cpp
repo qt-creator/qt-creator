@@ -316,19 +316,19 @@ void NimPlugin::testNimParser_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<Tasks >("tasks");
     QTest::addColumn<QString>("outputLines");
 
     // negative tests
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
             << "Sometext\n" << QString()
-            << QList<Task>()
+            << Tasks()
             << QString();
     QTest::newRow("pass-through stderr")
             << "Sometext" << OutputParserTester::STDERR
             << QString() << "Sometext\n"
-            << QList<Task>()
+            << Tasks()
             << QString();
 
     // positive tests
@@ -336,7 +336,7 @@ void NimPlugin::testNimParser_data()
             << QString::fromLatin1("main.nim(23, 1) Error: undeclared identifier: 'x'")
             << OutputParserTester::STDERR
             << QString("") << QString("main.nim(23, 1) Error: undeclared identifier: 'x'\n")
-            << QList<Task>({Task(Task::Error,
+            << Tasks({Task(Task::Error,
                             "Error: undeclared identifier: 'x'",
                             Utils::FileName::fromUserInput("main.nim"), 23,
                             ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)})
@@ -346,7 +346,7 @@ void NimPlugin::testNimParser_data()
             << QString::fromLatin1("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]")
             << OutputParserTester::STDERR
             << QString("") << QString("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]\n")
-            << QList<Task>({Task(Task::Warning,
+            << Tasks({Task(Task::Warning,
                             "Warning: quoteIfContainsWhite is deprecated [Deprecated]",
                             Utils::FileName::fromUserInput("lib/pure/parseopt.nim"), 56,
                             ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)})
@@ -359,7 +359,7 @@ void NimPlugin::testNimParser()
     testbench.appendOutputParser(new NimParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
-    QFETCH(QList<Task>, tasks);
+    QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
     QFETCH(QString, outputLines);

@@ -92,9 +92,9 @@ QmakeKitAspect::QmakeKitAspect()
     setPriority(24000);
 }
 
-QList<Task> QmakeKitAspect::validate(const Kit *k) const
+Tasks QmakeKitAspect::validate(const Kit *k) const
 {
-    QList<Task> result;
+    Tasks result;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
 
     FileName mkspec = QmakeKitAspect::mkspec(k);

@@ -44,7 +44,7 @@ public:
 
     void setup(ProjectExplorer::Kit *k) override;
 
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override;
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override;
     void fix(ProjectExplorer::Kit *) override;
 
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;

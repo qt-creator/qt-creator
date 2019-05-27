@@ -255,9 +255,9 @@ bool Kit::hasWarning() const
     return d->m_hasWarning;
 }
 
-QList<Task> Kit::validate() const
+Tasks Kit::validate() const
 {
-    QList<Task> result;
+    Tasks result;
     for (KitAspect *aspect : KitManager::kitAspects())
         result.append(aspect->validate(this));
 
@@ -550,7 +550,7 @@ IOutputParser *Kit::createOutputParser() const
     return first;
 }
 
-QString Kit::toHtml(const QList<Task> &additional) const
+QString Kit::toHtml(const Tasks &additional) const
 {
     QString result;
     QTextStream str(&result);

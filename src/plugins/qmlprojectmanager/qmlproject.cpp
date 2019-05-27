@@ -287,9 +287,9 @@ void QmlProject::refreshTargetDirectory()
         updateDeploymentData(target);
 }
 
-QList<Task> QmlProject::projectIssues(const Kit *k) const
+Tasks QmlProject::projectIssues(const Kit *k) const
 {
-    QList<Task> result = Project::projectIssues(k);
+    Tasks result = Project::projectIssues(k);
 
     const QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version)

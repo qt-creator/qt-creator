@@ -47,7 +47,7 @@ public:
     static void setCMakeTool(ProjectExplorer::Kit *k, const Core::Id id);
 
     // KitAspect interface
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
@@ -77,7 +77,7 @@ public:
     static QStringList generatorArguments(const ProjectExplorer::Kit *k);
 
     // KitAspect interface
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     void upgrade(ProjectExplorer::Kit *k) final;
@@ -103,7 +103,7 @@ public:
     static CMakeConfig defaultConfiguration(const ProjectExplorer::Kit *k);
 
     // KitAspect interface
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
     void setup(ProjectExplorer::Kit *k) final;
     void fix(ProjectExplorer::Kit *k) final;
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;

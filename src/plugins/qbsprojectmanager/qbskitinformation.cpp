@@ -107,7 +107,7 @@ Core::Id QbsKitAspect::id()
     return "Qbs.KitInformation";
 }
 
-QList<Task> QbsKitAspect::validate(const Kit *) const { return QList<Task>(); }
+Tasks QbsKitAspect::validate(const Kit *) const { return {}; }
 
 KitAspect::ItemList QbsKitAspect::toUserOutput(const Kit *k) const
 {

@@ -122,9 +122,9 @@ SysRootKitAspect::SysRootKitAspect()
     setPriority(31000);
 }
 
-QList<Task> SysRootKitAspect::validate(const Kit *k) const
+Tasks SysRootKitAspect::validate(const Kit *k) const
 {
-    QList<Task> result;
+    Tasks result;
     const Utils::FileName dir = SysRootKitAspect::sysRoot(k);
     if (dir.isEmpty())
         return result;
@@ -369,9 +369,9 @@ static QVariant defaultToolChainValue()
     return result;
 }
 
-QList<Task> ToolChainKitAspect::validate(const Kit *k) const
+Tasks ToolChainKitAspect::validate(const Kit *k) const
 {
-    QList<Task> result;
+    Tasks result;
 
     const QList<ToolChain*> tcList = toolChains(k);
     if (tcList.isEmpty()) {
@@ -809,10 +809,10 @@ void DeviceTypeKitAspect::setup(Kit *k)
         k->setValue(id(), QByteArray(Constants::DESKTOP_DEVICE_TYPE));
 }
 
-QList<Task> DeviceTypeKitAspect::validate(const Kit *k) const
+Tasks DeviceTypeKitAspect::validate(const Kit *k) const
 {
     Q_UNUSED(k);
-    return QList<Task>();
+    return {};
 }
 
 KitAspectWidget *DeviceTypeKitAspect::createConfigWidget(Kit *k) const
@@ -971,10 +971,10 @@ QVariant DeviceKitAspect::defaultValue(const Kit *k) const
     return QString();
 }
 
-QList<Task> DeviceKitAspect::validate(const Kit *k) const
+Tasks DeviceKitAspect::validate(const Kit *k) const
 {
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    QList<Task> result;
+    Tasks result;
     if (dev.isNull())
         result.append(Task(Task::Warning, tr("No device set."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
@@ -1234,9 +1234,9 @@ EnvironmentKitAspect::EnvironmentKitAspect()
     setPriority(29000);
 }
 
-QList<Task> EnvironmentKitAspect::validate(const Kit *k) const
+Tasks EnvironmentKitAspect::validate(const Kit *k) const
 {
-    QList<Task> result;
+    Tasks result;
     QTC_ASSERT(k, return result);
 
     const QVariant variant = k->value(EnvironmentKitAspect::id());

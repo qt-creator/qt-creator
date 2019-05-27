@@ -41,7 +41,7 @@ class DEBUGGER_EXPORT DebuggerKitAspect : public ProjectExplorer::KitAspect
 public:
     DebuggerKitAspect();
 
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const override
+    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const override
         { return DebuggerKitAspect::validateDebugger(k); }
 
     void setup(ProjectExplorer::Kit *k) override;
@@ -61,7 +61,7 @@ public:
     };
     Q_DECLARE_FLAGS(ConfigurationErrors, ConfigurationError)
 
-    static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *k);
+    static ProjectExplorer::Tasks validateDebugger(const ProjectExplorer::Kit *k);
     static ConfigurationErrors configurationErrors(const ProjectExplorer::Kit *k);
 
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *k) const override;

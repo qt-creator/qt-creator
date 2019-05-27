@@ -1,5 +1,3 @@
-QT -= gui
-
 include(../qttest.pri)
 
 SOURCES += \

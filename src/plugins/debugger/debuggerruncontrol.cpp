@@ -959,7 +959,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     // This will only be shown in some cases, but we don't want to access
     // the kit at that time anymore.
-    const QList<Task> tasks = DebuggerKitAspect::validateDebugger(kit);
+    const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
     for (const Task &t : tasks) {
         if (t.type != Task::Warning)
             m_runParameters.validationErrors.append(t.description);

@@ -318,7 +318,7 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
         return qMakePair(Task::Unknown, QString());
 
     QString buildDir = info.buildDirectory.toString();
-    QList<Task> issues;
+    Tasks issues;
     if (info.factory())
         issues = info.factory()->reportIssues(m_kit, m_projectPath, buildDir);
 

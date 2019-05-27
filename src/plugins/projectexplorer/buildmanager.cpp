@@ -376,7 +376,7 @@ void BuildManager::nextBuildQueue()
         const QString projectName = d->m_currentBuildStep->project()->displayName();
         const QString targetName = t->displayName();
         addToOutputWindow(tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName), BuildStep::OutputFormat::Stderr);
-        const QList<Task> kitTasks = t->kit()->validate();
+        const Tasks kitTasks = t->kit()->validate();
         if (!kitTasks.isEmpty()) {
             addToOutputWindow(tr("The kit %1 has configuration issues which might be the root cause for this problem.")
                               .arg(targetName), BuildStep::OutputFormat::Stderr);

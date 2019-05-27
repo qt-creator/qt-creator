@@ -49,7 +49,7 @@ private:
     Utils::FileName tmpFile() const;
     ProjectExplorer::FileNameToContentsHash handleProcessFinished(QProcess *process) override;
     bool prepareToRun(const QByteArray &sourceContents) override;
-    QList<ProjectExplorer::Task> parseIssues(const QByteArray &processStderr) override;
+    ProjectExplorer::Tasks parseIssues(const QByteArray &processStderr) override;
 
     Utils::TemporaryDirectory m_tmpdir;
     QString m_header;

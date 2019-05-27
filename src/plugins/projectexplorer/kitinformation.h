@@ -50,7 +50,7 @@ class PROJECTEXPLORER_EXPORT SysRootKitAspect : public KitAspect
 public:
     SysRootKitAspect();
 
-    QList<Task> validate(const Kit *k) const override;
+    Tasks validate(const Kit *k) const override;
     KitAspectWidget *createConfigWidget(Kit *k) const override;
     ItemList toUserOutput(const Kit *k) const override;
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
@@ -71,7 +71,7 @@ class PROJECTEXPLORER_EXPORT ToolChainKitAspect : public KitAspect
 public:
     ToolChainKitAspect();
 
-    QList<Task> validate(const Kit *k) const override;
+    Tasks validate(const Kit *k) const override;
     void upgrade(Kit *k) override;
     void fix(Kit *k) override;
     void setup(Kit *k) override;
@@ -116,7 +116,7 @@ public:
     DeviceTypeKitAspect();
 
     void setup(Kit *k) override;
-    QList<Task> validate(const Kit *k) const override;
+    Tasks validate(const Kit *k) const override;
     KitAspectWidget *createConfigWidget(Kit *k) const override;
     ItemList toUserOutput(const Kit *k) const override;
 
@@ -139,7 +139,7 @@ class PROJECTEXPLORER_EXPORT DeviceKitAspect : public KitAspect
 public:
     DeviceKitAspect();
 
-    QList<Task> validate(const Kit *k) const override;
+    Tasks validate(const Kit *k) const override;
     void fix(Kit *k) override;
     void setup(Kit *k) override;
 
@@ -177,7 +177,7 @@ class PROJECTEXPLORER_EXPORT EnvironmentKitAspect : public KitAspect
 public:
     EnvironmentKitAspect();
 
-    QList<Task> validate(const Kit *k) const override;
+    Tasks validate(const Kit *k) const override;
     void fix(Kit *k) override;
 
     void addToEnvironment(const Kit *k, Utils::Environment &env) const override;

@@ -60,9 +60,9 @@ QmlTaskManager::QmlTaskManager()
     connect(&m_updateDelay, &QTimer::timeout, this, [this] { updateMessagesNow(); });
 }
 
-static QList<Task> convertToTasks(const QList<DiagnosticMessage> &messages, const FileName &fileName, Core::Id category)
+static Tasks convertToTasks(const QList<DiagnosticMessage> &messages, const FileName &fileName, Core::Id category)
 {
-    QList<Task> result;
+    Tasks result;
     foreach (const DiagnosticMessage &msg, messages) {
         Task::TaskType type = msg.isError() ? Task::Error : Task::Warning;
         Task task(type, msg.message, fileName, msg.loc.startLine, category);
@@ -71,7 +71,7 @@ static QList<Task> convertToTasks(const QList<DiagnosticMessage> &messages, cons
     return result;
 }
 
-static QList<Task> convertToTasks(const QList<StaticAnalysis::Message> &messages, const FileName &fileName, Core::Id category)
+static Tasks convertToTasks(const QList<StaticAnalysis::Message> &messages, const FileName &fileName, Core::Id category)
 {
     QList<DiagnosticMessage> diagnostics;
     foreach (const StaticAnalysis::Message &msg, messages)
@@ -179,7 +179,7 @@ void QmlTaskManager::displayAllResults()
 
 void QmlTaskManager::insertTask(const Task &task)
 {
-    QList<Task> tasks = m_docsWithTasks.value(task.file.toString());
+    Tasks tasks = m_docsWithTasks.value(task.file.toString());
     tasks.append(task);
     m_docsWithTasks.insert(task.file.toString(), tasks);
     TaskHub::addTask(task);
@@ -188,7 +188,7 @@ void QmlTaskManager::insertTask(const Task &task)
 void QmlTaskManager::removeTasksForFile(const QString &fileName)
 {
     if (m_docsWithTasks.contains(fileName)) {
-        const QList<Task> tasks = m_docsWithTasks.value(fileName);
+        const Tasks tasks = m_docsWithTasks.value(fileName);
         foreach (const Task &task, tasks)
             TaskHub::removeTask(task);
         m_docsWithTasks.remove(fileName);

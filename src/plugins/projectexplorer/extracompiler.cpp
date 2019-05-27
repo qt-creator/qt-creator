@@ -59,7 +59,7 @@ public:
     const Project *project;
     Utils::FileName source;
     FileNameToContentsHash contents;
-    QList<Task> issues;
+    Tasks issues;
     QDateTime compileTime;
     Core::IEditor *lastEditor = nullptr;
     QMetaObject::Connection activeBuildConfigConnection;
@@ -265,7 +265,7 @@ Utils::Environment ExtraCompiler::buildEnvironment() const
     return Utils::Environment::systemEnvironment();
 }
 
-void ExtraCompiler::setCompileIssues(const QList<Task> &issues)
+void ExtraCompiler::setCompileIssues(const Tasks &issues)
 {
     d->issues = issues;
     d->updateIssues();
@@ -380,10 +380,10 @@ bool ProcessExtraCompiler::prepareToRun(const QByteArray &sourceContents)
     return true;
 }
 
-QList<Task> ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
+Tasks ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
 {
     Q_UNUSED(stdErr);
-    return QList<Task>();
+    return {};
 }
 
 void ProcessExtraCompiler::runImpl(const ContentProvider &provider)

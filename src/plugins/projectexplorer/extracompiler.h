@@ -79,7 +79,7 @@ signals:
 
 protected:
     Utils::Environment buildEnvironment() const;
-    void setCompileIssues(const QList<Task> &issues);
+    void setCompileIssues(const Tasks &issues);
 
 private:
     void onTargetsBuilt(Project *project);
@@ -123,7 +123,7 @@ protected:
     { Q_UNUSED(process); Q_UNUSED(sourceContents); }
     virtual FileNameToContentsHash handleProcessFinished(QProcess *process) = 0;
 
-    virtual QList<Task> parseIssues(const QByteArray &stdErr);
+    virtual Tasks parseIssues(const QByteArray &stdErr);
 
 private:
     using ContentProvider = std::function<QByteArray()>;

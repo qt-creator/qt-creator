@@ -331,9 +331,9 @@ Target *Project::target(Kit *k) const
     return Utils::findOrDefault(d->m_targets, Utils::equal(&Target::kit, k));
 }
 
-QList<Task> Project::projectIssues(const Kit *k) const
+Tasks Project::projectIssues(const Kit *k) const
 {
-    QList<Task> result;
+    Tasks result;
     if (!k->isValid())
         result.append(createProjectTask(Task::TaskType::Error, tr("Kit is not valid.")));
     return {};

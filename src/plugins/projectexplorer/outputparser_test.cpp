@@ -43,7 +43,7 @@ OutputParserTester::OutputParserTester() = default;
 // test functions:
 void OutputParserTester::testParsing(const QString &lines,
                                      Channel inputChannel,
-                                     QList<Task> tasks,
+                                     Tasks tasks,
                                      const QString &childStdOutLines,
                                      const QString &childStdErrLines,
                                      const QString &outputLines)

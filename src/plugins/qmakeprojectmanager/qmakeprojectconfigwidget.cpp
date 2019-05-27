@@ -298,7 +298,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
         QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory().toString();
         if (m_buildConfiguration->isShadowBuild())
             buildDirectory = m_buildConfiguration->buildDirectory().toString();
-        QList<ProjectExplorer::Task> issues;
+        Tasks issues;
         issues = version->reportIssues(proFileName, buildDirectory);
         Utils::sort(issues);
 

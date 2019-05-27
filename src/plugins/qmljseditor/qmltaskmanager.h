@@ -65,7 +65,7 @@ private:
     {
     public:
         QString fileName;
-        QList<ProjectExplorer::Task> tasks;
+        ProjectExplorer::Tasks tasks;
     };
     static void collectMessages(QFutureInterface<FileErrorMessages> &future,
                                 QmlJS::Snapshot snapshot,
@@ -74,7 +74,7 @@ private:
                                 bool updateSemantic);
 
 private:
-    QHash<QString, QList<ProjectExplorer::Task> > m_docsWithTasks;
+    QHash<QString, ProjectExplorer::Tasks > m_docsWithTasks;
     QFutureWatcher<FileErrorMessages> m_messageCollector;
     QTimer m_updateDelay;
     bool m_updatingSemantic = false;

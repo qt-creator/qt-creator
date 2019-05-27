@@ -236,18 +236,18 @@ void BareMetalPlugin::testKeilOutputParsers_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
+    QTest::addColumn<Tasks >("tasks");
     QTest::addColumn<QString>("outputLines");
 
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
             << "Sometext\n" << QString()
-            << QList<Task>()
+            << Tasks()
             << QString();
     QTest::newRow("pass-through stderr")
             << "Sometext" << OutputParserTester::STDERR
             << QString() << "Sometext\n"
-            << QList<Task>()
+            << Tasks()
             << QString();
 
     const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
@@ -259,7 +259,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDERR
             << QString()
             << QString::fromLatin1("\"c:\\foo\\main.c\", line 63: Warning: #1234: Some warning\n")
-            << (QList<Task>() << Task(Task::Warning,
+            << (Tasks() << Task(Task::Warning,
                                       QLatin1String("#1234: Some warning"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
@@ -275,7 +275,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << QString::fromLatin1("\"c:\\foo\\main.c\", line 63: Warning: #1234: Some warning\n"
                                    "      int f;\n"
                                    "          ^\n")
-            << (QList<Task>() << Task(Task::Warning,
+            << (Tasks() << Task(Task::Warning,
                                       QLatin1String("#1234: Some warning\n"
                                                     "      int f;\n"
                                                     "          ^"),
@@ -289,7 +289,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDERR
             << QString()
             << QString::fromLatin1("\"c:\\foo\\main.c\", line 63: Error: #1234: Some error\n")
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("#1234: Some error"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
@@ -301,7 +301,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDERR
             << QString()
             << QString::fromLatin1("\"flash.sct\", line 51 (column 20): Error: L1234: Some error\n")
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("L1234: Some error"),
                                       Utils::FileName::fromUserInput(QLatin1String("flash.sct")),
                                       51,
@@ -317,7 +317,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << QString::fromLatin1("\"c:\\foo\\main.c\", line 63: Error: #1234: Some error\n"
                                    "      int f;\n"
                                    "          ^\n")
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("#1234: Some error\n"
                                                     "      int f;\n"
                                                     "          ^"),
@@ -331,7 +331,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDERR
             << QString()
             << QString::fromLatin1("\"c:\\foo\\main.c\", line 71: Error: At end of source:  #40: Some error\n")
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("#40: Some error"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       71,
@@ -343,7 +343,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDERR
             << QString()
             << QString::fromLatin1("Error: L6226E: Some error.\n")
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("L6226E: Some error."),
                                       Utils::FileName(),
                                       -1,
@@ -358,7 +358,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDOUT
             << QString::fromLatin1("*** WARNING #A9 IN 15 (c:\\foo\\dscr.a51, LINE 15): Some warning\n")
             << QString()
-            << (QList<Task>() << Task(Task::Warning,
+            << (Tasks() << Task(Task::Warning,
                                       QLatin1String("#A9: Some warning"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\dscr.a51")),
                                       15,
@@ -370,7 +370,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDOUT
             << QString::fromLatin1("*** ERROR #A9 IN 15 (c:\\foo\\dscr.a51, LINE 15): Some error\n")
             << QString()
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("#A9: Some error"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\dscr.a51")),
                                       15,
@@ -386,7 +386,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
                                    "  Some detail 1\n"
                                    "  Some detail N\n")
             << QString()
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("Assembler fatal error\n"
                                                     "  Some detail 1\n"
                                                     "  Some detail N"),
@@ -401,7 +401,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDOUT
             << QString::fromLatin1("*** WARNING C123 IN LINE 13 OF c:\\foo.c: Some warning\n")
             << QString()
-            << (QList<Task>() << Task(Task::Warning,
+            << (Tasks() << Task(Task::Warning,
                                       QLatin1String("C123: Some warning"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo.c")),
                                       13,
@@ -413,7 +413,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDOUT
             << QString::fromLatin1("*** WARNING C123 IN LINE 13 OF c:\\foo.c: Some warning : 'extended text'\n")
             << QString()
-            << (QList<Task>() << Task(Task::Warning,
+            << (Tasks() << Task(Task::Warning,
                                       QLatin1String("C123: Some warning : 'extended text'"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo.c")),
                                       13,
@@ -425,7 +425,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDOUT
             << QString::fromLatin1("*** ERROR C123 IN LINE 13 OF c:\\foo.c: Some error\n")
             << QString()
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("C123: Some error"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo.c")),
                                       13,
@@ -437,7 +437,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDOUT
             << QString::fromLatin1("*** ERROR C123 IN LINE 13 OF c:\\foo.c: Some error : 'extended text'\n")
             << QString()
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("C123: Some error : 'extended text'"),
                                       Utils::FileName::fromUserInput(QLatin1String("c:\\foo.c")),
                                       13,
@@ -453,7 +453,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
                                    "  Some detail 1\n"
                                    "  Some detail N\n")
             << QString()
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("Compiler fatal error\n"
                                                     "  Some detail 1\n"
                                                     "  Some detail N"),
@@ -468,7 +468,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << OutputParserTester::STDOUT
             << QString::fromLatin1("*** FATAL ERROR L456: Some error\n")
             << QString()
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("L456: Some error"),
                                       Utils::FileName(),
                                       -1,
@@ -484,7 +484,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
                                    "    Some detail 1\n"
                                    "    Some detail N\n")
             << QString()
-            << (QList<Task>() << Task(Task::Error,
+            << (Tasks() << Task(Task::Error,
                                       QLatin1String("L456: Some error\n"
                                                     "    Some detail 1\n"
                                                     "    Some detail N"),
@@ -500,7 +500,7 @@ void BareMetalPlugin::testKeilOutputParsers()
     testbench.appendOutputParser(new KeilParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
-    QFETCH(QList<Task>, tasks);
+    QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
     QFETCH(QString, outputLines);

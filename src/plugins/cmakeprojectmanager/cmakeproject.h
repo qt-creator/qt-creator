@@ -67,7 +67,7 @@ public:
 
     bool knowsAllBuildExecutables() const final;
 
-    QList<ProjectExplorer::Task> projectIssues(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
     void runCMake();
     void runCMakeAndScanProjectTree();

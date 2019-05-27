@@ -150,11 +150,10 @@ void NimProject::updateProject()
     emitParsingFinished(true);
 }
 
-QList<Task> NimProject::projectIssues(const Kit *k) const
+Tasks NimProject::projectIssues(const Kit *k) const
 {
-    QList<Task> result = Project::projectIssues(k);
-    auto tc = dynamic_cast<NimToolChain *>(ToolChainKitAspect::toolChain(k,
-                                                                              Constants::C_NIMLANGUAGE_ID));
+    Tasks result = Project::projectIssues(k);
+    auto tc = dynamic_cast<NimToolChain *>(ToolChainKitAspect::toolChain(k, Constants::C_NIMLANGUAGE_ID));
     if (!tc) {
         result.append(createProjectTask(Task::TaskType::Error, tr("No Nim compiler set.")));
         return result;

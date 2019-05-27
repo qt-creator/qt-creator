@@ -48,7 +48,7 @@ public:
     explicit QmlProject(const Utils::FileName &filename);
     ~QmlProject() override;
 
-    QList<ProjectExplorer::Task> projectIssues(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
     bool validProjectFile() const;
 

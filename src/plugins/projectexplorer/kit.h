@@ -71,7 +71,7 @@ public:
 
     bool isValid() const;
     bool hasWarning() const;
-    QList<Task> validate() const;
+    Tasks validate() const;
     void fix(); // Fix the individual kit information: Make sure it contains a valid value.
                 // Fix will not look at other information in the kit!
     void setup(); // Apply advanced magic(TM). Used only once on each kit during initial setup.
@@ -116,7 +116,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
     IOutputParser *createOutputParser() const;
 
-    QString toHtml(const QList<Task> &additional = QList<Task>()) const;
+    QString toHtml(const Tasks &additional = Tasks()) const;
     Kit *clone(bool keepName = false) const;
     void copyFrom(const Kit *k);
 

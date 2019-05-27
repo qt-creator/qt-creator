@@ -540,9 +540,9 @@ void QmakeProject::buildFinished(bool success)
         m_invalidateQmakeVfsContents = true;
 }
 
-QList<Task> QmakeProject::projectIssues(const Kit *k) const
+Tasks QmakeProject::projectIssues(const Kit *k) const
 {
-    QList<Task> result = Project::projectIssues(k);
+    Tasks result = Project::projectIssues(k);
     if (!QtSupport::QtKitAspect::qtVersion(k))
         result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
     else if (!QtSupport::QtKitAspect::qtVersion(k)->isValid())

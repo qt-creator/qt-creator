@@ -168,7 +168,7 @@ uint qHash(const Task &task)
     return task.taskId;
 }
 
-QString toHtml(const QList<Task> &issues)
+QString toHtml(const Tasks &issues)
 {
     QString result;
     QTextStream str(&result);
@@ -191,7 +191,7 @@ QString toHtml(const QList<Task> &issues)
     return result;
 }
 
-bool containsType(const QList<Task> &issues, Task::TaskType type)
+bool containsType(const Tasks &issues, Task::TaskType type)
 {
     return Utils::contains(issues, [type](const Task &t) { return t.type == type; });
 }

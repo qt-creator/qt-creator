@@ -86,12 +86,12 @@ void TaskModel::addCategory(Core::Id categoryId, const QString &categoryName)
     m_categories.insert(categoryId, data);
 }
 
-QList<Task> TaskModel::tasks(Core::Id categoryId) const
+Tasks TaskModel::tasks(Core::Id categoryId) const
 {
     if (!categoryId.isValid())
         return m_tasks;
 
-    QList<Task> taskList;
+    Tasks taskList;
     foreach (const Task &t, m_tasks) {
         if (t.category == categoryId)
             taskList.append(t);

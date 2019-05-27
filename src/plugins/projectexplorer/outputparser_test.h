@@ -50,7 +50,7 @@ public:
 
     // test functions:
     void testParsing(const QString &lines, Channel inputChannel,
-                     QList<Task> tasks,
+                     Tasks tasks,
                      const QString &childStdOutLines,
                      const QString &childStdErrLines,
                      const QString &outputLines);
@@ -76,7 +76,7 @@ private:
 
     QString m_receivedStdErrChildLine;
     QString m_receivedStdOutChildLine;
-    QList<Task> m_receivedTasks;
+    Tasks m_receivedTasks;
     QString m_receivedOutput;
 
     friend class TestTerminator;

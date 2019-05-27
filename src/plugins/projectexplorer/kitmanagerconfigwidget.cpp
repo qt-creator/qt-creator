@@ -211,7 +211,7 @@ bool KitManagerConfigWidget::hasWarning() const
 
 QString KitManagerConfigWidget::validityMessage() const
 {
-    QList<Task> tmp;
+    Tasks tmp;
     if (!m_hasUniqueName) {
         tmp.append(Task(Task::Warning, tr("Display name is not unique."), Utils::FileName(), -1,
                         ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));

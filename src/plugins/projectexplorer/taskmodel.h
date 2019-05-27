@@ -53,7 +53,7 @@ public:
     QString categoryDisplayName(Core::Id categoryId) const;
     void addCategory(Core::Id categoryId, const QString &categoryName);
 
-    QList<Task> tasks(Core::Id categoryId = Core::Id()) const;
+    Tasks tasks(Core::Id categoryId = Core::Id()) const;
     void addTask(const Task &t);
     void removeTask(unsigned int id);
     void clearTasks(Core::Id categoryId = Core::Id());
@@ -110,7 +110,7 @@ private:
     };
 
     QHash<Core::Id,CategoryData> m_categories; // category id to data
-    QList<Task> m_tasks;   // all tasks (in order of id)
+    Tasks m_tasks;   // all tasks (in order of id)
 
     QHash<QString,bool> m_fileNotFound;
     QFont m_fileMeasurementFont;

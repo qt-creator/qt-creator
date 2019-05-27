@@ -80,7 +80,7 @@ public:
     bool isEssential() const { return m_essential; }
 
     // called to find issues with the kit
-    virtual QList<Task> validate(const Kit *) const = 0;
+    virtual Tasks validate(const Kit *) const = 0;
     // called after restoring a kit, so upgrading of kit information settings can be done
     virtual void upgrade(Kit *) { return; }
     // called to fix issues with this kitinformation. Does not modify the rest of the kit.

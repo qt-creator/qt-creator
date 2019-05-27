@@ -245,9 +245,9 @@ void CMakeKitAspect::setCMakeTool(Kit *k, const Core::Id id)
         k->setValue(TOOL_ID, toSet.toSetting());
 }
 
-QList<Task> CMakeKitAspect::validate(const Kit *k) const
+Tasks CMakeKitAspect::validate(const Kit *k) const
 {
-    QList<Task> result;
+    Tasks result;
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
     if (tool) {
         CMakeTool::Version version = tool->version();
@@ -650,12 +650,12 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
     return GeneratorInfo({it->name, extraGenerator, QString(), QString()}).toVariant();
 }
 
-QList<Task> CMakeGeneratorKitAspect::validate(const Kit *k) const
+Tasks CMakeGeneratorKitAspect::validate(const Kit *k) const
 {
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
     GeneratorInfo info = generatorInfo(k);
 
-    QList<Task> result;
+    Tasks result;
     if (tool) {
         if (!tool->isValid()) {
             result << Task(Task::Warning, tr("CMake Tool is unconfigured, CMake generator will be ignored."),
@@ -952,9 +952,9 @@ QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const
     return tmp;
 }
 
-QList<Task> CMakeConfigurationKitAspect::validate(const Kit *k) const
+Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
 {
-    QTC_ASSERT(k, return QList<Task>());
+    QTC_ASSERT(k, return Tasks());
 
     const QtSupport::BaseQtVersion *const version = QtSupport::QtKitAspect::qtVersion(k);
     const ToolChain *const tcC = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::C_LANGUAGE_ID);
@@ -980,7 +980,7 @@ QList<Task> CMakeConfigurationKitAspect::validate(const Kit *k) const
             qtInstallDirs = CMakeConfigItem::cmakeSplitValue(expandedValue.toString());
     }
 
-    QList<Task> result;
+    Tasks result;
     // Validate Qt:
     if (qmakePath.isEmpty()) {
         if (version && version->isValid() && isQt4) {

@@ -193,7 +193,7 @@ void QtKitAspect::setup(ProjectExplorer::Kit *k)
         k->setValue(id(), candidates.first()->uniqueId());
 }
 
-QList<ProjectExplorer::Task> QtKitAspect::validate(const ProjectExplorer::Kit *k) const
+Tasks QtKitAspect::validate(const ProjectExplorer::Kit *k) const
 {
     QTC_ASSERT(QtVersionManager::isLoaded(), return { });
     BaseQtVersion *version = qtVersion(k);

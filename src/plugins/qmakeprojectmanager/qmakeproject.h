@@ -61,7 +61,7 @@ public:
 
     QmakeProFile *rootProFile() const;
 
-    QList<ProjectExplorer::Task> projectIssues(const ProjectExplorer::Kit *k) const final;
+    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
     QmakeProFileNode *rootProjectNode() const final;
 

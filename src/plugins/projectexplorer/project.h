@@ -126,7 +126,7 @@ public:
     Target *activeTarget() const;
     Target *target(Core::Id id) const;
     Target *target(Kit *k) const;
-    virtual QList<Task> projectIssues(const Kit *k) const;
+    virtual Tasks projectIssues(const Kit *k) const;
 
     std::unique_ptr<Target> createTarget(Kit *k);
     static bool copySteps(Target *sourceTarget, Target *newTarget);

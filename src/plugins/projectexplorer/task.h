@@ -102,13 +102,15 @@ private:
     friend class TaskHub;
 };
 
+using Tasks = QList<Task>;
+
 bool PROJECTEXPLORER_EXPORT operator==(const Task &t1, const Task &t2);
 uint PROJECTEXPLORER_EXPORT qHash(const Task &task);
 
 bool PROJECTEXPLORER_EXPORT operator<(const Task &a, const Task &b);
 
-QString PROJECTEXPLORER_EXPORT toHtml(const QList<Task> &issues);
-bool PROJECTEXPLORER_EXPORT containsType(const QList<Task> &issues, Task::TaskType);
+QString PROJECTEXPLORER_EXPORT toHtml(const Tasks &issues);
+bool PROJECTEXPLORER_EXPORT containsType(const Tasks &issues, Task::TaskType);
 
 } //namespace ProjectExplorer
 

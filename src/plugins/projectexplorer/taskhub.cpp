@@ -117,7 +117,7 @@ TaskHub::TaskHub()
 {
     m_instance = this;
     qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
-    qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
+    qRegisterMetaType<Tasks >("Tasks");
 }
 
 TaskHub::~TaskHub()

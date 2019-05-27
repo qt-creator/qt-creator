@@ -586,7 +586,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
     setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
     setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) {
         QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-        QList<Task> issues;
+        Tasks issues;
         if (version)
             issues << version->reportIssues(projectPath, buildDir);
         if (QmakeSettings::warnAgainstUnalignedBuildDir()

@@ -31,6 +31,7 @@
 #include <utils/macroexpander.h>
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/task.h>
 
 #include <QSet>
 #include <QStringList>
@@ -48,7 +49,6 @@ class Kit;
 class ToolChain;
 class HeaderPath;
 class Target;
-class Task;
 } // namespace ProjectExplorer
 
 QT_BEGIN_NAMESPACE
@@ -201,7 +201,7 @@ public:
     /// Check a .pro-file/Qt version combination on possible issues
     /// @return a list of tasks, ordered on severity (errors first, then
     ///         warnings and finally info items.
-    QList<ProjectExplorer::Task> reportIssues(const QString &proFile, const QString &buildDir) const;
+    ProjectExplorer::Tasks reportIssues(const QString &proFile, const QString &buildDir) const;
 
     static bool isQmlDebuggingSupported(ProjectExplorer::Kit *k, QString *reason = nullptr);
     bool isQmlDebuggingSupported(QString *reason = nullptr) const;
@@ -221,7 +221,7 @@ public:
 
     virtual QSet<Core::Id> targetDeviceTypes() const = 0;
 
-    virtual QList<ProjectExplorer::Task> validateKit(const ProjectExplorer::Kit *k);
+    virtual ProjectExplorer::Tasks validateKit(const ProjectExplorer::Kit *k);
 
     Utils::FileName headerPath() const;
     Utils::FileName docsPath() const;
@@ -261,7 +261,7 @@ protected:
     BaseQtVersion();
     BaseQtVersion(const BaseQtVersion &other) = delete;
 
-    virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
+    virtual ProjectExplorer::Tasks reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
     Utils::FileNameList qtCorePaths() const;

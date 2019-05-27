@@ -402,9 +402,9 @@ bool CMakeProject::knowsAllBuildExecutables() const
     return false;
 }
 
-QList<Task> CMakeProject::projectIssues(const Kit *k) const
+Tasks CMakeProject::projectIssues(const Kit *k) const
 {
-    QList<Task> result = Project::projectIssues(k);
+    Tasks result = Project::projectIssues(k);
 
     if (!CMakeKitAspect::cmakeTool(k))
         result.append(createProjectTask(Task::TaskType::Error, tr("No cmake tool set.")));

@@ -234,7 +234,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<Task> >("tasks");
+    QTest::addColumn<Tasks >("tasks");
     QTest::addColumn<QString>("outputLines");
     QTest::addColumn<QStringList>("additionalSearchDirs");
 
@@ -242,14 +242,14 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QStringList()
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
-            << QList<Task>()
+            << Tasks()
             << QString()
             << QStringList();
     QTest::newRow("pass-through stderr")
             << QStringList()
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("Sometext\n")
-            << QList<Task>()
+            << Tasks()
             << QString()
             << QStringList();
     QTest::newRow("pass-through gcc infos")
@@ -266,7 +266,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                                    "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
                                    "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
                                    "../../scriptbug/main.cpp:22: instantiated from here\n")
-            << QList<Task>()
+            << Tasks()
             << QString()
             << QStringList();
 
@@ -277,7 +277,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                                    "make[4]: Entering directory `/home/code/build/qt/examples/opengl/grabber'")
             << OutputParserTester::STDOUT
             << QString() << QString()
-            << QList<Task>()
+            << Tasks()
             << QString()
             << QStringList({"/home/code/build/qt/examples/opengl/grabber",
                             "/home/code/build/qt/examples/opengl/grabber", "/test/dir"});
@@ -286,7 +286,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("make[4]: Leaving directory `/home/code/build/qt/examples/opengl/grabber'")
             << OutputParserTester::STDOUT
             << QString() << QString()
-            << QList<Task>()
+            << Tasks()
             << QString()
             << QStringList("/test/dir");
     QTest::newRow("make error")
@@ -294,7 +294,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("make: *** No rule to make target `hello.c', needed by `hello.o'.  Stop.")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QString::fromLatin1("No rule to make target `hello.c', needed by `hello.o'.  Stop."),
                         Utils::FileName(), -1,
@@ -308,7 +308,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                                    "make[2]: *** [sub-projectexplorer-make_default] Error 2")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QString::fromLatin1("[.obj/debug-shared/gnumakeparser.o] Error 1"),
                         Utils::FileName(), -1,
@@ -320,7 +320,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("Makefile:360: *** missing separator (did you mean TAB instead of 8 spaces?). Stop.")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QString::fromLatin1("missing separator (did you mean TAB instead of 8 spaces?). Stop."),
                         Utils::FileName::fromUserInput(QLatin1String("Makefile")), 360,
@@ -333,7 +333,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                                    "mingw32-make: *** [debug] Error 2")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QString::fromLatin1("[debug/qplotaxis.o] Error 1"),
                         Utils::FileName(), -1,
@@ -345,7 +345,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("mingw64-make.exe[1]: *** [dynlib.inst] Error -1073741819")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QString::fromLatin1("[dynlib.inst] Error -1073741819"),
                         Utils::FileName(), -1,
@@ -357,7 +357,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("make[2]: warning: jobserver unavailable: using -j1. Add `+' to parent make rule.")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Warning,
                         QString::fromLatin1("jobserver unavailable: using -j1. Add `+' to parent make rule."),
                         Utils::FileName(), -1,
@@ -369,7 +369,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here")
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here\n")
-            << QList<Task>()
+            << Tasks()
             << QString()
             << QStringList();
     QTest::newRow("Full path make exe")
@@ -377,7 +377,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("C:\\Qt\\4.6.2-Symbian\\s60sdk\\epoc32\\tools\\make.exe: *** [sis] Error 2")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QString::fromLatin1("[sis] Error 2"),
                         Utils::FileName(), -1,
@@ -389,7 +389,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("make: g++: Command not found")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Error,
                         QString::fromLatin1("g++: Command not found"),
                         Utils::FileName(), -1,
@@ -401,7 +401,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QString::fromLatin1("Makefile:794: warning: overriding commands for target `xxxx.app/Contents/Info.plist'")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<Task>()
+            << (Tasks()
                 << Task(Task::Warning,
                         QString::fromLatin1("overriding commands for target `xxxx.app/Contents/Info.plist'"),
                         Utils::FileName::fromString(QLatin1String("Makefile")), 794,
@@ -422,7 +422,7 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing()
     QFETCH(QStringList, extraSearchDirs);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
-    QFETCH(QList<Task>, tasks);
+    QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
     QFETCH(QString, outputLines);

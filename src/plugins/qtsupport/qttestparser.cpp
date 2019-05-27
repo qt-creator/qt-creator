@@ -115,7 +115,7 @@ void QtSupportPlugin::testQtTestOutputParser()
             "PASS   : MyTest::anotherTest()\n";
     const FileName theFile = FileName::fromString(HostOsInfo::isWindowsHost()
         ? QString("C:/dev/tests/tst_mytest.cpp") : QString("/home/me/tests/tst_mytest.cpp"));
-    const QList<Task> expectedTasks{
+    const Tasks expectedTasks{
         Task(Task::Error, "XPASS  : MyTest::someTest()", theFile, 154,
              Constants::TASK_CATEGORY_AUTOTEST),
         Task(Task::Error, "FAIL!  : MyTest::someOtherTest(init) "

@@ -404,7 +404,7 @@ BuildConfigurationFactory::~BuildConfigurationFactory()
     g_buildConfigurationFactories.removeOne(this);
 }
 
-const QList<Task> BuildConfigurationFactory::reportIssues(ProjectExplorer::Kit *kit, const QString &projectPath,
+const Tasks BuildConfigurationFactory::reportIssues(ProjectExplorer::Kit *kit, const QString &projectPath,
                                                           const QString &buildDir) const
 {
     if (m_issueReporter)
