@@ -120,7 +120,7 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     arguments << "--no_color_output"; // ensure that colored output is not used as default
 
     if (boostSettings->randomize)
-        arguments << QString("--random=").append(boostSettings->seed);
+        arguments << QString("--random=").append(QString::number(boostSettings->seed));
 
     if (boostSettings->systemErrors)
         arguments << "-s";
