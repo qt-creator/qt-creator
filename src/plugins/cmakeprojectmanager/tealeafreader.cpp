@@ -432,7 +432,7 @@ void TeaLeafReader::extractData()
 
     // Add CMakeCache.txt file:
     const FileName cacheFile = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
-    if (cacheFile.toFileInfo().exists())
+    if (cacheFile.exists())
         m_cmakeFiles.insert(cacheFile);
 
     // setFolderName
