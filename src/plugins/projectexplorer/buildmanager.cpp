@@ -446,10 +446,12 @@ bool BuildManager::buildQueueAppend(const QList<BuildStep *> &steps, QStringList
 {
     if (!d->m_running) {
         d->m_outputWindow->clearContents();
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
-        TaskHub::clearTasks(Constants::TASK_CATEGORY_AUTOTEST);
+        if (ProjectExplorerPlugin::projectExplorerSettings().clearIssuesOnRebuild) {
+            TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
+            TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
+            TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
+            TaskHub::clearTasks(Constants::TASK_CATEGORY_AUTOTEST);
+        }
 
         foreach (const QString &str, preambleMessage)
             addToOutputWindow(str, BuildStep::OutputFormat::NormalMessage, BuildStep::DontAppendNewline);

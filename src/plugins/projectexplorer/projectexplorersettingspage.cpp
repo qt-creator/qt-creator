@@ -107,6 +107,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.stopBeforeBuild = static_cast<ProjectExplorerSettings::StopBeforeBuild>(m_ui.stopBeforeBuildComboBox->currentIndex());
     m_settings.terminalMode = static_cast<TerminalMode>(m_ui.terminalModeComboBox->currentIndex());
     m_settings.closeSourceFilesWithProject = m_ui.closeSourceFilesCheckBox->isChecked();
+    m_settings.clearIssuesOnRebuild = m_ui.clearIssuesCheckBox->isChecked();
     m_settings.buildDirectoryTemplate = buildDirectoryTemplate();
     return m_settings;
 }
@@ -124,6 +125,7 @@ void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &
     m_ui.stopBeforeBuildComboBox->setCurrentIndex(static_cast<int>(m_settings.stopBeforeBuild));
     m_ui.terminalModeComboBox->setCurrentIndex(static_cast<int>(m_settings.terminalMode));
     m_ui.closeSourceFilesCheckBox->setChecked(m_settings.closeSourceFilesWithProject);
+    m_ui.clearIssuesCheckBox->setChecked(m_settings.clearIssuesOnRebuild);
     setBuildDirectoryTemplate(pes.buildDirectoryTemplate);
 }
 

@@ -49,6 +49,7 @@ public:
     bool automaticallyCreateRunConfigurations = true;
     bool addLibraryPathsToRunEnv = true;
     bool closeSourceFilesWithProject = true;
+    bool clearIssuesOnRebuild = true;
     StopBeforeBuild stopBeforeBuild = StopBeforeBuild::StopNone;
     TerminalMode terminalMode = TerminalMode::Smart;
     QString buildDirectoryTemplate;
@@ -73,6 +74,7 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
             && p1.stopBeforeBuild == p2.stopBeforeBuild
             && p1.terminalMode == p2.terminalMode
             && p1.closeSourceFilesWithProject == p2.closeSourceFilesWithProject
+            && p1.clearIssuesOnRebuild == p2.clearIssuesOnRebuild
             && p1.buildDirectoryTemplate == p2.buildDirectoryTemplate;
 }
 
