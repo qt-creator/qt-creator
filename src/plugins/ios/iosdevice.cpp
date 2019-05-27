@@ -227,14 +227,10 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
     } else if (dev->deviceState() != IDevice::DeviceConnected &&
                dev->deviceState() != IDevice::DeviceReadyToUse) {
         qCDebug(detectLog) << "updating ios device " << uid;
-        IosDevice *newDev = nullptr;
-        if (dev->type() == devType) {
-            newDev = new IosDevice();
-            newDev->fromMap(dev->toMap());
-        } else {
-            newDev = new IosDevice(uid);
-        }
-        devManager->addDevice(IDevice::ConstPtr(newDev));
+        if (dev->type() == devType) // FIXME: Should that be a QTC_ASSERT?
+            devManager->addDevice(dev->clone());
+        else
+            devManager->addDevice(IDevice::ConstPtr(new IosDevice(uid)));
     }
     updateInfo(uid);
 }
