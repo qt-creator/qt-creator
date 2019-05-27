@@ -249,6 +249,8 @@ const char DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "../%{JS: Util.asciify(\"build-%
 const char DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY[] = "Directories/BuildDirectory.Template";
 
 const char TERMINAL_MODE_SETTINGS_KEY[] = "ProjectExplorer/Settings/TerminalMode";
+const char CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY[]
+    = "ProjectExplorer/Settings/CloseFilesWithProject";
 
 } // namespace Constants
 
@@ -1357,6 +1359,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectExplorerSettings.stopBeforeBuild = ProjectExplorerSettings::StopBeforeBuild(tmp);
     dd->m_projectExplorerSettings.terminalMode = static_cast<TerminalMode>(s->value(
         Constants::TERMINAL_MODE_SETTINGS_KEY, int(TerminalMode::Smart)).toInt());
+    dd->m_projectExplorerSettings.closeSourceFilesWithProject
+            = s->value(Constants::CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY, true).toBool();
     dd->m_projectExplorerSettings.buildDirectoryTemplate
             = s->value(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE_KEY).toString();
     if (dd->m_projectExplorerSettings.buildDirectoryTemplate.isEmpty())
@@ -1946,6 +1950,8 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     s->setValue(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), dd->m_projectExplorerSettings.prompToStopRunControl);
     s->setValue(Constants::TERMINAL_MODE_SETTINGS_KEY,
                 int(dd->m_projectExplorerSettings.terminalMode));
+    s->setValue(Constants::CLOSE_FILES_WITH_PROJECT_SETTINGS_KEY,
+                dd->m_projectExplorerSettings.closeSourceFilesWithProject);
     s->setValue(QLatin1String("ProjectExplorer/Settings/AutomaticallyCreateRunConfigurations"),
                 dd->m_projectExplorerSettings.automaticallyCreateRunConfigurations);
     s->setValue(QLatin1String("ProjectExplorer/Settings/EnvironmentId"), dd->m_projectExplorerSettings.environmentId.toByteArray());
