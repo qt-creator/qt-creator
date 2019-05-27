@@ -67,7 +67,7 @@ struct DirectoryData
     Utils::FileName buildDirectory;
     Utils::FileName canonicalQmakeBinary;
     QtProjectImporter::QtVersionData qtVersionData;
-    FileName parsedSpec;
+    QString parsedSpec;
     BaseQtVersion::QmakeBuildConfigs buildConfig;
     QString additionalArguments;
     QMakeStepConfig config;
@@ -185,8 +185,8 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FileName &importPath)
         qCDebug(logs) << "  Extracted spec:" << data->parsedSpec;
         qCDebug(logs) << "  Arguments now:" << data->additionalArguments;
 
-        FileName versionSpec = version->mkspec();
-        if (data->parsedSpec.isEmpty() || data->parsedSpec == FileName::fromLatin1("default")) {
+        const QString versionSpec = version->mkspec();
+        if (data->parsedSpec.isEmpty() || data->parsedSpec == "default") {
             data->parsedSpec = versionSpec;
             qCDebug(logs) << "  No parsed spec or default spec => parsed spec now:" << data->parsedSpec;
         }
@@ -204,7 +204,7 @@ bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     const QLoggingCategory &logs = MakeFileParse::logging();
 
     BaseQtVersion *kitVersion = QtKitAspect::qtVersion(k);
-    FileName kitSpec = QmakeKitAspect::mkspec(k);
+    QString kitSpec = QmakeKitAspect::mkspec(k);
     ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (kitSpec.isEmpty() && kitVersion)
         kitSpec = kitVersion->mkspecFor(tc);
@@ -265,16 +265,16 @@ void QmakeProjectImporter::deleteDirectoryData(void *directoryData) const
     delete static_cast<DirectoryData *>(directoryData);
 }
 
-static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, const FileName &ms,
+static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, const QString &ms,
                                                     const QMakeStepConfig::TargetArchConfig &archConfig)
 {
-    const FileName spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
+    const QString spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
     const QList<ToolChain *> toolchains = ToolChainManager::toolChains();
     const Abis qtAbis = qtVersion->qtAbis();
     const auto matcher = [&](const ToolChain *tc) {
         return qtAbis.contains(tc->targetAbi())
-            && tc->suggestedMkspecList().contains(spec.toString())
+            && tc->suggestedMkspecList().contains(spec)
             && QMakeStepConfig::targetArchFor(tc->targetAbi(), qtVersion) == archConfig;
     };
     ToolChain * const cxxToolchain = findOrDefault(toolchains, [matcher](const ToolChain *tc) {
@@ -292,7 +292,7 @@ static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, co
 }
 
 Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersionData &data,
-                                              const FileName &parsedSpec,
+                                              const QString &parsedSpec,
                                               const QMakeStepConfig::TargetArchConfig &archConfig,
                                               const QMakeStepConfig::OsType &osType) const
 {

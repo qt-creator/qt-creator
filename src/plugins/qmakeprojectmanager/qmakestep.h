@@ -136,7 +136,7 @@ public:
     // QMake extra arguments. Not user editable.
     QStringList extraArguments() const;
     void setExtraArguments(const QStringList &args);
-    Utils::FileName mkspec() const;
+    QString mkspec() const;
     bool linkQmlDebuggingLibrary() const;
     void setLinkQmlDebuggingLibrary(bool enable);
     bool useQtQuickCompiler() const;

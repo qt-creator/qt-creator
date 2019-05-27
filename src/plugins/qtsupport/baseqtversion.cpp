@@ -718,7 +718,7 @@ QString BaseQtVersion::toHtml(bool verbose) const
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "Source:")
             << "</b></td><td>" << sourcePath().toUserOutput() << "</td></tr>";
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "mkspec:")
-            << "</b></td><td>" << mkspec().toUserOutput() << "</td></tr>";
+            << "</b></td><td>" << QDir::toNativeSeparators(mkspec()) << "</td></tr>";
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "qmake:")
             << "</b></td><td>" << m_qmakeCommand.toUserOutput() << "</td></tr>";
         ensureMkSpecParsed();
@@ -965,24 +965,25 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
     m_mkspecValues.insert(ns, evaluator->value(ns));
 }
 
-FileName BaseQtVersion::mkspec() const
+QString BaseQtVersion::mkspec() const
 {
     updateMkspec();
-    return m_mkspec;
+    return m_mkspec.toString();
 }
 
-FileName BaseQtVersion::mkspecFor(ToolChain *tc) const
+QString BaseQtVersion::mkspecFor(ToolChain *tc) const
 {
-    FileName versionSpec = mkspec();
+    QString versionSpec = mkspec();
     if (!tc)
         return versionSpec;
 
     const QStringList tcSpecList = tc->suggestedMkspecList();
-    if (tcSpecList.contains(versionSpec.toString()))
+    if (tcSpecList.contains(versionSpec))
         return versionSpec;
+
     for (const QString &tcSpec : tcSpecList) {
-        if (hasMkspec(FileName::fromString(tcSpec)))
-            return FileName::fromString(tcSpec);
+        if (hasMkspec(tcSpec))
+            return tcSpec;
     }
 
     return versionSpec;
@@ -994,18 +995,18 @@ FileName BaseQtVersion::mkspecPath() const
     return m_mkspecFullPath;
 }
 
-bool BaseQtVersion::hasMkspec(const FileName &spec) const
+bool BaseQtVersion::hasMkspec(const QString &spec) const
 {
     if (spec.isEmpty())
         return true; // default spec of a Qt version
 
     QDir mkspecDir = QDir(QDir::fromNativeSeparators(qmakeProperty("QT_HOST_DATA"))
                           + "/mkspecs/");
-    const QString absSpec = mkspecDir.absoluteFilePath(spec.toString());
+    const QString absSpec = mkspecDir.absoluteFilePath(spec);
     if (QFileInfo(absSpec).isDir() && QFileInfo(absSpec + "/qmake.conf").isFile())
         return true;
     mkspecDir.setPath(sourcePath().toString() + "/mkspecs/");
-    const QString absSrcSpec = mkspecDir.absoluteFilePath(spec.toString());
+    const QString absSrcSpec = mkspecDir.absoluteFilePath(spec);
     return absSrcSpec != absSpec
             && QFileInfo(absSrcSpec).isDir()
             && QFileInfo(absSrcSpec + "/qmake.conf").isFile();
@@ -1218,7 +1219,7 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
         "Qt:Mkspec",
         QtKitAspect::tr("The mkspec of the current Qt version."),
         versionProperty([](const BaseQtVersion *version) {
-            return version->mkspec().toUserOutput();
+            return QDir::toNativeSeparators(version->mkspec());
         }));
 
     expander->registerVariable(

@@ -50,7 +50,7 @@ private:
     void deleteDirectoryData(void *directoryData) const final;
 
     ProjectExplorer::Kit *createTemporaryKit(const QtProjectImporter::QtVersionData &data,
-                                             const Utils::FileName &parsedSpec,
+                                             const QString &parsedSpec,
                                              const QmakeProjectManager::QMakeStepConfig::TargetArchConfig &archConfig,
                                              const QMakeStepConfig::OsType &osType) const;
 };

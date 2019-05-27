@@ -36,6 +36,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QLineEdit>
 
 using namespace ProjectExplorer;
@@ -66,14 +67,13 @@ private:
     void refresh() override
     {
         if (!m_ignoreChange)
-            m_lineEdit->setText(QmakeKitAspect::mkspec(m_kit).toUserOutput());
+            m_lineEdit->setText(QDir::toNativeSeparators(QmakeKitAspect::mkspec(m_kit)));
     }
 
     void mkspecWasChanged(const QString &text)
     {
         m_ignoreChange = true;
-        QmakeKitAspect::setMkspec(m_kit, Utils::FileName::fromString(text),
-                                  QmakeKitAspect::MkspecSource::User);
+        QmakeKitAspect::setMkspec(m_kit, text, QmakeKitAspect::MkspecSource::User);
         m_ignoreChange = false;
     }
 
@@ -97,7 +97,7 @@ Tasks QmakeKitAspect::validate(const Kit *k) const
     Tasks result;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
 
-    FileName mkspec = QmakeKitAspect::mkspec(k);
+    const QString mkspec = QmakeKitAspect::mkspec(k);
     if (!version && !mkspec.isEmpty())
         result << Task(Task::Warning, tr("No Qt version set, so mkspec is ignored."),
                        FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
@@ -117,13 +117,13 @@ void QmakeKitAspect::setup(Kit *k)
     if (version->type() == "Boot2Qt.QtVersionType" || version->type() == "Qdb.EmbeddedLinuxQt")
         return;
 
-    FileName spec = QmakeKitAspect::mkspec(k);
+    QString spec = QmakeKitAspect::mkspec(k);
     if (spec.isEmpty())
         spec = version->mkspec();
 
     ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
-    if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec.toString()))) {
+    if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
         const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
                     [version](const ToolChain *t) {
             return t->isValid()
@@ -133,7 +133,7 @@ void QmakeKitAspect::setup(Kit *k)
         if (!possibleTcs.isEmpty()) {
             const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,
                                                                [&spec](const ToolChain *t) {
-                return t->suggestedMkspecList().contains(spec.toString());
+                return t->suggestedMkspecList().contains(spec);
             });
             // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
             // This improves the situation a bit if a cross-compilation tool chain has the
@@ -159,14 +159,14 @@ KitAspectWidget *QmakeKitAspect::createConfigWidget(Kit *k) const
 
 KitAspect::ItemList QmakeKitAspect::toUserOutput(const Kit *k) const
 {
-    return ItemList() << qMakePair(tr("mkspec"), mkspec(k).toUserOutput());
+    return {qMakePair(tr("mkspec"), QDir::toNativeSeparators(mkspec(k)))};
 }
 
 void QmakeKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     expander->registerVariable("Qmake:mkspec", tr("Mkspec configured for qmake by the Kit."),
                 [kit]() -> QString {
-                    return QmakeKitAspect::mkspec(kit).toUserOutput();
+                    return QDir::toNativeSeparators(mkspec(kit));
                 });
 }
 
@@ -175,35 +175,35 @@ Core::Id QmakeKitAspect::id()
     return Constants::KIT_INFORMATION_ID;
 }
 
-FileName QmakeKitAspect::mkspec(const Kit *k)
+QString QmakeKitAspect::mkspec(const Kit *k)
 {
     if (!k)
-        return FileName();
-    return FileName::fromString(k->value(QmakeKitAspect::id()).toString());
+        return {};
+    return k->value(QmakeKitAspect::id()).toString();
 }
 
-FileName QmakeKitAspect::effectiveMkspec(const Kit *k)
+QString QmakeKitAspect::effectiveMkspec(const Kit *k)
 {
     if (!k)
-        return FileName();
-    FileName spec = mkspec(k);
+        return {};
+    const QString spec = mkspec(k);
     if (spec.isEmpty())
         return defaultMkspec(k);
     return spec;
 }
 
-void QmakeKitAspect::setMkspec(Kit *k, const FileName &fn, MkspecSource source)
+void QmakeKitAspect::setMkspec(Kit *k, const QString &mkspec, MkspecSource source)
 {
     QTC_ASSERT(k, return);
-    k->setValue(QmakeKitAspect::id(), source == MkspecSource::Code && fn == defaultMkspec(k)
-                ? QString() : fn.toString());
+    k->setValue(QmakeKitAspect::id(), source == MkspecSource::Code && mkspec == defaultMkspec(k)
+                ? QString() : mkspec);
 }
 
-FileName QmakeKitAspect::defaultMkspec(const Kit *k)
+QString QmakeKitAspect::defaultMkspec(const Kit *k)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version) // No version, so no qmake
-        return FileName();
+        return {};
 
     return version->mkspecFor(ToolChainKitAspect::toolChain(k,
                         ProjectExplorer::Constants::CXX_LANGUAGE_ID));

@@ -115,9 +115,9 @@ QString QMakeStep::allArguments(const BaseQtVersion *v, ArgumentFlags flags) con
             }
         }
     }
-    FileName specArg = mkspec();
+    const QString specArg = mkspec();
     if (!userProvidedMkspec && !specArg.isEmpty())
-        arguments << "-spec" << specArg.toUserOutput();
+        arguments << "-spec" << QDir::toNativeSeparators(specArg);
 
     // Find out what flags we pass on to qmake
     arguments << bc->configCommandLineArguments();
@@ -491,14 +491,14 @@ QString QMakeStep::userArguments()
     return m_userArgs;
 }
 
-FileName QMakeStep::mkspec() const
+QString QMakeStep::mkspec() const
 {
     QString additionalArguments = m_userArgs;
     QtcProcess::addArgs(&additionalArguments, m_extraArgs);
     for (QtcProcess::ArgIterator ait(&additionalArguments); ait.next(); ) {
         if (ait.value() == "-spec") {
             if (ait.next())
-                return FileName::fromUserInput(ait.value());
+                return FileName::fromUserInput(ait.value()).toString();
         }
     }
 

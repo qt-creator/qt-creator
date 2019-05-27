@@ -178,13 +178,13 @@ public:
     Utils::FileName qmakeCommand() const;
 
     /// @returns the name of the mkspec
-    Utils::FileName mkspec() const;
-    Utils::FileName mkspecFor(ProjectExplorer::ToolChain *tc) const;
+    QString mkspec() const;
+    QString mkspecFor(ProjectExplorer::ToolChain *tc) const;
     /// @returns the full path to the default directory
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
     Utils::FileName mkspecPath() const;
 
-    bool hasMkspec(const Utils::FileName &spec) const;
+    bool hasMkspec(const QString &spec) const;
 
     enum QmakeBuildConfig
     {

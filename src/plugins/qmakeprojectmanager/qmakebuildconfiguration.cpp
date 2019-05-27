@@ -424,16 +424,17 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     // This copies the settings from userArgs to actualArgs (minus some we
     // are not interested in), splitting them up into individual strings:
     extractSpecFromArguments(&userArgs, workingDirectory, version, &actualArgs);
-    FileName actualSpec = qs->mkspec();
+    const QString actualSpec = qs->mkspec();
 
     QString qmakeArgs = parse.unparsedArguments();
     QStringList parsedArgs;
-    FileName parsedSpec = extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
+    QString parsedSpec =
+            extractSpecFromArguments(&qmakeArgs, workingDirectory, version, &parsedArgs);
 
     qCDebug(logs) << "  Actual args:" << actualArgs;
     qCDebug(logs) << "  Parsed args:" << parsedArgs;
-    qCDebug(logs) << "  Actual spec:" << actualSpec.toString();
-    qCDebug(logs) << "  Parsed spec:" << parsedSpec.toString();
+    qCDebug(logs) << "  Actual spec:" << actualSpec;
+    qCDebug(logs) << "  Parsed spec:" << parsedSpec;
     qCDebug(logs) << "  Actual config:" << qs->deducedArguments();
     qCDebug(logs) << "  Parsed config:" << parse.config();
 
@@ -474,8 +475,8 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     }
     // Actual spec is the default one
 //                    qDebug() << "AS vs VS" << actualSpec << version->mkspec();
-    if ((actualSpec == version->mkspec() || actualSpec == FileName::fromLatin1("default"))
-            && (parsedSpec == version->mkspec() || parsedSpec == FileName::fromLatin1("default") || parsedSpec.isEmpty())) {
+    if ((actualSpec == version->mkspec() || actualSpec == "default")
+            && (parsedSpec == version->mkspec() || parsedSpec == "default" || parsedSpec.isEmpty())) {
         qCDebug(logs) << "**Matched specs (2)";
         return MakefileMatches;
     }
@@ -486,7 +487,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     return MakefileIncompatible;
 }
 
-FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
+QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
                                                          const QString &directory, const BaseQtVersion *version,
                                                          QStringList *outArgs)
 {
@@ -520,7 +521,7 @@ FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     }
 
     if (parsedSpec.isEmpty())
-        return FileName();
+        return {};
 
     FileName baseMkspecDir = FileName::fromUserInput(
             version->qmakeProperty("QT_HOST_DATA") + QLatin1String("/mkspecs"));
@@ -552,7 +553,7 @@ FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
         if (parsedSpec.isChildOf(sourceMkSpecPath))
             parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
     }
-    return parsedSpec;
+    return parsedSpec.toString();
 }
 
 bool QmakeBuildConfiguration::isEnabled() const
@@ -724,7 +725,7 @@ QmakeBuildConfiguration::LastKitState::LastKitState() = default;
 QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
     : m_qtVersion(QtKitAspect::qtVersionId(k)),
       m_sysroot(SysRootKitAspect::sysRoot(k).toString()),
-      m_mkspec(QmakeKitAspect::mkspec(k).toString())
+      m_mkspec(QmakeKitAspect::mkspec(k))
 {
     ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     m_toolchain = tc ? tc->id() : QByteArray();
