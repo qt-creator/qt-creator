@@ -6,6 +6,17 @@ list(APPEND DEFAULT_DEFINES
   QT_USE_FAST_CONCATENATION
 )
 
+set(__QTC_PLUGINS "" CACHE INTERNAL "*** Internal ***" FORCE)
+set(__QTC_LIBRARIES "" CACHE INTERNAL "*** Internal ***" FORCE)
+set(__QTC_EXECUTABLES "" CACHE INTERNAL "*** Internal ***" FORCE)
+set(__QTC_TESTS "" CACHE INTERNAL "*** Internal ***" FORCE)
+
+function(update_cached_list name value)
+  set(_tmp_list "${${name}}")
+  list(APPEND _tmp_list "${value}")
+  set("${name}" "${_tmp_list}" CACHE INTERNAL "*** Internal ***" FORCE)
+endfunction()
+
 function(compare_sources_with_existing_disk_files target_name sources)
   if(NOT WITH_DEBUG_CMAKE)
     return()
@@ -95,6 +106,8 @@ function(add_qtc_library name)
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_library had unparsed arguments")
   endif()
+
+  update_cached_list(__QTC_LIBRARIES "${name}")
 
   compare_sources_with_existing_disk_files(${name} "${_arg_SOURCES}")
 
@@ -195,6 +208,8 @@ function(add_qtc_plugin target_name)
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_plugin had unparsed arguments")
   endif()
+
+  update_cached_list(__QTC_PLUGINS "${target_name}")
 
   set(name ${target_name})
   if (_arg_PLUGIN_NAME)
@@ -393,6 +408,8 @@ function(add_qtc_executable name)
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
   endif()
 
+  update_cached_list(__QTC_EXECUTABLES "${name}")
+
   set(_DESTINATION "${IDE_LIBEXEC_PATH}")
   if (_arg_DESTINATION)
     set(_DESTINATION "${_arg_DESTINATION}")
@@ -433,6 +450,8 @@ function(add_qtc_test name)
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
   endif()
+
+  update_cached_list(__QTC_TESTS "${name}")
 
   set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
