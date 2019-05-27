@@ -55,8 +55,8 @@ EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
     setPriority(10);
 
     setRestrictionChecker([](const SetupData &) {
-        EmbeddedLinuxQtVersion tempVersion;
-        QList<ProjectExplorer::Abi> abis = tempVersion.qtAbis();
+        const EmbeddedLinuxQtVersion tempVersion;
+        const ProjectExplorer::Abis abis = tempVersion.qtAbis();
 
         // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.
         return  abis.count() == 1

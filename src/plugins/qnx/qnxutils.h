@@ -77,7 +77,7 @@ public:
     static QList<Utils::EnvironmentItem> qnxEnvironment(const QString &sdpPath);
     static QList<QnxTarget> findTargets(const Utils::FileName &basePath);
     static ProjectExplorer::Abi convertAbi(const ProjectExplorer::Abi &abi);
-    static QList<ProjectExplorer::Abi> convertAbis(const QList<ProjectExplorer::Abi> &abis);
+    static ProjectExplorer::Abis convertAbis(const ProjectExplorer::Abis &abis);
 };
 
 } // namespace Internal

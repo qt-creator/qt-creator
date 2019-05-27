@@ -359,7 +359,7 @@ QList<Task> BaseQtVersion::validateKit(const Kit *k)
     BaseQtVersion *version = QtKitAspect::qtVersion(k);
     Q_ASSERT(version == this);
 
-    const QList<Abi> qtAbis = version->qtAbis();
+    const Abis qtAbis = version->qtAbis();
     if (qtAbis.isEmpty()) // No need to test if Qt does not know anyway...
         return result;
 
@@ -379,7 +379,7 @@ QList<Task> BaseQtVersion::validateKit(const Kit *k)
         bool fullMatch = false;
 
         QString qtAbiString;
-        foreach (const Abi &qtAbi, qtAbis) {
+        for (const Abi &qtAbi : qtAbis) {
             if (!qtAbiString.isEmpty())
                 qtAbiString.append(' ');
             qtAbiString.append(qtAbi.toString());
@@ -620,7 +620,7 @@ FileName BaseQtVersion::qmakeCommand() const
     return m_qmakeCommand;
 }
 
-QList<Abi> BaseQtVersion::qtAbis() const
+Abis BaseQtVersion::qtAbis() const
 {
     if (!m_hasQtAbis) {
         m_qtAbis = detectQtAbis();
@@ -629,7 +629,7 @@ QList<Abi> BaseQtVersion::qtAbis() const
     return m_qtAbis;
 }
 
-QList<Abi> BaseQtVersion::detectQtAbis() const
+Abis BaseQtVersion::detectQtAbis() const
 {
     return qtAbisFromLibrary(qtCorePaths());
 }
@@ -705,7 +705,7 @@ QString BaseQtVersion::toHtml(bool verbose) const
     } else {
         str << "<tr><td><b>" << QCoreApplication::translate("BaseQtVersion", "ABI:")
             << "</b></td>";
-        const QList<Abi> abis = qtAbis();
+        const Abis abis = qtAbis();
         if (abis.isEmpty()) {
             str << "<td>" << Abi().toString() << "</td></tr>";
         } else {
@@ -1558,7 +1558,7 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, const Environmen
         // Try running qmake with all kinds of tool chains set up in the environment.
         // This is required to make non-static qmakes work on windows where every tool chain
         // tries to be incompatible with any other.
-        QList<Abi> abiList = Abi::abisOfBinary(binary);
+        Abis abiList = Abi::abisOfBinary(binary);
         const QList<ToolChain *> tcList
                 = ToolChainManager::toolChains([&abiList](const ToolChain *t) { return abiList.contains(t->targetAbi()); });
         for (ToolChain *tc : tcList) {
@@ -2004,10 +2004,10 @@ static Abi scanQtBinaryForBuildStringAndRefineAbi(const FileName &library,
     return results.value(library);
 }
 
-QList<Abi> BaseQtVersion::qtAbisFromLibrary(const FileNameList &coreLibraries)
+Abis BaseQtVersion::qtAbisFromLibrary(const FileNameList &coreLibraries)
 {
-    QList<Abi> res;
-    foreach (const FileName &library, coreLibraries) {
+    Abis res;
+    for (const FileName &library : coreLibraries) {
         for (Abi abi : Abi::abisOfBinary(library)) {
             Abi tmp = abi;
             if (abi.osFlavor() == Abi::UnknownFlavor)

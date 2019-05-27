@@ -118,7 +118,7 @@ void QnxQtVersion::fromMap(const QVariantMap &map)
     setSdpPath(QDir::fromNativeSeparators(map.value(QLatin1String(SDP_PATH_KEY)).toString()));
 }
 
-QList<ProjectExplorer::Abi> QnxQtVersion::detectQtAbis() const
+ProjectExplorer::Abis QnxQtVersion::detectQtAbis() const
 {
     ensureMkSpecParsed();
     return QnxUtils::convertAbis(BaseQtVersion::detectQtAbis());

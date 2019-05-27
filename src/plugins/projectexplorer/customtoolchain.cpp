@@ -598,7 +598,7 @@ void CustomToolChainConfigWidget::setFromToolchain()
     auto tc = static_cast<CustomToolChain *>(toolChain());
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_makeCommand->setFileName(tc->makeCommand(Environment()));
-    m_abiWidget->setAbis(QList<Abi>(), tc->targetAbi());
+    m_abiWidget->setAbis(Abis(), tc->targetAbi());
     const QStringList macroLines = Utils::transform<QList>(tc->rawPredefinedMacros(), [](const Macro &m) {
         return QString::fromUtf8(m.toKeyValue(QByteArray()));
     });

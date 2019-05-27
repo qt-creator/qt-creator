@@ -43,7 +43,7 @@ public:
     bool isValid() const override;
     QString invalidReason() const override;
 
-    QList<ProjectExplorer::Abi> detectQtAbis() const override;
+    ProjectExplorer::Abis detectQtAbis() const override;
 
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
     Utils::Environment qmakeRunEnvironment() const override;

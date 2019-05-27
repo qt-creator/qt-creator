@@ -167,9 +167,9 @@ HeaderPaths GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList 
     return builtInHeaderPaths;
 }
 
-static QList<Abi> guessGccAbi(const QString &m, const ProjectExplorer::Macros &macros)
+static Abis guessGccAbi(const QString &m, const ProjectExplorer::Macros &macros)
 {
-    QList<Abi> abiList;
+    Abis abiList;
 
     Abi guessed = Abi::abiFromTargetTriplet(m);
     if (guessed.isNull())
@@ -249,12 +249,12 @@ void GccToolChain::setCompilerCommand(const FileName &path)
     toolChainUpdated();
 }
 
-void GccToolChain::setSupportedAbis(const QList<Abi> &m_abis)
+void GccToolChain::setSupportedAbis(const Abis &abis)
 {
-    if (m_supportedAbis == m_abis)
+    if (m_supportedAbis == abis)
         return;
 
-    m_supportedAbis = m_abis;
+    m_supportedAbis = abis;
     toolChainUpdated();
 }
 
@@ -322,7 +322,7 @@ void GccToolChain::setTargetAbi(const Abi &abi)
     toolChainUpdated();
 }
 
-QList<Abi> GccToolChain::supportedAbis() const
+Abis GccToolChain::supportedAbis() const
 {
     return m_supportedAbis;
 }
@@ -1151,7 +1151,7 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
     Abi currentAbi = m_abiWidget->currentAbi();
     bool customAbi = m_abiWidget->isCustomAbi() && m_abiWidget->isEnabled();
     FileName path = m_compilerCommand->fileName();
-    QList<Abi> abiList;
+    Abis abiList;
 
     if (!path.isEmpty()) {
         QFileInfo fi(path.toFileInfo());
@@ -1941,7 +1941,7 @@ void ProjectExplorerPlugin::testGccAbiGuessing()
     QFETCH(QByteArray, macros);
     QFETCH(QStringList, abiList);
 
-    QList<Abi> al = guessGccAbi(input, ProjectExplorer::Macro::toMacros(macros));
+    const Abis al = guessGccAbi(input, ProjectExplorer::Macro::toMacros(macros));
     QCOMPARE(al.count(), abiList.count());
     for (int i = 0; i < al.count(); ++i)
         QCOMPARE(al.at(i).toString(), abiList.at(i));

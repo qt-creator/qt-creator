@@ -44,9 +44,9 @@ namespace Internal {
 static const char CompilerSdpPath[] = "Qnx.QnxToolChain.NDKPath";
 static const char CpuDirKey[] = "Qnx.QnxToolChain.CpuDir";
 
-static QList<Abi> detectTargetAbis(const FileName &sdpPath)
+static Abis detectTargetAbis(const FileName &sdpPath)
 {
-    QList<Abi> result;
+    Abis result;
     FileName qnxTarget;
 
     if (!sdpPath.fileName().isEmpty()) {
@@ -243,7 +243,7 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
     m_sdpPath->setPath(tc->sdpPath());
     m_sdpPath->setEnabled(!tc->isAutoDetected());
 
-    QList<Abi> abiList = detectTargetAbis(m_sdpPath->fileName());
+    const Abis abiList = detectTargetAbis(m_sdpPath->fileName());
     m_abiWidget->setAbis(abiList, tc->targetAbi());
     m_abiWidget->setEnabled(!tc->isAutoDetected() && !abiList.isEmpty());
 
@@ -295,9 +295,9 @@ bool QnxToolChainConfigWidget::isDirtyImpl() const
 
 void QnxToolChainConfigWidget::handleSdpPathChange()
 {
-    Abi currentAbi = m_abiWidget->currentAbi();
-    bool customAbi = m_abiWidget->isCustomAbi();
-    QList<Abi> abiList = detectTargetAbis(m_sdpPath->fileName());
+    const Abi currentAbi = m_abiWidget->currentAbi();
+    const bool customAbi = m_abiWidget->isCustomAbi();
+    const Abis abiList = detectTargetAbis(m_sdpPath->fileName());
 
     m_abiWidget->setEnabled(!abiList.isEmpty());
 

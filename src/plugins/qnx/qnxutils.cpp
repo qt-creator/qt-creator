@@ -251,7 +251,7 @@ Abi QnxUtils::convertAbi(const Abi &abi)
     return abi;
 }
 
-QList<Abi> QnxUtils::convertAbis(const QList<Abi> &abis)
+Abis QnxUtils::convertAbis(const Abis &abis)
 {
     return Utils::transform(abis, &QnxUtils::convertAbi);
 }

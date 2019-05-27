@@ -219,9 +219,9 @@ static Abi macAbiForCpu(quint32 type) {
     }
 }
 
-static QList<Abi> parseCoffHeader(const QByteArray &data)
+static Abis parseCoffHeader(const QByteArray &data)
 {
-    QList<Abi> result;
+    Abis result;
     if (data.size() < 20)
         return result;
 
@@ -305,9 +305,9 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
     return result;
 }
 
-static QList<Abi> abiOf(const QByteArray &data)
+static Abis abiOf(const QByteArray &data)
 {
-    QList<Abi> result;
+    Abis result;
     if (data.size() <= 8)
         return result;
 
@@ -983,9 +983,9 @@ Abi Abi::hostAbi()
 }
 
 //! Extract available ABIs from a binary using heuristics.
-QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
+Abis Abi::abisOfBinary(const Utils::FileName &path)
 {
-    QList<Abi> tmp;
+    Abis tmp;
     if (path.isEmpty())
         return tmp;
 
@@ -1038,8 +1038,8 @@ QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
     f.close();
 
     // Remove duplicates:
-    QList<Abi> result;
-    foreach (const Abi &a, tmp) {
+    Abis result;
+    for (const Abi &a : qAsConst(tmp)) {
         if (!result.contains(a))
             result.append(a);
     }
@@ -1233,7 +1233,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
     QFETCH(QString, file);
     QFETCH(QStringList, abis);
 
-    QList<Abi> result = Abi::abisOfBinary(Utils::FileName::fromString(file));
+    const Abis result = Abi::abisOfBinary(Utils::FileName::fromString(file));
     QCOMPARE(result.count(), abis.count());
     for (int i = 0; i < abis.count(); ++i)
         QCOMPARE(result.at(i).toString(), abis.at(i));

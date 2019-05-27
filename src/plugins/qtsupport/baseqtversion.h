@@ -137,8 +137,8 @@ public:
     virtual QString description() const = 0;
     virtual QString toHtml(bool verbose) const;
 
-    QList<ProjectExplorer::Abi> qtAbis() const;
-    virtual QList<ProjectExplorer::Abi> detectQtAbis() const;
+    ProjectExplorer::Abis qtAbis() const;
+    virtual ProjectExplorer::Abis detectQtAbis() const;
 
     enum PropertyVariant { PropertyVariantDev, PropertyVariantGet, PropertyVariantSrc };
     QString qmakeProperty(const QByteArray &name,
@@ -265,7 +265,7 @@ protected:
 
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
     Utils::FileNameList qtCorePaths() const;
-    static QList<ProjectExplorer::Abi> qtAbisFromLibrary(const Utils::FileNameList &coreLibraries);
+    static ProjectExplorer::Abis qtAbisFromLibrary(const Utils::FileNameList &coreLibraries);
 
     void ensureMkSpecParsed() const;
     virtual void parseMkSpec(ProFileEvaluator *) const;
@@ -332,7 +332,7 @@ private:
     mutable QString m_linguistCommand;
     mutable QString m_qscxmlcCommand;
 
-    mutable QList<ProjectExplorer::Abi> m_qtAbis;
+    mutable ProjectExplorer::Abis m_qtAbis;
 
     MacroExpanderWrapper m_expander;
 };

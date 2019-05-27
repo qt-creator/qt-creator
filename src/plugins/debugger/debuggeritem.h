@@ -81,8 +81,8 @@ public:
     QString version() const;
     void setVersion(const QString &version);
 
-    const QList<ProjectExplorer::Abi> &abis() const { return m_abis; }
-    void setAbis(const QList<ProjectExplorer::Abi> &abis);
+    const ProjectExplorer::Abis &abis() const { return m_abis; }
+    void setAbis(const ProjectExplorer::Abis &abis);
     void setAbi(const ProjectExplorer::Abi &abi);
 
     enum MatchLevel { DoesNotMatch, MatchesSomewhat, MatchesWell, MatchesPerfectly, MatchesPerfectlyInPath };
@@ -113,7 +113,7 @@ private:
     Utils::FileName m_workingDirectory;
     bool m_isAutoDetected = false;
     QString m_version;
-    QList<ProjectExplorer::Abi> m_abis;
+    ProjectExplorer::Abis m_abis;
     QDateTime m_lastModified;
 
     friend class Internal::DebuggerConfigWidget;

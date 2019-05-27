@@ -776,7 +776,7 @@ void MsvcToolChain::updateEnvironmentModifications(QList<Utils::EnvironmentItem>
 
 void MsvcToolChain::detectInstalledAbis()
 {
-    static QMap<QString, QList<Abi>> abiCache;
+    static QMap<QString, Abis> abiCache;
     const QString vcVarsBase
             = QDir::fromNativeSeparators(m_vcvarsBat).left(m_vcvarsBat.lastIndexOf('/'));
     if (abiCache.contains(vcVarsBase)) {
@@ -913,7 +913,7 @@ Abi MsvcToolChain::targetAbi() const
     return m_abi;
 }
 
-QList<Abi> MsvcToolChain::supportedAbis() const
+Abis MsvcToolChain::supportedAbis() const
 {
     return m_supportedAbis;
 }

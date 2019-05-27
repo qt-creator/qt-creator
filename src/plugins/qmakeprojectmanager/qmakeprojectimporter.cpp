@@ -164,7 +164,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FileName &importPath)
         }
 
         if (version->type() == QtSupport::Constants::DESKTOPQT) {
-            const QList<ProjectExplorer::Abi> abis = version->qtAbis();
+            const ProjectExplorer::Abis abis = version->qtAbis();
             if (!abis.isEmpty()) {
                 ProjectExplorer::Abi abi = abis.first();
                 if (abi.os() == ProjectExplorer::Abi::DarwinOS) {
@@ -271,7 +271,7 @@ static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, co
     const FileName spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
     const QList<ToolChain *> toolchains = ToolChainManager::toolChains();
-    QList<Abi> qtAbis = qtVersion->qtAbis();
+    const Abis qtAbis = qtVersion->qtAbis();
     const auto matcher = [&](const ToolChain *tc) {
         return qtAbis.contains(tc->targetAbi())
             && tc->suggestedMkspecList().contains(spec)

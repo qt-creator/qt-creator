@@ -151,12 +151,12 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
 
     layout->setStretchFactor(d->m_abi, 1);
 
-    setAbis(QList<Abi>(), Abi::hostAbi());
+    setAbis(Abis(), Abi::hostAbi());
 }
 
 AbiWidget::~AbiWidget() = default;
 
-static Abi selectAbi(const Abi &current, const QList<Abi> &abiList)
+static Abi selectAbi(const Abi &current, const Abis &abiList)
 {
     if (!current.isNull())
         return current;
@@ -165,7 +165,7 @@ static Abi selectAbi(const Abi &current, const QList<Abi> &abiList)
     return Abi::hostAbi();
 }
 
-void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &currentAbi)
+void AbiWidget::setAbis(const Abis &abiList, const Abi &currentAbi)
 {
     const Abi defaultAbi = selectAbi(currentAbi, abiList);
     {
@@ -191,9 +191,9 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &currentAbi)
     emitAbiChanged(defaultAbi);
 }
 
-QList<Abi> AbiWidget::supportedAbis() const
+Abis AbiWidget::supportedAbis() const
 {
-    QList<Abi> result;
+    Abis result;
     result.reserve(d->m_abi->count());
     for (int i = 1; i < d->m_abi->count(); ++i)
         result << Abi::fromString(d->m_abi->itemData(i).toString());

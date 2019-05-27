@@ -59,9 +59,9 @@ QString IosQtVersion::invalidReason() const
     return tmp;
 }
 
-QList<Abi> IosQtVersion::detectQtAbis() const
+Abis IosQtVersion::detectQtAbis() const
 {
-    QList<Abi> abis = BaseQtVersion::detectQtAbis();
+    Abis abis = BaseQtVersion::detectQtAbis();
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),

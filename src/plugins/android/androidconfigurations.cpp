@@ -951,7 +951,7 @@ static QVariant findOrRegisterDebugger(ToolChain *tc)
     // check if the debugger is already registered, but ignoring the display name
     const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
     if (existing && existing->engineType() == Debugger::GdbEngineType && existing->isAutoDetected()
-            && existing->abis() == QList<Abi>{tc->targetAbi()})
+            && existing->abis() == Abis{tc->targetAbi()})
         return existing->id();
     // debugger not found, register a new one
     Debugger::DebuggerItem debugger;
@@ -997,7 +997,7 @@ void AndroidConfigurations::updateAutomaticKitList()
         return v->type() == Constants::ANDROIDQT;
     });
     for (const QtSupport::BaseQtVersion *qtVersion : qtVersions) {
-        const QList<Abi> qtAbis = qtVersion->qtAbis();
+        const Abis qtAbis = qtVersion->qtAbis();
         if (qtAbis.empty())
             continue;
         qtVersionsForArch[qtAbis.first()].append(qtVersion);

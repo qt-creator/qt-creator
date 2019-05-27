@@ -64,7 +64,7 @@ public:
     ~MsvcToolChain() override;
 
     Abi targetAbi() const override;
-    QList<Abi> supportedAbis() const override;
+    Abis supportedAbis() const override;
     void setTargetAbi(const Abi &abi);
 
     bool isValid() const override;
@@ -168,7 +168,7 @@ private:
 
 protected:
     Abi m_abi;
-    QList<Abi> m_supportedAbis;
+    Abis m_supportedAbis;
 
     QString m_vcvarsBat;
     QString m_varsBatArg; // Argument

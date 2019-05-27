@@ -69,9 +69,9 @@ QString AndroidQtVersion::invalidReason() const
     return tmp;
 }
 
-QList<Abi> AndroidQtVersion::detectQtAbis() const
+Abis AndroidQtVersion::detectQtAbis() const
 {
-    QList<Abi> abis = BaseQtVersion::detectQtAbis();
+    Abis abis = BaseQtVersion::detectQtAbis();
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),

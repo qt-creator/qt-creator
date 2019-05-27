@@ -343,7 +343,7 @@ void DebuggerItem::setVersion(const QString &version)
     m_version = version;
 }
 
-void DebuggerItem::setAbis(const QList<Abi> &abis)
+void DebuggerItem::setAbis(const Abis &abis)
 {
     m_abis = abis;
 }

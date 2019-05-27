@@ -341,7 +341,7 @@ void QtOptionsPageWidget::infoAnchorClicked(const QUrl &url)
     QDesktopServices::openUrl(url);
 }
 
-static QString formatAbiHtmlList(const QList<Abi> &abis)
+static QString formatAbiHtmlList(const Abis &abis)
 {
     QString result = QStringLiteral("<ul><li>");
     for (int i = 0, count = abis.size(); i < count; ++i) {
@@ -369,8 +369,8 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     }
 
     // Do we have tool chain issues?
-    QList<Abi> missingToolChains;
-    const QList<Abi> qtAbis = version->qtAbis();
+    Abis missingToolChains;
+    const Abis qtAbis = version->qtAbis();
 
     for (const Abi &abi : qtAbis) {
         const auto abiCompatePred = [&abi] (const ToolChain *tc)

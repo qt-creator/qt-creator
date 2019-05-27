@@ -72,7 +72,7 @@ public:
     Abi targetAbi() const override;
     QString originalTargetTriple() const override;
     QString version() const;
-    QList<Abi> supportedAbis() const override;
+    Abis supportedAbis() const override;
     void setTargetAbi(const Abi &);
 
     bool isValid() const override;
@@ -112,13 +112,12 @@ public:
     class DetectedAbisResult {
     public:
         DetectedAbisResult() = default;
-        DetectedAbisResult(const QList<Abi> &supportedAbis,
-                           const QString &originalTargetTriple = QString()) :
+        DetectedAbisResult(const Abis &supportedAbis, const QString &originalTargetTriple = {}) :
             supportedAbis(supportedAbis),
             originalTargetTriple(originalTargetTriple)
         { }
 
-        QList<Abi> supportedAbis;
+        Abis supportedAbis;
         QString originalTargetTriple;
     };
 
@@ -127,7 +126,7 @@ protected:
     using GccCache = QVector<CacheItem>;
 
     void setCompilerCommand(const Utils::FileName &path);
-    void setSupportedAbis(const QList<Abi> &m_abis);
+    void setSupportedAbis(const Abis &abis);
     void setOriginalTargetTriple(const QString &targetTriple);
     void setMacroCache(const QStringList &allCxxflags, const Macros &macroCache) const;
     Macros macroCache(const QStringList &allCxxflags) const;
@@ -194,7 +193,7 @@ protected:
 
 private:
     Abi m_targetAbi;
-    mutable QList<Abi> m_supportedAbis;
+    mutable Abis m_supportedAbis;
     mutable QString m_originalTargetTriple;
     mutable HeaderPaths m_headerPaths;
     mutable QString m_version;

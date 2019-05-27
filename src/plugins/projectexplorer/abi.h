@@ -42,6 +42,9 @@ namespace ProjectExplorer {
 // ABI (documentation inside)
 // --------------------------------------------------------------------------
 
+class Abi;
+using Abis = QList<Abi>;
+
 class PROJECTEXPLORER_EXPORT Abi
 {
 public:
@@ -157,7 +160,7 @@ public:
 
     static Abi fromString(const QString &abiString);
     static Abi hostAbi();
-    static QList<Abi> abisOfBinary(const Utils::FileName &path);
+    static Abis abisOfBinary(const Utils::FileName &path);
 
 
 private:

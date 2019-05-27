@@ -807,7 +807,7 @@ static QString msgParameterMissing(const QString &a)
     return DebuggerPlugin::tr("Option \"%1\" is missing the parameter.").arg(a);
 }
 
-static Kit *guessKitFromAbis(const QList<Abi> &abis)
+static Kit *guessKitFromAbis(const Abis &abis)
 {
     Kit *kit = nullptr;
 
@@ -2620,8 +2620,8 @@ void DebuggerUnitTests::testDebuggerMatching()
 
     auto expectedLevel = static_cast<DebuggerItem::MatchLevel>(result);
 
-    QList<Abi> debuggerAbis;
-    foreach (const QString &abi, debugger)
+    Abis debuggerAbis;
+    for (const QString &abi : qAsConst(debugger))
         debuggerAbis << Abi::fromString(abi);
 
     DebuggerItem item;

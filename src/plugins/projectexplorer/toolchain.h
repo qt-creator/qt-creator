@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 #include "projectexplorer_global.h"
 
+#include "abi.h"
 #include "headerpath.h"
 #include "projectmacro.h"
 #include "toolchaincache.h"
@@ -104,7 +105,7 @@ public:
     Core::Id typeId() const;
     virtual QString typeDisplayName() const = 0;
     virtual Abi targetAbi() const = 0;
-    virtual QList<Abi> supportedAbis() const;
+    virtual ProjectExplorer::Abis supportedAbis() const;
     virtual QString originalTargetTriple() const { return QString(); }
     virtual QStringList extraCodeModelFlags() const { return QStringList(); }
 

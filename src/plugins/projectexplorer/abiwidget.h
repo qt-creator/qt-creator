@@ -27,12 +27,13 @@
 
 #include "projectexplorer_export.h"
 
+#include "abi.h"
+
 #include <QWidget>
 
 #include <memory>
 
 namespace ProjectExplorer {
-class Abi;
 
 namespace Internal { class AbiWidgetPrivate; }
 
@@ -48,9 +49,9 @@ public:
     AbiWidget(QWidget *parent = nullptr);
     ~AbiWidget() override;
 
-    void setAbis(const QList<Abi> &, const Abi &currentAbi);
+    void setAbis(const ProjectExplorer::Abis &, const Abi &currentAbi);
 
-    QList<Abi> supportedAbis() const;
+    Abis supportedAbis() const;
     bool isCustomAbi() const;
     Abi currentAbi() const;
 
