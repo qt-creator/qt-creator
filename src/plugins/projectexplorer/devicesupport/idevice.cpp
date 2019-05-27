@@ -395,6 +395,9 @@ IDevice::Ptr IDevice::clone() const
     QTC_ASSERT(factory, return {});
     IDevice::Ptr device = factory->construct();
     QTC_ASSERT(device, return {});
+    device->d->deviceState = d->deviceState;
+    device->d->deviceActions = d->deviceActions;
+    device->d->deviceIcons = d->deviceIcons;
     device->fromMap(toMap());
     return device;
 }
