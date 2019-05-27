@@ -117,9 +117,6 @@ void BoostTestOutputReader::sendCompleteInformation()
 
 void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &match)
 {
-    if (m_result != ResultType::Invalid)
-        sendCompleteInformation();
-
     m_fileName = constructSourceFilePath(m_buildDir, match.captured(1));
     m_lineNumber = match.captured(2).toInt();
 
@@ -176,6 +173,9 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
         m_result = ResultType::Skip;
         m_description = content;
     }
+
+    if (m_result != ResultType::Invalid) // we got a new result
+        sendCompleteInformation();
 }
 
 void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNewLine)
