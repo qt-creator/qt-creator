@@ -324,8 +324,10 @@ Position::Position(const QTextCursor &cursor)
 int Position::toPositionInDocument(QTextDocument *doc) const
 {
     const QTextBlock block = doc->findBlockByNumber(line());
-    if (!block.isValid() || block.length() <= character())
+    if (!block.isValid())
         return -1;
+    if (block.length() <= character())
+        return block.position() + block.length();
     return block.position() + character();
 }
 
