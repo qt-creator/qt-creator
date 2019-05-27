@@ -1,32 +1,3 @@
-set(WIN_SOURCES
-  consoleprocess_win.cpp
-  process_ctrlc_stub.cpp
-  touchbar/touchbar.cpp
-)
-set(MAC_SOURCES
-  consoleprocess_unix.cpp
-  fileutils_mac.mm fileutils_mac.h
-  processhandle_mac.mm
-  theme/theme_mac.mm theme/theme_mac.h
-  touchbar/touchbar_appdelegate_mac.mm touchbar/touchbar_appdelegate_mac_p.h
-  touchbar/touchbar_mac.mm touchbar/touchbar_mac_p.h
-)
-set(UNIX_SOURCES
-  consoleprocess_unix.cpp
-  touchbar/touchbar.cpp
-)
-
-if (WIN32)
-  set(PLATFORM_SOURCES ${WIN_SOURCES})
-  set(PLATFORM_DEPENDS user32 iphlpapi ws2_32 shell32)
-elseif (APPLE)
-  set(PLATFORM_SOURCES ${MAC_SOURCES})
-  set(PLATFORM_DEPENDS ${FWFoundation} ${FWAppKit})
-else()
-  set(PLATFORM_SOURCES ${UNIX_SOURCES})
-  set(PLATFORM_DEPENDS)
-endif()
-
 if (IDE_LIBEXEC_PATH AND IDE_BIN_PATH)
   file(RELATIVE_PATH RELATIVE_TOOLS_PATH
     "${CMAKE_INSTALL_PREFIX}/${IDE_LIBEXEC_PATH}" "${CMAKE_INSTALL_PREFIX}/${IDE_BIN_PATH}")
@@ -36,12 +7,11 @@ else()
 endif()
 
 add_qtc_library(Utils
-  DEPENDS ${PLATFORM_DEPENDS} Qt5::Xml
+  DEPENDS Qt5::Xml
   PUBLIC_DEPENDS Qt5::Concurrent Qt5::Core Qt5::Network Qt5::Qml Qt5::Gui Qt5::Widgets
   DEFINES
     "QTC_REL_TOOLS_PATH=\"${RELATIVE_TOOLS_PATH}\""
   SOURCES
-    ${PLATFORM_SOURCES}
     ../3rdparty/optional/optional.hpp
     ../3rdparty/variant/variant.hpp
     QtConcurrentTools
@@ -192,21 +162,44 @@ add_qtc_library(Utils
     wizardpage.cpp wizardpage.h
 )
 
-if (WIN32)
-  target_compile_definitions(Utils
-      PRIVATE _UNICODE UNICODE
-      PUBLIC _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS)
-endif()
+extend_qtc_target(Utils CONDITION WIN32
+  SOURCES
+    consoleprocess_win.cpp
+    process_ctrlc_stub.cpp
+    touchbar/touchbar.cpp
+  DEPENDS
+    user32 iphlpapi ws2_32 shell32
+  DEFINES
+    _UNICODE UNICODE
+  PUBLIC_DEFINES
+    _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS
+)
 
-set(PROCESS_STUB_SOURCES process_stub_unix.c)
-if (WIN32)
-  set(PROCESS_STUB_SOURCES process_stub_win.c)
-endif()
+extend_qtc_target(Utils CONDITION APPLE
+  SOURCES
+    consoleprocess_unix.cpp
+    fileutils_mac.mm fileutils_mac.h
+    processhandle_mac.mm
+    theme/theme_mac.mm theme/theme_mac.h
+    touchbar/touchbar_appdelegate_mac.mm touchbar/touchbar_appdelegate_mac_p.h
+    touchbar/touchbar_mac.mm touchbar/touchbar_mac_p.h
+  DEPENDS
+    ${FWFoundation} ${FWAppKit}
+)
 
-add_executable(qtcreator_process_stub ${PROCESS_STUB_SOURCES})
+extend_qtc_target(Utils CONDITION UNIX AND NOT APPLE
+  SOURCES
+    consoleprocess_unix.cpp
+    touchbar/touchbar.cpp
+)
+
+add_executable(qtcreator_process_stub)
 if (WIN32)
+  target_sources(qtcreator_process_stub PRIVATE process_stub_win.c)
   target_link_libraries(qtcreator_process_stub shell32)
   target_compile_definitions(qtcreator_process_stub PRIVATE
       _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS)
+else()
+  target_sources(qtcreator_process_stub PRIVATE process_stub_unix.c)
 endif()
 install(TARGETS qtcreator_process_stub DESTINATION ${IDE_LIBEXEC_PATH})
