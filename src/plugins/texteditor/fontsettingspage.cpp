@@ -364,8 +364,7 @@ QWidget *FontSettingsPage::widget()
 
         connect(d_ptr->m_ui->fontComboBox, &QFontComboBox::currentFontChanged,
                 this, &FontSettingsPage::fontSelected);
-        connect(d_ptr->m_ui->sizeComboBox,
-                QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+        connect(d_ptr->m_ui->sizeComboBox, &QComboBox::currentTextChanged,
                 this, &FontSettingsPage::fontSizeSelected);
         connect(d_ptr->m_ui->zoomSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
                 this, &FontSettingsPage::fontZoomChanged);

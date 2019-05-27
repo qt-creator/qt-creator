@@ -103,7 +103,7 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     connect(ui->bottomAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
 
-    connect(ui->styleComboBox, QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
+    connect(ui->styleComboBox, &QComboBox::currentTextChanged,
             this, &ContextPaneTextWidget::onStyleComboBoxChanged);
 }
 
