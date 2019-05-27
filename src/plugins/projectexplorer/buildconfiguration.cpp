@@ -104,7 +104,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
 
 Utils::FileName BuildConfiguration::buildDirectory() const
 {
-    QString path = environment().expandVariables(m_buildDirectoryAspect->value());
+    QString path = environment().expandVariables(m_buildDirectoryAspect->value().trimmed());
     path = QDir::cleanPath(macroExpander()->expand(path));
     return Utils::FileName::fromString(QDir::cleanPath(QDir(target()->project()->projectDirectory().toString()).absoluteFilePath(path)));
 }
