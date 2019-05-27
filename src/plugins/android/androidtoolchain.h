@@ -44,7 +44,7 @@ public:
 
     Utils::FileName suggestedDebugger() const override;
     Utils::FileName suggestedGdbServer() const;
-    Utils::FileNameList suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
     Utils::FileName makeCommand(const Utils::Environment &environment) const override;
     bool fromMap(const QVariantMap &data) override;
 

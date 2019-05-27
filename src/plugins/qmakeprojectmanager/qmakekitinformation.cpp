@@ -123,7 +123,7 @@ void QmakeKitAspect::setup(Kit *k)
 
     ToolChain *tc = ToolChainKitAspect::toolChain(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
-    if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
+    if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec.toString()))) {
         const QList<ToolChain *> possibleTcs = ToolChainManager::toolChains(
                     [version](const ToolChain *t) {
             return t->isValid()
@@ -133,7 +133,7 @@ void QmakeKitAspect::setup(Kit *k)
         if (!possibleTcs.isEmpty()) {
             const QList<ToolChain *> goodTcs = Utils::filtered(possibleTcs,
                                                                [&spec](const ToolChain *t) {
-                return t->suggestedMkspecList().contains(spec);
+                return t->suggestedMkspecList().contains(spec.toString());
             });
             // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
             // This improves the situation a bit if a cross-compilation tool chain has the

@@ -123,10 +123,9 @@ bool AndroidToolChain::fromMap(const QVariantMap &data)
     return isValid();
 }
 
-FileNameList AndroidToolChain::suggestedMkspecList() const
+QStringList AndroidToolChain::suggestedMkspecList() const
 {
-    return FileNameList() << FileName::fromLatin1("android-g++")
-                          << FileName::fromLatin1("android-clang");
+    return {"android-g++", "android-clang"};
 }
 
 FileName AndroidToolChain::makeCommand(const Environment &env) const

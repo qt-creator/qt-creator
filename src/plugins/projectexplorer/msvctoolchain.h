@@ -71,7 +71,7 @@ public:
 
     QString originalTargetTriple() const override;
 
-    Utils::FileNameList suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
 
     QString typeDisplayName() const override;
 
@@ -182,7 +182,7 @@ public:
 
     bool isValid() const override;
     QString typeDisplayName() const override;
-    QList<Utils::FileName> suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FileName compilerCommand() const override;
     IOutputParser *outputParser() const override;

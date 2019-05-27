@@ -98,7 +98,7 @@ public:
 
     QByteArray id() const;
 
-    virtual Utils::FileNameList suggestedMkspecList() const;
+    virtual QStringList suggestedMkspecList() const;
     virtual Utils::FileName suggestedDebugger() const;
 
     Core::Id typeId() const;

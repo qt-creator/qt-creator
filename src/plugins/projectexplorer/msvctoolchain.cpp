@@ -945,53 +945,52 @@ QString MsvcToolChain::typeDisplayName() const
     return MsvcToolChainFactory::tr("MSVC");
 }
 
-Utils::FileNameList MsvcToolChain::suggestedMkspecList() const
+QStringList MsvcToolChain::suggestedMkspecList() const
 {
-    Utils::FileNameList result;
-    result << Utils::FileName::fromLatin1("win32-msvc"); // Common MSVC mkspec introduced in 5.8.1
+    QStringList result = {"win32-msvc"}; // Common MSVC mkspec introduced in 5.8.1
     switch (m_abi.osFlavor()) {
     case Abi::WindowsMsvc2005Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2005");
+        result << "win32-msvc2005";
         break;
     case Abi::WindowsMsvc2008Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2008");
+        result << "win32-msvc2008";
         break;
     case Abi::WindowsMsvc2010Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2010");
+        result << "win32-msvc2010";
         break;
     case Abi::WindowsMsvc2012Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2012")
-               << Utils::FileName::fromLatin1("win32-msvc2010");
+        result << "win32-msvc2012"
+               << "win32-msvc2010";
         break;
     case Abi::WindowsMsvc2013Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2013")
-               << Utils::FileName::fromLatin1("winphone-arm-msvc2013")
-               << Utils::FileName::fromLatin1("winphone-x86-msvc2013")
-               << Utils::FileName::fromLatin1("winrt-arm-msvc2013")
-               << Utils::FileName::fromLatin1("winrt-x86-msvc2013")
-               << Utils::FileName::fromLatin1("winrt-x64-msvc2013")
-               << Utils::FileName::fromLatin1("win32-msvc2012")
-               << Utils::FileName::fromLatin1("win32-msvc2010");
+        result << "win32-msvc2013"
+               << "winphone-arm-msvc2013"
+               << "winphone-x86-msvc2013"
+               << "winrt-arm-msvc2013"
+               << "winrt-x86-msvc2013"
+               << "winrt-x64-msvc2013"
+               << "win32-msvc2012"
+               << "win32-msvc2010";
         break;
     case Abi::WindowsMsvc2015Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2015")
-               << Utils::FileName::fromLatin1("winphone-arm-msvc2015")
-               << Utils::FileName::fromLatin1("winphone-x86-msvc2015")
-               << Utils::FileName::fromLatin1("winrt-arm-msvc2015")
-               << Utils::FileName::fromLatin1("winrt-x86-msvc2015")
-               << Utils::FileName::fromLatin1("winrt-x64-msvc2015");
+        result << "win32-msvc2015"
+               << "winphone-arm-msvc2015"
+               << "winphone-x86-msvc2015"
+               << "winrt-arm-msvc2015"
+               << "winrt-x86-msvc2015"
+               << "winrt-x64-msvc2015";
         break;
     case Abi::WindowsMsvc2017Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2017")
-               << Utils::FileName::fromLatin1("winrt-arm-msvc2017")
-               << Utils::FileName::fromLatin1("winrt-x86-msvc2017")
-               << Utils::FileName::fromLatin1("winrt-x64-msvc2017");
+        result << "win32-msvc2017"
+               << "winrt-arm-msvc2017"
+               << "winrt-x86-msvc2017"
+               << "winrt-x64-msvc2017";
         break;
     case Abi::WindowsMsvc2019Flavor:
-        result << Utils::FileName::fromLatin1("win32-msvc2019")
-               << Utils::FileName::fromLatin1("winrt-arm-msvc2019")
-               << Utils::FileName::fromLatin1("winrt-x86-msvc2019")
-               << Utils::FileName::fromLatin1("winrt-x64-msvc2019");
+        result << "win32-msvc2019"
+               << "winrt-arm-msvc2019"
+               << "winrt-x86-msvc2019"
+               << "winrt-x64-msvc2019";
         break;
     default:
         result.clear();
@@ -1706,11 +1705,10 @@ QString ClangClToolChain::typeDisplayName() const
     return QCoreApplication::translate("ProjectExplorer::ClangToolChainFactory", "Clang");
 }
 
-QList<Utils::FileName> ClangClToolChain::suggestedMkspecList() const
+QStringList ClangClToolChain::suggestedMkspecList() const
 {
-    const QString mkspec = QLatin1String("win32-clang-") + Abi::toString(targetAbi().osFlavor());
-    return QList<Utils::FileName>{Utils::FileName::fromString(mkspec),
-                                  Utils::FileName::fromString("win32-clang-msvc")};
+    const QString mkspec = "win32-clang-" + Abi::toString(targetAbi().osFlavor());
+    return {mkspec, "win32-clang-msvc"};
 }
 
 IOutputParser *ClangClToolChain::outputParser() const

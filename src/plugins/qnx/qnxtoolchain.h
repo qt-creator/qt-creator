@@ -41,7 +41,7 @@ public:
     std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() override;
 
     void addToEnvironment(Utils::Environment &env) const override;
-    Utils::FileNameList suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
 
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;

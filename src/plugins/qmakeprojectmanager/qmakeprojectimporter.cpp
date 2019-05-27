@@ -274,7 +274,7 @@ static const QList<ToolChain *> preferredToolChains(BaseQtVersion *qtVersion, co
     const Abis qtAbis = qtVersion->qtAbis();
     const auto matcher = [&](const ToolChain *tc) {
         return qtAbis.contains(tc->targetAbi())
-            && tc->suggestedMkspecList().contains(spec)
+            && tc->suggestedMkspecList().contains(spec.toString())
             && QMakeStepConfig::targetArchFor(tc->targetAbi(), qtVersion) == archConfig;
     };
     ToolChain * const cxxToolchain = findOrDefault(toolchains, [matcher](const ToolChain *tc) {

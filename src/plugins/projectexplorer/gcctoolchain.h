@@ -89,7 +89,7 @@ public:
 
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FileName makeCommand(const Utils::Environment &environment) const override;
-    Utils::FileNameList suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
     IOutputParser *outputParser() const override;
 
     QVariantMap toMap() const override;
@@ -222,7 +222,7 @@ public:
 
     IOutputParser *outputParser() const override;
 
-    Utils::FileNameList suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
     QString originalTargetTriple() const override;
@@ -259,7 +259,7 @@ public:
     QString typeDisplayName() const override;
     Utils::FileName makeCommand(const Utils::Environment &environment) const override;
 
-    Utils::FileNameList suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
 
 private:
     MingwToolChain();
@@ -280,7 +280,7 @@ public:
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     IOutputParser *outputParser() const override;
 
-    Utils::FileNameList suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
 
 private:
     LinuxIccToolChain();

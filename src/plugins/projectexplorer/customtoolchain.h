@@ -82,7 +82,7 @@ public:
     HeaderPaths builtInHeaderPaths(const QStringList &cxxFlags,
                                    const Utils::FileName &) const override;
     void addToEnvironment(Utils::Environment &env) const override;
-    Utils::FileNameList suggestedMkspecList() const override;
+    QStringList suggestedMkspecList() const override;
     IOutputParser *outputParser() const override;
     QStringList headerPathsList() const;
     void setHeaderPaths(const QStringList &list);
@@ -121,7 +121,7 @@ private:
     Macros m_predefinedMacros;
     HeaderPaths m_builtInHeaderPaths;
     QStringList m_cxx11Flags;
-    Utils::FileNameList m_mkspecs;
+    QStringList m_mkspecs;
 
     Core::Id m_outputParserId;
     CustomParserSettings m_customParserSettings;

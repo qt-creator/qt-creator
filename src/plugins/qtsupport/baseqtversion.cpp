@@ -977,12 +977,12 @@ FileName BaseQtVersion::mkspecFor(ToolChain *tc) const
     if (!tc)
         return versionSpec;
 
-    const FileNameList tcSpecList = tc->suggestedMkspecList();
-    if (tcSpecList.contains(versionSpec))
+    const QStringList tcSpecList = tc->suggestedMkspecList();
+    if (tcSpecList.contains(versionSpec.toString()))
         return versionSpec;
-    foreach (const FileName &tcSpec, tcSpecList) {
-        if (hasMkspec(tcSpec))
-            return tcSpec;
+    for (const QString &tcSpec : tcSpecList) {
+        if (hasMkspec(FileName::fromString(tcSpec)))
+            return FileName::fromString(tcSpec);
     }
 
     return versionSpec;

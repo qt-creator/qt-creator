@@ -192,7 +192,7 @@ void CustomToolChain::addToEnvironment(Environment &env) const
     }
 }
 
-FileNameList CustomToolChain::suggestedMkspecList() const
+QStringList CustomToolChain::suggestedMkspecList() const
 {
     return m_mkspecs;
 }
@@ -270,10 +270,7 @@ const QStringList &CustomToolChain::cxx11Flags() const
 
 void CustomToolChain::setMkspecs(const QString &specs)
 {
-    Utils::FileNameList tmp
-            = Utils::transform(specs.split(QLatin1Char(',')),
-                               [](QString fn) { return FileName::fromString(fn); });
-
+    const QStringList tmp = specs.split(',');
     if (tmp == m_mkspecs)
         return;
     m_mkspecs = tmp;
@@ -282,11 +279,7 @@ void CustomToolChain::setMkspecs(const QString &specs)
 
 QString CustomToolChain::mkspecs() const
 {
-    QString list;
-    for (const FileName &spec : m_mkspecs)
-        list.append(spec.toString() + QLatin1Char(','));
-    list.chop(1);
-    return list;
+    return m_mkspecs.join(',');
 }
 
 QVariantMap CustomToolChain::toMap() const
