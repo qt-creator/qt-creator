@@ -885,7 +885,7 @@ int PluginSpecPrivate::versionCompare(const QString &version1, const QString &ve
 /*!
     \internal
 */
-bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
+bool PluginSpecPrivate::resolveDependencies(const QVector<PluginSpec *> &specs)
 {
     if (hasError)
         return false;
@@ -924,11 +924,11 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
 }
 
 // returns the plugins that it actually indirectly enabled
-QList<PluginSpec *> PluginSpecPrivate::enableDependenciesIndirectly(bool enableTestDependencies)
+QVector<PluginSpec *> PluginSpecPrivate::enableDependenciesIndirectly(bool enableTestDependencies)
 {
     if (!q->isEffectivelyEnabled()) // plugin not enabled, nothing to do
         return {};
-    QList<PluginSpec *> enabled;
+    QVector<PluginSpec *> enabled;
     QHashIterator<PluginDependency, PluginSpec *> it(dependencySpecs);
     while (it.hasNext()) {
         it.next();

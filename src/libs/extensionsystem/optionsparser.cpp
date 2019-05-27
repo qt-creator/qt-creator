@@ -115,10 +115,10 @@ bool OptionsParser::checkForTestOptions()
     if (m_currentArg == QLatin1String(TEST_OPTION)) {
         if (nextToken(RequiredToken)) {
             if (m_currentArg == QLatin1String("all")) {
-                m_pmPrivate->testSpecs =
-                        Utils::transform(m_pmPrivate->loadQueue(), [](PluginSpec *spec) {
-                            return PluginManagerPrivate::TestSpec(spec);
-                        });
+                m_pmPrivate->testSpecs
+                    = Utils::transform<std::vector>(m_pmPrivate->loadQueue(), [](PluginSpec *spec) {
+                          return PluginManagerPrivate::TestSpec(spec);
+                      });
             } else {
                 QStringList args = m_currentArg.split(QLatin1Char(','));
                 const QString pluginName = args.takeFirst();
@@ -129,7 +129,7 @@ bool OptionsParser::checkForTestOptions()
                                                                          "The plugin \"%1\" is specified twice for testing.").arg(pluginName);
                         m_hasError = true;
                     } else {
-                        m_pmPrivate->testSpecs.append(PluginManagerPrivate::TestSpec(spec, args));
+                        m_pmPrivate->testSpecs.emplace_back(spec, args);
                     }
                 } else  {
                     if (m_errorString)
@@ -265,7 +265,7 @@ bool OptionsParser::checkForUnknownOption()
 
 void OptionsParser::forceDisableAllPluginsExceptTestedAndForceEnabled()
 {
-    for (const PluginManagerPrivate::TestSpec &testSpec : qAsConst(m_pmPrivate->testSpecs))
+    for (const PluginManagerPrivate::TestSpec &testSpec : m_pmPrivate->testSpecs)
         testSpec.pluginSpec->d->setForceEnabled(true);
     for (PluginSpec *spec : qAsConst(m_pmPrivate->pluginSpecs)) {
         if (!spec->isForceEnabled() && !spec->isRequired())

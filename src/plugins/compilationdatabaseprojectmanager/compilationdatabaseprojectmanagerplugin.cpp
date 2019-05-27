@@ -95,9 +95,9 @@ void CompilationDatabaseProjectManagerPlugin::extensionsInitialized()
 {
 }
 
-QList<QObject *> CompilationDatabaseProjectManagerPlugin::createTestObjects() const
+QVector<QObject *> CompilationDatabaseProjectManagerPlugin::createTestObjects() const
 {
-    QList<QObject *> tests;
+    QVector<QObject *> tests;
 #ifdef WITH_TESTS
     tests << new CompilationDatabaseTests;
 #endif

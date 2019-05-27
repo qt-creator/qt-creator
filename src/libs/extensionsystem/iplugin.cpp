@@ -193,7 +193,7 @@ IPlugin::~IPlugin()
 }
 
 /*!
-    \fn QList<QObject *> IPlugin::createTestObjects() const
+    \fn QVector<QObject *> IPlugin::createTestObjects() const
 
     Returns objects that are meant to be passed on to QTest::qExec().
 
@@ -201,9 +201,9 @@ IPlugin::~IPlugin()
 
     The ownership of returned objects is transferred to caller.
 */
-QList<QObject *> IPlugin::createTestObjects() const
+QVector<QObject *> IPlugin::createTestObjects() const
 {
-    return QList<QObject *>();
+    return {};
 }
 
 /*!

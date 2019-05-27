@@ -45,7 +45,7 @@ public:
     void extensionsInitialized() final {}
 
 private:
-    QList<QObject *> createTestObjects() const override;
+    QVector<QObject *> createTestObjects() const override;
 
     class ValgrindPluginPrivate *d = nullptr;
 };

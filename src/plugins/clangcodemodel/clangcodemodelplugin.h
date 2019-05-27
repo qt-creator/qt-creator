@@ -58,7 +58,7 @@ private:
     ::Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
     QFutureWatcher<Utils::GenerateCompilationDbResult> m_generatorWatcher;
 #ifdef WITH_TESTS
-    QList<QObject *> createTestObjects() const override;
+    QVector<QObject *> createTestObjects() const override;
 #endif
 };
 

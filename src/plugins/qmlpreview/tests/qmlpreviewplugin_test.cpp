@@ -43,7 +43,7 @@ QmlPreviewPluginTest::QmlPreviewPluginTest(QObject *parent) : QObject(parent)
 
 static ExtensionSystem::IPlugin *getPlugin()
 {
-    const QList<ExtensionSystem::PluginSpec *> plugins = ExtensionSystem::PluginManager::plugins();
+    const QVector<ExtensionSystem::PluginSpec *> plugins = ExtensionSystem::PluginManager::plugins();
     auto it = std::find_if(plugins.begin(), plugins.end(), [](ExtensionSystem::PluginSpec *spec) {
         return spec->name() == "QmlPreview";
     });

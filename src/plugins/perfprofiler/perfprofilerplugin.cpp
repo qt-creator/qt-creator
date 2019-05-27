@@ -102,9 +102,9 @@ PerfSettings *PerfProfilerPlugin::globalSettings()
     return perfGlobalSettings();
 }
 
-QList<QObject *> PerfProfilerPlugin::createTestObjects() const
+QVector<QObject *> PerfProfilerPlugin::createTestObjects() const
 {
-    QList<QObject *> tests;
+    QVector<QObject *> tests;
 #if WITH_TESTS
     tests << new PerfProfilerTraceFileTest;
     tests << new PerfResourceCounterTest;

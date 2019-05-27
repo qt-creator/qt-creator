@@ -132,9 +132,9 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     return true;
 }
 
-QList<QObject *> ClangToolsPlugin::createTestObjects() const
+QVector<QObject *> ClangToolsPlugin::createTestObjects() const
 {
-    QList<QObject *> tests;
+    QVector<QObject *> tests;
 #ifdef WITH_TESTS
     tests << new PreconfiguredSessionTests;
     tests << new ClangToolsUnitTests;

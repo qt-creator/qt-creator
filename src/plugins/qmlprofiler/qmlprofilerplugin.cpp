@@ -149,9 +149,9 @@ QmlProfilerSettings *QmlProfilerPlugin::globalSettings()
     return qmlProfilerGlobalSettings();
 }
 
-QList<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() const
+QVector<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects() const
 {
-    QList<QObject *> tests;
+    QVector<QObject *> tests;
 #ifdef WITH_TESTS
     tests << new DebugMessagesModelTest;
     tests << new FlameGraphModelTest;

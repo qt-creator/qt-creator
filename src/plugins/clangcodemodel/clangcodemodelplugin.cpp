@@ -201,7 +201,7 @@ void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
 }
 
 #ifdef WITH_TESTS
-QList<QObject *> ClangCodeModelPlugin::createTestObjects() const
+QVector<QObject *> ClangCodeModelPlugin::createTestObjects() const
 {
     return {
         new Tests::ClangCodeCompletionTest,

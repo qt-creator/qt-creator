@@ -161,7 +161,7 @@ void tst_PluginManager::circularPlugins()
 {
     m_pm->setPluginPaths(QStringList() << pluginFolder(QLatin1String("circularplugins")));
     m_pm->loadPlugins();
-    QList<PluginSpec *> plugins = m_pm->plugins();
+    QVector<PluginSpec *> plugins = m_pm->plugins();
     QCOMPARE(plugins.count(), 3);
     foreach (PluginSpec *spec, plugins) {
         if (spec->name() == "plugin1") {

@@ -319,7 +319,7 @@ void PluginManager::removeObject(QObject *obj)
 
     \sa PluginManager::getObject()
 */
-QList<QObject *> PluginManager::allObjects()
+QVector<QObject *> PluginManager::allObjects()
 {
     return d->allObjects;
 }
@@ -376,10 +376,11 @@ QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec)
 {
     QSet<PluginSpec *> recursiveDependencies;
     recursiveDependencies.insert(spec);
-    QList<PluginSpec *> queue;
-    queue.append(spec);
-    while (!queue.isEmpty()) {
-        PluginSpec *checkSpec = queue.takeFirst();
+    std::queue<PluginSpec *> queue;
+    queue.push(spec);
+    while (!queue.empty()) {
+        PluginSpec *checkSpec = queue.front();
+        queue.pop();
         QHashIterator<PluginDependency, PluginSpec *> depIt(checkSpec->dependencySpecs());
         while (depIt.hasNext()) {
             depIt.next();
@@ -388,7 +389,7 @@ QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec)
             PluginSpec *depSpec = depIt.value();
             if (!recursiveDependencies.contains(depSpec)) {
                 recursiveDependencies.insert(depSpec);
-                queue.append(depSpec);
+                queue.push(depSpec);
             }
         }
     }
@@ -536,12 +537,12 @@ QStringList PluginManager::arguments()
 
     \sa setPluginPaths()
 */
-const QList<PluginSpec *> PluginManager::plugins()
+const QVector<PluginSpec *> PluginManager::plugins()
 {
     return d->pluginSpecs;
 }
 
-QHash<QString, QList<PluginSpec *> > PluginManager::pluginCollections()
+QHash<QString, QVector<PluginSpec *>> PluginManager::pluginCollections()
 {
     return d->pluginCategories;
 }
@@ -752,7 +753,7 @@ void PluginManager::formatPluginVersions(QTextStream &str)
  */
 bool PluginManager::testRunRequested()
 {
-    return !d->testSpecs.isEmpty();
+    return !d->testSpecs.empty();
 }
 
 /*!
@@ -769,7 +770,7 @@ void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
 /*!
     Returns a list of plugins in load order.
 */
-QList<PluginSpec *> PluginManager::loadQueue()
+QVector<PluginSpec *> PluginManager::loadQueue()
 {
     return d->loadQueue();
 }
@@ -818,15 +819,16 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
 
 void PluginManagerPrivate::nextDelayedInitialize()
 {
-    while (!delayedInitializeQueue.isEmpty()) {
-        PluginSpec *spec = delayedInitializeQueue.takeFirst();
+    while (!delayedInitializeQueue.empty()) {
+        PluginSpec *spec = delayedInitializeQueue.front();
+        delayedInitializeQueue.pop();
         profilingReport(">delayedInitialize", spec);
         bool delay = spec->d->delayedInitialize();
         profilingReport("<delayedInitialize", spec);
         if (delay)
             break; // do next delayedInitialize after a delay
     }
-    if (delayedInitializeQueue.isEmpty()) {
+    if (delayedInitializeQueue.empty()) {
         m_isInitializationDone = true;
         delete delayedInitializeTimer;
         delayedInitializeTimer = nullptr;
@@ -903,7 +905,7 @@ void PluginManagerPrivate::stopAll()
         delete delayedInitializeTimer;
         delayedInitializeTimer = nullptr;
     }
-    QList<PluginSpec *> queue = loadQueue();
+    QVector<PluginSpec *> queue = loadQueue();
     foreach (PluginSpec *spec, queue) {
         loadPlugin(spec, PluginSpec::Stopped);
     }
@@ -926,8 +928,10 @@ using TestPlanIterator = QMapIterator<QObject *, QStringList>;
 
 static bool isTestFunction(const QMetaMethod &metaMethod)
 {
-    static const QList<QByteArray> blackList = QList<QByteArray>()
-        << "initTestCase()" << "cleanupTestCase()" << "init()" << "cleanup()";
+    static const QVector<QByteArray> blackList = {"initTestCase()",
+                                                  "cleanupTestCase()",
+                                                  "init()",
+                                                  "cleanup()"};
 
     if (metaMethod.methodType() != QMetaMethod::Slot)
         return false;
@@ -991,7 +995,7 @@ static QStringList matchingTestFunctions(const QStringList &testFunctions,
     return matchingFunctions;
 }
 
-static QObject *objectWithClassName(const QList<QObject *> &objects, const QString &className)
+static QObject *objectWithClassName(const QVector<QObject *> &objects, const QString &className)
 {
     return Utils::findOr(objects, nullptr, [className] (QObject *object) -> bool {
         QString candidate = QString::fromUtf8(object->metaObject()->className());
@@ -1034,7 +1038,7 @@ static int executeTestPlan(const TestPlan &testPlan)
 
 /// Resulting plan consists of all test functions of the plugin object and
 /// all test functions of all test objects of the plugin.
-static TestPlan generateCompleteTestPlan(IPlugin *plugin, const QList<QObject *> &testObjects)
+static TestPlan generateCompleteTestPlan(IPlugin *plugin, const QVector<QObject *> &testObjects)
 {
     TestPlan testPlan;
 
@@ -1054,7 +1058,8 @@ static TestPlan generateCompleteTestPlan(IPlugin *plugin, const QList<QObject *>
 ///
 /// Since multiple match texts can match the same function, a test function might
 /// be included multiple times for a test object.
-static TestPlan generateCustomTestPlan(IPlugin *plugin, const QList<QObject *> &testObjects,
+static TestPlan generateCustomTestPlan(IPlugin *plugin,
+                                       const QVector<QObject *> &testObjects,
                                        const QStringList &matchTexts)
 {
     TestPlan testPlan;
@@ -1062,7 +1067,7 @@ static TestPlan generateCustomTestPlan(IPlugin *plugin, const QList<QObject *> &
     const QStringList testFunctionsOfPluginObject = testFunctions(plugin->metaObject());
     QStringList matchedTestFunctionsOfPluginObject;
     QStringList remainingMatchTexts = matchTexts;
-    QList<QObject *> remainingTestObjectsOfPlugin = testObjects;
+    QVector<QObject *> remainingTestObjectsOfPlugin = testObjects;
 
     while (!remainingMatchTexts.isEmpty()) {
         const QString matchText = remainingMatchTexts.takeFirst();
@@ -1127,11 +1132,12 @@ void PluginManagerPrivate::startTests()
         if (!plugin)
             continue; // plugin not loaded
 
-        const QList<QObject *> testObjects = plugin->createTestObjects();
+        const QVector<QObject *> testObjects = plugin->createTestObjects();
         ExecuteOnDestruction deleteTestObjects([&]() { qDeleteAll(testObjects); });
         Q_UNUSED(deleteTestObjects)
 
-        const bool hasDuplicateTestObjects = testObjects.size() != testObjects.toSet().size();
+        const bool hasDuplicateTestObjects = testObjects.size()
+                                             != Utils::filteredUnique(testObjects).size();
         QTC_ASSERT(!hasDuplicateTestObjects, continue);
         QTC_ASSERT(!testObjects.contains(plugin), continue);
 
@@ -1205,7 +1211,7 @@ void PluginManagerPrivate::removeObject(QObject *obj)
 */
 void PluginManagerPrivate::loadPlugins()
 {
-    QList<PluginSpec *> queue = loadQueue();
+    QVector<PluginSpec *> queue = loadQueue();
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsLoading);
     foreach (PluginSpec *spec, queue) {
         loadPlugin(spec, PluginSpec::Loaded);
@@ -1218,7 +1224,7 @@ void PluginManagerPrivate::loadPlugins()
     Utils::reverseForeach(queue, [this](PluginSpec *spec) {
         loadPlugin(spec, PluginSpec::Running);
         if (spec->state() == PluginSpec::Running) {
-            delayedInitializeQueue.append(spec);
+            delayedInitializeQueue.push(spec);
         } else {
             // Plugin initialization failed, so cleanup after it
             spec->d->kill();
@@ -1261,7 +1267,7 @@ void PluginManagerPrivate::asyncShutdownFinished()
 {
     auto *plugin = qobject_cast<IPlugin *>(sender());
     Q_ASSERT(plugin);
-    asynchronousPlugins.removeAll(plugin->pluginSpec());
+    asynchronousPlugins.remove(plugin->pluginSpec());
     if (asynchronousPlugins.isEmpty())
         shutdownEventLoop->exit();
 }
@@ -1269,11 +1275,11 @@ void PluginManagerPrivate::asyncShutdownFinished()
 /*!
     \internal
 */
-QList<PluginSpec *> PluginManagerPrivate::loadQueue()
+QVector<PluginSpec *> PluginManagerPrivate::loadQueue()
 {
-    QList<PluginSpec *> queue;
+    QVector<PluginSpec *> queue;
     foreach (PluginSpec *spec, pluginSpecs) {
-        QList<PluginSpec *> circularityCheckQueue;
+        QVector<PluginSpec *> circularityCheckQueue;
         loadQueue(spec, queue, circularityCheckQueue);
     }
     return queue;
@@ -1282,8 +1288,9 @@ QList<PluginSpec *> PluginManagerPrivate::loadQueue()
 /*!
     \internal
 */
-bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queue,
-        QList<PluginSpec *> &circularityCheckQueue)
+bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
+                                     QVector<PluginSpec *> &queue,
+                                     QVector<PluginSpec *> &circularityCheckQueue)
 {
     if (queue.contains(spec))
         return true;
@@ -1433,7 +1440,7 @@ void PluginManagerPrivate::readPluginPaths()
     pluginCategories.clear();
 
     // default
-    pluginCategories.insert(QString(), QList<PluginSpec *>());
+    pluginCategories.insert(QString(), QVector<PluginSpec *>());
 
     foreach (const QString &pluginFile, pluginFiles(pluginPaths)) {
         auto *spec = new PluginSpec;
@@ -1477,7 +1484,7 @@ void PluginManagerPrivate::enableDependenciesIndirectly()
     foreach (PluginSpec *spec, pluginSpecs)
         spec->d->enabledIndirectly = false;
     // cannot use reverse loadQueue here, because test dependencies can introduce circles
-    QList<PluginSpec *> queue = Utils::filtered(pluginSpecs, &PluginSpec::isEffectivelyEnabled);
+    QVector<PluginSpec *> queue = Utils::filtered(pluginSpecs, &PluginSpec::isEffectivelyEnabled);
     while (!queue.isEmpty()) {
         PluginSpec *spec = queue.takeFirst();
         queue += spec->d->enableDependenciesIndirectly(containsTestSpec(spec));

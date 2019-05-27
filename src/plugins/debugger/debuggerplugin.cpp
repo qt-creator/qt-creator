@@ -2634,15 +2634,14 @@ void DebuggerUnitTests::testDebuggerMatching()
     QCOMPARE(expectedLevel, level);
 }
 
-
-QList<QObject *> DebuggerPlugin::createTestObjects() const
+QVector<QObject *> DebuggerPlugin::createTestObjects() const
 {
     return {new DebuggerUnitTests};
 }
 
 #else // ^-- if WITH_TESTS else --v
 
-QList<QObject *> DebuggerPlugin::createTestObjects() const
+QVector<QObject *> DebuggerPlugin::createTestObjects() const
 {
     return {};
 }

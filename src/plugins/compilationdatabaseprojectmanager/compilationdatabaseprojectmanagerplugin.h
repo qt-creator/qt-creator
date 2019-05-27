@@ -45,7 +45,7 @@ public:
 private:
     void projectChanged();
 
-    QList<QObject *> createTestObjects() const final;
+    QVector<QObject *> createTestObjects() const final;
 
     CompilationDatabaseEditorFactory factory;
     CompilationDatabaseBuildConfigurationFactory buildConfigFactory;

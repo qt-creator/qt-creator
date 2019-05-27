@@ -60,7 +60,7 @@ public:
     virtual QObject *remoteCommand(const QStringList & /* options */,
                                    const QString & /* workingDirectory */,
                                    const QStringList & /* arguments */) { return nullptr; }
-    virtual QList<QObject *> createTestObjects() const;
+    virtual QVector<QObject *> createTestObjects() const;
 
     PluginSpec *pluginSpec() const;
 

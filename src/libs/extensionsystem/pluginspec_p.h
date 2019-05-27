@@ -52,7 +52,7 @@ public:
 
     bool read(const QString &fileName);
     bool provides(const QString &pluginName, const QString &version) const;
-    bool resolveDependencies(const QList<PluginSpec *> &specs);
+    bool resolveDependencies(const QVector<PluginSpec *> &specs);
     bool loadLibrary();
     bool initializePlugin();
     bool initializeExtensions();
@@ -103,7 +103,7 @@ public:
     static bool isValidVersion(const QString &version);
     static int versionCompare(const QString &version1, const QString &version2);
 
-    QList<PluginSpec *> enableDependenciesIndirectly(bool enableTestDependencies = false);
+    QVector<PluginSpec *> enableDependenciesIndirectly(bool enableTestDependencies = false);
 
     bool readMetaData(const QJsonObject &pluginMetaData);
 

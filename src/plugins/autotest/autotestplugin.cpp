@@ -357,9 +357,9 @@ void AutotestPlugin::popupResultsPane()
         s_instance->m_resultsPane->popup(Core::IOutputPane::NoModeSwitch);
 }
 
-QList<QObject *> AutotestPlugin::createTestObjects() const
+QVector<QObject *> AutotestPlugin::createTestObjects() const
 {
-    QList<QObject *> tests;
+    QVector<QObject *> tests;
 #ifdef WITH_TESTS
     tests << new AutoTestUnitTests(TestTreeModel::instance());
 #endif

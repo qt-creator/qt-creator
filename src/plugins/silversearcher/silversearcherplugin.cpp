@@ -45,7 +45,7 @@ void SilverSearcherPlugin::extensionsInitialized()
 }
 
 #ifdef WITH_TESTS
-QList<QObject *> SilverSearcherPlugin::createTestObjects() const
+QVector<QObject *> SilverSearcherPlugin::createTestObjects() const
 {
     return {new OutputParserTest};
 }

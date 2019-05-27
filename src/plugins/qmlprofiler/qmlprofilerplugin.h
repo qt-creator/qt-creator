@@ -44,7 +44,7 @@ private:
     bool initialize(const QStringList &arguments, QString *errorString) final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
-    QList<QObject *> createTestObjects() const final;
+    QVector<QObject *> createTestObjects() const final;
 
     class QmlProfilerPluginPrivate *d = nullptr;
 };

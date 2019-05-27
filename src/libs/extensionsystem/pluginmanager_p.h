@@ -35,6 +35,8 @@
 #include <QScopedPointer>
 #include <QReadWriteLock>
 
+#include <queue>
+
 QT_BEGIN_NAMESPACE
 class QTime;
 class QTimer;
@@ -65,13 +67,13 @@ public:
     void loadPlugins();
     void shutdown();
     void setPluginPaths(const QStringList &paths);
-    QList<PluginSpec *> loadQueue();
+    QVector<ExtensionSystem::PluginSpec *> loadQueue();
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
     void enableDependenciesIndirectly();
     void initProfiling();
     void profilingSummary() const;
-    void profilingReport(const char *what, const PluginSpec *spec = 0);
+    void profilingReport(const char *what, const PluginSpec *spec = nullptr);
     void setSettings(QSettings *settings);
     void setGlobalSettings(QSettings *settings);
     void readSettings();
@@ -80,8 +82,10 @@ public:
     class TestSpec {
     public:
         TestSpec(PluginSpec *pluginSpec, const QStringList &testFunctionsOrObjects = QStringList())
-            : pluginSpec(pluginSpec), testFunctionsOrObjects(testFunctionsOrObjects) {}
-        PluginSpec *pluginSpec;
+            : pluginSpec(pluginSpec)
+            , testFunctionsOrObjects(testFunctionsOrObjects)
+        {}
+        PluginSpec *pluginSpec = nullptr;
         QStringList testFunctionsOrObjects;
     };
 
@@ -95,21 +99,21 @@ public:
         testSpecs = Utils::filtered(testSpecs, [pluginSpec](const TestSpec &s) { return s.pluginSpec != pluginSpec; });
     }
 
-    QHash<QString, QList<PluginSpec *>> pluginCategories;
-    QList<PluginSpec *> pluginSpecs;
-    QList<TestSpec> testSpecs;
+    QHash<QString, QVector<PluginSpec *>> pluginCategories;
+    QVector<PluginSpec *> pluginSpecs;
+    std::vector<TestSpec> testSpecs;
     QStringList pluginPaths;
     QString pluginIID;
-    QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
+    QVector<QObject *> allObjects;      // ### make this a QVector<QPointer<QObject> > > ?
     QStringList defaultDisabledPlugins; // Plugins/Ignored from install settings
     QStringList defaultEnabledPlugins; // Plugins/ForceEnabled from install settings
     QStringList disabledPlugins;
     QStringList forceEnabledPlugins;
     // delayed initialization
     QTimer *delayedInitializeTimer = nullptr;
-    QList<PluginSpec *> delayedInitializeQueue;
+    std::queue<PluginSpec *> delayedInitializeQueue;
     // ansynchronous shutdown
-    QList<PluginSpec *> asynchronousPlugins; // plugins that have requested async shutdown
+    QSet<PluginSpec *> asynchronousPlugins;  // plugins that have requested async shutdown
     QEventLoop *shutdownEventLoop = nullptr; // used for async shutdown
 
     QStringList arguments;
@@ -140,8 +144,8 @@ private:
 
     void readPluginPaths();
     bool loadQueue(PluginSpec *spec,
-            QList<PluginSpec *> &queue,
-            QList<PluginSpec *> &circularityCheckQueue);
+                   QVector<ExtensionSystem::PluginSpec *> &queue,
+                   QVector<ExtensionSystem::PluginSpec *> &circularityCheckQueue);
     void stopAll();
     void deleteAll();
 

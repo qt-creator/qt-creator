@@ -196,9 +196,9 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlPreviewPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-QList<QObject *> QmlPreviewPlugin::createTestObjects() const
+QVector<QObject *> QmlPreviewPlugin::createTestObjects() const
 {
-    QList<QObject *> tests;
+    QVector<QObject *> tests;
 #ifdef WITH_TESTS
     tests.append(new QmlPreviewClientTest);
     tests.append(new QmlPreviewPluginTest);

@@ -79,7 +79,7 @@ private:
     void onRunSelectedTriggered();
     void onRunFileTriggered();
     void onRunUnderCursorTriggered(TestRunMode mode);
-    QList<QObject *> createTestObjects() const override;
+    QVector<QObject *> createTestObjects() const override;
     const QSharedPointer<TestSettings> m_settings;
     TestFrameworkManager *m_frameworkManager = nullptr;
     TestSettingsPage *m_testSettingPage = nullptr;

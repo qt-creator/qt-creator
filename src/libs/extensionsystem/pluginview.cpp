@@ -212,8 +212,10 @@ public:
 class CollectionItem : public TreeItem
 {
 public:
-    CollectionItem(const QString &name, QList<PluginSpec *> plugins, PluginView *view)
-        : m_name(name), m_plugins(plugins), m_view(view)
+    CollectionItem(const QString &name, QVector<PluginSpec *> plugins, PluginView *view)
+        : m_name(name)
+        , m_plugins(plugins)
+        , m_view(view)
     {
         foreach (PluginSpec *spec, plugins)
             appendChild(new PluginItem(spec, view));
@@ -254,9 +256,11 @@ public:
     bool setData(int column, const QVariant &data, int role) override
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
-            const QList<PluginSpec *> affectedPlugins =
-                    Utils::filtered(m_plugins, [](PluginSpec *spec) { return !spec->isRequired(); });
-            if (m_view->setPluginsEnabled(affectedPlugins.toSet(), data.toBool())) {
+            const QVector<PluginSpec *> affectedPlugins
+                = Utils::filtered(m_plugins, [](PluginSpec *spec) { return !spec->isRequired(); });
+            if (m_view->setPluginsEnabled(Utils::transform<QSet>(affectedPlugins,
+                                                                 [](PluginSpec *s) { return s; }),
+                                          data.toBool())) {
                 update();
                 return true;
             }
@@ -274,7 +278,7 @@ public:
 
 public:
     QString m_name;
-    QList<PluginSpec *> m_plugins;
+    QVector<PluginSpec *> m_plugins;
     PluginView *m_view; // Not owned.
 };
 
@@ -408,13 +412,13 @@ void PluginView::updatePlugins()
     // Model.
     m_model->clear();
 
-
-    QList<CollectionItem *> collections;
-    const QHash<QString, QList<PluginSpec *>> pluginCollections = PluginManager::pluginCollections();
+    const QHash<QString, QVector<PluginSpec *>> pluginCollections
+        = PluginManager::pluginCollections();
+    std::vector<CollectionItem *> collections;
     const auto end = pluginCollections.cend();
     for (auto it = pluginCollections.cbegin(); it != end; ++it) {
         const QString name = it.key().isEmpty() ? tr("Utilities") : it.key();
-        collections.append(new CollectionItem(name, it.value(), this));
+        collections.push_back(new CollectionItem(name, it.value(), this));
     }
     Utils::sort(collections, &CollectionItem::m_name);
 

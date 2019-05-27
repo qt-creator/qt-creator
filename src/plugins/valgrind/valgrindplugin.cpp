@@ -127,9 +127,9 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     return true;
 }
 
-QList<QObject *> ValgrindPlugin::createTestObjects() const
+QVector<QObject *> ValgrindPlugin::createTestObjects() const
 {
-    QList<QObject *> tests;
+    QVector<QObject *> tests;
 #ifdef WITH_TESTS
     tests << new Test::ValgrindMemcheckParserTest << new Test::ValgrindTestRunnerTest;
 #endif

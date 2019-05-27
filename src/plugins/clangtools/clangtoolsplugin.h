@@ -42,7 +42,7 @@ public:
 private:
     bool initialize(const QStringList &arguments, QString *errorString) final;
     void extensionsInitialized() final {}
-    QList<QObject *> createTestObjects() const final;
+    QVector<QObject *> createTestObjects() const final;
 
     class ClangToolsPluginPrivate *d = nullptr;
 };

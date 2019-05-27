@@ -64,7 +64,7 @@ public:
 
 #ifdef WITH_TESTS
 private:
-    QList<QObject *> createTestObjects() const override;
+    QVector<QObject *> createTestObjects() const override;
 
 private slots:
     // The following tests expect that no projects are loaded on start-up.

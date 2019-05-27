@@ -245,7 +245,7 @@ void tst_PluginSpec::locationAndPath()
 
 void tst_PluginSpec::resolveDependencies()
 {
-    QList<PluginSpec *> specs;
+    QVector<PluginSpec *> specs;
     PluginSpec *spec1 = Internal::PluginManagerPrivate::createSpec();
     specs.append(spec1);
     Internal::PluginSpecPrivate *spec1Priv = Internal::PluginManagerPrivate::privateSpec(spec1);
@@ -291,7 +291,7 @@ void tst_PluginSpec::loadLibrary()
     PluginSpec *ps = Internal::PluginManagerPrivate::createSpec();
     Internal::PluginSpecPrivate *spec = Internal::PluginManagerPrivate::privateSpec(ps);
     QVERIFY(spec->read(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/") + libraryName(QLatin1String("test"))));
-    QVERIFY(spec->resolveDependencies(QList<PluginSpec *>()));
+    QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString));
     QVERIFY(spec->plugin != 0);
     QVERIFY(QLatin1String(spec->plugin->metaObject()->className()) == QLatin1String("MyPlugin::MyPluginImpl"));
@@ -305,7 +305,7 @@ void tst_PluginSpec::initializePlugin()
 {
     Internal::PluginSpecPrivate spec(0);
     QVERIFY(spec.read(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/") + libraryName(QLatin1String("test"))));
-    QVERIFY(spec.resolveDependencies(QList<PluginSpec *>()));
+    QVERIFY(spec.resolveDependencies(QVector<PluginSpec *>()));
     QVERIFY2(spec.loadLibrary(), qPrintable(spec.errorString));
     bool isInitialized;
     QMetaObject::invokeMethod(spec.plugin, "isInitialized",
@@ -323,7 +323,7 @@ void tst_PluginSpec::initializeExtensions()
 {
     Internal::PluginSpecPrivate spec(0);
     QVERIFY(spec.read(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/") + libraryName(QLatin1String("test"))));
-    QVERIFY(spec.resolveDependencies(QList<PluginSpec *>()));
+    QVERIFY(spec.resolveDependencies(QVector<PluginSpec *>()));
     QVERIFY2(spec.loadLibrary(), qPrintable(spec.errorString));
     bool isExtensionsInitialized;
     QVERIFY(spec.initializePlugin());

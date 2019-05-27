@@ -371,11 +371,9 @@ void CppEditorPluginPrivate::inspectCppCodeModel()
 }
 
 #ifdef WITH_TESTS
-QList<QObject *> CppEditorPlugin::createTestObjects() const
+QVector<QObject *> CppEditorPlugin::createTestObjects() const
 {
-    return QList<QObject *>()
-        << new Tests::DoxygenTest
-        ;
+    return {new Tests::DoxygenTest};
 }
 #endif
 
