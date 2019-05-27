@@ -400,7 +400,7 @@ void HelpPluginPrivate::saveExternalWindowSettings()
         return;
     m_externalWindowState = m_externalWindow->geometry();
     QSettings *settings = ICore::settings();
-    settings->setValue(kExternalWindowStateKey, qVariantFromValue(m_externalWindowState));
+    settings->setValue(kExternalWindowStateKey, QVariant::fromValue(m_externalWindowState));
 }
 
 HelpWidget *HelpPluginPrivate::createHelpWidget(const Context &context, HelpWidget::WidgetStyle style)

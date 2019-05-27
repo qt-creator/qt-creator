@@ -3685,7 +3685,7 @@ void tst_Dumpers::dumper_data()
 
                     "QList<int> list;\n"
                     "list << 1 << 2 << 3;\n"
-                    "QVariant v3 = qVariantFromValue(list);\n"
+                    "QVariant v3 = QVariant::fromValue(list);\n"
                     "unused(&list, &v3);\n\n")
 
                + CoreProfile()

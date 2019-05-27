@@ -79,7 +79,7 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
 
             const QRegularExpressionMatch match = regexp.match(info.symbolName);
             if (match.hasMatch()) {
-                QVariant id = qVariantFromValue(info);
+                QVariant id = QVariant::fromValue(info);
                 Core::LocatorFilterEntry filterEntry(this, info.displayName, id/*, info.icon*/);
                 filterEntry.extraInfo = info.extraInfo;
                 filterEntry.highlightInfo = highlightInfo(match);

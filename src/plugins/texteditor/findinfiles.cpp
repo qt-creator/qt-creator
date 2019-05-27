@@ -87,7 +87,7 @@ FileIterator *FindInFiles::files(const QStringList &nameFilters,
 
 QVariant FindInFiles::additionalParameters() const
 {
-    return qVariantFromValue(path().toString());
+    return QVariant::fromValue(path().toString());
 }
 
 QString FindInFiles::label() const

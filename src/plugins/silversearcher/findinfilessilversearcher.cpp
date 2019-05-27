@@ -190,7 +190,7 @@ QVariant FindInFilesSilverSearcher::parameters() const
 {
     SilverSearcherSearchOptions silverSearcherSearchOptions;
     silverSearcherSearchOptions.searchOptions = m_searchOptionsLineEdit->text();
-    return qVariantFromValue(silverSearcherSearchOptions);
+    return QVariant::fromValue(silverSearcherSearchOptions);
 }
 
 QString FindInFilesSilverSearcher::title() const

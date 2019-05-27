@@ -50,7 +50,7 @@ CppLocatorFilter::~CppLocatorFilter() = default;
 
 Core::LocatorFilterEntry CppLocatorFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
-    const QVariant id = qVariantFromValue(info);
+    const QVariant id = QVariant::fromValue(info);
     Core::LocatorFilterEntry filterEntry(this, info->scopedSymbolName(), id, info->icon());
     if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
         filterEntry.extraInfo = info->shortNativeFilePath();

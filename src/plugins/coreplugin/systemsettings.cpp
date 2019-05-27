@@ -74,7 +74,7 @@ QWidget *SystemSettings::widget()
         if (HostOsInfo::isAnyUnixHost()) {
             const QVector<TerminalCommand> availableTerminals = ConsoleProcess::availableTerminalEmulators();
             for (const TerminalCommand &term : availableTerminals)
-                m_page->terminalComboBox->addItem(term.command, qVariantFromValue(term));
+                m_page->terminalComboBox->addItem(term.command, QVariant::fromValue(term));
             updateTerminalUi(ConsoleProcess::terminalEmulator(ICore::settings()));
             connect(m_page->terminalComboBox,
                     QOverload<int>::of(&QComboBox::currentIndexChanged),

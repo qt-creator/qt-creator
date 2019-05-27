@@ -81,7 +81,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
                                                     << visibleName << QDir::toNativeSeparators(directory));
         if (!fileName.isEmpty())
             item->setIcon(0, FileIconProvider::icon(fileName));
-        item->setData(0, Qt::UserRole, qVariantFromValue(document));
+        item->setData(0, Qt::UserRole, QVariant::fromValue(document));
     }
 
     m_ui.treeWidget->resizeColumnToContents(0);

@@ -73,7 +73,7 @@ QVariant CurrentProjectFind::additionalParameters() const
 {
     Project *project = ProjectTree::currentProject();
     if (project && project->document())
-        return qVariantFromValue(project->projectFilePath().toString());
+        return QVariant::fromValue(project->projectFilePath().toString());
     return QVariant();
 }
 

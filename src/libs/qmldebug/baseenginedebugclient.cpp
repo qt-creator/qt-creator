@@ -121,7 +121,7 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
         {
             ObjectReference obj;
             obj.m_debugId = prop.m_value.toInt();
-            prop.m_value = qVariantFromValue(obj);
+            prop.m_value = QVariant::fromValue(obj);
             break;
         }
         case QmlObjectProperty::Unknown:

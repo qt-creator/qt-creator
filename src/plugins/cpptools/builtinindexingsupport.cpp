@@ -310,7 +310,7 @@ public:
                         item.path = scope.split(QLatin1String("::"), QString::SkipEmptyParts);
                         item.text = text;
                         item.icon = info->icon();
-                        item.userData = qVariantFromValue(info);
+                        item.userData = QVariant::fromValue(info);
                         resultItems << item;
                     }
 

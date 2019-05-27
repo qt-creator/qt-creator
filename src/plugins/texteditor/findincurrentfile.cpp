@@ -71,7 +71,7 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
 
 QVariant FindInCurrentFile::additionalParameters() const
 {
-    return qVariantFromValue(m_currentDocument->filePath().toString());
+    return QVariant::fromValue(m_currentDocument->filePath().toString());
 }
 
 QString FindInCurrentFile::label() const

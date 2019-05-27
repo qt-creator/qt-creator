@@ -157,9 +157,9 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
             return defaultHandler ? defaultHandler->displayName() : QString();
         }
     } else if (role == Qt::EditRole) {
-        return qVariantFromValue(handlersForMimeType(m_mimeTypes.at(modelIndex.row())));
+        return QVariant::fromValue(handlersForMimeType(m_mimeTypes.at(modelIndex.row())));
     } else if (role == int(Role::DefaultHandler)) {
-        return qVariantFromValue(defaultHandlerForMimeType(m_mimeTypes.at(modelIndex.row())));
+        return QVariant::fromValue(defaultHandlerForMimeType(m_mimeTypes.at(modelIndex.row())));
     } else if (role == Qt::FontRole) {
         if (column == 1) {
             const Utils::MimeType &type = m_mimeTypes.at(modelIndex.row());
@@ -397,7 +397,7 @@ void MimeTypeSettingsPrivate::editMagicHeaderRowData(const int row, const MagicD
     item->setText(1, QString::fromLatin1(Utils::Internal::MimeMagicRule::typeName(data.m_rule.type())));
     item->setText(2, QString::fromLatin1("%1:%2").arg(data.m_rule.startPos()).arg(data.m_rule.endPos()));
     item->setText(3, QString::number(data.m_priority));
-    item->setData(0, Qt::UserRole, qVariantFromValue(data));
+    item->setData(0, Qt::UserRole, QVariant::fromValue(data));
     m_ui.magicHeadersTreeWidget->takeTopLevelItem(row);
     m_ui.magicHeadersTreeWidget->insertTopLevelItem(row, item);
     m_ui.magicHeadersTreeWidget->setCurrentItem(item);
@@ -690,7 +690,7 @@ void MimeEditorDelegate::setEditorData(QWidget *editor, const QModelIndex &index
     auto box = static_cast<QComboBox *>(editor);
     const auto factories = index.model()->data(index, Qt::EditRole).value<QList<IEditorFactory *>>();
     for (IEditorFactory *factory : factories)
-        box->addItem(factory->displayName(), qVariantFromValue(factory));
+        box->addItem(factory->displayName(), QVariant::fromValue(factory));
     int currentIndex = factories.indexOf(
         index.model()
             ->data(index, int(MimeTypeSettingsModel::Role::DefaultHandler))

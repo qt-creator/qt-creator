@@ -272,7 +272,7 @@ void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
     parameters.additionalParameters = additionalParameters();
     parameters.searchEngineParameters = currentSearchEngine()->parameters();
     parameters.searchEngineIndex = d->m_currentSearchEngineIndex;
-    search->setUserData(qVariantFromValue(parameters));
+    search->setUserData(QVariant::fromValue(parameters));
     connect(search, &SearchResult::activated, this, [this, search](const SearchResultItem &item) {
         openEditor(search, item);
     });

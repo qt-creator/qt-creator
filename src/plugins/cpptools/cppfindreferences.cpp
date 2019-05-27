@@ -351,7 +351,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
         parameters.prettySymbolName = overview.prettyName(context.path(symbol).constLast());
     }
 
-    search->setUserData(qVariantFromValue(parameters));
+    search->setUserData(QVariant::fromValue(parameters));
     findAll_helper(search, symbol, context);
 }
 
@@ -571,7 +571,7 @@ static void displayResults(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
             parameters.filesToRename.append(node);
     }
 
-    search->setUserData(qVariantFromValue(parameters));
+    search->setUserData(QVariant::fromValue(parameters));
 }
 
 static void searchFinished(SearchResult *search, QFutureWatcher<CPlusPlus::Usage> *watcher)

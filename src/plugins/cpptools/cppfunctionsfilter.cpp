@@ -45,7 +45,7 @@ CppFunctionsFilter::~CppFunctionsFilter() = default;
 
 Core::LocatorFilterEntry CppFunctionsFilter::filterEntryFromIndexItem(IndexItem::Ptr info)
 {
-    const QVariant id = qVariantFromValue(info);
+    const QVariant id = QVariant::fromValue(info);
 
     QString name = info->symbolName();
     QString extraInfo = info->symbolScope();

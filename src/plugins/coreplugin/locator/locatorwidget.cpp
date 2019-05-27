@@ -210,7 +210,7 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
             return QColor(Qt::darkGray);
         break;
     case LocatorEntryRole:
-        return qVariantFromValue(mEntries.at(index.row()));
+        return QVariant::fromValue(mEntries.at(index.row()));
     case int(HighlightingItemRole::StartColumn):
     case int(HighlightingItemRole::Length): {
         LocatorFilterEntry &entry = mEntries[index.row()];

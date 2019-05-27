@@ -514,7 +514,7 @@ void ShortcutSettingsWidget::initialize()
         if (s->m_cmd->defaultKeySequence() != s->m_key)
             setModified(item, true);
 
-        item->setData(0, Qt::UserRole, qVariantFromValue(s));
+        item->setData(0, Qt::UserRole, QVariant::fromValue(s));
 
         markCollisions(s);
     }

@@ -106,7 +106,7 @@ Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &info,
     if (Utils::optional<QString> container = info.containerName())
         entry.extraInfo = container.value_or(QString());
     entry.displayIcon = symbolIcon(info.kind());
-    entry.internalData = qVariantFromValue(info.location().toLink());
+    entry.internalData = QVariant::fromValue(info.location().toLink());
     return entry;
 }
 
@@ -120,7 +120,7 @@ Core::LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
         entry.extraInfo = detail.value_or(QString());
     entry.displayIcon = symbolIcon(info.kind());
     const Position &pos = info.range().start();
-    entry.internalData = qVariantFromValue(Utils::LineColumn(pos.line(), pos.character()));
+    entry.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
     return entry;
 }
 

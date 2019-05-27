@@ -842,7 +842,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
 {
     QList<QStandardItem *> row;
     const QVariant filterV = QVariant(c->filterString());
-    const QVariant changeV = qVariantFromValue(c);
+    const QVariant changeV = QVariant::fromValue(c);
     for (int i = 0; i < GerritModel::ColumnCount; ++i) {
         auto item = new QStandardItem;
         item->setData(changeV, GerritModel::GerritChangeRole);

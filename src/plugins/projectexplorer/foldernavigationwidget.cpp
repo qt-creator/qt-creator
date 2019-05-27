@@ -482,7 +482,7 @@ void FolderNavigationWidget::insertRootDirectory(
     m_rootSelector->insertItem(index, directory.displayName);
     if (index <= previousIndex) // item was inserted, update previousIndex
         ++previousIndex;
-    m_rootSelector->setItemData(index, qVariantFromValue(directory.path), PATH_ROLE);
+    m_rootSelector->setItemData(index, QVariant::fromValue(directory.path), PATH_ROLE);
     m_rootSelector->setItemData(index, directory.id, ID_ROLE);
     m_rootSelector->setItemData(index, directory.sortValue, SORT_ROLE);
     m_rootSelector->setItemData(index, directory.path.toUserOutput(), Qt::ToolTipRole);

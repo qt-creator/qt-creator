@@ -119,7 +119,7 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
     parameters.flags = findFlags;
     parameters.types = m_symbolsToSearch;
     parameters.scope = m_scope;
-    search->setUserData(qVariantFromValue(parameters));
+    search->setUserData(QVariant::fromValue(parameters));
     startSearch(search);
 }
 

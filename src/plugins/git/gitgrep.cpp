@@ -291,7 +291,7 @@ QVariant GitGrep::parameters() const
     params.ref = m_treeLineEdit->text();
     if (m_recurseSubmodules)
         params.recurseSubmodules = m_recurseSubmodules->isChecked();
-    return qVariantFromValue(params);
+    return QVariant::fromValue(params);
 }
 
 void GitGrep::readSettings(QSettings *settings)

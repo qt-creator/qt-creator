@@ -4566,7 +4566,7 @@ namespace qvariant {
 #if QT_VERSION > 0x050000
         QList<int> list;
         list << 1 << 2 << 3;
-        QVariant variant = qVariantFromValue(list);
+        QVariant variant = QVariant::fromValue(list);
         BREAK_HERE;
         // Expand list variant variant.data.
         // Check list <3 items> QList<int>.

@@ -162,7 +162,7 @@ void BaseHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoi
         Utils::ToolTip::show(point,
                              m_toolTip,
                              editorWidget,
-                             qVariantFromValue(m_lastHelpItemIdentified));
+                             QVariant::fromValue(m_lastHelpItemIdentified));
 }
 
 } // namespace TextEditor

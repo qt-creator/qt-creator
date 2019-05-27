@@ -110,7 +110,7 @@ void GdbServerProviderChooser::populate()
     for (const GdbServerProvider *p : GdbServerProviderManager::providers()) {
         if (!providerMatches(p))
             continue;
-        m_chooser->addItem(providerText(p), qVariantFromValue(p->id()));
+        m_chooser->addItem(providerText(p), QVariant::fromValue(p->id()));
     }
 }
 

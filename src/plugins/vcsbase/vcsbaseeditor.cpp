@@ -979,11 +979,11 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         // the user has "Open With" and choose the right diff editor so that
         // fileNameFromDiffSpecification() works.
         QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
-        applyAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, false)));
+        applyAction->setData(QVariant::fromValue(Internal::DiffChunkAction(chunk, false)));
         connect(applyAction, &QAction::triggered, this, &VcsBaseEditorWidget::slotApplyDiffChunk);
         // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
         QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-        revertAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, true)));
+        revertAction->setData(QVariant::fromValue(Internal::DiffChunkAction(chunk, true)));
         connect(revertAction, &QAction::triggered, this, &VcsBaseEditorWidget::slotApplyDiffChunk);
         // Custom diff actions
         addDiffActions(menu, chunk);
