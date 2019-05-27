@@ -1007,8 +1007,7 @@ QVariantMap MsvcToolChain::toMap() const
     if (!m_varsBatArg.isEmpty())
         data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
     data.insert(QLatin1String(supportedAbiKeyC), m_abi.toString());
-    const QStringList abiList = Utils::transform(m_supportedAbis, &Abi::toString);
-    data.insert(supportedAbisKeyC, abiList);
+    data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
     Utils::EnvironmentItem::sort(&m_environmentModifications);
     data.insert(QLatin1String(environModsKeyC),
                 Utils::EnvironmentItem::toVariantList(m_environmentModifications));

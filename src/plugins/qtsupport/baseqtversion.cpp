@@ -534,7 +534,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
 
     // Handle ABIs provided by the SDKTool:
     // Note: Creator does not write these settings itself, so it has to come from the SDKTool!
-    m_qtAbis = Utils::transform(map.value(QTVERSION_ABIS, QStringList()).toStringList(), &Abi::fromString);
+    m_qtAbis = Utils::transform<Abis>(map.value(QTVERSION_ABIS).toStringList(), &Abi::fromString);
     m_qtAbis = Utils::filtered(m_qtAbis, &Abi::isValid);
     m_hasQtAbis = !m_qtAbis.isEmpty();
 

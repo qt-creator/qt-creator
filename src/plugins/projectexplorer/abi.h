@@ -43,7 +43,7 @@ namespace ProjectExplorer {
 // --------------------------------------------------------------------------
 
 class Abi;
-using Abis = QList<Abi>;
+using Abis = QVector<Abi>;
 
 class PROJECTEXPLORER_EXPORT Abi
 {

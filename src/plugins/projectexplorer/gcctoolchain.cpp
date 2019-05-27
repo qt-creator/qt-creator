@@ -781,8 +781,7 @@ QVariantMap GccToolChain::toMap() const
     data.insert(compilerPlatformLinkerFlagsKeyC, m_platformLinkerFlags);
     data.insert(targetAbiKeyC, m_targetAbi.toString());
     data.insert(originalTargetTripleKeyC, m_originalTargetTriple);
-    QStringList abiList = Utils::transform(m_supportedAbis, &Abi::toString);
-    data.insert(supportedAbisKeyC, abiList);
+    data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
     return data;
 }
 
