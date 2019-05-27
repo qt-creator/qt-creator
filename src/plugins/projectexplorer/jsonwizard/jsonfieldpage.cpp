@@ -1007,7 +1007,7 @@ void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
     // the selectionModel does not behave like expected and wanted - so we block signals here
     // (for example there was some losing focus thing when hovering over items, ...)
     selectionModel()->blockSignals(true);
-    QObject::connect(w, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), [w, this](int index) {
+    QObject::connect(w, QOverload<int>::of(&QComboBox::activated), [w, this](int index) {
         w->blockSignals(true);
         selectionModel()->clearSelection();
 

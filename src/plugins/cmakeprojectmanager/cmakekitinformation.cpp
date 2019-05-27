@@ -87,7 +87,7 @@ public:
 
         updateComboBox();
         refresh();
-        connect(m_comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &CMakeKitAspectWidget::currentCMakeToolChanged);
 
         m_manageButton->setContentsMargins(0, 0, 0, 0);

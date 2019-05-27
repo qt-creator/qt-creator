@@ -118,7 +118,7 @@ ServerMode::ServerMode(const Environment &env,
 
     connect(m_cmakeProcess.get(), &QtcProcess::started, this, [this]() { m_connectionTimer.start(); });
     connect(m_cmakeProcess.get(),
-            static_cast<void(QtcProcess::*)(int, QProcess::ExitStatus)>(&QtcProcess::finished),
+            QOverload<int, QProcess::ExitStatus>::of(&QtcProcess::finished),
             this, &ServerMode::handleCMakeFinished);
 
     QString argumentString;
@@ -211,7 +211,7 @@ void ServerMode::connectToServer()
 
     auto socket = new QLocalSocket(m_cmakeProcess.get());
     connect(socket, &QLocalSocket::readyRead, this, &ServerMode::handleRawCMakeServerData);
-    connect(socket, static_cast<void(QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
+    connect(socket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
             this, [this, socket]() {
         reportError(socket->errorString());
         m_cmakeSocket = nullptr;

@@ -81,14 +81,14 @@ QWidget *GeneralSettingsPage::widget()
             updateFont(); // changes that might have happened when updating the selectors
         });
 
-        connect(m_ui->styleComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_ui->styleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, [this]() {
             updateFont();
             updateFontSizeSelector();
             updateFont(); // changes that might have happened when updating the selectors
         });
 
-        connect(m_ui->sizeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_ui->sizeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &GeneralSettingsPage::updateFont);
 
         m_homePage = LocalHelpManager::homePage();

@@ -235,7 +235,7 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
     } else if (auto spinBox = qobject_cast<QSpinBox *>(widget)) {
         spinBox->setValue(m_value.toInt());
         if (applyMode == ImmediateApply) {
-            connect(spinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
                     this, [this, spinBox]() { setValue(spinBox->value()); });
         }
     } else if (auto lineEdit = qobject_cast<QLineEdit *>(widget)) {

@@ -171,7 +171,7 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
     if (m_isDevice) {
         connect(IosConfigurations::instance(), &IosConfigurations::provisioningDataChanged,
                 this, &IosBuildSettingsWidget::populateDevelopmentTeams);
-        connect(m_signEntityCombo, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_signEntityCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &IosBuildSettingsWidget::onSigningEntityComboIndexChanged);
         connect(m_autoSignCheckbox, &QCheckBox::toggled,
                 this, &IosBuildSettingsWidget::configureSigningUi);

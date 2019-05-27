@@ -85,7 +85,7 @@ ModelTestWidget::ModelTestWidget(CallgrindWidgetHandler *handler)
     m_format->addItem("absolute", CostDelegate::FormatAbsolute);
     m_format->addItem("relative", CostDelegate::FormatRelative);
     m_format->addItem("rel. to parent", CostDelegate::FormatRelativeToParent);
-    connect(m_format, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_format, QOverload<int>::of(&QComboBox::activated),
             this, &ModelTestWidget::formatChanged);
     h->addWidget(m_format);
 

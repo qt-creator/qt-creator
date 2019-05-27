@@ -145,8 +145,7 @@ void DumpSender::sendDumpAndQuit()
 
     connect(reply, &QNetworkReply::uploadProgress, this, &DumpSender::uploadProgress);
     connect(reply, &QNetworkReply::finished, QCoreApplication::instance(), &QCoreApplication::quit);
-    connect(reply,
-            static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+    connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
             QCoreApplication::instance(), &QCoreApplication::quit);
 }
 

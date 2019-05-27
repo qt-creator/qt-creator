@@ -53,7 +53,7 @@ QWidget *ComponentAction::createWidget(QWidget *parent)
     comboBox->setToolTip(tr("Edit sub components defined in this file."));
     comboBox->setModel(m_componentView->standardItemModel());
     comboBox->setCurrentIndex(-1);
-    connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+    connect(comboBox, QOverload<int>::of(&QComboBox::activated),
             this, &ComponentAction::emitCurrentComponentChanged);
     connect(this, &ComponentAction::currentIndexChanged, comboBox, &QComboBox::setCurrentIndex);
 

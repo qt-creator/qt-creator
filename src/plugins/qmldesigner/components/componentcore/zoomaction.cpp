@@ -104,7 +104,7 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
         comboBox->setCurrentIndex(m_currentComboBoxIndex);
         blockSignals(false);
     });
-    connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             [this, comboBox](int index) {
         m_currentComboBoxIndex = index;
 

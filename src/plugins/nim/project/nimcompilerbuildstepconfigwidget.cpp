@@ -60,11 +60,11 @@ NimCompilerBuildStepConfigWidget::NimCompilerBuildStepConfigWidget(NimCompilerBu
             this, &NimCompilerBuildStepConfigWidget::updateUi);
 
     // Connect UI signals
-    connect(m_ui->targetComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_ui->targetComboBox, QOverload<int>::of(&QComboBox::activated),
             this, &NimCompilerBuildStepConfigWidget::onTargetChanged);
     connect(m_ui->additionalArgumentsLineEdit, &QLineEdit::textEdited,
             this, &NimCompilerBuildStepConfigWidget::onAdditionalArgumentsTextEdited);
-    connect(m_ui->defaultArgumentsComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_ui->defaultArgumentsComboBox, QOverload<int>::of(&QComboBox::activated),
             this, &NimCompilerBuildStepConfigWidget::onDefaultArgumentsComboBoxIndexChanged);
 
     updateUi();

@@ -39,7 +39,7 @@ ImportsWidget::ImportsWidget(QWidget *parent) :
 {
     setWindowTitle(tr("Import Manager"));
     m_addImportComboBox = new ImportManagerComboBox(this);
-    connect(m_addImportComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_addImportComboBox, QOverload<int>::of(&QComboBox::activated),
             this, &ImportsWidget::addSelectedImport);
 }
 

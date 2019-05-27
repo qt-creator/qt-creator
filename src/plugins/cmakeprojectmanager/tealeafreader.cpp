@@ -498,7 +498,7 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
             this, &TeaLeafReader::processCMakeOutput);
     connect(m_cmakeProcess, &QProcess::readyReadStandardError,
             this, &TeaLeafReader::processCMakeError);
-    connect(m_cmakeProcess, static_cast<void(QProcess::*)(int,  QProcess::ExitStatus)>(&QProcess::finished),
+    connect(m_cmakeProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &TeaLeafReader::cmakeFinished);
 
     QString args;

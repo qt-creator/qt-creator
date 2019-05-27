@@ -541,7 +541,7 @@ BreakpointDialog::BreakpointDialog(unsigned int enabledParts, QWidget *parent)
     verticalLayout->addWidget(m_buttonBox);
     verticalLayout->setStretchFactor(groupBoxAdvanced, 10);
 
-    connect(m_comboBoxType, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+    connect(m_comboBoxType, QOverload<int>::of(&QComboBox::activated),
             this, &BreakpointDialog::typeChanged);
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);

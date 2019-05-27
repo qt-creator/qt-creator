@@ -31,7 +31,7 @@ MyMain::MyMain(QWidget *parent, Qt::WFlags flags)
     : QWidget(parent, flags)
 {
     ui.setupUi(this);
-    connect(ui.comboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(ui.comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &MyMain::select);
 }
 

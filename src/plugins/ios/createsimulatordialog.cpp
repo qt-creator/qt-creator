@@ -53,7 +53,7 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent) :
                     m_ui->runtimeCombo->currentIndex() > 0);
     };
 
-    const auto indexChanged = static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+    const auto indexChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
     connect(m_ui->nameEdit, &QLineEdit::textChanged, enableOk);
     connect(m_ui->runtimeCombo, indexChanged, enableOk);
     connect(m_ui->deviceTypeCombo, indexChanged, [this, enableOk]() {

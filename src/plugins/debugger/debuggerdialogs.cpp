@@ -326,7 +326,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
             this, &StartApplicationDialog::updateState);
     connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(d->historyComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(d->historyComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &StartApplicationDialog::historyIndexChanged);
 
     connect(d->channelOverrideEdit, &QLineEdit::textChanged,

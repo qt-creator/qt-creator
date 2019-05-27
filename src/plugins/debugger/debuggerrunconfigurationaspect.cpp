@@ -121,7 +121,7 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
             this, &DebuggerRunConfigWidget::useQmlDebuggerClicked);
     connect(m_useCppDebugger, &QAbstractButton::clicked,
             this, &DebuggerRunConfigWidget::useCppDebuggerClicked);
-    connect(m_debugServerPort, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+    connect(m_debugServerPort, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &DebuggerRunConfigWidget::qmlDebugServerPortChanged);
     connect(m_useMultiProcess, &QAbstractButton::toggled,
             this, &DebuggerRunConfigWidget::useMultiProcessToggled);

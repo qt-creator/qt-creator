@@ -68,10 +68,8 @@ Core::Id ClangDiagnosticConfigsSelectionWidget::currentConfigId() const
 void ClangDiagnosticConfigsSelectionWidget::connectToCurrentIndexChanged()
 {
     m_currentIndexChangedConnection
-            = connect(m_selectionComboBox,
-                      static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-                      this,
-                      [this]() { emit currentConfigChanged(currentConfigId()); });
+            = connect(m_selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+                      this, [this]() { emit currentConfigChanged(currentConfigId()); });
 }
 
 void ClangDiagnosticConfigsSelectionWidget::disconnectFromCurrentIndexChanged()

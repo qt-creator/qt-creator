@@ -509,7 +509,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     m_searchFilter = new QLineEdit;
     m_searchFilter->setPlaceholderText(CallgrindTool::tr("Filter..."));
     connect(m_searchFilter, &QLineEdit::textChanged,
-            &m_updateTimer, static_cast<void(QTimer::*)()>(&QTimer::start));
+            &m_updateTimer, QOverload<>::of(&QTimer::start));
 
     setCostFormat(settings->costFormat());
     enableCycleDetection(settings->detectCycles());

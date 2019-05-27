@@ -76,8 +76,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent) :
     m_ui->sampleMode->addItem(tr("frequency (Hz)"), QLatin1String(Constants::PerfSampleFrequency));
     m_ui->sampleMode->addItem(tr("event count"), QLatin1String(Constants::PerfSampleCount));
 
-    auto comboboxChangedSignal
-            = static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged);
+    auto comboboxChangedSignal = QOverload<int>::of(&QComboBox::currentIndexChanged);
     connect(m_ui->callgraphMode, comboboxChangedSignal, this, [this](int index) {
         QString mode = m_ui->callgraphMode->itemData(index).toString();
         m_settings->setCallgraphMode(mode);

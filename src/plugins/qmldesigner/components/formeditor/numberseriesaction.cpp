@@ -59,7 +59,7 @@ QWidget *NumberSeriesAction::createWidget(QWidget *parent)
     comboBox->setModel(m_comboBoxModel.data());
 
     comboBox->setCurrentIndex(m_comboBoxModelIndex);
-    connect(comboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &NumberSeriesAction::emitValueChanged);
 
     return comboBox;

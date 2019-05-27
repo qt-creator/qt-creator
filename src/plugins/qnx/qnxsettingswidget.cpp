@@ -49,7 +49,7 @@ QnxSettingsWidget::QnxSettingsWidget(QWidget *parent) :
             this, &QnxSettingsWidget::addConfiguration);
     connect(m_ui->removeButton, &QAbstractButton::clicked,
             this, &QnxSettingsWidget::removeConfiguration);
-    connect(m_ui->configsCombo, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    connect(m_ui->configsCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QnxSettingsWidget::updateInformation);
     connect(m_ui->generateKitsCheckBox, &QAbstractButton::toggled,
             this, &QnxSettingsWidget::generateKits);

@@ -30,8 +30,8 @@ namespace Suggest {
 
 NimSuggestServer::NimSuggestServer(QObject *parent) : QObject(parent)
 {
-    connect(&m_process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>
-            (&QProcess::finished), this, &NimSuggestServer::onFinished);
+    connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, &NimSuggestServer::onFinished);
     connect(&m_process, &QProcess::started, this, &NimSuggestServer::onStarted);
     connect(&m_process, &QProcess::readyReadStandardOutput, this,
             &NimSuggestServer::onStandardOutputAvailable);
@@ -69,8 +69,8 @@ bool NimSuggestServer::start(const QString &executablePath,
 
 void NimSuggestServer::kill()
 {
-    disconnect(&m_process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>
-               (&QProcess::finished), this, &NimSuggestServer::onFinished);
+    disconnect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+               this, &NimSuggestServer::onFinished);
     m_process.kill();
     m_process.waitForFinished();
     clearState();

@@ -60,8 +60,7 @@ QWidget *CompletionSettingsPage::widget()
         m_page = new Ui::CompletionSettingsPage;
         m_page->setupUi(m_widget);
 
-        connect(m_page->completionTrigger,
-                static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+        connect(m_page->completionTrigger, QOverload<int>::of(&QComboBox::currentIndexChanged),
                 this, &CompletionSettingsPage::onCompletionTriggerChanged);
 
         int caseSensitivityIndex = 0;

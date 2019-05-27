@@ -118,7 +118,7 @@ void PdbEngine::setupEngine()
     QString bridge = ICore::resourcePath() + "/debugger/pdbbridge.py";
 
     connect(&m_proc, &QProcess::errorOccurred, this, &PdbEngine::handlePdbError);
-    connect(&m_proc, static_cast<void(QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+    connect(&m_proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
         this, &PdbEngine::handlePdbFinished);
     connect(&m_proc, &QProcess::readyReadStandardOutput,
         this, &PdbEngine::readPdbStandardOutput);

@@ -145,7 +145,7 @@ public:
         if (hideSwitcherUnlessNeeded)
             m_engineChooser->hide();
 
-        connect(m_engineChooser, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
+        connect(m_engineChooser, QOverload<int>::of(&QComboBox::activated),
                 this, &EngineManagerPrivate::activateEngineByIndex);
     }
 
