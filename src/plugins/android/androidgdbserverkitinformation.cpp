@@ -98,8 +98,7 @@ bool AndroidGdbServerKitAspect::isApplicableToKit(const Kit *k) const
 
 KitAspect::ItemList AndroidGdbServerKitAspect::toUserOutput(const Kit *kit) const
 {
-    return KitAspect::ItemList()
-            << qMakePair(tr("GDB server"), AndroidGdbServerKitAspect::gdbServer(kit).toUserOutput());
+    return {{tr("GDB server"), AndroidGdbServerKitAspect::gdbServer(kit).toUserOutput()}};
 }
 
 KitAspectWidget *AndroidGdbServerKitAspect::createConfigWidget(Kit *kit) const

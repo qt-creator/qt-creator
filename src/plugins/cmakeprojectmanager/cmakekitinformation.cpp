@@ -275,7 +275,7 @@ void CMakeKitAspect::fix(Kit *k)
 KitAspect::ItemList CMakeKitAspect::toUserOutput(const Kit *k) const
 {
     const CMakeTool *const tool = cmakeTool(k);
-    return ItemList() << qMakePair(tr("CMake"), tool ? tool->displayName() : tr("Unconfigured"));
+    return {{tr("CMake"), tool ? tool->displayName() : tr("Unconfigured")}};
 }
 
 KitAspectWidget *CMakeKitAspect::createConfigWidget(Kit *k) const
@@ -755,7 +755,7 @@ KitAspect::ItemList CMakeGeneratorKitAspect::toUserOutput(const Kit *k) const
         if (!info.toolset.isEmpty())
             message += "<br/>" + tr("Toolset: %1").arg(info.toolset);
     }
-    return ItemList() << qMakePair(tr("CMake Generator"), message);
+    return {{tr("CMake Generator"), message}};
 }
 
 KitAspectWidget *CMakeGeneratorKitAspect::createConfigWidget(Kit *k) const
@@ -1063,8 +1063,7 @@ void CMakeConfigurationKitAspect::fix(Kit *k)
 
 KitAspect::ItemList CMakeConfigurationKitAspect::toUserOutput(const Kit *k) const
 {
-    const QStringList current = toStringList(k);
-    return ItemList() << qMakePair(tr("CMake Configuration"), current.join(QLatin1String("<br>")));
+    return {{tr("CMake Configuration"), toStringList(k).join("<br>")}};
 }
 
 KitAspectWidget *CMakeConfigurationKitAspect::createConfigWidget(Kit *k) const

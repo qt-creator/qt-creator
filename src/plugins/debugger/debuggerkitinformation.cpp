@@ -418,7 +418,7 @@ void DebuggerKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) co
 
 KitAspect::ItemList DebuggerKitAspect::toUserOutput(const Kit *k) const
 {
-    return ItemList() << qMakePair(tr("Debugger"), displayString(k));
+    return {{tr("Debugger"), displayString(k)}};
 }
 
 DebuggerEngineType DebuggerKitAspect::engineType(const Kit *k)

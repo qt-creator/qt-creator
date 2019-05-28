@@ -156,7 +156,7 @@ KitAspectWidget *SysRootKitAspect::createConfigWidget(Kit *k) const
 
 KitAspect::ItemList SysRootKitAspect::toUserOutput(const Kit *k) const
 {
-    return ItemList() << qMakePair(tr("Sys Root"), sysRoot(k).toUserOutput());
+    return {{tr("Sys Root"), sysRoot(k).toUserOutput()}};
 }
 
 void SysRootKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
@@ -524,7 +524,7 @@ QString ToolChainKitAspect::displayNamePostfix(const Kit *k) const
 KitAspect::ItemList ToolChainKitAspect::toUserOutput(const Kit *k) const
 {
     ToolChain *tc = toolChain(k, Constants::CXX_LANGUAGE_ID);
-    return ItemList() << qMakePair(tr("Compiler"), tc ? tc->displayName() : tr("None"));
+    return {{tr("Compiler"), tc ? tc->displayName() : tr("None")}};
 }
 
 void ToolChainKitAspect::addToEnvironment(const Kit *k, Utils::Environment &env) const
@@ -830,7 +830,7 @@ KitAspect::ItemList DeviceTypeKitAspect::toUserOutput(const Kit *k) const
         if (IDeviceFactory *factory = IDeviceFactory::find(type))
             typeDisplayName = factory->displayName();
     }
-    return ItemList() << qMakePair(tr("Device type"), typeDisplayName);
+    return {{tr("Device type"), typeDisplayName}};
 }
 
 const Core::Id DeviceTypeKitAspect::id()
@@ -1020,7 +1020,7 @@ QString DeviceKitAspect::displayNamePostfix(const Kit *k) const
 KitAspect::ItemList DeviceKitAspect::toUserOutput(const Kit *k) const
 {
     IDevice::ConstPtr dev = device(k);
-    return ItemList() << qMakePair(tr("Device"), dev.isNull() ? tr("Unconfigured") : dev->displayName());
+    return {{tr("Device"), dev.isNull() ? tr("Unconfigured") : dev->displayName()}};
 }
 
 void DeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const

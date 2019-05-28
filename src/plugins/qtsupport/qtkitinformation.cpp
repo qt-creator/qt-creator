@@ -229,7 +229,7 @@ ProjectExplorer::KitAspect::ItemList
 QtKitAspect::toUserOutput(const ProjectExplorer::Kit *k) const
 {
     BaseQtVersion *version = qtVersion(k);
-    return ItemList() << qMakePair(tr("Qt version"), version ? version->displayName() : tr("None"));
+    return {{tr("Qt version"), version ? version->displayName() : tr("None")}};
 }
 
 void QtKitAspect::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
