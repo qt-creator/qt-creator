@@ -909,56 +909,55 @@ QString MsvcToolChain::typeDisplayName() const
 
 QStringList MsvcToolChain::suggestedMkspecList() const
 {
-    QStringList result = {"win32-msvc"}; // Common MSVC mkspec introduced in 5.8.1
+    // "win32-msvc" is the common MSVC mkspec introduced in Qt 5.8.1
     switch (m_abi.osFlavor()) {
     case Abi::WindowsMsvc2005Flavor:
-        result << "win32-msvc2005";
-        break;
+        return {"win32-msvc",
+                "win32-msvc2005"};
     case Abi::WindowsMsvc2008Flavor:
-        result << "win32-msvc2008";
-        break;
+        return {"win32-msvc",
+                "win32-msvc2008"};
     case Abi::WindowsMsvc2010Flavor:
-        result << "win32-msvc2010";
-        break;
+        return {"win32-msvc",
+                "win32-msvc2010"};
     case Abi::WindowsMsvc2012Flavor:
-        result << "win32-msvc2012"
-               << "win32-msvc2010";
-        break;
+        return {"win32-msvc",
+                "win32-msvc2012",
+                "win32-msvc2010"};
     case Abi::WindowsMsvc2013Flavor:
-        result << "win32-msvc2013"
-               << "winphone-arm-msvc2013"
-               << "winphone-x86-msvc2013"
-               << "winrt-arm-msvc2013"
-               << "winrt-x86-msvc2013"
-               << "winrt-x64-msvc2013"
-               << "win32-msvc2012"
-               << "win32-msvc2010";
-        break;
+        return {"win32-msvc",
+                "win32-msvc2013",
+                "winphone-arm-msvc2013",
+                "winphone-x86-msvc2013",
+                "winrt-arm-msvc2013",
+                "winrt-x86-msvc2013",
+                "winrt-x64-msvc2013",
+                "win32-msvc2012",
+                "win32-msvc2010"};
     case Abi::WindowsMsvc2015Flavor:
-        result << "win32-msvc2015"
-               << "winphone-arm-msvc2015"
-               << "winphone-x86-msvc2015"
-               << "winrt-arm-msvc2015"
-               << "winrt-x86-msvc2015"
-               << "winrt-x64-msvc2015";
-        break;
+        return {"win32-msvc",
+                "win32-msvc2015",
+                "winphone-arm-msvc2015",
+                "winphone-x86-msvc2015",
+                "winrt-arm-msvc2015",
+                "winrt-x86-msvc2015",
+                "winrt-x64-msvc2015"};
     case Abi::WindowsMsvc2017Flavor:
-        result << "win32-msvc2017"
-               << "winrt-arm-msvc2017"
-               << "winrt-x86-msvc2017"
-               << "winrt-x64-msvc2017";
-        break;
+        return {"win32-msvc",
+                "win32-msvc2017"
+                "winrt-arm-msvc2017"
+                "winrt-x86-msvc2017"
+                "winrt-x64-msvc2017"};
     case Abi::WindowsMsvc2019Flavor:
-        result << "win32-msvc2019"
-               << "winrt-arm-msvc2019"
-               << "winrt-x86-msvc2019"
-               << "winrt-x64-msvc2019";
-        break;
+        return {"win32-msvc",
+                "win32-msvc2019",
+                "winrt-arm-msvc2019",
+                "winrt-x86-msvc2019",
+                "winrt-x64-msvc2019"};
     default:
-        result.clear();
         break;
     }
-    return result;
+    return {};
 }
 
 QVariantMap MsvcToolChain::toMap() const
