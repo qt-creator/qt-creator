@@ -1,5 +1,5 @@
 add_qtc_plugin(Core
-  DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Script Qt5::Sql Qt5::Gui Qt5::GuiPrivate ${PLATFORM_DEPENDS}
+  DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Script Qt5::Sql Qt5::Gui Qt5::GuiPrivate
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
   SOURCES
     actionmanager/actioncontainer.cpp actionmanager/actioncontainer.h actionmanager/actioncontainer_p.h
