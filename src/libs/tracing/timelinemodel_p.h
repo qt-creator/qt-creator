@@ -90,7 +90,7 @@ public:
                 ranges.prepend(start);
                 return 0;
             }
-            const Range &range = ranges[--i];
+            const Range &range = ranges.at(--i);
             if (range.start < start.start || (range.start == start.start &&
                                               range.duration >= start.duration)) {
                 ranges.insert(++i, start);
@@ -106,7 +106,7 @@ public:
                 endTimes.prepend(end);
                 return 0;
             }
-            if (endTimes[--i].end <= end.end) {
+            if (endTimes.at(--i).end <= end.end) {
                 endTimes.insert(++i, end);
                 return i;
             }
