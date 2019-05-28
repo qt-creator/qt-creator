@@ -102,7 +102,7 @@ private:
     friend class TaskHub;
 };
 
-using Tasks = QList<Task>;
+using Tasks = QVector<Task>;
 
 bool PROJECTEXPLORER_EXPORT operator==(const Task &t1, const Task &t2);
 uint PROJECTEXPLORER_EXPORT qHash(const Task &task);
