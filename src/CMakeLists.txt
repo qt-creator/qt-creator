@@ -416,6 +416,17 @@ function(add_qtc_executable name)
 
   update_cached_list(__QTC_EXECUTABLES "${name}")
 
+  string(TOUPPER "BUILD_EXECUTABLE_${name}" _build_executable_var)
+  set(_build_executable_default "ON")
+  if (DEFINED ENV{QTC_${_build_executable_var}})
+    set(_build_executable_default "$ENV{QTC_${_build_executable_var}}")
+  endif()
+  set(${_build_executable_var} "${_build_executable_default}" CACHE BOOL "Build executable ${name}.")
+
+  if (NOT ${_build_executable_var})
+    return()
+  endif()
+
   set(_DESTINATION "${IDE_LIBEXEC_PATH}")
   if (_arg_DESTINATION)
     set(_DESTINATION "${_arg_DESTINATION}")
@@ -448,6 +459,15 @@ function(add_qtc_executable name)
   )
 
   install(TARGETS ${name} DESTINATION "${_DESTINATION}")
+endfunction()
+
+function(extend_qtc_executable name)
+  if (NOT (name IN_LIST __QTC_EXECUTABLES))
+    message(FATAL_ERROR "extend_qtc_executable: Unknown executable target \"${name}\"")
+  endif()
+  if (TARGET ${name})
+    extend_qtc_target(${name} ${ARGN})
+  endif()
 endfunction()
 
 function(add_qtc_test name)
