@@ -445,13 +445,13 @@ void IosDebugSupport::start()
                                              + "/Library/Developer/Xcode/iOS DeviceSupport/"
                                              + osVersion + "/Symbols");
         QString deviceSdk;
-        if (deviceSdk1.toFileInfo().isDir()) {
+        if (deviceSdk1.isDir()) {
             deviceSdk = deviceSdk1.toString();
         } else {
             const FilePath deviceSdk2 = IosConfigurations::developerPath()
                     .pathAppended("Platforms/iPhoneOS.platform/DeviceSupport/"
                                   + osVersion + "/Symbols");
-            if (deviceSdk2.toFileInfo().isDir()) {
+            if (deviceSdk2.isDir()) {
                 deviceSdk = deviceSdk2.toString();
             } else {
                 TaskHub::addTask(Task::Warning, tr(

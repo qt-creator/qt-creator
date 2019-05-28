@@ -936,6 +936,12 @@ bool FilePath::isLocal() const
     return m_url.isEmpty() || m_url.isLocalFile();
 }
 
+bool FilePath::isDir() const
+{
+    QTC_CHECK(m_url.isEmpty()); // FIXME: Not implemented yet.
+    return QFileInfo(m_data).isDir();
+}
+
 /// \returns the relativeChildPath of FilePath to parent if FilePath is a child of parent
 /// \note returns a empty FilePath if FilePath is not a child of parent
 /// That is, this never returns a path starting with "../"

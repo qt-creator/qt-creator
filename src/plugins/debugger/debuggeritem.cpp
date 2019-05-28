@@ -260,7 +260,7 @@ QIcon DebuggerItem::decoration() const
         return Utils::Icons::CRITICAL.icon();
     if (!m_command.toFileInfo().isExecutable())
         return Utils::Icons::WARNING.icon();
-    if (!m_workingDirectory.isEmpty() && !m_workingDirectory.toFileInfo().isDir())
+    if (!m_workingDirectory.isEmpty() && !m_workingDirectory.isDir())
         return Utils::Icons::WARNING.icon();
     return QIcon();
 }

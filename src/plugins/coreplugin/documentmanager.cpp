@@ -1335,7 +1335,7 @@ void readSettings()
     s->beginGroup(QLatin1String(directoryGroupC));
     const FilePath settingsProjectDir = FilePath::fromString(s->value(QLatin1String(projectDirectoryKeyC),
                                                 QString()).toString());
-    if (!settingsProjectDir.isEmpty() && settingsProjectDir.toFileInfo().isDir())
+    if (!settingsProjectDir.isEmpty() && settingsProjectDir.isDir())
         d->m_projectsDirectory = settingsProjectDir;
     else
         d->m_projectsDirectory = FilePath::fromString(PathChooser::homePath());

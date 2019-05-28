@@ -393,8 +393,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 bool SubversionPlugin::isVcsDirectory(const FilePath &fileName)
 {
     const QString baseName = fileName.fileName();
-    return fileName.toFileInfo().isDir()
-            && contains(m_svnDirectories, [baseName](const QString &s) {
+    return fileName.isDir() && contains(m_svnDirectories, [baseName](const QString &s) {
         return !baseName.compare(s, HostOsInfo::fileNameCaseSensitivity());
     });
 }

@@ -80,7 +80,7 @@ bool GitVersionControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) co
 {
     if (fileName.fileName().compare(".git", Utils::HostOsInfo::fileNameCaseSensitivity()))
         return false;
-    if (fileName.toFileInfo().isDir())
+    if (fileName.isDir())
         return true;
     QFile file(fileName.toString());
     if (!file.open(QFile::ReadOnly))

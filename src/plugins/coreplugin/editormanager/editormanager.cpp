@@ -2324,7 +2324,7 @@ void EditorManagerPrivate::findInDirectory()
         return;
     const FilePath path = d->m_contextMenuEntry->fileName();
     emit m_instance->findOnFileSystemRequest(
-        (path.toFileInfo().isDir() ? path : path.parentDir()).toString());
+        (path.isDir() ? path : path.parentDir()).toString());
 }
 
 void EditorManagerPrivate::togglePinned()

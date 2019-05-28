@@ -180,7 +180,7 @@ VcsBaseEditorWidget *BazaarClient::annotate(
 
 bool BazaarClient::isVcsDirectory(const FilePath &fileName) const
 {
-    return fileName.toFileInfo().isDir()
+    return fileName.isDir()
             && !fileName.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 

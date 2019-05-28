@@ -623,7 +623,7 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
     // Node weirdness: Sometimes the "file path" is a directory, sometimes it's a file...
     const auto dirForProjectNode = [](const ProjectNode *pNode) {
         const FilePath dir = pNode->filePath();
-        if (dir.toFileInfo().isDir())
+        if (dir.isDir())
             return dir;
         return FilePath::fromString(dir.toFileInfo().path());
     };

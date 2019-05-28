@@ -369,7 +369,7 @@ QString GitEditorWidget::fileNameForLine(int line) const
 QString GitEditorWidget::sourceWorkingDirectory() const
 {
     Utils::FilePath path = Utils::FilePath::fromString(source());
-    if (!path.isEmpty() && !path.toFileInfo().isDir())
+    if (!path.isEmpty() && !path.isDir())
         path = path.parentDir();
     while (!path.isEmpty() && !path.exists())
         path = path.parentDir();

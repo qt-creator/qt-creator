@@ -98,8 +98,9 @@ public:
     bool isChildOf(const FilePath &s) const;
     bool isChildOf(const QDir &dir) const;
     bool endsWith(const QString &s) const;
-    bool isLocal() const;
 
+    bool isLocal() const;
+    bool isDir() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
 
     FilePath relativeChildPath(const FilePath &parent) const;

@@ -513,7 +513,7 @@ void FolderNavigationWidget::addNewItem()
     if (!current.isValid())
         return;
     const auto filePath = Utils::FilePath::fromString(m_fileSystemModel->filePath(current));
-    const Utils::FilePath path = filePath.toFileInfo().isDir() ? filePath : filePath.parentDir();
+    const Utils::FilePath path = filePath.isDir() ? filePath : filePath.parentDir();
     Core::ICore::showNewItemDialog(ProjectExplorerPlugin::tr("New File", "Title of dialog"),
                                    Utils::filtered(Core::IWizardFactory::allWizardFactories(),
                                                    Utils::equal(&Core::IWizardFactory::kind,
