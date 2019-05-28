@@ -1521,4 +1521,19 @@ QString QtcProcess::Arguments::toString() const
         return QtcProcess::joinArgs(m_unixArgs, OsTypeLinux);
 }
 
+void CommandLine::addArg(const QString &arg)
+{
+    QtcProcess::addArg(&m_arguments, arg);
+}
+
+void CommandLine::addArgs(const QStringList &inArgs)
+{
+    QtcProcess::addArgs(&m_arguments, inArgs);
+}
+
+void CommandLine::addArgs(const QString &inArgs)
+{
+    QtcProcess::addArgs(&m_arguments, inArgs);
+}
+
 } // namespace Utils

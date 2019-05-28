@@ -171,10 +171,10 @@ void WinRtRunnerHelper::onProcessError(QProcess::ProcessError processError)
 void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
 {
     using namespace Utils;
-    QString runnerArgs;
+    CommandLine cmdLine(FilePath::fromString(m_runnerFilePath), {});
     if (m_device) {
-        QtcProcess::addArg(&runnerArgs, QStringLiteral("--device"));
-        QtcProcess::addArg(&runnerArgs, QString::number(m_device->deviceId()));
+        cmdLine.addArg("--device");
+        cmdLine.addArg(QString::number(m_device->deviceId()));
     }
 
     QtcProcess *process = nullptr;
@@ -182,37 +182,37 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
 
     switch (conf) {
     case Debug:
-        QtcProcess::addArg(&runnerArgs, QStringLiteral("--debug"));
-        QtcProcess::addArg(&runnerArgs, m_debuggerExecutable);
+        cmdLine.addArg("--debug");
+        cmdLine.addArg(m_debuggerExecutable);
         if (!m_debuggerArguments.isEmpty()) {
-            QtcProcess::addArg(&runnerArgs, QStringLiteral("--debugger-arguments"));
-            QtcProcess::addArg(&runnerArgs, m_debuggerArguments);
+            cmdLine.addArg("--debugger-arguments");
+            cmdLine.addArg(m_debuggerArguments);
         }
         Q_FALLTHROUGH();
     case Start:
-        QtcProcess::addArgs(&runnerArgs, QStringLiteral("--start --stop --wait 0"));
+        cmdLine.addArgs("--start --stop --wait 0");
         connectProcess = true;
         QTC_ASSERT(!m_process, m_process->deleteLater());
         m_process = new QtcProcess(this);
         process = m_process;
         break;
     case Stop:
-        QtcProcess::addArgs(&runnerArgs, QStringLiteral("--stop"));
+        cmdLine.addArgs("--stop");
         process = new QtcProcess(this);
         break;
     }
 
     if (m_device->type() == Constants::WINRT_DEVICE_TYPE_LOCAL)
-        QtcProcess::addArgs(&runnerArgs, QStringLiteral("--profile appx"));
+        cmdLine.addArgs("--profile appx");
     else if (m_device->type() == Constants::WINRT_DEVICE_TYPE_PHONE ||
              m_device->type() == Constants::WINRT_DEVICE_TYPE_EMULATOR)
-        QtcProcess::addArgs(&runnerArgs, QStringLiteral("--profile appxphone"));
+        cmdLine.addArgs("--profile appxphone");
 
-    QtcProcess::addArgs(&runnerArgs, m_loopbackArguments);
-    QtcProcess::addArg(&runnerArgs, m_executableFilePath);
-    QtcProcess::addArgs(&runnerArgs, m_arguments);
+    cmdLine.addArgs(m_loopbackArguments);
+    cmdLine.addArg(m_executableFilePath);
+    cmdLine.addArgs(m_arguments);
 
-    appendMessage(QStringLiteral("winrtrunner ") + runnerArgs + QLatin1Char('\n'), NormalMessageFormat);
+    appendMessage("winrtrunner " + cmdLine.arguments() + '\n', NormalMessageFormat);
 
     if (connectProcess) {
         connect(process, &QProcess::started, this, &WinRtRunnerHelper::started);
@@ -224,7 +224,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
     }
 
     process->setUseCtrlCStub(true);
-    process->setCommand(CommandLine(FilePath::fromString(m_runnerFilePath), runnerArgs));
+    process->setCommand(cmdLine);
     process->setEnvironment(m_environment);
     process->setWorkingDirectory(QFileInfo(m_executableFilePath).absolutePath());
     process->start();

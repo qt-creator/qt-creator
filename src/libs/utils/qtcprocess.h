@@ -41,6 +41,10 @@ public:
         : m_executable(executable), m_arguments(arguments)
     {}
 
+    void addArg(const QString &arg);
+    void addArgs(const QStringList &inArgs);
+    void addArgs(const QString &inArgs);
+
     FilePath executable() const { return m_executable; }
     QString arguments() const { return m_arguments; }
 
