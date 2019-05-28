@@ -326,6 +326,7 @@ public:
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
     void show(const QString &source, const QString &id, const QString &name = QString());
+    void archive(const QString &workingDirectory, const QString &commit);
 
 private:
     void finishSubmoduleUpdate();

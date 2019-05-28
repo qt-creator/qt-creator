@@ -588,6 +588,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     createChangeRelatedRepositoryAction(tr("Revert..."), "Git.Revert", context);
     createChangeRelatedRepositoryAction(tr("Cherry Pick..."), "Git.CherryPick", context);
     createChangeRelatedRepositoryAction(tr("Checkout..."), "Git.Checkout", context);
+    createChangeRelatedRepositoryAction(tr("Archive..."), "Git.Archive", context);
 
     createRepositoryAction(nullptr, tr("Rebase..."), "Git.Rebase", context, true,
                            std::bind(&GitPlugin::branchList, this));
@@ -851,6 +852,9 @@ void GitPlugin::startChangeRelatedAction(const Id &id)
 
     if (dialog.command() == Show) {
         m_gitClient->show(workingDirectory, change);
+        return;
+    } else if (dialog.command() == Archive) {
+        m_gitClient->archive(workingDirectory, change);
         return;
     }
 

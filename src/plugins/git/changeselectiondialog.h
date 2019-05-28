@@ -42,6 +42,7 @@ namespace Internal {
 
 enum ChangeCommand {
     NoCommand,
+    Archive,
     Checkout,
     CherryPick,
     Revert,
@@ -68,6 +69,7 @@ private:
     void recalculateCompletion();
     void recalculateDetails();
     void changeTextChanged(const QString &text);
+    void acceptArchive();
     void acceptCheckout();
     void acceptCherryPick();
     void acceptRevert();

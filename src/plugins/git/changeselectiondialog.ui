@@ -84,6 +84,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="archiveButton">
+       <property name="text">
+        <string>&amp;Archive...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="checkoutButton">
        <property name="text">
         <string>Check&amp;out</string>

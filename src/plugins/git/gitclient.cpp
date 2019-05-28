@@ -74,6 +74,7 @@
 #include <QAction>
 #include <QCoreApplication>
 #include <QDir>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QHash>
 #include <QMenu>
@@ -1084,6 +1085,49 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
                                (IDocument *doc) -> DiffEditorController* {
                                    return new ShowController(doc, workingDirectory, id);
                                });
+}
+
+void GitClient::archive(const QString &workingDirectory, const QString &commit)
+{
+    QString repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
+    if (repoDirectory.isEmpty())
+        repoDirectory = workingDirectory;
+    QString repoName = QFileInfo(repoDirectory).fileName();
+
+    QHash<QString, QString> filters {
+        { tr("Tarball (*.tar.gz)"), ".tar.gz" },
+        { tr("Zip archive (*.zip)"), ".zip" }
+    };
+    QString selectedFilter;
+    if (HostOsInfo::isWindowsHost())
+        selectedFilter = filters.key(".zip");
+    else
+        selectedFilter = filters.key(".tar.gz");
+
+    QString archiveName = QFileDialog::getSaveFileName(
+                ICore::dialogParent(),
+                tr("Generate %1 archive").arg(repoName),
+                repoDirectory + QString("/%1-%2").arg(repoName).arg(commit.left(8)),
+                filters.keys().join(";;"),
+                &selectedFilter);
+    if (archiveName.isEmpty())
+        return;
+    QString extension = filters.value(selectedFilter);
+    QFileInfo archive(archiveName);
+    if (archive.completeSuffix() != extension) {
+        archive = QFileInfo(archive.absoluteDir().absoluteFilePath(archive.baseName() + extension));
+    }
+
+    if (archive.exists()) {
+        if (QMessageBox::warning(ICore::dialogParent(), tr("Overwrite?"),
+            tr("An item named \"%1\" already exists at this location. "
+               "Do you want to overwrite it?").arg(QDir::toNativeSeparators(archive.absoluteFilePath())),
+            QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
+            return;
+        }
+    }
+
+    vcsExec(workingDirectory, {"archive", commit, "-o", archive.absoluteFilePath()}, nullptr, true);
 }
 
 VcsBaseEditorWidget *GitClient::annotate(

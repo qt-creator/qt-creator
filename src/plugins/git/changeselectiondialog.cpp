@@ -83,6 +83,8 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
             this, &ChangeSelectionDialog::acceptRevert);
     connect(m_ui->checkoutButton, &QPushButton::clicked,
             this, &ChangeSelectionDialog::acceptCheckout);
+    connect(m_ui->archiveButton, &QPushButton::clicked,
+            this, &ChangeSelectionDialog::acceptArchive);
 
     if (id == "Git.Revert")
         m_ui->revertButton->setDefault(true);
@@ -90,6 +92,8 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
         m_ui->cherryPickButton->setDefault(true);
     else if (id == "Git.Checkout")
         m_ui->checkoutButton->setDefault(true);
+    else if (id == "Git.Archive")
+        m_ui->archiveButton->setDefault(true);
     else
         m_ui->showButton->setDefault(true);
     m_changeModel = new QStringListModel(this);
@@ -145,6 +149,12 @@ QString ChangeSelectionDialog::workingDirectory() const
 ChangeCommand ChangeSelectionDialog::command() const
 {
     return m_command;
+}
+
+void ChangeSelectionDialog::acceptArchive()
+{
+    m_command = Archive;
+    accept();
 }
 
 void ChangeSelectionDialog::acceptCheckout()
