@@ -181,7 +181,7 @@ void GnuMakeParser::taskAdded(const Task &task, int linkedLines, int skippedLine
     QString filePath(task.file.toString());
 
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
-        QList<QFileInfo> possibleFiles;
+        QFileInfoList possibleFiles;
         foreach (const QString &dir, m_directories) {
             QFileInfo candidate(dir + QLatin1Char('/') + filePath);
             if (candidate.exists()

@@ -60,7 +60,7 @@ private: // functions
     void addImport(int pos, const Import &import);
     void removeImport(int pos);
     void parseDirectories();
-    QList<QFileInfo> watchedFiles(const QString &canonicalDirPath);
+    QFileInfoList watchedFiles(const QString &canonicalDirPath);
     void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
     void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, bool addToLibrary);
     Model *model() const;

@@ -406,7 +406,7 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
 
     const QDir::Filters filters = QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot;
     const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
-    QList<QFileInfo> dirs;
+    QFileInfoList dirs;
     if (userTemplateDir.exists()) {
         if (CustomWizardPrivate::verbose)
             verboseLog += QString::fromLatin1("### CustomWizard: userTemplateDir \"%1\" found, adding\n").arg(userTemplateDirName);
@@ -446,7 +446,7 @@ QList<Core::IWizardFactory *> CustomWizard::createWizards()
                 break;
             }
         } else {
-            QList<QFileInfo> subDirs = dir.entryInfoList(filters, sortflags);
+            QFileInfoList subDirs = dir.entryInfoList(filters, sortflags);
             if (!subDirs.isEmpty()) {
                 // There is no QList::prepend(QList)...
                 dirs.swap(subDirs);

@@ -356,7 +356,7 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
     if (visitedCount == visited.count())
         return result;
 
-    const QList<QFileInfo> entries = baseDir.entryInfoList(QStringList(), QDir::AllEntries|QDir::NoDotAndDotDot);
+    const QFileInfoList entries = baseDir.entryInfoList(QStringList(), QDir::AllEntries|QDir::NoDotAndDotDot);
     double progress = 0;
     const double progressIncrement = progressRange / static_cast<double>(entries.count());
     int lastIntProgress = 0;

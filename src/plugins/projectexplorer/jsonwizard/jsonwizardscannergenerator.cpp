@@ -141,7 +141,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::scan(const QString &dir, const 
     if (!directory.exists())
         return result;
 
-    QList<QFileInfo> entries = directory.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot,
+    QFileInfoList entries = directory.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot,
                                                        QDir::DirsLast | QDir::Name);
     foreach (const QFileInfo &fi, entries) {
         const QString relativePath = base.relativeFilePath(fi.absoluteFilePath());

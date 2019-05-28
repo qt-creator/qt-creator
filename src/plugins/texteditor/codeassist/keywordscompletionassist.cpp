@@ -328,7 +328,7 @@ void pathComplete(const AssistInterface *interface, QList<AssistProposalItemInte
             return;
     }
 
-    const QList<QFileInfo> entryInfoList
+    const QFileInfoList entryInfoList
             = baseDir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
     for (const QFileInfo &entry : entryInfoList) {
         const QString &fileName = entry.fileName();

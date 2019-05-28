@@ -744,7 +744,7 @@ QStringList SessionManager::sessions()
     if (d->m_sessions.isEmpty()) {
         // We are not initialized yet, so do that now
         QDir sessionDir(ICore::userResourcePath());
-        QList<QFileInfo> sessionFiles = sessionDir.entryInfoList(QStringList() << QLatin1String("*.qws"), QDir::NoFilter, QDir::Time);
+        QFileInfoList sessionFiles = sessionDir.entryInfoList(QStringList() << QLatin1String("*.qws"), QDir::NoFilter, QDir::Time);
         foreach (const QFileInfo &fileInfo, sessionFiles) {
             const QString &name = fileInfo.completeBaseName();
             d->m_sessionDateTimes.insert(name, fileInfo.lastModified());

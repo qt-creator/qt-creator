@@ -202,8 +202,8 @@ void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool a
     dir.setNameFilters(QStringList(s_qmlFilePattern));
     dir.setFilter(QDir::Files | QDir::Readable | QDir::CaseSensitive);
 
-    QList<QFileInfo> monitoredList = watchedFiles(canonicalDirPath);
-    QList<QFileInfo> newList;
+    QFileInfoList monitoredList = watchedFiles(canonicalDirPath);
+    QFileInfoList newList;
     foreach (const QFileInfo &qmlFile, dir.entryInfoList()) {
         if (QFileInfo(m_filePath.toLocalFile()) == qmlFile) {
             // do not parse main file
@@ -280,9 +280,9 @@ void SubComponentManager::parseFile(const QString &canonicalFilePath)
 }
 
 // dirInfo must already contain a canonical path
-QList<QFileInfo> SubComponentManager::watchedFiles(const QString &canonicalDirPath)
+QFileInfoList SubComponentManager::watchedFiles(const QString &canonicalDirPath)
 {
-    QList<QFileInfo> files;
+    QFileInfoList files;
 
     foreach (const QString &monitoredFile, m_watcher.files()) {
         QFileInfo fileInfo(monitoredFile);

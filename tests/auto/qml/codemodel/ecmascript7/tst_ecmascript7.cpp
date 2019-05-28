@@ -124,7 +124,7 @@ private slots:
     void test();
 
 private:
-    QList<QFileInfo> m_files;
+    QFileInfoList m_files;
     QStringList m_basePaths;
 };
 
