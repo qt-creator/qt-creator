@@ -27,6 +27,8 @@
 
 #include <coreplugin/core_global.h>
 
+#include <utils/fileutils.h>
+
 #include <QDialog>
 
 namespace Core {
@@ -57,9 +59,9 @@ public:
         RO_SaveAs = SaveAs
     };
 
-    explicit ReadOnlyFilesDialog(const QList<QString> &fileNames,
+    explicit ReadOnlyFilesDialog(const Utils::FilePathList &filePaths,
                                  QWidget *parent = nullptr);
-    explicit ReadOnlyFilesDialog(const QString &fileName,
+    explicit ReadOnlyFilesDialog(const Utils::FilePath &filePath,
                                  QWidget * parent = nullptr);
     explicit ReadOnlyFilesDialog(IDocument *document,
                                  QWidget * parent = nullptr,

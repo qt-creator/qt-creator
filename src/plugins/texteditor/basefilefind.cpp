@@ -497,12 +497,12 @@ QStringList BaseFileFind::replaceAll(const QString &text,
 
     // Checking for files without write permissions
     QHashIterator<QString, QList<SearchResultItem> > it(changes);
-    QSet<QString> roFiles;
+    QSet<FilePath> roFiles;
     while (it.hasNext()) {
         it.next();
         const QFileInfo fileInfo(it.key());
         if (!fileInfo.isWritable())
-            roFiles.insert(it.key());
+            roFiles.insert(FilePath::fromString(it.key()));
     }
 
     // Query the user for permissions
