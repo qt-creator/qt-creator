@@ -283,7 +283,7 @@ int ReadOnlyFilesDialog::exec()
         result = static_cast<ReadOnlyResult>(buttongroup.group->checkedId());
         switch (result) {
         case RO_MakeWritable:
-            if (!Utils::FileUtils::makeWritable(Utils::FilePath::fromFileInfo(buttongroup.fileName))) {
+            if (!Utils::FileUtils::makeWritable(Utils::FilePath::fromString(buttongroup.fileName))) {
                 failedToMakeWritable << buttongroup.fileName;
                 continue;
             }
