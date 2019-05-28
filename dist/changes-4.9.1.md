@@ -14,10 +14,18 @@ Editing
 QMake Projects
 
 * Fixed unnecessary reparsing on file save (QTCREATORBUG-22361)
+* Fixed code model for generated files when specified in `.pri` file
+  (QTCREATORBUG-22395)
 
 CMake Projects
 
 * Fixed deployment with `QtCreatorDeployment.txt` (QTCREATORBUG-22184)
+* Fixed that configuration UI was disabled after configuration error
+
+Qbs Projects
+
+* Fixed crash when editing environment variables (QTCREATORBUG-22386)
+* Fixed handling of `cpp.minimum*Version` (QTCREATORBUG-22355)
 
 Debugging
 
@@ -48,6 +56,7 @@ Remote Linux
       (QTCREATORBUG-22352)
 
 Credits for these changes go to:  
+Aaron Barany  
 André Pönitz  
 BogDan Vatra  
 Christian Kandeler  
@@ -59,6 +68,7 @@ Jonathan Liu
 Leena Miettinen  
 Mitch Curtis  
 Nikolai Kosjar  
+Orgad Shaneh  
 Robert Löhning  
 Thomas Hartmann  
 Ulf Hermann  

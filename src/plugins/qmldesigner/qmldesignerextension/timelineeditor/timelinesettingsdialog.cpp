@@ -220,6 +220,7 @@ void TimelineSettingsDialog::setupTimelines(const QmlTimeline &timeline)
     }
 
     setTabForTimeline(ui->timelineTab, m_currentTimeline);
+    setupAnimations(m_currentTimeline);
     m_timelineSettingsModel->resetModel();
 }
 

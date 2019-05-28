@@ -80,7 +80,7 @@ CrumbleBar::~CrumbleBar()
 
 void CrumbleBar::pushFile(const Utils::FileName &fileName)
 {
-    if (m_isInternalCalled == false) {
+    if (!m_isInternalCalled) {
         crumblePath()->clear();
     } else {
         CrumbleBarInfo lastElementCrumbleBarInfo = crumblePath()->dataForLastIndex().value<CrumbleBarInfo>();

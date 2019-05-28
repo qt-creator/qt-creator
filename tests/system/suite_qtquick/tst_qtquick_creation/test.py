@@ -30,26 +30,20 @@ def main():
     if not startedWithoutPluginError():
         return
 
-    available = [("5.6", False), ("5.6", True)]
+    available = [("5.6", "Qt Quick Application - Empty", Targets.DESKTOP_5_6_1_DEFAULT),
+                 ("5.10", "Qt Quick Application - Swipe", Targets.DESKTOP_5_10_1_DEFAULT)]
 
-    for qtVersion, controls in available:
-        targ = Targets.DESKTOP_5_6_1_DEFAULT
+    for qtVersion, appTemplate, targ in available:
         # using a temporary directory won't mess up a potentially existing
         workingDir = tempDir()
         checkedTargets = createNewQtQuickApplication(workingDir, targets=[targ],
                                                      minimumQtVersion=qtVersion,
-                                                     withControls = controls)[0]
+                                                     template=appTemplate)[0]
         if len(checkedTargets) == 0:
-            if controls and qtVersion < "5.7":
-                test.xfail("Could not check wanted target.", "Quick Controls 2 wizard needs Qt5.7+")
-            else:
-                test.fatal("Could not check wanted target")
+            test.fatal("Could not check wanted target")
             continue
-        additionalText = ''
-        if controls:
-            additionalText = ' Controls '
-        test.log("Building project Qt Quick%sApplication (%s)"
-                 % (additionalText, Targets.getStringForTarget(targ)))
+        test.log("Building project %s (%s)"
+                 % (appTemplate, Targets.getStringForTarget(targ)))
         invokeMenuItem("Build", "Build All")
         waitForCompile()
         if not checkCompile():

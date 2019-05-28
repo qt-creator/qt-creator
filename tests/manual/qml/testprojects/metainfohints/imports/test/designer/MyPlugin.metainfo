@@ -1,0 +1,143 @@
+MetaInfo {
+    Type {
+        name: "test.TestComponent"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+            canBeContainer: model.potentialChildIsSubclassOf("QtQuick.Text")
+            canBeReparented: model.potentialParentIsSubclassOf("QtQuick.Rectangle")
+            isResizable: false
+            isMovable: !model.currentParentIsSubclassOf("QtQuick.Rectangle");
+        }
+
+        ItemLibraryEntry {
+            name: "Test Component"
+            category: "Test Plugin"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "test"
+
+            Property {
+                name: "text"
+                type: "binding"
+                value: "qsTr(\"This is text\")"
+            }
+        }
+    }
+
+    Type {
+        name: "test.TestLayout"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+            canBeContainer: true
+            doesLayoutChildren: true
+        }
+
+        ItemLibraryEntry {
+            name: "Test Layout"
+            category: "Test Plugin"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "test"
+
+            Property {
+                name: "width"
+                type: "int"
+                value: "100"
+            }
+
+            Property {
+                name: "height"
+                type: "int"
+                value: "100"
+            }
+        }
+    }
+
+     Type {
+        name: "test.OnlyNavigator"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+        }
+
+        ItemLibraryEntry {
+            name: "Only Navigator"
+            category: "Test Plugin"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "test"
+            Property {
+                name: "width"
+                type: "int"
+                value: "100"
+            }
+
+            Property {
+                name: "height"
+                type: "int"
+                value: "100"
+            }
+        }
+    }
+
+    Type {
+        name: "test.OnlyFormEditor"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+            canBeDroppedInNavigator: false
+        }
+
+        ItemLibraryEntry {
+            name: "Only Form Editor"
+            category: "Test Plugin"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "test"
+            Property {
+                name: "width"
+                type: "int"
+                value: "100"
+            }
+
+            Property {
+                name: "height"
+                type: "int"
+                value: "100"
+            }
+        }
+    }
+
+     Type {
+        name: "test.ForceClip"
+        icon: ":/qtquickplugin/images/item-icon16.png"
+
+        Hints {
+            forceClip: true
+        }
+
+        ItemLibraryEntry {
+            name: "Force Clip"
+            category: "Test Plugin"
+            libraryIcon: ":/qtquickplugin/images/item-icon.png"
+            version: "1.0"
+            requiredImport: "test"
+            Property {
+                name: "width"
+                type: "int"
+                value: "100"
+            }
+
+            Property {
+                name: "height"
+                type: "int"
+                value: "100"
+            }
+        }
+    }
+
+
+}

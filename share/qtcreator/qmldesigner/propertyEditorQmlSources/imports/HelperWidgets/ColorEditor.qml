@@ -103,7 +103,7 @@ Column {
         }
 
         onHasGradientChanged: {
-            if (!supportGradient)
+            if (!colorEditor.supportGradient)
                 return
 
             if (gradientLine.hasGradient) {
@@ -121,8 +121,9 @@ Column {
                     default:
                         buttonRow.initalChecked = 1
                     }
+                } else {
+                    buttonRow.initalChecked = 1
                 }
-
                 colorEditor.color = gradientLine.currentColor
             } else {
                 buttonRow.initalChecked = 0
@@ -216,7 +217,9 @@ Column {
                     iconSource: "images/icon_color_solid.png"
 
                     onClicked: {
-                        gradientLine.deleteGradient()
+                        if (colorEditor.supportGradient)
+                            gradientLine.deleteGradient()
+
                         textField.text = colorEditor.color
                         colorEditor.backendValue.resetValue()
                     }
@@ -511,7 +514,8 @@ Column {
                     iconSource: "images/icon_color_none.png"
                     onClicked: {
                         colorEditor.color = "#00000000"
-                        gradientLine.deleteGradient()
+                        if (colorEditor.supportGradient)
+                            gradientLine.deleteGradient()
                     }
                     tooltip: qsTr("Transparent")
                 }

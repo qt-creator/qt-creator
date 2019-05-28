@@ -85,14 +85,23 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
         if (newId == animation().id())
             return;
 
-        if (!animation().isValidId(newId)) {
+        bool error = false;
+
+        if (!ModelNode::isValidId(newId)) {
             Core::AsynchronousMessageBox::warning(tr("Invalid Id"),
                                                   tr("%1 is an invalid id.").arg(newId));
+            error = true;
         } else if (animation().view()->hasId(newId)) {
             Core::AsynchronousMessageBox::warning(tr("Invalid Id"),
                                                   tr("%1 already exists.").arg(newId));
         } else {
             animation().setIdWithRefactoring(newId);
+            error = true;
+        }
+
+        if (error) {
+            lastString.clear();
+            ui->idLineEdit->setText(animation().id());
         }
     });
 
