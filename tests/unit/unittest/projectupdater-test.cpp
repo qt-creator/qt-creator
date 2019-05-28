@@ -86,7 +86,7 @@ protected:
 
     void SetUp() override
     {
-        project.rootProjectDirectoryPath.appendPath("project");
+        project.rootProjectDirectoryPath.pathAppended("project");
         projectPart.project = &project;
         projectPart.files.push_back(header1ProjectFile);
         projectPart.files.push_back(header2ProjectFile);
