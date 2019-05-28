@@ -299,8 +299,8 @@ QString FileUtils::qmakeFriendlyName(const QString &name)
 
 bool FileUtils::makeWritable(const FilePath &path)
 {
-    const QString fileName = path.toString();
-    return QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
+    const QString filePath = path.toString();
+    return QFile::setPermissions(filePath, QFile::permissions(filePath) | QFile::WriteUser);
 }
 
 // makes sure that capitalization of directories is canonical on Windows and OS X.
@@ -351,10 +351,10 @@ QString FileUtils::resolvePath(const QString &baseDir, const QString &fileName)
     return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
 }
 
-FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &fileName)
+FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &filePath)
 {
     FilePath newCommonPath = oldCommonPath;
-    while (!newCommonPath.isEmpty() && !fileName.isChildOf(newCommonPath))
+    while (!newCommonPath.isEmpty() && !filePath.isChildOf(newCommonPath))
         newCommonPath = newCommonPath.parentDir();
     return newCommonPath.canonicalPath();
 }
@@ -625,9 +625,9 @@ TempFileSaver::~TempFileSaver()
         QFile::remove(m_fileName);
 }
 
-/*! \class Utils::FileName
+/*! \class Utils::FilePath
 
-    \brief The FileName class is a light-weight convenience class for filenames.
+    \brief The FilePath class is a light-weight convenience class for filenames.
 
     On windows filenames are compared case insensitively.
 */
@@ -636,7 +636,7 @@ FilePath::FilePath()
 {
 }
 
-/// Constructs a FileName from \a info
+/// Constructs a FilePath from \a info
 FilePath FilePath::fromFileInfo(const QFileInfo &info)
 {
     return FilePath::fromString(info.absoluteFilePath());
@@ -702,7 +702,7 @@ QString FilePath::fileName(int pathComponents) const
 }
 
 /// \returns a bool indicating whether a file with this
-/// FileName exists.
+/// FilePath exists.
 bool FilePath::exists() const
 {
     return !isEmpty() && QFileInfo::exists(m_data);
@@ -710,10 +710,10 @@ bool FilePath::exists() const
 
 /// Find the parent directory of a given directory.
 
-/// Returns an empty FileName if the current directory is already
+/// Returns an empty FilePath if the current directory is already
 /// a root level directory.
 
-/// \returns \a FileName with the last segment removed.
+/// \returns \a FilePath with the last segment removed.
 FilePath FilePath::parentDir() const
 {
     const QString basePath = toString();
@@ -731,7 +731,7 @@ FilePath FilePath::parentDir() const
     return FilePath::fromString(parent);
 }
 
-/// Constructs a FileName from \a filename
+/// Constructs a FilePath from \a filename
 /// \a filename is not checked for validity.
 FilePath FilePath::fromString(const QString &filename)
 {
@@ -740,9 +740,9 @@ FilePath FilePath::fromString(const QString &filename)
     return fn;
 }
 
-/// Constructs a FileName from \a fileName. The \a defaultExtension is appended
+/// Constructs a FilePath from \a filePath. The \a defaultExtension is appended
 /// to \a filename if that does not have an extension already.
-/// \a fileName is not checked for validity.
+/// \a filePath is not checked for validity.
 FilePath FilePath::fromStringWithExtension(const QString &filepath, const QString &defaultExtension)
 {
     if (filepath.isEmpty() || defaultExtension.isEmpty())
@@ -760,18 +760,18 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
     return FilePath::fromString(rc);
 }
 
-/// Constructs a FileName from \a fileName
-/// \a fileName is only passed through QDir::cleanPath
-FilePath FilePath::fromUserInput(const QString &filename)
+/// Constructs a FilePath from \a filePath
+/// \a filePath is only passed through QDir::cleanPath
+FilePath FilePath::fromUserInput(const QString &filePath)
 {
-    QString clean = QDir::cleanPath(filename);
+    QString clean = QDir::cleanPath(filePath);
     if (clean.startsWith(QLatin1String("~/")))
         clean = QDir::homePath() + clean.mid(1);
     return FilePath::fromString(clean);
 }
 
-/// Constructs a FileName from \a fileName, which is encoded as UTF-8.
-/// \a fileName is not checked for validity.
+/// Constructs a FilePath from \a filePath, which is encoded as UTF-8.
+/// \a filePath is not checked for validity.
 FilePath FilePath::fromUtf8(const char *filename, int filenameSize)
 {
     return FilePath::fromString(QString::fromUtf8(filename, filenameSize));
@@ -830,7 +830,7 @@ FilePath FilePath::operator+(const QString &s) const
     return FilePath::fromString(m_data + s);
 }
 
-/// \returns whether FileName is a child of \a s
+/// \returns whether FilePath is a child of \a s
 bool FilePath::isChildOf(const FilePath &s) const
 {
     if (s.isEmpty())
@@ -852,7 +852,7 @@ bool FilePath::isChildOf(const QDir &dir) const
     return isChildOf(FilePath::fromString(dir.absolutePath()));
 }
 
-/// \returns whether FileName endsWith \a s
+/// \returns whether FilePath endsWith \a s
 bool FilePath::endsWith(const QString &s) const
 {
     return m_data.endsWith(s, HostOsInfo::fileNameCaseSensitivity());
@@ -863,8 +863,8 @@ bool FilePath::isLocal() const
     return m_url.isEmpty() || m_url.isLocalFile();
 }
 
-/// \returns the relativeChildPath of FileName to parent if FileName is a child of parent
-/// \note returns a empty FileName if FileName is not a child of parent
+/// \returns the relativeChildPath of FilePath to parent if FilePath is a child of parent
+/// \note returns a empty FilePath if FilePath is not a child of parent
 /// That is, this never returns a path starting with "../"
 FilePath FilePath::relativeChildPath(const FilePath &parent) const
 {
