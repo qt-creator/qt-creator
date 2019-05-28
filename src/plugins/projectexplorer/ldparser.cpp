@@ -68,7 +68,7 @@ void LdParser::stdError(const QString &line)
     if (lne.startsWith(QLatin1String("collect2:"))) {
         Task task = Task(Task::Error,
                          lne /* description */,
-                         Utils::FileName() /* filename */,
+                         Utils::FilePath() /* filename */,
                          -1 /* linenumber */,
                          Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task, 1);
@@ -79,7 +79,7 @@ void LdParser::stdError(const QString &line)
     if (match.hasMatch()) {
         QString description = match.captured(2);
         Task task(Task::Warning, description,
-                  Utils::FileName(), -1,
+                  Utils::FilePath(), -1,
                   Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task, 1);
         return;
@@ -95,7 +95,7 @@ void LdParser::stdError(const QString &line)
         } else if (description.startsWith(QLatin1String("fatal: ")))  {
             description = description.mid(7);
         }
-        Task task(type, description, Utils::FileName() /* filename */, -1 /* line */,
+        Task task(type, description, Utils::FilePath() /* filename */, -1 /* line */,
                   Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task, 1);
         return;
@@ -107,12 +107,12 @@ void LdParser::stdError(const QString &line)
         int lineno = match.captured(7).toInt(&ok);
         if (!ok)
             lineno = -1;
-        Utils::FileName filename = Utils::FileName::fromUserInput(match.captured(1));
+        Utils::FilePath filename = Utils::FilePath::fromUserInput(match.captured(1));
         const QString sourceFileName = match.captured(4);
         if (!sourceFileName.isEmpty()
             && !sourceFileName.startsWith(QLatin1String("(.text"))
             && !sourceFileName.startsWith(QLatin1String("(.data"))) {
-            filename = Utils::FileName::fromUserInput(sourceFileName);
+            filename = Utils::FilePath::fromUserInput(sourceFileName);
         }
         QString description = match.captured(8).trimmed();
         Task::TaskType type = Task::Error;

@@ -47,7 +47,7 @@ static const char setupUiC[] = "setupUi";
 static QString generatedHeaderOf(const QString &uiFileName)
 {
     if (const ProjectExplorer::Project *uiProject =
-            ProjectExplorer::SessionManager::projectForFile(Utils::FileName::fromString(uiFileName))) {
+            ProjectExplorer::SessionManager::projectForFile(Utils::FilePath::fromString(uiFileName))) {
         QStringList files = uiProject->filesGeneratedFrom(uiFileName);
         if (!files.isEmpty()) // There should be at most one header generated from a .ui
             return files.front();

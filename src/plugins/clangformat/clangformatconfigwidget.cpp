@@ -169,12 +169,12 @@ void ClangFormatConfigWidget::initChecksAndPreview()
     m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
     m_preview->textDocument()->setSyntaxHighlighter(new CppEditor::CppHighlighter);
 
-    Utils::FileName fileName;
+    Utils::FilePath fileName;
     if (m_project) {
         connect(m_ui->applyButton, &QPushButton::clicked, this, &ClangFormatConfigWidget::apply);
         fileName = m_project->projectFilePath().pathAppended("snippet.cpp");
     } else {
-        fileName = Utils::FileName::fromString(Core::ICore::userResourcePath())
+        fileName = Utils::FilePath::fromString(Core::ICore::userResourcePath())
                        .pathAppended("snippet.cpp");
     }
     m_preview->textDocument()->indenter()->setFileName(fileName);
@@ -241,7 +241,7 @@ void ClangFormatConfigWidget::showGlobalCheckboxes()
 
 static bool projectConfigExists()
 {
-    return Utils::FileName::fromString(Core::ICore::userResourcePath())
+    return Utils::FilePath::fromString(Core::ICore::userResourcePath())
         .pathAppended("clang-format")
         .pathAppended(currentProjectUniqueId())
         .pathAppended((Constants::SETTINGS_FILE_NAME))

@@ -145,7 +145,7 @@ private:
     bool resolve();
 
     const ExternalTool *m_tool; // is a copy of the tool that was passed in
-    Utils::FileName m_resolvedExecutable;
+    Utils::FilePath m_resolvedExecutable;
     QString m_resolvedArguments;
     QString m_resolvedInput;
     QString m_resolvedWorkingDirectory;

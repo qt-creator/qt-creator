@@ -209,7 +209,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticConta
 
 } // anonymous namespace
 
-ClangTextMark::ClangTextMark(const FileName &fileName,
+ClangTextMark::ClangTextMark(const FilePath &fileName,
                              const ClangBackEnd::DiagnosticContainer &diagnostic,
                              const RemovedFromEditorHandler &removedHandler,
                              bool fullVisualization)

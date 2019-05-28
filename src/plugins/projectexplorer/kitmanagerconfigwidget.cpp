@@ -213,7 +213,7 @@ QString KitManagerConfigWidget::validityMessage() const
 {
     Tasks tmp;
     if (!m_hasUniqueName) {
-        tmp.append(Task(Task::Warning, tr("Display name is not unique."), Utils::FileName(), -1,
+        tmp.append(Task(Task::Warning, tr("Display name is not unique."), Utils::FilePath(), -1,
                         ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
     }
     return m_modifiedKit->toHtml(tmp);
@@ -349,7 +349,7 @@ void KitManagerConfigWidget::setIcon()
         if (icon.isNull())
             return;
         m_iconButton->setIcon(icon);
-        m_modifiedKit->setIconPath(Utils::FileName::fromString(path));
+        m_modifiedKit->setIconPath(Utils::FilePath::fromString(path));
         emit dirty();
     });
     iconMenu.exec(mapToGlobal(m_iconButton->pos()));
@@ -357,7 +357,7 @@ void KitManagerConfigWidget::setIcon()
 
 void KitManagerConfigWidget::resetIcon()
 {
-    m_modifiedKit->setIconPath(Utils::FileName());
+    m_modifiedKit->setIconPath(Utils::FilePath());
     emit dirty();
 }
 

@@ -355,7 +355,7 @@ void GdbEngine::handleResponse(const QString &buff)
                     Task task(Task::Warning,
                         tr("Missing debug information for %1\nTry: %2")
                             .arg(m_lastMissingDebugInfo).arg(cmd),
-                        FileName(), 0, Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
+                        FilePath(), 0, Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
 
                     TaskHub::addTask(task);
                     Internal::addDebugInfoTask(task.taskId, cmd);
@@ -1629,7 +1629,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     }
 
     cleanFilePath.clear();
-    const QString base = FileName::fromString(fileName).fileName();
+    const QString base = FilePath::fromString(fileName).fileName();
 
     QMap<QString, QString>::const_iterator jt = m_baseNameToFullName.constFind(base);
     while (jt != m_baseNameToFullName.constEnd() && jt.key() == base) {
@@ -1700,7 +1700,7 @@ void GdbEngine::setLinuxOsAbi()
     const DebuggerRunParameters &rp = runParameters();
     bool isElf = (rp.toolChainAbi.binaryFormat() == Abi::ElfFormat);
     if (!isElf && !rp.inferior.executable.isEmpty()) {
-        isElf = Utils::anyOf(Abi::abisOfBinary(FileName::fromString(rp.inferior.executable)),
+        isElf = Utils::anyOf(Abi::abisOfBinary(FilePath::fromString(rp.inferior.executable)),
                              [](const Abi &abi) {
             return abi.binaryFormat() == Abi::ElfFormat;
         });
@@ -2077,7 +2077,7 @@ QString GdbEngine::breakLocation(const QString &file) const
 {
     QString where = m_fullToShortName.value(file);
     if (where.isEmpty())
-        return FileName::fromString(file).fileName();
+        return FilePath::fromString(file).fileName();
     return where;
 }
 

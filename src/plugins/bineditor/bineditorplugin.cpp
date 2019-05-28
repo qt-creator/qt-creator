@@ -234,7 +234,7 @@ public:
     bool save(QString *errorString, const QString &fn, bool autoSave) override
     {
         QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
-        const FileName fileNameToUse = fn.isEmpty() ? filePath() : FileName::fromString(fn);
+        const FilePath fileNameToUse = fn.isEmpty() ? filePath() : FilePath::fromString(fn);
         if (m_widget->save(errorString, filePath().toString(), fileNameToUse.toString())) {
             setFilePath(fileNameToUse);
             return true;
@@ -275,7 +275,7 @@ public:
             }
             if (offset >= size)
                 return OpenResult::CannotHandle;
-            setFilePath(FileName::fromString(fileName));
+            setFilePath(FilePath::fromString(fileName));
             m_widget->setSizes(offset, file.size());
             return OpenResult::Success;
         }
@@ -290,7 +290,7 @@ public:
 
     void provideData(quint64 address)
     {
-        const FileName fn = filePath();
+        const FilePath fn = filePath();
         if (fn.isEmpty())
             return;
         QFile file(fn.toString());
@@ -324,7 +324,7 @@ public:
     }
 
     bool isFileReadOnly() const override {
-        const FileName fn = filePath();
+        const FilePath fn = filePath();
         if (fn.isEmpty())
             return false;
         return !fn.toFileInfo().isWritable();

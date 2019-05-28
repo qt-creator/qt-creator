@@ -190,7 +190,7 @@ void AndroidDebugSupport::start()
         const int minimumNdk = qt ? qt->minimumNDK() : 0;
 
         int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
-        Utils::FileName sysRoot = AndroidConfigurations::currentConfig().ndkLocation()
+        Utils::FilePath sysRoot = AndroidConfigurations::currentConfig().ndkLocation()
                 .pathAppended("platforms")
                 .pathAppended(QString("android-%1").arg(sdkVersion))
                 .pathAppended(toNdkArch(AndroidManager::targetArch(target)));

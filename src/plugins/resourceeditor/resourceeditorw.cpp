@@ -137,7 +137,7 @@ Core::IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
         return openResult;
     }
 
-    setFilePath(FileName::fromString(fileName));
+    setFilePath(FilePath::fromString(fileName));
     setBlockDirtyChanged(false);
     m_model->setDirty(fileName != realFileName);
     m_shouldAutoSave = false;
@@ -151,8 +151,8 @@ bool ResourceEditorDocument::save(QString *errorString, const QString &name, boo
     if (debugResourceEditorW)
         qDebug(">ResourceEditorW::save: %s", qPrintable(name));
 
-    const FileName oldFileName = filePath();
-    const FileName actualName = name.isEmpty() ? oldFileName : FileName::fromString(name);
+    const FilePath oldFileName = filePath();
+    const FilePath actualName = name.isEmpty() ? oldFileName : FilePath::fromString(name);
     if (actualName.isEmpty())
         return false;
 
@@ -208,7 +208,7 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
     return success;
 }
 
-void ResourceEditorDocument::setFilePath(const FileName &newName)
+void ResourceEditorDocument::setFilePath(const FilePath &newName)
 {
     m_model->setFileName(newName.toString());
     IDocument::setFilePath(newName);

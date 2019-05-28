@@ -339,7 +339,7 @@ void MultiExportDialog::setExportFileName(QString f)
     const int lastDot = f.lastIndexOf('.');
     if (lastDot != -1)
         f.insert(lastDot, "-%1");
-    m_pathChooser->setFileName(Utils::FileName::fromString(f));
+    m_pathChooser->setFileName(Utils::FilePath::fromString(f));
 }
 
 } // namespace Internal

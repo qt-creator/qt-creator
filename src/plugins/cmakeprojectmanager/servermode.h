@@ -47,8 +47,8 @@ class ServerMode : public QObject
 
 public:
     ServerMode(const Utils::Environment &env,
-               const Utils::FileName &sourceDirectory, const Utils::FileName &buildDirectory,
-               const Utils::FileName &cmakeExecutable,
+               const Utils::FilePath &sourceDirectory, const Utils::FilePath &buildDirectory,
+               const Utils::FilePath &cmakeExecutable,
                const QString &generator, const QString &extraGenerator,
                const QString &platform, const QString &toolset,
                bool experimental, int major, int minor = -1,
@@ -92,9 +92,9 @@ private:
     QLocalSocket *m_cmakeSocket = nullptr;
     QTimer m_connectionTimer;
 
-    Utils::FileName m_sourceDirectory;
-    Utils::FileName m_buildDirectory;
-    Utils::FileName m_cmakeExecutable;
+    Utils::FilePath m_sourceDirectory;
+    Utils::FilePath m_buildDirectory;
+    Utils::FilePath m_cmakeExecutable;
 
     QByteArray m_buffer;
 

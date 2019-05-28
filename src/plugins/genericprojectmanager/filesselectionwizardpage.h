@@ -45,8 +45,8 @@ public:
     bool isComplete() const override;
     void initializePage() override;
     void cleanupPage() override;
-    Utils::FileNameList selectedFiles() const;
-    Utils::FileNameList selectedPaths() const;
+    Utils::FilePathList selectedFiles() const;
+    Utils::FilePathList selectedPaths() const;
 
 private:
     GenericProjectWizardDialog *m_genericProjectWizardDialog;

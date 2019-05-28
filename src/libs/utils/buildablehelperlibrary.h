@@ -37,8 +37,8 @@ class QTCREATOR_UTILS_EXPORT BuildableHelperLibrary
 public:
     // returns the full path to the first qmake, qmake-qt4, qmake4 that has
     // at least version 2.0.0 and thus is a qt4 qmake
-    static FileName findSystemQt(const Environment &env);
-    static FileNameList findQtsInEnvironment(const Environment &env, int maxCount = -1);
+    static FilePath findSystemQt(const Environment &env);
+    static FilePathList findQtsInEnvironment(const Environment &env, int maxCount = -1);
     static bool isQtChooser(const QFileInfo &info);
     static QString qtChooserToQmakePath(const QString &path);
     // return true if the qmake at qmakePath is a Qt (used by QtVersion)
@@ -61,9 +61,9 @@ public:
         QString directory;
         Environment environment;
 
-        FileName qmakeCommand;
+        FilePath qmakeCommand;
         QString targetMode;
-        FileName mkspec;
+        FilePath mkspec;
         QString proFilename;
         QStringList qmakeArguments;
 

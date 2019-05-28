@@ -37,14 +37,14 @@ class FileInfo
 {
 public:
     FileInfo() = default;
-    FileInfo(Utils::FileName file,
+    FileInfo(Utils::FilePath file,
              CppTools::ProjectFile::Kind kind,
              CppTools::ProjectPart::Ptr projectPart)
         : file(std::move(file))
         , kind(kind)
         , projectPart(projectPart)
     {}
-    Utils::FileName file;
+    Utils::FilePath file;
     CppTools::ProjectFile::Kind kind;
     CppTools::ProjectPart::Ptr projectPart;
 };

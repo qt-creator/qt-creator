@@ -79,7 +79,7 @@ bool MakeStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    const FileName make = effectiveMakeCommand();
+    const FilePath make = effectiveMakeCommand();
     if (make.isEmpty())
         emit addTask(makeCommandMissingTask());
 
@@ -143,14 +143,14 @@ static const QList<ToolChain *> preferredToolChains(const Kit *kit)
     return tcs;
 }
 
-FileName MakeStep::defaultMakeCommand() const
+FilePath MakeStep::defaultMakeCommand() const
 {
     BuildConfiguration *bc = buildConfiguration();
     if (!bc)
         return {};
     const Utils::Environment env = environment(bc);
     for (const ToolChain *tc : preferredToolChains(target()->kit())) {
-        FileName make = tc->makeCommand(env);
+        FilePath make = tc->makeCommand(env);
         if (!make.isEmpty())
             return make;
     }
@@ -166,7 +166,7 @@ Task MakeStep::makeCommandMissingTask()
 {
     return Task(Task::Error,
                 msgNoMakeCommand(),
-                Utils::FileName(),
+                Utils::FilePath(),
                 -1,
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
@@ -260,7 +260,7 @@ Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
     return env;
 }
 
-void MakeStep::setMakeCommand(const FileName &command)
+void MakeStep::setMakeCommand(const FilePath &command)
 {
     m_makeCommand = command;
 }
@@ -286,7 +286,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
 {
     m_buildTargets = map.value(id().withSuffix(BUILD_TARGETS_SUFFIX).toString()).toStringList();
     m_makeArguments = map.value(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString()).toString();
-    m_makeCommand = FileName::fromString(
+    m_makeCommand = FilePath::fromString(
                 map.value(id().withSuffix(MAKE_COMMAND_SUFFIX).toString()).toString());
     m_clean = map.value(id().withSuffix(CLEAN_SUFFIX).toString()).toBool();
     m_overrideMakeflags = map.value(id().withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString(), false).toBool();
@@ -325,12 +325,12 @@ void MakeStep::setUserArguments(const QString &args)
     m_makeArguments = args;
 }
 
-FileName MakeStep::makeCommand() const
+FilePath MakeStep::makeCommand() const
 {
     return m_makeCommand;
 }
 
-FileName MakeStep::effectiveMakeCommand() const
+FilePath MakeStep::effectiveMakeCommand() const
 {
     if (!m_makeCommand.isEmpty())
         return m_makeCommand;
@@ -505,7 +505,7 @@ void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 
 void MakeStepConfigWidget::makeLineEditTextEdited()
 {
-    m_makeStep->setMakeCommand(FileName::fromString(m_ui->makeLineEdit->rawPath()));
+    m_makeStep->setMakeCommand(FilePath::fromString(m_ui->makeLineEdit->rawPath()));
     updateDetails();
 }
 

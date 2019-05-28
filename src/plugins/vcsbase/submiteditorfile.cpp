@@ -68,7 +68,7 @@ Core::IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const Q
     if (!m_editor->setFileContents(text.toUtf8()))
         return OpenResult::CannotHandle;
 
-    setFilePath(FileName::fromString(fileName));
+    setFilePath(FilePath::fromString(fileName));
     setModified(fileName != realFileName);
     return OpenResult::Success;
 }
@@ -93,7 +93,7 @@ void SubmitEditorFile::setModified(bool modified)
 
 bool SubmitEditorFile::save(QString *errorString, const QString &fileName, bool autoSave)
 {
-    const FileName fName = fileName.isEmpty() ? filePath() : FileName::fromString(fileName);
+    const FilePath fName = fileName.isEmpty() ? filePath() : FilePath::fromString(fileName);
     FileSaver saver(fName.toString(),
                     QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(m_editor->fileContents());
@@ -101,7 +101,7 @@ bool SubmitEditorFile::save(QString *errorString, const QString &fileName, bool 
         return false;
     if (autoSave)
         return true;
-    setFilePath(FileName::fromUserInput(fName.toFileInfo().absoluteFilePath()));
+    setFilePath(FilePath::fromUserInput(fName.toFileInfo().absoluteFilePath()));
     setModified(false);
     if (!errorString->isEmpty())
         return false;

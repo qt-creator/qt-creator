@@ -46,7 +46,7 @@ using namespace Utils;
 class AndroidToolOutputParser
 {
 public:
-    void parseTargetListing(const QString &output, const FileName &sdkLocation,
+    void parseTargetListing(const QString &output, const FilePath &sdkLocation,
                             SdkPlatformList &platformList);
 
     QList<SdkPlatform> m_installedPlatforms;
@@ -57,7 +57,7 @@ public:
     environment. Returns \c true for successful execution. Command's output is copied to \a
     output.
  */
-static bool androidToolCommand(Utils::FileName toolPath, const QStringList &args,
+static bool androidToolCommand(Utils::FilePath toolPath, const QStringList &args,
                                const QProcessEnvironment &environment, QString *output)
 {
     QString androidToolPath = toolPath.toString();
@@ -143,7 +143,7 @@ QFuture<AndroidDeviceInfoList> AndroidToolManager::androidVirtualDevicesFuture()
                            AndroidConfigurations::toolsEnvironment(m_config));
 }
 
-CreateAvdInfo AndroidToolManager::createAvdImpl(CreateAvdInfo info, FileName androidToolPath,
+CreateAvdInfo AndroidToolManager::createAvdImpl(CreateAvdInfo info, FilePath androidToolPath,
                                                 QProcessEnvironment env)
 {
     QProcess proc;
@@ -195,8 +195,8 @@ CreateAvdInfo AndroidToolManager::createAvdImpl(CreateAvdInfo info, FileName and
     return info;
 }
 
-AndroidDeviceInfoList AndroidToolManager::androidVirtualDevices(const Utils::FileName &androidTool,
-                                                                const FileName &sdkLocationPath,
+AndroidDeviceInfoList AndroidToolManager::androidVirtualDevices(const Utils::FilePath &androidTool,
+                                                                const FilePath &sdkLocationPath,
                                                                 const QProcessEnvironment &env)
 {
     AndroidDeviceInfoList devices;
@@ -274,7 +274,7 @@ AndroidDeviceInfoList AndroidToolManager::androidVirtualDevices(const Utils::Fil
 }
 
 void AndroidToolOutputParser::parseTargetListing(const QString &output,
-                                                 const Utils::FileName &sdkLocation,
+                                                 const Utils::FilePath &sdkLocation,
                                                  SdkPlatformList &platformList)
 {
     auto addSystemImage = [](const QStringList& abiList, SdkPlatform *platform) {
@@ -291,7 +291,7 @@ void AndroidToolOutputParser::parseTargetListing(const QString &output,
         QVersionNumber revision;
         int apiLevel = -1;
         QString description;
-        Utils::FileName installedLocation;
+        Utils::FilePath installedLocation;
 
         void clear() {
             abiList.clear();

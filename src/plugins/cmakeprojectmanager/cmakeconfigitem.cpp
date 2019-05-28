@@ -243,7 +243,7 @@ static QByteArrayList splitCMakeCacheLine(const QByteArray &line) {
                             << line.mid(equalPos + 1);
 }
 
-QList<CMakeConfigItem> CMakeConfigItem::itemsFromFile(const Utils::FileName &cacheFile, QString *errorMessage)
+QList<CMakeConfigItem> CMakeConfigItem::itemsFromFile(const Utils::FilePath &cacheFile, QString *errorMessage)
 {
     CMakeConfig result;
     QFile cache(cacheFile.toString());

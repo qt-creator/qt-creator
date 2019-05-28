@@ -61,7 +61,7 @@ public:
 
     Task() = default;
     Task(TaskType type, const QString &description,
-         const Utils::FileName &file, int line, Core::Id category,
+         const Utils::FilePath &file, int line, Core::Id category,
          const QIcon &icon = QIcon(),
          Options options = AddTextMark | FlashWorthy);
 
@@ -70,14 +70,14 @@ public:
 
     bool isNull() const;
     void clear();
-    void setFile(const Utils::FileName &file);
+    void setFile(const Utils::FilePath &file);
 
     unsigned int taskId = 0;
     TaskType type = Unknown;
     Options options = AddTextMark | FlashWorthy;
     QString description;
-    Utils::FileName file;
-    Utils::FileNameList fileCandidates;
+    Utils::FilePath file;
+    Utils::FilePathList fileCandidates;
     int line = -1;
     int movedLine = -1; // contains a line number if the line was moved in the editor
     Core::Id category;

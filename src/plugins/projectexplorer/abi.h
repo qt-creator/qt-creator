@@ -34,7 +34,7 @@
 
 #include <vector>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 
@@ -160,7 +160,7 @@ public:
 
     static Abi fromString(const QString &abiString);
     static Abi hostAbi();
-    static Abis abisOfBinary(const Utils::FileName &path);
+    static Abis abisOfBinary(const Utils::FilePath &path);
 
 
 private:

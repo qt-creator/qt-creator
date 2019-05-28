@@ -55,8 +55,8 @@ class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
     Q_PROPERTY(QStringList commandVersionArguments READ commandVersionArguments WRITE setCommandVersionArguments)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE true)
     // Designer does not know this type, so force designable to false:
-    Q_PROPERTY(Utils::FileName fileName READ fileName WRITE setFileName DESIGNABLE false)
-    Q_PROPERTY(Utils::FileName baseFileName READ baseFileName WRITE setBaseFileName DESIGNABLE false)
+    Q_PROPERTY(Utils::FilePath fileName READ fileName WRITE setFileName DESIGNABLE false)
+    Q_PROPERTY(Utils::FilePath baseFileName READ baseFileName WRITE setBaseFileName DESIGNABLE false)
     Q_PROPERTY(QColor errorColor READ errorColor WRITE setErrorColor DESIGNABLE true)
     Q_PROPERTY(QColor okColor READ okColor WRITE setOkColor DESIGNABLE true)
 
@@ -93,8 +93,8 @@ public:
 
     QString path() const;
     QString rawPath() const; // The raw unexpanded input.
-    FileName rawFileName() const; // The raw unexpanded input.
-    FileName fileName() const;
+    FilePath rawFileName() const; // The raw unexpanded input.
+    FilePath fileName() const;
 
     static QString expandedDirectory(const QString &input, const Environment &env,
                                      const QString &baseDir);
@@ -102,8 +102,8 @@ public:
     QString baseDirectory() const;
     void setBaseDirectory(const QString &directory);
 
-    FileName baseFileName() const;
-    void setBaseFileName(const FileName &base);
+    FilePath baseFileName() const;
+    void setBaseFileName(const FilePath &base);
 
     void setEnvironment(const Environment &env);
 
@@ -172,7 +172,7 @@ signals:
 
 public slots:
     void setPath(const QString &);
-    void setFileName(const FileName &);
+    void setFileName(const FilePath &);
 
     void setErrorColor(const QColor &errorColor);
     void setOkColor(const QColor &okColor);

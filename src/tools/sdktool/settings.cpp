@@ -47,15 +47,15 @@ Settings::Settings() :
     m_instance = this;
 
     // autodetect sdk dir:
-    sdkPath = Utils::FileName::fromString(QCoreApplication::applicationDirPath())
+    sdkPath = Utils::FilePath::fromString(QCoreApplication::applicationDirPath())
             .pathAppended(DATA_PATH);
-    sdkPath = Utils::FileName::fromString(QDir::cleanPath(sdkPath.toString()))
+    sdkPath = Utils::FilePath::fromString(QDir::cleanPath(sdkPath.toString()))
             .pathAppended(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR) + '/' + Core::Constants::IDE_ID);
 }
 
-Utils::FileName Settings::getPath(const QString &file)
+Utils::FilePath Settings::getPath(const QString &file)
 {
-    Utils::FileName result = sdkPath;
+    Utils::FilePath result = sdkPath;
     const QString lowerFile = file.toLower();
     const QStringList identical
             = QStringList({ "android", "cmaketools", "debuggers", "devices",

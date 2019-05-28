@@ -1419,7 +1419,7 @@ void QmlEnginePrivate::setBreakpoint(const QString type, const QString target,
         cmd.arg(ENABLED, enabled);
 
         if (type == SCRIPTREGEXP)
-            cmd.arg(TARGET, Utils::FileName::fromString(target).fileName());
+            cmd.arg(TARGET, Utils::FilePath::fromString(target).fileName());
         else
             cmd.arg(TARGET, target);
 

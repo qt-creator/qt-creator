@@ -56,7 +56,7 @@ using namespace CppTools::Internal;
 using namespace CppTools;
 using namespace ProjectExplorer;
 
-static QByteArray getSource(const Utils::FileName &fileName,
+static QByteArray getSource(const Utils::FilePath &fileName,
                             const WorkingCopy &workingCopy)
 {
     if (workingCopy.contains(fileName)) {
@@ -178,7 +178,7 @@ class ProcessFile
 
 public:
     // needed by QtConcurrent
-    using argument_type = const Utils::FileName &;
+    using argument_type = const Utils::FilePath &;
     using result_type = QList<CPlusPlus::Usage>;
 
     ProcessFile(const WorkingCopy &workingCopy,
@@ -193,7 +193,7 @@ public:
           future(future)
     { }
 
-    QList<CPlusPlus::Usage> operator()(const Utils::FileName &fileName)
+    QList<CPlusPlus::Usage> operator()(const Utils::FilePath &fileName)
     {
         QList<CPlusPlus::Usage> usages;
         if (future->isPaused())
@@ -210,7 +210,7 @@ public:
         CPlusPlus::Document::Ptr doc;
         const QByteArray unpreprocessedSource = getSource(fileName, workingCopy);
 
-        if (symbolDocument && fileName == Utils::FileName::fromString(symbolDocument->fileName())) {
+        if (symbolDocument && fileName == Utils::FilePath::fromString(symbolDocument->fileName())) {
             doc = symbolDocument;
         } else {
             doc = snapshot.preprocessedDocument(unpreprocessedSource, fileName);
@@ -282,9 +282,9 @@ static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
 
     const CPlusPlus::Snapshot snapshot = context.snapshot();
 
-    const Utils::FileName sourceFile = Utils::FileName::fromUtf8(symbol->fileName(),
+    const Utils::FilePath sourceFile = Utils::FilePath::fromUtf8(symbol->fileName(),
                                                                  symbol->fileNameLength());
-    Utils::FileNameList files{sourceFile};
+    Utils::FilePathList files{sourceFile};
 
     if (symbol->isClass()
         || symbol->isForwardClassDeclaration()
@@ -527,7 +527,7 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
 
     CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
-    QByteArray source = getSource(Utils::FileName::fromString(newSymbolDocument->fileName()),
+    QByteArray source = getSource(Utils::FilePath::fromString(newSymbolDocument->fileName()),
                                   m_modelManager->workingCopy());
     CPlusPlus::Document::Ptr doc =
             snapshot.preprocessedDocument(source, newSymbolDocument->fileName());
@@ -607,7 +607,7 @@ class FindMacroUsesInFile
 
 public:
     // needed by QtConcurrent
-    using argument_type = const Utils::FileName &;
+    using argument_type = const Utils::FilePath &;
     using result_type = QList<CPlusPlus::Usage>;
 
     FindMacroUsesInFile(const WorkingCopy &workingCopy,
@@ -617,7 +617,7 @@ public:
         : workingCopy(workingCopy), snapshot(snapshot), macro(macro), future(future)
     { }
 
-    QList<CPlusPlus::Usage> operator()(const Utils::FileName &fileName)
+    QList<CPlusPlus::Usage> operator()(const Utils::FilePath &fileName)
     {
         QList<CPlusPlus::Usage> usages;
         CPlusPlus::Document::Ptr doc = snapshot.document(fileName);
@@ -688,8 +688,8 @@ static void findMacroUses_helper(QFutureInterface<CPlusPlus::Usage> &future,
                                  const CPlusPlus::Snapshot snapshot,
                                  const CPlusPlus::Macro macro)
 {
-    const Utils::FileName sourceFile = Utils::FileName::fromString(macro.fileName());
-    Utils::FileNameList files{sourceFile};
+    const Utils::FilePath sourceFile = Utils::FilePath::fromString(macro.fileName());
+    Utils::FilePathList files{sourceFile};
     files = Utils::filteredUnique(files + snapshot.filesDependingOn(sourceFile));
 
     future.setProgressRange(0, files.size());
@@ -736,7 +736,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
 
     // add the macro definition itself
     {
-        const QByteArray &source = getSource(Utils::FileName::fromString(macro.fileName()),
+        const QByteArray &source = getSource(Utils::FilePath::fromString(macro.fileName()),
                                              workingCopy);
         unsigned column;
         const QString line = FindMacroUsesInFile::matchingLine(macro.bytesOffset(), source,

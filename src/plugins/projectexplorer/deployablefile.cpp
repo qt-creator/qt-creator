@@ -34,10 +34,10 @@ using namespace Utils;
 namespace ProjectExplorer {
 
 DeployableFile::DeployableFile(const QString &localFilePath, const QString &remoteDir, Type type)
-    : m_localFilePath(FileName::fromUserInput(localFilePath)), m_remoteDir(remoteDir), m_type(type)
+    : m_localFilePath(FilePath::fromUserInput(localFilePath)), m_remoteDir(remoteDir), m_type(type)
 { }
 
-DeployableFile::DeployableFile(const FileName &localFilePath, const QString &remoteDir, Type type)
+DeployableFile::DeployableFile(const FilePath &localFilePath, const QString &remoteDir, Type type)
     : m_localFilePath(localFilePath), m_remoteDir(remoteDir), m_type(type)
 { }
 

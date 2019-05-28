@@ -29,7 +29,7 @@
 
 #include <QObject>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace Core {
 class Id;
@@ -93,8 +93,8 @@ public:
     virtual QByteArray contents() const;
     virtual bool setContents(const QByteArray &contents);
 
-    const Utils::FileName &filePath() const;
-    virtual void setFilePath(const Utils::FileName &filePath);
+    const Utils::FilePath &filePath() const;
+    virtual void setFilePath(const Utils::FilePath &filePath);
     QString displayName() const;
     void setPreferredDisplayName(const QString &name);
     QString preferredDisplayName() const;
@@ -144,7 +144,7 @@ signals:
     void aboutToReload();
     void reloadFinished(bool success);
 
-    void filePathChanged(const Utils::FileName &oldName, const Utils::FileName &newName);
+    void filePathChanged(const Utils::FilePath &oldName, const Utils::FilePath &newName);
 
 private:
     Internal::IDocumentPrivate *d;

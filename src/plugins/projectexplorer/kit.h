@@ -97,8 +97,8 @@ public:
     int weight() const;
 
     QIcon icon() const;
-    Utils::FileName iconPath() const;
-    void setIconPath(const Utils::FileName &path);
+    Utils::FilePath iconPath() const;
+    void setIconPath(const Utils::FilePath &path);
     void setDeviceTypeForIcon(Core::Id deviceType);
 
     QList<Core::Id> allKeys() const;

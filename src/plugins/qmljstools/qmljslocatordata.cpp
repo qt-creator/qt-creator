@@ -48,7 +48,7 @@ LocatorData::LocatorData()
     connect(manager, &ModelManagerInterface::projectInfoUpdated,
             [manager](const ModelManagerInterface::ProjectInfo &info) {
         QStringList files;
-        for (const Utils::FileName &f: info.project->files(ProjectExplorer::Project::SourceFiles))
+        for (const Utils::FilePath &f: info.project->files(ProjectExplorer::Project::SourceFiles))
             files << f.toString();
         manager->updateSourceFiles(files, true);
     });
@@ -82,7 +82,7 @@ public:
         if (!doc->componentName().isEmpty())
             m_documentContext = doc->componentName();
         else
-            m_documentContext = Utils::FileName::fromString(doc->fileName()).fileName();
+            m_documentContext = Utils::FilePath::fromString(doc->fileName()).fileName();
         accept(doc->ast(), m_documentContext);
         return m_entries;
     }

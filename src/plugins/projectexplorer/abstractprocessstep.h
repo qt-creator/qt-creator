@@ -29,7 +29,7 @@
 
 #include <QProcess>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 namespace ProjectExplorer {
 
 class IOutputParser;

@@ -44,7 +44,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class Environment;
-class FileName;
+class FilePath;
 class MacroExpander;
 } // namespace Utils
 

@@ -782,7 +782,7 @@ QString StdIOSettingsWidget::arguments() const
     return m_arguments->text();
 }
 
-bool LanguageFilter::isSupported(const Utils::FileName &filePath, const QString &mimeType) const
+bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString &mimeType) const
 {
     if (mimeTypes.isEmpty() && filePattern.isEmpty())
         return true;

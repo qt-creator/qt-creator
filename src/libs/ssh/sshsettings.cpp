@@ -39,11 +39,11 @@ struct SshSettings
 {
     bool useConnectionSharing = !HostOsInfo::isWindowsHost();
     int connectionSharingTimeOutInMinutes = 10;
-    FileName sshFilePath;
-    FileName sftpFilePath;
-    FileName askpassFilePath;
-    FileName keygenFilePath;
-    QSsh::SshSettings::SearchPathRetriever searchPathRetriever = [] { return FileNameList(); };
+    FilePath sshFilePath;
+    FilePath sftpFilePath;
+    FilePath askpassFilePath;
+    FilePath keygenFilePath;
+    QSsh::SshSettings::SearchPathRetriever searchPathRetriever = [] { return FilePathList(); };
 };
 
 } // namespace Internal
@@ -79,11 +79,11 @@ void SshSettings::loadSettings(QSettings *settings)
     value = settings->value(connectionSharingTimeoutKey());
     if (value.isValid())
         sshSettings->connectionSharingTimeOutInMinutes = value.toInt();
-    sshSettings->sshFilePath = FileName::fromString(settings->value(sshFilePathKey()).toString());
-    sshSettings->sftpFilePath = FileName::fromString(settings->value(sftpFilePathKey()).toString());
-    sshSettings->askpassFilePath = FileName::fromString(
+    sshSettings->sshFilePath = FilePath::fromString(settings->value(sshFilePathKey()).toString());
+    sshSettings->sftpFilePath = FilePath::fromString(settings->value(sftpFilePathKey()).toString());
+    sshSettings->askpassFilePath = FilePath::fromString(
                 settings->value(askPassFilePathKey()).toString());
-    sshSettings->keygenFilePath = FileName::fromString(
+    sshSettings->keygenFilePath = FilePath::fromString(
                 settings->value(keygenFilePathKey()).toString());
 }
 
@@ -114,51 +114,51 @@ int SshSettings::connectionSharingTimeout()
     return sshSettings->connectionSharingTimeOutInMinutes;
 }
 
-static FileName filePathValue(const FileName &value, const QStringList &candidateFileNames)
+static FilePath filePathValue(const FilePath &value, const QStringList &candidateFileNames)
 {
     if (!value.isEmpty())
         return value;
-    const QList<FileName> additionalSearchPaths = sshSettings->searchPathRetriever();
+    const QList<FilePath> additionalSearchPaths = sshSettings->searchPathRetriever();
     for (const QString &candidate : candidateFileNames) {
-        const FileName filePath = Environment::systemEnvironment()
+        const FilePath filePath = Environment::systemEnvironment()
                 .searchInPath(candidate, additionalSearchPaths);
         if (!filePath.isEmpty())
             return filePath;
     }
-    return FileName();
+    return FilePath();
 }
 
-static FileName filePathValue(const FileName &value, const QString &candidateFileName)
+static FilePath filePathValue(const FilePath &value, const QString &candidateFileName)
 {
     return filePathValue(value, QStringList(candidateFileName));
 }
 
-void SshSettings::setSshFilePath(const FileName &ssh) { sshSettings->sshFilePath = ssh; }
-FileName SshSettings::sshFilePath() { return filePathValue(sshSettings->sshFilePath, "ssh"); }
+void SshSettings::setSshFilePath(const FilePath &ssh) { sshSettings->sshFilePath = ssh; }
+FilePath SshSettings::sshFilePath() { return filePathValue(sshSettings->sshFilePath, "ssh"); }
 
-void SshSettings::setSftpFilePath(const FileName &sftp) { sshSettings->sftpFilePath = sftp; }
-FileName SshSettings::sftpFilePath() { return filePathValue(sshSettings->sftpFilePath, "sftp"); }
+void SshSettings::setSftpFilePath(const FilePath &sftp) { sshSettings->sftpFilePath = sftp; }
+FilePath SshSettings::sftpFilePath() { return filePathValue(sshSettings->sftpFilePath, "sftp"); }
 
-void SshSettings::setAskpassFilePath(const FileName &askPass)
+void SshSettings::setAskpassFilePath(const FilePath &askPass)
 {
     sshSettings->askpassFilePath = askPass;
 }
 
-FileName SshSettings::askpassFilePath()
+FilePath SshSettings::askpassFilePath()
 {
-    FileName candidate;
+    FilePath candidate;
     candidate = sshSettings->askpassFilePath;
     if (candidate.isEmpty())
-        candidate = FileName::fromString(Environment::systemEnvironment().value("SSH_ASKPASS"));
+        candidate = FilePath::fromString(Environment::systemEnvironment().value("SSH_ASKPASS"));
     return filePathValue(candidate, QStringList{"qtc-askpass", "ssh-askpass"});
 }
 
-void SshSettings::setKeygenFilePath(const FileName &keygen)
+void SshSettings::setKeygenFilePath(const FilePath &keygen)
 {
     sshSettings->keygenFilePath = keygen;
 }
 
-FileName SshSettings::keygenFilePath()
+FilePath SshSettings::keygenFilePath()
 {
     return filePathValue(sshSettings->keygenFilePath, "ssh-keygen");
 }

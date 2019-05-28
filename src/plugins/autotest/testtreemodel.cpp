@@ -158,7 +158,7 @@ QList<TestConfiguration *> TestTreeModel::getSelectedTests() const
     return result;
 }
 
-QList<TestConfiguration *> TestTreeModel::getTestsForFile(const Utils::FileName &fileName) const
+QList<TestConfiguration *> TestTreeModel::getTestsForFile(const Utils::FilePath &fileName) const
 {
     QList<TestConfiguration *> result;
     for (Utils::TreeItem *frameworkRoot : *rootItem())

@@ -37,7 +37,7 @@ class BaseQtVersion;
 class QTSUPPORT_EXPORT QtProjectImporter : public ProjectExplorer::ProjectImporter
 {
 public:
-    QtProjectImporter(const Utils::FileName &path);
+    QtProjectImporter(const Utils::FilePath &path);
 
     class QtVersionData
     {
@@ -47,7 +47,7 @@ public:
     };
 
 protected:
-    QtVersionData findOrCreateQtVersion(const Utils::FileName &qmakePath) const;
+    QtVersionData findOrCreateQtVersion(const Utils::FilePath &qmakePath) const;
     ProjectExplorer::Kit *createTemporaryKit(const QtVersionData &versionData,
                                              const KitSetupFunction &setup) const;
 

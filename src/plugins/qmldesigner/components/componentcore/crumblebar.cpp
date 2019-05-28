@@ -78,7 +78,7 @@ CrumbleBar::~CrumbleBar()
     delete m_crumblePath;
 }
 
-void CrumbleBar::pushFile(const Utils::FileName &fileName)
+void CrumbleBar::pushFile(const Utils::FilePath &fileName)
 {
     if (!m_isInternalCalled) {
         crumblePath()->clear();

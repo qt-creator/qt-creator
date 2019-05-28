@@ -39,7 +39,7 @@ class QLineEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
-class FileName;
+class FilePath;
 class PathChooser;
 } // namespace Utils
 
@@ -57,7 +57,7 @@ struct LanguageFilter
 {
     QStringList mimeTypes;
     QStringList filePattern;
-    bool isSupported(const Utils::FileName &filePath, const QString &mimeType) const;
+    bool isSupported(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupported(const Core::IDocument *document) const;
 };
 

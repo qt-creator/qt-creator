@@ -29,7 +29,7 @@
 
 #include <QObject>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 namespace TextEditor {
 
 class ICodeStylePreferences;
@@ -61,8 +61,8 @@ public:
 
     void loadCustomCodeStyles();
 
-    ICodeStylePreferences *importCodeStyle(const Utils::FileName &fileName);
-    void exportCodeStyle(const Utils::FileName &fileName, ICodeStylePreferences *codeStyle) const;
+    ICodeStylePreferences *importCodeStyle(const Utils::FilePath &fileName);
+    void exportCodeStyle(const Utils::FilePath &fileName, ICodeStylePreferences *codeStyle) const;
 
 signals:
     void codeStyleAdded(ICodeStylePreferences *);
@@ -72,8 +72,8 @@ private:
     void slotSaveCodeStyle();
 
     QString settingsDir() const;
-    Utils::FileName settingsPath(const QByteArray &id) const;
-    ICodeStylePreferences *loadCodeStyle(const Utils::FileName &fileName);
+    Utils::FilePath settingsPath(const QByteArray &id) const;
+    ICodeStylePreferences *loadCodeStyle(const Utils::FilePath &fileName);
     void saveCodeStyle(ICodeStylePreferences *codeStyle) const;
 
     Internal::CodeStylePoolPrivate *d;

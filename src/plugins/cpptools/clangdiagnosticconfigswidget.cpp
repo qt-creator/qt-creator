@@ -70,7 +70,7 @@ static void buildTree(ProjectExplorer::Tree *parent,
         current->fullPath = parent->fullPath + current->name;
         parent->childDirectories.push_back(current);
     } else {
-        current->fullPath = Utils::FileName::fromString(current->name);
+        current->fullPath = Utils::FilePath::fromString(current->name);
     }
     current->parent = parent;
     for (const Constants::TidyNode &nodeChild : node.children)

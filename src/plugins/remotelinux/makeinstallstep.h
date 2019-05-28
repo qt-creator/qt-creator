@@ -28,7 +28,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/makestep.h>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace RemoteLinux {
 namespace Internal {
@@ -49,7 +49,7 @@ private:
     void finish(bool success) override;
     void stdError(const QString &line) override;
 
-    Utils::FileName installRoot() const;
+    Utils::FilePath installRoot() const;
     bool cleanInstallRoot() const;
 
     void updateCommandFromAspect();

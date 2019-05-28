@@ -144,7 +144,7 @@ QList<QmlJS::Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(c
     // make sure even files not listed in pro file are available inside the snapshot
     QFutureInterface<void> future;
     QmlJS::PathsAndLanguages paths;
-    paths.maybeInsert(Utils::FileName::fromString(srcDir), QmlJS::Dialect::Qml);
+    paths.maybeInsert(Utils::FilePath::fromString(srcDir), QmlJS::Dialect::Qml);
     QmlJS::ModelManagerInterface::importScan(future, qmlJsMM->workingCopy(), paths, qmlJsMM,
         false /*emitDocumentChanges*/, false /*onlyTheLib*/, true /*forceRescan*/ );
 
@@ -276,7 +276,7 @@ void QuickTestParser::handleDirectoryChanged(const QString &directory)
         });
         if (timestampChanged) {
             QmlJS::PathsAndLanguages paths;
-            paths.maybeInsert(Utils::FileName::fromString(directory), QmlJS::Dialect::Qml);
+            paths.maybeInsert(Utils::FilePath::fromString(directory), QmlJS::Dialect::Qml);
             QFutureInterface<void> future;
             QmlJS::ModelManagerInterface *qmlJsMM = QmlJS::ModelManagerInterface::instance();
             QmlJS::ModelManagerInterface::importScan(future, qmlJsMM->workingCopy(), paths, qmlJsMM,

@@ -204,7 +204,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     m_executableGetter = [this] {
         if (const auto executableAspect = aspect<ExecutableAspect>())
             return executableAspect->executable();
-        return FileName();
+        return FilePath();
     };
 }
 
@@ -229,7 +229,7 @@ QString RunConfiguration::disabledReason() const
         return tr("The Project is currently being parsed.");
     if (!target()->project()->hasParsingData()) {
         QString msg = tr("The project could not be fully parsed.");
-        const FileName projectFilePath = buildTargetInfo().projectFilePath;
+        const FilePath projectFilePath = buildTargetInfo().projectFilePath;
         if (!projectFilePath.exists())
             msg += '\n' + tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
         return msg;
@@ -332,7 +332,7 @@ void RunConfiguration::setExecutableGetter(const RunConfiguration::ExecutableGet
     m_executableGetter = exeGetter;
 }
 
-FileName RunConfiguration::executable() const
+FilePath RunConfiguration::executable() const
 {
     return m_executableGetter();
 }

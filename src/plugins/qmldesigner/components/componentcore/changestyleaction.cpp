@@ -35,10 +35,10 @@ namespace QmlDesigner {
 
 static QString styleConfigFileName(const QString &qmlFileName)
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(Utils::FileName::fromString(qmlFileName));
+    ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(Utils::FilePath::fromString(qmlFileName));
 
     if (currentProject)
-        foreach (const Utils::FileName &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles))
+        foreach (const Utils::FilePath &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles))
             if (fileName.endsWith("qtquickcontrols2.conf"))
                 return fileName.toString();
 
@@ -97,7 +97,7 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
         if (style.isEmpty())
             return;
 
-        const Utils::FileName configFileName = Utils::FileName::fromString(styleConfigFileName(qmlFileName));
+        const Utils::FilePath configFileName = Utils::FilePath::fromString(styleConfigFileName(qmlFileName));
 
         if (configFileName.exists()) {
              QSettings infiFile(configFileName.toString(), QSettings::IniFormat);
@@ -125,7 +125,7 @@ void ChangeStyleAction::currentContextChanged(const SelectionContext &selectionC
 
         const QString confFileName = styleConfigFileName(fileName);
 
-        if (Utils::FileName::fromString(confFileName).exists()) {
+        if (Utils::FilePath::fromString(confFileName).exists()) {
             QSettings infiFile(confFileName, QSettings::IniFormat);
             m_action->handleModelUpdate(infiFile.value("Controls/Style", "Default").toString());
         } else {

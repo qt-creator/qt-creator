@@ -230,7 +230,7 @@ QString IosDeployStep::deviceId() const
 
 void IosDeployStep::raiseError(const QString &errorString)
 {
-    emit addTask(Task(Task::Error, errorString, Utils::FileName::fromString(QString()), -1,
+    emit addTask(Task(Task::Error, errorString, Utils::FilePath::fromString(QString()), -1,
         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
@@ -245,7 +245,7 @@ void IosDeployStep::checkProvisioningProfile()
     if (device.isNull())
         return;
 
-    const FileName provisioningFilePath = m_bundlePath.pathAppended("embedded.mobileprovision");
+    const FilePath provisioningFilePath = m_bundlePath.pathAppended("embedded.mobileprovision");
 
     // the file is a signed plist stored in DER format
     // we simply search for start and end of the plist instead of decoding the DER payload
@@ -285,7 +285,7 @@ void IosDeployStep::checkProvisioningProfile()
                  "does not cover the device %3 (%4). Deployment to it will fail.")
               .arg(provisioningProfile, provisioningUid, device->displayName(),
                    targetId),
-              Utils::FileName(), /* filename */
+              Utils::FilePath(), /* filename */
               -1, /* line */
               ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task);

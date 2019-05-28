@@ -75,14 +75,14 @@ static PersistentSettingsWriter *m_writer = nullptr;
 
 enum { debug = 0 };
 
-static FileName globalSettingsFileName()
+static FilePath globalSettingsFileName()
 {
-    return FileName::fromString(Core::ICore::installerResourcePath() + QTVERSION_FILENAME);
+    return FilePath::fromString(Core::ICore::installerResourcePath() + QTVERSION_FILENAME);
 }
 
-static FileName settingsFileName(const QString &path)
+static FilePath settingsFileName(const QString &path)
 {
-    return FileName::fromString(Core::ICore::userResourcePath() + path);
+    return FilePath::fromString(Core::ICore::userResourcePath() + path);
 }
 
 
@@ -109,7 +109,7 @@ QtVersionManager::QtVersionManager()
     m_writer = nullptr;
     m_idcount = 1;
 
-    qRegisterMetaType<FileName>();
+    qRegisterMetaType<FilePath>();
 
     // Give the file a bit of time to settle before reading it...
     m_fileWatcherTimer->setInterval(2000);
@@ -134,7 +134,7 @@ void QtVersionManager::triggerQtVersionRestore()
     emit m_instance->qtVersionsChanged(m_versions.keys(), QList<int>(), QList<int>());
     saveQtVersions();
 
-    const FileName configFileName = globalSettingsFileName();
+    const FilePath configFileName = globalSettingsFileName();
     if (configFileName.exists()) {
         m_configFileWatcher = new FileSystemWatcher(m_instance);
         connect(m_configFileWatcher, &FileSystemWatcher::fileChanged,
@@ -178,7 +178,7 @@ static bool restoreQtVersions()
     const QList<QtVersionFactory *> factories = QtVersionFactory::allQtVersionFactories();
 
     PersistentSettingsReader reader;
-    FileName filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
+    FilePath filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
 
     if (!reader.load(filename))
         return false;
@@ -234,7 +234,7 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 {
     m_fileWatcherTimer->stop();
 
-    const FileName path = globalSettingsFileName();
+    const FilePath path = globalSettingsFileName();
     // Handle overwritting of data:
     if (m_configFileWatcher) {
         m_configFileWatcher->removeFile(path.toString());
@@ -408,16 +408,16 @@ static QString qmakePath(const QString &qtchooser, const QString &version)
     return QString();
 }
 
-static FileNameList gatherQmakePathsFromQtChooser()
+static FilePathList gatherQmakePathsFromQtChooser()
 {
     const QString qtchooser = QStandardPaths::findExecutable(QStringLiteral("qtchooser"));
     if (qtchooser.isEmpty())
-        return FileNameList();
+        return FilePathList();
 
     QList<QByteArray> versions = runQtChooser(qtchooser, QStringList("-l"));
-    QSet<FileName> foundQMakes;
+    QSet<FilePath> foundQMakes;
     foreach (const QByteArray &version, versions) {
-        FileName possibleQMake = FileName::fromString(
+        FilePath possibleQMake = FilePath::fromString(
                     qmakePath(qtchooser, QString::fromLocal8Bit(version)));
         if (!possibleQMake.isEmpty())
             foundQMakes << possibleQMake;
@@ -427,12 +427,12 @@ static FileNameList gatherQmakePathsFromQtChooser()
 
 static void findSystemQt()
 {
-    FileNameList systemQMakes
+    FilePathList systemQMakes
             = BuildableHelperLibrary::findQtsInEnvironment(Environment::systemEnvironment());
 
     systemQMakes.append(gatherQmakePathsFromQtChooser());
 
-    foreach (const FileName &qmakePath, Utils::filteredUnique(systemQMakes)) {
+    foreach (const FilePath &qmakePath, Utils::filteredUnique(systemQMakes)) {
         BaseQtVersion *version
                 = QtVersionFactory::createQtVersionFromQMakePath(qmakePath, false, QLatin1String("PATH"));
         if (version) {
@@ -591,7 +591,7 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
         emit m_instance->qtVersionsChanged(addedVersions, removedVersions, changedVersions);
 }
 
-BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const FileName &qmakePath)
+BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const FilePath &qmakePath)
 {
     return version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
 }

@@ -44,7 +44,7 @@ public:
     QString severityText;
     QString checkId;
     QString message;
-    Utils::FileName fileName;
+    Utils::FilePath fileName;
     int lineNumber = 0;
 };
 

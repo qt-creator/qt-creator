@@ -203,7 +203,7 @@ QWidget *FindInFiles::createConfigWidget()
     return m_configWidget;
 }
 
-FileName FindInFiles::path() const
+FilePath FindInFiles::path() const
 {
     return m_directory->fileName();
 }
@@ -222,17 +222,17 @@ void FindInFiles::readSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void FindInFiles::setDirectory(const FileName &directory)
+void FindInFiles::setDirectory(const FilePath &directory)
 {
     m_directory->setFileName(directory);
 }
 
-void FindInFiles::setBaseDirectory(const FileName &directory)
+void FindInFiles::setBaseDirectory(const FilePath &directory)
 {
     m_directory->setBaseFileName(directory);
 }
 
-FileName FindInFiles::directory() const
+FilePath FindInFiles::directory() const
 {
     return m_directory->fileName();
 }
@@ -242,7 +242,7 @@ void FindInFiles::findOnFileSystem(const QString &path)
     QTC_ASSERT(m_instance, return);
     const QFileInfo fi(path);
     const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-    m_instance->setDirectory(FileName::fromString(folder));
+    m_instance->setDirectory(FilePath::fromString(folder));
     Find::openFindDialog(m_instance);
 }
 

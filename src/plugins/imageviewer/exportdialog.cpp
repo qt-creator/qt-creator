@@ -196,7 +196,7 @@ QString ExportDialog::exportFileName() const
 
 void ExportDialog::setExportFileName(const QString &f)
 {
-    m_pathChooser->setFileName(Utils::FileName::fromString(f));
+    m_pathChooser->setFileName(Utils::FilePath::fromString(f));
 }
 
 ExportData ExportDialog::exportData() const

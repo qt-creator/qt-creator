@@ -30,7 +30,7 @@ class ConfigModelItemDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    ConfigModelItemDelegate(const Utils::FileName &base, QObject *parent = nullptr);
+    ConfigModelItemDelegate(const Utils::FilePath &base, QObject *parent = nullptr);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const final;
@@ -40,7 +40,7 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const final;
 
 private:
-    Utils::FileName m_base;
+    Utils::FilePath m_base;
     QComboBox m_measurement;
 };
 

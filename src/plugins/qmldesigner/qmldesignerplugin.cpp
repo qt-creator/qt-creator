@@ -217,13 +217,13 @@ void QmlDesignerPlugin::extensionsInitialized()
     });
 }
 
-static QStringList allUiQmlFilesforCurrentProject(const Utils::FileName &fileName)
+static QStringList allUiQmlFilesforCurrentProject(const Utils::FilePath &fileName)
 {
     QStringList list;
     ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName);
 
     if (currentProject) {
-        foreach (const Utils::FileName &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+        foreach (const Utils::FilePath &fileName, currentProject->files(ProjectExplorer::Project::SourceFiles)) {
             if (fileName.endsWith(".ui.qml"))
                 list.append(fileName.toString());
         }
@@ -232,7 +232,7 @@ static QStringList allUiQmlFilesforCurrentProject(const Utils::FileName &fileNam
     return list;
 }
 
-static QString projectPath(const Utils::FileName &fileName)
+static QString projectPath(const Utils::FilePath &fileName)
 {
     QString path;
     ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName);
@@ -304,7 +304,7 @@ void QmlDesignerPlugin::showDesigner()
 
     d->mainWidget.initialize();
 
-    const Utils::FileName fileName = Core::EditorManager::currentEditor()->document()->filePath();
+    const Utils::FilePath fileName = Core::EditorManager::currentEditor()->document()->filePath();
     const QStringList allUiQmlFiles = allUiQmlFilesforCurrentProject(fileName);
     if (warningsForQmlFilesInsteadOfUiQmlEnabled() && !fileName.endsWith(".ui.qml") && !allUiQmlFiles.isEmpty()) {
         OpenUiQmlFileDialog dialog(&d->mainWidget);

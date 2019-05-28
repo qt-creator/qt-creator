@@ -57,7 +57,7 @@ class ExtraCompilerPrivate
 {
 public:
     const Project *project;
-    Utils::FileName source;
+    Utils::FilePath source;
     FileNameToContentsHash contents;
     Tasks issues;
     QDateTime compileTime;
@@ -70,13 +70,13 @@ public:
     void updateIssues();
 };
 
-ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &source,
-                             const Utils::FileNameList &targets, QObject *parent) :
+ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FilePath &source,
+                             const Utils::FilePathList &targets, QObject *parent) :
     QObject(parent), d(std::make_unique<ExtraCompilerPrivate>())
 {
     d->project = project;
     d->source = source;
-    foreach (const Utils::FileName &target, targets)
+    foreach (const Utils::FilePath &target, targets)
         d->contents.insert(target, QByteArray());
     d->timer.setSingleShot(true);
 
@@ -104,7 +104,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const Utils::FileName &sour
 
     // Use existing target files, where possible. Otherwise run the compiler.
     QDateTime sourceTime = d->source.toFileInfo().lastModified();
-    foreach (const Utils::FileName &target, targets) {
+    foreach (const Utils::FilePath &target, targets) {
         QFileInfo targetFileInfo(target.toFileInfo());
         if (!targetFileInfo.exists()) {
             d->dirty = true;
@@ -136,22 +136,22 @@ const Project *ExtraCompiler::project() const
     return d->project;
 }
 
-Utils::FileName ExtraCompiler::source() const
+Utils::FilePath ExtraCompiler::source() const
 {
     return d->source;
 }
 
-QByteArray ExtraCompiler::content(const Utils::FileName &file) const
+QByteArray ExtraCompiler::content(const Utils::FilePath &file) const
 {
     return d->contents.value(file);
 }
 
-Utils::FileNameList ExtraCompiler::targets() const
+Utils::FilePathList ExtraCompiler::targets() const
 {
     return d->contents.keys();
 }
 
-void ExtraCompiler::forEachTarget(std::function<void (const Utils::FileName &)> func)
+void ExtraCompiler::forEachTarget(std::function<void (const Utils::FilePath &)> func)
 {
     for (auto it = d->contents.constBegin(), end = d->contents.constEnd(); it != end; ++it)
         func(it.key());
@@ -183,7 +183,7 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
     if (d->compileTime.isValid() && d->compileTime >= sourceTime)
         return;
 
-    forEachTarget([&](const Utils::FileName &target) {
+    forEachTarget([&](const Utils::FilePath &target) {
         QFileInfo fi(target.toFileInfo());
         QDateTime generateTime = fi.exists() ? fi.lastModified() : QDateTime();
         if (generateTime.isValid() && (generateTime > sourceTime)) {
@@ -299,7 +299,7 @@ void ExtraCompilerPrivate::updateIssues()
     widget->setExtraSelections(TextEditor::TextEditorWidget::CodeWarningsSelection, selections);
 }
 
-void ExtraCompiler::setContent(const Utils::FileName &file, const QByteArray &contents)
+void ExtraCompiler::setContent(const Utils::FilePath &file, const QByteArray &contents)
 {
     auto it = d->contents.find(file);
     if (it != d->contents.end()) {
@@ -322,8 +322,8 @@ ExtraCompilerFactory::~ExtraCompilerFactory()
 }
 
 void ExtraCompilerFactory::annouceCreation(const Project *project,
-                                           const Utils::FileName &source,
-                                           const Utils::FileNameList &targets)
+                                           const Utils::FilePath &source,
+                                           const Utils::FilePathList &targets)
 {
     for (ExtraCompilerFactoryObserver *observer : *observers)
         observer->newExtraCompiler(project, source, targets);
@@ -334,8 +334,8 @@ QList<ExtraCompilerFactory *> ExtraCompilerFactory::extraCompilerFactories()
     return *factories();
 }
 
-ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const Utils::FileName &source,
-                                           const Utils::FileNameList &targets, QObject *parent) :
+ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const Utils::FilePath &source,
+                                           const Utils::FilePathList &targets, QObject *parent) :
     ExtraCompiler(project, source, targets, parent)
 { }
 
@@ -353,7 +353,7 @@ void ProcessExtraCompiler::run(const QByteArray &sourceContents)
     runImpl(contents);
 }
 
-void ProcessExtraCompiler::run(const Utils::FileName &fileName)
+void ProcessExtraCompiler::run(const Utils::FilePath &fileName)
 {
     ContentProvider contents = [fileName]() {
         QFile file(fileName.toString());
@@ -364,9 +364,9 @@ void ProcessExtraCompiler::run(const Utils::FileName &fileName)
     runImpl(contents);
 }
 
-Utils::FileName ProcessExtraCompiler::workingDirectory() const
+Utils::FilePath ProcessExtraCompiler::workingDirectory() const
 {
-    return Utils::FileName();
+    return Utils::FilePath();
 }
 
 QStringList ProcessExtraCompiler::arguments() const
@@ -403,7 +403,7 @@ void ProcessExtraCompiler::runImpl(const ContentProvider &provider)
 
 void ProcessExtraCompiler::runInThread(
         QFutureInterface<FileNameToContentsHash> &futureInterface,
-        const Utils::FileName &cmd, const Utils::FileName &workDir,
+        const Utils::FilePath &cmd, const Utils::FilePath &workDir,
         const QStringList &args, const ContentProvider &provider,
         const Utils::Environment &env)
 {

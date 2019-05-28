@@ -98,7 +98,7 @@ bool ConfigureStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(Utils::FileName::fromString(projectDirRelativeToBuildDir(bc) + "configure"));
+    pp->setCommand(Utils::FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"));
     pp->setArguments(m_additionalArgumentsAspect->value());
     pp->resolveAll();
 
@@ -159,7 +159,7 @@ void ConfigureStep::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory());
-    param.setCommand(Utils::FileName::fromString(projectDirRelativeToBuildDir(bc) + "configure"));
+    param.setCommand(Utils::FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"));
     param.setArguments(m_additionalArgumentsAspect->value());
 
     m_widget->setSummaryText(param.summaryInWorkdir(displayName()));

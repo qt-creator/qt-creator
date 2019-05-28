@@ -44,10 +44,10 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     IosRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    Utils::FileName profilePath() const;
+    Utils::FilePath profilePath() const;
     QString applicationName() const;
-    Utils::FileName bundleDirectory() const;
-    Utils::FileName localExecutable() const;
+    Utils::FilePath bundleDirectory() const;
+    Utils::FilePath localExecutable() const;
     QString disabledReason() const override;
     IosDeviceType deviceType() const;
 

@@ -37,7 +37,7 @@
 #include <QFileInfo>
 #include <QLocale>
 
-FilePropertiesDialog::FilePropertiesDialog(const Utils::FileName &fileName, QWidget *parent) :
+FilePropertiesDialog::FilePropertiesDialog(const Utils::FilePath &fileName, QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::FilePropertiesDialog),
     m_fileName(fileName.toString())

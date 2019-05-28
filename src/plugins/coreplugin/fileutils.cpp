@@ -69,7 +69,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const QString &pathIn)
     const QFileInfo fileInfo(pathIn);
     // Mac, Windows support folder or file.
     if (HostOsInfo::isWindowsHost()) {
-        const FileName explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
+        const FilePath explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
         if (explorer.isEmpty()) {
             QMessageBox::warning(parent,
                                  QApplication::translate("Core::Internal",

@@ -71,7 +71,7 @@ static bool hasOtherUsers(Core::Id id, const QVariant &v, Kit *k)
     });
 }
 
-ProjectImporter::ProjectImporter(const Utils::FileName &path) : m_projectPath(path)
+ProjectImporter::ProjectImporter(const Utils::FilePath &path) : m_projectPath(path)
 {
     useTemporaryKitAspect(ToolChainKitAspect::id(),
                                [this](Kit *k, const QVariantList &vl) { cleanupTemporaryToolChains(k, vl); },
@@ -84,7 +84,7 @@ ProjectImporter::~ProjectImporter()
         removeProject(k);
 }
 
-const QList<BuildInfo> ProjectImporter::import(const Utils::FileName &importPath, bool silent)
+const QList<BuildInfo> ProjectImporter::import(const Utils::FilePath &importPath, bool silent)
 {
     QList<BuildInfo> result;
 
@@ -97,7 +97,7 @@ const QList<BuildInfo> ProjectImporter::import(const Utils::FileName &importPath
         return result;
     }
 
-    const Utils::FileName absoluteImportPath = Utils::FileName::fromString(fi.absoluteFilePath());
+    const Utils::FilePath absoluteImportPath = Utils::FilePath::fromString(fi.absoluteFilePath());
 
     const auto handleFailure = [this, importPath, silent] {
         if (silent)
@@ -367,7 +367,7 @@ bool ProjectImporter::hasKitWithTemporaryData(Core::Id id, const QVariant &data)
 }
 
 static ProjectImporter::ToolChainData
-createToolChains(const Utils::FileName &toolChainPath, const Core::Id &language)
+createToolChains(const Utils::FilePath &toolChainPath, const Core::Id &language)
 {
     ProjectImporter::ToolChainData data;
 
@@ -387,7 +387,7 @@ createToolChains(const Utils::FileName &toolChainPath, const Core::Id &language)
 }
 
 ProjectImporter::ToolChainData
-ProjectImporter::findOrCreateToolChains(const Utils::FileName &toolChainPath,
+ProjectImporter::findOrCreateToolChains(const Utils::FilePath &toolChainPath,
                                         const Core::Id &language) const
 {
     ToolChainData result;

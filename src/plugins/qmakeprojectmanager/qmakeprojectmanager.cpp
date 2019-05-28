@@ -184,7 +184,7 @@ void QmakeManager::buildFileContextMenu()
 void QmakeManager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        const Utils::FileName file = currentDocument->filePath();
+        const Utils::FilePath file = currentDocument->filePath();
         Node *n = ProjectTree::nodeForFile(file);
         FileNode *node  = n ? n->asFileNode() : nullptr;
         Project *project = SessionManager::projectForFile(file);

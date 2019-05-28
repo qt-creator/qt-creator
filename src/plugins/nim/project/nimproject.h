@@ -39,10 +39,10 @@ class NimProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit NimProject(const Utils::FileName &fileName);
+    explicit NimProject(const Utils::FilePath &fileName);
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
-    Utils::FileNameList nimFiles() const;
+    Utils::FilePathList nimFiles() const;
     QVariantMap toMap() const final;
 
     bool addFiles(const QStringList &filePaths);

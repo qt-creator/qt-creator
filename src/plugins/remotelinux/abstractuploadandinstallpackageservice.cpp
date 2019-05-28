@@ -110,7 +110,7 @@ void AbstractUploadAndInstallPackageService::doDeploy()
     QTC_ASSERT(d->state == Inactive, return);
 
     d->state = Uploading;
-    const QString fileName = Utils::FileName::fromString(packageFilePath()).fileName();
+    const QString fileName = Utils::FilePath::fromString(packageFilePath()).fileName();
     const QString remoteFilePath = uploadDir() + QLatin1Char('/') + fileName;
     connect(d->uploader, &PackageUploader::progress,
             this, &AbstractUploadAndInstallPackageService::progressMessage);
@@ -148,7 +148,7 @@ void AbstractUploadAndInstallPackageService::handleUploadFinished(const QString 
 
     emit progressMessage(tr("Successfully uploaded package file."));
     const QString remoteFilePath = uploadDir() + QLatin1Char('/')
-        + Utils::FileName::fromString(packageFilePath()).fileName();
+        + Utils::FilePath::fromString(packageFilePath()).fileName();
     d->state = Installing;
     emit progressMessage(tr("Installing package to device..."));
     connect(packageInstaller(), &AbstractRemoteLinuxPackageInstaller::stdoutData,

@@ -54,7 +54,7 @@ class CandidateTreeItem : public TreeItem
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::AddRunConfigDialog)
 public:
-    CandidateTreeItem(const RunConfigurationCreationInfo &rci, const FileName &projectRoot)
+    CandidateTreeItem(const RunConfigurationCreationInfo &rci, const FilePath &projectRoot)
         : m_creationInfo(rci), m_projectRoot(projectRoot)
     { }
 
@@ -69,7 +69,7 @@ private:
         if (column == 0 && role == Qt::DisplayRole)
             return m_creationInfo.displayName;
         if (column == 1 && role == Qt::DisplayRole) {
-            FileName displayPath = m_creationInfo.projectFilePath.relativeChildPath(m_projectRoot);
+            FilePath displayPath = m_creationInfo.projectFilePath.relativeChildPath(m_projectRoot);
             if (displayPath.isEmpty()) {
                 displayPath = m_creationInfo.projectFilePath;
                 QTC_CHECK(displayPath.isEmpty());
@@ -80,7 +80,7 @@ private:
     }
 
     const RunConfigurationCreationInfo m_creationInfo;
-    const FileName m_projectRoot;
+    const FilePath m_projectRoot;
 };
 
 class CandidatesModel : public TreeModel<TreeItem, CandidateTreeItem>

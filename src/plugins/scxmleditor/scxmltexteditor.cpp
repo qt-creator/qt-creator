@@ -74,7 +74,7 @@ bool ScxmlTextEditor::open(QString *errorString, const QString &fileName, const 
     }
 
     document->syncXmlFromDesignWidget();
-    document->setFilePath(Utils::FileName::fromString(absfileName));
+    document->setFilePath(Utils::FilePath::fromString(absfileName));
 
     return true;
 }

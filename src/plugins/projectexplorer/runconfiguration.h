@@ -160,9 +160,9 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    using ExecutableGetter = std::function<Utils::FileName()>;
+    using ExecutableGetter = std::function<Utils::FilePath()>;
     void setExecutableGetter(const ExecutableGetter &exeGetter);
-    Utils::FileName executable() const;
+    Utils::FilePath executable() const;
 
     virtual Runnable runnable() const;
 
@@ -228,7 +228,7 @@ public:
     QString buildKey;
     QString displayName;
     QString displayNameUniquifier;
-    Utils::FileName projectFilePath;
+    Utils::FilePath projectFilePath;
     CreationMode creationMode = AlwaysCreate;
     bool useTerminal = false;
 };

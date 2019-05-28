@@ -87,7 +87,7 @@ QVariantMap Operation::load(const QString &file)
     QVariantMap map;
 
     // Read values from original file:
-    Utils::FileName path = Settings::instance()->getPath(file);
+    Utils::FilePath path = Settings::instance()->getPath(file);
     if (path.exists()) {
         Utils::PersistentSettingsReader reader;
         if (!reader.load(path))
@@ -100,14 +100,14 @@ QVariantMap Operation::load(const QString &file)
 
 bool Operation::save(const QVariantMap &map, const QString &file) const
 {
-    Utils::FileName path = Settings::instance()->getPath(file);
+    Utils::FilePath path = Settings::instance()->getPath(file);
 
     if (path.isEmpty()) {
         std::cerr << "Error: No path found for " << qPrintable(file) << "." << std::endl;
         return false;
     }
 
-    Utils::FileName dirName = path.parentDir();
+    Utils::FilePath dirName = path.parentDir();
     QDir dir(dirName.toString());
     if (!dir.exists() && !dir.mkpath(QLatin1String("."))) {
         std::cerr << "Error: Could not create directory " << qPrintable(dirName.toString())

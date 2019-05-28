@@ -54,7 +54,7 @@ void QtTestParser::stdOutput(const QString &line)
     QTC_CHECK(triggerPattern.isValid());
     if (triggerPattern.match(theLine).hasMatch()) {
         emitCurrentTask();
-        m_currentTask = Task(Task::Error, theLine, FileName(), -1,
+        m_currentTask = Task(Task::Error, theLine, FilePath(), -1,
                              Constants::TASK_CATEGORY_AUTOTEST);
         return;
     }
@@ -68,7 +68,7 @@ void QtTestParser::stdOutput(const QString &line)
     QTC_CHECK(locationPattern.isValid());
     const QRegularExpressionMatch match = locationPattern.match(theLine);
     if (match.hasMatch()) {
-        m_currentTask.file = FileName::fromString(
+        m_currentTask.file = FilePath::fromString(
                     QDir::fromNativeSeparators(match.captured("file")));
         m_currentTask.line = match.captured("line").toInt();
         emitCurrentTask();
@@ -113,7 +113,7 @@ void QtSupportPlugin::testQtTestOutputParser()
             "PASS   : MyTest::someTest()\n"
             "XPASS: irrelevant\n"
             "PASS   : MyTest::anotherTest()\n";
-    const FileName theFile = FileName::fromString(HostOsInfo::isWindowsHost()
+    const FilePath theFile = FilePath::fromString(HostOsInfo::isWindowsHost()
         ? QString("C:/dev/tests/tst_mytest.cpp") : QString("/home/me/tests/tst_mytest.cpp"));
     const Tasks expectedTasks{
         Task(Task::Error, "XPASS  : MyTest::someTest()", theFile, 154,

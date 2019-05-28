@@ -82,7 +82,7 @@ namespace Internal {
 class GenericProjectFile : public Core::IDocument
 {
 public:
-    GenericProjectFile(GenericProject *parent, const FileName &fileName,
+    GenericProjectFile(GenericProject *parent, const FilePath &fileName,
                        GenericProject::RefreshOptions options) :
         m_project(parent),
         m_options(options)
@@ -170,7 +170,7 @@ static bool writeFile(const QString &filePath, const QString &contents)
     return saver.write(contents.toUtf8()) && saver.finalize();
 }
 
-GenericProject::GenericProject(const Utils::FileName &fileName) :
+GenericProject::GenericProject(const Utils::FilePath &fileName) :
     Project(Constants::GENERICMIMETYPE, fileName, [this]() { refresh(Everything); }),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater),
     m_deployFileWatcher(new FileSystemWatcher(this))
@@ -201,19 +201,19 @@ GenericProject::GenericProject(const Utils::FileName &fileName) :
     }
 
     m_filesIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_filesFileName),
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_filesFileName),
                                   [this]() { refresh(Files); });
     m_includesIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_includesFileName),
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_includesFileName),
                                   [this]() { refresh(Configuration); });
     m_configIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_configFileName),
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_configFileName),
                                   [this]() { refresh(Configuration); });
     m_cxxFlagsIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_cxxflagsFileName),
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_cxxflagsFileName),
                                   [this]() { refresh(Configuration); });
     m_cFlagsIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FileName::fromString(m_cflagsFileName),
+            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_cflagsFileName),
                                   [this]() { refresh(Configuration); });
 
     connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
@@ -408,24 +408,24 @@ void GenericProject::refresh(RefreshOptions options)
         auto newRoot = std::make_unique<GenericProjectNode>(this);
 
         // find the common base directory of all source files
-        Utils::FileName baseDir = FileName::fromFileInfo(QFileInfo(findCommonSourceRoot(m_files)));
+        Utils::FilePath baseDir = FilePath::fromFileInfo(QFileInfo(findCommonSourceRoot(m_files)));
 
         for (const QString &f : m_files) {
             FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
-            newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(f), fileType), baseDir);
+            newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(f), fileType), baseDir);
         }
 
-        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_filesFileName),
+        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_filesFileName),
                                                           FileType::Project));
-        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_includesFileName),
+        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_includesFileName),
                                                           FileType::Project));
-        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_configFileName),
+        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_configFileName),
                                                           FileType::Project));
-        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_cxxflagsFileName),
+        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_cxxflagsFileName),
                                                           FileType::Project));
-        newRoot->addNestedNode(std::make_unique<FileNode>(FileName::fromString(m_cflagsFileName),
+        newRoot->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(m_cflagsFileName),
                                                           FileType::Project));
 
         newRoot->compress();
@@ -471,7 +471,7 @@ QStringList GenericProject::processEntries(const QStringList &paths,
         trimmedPath = buildEnv.expandVariables(trimmedPath);
         trimmedPath = expander->expand(trimmedPath);
 
-        trimmedPath = Utils::FileName::fromUserInput(trimmedPath).toString();
+        trimmedPath = Utils::FilePath::fromUserInput(trimmedPath).toString();
 
         fileInfo.setFile(projectDir, trimmedPath);
         if (fileInfo.exists()) {
@@ -506,7 +506,7 @@ void GenericProject::refreshCppCodeModel()
 void GenericProject::updateDeploymentData()
 {
     static const QString fileName("QtCreatorDeployment.txt");
-    Utils::FileName deploymentFilePath;
+    Utils::FilePath deploymentFilePath;
     if (activeTarget() && activeTarget()->activeBuildConfiguration()) {
         deploymentFilePath = activeTarget()->activeBuildConfiguration()->buildDirectory()
                 .pathAppended(fileName);

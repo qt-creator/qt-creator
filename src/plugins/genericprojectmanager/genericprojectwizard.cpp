@@ -83,12 +83,12 @@ QString GenericProjectWizardDialog::path() const
     return m_firstPage->path();
 }
 
-Utils::FileNameList GenericProjectWizardDialog::selectedPaths() const
+Utils::FilePathList GenericProjectWizardDialog::selectedPaths() const
 {
     return m_secondPage->selectedPaths();
 }
 
-Utils::FileNameList GenericProjectWizardDialog::selectedFiles() const
+Utils::FilePathList GenericProjectWizardDialog::selectedFiles() const
 {
     return m_secondPage->selectedFiles();
 }
@@ -151,7 +151,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     const QString configFileName = QFileInfo(dir, projectName + QLatin1String(".config")).absoluteFilePath();
     const QString cxxflagsFileName = QFileInfo(dir, projectName + QLatin1String(".cxxflags")).absoluteFilePath();
     const QString cflagsFileName = QFileInfo(dir, projectName + QLatin1String(".cflags")).absoluteFilePath();
-    const QStringList paths = Utils::transform(wizard->selectedPaths(), &Utils::FileName::toString);
+    const QStringList paths = Utils::transform(wizard->selectedPaths(), &Utils::FilePath::toString);
 
     Utils::MimeType headerTy = Utils::mimeTypeForName(QLatin1String("text/x-chdr"));
 
@@ -175,7 +175,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     generatedCreatorFile.setContents(QLatin1String("[General]\n"));
     generatedCreatorFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
 
-    QStringList sources = Utils::transform(wizard->selectedFiles(), &Utils::FileName::toString);
+    QStringList sources = Utils::transform(wizard->selectedFiles(), &Utils::FilePath::toString);
     for (int i = 0; i < sources.length(); ++i)
         sources[i] = dir.relativeFilePath(sources[i]);
     Utils::sort(sources);

@@ -54,7 +54,7 @@ BuildStepConfigWidget *NimCompilerCleanStep::createConfigWidget()
 
 bool NimCompilerCleanStep::init()
 {
-    FileName buildDir = buildConfiguration()->buildDirectory();
+    FilePath buildDir = buildConfiguration()->buildDirectory();
     bool result = buildDir.exists();
     if (result)
         m_buildDir = buildDir;

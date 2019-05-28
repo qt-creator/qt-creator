@@ -143,8 +143,8 @@ static QString findResourceInProject(const QString &resName)
         return QString();
 
     if (auto *project = ProjectExplorer::ProjectTree::currentProject()) {
-        const Utils::FileNameList files = project->files(ProjectExplorer::Project::AllFiles);
-        for (const Utils::FileName &file : files) {
+        const Utils::FilePathList files = project->files(ProjectExplorer::Project::AllFiles);
+        for (const Utils::FilePath &file : files) {
             if (!file.endsWith(".qrc"))
                 continue;
             const QFileInfo fi = file.toFileInfo();

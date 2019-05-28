@@ -53,7 +53,7 @@ public:
 
     virtual bool hasFatalErrors() const;
     virtual void setWorkingDirectory(const QString &workingDirectory);
-    void setWorkingDirectory(const Utils::FileName &fn);
+    void setWorkingDirectory(const Utils::FilePath &fn);
 
     void flush(); // flush out pending tasks
 

@@ -172,12 +172,12 @@ private:
     ~SimulatorControlPrivate();
 
     static SimulatorInfo deviceInfo(const QString &simUdid);
-    static QString bundleIdentifier(const Utils::FileName &bundlePath);
-    static QString bundleExecutable(const Utils::FileName &bundlePath);
+    static QString bundleIdentifier(const Utils::FilePath &bundlePath);
+    static QString bundleExecutable(const Utils::FilePath &bundlePath);
 
     void startSimulator(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid);
     void installApp(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid,
-                    const Utils::FileName &bundlePath);
+                    const Utils::FilePath &bundlePath);
     void launchApp(QFutureInterface<SimulatorControl::ResponseData> &fi, const QString &simUdid,
                    const QString &bundleIdentifier, bool waitForDebugger,
                    const QStringList &extraArgs, const QString &stdoutPath,
@@ -291,12 +291,12 @@ bool SimulatorControl::isSimulatorRunning(const QString &simUdid)
     return SimulatorControlPrivate::deviceInfo(simUdid).isBooted();
 }
 
-QString SimulatorControl::bundleIdentifier(const Utils::FileName &bundlePath)
+QString SimulatorControl::bundleIdentifier(const Utils::FilePath &bundlePath)
 {
     return SimulatorControlPrivate::bundleIdentifier(bundlePath);
 }
 
-QString SimulatorControl::bundleExecutable(const Utils::FileName &bundlePath)
+QString SimulatorControl::bundleExecutable(const Utils::FilePath &bundlePath)
 {
     return SimulatorControlPrivate::bundleExecutable(bundlePath);
 }
@@ -307,7 +307,7 @@ QFuture<SimulatorControl::ResponseData> SimulatorControl::startSimulator(const Q
 }
 
 QFuture<SimulatorControl::ResponseData>
-SimulatorControl::installApp(const QString &simUdid, const Utils::FileName &bundlePath) const
+SimulatorControl::installApp(const QString &simUdid, const Utils::FilePath &bundlePath) const
 {
     return Utils::runAsync(&SimulatorControlPrivate::installApp, d, simUdid, bundlePath);
 }
@@ -372,7 +372,7 @@ SimulatorInfo SimulatorControlPrivate::deviceInfo(const QString &simUdid)
     return device;
 }
 
-QString SimulatorControlPrivate::bundleIdentifier(const Utils::FileName &bundlePath)
+QString SimulatorControlPrivate::bundleIdentifier(const Utils::FilePath &bundlePath)
 {
     QString bundleID;
 #ifdef Q_OS_MAC
@@ -392,7 +392,7 @@ QString SimulatorControlPrivate::bundleIdentifier(const Utils::FileName &bundleP
     return bundleID;
 }
 
-QString SimulatorControlPrivate::bundleExecutable(const Utils::FileName &bundlePath)
+QString SimulatorControlPrivate::bundleExecutable(const Utils::FilePath &bundlePath)
 {
     QString executable;
 #ifdef Q_OS_MAC
@@ -470,7 +470,7 @@ void SimulatorControlPrivate::startSimulator(QFutureInterface<SimulatorControl::
 }
 
 void SimulatorControlPrivate::installApp(QFutureInterface<SimulatorControl::ResponseData> &fi,
-                                         const QString &simUdid, const Utils::FileName &bundlePath)
+                                         const QString &simUdid, const Utils::FilePath &bundlePath)
 {
     QTC_CHECK(bundlePath.exists());
 

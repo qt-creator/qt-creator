@@ -299,7 +299,7 @@ void ClangToolRunControl::start()
         return;
     }
 
-    const Utils::FileName projectFile = m_projectInfo.project()->projectFilePath();
+    const Utils::FilePath projectFile = m_projectInfo.project()->projectFilePath();
     appendMessage(tr("Running %1 on %2").arg(toolName).arg(projectFile.toUserOutput()),
                   Utils::NormalMessageFormat);
 
@@ -386,13 +386,13 @@ void ClangToolRunControl::analyzeNextFile()
     QTC_ASSERT(runner->run(unit.file, unit.arguments), return);
 
     appendMessage(tr("Analyzing \"%1\".").arg(
-                      Utils::FileName::fromString(unit.file).toUserOutput()),
+                      Utils::FilePath::fromString(unit.file).toUserOutput()),
                   Utils::StdOutFormat);
 }
 
-static Utils::FileName cleanPath(const Utils::FileName &filePath)
+static Utils::FilePath cleanPath(const Utils::FilePath &filePath)
 {
-    return Utils::FileName::fromString(QDir::cleanPath(filePath.toString()));
+    return Utils::FilePath::fromString(QDir::cleanPath(filePath.toString()));
 }
 
 void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
@@ -401,7 +401,7 @@ void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
 
     QTC_ASSERT(m_projectInfo.project(), return);
-    const Utils::FileName projectRootDir = cleanPath(m_projectInfo.project()->projectDirectory());
+    const Utils::FilePath projectRootDir = cleanPath(m_projectInfo.project()->projectDirectory());
 
     QString errorMessage;
     const QList<Diagnostic> diagnostics = tool()->read(filePath,

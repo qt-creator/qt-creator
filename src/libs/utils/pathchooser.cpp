@@ -193,14 +193,14 @@ QString PathChooserPrivate::expandedPath(const QString &input) const
     if (m_macroExpander)
         expandedInput = m_macroExpander->expand(expandedInput);
 
-    const QString path = FileName::fromUserInput(expandedInput).toString();
+    const QString path = FilePath::fromUserInput(expandedInput).toString();
     if (path.isEmpty())
         return path;
 
     switch (m_acceptingKind) {
     case PathChooser::Command:
     case PathChooser::ExistingCommand: {
-        const FileName expanded = m_environment.searchInPath(path, {FileName::fromString(m_baseDirectory)});
+        const FilePath expanded = m_environment.searchInPath(path, {FilePath::fromString(m_baseDirectory)});
         return expanded.isEmpty() ? path : expanded.toString();
     }
     case PathChooser::Any:
@@ -293,12 +293,12 @@ void PathChooser::setBaseDirectory(const QString &directory)
     triggerChanged();
 }
 
-FileName PathChooser::baseFileName() const
+FilePath PathChooser::baseFileName() const
 {
-    return FileName::fromString(d->m_baseDirectory);
+    return FilePath::fromString(d->m_baseDirectory);
 }
 
-void PathChooser::setBaseFileName(const FileName &base)
+void PathChooser::setBaseFileName(const FilePath &base)
 {
     setBaseDirectory(base.toString());
 }
@@ -323,14 +323,14 @@ QString PathChooser::path() const
     return fileName().toString();
 }
 
-FileName PathChooser::rawFileName() const
+FilePath PathChooser::rawFileName() const
 {
-    return FileName::fromString(QDir::fromNativeSeparators(d->m_lineEdit->text()));
+    return FilePath::fromString(QDir::fromNativeSeparators(d->m_lineEdit->text()));
 }
 
-FileName PathChooser::fileName() const
+FilePath PathChooser::fileName() const
 {
-    return FileName::fromUserInput(d->expandedPath(rawFileName().toString()));
+    return FilePath::fromUserInput(d->expandedPath(rawFileName().toString()));
 }
 
 // FIXME: try to remove again
@@ -352,7 +352,7 @@ void PathChooser::setPath(const QString &path)
     d->m_lineEdit->setTextKeepingActiveCursor(QDir::toNativeSeparators(path));
 }
 
-void PathChooser::setFileName(const FileName &fn)
+void PathChooser::setFileName(const FilePath &fn)
 {
     d->m_lineEdit->setTextKeepingActiveCursor(fn.toUserOutput());
 }

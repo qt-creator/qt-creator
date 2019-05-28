@@ -64,7 +64,7 @@ class PROJECTEXPLORER_EXPORT ProjectDocument : public Core::IDocument
 public:
     using ProjectCallback = std::function<void()>;
 
-    ProjectDocument(const QString &mimeType, const Utils::FileName &fileName,
+    ProjectDocument(const QString &mimeType, const Utils::FilePath &fileName,
                     const ProjectCallback &callback = {});
 
     Core::IDocument::ReloadBehavior reloadBehavior(Core::IDocument::ChangeTrigger state,
@@ -91,7 +91,7 @@ public:
         isParsingRole
     };
 
-    Project(const QString &mimeType, const Utils::FileName &fileName,
+    Project(const QString &mimeType, const Utils::FilePath &fileName,
             const ProjectDocument::ProjectCallback &callback = {});
     ~Project() override;
 
@@ -101,13 +101,13 @@ public:
     QString mimeType() const;
 
     Core::IDocument *document() const;
-    Utils::FileName projectFilePath() const;
-    Utils::FileName projectDirectory() const;
-    static Utils::FileName projectDirectory(const Utils::FileName &top);
+    Utils::FilePath projectFilePath() const;
+    Utils::FilePath projectDirectory() const;
+    static Utils::FilePath projectDirectory(const Utils::FilePath &top);
 
     // This does not affect nodes, only the root path.
     void changeRootProjectDirectory();
-    Utils::FileName rootProjectDirectory() const;
+    Utils::FilePath rootProjectDirectory() const;
 
     virtual ProjectNode *rootProjectNode() const;
     ContainerNode *containerNode() const;
@@ -141,9 +141,9 @@ public:
     static const NodeMatcher SourceFiles;
     static const NodeMatcher GeneratedFiles;
 
-    Utils::FileNameList files(const NodeMatcher &matcher) const;
+    Utils::FilePathList files(const NodeMatcher &matcher) const;
     virtual QStringList filesGeneratedFrom(const QString &sourceFile) const;
-    bool isKnownFile(const Utils::FileName &filename) const;
+    bool isKnownFile(const Utils::FilePath &filename) const;
 
     virtual QVariantMap toMap() const;
 

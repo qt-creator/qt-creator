@@ -57,7 +57,7 @@ public:
 
     bool initialize(Core::ActionContainer *ac);
 
-    static Utils::FileName gitBinDirectory();
+    static Utils::FilePath gitBinDirectory();
     static QString branch(const QString &repository);
     void addToLocator(Core::CommandLocator *locator);
     void push(const QString &topLevel);

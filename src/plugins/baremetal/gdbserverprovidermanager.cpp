@@ -53,7 +53,7 @@ static GdbServerProviderManager *m_instance = nullptr;
 // GdbServerProviderManager
 
 GdbServerProviderManager::GdbServerProviderManager()
-    : m_configFile(Utils::FileName::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
+    : m_configFile(Utils::FilePath::fromString(Core::ICore::userResourcePath() + fileNameKeyC))
     , m_factories({new DefaultGdbServerProviderFactory,
                    new OpenOcdGdbServerProviderFactory,
                    new StLinkUtilGdbServerProviderFactory})

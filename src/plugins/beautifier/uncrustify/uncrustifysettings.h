@@ -60,8 +60,8 @@ public:
 
     void updateVersion() override;
 
-    Utils::FileName specificConfigFile() const;
-    void setSpecificConfigFile(const Utils::FileName &filePath);
+    Utils::FilePath specificConfigFile() const;
+    void setSpecificConfigFile(const Utils::FilePath &filePath);
 
     bool useSpecificConfigFile() const;
     void setUseSpecificConfigFile(bool useConfigFile);

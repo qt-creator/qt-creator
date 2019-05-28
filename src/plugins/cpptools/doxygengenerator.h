@@ -33,7 +33,7 @@ QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
 namespace CPlusPlus { class DeclarationAST; }
 namespace CPlusPlus { class Snapshot; }
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace CppTools {
 
@@ -56,7 +56,7 @@ public:
 
     QString generate(QTextCursor cursor,
                      const CPlusPlus::Snapshot &snapshot,
-                     const Utils::FileName &documentFilePath);
+                     const Utils::FilePath &documentFilePath);
     QString generate(QTextCursor cursor, CPlusPlus::DeclarationAST *decl);
 
 private:

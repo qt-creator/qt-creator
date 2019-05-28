@@ -442,14 +442,14 @@ void IosDebugSupport::start()
         setStartMode(AttachToRemoteProcess);
         setIosPlatform("remote-ios");
         QString osVersion = dev->osVersion();
-        FileName deviceSdk1 = FileName::fromString(QDir::homePath()
+        FilePath deviceSdk1 = FilePath::fromString(QDir::homePath()
                                              + "/Library/Developer/Xcode/iOS DeviceSupport/"
                                              + osVersion + "/Symbols");
         QString deviceSdk;
         if (deviceSdk1.toFileInfo().isDir()) {
             deviceSdk = deviceSdk1.toString();
         } else {
-            const FileName deviceSdk2 = IosConfigurations::developerPath()
+            const FilePath deviceSdk2 = IosConfigurations::developerPath()
                     .pathAppended("Platforms/iPhoneOS.platform/DeviceSupport/"
                                   + osVersion + "/Symbols");
             if (deviceSdk2.toFileInfo().isDir()) {
@@ -485,7 +485,7 @@ void IosDebugSupport::start()
 
         QString bundlePath = iosRunConfig->bundleDirectory().toString();
         bundlePath.chop(4);
-        FileName dsymPath = FileName::fromString(bundlePath.append(".dSYM"));
+        FilePath dsymPath = FilePath::fromString(bundlePath.append(".dSYM"));
         if (dsymPath.exists() && dsymPath.toFileInfo().lastModified()
                 < QFileInfo(iosRunConfig->localExecutable().toUserOutput()).lastModified()) {
             TaskHub::addTask(Task::Warning,

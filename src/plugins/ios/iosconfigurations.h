@@ -112,11 +112,11 @@ public:
     static void initialize();
     static bool ignoreAllDevices();
     static void setIgnoreAllDevices(bool ignoreDevices);
-    static void setScreenshotDir(const Utils::FileName &path);
-    static Utils::FileName screenshotDir();
-    static Utils::FileName developerPath();
+    static void setScreenshotDir(const Utils::FilePath &path);
+    static Utils::FilePath screenshotDir();
+    static Utils::FilePath developerPath();
     static QVersionNumber xcodeVersion();
-    static Utils::FileName lldbPath();
+    static Utils::FilePath lldbPath();
     static void updateAutomaticKitList();
     static const DevelopmentTeams &developmentTeams();
     static DevelopmentTeamPtr developmentTeam(const QString &teamID);
@@ -132,12 +132,12 @@ private:
     void save();
     void kitsRestored();
     void updateSimulators();
-    static void setDeveloperPath(const Utils::FileName &devPath);
+    static void setDeveloperPath(const Utils::FilePath &devPath);
     void initializeProvisioningData();
     void loadProvisioningData(bool notify = true);
 
-    Utils::FileName m_developerPath;
-    Utils::FileName m_screenshotDir;
+    Utils::FilePath m_developerPath;
+    Utils::FilePath m_screenshotDir;
     QVersionNumber m_xcodeVersion;
     bool m_ignoreAllDevices;
     QFileSystemWatcher *m_provisioningDataWatcher = nullptr;

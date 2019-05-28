@@ -860,7 +860,7 @@ QString PackageLibraryDetailsController::snippet() const
 
 bool PackageLibraryDetailsController::isLinkPackageGenerated() const
 {
-    const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile()));
+    const Project *project = SessionManager::projectForFile(Utils::FilePath::fromString(proFile()));
     if (!project)
         return false;
 
@@ -1010,7 +1010,7 @@ void InternalLibraryDetailsController::updateProFile()
     libraryDetailsWidget()->libraryComboBox->clear();
 
     const QmakeProject *project
-            = dynamic_cast<QmakeProject *>(SessionManager::projectForFile(Utils::FileName::fromString(proFile())));
+            = dynamic_cast<QmakeProject *>(SessionManager::projectForFile(Utils::FilePath::fromString(proFile())));
     if (!project)
         return;
 
@@ -1092,7 +1092,7 @@ QString InternalLibraryDetailsController::snippet() const
     const QString proRelavitePath = rootDir.relativeFilePath(proFile());
 
     // project for which we insert the snippet
-    const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(proFile()));
+    const Project *project = SessionManager::projectForFile(Utils::FilePath::fromString(proFile()));
 
     // the build directory of the active build configuration
     QDir rootBuildDir = rootDir; // If the project is unconfigured use the project dir

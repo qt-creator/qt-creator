@@ -546,7 +546,7 @@ public:
         QString importDir = QFileDialog::getExistingDirectory(ICore::mainWindow(),
                                                               ProjectWindow::tr("Import Directory"),
                                                               dir);
-        FileName path = FileName::fromString(importDir);
+        FilePath path = FilePath::fromString(importDir);
 
         Target *lastTarget = nullptr;
         BuildConfiguration *lastBc = nullptr;

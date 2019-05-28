@@ -73,7 +73,7 @@ void XcodebuildParser::stdOutput(const QString &line)
             Task task(Task::Warning,
                       QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
                                                   "Replacing signature"),
-                      Utils::FileName::fromString(
+                      Utils::FilePath::fromString(
                           lne.left(lne.size() - QLatin1String(signatureChangeEndsWithPattern).size())), /* filename */
                       -1, /* line */
                       Constants::TASK_CATEGORY_COMPILE);
@@ -96,7 +96,7 @@ void XcodebuildParser::stdError(const QString &line)
         Task task(Task::Error,
                   QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
                                               "Xcodebuild failed."),
-                  Utils::FileName(), /* filename */
+                  Utils::FilePath(), /* filename */
                   -1, /* line */
                   Constants::TASK_CATEGORY_COMPILE);
         taskAdded(task);
@@ -223,7 +223,7 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
                     Task::Error,
                     QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
                                                 "Xcodebuild failed."),
-                    Utils::FileName(), /* filename */
+                    Utils::FilePath(), /* filename */
                     -1, /* line */
                     Constants::TASK_CATEGORY_COMPILE))
             << QString()
@@ -240,7 +240,7 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
                     Task::Error,
                     QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
                                                 "Xcodebuild failed."),
-                    Utils::FileName(), /* filename */
+                    Utils::FilePath(), /* filename */
                     -1, /* line */
                     Constants::TASK_CATEGORY_COMPILE))
             << QString()
@@ -253,7 +253,7 @@ void ProjectExplorerPlugin::testXcodebuildParserParsing_data()
                 << Task(Task::Warning,
                         QCoreApplication::translate("ProjectExplorer::XcodebuildParser",
                                                     "Replacing signature"),
-                        Utils::FileName::fromString(QLatin1String("/somepath/somefile.app")), /* filename */
+                        Utils::FilePath::fromString(QLatin1String("/somepath/somefile.app")), /* filename */
                         -1, /* line */
                         Constants::TASK_CATEGORY_COMPILE))
             << QString()

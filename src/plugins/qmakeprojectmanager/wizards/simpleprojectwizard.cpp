@@ -70,8 +70,8 @@ public:
     bool isComplete() const override { return m_filesWidget->hasFilesSelected(); }
     void initializePage() override;
     void cleanupPage() override { m_filesWidget->cancelParsing(); }
-    FileNameList selectedFiles() const { return m_filesWidget->selectedFiles(); }
-    FileNameList selectedPaths() const { return m_filesWidget->selectedPaths(); }
+    FilePathList selectedFiles() const { return m_filesWidget->selectedFiles(); }
+    FilePathList selectedPaths() const { return m_filesWidget->selectedPaths(); }
 
 private:
     SimpleProjectWizardDialog *m_simpleProjectWizardDialog;
@@ -117,8 +117,8 @@ public:
 
     QString path() const { return m_firstPage->path(); }
     void setPath(const QString &path) { m_firstPage->setPath(path); }
-    FileNameList selectedFiles() const { return m_secondPage->selectedFiles(); }
-    FileNameList selectedPaths() const { return m_secondPage->selectedPaths(); }
+    FilePathList selectedFiles() const { return m_secondPage->selectedFiles(); }
+    FilePathList selectedPaths() const { return m_secondPage->selectedPaths(); }
     QString projectName() const { return m_firstPage->fileName(); }
 
     FileWizardPage *m_firstPage;
@@ -127,8 +127,8 @@ public:
 
 void FilesSelectionWizardPage::initializePage()
 {
-    m_filesWidget->resetModel(FileName::fromString(m_simpleProjectWizardDialog->path()),
-                              FileNameList());
+    m_filesWidget->resetModel(FilePath::fromString(m_simpleProjectWizardDialog->path()),
+                              FilePathList());
 }
 
 SimpleProjectWizard::SimpleProjectWizard()
@@ -169,7 +169,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();
     const QString proFileName = QFileInfo(dir, projectName + ".pro").absoluteFilePath();
-    const QStringList paths = Utils::transform(wizard->selectedPaths(), &FileName::toString);
+    const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
 
     MimeType headerType = Utils::mimeTypeForName("text/x-chdr");
 
@@ -189,7 +189,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
     QString proSources = "SOURCES = \\\n";
     QString proHeaders = "HEADERS = \\\n";
 
-    for (const FileName &fileName : wizard->selectedFiles()) {
+    for (const FilePath &fileName : wizard->selectedFiles()) {
         QString source = dir.relativeFilePath(fileName.toString());
         MimeType mimeType = Utils::mimeTypeForFile(fileName.toFileInfo());
         if (mimeType.matchesName("text/x-chdr") || mimeType.matchesName("text/x-c++hdr"))

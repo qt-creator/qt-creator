@@ -42,10 +42,10 @@ public:
     bool isValid() const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
-    Utils::FileName suggestedDebugger() const override;
-    Utils::FileName suggestedGdbServer() const;
+    Utils::FilePath suggestedDebugger() const override;
+    Utils::FilePath suggestedGdbServer() const;
     QStringList suggestedMkspecList() const override;
-    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
+    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
     bool fromMap(const QVariantMap &data) override;
 
 protected:
@@ -70,7 +70,7 @@ public:
     {
     public:
         Core::Id language;
-        Utils::FileName compilerCommand;
+        Utils::FilePath compilerCommand;
         ProjectExplorer::Abi abi;
         QString version;
     };

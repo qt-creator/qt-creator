@@ -69,7 +69,7 @@ GitSettings::GitSettings()
     declareKey(lastResetIndexKey, 0);
 }
 
-Utils::FileName GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
+Utils::FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
 {
     // Locate binary in path if one is specified, otherwise default
     // to pathless binary
@@ -78,7 +78,7 @@ Utils::FileName GitSettings::gitExecutable(bool *ok, QString *errorMessage) cons
     if (errorMessage)
         errorMessage->clear();
 
-    Utils::FileName binPath = binaryPath();
+    Utils::FilePath binPath = binaryPath();
     if (binPath.isEmpty()) {
         if (ok)
             *ok = false;

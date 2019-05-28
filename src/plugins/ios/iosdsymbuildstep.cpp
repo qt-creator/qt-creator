@@ -72,7 +72,7 @@ bool IosDsymBuildStep::init()
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    pp->setCommand(Utils::FileName::fromString(command()));
+    pp->setCommand(Utils::FilePath::fromString(command()));
     pp->setArguments(Utils::QtcProcess::joinArgs(arguments()));
     pp->resolveAll();
 
@@ -146,7 +146,7 @@ QStringList IosDsymBuildStep::defaultCleanCmdList() const
 QStringList IosDsymBuildStep::defaultCmdList() const
 {
     QString dsymutilCmd = "dsymutil";
-    const Utils::FileName dsymUtilPath = IosConfigurations::developerPath()
+    const Utils::FilePath dsymUtilPath = IosConfigurations::developerPath()
             .pathAppended("Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil");
     if (dsymUtilPath.exists())
         dsymutilCmd = dsymUtilPath.toUserOutput();
@@ -270,7 +270,7 @@ void IosDsymBuildStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    param.setCommand(Utils::FileName::fromString(m_buildStep->command()));
+    param.setCommand(Utils::FilePath::fromString(m_buildStep->command()));
     param.setArguments(Utils::QtcProcess::joinArgs(m_buildStep->arguments()));
 
     setSummaryText(param.summary(displayName()));

@@ -65,9 +65,9 @@ class ClangFormat : public ::testing::Test
 protected:
     void SetUp() final
     {
-        indenter.setFileName(Utils::FileName::fromString(TESTDATA_DIR "/clangformat/test.cpp"));
+        indenter.setFileName(Utils::FilePath::fromString(TESTDATA_DIR "/clangformat/test.cpp"));
         extendedIndenter.setFileName(
-            Utils::FileName::fromString(TESTDATA_DIR "/clangformat/test.cpp"));
+            Utils::FilePath::fromString(TESTDATA_DIR "/clangformat/test.cpp"));
     }
 
     void insertLines(const std::vector<QString> &lines)

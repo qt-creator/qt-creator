@@ -109,7 +109,7 @@ bool FixitsRefactoringFile::apply()
                     format(*indenter, doc, operationsForFile, i);
                 operationsForFile.clear();
                 indenter = std::unique_ptr<TextEditor::Indenter>(factory->createIndenter(doc));
-                indenter->setFileName(Utils::FileName::fromString(op.fileName));
+                indenter->setFileName(Utils::FilePath::fromString(op.fileName));
             }
 
             QTextCursor cursor(doc);

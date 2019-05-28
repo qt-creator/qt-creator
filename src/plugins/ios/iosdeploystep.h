@@ -83,7 +83,7 @@ private:
     TransferStatus m_transferStatus = NoTransfer;
     IosToolHandler *m_toolHandler = nullptr;
     ProjectExplorer::IDevice::ConstPtr m_device;
-    Utils::FileName m_bundlePath;
+    Utils::FilePath m_bundlePath;
     IosDeviceType m_deviceType;
     static const Core::Id Id;
     bool m_expectFail = false;

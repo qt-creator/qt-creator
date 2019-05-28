@@ -94,7 +94,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
             return fn && fn->fileType() == FileType::QML
                     && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath().toString(),
                                                                     MimeMatchMode::MatchExtension).name());
-        }), &FileName::toString);
+        }), &FilePath::toString);
         activeTarget = project->activeTarget();
     }
     Kit *activeKit = activeTarget ? activeTarget->kit() : KitManager::defaultKit();

@@ -30,7 +30,7 @@
 
 #include <projectexplorer/projectnodes.h>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace QmakeProjectManager {
 class QmakeProFileNode;
@@ -41,7 +41,7 @@ class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::Proj
 {
 public:
     QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode,
-                     const Utils::FileName &filePath, QmakePriFile *pf);
+                     const Utils::FilePath &filePath, QmakePriFile *pf);
 
     QmakePriFile *priFile() const;
 
@@ -78,7 +78,7 @@ private:
 class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
 public:
-    QmakeProFileNode(QmakeProject *project, const Utils::FileName &filePath, QmakeProFile *pf);
+    QmakeProFileNode(QmakeProject *project, const Utils::FilePath &filePath, QmakeProFile *pf);
 
     QmakeProFile *proFile() const;
 
@@ -104,7 +104,7 @@ public:
 
     QmakeProjectManager::ProjectType projectType() const;
     QString buildDir() const;
-    Utils::FileName buildDir(QmakeBuildConfiguration *bc) const;
+    Utils::FilePath buildDir(QmakeBuildConfiguration *bc) const;
 
     QStringList variableValue(const Variable var) const;
     QString singleVariableValue(const Variable var) const;

@@ -280,7 +280,7 @@ QList<TestConfiguration *> QuickTestTreeItem::getSelectedTestConfigurations() co
     return result;
 }
 
-QList<TestConfiguration *> QuickTestTreeItem::getTestConfigurationsForFile(const Utils::FileName &fileName) const
+QList<TestConfiguration *> QuickTestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
 {
     QList<TestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();

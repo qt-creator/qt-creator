@@ -119,7 +119,7 @@ static bool hasPriority(const QStringList &files)
     return false;
 }
 
-static bool addFilesToResource(const FileName &resourceFile,
+static bool addFilesToResource(const FilePath &resourceFile,
                                const QStringList &filePaths,
                                QStringList *notAdded,
                                const QString &prefix,
@@ -157,7 +157,7 @@ class SimpleResourceFolderNode : public FolderNode
     friend class ResourceEditor::ResourceTopLevelNode;
 public:
     SimpleResourceFolderNode(const QString &afolderName, const QString &displayName,
-                     const QString &prefix, const QString &lang, FileName absolutePath,
+                     const QString &prefix, const QString &lang, FilePath absolutePath,
                      ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode);
 
     bool supportsAction(ProjectAction, const Node *node) const final;
@@ -180,7 +180,7 @@ private:
 
 SimpleResourceFolderNode::SimpleResourceFolderNode(const QString &afolderName, const QString &displayName,
                                    const QString &prefix, const QString &lang,
-                                   FileName absolutePath, ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode)
+                                   FilePath absolutePath, ResourceTopLevelNode *topLevel, ResourceFolderNode *prefixNode)
     : FolderNode(absolutePath)
     , m_folderName(afolderName)
     , m_prefix(prefix)
@@ -224,8 +224,8 @@ bool SimpleResourceFolderNode::renameFile(const QString &filePath, const QString
 
 } // Internal
 
-ResourceTopLevelNode::ResourceTopLevelNode(const FileName &filePath,
-                                           const FileName &base,
+ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
+                                           const FilePath &base,
                                            const QString &contents)
     : FolderNode(filePath)
 {
@@ -328,7 +328,7 @@ void ResourceTopLevelNode::addInternalNodes()
                     const QString absoluteFolderName
                             = filePath().toFileInfo().absoluteDir().absoluteFilePath(
                                 currentPathList.join(QLatin1Char('/')));
-                    const FileName folderPath = FileName::fromString(absoluteFolderName);
+                    const FilePath folderPath = FilePath::fromString(absoluteFolderName);
                     std::unique_ptr<FolderNode> newNode
                             = std::make_unique<SimpleResourceFolderNode>(folderName, pathElement,
                                                                          prefix, lang, folderPath,
@@ -351,7 +351,7 @@ void ResourceTopLevelNode::addInternalNodes()
             FolderNode *fn = folderNodes[folderId];
             QTC_CHECK(fn);
             if (fn)
-                fn->addNode(std::make_unique<ResourceFileNode>(FileName::fromString(fileName),
+                fn->addNode(std::make_unique<ResourceFileNode>(FilePath::fromString(fileName),
                                                                qrcPath, displayName));
         }
     }
@@ -623,7 +623,7 @@ ResourceTopLevelNode *ResourceFolderNode::resourceNode() const
     return m_topLevelNode;
 }
 
-ResourceFileNode::ResourceFileNode(const FileName &filePath, const QString &qrcPath, const QString &displayName)
+ResourceFileNode::ResourceFileNode(const FilePath &filePath, const QString &qrcPath, const QString &displayName)
     : FileNode(filePath, FileNode::fileTypeForFileName(filePath))
     , m_qrcPath(qrcPath)
     , m_displayName(displayName)

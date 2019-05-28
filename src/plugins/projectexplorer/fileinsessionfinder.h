@@ -30,7 +30,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-Utils::FileNameList findFileInSession(const Utils::FileName &filePath);
+Utils::FilePathList findFileInSession(const Utils::FilePath &filePath);
 
 } // namespace Internal
 } // namespace ProjectExplorer

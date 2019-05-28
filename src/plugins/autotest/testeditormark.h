@@ -35,7 +35,7 @@ namespace Internal {
 class TestEditorMark : public TextEditor::TextMark
 {
 public:
-    TestEditorMark(QPersistentModelIndex item, const Utils::FileName &file, int line);
+    TestEditorMark(QPersistentModelIndex item, const Utils::FilePath &file, int line);
 
     bool isClickable() const override { return true; }
     void clicked() override;

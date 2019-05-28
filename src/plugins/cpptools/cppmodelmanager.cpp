@@ -146,7 +146,7 @@ public:
     mutable QMutex m_projectMutex;
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projectToProjectsInfo;
     QHash<ProjectExplorer::Project *, bool> m_projectToIndexerCanceled;
-    QMap<Utils::FileName, QList<ProjectPart::Ptr> > m_fileToProjectParts;
+    QMap<Utils::FilePath, QList<ProjectPart::Ptr> > m_fileToProjectParts;
     QMap<QString, ProjectPart::Ptr> m_projectPartIdToProjectProjectPart;
     // The members below are cached/(re)calculated from the projects and/or their project parts
     bool m_dirty;
@@ -968,7 +968,7 @@ void CppModelManager::recalculateProjectPartMappings()
         foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
             d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             foreach (const ProjectFile &cxxFile, projectPart->files)
-                d->m_fileToProjectParts[Utils::FileName::fromString(cxxFile.path)].append(
+                d->m_fileToProjectParts[Utils::FilePath::fromString(cxxFile.path)].append(
                             projectPart);
 
         }
@@ -1132,20 +1132,20 @@ ProjectPart::Ptr CppModelManager::projectPartForId(const QString &projectPartId)
     return d->m_projectPartIdToProjectProjectPart.value(projectPartId);
 }
 
-QList<ProjectPart::Ptr> CppModelManager::projectPart(const Utils::FileName &fileName) const
+QList<ProjectPart::Ptr> CppModelManager::projectPart(const Utils::FilePath &fileName) const
 {
     QMutexLocker locker(&d->m_projectMutex);
     return d->m_fileToProjectParts.value(fileName);
 }
 
 QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
-        const Utils::FileName &fileName) const
+        const Utils::FilePath &fileName) const
 {
     QSet<ProjectPart::Ptr> parts;
-    const Utils::FileNameList deps = snapshot().filesDependingOn(fileName);
+    const Utils::FilePathList deps = snapshot().filesDependingOn(fileName);
 
     QMutexLocker locker(&d->m_projectMutex);
-    foreach (const Utils::FileName &dep, deps) {
+    foreach (const Utils::FilePath &dep, deps) {
         parts.unite(QSet<ProjectPart::Ptr>::fromList(d->m_fileToProjectParts.value(dep)));
     }
 
@@ -1338,7 +1338,7 @@ void CppModelManager::GC()
         filesInEditorSupports << abstractEditorSupport->fileName();
 
     Snapshot currentSnapshot = snapshot();
-    QSet<Utils::FileName> reachableFiles;
+    QSet<Utils::FilePath> reachableFiles;
     // The configuration file is part of the project files, which is just fine.
     // If single files are open, without any project, then there is no need to
     // keep the configuration file around.
@@ -1349,7 +1349,7 @@ void CppModelManager::GC()
         const QString file = todo.last();
         todo.removeLast();
 
-        const Utils::FileName fileName = Utils::FileName::fromString(file);
+        const Utils::FilePath fileName = Utils::FilePath::fromString(file);
         if (reachableFiles.contains(fileName))
             continue;
         reachableFiles.insert(fileName);
@@ -1362,7 +1362,7 @@ void CppModelManager::GC()
     QStringList notReachableFiles;
     Snapshot newSnapshot;
     for (Snapshot::const_iterator it = currentSnapshot.begin(); it != currentSnapshot.end(); ++it) {
-        const Utils::FileName &fileName = it.key();
+        const Utils::FilePath &fileName = it.key();
 
         if (reachableFiles.contains(fileName))
             newSnapshot.insert(it.value());

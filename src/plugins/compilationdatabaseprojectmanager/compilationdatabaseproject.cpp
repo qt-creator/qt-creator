@@ -132,7 +132,7 @@ ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Co
         return ToolChainKitAspect::toolChain(kit, language);
 
     // Try exact compiler match.
-    const Utils::FileName compiler = Utils::FileName::fromString(compilerPath(flags.front()));
+    const Utils::FilePath compiler = Utils::FilePath::fromString(compilerPath(flags.front()));
     ToolChain *toolchain = ToolChainManager::toolChain([&compiler, &language](const ToolChain *tc) {
         return tc->isValid() && tc->language() == language && tc->compilerCommand() == compiler;
     });
@@ -168,11 +168,11 @@ void addDriverModeFlagIfNeeded(const ToolChain *toolchain,
     }
 }
 
-CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
+CppTools::RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
                                             Kit *kit,
                                             CppTools::KitInfo &kitInfo,
                                             const QString &workingDir,
-                                            const Utils::FileName &fileName,
+                                            const Utils::FilePath &fileName,
                                             QStringList flags)
 {
     HeaderPaths headerPaths;
@@ -220,7 +220,7 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FileName &projectFile,
     return rpp;
 }
 
-QStringList relativeDirsList(Utils::FileName currentPath, const Utils::FileName &rootPath)
+QStringList relativeDirsList(Utils::FilePath currentPath, const Utils::FilePath &rootPath)
 {
     QStringList dirsList;
     while (!currentPath.isEmpty() && currentPath != rootPath) {
@@ -235,7 +235,7 @@ QStringList relativeDirsList(Utils::FileName currentPath, const Utils::FileName 
 
 FolderNode *addChildFolderNode(FolderNode *parent, const QString &childName)
 {
-    const Utils::FileName path = parent->filePath().pathAppended(childName);
+    const Utils::FilePath path = parent->filePath().pathAppended(childName);
     auto node = std::make_unique<FolderNode>(path);
     FolderNode *childNode = node.get();
     childNode->setDisplayName(childName);
@@ -256,7 +256,7 @@ FolderNode *addOrGetChildFolderNode(FolderNode *parent, const QString &childName
 }
 
     // Return the node for folderPath.
-FolderNode *createFoldersIfNeeded(FolderNode *root, const Utils::FileName &folderPath)
+FolderNode *createFoldersIfNeeded(FolderNode *root, const Utils::FilePath &folderPath)
 {
     const QStringList dirsList = relativeDirsList(folderPath, root->filePath());
 
@@ -275,7 +275,7 @@ FileType fileTypeForName(const QString &fileName)
     return FileType::Source;
 }
 
-void addChild(FolderNode *root, const Utils::FileName &fileName)
+void addChild(FolderNode *root, const Utils::FilePath &fileName)
 {
     FolderNode *parentNode = createFoldersIfNeeded(root, fileName.parentDir());
     if (!parentNode->fileNode(fileName)) {
@@ -285,7 +285,7 @@ void addChild(FolderNode *root, const Utils::FileName &fileName)
 }
 
 void createTree(std::unique_ptr<ProjectNode> &root,
-                const Utils::FileName &rootPath,
+                const Utils::FilePath &rootPath,
                 const CppTools::RawProjectParts &rpps,
                 const QList<FileNode *> &scannedFiles = QList<FileNode *>())
 {
@@ -294,12 +294,12 @@ void createTree(std::unique_ptr<ProjectNode> &root,
 
     for (const CppTools::RawProjectPart &rpp : rpps) {
         for (const QString &filePath : rpp.files) {
-            Utils::FileName fileName = Utils::FileName::fromString(filePath);
+            Utils::FilePath fileName = Utils::FilePath::fromString(filePath);
             if (!fileName.isChildOf(rootPath)) {
-                if (fileName.isChildOf(Utils::FileName::fromString(rpp.buildSystemTarget))) {
+                if (fileName.isChildOf(Utils::FilePath::fromString(rpp.buildSystemTarget))) {
                     if (!secondRoot)
                         secondRoot = std::make_unique<ProjectNode>(
-                            Utils::FileName::fromString(rpp.buildSystemTarget));
+                            Utils::FilePath::fromString(rpp.buildSystemTarget));
                     addChild(secondRoot.get(), fileName);
                 }
             } else {
@@ -312,7 +312,7 @@ void createTree(std::unique_ptr<ProjectNode> &root,
         if (node->fileType() != FileType::Header)
             continue;
 
-        const Utils::FileName fileName = node->filePath();
+        const Utils::FilePath fileName = node->filePath();
         if (!fileName.isChildOf(rootPath))
             continue;
         FolderNode *parentNode = createFoldersIfNeeded(root.get(), fileName.parentDir());
@@ -367,7 +367,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
     }
 
     if (!dbContents.extras.empty()) {
-        const Utils::FileName baseDir = projectFilePath().parentDir();
+        const Utils::FilePath baseDir = projectFilePath().parentDir();
 
         QStringList extraFiles;
         for (const QString &extra : dbContents.extras)
@@ -385,7 +385,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
     root->addNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
     if (QFile::exists(dbContents.extraFileName))
-        root->addNode(std::make_unique<FileNode>(Utils::FileName::fromString(dbContents.extraFileName),
+        root->addNode(std::make_unique<FileNode>(Utils::FilePath::fromString(dbContents.extraFileName),
                                                  FileType::Project));
 
     setRootProjectNode(std::move(root));
@@ -393,7 +393,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
     m_cppCodeModelUpdater->update({this, kitInfo, rpps});
 }
 
-CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &projectFile)
+CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &projectFile)
     : Project(Constants::COMPILATIONDATABASEMIMETYPE, projectFile)
     , m_cppCodeModelUpdater(std::make_unique<CppTools::CppProjectUpdater>())
     , m_parseDelay(new QTimer(this))
@@ -425,10 +425,10 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FileName &pr
     m_parseDelay->setInterval(1000);
 }
 
-Utils::FileName CompilationDatabaseProject::rootPathFromSettings() const
+Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const
 {
 #ifdef WITH_TESTS
-    return Utils::FileName::fromString(projectDirectory().fileName());
+    return Utils::FilePath::fromString(projectDirectory().fileName());
 #else
     return Utils::FileName::fromString(
         namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
@@ -440,7 +440,7 @@ Project::RestoreResult CompilationDatabaseProject::fromMap(const QVariantMap &ma
 {
     Project::RestoreResult result = Project::fromMap(map, errorMessage);
     if (result == Project::RestoreResult::Ok) {
-        const Utils::FileName rootPath = rootPathFromSettings();
+        const Utils::FilePath rootPath = rootPathFromSettings();
         if (rootPath.isEmpty())
             changeRootProjectDirectory(); // This triggers reparse itself.
         else

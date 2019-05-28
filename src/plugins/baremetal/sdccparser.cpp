@@ -100,7 +100,7 @@ void SdccParser::stdError(const QString &line)
     if (match.hasMatch()) {
         enum CaptureIndex { FilePathIndex = 1, LineNumberIndex,
                             MessageTypeIndex, MessageCodeIndex, MessageTextIndex };
-        const Utils::FileName fileName = Utils::FileName::fromUserInput(
+        const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
                     match.captured(FilePathIndex));
         const int lineno = match.captured(LineNumberIndex).toInt();
         const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
@@ -115,7 +115,7 @@ void SdccParser::stdError(const QString &line)
     if (match.hasMatch()) {
         enum CaptureIndex { FilePathIndex = 1, LineNumberIndex,
                             MessageTypeIndex, MessageTextIndex };
-        const Utils::FileName fileName = Utils::FileName::fromUserInput(
+        const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
                     match.captured(FilePathIndex));
         const int lineno = match.captured(LineNumberIndex).toInt();
         const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
@@ -215,7 +215,7 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString::fromLatin1("c:\\foo\\main.c:63: warning 123: Some warning\n")
             << (Tasks() << Task(Task::Warning,
                                       QLatin1String("Some warning"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -233,7 +233,7 @@ void BareMetalPlugin::testSdccOutputParsers_data()
                                       QLatin1String("Some warning\n"
                                                     "details #1\n"
                                                     "  details #2"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -245,7 +245,7 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString::fromLatin1("c:\\foo\\main.c:63: error 123: Some error\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("Some error"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -263,7 +263,7 @@ void BareMetalPlugin::testSdccOutputParsers_data()
                                       QLatin1String("Some error\n"
                                                     "details #1\n"
                                                     "  details #2"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -275,7 +275,7 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString::fromLatin1("c:\\foo\\main.c:63: syntax error: Some error\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("Some error"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -287,7 +287,7 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString::fromLatin1("at 1: error 123: Some error\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("Some error"),
-                                      Utils::FileName(),
+                                      Utils::FilePath(),
                                       -1,
                                       categoryCompile))
             << QString();
@@ -299,7 +299,7 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString::fromLatin1("?ASlink-Warning-Couldn't find library 'foo.lib'\n")
             << (Tasks() << Task(Task::Warning,
                                       QLatin1String("Couldn't find library 'foo.lib'"),
-                                      Utils::FileName(),
+                                      Utils::FilePath(),
                                       -1,
                                       categoryCompile))
             << QString();
@@ -311,7 +311,7 @@ void BareMetalPlugin::testSdccOutputParsers_data()
             << QString::fromLatin1("?ASlink-Error-<cannot open> : \"foo.rel\"\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("<cannot open> : \"foo.rel\""),
-                                      Utils::FileName(),
+                                      Utils::FilePath(),
                                       -1,
                                       categoryCompile))
             << QString();

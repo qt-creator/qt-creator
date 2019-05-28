@@ -243,7 +243,7 @@ int GerritServer::testConnection()
     static GitClient *const client = GitPlugin::client();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
     const SynchronousProcessResponse resp = client->vcsFullySynchronousExec(
-                QString(), FileName::fromString(curlBinary), arguments,
+                QString(), FilePath::fromString(curlBinary), arguments,
                 Core::ShellCommand::NoOutput);
     if (resp.result == SynchronousProcessResponse::Finished) {
         QString output = resp.stdOut();
@@ -345,7 +345,7 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
         const SynchronousProcessResponse resp = client->vcsFullySynchronousExec(
-                    QString(), FileName::fromString(p.ssh), arguments,
+                    QString(), FilePath::fromString(p.ssh), arguments,
                     Core::ShellCommand::NoOutput);
         QString stdOut = resp.stdOut().trimmed();
         stdOut.remove("gerrit version ");
@@ -353,7 +353,7 @@ void GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
         const SynchronousProcessResponse resp = client->vcsFullySynchronousExec(
-                    QString(), FileName::fromString(curlBinary), arguments,
+                    QString(), FilePath::fromString(curlBinary), arguments,
                     Core::ShellCommand::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.

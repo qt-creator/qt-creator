@@ -55,7 +55,7 @@ Core::Id CvsControl::id() const
     return Core::Id(VcsBase::Constants::VCS_ID_CVS);
 }
 
-bool CvsControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+bool CvsControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
 {
     return fileName.toFileInfo().isDir()
             && !fileName.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity());
@@ -63,7 +63,7 @@ bool CvsControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
 
 bool CvsControl::isConfigured() const
 {
-    const Utils::FileName binary = m_plugin->client()->vcsBinary();
+    const Utils::FilePath binary = m_plugin->client()->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -137,7 +137,7 @@ QString CvsControl::vcsOpenText() const
 }
 
 Core::ShellCommand *CvsControl::createInitialCheckoutCommand(const QString &url,
-                                                             const Utils::FileName &baseDirectory,
+                                                             const Utils::FilePath &baseDirectory,
                                                              const QString &localName,
                                                              const QStringList &extraArgs)
 {

@@ -89,7 +89,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
 void Core::Internal::CorePlugin::test_basefilefilter_data()
 {
     auto shortNativePath = [](const QString &file) {
-        return Utils::FileName::fromString(file).shortNativePath();
+        return Utils::FilePath::fromString(file).shortNativePath();
     };
 
     QTest::addColumn<QStringList>("testFiles");

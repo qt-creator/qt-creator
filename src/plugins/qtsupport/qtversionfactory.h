@@ -29,7 +29,7 @@
 
 #include <QVariantMap>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace QtSupport {
 
@@ -54,7 +54,7 @@ public:
     QString supportedType() const;
 
     static BaseQtVersion *createQtVersionFromQMakePath(
-            const Utils::FileName &qmakePath, bool isAutoDetected = false,
+            const Utils::FilePath &qmakePath, bool isAutoDetected = false,
             const QString &autoDetectionSource = QString(), QString *error = nullptr);
 
     static BaseQtVersion *cloneQtVersion(const BaseQtVersion *source);

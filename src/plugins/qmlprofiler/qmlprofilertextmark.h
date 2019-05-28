@@ -36,7 +36,7 @@ class QmlProfilerTextMark : public TextEditor::TextMark
 {
 public:
     QmlProfilerTextMark(QmlProfilerViewManager *viewManager, int typeId,
-                        const Utils::FileName &fileName, int lineNumber);
+                        const Utils::FilePath &fileName, int lineNumber);
     void addTypeId(int typeId);
 
     void paintIcon(QPainter *painter, const QRect &rect) const override;

@@ -97,23 +97,23 @@ public:
     static QStringList apiLevelNamesFor(const SdkPlatformList &platforms);
     static QString apiLevelNameFor(const SdkPlatform *platform);
 
-    Utils::FileName sdkLocation() const;
-    void setSdkLocation(const Utils::FileName &sdkLocation);
+    Utils::FilePath sdkLocation() const;
+    void setSdkLocation(const Utils::FilePath &sdkLocation);
     QVersionNumber sdkToolsVersion() const;
     QVersionNumber buildToolsVersion() const;
     QStringList sdkManagerToolArgs() const;
     void setSdkManagerToolArgs(const QStringList &args);
 
-    Utils::FileName ndkLocation() const;
-    Utils::FileName gdbServer(const ProjectExplorer::Abi &abi) const;
+    Utils::FilePath ndkLocation() const;
+    Utils::FilePath gdbServer(const ProjectExplorer::Abi &abi) const;
     QVersionNumber ndkVersion() const;
-    void setNdkLocation(const Utils::FileName &ndkLocation);
+    void setNdkLocation(const Utils::FilePath &ndkLocation);
 
-    Utils::FileName openJDKLocation() const;
-    void setOpenJDKLocation(const Utils::FileName &openJDKLocation);
+    Utils::FilePath openJDKLocation() const;
+    void setOpenJDKLocation(const Utils::FilePath &openJDKLocation);
 
-    Utils::FileName keystoreLocation() const;
-    void setKeystoreLocation(const Utils::FileName &keystoreLocation);
+    Utils::FilePath keystoreLocation() const;
+    void setKeystoreLocation(const Utils::FilePath &keystoreLocation);
 
     QString toolchainHost() const;
 
@@ -123,20 +123,20 @@ public:
     bool automaticKitCreation() const;
     void setAutomaticKitCreation(bool b);
 
-    Utils::FileName qtLiveApkPath() const;
+    Utils::FilePath qtLiveApkPath() const;
 
-    Utils::FileName adbToolPath() const;
-    Utils::FileName androidToolPath() const;
-    Utils::FileName emulatorToolPath() const;
-    Utils::FileName sdkManagerToolPath() const;
-    Utils::FileName avdManagerToolPath() const;
-    Utils::FileName aaptToolPath() const;
+    Utils::FilePath adbToolPath() const;
+    Utils::FilePath androidToolPath() const;
+    Utils::FilePath emulatorToolPath() const;
+    Utils::FilePath sdkManagerToolPath() const;
+    Utils::FilePath avdManagerToolPath() const;
+    Utils::FilePath aaptToolPath() const;
 
-    Utils::FileName clangPath() const;
-    Utils::FileName gdbPath(const ProjectExplorer::Abi &abi) const;
-    Utils::FileName makePath() const;
+    Utils::FilePath clangPath() const;
+    Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi) const;
+    Utils::FilePath makePath() const;
 
-    Utils::FileName keytoolPath() const;
+    Utils::FilePath keytoolPath() const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = nullptr) const;
     static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = nullptr);
@@ -158,7 +158,7 @@ public:
 private:
     static QString getDeviceProperty(const QString &adbToolPath, const QString &device, const QString &property);
 
-    Utils::FileName openJDKBinPath() const;
+    Utils::FilePath openJDKBinPath() const;
     int getSDKVersion(const QString &device) const;
     static int getSDKVersion(const QString &adbToolPath, const QString &device);
     QStringList getAbis(const QString &device) const;
@@ -169,11 +169,11 @@ private:
 
     void updateNdkInformation() const;
 
-    Utils::FileName m_sdkLocation;
+    Utils::FilePath m_sdkLocation;
     QStringList m_sdkManagerToolArgs;
-    Utils::FileName m_ndkLocation;
-    Utils::FileName m_openJDKLocation;
-    Utils::FileName m_keystoreLocation;
+    Utils::FilePath m_ndkLocation;
+    Utils::FilePath m_openJDKLocation;
+    Utils::FilePath m_keystoreLocation;
     unsigned m_partitionSize = 1024;
     bool m_automaticKitCreation = true;
 

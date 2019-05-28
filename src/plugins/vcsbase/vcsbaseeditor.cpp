@@ -868,7 +868,7 @@ void VcsBaseEditorWidget::slotPopulateDiffBrowser()
                 lastFileName = file;
                 // ignore any headers
                 d->m_entrySections.push_back(d->m_entrySections.empty() ? 0 : lineNumber);
-                entriesComboBox->addItem(FileName::fromString(file).fileName());
+                entriesComboBox->addItem(FilePath::fromString(file).fileName());
             }
         }
     }

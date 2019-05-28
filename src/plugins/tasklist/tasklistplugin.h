@@ -28,7 +28,7 @@
 #include <coreplugin/idocumentfactory.h>
 #include <extensionsystem/iplugin.h>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace TaskList {
 namespace Internal {
@@ -45,12 +45,12 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
     void extensionsInitialized() override {}
 
-    static bool loadFile(QString *errorString, const Utils::FileName &fileName);
+    static bool loadFile(QString *errorString, const Utils::FilePath &fileName);
 
     static void stopMonitoring();
     static void clearTasks();
 
-    Core::IDocument *openTasks(const Utils::FileName &fileName);
+    Core::IDocument *openTasks(const Utils::FilePath &fileName);
 
     void loadDataFromSession();
 

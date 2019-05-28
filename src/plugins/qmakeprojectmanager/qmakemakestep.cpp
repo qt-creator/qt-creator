@@ -70,7 +70,7 @@ bool QmakeMakeStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    Utils::FileName make = effectiveMakeCommand();
+    Utils::FilePath make = effectiveMakeCommand();
     if (make.isEmpty())
         emit addTask(makeCommandMissingTask());
 
@@ -91,7 +91,7 @@ bool QmakeMakeStep::init()
         workingDirectory = bc->subNodeBuild()->buildDir();
     else
         workingDirectory = bc->buildDirectory().toString();
-    pp->setWorkingDirectory(Utils::FileName::fromString(workingDirectory));
+    pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
 
     pp->setCommand(make);
 
@@ -209,7 +209,7 @@ void QmakeMakeStep::finish(bool success)
             && QmakeSettings::warnAgainstUnalignedBuildDir()) {
         const QString msg = tr("The build directory is not at the same level as the source "
                                "directory, which could be the reason for the build failure.");
-        emit addTask(Task(Task::Warning, msg, Utils::FileName(), -1,
+        emit addTask(Task(Task::Warning, msg, Utils::FilePath(), -1,
                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     MakeStep::finish(success);

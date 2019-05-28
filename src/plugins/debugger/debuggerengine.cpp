@@ -173,7 +173,7 @@ Location::Location(const StackFrame &frame, bool marker)
 }
 
 
-LocationMark::LocationMark(DebuggerEngine *engine, const FileName &file, int line)
+LocationMark::LocationMark(DebuggerEngine *engine, const FilePath &file, int line)
     : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
 {
     setPriority(TextMark::HighPriority);
@@ -1065,7 +1065,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
 
     if (loc.needsMarker()) {
-        d->m_locationMark.reset(new LocationMark(this, FileName::fromString(file), line));
+        d->m_locationMark.reset(new LocationMark(this, FilePath::fromString(file), line));
         d->m_locationMark->setToolTip(tr("Current debugger location of %1").arg(displayName()));
     }
 }
@@ -2583,7 +2583,7 @@ QString DebuggerEngine::formatStartParameters() const
     if (!sp.projectSourceDirectory.isEmpty()) {
         str << "Project: " << sp.projectSourceDirectory.toUserOutput() << '\n';
         str << "Additional Search Directories:";
-        for (const FileName &dir : sp.additionalSearchDirectories)
+        for (const FilePath &dir : sp.additionalSearchDirectories)
             str << ' ' << dir;
         str << '\n';
     }

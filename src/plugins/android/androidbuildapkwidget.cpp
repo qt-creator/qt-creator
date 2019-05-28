@@ -132,7 +132,7 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     keystoreLocationChooser->setPromptDialogFilter(tr("Keystore files (*.keystore *.jks)"));
     keystoreLocationChooser->setPromptDialogTitle(tr("Select Keystore File"));
     connect(keystoreLocationChooser, &PathChooser::pathChanged, this, [this](const QString &path) {
-        FileName file = FileName::fromString(path);
+        FilePath file = FilePath::fromString(path);
         m_step->setKeystorePath(file);
         m_signPackageCheckBox->setChecked(!file.isEmpty());
         if (!file.isEmpty())

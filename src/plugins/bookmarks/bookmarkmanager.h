@@ -77,7 +77,7 @@ public:
     // this QItemSelectionModel is shared by all views
     QItemSelectionModel *selectionModel() const;
 
-    bool hasBookmarkInPosition(const Utils::FileName &fileName, int lineNumber);
+    bool hasBookmarkInPosition(const Utils::FilePath &fileName, int lineNumber);
 
     enum Roles {
         Filename = Qt::UserRole,
@@ -87,7 +87,7 @@ public:
         Note = Qt::UserRole + 4
     };
 
-    void toggleBookmark(const Utils::FileName &fileName, int lineNumber);
+    void toggleBookmark(const Utils::FilePath &fileName, int lineNumber);
     void nextInDocument();
     void prevInDocument();
     void next();
@@ -95,7 +95,7 @@ public:
     void moveUp();
     void moveDown();
     void edit();
-    void editByFileAndLine(const Utils::FileName &fileName, int lineNumber);
+    void editByFileAndLine(const Utils::FilePath &fileName, int lineNumber);
     bool gotoBookmark(const Bookmark *bookmark) const;
 
 signals:
@@ -109,14 +109,14 @@ private:
 
     void documentPrevNext(bool next);
 
-    Bookmark *findBookmark(const Utils::FileName &filePath, int lineNumber);
+    Bookmark *findBookmark(const Utils::FilePath &filePath, int lineNumber);
     void insertBookmark(int index, Bookmark *bookmark, bool userset = true);
     void addBookmark(Bookmark *bookmark, bool userset = true);
     void addBookmark(const QString &s);
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
 
-    QMap<Utils::FileName, QVector<Bookmark *>> m_bookmarksMap;
+    QMap<Utils::FilePath, QVector<Bookmark *>> m_bookmarksMap;
 
     QList<Bookmark *> m_bookmarksList;
     QItemSelectionModel *m_selectionModel;

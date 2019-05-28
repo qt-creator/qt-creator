@@ -43,7 +43,7 @@ public:
     // Convenience overload
     static void addTask(Task::TaskType type, const QString &description,
                         Core::Id category,
-                        const Utils::FileName &file = Utils::FileName(),
+                        const Utils::FilePath &file = Utils::FilePath(),
                         int line = -1);
 
 public slots:

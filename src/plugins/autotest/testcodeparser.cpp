@@ -186,7 +186,7 @@ void TestCodeParser::onDocumentUpdated(const QString &fileName, bool isQmlFile)
     if (!project)
         return;
     // Quick tests: qml files aren't necessarily listed inside project files
-    if (!isQmlFile && !project->isKnownFile(Utils::FileName::fromString(fileName)))
+    if (!isQmlFile && !project->isKnownFile(Utils::FilePath::fromString(fileName)))
         return;
 
     scanForTests(QStringList(fileName));
@@ -321,7 +321,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, ITestParser *pars
         return;
     QStringList list;
     if (isFullParse) {
-        list = Utils::transform(project->files(Project::SourceFiles), &Utils::FileName::toString);
+        list = Utils::transform(project->files(Project::SourceFiles), &Utils::FilePath::toString);
         if (list.isEmpty()) {
             // at least project file should be there, but might happen if parsing current project
             // takes too long, especially when opening sessions holding multiple projects

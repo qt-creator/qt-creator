@@ -324,22 +324,22 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     if (version->qtVersion() < QtSupport::QtVersionNumber(5, 4, 0)) {
         const QString src(version->qmakeProperty("QT_INSTALL_PREFIX")
                 .append(QLatin1String("/src/android/java/AndroidManifest.xml")));
-        FileUtils::copyRecursively(FileName::fromString(src),
-                                   FileName::fromString(m_directory + QLatin1String("/AndroidManifest.xml")),
+        FileUtils::copyRecursively(FilePath::fromString(src),
+                                   FilePath::fromString(m_directory + QLatin1String("/AndroidManifest.xml")),
                                    nullptr, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
     } else {
         const QString src(version->qmakeProperty("QT_INSTALL_PREFIX")
                           .append(QLatin1String("/src/android/templates")));
 
-        FileUtils::copyRecursively(FileName::fromString(src),
-                                   FileName::fromString(m_directory),
+        FileUtils::copyRecursively(FilePath::fromString(src),
+                                   FilePath::fromString(m_directory),
                                    nullptr, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
 
         if (m_copyGradle) {
-            FileName gradlePath = FileName::fromString(version->qmakeProperty("QT_INSTALL_PREFIX").append(QLatin1String("/src/3rdparty/gradle")));
+            FilePath gradlePath = FilePath::fromString(version->qmakeProperty("QT_INSTALL_PREFIX").append(QLatin1String("/src/3rdparty/gradle")));
             if (!gradlePath.exists())
                 gradlePath = AndroidConfigurations::currentConfig().sdkLocation().pathAppended("/tools/templates/gradle/wrapper");
-            FileUtils::copyRecursively(gradlePath, FileName::fromString(m_directory),
+            FileUtils::copyRecursively(gradlePath, FilePath::fromString(m_directory),
                                        nullptr, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
         }
 

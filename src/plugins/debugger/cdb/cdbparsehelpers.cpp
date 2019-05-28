@@ -84,7 +84,7 @@ static inline QString cdbBreakPointFileName(const BreakpointParameters &params,
     if (params.fileName.isEmpty())
         return params.fileName;
     if (params.pathUsage == BreakpointUseShortPath)
-        return Utils::FileName::fromString(params.fileName).fileName();
+        return Utils::FilePath::fromString(params.fileName).fileName();
     return cdbSourcePathMapping(QDir::toNativeSeparators(params.fileName), sourcePathMapping, SourceToDebugger);
 }
 

@@ -330,7 +330,7 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     params.setPosition({line, column});
     params.setContext(context);
     params.setTextDocument(
-                DocumentUri::fromFileName(Utils::FileName::fromString(interface->fileName())));
+                DocumentUri::fromFileName(Utils::FilePath::fromString(interface->fileName())));
     completionRequest.setResponseCallback([this](auto response) {
         this->handleCompletionResponse(response);
     });

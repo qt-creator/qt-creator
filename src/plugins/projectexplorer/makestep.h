@@ -58,16 +58,16 @@ public:
     QString allArguments() const;
     QString userArguments() const;
     void setUserArguments(const QString &args);
-    Utils::FileName makeCommand() const;
-    void setMakeCommand(const Utils::FileName &command);
-    Utils::FileName effectiveMakeCommand() const;
+    Utils::FilePath makeCommand() const;
+    void setMakeCommand(const Utils::FilePath &command);
+    Utils::FilePath effectiveMakeCommand() const;
 
     void setClean(bool clean);
     bool isClean() const;
 
     static QString defaultDisplayName();
 
-    Utils::FileName defaultMakeCommand() const;
+    Utils::FilePath defaultMakeCommand() const;
     static QString msgNoMakeCommand();
     static Task makeCommandMissingTask();
 
@@ -93,7 +93,7 @@ private:
     QStringList m_buildTargets;
     QStringList m_availableTargets;
     QString m_makeArguments;
-    Utils::FileName m_makeCommand;
+    Utils::FilePath m_makeCommand;
     int m_userJobCount = 4;
     bool m_overrideMakeflags = false;
     bool m_clean = false;

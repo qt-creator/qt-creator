@@ -61,7 +61,7 @@ public:
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-    void setFilePath(const Utils::FileName &newName) override;
+    void setFilePath(const Utils::FilePath &newName) override;
     void setBlockDirtyChanged(bool value);
 
     RelativeResourceModel *model() const;

@@ -217,7 +217,7 @@ static DocumentModel::Entry *entryForEditLocation(const EditLocation &item)
 {
     if (!item.document.isNull())
         return DocumentModel::entryForDocument(item.document);
-    return DocumentModel::entryForFilePath(Utils::FileName::fromString(item.fileName));
+    return DocumentModel::entryForFilePath(Utils::FilePath::fromString(item.fileName));
 }
 
 void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, EditorView *view,

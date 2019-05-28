@@ -491,7 +491,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 {
     typedef QMap<int, Document::Ptr> DocumentMap;
 
-    const Utils::FileName currentUiFile = FormEditorW::activeEditor()->document()->filePath();
+    const Utils::FilePath currentUiFile = FormEditorW::activeEditor()->document()->filePath();
 #if 0
     return Designer::Internal::navigateToSlot(currentUiFile.toString(), objectName,
                                               signalSignature, parameterNames, errorMessage);
@@ -518,12 +518,12 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     } else {
         const CppTools::WorkingCopy workingCopy =
                 CppTools::CppModelManager::instance()->workingCopy();
-        const Utils::FileName configFileName =
-                Utils::FileName::fromString(CppTools::CppModelManager::configurationFileName());
-        QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
+        const Utils::FilePath configFileName =
+                Utils::FilePath::fromString(CppTools::CppModelManager::configurationFileName());
+        QHashIterator<Utils::FilePath, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
         while (it.hasNext()) {
             it.next();
-            const Utils::FileName &fileName = it.key();
+            const Utils::FilePath &fileName = it.key();
             if (fileName != configFileName)
                 newDocTable.insert(docTable.document(fileName));
         }

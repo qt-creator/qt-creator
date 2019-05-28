@@ -88,7 +88,7 @@ QString IndexItem::representDeclaration() const
 
 QString IndexItem::shortNativeFilePath() const
 {
-    return Utils::FileName::fromString(m_fileName).shortNativePath();
+    return Utils::FilePath::fromString(m_fileName).shortNativePath();
 }
 
 void IndexItem::squeeze()

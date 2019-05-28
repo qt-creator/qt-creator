@@ -185,7 +185,7 @@ void tst_TestCore::initTestCase()
     QFutureInterface<void> result;
     QmlJS::PathsAndLanguages lPaths;
 
-    lPaths.maybeInsert(Utils::FileName::fromString(basePaths.first()), QmlJS::Dialect::Qml);
+    lPaths.maybeInsert(Utils::FilePath::fromString(basePaths.first()), QmlJS::Dialect::Qml);
     QmlJS::ModelManagerInterface::importScan(result, QmlJS::ModelManagerInterface::workingCopy(),
         lPaths, QmlJS::ModelManagerInterface::instance(), false);
 

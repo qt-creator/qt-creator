@@ -198,7 +198,7 @@ void QbsInstallStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                                          const QString &message, const QString &file, int line)
 {
     ProjectExplorer::Task task = ProjectExplorer::Task(type, message,
-                                                       Utils::FileName::fromString(file), line,
+                                                       Utils::FilePath::fromString(file), line,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task, 1);
     emit addOutput(message, OutputFormat::Stdout);

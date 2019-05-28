@@ -36,9 +36,9 @@ const QLatin1String QNXConfigDataKey("QNXConfiguration.");
 const QLatin1String QNXConfigCountKey("QNXConfiguration.Count");
 const QLatin1String QNXConfigsFileVersionKey("Version");
 
-static Utils::FileName qnxConfigSettingsFileName()
+static Utils::FilePath qnxConfigSettingsFileName()
 {
-    return Utils::FileName::fromString(Core::ICore::userResourcePath() + QLatin1String("/qnx/")
+    return Utils::FilePath::fromString(Core::ICore::userResourcePath() + QLatin1String("/qnx/")
                                 + QLatin1String(Constants::QNX_CONFIGS_FILENAME));
 }
 
@@ -94,7 +94,7 @@ bool QnxConfigurationManager::addConfiguration(QnxConfiguration *config)
     return true;
 }
 
-QnxConfiguration *QnxConfigurationManager::configurationFromEnvFile(const Utils::FileName &envFile) const
+QnxConfiguration *QnxConfigurationManager::configurationFromEnvFile(const Utils::FilePath &envFile) const
 {
     foreach (QnxConfiguration *c, m_configurations) {
         if (c->envFile() == envFile)

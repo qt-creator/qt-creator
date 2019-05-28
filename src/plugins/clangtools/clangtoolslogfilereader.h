@@ -29,13 +29,13 @@
 
 #include <QList>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace ClangTools {
 namespace Internal {
 
 QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
-                                            const Utils::FileName &projectRootDir,
+                                            const Utils::FilePath &projectRootDir,
                                             const QString &logFilePath,
                                             QString *errorMessage);
 

@@ -65,7 +65,7 @@ FileType fileType(const qbs::ArtifactData &artifact)
 void setupArtifacts(FolderNode *root, const QList<qbs::ArtifactData> &artifacts)
 {
     for (const qbs::ArtifactData &ad : artifacts) {
-        const FileName path = FileName::fromString(ad.filePath());
+        const FilePath path = FilePath::fromString(ad.filePath());
         const FileType type = fileType(ad);
         const bool isGenerated = ad.isGenerated();
 
@@ -93,7 +93,7 @@ buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath, bool p
 {
     QTC_ASSERT(grp.isValid(), return nullptr);
 
-    auto fileNode = std::make_unique<FileNode>(FileName::fromString(grp.location().filePath()),
+    auto fileNode = std::make_unique<FileNode>(FilePath::fromString(grp.location().filePath()),
                                                FileType::Project);
     fileNode->setLine(grp.location().line());
 
@@ -101,7 +101,7 @@ buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath, bool p
 
     result->setEnabled(productIsEnabled && grp.isEnabled());
     result->setAbsoluteFilePathAndLine(
-                FileName::fromString(grp.location().filePath()).parentDir(), -1);
+                FilePath::fromString(grp.location().filePath()).parentDir(), -1);
     result->setDisplayName(grp.name());
     result->addNode(std::move(fileNode));
 
@@ -112,13 +112,13 @@ buildGroupNodeTree(const qbs::GroupData &grp, const QString &productPath, bool p
 
 void setupQbsProductData(QbsProductNode *node, const qbs::ProductData &prd)
 {
-    auto fileNode = std::make_unique<FileNode>(FileName::fromString(prd.location().filePath()),
+    auto fileNode = std::make_unique<FileNode>(FilePath::fromString(prd.location().filePath()),
                                                FileType::Project);
     fileNode->setLine(prd.location().line());
 
     node->setEnabled(prd.isEnabled());
     node->setDisplayName(prd.fullDisplayName());
-    node->setAbsoluteFilePathAndLine(FileName::fromString(prd.location().filePath()).parentDir(), -1);
+    node->setAbsoluteFilePathAndLine(FilePath::fromString(prd.location().filePath()).parentDir(), -1);
     node->addNode(std::move(fileNode));
 
     const QString &productPath = QFileInfo(prd.location().filePath()).absolutePath();
@@ -132,7 +132,7 @@ void setupQbsProductData(QbsProductNode *node, const qbs::ProductData &prd)
     }
 
     // Add "Generated Files" Node:
-    auto genFiles = std::make_unique<VirtualFolderNode>(FileName::fromString(prd.buildDirectory()));
+    auto genFiles = std::make_unique<VirtualFolderNode>(FilePath::fromString(prd.buildDirectory()));
     genFiles->setDisplayName(QCoreApplication::translate("QbsProductNode", "Generated files"));
     setupArtifacts(genFiles.get(), prd.generatedArtifacts());
     node->addNode(std::move(genFiles));
@@ -149,14 +149,14 @@ std::unique_ptr<QbsProductNode> buildProductNodeTree(const qbs::ProductData &prd
 void setupProjectNode(QbsProjectNode *node, const qbs::ProjectData &prjData,
                       const qbs::Project &qbsProject)
 {
-    auto fileNode = std::make_unique<FileNode>(FileName::fromString(prjData.location().filePath()),
+    auto fileNode = std::make_unique<FileNode>(FilePath::fromString(prjData.location().filePath()),
                                                FileType::Project);
     fileNode->setLine(prjData.location().line());
 
     node->addNode(std::move(fileNode));
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
         auto subProject = std::make_unique<QbsProjectNode>(
-                            FileName::fromString(subData.location().filePath()).parentDir());
+                            FilePath::fromString(subData.location().filePath()).parentDir());
         setupProjectNode(subProject.get(), subData, qbsProject);
         node->addNode(std::move(subProject));
     }
@@ -214,10 +214,10 @@ std::unique_ptr<QbsRootProjectNode> QbsNodeTreeBuilder::buildTree(QbsProject *pr
     auto buildSystemFiles = std::make_unique<FolderNode>(project->projectDirectory());
     buildSystemFiles->setDisplayName(QCoreApplication::translate("QbsRootProjectNode", "Qbs files"));
 
-    const FileName base = project->projectDirectory();
+    const FilePath base = project->projectDirectory();
     const QStringList files = unreferencedBuildSystemFiles(project->qbsProject());
     for (const QString &f : files) {
-        const FileName filePath = FileName::fromString(f);
+        const FilePath filePath = FilePath::fromString(f);
         if (filePath.isChildOf(base))
             buildSystemFiles->addNestedNode(std::make_unique<FileNode>(filePath, FileType::Project));
     }

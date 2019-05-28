@@ -45,7 +45,7 @@ private:
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
 
     QString defaultDisplayName();
-    Utils::FileName proFilePath() const;
+    Utils::FilePath proFilePath() const;
 };
 
 class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

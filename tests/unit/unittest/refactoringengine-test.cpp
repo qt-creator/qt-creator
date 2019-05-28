@@ -82,7 +82,7 @@ protected:
     QTextDocument textDocument{fileContent};
     QTextCursor cursor{&textDocument};
     QString qStringFilePath{QStringLiteral("/home/user/file.cpp")};
-    Utils::FileName filePath{Utils::FileName::fromString(qStringFilePath)};
+    Utils::FilePath filePath{Utils::FilePath::fromString(qStringFilePath)};
     ClangBackEnd::FilePath clangBackEndFilePath{qStringFilePath};
     SmallStringVector commandLine;
     ProjectExplorer::Project project;

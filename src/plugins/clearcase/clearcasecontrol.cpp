@@ -49,7 +49,7 @@ Core::Id ClearCaseControl::id() const
     return Constants::VCS_ID_CLEARCASE;
 }
 
-bool ClearCaseControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+bool ClearCaseControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
 {
     Q_UNUSED(fileName);
     return false; // ClearCase has no files/directories littering the sources

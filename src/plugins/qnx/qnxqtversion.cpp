@@ -80,17 +80,17 @@ QString QnxQtVersion::qnxHost() const
     return QString();
 }
 
-Utils::FileName QnxQtVersion::qnxTarget() const
+Utils::FilePath QnxQtVersion::qnxTarget() const
 {
     if (!m_environmentUpToDate)
         updateEnvironment();
 
     foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
         if (item.name == QLatin1String(Constants::QNX_TARGET_KEY))
-            return Utils::FileName::fromUserInput(item.value);
+            return Utils::FilePath::fromUserInput(item.value);
     }
 
-    return Utils::FileName();
+    return Utils::FilePath();
 }
 
 QString QnxQtVersion::cpuDir() const

@@ -76,7 +76,7 @@ void NimCompilerBuildStepConfigWidget::onTargetChanged(int index)
 {
     Q_UNUSED(index);
     auto data = m_ui->targetComboBox->currentData();
-    FileName path = FileName::fromString(data.toString());
+    FilePath path = FilePath::fromString(data.toString());
     m_buildStep->setTargetNimFile(path);
 }
 
@@ -124,7 +124,7 @@ void NimCompilerBuildStepConfigWidget::updateTargetComboBox()
 
     // Re enter the files
     m_ui->targetComboBox->clear();
-    foreach (const FileName &file, project->nimFiles())
+    foreach (const FilePath &file, project->nimFiles())
         m_ui->targetComboBox->addItem(file.fileName(), file.toString());
 
     const int index = m_ui->targetComboBox->findData(m_buildStep->targetNimFile().toString());

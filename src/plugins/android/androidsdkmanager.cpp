@@ -223,7 +223,7 @@ private:
     AndroidSdkManager &m_sdkManager;
     const AndroidConfig &m_config;
     AndroidSdkPackageList m_allPackages;
-    FileName lastSdkManagerPath;
+    FilePath lastSdkManagerPath;
     QString m_licenseTextCache;
     QByteArray m_licenseUserInput;
     mutable QReadWriteLock m_licenseInputLock;
@@ -243,7 +243,7 @@ class SdkManagerOutputParser
         QStringList headerParts;
         QVersionNumber revision;
         QString description;
-        Utils::FileName installedLocation;
+        Utils::FilePath installedLocation;
         QMap<QString, QString> extraData;
     };
 
@@ -612,7 +612,7 @@ bool SdkManagerOutputParser::parseAbstractData(SdkManagerOutputParser::GenericPa
         for (const auto &key: qAsConst(extraKeys)) {
             if (valueForKey(key, line, &value)) {
                 if (key == installLocationKey)
-                    output.installedLocation = Utils::FileName::fromString(value);
+                    output.installedLocation = Utils::FilePath::fromString(value);
                 else if (key == revisionKey)
                     output.revision = QVersionNumber::fromString(value);
                 else if (key == descriptionKey)

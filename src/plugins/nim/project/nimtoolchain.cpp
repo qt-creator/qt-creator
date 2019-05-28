@@ -45,7 +45,7 @@ NimToolChain::NimToolChain()
 
 NimToolChain::NimToolChain(Core::Id typeId)
     : ToolChain(typeId)
-    , m_compilerCommand(FileName())
+    , m_compilerCommand(FilePath())
     , m_version(std::make_tuple(-1,-1,-1))
 {
     setLanguage(Constants::C_NIMLANGUAGE_ID);
@@ -102,7 +102,7 @@ ToolChain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner
     return ToolChain::BuiltInHeaderPathsRunner();
 }
 
-HeaderPaths NimToolChain::builtInHeaderPaths(const QStringList &, const FileName &) const
+HeaderPaths NimToolChain::builtInHeaderPaths(const QStringList &, const FilePath &) const
 {
     return {};
 }
@@ -113,18 +113,18 @@ void NimToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir().toString());
 }
 
-FileName NimToolChain::makeCommand(const Environment &env) const
+FilePath NimToolChain::makeCommand(const Environment &env) const
 {
-    const FileName tmp = env.searchInPath("make");
-    return tmp.isEmpty() ? FileName::fromString("make") : tmp;
+    const FilePath tmp = env.searchInPath("make");
+    return tmp.isEmpty() ? FilePath::fromString("make") : tmp;
 }
 
-FileName NimToolChain::compilerCommand() const
+FilePath NimToolChain::compilerCommand() const
 {
     return m_compilerCommand;
 }
 
-void NimToolChain::setCompilerCommand(const FileName &compilerCommand)
+void NimToolChain::setCompilerCommand(const FilePath &compilerCommand)
 {
     m_compilerCommand = compilerCommand;
     parseVersion(compilerCommand, m_version);
@@ -161,11 +161,11 @@ bool NimToolChain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
-    setCompilerCommand(FileName::fromString(data.value(Constants::C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY).toString()));
+    setCompilerCommand(FilePath::fromString(data.value(Constants::C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY).toString()));
     return true;
 }
 
-bool NimToolChain::parseVersion(const FileName &path, std::tuple<int, int, int> &result)
+bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> &result)
 {
     QProcess process;
     process.start(path.toString(), {"--version"});

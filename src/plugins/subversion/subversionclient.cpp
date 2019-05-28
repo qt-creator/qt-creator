@@ -150,7 +150,7 @@ QString SubversionClient::synchronousTopic(const QString &repository)
         svnVersionBinary = svnVersionBinary.left(pos + 1);
     svnVersionBinary.append(HostOsInfo::withExecutableSuffix("svnversion"));
     const SynchronousProcessResponse result
-            = vcsFullySynchronousExec(repository, FileName::fromString(svnVersionBinary), args);
+            = vcsFullySynchronousExec(repository, FilePath::fromString(svnVersionBinary), args);
     if (result.result != SynchronousProcessResponse::Finished)
         return QString();
 

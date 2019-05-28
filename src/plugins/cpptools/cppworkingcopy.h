@@ -41,43 +41,43 @@ public:
     WorkingCopy();
 
     void insert(const QString &fileName, const QByteArray &source, unsigned revision = 0)
-    { insert(Utils::FileName::fromString(fileName), source, revision); }
+    { insert(Utils::FilePath::fromString(fileName), source, revision); }
 
-    void insert(const Utils::FileName &fileName, const QByteArray &source, unsigned revision = 0)
+    void insert(const Utils::FilePath &fileName, const QByteArray &source, unsigned revision = 0)
     { _elements.insert(fileName, qMakePair(source, revision)); }
 
     bool contains(const QString &fileName) const
-    { return contains(Utils::FileName::fromString(fileName)); }
+    { return contains(Utils::FilePath::fromString(fileName)); }
 
-    bool contains(const Utils::FileName &fileName) const
+    bool contains(const Utils::FilePath &fileName) const
     { return _elements.contains(fileName); }
 
     QByteArray source(const QString &fileName) const
-    { return source(Utils::FileName::fromString(fileName)); }
+    { return source(Utils::FilePath::fromString(fileName)); }
 
-    QByteArray source(const Utils::FileName &fileName) const
+    QByteArray source(const Utils::FilePath &fileName) const
     { return _elements.value(fileName).first; }
 
     unsigned revision(const QString &fileName) const
-    { return revision(Utils::FileName::fromString(fileName)); }
+    { return revision(Utils::FilePath::fromString(fileName)); }
 
-    unsigned revision(const Utils::FileName &fileName) const
+    unsigned revision(const Utils::FilePath &fileName) const
     { return _elements.value(fileName).second; }
 
     QPair<QByteArray, unsigned> get(const QString &fileName) const
-    { return get(Utils::FileName::fromString(fileName)); }
+    { return get(Utils::FilePath::fromString(fileName)); }
 
-    QPair<QByteArray, unsigned> get(const Utils::FileName &fileName) const
+    QPair<QByteArray, unsigned> get(const Utils::FilePath &fileName) const
     { return _elements.value(fileName); }
 
-    QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > iterator() const
-    { return QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> >(_elements); }
+    QHashIterator<Utils::FilePath, QPair<QByteArray, unsigned> > iterator() const
+    { return QHashIterator<Utils::FilePath, QPair<QByteArray, unsigned> >(_elements); }
 
     int size() const
     { return _elements.size(); }
 
 private:
-    using Table = QHash<Utils::FileName, QPair<QByteArray, unsigned> >;
+    using Table = QHash<Utils::FilePath, QPair<QByteArray, unsigned> >;
     Table _elements;
 };
 

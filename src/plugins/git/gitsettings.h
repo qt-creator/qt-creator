@@ -58,7 +58,7 @@ public:
     static const QLatin1String firstParentKey;
     static const QLatin1String lastResetIndexKey;
 
-    Utils::FileName gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
+    Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
 
     GitSettings &operator = (const GitSettings &s);
 };

@@ -91,12 +91,12 @@ void UncrustifySettings::setUseHomeFile(bool useHomeFile)
     m_settings.insert(USE_HOME_FILE, QVariant(useHomeFile));
 }
 
-Utils::FileName UncrustifySettings::specificConfigFile() const
+Utils::FilePath UncrustifySettings::specificConfigFile() const
 {
-    return Utils::FileName::fromString(m_settings.value(SPECIFIC_CONFIG_FILE_PATH).toString());
+    return Utils::FilePath::fromString(m_settings.value(SPECIFIC_CONFIG_FILE_PATH).toString());
 }
 
-void UncrustifySettings::setSpecificConfigFile(const Utils::FileName &filePath)
+void UncrustifySettings::setSpecificConfigFile(const Utils::FilePath &filePath)
 {
     m_settings.insert(SPECIFIC_CONFIG_FILE_PATH, QVariant(filePath.toString()));
 }

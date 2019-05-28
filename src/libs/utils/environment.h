@@ -124,18 +124,18 @@ public:
     Environment::const_iterator constEnd() const;
     Environment::const_iterator constFind(const QString &name) const;
 
-    using PathFilter = std::function<bool(const FileName &)>;
-    FileName searchInPath(const QString &executable,
-                          const FileNameList &additionalDirs = FileNameList(),
+    using PathFilter = std::function<bool(const FilePath &)>;
+    FilePath searchInPath(const QString &executable,
+                          const FilePathList &additionalDirs = FilePathList(),
                           const PathFilter &func = PathFilter()) const;
 
-    FileNameList path() const;
+    FilePathList path() const;
     QStringList appendExeExtensions(const QString &executable) const;
 
     bool isSameExecutable(const QString &exe1, const QString &exe2) const;
 
     QString expandVariables(const QString &input) const;
-    FileName expandVariables(const FileName &input) const;
+    FilePath expandVariables(const FilePath &input) const;
     QStringList expandVariables(const QStringList &input) const;
 
     bool operator!=(const Environment &other) const;
@@ -144,8 +144,8 @@ public:
     static void modifySystemEnvironment(const QList<EnvironmentItem> &list); // use with care!!!
 
 private:
-    FileName searchInDirectory(const QStringList &execs, const FileName &directory,
-                               QSet<FileName> &alreadyChecked) const;
+    FilePath searchInDirectory(const QStringList &execs, const FilePath &directory,
+                               QSet<FilePath> &alreadyChecked) const;
     QMap<QString, QString> m_values;
     OsType m_osType;
 };

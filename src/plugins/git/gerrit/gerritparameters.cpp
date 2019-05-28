@@ -57,10 +57,10 @@ static inline QString detectApp(const char *defaultExe)
     if (!app.isEmpty() || !HostOsInfo::isWindowsHost())
         return app;
     // Windows: Use app.exe from git if it cannot be found.
-    const FileName gitBinDir = GerritPlugin::gitBinDirectory();
+    const FilePath gitBinDir = GerritPlugin::gitBinDirectory();
     if (gitBinDir.isEmpty())
         return QString();
-    FileName path = gitBinDir.pathAppended(defaultApp);
+    FilePath path = gitBinDir.pathAppended(defaultApp);
     if (path.exists())
         return path.toString();
 

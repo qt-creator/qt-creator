@@ -29,8 +29,8 @@
 #include <QPointer>
 
 namespace Utils {
-class FileName;
-using FileNameList = QList<FileName>;
+class FilePath;
+using FilePathList = QList<FilePath>;
 }
 
 namespace ProjectExplorer {
@@ -68,13 +68,13 @@ private:
     void checkChangedDocument(Core::IDocument *document);
     void changeCurrentProject(ProjectExplorer::Project *project);
     void updateProjectFiles(ProjectExplorer::Project *project);
-    void check(const Utils::FileNameList &files);
-    void remove(const Utils::FileNameList &files);
+    void check(const Utils::FilePathList &files);
+    void remove(const Utils::FilePathList &files);
 
     CppcheckTextMarkManager &m_marks;
     CppcheckTool &m_tool;
     QPointer<ProjectExplorer::Project> m_currentProject;
-    QHash<Utils::FileName, QDateTime> m_checkedFiles;
+    QHash<Utils::FilePath, QDateTime> m_checkedFiles;
 };
 
 } // namespace Internal

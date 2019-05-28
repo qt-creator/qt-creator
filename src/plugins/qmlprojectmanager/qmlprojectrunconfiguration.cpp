@@ -173,7 +173,7 @@ void MainQmlFileAspect::updateFileComboBox()
     QModelIndex currentIndex;
 
     QStringList sortedFiles = Utils::transform(m_project->files(Project::AllFiles),
-                                               &Utils::FileName::toString);
+                                               &Utils::FilePath::toString);
 
     // make paths relative to project directory
     QStringList relativeFiles;
@@ -298,7 +298,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         return envModifier(Environment());
     });
 
-    setExecutableGetter([this] { return FileName::fromString(theExecutable()); });
+    setExecutableGetter([this] { return FilePath::fromString(theExecutable()); });
 
     m_qmlViewerAspect = addAspect<BaseStringAspect>();
     m_qmlViewerAspect->setLabelText(tr("QML Viewer:"));
@@ -395,7 +395,7 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
         Utils::QtcProcess::addArg(&args, fileSelector, osType);
     }
 
-    const QString main = project->targetFile(Utils::FileName::fromString(mainScript()),
+    const QString main = project->targetFile(Utils::FilePath::fromString(mainScript()),
                                              currentTarget).toString();
     if (!main.isEmpty())
         Utils::QtcProcess::addArg(&args, main, osType);
@@ -432,7 +432,7 @@ bool MainQmlFileAspect::isQmlFilePresent()
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
             const auto files = m_project->files(Project::AllFiles);
-            for (const Utils::FileName &filename : files) {
+            for (const Utils::FilePath &filename : files) {
                 const QFileInfo fi = filename.toFileInfo();
 
                 if (!filename.isEmpty() && fi.baseName().at(0).isLower()) {

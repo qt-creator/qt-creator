@@ -95,7 +95,7 @@ private: // functions
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
     QmlDesigner::ModelNode nodeForPosition(int cursorPos) const;
-    void addNavigatorHistoryEntry(const Utils::FileName &fileName);
+    void addNavigatorHistoryEntry(const Utils::FilePath &fileName);
     QWidget *createCenterWidget();
     QWidget *createCrumbleBarFrame();
 

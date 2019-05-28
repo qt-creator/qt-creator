@@ -39,7 +39,7 @@
 using namespace QmakeProjectManager;
 using namespace Internal;
 
-using Utils::FileName;
+using Utils::FilePath;
 using Utils::QtcProcess;
 using QtSupport::QtVersionManager;
 using QtSupport::BaseQtVersion;
@@ -242,7 +242,7 @@ void MakeFileParse::parseAssignments(QList<QMakeAssignment> *assignments)
     }
 }
 
-static FileName findQMakeBinaryFromMakefile(const QString &makefile)
+static FilePath findQMakeBinaryFromMakefile(const QString &makefile)
 {
     QFile fi(makefile);
     if (fi.exists() && fi.open(QFile::ReadOnly)) {
@@ -260,11 +260,11 @@ static FileName findQMakeBinaryFromMakefile(const QString &makefile)
                 // Is qmake still installed?
                 QFileInfo fi(qmakePath);
                 if (fi.exists())
-                    return FileName::fromFileInfo(fi);
+                    return FilePath::fromFileInfo(fi);
             }
         }
     }
-    return FileName();
+    return FilePath();
 }
 
 MakeFileParse::MakeFileParse(const QString &makefile)
@@ -312,7 +312,7 @@ MakeFileParse::MakefileState MakeFileParse::makeFileState() const
     return m_state;
 }
 
-Utils::FileName MakeFileParse::qmakePath() const
+Utils::FilePath MakeFileParse::qmakePath() const
 {
     return m_qmakePath;
 }

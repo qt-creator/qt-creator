@@ -94,7 +94,7 @@ static void setupProcessParameters(ProcessParameters *pp,
     pp->setWorkingDirectory(bc->buildDirectory());
     Utils::Environment env = bc->environment();
     pp->setEnvironment(env);
-    pp->setCommand(FileName::fromString(command));
+    pp->setCommand(FilePath::fromString(command));
     pp->setArguments(Utils::QtcProcess::joinArgs(arguments));
     pp->resolveAll();
 }
@@ -191,7 +191,7 @@ bool AndroidBuildApkStep::init()
 
     auto parser = new JavaParser;
     parser->setProjectFileList(Utils::transform(target()->project()->files(ProjectExplorer::Project::AllFiles),
-                                                &Utils::FileName::toString));
+                                                &Utils::FilePath::toString));
 
     RunConfiguration *rc = target()->activeRunConfiguration();
     const QString buildKey = rc ? rc->buildKey() : QString();
@@ -202,7 +202,7 @@ bool AndroidBuildApkStep::init()
         sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
 
     QFileInfo sourceDirInfo(sourceDirName);
-    parser->setSourceDirectory(Utils::FileName::fromString(sourceDirInfo.canonicalFilePath()));
+    parser->setSourceDirectory(Utils::FilePath::fromString(sourceDirInfo.canonicalFilePath()));
     parser->setBuildDirectory(bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY));
     setOutputParser(parser);
 
@@ -375,7 +375,7 @@ void AndroidBuildApkStep::doRun()
 
     auto setup = [this] {
         auto bc = target()->activeBuildConfiguration();
-        Utils::FileName androidLibsDir = bc->buildDirectory()
+        Utils::FilePath androidLibsDir = bc->buildDirectory()
                 .pathAppended("android-build/libs")
                 .pathAppended(AndroidManager::targetArch(target()));
         if (!androidLibsDir.exists() && !QDir{bc->buildDirectory().toString()}.mkpath(androidLibsDir.toString()))
@@ -443,7 +443,7 @@ void AndroidBuildApkStep::processStarted()
 
 bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
-    m_keystorePath = Utils::FileName::fromString(map.value(KeystoreLocationKey).toString());
+    m_keystorePath = Utils::FilePath::fromString(map.value(KeystoreLocationKey).toString());
     m_signPackage = false; // don't restore this
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
     if (m_buildTargetSdk.isEmpty()) {
@@ -465,7 +465,7 @@ QVariantMap AndroidBuildApkStep::toMap() const
     return map;
 }
 
-Utils::FileName AndroidBuildApkStep::keystorePath()
+Utils::FilePath AndroidBuildApkStep::keystorePath()
 {
     return m_keystorePath;
 }
@@ -493,7 +493,7 @@ QVariant AndroidBuildApkStep::data(Core::Id id) const
     return AbstractProcessStep::data(id);
 }
 
-void AndroidBuildApkStep::setKeystorePath(const Utils::FileName &path)
+void AndroidBuildApkStep::setKeystorePath(const Utils::FilePath &path)
 {
     m_keystorePath = path;
     m_certificatePasswd.clear();

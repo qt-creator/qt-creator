@@ -153,7 +153,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
             QFileInfo fi(path);
             LocatorFilterEntry filterEntry(this, fi.fileName(), QString(path + fp.postfix));
             filterEntry.fileName = path;
-            filterEntry.extraInfo = FileName::fromFileInfo(fi).shortNativePath();
+            filterEntry.extraInfo = FilePath::fromFileInfo(fi).shortNativePath();
 
             const int matchLevel = matchLevelFor(match, matchText);
             if (hasPathSeparator) {

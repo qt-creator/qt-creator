@@ -37,11 +37,11 @@ public:
     Settings();
     static Settings *instance();
 
-    Utils::FileName sdkPath;
+    Utils::FilePath sdkPath;
 
     Operation *operation;
 
-    Utils::FileName getPath(const QString &file);
+    Utils::FilePath getPath(const QString &file);
 
 private:
     static Settings *m_instance;

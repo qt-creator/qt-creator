@@ -39,7 +39,7 @@ class Diagnostic;
 class SuppressedDiagnostic
 {
 public:
-    SuppressedDiagnostic(const Utils::FileName &filePath, const QString &description,
+    SuppressedDiagnostic(const Utils::FilePath &filePath, const QString &description,
                          const QString &contextKind, const QString &context, int uniquifier)
         : filePath(filePath)
         , description(description)
@@ -51,7 +51,7 @@ public:
 
     SuppressedDiagnostic(const Diagnostic &diag);
 
-    Utils::FileName filePath; // Relative for files in project, absolute otherwise.
+    Utils::FilePath filePath; // Relative for files in project, absolute otherwise.
     QString description;
     QString contextKind;
     QString context;
@@ -84,11 +84,11 @@ public:
     bool buildBeforeAnalysis() const;
     void setBuildBeforeAnalysis(bool build);
 
-    QSet<Utils::FileName> selectedDirs() const { return m_selectedDirs; }
-    void setSelectedDirs(const QSet<Utils::FileName> &value) { m_selectedDirs = value; }
+    QSet<Utils::FilePath> selectedDirs() const { return m_selectedDirs; }
+    void setSelectedDirs(const QSet<Utils::FilePath> &value) { m_selectedDirs = value; }
 
-    QSet<Utils::FileName> selectedFiles() const { return m_selectedFiles; }
-    void setSelectedFiles(const QSet<Utils::FileName> &value) { m_selectedFiles = value; }
+    QSet<Utils::FilePath> selectedFiles() const { return m_selectedFiles; }
+    void setSelectedFiles(const QSet<Utils::FilePath> &value) { m_selectedFiles = value; }
 
     SuppressedDiagnosticsList suppressedDiagnostics() const { return m_suppressedDiagnostics; }
     void addSuppressedDiagnostic(const SuppressedDiagnostic &diag);
@@ -105,8 +105,8 @@ private:
     ProjectExplorer::Project *m_project;
     bool m_useGlobalSettings = true;
     Core::Id m_diagnosticConfig;
-    QSet<Utils::FileName> m_selectedDirs;
-    QSet<Utils::FileName> m_selectedFiles;
+    QSet<Utils::FilePath> m_selectedDirs;
+    QSet<Utils::FilePath> m_selectedFiles;
     SuppressedDiagnosticsList m_suppressedDiagnostics;
     bool m_buildBeforeAnalysis = true;
 };

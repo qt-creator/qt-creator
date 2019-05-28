@@ -83,7 +83,7 @@ void QnxSettingsWidget::addConfiguration()
     if (envFile.isEmpty())
         return;
 
-    QnxConfiguration *config = new QnxConfiguration(Utils::FileName::fromString(envFile));
+    QnxConfiguration *config = new QnxConfiguration(Utils::FilePath::fromString(envFile));
     if (m_qnxConfigManager->configurations().contains(config)
             || !config->isValid()) {
         QMessageBox::warning(Core::ICore::mainWindow(), tr("Warning"),

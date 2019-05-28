@@ -164,7 +164,7 @@ void ValgrindRunner::Private::remoteProcessStarted()
                                            // we pick the last one, first would be "bash -c ..."
                                            " | awk '{print $1;}'" // get pid
                                            "\""
-                                           ).arg(proc, Utils::FileName::fromString(m_debuggee.executable).fileName());
+                                           ).arg(proc, Utils::FilePath::fromString(m_debuggee.executable).fileName());
 
 //    m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(&m_findPID, &ApplicationLauncher::remoteStderr,

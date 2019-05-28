@@ -76,7 +76,7 @@ signals:
 static QByteArray defaultFileLoader(const QString &filename, bool *success)
 {
     if (Core::DocumentModel::Entry *entry
-            = Core::DocumentModel::entryForFilePath(Utils::FileName::fromString(filename))) {
+            = Core::DocumentModel::entryForFilePath(Utils::FilePath::fromString(filename))) {
         if (!entry->isSuspended) {
             *success = true;
             return entry->document->contents();

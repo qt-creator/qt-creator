@@ -40,14 +40,14 @@ class PROJECTEXPLORER_EXPORT ProcessParameters
 public:
     ProcessParameters();
 
-    void setCommand(const Utils::FileName &cmd);
-    Utils::FileName command() const { return m_command; }
+    void setCommand(const Utils::FilePath &cmd);
+    Utils::FilePath command() const { return m_command; }
 
     void setArguments(const QString &arguments);
     QString arguments() const { return m_arguments; }
 
-    void setWorkingDirectory(const Utils::FileName &workingDirectory);
-    Utils::FileName workingDirectory() const { return m_workingDirectory; }
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+    Utils::FilePath workingDirectory() const { return m_workingDirectory; }
 
     void setEnvironment(const Utils::Environment &env) { m_environment = env; }
     Utils::Environment environment() const { return m_environment; }
@@ -56,9 +56,9 @@ public:
     Utils::MacroExpander *macroExpander() const { return m_macroExpander; }
 
     /// Get the fully expanded working directory:
-    Utils::FileName effectiveWorkingDirectory() const;
+    Utils::FilePath effectiveWorkingDirectory() const;
     /// Get the fully expanded command name to run:
-    Utils::FileName effectiveCommand() const;
+    Utils::FilePath effectiveCommand() const;
     /// Get the fully expanded arguments to use:
     QString effectiveArguments() const;
 
@@ -72,14 +72,14 @@ public:
 
     void resolveAll();
 private:
-    Utils::FileName m_workingDirectory;
-    Utils::FileName m_command;
+    Utils::FilePath m_workingDirectory;
+    Utils::FilePath m_command;
     QString m_arguments;
     Utils::Environment m_environment;
     Utils::MacroExpander *m_macroExpander;
 
-    mutable Utils::FileName m_effectiveWorkingDirectory;
-    mutable Utils::FileName m_effectiveCommand;
+    mutable Utils::FilePath m_effectiveWorkingDirectory;
+    mutable Utils::FilePath m_effectiveCommand;
     mutable QString m_effectiveArguments;
     mutable bool m_commandMissing;
 };

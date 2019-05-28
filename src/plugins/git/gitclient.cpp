@@ -780,9 +780,9 @@ QString GitClient::findRepositoryForDirectory(const QString &directory) const
         return QString();
     // QFileInfo is outside loop, because it is faster this way
     QFileInfo fileInfo;
-    FileName parent;
-    for (FileName dir = FileName::fromString(directory); !dir.isEmpty(); dir = dir.parentDir()) {
-        const FileName gitName = dir.pathAppended(GIT_DIRECTORY);
+    FilePath parent;
+    for (FilePath dir = FilePath::fromString(directory); !dir.isEmpty(); dir = dir.parentDir()) {
+        const FilePath gitName = dir.pathAppended(GIT_DIRECTORY);
         if (!gitName.exists())
             continue; // parent might exist
         fileInfo.setFile(gitName.toString());
@@ -2340,7 +2340,7 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
     }
 
     Environment sysEnv = Environment::systemEnvironment();
-    const FileName exec = sysEnv.searchInPath("gitk");
+    const FilePath exec = sysEnv.searchInPath("gitk");
 
     if (!exec.isEmpty() && tryLauchingGitK(env, workingDirectory, fileName,
                                            exec.parentDir().toString())) {
@@ -2377,7 +2377,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         arguments.append(QtcProcess::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
-    VcsOutputWindow::appendCommand(workingDirectory, FileName::fromString(binary), arguments);
+    VcsOutputWindow::appendCommand(workingDirectory, FilePath::fromString(binary), arguments);
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
@@ -2401,7 +2401,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
 
 bool GitClient::launchGitGui(const QString &workingDirectory) {
     bool success = true;
-    FileName gitBinary = vcsBinary();
+    FilePath gitBinary = vcsBinary();
     if (gitBinary.isEmpty()) {
         success = false;
     } else {
@@ -2415,11 +2415,11 @@ bool GitClient::launchGitGui(const QString &workingDirectory) {
     return success;
 }
 
-FileName GitClient::gitBinDirectory()
+FilePath GitClient::gitBinDirectory()
 {
     const QString git = vcsBinary().toString();
     if (git.isEmpty())
-        return FileName();
+        return FilePath();
 
     // Is 'git\cmd' in the path (folder containing .bats)?
     QString path = QFileInfo(git).absolutePath();
@@ -2439,15 +2439,15 @@ FileName GitClient::gitBinDirectory()
                 path = usrBinPath;
         }
     }
-    return FileName::fromString(path);
+    return FilePath::fromString(path);
 }
 
-FileName GitClient::vcsBinary() const
+FilePath GitClient::vcsBinary() const
 {
     bool ok;
-    Utils::FileName binary = static_cast<GitSettings &>(settings()).gitExecutable(&ok);
+    Utils::FilePath binary = static_cast<GitSettings &>(settings()).gitExecutable(&ok);
     if (!ok)
-        return Utils::FileName();
+        return Utils::FilePath();
     return binary;
 }
 
@@ -2612,7 +2612,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         if (!QFile::exists(templateFilename))
             templateFilename = gitDirectory.absoluteFilePath("SQUASH_MSG");
         if (!QFile::exists(templateFilename)) {
-            FileName templateName = FileName::fromUserInput(
+            FilePath templateName = FilePath::fromUserInput(
                         readConfigValue(workingDirectory, "commit.template"));
             templateFilename = templateName.toString();
         }
@@ -3259,7 +3259,7 @@ QString GitClient::readOneLine(const QString &workingDirectory, const QStringLis
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
 unsigned GitClient::gitVersion(QString *errorMessage) const
 {
-    const FileName newGitBinary = vcsBinary();
+    const FilePath newGitBinary = vcsBinary();
     if (m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty()) {
         // Do not execute repeatedly if that fails (due to git
         // not being installed) until settings are changed.

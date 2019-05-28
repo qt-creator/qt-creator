@@ -82,7 +82,7 @@ static bool isValidFileNameChar(const QChar &c)
 
 QString ProFileEditorWidget::checkForPrfFile(const QString &baseName) const
 {
-    const FileName projectFile = textDocument()->filePath();
+    const FilePath projectFile = textDocument()->filePath();
     const QmakePriFileNode *projectNode = nullptr;
     for (const Project * const project : SessionManager::projects()) {
         if (project->isParsing())

@@ -81,7 +81,7 @@ public:
     QList<CMakeBuildTarget> takeBuildTargets() const;
     CMakeConfig takeCMakeConfiguration() const;
 
-    static CMakeConfig parseCMakeConfiguration(const Utils::FileName &cacheFile,
+    static CMakeConfig parseCMakeConfiguration(const Utils::FilePath &cacheFile,
                                               QString *errorMessage);
 
     enum ReparseParameters { REPARSE_DEFAULT = 0, // use defaults
@@ -104,7 +104,7 @@ private:
     void emitErrorOccured(const QString &message) const;
     bool checkConfiguration();
 
-    Utils::FileName workDirectory(const BuildDirParameters &parameters) const;
+    Utils::FilePath workDirectory(const BuildDirParameters &parameters) const;
 
     void updateReaderType(const BuildDirParameters &p, std::function<void()> todo);
 
@@ -114,7 +114,7 @@ private:
     void becameDirty();
 
     BuildDirParameters m_parameters;
-    mutable std::unordered_map<Utils::FileName, std::unique_ptr<Utils::TemporaryDirectory>> m_buildDirToTempDir;
+    mutable std::unordered_map<Utils::FilePath, std::unique_ptr<Utils::TemporaryDirectory>> m_buildDirToTempDir;
     mutable std::unique_ptr<BuildDirReader> m_reader;
     mutable bool m_isHandlingError = false;
 };

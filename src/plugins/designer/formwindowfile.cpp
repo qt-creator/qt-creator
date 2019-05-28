@@ -97,7 +97,7 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString, const QSt
     form->setDirty(fileName != realFileName);
 
     syncXmlFromFormWindow();
-    setFilePath(Utils::FileName::fromString(absfileName));
+    setFilePath(Utils::FilePath::fromString(absfileName));
     setShouldAutoSave(false);
     resourceHandler()->updateProjectResources();
 
@@ -106,7 +106,7 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString, const QSt
 
 bool FormWindowFile::save(QString *errorString, const QString &name, bool autoSave)
 {
-    const FileName actualName = name.isEmpty() ? filePath() : FileName::fromString(name);
+    const FilePath actualName = name.isEmpty() ? filePath() : FilePath::fromString(name);
 
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << name << "->" << actualName;
@@ -175,7 +175,7 @@ bool FormWindowFile::setContents(const QByteArray &contents)
     return true;
 }
 
-void FormWindowFile::setFilePath(const FileName &newName)
+void FormWindowFile::setFilePath(const FilePath &newName)
 {
     m_formWindow->setFileName(newName.toString());
     IDocument::setFilePath(newName);

@@ -61,7 +61,7 @@ public:
 private:
     QPointer<Core::IFindSupport> m_currentFindSupport;
 
-    Utils::FileName m_directorySetting;
+    Utils::FilePath m_directorySetting;
     QPointer<QWidget> m_widget;
     QPointer<QLineEdit> m_searchOptionsLineEdit;
     QString m_path;

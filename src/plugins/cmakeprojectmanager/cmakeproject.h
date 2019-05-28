@@ -60,7 +60,7 @@ class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit CMakeProject(const Utils::FileName &filename);
+    explicit CMakeProject(const Utils::FilePath &filename);
     ~CMakeProject() final;
 
     QStringList buildTargetTitles() const;

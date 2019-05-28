@@ -618,10 +618,10 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QCOMPARE(workingCopy.size(), 2); // mm->configurationFileName() and "ui_*.h"
 
     QStringList fileNamesInWorkinCopy;
-    QHashIterator<Utils::FileName, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
+    QHashIterator<Utils::FilePath, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
     while (it.hasNext()) {
         it.next();
-        fileNamesInWorkinCopy << Utils::FileName::fromString(it.key().toString()).fileName();
+        fileNamesInWorkinCopy << Utils::FilePath::fromString(it.key().toString()).fileName();
     }
     fileNamesInWorkinCopy.sort();
     const QString expectedUiHeaderFileName = _("ui_mainwindow.h");
@@ -639,8 +639,8 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QVERIFY(document);
     const QStringList includedFiles = document->includedFiles();
     QCOMPARE(includedFiles.size(), 2);
-    QCOMPARE(Utils::FileName::fromString(includedFiles.at(0)).fileName(), _("mainwindow.h"));
-    QCOMPARE(Utils::FileName::fromString(includedFiles.at(1)).fileName(), _("ui_mainwindow.h"));
+    QCOMPARE(Utils::FilePath::fromString(includedFiles.at(0)).fileName(), _("mainwindow.h"));
+    QCOMPARE(Utils::FilePath::fromString(includedFiles.at(1)).fileName(), _("ui_mainwindow.h"));
 }
 
 /// QTCREATORBUG-9828: Locator shows symbols of closed files

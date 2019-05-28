@@ -50,7 +50,7 @@ class TextDocument;
 class TEXTEDITOR_EXPORT TextMark
 {
 public:
-    TextMark(const Utils::FileName &fileName,
+    TextMark(const Utils::FilePath &fileName,
              int lineNumber,
              Core::Id category,
              double widthFactor = 1.0);
@@ -65,7 +65,7 @@ public:
         HighPriority // shown on top.
     };
 
-    Utils::FileName fileName() const;
+    Utils::FilePath fileName() const;
     int lineNumber() const;
 
     virtual void paintIcon(QPainter *painter, const QRect &rect) const;
@@ -84,7 +84,7 @@ public:
     AnnotationRects annotationRects(const QRectF &boundingRect, const QFontMetrics &fm,
                                     const qreal fadeInOffset, const qreal fadeOutOffset) const;
     /// called if the filename of the document changed
-    virtual void updateFileName(const Utils::FileName &fileName);
+    virtual void updateFileName(const Utils::FilePath &fileName);
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
     virtual void move(int line);
@@ -131,7 +131,7 @@ private:
     Q_DISABLE_COPY(TextMark)
 
     TextDocument *m_baseTextDocument = nullptr;
-    Utils::FileName m_fileName;
+    Utils::FilePath m_fileName;
     int m_lineNumber = 0;
     Priority m_priority = LowPriority;
     QIcon m_icon;

@@ -59,7 +59,7 @@ void QMakeParser::stdError(const QString &line)
             type = Task::Error;
         Task task = Task(type,
                          description,
-                         Utils::FileName::fromUserInput(fileName),
+                         Utils::FilePath::fromUserInput(fileName),
                          m_error.cap(2).toInt() /* line */,
                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         emit addTask(task, 1);
@@ -70,7 +70,7 @@ void QMakeParser::stdError(const QString &line)
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
         Task task = Task(Task::Error,
                          description,
-                         Utils::FileName() /* filename */,
+                         Utils::FilePath() /* filename */,
                          -1 /* linenumber */,
                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         emit addTask(task, 1);
@@ -81,7 +81,7 @@ void QMakeParser::stdError(const QString &line)
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
         Task task = Task(Task::Warning,
                          description,
-                         Utils::FileName() /* filename */,
+                         Utils::FilePath() /* filename */,
                          -1 /* linenumber */,
                          Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         emit addTask(task, 1);
@@ -132,7 +132,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << (Tasks()
                 << Task(Task::Error,
                         QLatin1String("undefined file"),
-                        Utils::FileName(), -1,
+                        Utils::FilePath(), -1,
                         categoryBuildSystem))
             << QString();
 
@@ -143,7 +143,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << (Tasks()
                 << Task(Task::Error,
                         QLatin1String("Parse Error ('sth odd')"),
-                        Utils::FileName::fromUserInput(QLatin1String("e:\\project.pro")),
+                        Utils::FilePath::fromUserInput(QLatin1String("e:\\project.pro")),
                         14,
                         categoryBuildSystem))
             << QString();
@@ -155,7 +155,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << (Tasks()
                 << Task(Task::Warning,
                         QLatin1String("bearer module might require ReadUserData capability"),
-                        Utils::FileName(), -1,
+                        Utils::FilePath(), -1,
                         categoryBuildSystem))
             << QString();
 
@@ -166,7 +166,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << (Tasks()
                 << Task(Task::Warning,
                         QLatin1String("Failure to find: blackberrycreatepackagestepconfigwidget.cpp"),
-                        Utils::FileName(), -1,
+                        Utils::FilePath(), -1,
                         categoryBuildSystem))
             << QString();
 
@@ -177,7 +177,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << (Tasks()
                 << Task(Task::Warning,
                         QLatin1String("Unescaped backslashes are deprecated."),
-                        Utils::FileName::fromUserInput(QLatin1String("e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl")), 1,
+                        Utils::FilePath::fromUserInput(QLatin1String("e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl")), 1,
                         categoryBuildSystem))
             << QString();
     QTest::newRow("moc note")
@@ -187,7 +187,7 @@ void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
             << (Tasks()
                 << Task(Task::Unknown,
                         QLatin1String("Note: No relevant classes found. No output generated."),
-                        Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
+                        Utils::FilePath::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
                         categoryBuildSystem)
                 )
             << QString();}

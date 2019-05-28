@@ -100,10 +100,10 @@ Tasks QmakeKitAspect::validate(const Kit *k) const
     const QString mkspec = QmakeKitAspect::mkspec(k);
     if (!version && !mkspec.isEmpty())
         result << Task(Task::Warning, tr("No Qt version set, so mkspec is ignored."),
-                       FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+                       FilePath(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     if (version && !version->hasMkspec(mkspec))
         result << Task(Task::Error, tr("Mkspec not found for Qt version."),
-                       FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
+                       FilePath(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     return result;
 }
 

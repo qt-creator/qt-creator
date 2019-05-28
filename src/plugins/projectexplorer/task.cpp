@@ -62,7 +62,7 @@ unsigned int Task::s_nextId = 1;
 */
 
 Task::Task(TaskType type_, const QString &description_,
-           const Utils::FileName &file_, int line_, Core::Id category_,
+           const Utils::FilePath &file_, int line_, Core::Id category_,
            const QIcon &icon, Options options) :
     taskId(s_nextId), type(type_), options(options), description(description_),
     line(line_), movedLine(line_), category(category_),
@@ -79,7 +79,7 @@ Task Task::compilerMissingTask()
                                             "%1 needs a compiler set up to build. "
                                             "Configure a compiler in the kit options.")
                 .arg(Core::Constants::IDE_DISPLAY_NAME),
-                Utils::FileName(), -1,
+                Utils::FilePath(), -1,
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
@@ -90,7 +90,7 @@ Task Task::buildConfigurationMissingTask()
                                             "%1 needs a build configuration set up to build. "
                                             "Configure a build configuration in the project settings.")
                 .arg(Core::Constants::IDE_DISPLAY_NAME),
-                Utils::FileName(), -1,
+                Utils::FilePath(), -1,
                 Constants::TASK_CATEGORY_BUILDSYSTEM);
 }
 
@@ -111,7 +111,7 @@ void Task::clear()
     taskId = 0;
     type = Task::Unknown;
     description.clear();
-    file = Utils::FileName();
+    file = Utils::FilePath();
     line = -1;
     movedLine = -1;
     category = Core::Id();
@@ -120,11 +120,11 @@ void Task::clear()
     m_mark.clear();
 }
 
-void Task::setFile(const Utils::FileName &file_)
+void Task::setFile(const Utils::FilePath &file_)
 {
     file = file_;
     if (!file.isEmpty() && !file.toFileInfo().isAbsolute()) {
-        Utils::FileNameList possiblePaths = Internal::findFileInSession(file);
+        Utils::FilePathList possiblePaths = Internal::findFileInSession(file);
         if (possiblePaths.length() == 1)
             file = possiblePaths.first();
         else

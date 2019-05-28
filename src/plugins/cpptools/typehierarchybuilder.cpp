@@ -193,9 +193,9 @@ QStringList TypeHierarchyBuilder::filesDependingOn(CPlusPlus::Symbol *symbol) co
     if (!symbol)
         return deps;
 
-    Utils::FileName file = Utils::FileName::fromUtf8(symbol->fileName(), symbol->fileNameLength());
+    Utils::FilePath file = Utils::FilePath::fromUtf8(symbol->fileName(), symbol->fileNameLength());
     deps << file.toString();
-    foreach (const Utils::FileName &fileName, _snapshot.filesDependingOn(file))
+    foreach (const Utils::FilePath &fileName, _snapshot.filesDependingOn(file))
         deps.append(fileName.toString());
     return deps;
 }

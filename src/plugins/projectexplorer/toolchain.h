@@ -99,7 +99,7 @@ public:
     QByteArray id() const;
 
     virtual QStringList suggestedMkspecList() const;
-    virtual Utils::FileName suggestedDebugger() const;
+    virtual Utils::FilePath suggestedDebugger() const;
 
     Core::Id typeId() const;
     virtual QString typeDisplayName() const = 0;
@@ -134,13 +134,13 @@ public:
         const QStringList &cxxflags, const QString &sysRoot, const QString &originalTargetTriple)>;
     virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const = 0;
     virtual HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
-                                           const Utils::FileName &sysRoot) const = 0;
+                                           const Utils::FilePath &sysRoot) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
-    virtual Utils::FileName makeCommand(const Utils::Environment &env) const = 0;
+    virtual Utils::FilePath makeCommand(const Utils::Environment &env) const = 0;
 
     Core::Id language() const;
 
-    virtual Utils::FileName compilerCommand() const = 0;
+    virtual Utils::FilePath compilerCommand() const = 0;
     virtual IOutputParser *outputParser() const = 0;
 
     virtual bool operator ==(const ToolChain &) const;
@@ -196,7 +196,7 @@ public:
     Core::Id supportedToolChainType() const;
 
     virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
-    virtual QList<ToolChain *> autoDetect(const Utils::FileName &compilerPath, const Core::Id &language);
+    virtual QList<ToolChain *> autoDetect(const Utils::FilePath &compilerPath, const Core::Id &language);
 
     virtual bool canCreate() const;
     virtual ToolChain *create();
@@ -220,7 +220,7 @@ protected:
 
     class Candidate {
     public:
-        Utils::FileName compilerPath;
+        Utils::FilePath compilerPath;
         QString compilerVersion;
 
         bool operator==(const ToolChainFactory::Candidate &other) const {

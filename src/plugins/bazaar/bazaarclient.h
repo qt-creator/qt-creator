@@ -52,7 +52,7 @@ public:
     VcsBase::VcsBaseEditorWidget *annotate(
             const QString &workingDir, const QString &file, const QString &revision = QString(),
             int lineNumber = -1, const QStringList &extraOptions = QStringList()) override;
-    bool isVcsDirectory(const Utils::FileName &fileName) const;
+    bool isVcsDirectory(const Utils::FilePath &fileName) const;
     QString findTopLevelForFile(const QFileInfo &file) const override;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     void view(const QString &source, const QString &id,

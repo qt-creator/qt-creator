@@ -526,7 +526,7 @@ void CdbEngine::handleInitialSessionIdle()
     if (rp.breakOnMain) {
         BreakpointParameters bp(BreakpointAtMain);
         if (rp.startMode == StartInternal || rp.startMode == StartExternal) {
-            const QString &moduleFileName = Utils::FileName::fromString(rp.inferior.executable)
+            const QString &moduleFileName = Utils::FilePath::fromString(rp.inferior.executable)
                                                 .fileName();
             bp.module = moduleFileName.left(moduleFileName.indexOf('.'));
         }
@@ -2205,7 +2205,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
         if (!isDebuggerWinException(exception.exceptionCode)) {
             const Task::TaskType type =
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
-            const FileName fileName = FileName::fromUserInput(exception.file);
+            const FilePath fileName = FilePath::fromUserInput(exception.file);
             const QString taskEntry = tr("Debugger encountered an exception: %1").arg(
                         exception.toString(false).trimmed());
             TaskHub::addTask(type, taskEntry,

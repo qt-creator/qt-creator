@@ -106,10 +106,10 @@ private:
     friend void operator|=(DeployErrorCode &e1, const DeployErrorCode &e2) { e1 = static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2); }
     friend DeployErrorCode operator|(const DeployErrorCode &e1, const DeployErrorCode &e2) { return static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2); }
 
-    Utils::FileName m_manifestName;
+    Utils::FilePath m_manifestName;
     QString m_serialNumber;
     QString m_avdName;
-    Utils::FileName m_apkPath;
+    Utils::FilePath m_apkPath;
     QMap<QString, QString> m_filesToPull;
 
     QString m_targetArch;

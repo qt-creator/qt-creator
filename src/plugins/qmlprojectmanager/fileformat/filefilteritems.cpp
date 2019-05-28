@@ -175,7 +175,7 @@ bool FileFilterBaseItem::matchesFile(const QString &filePath) const
             return true;
     }
 
-    const QString &fileName = Utils::FileName::fromString(filePath).fileName();
+    const QString &fileName = Utils::FilePath::fromString(filePath).fileName();
 
     if (!fileMatches(fileName))
         return false;

@@ -184,7 +184,7 @@ ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
                               QCoreApplication::translate("ProjectExplorer::ToolChainManager", "Tool Chains"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
-    setBaseFilePath(FileName::fromString(Core::ICore::userResourcePath() + TOOLCHAIN_FILENAME));
+    setBaseFilePath(FilePath::fromString(Core::ICore::userResourcePath() + TOOLCHAIN_FILENAME));
 
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
 }
@@ -193,7 +193,7 @@ QList<ToolChain *> ToolChainSettingsAccessor::restoreToolChains(QWidget *parent)
 {
     // read all tool chains from SDK
     const QList<ToolChain *> systemFileTcs
-            = toolChains(restoreSettings(FileName::fromString(Core::ICore::installerResourcePath() + TOOLCHAIN_FILENAME),
+            = toolChains(restoreSettings(FilePath::fromString(Core::ICore::installerResourcePath() + TOOLCHAIN_FILENAME),
                                          parent));
     for (ToolChain * const systemTc : systemFileTcs)
         systemTc->setDetection(ToolChain::AutoDetectionFromSdk);
@@ -321,11 +321,11 @@ public:
     LanguageExtensions languageExtensions(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags); return LanguageExtension::None; }
     WarningFlags warningFlags(const QStringList &cflags) const override { Q_UNUSED(cflags); return WarningFlags::NoWarnings; }
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override { return BuiltInHeaderPathsRunner(); }
-    HeaderPaths builtInHeaderPaths(const QStringList &cxxflags, const FileName &sysRoot) const override
+    HeaderPaths builtInHeaderPaths(const QStringList &cxxflags, const FilePath &sysRoot) const override
     { Q_UNUSED(cxxflags); Q_UNUSED(sysRoot); return {}; }
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env); }
-    FileName makeCommand(const Environment &) const override { return FileName::fromString("make"); }
-    FileName compilerCommand() const override { return Utils::FileName::fromString("/tmp/test/gcc"); }
+    FilePath makeCommand(const Environment &) const override { return FilePath::fromString("make"); }
+    FilePath compilerCommand() const override { return Utils::FilePath::fromString("/tmp/test/gcc"); }
     IOutputParser *outputParser() const override { return nullptr; }
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override { return nullptr; }
     bool operator ==(const ToolChain &other) const override {

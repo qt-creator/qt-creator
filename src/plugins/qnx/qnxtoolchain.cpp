@@ -44,16 +44,16 @@ namespace Internal {
 static const char CompilerSdpPath[] = "Qnx.QnxToolChain.NDKPath";
 static const char CpuDirKey[] = "Qnx.QnxToolChain.CpuDir";
 
-static Abis detectTargetAbis(const FileName &sdpPath)
+static Abis detectTargetAbis(const FilePath &sdpPath)
 {
     Abis result;
-    FileName qnxTarget;
+    FilePath qnxTarget;
 
     if (!sdpPath.fileName().isEmpty()) {
         QList<Utils::EnvironmentItem> environment = QnxUtils::qnxEnvironment(sdpPath.toString());
         foreach (const Utils::EnvironmentItem &item, environment) {
             if (item.name == QLatin1Literal("QNX_TARGET"))
-                qnxTarget = FileName::fromString(item.value);
+                qnxTarget = FilePath::fromString(item.value);
         }
     }
 
@@ -185,7 +185,7 @@ void QnxToolChain::setCpuDir(const QString &cpuDir)
 
 GccToolChain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
 {
-    return detectTargetAbis(FileName::fromString(m_sdpPath));
+    return detectTargetAbis(FilePath::fromString(m_sdpPath));
 }
 
 bool QnxToolChain::operator ==(const ToolChain &other) const

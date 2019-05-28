@@ -65,7 +65,7 @@ AbiFlavorAccessor::AbiFlavorAccessor() :
                               QCoreApplication::translate("ProjectExplorer::ToolChainManager", "ABI"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
-    setBaseFilePath(FileName::fromString(Core::ICore::installerResourcePath() + "/abi.xml"));
+    setBaseFilePath(FilePath::fromString(Core::ICore::installerResourcePath() + "/abi.xml"));
 
     addVersionUpgrader(std::make_unique<AbiFlavorUpgraderV0>());
 }

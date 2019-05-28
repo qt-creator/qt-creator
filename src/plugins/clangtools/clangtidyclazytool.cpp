@@ -464,7 +464,7 @@ void ClangTidyClazyTool::handleStateUpdate()
 }
 
 QList<Diagnostic> ClangTidyClazyTool::read(const QString &filePath,
-                                           const Utils::FileName &projectRootDir,
+                                           const Utils::FilePath &projectRootDir,
                                            const QString &logFilePath,
                                            QString *errorMessage) const
 {

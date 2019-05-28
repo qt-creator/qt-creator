@@ -36,7 +36,7 @@ namespace CppTools {
 class CursorInEditor
 {
 public:
-    CursorInEditor(const QTextCursor &cursor, const Utils::FileName &filePath,
+    CursorInEditor(const QTextCursor &cursor, const Utils::FilePath &filePath,
                  CppEditorWidgetInterface *editorWidget = nullptr)
         : m_cursor(cursor)
         , m_filePath(filePath)
@@ -44,10 +44,10 @@ public:
     {}
     CppEditorWidgetInterface *editorWidget() const { return m_editorWidget; }
     const QTextCursor &cursor() const { return m_cursor; }
-    const Utils::FileName &filePath() const { return m_filePath; }
+    const Utils::FilePath &filePath() const { return m_filePath; }
 private:
     QTextCursor m_cursor;
-    Utils::FileName m_filePath;
+    Utils::FilePath m_filePath;
     CppEditorWidgetInterface *m_editorWidget = nullptr;
 };
 

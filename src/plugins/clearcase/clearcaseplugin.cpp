@@ -353,7 +353,7 @@ QString ClearCasePlugin::ccManagesDirectory(const QString &directory) const
     foreach (const QString &relativeVobDir, vobs) {
         const QString vobPath = QDir::cleanPath(rootDir + QDir::fromNativeSeparators(relativeVobDir));
         const bool isManaged = (vobPath == directory)
-                || FileName::fromString(directory).isChildOf(FileName::fromString(vobPath));
+                || FilePath::fromString(directory).isChildOf(FilePath::fromString(vobPath));
         if (isManaged)
             return vobPath;
     }
@@ -390,7 +390,7 @@ QString ClearCasePlugin::findTopLevel(const QString &directory) const
     // Do not check again if we've already tested that the dir is managed,
     // or if it is a child of a managed dir (top level).
     if ((directory == m_topLevel) ||
-           FileName::fromString(directory).isChildOf(FileName::fromString(m_topLevel)))
+           FilePath::fromString(directory).isChildOf(FilePath::fromString(m_topLevel)))
         return m_topLevel;
 
     return ccManagesDirectory(directory);
@@ -1452,7 +1452,7 @@ ClearCasePlugin::runCleartool(const QString &workingDir,
     }
 
     const SynchronousProcessResponse sp_resp =
-            VcsBasePlugin::runVcs(workingDir, FileName::fromUserInput(executable),
+            VcsBasePlugin::runVcs(workingDir, FilePath::fromUserInput(executable),
                                   arguments, timeOutS,
                                   flags, outputCodec);
 
@@ -2027,7 +2027,7 @@ void ClearCasePlugin::updateIndex()
         return;
     m_checkInAllAction->setEnabled(false);
     m_statusMap->clear();
-    QFuture<void> result = Utils::runAsync(sync, transform(project->files(Project::SourceFiles), &FileName::toString));
+    QFuture<void> result = Utils::runAsync(sync, transform(project->files(Project::SourceFiles), &FilePath::toString));
     if (!m_settings.disableIndexer)
         ProgressManager::addTask(result, tr("Updating ClearCase Index"), ClearCase::Constants::TASK_INDEX);
 }

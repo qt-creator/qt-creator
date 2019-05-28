@@ -223,7 +223,7 @@ bool QMakeStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(qmakeBc->macroExpander());
-    pp->setWorkingDirectory(Utils::FileName::fromString(workingDirectory));
+    pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
     pp->setEnvironment(qmakeBc->environment());
 
     setOutputParser(new QMakeParser);
@@ -311,7 +311,7 @@ void QMakeStep::finish(bool success)
     runNextCommand();
 }
 
-void QMakeStep::startOneCommand(const FileName &command, const QString &args)
+void QMakeStep::startOneCommand(const FilePath &command, const QString &args)
 {
     ProcessParameters *pp = processParameters();
     pp->setCommand(command);
@@ -436,10 +436,10 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
     qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
-FileName QMakeStep::makeCommand() const
+FilePath QMakeStep::makeCommand() const
 {
     auto ms = qobject_cast<BuildStepList *>(parent())->firstOfType<MakeStep>();
-    return ms ? ms->effectiveMakeCommand() : FileName();
+    return ms ? ms->effectiveMakeCommand() : FilePath();
 }
 
 QString QMakeStep::makeArguments(const QString &makefile) const
@@ -498,7 +498,7 @@ QString QMakeStep::mkspec() const
     for (QtcProcess::ArgIterator ait(&additionalArguments); ait.next(); ) {
         if (ait.value() == "-spec") {
             if (ait.next())
-                return FileName::fromUserInput(ait.value()).toString();
+                return FilePath::fromUserInput(ait.value()).toString();
         }
     }
 

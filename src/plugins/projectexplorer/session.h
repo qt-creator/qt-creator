@@ -94,7 +94,7 @@ public:
     static void setActiveBuildConfiguration(Target *t, BuildConfiguration *bc, SetActive cascade);
     static void setActiveDeployConfiguration(Target *t, DeployConfiguration *dc, SetActive cascade);
 
-    static Utils::FileName sessionNameToFileName(const QString &session);
+    static Utils::FilePath sessionNameToFileName(const QString &session);
     static Project *startupProject();
 
     static const QList<Project *> projects();
@@ -111,7 +111,7 @@ public:
     // NBS rewrite projectOrder (dependency management)
     static QList<Project *> projectOrder(const Project *project = nullptr);
 
-    static Project *projectForFile(const Utils::FileName &fileName);
+    static Project *projectForFile(const Utils::FilePath &fileName);
 
     static QStringList projectsForSessionName(const QString &session);
 

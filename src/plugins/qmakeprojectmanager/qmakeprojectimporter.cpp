@@ -64,8 +64,8 @@ namespace {
 struct DirectoryData
 {
     QString makefile;
-    Utils::FileName buildDirectory;
-    Utils::FileName canonicalQmakeBinary;
+    Utils::FilePath buildDirectory;
+    Utils::FilePath canonicalQmakeBinary;
     QtProjectImporter::QtVersionData qtVersionData;
     QString parsedSpec;
     BaseQtVersion::QmakeBuildConfigs buildConfig;
@@ -83,7 +83,7 @@ namespace Internal {
 const Core::Id QT_IS_TEMPORARY("Qmake.TempQt");
 const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
 
-QmakeProjectImporter::QmakeProjectImporter(const FileName &path) :
+QmakeProjectImporter::QmakeProjectImporter(const FilePath &path) :
     QtProjectImporter(path)
 { }
 
@@ -109,7 +109,7 @@ QStringList QmakeProjectImporter::importCandidates()
     return candidates;
 }
 
-QList<void *> QmakeProjectImporter::examineDirectory(const FileName &importPath) const
+QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath) const
 {
     QList<void *> result;
     const QLoggingCategory &logs = MakeFileParse::logging();
@@ -136,7 +136,7 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FileName &importPath)
         }
 
         QFileInfo qmakeFi = parse.qmakePath().toFileInfo();
-        data->canonicalQmakeBinary = FileName::fromString(qmakeFi.canonicalFilePath());
+        data->canonicalQmakeBinary = FilePath::fromString(qmakeFi.canonicalFilePath());
         if (data->canonicalQmakeBinary.isEmpty()) {
             qCDebug(logs) << "  " << parse.qmakePath() << "doesn't exist anymore";
             continue;

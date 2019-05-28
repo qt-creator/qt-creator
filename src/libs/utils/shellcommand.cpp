@@ -68,11 +68,11 @@ class ShellCommandPrivate
 {
 public:
     struct Job {
-        explicit Job(const QString &wd, const FileName &b, const QStringList &a, int t,
+        explicit Job(const QString &wd, const FilePath &b, const QStringList &a, int t,
                      const ExitCodeInterpreter &interpreter);
 
         QString workingDirectory;
-        FileName binary;
+        FilePath binary;
         QStringList arguments;
         ExitCodeInterpreter exitCodeInterpreter;
         int timeoutS;
@@ -113,7 +113,7 @@ ShellCommandPrivate::~ShellCommandPrivate()
     delete m_progressParser;
 }
 
-ShellCommandPrivate::Job::Job(const QString &wd, const FileName &b, const QStringList &a,
+ShellCommandPrivate::Job::Job(const QString &wd, const FilePath &b, const QStringList &a,
                               int t, const ExitCodeInterpreter &interpreter) :
     workingDirectory(wd),
     binary(b),
@@ -195,13 +195,13 @@ void ShellCommand::addFlags(unsigned f)
     d->m_flags |= f;
 }
 
-void ShellCommand::addJob(const FileName &binary, const QStringList &arguments,
+void ShellCommand::addJob(const FilePath &binary, const QStringList &arguments,
                           const QString &workingDirectory, const ExitCodeInterpreter &interpreter)
 {
     addJob(binary, arguments, defaultTimeoutS(), workingDirectory, interpreter);
 }
 
-void ShellCommand::addJob(const FileName &binary, const QStringList &arguments, int timeoutS,
+void ShellCommand::addJob(const FilePath &binary, const QStringList &arguments, int timeoutS,
                           const QString &workingDirectory, const ExitCodeInterpreter &interpreter)
 {
     d->m_jobs.push_back(Internal::ShellCommandPrivate::Job(workDirectory(workingDirectory), binary,
@@ -319,7 +319,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
     this->deleteLater();
 }
 
-SynchronousProcessResponse ShellCommand::runCommand(const FileName &binary,
+SynchronousProcessResponse ShellCommand::runCommand(const FilePath &binary,
                                                     const QStringList &arguments, int timeoutS,
                                                     const QString &workingDirectory,
                                                     const ExitCodeInterpreter &interpreter)
@@ -359,7 +359,7 @@ SynchronousProcessResponse ShellCommand::runCommand(const FileName &binary,
     return response;
 }
 
-SynchronousProcessResponse ShellCommand::runFullySynchronous(const FileName &binary,
+SynchronousProcessResponse ShellCommand::runFullySynchronous(const FilePath &binary,
                                                              const QStringList &arguments,
                                                              QSharedPointer<OutputProxy> proxy,
                                                              int timeoutS,
@@ -399,7 +399,7 @@ SynchronousProcessResponse ShellCommand::runFullySynchronous(const FileName &bin
     return resp;
 }
 
-SynchronousProcessResponse ShellCommand::runSynchronous(const FileName &binary,
+SynchronousProcessResponse ShellCommand::runSynchronous(const FilePath &binary,
                                                         const QStringList &arguments,
                                                         QSharedPointer<OutputProxy> proxy,
                                                         int timeoutS,

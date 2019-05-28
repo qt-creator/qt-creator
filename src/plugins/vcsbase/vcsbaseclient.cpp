@@ -110,7 +110,7 @@ VcsBaseClientSettings &VcsBaseClientImpl::settings() const
     return *d->m_clientSettings;
 }
 
-FileName VcsBaseClientImpl::vcsBinary() const
+FilePath VcsBaseClientImpl::vcsBinary() const
 {
     return settings().binaryPath();
 }
@@ -178,7 +178,7 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
 }
 
 SynchronousProcessResponse
-VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const FileName &binary,
+VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const FilePath &binary,
                                            const QStringList &args, unsigned flags,
                                            int timeoutS, QTextCodec *codec) const
 {
@@ -643,7 +643,7 @@ QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sour
 {
     return vcsBinary().toFileInfo().baseName() +
             QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
-            FileName::fromString(sourceId).fileName();
+            FilePath::fromString(sourceId).fileName();
 }
 
 void VcsBaseClient::statusParser(const QString &text)

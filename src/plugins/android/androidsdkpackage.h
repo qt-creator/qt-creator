@@ -77,13 +77,13 @@ public:
     const QVersionNumber &revision() const;
     PackageState state() const;
     const QString &sdkStylePath() const;
-    const Utils::FileName &installedLocation() const;
+    const Utils::FilePath &installedLocation() const;
 
 protected:
     void setDisplayText(const QString &str);
     void setDescriptionText(const QString &str);
     void setState(PackageState state);
-    void setInstalledLocation(const Utils::FileName &path);
+    void setInstalledLocation(const Utils::FilePath &path);
 
     virtual void updatePackageDetails();
 
@@ -93,7 +93,7 @@ private:
     QVersionNumber m_revision;
     PackageState m_state = PackageState::Unknown;
     QString m_sdkStylePath;
-    Utils::FileName m_installedLocation;
+    Utils::FilePath m_installedLocation;
 
     friend class Internal::SdkManagerOutputParser;
     friend class Internal::AndroidToolOutputParser;

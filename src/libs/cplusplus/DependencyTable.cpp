@@ -29,9 +29,9 @@
 
 using namespace CPlusPlus;
 
-Utils::FileNameList DependencyTable::filesDependingOn(const Utils::FileName &fileName) const
+Utils::FilePathList DependencyTable::filesDependingOn(const Utils::FilePath &fileName) const
 {
-    Utils::FileNameList deps;
+    Utils::FilePathList deps;
 
     int index = fileIndex.value(fileName, -1);
     if (index == -1)
@@ -66,14 +66,14 @@ void DependencyTable::build(const Snapshot &snapshot)
     }
 
     for (int i = 0; i < files.size(); ++i) {
-        const Utils::FileName &fileName = files.at(i);
+        const Utils::FilePath &fileName = files.at(i);
         if (Document::Ptr doc = snapshot.document(fileName)) {
             QBitArray bitmap(files.size());
             QList<int> directIncludes;
             const QStringList documentIncludes = doc->includedFiles();
 
             foreach (const QString &includedFile, documentIncludes) {
-                int index = fileIndex.value(Utils::FileName::fromString(includedFile));
+                int index = fileIndex.value(Utils::FilePath::fromString(includedFile));
 
                 if (index == -1)
                     continue;

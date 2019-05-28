@@ -27,7 +27,7 @@
 
 #include <projectexplorer/projectnodes.h>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace Nim {
 
@@ -36,7 +36,7 @@ class NimProject;
 class NimProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    NimProjectNode(NimProject &project, const Utils::FileName &projectFilePath);
+    NimProjectNode(NimProject &project, const Utils::FilePath &projectFilePath);
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *) override;

@@ -89,7 +89,7 @@ void ClangToolsProjectSettings::load()
         m_project->namedSettings(SETTINGS_KEY_DIAGNOSTIC_CONFIG));
     m_buildBeforeAnalysis = m_project->namedSettings(SETTINGS_KEY_BUILD_BEFORE_ANALYSIS).toBool();
 
-    auto toFileName = [](const QString &s) { return Utils::FileName::fromString(s); };
+    auto toFileName = [](const QString &s) { return Utils::FilePath::fromString(s); };
 
     const QStringList dirs = m_project->namedSettings(SETTINGS_KEY_SELECTED_DIRS).toStringList();
     m_selectedDirs = Utils::transform<QSet>(dirs, toFileName);
@@ -106,7 +106,7 @@ void ClangToolsProjectSettings::load()
         const QString message = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE).toString();
         if (message.isEmpty())
             continue;
-        Utils::FileName fullPath = Utils::FileName::fromString(fp);
+        Utils::FilePath fullPath = Utils::FilePath::fromString(fp);
         if (fullPath.toFileInfo().isRelative())
             fullPath = m_project->projectDirectory().pathAppended(fp);
         if (!fullPath.exists())
@@ -114,7 +114,7 @@ void ClangToolsProjectSettings::load()
         const QString contextKind = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXTKIND).toString();
         const QString context = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXT).toString();
         const int uniquifier = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER).toInt();
-        m_suppressedDiagnostics << SuppressedDiagnostic(Utils::FileName::fromString(fp), message,
+        m_suppressedDiagnostics << SuppressedDiagnostic(Utils::FilePath::fromString(fp), message,
                                                         contextKind, context, uniquifier);
     }
     emit suppressedDiagnosticsChanged();
@@ -126,10 +126,10 @@ void ClangToolsProjectSettings::store()
     m_project->setNamedSettings(SETTINGS_KEY_DIAGNOSTIC_CONFIG, m_diagnosticConfig.toSetting());
     m_project->setNamedSettings(SETTINGS_KEY_BUILD_BEFORE_ANALYSIS, m_buildBeforeAnalysis);
 
-    const QStringList dirs = Utils::transform(m_selectedDirs.toList(), &Utils::FileName::toString);
+    const QStringList dirs = Utils::transform(m_selectedDirs.toList(), &Utils::FilePath::toString);
     m_project->setNamedSettings(SETTINGS_KEY_SELECTED_DIRS, dirs);
 
-    const QStringList files = Utils::transform(m_selectedFiles.toList(), &Utils::FileName::toString);
+    const QStringList files = Utils::transform(m_selectedFiles.toList(), &Utils::FilePath::toString);
     m_project->setNamedSettings(SETTINGS_KEY_SELECTED_FILES, files);
 
     QVariantList list;
@@ -199,7 +199,7 @@ void ClangToolsProjectSettingsManager::handleProjectToBeRemoved(ProjectExplorer:
 ClangToolsProjectSettingsManager::SettingsMap ClangToolsProjectSettingsManager::m_settings;
 
 SuppressedDiagnostic::SuppressedDiagnostic(const Diagnostic &diag)
-    : filePath(Utils::FileName::fromString(diag.location.filePath))
+    : filePath(Utils::FilePath::fromString(diag.location.filePath))
     , description(diag.description)
     , contextKind(diag.issueContextKind)
     , context(diag.issueContext)

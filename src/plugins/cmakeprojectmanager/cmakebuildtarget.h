@@ -46,17 +46,17 @@ class CMAKE_EXPORT CMakeBuildTarget
 {
 public:
     QString title;
-    Utils::FileName executable; // TODO: rename to output?
+    Utils::FilePath executable; // TODO: rename to output?
     TargetType targetType = UtilityType;
-    Utils::FileName workingDirectory;
-    Utils::FileName sourceDirectory;
-    Utils::FileName makeCommand;
+    Utils::FilePath workingDirectory;
+    Utils::FilePath sourceDirectory;
+    Utils::FilePath makeCommand;
 
     // code model
-    QList<Utils::FileName> includeFiles;
+    QList<Utils::FilePath> includeFiles;
     QStringList compilerOptions;
     ProjectExplorer::Macros macros;
-    QList<Utils::FileName> files;
+    QList<Utils::FilePath> files;
 };
 
 } // namespace CMakeProjectManager

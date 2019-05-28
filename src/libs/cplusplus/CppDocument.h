@@ -389,7 +389,7 @@ private:
 
 class CPLUSPLUS_EXPORT Snapshot
 {
-    typedef QHash<Utils::FileName, Document::Ptr> Base;
+    typedef QHash<Utils::FilePath, Document::Ptr> Base;
 
 public:
     Snapshot();
@@ -403,36 +403,36 @@ public:
     bool isEmpty() const;
 
     void insert(Document::Ptr doc); // ### remove
-    void remove(const Utils::FileName &fileName); // ### remove
+    void remove(const Utils::FilePath &fileName); // ### remove
     void remove(const QString &fileName)
-    { remove(Utils::FileName::fromString(fileName)); }
+    { remove(Utils::FilePath::fromString(fileName)); }
 
     const_iterator begin() const { return _documents.begin(); }
     const_iterator end() const { return _documents.end(); }
 
-    bool contains(const Utils::FileName &fileName) const;
+    bool contains(const Utils::FilePath &fileName) const;
     bool contains(const QString &fileName) const
-    { return contains(Utils::FileName::fromString(fileName)); }
+    { return contains(Utils::FilePath::fromString(fileName)); }
 
-    Document::Ptr document(const Utils::FileName &fileName) const;
+    Document::Ptr document(const Utils::FilePath &fileName) const;
     Document::Ptr document(const QString &fileName) const
-    { return document(Utils::FileName::fromString(fileName)); }
+    { return document(Utils::FilePath::fromString(fileName)); }
 
-    const_iterator find(const Utils::FileName &fileName) const;
+    const_iterator find(const Utils::FilePath &fileName) const;
     const_iterator find(const QString &fileName) const
-    { return find(Utils::FileName::fromString(fileName)); }
+    { return find(Utils::FilePath::fromString(fileName)); }
 
     Snapshot simplified(Document::Ptr doc) const;
 
     Document::Ptr preprocessedDocument(const QByteArray &source,
-                                       const Utils::FileName &fileName,
+                                       const Utils::FilePath &fileName,
                                        int withDefinedMacrosFromDocumentUntilLine = -1) const;
     Document::Ptr preprocessedDocument(const QByteArray &source,
                                        const QString &fileName,
                                        int withDefinedMacrosFromDocumentUntilLine = -1) const
     {
         return preprocessedDocument(source,
-                                    Utils::FileName::fromString(fileName),
+                                    Utils::FilePath::fromString(fileName),
                                     withDefinedMacrosFromDocumentUntilLine);
     }
 
@@ -442,9 +442,9 @@ public:
     QSet<QString> allIncludesForDocument(const QString &fileName) const;
     QList<IncludeLocation> includeLocationsOfDocument(const QString &fileName) const;
 
-    Utils::FileNameList filesDependingOn(const Utils::FileName &fileName) const;
-    Utils::FileNameList filesDependingOn(const QString &fileName) const
-    { return filesDependingOn(Utils::FileName::fromString(fileName)); }
+    Utils::FilePathList filesDependingOn(const Utils::FilePath &fileName) const;
+    Utils::FilePathList filesDependingOn(const QString &fileName) const
+    { return filesDependingOn(Utils::FilePath::fromString(fileName)); }
     void updateDependencyTable() const;
 
     bool operator==(const Snapshot &other) const;

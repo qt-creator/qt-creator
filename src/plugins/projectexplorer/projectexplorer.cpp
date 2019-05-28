@@ -477,7 +477,7 @@ public:
     int m_activeRunControlCount = 0;
     int m_shutdownWatchDogId = -1;
 
-    QHash<QString, std::function<Project *(const Utils::FileName &)>> m_projectCreators;
+    QHash<QString, std::function<Project *(const Utils::FilePath &)>> m_projectCreators;
     QList<QPair<QString, QString> > m_recentProjects; // pair of filename, displayname
     static const int m_maxRecentProjects = 25;
 
@@ -680,7 +680,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::updateActions);
     connect(tree, &ProjectTree::currentProjectChanged, this, [](Project *project) {
         TextEditor::FindInFiles::instance()->setBaseDirectory(project ? project->projectDirectory()
-                                                                      : Utils::FileName());
+                                                                      : Utils::FilePath());
     });
 
     // For JsonWizard:
@@ -1525,7 +1525,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
         tr("Current project's main file."),
         []() -> QString {
-            Utils::FileName projectFilePath;
+            Utils::FilePath projectFilePath;
             if (Project *project = ProjectTree::currentProject())
                 projectFilePath = project->projectFilePath();
             return projectFilePath.toString();
@@ -1795,16 +1795,16 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     QSsh::SshSettings::loadSettings(Core::ICore::settings());
     const auto searchPathRetriever = [] {
-        Utils::FileNameList searchPaths;
-        searchPaths << Utils::FileName::fromString(Core::ICore::libexecPath());
+        Utils::FilePathList searchPaths;
+        searchPaths << Utils::FilePath::fromString(Core::ICore::libexecPath());
         if (Utils::HostOsInfo::isWindowsHost()) {
             const QString gitBinary = Core::ICore::settings()->value("Git/BinaryPath", "git")
                     .toString();
             const QStringList rawGitSearchPaths = Core::ICore::settings()->value("Git/Path")
                     .toString().split(':', QString::SkipEmptyParts);
-            const Utils::FileNameList gitSearchPaths = Utils::transform(rawGitSearchPaths,
-                    [](const QString &rawPath) { return Utils::FileName::fromString(rawPath); });
-            const Utils::FileName fullGitPath = Utils::Environment::systemEnvironment()
+            const Utils::FilePathList gitSearchPaths = Utils::transform(rawGitSearchPaths,
+                    [](const QString &rawPath) { return Utils::FilePath::fromString(rawPath); });
+            const Utils::FilePath fullGitPath = Utils::Environment::systemEnvironment()
                     .searchInPath(gitBinary, gitSearchPaths);
             if (!fullGitPath.isEmpty()) {
                 searchPaths << fullGitPath.parentDir()
@@ -2033,7 +2033,7 @@ ProjectExplorerPlugin::OpenProjectResult ProjectExplorerPlugin::openProjects(con
         QTC_ASSERT(!fileName.isEmpty(), continue);
 
         const QFileInfo fi(fileName);
-        const auto filePath = Utils::FileName::fromString(fi.absoluteFilePath());
+        const auto filePath = Utils::FilePath::fromString(fi.absoluteFilePath());
         Project *found = Utils::findOrDefault(SessionManager::projects(),
                                               Utils::equal(&Project::projectFilePath, filePath));
         if (found) {
@@ -2358,7 +2358,7 @@ QList<QPair<QString, QString> > ProjectExplorerPluginPrivate::recentProjects() c
 
 static QString pathOrDirectoryFor(const Node *node, bool dir)
 {
-    Utils::FileName path = node->filePath();
+    Utils::FilePath path = node->filePath();
     QString location;
     const FolderNode *folder = node->asFolderNode();
     if (node->isVirtualFolderType() && folder) {
@@ -2595,7 +2595,7 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
                                               BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
                                               if (!bc)
                                                   return false;
-                                              if (!Utils::FileName::fromString(rc->runnable().executable).isChildOf(bc->buildDirectory()))
+                                              if (!Utils::FilePath::fromString(rc->runnable().executable).isChildOf(bc->buildDirectory()))
                                                   return false;
                                               IDevice::ConstPtr device = rc->runnable().device;
                                               if (device.isNull())
@@ -3341,7 +3341,7 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
 
     for (const FolderNode::LocationInfo &li : locations) {
         const int line = li.line;
-        const Utils::FileName path = li.path;
+        const Utils::FilePath path = li.path;
         auto *action = new QAction(li.displayName, nullptr);
         connect(action, &QAction::triggered, this, [line, path]() {
             Core::EditorManager::openEditorAt(path.toString(), line);
@@ -3473,12 +3473,12 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
 
     QTC_ASSERT(folderNode, return);
 
-    SelectableFilesDialogAddDirectory dialog(Utils::FileName::fromString(directoryFor(node)),
-                                             Utils::FileNameList(), ICore::mainWindow());
+    SelectableFilesDialogAddDirectory dialog(Utils::FilePath::fromString(directoryFor(node)),
+                                             Utils::FilePathList(), ICore::mainWindow());
     dialog.setAddFileFilter({});
 
     if (dialog.exec() == QDialog::Accepted)
-        ProjectExplorerPlugin::addExistingFiles(folderNode, Utils::transform(dialog.selectedFiles(), &Utils::FileName::toString));
+        ProjectExplorerPlugin::addExistingFiles(folderNode, Utils::transform(dialog.selectedFiles(), &Utils::FilePath::toString));
 }
 
 void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStringList &filePaths)
@@ -3558,7 +3558,7 @@ void ProjectExplorerPluginPrivate::removeFile()
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
 
-    const Utils::FileName filePath = currentNode->filePath();
+    const Utils::FilePath filePath = currentNode->filePath();
     Utils::RemoveFileDialog removeFileDialog(filePath.toString(), ICore::mainWindow());
 
     if (removeFileDialog.exec() == QDialog::Accepted) {
@@ -3798,7 +3798,7 @@ QStringList ProjectExplorerPlugin::projectFilePatterns()
     return patterns;
 }
 
-bool ProjectExplorerPlugin::isProjectFile(const Utils::FileName &filePath)
+bool ProjectExplorerPlugin::isProjectFile(const Utils::FilePath &filePath)
 {
     Utils::MimeType mt = Utils::mimeTypeForFile(filePath.toString());
     for (const QString &mime : dd->m_projectCreators.keys()) {
@@ -3839,12 +3839,12 @@ QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
 }
 
 void ProjectManager::registerProjectCreator(const QString &mimeType,
-    const std::function<Project *(const Utils::FileName &)> &creator)
+    const std::function<Project *(const Utils::FilePath &)> &creator)
 {
     dd->m_projectCreators[mimeType] = creator;
 }
 
-Project *ProjectManager::openProject(const Utils::MimeType &mt, const Utils::FileName &fileName)
+Project *ProjectManager::openProject(const Utils::MimeType &mt, const Utils::FilePath &fileName)
 {
     if (mt.isValid()) {
         for (const QString &mimeType : dd->m_projectCreators.keys()) {

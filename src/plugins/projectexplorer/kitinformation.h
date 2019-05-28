@@ -56,8 +56,8 @@ public:
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override;
 
     static Core::Id id();
-    static Utils::FileName sysRoot(const Kit *k);
-    static void setSysRoot(Kit *k, const Utils::FileName &v);
+    static Utils::FilePath sysRoot(const Kit *k);
+    static void setSysRoot(Kit *k, const Utils::FilePath &v);
 };
 
 // --------------------------------------------------------------------------

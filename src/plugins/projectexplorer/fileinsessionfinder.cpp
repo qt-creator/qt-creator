@@ -42,7 +42,7 @@ class FileInSessionFinder : public QObject
 public:
     FileInSessionFinder();
 
-    FileNameList doFindFile(const FileName &filePath);
+    FilePathList doFindFile(const FilePath &filePath);
     void invalidateFinder() { m_finderIsUpToDate = false; }
 
 private:
@@ -64,13 +64,13 @@ FileInSessionFinder::FileInSessionFinder()
     });
 }
 
-FileNameList FileInSessionFinder::doFindFile(const FileName &filePath)
+FilePathList FileInSessionFinder::doFindFile(const FilePath &filePath)
 {
     if (!m_finderIsUpToDate) {
         m_finder.setProjectDirectory(SessionManager::startupProject()
                                       ? SessionManager::startupProject()->projectDirectory()
-                                      : FileName());
-        FileNameList allFiles;
+                                      : FilePath());
+        FilePathList allFiles;
         for (const Project * const p : SessionManager::projects())
             allFiles << p->files(Project::AllFiles);
         m_finder.setProjectFiles(allFiles);
@@ -79,7 +79,7 @@ FileNameList FileInSessionFinder::doFindFile(const FileName &filePath)
     return m_finder.findFile(QUrl::fromLocalFile(filePath.toString()));
 }
 
-FileNameList findFileInSession(const FileName &filePath)
+FilePathList findFileInSession(const FilePath &filePath)
 {
     static FileInSessionFinder finder;
     return finder.doFindFile(filePath);

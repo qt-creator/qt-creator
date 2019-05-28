@@ -45,16 +45,16 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentUri : public QUrl
 {
 public:
     DocumentUri() = default;
-    Utils::FileName toFileName() const;
+    Utils::FilePath toFileName() const;
 
     static DocumentUri fromProtocol(const QString &uri) { return DocumentUri(uri); }
-    static DocumentUri fromFileName(const Utils::FileName &file) { return DocumentUri(file); }
+    static DocumentUri fromFileName(const Utils::FilePath &file) { return DocumentUri(file); }
 
     operator QJsonValue() const { return QJsonValue(toString()); }
 
 private:
     DocumentUri(const QString &other);
-    DocumentUri(const Utils::FileName &other);
+    DocumentUri(const Utils::FilePath &other);
 
     friend class LanguageClientValue<QString>;
 };
@@ -372,7 +372,7 @@ public:
     void setPattern(const QString &pattern) { insert(patternKey, pattern); }
     void clearPattern() { remove(patternKey); }
 
-    bool applies(const Utils::FileName &fileName,
+    bool applies(const Utils::FilePath &fileName,
                  const Utils::MimeType &mimeType = Utils::MimeType()) const;
 
     bool isValid(QStringList *error) const override;

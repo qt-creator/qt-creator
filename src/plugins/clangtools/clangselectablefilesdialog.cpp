@@ -71,7 +71,7 @@ static void linkFileNode(Tree *parentNode, Tree *childNode)
     parentNode->visibleFiles.append(childNode);
 }
 
-static Tree *createDirNode(const QString &name, const FileName &filePath = FileName())
+static Tree *createDirNode(const QString &name, const FilePath &filePath = FilePath())
 {
     auto node = new Tree;
     node->name = name;
@@ -106,7 +106,7 @@ public:
     //
     // For example, if a directory node if fully checked, there is no need to
     // save all the children of that node.
-    void minimalSelection(QSet<FileName> &checkedDirs, QSet<FileName> &checkedFiles) const
+    void minimalSelection(QSet<FilePath> &checkedDirs, QSet<FilePath> &checkedFiles) const
     {
         traverse(index(0, 0, QModelIndex()), [&](const QModelIndex &index){
             auto node = static_cast<Tree *>(index.internalPointer());
@@ -124,7 +124,7 @@ public:
         });
     }
 
-    void restoreMinimalSelection(const QSet<FileName> &dirs, const QSet<FileName> &files)
+    void restoreMinimalSelection(const QSet<FilePath> &dirs, const QSet<FilePath> &files)
     {
         if (dirs.isEmpty() && files.isEmpty())
             return;
@@ -211,20 +211,20 @@ private:
             // Add files outside of the base directory to a separate node
             Tree *externalFilesNode = createDirNode(SelectableFilesDialog::tr(
                                                         "Files outside of the base directory"),
-                                                    FileName::fromString("/"));
+                                                    FilePath::fromString("/"));
             linkDirNode(m_root, externalFilesNode);
             for (const FileInfo &fileInfo : outOfBaseDirFiles)
                 linkFileNode(externalFilesNode, createFileNode(fileInfo, true));
         }
     }
 
-    Tree *buildProjectDirTree(const FileName &projectDir,
+    Tree *buildProjectDirTree(const FilePath &projectDir,
                               const FileInfos &fileInfos,
                               FileInfos &outOfBaseDirFiles) const
     {
         Tree *projectDirNode = createDirNode(projectDir.fileName(), projectDir);
 
-        QHash<FileName, Tree *> dirsToNode;
+        QHash<FilePath, Tree *> dirsToNode;
         dirsToNode.insert(projectDirNode->fullPath, projectDirNode);
 
         for (const FileInfo &fileInfo : fileInfos) {
@@ -234,7 +234,7 @@ private:
             }
 
             // Find or create parent nodes
-            FileName parentDir = fileInfo.file.parentDir();
+            FilePath parentDir = fileInfo.file.parentDir();
             Tree *parentNode = dirsToNode[parentDir];
             if (!parentNode) {
                 // Find nearest existing node
@@ -246,7 +246,7 @@ private:
                 }
 
                 // Create needed extra dir nodes
-                FileName currentDirPath = parentDir;
+                FilePath currentDirPath = parentDir;
                 for (const QString &dirName : dirsToCreate) {
                     currentDirPath = currentDirPath.pathAppended(dirName);
 
@@ -380,8 +380,8 @@ void SelectableFilesDialog::accept()
     settings->setBuildBeforeAnalysis(m_buildBeforeAnalysis);
 
     // Save selection
-    QSet<FileName> checkedDirs;
-    QSet<FileName> checkedFiles;
+    QSet<FilePath> checkedDirs;
+    QSet<FilePath> checkedFiles;
     m_filesModel->minimalSelection(checkedDirs, checkedFiles);
     settings->setSelectedDirs(checkedDirs);
     settings->setSelectedFiles(checkedFiles);

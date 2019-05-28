@@ -178,7 +178,7 @@ VcsBaseEditorWidget *BazaarClient::annotate(
                                    QStringList(extraOptions) << QLatin1String("--long"));
 }
 
-bool BazaarClient::isVcsDirectory(const FileName &fileName) const
+bool BazaarClient::isVcsDirectory(const FilePath &fileName) const
 {
     return fileName.toFileInfo().isDir()
             && !fileName.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());

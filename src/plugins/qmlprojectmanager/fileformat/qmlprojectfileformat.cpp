@@ -63,7 +63,7 @@ void setupFileFilterItem(QmlProjectManager::FileFilterBaseItem *fileFilterItem, 
 
 namespace QmlProjectManager {
 
-QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FileName &fileName, QString *errorMessage)
+QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fileName, QString *errorMessage)
 {
     QmlJS::SimpleReader simpleQmlJSReader;
 

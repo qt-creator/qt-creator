@@ -38,10 +38,10 @@ class QTCREATOR_UTILS_EXPORT FileCrumbLabel : public QLabel
 public:
     FileCrumbLabel(QWidget *parent = nullptr);
 
-    void setPath(const FileName &path);
+    void setPath(const FilePath &path);
 
 signals:
-    void pathClicked(const FileName &path);
+    void pathClicked(const FilePath &path);
 };
 
 } // Utils

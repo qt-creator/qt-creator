@@ -340,8 +340,8 @@ static bool copyRecursively(const QString &sourceDirPath,
         return file.setPermissions(file.permissions() | QFile::WriteUser);
     };
 
-    return Utils::FileUtils::copyRecursively(Utils::FileName::fromString(sourceDirPath),
-                                             Utils::FileName::fromString(targetDirPath),
+    return Utils::FileUtils::copyRecursively(Utils::FilePath::fromString(sourceDirPath),
+                                             Utils::FilePath::fromString(targetDirPath),
                                              error,
                                              copyHelper);
 }

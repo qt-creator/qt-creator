@@ -87,7 +87,7 @@ static BreakpointManager *theBreakpointManager = nullptr;
 class BreakpointMarker : public TextEditor::TextMark
 {
 public:
-    BreakpointMarker(const Breakpoint &bp, const FileName &fileName, int lineNumber)
+    BreakpointMarker(const Breakpoint &bp, const FilePath &fileName, int lineNumber)
         : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
     {
         setColor(Theme::Debugger_Breakpoint_TextMarkColor);
@@ -106,7 +106,7 @@ public:
             gbp->m_params.lineNumber = lineNumber;
     }
 
-    void updateFileName(const FileName &fileName) final
+    void updateFileName(const FilePath &fileName) final
     {
         TextMark::updateFileName(fileName);
         QTC_ASSERT(m_bp, return);
@@ -145,7 +145,7 @@ public:
 class GlobalBreakpointMarker : public TextEditor::TextMark
 {
 public:
-    GlobalBreakpointMarker(GlobalBreakpoint gbp, const FileName &fileName, int lineNumber)
+    GlobalBreakpointMarker(GlobalBreakpoint gbp, const FilePath &fileName, int lineNumber)
         : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_gbp(gbp)
     {
         setColor(Theme::Debugger_Breakpoint_TextMarkColor);
@@ -174,7 +174,7 @@ public:
         m_gbp->update();
     }
 
-    void updateFileName(const FileName &fileName) final
+    void updateFileName(const FilePath &fileName) final
     {
         TextMark::updateFileName(fileName);
         QTC_ASSERT(m_gbp, return);
@@ -1877,7 +1877,7 @@ void BreakpointItem::updateMarkerIcon()
 
 void BreakpointItem::updateMarker()
 {
-    FileName file = FileName::fromString(markerFileName());
+    FilePath file = FilePath::fromString(markerFileName());
     int line = markerLineNumber();
     if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
         destroyMarker();
@@ -2298,7 +2298,7 @@ void GlobalBreakpointItem::updateMarker()
         return;
     }
 
-    const FileName file = FileName::fromString(m_params.fileName);
+    const FilePath file = FilePath::fromString(m_params.fileName);
     const int line = m_params.lineNumber;
     if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
         destroyMarker();

@@ -210,7 +210,7 @@ QList<Project *> SessionManager::dependencies(const Project *project)
 
     QList<Project *> projects;
     foreach (const QString &dep, proDeps) {
-        const Utils::FileName fn = Utils::FileName::fromString(dep);
+        const Utils::FilePath fn = Utils::FilePath::fromString(dep);
         Project *pro = Utils::findOrDefault(d->m_projects, [&fn](Project *p) { return p->projectFilePath() == fn; });
         if (pro)
             projects += pro;
@@ -558,17 +558,17 @@ QString SessionManagerPrivate::sessionTitle(const QString &filePath)
 }
 
 QString SessionManagerPrivate::locationInProject(const QString &filePath) {
-    const Project *project = SessionManager::projectForFile(Utils::FileName::fromString(filePath));
+    const Project *project = SessionManager::projectForFile(Utils::FilePath::fromString(filePath));
     if (!project)
         return QString();
 
-    const Utils::FileName file = Utils::FileName::fromString(filePath);
-    const Utils::FileName parentDir = file.parentDir();
+    const Utils::FilePath file = Utils::FilePath::fromString(filePath);
+    const Utils::FilePath parentDir = file.parentDir();
     if (parentDir == project->projectDirectory())
         return "@ " + project->displayName();
 
     if (file.isChildOf(project->projectDirectory())) {
-        const Utils::FileName dirInProject = parentDir.relativeChildPath(project->projectDirectory());
+        const Utils::FilePath dirInProject = parentDir.relativeChildPath(project->projectDirectory());
         return "(" + dirInProject.toUserOutput() + " @ " + project->displayName() + ")";
     }
 
@@ -638,7 +638,7 @@ QList<Project *> SessionManager::projectOrder(const Project *project)
     return result;
 }
 
-Project *SessionManager::projectForFile(const Utils::FileName &fileName)
+Project *SessionManager::projectForFile(const Utils::FilePath &fileName)
 {
     return Utils::findOrDefault(SessionManager::projects(),
                                 [&fileName](const Project *p) { return p->isKnownFile(fileName); });
@@ -647,7 +647,7 @@ Project *SessionManager::projectForFile(const Utils::FileName &fileName)
 void SessionManager::configureEditor(IEditor *editor, const QString &fileName)
 {
     if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
-        Project *project = projectForFile(Utils::FileName::fromString(fileName));
+        Project *project = projectForFile(Utils::FilePath::fromString(fileName));
         // Global settings are the default.
         if (project)
             project->editorConfiguration()->configureEditor(textEditor);
@@ -761,9 +761,9 @@ QDateTime SessionManager::sessionDateTime(const QString &session)
     return d->m_sessionDateTimes.value(session);
 }
 
-FileName SessionManager::sessionNameToFileName(const QString &session)
+FilePath SessionManager::sessionNameToFileName(const QString &session)
 {
-    return FileName::fromString(ICore::userResourcePath() + QLatin1Char('/') + session + QLatin1String(".qws"));
+    return FilePath::fromString(ICore::userResourcePath() + QLatin1Char('/') + session + QLatin1String(".qws"));
 }
 
 /*!
@@ -947,7 +947,7 @@ bool SessionManager::loadSession(const QString &session)
 
     QStringList fileList;
     // Try loading the file
-    FileName fileName = sessionNameToFileName(session);
+    FilePath fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
     if (fileName.exists()) {
         if (!reader.load(fileName)) {
@@ -1078,7 +1078,7 @@ void SessionManagerPrivate::sessionLoadingProgress()
 
 QStringList SessionManager::projectsForSessionName(const QString &session)
 {
-    const FileName fileName = sessionNameToFileName(session);
+    const FilePath fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
     if (fileName.exists()) {
         if (!reader.load(fileName)) {

@@ -238,8 +238,8 @@ void CppEditorDocument::reparseWithPreferredParseContext(const QString &parseCon
     scheduleProcessDocument();
 }
 
-void CppEditorDocument::onFilePathChanged(const Utils::FileName &oldPath,
-                                          const Utils::FileName &newPath)
+void CppEditorDocument::onFilePathChanged(const Utils::FilePath &oldPath,
+                                          const Utils::FilePath &newPath)
 {
     Q_UNUSED(oldPath);
 

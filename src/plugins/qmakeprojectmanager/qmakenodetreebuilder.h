@@ -29,7 +29,7 @@
 #include "qmakeparsernodes.h"
 #include "qmakenodes.h"
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 namespace ProjectExplorer { class RunConfiguration; }
 
 namespace QmakeProjectManager {

@@ -53,7 +53,7 @@ class AutotoolsProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit AutotoolsProject(const Utils::FileName &fileName);
+    explicit AutotoolsProject(const Utils::FilePath &fileName);
     ~AutotoolsProject() override;
 
     QStringList buildTargets() const;

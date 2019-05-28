@@ -40,11 +40,11 @@ class CPLUSPLUS_EXPORT Usage
 {
 public:
     Usage() = default;
-    Usage(const Utils::FileName &path, const QString &lineText, int line, int col, int len)
+    Usage(const Utils::FilePath &path, const QString &lineText, int line, int col, int len)
         : path(path), lineText(lineText), line(line), col(col), len(len) {}
 
 public:
-    Utils::FileName path;
+    Utils::FilePath path;
     QString lineText;
     int line = 0;
     int col = 0;

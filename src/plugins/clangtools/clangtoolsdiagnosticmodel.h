@@ -162,7 +162,7 @@ private:
     void handleSuppressedDiagnosticsChanged();
 
     QPointer<ProjectExplorer::Project> m_project;
-    Utils::FileName m_lastProjectDirectory;
+    Utils::FilePath m_lastProjectDirectory;
     SuppressedDiagnosticsList m_suppressedDiagnostics;
 };
 

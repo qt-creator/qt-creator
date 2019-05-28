@@ -131,12 +131,12 @@ void ArtisticStyleSettings::setUseSpecificConfigFile(bool useSpecificConfigFile)
     m_settings.insert(USE_SPECIFIC_CONFIG_FILE, QVariant(useSpecificConfigFile));
 }
 
-Utils::FileName ArtisticStyleSettings::specificConfigFile() const
+Utils::FilePath ArtisticStyleSettings::specificConfigFile() const
 {
-    return Utils::FileName::fromString(m_settings.value(SPECIFIC_CONFIG_FILE).toString());
+    return Utils::FilePath::fromString(m_settings.value(SPECIFIC_CONFIG_FILE).toString());
 }
 
-void ArtisticStyleSettings::setSpecificConfigFile(const Utils::FileName &specificConfigFile)
+void ArtisticStyleSettings::setSpecificConfigFile(const Utils::FilePath &specificConfigFile)
 {
     m_settings.insert(SPECIFIC_CONFIG_FILE, QVariant(specificConfigFile.toString()));
 }

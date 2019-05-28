@@ -53,12 +53,12 @@ void JavaParser::setProjectFileList(const QStringList &fileList)
     m_fileList = fileList;
 }
 
-void JavaParser::setBuildDirectory(const Utils::FileName &buildDirectory)
+void JavaParser::setBuildDirectory(const Utils::FilePath &buildDirectory)
 {
     m_buildDirectory = buildDirectory;
 }
 
-void JavaParser::setSourceDirectory(const Utils::FileName &sourceDirectory)
+void JavaParser::setSourceDirectory(const Utils::FilePath &sourceDirectory)
 {
     m_sourceDirectory = sourceDirectory;
 }
@@ -70,16 +70,16 @@ void JavaParser::parse(const QString &line)
         int lineno = m_javaRegExp.cap(3).toInt(&ok);
         if (!ok)
             lineno = -1;
-        Utils::FileName file = Utils::FileName::fromUserInput(m_javaRegExp.cap(2));
+        Utils::FilePath file = Utils::FilePath::fromUserInput(m_javaRegExp.cap(2));
         if (file.isChildOf(m_buildDirectory)) {
-            Utils::FileName relativePath = file.relativeChildPath(m_buildDirectory);
+            Utils::FilePath relativePath = file.relativeChildPath(m_buildDirectory);
             file = m_sourceDirectory.pathAppended(relativePath.toString());
         }
 
         if (file.toFileInfo().isRelative()) {
             for (int i = 0; i < m_fileList.size(); i++)
                 if (m_fileList[i].endsWith(file.toString())) {
-                    file = Utils::FileName::fromString(m_fileList[i]);
+                    file = Utils::FilePath::fromString(m_fileList[i]);
                     break;
                 }
         }

@@ -435,7 +435,7 @@ void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
     m_toolBar->setCurrentEditor(editor);
 }
 
-void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FileName &fileName)
+void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FilePath &fileName)
 {
     if (m_navigatorHistoryCounter > 0)
         m_navigatorHistory.insert(m_navigatorHistoryCounter + 1, fileName.toString());

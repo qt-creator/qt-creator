@@ -48,7 +48,7 @@ public:
     QString displayName() const final;
     Core::Id id() const final;
 
-    bool isVcsFileOrDirectory(const Utils::FileName &fileName) const final;
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
     bool managesDirectory(const QString &filename, QString *topLevel = nullptr) const final;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
@@ -62,7 +62,7 @@ public:
     bool vcsAnnotate(const QString &file, int line) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FileName &baseDirectory,
+                                                     const Utils::FilePath &baseDirectory,
                                                      const QString &localName,
                                                      const QStringList &extraArgs) final;
 

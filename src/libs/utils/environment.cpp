@@ -392,14 +392,14 @@ void Environment::clear()
     m_values.clear();
 }
 
-FileName Environment::searchInDirectory(const QStringList &execs, const FileName &directory,
-                                        QSet<FileName> &alreadyChecked) const
+FilePath Environment::searchInDirectory(const QStringList &execs, const FilePath &directory,
+                                        QSet<FilePath> &alreadyChecked) const
 {
     const int checkedCount = alreadyChecked.count();
     alreadyChecked.insert(directory);
 
     if (directory.isEmpty() || alreadyChecked.count() == checkedCount)
-        return FileName();
+        return FilePath();
 
     const QString dir = directory.toString();
 
@@ -407,9 +407,9 @@ FileName Environment::searchInDirectory(const QStringList &execs, const FileName
     for (const QString &exec : execs) {
         fi.setFile(dir, exec);
         if (fi.isFile() && fi.isExecutable())
-            return FileName::fromString(fi.absoluteFilePath());
+            return FilePath::fromString(fi.absoluteFilePath());
     }
-    return FileName();
+    return FilePath();
 }
 
 QStringList Environment::appendExeExtensions(const QString &executable) const
@@ -435,8 +435,8 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
     const QStringList exe2List = appendExeExtensions(exe2);
     for (const QString &i1 : exe1List) {
         for (const QString &i2 : exe2List) {
-            const FileName f1 = FileName::fromString(i1);
-            const FileName f2 = FileName::fromString(i2);
+            const FilePath f1 = FilePath::fromString(i1);
+            const FilePath f2 = FilePath::fromString(i2);
             if (f1 == f2)
                 return true;
             if (FileUtils::resolveSymlinks(f1) == FileUtils::resolveSymlinks(f2))
@@ -448,12 +448,12 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
     return false;
 }
 
-FileName Environment::searchInPath(const QString &executable,
-                                   const FileNameList &additionalDirs,
+FilePath Environment::searchInPath(const QString &executable,
+                                   const FilePathList &additionalDirs,
                                    const PathFilter &func) const
 {
     if (executable.isEmpty())
-        return FileName();
+        return FilePath();
 
     const QString exec = QDir::cleanPath(expandVariables(executable));
     const QFileInfo fi(exec);
@@ -464,34 +464,34 @@ FileName Environment::searchInPath(const QString &executable,
         for (const QString &path : execs) {
             QFileInfo pfi = QFileInfo(path);
             if (pfi.isFile() && pfi.isExecutable())
-                return FileName::fromString(path);
+                return FilePath::fromString(path);
         }
-        return FileName::fromString(exec);
+        return FilePath::fromString(exec);
     }
 
-    QSet<FileName> alreadyChecked;
-    for (const FileName &dir : additionalDirs) {
-        FileName tmp = searchInDirectory(execs, dir, alreadyChecked);
+    QSet<FilePath> alreadyChecked;
+    for (const FilePath &dir : additionalDirs) {
+        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
         if (!tmp.isEmpty() && (!func || func(tmp)))
             return tmp;
     }
 
     if (executable.contains('/'))
-        return FileName();
+        return FilePath();
 
-    for (const FileName &p : path()) {
-        FileName tmp = searchInDirectory(execs, p, alreadyChecked);
+    for (const FilePath &p : path()) {
+        FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
         if (!tmp.isEmpty() && (!func || func(tmp)))
             return tmp;
     }
-    return FileName();
+    return FilePath();
 }
 
-FileNameList Environment::path() const
+FilePathList Environment::path() const
 {
     const QStringList pathComponents = value("PATH")
             .split(OsSpecificAspects::pathListSeparator(m_osType), QString::SkipEmptyParts);
-    return Utils::transform(pathComponents, &FileName::fromUserInput);
+    return Utils::transform(pathComponents, &FilePath::fromUserInput);
 }
 
 QString Environment::value(const QString &key) const
@@ -690,9 +690,9 @@ QString Environment::expandVariables(const QString &input) const
     return result;
 }
 
-FileName Environment::expandVariables(const FileName &variables) const
+FilePath Environment::expandVariables(const FilePath &variables) const
 {
-    return FileName::fromString(expandVariables(variables.toString()));
+    return FilePath::fromString(expandVariables(variables.toString()));
 }
 
 QStringList Environment::expandVariables(const QStringList &variables) const

@@ -216,7 +216,7 @@ bool DiffEditorDocument::save(QString *errorString, const QString &fileName, boo
 
     const QFileInfo fi(fileName);
     setTemporary(false);
-    setFilePath(FileName::fromString(fi.absoluteFilePath()));
+    setFilePath(FilePath::fromString(fi.absoluteFilePath()));
     setPreferredDisplayName(QString());
     emit temporaryStateChanged();
 
@@ -263,7 +263,7 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
         const QFileInfo fi(fileName);
         setTemporary(false);
         emit temporaryStateChanged();
-        setFilePath(FileName::fromString(fi.absoluteFilePath()));
+        setFilePath(FilePath::fromString(fi.absoluteFilePath()));
         setDiffFiles(fileDataList, fi.absolutePath());
     }
     endReload(ok);

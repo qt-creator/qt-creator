@@ -676,7 +676,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
     QString itemId = modelNode.id();
 
-    const Utils::FileName currentDesignDocument = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
+    const Utils::FilePath currentDesignDocument = QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
     const QString fileName = currentDesignDocument.toString();
     const QString typeName = currentDesignDocument.toFileInfo().baseName();
 

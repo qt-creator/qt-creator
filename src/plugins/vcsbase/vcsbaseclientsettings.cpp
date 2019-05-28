@@ -175,7 +175,7 @@ public:
     QHash<QString, SettingValue> m_valueHash;
     QVariantHash m_defaultValueHash;
     QString m_settingsGroup;
-    mutable FileName m_binaryFullPath;
+    mutable FilePath m_binaryFullPath;
 };
 
 } // namespace Internal
@@ -351,11 +351,11 @@ QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
     return QVariant::Invalid;
 }
 
-FileName VcsBaseClientSettings::binaryPath() const
+FilePath VcsBaseClientSettings::binaryPath() const
 {
     if (d->m_binaryFullPath.isEmpty()) {
-        const FileNameList searchPaths
-                = Utils::transform(searchPathList(), [](const QString &s) { return FileName::fromString(s); });
+        const FilePathList searchPaths
+                = Utils::transform(searchPathList(), [](const QString &s) { return FilePath::fromString(s); });
         d->m_binaryFullPath = Environment::systemEnvironment().searchInPath(
                     stringValue(binaryPathKey), searchPaths);
     }

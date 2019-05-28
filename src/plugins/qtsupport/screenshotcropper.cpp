@@ -52,7 +52,7 @@ Q_GLOBAL_STATIC(AreasOfInterest, welcomeScreenAreas)
 
 static inline QString fileNameForPath(const QString &path)
 {
-    return Utils::FileName::fromString(path).fileName();
+    return Utils::FilePath::fromString(path).fileName();
 }
 
 static QRect cropRectForAreaOfInterest(const QSize &imageSize, const QSize &cropSize, const QRect &areaOfInterest)

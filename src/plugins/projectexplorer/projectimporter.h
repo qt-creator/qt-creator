@@ -51,13 +51,13 @@ public:
         bool areTemporary = false;
     };
 
-    ProjectImporter(const Utils::FileName &path);
+    ProjectImporter(const Utils::FilePath &path);
     ~ProjectImporter() override;
 
-    const Utils::FileName projectFilePath() const { return m_projectPath; }
-    const Utils::FileName projectDirectory() const { return m_projectPath.parentDir(); }
+    const Utils::FilePath projectFilePath() const { return m_projectPath; }
+    const Utils::FilePath projectDirectory() const { return m_projectPath.parentDir(); }
 
-    virtual const QList<BuildInfo> import(const Utils::FileName &importPath, bool silent = false);
+    virtual const QList<BuildInfo> import(const Utils::FilePath &importPath, bool silent = false);
     virtual QStringList importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
 
@@ -88,7 +88,7 @@ protected:
     };
 
     // importPath is an existing directory at this point!
-    virtual QList<void *> examineDirectory(const Utils::FileName &importPath) const = 0;
+    virtual QList<void *> examineDirectory(const Utils::FilePath &importPath) const = 0;
     // will get one of the results from examineDirectory
     virtual bool matchKit(void *directoryData, const Kit *k) const = 0;
     // will get one of the results from examineDirectory
@@ -110,7 +110,7 @@ protected:
     // Does *any* kit feature the requested data yet?
     bool hasKitWithTemporaryData(Core::Id id, const QVariant &data) const;
 
-    ToolChainData findOrCreateToolChains(const Utils::FileName &toolChainPath, const Core::Id &language) const;
+    ToolChainData findOrCreateToolChains(const Utils::FilePath &toolChainPath, const Core::Id &language) const;
 
 private:
     void markKitAsTemporary(Kit *k) const;
@@ -119,7 +119,7 @@ private:
     void cleanupTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
     void persistTemporaryToolChains(ProjectExplorer::Kit *k, const QVariantList &vl);
 
-    const Utils::FileName m_projectPath;
+    const Utils::FilePath m_projectPath;
     mutable bool m_isUpdating = false;
 
     class TemporaryInformationHandler {

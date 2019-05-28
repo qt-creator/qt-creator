@@ -174,7 +174,7 @@ void tst_Ecmascript::test()
     PathsAndLanguages lPaths;
     QStringList paths(m_basePaths);
     for (auto p: paths)
-        lPaths.maybeInsert(Utils::FileName::fromString(p), Dialect::Qml);
+        lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
 

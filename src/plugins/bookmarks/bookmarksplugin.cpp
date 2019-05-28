@@ -79,7 +79,7 @@ public:
     QAction m_bookmarkMarginAction{BookmarksPlugin::tr("Toggle Bookmark"), nullptr};
 
     int m_marginActionLineNumber = 0;
-    Utils::FileName m_marginActionFileName;
+    Utils::FilePath m_marginActionFileName;
 };
 
 BookmarksPlugin::~BookmarksPlugin()

@@ -36,7 +36,7 @@ class QFileInfo;
 class QDir;
 QT_END_NAMESPACE
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace CppTools {
 
@@ -63,7 +63,7 @@ public:
     static const QStringList &headerPrefixes();
     static const QStringList &sourcePrefixes();
     static void clearHeaderSourceCache();
-    static Utils::FileName licenseTemplatePath();
+    static Utils::FilePath licenseTemplatePath();
     static QString licenseTemplate();
     static bool usePragmaOnce();
 

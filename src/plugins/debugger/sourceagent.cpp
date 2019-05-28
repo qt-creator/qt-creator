@@ -104,7 +104,7 @@ void SourceAgent::setContent(const QString &filePath, const QString &content)
 
     if (!d->editor) {
         QString titlePattern = d->producer + ": "
-            + Utils::FileName::fromString(filePath).fileName();
+            + Utils::FilePath::fromString(filePath).fileName();
         d->editor = qobject_cast<BaseTextEditor *>(
             EditorManager::openEditorWithContents(
                 CppEditor::Constants::CPPEDITOR_ID,
@@ -137,7 +137,7 @@ void SourceAgent::updateLocationMarker()
     if (d->engine->stackHandler()->currentFrame().file == d->path) {
         int lineNumber = d->engine->stackHandler()->currentFrame().line;
 
-        d->locationMark = new TextMark(Utils::FileName(), lineNumber,
+        d->locationMark = new TextMark(Utils::FilePath(), lineNumber,
                                        Constants::TEXT_MARK_CATEGORY_LOCATION);
         d->locationMark->setIcon(Icons::LOCATION.icon());
         d->locationMark->setPriority(TextMark::HighPriority);

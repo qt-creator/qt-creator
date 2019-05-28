@@ -82,7 +82,7 @@ static bool checkPath(const QString &candidate, int matchLength,
 FileInProjectFinder::FileInProjectFinder() = default;
 FileInProjectFinder::~FileInProjectFinder() = default;
 
-void FileInProjectFinder::setProjectDirectory(const FileName &absoluteProjectPath)
+void FileInProjectFinder::setProjectDirectory(const FilePath &absoluteProjectPath)
 {
     if (absoluteProjectPath == m_projectDir)
         return;
@@ -95,12 +95,12 @@ void FileInProjectFinder::setProjectDirectory(const FileName &absoluteProjectPat
     m_cache.clear();
 }
 
-FileName  FileInProjectFinder::projectDirectory() const
+FilePath  FileInProjectFinder::projectDirectory() const
 {
     return m_projectDir;
 }
 
-void FileInProjectFinder::setProjectFiles(const FileNameList &projectFiles)
+void FileInProjectFinder::setProjectFiles(const FilePathList &projectFiles)
 {
     if (m_projectFiles == projectFiles)
         return;
@@ -110,7 +110,7 @@ void FileInProjectFinder::setProjectFiles(const FileNameList &projectFiles)
     m_qrcUrlFinder.setProjectFiles(projectFiles);
 }
 
-void FileInProjectFinder::setSysroot(const FileName &sysroot)
+void FileInProjectFinder::setSysroot(const FilePath &sysroot)
 {
     if (m_sysroot == sysroot)
         return;
@@ -119,7 +119,7 @@ void FileInProjectFinder::setSysroot(const FileName &sysroot)
     m_cache.clear();
 }
 
-void FileInProjectFinder::addMappedPath(const FileName &localFilePath, const QString &remoteFilePath)
+void FileInProjectFinder::addMappedPath(const FilePath &localFilePath, const QString &remoteFilePath)
 {
     const QStringList segments = remoteFilePath.split('/', QString::SkipEmptyParts);
 
@@ -142,12 +142,12 @@ void FileInProjectFinder::addMappedPath(const FileName &localFilePath, const QSt
   folder specified. Third, we walk the list of project files, and search for a file name match
   there. If all fails, it returns the original path from the file URL.
   */
-FileNameList FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
+FilePathList FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 {
     qCDebug(finderLog) << "FileInProjectFinder: trying to find file" << fileUrl.toString() << "...";
 
     if (fileUrl.scheme() == "qrc" || fileUrl.toString().startsWith(':')) {
-        const FileNameList result = m_qrcUrlFinder.find(fileUrl);
+        const FilePathList result = m_qrcUrlFinder.find(fileUrl);
         if (!result.isEmpty()) {
             if (success)
                 *success = true;
@@ -159,12 +159,12 @@ FileNameList FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) c
     if (originalPath.isEmpty()) // e.g. qrc://
         originalPath = fileUrl.path();
 
-    FileNameList result;
+    FilePathList result;
     bool found = findFileOrDirectory(originalPath, [&](const QString &fileName, int) {
-        result << FileName::fromString(fileName);
+        result << FilePath::fromString(fileName);
     });
     if (!found)
-        result << FileName::fromString(originalPath);
+        result << FilePath::fromString(originalPath);
 
     if (success)
         *success = found;
@@ -291,7 +291,7 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
     qCDebug(finderLog) << "FileInProjectFinder: checking project files ...";
 
     QStringList matches;
-    const QString lastSegment = FileName::fromString(originalPath).fileName();
+    const QString lastSegment = FilePath::fromString(originalPath).fileName();
     if (fileHandler)
         matches.append(filesWithSameFileName(lastSegment));
     if (directoryHandler)
@@ -318,7 +318,7 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
 
     // check if absolute path is found in sysroot
     if (!m_sysroot.isEmpty()) {
-        const FileName sysrootPath = m_sysroot.pathAppended(originalPath);
+        const FilePath sysrootPath = m_sysroot.pathAppended(originalPath);
         if (checkPath(sysrootPath.toString(), origLength, fileHandler, directoryHandler)) {
             return handleSuccess(originalPath, QStringList(sysrootPath.toString()), origLength,
                                  "in sysroot");
@@ -333,7 +333,7 @@ bool FileInProjectFinder::findFileOrDirectory(const QString &originalPath, FileH
 FileInProjectFinder::CacheEntry FileInProjectFinder::findInSearchPaths(
         const QString &filePath, FileHandler fileHandler, DirectoryHandler directoryHandler) const
 {
-    for (const FileName &dirPath : m_searchDirectories) {
+    for (const FilePath &dirPath : m_searchDirectories) {
         const CacheEntry found = findInSearchPath(dirPath.toString(), filePath,
                                                   fileHandler, directoryHandler);
         if (!found.paths.isEmpty())
@@ -386,7 +386,7 @@ FileInProjectFinder::CacheEntry FileInProjectFinder::findInSearchPath(
 QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) const
 {
     QStringList result;
-    foreach (const FileName &f, m_projectFiles) {
+    foreach (const FilePath &f, m_projectFiles) {
         if (f.fileName() == fileName)
             result << f.toString();
     }
@@ -396,8 +396,8 @@ QStringList FileInProjectFinder::filesWithSameFileName(const QString &fileName) 
 QStringList FileInProjectFinder::pathSegmentsWithSameName(const QString &pathSegment) const
 {
     QStringList result;
-    for (const FileName &f : m_projectFiles) {
-        FileName currentPath = f.parentDir();
+    for (const FilePath &f : m_projectFiles) {
+        FilePath currentPath = f.parentDir();
         do {
             if (currentPath.fileName() == pathSegment) {
                 if (result.isEmpty() || result.last() != currentPath.toString())
@@ -446,12 +446,12 @@ QStringList FileInProjectFinder::bestMatches(const QStringList &filePaths,
     return bestFilePaths;
 }
 
-FileNameList FileInProjectFinder::searchDirectories() const
+FilePathList FileInProjectFinder::searchDirectories() const
 {
     return m_searchDirectories;
 }
 
-void FileInProjectFinder::setAdditionalSearchDirectories(const FileNameList &searchDirectories)
+void FileInProjectFinder::setAdditionalSearchDirectories(const FilePathList &searchDirectories)
 {
     m_searchDirectories = searchDirectories;
 }
@@ -461,13 +461,13 @@ FileInProjectFinder::PathMappingNode::~PathMappingNode()
     qDeleteAll(children);
 }
 
-FileNameList FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
+FilePathList FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
 {
     const auto fileIt = m_fileCache.constFind(fileUrl);
     if (fileIt != m_fileCache.cend())
         return fileIt.value();
     QStringList hits;
-    for (const FileName &f : m_allQrcFiles) {
+    for (const FilePath &f : m_allQrcFiles) {
         QrcParser::Ptr &qrcParser = m_parserCache[f];
         if (!qrcParser)
             qrcParser = QrcParser::parseQrcFile(f.toString(), QString());
@@ -476,28 +476,28 @@ FileNameList FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
         qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);
     }
     hits.removeDuplicates();
-    const FileNameList result = transform(hits, &FileName::fromString);
+    const FilePathList result = transform(hits, &FilePath::fromString);
     m_fileCache.insert(fileUrl, result);
     return result;
 }
 
-void FileInProjectFinder::QrcUrlFinder::setProjectFiles(const FileNameList &projectFiles)
+void FileInProjectFinder::QrcUrlFinder::setProjectFiles(const FilePathList &projectFiles)
 {
-    m_allQrcFiles = filtered(projectFiles, [](const FileName &f) { return f.endsWith(".qrc"); });
+    m_allQrcFiles = filtered(projectFiles, [](const FilePath &f) { return f.endsWith(".qrc"); });
     m_fileCache.clear();
     m_parserCache.clear();
 }
 
-FileName chooseFileFromList(const FileNameList &candidates)
+FilePath chooseFileFromList(const FilePathList &candidates)
 {
     if (candidates.length() == 1)
         return candidates.first();
     QMenu filesMenu;
-    for (const FileName &candidate : candidates)
+    for (const FilePath &candidate : candidates)
         filesMenu.addAction(candidate.toUserOutput());
     if (const QAction * const action = filesMenu.exec(QCursor::pos()))
-        return FileName::fromUserInput(action->text());
-    return FileName();
+        return FilePath::fromUserInput(action->text());
+    return FilePath();
 }
 
 } // namespace Utils

@@ -169,7 +169,7 @@ QStringList ToolChain::suggestedMkspecList() const
     return {};
 }
 
-Utils::FileName ToolChain::suggestedDebugger() const
+Utils::FilePath ToolChain::suggestedDebugger() const
 {
     return ToolChainManager::defaultDebugger(targetAbi());
 }
@@ -436,7 +436,7 @@ QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alread
     return QList<ToolChain *>();
 }
 
-QList<ToolChain *> ToolChainFactory::autoDetect(const Utils::FileName &compilerPath, const Core::Id &language)
+QList<ToolChain *> ToolChainFactory::autoDetect(const Utils::FilePath &compilerPath, const Core::Id &language)
 {
     Q_UNUSED(compilerPath);
     Q_UNUSED(language);

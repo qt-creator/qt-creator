@@ -143,7 +143,7 @@ void ToolSettings::apply()
                     if (tool->preset() && (*tool) != (*(tool->preset()))) {
                         // check if we need to choose a new file name
                         if (tool->preset()->fileName() == tool->fileName()) {
-                            const QString &fileName = Utils::FileName::fromString(tool->preset()->fileName()).fileName();
+                            const QString &fileName = Utils::FilePath::fromString(tool->preset()->fileName()).fileName();
                             const QString &newFilePath = getUserFilePath(fileName);
                             // TODO error handling if newFilePath.isEmpty() (i.e. failed to find a unused name)
                             tool->setFileName(newFilePath);

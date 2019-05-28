@@ -76,7 +76,7 @@ static int lineBeforeCursor(const QTextCursor &cursor)
 
 QString DoxygenGenerator::generate(QTextCursor cursor,
                                    const CPlusPlus::Snapshot &snapshot,
-                                   const Utils::FileName &documentFilePath)
+                                   const Utils::FilePath &documentFilePath)
 {
     const QTextCursor initialCursor = cursor;
 

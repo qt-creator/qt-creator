@@ -72,8 +72,8 @@ public:
     DebuggerEngineType engineType() const { return m_engineType; }
     void setEngineType(const DebuggerEngineType &engineType);
 
-    Utils::FileName command() const { return m_command; }
-    void setCommand(const Utils::FileName &command);
+    Utils::FilePath command() const { return m_command; }
+    void setCommand(const Utils::FilePath &command);
 
     bool isAutoDetected() const { return m_isAutoDetected; }
     void setAutoDetected(bool isAutoDetected);
@@ -99,8 +99,8 @@ public:
 
     void reinitializeFromFile();
 
-    Utils::FileName workingDirectory() const { return m_workingDirectory; }
-    void setWorkingDirectory(const Utils::FileName &workingPath) { m_workingDirectory = workingPath; }
+    Utils::FilePath workingDirectory() const { return m_workingDirectory; }
+    void setWorkingDirectory(const Utils::FilePath &workingPath) { m_workingDirectory = workingPath; }
 
 private:
     DebuggerItem(const QVariant &id);
@@ -109,8 +109,8 @@ private:
     QVariant m_id;
     QString m_unexpandedDisplayName;
     DebuggerEngineType m_engineType = NoEngineType;
-    Utils::FileName m_command;
-    Utils::FileName m_workingDirectory;
+    Utils::FilePath m_command;
+    Utils::FilePath m_workingDirectory;
     bool m_isAutoDetected = false;
     QString m_version;
     ProjectExplorer::Abis m_abis;

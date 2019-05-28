@@ -38,7 +38,7 @@
 
 #include <functional>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 
@@ -68,7 +68,7 @@ public:
     static QList<ToolChain *> findToolChains(const Abi &abi);
     static ToolChain *findToolChain(const QByteArray &id);
 
-    static Utils::FileName defaultDebugger(const Abi &abi);
+    static Utils::FilePath defaultDebugger(const Abi &abi);
 
     static bool isLoaded();
 

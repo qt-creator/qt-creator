@@ -122,7 +122,7 @@ static ExplainingStep buildFixIt(const CXDiagnostic cxDiagnostic, unsigned index
 }
 
 static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
-                                  const Utils::FileName &projectRootDir,
+                                  const Utils::FilePath &projectRootDir,
                                   const QString &nativeFilePath)
 {
     Diagnostic diagnostic;
@@ -135,7 +135,7 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
         return diagnostic;
 
     diagnostic.location = diagLocationFromSourceLocation(cxLocation);
-    const auto diagnosticFilePath = Utils::FileName::fromString(diagnostic.location.filePath);
+    const auto diagnosticFilePath = Utils::FilePath::fromString(diagnostic.location.filePath);
     if (!diagnosticFilePath.isChildOf(projectRootDir))
         return diagnostic;
 
@@ -183,7 +183,7 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
 }
 
 static QList<Diagnostic> readSerializedDiagnostics_helper(const QString &filePath,
-                                                          const Utils::FileName &projectRootDir,
+                                                          const Utils::FilePath &projectRootDir,
                                                           const QString &logFilePath)
 {
     QList<Diagnostic> list;
@@ -232,7 +232,7 @@ static bool checkFilePath(const QString &filePath, QString *errorMessage)
 }
 
 QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
-                                            const Utils::FileName &projectRootDir,
+                                            const Utils::FilePath &projectRootDir,
                                             const QString &logFilePath,
                                             QString *errorMessage)
 {

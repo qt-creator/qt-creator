@@ -80,7 +80,7 @@ void tst_fileutils::parentDir()
     QFETCH(QString, parentPath);
     QFETCH(QString, expectFailMessage);
 
-    FileName result = FileName::fromString(path).parentDir();
+    FilePath result = FilePath::fromString(path).parentDir();
     if (!expectFailMessage.isEmpty())
         QEXPECT_FAIL("", expectFailMessage.toUtf8().constData(), Continue);
     QCOMPARE(result.toString(), parentPath);
@@ -120,7 +120,7 @@ void tst_fileutils::isChildOf()
     QFETCH(QString, childPath);
     QFETCH(bool, result);
 
-    bool res = FileName::fromString(childPath).isChildOf(FileName::fromString(path));
+    bool res = FilePath::fromString(childPath).isChildOf(FilePath::fromString(path));
     QCOMPARE(res, result);
 }
 
@@ -161,7 +161,7 @@ void tst_fileutils::fileName()
     QFETCH(QString, path);
     QFETCH(int, components);
     QFETCH(QString, result);
-    QCOMPARE(FileName::fromString(path).fileName(components), result);
+    QCOMPARE(FilePath::fromString(path).fileName(components), result);
 }
 
 QTEST_APPLESS_MAIN(tst_fileutils)

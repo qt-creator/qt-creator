@@ -153,7 +153,7 @@ QString PuppetCreator::getStyleConfigFileName() const
 {
 #ifndef QMLDESIGNER_TEST
     if (m_currentProject) {
-        for (const Utils::FileName &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+        for (const Utils::FilePath &fileName : m_currentProject->files(ProjectExplorer::Project::SourceFiles)) {
             if (fileName.fileName() == "qtquickcontrols2.conf")
                 return  fileName.toString();
         }
@@ -422,7 +422,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_kit);
     if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
         // Update PATH to include QT_HOST_BINS
-        const Utils::FileName qtBinPath = qt->binPath();
+        const Utils::FilePath qtBinPath = qt->binPath();
         environment.prependOrSetPath(qtBinPath.toString());
     }
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");

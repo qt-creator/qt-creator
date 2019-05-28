@@ -144,7 +144,7 @@ public:
     bool separateDebugInfo() const;
     void setSeparateDebugInfo(bool enable);
 
-    Utils::FileName makeCommand() const;
+    Utils::FilePath makeCommand() const;
     QString makeArguments(const QString &makefile) const;
     QString effectiveQMakeCall() const;
 
@@ -166,12 +166,12 @@ private:
     void doCancel() override;
     void finish(bool success) override;
 
-    void startOneCommand(const Utils::FileName &command, const QString &args);
+    void startOneCommand(const Utils::FilePath &command, const QString &args);
     void runNextCommand();
 
-    Utils::FileName m_qmakeExecutable;
+    Utils::FilePath m_qmakeExecutable;
     QString m_qmakeArguments;
-    Utils::FileName m_makeExecutable;
+    Utils::FilePath m_makeExecutable;
     QString m_makeArguments;
     QString m_userArgs;
     // Extra arguments for qmake.

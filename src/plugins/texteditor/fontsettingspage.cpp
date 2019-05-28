@@ -586,7 +586,7 @@ void FontSettingsPage::refreshColorSchemeList()
     int selected = 0;
 
     QStringList schemeList = styleDir.entryList();
-    QString defaultScheme = Utils::FileName::fromString(FontSettings::defaultSchemeFileName()).fileName();
+    QString defaultScheme = Utils::FilePath::fromString(FontSettings::defaultSchemeFileName()).fileName();
     if (schemeList.removeAll(defaultScheme))
         schemeList.prepend(defaultScheme);
     foreach (const QString &file, schemeList) {

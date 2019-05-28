@@ -331,7 +331,7 @@ QItemSelectionModel *BookmarkManager::selectionModel() const
     return m_selectionModel;
 }
 
-bool BookmarkManager::hasBookmarkInPosition(const Utils::FileName &fileName, int lineNumber)
+bool BookmarkManager::hasBookmarkInPosition(const Utils::FilePath &fileName, int lineNumber)
 {
     return findBookmark(fileName, lineNumber);
 }
@@ -414,7 +414,7 @@ QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
     return data;
 }
 
-void BookmarkManager::toggleBookmark(const FileName &fileName, int lineNumber)
+void BookmarkManager::toggleBookmark(const FilePath &fileName, int lineNumber)
 {
     if (lineNumber <= 0 || fileName.isEmpty())
         return;
@@ -450,7 +450,7 @@ void BookmarkManager::updateBookmarkFileName(Bookmark *bookmark, const QString &
     if (oldFileName == bookmark->fileName().toString())
         return;
 
-    m_bookmarksMap[Utils::FileName::fromString(oldFileName)].removeAll(bookmark);
+    m_bookmarksMap[Utils::FilePath::fromString(oldFileName)].removeAll(bookmark);
     m_bookmarksMap[bookmark->fileName()].append(bookmark);
     updateBookmark(bookmark);
 }
@@ -517,7 +517,7 @@ void BookmarkManager::documentPrevNext(bool next)
     if (editorLine <= 0)
         return;
 
-    const FileName filePath = editor->document()->filePath();
+    const FilePath filePath = editor->document()->filePath();
     if (!m_bookmarksMap.contains(filePath))
         return;
 
@@ -664,7 +664,7 @@ void BookmarkManager::moveDown()
     saveBookmarks();
 }
 
-void BookmarkManager::editByFileAndLine(const FileName &fileName, int lineNumber)
+void BookmarkManager::editByFileAndLine(const FilePath &fileName, int lineNumber)
 {
     Bookmark *b = findBookmark(fileName, lineNumber);
     QModelIndex current = selectionModel()->currentIndex();
@@ -703,7 +703,7 @@ void BookmarkManager::edit()
 }
 
 /* Returns the bookmark at the given file and line number, or 0 if no such bookmark exists. */
-Bookmark *BookmarkManager::findBookmark(const FileName &filePath, int lineNumber)
+Bookmark *BookmarkManager::findBookmark(const FilePath &filePath, int lineNumber)
 {
     return Utils::findOrDefault(m_bookmarksMap.value(filePath),
                                 Utils::equal(&Bookmark::lineNumber, lineNumber));
@@ -749,9 +749,9 @@ void BookmarkManager::addBookmark(const QString &s)
         const QString &filePath = s.mid(index1+1, index2-index1-1);
         const QString &note = s.mid(index3 + 1);
         const int lineNumber = s.midRef(index2 + 1, index3 - index2 - 1).toInt();
-        if (!filePath.isEmpty() && !findBookmark(FileName::fromString(filePath), lineNumber)) {
+        if (!filePath.isEmpty() && !findBookmark(FilePath::fromString(filePath), lineNumber)) {
             auto b = new Bookmark(lineNumber, this);
-            b->updateFileName(FileName::fromString(filePath));
+            b->updateFileName(FilePath::fromString(filePath));
             b->setNote(note);
             addBookmark(b, false);
         }

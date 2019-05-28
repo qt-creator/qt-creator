@@ -58,7 +58,7 @@ private:
     void documentRenamed(Core::IDocument *document, const QString &oldName, const QString &newName);
     void allDocumentsRenamed(const QString &oldName, const QString &newName);
 
-    QHash<Utils::FileName, QSet<TextMark *> > m_marks;
+    QHash<Utils::FilePath, QSet<TextMark *> > m_marks;
 };
 
 class AnnotationColors
@@ -78,7 +78,7 @@ private:
 
 TextMarkRegistry *m_instance = nullptr;
 
-TextMark::TextMark(const FileName &fileName, int lineNumber, Id category, double widthFactor)
+TextMark::TextMark(const FilePath &fileName, int lineNumber, Id category, double widthFactor)
     : m_fileName(fileName)
     , m_lineNumber(lineNumber)
     , m_visible(true)
@@ -100,12 +100,12 @@ TextMark::~TextMark()
     m_baseTextDocument = nullptr;
 }
 
-FileName TextMark::fileName() const
+FilePath TextMark::fileName() const
 {
     return m_fileName;
 }
 
-void TextMark::updateFileName(const FileName &fileName)
+void TextMark::updateFileName(const FilePath &fileName)
 {
     if (fileName == m_fileName)
         return;
@@ -398,8 +398,8 @@ void TextMarkRegistry::documentRenamed(IDocument *document, const
     auto baseTextDocument = qobject_cast<TextDocument *>(document);
     if (!baseTextDocument)
         return;
-    FileName oldFileName = FileName::fromString(oldName);
-    FileName newFileName = FileName::fromString(newName);
+    FilePath oldFileName = FilePath::fromString(oldName);
+    FilePath newFileName = FilePath::fromString(newName);
     if (!m_marks.contains(oldFileName))
         return;
 
@@ -416,8 +416,8 @@ void TextMarkRegistry::documentRenamed(IDocument *document, const
 
 void TextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString &newName)
 {
-    FileName oldFileName = FileName::fromString(oldName);
-    FileName newFileName = FileName::fromString(newName);
+    FilePath oldFileName = FilePath::fromString(oldName);
+    FilePath newFileName = FilePath::fromString(newName);
     if (!m_marks.contains(oldFileName))
         return;
 

@@ -133,7 +133,7 @@ ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(
         return CppModelManager::instance()->projectPart(filePath);
     });
     chooser.setProjectPartsFromDependenciesForFile([&](const QString &filePath) {
-        const auto fileName = Utils::FileName::fromString(filePath);
+        const auto fileName = Utils::FilePath::fromString(filePath);
         return CppModelManager::instance()->projectPartFromDependencies(fileName);
     });
 

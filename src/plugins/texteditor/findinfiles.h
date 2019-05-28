@@ -56,9 +56,9 @@ public:
     void readSettings(QSettings *settings) override;
     bool isValid() const override;
 
-    void setDirectory(const Utils::FileName &directory);
-    void setBaseDirectory(const Utils::FileName &directory);
-    Utils::FileName directory() const;
+    void setDirectory(const Utils::FilePath &directory);
+    void setBaseDirectory(const Utils::FilePath &directory);
+    Utils::FilePath directory() const;
     static void findOnFileSystem(const QString &path);
     static FindInFiles *instance();
 
@@ -77,7 +77,7 @@ protected:
 private:
     void setValid(bool valid);
     void searchEnginesSelectionChanged(int index);
-    Utils::FileName path() const;
+    Utils::FilePath path() const;
 
     QPointer<QWidget> m_configWidget;
     QPointer<Utils::PathChooser> m_directory;

@@ -31,7 +31,7 @@
 
 #include <functional>
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
 class FileNode;
@@ -54,7 +54,7 @@ public:
 
     static Project *currentProject();
     static Node *currentNode();
-    static Utils::FileName currentFilePath();
+    static Utils::FilePath currentFilePath();
 
     // Integration with ProjectTreeWidget
     static void registerWidget(Internal::ProjectTreeWidget *widget);
@@ -76,7 +76,7 @@ public:
     static void forEachNode(const std::function<void(Node *)> &task);
 
     static Project *projectForNode(const Node *node);
-    static Node *nodeForFile(const Utils::FileName &fileName);
+    static Node *nodeForFile(const Utils::FilePath &fileName);
 
     void collapseAll();
     void expandAll();

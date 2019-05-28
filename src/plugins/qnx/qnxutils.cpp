@@ -211,7 +211,7 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdpPath)
     return qnxEnvironmentFromEnvFile(envFilePath(sdpPath));
 }
 
-QList<QnxTarget> QnxUtils::findTargets(const Utils::FileName &basePath)
+QList<QnxTarget> QnxUtils::findTargets(const Utils::FilePath &basePath)
 {
     using namespace Utils;
     QList<QnxTarget> result;
@@ -219,7 +219,7 @@ QList<QnxTarget> QnxUtils::findTargets(const Utils::FileName &basePath)
     QDirIterator iterator(basePath.toString());
     while (iterator.hasNext()) {
         iterator.next();
-        const FileName libc = FileName::fromString(iterator.filePath()).pathAppended("lib/libc.so");
+        const FilePath libc = FilePath::fromString(iterator.filePath()).pathAppended("lib/libc.so");
         if (libc.exists()) {
             auto abis = Abi::abisOfBinary(libc);
             if (abis.isEmpty()) {
@@ -230,7 +230,7 @@ QList<QnxTarget> QnxUtils::findTargets(const Utils::FileName &basePath)
             if (abis.count() > 1)
                 qWarning() << libc << "has more than one ABI ... processing all";
 
-            FileName path = FileName::fromString(iterator.filePath());
+            FilePath path = FilePath::fromString(iterator.filePath());
             for (Abi abi : abis)
                 result.append(QnxTarget(path, QnxUtils::convertAbi(abi)));
         }

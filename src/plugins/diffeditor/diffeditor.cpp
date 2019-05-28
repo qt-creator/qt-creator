@@ -317,8 +317,8 @@ void DiffEditor::documentHasChanged()
     for (const FileData &diffFile : diffFileList) {
         const DiffFileInfo &leftEntry = diffFile.leftFileInfo;
         const DiffFileInfo &rightEntry = diffFile.rightFileInfo;
-        const QString leftShortFileName = Utils::FileName::fromString(leftEntry.fileName).fileName();
-        const QString rightShortFileName = Utils::FileName::fromString(rightEntry.fileName).fileName();
+        const QString leftShortFileName = Utils::FilePath::fromString(leftEntry.fileName).fileName();
+        const QString rightShortFileName = Utils::FilePath::fromString(rightEntry.fileName).fileName();
         QString itemText;
         QString itemToolTip;
         if (leftEntry.fileName == rightEntry.fileName) {

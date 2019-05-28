@@ -47,24 +47,24 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
     ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &flags,
-                                                    const Utils::FileName &sysRoot) const final;
+                                                    const Utils::FilePath &sysRoot) const final;
     void addToEnvironment(Utils::Environment &env) const final;
-    Utils::FileName makeCommand(const Utils::Environment &env) const final;
-    Utils::FileName compilerCommand() const final;
+    Utils::FilePath makeCommand(const Utils::Environment &env) const final;
+    Utils::FilePath compilerCommand() const final;
     QString compilerVersion() const;
-    void setCompilerCommand(const Utils::FileName &compilerCommand);
+    void setCompilerCommand(const Utils::FilePath &compilerCommand);
     ProjectExplorer::IOutputParser *outputParser() const final;
     std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
 
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;
 
-    static bool parseVersion(const Utils::FileName &path, std::tuple<int, int, int> &version);
+    static bool parseVersion(const Utils::FilePath &path, std::tuple<int, int, int> &version);
 
 private:
     NimToolChain(const NimToolChain &other);
 
-    Utils::FileName m_compilerCommand;
+    Utils::FilePath m_compilerCommand;
     std::tuple<int, int, int> m_version;
 };
 

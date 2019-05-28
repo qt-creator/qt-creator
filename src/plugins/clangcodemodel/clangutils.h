@@ -42,7 +42,7 @@ class ProjectInfo;
 }
 
 namespace Utils {
-class FileName;
+class FilePath;
 }
 
 namespace ClangBackEnd { class TokenInfoContainer; }

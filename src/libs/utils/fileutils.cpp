@@ -57,7 +57,7 @@
 #endif
 
 QT_BEGIN_NAMESPACE
-QDebug operator<<(QDebug dbg, const Utils::FileName &c)
+QDebug operator<<(QDebug dbg, const Utils::FilePath &c)
 {
     return dbg << c.toString();
 }
@@ -80,7 +80,7 @@ namespace Utils {
 
   Returns whether the operation succeeded.
 */
-bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
+bool FileUtils::removeRecursively(const FilePath &filePath, QString *error)
 {
     QFileInfo fileInfo = filePath.toFileInfo();
     if (!fileInfo.exists() && !fileInfo.isSymLink())
@@ -146,7 +146,7 @@ bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
 
   Returns whether the operation succeeded.
 */
-bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgtFilePath,
+bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgtFilePath,
                                 QString *error, const std::function<bool (QFileInfo, QFileInfo, QString *)> &copyHelper)
 {
     QFileInfo srcFileInfo = srcFilePath.toFileInfo();
@@ -166,8 +166,8 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
         QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot
                                                     | QDir::Hidden | QDir::System);
         foreach (const QString &fileName, fileNames) {
-            const FileName newSrcFilePath = srcFilePath.pathAppended(fileName);
-            const FileName newTgtFilePath = tgtFilePath.pathAppended(fileName);
+            const FilePath newSrcFilePath = srcFilePath.pathAppended(fileName);
+            const FilePath newTgtFilePath = tgtFilePath.pathAppended(fileName);
             if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
                 return false;
         }
@@ -196,7 +196,7 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
   Returns whether at least one file in \a filePath has a newer date than
   \a timeStamp.
 */
-bool FileName::isNewerThan(const QDateTime &timeStamp) const
+bool FilePath::isNewerThan(const QDateTime &timeStamp) const
 {
     const QFileInfo fileInfo = toFileInfo();
     if (!fileInfo.exists() || fileInfo.lastModified() >= timeStamp)
@@ -222,15 +222,15 @@ bool FileName::isNewerThan(const QDateTime &timeStamp) const
 
   Returns the symlink target file path.
 */
-FileName FileUtils::resolveSymlinks(const FileName &path)
+FilePath FileUtils::resolveSymlinks(const FilePath &path)
 {
     QFileInfo f = path.toFileInfo();
     int links = 16;
     while (links-- && f.isSymLink())
         f.setFile(f.dir(), f.symLinkTarget());
     if (links <= 0)
-        return FileName();
-    return FileName::fromString(f.filePath());
+        return FilePath();
+    return FilePath::fromString(f.filePath());
 }
 
 /*!
@@ -240,12 +240,12 @@ FileName FileUtils::resolveSymlinks(const FileName &path)
 
   Returns the canonical path.
 */
-FileName FileName::canonicalPath() const
+FilePath FilePath::canonicalPath() const
 {
     const QString result = toFileInfo().canonicalFilePath();
     if (result.isEmpty())
         return *this;
-    return FileName::fromString(result);
+    return FilePath::fromString(result);
 }
 
 /*!
@@ -254,10 +254,10 @@ FileName FileName::canonicalPath() const
 
   Returns the possibly shortened path with native separators.
 */
-QString FileName::shortNativePath() const
+QString FilePath::shortNativePath() const
 {
     if (HostOsInfo::isAnyUnixHost()) {
-        const FileName home = FileName::fromString(QDir::cleanPath(QDir::homePath()));
+        const FilePath home = FilePath::fromString(QDir::cleanPath(QDir::homePath()));
         if (isChildOf(home)) {
             return QLatin1Char('~') + QDir::separator()
                 + QDir::toNativeSeparators(relativeChildPath(home).toString());
@@ -297,7 +297,7 @@ QString FileUtils::qmakeFriendlyName(const QString &name)
     return fileSystemFriendlyName(result);
 }
 
-bool FileUtils::makeWritable(const FileName &path)
+bool FileUtils::makeWritable(const FilePath &path)
 {
     const QString fileName = path.toString();
     return QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
@@ -351,9 +351,9 @@ QString FileUtils::resolvePath(const QString &baseDir, const QString &fileName)
     return QDir::cleanPath(baseDir + QLatin1Char('/') + fileName);
 }
 
-FileName FileUtils::commonPath(const FileName &oldCommonPath, const FileName &fileName)
+FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &fileName)
 {
-    FileName newCommonPath = oldCommonPath;
+    FilePath newCommonPath = oldCommonPath;
     while (!newCommonPath.isEmpty() && !fileName.isChildOf(newCommonPath))
         newCommonPath = newCommonPath.parentDir();
     return newCommonPath.canonicalPath();
@@ -400,7 +400,7 @@ static QByteArray fileIdWin(HANDLE fHandle)
 }
 #endif
 
-QByteArray FileUtils::fileId(const FileName &fileName)
+QByteArray FileUtils::fileId(const FilePath &fileName)
 {
     QByteArray result;
 
@@ -632,51 +632,51 @@ TempFileSaver::~TempFileSaver()
     On windows filenames are compared case insensitively.
 */
 
-FileName::FileName()
+FilePath::FilePath()
 {
 }
 
 /// Constructs a FileName from \a info
-FileName FileName::fromFileInfo(const QFileInfo &info)
+FilePath FilePath::fromFileInfo(const QFileInfo &info)
 {
-    return FileName::fromString(info.absoluteFilePath());
+    return FilePath::fromString(info.absoluteFilePath());
 }
 
 /// \returns a QFileInfo
-QFileInfo FileName::toFileInfo() const
+QFileInfo FilePath::toFileInfo() const
 {
     return QFileInfo(m_data);
 }
 
-FileName FileName::fromUrl(const QUrl &url)
+FilePath FilePath::fromUrl(const QUrl &url)
 {
-    FileName fn;
+    FilePath fn;
     fn.m_url = url;
     fn.m_data = url.path();
     return fn;
 }
 
 /// \returns a QString for passing on to QString based APIs
-const QString &FileName::toString() const
+const QString &FilePath::toString() const
 {
     return m_data;
 }
 
-QUrl FileName::toUrl() const
+QUrl FilePath::toUrl() const
 {
     return m_url;
 }
 
 /// \returns a QString to display to the user
 /// Converts the separators to the native format
-QString FileName::toUserOutput() const
+QString FilePath::toUserOutput() const
 {
     if (m_url.isEmpty())
         return QDir::toNativeSeparators(toString());
     return m_url.toString();
 }
 
-QString FileName::fileName(int pathComponents) const
+QString FilePath::fileName(int pathComponents) const
 {
     if (pathComponents < 0)
         return m_data;
@@ -703,7 +703,7 @@ QString FileName::fileName(int pathComponents) const
 
 /// \returns a bool indicating whether a file with this
 /// FileName exists.
-bool FileName::exists() const
+bool FilePath::exists() const
 {
     return !isEmpty() && QFileInfo::exists(m_data);
 }
@@ -714,28 +714,28 @@ bool FileName::exists() const
 /// a root level directory.
 
 /// \returns \a FileName with the last segment removed.
-FileName FileName::parentDir() const
+FilePath FilePath::parentDir() const
 {
     const QString basePath = toString();
     if (basePath.isEmpty())
-        return FileName();
+        return FilePath();
 
     const QDir base(basePath);
     if (base.isRoot())
-        return FileName();
+        return FilePath();
 
     const QString path = basePath + QLatin1String("/..");
     const QString parent = QDir::cleanPath(path);
-    QTC_ASSERT(parent != path, return FileName());
+    QTC_ASSERT(parent != path, return FilePath());
 
-    return FileName::fromString(parent);
+    return FilePath::fromString(parent);
 }
 
 /// Constructs a FileName from \a filename
 /// \a filename is not checked for validity.
-FileName FileName::fromString(const QString &filename)
+FilePath FilePath::fromString(const QString &filename)
 {
-    FileName fn;
+    FilePath fn;
     fn.m_data = filename;
     return fn;
 }
@@ -743,13 +743,13 @@ FileName FileName::fromString(const QString &filename)
 /// Constructs a FileName from \a fileName. The \a defaultExtension is appended
 /// to \a filename if that does not have an extension already.
 /// \a fileName is not checked for validity.
-FileName FileName::fromStringWithExtension(const QString &filename, const QString &defaultExtension)
+FilePath FilePath::fromStringWithExtension(const QString &filepath, const QString &defaultExtension)
 {
-    if (filename.isEmpty() || defaultExtension.isEmpty())
-        return FileName::fromString(filename);
+    if (filepath.isEmpty() || defaultExtension.isEmpty())
+        return FilePath::fromString(filepath);
 
-    QString rc = filename;
-    QFileInfo fi(filename);
+    QString rc = filepath;
+    QFileInfo fi(filepath);
     // Add extension unless user specified something else
     const QChar dot = QLatin1Char('.');
     if (!fi.fileName().contains(dot)) {
@@ -757,88 +757,88 @@ FileName FileName::fromStringWithExtension(const QString &filename, const QStrin
             rc += dot;
         rc += defaultExtension;
     }
-    return FileName::fromString(rc);
+    return FilePath::fromString(rc);
 }
 
 /// Constructs a FileName from \a fileName
 /// \a fileName is not checked for validity.
-FileName FileName::fromLatin1(const QByteArray &filename)
+FilePath FilePath::fromLatin1(const QByteArray &filename)
 {
-    return FileName::fromString(QString::fromLatin1(filename));
+    return FilePath::fromString(QString::fromLatin1(filename));
 }
 
 /// Constructs a FileName from \a fileName
 /// \a fileName is only passed through QDir::cleanPath
-FileName FileName::fromUserInput(const QString &filename)
+FilePath FilePath::fromUserInput(const QString &filename)
 {
     QString clean = QDir::cleanPath(filename);
     if (clean.startsWith(QLatin1String("~/")))
         clean = QDir::homePath() + clean.mid(1);
-    return FileName::fromString(clean);
+    return FilePath::fromString(clean);
 }
 
 /// Constructs a FileName from \a fileName, which is encoded as UTF-8.
 /// \a fileName is not checked for validity.
-FileName FileName::fromUtf8(const char *filename, int filenameSize)
+FilePath FilePath::fromUtf8(const char *filename, int filenameSize)
 {
-    return FileName::fromString(QString::fromUtf8(filename, filenameSize));
+    return FilePath::fromString(QString::fromUtf8(filename, filenameSize));
 }
 
-FileName FileName::fromVariant(const QVariant &variant)
+FilePath FilePath::fromVariant(const QVariant &variant)
 {
     if (variant.type() == QVariant::Url)
-        return FileName::fromUrl(variant.toUrl());
-    return FileName::fromString(variant.toString());
+        return FilePath::fromUrl(variant.toUrl());
+    return FilePath::fromString(variant.toString());
 }
 
-QVariant FileName::toVariant() const
+QVariant FilePath::toVariant() const
 {
     if (!m_url.isEmpty())
         return m_url;
     return m_data;
 }
 
-bool FileName::operator==(const FileName &other) const
+bool FilePath::operator==(const FilePath &other) const
 {
     if (!m_url.isEmpty())
         return m_url == other.m_url;
     return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) == 0;
 }
 
-bool FileName::operator!=(const FileName &other) const
+bool FilePath::operator!=(const FilePath &other) const
 {
     return !(*this == other);
 }
 
-bool FileName::operator<(const FileName &other) const
+bool FilePath::operator<(const FilePath &other) const
 {
     if (!m_url.isEmpty())
         return m_url < other.m_url;
     return QString::compare(m_data, other.m_data, HostOsInfo::fileNameCaseSensitivity()) < 0;
 }
 
-bool FileName::operator<=(const FileName &other) const
+bool FilePath::operator<=(const FilePath &other) const
 {
     return !(other < *this);
 }
 
-bool FileName::operator>(const FileName &other) const
+bool FilePath::operator>(const FilePath &other) const
 {
     return other < *this;
 }
 
-bool FileName::operator>=(const FileName &other) const
+bool FilePath::operator>=(const FilePath &other) const
 {
     return !(*this < other);
 }
 
-FileName FileName::operator+(const QString &s) const
+FilePath FilePath::operator+(const QString &s) const
 {
-    return FileName::fromString(m_data + s);
+    return FilePath::fromString(m_data + s);
 }
 
 /// \returns whether FileName is a child of \a s
-bool FileName::isChildOf(const FileName &s) const
+bool FilePath::isChildOf(const FilePath &s) const
 {
     if (s.isEmpty())
         return false;
@@ -854,18 +854,18 @@ bool FileName::isChildOf(const FileName &s) const
 }
 
 /// \overload
-bool FileName::isChildOf(const QDir &dir) const
+bool FilePath::isChildOf(const QDir &dir) const
 {
-    return isChildOf(FileName::fromString(dir.absolutePath()));
+    return isChildOf(FilePath::fromString(dir.absolutePath()));
 }
 
 /// \returns whether FileName endsWith \a s
-bool FileName::endsWith(const QString &s) const
+bool FilePath::endsWith(const QString &s) const
 {
     return m_data.endsWith(s, HostOsInfo::fileNameCaseSensitivity());
 }
 
-bool FileName::isLocal() const
+bool FilePath::isLocal() const
 {
     return m_url.isEmpty() || m_url.isLocalFile();
 }
@@ -873,16 +873,16 @@ bool FileName::isLocal() const
 /// \returns the relativeChildPath of FileName to parent if FileName is a child of parent
 /// \note returns a empty FileName if FileName is not a child of parent
 /// That is, this never returns a path starting with "../"
-FileName FileName::relativeChildPath(const FileName &parent) const
+FilePath FilePath::relativeChildPath(const FilePath &parent) const
 {
     if (!isChildOf(parent))
-        return FileName();
-    return FileName::fromString(m_data.mid(parent.m_data.size() + 1, -1));
+        return FilePath();
+    return FilePath::fromString(m_data.mid(parent.m_data.size() + 1, -1));
 }
 
-FileName FileName::pathAppended(const QString &str) const
+FilePath FilePath::pathAppended(const QString &str) const
 {
-    FileName fn = *this;
+    FilePath fn = *this;
     if (str.isEmpty())
         return fn;
     if (!isEmpty() && !m_data.endsWith(QLatin1Char('/')))
@@ -891,21 +891,21 @@ FileName FileName::pathAppended(const QString &str) const
     return fn;
 }
 
-FileName FileName::stringAppended(const QString &str) const
+FilePath FilePath::stringAppended(const QString &str) const
 {
-    FileName fn = *this;
+    FilePath fn = *this;
     fn.m_data.append(str);
     return fn;
 }
 
-uint FileName::hash(uint seed) const
+uint FilePath::hash(uint seed) const
 {
     if (Utils::HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
         return qHash(m_data.toUpper(), seed);
     return qHash(m_data, seed);
 }
 
-QTextStream &operator<<(QTextStream &s, const FileName &fn)
+QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
     return s << fn.toString();
 }

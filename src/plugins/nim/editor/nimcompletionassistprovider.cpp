@@ -158,7 +158,7 @@ private:
 
     static Suggest::NimSuggest *nimSuggestInstance(const AssistInterface *interface)
     {
-        auto filename = Utils::FileName::fromString(interface->fileName());
+        auto filename = Utils::FilePath::fromString(interface->fileName());
         return Nim::Suggest::NimSuggestCache::instance().get(filename);
     }
 
@@ -170,7 +170,7 @@ private:
         int line = 0, column = 0;
         Utils::Text::convertPosition(interface->textDocument(), pos, &line, &column);
         QTC_ASSERT(column >= 1, return nullptr);
-        auto filename = Utils::FileName::fromString(interface->fileName());
+        auto filename = Utils::FilePath::fromString(interface->fileName());
         return suggest->sug(filename.toString(), line, column - 1, dirtyFile);
     }
 

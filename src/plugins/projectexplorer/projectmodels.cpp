@@ -219,8 +219,8 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
     Node *node = nodeForIndex(index);
     QTC_ASSERT(node, return false);
 
-    const Utils::FileName orgFilePath = node->filePath();
-    const Utils::FileName newFilePath = orgFilePath.parentDir().pathAppended(value.toString());
+    const Utils::FilePath orgFilePath = node->filePath();
+    const Utils::FilePath newFilePath = orgFilePath.parentDir().pathAppended(value.toString());
 
     ProjectExplorerPlugin::renameFile(node, newFilePath.toString());
     emit renamed(orgFilePath, newFilePath);
@@ -453,7 +453,7 @@ class DropFileDialog : public QDialog
 {
     Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::FlatModel)
 public:
-    DropFileDialog(const FileName &defaultTargetDir)
+    DropFileDialog(const FilePath &defaultTargetDir)
         : m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel)),
           m_buttonGroup(new QButtonGroup(this))
     {
@@ -516,9 +516,9 @@ public:
     }
 
     DropAction dropAction() const { return static_cast<DropAction>(m_buttonGroup->checkedId()); }
-    FileName targetDir() const
+    FilePath targetDir() const
     {
-        return m_targetDirChooser ? m_targetDirChooser->fileName() : FileName();
+        return m_targetDirChooser ? m_targetDirChooser->fileName() : FilePath();
     }
 
 private:
@@ -576,15 +576,15 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
 
     // Node weirdness: Sometimes the "file path" is a directory, sometimes it's a file...
     const auto dirForProjectNode = [](const ProjectNode *pNode) {
-        const FileName dir = pNode->filePath();
+        const FilePath dir = pNode->filePath();
         if (dir.toFileInfo().isDir())
             return dir;
-        return FileName::fromString(dir.toFileInfo().path());
+        return FilePath::fromString(dir.toFileInfo().path());
     };
-    FileName targetDir = dirForProjectNode(targetProjectNode);
+    FilePath targetDir = dirForProjectNode(targetProjectNode);
 
     // Ask the user what to do now: Copy or add? With or without file transfer?
-    DropFileDialog dlg(targetDir == dirForProjectNode(sourceProjectNode) ? FileName() : targetDir);
+    DropFileDialog dlg(targetDir == dirForProjectNode(sourceProjectNode) ? FilePath() : targetDir);
     if (dlg.exec() != QDialog::Accepted)
         return true;
     if (!dlg.targetDir().isEmpty())

@@ -145,9 +145,9 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
         state.snapshot = Snapshot();
     } else {
         // Remove changed files from the snapshot
-        QSet<Utils::FileName> toRemove;
+        QSet<Utils::FilePath> toRemove;
         foreach (const Document::Ptr &doc, state.snapshot) {
-            const Utils::FileName fileName = Utils::FileName::fromString(doc->fileName());
+            const Utils::FilePath fileName = Utils::FilePath::fromString(doc->fileName());
             if (workingCopy.contains(fileName)) {
                 if (workingCopy.get(fileName).second != doc->editorRevision())
                     addFileAndDependencies(&state.snapshot, &toRemove, fileName);
@@ -160,7 +160,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
         if (!toRemove.isEmpty()) {
             invalidateSnapshot = true;
-            foreach (const Utils::FileName &fileName, toRemove)
+            foreach (const Utils::FilePath &fileName, toRemove)
                 state.snapshot.remove(fileName);
         }
     }
@@ -261,15 +261,15 @@ BuiltinEditorDocumentParser::Ptr BuiltinEditorDocumentParser::get(const QString 
 }
 
 void BuiltinEditorDocumentParser::addFileAndDependencies(Snapshot *snapshot,
-                                                         QSet<Utils::FileName> *toRemove,
-                                                         const Utils::FileName &fileName) const
+                                                         QSet<Utils::FilePath> *toRemove,
+                                                         const Utils::FilePath &fileName) const
 {
     QTC_ASSERT(snapshot, return);
 
     toRemove->insert(fileName);
-    if (fileName != Utils::FileName::fromString(filePath())) {
-        Utils::FileNameList deps = snapshot->filesDependingOn(fileName);
-        toRemove->unite(QSet<Utils::FileName>::fromList(deps));
+    if (fileName != Utils::FilePath::fromString(filePath())) {
+        Utils::FilePathList deps = snapshot->filesDependingOn(fileName);
+        toRemove->unite(QSet<Utils::FilePath>::fromList(deps));
     }
 }
 

@@ -85,10 +85,10 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
     HeaderPaths builtInHeaderPaths(const QStringList &flags,
-                                   const Utils::FileName &sysRootPath) const override;
+                                   const Utils::FilePath &sysRootPath) const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
-    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
+    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
     QStringList suggestedMkspecList() const override;
     IOutputParser *outputParser() const override;
 
@@ -99,15 +99,15 @@ public:
 
     bool operator ==(const ToolChain &) const override;
 
-    void resetToolChain(const Utils::FileName &);
-    Utils::FileName compilerCommand() const override;
+    void resetToolChain(const Utils::FilePath &);
+    Utils::FilePath compilerCommand() const override;
     void setPlatformCodeGenFlags(const QStringList &);
     QStringList extraCodeModelFlags() const override;
     QStringList platformCodeGenFlags() const;
     void setPlatformLinkerFlags(const QStringList &);
     QStringList platformLinkerFlags() const;
 
-    static void addCommandPathToEnvironment(const Utils::FileName &command, Utils::Environment &env);
+    static void addCommandPathToEnvironment(const Utils::FilePath &command, Utils::Environment &env);
 
     class DetectedAbisResult {
     public:
@@ -125,7 +125,7 @@ protected:
     using CacheItem = QPair<QStringList, Macros>;
     using GccCache = QVector<CacheItem>;
 
-    void setCompilerCommand(const Utils::FileName &path);
+    void setCompilerCommand(const Utils::FilePath &path);
     void setSupportedAbis(const Abis &abis);
     void setOriginalTargetTriple(const QString &targetTriple);
     void setMacroCache(const QStringList &allCxxflags, const Macros &macroCache) const;
@@ -146,7 +146,7 @@ protected:
     void initExtraHeaderPathsFunction(ExtraHeaderPathsFunction &&extraHeaderPathsFunction) const;
 
     static HeaderPaths builtInHeaderPaths(const Utils::Environment &env,
-                                          const Utils::FileName &compilerCommand,
+                                          const Utils::FilePath &compilerCommand,
                                           const QStringList &platformCodeGenFlags,
                                           OptionsReinterpreter reinterpretOptions,
                                           HeaderPathsCache headerCache,
@@ -156,7 +156,7 @@ protected:
                                           const QString &sysRoot,
                                           const QString &originalTargetTriple);
 
-    static HeaderPaths gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args,
+    static HeaderPaths gccHeaderPaths(const Utils::FilePath &gcc, const QStringList &args,
                                       const QStringList &env);
 
     class WarningFlagAdder
@@ -184,7 +184,7 @@ private:
                                            OptionsReinterpreter reinterpretOptions);
 
 protected:
-    Utils::FileName m_compilerCommand;
+    Utils::FilePath m_compilerCommand;
     QStringList m_platformCodeGenFlags;
     QStringList m_platformLinkerFlags;
 
@@ -215,7 +215,7 @@ public:
     ~ClangToolChain() override;
 
     QString typeDisplayName() const override;
-    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
+    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     WarningFlags warningFlags(const QStringList &cflags) const override;
@@ -257,7 +257,7 @@ class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
 public:
     QString typeDisplayName() const override;
-    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
+    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
     QStringList suggestedMkspecList() const override;
 

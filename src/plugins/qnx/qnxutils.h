@@ -57,11 +57,11 @@ public:
 class QnxTarget
 {
 public:
-    QnxTarget(const Utils::FileName &path, const ProjectExplorer::Abi &abi) :
+    QnxTarget(const Utils::FilePath &path, const ProjectExplorer::Abi &abi) :
         m_path(path), m_abi(abi)
     {
     }
-    Utils::FileName m_path;
+    Utils::FilePath m_path;
     ProjectExplorer::Abi m_abi;
 };
 
@@ -75,7 +75,7 @@ public:
     static QString defaultTargetVersion(const QString &sdpPath);
     static QList<ConfigInstallInformation> installedConfigs(const QString &configPath = QString());
     static QList<Utils::EnvironmentItem> qnxEnvironment(const QString &sdpPath);
-    static QList<QnxTarget> findTargets(const Utils::FileName &basePath);
+    static QList<QnxTarget> findTargets(const Utils::FilePath &basePath);
     static ProjectExplorer::Abi convertAbi(const ProjectExplorer::Abi &abi);
     static ProjectExplorer::Abis convertAbis(const ProjectExplorer::Abis &abis);
 };

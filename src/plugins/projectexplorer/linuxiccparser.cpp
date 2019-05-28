@@ -81,7 +81,7 @@ void LinuxIccParser::stdError(const QString &line)
         else if (category == QLatin1String("warning"))
             type = Task::Warning;
         m_temporary = Task(type, m_firstLine.cap(6).trimmed(),
-                                            Utils::FileName::fromUserInput(m_firstLine.cap(1)),
+                                            Utils::FilePath::fromUserInput(m_firstLine.cap(1)),
                                             m_firstLine.cap(2).toInt(),
                                             Constants::TASK_CATEGORY_COMPILE);
 
@@ -172,7 +172,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (Tasks()
                 << Task(Task::Error,
                         QLatin1String("identifier \"f\" is undefined\nf(0);"),
-                        Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 13,
+                        Utils::FilePath::fromUserInput(QLatin1String("main.cpp")), 13,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
@@ -188,7 +188,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (Tasks()
                 << Task(Task::Error,
                         QLatin1String("identifier \"f\" is undefined\nf(0);"),
-                        Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 13,
+                        Utils::FilePath::fromUserInput(QLatin1String("main.cpp")), 13,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
@@ -203,7 +203,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (Tasks()
                 << Task(Task::Error,
                         QLatin1String("function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\nb.privatefunc();"),
-                        Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 53,
+                        Utils::FilePath::fromUserInput(QLatin1String("main.cpp")), 53,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
@@ -217,7 +217,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (Tasks()
                 << Task(Task::Warning,
                         QLatin1String("use of \"=\" where \"==\" may have been intended\nwhile (a = true)"),
-                        Utils::FileName::fromUserInput(QLatin1String("main.cpp")), 41,
+                        Utils::FilePath::fromUserInput(QLatin1String("main.cpp")), 41,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("moc note")
@@ -227,7 +227,7 @@ void ProjectExplorerPlugin::testLinuxIccOutputParsers_data()
             << (Tasks()
                 << Task(Task::Unknown,
                         QLatin1String("Note: No relevant classes found. No output generated."),
-                        Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
+                        Utils::FilePath::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
                         Constants::TASK_CATEGORY_COMPILE)
                 )
             << QString();

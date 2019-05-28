@@ -79,7 +79,7 @@ QStringList IVersionControl::additionalToolsPath() const
 }
 
 ShellCommand *IVersionControl::createInitialCheckoutCommand(const QString &url,
-                                                            const Utils::FileName &baseDirectory,
+                                                            const Utils::FilePath &baseDirectory,
                                                             const QString &localName,
                                                             const QStringList &extraArgs)
 {

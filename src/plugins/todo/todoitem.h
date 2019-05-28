@@ -42,7 +42,7 @@ class TodoItem
 {
 public:
     QString text;
-    Utils::FileName file;
+    Utils::FilePath file;
     int line = -1;
     IconType iconType = IconType::Todo;
     QColor color;

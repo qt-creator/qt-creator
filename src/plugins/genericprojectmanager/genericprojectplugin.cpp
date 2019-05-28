@@ -101,7 +101,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
                                            genericProject->files(Project::AllFiles),
                                            ICore::mainWindow());
         if (sfd.exec() == QDialog::Accepted)
-            genericProject->setFiles(Utils::transform(sfd.selectedFiles(), &Utils::FileName::toString));
+            genericProject->setFiles(Utils::transform(sfd.selectedFiles(), &Utils::FilePath::toString));
     });
 }
 

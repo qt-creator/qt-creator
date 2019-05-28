@@ -69,7 +69,7 @@ const QString &AndroidSdkPackage::sdkStylePath() const
     return m_sdkStylePath;
 }
 
-const Utils::FileName &AndroidSdkPackage::installedLocation() const
+const Utils::FilePath &AndroidSdkPackage::installedLocation() const
 {
     return m_installedLocation;
 }
@@ -89,7 +89,7 @@ void AndroidSdkPackage::setState(AndroidSdkPackage::PackageState state)
     m_state = state;
 }
 
-void AndroidSdkPackage::setInstalledLocation(const Utils::FileName &path)
+void AndroidSdkPackage::setInstalledLocation(const Utils::FilePath &path)
 {
     m_installedLocation = path;
     if (m_installedLocation.exists())

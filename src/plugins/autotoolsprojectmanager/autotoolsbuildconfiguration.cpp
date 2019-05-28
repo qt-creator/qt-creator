@@ -58,7 +58,7 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
 {
     // /<foobar> is used so the un-changed check in setBuildDirectory() works correctly.
     // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
-    setBuildDirectory(Utils::FileName::fromString("/<foobar>"));
+    setBuildDirectory(Utils::FilePath::fromString("/<foobar>"));
     setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
     setConfigWidgetDisplayName(tr("Autotools Manager"));
 }
@@ -116,14 +116,14 @@ QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds(const Targe
 QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     const QString path = QFileInfo(projectPath).absolutePath();
-    BuildInfo info = createBuildInfo(k, Utils::FileName::fromString(path));
+    BuildInfo info = createBuildInfo(k, Utils::FilePath::fromString(path));
     //: The name of the build configuration created by default for a autotools project.
     info.displayName = tr("Default");
     return {info};
 }
 
 BuildInfo AutotoolsBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                              const Utils::FileName &buildDir) const
+                                                              const Utils::FilePath &buildDir) const
 {
     BuildInfo info(this);
     info.typeName = tr("Build");

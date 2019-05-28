@@ -125,7 +125,7 @@ SysRootKitAspect::SysRootKitAspect()
 Tasks SysRootKitAspect::validate(const Kit *k) const
 {
     Tasks result;
-    const Utils::FileName dir = SysRootKitAspect::sysRoot(k);
+    const Utils::FilePath dir = SysRootKitAspect::sysRoot(k);
     if (dir.isEmpty())
         return result;
 
@@ -136,13 +136,13 @@ Tasks SysRootKitAspect::validate(const Kit *k) const
 
     if (!fi.exists()) {
         result << Task(Task::Warning, tr("Sys Root \"%1\" does not exist in the file system.").arg(dir.toUserOutput()),
-                       Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+                       Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     } else if (!fi.isDir()) {
         result << Task(Task::Warning, tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()),
-                       Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+                       Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     } else if (QDir(dir.toString()).entryList(QDir::AllEntries | QDir::NoDotAndDotDot).isEmpty()) {
         result << Task(Task::Warning, tr("Sys Root \"%1\" is empty.").arg(dir.toUserOutput()),
-                       Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+                       Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     return result;
 }
@@ -173,23 +173,23 @@ Core::Id SysRootKitAspect::id()
     return "PE.Profile.SysRoot";
 }
 
-Utils::FileName SysRootKitAspect::sysRoot(const Kit *k)
+Utils::FilePath SysRootKitAspect::sysRoot(const Kit *k)
 {
     if (!k)
-        return Utils::FileName();
+        return Utils::FilePath();
 
     if (!k->value(SysRootKitAspect::id()).toString().isEmpty())
-        return Utils::FileName::fromString(k->value(SysRootKitAspect::id()).toString());
+        return Utils::FilePath::fromString(k->value(SysRootKitAspect::id()).toString());
 
     for (ToolChain *tc : ToolChainKitAspect::toolChains(k)) {
         if (!tc->sysRoot().isEmpty())
-            return Utils::FileName::fromString(tc->sysRoot());
+            return Utils::FilePath::fromString(tc->sysRoot());
     }
 
-    return Utils::FileName();
+    return Utils::FilePath();
 }
 
-void SysRootKitAspect::setSysRoot(Kit *k, const Utils::FileName &v)
+void SysRootKitAspect::setSysRoot(Kit *k, const Utils::FilePath &v)
 {
     if (!k)
         return;
@@ -376,7 +376,7 @@ Tasks ToolChainKitAspect::validate(const Kit *k) const
     const QList<ToolChain*> tcList = toolChains(k);
     if (tcList.isEmpty()) {
         result << Task(Task::Warning, ToolChainKitAspect::msgNoToolChainInTarget(),
-                       Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+                       Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     } else {
         QSet<Abi> targetAbis;
         foreach (ToolChain *tc, tcList) {
@@ -386,7 +386,7 @@ Tasks ToolChainKitAspect::validate(const Kit *k) const
         if (targetAbis.count() != 1) {
             result << Task(Task::Error, tr("Compilers produce code for different ABIs: %1")
                            .arg(Utils::transform(targetAbis, &Abi::toString).toList().join(", ")),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+                           Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     }
     return result;
@@ -977,10 +977,10 @@ Tasks DeviceKitAspect::validate(const Kit *k) const
     Tasks result;
     if (dev.isNull())
         result.append(Task(Task::Warning, tr("No device set."),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                           Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     else if (!dev->isCompatibleWith(k))
         result.append(Task(Task::Error, tr("Device is incompatible with this kit."),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                           Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
 
     return result;
 }
@@ -1242,7 +1242,7 @@ Tasks EnvironmentKitAspect::validate(const Kit *k) const
     const QVariant variant = k->value(EnvironmentKitAspect::id());
     if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
         result.append(Task(Task::Error, tr("The environment setting value is invalid."),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                           Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
     return result;
 }

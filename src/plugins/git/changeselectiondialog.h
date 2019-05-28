@@ -79,7 +79,7 @@ private:
     Ui::ChangeSelectionDialog *m_ui;
 
     QProcess *m_process = nullptr;
-    Utils::FileName m_gitExecutable;
+    Utils::FilePath m_gitExecutable;
     QProcessEnvironment m_gitEnvironment;
     ChangeCommand m_command = NoCommand;
     QStringListModel *m_changeModel = nullptr;

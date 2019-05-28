@@ -117,9 +117,9 @@ QString CodeStylePool::settingsDir() const
     return customCodeStylesPath().append(suffix);
 }
 
-Utils::FileName CodeStylePool::settingsPath(const QByteArray &id) const
+Utils::FilePath CodeStylePool::settingsPath(const QByteArray &id) const
 {
-    return Utils::FileName::fromString(settingsDir()).pathAppended(QString::fromUtf8(id + ".xml"));
+    return Utils::FilePath::fromString(settingsDir()).pathAppended(QString::fromUtf8(id + ".xml"));
 }
 
 QList<ICodeStylePreferences *> CodeStylePool::codeStyles() const
@@ -218,11 +218,11 @@ void CodeStylePool::loadCustomCodeStyles()
         const QString codeStyleFile = codeStyleFiles.at(i);
         // filter out styles which id is the same as one of built-in styles
         if (!d->m_idToCodeStyle.contains(QFileInfo(codeStyleFile).completeBaseName().toUtf8()))
-            loadCodeStyle(Utils::FileName::fromString(dir.absoluteFilePath(codeStyleFile)));
+            loadCodeStyle(Utils::FilePath::fromString(dir.absoluteFilePath(codeStyleFile)));
     }
 }
 
-ICodeStylePreferences *CodeStylePool::importCodeStyle(const Utils::FileName &fileName)
+ICodeStylePreferences *CodeStylePool::importCodeStyle(const Utils::FilePath &fileName)
 {
     ICodeStylePreferences *codeStyle = loadCodeStyle(fileName);
     if (codeStyle)
@@ -230,7 +230,7 @@ ICodeStylePreferences *CodeStylePool::importCodeStyle(const Utils::FileName &fil
     return codeStyle;
 }
 
-ICodeStylePreferences *CodeStylePool::loadCodeStyle(const Utils::FileName &fileName)
+ICodeStylePreferences *CodeStylePool::loadCodeStyle(const Utils::FilePath &fileName)
 {
     ICodeStylePreferences *codeStyle = nullptr;
     Utils::PersistentSettingsReader reader;
@@ -280,7 +280,7 @@ void CodeStylePool::saveCodeStyle(ICodeStylePreferences *codeStyle) const
     exportCodeStyle(settingsPath(codeStyle->id()), codeStyle);
 }
 
-void CodeStylePool::exportCodeStyle(const Utils::FileName &fileName, ICodeStylePreferences *codeStyle) const
+void CodeStylePool::exportCodeStyle(const Utils::FilePath &fileName, ICodeStylePreferences *codeStyle) const
 {
     QVariantMap map;
     codeStyle->toMap(QString(), &map);

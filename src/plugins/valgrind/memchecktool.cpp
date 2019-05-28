@@ -946,7 +946,7 @@ void MemcheckToolPrivate::setupRunner(MemcheckToolRunner *runTool)
 {
     RunControl *runControl = runTool->runControl();
     m_errorModel.setRelevantFrameFinder(makeFrameFinder(transform(runControl->project()->files(Project::AllFiles),
-                                                                  &FileName::toString)));
+                                                                  &FilePath::toString)));
 
     connect(runTool, &MemcheckToolRunner::parserError,
             this, &MemcheckToolPrivate::parserError);
@@ -966,12 +966,12 @@ void MemcheckToolPrivate::setupRunner(MemcheckToolRunner *runTool)
     m_loadExternalLogFile->setDisabled(true);
 
     QString dir = runControl->project()->projectDirectory().toString() + '/';
-    const QString name = FileName::fromString(runTool->executable()).fileName();
+    const QString name = FilePath::fromString(runTool->executable()).fileName();
 
     m_errorView->setDefaultSuppressionFile(dir + name + ".supp");
 
     foreach (const QString &file, runTool->suppressionFiles()) {
-        QAction *action = m_filterMenu->addAction(FileName::fromString(file).fileName());
+        QAction *action = m_filterMenu->addAction(FilePath::fromString(file).fileName());
         action->setToolTip(file);
         connect(action, &QAction::triggered, this, [file] {
             EditorManager::openEditorAt(file, 0);

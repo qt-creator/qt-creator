@@ -287,7 +287,7 @@ void VcsCommandPage::delayedInitialize()
     }
 
     Core::ShellCommand *command
-            = vc->createInitialCheckoutCommand(repo, FileName::fromString(base),
+            = vc->createInitialCheckoutCommand(repo, FilePath::fromString(base),
                                                name, extraArgs);
 
     foreach (const JobData &job, m_additionalJobs) {
@@ -310,7 +310,7 @@ void VcsCommandPage::delayedInitialize()
 
         const QString dir = wiz->expander()->expand(job.workDirectory);
         const int timeoutS = command->defaultTimeoutS() * job.timeOutFactor;
-        command->addJob(FileName::fromUserInput(commandString), args, timeoutS, dir);
+        command->addJob(FilePath::fromUserInput(commandString), args, timeoutS, dir);
     }
 
     start(command);

@@ -35,23 +35,23 @@ namespace Internal {
 class CMakeInputsNode : public ProjectExplorer::ProjectNode
 {
 public:
-    CMakeInputsNode(const Utils::FileName &cmakeLists);
+    CMakeInputsNode(const Utils::FilePath &cmakeLists);
 };
 
 class CMakeListsNode : public ProjectExplorer::ProjectNode
 {
 public:
-    CMakeListsNode(const Utils::FileName &cmakeListPath);
+    CMakeListsNode(const Utils::FilePath &cmakeListPath);
 
     bool showInSimpleTree() const final;
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
-    Utils::optional<Utils::FileName> visibleAfterAddFileAction() const override;
+    Utils::optional<Utils::FilePath> visibleAfterAddFileAction() const override;
 };
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    CMakeProjectNode(const Utils::FileName &directory);
+    CMakeProjectNode(const Utils::FilePath &directory);
 
     QString tooltip() const final;
 
@@ -61,18 +61,18 @@ public:
 class CMakeTargetNode : public ProjectExplorer::ProjectNode
 {
 public:
-    CMakeTargetNode(const Utils::FileName &directory, const QString &target);
+    CMakeTargetNode(const Utils::FilePath &directory, const QString &target);
 
-    static QString generateId(const Utils::FileName &directory, const QString &target);
+    static QString generateId(const Utils::FilePath &directory, const QString &target);
 
-    void setTargetInformation(const QList<Utils::FileName> &artifacts, const QString &type);
+    void setTargetInformation(const QList<Utils::FilePath> &artifacts, const QString &type);
 
     QString tooltip() const final;
     QString buildKey() const final;
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
-    Utils::optional<Utils::FileName> visibleAfterAddFileAction() const override;
+    Utils::optional<Utils::FilePath> visibleAfterAddFileAction() const override;
 
     QVariant data(Core::Id role) const override;
     void setConfig(const CMakeConfig &config);

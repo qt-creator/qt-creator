@@ -348,9 +348,9 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
     startupModeChanged();
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);
-    m_executableFileChooser->setFileName(Utils::FileName::fromString(p->m_executableFile));
-    m_rootScriptsDirChooser->setFileName(Utils::FileName::fromString(p->m_rootScriptsDir));
-    m_configurationFileChooser->setFileName(Utils::FileName::fromString(p->m_configurationFile));
+    m_executableFileChooser->setFileName(Utils::FilePath::fromString(p->m_executableFile));
+    m_rootScriptsDirChooser->setFileName(Utils::FilePath::fromString(p->m_rootScriptsDir));
+    m_configurationFileChooser->setFileName(Utils::FilePath::fromString(p->m_configurationFile));
     m_additionalArgumentsLineEdit->setText(p->m_additionalArguments);
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());

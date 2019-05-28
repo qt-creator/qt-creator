@@ -42,7 +42,7 @@ public:
     QString displayName() const final;
     Core::Id id() const final;
 
-    bool isVcsFileOrDirectory(const Utils::FileName &fileName) const final;
+    bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final;
 
     bool managesDirectory(const QString &directory, QString *topLevel) const final;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const final;
@@ -59,7 +59,7 @@ public:
     QString vcsTopic(const QString &directory) final;
 
     Core::ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FileName &baseDirectory,
+                                                     const Utils::FilePath &baseDirectory,
                                                      const QString &localName,
                                                      const QStringList &extraArgs) final;
 

@@ -1100,7 +1100,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
                               unsigned flags,
                               QTextCodec *outputCodec) const
 {
-    const FileName executable = client()->vcsBinary();
+    const FilePath executable = client()->vcsBinary();
     CvsResponse response;
     if (executable.isEmpty()) {
         response.result = CvsResponse::OtherError;

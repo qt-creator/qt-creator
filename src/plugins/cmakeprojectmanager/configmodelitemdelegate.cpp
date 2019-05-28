@@ -28,7 +28,7 @@
 
 namespace CMakeProjectManager {
 
-ConfigModelItemDelegate::ConfigModelItemDelegate(const Utils::FileName &base, QObject* parent)
+ConfigModelItemDelegate::ConfigModelItemDelegate(const Utils::FilePath &base, QObject* parent)
     : QStyledItemDelegate(parent)
     , m_base(base)
 { }
@@ -78,7 +78,7 @@ void ConfigModelItemDelegate::setEditorData(QWidget *editor, const QModelIndex &
         ConfigModel::DataItem data = ConfigModel::dataItemFromIndex(index);
         if (data.type == ConfigModel::DataItem::FILE || data.type == ConfigModel::DataItem::DIRECTORY) {
             auto edit = static_cast<Utils::PathChooser *>(editor);
-            edit->setFileName(Utils::FileName::fromUserInput(data.value));
+            edit->setFileName(Utils::FilePath::fromUserInput(data.value));
             return;
         } else if (!data.values.isEmpty()) {
             auto edit = static_cast<QComboBox *>(editor);

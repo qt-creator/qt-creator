@@ -250,7 +250,7 @@ void AutotestPlugin::onRunFileTriggered()
     if (!document)
         return;
 
-    const Utils::FileName &fileName = document->filePath();
+    const Utils::FilePath &fileName = document->filePath();
     if (fileName.isEmpty())
         return;
 

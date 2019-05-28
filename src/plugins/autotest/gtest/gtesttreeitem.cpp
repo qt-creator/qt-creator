@@ -285,7 +285,7 @@ QList<TestConfiguration *> GTestTreeItem::getSelectedTestConfigurations() const
     return getTestConfigurations(false);
 }
 
-QList<TestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Utils::FileName &fileName) const
+QList<TestConfiguration *> GTestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
 {
     QList<TestConfiguration *> result;
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();

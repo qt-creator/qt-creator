@@ -232,9 +232,9 @@ bool AndroidDeployQtStep::init()
 
     if (m_useAndroiddeployqt) {
         const ProjectNode *node = target()->project()->findNodeForBuildKey(rc->buildKey());
-        m_apkPath = Utils::FileName::fromString(node->data(Constants::AndroidApk).toString());
+        m_apkPath = Utils::FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
-            m_manifestName = Utils::FileName::fromString(node->data(Constants::AndroidManifest).toString());
+            m_manifestName = Utils::FilePath::fromString(node->data(Constants::AndroidManifest).toString());
             m_command = AndroidConfigurations::currentConfig().adbToolPath().toString();
             AndroidManager::setManifestPath(target(), m_manifestName);
         } else {

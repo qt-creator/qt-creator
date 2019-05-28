@@ -33,7 +33,7 @@
 
 namespace Utils {
 
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FileName &fileName,
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FilePath &fileName,
                                                        bool modified,
                                                        bool enableDiffOption,
                                                        QWidget *parent)

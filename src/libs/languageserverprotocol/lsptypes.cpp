@@ -362,7 +362,7 @@ bool Range::overlaps(const Range &range) const
     return contains(range.start()) || contains(range.end());
 }
 
-bool DocumentFilter::applies(const Utils::FileName &fileName, const Utils::MimeType &mimeType) const
+bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeType &mimeType) const
 {
     if (Utils::optional<QString> _scheme = scheme()) {
         if (_scheme.value() == fileName.toString())
@@ -406,14 +406,14 @@ DocumentUri::DocumentUri(const QString &other)
     : QUrl(QUrl::fromPercentEncoding(other.toLocal8Bit()))
 { }
 
-DocumentUri::DocumentUri(const Utils::FileName &other)
+DocumentUri::DocumentUri(const Utils::FilePath &other)
     : QUrl(QUrl::fromLocalFile(other.toString()))
 { }
 
-Utils::FileName DocumentUri::toFileName() const
+Utils::FilePath DocumentUri::toFileName() const
 {
-    return isLocalFile() ? Utils::FileName::fromUserInput(QUrl(*this).toLocalFile())
-                         : Utils::FileName();
+    return isLocalFile() ? Utils::FilePath::fromUserInput(QUrl(*this).toLocalFile())
+                         : Utils::FilePath();
 }
 
 MarkupKind::MarkupKind(const QJsonValue &value)

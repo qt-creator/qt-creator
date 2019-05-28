@@ -42,7 +42,7 @@ CppPreProcessorDialog::CppPreProcessorDialog(const QString &filePath, QWidget *p
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     m_ui->setupUi(this);
-    m_ui->editorLabel->setText(m_ui->editorLabel->text().arg(Utils::FileName::fromString(m_filePath).fileName()));
+    m_ui->editorLabel->setText(m_ui->editorLabel->text().arg(Utils::FilePath::fromString(m_filePath).fileName()));
     m_ui->editWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     CppEditor::decorateEditor(m_ui->editWidget);

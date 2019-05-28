@@ -52,7 +52,7 @@ Core::Id BazaarControl::id() const
     return Core::Id(VcsBase::Constants::VCS_ID_BAZAAR);
 }
 
-bool BazaarControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+bool BazaarControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
 {
     return m_bazaarClient->isVcsDirectory(fileName);
 }
@@ -73,7 +73,7 @@ bool BazaarControl::managesFile(const QString &workingDirectory, const QString &
 
 bool BazaarControl::isConfigured() const
 {
-    const Utils::FileName binary = m_bazaarClient->vcsBinary();
+    const Utils::FilePath binary = m_bazaarClient->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -139,7 +139,7 @@ bool BazaarControl::vcsAnnotate(const QString &file, int line)
 }
 
 Core::ShellCommand *BazaarControl::createInitialCheckoutCommand(const QString &url,
-                                                                const Utils::FileName &baseDirectory,
+                                                                const Utils::FilePath &baseDirectory,
                                                                 const QString &localName,
                                                                 const QStringList &extraArgs)
 {

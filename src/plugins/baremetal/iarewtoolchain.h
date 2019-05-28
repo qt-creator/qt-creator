@@ -36,7 +36,7 @@ class QTextEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
-class FileName;
+class FilePath;
 class PathChooser;
 }
 
@@ -67,7 +67,7 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const final;
     ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &cxxFlags,
-                                                    const Utils::FileName &) const final;
+                                                    const Utils::FilePath &) const final;
     void addToEnvironment(Utils::Environment &env) const final;
     ProjectExplorer::IOutputParser *outputParser() const final;
 
@@ -78,16 +78,16 @@ public:
 
     bool operator ==(const ToolChain &other) const final;
 
-    void setCompilerCommand(const Utils::FileName &file);
-    Utils::FileName compilerCommand() const final;
+    void setCompilerCommand(const Utils::FilePath &file);
+    Utils::FilePath compilerCommand() const final;
 
-    Utils::FileName makeCommand(const Utils::Environment &env) const final;
+    Utils::FilePath makeCommand(const Utils::Environment &env) const final;
 
 private:
     IarToolChain();
 
     ProjectExplorer::Abi m_targetAbi;
-    Utils::FileName m_compilerCommand;
+    Utils::FilePath m_compilerCommand;
 
     friend class IarToolChainFactory;
     friend class IarToolChainConfigWidget;

@@ -120,16 +120,16 @@ void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &
     updateTargetInformation();
 }
 
-Utils::FileName QbsRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
+Utils::FilePath QbsRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
 {
-    const FileName appInBuildDir = targetInfo.targetFilePath;
+    const FilePath appInBuildDir = targetInfo.targetFilePath;
     if (target()->deploymentData().localInstallRoot().isEmpty())
         return appInBuildDir;
     const QString deployedAppFilePath = target()->deploymentData()
             .deployableForLocalFile(appInBuildDir.toString()).remoteFilePath();
     if (deployedAppFilePath.isEmpty())
         return appInBuildDir;
-    const FileName appInLocalInstallDir = target()->deploymentData().localInstallRoot()
+    const FilePath appInLocalInstallDir = target()->deploymentData().localInstallRoot()
             + deployedAppFilePath;
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
 }
@@ -137,7 +137,7 @@ Utils::FileName QbsRunConfiguration::executableToRun(const BuildTargetInfo &targ
 void QbsRunConfiguration::updateTargetInformation()
 {
     BuildTargetInfo bti = buildTargetInfo();
-    const FileName executable = executableToRun(bti);
+    const FilePath executable = executableToRun(bti);
     auto terminalAspect = aspect<TerminalAspect>();
     terminalAspect->setUseTerminalHint(bti.usesTerminal);
 
@@ -147,7 +147,7 @@ void QbsRunConfiguration::updateTargetInformation()
         QString defaultWorkingDir = QFileInfo(executable.toString()).absolutePath();
         if (!defaultWorkingDir.isEmpty()) {
             auto wdAspect = aspect<WorkingDirectoryAspect>();
-            wdAspect->setDefaultWorkingDirectory(FileName::fromString(defaultWorkingDir));
+            wdAspect->setDefaultWorkingDirectory(FilePath::fromString(defaultWorkingDir));
         }
     }
 

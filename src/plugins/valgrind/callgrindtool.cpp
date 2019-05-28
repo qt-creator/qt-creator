@@ -982,7 +982,7 @@ void CallgrindToolPrivate::createTextMarks()
             continue;
         locations << location;
 
-        m_textMarks.append(new CallgrindTextMark(index, FileName::fromString(fileName), lineNumber));
+        m_textMarks.append(new CallgrindTextMark(index, FilePath::fromString(fileName), lineNumber));
     }
 }
 

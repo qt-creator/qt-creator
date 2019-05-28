@@ -68,7 +68,7 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsProject::AutotoolsProject(const Utils::FileName &fileName) :
+AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName) :
     Project(Constants::MAKEFILE_MIMETYPE, fileName),
     m_fileWatcher(new Utils::FileSystemWatcher(this)),
     m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
@@ -204,7 +204,7 @@ void AutotoolsProject::makefileParsingFinished()
 
     auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
     for (const QString &f : m_files) {
-        const Utils::FileName path = Utils::FileName::fromString(f);
+        const Utils::FilePath path = Utils::FilePath::fromString(f);
         newRoot->addNestedNode(std::make_unique<FileNode>(path,
                                                           FileNode::fileTypeForFileName(path)));
     }

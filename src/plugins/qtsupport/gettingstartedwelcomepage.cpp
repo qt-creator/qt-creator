@@ -151,17 +151,17 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
         } else {
             QString error;
             QString targetDir = destBaseDir + QLatin1Char('/') + exampleDirName;
-            if (FileUtils::copyRecursively(FileName::fromString(projectDir),
-                    FileName::fromString(targetDir), &error)) {
+            if (FileUtils::copyRecursively(FilePath::fromString(projectDir),
+                    FilePath::fromString(targetDir), &error)) {
                 // set vars to new location
                 const QStringList::Iterator end = filesToOpen.end();
                 for (QStringList::Iterator it = filesToOpen.begin(); it != end; ++it)
                     it->replace(projectDir, targetDir);
 
                 foreach (const QString &dependency, dependencies) {
-                    const FileName targetFile = FileName::fromString(targetDir)
+                    const FilePath targetFile = FilePath::fromString(targetDir)
                             .pathAppended(QDir(dependency).dirName());
-                    if (!FileUtils::copyRecursively(FileName::fromString(dependency), targetFile,
+                    if (!FileUtils::copyRecursively(FilePath::fromString(dependency), targetFile,
                             &error)) {
                         QMessageBox::warning(ICore::mainWindow(), tr("Cannot Copy Project"), error);
                         // do not fail, just warn;

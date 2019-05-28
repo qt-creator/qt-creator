@@ -88,7 +88,7 @@ private:
 class QbsProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
-    explicit QbsProjectNode(const Utils::FileName &projectDirectory);
+    explicit QbsProjectNode(const Utils::FilePath &projectDirectory);
 
     virtual QbsProject *project() const;
     const qbs::Project qbsProject() const;

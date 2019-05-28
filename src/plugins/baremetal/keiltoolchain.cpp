@@ -62,13 +62,13 @@ namespace Internal {
 static const char compilerCommandKeyC[] = "BareMetal.KeilToolchain.CompilerPath";
 static const char targetAbiKeyC[] = "BareMetal.KeilToolchain.TargetAbi";
 
-static bool compilerExists(const FileName &compilerPath)
+static bool compilerExists(const FilePath &compilerPath)
 {
     const QFileInfo fi = compilerPath.toFileInfo();
     return fi.exists() && fi.isExecutable() && fi.isFile();
 }
 
-static Abi::Architecture guessArchitecture(const FileName &compilerPath)
+static Abi::Architecture guessArchitecture(const FilePath &compilerPath)
 {
     const QFileInfo fi = compilerPath.toFileInfo();
     const QString bn = fi.baseName().toLower();
@@ -82,7 +82,7 @@ static Abi::Architecture guessArchitecture(const FileName &compilerPath)
 // Note: The KEIL 8051 compiler does not support the predefined
 // macros dumping. So, we do it with following trick where we try
 // to compile a temporary file and to parse the console output.
-static Macros dumpC51PredefinedMacros(const FileName &compiler, const QStringList &env)
+static Macros dumpC51PredefinedMacros(const FilePath &compiler, const QStringList &env)
 {
     QTemporaryFile fakeIn;
     if (!fakeIn.open())
@@ -125,7 +125,7 @@ static Macros dumpC51PredefinedMacros(const FileName &compiler, const QStringLis
     return macros;
 }
 
-static Macros dumpArmPredefinedMacros(const FileName &compiler, const QStringList &env)
+static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringList &env)
 {
     SynchronousProcess cpp;
     cpp.setEnvironment(env);
@@ -146,7 +146,7 @@ static Macros dumpArmPredefinedMacros(const FileName &compiler, const QStringLis
     return Macro::toMacros(output);
 }
 
-static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &env)
+static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &env)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
         return {};
@@ -162,7 +162,7 @@ static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &
     }
 }
 
-static HeaderPaths dumpHeaderPaths(const FileName &compiler)
+static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
 {
     if (!compiler.exists())
         return {};
@@ -271,7 +271,7 @@ ToolChain::MacroInspectionRunner KeilToolchain::createMacroInspectionRunner() co
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
 
-    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Utils::FilePath compilerCommand = m_compilerCommand;
     const Core::Id lang = language();
 
     MacrosCache macroCache = predefinedMacrosCache();
@@ -306,7 +306,7 @@ WarningFlags KeilToolchain::warningFlags(const QStringList &cxxflags) const
 
 ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunner() const
 {
-    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Utils::FilePath compilerCommand = m_compilerCommand;
 
     HeaderPathsCache headerPaths = headerPathsCache();
 
@@ -323,7 +323,7 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunne
 }
 
 HeaderPaths KeilToolchain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                              const FileName &fileName) const
+                                              const FilePath &fileName) const
 {
     return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
 }
@@ -331,7 +331,7 @@ HeaderPaths KeilToolchain::builtInHeaderPaths(const QStringList &cxxFlags,
 void KeilToolchain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {
-        const FileName path = m_compilerCommand.parentDir();
+        const FilePath path = m_compilerCommand.parentDir();
         env.prependOrSetPath(path.toString());
     }
 }
@@ -353,7 +353,7 @@ bool KeilToolchain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
-    m_compilerCommand = FileName::fromString(data.value(compilerCommandKeyC).toString());
+    m_compilerCommand = FilePath::fromString(data.value(compilerCommandKeyC).toString());
     m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
     return true;
 }
@@ -374,7 +374,7 @@ bool KeilToolchain::operator ==(const ToolChain &other) const
             ;
 }
 
-void KeilToolchain::setCompilerCommand(const FileName &file)
+void KeilToolchain::setCompilerCommand(const FilePath &file)
 {
     if (file == m_compilerCommand)
         return;
@@ -382,12 +382,12 @@ void KeilToolchain::setCompilerCommand(const FileName &file)
     toolChainUpdated();
 }
 
-FileName KeilToolchain::compilerCommand() const
+FilePath KeilToolchain::compilerCommand() const
 {
     return m_compilerCommand;
 }
 
-FileName KeilToolchain::makeCommand(const Environment &env) const
+FilePath KeilToolchain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
     return {};
@@ -441,7 +441,7 @@ QList<ToolChain *> KeilToolchainFactory::autoDetect(const QList<ToolChain *> &al
         if (!compilerPath.isEmpty()) {
             // Build full compiler path.
             compilerPath += entry.subExePath;
-            const FileName fn = FileName::fromString(compilerPath);
+            const FilePath fn = FilePath::fromString(compilerPath);
             if (compilerExists(fn)) {
                 QString version = registry.value("Version").toString();
                 if (version.startsWith('V'))
@@ -579,7 +579,7 @@ void KeilToolchainConfigWidget::setFromToolchain()
 
 void KeilToolchainConfigWidget::handleCompilerCommandChange()
 {
-    const FileName compilerPath = m_compilerCommand->fileName();
+    const FilePath compilerPath = m_compilerCommand->fileName();
     const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();

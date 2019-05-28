@@ -429,11 +429,11 @@ bool AvdManagerOutputParser::parseAvd(const QStringList &deviceInfo, AndroidDevi
         } else if (valueForKey(avdInfoNameKey, line, &value)) {
             avd->avdname = value;
         } else if (valueForKey(avdInfoPathKey, line, &value)) {
-            const Utils::FileName avdPath = Utils::FileName::fromString(value);
+            const Utils::FilePath avdPath = Utils::FilePath::fromString(value);
             if (avdPath.exists())
             {
                 // Get ABI.
-                const Utils::FileName configFile = avdPath.pathAppended("config.ini");
+                const Utils::FilePath configFile = avdPath.pathAppended("config.ini");
                 QSettings config(configFile.toString(), QSettings::IniFormat);
                 value = config.value(avdInfoAbiKey).toString();
                 if (!value.isEmpty())
@@ -443,7 +443,7 @@ bool AvdManagerOutputParser::parseAvd(const QStringList &deviceInfo, AndroidDevi
 
                 // Get Target
                 QString avdInfoFileName = avdPath.toFileInfo().baseName() + ".ini";
-                const Utils::FileName
+                const Utils::FilePath
                         avdInfoFile = avdPath.parentDir().pathAppended(avdInfoFileName);
                 QSettings avdInfo(avdInfoFile.toString(), QSettings::IniFormat);
                 value = avdInfo.value(avdInfoTargetKey).toString();

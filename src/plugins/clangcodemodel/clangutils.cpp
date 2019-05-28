@@ -301,11 +301,11 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
     return text;
 }
 
-static ::Utils::FileName compilerPath(const CppTools::ProjectPart &projectPart)
+static ::Utils::FilePath compilerPath(const CppTools::ProjectPart &projectPart)
 {
     ProjectExplorer::Target *target = projectPart.project->activeTarget();
     if (!target)
-        return ::Utils::FileName();
+        return ::Utils::FilePath();
 
     ProjectExplorer::ToolChain *toolchain = ProjectExplorer::ToolChainKitAspect::toolChain(
         target->kit(), ProjectExplorer::Constants::CXX_LANGUAGE_ID);
@@ -313,15 +313,15 @@ static ::Utils::FileName compilerPath(const CppTools::ProjectPart &projectPart)
     return toolchain->compilerCommand();
 }
 
-static ::Utils::FileName buildDirectory(const ProjectExplorer::Project &project)
+static ::Utils::FilePath buildDirectory(const ProjectExplorer::Project &project)
 {
     ProjectExplorer::Target *target = project.activeTarget();
     if (!target)
-        return ::Utils::FileName();
+        return ::Utils::FilePath();
 
     ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration();
     if (!buildConfig)
-        return ::Utils::FileName();
+        return ::Utils::FilePath();
 
     return buildConfig->buildDirectory();
 }
@@ -356,7 +356,7 @@ static QStringList projectPartArguments(const ProjectPart &projectPart)
     return args;
 }
 
-static QJsonObject createFileObject(const ::Utils::FileName &buildDir,
+static QJsonObject createFileObject(const ::Utils::FilePath &buildDir,
                                     const QStringList &arguments,
                                     const ProjectPart &projectPart,
                                     const ProjectFile &projFile)
@@ -388,7 +388,7 @@ static QJsonObject createFileObject(const ::Utils::FileName &buildDir,
 
 GenerateCompilationDbResult generateCompilationDB(CppTools::ProjectInfo projectInfo)
 {
-    const ::Utils::FileName buildDir = buildDirectory(*projectInfo.project());
+    const ::Utils::FilePath buildDir = buildDirectory(*projectInfo.project());
     QTC_ASSERT(!buildDir.isEmpty(), return GenerateCompilationDbResult(QString(),
         QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
 

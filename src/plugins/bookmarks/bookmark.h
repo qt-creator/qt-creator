@@ -40,7 +40,7 @@ public:
     void updateLineNumber(int lineNumber) override;
     void move(int line) override;
     void updateBlock(const QTextBlock &block) override;
-    void updateFileName(const Utils::FileName &fileName) override;
+    void updateFileName(const Utils::FilePath &fileName) override;
     void removedFromEditor() override;
 
     bool isDraggable() const override;

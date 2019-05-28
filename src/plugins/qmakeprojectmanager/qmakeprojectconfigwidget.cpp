@@ -208,7 +208,7 @@ void QmakeProjectConfigWidget::buildDirectoryChanged()
 
 void QmakeProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
 {
-    Utils::FileName initialDirectory = m_buildConfiguration->target()->project()->projectDirectory();
+    Utils::FilePath initialDirectory = m_buildConfiguration->target()->project()->projectDirectory();
     if (!initialDirectory.isEmpty())
         shadowBuildDirEdit->setInitialBrowsePathBackup(initialDirectory.toString());
 }
@@ -223,9 +223,9 @@ void QmakeProjectConfigWidget::shadowBuildClicked(bool checked)
 
     m_ignoreChange = true;
     if (checked)
-        m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(shadowBuildDirEdit->rawPath()));
+        m_buildConfiguration->setBuildDirectory(Utils::FilePath::fromString(shadowBuildDirEdit->rawPath()));
     else
-        m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(inSourceBuildDirEdit->rawPath()));
+        m_buildConfiguration->setBuildDirectory(Utils::FilePath::fromString(inSourceBuildDirEdit->rawPath()));
     m_ignoreChange = false;
 
     updateDetails();
@@ -238,7 +238,7 @@ void QmakeProjectConfigWidget::shadowBuildEdited()
         return;
 
     m_ignoreChange = true;
-    m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(shadowBuildDirEdit->rawPath()));
+    m_buildConfiguration->setBuildDirectory(Utils::FilePath::fromString(shadowBuildDirEdit->rawPath()));
     m_ignoreChange = false;
 }
 

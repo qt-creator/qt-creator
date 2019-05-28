@@ -47,7 +47,7 @@ public:
     QSet<Core::Id> targetDeviceTypes() const override;
 
     QString qnxHost() const;
-    Utils::FileName qnxTarget() const;
+    Utils::FilePath qnxTarget() const;
 
     QString cpuDir() const;
 

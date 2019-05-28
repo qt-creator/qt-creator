@@ -55,7 +55,7 @@ class CompilationDatabaseProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit CompilationDatabaseProject(const Utils::FileName &filename);
+    explicit CompilationDatabaseProject(const Utils::FilePath &filename);
     ~CompilationDatabaseProject() override;
     bool needsConfiguration() const override { return false; }
     bool needsBuildConfigurations() const override { return true; }
@@ -65,7 +65,7 @@ private:
 
     void reparseProject();
     void buildTreeAndProjectParts();
-    Utils::FileName rootPathFromSettings() const;
+    Utils::FilePath rootPathFromSettings() const;
 
     QFutureWatcher<void> m_parserWatcher;
     std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;

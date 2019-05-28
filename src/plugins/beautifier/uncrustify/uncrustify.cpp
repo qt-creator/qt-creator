@@ -144,8 +144,8 @@ QString Uncrustify::configurationFile() const
     if (m_settings.useOtherFiles()) {
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
-            const Utils::FileNameList files = project->files(ProjectExplorer::Project::AllFiles);
-            for (const Utils::FileName &file : files) {
+            const Utils::FilePathList files = project->files(ProjectExplorer::Project::AllFiles);
+            for (const Utils::FilePath &file : files) {
                 if (!file.endsWith("cfg"))
                     continue;
                 const QFileInfo fi = file.toFileInfo();
@@ -156,7 +156,7 @@ QString Uncrustify::configurationFile() const
     }
 
     if (m_settings.useSpecificConfigFile()) {
-        const Utils::FileName file = m_settings.specificConfigFile();
+        const Utils::FilePath file = m_settings.specificConfigFile();
         if (file.exists())
             return file.toString();
     }

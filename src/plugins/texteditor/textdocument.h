@@ -70,7 +70,7 @@ public:
     static QMap<QString, QString> openedTextDocumentContents();
     static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
     static TextDocument *currentTextDocument();
-    static TextDocument *textDocumentForFileName(const Utils::FileName &fileName);
+    static TextDocument *textDocumentForFileName(const Utils::FilePath &fileName);
 
     virtual QString plainText() const;
     virtual QString textAt(int pos, int length) const;
@@ -116,7 +116,7 @@ public:
     bool isSaveAsAllowed() const override;
     void checkPermissions() override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-    void setFilePath(const Utils::FileName &newName) override;
+    void setFilePath(const Utils::FilePath &newName) override;
 
     QString fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
@@ -150,7 +150,7 @@ public:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
     static QAction *createDiffAgainstCurrentFileAction(QObject *parent,
-        const std::function<Utils::FileName()> &filePath);
+        const std::function<Utils::FilePath()> &filePath);
 
 signals:
     void aboutToOpen(const QString &fileName, const QString &realFileName);

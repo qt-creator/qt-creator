@@ -64,7 +64,7 @@ ImportWidget::ImportWidget(QWidget *parent) :
     detailsWidget->setWidget(widget);
 }
 
-void ImportWidget::setCurrentDirectory(const Utils::FileName &dir)
+void ImportWidget::setCurrentDirectory(const Utils::FilePath &dir)
 {
     m_pathChooser->setBaseFileName(dir);
     m_pathChooser->setFileName(dir);
@@ -72,7 +72,7 @@ void ImportWidget::setCurrentDirectory(const Utils::FileName &dir)
 
 void ImportWidget::handleImportRequest()
 {
-    Utils::FileName dir = m_pathChooser->fileName();
+    Utils::FilePath dir = m_pathChooser->fileName();
     emit importFrom(dir);
 
     m_pathChooser->setFileName(m_pathChooser->baseFileName());

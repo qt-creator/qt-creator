@@ -440,7 +440,7 @@ void MercurialClient::revertAll(const QString &workingDir, const QString &revisi
                              QStringList(extraOptions) << QLatin1String("--all"));
 }
 
-bool MercurialClient::isVcsDirectory(const FileName &fileName) const
+bool MercurialClient::isVcsDirectory(const FilePath &fileName) const
 {
     return fileName.toFileInfo().isDir()
             && !fileName.fileName().compare(Constants::MERCURIALREPO, HostOsInfo::fileNameCaseSensitivity());

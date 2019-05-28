@@ -74,15 +74,15 @@ Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString, cons
         return OpenResult::ReadError;
     }
 
-    setFilePath(Utils::FileName::fromString(absfileName));
+    setFilePath(Utils::FilePath::fromString(absfileName));
 
     return OpenResult::Success;
 }
 
 bool ScxmlEditorDocument::save(QString *errorString, const QString &name, bool autoSave)
 {
-    const FileName oldFileName = filePath();
-    const FileName actualName = name.isEmpty() ? oldFileName : FileName::fromString(name);
+    const FilePath oldFileName = filePath();
+    const FilePath actualName = name.isEmpty() ? oldFileName : FilePath::fromString(name);
     if (actualName.isEmpty())
         return false;
     bool dirty = m_designWidget->isDirty();
@@ -108,7 +108,7 @@ bool ScxmlEditorDocument::save(QString *errorString, const QString &name, bool a
     return true;
 }
 
-void ScxmlEditorDocument::setFilePath(const FileName &newName)
+void ScxmlEditorDocument::setFilePath(const FilePath &newName)
 {
     m_designWidget->setFileName(newName.toString());
     IDocument::setFilePath(newName);

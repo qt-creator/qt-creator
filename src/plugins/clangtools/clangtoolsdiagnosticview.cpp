@@ -205,8 +205,8 @@ void DiagnosticView::suppressCurrentDiagnostic()
     auto * const filterModel = static_cast<DiagnosticFilterModel *>(model());
     ProjectExplorer::Project * const project = filterModel->project();
     if (project) {
-        Utils::FileName filePath = Utils::FileName::fromString(diag.location.filePath);
-        const Utils::FileName relativeFilePath
+        Utils::FilePath filePath = Utils::FilePath::fromString(diag.location.filePath);
+        const Utils::FilePath relativeFilePath
                 = filePath.relativeChildPath(project->projectDirectory());
         if (!relativeFilePath.isEmpty())
             filePath = relativeFilePath;

@@ -56,8 +56,8 @@ public:
     bool useSpecificConfigFile() const;
     void setUseSpecificConfigFile(bool useSpecificConfigFile);
 
-    Utils::FileName specificConfigFile() const;
-    void setSpecificConfigFile(const Utils::FileName &specificConfigFile);
+    Utils::FilePath specificConfigFile() const;
+    void setSpecificConfigFile(const Utils::FilePath &specificConfigFile);
 
     bool useHomeFile() const;
     void setUseHomeFile(bool useHomeFile);

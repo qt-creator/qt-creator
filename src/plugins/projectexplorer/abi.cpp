@@ -983,7 +983,7 @@ Abi Abi::hostAbi()
 }
 
 //! Extract available ABIs from a binary using heuristics.
-Abis Abi::abisOfBinary(const Utils::FileName &path)
+Abis Abi::abisOfBinary(const Utils::FilePath &path)
 {
     Abis tmp;
     if (path.isEmpty())
@@ -1233,7 +1233,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary()
     QFETCH(QString, file);
     QFETCH(QStringList, abis);
 
-    const Abis result = Abi::abisOfBinary(Utils::FileName::fromString(file));
+    const Abis result = Abi::abisOfBinary(Utils::FilePath::fromString(file));
     QCOMPARE(result.count(), abis.count());
     for (int i = 0; i < abis.count(); ++i)
         QCOMPARE(result.at(i).toString(), abis.at(i));

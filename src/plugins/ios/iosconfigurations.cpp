@@ -136,7 +136,7 @@ static ToolChainPair findToolChainForPlatform(const XcodePlatform &platform,
                                               const QList<ClangToolChain *> &toolChains)
 {
     ToolChainPair platformToolChains;
-    auto toolchainMatch = [](ClangToolChain *toolChain, const Utils::FileName &compilerPath, const QStringList &flags) {
+    auto toolchainMatch = [](ClangToolChain *toolChain, const Utils::FilePath &compilerPath, const QStringList &flags) {
         return compilerPath == toolChain->compilerCommand()
                 && flags == toolChain->platformCodeGenFlags()
                 && flags == toolChain->platformLinkerFlags();
@@ -181,7 +181,7 @@ static void printKits(const QSet<Kit *> &kits)
 }
 
 static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolChains,
-                     const QVariant &debuggerId, const Utils::FileName &sdkPath, BaseQtVersion *qtVersion)
+                     const QVariant &debuggerId, const Utils::FilePath &sdkPath, BaseQtVersion *qtVersion)
 {
     DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
     if (toolChains.first)
@@ -212,9 +212,9 @@ static void setupKit(Kit *kit, Core::Id pDeviceType, const ToolChainPair& toolCh
     SysRootKitAspect::setSysRoot(kit, sdkPath);
 }
 
-static QVersionNumber findXcodeVersion(const Utils::FileName &developerPath)
+static QVersionNumber findXcodeVersion(const Utils::FilePath &developerPath)
 {
-    const FileName xcodeInfo = developerPath.parentDir().pathAppended("Info.plist");
+    const FilePath xcodeInfo = developerPath.parentDir().pathAppended("Info.plist");
     if (xcodeInfo.exists()) {
         QSettings settings(xcodeInfo.toString(), QSettings::NativeFormat);
         return QVersionNumber::fromString(settings.value("CFBundleShortVersionString").toString());
@@ -357,7 +357,7 @@ void IosConfigurations::setIgnoreAllDevices(bool ignoreDevices)
     }
 }
 
-void IosConfigurations::setScreenshotDir(const FileName &path)
+void IosConfigurations::setScreenshotDir(const FilePath &path)
 {
     if (m_instance->m_screenshotDir != path) {
         m_instance->m_screenshotDir = path;
@@ -365,12 +365,12 @@ void IosConfigurations::setScreenshotDir(const FileName &path)
     }
 }
 
-FileName IosConfigurations::screenshotDir()
+FilePath IosConfigurations::screenshotDir()
 {
     return m_instance->m_screenshotDir;
 }
 
-FileName IosConfigurations::developerPath()
+FilePath IosConfigurations::developerPath()
 {
     return m_instance->m_developerPath;
 }
@@ -402,11 +402,11 @@ void IosConfigurations::load()
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_ignoreAllDevices = settings->value(ignoreAllDevicesKey, false).toBool();
-    m_screenshotDir = FileName::fromString(settings->value(screenshotDirPathKey).toString());
+    m_screenshotDir = FilePath::fromString(settings->value(screenshotDirPathKey).toString());
     if (!m_screenshotDir.exists()) {
         QString defaultDir =
                 QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).constFirst();
-        m_screenshotDir = FileName::fromString(defaultDir);
+        m_screenshotDir = FilePath::fromString(defaultDir);
     }
 
     settings->endGroup();
@@ -425,7 +425,7 @@ void IosConfigurations::updateSimulators()
     SimulatorControl::updateAvailableSimulators();
 }
 
-void IosConfigurations::setDeveloperPath(const FileName &devPath)
+void IosConfigurations::setDeveloperPath(const FilePath &devPath)
 {
     static bool hasDevPath = false;
     if (devPath != m_instance->m_developerPath) {

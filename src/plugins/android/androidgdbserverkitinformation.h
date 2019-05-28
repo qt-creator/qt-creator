@@ -44,9 +44,9 @@ public:
     ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const override;
 
     static Core::Id id();
-    static Utils::FileName gdbServer(const ProjectExplorer::Kit *kit);
-    static void setGdbSever(ProjectExplorer::Kit *kit, const Utils::FileName &gdbServerCommand);
-    static Utils::FileName autoDetect(const ProjectExplorer::Kit *kit);
+    static Utils::FilePath gdbServer(const ProjectExplorer::Kit *kit);
+    static void setGdbSever(ProjectExplorer::Kit *kit, const Utils::FilePath &gdbServerCommand);
+    static Utils::FilePath autoDetect(const ProjectExplorer::Kit *kit);
 };
 
 } // namespace Internal

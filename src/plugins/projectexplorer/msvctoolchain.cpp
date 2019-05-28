@@ -613,7 +613,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     cpp.setEnvironment(env.toStringList());
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryPath());
     QStringList arguments;
-    const Utils::FileName binary = env.searchInPath(QLatin1String("cl.exe"));
+    const Utils::FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
     if (binary.isEmpty()) {
         qWarning("%s: The compiler binary cl.exe could not be found in the path.", Q_FUNC_INFO);
         return predefinedMacros;
@@ -1180,7 +1180,7 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
 }
 
 HeaderPaths MsvcToolChain::builtInHeaderPaths(const QStringList &cxxflags,
-                                              const Utils::FileName &sysRoot) const
+                                              const Utils::FilePath &sysRoot) const
 {
     return createBuiltInHeaderPathsRunner()(cxxflags, sysRoot.toString(), "");
 }
@@ -1210,17 +1210,17 @@ static QString wrappedMakeCommand(const QString &command)
     return wrapperPath;
 }
 
-FileName MsvcToolChain::makeCommand(const Environment &environment) const
+FilePath MsvcToolChain::makeCommand(const Environment &environment) const
 {
     bool useJom = ProjectExplorerPlugin::projectExplorerSettings().useJom;
     const QString jom("jom.exe");
     const QString nmake("nmake.exe");
-    Utils::FileName tmp;
+    Utils::FilePath tmp;
 
-    FileName command;
+    FilePath command;
     if (useJom) {
         tmp = environment.searchInPath(jom,
-                                       {Utils::FileName::fromString(
+                                       {Utils::FilePath::fromString(
                                            QCoreApplication::applicationDirPath())});
         if (!tmp.isEmpty())
             command = tmp;
@@ -1233,15 +1233,15 @@ FileName MsvcToolChain::makeCommand(const Environment &environment) const
     }
 
     if (command.isEmpty())
-        command = FileName::fromString(useJom ? jom : nmake);
+        command = FilePath::fromString(useJom ? jom : nmake);
 
     if (environment.hasKey("VSLANG"))
-        return FileName::fromString(wrappedMakeCommand(command.toString()));
+        return FilePath::fromString(wrappedMakeCommand(command.toString()));
 
     return command;
 }
 
-Utils::FileName MsvcToolChain::compilerCommand() const
+Utils::FilePath MsvcToolChain::compilerCommand() const
 {
     return m_compilerCommand;
 }
@@ -1252,7 +1252,7 @@ void MsvcToolChain::rescanForCompiler()
     addToEnvironment(env);
 
     m_compilerCommand
-        = env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FileName &name) {
+        = env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FilePath &name) {
               QDir dir(QDir::cleanPath(name.toFileInfo().absolutePath() + QStringLiteral("/..")));
               do {
                   if (QFile::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
@@ -1518,7 +1518,7 @@ void ClangClToolChainConfigWidget::setFromClangClToolChain()
     if (clangClToolChain->isAutoDetected())
         m_llvmDirLabel->setText(QDir::toNativeSeparators(clangClToolChain->clangPath()));
     else
-        m_compilerCommand->setFileName(Utils::FileName::fromString(clangClToolChain->clangPath()));
+        m_compilerCommand->setFileName(Utils::FilePath::fromString(clangClToolChain->clangPath()));
 }
 
 static const MsvcToolChain *findMsvcToolChain(unsigned char wordWidth, Abi::OSFlavor flavor)
@@ -1627,7 +1627,7 @@ static QString compilerFromPath(const QString &path)
 
 void ClangClToolChainConfigWidget::applyImpl()
 {
-    Utils::FileName clangClPath = m_compilerCommand->fileName();
+    Utils::FilePath clangClPath = m_compilerCommand->fileName();
     auto clangClToolChain = static_cast<ClangClToolChain *>(toolChain());
     clangClToolChain->setClangPath(clangClPath.toString());
 
@@ -1695,9 +1695,9 @@ void ClangClToolChain::addToEnvironment(Utils::Environment &env) const
     env.prependOrSetPath(path.canonicalPath());
 }
 
-Utils::FileName ClangClToolChain::compilerCommand() const
+Utils::FilePath ClangClToolChain::compilerCommand() const
 {
-    return Utils::FileName::fromString(m_clangPath);
+    return Utils::FilePath::fromString(m_clangPath);
 }
 
 QString ClangClToolChain::typeDisplayName() const
@@ -2020,7 +2020,7 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
 
     QString qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (!qtCreatorsClang.isEmpty()) {
-        qtCreatorsClang = Utils::FileName::fromString(qtCreatorsClang)
+        qtCreatorsClang = Utils::FilePath::fromString(qtCreatorsClang)
                               .parentDir()
                               .pathAppended("clang-cl.exe")
                               .toString();
@@ -2039,7 +2039,7 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     }
 
     const Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
-    const Utils::FileName clangClPath = systemEnvironment.searchInPath("clang-cl");
+    const Utils::FilePath clangClPath = systemEnvironment.searchInPath("clang-cl");
     if (!clangClPath.isEmpty())
         results.append(detectClangClToolChainInPath(clangClPath.toString(), known, ""));
 
@@ -2104,7 +2104,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv.toStringList());
     run.setTimeoutS(30);
-    Utils::FileName cmdPath = Utils::FileName::fromUserInput(
+    Utils::FilePath cmdPath = Utils::FilePath::fromUserInput(
         QString::fromLocal8Bit(qgetenv("COMSPEC")));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));

@@ -99,7 +99,7 @@ void CppToolsPlugin::initTestCase()
 
 void CppToolsPlugin::cleanupTestCase()
 {
-    Utils::FileUtils::removeRecursively(Utils::FileName::fromString(baseTestDir()));
+    Utils::FileUtils::removeRecursively(Utils::FilePath::fromString(baseTestDir()));
     m_fileSettings->headerSearchPaths.removeLast();
     m_fileSettings->headerSearchPaths.removeLast();
     m_fileSettings->sourceSearchPaths.removeLast();

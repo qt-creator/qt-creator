@@ -67,7 +67,7 @@ void scanDir(const QString &dir)
 {
     QFutureInterface<void> result;
     PathsAndLanguages paths;
-    paths.maybeInsert(Utils::FileName::fromString(dir), Dialect::Qml);
+    paths.maybeInsert(Utils::FilePath::fromString(dir), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), paths,
                                       ModelManagerInterface::instance(), false);
     ViewerContext vCtx = ViewerContext(QStringList(), QStringList(dir));
@@ -178,7 +178,7 @@ void tst_ImportCheck::test()
     QFutureInterface<void> result;
     PathsAndLanguages lPaths;
     foreach (const QString &path, paths)
-        lPaths.maybeInsert(Utils::FileName::fromString(path), Dialect::Qml);
+        lPaths.maybeInsert(Utils::FilePath::fromString(path), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
     ViewerContext vCtx(QStringList(), paths);

@@ -79,7 +79,7 @@ private:
     ProjectExplorer::IOutputParser *m_parser = nullptr;
     QFutureInterface<void> *m_future = nullptr;
 
-    QSet<Utils::FileName> m_cmakeFiles;
+    QSet<Utils::FilePath> m_cmakeFiles;
     QString m_projectName;
     QList<CMakeBuildTarget> m_buildTargets;
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_files;

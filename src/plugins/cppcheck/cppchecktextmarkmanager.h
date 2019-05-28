@@ -42,11 +42,11 @@ public:
     ~CppcheckTextMarkManager();
 
     void add(const Diagnostic &diagnostic);
-    void clearFiles(const Utils::FileNameList &files);
+    void clearFiles(const Utils::FilePathList &files);
 
 private:
     using MarkPtr = std::unique_ptr<CppcheckTextMark>;
-    std::unordered_map<Utils::FileName, std::vector<MarkPtr>> m_marks;
+    std::unordered_map<Utils::FilePath, std::vector<MarkPtr>> m_marks;
 };
 
 } // namespace Internal

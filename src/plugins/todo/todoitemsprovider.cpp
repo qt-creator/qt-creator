@@ -124,7 +124,7 @@ void TodoItemsProvider::setItemsListWithinStartupProject()
     QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
     const QSet<QString> fileNames
             = QSet<QString>::fromList(Utils::transform(m_startupProject->files(Project::SourceFiles),
-                                                       &Utils::FileName::toString));
+                                                       &Utils::FilePath::toString));
 
     QVariantMap settings = m_startupProject->namedSettings(Constants::SETTINGS_NAME_KEY).toMap();
 
@@ -154,7 +154,7 @@ void TodoItemsProvider::setItemsListWithinSubproject()
         ProjectNode *projectNode = node->parentProjectNode();
         if (projectNode) {
             // FIXME: The name doesn't match the implementation that lists all files.
-            QSet<Utils::FileName> subprojectFileNames;
+            QSet<Utils::FilePath> subprojectFileNames;
             projectNode->forEachGenericNode([&](Node *node) {
                  subprojectFileNames.insert(node->filePath());
             });
@@ -162,11 +162,11 @@ void TodoItemsProvider::setItemsListWithinSubproject()
             // files must be both in the current subproject and the startup-project.
             const QSet<QString> fileNames
                     = QSet<QString>::fromList(Utils::transform(m_startupProject->files(Project::SourceFiles),
-                                                               &Utils::FileName::toString));
+                                                               &Utils::FilePath::toString));
             QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
             while (it.hasNext()) {
                 it.next();
-                if (subprojectFileNames.contains(Utils::FileName::fromString(it.key()))
+                if (subprojectFileNames.contains(Utils::FilePath::fromString(it.key()))
                         && fileNames.contains(it.key())) {
                     m_itemsList << it.value();
                 }

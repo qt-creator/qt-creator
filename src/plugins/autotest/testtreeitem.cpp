@@ -259,7 +259,7 @@ QList<TestConfiguration *> TestTreeItem::getSelectedTestConfigurations() const
     return QList<TestConfiguration *>();
 }
 
-QList<TestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const Utils::FileName &) const
+QList<TestConfiguration *> TestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &) const
 {
     return QList<TestConfiguration *>();
 }
@@ -368,9 +368,9 @@ QSet<QString> TestTreeItem::dependingInternalTargets(CppTools::CppModelManager *
     bool wasHeader;
     const QString correspondingFile
             = CppTools::correspondingHeaderOrSource(file, &wasHeader, CppTools::CacheUsage::ReadOnly);
-    const Utils::FileNameList dependingFiles = snapshot.filesDependingOn(
+    const Utils::FilePathList dependingFiles = snapshot.filesDependingOn(
                 wasHeader ? file : correspondingFile);
-    for (const Utils::FileName &fn : dependingFiles) {
+    for (const Utils::FilePath &fn : dependingFiles) {
         for (const CppTools::ProjectPart::Ptr &part : cppMM->projectPart(fn))
             result.insert(part->buildSystemTarget);
     }

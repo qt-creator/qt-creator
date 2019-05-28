@@ -45,7 +45,7 @@ class DummyProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 public:
-    DummyProject(const Utils::FileName &file) :
+    DummyProject(const Utils::FilePath &file) :
         ProjectExplorer::Project(QString(), file, {})
     {
         auto fileNode
@@ -53,7 +53,7 @@ public:
         auto root = std::make_unique<ProjectExplorer::ProjectNode>(file);
         root->addNode(std::move(fileNode));
         fileNode = std::make_unique<ProjectExplorer::FileNode>(
-                    Utils::FileName::fromLatin1(
+                    Utils::FilePath::fromLatin1(
                         ":/qmlprofiler/tests/qmlprofilerdetailsrewriter_test.cpp"),
                     ProjectExplorer::FileType::Source);
         root->addNode(std::move(fileNode));
@@ -181,10 +181,10 @@ void QmlProfilerDetailsRewriterTest::testPopulateFileFinder()
     QCOMPARE(m_rewriter.getLocalFile("Test.qml"), QString());
 
     // Test that the rewriter will populate from available projects if given nullptr as parameter.
-    DummyProject *project1 = new DummyProject(Utils::FileName::fromString(":/nix.nix"));
+    DummyProject *project1 = new DummyProject(Utils::FilePath::fromString(":/nix.nix"));
     ProjectExplorer::SessionManager::addProject(project1);
     DummyProject *project2 = new DummyProject(
-                Utils::FileName::fromString(":/qmlprofiler/tests/Test.qml"));
+                Utils::FilePath::fromString(":/qmlprofiler/tests/Test.qml"));
     ProjectExplorer::SessionManager::addProject(project2);
     m_rewriter.populateFileFinder(nullptr);
     QCOMPARE(m_rewriter.getLocalFile("Test.qml"),
@@ -203,7 +203,7 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
     QFutureInterface<void> result;
     QmlJS::PathsAndLanguages lPaths;
     lPaths.maybeInsert(
-                Utils::FileName::fromString(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)),
+                Utils::FilePath::fromString(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath)),
                 QmlJS::Dialect::Qml);
     QmlJS::ModelManagerInterface::importScan(result, QmlJS::ModelManagerInterface::workingCopy(),
                                              lPaths, m_modelManager, false);
@@ -220,9 +220,9 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
 
     auto kit = std::make_unique<ProjectExplorer::Kit>();
     ProjectExplorer::SysRootKitAspect::setSysRoot(
-                kit.get(), Utils::FileName::fromLatin1("/nowhere"));
+                kit.get(), Utils::FilePath::fromLatin1("/nowhere"));
 
-    DummyProject *project = new DummyProject(Utils::FileName::fromString(filename));
+    DummyProject *project = new DummyProject(Utils::FilePath::fromString(filename));
     ProjectExplorer::SessionManager::addProject(project);
 
     {

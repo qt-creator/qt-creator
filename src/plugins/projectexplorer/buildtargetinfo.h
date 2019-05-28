@@ -42,9 +42,9 @@ public:
     QString displayName;
     QString displayNameUniquifier;
 
-    Utils::FileName targetFilePath;
-    Utils::FileName projectFilePath;
-    Utils::FileName workingDirectory;
+    Utils::FilePath targetFilePath;
+    Utils::FilePath projectFilePath;
+    Utils::FilePath workingDirectory;
     bool isQtcRunnable = true;
     bool usesTerminal = false;
 

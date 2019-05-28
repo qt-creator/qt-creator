@@ -40,7 +40,7 @@ class ClangTextMark : public TextEditor::TextMark
 public:
     using RemovedFromEditorHandler = std::function<void(ClangTextMark *)>;
 
-    ClangTextMark(const ::Utils::FileName &fileName,
+    ClangTextMark(const ::Utils::FilePath &fileName,
                   const ClangBackEnd::DiagnosticContainer &diagnostic,
                   const RemovedFromEditorHandler &removedHandler,
                   bool fullVisualization);

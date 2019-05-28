@@ -148,7 +148,7 @@ void tst_Dependencies::test()
     QStringList paths(m_basePaths);
     paths << m_path;
     for (auto p: paths)
-        lPaths.maybeInsert(Utils::FileName::fromString(p), Dialect::Qml);
+        lPaths.maybeInsert(Utils::FilePath::fromString(p), Dialect::Qml);
     ModelManagerInterface::importScan(result, ModelManagerInterface::workingCopy(), lPaths,
                                       ModelManagerInterface::instance(), false);
 

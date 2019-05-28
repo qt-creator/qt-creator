@@ -196,7 +196,7 @@ QString DesignDocument::simplfiedDisplayName() const
         return rootModelNode().simplifiedTypeName();
 }
 
-void DesignDocument::updateFileName(const Utils::FileName & /*oldFileName*/, const Utils::FileName &newFileName)
+void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, const Utils::FilePath &newFileName)
 {
     if (m_documentModel)
         m_documentModel->setFileUrl(QUrl::fromLocalFile(newFileName.toString()));
@@ -209,11 +209,11 @@ void DesignDocument::updateFileName(const Utils::FileName & /*oldFileName*/, con
     emit displayNameChanged(displayName());
 }
 
-Utils::FileName DesignDocument::fileName() const
+Utils::FilePath DesignDocument::fileName() const
 {
     if (editor())
         return editor()->document()->filePath();
-    return Utils::FileName();
+    return Utils::FilePath();
 }
 
 Kit *DesignDocument::currentKit() const
@@ -250,7 +250,7 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     m_inFileComponentTextModifier.reset();
 
-    updateFileName(Utils::FileName(), fileName());
+    updateFileName(Utils::FilePath(), fileName());
 
     updateQrcFiles();
 
@@ -287,7 +287,7 @@ void DesignDocument::updateQrcFiles()
     ProjectExplorer::Project *currentProject = ProjectExplorer::SessionManager::projectForFile(fileName());
 
     if (currentProject) {
-        for (const Utils::FileName &fileName : currentProject->files(ProjectExplorer::Project::SourceFiles)) {
+        for (const Utils::FilePath &fileName : currentProject->files(ProjectExplorer::Project::SourceFiles)) {
             if (fileName.endsWith(".qrc"))
                 QmlJS::ModelManagerInterface::instance()->updateQrcFile(fileName.toString());
         }

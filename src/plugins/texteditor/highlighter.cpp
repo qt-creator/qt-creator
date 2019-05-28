@@ -125,7 +125,7 @@ Highlighter::Definition Highlighter::definitionForMimeType(const QString &mimeTy
     return highlightRepository()->definitionForMimeType(mimeType);
 }
 
-Highlighter::Definition Highlighter::definitionForFilePath(const Utils::FileName &fileName)
+Highlighter::Definition Highlighter::definitionForFilePath(const Utils::FilePath &fileName)
 {
     const Definitions definitions = definitionsForFileName(fileName);
     if (definitions.size() == 1)
@@ -171,7 +171,7 @@ Highlighter::Definitions Highlighter::definitionsForMimeType(const QString &mime
     return definitions;
 }
 
-Highlighter::Definitions Highlighter::definitionsForFileName(const Utils::FileName &fileName)
+Highlighter::Definitions Highlighter::definitionsForFileName(const Utils::FilePath &fileName)
 {
     Definitions definitions
         = highlightRepository()->definitionsForFileName(fileName.fileName()).toList();
@@ -229,7 +229,7 @@ void Highlighter::clearDefintionForDocumentCache()
     settings->endGroup();
 }
 
-void Highlighter::addCustomHighlighterPath(const Utils::FileName &path)
+void Highlighter::addCustomHighlighterPath(const Utils::FilePath &path)
 {
     highlightRepository()->addCustomSearchPath(path.toString());
 }

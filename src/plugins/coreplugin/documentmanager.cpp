@@ -164,7 +164,7 @@ public:
     QFileSystemWatcher *m_linkWatcher = nullptr; // Delayed creation (only UNIX/if a link is seen).
     QString m_lastVisitedDirectory = QDir::currentPath();
     QString m_defaultLocationForNewFiles;
-    FileName m_projectsDirectory;
+    FilePath m_projectsDirectory;
     // When we are calling into an IDocument
     // we don't want to receive a changed()
     // signal
@@ -438,14 +438,14 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
     foreach (IDocument *document, documentsToRename) {
         d->m_blockedIDocument = document;
         removeFileInfo(document);
-        document->setFilePath(FileName::fromString(to));
+        document->setFilePath(FilePath::fromString(to));
         addFileInfo(document);
         d->m_blockedIDocument = nullptr;
     }
     emit m_instance->allDocumentsRenamed(from, to);
 }
 
-void DocumentManager::filePathChanged(const FileName &oldName, const FileName &newName)
+void DocumentManager::filePathChanged(const FilePath &oldName, const FilePath &newName)
 {
     auto doc = qobject_cast<IDocument *>(sender());
     QTC_ASSERT(doc, return);
@@ -961,7 +961,7 @@ bool DocumentManager::saveModifiedDocument(IDocument *document, const QString &m
                                  alwaysSaveMessage, alwaysSave, failedToClose);
 }
 
-void DocumentManager::showFilePropertiesDialog(const FileName &filePath)
+void DocumentManager::showFilePropertiesDialog(const FilePath &filePath)
 {
     FilePropertiesDialog properties(filePath);
     properties.exec();
@@ -1340,12 +1340,12 @@ void readSettings()
     }
 
     s->beginGroup(QLatin1String(directoryGroupC));
-    const FileName settingsProjectDir = FileName::fromString(s->value(QLatin1String(projectDirectoryKeyC),
+    const FilePath settingsProjectDir = FilePath::fromString(s->value(QLatin1String(projectDirectoryKeyC),
                                                 QString()).toString());
     if (!settingsProjectDir.isEmpty() && settingsProjectDir.toFileInfo().isDir())
         d->m_projectsDirectory = settingsProjectDir;
     else
-        d->m_projectsDirectory = FileName::fromString(PathChooser::homePath());
+        d->m_projectsDirectory = FilePath::fromString(PathChooser::homePath());
     d->m_useProjectsDirectory = s->value(QLatin1String(useProjectDirectoryKeyC),
                                          d->m_useProjectsDirectory).toBool();
 
@@ -1398,7 +1398,7 @@ void DocumentManager::setDefaultLocationForNewFiles(const QString &location)
   \sa setProjectsDirectory, setUseProjectsDirectory
 */
 
-FileName DocumentManager::projectsDirectory()
+FilePath DocumentManager::projectsDirectory()
 {
     return d->m_projectsDirectory;
 }
@@ -1410,7 +1410,7 @@ FileName DocumentManager::projectsDirectory()
   \sa projectsDirectory, useProjectsDirectory
 */
 
-void DocumentManager::setProjectsDirectory(const FileName &directory)
+void DocumentManager::setProjectsDirectory(const FilePath &directory)
 {
     if (d->m_projectsDirectory != directory) {
         d->m_projectsDirectory = directory;

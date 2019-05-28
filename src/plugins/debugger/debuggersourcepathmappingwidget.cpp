@@ -401,7 +401,7 @@ void DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged()
 }
 
 // Find Qt installation by running qmake
-static QString findQtInstallPath(const FileName &qmakePath)
+static QString findQtInstallPath(const FilePath &qmakePath)
 {
     if (qmakePath.isEmpty())
         return QString();
@@ -438,7 +438,7 @@ DebuggerSourcePathMappingWidget::SourcePathMap
     DebuggerSourcePathMappingWidget::mergePlatformQtPath(const DebuggerRunParameters &sp,
                                                          const SourcePathMap &in)
 {
-    const FileName qmake = BuildableHelperLibrary::findSystemQt(sp.inferior.environment);
+    const FilePath qmake = BuildableHelperLibrary::findSystemQt(sp.inferior.environment);
     // FIXME: Get this from the profile?
     //        We could query the QtVersion for this information directly, but then we
     //        will need to add a dependency on QtSupport to the debugger.

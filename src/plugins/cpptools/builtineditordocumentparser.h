@@ -61,8 +61,8 @@ private:
     void updateImpl(const QFutureInterface<void> &future,
                     const UpdateParams &updateParams) override;
     void addFileAndDependencies(CPlusPlus::Snapshot *snapshot,
-                                QSet<Utils::FileName> *toRemove,
-                                const Utils::FileName &fileName) const;
+                                QSet<Utils::FilePath> *toRemove,
+                                const Utils::FilePath &fileName) const;
 
     struct ExtraState {
         QByteArray configFile;

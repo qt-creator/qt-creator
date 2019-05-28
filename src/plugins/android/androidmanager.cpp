@@ -109,7 +109,7 @@ public:
 
 using LibrariesMap = QMap<QString, Library>;
 
-static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
+static bool openXmlFile(QDomDocument &doc, const Utils::FilePath &fileName);
 static bool openManifest(ProjectExplorer::Target *target, QDomDocument &doc);
 static int parseMinSdk(const QDomElement &manifestElem);
 
@@ -129,7 +129,7 @@ QString AndroidManager::packageName(ProjectExplorer::Target *target)
     return manifestElem.attribute(QLatin1String("package"));
 }
 
-QString AndroidManager::packageName(const Utils::FileName &manifestFile)
+QString AndroidManager::packageName(const Utils::FilePath &manifestFile)
 {
     QDomDocument doc;
     if (!openXmlFile(doc, manifestFile))
@@ -174,7 +174,7 @@ int AndroidManager::packageVersionCode(const QString &deviceSerial,
     return -1;
 }
 
-void AndroidManager::apkInfo(const Utils::FileName &apkPath,
+void AndroidManager::apkInfo(const Utils::FilePath &apkPath,
                                     QString *packageName,
                                     int *version,
                                     QString *activityPath)
@@ -237,8 +237,8 @@ int AndroidManager::minimumSDK(const ProjectExplorer::Kit *kit)
     int minSDKVersion = -1;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
-        Utils::FileName stockManifestFilePath =
-                Utils::FileName::fromUserInput(version->qmakeProperty("QT_INSTALL_PREFIX") +
+        Utils::FilePath stockManifestFilePath =
+                Utils::FilePath::fromUserInput(version->qmakeProperty("QT_INSTALL_PREFIX") +
                                                QLatin1String("/src/android/templates/AndroidManifest.xml"));
         QDomDocument doc;
         if (openXmlFile(doc, stockManifestFilePath)) {
@@ -292,20 +292,20 @@ QJsonObject AndroidManager::deploymentSettings(const Target *target)
     return settings;
 }
 
-Utils::FileName AndroidManager::dirPath(const ProjectExplorer::Target *target)
+Utils::FilePath AndroidManager::dirPath(const ProjectExplorer::Target *target)
 {
     if (target->activeBuildConfiguration())
         return target->activeBuildConfiguration()->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
-    return Utils::FileName();
+    return Utils::FilePath();
 }
 
-Utils::FileName AndroidManager::apkPath(const ProjectExplorer::Target *target)
+Utils::FilePath AndroidManager::apkPath(const ProjectExplorer::Target *target)
 {
-    QTC_ASSERT(target, return Utils::FileName());
+    QTC_ASSERT(target, return Utils::FilePath());
 
     auto buildApkStep = AndroidBuildApkStep::findInBuild(target->activeBuildConfiguration());
     if (!buildApkStep)
-        return Utils::FileName();
+        return Utils::FilePath();
 
     QString apkPath("build/outputs/apk/android-build-");
     if (buildApkStep->signPackage())
@@ -316,13 +316,13 @@ Utils::FileName AndroidManager::apkPath(const ProjectExplorer::Target *target)
     return dirPath(target).pathAppended(apkPath);
 }
 
-Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
+Utils::FilePath AndroidManager::manifestSourcePath(ProjectExplorer::Target *target)
 {
     if (const ProjectNode *node = currentProjectNode(target)) {
         const QString packageSource
                 = node->data(Android::Constants::AndroidPackageSourceDir).toString();
         if (!packageSource.isEmpty()) {
-            const FileName manifest = FileName::fromUserInput(packageSource + "/AndroidManifest.xml");
+            const FilePath manifest = FilePath::fromUserInput(packageSource + "/AndroidManifest.xml");
             if (manifest.exists())
                 return manifest;
         }
@@ -330,20 +330,20 @@ Utils::FileName AndroidManager::manifestSourcePath(ProjectExplorer::Target *targ
     return manifestPath(target);
 }
 
-Utils::FileName AndroidManager::manifestPath(ProjectExplorer::Target *target)
+Utils::FilePath AndroidManager::manifestPath(ProjectExplorer::Target *target)
 {
     QVariant manifest = target->namedSettings(AndroidManifestName);
     if (manifest.isValid())
-        return manifest.value<FileName>();
+        return manifest.value<FilePath>();
     return dirPath(target).pathAppended(AndroidManifestName);
 }
 
-void AndroidManager::setManifestPath(Target *target, const FileName &path)
+void AndroidManager::setManifestPath(Target *target, const FilePath &path)
 {
      target->setNamedSettings(AndroidManifestName, QVariant::fromValue(path));
 }
 
-Utils::FileName AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *target)
+Utils::FilePath AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *target)
 {
     return dirPath(target).pathAppended(AndroidDefaultPropertiesName);
 }
@@ -440,7 +440,7 @@ static void raiseError(const QString &reason)
     QMessageBox::critical(nullptr, AndroidManager::tr("Error creating Android templates."), reason);
 }
 
-static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName)
+static bool openXmlFile(QDomDocument &doc, const Utils::FilePath &fileName)
 {
     QFile f(fileName.toString());
     if (!f.open(QIODevice::ReadOnly))
@@ -643,12 +643,12 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
 
     const QString sourceDirName = node->data(Constants::AndroidPackageSourceDir).toString();
     QFileInfo sourceDirInfo(sourceDirName);
-    const FileName packageSourceDir = FileName::fromString(sourceDirInfo.canonicalFilePath())
+    const FilePath packageSourceDir = FilePath::fromString(sourceDirInfo.canonicalFilePath())
             .pathAppended("gradlew");
     if (!packageSourceDir.exists())
         return false;
 
-    const FileName wrapperProps = packageSourceDir.pathAppended("gradle/wrapper/gradle-wrapper.properties");
+    const FilePath wrapperProps = packageSourceDir.pathAppended("gradle/wrapper/gradle-wrapper.properties");
     if (wrapperProps.exists()) {
         GradleProperties wrapperProperties = readGradleProperties(wrapperProps.toString());
         QString distributionUrl = QString::fromLocal8Bit(wrapperProperties["distributionUrl"]);
@@ -661,7 +661,7 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
 
     GradleProperties localProperties;
     localProperties["sdk.dir"] = AndroidConfigurations::currentConfig().sdkLocation().toString().toLocal8Bit();
-    const FileName localPropertiesFile = packageSourceDir.pathAppended("local.properties");
+    const FilePath localPropertiesFile = packageSourceDir.pathAppended("local.properties");
     if (!mergeGradleProperties(localPropertiesFile.toString(), localProperties))
         return false;
 
@@ -680,10 +680,10 @@ bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
     return mergeGradleProperties(gradlePropertiesPath, gradleProperties);
 }
 
-int AndroidManager::findApiLevel(const Utils::FileName &platformPath)
+int AndroidManager::findApiLevel(const Utils::FilePath &platformPath)
 {
     int apiLevel = -1;
-    const Utils::FileName propertiesPath = platformPath.pathAppended("/source.properties");
+    const Utils::FilePath propertiesPath = platformPath.pathAppended("/source.properties");
     if (propertiesPath.exists()) {
         QSettings sdkProperties(propertiesPath.toString(), QSettings::IniFormat);
         bool validInt = false;

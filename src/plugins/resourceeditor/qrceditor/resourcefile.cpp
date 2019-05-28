@@ -813,7 +813,7 @@ bool ResourceModel::setData(const QModelIndex &index, const QVariant &value, int
         return false;
 
     const QDir baseDir = QFileInfo(fileName()).absoluteDir();
-    Utils::FileName newFileName = Utils::FileName::fromUserInput(
+    Utils::FilePath newFileName = Utils::FilePath::fromUserInput(
                 baseDir.absoluteFilePath(value.toString()));
 
     if (newFileName.isEmpty())

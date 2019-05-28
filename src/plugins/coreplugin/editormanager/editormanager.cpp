@@ -608,7 +608,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
         Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
         QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"),
                            tr("Could not open \"%1\": Cannot open files of type \"%2\".")
-                           .arg(FileName::fromString(realFn).toUserOutput(), mimeType.name()),
+                           .arg(FilePath::fromString(realFn).toUserOutput(), mimeType.name()),
                            QMessageBox::Ok, ICore::dialogParent());
         msgbox.exec();
         return nullptr;
@@ -650,7 +650,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
                                tr("Could not open \"%1\" for reading. "
                                   "Either the file does not exist or you do not have "
                                   "the permissions to open it.")
-                               .arg(FileName::fromString(realFn).toUserOutput()),
+                               .arg(FilePath::fromString(realFn).toUserOutput()),
                                QMessageBox::Ok, ICore::dialogParent());
             msgbox.exec();
             return nullptr;
@@ -659,7 +659,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const QString &fileN
 
         if (errorString.isEmpty()) {
             errorString = tr("Could not open \"%1\": Unknown error.")
-                    .arg(FileName::fromString(realFn).toUserOutput());
+                    .arg(FilePath::fromString(realFn).toUserOutput());
         }
 
         QMessageBox msgbox(QMessageBox::Critical, EditorManager::tr("File Error"), errorString, QMessageBox::Open | QMessageBox::Cancel, ICore::mainWindow());
@@ -2306,7 +2306,7 @@ void EditorManagerPrivate::findInDirectory()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->fileName().isEmpty())
         return;
-    const FileName path = d->m_contextMenuEntry->fileName();
+    const FilePath path = d->m_contextMenuEntry->fileName();
     emit m_instance->findOnFileSystemRequest(
         (path.toFileInfo().isDir() ? path : path.parentDir()).toString());
 }
@@ -2467,7 +2467,7 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
     d->m_contextMenuEntry = entry;
     d->m_contextMenuEditor = editor;
 
-    const FileName filePath = entry ? entry->fileName() : FileName();
+    const FilePath filePath = entry ? entry->fileName() : FilePath();
     const bool copyActionsEnabled = !filePath.isEmpty();
     d->m_copyFilePathContextAction->setEnabled(copyActionsEnabled);
     d->m_copyLocationContextAction->setEnabled(copyActionsEnabled);

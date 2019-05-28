@@ -61,7 +61,7 @@ public:
     void sync(ProjectExplorer::Node *node);
     void showMessage(ProjectExplorer::Node *node, const QString &message);
 
-    static Node *nodeForFile(const Utils::FileName &fileName);
+    static Node *nodeForFile(const Utils::FilePath &fileName);
 
     void toggleAutoSynchronization();
     void editCurrentItem();
@@ -80,7 +80,7 @@ private:
     void setCurrentItem(ProjectExplorer::Node *node);
     static int expandedCount(Node *node);
     void rowsInserted(const QModelIndex &parent, int start, int end);
-    void renamed(const Utils::FileName &oldPath, const Utils::FileName &newPath);
+    void renamed(const Utils::FilePath &oldPath, const Utils::FilePath &newPath);
 
     void syncFromDocumentManager();
 
@@ -93,7 +93,7 @@ private:
 
     QString m_modelId;
     bool m_autoSync = true;
-    Utils::FileName m_delayedRename;
+    Utils::FilePath m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;
     friend class ProjectTreeWidgetFactory;

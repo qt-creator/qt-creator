@@ -42,7 +42,7 @@ using namespace Valgrind::Callgrind;
 namespace Constants { const char CALLGRIND_TEXT_MARK_CATEGORY[] = "Callgrind.Textmark"; }
 
 CallgrindTextMark::CallgrindTextMark(const QPersistentModelIndex &index,
-                                     const FileName &fileName, int lineNumber)
+                                     const FilePath &fileName, int lineNumber)
     : TextEditor::TextMark(fileName, lineNumber, Constants::CALLGRIND_TEXT_MARK_CATEGORY, 4.0)
     , m_modelIndex(index)
 {

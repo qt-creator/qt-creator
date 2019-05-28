@@ -89,7 +89,7 @@ public:
 
     void addDebugger(const DebuggerItem &item);
     QVariant registerDebugger(const DebuggerItem &item);
-    void readDebuggers(const FileName &fileName, bool isSystem);
+    void readDebuggers(const FilePath &fileName, bool isSystem);
     void autoDetectCdbDebuggers();
     void autoDetectGdbOrLldbDebuggers();
     QString uniqueDisplayName(const QString &base);
@@ -624,7 +624,7 @@ void DebuggerOptionsPage::finish()
 
 void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 {
-    FileNameList cdbs;
+    FilePathList cdbs;
 
     const QStringList programDirs = {
         QString::fromLocal8Bit(qgetenv("ProgramFiles")),
@@ -653,7 +653,7 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
         // Pre Windows SDK 8: Check 'Debugging Tools for Windows'
         for (const QFileInfo &fi : dir.entryInfoList({"Debugging Tools for Windows*"},
                                                      QDir::Dirs | QDir::NoDotAndDotDot)) {
-            const FileName filePath = FileName::fromFileInfo(fi).pathAppended("cdb.exe");
+            const FilePath filePath = FilePath::fromFileInfo(fi).pathAppended("cdb.exe");
             if (!cdbs.contains(filePath))
                 cdbs.append(filePath);
         }
@@ -676,13 +676,13 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
         const QString path = kitFolderFi.absoluteFilePath();
         const QFileInfo cdb32(path + "/Debuggers/x86/cdb.exe");
         if (cdb32.isExecutable())
-            cdbs.append(FileName::fromString(cdb32.absoluteFilePath()));
+            cdbs.append(FilePath::fromString(cdb32.absoluteFilePath()));
         const QFileInfo cdb64(path + "/Debuggers/x64/cdb.exe");
         if (cdb64.isExecutable())
-            cdbs.append(FileName::fromString(cdb64.absoluteFilePath()));
+            cdbs.append(FilePath::fromString(cdb64.absoluteFilePath()));
     }
 
-    for (const FileName &cdb : qAsConst(cdbs)) {
+    for (const FilePath &cdb : qAsConst(cdbs)) {
         if (DebuggerItemManager::findByCommand(cdb))
             continue;
         DebuggerItem item;
@@ -721,7 +721,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     }
     */
 
-    FileNameList suspects;
+    FilePathList suspects;
 
     if (HostOsInfo::isMacHost()) {
         SynchronousProcess lldbInfo;
@@ -733,23 +733,23 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
             if (!lPath.isEmpty()) {
                 const QFileInfo fi(lPath);
                 if (fi.exists() && fi.isExecutable() && !fi.isDir())
-                    suspects.append(FileName::fromString(fi.absoluteFilePath()));
+                    suspects.append(FilePath::fromString(fi.absoluteFilePath()));
             }
         }
     }
 
-    Utils::FileNameList path = Environment::systemEnvironment().path();
+    Utils::FilePathList path = Environment::systemEnvironment().path();
     path = Utils::filteredUnique(path);
     QDir dir;
     dir.setNameFilters(filters);
     dir.setFilter(QDir::Files | QDir::Executable);
-    foreach (const Utils::FileName &base, path) {
+    foreach (const Utils::FilePath &base, path) {
         dir.setPath(base.toFileInfo().absoluteFilePath());
         foreach (const QString &entry, dir.entryList())
-            suspects.append(FileName::fromString(dir.absoluteFilePath(entry)));
+            suspects.append(FilePath::fromString(dir.absoluteFilePath(entry)));
     }
 
-    foreach (const FileName &command, suspects) {
+    foreach (const FilePath &command, suspects) {
         const auto commandMatches = [command](const DebuggerTreeItem *titem) {
             return titem->m_item.command() == command;
         };
@@ -772,9 +772,9 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     }
 }
 
-static FileName userSettingsFileName()
+static FilePath userSettingsFileName()
 {
-    return FileName::fromString(ICore::userResourcePath() + DEBUGGER_FILENAME);
+    return FilePath::fromString(ICore::userResourcePath() + DEBUGGER_FILENAME);
 }
 
 DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
@@ -825,7 +825,7 @@ QVariant DebuggerItemManagerPrivate::registerDebugger(const DebuggerItem &item)
     return di.id();
 }
 
-void DebuggerItemManagerPrivate::readDebuggers(const FileName &fileName, bool isSystem)
+void DebuggerItemManagerPrivate::readDebuggers(const FilePath &fileName, bool isSystem)
 {
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
@@ -870,7 +870,7 @@ void DebuggerItemManagerPrivate::readDebuggers(const FileName &fileName, bool is
 void DebuggerItemManagerPrivate::restoreDebuggers()
 {
     // Read debuggers from SDK
-    readDebuggers(FileName::fromString(ICore::installerResourcePath() + DEBUGGER_FILENAME), true);
+    readDebuggers(FilePath::fromString(ICore::installerResourcePath() + DEBUGGER_FILENAME), true);
 
     // Read all debuggers from user file.
     readDebuggers(userSettingsFileName(), false);
@@ -926,7 +926,7 @@ const QList<DebuggerItem> DebuggerItemManager::debuggers()
     return result;
 }
 
-const DebuggerItem *DebuggerItemManager::findByCommand(const FileName &command)
+const DebuggerItem *DebuggerItemManager::findByCommand(const FilePath &command)
 {
     return findDebugger([command](const DebuggerItem &item) {
         return item.command() == command;

@@ -234,7 +234,7 @@ QList<TestConfiguration *> QtTestTreeItem::getSelectedTestConfigurations() const
     return result;
 }
 
-QList<TestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const Utils::FileName &fileName) const
+QList<TestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
 {
     QList<TestConfiguration *> result;
 

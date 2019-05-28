@@ -43,16 +43,16 @@ public:
     void stdError(const QString &line) override;
     void setProjectFileList(const QStringList &fileList);
 
-    void setBuildDirectory(const Utils::FileName &buildDirectory);
-    void setSourceDirectory(const Utils::FileName &sourceDirectory);
+    void setBuildDirectory(const Utils::FilePath &buildDirectory);
+    void setSourceDirectory(const Utils::FilePath &sourceDirectory);
 
 private:
     void parse(const QString &line);
 
     QRegExp m_javaRegExp;
     QStringList m_fileList;
-    Utils::FileName m_sourceDirectory;
-    Utils::FileName m_buildDirectory;
+    Utils::FilePath m_sourceDirectory;
+    Utils::FilePath m_buildDirectory;
 };
 
 } // namespace Internal

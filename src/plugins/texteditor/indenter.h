@@ -33,7 +33,7 @@
 #include <vector>
 
 namespace Utils {
-class FileName;
+class FilePath;
 }
 
 namespace TextEditor {
@@ -74,7 +74,7 @@ public:
         : m_doc(doc)
     {}
 
-    void setFileName(const Utils::FileName &fileName) { m_fileName = fileName; }
+    void setFileName(const Utils::FilePath &fileName) { m_fileName = fileName; }
 
     virtual ~Indenter() = default;
 
@@ -137,7 +137,7 @@ public:
 
 protected:
     QTextDocument *m_doc;
-    Utils::FileName m_fileName;
+    Utils::FilePath m_fileName;
 };
 
 } // namespace TextEditor

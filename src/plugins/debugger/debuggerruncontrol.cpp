@@ -311,7 +311,7 @@ void DebuggerRunTool::setAttachPid(qint64 pid)
     m_runParameters.attachPID = ProcessHandle(pid);
 }
 
-void DebuggerRunTool::setSysRoot(const Utils::FileName &sysRoot)
+void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
 {
     m_runParameters.sysRoot = sysRoot;
 }
@@ -517,7 +517,7 @@ void DebuggerRunTool::addExpectedSignal(const QString &signal)
     m_runParameters.expectedSignals.append(signal);
 }
 
-void DebuggerRunTool::addSearchDirectory(const Utils::FileName &dir)
+void DebuggerRunTool::addSearchDirectory(const Utils::FilePath &dir)
 {
     m_runParameters.additionalSearchDirectories.append(dir);
 }

@@ -73,7 +73,7 @@ private:
 
     Utils::PersistentSettingsWriter *m_writer = nullptr;
     QList<GdbServerProvider *> m_providers;
-    const Utils::FileName m_configFile;
+    const Utils::FilePath m_configFile;
     const QList<GdbServerProviderFactory *> m_factories;
 
     friend class BareMetalPlugin; // for restoreProviders

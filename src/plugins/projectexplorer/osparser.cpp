@@ -41,7 +41,7 @@ void OsParser::stdError(const QString &line)
     if (Utils::HostOsInfo::isLinuxHost()) {
         const QString trimmed = line.trimmed();
         if (trimmed.contains(QLatin1String(": error while loading shared libraries:"))) {
-            emit addTask(Task(Task::Error, trimmed, Utils::FileName(), -1,
+            emit addTask(Task(Task::Error, trimmed, Utils::FilePath(), -1,
                               Constants::TASK_CATEGORY_COMPILE));
         }
     }
@@ -55,7 +55,7 @@ void OsParser::stdOutput(const QString &line)
         if (trimmed == QLatin1String("The process cannot access the file because it is being used by another process.")) {
             emit addTask(Task(Task::Error, tr("The process cannot access the file because it is being used by another process.\n"
                                               "Please close all running instances of your application before starting a build."),
-                              Utils::FileName(), -1, Constants::TASK_CATEGORY_COMPILE));
+                              Utils::FilePath(), -1, Constants::TASK_CATEGORY_COMPILE));
             m_hasFatalError = true;
         }
     }

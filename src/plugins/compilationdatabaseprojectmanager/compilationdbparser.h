@@ -48,8 +48,8 @@ class CompilationDbParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit CompilationDbParser(const QString &projectName, const Utils::FileName &projectPath,
-                                 const Utils::FileName &rootPath, MimeBinaryCache &mimeBinaryCache,
+    explicit CompilationDbParser(const QString &projectName, const Utils::FilePath &projectPath,
+                                 const Utils::FilePath &rootPath, MimeBinaryCache &mimeBinaryCache,
                                  QObject *parent = nullptr);
 
     void start();
@@ -66,8 +66,8 @@ private:
     DbContents parseProject();
 
     const QString m_projectName;
-    const Utils::FileName m_projectFilePath;
-    const Utils::FileName m_rootPath;
+    const Utils::FilePath m_projectFilePath;
+    const Utils::FilePath m_rootPath;
     MimeBinaryCache &m_mimeBinaryCache;
     ProjectExplorer::TreeScanner *m_treeScanner = nullptr;
     QFutureWatcher<DbContents> m_parserWatcher;

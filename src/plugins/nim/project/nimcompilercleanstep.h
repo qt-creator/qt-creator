@@ -48,7 +48,7 @@ private:
     bool removeCacheDirectory();
     bool removeOutFilePath();
 
-    Utils::FileName m_buildDir;
+    Utils::FilePath m_buildDir;
 };
 
 class NimCompilerCleanStepFactory : public ProjectExplorer::BuildStepFactory

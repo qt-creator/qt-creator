@@ -68,7 +68,7 @@ static Q_LOGGING_CATEGORY(LOGLSPCLIENT, "qtc.languageclient.client", QtWarningMs
 class TextMark : public TextEditor::TextMark
 {
 public:
-    TextMark(const Utils::FileName &fileName, const Diagnostic &diag)
+    TextMark(const Utils::FilePath &fileName, const Diagnostic &diag)
         : TextEditor::TextMark(fileName, diag.range().start().line() + 1, "lspmark")
         , m_diagnostic(diag)
     {
@@ -107,10 +107,10 @@ Client::Client(BaseClientInterface *clientInterface)
     connect(clientInterface, &BaseClientInterface::finished, this, &Client::finished);
 }
 
-static void updateEditorToolBar(QList<Utils::FileName> files)
+static void updateEditorToolBar(QList<Utils::FilePath> files)
 {
     QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocuments(
-        Utils::transform(files, [](Utils::FileName &file) {
+        Utils::transform(files, [](Utils::FilePath &file) {
             return Core::DocumentModel::documentForFilePath(file.toString());
         }));
     for (auto editor : editors)
@@ -271,7 +271,7 @@ bool Client::openDocument(Core::IDocument *document)
     using namespace TextEditor;
     if (!isSupportedDocument(document))
         return false;
-    const FileName &filePath = document->filePath();
+    const FilePath &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
         if (!registered.value())
@@ -410,7 +410,7 @@ void Client::documentContentsSaved(Core::IDocument *document)
 
 void Client::documentWillSave(Core::IDocument *document)
 {
-    const FileName &filePath = document->filePath();
+    const FilePath &filePath = document->filePath();
     if (!m_openedDocument.contains(filePath))
         return;
     bool sendMessage = true;
@@ -510,7 +510,7 @@ static bool sendTextDocumentPositionParamsRequest(Client *client,
     if (sendMessage) {
         const TextDocumentRegistrationOptions option(dynamicCapabilities.option(Request::methodName));
         if (option.isValid(nullptr))
-            sendMessage = option.filterApplies(FileName::fromString(QUrl(uri).adjusted(QUrl::PreferLocalFile).toString()));
+            sendMessage = option.filterApplies(FilePath::fromString(QUrl(uri).adjusted(QUrl::PreferLocalFile).toString()));
         else
             sendMessage = supportedFile;
     } else {
@@ -546,7 +546,7 @@ void Client::requestDocumentSymbols(TextEditor::TextDocument *document)
 {
     // TODO: Do not use this information for highlighting but the overview model
     return;
-    const FileName &filePath = document->filePath();
+    const FilePath &filePath = document->filePath();
     bool sendMessage = m_dynamicCapabilities.isRegistered(DocumentSymbolsRequest::methodName).value_or(false);
     if (sendMessage) {
         const TextDocumentRegistrationOptions option(m_dynamicCapabilities.option(DocumentSymbolsRequest::methodName));
@@ -688,7 +688,7 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 
 void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
 {
-    const Utils::FileName fileName = uri.toFileName();
+    const Utils::FilePath fileName = uri.toFileName();
     TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(fileName);
     if (!doc)
         return;
@@ -716,7 +716,7 @@ void Client::requestCodeActions(const CodeActionRequest &request)
     if (!request.isValid(nullptr))
         return;
 
-    const Utils::FileName fileName
+    const Utils::FilePath fileName
         = request.params().value_or(CodeActionParams()).textDocument().uri().toFileName();
 
     const QString method(CodeActionRequest::methodName);
@@ -831,7 +831,7 @@ bool Client::isSupportedDocument(const Core::IDocument *document) const
     return m_languagFilter.isSupported(document);
 }
 
-bool Client::isSupportedFile(const Utils::FileName &filePath, const QString &mimeType) const
+bool Client::isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const
 {
     return m_languagFilter.isSupported(filePath, mimeType);
 }

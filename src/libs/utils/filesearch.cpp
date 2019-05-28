@@ -482,7 +482,7 @@ static bool matches(const QList<QRegExp> &exprList, const QString &filePath)
 {
     return Utils::anyOf(exprList, [&filePath](QRegExp reg) {
         return (reg.exactMatch(filePath)
-                || reg.exactMatch(FileName::fromString(filePath).fileName()));
+                || reg.exactMatch(FilePath::fromString(filePath).fileName()));
     });
 }
 

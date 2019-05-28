@@ -94,7 +94,7 @@ SystemPreprocessor::SystemPreprocessor(bool verbose)
     QMapIterator<QString, QString> i(m_knownCompilers);
     while (i.hasNext()) {
         i.next();
-        const Utils::FileName executablePath
+        const Utils::FilePath executablePath
             = Utils::Environment::systemEnvironment().searchInPath(i.key());
         if (!executablePath.isEmpty()) {
             m_compiler = i.key();

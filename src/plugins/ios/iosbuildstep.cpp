@@ -91,7 +91,7 @@ bool IosBuildStep::init()
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    pp->setCommand(Utils::FileName::fromString(buildCommand()));
+    pp->setCommand(Utils::FilePath::fromString(buildCommand()));
     pp->setArguments(Utils::QtcProcess::joinArgs(allArguments()));
     pp->resolveAll();
 
@@ -253,7 +253,7 @@ void IosBuildStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    param.setCommand(Utils::FileName::fromString(m_buildStep->buildCommand()));
+    param.setCommand(Utils::FilePath::fromString(m_buildStep->buildCommand()));
     param.setArguments(Utils::QtcProcess::joinArgs(m_buildStep->allArguments()));
 
     setSummaryText(param.summary(displayName()));

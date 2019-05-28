@@ -205,7 +205,7 @@ void ProjectExplorerSettingsPage::apply()
     if (m_widget) {
         ProjectExplorerPlugin::setProjectExplorerSettings(m_widget->settings());
         Core::DocumentManager::setProjectsDirectory(
-            Utils::FileName::fromString(m_widget->projectsDirectory()));
+            Utils::FilePath::fromString(m_widget->projectsDirectory()));
         Core::DocumentManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
     }
 }

@@ -76,7 +76,7 @@ public:
         bool matches(const QString &n, const QString &ex) const;
     };
 
-    using PathMapper = std::function<Utils::FileName (const Utils::FileName &)>;
+    using PathMapper = std::function<Utils::FilePath (const Utils::FilePath &)>;
 
     explicit CMakeTool(Detection d, const Core::Id &id);
     explicit CMakeTool(const QVariantMap &map, bool fromSdk);
@@ -89,11 +89,11 @@ public:
     Core::Id id() const { return m_id; }
     QVariantMap toMap () const;
 
-    void setCMakeExecutable(const Utils::FileName &executable);
+    void setCMakeExecutable(const Utils::FilePath &executable);
     void setAutorun(bool autoRun);
     void setAutoCreateBuildDirectory(bool autoBuildDir);
 
-    Utils::FileName cmakeExecutable() const;
+    Utils::FilePath cmakeExecutable() const;
     bool isAutoRun() const;
     bool autoCreateBuildDirectory() const;
     QList<Generator> supportedGenerators() const;
@@ -129,7 +129,7 @@ private:
 
     Core::Id m_id;
     QString m_displayName;
-    Utils::FileName m_executable;
+    Utils::FilePath m_executable;
 
     bool m_isAutoRun = true;
     bool m_isAutoDetected = false;

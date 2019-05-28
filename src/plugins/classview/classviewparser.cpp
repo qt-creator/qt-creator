@@ -634,12 +634,12 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     d->docLocker.unlock();
 
     // recalculate file list
-    ::Utils::FileNameList fileList;
+    ::Utils::FilePathList fileList;
 
     // check all projects
     for (const Project *prj : SessionManager::projects())
         fileList += prj->files(Project::SourceFiles);
-    setFileList(::Utils::transform(fileList, &::Utils::FileName::toString));
+    setFileList(::Utils::transform(fileList, &::Utils::FilePath::toString));
 
     emit resetDataDone();
 }
@@ -721,7 +721,7 @@ QStringList Parser::addProjectTree(const ParserTreeItem::Ptr &item, const Projec
     if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
-        fileList = ::Utils::transform(project->files(Project::SourceFiles), &::Utils::FileName::toString);
+        fileList = ::Utils::transform(project->files(Project::SourceFiles), &::Utils::FilePath::toString);
         d->cachedPrjFileLists[projectPath] = fileList;
     }
     if (fileList.count() > 0) {
@@ -746,7 +746,7 @@ QStringList Parser::getAllFiles(const Project *project)
     if (cit != d->cachedPrjFileLists.constEnd()) {
         fileList = cit.value();
     } else {
-        fileList = ::Utils::transform(project->files(Project::SourceFiles), &::Utils::FileName::toString);
+        fileList = ::Utils::transform(project->files(Project::SourceFiles), &::Utils::FilePath::toString);
         d->cachedPrjFileLists[nodePath] = fileList;
     }
     return fileList;

@@ -62,7 +62,7 @@ QString AbstractEditorSupport::licenseTemplate(const QString &file, const QStrin
     const QString license = Internal::CppFileSettings::licenseTemplate();
     Utils::MacroExpander expander;
     expander.registerVariable("Cpp:License:FileName", tr("The file name."),
-                              [file]() { return Utils::FileName::fromString(file).fileName(); });
+                              [file]() { return Utils::FilePath::fromString(file).fileName(); });
     expander.registerVariable("Cpp:License:ClassName", tr("The class name."),
                               [className]() { return className; });
 

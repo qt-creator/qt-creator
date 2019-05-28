@@ -130,9 +130,9 @@ void CppToolsPlugin::clearHeaderSourceCache()
     m_headerSourceMapping.clear();
 }
 
-Utils::FileName CppToolsPlugin::licenseTemplatePath()
+Utils::FilePath CppToolsPlugin::licenseTemplatePath()
 {
-    return Utils::FileName::fromString(m_instance->m_fileSettings->licenseTemplatePath);
+    return Utils::FilePath::fromString(m_instance->m_fileSettings->licenseTemplatePath);
 }
 
 QString CppToolsPlugin::licenseTemplate()
@@ -256,7 +256,7 @@ static QStringList findFilesInProject(const QString &name,
     QString pattern = QString(1, QLatin1Char('/'));
     pattern += name;
     const QStringList projectFiles
-            = Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FileName::toString);
+            = Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FilePath::toString);
     const QStringList::const_iterator pcend = projectFiles.constEnd();
     QStringList candidateList;
     for (QStringList::const_iterator it = projectFiles.constBegin(); it != pcend; ++it) {

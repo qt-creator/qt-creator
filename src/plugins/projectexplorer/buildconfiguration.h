@@ -51,9 +51,9 @@ protected:
     explicit BuildConfiguration(Target *target, Core::Id id);
 
 public:
-    Utils::FileName buildDirectory() const;
-    Utils::FileName rawBuildDirectory() const;
-    void setBuildDirectory(const Utils::FileName &dir);
+    Utils::FilePath buildDirectory() const;
+    Utils::FilePath rawBuildDirectory() const;
+    void setBuildDirectory(const Utils::FilePath &dir);
 
     virtual NamedWidget *createConfigWidget();
     virtual QList<NamedWidget *> createSubConfigWidgets();
@@ -120,7 +120,7 @@ private:
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
     ProjectExplorer::BaseStringAspect *m_buildDirectoryAspect = nullptr;
-    Utils::FileName m_lastEmmitedBuildDirectory;
+    Utils::FilePath m_lastEmmitedBuildDirectory;
     mutable Utils::Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
     bool m_configWidgetHasFrame = false;

@@ -145,7 +145,7 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
 
 void CustomExecutableDialog::accept()
 {
-    auto executable = FileName::fromString(m_executableChooser->path());
+    auto executable = FilePath::fromString(m_executableChooser->path());
     m_rc->aspect<ExecutableAspect>()->setExecutable(executable);
     copyAspect(&m_arguments, m_rc->aspect<ArgumentsAspect>());
     copyAspect(&m_workingDirectory, m_rc->aspect<WorkingDirectoryAspect>());
@@ -251,7 +251,7 @@ bool CustomExecutableRunConfiguration::isConfigured() const
 
 Runnable CustomExecutableRunConfiguration::runnable() const
 {
-    FileName workingDirectory =
+    FilePath workingDirectory =
             aspect<WorkingDirectoryAspect>()->workingDirectory(macroExpander());
 
     Runnable r;

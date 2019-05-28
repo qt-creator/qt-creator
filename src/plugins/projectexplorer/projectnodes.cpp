@@ -52,7 +52,7 @@
 
 namespace ProjectExplorer {
 
-static FolderNode *folderNode(const FolderNode *folder, const Utils::FileName &directory)
+static FolderNode *folderNode(const FolderNode *folder, const Utils::FilePath &directory)
 {
     return static_cast<FolderNode *>(Utils::findOrDefault(folder->folderNodes(),
                                                           [&directory](const FolderNode *fn) {
@@ -61,13 +61,13 @@ static FolderNode *folderNode(const FolderNode *folder, const Utils::FileName &d
 }
 
 static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
-                                                   const Utils::FileName &directory,
-                                                   const Utils::FileName &overrideBaseDir,
+                                                   const Utils::FilePath &directory,
+                                                   const Utils::FilePath &overrideBaseDir,
                                                    const FolderNode::FolderNodeFactory &factory)
 {
-    Utils::FileName path = overrideBaseDir.isEmpty() ? folder->filePath() : overrideBaseDir;
+    Utils::FilePath path = overrideBaseDir.isEmpty() ? folder->filePath() : overrideBaseDir;
 
-    Utils::FileName directoryWithoutPrefix;
+    Utils::FilePath directoryWithoutPrefix;
     bool isRelative = false;
 
     if (path.isEmpty() || path.toFileInfo().isRoot()) {
@@ -126,7 +126,7 @@ void Node::setPriority(int p)
     m_priority = p;
 }
 
-void Node::setFilePath(const Utils::FileName &filePath)
+void Node::setFilePath(const Utils::FilePath &filePath)
 {
     m_filePath = filePath;
 }
@@ -152,7 +152,7 @@ void Node::setIsGenerated(bool g)
         m_flags = static_cast<NodeFlag>(m_flags & ~FlagIsGenerated);
 }
 
-void Node::setAbsoluteFilePathAndLine(const Utils::FileName &path, int line)
+void Node::setAbsoluteFilePathAndLine(const Utils::FilePath &path, int line)
 {
     if (m_filePath == path && m_line == line)
         return;
@@ -215,7 +215,7 @@ const ProjectNode *Node::managingProject() const
 /*!
   The path of the file or folder in the filesystem the node represents.
   */
-const Utils::FileName &Node::filePath() const
+const Utils::FilePath &Node::filePath() const
 {
     return m_filePath;
 }
@@ -297,7 +297,7 @@ FileType Node::fileTypeForMimeType(const Utils::MimeType &mt)
     return type;
 }
 
-FileType Node::fileTypeForFileName(const Utils::FileName &file)
+FileType Node::fileTypeForFileName(const Utils::FilePath &file)
 {
     return fileTypeForMimeType(Utils::mimeTypeForFile(file.toString(),
                                                       Utils::MimeMatchMode::MatchExtension));
@@ -313,7 +313,7 @@ FileType Node::fileTypeForFileName(const Utils::FileName &file)
   \sa ProjectExplorer::FolderNode, ProjectExplorer::ProjectNode
 */
 
-FileNode::FileNode(const Utils::FileName &filePath, const FileType fileType) :
+FileNode::FileNode(const Utils::FilePath &filePath, const FileType fileType) :
     m_fileType(fileType)
 {
     setFilePath(filePath);
@@ -340,8 +340,8 @@ FileType FileNode::fileType() const
     return m_fileType;
 }
 
-static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &directory,
-                                                 const std::function<FileNode *(const Utils::FileName &)> factory,
+static QList<FileNode *> scanForFilesRecursively(const Utils::FilePath &directory,
+                                                 const std::function<FileNode *(const Utils::FilePath &)> factory,
                                                  QSet<QString> &visited, QFutureInterface<QList<FileNode*>> *future,
                                                  double progressStart, double progressRange,
                                                  const QList<Core::IVersionControl*> &versionControls)
@@ -364,7 +364,7 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
         if (future && future->isCanceled())
             return result;
 
-        const Utils::FileName entryName = Utils::FileName::fromString(entry.absoluteFilePath());
+        const Utils::FilePath entryName = Utils::FilePath::fromString(entry.absoluteFilePath());
         if (!Utils::contains(versionControls, [&entryName](const Core::IVersionControl *vc) {
                              return vc->isVcsFileOrDirectory(entryName);
             })) {
@@ -388,8 +388,8 @@ static QList<FileNode *> scanForFilesRecursively(const Utils::FileName &director
 }
 
 QList<FileNode *>
-FileNode::scanForFiles(const Utils::FileName &directory,
-                       const std::function<FileNode *(const Utils::FileName &)> factory,
+FileNode::scanForFiles(const Utils::FilePath &directory,
+                       const std::function<FileNode *(const Utils::FilePath &)> factory,
                        QFutureInterface<QList<FileNode *>> *future)
 {
     QSet<QString> visited;
@@ -422,7 +422,7 @@ QString FileNode::displayName() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-FolderNode::FolderNode(const Utils::FileName &folderPath)
+FolderNode::FolderNode(const Utils::FilePath &folderPath)
 {
     setFilePath(folderPath);
     setPriority(DefaultFolderPriority);
@@ -559,7 +559,7 @@ QList<FileNode*> FolderNode::fileNodes() const
     return result;
 }
 
-FileNode *FolderNode::fileNode(const Utils::FileName &file) const
+FileNode *FolderNode::fileNode(const Utils::FilePath &file) const
 {
     return static_cast<FileNode *>(Utils::findOrDefault(m_nodes,
                                                         [&file](const std::unique_ptr<Node> &n) {
@@ -579,7 +579,7 @@ QList<FolderNode*> FolderNode::folderNodes() const
 }
 
 void FolderNode::addNestedNode(std::unique_ptr<FileNode> &&fileNode,
-                               const Utils::FileName &overrideBaseDir,
+                               const Utils::FilePath &overrideBaseDir,
                                const FolderNodeFactory &factory)
 {
     FolderNode *folder = recursiveFindOrCreateFolderNode(this, fileNode->filePath().parentDir(),
@@ -588,7 +588,7 @@ void FolderNode::addNestedNode(std::unique_ptr<FileNode> &&fileNode,
 }
 
 void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
-                                const Utils::FileName &overrideBaseDir,
+                                const Utils::FilePath &overrideBaseDir,
                                 const FolderNode::FolderNodeFactory &factory)
 {
     for (std::unique_ptr<FileNode> &f : files)
@@ -776,7 +776,7 @@ bool FolderNode::showWhenEmpty() const
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode
 */
-VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath) :
+VirtualFolderNode::VirtualFolderNode(const Utils::FilePath &folderPath) :
     FolderNode(folderPath)
 {
 }
@@ -794,7 +794,7 @@ VirtualFolderNode::VirtualFolderNode(const Utils::FileName &folderPath) :
 /*!
   Creates an uninitialized project node object.
   */
-ProjectNode::ProjectNode(const Utils::FileName &projectFilePath) :
+ProjectNode::ProjectNode(const Utils::FilePath &projectFilePath) :
     FolderNode(projectFilePath)
 {
     setPriority(DefaultProjectPriority);
@@ -870,7 +870,7 @@ bool ProjectNode::deploysFolder(const QString &folder) const
     return false;
 }
 
-ProjectNode *ProjectNode::projectNode(const Utils::FileName &file) const
+ProjectNode *ProjectNode::projectNode(const Utils::FilePath &file) const
 {
     for (const std::unique_ptr<Node> &n: m_nodes) {
         if (ProjectNode *pnode = n->asProjectNode())

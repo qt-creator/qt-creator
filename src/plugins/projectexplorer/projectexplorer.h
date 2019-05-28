@@ -45,7 +45,7 @@ class Id;
 
 namespace Utils {
 class ProcessHandle;
-class FileName;
+class FilePath;
 }
 
 namespace ProjectExplorer {
@@ -141,7 +141,7 @@ public:
     // internal public for FlatModel
     static void renameFile(Node *node, const QString &newFilePath);
     static QStringList projectFilePatterns();
-    static bool isProjectFile(const Utils::FileName &filePath);
+    static bool isProjectFile(const Utils::FilePath &filePath);
     static QList<QPair<QString, QString> > recentProjects();
 
     static bool canRunStartupProject(Core::Id runMode, QString *whyNot = nullptr);

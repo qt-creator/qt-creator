@@ -301,10 +301,10 @@ void ClangDiagnosticManager::generateFixItAvailableMarkers()
 static void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic, bool isChild = false)
 {
     using namespace ProjectExplorer;
-    using ::Utils::FileName;
+    using ::Utils::FilePath;
 
     Task::TaskType taskType = ProjectExplorer::Task::TaskType::Unknown;
-    FileName iconPath;
+    FilePath iconPath;
     QIcon icon;
 
     if (!isChild) {
@@ -325,7 +325,7 @@ static void addTask(const ClangBackEnd::DiagnosticContainer &diagnostic, bool is
 
     TaskHub::addTask(Task(taskType,
                           Utils::diagnosticCategoryPrefixRemoved(diagnostic.text.toString()),
-                          FileName::fromString(diagnostic.location.filePath.toString()),
+                          FilePath::fromString(diagnostic.location.filePath.toString()),
                           diagnostic.location.line,
                           Constants::TASK_CATEGORY_DIAGNOSTICS,
                           icon,
@@ -452,7 +452,7 @@ void ClangDiagnosticManager::addClangTextMarks(
             m_clangTextMarks.erase(it, m_clangTextMarks.end());
             delete mark;
         };
-        auto textMark = new ClangTextMark(::Utils::FileName::fromString(filePath()),
+        auto textMark = new ClangTextMark(::Utils::FilePath::fromString(filePath()),
                                           diagnostic,
                                           onMarkRemoved,
                                           m_fullVisualization);

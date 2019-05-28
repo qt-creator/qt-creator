@@ -42,7 +42,7 @@ NimSuggestCache &NimSuggestCache::instance()
 
 NimSuggestCache::~NimSuggestCache() = default;
 
-NimSuggest *NimSuggestCache::get(const Utils::FileName &filename)
+NimSuggest *NimSuggestCache::get(const Utils::FilePath &filename)
 {
     auto it = m_nimSuggestInstances.find(filename);
     if (it == m_nimSuggestInstances.end()) {

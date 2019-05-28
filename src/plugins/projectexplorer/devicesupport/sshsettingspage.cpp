@@ -58,7 +58,7 @@ private:
     void setupSftpPathChooser();
     void setupAskpassPathChooser();
     void setupKeygenPathChooser();
-    void setupPathChooser(PathChooser &chooser, const FileName &initialPath, bool &changedFlag);
+    void setupPathChooser(PathChooser &chooser, const FilePath &initialPath, bool &changedFlag);
     void updateCheckboxEnabled();
     void updateSpinboxEnabled();
 
@@ -170,7 +170,7 @@ void SshSettingsWidget::setupKeygenPathChooser()
     setupPathChooser(m_keygenChooser, SshSettings::keygenFilePath(), m_keygenPathChanged);
 }
 
-void SshSettingsWidget::setupPathChooser(PathChooser &chooser, const FileName &initialPath,
+void SshSettingsWidget::setupPathChooser(PathChooser &chooser, const FilePath &initialPath,
                                          bool &changedFlag)
 {
     chooser.setExpectedKind(PathChooser::ExistingCommand);

@@ -132,7 +132,7 @@ SftpTransfer::SftpTransfer(const FilesToTransfer &files, Internal::FileTransferT
 
 void SftpTransfer::doStart()
 {
-    const FileName sftpBinary = SshSettings::sftpFilePath();
+    const FilePath sftpBinary = SshSettings::sftpFilePath();
     if (!sftpBinary.exists()) {
         emitError(tr("sftp binary \"%1\" does not exist.").arg(sftpBinary.toUserOutput()));
         return;

@@ -78,14 +78,14 @@ Core::Id SubversionControl::id() const
     return Core::Id(VcsBase::Constants::VCS_ID_SUBVERSION);
 }
 
-bool SubversionControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+bool SubversionControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
 {
     return m_plugin->isVcsDirectory(fileName);
 }
 
 bool SubversionControl::isConfigured() const
 {
-    const Utils::FileName binary = m_plugin->client()->vcsBinary();
+    const Utils::FilePath binary = m_plugin->client()->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -158,7 +158,7 @@ bool SubversionControl::vcsAnnotate(const QString &file, int line)
 }
 
 Core::ShellCommand *SubversionControl::createInitialCheckoutCommand(const QString &url,
-                                                                    const Utils::FileName &baseDirectory,
+                                                                    const Utils::FilePath &baseDirectory,
                                                                     const QString &localName,
                                                                     const QStringList &extraArgs)
 {

@@ -118,7 +118,7 @@ QString UtilsJsExtension::preferredSuffix(const QString &mimetype) const
 
 QString UtilsJsExtension::fileName(const QString &path, const QString &extension) const
 {
-    return Utils::FileName::fromStringWithExtension(path, extension).toString();
+    return Utils::FilePath::fromStringWithExtension(path, extension).toString();
 }
 
 QString UtilsJsExtension::mktemp(const QString &pattern) const

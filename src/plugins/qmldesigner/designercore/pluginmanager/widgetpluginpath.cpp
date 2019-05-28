@@ -190,7 +190,7 @@ QStandardItem *WidgetPluginPath::createModelItem()
     QStandardItem *failedCategory = nullptr;
     const auto end = m_plugins.end();
     for (auto it = m_plugins.begin(); it != end; ++it) {
-        QStandardItem *pluginItem = new QStandardItem(Utils::FileName::fromString(it->path).fileName());
+        QStandardItem *pluginItem = new QStandardItem(Utils::FilePath::fromString(it->path).fileName());
         if (instance(*it)) {
             pluginItem->appendRow(new QStandardItem(QString::fromUtf8(it->instanceGuard->metaObject()->className())));
             pathItem->appendRow(pluginItem);

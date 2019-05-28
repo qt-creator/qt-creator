@@ -53,7 +53,7 @@ public:
     struct CORE_EXPORT Entry {
         Entry();
         ~Entry();
-        Utils::FileName fileName() const;
+        Utils::FilePath fileName() const;
         QString displayName() const;
         QString plainDisplayName() const;
         QString uniqueDisplayName() const;
@@ -79,9 +79,9 @@ public:
     static int entryCount();
     static QList<Entry *> entries();
     static Utils::optional<int> indexOfDocument(IDocument *document);
-    static Utils::optional<int> indexOfFilePath(const Utils::FileName &filePath);
+    static Utils::optional<int> indexOfFilePath(const Utils::FilePath &filePath);
     static Entry *entryForDocument(IDocument *document);
-    static Entry *entryForFilePath(const Utils::FileName &filePath);
+    static Entry *entryForFilePath(const Utils::FilePath &filePath);
     static QList<IDocument *> openedDocuments();
 
     static IDocument *documentForFilePath(const QString &filePath);

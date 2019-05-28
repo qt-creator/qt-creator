@@ -86,11 +86,11 @@ public:
     WarningFlags warningFlags(const QStringList &cflags) const override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
     HeaderPaths builtInHeaderPaths(const QStringList &cxxflags,
-                                   const Utils::FileName &sysRoot) const override;
+                                   const Utils::FilePath &sysRoot) const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
-    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
-    Utils::FileName compilerCommand() const override;
+    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
+    Utils::FilePath compilerCommand() const override;
     IOutputParser *outputParser() const override;
 
     QString varsBatArg() const { return m_varsBatArg; }
@@ -164,7 +164,7 @@ private:
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
 
-    Utils::FileName m_compilerCommand;
+    Utils::FilePath m_compilerCommand;
 
 protected:
     Abi m_abi;
@@ -184,7 +184,7 @@ public:
     QString typeDisplayName() const override;
     QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
-    Utils::FileName compilerCommand() const override;
+    Utils::FilePath compilerCommand() const override;
     IOutputParser *outputParser() const override;
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;

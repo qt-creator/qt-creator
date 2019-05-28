@@ -90,7 +90,7 @@ public:
 
     TextEditor::BaseTextEditor *textEditor() const;
     QPlainTextEdit *plainTextEdit() const;
-    Utils::FileName fileName() const;
+    Utils::FilePath fileName() const;
     ProjectExplorer::Kit *currentKit() const;
     bool isDocumentLoaded() const;
 
@@ -121,7 +121,7 @@ public:
     void changeToMaster();
 
 private: // functions
-    void updateFileName(const Utils::FileName &oldFileName, const Utils::FileName &newFileName);
+    void updateFileName(const Utils::FilePath &oldFileName, const Utils::FilePath &newFileName);
 
     void changeToInFileComponentModel(ComponentTextModifier *textModifer);
 

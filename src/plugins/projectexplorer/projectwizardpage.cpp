@@ -534,7 +534,7 @@ void ProjectWizardPage::setFiles(const QStringList &fileNames)
             const bool filePath2HasDir = filePath2.contains(QLatin1Char('/'));
 
             if (filePath1HasDir == filePath2HasDir)
-                return FileName::fromString(filePath1) < FileName::fromString(filePath2);
+                return FilePath::fromString(filePath1) < FilePath::fromString(filePath2);
             return filePath1HasDir;
         }
 );

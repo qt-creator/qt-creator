@@ -75,15 +75,15 @@ void CppcheckRunner::reconfigure(const QString &binary, const QString &arguments
     m_arguments = arguments;
 }
 
-void CppcheckRunner::addToQueue(const Utils::FileNameList &files,
+void CppcheckRunner::addToQueue(const Utils::FilePathList &files,
                                 const QString &additionalArguments)
 {
-    Utils::FileNameList &existing = m_queue[additionalArguments];
+    Utils::FilePathList &existing = m_queue[additionalArguments];
     if (existing.isEmpty()) {
         existing = files;
     } else {
         std::copy_if(files.cbegin(), files.cend(), std::back_inserter(existing),
-                     [&existing](const Utils::FileName &file) { return !existing.contains(file); });
+                     [&existing](const Utils::FilePath &file) { return !existing.contains(file); });
     }
 
     if (m_isRunning) {
@@ -94,7 +94,7 @@ void CppcheckRunner::addToQueue(const Utils::FileNameList &files,
     m_queueTimer.start();
 }
 
-void CppcheckRunner::stop(const Utils::FileNameList &files)
+void CppcheckRunner::stop(const Utils::FilePathList &files)
 {
     if (!m_isRunning)
         return;
@@ -103,7 +103,7 @@ void CppcheckRunner::stop(const Utils::FileNameList &files)
         m_process->kill();
 }
 
-void CppcheckRunner::removeFromQueue(const Utils::FileNameList &files)
+void CppcheckRunner::removeFromQueue(const Utils::FilePathList &files)
 {
     if (m_queue.isEmpty())
         return;
@@ -112,14 +112,14 @@ void CppcheckRunner::removeFromQueue(const Utils::FileNameList &files)
         m_queue.clear();
     } else {
         for (auto it = m_queue.begin(), end = m_queue.end(); it != end;) {
-            for (const Utils::FileName &file : files)
+            for (const Utils::FilePath &file : files)
                 it.value().removeOne(file);
             it = !it.value().isEmpty() ? ++it : m_queue.erase(it);
         }
     }
 }
 
-const Utils::FileNameList &CppcheckRunner::currentFiles() const
+const Utils::FilePathList &CppcheckRunner::currentFiles() const
 {
     return m_currentFiles;
 }
@@ -135,7 +135,7 @@ void CppcheckRunner::checkQueued()
     if (m_queue.isEmpty() || m_binary.isEmpty())
         return;
 
-    Utils::FileNameList files = m_queue.begin().value();
+    Utils::FilePathList files = m_queue.begin().value();
     QString arguments = m_arguments + ' ' + m_queue.begin().key();
     m_currentFiles.clear();
     int argumentsLength = arguments.length();

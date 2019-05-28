@@ -77,7 +77,7 @@ const QProcessEnvironment VcsCommand::processEnvironment() const
     return env;
 }
 
-SynchronousProcessResponse VcsCommand::runCommand(const FileName &binary,
+SynchronousProcessResponse VcsCommand::runCommand(const FilePath &binary,
                                                          const QStringList &arguments, int timeoutS,
                                                          const QString &workingDirectory,
                                                          const ExitCodeInterpreter &interpreter)

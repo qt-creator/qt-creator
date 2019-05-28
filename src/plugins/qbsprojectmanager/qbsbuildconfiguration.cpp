@@ -59,15 +59,15 @@ using namespace Utils;
 namespace QbsProjectManager {
 namespace Internal {
 
-static FileName defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
+static FilePath defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
                                       const QString &bcName,
                                       BuildConfiguration::BuildType buildType)
 {
     const QString projectName = QFileInfo(projectFilePath).completeBaseName();
     ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
-    QString projectDir = Project::projectDirectory(FileName::fromString(projectFilePath)).toString();
+    QString projectDir = Project::projectDirectory(FilePath::fromString(projectFilePath)).toString();
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
-    return FileName::fromString(FileUtils::resolvePath(projectDir, buildPath));
+    return FilePath::fromString(FileUtils::resolvePath(projectDir, buildPath));
 }
 
 // ---------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void QbsBuildConfiguration::initialize(const BuildInfo &info)
                       ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
                       : QLatin1String(Constants::QBS_VARIANT_RELEASE));
 
-    Utils::FileName buildDir = info.buildDirectory;
+    Utils::FilePath buildDir = info.buildDirectory;
     if (buildDir.isEmpty())
         buildDir = defaultBuildDirectory(target()->project()->projectFilePath().toString(),
                                          target()->kit(), info.displayName, info.buildType);
@@ -283,7 +283,7 @@ public:
         return m_qbsBuildStep ? m_qbsBuildStep->maxJobs() : 0;
     }
 
-    Utils::FileName installRoot() const {
+    Utils::FilePath installRoot() const {
         const QbsBuildStep *bs = nullptr;
         if (m_qbsBuildStep) {
             bs = m_qbsBuildStep;
@@ -293,7 +293,7 @@ public:
         }
         if (bs && bs->hasCustomInstallRoot())
             return bs->installRoot();
-        return Utils::FileName();
+        return Utils::FilePath();
     }
 
 private:
@@ -346,7 +346,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     Utils::QtcProcess::addArg(&commandLine, QLatin1String("config:") + configurationName());
     Utils::QtcProcess::addArg(&commandLine, QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)
                                   + QLatin1Char(':') + buildVariant);
-    const Utils::FileName installRoot = stepProxy.installRoot();
+    const Utils::FilePath installRoot = stepProxy.installRoot();
     if (!installRoot.isEmpty()) {
         Utils::QtcProcess::addArg(&commandLine, QLatin1String(Constants::QBS_INSTALL_ROOT_KEY)
                                   + QLatin1Char(':') + installRoot.toUserOutput());

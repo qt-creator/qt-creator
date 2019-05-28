@@ -33,7 +33,7 @@
 
 namespace ProjectExplorer {
 
-void DeploymentData::setLocalInstallRoot(const Utils::FileName &installRoot)
+void DeploymentData::setLocalInstallRoot(const Utils::FilePath &installRoot)
 {
     m_localInstallRoot = installRoot;
 }

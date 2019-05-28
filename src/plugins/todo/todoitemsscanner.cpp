@@ -54,7 +54,7 @@ void TodoItemsScanner::processCommentLine(const QString &fileName, const QString
 
     for (int i = 0; i < newItemList.count(); ++i) {
         newItemList[i].line = lineNumber;
-        newItemList[i].file = Utils::FileName::fromString(fileName);
+        newItemList[i].file = Utils::FilePath::fromString(fileName);
     }
 
     outItemList << newItemList;

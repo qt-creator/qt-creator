@@ -80,7 +80,7 @@ public:
 
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
     HeaderPaths builtInHeaderPaths(const QStringList &cxxFlags,
-                                   const Utils::FileName &) const override;
+                                   const Utils::FilePath &) const override;
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
     IOutputParser *outputParser() const override;
@@ -94,10 +94,10 @@ public:
 
     bool operator ==(const ToolChain &) const override;
 
-    void setCompilerCommand(const Utils::FileName &);
-    Utils::FileName compilerCommand() const override;
-    void setMakeCommand(const Utils::FileName &);
-    Utils::FileName makeCommand(const Utils::Environment &environment) const override;
+    void setCompilerCommand(const Utils::FilePath &);
+    Utils::FilePath compilerCommand() const override;
+    void setMakeCommand(const Utils::FilePath &);
+    Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
     void setCxx11Flags(const QStringList &);
     const QStringList &cxx11Flags() const;
@@ -114,8 +114,8 @@ public:
 private:
     CustomToolChain();
 
-    Utils::FileName m_compilerCommand;
-    Utils::FileName m_makeCommand;
+    Utils::FilePath m_compilerCommand;
+    Utils::FilePath m_makeCommand;
 
     Abi m_targetAbi;
     Macros m_predefinedMacros;

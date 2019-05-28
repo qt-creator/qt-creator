@@ -671,7 +671,7 @@ void TestResultsPane::createMarks(const QModelIndex &parent)
         bool isLocationItem = result->result() == ResultType::MessageLocation;
         if (interested.contains(result->result())
                 || (isLocationItem && interested.contains(parentType))) {
-            const Utils::FileName fileName = Utils::FileName::fromString(result->fileName());
+            const Utils::FilePath fileName = Utils::FilePath::fromString(result->fileName());
             TestEditorMark *mark = new TestEditorMark(index, fileName, result->line());
             mark->setIcon(index.data(Qt::DecorationRole).value<QIcon>());
             mark->setColor(Utils::Theme::OutputPanes_TestFailTextColor);

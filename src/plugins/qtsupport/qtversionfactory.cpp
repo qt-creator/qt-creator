@@ -71,13 +71,13 @@ BaseQtVersion *QtVersionFactory::restore(const QString &type, const QVariantMap 
     return version;
 }
 
-BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
+BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FilePath &qmakePath, bool isAutoDetected, const QString &autoDetectionSource, QString *error)
 {
     QHash<ProKey, ProString> versionInfo;
     if (!BaseQtVersion::queryQMakeVariables(qmakePath, Utils::Environment::systemEnvironment(),
                                             &versionInfo, error))
         return 0;
-    Utils::FileName mkspec = BaseQtVersion::mkspecFromVersionInfo(versionInfo);
+    Utils::FilePath mkspec = BaseQtVersion::mkspecFromVersionInfo(versionInfo);
 
     QMakeVfs vfs;
     QMakeGlobals globals;

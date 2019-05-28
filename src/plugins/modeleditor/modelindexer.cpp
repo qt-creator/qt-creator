@@ -392,11 +392,11 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
         return;
 
     // TODO harmonize following code with findFirstModel()?
-    const Utils::FileNameList files = project->files(ProjectExplorer::Project::SourceFiles);
+    const Utils::FilePathList files = project->files(ProjectExplorer::Project::SourceFiles);
     QQueue<QueuedFile> filesQueue;
     QSet<QueuedFile> filesSet;
 
-    for (const Utils::FileName &file : files) {
+    for (const Utils::FilePath &file : files) {
         QFileInfo fileInfo = file.toFileInfo();
         Utils::MimeType mimeType = Utils::mimeTypeForFile(fileInfo);
         if (mimeType.name() == QLatin1String(Constants::MIME_TYPE_MODEL)) {
@@ -474,10 +474,10 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode)
 
 void ModelIndexer::forgetProject(ProjectExplorer::Project *project)
 {
-    const Utils::FileNameList files = project->files(ProjectExplorer::Project::SourceFiles);
+    const Utils::FilePathList files = project->files(ProjectExplorer::Project::SourceFiles);
 
     QMutexLocker locker(&d->indexerMutex);
-    for (const Utils::FileName &file : files) {
+    for (const Utils::FilePath &file : files) {
         const QString fileString = file.toString();
         // remove file from queue
         QueuedFile queuedFile(fileString, project);

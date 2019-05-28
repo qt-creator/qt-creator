@@ -163,7 +163,7 @@ QString IosRunConfiguration::applicationName() const
     return QString();
 }
 
-FileName IosRunConfiguration::bundleDirectory() const
+FilePath IosRunConfiguration::bundleDirectory() const
 {
     Core::Id devType = DeviceTypeKitAspect::deviceTypeId(target()->kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
@@ -171,11 +171,11 @@ FileName IosRunConfiguration::bundleDirectory() const
         qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
         return {};
     }
-    FileName res;
+    FilePath res;
     if (BuildConfiguration *bc = target()->activeBuildConfiguration()) {
         Project *project = target()->project();
         if (ProjectNode *node = project->findNodeForBuildKey(buildKey()))
-            res = FileName::fromString(node->data(Constants::IosBuildDir).toString());
+            res = FilePath::fromString(node->data(Constants::IosBuildDir).toString());
         if (res.isEmpty())
             res = bc->buildDirectory();
         switch (bc->buildType()) {
@@ -201,7 +201,7 @@ FileName IosRunConfiguration::bundleDirectory() const
     return res.pathAppended(applicationName() + ".app");
 }
 
-FileName IosRunConfiguration::localExecutable() const
+FilePath IosRunConfiguration::localExecutable() const
 {
     return bundleDirectory().pathAppended(applicationName());
 }

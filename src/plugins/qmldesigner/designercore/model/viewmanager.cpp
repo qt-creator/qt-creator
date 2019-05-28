@@ -384,7 +384,7 @@ void ViewManager::enableWidgets()
         view->enableWidget();
 }
 
-void ViewManager::pushFileOnCrumbleBar(const Utils::FileName &fileName)
+void ViewManager::pushFileOnCrumbleBar(const Utils::FilePath &fileName)
 {
     crumbleBar()->pushFile(fileName);
 }

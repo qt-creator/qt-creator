@@ -94,14 +94,14 @@ QList<BuildInfo> GenericBuildConfigurationFactory::availableBuilds(const Target 
 
 QList<BuildInfo> GenericBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
-    BuildInfo info = createBuildInfo(k, Project::projectDirectory(Utils::FileName::fromString(projectPath)));
+    BuildInfo info = createBuildInfo(k, Project::projectDirectory(Utils::FilePath::fromString(projectPath)));
     //: The name of the build configuration created by default for a generic project.
     info.displayName = tr("Default");
     return {info};
 }
 
 BuildInfo GenericBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                            const Utils::FileName &buildDir) const
+                                                            const Utils::FilePath &buildDir) const
 {
     BuildInfo info(this);
     info.typeName = tr("Build");

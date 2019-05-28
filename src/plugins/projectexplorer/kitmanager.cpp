@@ -61,7 +61,7 @@ public:
     std::vector<std::unique_ptr<Kit>> kits;
 };
 
-static KitList restoreKitsHelper(const Utils::FileName &fileName);
+static KitList restoreKitsHelper(const Utils::FilePath &fileName);
 
 namespace Internal {
 
@@ -72,9 +72,9 @@ const char KIT_DEFAULT_KEY[] = "Profile.Default";
 const char KIT_IRRELEVANT_ASPECTS_KEY[] = "Kit.IrrelevantAspects";
 const char KIT_FILENAME[] = "/profiles.xml";
 
-static FileName settingsFileName()
+static FilePath settingsFileName()
 {
-    return FileName::fromString(ICore::userResourcePath() + KIT_FILENAME);
+    return FilePath::fromString(ICore::userResourcePath() + KIT_FILENAME);
 }
 
 // --------------------------------------------------------------------------
@@ -184,7 +184,7 @@ void KitManager::restoreKits()
     // read all kits from SDK
     {
         KitList system = restoreKitsHelper
-                (FileName::fromString(ICore::installerResourcePath() + KIT_FILENAME));
+                (FilePath::fromString(ICore::installerResourcePath() + KIT_FILENAME));
 
         // SDK kits need to get updated with the user-provided extra settings:
         for (auto &current : system.kits) {
@@ -397,7 +397,7 @@ QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
     return Utils::transform(sortList, &QPair<QString, Kit *>::second);
 }
 
-static KitList restoreKitsHelper(const FileName &fileName)
+static KitList restoreKitsHelper(const FilePath &fileName)
 {
     KitList result;
 

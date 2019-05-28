@@ -657,7 +657,7 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
         if (k.startsWith(QLatin1String("DYLD_")))
             env.remove(k);
     QStringList frameworkPaths;
-    const Utils::FileName libPath = IosConfigurations::developerPath().pathAppended("Platforms/iPhoneSimulator.platform/Developer/Library");
+    const Utils::FilePath libPath = IosConfigurations::developerPath().pathAppended("Platforms/iPhoneSimulator.platform/Developer/Library");
     for (const auto framework : {"PrivateFrameworks", "OtherFrameworks", "SharedFrameworks"}) {
         const QString frameworkPath =
                 libPath.pathAppended(QLatin1String(framework)).toFileInfo().canonicalFilePath();
@@ -853,7 +853,7 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
     m_deviceId = m_devType.identifier;
     m_runKind = runType;
 
-    Utils::FileName appBundle = Utils::FileName::fromString(m_bundlePath);
+    Utils::FilePath appBundle = Utils::FilePath::fromString(m_bundlePath);
     if (!appBundle.exists()) {
         errorMsg(IosToolHandler::tr("Application launch on simulator failed. Invalid bundle path %1")
                  .arg(m_bundlePath));
@@ -927,13 +927,13 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
     };
 
     isTransferringApp(m_bundlePath, m_deviceId, 20, 100, "");
-    auto installFuture = simCtl->installApp(m_deviceId, Utils::FileName::fromString(m_bundlePath));
+    auto installFuture = simCtl->installApp(m_deviceId, Utils::FilePath::fromString(m_bundlePath));
     futureList << Utils::onResultReady(installFuture, onResponseAppInstall);
 }
 
 void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &extraArgs)
 {
-    const Utils::FileName appBundle = Utils::FileName::fromString(m_bundlePath);
+    const Utils::FilePath appBundle = Utils::FilePath::fromString(m_bundlePath);
     const QString bundleId = SimulatorControl::bundleIdentifier(appBundle);
     const bool debugRun = m_runKind == IosToolHandler::DebugRun;
     bool captureConsole = IosConfigurations::xcodeVersion() >= QVersionNumber(8);

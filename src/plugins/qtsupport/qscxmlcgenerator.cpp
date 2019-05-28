@@ -42,8 +42,8 @@ static QLoggingCategory log("qtc.qscxmlcgenerator", QtWarningMsg);
 static const char TaskCategory[] = "Task.Category.ExtraCompiler.QScxmlc";
 
 QScxmlcGenerator::QScxmlcGenerator(const Project *project,
-                                   const Utils::FileName &source,
-                                   const Utils::FileNameList &targets, QObject *parent) :
+                                   const Utils::FilePath &source,
+                                   const Utils::FilePathList &targets, QObject *parent) :
     ProcessExtraCompiler(project, source, targets, parent),
     m_tmpdir("qscxmlgenerator")
 {
@@ -59,7 +59,7 @@ Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
         QByteArrayList tokens = line.split(':');
 
         if (tokens.length() > 4) {
-            Utils::FileName file = Utils::FileName::fromUtf8(tokens[0]);
+            Utils::FilePath file = Utils::FilePath::fromUtf8(tokens[0]);
             int line = tokens[1].toInt();
             // int column = tokens[2].toInt(); <- nice, but not needed for now.
             Task::TaskType type = tokens[3].trimmed() == "error" ?
@@ -72,7 +72,7 @@ Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
 }
 
 
-Utils::FileName QScxmlcGenerator::command() const
+Utils::FilePath QScxmlcGenerator::command() const
 {
     QtSupport::BaseQtVersion *version = nullptr;
     Target *target;
@@ -82,9 +82,9 @@ Utils::FileName QScxmlcGenerator::command() const
         version = QtSupport::QtKitAspect::qtVersion(KitManager::defaultKit());
 
     if (!version)
-        return Utils::FileName();
+        return Utils::FilePath();
 
-    return Utils::FileName::fromString(version->qscxmlcCommand());
+    return Utils::FilePath::fromString(version->qscxmlcCommand());
 }
 
 QStringList QScxmlcGenerator::arguments() const
@@ -95,14 +95,14 @@ QStringList QScxmlcGenerator::arguments() const
                         tmpFile().fileName()});
 }
 
-Utils::FileName QScxmlcGenerator::workingDirectory() const
+Utils::FilePath QScxmlcGenerator::workingDirectory() const
 {
-    return Utils::FileName::fromString(m_tmpdir.path());
+    return Utils::FilePath::fromString(m_tmpdir.path());
 }
 
 bool QScxmlcGenerator::prepareToRun(const QByteArray &sourceContents)
 {
-    const Utils::FileName fn = tmpFile();
+    const Utils::FilePath fn = tmpFile();
     QFile input(fn.toString());
     if (!input.open(QIODevice::WriteOnly))
         return false;
@@ -115,10 +115,10 @@ bool QScxmlcGenerator::prepareToRun(const QByteArray &sourceContents)
 FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(QProcess *process)
 {
     Q_UNUSED(process);
-    const Utils::FileName wd = workingDirectory();
+    const Utils::FilePath wd = workingDirectory();
     FileNameToContentsHash result;
-    forEachTarget([&](const Utils::FileName &target) {
-        const Utils::FileName file = wd.pathAppended(target.fileName());
+    forEachTarget([&](const Utils::FilePath &target) {
+        const Utils::FilePath file = wd.pathAppended(target.fileName());
         QFile generated(file.toString());
         if (!generated.open(QIODevice::ReadOnly))
             return;
@@ -127,7 +127,7 @@ FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(QProcess *process
     return result;
 }
 
-Utils::FileName QScxmlcGenerator::tmpFile() const
+Utils::FilePath QScxmlcGenerator::tmpFile() const
 {
     return workingDirectory().pathAppended(source().fileName());
 }
@@ -143,8 +143,8 @@ QString QScxmlcGeneratorFactory::sourceTag() const
 }
 
 ExtraCompiler *QScxmlcGeneratorFactory::create(
-        const Project *project, const Utils::FileName &source,
-        const Utils::FileNameList &targets)
+        const Project *project, const Utils::FilePath &source,
+        const Utils::FilePathList &targets)
 {
     annouceCreation(project, source, targets);
 

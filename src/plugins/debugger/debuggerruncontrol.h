@@ -84,7 +84,7 @@ public:
     void setCrashParameter(const QString &event);
 
     void addExpectedSignal(const QString &signal);
-    void addSearchDirectory(const Utils::FileName &dir);
+    void addSearchDirectory(const Utils::FilePath &dir);
 
     void setStartMode(DebuggerStartMode startMode);
     void setCloseMode(DebuggerCloseMode closeMode);
@@ -92,7 +92,7 @@ public:
     void setAttachPid(Utils::ProcessHandle pid);
     void setAttachPid(qint64 pid);
 
-    void setSysRoot(const Utils::FileName &sysRoot);
+    void setSysRoot(const Utils::FilePath &sysRoot);
     void setSymbolFile(const QString &symbolFile);
     void setRemoteChannel(const QString &channel);
     void setRemoteChannel(const QString &host, int port);

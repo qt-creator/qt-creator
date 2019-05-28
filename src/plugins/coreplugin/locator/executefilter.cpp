@@ -160,7 +160,7 @@ void ExecuteFilter::runHeadCommand()
 {
     if (!m_taskQueue.isEmpty()) {
         const ExecuteData &d = m_taskQueue.head();
-        const Utils::FileName fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
+        const Utils::FilePath fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
         if (fullPath.isEmpty()) {
             MessageManager::write(tr("Could not find executable for \"%1\".").arg(d.executable));
             m_taskQueue.dequeue();

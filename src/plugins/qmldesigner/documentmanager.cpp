@@ -316,19 +316,19 @@ void DocumentManager::addFileToVersionControl(const QString &directoryPath, cons
     }
 }
 
-Utils::FileName DocumentManager::currentFilePath()
+Utils::FilePath DocumentManager::currentFilePath()
 {
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument()->fileName();
 }
 
-Utils::FileName DocumentManager::currentProjectDirPath()
+Utils::FilePath DocumentManager::currentProjectDirPath()
 {
     QTC_ASSERT(QmlDesignerPlugin::instance(), return {});
 
     if (!QmlDesignerPlugin::instance()->currentDesignDocument())
         return {};
 
-    Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    Utils::FilePath qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
     if (!project)
         return {};
@@ -338,7 +338,7 @@ Utils::FileName DocumentManager::currentProjectDirPath()
 
 QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(proPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FilePath::fromString(proPath));
     if (!node) {
         qCWarning(documentManagerLog) << "No node for .pro:" << proPath;
         return QStringList();
@@ -361,7 +361,7 @@ QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
 
 bool DocumentManager::setIsoIconsQmakeVariableValue(const QString &proPath, const QStringList &value)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(proPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FilePath::fromString(proPath));
     if (!node) {
         qCWarning(documentManagerLog) << "No node for .pro:" << proPath;
         return false;
@@ -389,7 +389,7 @@ bool DocumentManager::setIsoIconsQmakeVariableValue(const QString &proPath, cons
 void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, QString *resourceFilePath,
     QString *resourceFileProPath, const QString &isoIconsQrcFile)
 {
-    Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    Utils::FilePath qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
     ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(qmlFileName)->parentFolderNode();
     ProjectExplorer::Node *iconQrcFileNode = nullptr;
@@ -440,7 +440,7 @@ void DocumentManager::findPathToIsoProFile(bool *iconResourceFileAlreadyExists, 
 
 bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resourceFileProPath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FilePath::fromString(resourceFileProPath));
     if (!node || !node->parentFolderNode())
         return false;
     ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();
@@ -456,7 +456,7 @@ bool DocumentManager::isoProFileSupportsAddingExistingFiles(const QString &resou
 
 bool DocumentManager::addResourceFileToIsoProject(const QString &resourceFileProPath, const QString &resourceFilePath)
 {
-    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FileName::fromString(resourceFileProPath));
+    ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FilePath::fromString(resourceFileProPath));
     if (!node || !node->parentFolderNode())
         return false;
     ProjectExplorer::ProjectNode *projectNode = node->parentFolderNode()->asProjectNode();
@@ -477,7 +477,7 @@ bool DocumentManager::belongsToQmakeProject()
     if (!QmlDesignerPlugin::instance()->currentDesignDocument())
         return false;
 
-    Utils::FileName qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
+    Utils::FilePath qmlFileName = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(qmlFileName);
     if (!project)
         return false;

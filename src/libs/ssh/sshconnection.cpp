@@ -342,7 +342,7 @@ void SshConnection::doConnectToHost()
 {
     if (d->state != Connecting)
         return;
-    const FileName sshBinary = SshSettings::sshFilePath();
+    const FilePath sshBinary = SshSettings::sshFilePath();
     if (!sshBinary.exists()) {
         emitError(tr("Cannot establish SSH connection: ssh binary \"%1\" does not exist.")
                   .arg(sshBinary.toUserOutput()));

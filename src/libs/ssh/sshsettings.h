@@ -49,19 +49,19 @@ public:
     static void setConnectionSharingTimeout(int timeInMinutes);
     static int connectionSharingTimeout();
 
-    static void setSshFilePath(const Utils::FileName &ssh);
-    static Utils::FileName sshFilePath();
+    static void setSshFilePath(const Utils::FilePath &ssh);
+    static Utils::FilePath sshFilePath();
 
-    static void setSftpFilePath(const Utils::FileName &sftp);
-    static Utils::FileName sftpFilePath();
+    static void setSftpFilePath(const Utils::FilePath &sftp);
+    static Utils::FilePath sftpFilePath();
 
-    static void setAskpassFilePath(const Utils::FileName &askPass);
-    static Utils::FileName askpassFilePath();
+    static void setAskpassFilePath(const Utils::FilePath &askPass);
+    static Utils::FilePath askpassFilePath();
 
-    static void setKeygenFilePath(const Utils::FileName &keygen);
-    static Utils::FileName keygenFilePath();
+    static void setKeygenFilePath(const Utils::FilePath &keygen);
+    static Utils::FilePath keygenFilePath();
 
-    using SearchPathRetriever = std::function<Utils::FileNameList()>;
+    using SearchPathRetriever = std::function<Utils::FilePathList()>;
     static void setExtraSearchPathRetriever(const SearchPathRetriever &pathRetriever);
 };
 

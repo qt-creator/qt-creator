@@ -52,7 +52,7 @@ bool JsonProjectPage::validatePage()
 {
     if (isComplete() && useAsDefaultPath()) {
         // Store the path as default path for new projects if desired.
-        Core::DocumentManager::setProjectsDirectory(Utils::FileName::fromString(path()));
+        Core::DocumentManager::setProjectsDirectory(Utils::FilePath::fromString(path()));
         Core::DocumentManager::setUseProjectsDirectory(true);
     }
 

@@ -67,12 +67,12 @@ public:
 
     CMakeToolTreeItem *cmakeToolItem(const Core::Id &id) const;
     CMakeToolTreeItem *cmakeToolItem(const QModelIndex &index) const;
-    QModelIndex addCMakeTool(const QString &name, const FileName &executable, const bool autoRun, const bool autoCreate, const bool isAutoDetected);
+    QModelIndex addCMakeTool(const QString &name, const FilePath &executable, const bool autoRun, const bool autoCreate, const bool isAutoDetected);
     void addCMakeTool(const CMakeTool *item, bool changed);
     TreeItem *autoGroupItem() const;
     TreeItem *manualGroupItem() const;
     void reevaluateChangedFlag(CMakeToolTreeItem *item) const;
-    void updateCMakeTool(const Core::Id &id, const QString &displayName, const FileName &executable,
+    void updateCMakeTool(const Core::Id &id, const QString &displayName, const FilePath &executable,
                          bool autoRun, bool autoCreate);
     void removeCMakeTool(const Core::Id &id);
     void apply();
@@ -101,7 +101,7 @@ public:
         m_changed(changed)
     {}
 
-    CMakeToolTreeItem(const QString &name, const Utils::FileName &executable,
+    CMakeToolTreeItem(const QString &name, const Utils::FilePath &executable,
                       bool autoRun, bool autoCreate, bool autodetected) :
         m_id(Core::Id::fromString(QUuid::createUuid().toString())),
         m_name(name),
@@ -143,7 +143,7 @@ public:
 
     Core::Id m_id;
     QString  m_name;
-    FileName m_executable;
+    FilePath m_executable;
     bool m_isAutoRun = true;
     bool m_autoCreateBuildDirectory = false;
     bool m_autodetected = false;
@@ -168,7 +168,7 @@ CMakeToolItemModel::CMakeToolItemModel()
 
 }
 
-QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FileName &executable,
+QModelIndex CMakeToolItemModel::addCMakeTool(const QString &name, const FilePath &executable,
                                              const bool autoRun, const bool autoCreate,
                                              const bool isAutoDetected)
 {
@@ -223,7 +223,7 @@ void CMakeToolItemModel::reevaluateChangedFlag(CMakeToolTreeItem *item) const
 }
 
 void CMakeToolItemModel::updateCMakeTool(const Core::Id &id, const QString &displayName,
-                                         const FileName &executable, bool autoRun,
+                                         const FilePath &executable, bool autoRun,
                                          bool autoCreate)
 {
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
@@ -519,7 +519,7 @@ void CMakeToolConfigWidget::cloneCMakeTool()
 void CMakeToolConfigWidget::addCMakeTool()
 {
     QModelIndex newItem = m_model.addCMakeTool(m_model.uniqueDisplayName(tr("New CMake")),
-                                               FileName(), true, false, false);
+                                               FilePath(), true, false, false);
 
     m_cmakeToolsView->setCurrentIndex(newItem);
 }

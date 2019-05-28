@@ -46,8 +46,8 @@ namespace Internal {
 class CMakeCbpParser : public QXmlStreamReader
 {
 public:
-    bool parseCbpFile(CMakeTool::PathMapper mapper, const Utils::FileName &fileName,
-                      const Utils::FileName &sourceDirectory);
+    bool parseCbpFile(CMakeTool::PathMapper mapper, const Utils::FilePath &fileName,
+                      const Utils::FilePath &sourceDirectory);
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&
     takeFileList() { return std::move(m_fileList); }
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&
@@ -74,19 +74,19 @@ private:
     void parseUnknownElement();
     void sortFiles();
 
-    QMap<Utils::FileName, QStringList> m_unitTargetMap;
+    QMap<Utils::FilePath, QStringList> m_unitTargetMap;
     CMakeTool::PathMapper m_pathMapper;
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_fileList;
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_cmakeFileList;
-    QSet<Utils::FileName> m_processedUnits;
+    QSet<Utils::FilePath> m_processedUnits;
     bool m_parsingCMakeUnit = false;
 
     CMakeBuildTarget m_buildTarget;
     QList<CMakeBuildTarget> m_buildTargets;
     QString m_projectName;
     QString m_compiler;
-    Utils::FileName m_sourceDirectory;
-    Utils::FileName m_buildDirectory;
+    Utils::FilePath m_sourceDirectory;
+    Utils::FilePath m_buildDirectory;
     QStringList m_unitTargets;
 };
 

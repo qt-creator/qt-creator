@@ -37,7 +37,7 @@ using namespace CppTools::Internal;
 using namespace CppTools::Tests;
 
 TestProject::TestProject(const QString &name, QObject *parent) :
-    ProjectExplorer::Project("x-binary/foo", Utils::FileName()),
+    ProjectExplorer::Project("x-binary/foo", Utils::FilePath()),
     m_name(name)
 {
     setParent(parent);

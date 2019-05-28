@@ -63,7 +63,7 @@ public:
         QString id;
         int sortValue;
         QString displayName;
-        Utils::FileName path;
+        Utils::FilePath path;
         QIcon icon;
     };
 
@@ -119,17 +119,17 @@ protected:
     void contextMenuEvent(QContextMenuEvent *ev) override;
 
 private slots:
-    void setCrumblePath(const Utils::FileName &filePath);
+    void setCrumblePath(const Utils::FilePath &filePath);
 
 private:
     bool rootAutoSynchronization() const;
     void setRootAutoSynchronization(bool sync);
     void setHiddenFilesFilter(bool filter);
-    void selectBestRootForFile(const Utils::FileName &filePath);
+    void selectBestRootForFile(const Utils::FilePath &filePath);
     void handleCurrentEditorChanged(Core::IEditor *editor);
-    void selectFile(const Utils::FileName &filePath);
-    void setRootDirectory(const Utils::FileName &directory);
-    int bestRootForFile(const Utils::FileName &filePath);
+    void selectFile(const Utils::FilePath &filePath);
+    void setRootDirectory(const Utils::FilePath &directory);
+    int bestRootForFile(const Utils::FilePath &filePath);
     void openItem(const QModelIndex &index);
     QStringList projectsInDirectory(const QModelIndex &index) const;
     void openProjectsInDirectory(const QModelIndex &index);

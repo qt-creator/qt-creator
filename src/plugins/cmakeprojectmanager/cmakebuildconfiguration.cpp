@@ -101,7 +101,7 @@ void CMakeBuildConfiguration::initialize(const BuildInfo &info)
                                                                             CMakeProjectManager::CMakeConfigItem::Type::STRING,
                                                                             "Android native API level",
                                                                             bs->data(Android::Constants::AndroidNdkPlatform).toString().toUtf8()});
-        auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FileName>();
+        auto ndkLocation = bs->data(Android::Constants::NdkLocation).value<FilePath>();
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_NDK",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::PATH,
                                                                             "Android NDK PATH",
@@ -258,20 +258,20 @@ const QList<CMakeBuildTarget> &CMakeBuildConfiguration::buildTargets() const
     return m_buildTargets;
 }
 
-FileName CMakeBuildConfiguration::shadowBuildDirectory(const FileName &projectFilePath,
+FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFilePath,
                                                        const Kit *k,
                                                        const QString &bcName,
                                                        BuildConfiguration::BuildType buildType)
 {
     if (projectFilePath.isEmpty())
-        return FileName();
+        return FilePath();
 
     const QString projectName = projectFilePath.parentDir().fileName();
     ProjectMacroExpander expander(projectFilePath.toString(), projectName, k, bcName, buildType);
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     buildPath.replace(" ", "-");
-    return FileName::fromUserInput(projectDir.absoluteFilePath(buildPath));
+    return FilePath::fromUserInput(projectDir.absoluteFilePath(buildPath));
 }
 
 void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
@@ -496,7 +496,7 @@ QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Target *p
 QList<BuildInfo> CMakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<BuildInfo> result;
-    const FileName projectPathName = FileName::fromString(projectPath);
+    const FilePath projectPathName = FilePath::fromString(projectPath);
     for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
         BuildInfo info = createBuildInfo(k,
                                          ProjectExplorer::Project::projectDirectory(projectPathName).toString(),

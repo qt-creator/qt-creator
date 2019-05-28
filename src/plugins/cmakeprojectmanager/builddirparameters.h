@@ -52,16 +52,16 @@ public:
     CMakeBuildConfiguration *buildConfiguration = nullptr;
     QString projectName;
 
-    Utils::FileName sourceDirectory;
-    Utils::FileName buildDirectory;
-    Utils::FileName workDirectory; // either buildDirectory or a QTemporaryDirectory!
+    Utils::FilePath sourceDirectory;
+    Utils::FilePath buildDirectory;
+    Utils::FilePath workDirectory; // either buildDirectory or a QTemporaryDirectory!
     Utils::Environment environment;
     Core::Id cmakeToolId;
 
     QByteArray cxxToolChainId;
     QByteArray cToolChainId;
 
-    Utils::FileName sysRoot;
+    Utils::FilePath sysRoot;
 
     Utils::MacroExpander *expander = nullptr;
 

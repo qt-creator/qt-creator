@@ -98,7 +98,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     Indenter *indenter = nullptr;
     if (factory) {
         indenter = factory->createIndenter(&doc);
-        indenter->setFileName(Utils::FileName::fromString(file->path()));
+        indenter->setFileName(Utils::FilePath::fromString(file->path()));
     }
     if (!indenter)
         indenter = new NormalIndenter(&doc);

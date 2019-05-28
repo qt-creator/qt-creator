@@ -138,7 +138,7 @@ void SftpSession::doStart()
 {
     if (d->state != State::Starting)
         return;
-    const FileName sftpBinary = SshSettings::sftpFilePath();
+    const FilePath sftpBinary = SshSettings::sftpFilePath();
     if (!sftpBinary.exists()) {
         d->state = State::Inactive;
         emit done(tr("Cannot establish SFTP session: sftp binary \"%1\" does not exist.")

@@ -42,7 +42,7 @@ namespace ProjectExplorer {
 TreeScanner::TreeScanner(QObject *parent) : QObject(parent)
 {
     m_factory = TreeScanner::genericFileType;
-    m_filter = [](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
+    m_filter = [](const Utils::MimeType &mimeType, const Utils::FilePath &fn) {
         return isWellKnownBinary(mimeType, fn) && isMimeBinary(mimeType, fn);
     };
 
@@ -57,7 +57,7 @@ TreeScanner::~TreeScanner()
     }
 }
 
-bool TreeScanner::asyncScanForFiles(const Utils::FileName &directory)
+bool TreeScanner::asyncScanForFiles(const Utils::FilePath &directory)
 {
     if (!m_futureWatcher.isFinished())
         return false;
@@ -116,7 +116,7 @@ void TreeScanner::reset()
         m_scanFuture = Future();
 }
 
-bool TreeScanner::isWellKnownBinary(const Utils::MimeType & /*mdb*/, const Utils::FileName &fn)
+bool TreeScanner::isWellKnownBinary(const Utils::MimeType & /*mdb*/, const Utils::FilePath &fn)
 {
     return fn.endsWith(QLatin1String(".a")) ||
             fn.endsWith(QLatin1String(".o")) ||
@@ -127,7 +127,7 @@ bool TreeScanner::isWellKnownBinary(const Utils::MimeType & /*mdb*/, const Utils
             fn.endsWith(QLatin1String(".elf"));
 }
 
-bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType, const Utils::FileName &/*fn*/)
+bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType, const Utils::FilePath &/*fn*/)
 {
     bool isBinary = false;
     if (mimeType.isValid()) {
@@ -138,12 +138,12 @@ bool TreeScanner::isMimeBinary(const Utils::MimeType &mimeType, const Utils::Fil
     return isBinary;
 }
 
-FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType, const Utils::FileName &/*fn*/)
+FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType, const Utils::FilePath &/*fn*/)
 {
     return Node::fileTypeForMimeType(mimeType);
 }
 
-void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& directory,
+void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FilePath& directory,
                                const FileFilter &filter, const FileTypeFactory &factory)
 {
     std::unique_ptr<FutureInterface> fip(fi);
@@ -151,7 +151,7 @@ void TreeScanner::scanForFiles(FutureInterface *fi, const Utils::FileName& direc
 
     Result nodes = FileNode::scanForFiles(
                 directory,
-                [&filter, &factory](const Utils::FileName &fn) -> FileNode * {
+                [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn.toString());
 
         // Skip some files during scan.

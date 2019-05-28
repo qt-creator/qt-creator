@@ -268,7 +268,7 @@ void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &histo
         const EditLocation &item = history.at(i);
         if (item.document == document
                 || (!item.document
-                    && !DocumentModel::indexOfFilePath(FileName::fromString(item.fileName)))) {
+                    && !DocumentModel::indexOfFilePath(FilePath::fromString(item.fileName)))) {
             history.removeAt(i--);
         }
     }

@@ -100,7 +100,7 @@ void AndroidPackageInstallationStep::doRun()
 {
     QString error;
     foreach (const QString &dir, m_androidDirsToClean) {
-        FileName androidDir = FileName::fromString(dir);
+        FilePath androidDir = FilePath::fromString(dir);
         if (!dir.isEmpty() && androidDir.exists()) {
             emit addOutput(tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
             if (!FileUtils::removeRecursively(androidDir, &error)) {

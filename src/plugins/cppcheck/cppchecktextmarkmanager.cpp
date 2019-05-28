@@ -45,13 +45,13 @@ void CppcheckTextMarkManager::add(const Diagnostic &diagnostic)
     fileMarks.push_back(std::make_unique<CppcheckTextMark>(diagnostic));
 }
 
-void CppcheckTextMarkManager::clearFiles(const Utils::FileNameList &files)
+void CppcheckTextMarkManager::clearFiles(const Utils::FilePathList &files)
 {
     if (m_marks.empty())
         return;
 
     if (!files.empty()) {
-        for (const Utils::FileName &file : files)
+        for (const Utils::FilePath &file : files)
             m_marks.erase(file);
     } else {
         m_marks.clear();

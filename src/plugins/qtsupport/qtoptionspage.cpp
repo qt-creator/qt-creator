@@ -542,7 +542,7 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
 
 void QtOptionsPageWidget::addQtDir()
 {
-    FileName qtVersion = FileName::fromString(
+    FilePath qtVersion = FilePath::fromString(
                 QFileDialog::getOpenFileName(this,
                                              tr("Select a qmake Executable"),
                                              QString(),
@@ -555,7 +555,7 @@ void QtOptionsPageWidget::addQtDir()
     QFileInfo fi = qtVersion.toFileInfo();
     // should add all qt versions here ?
     if (BuildableHelperLibrary::isQtChooser(fi))
-        qtVersion = FileName::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
+        qtVersion = FilePath::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
 
     auto checkAlreadyExists = [qtVersion](Utils::TreeItem *parent) {
         for (int i = 0; i < parent->childCount(); ++i) {
@@ -614,7 +614,7 @@ void QtOptionsPageWidget::editPath()
 {
     BaseQtVersion *current = currentVersion();
     QString dir = currentVersion()->qmakeCommand().toFileInfo().absolutePath();
-    FileName qtVersion = FileName::fromString(
+    FilePath qtVersion = FilePath::fromString(
                 QFileDialog::getOpenFileName(this,
                                              tr("Select a qmake Executable"),
                                              dir,

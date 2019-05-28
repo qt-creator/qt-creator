@@ -54,7 +54,7 @@ QStringList qt_clean_filter_list(const QString &filter)
     return f.split(QLatin1Char(' '), QString::SkipEmptyParts);
 }
 
-static bool validateLibraryPath(const Utils::FileName &filePath,
+static bool validateLibraryPath(const Utils::FilePath &filePath,
                                 const Utils::PathChooser *pathChooser,
                                 QString *errorMessage)
 {

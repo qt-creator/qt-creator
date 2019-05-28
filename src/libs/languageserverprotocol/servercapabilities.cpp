@@ -161,7 +161,7 @@ bool ServerCapabilities::WorkspaceServerCapabilities::WorkspaceFoldersCapabiliti
             && checkOptional<QString, bool>(error, changeNotificationsKey);
 }
 
-bool TextDocumentRegistrationOptions::filterApplies(const Utils::FileName &fileName,
+bool TextDocumentRegistrationOptions::filterApplies(const Utils::FilePath &fileName,
                                                     const Utils::MimeType &mimeType) const
 {
     const LanguageClientArray<DocumentFilter> &selector = documentSelector();

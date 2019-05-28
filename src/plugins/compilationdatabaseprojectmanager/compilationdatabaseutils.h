@@ -44,7 +44,7 @@ namespace Internal {
 class DbEntry {
 public:
     QStringList flags;
-    Utils::FileName fileName;
+    Utils::FilePath fileName;
     QString workingDir;
 };
 

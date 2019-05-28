@@ -40,7 +40,7 @@ namespace Internal {
 
 static QString fileName(const QString &path, const QString &extension)
 {
-    return Utils::FileName::fromStringWithExtension(path, extension).toString();
+    return Utils::FilePath::fromStringWithExtension(path, extension).toString();
 }
 
 QString CppToolsJsExtension::headerGuard(const QString &in) const

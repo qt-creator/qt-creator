@@ -393,7 +393,7 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
     startupModeChanged();
     m_hostWidget->setHost(p->m_host);
     m_hostWidget->setPort(p->m_port);
-    m_executableFileChooser->setFileName(Utils::FileName::fromString(p->m_executableFile));
+    m_executableFileChooser->setFileName(Utils::FilePath::fromString(p->m_executableFile));
     m_verboseLevelSpinBox->setValue(p->m_verboseLevel);
     m_extendedModeCheckBox->setChecked(p->m_extendedMode);
     m_resetBoardCheckBox->setChecked(p->m_resetBoard);

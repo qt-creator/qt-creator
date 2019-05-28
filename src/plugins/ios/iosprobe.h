@@ -39,7 +39,7 @@ public:
     {
     public:
         QString directoryName;
-        Utils::FileName path;
+        Utils::FilePath path;
         QStringList architectures;
     };
     class ToolchainTarget
@@ -51,9 +51,9 @@ public:
 
         bool operator==(const ToolchainTarget &other) const;
     };
-    Utils::FileName developerPath;
-    Utils::FileName cxxCompilerPath;
-    Utils::FileName cCompilerPath;
+    Utils::FilePath developerPath;
+    Utils::FilePath cxxCompilerPath;
+    Utils::FilePath cCompilerPath;
     std::vector<ToolchainTarget> targets;
     std::vector<SDK> sdks;
 
@@ -67,7 +67,7 @@ uint qHash(const XcodePlatform::ToolchainTarget &target);
 class XcodeProbe
 {
 public:
-    static Utils::FileName sdkPath(const QString &devPath, const QString &platformName);
+    static Utils::FilePath sdkPath(const QString &devPath, const QString &platformName);
     static QMap<QString, XcodePlatform> detectPlatforms(const QString &devPath = QString());
 
 private:

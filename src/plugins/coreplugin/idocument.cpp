@@ -69,7 +69,7 @@ public:
     }
 
     QString mimeType;
-    Utils::FileName filePath;
+    Utils::FilePath filePath;
     QString preferredDisplayName;
     QString uniqueDisplayName;
     QString autoSaveName;
@@ -168,7 +168,7 @@ bool IDocument::setContents(const QByteArray &contents)
     return false;
 }
 
-const Utils::FileName &IDocument::filePath() const
+const Utils::FilePath &IDocument::filePath() const
 {
     return d->filePath;
 }
@@ -323,11 +323,11 @@ InfoBar *IDocument::infoBar()
     signals. Can be reimplemented by subclasses to do more.
     \sa filePath()
 */
-void IDocument::setFilePath(const Utils::FileName &filePath)
+void IDocument::setFilePath(const Utils::FilePath &filePath)
 {
     if (d->filePath == filePath)
         return;
-    Utils::FileName oldName = d->filePath;
+    Utils::FilePath oldName = d->filePath;
     d->filePath = filePath;
     emit filePathChanged(oldName, d->filePath);
     emit changed();

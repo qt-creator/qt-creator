@@ -49,7 +49,7 @@ class AndroidCreateKeystoreCertificate : public QDialog
 public:
     explicit AndroidCreateKeystoreCertificate(QWidget *parent = nullptr);
     ~AndroidCreateKeystoreCertificate() override;
-    Utils::FileName keystoreFilePath();
+    Utils::FilePath keystoreFilePath();
     QString keystorePassword();
     QString certificateAlias();
     QString certificatePassword();
@@ -69,7 +69,7 @@ private slots:
 private:
     bool validateUserInput();
     Ui::AndroidCreateKeystoreCertificate *ui;
-    Utils::FileName m_keystoreFilePath;
+    Utils::FilePath m_keystoreFilePath;
 };
 
 } // namespace Internal

@@ -40,7 +40,7 @@ public:
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
-    bool load(QString *errorString, const Utils::FileName &fileName);
+    bool load(QString *errorString, const Utils::FilePath &fileName);
 };
 
 } // namespace Internal

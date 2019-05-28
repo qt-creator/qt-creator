@@ -74,7 +74,7 @@ public:
     void revertAll(const QString &workingDir, const QString &revision = QString(),
                    const QStringList &extraOptions = QStringList()) override;
 
-    bool isVcsDirectory(const Utils::FileName &fileName) const;
+    bool isVcsDirectory(const Utils::FilePath &fileName) const;
     QString findTopLevelForFile(const QFileInfo &file) const override;
 
     void view(const QString &source, const QString &id,

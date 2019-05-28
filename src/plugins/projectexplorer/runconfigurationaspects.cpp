@@ -190,8 +190,8 @@ void WorkingDirectoryAspect::resetPath()
 
 void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 {
-    m_workingDirectory = FileName::fromString(map.value(settingsKey()).toString());
-    m_defaultWorkingDirectory = FileName::fromString(map.value(keyForDefaultWd()).toString());
+    m_workingDirectory = FilePath::fromString(map.value(settingsKey()).toString());
+    m_defaultWorkingDirectory = FilePath::fromString(map.value(keyForDefaultWd()).toString());
 
     if (m_workingDirectory.isEmpty())
         m_workingDirectory = m_defaultWorkingDirectory;
@@ -208,32 +208,32 @@ void WorkingDirectoryAspect::toMap(QVariantMap &data) const
     data.insert(keyForDefaultWd(), m_defaultWorkingDirectory.toString());
 }
 
-FileName WorkingDirectoryAspect::workingDirectory(const MacroExpander *expander) const
+FilePath WorkingDirectoryAspect::workingDirectory(const MacroExpander *expander) const
 {
     const Utils::Environment env = m_envAspect ? m_envAspect->environment()
                                                : Utils::Environment::systemEnvironment();
     QString workingDir = m_workingDirectory.toUserOutput();
     if (expander)
         workingDir = expander->expandProcessArgs(workingDir);
-    return FileName::fromString(PathChooser::expandedDirectory(workingDir, env, QString()));
+    return FilePath::fromString(PathChooser::expandedDirectory(workingDir, env, QString()));
 }
 
-FileName WorkingDirectoryAspect::defaultWorkingDirectory() const
+FilePath WorkingDirectoryAspect::defaultWorkingDirectory() const
 {
     return m_defaultWorkingDirectory;
 }
 
-FileName WorkingDirectoryAspect::unexpandedWorkingDirectory() const
+FilePath WorkingDirectoryAspect::unexpandedWorkingDirectory() const
 {
     return m_workingDirectory;
 }
 
-void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FileName &defaultWorkingDir)
+void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultWorkingDir)
 {
     if (defaultWorkingDir == m_defaultWorkingDirectory)
         return;
 
-    Utils::FileName oldDefaultDir = m_defaultWorkingDirectory;
+    Utils::FilePath oldDefaultDir = m_defaultWorkingDirectory;
     m_defaultWorkingDirectory = defaultWorkingDir;
     if (m_chooser)
         m_chooser->setBaseFileName(m_defaultWorkingDirectory);
@@ -381,7 +381,7 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
             this, &ExecutableAspect::changed);
 }
 
-FileName ExecutableAspect::executable() const
+FilePath ExecutableAspect::executable() const
 {
     if (m_alternativeExecutable && m_alternativeExecutable->isChecked())
         return m_alternativeExecutable->fileName();
@@ -406,7 +406,7 @@ void ExecutableAspect::setPlaceHolderText(const QString &placeHolderText)
     m_executable.setPlaceHolderText(placeHolderText);
 }
 
-void ExecutableAspect::setExecutable(const FileName &executable)
+void ExecutableAspect::setExecutable(const FilePath &executable)
 {
    m_executable.setValue(executable.toString());
 }

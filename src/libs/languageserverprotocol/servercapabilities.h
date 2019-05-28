@@ -52,7 +52,7 @@ public:
     void setDocumentSelector(const LanguageClientArray<DocumentFilter> &documentSelector)
     { insert(documentSelectorKey, documentSelector.toJson()); }
 
-    bool filterApplies(const Utils::FileName &fileName,
+    bool filterApplies(const Utils::FilePath &fileName,
                        const Utils::MimeType &mimeType = Utils::MimeType()) const;
 
     bool isValid(QStringList *error) const override
@@ -268,7 +268,7 @@ public:
         void setDocumentSelector(const LanguageClientArray<DocumentFilter> &documentSelector)
         { insert(documentSelectorKey, documentSelector.toJson()); }
 
-        bool filterApplies(const Utils::FileName &fileName,
+        bool filterApplies(const Utils::FilePath &fileName,
                            const Utils::MimeType &mimeType = Utils::MimeType()) const;
 
         // The id used to register the request. The id can be used to deregister

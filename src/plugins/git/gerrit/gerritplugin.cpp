@@ -91,7 +91,7 @@ class FetchContext : public QObject
      Q_OBJECT
 public:
     FetchContext(const QSharedPointer<GerritChange> &change,
-                 const QString &repository, const Utils::FileName &git,
+                 const QString &repository, const Utils::FilePath &git,
                  const GerritServer &server,
                  FetchMode fm, QObject *parent = nullptr);
     ~FetchContext() override;
@@ -119,7 +119,7 @@ private:
     const QSharedPointer<GerritChange> m_change;
     const QString m_repository;
     const FetchMode m_fetchMode;
-    const Utils::FileName m_git;
+    const Utils::FilePath m_git;
     const GerritServer m_server;
     State m_state;
     QProcess m_process;
@@ -128,7 +128,7 @@ private:
 };
 
 FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
-                           const QString &repository, const Utils::FileName &git,
+                           const QString &repository, const Utils::FilePath &git,
                            const GerritServer &server,
                            FetchMode fm, QObject *parent)
     : QObject(parent)
@@ -375,7 +375,7 @@ void GerritPlugin::push()
     push(currentRepository());
 }
 
-Utils::FileName GerritPlugin::gitBinDirectory()
+Utils::FilePath GerritPlugin::gitBinDirectory()
 {
     return GitPlugin::client()->gitBinDirectory();
 }
@@ -389,7 +389,7 @@ QString GerritPlugin::branch(const QString &repository)
 void GerritPlugin::fetch(const QSharedPointer<GerritChange> &change, int mode)
 {
     // Locate git.
-    const Utils::FileName git = GitPlugin::client()->vcsBinary();
+    const Utils::FilePath git = GitPlugin::client()->vcsBinary();
     if (git.isEmpty()) {
         VcsBase::VcsOutputWindow::appendError(tr("Git is not available."));
         return;
@@ -493,7 +493,7 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
             branchRegexp.reset(); // Oops.
     }
     for (const QString &repository : gitRepositories) {
-        const QString fileName = Utils::FileName::fromString(repository).fileName();
+        const QString fileName = Utils::FilePath::fromString(repository).fileName();
         if ((!branchRegexp.isNull() && branchRegexp->exactMatch(fileName))
             || fileName == project) {
             // Perform a check on the branch.

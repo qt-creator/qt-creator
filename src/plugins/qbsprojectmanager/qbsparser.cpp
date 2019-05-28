@@ -52,7 +52,7 @@ void QbsParser::taskAdded(const ProjectExplorer::Task &task, int linkedLines, in
     QString filePath = task.file.toString();
 
     if (!filePath.isEmpty())
-        editable.file = Utils::FileName::fromUserInput(m_workingDirectory.absoluteFilePath(filePath));
+        editable.file = Utils::FilePath::fromUserInput(m_workingDirectory.absoluteFilePath(filePath));
 
     IOutputParser::taskAdded(editable, linkedLines, skipLines);
 }

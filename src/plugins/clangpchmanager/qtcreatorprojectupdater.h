@@ -95,10 +95,10 @@ public:
 
 protected:
     void newExtraCompiler(const ProjectExplorer::Project *,
-                          const Utils::FileName &,
-                          const Utils::FileNameList &targets) override
+                          const Utils::FilePath &,
+                          const Utils::FilePathList &targets) override
     {
-        for (const Utils::FileName &target : targets)
+        for (const Utils::FilePath &target : targets)
             abstractEditorUpdated(target.toString(), {});
     }
 

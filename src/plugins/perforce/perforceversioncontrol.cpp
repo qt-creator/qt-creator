@@ -49,7 +49,7 @@ Core::Id PerforceVersionControl::id() const
     return Core::Id(VcsBase::Constants::VCS_ID_PERFORCE);
 }
 
-bool PerforceVersionControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+bool PerforceVersionControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
 {
     Q_UNUSED(fileName);
     return false; // Perforce does not seem to litter its files into the source tree.

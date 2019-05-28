@@ -39,7 +39,7 @@ enum class DeploymentKnowledge { Perfect, Approximative, Bad };
 class PROJECTEXPLORER_EXPORT MakeInstallCommand
 {
 public:
-    Utils::FileName command;
+    Utils::FilePath command;
     QStringList arguments;
     Utils::Environment environment;
 };
@@ -50,8 +50,8 @@ public:
     void setFileList(const QList<DeployableFile> &files) { m_files = files; }
     QList<DeployableFile> allFiles() const { return m_files; }
 
-    void setLocalInstallRoot(const Utils::FileName &installRoot);
-    Utils::FileName localInstallRoot() const { return m_localInstallRoot; }
+    void setLocalInstallRoot(const Utils::FilePath &installRoot);
+    Utils::FilePath localInstallRoot() const { return m_localInstallRoot; }
 
     void addFile(const DeployableFile &file);
     void addFile(const QString &localFilePath, const QString &remoteDirectory,
@@ -66,7 +66,7 @@ public:
 
 private:
     QList<DeployableFile> m_files;
-    Utils::FileName m_localInstallRoot;
+    Utils::FilePath m_localInstallRoot;
 };
 
 inline bool operator!=(const DeploymentData &d1, const DeploymentData &d2) { return !(d1 == d2); }

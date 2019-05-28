@@ -78,7 +78,7 @@ Core::Id MercurialControl::id() const
     return {VcsBase::Constants::VCS_ID_MERCURIAL};
 }
 
-bool MercurialControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+bool MercurialControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
 {
     return mercurialClient->isVcsDirectory(fileName);
 }
@@ -99,7 +99,7 @@ bool MercurialControl::managesFile(const QString &workingDirectory, const QStrin
 
 bool MercurialControl::isConfigured() const
 {
-    const Utils::FileName binary = mercurialClient->vcsBinary();
+    const Utils::FilePath binary = mercurialClient->vcsBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -164,7 +164,7 @@ bool MercurialControl::vcsAnnotate(const QString &file, int line)
 }
 
 Core::ShellCommand *MercurialControl::createInitialCheckoutCommand(const QString &url,
-                                                                   const Utils::FileName &baseDirectory,
+                                                                   const Utils::FilePath &baseDirectory,
                                                                    const QString &localName,
                                                                    const QStringList &extraArgs)
 {

@@ -36,12 +36,12 @@ namespace Internal {
 class QmakeProjectImporter : public QtSupport::QtProjectImporter
 {
 public:
-    QmakeProjectImporter(const Utils::FileName &path);
+    QmakeProjectImporter(const Utils::FilePath &path);
 
     QStringList importCandidates() final;
 
 private:
-    QList<void *> examineDirectory(const Utils::FileName &importPath) const final;
+    QList<void *> examineDirectory(const Utils::FilePath &importPath) const final;
     bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const final;
     ProjectExplorer::Kit *createKit(void *directoryData) const final;
     const QList<ProjectExplorer::BuildInfo> buildInfoListForKit(const ProjectExplorer::Kit *k,

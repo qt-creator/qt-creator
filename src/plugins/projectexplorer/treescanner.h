@@ -51,14 +51,14 @@ public:
     using FutureWatcher = QFutureWatcher<Result>;
     using FutureInterface = QFutureInterface<Result>;
 
-    using FileFilter = std::function<bool(const Utils::MimeType &, const Utils::FileName &)>;
-    using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &, const Utils::FileName &)>;
+    using FileFilter = std::function<bool(const Utils::MimeType &, const Utils::FilePath &)>;
+    using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &, const Utils::FilePath &)>;
 
     explicit TreeScanner(QObject *parent = nullptr);
     ~TreeScanner() override;
 
     // Start scanning in given directory
-    bool asyncScanForFiles(const Utils::FileName& directory);
+    bool asyncScanForFiles(const Utils::FilePath& directory);
 
     // Setup filter for ignored files
     void setFilter(FileFilter filter);
@@ -77,17 +77,17 @@ public:
     void reset();
 
     // Standard filters helpers
-    static bool isWellKnownBinary(const Utils::MimeType &mimeType, const Utils::FileName &fn);
-    static bool isMimeBinary(const Utils::MimeType &mimeType, const Utils::FileName &fn);
+    static bool isWellKnownBinary(const Utils::MimeType &mimeType, const Utils::FilePath &fn);
+    static bool isMimeBinary(const Utils::MimeType &mimeType, const Utils::FilePath &fn);
 
     // Standard file factory
-    static ProjectExplorer::FileType genericFileType(const Utils::MimeType &mdb, const Utils::FileName& fn);
+    static ProjectExplorer::FileType genericFileType(const Utils::MimeType &mdb, const Utils::FilePath& fn);
 
 signals:
     void finished();
 
 private:
-    static void scanForFiles(FutureInterface *fi, const Utils::FileName &directory,
+    static void scanForFiles(FutureInterface *fi, const Utils::FilePath &directory,
                              const FileFilter &filter, const FileTypeFactory &factory);
 
 private:

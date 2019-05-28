@@ -83,12 +83,12 @@ void CppcheckTrigger::checkEditors(const QList<Core::IEditor *> &editors)
     const QList<Core::IEditor *> editorList = !editors.isEmpty()
             ? editors : Core::DocumentModel::editorsForOpenedDocuments();
 
-    Utils::FileNameList toCheck;
+    Utils::FilePathList toCheck;
     for (const Core::IEditor *editor : editorList) {
         QTC_ASSERT(editor, continue);
         Core::IDocument *document = editor->document();
         QTC_ASSERT(document, continue);
-        const Utils::FileName &path = document->filePath();
+        const Utils::FilePath &path = document->filePath();
         if (path.isEmpty())
             continue;
 
@@ -128,12 +128,12 @@ void CppcheckTrigger::removeEditors(const QList<Core::IEditor *> &editors)
     const QList<Core::IEditor *> editorList = !editors.isEmpty()
             ? editors : Core::DocumentModel::editorsForOpenedDocuments();
 
-    Utils::FileNameList toRemove;
+    Utils::FilePathList toRemove;
     for (const Core::IEditor *editor : editorList) {
         QTC_ASSERT(editor, return);
         const Core::IDocument *document = editor->document();
         QTC_ASSERT(document, return);
-        const Utils::FileName &path = document->filePath();
+        const Utils::FilePath &path = document->filePath();
         if (path.isEmpty())
             return;
 
@@ -156,7 +156,7 @@ void CppcheckTrigger::checkChangedDocument(Core::IDocument *document)
     if (!m_currentProject)
         return;
 
-    const Utils::FileName &path = document->filePath();
+    const Utils::FilePath &path = document->filePath();
     QTC_ASSERT(!path.isEmpty(), return);
     if (!m_checkedFiles.contains(path))
         return;
@@ -185,12 +185,12 @@ void CppcheckTrigger::updateProjectFiles(ProjectExplorer::Project *project)
     checkEditors(Core::DocumentModel::editorsForOpenedDocuments());
 }
 
-void CppcheckTrigger::check(const Utils::FileNameList &files)
+void CppcheckTrigger::check(const Utils::FilePathList &files)
 {
     m_tool.check(files);
 }
 
-void CppcheckTrigger::remove(const Utils::FileNameList &files)
+void CppcheckTrigger::remove(const Utils::FilePathList &files)
 {
     m_marks.clearFiles(files);
     m_tool.stop(files);

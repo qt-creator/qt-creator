@@ -58,7 +58,7 @@ ProcessParameters::ProcessParameters() :
     Sets the executable to run.
 */
 
-void ProcessParameters::setCommand(const Utils::FileName &cmd)
+void ProcessParameters::setCommand(const Utils::FilePath &cmd)
 {
     m_command = cmd;
     m_effectiveCommand.clear();
@@ -80,7 +80,7 @@ void ProcessParameters::setArguments(const QString &arguments)
     Should be called from init().
 */
 
-void ProcessParameters::setWorkingDirectory(const FileName &workingDirectory)
+void ProcessParameters::setWorkingDirectory(const FilePath &workingDirectory)
 {
     m_workingDirectory = workingDirectory;
     m_effectiveWorkingDirectory.clear();
@@ -105,14 +105,14 @@ void ProcessParameters::setWorkingDirectory(const FileName &workingDirectory)
     Gets the fully expanded working directory.
 */
 
-FileName ProcessParameters::effectiveWorkingDirectory() const
+FilePath ProcessParameters::effectiveWorkingDirectory() const
 {
     if (m_effectiveWorkingDirectory.isEmpty()) {
         QString wds = m_workingDirectory.toString();
         if (m_macroExpander)
             wds = m_macroExpander->expand(wds);
         m_effectiveWorkingDirectory
-                = FileName::fromString(QDir::cleanPath(m_environment.expandVariables(wds)));
+                = FilePath::fromString(QDir::cleanPath(m_environment.expandVariables(wds)));
     }
     return m_effectiveWorkingDirectory;
 }
@@ -121,10 +121,10 @@ FileName ProcessParameters::effectiveWorkingDirectory() const
     Gets the fully expanded command name to run.
 */
 
-FileName ProcessParameters::effectiveCommand() const
+FilePath ProcessParameters::effectiveCommand() const
 {
     if (m_effectiveCommand.isEmpty()) {
-        FileName cmd = m_command;
+        FilePath cmd = m_command;
         if (m_macroExpander)
             cmd = m_macroExpander->expand(cmd);
         m_effectiveCommand =
@@ -162,7 +162,7 @@ QString ProcessParameters::prettyCommand() const
     QString cmd = m_command.toString();
     if (m_macroExpander)
         cmd = m_macroExpander->expand(cmd);
-    return Utils::FileName::fromString(cmd).fileName();
+    return Utils::FilePath::fromString(cmd).fileName();
 }
 
 QString ProcessParameters::prettyArguments() const

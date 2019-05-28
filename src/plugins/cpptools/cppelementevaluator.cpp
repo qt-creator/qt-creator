@@ -83,7 +83,7 @@ class CppInclude : public CppElement
 public:
     explicit CppInclude(const Document::Include &includeFile)
         : path(QDir::toNativeSeparators(includeFile.resolvedFileName()))
-        , fileName(Utils::FileName::fromString(includeFile.resolvedFileName()).fileName())
+        , fileName(Utils::FilePath::fromString(includeFile.resolvedFileName()).fileName())
     {
         helpCategory = Core::HelpItem::Brief;
         helpIdCandidates = QStringList(fileName);

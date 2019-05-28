@@ -300,7 +300,7 @@ TextDocument *TextDocument::currentTextDocument()
     return qobject_cast<TextDocument *>(EditorManager::currentDocument());
 }
 
-TextDocument *TextDocument::textDocumentForFileName(const Utils::FileName &fileName)
+TextDocument *TextDocument::textDocumentForFileName(const Utils::FilePath &fileName)
 {
     return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(fileName.toString()));
 }
@@ -364,7 +364,7 @@ void TextDocument::setFontSettings(const FontSettings &fontSettings)
 }
 
 QAction *TextDocument::createDiffAgainstCurrentFileAction(
-    QObject *parent, const std::function<Utils::FileName()> &filePath)
+    QObject *parent, const std::function<Utils::FilePath()> &filePath)
 {
     const auto diffAgainstCurrentFile = [filePath]() {
         auto diffService = DiffService::instance();
@@ -604,7 +604,7 @@ bool TextDocument::save(QString *errorString, const QString &saveFileName, bool 
     // inform about the new filename
     const QFileInfo fi(fName);
     d->m_document.setModified(false); // also triggers update of the block revisions
-    setFilePath(Utils::FileName::fromUserInput(fi.absoluteFilePath()));
+    setFilePath(Utils::FilePath::fromUserInput(fi.absoluteFilePath()));
     emit changed();
     return true;
 }
@@ -624,11 +624,11 @@ bool TextDocument::shouldAutoSave() const
     return d->m_autoSaveRevision != d->m_document.revision();
 }
 
-void TextDocument::setFilePath(const Utils::FileName &newName)
+void TextDocument::setFilePath(const Utils::FilePath &newName)
 {
     if (newName == filePath())
         return;
-    IDocument::setFilePath(Utils::FileName::fromUserInput(newName.toFileInfo().absoluteFilePath()));
+    IDocument::setFilePath(Utils::FilePath::fromUserInput(newName.toFileInfo().absoluteFilePath()));
 }
 
 bool TextDocument::isFileReadOnly() const
@@ -725,7 +725,7 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString, const Q
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document.revision();
         d->updateRevisions();
         d->m_document.setModified(fileName != realFileName);
-        setFilePath(Utils::FileName::fromUserInput(fi.absoluteFilePath()));
+        setFilePath(Utils::FilePath::fromUserInput(fi.absoluteFilePath()));
     }
     if (readResult == Utils::TextFileFormat::ReadIOError)
         return OpenResult::ReadError;

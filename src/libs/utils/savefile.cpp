@@ -119,7 +119,7 @@ bool SaveFile::commit()
     }
 
     QString finalFileName
-            = FileUtils::resolveSymlinks(FileName::fromString(m_finalFileName)).toString();
+            = FileUtils::resolveSymlinks(FilePath::fromString(m_finalFileName)).toString();
 
 #ifdef Q_OS_WIN
     // Release the file lock

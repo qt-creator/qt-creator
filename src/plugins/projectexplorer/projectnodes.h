@@ -121,7 +121,7 @@ public:
                                      // or node->parentProjectNode() for all other cases.
     const ProjectNode *managingProject() const; // see above.
 
-    const Utils::FileName &filePath() const;  // file system path
+    const Utils::FilePath &filePath() const;  // file system path
     int line() const;
     virtual QString displayName() const;
     virtual QString tooltip() const;
@@ -132,7 +132,7 @@ public:
     virtual bool supportsAction(ProjectAction action, const Node *node) const;
 
     void setEnabled(bool enabled);
-    void setAbsoluteFilePathAndLine(const Utils::FileName &filePath, int line);
+    void setAbsoluteFilePathAndLine(const Utils::FilePath &filePath, int line);
 
     virtual FileNode *asFileNode() { return nullptr; }
     virtual const FileNode *asFileNode() const { return nullptr; }
@@ -154,18 +154,18 @@ public:
     void setLine(int line);
 
     static FileType fileTypeForMimeType(const Utils::MimeType &mt);
-    static FileType fileTypeForFileName(const Utils::FileName &file);
+    static FileType fileTypeForFileName(const Utils::FilePath &file);
 
 protected:
     Node();
     Node(const Node &other) = delete;
     bool operator=(const Node &other) = delete;
 
-    void setFilePath(const Utils::FileName &filePath);
+    void setFilePath(const Utils::FilePath &filePath);
 
 private:
     FolderNode *m_parentFolderNode = nullptr;
-    Utils::FileName m_filePath;
+    Utils::FilePath m_filePath;
     int m_line = -1;
     int m_priority = DefaultPriority;
 
@@ -181,7 +181,7 @@ private:
 class PROJECTEXPLORER_EXPORT FileNode : public Node
 {
 public:
-    FileNode(const Utils::FileName &filePath, const FileType fileType);
+    FileNode(const Utils::FilePath &filePath, const FileType fileType);
 
     FileNode *clone() const;
 
@@ -191,8 +191,8 @@ public:
     const FileNode *asFileNode() const final { return this; }
 
     static QList<FileNode *>
-    scanForFiles(const Utils::FileName &directory,
-                 const std::function<FileNode *(const Utils::FileName &fileName)> factory,
+    scanForFiles(const Utils::FilePath &directory,
+                 const std::function<FileNode *(const Utils::FilePath &fileName)> factory,
                  QFutureInterface<QList<FileNode *>> *future = nullptr);
     bool supportsAction(ProjectAction action, const Node *node) const override;
     QString displayName() const override;
@@ -205,7 +205,7 @@ private:
 class PROJECTEXPLORER_EXPORT FolderNode : public Node
 {
 public:
-    explicit FolderNode(const Utils::FileName &folderPath);
+    explicit FolderNode(const Utils::FilePath &folderPath);
 
     QString displayName() const override;
     QIcon icon() const;
@@ -223,17 +223,17 @@ public:
     ProjectNode *findProjectNode(const std::function<bool(const ProjectNode *)> &predicate);
     const QList<Node *> nodes() const;
     QList<FileNode *> fileNodes() const;
-    FileNode *fileNode(const Utils::FileName &file) const;
+    FileNode *fileNode(const Utils::FilePath &file) const;
     QList<FolderNode *> folderNodes() const;
-    using FolderNodeFactory = std::function<std::unique_ptr<FolderNode>(const Utils::FileName &)>;
+    using FolderNodeFactory = std::function<std::unique_ptr<FolderNode>(const Utils::FilePath &)>;
     void addNestedNodes(std::vector<std::unique_ptr<FileNode>> &&files,
-                        const Utils::FileName &overrideBaseDir = Utils::FileName(),
+                        const Utils::FilePath &overrideBaseDir = Utils::FilePath(),
                         const FolderNodeFactory &factory
-                        = [](const Utils::FileName &fn) { return std::make_unique<FolderNode>(fn); });
+                        = [](const Utils::FilePath &fn) { return std::make_unique<FolderNode>(fn); });
     void addNestedNode(std::unique_ptr<FileNode> &&fileNode,
-                       const Utils::FileName &overrideBaseDir = Utils::FileName(),
+                       const Utils::FilePath &overrideBaseDir = Utils::FilePath(),
                        const FolderNodeFactory &factory
-                       = [](const Utils::FileName &fn) { return std::make_unique<FolderNode>(fn); });
+                       = [](const Utils::FilePath &fn) { return std::make_unique<FolderNode>(fn); });
     void compress();
 
     // takes ownership of newNode.
@@ -245,10 +245,10 @@ public:
 
     class LocationInfo {
     public:
-        LocationInfo(const QString &dn, const Utils::FileName &p, const int l = -1) :
+        LocationInfo(const QString &dn, const Utils::FilePath &p, const int l = -1) :
             path(p), line(l), displayName(dn) { }
 
-        Utils::FileName path;
+        Utils::FilePath path;
         int line = -1;
         QString displayName;
     };
@@ -311,7 +311,7 @@ private:
 class PROJECTEXPLORER_EXPORT VirtualFolderNode : public FolderNode
 {
 public:
-    explicit VirtualFolderNode(const Utils::FileName &folderPath);
+    explicit VirtualFolderNode(const Utils::FilePath &folderPath);
 
     bool isFolderNodeType() const override { return false; }
     bool isVirtualFolderType() const override { return true; }
@@ -321,13 +321,13 @@ public:
 class PROJECTEXPLORER_EXPORT ProjectNode : public FolderNode
 {
 public:
-    explicit ProjectNode(const Utils::FileName &projectFilePath);
+    explicit ProjectNode(const Utils::FilePath &projectFilePath);
 
     virtual bool canAddSubProject(const QString &proFilePath) const;
     virtual bool addSubProject(const QString &proFile);
     virtual QStringList subProjectFileNamePatterns() const;
     virtual bool removeSubProject(const QString &proFilePath);
-    virtual Utils::optional<Utils::FileName> visibleAfterAddFileAction() const {
+    virtual Utils::optional<Utils::FilePath> visibleAfterAddFileAction() const {
         return Utils::nullopt;
     }
 
@@ -345,7 +345,7 @@ public:
     // by default returns false
     virtual bool deploysFolder(const QString &folder) const;
 
-    ProjectNode *projectNode(const Utils::FileName &file) const;
+    ProjectNode *projectNode(const Utils::FilePath &file) const;
 
     ProjectNode *asProjectNode() final { return this; }
     const ProjectNode *asProjectNode() const final { return this; }

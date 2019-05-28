@@ -741,7 +741,7 @@ void VcsBaseSubmitEditor::filterUntrackedFilesOfProject(const QString &repositor
     const QDir repoDir(repositoryDirectory);
     for (QStringList::iterator it = untrackedFiles->begin(); it != untrackedFiles->end(); ) {
         const QString path = repoDir.absoluteFilePath(*it);
-        if (ProjectExplorer::SessionManager::projectForFile(FileName::fromString(path)))
+        if (ProjectExplorer::SessionManager::projectForFile(FilePath::fromString(path)))
             ++it;
         else
             it = untrackedFiles->erase(it);

@@ -45,7 +45,7 @@ using namespace ProjectExplorer;
 
 namespace QtSupport {
 
-QtProjectImporter::QtProjectImporter(const Utils::FileName &path) : ProjectImporter(path)
+QtProjectImporter::QtProjectImporter(const Utils::FilePath &path) : ProjectImporter(path)
 {
     useTemporaryKitAspect(QtKitAspect::id(),
                                [this](Kit *k, const QVariantList &vl) {cleanupTemporaryQt(k, vl);},
@@ -53,7 +53,7 @@ QtProjectImporter::QtProjectImporter(const Utils::FileName &path) : ProjectImpor
 }
 
 QtProjectImporter::QtVersionData
-QtProjectImporter::findOrCreateQtVersion(const Utils::FileName &qmakePath) const
+QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 {
     QtVersionData result;
     result.qt = QtVersionManager::version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
@@ -144,9 +144,9 @@ namespace Internal {
 struct DirectoryData {
     DirectoryData(const QString &ip,
                   Kit *k = nullptr, bool ink = false,
-                  const Utils::FileName &qp = Utils::FileName(), bool inq = false) :
+                  const Utils::FilePath &qp = Utils::FilePath(), bool inq = false) :
         isNewKit(ink), isNewQt(inq),
-        importPath(Utils::FileName::fromString(ip)),
+        importPath(Utils::FilePath::fromString(ip)),
         kit(k), qmakePath(qp)
     { }
 
@@ -160,15 +160,15 @@ struct DirectoryData {
 
     const bool isNewKit = false;
     const bool isNewQt = false;
-    const Utils::FileName importPath;
+    const Utils::FilePath importPath;
     Kit *const kit = nullptr;
-    const Utils::FileName qmakePath;
+    const Utils::FilePath qmakePath;
 };
 
 class TestQtProjectImporter : public QtProjectImporter
 {
 public:
-    TestQtProjectImporter(const Utils::FileName &pp, const QList<void *> &testData) :
+    TestQtProjectImporter(const Utils::FilePath &pp, const QList<void *> &testData) :
         QtProjectImporter(pp),
         m_testData(testData)
     { }
@@ -178,7 +178,7 @@ public:
     bool allDeleted() const { return m_deletedTestData.count() == m_testData.count();}
 
 protected:
-    QList<void *> examineDirectory(const Utils::FileName &importPath) const override;
+    QList<void *> examineDirectory(const Utils::FilePath &importPath) const override;
     bool matchKit(void *directoryData, const Kit *k) const override;
     Kit *createKit(void *directoryData) const override;
     const QList<BuildInfo> buildInfoListForKit(const Kit *k, void *directoryData) const override;
@@ -186,7 +186,7 @@ protected:
 
 private:
     const QList<void *> m_testData;
-    mutable Utils::FileName m_path;
+    mutable Utils::FilePath m_path;
     mutable QVector<void*> m_deletedTestData;
 
     QList<Kit *> m_deletedKits;
@@ -197,7 +197,7 @@ QStringList TestQtProjectImporter::importCandidates()
     return QStringList();
 }
 
-QList<void *> TestQtProjectImporter::examineDirectory(const Utils::FileName &importPath) const
+QList<void *> TestQtProjectImporter::examineDirectory(const Utils::FilePath &importPath) const
 {
     m_path = importPath;
 
@@ -268,14 +268,14 @@ void TestQtProjectImporter::deleteDirectoryData(void *directoryData) const
     delete static_cast<DirectoryData *>(directoryData);
 }
 
-static Utils::FileName setupQmake(const BaseQtVersion *qt, const QString &path)
+static Utils::FilePath setupQmake(const BaseQtVersion *qt, const QString &path)
 {
     const QFileInfo fi = QFileInfo(qt->qmakeCommand().toFileInfo().canonicalFilePath());
     const QString qmakeFile = path + "/" + fi.fileName();
     if (!QFile::copy(fi.absoluteFilePath(), qmakeFile))
-        return Utils::FileName();
+        return Utils::FilePath();
 
-    return Utils::FileName::fromString(qmakeFile);
+    return Utils::FilePath::fromString(qmakeFile);
 }
 
 void QtSupportPlugin::testQtProjectImporter_oneProject_data()
@@ -375,10 +375,10 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     // Customize kit numbers 1 and 2:
     QtKitAspect::setQtVersion(kitTemplates[1], nullptr);
     QtKitAspect::setQtVersion(kitTemplates[2], nullptr);
-    SysRootKitAspect::setSysRoot(kitTemplates[1], Utils::FileName::fromString("/some/path"));
-    SysRootKitAspect::setSysRoot(kitTemplates[2], Utils::FileName::fromString("/some/other/path"));
+    SysRootKitAspect::setSysRoot(kitTemplates[1], Utils::FilePath::fromString("/some/path"));
+    SysRootKitAspect::setSysRoot(kitTemplates[2], Utils::FilePath::fromString("/some/other/path"));
 
-    QVector<Utils::FileName> qmakePaths = {defaultQt->qmakeCommand(),
+    QVector<Utils::FilePath> qmakePaths = {defaultQt->qmakeCommand(),
                                            setupQmake(defaultQt, tempDir1.path()),
                                            setupQmake(defaultQt, tempDir2.path())};
 
@@ -405,13 +405,13 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
         testData.append(new DirectoryData(appDir,
                                           (kitIndex < 0) ? nullptr : kitTemplates.at(kitIndex),
                                           (kitIndex > 0), /* new Kit */
-                                          (qtIndex < 0) ? Utils::FileName() : qmakePaths.at(qtIndex),
+                                          (qtIndex < 0) ? Utils::FilePath() : qmakePaths.at(qtIndex),
                                           (qtIndex > 0) /* new Qt */));
     }
 
     // Finally set up importer:
     // Copy the directoryData so that importer is free to delete it later.
-    TestQtProjectImporter importer(Utils::FileName::fromString(tempDir1.path()),
+    TestQtProjectImporter importer(Utils::FilePath::fromString(tempDir1.path()),
                                    Utils::transform(testData, [](DirectoryData *i) {
                                        return static_cast<void *>(new DirectoryData(*i));
                                    }));
@@ -421,7 +421,7 @@ void QtSupportPlugin::testQtProjectImporter_oneProject()
     // --------------------------------------------------------------------
 
     // choose an existing directory to "import"
-    const QList<BuildInfo> buildInfo = importer.import(Utils::FileName::fromString(appDir), true);
+    const QList<BuildInfo> buildInfo = importer.import(Utils::FilePath::fromString(appDir), true);
 
     // VALIDATE: Basic TestImporter state:
     QCOMPARE(importer.projectFilePath().toString(), tempDir1.path());

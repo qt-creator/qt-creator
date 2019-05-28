@@ -58,7 +58,7 @@ void QtParser::stdError(const QString &line)
         if (level.compare(QLatin1String("Note"), Qt::CaseInsensitive) == 0)
             type = Task::Unknown;
         Task task(type, m_mocRegExp.cap(5).trimmed() /* description */,
-                  Utils::FileName::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
+                  Utils::FilePath::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
                   lineno,
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task, 1);
@@ -69,7 +69,7 @@ void QtParser::stdError(const QString &line)
         if (m_translationRegExp.cap(1) == QLatin1String("Error"))
             type = Task::Error;
         Task task(type, m_translationRegExp.cap(2),
-                  Utils::FileName::fromUserInput(m_translationRegExp.cap(3)) /* filename */,
+                  Utils::FilePath::fromUserInput(m_translationRegExp.cap(3)) /* filename */,
                   -1,
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task, 1);
@@ -131,7 +131,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (Tasks() << Task(Task::Warning,
                                                        QLatin1String("Can't create link to 'Object Trees & Ownership'"),
-                                                       Utils::FileName::fromUserInput(QLatin1String("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp")), 295,
+                                                       Utils::FilePath::fromUserInput(QLatin1String("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp")), 295,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("moc warning")
@@ -140,7 +140,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (Tasks() << Task(Task::Warning,
                                                        QLatin1String("No relevant classes found. No output generated."),
-                                                       Utils::FileName::fromUserInput(QLatin1String("..\\untitled\\errorfile.h")), 0,
+                                                       Utils::FilePath::fromUserInput(QLatin1String("..\\untitled\\errorfile.h")), 0,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("moc warning 2")
@@ -149,7 +149,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (Tasks() << Task(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
-                                                       Utils::FileName::fromUserInput(QLatin1String("c:\\code\\test.h")), 96,
+                                                       Utils::FilePath::fromUserInput(QLatin1String("c:\\code\\test.h")), 96,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("moc note")
@@ -158,7 +158,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (Tasks() << Task(Task::Unknown,
                                                        QLatin1String("No relevant classes found. No output generated."),
-                                                       Utils::FileName::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
+                                                       Utils::FilePath::fromUserInput(QLatin1String("/home/qtwebkithelpviewer.h")), 0,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("ninja with moc")
@@ -167,7 +167,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (Tasks() << Task(Task::Error,
                                                        QLatin1String("Undefined interface"),
-                                                       Utils::FileName::fromUserInput(QLatin1String("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h")), 54,
+                                                       Utils::FilePath::fromUserInput(QLatin1String("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h")), 54,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("translation")
@@ -176,7 +176,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (Tasks() << Task(Task::Warning,
                                                        QLatin1String("dropping duplicate messages"),
-                                                       Utils::FileName::fromUserInput(QLatin1String("/some/place/qtcreator_fr.qm")), -1,
+                                                       Utils::FilePath::fromUserInput(QLatin1String("/some/place/qtcreator_fr.qm")), -1,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }

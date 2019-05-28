@@ -116,7 +116,7 @@ int parseArguments(const QStringList &args, Settings *s,
 
             // sdkpath
             if (current.startsWith(QLatin1String("--sdkpath="))) {
-                s->sdkPath = Utils::FileName::fromString(current.mid(10));
+                s->sdkPath = Utils::FilePath::fromString(current.mid(10));
                 continue;
             }
             if (current == QLatin1String("-s")) {
@@ -125,7 +125,7 @@ int parseArguments(const QStringList &args, Settings *s,
                     printHelp(operations);
                     return 1;
                 }
-                s->sdkPath = Utils::FileName::fromString(next);
+                s->sdkPath = Utils::FilePath::fromString(next);
                 ++i; // skip next;
                 continue;
             }

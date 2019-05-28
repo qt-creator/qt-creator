@@ -43,11 +43,11 @@ class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
     ProjectExplorer::BuildConfiguration::BuildType buildType() const override;
 
 public:
-    Utils::FileName cacheDirectory() const;
-    Utils::FileName outFilePath() const;
+    Utils::FilePath cacheDirectory() const;
+    Utils::FilePath outFilePath() const;
 
 signals:
-    void outFilePathChanged(const Utils::FileName &outFilePath);
+    void outFilePathChanged(const Utils::FilePath &outFilePath);
 
 private:
     void setupBuild(const ProjectExplorer::BuildInfo *info);

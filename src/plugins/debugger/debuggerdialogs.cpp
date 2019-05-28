@@ -172,7 +172,7 @@ QString StartApplicationParameters::displayName() const
 {
     const int maxLength = 60;
 
-    QString name = FileName::fromString(runnable.executable).fileName()
+    QString name = FilePath::fromString(runnable.executable).fileName()
             + ' ' + runnable.commandLineArguments;
     if (name.size() > 60) {
         int index = name.lastIndexOf(' ', maxLength);

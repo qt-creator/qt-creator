@@ -94,7 +94,7 @@ public:
           dialog(crashHandler, signalName, appName) {}
 
     const pid_t pid;
-    const Utils::FileName creatorInPath; // Backup debugger.
+    const Utils::FilePath creatorInPath; // Backup debugger.
 
     BacktraceCollector backtraceCollector;
     CrashHandlerDialog dialog;

@@ -371,28 +371,28 @@ void AndroidSettingsWidget::saveSettings()
 
 void AndroidSettingsWidget::validateJdk()
 {
-    auto javaPath = Utils::FileName::fromUserInput(m_ui->OpenJDKLocationPathChooser->rawPath());
+    auto javaPath = Utils::FilePath::fromUserInput(m_ui->OpenJDKLocationPathChooser->rawPath());
     m_androidConfig.setOpenJDKLocation(javaPath);
     bool jdkPathExists = m_androidConfig.openJDKLocation().exists();
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
     summaryWidget->setPointValid(JavaPathExistsRow, jdkPathExists);
 
-    const Utils::FileName bin = m_androidConfig.openJDKLocation().pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
+    const Utils::FilePath bin = m_androidConfig.openJDKLocation().pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
     summaryWidget->setPointValid(JavaJdkValidRow, jdkPathExists && bin.exists());
     updateUI();
 }
 
 void AndroidSettingsWidget::validateNdk()
 {
-    auto ndkPath = Utils::FileName::fromUserInput(m_ui->NDKLocationPathChooser->rawPath());
+    auto ndkPath = Utils::FilePath::fromUserInput(m_ui->NDKLocationPathChooser->rawPath());
     m_androidConfig.setNdkLocation(ndkPath);
 
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
     summaryWidget->setPointValid(NdkPathExistsRow, m_androidConfig.ndkLocation().exists());
 
-    const Utils::FileName ndkPlatformsDir = ndkPath.pathAppended("platforms");
-    const Utils::FileName ndkToolChainsDir = ndkPath.pathAppended("toolchains");
-    const Utils::FileName ndkSourcesDir = ndkPath.pathAppended("sources/cxx-stl");
+    const Utils::FilePath ndkPlatformsDir = ndkPath.pathAppended("platforms");
+    const Utils::FilePath ndkToolChainsDir = ndkPath.pathAppended("toolchains");
+    const Utils::FilePath ndkSourcesDir = ndkPath.pathAppended("sources/cxx-stl");
     summaryWidget->setPointValid(NdkDirStructureRow,
                                  ndkPlatformsDir.exists()
                                  && ndkToolChainsDir.exists()
@@ -405,7 +405,7 @@ void AndroidSettingsWidget::validateNdk()
 
 void AndroidSettingsWidget::onSdkPathChanged()
 {
-    auto sdkPath = Utils::FileName::fromUserInput(m_ui->SDKLocationPathChooser->rawPath());
+    auto sdkPath = Utils::FilePath::fromUserInput(m_ui->SDKLocationPathChooser->rawPath());
     m_androidConfig.setSdkLocation(sdkPath);
     // Package reload will trigger validateSdk.
     m_sdkManager->reloadPackages();

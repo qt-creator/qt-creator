@@ -38,7 +38,7 @@ class GenericProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit GenericProject(const Utils::FileName &filename);
+    explicit GenericProject(const Utils::FilePath &filename);
     ~GenericProject() override;
 
     bool addFiles(const QStringList &filePaths);

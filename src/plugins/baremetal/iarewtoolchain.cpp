@@ -60,13 +60,13 @@ namespace Internal {
 static const char compilerCommandKeyC[] = "BareMetal.IarToolChain.CompilerPath";
 static const char targetAbiKeyC[] = "BareMetal.IarToolChain.TargetAbi";
 
-static bool compilerExists(const FileName &compilerPath)
+static bool compilerExists(const FilePath &compilerPath)
 {
     const QFileInfo fi = compilerPath.toFileInfo();
     return fi.exists() && fi.isExecutable() && fi.isFile();
 }
 
-static Macros dumpPredefinedMacros(const FileName &compiler, const Core::Id languageId,
+static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id languageId,
                                    const QStringList &env)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
@@ -108,7 +108,7 @@ static Macros dumpPredefinedMacros(const FileName &compiler, const Core::Id lang
     return Macro::toMacros(output);
 }
 
-static HeaderPaths dumpHeaderPaths(const FileName &compiler, const Core::Id languageId,
+static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Core::Id languageId,
                                    const QStringList &env)
 {
     if (!compiler.exists())
@@ -257,7 +257,7 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
 
-    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Utils::FilePath compilerCommand = m_compilerCommand;
     const Core::Id languageId = language();
 
     MacrosCache macrosCache = predefinedMacrosCache();
@@ -299,7 +299,7 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
 
-    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Utils::FilePath compilerCommand = m_compilerCommand;
     const Core::Id languageId = language();
 
     HeaderPathsCache headerPaths = headerPathsCache();
@@ -318,7 +318,7 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
 }
 
 HeaderPaths IarToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                             const FileName &fileName) const
+                                             const FilePath &fileName) const
 {
     return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
 }
@@ -326,7 +326,7 @@ HeaderPaths IarToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
 void IarToolChain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {
-        const FileName path = m_compilerCommand.parentDir();
+        const FilePath path = m_compilerCommand.parentDir();
         env.prependOrSetPath(path.toString());
     }
 }
@@ -348,7 +348,7 @@ bool IarToolChain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
-    m_compilerCommand = FileName::fromString(data.value(compilerCommandKeyC).toString());
+    m_compilerCommand = FilePath::fromString(data.value(compilerCommandKeyC).toString());
     m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
     return true;
 }
@@ -369,7 +369,7 @@ bool IarToolChain::operator==(const ToolChain &other) const
             ;
 }
 
-void IarToolChain::setCompilerCommand(const FileName &file)
+void IarToolChain::setCompilerCommand(const FilePath &file)
 {
     if (file == m_compilerCommand)
         return;
@@ -377,12 +377,12 @@ void IarToolChain::setCompilerCommand(const FileName &file)
     toolChainUpdated();
 }
 
-FileName IarToolChain::compilerCommand() const
+FilePath IarToolChain::compilerCommand() const
 {
     return m_compilerCommand;
 }
 
-FileName IarToolChain::makeCommand(const Environment &env) const
+FilePath IarToolChain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
     return {};
@@ -575,7 +575,7 @@ void IarToolChainConfigWidget::setFromToolchain()
 
 void IarToolChainConfigWidget::handleCompilerCommandChange()
 {
-    const FileName compilerPath = m_compilerCommand->fileName();
+    const FilePath compilerPath = m_compilerCommand->fileName();
     const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();

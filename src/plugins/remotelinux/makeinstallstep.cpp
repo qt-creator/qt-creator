@@ -85,7 +85,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent) : MakeStep(parent, stepI
     commandLineAspect->setLabelText(tr("Full command line:"));
 
     QTemporaryDir tmpDir;
-    installRootAspect->setFileName(FileName::fromString(tmpDir.path()));
+    installRootAspect->setFileName(FilePath::fromString(tmpDir.path()));
     const MakeInstallCommand cmd = target()->makeInstallCommand(tmpDir.path());
     QTC_ASSERT(!cmd.command.isEmpty(), return);
     makeAspect->setExecutable(cmd.command);
@@ -112,7 +112,7 @@ bool MakeInstallStep::init()
         return false;
     const QString rootDirPath = installRoot().toString();
     if (rootDirPath.isEmpty()) {
-        emit addTask(Task(Task::Error, tr("You must provide an install root."), FileName(), -1,
+        emit addTask(Task(Task::Error, tr("You must provide an install root."), FilePath(), -1,
                      Constants::TASK_CATEGORY_BUILDSYSTEM));
         return false;
     }
@@ -120,19 +120,19 @@ bool MakeInstallStep::init()
     if (cleanInstallRoot() && !rootDir.removeRecursively()) {
         emit addTask(Task(Task::Error, tr("The install root '%1' could not be cleaned.")
                           .arg(installRoot().toUserOutput()),
-                          FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
+                          FilePath(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
         return false;
     }
     if (!rootDir.exists() && !QDir::root().mkpath(rootDirPath)) {
         emit addTask(Task(Task::Error, tr("The install root '%1' could not be created.")
                           .arg(installRoot().toUserOutput()),
-                          FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
+                          FilePath(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
         return false;
     }
     if (this == deployConfiguration()->stepList()->steps().last()) {
         emit addTask(Task(Task::Warning, tr("The \"make install\" step should probably not be "
                                             "last in the list of deploy steps. "
-                                            "Consider moving it up."), FileName(), -1,
+                                            "Consider moving it up."), FilePath(), -1,
                           Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     const MakeInstallCommand cmd = target()->makeInstallCommand(installRoot().toString());
@@ -167,7 +167,7 @@ void MakeInstallStep::finish(bool success)
     } else if (m_noInstallTarget && m_isCmakeProject) {
         emit addTask(Task(Task::Warning, tr("You need to add an install statement to your "
                                             "CMakeLists.txt file for deployment to work."),
-                          FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
+                          FilePath(), -1, ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
     }
     MakeStep::finish(success);
 }
@@ -181,7 +181,7 @@ void MakeInstallStep::stdError(const QString &line)
     MakeStep::stdError(line);
 }
 
-FileName MakeInstallStep::installRoot() const
+FilePath MakeInstallStep::installRoot() const
 {
     return static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->fileName();
 }

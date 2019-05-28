@@ -91,7 +91,7 @@ private:
 
         Task task(type,
                   message,
-                  Utils::FileName::fromUserInput(filename),
+                  Utils::FilePath::fromUserInput(filename),
                   lineNumber,
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task);
@@ -135,7 +135,7 @@ bool NimCompilerBuildStep::fromMap(const QVariantMap &map)
     AbstractProcessStep::fromMap(map);
     m_userCompilerOptions = map[Constants::C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS].toString().split('|');
     m_defaultOptions = static_cast<DefaultBuildOptions>(map[Constants::C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS].toInt());
-    m_targetNimFile = FileName::fromString(map[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE].toString());
+    m_targetNimFile = FilePath::fromString(map[Constants::C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE].toString());
     updateProcessParameters();
     return true;
 }
@@ -175,12 +175,12 @@ void NimCompilerBuildStep::setDefaultCompilerOptions(NimCompilerBuildStep::Defau
     updateProcessParameters();
 }
 
-FileName NimCompilerBuildStep::targetNimFile() const
+FilePath NimCompilerBuildStep::targetNimFile() const
 {
     return m_targetNimFile;
 }
 
-void NimCompilerBuildStep::setTargetNimFile(const FileName &targetNimFile)
+void NimCompilerBuildStep::setTargetNimFile(const FilePath &targetNimFile)
 {
     if (targetNimFile == m_targetNimFile)
         return;
@@ -189,12 +189,12 @@ void NimCompilerBuildStep::setTargetNimFile(const FileName &targetNimFile)
     updateProcessParameters();
 }
 
-FileName NimCompilerBuildStep::outFilePath() const
+FilePath NimCompilerBuildStep::outFilePath() const
 {
     return m_outFilePath;
 }
 
-void NimCompilerBuildStep::setOutFilePath(const FileName &outFilePath)
+void NimCompilerBuildStep::setOutFilePath(const FilePath &outFilePath)
 {
     if (outFilePath == m_outFilePath)
         return;
@@ -282,7 +282,7 @@ void NimCompilerBuildStep::updateTargetNimFile()
 {
     if (!m_targetNimFile.isEmpty())
         return;
-    const Utils::FileNameList nimFiles = static_cast<NimProject *>(project())->nimFiles();
+    const Utils::FilePathList nimFiles = static_cast<NimProject *>(project())->nimFiles();
     if (!nimFiles.isEmpty())
         setTargetNimFile(nimFiles.at(0));
 }
@@ -338,7 +338,7 @@ void NimPlugin::testNimParser_data()
             << QString("") << QString("main.nim(23, 1) Error: undeclared identifier: 'x'\n")
             << Tasks({Task(Task::Error,
                             "Error: undeclared identifier: 'x'",
-                            Utils::FileName::fromUserInput("main.nim"), 23,
+                            Utils::FilePath::fromUserInput("main.nim"), 23,
                             ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)})
             << QString();
 
@@ -348,7 +348,7 @@ void NimPlugin::testNimParser_data()
             << QString("") << QString("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]\n")
             << Tasks({Task(Task::Warning,
                             "Warning: quoteIfContainsWhite is deprecated [Deprecated]",
-                            Utils::FileName::fromUserInput("lib/pure/parseopt.nim"), 56,
+                            Utils::FilePath::fromUserInput("lib/pure/parseopt.nim"), 56,
                             ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)})
             << QString();
 }

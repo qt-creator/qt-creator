@@ -72,10 +72,10 @@ public:
     void addToConfigurationLayout(QFormLayout *layout) override;
     void acquaintSiblings(const ProjectConfigurationAspects &) override;
 
-    Utils::FileName workingDirectory(const Utils::MacroExpander *expander) const;
-    Utils::FileName defaultWorkingDirectory() const;
-    Utils::FileName unexpandedWorkingDirectory() const;
-    void setDefaultWorkingDirectory(const Utils::FileName &defaultWorkingDir);
+    Utils::FilePath workingDirectory(const Utils::MacroExpander *expander) const;
+    Utils::FilePath defaultWorkingDirectory() const;
+    Utils::FilePath unexpandedWorkingDirectory() const;
+    void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDir);
     Utils::PathChooser *pathChooser() const;
 
 private:
@@ -86,8 +86,8 @@ private:
     QString keyForDefaultWd() const;
 
     EnvironmentAspect *m_envAspect = nullptr;
-    Utils::FileName m_workingDirectory;
-    Utils::FileName m_defaultWorkingDirectory;
+    Utils::FilePath m_workingDirectory;
+    Utils::FilePath m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QPointer<QToolButton> m_resetButton;
 };
@@ -141,8 +141,8 @@ public:
     ExecutableAspect();
     ~ExecutableAspect() override;
 
-    Utils::FileName executable() const;
-    void setExecutable(const Utils::FileName &executable);
+    Utils::FilePath executable() const;
+    void setExecutable(const Utils::FilePath &executable);
 
     void setSettingsKey(const QString &key);
     void makeOverridable(const QString &overridingKey, const QString &useOverridableKey);

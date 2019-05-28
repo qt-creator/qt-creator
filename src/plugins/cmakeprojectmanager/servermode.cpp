@@ -78,8 +78,8 @@ bool isValid(const QVariant &v)
 
 
 ServerMode::ServerMode(const Environment &env,
-                       const FileName &sourceDirectory, const FileName &buildDirectory,
-                       const FileName &cmakeExecutable,
+                       const FilePath &sourceDirectory, const FilePath &buildDirectory,
+                       const FilePath &cmakeExecutable,
                        const QString &generator, const QString &extraGenerator,
                        const QString &platform, const QString &toolset,
                        bool experimental, int major, int minor,

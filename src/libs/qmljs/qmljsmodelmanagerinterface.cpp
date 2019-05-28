@@ -1100,14 +1100,14 @@ void ModelManagerInterface::updateImportPaths()
             PathAndLanguage pAndL = iPaths.at(i);
             const QString canonicalPath = pAndL.path().toFileInfo().canonicalFilePath();
             if (!canonicalPath.isEmpty())
-                allImportPaths.maybeInsert(Utils::FileName::fromString(canonicalPath),
+                allImportPaths.maybeInsert(Utils::FilePath::fromString(canonicalPath),
                                            pAndL.language());
         }
     }
     while (vCtxsIter.hasNext()) {
         vCtxsIter.next();
         foreach (const QString &path, vCtxsIter.value().paths)
-            allImportPaths.maybeInsert(Utils::FileName::fromString(path), vCtxsIter.value().language);
+            allImportPaths.maybeInsert(Utils::FilePath::fromString(path), vCtxsIter.value().language);
     }
     pInfoIter.toFront();
     while (pInfoIter.hasNext()) {
@@ -1118,7 +1118,7 @@ void ModelManagerInterface::updateImportPaths()
                  .searchPaths().stringList()) {
                 const QString canonicalPath = QFileInfo(path).canonicalFilePath();
                 if (!canonicalPath.isEmpty())
-                    allImportPaths.maybeInsert(Utils::FileName::fromString(canonicalPath), l);
+                    allImportPaths.maybeInsert(Utils::FilePath::fromString(canonicalPath), l);
             }
         }
     }
@@ -1127,16 +1127,16 @@ void ModelManagerInterface::updateImportPaths()
         pInfoIter.next();
         QString pathAtt = pInfoIter.value().qtQmlPath;
         if (!pathAtt.isEmpty())
-            allImportPaths.maybeInsert(Utils::FileName::fromString(pathAtt), Dialect::QmlQtQuick2);
+            allImportPaths.maybeInsert(Utils::FilePath::fromString(pathAtt), Dialect::QmlQtQuick2);
     }
     {
         QString pathAtt = defaultProjectInfo().qtQmlPath;
         if (!pathAtt.isEmpty())
-            allImportPaths.maybeInsert(Utils::FileName::fromString(pathAtt), Dialect::QmlQtQuick2);
+            allImportPaths.maybeInsert(Utils::FilePath::fromString(pathAtt), Dialect::QmlQtQuick2);
     }
 
     foreach (const QString &path, m_defaultImportPaths)
-        allImportPaths.maybeInsert(Utils::FileName::fromString(path), Dialect::Qml);
+        allImportPaths.maybeInsert(Utils::FilePath::fromString(path), Dialect::Qml);
     allImportPaths.compact();
 
     {

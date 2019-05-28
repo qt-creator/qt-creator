@@ -32,7 +32,7 @@ using namespace Utils;
 namespace Nim {
 
 NimProjectNode::NimProjectNode(NimProject &project,
-                               const FileName &projectFilePath)
+                               const FilePath &projectFilePath)
     : ProjectNode(projectFilePath)
     , m_project(project)
 {}

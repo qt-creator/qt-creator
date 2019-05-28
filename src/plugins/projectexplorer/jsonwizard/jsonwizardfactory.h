@@ -55,7 +55,7 @@ class PROJECTEXPLORER_EXPORT JsonWizardFactory : public Core::IWizardFactory
 
 public:
     // Add search paths for wizard.json files. All subdirs are going to be checked.
-    static void addWizardPath(const Utils::FileName &path);
+    static void addWizardPath(const Utils::FilePath &path);
 
     // actual interface of the wizard factory:
     class Generator {
@@ -96,7 +96,7 @@ private:
     static QList<IWizardFactory *> createWizardFactories();
     static JsonWizardFactory *createWizardFactory(const QVariantMap &data, const QDir &baseDir,
                                                   QString *errorMessage);
-    static Utils::FileNameList &searchPaths();
+    static Utils::FilePathList &searchPaths();
 
     static void setVerbose(int level);
     static int verbose();

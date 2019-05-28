@@ -516,7 +516,7 @@ bool CppEditorWidget::isWidgetHighlighted(QWidget *widget)
 namespace {
 
 QList<ProjectPart::Ptr> fetchProjectParts(CppTools::CppModelManager *modelManager,
-                                     const Utils::FileName &filePath)
+                                     const Utils::FilePath &filePath)
 {
     QList<ProjectPart::Ptr> projectParts = modelManager->projectPart(filePath);
 
@@ -734,7 +734,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (!d->m_modelManager)
         return processLinkCallback(Utils::Link());
 
-    const Utils::FileName &filePath = textDocument()->filePath();
+    const Utils::FilePath &filePath = textDocument()->filePath();
 
     followSymbolInterface().findLink(CppTools::CursorInEditor{cursor, filePath, this},
                                      std::move(processLinkCallback),

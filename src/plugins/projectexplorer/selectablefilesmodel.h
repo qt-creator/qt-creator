@@ -64,7 +64,7 @@ public:
     QList<Tree *> files;
     QList<Tree *> visibleFiles;
     QIcon icon;
-    Utils::FileName fullPath;
+    Utils::FilePath fullPath;
     Tree *parent = nullptr;
 };
 
@@ -107,7 +107,7 @@ public:
     SelectableFilesModel(QObject *parent);
     ~SelectableFilesModel() override;
 
-    void setInitialMarkedFiles(const Utils::FileNameList &files);
+    void setInitialMarkedFiles(const Utils::FilePathList &files);
 
     int columnCount(const QModelIndex &parent) const override;
     int rowCount(const QModelIndex &parent) const override;
@@ -118,9 +118,9 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    Utils::FileNameList selectedFiles() const;
-    Utils::FileNameList selectedPaths() const;
-    Utils::FileNameList preservedFiles() const;
+    Utils::FilePathList selectedFiles() const;
+    Utils::FilePathList selectedPaths() const;
+    Utils::FilePathList preservedFiles() const;
 
     bool hasCheckedFiles() const;
 
@@ -141,14 +141,14 @@ protected:
 private:
     QList<Glob> parseFilter(const QString &filter);
     Qt::CheckState applyFilter(const QModelIndex &idx);
-    void collectFiles(Tree *root, Utils::FileNameList *result) const;
-    void collectPaths(Tree *root, Utils::FileNameList *result) const;
+    void collectFiles(Tree *root, Utils::FilePathList *result) const;
+    void collectPaths(Tree *root, Utils::FilePathList *result) const;
     void selectAllFiles(Tree *root);
 
 protected:
     bool m_allFiles = true;
-    QSet<Utils::FileName> m_outOfBaseDirFiles;
-    QSet<Utils::FileName> m_files;
+    QSet<Utils::FilePath> m_outOfBaseDirFiles;
+    QSet<Utils::FilePath> m_files;
     Tree *m_root = nullptr;
 
 private:
@@ -164,15 +164,15 @@ public:
     SelectableFilesFromDirModel(QObject *parent);
     ~SelectableFilesFromDirModel() override;
 
-    void startParsing(const Utils::FileName &baseDir);
+    void startParsing(const Utils::FilePath &baseDir);
     void cancel();
 
 signals:
     void parsingFinished();
-    void parsingProgress(const Utils::FileName &fileName);
+    void parsingProgress(const Utils::FilePath &fileName);
 
 private:
-    void buildTree(const Utils::FileName &baseDir,
+    void buildTree(const Utils::FilePath &baseDir,
                    Tree *tree,
                    QFutureInterface<void> &fi,
                    int symlinkDepth);
@@ -180,7 +180,7 @@ private:
     void buildTreeFinished();
 
     // Used in the future thread need to all not used after calling startParsing
-    Utils::FileName m_baseDir;
+    Utils::FilePath m_baseDir;
     QFutureWatcher<void> m_watcher;
     Tree *m_rootForFuture = nullptr;
     int m_futureCount = 0;
@@ -192,18 +192,18 @@ class PROJECTEXPLORER_EXPORT SelectableFilesWidget : public QWidget
 
 public:
     explicit SelectableFilesWidget(QWidget *parent = nullptr);
-    SelectableFilesWidget(const Utils::FileName &path, const Utils::FileNameList &files,
+    SelectableFilesWidget(const Utils::FilePath &path, const Utils::FilePathList &files,
                           QWidget *parent = nullptr);
 
     void setAddFileFilter(const QString &filter);
     void setBaseDirEditable(bool edit);
 
-    Utils::FileNameList selectedFiles() const;
-    Utils::FileNameList selectedPaths() const;
+    Utils::FilePathList selectedFiles() const;
+    Utils::FilePathList selectedPaths() const;
 
     bool hasFilesSelected() const;
 
-    void resetModel(const Utils::FileName &path, const Utils::FileNameList &files);
+    void resetModel(const Utils::FilePath &path, const Utils::FilePathList &files);
     void cancelParsing();
 
     void enableFilterHistoryCompletion(const QString &keyPrefix);
@@ -216,8 +216,8 @@ private:
     void applyFilter();
     void baseDirectoryChanged(bool validState);
 
-    void startParsing(const Utils::FileName &baseDir);
-    void parsingProgress(const Utils::FileName &fileName);
+    void startParsing(const Utils::FilePath &baseDir);
+    void parsingProgress(const Utils::FilePath &fileName);
     void parsingFinished();
 
     void smartExpand(const QModelIndex &idx);
@@ -249,9 +249,9 @@ class PROJECTEXPLORER_EXPORT SelectableFilesDialogEditFiles : public QDialog
     Q_OBJECT
 
 public:
-    SelectableFilesDialogEditFiles(const Utils::FileName &path, const Utils::FileNameList &files,
+    SelectableFilesDialogEditFiles(const Utils::FilePath &path, const Utils::FilePathList &files,
                                    QWidget *parent);
-    Utils::FileNameList selectedFiles() const;
+    Utils::FilePathList selectedFiles() const;
 
     void setAddFileFilter(const QString &filter) { m_filesWidget->setAddFileFilter(filter); }
 
@@ -264,7 +264,7 @@ class SelectableFilesDialogAddDirectory : public SelectableFilesDialogEditFiles
     Q_OBJECT
 
 public:
-    SelectableFilesDialogAddDirectory(const Utils::FileName &path, const Utils::FileNameList &files,
+    SelectableFilesDialogAddDirectory(const Utils::FilePath &path, const Utils::FilePathList &files,
                                       QWidget *parent);
 };
 

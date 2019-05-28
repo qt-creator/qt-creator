@@ -56,7 +56,7 @@ private:
     class Entry
     {
     public:
-        Utils::FileName fileName;
+        Utils::FilePath fileName;
         QString displayName;
     };
 

@@ -45,7 +45,7 @@ public:
     QList<QnxConfiguration*> configurations() const;
     void removeConfiguration(QnxConfiguration *config);
     bool addConfiguration(QnxConfiguration *config);
-    QnxConfiguration* configurationFromEnvFile(const Utils::FileName &envFile) const;
+    QnxConfiguration* configurationFromEnvFile(const Utils::FilePath &envFile) const;
 
 protected slots:
     void saveConfigs();

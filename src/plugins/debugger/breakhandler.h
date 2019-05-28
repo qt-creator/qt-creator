@@ -76,7 +76,7 @@ public:
     void removeBreakpointFromModel();
 
     void updateLineNumber(int lineNumber);
-    void updateFileName(const Utils::FileName &fileName);
+    void updateFileName(const Utils::FilePath &fileName);
 
     QString displayName() const;
     QString markerFileName() const;
@@ -191,7 +191,7 @@ public:
     void deleteGlobalOrThisBreakpoint();
 
     void updateLineNumber(int lineNumber);
-    void updateFileName(const Utils::FileName &fileName);
+    void updateFileName(const Utils::FilePath &fileName);
 
     const GlobalBreakpoint globalBreakpoint() const;
     void gotoState(BreakpointState target, BreakpointState assumedCurrent);

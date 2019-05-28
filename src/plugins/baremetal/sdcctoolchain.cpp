@@ -61,7 +61,7 @@ namespace Internal {
 static const char compilerCommandKeyC[] = "BareMetal.SdccToolChain.CompilerPath";
 static const char targetAbiKeyC[] = "BareMetal.SdccToolChain.TargetAbi";
 
-static bool compilerExists(const FileName &compilerPath)
+static bool compilerExists(const FilePath &compilerPath)
 {
     const QFileInfo fi = compilerPath.toFileInfo();
     return fi.exists() && fi.isExecutable() && fi.isFile();
@@ -77,7 +77,7 @@ static QString compilerTargetFlag(const Abi &abi)
     }
 }
 
-static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &env,
+static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &env,
                                    const Abi &abi)
 {
     if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
@@ -109,7 +109,7 @@ static Macros dumpPredefinedMacros(const FileName &compiler, const QStringList &
     return Macro::toMacros(output);
 }
 
-static HeaderPaths dumpHeaderPaths(const FileName &compiler, const QStringList &env,
+static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const QStringList &env,
                                    const Abi &abi)
 {
     if (!compiler.exists())
@@ -208,7 +208,7 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
             .arg(version, langName, archName);
 }
 
-static Utils::FileName compilerPathFromEnvironment(const QString &compilerName)
+static Utils::FilePath compilerPathFromEnvironment(const QString &compilerName)
 {
     const Environment systemEnvironment = Environment::systemEnvironment();
     return systemEnvironment.searchInPath(compilerName);
@@ -248,7 +248,7 @@ ToolChain::MacroInspectionRunner SdccToolChain::createMacroInspectionRunner() co
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
 
-    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Utils::FilePath compilerCommand = m_compilerCommand;
     const Core::Id lang = language();
     const Abi abi = m_targetAbi;
 
@@ -288,7 +288,7 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
 
-    const Utils::FileName compilerCommand = m_compilerCommand;
+    const Utils::FilePath compilerCommand = m_compilerCommand;
     const Core::Id languageId = language();
     const Abi abi = m_targetAbi;
 
@@ -308,7 +308,7 @@ ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunne
 }
 
 HeaderPaths SdccToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                              const FileName &fileName) const
+                                              const FilePath &fileName) const
 {
     return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
 }
@@ -316,7 +316,7 @@ HeaderPaths SdccToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
 void SdccToolChain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {
-        const FileName path = m_compilerCommand.parentDir();
+        const FilePath path = m_compilerCommand.parentDir();
         env.prependOrSetPath(path.toString());
     }
 }
@@ -338,7 +338,7 @@ bool SdccToolChain::fromMap(const QVariantMap &data)
 {
     if (!ToolChain::fromMap(data))
         return false;
-    m_compilerCommand = FileName::fromString(data.value(compilerCommandKeyC).toString());
+    m_compilerCommand = FilePath::fromString(data.value(compilerCommandKeyC).toString());
     m_targetAbi = Abi::fromString(data.value(targetAbiKeyC).toString());
     return true;
 }
@@ -359,7 +359,7 @@ bool SdccToolChain::operator==(const ToolChain &other) const
             ;
 }
 
-void SdccToolChain::setCompilerCommand(const FileName &file)
+void SdccToolChain::setCompilerCommand(const FilePath &file)
 {
     if (file == m_compilerCommand)
         return;
@@ -367,12 +367,12 @@ void SdccToolChain::setCompilerCommand(const FileName &file)
     toolChainUpdated();
 }
 
-FileName SdccToolChain::compilerCommand() const
+FilePath SdccToolChain::compilerCommand() const
 {
     return m_compilerCommand;
 }
 
-FileName SdccToolChain::makeCommand(const Environment &env) const
+FilePath SdccToolChain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
     return {};
@@ -406,7 +406,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
         if (!compilerPath.isEmpty()) {
             // Build full compiler path.
             compilerPath += "\\bin\\sdcc.exe";
-            const FileName fn = FileName::fromString(
+            const FilePath fn = FilePath::fromString(
                         QFileInfo(compilerPath).absoluteFilePath());
             if (compilerExists(fn)) {
                 // Build compiler version.
@@ -419,7 +419,7 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
         }
     }
 
-    const FileName fn = compilerPathFromEnvironment("sdcc");
+    const FilePath fn = compilerPathFromEnvironment("sdcc");
     if (fn.exists()) {
         const auto env = Environment::systemEnvironment();
         const auto macros = dumpPredefinedMacros(fn, env.toStringList(), {});
@@ -547,7 +547,7 @@ void SdccToolChainConfigWidget::setFromToolchain()
 
 void SdccToolChainConfigWidget::handleCompilerCommandChange()
 {
-    const FileName compilerPath = m_compilerCommand->fileName();
+    const FilePath compilerPath = m_compilerCommand->fileName();
     const bool haveCompiler = compilerExists(compilerPath);
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();

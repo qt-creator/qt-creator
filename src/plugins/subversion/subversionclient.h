@@ -80,7 +80,7 @@ private:
     SubversionDiffEditorController *findOrCreateDiffEditor(const QString &documentId, const QString &source,
                                            const QString &title, const QString &workingDirectory) const;
 
-    mutable Utils::FileName m_svnVersionBinary;
+    mutable Utils::FilePath m_svnVersionBinary;
     mutable QString m_svnVersion;
 };
 

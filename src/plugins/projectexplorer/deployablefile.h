@@ -45,10 +45,10 @@ public:
     DeployableFile() = default;
     DeployableFile(const QString &m_localFilePath, const QString &m_remoteDir,
                    Type type = TypeNormal);
-    DeployableFile(const Utils::FileName &localFilePath, const QString &remoteDir,
+    DeployableFile(const Utils::FilePath &localFilePath, const QString &remoteDir,
                    Type type = TypeNormal);
 
-    Utils::FileName localFilePath() const { return m_localFilePath; }
+    Utils::FilePath localFilePath() const { return m_localFilePath; }
     QString remoteDirectory() const { return m_remoteDir; }
     QString remoteFilePath() const;
 
@@ -57,7 +57,7 @@ public:
     bool isExecutable() const;
 
 private:
-    Utils::FileName m_localFilePath;
+    Utils::FilePath m_localFilePath;
     QString m_remoteDir;
     Type m_type = TypeNormal;
 };

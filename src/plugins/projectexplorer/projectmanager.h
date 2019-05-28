@@ -32,7 +32,7 @@
 #include <functional>
 
 namespace Utils {
-class FileName;
+class FilePath;
 class MimeType;
 } // Utils
 
@@ -44,19 +44,19 @@ class PROJECTEXPLORER_EXPORT ProjectManager
 {
 public:
     static bool canOpenProjectForMimeType(const Utils::MimeType &mt);
-    static Project *openProject(const Utils::MimeType &mt, const Utils::FileName &fileName);
+    static Project *openProject(const Utils::MimeType &mt, const Utils::FilePath &fileName);
 
     template <typename T>
     static void registerProjectType(const QString &mimeType)
     {
-        ProjectManager::registerProjectCreator(mimeType, [](const Utils::FileName &fileName) {
+        ProjectManager::registerProjectCreator(mimeType, [](const Utils::FilePath &fileName) {
             return new T(fileName);
         });
     }
 
 private:
     static void registerProjectCreator(const QString &mimeType,
-                                       const std::function<Project *(const Utils::FileName &)> &);
+                                       const std::function<Project *(const Utils::FilePath &)> &);
 };
 
 } // namespace ProjectExplorer

@@ -232,7 +232,7 @@ QDebug operator << (QDebug &dbg, const Dialect &dialect)
     return dbg;
 }
 
-PathAndLanguage::PathAndLanguage(const Utils::FileName &path, Dialect language)
+PathAndLanguage::PathAndLanguage(const Utils::FilePath &path, Dialect language)
     : m_path(path), m_language(language)
 { }
 
@@ -293,11 +293,11 @@ void PathsAndLanguages::compact()
         return;
 
     int oldCompactionPlace = 0;
-    Utils::FileName oldPath = m_list.first().path();
+    Utils::FilePath oldPath = m_list.first().path();
     QList<PathAndLanguage> compactedList;
     bool restrictFailed = false;
     for (int i = 1; i < m_list.length(); ++i) {
-        Utils::FileName newPath = m_list.at(i).path();
+        Utils::FilePath newPath = m_list.at(i).path();
         if (newPath == oldPath) {
             int newCompactionPlace = i - 1;
             compactedList << m_list.mid(oldCompactionPlace, newCompactionPlace - oldCompactionPlace);

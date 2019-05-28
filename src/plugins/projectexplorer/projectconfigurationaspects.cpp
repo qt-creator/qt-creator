@@ -79,7 +79,7 @@ public:
     QPointer<PathChooser> m_pathChooserDisplay;
     QPointer<QTextEdit> m_textEditDisplay;
     QPixmap m_labelPixmap;
-    Utils::FileName m_baseFileName;
+    Utils::FilePath m_baseFileName;
 };
 
 class BaseIntegerAspectPrivate
@@ -138,12 +138,12 @@ void BaseStringAspect::toMap(QVariantMap &map) const
         d->m_checker->toMap(map);
 }
 
-FileName BaseStringAspect::fileName() const
+FilePath BaseStringAspect::fileName() const
 {
-    return FileName::fromString(d->m_value);
+    return FilePath::fromString(d->m_value);
 }
 
-void BaseStringAspect::setFileName(const FileName &val)
+void BaseStringAspect::setFileName(const FilePath &val)
 {
     setValue(val.toString());
 }
@@ -214,7 +214,7 @@ void BaseStringAspect::setEnvironment(const Environment &env)
         d->m_pathChooserDisplay->setEnvironment(env);
 }
 
-void BaseStringAspect::setBaseFileName(const FileName &baseFileName)
+void BaseStringAspect::setBaseFileName(const FilePath &baseFileName)
 {
     d->m_baseFileName = baseFileName;
     if (d->m_pathChooserDisplay)
@@ -292,7 +292,7 @@ void BaseStringAspect::update()
     const bool enabled = !d->m_checker || d->m_checker->value();
 
     if (d->m_pathChooserDisplay) {
-        d->m_pathChooserDisplay->setFileName(FileName::fromString(displayedString));
+        d->m_pathChooserDisplay->setFileName(FilePath::fromString(displayedString));
         d->m_pathChooserDisplay->setEnabled(enabled);
     }
 

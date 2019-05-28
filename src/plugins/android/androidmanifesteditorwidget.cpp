@@ -85,7 +85,7 @@ bool checkPackageName(const QString &packageName)
     return QRegExp(packageNameRegExp).exactMatch(packageName);
 }
 
-Project *androidProject(const Utils::FileName &fileName)
+Project *androidProject(const Utils::FilePath &fileName)
 {
     for (Project *project : SessionManager::projects()) {
         if (!project->activeTarget())
@@ -604,7 +604,7 @@ void AndroidManifestEditorWidget::preSave()
 
 void AndroidManifestEditorWidget::postSave()
 {
-    const Utils::FileName docPath = m_textEditorWidget->textDocument()->filePath();
+    const Utils::FilePath docPath = m_textEditorWidget->textDocument()->filePath();
     ProjectExplorer::Project *project = androidProject(docPath);
     if (project) {
         if (Target *target = project->activeTarget()) {

@@ -76,7 +76,7 @@ bool AutoreconfStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->target()->project()->projectDirectory());
-    pp->setCommand(Utils::FileName::fromString("autoreconf"));
+    pp->setCommand(Utils::FilePath::fromString("autoreconf"));
     pp->setArguments(m_additionalArgumentsAspect->value());
     pp->resolveAll();
 
@@ -114,7 +114,7 @@ BuildStepConfigWidget *AutoreconfStep::createConfigWidget()
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->target()->project()->projectDirectory());
-        param.setCommand(Utils::FileName::fromString("autoreconf"));
+        param.setCommand(Utils::FilePath::fromString("autoreconf"));
         param.setArguments(m_additionalArgumentsAspect->value());
 
         widget->setSummaryText(param.summary(displayName()));

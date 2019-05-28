@@ -170,7 +170,7 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
     const int len = tk.utf16chars();
 
-    const Usage u(Utils::FileName::fromString(_doc->fileName()), lineText, line, col, len);
+    const Usage u(Utils::FilePath::fromString(_doc->fileName()), lineText, line, col, len);
     _usages.append(u);
     _references.append(tokenIndex);
 }

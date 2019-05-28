@@ -595,7 +595,7 @@ void tst_LanguageServerProtocol::documentUri_data()
 {
     QTest::addColumn<DocumentUri>("uri");
     QTest::addColumn<bool>("isValid");
-    QTest::addColumn<Utils::FileName>("fileName");
+    QTest::addColumn<Utils::FilePath>("fileName");
     QTest::addColumn<QString>("string");
 
     // '/' (fs root) is part of the file path
@@ -605,18 +605,18 @@ void tst_LanguageServerProtocol::documentUri_data()
     QTest::newRow("empty uri")
             << DocumentUri()
             << false
-            << Utils::FileName()
+            << Utils::FilePath()
             << QString();
 
 
     QTest::newRow("home dir")
-            << DocumentUri::fromFileName(Utils::FileName::fromString(QDir::homePath()))
+            << DocumentUri::fromFileName(Utils::FilePath::fromString(QDir::homePath()))
             << true
-            << Utils::FileName::fromUserInput(QDir::homePath())
+            << Utils::FilePath::fromUserInput(QDir::homePath())
             << QString(filePrefix + QDir::homePath());
 
     const QString argv0 = QFileInfo(qApp->arguments().first()).absoluteFilePath();
-    const auto argv0FileName = Utils::FileName::fromUserInput(argv0);
+    const auto argv0FileName = Utils::FilePath::fromUserInput(argv0);
     QTest::newRow("argv0 file name")
             << DocumentUri::fromFileName(argv0FileName)
             << true
@@ -626,7 +626,7 @@ void tst_LanguageServerProtocol::documentUri_data()
     QTest::newRow("http")
             << DocumentUri::fromProtocol("https://www.qt.io/")
             << true
-            << Utils::FileName()
+            << Utils::FilePath()
             << "https://www.qt.io/";
 
     // depending on the OS the resulting path is different (made suitable for the file system)
@@ -636,7 +636,7 @@ void tst_LanguageServerProtocol::documentUri_data()
     QTest::newRow("percent encoding")
             << DocumentUri::fromProtocol(winUserPercent)
             << true
-            << Utils::FileName::fromUserInput(winUser)
+            << Utils::FilePath::fromUserInput(winUser)
             << QString(filePrefix + QDir::fromNativeSeparators(winUser));
 }
 
@@ -644,7 +644,7 @@ void tst_LanguageServerProtocol::documentUri()
 {
     QFETCH(DocumentUri, uri);
     QFETCH(bool, isValid);
-    QFETCH(Utils::FileName, fileName);
+    QFETCH(Utils::FilePath, fileName);
     QFETCH(QString, string);
 
     QCOMPARE(uri.isValid(), isValid);

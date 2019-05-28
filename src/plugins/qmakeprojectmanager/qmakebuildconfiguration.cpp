@@ -87,17 +87,17 @@ QString QmakeBuildConfiguration::shadowBuildDirectory(const QString &proFilePath
 
     const QString projectName = QFileInfo(proFilePath).completeBaseName();
     ProjectMacroExpander expander(proFilePath, projectName, k, suffix, buildType);
-    QString projectDir = Project::projectDirectory(FileName::fromString(proFilePath)).toString();
+    QString projectDir = Project::projectDirectory(FilePath::fromString(proFilePath)).toString();
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     return FileUtils::resolvePath(projectDir, buildPath);
 }
 
-static FileName defaultBuildDirectory(const QString &projectPath,
+static FilePath defaultBuildDirectory(const QString &projectPath,
                                       const Kit *k,
                                       const QString &suffix,
                                       BuildConfiguration::BuildType type)
 {
-    return FileName::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
+    return FilePath::fromString(QmakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
                                                                               suffix, type));
 }
 
@@ -158,7 +158,7 @@ void QmakeBuildConfiguration::initialize(const BuildInfo &info)
 
     setQMakeBuildConfiguration(config);
 
-    FileName directory = info.buildDirectory;
+    FilePath directory = info.buildDirectory;
     if (directory.isEmpty()) {
         directory = defaultBuildDirectory(target()->project()->projectFilePath().toString(),
                                           target()->kit(), info.displayName, buildType());
@@ -388,7 +388,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
         return MakefileForWrongProject;
     }
 
-    const Utils::FileName projectPath =
+    const Utils::FilePath projectPath =
             m_subNodeBuild ? m_subNodeBuild->filePath() : qs->project()->projectFilePath();
     if (parse.srcProFile() != projectPath.toString()) {
         qCDebug(logs) << "**Different profile used to generate the Makefile:"
@@ -491,7 +491,7 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
                                                          const QString &directory, const BaseQtVersion *version,
                                                          QStringList *outArgs)
 {
-    FileName parsedSpec;
+    FilePath parsedSpec;
 
     bool ignoreNext = false;
     bool nextIsSpec = false;
@@ -501,7 +501,7 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
             ait.deleteArg();
         } else if (nextIsSpec) {
             nextIsSpec = false;
-            parsedSpec = FileName::fromUserInput(ait.value());
+            parsedSpec = FilePath::fromUserInput(ait.value());
             ait.deleteArg();
         } else if (ait.value() == QLatin1String("-spec") || ait.value() == QLatin1String("-platform")) {
             nextIsSpec = true;
@@ -523,9 +523,9 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     if (parsedSpec.isEmpty())
         return {};
 
-    FileName baseMkspecDir = FileName::fromUserInput(
+    FilePath baseMkspecDir = FilePath::fromUserInput(
             version->qmakeProperty("QT_HOST_DATA") + QLatin1String("/mkspecs"));
-    baseMkspecDir = FileName::fromString(baseMkspecDir.toFileInfo().canonicalFilePath());
+    baseMkspecDir = FilePath::fromString(baseMkspecDir.toFileInfo().canonicalFilePath());
 
     // if the path is relative it can be
     // relative to the working directory (as found in the Makefiles)
@@ -534,21 +534,21 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     // for the other one we don't need to do anything
     if (parsedSpec.toFileInfo().isRelative()) {
         if (QFileInfo::exists(directory + QLatin1Char('/') + parsedSpec.toString()))
-            parsedSpec = FileName::fromUserInput(directory + QLatin1Char('/') + parsedSpec.toString());
+            parsedSpec = FilePath::fromUserInput(directory + QLatin1Char('/') + parsedSpec.toString());
         else
-            parsedSpec = FileName::fromUserInput(baseMkspecDir.toString() + QLatin1Char('/') + parsedSpec.toString());
+            parsedSpec = FilePath::fromUserInput(baseMkspecDir.toString() + QLatin1Char('/') + parsedSpec.toString());
     }
 
     QFileInfo f2 = parsedSpec.toFileInfo();
     while (f2.isSymLink()) {
-        parsedSpec = FileName::fromString(f2.symLinkTarget());
+        parsedSpec = FilePath::fromString(f2.symLinkTarget());
         f2.setFile(parsedSpec.toString());
     }
 
     if (parsedSpec.isChildOf(baseMkspecDir)) {
         parsedSpec = parsedSpec.relativeChildPath(baseMkspecDir);
     } else {
-        FileName sourceMkSpecPath = FileName::fromString(version->sourcePath().toString()
+        FilePath sourceMkSpecPath = FilePath::fromString(version->sourcePath().toString()
                                                          + QLatin1String("/mkspecs"));
         if (parsedSpec.isChildOf(sourceMkSpecPath))
             parsedSpec = parsedSpec.relativeChildPath(sourceMkSpecPath);
@@ -594,7 +594,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
                 && !QmakeBuildConfiguration::isBuildDirAtSafeLocation(
                     QFileInfo(projectPath).absoluteDir().path(), QDir(buildDir).absolutePath())) {
             issues.append(Task(Task::Warning, QmakeBuildConfiguration::unalignedBuildDirWarning(),
-                               Utils::FileName(), -1,
+                               Utils::FilePath(), -1,
                                ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
         return issues;
@@ -639,7 +639,7 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
     info.kitId = k->id();
 
     // check if this project is in the source directory:
-    FileName projectFilePath = FileName::fromString(projectPath);
+    FilePath projectFilePath = FilePath::fromString(projectPath);
     if (version && version->isInSourceDirectory(projectFilePath)) {
         // assemble build directory
         QString projectDirectory = projectFilePath.toFileInfo().absolutePath();
@@ -648,7 +648,7 @@ BuildInfo QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
         QString qtBuildDir = version->qmakeProperty("QT_INSTALL_PREFIX");
         QString absoluteBuildPath = QDir::cleanPath(qtBuildDir + QLatin1Char('/') + relativeProjectPath);
 
-        info.buildDirectory = FileName::fromString(absoluteBuildPath);
+        info.buildDirectory = FilePath::fromString(absoluteBuildPath);
     } else {
         info.buildDirectory = defaultBuildDirectory(projectPath, k, suffix, type);
     }

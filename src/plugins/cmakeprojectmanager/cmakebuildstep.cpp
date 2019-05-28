@@ -160,7 +160,7 @@ bool CMakeBuildStep::init()
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("CMakeProjectManager::CMakeBuildStep",
                                                       "The build configuration is currently disabled."),
-                          Utils::FileName(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+                          Utils::FilePath(), -1, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         canInit = false;
     }
 
@@ -169,7 +169,7 @@ bool CMakeBuildStep::init()
         emit addTask(Task(Task::Error,
                           tr("A CMake tool must be set up for building. "
                              "Configure a CMake tool in the kit options."),
-                          Utils::FileName(), -1,
+                          Utils::FilePath(), -1,
                           ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         canInit = false;
     }
@@ -181,7 +181,7 @@ bool CMakeBuildStep::init()
                                     "You asked to build the current Run Configuration's build target only, "
                                     "but it is not associated with a build target. "
                                     "Update the Make Step in your build settings."),
-                        Utils::FileName(), -1,
+                        Utils::FilePath(), -1,
                         ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         canInit = false;
     }
@@ -192,7 +192,7 @@ bool CMakeBuildStep::init()
     }
 
     // Warn if doing out-of-source builds with a CMakeCache.txt is the source directory
-    const Utils::FileName projectDirectory = bc->target()->project()->projectDirectory();
+    const Utils::FilePath projectDirectory = bc->target()->project()->projectDirectory();
     if (bc->buildDirectory() != projectDirectory) {
         if (projectDirectory.pathAppended("CMakeCache.txt").exists()) {
             emit addTask(Task(Task::Warning,
@@ -200,7 +200,7 @@ bool CMakeBuildStep::init()
                                  "in-source build was done before. You are now building in \"%2\", "
                                  "and the CMakeCache.txt file might confuse CMake.")
                               .arg(projectDirectory.toUserOutput(), bc->buildDirectory().toUserOutput()),
-                              Utils::FileName(), -1,
+                              Utils::FilePath(), -1,
                               ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     }
@@ -371,10 +371,10 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
     return arguments;
 }
 
-Utils::FileName CMakeBuildStep::cmakeCommand() const
+Utils::FilePath CMakeBuildStep::cmakeCommand() const
 {
     CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
-    return tool ? tool->cmakeExecutable() : Utils::FileName();
+    return tool ? tool->cmakeExecutable() : Utils::FilePath();
 }
 
 QString CMakeBuildStep::cleanTarget()

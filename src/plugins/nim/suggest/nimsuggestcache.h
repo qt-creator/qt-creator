@@ -45,7 +45,7 @@ class NimSuggestCache : public QObject
 public:
     static NimSuggestCache &instance();
 
-    NimSuggest *get(const Utils::FileName &filename);
+    NimSuggest *get(const Utils::FilePath &filename);
 
     QString executablePath() const;
     void setExecutablePath(const QString &path);
@@ -57,7 +57,7 @@ private:
     void onEditorOpened(Core::IEditor *editor);
     void onEditorClosed(Core::IEditor *editor);
 
-    std::unordered_map<Utils::FileName, std::unique_ptr<Suggest::NimSuggest>> m_nimSuggestInstances;
+    std::unordered_map<Utils::FilePath, std::unique_ptr<Suggest::NimSuggest>> m_nimSuggestInstances;
 
     QString m_executablePath;
 };

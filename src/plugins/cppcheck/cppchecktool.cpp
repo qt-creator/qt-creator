@@ -181,16 +181,16 @@ const CppcheckOptions &CppcheckTool::options() const
     return m_options;
 }
 
-void CppcheckTool::check(const Utils::FileNameList &files)
+void CppcheckTool::check(const Utils::FilePathList &files)
 {
     QTC_ASSERT(m_project, return);
 
-    Utils::FileNameList filtered;
+    Utils::FilePathList filtered;
     if (m_filters.isEmpty()) {
         filtered = files;
     } else {
         std::copy_if(files.cbegin(), files.cend(), std::back_inserter(filtered),
-                     [this](const Utils::FileName &file) {
+                     [this](const Utils::FilePath &file) {
             const QString stringed = file.toString();
             const auto filter = [stringed](const QRegExp &re) {return re.exactMatch(stringed);};
             return !Utils::contains(m_filters, filter);
@@ -208,8 +208,8 @@ void CppcheckTool::check(const Utils::FileNameList &files)
         return;
     }
 
-    std::map<CppTools::ProjectPart::Ptr, Utils::FileNameList> groups;
-    for (const Utils::FileName &file : qAsConst(filtered)) {
+    std::map<CppTools::ProjectPart::Ptr, Utils::FilePathList> groups;
+    for (const Utils::FilePath &file : qAsConst(filtered)) {
         const QString stringed = file.toString();
         for (const CppTools::ProjectPart::Ptr &part : parts) {
             using CppTools::ProjectFile;
@@ -224,7 +224,7 @@ void CppcheckTool::check(const Utils::FileNameList &files)
         addToQueue(group.second, *group.first);
 }
 
-void CppcheckTool::addToQueue(const Utils::FileNameList &files, CppTools::ProjectPart &part)
+void CppcheckTool::addToQueue(const Utils::FilePathList &files, CppTools::ProjectPart &part)
 {
     const QString key = part.id();
     if (!m_cachedAdditionalArguments.contains(key))
@@ -232,7 +232,7 @@ void CppcheckTool::addToQueue(const Utils::FileNameList &files, CppTools::Projec
     m_runner->addToQueue(files, m_cachedAdditionalArguments[key]);
 }
 
-void CppcheckTool::stop(const Utils::FileNameList &files)
+void CppcheckTool::stop(const Utils::FilePathList &files)
 {
     m_runner->removeFromQueue(files);
     m_runner->stop(files);
@@ -299,7 +299,7 @@ void CppcheckTool::parseErrorLine(const QString &line)
     if (!match.hasMatch())
         return;
 
-    const Utils::FileName fileName = Utils::FileName::fromUserInput(match.captured(File));
+    const Utils::FilePath fileName = Utils::FilePath::fromUserInput(match.captured(File));
     if (!m_runner->currentFiles().contains(fileName))
         return;
 

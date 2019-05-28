@@ -46,7 +46,7 @@ public:
 
     QString displayName;
     QString typeName;
-    Utils::FileName buildDirectory;
+    Utils::FilePath buildDirectory;
     Core::Id kitId;
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
 

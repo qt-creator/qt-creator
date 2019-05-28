@@ -40,7 +40,7 @@ class Kit;
 class Target;
 }
 
-namespace Utils { class FileName; }
+namespace Utils { class FilePath; }
 
 namespace Android {
 
@@ -66,10 +66,10 @@ class ANDROID_EXPORT AndroidManager : public QObject
 
 public:
     static QString packageName(ProjectExplorer::Target *target);
-    static QString packageName(const Utils::FileName &manifestFile);
+    static QString packageName(const Utils::FilePath &manifestFile);
     static bool packageInstalled(const QString &deviceSerial, const QString &packageName);
     static int packageVersionCode(const QString &deviceSerial, const QString &packageName);
-    static void apkInfo(const Utils::FileName &apkPath,
+    static void apkInfo(const Utils::FilePath &apkPath,
                         QString *packageName = nullptr,
                         int *version = nullptr,
                         QString *activityPath = nullptr);
@@ -89,12 +89,12 @@ public:
 
     static QString targetArch(const ProjectExplorer::Target *target);
 
-    static Utils::FileName dirPath(const ProjectExplorer::Target *target);
-    static Utils::FileName manifestPath(ProjectExplorer::Target *target);
-    static void setManifestPath(ProjectExplorer::Target *target, const Utils::FileName &path);
-    static Utils::FileName manifestSourcePath(ProjectExplorer::Target *target);
-    static Utils::FileName defaultPropertiesPath(ProjectExplorer::Target *target);
-    static Utils::FileName apkPath(const ProjectExplorer::Target *target);
+    static Utils::FilePath dirPath(const ProjectExplorer::Target *target);
+    static Utils::FilePath manifestPath(ProjectExplorer::Target *target);
+    static void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
+    static Utils::FilePath manifestSourcePath(ProjectExplorer::Target *target);
+    static Utils::FilePath defaultPropertiesPath(ProjectExplorer::Target *target);
+    static Utils::FilePath apkPath(const ProjectExplorer::Target *target);
 
     static QPair<int, int> apiLevelRange();
     static QString androidNameForApiLevel(int x);
@@ -107,7 +107,7 @@ public:
     static bool checkCertificateExists(const QString &keystorePath, const QString &keystorePasswd,
                                        const QString &alias);
     static bool updateGradleProperties(ProjectExplorer::Target *target);
-    static int findApiLevel(const Utils::FileName &platformPath);
+    static int findApiLevel(const Utils::FilePath &platformPath);
 
     static QProcess *runAdbCommandDetached(const QStringList &args, QString *err = nullptr,
                                            bool deleteOnFinish = false);

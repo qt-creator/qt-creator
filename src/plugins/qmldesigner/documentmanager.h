@@ -55,8 +55,8 @@ public:
 
     static bool createFile(const QString &filePath, const QString &contents);
     static void addFileToVersionControl(const QString &directoryPath, const QString &newFilePath);
-    static Utils::FileName currentFilePath();
-    static Utils::FileName currentProjectDirPath();
+    static Utils::FilePath currentFilePath();
+    static Utils::FilePath currentProjectDirPath();
 
     static QStringList isoIconsQmakeVariableValue(const QString &proPath);
     static bool setIsoIconsQmakeVariableValue(const QString &proPath, const QStringList &value);

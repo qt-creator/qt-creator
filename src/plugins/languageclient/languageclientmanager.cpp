@@ -240,7 +240,7 @@ void LanguageClientManager::applySettings()
         case BaseSettings::RequiresProject: {
             for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
                 if (setting->m_languageFilter.isSupported(doc)) {
-                    const Utils::FileName filePath = doc->filePath();
+                    const Utils::FilePath filePath = doc->filePath();
                     for (ProjectExplorer::Project *project :
                          ProjectExplorer::SessionManager::projects()) {
                         if (project->isKnownFile(filePath))
@@ -376,7 +376,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         if (setting->isValid() && setting->m_enabled
             && setting->m_languageFilter.isSupported(document)) {
             if (setting->m_startBehavior == BaseSettings::RequiresProject) {
-                const Utils::FileName filePath = document->filePath();
+                const Utils::FilePath filePath = document->filePath();
                 for (ProjectExplorer::Project *project :
                      ProjectExplorer::SessionManager::projects()) {
                     // check whether file is part of this project
@@ -421,7 +421,7 @@ void LanguageClientManager::documentWillSave(Core::IDocument *document)
         interface->documentContentsSaved(document);
 }
 
-void LanguageClientManager::findLinkAt(const Utils::FileName &filePath,
+void LanguageClientManager::findLinkAt(const Utils::FilePath &filePath,
                                        const QTextCursor &cursor,
                                        Utils::ProcessLinkCallback callback)
 {
@@ -485,7 +485,7 @@ QList<Core::SearchResultItem> generateSearchResultItems(const LanguageClientArra
     return result;
 }
 
-void LanguageClientManager::findUsages(const Utils::FileName &filePath, const QTextCursor &cursor)
+void LanguageClientManager::findUsages(const Utils::FilePath &filePath, const QTextCursor &cursor)
 {
     const DocumentUri uri = DocumentUri::fromFileName(filePath);
     const TextDocumentIdentifier document(uri);

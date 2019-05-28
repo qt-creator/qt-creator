@@ -350,7 +350,7 @@ void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int e
     }
 }
 
-Node *ProjectTreeWidget::nodeForFile(const FileName &fileName)
+Node *ProjectTreeWidget::nodeForFile(const FilePath &fileName)
 {
     Node *bestNode = nullptr;
     int bestNodeExpandCount = INT_MAX;
@@ -457,7 +457,7 @@ void ProjectTreeWidget::editCurrentItem()
         editor->setSelection(0, dotIndex);
 }
 
-void ProjectTreeWidget::renamed(const FileName &oldPath, const FileName &newPath)
+void ProjectTreeWidget::renamed(const FilePath &oldPath, const FilePath &newPath)
 {
     update();
     Q_UNUSED(oldPath);
@@ -474,7 +474,7 @@ void ProjectTreeWidget::renamed(const FileName &oldPath, const FileName &newPath
 void ProjectTreeWidget::syncFromDocumentManager()
 {
     // sync from document manager
-    FileName fileName;
+    FilePath fileName;
     if (IDocument *doc = EditorManager::currentDocument())
         fileName = doc->filePath();
     if (!currentNode() || currentNode()->filePath() != fileName)

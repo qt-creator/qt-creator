@@ -69,7 +69,7 @@ public:
     QString formWindowContents() const;
     ResourceHandler *resourceHandler() const;
 
-    void setFilePath(const Utils::FileName &) override;
+    void setFilePath(const Utils::FilePath &) override;
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
     void updateIsModified();
 

@@ -370,9 +370,9 @@ void AttachCoreDialog::coreFileChanged(const QString &core)
         Runnable debugger = DebuggerKitAspect::runnable(k);
         CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, core);
         if (!cinfo.foundExecutableName.isEmpty())
-            d->symbolFileName->setFileName(FileName::fromString(cinfo.foundExecutableName));
+            d->symbolFileName->setFileName(FilePath::fromString(cinfo.foundExecutableName));
         else if (!d->symbolFileName->isValid() && !cinfo.rawStringFromCore.isEmpty())
-            d->symbolFileName->setFileName(FileName::fromString(cinfo.rawStringFromCore));
+            d->symbolFileName->setFileName(FilePath::fromString(cinfo.rawStringFromCore));
     }
     changed();
 }

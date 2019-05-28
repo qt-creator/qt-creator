@@ -86,7 +86,7 @@ public:
     void buildStateChanged(Project *pro);
     void updateBuildFileAction();
     void disableBuildFileMenus();
-    void enableBuildFileMenus(const Utils::FileName &file);
+    void enableBuildFileMenus(const Utils::FilePath &file);
 
     QmakeManager qmakeProjectManager;
     Core::Context projectContext;
@@ -452,7 +452,7 @@ void QmakeProjectManagerPluginPrivate::disableBuildFileMenus()
     m_buildFileContextMenu->setEnabled(false);
 }
 
-void QmakeProjectManagerPluginPrivate::enableBuildFileMenus(const Utils::FileName &file)
+void QmakeProjectManagerPluginPrivate::enableBuildFileMenus(const Utils::FilePath &file)
 {
     bool visible = false;
     bool enabled = false;

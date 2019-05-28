@@ -101,7 +101,7 @@ int DocumentModelPrivate::rowCount(const QModelIndex &parent) const
 
 void DocumentModelPrivate::addEntry(DocumentModel::Entry *entry)
 {
-    const Utils::FileName fileName = entry->fileName();
+    const Utils::FilePath fileName = entry->fileName();
     QString fixedPath;
     if (!fileName.isEmpty())
         fixedPath = DocumentManager::filePathKey(fileName.toString(), DocumentManager::ResolveLinks);
@@ -169,7 +169,7 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
             bool seenDups = false;
             for (int i = 0; i < dupsCount - 1; ++i) {
                 DynamicEntry &e = dups[i];
-                const Utils::FileName myFileName = e->document->filePath();
+                const Utils::FilePath myFileName = e->document->filePath();
                 if (e->document->isTemporary() || myFileName.isEmpty() || count > 10) {
                     // path-less entry, append number
                     e.setNumberedName(++serial);
@@ -178,7 +178,7 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
                 for (int j = i + 1; j < dupsCount; ++j) {
                     DynamicEntry &e2 = dups[j];
                     if (e->displayName().compare(e2->displayName(), Utils::HostOsInfo::fileNameCaseSensitivity()) == 0) {
-                        const Utils::FileName otherFileName = e2->document->filePath();
+                        const Utils::FilePath otherFileName = e2->document->filePath();
                         if (otherFileName.isEmpty())
                             continue;
                         seenDups = true;
@@ -225,7 +225,7 @@ QIcon DocumentModelPrivate::pinnedIcon()
     return icon;
 }
 
-Utils::optional<int> DocumentModelPrivate::indexOfFilePath(const Utils::FileName &filePath) const
+Utils::optional<int> DocumentModelPrivate::indexOfFilePath(const Utils::FilePath &filePath) const
 {
     if (filePath.isEmpty())
         return Utils::nullopt;
@@ -420,7 +420,7 @@ DocumentModel::Entry *DocumentModelPrivate::addSuspendedDocument(const QString &
 {
     auto entry = new DocumentModel::Entry;
     entry->document = new IDocument;
-    entry->document->setFilePath(Utils::FileName::fromString(fileName));
+    entry->document->setFilePath(Utils::FilePath::fromString(fileName));
     entry->document->setPreferredDisplayName(displayName);
     entry->document->setId(id);
     entry->isSuspended = true;
@@ -551,7 +551,7 @@ QAbstractItemModel *DocumentModel::model()
     return d;
 }
 
-Utils::FileName DocumentModel::Entry::fileName() const
+Utils::FilePath DocumentModel::Entry::fileName() const
 {
     return document->filePath();
 }
@@ -594,7 +594,7 @@ Utils::optional<int> DocumentModel::indexOfDocument(IDocument *document)
     return d->indexOfDocument(document);
 }
 
-Utils::optional<int> DocumentModel::indexOfFilePath(const Utils::FileName &filePath)
+Utils::optional<int> DocumentModel::indexOfFilePath(const Utils::FilePath &filePath)
 {
     return d->indexOfFilePath(filePath);
 }
@@ -605,7 +605,7 @@ DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
                                 [&document](Entry *entry) { return entry->document == document; });
 }
 
-DocumentModel::Entry *DocumentModel::entryForFilePath(const Utils::FileName &filePath)
+DocumentModel::Entry *DocumentModel::entryForFilePath(const Utils::FilePath &filePath)
 {
     const Utils::optional<int> index = d->indexOfFilePath(filePath);
     if (!index)
@@ -620,7 +620,7 @@ QList<IDocument *> DocumentModel::openedDocuments()
 
 IDocument *DocumentModel::documentForFilePath(const QString &filePath)
 {
-    const Utils::optional<int> index = d->indexOfFilePath(Utils::FileName::fromString(filePath));
+    const Utils::optional<int> index = d->indexOfFilePath(Utils::FilePath::fromString(filePath));
     if (!index)
         return nullptr;
     return d->m_entries.at(*index)->document;

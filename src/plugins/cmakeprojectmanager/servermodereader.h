@@ -78,7 +78,7 @@ private:
     struct Project;
 
     struct IncludePath {
-        Utils::FileName path;
+        Utils::FilePath path;
         bool isSystem;
     };
 
@@ -90,7 +90,7 @@ private:
         ProjectExplorer::Macros macros;
         QList<IncludePath *> includePaths;
         QString language;
-        QList<Utils::FileName> sources;
+        QList<Utils::FilePath> sources;
         bool isGenerated;
     };
 
@@ -118,9 +118,9 @@ private:
         Project *project = nullptr;
         QString name;
         QString type;
-        QList<Utils::FileName> artifacts;
-        Utils::FileName sourceDirectory;
-        Utils::FileName buildDirectory;
+        QList<Utils::FilePath> artifacts;
+        Utils::FilePath sourceDirectory;
+        Utils::FilePath buildDirectory;
         QList<FileGroup *> fileGroups;
         QList<CrossReference *> crossReferences;
     };
@@ -128,7 +128,7 @@ private:
     struct Project {
         ~Project() { qDeleteAll(targets); targets.clear(); }
         QString name;
-        Utils::FileName sourceDirectory;
+        Utils::FilePath sourceDirectory;
         QList<Target *> targets;
     };
 
@@ -145,17 +145,17 @@ private:
 
     void fixTarget(Target *target) const;
 
-    QHash<Utils::FileName, ProjectExplorer::ProjectNode *>
+    QHash<Utils::FilePath, ProjectExplorer::ProjectNode *>
     addCMakeLists(CMakeProjectNode *root, std::vector<std::unique_ptr<ProjectExplorer::FileNode> > &&cmakeLists);
-    void addProjects(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+    void addProjects(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                      const QList<Project *> &projects,
                      QList<ProjectExplorer::FileNode *> &knownHeaderNodes);
-    void addTargets(const QHash<Utils::FileName, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+    void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                     const QList<Target *> &targets,
                     QList<ProjectExplorer::FileNode *> &knownHeaderNodes);
     void addFileGroups(ProjectExplorer::ProjectNode *targetRoot,
-                       const Utils::FileName &sourceDirectory,
-                       const Utils::FileName &buildDirectory, const QList<FileGroup *> &fileGroups,
+                       const Utils::FilePath &sourceDirectory,
+                       const Utils::FilePath &buildDirectory, const QList<FileGroup *> &fileGroups,
                        QList<ProjectExplorer::FileNode *> &knowHeaderNodes);
 
     void addHeaderNodes(ProjectExplorer::ProjectNode *root,
@@ -172,7 +172,7 @@ private:
 
     CMakeConfig m_cmakeConfiguration;
 
-    QSet<Utils::FileName> m_cmakeFiles;
+    QSet<Utils::FilePath> m_cmakeFiles;
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_cmakeInputsFileNodes;
 
     QList<Project *> m_projects;

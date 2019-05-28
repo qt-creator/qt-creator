@@ -129,7 +129,7 @@ public:
 
     void setSupportedLanguage(const LanguageFilter &filter);
     bool isSupportedDocument(const Core::IDocument *document) const;
-    bool isSupportedFile(const Utils::FileName &filePath, const QString &mimeType) const;
+    bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
 
     void setName(const QString &name) { m_displayName = name; }
@@ -196,7 +196,7 @@ private:
     QHash<QByteArray, ContentHandler> m_contentHandler;
     QString m_displayName;
     LanguageFilter m_languagFilter;
-    QMap<Utils::FileName, QString> m_openedDocument;
+    QMap<Utils::FilePath, QString> m_openedDocument;
     Core::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;

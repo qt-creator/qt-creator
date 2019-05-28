@@ -70,7 +70,7 @@ bool WinRtPackageDeploymentStep::init()
     QTC_ASSERT(rc, return false);
 
     const BuildTargetInfo bti = rc->buildTargetInfo();
-    Utils::FileName appTargetFilePath = bti.targetFilePath;
+    Utils::FilePath appTargetFilePath = bti.targetFilePath;
 
     m_targetFilePath = appTargetFilePath.toString();
     if (m_targetFilePath.isEmpty()) {
@@ -107,7 +107,7 @@ bool WinRtPackageDeploymentStep::init()
                     QDir::toNativeSeparators(qt->binPath().toString())));
         return false;
     }
-    params->setCommand(Utils::FileName::fromString(windeployqtPath));
+    params->setCommand(Utils::FilePath::fromString(windeployqtPath));
     params->setArguments(args);
     params->setEnvironment(buildConfiguration()->environment());
 
@@ -248,7 +248,7 @@ QString WinRtPackageDeploymentStep::defaultWinDeployQtArguments() const
 
 void WinRtPackageDeploymentStep::raiseError(const QString &errorMessage)
 {
-    ProjectExplorer::Task task = Task(Task::Error, errorMessage, Utils::FileName(), -1,
+    ProjectExplorer::Task task = Task(Task::Error, errorMessage, Utils::FilePath(), -1,
                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addTask(task, 1);
     emit addOutput(errorMessage, BuildStep::OutputFormat::ErrorMessage);
@@ -256,7 +256,7 @@ void WinRtPackageDeploymentStep::raiseError(const QString &errorMessage)
 
 void WinRtPackageDeploymentStep::raiseWarning(const QString &warningMessage)
 {
-    ProjectExplorer::Task task = Task(Task::Warning, warningMessage, Utils::FileName(), -1,
+    ProjectExplorer::Task task = Task(Task::Warning, warningMessage, Utils::FilePath(), -1,
                                       ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addTask(task, 1);
     emit addOutput(warningMessage, BuildStep::OutputFormat::NormalMessage);

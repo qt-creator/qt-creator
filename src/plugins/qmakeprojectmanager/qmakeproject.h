@@ -56,7 +56,7 @@ class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit QmakeProject(const Utils::FileName &proFile);
+    explicit QmakeProject(const Utils::FilePath &proFile);
     ~QmakeProject() final;
 
     QmakeProFile *rootProFile() const;
@@ -67,7 +67,7 @@ public:
 
     QStringList filesGeneratedFrom(const QString &file) const final;
 
-    static void notifyChanged(const Utils::FileName &name);
+    static void notifyChanged(const Utils::FilePath &name);
 
     /// \internal
     QtSupport::ProFileReader *createProFileReader(const QmakeProFile *qmakeProFile);
@@ -105,7 +105,7 @@ public:
     enum AsyncUpdateState { Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState asyncUpdateState() const;
 
-    QString mapProFilePathToTarget(const Utils::FileName &proFilePath);
+    QString mapProFilePathToTarget(const Utils::FilePath &proFilePath);
 
     QVariant additionalData(Core::Id id, const ProjectExplorer::Target *target) const final;
 
@@ -148,9 +148,9 @@ private:
     bool matchesKit(const ProjectExplorer::Kit *kit);
 
     void warnOnToolChainMismatch(const QmakeProFile *pro) const;
-    void testToolChain(ProjectExplorer::ToolChain *tc, const Utils::FileName &path) const;
+    void testToolChain(ProjectExplorer::ToolChain *tc, const Utils::FilePath &path) const;
 
-    mutable QSet<const QPair<Utils::FileName, Utils::FileName>> m_toolChainWarnings;
+    mutable QSet<const QPair<Utils::FilePath, Utils::FilePath>> m_toolChainWarnings;
 
     // Current configuration
     QString m_oldQtIncludePath;

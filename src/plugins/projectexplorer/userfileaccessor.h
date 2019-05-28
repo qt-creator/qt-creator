@@ -47,9 +47,9 @@ public:
 
     virtual QVariant retrieveSharedSettings() const;
 
-    Utils::FileName projectUserFile() const;
-    Utils::FileName externalUserFile() const;
-    Utils::FileName sharedFile() const;
+    Utils::FilePath projectUserFile() const;
+    Utils::FilePath externalUserFile() const;
+    Utils::FilePath sharedFile() const;
 
 protected:
     QVariantMap postprocessMerge(const QVariantMap &main,

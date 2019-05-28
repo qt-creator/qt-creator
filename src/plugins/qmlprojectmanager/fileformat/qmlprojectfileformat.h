@@ -39,7 +39,7 @@ class QmlProjectFileFormat
     Q_DECLARE_TR_FUNCTIONS(QmlProjectManager::QmlProjectFileFormat)
 
 public:
-    static QmlProjectItem *parseProjectFile(const Utils::FileName &fileName,
+    static QmlProjectItem *parseProjectFile(const Utils::FilePath &fileName,
                                             QString *errorMessage = nullptr);
 };
 

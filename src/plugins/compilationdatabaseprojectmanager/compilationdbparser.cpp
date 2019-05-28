@@ -43,8 +43,8 @@ using namespace Utils;
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
-CompilationDbParser::CompilationDbParser(const QString &projectName, const FileName &projectPath,
-                                         const FileName &rootPath, MimeBinaryCache &mimeBinaryCache,
+CompilationDbParser::CompilationDbParser(const QString &projectName, const FilePath &projectPath,
+                                         const FilePath &rootPath, MimeBinaryCache &mimeBinaryCache,
                                          QObject *parent)
     : QObject(parent),
       m_projectName(projectName),
@@ -64,7 +64,7 @@ void CompilationDbParser::start()
     // Thread 1: Scan disk.
     if (!m_rootPath.isEmpty()) {
         m_treeScanner = new TreeScanner(this);
-        m_treeScanner->setFilter([this](const MimeType &mimeType, const FileName &fn) {
+        m_treeScanner->setFilter([this](const MimeType &mimeType, const FilePath &fn) {
             // Mime checks requires more resources, so keep it last in check list
             bool isIgnored = fn.toString().startsWith(m_projectFilePath.toString() + ".user")
                     || TreeScanner::isWellKnownBinary(mimeType, fn);
@@ -82,7 +82,7 @@ void CompilationDbParser::start()
 
             return isIgnored;
         });
-        m_treeScanner->setTypeFactory([](const Utils::MimeType &mimeType, const Utils::FileName &fn) {
+        m_treeScanner->setTypeFactory([](const Utils::MimeType &mimeType, const Utils::FilePath &fn) {
             return TreeScanner::genericFileType(mimeType, fn);
         });
         m_treeScanner->asyncScanForFiles(m_rootPath);
@@ -144,12 +144,12 @@ static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &fla
     return flags;
 }
 
-static FileName jsonObjectFilename(const QJsonObject &object)
+static FilePath jsonObjectFilename(const QJsonObject &object)
 {
     const QString workingDir = QDir::fromNativeSeparators(object["directory"].toString());
-    FileName fileName = FileName::fromString(QDir::fromNativeSeparators(object["file"].toString()));
+    FilePath fileName = FilePath::fromString(QDir::fromNativeSeparators(object["file"].toString()));
     if (fileName.toFileInfo().isRelative())
-        fileName = FileName::fromString(workingDir + "/" + fileName.toString()).canonicalPath();
+        fileName = FilePath::fromString(workingDir + "/" + fileName.toString()).canonicalPath();
     return fileName;
 }
 
@@ -175,7 +175,7 @@ static std::vector<DbEntry> readJsonObjects(const QString &filePath)
         }
 
         const QJsonObject object = document.object();
-        const Utils::FileName fileName = jsonObjectFilename(object);
+        const Utils::FilePath fileName = jsonObjectFilename(object);
         const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
                                                      fileName.toFileInfo().baseName());
         result.push_back({flags, fileName, object["directory"].toString()});

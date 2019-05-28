@@ -69,7 +69,7 @@ private:
 
 GeneratedCodeModelSupport::GeneratedCodeModelSupport(CppModelManager *modelmanager,
                                                      ProjectExplorer::ExtraCompiler *generator,
-                                                     const Utils::FileName &generatedFile) :
+                                                     const Utils::FilePath &generatedFile) :
     CppTools::AbstractEditorSupport(modelmanager, generator), m_generatedFileName(generatedFile),
     m_generator(generator)
 {
@@ -90,7 +90,7 @@ GeneratedCodeModelSupport::~GeneratedCodeModelSupport()
     qCDebug(log) << "dtor ~generatedcodemodelsupport for" << m_generatedFileName;
 }
 
-void GeneratedCodeModelSupport::onContentsChanged(const Utils::FileName &file)
+void GeneratedCodeModelSupport::onContentsChanged(const Utils::FilePath &file)
 {
     if (file == m_generatedFileName) {
         notifyAboutUpdatedContents();
@@ -124,7 +124,7 @@ void GeneratedCodeModelSupport::update(const QList<ProjectExplorer::ExtraCompile
             continue;
 
         extraCompilerCache.insert(generator);
-        generator->forEachTarget([mm, generator](const Utils::FileName &generatedFile) {
+        generator->forEachTarget([mm, generator](const Utils::FilePath &generatedFile) {
             new GeneratedCodeModelSupport(mm, generator, generatedFile);
         });
     }

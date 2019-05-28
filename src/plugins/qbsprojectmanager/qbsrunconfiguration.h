@@ -42,7 +42,7 @@ public:
     QbsRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 private:
-    Utils::FileName executableToRun(const ProjectExplorer::BuildTargetInfo &targetInfo) const;
+    Utils::FilePath executableToRun(const ProjectExplorer::BuildTargetInfo &targetInfo) const;
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &map) final;
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;

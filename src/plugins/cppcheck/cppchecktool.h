@@ -34,8 +34,8 @@
 #include <memory>
 
 namespace Utils {
-class FileName;
-using FileNameList = QList<FileName>;
+class FilePath;
+using FilePathList = QList<FilePath>;
 }
 
 namespace CppTools {
@@ -64,8 +64,8 @@ public:
 
     void updateOptions(const CppcheckOptions &options);
     void setProject(ProjectExplorer::Project *project);
-    void check(const Utils::FileNameList &files);
-    void stop(const Utils::FileNameList &files);
+    void check(const Utils::FilePathList &files);
+    void stop(const Utils::FilePathList &files);
 
     void startParsing();
     void parseOutputLine(const QString &line);
@@ -76,7 +76,7 @@ public:
 
 private:
     void updateArguments();
-    void addToQueue(const Utils::FileNameList &files, CppTools::ProjectPart &part);
+    void addToQueue(const Utils::FilePathList &files, CppTools::ProjectPart &part);
     QStringList additionalArguments(const CppTools::ProjectPart &part) const;
 
     CppcheckTextMarkManager &m_marks;

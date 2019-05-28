@@ -221,14 +221,14 @@ QVariantMap DeviceManager::toMap() const
     return map;
 }
 
-Utils::FileName DeviceManager::settingsFilePath(const QString &extension)
+Utils::FilePath DeviceManager::settingsFilePath(const QString &extension)
 {
-    return Utils::FileName::fromString(Core::ICore::userResourcePath() + extension);
+    return Utils::FilePath::fromString(Core::ICore::userResourcePath() + extension);
 }
 
-Utils::FileName DeviceManager::systemSettingsFilePath(const QString &deviceFileRelativePath)
+Utils::FilePath DeviceManager::systemSettingsFilePath(const QString &deviceFileRelativePath)
 {
-    return Utils::FileName::fromString(Core::ICore::installerResourcePath()
+    return Utils::FilePath::fromString(Core::ICore::installerResourcePath()
                                        + deviceFileRelativePath);
 }
 

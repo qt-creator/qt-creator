@@ -97,7 +97,7 @@ void IarParser::amendFilePath()
     QString filePath;
     while (!m_filePathParts.isEmpty())
         filePath.append(m_filePathParts.takeFirst().trimmed());
-    m_lastTask.setFile(Utils::FileName::fromUserInput(filePath));
+    m_lastTask.setFile(Utils::FilePath::fromUserInput(filePath));
     m_expectFilePath = false;
 }
 
@@ -154,7 +154,7 @@ void IarParser::stdError(const QString &line)
     if (match.hasMatch()) {
         enum CaptureIndex { FilePathIndex = 1, LineNumberIndex,
                             MessageTypeIndex, MessageCodeIndex };
-        const Utils::FileName fileName = Utils::FileName::fromUserInput(
+        const Utils::FilePath fileName = Utils::FilePath::fromUserInput(
                     match.captured(FilePathIndex));
         const int lineno = match.captured(LineNumberIndex).toInt();
         const Task::TaskType type = taskType(match.captured(MessageTypeIndex));
@@ -271,7 +271,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
             << QString()
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("Error in command line: Some error"),
-                                      Utils::FileName(),
+                                      Utils::FilePath(),
                                       -1,
                                       categoryCompile))
             << QString();
@@ -286,7 +286,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
                                    "          Some warning \"foo\" bar\n")
             << (Tasks() << Task(Task::Warning,
                                       QLatin1String("[Pe223]: Some warning \"foo\" bar"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -306,7 +306,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
                                       QLatin1String("[Pe223]: Some warning\n"
                                                     "      some_detail;\n"
                                                     "      ^"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -322,7 +322,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
                                    "          , split\n")
             << (Tasks() << Task(Task::Warning,
                                       QLatin1String("[Pe223]: Some warning, split"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -336,7 +336,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
                                    "          Some error\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("[Pe223]: Some error"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -356,7 +356,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
                                       QLatin1String("[Pe223]: Some error\n"
                                                     "      some_detail;\n"
                                                     "      ^"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -372,7 +372,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
                                    "          , split\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("[Pe223]: Some error, split"),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\main.c")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\main.c")),
                                       63,
                                       categoryCompile))
             << QString();
@@ -390,7 +390,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
                                    "]\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("[Li005]: Some error \"foo\""),
-                                      Utils::FileName::fromUserInput(QLatin1String("c:\\foo\\bar\\main.c.o")),
+                                      Utils::FilePath::fromUserInput(QLatin1String("c:\\foo\\bar\\main.c.o")),
                                       -1,
                                       categoryCompile))
             << QString();
@@ -410,7 +410,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
                                       QLatin1String("[Su011]: Some error:\n"
                                                     "                      c:\\foo.c\n"
                                                     "            c:\\bar.c"),
-                                      Utils::FileName(),
+                                      Utils::FilePath(),
                                       -1,
                                       categoryCompile))
             << QString();
@@ -422,7 +422,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
             << QString::fromLatin1("At end of source  Error[Pe040]: Some error \";\"\n")
             << (Tasks() << Task(Task::Error,
                                       QLatin1String("[Pe040]: Some error \";\""),
-                                      Utils::FileName(),
+                                      Utils::FilePath(),
                                       -1,
                                       categoryCompile))
             << QString();

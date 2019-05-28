@@ -58,10 +58,10 @@ public:
 
 // Helper methods
 private:
-    static CreateAvdInfo createAvdImpl(CreateAvdInfo info, Utils::FileName androidToolPath,
+    static CreateAvdInfo createAvdImpl(CreateAvdInfo info, Utils::FilePath androidToolPath,
                                        QProcessEnvironment env);
-    static AndroidDeviceInfoList androidVirtualDevices(const Utils::FileName &androidTool,
-                                                            const Utils::FileName &sdkLlocationPath,
+    static AndroidDeviceInfoList androidVirtualDevices(const Utils::FilePath &androidTool,
+                                                            const Utils::FilePath &sdkLlocationPath,
                                                             const QProcessEnvironment &env);
 private:
     const AndroidConfig &m_config;

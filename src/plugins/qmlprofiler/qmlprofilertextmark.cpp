@@ -39,7 +39,7 @@ namespace QmlProfiler {
 namespace Internal {
 
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerViewManager *viewManager, int typeId,
-                                         const FileName &fileName, int lineNumber) :
+                                         const FilePath &fileName, int lineNumber) :
     TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY, 3.5), m_viewManager(viewManager),
     m_typeIds(1, typeId)
 {
@@ -116,7 +116,7 @@ void QmlProfilerTextMarkModel::createMarks(QmlProfilerViewManager *viewManager,
             lineNumber = id.lineNumber;
             m_marks << new QmlProfilerTextMark(viewManager,
                                                id.typeId,
-                                               FileName::fromString(fileName),
+                                               FilePath::fromString(fileName),
                                                id.lineNumber);
         }
     }

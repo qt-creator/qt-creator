@@ -53,20 +53,20 @@ public:
     DefaultBuildOptions defaultCompilerOptions() const;
     void setDefaultCompilerOptions(DefaultBuildOptions options);
 
-    Utils::FileName targetNimFile() const;
-    void setTargetNimFile(const Utils::FileName &targetNimFile);
+    Utils::FilePath targetNimFile() const;
+    void setTargetNimFile(const Utils::FilePath &targetNimFile);
 
-    Utils::FileName outFilePath() const;
+    Utils::FilePath outFilePath() const;
 
 signals:
     void userCompilerOptionsChanged(const QStringList &options);
     void defaultCompilerOptionsChanged(DefaultBuildOptions options);
-    void targetNimFileChanged(const Utils::FileName &targetNimFile);
+    void targetNimFileChanged(const Utils::FilePath &targetNimFile);
     void processParametersChanged();
-    void outFilePathChanged(const Utils::FileName &outFilePath);
+    void outFilePathChanged(const Utils::FilePath &outFilePath);
 
 private:
-    void setOutFilePath(const Utils::FileName &outFilePath);
+    void setOutFilePath(const Utils::FilePath &outFilePath);
 
     void updateOutFilePath();
     void updateProcessParameters();
@@ -79,8 +79,8 @@ private:
 
     DefaultBuildOptions m_defaultOptions;
     QStringList m_userCompilerOptions;
-    Utils::FileName m_targetNimFile;
-    Utils::FileName m_outFilePath;
+    Utils::FilePath m_targetNimFile;
+    Utils::FilePath m_outFilePath;
 };
 
 class NimCompilerBuildStepFactory : public ProjectExplorer::BuildStepFactory

@@ -123,7 +123,7 @@ public:
     bool m_hasValidityInfo = false;
     bool m_mustNotify = false;
     QIcon m_cachedIcon;
-    FileName m_iconPath;
+    FilePath m_iconPath;
     Id m_deviceTypeForIcon;
 
     QHash<Id, QVariant> m_data;
@@ -162,7 +162,7 @@ Kit::Kit(const QVariantMap &data) :
     d->m_unexpandedDisplayName = data.value(QLatin1String(DISPLAYNAME_KEY),
                                             d->m_unexpandedDisplayName).toString();
     d->m_fileSystemFriendlyName = data.value(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY)).toString();
-    d->m_iconPath = FileName::fromString(data.value(QLatin1String(ICON_KEY),
+    d->m_iconPath = FilePath::fromString(data.value(QLatin1String(ICON_KEY),
                                                     d->m_iconPath.toString()).toString());
     d->m_deviceTypeForIcon = Id::fromSetting(data.value(DEVICE_TYPE_FOR_ICON_KEY));
     const auto it = data.constFind(IRRELEVANT_ASPECTS_KEY);
@@ -400,12 +400,12 @@ QIcon Kit::icon() const
     return d->m_cachedIcon;
 }
 
-FileName Kit::iconPath() const
+FilePath Kit::iconPath() const
 {
     return d->m_iconPath;
 }
 
-void Kit::setIconPath(const FileName &path)
+void Kit::setIconPath(const FilePath &path)
 {
     if (d->m_iconPath == path)
         return;

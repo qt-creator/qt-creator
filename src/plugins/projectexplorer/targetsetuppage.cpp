@@ -67,10 +67,10 @@ IPotentialKit::~IPotentialKit()
 }
 
 namespace Internal {
-static Utils::FileName importDirectory(const QString &projectPath)
+static Utils::FilePath importDirectory(const QString &projectPath)
 {
     // Setup import widget:
-    auto path = Utils::FileName::fromString(projectPath);
+    auto path = Utils::FilePath::fromString(projectPath);
     path = path.parentDir(); // base dir
     path = path.parentDir(); // parent dir
 
@@ -210,7 +210,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     connect(km, &KitManager::kitRemoved, this, &TargetSetupPage::handleKitRemoval);
     connect(km, &KitManager::kitUpdated, this, &TargetSetupPage::handleKitUpdate);
     connect(m_importWidget, &ImportWidget::importFrom,
-            this, [this](const Utils::FileName &dir) { import(dir); });
+            this, [this](const Utils::FilePath &dir) { import(dir); });
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Kits"));
 }
@@ -347,7 +347,7 @@ void TargetSetupPage::setupImports()
 
     QStringList toImport = m_importer->importCandidates();
     foreach (const QString &path, toImport)
-        import(Utils::FileName::fromString(path), true);
+        import(Utils::FilePath::fromString(path), true);
 }
 
 void TargetSetupPage::handleKitAddition(Kit *k)
@@ -485,7 +485,7 @@ bool TargetSetupPage::isUpdating() const
     return false;
 }
 
-void TargetSetupPage::import(const Utils::FileName &path, bool silent)
+void TargetSetupPage::import(const Utils::FilePath &path, bool silent)
 {
     if (!m_importer)
         return;

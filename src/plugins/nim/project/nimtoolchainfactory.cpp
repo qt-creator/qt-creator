@@ -54,7 +54,7 @@ QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     QList<ToolChain *> result;
 
     Environment systemEnvironment = Environment::systemEnvironment();
-    const FileName compilerPath = systemEnvironment.searchInPath("nim");
+    const FilePath compilerPath = systemEnvironment.searchInPath("nim");
     if (compilerPath.isEmpty())
         return result;
 
@@ -73,7 +73,7 @@ QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     return result;
 }
 
-QList<ToolChain *> NimToolChainFactory::autoDetect(const FileName &compilerPath, const Core::Id &language)
+QList<ToolChain *> NimToolChainFactory::autoDetect(const FilePath &compilerPath, const Core::Id &language)
 {
     QList<ToolChain *> result;
     if (language == Constants::C_NIMLANGUAGE_ID) {
@@ -143,7 +143,7 @@ void NimToolChainConfigWidget::onCompilerCommandChanged(const QString &path)
 {
     auto tc = static_cast<NimToolChain *>(toolChain());
     Q_ASSERT(tc);
-    tc->setCompilerCommand(FileName::fromString(path));
+    tc->setCompilerCommand(FilePath::fromString(path));
     fillUI();
 }
 

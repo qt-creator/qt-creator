@@ -60,7 +60,7 @@ public:
     Common::MainWidget *designWidget() const;
     void syncXmlFromDesignWidget();
     QString designWidgetContents() const;
-    void setFilePath(const Utils::FileName&) override;
+    void setFilePath(const Utils::FilePath&) override;
 
 signals:
     void reloadRequested(QString *errorString, const QString &);

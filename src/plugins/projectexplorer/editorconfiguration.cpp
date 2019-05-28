@@ -395,7 +395,7 @@ TabSettings actualTabSettings(const QString &fileName,
 {
     if (baseTextdocument)
         return baseTextdocument->tabSettings();
-    if (Project *project = SessionManager::projectForFile(Utils::FileName::fromString(fileName)))
+    if (Project *project = SessionManager::projectForFile(Utils::FilePath::fromString(fileName)))
         return project->editorConfiguration()->codeStyle()->tabSettings();
     return TextEditorSettings::codeStyle()->tabSettings();
 }

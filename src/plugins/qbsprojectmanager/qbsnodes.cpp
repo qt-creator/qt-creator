@@ -236,7 +236,7 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
 // --------------------------------------------------------------------
 
 QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath) :
-    ProjectNode(Utils::FileName())
+    ProjectNode(Utils::FilePath())
 {
     static QIcon groupIcon = QIcon(QString(Constants::QBS_GROUP_ICON));
     setIcon(groupIcon);
@@ -324,7 +324,7 @@ FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList 
 // --------------------------------------------------------------------
 
 QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
-    ProjectNode(Utils::FileName::fromString(prd.location().filePath())),
+    ProjectNode(Utils::FilePath::fromString(prd.location().filePath())),
     m_qbsProductData(prd)
 {
     static QIcon productIcon = Core::FileIconProvider::directoryIcon(Constants::QBS_PRODUCT_OVERLAY_ICON);
@@ -453,7 +453,7 @@ QVariant QbsProductNode::data(Core::Id role) const
 // QbsProjectNode:
 // --------------------------------------------------------------------
 
-QbsProjectNode::QbsProjectNode(const Utils::FileName &projectDirectory) :
+QbsProjectNode::QbsProjectNode(const Utils::FilePath &projectDirectory) :
     ProjectNode(projectDirectory)
 {
     static QIcon projectIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);

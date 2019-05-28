@@ -38,22 +38,22 @@ FileCrumbLabel::FileCrumbLabel(QWidget *parent)
     setTextFormat(Qt::RichText);
     setWordWrap(true);
     connect(this, &QLabel::linkActivated, this, [this](const QString &url) {
-        emit pathClicked(FileName::fromString(QUrl(url).toLocalFile()));
+        emit pathClicked(FilePath::fromString(QUrl(url).toLocalFile()));
     });
-    setPath(FileName());
+    setPath(FilePath());
 }
 
-static QString linkForPath(const FileName &path, const QString &display)
+static QString linkForPath(const FilePath &path, const QString &display)
 {
     return "<a href=\""
             + QUrl::fromLocalFile(path.toString()).toString(QUrl::FullyEncoded) + "\">"
             + display + "</a>";
 }
 
-void FileCrumbLabel::setPath(const FileName &path)
+void FileCrumbLabel::setPath(const FilePath &path)
 {
     QStringList links;
-    FileName current = path;
+    FilePath current = path;
     while (!current.isEmpty()) {
         const QString fileName = current.fileName();
         if (!fileName.isEmpty()) {

@@ -457,7 +457,7 @@ static inline QString formatArguments(const QStringList &args)
 }
 
 QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir,
-                                              const FileName &executable,
+                                              const FilePath &executable,
                                               const QStringList &arguments)
 {
     const QString args = formatArguments(arguments);
@@ -474,7 +474,7 @@ void VcsOutputWindow::appendShellCommandLine(const QString &text)
 }
 
 void VcsOutputWindow::appendCommand(const QString &workingDirectory,
-                                    const FileName &binary,
+                                    const FilePath &binary,
                                     const QStringList &args)
 {
     appendShellCommandLine(msgExecutionLogEntry(workingDirectory, binary, args));

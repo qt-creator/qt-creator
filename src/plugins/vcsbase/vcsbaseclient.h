@@ -64,7 +64,7 @@ public:
 
     VcsBaseClientSettings &settings() const;
 
-    virtual Utils::FileName vcsBinary() const;
+    virtual Utils::FilePath vcsBinary() const;
     int vcsTimeoutS() const;
 
     enum JobOutputBindMode {
@@ -105,7 +105,7 @@ public:
     vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
                             unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
     Utils::SynchronousProcessResponse
-    vcsFullySynchronousExec(const QString &workingDir, const Utils::FileName &binary, const QStringList &args,
+    vcsFullySynchronousExec(const QString &workingDir, const Utils::FilePath &binary, const QStringList &args,
                             unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
 

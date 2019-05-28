@@ -58,7 +58,7 @@ AndroidCreateKeystoreCertificate::~AndroidCreateKeystoreCertificate()
     delete ui;
 }
 
-Utils::FileName AndroidCreateKeystoreCertificate::keystoreFilePath()
+Utils::FilePath AndroidCreateKeystoreCertificate::keystoreFilePath()
 {
     return m_keystoreFilePath;
 }
@@ -152,7 +152,7 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
     if (!validateUserInput())
         return;
 
-    m_keystoreFilePath = Utils::FileName::fromString(QFileDialog::getSaveFileName(this, tr("Keystore Filename"),
+    m_keystoreFilePath = Utils::FilePath::fromString(QFileDialog::getSaveFileName(this, tr("Keystore Filename"),
                                                                                   QDir::homePath() + QLatin1String("/android_release.keystore"),
                                                                                   tr("Keystore files (*.keystore *.jks)")));
     if (m_keystoreFilePath.isEmpty())

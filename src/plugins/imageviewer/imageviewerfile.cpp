@@ -141,7 +141,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString, cons
         emit imageSizeChanged(m_pixmap->size());
     }
 
-    setFilePath(Utils::FileName::fromString(fileName));
+    setFilePath(Utils::FilePath::fromString(fileName));
     setMimeType(Utils::mimeTypeForFile(fileName).name());
     return OpenResult::Success;
 }

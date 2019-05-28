@@ -154,7 +154,7 @@ void ClangModelManagerSupport::onCurrentEditorChanged(Core::IEditor *editor)
     if (!editor || !editor->document() || !cppModelManager()->isCppEditor(editor))
         return;
 
-    const ::Utils::FileName filePath = editor->document()->filePath();
+    const ::Utils::FilePath filePath = editor->document()->filePath();
     if (auto processor = ClangEditorDocumentProcessor::get(filePath.toString()))
         processor->generateTaskHubIssues();
 }

@@ -150,12 +150,12 @@ Core::Id CustomParser::id()
     return Core::Id("ProjectExplorer.OutputParser.Custom");
 }
 
-FileName CustomParser::absoluteFilePath(const QString &filePath) const
+FilePath CustomParser::absoluteFilePath(const QString &filePath) const
 {
     if (m_workingDirectory.isEmpty())
-        return FileName::fromUserInput(filePath);
+        return FilePath::fromUserInput(filePath);
 
-    return FileName::fromString(FileUtils::resolvePath(m_workingDirectory, filePath));
+    return FilePath::fromString(FileUtils::resolvePath(m_workingDirectory, filePath));
 }
 
 bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomParserChannel channel,
@@ -171,7 +171,7 @@ bool CustomParser::hasMatch(const QString &line, CustomParserExpression::CustomP
     if (!match.hasMatch())
         return false;
 
-    const FileName fileName = absoluteFilePath(match.captured(expression.fileNameCap()));
+    const FilePath fileName = absoluteFilePath(match.captured(expression.fileNameCap()));
     const int lineNumber = match.captured(expression.lineNumberCap()).toInt();
     const QString message = match.captured(expression.messageCap());
 
@@ -220,7 +220,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     const Core::Id categoryCompile = Constants::TASK_CATEGORY_COMPILE;
     const QString simplePattern = "^([a-z]+\\.[a-z]+):(\\d+): error: ([^\\s].+)$";
-    const FileName fileName = FileName::fromUserInput("main.c");
+    const FilePath fileName = FilePath::fromUserInput("main.c");
 
     QTest::newRow("empty patterns")
             << QString::fromLatin1("Sometext")
@@ -272,7 +272,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
 
     const QString pathPattern = "^([a-z\\./]+):(\\d+): error: ([^\\s].+)$";
     QString workingDir = "/home/src/project";
-    FileName expandedFileName = FileName::fromString("/home/src/project/main.c");
+    FilePath expandedFileName = FilePath::fromString("/home/src/project/main.c");
 
     QTest::newRow("simple error with expanded path")
             << "main.c:9: error: `sfasdf' undeclared (first use this function)"
@@ -285,7 +285,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << Tasks{Task(Task::Error, message, expandedFileName, 9, categoryCompile)}
             << QString();
 
-    expandedFileName = FileName::fromString("/home/src/project/subdir/main.c");
+    expandedFileName = FilePath::fromString("/home/src/project/subdir/main.c");
     QTest::newRow("simple error with subdir path")
             << "subdir/main.c:9: error: `sfasdf' undeclared (first use this function)"
             << workingDir
@@ -432,7 +432,7 @@ void ProjectExplorerPlugin::testCustomOutputParsers_data()
             << QString();
 
     const QString unitTestError = "../LedDriver/LedDriverTest.c:63: FAIL: Expected 0x0080 Was 0xffff";
-    const FileName unitTestFileName = FileName::fromUserInput("../LedDriver/LedDriverTest.c");
+    const FilePath unitTestFileName = FilePath::fromUserInput("../LedDriver/LedDriverTest.c");
     const QString unitTestMessage = "Expected 0x0080 Was 0xffff";
     const QString unitTestPattern = "^([^:]+):(\\d+): FAIL: ([^\\s].+)$";
     const int unitTestLineNumber = 63;

@@ -35,11 +35,11 @@ class QbsProjectImporter final : public QtSupport::QtProjectImporter
     Q_OBJECT
 
 public:
-    QbsProjectImporter(const Utils::FileName &path);
+    QbsProjectImporter(const Utils::FilePath &path);
 
 private:
     QStringList importCandidates() override;
-    QList<void *> examineDirectory(const Utils::FileName &importPath) const override;
+    QList<void *> examineDirectory(const Utils::FilePath &importPath) const override;
     bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const override;
     ProjectExplorer::Kit *createKit(void *directoryData) const override;
     const QList<ProjectExplorer::BuildInfo> buildInfoListForKit(const ProjectExplorer::Kit *k,

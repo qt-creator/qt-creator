@@ -176,7 +176,7 @@ ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
 }
 
 HeaderPaths CustomToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                               const FileName &fileName) const
+                                               const FilePath &fileName) const
 {
     return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
 }
@@ -184,9 +184,9 @@ HeaderPaths CustomToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
 void CustomToolChain::addToEnvironment(Environment &env) const
 {
     if (!m_compilerCommand.isEmpty()) {
-        FileName path = m_compilerCommand.parentDir();
+        FilePath path = m_compilerCommand.parentDir();
         env.prependOrSetPath(path.toString());
-        FileName makePath = m_makeCommand.parentDir();
+        FilePath makePath = m_makeCommand.parentDir();
         if (makePath != path)
             env.prependOrSetPath(makePath.toString());
     }
@@ -229,7 +229,7 @@ void CustomToolChain::setHeaderPaths(const QStringList &list)
     toolChainUpdated();
 }
 
-void CustomToolChain::setCompilerCommand(const FileName &path)
+void CustomToolChain::setCompilerCommand(const FilePath &path)
 {
     if (path == m_compilerCommand)
         return;
@@ -237,12 +237,12 @@ void CustomToolChain::setCompilerCommand(const FileName &path)
     toolChainUpdated();
 }
 
-FileName CustomToolChain::compilerCommand() const
+FilePath CustomToolChain::compilerCommand() const
 {
     return m_compilerCommand;
 }
 
-void CustomToolChain::setMakeCommand(const FileName &path)
+void CustomToolChain::setMakeCommand(const FilePath &path)
 {
     if (path == m_makeCommand)
         return;
@@ -250,7 +250,7 @@ void CustomToolChain::setMakeCommand(const FileName &path)
     toolChainUpdated();
 }
 
-FileName CustomToolChain::makeCommand(const Environment &) const
+FilePath CustomToolChain::makeCommand(const Environment &) const
 {
     return m_makeCommand;
 }
@@ -315,8 +315,8 @@ bool CustomToolChain::fromMap(const QVariantMap &data)
     if (!ToolChain::fromMap(data))
         return false;
 
-    m_compilerCommand = FileName::fromString(data.value(QLatin1String(compilerCommandKeyC)).toString());
-    m_makeCommand = FileName::fromString(data.value(QLatin1String(makeCommandKeyC)).toString());
+    m_compilerCommand = FilePath::fromString(data.value(QLatin1String(compilerCommandKeyC)).toString());
+    m_makeCommand = FilePath::fromString(data.value(QLatin1String(makeCommandKeyC)).toString());
     m_targetAbi = Abi::fromString(data.value(QLatin1String(targetAbiKeyC)).toString());
     const QStringList macros = data.value(QLatin1String(predefinedMacrosKeyC)).toStringList();
     m_predefinedMacros = Macro::toMacros(macros.join('\n').toUtf8());

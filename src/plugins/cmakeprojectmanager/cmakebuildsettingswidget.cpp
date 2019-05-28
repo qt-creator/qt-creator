@@ -111,7 +111,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(buildDirChooser, &Utils::PathChooser::rawPathChanged, this,
             [this](const QString &path) {
                 m_configModel->flush(); // clear out config cache...
-                m_buildConfiguration->setBuildDirectory(Utils::FileName::fromString(path));
+                m_buildConfiguration->setBuildDirectory(Utils::FilePath::fromString(path));
             });
 
     int row = 0;
