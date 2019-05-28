@@ -113,7 +113,7 @@ public:
 
     void start() override
     {
-        m_proc.setCommand(m_runnable.executable, m_runnable.commandLineArguments);
+        m_proc.setCommand(m_runnable.commandLine());
         m_proc.start();
     }
 

@@ -63,7 +63,7 @@ GdbServerProviderProcess::GdbServerProviderProcess(
 void GdbServerProviderProcess::start(const ProjectExplorer::Runnable &runnable)
 {
     QTC_ASSERT(m_process->state() == QProcess::NotRunning, return);
-    m_process->setCommand(runnable.executable, runnable.commandLineArguments);
+    m_process->setCommand(runnable.commandLine());
     m_process->start();
 }
 

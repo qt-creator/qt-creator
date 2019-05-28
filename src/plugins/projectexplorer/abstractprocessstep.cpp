@@ -48,6 +48,8 @@
 #include <algorithm>
 #include <memory>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 /*!
@@ -211,8 +213,8 @@ void AbstractProcessStep::doRun()
         }
     }
 
-    QString effectiveCommand = d->m_param.effectiveCommand().toString();
-    if (!QFileInfo::exists(effectiveCommand)) {
+    const CommandLine effectiveCommand{d->m_param.effectiveCommand(), d->m_param.effectiveArguments()};
+    if (!effectiveCommand.executable().exists()) {
         processStartupFailed();
         finish(false);
         return;
@@ -222,7 +224,7 @@ void AbstractProcessStep::doRun()
     d->m_process->setUseCtrlCStub(Utils::HostOsInfo::isWindowsHost());
     d->m_process->setWorkingDirectory(wd.absolutePath());
     d->m_process->setEnvironment(d->m_param.environment());
-    d->m_process->setCommand(effectiveCommand, d->m_param.effectiveArguments());
+    d->m_process->setCommand(effectiveCommand);
 
     connect(d->m_process.get(), &QProcess::readyReadStandardOutput,
             this, &AbstractProcessStep::processReadyReadStdOutput);

@@ -32,6 +32,8 @@
 
 #include <coreplugin/messagemanager.h>
 
+using namespace Utils;
+
 namespace Cppcheck {
 namespace Internal {
 
@@ -153,7 +155,7 @@ void CppcheckRunner::checkQueued()
     else
         m_queue.begin().value() = files;
 
-    m_process->setCommand(m_binary, arguments);
+    m_process->setCommand(CommandLine(FilePath::fromString(m_binary), arguments));
     m_process->start();
 }
 

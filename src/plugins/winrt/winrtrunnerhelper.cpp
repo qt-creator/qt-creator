@@ -224,7 +224,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
     }
 
     process->setUseCtrlCStub(true);
-    process->setCommand(m_runnerFilePath, runnerArgs);
+    process->setCommand(CommandLine(FilePath::fromString(m_runnerFilePath), runnerArgs));
     process->setEnvironment(m_environment);
     process->setWorkingDirectory(QFileInfo(m_executableFilePath).absolutePath());
     process->start();

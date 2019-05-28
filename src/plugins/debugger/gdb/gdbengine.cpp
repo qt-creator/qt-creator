@@ -3556,7 +3556,8 @@ void GdbEngine::setupEngine()
         gdbArgs << "-n";
 
     showMessage("STARTING " + rp.debugger.executable + " " + gdbArgs.join(' '));
-    m_gdbProc.setCommand(rp.debugger.executable, QtcProcess::joinArgs(gdbArgs));
+    m_gdbProc.setCommand(CommandLine(FilePath::fromString(rp.debugger.executable),
+                                     QtcProcess::joinArgs(gdbArgs)));
     if (QFileInfo(rp.debugger.workingDirectory).isDir())
         m_gdbProc.setWorkingDirectory(rp.debugger.workingDirectory);
     m_gdbProc.setEnvironment(rp.debugger.environment);

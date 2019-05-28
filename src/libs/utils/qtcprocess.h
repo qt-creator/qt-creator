@@ -32,16 +32,32 @@
 namespace Utils {
 class AbstractMacroExpander;
 
+class QTCREATOR_UTILS_EXPORT CommandLine
+{
+public:
+    CommandLine() {}
+
+    CommandLine(const FilePath &executable, const QString &arguments)
+        : m_executable(executable), m_arguments(arguments)
+    {}
+
+    FilePath executable() const { return m_executable; }
+    QString arguments() const { return m_arguments; }
+
+private:
+    FilePath m_executable;
+    QString m_arguments;
+};
+
 class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
 {
     Q_OBJECT
 
 public:
     QtcProcess(QObject *parent = nullptr);
-    void setEnvironment(const Environment &env)
-        { m_environment = env; m_haveEnv = true; }
-    void setCommand(const QString &command, const QString &arguments)
-        { m_command = command; m_arguments = arguments; }
+
+    void setEnvironment(const Environment &env) { m_environment = env; m_haveEnv = true; }
+    void setCommand(const CommandLine &cmdLine) { m_commandLine  = cmdLine; }
     void setUseCtrlCStub(bool enabled);
     void start();
     void terminate();
@@ -141,8 +157,7 @@ public:
     };
 
 private:
-    QString m_command;
-    QString m_arguments;
+    CommandLine m_commandLine;
     Environment m_environment;
     bool m_haveEnv = false;
     bool m_useCtrlCStub = false;

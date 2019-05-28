@@ -366,7 +366,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
     }
 
     m_process = new Utils::QtcProcess;
-    m_process->setCommand(m_command, args);
+    m_process->setCommand(Utils::CommandLine(Utils::FilePath::fromString(m_command), args));
     m_process->setWorkingDirectory(m_workingDirectory);
     m_process->setEnvironment(m_environment);
 

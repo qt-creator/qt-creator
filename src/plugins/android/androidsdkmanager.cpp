@@ -930,7 +930,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     QtcProcess licenseCommand;
     licenseCommand.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     bool reviewingLicenses = false;
-    licenseCommand.setCommand(m_config.sdkManagerToolPath().toString(), {"--licenses"});
+    licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), "--licenses"));
     if (Utils::HostOsInfo::isWindowsHost())
         licenseCommand.setUseCtrlCStub(true);
     licenseCommand.start();

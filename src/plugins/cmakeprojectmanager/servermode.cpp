@@ -129,7 +129,7 @@ ServerMode::ServerMode(const Environment &env,
     qCInfo(cmakeServerMode)
             << "Preparing cmake:" << cmakeExecutable.toString() << argumentString
             << "in" << m_buildDirectory.toString();
-    m_cmakeProcess->setCommand(cmakeExecutable.toString(), argumentString);
+    m_cmakeProcess->setCommand(CommandLine(cmakeExecutable, argumentString));
 
     // Delay start:
     QTimer::singleShot(0, this, [argumentString, this] {

@@ -35,6 +35,7 @@
 #include <utils/port.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/icon.h>
 
 #include <QHash>
@@ -71,6 +72,8 @@ class PROJECTEXPLORER_EXPORT Runnable
 {
 public:
     Runnable() = default;
+
+    Utils::CommandLine commandLine() const;
 
     QString executable;
     QString commandLineArguments;

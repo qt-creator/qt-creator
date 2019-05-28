@@ -1549,4 +1549,9 @@ void RunWorker::stop()
     reportStopped();
 }
 
+CommandLine Runnable::commandLine() const
+{
+    return CommandLine(FilePath::fromString(executable), commandLineArguments);
+}
+
 } // namespace ProjectExplorer
