@@ -29,7 +29,6 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakebuildconfiguration.h"
 
-#include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -631,13 +630,6 @@ bool QmakePriFile::renameFile(const QString &filePath, const QString &newFilePat
     if (renameFile(filePath, newFilePath, mt.name()))
         return true;
     return changeProFileOptional;
-}
-
-bool QmakePriFile::priFileWritable(const QString &path)
-{
-    ReadOnlyFilesDialog roDialog(path, ICore::mainWindow());
-    roDialog.setShowFailWarning(true);
-    return roDialog.exec() != ReadOnlyFilesDialog::RO_Cancel;
 }
 
 bool QmakePriFile::saveModifiedEditors()
