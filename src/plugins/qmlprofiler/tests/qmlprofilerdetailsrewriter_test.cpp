@@ -53,7 +53,7 @@ public:
         auto root = std::make_unique<ProjectExplorer::ProjectNode>(file);
         root->addNode(std::move(fileNode));
         fileNode = std::make_unique<ProjectExplorer::FileNode>(
-                    Utils::FilePath::fromLatin1(
+                    Utils::FilePath::fromString(
                         ":/qmlprofiler/tests/qmlprofilerdetailsrewriter_test.cpp"),
                     ProjectExplorer::FileType::Source);
         root->addNode(std::move(fileNode));
@@ -220,7 +220,7 @@ void QmlProfilerDetailsRewriterTest::seedRewriter()
 
     auto kit = std::make_unique<ProjectExplorer::Kit>();
     ProjectExplorer::SysRootKitAspect::setSysRoot(
-                kit.get(), Utils::FilePath::fromLatin1("/nowhere"));
+                kit.get(), Utils::FilePath::fromString("/nowhere"));
 
     DummyProject *project = new DummyProject(Utils::FilePath::fromString(filename));
     ProjectExplorer::SessionManager::addProject(project);

@@ -761,13 +761,6 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
 }
 
 /// Constructs a FileName from \a fileName
-/// \a fileName is not checked for validity.
-FilePath FilePath::fromLatin1(const QByteArray &filename)
-{
-    return FilePath::fromString(QString::fromLatin1(filename));
-}
-
-/// Constructs a FileName from \a fileName
 /// \a fileName is only passed through QDir::cleanPath
 FilePath FilePath::fromUserInput(const QString &filename)
 {

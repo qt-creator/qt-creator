@@ -69,7 +69,6 @@ public:
     static FilePath fromString(const QString &filepath);
     static FilePath fromFileInfo(const QFileInfo &info);
     static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
-    static FilePath fromLatin1(const QByteArray &filepath);
     static FilePath fromUserInput(const QString &filepath);
     static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
     static FilePath fromVariant(const QVariant &variant);
