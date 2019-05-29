@@ -205,8 +205,6 @@ bool CMakeBuildStep::init()
         }
     }
 
-    QString arguments = allArguments(rc);
-
     setIgnoreReturnValue(m_buildTarget == CMakeBuildStep::cleanTarget());
 
     ProcessParameters *pp = processParameters();
@@ -217,8 +215,7 @@ bool CMakeBuildStep::init()
         env.set("NINJA_STATUS", m_ninjaProgressString + "%o/sec] ");
     pp->setEnvironment(env);
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(cmakeCommand());
-    pp->setArguments(arguments);
+    pp->setCommandLine(cmakeCommand(rc));
     pp->resolveAll();
 
     setOutputParser(new CMakeParser);
@@ -342,12 +339,12 @@ void CMakeBuildStep::setToolArguments(const QString &list)
     m_toolArguments = list;
 }
 
-QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
+Utils::CommandLine CMakeBuildStep::cmakeCommand(CMakeRunConfiguration *rc) const
 {
-    QString arguments;
+    CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
 
-    Utils::QtcProcess::addArg(&arguments, "--build");
-    Utils::QtcProcess::addArg(&arguments, ".");
+    Utils::CommandLine cmd(tool ? tool->cmakeExecutable() : Utils::FilePath(), {});
+    cmd.addArgs({"--build", "."});
 
     QString target;
 
@@ -360,21 +357,14 @@ QString CMakeBuildStep::allArguments(const CMakeRunConfiguration *rc) const
         target = m_buildTarget;
     }
 
-    Utils::QtcProcess::addArg(&arguments, "--target");
-    Utils::QtcProcess::addArg(&arguments, target);
+    cmd.addArgs({"--target", target});
 
     if (!m_toolArguments.isEmpty()) {
-        Utils::QtcProcess::addArg(&arguments, "--");
-        arguments += ' ' + m_toolArguments;
+        cmd.addArg("--");
+        cmd.addArgs(m_toolArguments);
     }
 
-    return arguments;
-}
-
-Utils::FilePath CMakeBuildStep::cmakeCommand() const
-{
-    CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
-    return tool ? tool->cmakeExecutable() : Utils::FilePath();
+    return cmd;
 }
 
 QString CMakeBuildStep::cleanTarget()
@@ -530,8 +520,7 @@ void CMakeBuildStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory());
-    param.setCommand(m_buildStep->cmakeCommand());
-    param.setArguments(m_buildStep->allArguments(nullptr));
+    param.setCommandLine(m_buildStep->cmakeCommand(nullptr));
 
     setSummaryText(param.summary(displayName()));
 }

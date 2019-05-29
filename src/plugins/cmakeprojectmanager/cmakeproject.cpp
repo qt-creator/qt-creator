@@ -54,6 +54,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/hostosinfo.h>
 
@@ -635,7 +636,8 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     if (const BuildConfiguration * const bc = target->activeBuildConfiguration()) {
         if (const auto cmakeStep = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)
                 ->firstOfType<CMakeBuildStep>()) {
-            cmd.command = cmakeStep->cmakeCommand();
+            if (CMakeTool *tool = CMakeKitAspect::cmakeTool(target->kit()))
+                cmd.command = tool->cmakeExecutable();
         }
     }
     cmd.arguments << "--build" << "." << "--target" << "install";
