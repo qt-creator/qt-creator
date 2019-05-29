@@ -1683,6 +1683,8 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     } else {
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(kit);
+        //: %1: PID
+        runControl->setDisplayName(tr("Process %1").arg(process.pid));
         auto debugger = new RemoteAttachRunner(runControl,  process.pid);
         debugger->startRunControl();
     }
@@ -1737,9 +1739,10 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setKit(kit);
+    //: %1: PID
+    runControl->setDisplayName(tr("Process %1").arg(process.pid));
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setAttachPid(ProcessHandle(process.pid));
-    debugger->setRunControlName(tr("Process %1").arg(process.pid));
     debugger->setInferiorExecutable(process.exe);
     debugger->setInferiorDevice(device);
     debugger->setStartMode(AttachExternal);
