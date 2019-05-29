@@ -6,8 +6,7 @@ add_qtc_plugin(SilverSearcher
     silversearcherplugin.cpp silversearcherplugin.h
 )
 
-if (WITH_TESTS)
-  target_sources(SilverSearcher PRIVATE
+extend_qtc_plugin(SilverSearcher CONDITION WITH_TESTS
+  SOURCES
     outputparser_test.cpp outputparser_test.h
-  )
-endif()
+)
