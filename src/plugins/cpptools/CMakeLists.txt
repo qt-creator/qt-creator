@@ -1,6 +1,6 @@
 add_qtc_plugin(CppTools
   DEPENDS Qt5::Network Qt5::Xml
-  PUBLIC_DEPENDS CPlusPlus
+  PUBLIC_DEPENDS CPlusPlus Qt5::Widgets
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   SOURCES
     abstracteditorsupport.cpp abstracteditorsupport.h

@@ -4,9 +4,9 @@ if (NOT Clang_FOUND)
   message(WARNING "Could not find Clang installation - disabling clangbackend.")
 else ()
   add_subdirectory(clangbackend)
+  add_subdirectory(clangrefactoringbackend)
+  add_subdirectory(clangpchmanagerbackend)
 endif ()
-
-# add_subdirectory(clangrefactoringbackend) ## not building this at this time!
 
 option(BUILD_CPLUSPLUS_TOOLS "Build CPlusPlus tools" OFF)
 

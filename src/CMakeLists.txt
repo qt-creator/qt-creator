@@ -85,7 +85,14 @@ function(add_qtc_depends target_name)
     public_depends object_public_depends object_public_depends_objects)
 
   target_sources(${target_name} PRIVATE ${object_lib_depends_objects} ${object_public_depends_objects})
-  target_link_libraries(${target_name} PRIVATE ${depends} PUBLIC ${public_depends})
+
+  get_target_property(target_type ${target_name} TYPE)
+  if (NOT target_type STREQUAL "OBJECT_LIBRARY")
+    target_link_libraries(${target_name} PRIVATE ${depends} PUBLIC ${public_depends})
+  else()
+    list(APPEND object_lib_depends ${depends})
+    list(APPEND object_public_depends ${public_depends})
+  endif()
 
   foreach(obj_lib IN LISTS object_lib_depends)
     target_compile_definitions(${target_name} PRIVATE $<TARGET_PROPERTY:${obj_lib},INTERFACE_COMPILE_DEFINITIONS>)
@@ -152,6 +159,7 @@ function(add_qtc_library name)
   endforeach()
 
   set_target_properties(${name} PROPERTIES
+    SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     VERSION "${PROJECT_VERSION}"
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
@@ -315,7 +323,6 @@ function(add_qtc_plugin target_name)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
-  target_link_libraries(${target_name} PRIVATE ${_DEP_PLUGINS} ${_TEST_DEPENDS})
   target_include_directories(${target_name}
     PRIVATE ${_arg_INCLUDES} "${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}"
       "${CMAKE_BINARY_DIR}/src"
@@ -326,7 +333,7 @@ function(add_qtc_plugin target_name)
   )
 
   add_qtc_depends(${target_name}
-    PRIVATE ${_arg_DEPENDS}
+    PRIVATE ${_arg_DEPENDS} ${_DEP_PLUGINS} ${_TEST_DEPENDS}
     PUBLIC ${_arg_PUBLIC_DEPENDS}
   )
 
@@ -336,6 +343,7 @@ function(add_qtc_plugin target_name)
   endif()
 
   set_target_properties(${target_name} PROPERTIES
+    SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
     _arg_DEPENDS "${_arg_PLUGIN_DEPENDS}"
@@ -387,8 +395,11 @@ function(extend_qtc_target target_name)
   target_include_directories(${target_name} PRIVATE ${_arg_INCLUDES} PUBLIC ${_arg_PUBLIC_INCLUDES})
 
   if (_arg_SOURCES_PREFIX)
-    list(TRANSFORM _arg_SOURCES PREPEND "${_arg_SOURCES_PREFIX}/")
+    foreach(source IN LISTS _arg_SOURCES)
+      list(APPEND prefixed_sources "${_arg_SOURCES_PREFIX}/${source}")
+    endforeach()
     target_include_directories(${target_name} PUBLIC "${_arg_SOURCES_PREFIX}")
+    set(_arg_SOURCES ${prefixed_sources})
   endif()
   target_sources(${target_name} PRIVATE ${_arg_SOURCES})
 
@@ -470,8 +481,21 @@ function(extend_qtc_executable name)
   endif()
 endfunction()
 
+function(fix_test_environment test_name)
+  if (WIN32)
+    list(APPEND env_path $ENV{PATH})
+    list(APPEND env_path ${CMAKE_BINARY_DIR}/${IDE_PLUGIN_PATH})
+    list(APPEND env_path ${CMAKE_BINARY_DIR}/${IDE_BIN_PATH})
+
+    string(REPLACE "/" "\\" env_path "${env_path}")
+    string(REPLACE ";" "\\;" env_path "${env_path}")
+
+    set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "PATH=${env_path}")
+  endif()
+endfunction()
+
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "" "" "DEFINES;DEPENDS;INCLUDES;SOURCES" ${ARGN})
+  cmake_parse_arguments(_arg "GTEST" "" "DEFINES;DEPENDS;INCLUDES;SOURCES" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
@@ -496,18 +520,20 @@ function(add_qtc_test name)
     INSTALL_RPATH "${_RPATH_BASE}/${_RPATH}"
   )
 
-  add_test(NAME ${name} COMMAND ${name})
-
-  if (WIN32)
-    list(APPEND env_path $ENV{PATH})
-    list(APPEND env_path ${CMAKE_BINARY_DIR}/${IDE_PLUGIN_PATH})
-    list(APPEND env_path ${CMAKE_BINARY_DIR}/${IDE_BIN_PATH})
-
-    string(REPLACE "/" "\\" env_path "${env_path}")
-    string(REPLACE ";" "\\;" env_path "${env_path}")
-
-    set_tests_properties(${name} PROPERTIES ENVIRONMENT "PATH=${env_path}")
+  if (NOT _arg_GTEST)
+    add_test(NAME ${name} COMMAND ${name})
+    fix_test_environment(${name})
   endif()
+endfunction()
+
+function(finalize_qtc_gtest test_name)
+  get_target_property(test_sources ${test_name} SOURCES)
+  include(GoogleTest)
+  gtest_add_tests(TARGET ${test_name} SOURCES ${test_sources} TEST_LIST test_list)
+
+  foreach(test IN LISTS test_list)
+    fix_test_environment(${test})
+  endforeach()
 endfunction()
 
 add_library(app_version INTERFACE)

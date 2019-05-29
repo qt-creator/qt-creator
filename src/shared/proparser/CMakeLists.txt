@@ -23,8 +23,7 @@ add_qtc_library(ProParser SHARED
     WINDOWS_EXPORT_ALL_SYMBOLS ON
 )
 
-if (WIN32)
-  target_compile_definitions(ProParser PRIVATE _UNICODE UNICODE)
-endif()
-
-target_include_directories(ProParser PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
+extend_qtc_target(ProParser
+  CONDITION WIN32
+  DEFINES _UNICODE UNICODE
+)

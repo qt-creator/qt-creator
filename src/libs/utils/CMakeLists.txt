@@ -193,13 +193,12 @@ extend_qtc_target(Utils CONDITION UNIX AND NOT APPLE
     touchbar/touchbar.cpp
 )
 
-add_executable(qtcreator_process_stub)
 if (WIN32)
-  target_sources(qtcreator_process_stub PRIVATE process_stub_win.c)
-  target_link_libraries(qtcreator_process_stub shell32)
-  target_compile_definitions(qtcreator_process_stub PRIVATE
-      _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS)
+  add_qtc_executable(qtcreator_process_stub
+    SOURCES process_stub_win.c
+    DEPENDS shell32
+    DEFINES _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS
+  )
 else()
-  target_sources(qtcreator_process_stub PRIVATE process_stub_unix.c)
+  add_qtc_executable(qtcreator_process_stub SOURCES process_stub_unix.c)
 endif()
-install(TARGETS qtcreator_process_stub DESTINATION ${IDE_LIBEXEC_PATH})
