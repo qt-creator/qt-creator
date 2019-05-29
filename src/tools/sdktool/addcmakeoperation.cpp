@@ -157,7 +157,7 @@ bool AddCMakeOperation::test() const
     if (!unchanged.isEmpty())
         return false;
 
-    // Make sure name stays unique:
+    // add 2nd cmake
     map = addCMake(map, "{some-cm-id}", "name", "/tmp/test",
                    KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue")));
     if (map.value(COUNT).toInt() != 2
@@ -175,7 +175,7 @@ bool AddCMakeOperation::test() const
     cmData = map.value(QString::fromLatin1(PREFIX) + '1').toMap();
         if (cmData.count() != 5
                 || cmData.value(ID_KEY).toString() != "{some-cm-id}"
-                || cmData.value(DISPLAYNAME_KEY).toString() != "name2"
+                || cmData.value(DISPLAYNAME_KEY).toString() != "name"
                 || cmData.value(AUTODETECTED_KEY).toBool() != true
                 || cmData.value(PATH_KEY).toString() != "/tmp/test"
                 || cmData.value("ExtraKey").toString() != "ExtraValue")

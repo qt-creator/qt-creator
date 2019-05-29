@@ -43,7 +43,9 @@ void SdktoolTest::testSdktool()
     process.start(rootDir.absoluteFilePath(QLatin1String("sdktool")),
                   QStringList() << QLatin1String("-test"));
     process.waitForFinished();
-    qDebug() << process.readAllStandardError();
+    QByteArray output = process.readAllStandardError();
+    for (auto line : output.split('\n'))
+        qDebug() << line;
     QCOMPARE(process.exitCode(), 0);
 }
 

@@ -199,7 +199,7 @@ bool AddToolChainOperation::test() const
     if (!unchanged.isEmpty())
         return false;
 
-    // Make sure name stays unique:
+    // add 2nd tool chain:
     map = addToolChain(map, "{some-tc-id}", "langId2", "name", "/tmp/test", "test-abi", "test-abi,test-abi2",
                        KeyValuePairList() << KeyValuePair("ExtraKey", QVariant("ExtraValue")));
     if (map.value(COUNT).toInt() != 2
@@ -221,7 +221,7 @@ bool AddToolChainOperation::test() const
         if (tcData.count() != 8
                 || tcData.value(ID).toString() != "{some-tc-id}"
                 || tcData.value(LANGUAGE_KEY_V2).toString() != "langId2"
-                || tcData.value(DISPLAYNAME).toString() != "name2"
+                || tcData.value(DISPLAYNAME).toString() != "name"
                 || tcData.value(AUTODETECTED).toBool() != true
                 || tcData.value(PATH).toString() != "/tmp/test"
                 || tcData.value(TARGET_ABI).toString() != "test-abi"

@@ -231,7 +231,7 @@ bool AddQtOperation::test() const
     if (!result.isEmpty())
         return false;
 
-    // Make sure name is unique:
+    // add 2nd Qt version:
     map = addQt(map, QLatin1String("testId2"), QLatin1String("Test Qt Version"), QLatin1String("testType3"),
                 QLatin1String("/tmp/test/qmake2"),
                 KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))),
@@ -251,7 +251,7 @@ bool AddQtOperation::test() const
             || !version1.contains(QLatin1String(ID))
             || version1.value(QLatin1String(ID)).toInt() != -1
             || !version1.contains(QLatin1String(DISPLAYNAME))
-            || version1.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Qt Version2")
+            || version1.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Qt Version")
             || !version1.contains(QLatin1String(AUTODETECTED))
             || version1.value(QLatin1String(AUTODETECTED)).toBool() != true
             || !version1.contains(QLatin1String(AUTODETECTION_SOURCE))
