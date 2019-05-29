@@ -32,29 +32,6 @@
 namespace Utils {
 class AbstractMacroExpander;
 
-class QTCREATOR_UTILS_EXPORT CommandLine
-{
-public:
-    CommandLine() {}
-
-    CommandLine(const FilePath &executable, const QString &arguments)
-        : m_executable(executable), m_arguments(arguments)
-    {}
-
-    void addArg(const QString &arg);
-    void addArgs(const QStringList &inArgs);
-    void addArgs(const QString &inArgs);
-
-    QString toUserOutput() const;
-
-    FilePath executable() const { return m_executable; }
-    QString arguments() const { return m_arguments; }
-
-private:
-    FilePath m_executable;
-    QString m_arguments;
-};
-
 class QTCREATOR_UTILS_EXPORT QtcProcess : public QProcess
 {
     Q_OBJECT
