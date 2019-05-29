@@ -921,9 +921,9 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
                         << compilerName + "-[1-9]*" // "clang-8", "gcc-5"
                         << ("*-*-*-" + compilerName) // "arm-none-eabi-gcc"
                         << ("*-*-*-" + compilerName + "-[1-9]*") // "arm-none-eabi-gcc-9.1.0"
-                        << nameFilters << ("*-*-*-*-" + compilerName) // "x86_64-pc-linux-gnu-gcc"
-                        << nameFilters << ("*-*-*-*-" + compilerName
-                                           + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
+                        << ("*-*-*-*-" + compilerName) // "x86_64-pc-linux-gnu-gcc"
+                        << ("*-*-*-*-" + compilerName
+                            + "-[1-9]*"); // "x86_64-pc-linux-gnu-gcc-7.4.1"
             }
             nameFilters = transform(nameFilters, [](const QString &baseName) {
                 return HostOsInfo::withExecutableSuffix(baseName);
