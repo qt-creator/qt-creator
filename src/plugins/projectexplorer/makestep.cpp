@@ -79,11 +79,11 @@ bool MakeStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    const FilePath make = effectiveMakeCommand();
-    if (make.isEmpty())
+    const CommandLine make = effectiveMakeCommand();
+    if (make.executable().isEmpty())
         emit addTask(makeCommandMissingTask());
 
-    if (!bc || make.isEmpty()) {
+    if (!bc || make.executable().isEmpty()) {
         emitFaultyConfigurationMessage();
         return false;
     }
@@ -92,8 +92,7 @@ bool MakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setEnvironment(environment(bc));
-    pp->setCommand(make);
-    pp->setArguments(allArguments());
+    pp->setCommandLine(make);
     pp->resolveAll();
 
     // If we are cleaning, then make can fail with an error code, but that doesn't mean
@@ -308,13 +307,6 @@ QStringList MakeStep::jobArguments() const
     return {"-j" + QString::number(m_userJobCount)};
 }
 
-QString MakeStep::allArguments() const
-{
-    QString args = m_makeArguments;
-    Utils::QtcProcess::addArgs(&args, jobArguments() + m_buildTargets);
-    return args;
-}
-
 QString MakeStep::userArguments() const
 {
     return m_makeArguments;
@@ -330,11 +322,15 @@ FilePath MakeStep::makeCommand() const
     return m_makeCommand;
 }
 
-FilePath MakeStep::effectiveMakeCommand() const
+CommandLine MakeStep::effectiveMakeCommand() const
 {
-    if (!m_makeCommand.isEmpty())
-        return m_makeCommand;
-    return defaultMakeCommand();
+    CommandLine cmd(m_makeCommand.isEmpty() ? defaultMakeCommand() : m_makeCommand);
+
+    cmd.addArgs(m_makeArguments, CommandLine::Raw);
+    cmd.addArgs(jobArguments());
+    cmd.addArgs(m_buildTargets);
+
+    return cmd;
 }
 
 BuildStepConfigWidget *MakeStep::createConfigWidget()
@@ -466,7 +462,8 @@ void MakeStepConfigWidget::updateDetails()
     else
         m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(defaultMake)));
 
-    if (m_makeStep->effectiveMakeCommand().isEmpty()) {
+    const CommandLine make = m_makeStep->effectiveMakeCommand();
+    if (make.executable().isEmpty()) {
         setSummaryText(tr("<b>Make:</b> %1").arg(MakeStep::msgNoMakeCommand()));
         return;
     }
@@ -486,8 +483,7 @@ void MakeStepConfigWidget::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
-    param.setCommand(m_makeStep->effectiveMakeCommand());
-    param.setArguments(m_makeStep->allArguments());
+    param.setCommandLine(make);
     param.setEnvironment(m_makeStep->environment(bc));
 
     if (param.commandMissing())

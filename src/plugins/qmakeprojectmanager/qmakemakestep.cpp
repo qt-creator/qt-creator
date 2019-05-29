@@ -70,11 +70,12 @@ bool QmakeMakeStep::init()
     if (!bc)
         emit addTask(Task::buildConfigurationMissingTask());
 
-    Utils::FilePath make = effectiveMakeCommand();
-    if (make.isEmpty())
+    const Utils::CommandLine unmodifiedMake = effectiveMakeCommand();
+    const Utils::FileName makeExecutable = unmodifiedMake.executable();
+    if (makeExecutable.isEmpty())
         emit addTask(makeCommandMissingTask());
 
-    if (!bc || make.isEmpty()) {
+    if (!bc || makeExecutable.isEmpty()) {
         emitFaultyConfigurationMessage();
         return false;
     }
@@ -93,14 +94,12 @@ bool QmakeMakeStep::init()
         workingDirectory = bc->buildDirectory().toString();
     pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
 
-    pp->setCommand(make);
-
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
     // That is mostly so that rebuild works on a already clean project
     setIgnoreReturnValue(isClean());
 
-    QString args;
+    Utils::CommandLine makeCmd(makeExecutable);
 
     QmakeProjectManager::QmakeProFileNode *subProFile = bc->subNodeBuild();
     if (subProFile) {
@@ -116,22 +115,22 @@ bool QmakeMakeStep::init()
             else
                 makefile += ".Release";
         }
-        if (makefile != "Makefile") {
-            Utils::QtcProcess::addArg(&args, "-f");
-            Utils::QtcProcess::addArg(&args, makefile);
-        }
+
+        if (makefile != "Makefile")
+            makeCmd.addArgs({"-f", makefile});
+
         m_makeFileToCheck = QDir(workingDirectory).filePath(makefile);
     } else {
         if (!bc->makefile().isEmpty()) {
-            Utils::QtcProcess::addArg(&args, "-f");
-            Utils::QtcProcess::addArg(&args, bc->makefile());
+            makeCmd.addArgs({"-f", bc->makefile()});
             m_makeFileToCheck = QDir(workingDirectory).filePath(bc->makefile());
         } else {
             m_makeFileToCheck = QDir(workingDirectory).filePath("Makefile");
         }
     }
 
-    Utils::QtcProcess::addArgs(&args, allArguments());
+    makeCmd.addArgs(unmodifiedMake.arguments(), Utils::CommandLine::Raw);
+
     if (bc->fileNodeBuild() && subProFile) {
         QString objectsDir = subProFile->objectsDirectory();
         if (objectsDir.isEmpty()) {
@@ -152,10 +151,11 @@ bool QmakeMakeStep::init()
         QString objectFile = relObjectsDir +
                 bc->fileNodeBuild()->filePath().toFileInfo().baseName() +
                 subProFile->objectExtension();
-        Utils::QtcProcess::addArg(&args, objectFile);
+        makeCmd.addArg(objectFile);
     }
+
     pp->setEnvironment(environment(bc));
-    pp->setArguments(args);
+    pp->setCommandLine(makeCmd);
     pp->resolveAll();
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());

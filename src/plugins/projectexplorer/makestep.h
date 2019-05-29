@@ -55,12 +55,11 @@ public:
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QStringList availableTargets() const;
-    QString allArguments() const;
     QString userArguments() const;
     void setUserArguments(const QString &args);
     Utils::FilePath makeCommand() const;
     void setMakeCommand(const Utils::FilePath &command);
-    Utils::FilePath effectiveMakeCommand() const;
+    Utils::CommandLine effectiveMakeCommand() const;
 
     void setClean(bool clean);
     bool isClean() const;

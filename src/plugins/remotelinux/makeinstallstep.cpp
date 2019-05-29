@@ -207,9 +207,10 @@ void MakeInstallStep::updateArgsFromAspect()
 
 void MakeInstallStep::updateFullCommandLine()
 {
+    // FIXME: Only executable?
     static_cast<BaseStringAspect *>(aspect(FullCommandLineAspectId))->setValue(
                 QDir::toNativeSeparators(
-                    QtcProcess::quoteArg(effectiveMakeCommand().toString()))
+                    QtcProcess::quoteArg(effectiveMakeCommand().executable().toString()))
                 + ' '  + userArguments());
 }
 

@@ -449,7 +449,7 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
 FilePath QMakeStep::makeCommand() const
 {
     auto ms = qobject_cast<BuildStepList *>(parent())->firstOfType<MakeStep>();
-    return ms ? ms->effectiveMakeCommand() : FilePath();
+    return ms ? ms->effectiveMakeCommand().executable() : FilePath();
 }
 
 QString QMakeStep::makeArguments(const QString &makefile) const
