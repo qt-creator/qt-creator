@@ -63,8 +63,10 @@
 #include <QVBoxLayout>
 
 using namespace ProjectExplorer;
-using namespace Android;
-using namespace Android::Internal;
+using namespace Utils;
+
+namespace Android {
+namespace Internal {
 
 namespace {
 Q_LOGGING_CATEGORY(deployStepLog, "qtc.android.build.androiddeployqtstep", QtWarningMsg)
@@ -169,7 +171,7 @@ Core::Id AndroidDeployQtStep::stepId()
 
 bool AndroidDeployQtStep::init()
 {
-    m_androiddeployqtArgs.clear();
+    m_androiddeployqtArgs = CommandLine();
 
     m_targetArch = AndroidManager::targetArch(target());
     if (m_targetArch.isEmpty()) {
@@ -256,31 +258,24 @@ bool AndroidDeployQtStep::init()
 
             m_workingDirectory = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
 
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--verbose"));
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--output"));
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, m_workingDirectory);
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--no-build"));
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--input"));
+            m_androiddeployqtArgs.addArgs({"--verbose",
+                                           "--output", m_workingDirectory,
+                                           "--no-build",
+                                           "--input", jsonFile});
 
-
-
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, jsonFile);
             if (androidBuildApkStep && androidBuildApkStep->useMinistro()) {
                 qCDebug(deployStepLog) << "Using ministro";
-                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--deployment"));
-                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("ministro"));
+                m_androiddeployqtArgs.addArgs({"--deployment", "ministro"});
             }
 
-            Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--gradle"));
+            m_androiddeployqtArgs.addArg("--gradle");
 
             if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
                 // The androiddeployqt tool is not really written to do stand-alone installations.
                 // This hack forces it to use the correct filename for the apk file when installing
                 // as a temporary fix until androiddeployqt gets the support. Since the --sign is
                 // only used to get the correct file name of the apk, its parameters are ignored.
-                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("--sign"));
-                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("foo"));
-                Utils::QtcProcess::addArg(&m_androiddeployqtArgs, QLatin1String("bar"));
+                m_androiddeployqtArgs.addArgs({"--sign", "foo", "bar"});
             }
         }
     } else {
@@ -303,18 +298,17 @@ bool AndroidDeployQtStep::init()
 
 AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 {
-    QString args;
+    CommandLine cmd(Utils::FilePath::fromString(m_command), {});
     if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
-        args = m_androiddeployqtArgs;
+        cmd = m_androiddeployqtArgs;
         if (m_uninstallPreviousPackageRun)
-            Utils::QtcProcess::addArg(&args, QLatin1String("--install"));
+            cmd.addArg("--install");
         else
-            Utils::QtcProcess::addArg(&args, QLatin1String("--reinstall"));
+            cmd.addArg("--reinstall");
 
-        if (!m_serialNumber.isEmpty() && !m_serialNumber.startsWith(QLatin1String("????"))) {
-            Utils::QtcProcess::addArg(&args, QLatin1String("--device"));
-            Utils::QtcProcess::addArg(&args, m_serialNumber);
-        }
+        if (!m_serialNumber.isEmpty() && !m_serialNumber.startsWith("????"))
+            cmd.addArgs({"--device", m_serialNumber});
+
     } else {
         RunConfiguration *rc = target()->activeRunConfiguration();
         QTC_ASSERT(rc, return DeployErrorCode::Failure);
@@ -357,16 +351,12 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
                        << QLatin1String("uninstall") << packageName);
         }
 
-        foreach (const QString &arg, AndroidDeviceInfo::adbSelector(m_serialNumber))
-            Utils::QtcProcess::addArg(&args, arg);
-
-        Utils::QtcProcess::addArg(&args, QLatin1String("install"));
-        Utils::QtcProcess::addArg(&args, QLatin1String("-r"));
-        Utils::QtcProcess::addArg(&args, m_apkPath.toString());
+        cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
+        cmd.addArgs({"install", "-r", m_apkPath.toString()});
     }
 
     m_process = new Utils::QtcProcess;
-    m_process->setCommand(Utils::CommandLine(Utils::FilePath::fromString(m_command), args));
+    m_process->setCommand(cmd);
     m_process->setWorkingDirectory(m_workingDirectory);
     m_process->setEnvironment(m_environment);
 
@@ -381,8 +371,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 
     m_process->start();
 
-    emit addOutput(tr("Starting: \"%1\" %2")
-                   .arg(QDir::toNativeSeparators(m_command), args),
+    emit addOutput(tr("Starting: \"%1\"").arg(cmd.toUserOutput()),
                    BuildStep::OutputFormat::NormalMessage);
 
     while (!m_process->waitForFinished(200)) {
@@ -641,3 +630,6 @@ AndroidDeployQtStep::UninstallType AndroidDeployQtStep::uninstallPreviousPackage
         return ForceUnintall;
     return m_uninstallPreviousPackage ? Uninstall : Keep;
 }
+
+} // Internal
+} // Android

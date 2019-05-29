@@ -1536,4 +1536,9 @@ void CommandLine::addArgs(const QString &inArgs)
     QtcProcess::addArgs(&m_arguments, inArgs);
 }
 
+QString CommandLine::toUserOutput() const
+{
+    return m_executable.toUserOutput() + ' ' + m_arguments;
+}
+
 } // namespace Utils

@@ -33,8 +33,7 @@
 #include <qtsupport/baseqtversion.h>
 
 #include <utils/environment.h>
-
-namespace Utils { class QtcProcess; }
+#include <utils/qtcprocess.h>
 
 namespace Android {
 namespace Internal {
@@ -118,7 +117,7 @@ private:
     bool m_useAndroiddeployqt = false;
     bool m_askForUninstall = false;
     static const Core::Id Id;
-    QString m_androiddeployqtArgs;
+    Utils::CommandLine m_androiddeployqtArgs;
     QString m_adbPath;
     QString m_command;
     QString m_workingDirectory;

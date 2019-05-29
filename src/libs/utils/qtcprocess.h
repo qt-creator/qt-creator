@@ -45,6 +45,8 @@ public:
     void addArgs(const QStringList &inArgs);
     void addArgs(const QString &inArgs);
 
+    QString toUserOutput() const;
+
     FilePath executable() const { return m_executable; }
     QString arguments() const { return m_arguments; }
 
