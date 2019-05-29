@@ -126,7 +126,8 @@ function(add_qtc_library name)
     set(library_type OBJECT)
   endif()
 
-  add_library(${name} ${library_type} ${_arg_SOURCES})
+  # Do not just build libraries...
+  add_library(${name} ${library_type} EXCLUDE_FROM_ALL ${_arg_SOURCES})
 
   if (${name} MATCHES "^[^0-9]+")
     string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
