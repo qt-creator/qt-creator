@@ -105,7 +105,7 @@ public:
                     const QStringList &extraOptions = QStringList()) final;
     void revertAll(const QString &workingDir, const QString &revision = QString(),
                    const QStringList &extraOptions = QStringList()) final;
-    bool isVcsFileOrDirectory(const Utils::FileName &fileName) const;
+    bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const;
     QString findTopLevelForFile(const QFileInfo &file) const final;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     unsigned int binaryVersion() const;

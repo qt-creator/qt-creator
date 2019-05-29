@@ -81,9 +81,9 @@ Core::Id FossilControl::id() const
     return Core::Id(Constants::VCS_ID_FOSSIL);
 }
 
-bool FossilControl::isVcsFileOrDirectory(const Utils::FileName &fileName) const
+bool FossilControl::isVcsFileOrDirectory(const Utils::FilePath &filePath) const
 {
-    return m_client->isVcsFileOrDirectory(fileName);
+    return m_client->isVcsFileOrDirectory(filePath);
 }
 
 bool FossilControl::managesDirectory(const QString &directory, QString *topLevel) const
@@ -102,7 +102,7 @@ bool FossilControl::managesFile(const QString &workingDirectory, const QString &
 
 bool FossilControl::isConfigured() const
 {
-    const Utils::FileName binary = m_client->vcsBinary();
+    const Utils::FilePath binary = m_client->vcsBinary();
     if (binary.isEmpty())
         return false;
 
@@ -181,7 +181,7 @@ bool FossilControl::vcsAnnotate(const QString &file, int line)
 }
 
 Core::ShellCommand *FossilControl::createInitialCheckoutCommand(const QString &sourceUrl,
-                                                                const Utils::FileName &baseDirectory,
+                                                                const Utils::FilePath &baseDirectory,
                                                                 const QString &localName,
                                                                 const QStringList &extraArgs)
 {
@@ -199,11 +199,11 @@ Core::ShellCommand *FossilControl::createInitialCheckoutCommand(const QString &s
     //  -- open/checkout an existing local fossil
     //  Clone URL is an absolute local path and is the same as the local fossil.
 
-    const QString checkoutPath = Utils::FileName(baseDirectory).appendPath(localName).toString();
+    const QString checkoutPath = baseDirectory.pathAppended(localName).toString();
     const QString fossilFile = options.value("fossil-file");
-    const Utils::FileName fossilFileName = Utils::FileName::fromUserInput(QDir::fromNativeSeparators(fossilFile));
-    const QString fossilFileNative = fossilFileName.toUserOutput();
-    const QFileInfo cloneRepository(fossilFileName.toString());
+    const Utils::FilePath fossilFilePath = Utils::FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
+    const QString fossilFileNative = fossilFilePath.toUserOutput();
+    const QFileInfo cloneRepository(fossilFilePath.toString());
 
     // Check when requested to clone a local repository and clone-into repository file is the same
     // or not specified.
@@ -235,14 +235,14 @@ Core::ShellCommand *FossilControl::createInitialCheckoutCommand(const QString &s
         && !cloneRepository.exists()) {
 
         const QString sslIdentityFile = options.value("ssl-identity");
-        const Utils::FileName sslIdentityFileName = Utils::FileName::fromUserInput(QDir::fromNativeSeparators(sslIdentityFile));
+        const Utils::FilePath sslIdentityFilePath = Utils::FilePath::fromUserInput(QDir::fromNativeSeparators(sslIdentityFile));
         const bool includePrivate = (options.value("include-private") == "true");
 
         QStringList extraOptions;
         if (includePrivate)
             extraOptions << "--private";
         if (!sslIdentityFile.isEmpty())
-            extraOptions << "--ssl-identity" << sslIdentityFileName.toUserOutput();
+            extraOptions << "--ssl-identity" << sslIdentityFilePath.toUserOutput();
         if (!adminUser.isEmpty())
             extraOptions << "--admin-user" << adminUser;
 

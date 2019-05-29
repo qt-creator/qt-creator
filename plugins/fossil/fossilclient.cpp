@@ -643,9 +643,9 @@ bool FossilClient::synchronousCreateRepository(const QString &workingDirectory, 
     // @TODO: handle spaces in the path
     // @TODO: what about --template options?
 
-    const FileName fullRepoName = FileName::fromStringWithExtension(repoName, Constants::FOSSIL_FILE_SUFFIX);
-    const FileName repoFilePath = FileName::fromString(repoPath)
-            .appendPath(fullRepoName.toString());
+    const FilePath fullRepoName = FilePath::fromStringWithExtension(repoName, Constants::FOSSIL_FILE_SUFFIX);
+    const FilePath repoFilePath = FilePath::fromString(repoPath)
+            .pathAppended(fullRepoName.toString());
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     if (!adminUser.isEmpty())
         args << "--admin-user" << adminUser;
@@ -814,11 +814,11 @@ VcsBase::VcsBaseEditorWidget *FossilClient::annotate(
     return fossilEditor;
 }
 
-bool FossilClient::isVcsFileOrDirectory(const FileName &fileName) const
+bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
 {
     // false for any dir or file other than fossil checkout db-file
-    return fileName.toFileInfo().isFile()
-           && !fileName.fileName().compare(Constants::FOSSILREPO,
+    return filePath.toFileInfo().isFile()
+           && !filePath.fileName().compare(Constants::FOSSILREPO,
                                            HostOsInfo::fileNameCaseSensitivity());
 }
 
