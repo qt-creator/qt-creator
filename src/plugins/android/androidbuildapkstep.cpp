@@ -415,7 +415,7 @@ void AndroidBuildApkStep::doRun()
         QString qmlRootPath = node->data("QML_ROOT_PATH").toString();
         if (qmlRootPath.isEmpty())
             qmlRootPath = target()->project()->rootProjectDirectory().toString();
-         deploySettings["qml-root-path"] = qmlImportPath;
+         deploySettings["qml-root-path"] = qmlRootPath;
 
         QFile f{bc->buildDirectory().pathAppended("android_deployment_settings.json").toString()};
         if (!f.open(QIODevice::WriteOnly))
