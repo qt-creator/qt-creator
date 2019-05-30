@@ -300,7 +300,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 {
     CommandLine cmd(Utils::FilePath::fromString(m_command), {});
     if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
-        cmd = m_androiddeployqtArgs;
+        cmd.addArgs(m_androiddeployqtArgs.arguments());
         if (m_uninstallPreviousPackageRun)
             cmd.addArg("--install");
         else
