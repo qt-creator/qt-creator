@@ -1,6 +1,11 @@
 add_qtc_library(clangrefactoringbackend_lib STATIC
-  PUBLIC_DEPENDS Threads::Threads
-  DEPENDS libclang clangTooling clangIndex clangQuery ClangSupport
+  PUBLIC_DEPENDS
+    Threads::Threads
+    LLVMCore libclang
+    clangAST clangASTMatchers clangBasic clangDynamicASTMatchers clangFrontend
+    clangHandleCXX clangIndex clangLex
+    clangSerialization clangTooling clangQuery
+    ClangSupport
   DEFINES CLANGSUPPORT_BUILD_LIB
   PUBLIC_INCLUDES
     ${CLANG_INCLUDE_DIRS}
