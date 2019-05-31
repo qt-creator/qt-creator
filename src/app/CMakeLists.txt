@@ -33,11 +33,6 @@ if (WIN32)
   target_sources(qtcreator PRIVATE qtcreator.rc)
 endif()
 
-add_custom_command(TARGET qtcreator POST_BUILD
-  COMMAND "${CMAKE_COMMAND}" -E copy_directory
-          "${PROJECT_SOURCE_DIR}/share/qtcreator"
-          "${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}")
-
 if (APPLE)
   set_target_properties(qtcreator PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/app-Info.plist"
