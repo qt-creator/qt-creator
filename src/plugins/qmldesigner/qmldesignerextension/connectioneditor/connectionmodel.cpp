@@ -182,26 +182,21 @@ void ConnectionModel::updateSource(int row)
 void ConnectionModel::updateSignalName(int rowNumber)
 {
     SignalHandlerProperty signalHandlerProperty = signalHandlerPropertyForRow(rowNumber);
-
-    const PropertyName newName = data(index(rowNumber, TargetPropertyNameRow)).toString().toUtf8();
-    const QString source = signalHandlerProperty.source();
     ModelNode connectionNode = signalHandlerProperty.parentModelNode();
 
+    const PropertyName newName = data(index(rowNumber, TargetPropertyNameRow)).toString().toUtf8();
     if (!newName.isEmpty()) {
-        RewriterTransaction transaction =
-            connectionView()->beginRewriterTransaction(QByteArrayLiteral("ConnectionModel::updateSignalName"));
-        try {
+        connectionView()->executeInTransaction("ConnectionModel::updateSignalName", [=, &connectionNode](){
+
+            const QString source = signalHandlerProperty.source();
+
             connectionNode.signalHandlerProperty(newName).setSource(source);
             connectionNode.removeProperty(signalHandlerProperty.name());
-            transaction.commit(); //committing in the try block
-        } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(nullptr, tr("Error"), e.description());
-        }
+        });
 
         QStandardItem* idItem = item(rowNumber, 0);
         SignalHandlerProperty newSignalHandlerProperty = connectionNode.signalHandlerProperty(newName);
         updateCustomData(idItem, newSignalHandlerProperty);
-
     } else {
         qWarning() << "BindingModel::updatePropertyName invalid property name";
     }
@@ -214,14 +209,9 @@ void ConnectionModel::updateTargetNode(int rowNumber)
     ModelNode connectionNode = signalHandlerProperty.parentModelNode();
 
     if (!newTarget.isEmpty()) {
-        RewriterTransaction transaction =
-            connectionView()->beginRewriterTransaction(QByteArrayLiteral("ConnectionModel::updateTargetNode"));
-        try {
+        connectionView()->executeInTransaction("ConnectionModel::updateTargetNode", [= ,&connectionNode](){
             connectionNode.bindingProperty("target").setExpression(newTarget);
-            transaction.commit(); //committing in the try block
-        } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(nullptr, tr("Error"), e.description());
-        }
+        });
 
         QStandardItem* idItem = item(rowNumber, 0);
         updateCustomData(idItem, signalHandlerProperty);
@@ -256,12 +246,10 @@ void ConnectionModel::addConnection()
 
     if (rootModelNode.isValid() && rootModelNode.metaInfo().isValid()) {
 
-        NodeMetaInfo nodeMetaInfo  = connectionView()->model()->metaInfo("QtQuick.Connections");
+        NodeMetaInfo nodeMetaInfo = connectionView()->model()->metaInfo("QtQuick.Connections");
 
         if (nodeMetaInfo.isValid()) {
-            RewriterTransaction transaction =
-                connectionView()->beginRewriterTransaction(QByteArrayLiteral("ConnectionModel::addConnection"));
-            try {
+            connectionView()->executeInTransaction("ConnectionModel::addConnection", [=](){
                 ModelNode newNode = connectionView()->createModelNode("QtQuick.Connections",
                                                                       nodeMetaInfo.majorVersion(),
                                                                       nodeMetaInfo.minorVersion());
@@ -276,10 +264,7 @@ void ConnectionModel::addConnection()
                 } else {
                     newNode.bindingProperty("target").setExpression(QLatin1String("parent"));
                 }
-                transaction.commit();
-            } catch (Exception &e) { //better save then sorry
-                QMessageBox::warning(nullptr, tr("Error"), e.description());
-            }
+            });
         }
     }
 }

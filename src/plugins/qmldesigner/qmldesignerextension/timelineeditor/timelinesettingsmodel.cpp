@@ -266,15 +266,13 @@ ModelNode TimelineSettingsModel::animationForTimelineAndState(const QmlTimeline 
 
 void TimelineSettingsModel::updateTimeline(int row)
 {
-    QmlModelState modelState(stateForRow(row));
-    QmlTimeline timeline(timelineForRow(row));
-    ModelNode animation(animationForRow(row));
-    QmlTimeline oldTimeline = timelineView()->timelineForState(modelState);
 
-    RewriterTransaction transaction = timelineView()->beginRewriterTransaction(
-        QByteArrayLiteral("TimelineSettingsModel::updateTimeline"));
+    timelineView()->executeInTransaction("TimelineSettingsModel::updateTimeline", [this, row](){
+        QmlModelState modelState(stateForRow(row));
+        QmlTimeline timeline(timelineForRow(row));
+        ModelNode animation(animationForRow(row));
+        QmlTimeline oldTimeline = timelineView()->timelineForState(modelState);
 
-    try {
         if (modelState.isBaseState()) {
             if (oldTimeline.isValid())
                 oldTimeline.modelNode().variantProperty("enabled").setValue(false);
@@ -301,27 +299,20 @@ void TimelineSettingsModel::updateTimeline(int row)
                     propertyChanges.modelNode().variantProperty("enabled").setValue(true);
             }
         }
-
-    } catch (Exception &e) {
-        m_exceptionError = e.description();
-        QTimer::singleShot(200, this, &TimelineSettingsModel::handleException);
-    }
+    });
 
     resetRow(row);
 }
 
 void TimelineSettingsModel::updateAnimation(int row)
 {
-    QmlModelState modelState(stateForRow(row));
-    QmlTimeline timeline(timelineForRow(row));
-    ModelNode animation(animationForRow(row));
-    QmlTimeline oldTimeline = timelineView()->timelineForState(modelState);
-    ModelNode oldAnimation = animationForTimelineAndState(oldTimeline, modelState);
+    timelineView()->executeInTransaction("TimelineSettingsModel::updateAnimation", [this, row](){
+        QmlModelState modelState(stateForRow(row));
+        QmlTimeline timeline(timelineForRow(row));
+        ModelNode animation(animationForRow(row));
+        QmlTimeline oldTimeline = timelineView()->timelineForState(modelState);
+        ModelNode oldAnimation = animationForTimelineAndState(oldTimeline, modelState);
 
-    RewriterTransaction transaction = timelineView()->beginRewriterTransaction(
-        QByteArrayLiteral("TimelineSettingsModel::updateAnimation"));
-
-    try {
         if (modelState.isBaseState()) {
             if (oldAnimation.isValid())
                 oldAnimation.variantProperty("running").setValue(false);
@@ -353,27 +344,20 @@ void TimelineSettingsModel::updateAnimation(int row)
                     propertyChanges.modelNode().variantProperty("running").setValue(true);
             }
         }
-    } catch (Exception &e) {
-        m_exceptionError = e.description();
-        QTimer::singleShot(200, this, &TimelineSettingsModel::handleException);
-    }
-
+    });
     resetRow(row);
 }
 
 void TimelineSettingsModel::updateFixedFrameRow(int row)
 {
-    QmlModelState modelState(stateForRow(row));
-    QmlTimeline timeline(timelineForRow(row));
+    timelineView()->executeInTransaction("TimelineSettingsModel::updateFixedFrameRow", [this, row](){
+        QmlModelState modelState(stateForRow(row));
+        QmlTimeline timeline(timelineForRow(row));
 
-    ModelNode animation = animationForTimelineAndState(timeline, modelState);
+        ModelNode animation = animationForTimelineAndState(timeline, modelState);
 
-    RewriterTransaction transaction = timelineView()->beginRewriterTransaction(
-        QByteArrayLiteral("TimelineSettingsModel::updateFixedFrameRow"));
+        int fixedFrame = fixedFrameForRow(row);
 
-    int fixedFrame = fixedFrameForRow(row);
-
-    try {
         if (modelState.isBaseState()) {
             if (animation.isValid())
                 animation.variantProperty("running").setValue(false);
@@ -390,10 +374,8 @@ void TimelineSettingsModel::updateFixedFrameRow(int row)
             if (propertyChanges.isValid())
                 propertyChanges.modelNode().variantProperty("currentFrame").setValue(fixedFrame);
         }
-    } catch (Exception &e) {
-        m_exceptionError = e.description();
-        QTimer::singleShot(200, this, &TimelineSettingsModel::handleException);
-    }
+
+    });
 
     resetRow(row);
 }

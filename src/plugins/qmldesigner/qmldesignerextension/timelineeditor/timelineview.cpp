@@ -264,9 +264,7 @@ const QmlTimeline TimelineView::addNewTimeline()
 
     ModelNode timelineNode;
 
-    try {
-        RewriterTransaction transaction(beginRewriterTransaction("TimelineView::addNewTimeline"));
-
+    executeInTransaction("TimelineView::addNewTimeline", [=, &timelineNode](){
         bool hasTimelines = getTimelines().isEmpty();
 
         timelineNode = createModelNode(timelineType,
@@ -279,10 +277,7 @@ const QmlTimeline TimelineView::addNewTimeline()
         timelineNode.variantProperty("enabled").setValue(hasTimelines);
 
         rootModelNode().defaultNodeListProperty().reparentHere(timelineNode);
-        transaction.commit();
-    } catch (const Exception &e) {
-        e.showException();
-    }
+    });
 
     return QmlTimeline(timelineNode);
 }
@@ -300,10 +295,8 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
     QTC_ASSERT(metaInfo.isValid(), return ModelNode());
 
     ModelNode animationNode;
-    try {
-        RewriterTransaction transaction(
-            beginRewriterTransaction("TimelineSettingsDialog::addAnimation"));
 
+    executeInTransaction("TimelineView::addAnimation", [=, &animationNode](){
         animationNode = createModelNode(animationType,
                                         metaInfo.majorVersion(),
                                         metaInfo.minorVersion());
@@ -321,10 +314,7 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
 
         if (timeline.modelNode().hasProperty("currentFrame"))
             timeline.modelNode().removeProperty("currentFrame");
-        transaction.commit();
-    } catch (const Exception &e) {
-        e.showException();
-    }
+    });
 
     return animationNode;
 }
@@ -390,28 +380,23 @@ void TimelineView::insertKeyframe(const ModelNode &target, const PropertyName &p
     QmlTimeline timeline = widget()->graphicsScene()->currentTimeline();
     ModelNode targetNode = target;
     if (timeline.isValid() && targetNode.isValid()
-        && QmlObjectNode::isValidQmlObjectNode(targetNode)) {
-        try {
-            RewriterTransaction transaction(
-                beginRewriterTransaction("TimelineView::insertKeyframe"));
+            && QmlObjectNode::isValidQmlObjectNode(targetNode)) {
+        executeInTransaction("TimelineView::insertKeyframe", [=, &timeline, &targetNode](){
 
             targetNode.validId();
 
             QmlTimelineKeyframeGroup timelineFrames(
-                timeline.keyframeGroup(targetNode, propertyName));
+                        timeline.keyframeGroup(targetNode, propertyName));
 
             QTC_ASSERT(timelineFrames.isValid(), return );
 
             const qreal frame
-                = timeline.modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+                    = timeline.modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
             const QVariant value = QmlObjectNode(targetNode).instanceValue(propertyName);
 
             timelineFrames.setValue(value, frame);
 
-            transaction.commit();
-        } catch (const Exception &e) {
-            e.showException();
-        }
+        });
     }
 }
 

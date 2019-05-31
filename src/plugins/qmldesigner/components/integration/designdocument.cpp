@@ -365,18 +365,13 @@ void DesignDocument::deleteSelected()
     if (!currentModel())
         return;
 
-    try {
-        RewriterTransaction transaction(rewriterView(), QByteArrayLiteral("DesignDocument::deleteSelected"));
+    rewriterView()->executeInTransaction("DesignDocument::deleteSelected", [this](){
         QList<ModelNode> toDelete = view()->selectedModelNodes();
         foreach (ModelNode node, toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode::isValidQmlObjectNode(node))
                 QmlObjectNode(node).destroy();
         }
-
-        transaction.commit();
-    } catch (const RewritingException &e) {
-        e.showException();
-    }
+    });
 }
 
 void DesignDocument::copySelected()
@@ -465,10 +460,8 @@ void DesignDocument::paste()
             }
         }
 
-        QList<ModelNode> pastedNodeList;
-
-        try {
-            RewriterTransaction transaction(rewriterView(), QByteArrayLiteral("DesignDocument::paste1"));
+        rewriterView()->executeInTransaction("DesignDocument::paste1", [this, &view, selectedNodes, targetNode](){
+            QList<ModelNode> pastedNodeList;
 
             int offset = double(qrand()) / RAND_MAX * 20 - 10;
 
@@ -481,14 +474,10 @@ void DesignDocument::paste()
             }
 
             view.setSelectedModelNodes(pastedNodeList);
-            transaction.commit();
-        } catch (const RewritingException &e) {
-            qWarning() << e.description(); //silent error
-        }
-    } else {
-        try {
-            RewriterTransaction transaction(rewriterView(), QByteArrayLiteral("DesignDocument::paste2"));
+        });
 
+    } else {
+        rewriterView()->executeInTransaction("DesignDocument::paste1", [this, &view, selectedNodes, rootNode](){
             currentModel()->attachView(&view);
             ModelNode pastedNode(view.insertModel(rootNode));
             ModelNode targetNode;
@@ -500,9 +489,9 @@ void DesignDocument::paste()
                 targetNode = view.rootModelNode();
 
             if (targetNode.hasParentProperty() &&
-                (pastedNode.simplifiedTypeName() == targetNode.simplifiedTypeName()) &&
-                (pastedNode.variantProperty("width").value() == targetNode.variantProperty("width").value()) &&
-                (pastedNode.variantProperty("height").value() == targetNode.variantProperty("height").value()))
+                    (pastedNode.simplifiedTypeName() == targetNode.simplifiedTypeName()) &&
+                    (pastedNode.variantProperty("width").value() == targetNode.variantProperty("width").value()) &&
+                    (pastedNode.variantProperty("height").value() == targetNode.variantProperty("height").value()))
 
                 targetNode = targetNode.parentProperty().parentModelNode();
 
@@ -514,15 +503,9 @@ void DesignDocument::paste()
             } else {
                 qWarning() << "Cannot reparent to" << targetNode;
             }
-
-            transaction.commit();
-            NodeMetaInfo::clearCache();
-
             view.setSelectedModelNodes({pastedNode});
-            transaction.commit();
-        } catch (const RewritingException &e) {
-            qWarning() << e.description(); //silent error
-        }
+        });
+        NodeMetaInfo::clearCache();
     }
 }
 

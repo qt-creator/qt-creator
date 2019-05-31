@@ -663,26 +663,16 @@ void TimelineGraphicsScene::deleteKeyframeGroup(const ModelNode &group)
     if (!QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(group))
         return;
 
-    ModelNode nonConst = group;
-
-    try {
-        RewriterTransaction transaction(timelineView()->beginRewriterTransaction(
-            "TimelineGraphicsScene::handleKeyframeGroupDeletion"));
-
+    timelineView()->executeInTransaction("TimelineGraphicsScene::handleKeyframeGroupDeletion", [group](){
+        ModelNode nonConst = group;
         nonConst.destroy();
+    });
 
-        transaction.commit();
-    } catch (const Exception &e) {
-        e.showException();
-    }
 }
 
 void TimelineGraphicsScene::deleteKeyframes(const QList<ModelNode> &frames)
 {
-    try {
-        RewriterTransaction transaction(timelineView()->beginRewriterTransaction(
-            "TimelineGraphicsScene::handleKeyframeDeletion"));
-
+    timelineView()->executeInTransaction("TimelineGraphicsScene::handleKeyframeDeletion", [frames](){
         for (auto keyframe : frames) {
             if (keyframe.isValid()) {
                 ModelNode frame = keyframe;
@@ -692,10 +682,7 @@ void TimelineGraphicsScene::deleteKeyframes(const QList<ModelNode> &frames)
                     parent.destroy();
             }
         }
-        transaction.commit();
-    } catch (const Exception &e) {
-        e.showException();
-    }
+    });
 }
 
 void TimelineGraphicsScene::activateLayout()

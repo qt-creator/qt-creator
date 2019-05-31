@@ -161,22 +161,23 @@ void QmlAnchors::setAnchor(AnchorLineType sourceAnchorLine,
                           const QmlItemNode &targetQmlItemNode,
                           AnchorLineType targetAnchorLine)
 {
-    RewriterTransaction transaction = qmlItemNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchors::setAnchor"));
-    if (qmlItemNode().isInBaseState()) {
-        if ((qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLineFill))
-             || ((qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn") && (sourceAnchorLine & AnchorLineCenter)))) {
-            removeAnchor(sourceAnchorLine);
-        }
+    qmlItemNode().view()->executeInTransaction("QmlAnchors::setAnchor", [this, sourceAnchorLine, targetQmlItemNode, targetAnchorLine](){
+        if (qmlItemNode().isInBaseState()) {
+            if ((qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLineFill))
+                    || ((qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn") && (sourceAnchorLine & AnchorLineCenter)))) {
+                removeAnchor(sourceAnchorLine);
+            }
 
-        const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
-        ModelNode targetModelNode = targetQmlItemNode.modelNode();
-        QString targetExpression = targetModelNode.validId();
-        if (targetQmlItemNode.modelNode() == qmlItemNode().modelNode().parentProperty().parentModelNode())
-            targetExpression = QLatin1String("parent");
-        if (sourceAnchorLine != AnchorLineCenter && sourceAnchorLine != AnchorLineFill)
-            targetExpression = targetExpression + QLatin1Char('.') + QString::fromLatin1(lineTypeToString(targetAnchorLine));
-        qmlItemNode().modelNode().bindingProperty(propertyName).setExpression(targetExpression);
-    }
+            const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
+            ModelNode targetModelNode = targetQmlItemNode.modelNode();
+            QString targetExpression = targetModelNode.validId();
+            if (targetQmlItemNode.modelNode() == qmlItemNode().modelNode().parentProperty().parentModelNode())
+                targetExpression = QLatin1String("parent");
+            if (sourceAnchorLine != AnchorLineCenter && sourceAnchorLine != AnchorLineFill)
+                targetExpression = targetExpression + QLatin1Char('.') + QString::fromLatin1(lineTypeToString(targetAnchorLine));
+            qmlItemNode().modelNode().bindingProperty(propertyName).setExpression(targetExpression);
+        }
+    });
 }
 
 bool detectHorizontalCycle(const ModelNode &node, QList<ModelNode> knownNodeList)
@@ -315,47 +316,49 @@ AnchorLine QmlAnchors::instanceAnchor(AnchorLineType sourceAnchorLine) const
 
 void QmlAnchors::removeAnchor(AnchorLineType sourceAnchorLine)
 {
-   RewriterTransaction transaction = qmlItemNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchors::removeAnchor"));
-    if (qmlItemNode().isInBaseState()) {
-        const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
-        if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLineFill)) {
-            qmlItemNode().modelNode().removeProperty("anchors.fill");
-            qmlItemNode().modelNode().bindingProperty("anchors.top").setExpression(QLatin1String("parent.top"));
-            qmlItemNode().modelNode().bindingProperty("anchors.left").setExpression(QLatin1String("parent.left"));
-            qmlItemNode().modelNode().bindingProperty("anchors.bottom").setExpression(QLatin1String("parent.bottom"));
-            qmlItemNode().modelNode().bindingProperty("anchors.right").setExpression(QLatin1String("parent.right"));
+    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeAnchor", [this, sourceAnchorLine](){
+        if (qmlItemNode().isInBaseState()) {
+            const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
+            if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLineFill)) {
+                qmlItemNode().modelNode().removeProperty("anchors.fill");
+                qmlItemNode().modelNode().bindingProperty("anchors.top").setExpression(QLatin1String("parent.top"));
+                qmlItemNode().modelNode().bindingProperty("anchors.left").setExpression(QLatin1String("parent.left"));
+                qmlItemNode().modelNode().bindingProperty("anchors.bottom").setExpression(QLatin1String("parent.bottom"));
+                qmlItemNode().modelNode().bindingProperty("anchors.right").setExpression(QLatin1String("parent.right"));
 
-        } else if (qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn") && (sourceAnchorLine & AnchorLineCenter)) {
-            qmlItemNode().modelNode().removeProperty("anchors.centerIn");
-            qmlItemNode().modelNode().bindingProperty("anchors.horizontalCenter").setExpression(QLatin1String("parent.horizontalCenter"));
-            qmlItemNode().modelNode().bindingProperty("anchors.verticalCenter").setExpression(QLatin1String("parent.verticalCenter"));
+            } else if (qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn") && (sourceAnchorLine & AnchorLineCenter)) {
+                qmlItemNode().modelNode().removeProperty("anchors.centerIn");
+                qmlItemNode().modelNode().bindingProperty("anchors.horizontalCenter").setExpression(QLatin1String("parent.horizontalCenter"));
+                qmlItemNode().modelNode().bindingProperty("anchors.verticalCenter").setExpression(QLatin1String("parent.verticalCenter"));
+            }
+
+            qmlItemNode().modelNode().removeProperty(propertyName);
         }
-
-        qmlItemNode().modelNode().removeProperty(propertyName);
-    }
+    });
 }
 
 void QmlAnchors::removeAnchors()
 {
-    RewriterTransaction transaction = qmlItemNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchors::removeAnchors"));
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill"))
-        qmlItemNode().modelNode().removeProperty("anchors.fill");
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn"))
-        qmlItemNode().modelNode().removeProperty("anchors.centerIn");
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.top"))
-        qmlItemNode().modelNode().removeProperty("anchors.top");
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.left"))
-        qmlItemNode().modelNode().removeProperty("anchors.left");
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.right"))
-        qmlItemNode().modelNode().removeProperty("anchors.right");
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.bottom"))
-        qmlItemNode().modelNode().removeProperty("anchors.bottom");
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.horizontalCenter"))
-        qmlItemNode().modelNode().removeProperty("anchors.horizontalCenter");
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.verticalCenter"))
-        qmlItemNode().modelNode().removeProperty("anchors.verticalCenter");
-    if (qmlItemNode().nodeInstance().hasAnchor("anchors.baseline"))
-        qmlItemNode().modelNode().removeProperty("anchors.baseline");
+    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeAnchors", [this](){
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill"))
+            qmlItemNode().modelNode().removeProperty("anchors.fill");
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.centerIn"))
+            qmlItemNode().modelNode().removeProperty("anchors.centerIn");
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.top"))
+            qmlItemNode().modelNode().removeProperty("anchors.top");
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.left"))
+            qmlItemNode().modelNode().removeProperty("anchors.left");
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.right"))
+            qmlItemNode().modelNode().removeProperty("anchors.right");
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.bottom"))
+            qmlItemNode().modelNode().removeProperty("anchors.bottom");
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.horizontalCenter"))
+            qmlItemNode().modelNode().removeProperty("anchors.horizontalCenter");
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.verticalCenter"))
+            qmlItemNode().modelNode().removeProperty("anchors.verticalCenter");
+        if (qmlItemNode().nodeInstance().hasAnchor("anchors.baseline"))
+            qmlItemNode().modelNode().removeProperty("anchors.baseline");
+    });
 }
 
 bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine) const
@@ -532,13 +535,14 @@ void QmlAnchors::removeMargin(AnchorLineType sourceAnchorLineType)
 
 void QmlAnchors::removeMargins()
 {
-    RewriterTransaction transaction = qmlItemNode().view()->beginRewriterTransaction(QByteArrayLiteral("QmlAnchors::removeMargins"));
-    removeMargin(AnchorLineLeft);
-    removeMargin(AnchorLineRight);
-    removeMargin(AnchorLineTop);
-    removeMargin(AnchorLineBottom);
-    removeMargin(AnchorLineHorizontalCenter);
-    removeMargin(AnchorLineVerticalCenter);
+    qmlItemNode().view()->executeInTransaction("QmlAnchors::removeMargins", [this](){
+        removeMargin(AnchorLineLeft);
+        removeMargin(AnchorLineRight);
+        removeMargin(AnchorLineTop);
+        removeMargin(AnchorLineBottom);
+        removeMargin(AnchorLineHorizontalCenter);
+        removeMargin(AnchorLineVerticalCenter);
+    });
 }
 
 void QmlAnchors::fill()

@@ -464,19 +464,16 @@ void DynamicPropertiesModel::updatePropertyName(int rowNumber)
 
     BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
 
-    if (bindingProperty.isBindingProperty()) {
-        const QString expression = bindingProperty.expression();
-        const PropertyName dynamicPropertyType = bindingProperty.dynamicTypeName();
-        ModelNode targetNode = bindingProperty.parentModelNode();
+    ModelNode targetNode = bindingProperty.parentModelNode();
 
-        RewriterTransaction transaction = connectionView()->beginRewriterTransaction(QByteArrayLiteral("DynamicPropertiesModel::updatePropertyName"));
-        try {
+    if (bindingProperty.isBindingProperty()) {
+        connectionView()->executeInTransaction("DynamicPropertiesModel::updatePropertyName", [bindingProperty, newName, &targetNode](){
+            const QString expression = bindingProperty.expression();
+            const PropertyName dynamicPropertyType = bindingProperty.dynamicTypeName();
+
             targetNode.bindingProperty(newName).setDynamicTypeNameAndExpression(dynamicPropertyType, expression);
             targetNode.removeProperty(bindingProperty.name());
-            transaction.commit(); //committing in the try block
-        } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(nullptr, tr("Error"), e.description());
-        }
+        });
 
         updateCustomData(rowNumber, targetNode.bindingProperty(newName));
         return;
@@ -489,14 +486,10 @@ void DynamicPropertiesModel::updatePropertyName(int rowNumber)
         const PropertyName dynamicPropertyType = variantProperty.dynamicTypeName();
         ModelNode targetNode = variantProperty.parentModelNode();
 
-        RewriterTransaction transaction = connectionView()->beginRewriterTransaction(QByteArrayLiteral("DynamicPropertiesModel::updatePropertyName"));
-        try {
+        connectionView()->executeInTransaction("DynamicPropertiesModel::updatePropertyName", [=](){
             targetNode.variantProperty(newName).setDynamicTypeNameAndValue(dynamicPropertyType, value);
             targetNode.removeProperty(variantProperty.name());
-            transaction.commit(); //committing in the try block
-        } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(nullptr, tr("Error"), e.description());
-        }
+        });
 
         updateCustomData(rowNumber, targetNode.variantProperty(newName));
     }
@@ -519,14 +512,10 @@ void DynamicPropertiesModel::updatePropertyType(int rowNumber)
         const PropertyName propertyName = bindingProperty.name();
         ModelNode targetNode = bindingProperty.parentModelNode();
 
-        RewriterTransaction transaction = connectionView()->beginRewriterTransaction(QByteArrayLiteral("DynamicPropertiesModel::updatePropertyType"));
-        try {
+        connectionView()->executeInTransaction("DynamicPropertiesModel::updatePropertyType", [=](){
             targetNode.removeProperty(bindingProperty.name());
             targetNode.bindingProperty(propertyName).setDynamicTypeNameAndExpression(newType, expression);
-            transaction.commit(); //committing in the try block
-        } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(nullptr, tr("Error"), e.description());
-        }
+        });
 
         updateCustomData(rowNumber, targetNode.bindingProperty(propertyName));
         return;
@@ -539,18 +528,14 @@ void DynamicPropertiesModel::updatePropertyType(int rowNumber)
         ModelNode targetNode = variantProperty.parentModelNode();
         const PropertyName propertyName = variantProperty.name();
 
-        RewriterTransaction transaction = connectionView()->beginRewriterTransaction(QByteArrayLiteral("DynamicPropertiesModel::updatePropertyType"));
-        try {
+        connectionView()->executeInTransaction("DynamicPropertiesModel::updatePropertyType", [=](){
             targetNode.removeProperty(variantProperty.name());
             if (newType == "alias") { //alias properties have to be bindings
                 targetNode.bindingProperty(propertyName).setDynamicTypeNameAndExpression(newType, QLatin1String("none.none"));
             } else {
                 targetNode.variantProperty(propertyName).setDynamicTypeNameAndValue(newType, convertVariantForTypeName(value, newType));
             }
-            transaction.commit(); //committing in the try block
-        } catch (Exception &e) { //better save then sorry
-            QMessageBox::warning(nullptr, tr("Error"), e.description());
-        }
+        });
 
         updateCustomData(rowNumber, targetNode.variantProperty(propertyName));
 

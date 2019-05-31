@@ -198,16 +198,10 @@ void NavigatorView::handleChangedExport(const ModelNode &modelNode, bool exporte
     if (rootNode.hasProperty(modelNodeId))
         rootNode.removeProperty(modelNodeId);
     if (exported) {
-        try {
-            RewriterTransaction transaction =
-                    beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
-
+        executeInTransaction("NavigatorTreeModel:exportItem", [this, modelNode](){
             QmlObjectNode qmlObjectNode(modelNode);
             qmlObjectNode.ensureAliasExport();
-            transaction.commit();
-        }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
-            exception.showException();
-        }
+        });
     }
 }
 

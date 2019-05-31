@@ -178,29 +178,23 @@ void ModelMerger::replaceModel(const ModelNode &modelNode)
         view()->model()->changeImports(modelNode.model()->imports(), {});
         view()->model()->setFileUrl(modelNode.model()->fileUrl());
 
-    try {
-        RewriterTransaction transaction(view()->beginRewriterTransaction(QByteArrayLiteral("ModelMerger::replaceModel")));
+        view()->executeInTransaction("ModelMerger::replaceModel", [this, modelNode](){
+            ModelNode rootNode(view()->rootModelNode());
 
-        ModelNode rootNode(view()->rootModelNode());
+            foreach (const PropertyName &propertyName, rootNode.propertyNames())
+                rootNode.removeProperty(propertyName);
 
-        foreach (const PropertyName &propertyName, rootNode.propertyNames())
-            rootNode.removeProperty(propertyName);
+            QHash<QString, QString> idRenamingHash;
+            setupIdRenamingHash(modelNode, idRenamingHash, view());
 
-        QHash<QString, QString> idRenamingHash;
-        setupIdRenamingHash(modelNode, idRenamingHash, view());
-
-        syncAuxiliaryProperties(rootNode, modelNode);
-        syncVariantProperties(rootNode, modelNode);
-        syncBindingProperties(rootNode, modelNode, idRenamingHash);
-        syncId(rootNode, modelNode, idRenamingHash);
-        syncNodeProperties(rootNode, modelNode, idRenamingHash, view());
-        syncNodeListProperties(rootNode, modelNode, idRenamingHash, view());
-        m_view->changeRootNodeType(modelNode.type(), modelNode.majorVersion(), modelNode.minorVersion());
-
-        transaction.commit();
-    } catch (const RewritingException &e) {
-        qWarning() << e.description(); //silent error
-    }
+            syncAuxiliaryProperties(rootNode, modelNode);
+            syncVariantProperties(rootNode, modelNode);
+            syncBindingProperties(rootNode, modelNode, idRenamingHash);
+            syncId(rootNode, modelNode, idRenamingHash);
+            syncNodeProperties(rootNode, modelNode, idRenamingHash, view());
+            syncNodeListProperties(rootNode, modelNode, idRenamingHash, view());
+            m_view->changeRootNodeType(modelNode.type(), modelNode.majorVersion(), modelNode.minorVersion());
+        });
 }
 
 } //namespace QmlDesigner
