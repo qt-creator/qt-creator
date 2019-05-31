@@ -68,6 +68,14 @@ public:
             *ret = "bar";
             return true;
         }
+        if (name == "JS:with } inside") {
+            *ret = "yay";
+            return true;
+        }
+        if (name == "JS:literal%{") {
+            *ret = "hurray";
+            return true;
+        }
         return false;
     }
 };
@@ -158,7 +166,9 @@ void tst_StringUtils::testMacroExpander_data()
         {"%{hihi//./c}", "ccc"},
         {"%{hihi/(.)(.)r/\\2\\1c}", "abc"}, // no escape for capture groups
         {"%{hihi/b/c/d}", "c/dar"},
-        {"%{hihi/a/e{\\}e}", "be{}er"}, // escape closing brace
+        {"%{hihi/a/e{\\}e}", "be{}er"},   // escape closing brace
+        {"%{JS:with \\} inside}", "yay"}, // escape closing brace also in JS:
+        {"%{JS:literal%\\{}", "hurray"},
         {"%{slash/o\\/b/ol's c}", "fool's car"},
         {"%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash"}, // escape in variable name
         {"%{JS:foo/b/c}", "%{JS:foo/b/c}"}, // No replacement for JS (all considered varName)

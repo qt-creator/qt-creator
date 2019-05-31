@@ -11,7 +11,7 @@
     : %{BaseClassName}(parent)
 {
 }
-%{JS: '%{PluginMethods}'.split('|').map(s => '\n' + s.replace(/([a-zA-Z0-9]+\()/, '%{CN}::$1') + '\n\u007B\n    static_assert(false, "You need to implement this function");\n\u007D').join('\n')}\
+%{JS: '%{PluginMethods}'.split('|').map(function(s) { return '\\n' + s.replace(/([a-zA-Z0-9]+\\()/, '%{CN}::$1') + '\\n\{\\n    static_assert(false, "You need to implement this function");\\n\}'; \}).join('\\n')}\
 
 @endif
 %{JS: Cpp.closeNamespaces('%{Class}')}\

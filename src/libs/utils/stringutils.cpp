@@ -143,7 +143,7 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
     varName.reserve(strLen - i);
     for (; i < strLen; prev = c) {
         c = str.at(i++);
-        if (c == '\\' && i < strLen && validateVarName(varName)) {
+        if (c == '\\' && i < strLen) {
             c = str.at(i++);
             // For the replacement, do not skip the escape sequence when followed by a digit.
             // This is needed for enabling convenient capture group replacement,

@@ -111,7 +111,9 @@ void JsExpander::registerForExpander(Utils::MacroExpander *macroExpander)
         "JS",
         QCoreApplication::translate("Core::JsExpander",
                                     "Evaluate simple JavaScript statements.<br>"
-                                    "The statements may not contain '{' nor '}' characters."),
+                                    "Literal '}' characters must be escaped as \"\\}\", "
+                                    "'\\' characters must be escaped as \"\\\\\", "
+                                    "and \"%{\" must be escaped as \"%\\{\"."),
         [this](QString in) -> QString {
             QString errorMessage;
             QString result = evaluate(in, &errorMessage);

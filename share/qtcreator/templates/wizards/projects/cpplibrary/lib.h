@@ -36,7 +36,7 @@ public:
     explicit %{CN}(QObject *parent = nullptr);
 
 private:
-%{JS: '%{PluginMethods}'.split('|').map(s => '    ' + s + ' override;').join('\n')}
+%{JS: '%{PluginMethods}'.split('|').map(function(s) { return '    ' + s + ' override;'; \}).join('\\n')}
 };
 @endif
 %{JS: Cpp.closeNamespaces('%{Class}')}\
