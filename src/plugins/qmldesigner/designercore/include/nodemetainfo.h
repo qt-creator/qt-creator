@@ -85,6 +85,7 @@ public:
     bool defaultPropertyIsComponent() const;
 
     TypeName typeName() const;
+    TypeName simplifiedTypeName() const;
     int majorVersion() const;
     int minorVersion() const;
 
