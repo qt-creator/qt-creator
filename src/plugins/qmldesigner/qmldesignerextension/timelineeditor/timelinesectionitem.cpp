@@ -106,7 +106,8 @@ TimelineSectionItem *TimelineSectionItem::create(const QmlTimeline &timeline,
 {
     auto item = new TimelineSectionItem(parent);
 
-    item->setToolTip(target.id());
+    if (target.isValid())
+        item->setToolTip(target.id());
 
     item->m_targetNode = target;
     item->m_timeline = timeline;
