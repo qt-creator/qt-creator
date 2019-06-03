@@ -99,6 +99,7 @@ public:
     Core::Id id() const;
 
     QString mimeType() const;
+    bool canBuildProducts() const;
 
     Core::IDocument *document() const;
     Utils::FilePath projectFilePath() const;
@@ -248,6 +249,8 @@ protected:
     void setPreferredKitPredicate(const Kit::Predicate &predicate);
     // The predicate used to select kits available in TargetSetupPage.
     void setRequiredKitPredicate(const Kit::Predicate &predicate);
+
+    void setCanBuildProducts();
 
     void setId(Core::Id id);
     void setRootProjectNode(std::unique_ptr<ProjectNode> &&root); // takes ownership!

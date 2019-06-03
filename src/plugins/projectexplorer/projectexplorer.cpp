@@ -420,6 +420,7 @@ public:
     QAction *m_closeAllProjects;
     QAction *m_buildProjectOnlyAction;
     Utils::ParameterAction *m_buildAction;
+    Utils::ParameterAction *m_buildForRunConfigAction;
     Utils::ProxyAction *m_modeBarBuildAction;
     QAction *m_buildActionContextMenu;
     QAction *m_buildDependenciesActionContextMenu;
@@ -1043,6 +1044,17 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_modeBarBuildAction->setAction(cmd->action());
     ModeManager::addAction(dd->m_modeBarBuildAction, Constants::P_ACTION_BUILDPROJECT);
 
+    // build for run config
+    dd->m_buildForRunConfigAction = new Utils::ParameterAction(
+                tr("Build for Run Configuration"), tr("Build for Run Configuration \"%1\""),
+                Utils::ParameterAction::EnabledWithParameter, this);
+    dd->m_buildForRunConfigAction->setIcon(buildIcon);
+    cmd = ActionManager::registerAction(dd->m_buildForRunConfigAction,
+                                        "ProjectExplorer.BuildForRunConfig");
+    cmd->setAttribute(Command::CA_UpdateText);
+    cmd->setDescription(dd->m_buildForRunConfigAction->text());
+    mbuild->addAction(cmd, Constants::G_BUILD_BUILD);
+
     // deploy action
     dd->m_deployAction = new Utils::ParameterAction(tr("Deploy Project"), tr("Deploy Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
@@ -1390,6 +1402,21 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     });
     connect(dd->m_buildActionContextMenu, &QAction::triggered, dd, [] {
         dd->queue({ ProjectTree::currentProject() }, { Id(Constants::BUILDSTEPS_BUILD) });
+    });
+    connect(dd->m_buildForRunConfigAction, &QAction::triggered, dd, [] {
+        const Project * const project = SessionManager::startupProject();
+        QTC_ASSERT(project, return);
+        const Target * const target = project->activeTarget();
+        QTC_ASSERT(target, return);
+        const RunConfiguration * const runConfig = target->activeRunConfiguration();
+        QTC_ASSERT(runConfig, return);
+        const auto buildKeyMatcher = [runConfig](const ProjectNode *candidate) {
+            return candidate->buildKey() == runConfig->buildKey();
+        };
+        ProjectNode * const productNode
+                = project->rootProjectNode()->findProjectNode(buildKeyMatcher);
+        QTC_ASSERT(productNode->isProduct(), return);
+        productNode->build();
     });
     connect(dd->m_buildDependenciesActionContextMenu, &QAction::triggered, dd, [] {
         dd->queue(SessionManager::projectOrder(ProjectTree::currentProject()),
@@ -2436,14 +2463,24 @@ void ProjectExplorerPluginPrivate::updateActions()
                                   ? Icons::CANCELBUILD_FLAT.icon()
                                   : buildAction->icon());
 
+    const RunConfiguration * const runConfig = project && project->activeTarget()
+            ? project->activeTarget()->activeRunConfiguration() : nullptr;
+
     // Normal actions
     m_buildAction->setParameter(projectName);
+    if (runConfig)
+        m_buildForRunConfigAction->setParameter(runConfig->displayName());
     m_rebuildAction->setParameter(projectName);
     m_cleanAction->setParameter(projectName);
 
     m_buildAction->setEnabled(buildActionState.first);
     m_rebuildAction->setEnabled(buildActionState.first);
     m_cleanAction->setEnabled(buildActionState.first);
+
+    // The last condition is there to prevent offering this action for custom run configurations.
+    m_buildForRunConfigAction->setEnabled(buildActionState.first
+            && runConfig && project->canBuildProducts()
+            && !runConfig->buildTargetInfo().projectFilePath.isEmpty());
 
     m_buildAction->setToolTip(buildActionState.second);
     m_rebuildAction->setToolTip(buildActionState.second);
@@ -2935,6 +2972,7 @@ void ProjectExplorerPluginPrivate::activeRunConfigurationChanged()
         rc = startupProject->activeTarget()->activeRunConfiguration();
     if (rc == previousRunConfiguration)
         return;
+    updateActions();
     emit m_instance->updateRunActions();
 }
 

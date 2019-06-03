@@ -97,6 +97,8 @@ public:
     bool parseInProgress() const override;
     bool validParse() const override;
 
+    void build() override;
+
     QStringList targetApplications() const override;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
     QVariant data(Core::Id role) const override;

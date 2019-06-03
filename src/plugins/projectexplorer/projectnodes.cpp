@@ -212,6 +212,15 @@ const ProjectNode *Node::managingProject() const
     return const_cast<Node *>(this)->managingProject();
 }
 
+Project *Node::getProject() const
+{
+    if (const ContainerNode * const cn = asContainerNode())
+        return cn->project();
+    if (!m_parentFolderNode)
+        return nullptr;
+    return m_parentFolderNode->getProject();
+}
+
 /*!
   The path of the file or folder in the filesystem the node represents.
   */

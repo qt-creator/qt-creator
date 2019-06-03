@@ -164,6 +164,7 @@ public:
     bool m_isParsing = false;
     bool m_hasParsingData = false;
     bool m_needsInitialExpansion = false;
+    bool m_canBuildProducts = false;
     std::unique_ptr<Core::IDocument> m_document;
     std::unique_ptr<ProjectNode> m_rootProjectNode;
     std::unique_ptr<ContainerNode> m_containerNode;
@@ -225,6 +226,11 @@ Core::Id Project::id() const
 QString Project::mimeType() const
 {
     return document()->mimeType();
+}
+
+bool Project::canBuildProducts() const
+{
+    return d->m_canBuildProducts;
 }
 
 Core::IDocument *Project::document() const
@@ -936,6 +942,11 @@ Kit::Predicate Project::requiredKitPredicate() const
 void Project::setRequiredKitPredicate(const Kit::Predicate &predicate)
 {
     d->m_requiredKitPredicate = predicate;
+}
+
+void Project::setCanBuildProducts()
+{
+    d->m_canBuildProducts = true;
 }
 
 Kit::Predicate Project::preferredKitPredicate() const

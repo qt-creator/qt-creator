@@ -121,6 +121,8 @@ public:
                                      // or node->parentProjectNode() for all other cases.
     const ProjectNode *managingProject() const; // see above.
 
+    Project *getProject() const;
+
     const Utils::FilePath &filePath() const;  // file system path
     int line() const;
     virtual QString displayName() const;
@@ -358,6 +360,13 @@ public:
     virtual bool setData(Core::Id role, const QVariant &value) const;
 
     bool isProduct() const { return m_isProduct; }
+
+    // TODO: Currently used only for "Build for current run config" functionality, but we should
+    //       probably use it to centralize the node-specific "Build" functionality that
+    //       currently each project manager plugin adds to the context menu by itself.
+    //       The function should then move up to the Node class, so it can also serve the
+    //       "build single file" case.
+    virtual void build() {}
 
 protected:
     void setIsProduct() { m_isProduct = true; }

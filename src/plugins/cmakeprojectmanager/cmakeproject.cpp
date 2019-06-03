@@ -87,6 +87,7 @@ CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEM
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
+    setCanBuildProducts();
 
     // Timer:
     m_delayedParsingTimer.setSingleShot(true);

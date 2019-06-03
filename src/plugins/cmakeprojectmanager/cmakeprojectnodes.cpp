@@ -26,6 +26,7 @@
 #include "cmakeprojectnodes.h"
 
 #include "cmakeconfigitem.h"
+#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectplugin.h"
 
@@ -262,6 +263,11 @@ bool CMakeTargetNode::addFiles(const QStringList &filePaths, QStringList *)
 Utils::optional<Utils::FilePath> CMakeTargetNode::visibleAfterAddFileAction() const
 {
     return filePath().pathAppended("CMakeLists.txt");
+}
+
+void CMakeTargetNode::build()
+{
+    static_cast<CMakeProject *>(getProject())->buildCMakeTarget(displayName());
 }
 
 void CMakeTargetNode::setTargetInformation(const QList<Utils::FilePath> &artifacts,

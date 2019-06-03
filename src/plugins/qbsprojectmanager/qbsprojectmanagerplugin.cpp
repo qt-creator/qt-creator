@@ -578,5 +578,11 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
         project->parseCurrentBuildConfiguration();
 }
 
+void QbsProjectManagerPlugin::buildNamedProduct(QbsProject *project, const QString &product)
+{
+    QbsProjectManagerPlugin::runStepsForProducts(project, QStringList(product),
+            {Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)});
+}
+
 } // namespace Internal
 } // namespace QbsProjectManager

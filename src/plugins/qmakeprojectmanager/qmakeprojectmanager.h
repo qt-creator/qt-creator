@@ -62,9 +62,11 @@ public:
     void buildFileContextMenu();
     void buildFile();
 
+    static void buildProduct(ProjectExplorer::Project *project, ProjectExplorer::Node *proFileNode);
+
 private:
     void handleSubDirContextMenu(Action action, bool isFileBuild);
-    void handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild,
+    static void handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild,
                                  ProjectExplorer::Project *contextProject,
                                  ProjectExplorer::Node *contextProFileNode,
                                  ProjectExplorer::FileNode *buildableFile);

@@ -28,6 +28,7 @@
 #include "qbsnodetreebuilder.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagerplugin.h"
 #include "qbsrunconfiguration.h"
 
 #include <android/androidconstants.h>
@@ -389,6 +390,12 @@ bool QbsProductNode::renameFile(const QString &filePath, const QString &newFileP
     const qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);
     QTC_ASSERT(grp.isValid(), return false);
     return prjNode->project()->renameFileInProduct(filePath, newFilePath, m_qbsProductData, grp);
+}
+
+void QbsProductNode::build()
+{
+    QbsProjectManagerPlugin::buildNamedProduct(static_cast<QbsProject *>(getProject()),
+                                               QbsProject::uniqueProductName(qbsProductData()));
 }
 
 QStringList QbsProductNode::targetApplications() const

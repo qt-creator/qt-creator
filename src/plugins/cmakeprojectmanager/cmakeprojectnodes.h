@@ -76,6 +76,8 @@ public:
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
     Utils::optional<Utils::FilePath> visibleAfterAddFileAction() const override;
 
+    void build() override;
+
     QVariant data(Core::Id role) const override;
     void setConfig(const CMakeConfig &config);
 

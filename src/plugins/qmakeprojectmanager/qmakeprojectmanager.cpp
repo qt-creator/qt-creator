@@ -194,6 +194,11 @@ void QmakeManager::buildFile()
     }
 }
 
+void QmakeManager::buildProduct(Project *project, Node *proFileNode)
+{
+    handleSubDirContextMenu(BUILD, false, project, proFileNode, nullptr);
+}
+
 void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild)
 {
     handleSubDirContextMenu(action,
