@@ -54,6 +54,8 @@ find_package(Qt5
   REQUIRED
 )
 
+find_package(Threads)
+
 # Get information on directories from qmake
 # as this is not yet exported by cmake.
 function(qt5_query_qmake)
