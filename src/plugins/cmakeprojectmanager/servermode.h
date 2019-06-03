@@ -94,7 +94,7 @@ private:
 
     Utils::FilePath m_sourceDirectory;
     Utils::FilePath m_buildDirectory;
-    Utils::FilePath m_cmakeExecutable;
+    Utils::CommandLine m_cmakeCommand;
 
     QByteArray m_buffer;
 
