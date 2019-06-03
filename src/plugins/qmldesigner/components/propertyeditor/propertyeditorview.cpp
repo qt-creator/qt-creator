@@ -213,19 +213,12 @@ void PropertyEditorView::changeValue(const QString &name)
         castedValue = QVariant(newColor);
     }
 
-    try {
-        if (!value->value().isValid()) { //reset
-            qmlObjectNode.removeProperty(propertyName);
-        } else {
-            if (castedValue.isValid() && !castedValue.isNull()) {
-                m_locked = true;
-                qmlObjectNode.setVariantProperty(propertyName, castedValue);
-                m_locked = false;
-            }
+    if (!value->value().isValid()) { //reset
+        removePropertyFromModel(propertyName);
+    } else {
+        if (castedValue.isValid() && !castedValue.isNull()) {
+            commitVariantValueToModel(propertyName, castedValue);
         }
-    }
-    catch (const RewritingException &e) {
-        e.showException();
     }
 }
 
@@ -446,13 +439,16 @@ void PropertyEditorView::resetView()
 void PropertyEditorView::setupQmlBackend()
 {
     TypeName specificsClassName;
-    QUrl qmlFile(PropertyEditorQmlBackend::getQmlUrlForModelNode(m_selectedNode, specificsClassName));
+
+    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(m_selectedNode);
+
+    const QUrl qmlFile(PropertyEditorQmlBackend::getQmlUrlForMetaInfo(commonAncestor, specificsClassName));
     QUrl qmlSpecificsFile;
 
     TypeName diffClassName;
-    if (m_selectedNode.isValid()) {
-        diffClassName = m_selectedNode.metaInfo().typeName();
-        foreach (const NodeMetaInfo &metaInfo, m_selectedNode.metaInfo().classHierarchy()) {
+    if (commonAncestor.isValid()) {
+        diffClassName = commonAncestor.typeName();
+        foreach (const NodeMetaInfo &metaInfo, commonAncestor.classHierarchy()) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;
             qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName() + "Specifics", metaInfo);
@@ -465,8 +461,8 @@ void PropertyEditorView::setupQmlBackend()
 
     QString specificQmlData;
 
-    if (m_selectedNode.isValid() && m_selectedNode.metaInfo().isValid() && diffClassName != m_selectedNode.type())
-        specificQmlData = PropertyEditorQmlBackend::templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo(diffClassName), m_selectedNode);
+    if (commonAncestor.isValid() && m_selectedNode.metaInfo().isValid() && diffClassName != m_selectedNode.type())
+        specificQmlData = PropertyEditorQmlBackend::templateGeneration(commonAncestor, model()->metaInfo(diffClassName), m_selectedNode);
 
     PropertyEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlFile.toString());
 
@@ -515,14 +511,51 @@ void PropertyEditorView::setupQmlBackend()
 
 }
 
+void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
+{
+    m_locked = true;
+    try {
+        RewriterTransaction transaction = beginRewriterTransaction("PropertyEditorView::commitVariantValueToMode");
+
+        for (const ModelNode &node : m_selectedNode.view()->selectedModelNodes()) {
+            if (QmlObjectNode::isValidQmlObjectNode(node))
+                QmlObjectNode(node).setVariantProperty(propertyName, value);
+        }
+        transaction.commit();
+    }
+    catch (const RewritingException &e) {
+        e.showException();
+    }
+    m_locked = false;
+}
+
+void PropertyEditorView::removePropertyFromModel(const PropertyName &propertyName)
+{
+    m_locked = true;
+    try {
+        RewriterTransaction transaction = beginRewriterTransaction("PropertyEditorView::removePropertyFromModel");
+
+        for (const ModelNode &node : m_selectedNode.view()->selectedModelNodes()) {
+            if (QmlObjectNode::isValidQmlObjectNode(node))
+                QmlObjectNode(node).removeProperty(propertyName);
+        }
+
+        transaction.commit();
+    }
+    catch (const RewritingException &e) {
+        e.showException();
+    }
+    m_locked = false;
+}
+
 void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                           const QList<ModelNode> &lastSelectedNodeList)
 {
     Q_UNUSED(lastSelectedNodeList);
 
-    if (selectedNodeList.isEmpty() || selectedNodeList.count() > 1)
+    if (selectedNodeList.isEmpty())
         select(ModelNode());
-    else if (m_selectedNode != selectedNodeList.constFirst())
+    else
         select(selectedNodeList.constFirst());
 }
 

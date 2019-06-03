@@ -68,11 +68,10 @@ public:
     PropertyEditorValue *propertyValueForName(const QString &propertyName);
 
     static QString propertyEditorResourcesPath();
-    static QString templateGeneration(const NodeMetaInfo &type, const NodeMetaInfo &superType,
-                                      const QmlObjectNode &objectNode);
+    static QString templateGeneration(const NodeMetaInfo &type, const NodeMetaInfo &superType, const QmlObjectNode &node);
 
     static QUrl getQmlFileUrl(const TypeName &relativeTypeName, const NodeMetaInfo &info = NodeMetaInfo());
-    static QUrl getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className);
+    static QUrl getQmlUrlForMetaInfo(const NodeMetaInfo &modelNode, TypeName &className);
 
     static bool checkIfUrlExists(const QUrl &url);
 
@@ -82,6 +81,8 @@ public:
     void setValueforLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &name);
 
     void setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor);
+
+    static NodeMetaInfo findCommonAncestor(const ModelNode &node);
 
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,

@@ -35,7 +35,8 @@ class QmlModelNodeProxy : public QObject
 {
     Q_OBJECT
 
-     Q_PROPERTY(QmlDesigner::ModelNode modelNode READ modelNode NOTIFY modelNodeChanged)
+    Q_PROPERTY(QmlDesigner::ModelNode modelNode READ modelNode NOTIFY modelNodeChanged)
+    Q_PROPERTY(bool multiSelection READ multiSelection NOTIFY modelNodeChanged)
 
 public:
     explicit QmlModelNodeProxy(QObject *parent = nullptr);
@@ -50,6 +51,12 @@ public:
     QmlItemNode qmlItemNode() const;
 
     ModelNode modelNode() const;
+
+    bool multiSelection() const;
+
+    QString nodeId() const;
+
+    QString simplifiedTypeName() const;
 
 signals:
     void modelNodeChanged();

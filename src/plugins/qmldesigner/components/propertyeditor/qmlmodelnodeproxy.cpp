@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "abstractview.h"
 #include "qmlmodelnodeproxy.h"
 
 #include <QtQml>
@@ -64,6 +65,36 @@ QmlItemNode QmlModelNodeProxy::qmlItemNode() const
 ModelNode QmlModelNodeProxy::modelNode() const
 {
     return m_qmlItemNode.modelNode();
+}
+
+bool QmlModelNodeProxy::multiSelection() const
+{
+    if (!m_qmlItemNode.isValid())
+        return false;
+
+    return m_qmlItemNode.view()->selectedModelNodes().count() > 1;
+}
+
+QString QmlModelNodeProxy::nodeId() const
+{
+    if (!m_qmlItemNode.isValid())
+        return {};
+
+    if (multiSelection())
+        return tr("multiselection");
+
+    return m_qmlItemNode.id();
+}
+
+QString QmlModelNodeProxy::simplifiedTypeName() const
+{
+    if (!m_qmlItemNode.isValid())
+        return {};
+
+    if (multiSelection())
+        return tr("multiselection");
+
+    return m_qmlItemNode.simplifiedTypeName();
 }
 
 }

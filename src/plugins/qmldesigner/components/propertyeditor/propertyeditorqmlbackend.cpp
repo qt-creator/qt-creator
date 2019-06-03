@@ -40,6 +40,7 @@
 
 #include <coreplugin/icore.h>
 #include <qmljs/qmljssimplereader.h>
+#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
@@ -281,13 +282,17 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
 
+        // model node
+        m_backendModelNode.setup(qmlObjectNode.modelNode());
+        context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
+
         // className
         auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(QLatin1String("className"))));
         if (!valueObject)
             valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("className");
         valueObject->setModelNode(qmlObjectNode.modelNode());
-        valueObject->setValue(qmlObjectNode.modelNode().simplifiedTypeName());
+        valueObject->setValue(m_backendModelNode.simplifiedTypeName());
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
         m_backendValuesPropertyMap.insert(QLatin1String("className"), QVariant::fromValue(valueObject));
 
@@ -296,7 +301,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (!valueObject)
             valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("id");
-        valueObject->setValue(qmlObjectNode.id());
+        valueObject->setValue(m_backendModelNode.nodeId());
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
         m_backendValuesPropertyMap.insert(QLatin1String("id"), QVariant::fromValue(valueObject));
 
@@ -309,10 +314,6 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         context()->setContextProperty(QLatin1String("transaction"), m_propertyEditorTransaction.data());
 
         qCInfo(propertyEditorBenchmark) << "anchors:" << time.elapsed();
-
-        // model node
-        m_backendModelNode.setup(qmlObjectNode.modelNode());
-        context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
 
         qCInfo(propertyEditorBenchmark) << "context:" << time.elapsed();
 
@@ -402,7 +403,7 @@ QString PropertyEditorQmlBackend::propertyEditorResourcesPath() {
 
 QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
                                                      const NodeMetaInfo &superType,
-                                                     const QmlObjectNode &objectNode)
+                                                     const QmlObjectNode &node)
 {
     if (!templateConfiguration() || !templateConfiguration()->isValid())
         return QString();
@@ -411,7 +412,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
 
     QString qmlTemplate = imports.join(QLatin1Char('\n')) + QLatin1Char('\n');
     qmlTemplate += QStringLiteral("Section {\n");
-    qmlTemplate += QStringLiteral("caption: \"%1\"\n").arg(objectNode.modelNode().simplifiedTypeName());
+    qmlTemplate += QStringLiteral("caption: \"%1\"\n").arg(QString::fromUtf8(type.simplifiedTypeName()));
     qmlTemplate += QStringLiteral("SectionLayout {\n");
 
     QList<PropertyName> orderedList = type.propertyNames();
@@ -429,8 +430,8 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
 
         TypeName typeName = type.propertyTypeName(name);
         //alias resolution only possible with instance
-        if (typeName == "alias" && objectNode.isValid())
-            typeName = objectNode.instanceType(name);
+        if (typeName == "alias" && node.isValid())
+            typeName = node.instanceType(name);
 
         if (!superType.hasProperty(name) && type.propertyIsWritable(name) && !name.contains(".")) {
             foreach (const QmlJS::SimpleReaderNode::Ptr &node, templateConfiguration()->children())
@@ -467,6 +468,34 @@ TypeName PropertyEditorQmlBackend::fixTypeNameForPanes(const TypeName &typeName)
     TypeName fixedTypeName = typeName;
     fixedTypeName.replace('.', '/');
     return fixedTypeName;
+}
+
+static NodeMetaInfo findCommonSuperClass(const NodeMetaInfo &first, const NodeMetaInfo &second)
+{
+    for (const NodeMetaInfo &info : first.superClasses()) {
+        if (second.isSubclassOf(info.typeName()))
+            return info;
+    }
+    return first;
+}
+
+NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
+{
+    QTC_ASSERT(node.isValid(), return {});
+    QTC_ASSERT(node.metaInfo().isValid(), return {});
+
+    AbstractView *view = node.view();
+
+    if (view->selectedModelNodes().count() > 1) {
+        NodeMetaInfo commonClass = node.metaInfo();
+        for (const ModelNode &currentNode :  view->selectedModelNodes()) {
+            if (currentNode.metaInfo().isValid() && !currentNode.isSubclassOf(commonClass.typeName(), -1, -1))
+              commonClass = findCommonSuperClass(currentNode.metaInfo(), commonClass);
+        }
+        return commonClass;
+    }
+
+    return node.metaInfo();
 }
 
 TypeName PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
@@ -526,10 +555,10 @@ void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObje
     setValue(qmlObjectNode,  name, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName));
 }
 
-QUrl PropertyEditorQmlBackend::getQmlUrlForModelNode(const ModelNode &modelNode, TypeName &className)
+QUrl PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo, TypeName &className)
 {
-    if (modelNode.isValid()) {
-        foreach (const NodeMetaInfo &info, modelNode.metaInfo().classHierarchy()) {
+    if (metaInfo.isValid()) {
+        foreach (const NodeMetaInfo &info, metaInfo.classHierarchy()) {
             QUrl fileUrl = fileToUrl(locateQmlFile(info, QString::fromUtf8(qmlFileName(info))));
             if (fileUrl.isValid()) {
                 className = info.typeName();

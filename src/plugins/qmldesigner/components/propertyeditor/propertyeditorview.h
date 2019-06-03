@@ -110,6 +110,9 @@ private: //functions
     void delayedResetView();
     void setupQmlBackend();
 
+    void commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value);
+    void removePropertyFromModel(const PropertyName &propertyName);
+
 private: //variables
     ModelNode m_selectedNode;
     QWidget *m_parent;
