@@ -726,7 +726,7 @@ void SettingsDialog::done(int val)
     QSettings *settings = ICore::settings();
     settings->setValue(QLatin1String(pageKeyC), m_currentPage.toSetting());
 
-    ICore::saveSettings(); // save all settings
+    ICore::saveSettings(ICore::SettingsDialogDone); // save all settings
 
     // exit event loops in reverse order of addition
     for (QEventLoop *eventLoop : m_eventLoops)

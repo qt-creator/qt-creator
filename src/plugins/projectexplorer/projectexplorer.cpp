@@ -2098,7 +2098,7 @@ void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)
         // Saving settings directly in a mode change is not a good idea, since the mode change
         // can be part of a bigger change. Save settings after that bigger change had a chance to
         // complete.
-        QTimer::singleShot(0, ICore::instance(), &ICore::saveSettings);
+        QTimer::singleShot(0, ICore::instance(), [] { ICore::saveSettings(ICore::ModeChanged); });
     }
     if (mode == Core::Constants::MODE_WELCOME)
         updateWelcomePage();

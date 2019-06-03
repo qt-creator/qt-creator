@@ -330,7 +330,7 @@ ICore::ICore(MainWindow *mainwindow)
     m_mainwindow = mainwindow;
     // Save settings once after all plugins are initialized:
     connect(PluginManager::instance(), &PluginManager::initializationDone,
-            this, &ICore::saveSettings);
+            this, [] { ICore::saveSettings(ICore::InitializationDone); });
     connect(PluginManager::instance(), &PluginManager::testsFinished, [this] (int failedTests) {
         emit coreAboutToClose();
         if (failedTests != 0)
@@ -690,9 +690,9 @@ void ICore::setupScreenShooter(const QString &name, QWidget *w, const QRect &rc)
         new ScreenShooter(w, name, rc);
 }
 
-void ICore::saveSettings()
+void ICore::saveSettings(SaveSettingsReason reason)
 {
-    emit m_instance->saveSettingsRequested();
+    emit m_instance->saveSettingsRequested(reason);
     m_mainwindow->saveSettings();
 
     ICore::settings(QSettings::SystemScope)->sync();
