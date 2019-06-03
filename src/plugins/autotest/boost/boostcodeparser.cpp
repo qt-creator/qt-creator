@@ -112,6 +112,9 @@ void BoostCodeParser::handleIdentifier()
         handleTestCase(TestCaseType::Fixture);
     } else if (identifier == "BOOST_DATA_TEST_CASE") {
         handleTestCase(TestCaseType::Data);
+    } else if (identifier == "BOOST_DATA_TEST_CASE_F") {
+        m_currentState.setFlag(BoostTestTreeItem::Fixture);
+        handleTestCase(TestCaseType::Data);
     } else if (identifier == "BOOST_TEST_DECORATOR") {
         handleDecorator();
     }
@@ -195,6 +198,12 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
             }
             if (testCaseType == TestCaseType::Parameter)
                 m_currentState |= BoostTestTreeItem::Parameterized;
+        } else if (m_currentState.testFlag(BoostTestTreeItem::Fixture)) {
+            // ignore first parameter (fixture) and first comma
+            if (!skipCommentsUntil(T_IDENTIFIER))
+                return;
+            if (!skipCommentsUntil(T_COMMA))
+                return;
         }
         if (!skipCommentsUntil(T_IDENTIFIER))
             return;
