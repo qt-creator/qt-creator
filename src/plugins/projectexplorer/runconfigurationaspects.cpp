@@ -141,11 +141,6 @@ WorkingDirectoryAspect::WorkingDirectoryAspect()
 void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!m_chooser);
-    m_resetButton = new QToolButton(layout->parentWidget());
-    m_resetButton->setToolTip(tr("Reset to Default"));
-    m_resetButton->setIcon(Utils::Icons::RESET.icon());
-    connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
-
     m_chooser = new PathChooser(layout->parentWidget());
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
@@ -158,6 +153,10 @@ void WorkingDirectoryAspect::addToConfigurationLayout(QFormLayout *layout)
                 m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
             });
 
+    m_resetButton = new QToolButton(layout->parentWidget());
+    m_resetButton->setToolTip(tr("Reset to Default"));
+    m_resetButton->setIcon(Utils::Icons::RESET.icon());
+    connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
     m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
 
     if (m_envAspect) {
