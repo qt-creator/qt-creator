@@ -4,4 +4,5 @@ add_qtc_executable(echo
   SOURCES
     echoclangcodemodelserver.cpp echoclangcodemodelserver.h
     echoserverprocessmain.cpp
+  SKIP_INSTALL
 )
