@@ -107,7 +107,7 @@ void BoostTestOutputReader::sendCompleteInformation()
     if (m_lineNumber) {
         result->setLine(m_lineNumber);
         result->setFileName(m_fileName);
-    } // else TODO
+    }
 
     result->setDescription(m_description);
     result->setResult(m_result);
@@ -406,7 +406,6 @@ TestResultPtr BoostTestOutputReader::createDefaultResult() const
     result->setTestSuite(m_currentSuite);
     result->setTestCase(m_currentTest);
 
-    // TODO find corresponding TestTreeItem and set filename/line
     return TestResultPtr(result);
 }
 
@@ -418,7 +417,6 @@ void BoostTestOutputReader::onFinished(int exitCode, QProcess::ExitStatus /*exit
     // boost::exit_success (0), boost::exit_test_failure (201)
     // or boost::exit_exception_failure (200)
     // be graceful and do not add a fatal for exit_test_failure
-    // but exit code 0 can be forced with an option - what todo in that case?
     if (m_logLevel == LogLevel::Nothing && m_reportLevel == ReportLevel::No) {
         switch (exitCode) {
         case 0:
