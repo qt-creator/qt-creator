@@ -1,5 +1,5 @@
 add_qtc_plugin(Core
-  DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Script Qt5::Sql Qt5::Gui Qt5::GuiPrivate
+  DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Sql Qt5::Gui Qt5::GuiPrivate
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
   SOURCES
     actionmanager/actioncontainer.cpp actionmanager/actioncontainer.h actionmanager/actioncontainer_p.h
@@ -100,7 +100,6 @@ add_qtc_plugin(Core
     locator/externaltoolsfilter.cpp locator/externaltoolsfilter.h
     locator/filesystemfilter.cpp locator/filesystemfilter.h locator/filesystemfilter.ui
     locator/ilocatorfilter.cpp locator/ilocatorfilter.h
-    locator/javascriptfilter.cpp locator/javascriptfilter.h
     locator/locator.cpp locator/locator.h
     locator/locatorconstants.h
     locator/locatorfiltersfilter.cpp locator/locatorfiltersfilter.h
@@ -175,4 +174,12 @@ extend_qtc_plugin(Core
 extend_qtc_plugin(Core
   CONDITION (NOT WIN32) AND (NOT APPLE)
   SOURCES progressmanager/progressmanager_x11.cpp
+)
+
+extend_qtc_plugin(Core
+  CONDITION TARGET Qt5::Script
+  DEPENDS Qt5::Script
+  DEFINES WITH_JAVASCRIPTFILTER
+  SOURCES
+    locator/javascriptfilter.cpp locator/javascriptfilter.h
 )
