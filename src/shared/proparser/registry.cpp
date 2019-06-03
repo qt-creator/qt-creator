@@ -29,6 +29,8 @@
 #include <QtCore/qstringlist.h>
 #include "registry_p.h"
 
+QT_BEGIN_NAMESPACE
+
 namespace QMakeInternal {
 
 #ifdef Q_OS_WIN32
@@ -156,3 +158,4 @@ QString qt_readRegistryKey(HKEY parentHandle, const QString &rSubkey, unsigned l
 
 }  // namespace QMakeInternal
 
+QT_END_NAMESPACE
