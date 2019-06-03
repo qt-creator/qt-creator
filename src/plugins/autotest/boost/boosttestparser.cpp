@@ -40,7 +40,9 @@ namespace BoostTestUtils {
 static const QStringList relevant = {
     QStringLiteral("BOOST_AUTO_TEST_CASE"), QStringLiteral("BOOST_TEST_CASE"),
     QStringLiteral("BOOST_DATA_TEST_CASE"), QStringLiteral("BOOST_FIXTURE_TEST_CASE"),
-    QStringLiteral("BOOST_PARAM_TEST_CASE"), QStringLiteral("BOOST_DATA_TEST_CASE_F")
+    QStringLiteral("BOOST_PARAM_TEST_CASE"), QStringLiteral("BOOST_DATA_TEST_CASE_F"),
+    QStringLiteral("BOOST_AUTO_TEST_CASE_TEMPLATE"),
+    QStringLiteral("BOOST_FIXTURE_TEST_CASE_TEMPLATE"),
 };
 
 bool isBoostTestMacro(const QString &macro)

@@ -115,6 +115,13 @@ void BoostCodeParser::handleIdentifier()
     } else if (identifier == "BOOST_DATA_TEST_CASE_F") {
         m_currentState.setFlag(BoostTestTreeItem::Fixture);
         handleTestCase(TestCaseType::Data);
+    } else if (identifier == "BOOST_AUTO_TEST_CASE_TEMPLATE") {
+        m_currentState.setFlag(BoostTestTreeItem::Templated);
+        handleTestCase(TestCaseType::Auto);
+    } else if (identifier == "BOOST_FIXTURE_TEST_CASE_TEMPLATE") {
+        m_currentState.setFlag(BoostTestTreeItem::Fixture);
+        m_currentState.setFlag(BoostTestTreeItem::Templated);
+        handleTestCase(TestCaseType::Auto);
     } else if (identifier == "BOOST_TEST_DECORATOR") {
         handleDecorator();
     }
@@ -237,7 +244,8 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
             m_currentState = BoostTestTreeItem::Enabled;
         }
     } else {
-        handleDecorators();
+        if (!m_currentState.testFlag(BoostTestTreeItem::Templated))
+            handleDecorators();
         locationAndType = locationAndTypeFromToken(token, m_source, m_currentState, m_suites);
         m_testCases.append(locationAndType);
         m_currentState = BoostTestTreeItem::Enabled;
