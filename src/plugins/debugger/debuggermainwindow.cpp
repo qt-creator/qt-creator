@@ -161,6 +161,9 @@ public:
 
     QList<QPointer<Perspective>> m_perspectives;
     QSet<QString> m_persistentChangedDocks;
+
+    QHash<QString, QByteArray> m_lastPerspectiveStates;
+    QHash<QString, QByteArray> m_lastTypePerspectiveStates;
 };
 
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
@@ -431,10 +434,11 @@ void DebuggerMainWindow::restorePersistentSettings()
     qCDebug(perspectivesLog) << "RESTORE PERSISTENT";
     QSettings *settings = ICore::settings();
     settings->beginGroup(MAINWINDOW_KEY);
-    const bool res = theMainWindow->restoreState(settings->value(STATE_KEY).toByteArray(),
-                                                 SettingsVersion);
-    if (!res)
-        qCDebug(perspectivesLog) << "NO READABLE PERSISTENT SETTINGS FOUND, ASSUMING NEW CLEAN SETTINGS";
+
+    const QHash<QString, QVariant> states = settings->value(STATE_KEY).toHash();
+    theMainWindow->d->m_lastTypePerspectiveStates.clear();
+    for (const QString &type : states.keys())
+        theMainWindow->d->m_lastTypePerspectiveStates.insert(type, states.value(type).toByteArray());
 
     theMainWindow->setAutoHideTitleBars(settings->value(AUTOHIDE_TITLEBARS_KEY, true).toBool());
     theMainWindow->showCentralWidget(settings->value(SHOW_CENTRALWIDGET_KEY, true).toBool());
@@ -497,10 +501,14 @@ void DebuggerMainWindow::savePersistentSettings()
     theMainWindow->d->m_persistentChangedDocks = changedDocks;
     qCDebug(perspectivesLog) << "CHANGED DOCKS:" << changedDocks;
 
+    QVariantHash states;
+    for (const QString &type : theMainWindow->d->m_lastTypePerspectiveStates.keys())
+        states.insert(type, QVariant::fromValue(theMainWindow->d->m_lastTypePerspectiveStates.value(type)));
+
     QSettings *settings = ICore::settings();
     settings->beginGroup(MAINWINDOW_KEY);
     settings->setValue(CHANGED_DOCK_KEY, QStringList(changedDocks.toList()));
-    settings->setValue(STATE_KEY, theMainWindow->saveState(SettingsVersion));
+    settings->setValue(STATE_KEY, states);
     settings->setValue(AUTOHIDE_TITLEBARS_KEY, theMainWindow->autoHideTitleBars());
     settings->setValue(SHOW_CENTRALWIDGET_KEY, theMainWindow->isCentralWidgetShown());
     settings->endGroup();
@@ -941,6 +949,13 @@ void PerspectivePrivate::restoreLayout()
                                      << (active == op.visibleByDefault ? "DEFAULT USER" : "*** NON-DEFAULT USER");
         }
     }
+
+    QByteArray state;
+    if (theMainWindow->d->m_lastTypePerspectiveStates.contains(settingsId()))
+        state = theMainWindow->d->m_lastTypePerspectiveStates.value(settingsId());
+    if (theMainWindow->d->m_lastPerspectiveStates.contains(m_id))
+        state = theMainWindow->d->m_lastPerspectiveStates.value(m_id);
+    theMainWindow->restoreState(state);
 }
 
 void PerspectivePrivate::saveLayout()
@@ -960,6 +975,8 @@ void PerspectivePrivate::saveLayout()
                                      << (active == op.visibleByDefault ? "DEFAULT USER" : "*** NON-DEFAULT USER");
         }
     }
+    theMainWindow->d->m_lastPerspectiveStates.insert(m_id, theMainWindow->saveState());
+    theMainWindow->d->m_lastTypePerspectiveStates.insert(settingsId(), theMainWindow->saveState());
 }
 
 QString PerspectivePrivate::settingsId() const
