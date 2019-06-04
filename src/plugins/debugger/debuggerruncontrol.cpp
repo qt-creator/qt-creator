@@ -98,8 +98,8 @@ class LocalProcessRunner : public RunWorker
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::LocalProcessRunner)
 
 public:
-    LocalProcessRunner(DebuggerRunTool *runTool, const Runnable &runnable)
-        : RunWorker(runTool->runControl()), m_runTool(runTool), m_runnable(runnable)
+    LocalProcessRunner(DebuggerRunTool *runTool, const CommandLine &command)
+        : RunWorker(runTool->runControl()), m_runTool(runTool), m_command(command)
     {
         connect(&m_proc, &QProcess::errorOccurred,
                 this, &LocalProcessRunner::handleError);
@@ -113,7 +113,7 @@ public:
 
     void start() override
     {
-        m_proc.setCommand(m_runnable.commandLine());
+        m_proc.setCommand(m_command);
         m_proc.start();
     }
 
@@ -181,7 +181,7 @@ public:
     }
 
     QPointer<DebuggerRunTool> m_runTool;
-    Runnable m_runnable;
+    CommandLine m_command;
     Utils::QtcProcess m_proc;
 };
 
@@ -400,14 +400,12 @@ void DebuggerRunTool::setCommandsForReset(const QString &commands)
     m_runParameters.commandsForReset = commands;
 }
 
-void DebuggerRunTool::setServerStartScript(const QString &serverStartScript)
+void DebuggerRunTool::setServerStartScript(const FilePath &serverStartScript)
 {
     if (!serverStartScript.isEmpty()) {
         // Provide script information about the environment
-        Runnable serverStarter;
-        serverStarter.executable = serverStartScript;
-        QtcProcess::addArg(&serverStarter.commandLineArguments, m_runParameters.inferior.executable);
-        QtcProcess::addArg(&serverStarter.commandLineArguments, m_runParameters.remoteChannel);
+        CommandLine serverStarter(serverStartScript, {});
+        serverStarter.addArgs({m_runParameters.inferior.executable, m_runParameters.remoteChannel});
         addStartDependency(new LocalProcessRunner(this, serverStarter));
     }
 }

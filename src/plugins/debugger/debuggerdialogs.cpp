@@ -150,7 +150,7 @@ public:
     Runnable runnable;
     bool breakAtMain = false;
     bool runInTerminal = false;
-    QString serverStartScript;
+    FilePath serverStartScript;
     QString debugInfoLocation;
 };
 
@@ -198,7 +198,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory);
     settings->setValue("LastExternalBreakAtMain", breakAtMain);
     settings->setValue("LastExternalRunInTerminal", runInTerminal);
-    settings->setValue("LastServerStartScript", serverStartScript);
+    settings->setValue("LastServerStartScript", serverStartScript.toVariant());
     settings->setValue("LastDebugInfoLocation", debugInfoLocation);
 }
 
@@ -212,7 +212,7 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     runnable.workingDirectory = settings->value("LastExternalWorkingDirectory").toString();
     breakAtMain = settings->value("LastExternalBreakAtMain").toBool();
     runInTerminal = settings->value("LastExternalRunInTerminal").toBool();
-    serverStartScript = settings->value("LastServerStartScript").toString();
+    serverStartScript = FilePath::fromVariant(settings->value("LastServerStartScript"));
     debugInfoLocation = settings->value("LastDebugInfoLocation").toString();
 }
 
@@ -475,7 +475,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     result.serverPort = d->serverPortSpinBox->value();
     result.serverAddress = d->channelOverrideEdit->text();
     result.runnable.executable = d->localExecutablePathChooser->path();
-    result.serverStartScript = d->serverStartScriptPathChooser->path();
+    result.serverStartScript = d->serverStartScriptPathChooser->fileName();
     result.kitId = d->kitChooser->currentKitId();
     result.debugInfoLocation = d->debuginfoPathChooser->path();
     result.runnable.commandLineArguments = d->arguments->text();
@@ -491,7 +491,7 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->serverPortSpinBox->setValue(p.serverPort);
     d->channelOverrideEdit->setText(p.serverAddress);
     d->localExecutablePathChooser->setPath(p.runnable.executable);
-    d->serverStartScriptPathChooser->setPath(p.serverStartScript);
+    d->serverStartScriptPathChooser->setFileName(p.serverStartScript);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
     d->arguments->setText(p.runnable.commandLineArguments);
     d->workingDirectory->setPath(p.runnable.workingDirectory);
