@@ -189,6 +189,12 @@ bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *erro
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
 
     m_welcomeMode = new WelcomeMode;
+
+    QFontDatabase fonts;
+    QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+    QFont systemFont("Titillium Web", QApplication::font().pointSize());
+    QApplication::setFont(systemFont);
+
     return true;
 }
 
