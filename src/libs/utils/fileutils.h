@@ -137,8 +137,8 @@ public:
         : m_executable(executable), m_arguments(arguments)
     {}
 
-    void addArg(const QString &arg);
-    void addArgs(const QStringList &inArgs);
+    void addArg(const QString &arg, OsType osType = HostOsInfo::hostOs());
+    void addArgs(const QStringList &inArgs, OsType osType = HostOsInfo::hostOs());
     void addArgs(const QString &inArgs);
 
     QString toUserOutput() const;

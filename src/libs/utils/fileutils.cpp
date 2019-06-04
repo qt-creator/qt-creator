@@ -74,14 +74,15 @@ namespace Utils {
 
 */
 
-void CommandLine::addArg(const QString &arg)
+void CommandLine::addArg(const QString &arg, OsType osType)
 {
-    QtcProcess::addArg(&m_arguments, arg);
+    QtcProcess::addArg(&m_arguments, arg, osType);
 }
 
-void CommandLine::addArgs(const QStringList &inArgs)
+void CommandLine::addArgs(const QStringList &inArgs, OsType osType)
 {
-    QtcProcess::addArgs(&m_arguments, inArgs);
+    for (const QString &arg : inArgs)
+        addArg(arg, osType);
 }
 
 void CommandLine::addArgs(const QString &inArgs)
