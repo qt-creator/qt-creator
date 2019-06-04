@@ -10,6 +10,7 @@ SUBDIRS   = \
     texteditor \
     cppeditor \
     bineditor \
+    boot2qt \
     diffeditor \
     imageviewer \
     bookmarks \

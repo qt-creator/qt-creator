@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/qdb">
+        <file>images/qdbdevice.png</file>
+        <file>images/qdbdevice@2x.png</file>
+        <file>images/qdbdevicesmall.png</file>
+        <file>images/qdbdevicesmall@2x.png</file>
+    </qresource>
+</RCC>

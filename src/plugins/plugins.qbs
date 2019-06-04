@@ -12,6 +12,7 @@ Project {
         "beautifier/beautifier.qbs",
         "bineditor/bineditor.qbs",
         "bookmarks/bookmarks.qbs",
+        "boot2qt/boot2qt.qbs",
         "clangcodemodel/clangcodemodel.qbs",
         "clangformat/clangformat.qbs",
         "clangpchmanager/clangpchmanager.qbs",
