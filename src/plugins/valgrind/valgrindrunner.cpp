@@ -82,13 +82,15 @@ public:
 
 bool ValgrindRunner::Private::run()
 {
+    QStringList arguments;
+
     if (!localServerAddress.isNull()) {
         if (!q->startServers())
             return false;
 
-        bool enableXml = !disableXml;
+        arguments.append("--child-silent-after-fork=yes");
 
-        QStringList arguments = {"--child-silent-after-fork=yes"};
+        bool enableXml = !disableXml;
 
         auto handleSocketParameter = [&enableXml, &arguments](const QString &prefix, const QTcpServer &tcpServer)
         {
@@ -109,10 +111,8 @@ bool ValgrindRunner::Private::run()
 
         if (enableXml)
             arguments << "--xml=yes";
-
-        // FIXME: Unclear why this changes the stored data.
-        m_valgrindArguments = arguments + m_valgrindArguments;
     }
+    arguments += m_valgrindArguments;
 
     m_valgrindProcess.setProcessChannelMode(channelMode);
     // consider appending our options last so they override any interfering user-supplied options
@@ -136,18 +136,17 @@ bool ValgrindRunner::Private::run()
     connect(&m_valgrindProcess, &ApplicationLauncher::remoteProcessStarted,
             this, &ValgrindRunner::Private::remoteProcessStarted);
 
-    QStringList fullArgs = m_valgrindArguments;
     if (HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.
-        fullArgs << "--dsymutil=yes";
-    fullArgs << m_debuggee.executable;
+        arguments << "--dsymutil=yes";
+    arguments << m_debuggee.executable;
 
     Runnable valgrind;
     valgrind.executable = m_valgrindExecutable;
     valgrind.workingDirectory = m_debuggee.workingDirectory;
     valgrind.environment = m_debuggee.environment;
     valgrind.device = m_device;
-    valgrind.commandLineArguments = QtcProcess::joinArgs(fullArgs, m_device->osType());
+    valgrind.commandLineArguments = QtcProcess::joinArgs(arguments, m_device->osType());
     Utils::QtcProcess::addArgs(&valgrind.commandLineArguments, m_debuggee.commandLineArguments);
     emit q->valgrindExecuted(QtcProcess::quoteArg(valgrind.executable) + ' '
                              + valgrind.commandLineArguments);
