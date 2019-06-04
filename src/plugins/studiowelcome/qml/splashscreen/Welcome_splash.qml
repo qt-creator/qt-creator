@@ -182,30 +182,14 @@ Image {
         }
     }
 
-    Text {
-        id: do_not_show_text
-        x: 42
-        y: 432
-        width: 143
-        height: 31
-        color: "#ffffff"
-        text: qsTr("Don't show this again")
-        font.wordSpacing: 0
-        font.pixelSize: 12
-        font.family: StudioFonts.titilliumWeb_light
-        wrapMode: Text.WordWrap
+    NoShowCheckbox {
+        id: do_not_show_checkBox
+        x: -47
+        y: 430
+        padding: 0
+        scale: 0.5
     }
 
-    CheckBox {
-        id: do_not_show_checkBox
-        x: 7
-        y: 421
-        width: 34
-        height: 40
-        text: qsTr("")
-        scale: 0.5
-        font.pointSize: 9
-    }
 
     RowLayout {
         x: 16
