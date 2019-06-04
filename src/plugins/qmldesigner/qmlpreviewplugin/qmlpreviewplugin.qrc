@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/qmlpreviewplugin">
+        <file>qmlpreview.metainfo</file>
+        <file>images/live_preview.png</file>
+        <file>images/live_preview@2x.png</file>
+    </qresource>
+</RCC>
