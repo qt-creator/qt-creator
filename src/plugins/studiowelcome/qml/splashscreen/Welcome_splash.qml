@@ -42,8 +42,8 @@ Image {
 
     Image {
         id: logo
-        x: 16
-        y: 18
+        x: 14
+        y: 8
         width: 76
         height: 66
         fillMode: Image.PreserveAspectFit
@@ -52,8 +52,10 @@ Image {
 
     Text {
         id: qt_design_studio
-        x: 14
+        x: 13
         y: 93
+        width: 250
+        height: 55
         color: "#4cd265"
         text: qsTr("Qt Design Studio")
         font.pixelSize: 36
