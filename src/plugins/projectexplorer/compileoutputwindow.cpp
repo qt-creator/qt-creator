@@ -172,11 +172,6 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     updateFontSettings();
     updateZoomEnabled();
-    const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::fontSettings();
-    m_outputWindow->setHighlightBgColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
-                                        .background().color());
-    m_outputWindow->setHighlightTextColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
-                                          .foreground().color());
     setupFilterUi("CompileOutputPane.Filter");
     setFilteringEnabled(true);
 

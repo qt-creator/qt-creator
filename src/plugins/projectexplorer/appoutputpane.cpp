@@ -426,7 +426,6 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     }
     // Create new
     static int counter = 0;
-    const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::fontSettings();
     Core::Id contextId = Core::Id(C_APP_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
     Core::OutputWindow *ow = new Core::OutputWindow(context, SETTINGS_KEY, m_tabWidget);
@@ -434,10 +433,6 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setWordWrapEnabled(m_settings.wrapOutput);
     ow->setMaxCharCount(m_settings.maxCharCount);
-    ow->setHighlightBgColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
-                            .background().color());
-    ow->setHighlightTextColor(fs.toTextCharFormat(TextEditor::C_SEARCH_RESULT)
-                              .foreground().color());
 
     auto updateFontSettings = [ow] {
         ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());

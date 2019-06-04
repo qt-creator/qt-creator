@@ -76,8 +76,6 @@ public:
     float fontZoom() const;
     void setFontZoom(float zoom);
     void setWheelZoomEnabled(bool enabled);
-    void setHighlightBgColor(const QColor &bgColor);
-    void setHighlightTextColor(const QColor &textColor);
 
     void updateFilterProperties(const QString &filterText, Qt::CaseSensitivity caseSensitivity, bool regexp);
 

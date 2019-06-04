@@ -53,8 +53,6 @@ MessageOutputWindow::MessageOutputWindow()
     QColor activeHighlightedText = p.color(QPalette::Active, QPalette::HighlightedText);
     p.setColor(QPalette::HighlightedText, activeHighlightedText);
     m_widget->setPalette(p);
-    m_widget->setHighlightBgColor(p.color(QPalette::Highlight));
-    m_widget->setHighlightTextColor(p.color(QPalette::HighlightedText));
 
     connect(this, &IOutputPane::zoomIn, m_widget, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOut, m_widget, &Core::OutputWindow::zoomOut);
