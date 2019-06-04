@@ -80,7 +80,7 @@ Image {
         width: 270
         height: 24
         color: "#ffffff"
-        text: qsTr("Copyright 2008 - 2018 The Qt Company")
+        text: qsTr("Copyright 2008 - 2019 The Qt Company")
         font.pixelSize: 16
         font.family: StudioFonts.titilliumWeb_light
     }
