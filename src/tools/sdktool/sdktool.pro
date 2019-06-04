@@ -37,6 +37,7 @@ SOURCES += \
     $$UTILS/qtcassert.cpp \
     $$UTILS/qtcprocess.cpp \
     $$UTILS/savefile.cpp \
+    $$UTILS/stringutils.cpp
 
 HEADERS += \
     addabiflavor.h \

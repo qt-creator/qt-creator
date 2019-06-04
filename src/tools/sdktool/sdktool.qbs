@@ -72,7 +72,8 @@ QtcTool {
             "persistentsettings.cpp", "persistentsettings.h",
             "qtcassert.cpp", "qtcassert.h",
             "qtcprocess.cpp", "qtcprocess.h",
-            "savefile.cpp", "savefile.h"
+            "savefile.cpp", "savefile.h",
+            "stringutils.cpp"
         ]
     }
     Group {
