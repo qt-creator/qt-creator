@@ -299,11 +299,12 @@ void PythonRunConfiguration::updateTargetInformation()
 
 Runnable PythonRunConfiguration::runnable() const
 {
+    CommandLine cmd{executable(), {}};
+    cmd.addArg(mainScript());
+    cmd.addArgs(aspect<ArgumentsAspect>()->arguments(macroExpander()));
+
     Runnable r;
-    QtcProcess::addArg(&r.commandLineArguments, mainScript());
-    QtcProcess::addArgs(&r.commandLineArguments,
-                        aspect<ArgumentsAspect>()->arguments(macroExpander()));
-    r.executable = executable().toString();
+    r.setCommandLine(cmd);
     r.environment = aspect<EnvironmentAspect>()->environment();
     return r;
 }
