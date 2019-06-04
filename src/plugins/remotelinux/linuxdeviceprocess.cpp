@@ -28,14 +28,11 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {
-
-static QString quote(const QString &s) { return Utils::QtcProcess::quoteArgUnix(s); }
 
 LinuxDeviceProcess::LinuxDeviceProcess(const QSharedPointer<const ProjectExplorer::IDevice> &device,
                                        QObject *parent)
@@ -78,42 +75,41 @@ qint64 LinuxDeviceProcess::processId() const
 
 QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
-    const Environment env = runnable.environment;
+    CommandLine cmd;
 
-    QString fullCommandLine;
-    foreach (const QString &filePath, rcFilesToSource())
-        fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
+    for (const QString &filePath : rcFilesToSource()) {
+        cmd.addArgs({"test", "-f", filePath});
+        cmd.addArgs("&&");
+        cmd.addArgs({".", filePath});
+        cmd.addArgs(";");
+    }
+
     if (!runnable.workingDirectory.isEmpty()) {
-        fullCommandLine.append(QLatin1String("cd ")).append(quote(runnable.workingDirectory))
-                .append(QLatin1String(" && "));
+        cmd.addArgs({"cd", runnable.workingDirectory});
+        cmd.addArgs("&&");
     }
-    QString envString;
-    for (auto it = env.constBegin(); it != env.constEnd(); ++it) {
-        if (!envString.isEmpty())
-            envString += QLatin1Char(' ');
-        envString.append(env.key(it)).append(QLatin1String("='")).append(env.value(it))
-                .append(QLatin1Char('\''));
-    }
+
     if (!runInTerminal())
-        fullCommandLine.append("echo $$ && ");
-    if (!envString.isEmpty())
-        fullCommandLine.append(envString);
+        cmd.addArgs("echo $$ && ");
+
+    const Environment &env = runnable.environment;
+    for (auto it = env.constBegin(); it != env.constEnd(); ++it)
+        cmd.addArgs(env.key(it) + "='" + env.value(it) + '\'');
+
     if (!runInTerminal())
-        fullCommandLine.append(" exec");
-    fullCommandLine.append(' ');
-    fullCommandLine.append(quote(runnable.executable));
-    if (!runnable.commandLineArguments.isEmpty()) {
-        fullCommandLine.append(QLatin1Char(' '));
-        fullCommandLine.append(runnable.commandLineArguments);
-    }
-    return fullCommandLine;
+        cmd.addArg("exec");
+
+    cmd.addArg(runnable.executable);
+    cmd.addArgs(runnable.commandLineArguments);
+
+    return cmd.arguments();
 }
 
-QStringList LinuxDeviceProcess::rcFilesToSource() const
+const QStringList LinuxDeviceProcess::rcFilesToSource() const
 {
     if (!m_rcFilesToSource.isEmpty())
         return m_rcFilesToSource;
-    return QStringList() << QLatin1String("/etc/profile") << QLatin1String("$HOME/.profile");
+    return {"/etc/profile", "$HOME/.profile"};
 }
 
 } // namespace RemoteLinux
