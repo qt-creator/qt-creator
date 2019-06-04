@@ -67,6 +67,8 @@ class ProjectModel : public QAbstractListModel
 public:
     enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole };
 
+     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
+
     explicit ProjectModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
@@ -104,6 +106,12 @@ public:
     }
 public slots:
     void resetProjects();
+
+signals:
+    void communityVersionChanged();
+
+private:
+    bool m_communityVersion = false;
 };
 
 ProjectModel::ProjectModel(QObject *parent)
@@ -113,6 +121,12 @@ ProjectModel::ProjectModel(QObject *parent)
             &ProjectExplorer::ProjectExplorerPlugin::recentProjectsChanged,
             this,
             &ProjectModel::resetProjects);
+
+#ifdef LICENSECHECKER
+    if (!Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
+                             Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker"))))
+        m_communityVersion = true;
+#endif
 }
 
 int ProjectModel::rowCount(const QModelIndex &) const
