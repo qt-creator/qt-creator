@@ -51,8 +51,7 @@ public:
     GdbServerProvider *clone() const final;
 
     QString channel() const final;
-    QString executable() const final;
-    QStringList arguments() const final;
+    Utils::CommandLine command() const final;
 
     bool canStartupMode(StartupMode mode) const final;
     bool isValid() const final;
@@ -66,7 +65,7 @@ private:
 
     QString m_host = QLatin1String("localhost");
     quint16 m_port = 3333;
-    QString m_executableFile = QLatin1String("openocd");
+    Utils::FilePath m_executableFile = Utils::FilePath::fromString("openocd");
     QString m_rootScriptsDir;
     QString m_configurationFile;
     QString m_additionalArguments;

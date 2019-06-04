@@ -72,11 +72,9 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
 
     if (p->startupMode() == GdbServerProvider::StartupOnNetwork) {
         Runnable r;
-        r.executable = p->executable();
-        // We need to wrap the command arguments depending on a host OS,
-        // as the bare metal's GDB servers are launched on a host,
-        // but not on a target.
-        r.commandLineArguments = Utils::QtcProcess::joinArgs(p->arguments(), Utils::HostOsInfo::hostOs());
+        r.setCommandLine(p->command());
+        // Command arguments are in host OS style as the bare metal's GDB servers are launched
+        // on the host, not on that target.
         m_gdbServer = new SimpleTargetRunner(runControl);
         m_gdbServer->setRunnable(r);
         addStartDependency(m_gdbServer);
