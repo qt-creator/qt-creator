@@ -922,6 +922,21 @@ TEST_F(SymbolIndexer, DependentSourceAreUpToDate)
     indexer.updateProjectParts({projectPart1});
 }
 
+TEST_F(SymbolIndexer, SourcesAreWatched)
+{
+    using ClangBackEnd::IdPaths;
+    InSequence s;
+    FilePathIds sourcePathIds{4, 6, 8};
+
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchSources(projectPart1.projectPartId))
+        .WillOnce(Return(sourcePathIds));
+    EXPECT_CALL(mockPathWatcher,
+                updateIdPaths(ElementsAre(AllOf(Field(&IdPaths::id, projectPart1.projectPartId),
+                                                Field(&IdPaths::filePathIds, sourcePathIds)))));
+
+    indexer.updateProjectParts({projectPart1});
+}
+
 TEST_F(SymbolIndexer, CallSetNotifier)
 {
     EXPECT_CALL(mockPathWatcher, setNotifier(_));

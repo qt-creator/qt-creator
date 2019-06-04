@@ -144,6 +144,8 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
         }
     }
 
+    m_pathWatcher.updateIdPaths(
+        {{projectPartId, m_buildDependencyStorage.fetchSources(projectPartId)}});
     m_symbolIndexerTaskQueue.addOrUpdateTasks(std::move(symbolIndexerTask));
     m_symbolIndexerTaskQueue.processEntries();
 }

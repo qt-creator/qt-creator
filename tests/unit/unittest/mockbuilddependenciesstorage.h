@@ -51,5 +51,7 @@ public:
                  ClangBackEnd::ProjectPartId(Utils::SmallStringView projectPartName));
     MOCK_METHOD2(updatePchCreationTimeStamp,
                  void(long long pchCreationTimeStamp, ClangBackEnd::ProjectPartId projectPartId));
+    MOCK_CONST_METHOD1(fetchSources,
+                       ClangBackEnd::FilePathIds(ClangBackEnd::ProjectPartId projectPartId));
 };
 
