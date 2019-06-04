@@ -27,6 +27,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
@@ -44,6 +45,7 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QFontDatabase>
+#include <QFileInfo>
 #include <QPointer>
 #include <QQmlContext>
 #include <QQmlEngine>
@@ -281,6 +283,16 @@ WelcomeMode::WelcomeMode()
 #endif
 
     setWidget(m_modeWidget);
+
+    QStringList designStudioQchPathes = {Core::HelpManager::documentationPath()
+                                         + "/qtdesignstudio.qch",
+                                         Core::HelpManager::documentationPath() + "/qtquick.qch",
+                                         Core::HelpManager::documentationPath()
+                                         + "/qtquickcontrols.qch"};
+
+    Core::HelpManager::registerDocumentation(
+                Utils::filtered(designStudioQchPathes,
+                                [](const QString &path) { return QFileInfo::exists(path); }));
 }
 
 WelcomeMode::~WelcomeMode()
