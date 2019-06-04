@@ -46,7 +46,7 @@ class ValgrindRunner::Private : public QObject
 public:
     Private(ValgrindRunner *owner) : q(owner) {}
 
-    void run();
+    bool run();
 
     void handleRemoteStderr(const QString &b);
     void handleRemoteStdout(const QString &b);
@@ -80,8 +80,44 @@ public:
     bool disableXml = false;
 };
 
-void ValgrindRunner::Private::run()
+bool ValgrindRunner::Private::run()
 {
+    if (!localServerAddress.isNull()) {
+        if (!q->startServers())
+            return false;
+
+        bool enableXml = !disableXml;
+
+        QStringList arguments = {"--child-silent-after-fork=yes"};
+
+        auto handleSocketParameter = [&enableXml, &arguments](const QString &prefix, const QTcpServer &tcpServer)
+        {
+            QHostAddress serverAddress = tcpServer.serverAddress();
+            if (serverAddress.protocol() != QAbstractSocket::IPv4Protocol) {
+                // Report will end up in the Application Output pane, i.e. not have
+                // clickable items, but that's better than nothing.
+                qWarning("Need IPv4 for valgrind");
+                enableXml = false;
+            } else {
+                arguments << QString("%1=%2:%3").arg(prefix).arg(serverAddress.toString())
+                              .arg(tcpServer.serverPort());
+            }
+        };
+
+        handleSocketParameter("--xml-socket", xmlServer);
+        handleSocketParameter("--log-socket", logServer);
+
+        if (enableXml)
+            arguments << "--xml=yes";
+
+        // FIXME: Unclear why this changes the stored data.
+        m_valgrindArguments = arguments + m_valgrindArguments;
+    }
+
+    m_valgrindProcess.setProcessChannelMode(channelMode);
+    // consider appending our options last so they override any interfering user-supplied options
+    // -q as suggested by valgrind manual
+
     connect(&m_valgrindProcess, &ApplicationLauncher::processExited,
             this, &ValgrindRunner::Private::closed);
     connect(&m_valgrindProcess, &ApplicationLauncher::processStarted,
@@ -120,6 +156,8 @@ void ValgrindRunner::Private::run()
         m_valgrindProcess.start(valgrind);
     else
         m_valgrindProcess.start(valgrind, m_device);
+
+    return true;
 }
 
 void ValgrindRunner::Private::handleRemoteStderr(const QString &b)
@@ -272,47 +310,9 @@ void ValgrindRunner::waitForFinished() const
     loop.exec();
 }
 
-static void handleSocketParameter(const QString &prefix, const QTcpServer &tcpServer,
-                            bool *useXml, QStringList *arguments)
-{
-    QHostAddress serverAddress = tcpServer.serverAddress();
-    if (serverAddress.protocol() != QAbstractSocket::IPv4Protocol) {
-        // Report will end up in the Application Output pane, i.e. not have
-        // clickable items, but that's better than nothing.
-        qWarning("Need IPv4 for valgrind");
-        *useXml = false;
-    } else {
-        *arguments << QString("%1=%2:%3").arg(prefix).arg(serverAddress.toString())
-                                         .arg(tcpServer.serverPort());
-    }
-}
-
 bool ValgrindRunner::start()
 {
-    if (!d->localServerAddress.isNull()) {
-        if (!startServers())
-            return false;
-
-        bool enableXml = !d->disableXml;
-
-        QStringList arguments = {"--child-silent-after-fork=yes"};
-
-        handleSocketParameter("--xml-socket", d->xmlServer, &enableXml, &arguments);
-        handleSocketParameter("--log-socket", d->logServer, &enableXml, &arguments);
-
-        if (enableXml)
-            arguments << "--xml=yes";
-
-        d->m_valgrindArguments = arguments + d->m_valgrindArguments;
-    }
-
-    d->m_valgrindProcess.setProcessChannelMode(d->channelMode);
-    // consider appending our options last so they override any interfering user-supplied options
-    // -q as suggested by valgrind manual
-    d->m_valgrindExecutable = d->m_valgrindExecutable;
-    d->run();
-
-    return true;
+    return d->run();
 }
 
 void ValgrindRunner::processError(QProcess::ProcessError e)
