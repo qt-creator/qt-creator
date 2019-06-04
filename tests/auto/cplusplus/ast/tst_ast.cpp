@@ -97,7 +97,7 @@ public:
         {
             ++errorCount;
 
-            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().vsprintf(format, ap);
+            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' ' << QString::vasprintf(format, ap);
         }
     };
 

@@ -120,7 +120,7 @@ public:
             ++errorCount;
 
 #ifndef NO_PARSER_OR_SEMANTIC_ERROR_MESSAGES
-            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' '<<QString().vsprintf(format, ap);
+            qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' ' << QString::vasprintf(format, ap);
 #else
             Q_UNUSED(fileName);
             Q_UNUSED(line);

@@ -133,7 +133,7 @@ private:
             {
                 ++errorCount;
                 qDebug() << fileName->chars() << ':' << line << ':' << column
-                         << ' ' << QString().vsprintf(format, ap);
+                         << ' ' << QString::vasprintf(format, ap);
             }
         } m_diagnosticClient;
     };

@@ -228,8 +228,7 @@ public:
         if (fileName != doc->fileName())
             return;
 
-        QString message;
-        message.vsprintf(format, ap);
+        const QString message = QString::vasprintf(format, ap);
 
 #ifndef DO_NOT_DUMP_ALL_PARSER_ERRORS
         {
