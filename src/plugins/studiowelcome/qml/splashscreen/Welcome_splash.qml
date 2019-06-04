@@ -235,4 +235,18 @@ Image {
             }
         }
     }
+
+    Text {
+        id: all_rights_reserved1
+        x: 15
+        y: 75
+        color: "#ffffff"
+        text: qsTr("Community Edition")
+        font.pixelSize: 13
+        font.family: Constants.titilliumWeb_light
+        visible: projectModel.communityVersion
+        ProjectModel {
+            id: projectModel
+        }
+    }
 }
