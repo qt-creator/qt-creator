@@ -30,7 +30,10 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
-namespace Utils { class MacroExpander; }
+namespace Utils {
+class CommandLine;
+class MacroExpander;
+} // Utils
 
 namespace ProjectExplorer {
 
@@ -39,6 +42,8 @@ class PROJECTEXPLORER_EXPORT ProcessParameters
 {
 public:
     ProcessParameters();
+
+    void setCommandLine(const Utils::CommandLine &cmdLine);
 
     void setCommand(const Utils::FilePath &cmd);
     Utils::FilePath command() const { return m_command; }

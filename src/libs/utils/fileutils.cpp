@@ -28,6 +28,7 @@
 
 #include "algorithm.h"
 #include "qtcassert.h"
+#include "qtcprocess.h"
 
 #include <QDataStream>
 #include <QDir>
@@ -65,6 +66,33 @@ QDebug operator<<(QDebug dbg, const Utils::FilePath &c)
 QT_END_NAMESPACE
 
 namespace Utils {
+
+/*! \class Utils::CommandLine
+
+ \brief The CommandLine class represents a command line of a QProcess
+ or similar utility.
+
+*/
+
+void CommandLine::addArg(const QString &arg)
+{
+    QtcProcess::addArg(&m_arguments, arg);
+}
+
+void CommandLine::addArgs(const QStringList &inArgs)
+{
+    QtcProcess::addArgs(&m_arguments, inArgs);
+}
+
+void CommandLine::addArgs(const QString &inArgs)
+{
+    QtcProcess::addArgs(&m_arguments, inArgs);
+}
+
+QString CommandLine::toUserOutput() const
+{
+    return m_executable.toUserOutput() + ' ' + m_arguments;
+}
 
 /*! \class Utils::FileUtils
 

@@ -141,14 +141,21 @@ public:
     static QString systemInformation();
     static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
 
+    enum SaveSettingsReason {
+        InitializationDone,
+        SettingsDialogDone,
+        ModeChanged,
+        MainWindowClosing,
+    };
+
 public slots:
-    static void saveSettings();
+    static void saveSettings(SaveSettingsReason reason);
 
 signals:
     void coreAboutToOpen();
     void coreOpened();
     void newItemDialogStateChanged();
-    void saveSettingsRequested();
+    void saveSettingsRequested(SaveSettingsReason reason);
     void coreAboutToClose();
     void contextAboutToChange(const QList<Core::IContext *> &context);
     void contextChanged(const Core::Context &context);

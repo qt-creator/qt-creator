@@ -92,7 +92,7 @@ ServerMode::ServerMode(const Environment &env,
     m_socketDir("/tmp/cmake-"),
 #endif
     m_sourceDirectory(sourceDirectory), m_buildDirectory(buildDirectory),
-    m_cmakeExecutable(cmakeExecutable),
+    m_cmakeCommand(cmakeExecutable, {}),
     m_generator(generator), m_extraGenerator(extraGenerator),
     m_platform(platform), m_toolset(toolset),
     m_useExperimental(experimental), m_majorProtocol(major), m_minorProtocol(minor)
@@ -114,28 +114,24 @@ ServerMode::ServerMode(const Environment &env,
     m_socketName = QString::fromLatin1("\\\\.\\pipe\\") + QUuid::createUuid().toString();
 #endif
 
-    const QStringList args = QStringList({"-E", "server", "--pipe=" + m_socketName});
-
     connect(m_cmakeProcess.get(), &QtcProcess::started, this, [this]() { m_connectionTimer.start(); });
     connect(m_cmakeProcess.get(),
             QOverload<int, QProcess::ExitStatus>::of(&QtcProcess::finished),
             this, &ServerMode::handleCMakeFinished);
 
-    QString argumentString;
-    QtcProcess::addArgs(&argumentString, args);
+    m_cmakeCommand.addArgs({"-E", "server", "--pipe=" + m_socketName});
     if (m_useExperimental)
-        QtcProcess::addArg(&argumentString, "--experimental");
+        m_cmakeCommand.addArg("--experimental");
 
     qCInfo(cmakeServerMode)
-            << "Preparing cmake:" << cmakeExecutable.toString() << argumentString
+            << "Preparing cmake:" << m_cmakeCommand.toUserOutput()
             << "in" << m_buildDirectory.toString();
-    m_cmakeProcess->setCommand(CommandLine(cmakeExecutable, argumentString));
+    m_cmakeProcess->setCommand(m_cmakeCommand);
 
     // Delay start:
-    QTimer::singleShot(0, this, [argumentString, this] {
-        emit message(tr("Running \"%1 %2\" in %3.")
-                     .arg(m_cmakeExecutable.toUserOutput())
-                     .arg(argumentString)
+    QTimer::singleShot(0, this, [this] {
+        emit message(tr("Running \"%1\" in %2.")
+                     .arg(m_cmakeCommand.toUserOutput())
                      .arg(m_buildDirectory.toUserOutput()));
 
         m_cmakeProcess->start();
@@ -199,7 +195,7 @@ void ServerMode::connectToServer()
         m_cmakeProcess->disconnect();
         qCInfo(cmakeServerMode) << "Timeout waiting for pipe" << m_socketName;
         reportError(tr("Running \"%1\" failed: Timeout waiting for pipe \"%2\".")
-                    .arg(m_cmakeExecutable.toUserOutput())
+                    .arg(m_cmakeCommand.toUserOutput())
                     .arg(m_socketName));
 
         Core::Reaper::reap(m_cmakeProcess.release());
@@ -236,14 +232,14 @@ void ServerMode::handleCMakeFinished(int code, QProcess::ExitStatus status)
     qCInfo(cmakeServerMode) << "CMake has finished" << code << status;
     QString msg;
     if (status != QProcess::NormalExit)
-        msg = tr("CMake process \"%1\" crashed.").arg(m_cmakeExecutable.toUserOutput());
+        msg = tr("CMake process \"%1\" crashed.").arg(m_cmakeCommand.toUserOutput());
     else if (code != 0)
-        msg = tr("CMake process \"%1\" quit with exit code %2.").arg(m_cmakeExecutable.toUserOutput()).arg(code);
+        msg = tr("CMake process \"%1\" quit with exit code %2.").arg(m_cmakeCommand.toUserOutput()).arg(code);
 
     if (!msg.isEmpty()) {
         reportError(msg);
     } else {
-        emit message(tr("CMake process \"%1\" quit normally.").arg(m_cmakeExecutable.toUserOutput()));
+        emit message(tr("CMake process \"%1\" quit normally.").arg(m_cmakeCommand.toUserOutput()));
     }
 
     if (m_cmakeSocket) {

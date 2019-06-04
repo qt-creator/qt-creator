@@ -322,7 +322,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         return;
     }
 
-    ICore::saveSettings();
+    ICore::saveSettings(ICore::MainWindowClosing);
 
     // Save opened files
     if (!DocumentManager::saveAllModifiedDocuments()) {

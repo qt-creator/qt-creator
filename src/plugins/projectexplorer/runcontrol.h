@@ -74,6 +74,7 @@ public:
     Runnable() = default;
 
     Utils::CommandLine commandLine() const;
+    void setCommandLine(const Utils::CommandLine &cmdLine);
 
     QString executable;
     QString commandLineArguments;

@@ -1,5 +1,5 @@
 @if '%{QtModule}' === 'none'
-QT -= core
+CONFIG -= qt
 @elsif '%{QtModule}' === 'core'
 QT -= gui
 @else

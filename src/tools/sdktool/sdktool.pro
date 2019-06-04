@@ -30,10 +30,12 @@ SOURCES += \
     rmqtoperation.cpp \
     rmtoolchainoperation.cpp \
     settings.cpp \
+    $$UTILS/environment.cpp \
     $$UTILS/fileutils.cpp \
     $$UTILS/hostosinfo.cpp \
     $$UTILS/persistentsettings.cpp \
     $$UTILS/qtcassert.cpp \
+    $$UTILS/qtcprocess.cpp \
     $$UTILS/savefile.cpp \
 
 HEADERS += \
@@ -57,10 +59,12 @@ HEADERS += \
     rmqtoperation.h \
     rmtoolchainoperation.h \
     settings.h \
+    $$UTILS/environment.h \
     $$UTILS/fileutils.h \
     $$UTILS/hostosinfo.h \
     $$UTILS/persistentsettings.h \
     $$UTILS/qtcassert.h \
+    $$UTILS/qtcprocess.h \
     $$UTILS/savefile.h \
 
 macos {

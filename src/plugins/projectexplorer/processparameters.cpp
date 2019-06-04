@@ -54,6 +54,14 @@ ProcessParameters::ProcessParameters() :
 {
 }
 
+void ProcessParameters::setCommandLine(const CommandLine &cmdLine)
+{
+    m_command = cmdLine.executable();
+    m_arguments = cmdLine.arguments();
+    m_effectiveCommand.clear();
+    m_effectiveArguments.clear();
+}
+
 /*!
     Sets the executable to run.
 */

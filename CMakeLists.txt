@@ -50,9 +50,11 @@ endif()
 
 find_package(Qt5
   COMPONENTS Concurrent Core Network PrintSupport Qml Quick QuickWidgets
-    Script Sql ${_TEST_QT_COMPONENT}
+    Sql ${_TEST_QT_COMPONENT}
   REQUIRED
 )
+
+find_package(Threads)
 
 # Get information on directories from qmake
 # as this is not yet exported by cmake.
@@ -88,7 +90,7 @@ endfunction()
 
 qt5_query_qmake()
 
-find_package(Qt5 COMPONENTS Designer Help SerialPort Svg QUIET)
+find_package(Qt5 COMPONENTS Designer Help Script SerialPort Svg QUIET)
 function (set_if_target var target)
    if (TARGET "${target}")
      set(_result ON)

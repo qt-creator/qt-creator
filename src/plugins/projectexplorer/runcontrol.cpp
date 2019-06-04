@@ -1554,4 +1554,10 @@ CommandLine Runnable::commandLine() const
     return CommandLine(FilePath::fromString(executable), commandLineArguments);
 }
 
+void Runnable::setCommandLine(const CommandLine &cmdLine)
+{
+    executable = cmdLine.executable().toString();
+    commandLineArguments = cmdLine.arguments();
+}
+
 } // namespace ProjectExplorer

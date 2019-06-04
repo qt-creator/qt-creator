@@ -2,8 +2,7 @@ add_subdirectory(source)
 
 add_qtc_executable(clangrefactoringbackend
   DEPENDS
-    clangrefactoringbackend_lib Sqlite ClangSupport
-    libclang clangTooling clangIndex clangQuery clangToolingRefactor
+    clangrefactoringbackend_lib Sqlite
   SOURCES
     clangrefactoringbackendmain.cpp
 )

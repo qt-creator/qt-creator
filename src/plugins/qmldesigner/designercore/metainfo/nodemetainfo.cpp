@@ -1483,6 +1483,11 @@ TypeName NodeMetaInfo::typeName() const
     return m_privateData->qualfiedTypeName();
 }
 
+TypeName NodeMetaInfo::simplifiedTypeName() const
+{
+    return typeName().split('.').constLast();
+}
+
 int NodeMetaInfo::majorVersion() const
 {
     return m_privateData->majorVersion();
