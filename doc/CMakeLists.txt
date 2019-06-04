@@ -124,9 +124,8 @@ function(_setup_qhelpgenerator_targets _qdocconf_file _html_outputdir)
     set(_arg_QCH_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
   endif()
 
-  _doc_find_program(_qhelpgenerator NAMES qhelpgenerator qhelpgenerator-qt5)
-  if (_qhelpgenerator STREQUAL "_qhelpgenerator-NOTFOUND")
-    message(WARNING "No qhelpgenerator binary found: No QCH documentation targets were generated")
+  if (NOT TARGET Qt5::qhelpgenerator)
+    message(WARNING "qhelpgenerator missing: No QCH documentation targets were generated")
     return()
   endif()
 
@@ -138,7 +137,7 @@ function(_setup_qhelpgenerator_targets _qdocconf_file _html_outputdir)
   set(_qch_target "qch_docs_${_target}")
   set(_html_target "html_docs_${_target}")
   add_custom_target("${_qch_target}"
-    "${_qhelpgenerator}" "${_html_outputdir}/${_target}.qhp" -o "${_qch_outputdir}/${_target}.qch"
+    Qt5::qhelpgenerator "${_html_outputdir}/${_target}.qhp" -o "${_qch_outputdir}/${_target}.qch"
     COMMENT "Build QCH documentation from ${_qdocconf_file}"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     VERBATIM
