@@ -196,16 +196,6 @@
     files, as well as compare the selected file with the currently open file
     in the diff editor. For more information, see \l{Comparing Files}.
 
-    \section1 Viewing Open Documents
-
-    To see a list of open documents, switch to the \uicontrol {Open Documents}
-    view. By right-clicking an open document, you can:
-
-    \list
-        \li Pin files to ensure they stay at the top of the list and are not
-            closed when \uicontrol {Close All} is used.
-    \endlist
-
     \section1 Viewing the File System
 
     If you cannot see a file in the \uicontrol Projects view, switch to the
@@ -272,6 +262,22 @@
 
         \li Collapse all open folders.
 
+    \endlist
+
+    \section1 Viewing Open Documents
+
+    To see a list of open documents, switch to the \uicontrol {Open Documents}
+    view. You can use the context-menu to perform some of the functions also
+    available in the \uicontrol File menu and in the context menu in the
+    \uicontrol {File System} view.
+
+    In addition, you can:
+
+    \list
+        \li Copy the full path of the file or just the filename to the
+            clipboard.
+        \li Pin files to ensure they stay at the top of the list and are not
+            closed when \uicontrol {Close All} is used.
     \endlist
 
     \section1 Viewing Defined Types and Symbols
