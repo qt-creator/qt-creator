@@ -400,11 +400,11 @@ void DebuggerRunTool::setCommandsForReset(const QString &commands)
     m_runParameters.commandsForReset = commands;
 }
 
-void DebuggerRunTool::setServerStartScript(const QString &serverStartScript)
+void DebuggerRunTool::setServerStartScript(const FilePath &serverStartScript)
 {
     if (!serverStartScript.isEmpty()) {
         // Provide script information about the environment
-        CommandLine serverStarter(FileName::fromString(serverStartScript), {});
+        CommandLine serverStarter(serverStartScript, {});
         serverStarter.addArgs({m_runParameters.inferior.executable, m_runParameters.remoteChannel});
         addStartDependency(new LocalProcessRunner(this, serverStarter));
     }

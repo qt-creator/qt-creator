@@ -110,7 +110,7 @@ public:
     void setCommandsAfterConnect(const QString &commands);
     void setCommandsForReset(const QString &commands);
 
-    void setServerStartScript(const QString &serverStartScript);
+    void setServerStartScript(const Utils::FilePath &serverStartScript);
     void setDebugInfoLocation(const QString &debugInfoLocation);
 
     void setQmlServer(const QUrl &qmlServer);
