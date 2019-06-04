@@ -348,8 +348,10 @@ void SshConnection::doConnectToHost()
                   .arg(sshBinary.toUserOutput()));
         return;
     }
-    if (!d->sharingEnabled)
+    if (!d->sharingEnabled) {
         emitConnected();
+        return;
+    }
     d->masterSocketDir.reset(new QTemporaryDir);
     if (!d->masterSocketDir->isValid()) {
         emitError(tr("Cannot establish SSH connection: Failed to create temporary "
