@@ -108,7 +108,7 @@ void BuildDirManager::updateReaderType(const BuildDirParameters &p,
                                        std::function<void()> todo)
 {
     if (!m_reader || !m_reader->isCompatible(p)) {
-        m_reader.reset(BuildDirReader::createReader(p));
+        m_reader = BuildDirReader::createReader(p);
         connect(m_reader.get(), &BuildDirReader::configurationStarted,
                 this, &BuildDirManager::parsingStarted);
         connect(m_reader.get(), &BuildDirReader::dataAvailable,

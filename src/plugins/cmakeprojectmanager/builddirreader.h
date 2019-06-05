@@ -52,7 +52,7 @@ class BuildDirReader : public QObject
     Q_OBJECT
 
 public:
-    static BuildDirReader *createReader(const BuildDirParameters &p);
+    static std::unique_ptr<BuildDirReader> createReader(const BuildDirParameters &p);
     virtual void setParameters(const BuildDirParameters &p);
 
     virtual bool isCompatible(const BuildDirParameters &p) = 0;

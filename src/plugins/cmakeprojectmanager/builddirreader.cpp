@@ -39,13 +39,13 @@ namespace Internal {
 // BuildDirReader:
 // --------------------------------------------------------------------
 
-BuildDirReader *BuildDirReader::createReader(const BuildDirParameters &p)
+std::unique_ptr<BuildDirReader> BuildDirReader::createReader(const BuildDirParameters &p)
 {
     CMakeTool *cmake = p.cmakeTool();
-    QTC_ASSERT(p.isValid() && cmake, return nullptr);
+    QTC_ASSERT(p.isValid() && cmake, return {});
     if (cmake->hasServerMode())
-        return new ServerModeReader;
-    return new TeaLeafReader;
+        return std::make_unique<ServerModeReader>();
+    return std::make_unique<TeaLeafReader>();
 }
 
 void BuildDirReader::setParameters(const BuildDirParameters &p)
