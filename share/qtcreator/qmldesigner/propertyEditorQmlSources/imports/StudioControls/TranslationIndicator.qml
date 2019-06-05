@@ -34,6 +34,9 @@ Item {
 
     property bool hover: false
     property bool pressed: false
+    property bool checked: false
+
+    signal clicked
 
     state: "default"
 
@@ -67,6 +70,10 @@ Item {
             hoverEnabled: true
             onContainsMouseChanged: translationIndicator.hover = containsMouse
             onPressed: mouse.accepted = true // TODO
+            onClicked: {
+                translationIndicator.checked = !translationIndicator.checked
+                translationIndicator.clicked()
+            }
         }
     }
 
@@ -88,10 +95,21 @@ Item {
             when: myControl.enabled && !translationIndicator.hover
                   && !translationIndicator.pressed && !myControl.hover
                   && !myControl.edit && !myControl.drag
+                  && !translationIndicator.checked
             PropertyChanges {
                 target: translationIndicatorBackground
                 color: StudioTheme.Values.themeColumnBackground
                 border.color: StudioTheme.Values.themeTranslationIndicatorBorder
+            }
+        },
+        State {
+            name: "checked"
+            when: translationIndicator.checked
+
+            PropertyChanges {
+                target: translationIndicatorBackground
+                //color: StudioTheme.Values.themeFocusDrag // TODO
+                color: "red"
             }
         },
         State {

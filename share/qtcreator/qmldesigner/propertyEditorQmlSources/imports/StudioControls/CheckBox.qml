@@ -30,7 +30,7 @@ import StudioTheme 1.0 as StudioTheme
 T.CheckBox {
     id: myCheckBox
 
-    property alias actionIcon: actionIndicator.icon
+    property alias actionIndicator: actionIndicator
 
     property bool hover: myCheckBox.hovered // TODO two underscores
 
@@ -39,6 +39,7 @@ T.CheckBox {
     property real __actionIndicatorHeight: StudioTheme.Values.height
 
     property alias labelVisible: checkBoxLabel.visible
+    property alias labelColor: checkBoxLabel.color
 
     font.pixelSize: StudioTheme.Values.myFontSize
 

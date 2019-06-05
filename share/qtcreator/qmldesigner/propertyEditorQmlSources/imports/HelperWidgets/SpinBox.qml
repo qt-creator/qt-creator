@@ -39,7 +39,7 @@ Item {
 
     property alias backendValue: spinBox.backendValue
 
-    width: 100
+    width: 120
     implicitHeight: spinBox.height
 
     property bool __initialized: false
@@ -60,7 +60,7 @@ Item {
         if (!wrapper.__initialized)
             return
         spinBox[target] = Math.round(value * spinBox.factor)
-    }
+    }    
 
     StudioControls.SpinBox {
         id: spinBox

@@ -31,7 +31,9 @@ import StudioTheme 1.0 as StudioTheme
 T.ComboBox {
     id: myComboBox
 
-    property alias actionIcon: actionIndicator.icon
+    property alias actionIndicator: actionIndicator
+
+    property alias labelColor: comboBoxInput.color
 
     property bool hover: false // This property is used to indicate the global hover state
 

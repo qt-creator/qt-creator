@@ -24,26 +24,25 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
+import StudioControls 1.0 as Controls
 import QtQuick.Controls.Styles 1.1
 
 Controls.CheckBox {
-
     id: checkBox
 
-    property color textColor: colorLogic.textColor
-
-    opacity: enabled ? 1 : 0.5
-
     property variant backendValue
+    property string tooltip
 
-    ExtendedFunctionButton {
-        x: 22
-        anchors.verticalCenter: parent.verticalCenter
+    ExtendedFunctionLogic {
+        id: extFuncLogic
         backendValue: checkBox.backendValue
-        visible: checkBox.enabled
     }
 
+    actionIndicator.icon.color: extFuncLogic.color
+    actionIndicator.icon.text: extFuncLogic.glyph
+    actionIndicator.onClicked: extFuncLogic.show()
+
+    labelColor: colorLogic.textColor
     ColorLogic {
         id: colorLogic
         backendValue: checkBox.backendValue
@@ -57,9 +56,5 @@ Controls.CheckBox {
         if (backendValue.value !== checkBox.checked)
             backendValue.value = checkBox.checked;
     }
-
-    style: CustomCheckBoxStyle {
-    }
-
 
 }

@@ -30,7 +30,9 @@ import StudioTheme 1.0 as StudioTheme
 T.TextField {
     id: myTextField
 
-    property alias actionIcon: actionIndicator.icon
+    property alias actionIndicator: actionIndicator
+
+    property alias translationIndicator: translationIndicator
 
     property bool edit: false
     property bool hover: false // This property is used to indicate the global hover state
