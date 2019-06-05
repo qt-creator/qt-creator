@@ -24,42 +24,80 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
+import StudioControls 1.0 as StudioControls
 
-Controls.SpinBox {
-    id: spinBox
+Item {
+    id: wrapper
 
-    property color textColor: colorLogic.textColor
-    property variant backendValue;
+    property alias decimals: spinBox.decimals
+    property alias hasSlider: spinBox.hasSlider
 
-    implicitWidth: 74
+    property real minimumValue
+    property real maximumValue
+    property real stepSize
 
-    ExtendedFunctionButton {
-        x: 4
-        anchors.verticalCenter: parent.verticalCenter
-        backendValue: spinBox.backendValue
-        visible: spinBox.enabled
+    property alias backendValue: spinBox.backendValue
+
+    Component.onCompleted: {
+        // TODO minimumValue/maximumValue convertion...
+        // TODO step size convertion...
     }
 
-    ColorLogic {
-        id: colorLogic
-        backendValue: spinBox.backendValue
-        onValueFromBackendChanged: {
-            spinBox.value = valueFromBackend;
+    width: 100
+    implicitHeight: spinBox.height
+
+    StudioControls.SpinBox {
+        id: spinBox
+
+        property real properValue: value / factor
+
+        from: minimumValue * factor
+        to: maximumValue * factor
+
+        width: wrapper.width
+        //height: wrapper.height
+
+//        property color textColor: colorLogic.textColor
+        property variant backendValue;
+
+        //implicitWidth: 74
+/*
+        ExtendedFunctionButton {
+            x: 4
+            anchors.verticalCenter: parent.verticalCenter
+            backendValue: spinBox.backendValue
+            visible: spinBox.enabled
         }
+*/
+        /*
+        icon: extend.glyph
+        Extn2 {
+            glyph:
+        }
+        */
+
+        textColor: colorLogic.textColor
+
+        ColorLogic {
+            id: colorLogic
+            backendValue: spinBox.backendValue
+            onValueFromBackendChanged: {
+                spinBox.value = valueFromBackend * factor;
+            }
+        }
+
+        property bool hasSlider: false
+
+        //height: hasSlider ? 32 : implicitHeight
+
+        onCompressedValueModified: {
+            if (backendValue.value !== properValue)
+                backendValue.value = properValue;
+        }
+    /*
+        style: CustomSpinBoxStyle {
+        }
+    */
     }
-
-    property bool hasSlider: false
-
-    height: hasSlider ? 32 : implicitHeight
-
-    onValueChanged: {
-        if (backendValue.value !== value)
-            backendValue.value = value;
-    }
-
-    style: CustomSpinBoxStyle {
-    }
-
 }
