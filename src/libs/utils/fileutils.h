@@ -145,6 +145,7 @@ public:
 
     FilePath executable() const { return m_executable; }
     QString arguments() const { return m_arguments; }
+    QStringList splitArguments(OsType osType = HostOsInfo::hostOs()) const;
 
 private:
     FilePath m_executable;

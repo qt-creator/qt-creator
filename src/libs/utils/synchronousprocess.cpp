@@ -26,6 +26,7 @@
 #include "synchronousprocess.h"
 #include "qtcassert.h"
 #include "hostosinfo.h"
+#include "fileutils.h"
 
 #include <QDebug>
 #include <QTimer>
@@ -266,7 +267,7 @@ public:
     QTimer m_timer;
     QEventLoop m_eventLoop;
     SynchronousProcessResponse m_result;
-    QString m_binary;
+    FilePath m_binary;
     ChannelBuffer m_stdOut;
     ChannelBuffer m_stdErr;
     ExitCodeInterpreter m_exitCodeInterpreter = defaultExitCodeInterpreter;
@@ -288,7 +289,7 @@ void SynchronousProcessPrivate::clearForRun()
     m_result.clear();
     m_result.codec = m_codec;
     m_startFailure = false;
-    m_binary.clear();
+    m_binary = {};
 }
 
 // ----------- SynchronousProcess
@@ -445,20 +446,28 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
                                                    const QStringList &args,
                                                    const QByteArray &writeData)
 {
+    CommandLine cmd(FilePath::fromString(binary), {});
+    cmd.addArgs(args);
+    return run(cmd, writeData);
+}
+
+SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
+                                                   const QByteArray &writeData)
+{
     if (debug)
-        qDebug() << '>' << Q_FUNC_INFO << binary << args;
+        qDebug() << '>' << Q_FUNC_INFO << cmd.toUserOutput();
 
     d->clearForRun();
 
     // On Windows, start failure is triggered immediately if the
     // executable cannot be found in the path. Do not start the
     // event loop in that case.
-    d->m_binary = binary;
+    d->m_binary = cmd.executable();
     // using QProcess::start() and passing program, args and OpenMode results in a different
     // quoting of arguments than using QProcess::setArguments() beforehand and calling start()
     // only with the OpenMode
-    d->m_process.setProgram(binary);
-    d->m_process.setArguments(args);
+    d->m_process.setProgram(cmd.executable().toString());
+    d->m_process.setArguments(cmd.splitArguments());
     connect(&d->m_process, &QProcess::started, this, [this, writeData] {
         if (!writeData.isEmpty()) {
             int pos = 0;
@@ -493,19 +502,27 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     }
 
     if (debug)
-        qDebug() << '<' << Q_FUNC_INFO << binary << d->m_result;
+        qDebug() << '<' << Q_FUNC_INFO << cmd.executable().toString() << d->m_result;
     return  d->m_result;
 }
 
-SynchronousProcessResponse SynchronousProcess::runBlocking(const QString &binary, const QStringList &args)
+SynchronousProcessResponse
+    SynchronousProcess::runBlocking(const QString &binary, const QStringList &args)
+{
+    CommandLine cmd(FilePath::fromString(binary), {});
+    cmd.addArgs(args);
+    return runBlocking(cmd);
+}
+
+SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cmd)
 {
     d->clearForRun();
 
     // On Windows, start failure is triggered immediately if the
     // executable cannot be found in the path. Do not start the
     // event loop in that case.
-    d->m_binary = binary;
-    d->m_process.start(binary, args, QIODevice::ReadOnly);
+    d->m_binary = cmd.executable();
+    d->m_process.start(cmd.executable().toString(), cmd.splitArguments(), QIODevice::ReadOnly);
     if (!d->m_process.waitForStarted(d->m_maxHangTimerCount * 1000)
             && d->m_process.state() == QProcess::NotRunning) {
         d->m_result.result = SynchronousProcessResponse::StartFailed;
@@ -573,7 +590,7 @@ void SynchronousProcess::slotTimeout()
         if (debug)
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
         d->m_waitingForUser = true;
-        const bool terminate = !d->m_timeOutMessageBoxEnabled || askToKill(d->m_binary);
+        const bool terminate = !d->m_timeOutMessageBoxEnabled || askToKill(d->m_binary.toString());
         d->m_waitingForUser = false;
         if (terminate) {
             SynchronousProcess::stopProcess(d->m_process);

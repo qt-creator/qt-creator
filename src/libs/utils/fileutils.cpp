@@ -95,6 +95,11 @@ QString CommandLine::toUserOutput() const
     return m_executable.toUserOutput() + ' ' + m_arguments;
 }
 
+QStringList CommandLine::splitArguments(OsType osType) const
+{
+    return QtcProcess::splitArgs(m_arguments, osType);
+}
+
 /*! \class Utils::FileUtils
 
   \brief The FileUtils class contains file and directory related convenience
