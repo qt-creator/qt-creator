@@ -48,10 +48,5 @@ std::unique_ptr<BuildDirReader> BuildDirReader::createReader(const BuildDirParam
     return std::make_unique<TeaLeafReader>();
 }
 
-void BuildDirReader::setParameters(const BuildDirParameters &p)
-{
-    m_parameters = p;
-}
-
 } // namespace Internal
 } // namespace CMakeProjectManager

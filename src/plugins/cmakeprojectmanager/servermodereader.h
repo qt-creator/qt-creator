@@ -53,7 +53,6 @@ public:
     void parse(bool forceConfiguration) final;
     void stop() final;
 
-    bool isReady() const final;
     bool isParsing() const final;
 
     QList<CMakeBuildTarget> takeBuildTargets() final;

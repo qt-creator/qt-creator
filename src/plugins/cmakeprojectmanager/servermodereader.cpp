@@ -101,7 +101,7 @@ void ServerModeReader::setParameters(const BuildDirParameters &p)
     CMakeTool *cmake = p.cmakeTool();
     QTC_ASSERT(cmake, return);
 
-    BuildDirReader::setParameters(p);
+    m_parameters = p;
     if (!m_cmakeServer) {
         m_cmakeServer.reset(new ServerMode(p.environment,
                                            p.sourceDirectory, p.workDirectory,
@@ -211,11 +211,6 @@ void ServerModeReader::stop()
         m_future.reset();
     }
     m_parser.flush();
-}
-
-bool ServerModeReader::isReady() const
-{
-    return m_cmakeServer->isConnected();
 }
 
 bool ServerModeReader::isParsing() const

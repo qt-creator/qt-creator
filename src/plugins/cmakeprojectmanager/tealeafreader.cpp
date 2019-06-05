@@ -152,6 +152,12 @@ TeaLeafReader::~TeaLeafReader()
     resetData();
 }
 
+void TeaLeafReader::setParameters(const BuildDirParameters &p)
+{
+    m_parameters = p;
+    emit isReadyNow();
+}
+
 bool TeaLeafReader::isCompatible(const BuildDirParameters &p)
 {
     if (!p.cmakeTool())

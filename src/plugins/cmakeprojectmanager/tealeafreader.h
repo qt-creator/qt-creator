@@ -46,6 +46,8 @@ public:
     TeaLeafReader();
     ~TeaLeafReader() final;
 
+    void setParameters(const BuildDirParameters &p) final;
+
     bool isCompatible(const BuildDirParameters &p) final;
     void resetData() final;
     void parse(bool forceConfiguration) final;

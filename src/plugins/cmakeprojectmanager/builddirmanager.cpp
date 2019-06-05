@@ -107,24 +107,21 @@ void BuildDirManager::emitErrorOccured(const QString &message) const
 void BuildDirManager::updateReaderType(const BuildDirParameters &p,
                                        std::function<void()> todo)
 {
-    if (!m_reader || !m_reader->isCompatible(p)) {
+    if (!m_reader || !m_reader->isCompatible(p))
         m_reader = BuildDirReader::createReader(p);
-        connect(m_reader.get(), &BuildDirReader::configurationStarted,
-                this, &BuildDirManager::parsingStarted);
-        connect(m_reader.get(), &BuildDirReader::dataAvailable,
-                this, &BuildDirManager::emitDataAvailable);
-        connect(m_reader.get(), &BuildDirReader::errorOccured,
-                this, &BuildDirManager::emitErrorOccured);
-        connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
-    }
+
     QTC_ASSERT(m_reader, return);
 
-    m_reader->setParameters(p);
+    connect(m_reader.get(), &BuildDirReader::configurationStarted,
+            this, &BuildDirManager::parsingStarted);
+    connect(m_reader.get(), &BuildDirReader::dataAvailable,
+            this, &BuildDirManager::emitDataAvailable);
+    connect(m_reader.get(), &BuildDirReader::errorOccured,
+            this, &BuildDirManager::emitErrorOccured);
+    connect(m_reader.get(), &BuildDirReader::dirty, this, &BuildDirManager::becameDirty);
+    connect(m_reader.get(), &BuildDirReader::isReadyNow, this, todo);
 
-    if (m_reader->isReady())
-        todo();
-    else
-        connect(m_reader.get(), &BuildDirReader::isReadyNow, this, todo);
+    m_reader->setParameters(p);
 }
 
 bool BuildDirManager::hasConfigChanged()

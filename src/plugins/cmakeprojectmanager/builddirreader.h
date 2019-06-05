@@ -53,14 +53,13 @@ class BuildDirReader : public QObject
 
 public:
     static std::unique_ptr<BuildDirReader> createReader(const BuildDirParameters &p);
-    virtual void setParameters(const BuildDirParameters &p);
+    virtual void setParameters(const BuildDirParameters &p) = 0;
 
     virtual bool isCompatible(const BuildDirParameters &p) = 0;
     virtual void resetData() = 0;
     virtual void parse(bool forceConfiguration) = 0;
     virtual void stop() = 0;
 
-    virtual bool isReady() const { return true; }
     virtual bool isParsing() const = 0;
 
     virtual QList<CMakeBuildTarget> takeBuildTargets() = 0;
