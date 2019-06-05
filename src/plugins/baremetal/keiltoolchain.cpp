@@ -102,13 +102,13 @@ static Macros dumpC51PredefinedMacros(const FilePath &compiler, const QStringLis
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    QStringList arguments;
-    arguments.push_back(fakeIn.fileName());
+    CommandLine cmd(compiler, {});
+    cmd.addArg(fakeIn.fileName());
 
-    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(), arguments);
+    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
             || response.exitCode != 0) {
-        qWarning() << response.exitMessage(compiler.toString(), 10);
+        qWarning() << response.exitMessage(cmd.toUserOutput(), 10);
         return {};
     }
 
@@ -131,11 +131,10 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    QStringList arguments;
-    arguments.push_back("-E");
-    arguments.push_back("--list-macros");
+    CommandLine cmd(compiler, {});
+    cmd.addArgs({"-E", "--list-macros"});
 
-    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(), arguments);
+    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
             || response.exitCode != 0) {
         qWarning() << response.exitMessage(compiler.toString(), 10);

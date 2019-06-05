@@ -85,17 +85,17 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id lang
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    QStringList arguments;
-    arguments.push_back(fakeIn.fileName());
+    CommandLine cmd(compiler, {});
+    cmd.addArg(fakeIn.fileName());
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        arguments.push_back("--ec++");
-    arguments.push_back("--predef_macros");
-    arguments.push_back(outpath);
+        cmd.addArg("--ec++");
+    cmd.addArg("--predef_macros");
+    cmd.addArg(outpath);
 
-    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(), arguments);
+    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
             || response.exitCode != 0) {
-        qWarning() << response.exitMessage(compiler.toString(), 10);
+        qWarning() << response.exitMessage(cmd.toUserOutput(), 10);
         return {};
     }
 
@@ -131,16 +131,15 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Core::Id lang
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    QStringList arguments;
-    arguments.push_back(fakeIn.fileName());
+    CommandLine cmd(compiler, {});
+    cmd.addArg(fakeIn.fileName());
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        arguments.push_back("--ec++");
-    arguments.push_back("--preinclude");
-    arguments.push_back(".");
+        cmd.addArg("--ec++");
+    cmd.addArg("--preinclude");
+    cmd.addArg(".");
 
     // Note: Response should retutn an error, just don't check on errors.
-    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(),
-                                                                arguments);
+    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
 
     HeaderPaths headerPaths;
 

@@ -92,13 +92,10 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    QStringList arguments;
-    arguments.push_back(compilerTargetFlag(abi));
-    arguments.push_back("-dM");
-    arguments.push_back("-E");
-    arguments.push_back(fakeIn.fileName());
+    CommandLine cmd(compiler, {});
+    cmd.addArgs({compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()});
 
-    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(), arguments);
+    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
             || response.exitCode != 0) {
         qWarning() << response.exitMessage(compiler.toString(), 10);
@@ -119,11 +116,10 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const QStringList &
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    QStringList arguments;
-    arguments.push_back(compilerTargetFlag(abi));
-    arguments.push_back("--print-search-dirs");
+    CommandLine cmd(compiler, {});
+    cmd.addArgs({compilerTargetFlag(abi), "--print-search-dirs"});
 
-    const SynchronousProcessResponse response = cpp.runBlocking(compiler.toString(), arguments);
+    const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
             || response.exitCode != 0) {
         qWarning() << response.exitMessage(compiler.toString(), 10);
