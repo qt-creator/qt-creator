@@ -159,6 +159,10 @@
         \li To see the absolute path of a file, move the mouse pointer over the
             file name.
 
+        \li To move files from one project to another, drag-and-drop them
+            in the project tree. \QC makes the necessary changes to project
+            configuration files.
+
     \endlist
 
     \if defined(qtcreator)
