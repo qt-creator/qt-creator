@@ -117,6 +117,7 @@ Rectangle {
                             placeholderText: qsTr("id")
                             text: backendValues.id.value
                             Layout.fillWidth: true
+                            width: 240
                             showTranslateCheckBox: false
                             showExtendedFunctionButton: false
                             enabled: !modelNodeBackend.multiSelection
