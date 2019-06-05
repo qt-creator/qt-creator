@@ -248,6 +248,13 @@ bool CMakeTool::hasServerMode() const
     return m_introspection->m_hasServerMode;
 }
 
+bool CMakeTool::hasFileApi() const
+{
+    readInformation(QueryType::VERSION);
+    return m_introspection->m_version.major > 3
+            || (m_introspection->m_version.major == 3 && m_introspection->m_version.minor >= 14);
+}
+
 CMakeTool::Version CMakeTool::version() const
 {
     readInformation(QueryType::VERSION);

@@ -99,6 +99,7 @@ public:
     QList<Generator> supportedGenerators() const;
     TextEditor::Keywords keywords();
     bool hasServerMode() const;
+    bool hasFileApi() const;
     Version version() const;
 
     bool isAutoDetected() const;
