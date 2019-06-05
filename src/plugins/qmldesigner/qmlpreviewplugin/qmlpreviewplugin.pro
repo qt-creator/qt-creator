@@ -9,7 +9,7 @@ include (../qmldesigner_dependencies.pri)
 
 LIBS += -L$$IDE_PLUGIN_PATH
 LIBS += -l$$qtLibraryName(QmlDesigner)
-LIBS += -l$$qtLibraryName(Extensionsystem)
+LIBS += -l$$qtLibraryName(ExtensionSystem)
 LIBS += -l$$qtLibraryName(Core)
 LIBS += -l$$qtLibraryName(ProjectExplorer)
 LIBS += -l$$qtLibraryName(Utils)

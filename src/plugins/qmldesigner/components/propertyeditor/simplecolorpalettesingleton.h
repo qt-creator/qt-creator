@@ -30,10 +30,9 @@
 #include <QtQml/qqml.h>
 #include <QList>
 #include <QColor>
+#include <simplecolorpalette.h>
 
 namespace QmlDesigner {
-
-class PaletteColor;
 
 class SimpleColorPaletteSingleton : public QObject
 {
