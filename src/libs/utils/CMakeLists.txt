@@ -1,6 +1,9 @@
 if (IDE_LIBEXEC_PATH AND IDE_BIN_PATH)
-  file(RELATIVE_PATH RELATIVE_TOOLS_PATH
-    "${CMAKE_INSTALL_PREFIX}/${IDE_BIN_PATH}" "${CMAKE_INSTALL_PREFIX}/${IDE_LIBEXEC_PATH}")
+    get_filename_component(bin_path
+      "${CMAKE_INSTALL_PREFIX}/${IDE_BIN_PATH}" ABSOLUTE "${CMAKE_BINARY_DIR}")
+    get_filename_component(libexec_path
+      "${CMAKE_INSTALL_PREFIX}/${IDE_LIBEXEC_PATH}" ABSOLUTE "${CMAKE_BINARY_DIR}")
+  file(RELATIVE_PATH RELATIVE_TOOLS_PATH "${bin_path}" "${libexec_path}")
 else()
   message(WARNING "IDE_LIBEXEC_PATH or IDE_BIN_PATH undefined when calculating tools path")
   set(RELATIVE_TOOLS_PATH "")
