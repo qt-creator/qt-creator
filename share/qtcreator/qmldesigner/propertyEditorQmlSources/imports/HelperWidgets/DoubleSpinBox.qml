@@ -24,20 +24,38 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0
 import QtQuickDesignerTheme 1.0
+import StudioControls 1.0 as StudioControls
 
-SpinBox {
+StudioControls.SpinBox {
     id: spinBox
     width: 76
     decimals: 2
+
+    property real minimumValue: 0.0
+    property real maximumValue: 1.0
     stepSize: 0.1
-    minimumValue: 0
-    maximumValue: 1
 
-    property color textColor: Theme.color(Theme.PanelTextColorLight)
+    actionIndicatorVisible: false
 
-    style: CustomSpinBoxStyle {
+    property bool __initialized: false
 
+    Component.onCompleted: {
+        spinBox.__initialized = true
+
+        convert("stepSize", stepSize)
+        convert("from", minimumValue)
+        convert("to", maximumValue)
     }
+
+    onStepSizeChanged: convert("stepSize", stepSize)
+    onMinimumValueChanged: convert("from", minimumValue)
+    onMaximumValueChanged: convert("to", maximumValue)
+
+    function convert(target, value) {
+        if (!spinBox.__initialized)
+            return
+        spinBox[target] = Math.round(value * spinBox.factor)
+    }
+
 }
