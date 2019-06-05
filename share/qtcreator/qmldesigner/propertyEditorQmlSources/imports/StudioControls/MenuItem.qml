@@ -26,6 +26,7 @@
 import QtQuick 2.12
 import QtQuick.Templates 2.12 as T
 import StudioTheme 1.0 as StudioTheme
+import QtQuick.Controls 2.12
 
 T.MenuItem {
     id: control
@@ -42,6 +43,7 @@ T.MenuItem {
     padding: 0
     spacing: 0
     horizontalPadding: StudioTheme.Values.contextMenuHorizontalPadding
+    action: Action {}
 
     contentItem: Item {
         id: menuItem
@@ -67,7 +69,7 @@ T.MenuItem {
 
             Shortcut {
                 id: shortcut
-                property int shortcutWorkaround: control.action.shortcut
+                property int shortcutWorkaround: control.action.shortcut ? control.action.shortcut : 0
                 sequence: shortcutWorkaround
             }
         }

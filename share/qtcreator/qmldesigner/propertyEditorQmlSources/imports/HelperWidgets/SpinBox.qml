@@ -33,71 +33,68 @@ Item {
     property alias decimals: spinBox.decimals
     property alias hasSlider: spinBox.hasSlider
 
-    property real minimumValue
-    property real maximumValue
-    property real stepSize
+    property real minimumValue: 0.0
+    property real maximumValue: 99
+    property real stepSize: 1.0
 
     property alias backendValue: spinBox.backendValue
-
-    Component.onCompleted: {
-        // TODO minimumValue/maximumValue convertion...
-        // TODO step size convertion...
-    }
 
     width: 100
     implicitHeight: spinBox.height
 
+    property bool __initialized: false
+
+    Component.onCompleted: {
+        wrapper.__initialized = true
+
+        convert("stepSize", stepSize)
+        convert("from", minimumValue)
+        convert("to", maximumValue)
+    }
+
+    onStepSizeChanged: convert("stepSize", stepSize)
+    onMinimumValueChanged: convert("from", minimumValue)
+    onMaximumValueChanged: convert("to", maximumValue)
+
+    function convert(target, value) {
+        if (!wrapper.__initialized)
+            return
+        spinBox[target] = Math.round(value * spinBox.factor)
+    }
+
     StudioControls.SpinBox {
         id: spinBox
 
-        property real properValue: value / factor
+        property real realValue: value / factor
+        property variant backendValue
+        property bool hasSlider: false
 
         from: minimumValue * factor
         to: maximumValue * factor
-
         width: wrapper.width
-        //height: wrapper.height
 
-//        property color textColor: colorLogic.textColor
-        property variant backendValue;
-
-        //implicitWidth: 74
-/*
-        ExtendedFunctionButton {
-            x: 4
-            anchors.verticalCenter: parent.verticalCenter
+        ExtendedFunctionLogic {
+            id: extFuncLogic
             backendValue: spinBox.backendValue
-            visible: spinBox.enabled
         }
-*/
-        /*
-        icon: extend.glyph
-        Extn2 {
-            glyph:
-        }
-        */
 
-        textColor: colorLogic.textColor
+        actionIndicator.icon.color: extFuncLogic.color
+        actionIndicator.icon.text: extFuncLogic.glyph
+        actionIndicator.onClicked: extFuncLogic.show()
 
         ColorLogic {
             id: colorLogic
             backendValue: spinBox.backendValue
             onValueFromBackendChanged: {
-                spinBox.value = valueFromBackend * factor;
+                spinBox.value = valueFromBackend * spinBox.factor;
             }
         }
 
-        property bool hasSlider: false
-
-        //height: hasSlider ? 32 : implicitHeight
+        textColor: colorLogic.textColor
 
         onCompressedValueModified: {
-            if (backendValue.value !== properValue)
-                backendValue.value = properValue;
+            if (backendValue.value !== realValue)
+                backendValue.value = realValue;
         }
-    /*
-        style: CustomSpinBoxStyle {
-        }
-    */
     }
 }

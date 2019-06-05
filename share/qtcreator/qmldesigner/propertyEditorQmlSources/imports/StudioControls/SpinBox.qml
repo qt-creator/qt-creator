@@ -30,9 +30,8 @@ import StudioTheme 1.0 as StudioTheme
 T.SpinBox {
     id: mySpinBox
 
-property alias textColor: spinBoxInput.color
-
-    property alias actionIcon: actionIndicator.icon
+    property alias textColor: spinBoxInput.color
+    property alias actionIndicator: actionIndicator
 
     property int decimals: 0
     property int factor: Math.pow(10, decimals)
@@ -158,6 +157,7 @@ property alias textColor: spinBoxInput.color
         x: spinBoxInput.x + spinBoxInput.width - StudioTheme.Values.border
         width: sliderIndicator.visible ? __sliderIndicatorWidth : 0
         height: sliderIndicator.visible ? __sliderIndicatorHeight : 0
+        visible: false // reasonable default
     }
 
     SliderPopup {

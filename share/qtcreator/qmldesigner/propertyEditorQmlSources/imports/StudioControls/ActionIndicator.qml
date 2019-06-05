@@ -44,6 +44,8 @@ Rectangle {
     implicitWidth: StudioTheme.Values.height
     implicitHeight: StudioTheme.Values.height
 
+    signal clicked
+
     T.Label {
         id: actionIndicatorIcon
         anchors.fill: parent
@@ -60,6 +62,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         onContainsMouseChanged: actionIndicator.hover = containsMouse
+        onClicked: actionIndicator.clicked()
     }
 
     states: [
