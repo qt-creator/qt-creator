@@ -181,7 +181,7 @@ void GradientModel::addGradient()
     setupModel();
 
     if (m_gradientTypeName != "Gradient")
-        QTimer::singleShot(1000, [this](){ view()->resetPuppet(); }); /*Unfortunately required */
+        resetPuppet(); /*Unfortunately required */
     emit hasGradientChanged();
     emit gradientTypeChanged();
 }
@@ -437,6 +437,11 @@ QmlDesigner::AbstractView *GradientModel::view() const
     return m_itemNode.view();
 }
 
+void GradientModel::resetPuppet()
+{
+    QTimer::singleShot(1000, [this]() { view()->resetPuppet(); });
+}
+
 QmlDesigner::ModelNode GradientModel::createGradientNode()
 {
     QByteArray fullTypeName = m_gradientTypeName.toUtf8();
@@ -562,7 +567,7 @@ void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
     setupModel();
 
     if (m_gradientTypeName != "Gradient")
-        QTimer::singleShot(200, [this]() { view()->resetPuppet(); }); /*Unfortunately required */
+        resetPuppet(); /*Unfortunately required */
 
     emit hasGradientChanged();
     emit gradientTypeChanged();
