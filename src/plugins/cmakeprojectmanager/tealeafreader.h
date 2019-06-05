@@ -28,6 +28,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include "builddirreader.h"
+#include "cmakeprocess.h"
 
 #include <QRegularExpression>
 
@@ -62,24 +63,18 @@ public:
     CppTools::RawProjectParts createRawProjectParts() const final;
 
 private:
-    void cleanUpProcess();
     void extractData();
 
     void startCMake(const QStringList &configurationArguments);
 
     void cmakeFinished(int code, QProcess::ExitStatus status);
-    void processCMakeOutput();
-    void processCMakeError();
 
     QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
     bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
     bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
 
-    Utils::QtcProcess *m_cmakeProcess = nullptr;
-
-    // For error reporting:
-    ProjectExplorer::IOutputParser *m_parser = nullptr;
-    QFutureInterface<void> *m_future = nullptr;
+    // Process data:
+    std::unique_ptr<CMakeProcess> m_cmakeProcess;
 
     QSet<Utils::FilePath> m_cmakeFiles;
     QString m_projectName;

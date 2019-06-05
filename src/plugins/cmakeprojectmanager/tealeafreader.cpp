@@ -29,23 +29,17 @@
 #include "cmakebuildconfiguration.h"
 #include "cmakecbpparser.h"
 #include "cmakekitinformation.h"
-#include "cmakeparser.h"
+#include "cmakeprocess.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/reaper.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/task.h>
-#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
@@ -95,31 +89,12 @@ IDocument::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, ChangeT
 
 bool CMakeFile::reload(QString *errorString, IDocument::ReloadFlag flag, IDocument::ChangeType type)
 {
-    Q_UNUSED(errorString);
-    Q_UNUSED(flag);
+    Q_UNUSED(errorString)
+    Q_UNUSED(flag)
 
     if (type != TypePermissions)
         emit m_reader->dirty();
     return true;
-}
-
-static QString lineSplit(const QString &rest, const QByteArray &array, std::function<void(const QString &)> f)
-{
-    QString tmp = rest + SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(array));
-    int start = 0;
-    int end = tmp.indexOf(QLatin1Char('\n'), start);
-    while (end >= 0) {
-        f(tmp.mid(start, end - start));
-        start = end + 1;
-        end = tmp.indexOf(QLatin1Char('\n'), start);
-    }
-    return tmp.mid(start);
-}
-
-static QStringList toArguments(const CMakeConfig &config, const MacroExpander *expander) {
-    return transform(config, [expander](const CMakeConfigItem &i) -> QString {
-        return i.toArgument(expander);
-    });
 }
 
 // --------------------------------------------------------------------
@@ -197,11 +172,13 @@ static QString findCbpFile(const QDir &directory)
 
 void TeaLeafReader::parse(bool forceConfiguration)
 {
+    emit configurationStarted();
+
     const QString cbpFile = findCbpFile(QDir(m_parameters.workDirectory.toString()));
     const QFileInfo cbpFileFi = cbpFile.isEmpty() ? QFileInfo() : QFileInfo(cbpFile);
     if (!cbpFileFi.exists() || forceConfiguration) {
         // Initial create:
-        startCMake(toArguments(m_parameters.configuration, m_parameters.expander));
+        startCMake(CMakeProcess::toArguments(m_parameters.configuration, m_parameters.expander));
         return;
     }
 
@@ -219,14 +196,7 @@ void TeaLeafReader::parse(bool forceConfiguration)
 
 void TeaLeafReader::stop()
 {
-    cleanUpProcess();
-
-    if (m_future) {
-        m_future->reportCanceled();
-        m_future->reportFinished();
-        delete m_future;
-        m_future = nullptr;
-    }
+    m_cmakeProcess.reset();
 }
 
 bool TeaLeafReader::isParsing() const
@@ -400,21 +370,6 @@ CppTools::RawProjectParts TeaLeafReader::createRawProjectParts() const
     return rpps;
 }
 
-void TeaLeafReader::cleanUpProcess()
-{
-    if (m_cmakeProcess) {
-        m_cmakeProcess->disconnect();
-        Reaper::reap(m_cmakeProcess);
-        m_cmakeProcess = nullptr;
-    }
-
-    // Delete issue parser:
-    if (m_parser)
-        m_parser->flush();
-    delete m_parser;
-    m_parser = nullptr;
-}
-
 void TeaLeafReader::extractData()
 {
     CMakeTool *cmake = m_parameters.cmakeTool();
@@ -469,115 +424,27 @@ void TeaLeafReader::extractData()
 
 void TeaLeafReader::startCMake(const QStringList &configurationArguments)
 {
-    CMakeTool *cmake = m_parameters.cmakeTool();
-    QTC_ASSERT(m_parameters.isValid() && cmake, return);
-
-    const FilePath workDirectory = m_parameters.workDirectory;
     QTC_ASSERT(!m_cmakeProcess, return);
-    QTC_ASSERT(!m_parser, return);
-    QTC_ASSERT(!m_future, return);
-    QTC_ASSERT(workDirectory.exists(), return);
 
-    const QString srcDir = m_parameters.sourceDirectory.toString();
+    m_cmakeProcess = std::make_unique<CMakeProcess>();
 
-    m_parser = new CMakeParser;
-    QDir source = QDir(srcDir);
-    connect(m_parser, &IOutputParser::addTask, m_parser,
-            [source](const Task &task) {
-                if (task.file.isEmpty() || task.file.toFileInfo().isAbsolute()) {
-                    TaskHub::addTask(task);
-                } else {
-                    Task t = task;
-                    t.file = FilePath::fromString(source.absoluteFilePath(task.file.toString()));
-                    TaskHub::addTask(t);
-                }
-            });
-
-    // Always use the sourceDir: If we are triggered because the build directory is getting deleted
-    // then we are racing against CMakeCache.txt also getting deleted.
-
-    m_cmakeProcess = new QtcProcess;
-    m_cmakeProcess->setWorkingDirectory(workDirectory.toString());
-    m_cmakeProcess->setEnvironment(m_parameters.environment);
-
-    connect(m_cmakeProcess, &QProcess::readyReadStandardOutput,
-            this, &TeaLeafReader::processCMakeOutput);
-    connect(m_cmakeProcess, &QProcess::readyReadStandardError,
-            this, &TeaLeafReader::processCMakeError);
-    connect(m_cmakeProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(m_cmakeProcess.get(), &CMakeProcess::finished,
             this, &TeaLeafReader::cmakeFinished);
 
-    QString args;
-    QtcProcess::addArg(&args, srcDir);
-    QtcProcess::addArgs(&args, m_parameters.generatorArguments);
-    QtcProcess::addArgs(&args, configurationArguments);
-
-    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-
-    MessageManager::write(tr("Running \"%1 %2\" in %3.")
-                          .arg(cmake->cmakeExecutable().toUserOutput())
-                          .arg(args)
-                          .arg(workDirectory.toUserOutput()));
-
-    m_future = new QFutureInterface<void>();
-    m_future->setProgressRange(0, 1);
-    ProgressManager::addTask(m_future->future(),
-                             tr("Configuring \"%1\"").arg(m_parameters.projectName),
-                             "CMake.Configure");
-
-    m_cmakeProcess->setCommand(CommandLine(cmake->cmakeExecutable(), args, CommandLine::Raw));
-    emit configurationStarted();
-    m_cmakeProcess->start();
+    m_cmakeProcess->run(m_parameters, configurationArguments);
 }
 
 void TeaLeafReader::cmakeFinished(int code, QProcess::ExitStatus status)
 {
+    Q_UNUSED(code)
+    Q_UNUSED(status)
+
     QTC_ASSERT(m_cmakeProcess, return);
-
-    // process rest of the output:
-    processCMakeOutput();
-    processCMakeError();
-
-    m_cmakeProcess->disconnect();
-    cleanUpProcess();
+    m_cmakeProcess.reset();
 
     extractData(); // try even if cmake failed...
 
-    QString msg;
-    if (status != QProcess::NormalExit)
-        msg = tr("*** cmake process crashed.");
-    else if (code != 0)
-        msg = tr("*** cmake process exited with exit code %1.").arg(code);
-
-    if (!msg.isEmpty()) {
-        MessageManager::write(msg);
-        TaskHub::addTask(Task::Error, msg, ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-        m_future->reportCanceled();
-    } else {
-        m_future->setProgressValue(1);
-    }
-
-    m_future->reportFinished();
-    delete m_future;
-    m_future = nullptr;
-
     emit dataAvailable();
-}
-
-void TeaLeafReader::processCMakeOutput()
-{
-    static QString rest;
-    rest = lineSplit(rest, m_cmakeProcess->readAllStandardOutput(),
-                     [](const QString &s) { MessageManager::write(s); });
-}
-
-void TeaLeafReader::processCMakeError()
-{
-    static QString rest;
-    rest = lineSplit(rest, m_cmakeProcess->readAllStandardError(), [this](const QString &s) {
-        m_parser->stdError(s);
-        MessageManager::write(s);
-    });
 }
 
 QStringList TeaLeafReader::getFlagsFor(const CMakeBuildTarget &buildTarget,

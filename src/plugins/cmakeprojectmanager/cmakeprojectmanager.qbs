@@ -47,6 +47,8 @@ QtcPlugin {
         "cmakelocatorfilter.h",
         "cmakeparser.cpp",
         "cmakeparser.h",
+        "cmakeprocess.cpp",
+        "cmakeprocess.h",
         "cmakeproject.cpp",
         "cmakeproject.h",
         "cmakeproject.qrc",
