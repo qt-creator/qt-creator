@@ -118,9 +118,9 @@ private:
     bool m_askForUninstall = false;
     static const Core::Id Id;
     Utils::CommandLine m_androiddeployqtArgs;
-    QString m_adbPath;
-    QString m_command;
-    QString m_workingDirectory;
+    Utils::FilePath m_adbPath;
+    Utils::FilePath m_command;
+    Utils::FilePath m_workingDirectory;
     Utils::Environment m_environment;
     Utils::QtcProcess *m_process = nullptr;
     AndroidDeviceInfo m_deviceInfo;

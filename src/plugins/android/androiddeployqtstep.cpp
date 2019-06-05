@@ -237,7 +237,7 @@ bool AndroidDeployQtStep::init()
         m_apkPath = Utils::FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
             m_manifestName = Utils::FilePath::fromString(node->data(Constants::AndroidManifest).toString());
-            m_command = AndroidConfigurations::currentConfig().adbToolPath().toString();
+            m_command = AndroidConfigurations::currentConfig().adbToolPath();
             AndroidManager::setManifestPath(target(), m_manifestName);
         } else {
             QString jsonFile;
@@ -246,20 +246,19 @@ bool AndroidDeployQtStep::init()
             if (jsonFile.isEmpty()) {
                 emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
                 return false;
-            }        m_command = version->qmakeProperty("QT_HOST_BINS");
+            }
+            m_command = FilePath::fromString(version->qmakeProperty("QT_HOST_BINS"));
             if (m_command.isEmpty()) {
                 emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
                 return false;
             }
             qCDebug(deployStepLog) << "Using androiddeployqt";
-            if (!m_command.endsWith(QLatin1Char('/')))
-                m_command += QLatin1Char('/');
-            m_command += Utils::HostOsInfo::withExecutableSuffix(QLatin1String("androiddeployqt"));
+            m_command = m_command.pathAppended(HostOsInfo::withExecutableSuffix("androiddeployqt"));
 
-            m_workingDirectory = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY).toString();
+            m_workingDirectory = bc->buildDirectory().pathAppended(Constants::ANDROID_BUILDDIRECTORY);
 
             m_androiddeployqtArgs.addArgs({"--verbose",
-                                           "--output", m_workingDirectory,
+                                           "--output", m_workingDirectory.toString(),
                                            "--no-build",
                                            "--input", jsonFile});
 
@@ -280,14 +279,14 @@ bool AndroidDeployQtStep::init()
         }
     } else {
         m_uninstallPreviousPackageRun = true;
-        m_command = AndroidConfigurations::currentConfig().adbToolPath().toString();
+        m_command = AndroidConfigurations::currentConfig().adbToolPath();
         const AndroidConfig &config = AndroidConfigurations::currentConfig();
         m_apkPath = deployQtLive ? config.qtLiveApkPath() : AndroidManager::apkPath(target());
-        m_workingDirectory = bc ? bc->buildDirectory().toString() : QString();
+        m_workingDirectory = bc ? bc->buildDirectory() : FilePath();
     }
     m_environment = bc ? bc->environment() : Utils::Environment();
 
-    m_adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
+    m_adbPath = AndroidConfigurations::currentConfig().adbToolPath();
 
     AndroidAvdManager avdManager;
     // Start the AVD if not running.
@@ -298,7 +297,7 @@ bool AndroidDeployQtStep::init()
 
 AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 {
-    CommandLine cmd(Utils::FilePath::fromString(m_command), {});
+    CommandLine cmd(m_command, {});
     if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
         cmd.addArgs(m_androiddeployqtArgs.arguments());
         if (m_uninstallPreviousPackageRun)
@@ -346,7 +345,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
             }
             qCDebug(deployStepLog) << "Uninstalling previous package";
             emit addOutput(tr("Uninstall previous package %1.").arg(packageName), OutputFormat::NormalMessage);
-            runCommand(m_adbPath,
+            runCommand(m_adbPath.toString(),
                        AndroidDeviceInfo::adbSelector(m_serialNumber)
                        << QLatin1String("uninstall") << packageName);
         }
@@ -357,7 +356,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 
     m_process = new Utils::QtcProcess;
     m_process->setCommand(cmd);
-    m_process->setWorkingDirectory(m_workingDirectory);
+    m_process->setWorkingDirectory(m_workingDirectory.toString());
     m_process->setEnvironment(m_environment);
 
     if (Utils::HostOsInfo::isWindowsHost())
@@ -402,14 +401,15 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
     m_process = nullptr;
 
     if (exitStatus == QProcess::NormalExit && exitCode == 0) {
-        emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command),
+        emit addOutput(tr("The process \"%1\" exited normally.").arg(m_command.toUserOutput()),
                        BuildStep::OutputFormat::NormalMessage);
     } else if (exitStatus == QProcess::NormalExit) {
         emit addOutput(tr("The process \"%1\" exited with code %2.")
-                       .arg(m_command, QString::number(exitCode)),
+                       .arg(m_command.toUserOutput(), QString::number(exitCode)),
                        BuildStep::OutputFormat::ErrorMessage);
     } else {
-        emit addOutput(tr("The process \"%1\" crashed.").arg(m_command), BuildStep::OutputFormat::ErrorMessage);
+        emit addOutput(tr("The process \"%1\" crashed.").arg(m_command.toUserOutput()),
+                       BuildStep::OutputFormat::ErrorMessage);
     }
 
     if (deployError != NoError) {
@@ -489,7 +489,7 @@ bool AndroidDeployQtStep::runImpl()
 
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
         QFile::remove(itr.value());
-        runCommand(m_adbPath,
+        runCommand(m_adbPath.toString(),
                    AndroidDeviceInfo::adbSelector(m_serialNumber)
                    << "pull" << itr.key() << itr.value());
         if (!QFileInfo::exists(itr.value())) {
