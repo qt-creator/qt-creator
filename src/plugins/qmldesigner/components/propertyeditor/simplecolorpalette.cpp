@@ -43,7 +43,7 @@ PaletteColor::PaletteColor(const QString &colorCode)
     , m_isFavorite(false)
 {}
 
-PaletteColor::PaletteColor(const QColor &value)
+PaletteColor::PaletteColor(const QColor &color)
     : m_color(color)
     , m_colorCode(color.name(QColor::HexArgb))
     , m_isFavorite(false)
