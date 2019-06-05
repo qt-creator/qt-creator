@@ -60,7 +60,7 @@ Item {
         if (!wrapper.__initialized)
             return
         spinBox[target] = Math.round(value * spinBox.factor)
-    }    
+    }
 
     StudioControls.SpinBox {
         id: spinBox

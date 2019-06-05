@@ -25,9 +25,7 @@
 
 import QtQuick 2.1
 import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0 as Controls
 import QtQuickDesignerTheme 1.0
-import QtQuick.Controls.Styles 1.1
 
 Column {
     id: colorEditor
