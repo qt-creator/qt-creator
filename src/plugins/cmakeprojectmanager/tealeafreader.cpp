@@ -519,7 +519,7 @@ void TeaLeafReader::startCMake(const QStringList &configurationArguments)
                              tr("Configuring \"%1\"").arg(m_parameters.projectName),
                              "CMake.Configure");
 
-    m_cmakeProcess->setCommand(CommandLine(cmake->cmakeExecutable(), args));
+    m_cmakeProcess->setCommand(CommandLine(cmake->cmakeExecutable(), args, CommandLine::Raw));
     emit configurationStarted();
     m_cmakeProcess->start();
 }

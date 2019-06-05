@@ -155,7 +155,7 @@ void CppcheckRunner::checkQueued()
     else
         m_queue.begin().value() = files;
 
-    m_process->setCommand(CommandLine(FilePath::fromString(m_binary), arguments));
+    m_process->setCommand(CommandLine(FilePath::fromString(m_binary), arguments, CommandLine::Raw));
     m_process->start();
 }
 

@@ -112,7 +112,7 @@ QString OpenOcdGdbServerProvider::channel() const
 
 CommandLine OpenOcdGdbServerProvider::command() const
 {
-    CommandLine cmd{m_executableFile, {}};
+    CommandLine cmd{m_executableFile};
 
     cmd.addArg("-c");
     if (startupMode() == StartupOnPipe)
@@ -127,7 +127,7 @@ CommandLine OpenOcdGdbServerProvider::command() const
         cmd.addArgs({"-f", m_configurationFile});
 
     if (!m_additionalArguments.isEmpty())
-        cmd.addArgs(m_additionalArguments);
+        cmd.addArgs(m_additionalArguments, CommandLine::Raw);
 
     return cmd;
 }

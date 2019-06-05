@@ -159,11 +159,10 @@ void WinRtDeviceFactory::autoDetect()
                 this, &WinRtDeviceFactory::onProcessFinished);
     }
 
-    const QString args = QStringLiteral("--list-devices");
-    m_process->setCommand(CommandLine(FilePath::fromString(runnerFilePath), args));
-    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Starting process" << runnerFilePath
-                            << "with arguments" << args;
-    MessageManager::write(runnerFilePath + QLatin1Char(' ') + args);
+    const CommandLine cmd(FilePath::fromString(runnerFilePath), {"--list-devices"});
+    m_process->setCommand(cmd);
+    qCDebug(winrtDeviceLog) << __FUNCTION__ << "Starting process" << cmd.toUserOutput();
+    MessageManager::write(cmd.toUserOutput());
     m_process->start();
     qCDebug(winrtDeviceLog) << __FUNCTION__ << "Process started";
 }

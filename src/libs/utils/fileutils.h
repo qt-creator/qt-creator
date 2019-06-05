@@ -131,15 +131,17 @@ using FileNameList = FilePathList;
 class QTCREATOR_UTILS_EXPORT CommandLine
 {
 public:
-    CommandLine() {}
+    enum RawType { Raw };
 
-    CommandLine(const FilePath &executable, const QString &arguments)
-        : m_executable(executable), m_arguments(arguments)
-    {}
+    CommandLine() {}
+    explicit CommandLine(const FilePath &executable);
+    CommandLine(const FilePath &exe, const QStringList &args);
+    CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
 
     void addArg(const QString &arg, OsType osType = HostOsInfo::hostOs());
     void addArgs(const QStringList &inArgs, OsType osType = HostOsInfo::hostOs());
-    void addArgs(const QString &inArgs);
+
+    void addArgs(const QString &inArgs, RawType);
 
     QString toUserOutput() const;
 

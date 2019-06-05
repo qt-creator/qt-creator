@@ -213,7 +213,9 @@ void AbstractProcessStep::doRun()
         }
     }
 
-    const CommandLine effectiveCommand{d->m_param.effectiveCommand(), d->m_param.effectiveArguments()};
+    const CommandLine effectiveCommand(d->m_param.effectiveCommand(),
+                                       d->m_param.effectiveArguments(),
+                                       CommandLine::Raw);
     if (!effectiveCommand.executable().exists()) {
         processStartupFailed();
         finish(false);

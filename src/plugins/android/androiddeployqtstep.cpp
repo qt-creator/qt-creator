@@ -297,9 +297,9 @@ bool AndroidDeployQtStep::init()
 
 AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
 {
-    CommandLine cmd(m_command, {});
+    CommandLine cmd(m_command);
     if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
-        cmd.addArgs(m_androiddeployqtArgs.arguments());
+        cmd.addArgs(m_androiddeployqtArgs.arguments(), CommandLine::Raw);
         if (m_uninstallPreviousPackageRun)
             cmd.addArg("--install");
         else

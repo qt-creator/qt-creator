@@ -663,11 +663,11 @@ void ExternalToolRunner::run()
             this, &ExternalToolRunner::readStandardError);
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
-    m_process->setCommand(CommandLine(m_resolvedExecutable, m_resolvedArguments));
+    const CommandLine cmd{m_resolvedExecutable, m_resolvedArguments, CommandLine::Raw};
+    m_process->setCommand(cmd);
     m_process->setEnvironment(m_resolvedEnvironment);
-    MessageManager::write(tr("Starting external tool \"%1\" %2")
-                          .arg(m_resolvedExecutable.toUserOutput(), m_resolvedArguments),
-                          MessageManager::Silent);
+    MessageManager::write(tr("Starting external tool \"%1\"")
+                          .arg(cmd.toUserOutput()), MessageManager::Silent);
     m_process->start();
 }
 

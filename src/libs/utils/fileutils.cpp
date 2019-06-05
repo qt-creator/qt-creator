@@ -74,6 +74,22 @@ namespace Utils {
 
 */
 
+CommandLine::CommandLine(const FilePath &executable)
+    : m_executable(executable)
+{}
+
+CommandLine::CommandLine(const FilePath &exe, const QStringList &args)
+    : m_executable(exe)
+{
+    addArgs(args);
+}
+
+CommandLine::CommandLine(const FilePath &exe, const QString &args, RawType)
+    : m_executable(exe)
+{
+    addArgs(args, Raw);
+}
+
 void CommandLine::addArg(const QString &arg, OsType osType)
 {
     QtcProcess::addArg(&m_arguments, arg, osType);
@@ -85,7 +101,7 @@ void CommandLine::addArgs(const QStringList &inArgs, OsType osType)
         addArg(arg, osType);
 }
 
-void CommandLine::addArgs(const QString &inArgs)
+void CommandLine::addArgs(const QString &inArgs, RawType)
 {
     QtcProcess::addArgs(&m_arguments, inArgs);
 }

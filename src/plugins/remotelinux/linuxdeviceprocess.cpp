@@ -79,28 +79,28 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 
     for (const QString &filePath : rcFilesToSource()) {
         cmd.addArgs({"test", "-f", filePath});
-        cmd.addArgs("&&");
+        cmd.addArgs("&&", CommandLine::Raw);
         cmd.addArgs({".", filePath});
-        cmd.addArgs(";");
+        cmd.addArgs(";", CommandLine::Raw);
     }
 
     if (!runnable.workingDirectory.isEmpty()) {
         cmd.addArgs({"cd", runnable.workingDirectory});
-        cmd.addArgs("&&");
+        cmd.addArgs("&&", CommandLine::Raw);
     }
 
     if (!runInTerminal())
-        cmd.addArgs("echo $$ && ");
+        cmd.addArgs("echo $$ && ", CommandLine::Raw);
 
     const Environment &env = runnable.environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it)
-        cmd.addArgs(env.key(it) + "='" + env.value(it) + '\'');
+        cmd.addArgs(env.key(it) + "='" + env.value(it) + '\'', CommandLine::Raw);
 
     if (!runInTerminal())
         cmd.addArg("exec");
 
     cmd.addArg(runnable.executable);
-    cmd.addArgs(runnable.commandLineArguments);
+    cmd.addArgs(runnable.commandLineArguments, CommandLine::Raw);
 
     return cmd.arguments();
 }

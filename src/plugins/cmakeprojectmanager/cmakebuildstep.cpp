@@ -361,7 +361,7 @@ Utils::CommandLine CMakeBuildStep::cmakeCommand(CMakeRunConfiguration *rc) const
 
     if (!m_toolArguments.isEmpty()) {
         cmd.addArg("--");
-        cmd.addArgs(m_toolArguments);
+        cmd.addArgs(m_toolArguments, Utils::CommandLine::Raw);
     }
 
     return cmd;

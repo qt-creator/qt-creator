@@ -207,7 +207,7 @@ void LldbEngine::setupEngine()
     if (QFileInfo(runParameters().debugger.workingDirectory).isDir())
         m_lldbProc.setWorkingDirectory(runParameters().debugger.workingDirectory);
 
-    m_lldbProc.setCommand(CommandLine(FilePath::fromString(lldbCmd), QString()));
+    m_lldbProc.setCommand(CommandLine(FilePath::fromString(lldbCmd)));
     m_lldbProc.start();
 
     if (!m_lldbProc.waitForStarted()) {

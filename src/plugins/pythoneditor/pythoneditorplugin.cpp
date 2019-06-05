@@ -299,9 +299,8 @@ void PythonRunConfiguration::updateTargetInformation()
 
 Runnable PythonRunConfiguration::runnable() const
 {
-    CommandLine cmd{executable(), {}};
-    cmd.addArg(mainScript());
-    cmd.addArgs(aspect<ArgumentsAspect>()->arguments(macroExpander()));
+    CommandLine cmd{executable(), {mainScript()}};
+    cmd.addArgs(aspect<ArgumentsAspect>()->arguments(macroExpander()), CommandLine::Raw);
 
     Runnable r;
     r.setCommandLine(cmd);

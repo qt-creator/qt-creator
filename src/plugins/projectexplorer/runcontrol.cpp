@@ -1551,7 +1551,7 @@ void RunWorker::stop()
 
 CommandLine Runnable::commandLine() const
 {
-    return CommandLine(FilePath::fromString(executable), commandLineArguments);
+    return CommandLine(FilePath::fromString(executable), commandLineArguments, CommandLine::Raw);
 }
 
 void Runnable::setCommandLine(const CommandLine &cmdLine)

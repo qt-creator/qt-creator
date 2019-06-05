@@ -94,11 +94,11 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
     if (auto aspect = runControl->aspect<LoopbackExemptServerAspect>())
         loopbackExemptServer = aspect->value();
     if (loopbackExemptClient && loopbackExemptServer)
-        m_loopbackArguments = "--loopbackexempt clientserver";
+        m_loopbackArguments = QStringList{"--loopbackexempt", "clientserver"};
     else if (loopbackExemptClient)
-        m_loopbackArguments = "--loopbackexempt client";
+        m_loopbackArguments = QStringList{"--loopbackexempt", "client"};
     else if (loopbackExemptServer)
-        m_loopbackArguments = "--loopbackexempt server";
+        m_loopbackArguments = QStringList{"--loopbackexempt", "server"};
 
     if (BuildConfiguration *bc = runControl->target()->activeBuildConfiguration())
         m_environment = bc->environment();
@@ -190,29 +190,29 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
         }
         Q_FALLTHROUGH();
     case Start:
-        cmdLine.addArgs("--start --stop --wait 0");
+        cmdLine.addArgs({"--start", "--stop", "--wait", "0"});
         connectProcess = true;
         QTC_ASSERT(!m_process, m_process->deleteLater());
         m_process = new QtcProcess(this);
         process = m_process;
         break;
     case Stop:
-        cmdLine.addArgs("--stop");
+        cmdLine.addArg("--stop");
         process = new QtcProcess(this);
         break;
     }
 
     if (m_device->type() == Constants::WINRT_DEVICE_TYPE_LOCAL)
-        cmdLine.addArgs("--profile appx");
+        cmdLine.addArgs({"--profile", "appx"});
     else if (m_device->type() == Constants::WINRT_DEVICE_TYPE_PHONE ||
              m_device->type() == Constants::WINRT_DEVICE_TYPE_EMULATOR)
-        cmdLine.addArgs("--profile appxphone");
+        cmdLine.addArgs({"--profile", "appxphone"});
 
     cmdLine.addArgs(m_loopbackArguments);
     cmdLine.addArg(m_executableFilePath);
-    cmdLine.addArgs(m_arguments);
+    cmdLine.addArgs(m_arguments, CommandLine::Raw);
 
-    appendMessage("winrtrunner " + cmdLine.arguments() + '\n', NormalMessageFormat);
+    appendMessage(cmdLine.toUserOutput(), NormalMessageFormat);
 
     if (connectProcess) {
         connect(process, &QProcess::started, this, &WinRtRunnerHelper::started);

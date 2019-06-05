@@ -3551,7 +3551,7 @@ void GdbEngine::setupEngine()
         return;
     }
 
-    gdbCommand.addArgs("-i mi");
+    gdbCommand.addArgs({"-i", "mi"});
     if (!boolSetting(LoadGdbInit))
         gdbCommand.addArg("-n");
 

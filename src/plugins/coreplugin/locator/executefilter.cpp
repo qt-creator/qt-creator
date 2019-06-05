@@ -169,7 +169,7 @@ void ExecuteFilter::runHeadCommand()
         }
         MessageManager::write(tr("Starting command \"%1\".").arg(headCommand()));
         m_process->setWorkingDirectory(d.workingDirectory);
-        m_process->setCommand(Utils::CommandLine(fullPath, d.arguments));
+        m_process->setCommand({fullPath, d.arguments, Utils::CommandLine::Raw});
         m_process->start();
         m_process->closeWriteChannel();
         if (!m_process->waitForStarted(1000)) {
