@@ -25,20 +25,20 @@
 
 import QtQuick 2.1
 import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0 as Controls
 import QtQuickDesignerTheme 1.0
-import QtQuick.Controls.Styles 1.1
+import StudioControls 1.0 as StudioControls
 
-DoubleSpinBox {
+StudioControls.SpinBox {
     id: spinBox
     width: 82
     Layout.minimumWidth: 82
 
     property string propertyName
+    actionIndicatorVisible: false
 
-    minimumValue: -9999
-    maximumValue: 9999
+    from: -9999
+    to: 9999
     Component.onCompleted: spinBox.value = gradientLine.model.readGradientProperty(propertyName)
-    onValueChanged:  gradientLine.model.setGradientProperty(propertyName, spinBox.value)
+    onCompressedValueModified:  gradientLine.model.setGradientProperty(propertyName, spinBox.value)
     stepSize: 1
 }
