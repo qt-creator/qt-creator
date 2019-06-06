@@ -336,7 +336,7 @@
 
     \title Viewing Output
 
-    \image qtcreator-task-pane.png
+    \image qtcreator-general-messages.png "General Messages output pane"
 
     The task pane in \QC can display one of the following panes:
 
@@ -373,6 +373,9 @@
     the \uicontrol Find field and click the left and right arrows to search down and
     up in the pane. In these panes, you can also use the zoom buttons to increase and
     decrease the text size of the output.
+
+    To filter the output, enter a string in the \uicontrol Filter field.
+    Filtering is not supported in all output panes.
 
     To open the \uicontrol{General Messages} and
     \if defined(qtcreator)
@@ -444,7 +447,7 @@
     \uicontrol {Filter Tree}
     and then select a filter.
 
-    \image qtcreator-build-issues.png
+    \image qtcreator-issues.png "Issues output pane"
 
     Right-clicking on a line brings up a context menu with actions that you can
     apply to the contents of the line. You can remove a line, copy its contents
@@ -510,7 +513,7 @@
     The \uicontrol{Compile Output} is a more detailed version of information
     displayed in the \uicontrol{Issues} pane.
 
-    \image qtcreator-compile-pane.png
+    \image qtcreator-compile-output.png "Compile Output pane"
 
     Double-click on a file name in an error message to open the file in the
     code editor.
