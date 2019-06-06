@@ -29,6 +29,7 @@
 #include <utils/pathchooser.h>
 
 #include <QPushButton>
+#include <QTimer>
 #include <QVBoxLayout>
 
 namespace ProjectExplorer {
@@ -60,6 +61,14 @@ ImportWidget::ImportWidget(QWidget *parent) :
     layout->addWidget(importButton);
 
     connect(importButton, &QAbstractButton::clicked, this, &ImportWidget::handleImportRequest);
+    connect(m_pathChooser->lineEdit(), &QLineEdit::returnPressed, this, [this] {
+        if (m_pathChooser->isValid()) {
+            handleImportRequest();
+
+            // The next return should trigger the "Configure" button.
+            QTimer::singleShot(0, this, QOverload<>::of(&QWidget::setFocus));
+        }
+    });
 
     detailsWidget->setWidget(widget);
 }
@@ -68,6 +77,11 @@ void ImportWidget::setCurrentDirectory(const Utils::FilePath &dir)
 {
     m_pathChooser->setBaseFileName(dir);
     m_pathChooser->setFileName(dir);
+}
+
+bool ImportWidget::lineEditHasFocus() const
+{
+    return m_pathChooser->lineEdit()->hasFocus();
 }
 
 void ImportWidget::handleImportRequest()
