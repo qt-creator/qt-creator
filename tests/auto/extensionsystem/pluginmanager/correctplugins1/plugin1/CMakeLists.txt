@@ -4,4 +4,5 @@ add_qtc_plugin(correct_plugin1
   SOURCES
     plugin1.cpp plugin1.h
   PLUGIN_PATH "${TEST_PLUGIN_PATH}"
+  SKIP_INSTALL
 )

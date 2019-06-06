@@ -90,7 +90,8 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     // if Creator is launched within a session set up by setenv.cmd.
     env.unset("ORIGINALPATH");
     run.setEnvironment(env);
-    const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    const Utils::FilePath cmdPath
+            = Utils::FilePath::fromString(QString::fromLocal8Bit(qgetenv("COMSPEC")));
     // Windows SDK setup scripts require command line switches for environment expansion.
     QString cmdArguments = " /E:ON /V:ON /c \"" + QDir::toNativeSeparators(saver.fileName()) + '"';
     run.setCommand(Utils::CommandLine(cmdPath, cmdArguments));

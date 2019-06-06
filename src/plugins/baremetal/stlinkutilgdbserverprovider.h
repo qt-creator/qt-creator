@@ -56,8 +56,7 @@ public:
     GdbServerProvider *clone() const final;
 
     QString channel() const final;
-    QString executable() const final;
-    QStringList arguments() const final;
+    Utils::CommandLine command() const final;
 
     bool canStartupMode(StartupMode mode) const final;
     bool isValid() const final;
@@ -71,7 +70,7 @@ private:
 
     QString m_host = QLatin1String("localhost");
     quint16 m_port = 4242;
-    QString m_executableFile = QLatin1String("st-util");
+    Utils::FilePath m_executableFile = Utils::FilePath::fromString("st-util");
     int m_verboseLevel = 0; // 0..99
     bool m_extendedMode = false; // Listening for connections after disconnect
     bool m_resetBoard = true;

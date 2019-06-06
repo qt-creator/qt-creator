@@ -310,6 +310,14 @@ TEST_F(ProjectUpdater, CreateSortedCompilerMacros)
                                    CompilerMacro{"DEFINE", "1", 3}));
 }
 
+TEST_F(ProjectUpdater, FilterCompilerMacros)
+{
+    auto paths = updater.createCompilerMacros(
+        {{"DEFINE", "1"}, {"QT_TESTCASE_BUILDDIR", "2"}, {"BAR", "1"}});
+
+    ASSERT_THAT(paths, ElementsAre(CompilerMacro{"BAR", "1", 1}, CompilerMacro{"DEFINE", "1", 3}));
+}
+
 TEST_F(ProjectUpdater, CreateSortedIncludeSearchPaths)
 {
     CppTools::ProjectPart projectPart;

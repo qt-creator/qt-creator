@@ -3523,14 +3523,16 @@ void GdbEngine::setupEngine()
     if (isRemoteEngine() && HostOsInfo::isWindowsHost())
         m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
 
-    QStringList gdbArgs;
+    const DebuggerRunParameters &rp = runParameters();
+    CommandLine gdbCommand{FilePath::fromString(rp.debugger.executable), {}};
+
     if (isPlainEngine()) {
         if (!m_outputCollector.listen()) {
             handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
                                      .arg(m_outputCollector.errorString()));
             return;
         }
-        gdbArgs.append("--tty=" + m_outputCollector.serverName());
+        gdbCommand.addArg("--tty=" + m_outputCollector.serverName());
     }
 
     const QString tests = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_TESTS"));
@@ -3541,7 +3543,6 @@ void GdbEngine::setupEngine()
 
     m_expectTerminalTrap = terminal();
 
-    const DebuggerRunParameters &rp = runParameters();
     if (rp.debugger.executable.isEmpty()) {
         handleGdbStartFailed();
         handleAdapterStartFailed(
@@ -3550,14 +3551,12 @@ void GdbEngine::setupEngine()
         return;
     }
 
-    gdbArgs << "-i";
-    gdbArgs << "mi";
+    gdbCommand.addArgs("-i mi");
     if (!boolSetting(LoadGdbInit))
-        gdbArgs << "-n";
+        gdbCommand.addArg("-n");
 
-    showMessage("STARTING " + rp.debugger.executable + " " + gdbArgs.join(' '));
-    m_gdbProc.setCommand(CommandLine(FilePath::fromString(rp.debugger.executable),
-                                     QtcProcess::joinArgs(gdbArgs)));
+    showMessage("STARTING " + gdbCommand.toUserOutput());
+    m_gdbProc.setCommand(gdbCommand);
     if (QFileInfo(rp.debugger.workingDirectory).isDir())
         m_gdbProc.setWorkingDirectory(rp.debugger.workingDirectory);
     m_gdbProc.setEnvironment(rp.debugger.environment);

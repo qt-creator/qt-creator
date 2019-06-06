@@ -15,6 +15,7 @@ add_qtc_plugin(testplugin
   PLUGIN_PATH "${CMAKE_CURRENT_BINARY_DIR}"
   PROPERTIES
     OUTPUT_NAME ${plugin_output_name}
+  SKIP_INSTALL
 )
 
 # The empty string gets removed if I put it above

@@ -143,12 +143,7 @@ void GdbServerProvider::setResetCommands(const QString &cmds)
     m_resetCommands = cmds;
 }
 
-QString GdbServerProvider::executable() const
-{
-    return {};
-}
-
-QStringList GdbServerProvider::arguments() const
+Utils::CommandLine GdbServerProvider::command() const
 {
     return {};
 }

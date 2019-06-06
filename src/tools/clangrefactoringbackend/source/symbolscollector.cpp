@@ -101,7 +101,6 @@ newFrontendActionFactory(Factory *consumerFactory,
         protected:
             bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
             {
-                compilerInstance.getLangOpts().DelayedTemplateParsing = false;
                 compilerInstance.getPreprocessorOpts().AllowPCHWithCompilerErrors = true;
 
                 return clang::ASTFrontendAction::BeginInvocation(compilerInstance);

@@ -49,7 +49,7 @@ private:
     QString fullCommandLine(const ProjectExplorer::Runnable &) const override;
     qint64 processId() const override;
 
-    QStringList rcFilesToSource() const;
+    const QStringList rcFilesToSource() const;
 
     QStringList m_rcFilesToSource;
     QByteArray m_processIdString;

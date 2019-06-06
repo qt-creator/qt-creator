@@ -26,6 +26,8 @@
 **
 ****************************************************************************/
 
+#pragma once
+
 #include "glslparsertable_p.h"
 #include "glsllexer.h"
 #include "glslast.h"

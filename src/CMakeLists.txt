@@ -126,7 +126,8 @@ function(add_qtc_library name)
     set(library_type OBJECT)
   endif()
 
-  add_library(${name} ${library_type} ${_arg_SOURCES})
+  # Do not just build libraries...
+  add_library(${name} ${library_type} EXCLUDE_FROM_ALL ${_arg_SOURCES})
 
   if (${name} MATCHES "^[^0-9]+")
     string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
@@ -213,7 +214,7 @@ endfunction()
 
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
-    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK"
+    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;INCLUDES;PUBLIC_INCLUDES;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;SOURCES;EXPLICIT_MOC"
     ${ARGN}
@@ -361,11 +362,13 @@ function(add_qtc_plugin target_name)
     set_explicit_moc(${target_name} "${file}")
   endforeach()
 
-  install(TARGETS ${target_name}
-          LIBRARY DESTINATION "${plugin_dir}"
-          ARCHIVE DESTINATION "${plugin_dir}"
-          RUNTIME DESTINATION "${plugin_dir}"
-  )
+  if (NOT _arg_SKIP_INSTALL)
+    install(TARGETS ${target_name}
+            LIBRARY DESTINATION "${plugin_dir}"
+            ARCHIVE DESTINATION "${plugin_dir}"
+            RUNTIME DESTINATION "${plugin_dir}"
+    )
+  endif()
 endfunction()
 
 function(extend_qtc_target target_name)
@@ -419,7 +422,7 @@ function(extend_qtc_plugin target_name)
 endfunction()
 
 function(add_qtc_executable name)
-  cmake_parse_arguments(_arg "" "DESTINATION" "DEFINES;DEPENDS;INCLUDES;SOURCES;PROPERTIES" ${ARGN})
+  cmake_parse_arguments(_arg "SKIP_INSTALL" "DESTINATION" "DEFINES;DEPENDS;INCLUDES;SOURCES;PROPERTIES" ${ARGN})
 
   if ($_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
@@ -469,7 +472,9 @@ function(add_qtc_executable name)
     ${_arg_PROPERTIES}
   )
 
-  install(TARGETS ${name} DESTINATION "${_DESTINATION}")
+  if (NOT _arg_SKIP_INSTALL)
+    install(TARGETS ${name} DESTINATION "${_DESTINATION}")
+  endif()
 endfunction()
 
 function(extend_qtc_executable name)

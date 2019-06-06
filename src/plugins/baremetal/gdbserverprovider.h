@@ -84,8 +84,7 @@ public:
 
     virtual QVariantMap toMap() const;
 
-    virtual QString executable() const;
-    virtual QStringList arguments() const;
+    virtual Utils::CommandLine command() const;
 
     virtual bool isValid() const;
     virtual bool canStartupMode(StartupMode) const;
