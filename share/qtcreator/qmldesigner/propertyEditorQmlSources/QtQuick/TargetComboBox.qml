@@ -26,13 +26,15 @@
 import QtQuick 2.0
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0 as Controls
+import StudioControls 1.0 as StudioControls
 import QtQuickDesignerTheme 1.0
 
-Controls.ComboBox {
+StudioControls.ComboBox {
 
     property string targetName: anchorBackend.topTarget
     property color textColor: Theme.color(Theme.PanelTextColorLight)
+
+    actionIndicatorVisible: false
 
     id: targetComboBox
 
@@ -50,8 +52,4 @@ Controls.ComboBox {
     }
 
     model: anchorBackend.possibleTargetItems
-
-    style: CustomComboBoxStyle {
-        textColor: targetComboBox.textColor
-    }
 }
