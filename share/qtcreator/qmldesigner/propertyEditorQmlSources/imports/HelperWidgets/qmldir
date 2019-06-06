@@ -17,6 +17,7 @@ CustomComboBoxStyle 2.0 CustomComboBoxStyle.qml
 CustomSpinBoxStyle 2.0 CustomSpinBoxStyle.qml
 ExpandingSpacer 2.0 ExpandingSpacer.qml
 ExtendedFunctionButton 2.0 ExtendedFunctionButton.qml
+ExtendedFunctionLogic 2.0 ExtendedFunctionLogic.qml
 FlickableSection 2.0 FlickableSection.qml
 FontComboBox 2.0 FontComboBox.qml
 FontSection 2.0 FontSection.qml
