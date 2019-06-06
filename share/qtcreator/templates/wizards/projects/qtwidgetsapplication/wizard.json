@@ -19,7 +19,7 @@
         { "key": "MainFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
         { "key": "UiHdrFileName", "value": "%{JS: (value('BuildSystem') === 'cmake' ? (Util.path(value('FormFileName')) + '/') : '') + 'ui_' + Util.completeBaseName(value('FormFileName')) + '.h'}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
-        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" }
+        { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Util.suffix(value('HdrFileName')))}" }
     ],
 
     "pages":

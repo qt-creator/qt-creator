@@ -305,7 +305,7 @@
                     { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
                     { "key": "Base", "value": "%{JS: value('BaseCB') === '' ? value('BaseEdit') : value('BaseCB')}" },
                     { "key": "isQObject", "value": "%{JS: (value('Base') === 'QObject' || value('Base') === 'QWidget' || value('Base') === 'QMainWindow' || value('Base') === 'QDeclarativeItem' || value('Base') === 'QQuickItem' ) ? 'true' : 'false'}" },
-                    { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Util.preferredSuffix('text/x-c++hdr'))}" },
+                    { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Util.suffix(value('HdrFileName'))}" },
                     { "key": "SharedDataInit", "value": "%{JS: value('IncludeQSharedData') ? 'data(new %{CN}Data)' : '' }" }
                 ],
                 \endcode
