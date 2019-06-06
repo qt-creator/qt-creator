@@ -81,8 +81,6 @@ Item {
             spinBox.convert("to", wrapper.maximumValue)
 
             spinBox.value = wrapper.value * spinBox.factor
-
-            print("complete " + spinBox.value)
         }
 
         function convert(target, value) {
