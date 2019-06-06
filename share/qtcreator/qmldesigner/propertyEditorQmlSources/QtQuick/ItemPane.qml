@@ -188,6 +188,7 @@ Rectangle {
 
                     SecondColumnLayout {
                         SpinBox {
+                            sliderIndicatorVisible: true
                             backendValue: backendValues.opacity
                             decimals: 2
 
