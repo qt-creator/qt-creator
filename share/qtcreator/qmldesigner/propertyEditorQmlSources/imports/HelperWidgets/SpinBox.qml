@@ -38,6 +38,7 @@ Item {
     property real stepSize: 1.0
 
     property alias backendValue: spinBox.backendValue
+    property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
 
     width: 120
     implicitHeight: spinBox.height
