@@ -548,9 +548,6 @@ void CMakeProject::handleParsingSuccess(CMakeBuildConfiguration *bc)
 {
     QTC_ASSERT(m_waitingForParse, return);
 
-    if (!bc || !bc->isActive())
-        return;
-
     m_waitingForParse = false;
     m_combinedScanAndParseResult = m_combinedScanAndParseResult && true;
 
@@ -560,9 +557,6 @@ void CMakeProject::handleParsingSuccess(CMakeBuildConfiguration *bc)
 void CMakeProject::handleParsingError(CMakeBuildConfiguration *bc)
 {
     QTC_CHECK(m_waitingForParse);
-
-    if (!bc || !bc->isActive())
-        return;
 
     m_waitingForParse = false;
     m_combinedScanAndParseResult = false;
