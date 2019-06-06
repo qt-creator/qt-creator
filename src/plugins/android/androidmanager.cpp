@@ -526,15 +526,11 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
 {
     if (keystorePasswd.isEmpty())
         return false;
-    QStringList arguments;
-    arguments << QLatin1String("-list")
-              << QLatin1String("-keystore")
-              << keystorePath
-              << QLatin1String("--storepass")
-              << keystorePasswd;
-    Utils::SynchronousProcess proc;
+    const CommandLine cmd(AndroidConfigurations::currentConfig().keytoolPath(),
+                          {"-list", "-keystore", keystorePath, "--storepass", keystorePasswd});
+    SynchronousProcess proc;
     proc.setTimeoutS(10);
-    Utils::SynchronousProcessResponse response = proc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
+    SynchronousProcessResponse response = proc.run(cmd);
     return (response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0);
 }
 
@@ -548,11 +544,11 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
     else
         arguments << certificatePasswd;
 
-    Utils::SynchronousProcess proc;
+    SynchronousProcess proc;
     proc.setTimeoutS(10);
-    Utils::SynchronousProcessResponse response
-            = proc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
-    return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
+    SynchronousProcessResponse response
+            = proc.run({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
+    return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
 bool AndroidManager::checkCertificateExists(const QString &keystorePath,
@@ -562,11 +558,11 @@ bool AndroidManager::checkCertificateExists(const QString &keystorePath,
     QStringList arguments = { "-list", "-keystore", keystorePath,
                               "--storepass", keystorePasswd, "-alias", alias };
 
-    Utils::SynchronousProcess proc;
+    SynchronousProcess proc;
     proc.setTimeoutS(10);
-    Utils::SynchronousProcessResponse response
-            = proc.run(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
-    return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
+    SynchronousProcessResponse response
+            = proc.run({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
+    return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
 using GradleProperties = QMap<QByteArray, QByteArray>;
@@ -716,35 +712,35 @@ QProcess *AndroidManager::runAdbCommandDetached(const QStringList &args, QString
     return nullptr;
 }
 
-SdkToolResult AndroidManager::runCommand(const QString &executable, const QStringList &args,
+SdkToolResult AndroidManager::runCommand(const CommandLine &command,
                                          const QByteArray &writeData, int timeoutS)
 {
     Android::SdkToolResult cmdResult;
     Utils::SynchronousProcess cmdProc;
     cmdProc.setTimeoutS(timeoutS);
-    qCDebug(androidManagerLog) << "Running command: " << executable << args.join(' ');
-    Utils::SynchronousProcessResponse response = cmdProc.run(executable, args, writeData);
+    qCDebug(androidManagerLog) << "Running command: " << command.toUserOutput();
+    SynchronousProcessResponse response = cmdProc.run(command, writeData);
     cmdResult.m_stdOut = response.stdOut().trimmed();
     cmdResult.m_stdErr = response.stdErr().trimmed();
     cmdResult.m_success = response.result == Utils::SynchronousProcessResponse::Finished;
-    qCDebug(androidManagerLog) << "Running command finshed:" << executable << args.join(' ')
+    qCDebug(androidManagerLog) << "Running command finshed:" << command.toUserOutput()
                                << "Success:" << cmdResult.m_success
                                << "Output:" << response.allRawOutput();
     if (!cmdResult.success())
-        cmdResult.m_exitMessage = response.exitMessage(executable, timeoutS);
+        cmdResult.m_exitMessage = response.exitMessage(command.executable().toString(), timeoutS);
     return cmdResult;
 }
 
 SdkToolResult AndroidManager::runAdbCommand(const QStringList &args,
                                             const QByteArray &writeData, int timeoutS)
 {
-    return runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(), args,
+    return runCommand({AndroidConfigurations::currentConfig().adbToolPath(), args},
                       writeData, timeoutS);
 }
 
 SdkToolResult AndroidManager::runAaptCommand(const QStringList &args, int timeoutS)
 {
-    return runCommand(AndroidConfigurations::currentConfig().aaptToolPath().toString(), args, {},
+    return runCommand({AndroidConfigurations::currentConfig().aaptToolPath(), args}, {},
                       timeoutS);
 }
 } // namespace Android

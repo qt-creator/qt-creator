@@ -40,7 +40,10 @@ class Kit;
 class Target;
 }
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class CommandLine;
+class FilePath;
+}
 
 namespace Android {
 
@@ -118,7 +121,7 @@ public:
     static QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
 
 private:
-    static SdkToolResult runCommand(const QString &executable, const QStringList &args,
+    static SdkToolResult runCommand(const Utils::CommandLine &command,
                                     const QByteArray &writeData = {}, int timeoutS = 30);
 };
 

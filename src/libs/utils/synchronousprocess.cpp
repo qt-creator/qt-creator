@@ -442,15 +442,6 @@ static bool isGuiThread()
     return QThread::currentThread() == QCoreApplication::instance()->thread();
 }
 
-SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
-                                                   const QStringList &args,
-                                                   const QByteArray &writeData)
-{
-    CommandLine cmd(FilePath::fromString(binary), {});
-    cmd.addArgs(args);
-    return run(cmd, writeData);
-}
-
 SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
                                                    const QByteArray &writeData)
 {
@@ -504,14 +495,6 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
     if (debug)
         qDebug() << '<' << Q_FUNC_INFO << cmd.executable().toString() << d->m_result;
     return  d->m_result;
-}
-
-SynchronousProcessResponse
-    SynchronousProcess::runBlocking(const QString &binary, const QStringList &args)
-{
-    CommandLine cmd(FilePath::fromString(binary), {});
-    cmd.addArgs(args);
-    return runBlocking(cmd);
 }
 
 SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cmd)

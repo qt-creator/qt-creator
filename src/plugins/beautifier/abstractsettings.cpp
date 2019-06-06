@@ -121,9 +121,9 @@ QString AbstractSettings::styleFileName(const QString &key) const
     return m_styleDir.absoluteFilePath(key + m_ending);
 }
 
-QString AbstractSettings::command() const
+Utils::FilePath AbstractSettings::command() const
 {
-    return m_command;
+    return Utils::FilePath::fromString(m_command);
 }
 
 void AbstractSettings::setCommand(const QString &command)

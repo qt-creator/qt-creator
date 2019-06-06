@@ -25,6 +25,7 @@
 
 #include "mainwindow.h"
 
+#include <utils/fileutils.h>
 #include <utils/synchronousprocess.h>
 
 #include <QPlainTextEdit>
@@ -56,6 +57,6 @@ void MainWindow::test()
     qDebug() << "Async: " << cmd << args;
     connect(&process, &Utils::SynchronousProcess::stdOutBuffered, this, &MainWindow::append);
     connect(&process, &Utils::SynchronousProcess::stdErrBuffered, this, &MainWindow::append);
-    const Utils::SynchronousProcessResponse resp = process.run(cmd, args);
+    const Utils::SynchronousProcessResponse resp = process.run({Utils::FilePath::fromString(cmd), args});
     qDebug() << resp;
 }

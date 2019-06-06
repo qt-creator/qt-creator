@@ -4679,7 +4679,8 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QS
     QStringList envLang = QProcess::systemEnvironment();
     Utils::Environment::setupEnglishOutput(&envLang);
     proc.setEnvironment(envLang);
-    SynchronousProcessResponse response = proc.runBlocking(debugger.executable, args);
+    SynchronousProcessResponse response
+            = proc.runBlocking({FilePath::fromString(debugger.executable), args});
 
     if (response.result == SynchronousProcessResponse::Finished) {
         QString output = response.stdOut();

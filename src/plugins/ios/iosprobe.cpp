@@ -35,6 +35,8 @@
 
 static Q_LOGGING_CATEGORY(probeLog, "qtc.ios.probe", QtWarningMsg)
 
+using namespace Utils;
+
 namespace Ios {
 
 static QString defaultDeveloperPath = QLatin1String("/Applications/Xcode.app/Contents/Developer");
@@ -64,8 +66,8 @@ void XcodeProbe::detectDeveloperPaths()
 {
     Utils::SynchronousProcess selectedXcode;
     selectedXcode.setTimeoutS(5);
-    Utils::SynchronousProcessResponse response = selectedXcode.run(
-                QLatin1String("/usr/bin/xcode-select"), QStringList("--print-path"));
+    const CommandLine xcodeSelect{FilePath::fromString("/usr/bin/xcode-select"), {"--print-path"}};
+    Utils::SynchronousProcessResponse response = selectedXcode.run(xcodeSelect);
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         qCWarning(probeLog)
                 << QString::fromLatin1("Could not detect selected Xcode using xcode-select");

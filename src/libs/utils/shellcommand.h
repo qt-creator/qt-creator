@@ -171,12 +171,12 @@ private:
     void run(QFutureInterface<void> &future);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
-    SynchronousProcessResponse runFullySynchronous(const FilePath &binary, const QStringList &arguments,
+    SynchronousProcessResponse runFullySynchronous(const CommandLine &cmd,
                                                    QSharedPointer<OutputProxy> proxy,
                                                    int timeoutS, const QString &workingDirectory,
                                                    const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);
     // Run with an event loop. Signals will be delivered.
-    SynchronousProcessResponse runSynchronous(const FilePath &binary, const QStringList &arguments,
+    SynchronousProcessResponse runSynchronous(const CommandLine &cmd,
                                               QSharedPointer<OutputProxy> proxy,
                                               int timeoutS, const QString &workingDirectory,
                                               const ExitCodeInterpreter &interpreter = defaultExitCodeInterpreter);

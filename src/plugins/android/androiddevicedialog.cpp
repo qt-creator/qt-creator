@@ -473,7 +473,7 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi,
     connect(m_ui->lookingForDeviceCancel, &QPushButton::clicked,
             this, &AndroidDeviceDialog::defaultDeviceClear);
 
-    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath().toString());
+    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath());
 }
 
 AndroidDeviceDialog::~AndroidDeviceDialog()
@@ -512,7 +512,7 @@ void AndroidDeviceDialog::refreshDeviceList()
 {
     m_ui->refreshDevicesButton->setEnabled(false);
     m_progressIndicator->show();
-    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath().toString());
+    m_connectedDevices = AndroidConfig::connectedDevices(AndroidConfigurations::currentConfig().adbToolPath());
     m_futureWatcherRefreshDevices.setFuture(m_avdManager->avdList());
 }
 

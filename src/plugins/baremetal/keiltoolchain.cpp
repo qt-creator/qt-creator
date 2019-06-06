@@ -102,8 +102,7 @@ static Macros dumpC51PredefinedMacros(const FilePath &compiler, const QStringLis
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    CommandLine cmd(compiler, {});
-    cmd.addArg(fakeIn.fileName());
+    const CommandLine cmd(compiler, {fakeIn.fileName()});
 
     const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
@@ -131,8 +130,7 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    CommandLine cmd(compiler, {});
-    cmd.addArgs({"-E", "--list-macros"});
+    const CommandLine cmd(compiler, {"-E", "--list-macros"});
 
     const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished

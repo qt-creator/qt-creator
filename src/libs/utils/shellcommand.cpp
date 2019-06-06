@@ -341,9 +341,9 @@ SynchronousProcessResponse ShellCommand::runCommand(const FilePath &binary,
     if ((d->m_flags & FullySynchronously)
             || (!(d->m_flags & NoFullySync)
                 && QThread::currentThread() == QCoreApplication::instance()->thread())) {
-        response = runFullySynchronous(binary, arguments, proxy, timeoutS, dir, interpreter);
+        response = runFullySynchronous({binary, arguments}, proxy, timeoutS, dir, interpreter);
     } else {
-        response = runSynchronous(binary, arguments, proxy, timeoutS, dir, interpreter);
+        response = runSynchronous({binary, arguments}, proxy, timeoutS, dir, interpreter);
     }
 
     if (!d->m_aborted) {
@@ -359,8 +359,7 @@ SynchronousProcessResponse ShellCommand::runCommand(const FilePath &binary,
     return response;
 }
 
-SynchronousProcessResponse ShellCommand::runFullySynchronous(const FilePath &binary,
-                                                             const QStringList &arguments,
+SynchronousProcessResponse ShellCommand::runFullySynchronous(const CommandLine &cmd,
                                                              QSharedPointer<OutputProxy> proxy,
                                                              int timeoutS,
                                                              const QString &workingDirectory,
@@ -380,7 +379,7 @@ SynchronousProcessResponse ShellCommand::runFullySynchronous(const FilePath &bin
     process.setTimeoutS(timeoutS);
     process.setExitCodeInterpreter(interpreter);
 
-    SynchronousProcessResponse resp = process.runBlocking(binary.toString(), arguments);
+    SynchronousProcessResponse resp = process.runBlocking(cmd);
 
     if (!d->m_aborted) {
         const QString stdErr = resp.stdErr();
@@ -399,8 +398,7 @@ SynchronousProcessResponse ShellCommand::runFullySynchronous(const FilePath &bin
     return resp;
 }
 
-SynchronousProcessResponse ShellCommand::runSynchronous(const FilePath &binary,
-                                                        const QStringList &arguments,
+SynchronousProcessResponse ShellCommand::runSynchronous(const CommandLine &cmd,
                                                         QSharedPointer<OutputProxy> proxy,
                                                         int timeoutS,
                                                         const QString &workingDirectory,
@@ -460,7 +458,7 @@ SynchronousProcessResponse ShellCommand::runSynchronous(const FilePath &binary,
     process.setTimeoutS(timeoutS);
     process.setExitCodeInterpreter(interpreter);
 
-    return process.run(binary.toString(), arguments);
+    return process.run(cmd);
 }
 
 const QVariant &ShellCommand::cookie() const

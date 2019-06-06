@@ -63,6 +63,7 @@ static const int GdbTempFileMaxCounter = 20;
 using namespace std;
 using namespace std::placeholders;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Android {
 namespace Internal {
@@ -126,10 +127,10 @@ static void findProcessPID(QFutureInterface<qint64> &fi, QStringList selector,
     chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
     do {
         QThread::msleep(200);
-        QString adbPath = AndroidConfigurations::currentConfig().adbToolPath().toString();
+        FilePath adbPath = AndroidConfigurations::currentConfig().adbToolPath();
         selector.append("shell");
         selector.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
-        const auto out = Utils::SynchronousProcess().runBlocking(adbPath, selector).allRawOutput();
+        const auto out = SynchronousProcess().runBlocking({adbPath, selector}).allRawOutput();
         if (preNougat) {
             processPID = extractPID(out, packageName);
         } else {

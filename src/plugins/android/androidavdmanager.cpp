@@ -41,6 +41,8 @@
 #include <chrono>
 #include <functional>
 
+using namespace Utils;
+
 namespace {
 Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 }
@@ -67,11 +69,11 @@ const int avdCreateTimeoutMs = 30000;
  */
 static bool avdManagerCommand(const AndroidConfig config, const QStringList &args, QString *output)
 {
-    QString avdManagerToolPath = config.avdManagerToolPath().toString();
+    CommandLine cmd(config.avdManagerToolPath(), args);
     Utils::SynchronousProcess proc;
     auto env = AndroidConfigurations::toolsEnvironment(config).toStringList();
     proc.setEnvironment(env);
-    Utils::SynchronousProcessResponse response = proc.runBlocking(avdManagerToolPath, args);
+    SynchronousProcessResponse response = proc.runBlocking(cmd);
     if (response.result == Utils::SynchronousProcessResponse::Finished) {
         if (output)
             *output = response.allOutput();
@@ -258,8 +260,7 @@ bool AndroidAvdManager::removeAvd(const QString &name) const
     Utils::SynchronousProcess proc;
     proc.setTimeoutS(5);
     Utils::SynchronousProcessResponse response
-            = proc.runBlocking(m_config.avdManagerToolPath().toString(),
-                               QStringList({"delete", "avd", "-n", name}));
+            = proc.runBlocking({m_config.avdManagerToolPath(), {"delete", "avd", "-n", name}});
     return response.result == Utils::SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 
@@ -345,10 +346,9 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "init.svc.bootanim";
 
-    Utils::SynchronousProcess adbProc;
+    SynchronousProcess adbProc;
     adbProc.setTimeoutS(10);
-    Utils::SynchronousProcessResponse response =
-            adbProc.runBlocking(m_config.adbToolPath().toString(), arguments);
+    SynchronousProcessResponse response = adbProc.runBlocking({m_config.adbToolPath(), arguments});
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return false;
     QString value = response.allOutput().trimmed();
@@ -376,7 +376,7 @@ bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
 AndroidDeviceInfoList AvdManagerOutputParser::listVirtualDevices(const AndroidConfig &config)
 {
     QString output;
-    if (!avdManagerCommand(config, QStringList({"list", "avd"}), &output)) {
+    if (!avdManagerCommand(config, {"list", "avd"}, &output)) {
         qCDebug(avdManagerLog) << "Avd list command failed" << output << config.sdkToolsVersion();
         return {};
     }

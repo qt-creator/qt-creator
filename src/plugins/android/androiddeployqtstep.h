@@ -80,7 +80,7 @@ signals:
     void setSerialNumber(const QString &serialNumber);
 
 private:
-    void runCommand(const QString &program, const QStringList &arguments);
+    void runCommand(const Utils::CommandLine &command);
 
     bool init() override;
     void doRun() override;

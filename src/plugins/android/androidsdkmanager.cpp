@@ -136,7 +136,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(config));
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
-    SynchronousProcessResponse response = proc.run(config.sdkManagerToolPath().toString(), args);
+    SynchronousProcessResponse response = proc.run({config.sdkManagerToolPath(), args});
     if (output)
         *output = response.allOutput();
     return response.result == SynchronousProcessResponse::Finished;
@@ -175,7 +175,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
         QObject::connect(&sdkManager, &AndroidSdkManager::cancelActiveOperations,
                          &proc, &SynchronousProcess::terminate);
     }
-    SynchronousProcessResponse response = proc.run(config.sdkManagerToolPath().toString(), args);
+    SynchronousProcessResponse response = proc.run({config.sdkManagerToolPath(), args});
     if (assertionFound) {
         output.success = false;
         output.stdOutput = response.stdOut();

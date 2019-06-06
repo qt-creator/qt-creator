@@ -152,7 +152,7 @@ void UncrustifySettings::createDocumentationFile() const
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
     Utils::SynchronousProcessResponse response
-            = process.runBlocking(command(), QStringList("--show-config"));
+            = process.runBlocking(Utils::CommandLine(command(), {"--show-config"}));
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
@@ -230,7 +230,7 @@ void UncrustifySettings::updateVersion()
         m_versionProcess.kill();
         m_versionProcess.waitForFinished();
     }
-    m_versionProcess.start(command(), {"--version"});
+    m_versionProcess.start(command().toString(), {"--version"});
 }
 
 void UncrustifySettings::parseVersionProcessResult(int exitCode, QProcess::ExitStatus exitStatus)

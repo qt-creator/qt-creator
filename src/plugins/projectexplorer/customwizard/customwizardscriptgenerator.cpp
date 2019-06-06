@@ -27,6 +27,7 @@
 #include "customwizard.h"
 #include "customwizardparameters.h"
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>
@@ -107,11 +108,11 @@ static bool
     }
     process.setWorkingDirectory(workingDirectory);
     process.setTimeoutS(30);
+    const Utils::CommandLine cmd(Utils::FilePath::fromString(binary), arguments);
     if (CustomWizard::verbose())
-        qDebug("In %s, running:\n%s\n%s\n", qPrintable(workingDirectory),
-               qPrintable(binary),
-               qPrintable(arguments.join(QLatin1Char(' '))));
-    Utils::SynchronousProcessResponse response = process.run(binary, arguments);
+        qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory),
+               qPrintable(cmd.toUserOutput()));
+    Utils::SynchronousProcessResponse response = process.run(cmd);
     if (response.result != Utils::SynchronousProcessResponse::Finished) {
         *errorMessage = QString::fromLatin1("Generator script failed: %1")
                 .arg(response.exitMessage(binary, 30));

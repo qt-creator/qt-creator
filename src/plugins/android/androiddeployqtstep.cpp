@@ -345,9 +345,9 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
             }
             qCDebug(deployStepLog) << "Uninstalling previous package";
             emit addOutput(tr("Uninstall previous package %1.").arg(packageName), OutputFormat::NormalMessage);
-            runCommand(m_adbPath.toString(),
+            runCommand({m_adbPath,
                        AndroidDeviceInfo::adbSelector(m_serialNumber)
-                       << QLatin1String("uninstall") << packageName);
+                       << "uninstall" << packageName});
         }
 
         cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
@@ -489,9 +489,9 @@ bool AndroidDeployQtStep::runImpl()
 
     for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
         QFile::remove(itr.value());
-        runCommand(m_adbPath.toString(),
+        runCommand({m_adbPath,
                    AndroidDeviceInfo::adbSelector(m_serialNumber)
-                   << "pull" << itr.key() << itr.value());
+                   << "pull" << itr.key() << itr.value()});
         if (!QFileInfo::exists(itr.value())) {
             emit addOutput(tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
                            .arg(itr.key())
@@ -545,14 +545,16 @@ void AndroidDeployQtStep::doRun()
     runInThread([this] { return runImpl(); });
 }
 
-void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &arguments)
+void AndroidDeployQtStep::runCommand(const CommandLine &command)
 {
-    Utils::SynchronousProcess buildProc;
+    SynchronousProcess buildProc;
     buildProc.setTimeoutS(2 * 60);
-    emit addOutput(tr("Package deploy: Running command \"%1 %2\".").arg(program).arg(arguments.join(QLatin1Char(' '))), BuildStep::OutputFormat::NormalMessage);
-    Utils::SynchronousProcessResponse response = buildProc.run(program, arguments);
-    if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0)
-        emit addOutput(response.exitMessage(program, 2 * 60), BuildStep::OutputFormat::ErrorMessage);
+    emit addOutput(tr("Package deploy: Running command \"%1\".").arg(command.toUserOutput()),
+                   OutputFormat::NormalMessage);
+    SynchronousProcessResponse response = buildProc.run(command);
+    if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0)
+        emit addOutput(response.exitMessage(command.executable().toString(), 2 * 60),
+                       OutputFormat::ErrorMessage);
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidDeployQtStep::createConfigWidget()

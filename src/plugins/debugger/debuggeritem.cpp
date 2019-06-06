@@ -64,12 +64,12 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 
 //! Return the configuration of gdb as a list of --key=value
 //! \note That the list will also contain some output not in this format.
-static QString getConfigurationOfGdbCommand(const QString &command)
+static QString getConfigurationOfGdbCommand(const FilePath &command)
 {
     // run gdb with the --configuration opion
     Utils::SynchronousProcess gdbConfigurationCall;
     Utils::SynchronousProcessResponse output =
-            gdbConfigurationCall.runBlocking(command, {QString("--configuration")});
+            gdbConfigurationCall.runBlocking({command, {"--configuration"}});
     return output.allOutput();
 }
 
@@ -142,15 +142,14 @@ void DebuggerItem::reinitializeFromFile()
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
     // except for the experimental LLDB-MI which insists on --version.
-    const char *version = "-version";
+    QString version = "-version";
     const QFileInfo fileInfo = m_command.toFileInfo();
     m_lastModified = fileInfo.lastModified();
     if (fileInfo.baseName().toLower().contains("lldb-mi"))
         version = "--version";
 
     SynchronousProcess proc;
-    SynchronousProcessResponse response
-            = proc.runBlocking(m_command.toString(), {QLatin1String(version)});
+    SynchronousProcessResponse response = proc.runBlocking({m_command, {version}});
     if (response.result != SynchronousProcessResponse::Finished) {
         m_engineType = NoEngineType;
         return;
@@ -173,7 +172,7 @@ void DebuggerItem::reinitializeFromFile()
         const bool unableToFindAVersion = (0 == version);
         const bool gdbSupportsConfigurationFlag = (version >= 70700);
         if (gdbSupportsConfigurationFlag || unableToFindAVersion) {
-            const auto gdbConfiguration = getConfigurationOfGdbCommand(m_command.toString());
+            const auto gdbConfiguration = getConfigurationOfGdbCommand(m_command);
             const auto gdbTargetAbiString =
                     extractGdbTargetAbiStringFromGdbOutput(gdbConfiguration);
             if (!gdbTargetAbiString.isEmpty()) {

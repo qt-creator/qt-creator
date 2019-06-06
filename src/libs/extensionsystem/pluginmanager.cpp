@@ -49,6 +49,7 @@
 #include <utils/algorithm.h>
 #include <utils/benchmarker.h>
 #include <utils/executeondestruction.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -413,10 +414,10 @@ static QString filled(const QString &s, int min)
 QString PluginManager::systemInformation() const
 {
     QString result;
-    const QString qtdiagBinary = HostOsInfo::withExecutableSuffix(
-                QLibraryInfo::location(QLibraryInfo::BinariesPath) + "/qtdiag");
+    CommandLine qtDiag(FilePath::fromString(HostOsInfo::withExecutableSuffix(
+                QLibraryInfo::location(QLibraryInfo::BinariesPath) + "/qtdiag")));
     SynchronousProcess qtdiagProc;
-    const SynchronousProcessResponse response = qtdiagProc.runBlocking(qtdiagBinary, QStringList());
+    const SynchronousProcessResponse response = qtdiagProc.runBlocking(qtDiag);
     if (response.result == SynchronousProcessResponse::Finished)
         result += response.allOutput() + "\n";
     result += "Plugin information:\n\n";

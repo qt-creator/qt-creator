@@ -85,8 +85,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id lang
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    CommandLine cmd(compiler, {});
-    cmd.addArg(fakeIn.fileName());
+    CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
         cmd.addArg("--ec++");
     cmd.addArg("--predef_macros");
@@ -131,8 +130,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Core::Id lang
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    CommandLine cmd(compiler, {});
-    cmd.addArg(fakeIn.fileName());
+    CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
         cmd.addArg("--ec++");
     cmd.addArg("--preinclude");

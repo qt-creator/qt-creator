@@ -28,6 +28,8 @@
 #include "texteditorconstants.h"
 
 #include <coreplugin/icore.h>
+
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 
@@ -67,12 +69,12 @@ QString findFallbackDefinitionsLocation()
         }
 
         // Try kde-config.
-        const QStringList programs = {QLatin1String("kde-config"), QLatin1String("kde4-config")};
+        const QStringList programs = {"kde-config", "kde4-config"};
         for (auto &program : programs) {
             Utils::SynchronousProcess process;
             process.setTimeoutS(5);
             Utils::SynchronousProcessResponse response
-                    = process.runBlocking(program, QStringList(QLatin1String("--prefix")));
+                    = process.runBlocking({Utils::FilePath::fromString(program), {"--prefix"}});
             if (response.result == Utils::SynchronousProcessResponse::Finished) {
                 QString output = response.stdOut();
                 output.remove(QLatin1Char('\n'));

@@ -60,10 +60,9 @@ public:
 static bool androidToolCommand(Utils::FilePath toolPath, const QStringList &args,
                                const QProcessEnvironment &environment, QString *output)
 {
-    QString androidToolPath = toolPath.toString();
     SynchronousProcess proc;
     proc.setProcessEnvironment(environment);
-    SynchronousProcessResponse response = proc.runBlocking(androidToolPath, args);
+    SynchronousProcessResponse response = proc.runBlocking({toolPath, args});
     if (response.result == SynchronousProcessResponse::Finished) {
         if (output)
             *output = response.allOutput();
@@ -131,8 +130,7 @@ bool AndroidToolManager::removeAvd(const QString &name) const
     proc.setTimeoutS(5);
     proc.setProcessEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
     SynchronousProcessResponse response
-            = proc.runBlocking(m_config.androidToolPath().toString(),
-                               QStringList({"delete", "avd", "-n", name}));
+            = proc.runBlocking({m_config.androidToolPath(), {"delete", "avd", "-n", name}});
     return response.result == SynchronousProcessResponse::Finished && response.exitCode == 0;
 }
 

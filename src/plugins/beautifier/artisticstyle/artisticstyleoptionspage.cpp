@@ -65,7 +65,7 @@ ArtisticStyleOptionsPageWidget::~ArtisticStyleOptionsPageWidget()
 
 void ArtisticStyleOptionsPageWidget::restore()
 {
-    ui->command->setPath(m_settings->command());
+    ui->command->setFileName(m_settings->command());
     ui->mime->setText(m_settings->supportedMimeTypesAsString());
     ui->useOtherFiles->setChecked(m_settings->useOtherFiles());
     ui->useSpecificConfigFile->setChecked(m_settings->useSpecificConfigFile());

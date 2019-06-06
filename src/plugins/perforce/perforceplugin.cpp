@@ -996,7 +996,8 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
         }
     }
     process.setTimeOutMessageBoxEnabled(true);
-    const SynchronousProcessResponse sp_resp = process.run(settings().p4BinaryPath(), args);
+    const SynchronousProcessResponse sp_resp = process.run(
+        CommandLine{FilePath::fromString(settings().p4BinaryPath()), args});
 
     PerforceResponse response;
     response.error = true;

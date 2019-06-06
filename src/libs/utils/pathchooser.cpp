@@ -84,7 +84,7 @@ public:
     QStringList arguments() const { return m_arguments; }
     void setArguments(const QStringList &arguments) { m_arguments = arguments; }
 
-    static QString toolVersion(const QString &binary, const QStringList &arguments);
+    static QString toolVersion(const CommandLine &cmd);
 
 private:
     // Extension point for concatenating existing tooltips.
@@ -108,7 +108,8 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
 
     const QString binary = le->text();
     if (!binary.isEmpty()) {
-        const QString version = BinaryVersionToolTipEventFilter::toolVersion(QDir::cleanPath(binary), m_arguments);
+        const QString version = BinaryVersionToolTipEventFilter::toolVersion(
+                    CommandLine(FilePath::fromString(QDir::cleanPath(binary)), m_arguments));
         if (!version.isEmpty()) {
             // Concatenate tooltips.
             QString tooltip = "<html><head/><body>";
@@ -127,13 +128,13 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
-QString BinaryVersionToolTipEventFilter::toolVersion(const QString &binary, const QStringList &arguments)
+QString BinaryVersionToolTipEventFilter::toolVersion(const CommandLine &cmd)
 {
-    if (binary.isEmpty())
+    if (cmd.executable().isEmpty())
         return QString();
     SynchronousProcess proc;
     proc.setTimeoutS(1);
-    SynchronousProcessResponse response = proc.runBlocking(binary, arguments);
+    SynchronousProcessResponse response = proc.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished)
         return QString();
     return response.allOutput();
@@ -677,7 +678,7 @@ FancyLineEdit *PathChooser::lineEdit() const
 
 QString PathChooser::toolVersion(const QString &binary, const QStringList &arguments)
 {
-    return BinaryVersionToolTipEventFilter::toolVersion(binary, arguments);
+    return BinaryVersionToolTipEventFilter::toolVersion({FilePath::fromString(binary), arguments});
 }
 
 void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments)

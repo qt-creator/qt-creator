@@ -127,14 +127,8 @@ public:
     void setExitCodeInterpreter(const ExitCodeInterpreter &interpreter);
     ExitCodeInterpreter exitCodeInterpreter() const;
 
-    // Starts a nested event loop and runs the binary with the arguments
-    // FIXME: Use the CommandLine overload below.
-    SynchronousProcessResponse run(const QString &binary, const QStringList &args, const QByteArray &writeData = {});
     // Starts a nested event loop and runs the command
     SynchronousProcessResponse run(const CommandLine &cmd, const QByteArray &writeData = {});
-    // Starts the binary with the arguments blocking the UI fully
-    // FIXME: Use the CommandLine overload below.
-    SynchronousProcessResponse runBlocking(const QString &binary, const QStringList &args);
     // Starts the command blocking the UI fully
     SynchronousProcessResponse runBlocking(const CommandLine &cmd);
 

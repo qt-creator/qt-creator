@@ -139,7 +139,7 @@ public:
     Utils::FilePath keytoolPath() const;
 
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = nullptr) const;
-    static QVector<AndroidDeviceInfo> connectedDevices(const QString &adbToolPath, QString *error = nullptr);
+    static QVector<AndroidDeviceInfo> connectedDevices(const Utils::FilePath &adbToolPath, QString *error = nullptr);
 
     QString bestNdkPlatformMatch(int target) const;
 
@@ -156,14 +156,15 @@ public:
     bool useNativeUiTools() const;
 
 private:
-    static QString getDeviceProperty(const QString &adbToolPath, const QString &device, const QString &property);
+    static QString getDeviceProperty(const Utils::FilePath &adbToolPath,
+                                     const QString &device, const QString &property);
 
     Utils::FilePath openJDKBinPath() const;
     int getSDKVersion(const QString &device) const;
-    static int getSDKVersion(const QString &adbToolPath, const QString &device);
+    static int getSDKVersion(const Utils::FileName &adbToolPath, const QString &device);
     QStringList getAbis(const QString &device) const;
-    static QStringList getAbis(const QString &adbToolPath, const QString &device);
-    static bool isBootToQt(const QString &adbToolPath, const QString &device);
+    static QStringList getAbis(const Utils::FilePath &adbToolPath, const QString &device);
+    static bool isBootToQt(const Utils::FilePath &adbToolPath, const QString &device);
     bool isBootToQt(const QString &device) const;
     static QString getAvdName(const QString &serialnumber);
 

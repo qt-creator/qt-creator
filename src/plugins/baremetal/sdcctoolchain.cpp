@@ -92,8 +92,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    CommandLine cmd(compiler, {});
-    cmd.addArgs({compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()});
+    const CommandLine cmd(compiler, {compilerTargetFlag(abi),  "-dM", "-E", fakeIn.fileName()});
 
     const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished
@@ -116,8 +115,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const QStringList &
     cpp.setEnvironment(env);
     cpp.setTimeoutS(10);
 
-    CommandLine cmd(compiler, {});
-    cmd.addArgs({compilerTargetFlag(abi), "--print-search-dirs"});
+    const CommandLine cmd(compiler, {compilerTargetFlag(abi), "--print-search-dirs"});
 
     const SynchronousProcessResponse response = cpp.runBlocking(cmd);
     if (response.result != SynchronousProcessResponse::Finished

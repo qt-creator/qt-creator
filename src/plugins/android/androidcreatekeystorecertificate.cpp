@@ -32,6 +32,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+using namespace Utils;
+
 using namespace Android::Internal;
 
 AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *parent) :
@@ -169,24 +171,23 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
     if (ui->stateNameLineEdit->text().length())
         distinguishedNames += QLatin1String(", S=") + ui->stateNameLineEdit->text().replace(QLatin1Char(','), QLatin1String("\\,"));
 
-    const QString command = AndroidConfigurations::currentConfig().keytoolPath().toString();
-    QStringList params;
-    params << QLatin1String("-genkey") << QLatin1String("-keyalg") << QLatin1String("RSA")
-           << QLatin1String("-keystore") << m_keystoreFilePath.toString()
-           << QLatin1String("-storepass") << keystorePassword()
-           << QLatin1String("-alias") << certificateAlias()
-           << QLatin1String("-keysize") << ui->keySizeSpinBox->text()
-           << QLatin1String("-validity") << ui->validitySpinBox->text()
-           << QLatin1String("-keypass") << certificatePassword()
-           << QLatin1String("-dname") << distinguishedNames;
+    const CommandLine command(AndroidConfigurations::currentConfig().keytoolPath(),
+                            { "-genkey", "-keyalg", "RSA",
+                              "-keystore",  m_keystoreFilePath.toString(),
+                              "-storepass", keystorePassword(),
+                              "-alias", certificateAlias(),
+                              "-keysize", ui->keySizeSpinBox->text(),
+                              "-validity", ui->validitySpinBox->text(),
+                              "-keypass", certificatePassword(),
+                              "-dname", distinguishedNames});
 
-    Utils::SynchronousProcess genKeyCertProc;
+    SynchronousProcess genKeyCertProc;
     genKeyCertProc.setTimeoutS(15);
-    Utils::SynchronousProcessResponse response = genKeyCertProc.run(command, params);
+    SynchronousProcessResponse response = genKeyCertProc.run(command);
 
     if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0) {
         QMessageBox::critical(this, tr("Error"),
-                              response.exitMessage(command, 15) + QLatin1Char('\n') + response.allOutput());
+                              response.exitMessage(command.executable().toString(), 15) + '\n' + response.allOutput());
         return;
     }
     accept();

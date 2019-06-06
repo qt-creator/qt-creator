@@ -239,9 +239,9 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     Utils::SynchronousProcess vsWhereProcess;
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
-    const QStringList
-        arguments{"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"};
-    Utils::SynchronousProcessResponse response = vsWhereProcess.runBlocking(vswhere, arguments);
+    const CommandLine cmd(FilePath::fromString(vswhere),
+            {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"});
+    Utils::SynchronousProcessResponse response = vsWhereProcess.runBlocking(cmd);
     switch (response.result) {
     case Utils::SynchronousProcessResponse::Finished:
         break;
@@ -622,7 +622,7 @@ Macros MsvcToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
         arguments << QLatin1String("/TC");
     arguments << toProcess << QLatin1String("/EP") << QDir::toNativeSeparators(saver.fileName());
-    Utils::SynchronousProcessResponse response = cpp.runBlocking(binary.toString(), arguments);
+    SynchronousProcessResponse response = cpp.runBlocking({binary, arguments});
     if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0)
         return predefinedMacros;
 
@@ -1540,10 +1540,10 @@ static const MsvcToolChain *findMsvcToolChain(const QString &displayedVarsBat)
 
 static QVersionNumber clangClVersion(const QString &clangClPath)
 {
-    Utils::SynchronousProcess clangClProcess;
-    const Utils::SynchronousProcessResponse response
-        = clangClProcess.runBlocking(clangClPath, {QStringLiteral("--version")});
-    if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0)
+    SynchronousProcess clangClProcess;
+    const SynchronousProcessResponse response
+        = clangClProcess.runBlocking({FilePath::fromString(clangClPath), {"--version"}});
+    if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0)
         return {};
     const QRegularExpressionMatch match = QRegularExpression(
                                               QStringLiteral("clang version (\\d+(\\.\\d+)+)"))
@@ -1779,8 +1779,7 @@ Macros ClangClToolChain::msvcPredefinedMacros(const QStringList &cxxflags,
     QStringList arguments = cxxflags;
     arguments.append(gccPredefinedMacrosOptions(language()));
     arguments.append("-");
-    Utils::SynchronousProcessResponse response = cpp.runBlocking(compilerCommand().toString(),
-                                                                 arguments);
+    Utils::SynchronousProcessResponse response = cpp.runBlocking({compilerCommand(), arguments});
     if (response.result != Utils::SynchronousProcessResponse::Finished || response.exitCode != 0) {
         // Show the warning but still parse the output.
         QTC_CHECK(false && "clang-cl exited with non-zero code.");
@@ -2109,13 +2108,12 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.
-    QStringList cmdArguments({QLatin1String("/E:ON"), QLatin1String("/V:ON"), QLatin1String("/c")});
-    cmdArguments << QDir::toNativeSeparators(saver.fileName());
+    CommandLine cmd(cmdPath, {"/E:ON", "/V:ON", "/c", QDir::toNativeSeparators(saver.fileName())});
     if (debug)
-        qDebug() << "readEnvironmentSetting: " << call << cmdPath << cmdArguments.join(' ')
+        qDebug() << "readEnvironmentSetting: " << call << cmd.toUserOutput()
                  << " Env: " << runEnv.size();
     run.setCodec(QTextCodec::codecForName("UTF-8"));
-    Utils::SynchronousProcessResponse response = run.runBlocking(cmdPath.toString(), cmdArguments);
+    Utils::SynchronousProcessResponse response = run.runBlocking(cmd);
 
     if (response.result != Utils::SynchronousProcessResponse::Finished) {
         const QString message = !response.stdErr().isEmpty()

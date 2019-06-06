@@ -68,7 +68,7 @@ UncrustifyOptionsPageWidget::~UncrustifyOptionsPageWidget()
 
 void UncrustifyOptionsPageWidget::restore()
 {
-    ui->command->setPath(m_settings->command());
+    ui->command->setFileName(m_settings->command());
     ui->mime->setText(m_settings->supportedMimeTypesAsString());
     ui->useOtherFiles->setChecked(m_settings->useOtherFiles());
     ui->useHomeFile->setChecked(m_settings->useHomeFile());

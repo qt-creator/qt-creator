@@ -88,7 +88,7 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
 
     cpp.setEnvironment(environment);
     cpp.setTimeoutS(10);
-    SynchronousProcessResponse response =  cpp.runBlocking(gcc.toString(), arguments);
+    SynchronousProcessResponse response =  cpp.runBlocking(CommandLine(gcc, arguments));
     if (response.result != SynchronousProcessResponse::Finished ||
             response.exitCode != 0) {
         qWarning() << response.exitMessage(gcc.toString(), 10);

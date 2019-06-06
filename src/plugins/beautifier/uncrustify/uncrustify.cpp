@@ -184,7 +184,7 @@ bool Uncrustify::isApplicable(const Core::IDocument *document) const
 Command Uncrustify::command(const QString &cfgFile, bool fragment) const
 {
     Command command;
-    command.setExecutable(m_settings.command());
+    command.setExecutable(m_settings.command().toString());
     command.setProcessing(Command::PipeProcessing);
     if (m_settings.version() >= 62) {
         command.addOption("--assume");
