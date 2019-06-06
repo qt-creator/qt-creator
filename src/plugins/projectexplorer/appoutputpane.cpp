@@ -372,8 +372,10 @@ void AppOutputPane::setFocus()
 void AppOutputPane::updateFilter()
 {
     const int index = currentIndex();
-    if (index != -1)
-        m_runControlTabs.at(index).window->setFilterText(filterText());
+    if (index != -1) {
+        m_runControlTabs.at(index).window->updateFilterProperties(
+                    filterText(), filterCaseSensitivity(), filterUsesRegexp());
+    }
 }
 
 void AppOutputPane::createNewOutputWindow(RunControl *rc)
@@ -703,7 +705,8 @@ void AppOutputPane::tabChanged(int i)
     const int index = indexOf(m_tabWidget->widget(i));
     if (i != -1 && index != -1) {
         const RunControlTab &controlTab = m_runControlTabs[index];
-        controlTab.window->setFilterText(filterText());
+        controlTab.window->updateFilterProperties(filterText(), filterCaseSensitivity(),
+                                                  filterUsesRegexp());
         enableButtons(controlTab.runControl);
     } else {
         enableDefaultButtons();

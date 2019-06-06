@@ -76,6 +76,7 @@ Rectangle {
                                     typeLineEdit.forceActiveFocus()
                                 }
                                 tooltip: qsTr("Change the type of this item.")
+                                enabled: !modelNodeBackend.multiSelection
                             }
 
                             ExpressionTextField {
@@ -118,15 +119,18 @@ Rectangle {
                             Layout.fillWidth: true
                             showTranslateCheckBox: false
                             showExtendedFunctionButton: false
+                            enabled: !modelNodeBackend.multiSelection
                         }
                         // workaround: without this item the lineedit does not shrink to the
                         // right size after resizing to a wider width
 
                         Image {
+                            visible: !modelNodeBackend.multiSelection
                             Layout.preferredWidth: 16
                             Layout.preferredHeight: 16
                             source: hasAliasExport ? "image://icons/alias-export-checked" : "image://icons/alias-export-unchecked"
                             ToolTipArea {
+                                enabled: !modelNodeBackend.multiSelection
                                 anchors.fill: parent
                                 onClicked: toogleExportAlias()
                                 tooltip: qsTr("Toggles whether this item is exported as an alias property of the root item.")

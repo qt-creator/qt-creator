@@ -77,6 +77,8 @@ public:
 
     Q_INVOKABLE void savePreset();
 
+    Q_INVOKABLE void updateGradient();
+
 signals:
     void anchorBackendChanged();
     void hasGradientChanged();
@@ -106,6 +108,7 @@ private:
     void setupGradientProperties(const QmlDesigner::ModelNode &gradient);
     QmlDesigner::Model *model() const;
     QmlDesigner::AbstractView *view() const;
+    void resetPuppet();
 };
 
 QML_DECLARE_TYPE(GradientModel)

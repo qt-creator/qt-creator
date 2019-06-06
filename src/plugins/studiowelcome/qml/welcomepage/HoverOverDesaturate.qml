@@ -66,6 +66,7 @@ Item {
             x: 17
             y: 12
             height: 125
+            anchors.bottomMargin: -label.height
             anchors.fill: parent
             hoverEnabled: true
             onHoveredChanged: {

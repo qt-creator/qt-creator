@@ -284,15 +284,16 @@ void OutputWindow::setHighlightTextColor(const QColor &textColor)
     d->highlightTextColor = textColor;
 }
 
-QString OutputWindow::filterText() const
+void OutputWindow::updateFilterProperties(const QString &filterText,
+                                          Qt::CaseSensitivity caseSensitivity, bool isRegexp)
 {
-    return d->filterText;
-}
-
-void OutputWindow::setFilterText(const QString &filterText)
-{
+    FilterModeFlags flags;
+    flags.setFlag(FilterModeFlag::CaseSensitive, caseSensitivity == Qt::CaseSensitive)
+            .setFlag(FilterModeFlag::RegExp, isRegexp);
+    if (d->filterMode == flags && d->filterText == filterText)
+        return;
+    d->lastFilteredBlock = {};
     if (d->filterText != filterText) {
-        d->lastFilteredBlock = {};
         const bool filterTextWasEmpty = d->filterText.isEmpty();
         d->filterText = filterText;
 
@@ -313,23 +314,9 @@ void OutputWindow::setFilterText(const QString &filterText)
             setPalette(pal);
             setReadOnly(true);
         }
-
-        filterNewContent();
     }
-}
-
-OutputWindow::FilterModeFlags OutputWindow::filterMode() const
-{
-    return d->filterMode;
-}
-
-void OutputWindow::setFilterMode(OutputWindow::FilterModeFlag filterMode, bool enabled)
-{
-    if (d->filterMode.testFlag(filterMode) != enabled) {
-        d->filterMode.setFlag(filterMode, enabled);
-        d->lastFilteredBlock = {};
-        filterNewContent();
-    }
+    d->filterMode = flags;
+    filterNewContent();
 }
 
 void OutputWindow::filterNewContent()

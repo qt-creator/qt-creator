@@ -181,7 +181,7 @@ void GradientModel::addGradient()
     setupModel();
 
     if (m_gradientTypeName != "Gradient")
-        QTimer::singleShot(100, [this](){ view()->resetPuppet(); }); /*Unfortunately required */
+        resetPuppet(); /*Unfortunately required */
     emit hasGradientChanged();
     emit gradientTypeChanged();
 }
@@ -437,6 +437,11 @@ QmlDesigner::AbstractView *GradientModel::view() const
     return m_itemNode.view();
 }
 
+void GradientModel::resetPuppet()
+{
+    QTimer::singleShot(1000, [this]() { view()->resetPuppet(); });
+}
+
 QmlDesigner::ModelNode GradientModel::createGradientNode()
 {
     QByteArray fullTypeName = m_gradientTypeName.toUtf8();
@@ -534,19 +539,20 @@ void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
     QmlDesigner::RewriterTransaction transaction = view()->beginRewriterTransaction(
         QByteArrayLiteral("GradientModel::setCustomPreset"));
 
-    //delete an old gradient without rewriter transaction
     deleteGradientNode(false);
 
-    //create a new gradient:
     if (!m_itemNode.modelNode().hasNodeProperty(gradientPropertyName().toUtf8())) {
         try {
+
+            if (m_gradientTypeName != "Gradient")
+                ensureShapesImport();
+
             QmlDesigner::ModelNode gradientNode = createGradientNode();
 
             m_itemNode.modelNode()
                 .nodeProperty(gradientPropertyName().toUtf8())
                 .reparentHere(gradientNode);
 
-            //create stops and give them positions and colors based on value
             for (int i = 0; i < stopsCount; i++) {
                 QmlDesigner::ModelNode gradientStopNode = createGradientStopNode();
                 gradientStopNode.variantProperty("position").setValue(stopsPositions.at(i));
@@ -559,6 +565,9 @@ void GradientModel::setPresetByStops(const QList<qreal> &stopsPositions,
         }
     }
     setupModel();
+
+    if (m_gradientTypeName != "Gradient")
+        resetPuppet(); /*Unfortunately required */
 
     emit hasGradientChanged();
     emit gradientTypeChanged();
@@ -585,4 +594,17 @@ void GradientModel::savePreset()
     QList<GradientPresetItem> items = GradientPresetCustomListModel::storedPresets(filename);
     items.append(item);
     GradientPresetCustomListModel::storePresets(filename, items);
+}
+
+void GradientModel::updateGradient()
+{
+    QList<qreal> stops;
+    QList<QString> colors;
+    int stopsCount = rowCount();
+    for (int i = 0; i < stopsCount; i++) {
+        stops.append(getPosition(i));
+        colors.append(getColor(i).name(QColor::HexArgb));
+    }
+
+    setPresetByStops(stops, colors, stopsCount);
 }

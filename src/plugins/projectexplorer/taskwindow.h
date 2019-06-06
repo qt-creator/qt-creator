@@ -82,6 +82,8 @@ signals:
     void tasksCleared();
 
 private:
+    void updateFilter() override;
+
     void addCategory(Core::Id categoryId, const QString &displayName, bool visible);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);

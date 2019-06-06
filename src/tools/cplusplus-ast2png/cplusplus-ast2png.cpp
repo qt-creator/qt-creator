@@ -423,12 +423,11 @@ public:
 
         static const char *const pretty[] = {"warning", "error", "fatal"};
 
-        QString str;
-        str.sprintf("%s:%d:%d: When parsing as %s: %s: ", fileName->chars(), line, column,
+        QString str = QString::asprintf("%s:%d:%d: When parsing as %s: %s: ", fileName->chars(), line, column,
                     parseModeToString(m_parseMode).toUtf8().constData(), pretty[level]);
         m_errorString->append(str.toUtf8());
 
-        str.vsprintf(format, ap);
+        str += QString::vasprintf(format, ap);
         m_errorString->append(str.toUtf8());
         m_errorString->append('\n');
     }

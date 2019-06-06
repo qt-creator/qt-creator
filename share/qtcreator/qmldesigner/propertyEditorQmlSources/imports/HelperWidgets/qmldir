@@ -9,6 +9,7 @@ CheckBox 2.0 CheckBox.qml
 ColorButton 2.0 ColorButton.qml
 ColorCheckButton 2.0 ColorCheckButton.qml
 ColorEditor 2.0 ColorEditor.qml
+ColorLine 2.0 ColorLine.qml
 ColorLogic 2.0 ColorLogic.qml
 ComboBox 2.0 ComboBox.qml
 CustomCheckBoxStyle 2.0 CustomCheckBoxStyle.qml
@@ -33,6 +34,7 @@ ScrollView 2.0 ScrollView.qml
 SecondColumnLayout 2.0 SecondColumnLayout.qml
 Section 2.0 Section.qml
 SectionLayout 2.0 SectionLayout.qml
+SimpleColorPalette 2.0 SimpleColorPalette.qml
 DoubleSpinBox 2.0 DoubleSpinBox.qml
 SpinBox 2.0 SpinBox.qml
 StandardTextSection 2.0 StandardTextSection.qml

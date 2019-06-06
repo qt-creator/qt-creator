@@ -27,6 +27,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
@@ -44,6 +45,7 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QFontDatabase>
+#include <QFileInfo>
 #include <QPointer>
 #include <QQmlContext>
 #include <QQmlEngine>
@@ -64,6 +66,8 @@ class ProjectModel : public QAbstractListModel
     Q_OBJECT
 public:
     enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole };
+
+     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
 
     explicit ProjectModel(QObject *parent = nullptr);
 
@@ -102,6 +106,12 @@ public:
     }
 public slots:
     void resetProjects();
+
+signals:
+    void communityVersionChanged();
+
+private:
+    bool m_communityVersion = false;
 };
 
 ProjectModel::ProjectModel(QObject *parent)
@@ -111,6 +121,12 @@ ProjectModel::ProjectModel(QObject *parent)
             &ProjectExplorer::ProjectExplorerPlugin::recentProjectsChanged,
             this,
             &ProjectModel::resetProjects);
+
+#ifdef LICENSECHECKER
+    if (!Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
+                             Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker"))))
+        m_communityVersion = true;
+#endif
 }
 
 int ProjectModel::rowCount(const QModelIndex &) const
@@ -281,6 +297,16 @@ WelcomeMode::WelcomeMode()
 #endif
 
     setWidget(m_modeWidget);
+
+    QStringList designStudioQchPathes = {Core::HelpManager::documentationPath()
+                                         + "/qtdesignstudio.qch",
+                                         Core::HelpManager::documentationPath() + "/qtquick.qch",
+                                         Core::HelpManager::documentationPath()
+                                         + "/qtquickcontrols.qch"};
+
+    Core::HelpManager::registerDocumentation(
+                Utils::filtered(designStudioQchPathes,
+                                [](const QString &path) { return QFileInfo::exists(path); }));
 }
 
 WelcomeMode::~WelcomeMode()

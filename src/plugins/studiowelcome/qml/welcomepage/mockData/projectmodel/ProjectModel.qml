@@ -26,6 +26,8 @@
 import QtQuick 2.0
 
 ListModel {
+
+    property bool communityVersion: true
     ListElement {
         displayName: "Project 01"
         prettyFilePath: "my_file_1"

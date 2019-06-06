@@ -76,6 +76,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, true);
     restoreValue(settings, DesignerSettingsKey::STANDALONE_MODE, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_TIMELINEVIEW, false);
+    restoreValue(settings, DesignerSettingsKey::SIMPLE_COLOR_PALETTE_CONTENT, QStringList());
 
     settings->endGroup();
     settings->endGroup();

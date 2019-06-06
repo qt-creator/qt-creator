@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
+import StudioControls 1.0 as Controls
 import QtQuick.Controls.Styles 1.1
 
 Controls.ComboBox {
@@ -32,7 +32,7 @@ Controls.ComboBox {
 
     property variant backendValue
 
-    property color textColor: colorLogic.textColor
+    labelColor: colorLogic.textColor
     property string scope: "Qt"
 
     property bool useInteger: false
@@ -44,6 +44,15 @@ Controls.ComboBox {
     signal valueFromBackendChanged
 
     property bool block: false
+
+    ExtendedFunctionLogic {
+        id: extFuncLogic
+        backendValue: comboBox.backendValue
+    }
+
+    actionIndicator.icon.color: extFuncLogic.color
+    actionIndicator.icon.text: extFuncLogic.glyph
+    actionIndicator.onClicked: extFuncLogic.show()
 
     ColorLogic {
         id: colorLogic
@@ -84,7 +93,7 @@ Controls.ComboBox {
         }
     }
 
-    onCurrentTextChanged: {
+    onActivated: {
         if (!__isCompleted)
             return;
 
@@ -106,14 +115,4 @@ Controls.ComboBox {
         __isCompleted = true;
     }
 
-    style: CustomComboBoxStyle {
-        textColor: comboBox.textColor
-    }
-
-    ExtendedFunctionButton {
-        x: 2
-        anchors.verticalCenter: parent.verticalCenter
-        backendValue: comboBox.backendValue
-        visible: comboBox.enabled
-    }
 }

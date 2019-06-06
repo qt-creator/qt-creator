@@ -15,7 +15,10 @@ SOURCES += propertyeditorview.cpp \
     gradientpresetitem.cpp \
     gradientpresetlistmodel.cpp \
     gradientpresetdefaultlistmodel.cpp \
-    gradientpresetcustomlistmodel.cpp
+    gradientpresetcustomlistmodel.cpp \
+    simplecolorpalette.cpp \
+    simplecolorpalettemodel.cpp \
+    simplecolorpalettesingleton.cpp
 
 HEADERS += propertyeditorview.h \
     qmlanchorbindingproxy.h \
@@ -32,6 +35,9 @@ HEADERS += propertyeditorview.h \
     gradientpresetitem.h \
     gradientpresetlistmodel.h \
     gradientpresetdefaultlistmodel.h \
-    gradientpresetcustomlistmodel.h
+    gradientpresetcustomlistmodel.h \
+    simplecolorpalette.h \
+    simplecolorpalettemodel.h \
+    simplecolorpalettesingleton.h
 
 QT += qml quick

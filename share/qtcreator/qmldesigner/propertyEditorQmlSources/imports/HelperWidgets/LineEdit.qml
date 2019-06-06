@@ -24,24 +24,20 @@
 ****************************************************************************/
 
 import QtQuick 2.2
-import QtQuick.Controls 1.1 as Controls
+import StudioControls 1.0 as Controls
 import QtQuick.Controls.Styles 1.0
 import QtQuickDesignerTheme 1.0
 
 Controls.TextField {
-
-    Controls.Action {
-        //Workaround to avoid that "Delete" deletes the item.
-        shortcut: "Delete"
-    }
-
     id: lineEdit
+
     property variant backendValue
     property color borderColor: "#222"
     property color highlightColor: "orange"
-    property color textColor: colorLogic.textColor
+    color: colorLogic.textColor
 
     property bool showTranslateCheckBox: true
+    translationIndicatorVisible: showTranslateCheckBox
 
     property bool writeValueManually: false
 
@@ -58,18 +54,20 @@ Controls.TextField {
         if (translateFunction() === "qsTranslate") {
             backendValue.expression = translateFunction()
                     + "(\"" + backendValue.getTranslationContext()
-                    + "\", " + "\"" + trCheckbox.escapeString(text) + "\")"
+                    + "\", " + "\"" + escapeString(text) + "\")"
         } else {
-            backendValue.expression = translateFunction() + "(\"" + trCheckbox.escapeString(text) + "\")"
+            backendValue.expression = translateFunction() + "(\"" + escapeString(text) + "\")"
         }
     }
 
-    ExtendedFunctionButton {
-        x: 4
-        anchors.verticalCenter: parent.verticalCenter
+    ExtendedFunctionLogic {
+        id: extFuncLogic
         backendValue: lineEdit.backendValue
-        visible: lineEdit.enabled && showExtendedFunctionButton
     }
+
+    actionIndicator.icon.color: extFuncLogic.color
+    actionIndicator.icon.text: extFuncLogic.glyph
+    actionIndicator.onClicked: extFuncLogic.show()
 
     ColorLogic {
         id: colorLogic
@@ -102,7 +100,6 @@ Controls.TextField {
     }
 
     onEditingFinished: {
-
         if (writeValueManually)
             return
 
@@ -118,87 +115,35 @@ Controls.TextField {
         __dirty = false
     }
 
-    style: TextFieldStyle {
+    property bool isTranslated: colorLogic.backendValue.isTranslated
 
-        selectionColor: Theme.color(Theme.PanelTextColorLight)
-        selectedTextColor: Theme.color(Theme.PanelTextColorMid)
-        textColor: lineEdit.textColor
-        placeholderTextColor: Theme.color(Theme.PanelTextColorMid)
-
-        padding.top: 2
-        padding.bottom: 2
-        padding.left: 18
-        padding.right: lineEdit.showTranslateCheckBox ? 16 : 1
-        background: Rectangle {
-            implicitWidth: 100
-            implicitHeight: 24
-            color: Theme.qmlDesignerBackgroundColorDarker()
-            border.color: Theme.qmlDesignerBorderColor()
+    translationIndicator.onClicked: {
+        if (translationIndicator.checked) {
+            setTranslateExpression()
+        } else {
+            var textValue = lineEdit.text
+            lineEdit.backendValue.value = textValue
         }
+        colorLogic.evaluate();
     }
 
-    Controls.CheckBox {
-        anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
-        id: trCheckbox
-
-
-        property bool isTranslated: colorLogic.backendValue.isTranslated
-        property bool backendValueValue: colorLogic.backendValue.value
-
-        onIsTranslatedChanged: {
-            checked = lineEdit.backendValue.isTranslated
-        }
-
-        onBackendValueValueChanged: {
-            checked = lineEdit.backendValue.isTranslated
-        }
-
-        onClicked: {
-            if (trCheckbox.checked) {
-                setTranslateExpression()
-            } else {
-                var textValue = lineEdit.text
-                lineEdit.backendValue.value = textValue
-            }
-            colorLogic.evaluate();
-        }
-
-        function escapeString(string) {
-            var str  = string;
-            str = str.replace(/\\/g, "\\\\");
-            str.replace(/\"/g, "\\\"");
-            str = str.replace(/\t/g, "\\t");
-            str = str.replace(/\r/g, "\\r");
-            str = str.replace(/\n/g, '\\n');
-            return str;
-        }
-
-        visible: showTranslateCheckBox
-
-
-        style: CheckBoxStyle {
-            spacing: 8
-            indicator: Item {
-                implicitWidth: 15
-                implicitHeight: 15
-                x: 7
-                y: 1
-                Rectangle {
-                    anchors.fill: parent
-                    border.color: Theme.qmlDesignerBorderColor()
-                    color: Theme.qmlDesignerBackgroundColorDarker()
-                    opacity: control.hovered || control.pressed ? 1 : 0.75
-                }
-                Image {
-                    x: 1
-                    y: 1
-                    width: 13
-                    height: 13
-                    source: "image://icons/tr"
-                    opacity: control.checked ? 1 : 0.3;
-                }
-            }
-        }
+    property variant backendValueValueInternal: backendValue.value
+    onBackendValueValueInternalChanged: {
+        lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
     }
+
+    onIsTranslatedChanged: {
+        lineEdit.translationIndicator.checked = lineEdit.backendValue.isTranslated
+    }
+
+    function escapeString(string) {
+        var str  = string;
+        str = str.replace(/\\/g, "\\\\");
+        str.replace(/\"/g, "\\\"");
+        str = str.replace(/\t/g, "\\t");
+        str = str.replace(/\r/g, "\\r");
+        str = str.replace(/\n/g, '\\n');
+        return str;
+    }
+
 }

@@ -195,6 +195,7 @@ void IOutputPane::filterOutputButtonClicked()
 void IOutputPane::setRegularExpressions(bool regularExpressions)
 {
     m_filterRegexp = regularExpressions;
+    updateFilter();
 }
 
 Id IOutputPane::filterRegexpActionId() const
@@ -209,7 +210,8 @@ Id IOutputPane::filterCaseSensitivityActionId() const
 
 void IOutputPane::setCaseSensitive(bool caseSensitive)
 {
-    m_filterCaseSensitive = caseSensitive;
+    m_filterCaseSensitivity = caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    updateFilter();
 }
 
 namespace Internal {

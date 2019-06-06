@@ -73,7 +73,7 @@ Column {
                 SpinBox {
                     backendValue: backendValues.border_width
                     hasSlider: true
-                    Layout.preferredWidth: 80
+                    Layout.preferredWidth: 120
                 }
                 ExpandingSpacer {
 
@@ -86,7 +86,7 @@ Column {
                 SpinBox {
                     backendValue: backendValues.radius
                     hasSlider: true
-                    Layout.preferredWidth: 80
+                    Layout.preferredWidth: 120
                     minimumValue: 0
                     maximumValue: Math.min(backendValues.height.value, backendValues.width.value) / 2
                 }

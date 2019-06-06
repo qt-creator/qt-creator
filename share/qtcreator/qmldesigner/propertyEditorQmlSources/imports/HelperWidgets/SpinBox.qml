@@ -24,42 +24,77 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
+import StudioControls 1.0 as StudioControls
 
-Controls.SpinBox {
-    id: spinBox
+Item {
+    id: wrapper
 
-    property color textColor: colorLogic.textColor
-    property variant backendValue;
+    property alias decimals: spinBox.decimals
+    property alias hasSlider: spinBox.hasSlider
 
-    implicitWidth: 74
+    property real minimumValue: 0.0
+    property real maximumValue: 99
+    property real stepSize: 1.0
 
-    ExtendedFunctionButton {
-        x: 4
-        anchors.verticalCenter: parent.verticalCenter
-        backendValue: spinBox.backendValue
-        visible: spinBox.enabled
+    property alias backendValue: spinBox.backendValue
+
+    width: 120
+    implicitHeight: spinBox.height
+
+    property bool __initialized: false
+
+    Component.onCompleted: {
+        wrapper.__initialized = true
+
+        convert("stepSize", stepSize)
+        convert("from", minimumValue)
+        convert("to", maximumValue)
     }
 
-    ColorLogic {
-        id: colorLogic
-        backendValue: spinBox.backendValue
-        onValueFromBackendChanged: {
-            spinBox.value = valueFromBackend;
+    onStepSizeChanged: convert("stepSize", stepSize)
+    onMinimumValueChanged: convert("from", minimumValue)
+    onMaximumValueChanged: convert("to", maximumValue)
+
+    function convert(target, value) {
+        if (!wrapper.__initialized)
+            return
+        spinBox[target] = Math.round(value * spinBox.factor)
+    }
+
+    StudioControls.SpinBox {
+        id: spinBox
+
+        property real realValue: value / factor
+        property variant backendValue
+        property bool hasSlider: false
+
+        from: minimumValue * factor
+        to: maximumValue * factor
+        width: wrapper.width
+
+        ExtendedFunctionLogic {
+            id: extFuncLogic
+            backendValue: spinBox.backendValue
+        }
+
+        actionIndicator.icon.color: extFuncLogic.color
+        actionIndicator.icon.text: extFuncLogic.glyph
+        actionIndicator.onClicked: extFuncLogic.show()
+
+        ColorLogic {
+            id: colorLogic
+            backendValue: spinBox.backendValue
+            onValueFromBackendChanged: {
+                spinBox.value = valueFromBackend * spinBox.factor;
+            }
+        }
+
+        textColor: colorLogic.textColor
+
+        onCompressedValueModified: {
+            if (backendValue.value !== realValue)
+                backendValue.value = realValue;
         }
     }
-
-    property bool hasSlider: false
-
-    height: hasSlider ? 32 : implicitHeight
-
-    onValueChanged: {
-        if (backendValue.value !== value)
-            backendValue.value = value;
-    }
-
-    style: CustomSpinBoxStyle {
-    }
-
 }

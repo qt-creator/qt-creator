@@ -25,19 +25,54 @@
 
 import QtQuick 2.1
 
-Rectangle {
-    id: checkBox
-    width: 18
-    height: 18
-
-    border.color: "black"
-    border.width: 1
-
+Item {
+    id: colorCheckButtonRoot
     property bool checked: false
+    property alias buttonColor: checkBox.color
+    width: 30
+    height: 24
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: checkBox.checked = !checkBox.checked
+
+    Rectangle {
+        id: backgroundBox
+        width: 24
+        height: 24
+        anchors.right: parent.right
+
+        color: "white"
+        border.color: "white"
+        border.width: 1
+
+        Rectangle {
+            id: checkBox
+            width: 22
+            height: 22
+            anchors.centerIn: parent
+
+            border.color: "black"
+            border.width: 1
+        }
     }
 
+    Image {
+        id: arrowImage
+        width: 8
+        height: 4
+        source: "image://icons/down-arrow"
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: backgroundBox.left
+        anchors.rightMargin: 2
+        opacity: colorToolTip.containsMouse ? 1 : 0.8
+        rotation: colorCheckButtonRoot.checked ? 0.0 : 270.0
+    }
+
+    ToolTipArea {
+        id: colorToolTip
+
+        onClicked: checked = !checked
+        hoverEnabled: true
+        anchors.fill: parent
+        anchors.leftMargin: -arrowImage.width
+        tooltip: qsTr("Toggle color picker view")
+    }
 }
