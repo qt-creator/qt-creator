@@ -63,6 +63,7 @@ Section {
         FontComboBox {
             backendValue: fontSection.fontFamily
             Layout.fillWidth: true
+            width: 160
         }
 
         Label {
