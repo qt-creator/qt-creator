@@ -59,7 +59,8 @@ namespace Internal {
 // BuildDirManager:
 // --------------------------------------------------------------------
 
-BuildDirManager::BuildDirManager() = default;
+BuildDirManager::BuildDirManager(CMakeProject *project) : m_project(project) { assert(project); }
+
 BuildDirManager::~BuildDirManager() = default;
 
 Utils::FilePath BuildDirManager::workDirectory(const BuildDirParameters &parameters) const
@@ -227,15 +228,19 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
 
 CMakeBuildConfiguration *BuildDirManager::buildConfiguration() const
 {
-    return m_parameters.buildConfiguration;
+    if (m_project->activeTarget() && m_project->activeTarget()->activeBuildConfiguration() == m_parameters.buildConfiguration)
+        return m_parameters.buildConfiguration;
+    return nullptr;
+}
+
+FilePath BuildDirManager::buildDirectory() const
+{
+    return buildConfiguration() ? m_parameters.buildDirectory : FilePath();
 }
 
 void BuildDirManager::becameDirty()
 {
-    if (isParsing())
-        return;
-
-    if (!m_parameters.buildConfiguration || !m_parameters.buildConfiguration->isActive())
+    if (isParsing() || !buildConfiguration())
         return;
 
     const CMakeTool *tool = m_parameters.cmakeTool();
@@ -327,8 +332,8 @@ static CMakeBuildTarget utilityTarget(const QString &title, const BuildDirManage
 
     target.title = title;
     target.targetType = UtilityType;
-    target.workingDirectory = bdm->buildConfiguration()->buildDirectory();
-    target.sourceDirectory = bdm->buildConfiguration()->target()->project()->projectDirectory();
+    target.workingDirectory = bdm->buildDirectory();
+    target.sourceDirectory = bdm->project()->projectDirectory();
 
     return target;
 }
@@ -380,12 +385,13 @@ CMakeConfig BuildDirManager::parseCMakeConfiguration(const Utils::FilePath &cach
 
 bool BuildDirManager::checkConfiguration()
 {
-    QTC_ASSERT(m_parameters.isValid(), return false);
+    CMakeBuildConfiguration *bc = buildConfiguration();
+    QTC_ASSERT(m_parameters.isValid() || !bc, return false);
 
     if (m_parameters.workDirectory != m_parameters.buildDirectory) // always throw away changes in the tmpdir!
         return false;
 
-    const CMakeConfig cache = m_parameters.buildConfiguration->configurationFromCMake();
+    const CMakeConfig cache = bc->configurationFromCMake();
     if (cache.isEmpty())
         return false; // No cache file yet.
 
@@ -431,8 +437,8 @@ bool BuildDirManager::checkConfiguration()
         box->exec();
         if (box->clickedButton() == applyButton) {
             m_parameters.configuration = newConfig;
-            QSignalBlocker blocker(m_parameters.buildConfiguration);
-            m_parameters.buildConfiguration->setConfigurationForCMake(newConfig);
+            QSignalBlocker blocker(bc);
+            bc->setConfigurationForCMake(newConfig);
             return false;
         } else if (box->clickedButton() == defaultButton)
             return true;

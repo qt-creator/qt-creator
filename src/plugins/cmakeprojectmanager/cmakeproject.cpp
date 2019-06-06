@@ -82,7 +82,8 @@ static CMakeBuildConfiguration *activeBc(const CMakeProject *p)
   \class CMakeProject
 */
 CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEMIMETYPE, fileName),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
+    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater),
+    m_buildDirManager(this)
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -100,16 +101,16 @@ CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEM
             this, &CMakeProject::handleReparseRequest);
     connect(&m_buildDirManager, &BuildDirManager::dataAvailable,
             this, [this]() {
-        CMakeBuildConfiguration *bc = activeBc(this);
-        if (bc && bc == m_buildDirManager.buildConfiguration()) {
+        CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
+        if (bc) {
             bc->clearError();
             handleParsingSuccess(bc);
         }
     });
     connect(&m_buildDirManager, &BuildDirManager::errorOccured,
             this, [this](const QString &msg) {
-        CMakeBuildConfiguration *bc = activeBc(this);
-        if (bc && bc == m_buildDirManager.buildConfiguration()) {
+        CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
+        if (bc) {
             bc->setError(msg);
             bc->setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration());
             handleParsingError(bc);
@@ -117,8 +118,8 @@ CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEM
     });
     connect(&m_buildDirManager, &BuildDirManager::parsingStarted,
             this, [this]() {
-        CMakeBuildConfiguration *bc = activeBc(this);
-        if (bc && bc == m_buildDirManager.buildConfiguration())
+        CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
+        if (bc)
             bc->clearError(CMakeBuildConfiguration::ForceEnabledChanged::True);
     });
 
@@ -186,7 +187,7 @@ CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEM
     subscribeSignal(&CMakeBuildConfiguration::buildDirectoryChanged, this, [this]() {
         auto senderBc = qobject_cast<CMakeBuildConfiguration *>(sender());
 
-        if (senderBc && senderBc->isActive() && senderBc == m_buildDirManager.buildConfiguration()) {
+        if (senderBc && senderBc == m_buildDirManager.buildConfiguration()) {
             // The build directory of our BC has changed:
             // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake without configuration arguments if the reader stays
@@ -201,7 +202,7 @@ CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEM
     subscribeSignal(&CMakeBuildConfiguration::configurationForCMakeChanged, this, [this]() {
         auto senderBc = qobject_cast<CMakeBuildConfiguration *>(sender());
 
-        if (senderBc && senderBc->isActive() && senderBc == m_buildDirManager.buildConfiguration()) {
+        if (senderBc && senderBc == m_buildDirManager.buildConfiguration()) {
             // The CMake configuration has changed on our BC:
             // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake with configuration arguments if the reader stays
@@ -564,7 +565,6 @@ void CMakeProject::handleParsingError(CMakeBuildConfiguration *bc)
 
     combineScanAndParse(bc);
 }
-
 
 void CMakeProject::combineScanAndParse(CMakeBuildConfiguration *bc)
 {

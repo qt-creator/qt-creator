@@ -46,6 +46,7 @@ namespace ProjectExplorer { class FileNode; }
 
 namespace CMakeProjectManager {
 
+class CMakeProject;
 class CMakeTool;
 
 namespace Internal {
@@ -58,14 +59,17 @@ class BuildDirManager : public QObject
     Q_OBJECT
 
 public:
-    BuildDirManager();
+    BuildDirManager(CMakeProject *project);
     ~BuildDirManager() final;
 
     bool isParsing() const;
 
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
                                       int newReaderReparseOptions, int existingReaderReparseOptions);
+    // nullptr if the BC is not active anymore!
     CMakeBuildConfiguration *buildConfiguration() const;
+    CMakeProject *project() const {return m_project; }
+    Utils::FilePath buildDirectory() const;
 
     void clearCache();
 
@@ -114,6 +118,7 @@ private:
     void becameDirty();
 
     BuildDirParameters m_parameters;
+    CMakeProject *m_project = nullptr;
     mutable std::unordered_map<Utils::FilePath, std::unique_ptr<Utils::TemporaryDirectory>> m_buildDirToTempDir;
     mutable std::unique_ptr<BuildDirReader> m_reader;
     mutable bool m_isHandlingError = false;
