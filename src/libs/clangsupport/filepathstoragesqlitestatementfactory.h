@@ -69,6 +69,8 @@ public:
       "SELECT sourceName, directoryId FROM sources WHERE sourceId = ?",
         database
     };
+    ReadStatement selectDirectoryIdFromSourcesBySourceId{
+        "SELECT directoryId FROM sources WHERE sourceId = ?", database};
     WriteStatement insertIntoSources{
       "INSERT INTO sources(directoryId, sourceName) VALUES (?,?)",
         database

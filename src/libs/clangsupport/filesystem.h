@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,21 +25,24 @@
 
 #pragma once
 
-#include "googletest.h"
+#include "filestatuscache.h"
+#include "filesysteminterface.h"
 
-#include <QObject>
+namespace ClangBackEnd {
+class FilePathCachingInterface;
 
-class MockQFileSytemWatcher : public QObject
+class CLANGSUPPORT_EXPORT FileSystem final : public FileSystemInterface
 {
-    Q_OBJECT
-
 public:
-    MOCK_METHOD1(addPaths,
-                 void (const QStringList&));
-    MOCK_METHOD1(removePaths,
-                 void (const QStringList&));
+    FileSystem(FilePathCachingInterface &filePathCache)
+        : m_filePathCache(filePathCache)
+    {}
 
-signals:
-    void fileChanged(const QString &);
-    void directoryChanged(const QString &);
+    FilePathIds directoryEntries(const QString &directoryPath) const override;
+    long long lastModified(FilePathId filePathId) const override;
+
+private:
+    FilePathCachingInterface &m_filePathCache;
 };
+
+} // namespace ClangBackEnd

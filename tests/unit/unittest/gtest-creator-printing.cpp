@@ -361,7 +361,7 @@ std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
 {
     out << "("
         << entry.id << ", "
-        << entry.pathId
+        << entry.filePathId
         << ")";
 
     return out;

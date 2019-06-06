@@ -28,6 +28,7 @@
 #include "mockbuilddependenciesstorage.h"
 #include "mockclangpathwatcher.h"
 #include "mockfilepathcaching.h"
+#include "mockfilesystem.h"
 #include "mockmodifiedtimechecker.h"
 #include "mockprecompiledheaderstorage.h"
 #include "mockprojectpartsstorage.h"
@@ -149,13 +150,6 @@ protected:
         data.reset();
     }
 
-    void touchFile(FilePathId filePathId)
-    {
-        std::ofstream ostream(std::string(filePathCache.filePath(filePathId)), std::ios::binary);
-        ostream.write("\n", 1);
-        ostream.close();
-    }
-
     FilePathId filePathId(Utils::SmallStringView path) const
     {
         return filePathCache.filePathId(ClangBackEnd::FilePathView(path));
@@ -249,7 +243,8 @@ protected:
     NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
     NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
     NiceMock<MockClangPathWatcher> mockPathWatcher;
-    ClangBackEnd::FileStatusCache fileStatusCache{filePathCache};
+    NiceMock<MockFileSystem> mockFileSystem;
+    ClangBackEnd::FileStatusCache fileStatusCache{mockFileSystem};
     ClangBackEnd::GeneratedFiles generatedFiles;
     Manager collectorManger{generatedFiles};
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
@@ -1664,13 +1659,12 @@ TEST_F(SymbolIndexer, DISABLED_DontReparseInUpdateProjectPartsIfDefinesAreTheSam
 TEST_F(SymbolIndexer, PathsChangedUpdatesFileStatusCache)
 {
     auto sourceId = filePathId(TESTDATA_DIR "/symbolindexer_pathChanged.cpp");
-    auto oldLastModified = fileStatusCache.lastModifiedTime(sourceId);
-    touchFile(sourceId);
+    ON_CALL(mockFileSystem, lastModified(Eq(sourceId))).WillByDefault(Return(65));
     ON_CALL(mockSymbolStorage, fetchDependentSourceIds(_)).WillByDefault(Return(FilePathIds{sourceId}));
 
     indexer.pathsChanged({sourceId});
 
-    ASSERT_THAT(fileStatusCache.lastModifiedTime(sourceId), Gt(oldLastModified));
+    ASSERT_THAT(fileStatusCache.lastModifiedTime(sourceId), 65);
 }
 
 TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfCompilerMacrosAreDifferent)
@@ -1706,6 +1700,7 @@ TEST_F(SymbolIndexer, GetNoUpdatableFilePathIdsIfArtefactsAreTheSame)
 
 TEST_F(SymbolIndexer, OutdatedFilesPassUpdatableFilePathIds)
 {
+    ON_CALL(mockFileSystem, lastModified(Eq(main1PathId))).WillByDefault(Return(65));
     indexer.pathsChanged({main1PathId});
     ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))
         .WillByDefault(Return(artefact));

@@ -39,6 +39,7 @@
 #include <projectpartsstorage.h>
 
 #include <filepathcachingfwd.h>
+#include <filesystem.h>
 #include <modifiedtimechecker.h>
 #include <refactoringdatabaseinitializer.h>
 
@@ -142,8 +143,9 @@ private:
     PrecompiledHeaderStorage<Sqlite::Database> m_precompiledHeaderStorage;
     ProjectPartsStorage<Sqlite::Database> m_projectPartsStorage;
     SymbolStorage m_symbolStorage;
-    ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache};
-    FileStatusCache m_fileStatusCache{m_filePathCache};
+    FileSystem m_fileSytem{m_filePathCache};
+    ClangPathWatcher<QFileSystemWatcher, QTimer> m_sourceWatcher{m_filePathCache, m_fileSytem};
+    FileStatusCache m_fileStatusCache{m_fileSytem};
     SymbolsCollectorManager m_collectorManger;
     ProgressCounter m_progressCounter;
     std::function<TimeStamp(FilePathView filePath)> getModifiedTime{

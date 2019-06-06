@@ -25,9 +25,10 @@
 
 #pragma once
 
+#include "directorypathid.h"
+#include "filepath.h"
 #include "filepathexceptions.h"
 #include "filepathid.h"
-#include "filepath.h"
 #include "filepathview.h"
 #include "stringcache.h"
 
@@ -121,10 +122,10 @@ public:
     {
         Utils::SmallStringView directoryPath = filePath.directory();
 
-        int directoryId = m_directoryPathCache.stringId(directoryPath,
-                                                      [&] (const Utils::SmallStringView) {
-            return m_filePathStorage.fetchDirectoryId(directoryPath);
-        });
+        int directoryId = m_directoryPathCache.stringId(
+            directoryPath, [&](const Utils::SmallStringView directoryPath) {
+                return m_filePathStorage.fetchDirectoryId(directoryPath);
+            });
 
         Utils::SmallStringView fileName = filePath.name();
 
@@ -134,6 +135,17 @@ public:
         });
 
         return fileNameId;
+    }
+
+    DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const
+    {
+        Utils::SmallStringView path = directoryPath.back() == '/'
+                                          ? directoryPath.mid(0, directoryPath.size() - 1)
+                                          : directoryPath;
+
+        return m_directoryPathCache.stringId(path, [&](const Utils::SmallStringView directoryPath) {
+            return m_filePathStorage.fetchDirectoryId(directoryPath);
+        });
     }
 
     FilePath filePath(FilePathId filePathId) const
@@ -155,6 +167,32 @@ public:
                                                                       fetchDirectoryPath);
 
         return FilePath{directoryPath, entry.fileName};
+    }
+
+    Utils::PathString directoryPath(DirectoryPathId directoryPathId) const
+    {
+        if (Q_UNLIKELY(!directoryPathId.isValid()))
+            throw NoDirectoryPathForInvalidDirectoryPathId();
+
+        auto fetchDirectoryPath = [&](int id) { return m_filePathStorage.fetchDirectoryPath(id); };
+
+        return m_directoryPathCache.string(directoryPathId.directoryPathId, fetchDirectoryPath);
+    }
+
+    DirectoryPathId directoryPathId(FilePathId filePathId) const
+    {
+        if (Q_UNLIKELY(!filePathId.isValid()))
+            throw NoFilePathForInvalidFilePathId();
+
+        auto fetchSoureNameAndDirectoryId = [&](int id) {
+            auto entry = m_filePathStorage.fetchSourceNameAndDirectoryId(id);
+            return FileNameEntry{entry.sourceName, entry.directoryId};
+        };
+
+        FileNameEntry entry = m_fileNameCache.string(filePathId.filePathId,
+                                                     fetchSoureNameAndDirectoryId);
+
+        return m_fileNameCache.string(filePathId.filePathId, fetchSoureNameAndDirectoryId).directoryId;
     }
 
 private:

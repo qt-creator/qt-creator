@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "directorypathid.h"
 #include "filepath.h"
 #include "filepathid.h"
 #include "filepathview.h"
@@ -40,8 +41,11 @@ public:
 
     virtual FilePathId filePathId(FilePathView filePath) const = 0;
     virtual FilePath filePath(FilePathId filePathId) const = 0;
+    virtual DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const = 0;
+    virtual DirectoryPathId directoryPathId(FilePathId filePathId) const = 0;
+    virtual Utils::PathString directoryPath(DirectoryPathId directoryPathId) const = 0;
 
-    template <typename Container>
+    template<typename Container>
     FilePathIds filePathIds(Container &&filePaths) const
     {
        FilePathIds filePathIds;

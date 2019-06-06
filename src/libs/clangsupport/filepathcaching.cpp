@@ -37,4 +37,19 @@ FilePath FilePathCaching::filePath(FilePathId filePathId) const
     return m_cache.filePath(filePathId);
 }
 
+DirectoryPathId FilePathCaching::directoryPathId(Utils::SmallStringView directoryPath) const
+{
+    return m_cache.directoryPathId(directoryPath);
+}
+
+Utils::PathString FilePathCaching::directoryPath(DirectoryPathId directoryPathId) const
+{
+    return m_cache.directoryPath(directoryPathId);
+}
+
+DirectoryPathId FilePathCaching::directoryPathId(FilePathId filePathId) const
+{
+    return m_cache.directoryPathId(filePathId);
+}
+
 } // namespace ClangBackEnd

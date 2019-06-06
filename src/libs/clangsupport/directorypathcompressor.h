@@ -27,53 +27,44 @@
 
 #include "clangsupport_global.h"
 
-#include <filepathid.h>
-#include <filepathcache.h>
+#include "filepathcachinginterface.h"
 
+#include <QDir>
 #include <QTimer>
 
-#include <filepathcachinginterface.h>
+#include <utils/algorithm.h>
 
 #include <functional>
 
 namespace ClangBackEnd {
 
-template <typename Timer>
-class ChangedFilePathCompressor
+template<typename Timer>
+class DirectoryPathCompressor
 {
 public:
-    ChangedFilePathCompressor(FilePathCachingInterface &filePathCache)
-        : m_filePathCache(filePathCache)
+    DirectoryPathCompressor() { m_timer.setSingleShot(true); }
+
+    virtual ~DirectoryPathCompressor() = default;
+
+    void addDirectoryPathId(DirectoryPathId directoryPathIdId)
     {
-        m_timer.setSingleShot(true);
-    }
+        auto found = std::lower_bound(m_directoryPathIds.begin(),
+                                      m_directoryPathIds.end(),
+                                      directoryPathIdId);
 
-    virtual ~ChangedFilePathCompressor()
-    {
-    }
-
-    void addFilePath(const QString &filePath)
-    {
-        FilePathId filePathId = m_filePathCache.filePathId(FilePath(filePath));
-
-        auto found = std::lower_bound(m_filePaths.begin(), m_filePaths.end(), filePathId);
-
-        if (found == m_filePaths.end() || *found != filePathId)
-            m_filePaths.insert(found, filePathId);
+        if (found == m_directoryPathIds.end() || *found != directoryPathIdId)
+            m_directoryPathIds.insert(found, directoryPathIdId);
 
         restartTimer();
     }
 
-    FilePathIds takeFilePathIds()
-    {
-        return std::move(m_filePaths);
-    }
+    DirectoryPathIds takeDirectoryPathIds() { return std::move(m_directoryPathIds); }
 
-    virtual void setCallback(std::function<void(ClangBackEnd::FilePathIds &&)> &&callback)
+    virtual void setCallback(std::function<void(ClangBackEnd::DirectoryPathIds &&)> &&callback)
     {
-        QObject::connect(&m_timer,
-                         &Timer::timeout,
-                         [this, callback=std::move(callback)] { callback(takeFilePathIds()); });
+        QObject::connect(&m_timer, &Timer::timeout, [this, callback = std::move(callback)] {
+            callback(takeDirectoryPathIds());
+        });
     }
 
 unittest_public:
@@ -88,9 +79,8 @@ unittest_public:
     }
 
 private:
-    FilePathIds m_filePaths;
+    DirectoryPathIds m_directoryPathIds;
     Timer m_timer;
-    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

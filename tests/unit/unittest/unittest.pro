@@ -46,7 +46,7 @@ QMAKE_SUBSTITUTES += cpptoolsjson
 DEFINES += CPPTOOLS_JSON=\"R\\\"xxx($${cpptoolsjson.output})xxx\\\"\"
 
 SOURCES += \
-    changedfilepathcompressor-test.cpp \
+    directorypathcompressor-test.cpp \
     clangpathwatcher-test.cpp \
     clangqueryexamplehighlightmarker-test.cpp \
     clangqueryhighlightmarker-test.cpp \
@@ -175,7 +175,7 @@ SOURCES += \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \
-    utf8positionfromlinecolumn-test.cpp \
+    utf8positionfromlinecolumn-test.cpp
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
@@ -226,6 +226,7 @@ HEADERS += \
     mockclangcodemodelserver.h \
     mockclangpathwatcher.h \
     mockclangpathwatchernotifier.h \
+    mockfilesystem.h \
     mockpchcreator.h \
     mockpchmanagerclient.h \
     mockpchmanagernotifier.h \

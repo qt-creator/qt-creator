@@ -50,6 +50,9 @@ public:
 
     FilePathId filePathId(FilePathView filePath) const override;
     FilePath filePath(FilePathId filePathId) const override;
+    DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const override;
+    Utils::PathString directoryPath(DirectoryPathId directoryPathId) const override;
+    DirectoryPathId directoryPathId(FilePathId filePathId) const override;
 
 private:
     Factory m_factory;

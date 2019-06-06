@@ -25,10 +25,11 @@
 
 #include "googletest.h"
 
-#include "mocktimer.h"
-#include "mockfilepathcaching.h"
-#include "mockqfilesystemwatcher.h"
 #include "mockclangpathwatchernotifier.h"
+#include "mockfilepathcaching.h"
+#include "mockfilesystem.h"
+#include "mockqfilesystemwatcher.h"
+#include "mocktimer.h"
 
 #include <clangpathwatcher.h>
 
@@ -55,91 +56,126 @@ using ClangBackEnd::WatcherEntry;
 class ClangPathWatcher : public testing::Test
 {
 protected:
-    void SetUp();
+    void SetUp()
+    {
+        ON_CALL(mockFilePathCache, filePathId(Eq(path1))).WillByDefault(Return(pathIds[0]));
+        ON_CALL(mockFilePathCache, filePathId(Eq(path2))).WillByDefault(Return(pathIds[1]));
+        ON_CALL(mockFilePathCache, filePathId(Eq(path3))).WillByDefault(Return(pathIds[2]));
+        ON_CALL(mockFilePathCache, filePathId(Eq(path4))).WillByDefault(Return(pathIds[3]));
+        ON_CALL(mockFilePathCache, filePathId(Eq(path5))).WillByDefault(Return(pathIds[4]));
+        ON_CALL(mockFilePathCache, filePath(Eq(pathIds[0]))).WillByDefault(Return(FilePath{path1}));
+        ON_CALL(mockFilePathCache, filePath(Eq(pathIds[1]))).WillByDefault(Return(FilePath{path2}));
+        ON_CALL(mockFilePathCache, filePath(Eq(pathIds[2]))).WillByDefault(Return(FilePath{path3}));
+        ON_CALL(mockFilePathCache, filePath(Eq(pathIds[3]))).WillByDefault(Return(FilePath{path4}));
+        ON_CALL(mockFilePathCache, filePath(Eq(pathIds[4]))).WillByDefault(Return(FilePath{path5}));
+        ON_CALL(mockFilePathCache, directoryPathId(TypedEq<FilePathId>(pathIds[0])))
+            .WillByDefault(Return(directoryPaths[0]));
+        ON_CALL(mockFilePathCache, directoryPathId(TypedEq<FilePathId>(pathIds[1])))
+            .WillByDefault(Return(directoryPaths[0]));
+        ON_CALL(mockFilePathCache, directoryPathId(TypedEq<FilePathId>(pathIds[2])))
+            .WillByDefault(Return(directoryPaths[1]));
+        ON_CALL(mockFilePathCache, directoryPathId(TypedEq<FilePathId>(pathIds[3])))
+            .WillByDefault(Return(directoryPaths[1]));
+        ON_CALL(mockFilePathCache, directoryPathId(TypedEq<FilePathId>(pathIds[4])))
+            .WillByDefault(Return(directoryPaths[2]));
+        ON_CALL(mockFileSystem, lastModified(_)).WillByDefault(Return(1));
+        ON_CALL(mockFilePathCache,
+                directoryPathId(TypedEq<Utils::SmallStringView>(directoryPathString)))
+            .WillByDefault(Return(directoryPaths[0]));
+        ON_CALL(mockFilePathCache,
+                directoryPathId(TypedEq<Utils::SmallStringView>(directoryPathString2)))
+            .WillByDefault(Return(directoryPaths[1]));
+        ON_CALL(mockFilePathCache, directoryPath(Eq(directoryPaths[0])))
+            .WillByDefault(Return(directoryPath));
+        ON_CALL(mockFilePathCache, directoryPath(Eq(directoryPaths[1])))
+            .WillByDefault(Return(directoryPath2));
+        ON_CALL(mockFilePathCache, directoryPath(Eq(directoryPaths[2])))
+            .WillByDefault(Return(directoryPath3));
+        ON_CALL(mockFileSystem, directoryEntries(Eq(directoryPath)))
+            .WillByDefault(Return(FilePathIds{pathIds[0], pathIds[1]}));
+        ON_CALL(mockFileSystem, directoryEntries(Eq(directoryPath2)))
+            .WillByDefault(Return(FilePathIds{pathIds[2], pathIds[3]}));
+        ON_CALL(mockFileSystem, directoryEntries(Eq(directoryPath3)))
+            .WillByDefault(Return(FilePathIds{pathIds[4]}));
+    }
     static WatcherEntries sorted(WatcherEntries &&entries)
     {
         std::stable_sort(entries.begin(), entries.end());
 
-        return entries;
+        return std::move(entries);
     }
 
 protected:
-    NiceMock<MockFilePathCaching> filePathCache;
+    NiceMock<MockFilePathCaching> mockFilePathCache;
     NiceMock<MockClangPathWatcherNotifier> notifier;
-    Watcher watcher{filePathCache, &notifier};
+    NiceMock<MockFileSystem> mockFileSystem;
+    Watcher watcher{mockFilePathCache, mockFileSystem, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
     ProjectPartId id1{2};
     ProjectPartId id2{3};
     ProjectPartId id3{4};
     FilePathView path1{"/path/path1"};
     FilePathView path2{"/path/path2"};
+    FilePathView path3{"/path2/path1"};
+    FilePathView path4{"/path2/path2"};
+    FilePathView path5{"/path3/path"};
     QString path1QString = QString(path1.toStringView());
     QString path2QString = QString(path2.toStringView());
-    FilePathIds pathIds = {1, 2};
+    QString directoryPath = "/path";
+    QString directoryPath2 = "/path2";
+    QString directoryPath3 = "/path3";
+    Utils::PathString directoryPathString = directoryPath;
+    Utils::PathString directoryPathString2 = directoryPath2;
+    FilePathIds pathIds = {1, 2, 3, 4, 5};
+    ClangBackEnd::DirectoryPathIds directoryPaths = {1, 2, 3};
     ClangBackEnd::ProjectPartIds ids{id1, id2, id3};
-    WatcherEntry watcherEntry1{ids[0], pathIds[0]};
-    WatcherEntry watcherEntry2{ids[1], pathIds[0]};
-    WatcherEntry watcherEntry3{ids[0], pathIds[1]};
-    WatcherEntry watcherEntry4{ids[1], pathIds[1]};
-    WatcherEntry watcherEntry5{ids[2], pathIds[1]};
+    WatcherEntry watcherEntry1{ids[0], directoryPaths[0], pathIds[0]};
+    WatcherEntry watcherEntry2{ids[1], directoryPaths[0], pathIds[0]};
+    WatcherEntry watcherEntry3{ids[0], directoryPaths[0], pathIds[1]};
+    WatcherEntry watcherEntry4{ids[1], directoryPaths[0], pathIds[1]};
+    WatcherEntry watcherEntry5{ids[2], directoryPaths[0], pathIds[1]};
+    WatcherEntry watcherEntry6{ids[0], directoryPaths[1], pathIds[2]};
+    WatcherEntry watcherEntry7{ids[1], directoryPaths[1], pathIds[3]};
 };
-
-TEST_F(ClangPathWatcher, ConvertWatcherEntriesToQStringList)
-{
-    auto convertedList = watcher.convertWatcherEntriesToQStringList(sorted({watcherEntry1, watcherEntry3}));
-
-    ASSERT_THAT(convertedList, ElementsAre(path1QString, path2QString));
-}
-
-TEST_F(ClangPathWatcher, UniquePaths)
-{
-    auto uniqueEntries = watcher.uniquePaths(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4}));
-
-    ASSERT_THAT(uniqueEntries, ElementsAre(watcherEntry1, watcherEntry3));
-}
-
-TEST_F(ClangPathWatcher, NotWatchedEntries)
-{
-    watcher.addEntries({watcherEntry1, watcherEntry4});
-
-    auto newEntries = watcher.notWatchedEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4}));
-
-    ASSERT_THAT(newEntries, ElementsAre(watcherEntry2, watcherEntry3));
-}
 
 TEST_F(ClangPathWatcher, AddIdPaths)
 {
-    EXPECT_CALL(mockQFileSytemWatcher, addPaths(QStringList{path1QString, path2QString}));
+    EXPECT_CALL(mockQFileSytemWatcher,
+                addPaths(UnorderedElementsAre(QString(directoryPath), QString(directoryPath2))));
 
-    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1]}}});
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1], pathIds[2]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
 }
 
 TEST_F(ClangPathWatcher, UpdateIdPathsCallsAddPathInFileWatcher)
 {
-    watcher.updateIdPaths({{id1, {pathIds[0]}}, {id2, {pathIds[0]}}});
-
-    EXPECT_CALL(mockQFileSytemWatcher, addPaths(QStringList{path2QString}));
-
     watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1]}}});
+
+    EXPECT_CALL(mockQFileSytemWatcher, addPaths(UnorderedElementsAre(QString(directoryPath2))));
+
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1], pathIds[2]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
 }
 
 TEST_F(ClangPathWatcher, UpdateIdPathsAndRemoveUnusedPathsCallsRemovePathInFileWatcher)
 {
-    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1]}}, {id3, {pathIds[0]}}});
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1], pathIds[2]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, removePaths(QStringList{path2QString}));
+    EXPECT_CALL(mockQFileSytemWatcher, removePaths(UnorderedElementsAre(QString(directoryPath2))));
 
-    watcher.updateIdPaths({{id1, {pathIds[0]}}, {id2, {pathIds[0]}}});
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1]}}});
 }
 
 TEST_F(ClangPathWatcher, UpdateIdPathsAndRemoveUnusedPathsDoNotCallsRemovePathInFileWatcher)
 {
-    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1]}}, {id3, {pathIds[0]}}});
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1], pathIds[2]}},
+                           {id2, {pathIds[0], pathIds[1], pathIds[3]}},
+                           {id3, {pathIds[0]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, removePaths(QStringList{path2QString}))
-            .Times(0);
+    EXPECT_CALL(mockQFileSytemWatcher, removePaths(_)).Times(0);
 
-    watcher.updateIdPaths({{id1, {pathIds[1]}}, {id2, {pathIds[0]}}});
+    watcher.updateIdPaths({{id1, {pathIds[1]}}, {id2, {pathIds[3]}}});
 }
 
 TEST_F(ClangPathWatcher, UpdateIdPathsAndRemoveUnusedPaths)
@@ -165,36 +201,18 @@ TEST_F(ClangPathWatcher, ExtractSortedIdsFromConvertIdPaths)
     ASSERT_THAT(entriesAndIds.second, ElementsAre(ids[0], ids[1], ids[2]));
 }
 
-TEST_F(ClangPathWatcher, NotWatchedPaths)
-{
-    watcher.mergeToWatchedEntries(sorted({watcherEntry1}));
-
-    auto newEntries = watcher.notWatchedPaths({watcherEntry2, watcherEntry3});
-
-    ASSERT_THAT(newEntries, ElementsAre(watcherEntry3));
-}
-
-TEST_F(ClangPathWatcher, AddedPaths)
-{
-    watcher.mergeToWatchedEntries(sorted({watcherEntry1, watcherEntry2}));
-
-    auto filteredEntries = watcher.filterNotWatchedPaths({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4});
-
-    ASSERT_THAT(filteredEntries, ElementsAre(watcherEntry3));
-}
-
 TEST_F(ClangPathWatcher, MergeEntries)
 {
-    watcher.mergeToWatchedEntries(sorted({watcherEntry1, watcherEntry4}));
+    watcher.updateIdPaths({{id1, {pathIds[0]}}, {id2, {pathIds[1]}}});
 
     ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry1, watcherEntry4));
 }
 
 TEST_F(ClangPathWatcher, MergeMoreEntries)
 {
-    watcher.mergeToWatchedEntries(sorted({watcherEntry1, watcherEntry4}));
+    watcher.updateIdPaths({{id2, {pathIds[0], pathIds[1]}}});
 
-    watcher.mergeToWatchedEntries(sorted({watcherEntry2, watcherEntry3}));
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1]}}});
 
     ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4));
 }
@@ -204,48 +222,48 @@ TEST_F(ClangPathWatcher, AddEmptyEntries)
     EXPECT_CALL(mockQFileSytemWatcher, addPaths(_))
             .Times(0);
 
-    watcher.addEntries({});
+    watcher.updateIdPaths({});
 }
 
 TEST_F(ClangPathWatcher, AddEntriesWithSameIdAndDifferentPaths)
 {
-    EXPECT_CALL(mockQFileSytemWatcher, addPaths(QStringList{path1QString, path2QString}));
+    EXPECT_CALL(mockQFileSytemWatcher,
+                addPaths(ElementsAre(directoryPath, directoryPath2, directoryPath3)));
 
-    watcher.addEntries({watcherEntry1, watcherEntry3});
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1], pathIds[2], pathIds[4]}}});
 }
 
 TEST_F(ClangPathWatcher, AddEntriesWithDifferentIdAndSamePaths)
 {
-    EXPECT_CALL(mockQFileSytemWatcher, addPaths(QStringList{path1QString}));
+    EXPECT_CALL(mockQFileSytemWatcher, addPaths(ElementsAre(directoryPath)));
 
-    watcher.addEntries({watcherEntry1, watcherEntry2});
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1]}}});
 }
 
 TEST_F(ClangPathWatcher, DontAddNewEntriesWithSameIdAndSamePaths)
 {
-    watcher.addEntries({watcherEntry1});
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1], pathIds[2], pathIds[3], pathIds[4]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, addPaths(QStringList{path1QString}))
-            .Times(0);
+    EXPECT_CALL(mockQFileSytemWatcher, addPaths(_)).Times(0);
 
-    watcher.addEntries({watcherEntry1});
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1], pathIds[2], pathIds[3], pathIds[4]}}});
 }
 
 TEST_F(ClangPathWatcher, DontAddNewEntriesWithDifferentIdAndSamePaths)
 {
-    watcher.addEntries({watcherEntry1});
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1], pathIds[2], pathIds[3], pathIds[4]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, addPaths(QStringList{path1QString}))
-            .Times(0);
+    EXPECT_CALL(mockQFileSytemWatcher, addPaths(_)).Times(0);
 
-    watcher.addEntries({watcherEntry2});
+    watcher.updateIdPaths({{id2, {pathIds[0], pathIds[1], pathIds[2], pathIds[3], pathIds[4]}}});
 }
 
 TEST_F(ClangPathWatcher, RemoveEntriesWithId)
 {
-    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1]}}, {id3, {pathIds[1]}}});
 
-    watcher.removeIdsFromWatchedEntries({ids[0]});
+    watcher.removeIds({id1});
 
     ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry2, watcherEntry4, watcherEntry5));
 }
@@ -260,37 +278,52 @@ TEST_F(ClangPathWatcher, RemoveNoPathsForEmptyIds)
 
 TEST_F(ClangPathWatcher, RemoveNoPathsForOneId)
 {
-    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4}));
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(_))
             .Times(0);
 
-    watcher.removeIds({id1});
+    watcher.removeIds({id3});
 }
 
 TEST_F(ClangPathWatcher, RemovePathForOneId)
 {
-    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3}));
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, removePaths(QStringList{path2QString}));
+    EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath2)));
 
-    watcher.removeIds({id1});
+    watcher.removeIds({id2});
+}
+
+TEST_F(ClangPathWatcher, RemoveNoPathSecondTime)
+{
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
+    watcher.removeIds({id2});
+
+    EXPECT_CALL(mockQFileSytemWatcher, removePaths(_)).Times(0);
+
+    watcher.removeIds({id2});
 }
 
 TEST_F(ClangPathWatcher, RemoveAllPathsForThreeId)
 {
-    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1], pathIds[2]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, removePaths(QStringList{path1QString, path2QString}));
+    EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath, directoryPath2)));
 
     watcher.removeIds({id1, id2, id3});
 }
 
 TEST_F(ClangPathWatcher, RemoveOnePathForTwoId)
 {
-    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1]}}, {id3, {pathIds[3]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, removePaths(QStringList{path1QString}));
+    EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath)));
 
     watcher.removeIds({id1, id2});
 }
@@ -313,71 +346,51 @@ TEST_F(ClangPathWatcher, RemoveUnusedEntries)
     ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry1, watcherEntry4, watcherEntry5));
 }
 
-TEST_F(ClangPathWatcher, EmptyVectorNotifyFileChange)
+TEST_F(ClangPathWatcher, TwoNotifyFileChanges)
 {
-    watcher.addEntries({watcherEntry3});
-
-    EXPECT_CALL(notifier, pathsWithIdsChanged(IsEmpty()));
-
-    mockQFileSytemWatcher.fileChanged(path1QString);
-}
-
-TEST_F(ClangPathWatcher, NotifyFileChange)
-{
-    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1], pathIds[2]}},
+                           {id2, {pathIds[0], pathIds[1], pathIds[3]}},
+                           {id3, {pathIds[4]}}});
+    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[0]))).WillByDefault(Return(2));
+    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[1]))).WillByDefault(Return(2));
+    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[3]))).WillByDefault(Return(2));
 
     EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id1, id2)));
 
-    mockQFileSytemWatcher.fileChanged(path1QString);
-}
-
-TEST_F(ClangPathWatcher, TwoNotifyFileChanges)
-{
-    watcher.addEntries(sorted({watcherEntry1, watcherEntry2, watcherEntry3, watcherEntry4, watcherEntry5}));
-
-    EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id1, id2, id3)));
-
-    mockQFileSytemWatcher.fileChanged(path2QString);
-    mockQFileSytemWatcher.fileChanged(path1QString);
+    mockQFileSytemWatcher.directoryChanged(directoryPath);
+    mockQFileSytemWatcher.directoryChanged(directoryPath2);
 }
 
 TEST_F(ClangPathWatcher, NotifyForPathChanges)
 {
-    watcher.addEntries({watcherEntry1});
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1], pathIds[2]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
+    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[0]))).WillByDefault(Return(2));
+    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[3]))).WillByDefault(Return(2));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(pathIds[0])));
 
-    mockQFileSytemWatcher.fileChanged(path1QString);
+    mockQFileSytemWatcher.directoryChanged(directoryPath);
 }
 
 TEST_F(ClangPathWatcher, NoNotifyForUnwatchedPathChanges)
 {
-    watcher.addEntries({watcherEntry3});
+    watcher.updateIdPaths({{id1, {pathIds[3]}}, {id2, {pathIds[3]}}});
 
     EXPECT_CALL(notifier, pathsChanged(IsEmpty()));
 
-    mockQFileSytemWatcher.fileChanged(path1QString);
+    mockQFileSytemWatcher.directoryChanged(directoryPath);
 }
 
 TEST_F(ClangPathWatcher, NoDuplicatePathChanges)
 {
-    watcher.addEntries({watcherEntry1});
+    watcher.updateIdPaths(
+        {{id1, {pathIds[0], pathIds[1], pathIds[2]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
+    ON_CALL(mockFileSystem, lastModified(Eq(pathIds[0]))).WillByDefault(Return(2));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(pathIds[0])));
 
-    mockQFileSytemWatcher.fileChanged(path1QString);
-    mockQFileSytemWatcher.fileChanged(path1QString);
+    mockQFileSytemWatcher.directoryChanged(directoryPath);
+    mockQFileSytemWatcher.directoryChanged(directoryPath);
 }
-
-void ClangPathWatcher::SetUp()
-{
-    ON_CALL(filePathCache, filePathId(Eq(path1)))
-            .WillByDefault(Return(pathIds[0]));
-    ON_CALL(filePathCache, filePathId(Eq(path2)))
-            .WillByDefault(Return(pathIds[1]));
-    ON_CALL(filePathCache, filePath(pathIds[0]))
-            .WillByDefault(Return(FilePath{path1}));
-    ON_CALL(filePathCache, filePath(Eq(pathIds[1])))
-            .WillByDefault(Return(FilePath{path2}));
-}
-}
+} // namespace

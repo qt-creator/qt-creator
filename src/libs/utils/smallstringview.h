@@ -179,6 +179,10 @@ public:
         return m_pointer[0] == characterToSearch;
     }
 
+    char back() const { return m_pointer[m_size - 1]; }
+
+    char operator[](std::size_t index) { return m_pointer[index]; }
+
 private:
     const char *m_pointer = "";
     size_type m_size = 0;

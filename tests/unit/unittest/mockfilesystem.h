@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -27,19 +27,11 @@
 
 #include "googletest.h"
 
-#include <QObject>
+#include <filesysteminterface.h>
 
-class MockQFileSytemWatcher : public QObject
+class MockFileSystem : public ClangBackEnd::FileSystemInterface
 {
-    Q_OBJECT
-
 public:
-    MOCK_METHOD1(addPaths,
-                 void (const QStringList&));
-    MOCK_METHOD1(removePaths,
-                 void (const QStringList&));
-
-signals:
-    void fileChanged(const QString &);
-    void directoryChanged(const QString &);
+    MOCK_CONST_METHOD1(directoryEntries, ClangBackEnd::FilePathIds(const QString &directoryPath));
+    MOCK_CONST_METHOD1(lastModified, long long(ClangBackEnd::FilePathId filePathId));
 };

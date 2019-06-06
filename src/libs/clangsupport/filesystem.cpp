@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,23 +23,39 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "filesystem.h"
+#include "filepathcachinginterface.h"
 
-#include "googletest.h"
+#include <utils/algorithm.h>
 
-#include <QObject>
+#include <QDateTime>
+#include <QDir>
+#include <QFileInfo>
 
-class MockQFileSytemWatcher : public QObject
+namespace ClangBackEnd {
+
+FilePathIds FileSystem::directoryEntries(const QString &directoryPath) const
 {
-    Q_OBJECT
+    QDir directory{directoryPath};
 
-public:
-    MOCK_METHOD1(addPaths,
-                 void (const QStringList&));
-    MOCK_METHOD1(removePaths,
-                 void (const QStringList&));
+    QFileInfoList fileInfos = directory.entryInfoList();
 
-signals:
-    void fileChanged(const QString &);
-    void directoryChanged(const QString &);
-};
+    FilePathIds filePathIds = Utils::transform<FilePathIds>(fileInfos, [&](const QFileInfo &fileInfo) {
+        return m_filePathCache.filePathId(FilePath{fileInfo.path()});
+    });
+
+    std::sort(filePathIds.begin(), filePathIds.end());
+
+    return filePathIds;
+}
+
+long long FileSystem::lastModified(FilePathId filePathId) const
+{
+    QFileInfo fileInfo(QString(m_filePathCache.filePath(filePathId)));
+
+    fileInfo.refresh();
+
+    return fileInfo.lastModified().toMSecsSinceEpoch() / 1000;
+}
+
+} // namespace ClangBackEnd
