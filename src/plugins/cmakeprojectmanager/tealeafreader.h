@@ -51,7 +51,7 @@ public:
 
     bool isCompatible(const BuildDirParameters &p) final;
     void resetData() final;
-    void parse(bool forceConfiguration) final;
+    void parse(bool forceCMakeRun, bool forceConfiguration) final;
     void stop() final;
 
     bool isParsing() const final;

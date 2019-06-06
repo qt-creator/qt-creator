@@ -269,7 +269,10 @@ bool BuildDirManager::persistCMakeState()
 
     BuildDirParameters newParameters = m_parameters;
     newParameters.workDirectory.clear();
-    setParametersAndRequestParse(newParameters, REPARSE_URGENT | REPARSE_FORCE_CONFIGURATION | REPARSE_CHECK_CONFIGURATION,
+    setParametersAndRequestParse(newParameters,
+                                 REPARSE_URGENT
+                                 | REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_CONFIGURATION
+                                 | REPARSE_CHECK_CONFIGURATION,
                                  REPARSE_FAIL);
     return true;
 }
@@ -289,10 +292,11 @@ void BuildDirManager::parse(int reparseParameters)
         reparseParameters |= REPARSE_FORCE_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
     } else if (reparseParameters & REPARSE_CHECK_CONFIGURATION) {
         if (checkConfiguration())
-            reparseParameters |= REPARSE_FORCE_CONFIGURATION;
+            reparseParameters |= REPARSE_FORCE_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
     }
 
-    m_reader->parse(reparseParameters & REPARSE_FORCE_CONFIGURATION);
+    m_reader->parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
+                    reparseParameters & REPARSE_FORCE_CONFIGURATION);
 }
 
 void BuildDirManager::generateProjectTree(CMakeProjectNode *root, const QList<const FileNode *> &allFiles) const

@@ -102,40 +102,8 @@ void ServerModeReader::setParameters(const BuildDirParameters &p)
     QTC_ASSERT(cmake, return);
 
     m_parameters = p;
-    if (!m_cmakeServer) {
-        m_cmakeServer.reset(new ServerMode(p.environment,
-                                           p.sourceDirectory, p.workDirectory,
-                                           cmake->cmakeExecutable(),
-                                           p.generator, p.extraGenerator, p.platform, p.toolset,
-                                           true, 1));
-        connect(m_cmakeServer.get(), &ServerMode::errorOccured,
-                this, &ServerModeReader::errorOccured);
-        connect(m_cmakeServer.get(), &ServerMode::cmakeReply,
-                this, &ServerModeReader::handleReply);
-        connect(m_cmakeServer.get(), &ServerMode::cmakeError,
-                this, &ServerModeReader::handleError);
-        connect(m_cmakeServer.get(), &ServerMode::cmakeProgress,
-                this, &ServerModeReader::handleProgress);
-        connect(m_cmakeServer.get(), &ServerMode::cmakeSignal,
-                this, &ServerModeReader::handleSignal);
-        connect(m_cmakeServer.get(), &ServerMode::cmakeMessage, [this](const QString &m) {
-            const QStringList lines = m.split('\n');
-            for (const QString &l : lines) {
-                m_parser.stdError(l);
-                Core::MessageManager::write(l);
-            }
-        });
-        connect(m_cmakeServer.get(), &ServerMode::message,
-                this, [](const QString &m) { Core::MessageManager::write(m); });
-        connect(m_cmakeServer.get(), &ServerMode::connected,
-                this, &ServerModeReader::isReadyNow, Qt::QueuedConnection); // Delay
-        connect(m_cmakeServer.get(), &ServerMode::disconnected,
-                this, [this]() {
-            stop();
-            Core::MessageManager::write(tr("Parsing of CMake project failed: Connection to CMake server lost."));
-            m_cmakeServer.reset();
-        }, Qt::QueuedConnection); // Delay
-    }
+
+    createNewServer();
 }
 
 bool ServerModeReader::isCompatible(const BuildDirParameters &p)
@@ -171,13 +139,16 @@ void ServerModeReader::resetData()
     m_fileGroups.clear();
 }
 
-void ServerModeReader::parse(bool forceConfiguration)
+void ServerModeReader::parse(bool forceCMakeRun, bool forceConfiguration)
 {
     emit configurationStarted();
 
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;
-    if (forceConfiguration || !QDir(m_parameters.buildDirectory.toString()).exists("CMakeCache.txt")) {
+    if (forceCMakeRun)
+        createNewServer();
+
+    if (forceConfiguration) {
         QStringList cacheArguments = transform(m_parameters.configuration,
                                                [this](const CMakeConfigItem &i) {
             return i.toArgument(m_parameters.expander);
@@ -399,6 +370,49 @@ CppTools::RawProjectParts ServerModeReader::createRawProjectParts() const
     }
 
     return rpps;
+}
+
+void ServerModeReader::createNewServer()
+{
+    QTC_ASSERT(m_parameters.cmakeTool(), return);
+    m_cmakeServer
+            = std::make_unique<ServerMode>(
+                m_parameters.environment,
+                m_parameters.sourceDirectory, m_parameters.workDirectory,
+                m_parameters.cmakeTool()->cmakeExecutable(),
+                m_parameters.generator,
+                m_parameters.extraGenerator,
+                m_parameters.platform, m_parameters.toolset,
+                true, 1);
+
+    connect(m_cmakeServer.get(), &ServerMode::errorOccured,
+            this, &ServerModeReader::errorOccured);
+    connect(m_cmakeServer.get(), &ServerMode::cmakeReply,
+            this, &ServerModeReader::handleReply);
+    connect(m_cmakeServer.get(), &ServerMode::cmakeError,
+            this, &ServerModeReader::handleError);
+    connect(m_cmakeServer.get(), &ServerMode::cmakeProgress,
+            this, &ServerModeReader::handleProgress);
+    connect(m_cmakeServer.get(), &ServerMode::cmakeSignal,
+            this, &ServerModeReader::handleSignal);
+    connect(m_cmakeServer.get(), &ServerMode::cmakeMessage, [this](const QString &m) {
+        const QStringList lines = m.split('\n');
+        for (const QString &l : lines) {
+            m_parser.stdError(l);
+            Core::MessageManager::write(l);
+        }
+    });
+    connect(m_cmakeServer.get(), &ServerMode::message,
+            this, [](const QString &m) { Core::MessageManager::write(m); });
+    connect(m_cmakeServer.get(), &ServerMode::connected,
+            this, &ServerModeReader::isReadyNow, Qt::QueuedConnection); // Delay
+    connect(m_cmakeServer.get(), &ServerMode::disconnected,
+            this, [this]() {
+        stop();
+        Core::MessageManager::write(tr("Parsing of CMake project failed: Connection to CMake server lost."));
+        m_cmakeServer.reset();
+    }, Qt::QueuedConnection); // Delay
+
 }
 
 void ServerModeReader::handleReply(const QVariantMap &data, const QString &inReplyTo)

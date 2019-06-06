@@ -170,7 +170,7 @@ static QString findCbpFile(const QDir &directory)
     return file;
 }
 
-void TeaLeafReader::parse(bool forceConfiguration)
+void TeaLeafReader::parse(bool forceCMakeRun, bool forceConfiguration)
 {
     emit configurationStarted();
 
@@ -182,7 +182,7 @@ void TeaLeafReader::parse(bool forceConfiguration)
         return;
     }
 
-    const bool mustUpdate = m_cmakeFiles.isEmpty()
+    const bool mustUpdate = forceCMakeRun || m_cmakeFiles.isEmpty()
             || anyOf(m_cmakeFiles, [&cbpFileFi](const FilePath &f) {
                    return f.toFileInfo().lastModified() > cbpFileFi.lastModified();
                });

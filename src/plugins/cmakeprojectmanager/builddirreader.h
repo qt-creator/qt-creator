@@ -57,7 +57,7 @@ public:
 
     virtual bool isCompatible(const BuildDirParameters &p) = 0;
     virtual void resetData() = 0;
-    virtual void parse(bool forceConfiguration) = 0;
+    virtual void parse(bool forceCMakeRun, bool forceConfiguration) = 0;
     virtual void stop() = 0;
 
     virtual bool isParsing() const = 0;

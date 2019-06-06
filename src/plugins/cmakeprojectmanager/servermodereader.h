@@ -50,7 +50,7 @@ public:
 
     bool isCompatible(const BuildDirParameters &p) final;
     void resetData() final;
-    void parse(bool forceConfiguration) final;
+    void parse(bool forceCMakeRun, bool forceConfiguration) final;
     void stop() final;
 
     bool isParsing() const final;
@@ -62,6 +62,7 @@ public:
     CppTools::RawProjectParts createRawProjectParts() const final;
 
 private:
+    void createNewServer();
     void handleReply(const QVariantMap &data, const QString &inReplyTo);
     void handleError(const QString &message);
     void handleProgress(int min, int cur, int max, const QString &inReplyTo);
