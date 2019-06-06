@@ -25,7 +25,7 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
-import QtQuick.Controls 1.1 as Controls
+import StudioControls 1.0 as StudioControls
 import QtQuick.Layouts 1.0
 import QtQuick.Controls.Styles 1.1
 
@@ -49,14 +49,16 @@ RowLayout {
         backendValue: urlChooser.backendValue
     }
 
-    Controls.ComboBox {
+    StudioControls.ComboBox {
         id: comboBox
 
-        ExtendedFunctionButton {
-            x: 2
-            anchors.verticalCenter: parent.verticalCenter
-            backendValue: urlChooser.backendValue
-            visible: urlChooser.enabled
+        actionIndicator.icon.color: extFuncLogic.color
+        actionIndicator.icon.text: extFuncLogic.glyph
+        actionIndicator.onClicked: extFuncLogic.show()
+
+        ExtendedFunctionLogic {
+            id: extFuncLogic
+            backendValue: comboBox.backendValue
         }
 
         property bool isComplete: false
@@ -86,9 +88,6 @@ RowLayout {
         Layout.fillWidth: true
 
         editable: true
-        style: CustomComboBoxStyle {
-            textColor: urlChooser.textColor
-        }
 
         model: fileModel.fileModel
 
