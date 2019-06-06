@@ -68,7 +68,7 @@ Item {
 
         property real realValue: value / factor
         property variant backendValue
-        property bool hasSlider: false
+        property bool hasSlider: wrapper.sliderIndicatorVisible
 
         from: minimumValue * factor
         to: maximumValue * factor
