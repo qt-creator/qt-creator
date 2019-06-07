@@ -659,6 +659,9 @@ void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode,
     if (!m_selectedNode.isValid())
         return;
 
+    if (!m_qmlBackEndForCurrentType)
+        return;
+
     m_locked = true;
     QList<InformationName> informationNameList = informationChangedHash.values(m_selectedNode);
     if (informationNameList.contains(Anchor)
