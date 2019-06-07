@@ -189,8 +189,9 @@ bool ServerModeReader::isParsing() const
     return static_cast<bool>(m_future);
 }
 
-QList<CMakeBuildTarget> ServerModeReader::takeBuildTargets()
+QList<CMakeBuildTarget> ServerModeReader::takeBuildTargets(QString &errorMessage)
 {
+    Q_UNUSED(errorMessage)
     const QList<CMakeBuildTarget> result = transform(m_targets, [](const Target *t) -> CMakeBuildTarget {
         CMakeBuildTarget ct;
         ct.title = t->name;
@@ -220,16 +221,19 @@ QList<CMakeBuildTarget> ServerModeReader::takeBuildTargets()
     return result;
 }
 
-CMakeConfig ServerModeReader::takeParsedConfiguration()
+CMakeConfig ServerModeReader::takeParsedConfiguration(QString &errorMessage)
 {
+    Q_UNUSED(errorMessage)
     CMakeConfig config = m_cmakeConfiguration;
     m_cmakeConfiguration.clear();
     return config;
 }
 
 void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
-                                           const QList<const FileNode *> &allFiles)
+                                           const QList<const FileNode *> &allFiles,
+                                           QString &errorMessage)
 {
+    Q_UNUSED(errorMessage)
     // Split up cmake inputs into useful chunks:
     std::vector<std::unique_ptr<FileNode>> cmakeFilesSource;
     std::vector<std::unique_ptr<FileNode>> cmakeFilesBuild;
@@ -268,8 +272,9 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
                        std::move(cmakeFilesOther));
 }
 
-CppTools::RawProjectParts ServerModeReader::createRawProjectParts() const
+CppTools::RawProjectParts ServerModeReader::createRawProjectParts(QString &errorMessage) const
 {
+    Q_UNUSED(errorMessage)
     CppTools::RawProjectParts rpps;
 
     int counter = 0;

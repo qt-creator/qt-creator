@@ -109,12 +109,15 @@ CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEM
     });
     connect(&m_buildDirManager, &BuildDirManager::errorOccured,
             this, [this](const QString &msg) {
+        reportError(msg);
         CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
         if (bc) {
-            bc->setError(msg);
-            bc->setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration());
+            QString errorMessage;
+            bc->setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration(errorMessage));
+            // ignore errorMessage here, we already got one.
             handleParsingError(bc);
         }
+
     });
     connect(&m_buildDirManager, &BuildDirManager::parsingStarted,
             this, [this]() {
@@ -265,14 +268,17 @@ CMakeProject::~CMakeProject()
 void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 {
     const CMakeBuildConfiguration *aBc = activeBc(this);
+    QString errorMessage;
 
     QTC_ASSERT(bc, return);
     QTC_ASSERT(bc == aBc, return);
     QTC_ASSERT(m_treeScanner.isFinished() && !m_buildDirManager.isParsing(), return);
 
-    const QList<CMakeBuildTarget> buildTargets = m_buildDirManager.takeBuildTargets();
+    const QList<CMakeBuildTarget> buildTargets = m_buildDirManager.takeBuildTargets(errorMessage);
+    checkAndReportError(errorMessage);
     bc->setBuildTargets(buildTargets);
-    const CMakeConfig cmakeConfig = m_buildDirManager.takeCMakeConfiguration();
+    const CMakeConfig cmakeConfig = m_buildDirManager.takeCMakeConfiguration(errorMessage);
+    checkAndReportError(errorMessage);
     bc->setConfigurationFromCMake(cmakeConfig);
 
     CMakeConfig patchedConfig = cmakeConfig;
@@ -336,7 +342,8 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     QtSupport::CppKitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
 
-    CppTools::RawProjectParts rpps = m_buildDirManager.createRawProjectParts();
+    CppTools::RawProjectParts rpps = m_buildDirManager.createRawProjectParts(errorMessage);
+    checkAndReportError(errorMessage);
 
     for (CppTools::RawProjectPart &rpp : rpps) {
         rpp.setQtVersion(kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
@@ -395,7 +402,9 @@ CMakeProject::generateProjectTree(const QList<const FileNode *> &allFiles) const
         return nullptr;
 
     auto root = std::make_unique<CMakeProjectNode>(projectDirectory());
-    m_buildDirManager.generateProjectTree(root.get(), allFiles);
+    QString errorMessage;
+    m_buildDirManager.generateProjectTree(root.get(), allFiles, errorMessage);
+    checkAndReportError(errorMessage);
     return root;
 }
 
@@ -529,6 +538,13 @@ bool CMakeProject::setupTarget(Target *t)
     return true;
 }
 
+void CMakeProject::reportError(const QString &errorMessage) const
+{
+    CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
+    if (bc)
+        bc->setError(errorMessage);
+}
+
 void CMakeProject::handleTreeScanningFinished()
 {
     QTC_CHECK(m_waitingForScan);
@@ -642,6 +658,14 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
 bool CMakeProject::mustUpdateCMakeStateBeforeBuild()
 {
     return m_delayedParsingTimer.isActive();
+}
+
+void CMakeProject::checkAndReportError(QString &errorMessage) const
+{
+    if (!errorMessage.isEmpty()) {
+        reportError(errorMessage);
+        errorMessage.clear();
+    }
 }
 
 QList<ProjectExplorer::ExtraCompiler *> CMakeProject::findExtraCompilers() const

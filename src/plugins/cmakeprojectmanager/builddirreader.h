@@ -62,11 +62,12 @@ public:
 
     virtual bool isParsing() const = 0;
 
-    virtual QList<CMakeBuildTarget> takeBuildTargets() = 0;
-    virtual CMakeConfig takeParsedConfiguration() = 0;
+    virtual QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) = 0;
+    virtual CMakeConfig takeParsedConfiguration(QString &errorMessage) = 0;
     virtual void generateProjectTree(CMakeProjectNode *root,
-                                     const QList<const ProjectExplorer::FileNode *> &allFiles) = 0;
-    virtual CppTools::RawProjectParts createRawProjectParts() const = 0;
+                                     const QList<const ProjectExplorer::FileNode *> &allFiles,
+                                     QString &errorMessage) = 0;
+    virtual CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) const = 0;
 
 signals:
     void isReadyNow() const;

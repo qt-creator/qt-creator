@@ -138,7 +138,10 @@ bool BuildDirManager::hasConfigChanged()
     const QByteArrayList criticalKeys
             = {GENERATOR_KEY, CMAKE_COMMAND_KEY, CMAKE_C_COMPILER_KEY, CMAKE_CXX_COMPILER_KEY};
 
-    const CMakeConfig currentConfig = takeCMakeConfiguration();
+    QString errorMessage;
+    const CMakeConfig currentConfig = takeCMakeConfiguration(errorMessage);
+    if (!errorMessage.isEmpty())
+        return false;
 
     const CMakeTool *tool = m_parameters.cmakeTool();
     QTC_ASSERT(tool, return false); // No cmake... we should not have ended up here in the first place
@@ -299,19 +302,21 @@ void BuildDirManager::parse(int reparseParameters)
                     reparseParameters & REPARSE_FORCE_CONFIGURATION);
 }
 
-void BuildDirManager::generateProjectTree(CMakeProjectNode *root, const QList<const FileNode *> &allFiles) const
+void BuildDirManager::generateProjectTree(CMakeProjectNode *root,
+                                          const QList<const FileNode *> &allFiles,
+                                          QString &errorMessage) const
 {
     QTC_ASSERT(!m_isHandlingError, return);
     QTC_ASSERT(m_reader, return);
 
-    m_reader->generateProjectTree(root, allFiles);
+    m_reader->generateProjectTree(root, allFiles, errorMessage);
 }
 
-CppTools::RawProjectParts BuildDirManager::createRawProjectParts() const
+CppTools::RawProjectParts BuildDirManager::createRawProjectParts(QString &errorMessage) const
 {
     QTC_ASSERT(!m_isHandlingError, return {});
     QTC_ASSERT(m_reader, return {});
-    return m_reader->createRawProjectParts();
+    return m_reader->createRawProjectParts(errorMessage);
 }
 
 void BuildDirManager::clearCache()
@@ -344,7 +349,7 @@ static CMakeBuildTarget utilityTarget(const QString &title, const BuildDirManage
     return target;
 }
 
-QList<CMakeBuildTarget> BuildDirManager::takeBuildTargets() const
+QList<CMakeBuildTarget> BuildDirManager::takeBuildTargets(QString &errorMessage) const
 {
     QList<CMakeBuildTarget> result = { utilityTarget(CMakeBuildStep::allTarget(), this),
                                        utilityTarget(CMakeBuildStep::cleanTarget(), this),
@@ -353,7 +358,8 @@ QList<CMakeBuildTarget> BuildDirManager::takeBuildTargets() const
     QTC_ASSERT(!m_isHandlingError, return result);
 
     if (m_reader) {
-        result.append(Utils::filtered(m_reader->takeBuildTargets(), [](const CMakeBuildTarget &bt) {
+        result.append(Utils::filtered(m_reader->takeBuildTargets(errorMessage),
+                                      [](const CMakeBuildTarget &bt) {
             return bt.title != CMakeBuildStep::allTarget()
                     && bt.title != CMakeBuildStep::cleanTarget()
                     && bt.title != CMakeBuildStep::installTarget()
@@ -363,12 +369,12 @@ QList<CMakeBuildTarget> BuildDirManager::takeBuildTargets() const
     return result;
 }
 
-CMakeConfig BuildDirManager::takeCMakeConfiguration() const
+CMakeConfig BuildDirManager::takeCMakeConfiguration(QString &errorMessage) const
 {
     if (!m_reader)
         return CMakeConfig();
 
-    CMakeConfig result = m_reader->takeParsedConfiguration();
+    CMakeConfig result = m_reader->takeParsedConfiguration(errorMessage);
     for (auto &ci : result)
         ci.inCMakeCache = true;
 

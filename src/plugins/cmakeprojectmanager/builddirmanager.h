@@ -79,11 +79,12 @@ public:
     void parse(int reparseParameters);
 
     void generateProjectTree(CMakeProjectNode *root,
-                             const QList<const ProjectExplorer::FileNode *> &allFiles) const;
-    CppTools::RawProjectParts createRawProjectParts() const;
+                             const QList<const ProjectExplorer::FileNode *> &allFiles,
+                             QString &errorMessage) const;
+    CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) const;
 
-    QList<CMakeBuildTarget> takeBuildTargets() const;
-    CMakeConfig takeCMakeConfiguration() const;
+    QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) const;
+    CMakeConfig takeCMakeConfiguration(QString &errorMessage) const;
 
     static CMakeConfig parseCMakeConfiguration(const Utils::FilePath &cacheFile,
                                               QString *errorMessage);

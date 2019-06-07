@@ -56,11 +56,12 @@ public:
 
     bool isParsing() const final;
 
-    QList<CMakeBuildTarget> takeBuildTargets() final;
-    CMakeConfig takeParsedConfiguration() final;
+    QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) final;
+    CMakeConfig takeParsedConfiguration(QString &errorMessage) final;
     void generateProjectTree(CMakeProjectNode *root,
-                             const QList<const ProjectExplorer::FileNode *> &allFiles) final;
-    CppTools::RawProjectParts createRawProjectParts() const final;
+                             const QList<const ProjectExplorer::FileNode *> &allFiles,
+                             QString &errorMessage) final;
+    CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) const final;
 
 private:
     void extractData();

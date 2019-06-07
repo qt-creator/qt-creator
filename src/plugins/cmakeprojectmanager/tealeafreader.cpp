@@ -204,23 +204,22 @@ bool TeaLeafReader::isParsing() const
     return m_cmakeProcess && m_cmakeProcess->state() != QProcess::NotRunning;
 }
 
-QList<CMakeBuildTarget> TeaLeafReader::takeBuildTargets()
+QList<CMakeBuildTarget> TeaLeafReader::takeBuildTargets(QString &errorMessage)
 {
+    Q_UNUSED(errorMessage)
     return m_buildTargets;
 }
 
-CMakeConfig TeaLeafReader::takeParsedConfiguration()
+CMakeConfig TeaLeafReader::takeParsedConfiguration(QString &errorMessage)
 {
     const FilePath cacheFile = m_parameters.workDirectory.pathAppended("CMakeCache.txt");
 
     if (!cacheFile.exists())
         return { };
 
-    QString errorMessage;
     CMakeConfig result = BuildDirManager::parseCMakeConfiguration(cacheFile, &errorMessage);
 
     if (!errorMessage.isEmpty()) {
-        emit errorOccured(errorMessage);
         return { };
     }
 
@@ -229,16 +228,19 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration()
     const FilePath canonicalSourceOfBuildDir = sourceOfBuildDir.canonicalPath();
     const FilePath canonicalSourceDirectory = m_parameters.sourceDirectory.canonicalPath();
     if (canonicalSourceOfBuildDir != canonicalSourceDirectory) { // Uses case-insensitive compare where appropriate
-        emit errorOccured(tr("The build directory is not for %1 but for %2")
+        errorMessage = tr("The build directory is not for %1 but for %2")
                           .arg(canonicalSourceOfBuildDir.toUserOutput(),
-                               canonicalSourceDirectory.toUserOutput()));
+                               canonicalSourceDirectory.toUserOutput());
         return { };
     }
     return result;
 }
 
-void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<const FileNode *> &allFiles)
+void TeaLeafReader::generateProjectTree(CMakeProjectNode *root,
+                                        const QList<const FileNode *> &allFiles,
+                                        QString &errorMessage)
 {
+    Q_UNUSED(errorMessage)
     if (m_files.size() == 0)
         return;
 
@@ -317,8 +319,9 @@ static void processCMakeIncludes(const CMakeBuildTarget &cbt, const ToolChain *t
     }
 }
 
-CppTools::RawProjectParts TeaLeafReader::createRawProjectParts() const
+CppTools::RawProjectParts TeaLeafReader::createRawProjectParts(QString &errorMessage) const
 {
+    Q_UNUSED(errorMessage)
     const ToolChain *tcCxx = ToolChainManager::findToolChain(m_parameters.cxxToolChainId);
     const ToolChain *tcC = ToolChainManager::findToolChain(m_parameters.cToolChainId);
     const FilePath sysroot = m_parameters.sysRoot;
