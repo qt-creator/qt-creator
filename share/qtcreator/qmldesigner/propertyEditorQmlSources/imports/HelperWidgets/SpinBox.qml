@@ -91,7 +91,7 @@ Item {
             }
         }
 
-        textColor: colorLogic.textColor
+        labelColor: colorLogic.textColor
 
         onCompressedValueModified: {
             if (backendValue.value !== realValue)

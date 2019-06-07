@@ -70,7 +70,7 @@ Rectangle {
             name: "default"
             when: myControl.enabled && !actionIndicator.hover
                   && !actionIndicator.pressed && !myControl.hover
-                  && !myControl.activeFocus && !myControl.drag
+                  && !myControl.edit && !myControl.drag
             PropertyChanges {
                 target: actionIndicator
                 color: StudioTheme.Values.themeControlBackground
@@ -80,7 +80,7 @@ Rectangle {
         State {
             name: "hovered"
             when: actionIndicator.hover && !actionIndicator.pressed
-                  && !myControl.activeFocus && !myControl.drag
+                  && !myControl.edit && !myControl.drag
             PropertyChanges {
                 target: actionIndicatorIcon
                 scale: 1.2
@@ -89,7 +89,7 @@ Rectangle {
         State {
             name: "globalHover"
             when: myControl.hover && !actionIndicator.hover
-                  && !actionIndicator.pressed && !myControl.activeFocus
+                  && !actionIndicator.pressed && !myControl.edit
                   && !myControl.drag
             PropertyChanges {
                 target: actionIndicator
@@ -99,7 +99,7 @@ Rectangle {
         },
         State {
             name: "edit"
-            when: myControl.activeFocus
+            when: myControl.edit
             PropertyChanges {
                 target: actionIndicator
                 color: StudioTheme.Values.themeFocusEdit

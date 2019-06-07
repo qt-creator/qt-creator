@@ -40,7 +40,7 @@ T.AbstractButton {
     height: StudioTheme.Values.height
     width: StudioTheme.Values.height
     z: myButton.checked ? 10 : 3
-    activeFocusOnTab: false // TODO Decision pending. Focus for AbstractButtons?
+    activeFocusOnTab: false
 
     background: Rectangle {
         id: buttonBackground

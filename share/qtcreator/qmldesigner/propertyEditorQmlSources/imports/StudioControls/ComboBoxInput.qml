@@ -32,7 +32,7 @@ TextInput {
 
     property T.Control myControl
 
-    property bool edit: false
+    property bool edit: textInput.activeFocus
     property bool drag: false
 
     z: 2
@@ -99,7 +99,7 @@ TextInput {
     states: [
         State {
             name: "default"
-            when: myControl.enabled && !textInput.activeFocus
+            when: myControl.enabled && !textInput.edit
                   && !mouseArea.containsMouse && !myControl.drag
             PropertyChanges {
                 target: textInputArea
@@ -113,7 +113,7 @@ TextInput {
         },
         State {
             name: "hovered"
-            when: myControl.hover && !textInput.activeFocus && !myControl.drag
+            when: myControl.hover && !textInput.edit && !myControl.drag
             PropertyChanges {
                 target: textInputArea
                 color: StudioTheme.Values.themeHoverHighlight
@@ -122,7 +122,7 @@ TextInput {
         },
         State {
             name: "focus"
-            when: textInput.activeFocus && !myControl.editable
+            when: textInput.edit && !myControl.editable
             PropertyChanges {
                 target: textInputArea
                 color: StudioTheme.Values.themeFocusEdit
@@ -131,7 +131,7 @@ TextInput {
         },
         State {
             name: "edit"
-            when: textInput.activeFocus && myControl.editable
+            when: textInput.edit && myControl.editable
             extend: "focus"
             PropertyChanges {
                 target: tapHandler
