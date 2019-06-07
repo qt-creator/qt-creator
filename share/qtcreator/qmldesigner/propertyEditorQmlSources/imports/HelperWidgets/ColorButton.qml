@@ -293,7 +293,7 @@ Item {
             Row {
                 z: 2
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "G"
                     width: 16
                     color: "#eee"
@@ -322,7 +322,7 @@ Item {
             Row {
                 z: 1
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "B"
                     width: 16
                     color: "#eee"
@@ -350,7 +350,7 @@ Item {
             Row {
                 z: 0
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "A"
                     width: 16
                     color: "#eee"
@@ -399,7 +399,7 @@ Item {
             Row {
                 z: 2
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "S"
                     width: 16
                     color: "#eee"
@@ -422,7 +422,7 @@ Item {
             Row {
                 z: 1
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "L"
                     width: 16
                     color: "#eee"
