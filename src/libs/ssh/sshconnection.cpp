@@ -231,7 +231,7 @@ void SshConnection::disconnectFromHost()
     case Connecting:
     case Connected:
         if (!d->sharingEnabled) {
-            emitDisconnected();
+            QTimer::singleShot(0, this, &SshConnection::emitDisconnected);
             return;
         }
         d->state = Disconnecting;
