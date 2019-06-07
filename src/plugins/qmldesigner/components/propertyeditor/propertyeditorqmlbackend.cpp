@@ -481,7 +481,9 @@ static NodeMetaInfo findCommonSuperClass(const NodeMetaInfo &first, const NodeMe
 
 NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
 {
-    QTC_ASSERT(node.isValid(), return {});
+    if (!node.isValid())
+        return {};
+
     QTC_ASSERT(node.metaInfo().isValid(), return {});
 
     AbstractView *view = node.view();
