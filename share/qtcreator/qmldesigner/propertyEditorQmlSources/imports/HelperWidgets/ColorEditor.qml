@@ -639,7 +639,8 @@ Column {
                     spacing: 2
                     Column {
                         spacing: 5
-                        Text {
+                        Label {
+                            width: parent.width
                             text: qsTr("Original")
                             color: "#eee"
                         }
@@ -664,7 +665,8 @@ Column {
 
                     Column {
                         spacing: 5
-                        Text {
+                        Label {
+                            width: parent.width
                             text: qsTr("New")
                             color: "#eee"
                         }
@@ -682,7 +684,8 @@ Column {
 
                 Column {
                     spacing: 5
-                    Text {
+                    Label {
+                        width: parent.width
                         text: qsTr("Recent")
                         color: "#eee"
                         elide: Text.ElideRight
