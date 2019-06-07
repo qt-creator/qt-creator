@@ -108,8 +108,7 @@ Item {
 
             PropertyChanges {
                 target: translationIndicatorBackground
-                //color: StudioTheme.Values.themeFocusDrag // TODO
-                color: "red"
+                color: StudioTheme.Values.themeInteraction // TODO
             }
         },
         State {

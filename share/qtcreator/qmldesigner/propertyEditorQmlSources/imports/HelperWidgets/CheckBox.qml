@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import StudioControls 1.0 as Controls
+import StudioControls 1.0 as StudioControls
 import QtQuick.Controls.Styles 1.1
 
-Controls.CheckBox {
+StudioControls.CheckBox {
     id: checkBox
 
     property variant backendValue
@@ -47,14 +47,14 @@ Controls.CheckBox {
         id: colorLogic
         backendValue: checkBox.backendValue
         onValueFromBackendChanged: {
-            if (checkBox.checked !== colorLogic.valueFromBackend)
-                checkBox.checked = colorLogic.valueFromBackend;
+            if (colorLogic.valueFromBackend !== undefined
+                    && checkBox.checked !== colorLogic.valueFromBackend)
+                checkBox.checked = colorLogic.valueFromBackend
         }
     }
 
     onCheckedChanged: {
         if (backendValue.value !== checkBox.checked)
-            backendValue.value = checkBox.checked;
+            backendValue.value = checkBox.checked
     }
-
 }

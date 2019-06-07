@@ -25,6 +25,7 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
+import StudioTheme 1.0 as StudioTheme
 
 ButtonRow {
 
@@ -34,25 +35,31 @@ ButtonRow {
     property variant strikeout: backendValues.font_strikeout
 
     BoolButtonRowButton {
-        standardIconSource: "image://icons/style-bold"
-        highlightedIconSource: "image://icons/style-bold-h"
+        buttonIcon: StudioTheme.Constants.fontStyleBold
         backendValue: bold
     }
+    Item {
+        width: 4
+        height: 4
+    }
     BoolButtonRowButton {
-        standardIconSource: "image://icons/style-italic"
-        highlightedIconSource: "image://icons/style-italic-h"
+        buttonIcon: StudioTheme.Constants.fontStyleItalic
         backendValue: italic
     }
+    Item {
+        width: 4
+        height: 4
+    }
     BoolButtonRowButton {
-        standardIconSource: "image://icons/style-underline"
-        highlightedIconSource: "image://icons/style-underline-h"
+        buttonIcon: StudioTheme.Constants.fontStyleUnderline
         backendValue: underline
     }
-
+    Item {
+        width: 4
+        height: 4
+    }
     BoolButtonRowButton {
-        standardIconSource: "image://icons/style-strikeout"
-        highlightedIconSource: "image://icons/style-strikeout-h"
+        buttonIcon: StudioTheme.Constants.fontStyleStrikethrough
         backendValue: strikeout
     }
-
 }

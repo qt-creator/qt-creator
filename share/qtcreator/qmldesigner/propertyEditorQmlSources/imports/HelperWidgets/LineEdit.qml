@@ -24,17 +24,18 @@
 ****************************************************************************/
 
 import QtQuick 2.2
-import StudioControls 1.0 as Controls
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 import QtQuick.Controls.Styles 1.0
 import QtQuickDesignerTheme 1.0
 
-Controls.TextField {
+StudioControls.TextField {
     id: lineEdit
 
     property variant backendValue
     property color borderColor: "#222"
     property color highlightColor: "orange"
-    color: colorLogic.textColor
+    color: lineEdit.edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
 
     property bool showTranslateCheckBox: true
     translationIndicatorVisible: showTranslateCheckBox

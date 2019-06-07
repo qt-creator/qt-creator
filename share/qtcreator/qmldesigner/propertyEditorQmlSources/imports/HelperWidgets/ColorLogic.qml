@@ -28,20 +28,21 @@ import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.0
 import QtQuickDesignerTheme 1.0
 import "Constants.js" as Constants
+import StudioTheme 1.0 as StudioTheme
 
 QtObject {
     id: innerObject
 
     property variant backendValue
-    property color textColor: Theme.color(Theme.PanelTextColorLight)
+    property color textColor: StudioTheme.Values.themeTextColor//Theme.color(Theme.PanelTextColorLight)
     property variant valueFromBackend: backendValue.value;
     property bool baseStateFlag: isBaseState;
     property bool isInModel: backendValue.isInModel;
     property bool isInSubState: backendValue.isInSubState;
     property bool highlight: textColor === __changedTextColor
 
-    property color __defaultTextColor: Theme.color(Theme.PanelTextColorLight)
-    readonly property color __changedTextColor: Theme.color(Theme.QmlDesigner_HighlightColor)
+    property color __defaultTextColor: StudioTheme.Values.themeTextColor//Theme.color(Theme.PanelTextColorLight)
+    readonly property color __changedTextColor: StudioTheme.Values.themeInteraction//Theme.color(Theme.QmlDesigner_HighlightColor)
 
     onBackendValueChanged: {
         evaluate();

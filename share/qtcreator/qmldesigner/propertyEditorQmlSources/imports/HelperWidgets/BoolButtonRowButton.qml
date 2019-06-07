@@ -25,33 +25,31 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
-ButtonRowButton {
-    id: boolButtonRowButton
+StudioControls.Button {
+    id: button
 
     property variant backendValue
-
     property bool isHighlighted: false
 
-    property string standardIconSource
-    property string highlightedIconSource
-
-    leftPadding: 18
-
-    iconSource: isHighlighted ? highlightedIconSource : standardIconSource
+    iconColor: isHighlighted ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+    actionIndicatorVisible: true
+    checkable: true
 
     QtObject {
         id: innerObject
         function evaluate() {
             if (innerObject.baseStateFlag) {
-                if (boolButtonRowButton.backendValue !== null
+                if (button.backendValue !== null
                         && innerObject.isInModel) {
                     isHighlighted = true
                 } else {
                     isHighlighted = false
                 }
             } else {
-                if (boolButtonRowButton.backendValue !== null
+                if (button.backendValue !== null
                         && innerObject.isInSubState) {
                     isHighlighted = true
                 } else {
@@ -63,27 +61,30 @@ ButtonRowButton {
         property bool baseStateFlag: isBaseState
         onBaseStateFlagChanged: evaluate()
 
-        property bool isInModel: boolButtonRowButton.backendValue.isInModel
+        property bool isInModel: button.backendValue.isInModel
         onIsInModelChanged: evaluate()
 
 
-        property bool isInSubState: boolButtonRowButton.backendValue.isInSubState
+        property bool isInSubState: button.backendValue.isInSubState
         onIsInSubStateChanged: evaluate()
 
-        property variant theValue: boolButtonRowButton.backendValue.value
+        property variant theValue: button.backendValue.value
         onTheValueChanged: {
             evaluate()
-            boolButtonRowButton.checked = innerObject.theValue
+            button.checked = innerObject.theValue
         }
     }
 
     onCheckedChanged: {
-        boolButtonRowButton.backendValue.value = checked
+        button.backendValue.value = button.checked
     }
 
-    ExtendedFunctionButton {
-        backendValue: boolButtonRowButton.backendValue
-        x: 2
-        anchors.verticalCenter: parent.verticalCenter
+    ExtendedFunctionLogic {
+        id: extFuncLogic
+        backendValue: button.backendValue
     }
+
+    actionIndicator.icon.color: extFuncLogic.color
+    actionIndicator.icon.text: extFuncLogic.glyph
+    actionIndicator.onClicked: extFuncLogic.show()
 }

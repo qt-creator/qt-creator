@@ -26,6 +26,7 @@
 import QtQuick 2.1
 import QtQuick.Controls.Styles 1.1
 import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: wrapper
@@ -91,7 +92,7 @@ Item {
             }
         }
 
-        labelColor: colorLogic.textColor
+        labelColor: edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
 
         onCompressedValueModified: {
             if (backendValue.value !== realValue)

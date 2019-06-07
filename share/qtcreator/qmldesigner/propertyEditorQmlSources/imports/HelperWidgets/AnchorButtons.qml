@@ -25,23 +25,32 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
-ButtonRow {
+StudioControls.ButtonRow {
+    id: buttonRow
+
     enabled: anchorBackend.hasParent
     opacity: enabled ? 1 : 0.5
 
-    id: buttonRow
+    actionIndicatorVisible: false
 
-    ButtonRowButton {
-        iconSource: "image://icons/anchor-top"
-        tooltip: qsTr("Anchor item to the top.")
+    StudioControls.ButtonGroup {
+        id: group
+    }
+
+    StudioControls.AbstractButton {
+        checkable: true
+        buttonIcon: StudioTheme.Constants.anchorTop
+        //tooltip: qsTr("Anchor item to the top.")
 
         property bool topAnchored: anchorBackend.topAnchored
         onTopAnchoredChanged: {
             checked = topAnchored
         }
 
-        onClicked:  {
+        onClicked: {
             if (checked) {
                 if (anchorBackend.bottomAnchored)
                     anchorBackend.verticalCentered = false;
@@ -52,9 +61,10 @@ ButtonRow {
         }
     }
 
-    ButtonRowButton {
-        iconSource: "image://icons/anchor-bottom"
-        tooltip: qsTr("Anchor item to the bottom.")
+    StudioControls.AbstractButton {
+        checkable: true
+        buttonIcon: StudioTheme.Constants.anchorBottom
+        //tooltip: qsTr("Anchor item to the bottom.")
 
         property bool bottomAnchored: anchorBackend.bottomAnchored
         onBottomAnchoredChanged: {
@@ -73,9 +83,10 @@ ButtonRow {
 
     }
 
-    ButtonRowButton {
-        iconSource: "image://icons/anchor-left"
-        tooltip: qsTr("Anchor item to the left.")
+    StudioControls.AbstractButton {
+        checkable: true
+        buttonIcon: StudioTheme.Constants.anchorLeft
+        //tooltip: qsTr("Anchor item to the left.")
 
         property bool leftAnchored: anchorBackend.leftAnchored
         onLeftAnchoredChanged: {
@@ -93,9 +104,10 @@ ButtonRow {
         }
     }
 
-    ButtonRowButton {
-        iconSource: "image://icons/anchor-right"
-        tooltip: qsTr("Anchor item to the right.")
+    StudioControls.AbstractButton {
+        checkable: true
+        buttonIcon: StudioTheme.Constants.anchorRight
+        //tooltip: qsTr("Anchor item to the right.")
 
         property bool rightAnchored: anchorBackend.rightAnchored
         onRightAnchoredChanged: {
@@ -113,14 +125,15 @@ ButtonRow {
         }
     }
 
-    ButtonRowButton {
+    StudioControls.AbstractButton {
         enabled: false
     }
 
 
-    ButtonRowButton {
-        iconSource: "image://icons/anchor-fill"
-        tooltip: qsTr("Fill parent item.")
+    StudioControls.AbstractButton {
+        checkable: true
+        buttonIcon: StudioTheme.Constants.anchorFill
+        //tooltip: qsTr("Fill parent item.")
 
         property bool isFilled: anchorBackend.isFilled
         onIsFilledChanged: {
@@ -136,13 +149,14 @@ ButtonRow {
         }
     }
 
-    ButtonRowButton {
+    StudioControls.AbstractButton {
         enabled: false
     }
 
-    ButtonRowButton {
-        iconSource: "image://icons/anchor-vertical"
-        tooltip: qsTr("Anchor item vertically.")
+    StudioControls.AbstractButton {
+        checkable: true
+        buttonIcon: StudioTheme.Constants.centerVertical
+        //tooltip: qsTr("Anchor item vertically.")
 
         property bool verticalCentered: anchorBackend.verticalCentered;
         onVerticalCenteredChanged: {
@@ -162,9 +176,10 @@ ButtonRow {
         }
     }
 
-    ButtonRowButton {
-        iconSource: "image://icons/anchor-horizontal"
-        tooltip: qsTr("Anchor item horizontally.")
+    StudioControls.AbstractButton {
+        checkable: true
+        buttonIcon: StudioTheme.Constants.centerHorizontal
+        //tooltip: qsTr("Anchor item horizontally.")
 
         property bool horizontalCentered: anchorBackend.horizontalCentered;
         onHorizontalCenteredChanged: {
