@@ -172,7 +172,7 @@ Core::ShellCommand *MercurialControl::createInitialCheckoutCommand(const QString
     args << QLatin1String("clone") << extraArgs << url << localName;
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
                                            mercurialClient->processEnvironment());
-    command->addJob(mercurialClient->vcsBinary(), args, -1);
+    command->addJob({mercurialClient->vcsBinary(), args}, -1);
     return command;
 }
 

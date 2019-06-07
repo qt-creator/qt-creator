@@ -151,7 +151,7 @@ Core::ShellCommand *CvsControl::createInitialCheckoutCommand(const QString &url,
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(),
                                            QProcessEnvironment::systemEnvironment());
     command->setDisplayName(tr("CVS Checkout"));
-    command->addJob(m_plugin->client()->vcsBinary(), settings.addOptions(args), -1);
+    command->addJob({m_plugin->client()->vcsBinary(), settings.addOptions(args)}, -1);
     return command;
 }
 

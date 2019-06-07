@@ -791,8 +791,7 @@ void VcsBasePlugin::setProcessEnvironment(QProcessEnvironment *e,
 // Run a process synchronously, returning Utils::SynchronousProcessResponse
 // response struct and using the VcsBasePlugin flags as applicable
 SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
-                                                 const FilePath &binary,
-                                                 const QStringList &arguments,
+                                                 const CommandLine &cmd,
                                                  int timeOutS,
                                                  unsigned flags,
                                                  QTextCodec *outputCodec,
@@ -801,7 +800,7 @@ SynchronousProcessResponse VcsBasePlugin::runVcs(const QString &workingDir,
     VcsCommand command(workingDir, env.isEmpty() ? QProcessEnvironment::systemEnvironment() : env);
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    return command.runCommand(binary, arguments, timeOutS);
+    return command.runCommand(cmd, timeOutS);
 }
 
 } // namespace VcsBase

@@ -171,7 +171,7 @@ Core::ShellCommand *SubversionControl::createInitialCheckoutCommand(const QStrin
     args << extraArgs << url << localName;
 
     auto command = new VcsBase::VcsCommand(baseDirectory.toString(), client->processEnvironment());
-    command->addJob(client->vcsBinary(), args, -1);
+    command->addJob({client->vcsBinary(), args}, -1);
     return command;
 }
 

@@ -1452,8 +1452,9 @@ ClearCasePlugin::runCleartool(const QString &workingDir,
     }
 
     const SynchronousProcessResponse sp_resp =
-            VcsBasePlugin::runVcs(workingDir, FilePath::fromUserInput(executable),
-                                  arguments, timeOutS,
+            VcsBasePlugin::runVcs(workingDir,
+                                  {FilePath::fromUserInput(executable), arguments},
+                                  timeOutS,
                                   flags, outputCodec);
 
     response.error = sp_resp.result != SynchronousProcessResponse::Finished;

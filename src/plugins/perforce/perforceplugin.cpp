@@ -1119,7 +1119,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        VcsOutputWindow::appendCommand(workingDir, FilePath::fromString(settings().p4BinaryPath()), actualArgs);
+        VcsOutputWindow::appendCommand(workingDir, {FilePath::fromString(settings().p4BinaryPath()), actualArgs});
 
     if (flags & ShowBusyCursor)
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

@@ -77,14 +77,12 @@ const QProcessEnvironment VcsCommand::processEnvironment() const
     return env;
 }
 
-SynchronousProcessResponse VcsCommand::runCommand(const FilePath &binary,
-                                                         const QStringList &arguments, int timeoutS,
-                                                         const QString &workingDirectory,
-                                                         const ExitCodeInterpreter &interpreter)
+SynchronousProcessResponse VcsCommand::runCommand(const CommandLine &command, int timeoutS,
+                                                  const QString &workingDirectory,
+                                                  const ExitCodeInterpreter &interpreter)
 {
     SynchronousProcessResponse response
-            = Core::ShellCommand::runCommand(binary, arguments, timeoutS, workingDirectory,
-                                             interpreter);
+            = Core::ShellCommand::runCommand(command, timeoutS, workingDirectory, interpreter);
     emitRepositoryChanged(workingDirectory);
     return response;
 }

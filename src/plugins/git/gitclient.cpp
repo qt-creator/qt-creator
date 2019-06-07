@@ -2421,7 +2421,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         arguments.append(QtcProcess::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
-    VcsOutputWindow::appendCommand(workingDirectory, FilePath::fromString(binary), arguments);
+    VcsOutputWindow::appendCommand(workingDirectory, {FilePath::fromString(binary), arguments});
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;
@@ -3147,7 +3147,7 @@ VcsCommand *GitClient::vcsExecAbortable(const QString &workingDirectory,
                       | VcsCommand::ShowSuccessMessage);
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
-    command->addJob(vcsBinary(), arguments, isRebase ? 0 : command->defaultTimeoutS());
+    command->addJob({vcsBinary(), arguments}, isRebase ? 0 : command->defaultTimeoutS());
     ConflictHandler::attachToCommand(command, abortCommand);
     if (isRebase)
         GitProgressParser::attachToCommand(command);

@@ -456,12 +456,10 @@ static inline QString formatArguments(const QStringList &args)
     return rc;
 }
 
-QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir,
-                                              const FilePath &executable,
-                                              const QStringList &arguments)
+QString VcsOutputWindow::msgExecutionLogEntry(const QString &workingDir, const CommandLine &command)
 {
-    const QString args = formatArguments(arguments);
-    const QString nativeExecutable = QtcProcess::quoteArg(executable.toUserOutput());
+    const QString args = formatArguments(command.splitArguments());
+    const QString nativeExecutable = QtcProcess::quoteArg(command.executable().toUserOutput());
     if (workingDir.isEmpty())
         return tr("Running: %1 %2").arg(nativeExecutable, args) + '\n';
     return tr("Running in %1: %2 %3").
@@ -473,11 +471,9 @@ void VcsOutputWindow::appendShellCommandLine(const QString &text)
     append(filterPasswordFromUrls(text), Command, true);
 }
 
-void VcsOutputWindow::appendCommand(const QString &workingDirectory,
-                                    const FilePath &binary,
-                                    const QStringList &args)
+void VcsOutputWindow::appendCommand(const QString &workingDirectory, const CommandLine &command)
 {
-    appendShellCommandLine(msgExecutionLogEntry(workingDirectory, binary, args));
+    appendShellCommandLine(msgExecutionLogEntry(workingDirectory, command));
 }
 
 void VcsOutputWindow::appendMessage(const QString &text)

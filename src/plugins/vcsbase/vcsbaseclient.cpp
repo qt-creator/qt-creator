@@ -138,7 +138,7 @@ void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
                                    const QString &workingDirectory,
                                    const ExitCodeInterpreter &interpreter) const
 {
-    cmd->addJob(vcsBinary(), args, vcsTimeoutS(), workingDirectory, interpreter);
+    cmd->addJob({vcsBinary(), args}, vcsTimeoutS(), workingDirectory, interpreter);
     cmd->execute();
 }
 
@@ -178,15 +178,14 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
 }
 
 SynchronousProcessResponse
-VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const FilePath &binary,
-                                           const QStringList &args, unsigned flags,
-                                           int timeoutS, QTextCodec *codec) const
+VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const CommandLine &cmdLine,
+                                           unsigned flags, int timeoutS, QTextCodec *codec) const
 {
     VcsCommand command(workingDir, processEnvironment());
     command.addFlags(flags);
     if (codec)
         command.setCodec(codec);
-    return command.runCommand(binary, args, (timeoutS > 0) ? timeoutS : vcsTimeoutS());
+    return command.runCommand(cmdLine, (timeoutS > 0) ? timeoutS : vcsTimeoutS());
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const QString &workingDir)
@@ -211,7 +210,7 @@ SynchronousProcessResponse
 VcsBaseClientImpl::vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
                                            unsigned flags, int timeoutS, QTextCodec *codec) const
 {
-    return vcsFullySynchronousExec(workingDir, vcsBinary(), args, flags, timeoutS, codec);
+    return vcsFullySynchronousExec(workingDir, {vcsBinary(), args}, flags, timeoutS, codec);
 }
 
 VcsCommand *VcsBaseClientImpl::vcsExec(const QString &workingDirectory, const QStringList &arguments,
@@ -233,7 +232,7 @@ SynchronousProcessResponse VcsBaseClientImpl::vcsSynchronousExec(const QString &
                                                                  unsigned flags,
                                                                  QTextCodec *outputCodec) const
 {
-    return VcsBasePlugin::runVcs(workingDir, vcsBinary(), args, vcsTimeoutS(), flags,
+    return VcsBasePlugin::runVcs(workingDir, {vcsBinary(), args}, vcsTimeoutS(), flags,
                                  outputCodec, processEnvironment());
 }
 

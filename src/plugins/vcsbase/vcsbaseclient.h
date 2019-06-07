@@ -105,7 +105,7 @@ public:
     vcsFullySynchronousExec(const QString &workingDir, const QStringList &args,
                             unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
     Utils::SynchronousProcessResponse
-    vcsFullySynchronousExec(const QString &workingDir, const Utils::FilePath &binary, const QStringList &args,
+    vcsFullySynchronousExec(const QString &workingDir, const Utils::CommandLine &cmdLine,
                             unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
 

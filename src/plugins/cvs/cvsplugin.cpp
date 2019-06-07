@@ -1109,7 +1109,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
     }
     // Run, connect stderr to the output window
     const SynchronousProcessResponse sp_resp =
-            runVcs(workingDirectory, executable, client()->settings().addOptions(arguments),
+            runVcs(workingDirectory, {executable, client()->settings().addOptions(arguments)},
                    timeOutS, flags, outputCodec);
 
     response.result = CvsResponse::OtherError;

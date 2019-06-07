@@ -310,7 +310,7 @@ void VcsCommandPage::delayedInitialize()
 
         const QString dir = wiz->expander()->expand(job.workDirectory);
         const int timeoutS = command->defaultTimeoutS() * job.timeOutFactor;
-        command->addJob(FilePath::fromUserInput(commandString), args, timeoutS, dir);
+        command->addJob({FilePath::fromUserInput(commandString), args}, timeoutS, dir);
     }
 
     start(command);

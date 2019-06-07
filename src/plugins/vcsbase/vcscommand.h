@@ -45,8 +45,8 @@ public:
 
     const QProcessEnvironment processEnvironment() const override;
 
-    Utils::SynchronousProcessResponse runCommand(const Utils::FilePath &binary,
-                                                 const QStringList &arguments, int timeoutS,
+    Utils::SynchronousProcessResponse runCommand(const Utils::CommandLine &command,
+                                                 int timeoutS,
                                                  const QString &workDirectory = QString(),
                                                  const Utils::ExitCodeInterpreter &interpreter = Utils::defaultExitCodeInterpreter) override;
 

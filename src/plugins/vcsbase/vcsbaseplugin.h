@@ -41,7 +41,7 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Utils {
-class FilePath;
+class CommandLine;
 class SynchronousProcessResponse;
 } // namespace Utils
 
@@ -170,8 +170,7 @@ public:
     static QString source(Core::IDocument *document);
 
     static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
-                                                    const Utils::FilePath &binary,
-                                                    const QStringList &arguments,
+                                                    const Utils::CommandLine &cmd,
                                                     int timeOutS,
                                                     unsigned flags = 0,
                                                     QTextCodec *outputCodec = nullptr,

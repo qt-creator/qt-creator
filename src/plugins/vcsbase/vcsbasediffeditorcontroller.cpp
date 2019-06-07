@@ -260,7 +260,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     for (const QStringList &arg : args) {
         QTC_ASSERT(!arg.isEmpty(), continue);
 
-        d->m_command->addJob(d->m_client->vcsBinary(), arg, d->m_client->vcsTimeoutS());
+        d->m_command->addJob({d->m_client->vcsBinary(), arg}, d->m_client->vcsTimeoutS());
     }
 
     d->m_command->execute();
