@@ -126,16 +126,15 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     connect(process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &CMakeProcess::handleProcessFinished);
 
-    QString args;
-    Utils::QtcProcess::addArg(&args, srcDir);
-    Utils::QtcProcess::addArgs(&args, parameters.generatorArguments);
-    Utils::QtcProcess::addArgs(&args, arguments);
+    QStringList args(srcDir);
+    args += parameters.generatorArguments;
+    args += arguments;
+    Utils::CommandLine commandLine(cmake->cmakeExecutable(), args);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
-    Core::MessageManager::write(tr("Running \"%1 %2\" in %3.")
-                                .arg(cmake->cmakeExecutable().toUserOutput())
-                                .arg(args)
+    Core::MessageManager::write(tr("Running %1 in %2.")
+                                .arg(commandLine.toUserOutput())
                                 .arg(workDirectory.toUserOutput()));
 
     auto future = std::make_unique<QFutureInterface<void>>();
@@ -144,7 +143,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
                                    tr("Configuring \"%1\"").arg(parameters.projectName),
                                    "CMake.Configure");
 
-    process->setCommand(Utils::CommandLine(cmake->cmakeExecutable(), args, Utils::CommandLine::Raw));
+    process->setCommand(commandLine);
     emit started();
     process->start();
 
