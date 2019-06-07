@@ -487,6 +487,38 @@
     You can also reach the options page by clicking the \uicontrol {Open Settings Page}
     button.
 
+    To copy the output from the pane to the clipboard, select
+    \uicontrol {Select All} in the context menu, and then select
+    \uicontrol Copy. Save the output as a file if you want to
+    examine it later without having to build the project again.
+    This is useful for large projects that take a long time to build.
+
+    \section2 Parsing Existing Compile Output
+
+    You can use \QC's output parsers to parse output from builds done outside
+    of \QC or stored from previous build runs. By default, the parsers from the
+    kit selected for the active project are used, but you can select another
+    kit.
+
+    To parse compile output:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol {Parse Build Output}.
+            \image qtcreator-parse-build-output.png
+        \li Paste the build output in the \uicontrol {Build Output} field, or
+            select \uicontrol {Load from File} to load it from a file.
+        \li Deselect the \uicontrol {Output went to stderr} check box if the
+            parser expects issues on \c stdout.
+        \li In the \uicontrol {Use parsers from kit} field, select the kit to
+            use for parsing the output. Select \uicontrol Manage to view
+            and modify kit settings.
+        \li The parser displays the parsed output in the \uicontrol Issues
+            pane. By default, the pane is cleared before adding the new output.
+            Deselect the \uicontrol {Clear existing tasks} check box to append
+            the new output to the old output.
+        \li Select \uicontrol OK to start parsing.
+    \endlist
+
     \if defined(qtcreator)
     \section1 To-Do Entries
 
