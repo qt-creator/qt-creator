@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/optional.h>
+
 #include <QByteArray>
 #include <QList>
 
@@ -50,6 +52,7 @@ public:
                                    const QList<CMakeConfigItem> &input);
     static QStringList cmakeSplitValue(const QString &in, bool keepEmpty = false);
     static Type typeStringToType(const QByteArray &typeString);
+    static Utils::optional<bool> toBool(const QByteArray &value);
     bool isNull() const { return key.isEmpty(); }
 
     QString expandedValue(const ProjectExplorer::Kit *k) const;

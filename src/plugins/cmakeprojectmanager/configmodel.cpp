@@ -36,13 +36,6 @@
 
 namespace CMakeProjectManager {
 
-static bool isTrue(const QString &value)
-{
-    const QString lower = value.toLower();
-    return lower == QStringLiteral("true") || lower == QStringLiteral("on")
-            || lower == QStringLiteral("1") || lower == QStringLiteral("yes");
-}
-
 ConfigModel::ConfigModel(QObject *parent) : Utils::TreeModel<>(parent)
 {
     setHeader({tr("Key"), tr("Value")});
@@ -431,15 +424,17 @@ QVariant ConfigModelTreeItem::data(int column, int role) const
         }
     case 1: {
         const QString value = currentValue();
+        const auto boolValue = CMakeConfigItem::toBool(value.toUtf8());
+        const bool isTrue = boolValue.has_value() && boolValue.value();
 
         switch (role) {
         case Qt::CheckStateRole:
             return (dataItem->type == ConfigModel::DataItem::BOOLEAN)
-                    ? QVariant(isTrue(value) ? Qt::Checked : Qt::Unchecked) : QVariant();
+                    ? QVariant(isTrue ? Qt::Checked : Qt::Unchecked) : QVariant();
         case Qt::DisplayRole:
             return value;
         case Qt::EditRole:
-            return (dataItem->type == ConfigModel::DataItem::BOOLEAN) ? QVariant(isTrue(value)) : QVariant(value);
+            return (dataItem->type == ConfigModel::DataItem::BOOLEAN) ? QVariant(isTrue) : QVariant(value);
         case Qt::FontRole: {
             QFont font;
             font.setBold((dataItem->isUserChanged || dataItem->isUserNew) && !dataItem->isUnset);

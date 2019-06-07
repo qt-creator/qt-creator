@@ -148,6 +148,25 @@ CMakeConfigItem::Type CMakeConfigItem::typeStringToType(const QByteArray &type)
     return CMakeConfigItem::INTERNAL;
 }
 
+Utils::optional<bool> CMakeConfigItem::toBool(const QByteArray &value)
+{
+    // Taken from CMakes if(<constant>) documentation:
+    // "Named boolean constants are case-insensitive."
+    const QString v = QString::fromUtf8(value).toUpper();
+
+    bool isInt = false;
+    v.toInt(&isInt);
+
+    // "False if the constant is 0, OFF, NO, FALSE, N, IGNORE, NOTFOUND, the empty string, or ends in the suffix -NOTFOUND."
+    if (v == "0" || v == "OFF" || v == "NO" || v == "FALSE" || v == "N" || v == "IGNORE" || v == "NOTFOUND" || v == "" || v.endsWith("-NOTFOUND"))
+        return false;
+    // "True if the constant is 1, ON, YES, TRUE, Y, or a non-zero number."
+    if (v == "1" || v == "ON" || v == "YES" || v == "TRUE" || v == "Y" || isInt)
+        return true;
+
+    return {};
+}
+
 QString CMakeConfigItem::expandedValue(const ProjectExplorer::Kit *k) const
 {
     return expandedValue(k->macroExpander());
