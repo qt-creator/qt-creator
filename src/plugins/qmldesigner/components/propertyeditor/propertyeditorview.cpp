@@ -553,10 +553,11 @@ void PropertyEditorView::modelAttached(Model *model)
     m_locked = true;
 
     if (!m_setupCompleted) {
-        m_singleShotTimer->setSingleShot(true);
-        m_singleShotTimer->setInterval(100);
-        connect(m_singleShotTimer, &QTimer::timeout, this, &PropertyEditorView::setupPanes);
-        m_singleShotTimer->start();
+        QTimer::singleShot(50, this, [this]{
+            PropertyEditorView::setupPanes();
+            /* workaround for QTBUG-75847 */
+            reloadQml();
+        });
     }
 
     m_locked = false;
