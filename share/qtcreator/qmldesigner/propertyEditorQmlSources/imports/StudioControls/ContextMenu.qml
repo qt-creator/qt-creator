@@ -51,32 +51,32 @@ Menu {
         text: "Copy"
         enabled: myTextEdit.selectedText !== ""
         onTriggered: myTextEdit.copy()
-        shortcut: StandardKey.Copy
+        /* shortcut: StandardKey.Copy Shortcuts in QQC2 seem to override global shortcuts */
     }
     Controls2.Action {
         text: "Cut"
         enabled: myTextEdit.selectedText !== "" && !myTextEdit.readOnly
         onTriggered: myTextEdit.cut()
-        shortcut: StandardKey.Cut
+        /* shortcut: StandardKey.Cut Shortcuts in QQC2 seem to override global shortcuts */
     }
     Controls2.Action {
         text: "Paste"
         enabled: myTextEdit.canPaste
         onTriggered: myTextEdit.paste()
-        shortcut: StandardKey.Paste
+        /* shortcut: StandardKey.Paste Shortcuts in QQC2 seem to override global shortcuts */
     }
     Controls2.Action {
         text: "Delete"
         enabled: myTextEdit.selectedText !== ""
         onTriggered: myTextEdit.remove(myTextEdit.selectionStart,
                                        myTextEdit.selectionEnd)
-        shortcut: StandardKey.Delete
+        /* shortcut: StandardKey.Delete Shortcuts in QQC2 seem to override global shortcuts */
     }
     Controls2.Action {
         text: "Clear"
         enabled: myTextEdit.text !== ""
         onTriggered: myTextEdit.clear()
-        shortcut: StandardKey.DeleteCompleteLine
+        /* shortcut: StandardKey.DeleteCompleteLine  Shortcuts in QQC2 seem to override global shortcuts */
     }
 
     MenuSeparator {
