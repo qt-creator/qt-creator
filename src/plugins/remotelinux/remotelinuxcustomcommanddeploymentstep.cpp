@@ -36,7 +36,6 @@ namespace Internal {
 class RemoteLinuxCustomCommandDeploymentStepPrivate
 {
 public:
-    BaseStringAspect *commandLineAspect;
     RemoteLinuxCustomCommandDeployService service;
 };
 
@@ -46,22 +45,23 @@ RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep(B
     : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
     d = new Internal::RemoteLinuxCustomCommandDeploymentStepPrivate;
-    d->commandLineAspect = addAspect<BaseStringAspect>();
-    d->commandLineAspect->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
-    d->commandLineAspect->setLabelText(tr("Command line:"));
-    d->commandLineAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+
+    auto commandLine = addAspect<BaseStringAspect>();
+    commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
+    commandLine->setLabelText(tr("Command line:"));
+    commandLine->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+
     setDefaultDisplayName(displayName());
+
+    setInternalInitializer([this, commandLine] {
+        d->service.setCommandLine(commandLine->value().trimmed());
+        return d->service.isDeploymentPossible();
+    });
 }
 
 RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep()
 {
     delete d;
-}
-
-CheckResult RemoteLinuxCustomCommandDeploymentStep::initInternal()
-{
-    d->service.setCommandLine(d->commandLineAspect->value().trimmed());
-    return d->service.isDeploymentPossible();
 }
 
 AbstractRemoteLinuxDeployService *RemoteLinuxCustomCommandDeploymentStep::deployService() const

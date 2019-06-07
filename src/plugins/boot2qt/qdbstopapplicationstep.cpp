@@ -42,6 +42,7 @@ QdbStopApplicationStep::QdbStopApplicationStep(ProjectExplorer::BuildStepList *b
     d = new QdbStopApplicationStepPrivate;
     setDefaultDisplayName(stepDisplayName());
     setWidgetExpandedByDefault(false);
+    setInternalInitializer([this] { return deployService()->isDeploymentPossible(); });
 }
 
 QdbStopApplicationStep::~QdbStopApplicationStep()
@@ -52,11 +53,6 @@ QdbStopApplicationStep::~QdbStopApplicationStep()
 Core::Id QdbStopApplicationStep::stepId()
 {
     return "Qdb.StopApplicationStep";
-}
-
-RemoteLinux::CheckResult QdbStopApplicationStep::initInternal()
-{
-    return deployService()->isDeploymentPossible();
 }
 
 RemoteLinux::AbstractRemoteLinuxDeployService *QdbStopApplicationStep::deployService() const

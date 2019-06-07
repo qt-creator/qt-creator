@@ -181,38 +181,34 @@ class RsyncDeployStep::RsyncDeployStepPrivate
 {
 public:
     Internal::RsyncDeployService deployService;
-    BaseBoolAspect *ignoreMissingFilesAspect;
-    BaseStringAspect *flagsAspect;
 };
 
 RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, stepId()), d(new RsyncDeployStepPrivate)
 {
-    d->flagsAspect = addAspect<BaseStringAspect>();
-    d->flagsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
-    d->flagsAspect->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
-    d->flagsAspect->setLabelText(tr("Flags:"));
-    d->flagsAspect->setValue(defaultFlags());
+    auto flags = addAspect<BaseStringAspect>();
+    flags->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+    flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
+    flags->setLabelText(tr("Flags:"));
+    flags->setValue(defaultFlags());
 
-    d->ignoreMissingFilesAspect = addAspect<BaseBoolAspect>();
-    d->ignoreMissingFilesAspect
-            ->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
-    d->ignoreMissingFilesAspect->setLabel(tr("Ignore missing files"));
-    d->ignoreMissingFilesAspect->setValue(false);
+    auto ignoreMissingFiles = addAspect<BaseBoolAspect>();
+    ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
+    ignoreMissingFiles->setLabel(tr("Ignore missing files"));
+    ignoreMissingFiles->setValue(false);
 
     setDefaultDisplayName(displayName());
+
+    setInternalInitializer([this, flags, ignoreMissingFiles] {
+        d->deployService.setIgnoreMissingFiles(ignoreMissingFiles->value());
+        d->deployService.setFlags(flags->value());
+        return d->deployService.isDeploymentPossible();
+    });
 }
 
 RsyncDeployStep::~RsyncDeployStep()
 {
     delete d;
-}
-
-CheckResult RsyncDeployStep::initInternal()
-{
-    d->deployService.setIgnoreMissingFiles(d->ignoreMissingFilesAspect->value());
-    d->deployService.setFlags(d->flagsAspect->value());
-    return d->deployService.isDeploymentPossible();
 }
 
 AbstractRemoteLinuxDeployService *RsyncDeployStep::deployService() const

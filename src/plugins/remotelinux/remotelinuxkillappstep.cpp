@@ -42,16 +42,15 @@ RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Core::Id id)
 {
     setDefaultDisplayName(displayName());
     setWidgetExpandedByDefault(false);
-}
 
-CheckResult RemoteLinuxKillAppStep::initInternal()
-{
-    Target * const theTarget = target();
-    QTC_ASSERT(theTarget, return CheckResult::failure());
-    RunConfiguration * const rc = theTarget->activeRunConfiguration();
-    const QString remoteExe = rc ? rc->runnable().executable : QString();
-    m_service->setRemoteExecutable(remoteExe);
-    return CheckResult::success();
+    setInternalInitializer([this] {
+        Target * const theTarget = target();
+        QTC_ASSERT(theTarget, return CheckResult::failure());
+        RunConfiguration * const rc = theTarget->activeRunConfiguration();
+        const QString remoteExe = rc ? rc->runnable().executable : QString();
+        m_service->setRemoteExecutable(remoteExe);
+        return CheckResult::success();
+    });
 }
 
 AbstractRemoteLinuxDeployService *RemoteLinuxKillAppStep::deployService() const

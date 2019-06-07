@@ -81,6 +81,10 @@ QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(ProjectExplorer::BuildStepList *bsl
     d = new QdbMakeDefaultAppStepPrivate;
     setDefaultDisplayName(stepDisplayName());
 
+    setInternalInitializer([this] {
+        d->deployService.setMakeDefault(d->makeDefault);
+        return deployService()->isDeploymentPossible();
+    });
 }
 
 QdbMakeDefaultAppStep::~QdbMakeDefaultAppStep()
@@ -91,12 +95,6 @@ QdbMakeDefaultAppStep::~QdbMakeDefaultAppStep()
 Core::Id QdbMakeDefaultAppStep::stepId()
 {
     return "Qdb.MakeDefaultAppStep";
-}
-
-RemoteLinux::CheckResult QdbMakeDefaultAppStep::initInternal()
-{
-    d->deployService.setMakeDefault(d->makeDefault);
-    return deployService()->isDeploymentPossible();
 }
 
 RemoteLinux::AbstractRemoteLinuxDeployService *QdbMakeDefaultAppStep::deployService() const

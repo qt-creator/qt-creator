@@ -36,10 +36,7 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace Internal {
 
-const char PathToCheckAspectId[] = "PathToCheckAspectId";
 const char PathToCheckKey[] = "RemoteLinux.CheckForFreeDiskSpaceStep.PathToCheck";
-
-const char RequiredSpaceAspectId[] = "RequiredSpaceAspectId";
 const char RequiredSpaceKey[] = "RemoteLinux.CheckForFreeDiskSpaceStep.RequiredSpace";
 
 class RemoteLinuxCheckForFreeDiskSpaceStepPrivate
@@ -59,34 +56,29 @@ RemoteLinuxCheckForFreeDiskSpaceStep::RemoteLinuxCheckForFreeDiskSpaceStep(Build
     setDefaultDisplayName(displayName());
 
     auto pathToCheckAspect = addAspect<BaseStringAspect>();
-    pathToCheckAspect->setId(PathToCheckAspectId);
     pathToCheckAspect->setSettingsKey(PathToCheckKey);
     pathToCheckAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     pathToCheckAspect->setValue("/");
     pathToCheckAspect->setLabelText(tr("Remote path to check for free space:"));
 
     auto requiredSpaceAspect = addAspect<BaseIntegerAspect>();
-    requiredSpaceAspect->setId(RequiredSpaceAspectId);
     requiredSpaceAspect->setSettingsKey(RequiredSpaceKey);
     requiredSpaceAspect->setLabel(tr("Required disk space:"));
     requiredSpaceAspect->setDisplayScaleFactor(1024*1024);
     requiredSpaceAspect->setValue(5*1024*1024);
     requiredSpaceAspect->setSuffix(tr("MB"));
     requiredSpaceAspect->setRange(1, std::numeric_limits<int>::max());
+
+    setInternalInitializer([this, pathToCheckAspect, requiredSpaceAspect] {
+        d->deployService.setPathToCheck(pathToCheckAspect->value());
+        d->deployService.setRequiredSpaceInBytes(requiredSpaceAspect->value());
+        return CheckResult::success();
+    });
 }
 
 RemoteLinuxCheckForFreeDiskSpaceStep::~RemoteLinuxCheckForFreeDiskSpaceStep()
 {
     delete d;
-}
-
-CheckResult RemoteLinuxCheckForFreeDiskSpaceStep::initInternal()
-{
-    d->deployService.setPathToCheck(
-        static_cast<BaseStringAspect *>(aspect(PathToCheckAspectId))->value());
-    d->deployService.setRequiredSpaceInBytes(
-        static_cast<BaseIntegerAspect *>(aspect(RequiredSpaceAspectId))->value());
-    return CheckResult::success();
 }
 
 AbstractRemoteLinuxDeployService *RemoteLinuxCheckForFreeDiskSpaceStep::deployService() const

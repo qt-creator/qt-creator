@@ -43,7 +43,6 @@ public:
     static QString stepDisplayName();
 
 protected:
-    RemoteLinux::CheckResult initInternal() final;
     RemoteLinux::AbstractRemoteLinuxDeployService *deployService() const final;
 
 private:

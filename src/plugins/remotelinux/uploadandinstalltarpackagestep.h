@@ -55,8 +55,6 @@ class REMOTELINUX_EXPORT UploadAndInstallTarPackageStep : public AbstractRemoteL
 public:
     explicit UploadAndInstallTarPackageStep(ProjectExplorer::BuildStepList *bsl);
 
-    CheckResult initInternal() override;
-
     static Core::Id stepId();
     static QString displayName();
 

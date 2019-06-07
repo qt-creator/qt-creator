@@ -59,8 +59,6 @@ private:
     AbstractRemoteLinuxDeployService *deployService() const override;
     void doRun() override;
 
-    CheckResult initInternal() override;
-
     class RsyncDeployStepPrivate;
     RsyncDeployStepPrivate * const d;
 };

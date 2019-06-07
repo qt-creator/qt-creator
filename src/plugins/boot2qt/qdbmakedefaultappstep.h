@@ -47,7 +47,6 @@ public:
     bool makeDefault() const;
 
 protected:
-    RemoteLinux::CheckResult initInternal() override;
     RemoteLinux::AbstractRemoteLinuxDeployService *deployService() const override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool fromMap(const QVariantMap &map) override;

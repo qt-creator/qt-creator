@@ -42,7 +42,6 @@ public:
     static QString displayName();
 
 private:
-    CheckResult initInternal() override;
     AbstractRemoteLinuxDeployService *deployService() const override;
 
     Internal::RemoteLinuxCustomCommandDeploymentStepPrivate *d;

@@ -67,23 +67,22 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
     m_deployService = new UploadAndInstallTarPackageService(this);
     setDefaultDisplayName(displayName());
     setWidgetExpandedByDefault(false);
-}
 
-CheckResult UploadAndInstallTarPackageStep::initInternal()
-{
-    const TarPackageCreationStep *pStep = nullptr;
+    setInternalInitializer([this] {
+        const TarPackageCreationStep *pStep = nullptr;
 
-    for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
-        if (step == this)
-            break;
-        if ((pStep = dynamic_cast<TarPackageCreationStep *>(step)))
-            break;
-    }
-    if (!pStep)
-        return CheckResult::failure(tr("No tarball creation step found."));
+        for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
+            if (step == this)
+                break;
+            if ((pStep = dynamic_cast<TarPackageCreationStep *>(step)))
+                break;
+        }
+        if (!pStep)
+            return CheckResult::failure(tr("No tarball creation step found."));
 
-    m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return m_deployService->isDeploymentPossible();
+        m_deployService->setPackageFilePath(pStep->packageFilePath());
+        return m_deployService->isDeploymentPossible();
+    });
 }
 
 Core::Id UploadAndInstallTarPackageStep::stepId()

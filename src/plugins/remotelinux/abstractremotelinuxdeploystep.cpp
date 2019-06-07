@@ -40,6 +40,7 @@ class AbstractRemoteLinuxDeployStepPrivate
 {
 public:
     bool hasError;
+    std::function<CheckResult()> internalInit;
 };
 
 } // namespace Internal
@@ -47,6 +48,11 @@ public:
 AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl, Core::Id id)
     : BuildStep(bsl, id), d(new Internal::AbstractRemoteLinuxDeployStepPrivate)
 {
+}
+
+void AbstractRemoteLinuxDeployStep::setInternalInitializer(const std::function<CheckResult ()> &init)
+{
+    d->internalInit = init;
 }
 
 AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()
@@ -70,7 +76,9 @@ QVariantMap AbstractRemoteLinuxDeployStep::toMap() const
 bool AbstractRemoteLinuxDeployStep::init()
 {
     deployService()->setTarget(target());
-    const CheckResult canDeploy = initInternal();
+
+    QTC_ASSERT(d->internalInit, return false);
+    const CheckResult canDeploy = d->internalInit();
     if (!canDeploy) {
         emit addOutput(tr("Cannot deploy: %1").arg(canDeploy.errorMessage()),
                        OutputFormat::ErrorMessage);

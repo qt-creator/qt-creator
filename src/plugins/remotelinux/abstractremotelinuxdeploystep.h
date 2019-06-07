@@ -51,7 +51,8 @@ protected:
     void doCancel() override;
 
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
-    virtual CheckResult initInternal() = 0;
+
+    void setInternalInitializer(const std::function<CheckResult()> &init);
 
 private:
     void handleProgressMessage(const QString &message);
