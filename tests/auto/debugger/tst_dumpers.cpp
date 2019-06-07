@@ -94,7 +94,7 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
             = Utils::FilePath::fromString(QString::fromLocal8Bit(qgetenv("COMSPEC")));
     // Windows SDK setup scripts require command line switches for environment expansion.
     QString cmdArguments = " /E:ON /V:ON /c \"" + QDir::toNativeSeparators(saver.fileName()) + '"';
-    run.setCommand(Utils::CommandLine(cmdPath, cmdArguments));
+    run.setCommand(Utils::CommandLine(cmdPath, cmdArguments, Utils::CommandLine::Raw));
     run.start();
 
     if (!run.waitForStarted()) {
