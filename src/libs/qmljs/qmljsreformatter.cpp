@@ -96,6 +96,7 @@ class Rewriter : protected Visitor
     int _lastNewlineOffset = -1;
     bool _hadEmptyLine = false;
     int _binaryExpDepth = 0;
+    bool _hasOpenComment = false;
 
 public:
     Rewriter(Document::Ptr doc)
@@ -201,6 +202,9 @@ protected:
 
     void out(const QString &str, const SourceLocation &lastLoc = SourceLocation())
     {
+        if (_hasOpenComment) {
+            newLine();
+        }
         if (lastLoc.isValid()) {
             QList<SourceLocation> comments = _doc->engine()->comments();
             for (; _nextComment < comments.size(); ++_nextComment) {
@@ -371,6 +375,7 @@ protected:
     {
         // if preceded by a newline, it's an empty line!
         _hadEmptyLine = _line.trimmed().isEmpty();
+        _hasOpenComment = false;
 
         // if the preceding line wasn't empty, reindent etc.
         if (!_hadEmptyLine) {
@@ -524,6 +529,7 @@ protected:
 
                 out(" ");
                 out(toString(nextCommentLoc));
+                _hasOpenComment = true;
             }
         }
     }
