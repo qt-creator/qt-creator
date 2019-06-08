@@ -594,9 +594,10 @@ protected:
     bool visit(UiObjectInitializer *ast) override
     {
         out(ast->lbraceToken);
-        if (ast->members)
+        if (ast->members) {
             lnAcceptIndented(ast->members);
-        newLine();
+            newLine();
+        }
         out(ast->rbraceToken);
         return false;
     }
@@ -708,8 +709,10 @@ protected:
     bool visit(ObjectPattern *ast) override
     {
         out(ast->lbraceToken);
-        lnAcceptIndented(ast->properties);
-        newLine();
+        if (ast->properties) {
+            lnAcceptIndented(ast->properties);
+            newLine();
+        }
         out(ast->rbraceToken);
         return false;
     }

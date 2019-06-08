@@ -10,3 +10,5 @@ var x = {
     },
     "z": 12
 }
+
+var empty_object = {}

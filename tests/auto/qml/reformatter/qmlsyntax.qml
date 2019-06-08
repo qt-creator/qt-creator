@@ -45,4 +45,6 @@ Text {
     function foo(a, b) {
         x = a + 12 * b
     }
+
+    value: Rectangle {}
 }
