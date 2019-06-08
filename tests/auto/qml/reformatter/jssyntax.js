@@ -32,6 +32,12 @@ while (true) {
     for (var x in a) {
         print(a[x])
     }
+    for (let x in a) {
+        print(a[x])
+    }
+    for (const x in a) {
+        print(a[x])
+    }
 
     do {
         a = x

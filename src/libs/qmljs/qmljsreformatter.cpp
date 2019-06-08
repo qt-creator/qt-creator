@@ -962,7 +962,15 @@ protected:
 
     bool visit(PatternElement *ast) override
     {
-
+        if (ast->isForDeclaration) {
+            if (ast->scope == VariableScope::Var) {
+                out("var ");
+            } else if (ast->scope == VariableScope::Let) {
+                out("let ");
+            } else if (ast->scope == VariableScope::Const) {
+                out("const ");
+            }
+        }
         out(ast->identifierToken);
         if (ast->initializer) {
             if (ast->isVariableDeclaration())
@@ -1026,7 +1034,12 @@ protected:
         out(ast->forToken);
         out(" ");
         out(ast->lparenToken);
-        accept(ast->initialiser);
+        if (ast->initialiser) {
+            accept(ast->initialiser);
+        } else if (ast->declarations) {
+            out("var ");
+            accept(ast->declarations);
+        }
         out("; ", ast->firstSemicolonToken);
         accept(ast->condition);
         out("; ", ast->secondSemicolonToken);
@@ -1314,6 +1327,9 @@ protected:
     {
         for (FormalParameterList *it = ast; it; it = it->next) {
             out(it->element->bindingIdentifier.toString()); // TODO
+            if (it->next) {
+                out(", ");
+            }
         }
         return false;
     }
