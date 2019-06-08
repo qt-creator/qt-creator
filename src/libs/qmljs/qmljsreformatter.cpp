@@ -531,6 +531,8 @@ protected:
     bool visit(UiPragma *ast) override
     {
         out("pragma ", ast->pragmaToken);
+        out(ast->name.toString());
+        newLine();
         return false;
     }
 
