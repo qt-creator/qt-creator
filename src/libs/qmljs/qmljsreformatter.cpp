@@ -914,7 +914,8 @@ protected:
 
     bool visit(VariableStatement *ast) override
     {
-        out("var ", ast->declarationKindToken);
+        out(ast->declarationKindToken);
+        out(" ");
         accept(ast->declarations);
         return false;
     }

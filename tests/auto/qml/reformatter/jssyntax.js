@@ -1,6 +1,10 @@
 var x
 var y = 12
 
+var a_var = 1
+let a_let = 2
+const a_const = 3
+
 function foo(a, b) {
     x = 15
     x += 4
