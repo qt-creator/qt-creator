@@ -534,6 +534,37 @@ protected:
         return false;
     }
 
+    bool visit(UiEnumDeclaration *ast) override
+    {
+        out(ast->enumToken);
+        out(" ");
+        out(ast->name.toString());
+        out(" ");
+        out("{"); // TODO: out(ast->lbraceToken);
+        newLine();
+
+        accept(ast->members);
+
+        out(ast->rbraceToken);
+        return false;
+    }
+
+    bool visit(UiEnumMemberList *list) override
+    {
+        for (UiEnumMemberList *it = list; it; it = it->next) {
+            out(it->memberToken);
+            if (it->valueToken.isValid()) {
+                out(" = ");
+                out(it->valueToken);
+            }
+            if (it->next) {
+                out(",");
+            }
+            newLine();
+        }
+        return false;
+    }
+
     bool visit(UiImport *ast) override
     {
         out("import ", ast->importToken);
