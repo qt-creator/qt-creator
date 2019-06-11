@@ -31,8 +31,11 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QPlainTextEdit;
 class QToolButton;
 QT_END_NAMESPACE
+
+namespace Utils { class ExpandButton; }
 
 namespace ProjectExplorer {
 
@@ -113,8 +116,13 @@ private:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
+    QWidget *setupChooser();
+
     QString m_arguments;
     QPointer<Utils::FancyLineEdit> m_chooser;
+    QPointer<QPlainTextEdit> m_multiLineChooser;
+    QPointer<Utils::ExpandButton> m_multiLineButton;
+    bool m_multiLine = false;
     mutable bool m_currentlyExpanding = false;
 };
 

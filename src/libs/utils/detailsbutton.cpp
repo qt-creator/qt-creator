@@ -200,3 +200,61 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
     style()->drawPrimitive(checked ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
     return pixmap;
 }
+
+ExpandButton::ExpandButton(QWidget *parent) : QAbstractButton(parent)
+{
+    setCheckable(true);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+}
+
+QSize ExpandButton::sizeHint() const
+{
+    return {fontMetrics().horizontalAdvance(text()) + 26, HostOsInfo::isMacHost() ? 34 : 22};
+}
+
+void ExpandButton::paintEvent(QPaintEvent *e)
+{
+    QWidget::paintEvent(e);
+    QPainter p(this);
+
+    QPixmap &pixmap = isChecked() ? m_checkedPixmap : m_uncheckedPixmap;
+    if (pixmap.isNull() || pixmap.size() / pixmap.devicePixelRatio() != contentsRect().size())
+        pixmap = cacheRendering();
+    p.drawPixmap(contentsRect(), pixmap);
+
+    if (isDown()) {
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor(0, 0, 0, 20));
+        p.drawRoundedRect(rect().adjusted(1, 1, -1, -1), 1, 1);
+    }
+    if (hasFocus()) {
+        QStyleOptionFocusRect option;
+        option.initFrom(this);
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &p, this);
+    }
+}
+
+QPixmap ExpandButton::cacheRendering()
+{
+    const QSize size = contentsRect().size();
+    const qreal pixelRatio = devicePixelRatio();
+    QPixmap pixmap(size * pixelRatio);
+    pixmap.setDevicePixelRatio(pixelRatio);
+    pixmap.fill(Qt::transparent);
+    QPainter p(&pixmap);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.translate(0.5, 0.5);
+    p.setPen(Qt::NoPen);
+    p.drawRoundedRect(0, 0, size.width(), size.height(), 1, 1);
+    int arrowsize = 15;
+    QStyleOption arrowOpt;
+    arrowOpt.initFrom(this);
+    QPalette pal = arrowOpt.palette;
+    pal.setBrush(QPalette::All, QPalette::Text, QColor(0, 0, 0));
+    arrowOpt.rect = QRect(size.width() - arrowsize - 6, height() / 2 - arrowsize / 2,
+                          arrowsize, arrowsize);
+    arrowOpt.palette = pal;
+    style()->drawPrimitive(isChecked() ? QStyle::PE_IndicatorArrowUp
+                                       : QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
+    return pixmap;
+}

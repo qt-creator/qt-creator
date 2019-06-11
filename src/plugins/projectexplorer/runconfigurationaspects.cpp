@@ -32,15 +32,17 @@
 #include "runconfiguration.h"
 #include "target.h"
 
-#include <utils/utilsicons.h>
+#include <utils/detailsbutton.h>
 #include <utils/fancylineedit.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
+#include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QFormLayout>
+#include <QPlainTextEdit>
 #include <QToolButton>
 
 using namespace Utils;
@@ -286,6 +288,8 @@ void ArgumentsAspect::setArguments(const QString &arguments)
     }
     if (m_chooser && m_chooser->text() != arguments)
         m_chooser->setText(arguments);
+    if (m_multiLineChooser && m_multiLineChooser->toPlainText() != arguments)
+        m_multiLineChooser->setPlainText(arguments);
 }
 
 void ArgumentsAspect::fromMap(const QVariantMap &map)
@@ -297,25 +301,77 @@ void ArgumentsAspect::fromMap(const QVariantMap &map)
     else
         m_arguments = args.toString();
 
-    if (m_chooser)
+    m_multiLine = map.value(settingsKey() + ".multi", false).toBool();
+
+    if (m_multiLineButton)
+        m_multiLineButton->setChecked(m_multiLine);
+    if (!m_multiLine && m_chooser)
         m_chooser->setText(m_arguments);
+    if (m_multiLine && m_multiLineChooser)
+        m_multiLineChooser->setPlainText(m_arguments);
 }
 
 void ArgumentsAspect::toMap(QVariantMap &map) const
 {
     map.insert(settingsKey(), m_arguments);
+    map.insert(settingsKey() + ".multi", m_multiLine);
+}
+
+QWidget *ArgumentsAspect::setupChooser()
+{
+    if (m_multiLine) {
+        if (!m_multiLineChooser) {
+            m_multiLineChooser = new QPlainTextEdit;
+            connect(m_multiLineChooser.data(), &QPlainTextEdit::textChanged,
+                    this, [this] { setArguments(m_multiLineChooser->toPlainText()); });
+        }
+        m_multiLineChooser->setPlainText(m_arguments);
+        return m_multiLineChooser.data();
+    }
+    if (!m_chooser) {
+        m_chooser = new FancyLineEdit;
+        m_chooser->setHistoryCompleter(settingsKey());
+        connect(m_chooser.data(), &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
+    }
+    m_chooser->setText(m_arguments);
+    return m_chooser.data();
 }
 
 void ArgumentsAspect::addToConfigurationLayout(QFormLayout *layout)
 {
-    QTC_CHECK(!m_chooser);
-    m_chooser = new FancyLineEdit(layout->parentWidget());
-    m_chooser->setHistoryCompleter(settingsKey());
-    m_chooser->setText(m_arguments);
+    QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
 
-    connect(m_chooser.data(), &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
-
-    layout->addRow(tr("Command line arguments:"), m_chooser);
+    const auto container = new QWidget;
+    const auto containerLayout = new QHBoxLayout(container);
+    containerLayout->setContentsMargins(0, 0, 0, 0);
+    containerLayout->addWidget(setupChooser());
+    m_multiLineButton = new ExpandButton;
+    m_multiLineButton->setToolTip(tr("Toggle multi-line mode"));
+    m_multiLineButton->setChecked(m_multiLine);
+    connect(m_multiLineButton, &QCheckBox::clicked, this, [this](bool checked) {
+        if (m_multiLine == checked)
+            return;
+        m_multiLine = checked;
+        setupChooser();
+        QWidget *oldWidget = nullptr;
+        QWidget *newWidget = nullptr;
+        if (m_multiLine) {
+            oldWidget = m_chooser.data();
+            newWidget = m_multiLineChooser.data();
+        } else {
+            oldWidget = m_multiLineChooser.data();
+            newWidget = m_chooser.data();
+        }
+        QTC_ASSERT(!oldWidget == !newWidget, return);
+        if (oldWidget) {
+            QTC_ASSERT(oldWidget->parentWidget()->layout(), return);
+            oldWidget->parentWidget()->layout()->replaceWidget(oldWidget, newWidget);
+            delete oldWidget;
+        }
+    });
+    containerLayout->addWidget(m_multiLineButton);
+    containerLayout->setAlignment(m_multiLineButton, Qt::AlignTop);
+    layout->addRow(tr("Command line arguments:"), container);
 }
 
 /*!

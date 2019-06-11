@@ -78,4 +78,22 @@ private:
     QPixmap m_uncheckedPixmap;
     float m_fader;
 };
+
+class QTCREATOR_UTILS_EXPORT ExpandButton : public QAbstractButton
+{
+    Q_OBJECT
+
+public:
+    ExpandButton(QWidget *parent = nullptr);
+
+private:
+    void paintEvent(QPaintEvent *e) override;
+    QSize sizeHint() const override;
+
+    QPixmap cacheRendering();
+
+    QPixmap m_checkedPixmap;
+    QPixmap m_uncheckedPixmap;
+};
+
 } // namespace Utils
