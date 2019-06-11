@@ -116,7 +116,6 @@ void TestResultItem::updateDescription(const QString &description)
 static bool isSignificant(ResultType type)
 {
     switch (type) {
-    case ResultType::Skip:
     case ResultType::Benchmark:
     case ResultType::MessageInfo:
     case ResultType::MessageInternal:
