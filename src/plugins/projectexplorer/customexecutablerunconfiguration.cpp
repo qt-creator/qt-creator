@@ -255,8 +255,7 @@ Runnable CustomExecutableRunConfiguration::runnable() const
             aspect<WorkingDirectoryAspect>()->workingDirectory(macroExpander());
 
     Runnable r;
-    r.executable = executable().toString();
-    r.commandLineArguments = aspect<ArgumentsAspect>()->arguments(macroExpander());
+    r.setCommandLine(commandLine());
     r.environment = aspect<EnvironmentAspect>()->environment();
     r.workingDirectory = workingDirectory.toString();
     r.device = DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);

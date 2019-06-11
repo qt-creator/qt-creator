@@ -160,9 +160,9 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    using ExecutableGetter = std::function<Utils::FilePath()>;
-    void setExecutableGetter(const ExecutableGetter &exeGetter);
-    Utils::FilePath executable() const;
+    using CommandLineGetter = std::function<Utils::CommandLine()>;
+    void setCommandLineGetter(const CommandLineGetter &cmdGetter);
+    Utils::CommandLine commandLine() const;
 
     virtual Runnable runnable() const;
 
@@ -214,7 +214,7 @@ private:
     QString m_buildKey;
     bool m_isEnabled = false;
     std::function<Utils::OutputFormatter *(Project *)> m_outputFormatterCreator;
-    ExecutableGetter m_executableGetter;
+    CommandLineGetter m_commandLineGetter;
 };
 
 class RunConfigurationCreationInfo

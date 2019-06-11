@@ -115,6 +115,7 @@ private:
 
     QString m_arguments;
     QPointer<Utils::FancyLineEdit> m_chooser;
+    mutable bool m_currentlyExpanding = false;
 };
 
 class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public BaseBoolAspect

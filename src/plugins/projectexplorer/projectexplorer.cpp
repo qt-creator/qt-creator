@@ -1640,7 +1640,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         []() -> QString {
             if (Target *target = activeTarget()) {
                 if (RunConfiguration *rc = target->activeRunConfiguration())
-                    return rc->executable().toString();
+                    return rc->commandLine().executable().toString();
             }
             return QString();
         });

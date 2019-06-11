@@ -201,10 +201,14 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     for (const AspectFactory &factory : theAspectFactories)
         m_aspects.append(factory(target));
 
-    m_executableGetter = [this] {
+    m_commandLineGetter = [this] {
+        FilePath executable;
         if (const auto executableAspect = aspect<ExecutableAspect>())
-            return executableAspect->executable();
-        return FilePath();
+            executable = executableAspect->executable();
+        QString arguments;
+        if (const auto argumentsAspect = aspect<ArgumentsAspect>())
+            arguments = argumentsAspect->arguments(macroExpander());
+        return CommandLine{executable, arguments, CommandLine::Raw};
     };
 }
 
@@ -327,14 +331,14 @@ QVariantMap RunConfiguration::toMap() const
     return map;
 }
 
-void RunConfiguration::setExecutableGetter(const RunConfiguration::ExecutableGetter &exeGetter)
+void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
 {
-    m_executableGetter = exeGetter;
+    m_commandLineGetter = cmdGetter;
 }
 
-FilePath RunConfiguration::executable() const
+CommandLine RunConfiguration::commandLine() const
 {
-    return m_executableGetter();
+    return m_commandLineGetter();
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
@@ -392,9 +396,7 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
 Runnable RunConfiguration::runnable() const
 {
     Runnable r;
-    r.executable = executable().toString();
-    if (auto argumentsAspect = aspect<ArgumentsAspect>())
-        r.commandLineArguments = argumentsAspect->arguments(macroExpander());
+    r.setCommandLine(commandLine());
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
         r.workingDirectory = workingDirectoryAspect->workingDirectory(macroExpander()).toString();
     if (auto environmentAspect = aspect<EnvironmentAspect>())

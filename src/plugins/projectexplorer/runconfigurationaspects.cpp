@@ -264,7 +264,13 @@ ArgumentsAspect::ArgumentsAspect()
 QString ArgumentsAspect::arguments(const MacroExpander *expander) const
 {
     QTC_ASSERT(expander, return m_arguments);
-    return expander->expandProcessArgs(m_arguments);
+    if (m_currentlyExpanding)
+        return m_arguments;
+
+    m_currentlyExpanding = true;
+    const QString expanded = expander->expandProcessArgs(m_arguments);
+    m_currentlyExpanding = false;
+    return expanded;
 }
 
 QString ArgumentsAspect::unexpandedArguments() const

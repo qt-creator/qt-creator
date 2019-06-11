@@ -246,7 +246,6 @@ public:
 
 private:
     void doAdditionalSetup(const RunConfigurationCreationInfo &) final { updateTargetInformation(); }
-    Runnable runnable() const final;
 
     bool supportsDebugger() const { return true; }
     QString mainScript() const { return aspect<MainScriptAspect>()->value(); }
@@ -275,12 +274,16 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     scriptAspect->setDisplayStyle(BaseStringAspect::LabelDisplay);
 
     addAspect<LocalEnvironmentAspect>(target);
-    addAspect<ArgumentsAspect>();
+
+    auto argumentsAspect = addAspect<ArgumentsAspect>();
+
     addAspect<TerminalAspect>();
 
     setOutputFormatter<PythonOutputFormatter>();
-    setExecutableGetter([this] {
-        return FilePath::fromString(aspect<InterpreterAspect>()->value());
+    setCommandLineGetter([this, interpreterAspect, argumentsAspect] {
+        CommandLine cmd{FilePath::fromString(interpreterAspect->value()), {mainScript()}};
+        cmd.addArgs(argumentsAspect->arguments(macroExpander()), CommandLine::Raw);
+        return cmd;
     });
 
     connect(target, &Target::applicationTargetsChanged,
@@ -295,17 +298,6 @@ void PythonRunConfiguration::updateTargetInformation()
     const QString script = bti.targetFilePath.toString();
     setDefaultDisplayName(tr("Run %1").arg(script));
     aspect<MainScriptAspect>()->setValue(script);
-}
-
-Runnable PythonRunConfiguration::runnable() const
-{
-    CommandLine cmd{executable(), {mainScript()}};
-    cmd.addArgs(aspect<ArgumentsAspect>()->arguments(macroExpander()), CommandLine::Raw);
-
-    Runnable r;
-    r.setCommandLine(cmd);
-    r.environment = aspect<EnvironmentAspect>()->environment();
-    return r;
 }
 
 class PythonRunConfigurationFactory : public RunConfigurationFactory
