@@ -1043,7 +1043,6 @@ GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
     : ChannelProvider(runControl, 2)
 {
     setId("GdbServerPortsGatherer");
-    m_device = runControl->device();
 }
 
 GdbServerPortsGatherer::~GdbServerPortsGatherer() = default;
@@ -1068,11 +1067,6 @@ Port GdbServerPortsGatherer::qmlServerPort() const
 QUrl GdbServerPortsGatherer::qmlServer() const
 {
     return channel(1);
-}
-
-void GdbServerPortsGatherer::setDevice(IDevice::ConstPtr device)
-{
-    m_device = device;
 }
 
 // GdbServerRunner

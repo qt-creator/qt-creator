@@ -155,12 +155,9 @@ public:
     Utils::Port qmlServerPort() const;
     QUrl qmlServer() const;
 
-    void setDevice(ProjectExplorer::IDevice::ConstPtr device);
-
 private:
     bool m_useGdbServer = false;
     bool m_useQmlServer = false;
-    ProjectExplorer::IDevice::ConstPtr m_device;
 };
 
 class DEBUGGER_EXPORT GdbServerRunner : public ProjectExplorer::SimpleTargetRunner

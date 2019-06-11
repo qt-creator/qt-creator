@@ -1640,7 +1640,6 @@ public:
     {
         setId("AttachToRunningProcess");
         setUsePortsGatherer(true, false);
-        portsGatherer()->setDevice(runControl->device());
 
         auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
         gdbServer->setUseMulti(false);
