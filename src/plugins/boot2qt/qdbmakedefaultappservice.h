@@ -40,11 +40,10 @@ public:
     ~QdbMakeDefaultAppService();
     void setMakeDefault(bool makeDefault);
 
-private slots:
+private:
     void handleStdErr();
     void handleProcessFinished(const QString &error);
 
-private:
     bool isDeploymentNecessary() const { return true; }
     void doDeviceSetup() { handleDeviceSetupDone(true); }
     void stopDeviceSetup() { handleDeviceSetupDone(false); }

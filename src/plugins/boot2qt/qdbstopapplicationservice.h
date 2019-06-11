@@ -39,12 +39,11 @@ public:
     QdbStopApplicationService(QObject *parent = 0);
     ~QdbStopApplicationService();
 
-private slots:
+private:
     void handleProcessFinished(bool success);
     void handleStderr(const QString &output);
     void handleStdout(const QString &output);
 
-private:
     bool isDeploymentNecessary() const final { return true; }
     void doDeviceSetup() final { handleDeviceSetupDone(true); }
     void stopDeviceSetup() final { handleDeviceSetupDone(false); }

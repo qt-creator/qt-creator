@@ -42,7 +42,6 @@ public:
 
 class QdbConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
-    Q_OBJECT
 public:
     QdbConfigWidget(QdbMakeDefaultAppStep *step)
         : BuildStepConfigWidget(step)
@@ -50,8 +49,10 @@ public:
         QVBoxLayout * const mainLayout = new QVBoxLayout(this);
         mainLayout->setMargin(0);
 
-        m_makeDefaultBtn.setText(tr("Set this application to start by default"));
-        m_resetDefaultBtn.setText(tr("Reset default application"));
+        m_makeDefaultBtn.setText(
+                    QdbMakeDefaultAppStep::tr("Set this application to start by default"));
+        m_resetDefaultBtn.setText(
+                    QdbMakeDefaultAppStep::tr("Reset default application"));
 
         if (step->makeDefault())
             m_makeDefaultBtn.setChecked(true);
@@ -61,25 +62,15 @@ public:
         mainLayout->addWidget(&m_makeDefaultBtn);
         mainLayout->addWidget(&m_resetDefaultBtn);
 
-        connect(&m_makeDefaultBtn, &QRadioButton::clicked,
-                this, &QdbConfigWidget::handleMakeDefault);
-        connect(&m_resetDefaultBtn, &QRadioButton::clicked,
-                this, &QdbConfigWidget::handleResetDefault);
+        connect(&m_makeDefaultBtn, &QRadioButton::clicked, this, [step] {
+            step->setMakeDefault(true);
+        });
+        connect(&m_resetDefaultBtn, &QRadioButton::clicked, this, [step] {
+            step->setMakeDefault(false);
+        });
     }
 
 private:
-    Q_SLOT void handleMakeDefault() {
-        QdbMakeDefaultAppStep *step =
-                qobject_cast<QdbMakeDefaultAppStep *>(this->step());
-        step->setMakeDefault(true);
-    }
-
-    Q_SLOT void handleResetDefault() {
-        QdbMakeDefaultAppStep *step =
-                qobject_cast<QdbMakeDefaultAppStep *>(this->step());
-        step->setMakeDefault(false);
-    }
-
     QRadioButton m_makeDefaultBtn;
     QRadioButton m_resetDefaultBtn;
 };
@@ -152,7 +143,6 @@ QVariantMap QdbMakeDefaultAppStep::toMap() const
     map.insert(makeDefaultKey(), d->makeDefault);
     return map;
 }
+
 } // namespace Internal
 } // namespace Qdb
-
-#include "qdbmakedefaultappstep.moc"

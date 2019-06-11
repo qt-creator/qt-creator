@@ -47,16 +47,14 @@ public:
     void start();
     void stop();
 
-private slots:
-    void handleWatchMessage(const QJsonDocument &document);
-
 signals:
     void deviceEvent(DeviceEventType eventType, QMap<QString, QString> info);
     void trackerError(QString errorMessage);
 
 private:
-    QdbWatcher *m_qdbWatcher = nullptr;
+    void handleWatchMessage(const QJsonDocument &document);
 
+    QdbWatcher *m_qdbWatcher = nullptr;
 };
 
 } // namespace Internal

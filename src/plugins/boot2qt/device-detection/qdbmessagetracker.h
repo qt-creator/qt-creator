@@ -44,10 +44,9 @@ public:
 signals:
     void trackerError(QString errorMessage);
 
-private slots:
+private:
     void handleWatchMessage(const QJsonDocument &document);
 
-private:
     QdbWatcher *m_qdbWatcher = nullptr;
     QContiguousCache<QString> m_messageCache = QContiguousCache<QString>(10);
 };
