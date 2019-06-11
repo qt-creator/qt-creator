@@ -100,6 +100,7 @@ public:
     TextEditor::Keywords keywords();
     bool hasServerMode() const;
     bool hasFileApi() const;
+    QVector<std::pair<QString, int>> supportedFileApiObjects() const;
     Version version() const;
 
     bool isAutoDetected() const;

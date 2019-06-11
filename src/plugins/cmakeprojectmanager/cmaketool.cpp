@@ -61,6 +61,12 @@ namespace Internal {
 // CMakeIntrospectionData:
 // --------------------------------------------------------------------
 
+class FileApi {
+public:
+    QString kind;
+    std::pair<int, int> version;
+};
+
 class IntrospectionData
 {
 public:
@@ -73,6 +79,7 @@ public:
 
     QList<CMakeTool::Generator> m_generators;
     QMap<QString, QStringList> m_functionArgs;
+    QVector<FileApi> m_fileApis;
     QStringList m_variables;
     QStringList m_functions;
     CMakeTool::Version m_version;
@@ -250,9 +257,14 @@ bool CMakeTool::hasServerMode() const
 
 bool CMakeTool::hasFileApi() const
 {
-    readInformation(QueryType::VERSION);
-    return m_introspection->m_version.major > 3
-            || (m_introspection->m_version.major == 3 && m_introspection->m_version.minor >= 14);
+    readInformation(QueryType::SERVER_MODE);
+    return !m_introspection->m_fileApis.isEmpty();
+}
+
+QVector<std::pair<QString, int> > CMakeTool::supportedFileApiObjects() const
+{
+    readInformation(QueryType::SERVER_MODE);
+    return Utils::transform(m_introspection->m_fileApis, [](const Internal::FileApi &api) { return std::make_pair(api.kind, api.version.first); });
 }
 
 CMakeTool::Version CMakeTool::version() const
@@ -495,6 +507,15 @@ void CMakeTool::fetchFromCapabilities() const
     parseFromCapabilities(response.stdOut());
 }
 
+static int getVersion(const QVariantMap &obj, const QString value)
+{
+    bool ok;
+    int result  = obj.value(value).toInt(&ok);
+    if (!ok)
+        return -1;
+    return result;
+}
+
 void CMakeTool::parseFromCapabilities(const QString &input) const
 {
     auto doc = QJsonDocument::fromJson(input.toUtf8());
@@ -512,11 +533,32 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
                                                        gen.value("toolsetSupport").toBool()));
     }
 
+    {
+        const QVariantMap fileApis = data.value("fileApi").toMap();
+        const QVariantList requests = fileApis.value("requests").toList();
+        for (const QVariant &r: requests) {
+            const QVariantMap object = r.toMap();
+            const QString kind = object.value("kind").toString();
+            const QVariantMap versionObject = object.value("version").toMap();
+            const std::pair<int, int> version = std::make_pair(getVersion(versionObject, "major"),
+                                                               getVersion(versionObject, "minor"));
+            if (!kind.isNull() && version.first != -1 && version.second != -1)
+                m_introspection->m_fileApis.append({kind, version});
+        }
+    }
+
     const QVariantMap versionInfo = data.value("version").toMap();
     m_introspection->m_version.major = versionInfo.value("major").toInt();
     m_introspection->m_version.minor = versionInfo.value("minor").toInt();
     m_introspection->m_version.patch = versionInfo.value("patch").toInt();
     m_introspection->m_version.fullVersion = versionInfo.value("string").toByteArray();
+
+    // Fix up fileapi support for cmake 3.14:
+    if (m_introspection->m_version.major == 3 && m_introspection->m_version.minor == 14) {
+        m_introspection->m_fileApis.append({QString("codemodel"), std::make_pair(2, 0)});
+        m_introspection->m_fileApis.append({QString("cache"), std::make_pair(2, 0)});
+        m_introspection->m_fileApis.append({QString("cmakefiles"), std::make_pair(1, 0)});
+    }
 }
 
 } // namespace CMakeProjectManager
