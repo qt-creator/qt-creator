@@ -133,9 +133,13 @@ public:
     // arguments set by the user
     QString userArguments();
     void setUserArguments(const QString &arguments);
-    // QMake extra arguments. Not user editable.
+    // Extra arguments for qmake and pro file parser. Not user editable via UI.
     QStringList extraArguments() const;
     void setExtraArguments(const QStringList &args);
+    /* Extra arguments for pro file parser only. Not user editable via UI.
+     * This function is used in 3rd party plugin SailfishOS. */
+    QStringList extraParserArguments() const;
+    void setExtraParserArguments(const QStringList &args);
     QString mkspec() const;
     bool linkQmlDebuggingLibrary() const;
     void setLinkQmlDebuggingLibrary(bool enable);
@@ -174,8 +178,10 @@ private:
     Utils::FilePath m_makeExecutable;
     QString m_makeArguments;
     QString m_userArgs;
-    // Extra arguments for qmake.
+    // Extra arguments for qmake and pro file parser
     QStringList m_extraArgs;
+    // Extra arguments for pro file parser only
+    QStringList m_extraParserArgs;
 
     // last values
     enum class State { IDLE = 0, RUN_QMAKE, RUN_MAKE_QMAKE_ALL, POST_PROCESS };
