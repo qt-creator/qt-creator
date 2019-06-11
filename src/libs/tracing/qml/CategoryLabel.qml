@@ -54,6 +54,15 @@ Item {
 
     property bool reverseSelect: false
 
+    Button {
+        // dummy button to display a tooltip
+        anchors.fill: parent
+        tooltip: labelContainer.text
+        style: ButtonStyle {
+            background: Item {}
+        }
+    }
+
     MouseArea {
         id: dragArea
         anchors.fill: txt
