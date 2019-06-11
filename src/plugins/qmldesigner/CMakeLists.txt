@@ -51,6 +51,18 @@ add_qtc_plugin(componentsplugin
   SKIP_DEBUG_CMAKE_FILE_CHECK
 )
 
+add_qtc_plugin(qmlpreviewplugin
+  CONDITION TARGET QmlDesigner
+  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/include
+  SOURCES
+    qmlpreviewplugin/qmlpreviewactions.cpp qmlpreviewplugin/qmlpreviewactions.h
+    qmlpreviewplugin/qmlpreviewplugin.cpp qmlpreviewplugin/qmlpreviewplugin.h
+    qmlpreviewplugin/qmlpreviewplugin.qrc
+  PLUGIN_PATH ${QmlDesignerPluginInstallPrefix}
+  SKIP_DEBUG_CMAKE_FILE_CHECK
+)
+
 add_qtc_plugin(qtquickplugin
   CONDITION TARGET QmlDesigner
   DEPENDS Core QmlDesigner Utils Qt5::Qml
@@ -283,6 +295,9 @@ extend_qtc_plugin(QmlDesigner
     propertyeditorvalue.cpp propertyeditorvalue.h
     propertyeditorview.cpp propertyeditorview.h
     propertyeditorwidget.cpp propertyeditorwidget.h
+    simplecolorpalette.cpp simplecolorpalette.h
+    simplecolorpalettemodel.cpp simplecolorpalettemodel.h
+    simplecolorpalettesingleton.cpp simplecolorpalettesingleton.h
     qmlanchorbindingproxy.cpp qmlanchorbindingproxy.h
     qmlmodelnodeproxy.cpp qmlmodelnodeproxy.h
     quick2propertyeditorview.cpp quick2propertyeditorview.h
@@ -305,6 +320,7 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/texteditor
   SOURCES
+    texteditor.qrc
     texteditorstatusbar.cpp texteditorstatusbar.h
     texteditorview.cpp texteditorview.h
     texteditorwidget.cpp texteditorwidget.h
