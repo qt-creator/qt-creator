@@ -112,7 +112,7 @@ private:
 
 void tst_Dependencies::initTestCase()
 {
-    m_path = QLatin1Literal(TESTSRCDIR "/samples");
+    m_path = QLatin1String(TESTSRCDIR "/samples");
 
     m_basePaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
 
