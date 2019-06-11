@@ -1,8 +1,9 @@
-# TODO: Do not depend on Utils! Include relevant files instead.
+get_target_property(UtilsSourcesDir Utils SOURCES_DIR)
 
 add_qtc_executable(sdktool
   DEFINES DATA_PATH=\"${IDE_DATA_PATH}\"
-  DEPENDS Qt5::Core Utils app_version
+  DEPENDS Qt5::Core app_version
+  INCLUDES "${UtilsSourcesDir}/../"
   SOURCES
     addabiflavor.cpp addabiflavor.h
     addcmakeoperation.cpp addcmakeoperation.h
@@ -25,4 +26,34 @@ add_qtc_executable(sdktool
     rmqtoperation.cpp rmqtoperation.h
     rmtoolchainoperation.cpp rmtoolchainoperation.h
     settings.cpp settings.h
+)
+
+extend_qtc_target(sdktool
+  SOURCES_PREFIX "${UtilsSourcesDir}"
+  DEFINES QTCREATOR_UTILS_STATIC_LIB
+  SOURCES
+    environment.cpp environment.h
+    fileutils.cpp fileutils.h
+    hostosinfo.cpp hostosinfo.h
+    persistentsettings.cpp persistentsettings.h
+    qtcassert.cpp qtcassert.h
+    qtcprocess.cpp qtcprocess.h
+    savefile.cpp savefile.h
+    stringutils.cpp stringutils.h
+)
+
+extend_qtc_target(sdktool CONDITION APPLE
+  SOURCES_PREFIX "${UtilsSourcesDir}"
+  SOURCES
+    fileutils_mac.mm fileutils_mac.h
+  DEPENDS
+    ${FWFoundation}
+)
+
+extend_qtc_target(sdktool CONDITION WIN32
+  DEPENDS
+    user32 iphlpapi ws2_32 shell32
+  DEFINES
+    _UNICODE UNICODE
+    _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS
 )
