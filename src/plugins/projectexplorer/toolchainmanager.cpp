@@ -63,7 +63,6 @@ class ToolChainManagerPrivate
 public:
     ~ToolChainManagerPrivate();
 
-    QMap<QString, FilePath> m_abiToDebugger;
     std::unique_ptr<ToolChainSettingsAccessor> m_accessor;
 
     QList<ToolChain *> m_toolChains; // prioritized List
@@ -184,11 +183,6 @@ ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
         tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&ToolChain::id, shortId));
     }
     return tc;
-}
-
-FilePath ToolChainManager::defaultDebugger(const Abi &abi)
-{
-    return d->m_abiToDebugger.value(abi.toString());
 }
 
 bool ToolChainManager::isLoaded()

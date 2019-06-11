@@ -948,7 +948,7 @@ void AndroidConfigurations::removeOldToolChains()
 
 static QVariant findOrRegisterDebugger(ToolChain *tc)
 {
-    const FilePath command = tc->suggestedDebugger();
+    const FilePath command = AndroidConfigurations::currentConfig().gdbPath(tc->targetAbi());
     // check if the debugger is already registered, but ignoring the display name
     const Debugger::DebuggerItem *existing = Debugger::DebuggerItemManager::findByCommand(command);
     if (existing && existing->engineType() == Debugger::GdbEngineType && existing->isAutoDetected()
@@ -956,7 +956,7 @@ static QVariant findOrRegisterDebugger(ToolChain *tc)
         return existing->id();
     // debugger not found, register a new one
     Debugger::DebuggerItem debugger;
-    debugger.setCommand(tc->suggestedDebugger());
+    debugger.setCommand(command);
     debugger.setEngineType(Debugger::GdbEngineType);
     debugger.setUnexpandedDisplayName(
         AndroidConfigurations::tr("Android Debugger for %1").arg(tc->displayName()));

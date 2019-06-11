@@ -99,7 +99,6 @@ public:
     QByteArray id() const;
 
     virtual QStringList suggestedMkspecList() const;
-    virtual Utils::FilePath suggestedDebugger() const;
 
     Core::Id typeId() const;
     virtual QString typeDisplayName() const = 0;

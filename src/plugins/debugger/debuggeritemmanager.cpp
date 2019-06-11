@@ -709,7 +709,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     Environment env = Environment::systemEnvironment();
     if (tc) {
         tc->addToEnvironment(env); // Find MinGW gdb in toolchain environment.
-        QString path = tc->suggestedDebugger().toString();
+        QString path = tc->suggestedDebugger().toString(); // Won't compile
         if (!path.isEmpty()) {
             const QFileInfo fi(path);
             if (!fi.isAbsolute())

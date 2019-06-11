@@ -68,8 +68,6 @@ public:
     static QList<ToolChain *> findToolChains(const Abi &abi);
     static ToolChain *findToolChain(const QByteArray &id);
 
-    static Utils::FilePath defaultDebugger(const Abi &abi);
-
     static bool isLoaded();
 
     static bool registerToolChain(ToolChain *tc);

@@ -105,12 +105,6 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
             AndroidConfigurations::currentConfig().sdkLocation().toString());
 }
 
-FilePath AndroidToolChain::suggestedDebugger() const
-{
-    // TODO: Make use of LLDB if available.
-    return AndroidConfigurations::currentConfig().gdbPath(targetAbi());
-}
-
 FilePath AndroidToolChain::suggestedGdbServer() const
 {
     return AndroidConfigurations::currentConfig().gdbServer(targetAbi());

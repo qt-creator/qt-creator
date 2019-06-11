@@ -169,11 +169,6 @@ QStringList ToolChain::suggestedMkspecList() const
     return {};
 }
 
-Utils::FilePath ToolChain::suggestedDebugger() const
-{
-    return ToolChainManager::defaultDebugger(targetAbi());
-}
-
 Core::Id ToolChain::typeId() const
 {
     return d->m_typeId;

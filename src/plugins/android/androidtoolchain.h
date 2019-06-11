@@ -42,7 +42,6 @@ public:
     bool isValid() const override;
     void addToEnvironment(Utils::Environment &env) const override;
 
-    Utils::FilePath suggestedDebugger() const override;
     Utils::FilePath suggestedGdbServer() const;
     QStringList suggestedMkspecList() const override;
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
