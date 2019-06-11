@@ -89,7 +89,11 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     setWindowTitle(tr("Attach to Process Not Yet Started"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    m_kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging, this);
+    m_kitChooser = new KitChooser(this);
+    m_kitChooser->setKitPredicate([](const Kit *k) {
+        return ToolChainKitAspect::targetAbi(k).os() == Utils::HostOsInfo::hostOs();
+    });
+    m_kitChooser->setShowIcons(true);
     m_kitChooser->populate();
     m_kitChooser->setVisible(true);
 

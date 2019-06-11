@@ -47,23 +47,6 @@ class StartApplicationParameters;
 class StartApplicationDialogPrivate;
 class StartRemoteEngineDialogPrivate;
 
-class DebuggerKitChooser : public ProjectExplorer::KitChooser
-{
-    Q_OBJECT
-
-public:
-    enum Mode { AnyDebugging, LocalDebugging };
-
-    explicit DebuggerKitChooser(Mode mode = AnyDebugging, QWidget *parent = nullptr);
-
-protected:
-    QString kitToolTip(ProjectExplorer::Kit *k) const final;
-
-private:
-    const ProjectExplorer::Abi m_hostAbi;
-    const Mode m_mode;
-};
-
 class StartApplicationDialog : public QDialog
 {
     Q_OBJECT

@@ -99,36 +99,6 @@ namespace Internal {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DebuggerKitChooser
-//
-///////////////////////////////////////////////////////////////////////
-
-DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
-    : KitChooser(parent)
-    , m_hostAbi(Abi::hostAbi())
-    , m_mode(mode)
-{
-    setKitPredicate([this](const Kit *k) {
-        // Match valid debuggers and restrict local debugging to compatible toolchains.
-        auto errors = DebuggerKitAspect::configurationErrors(k);
-        // we do not care for mismatched ABI if we want *any* debugging
-        if (m_mode == AnyDebugging && errors == DebuggerKitAspect::DebuggerDoesNotMatch)
-            errors = DebuggerKitAspect::NoConfigurationError;
-        if (errors)
-            return false;
-        if (m_mode == LocalDebugging)
-            return ToolChainKitAspect::targetAbi(k).os() == m_hostAbi.os();
-        return true;
-    });
-}
-
-QString DebuggerKitChooser::kitToolTip(Kit *k) const
-{
-    return DebuggerKitAspect::displayString(k);
-}
-
-///////////////////////////////////////////////////////////////////////
-//
 // StartApplicationParameters
 //
 ///////////////////////////////////////////////////////////////////////
@@ -520,7 +490,8 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging, this);
+    d->kitChooser = new KitChooser(this);
+    d->kitChooser->setShowIcons(true);
     d->kitChooser->populate();
 
     d->portSpinBox = new QSpinBox(this);

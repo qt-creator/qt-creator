@@ -258,7 +258,8 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging, this);
+    d->kitChooser = new KitChooser(this);
+    d->kitChooser->setShowIcons(true);
     d->kitChooser->populate();
 
     d->forceLocalCheckBox = new QCheckBox(this);

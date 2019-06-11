@@ -1660,7 +1660,8 @@ public:
 
 void DebuggerPluginPrivate::attachToRunningApplication()
 {
-    auto kitChooser = new DebuggerKitChooser(DebuggerKitChooser::AnyDebugging);
+    auto kitChooser = new KitChooser;
+    kitChooser->setShowIcons(true);
 
     auto dlg = new DeviceProcessesDialog(kitChooser, ICore::dialogParent());
     dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
