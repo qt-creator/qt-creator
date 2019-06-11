@@ -52,13 +52,11 @@ public:
     ~KitManagerConfigWidget() override;
 
     QString displayName() const;
-    QIcon icon() const;
+    QIcon displayIcon() const;
 
     void apply();
     void discard();
     bool isDirty() const;
-    bool isValid() const;
-    bool hasWarning() const;
     QString validityMessage() const;
     void addAspectToWorkingCopy(KitAspect *aspect);
     void makeStickySubWidgetsReadOnly();

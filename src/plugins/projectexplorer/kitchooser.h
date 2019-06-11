@@ -54,6 +54,7 @@ public:
     Core::Id currentKitId() const;
 
     void setKitPredicate(const Kit::Predicate &predicate);
+    void setShowIcons(bool showIcons);
 
     Kit *currentKit() const;
     bool hasStartupKit() const { return m_hasStartupKit; }
@@ -78,6 +79,7 @@ private:
     QComboBox *m_chooser;
     QPushButton *m_manageButton;
     bool m_hasStartupKit = false;
+    bool m_showIcons = false;
 };
 
 } // namespace ProjectExplorer
