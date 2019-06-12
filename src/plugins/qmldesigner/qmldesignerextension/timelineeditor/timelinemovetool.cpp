@@ -136,15 +136,12 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
             }
         }
 
-        try {
-            RewriterTransaction transaction(scene()->timelineView()->beginRewriterTransaction(
-                "TimelineMoveTool::mouseReleaseEvent"));
-
+        scene()->timelineView()->executeInTransaction("TimelineMoveTool::mouseReleaseEvent", [this, current](){
             current->commitPosition(mapToItem(current, current->rect().center()));
 
             if (current->asTimelineKeyframeItem()) {
                 double frame = std::round(
-                    current->mapFromSceneToFrame(current->rect().center().x()));
+                            current->mapFromSceneToFrame(current->rect().center().x()));
 
                 scene()->statusBarMessageChanged(QObject::tr("Frame %1").arg(frame));
 
@@ -152,12 +149,7 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
                     if (keyframe != current)
                         keyframe->commitPosition(mapToItem(current, keyframe->rect().center()));
             }
-
-            transaction.commit();
-
-        } catch (const Exception &e) {
-            e.showException();
-        }
+        });
     }
 }
 

@@ -34,6 +34,8 @@ MouseArea {
     onExited: Tooltip.hideText()
     onCanceled: Tooltip.hideText()
 
+    onClicked: forceActiveFocus()
+
     hoverEnabled: true
 
     property string tooltip

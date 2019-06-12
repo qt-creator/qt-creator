@@ -52,6 +52,7 @@ using namespace CppTools;
 using namespace CppTools::Internal;
 
 static const bool FindErrorsIndexing = qgetenv("QTC_FIND_ERRORS_INDEXING") == "1";
+static Q_LOGGING_CATEGORY(indexerLog, "qtc.cpptools.indexer", QtWarningMsg)
 
 namespace {
 
@@ -205,6 +206,8 @@ void index(QFutureInterface<void> &indexingFuture,
     const ProjectExplorer::HeaderPaths fallbackHeaderPaths = cmm->headerPaths();
     const CPlusPlus::LanguageFeatures defaultFeatures =
             CPlusPlus::LanguageFeatures::defaultFeatures();
+
+    qCDebug(indexerLog) << "About to index" << files.size() << "files.";
     for (int i = 0; i < files.size(); ++i) {
         if (indexingFuture.isCanceled() || superFuture.isCanceled())
             break;
@@ -225,6 +228,7 @@ void index(QFutureInterface<void> &indexingFuture,
             processingHeaders = true;
         }
 
+        qCDebug(indexerLog) << "  Indexing" << i + 1 << "of" << files.size() << ":" << fileName;
         ProjectExplorer::HeaderPaths headerPaths = parts.isEmpty()
                 ? fallbackHeaderPaths
                 : parts.first()->headerPaths;
@@ -236,6 +240,7 @@ void index(QFutureInterface<void> &indexingFuture,
         if (isSourceFile)
             sourceProcessor->resetEnvironment();
     }
+    qCDebug(indexerLog) << "Indexing finished.";
 }
 
 void parse(QFutureInterface<void> &indexingFuture,

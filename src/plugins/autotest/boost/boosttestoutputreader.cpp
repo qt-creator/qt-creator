@@ -107,7 +107,7 @@ void BoostTestOutputReader::sendCompleteInformation()
     if (m_lineNumber) {
         result->setLine(m_lineNumber);
         result->setFileName(m_fileName);
-    } // else TODO
+    }
 
     result->setDescription(m_description);
     result->setResult(m_result);
@@ -133,6 +133,8 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
         if (m_currentTest.isEmpty() || m_logLevel > LogLevel::UnitScope)
             m_currentTest = caseFromContent(content);
         m_result = ResultType::Fail;
+        if (m_reportLevel == ReportLevel::No)
+            ++m_summary[ResultType::Fail];
         m_description = content;
     } else if (content.startsWith("fatal error:")) {
         if (m_currentTest.isEmpty() || m_logLevel > LogLevel::UnitScope)
@@ -171,6 +173,8 @@ void BoostTestOutputReader::handleMessageMatch(const QRegularExpressionMatch &ma
     } else if (content.startsWith("Test case ")) {
         m_currentTest = match.captured(4);
         m_result = ResultType::Skip;
+        if (m_reportLevel == ReportLevel::Confirm || m_reportLevel == ReportLevel::No)
+            ++m_summary[ResultType::Skip];
         m_description = content;
     }
 
@@ -193,10 +197,10 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNe
     static QRegularExpression noAssertion("^Test case (.*) did not check any assertions$");
 
     static QRegularExpression summaryPreamble("^\\s*Test (module|suite|case) \"(.*)\" has "
-                                              "(failed|passed) with:$");
+                                              "(failed|passed)( with:)?$");
     static QRegularExpression summarySkip("^\\s+Test case \"(.*)\" was skipped$");
     static QRegularExpression summaryDetail("^\\s+(\\d+) test cases? out of (\\d+) "
-                                            "(failed|passed)$");
+                                            "(failed|passed|skipped)$");
     static QRegularExpression summaryAssertion("^\\s+(\\d+) assertions? out of (\\d+) "
                                                "(failed|passed)$");
 
@@ -284,16 +288,34 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNe
         return;
     }
 
-    // should summary get reported unconditionally?
     match = summaryPreamble.match(line);
     if (match.hasMatch()) {
         createAndReportResult(match.captured(0), ResultType::MessageInfo);
+        if (m_reportLevel == ReportLevel::Detailed || match.captured(4).isEmpty()) {
+            if (match.captured(1) == "case") {
+                if (match.captured(3) == "passed")
+                    ++m_summary[ResultType::Pass];
+                else
+                    ++m_summary[ResultType::Fail];
+            }
+        }
         return;
     }
 
     match = summaryDetail.match(line);
     if (match.hasMatch()) {
         createAndReportResult(match.captured(0), ResultType::MessageInfo);
+        int report = match.captured(1).toInt();
+        QString type = match.captured(3);
+        if (m_reportLevel != ReportLevel::Detailed) {
+            if (type == "passed")
+                m_summary[ResultType::Pass] += report;
+            else if (type == "failed")
+                m_summary[ResultType::Fail] += report;
+            else if (type == "skipped")
+                m_summary[ResultType::Skip] += report;
+        }
+
         return;
     }
 
@@ -306,6 +328,8 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNe
     match = summarySkip.match(line);
     if (match.hasMatch()) {
         createAndReportResult(match.captured(0), ResultType::MessageInfo);
+        if (m_reportLevel == ReportLevel::Detailed)
+            ++m_summary[ResultType::Skip];
         return;
     }
 
@@ -316,11 +340,17 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNe
         BoostTestResult *result = new BoostTestResult(id(), m_projectFile, QString());
         int failed = match.captured(1).toInt();
         QString txt = tr("%1 failures detected in %2.").arg(failed).arg(match.captured(3));
+        int passed = (m_testCaseCount != -1)
+                ? m_testCaseCount - failed - m_summary[ResultType::Skip] : -1;
         if (m_testCaseCount != -1)
-            txt.append(' ').append(tr("%1 tests passed.").arg(m_testCaseCount - failed));
+            txt.append(' ').append(tr("%1 tests passed.").arg(passed));
         result->setDescription(txt);
-        result->setResult(ResultType::MessageInfo); // TODO report similar to disabled tests
+        result->setResult(ResultType::MessageInfo);
         reportResult(TestResultPtr(result));
+        if (m_reportLevel == ReportLevel::Confirm) { // for the final summary
+            m_summary[ResultType::Pass] += passed;
+            m_summary[ResultType::Fail] += failed;
+        }
         m_testCaseCount = -1;
         return;
     }
@@ -333,8 +363,10 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLineWithNe
         if (m_testCaseCount != -1)
             txt.append(' ').append(tr("%1 tests passed.").arg(m_testCaseCount));
         result->setDescription(txt);
-        result->setResult(ResultType::MessageInfo); // TODO report similar to disabled tests
+        result->setResult(ResultType::MessageInfo);
         reportResult(TestResultPtr(result));
+        if (m_reportLevel == ReportLevel::Confirm) // for the final summary
+            m_summary.insert(ResultType::Pass, m_testCaseCount);
         return;
     }
 
@@ -374,15 +406,17 @@ TestResultPtr BoostTestOutputReader::createDefaultResult() const
     result->setTestSuite(m_currentSuite);
     result->setTestCase(m_currentTest);
 
-    // TODO find corresponding TestTreeItem and set filename/line
     return TestResultPtr(result);
 }
 
 void BoostTestOutputReader::onFinished(int exitCode, QProcess::ExitStatus /*exitState*/) {
+    if (m_reportLevel == ReportLevel::No && m_testCaseCount != -1) {
+        int reportedFailsAndSkips = m_summary[ResultType::Fail] + m_summary[ResultType::Skip];
+        m_summary.insert(ResultType::Pass, m_testCaseCount - reportedFailsAndSkips);
+    }
     // boost::exit_success (0), boost::exit_test_failure (201)
     // or boost::exit_exception_failure (200)
     // be graceful and do not add a fatal for exit_test_failure
-    // but exit code 0 can be forced with an option - what todo in that case?
     if (m_logLevel == LogLevel::Nothing && m_reportLevel == ReportLevel::No) {
         switch (exitCode) {
         case 0:

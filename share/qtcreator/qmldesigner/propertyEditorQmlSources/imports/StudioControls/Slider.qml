@@ -47,6 +47,7 @@ T.Slider {
     property string __inactiveColor: StudioTheme.Values.themeSliderInactiveTrack
 
     property bool hover: false // This property is used to indicate the global hover state
+    property bool edit: slider.activeFocus
 
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
@@ -223,7 +224,7 @@ T.Slider {
     states: [
         State {
             name: "default"
-            when: slider.enabled && !slider.hover && !slider.activeFocus
+            when: slider.enabled && !slider.hover && !slider.edit
             PropertyChanges {
                 target: slider
                 wheelEnabled: false
@@ -231,7 +232,7 @@ T.Slider {
         },
         State {
             name: "hovered"
-            when: slider.enabled && slider.hover && !slider.activeFocus
+            when: slider.enabled && slider.hover && !slider.edit
             PropertyChanges {
                 target: slider
                 __activeColor: StudioTheme.Values.themeSliderActiveTrackHover
@@ -244,7 +245,7 @@ T.Slider {
         },
         State {
             name: "focus"
-            when: slider.enabled && slider.activeFocus
+            when: slider.enabled && slider.edit
             PropertyChanges {
                 target: slider
                 wheelEnabled: true

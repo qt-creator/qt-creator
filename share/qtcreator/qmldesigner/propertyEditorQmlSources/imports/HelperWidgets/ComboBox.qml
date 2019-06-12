@@ -45,6 +45,8 @@ Controls.ComboBox {
 
     property bool block: false
 
+    property bool showExtendedFunctionButton: true
+
     ExtendedFunctionLogic {
         id: extFuncLogic
         backendValue: comboBox.backendValue
@@ -53,6 +55,8 @@ Controls.ComboBox {
     actionIndicator.icon.color: extFuncLogic.color
     actionIndicator.icon.text: extFuncLogic.glyph
     actionIndicator.onClicked: extFuncLogic.show()
+
+    actionIndicator.visible: showExtendedFunctionButton
 
     ColorLogic {
         id: colorLogic

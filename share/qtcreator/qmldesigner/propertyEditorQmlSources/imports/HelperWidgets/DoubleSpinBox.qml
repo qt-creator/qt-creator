@@ -24,20 +24,70 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0
 import QtQuickDesignerTheme 1.0
+import StudioControls 1.0 as StudioControls
 
-SpinBox {
-    id: spinBox
-    width: 76
-    decimals: 2
-    stepSize: 0.1
-    minimumValue: 0
-    maximumValue: 1
+Item {
+    id: wrapper
 
-    property color textColor: Theme.color(Theme.PanelTextColorLight)
+    property alias decimals: spinBox.decimals
+    property alias hasSlider: spinBox.hasSlider
 
-    style: CustomSpinBoxStyle {
+    property real minimumValue: 0.0
+    property real maximumValue: 1.0
+    property real stepSize: 0.1
+
+    property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
+
+    property real value
+
+    onValueChanged: spinBox.value = wrapper.value * spinBox.factor
+
+    signal compressedValueModified
+    signal valueModified
+
+    width: 90
+    implicitHeight: spinBox.height
+
+    onStepSizeChanged: spinBox.convert("stepSize", wrapper.stepSize)
+    onMinimumValueChanged: spinBox.convert("from", wrapper.minimumValue)
+    onMaximumValueChanged: spinBox.convert("to", wrapper.maximumValue)
+
+    StudioControls.SpinBox {
+        id: spinBox
+
+        onValueModified: wrapper.valueModified()
+        onCompressedValueModified: wrapper.compressedValueModified()
+
+        onValueChanged: {
+            if (spinBox.__initialized)
+                wrapper.value = spinBox.value / spinBox.factor
+        }
+
+        width: wrapper.width
+        decimals: 2
+
+        actionIndicatorVisible: false
+
+        property bool __initialized: false
+
+        property bool hasSlider: spinBox.sliderIndicatorVisible
+
+        Component.onCompleted: {
+            spinBox.__initialized = true
+
+            spinBox.convert("stepSize", wrapper.stepSize)
+            spinBox.convert("from", wrapper.minimumValue)
+            spinBox.convert("to", wrapper.maximumValue)
+
+            spinBox.value = wrapper.value * spinBox.factor
+        }
+
+        function convert(target, value) {
+            if (!spinBox.__initialized)
+                return
+            spinBox[target] = Math.round(value * spinBox.factor)
+        }
 
     }
 }

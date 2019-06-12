@@ -31,10 +31,9 @@ T.TextField {
     id: myTextField
 
     property alias actionIndicator: actionIndicator
-
     property alias translationIndicator: translationIndicator
 
-    property bool edit: false
+    property bool edit: myTextField.activeFocus
     property bool hover: false // This property is used to indicate the global hover state
 
     property alias actionIndicatorVisible: actionIndicator.visible
@@ -67,8 +66,6 @@ T.TextField {
                  - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
     rightPadding: StudioTheme.Values.inputHorizontalPadding + translationIndicator.width
                   - (translationIndicatorVisible ? StudioTheme.Values.border : 0)
-
-    onActiveFocusChanged: myTextField.edit = myTextField.activeFocus
 
     MouseArea {
         id: mouseArea
@@ -126,7 +123,7 @@ T.TextField {
         State {
             name: "default"
             when: myTextField.enabled && !myTextField.hover
-                  && !myTextField.activeFocus
+                  && !myTextField.edit
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackground
@@ -139,7 +136,7 @@ T.TextField {
         },
         State {
             name: "hovered"
-            when: myTextField.hover && !myTextField.activeFocus
+            when: myTextField.hover && !myTextField.edit
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeHoverHighlight
@@ -148,7 +145,7 @@ T.TextField {
         },
         State {
             name: "edit"
-            when: myTextField.activeFocus
+            when: myTextField.edit
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeFocusEdit

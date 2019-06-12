@@ -119,6 +119,7 @@ OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget 
     connect(copyAction, &QAction::triggered, this, &QPlainTextEdit::copy);
     connect(pasteAction, &QAction::triggered, this, &QPlainTextEdit::paste);
     connect(selectAllAction, &QAction::triggered, this, &QPlainTextEdit::selectAll);
+    connect(this, &QPlainTextEdit::blockCountChanged, this, &OutputWindow::filterNewContent);
 
     connect(this, &QPlainTextEdit::undoAvailable, undoAction, &QAction::setEnabled);
     connect(this, &QPlainTextEdit::redoAvailable, redoAction, &QAction::setEnabled);
@@ -216,10 +217,8 @@ OutputFormatter *OutputWindow::formatter() const
 void OutputWindow::setFormatter(OutputFormatter *formatter)
 {
     d->formatter = formatter;
-    if (d->formatter) {
+    if (d->formatter)
         d->formatter->setPlainTextEdit(this);
-        connect(d->formatter, &OutputFormatter::contentChanged, this, &OutputWindow::filterNewContent);
-    }
 }
 
 void OutputWindow::showEvent(QShowEvent *e)

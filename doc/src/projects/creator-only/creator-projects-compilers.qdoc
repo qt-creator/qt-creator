@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -44,7 +44,12 @@
     for and running it on a particular platform.
 
     \QC automatically detects the compilers that are registered by your system
-    or by an installer. You can add compilers to build applications by using other
+    or by an installer and lists them in \uicontrol Tools > \uicontrol Options >
+    \uicontrol Kits > \uicontrol Compilers:
+
+    \image qtcreator-toolchains.png
+
+    You can add the following compilers to build applications by using other
     compilers or by using additional versions of the automatically detected
     compilers:
 
@@ -94,6 +99,20 @@
 
     \endlist
 
+    \section1 Redetecting Compilers
+
+    When \QC finds an x86_64 GCC compiler, it sets up an instance for the native
+    x86_64 target. If you plan to create also 32-bit x86 binaries without using
+    a dedicated cross-compiler, select \uicontrol {Auto-detection Settings} >
+    \uicontrol {Detect x86_64 GCC compilers as x86_64 and x86}. Then select
+    \uicontrol Re-detect to refresh the list of automatically detected
+    compilers.
+
+    To remove manually added compilers, select \uicontrol Remove or
+    \uicontrol {Remove All}.
+
+    \section1 Specifying Compiler Settings
+
     To build an application using GCC, MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available
@@ -117,8 +136,6 @@
             \uicontrol Kits > \uicontrol Compilers > \uicontrol Add,
             then select a compiler in the list, and then select \uicontrol C or
             \uicontrol C++ to add a C or C++ compiler.
-
-            \image qtcreator-toolchains.png
 
             To clone the selected compiler, select \uicontrol Clone.
 

@@ -281,7 +281,7 @@ Item {
                     maximumValue: 255
                     decimals: 0
 
-                    onValueChanged: {
+                    onCompressedValueModified: {
                         if (color.r !== value  && !colorButton.block) {
                             color.r = (value / 255.0)
                             colorButton.clicked()
@@ -293,7 +293,7 @@ Item {
             Row {
                 z: 2
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "G"
                     width: 16
                     color: "#eee"
@@ -310,7 +310,7 @@ Item {
                     maximumValue: 255
                     decimals: 0
 
-                    onValueChanged: {
+                    onCompressedValueModified: {
                         if (color.g !== value  && !colorButton.block) {
                             color.g = (value / 255.0)
                             colorButton.clicked()
@@ -322,7 +322,7 @@ Item {
             Row {
                 z: 1
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "B"
                     width: 16
                     color: "#eee"
@@ -338,7 +338,7 @@ Item {
                     maximumValue: 255
                     decimals: 0
 
-                    onValueChanged: {
+                    onCompressedValueModified: {
                         if (color.b !== value  && !colorButton.block) {
                             color.b = (value / 255.0)
                             colorButton.clicked()
@@ -350,7 +350,7 @@ Item {
             Row {
                 z: 0
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "A"
                     width: 16
                     color: "#eee"
@@ -361,7 +361,7 @@ Item {
                 DoubleSpinBox {
                     id: alphaSlider
                     width: 64
-                    onValueChanged: {
+                    onCompressedValueModified: {
                         if (colorButton.alpha !== value  && !colorButton.block) {
                             colorButton.alpha = value
                             colorButton.clicked()
@@ -387,7 +387,7 @@ Item {
                 DoubleSpinBox {
                     id: hueSlider2
                     width: 64
-                    onValueChanged: {
+                    onCompressedValueModified: {
                         if (colorButton.hue !== value  && !colorButton.block) {
                             colorButton.hue = value
                             colorButton.clicked()
@@ -399,7 +399,7 @@ Item {
             Row {
                 z: 2
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "S"
                     width: 16
                     color: "#eee"
@@ -410,7 +410,7 @@ Item {
                 DoubleSpinBox {
                     id: saturationSlider
                     width: 64
-                    onValueChanged: {
+                    onCompressedValueModified: {
                         if (colorButton.saturation !== value  && !colorButton.block) {
                             colorButton.saturation = value
                             colorButton.clicked()
@@ -422,7 +422,7 @@ Item {
             Row {
                 z: 1
                 spacing: 1
-                Controls.Label {
+                Label {
                     text: "L"
                     width: 16
                     color: "#eee"
@@ -432,7 +432,7 @@ Item {
                 DoubleSpinBox {
                     id: lightnessSlider
                     width: 64
-                    onValueChanged: {
+                    onCompressedValueModified: {
                         if (colorButton.lightness !== value && !colorButton.block) {
                             colorButton.lightness = value
                             colorButton.clicked()

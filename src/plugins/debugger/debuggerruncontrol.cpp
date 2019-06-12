@@ -1011,6 +1011,8 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
     if (channel == ConsoleOutput)
         debuggerConsole()->printItem(ConsoleItem::DefaultType, msg);
 
+    QTC_ASSERT(m_engine, qDebug() << msg; return);
+
     m_engine->showMessage(msg, channel, timeout);
     if (m_engine2)
         m_engine->showMessage(msg, channel, timeout);

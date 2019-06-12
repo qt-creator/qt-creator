@@ -73,7 +73,7 @@ Rectangle {
             name: "default"
             when: myControl.enabled && !(checkIndicator.hover
                                          || myControl.hover)
-                  && !checkIndicator.checked && !myControl.activeFocus
+                  && !checkIndicator.checked && !myControl.edit
                   && !myControl.drag
             PropertyChanges {
                 target: checkIndicator
@@ -84,7 +84,7 @@ Rectangle {
         State {
             name: "hovered"
             when: (checkIndicator.hover || myControl.hover)
-                  && !checkIndicator.checked && !myControl.activeFocus
+                  && !checkIndicator.checked && !myControl.edit
                   && !myControl.drag
             PropertyChanges {
                 target: checkIndicator
@@ -103,7 +103,7 @@ Rectangle {
         },
         State {
             name: "edit"
-            when: myControl.activeFocus && !checkIndicator.checked
+            when: myControl.edit && !checkIndicator.checked
                   && !(checkIndicator.hover && myControl.hover)
             PropertyChanges {
                 target: checkIndicator

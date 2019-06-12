@@ -133,46 +133,7 @@ void PathItem::writePathToProperty()
 
     ModelNode pathNode = pathModelNode(formEditorItem());
 
-    RewriterTransaction rewriterTransaction = pathNode.view()->beginRewriterTransaction(QByteArrayLiteral("PathItem::writePathToProperty"));
-
-    QList<ModelNode> pathSegmentNodes = pathNode.nodeListProperty("pathElements").toModelNodeList();
-
-    foreach (ModelNode pathSegment, pathSegmentNodes)
-        pathSegment.destroy();
-
-    if (!m_cubicSegments.isEmpty()) {
-        pathNode.variantProperty("startX").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().x());
-        pathNode.variantProperty("startY").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().y());
-
-        foreach (const CubicSegment &cubicSegment, m_cubicSegments) {
-            writePathAttributes(pathNode, cubicSegment.attributes());
-            writePathPercent(pathNode, cubicSegment.percent());
-
-            if (cubicSegment.canBeConvertedToLine())
-                writeLinePath(pathNode, cubicSegment);
-            else if (cubicSegment.canBeConvertedToQuad())
-                writeQuadPath(pathNode, cubicSegment);
-            else
-                writeCubicPath(pathNode, cubicSegment);
-        }
-
-        writePathAttributes(pathNode, m_lastAttributes);
-        writePathPercent(pathNode, m_lastPercent);
-    }
-
-    rewriterTransaction.commit();
-}
-
-void PathItem::writePathAsCubicSegmentsOnly()
-{
-    try {
-        PathUpdateDisabler pathUpdateDisabler(this);
-
-        ModelNode pathNode = pathModelNode(formEditorItem());
-
-        RewriterTransaction rewriterTransaction =
-                pathNode.view()->beginRewriterTransaction(QByteArrayLiteral("PathItem::writePathAsCubicSegmentsOnly"));
-
+    pathNode.view()->executeInTransaction("PathItem::writePathToProperty", [this, &pathNode](){
         QList<ModelNode> pathSegmentNodes = pathNode.nodeListProperty("pathElements").toModelNodeList();
 
         foreach (ModelNode pathSegment, pathSegmentNodes)
@@ -182,21 +143,51 @@ void PathItem::writePathAsCubicSegmentsOnly()
             pathNode.variantProperty("startX").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().x());
             pathNode.variantProperty("startY").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().y());
 
-
             foreach (const CubicSegment &cubicSegment, m_cubicSegments) {
                 writePathAttributes(pathNode, cubicSegment.attributes());
                 writePathPercent(pathNode, cubicSegment.percent());
-                writeCubicPath(pathNode, cubicSegment);
+
+                if (cubicSegment.canBeConvertedToLine())
+                    writeLinePath(pathNode, cubicSegment);
+                else if (cubicSegment.canBeConvertedToQuad())
+                    writeQuadPath(pathNode, cubicSegment);
+                else
+                    writeCubicPath(pathNode, cubicSegment);
             }
 
             writePathAttributes(pathNode, m_lastAttributes);
             writePathPercent(pathNode, m_lastPercent);
         }
+    });
+}
 
-        rewriterTransaction.commit();
-    }  catch (const RewritingException &e) {
-        e.showException();
-    }
+void PathItem::writePathAsCubicSegmentsOnly()
+{
+        PathUpdateDisabler pathUpdateDisabler(this);
+
+        ModelNode pathNode = pathModelNode(formEditorItem());
+        pathNode.view()->executeInTransaction("PathItem::writePathAsCubicSegmentsOnly", [this, &pathNode](){
+
+            QList<ModelNode> pathSegmentNodes = pathNode.nodeListProperty("pathElements").toModelNodeList();
+
+            foreach (ModelNode pathSegment, pathSegmentNodes)
+                pathSegment.destroy();
+
+            if (!m_cubicSegments.isEmpty()) {
+                pathNode.variantProperty("startX").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().x());
+                pathNode.variantProperty("startY").setValue(m_cubicSegments.constFirst().firstControlPoint().coordinate().y());
+
+
+                foreach (const CubicSegment &cubicSegment, m_cubicSegments) {
+                    writePathAttributes(pathNode, cubicSegment.attributes());
+                    writePathPercent(pathNode, cubicSegment.percent());
+                    writeCubicPath(pathNode, cubicSegment);
+                }
+
+                writePathAttributes(pathNode, m_lastAttributes);
+                writePathPercent(pathNode, m_lastPercent);
+            }
+        });
 }
 
 void PathItem::setFormEditorItem(FormEditorItem *formEditorItem)

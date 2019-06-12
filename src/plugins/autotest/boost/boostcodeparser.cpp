@@ -112,6 +112,16 @@ void BoostCodeParser::handleIdentifier()
         handleTestCase(TestCaseType::Fixture);
     } else if (identifier == "BOOST_DATA_TEST_CASE") {
         handleTestCase(TestCaseType::Data);
+    } else if (identifier == "BOOST_DATA_TEST_CASE_F") {
+        m_currentState.setFlag(BoostTestTreeItem::Fixture);
+        handleTestCase(TestCaseType::Data);
+    } else if (identifier == "BOOST_AUTO_TEST_CASE_TEMPLATE") {
+        m_currentState.setFlag(BoostTestTreeItem::Templated);
+        handleTestCase(TestCaseType::Auto);
+    } else if (identifier == "BOOST_FIXTURE_TEST_CASE_TEMPLATE") {
+        m_currentState.setFlag(BoostTestTreeItem::Fixture);
+        m_currentState.setFlag(BoostTestTreeItem::Templated);
+        handleTestCase(TestCaseType::Auto);
     } else if (identifier == "BOOST_TEST_DECORATOR") {
         handleDecorator();
     }
@@ -133,6 +143,7 @@ void BoostCodeParser::handleSuiteBegin(bool isFixture)
         m_currentSuite.prepend(m_suites.last().fullName + '/');
 
     if (isFixture) { // fixture suites have a (fixture) class name as 2nd parameter
+        m_currentState.setFlag(BoostTestTreeItem::Fixture);
         if (!skipCommentsUntil(T_COMMA))
             return;
         if (!skipCommentsUntil(T_IDENTIFIER))
@@ -194,6 +205,12 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
             }
             if (testCaseType == TestCaseType::Parameter)
                 m_currentState |= BoostTestTreeItem::Parameterized;
+        } else if (m_currentState.testFlag(BoostTestTreeItem::Fixture)) {
+            // ignore first parameter (fixture) and first comma
+            if (!skipCommentsUntil(T_IDENTIFIER))
+                return;
+            if (!skipCommentsUntil(T_COMMA))
+                return;
         }
         if (!skipCommentsUntil(T_IDENTIFIER))
             return;
@@ -227,7 +244,8 @@ void BoostCodeParser::handleTestCase(TestCaseType testCaseType)
             m_currentState = BoostTestTreeItem::Enabled;
         }
     } else {
-        handleDecorators();
+        if (!m_currentState.testFlag(BoostTestTreeItem::Templated))
+            handleDecorators();
         locationAndType = locationAndTypeFromToken(token, m_source, m_currentState, m_suites);
         m_testCases.append(locationAndType);
         m_currentState = BoostTestTreeItem::Enabled;
@@ -279,8 +297,11 @@ void BoostCodeParser::handleDecorators()
         } else {
             // FIXME we have a const(expr) bool? currently not easily achievable
         }
+    } else if (symbolName == "decorator::fixture"
+               || (aliasedOrReal && simplifiedName.startsWith("::fixture"))){
+        m_currentState.setFlag(BoostTestTreeItem::Fixture);
     }
-    // TODO.. fixture, label, depends_on, label, precondition, timeout,...
+    // TODO.. depends_on, label, precondition, timeout,...
 
     skipCommentsUntil(T_LPAREN);
     skipCommentsUntil(T_RPAREN);

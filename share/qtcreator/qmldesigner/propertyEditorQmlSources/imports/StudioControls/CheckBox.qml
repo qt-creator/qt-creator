@@ -32,7 +32,8 @@ T.CheckBox {
 
     property alias actionIndicator: actionIndicator
 
-    property bool hover: myCheckBox.hovered // TODO two underscores
+    property bool hover: myCheckBox.hovered
+    property bool edit: false
 
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
@@ -43,21 +44,23 @@ T.CheckBox {
 
     font.pixelSize: StudioTheme.Values.myFontSize
 
-    height: StudioTheme.Values.height
-    width: StudioTheme.Values.height * 5
+    implicitWidth: Math.max(
+                       implicitBackgroundWidth + leftInset + rightInset,
+                       implicitContentWidth + leftPadding + rightPadding
+                       + implicitIndicatorWidth + spacing + actionIndicator.width)
+    implicitHeight: Math.max(
+                        implicitBackgroundHeight + topInset + bottomInset,
+                        implicitContentHeight + topPadding + bottomPadding,
+                        implicitIndicatorHeight + topPadding + bottomPadding)
 
     spacing: StudioTheme.Values.checkBoxSpacing
     hoverEnabled: true
-    activeFocusOnTab: false // TODO Decision pending. Focus for CheckBoxes?
+    activeFocusOnTab: false
 
     contentItem: T.Label {
         id: checkBoxLabel
         leftPadding: 0
         rightPadding: 0
-
-        width: 20 // TODO Not working
-        elide: Text.ElideRight
-
         verticalAlignment: Text.AlignVCenter
         text: myCheckBox.text
         font: myCheckBox.font
@@ -68,9 +71,7 @@ T.CheckBox {
         id: actionIndicator
         myControl: myCheckBox // TODO global hover issue. Can be solved with extra property in ActionIndicator
 
-        x: checkBoxLabel.visible ? checkBoxLabel.contentWidth
-                                   + (myCheckBox.spacing
-                                      * StudioTheme.Values.scaleFactor) : 0 // TODO scale factor
+        x: checkBoxLabel.visible ? checkBoxLabel.contentWidth + myCheckBox.spacing : 0
         y: 0
         width: actionIndicator.visible ? __actionIndicatorWidth : 0
         height: actionIndicator.visible ? __actionIndicatorHeight : 0
@@ -125,6 +126,7 @@ T.CheckBox {
         State {
             name: "hovered"
             when: myCheckBox.hovered && !myCheckBox.pressed
+                  && !actionIndicator.hover
             PropertyChanges {
                 target: checkBoxBackground
                 color: StudioTheme.Values.themeHoverHighlight

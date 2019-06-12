@@ -102,9 +102,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 {
     QmlItemNode newQmlItemNode;
 
-    try {
-        RewriterTransaction transaction = view->beginRewriterTransaction(QByteArrayLiteral("QmlItemNode::createQmlItemNode"));
-
+    view->executeInTransaction("QmlItemNode::createQmlItemNode", [=, &newQmlItemNode, &parentproperty](){
         NodeMetaInfo metaInfo = view->model()->metaInfo(itemLibraryEntry.typeName());
 
         int minorVersion = metaInfo.minorVersion();
@@ -139,7 +137,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             parentproperty.reparentHere(newQmlItemNode);
 
         if (!newQmlItemNode.isValid())
-            return newQmlItemNode;
+            return;
 
         newQmlItemNode.setId(view->generateNewId(itemLibraryEntry.name()));
 
@@ -150,10 +148,7 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             newQmlItemNode.modelNode().variantProperty(propertyBindingEntry.first).setEnumeration(propertyBindingEntry.second.toUtf8());
 
         Q_ASSERT(newQmlItemNode.isValid());
-    }
-    catch (const RewritingException &e) {
-        e.showException();
-    }
+    });
 
     Q_ASSERT(newQmlItemNode.isValid());
 
@@ -174,10 +169,8 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
 {
     QmlItemNode newQmlItemNode;
 
-    if (parentproperty.isValid()) {
-        RewriterTransaction transaction = view->beginRewriterTransaction(QByteArrayLiteral("QmlItemNode::createQmlItemNodeFromImage"));
-
-        if (view->model()->hasNodeMetaInfo("QtQuick.Image")) {
+    if (parentproperty.isValid() && view->model()->hasNodeMetaInfo("QtQuick.Image")) {
+        view->executeInTransaction("QmlItemNode::createQmlItemNodeFromImage", [=, &newQmlItemNode, &parentproperty](){
             NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
             QList<QPair<PropertyName, QVariant> > propertyPairList;
             propertyPairList.append({PropertyName("x"), QVariant(qRound(position.x()))});
@@ -200,8 +193,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
             newQmlItemNode.modelNode().variantProperty("fillMode").setEnumeration("Image.PreserveAspectFit");
 
             Q_ASSERT(newQmlItemNode.isValid());
-        }
-        Q_ASSERT(newQmlItemNode.isValid());
+        });
     }
 
     return newQmlItemNode;

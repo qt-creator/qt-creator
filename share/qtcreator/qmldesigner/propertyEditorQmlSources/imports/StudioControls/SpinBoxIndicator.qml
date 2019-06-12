@@ -47,7 +47,10 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         onContainsMouseChanged: spinBoxIndicator.hover = containsMouse
-        onPressed: mouse.accepted = false
+        onPressed: {
+            myControl.forceActiveFocus()
+            mouse.accepted = false
+        }
     }
 
     T.Label {

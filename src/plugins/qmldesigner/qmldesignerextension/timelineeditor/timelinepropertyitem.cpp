@@ -534,15 +534,9 @@ void TimelineKeyframeItem::commitPosition(const QPointF &point)
 
     blockUpdates();
 
-    try {
-        RewriterTransaction transaction(
-            m_frame.view()->beginRewriterTransaction("TimelineKeyframeItem::commitPosition"));
-
+    m_frame.view()->executeInTransaction("TimelineKeyframeItem::commitPosition", [this, frame](){
         m_frame.variantProperty("frame").setValue(frame);
-        transaction.commit();
-    } catch (const RewritingException &e) {
-        e.showException();
-    }
+    });
 
     enableUpdates();
 }

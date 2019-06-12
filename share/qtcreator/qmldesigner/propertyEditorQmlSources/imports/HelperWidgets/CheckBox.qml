@@ -47,8 +47,8 @@ Controls.CheckBox {
         id: colorLogic
         backendValue: checkBox.backendValue
         onValueFromBackendChanged: {
-            if (checkBox.checked !== valueFromBackend)
-                checkBox.checked = valueFromBackend;
+            if (checkBox.checked !== colorLogic.valueFromBackend)
+                checkBox.checked = colorLogic.valueFromBackend;
         }
     }
 

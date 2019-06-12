@@ -26,7 +26,7 @@
 import QtQuick 2.1
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0 as Controls
+import StudioControls 1.0 as StudioControls
 import QtQuickDesignerTheme 1.0
 
 Section {
@@ -63,6 +63,7 @@ Section {
         FontComboBox {
             backendValue: fontSection.fontFamily
             Layout.fillWidth: true
+            width: 160
         }
 
         Label {
@@ -111,11 +112,13 @@ Section {
                 }
             }
 
-            Controls.ComboBox {
+            StudioControls.ComboBox {
                 id: sizeType
                 model: ["pixels", "points"]
                 property color textColor: Theme.color(Theme.PanelTextColorLight)
-                onCurrentIndexChanged: {
+                actionIndicatorVisible: false
+
+                onActivated: {
                     if (sizeWidget.isSetup)
                         return;
                     if (currentText == "pixels") {
@@ -128,10 +131,6 @@ Section {
                 }
 
                 Layout.fillWidth: true
-
-                style: CustomComboBoxStyle {
-                }
-
             }
 
         }

@@ -43,6 +43,7 @@ public:
 
         Parameterized       = 0x10,
         Fixture             = 0x20,
+        Templated           = 0x40,
     };
     Q_FLAGS(TestState)
     Q_DECLARE_FLAGS(TestStates, TestState)

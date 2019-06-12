@@ -290,8 +290,6 @@ void BindingModel::addModelNode(const ModelNode &modelNode)
 
 void BindingModel::updateExpression(int row)
 {
-    BindingProperty bindingProperty = bindingPropertyForRow(row);
-
     const QString sourceNode = data(index(row, SourceModelNodeRow)).toString().trimmed();
     const QString sourceProperty = data(index(row, SourcePropertyNameRow)).toString().trimmed();
 
@@ -302,15 +300,10 @@ void BindingModel::updateExpression(int row)
         expression = sourceNode + QLatin1String(".") + sourceProperty;
     }
 
-    RewriterTransaction transaction =
-        connectionView()->beginRewriterTransaction(QByteArrayLiteral("BindingModel::updateExpression"));
-    try {
+    connectionView()->executeInTransaction("BindingModel::updateExpression", [this, row, expression](){
+        BindingProperty bindingProperty = bindingPropertyForRow(row);
         bindingProperty.setExpression(expression.trimmed());
-        transaction.commit(); //committing in the try block
-    } catch (Exception &e) {
-        m_exceptionError = e.description();
-        QTimer::singleShot(200, this, &BindingModel::handleException);
-    }
+    });
 }
 
 void BindingModel::updatePropertyName(int rowNumber)

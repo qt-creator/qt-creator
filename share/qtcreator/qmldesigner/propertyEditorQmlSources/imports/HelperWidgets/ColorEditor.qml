@@ -588,18 +588,8 @@ Column {
             }
         }
 
-        //empty spacer 2
         Item {
-            height: 6
-        }
-
-        Item {
-            height: 6
-        }
-
-        //spacer 3
-        Item {
-            height: 6
+            height: 8
         }
 
         ColorButton {
@@ -622,13 +612,17 @@ Column {
             onClicked: colorEditor.color = colorButton.color
         }
 
-        //empty spacer 4
-        Item { height: 2 }
-        Item { height: 2 }
-
-        //spacer 5
         Item {
-            height: 4
+            height: 1
+        }
+
+        Item {
+            height: 2
+            visible: checkButton.checked
+        }
+
+        Item {
+            height: 1
         }
 
         Item {
@@ -645,7 +639,8 @@ Column {
                     spacing: 2
                     Column {
                         spacing: 5
-                        Text {
+                        Label {
+                            width: parent.width
                             text: qsTr("Original")
                             color: "#eee"
                         }
@@ -670,7 +665,8 @@ Column {
 
                     Column {
                         spacing: 5
-                        Text {
+                        Label {
+                            width: parent.width
                             text: qsTr("New")
                             color: "#eee"
                         }
@@ -688,7 +684,8 @@ Column {
 
                 Column {
                     spacing: 5
-                    Text {
+                    Label {
+                        width: parent.width
                         text: qsTr("Recent")
                         color: "#eee"
                         elide: Text.ElideRight
@@ -705,8 +702,6 @@ Column {
                     }
                 }
 
-                ExpandingSpacer {
-                }
             }
         }
     }
