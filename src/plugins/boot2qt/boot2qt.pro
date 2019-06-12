@@ -21,8 +21,7 @@ HEADERS += \
     qdbdevicedebugsupport.h \
     qdbconstants.h \
     qdb_global.h \
-    qdbplugin.h \
-    qdbdeviceprocess.h
+    qdbplugin.h
 
 SOURCES += \
     qdbutils.cpp \
@@ -37,7 +36,6 @@ SOURCES += \
     qdbstopapplicationservice.cpp \
     qdbdeploystepfactory.cpp \
     qdbdevicedebugsupport.cpp \
-    qdbdeviceprocess.cpp \
     qdbplugin.cpp \
 
 FORMS += \

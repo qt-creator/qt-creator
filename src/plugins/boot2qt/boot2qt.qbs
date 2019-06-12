@@ -29,8 +29,6 @@ QtcPlugin {
             "qdbdevice.h",
             "qdbdevicedebugsupport.cpp",
             "qdbdevicedebugsupport.h",
-            "qdbdeviceprocess.cpp",
-            "qdbdeviceprocess.h",
             "qdbdevicewizard.cpp",
             "qdbdevicewizard.h",
             "qdbdevicewizardsettingspage.ui",

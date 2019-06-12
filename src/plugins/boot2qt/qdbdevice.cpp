@@ -27,14 +27,16 @@
 
 #include "qdbutils.h"
 #include "qdbconstants.h"
-#include "qdbdeviceprocess.h"
 #include "qdbdevicedebugsupport.h"
 #include "qdbdevicewizard.h"
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/applicationlauncher.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runcontrol.h>
+
+#include <remotelinux/linuxdeviceprocess.h>
 
 #include <ssh/sshconnection.h>
 
@@ -47,6 +49,25 @@ using namespace Utils;
 
 namespace Qdb {
 namespace Internal {
+
+class QdbDeviceProcess : public RemoteLinux::LinuxDeviceProcess
+{
+public:
+    QdbDeviceProcess(const QSharedPointer<const IDevice> &device, QObject *parent)
+        : RemoteLinux::LinuxDeviceProcess(device, parent)
+    {
+    }
+
+    void terminate() override
+    {
+        ProjectExplorer::Runnable r;
+        r.executable = Constants::AppcontrollerFilepath;
+        r.commandLineArguments = QStringLiteral("--stop");
+
+        (new ApplicationLauncher(this))->start(r, device());
+    }
+};
+
 
 class DeviceApplicationObserver : public ApplicationLauncher
 {
