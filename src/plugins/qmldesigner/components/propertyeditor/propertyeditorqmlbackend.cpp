@@ -408,17 +408,43 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
     if (!templateConfiguration() || !templateConfiguration()->isValid())
         return QString();
 
+    const auto nodes = templateConfiguration()->children();
+
+    QStringList sectorTypes;
+
+    for (const QmlJS::SimpleReaderNode::Ptr &node : nodes) {
+        if (node->propertyNames().contains("separateSection"))
+            sectorTypes.append(variantToStringList(node->property("typeNames")));
+    }
+
     QStringList imports = variantToStringList(templateConfiguration()->property(QStringLiteral("imports")));
 
     QString qmlTemplate = imports.join(QLatin1Char('\n')) + QLatin1Char('\n');
-    qmlTemplate += QStringLiteral("Section {\n");
-    qmlTemplate += QStringLiteral("caption: \"%1\"\n").arg(QString::fromUtf8(type.simplifiedTypeName()));
-    qmlTemplate += QStringLiteral("SectionLayout {\n");
+
+    qmlTemplate += "Column {\n";
+    qmlTemplate += "anchors.left: parent.left\n";
+    qmlTemplate += "anchors.right: parent.right\n";
 
     QList<PropertyName> orderedList = type.propertyNames();
-    Utils::sort(orderedList);
+    Utils::sort(orderedList, [type, &sectorTypes](const PropertyName &left, const PropertyName &right){
+        const QString typeNameLeft = QString::fromLatin1(type.propertyTypeName(left));
+        const QString typeNameRight = QString::fromLatin1(type.propertyTypeName(right));
+        if (typeNameLeft == typeNameRight)
+            return left > right;
+
+        if (sectorTypes.contains(typeNameLeft)) {
+            if (sectorTypes.contains(typeNameRight))
+                return left > right;
+            return true;
+        } else if (sectorTypes.contains(typeNameRight)) {
+            return false;
+        }
+        return left > right;
+    });
 
     bool emptyTemplate = true;
+
+    bool sectionStarted = false;
 
     foreach (const PropertyName &name, orderedList) {
 
@@ -433,15 +459,35 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
         if (typeName == "alias" && node.isValid())
             typeName = node.instanceType(name);
 
+        auto nodes = templateConfiguration()->children();
+
         if (!superType.hasProperty(name) && type.propertyIsWritable(name) && !name.contains(".")) {
-            foreach (const QmlJS::SimpleReaderNode::Ptr &node, templateConfiguration()->children())
+
+            foreach (const QmlJS::SimpleReaderNode::Ptr &node, nodes)
                 if (variantToStringList(node->property(QStringLiteral("typeNames"))).contains(QString::fromLatin1(typeName))) {
                     const QString fileName = propertyTemplatesPath() + node->property(QStringLiteral("sourceFile")).toString();
                     QFile file(fileName);
                     if (file.open(QIODevice::ReadOnly)) {
                         QString source = QString::fromUtf8(file.readAll());
                         file.close();
+                        const bool section = node->propertyNames().contains("separateSection");
+                        if (section) {
+                            qmlTemplate += "Section {\n";
+                            qmlTemplate += "anchors.left: parent.left\n";
+                            qmlTemplate += "anchors.right: parent.right\n";
+                            qmlTemplate += QString("caption: \"%1\"\n").arg(QString::fromUtf8(properName));
+                        } else if (!sectionStarted) {
+                            qmlTemplate += QStringLiteral("Section {\n");
+                            qmlTemplate += QStringLiteral("caption: \"%1\"\n").arg(QString::fromUtf8(type.simplifiedTypeName()));
+                            qmlTemplate += "anchors.left: parent.left\n";
+                            qmlTemplate += "anchors.right: parent.right\n";
+                            qmlTemplate += QStringLiteral("SectionLayout {\n");
+                            sectionStarted = true;
+                        }
+
                         qmlTemplate += source.arg(QString::fromUtf8(name)).arg(QString::fromUtf8(properName));
+                        if (section)
+                            qmlTemplate += "}\n";
                         emptyTemplate = false;
                     } else {
                         qWarning().nospace() << "template definition source file not found:" << fileName;
@@ -449,8 +495,12 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
                 }
         }
     }
-    qmlTemplate += QStringLiteral("}\n"); //Section
-    qmlTemplate += QStringLiteral("}\n"); //SectionLayout
+    if (sectionStarted) {
+        qmlTemplate += QStringLiteral("}\n"); //Section
+        qmlTemplate += QStringLiteral("}\n"); //SectionLayout
+    }
+
+    qmlTemplate += "}\n";
 
     if (emptyTemplate)
         return QString();
