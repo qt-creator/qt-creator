@@ -26,13 +26,15 @@
 import QtQuick 2.1
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0 as Controls
+import StudioControls 1.0 as StudioControls
 
-Controls.ComboBox {
+StudioControls.ComboBox {
     id: comboBox
 
     property variant backendValue
     property color textColor: colorLogic.textColor
+
+    labelColor: colorLogic.textColor
 
     onTextColorChanged: setColor()
 
@@ -43,9 +45,18 @@ Controls.ComboBox {
         editText = comboBox.backendValue.valueToString
     }
 
-    style: CustomComboBoxStyle {
-        textColor: comboBox.textColor
+    ExtendedFunctionLogic {
+        id: extFuncLogic
+        backendValue: comboBox.backendValue
     }
+
+    actionIndicator.icon.color: extFuncLogic.color
+    actionIndicator.icon.text: extFuncLogic.glyph
+    actionIndicator.onClicked: extFuncLogic.show()
+
+    property bool showExtendedFunctionButton: true
+
+    actionIndicator.visible: showExtendedFunctionButton
 
     ColorLogic {
         id: colorLogic
@@ -80,13 +91,6 @@ Controls.ComboBox {
 
         if (backendValue.value !== indexText)
             backendValue.value = indexText;
-    }
-
-    ExtendedFunctionButton {
-        x: 2
-        anchors.verticalCenter: parent.verticalCenter
-        backendValue: comboBox.backendValue
-        visible: comboBox.enabled
     }
 
     Connections {

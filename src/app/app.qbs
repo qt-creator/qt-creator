@@ -26,8 +26,14 @@ QtcProduct {
     property bool qtcRunnable: true
 
     bundle.identifier: qtc.ide_bundle_identifier
+
+    // Some of these are in here only to override the entries added to app-Info.plist with other
+    // build systems in mind.
     bundle.infoPlist: ({
-        "NSHumanReadableCopyright": qtc.qtcreator_copyright_string
+        "NSHumanReadableCopyright": qtc.qtcreator_copyright_string,
+        "CFBundleExecutable": qtc.ide_app_target,
+        "CFBundleIdentifier": qtc.ide_bundle_identifier,
+        "CFBundleVersion": version
     })
 
     cpp.rpaths: qbs.targetOS.contains("macos") ? ["@executable_path/../Frameworks"]

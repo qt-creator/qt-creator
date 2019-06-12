@@ -48,28 +48,18 @@ TimelineActions::TimelineActions() = default;
 void TimelineActions::deleteAllKeyframesForTarget(const ModelNode &targetNode,
                                                   const QmlTimeline &timeline)
 {
-    try {
-        RewriterTransaction transaction(targetNode.view()->beginRewriterTransaction(
-            "TimelineActions::deleteAllKeyframesForTarget"));
-
+    targetNode.view()->executeInTransaction("TimelineActions::deleteAllKeyframesForTarget", [=](){
         if (timeline.isValid()) {
             for (auto frames : timeline.keyframeGroupsForTarget(targetNode))
                 frames.destroy();
         }
-
-        transaction.commit();
-    } catch (const Exception &e) {
-        e.showException();
-    }
+    });
 }
 
 void TimelineActions::insertAllKeyframesForTarget(const ModelNode &targetNode,
                                                   const QmlTimeline &timeline)
 {
-    try {
-        RewriterTransaction transaction(targetNode.view()->beginRewriterTransaction(
-            "TimelineGraphicsScene::insertAllKeyframesForTarget"));
-
+    targetNode.view()->executeInTransaction("TimelineActions::insertAllKeyframesForTarget", [=](){
         auto object = QmlObjectNode(targetNode);
         if (timeline.isValid() && object.isValid()) {
             for (auto frames : timeline.keyframeGroupsForTarget(targetNode)) {
@@ -78,10 +68,7 @@ void TimelineActions::insertAllKeyframesForTarget(const ModelNode &targetNode,
             }
         }
 
-        transaction.commit();
-    } catch (const Exception &e) {
-        e.showException();
-    }
+    });
 }
 
 void TimelineActions::copyAllKeyframesForTarget(const ModelNode &targetNode,
@@ -117,11 +104,10 @@ void TimelineActions::pasteKeyframesToTarget(const ModelNode &targetNode,
 
         pasteModel->detachView(&view);
 
-        try {
-            targetNode.view()->model()->attachView(&view);
+        view.executeInTransaction("TimelineActions::pasteKeyframesToTarget", [=, &view](){
 
-            RewriterTransaction transaction(
-                view.beginRewriterTransaction("TimelineActions::pasteKeyframesToTarget"));
+
+            targetNode.view()->model()->attachView(&view);
 
             ModelNode nonConstTargetNode = targetNode;
             nonConstTargetNode.validId();
@@ -144,11 +130,7 @@ void TimelineActions::pasteKeyframesToTarget(const ModelNode &targetNode,
                     timeline.modelNode().defaultNodeListProperty().reparentHere(newNode);
                 }
             }
-
-            transaction.commit();
-        } catch (const Exception &e) {
-            e.showException();
-        }
+        });
     }
 }
 
@@ -296,9 +278,7 @@ void TimelineActions::pasteKeyframes(AbstractView *timelineView, const QmlTimeli
 
     ModelNode rootNode = view.rootModelNode();
 
-    try {
-        RewriterTransaction transaction(
-            timelineView->beginRewriterTransaction("TimelineActions::pasteKeyframes"));
+    timelineView->executeInTransaction("TimelineActions::pasteKeyframes", [=](){
         if (isKeyframe(rootNode))
             pasteKeyframe(currentTime, rootNode, timelineView, timeline);
         else
@@ -308,10 +288,7 @@ void TimelineActions::pasteKeyframes(AbstractView *timelineView, const QmlTimeli
                               timelineView,
                               timeline);
 
-        transaction.commit();
-    } catch (const Exception &e) {
-        e.showException();
-    }
+    });
 }
 
 bool TimelineActions::clipboardContainsKeyframes()

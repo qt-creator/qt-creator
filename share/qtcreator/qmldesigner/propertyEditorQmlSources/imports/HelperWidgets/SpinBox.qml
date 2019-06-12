@@ -38,6 +38,7 @@ Item {
     property real stepSize: 1.0
 
     property alias backendValue: spinBox.backendValue
+    property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
 
     width: 120
     implicitHeight: spinBox.height
@@ -67,7 +68,7 @@ Item {
 
         property real realValue: value / factor
         property variant backendValue
-        property bool hasSlider: false
+        property bool hasSlider: wrapper.sliderIndicatorVisible
 
         from: minimumValue * factor
         to: maximumValue * factor
@@ -90,7 +91,7 @@ Item {
             }
         }
 
-        textColor: colorLogic.textColor
+        labelColor: colorLogic.textColor
 
         onCompressedValueModified: {
             if (backendValue.value !== realValue)

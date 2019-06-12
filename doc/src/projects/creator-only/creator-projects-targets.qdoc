@@ -73,6 +73,21 @@
 
     \endlist
 
+    \section1 Filtering Kit Settings
+
+    Typically, only a subset of the kit settings is relevant for a particular
+    setup. Therefore, \QC plugins register sets of relevant settings that you
+    can view and modify in \uicontrol Tools > \uicontrol Options >
+    \uicontrol Kits >. For example, if you use CMake to build all your projects,
+    you can hide Qbs and qmake settings by default.
+
+    To hide and show settings in the \uicontrol Kits tab for the
+    current kit, select \uicontrol {Settings Filter}. To view and
+    modify the settings displayed when you add a new kit, select
+    \uicontrol {Default Settings Filter}.
+
+    \section1 Specifying Kit Settings
+
     To add kits:
 
     \list 1
@@ -105,12 +120,12 @@
 
         \li In the \uicontrol Device field, select a device.
 
-        \li In the \uicontrol {Emulator skin} field, select the skin to use for
-            the \l {Emulator}{Boot2Qt Emulator Device}.
-
         \li In the \uicontrol Sysroot field, specify the directory where the device
             image is located. If you are not cross-compiling, leave this field
             empty.
+
+        \li In the \uicontrol {Emulator skin} field, select the skin to use for
+            the \l {Emulator}{Boot2Qt Emulator Device}.
 
         \li In the \uicontrol {Compiler} field, select the C or C++ compiler
             that you use to build the project. You can add compilers to the list
@@ -153,6 +168,10 @@
             configuration that should be used by qmake. If you leave this field
             empty, the default mkspec of the selected Qt version is used.
 
+        \li In the \uicontrol {Additional Qbs profile settings} field, select
+            \uicontrol Change to add settings to Qbs build profiles. For more
+            information, see \l {Editing Qbs Profiles}.
+
         \li In the \uicontrol {CMake Tool} field, select the CMake tool to use
             for building the project. Select \uicontrol Manage to add installed
             CMake tools to the list. For more information, see
@@ -168,10 +187,6 @@
         \li In the \uicontrol {CMake configuration} field, select
             \uicontrol Change to edit the variables of the CMake configuration
             for the kit.
-
-        \li In the \uicontrol {Additional Qbs profile settings} field, select
-            \uicontrol Change to add settings to Qbs build profiles. For more
-            information, see \l {Editing Qbs Profiles}.
 
     \endlist
 
@@ -194,16 +209,18 @@
     \list 1
 
         \li Select \uicontrol Change next to the
-            \uicontrol {Additional Qbs Profile Settings} field.
+            \uicontrol {Additional Qbs Profile Settings} field to open the
+            \uicontrol {Custom Properties} dialog.
 
             \image qtcreator-qbs-profile-settings.
 
-        \li Select \uicontrol Add.
+        \li Double-click an empty cell in the \uicontrol Key column to specify
+            the key to add or modify as: \c <module_name>.<property_name>.
 
-        \li In the \uicontrol Key column, spefify the key to add or modify as:
-            \c <module_name>.<property_name>.
+        \li Double-click the cell on the same row in the \uicontrol Value column
+            to specify a value as a JSON literal.
 
-        \li In the \uicontrol Value column, specify a value as a JSON literal.
+        \li Select \uicontrol Add to add the key-value pair.
 
         \li Click \uicontrol OK.
 

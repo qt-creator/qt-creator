@@ -71,6 +71,7 @@ signals:
     void requestStopTestRun();
     void testResultReady(const TestResultPtr &result);
     void hadDisabledTests(int disabled);
+    void reportSummary(const QString &id, const QHash<ResultType, int> &summary);
 
 private:
     void buildProject(ProjectExplorer::Project *project);

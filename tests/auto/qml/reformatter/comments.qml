@@ -21,5 +21,13 @@ Item {
         {
             console.log("test")
         }
+
+        var a = 1
+        if (a > 0) {
+            console.log("positive")
+        } // Final condition
+        else {
+            console.log("negative or zero")
+        }
     }
 }

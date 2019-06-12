@@ -202,22 +202,13 @@ bool EasingCurveDialog::apply()
         msgBox.exec();
         return false;
     }
+    AbstractView *view = m_frames.first().view();
 
-    try {
-        AbstractView *view = m_frames.first().view();
-        RewriterTransaction transaction(view->beginRewriterTransaction("EasingCurveDialog::apply"));
-
+    return view->executeInTransaction("EasingCurveDialog::apply", [this, view](){
         auto expression = m_splineEditor->easingCurve().toString();
         for (const auto &frame : m_frames)
             frame.bindingProperty("easing.bezierCurve").setExpression(expression);
-
-        transaction.commit();
-        return true;
-    } catch (const RewritingException &e) {
-        e.showException();
-    }
-
-    return false;
+    });
 }
 
 void EasingCurveDialog::textChanged()

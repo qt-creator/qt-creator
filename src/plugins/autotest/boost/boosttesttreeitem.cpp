@@ -233,7 +233,10 @@ QList<TestConfiguration *> BoostTestTreeItem::getSelectedTestConfigurations() co
         if (!item->enabled()) // ignore child tests known to be disabled when using run selected
             return;
         if (item->checked() == Qt::Checked) {
-            QString tcName = handleSpecialFunctionNames(item->name());
+            QString tcName = item->name();
+            if (item->state().testFlag(BoostTestTreeItem::Templated))
+                tcName.append("<*");
+            tcName = handleSpecialFunctionNames(tcName);
             testCasesForProjectFile[item->proFile()].testCases.append(
                         item->prependWithParentsSuitePaths(tcName));
             testCasesForProjectFile[item->proFile()].internalTargets.unite(item->internalTargets());
@@ -268,12 +271,17 @@ TestConfiguration *BoostTestTreeItem::testConfiguration() const
                         QString tcName = handleSpecialFunctionNames(boostItem->name());
                         if (boostItem->type() == TestSuite) // execute everything below a suite
                             tcName.append("/*");
+                        else if (boostItem->state().testFlag(BoostTestTreeItem::Templated))
+                            tcName.append("<*");
                         testCases.append(boostItem->prependWithParentsSuitePaths(tcName));
                     }
                 }
             });
         } else {
-            testCases.append(prependWithParentsSuitePaths(handleSpecialFunctionNames(name())));
+            QString tcName = name();
+            if (state().testFlag(BoostTestTreeItem::Templated))
+                tcName.append("<*");
+            testCases.append(prependWithParentsSuitePaths(handleSpecialFunctionNames(tcName)));
         }
 
         BoostTestConfiguration *config = new BoostTestConfiguration;
@@ -297,12 +305,15 @@ TestConfiguration *BoostTestTreeItem::debugConfiguration() const
 QString BoostTestTreeItem::nameSuffix() const
 {
     static QString markups[] = {QCoreApplication::translate("BoostTestTreeItem", "parameterized"),
-                                QCoreApplication::translate("BoostTestTreeItem", "fixture")};
+                                QCoreApplication::translate("BoostTestTreeItem", "fixture"),
+                                QCoreApplication::translate("BoostTestTreeItem", "templated")};
     QString suffix;
     if (m_state & Parameterized)
         suffix = QString(" [") + markups[0];
     if (m_state & Fixture)
         suffix += (suffix.isEmpty() ? QString(" [") : QString(", ")) + markups[1];
+    if (m_state & Templated)
+        suffix += (suffix.isEmpty() ? QString(" [") : QString(", ")) + markups[2];
     if (!suffix.isEmpty())
         suffix += ']';
     return suffix;

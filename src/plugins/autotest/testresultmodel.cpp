@@ -23,10 +23,11 @@
 **
 ****************************************************************************/
 
+#include "testresultmodel.h"
 #include "autotesticons.h"
 #include "autotestplugin.h"
 #include "testresultdelegate.h"
-#include "testresultmodel.h"
+#include "testrunner.h"
 #include "testsettings.h"
 
 #include <projectexplorer/projectexplorericons.h>
@@ -220,6 +221,10 @@ QString TestResultItem::resultString() const
 TestResultModel::TestResultModel(QObject *parent)
     : Utils::TreeModel<TestResultItem>(new TestResultItem(TestResultPtr()), parent)
 {
+    connect(TestRunner::instance(), &TestRunner::reportSummary,
+            this, [this](const QString &id, const QHash<ResultType, int> &summary){
+        m_reportedSummary.insert(id, summary);
+    });
 }
 
 void TestResultModel::updateParent(const TestResultItem *item)
@@ -256,7 +261,7 @@ void TestResultModel::addTestResult(const TestResultPtr &testResult, bool autoEx
         return;
     }
 
-    m_testResultCount[testResult->result()]++;
+    m_testResultCount[testResult->id()][testResult->result()]++;
 
     TestResultItem *newItem = new TestResultItem(testResult);
     TestResultItem *root = nullptr;
@@ -314,6 +319,7 @@ void TestResultModel::clearTestResults()
 {
     clear();
     m_testResultCount.clear();
+    m_reportedSummary.clear();
     m_disabled = 0;
     m_fileNames.clear();
     m_maxWidthOfFileName = 0;
@@ -361,6 +367,21 @@ int TestResultModel::maxWidthOfLineNumber(const QFont &font)
         m_widthOfLineNumber = fm.horizontalAdvance("88888");
     }
     return m_widthOfLineNumber;
+}
+
+int TestResultModel::resultTypeCount(ResultType type) const
+{
+    int result = 0;
+
+    for (auto resultsForId : m_testResultCount.values())
+        result += resultsForId.value(type, 0);
+
+    for (auto id : m_reportedSummary.keys()) {
+        if (int counted = m_testResultCount.value(id).value(type))
+            result -= counted;
+        result += m_reportedSummary[id].value(type);
+    }
+    return result;
 }
 
 TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,

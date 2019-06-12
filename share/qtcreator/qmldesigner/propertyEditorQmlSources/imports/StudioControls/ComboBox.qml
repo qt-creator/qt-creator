@@ -32,10 +32,10 @@ T.ComboBox {
     id: myComboBox
 
     property alias actionIndicator: actionIndicator
-
     property alias labelColor: comboBoxInput.color
 
     property bool hover: false // This property is used to indicate the global hover state
+    property bool edit: myComboBox.activeFocus
 
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
@@ -203,7 +203,7 @@ T.ComboBox {
     states: [
         State {
             name: "default"
-            when: !myComboBox.hover && !myComboBox.activeFocus
+            when: !myComboBox.hover && !myComboBox.edit
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: false
@@ -220,7 +220,7 @@ T.ComboBox {
         },
         State {
             name: "focus"
-            when: myComboBox.activeFocus && !myComboBox.editable
+            when: myComboBox.edit && !myComboBox.editable
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: true
@@ -232,7 +232,7 @@ T.ComboBox {
         },
         State {
             name: "edit"
-            when: myComboBox.activeFocus && myComboBox.editable
+            when: myComboBox.edit && myComboBox.editable
             PropertyChanges {
                 target: myComboBox
                 wheelEnabled: true

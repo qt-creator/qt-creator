@@ -821,20 +821,15 @@ void TimelineBarItem::commitPosition(const QPointF & /*point*/)
 {
     if (sectionItem()->view()) {
         if (m_handle != Location::Undefined) {
-            qreal scaleFactor = rect().width() / m_oldRect.width();
+            sectionItem()->view()->executeInTransaction("TimelineBarItem::commitPosition", [this](){
+                qreal scaleFactor = rect().width() / m_oldRect.width();
 
-            qreal moved = (rect().topLeft().x() - m_oldRect.topLeft().x()) / rulerScaling();
-            qreal supposedFirstFrame = qRound(sectionItem()->firstFrame() + moved);
+                qreal moved = (rect().topLeft().x() - m_oldRect.topLeft().x()) / rulerScaling();
+                qreal supposedFirstFrame = qRound(sectionItem()->firstFrame() + moved);
 
-            try {
-                RewriterTransaction transaction(sectionItem()->view()->beginRewriterTransaction(
-                    "TimelineBarItem::commitPosition"));
                 sectionItem()->scaleAllFrames(scaleFactor);
                 sectionItem()->moveAllFrames(supposedFirstFrame - sectionItem()->firstFrame());
-                transaction.commit();
-            } catch (const RewritingException &e) {
-                e.showException();
-            }
+            });
         }
     }
 

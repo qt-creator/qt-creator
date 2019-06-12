@@ -32,7 +32,7 @@ TextInput {
 
     property T.Control myControl
 
-    property bool edit: false
+    property bool edit: textInput.activeFocus
     property bool drag: false
 
     z: 2
@@ -53,7 +53,7 @@ TextInput {
     activeFocusOnPress: false
     clip: true
 
-    // TextInput foucs needs to be set to activeFocus whenever it changes,
+    // TextInput focus needs to be set to activeFocus whenever it changes,
     // otherwise TextInput will get activeFocus whenever the parent SpinBox gets
     // activeFocus. This will lead to weird side effects.
     onActiveFocusChanged: textInput.focus = activeFocus
@@ -139,7 +139,7 @@ TextInput {
     states: [
         State {
             name: "default"
-            when: myControl.enabled && !textInput.activeFocus
+            when: myControl.enabled && !textInput.edit
                   && !mouseArea.containsMouse && !myControl.drag
             PropertyChanges {
                 target: textInputArea
@@ -161,7 +161,7 @@ TextInput {
         },
         State {
             name: "hovered"
-            when: myControl.hover && !textInput.activeFocus && !myControl.drag
+            when: myControl.hover && !textInput.edit && !myControl.drag
             PropertyChanges {
                 target: textInputArea
                 color: StudioTheme.Values.themeHoverHighlight
@@ -170,7 +170,7 @@ TextInput {
         },
         State {
             name: "edit"
-            when: textInput.activeFocus
+            when: textInput.edit
             PropertyChanges {
                 target: textInputArea
                 color: StudioTheme.Values.themeFocusEdit

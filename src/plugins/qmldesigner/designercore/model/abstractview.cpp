@@ -616,6 +616,20 @@ void AbstractView::deactivateTimelineRecording()
         model()->d->notifyCurrentTimelineChanged(ModelNode());
 }
 
+bool AbstractView::executeInTransaction(const QByteArray &identifier, const AbstractView::OperationBlock &lambda)
+{
+    try {
+        RewriterTransaction transaction = beginRewriterTransaction(identifier);
+        lambda();
+        transaction.commit();
+    } catch (const Exception &e) {
+        e.showException();
+        return false;
+    }
+
+    return true;
+}
+
 QList<ModelNode> AbstractView::allModelNodes() const
 {
     return toModelNodeList(model()->d->allNodes());

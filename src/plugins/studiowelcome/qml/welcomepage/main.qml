@@ -185,5 +185,20 @@ Item {
                 onClicked: Qt.openUrlExternally("http://blog.qt.io/")
             }
         }
+
+        Text {
+            id: qtDesignStudio1
+            x: 891
+            y: 171
+            color: "#ffffff"
+            text: qsTr("Community Edition")
+            anchors.right: parent.right
+            anchors.rightMargin: 23
+            font.weight: Font.Light
+            font.pixelSize: 14
+            font.family: Constants.titilliumWeb_regular
+            renderType: Text.NativeRendering
+            visible: projectModel.communityVersion
+        }
     }
 }

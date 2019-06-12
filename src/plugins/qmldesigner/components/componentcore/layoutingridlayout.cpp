@@ -185,17 +185,16 @@ void LayoutInGridLayout::doIt()
         if (qmlItemNode.hasInstanceParentItem()) {
 
             ModelNode layoutNode;
-            {
-                RewriterTransaction transaction(m_selectionContext.view(), QByteArrayLiteral("LayoutInGridLayout1"));
+
+            m_selectionContext.view()->executeInTransaction("LayoutInGridLayout1",[this, &layoutNode, layoutType](){
                 QTC_ASSERT(m_selectionContext.view()->model()->hasNodeMetaInfo(layoutType), return);
 
                 NodeMetaInfo metaInfo = m_selectionContext.view()->model()->metaInfo(layoutType);
                 layoutNode = m_selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
                 reparentTo(layoutNode, m_parentNode);
-            }
+            });
 
-            {
-                RewriterTransaction transaction(m_selectionContext.view(), QByteArrayLiteral("LayoutInGridLayout2"));
+            m_selectionContext.view()->executeInTransaction("LayoutInGridLayout2", [this, layoutNode](){
 
                 fillEmptyCells();
 
@@ -208,7 +207,7 @@ void LayoutInGridLayout::doIt()
                 reparentToNodeAndRemovePositionForModelNodes(layoutNode, sortedSelectedNodes);
                 setSizeAsPreferredSize(sortedSelectedNodes);
                 setSpanning(layoutNode);
-            }
+            });
         }
     }
 }

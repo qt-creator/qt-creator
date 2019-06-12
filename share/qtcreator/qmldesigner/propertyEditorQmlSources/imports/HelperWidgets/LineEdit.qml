@@ -45,6 +45,8 @@ Controls.TextField {
 
     property bool showExtendedFunctionButton: true
 
+    actionIndicator.visible: showExtendedFunctionButton
+
     signal commitData
 
     property string context

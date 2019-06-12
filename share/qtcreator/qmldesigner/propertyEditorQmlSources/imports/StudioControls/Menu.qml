@@ -43,6 +43,8 @@ T.Menu {
     overlap: 1
     padding: 0
 
+    closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent | T.Popup.CloseOnEscape
+
     delegate: MenuItem {
     }
 

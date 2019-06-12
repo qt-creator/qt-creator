@@ -33,6 +33,10 @@ Rectangle {
     width: 320
     height: 400
     color: Theme.qmlDesignerBackgroundColorDarkAlternate()
+    MouseArea {
+        anchors.fill: parent
+        onClicked: forceActiveFocus()
+    }
 
     ScrollView {
         anchors.fill: parent
@@ -117,6 +121,7 @@ Rectangle {
                             placeholderText: qsTr("id")
                             text: backendValues.id.value
                             Layout.fillWidth: true
+                            width: 240
                             showTranslateCheckBox: false
                             showExtendedFunctionButton: false
                             enabled: !modelNodeBackend.multiSelection
@@ -183,6 +188,7 @@ Rectangle {
 
                     SecondColumnLayout {
                         SpinBox {
+                            sliderIndicatorVisible: true
                             backendValue: backendValues.opacity
                             decimals: 2
 

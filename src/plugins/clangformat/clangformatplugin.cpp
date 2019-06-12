@@ -152,8 +152,13 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
                         openClangFormatConfigAction->setData(doc->filePath().toString());
                 });
     }
-#endif
     return true;
+#else
+    *errorString = "Disabling ClangFormat plugin as it is not built against a suitable version of "
+                   "Clang's libFormat. For more information, see the Qt Creator README at "
+                   "https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md";
+    return false;
+#endif
 }
 
 } // namespace ClangFormat

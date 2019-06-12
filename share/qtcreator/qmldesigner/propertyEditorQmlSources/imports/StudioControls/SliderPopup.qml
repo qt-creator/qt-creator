@@ -33,7 +33,6 @@ T.Popup {
     property T.Control myControl
 
     dim: false
-
     closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent
 
     background: Rectangle {

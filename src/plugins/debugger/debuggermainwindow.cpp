@@ -288,13 +288,12 @@ DebuggerMainWindow::DebuggerMainWindow()
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
-    connect(ICore::instance(), &ICore::saveSettingsRequested, this, [this] {
+    connect(ICore::instance(), &ICore::saveSettingsRequested, this,
+            [this](ICore::SaveSettingsReason reason) {
         // There's one saveSettings triggered after plugin loading intentionally.
         // We do not want to save anything at that time.
-        static bool firstOne = true;
-        if (firstOne) {
+        if (reason == ICore::InitializationDone) {
             qCDebug(perspectivesLog) << "FIRST SAVE SETTINGS REQUEST IGNORED";
-            firstOne = false;
         } else {
             qCDebug(perspectivesLog) << "SAVING SETTINGS";
             savePersistentSettings();

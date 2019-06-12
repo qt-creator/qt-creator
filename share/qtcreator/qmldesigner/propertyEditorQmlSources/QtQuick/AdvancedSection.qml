@@ -49,13 +49,14 @@ Section {
 
         SecondColumnLayout {
             SpinBox {
+                sliderIndicatorVisible: true
                 backendValue: backendValues.scale
                 hasSlider: true
                 decimals: 2
                 minimumValue: 0.01
                 stepSize: 0.1
                 maximumValue: 10
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: 140
             }
             ExpandingSpacer {
             }
@@ -65,12 +66,13 @@ Section {
         }
         SecondColumnLayout {
             SpinBox {
+                sliderIndicatorVisible: true
                 backendValue: backendValues.rotation
                 hasSlider: true
                 decimals: 2
                 minimumValue: -360
                 maximumValue: 360
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: 140
             }
             ExpandingSpacer {
             }
@@ -80,11 +82,12 @@ Section {
         }
         SecondColumnLayout {
             SpinBox {
+                sliderIndicatorVisible: true
                 backendValue: backendValues.z
                 hasSlider: true
                 minimumValue: -100
                 maximumValue: 100
-                Layout.preferredWidth: 100
+                Layout.preferredWidth: 140
             }
             ExpandingSpacer {
             }

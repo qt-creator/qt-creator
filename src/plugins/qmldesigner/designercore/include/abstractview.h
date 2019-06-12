@@ -39,6 +39,8 @@
 #include <QObject>
 #include <QPointer>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QStyle;
 class QToolButton;
@@ -262,6 +264,9 @@ public:
     void activateTimeline(const ModelNode &timeline);
     void activateTimelineRecording(const ModelNode &timeline);
     void deactivateTimelineRecording();
+
+    using OperationBlock = std::function<void()>;
+    bool executeInTransaction(const QByteArray &identifier, const OperationBlock &lambda);
 
 protected:
     void setModel(Model * model);

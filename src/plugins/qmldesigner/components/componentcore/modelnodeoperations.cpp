@@ -240,9 +240,7 @@ void changeOrder(const SelectionContext &selectionState, OderAction orderAction)
     if (!modelNode.parentProperty().isNodeListProperty())
         return;
 
-    try {
-        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|raise"));
-
+    selectionState.view()->executeInTransaction("DesignerActionManager|raise",[orderAction, selectionState, modelNode](){
         ModelNode modelNode = selectionState.currentSingleSelectedNode();
         NodeListProperty parentProperty = modelNode.parentProperty().toNodeListProperty();
         const int index = parentProperty.indexOf(modelNode);
@@ -255,11 +253,7 @@ void changeOrder(const SelectionContext &selectionState, OderAction orderAction)
             if (index > 0)
                 parentProperty.slide(index, index - 1);
         }
-
-        transaction.commit();
-    } catch (const RewritingException &e) { //better save then sorry
-         e.showException();
-    }
+    });
 }
 
 void raise(const SelectionContext &selectionState)
@@ -328,16 +322,13 @@ void resetSize(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    try {
-        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetSize"));
+    selectionState.view()->executeInTransaction("DesignerActionManager|resetSize",[selectionState](){
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
             itemNode.removeProperty("width");
             itemNode.removeProperty("height");
         }
-    } catch (const RewritingException &e) { //better save then sorry
-        e.showException();
-    }
+    });
 }
 
 void resetPosition(const SelectionContext &selectionState)
@@ -345,17 +336,13 @@ void resetPosition(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    try {
-        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetPosition"));
+    selectionState.view()->executeInTransaction("DesignerActionManager|resetPosition",[selectionState](){
         foreach (ModelNode node, selectionState.selectedModelNodes()) {
             QmlItemNode itemNode(node);
             itemNode.removeProperty("x");
             itemNode.removeProperty("y");
         }
-        transaction.commit();
-    } catch (const RewritingException &e) { //better save then sorry
-        e.showException();
-    }
+    });
 }
 
 void goIntoComponentOperation(const SelectionContext &selectionState)
@@ -372,11 +359,12 @@ void resetZ(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|resetZ"));
-    foreach (ModelNode node, selectionState.selectedModelNodes()) {
-        QmlItemNode itemNode(node);
-        itemNode.removeProperty("z");
-    }
+    selectionState.view()->executeInTransaction("DesignerActionManager|resetZ",[selectionState](){
+        foreach (ModelNode node, selectionState.selectedModelNodes()) {
+            QmlItemNode itemNode(node);
+            itemNode.removeProperty("z");
+        }
+    });
 }
 
 static inline void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
@@ -404,9 +392,7 @@ void anchorsFill(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    try {
-        RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|anchorsFill"));
-
+    selectionState.view()->executeInTransaction("DesignerActionManager|anchorsFill",[selectionState](){
         ModelNode modelNode = selectionState.currentSingleSelectedNode();
 
         QmlItemNode node = modelNode;
@@ -417,11 +403,7 @@ void anchorsFill(const SelectionContext &selectionState)
             backupPropertyAndRemove(modelNode, "width");
             backupPropertyAndRemove(modelNode, "height");
         }
-
-        transaction.commit();
-    } catch (const RewritingException &e) { //better save then sorry
-        e.showException();
-    }
+    });
 }
 
 void anchorsReset(const SelectionContext &selectionState)
@@ -429,19 +411,19 @@ void anchorsReset(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    RewriterTransaction transaction(selectionState.view(), QByteArrayLiteral("DesignerActionManager|anchorsReset"));
+    selectionState.view()->executeInTransaction("DesignerActionManager|anchorsReset",[selectionState](){
+        ModelNode modelNode = selectionState.currentSingleSelectedNode();
 
-    ModelNode modelNode = selectionState.currentSingleSelectedNode();
-
-    QmlItemNode node = modelNode;
-    if (node.isValid()) {
-        node.anchors().removeAnchors();
-        node.anchors().removeMargins();
-        restoreProperty(node, "x");
-        restoreProperty(node, "y");
-        restoreProperty(node, "width");
-        restoreProperty(node, "height");
-    }
+        QmlItemNode node = modelNode;
+        if (node.isValid()) {
+            node.anchors().removeAnchors();
+            node.anchors().removeMargins();
+            restoreProperty(node, "x");
+            restoreProperty(node, "y");
+            restoreProperty(node, "width");
+            restoreProperty(node, "height");
+        }
+    });
 }
 
 using LessThan = std::function<bool (const ModelNode &, const ModelNode&)>;
@@ -481,7 +463,7 @@ bool compareByGrid(const ModelNode &node1, const ModelNode &node2)
 
 static void layoutHelperFunction(const SelectionContext &selectionContext,
                                  const TypeName &layoutType,
-                                 LessThan lessThan)
+                                 const LessThan &lessThan)
 {
     if (!selectionContext.view()
             || !selectionContext.hasSingleSelectedModelNode()
@@ -492,10 +474,8 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
         const QmlItemNode qmlItemNode = QmlItemNode(selectionContext.firstSelectedModelNode());
 
         if (qmlItemNode.hasInstanceParentItem()) {
-
             ModelNode layoutNode;
-            {
-                RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|layoutHelperFunction1"));
+            selectionContext.view()->executeInTransaction("DesignerActionManager|layoutHelperFunction1",[=, &layoutNode](){
 
                 QmlItemNode parentNode = qmlItemNode.instanceParentItem();
 
@@ -504,10 +484,9 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                 layoutNode = selectionContext.view()->createModelNode(layoutType, metaInfo.majorVersion(), metaInfo.minorVersion());
 
                 reparentTo(layoutNode, parentNode);
-            }
+            });
 
-            {
-                RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|layoutHelperFunction2"));
+            selectionContext.view()->executeInTransaction("DesignerActionManager|layoutHelperFunction2",[=](){
 
                 QList<ModelNode> sortedSelectedNodes =  selectionContext.selectedModelNodes();
                 Utils::sort(sortedSelectedNodes, lessThan);
@@ -516,7 +495,7 @@ static void layoutHelperFunction(const SelectionContext &selectionContext,
                 LayoutInGridLayout::reparentToNodeAndRemovePositionForModelNodes(layoutNode, sortedSelectedNodes);
                 if (layoutType.contains("Layout"))
                     LayoutInGridLayout::setSizeAsPreferredSize(sortedSelectedNodes);
-            }
+            });
         }
     }
 }
@@ -662,16 +641,9 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 
     if (!qmlObjectNode.isRootModelNode()) {
         isModelNodeRoot = false;
-        try {
-            RewriterTransaction transaction =
-                    qmlObjectNode.view()->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
-
-            QmlObjectNode qmlObjectNode(modelNode);
+        qmlObjectNode.view()->executeInTransaction("NavigatorTreeModel:exportItem", [&qmlObjectNode](){
             qmlObjectNode.ensureAliasExport();
-            transaction.commit();
-        }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
-            exception.showException();
-        }
+        });
     }
 
     QString itemId = modelNode.id();
@@ -708,14 +680,10 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                 if (dialog->signal().isEmpty())
                     return;
 
-                try {
-                    RewriterTransaction transaction =
-                            qmlObjectNode.view()->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel:exportItem"));
+                qmlObjectNode.view()->executeInTransaction("NavigatorTreeModel:exportItem", [=](){
 
                     addSignal(typeName, itemId, dialog->signal(), isModelNodeRoot);
-                }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
-                    exception.showException();
-                }
+                });
 
                 addSignal(typeName, itemId, dialog->signal(), isModelNodeRoot);
 
@@ -751,9 +719,7 @@ void removeLayout(const SelectionContext &selectionContext)
     if (!parent.isValid())
         return;
 
-    {
-        RewriterTransaction transaction(selectionContext.view(), QByteArrayLiteral("DesignerActionManager|removeLayout"));
-
+    selectionContext.view()->executeInTransaction("DesignerActionManager|removeLayout", [selectionContext, &layoutItem, parent](){
         foreach (const ModelNode &modelNode, selectionContext.currentSingleSelectedNode().directSubModelNodes()) {
             if (QmlItemNode::isValidQmlItemNode(modelNode)) {
 
@@ -772,7 +738,7 @@ void removeLayout(const SelectionContext &selectionContext)
                 parent.modelNode().defaultNodeListProperty().reparentHere(modelNode);
         }
         layoutItem.destroy();
-    }
+    });
 }
 
 void removePositioner(const SelectionContext &selectionContext)
@@ -826,9 +792,7 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
         }
     }
 
-    try {
-        RewriterTransaction transaction =
-                view->beginRewriterTransaction(QByteArrayLiteral("DesignerActionManager:addItemToStackedContainer"));
+    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer", [=](){
 
         NodeMetaInfo itemMetaInfo = view->model()->metaInfo("QtQuick.Item", -1, -1);
         QTC_ASSERT(itemMetaInfo.isValid(), return);
@@ -853,11 +817,7 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
 
             }
         }
-
-        transaction.commit();
-    }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
-        exception.showException();
-    }
+    });
 }
 
 PropertyName getIndexPropertyName(const ModelNode &modelNode)
@@ -969,9 +929,8 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
     const PropertyName indexPropertyName = getIndexPropertyName(container);
     QTC_ASSERT(container.metaInfo().hasProperty(indexPropertyName), return);
 
-    try {
-        RewriterTransaction transaction =
-                view->beginRewriterTransaction(QByteArrayLiteral("DesignerActionManager:addItemToStackedContainer"));
+    view->executeInTransaction("DesignerActionManager:addItemToStackedContainer",
+                               [view, container, containerItemNode, tabBarMetaInfo, tabButtonMetaInfo, indexPropertyName](){
 
         ModelNode tabBarNode =
                 view->createModelNode("QtQuick.Controls.TabBar",
@@ -1003,11 +962,8 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
         container.removeProperty(indexPropertyName);
         const QString expression = id + "." + QString::fromLatin1(indexPropertyName);
         container.bindingProperty(indexPropertyName).setExpression(expression);
+    });
 
-        transaction.commit();
-    }  catch (RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
-        exception.showException();
-    }
 }
 
 bool addImageToProject(const QStringList &fileNames, const QString &defaultDirectory)

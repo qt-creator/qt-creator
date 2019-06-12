@@ -30,7 +30,7 @@ import StudioTheme 1.0 as StudioTheme
 T.SpinBox {
     id: mySpinBox
 
-    property alias textColor: spinBoxInput.color
+    property alias labelColor: spinBoxInput.color
     property alias actionIndicator: actionIndicator
 
     property int decimals: 0
@@ -40,7 +40,7 @@ T.SpinBox {
     property real minStepSize: 1
     property real maxStepSize: 10
 
-    property bool edit: false
+    property bool edit: spinBoxInput.activeFocus
     property bool hover: false // This property is used to indicate the global hover state
     property bool drag: false
 
@@ -89,11 +89,6 @@ T.SpinBox {
         locale: mySpinBox.locale.name
         bottom: Math.min(mySpinBox.from, mySpinBox.to)
         top: Math.max(mySpinBox.from, mySpinBox.to)
-    }
-
-    Connections {
-        target: spinBoxInput
-        onActiveFocusChanged: mySpinBox.edit = spinBoxInput.activeFocus
     }
 
     ActionIndicator {
@@ -188,7 +183,7 @@ T.SpinBox {
         State {
             name: "default"
             when: mySpinBox.enabled && !mySpinBox.hover
-                  && !mySpinBox.activeFocus && !mySpinBox.drag
+                  && !mySpinBox.edit && !mySpinBox.drag
             PropertyChanges {
                 target: mySpinBox
                 __wheelEnabled: false
@@ -205,7 +200,7 @@ T.SpinBox {
         },
         State {
             name: "edit"
-            when: spinBoxInput.activeFocus
+            when: mySpinBox.edit
             PropertyChanges {
                 target: mySpinBox
                 __wheelEnabled: true
@@ -245,7 +240,7 @@ T.SpinBox {
             // QTBUG-75862 && mySpinBox.focusReason === Qt.TabFocusReason)
             spinBoxInput.selectAll()
 
-        if (sliderPopup.opened && !activeFocus)
+        if (sliderPopup.opened && !mySpinBox.activeFocus)
             sliderPopup.close()
     }
 

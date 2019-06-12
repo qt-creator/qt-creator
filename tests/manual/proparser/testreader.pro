@@ -24,7 +24,8 @@ SOURCES += \
     qmakebuiltins.cpp \
     proitems.cpp \
     qmakevfs.cpp \
-    ioutils.cpp
+    ioutils.cpp \
+    registry.cpp
 
 HEADERS += \
     qmake_global.h \
@@ -35,7 +36,8 @@ HEADERS += \
     profileevaluator.h \
     proitems.h \
     qmakevfs.h \
-    ioutils.h
+    ioutils.h \
+    registry_p.h
 
 RESOURCES += proparser.qrc
 DEFINES += QMAKE_BUILTIN_PRFS
@@ -43,3 +45,5 @@ DEFINES += QMAKE_BUILTIN_PRFS
 DEFINES += QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII
 DEFINES += QT_USE_FAST_OPERATOR_PLUS QT_USE_FAST_CONCATENATION
 DEFINES += PROEVALUATOR_FULL PROEVALUATOR_CUMULATIVE PROEVALUATOR_INIT_PROPS
+
+win32: LIBS *= -ladvapi32

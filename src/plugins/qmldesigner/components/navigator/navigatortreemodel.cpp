@@ -545,10 +545,9 @@ void NavigatorTreeModel::handleItemLibraryImageDrop(const QMimeData *mimeData, i
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes, int targetIndex)
 {
     QTC_ASSERT(m_view, return);
-    try {
-        const TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
 
-        RewriterTransaction transaction = m_view->beginRewriterTransaction(QByteArrayLiteral("NavigatorTreeModel::moveNodesInteractive"));
+    m_view->executeInTransaction("NavigatorTreeModel::moveNodesInteractive",[this, &parentProperty, modelNodes, targetIndex](){
+        const TypeName propertyQmlType = parentProperty.parentModelNode().metaInfo().propertyTypeName(parentProperty.name());
         foreach (const ModelNode &modelNode, modelNodes) {
             if (modelNode.isValid()
                     && modelNode != parentProperty.parentModelNode()
@@ -565,10 +564,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
                 }
             }
         }
-        transaction.commit();
-    }  catch (const RewritingException &exception) { //better safe than sorry! There always might be cases where we fail
-        exception.showException();
-    }
+    });
 }
 
 Qt::DropActions NavigatorTreeModel::supportedDropActions() const

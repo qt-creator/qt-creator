@@ -84,7 +84,7 @@ public:
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
 
-    int resultTypeCount(ResultType type) const { return m_testResultCount.value(type, 0); }
+    int resultTypeCount(ResultType type) const;
     int disabledTests() const { return m_disabled; }
     void raiseDisabledTests(int amount) { m_disabled += amount; }
 
@@ -94,7 +94,8 @@ private:
     TestResultItem *findParentItemFor(const TestResultItem *item,
                                       const TestResultItem *startItem = nullptr) const;
     void updateParent(const TestResultItem *item);
-    QMap<ResultType, int> m_testResultCount;
+    QHash<QString, QMap<ResultType, int>> m_testResultCount;
+    QHash<QString, QHash<ResultType, int>> m_reportedSummary;
     int m_widthOfLineNumber = 0;
     int m_maxWidthOfFileName = 0;
     int m_disabled = 0;

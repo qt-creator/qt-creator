@@ -232,27 +232,24 @@ void BackendModel::addNewBackend()
 
         Import import = Import::createLibraryImport(importSplit.constFirst(), importSplit.constLast());
 
-        try {
-
-            /* We cannot add an import and add a node from that import in a single transaction.
+        /* We cannot add an import and add a node from that import in a single transaction.
              * We need the import to have the meta info available.
              */
 
-            if (!model->hasImport(import))
-                model->changeImports({import}, {});
+        if (!model->hasImport(import))
+            model->changeImports({import}, {});
 
-            QString propertyName = m_connectionView->generateNewId(typeName);
+        QString propertyName = m_connectionView->generateNewId(typeName);
 
-            NodeMetaInfo metaInfo = model->metaInfo(typeName.toUtf8());
+        NodeMetaInfo metaInfo = model->metaInfo(typeName.toUtf8());
 
-            QTC_ASSERT(metaInfo.isValid(), return);
+        QTC_ASSERT(metaInfo.isValid(), return);
 
-            int minorVersion = metaInfo.minorVersion();
-            int majorVersion = metaInfo.majorVersion();
-
-            /* Add a property for non singleton types. For singletons just adding the import is enough. */
-            if (!dialog.isSingleton()) {
-                RewriterTransaction transaction = m_connectionView->beginRewriterTransaction("BackendModel::addNewBackend");
+        /* Add a property for non singleton types. For singletons just adding the import is enough. */
+        if (!dialog.isSingleton()) {
+            m_connectionView->executeInTransaction("BackendModel::addNewBackend", [=, &dialog](){
+                int minorVersion = metaInfo.minorVersion();
+                int majorVersion = metaInfo.majorVersion();
 
                 if (dialog.localDefinition()) {
                     ModelNode newNode = m_connectionView->createModelNode(metaInfo.typeName(), majorVersion, minorVersion);
@@ -263,14 +260,9 @@ void BackendModel::addNewBackend()
                     m_connectionView->rootModelNode().bindingProperty(
                                 propertyName.toUtf8()).setDynamicTypeNameAndExpression(typeName.toUtf8(), "null");
                 }
-                transaction.commit();
-            }
-
-        } catch (const Exception &e) {
-            e.showException();
+            });
         }
     }
-
     resetModel();
 }
 
@@ -279,11 +271,9 @@ void BackendModel::updatePropertyName(int rowNumber)
     const PropertyName newName = data(index(rowNumber, 1)).toString().toUtf8();
     const PropertyName oldName  = data(index(rowNumber, 0), Qt::UserRole + 1).toString().toUtf8();
 
-    ModelNode rootModelNode = m_connectionView->rootModelNode();
+    m_connectionView->executeInTransaction("BackendModel::updatePropertyName", [this, newName, oldName](){
 
-    try {
-        RewriterTransaction transaction = m_connectionView->beginRewriterTransaction("BackendModel::updatePropertyName");
-
+        ModelNode rootModelNode = m_connectionView->rootModelNode();
         if (rootModelNode.property(oldName).isNodeProperty()) {
 
             const TypeName typeName = rootModelNode.nodeProperty(oldName).dynamicTypeName();
@@ -306,12 +296,7 @@ void BackendModel::updatePropertyName(int rowNumber)
             qWarning() << Q_FUNC_INFO << oldName << newName << "failed...";
             QTC_ASSERT(false, return);
         }
-
-        transaction.commit();
-
-    } catch (const Exception &e) {
-        e.showException();
-    }
+    });
 }
 
 void BackendModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
