@@ -143,7 +143,7 @@ QdbDevice::QdbDevice()
     }});
 
     addDeviceAction({tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
-        CommandLine cmd{FilePath::fromString(appControllerFilePath()), {"--remove-default"}};
+        CommandLine cmd{FilePath::fromString("appcontroller"), {"--remove-default"}};
         (void) new DeviceApplicationObserver(device, cmd);
     }});
 }

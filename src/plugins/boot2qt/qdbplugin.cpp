@@ -78,6 +78,15 @@ static void startFlashingWizard()
     showMessage(message.arg(filePath), true);
 }
 
+static bool isFlashActionDisabled()
+{
+    QSettings * const settings = Core::ICore::settings();
+    settings->beginGroup(settingsGroupKey());
+    bool disabled = settings->value("flashActionDisabled", false).toBool();
+    settings->endGroup();
+    return disabled;
+}
+
 void registerFlashAction(QObject *parentForAction)
 {
     if (isFlashActionDisabled())

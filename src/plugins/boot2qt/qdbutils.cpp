@@ -39,8 +39,6 @@ namespace Internal {
 static QString executableBaseName(QdbTool tool)
 {
     switch (tool) {
-    case QdbTool::Adb:
-        return QLatin1String("adb");
     case QdbTool::FlashingWizard:
         return QLatin1String("b2qt-flashing-wizard");
     case QdbTool::Qdb:
@@ -50,24 +48,15 @@ static QString executableBaseName(QdbTool tool)
     return QString();
 }
 
-QString appControllerFilePath()
-{
-    return QLatin1String("appcontroller");
-}
-
-Utils::FilePath findTool(QdbTool tool, PathSource *source)
+Utils::FilePath findTool(QdbTool tool)
 {
     QString filePath = QString::fromLocal8Bit(qgetenv(overridingEnvironmentVariable(tool)));
-    if (source)
-        *source = PathSource::Environment;
 
     if (filePath.isEmpty()) {
         QSettings * const settings = Core::ICore::settings();
         settings->beginGroup(settingsGroupKey());
         filePath = settings->value(settingsKey(tool)).toString();
         settings->endGroup();
-        if (source)
-            *source = PathSource::Settings;
     }
 
     if (filePath.isEmpty()) {
@@ -79,27 +68,14 @@ Utils::FilePath findTool(QdbTool tool, PathSource *source)
                     + QLatin1String("/../../b2qt/")
 #endif
                     + executableBaseName(tool));
-        if (source)
-            *source = PathSource::Fallback;
     }
 
     return Utils::FilePath::fromString(QDir::cleanPath(filePath));
 }
 
-bool isFlashActionDisabled()
-{
-    QSettings * const settings = Core::ICore::settings();
-    settings->beginGroup(settingsGroupKey());
-    bool disabled = settings->value("flashActionDisabled", false).toBool();
-    settings->endGroup();
-    return disabled;
-}
-
 const char *overridingEnvironmentVariable(QdbTool tool)
 {
     switch (tool) {
-    case QdbTool::Adb:
-        return "BOOT2QT_ADB_FILEPATH";
     case QdbTool::FlashingWizard:
         return "BOOT2QT_FLASHWIZARD_FILEPATH";
     case QdbTool::Qdb:
@@ -124,8 +100,6 @@ QString settingsGroupKey()
 QString settingsKey(QdbTool tool)
 {
     switch (tool) {
-    case QdbTool::Adb:
-        return QLatin1String("adbFilePath");
     case QdbTool::FlashingWizard:
         return QLatin1String("flashingWizardFilePath");
     case QdbTool::Qdb:

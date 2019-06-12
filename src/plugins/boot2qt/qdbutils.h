@@ -33,20 +33,11 @@ namespace Qdb {
 namespace Internal {
 
 enum class QdbTool {
-    Adb,
     FlashingWizard,
     Qdb
 };
 
-enum class PathSource {
-    Environment,
-    Settings,
-    Fallback
-};
-
-QString appControllerFilePath();
-Utils::FilePath findTool(QdbTool tool, PathSource *source = nullptr);
-bool isFlashActionDisabled();
+Utils::FilePath findTool(QdbTool tool);
 const char *overridingEnvironmentVariable(QdbTool tool);
 void showMessage(const QString &message, bool important = false);
 QString settingsGroupKey();
