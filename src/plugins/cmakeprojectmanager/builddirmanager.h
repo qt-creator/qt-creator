@@ -90,11 +90,12 @@ public:
 
     enum ReparseParameters { REPARSE_DEFAULT = 0, // use defaults
                              REPARSE_URGENT = 1, // Do not wait for more requests, start ASAP
-                             REPARSE_FORCE_CONFIGURATION = 2, // Force configuration arguments to cmake
-                             REPARSE_CHECK_CONFIGURATION = 4, // Check and warn if on-disk config and QtC config differ
-                             REPARSE_SCAN = 8,
-                             REPARSE_IGNORE = 16, // Do not reparse:-)
-                             REPARSE_FAIL = 32 // Do not reparse and raise a warning
+                             REPARSE_FORCE_CMAKE_RUN = 2, // Force cmake to run
+                             REPARSE_FORCE_CONFIGURATION = 4, // Force configuration arguments to cmake
+                             REPARSE_CHECK_CONFIGURATION = 8, // Check and warn if on-disk config and QtC config differ
+                             REPARSE_SCAN = 16,
+                             REPARSE_IGNORE = 32, // Do not reparse:-)
+                             REPARSE_FAIL = 64 // Do not reparse and raise a warning
                            };
 
 signals:
