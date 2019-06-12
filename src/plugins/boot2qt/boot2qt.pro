@@ -8,7 +8,6 @@ include(device-detection/device-detection.pri)
 
 HEADERS += \
     qdbutils.h \
-    deviceapplicationobserver.h \
     qdbdevice.h \
     qdbqtversion.h \
     qdbdeployconfigurationfactory.h \
@@ -27,7 +26,6 @@ HEADERS += \
 
 SOURCES += \
     qdbutils.cpp \
-    deviceapplicationobserver.cpp \
     qdbdevice.cpp \
     qdbqtversion.cpp \
     qdbdeployconfigurationfactory.cpp \

@@ -19,8 +19,6 @@ QtcPlugin {
             "qdb.qrc",
             "qdbutils.cpp",
             "qdbutils.h",
-            "deviceapplicationobserver.cpp",
-            "deviceapplicationobserver.h",
             "qdbconstants.h",
             "qdb_global.h",
             "qdbdeployconfigurationfactory.cpp",
