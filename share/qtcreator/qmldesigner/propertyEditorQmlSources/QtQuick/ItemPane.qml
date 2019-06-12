@@ -40,6 +40,7 @@ Rectangle {
 
     ScrollView {
         anchors.fill: parent
+        horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
 
         Column {
             y: -1
