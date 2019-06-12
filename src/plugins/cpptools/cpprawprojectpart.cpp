@@ -29,6 +29,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
 
+#include <utils/algorithm.h>
+
 namespace CppTools {
 
 RawProjectPartFlags::RawProjectPartFlags(const ProjectExplorer::ToolChain *toolChain,
@@ -52,6 +54,25 @@ void RawProjectPart::setFiles(const QStringList &files, const FileClassifier &fi
 {
     this->files = files;
     this->fileClassifier = fileClassifier;
+}
+
+static QString trimTrailingSlashes(const QString &path) {
+    QString p = path;
+    while (p.endsWith('/') && p.count() > 1) {
+        p.chop(1);
+    }
+    return p;
+}
+
+ProjectExplorer::HeaderPath RawProjectPart::frameworkDetectionHeuristic(const ProjectExplorer::HeaderPath &header)
+{
+    QString path = trimTrailingSlashes(header.path);
+
+    if (path.endsWith(".framework")) {
+        path = path.left(path.lastIndexOf(QLatin1Char('/')));
+        return {path, ProjectExplorer::HeaderPathType::Framework};
+    }
+    return header;
 }
 
 void RawProjectPart::setProjectFileLocation(const QString &projectFile, int line, int column)
@@ -93,23 +114,10 @@ void RawProjectPart::setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPa
 
 void RawProjectPart::setIncludePaths(const QStringList &includePaths)
 {
-    headerPaths.clear();
-
-    foreach (const QString &includeFile, includePaths) {
-        ProjectExplorer::HeaderPath hp(includeFile, ProjectExplorer::HeaderPathType::User);
-
-        // The simple project managers are utterly ignorant of frameworks on macOS, and won't report
-        // framework paths. The work-around is to check if the include path ends in ".framework",
-        // and if so, add the parent directory as framework path.
-        if (includeFile.endsWith(QLatin1String(".framework"))) {
-            const int slashIdx = includeFile.lastIndexOf(QLatin1Char('/'));
-            if (slashIdx != -1) {
-                hp = {includeFile.left(slashIdx), ProjectExplorer::HeaderPathType::Framework};
-            }
-        }
-
-        headerPaths.push_back(std::move(hp));
-    }
+    this->headerPaths = Utils::transform<QVector>(includePaths, [](const QString &path) {
+        ProjectExplorer::HeaderPath hp(path, ProjectExplorer::HeaderPathType::User);
+        return RawProjectPart::frameworkDetectionHeuristic(hp);
+    });
 }
 
 void RawProjectPart::setPreCompiledHeaders(const QStringList &preCompiledHeaders)

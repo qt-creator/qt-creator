@@ -61,6 +61,7 @@ public:
     // FileClassifier must be thread-safe.
     using FileClassifier = std::function<ProjectFile(const QString &filePath)>;
     void setFiles(const QStringList &files, const FileClassifier &fileClassifier = FileClassifier());
+    static ProjectExplorer::HeaderPath frameworkDetectionHeuristic(const ProjectExplorer::HeaderPath &header);
     void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
