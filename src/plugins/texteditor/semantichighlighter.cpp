@@ -112,7 +112,7 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
             if (nextBlockNumber != blockNumber)
                 break;
         }
-        highlighter->setExtraFormats(b, formats);
+        highlighter->setExtraFormats(b, std::move(formats));
         b = b.next();
         ++currentBlockNumber;
     }

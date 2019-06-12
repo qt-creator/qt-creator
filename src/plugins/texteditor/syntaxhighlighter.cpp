@@ -662,10 +662,10 @@ static bool byStartOfRange(const QTextLayout::FormatRange &range, const QTextLay
     return range.start < other.start;
 }
 
-// The formats is passed in by reference in order to prevent unnecessary copying of its items.
+// The formats is passed in by rvalue reference in order to prevent unnecessary copying of its items.
 // After this function returns, the list is modified, and should be considered invalidated!
 void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
-                                        QVector<QTextLayout::FormatRange> &formats)
+                                        QVector<QTextLayout::FormatRange> &&formats)
 {
     Q_D(SyntaxHighlighter);
 

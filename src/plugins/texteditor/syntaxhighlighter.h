@@ -63,7 +63,7 @@ public:
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;
 
-    void setExtraFormats(const QTextBlock &block, QVector<QTextLayout::FormatRange> &formats);
+    void setExtraFormats(const QTextBlock &block, QVector<QTextLayout::FormatRange> &&formats);
     void clearExtraFormats(const QTextBlock &block);
 
     static QList<QColor> generateColors(int n, const QColor &background);
