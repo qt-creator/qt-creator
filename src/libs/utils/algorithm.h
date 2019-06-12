@@ -407,6 +407,20 @@ bool allOf(const T &container, F predicate)
     return std::all_of(std::begin(container), std::end(container), predicate);
 }
 
+// allOf taking a member function pointer
+template<typename T, typename R, typename S>
+bool allOf(const T &container, R (S::*predicate)() const)
+{
+    return std::all_of(std::begin(container), std::end(container), std::mem_fn(predicate));
+}
+
+// allOf taking a member pointer
+template<typename T, typename R, typename S>
+bool allOf(const T &container, R S::*member)
+{
+    return std::all_of(std::begin(container), std::end(container), std::mem_fn(member));
+}
+
 //////////////////
 // erase
 /////////////////

@@ -76,23 +76,24 @@ bool TextDocumentClientCapabilities::SynchronizationCapabilities::isValid(QStrin
 bool TextDocumentClientCapabilities::isValid(QStringList *error) const
 {
     return checkOptional<SynchronizationCapabilities>(error, synchronizationKey)
-       && checkOptional<CompletionCapabilities>(error, completionKey)
-       && checkOptional<HoverCapabilities>(error, hoverKey)
-       && checkOptional<SignatureHelpCapabilities>(error, signatureHelpKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, referencesKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, documentHighlightKey)
-       && checkOptional<SymbolCapabilities>(error, documentSymbolKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, formattingKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, rangeFormattingKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, onTypeFormattingKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, definitionKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, typeDefinitionKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, implementationKey)
-       && checkOptional<CodeActionCapabilities>(error, codeActionKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, codeLensKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, documentLinkKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, colorProviderKey)
-       && checkOptional<DynamicRegistrationCapabilities>(error, renameKey);
+           && checkOptional<CompletionCapabilities>(error, completionKey)
+           && checkOptional<HoverCapabilities>(error, hoverKey)
+           && checkOptional<SignatureHelpCapabilities>(error, signatureHelpKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, referencesKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, documentHighlightKey)
+           && checkOptional<SymbolCapabilities>(error, documentSymbolKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, formattingKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, rangeFormattingKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, onTypeFormattingKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, definitionKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, typeDefinitionKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, implementationKey)
+           && checkOptional<CodeActionCapabilities>(error, codeActionKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, codeLensKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, documentLinkKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, colorProviderKey)
+           && checkOptional<DynamicRegistrationCapabilities>(error, renameKey)
+           && checkOptional<SemanticHighlightingCapabilities>(error, semanticHighlightingCapabilitiesKey);
 }
 
 bool SymbolCapabilities::isValid(QStringList *error) const

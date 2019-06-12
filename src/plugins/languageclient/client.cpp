@@ -28,6 +28,7 @@
 #include "languageclientinterface.h"
 #include "languageclientmanager.h"
 #include "languageclientutils.h"
+#include "semantichighlightsupport.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -39,9 +40,10 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <texteditor/codeassist/documentcontentcompletion.h>
-#include <texteditor/semantichighlighter.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
@@ -105,6 +107,10 @@ Client::Client(BaseClientInterface *clientInterface)
     connect(clientInterface, &BaseClientInterface::messageReceived, this, &Client::handleMessage);
     connect(clientInterface, &BaseClientInterface::error, this, &Client::setError);
     connect(clientInterface, &BaseClientInterface::finished, this, &Client::finished);
+    connect(TextEditor::TextEditorSettings::instance(),
+            &TextEditor::TextEditorSettings::fontSettingsChanged,
+            this,
+            &Client::rehighlight);
 }
 
 static void updateEditorToolBar(QList<Utils::FilePath> files)
@@ -137,6 +143,12 @@ Client::~Client()
     }
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
+    for (const DocumentUri &uri : m_highlights.keys()) {
+        if (TextDocument *doc = TextDocument::textDocumentForFileName(uri.toFileName())) {
+            if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
+                highlighter->clearAllExtraFormats();
+        }
+    }
     updateEditorToolBar(m_openedDocument.keys());
 }
 
@@ -174,6 +186,10 @@ static ClientCapabilities generateClientCapabilities()
          SymbolKind::Operator,   SymbolKind::TypeParameter});
     symbolCapabilities.setSymbolKind(symbolKindCapabilities);
     documentCapabilities.setDocumentSymbol(symbolCapabilities);
+
+    TextDocumentClientCapabilities::SemanticHighlightingCapabilities semanticHighlight;
+    semanticHighlight.setSemanticHighlighting(true);
+    documentCapabilities.setSemanticHighlightingCapabilities(semanticHighlight);
 
     TextDocumentClientCapabilities::CompletionCapabilities completionCapabilities;
     completionCapabilities.setDynamicRegistration(true);
@@ -366,7 +382,9 @@ void Client::cancelRequest(const MessageId &id)
 
 void Client::closeDocument(const DidCloseTextDocumentParams &params)
 {
-    sendContent(params.textDocument().uri(), DidCloseTextDocumentNotification(params));
+    const DocumentUri &uri = params.textDocument().uri();
+    m_highlights[uri].clear();
+    sendContent(uri, DidCloseTextDocumentNotification(params));
 }
 
 bool Client::documentOpen(const Core::IDocument *document) const
@@ -455,8 +473,9 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     }
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
+    const auto uri = DocumentUri::fromFileName(document->filePath());
+    m_highlights[uri].clear();
     if (syncKind != TextDocumentSyncKind::None) {
-        const auto uri = DocumentUri::fromFileName(document->filePath());
         VersionedTextDocumentIdentifier docId(uri);
         docId.setVersion(textDocument ? textDocument->document()->revision() : 0);
         DidChangeTextDocumentParams params;
@@ -538,8 +557,10 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
     if (!info.isValid(nullptr))
         return {};
     const Position &start = info.location().range().start();
-    return TextEditor::HighlightingResult(start.line() + 1, start.character() + 1,
-                                          info.name().length(), info.kind());
+    return TextEditor::HighlightingResult(unsigned(start.line() + 1),
+                                          unsigned(start.character() + 1),
+                                          unsigned(info.name().length()),
+                                          info.kind());
 }
 
 void Client::requestDocumentSymbols(TextEditor::TextDocument *document)
@@ -1011,6 +1032,11 @@ void Client::handleMethod(const QString &method, MessageId id, const IContent *c
         paramsValid = params.isValid(&error);
         if (paramsValid)
             log(params, Core::MessageManager::Flash);
+    } else if (method == SemanticHighlightNotification::methodName) {
+        auto params = dynamic_cast<const SemanticHighlightNotification *>(content)->params().value_or(SemanticHighlightingParams());
+        paramsValid = params.isValid(&error);
+        if (paramsValid)
+            handleSemanticHighlight(params);
     } else if (method == ShowMessageNotification::methodName) {
         auto params = dynamic_cast<const ShowMessageNotification *>(content)->params().value_or(ShowMessageParams());
         paramsValid = params.isValid(&error);
@@ -1091,6 +1117,34 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     showDiagnostics(uri);
 
     requestCodeActions(uri, diagnostics);
+}
+
+void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
+{
+    const DocumentUri &uri = params.textDocument().uri();
+    m_highlights[uri].clear();
+    const LanguageClientValue<int> &version = params.textDocument().version();
+    TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(
+        uri.toFileName());
+
+    if (!doc || (!version.isNull() && doc->document()->revision() != version.value()))
+        return;
+
+    const TextEditor::HighlightingResults results = SemanticHighligtingSupport::generateResults(
+        params.lines());
+
+    m_highlights[uri] = results;
+
+    SemanticHighligtingSupport::applyHighlight(doc, results, capabilities());
+}
+
+void Client::rehighlight()
+{
+    using namespace TextEditor;
+    for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
+        if (TextDocument *doc = TextDocument::textDocumentForFileName(it.key().toFileName()))
+            SemanticHighligtingSupport::applyHighlight(doc, it.value(), capabilities());
+    }
 }
 
 void Client::intializeCallback(const InitializeRequest::Response &initResponse)

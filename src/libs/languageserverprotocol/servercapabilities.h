@@ -223,6 +223,17 @@ public:
         void clearId() { remove(idKey); }
     };
 
+    class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightingServerCapabilities : public JsonObject
+    {
+    public:
+        using JsonObject::JsonObject;
+
+        Utils::optional<QList<QList<QString>>> scopes() const;
+        void setScopes(const QList<QList<QString>> &scopes);
+
+        bool isValid(QStringList *) const override;
+    };
+
     // Defines how text documents are synced. Is either a detailed structure defining each
     // notification or for backwards compatibility the TextDocumentSyncKind number.
     using TextDocumentSync = Utils::variant<TextDocumentSyncOptions, int>;
@@ -410,6 +421,12 @@ public:
     Utils::optional<JsonObject> experimental() const { return optionalValue<JsonObject>(experimentalKey); }
     void setExperimental(const JsonObject &experimental) { insert(experimentalKey, experimental); }
     void clearExperimental() { remove(experimentalKey); }
+
+    Utils::optional<SemanticHighlightingServerCapabilities> semanticHighlighting() const
+    { return optionalValue<SemanticHighlightingServerCapabilities>(semanticHighlightingKey); }
+    void setSemanticHighlighting(const SemanticHighlightingServerCapabilities &semanticHighlighting)
+    { insert(semanticHighlightingKey, semanticHighlighting); }
+    void clearSemanticHighlighting() { remove(semanticHighlightingKey); }
 
     bool isValid(QStringList *error) const override;
 };

@@ -120,6 +120,26 @@ public:
     { insert(synchronizationKey, synchronization); }
     void clearSynchronization() { remove(synchronizationKey); }
 
+    class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightingCapabilities : public JsonObject
+    {
+    public:
+        using JsonObject::JsonObject;
+
+        bool semanticHighlighting() const { return typedValue<bool>(semanticHighlightingKey); }
+        void setSemanticHighlighting(bool semanticHighlighting)
+        { insert(semanticHighlightingKey, semanticHighlighting); }
+
+        bool isValid(QStringList *error) const override
+        { return check<bool>(error, semanticHighlightingKey); }
+    };
+
+    Utils::optional<SemanticHighlightingCapabilities> semanticHighlightingCapabilities() const
+    { return optionalValue<SemanticHighlightingCapabilities>(semanticHighlightingCapabilitiesKey); }
+    void setSemanticHighlightingCapabilities(
+        const SemanticHighlightingCapabilities &semanticHighlightingCapabilities)
+    { insert(semanticHighlightingCapabilitiesKey, semanticHighlightingCapabilities); }
+    void clearSemanticHighlightingCapabilities() { remove(semanticHighlightingCapabilitiesKey); }
+
     class LANGUAGESERVERPROTOCOL_EXPORT CompletionCapabilities : public DynamicRegistrationCapabilities
     {
     public:

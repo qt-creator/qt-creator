@@ -17,7 +17,8 @@ HEADERS += \
     languageclientquickfix.h \
     languageclientsettings.h \
     languageclientutils.h \
-    locatorfilter.h
+    locatorfilter.h \
+    semantichighlightsupport.h
 
 
 SOURCES += \
@@ -34,7 +35,8 @@ SOURCES += \
     languageclientquickfix.cpp \
     languageclientsettings.cpp \
     languageclientutils.cpp \
-    locatorfilter.cpp
+    locatorfilter.cpp \
+    semantichighlightsupport.cpp
 
 RESOURCES += \
     languageclient.qrc

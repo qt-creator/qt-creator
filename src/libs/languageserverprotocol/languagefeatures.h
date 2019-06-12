@@ -806,4 +806,60 @@ public:
     constexpr static const char methodName[] = "textDocument/rename";
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightToken
+{
+public:
+    // Just accepts token with 8 bytes
+    SemanticHighlightToken(const QByteArray &token);
+    SemanticHighlightToken() = default;
+
+    void appendToByteArray(QByteArray &byteArray) const;
+
+    quint32 character = 0;
+    quint16 length = 0;
+    quint16 scope = 0;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightingInformation : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    int line() const { return typedValue<int>(lineKey); }
+    void setLine(int line) { insert(lineKey, line); }
+
+    Utils::optional<QList<SemanticHighlightToken>> tokens() const;
+    void setTokens(const QList<SemanticHighlightToken> &tokens);
+    void clearTokens() { remove(tokensKey); }
+
+    bool isValid(QStringList *error) const override
+    { return check<int>(error, lineKey) && checkOptional<QString>(error, tokensKey); }
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightingParams : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    VersionedTextDocumentIdentifier textDocument() const
+    { return typedValue<VersionedTextDocumentIdentifier>(textDocumentKey); }
+    void setTextDocument(const VersionedTextDocumentIdentifier &textDocument)
+    { insert(textDocumentKey, textDocument); }
+
+    QList<SemanticHighlightingInformation> lines() const
+    { return array<SemanticHighlightingInformation>(linesKey); }
+    void setLines(const QList<SemanticHighlightingInformation> &lines)
+    { insertArray(linesKey, lines); }
+
+    bool isValid(QStringList *error) const override;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT SemanticHighlightNotification
+    : public Notification<SemanticHighlightingParams>
+{
+public:
+    using Notification::Notification;
+    constexpr static const char methodName[] = "textDocument/semanticHighlighting";
+};
+
 } // namespace LanguageClient

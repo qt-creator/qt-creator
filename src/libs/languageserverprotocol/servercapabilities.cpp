@@ -132,7 +132,8 @@ bool ServerCapabilities::isValid(QStringList *error) const
             && checkOptional<DocumentLinkOptions>(error, documentLinkProviderKey)
             && checkOptional<TextDocumentRegistrationOptions>(error, colorProviderKey)
             && checkOptional<ExecuteCommandOptions>(error, executeCommandProviderKey)
-            && checkOptional<WorkspaceServerCapabilities>(error, workspaceKey);
+            && checkOptional<WorkspaceServerCapabilities>(error, workspaceKey)
+            && checkOptional<SemanticHighlightingServerCapabilities>(error, semanticHighlightingKey);
 }
 
 Utils::optional<Utils::variant<QString, bool> >
@@ -179,6 +180,46 @@ bool TextDocumentSyncOptions::isValid(QStringList *error) const
             && checkOptional<bool>(error, willSaveKey)
             && checkOptional<bool>(error, willSaveWaitUntilKey)
             && checkOptional<SaveOptions>(error, saveKey);
+}
+
+Utils::optional<QList<QList<QString>>> ServerCapabilities::SemanticHighlightingServerCapabilities::scopes() const
+{
+    QList<QList<QString>> scopes;
+    if (!contains(scopesKey))
+        return Utils::nullopt;
+    for (const QJsonValue jsonScopeValue : value(scopesKey).toArray()) {
+        if (!jsonScopeValue.isArray())
+            return {};
+        QList<QString> scope;
+        for (const QJsonValue value : jsonScopeValue.toArray()) {
+            if (!value.isString())
+                return {};
+            scope.append(value.toString());
+        }
+        scopes.append(scope);
+    }
+    return Utils::make_optional(scopes);
+}
+
+void ServerCapabilities::SemanticHighlightingServerCapabilities::setScopes(
+    const QList<QList<QString>> &scopes)
+{
+    QJsonArray jsonScopes;
+    for (const QList<QString> &scope : scopes) {
+        QJsonArray jsonScope;
+        for (const QString &value : scope)
+            jsonScope.append(value);
+        jsonScopes.append(jsonScope);
+    }
+    insert(scopesKey, jsonScopes);
+}
+
+bool ServerCapabilities::SemanticHighlightingServerCapabilities::isValid(QStringList *) const
+{
+    return contains(scopesKey) && value(scopesKey).isArray()
+           && Utils::allOf(value(scopesKey).toArray(), [](const QJsonValue &array) {
+                  return array.isArray() && Utils::allOf(array.toArray(), &QJsonValue::isString);
+              });
 }
 
 } // namespace LanguageServerProtocol

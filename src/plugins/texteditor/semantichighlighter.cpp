@@ -121,6 +121,8 @@ void SemanticHighlighter::setExtraAdditionalFormats(SyntaxHighlighter *highlight
                                                     const QList<HighlightingResult> &results,
                                                     const QHash<int, QTextCharFormat> &kindToFormat)
 {
+    if (!highlighter)
+        return;
     highlighter->clearAllExtraFormats();
 
     QTextDocument *doc = highlighter->document();

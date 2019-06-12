@@ -57,6 +57,7 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     using namespace Core;
     using namespace ProjectExplorer;
     JsonRpcMessageHandler::registerMessageProvider<PublishDiagnosticsNotification>();
+    JsonRpcMessageHandler::registerMessageProvider<SemanticHighlightNotification>();
     JsonRpcMessageHandler::registerMessageProvider<ApplyWorkspaceEditRequest>();
     JsonRpcMessageHandler::registerMessageProvider<LogMessageNotification>();
     JsonRpcMessageHandler::registerMessageProvider<ShowMessageRequest>();

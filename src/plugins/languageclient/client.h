@@ -45,6 +45,8 @@
 #include <languageserverprotocol/shutdownmessages.h>
 #include <languageserverprotocol/textsynchronization.h>
 
+#include <texteditor/semantichighlighter.h>
+
 #include <QBuffer>
 #include <QHash>
 #include <QProcess>
@@ -158,6 +160,7 @@ public:
     const BaseClientInterface *clientInterface() const;
     DocumentSymbolCache *documentSymbolCache();
     HoverHandler *hoverHandler();
+    void rehighlight();
 
 signals:
     void initialized(LanguageServerProtocol::ServerCapabilities capabilities);
@@ -174,6 +177,7 @@ private:
                       const LanguageServerProtocol::IContent *content);
 
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
+    void handleSemanticHighlight(const LanguageServerProtocol::SemanticHighlightingParams &params);
 
     void intializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
     void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
@@ -210,6 +214,7 @@ private:
     QMap<LanguageServerProtocol::DocumentUri, QList<TextMark *>> m_diagnostics;
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;
+    QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
     const ProjectExplorer::Project *m_project = nullptr;
 };
 
