@@ -324,12 +324,9 @@ static QStringList mergeEnvironment(QStringList runConfigEnvironment,
     return runConfigEnvironment;
 }
 
-int CdbEngine::elapsedLogTime() const
+int CdbEngine::elapsedLogTime()
 {
-    const int elapsed = m_logTime.elapsed();
-    const int delta = elapsed - m_elapsedLogTime;
-    m_elapsedLogTime = elapsed;
-    return delta;
+    return m_logTimer.restart();
 }
 
 void CdbEngine::createFullBacktrace()
@@ -352,8 +349,8 @@ void CdbEngine::setupEngine()
         qDebug(">setupEngine");
 
     init();
-    if (!m_logTime.elapsed())
-        m_logTime.start();
+    if (!m_logTimer.elapsed())
+        m_logTimer.start();
 
     // Console: Launch the stub with the suspended application and attach to it
     // CDB in theory has a command line option '-2' that launches a
