@@ -84,6 +84,8 @@ QtcPlugin {
         "configmodel.h",
         "configmodelitemdelegate.cpp",
         "configmodelitemdelegate.h",
+        "projecttreehelper.cpp",
+        "projecttreehelper.h",
         "servermode.cpp",
         "servermode.h",
         "servermodereader.cpp",

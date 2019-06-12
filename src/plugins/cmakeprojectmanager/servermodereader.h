@@ -145,8 +145,6 @@ private:
 
     void fixTarget(Target *target) const;
 
-    QHash<Utils::FilePath, ProjectExplorer::ProjectNode *>
-    addCMakeLists(CMakeProjectNode *root, std::vector<std::unique_ptr<ProjectExplorer::FileNode> > &&cmakeLists);
     void addProjects(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                      const QList<Project *> &projects,
                      QList<ProjectExplorer::FileNode *> &knownHeaderNodes);
@@ -157,10 +155,6 @@ private:
                        const Utils::FilePath &sourceDirectory,
                        const Utils::FilePath &buildDirectory, const QList<FileGroup *> &fileGroups,
                        QList<ProjectExplorer::FileNode *> &knowHeaderNodes);
-
-    void addHeaderNodes(ProjectExplorer::ProjectNode *root,
-                        const QList<ProjectExplorer::FileNode *> knownHeaders,
-                        const QList<const ProjectExplorer::FileNode *> &allFiles);
 
     std::unique_ptr<ServerMode> m_cmakeServer;
     std::unique_ptr<QFutureInterface<void>> m_future;

@@ -34,6 +34,7 @@ HEADERS = builddirmanager.h \
     cmakespecificsettingspage.h \
     configmodel.h \
     configmodelitemdelegate.h \
+    projecttreehelper.h \
     servermode.h \
     servermodereader.h \
     tealeafreader.h
@@ -68,6 +69,7 @@ SOURCES = builddirmanager.cpp \
     cmakespecificsettingspage.cpp \
     configmodel.cpp \
     configmodelitemdelegate.cpp \
+    projecttreehelper.cpp \
     servermode.cpp \
     servermodereader.cpp \
     tealeafreader.cpp
