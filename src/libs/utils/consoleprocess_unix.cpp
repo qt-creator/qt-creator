@@ -60,12 +60,17 @@ qint64 ConsoleProcess::applicationMainThreadID() const
     return -1;
 }
 
+void ConsoleProcess::setCommand(const Utils::CommandLine &command)
+{
+    d->m_commandLine = command;
+}
+
 void ConsoleProcess::setSettings(QSettings *settings)
 {
     d->m_settings = settings;
 }
 
-bool ConsoleProcess::start(const QString &program, const QString &args)
+bool ConsoleProcess::start()
 {
     if (isRunning())
         return false;
@@ -74,11 +79,12 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     d->m_error = QProcess::UnknownError;
 
     QtcProcess::SplitError perr;
-    QtcProcess::Arguments pargs = QtcProcess::prepareArgs(args, &perr, HostOsInfo::hostOs(),
+    QtcProcess::Arguments pargs = QtcProcess::prepareArgs(d->m_commandLine.arguments(),
+                                                          &perr, HostOsInfo::hostOs(),
                                                           &d->m_environment, &d->m_workingDir);
     QString pcmd;
     if (perr == QtcProcess::SplitOk) {
-        pcmd = program;
+        pcmd = d->m_commandLine.executable().toString();
     } else {
         if (perr != QtcProcess::FoundMeta) {
             emitError(QProcess::FailedToStart, tr("Quoting error in command."));
@@ -92,7 +98,8 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         }
         pcmd = QLatin1String("/bin/sh");
         pargs = QtcProcess::Arguments::createUnixArgs(
-                    QStringList({"-c", (QtcProcess::quoteArg(program) + ' ' + args)}));
+                        {"-c", (QtcProcess::quoteArg(d->m_commandLine.executable().toString())
+                         + ' ' + d->m_commandLine.arguments())});
     }
 
     QtcProcess::SplitError qerr;
@@ -166,7 +173,6 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     connect(d->m_stubConnectTimer, &QTimer::timeout, this, &ConsoleProcess::stop);
     d->m_stubConnectTimer->setSingleShot(true);
     d->m_stubConnectTimer->start(10000);
-    d->m_executable = program;
     return true;
 }
 
@@ -285,7 +291,7 @@ void ConsoleProcess::readStubOutput()
         if (out.startsWith("err:chdir ")) {
             emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(workingDirectory(), errorMsg(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emitError(QProcess::FailedToStart, msgCannotExecute(d->m_executable, errorMsg(out.mid(9).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotExecute(d->m_commandLine.executable().toString(), errorMsg(out.mid(9).toInt())));
         } else if (out.startsWith("spid ")) {
             delete d->m_tempFile;
             d->m_tempFile = nullptr;

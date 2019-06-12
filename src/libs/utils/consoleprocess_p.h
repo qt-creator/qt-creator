@@ -53,7 +53,7 @@ struct ConsoleProcessPrivate {
     Environment m_environment;
     qint64 m_appPid = 0;
     int m_appCode;
-    QString m_executable;
+    CommandLine m_commandLine;
     QProcess::ExitStatus m_appStatus;
     QLocalServer m_stubServer;
     QLocalSocket *m_stubSocket = nullptr;

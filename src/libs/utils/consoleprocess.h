@@ -35,8 +35,9 @@ class QSettings;
 QT_END_NAMESPACE
 
 namespace Utils {
+
 class Environment;
-struct ConsoleProcessPrivate;
+class CommandLine;
 
 class QTCREATOR_UTILS_EXPORT TerminalCommand
 {
@@ -61,6 +62,8 @@ public:
     ConsoleProcess(QObject *parent = nullptr);
     ~ConsoleProcess() override;
 
+    void setCommand(const Utils::CommandLine &command);
+
     void setWorkingDirectory(const QString &dir);
     QString workingDirectory() const;
 
@@ -70,7 +73,8 @@ public:
     QProcess::ProcessError error() const;
     QString errorString() const;
 
-    bool start(const QString &program, const QString &args);
+    bool start();
+
 public slots:
     void stop();
 
@@ -156,7 +160,7 @@ private:
     void cleanupInferior();
 #endif
 
-    ConsoleProcessPrivate *d;
+    struct ConsoleProcessPrivate *d;
 };
 
 } //namespace Utils

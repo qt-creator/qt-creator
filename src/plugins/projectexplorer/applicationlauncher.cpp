@@ -382,7 +382,8 @@ void ApplicationLauncherPrivate::start(const Runnable &runnable, const IDevice::
             m_guiProcess.closeWriteChannel();
             m_guiProcess.start();
         } else {
-            m_consoleProcess.start(runnable.executable, runnable.commandLineArguments);
+            m_consoleProcess.setCommand(runnable.commandLine());
+            m_consoleProcess.start();
         }
     } else {
         QTC_ASSERT(m_state == Inactive, return);

@@ -46,12 +46,17 @@ ConsoleProcess::ConsoleProcess(QObject *parent) :
             this, &ConsoleProcess::stubConnectionAvailable);
 }
 
+void ConsoleProcess::setCommand(const Utils::CommandLine &command)
+{
+    d->m_commandLine = command;
+}
+
 qint64 ConsoleProcess::applicationMainThreadID() const
 {
     return d->m_appMainThreadId;
 }
 
-bool ConsoleProcess::start(const QString &program, const QString &args)
+bool ConsoleProcess::start()
 {
     if (isRunning())
         return false;
@@ -62,11 +67,13 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
     QString pcmd;
     QString pargs;
     if (d->m_mode != Run) { // The debugger engines already pre-process the arguments.
-        pcmd = program;
-        pargs = args;
+        pcmd = d->m_commandLine.executable().toString();
+        pargs = d->m_commandLine.arguments();
     } else {
         QtcProcess::Arguments outArgs;
-        QtcProcess::prepareCommand(program, args, &pcmd, &outArgs, OsTypeWindows,
+        QtcProcess::prepareCommand(d->m_commandLine.executable().toString(),
+                                   d->m_commandLine.arguments(),
+                                   &pcmd, &outArgs, OsTypeWindows,
                                    &d->m_environment, &d->m_workingDir);
         pargs = outArgs.toWindowsArgs();
     }
@@ -207,7 +214,7 @@ void ConsoleProcess::readStubOutput()
         if (out.startsWith("err:chdir ")) {
             emitError(QProcess::FailedToStart, msgCannotChangeToWorkDir(workingDirectory(), winErrorMessage(out.mid(10).toInt())));
         } else if (out.startsWith("err:exec ")) {
-            emitError(QProcess::FailedToStart, msgCannotExecute(d->m_executable, winErrorMessage(out.mid(9).toInt())));
+            emitError(QProcess::FailedToStart, msgCannotExecute(d->m_commandLine.executable().toUserOutput(), winErrorMessage(out.mid(9).toInt())));
         } else if (out.startsWith("thread ")) { // Windows only
             d->m_appMainThreadId = out.mid(7).toLongLong();
         } else if (out.startsWith("pid ")) {
