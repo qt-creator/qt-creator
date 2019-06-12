@@ -41,7 +41,7 @@ Item {
     property alias backendValue: spinBox.backendValue
     property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
 
-    width: 120
+    width: 96
     implicitHeight: spinBox.height
 
     property bool __initialized: false
