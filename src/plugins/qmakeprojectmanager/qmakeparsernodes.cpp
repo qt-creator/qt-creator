@@ -878,8 +878,7 @@ QStringList QmakePriFile::varNames(FileType type, QtSupport::ProFileReader *read
     QStringList vars;
     switch (type) {
     case FileType::Header:
-        vars << QLatin1String("HEADERS");
-        vars << QLatin1String("PRECOMPILED_HEADER");
+        vars << "HEADERS" << "OBJECTIVE_HEADERS" << "PRECOMPILED_HEADER";
         break;
     case FileType::Source: {
         vars << QLatin1String("SOURCES");
@@ -888,12 +887,15 @@ QStringList QmakePriFile::varNames(FileType type, QtSupport::ProFileReader *read
             QStringList inputs = readerExact->values(var + QLatin1String(".input"));
             foreach (const QString &input, inputs)
                 // FORMS, RESOURCES, and STATECHARTS are handled below, HEADERS and SOURCES above
-                if (input != QLatin1String("FORMS")
-                        && input != QLatin1String("STATECHARTS")
-                        && input != QLatin1String("RESOURCES")
-                        && input != QLatin1String("SOURCES")
-                        && input != QLatin1String("HEADERS"))
+                if (input != "FORMS"
+                        && input != "STATECHARTS"
+                        && input != "RESOURCES"
+                        && input != "SOURCES"
+                        && input != "HEADERS"
+                        && input != "OBJECTIVE_HEADERS"
+                        && input != "PRECOMPILED_HEADER") {
                     vars << input;
+                }
         }
         break;
     }
