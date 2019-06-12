@@ -86,8 +86,7 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
 
         // clear formats of blocks until blockNumber
         while (currentBlockNumber < blockNumber) {
-            QVector<QTextLayout::FormatRange> noFormats;
-            highlighter->setExtraFormats(b, noFormats);
+            highlighter->clearExtraFormats(b);
             b = b.next();
             ++currentBlockNumber;
         }
@@ -142,8 +141,7 @@ void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
     QTextBlock b = doc->findBlockByNumber(firstBlockToClear);
 
     while (b.isValid()) {
-        QVector<QTextLayout::FormatRange> noFormats;
-        highlighter->setExtraFormats(b, noFormats);
+        highlighter->clearExtraFormats(b);
         b = b.next();
     }
 }

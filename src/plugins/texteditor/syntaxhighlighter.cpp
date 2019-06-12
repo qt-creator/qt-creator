@@ -701,6 +701,26 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
     d->inReformatBlocks = wasInReformatBlocks;
 }
 
+void SyntaxHighlighter::clearExtraFormats(const QTextBlock &block)
+{
+    Q_D(SyntaxHighlighter);
+
+    const int blockLength = block.length();
+    if (block.layout() == nullptr || blockLength == 0)
+        return;
+
+    const QVector<QTextLayout::FormatRange> formatsToApply
+        = Utils::filtered(block.layout()->formats(), [](const QTextLayout::FormatRange &r) {
+              return !r.format.hasProperty(QTextFormat::UserProperty);
+          });
+
+    bool wasInReformatBlocks = d->inReformatBlocks;
+    d->inReformatBlocks = true;
+    block.layout()->setFormats(formatsToApply);
+    document()->markContentsDirty(block.position(), blockLength - 1);
+    d->inReformatBlocks = wasInReformatBlocks;
+}
+
 /* Generate at least n different colors for highlighting, excluding background
  * color. */
 

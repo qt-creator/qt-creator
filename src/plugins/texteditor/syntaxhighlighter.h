@@ -64,6 +64,7 @@ public:
     QTextDocument *document() const;
 
     void setExtraFormats(const QTextBlock &block, QVector<QTextLayout::FormatRange> &formats);
+    void clearExtraFormats(const QTextBlock &block);
 
     static QList<QColor> generateColors(int n, const QColor &background);
 
