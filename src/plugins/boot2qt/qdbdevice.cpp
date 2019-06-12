@@ -42,123 +42,88 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QStringList>
-
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Qdb {
 namespace Internal {
 
-class Command {
-public:
-    QString binary;
-    QStringList arguments;
-};
-
-class DeviceApplicationObserver : public QObject
+class DeviceApplicationObserver : public ApplicationLauncher
 {
 public:
-    explicit DeviceApplicationObserver(QObject *parent = 0);
+    DeviceApplicationObserver(const IDevice::ConstPtr &device, const CommandLine &command)
+    {
+        connect(&m_appRunner, &ApplicationLauncher::remoteStdout, this,
+                &DeviceApplicationObserver::handleStdout);
+        connect(&m_appRunner, &ApplicationLauncher::remoteStderr, this,
+                &DeviceApplicationObserver::handleStderr);
+        connect(&m_appRunner, &ApplicationLauncher::reportError, this,
+                &DeviceApplicationObserver::handleError);
+        connect(&m_appRunner, &ApplicationLauncher::finished, this,
+                &DeviceApplicationObserver::handleFinished);
 
-    // Once all commands have finished, this object will delete itself.
-    void start(const ProjectExplorer::IDevice::ConstPtr &device, const Command &command);
+        QTC_ASSERT(device, return);
+        m_deviceName = device->displayName();
+
+        Runnable r;
+        r.setCommandLine(command);
+        m_appRunner.start(r, device);
+        showMessage(QdbDevice::tr("Starting command '%1' on device '%2'.")
+                    .arg(command.toUserOutput(), m_deviceName));
+    }
 
 private:
-    void handleStdout(const QString &data);
-    void handleStderr(const QString &data);
-    void handleError(const QString &message);
-    void handleFinished(bool success);
+    void handleStdout(const QString &data) { m_stdout += data; }
+    void handleStderr(const QString &data) { m_stderr += data; }
+    void handleError(const QString &message) { m_error = message; }
+
+    void handleFinished(bool success)
+    {
+        if (success && (m_stdout.contains("fail") || m_stdout.contains("error")
+                        || m_stdout.contains("not found"))) {
+            // FIXME: Needed in a post-adb world?
+            success = false; // adb does not forward exit codes and all stderr goes to stdout.
+        }
+        if (!success) {
+            QString errorString;
+            if (!m_error.isEmpty()) {
+                errorString = QdbDevice::tr("Command failed on device '%1': %2")
+                        .arg(m_deviceName, m_error);
+            } else {
+                errorString = QdbDevice::tr("Command failed on device '%1'.").arg(m_deviceName);
+            }
+            showMessage(errorString, true);
+            if (!m_stdout.isEmpty())
+                showMessage(QdbDevice::tr("stdout was: '%1'").arg(m_stdout));
+            if (!m_stderr.isEmpty())
+                showMessage(QdbDevice::tr("stderr was: '%1'").arg(m_stderr));
+        } else {
+            showMessage(QdbDevice::tr("Commands on device '%1' finished successfully.")
+                        .arg(m_deviceName));
+        }
+        deleteLater();
+    }
 
     QString m_stdout;
     QString m_stderr;
-    Command m_command;
-    ProjectExplorer::ApplicationLauncher * const m_appRunner;
-    ProjectExplorer::IDevice::ConstPtr m_device;
+    ProjectExplorer::ApplicationLauncher m_appRunner;
+    QString m_deviceName;
     QString m_error;
 };
 
-DeviceApplicationObserver::DeviceApplicationObserver(QObject *parent)
-    : QObject(parent), m_appRunner(new ApplicationLauncher(this))
-{
-    connect(m_appRunner, &ApplicationLauncher::remoteStdout, this,
-            &DeviceApplicationObserver::handleStdout);
-    connect(m_appRunner, &ApplicationLauncher::remoteStderr, this,
-            &DeviceApplicationObserver::handleStderr);
-    connect(m_appRunner, &ApplicationLauncher::reportError, this,
-            &DeviceApplicationObserver::handleError);
-    connect(m_appRunner, &ApplicationLauncher::finished, this,
-            &DeviceApplicationObserver::handleFinished);
-}
 
-void DeviceApplicationObserver::start(const IDevice::ConstPtr &device,
-        const Command &command)
-{
-    QTC_ASSERT(device, return);
-    m_device = device;
-    m_command = command;
-
-    m_stdout.clear();
-    m_stderr.clear();
-
-    Runnable r;
-    r.executable = m_command.binary;
-    r.commandLineArguments = Utils::QtcProcess::joinArgs(m_command.arguments);
-    m_appRunner->start(r, m_device);
-    showMessage(QdbDevice::tr("Starting command '%1 %2' on device '%3'.")
-                .arg(r.executable, r.commandLineArguments, m_device->displayName()));
-}
-
-void DeviceApplicationObserver::handleStdout(const QString &data)
-{
-    m_stdout += data;
-}
-
-void DeviceApplicationObserver::handleStderr(const QString &data)
-{
-    m_stderr += data;
-}
-
-void DeviceApplicationObserver::handleError(const QString &message)
-{
-    m_error = message;
-}
-
-void DeviceApplicationObserver::handleFinished(bool success)
-{
-    if (success && (m_stdout.contains("fail") || m_stdout.contains("error")
-                    || m_stdout.contains("not found"))) {
-        success = false; // adb does not forward exit codes and all stderr goes to stdout.
-    }
-    if (!success) {
-        QString errorString;
-        if (!m_error.isEmpty()) {
-            errorString = QdbDevice::tr("Command failed on device '%1': %2").arg(m_device->displayName(),
-                                                                    m_error);
-        } else {
-            errorString = QdbDevice::tr("Command failed on device '%1'.").arg(m_device->displayName());
-        }
-        showMessage(errorString, true);
-        if (!m_stdout.isEmpty())
-            showMessage(QdbDevice::tr("stdout was: '%1'").arg(m_stdout));
-        if (!m_stderr.isEmpty())
-            showMessage(QdbDevice::tr("stderr was: '%1'").arg(m_stderr));
-    } else {
-        showMessage(QdbDevice::tr("Commands on device '%1' finished successfully.")
-                    .arg(m_device->displayName()));
-    }
-    deleteLater();
-}
+// QdbDevice
 
 QdbDevice::QdbDevice()
 {
     addDeviceAction({tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
-        Command cmd{QStringLiteral("reboot"), {}};
-        (new DeviceApplicationObserver)->start(device, cmd);
+        CommandLine cmd{FilePath::fromString("reboot")};
+        (void) new DeviceApplicationObserver(device, cmd);
     }});
 
     addDeviceAction({tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
-        Command cmd{appControllerFilePath(), {"--remove-default"}};
-        (new DeviceApplicationObserver)->start(device, cmd);
+        CommandLine cmd{FilePath::fromString(appControllerFilePath()), {"--remove-default"}};
+        (void) new DeviceApplicationObserver(device, cmd);
     }});
 }
 
