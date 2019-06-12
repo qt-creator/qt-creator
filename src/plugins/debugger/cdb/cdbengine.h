@@ -38,8 +38,6 @@ namespace Debugger {
 namespace Internal {
 
 class CdbCommand;
-struct MemoryViewCookie;
-class StringInputStream;
 
 class CdbEngine : public CppDebuggerEngine
 {
