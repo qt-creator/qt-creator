@@ -283,6 +283,10 @@ void Parser::Private::parseHeader(QIODevice *device)
     while (!device->atEnd()) {
         QByteArray line = device->readLine();
 
+        // last character will be ignored anyhow, but we might have CRLF; if so cut the last one
+        if (line.endsWith("\r\n"))
+            line.chop(1);
+
         // now that we're done checking if we're done (heh) with the header, parse the address
         // and cost column descriptions. speed is unimportant here.
         if (line.startsWith('#')) {
@@ -352,8 +356,9 @@ Parser::Private::NamePair Parser::Private::parseName(const char *begin, const ch
 
 void Parser::Private::dispatchLine(const QByteArray &line)
 {
+    int lineEnding = line.endsWith("\r\n") ? 2 : 1;
     const char *const begin = line.constData();
-    const char *const end = begin + line.length() - 1; // we're not interested in the '\n'
+    const char *const end = begin + line.length() - lineEnding; // we're not interested in the '\n'
     const char *current = begin;
 
     // shortest possible line is "1 1" - a cost item line
