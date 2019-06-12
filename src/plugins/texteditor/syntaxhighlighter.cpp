@@ -667,15 +667,6 @@ static bool byStartOfRange(const QTextLayout::FormatRange &range, const QTextLay
 void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
                                         QVector<QTextLayout::FormatRange> &formats)
 {
-//    qDebug() << "setFormats() on block" << block.blockNumber();
-//    qDebug() << "   is valid:" << (block.isValid() ? "Yes" : "No");
-//    qDebug() << "   has layout:" << (block.layout() ? "Yes" : "No");
-//    if (block.layout()) qDebug() << "   has text:" << (block.text().isEmpty() ? "No" : "Yes");
-
-//    for (int i = 0; i < overrides.count(); ++i)
-//        qDebug() << "   from " << overrides.at(i).start << "length"
-//                 << overrides.at(i).length
-//                 << "color:" << overrides.at(i).format.foreground().color();
     Q_D(SyntaxHighlighter);
 
     const int blockLength = block.length();
@@ -687,34 +678,17 @@ void SyntaxHighlighter::setExtraFormats(const QTextBlock &block,
     const QVector<QTextLayout::FormatRange> all = block.layout()->formats();
     QVector<QTextLayout::FormatRange> previousSemanticFormats;
     QVector<QTextLayout::FormatRange> formatsToApply;
-    previousSemanticFormats.reserve(all.size());
-    formatsToApply.reserve(all.size() + formats.size());
+    std::tie(previousSemanticFormats, formatsToApply)
+        = Utils::partition(all, [](const QTextLayout::FormatRange &r) {
+              return r.format.hasProperty(QTextFormat::UserProperty);
+          });
 
     for (auto &format : formats)
         format.format.setProperty(QTextFormat::UserProperty, true);
 
-    foreach (const QTextLayout::FormatRange &r, all) {
-        if (r.format.hasProperty(QTextFormat::UserProperty))
-            previousSemanticFormats.append(r);
-        else
-            formatsToApply.append(r);
-    }
-
     if (formats.size() == previousSemanticFormats.size()) {
         Utils::sort(previousSemanticFormats, byStartOfRange);
-
-        int index = 0;
-        for (; index != formats.size(); ++index) {
-            const QTextLayout::FormatRange &range = formats.at(index);
-            const QTextLayout::FormatRange &previousRange = previousSemanticFormats.at(index);
-
-            if (range.start != previousRange.start ||
-                    range.length != previousRange.length ||
-                    range.format != previousRange.format)
-                break;
-        }
-
-        if (index == formats.size())
+        if (formats == previousSemanticFormats)
             return;
     }
 
