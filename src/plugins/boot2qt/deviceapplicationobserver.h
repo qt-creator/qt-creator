@@ -36,9 +36,6 @@ namespace Internal {
 
 class Command {
 public:
-    Command(const QString &bin, const QStringList &args = QStringList())
-        : binary(bin), arguments(args) {}
-
     QString binary;
     QStringList arguments;
 };
@@ -50,18 +47,17 @@ public:
     explicit DeviceApplicationObserver(QObject *parent = 0);
 
     // Once all commands have finished, this object will delete itself.
-    void start(const ProjectExplorer::IDevice::ConstPtr &device, const QList<Command> &commands);
+    void start(const ProjectExplorer::IDevice::ConstPtr &device, const Command &command);
 
 private:
     void handleStdout(const QString &data);
     void handleStderr(const QString &data);
     void handleError(const QString &message);
     void handleFinished(bool success);
-    void runNext();
 
     QString m_stdout;
     QString m_stderr;
-    QList<Command> m_commandsToRun;
+    Command m_command;
     ProjectExplorer::ApplicationLauncher * const m_appRunner;
     ProjectExplorer::IDevice::ConstPtr m_device;
     QString m_error;

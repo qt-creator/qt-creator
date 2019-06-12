@@ -45,13 +45,13 @@ namespace Internal {
 QdbDevice::QdbDevice()
 {
     addDeviceAction({tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
-        QList<Command> commands{Command("reboot")};
-        (new DeviceApplicationObserver)->start(device, commands);
+        Command cmd{"reboot", {}};
+        (new DeviceApplicationObserver)->start(device, cmd);
     }});
 
     addDeviceAction({tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
-        QList<Command> commands{Command(appControllerFilePath(), QStringList{"--remove-default"})};
-        (new DeviceApplicationObserver)->start(device, commands);
+        Command cmd{appControllerFilePath(), {"--remove-default"}};
+        (new DeviceApplicationObserver)->start(device, cmd);
     }});
 }
 

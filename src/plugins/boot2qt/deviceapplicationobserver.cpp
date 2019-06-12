@@ -51,29 +51,18 @@ DeviceApplicationObserver::DeviceApplicationObserver(QObject *parent)
 }
 
 void DeviceApplicationObserver::start(const IDevice::ConstPtr &device,
-        const QList<Command> &commands)
+        const Command &command)
 {
     QTC_ASSERT(device, return);
     m_device = device;
-    m_commandsToRun = commands;
-    runNext();
-}
+    m_command = command;
 
-void DeviceApplicationObserver::runNext()
-{
-    if (m_commandsToRun.isEmpty()) {
-        showMessage(tr("Commands on device '%1' finished successfully.")
-                    .arg(m_device->displayName()));
-        deleteLater();
-        return;
-    }
-    const Command c = m_commandsToRun.takeFirst();
     m_stdout.clear();
     m_stderr.clear();
 
     Runnable r;
-    r.executable = c.binary;
-    r.commandLineArguments = Utils::QtcProcess::joinArgs(c.arguments);
+    r.executable = m_command.binary;
+    r.commandLineArguments = Utils::QtcProcess::joinArgs(m_command.arguments);
     m_appRunner->start(r, m_device);
     showMessage(tr("Starting command '%1 %2' on device '%3'.")
                 .arg(r.executable, r.commandLineArguments, m_device->displayName()));
@@ -113,10 +102,11 @@ void DeviceApplicationObserver::handleFinished(bool success)
             showMessage(tr("stdout was: '%1'").arg(m_stdout));
         if (!m_stderr.isEmpty())
             showMessage(tr("stderr was: '%1'").arg(m_stderr));
-        deleteLater();
-        return;
+    } else {
+        showMessage(tr("Commands on device '%1' finished successfully.")
+                    .arg(m_device->displayName()));
     }
-    runNext();
+    deleteLater();
 }
 
 } // namespace Internal
