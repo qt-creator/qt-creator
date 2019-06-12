@@ -39,6 +39,7 @@
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QFileInfo>
@@ -398,6 +399,20 @@ QIcon Kit::icon() const
 
     d->m_cachedIcon = iconForDeviceType(Constants::DESKTOP_DEVICE_TYPE);
     return d->m_cachedIcon;
+}
+
+QIcon Kit::displayIcon() const
+{
+    QIcon result = icon();
+    if (hasWarning()) {
+         static const QIcon warningIcon(Utils::Icons::WARNING.icon());
+         result = warningIcon;
+    }
+    if (!isValid()) {
+        static const QIcon errorIcon(Utils::Icons::CRITICAL.icon());
+        result = errorIcon;
+    }
+    return result;
 }
 
 FilePath Kit::iconPath() const

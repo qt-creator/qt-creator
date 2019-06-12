@@ -39,6 +39,7 @@
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QRegularExpression>
@@ -155,9 +156,15 @@ QString KitManagerConfigWidget::displayName() const
     return m_cachedDisplayName;
 }
 
-QIcon KitManagerConfigWidget::icon() const
+QIcon KitManagerConfigWidget::displayIcon() const
 {
-    return m_modifiedKit->icon();
+    // Special case: Extra warning if there are no errors but name is not unique.
+    if (m_modifiedKit->isValid() && !m_hasUniqueName) {
+        static const QIcon warningIcon(Utils::Icons::WARNING.icon());
+        return warningIcon;
+    }
+
+    return m_modifiedKit->displayIcon();
 }
 
 void KitManagerConfigWidget::apply()
@@ -197,16 +204,6 @@ bool KitManagerConfigWidget::isDirty() const
     return !m_kit
             || !m_kit->isEqual(m_modifiedKit.get())
             || m_isDefaultKit != (KitManager::defaultKit() == m_kit);
-}
-
-bool KitManagerConfigWidget::isValid() const
-{
-    return m_modifiedKit->isValid();
-}
-
-bool KitManagerConfigWidget::hasWarning() const
-{
-    return m_modifiedKit->hasWarning() || !m_hasUniqueName;
 }
 
 QString KitManagerConfigWidget::validityMessage() const

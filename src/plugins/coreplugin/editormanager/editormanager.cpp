@@ -214,7 +214,7 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     m_closeOtherDocumentsContextAction(new QAction(EditorManager::tr("Close Others"), this)),
     m_closeAllEditorsExceptVisibleContextAction(new QAction(EditorManager::tr("Close All Except Visible"), this)),
     m_openGraphicalShellAction(new QAction(FileUtils::msgGraphicalShellAction(), this)),
-    m_openTerminalAction(new QAction(FileUtils::msgTerminalAction(), this)),
+    m_openTerminalAction(new QAction(FileUtils::msgTerminalHereAction(), this)),
     m_findInDirectoryAction(new QAction(FileUtils::msgFindInDirectory(), this)),
     m_filePropertiesAction(new QAction(tr("Properties..."), this)),
     m_pinAction(new QAction(tr("Pin"), this))

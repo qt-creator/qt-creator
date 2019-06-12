@@ -72,6 +72,11 @@ void KitChooser::onManageButtonClicked()
     Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, this);
 }
 
+void KitChooser::setShowIcons(bool showIcons)
+{
+    m_showIcons = showIcons;
+}
+
 void KitChooser::onCurrentIndexChanged()
 {
     const Id id = Id::fromSetting(m_chooser->currentData());
@@ -127,9 +132,12 @@ void KitChooser::populate()
     foreach (Kit *kit, KitManager::sortKits(KitManager::kits())) {
         if (m_kitPredicate(kit)) {
             m_chooser->addItem(kitText(kit), kit->id().toSetting());
-            m_chooser->setItemData(m_chooser->count() - 1, kitToolTip(kit), Qt::ToolTipRole);
+            const int pos = m_chooser->count() - 1;
+            m_chooser->setItemData(pos, kitToolTip(kit), Qt::ToolTipRole);
+            if (m_showIcons)
+                m_chooser->setItemData(pos, kit->displayIcon(), Qt::DecorationRole);
             if (!didActivate && kit->id() == lastKit) {
-                m_chooser->setCurrentIndex(m_chooser->count() - 1);
+                m_chooser->setCurrentIndex(pos);
                 didActivate = true;
             }
         }

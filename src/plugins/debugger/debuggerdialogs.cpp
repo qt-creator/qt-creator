@@ -199,9 +199,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     setWindowTitle(tr("Start Debugger"));
 
     d->kitChooser = new KitChooser(this);
-    d->kitChooser->setKitPredicate([](const Kit *k) {
-        return !DebuggerKitAspect::configurationErrors(k);
-    });
+    d->kitChooser->setShowIcons(true);
     d->kitChooser->populate();
 
     d->serverPortLabel = new QLabel(tr("Server port:"), this);

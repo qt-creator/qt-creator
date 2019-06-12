@@ -85,15 +85,7 @@ public:
                 return baseName;
             }
             if (role == Qt::DecorationRole) {
-                if (!widget->isValid()) {
-                    static const QIcon errorIcon(Utils::Icons::CRITICAL.icon());
-                    return errorIcon;
-                }
-                if (widget->hasWarning()) {
-                    static const QIcon warningIcon(Utils::Icons::WARNING.icon());
-                    return warningIcon;
-                }
-                return widget->icon();
+                return widget->displayIcon();
             }
             if (role == Qt::ToolTipRole) {
                 return widget->validityMessage();

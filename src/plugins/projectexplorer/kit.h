@@ -96,7 +96,8 @@ public:
     // all other aspects are equal.
     int weight() const;
 
-    QIcon icon() const;
+    QIcon icon() const; // Raw device icon, independent of warning or error.
+    QIcon displayIcon() const; // Error or warning or device icon.
     Utils::FilePath iconPath() const;
     void setIconPath(const Utils::FilePath &path);
     void setDeviceTypeForIcon(Core::Id deviceType);

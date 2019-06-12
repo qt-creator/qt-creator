@@ -135,11 +135,18 @@ QString FileUtils::msgGraphicalShellAction()
     return QApplication::translate("Core::Internal", "Show Containing Folder");
 }
 
-QString FileUtils::msgTerminalAction()
+QString FileUtils::msgTerminalHereAction()
 {
     if (HostOsInfo::isWindowsHost())
         return QApplication::translate("Core::Internal", "Open Command Prompt Here");
     return QApplication::translate("Core::Internal", "Open Terminal Here");
+}
+
+QString FileUtils::msgTerminalWithAction()
+{
+    if (HostOsInfo::isWindowsHost())
+        return QApplication::translate("Core::Internal", "Open Command Prompt With");
+    return QApplication::translate("Core::Internal", "Open Terminal With");
 }
 
 void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
