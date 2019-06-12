@@ -202,7 +202,7 @@ private:
     const QString m_tokenPrefix;
     void handleSetupFailure(const QString &errorMessage);
 
-    QProcess m_process;
+    Utils::QtcProcess m_process;
     DebuggerStartMode m_effectiveStartMode = NoStartMode;
     QByteArray m_outputBuffer;
     //! Debugger accessible (expecting commands)
