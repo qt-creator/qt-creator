@@ -49,6 +49,7 @@ const char HELP_HOME[] = "Help.Home";
 const char HELP_PREVIOUS[] = "Help.Previous";
 const char HELP_NEXT[] = "Help.Next";
 const char HELP_ADDBOOKMARK[] = "Help.AddBookmark";
+const char HELP_OPENONLINE[] = "Help.OpenOnline";
 const char HELP_INDEX[] = "Help.Index";
 const char HELP_CONTENTS[] = "Help.Contents";
 const char HELP_SEARCH[] = "Help.Search";

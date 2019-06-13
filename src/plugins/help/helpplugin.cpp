@@ -701,19 +701,8 @@ HelpViewer *HelpPluginPrivate::showHelpUrl(const QUrl &url, Core::HelpManager::H
         return nullptr;
 
     if (!HelpManager::findFile(url).isValid()) {
-        const QString address = url.toString();
-        if (address.startsWith("qthelp://org.qt-project.")
-                || address.startsWith("qthelp://com.nokia.")
-                || address.startsWith("qthelp://com.trolltech.")) {
-            // local help not installed, resort to external web help
-            QString urlPrefix = "http://doc.qt.io/";
-            if (url.authority().startsWith(qtcreatorUnversionedID))
-                urlPrefix.append(QString::fromLatin1("qtcreator"));
-            else
-                urlPrefix.append("qt-5");
-            QDesktopServices::openUrl(QUrl(urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')))));
+        if (LocalHelpManager::openOnlineHelp(url))
             return nullptr;
-        }
     }
 
     HelpViewer *viewer = viewerForHelpViewerLocation(location);

@@ -36,6 +36,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QDesktopServices>
 #include <QFontDatabase>
 #include <QMutexLocker>
 
@@ -444,4 +445,32 @@ void LocalHelpManager::updateFilterModel()
         m_currentFilter = filters.at(0);
     }
     emit m_instance->filterIndexChanged(m_currentFilterIndex);
+}
+
+bool LocalHelpManager::canOpenOnlineHelp(const QUrl &url)
+{
+    const QString address = url.toString();
+    if (address.startsWith("qthelp://org.qt-project.")
+            || address.startsWith("qthelp://com.nokia.")
+            || address.startsWith("qthelp://com.trolltech.")) {
+        return true;
+    }
+    return false;
+}
+
+bool LocalHelpManager::openOnlineHelp(const QUrl &url)
+{
+    static const QString qtcreatorUnversionedID = "org.qt-project.qtcreator";
+
+    if (canOpenOnlineHelp(url)) {
+        QString urlPrefix = "http://doc.qt.io/";
+        if (url.authority().startsWith(qtcreatorUnversionedID))
+            urlPrefix.append(QString::fromLatin1("qtcreator"));
+        else
+            urlPrefix.append("qt-5");
+        const QString address = url.toString();
+        QDesktopServices::openUrl(QUrl(urlPrefix + address.mid(address.lastIndexOf(QLatin1Char('/')))));
+        return true;
+    }
+    return false;
 }

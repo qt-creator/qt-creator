@@ -105,6 +105,9 @@ public:
 
     static void updateFilterModel();
 
+    static bool canOpenOnlineHelp(const QUrl &url);
+    static bool openOnlineHelp(const QUrl &url);
+
 signals:
     void filterIndexChanged(int index);
     void fallbackFontChanged(const QFont &font);

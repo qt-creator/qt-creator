@@ -99,6 +99,7 @@ private:
 
     void goHome();
     void addBookmark();
+    void openOnlineDocumentation();
     void copy();
     void forward();
     void backward();
@@ -120,6 +121,7 @@ private:
     QAction *m_backAction = nullptr;
     QAction *m_forwardAction = nullptr;
     QAction *m_addBookmarkAction = nullptr;
+    QAction *m_openOnlineDocumentationAction = nullptr;
     QComboBox *m_filterComboBox = nullptr;
     QAction *m_closeAction = nullptr;
     QAction *m_scaleUp = nullptr;

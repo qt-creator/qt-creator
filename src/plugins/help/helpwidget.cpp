@@ -208,6 +208,11 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     layout->addWidget(new Utils::StyledSeparator(toolBar));
     layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_addBookmarkAction, cmd));
 
+    m_openOnlineDocumentationAction = new QAction(Utils::Icons::EXPORTFILE_TOOLBAR.icon(), tr("Open Online Documentation..."), this);
+    cmd = Core::ActionManager::registerAction(m_openOnlineDocumentationAction, Constants::HELP_OPENONLINE, context);
+    connect(m_openOnlineDocumentationAction, &QAction::triggered, this, &HelpWidget::openOnlineDocumentation);
+    layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_openOnlineDocumentationAction, cmd));
+
     if (style == ModeWidget) {
         layout->addWidget(new Utils::StyledSeparator(toolBar));
         layout->addWidget(OpenPagesManager::instance().openPagesComboBox(), 10);
@@ -453,6 +458,7 @@ void HelpWidget::setCurrentViewer(HelpViewer *viewer)
     m_backAction->setEnabled(viewer->isBackwardAvailable());
     m_forwardAction->setEnabled(viewer->isForwardAvailable());
     m_addBookmarkAction->setEnabled(isBookmarkable(viewer->source()));
+    m_openOnlineDocumentationAction->setEnabled(LocalHelpManager::canOpenOnlineHelp(viewer->source()));
     if (m_style == ExternalWindow)
         updateWindowTitle();
     emit sourceChanged(viewer->source());
@@ -472,6 +478,7 @@ void HelpWidget::addViewer(HelpViewer *viewer)
     connect(viewer, &HelpViewer::sourceChanged, this, [viewer, this](const QUrl &url) {
         if (currentViewer() == viewer) {
             m_addBookmarkAction->setEnabled(isBookmarkable(url));
+            m_openOnlineDocumentationAction->setEnabled(LocalHelpManager::canOpenOnlineHelp(url));
             emit sourceChanged(url);
         }
     });
@@ -631,6 +638,13 @@ void HelpWidget::addBookmark()
 
     BookmarkManager *manager = &LocalHelpManager::bookmarkManager();
     manager->showBookmarkDialog(this, viewer->title(), url);
+}
+
+void HelpWidget::openOnlineDocumentation()
+{
+    HelpViewer *viewer = currentViewer();
+    QTC_ASSERT(viewer, return);
+    LocalHelpManager::openOnlineHelp(viewer->source());
 }
 
 void HelpWidget::copy()
