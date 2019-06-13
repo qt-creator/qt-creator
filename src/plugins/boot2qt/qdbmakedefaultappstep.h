@@ -39,17 +39,6 @@ public:
 
     static Core::Id stepId();
     static QString stepDisplayName();
-
-    void setMakeDefault(bool makeDefault);
-    bool makeDefault() const;
-
-protected:
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-
-private:
-    bool m_makeDefault = false;
 };
 
 } // namespace Internal

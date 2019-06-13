@@ -39,6 +39,7 @@ namespace Internal {
 class BaseBoolAspectPrivate;
 class BaseStringAspectPrivate;
 class BaseIntegerAspectPrivate;
+class BaseSelectionAspectPrivate;
 } // Internal
 
 class PROJECTEXPLORER_EXPORT BaseBoolAspect : public ProjectConfigurationAspect
@@ -65,6 +66,31 @@ public:
 
 private:
     std::unique_ptr<Internal::BaseBoolAspectPrivate> d;
+};
+
+class PROJECTEXPLORER_EXPORT BaseSelectionAspect : public ProjectConfigurationAspect
+{
+    Q_OBJECT
+
+public:
+    BaseSelectionAspect();
+    ~BaseSelectionAspect() override;
+
+    void addToConfigurationLayout(QFormLayout *layout) override;
+
+    int value() const;
+    void setValue(int val);
+
+    int defaultValue() const;
+    void setDefaultValue(int defaultValue);
+
+    void addOption(const QString &displayName, const QString &toolTip = {});
+
+    void fromMap(const QVariantMap &map) override;
+    void toMap(QVariantMap &map) const override;
+
+private:
+    std::unique_ptr<Internal::BaseSelectionAspectPrivate> d;
 };
 
 class PROJECTEXPLORER_EXPORT BaseStringAspect : public ProjectConfigurationAspect

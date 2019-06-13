@@ -44,6 +44,8 @@
 #include <QSpinBox>
 #include <QToolButton>
 #include <QTextEdit>
+#include <QRadioButton>
+#include <QButtonGroup>
 
 using namespace Utils;
 
@@ -58,6 +60,17 @@ public:
     QString m_label;
     QString m_tooltip;
     QPointer<QCheckBox> m_checkBox; // Owned by configuration widget
+};
+
+class BaseSelectionAspectPrivate
+{
+public:
+    int m_value = 0;
+    int m_defaultValue = 0;
+    struct Option { QString displayName; QString tooltip; };
+    QVector<Option> m_options;
+    QList<QPointer<QRadioButton>> m_buttons; // Owned by configuration widget
+    QPointer<QButtonGroup> m_buttonGroup;
 };
 
 class BaseStringAspectPrivate
@@ -394,6 +407,75 @@ void BaseBoolAspect::setLabel(const QString &label)
 void BaseBoolAspect::setToolTip(const QString &tooltip)
 {
     d->m_tooltip = tooltip;
+}
+
+/*!
+    \class ProjectExplorer::BaseSelectionAspect
+*/
+
+BaseSelectionAspect::BaseSelectionAspect()
+    : d(new Internal::BaseSelectionAspectPrivate)
+{}
+
+BaseSelectionAspect::~BaseSelectionAspect() = default;
+
+void BaseSelectionAspect::addToConfigurationLayout(QFormLayout *layout)
+{
+    QTC_CHECK(d->m_buttonGroup == nullptr);
+    d->m_buttonGroup = new QButtonGroup;
+    d->m_buttonGroup->setExclusive(true);
+
+    QTC_ASSERT(d->m_buttons.isEmpty(), d->m_buttons.clear());
+    for (int i = 0, n = d->m_options.size(); i < n; ++i) {
+        const Internal::BaseSelectionAspectPrivate::Option &option = d->m_options.at(i);
+        auto button = new QRadioButton(option.displayName, layout->parentWidget());
+        button->setChecked(i == d->m_value);
+        button->setToolTip(option.tooltip);
+        layout->addRow(QString(), button);
+        d->m_buttons.append(button);
+        d->m_buttonGroup->addButton(button);
+        connect(button, &QAbstractButton::clicked, this, [this, i] {
+            d->m_value = i;
+            emit changed();
+        });
+    }
+}
+
+void BaseSelectionAspect::fromMap(const QVariantMap &map)
+{
+    d->m_value = map.value(settingsKey(), d->m_defaultValue).toInt();
+}
+
+void BaseSelectionAspect::toMap(QVariantMap &data) const
+{
+    data.insert(settingsKey(), d->m_value);
+}
+
+int BaseSelectionAspect::defaultValue() const
+{
+    return d->m_defaultValue;
+}
+
+void BaseSelectionAspect::setDefaultValue(int defaultValue)
+{
+    d->m_defaultValue = defaultValue;
+}
+
+int BaseSelectionAspect::value() const
+{
+    return d->m_value;
+}
+
+void BaseSelectionAspect::setValue(int value)
+{
+    d->m_value = value;
+    if (d->m_buttonGroup && 0 <= value && value < d->m_buttons.size())
+        d->m_buttons.at(value)->setChecked(true);
+}
+
+void BaseSelectionAspect::addOption(const QString &displayName, const QString &toolTip)
+{
+    d->m_options.append({displayName, toolTip});
 }
 
 /*!
