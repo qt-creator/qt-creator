@@ -38,13 +38,17 @@ using namespace TextEditor::SemanticHighlighter;
 
 namespace {
 
-QTextCharFormat textCharFormatForResult(const HighlightingResult &result,
+QTextLayout::FormatRange rangeForResult(const HighlightingResult &result,
                                         const QHash<int, QTextCharFormat> &kindToFormat)
 {
-    if (result.useTextSyles)
-        return TextEditorSettings::fontSettings().toTextCharFormat(result.textStyles);
-    else
-        return kindToFormat.value(result.kind);
+    QTextLayout::FormatRange formatRange;
+
+    formatRange.start = int(result.column) - 1;
+    formatRange.length = int(result.length);
+    formatRange.format = result.useTextSyles
+        ? TextEditorSettings::fontSettings().toTextCharFormat(result.textStyles)
+        : kindToFormat.value(result.kind);
+    return formatRange;
 }
 
 }
@@ -95,14 +99,9 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
         QVector<QTextLayout::FormatRange> formats;
         formats.reserve(to - from);
         forever {
-            QTextLayout::FormatRange formatRange;
-
-            formatRange.format = textCharFormatForResult(result, kindToFormat);
-            if (formatRange.format.isValid()) {
-                formatRange.start = int(result.column) - 1;
-                formatRange.length = int(result.length);
+            const QTextLayout::FormatRange formatRange = rangeForResult(result, kindToFormat);
+            if (formatRange.format.isValid())
                 formats.append(formatRange);
-            }
 
             ++i;
             if (i >= to)
