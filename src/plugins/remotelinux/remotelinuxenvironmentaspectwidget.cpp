@@ -78,7 +78,7 @@ RemoteLinuxEnvironmentAspectWidget::RemoteLinuxEnvironmentAspectWidget
         }
         const auto linuxDevice = device.dynamicCast<const LinuxDevice>();
         QTC_ASSERT(linuxDevice, return);
-        linuxDevice->startRemoteShell(env);
+        linuxDevice->openTerminal(env, QString());
     };
     envWidget()->setOpenTerminalFunc(openTerminalFunc);
 }
