@@ -41,7 +41,7 @@ public:
     void setPackageFilePath(const QString &filePath);
 
 protected:
-    explicit AbstractUploadAndInstallPackageService(QObject *parent);
+     AbstractUploadAndInstallPackageService();
     ~AbstractUploadAndInstallPackageService() override;
 
     QString packageFilePath() const;

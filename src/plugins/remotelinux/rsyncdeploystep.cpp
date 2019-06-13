@@ -177,15 +177,11 @@ void RsyncDeployService::setFinished()
 
 } // namespace Internal
 
-class RsyncDeployStep::RsyncDeployStepPrivate
-{
-public:
-    Internal::RsyncDeployService deployService;
-};
-
 RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl)
-    : AbstractRemoteLinuxDeployStep(bsl, stepId()), d(new RsyncDeployStepPrivate)
+    : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
+    auto service = createDeployService<Internal::RsyncDeployService>();
+
     auto flags = addAspect<BaseStringAspect>();
     flags->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
@@ -199,28 +195,18 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl)
 
     setDefaultDisplayName(displayName());
 
-    setInternalInitializer([this, flags, ignoreMissingFiles] {
-        d->deployService.setIgnoreMissingFiles(ignoreMissingFiles->value());
-        d->deployService.setFlags(flags->value());
-        return d->deployService.isDeploymentPossible();
+    setInternalInitializer([service, flags, ignoreMissingFiles] {
+        service->setIgnoreMissingFiles(ignoreMissingFiles->value());
+        service->setFlags(flags->value());
+        return service->isDeploymentPossible();
+    });
+
+    setRunPreparer([this, service] {
+        service->setDeployableFiles(target()->deploymentData().allFiles());
     });
 }
 
-RsyncDeployStep::~RsyncDeployStep()
-{
-    delete d;
-}
-
-AbstractRemoteLinuxDeployService *RsyncDeployStep::deployService() const
-{
-    return &d->deployService;
-}
-
-void RsyncDeployStep::doRun()
-{
-    d->deployService.setDeployableFiles(target()->deploymentData().allFiles());
-    AbstractRemoteLinuxDeployStep::doRun();
-}
+RsyncDeployStep::~RsyncDeployStep() = default;
 
 Core::Id RsyncDeployStep::stepId()
 {

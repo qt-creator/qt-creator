@@ -34,7 +34,7 @@ class REMOTELINUX_EXPORT RemoteLinuxKillAppService : public AbstractRemoteLinuxD
 {
     Q_OBJECT
 public:
-    RemoteLinuxKillAppService(QObject *parent = nullptr);
+    RemoteLinuxKillAppService();
     ~RemoteLinuxKillAppService() override;
 
     void setRemoteExecutable(const QString &filePath);

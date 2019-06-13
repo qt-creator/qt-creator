@@ -30,8 +30,6 @@
 namespace Qdb {
 namespace Internal {
 
-class QdbMakeDefaultAppStepPrivate;
-
 class QdbMakeDefaultAppStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
@@ -39,7 +37,6 @@ class QdbMakeDefaultAppStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 public:
     explicit QdbMakeDefaultAppStep(ProjectExplorer::BuildStepList *bsl);
 
-    ~QdbMakeDefaultAppStep() override;
     static Core::Id stepId();
     static QString stepDisplayName();
 
@@ -47,13 +44,12 @@ public:
     bool makeDefault() const;
 
 protected:
-    RemoteLinux::AbstractRemoteLinuxDeployService *deployService() const override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
 private:
-    QdbMakeDefaultAppStepPrivate *d;
+    bool m_makeDefault = false;
 };
 
 } // namespace Internal

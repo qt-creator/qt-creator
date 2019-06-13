@@ -33,13 +33,6 @@
 namespace Qdb {
 namespace Internal {
 
-class QdbMakeDefaultAppStepPrivate
-{
-public:
-    QdbMakeDefaultAppService deployService;
-    bool makeDefault;
-};
-
 class QdbConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
 public:
@@ -78,28 +71,19 @@ private:
 QdbMakeDefaultAppStep::QdbMakeDefaultAppStep(ProjectExplorer::BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
-    d = new QdbMakeDefaultAppStepPrivate;
     setDefaultDisplayName(stepDisplayName());
 
-    setInternalInitializer([this] {
-        d->deployService.setMakeDefault(d->makeDefault);
-        return deployService()->isDeploymentPossible();
-    });
-}
+    auto service = createDeployService<QdbMakeDefaultAppService>();
 
-QdbMakeDefaultAppStep::~QdbMakeDefaultAppStep()
-{
-    delete d;
+    setInternalInitializer([this, service] {
+        service->setMakeDefault(m_makeDefault);
+        return service->isDeploymentPossible();
+    });
 }
 
 Core::Id QdbMakeDefaultAppStep::stepId()
 {
     return "Qdb.MakeDefaultAppStep";
-}
-
-RemoteLinux::AbstractRemoteLinuxDeployService *QdbMakeDefaultAppStep::deployService() const
-{
-    return &d->deployService;
 }
 
 ProjectExplorer::BuildStepConfigWidget *QdbMakeDefaultAppStep::createConfigWidget()
@@ -114,12 +98,12 @@ QString QdbMakeDefaultAppStep::stepDisplayName()
 
 void QdbMakeDefaultAppStep::setMakeDefault(bool makeDefault)
 {
-    d->makeDefault = makeDefault;
+    m_makeDefault = makeDefault;
 }
 
 bool QdbMakeDefaultAppStep::makeDefault() const
 {
-    return d->makeDefault;
+    return m_makeDefault;
 }
 
 static QString makeDefaultKey()
@@ -131,14 +115,14 @@ bool QdbMakeDefaultAppStep::fromMap(const QVariantMap &map)
 {
     if (!AbstractRemoteLinuxDeployStep::fromMap(map))
         return false;
-    d->makeDefault = map.value(makeDefaultKey()).toBool();
+    m_makeDefault = map.value(makeDefaultKey()).toBool();
     return true;
 }
 
 QVariantMap QdbMakeDefaultAppStep::toMap() const
 {
     QVariantMap map = AbstractRemoteLinuxDeployStep::toMap();
-    map.insert(makeDefaultKey(), d->makeDefault);
+    map.insert(makeDefaultKey(), m_makeDefault);
     return map;
 }
 

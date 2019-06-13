@@ -54,13 +54,6 @@ public:
     static QString defaultFlags();
     static RsyncCommandLine rsyncCommand(const QSsh::SshConnection &sshConnection,
                                          const QString &flags);
-
-private:
-    AbstractRemoteLinuxDeployService *deployService() const override;
-    void doRun() override;
-
-    class RsyncDeployStepPrivate;
-    RsyncDeployStepPrivate * const d;
 };
 
 } // namespace RemoteLinux

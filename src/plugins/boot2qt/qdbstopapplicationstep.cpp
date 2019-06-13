@@ -30,34 +30,20 @@
 namespace Qdb {
 namespace Internal {
 
-class QdbStopApplicationStepPrivate
-{
-public:
-    QdbStopApplicationService deployService;
-};
-
 QdbStopApplicationStep::QdbStopApplicationStep(ProjectExplorer::BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
-    d = new QdbStopApplicationStepPrivate;
+    auto service = createDeployService<QdbStopApplicationService>();
+
     setDefaultDisplayName(stepDisplayName());
     setWidgetExpandedByDefault(false);
-    setInternalInitializer([this] { return deployService()->isDeploymentPossible(); });
-}
 
-QdbStopApplicationStep::~QdbStopApplicationStep()
-{
-    delete d;
+    setInternalInitializer([service] { return service->isDeploymentPossible(); });
 }
 
 Core::Id QdbStopApplicationStep::stepId()
 {
     return "Qdb.StopApplicationStep";
-}
-
-RemoteLinux::AbstractRemoteLinuxDeployService *QdbStopApplicationStep::deployService() const
-{
-    return &d->deployService;
 }
 
 QString QdbStopApplicationStep::stepDisplayName()

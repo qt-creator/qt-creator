@@ -60,9 +60,8 @@ public:
 
 using namespace Internal;
 
-AbstractUploadAndInstallPackageService::AbstractUploadAndInstallPackageService(QObject *parent)
-    : AbstractRemoteLinuxDeployService(parent),
-      d(new AbstractUploadAndInstallPackageServicePrivate)
+AbstractUploadAndInstallPackageService::AbstractUploadAndInstallPackageService()
+    : d(new AbstractUploadAndInstallPackageServicePrivate)
 {
 }
 

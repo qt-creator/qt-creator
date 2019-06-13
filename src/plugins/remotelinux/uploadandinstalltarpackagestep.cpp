@@ -44,9 +44,8 @@ public:
 
 using namespace Internal;
 
-UploadAndInstallTarPackageService::UploadAndInstallTarPackageService(QObject *parent)
-    : AbstractUploadAndInstallPackageService(parent),
-      d(new UploadAndInstallTarPackageServicePrivate)
+UploadAndInstallTarPackageService::UploadAndInstallTarPackageService()
+    : d(new UploadAndInstallTarPackageServicePrivate)
 {
 }
 
@@ -64,11 +63,12 @@ AbstractRemoteLinuxPackageInstaller *UploadAndInstallTarPackageService::packageI
 UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
-    m_deployService = new UploadAndInstallTarPackageService(this);
+    auto service = createDeployService<UploadAndInstallTarPackageService>();
+
     setDefaultDisplayName(displayName());
     setWidgetExpandedByDefault(false);
 
-    setInternalInitializer([this] {
+    setInternalInitializer([this, service] {
         const TarPackageCreationStep *pStep = nullptr;
 
         for (BuildStep *step : deployConfiguration()->stepList()->steps()) {
@@ -80,8 +80,8 @@ UploadAndInstallTarPackageStep::UploadAndInstallTarPackageStep(BuildStepList *bs
         if (!pStep)
             return CheckResult::failure(tr("No tarball creation step found."));
 
-        m_deployService->setPackageFilePath(pStep->packageFilePath());
-        return m_deployService->isDeploymentPossible();
+        service->setPackageFilePath(pStep->packageFilePath());
+        return service->isDeploymentPossible();
     });
 }
 

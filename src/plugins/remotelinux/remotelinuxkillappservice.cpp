@@ -35,9 +35,8 @@ public:
 };
 } // namespace Internal
 
-RemoteLinuxKillAppService::RemoteLinuxKillAppService(QObject *parent)
-        : AbstractRemoteLinuxDeployService(parent),
-          d(new Internal::RemoteLinuxKillAppServicePrivate)
+RemoteLinuxKillAppService::RemoteLinuxKillAppService()
+    : d(new Internal::RemoteLinuxKillAppServicePrivate)
 {
 }
 

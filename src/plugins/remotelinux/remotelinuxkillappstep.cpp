@@ -31,31 +31,26 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
-#include <QString>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 
 RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Core::Id id)
-        : AbstractRemoteLinuxDeployStep(bsl, id), m_service(new RemoteLinuxKillAppService(this))
+        : AbstractRemoteLinuxDeployStep(bsl, id)
 {
+    auto service = createDeployService<RemoteLinuxKillAppService>();
+
     setDefaultDisplayName(displayName());
     setWidgetExpandedByDefault(false);
 
-    setInternalInitializer([this] {
+    setInternalInitializer([this, service] {
         Target * const theTarget = target();
         QTC_ASSERT(theTarget, return CheckResult::failure());
         RunConfiguration * const rc = theTarget->activeRunConfiguration();
         const QString remoteExe = rc ? rc->runnable().executable : QString();
-        m_service->setRemoteExecutable(remoteExe);
+        service->setRemoteExecutable(remoteExe);
         return CheckResult::success();
     });
-}
-
-AbstractRemoteLinuxDeployService *RemoteLinuxKillAppStep::deployService() const
-{
-    return m_service;
 }
 
 Core::Id RemoteLinuxKillAppStep::stepId()

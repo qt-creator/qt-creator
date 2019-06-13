@@ -41,20 +41,29 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer:
 
 public:
     ~AbstractRemoteLinuxDeployStep() override;
-    virtual AbstractRemoteLinuxDeployService *deployService() const = 0;
 
 protected:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
     bool init() override;
-    void doRun() override;
+    void doRun() final;
     void doCancel() override;
 
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
 
     void setInternalInitializer(const std::function<CheckResult()> &init);
+    void setRunPreparer(const std::function<void()> &prep);
+
+    template <class T>
+    T *createDeployService()
+    {
+        T *service = new T;
+        setDeployService(service);
+        return service;
+    }
 
 private:
+    void setDeployService(AbstractRemoteLinuxDeployService *service);
     void handleProgressMessage(const QString &message);
     void handleErrorMessage(const QString &message);
     void handleWarningMessage(const QString &message);

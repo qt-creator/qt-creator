@@ -31,20 +31,11 @@
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
-namespace Internal {
-
-class RemoteLinuxCustomCommandDeploymentStepPrivate
-{
-public:
-    RemoteLinuxCustomCommandDeployService service;
-};
-
-} // namespace Internal
 
 RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep(BuildStepList *bsl)
     : AbstractRemoteLinuxDeployStep(bsl, stepId())
 {
-    d = new Internal::RemoteLinuxCustomCommandDeploymentStepPrivate;
+    auto service = createDeployService<RemoteLinuxCustomCommandDeployService>();
 
     auto commandLine = addAspect<BaseStringAspect>();
     commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
@@ -53,21 +44,13 @@ RemoteLinuxCustomCommandDeploymentStep::RemoteLinuxCustomCommandDeploymentStep(B
 
     setDefaultDisplayName(displayName());
 
-    setInternalInitializer([this, commandLine] {
-        d->service.setCommandLine(commandLine->value().trimmed());
-        return d->service.isDeploymentPossible();
+    setInternalInitializer([service, commandLine] {
+        service->setCommandLine(commandLine->value().trimmed());
+        return service->isDeploymentPossible();
     });
 }
 
-RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep()
-{
-    delete d;
-}
-
-AbstractRemoteLinuxDeployService *RemoteLinuxCustomCommandDeploymentStep::deployService() const
-{
-    return &d->service;
-}
+RemoteLinuxCustomCommandDeploymentStep::~RemoteLinuxCustomCommandDeploymentStep() = default;
 
 Core::Id RemoteLinuxCustomCommandDeploymentStep::stepId()
 {

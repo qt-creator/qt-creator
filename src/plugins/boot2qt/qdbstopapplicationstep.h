@@ -30,23 +30,14 @@
 namespace Qdb {
 namespace Internal {
 
-class QdbStopApplicationStepPrivate;
-
 class QdbStopApplicationStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
 public:
     explicit QdbStopApplicationStep(ProjectExplorer::BuildStepList *bsl);
 
-    ~QdbStopApplicationStep() final;
     static Core::Id stepId();
     static QString stepDisplayName();
-
-protected:
-    RemoteLinux::AbstractRemoteLinuxDeployService *deployService() const final;
-
-private:
-    QdbStopApplicationStepPrivate *d;
 };
 
 } // namespace Internal

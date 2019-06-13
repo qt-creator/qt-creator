@@ -28,23 +28,18 @@
 #include "abstractremotelinuxdeploystep.h"
 
 namespace RemoteLinux {
-namespace Internal { class RemoteLinuxCustomCommandDeploymentStepPrivate; }
 
 class REMOTELINUX_EXPORT RemoteLinuxCustomCommandDeploymentStep
     : public AbstractRemoteLinuxDeployStep
 {
     Q_OBJECT
+
 public:
     explicit RemoteLinuxCustomCommandDeploymentStep(ProjectExplorer::BuildStepList *bsl);
     ~RemoteLinuxCustomCommandDeploymentStep() override;
 
     static Core::Id stepId();
     static QString displayName();
-
-private:
-    AbstractRemoteLinuxDeployService *deployService() const override;
-
-    Internal::RemoteLinuxCustomCommandDeploymentStepPrivate *d;
 };
 
 } // namespace RemoteLinux
