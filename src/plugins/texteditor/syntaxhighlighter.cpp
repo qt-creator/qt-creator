@@ -721,6 +721,15 @@ void SyntaxHighlighter::clearExtraFormats(const QTextBlock &block)
     d->inReformatBlocks = wasInReformatBlocks;
 }
 
+void SyntaxHighlighter::clearAllExtraFormats()
+{
+    QTextBlock b = document()->firstBlock();
+    while (b.isValid()) {
+        clearExtraFormats(b);
+        b = b.next();
+    }
+}
+
 /* Generate at least n different colors for highlighting, excluding background
  * color. */
 

@@ -176,14 +176,8 @@ QByteArray CppEditorDocument::contentsText() const
 
 void CppEditorDocument::applyFontSettings()
 {
-    if (TextEditor::SyntaxHighlighter *highlighter = syntaxHighlighter()) {
-        // Clear all additional formats since they may have changed
-        QTextBlock b = document()->firstBlock();
-        while (b.isValid()) {
-            highlighter->clearExtraFormats(b);
-            b = b.next();
-        }
-    }
+    if (TextEditor::SyntaxHighlighter *highlighter = syntaxHighlighter())
+        highlighter->clearAllExtraFormats(); // Clear all additional formats since they may have changed
     TextDocument::applyFontSettings(); // rehighlights and updates additional formats
     if (m_processor)
         m_processor->semanticRehighlight();
