@@ -263,7 +263,7 @@ QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
             return regularExpressionPatter.cap(2);
         return instanceValue(name).toString();
     }
-    return modelNode().variantProperty(name).value().toString();
+    return instanceValue(name).toString();
 }
 
 QString QmlObjectNode::expression(const PropertyName &name) const
