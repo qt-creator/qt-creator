@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
 project(%{ProjectName} LANGUAGES CXX)
 
@@ -15,21 +15,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt5 COMPONENTS %{QtModuleUpperCase} REQUIRED)
 @endif
 
-add_library(${PROJECT_NAME} %{JS: %{IsStatic} ? 'STATIC' : 'SHARED'}
+add_library(%{ProjectName} %{JS: %{IsStatic} ? 'STATIC' : 'SHARED'}
 @if '%{Type}' === 'shared'
-  "%{GlobalHdrFileName}"
+  %{GlobalHdrFileName}
 @endif
-  "%{SrcFileName}"
-  "%{HdrFileName}"
+  %{SrcFileName}
+  %{HdrFileName}
 @if %{IsQtPlugin}
-  "%{PluginJsonFile}"
+  %{PluginJsonFile}
 @endif
 )
 @if '%{QtModule}' != 'none'
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::%{QtModuleUpperCase})
+target_link_libraries(%{ProjectName} PRIVATE Qt5::%{QtModuleUpperCase})
 @endif
 @if '%{IsShared}'
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE %{LibraryDefine})
+target_compile_definitions(%{ProjectName} PRIVATE %{LibraryDefine})
 @endif

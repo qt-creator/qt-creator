@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
-project(%{ProjectName})
-add_executable(${PROJECT_NAME} "%{CFileName}")
+project(%{ProjectName} LANGUAGES C)
+
+add_executable(%{ProjectName} %{CFileName})

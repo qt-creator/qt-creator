@@ -360,9 +360,8 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 void CMakeProject::updateQmlJSCodeModel()
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    QTC_ASSERT(modelManager, return);
 
-    if (!activeTarget() || !activeTarget()->activeBuildConfiguration())
+    if (!modelManager || !activeTarget() || !activeTarget()->activeBuildConfiguration())
         return;
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =

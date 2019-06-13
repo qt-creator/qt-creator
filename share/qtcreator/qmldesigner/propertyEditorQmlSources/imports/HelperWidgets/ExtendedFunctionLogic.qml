@@ -54,7 +54,7 @@ Item {
                 // translations are a special case
                 extendedFunctionButton.glyph = StudioTheme.Constants.actionIcon
             } else {
-                extendedFunctionButton.glyph = StudioTheme.Constants.closeCross
+                extendedFunctionButton.glyph = StudioTheme.Constants.actionIconBinding
                 extendedFunctionButton.color = StudioTheme.Values.themeInteraction
             }
         } else {

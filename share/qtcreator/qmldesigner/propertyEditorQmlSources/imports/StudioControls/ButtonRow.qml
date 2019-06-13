@@ -32,9 +32,8 @@ Row {
     // TODO When using Item as root it won't react to outer layout
     id: myButtonGroup
 
-    property alias actionIcon: actionIndicator.icon
+    property alias actionIndicator: actionIndicator
 
-    //property bool hover: myCheckBox.hovered // TODO
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __actionIndicatorHeight: StudioTheme.Values.height

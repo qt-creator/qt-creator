@@ -25,20 +25,11 @@
 
 import QtQuick 2.1
 import HelperWidgets 2.0
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Row {
     id: alignmentHorizontalButtons
-
-    RoundedPanel {
-        width: 16
-        height: parent.height
-        roundLeft: true
-        ExtendedFunctionButton {
-            x: 2
-            anchors.verticalCenter: parent.verticalCenter
-            backendValue: alignmentHorizontalButtons.backendValue
-        }
-    }
 
     property bool blueHighlight: false
 
@@ -48,19 +39,20 @@ Row {
 
     property bool baseStateFlag: isBaseState;
 
+    property color __currentColor: blueHighlight ? StudioTheme.Values.themeInteraction : StudioTheme.Values.themeTextColor
+
     onValueChanged: {
-        buttonRow.initalChecked = 0
-        buttonRow.checkedIndex = 0
+        buttonAlignLeft.checked = true
+        buttonAlignHCenter.checked = false
+        buttonAlignRight.checked = false
+
         if (value !== undefined) {
             if (value === "AlignLeft") {
-                buttonRow.initalChecked = 0
-                buttonRow.checkedIndex = 0
+                buttonAlignLeft.checked = true
             } else if (value === "AlignHCenter") {
-                buttonRow.initalChecked = 1
-                buttonRow.checkedIndex = 1
+                buttonAlignHCenter.checked = true
             } else if (value === "AlignRight") {
-                buttonRow.initalChecked = 2
-                buttonRow.checkedIndex = 2
+                buttonAlignRight.checked = true
             }
         }
         evaluate()
@@ -89,27 +81,54 @@ Row {
         }
     }
 
-    ButtonRow {
-        id: buttonRow
-        exclusive: true
+    ExtendedFunctionLogic {
+        id: extFuncLogic
+        backendValue: alignmentHorizontalButtons.backendValue
+    }
 
-        ButtonRowButton {
-            roundLeftButton: false
-            iconSource: "image://icons/alignment-left" + (blueHighlight ? "-h" : "")
+    StudioControls.ButtonRow {
+        id: buttonRow
+        actionIndicatorVisible: true
+
+        actionIndicator.icon.color: extFuncLogic.color
+        actionIndicator.icon.text: extFuncLogic.glyph
+        actionIndicator.onClicked: extFuncLogic.show()
+
+        StudioControls.ButtonGroup {
+            id: group
+        }
+
+        StudioControls.AbstractButton {
+            id: buttonAlignLeft
+            buttonIcon: StudioTheme.Constants.textAlignLeft
+            checkable: true
+            autoExclusive: true
+            StudioControls.ButtonGroup.group: group
+            iconColor: __currentColor
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignLeft")
             }
         }
-        ButtonRowButton {
-            iconSource: "image://icons/alignment-center" + (blueHighlight ? "-h" : "")
+        StudioControls.AbstractButton {
+            id: buttonAlignHCenter
+            buttonIcon: StudioTheme.Constants.textAlignCenter
+            checkable: true
+            autoExclusive: true
+            StudioControls.ButtonGroup.group: group
+            iconColor: __currentColor
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignHCenter")
             }
         }
-        ButtonRowButton {
-            iconSource: "image://icons/alignment-right" + (blueHighlight ? "-h" : "")
+        StudioControls.AbstractButton {
+            id: buttonAlignRight
+            buttonIcon: StudioTheme.Constants.textAlignRight
+            checkable: true
+            autoExclusive: true
+            StudioControls.ButtonGroup.group: group
+            iconColor: __currentColor
             onClicked: {
                 if (checked)
                     backendValue.setEnumeration("Text", "AlignRight")

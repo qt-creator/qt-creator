@@ -166,7 +166,10 @@ def selectBuildConfig(wantedKit, configName, afterSwitchTo=ViewConstants.EDIT):
 def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
     selectBuildConfig(currentTarget, configName, None)
     ensureChecked(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
-    ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", enableShadowBuild)
+    ensureChecked("{leftWidget={text='Shadow build:' type='QLabel' unnamed='1' visible='1' "
+                               "window=':Qt Creator_Core::Internal::MainWindow'} "
+                  "type='QCheckBox' unnamed='1' visible='1' "
+                  "window=':Qt Creator_Core::Internal::MainWindow'}", enableShadowBuild)
     buildCfCombo = waitForObject("{type='QComboBox' name='buildConfigurationComboBox' visible='1' "
                                  "window=':Qt Creator_Core::Internal::MainWindow'}")
     if shouldBeDebug:

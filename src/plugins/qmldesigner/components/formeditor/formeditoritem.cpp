@@ -109,7 +109,7 @@ void FormEditorItem::updateGeometry()
     m_boundingRect = m_paintedBoundingRect.united(m_selectionBoundingRect);
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
     //the property for zValue is called z in QGraphicsObject
-    if (qmlItemNode().instanceValue("z").isValid())
+    if (qmlItemNode().instanceValue("z").isValid() && !qmlItemNode().isRootModelNode())
         setZValue(qmlItemNode().instanceValue("z").toDouble());
 }
 

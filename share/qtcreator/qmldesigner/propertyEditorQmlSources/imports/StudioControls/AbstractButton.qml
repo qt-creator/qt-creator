@@ -31,6 +31,7 @@ T.AbstractButton {
     id: myButton
 
     property alias buttonIcon: buttonIcon.text
+    property alias iconColor: buttonIcon.color
     property alias backgroundVisible: buttonBackground.visible
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,

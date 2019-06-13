@@ -37,7 +37,7 @@ Controls.Label {
     // workaround because PictureSpecifics.qml still use this
     property alias toolTip: toolTipArea.tooltip
 
-    width: Math.max(Math.min(240, parent.width - 220), 80)
+    width: Math.max(Math.min(240, parent.width - 280), 50)
     color: Theme.color(Theme.PanelTextColorLight)
     elide: Text.ElideRight
 

@@ -44,6 +44,8 @@ public:
 
     void setCurrentDirectory(const Utils::FilePath &dir);
 
+    bool lineEditHasFocus() const;
+
 signals:
     void importFrom(const Utils::FilePath &dir);
 

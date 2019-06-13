@@ -25,6 +25,8 @@
 
 #include "qt5nodeinstanceserver.h"
 
+#include <QSurfaceFormat>
+
 #include <QQmlFileSelector>
 
 #include <QQuickItem>
@@ -58,6 +60,12 @@ void Qt5NodeInstanceServer::initializeView()
     Q_ASSERT(!quickView());
 
     m_quickView = new QQuickView;
+
+    QSurfaceFormat surfaceFormat = m_quickView->requestedFormat();
+    surfaceFormat.setVersion(4, 1);
+    surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+    m_quickView->setFormat(surfaceFormat);
+
     DesignerSupport::createOpenGLContext(m_quickView.data());
 
     if (qEnvironmentVariableIsSet("QML_FILE_SELECTORS")) {

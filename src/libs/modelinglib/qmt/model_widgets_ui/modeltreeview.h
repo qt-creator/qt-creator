@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include <QTreeView>
 #include "qmt/infrastructure/qmt_global.h"
 #include "qmt/model_ui/modeltreeviewinterface.h"
 
-#include <QTime>
+#include <QElapsedTimer>
+#include <QTreeView>
 
 namespace qmt {
 
@@ -70,7 +70,7 @@ private:
     SortedTreeModel *m_sortedTreeModel = nullptr;
     IElementTasks *m_elementTasks = nullptr;
     QModelIndex m_autoDelayIndex;
-    QTime m_autoDelayStartTime;
+    QElapsedTimer m_autoDelayStartTimer;
 };
 
 } // namespace qmt

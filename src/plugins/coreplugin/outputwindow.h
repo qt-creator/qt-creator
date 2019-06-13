@@ -30,9 +30,9 @@
 
 #include <utils/outputformat.h>
 
+#include <QElapsedTimer>
 #include <QPlainTextEdit>
 #include <QTimer>
-#include <QTime>
 
 namespace Utils { class OutputFormatter; }
 
@@ -76,8 +76,6 @@ public:
     float fontZoom() const;
     void setFontZoom(float zoom);
     void setWheelZoomEnabled(bool enabled);
-    void setHighlightBgColor(const QColor &bgColor);
-    void setHighlightTextColor(const QColor &textColor);
 
     void updateFilterProperties(const QString &filterText, Qt::CaseSensitivity caseSensitivity, bool regexp);
 
@@ -100,7 +98,7 @@ protected:
 private:
     using QPlainTextEdit::setFont; // call setBaseFont instead, which respects the zoom factor
     QTimer m_scrollTimer;
-    QTime m_lastMessage;
+    QElapsedTimer m_lastMessage;
     void enableUndoRedo();
     QString doNewlineEnforcement(const QString &out);
     void filterNewContent();

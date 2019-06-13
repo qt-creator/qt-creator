@@ -26,7 +26,6 @@
 import QtQuick 2.7
 import QtQuick.Timeline 1.0
 import QtQuick.Controls 2.12
-import welcome 1.0
 
 CheckBox {
     id: do_not_show_checkBox

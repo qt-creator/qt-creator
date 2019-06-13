@@ -43,7 +43,7 @@
 #include <utils/fileutils.h>
 
 #include <QSignalSpy>
-#include <QTimer>
+#include <QElapsedTimer>
 #include <QtTest>
 #include <QVariant>
 
@@ -54,10 +54,10 @@ using namespace ProjectExplorer;
 
 static bool processEventsUntil(const std::function<bool()> condition, int timeOutInMs = 30000)
 {
-    QTime t;
+    QElapsedTimer t;
     t.start();
 
-    forever {
+    while (true) {
         if (t.elapsed() > timeOutInMs)
             return false;
 

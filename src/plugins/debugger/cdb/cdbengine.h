@@ -32,14 +32,12 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 
-#include <QTime>
+#include <QElapsedTimer>
 
 namespace Debugger {
 namespace Internal {
 
 class CdbCommand;
-struct MemoryViewCookie;
-class StringInputStream;
 
 class CdbEngine : public CppDebuggerEngine
 {
@@ -195,7 +193,7 @@ private:
     NormalizedSourceFileName sourceMapNormalizeFileNameFromDebugger(const QString &f);
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateAll() override;
-    int elapsedLogTime() const;
+    int elapsedLogTime();
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);
     void mergeStartParametersSourcePathMap();
 
@@ -223,8 +221,7 @@ private:
         wow64Stack32Bit,
         wow64Stack64Bit
     } m_wow64State = wow64Uninitialized;
-    QTime m_logTime;
-    mutable int m_elapsedLogTime = 0;
+    QElapsedTimer m_logTimer;
     QString m_extensionMessageBuffer;
     bool m_sourceStepInto = false;
     int m_watchPointX = 0;

@@ -31,9 +31,14 @@ ButtonRow {
     id: myButtonRow
 
     property alias buttonIcon: myAbstractButton.buttonIcon
+    property alias iconColor: myAbstractButton.iconColor
     property alias checkable: myAbstractButton.checkable
+    property alias checked: myAbstractButton.checked
+
+    signal onCheckedChanged()
 
     AbstractButton {
         id: myAbstractButton
+        onCheckedChanged: myButtonRow.onCheckedChanged()
     }
 }

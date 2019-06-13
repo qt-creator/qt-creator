@@ -49,6 +49,7 @@ AutoTypes {
 
     Type {
         typeNames: ["color", "QColor"]
-        sourceFile: "StringEditorTemplate.template"
+        sourceFile: "ColorEditorTemplate.template"
+        separateSection: true
     }
 }

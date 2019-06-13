@@ -328,6 +328,11 @@ void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
         initializePage();
 }
 
+bool TargetSetupPage::importLineEditHasFocus() const
+{
+    return m_importWidget->lineEditHasFocus();
+}
+
 void TargetSetupPage::setNoteText(const QString &text)
 {
     m_ui->descriptionLabel->setText(text);

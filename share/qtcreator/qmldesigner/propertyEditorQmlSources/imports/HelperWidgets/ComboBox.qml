@@ -24,15 +24,16 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import StudioControls 1.0 as Controls
 import QtQuick.Controls.Styles 1.1
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
-Controls.ComboBox {
+StudioControls.ComboBox {
     id: comboBox
 
     property variant backendValue
 
-    labelColor: colorLogic.textColor
+    labelColor: edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
     property string scope: "Qt"
 
     property bool useInteger: false

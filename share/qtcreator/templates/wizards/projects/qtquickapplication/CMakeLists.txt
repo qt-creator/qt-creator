@@ -1,23 +1,28 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
 project(%{ProjectName} LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Core Quick REQUIRED)
 
 if(ANDROID)
-    add_library(${PROJECT_NAME} SHARED "%{MainCppFileName}" "qml.qrc")
+    add_library(%{ProjectName} SHARED %{MainCppFileName} qml.qrc)
 else()
-    add_executable(${PROJECT_NAME} "%{MainCppFileName}" "qml.qrc")
+    add_executable(%{ProjectName} %{MainCppFileName} qml.qrc)
 endif()
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Quick)
+target_compile_definitions(%{ProjectName}
+  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
+target_link_libraries(%{ProjectName}
+  PRIVATE Qt5::Core Qt5::Quick)
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
 # Check http://doc.qt.io/qt-5/deployment-android.html for more information.

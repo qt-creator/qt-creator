@@ -27,6 +27,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.3
 import StudioFonts 1.0
 import QtQuick.Layouts 1.0
+import projectmodel 1.0
 
 Image {
     id: welcome_splash
@@ -243,7 +244,7 @@ Image {
         color: "#ffffff"
         text: qsTr("Community Edition")
         font.pixelSize: 13
-        font.family: Constants.titilliumWeb_light
+        font.family: StudioFonts.titilliumWeb_light
         visible: projectModel.communityVersion
         ProjectModel {
             id: projectModel

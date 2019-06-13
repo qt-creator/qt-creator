@@ -1,7 +1,6 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
-PROJECT(%{TestCaseName}
-        LANGUAGES CXX)
+project(%{TestCaseName} LANGUAGES CXX)
 
 @if "%{TestFrameWork}" == "QtTest"
 
@@ -10,38 +9,46 @@ find_package(Qt5Test REQUIRED)
 find_package(Qt5Gui REQUIRED)
 @endif
 
-SET(CMAKE_AUTOMOC ON)
-SET(CMAKE_INCLUDE_CURRENT_DIR ON)
-SET(CMAKE_CXX_STANDARD 11)
-SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-ENABLE_TESTING()
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable(${PROJECT_NAME} %{TestCaseFileWithCppSuffix})
-add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+enable_testing()
+
+add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix})
+add_test(%{TestCaseName} COMMAND %{TestCaseName})
 
 @if "%{RequireGUI}" == "true"
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Gui Qt5::Test)
+target_link_libraries(%{TestCaseName} PRIVATE Qt5::Gui Qt5::Test)
 @else
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Test)
+target_link_libraries(%{TestCaseName} PRIVATE Qt5::Test)
 @endif
 
 @endif
 @if "%{TestFrameWork}" == "QtQuickTest"
 find_package(Qt5QuickTest REQUIRED)
 
-SET(CMAKE_AUTOMOC ON)
-SET(CMAKE_INCLUDE_CURRENT_DIR ON)
-SET(CMAKE_CXX_STANDARD 11)
-SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-ENABLE_TESTING()
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+enable_testing()
 
 # no need to copy around qml test files for shadow builds - just set the respective define
 add_definitions(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_executable(${PROJECT_NAME} %{MainCppName})
-add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+add_executable(%{TestCaseName} %{MainCppName})
+add_test(%{TestCaseName} COMMAND %{TestCaseName})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::QuickTest)
+target_link_libraries(%{TestCaseName} PRIVATE Qt5::QuickTest)
 
 @endif
 @if  "%{TestFrameWork}" == "GTest"
@@ -53,14 +60,14 @@ add_definitions(-DGTEST_LANGUAGE_CXX11)
 find_package(Threads REQUIRED)
 
 if ($ENV{GOOGLETEST_DIR})
-    SET(GOOGLETEST_DIR $ENV{GOOGLETEST_DIR})
+    set(GOOGLETEST_DIR $ENV{GOOGLETEST_DIR})
 else ()
     message(WARNING "Using googletest src dir specified at Qt Creator wizard")
-    SET(GOOGLETEST_DIR "%{GTestRepository}")
+    set(GOOGLETEST_DIR "%{GTestRepository}")
 endif ()
 if (EXISTS ${GOOGLETEST_DIR})
-    SET(GTestSrc ${GOOGLETEST_DIR}/googletest)
-    SET(GMockSrc ${GOOGLETEST_DIR}/googlemock)
+    set(GTestSrc ${GOOGLETEST_DIR}/googletest)
+    set(GMockSrc ${GOOGLETEST_DIR}/googlemock)
 else ()
     message( FATAL_ERROR "No googletest src dir found - set GOOGLETEST_DIR to enable!")
 endif ()
@@ -68,19 +75,22 @@ endif ()
 
 include_directories(${GTestSrc} ${GTestSrc}/include ${GMockSrc} ${GMockSrc}/include)
 
-add_executable(${PROJECT_NAME} %{MainCppName} %{TestCaseFileWithHeaderSuffix}
+add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileWithHeaderSuffix}
                ${GTestSrc}/src/gtest-all.cc
                ${GMockSrc}/src/gmock-all.cc)
-add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+add_test(%{TestCaseName} COMMAND %{TestCaseName})
+target_link_libraries(%{TestCaseName} PRIVATE Threads::Threads)
 
 @endif
 @if "%{TestFrameWork}" == "BoostTest"
-SET(CMAKE_INCLUDE_CURRENT_DIR ON)
-ENABLE_TESTING()
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable(${PROJECT_NAME} %{MainCppName})
-add_test(${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+enable_testing()
+
+add_executable(%{TestCaseName} %{MainCppName})
+add_test(%{TestCaseName} COMMAND %{TestCaseName})
 
 if (DEFINED ENV{BOOST_INCLUDE_DIR})
     set(BOOST_INCLUDE_DIR $ENV{BOOST_INCLUDE_DIR})

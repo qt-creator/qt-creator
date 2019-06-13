@@ -196,7 +196,7 @@ Item {
             anchors.rightMargin: 23
             font.weight: Font.Light
             font.pixelSize: 14
-            font.family: Constants.titilliumWeb_regular
+            font.family: StudioFonts.titilliumWeb_regular
             renderType: Text.NativeRendering
             visible: projectModel.communityVersion
         }

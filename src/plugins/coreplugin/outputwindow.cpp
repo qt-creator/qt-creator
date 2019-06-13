@@ -59,8 +59,6 @@ public:
 
     IContext *outputWindowContext = nullptr;
     Utils::OutputFormatter *formatter = nullptr;
-    QColor highlightBgColor;
-    QColor highlightTextColor;
     QString settingsKey;
 
     bool enforceNewline = false;
@@ -273,16 +271,6 @@ void OutputWindow::setWheelZoomEnabled(bool enabled)
     d->zoomEnabled = enabled;
 }
 
-void OutputWindow::setHighlightBgColor(const QColor &bgColor)
-{
-    d->highlightBgColor = bgColor;
-}
-
-void OutputWindow::setHighlightTextColor(const QColor &textColor)
-{
-    d->highlightTextColor = textColor;
-}
-
 void OutputWindow::updateFilterProperties(const QString &filterText,
                                           Qt::CaseSensitivity caseSensitivity, bool isRegexp)
 {
@@ -297,21 +285,22 @@ void OutputWindow::updateFilterProperties(const QString &filterText,
         d->filterText = filterText;
 
         // Update textedit's background color
-        if (filterText.isEmpty()) {
+        if (filterText.isEmpty() && !filterTextWasEmpty) {
             setPalette(d->originalPalette);
             setReadOnly(d->originalReadOnly);
-        } else {
-            if (filterTextWasEmpty) {
-                d->originalReadOnly = isReadOnly();
-                d->originalPalette = palette();
-            }
-            QPalette pal;
-            pal.setColor(QPalette::Active, QPalette::Base, d->highlightBgColor);
-            pal.setColor(QPalette::Inactive, QPalette::Base, d->highlightBgColor.darker(120));
-            pal.setColor(QPalette::Active, QPalette::Text, d->highlightTextColor);
-            pal.setColor(QPalette::Inactive, QPalette::Text, d->highlightTextColor.darker(120));
-            setPalette(pal);
+        }
+        if (!filterText.isEmpty() && filterTextWasEmpty) {
+            d->originalReadOnly = isReadOnly();
             setReadOnly(true);
+            const auto newBgColor = [this] {
+                const QColor currentColor = palette().color(QPalette::Base);
+                const int factor = 120;
+                return currentColor.value() < 128 ? currentColor.lighter(factor)
+                                                  : currentColor.darker(factor);
+            };
+            QPalette p = palette();
+            p.setColor(QPalette::Base, newBgColor());
+            setPalette(p);
         }
     }
     d->filterMode = flags;
