@@ -58,14 +58,14 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
     if (to <= from)
         return;
 
-    const int firstResultBlockNumber = future.resultAt(from).line - 1;
+    const int firstResultBlockNumber = int(future.resultAt(from).line) - 1;
 
     // blocks between currentBlockNumber and the last block with results will
     // be cleaned of additional extra formats if they have no results
     int currentBlockNumber = 0;
     for (int i = from - 1; i >= 0; --i) {
         const HighlightingResult &result = future.resultAt(i);
-        const int blockNumber = result.line - 1;
+        const int blockNumber = int(result.line) - 1;
         if (blockNumber < firstResultBlockNumber) {
             // stop! found where last format stopped
             currentBlockNumber = blockNumber + 1;
@@ -81,7 +81,7 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
 
     HighlightingResult result = future.resultAt(from);
     for (int i = from; i < to && b.isValid(); ) {
-        const int blockNumber = result.line - 1;
+        const int blockNumber = int(result.line) - 1;
         QTC_ASSERT(blockNumber < doc->blockCount(), return);
 
         // clear formats of blocks until blockNumber
@@ -99,8 +99,8 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
 
             formatRange.format = textCharFormatForResult(result, kindToFormat);
             if (formatRange.format.isValid()) {
-                formatRange.start = result.column - 1;
-                formatRange.length = result.length;
+                formatRange.start = int(result.column) - 1;
+                formatRange.length = int(result.length);
                 formats.append(formatRange);
             }
 
@@ -108,7 +108,7 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
             if (i >= to)
                 break;
             result = future.resultAt(i);
-            const int nextBlockNumber = result.line - 1;
+            const int nextBlockNumber = int(result.line) - 1;
             if (nextBlockNumber != blockNumber)
                 break;
         }
@@ -127,7 +127,7 @@ void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
     for (int i = future.resultCount() - 1; i >= 0; --i) {
         const HighlightingResult &result = future.resultAt(i);
         if (result.line) {
-            lastBlockNumber = result.line - 1;
+            lastBlockNumber = int(result.line) - 1;
             break;
         }
     }
