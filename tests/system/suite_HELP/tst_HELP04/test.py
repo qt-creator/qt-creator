@@ -26,7 +26,7 @@
 source("../../shared/qtcreator.py")
 
 # test search in help mode and advanced search
-searchKeywordDictionary={ "abundance":True, "deplmint":False, "QODBC":True, "bld":False }
+searchKeywordDictionary = { "abundance":True, "deplmint":False, "QODBC":True, "bldx":False }
 urlDictionary = { "abundance":"qthelp://com.trolltech.qt.487/qdoc/gettingstarted-develop.html",
                   "QODBC":"qthelp://com.trolltech.qt.487/qdoc/sql-driver.html" }
 
@@ -93,7 +93,7 @@ def main():
     clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}"))
     resultWidget = waitForObject(':Hits_QResultWidget', 5000)
-    if not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
+    if os.getenv("SYSTEST_BUILT_WITH_QT_5_13_1_OR_NEWER", "0") == "1":
         test.verify(waitFor("noMatch in "
                             "str(resultWidget.plainText)", 2000),
                             "Verifying if search did not match anything.")
@@ -121,9 +121,10 @@ def main():
             type(resultWidget, "<Return>")
             waitFor("__getUrl__() != url or selText != __getSelectedText__()", 20000)
             verifySelection(searchKeyword)
-            verifyUrl(urlDictionary[searchKeyword])
+            if not (searchKeyword == "QODBC" and JIRA.isBugStillOpen(10331)):
+                verifyUrl(urlDictionary[searchKeyword])
         else:
-            if not JIRA.isBugStillOpen(67737, JIRA.Bug.QT):
+            if os.getenv("SYSTEST_BUILT_WITH_QT_5_13_1_OR_NEWER", "0") == "1":
                 test.verify(waitFor("noMatch in "
                                     "str(resultWidget.plainText)", 1000),
                                     "Verifying if search did not match anything for: " + searchKeyword)
