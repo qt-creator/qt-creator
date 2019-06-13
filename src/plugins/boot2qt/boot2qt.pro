@@ -11,7 +11,6 @@ HEADERS += \
     qdbdevice.h \
     qdbqtversion.h \
     qdbdeployconfigurationfactory.h \
-    qdbdevicewizard.h \
     qdbrunconfiguration.h \
     qdbmakedefaultappstep.h \
     qdbmakedefaultappservice.h \
@@ -28,7 +27,6 @@ SOURCES += \
     qdbdevice.cpp \
     qdbqtversion.cpp \
     qdbdeployconfigurationfactory.cpp \
-    qdbdevicewizard.cpp \
     qdbrunconfiguration.cpp \
     qdbmakedefaultappstep.cpp \
     qdbmakedefaultappservice.cpp \
@@ -37,9 +35,6 @@ SOURCES += \
     qdbdeploystepfactory.cpp \
     qdbdevicedebugsupport.cpp \
     qdbplugin.cpp \
-
-FORMS += \
-    qdbdevicewizardsettingspage.ui
 
 RESOURCES += \
     qdb.qrc

@@ -28,7 +28,6 @@
 #include "qdbutils.h"
 #include "qdbconstants.h"
 #include "qdbdevicedebugsupport.h"
-#include "qdbdevicewizard.h"
 
 #include <coreplugin/icore.h>
 
@@ -43,6 +42,11 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QWizard>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -213,16 +217,85 @@ std::function<ProjectExplorer::RunWorker *(ProjectExplorer::RunControl *)>
 }
 
 
-// Device factory
+// QdbDeviceWizard
 
-static IDevice::Ptr createDevice(QdbDeviceWizard::DeviceType deviceType)
+class QdbSettingsPage : public QWizardPage
 {
-    QdbDeviceWizard wizard(deviceType, Core::ICore::mainWindow());
+public:
+    QdbSettingsPage()
+    {
+        setWindowTitle(QdbDevice::tr("WizardPage"));
+        setTitle(QdbDevice::tr("Device Settings"));
 
-    if (wizard.exec() != QDialog::Accepted)
-        return IDevice::Ptr();
-    return wizard.device();
-}
+        nameLineEdit = new QLineEdit(this);
+        nameLineEdit->setPlaceholderText(QdbDevice::tr("A short, free-text description"));
+
+        addressLineEdit = new QLineEdit(this);
+        addressLineEdit->setPlaceholderText(QdbDevice::tr("Host name or IP address"));
+
+        auto usbWarningLabel = new QLabel(this);
+        usbWarningLabel->setText(QString("<html><head/><body><it><b>%1</it><p>%2</p></body></html>")
+                                 .arg("Note:")
+                                 .arg("Do not use this wizard for devices connected via USB.<br/>"
+                                      "Those will be auto-detected.</p>"
+                                      "<p>The connectivity to the device is tested after finishing."));
+
+        auto formLayout = new QFormLayout(this);
+        formLayout->addRow(QdbDevice::tr("Device name:"), nameLineEdit);
+        formLayout->addRow(QdbDevice::tr("Device address:"), addressLineEdit);
+        formLayout->addRow(usbWarningLabel);
+
+        connect(nameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
+        connect(addressLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
+    }
+
+    QString deviceName() const { return nameLineEdit->text().trimmed(); }
+    QString deviceAddress() const { return addressLineEdit->text().trimmed(); }
+
+private:
+    bool isComplete() const final {
+        return !deviceName().isEmpty() && !deviceAddress().isEmpty();
+    }
+
+    QLineEdit *nameLineEdit;
+    QLineEdit *addressLineEdit;
+
+};
+
+class QdbDeviceWizard : public QWizard
+{
+public:
+    QdbDeviceWizard(QWidget *parent)
+        : QWizard(parent)
+    {
+        setWindowTitle(QdbDeviceWizard::tr("Boot2Qt Network Device Setup"));
+        settingsPage.setCommitPage(true);
+
+        enum { SettingsPageId };
+
+        setPage(SettingsPageId, &settingsPage);
+    }
+
+    ProjectExplorer::IDevice::Ptr device()
+    {
+        QdbDevice::Ptr device = QdbDevice::create();
+
+        device->setDisplayName(settingsPage.deviceName());
+        device->setupId(ProjectExplorer::IDevice::ManuallyAdded, Core::Id());
+        device->setType(Constants::QdbLinuxOsType);
+        device->setMachineType(ProjectExplorer::IDevice::Hardware);
+
+        device->setupDefaultNetworkSettings(settingsPage.deviceAddress());
+
+        return device;
+    }
+
+private:
+    QdbSettingsPage settingsPage;
+};
+
+
+// Device factory
 
 QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
     : IDeviceFactory(Constants::QdbLinuxOsType)
@@ -235,7 +308,11 @@ QdbLinuxDeviceFactory::QdbLinuxDeviceFactory()
 
 IDevice::Ptr QdbLinuxDeviceFactory::create() const
 {
-    return createDevice(QdbDeviceWizard::HardwareDevice);
+    QdbDeviceWizard wizard(Core::ICore::mainWindow());
+
+    if (wizard.exec() != QDialog::Accepted)
+        return IDevice::Ptr();
+    return wizard.device();
 }
 
 } // namespace Internal
