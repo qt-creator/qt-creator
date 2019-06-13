@@ -37,6 +37,9 @@ add_qtc_plugin(CMakeProjectManager
     cmaketoolsettingsaccessor.cpp cmaketoolsettingsaccessor.h
     configmodel.cpp configmodel.h
     configmodelitemdelegate.cpp configmodelitemdelegate.h
+    fileapidataextractor.cpp fileapidataextractor.h
+    fileapiparser.cpp fileapiparser.h
+    fileapireader.cpp fileapireader.h
     projecttreehelper.cpp projecttreehelper.h
     servermode.cpp servermode.h
     servermodereader.cpp servermodereader.h

@@ -64,10 +64,10 @@ public:
 
     virtual QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) = 0;
     virtual CMakeConfig takeParsedConfiguration(QString &errorMessage) = 0;
-    virtual void generateProjectTree(CMakeProjectNode *root,
-                                     const QList<const ProjectExplorer::FileNode *> &allFiles,
-                                     QString &errorMessage) = 0;
-    virtual CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) const = 0;
+    virtual std::unique_ptr<CMakeProjectNode> generateProjectTree(
+        const QList<const ProjectExplorer::FileNode *> &allFiles, QString &errorMessage)
+        = 0;
+    virtual CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) = 0;
 
 signals:
     void isReadyNow() const;

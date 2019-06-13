@@ -36,6 +36,16 @@ using namespace ProjectExplorer;
 namespace CMakeProjectManager {
 namespace Internal {
 
+std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
+                                               int priority,
+                                               const QString &displayName)
+{
+    auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
+    newFolder->setPriority(priority);
+    newFolder->setDisplayName(displayName);
+    return std::move(newFolder);
+}
+
 void addCMakeVFolder(FolderNode *base,
                      const Utils::FilePath &basePath,
                      int priority,
@@ -46,9 +56,7 @@ void addCMakeVFolder(FolderNode *base,
         return;
     FolderNode *folder = base;
     if (!displayName.isEmpty()) {
-        auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
-        newFolder->setPriority(priority);
-        newFolder->setDisplayName(displayName);
+        auto newFolder = createCMakeVFolder(basePath, priority, displayName);
         folder = newFolder.get();
         base->addNode(std::move(newFolder));
     }
@@ -166,7 +174,7 @@ CMakeTargetNode *createTargetNode(const QHash<Utils::FilePath, ProjectNode *> &c
 }
 
 void addHeaderNodes(ProjectNode *root,
-                    const QList<FileNode *> knownHeaders,
+                    const QVector<FileNode *> knownHeaders,
                     const QList<const FileNode *> &allFiles)
 {
     if (root->isEmpty())

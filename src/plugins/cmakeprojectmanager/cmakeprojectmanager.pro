@@ -34,6 +34,9 @@ HEADERS = builddirmanager.h \
     cmakespecificsettingspage.h \
     configmodel.h \
     configmodelitemdelegate.h \
+    fileapidataextractor.h \
+    fileapiparser.h \
+    fileapireader.h \
     projecttreehelper.h \
     servermode.h \
     servermodereader.h \
@@ -69,6 +72,9 @@ SOURCES = builddirmanager.cpp \
     cmakespecificsettingspage.cpp \
     configmodel.cpp \
     configmodelitemdelegate.cpp \
+    fileapidataextractor.cpp \
+    fileapiparser.cpp \
+    fileapireader.cpp \
     projecttreehelper.cpp \
     servermode.cpp \
     servermodereader.cpp \

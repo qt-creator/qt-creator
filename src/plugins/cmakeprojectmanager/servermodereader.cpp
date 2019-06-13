@@ -229,11 +229,12 @@ CMakeConfig ServerModeReader::takeParsedConfiguration(QString &errorMessage)
     return config;
 }
 
-void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
-                                           const QList<const FileNode *> &allFiles,
+std::unique_ptr<CMakeProjectNode> ServerModeReader::generateProjectTree(const QList<const FileNode *> &allFiles,
                                            QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
+    auto root = std::make_unique<CMakeProjectNode>(m_parameters.sourceDirectory);
+
     // Split up cmake inputs into useful chunks:
     std::vector<std::unique_ptr<FileNode>> cmakeFilesSource;
     std::vector<std::unique_ptr<FileNode>> cmakeFilesBuild;
@@ -259,20 +260,25 @@ void ServerModeReader::generateProjectTree(CMakeProjectNode *root,
     if (topLevel)
         root->setDisplayName(topLevel->name);
 
-    QHash<Utils::FilePath, ProjectNode *> cmakeListsNodes
-            = addCMakeLists(root, std::move(cmakeLists));
-    QList<FileNode *> knownHeaders;
+    QHash<Utils::FilePath, ProjectNode *> cmakeListsNodes = addCMakeLists(root.get(),
+                                                                          std::move(cmakeLists));
+    QVector<FileNode *> knownHeaders;
     addProjects(cmakeListsNodes, m_projects, knownHeaders);
 
-    addHeaderNodes(root, knownHeaders, allFiles);
+    addHeaderNodes(root.get(), knownHeaders, allFiles);
 
     if (cmakeFilesSource.size() > 0 || cmakeFilesBuild.size() > 0 || cmakeFilesOther.size() > 0)
-        addCMakeInputs(root, m_parameters.sourceDirectory, m_parameters.workDirectory,
-                       std::move(cmakeFilesSource), std::move(cmakeFilesBuild),
+        addCMakeInputs(root.get(),
+                       m_parameters.sourceDirectory,
+                       m_parameters.workDirectory,
+                       std::move(cmakeFilesSource),
+                       std::move(cmakeFilesBuild),
                        std::move(cmakeFilesOther));
+
+    return root;
 }
 
-CppTools::RawProjectParts ServerModeReader::createRawProjectParts(QString &errorMessage) const
+CppTools::RawProjectParts ServerModeReader::createRawProjectParts(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
     CppTools::RawProjectParts rpps;
@@ -742,7 +748,7 @@ void ServerModeReader::fixTarget(ServerModeReader::Target *target) const
 
 void ServerModeReader::addProjects(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
                                    const QList<Project *> &projects,
-                                   QList<FileNode *> &knownHeaderNodes)
+                                   QVector<FileNode *> &knownHeaderNodes)
 {
     for (const Project *p : projects) {
         createProjectNode(cmakeListsNodes, p->sourceDirectory, p->name);
@@ -750,9 +756,10 @@ void ServerModeReader::addProjects(const QHash<Utils::FilePath, ProjectNode *> &
     }
 }
 
-void ServerModeReader::addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
-                                  const QList<Target *> &targets,
-                                  QList<ProjectExplorer::FileNode *> &knownHeaderNodes)
+void ServerModeReader::addTargets(
+    const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+    const QList<Target *> &targets,
+    QVector<ProjectExplorer::FileNode *> &knownHeaderNodes)
 {
     for (const Target *t : targets) {
         CMakeTargetNode *tNode = createTargetNode(cmakeListsNodes, t->sourceDirectory, t->name);
@@ -796,7 +803,7 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
                                      const Utils::FilePath &sourceDirectory,
                                      const Utils::FilePath &buildDirectory,
                                      const QList<ServerModeReader::FileGroup *> &fileGroups,
-                                     QList<FileNode *> &knownHeaderNodes)
+                                     QVector<FileNode *> &knownHeaderNodes)
 {
     std::vector<std::unique_ptr<FileNode>> toList;
     QSet<Utils::FilePath> alreadyListed;

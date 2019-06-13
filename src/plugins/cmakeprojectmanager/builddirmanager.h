@@ -78,8 +78,7 @@ public:
 
     void parse(int reparseParameters);
 
-    void generateProjectTree(CMakeProjectNode *root,
-                             const QList<const ProjectExplorer::FileNode *> &allFiles,
+    std::unique_ptr<CMakeProjectNode> generateProjectTree(const QList<const ProjectExplorer::FileNode *> &allFiles,
                              QString &errorMessage) const;
     CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) const;
 

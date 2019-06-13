@@ -236,14 +236,14 @@ CMakeConfig TeaLeafReader::takeParsedConfiguration(QString &errorMessage)
     return result;
 }
 
-void TeaLeafReader::generateProjectTree(CMakeProjectNode *root,
-                                        const QList<const FileNode *> &allFiles,
-                                        QString &errorMessage)
+std::unique_ptr<CMakeProjectNode> TeaLeafReader::generateProjectTree(
+    const QList<const FileNode *> &allFiles, QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
     if (m_files.size() == 0)
-        return;
+        return {};
 
+    auto root = std::make_unique<CMakeProjectNode>(m_parameters.sourceDirectory);
     root->setDisplayName(m_projectName);
 
     // Delete no longer necessary file watcher based on m_cmakeFiles:
@@ -302,6 +302,8 @@ void TeaLeafReader::generateProjectTree(CMakeProjectNode *root,
         return std::unique_ptr<FileNode>(fn->clone());
     });
     root->addNestedNodes(std::move(fileNodes), m_parameters.sourceDirectory);
+
+    return root;
 }
 
 static void processCMakeIncludes(const CMakeBuildTarget &cbt, const ToolChain *tc,
@@ -319,7 +321,7 @@ static void processCMakeIncludes(const CMakeBuildTarget &cbt, const ToolChain *t
     }
 }
 
-CppTools::RawProjectParts TeaLeafReader::createRawProjectParts(QString &errorMessage) const
+CppTools::RawProjectParts TeaLeafReader::createRawProjectParts(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
     const ToolChain *tcCxx = ToolChainManager::findToolChain(m_parameters.cxxToolChainId);

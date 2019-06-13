@@ -302,14 +302,13 @@ void BuildDirManager::parse(int reparseParameters)
                     reparseParameters & REPARSE_FORCE_CONFIGURATION);
 }
 
-void BuildDirManager::generateProjectTree(CMakeProjectNode *root,
-                                          const QList<const FileNode *> &allFiles,
-                                          QString &errorMessage) const
+std::unique_ptr<CMakeProjectNode> BuildDirManager::generateProjectTree(
+    const QList<const FileNode *> &allFiles, QString &errorMessage) const
 {
-    QTC_ASSERT(!m_isHandlingError, return);
-    QTC_ASSERT(m_reader, return);
+    QTC_ASSERT(!m_isHandlingError, return {});
+    QTC_ASSERT(m_reader, return {});
 
-    m_reader->generateProjectTree(root, allFiles, errorMessage);
+    return m_reader->generateProjectTree(allFiles, errorMessage);
 }
 
 CppTools::RawProjectParts BuildDirManager::createRawProjectParts(QString &errorMessage) const

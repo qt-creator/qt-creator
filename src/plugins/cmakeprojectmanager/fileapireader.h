@@ -25,27 +25,33 @@
 
 #pragma once
 
-#include <projectexplorer/toolchain.h>
-
 #include "builddirreader.h"
+#include "fileapiparser.h"
+
 #include "cmakeprocess.h"
 
-#include <QRegularExpression>
+#include <utils/optional.h>
 
-namespace Utils { class QtcProcess; }
+#include <memory>
+
+#include <QFuture>
+
+namespace ProjectExplorer {
+class ProjectNode;
+}
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeFile;
+class FileApiQtcData;
 
-class TeaLeafReader : public BuildDirReader
+class FileApiReader : public BuildDirReader
 {
     Q_OBJECT
 
 public:
-    TeaLeafReader();
-    ~TeaLeafReader() final;
+    FileApiReader();
+    ~FileApiReader() final;
 
     void setParameters(const BuildDirParameters &p) final;
 
@@ -63,31 +69,27 @@ public:
     CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) final;
 
 private:
-    void extractData();
+    void startState();
+    void endState(const QFileInfo &replyFi);
+    void startCMakeState(const QStringList &configurationArguments);
+    void cmakeFinishedState(int code, QProcess::ExitStatus status);
 
-    void startCMake(const QStringList &configurationArguments);
-
-    void cmakeFinished(int code, QProcess::ExitStatus status);
-
-    QStringList getFlagsFor(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
-    bool extractFlagsFromMake(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
-    bool extractFlagsFromNinja(const CMakeBuildTarget &buildTarget, QHash<QString, QStringList> &cache, Core::Id lang) const;
-
-    // Process data:
     std::unique_ptr<CMakeProcess> m_cmakeProcess;
 
+    // cmake data:
+    CMakeConfig m_cache;
     QSet<Utils::FilePath> m_cmakeFiles;
-    QString m_projectName;
     QList<CMakeBuildTarget> m_buildTargets;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_files;
-    QSet<Internal::CMakeFile *> m_watchedFiles;
+    CppTools::RawProjectParts m_projectParts;
+    std::unique_ptr<CMakeProjectNode> m_rootProjectNode;
+    QVector<ProjectExplorer::FileNode *> m_knownHeaders;
 
-    // RegExps for function-like macrosses names fixups
-    QRegularExpression m_macroFixupRe1;
-    QRegularExpression m_macroFixupRe2;
-    QRegularExpression m_macroFixupRe3;
+    Utils::optional<QFuture<FileApiQtcData *>> m_future;
 
-    friend class CMakeFile;
+    // Update related:
+    bool m_isParsing = false;
+
+    std::unique_ptr<FileApiParser> m_fileApi;
 };
 
 } // namespace Internal

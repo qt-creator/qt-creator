@@ -57,10 +57,9 @@ public:
 
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) final;
     CMakeConfig takeParsedConfiguration(QString &errorMessage) final;
-    void generateProjectTree(CMakeProjectNode *root,
-                             const QList<const ProjectExplorer::FileNode *> &allFiles,
-                             QString &errorMessage) final;
-    CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) const final;
+    std::unique_ptr<CMakeProjectNode> generateProjectTree(
+        const QList<const ProjectExplorer::FileNode *> &allFiles, QString &errorMessage) final;
+    CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) final;
 
 private:
     void createNewServer();
@@ -148,14 +147,15 @@ private:
 
     void addProjects(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                      const QList<Project *> &projects,
-                     QList<ProjectExplorer::FileNode *> &knownHeaderNodes);
+                     QVector<ProjectExplorer::FileNode *> &knownHeaderNodes);
     void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                     const QList<Target *> &targets,
-                    QList<ProjectExplorer::FileNode *> &knownHeaderNodes);
+                    QVector<ProjectExplorer::FileNode *> &knownHeaderNodes);
     void addFileGroups(ProjectExplorer::ProjectNode *targetRoot,
                        const Utils::FilePath &sourceDirectory,
-                       const Utils::FilePath &buildDirectory, const QList<FileGroup *> &fileGroups,
-                       QList<ProjectExplorer::FileNode *> &knowHeaderNodes);
+                       const Utils::FilePath &buildDirectory,
+                       const QList<FileGroup *> &fileGroups,
+                       QVector<ProjectExplorer::FileNode *> &knowHeaderNodes);
 
     std::unique_ptr<ServerMode> m_cmakeServer;
     std::unique_ptr<QFutureInterface<void>> m_future;

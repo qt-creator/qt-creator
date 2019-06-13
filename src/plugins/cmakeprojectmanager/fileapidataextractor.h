@@ -23,33 +23,36 @@
 **
 ****************************************************************************/
 
-#include "builddirreader.h"
+#pragma once
 
-#include "fileapireader.h"
-#include "servermodereader.h"
-#include "tealeafreader.h"
+#include "fileapiparser.h"
 
-#include <utils/qtcassert.h>
+#include "cmakebuildtarget.h"
+#include "cmakeprocess.h"
+#include "cmakeprojectnodes.h"
 
-using namespace ProjectExplorer;
+#include <cpptools/cpprawprojectpart.h>
+
+#include <memory>
 
 namespace CMakeProjectManager {
 namespace Internal {
 
-// --------------------------------------------------------------------
-// BuildDirReader:
-// --------------------------------------------------------------------
-
-std::unique_ptr<BuildDirReader> BuildDirReader::createReader(const BuildDirParameters &p)
+class FileApiQtcData
 {
-    CMakeTool *cmake = p.cmakeTool();
-    QTC_ASSERT(p.isValid() && cmake, return {});
-    if (cmake->hasFileApi())
-        return std::make_unique<FileApiReader>();
-    if (cmake->hasServerMode())
-        return std::make_unique<ServerModeReader>();
-    return std::make_unique<TeaLeafReader>();
-}
+public:
+    QString errorMessage;
+    CMakeConfig cache;
+    QSet<Utils::FilePath> cmakeFiles;
+    QList<CMakeBuildTarget> buildTargets;
+    CppTools::RawProjectParts projectParts;
+    std::unique_ptr<CMakeProjectNode> rootProjectNode;
+    QVector<ProjectExplorer::FileNode *> knownHeaders;
+};
+
+FileApiQtcData extractData(FileApiData &data,
+                           const Utils::FilePath &sourceDirectory,
+                           const Utils::FilePath &buildDirectory);
 
 } // namespace Internal
 } // namespace CMakeProjectManager

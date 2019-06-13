@@ -401,9 +401,8 @@ CMakeProject::generateProjectTree(const QList<const FileNode *> &allFiles) const
     if (m_buildDirManager.isParsing())
         return nullptr;
 
-    auto root = std::make_unique<CMakeProjectNode>(projectDirectory());
     QString errorMessage;
-    m_buildDirManager.generateProjectTree(root.get(), allFiles, errorMessage);
+    auto root = m_buildDirManager.generateProjectTree(allFiles, errorMessage);
     checkAndReportError(errorMessage);
     return root;
 }

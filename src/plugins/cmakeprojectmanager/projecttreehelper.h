@@ -34,6 +34,10 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
+std::unique_ptr<ProjectExplorer::FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
+                                                                int priority,
+                                                                const QString &displayName);
+
 void addCMakeVFolder(ProjectExplorer::FolderNode *base,
                      const Utils::FilePath &basePath,
                      int priority,
@@ -63,7 +67,7 @@ CMakeTargetNode *createTargetNode(
     const QString &displayName);
 
 void addHeaderNodes(ProjectExplorer::ProjectNode *root,
-                    const QList<ProjectExplorer::FileNode *> knownHeaders,
+                    const QVector<ProjectExplorer::FileNode *> knownHeaders,
                     const QList<const ProjectExplorer::FileNode *> &allFiles);
 
 } // namespace Internal
