@@ -117,6 +117,32 @@ void SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
     }
 }
 
+void SemanticHighlighter::setExtraAdditionalFormats(SyntaxHighlighter *highlighter,
+                                                    const QList<HighlightingResult> &results,
+                                                    const QHash<int, QTextCharFormat> &kindToFormat)
+{
+    highlighter->clearAllExtraFormats();
+
+    QTextDocument *doc = highlighter->document();
+    QTC_ASSERT(doc, return );
+
+    QVector<QVector<QTextLayout::FormatRange>> ranges(doc->blockCount());
+
+    for (auto result : results) {
+        const QTextLayout::FormatRange formatRange = rangeForResult(result, kindToFormat);
+        if (formatRange.format.isValid())
+            ranges[int(result.line) - 1].append(formatRange);
+    }
+
+    for (int blockNumber = 0; blockNumber < ranges.count(); ++blockNumber) {
+        if (!ranges[blockNumber].isEmpty()) {
+            QTextBlock b = doc->findBlockByNumber(blockNumber);
+            QTC_ASSERT(b.isValid(), return );
+            highlighter->setExtraFormats(b, std::move(ranges[blockNumber]));
+        }
+    }
+}
+
 void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
         SyntaxHighlighter *highlighter,
         const QFuture<HighlightingResult> &future)

@@ -86,6 +86,15 @@ void TEXTEDITOR_EXPORT incrementalApplyExtraAdditionalFormats(
         int from, int to,
         const QHash<int, QTextCharFormat> &kindToFormat);
 
+// Clears all extra highlights and applies the extra formats
+// indicated by Result::kind and kindToFormat to the correct location using
+// SyntaxHighlighter::setExtraFormats. In contrast to
+// incrementalApplyExtraAdditionalFormats the results do not have to be ordered by line.
+void TEXTEDITOR_EXPORT setExtraAdditionalFormats(
+    SyntaxHighlighter *highlighter,
+    const QList<HighlightingResult> &results,
+    const QHash<int, QTextCharFormat> &kindToFormat);
+
 // Cleans the extra additional formats after the last result of the Future
 // until the end of the document.
 // Requires that results of the Future are ordered by line.
