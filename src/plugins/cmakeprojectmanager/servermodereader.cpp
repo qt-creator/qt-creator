@@ -427,7 +427,7 @@ void ServerModeReader::handleError(const QString &message)
 
 void ServerModeReader::handleProgress(int min, int cur, int max, const QString &inReplyTo)
 {
-    Q_UNUSED(inReplyTo);
+    Q_UNUSED(inReplyTo)
 
     if (!m_future)
         return;
@@ -437,7 +437,7 @@ void ServerModeReader::handleProgress(int min, int cur, int max, const QString &
 
 void ServerModeReader::handleSignal(const QString &signal, const QVariantMap &data)
 {
-    Q_UNUSED(data);
+    Q_UNUSED(data)
     // CMake on Windows sends false dirty signals on each edit (QTCREATORBUG-17944)
     if (!HostOsInfo::isWindowsHost() && signal == "dirty")
         emit dirty();
@@ -475,7 +475,7 @@ void ServerModeReader::extractCodeModelData(const QVariantMap &data)
 void ServerModeReader::extractConfigurationData(const QVariantMap &data)
 {
     const QString name = data.value(NAME_KEY).toString();
-    Q_UNUSED(name);
+    Q_UNUSED(name)
     QSet<QString> knownTargets; // To filter duplicate target names:-/
     const QVariantList projects = data.value("projects").toList();
     for (const QVariant &p : projects) {
