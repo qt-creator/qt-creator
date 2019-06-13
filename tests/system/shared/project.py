@@ -216,7 +216,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Application", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __selectQtVersionDesktop__(checks, available, True)
+    __handleBuildSystem__(None)
 
     if checks:
         exp_filename = "mainwindow"
@@ -234,6 +234,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
         test.compare(findObject(":formFileLineEdit_Utils::FileNameValidatingLineEdit").text, ui_file)
 
     clickButton(waitForObject(":Next_QPushButton"))
+    __selectQtVersionDesktop__(checks, available, True)
 
     expectedFiles = []
     if checks:
