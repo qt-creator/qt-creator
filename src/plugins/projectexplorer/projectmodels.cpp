@@ -467,6 +467,11 @@ bool FlatModel::generatedFilesFilterEnabled()
     return m_filterGeneratedFiles;
 }
 
+bool FlatModel::trimEmptyDirectoriesEnabled()
+{
+    return m_trimEmptyDirectories;
+}
+
 Node *FlatModel::nodeForIndex(const QModelIndex &index) const
 {
     WrapperNode *flatNode = itemForIndex(index);

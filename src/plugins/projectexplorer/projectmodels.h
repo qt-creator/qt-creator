@@ -74,6 +74,7 @@ public:
 
     bool projectFilterEnabled();
     bool generatedFilesFilterEnabled();
+    bool trimEmptyDirectoriesEnabled();
     void setProjectFilterEnabled(bool filter);
     void setGeneratedFilesFilterEnabled(bool filter);
     void setTrimEmptyDirectories(bool filter);

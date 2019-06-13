@@ -56,6 +56,7 @@ public:
     void setAutoSynchronization(bool sync);
     bool projectFilter();
     bool generatedFilesFilter();
+    bool trimEmptyDirectoriesFilter();
     QToolButton *toggleSync();
     Node *currentNode();
     void sync(ProjectExplorer::Node *node);
