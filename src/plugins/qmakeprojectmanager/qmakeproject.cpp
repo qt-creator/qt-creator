@@ -523,6 +523,21 @@ void QmakeProject::asyncUpdate()
 
     m_asyncUpdateFutureInterface->reportStarted();
 
+    const Kit * const kit = activeTarget() ? activeTarget()->kit() : nullptr;
+    QtSupport::BaseQtVersion * const qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+    if (!qtVersion || !qtVersion->isValid()) {
+        const QString errorMessage = kit
+                ? tr("Cannot parse project \"%1\": The currently selected kit \"%2\" does not "
+                     "have a valid Qt.").arg(displayName(), kit->displayName())
+                : tr("Cannot parse project \"%1\": No kit selected.").arg(displayName());
+        proFileParseError(errorMessage);
+        m_asyncUpdateFutureInterface->reportCanceled();
+        m_asyncUpdateFutureInterface->reportFinished();
+        delete m_asyncUpdateFutureInterface;
+        m_asyncUpdateFutureInterface = nullptr;
+        return;
+    }
+
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
         rootProFile()->asyncUpdate();
     } else {
