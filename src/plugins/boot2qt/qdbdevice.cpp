@@ -152,7 +152,7 @@ void DeviceApplicationObserver::handleFinished(bool success)
 QdbDevice::QdbDevice()
 {
     addDeviceAction({tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
-        Command cmd{"reboot", {}};
+        Command cmd{QStringLiteral("reboot"), {}};
         (new DeviceApplicationObserver)->start(device, cmd);
     }});
 
