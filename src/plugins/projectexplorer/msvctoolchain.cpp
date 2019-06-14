@@ -849,7 +849,6 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
                              const QString &varsBat,
                              const QString &varsBatArg)
     : ToolChain(typeId)
-    , m_headerPathsMutex(new QMutex)
     , m_lastEnvironment(Utils::Environment::systemEnvironment())
     , m_abi(abi)
     , m_vcvarsBat(varsBat)
@@ -894,7 +893,6 @@ void MsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
 MsvcToolChain::~MsvcToolChain()
 {
     g_availableMsvcToolchains.removeOne(this);
-    delete m_headerPathsMutex;
 }
 
 Abi MsvcToolChain::targetAbi() const
@@ -1154,7 +1152,7 @@ ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunne
     addToEnvironment(env);
 
     return [this, env](const QStringList &, const QString &, const QString &) {
-        QMutexLocker locker(m_headerPathsMutex);
+        QMutexLocker locker(&m_headerPathsMutex);
         if (m_headerPaths.isEmpty()) {
             foreach (const QString &path,
                      env.value(QLatin1String("INCLUDE")).split(QLatin1Char(';'))) {
@@ -1786,7 +1784,7 @@ Utils::LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &
 ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeaderPathsRunner() const
 {
     {
-        QMutexLocker locker(m_headerPathsMutex);
+        QMutexLocker locker(&m_headerPathsMutex);
         m_headerPaths.clear();
     }
 

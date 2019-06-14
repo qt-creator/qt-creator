@@ -146,7 +146,7 @@ protected:
     void initEnvModWatcher(const QFuture<GenerateEnvResult> &future);
 
 protected:
-    mutable QMutex *m_headerPathsMutex = nullptr;
+    mutable QMutex m_headerPathsMutex;
     mutable HeaderPaths m_headerPaths;
 
 private:
