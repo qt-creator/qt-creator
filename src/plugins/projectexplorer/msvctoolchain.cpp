@@ -843,25 +843,6 @@ static void addToAvailableMsvcToolchains(const MsvcToolChain *toolchain)
         g_availableMsvcToolchains.push_back(toolchain);
 }
 
-MsvcToolChain::MsvcToolChain(Core::Id typeId,
-                             const Abi &abi,
-                             const QString &varsBat,
-                             const QString &varsBatArg)
-    : ToolChain(typeId)
-    , m_lastEnvironment(Utils::Environment::systemEnvironment())
-    , m_abi(abi)
-    , m_vcvarsBat(varsBat)
-    , m_varsBatArg(varsBatArg)
-{
-    detectInstalledAbis();
-    addToAvailableMsvcToolchains(this);
-
-    initEnvModWatcher(Utils::runAsync(envModThreadPool(),
-                                      &MsvcToolChain::environmentModifications,
-                                      varsBat,
-                                      varsBatArg));
-}
-
 MsvcToolChain::MsvcToolChain(Core::Id typeId)
     : ToolChain(typeId)
 {}
@@ -1247,17 +1228,19 @@ IOutputParser *MsvcToolChain::outputParser() const
     return new MsvcParser;
 }
 
-void MsvcToolChain::changeVcVarsCall(const QString &varsBat, const QString &varsBatArg)
+void MsvcToolChain::setupVarsBat(const Abi &abi, const QString &varsBat, const QString &varsBatArg)
 {
+    m_lastEnvironment = Utils::Environment::systemEnvironment();
+    m_abi = abi;
     m_vcvarsBat = varsBat;
     m_varsBatArg = varsBatArg;
 
     if (!varsBat.isEmpty()) {
         detectInstalledAbis();
         initEnvModWatcher(Utils::runAsync(envModThreadPool(),
-                                          &ClangClToolChain::environmentModifications,
-                                          m_vcvarsBat,
-                                          m_varsBatArg));
+                                          &MsvcToolChain::environmentModifications,
+                                          varsBat,
+                                          varsBatArg));
     }
 }
 
@@ -1357,9 +1340,8 @@ void MsvcToolChainConfigWidget::applyImpl()
 {
     auto *tc = static_cast<MsvcToolChain *>(toolChain());
     QTC_ASSERT(tc, return );
-    tc->setTargetAbi(m_abiWidget->currentAbi());
     const QString vcVars = QDir::fromNativeSeparators(m_varsBatPathCombo->currentText());
-    tc->changeVcVarsCall(vcVars, vcVarsArguments());
+    tc->setupVarsBat(m_abiWidget->currentAbi(), vcVars, vcVarsArguments());
     setFromMsvcToolChain();
 }
 
@@ -1653,9 +1635,11 @@ void ClangClToolChainConfigWidget::makeReadOnlyImpl()
 // --------------------------------------------------------------------------
 
 ClangClToolChain::ClangClToolChain(const QString &clangPath)
-    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, Abi(), "", "")
+    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID)
     , m_clangPath(clangPath)
-{}
+{
+    setupVarsBat(Abi(), "", "");
+}
 
 ClangClToolChain::ClangClToolChain()
     : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID)
@@ -1726,14 +1710,10 @@ std::unique_ptr<ToolChainConfigWidget> ClangClToolChain::createConfigurationWidg
 
 void ClangClToolChain::resetMsvcToolChain(const MsvcToolChain *base)
 {
-    if (!base) {
-        m_abi = Abi();
-        changeVcVarsCall("");
-        return;
-    }
-
-    m_abi = base->targetAbi();
-    changeVcVarsCall(base->varsBat(), base->varsBatArg());
+    if (base)
+        setupVarsBat(base->targetAbi(), base->varsBat(), base->varsBatArg());
+    else
+        setupVarsBat(Abi(), "", "");
 }
 
 bool ClangClToolChain::operator==(const ToolChain &other) const
@@ -1832,12 +1812,15 @@ static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alread
             auto mtc = static_cast<MsvcToolChain *>(tc);
             return mtc->varsBat() == varsBat && mtc->varsBatArg() == varsBatArg;
         });
-        if (!tc) {
-            tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, abi, varsBat, varsBatArg);
-            tc->setDisplayName(name);
-            tc->setLanguage(language);
+        if (tc) {
+            res << tc;
+        } else {
+            auto mstc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID);
+            mstc->setupVarsBat(abi, varsBat, varsBatArg);
+            mstc->setDisplayName(name);
+            mstc->setLanguage(language);
+            res << mstc;
         }
-        res << tc;
     }
     return res;
 }
@@ -1870,10 +1853,8 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
                       e.format,
                       e.wordSize);
         for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
-            auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID,
-                                        abi,
-                                        vcVarsBat,
-                                        QLatin1String(e.varsBatArg));
+            auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID);
+            tc->setupVarsBat(abi, vcVarsBat, QLatin1String(e.varsBatArg));
             tc->setDisplayName(name + QLatin1String(e.postFix));
             tc->setDetection(ToolChain::AutoDetection);
             tc->setLanguage(language);
@@ -2150,8 +2131,8 @@ bool MsvcToolChainFactory::canCreate() const
 
 ToolChain *MsvcToolChainFactory::create()
 {
-    auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID,
-                                Abi::hostAbi(), g_availableMsvcToolchains.first()->varsBat(), "");
+    auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID);
+    tc->setupVarsBat(Abi::hostAbi(), g_availableMsvcToolchains.first()->varsBat(), "");
     tc->setDisplayName("Microsoft Visual C++ Compiler");
     return tc;
 }

@@ -57,12 +57,7 @@ public:
     enum Type { WindowsSDK, VS };
     enum Platform { x86, amd64, x86_amd64, ia64, x86_ia64, arm, x86_arm, amd64_arm, amd64_x86 };
 
-    explicit MsvcToolChain(Core::Id typeId,
-                           const Abi &abi,
-                           const QString &varsBat,
-                           const QString &varsBatArg);
     explicit MsvcToolChain(Core::Id typeId);
-
     ~MsvcToolChain() override;
 
     Abi targetAbi() const override;
@@ -98,7 +93,7 @@ public:
     QString varsBatArg() const { return m_varsBatArg; }
     QString varsBat() const { return m_vcvarsBat; }
     void setVarsBatArg(const QString &varsBA) { m_varsBatArg = varsBA; }
-    void changeVcVarsCall(const QString &varsBat, const QString &varsBatArgs = QString());
+    void setupVarsBat(const Abi &abi, const QString &varsBat, const QString &varsBatArg);
 
     bool operator==(const ToolChain &) const override;
 
