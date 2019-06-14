@@ -393,9 +393,15 @@ void ProjectTree::applyTreeManager(FolderNode *folder)
 bool ProjectTree::hasNode(const Node *node)
 {
     return Utils::contains(SessionManager::projects(), [node](const Project *p) {
-        return p && p->rootProjectNode() && (
-                    p->containerNode() == node
-                    || p->rootProjectNode()->findNode([node](const Node *n) { return n == node; }));
+        if (!p)
+            return false;
+        if (p->containerNode() == node)
+            return true;
+        // When parsing fails we have a living container node but no rootProjectNode.
+        ProjectNode *pn = p->rootProjectNode();
+        if (!pn)
+            return false;
+        return pn->findNode([node](const Node *n) { return n == node; }) != nullptr;
     });
 }
 
