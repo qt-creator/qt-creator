@@ -31,7 +31,6 @@ namespace Android {
 namespace Internal {
 
 using ToolChainList = QList<ProjectExplorer::ToolChain *>;
-using CToolChainList = const QList<ProjectExplorer::ToolChain *>;
 
 class AndroidToolChain : public ProjectExplorer::ClangToolChain
 {
@@ -63,7 +62,7 @@ class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory
 public:
     AndroidToolChainFactory();
 
-    ToolChainList autoDetect(CToolChainList &alreadyKnown) override;
+    ToolChainList autoDetect(const ToolChainList &alreadyKnown) override;
 
     class AndroidToolChainInformation
     {
@@ -74,7 +73,7 @@ public:
         QString version;
     };
 
-    static ToolChainList autodetectToolChainsForNdk(CToolChainList &alreadyKnown);
+    static ToolChainList autodetectToolChainsForNdk(const ToolChainList &alreadyKnown);
 };
 
 } // namespace Internal

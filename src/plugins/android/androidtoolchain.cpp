@@ -61,7 +61,7 @@ static const QList<Core::Id> LanguageIds = {ProjectExplorer::Constants::CXX_LANG
                                             ProjectExplorer::Constants::C_LANGUAGE_ID};
 
 static ToolChain *findToolChain(Utils::FilePath &compilerPath, Core::Id lang, const QString &target,
-                                CToolChainList &alreadyKnown)
+                                const ToolChainList &alreadyKnown)
 {
     ToolChain * tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](ToolChain *tc) {
         return tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
@@ -151,7 +151,7 @@ AndroidToolChainFactory::AndroidToolChainFactory()
     setToolchainConstructor([] { return new AndroidToolChain; });
 }
 
-ToolChainList AndroidToolChainFactory::autoDetect(CToolChainList &alreadyKnown)
+ToolChainList AndroidToolChainFactory::autoDetect(const ToolChainList &alreadyKnown)
 {
     return autodetectToolChainsForNdk(alreadyKnown);
 }
@@ -163,7 +163,7 @@ static FilePath clangPlusPlusPath(const FilePath &clangPath)
                     QFileInfo(clangPath.toString()).baseName() + "++"));
 }
 
-ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(CToolChainList &alreadyKnown)
+ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(const ToolChainList &alreadyKnown)
 {
     QList<ToolChain *> result;
     FilePath clangPath = AndroidConfigurations::currentConfig().clangPath();
