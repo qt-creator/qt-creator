@@ -38,6 +38,7 @@
 
 #include <QDir>
 #include <QObject>
+#include <QTimer>
 
 namespace CMakeProjectManager {
 namespace Internal {
@@ -57,8 +58,11 @@ static QString lineSplit(const QString &rest, const QByteArray &array, std::func
     return tmp.mid(start);
 }
 
-
-CMakeProcess::CMakeProcess() = default;
+CMakeProcess::CMakeProcess()
+{
+    connect(&m_cancelTimer, &QTimer::timeout, this, &CMakeProcess::checkForCancelled);
+    m_cancelTimer.setInterval(500);
+}
 
 CMakeProcess::~CMakeProcess()
 {
@@ -116,6 +120,10 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     // then we are racing against CMakeCache.txt also getting deleted.
 
     auto process = std::make_unique<Utils::QtcProcess>();
+    m_processWasCanceled = false;
+
+    m_cancelTimer.start();
+
     process->setWorkingDirectory(workDirectory.toString());
     process->setEnvironment(parameters.environment);
 
@@ -204,14 +212,21 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
 {
     QTC_ASSERT(m_process && m_future, return);
 
+    m_cancelTimer.stop();
+
     processStandardOutput();
     processStandardError();
 
     QString msg;
-    if (status != QProcess::NormalExit)
-        msg = tr("*** cmake process crashed.");
-    else if (code != 0)
+    if (status != QProcess::NormalExit) {
+        if (m_processWasCanceled) {
+            msg = tr("*** cmake process was canceled by the user.");
+        } else {
+            msg = tr("*** cmake process crashed.");
+        }
+    } else if (code != 0) {
         msg = tr("*** cmake process exited with exit code %1.").arg(code);
+    }
 
     if (!msg.isEmpty()) {
         Core::MessageManager::write(msg);
@@ -224,6 +239,18 @@ void CMakeProcess::handleProcessFinished(int code, QProcess::ExitStatus status)
     m_future->reportFinished();
 
     emit finished(code, status);
+}
+
+void CMakeProcess::checkForCancelled()
+{
+    if (!m_process || !m_future)
+        return;
+
+    if (m_future->isCanceled()) {
+        m_cancelTimer.stop();
+        m_processWasCanceled = true;
+        m_process->close();
+    }
 }
 
 } // namespace Internal

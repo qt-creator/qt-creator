@@ -32,6 +32,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QFutureInterface>
+#include <QTimer>
 
 #include <memory>
 
@@ -67,10 +68,13 @@ signals:
 
 private:
     void handleProcessFinished(int code, QProcess::ExitStatus status);
+    void checkForCancelled();
 
     std::unique_ptr<Utils::QtcProcess> m_process;
     std::unique_ptr<ProjectExplorer::IOutputParser> m_parser;
     std::unique_ptr<QFutureInterface<void>> m_future;
+    bool m_processWasCanceled = false;
+    QTimer m_cancelTimer;
 };
 
 } // namespace Internal
