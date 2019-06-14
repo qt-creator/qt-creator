@@ -246,14 +246,29 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
             | Qt::ItemNeverHasChildren;
 }
 
+void static appendForcedNodes(const NodeListProperty &property, QList<ModelNode> &list)
+{
+    const QStringList visibleProperties = NodeHints::fromModelNode(property.parentModelNode()).visibleNonDefaultProperties();
+    for (const ModelNode &node : property.parentModelNode().directSubModelNodes()) {
+        if (!list.contains(node) && visibleProperties.contains(QString::fromUtf8(node.parentProperty().name())))
+            list.append(node);
+    }
+}
+
 QList<ModelNode> filteredList(const NodeListProperty &property, bool filter)
 {
     if (!filter)
         return property.toModelNodeList();
 
-    return Utils::filtered(property.toModelNodeList(), [] (const ModelNode &arg) {
+    QList<ModelNode> list;
+
+    list.append(Utils::filtered(property.toModelNodeList(), [] (const ModelNode &arg) {
         return QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator();
-    });
+    }));
+
+    appendForcedNodes(property, list);
+
+    return list;
 }
 
 QModelIndex NavigatorTreeModel::index(int row, int column,
@@ -431,7 +446,8 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
 static bool findTargetProperty(const QModelIndex &rowModelIndex,
                                NavigatorTreeModel *navigatorTreeModel,
                                NodeAbstractProperty *targetProperty,
-                               int *targetRowNumber)
+                               int *targetRowNumber,
+                               const QString &propertyName = {})
 {
     QModelIndex targetItemIndex;
     PropertyName targetPropertyName;
@@ -445,7 +461,10 @@ static bool findTargetProperty(const QModelIndex &rowModelIndex,
         if (!targetNode.metaInfo().hasDefaultProperty())
             return false;
 
-        targetPropertyName = targetNode.metaInfo().defaultPropertyName();
+        if (propertyName.isEmpty())
+            targetPropertyName = targetNode.metaInfo().defaultPropertyName();
+        else
+            targetPropertyName = propertyName.toUtf8();
     }
 
     // Disallow dropping items between properties, which are listed first.
@@ -494,12 +513,16 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
     int targetRowNumber = rowNumber;
     NodeAbstractProperty targetProperty;
 
-    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber);
+    const ItemLibraryEntry itemLibraryEntry =
+        createItemLibraryEntryFromMimeData(mimeData->data("application/vnd.bauhaus.itemlibraryinfo"));
+
+    const NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+
+    const QString targetPropertyName = hints.forceNonDefaultProperty();
+
+    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber, targetPropertyName);
 
     if (foundTarget) {
-        const ItemLibraryEntry itemLibraryEntry =
-                createItemLibraryEntryFromMimeData(mimeData->data("application/vnd.bauhaus.itemlibraryinfo"));
-
         if (!NodeHints::fromItemLibraryEntry(itemLibraryEntry).canBeDroppedInNavigator())
             return;
 
