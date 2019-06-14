@@ -16,6 +16,7 @@ you can check out from the public Git repository. For example:
 
 ### Language Client
 
+* Removed `Experimental` flag
 * Added option for starting server when needed
 * Added option for starting one server per project
 * Added support for `workspace/workspaceFolders` server request
@@ -34,7 +35,7 @@ you can check out from the public Git repository. For example:
 * Added option for hiding kit settings (QTCREATORBUG-9134)
 * Added support for drag & drop in Projects tree (QTCREATORBUG-6446)
 * Added option for closing files of project when closing project (QTCREATORBUG-22198)
-* Added filtering to `Application Output`, `Compile Output`, and `General Messages`
+* Added filtering to `Issues`, `Application Output`, `Compile Output`, and `General Messages`
   (QTCREATORBUG-16356)
 * Added `Re-detect` and `Remove All` to compiler settings
 * Added Locator filter for all files in all project directory trees (`a`) (QTCREATORBUG-19122)
@@ -59,6 +60,7 @@ you can check out from the public Git repository. For example:
 * Added completion of paths in project files (QTCREATORBUG-5915)
 * Added forced `qmake` run on rebuild
 * Fixed building sub-project in case of additional custom make steps (QTCREATORBUG-15794)
+* Fixed missing items from `OBJECTIVE_HEADERS` (QTCREATORBUG-17569)
 
 ## CMake Projects
 
@@ -102,9 +104,12 @@ you can check out from the public Git repository. For example:
 
 ## QML Support
 
+* Fixed various formatting issues
+
 ## Debugging
 
 * Added pretty printer for `QMargin`
+* Fixed issues with restoring layout (QTCREATORBUG-21669)
 
 ### CDB
 
@@ -120,7 +125,10 @@ you can check out from the public Git repository. For example:
 
 * Added support for `ShapeGradient` (QDS-359)
 * Added gradient picker that allows loading and saving of presets
+* Added support for changing properties for multiple items at once (QDS-324)
+* Added missing properties for `LineEdit` and `ComboBox`
 * Updated properties of `Flickable`
+* Improved handling of errors in state editor (QDS-695)
 
 ## Version Control Systems
 
@@ -191,13 +199,16 @@ Denis Shienkov
 Denis Vygovskiy  
 Eike Ziller  
 Friedemann Kleint  
+Giuseppe D'Angelo  
 Haxor Leet  
+Henning Gruendl  
 illiteratecoder  
 Ivan Donchevskii  
 Ivan Komissarov  
 Joel Smith  
 Jörg Bornemann  
 Kavindra Palaraja  
+Leena Miettinen  
 Luca Carlon  
 Marco Bubke  
 Martin Haase  
@@ -213,5 +224,6 @@ Tim Henning
 Tim Jenssen  
 Tobias Hunger  
 Tor Arne Vestbø  
+Uladzislau Paulovich  
 Ulf Hermann  
 Ville Nummela  
