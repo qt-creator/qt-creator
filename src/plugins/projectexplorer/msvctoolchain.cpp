@@ -2006,7 +2006,6 @@ ToolChain *ClangClToolChainFactory::create()
 {
     // FIXME: Looks odd. Shouldn't clang-cl be the path?
     auto tc = new ClangClToolChain;
-    tc->setClangPath("");
     tc->setupVarsBat(Abi(), "", "");
     tc->setDisplayName("clang-cl");
     return tc;
