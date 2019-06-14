@@ -127,7 +127,7 @@ void AndroidGdbServerKitAspect::setGdbSever(Kit *kit, const FilePath &gdbServerC
 FilePath AndroidGdbServerKitAspect::autoDetect(const Kit *kit)
 {
     ToolChain *tc = ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
-    if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
+    if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return FilePath();
     auto atc = static_cast<AndroidToolChain *>(tc);
     return atc->suggestedGdbServer();

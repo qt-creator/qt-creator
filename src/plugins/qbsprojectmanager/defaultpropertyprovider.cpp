@@ -126,11 +126,11 @@ static QStringList toolchainList(const ProjectExplorer::ToolChain *tc)
 {
     QStringList list;
     if (tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
-            || (tc->typeId() == Android::Constants::ANDROID_TOOLCHAIN_ID
+            || (tc->typeId() == Android::Constants::ANDROID_TOOLCHAIN_TYPEID
                 && tc->compilerCommand().toString().contains("clang"))) {
         list << QLatin1String("clang") << QLatin1String("llvm") << QLatin1String("gcc");
     } else if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
-               || tc->typeId() == Android::Constants::ANDROID_TOOLCHAIN_ID) {
+               || tc->typeId() == Android::Constants::ANDROID_TOOLCHAIN_TYPEID) {
         list << QLatin1String("gcc"); // TODO: Detect llvm-gcc
     } else if (tc->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
         list << QLatin1String("mingw") << QLatin1String("gcc");

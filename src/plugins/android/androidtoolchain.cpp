@@ -64,7 +64,7 @@ static ToolChain *findToolChain(Utils::FilePath &compilerPath, Core::Id lang, co
                                 CToolChainList &alreadyKnown)
 {
     ToolChain * tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](ToolChain *tc) {
-        return tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID
+        return tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
                 && tc->language() == lang
                 && tc->targetAbi() == ClangTargets[target]
                 && tc->compilerCommand() == compilerPath;
@@ -82,7 +82,7 @@ QString AndroidToolChain::typeDisplayName() const
 bool AndroidToolChain::isValid() const
 {
     return ClangToolChain::isValid()
-            && typeId() == Constants::ANDROID_TOOLCHAIN_ID
+            && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
             && targetAbi().isValid()
             && compilerCommand().isChildOf(AndroidConfigurations::currentConfig().ndkLocation())
             && !originalTargetTriple().isEmpty();
@@ -146,7 +146,7 @@ GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 AndroidToolChainFactory::AndroidToolChainFactory()
 {
     setDisplayName(tr("Android Clang"));
-    setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_ID);
+    setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new AndroidToolChain; });
 }
@@ -218,7 +218,7 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(CToolChainList
 
 // for fromMap
 AndroidToolChain::AndroidToolChain()
-    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_ID)
+    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID)
 {
 }
 

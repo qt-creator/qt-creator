@@ -919,7 +919,7 @@ static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
     if (!atc || !btc)
         return false;
 
-    if (atc->typeId() != Constants::ANDROID_TOOLCHAIN_ID || btc->typeId() != Constants::ANDROID_TOOLCHAIN_ID)
+    if (atc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID || btc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return false;
 
     auto aatc = static_cast<const AndroidToolChain *>(atc);
@@ -931,7 +931,7 @@ void AndroidConfigurations::registerNewToolChains()
 {
     const QList<ToolChain *> existingAndroidToolChains
             = ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId,
-                                                        Core::Id(Constants::ANDROID_TOOLCHAIN_ID)));
+                                                        Core::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
     const QList<ToolChain *> newToolchains
             = AndroidToolChainFactory::autodetectToolChainsForNdk(existingAndroidToolChains);
     foreach (ToolChain *tc, newToolchains)
@@ -940,7 +940,7 @@ void AndroidConfigurations::registerNewToolChains()
 
 void AndroidConfigurations::removeOldToolChains()
 {
-    foreach (ToolChain *tc, ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId, Core::Id(Constants::ANDROID_TOOLCHAIN_ID)))) {
+    foreach (ToolChain *tc, ToolChainManager::toolChains(Utils::equal(&ToolChain::typeId, Core::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)))) {
         if (!tc->isValid())
             ToolChainManager::deregisterToolChain(tc);
     }
@@ -1017,7 +1017,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     const QList<ToolChain *> toolchains = ToolChainManager::toolChains([](const ToolChain *tc) {
         return tc->isAutoDetected()
             && tc->isValid()
-            && tc->typeId() == Constants::ANDROID_TOOLCHAIN_ID;
+            && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
     });
     for (ToolChain *tc : toolchains) {
         if (tc->language() != Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
