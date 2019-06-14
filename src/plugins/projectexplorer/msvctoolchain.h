@@ -167,7 +167,6 @@ protected:
 class PROJECTEXPLORER_EXPORT ClangClToolChain : public MsvcToolChain
 {
 public:
-    explicit ClangClToolChain(const QString &llvmDir);
     ClangClToolChain();
 
     bool isValid() const override;

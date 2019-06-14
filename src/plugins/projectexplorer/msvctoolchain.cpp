@@ -1570,14 +1570,17 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
                 return systemEnvironment.isSameExecutable(tc->compilerCommand().toString(),
                                                           clangClPath);
             }));
-        if (!tc) {
-            tc = new ClangClToolChain(clangClPath);
-            tc->setDisplayName(name);
-            tc->setDetection(ToolChain::AutoDetection);
-            tc->setLanguage(language);
-            tc->resetMsvcToolChain(toolChain);
+        if (tc) {
+            res << tc;
+        } else {
+            auto cltc = new ClangClToolChain;
+            cltc->setClangPath(clangClPath);
+            cltc->setDisplayName(name);
+            cltc->setDetection(ToolChain::AutoDetection);
+            cltc->setLanguage(language);
+            cltc->resetMsvcToolChain(toolChain);
+            res << cltc;
         }
-        res << tc;
     }
     return res;
 }
@@ -1633,13 +1636,6 @@ void ClangClToolChainConfigWidget::makeReadOnlyImpl()
 // ClangClToolChain, piggy-backing on MSVC2015 and providing the compiler
 // clang-cl.exe as a [to some extent] compatible drop-in replacement for cl.
 // --------------------------------------------------------------------------
-
-ClangClToolChain::ClangClToolChain(const QString &clangPath)
-    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID)
-    , m_clangPath(clangPath)
-{
-    setupVarsBat(Abi(), "", "");
-}
 
 ClangClToolChain::ClangClToolChain()
     : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID)
@@ -2009,7 +2005,9 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
 ToolChain *ClangClToolChainFactory::create()
 {
     // FIXME: Looks odd. Shouldn't clang-cl be the path?
-    auto tc = new ClangClToolChain("");
+    auto tc = new ClangClToolChain;
+    tc->setClangPath("");
+    tc->setupVarsBat(Abi(), "", "");
     tc->setDisplayName("clang-cl");
     return tc;
 }
