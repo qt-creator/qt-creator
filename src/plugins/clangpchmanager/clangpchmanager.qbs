@@ -19,6 +19,13 @@ QtcPlugin {
     cpp.includePaths: ["."]
 
     files: [
+        "clangindexingprojectsettings.cpp",
+        "clangindexingprojectsettings.h",
+        "clangindexingprojectsettingswidget.cpp",
+        "clangindexingprojectsettingswidget.h",
+        "clangindexingprojectsettingswidget.ui",
+        "clangindexingsettingsmanager.cpp",
+        "clangindexingsettingsmanager.h",
         "clangpchmanagerplugin.cpp",
         "clangpchmanagerplugin.h",
         "clangpchmanager_global.h",
@@ -30,6 +37,10 @@ QtcPlugin {
         "pchmanagerconnectionclient.h",
         "pchmanagerprojectupdater.cpp",
         "pchmanagerprojectupdater.h",
+        "preprocessormacrocollector.cpp",
+        "preprocessormacrocollector.h",
+        "preprocessormacrowidget.cpp",
+        "preprocessormacrowidget.h",
         "projectupdater.cpp",
         "projectupdater.h",
         "qtcreatorprojectupdater.cpp",
