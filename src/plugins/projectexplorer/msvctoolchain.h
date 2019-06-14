@@ -58,7 +58,6 @@ public:
     enum Platform { x86, amd64, x86_amd64, ia64, x86_ia64, arm, x86_arm, amd64_arm, amd64_x86 };
 
     explicit MsvcToolChain(Core::Id typeId,
-                           const QString &name,
                            const Abi &abi,
                            const QString &varsBat,
                            const QString &varsBatArg);
@@ -173,7 +172,7 @@ protected:
 class PROJECTEXPLORER_EXPORT ClangClToolChain : public MsvcToolChain
 {
 public:
-    ClangClToolChain(const QString &name, const QString &llvmDir);
+    explicit ClangClToolChain(const QString &llvmDir);
     ClangClToolChain();
 
     bool isValid() const override;

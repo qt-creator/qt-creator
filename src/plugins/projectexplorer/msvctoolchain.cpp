@@ -844,7 +844,6 @@ static void addToAvailableMsvcToolchains(const MsvcToolChain *toolchain)
 }
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId,
-                             const QString &name,
                              const Abi &abi,
                              const QString &varsBat,
                              const QString &varsBatArg)
@@ -861,10 +860,6 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId,
                                       &MsvcToolChain::environmentModifications,
                                       varsBat,
                                       varsBatArg));
-
-    Q_ASSERT(!name.isEmpty());
-
-    setDisplayName(name);
 }
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId)
@@ -1594,7 +1589,8 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
                                                           clangClPath);
             }));
         if (!tc) {
-            tc = new ClangClToolChain(name, clangClPath);
+            tc = new ClangClToolChain(clangClPath);
+            tc->setDisplayName(name);
             tc->setDetection(ToolChain::AutoDetection);
             tc->setLanguage(language);
             tc->resetMsvcToolChain(toolChain);
@@ -1656,9 +1652,8 @@ void ClangClToolChainConfigWidget::makeReadOnlyImpl()
 // clang-cl.exe as a [to some extent] compatible drop-in replacement for cl.
 // --------------------------------------------------------------------------
 
-ClangClToolChain::ClangClToolChain(const QString &name,
-                                   const QString &clangPath)
-    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, name, Abi(), "", "")
+ClangClToolChain::ClangClToolChain(const QString &clangPath)
+    : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID, Abi(), "", "")
     , m_clangPath(clangPath)
 {}
 
@@ -1838,7 +1833,8 @@ static QList<ToolChain *> findOrCreateToolChain(const QList<ToolChain *> &alread
             return mtc->varsBat() == varsBat && mtc->varsBatArg() == varsBatArg;
         });
         if (!tc) {
-            tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, name, abi, varsBat, varsBatArg);
+            tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID, abi, varsBat, varsBatArg);
+            tc->setDisplayName(name);
             tc->setLanguage(language);
         }
         res << tc;
@@ -1863,9 +1859,8 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
                              {" (x86_arm)", "x86_arm", Abi::ArmArchitecture, Abi::PEFormat, 32},
                              {" (x64_arm)", "amd64_arm", Abi::ArmArchitecture, Abi::PEFormat, 64}};
 
-    const QString name = QStringLiteral("Microsoft Visual C++ Build Tools");
-    const QString vcVarsBat = windowsProgramFilesDir() + QLatin1Char('/') + name
-                              + QStringLiteral("/vcbuildtools.bat");
+    const QString name = "Microsoft Visual C++ Build Tools";
+    const QString vcVarsBat = windowsProgramFilesDir() + '/' + name + "/vcbuildtools.bat";
     if (!QFileInfo(vcVarsBat).isFile())
         return;
     for (const Entry &e : entries) {
@@ -1876,10 +1871,10 @@ static void detectCppBuildTools2015(QList<ToolChain *> *list)
                       e.wordSize);
         for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
             auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID,
-                                        name + QLatin1String(e.postFix),
                                         abi,
                                         vcVarsBat,
                                         QLatin1String(e.varsBatArg));
+            tc->setDisplayName(name + QLatin1String(e.postFix));
             tc->setDetection(ToolChain::AutoDetection);
             tc->setLanguage(language);
             list->append(tc);
@@ -2032,7 +2027,10 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
 
 ToolChain *ClangClToolChainFactory::create()
 {
-    return new ClangClToolChain("clang-cl", "");
+    // FIXME: Looks odd. Shouldn't clang-cl be the path?
+    auto tc = new ClangClToolChain("");
+    tc->setDisplayName("clang-cl");
+    return tc;
 }
 
 bool MsvcToolChain::operator==(const ToolChain &other) const
@@ -2152,9 +2150,10 @@ bool MsvcToolChainFactory::canCreate() const
 
 ToolChain *MsvcToolChainFactory::create()
 {
-    return new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID,
-                             "Microsoft Visual C++ Compiler",
-                             Abi::hostAbi(), g_availableMsvcToolchains.first()->varsBat(), "");
+    auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID,
+                                Abi::hostAbi(), g_availableMsvcToolchains.first()->varsBat(), "");
+    tc->setDisplayName("Microsoft Visual C++ Compiler");
+    return tc;
 }
 
 MsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags)
