@@ -486,6 +486,19 @@ void ToolChainFactory::autoDetectionToMap(QVariantMap &data, bool detected)
     data.insert(QLatin1String(AUTODETECT_KEY), detected);
 }
 
+ToolChain *ToolChainFactory::createToolChain(Core::Id toolChainType)
+{
+    for (ToolChainFactory *factory : qAsConst(Internal::g_toolChainFactories)) {
+        if (factory->m_supportedToolChainType == toolChainType) {
+            if (ToolChain *tc = factory->create()) {
+                tc->d->m_typeId = toolChainType;
+                return tc;
+            }
+        }
+    }
+    return nullptr;
+}
+
 QSet<Core::Id> ToolChainFactory::supportedLanguages() const
 {
     return m_supportsAllLanguages ? ToolChainManager::allLanguages() : m_supportedLanguages;

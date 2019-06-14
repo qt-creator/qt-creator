@@ -206,6 +206,8 @@ public:
     static Core::Id typeIdFromMap(const QVariantMap &data);
     static void autoDetectionToMap(QVariantMap &data, bool detected);
 
+    static ToolChain *createToolChain(Core::Id toolChainType);
+
     QSet<Core::Id> supportedLanguages() const;
 
     void setUserCreatable(bool userCreatable);

@@ -575,7 +575,7 @@ ProvisioningProfilePtr IosConfigurations::provisioningProfile(const QString &pro
                                 Utils::equal(&ProvisioningProfile::identifier, profileID));
 }
 
-static ClangToolChain *createToolChain(const XcodePlatform &platform,
+static ClangToolChain *createIosToolChain(const XcodePlatform &platform,
                                        const XcodePlatform::ToolchainTarget &target,
                                        Core::Id l)
 {
@@ -616,7 +616,7 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
                                                                         existingClangToolChains);
             auto createOrAdd = [&](ClangToolChain* toolChain, Core::Id l) {
                 if (!toolChain) {
-                    toolChain = createToolChain(platform, target, l);
+                    toolChain = createIosToolChain(platform, target, l);
                     existingClangToolChains.append(toolChain);
                 }
                 toolChains.append(toolChain);
