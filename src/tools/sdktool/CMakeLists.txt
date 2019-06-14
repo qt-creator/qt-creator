@@ -35,6 +35,8 @@ extend_qtc_target(sdktool
     environment.cpp environment.h
     fileutils.cpp fileutils.h
     hostosinfo.cpp hostosinfo.h
+    namevaluedictionary.cpp namevaluedictionary.h
+    namevalueitem.cpp namevalueitem.h
     persistentsettings.cpp persistentsettings.h
     qtcassert.cpp qtcassert.h
     qtcprocess.cpp qtcprocess.h

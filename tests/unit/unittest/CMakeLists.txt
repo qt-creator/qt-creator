@@ -30,6 +30,7 @@ add_qtc_test(unittest GTEST
     builddependenciesprovider-test.cpp
     builddependenciesstorage-test.cpp
     changedfilepathcompressor-test.cpp
+    clangindexingsettingsmanager-test.cpp
     clangpathwatcher-test.cpp
     clangqueryexamplehighlightmarker-test.cpp
     clangqueryhighlightmarker-test.cpp
@@ -125,6 +126,7 @@ add_qtc_test(unittest GTEST
     pchtaskqueue-test.cpp
     pchtasksmerger-test.cpp
     precompiledheaderstorage-test.cpp
+    preprocessormacrocollector-test.cpp
     processcreator-test.cpp
     processevents-utilities.cpp processevents-utilities.h
     processormanager-test.cpp
@@ -393,10 +395,13 @@ extend_qtc_target(unittest
   SOURCES_PREFIX "${ClangPchManagerSourcesDir}"
   DEFINES CLANGPCHMANAGER_STATIC_LIB
   SOURCES
+    clangindexingprojectsettings.cpp clangindexingprojectsettings.h
+    clangindexingsettingsmanager.cpp clangindexingsettingsmanager.h
     pchmanagerclient.h pchmanagerclient.cpp
     pchmanagernotifierinterface.h pchmanagernotifierinterface.cpp
     pchmanagerconnectionclient.h pchmanagerconnectionclient.cpp
     clangpchmanager_global.h
+    preprocessormacrocollector.cpp preprocessormacrocollector.h
     projectupdater.h projectupdater.cpp
     pchmanagerprojectupdater.h pchmanagerprojectupdater.cpp
     progressmanager.h

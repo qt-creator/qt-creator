@@ -43,8 +43,14 @@ add_qtc_library(Utils
     elfreader.cpp elfreader.h
     elidinglabel.cpp elidinglabel.h
     environment.cpp environment.h
+    environmentfwd.h
     environmentdialog.cpp environmentdialog.h
     environmentmodel.cpp environmentmodel.h
+    namevaluedictionary.cpp namevaluedictionary.h
+    namevalueitem.cpp namevalueitem.h
+    namevaluemodel.cpp namevaluemodel.h
+    namevaluesdialog.cpp namevaluesdialog.h
+    namevaluevalidator.cpp namevaluevalidator.h
     execmenu.cpp execmenu.h
     executeondestruction.h
     fadingindicator.cpp fadingindicator.h
