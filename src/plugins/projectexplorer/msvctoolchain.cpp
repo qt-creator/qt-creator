@@ -909,9 +909,6 @@ Abis MsvcToolChain::supportedAbis() const
 
 void MsvcToolChain::setTargetAbi(const Abi &abi)
 {
-    if (m_abi == abi)
-        return;
-
     m_abi = abi;
 }
 
