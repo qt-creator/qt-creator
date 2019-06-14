@@ -65,7 +65,7 @@ void ConsoleProcess::setSettings(QSettings *settings)
     d->m_settings = settings;
 }
 
-bool ConsoleProcess::start(const QString &program, const QString &args)
+bool ConsoleProcess::start(const QString &program, const QString &args, MetaCharMode metaCharMode)
 {
     if (isRunning())
         return false;
@@ -75,7 +75,8 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
 
     QtcProcess::SplitError perr;
     QtcProcess::Arguments pargs = QtcProcess::prepareArgs(args, &perr, HostOsInfo::hostOs(),
-                                                          &d->m_environment, &d->m_workingDir);
+                                                          &d->m_environment, &d->m_workingDir,
+                                                          metaCharMode == MetaCharMode::Abort);
     QString pcmd;
     if (perr == QtcProcess::SplitOk) {
         pcmd = program;

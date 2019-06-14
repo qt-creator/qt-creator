@@ -70,7 +70,9 @@ public:
     QProcess::ProcessError error() const;
     QString errorString() const;
 
-    bool start(const QString &program, const QString &args);
+    enum class MetaCharMode { Abort, Ignore };
+    bool start(const QString &program, const QString &args,
+               MetaCharMode metaCharMode = MetaCharMode::Ignore);
 public slots:
     void stop();
 

@@ -51,8 +51,10 @@ qint64 ConsoleProcess::applicationMainThreadID() const
     return d->m_appMainThreadId;
 }
 
-bool ConsoleProcess::start(const QString &program, const QString &args)
+bool ConsoleProcess::start(const QString &program, const QString &args, MetaCharMode metaCharMode)
 {
+    Q_UNUSED(metaCharMode);
+
     if (isRunning())
         return false;
 
