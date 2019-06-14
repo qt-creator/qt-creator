@@ -503,17 +503,17 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
         if (!NodeHints::fromItemLibraryEntry(itemLibraryEntry).canBeDroppedInNavigator())
             return;
 
-        const QmlItemNode newQmlItemNode = QmlItemNode::createQmlItemNode(m_view, itemLibraryEntry, QPointF(), targetProperty);
+        const QmlObjectNode newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty);
 
-        if (newQmlItemNode.isValid() && targetProperty.isNodeListProperty()) {
+        if (newQmlObjectNode.isValid() && targetProperty.isNodeListProperty()) {
             QList<ModelNode> newModelNodeList;
-            newModelNodeList.append(newQmlItemNode);
+            newModelNodeList.append(newQmlObjectNode);
 
             moveNodesInteractive(targetProperty, newModelNodeList, targetRowNumber);
         }
 
-        if (newQmlItemNode.isValid())
-            m_view->selectModelNode(newQmlItemNode.modelNode());
+        if (newQmlObjectNode.isValid())
+            m_view->selectModelNode(newQmlObjectNode.modelNode());
     }
 }
 

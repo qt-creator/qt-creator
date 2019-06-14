@@ -85,8 +85,15 @@ static QmlItemNode createQmlItemNodeFromSource(AbstractView *view, const QString
     return QmlItemNode();
 }
 
+QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view,
+                                           const ItemLibraryEntry &itemLibraryEntry,
+                                           const QPointF &position,
+                                           QmlItemNode parentQmlItemNode)
+{
+    return QmlItemNode(createQmlObjectNode(view, itemLibraryEntry, position, parentQmlItemNode));
+}
 
-QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentQmlItemNode)
+QmlObjectNode QmlItemNode::createQmlObjectNode(AbstractView *view, const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, QmlItemNode parentQmlItemNode)
 {
     if (!parentQmlItemNode.isValid())
         parentQmlItemNode = QmlItemNode(view->rootModelNode());
@@ -95,14 +102,14 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
 
     NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
 
-    return QmlItemNode::createQmlItemNode(view, itemLibraryEntry, position, parentProperty);
+    return QmlItemNode::createQmlObjectNode(view, itemLibraryEntry, position, parentProperty);
 }
 
-QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, NodeAbstractProperty parentproperty)
+QmlObjectNode QmlItemNode::createQmlObjectNode(AbstractView *view, const ItemLibraryEntry &itemLibraryEntry, const QPointF &position, NodeAbstractProperty parentproperty)
 {
-    QmlItemNode newQmlItemNode;
+    QmlObjectNode newQmlObjectNode;
 
-    view->executeInTransaction("QmlItemNode::createQmlItemNode", [=, &newQmlItemNode, &parentproperty](){
+    view->executeInTransaction("QmlItemNode::createQmlItemNode", [=, &newQmlObjectNode, &parentproperty](){
         NodeMetaInfo metaInfo = view->model()->metaInfo(itemLibraryEntry.typeName());
 
         int minorVersion = metaInfo.minorVersion();
@@ -128,31 +135,31 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
                 }
             }
 
-            newQmlItemNode = QmlItemNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
+            newQmlObjectNode = QmlItemNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
         } else {
-            newQmlItemNode = createQmlItemNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
+            newQmlObjectNode = createQmlItemNodeFromSource(view, itemLibraryEntry.qmlSource(), position);
         }
 
         if (parentproperty.isValid())
-            parentproperty.reparentHere(newQmlItemNode);
+            parentproperty.reparentHere(newQmlObjectNode);
 
-        if (!newQmlItemNode.isValid())
+        if (!newQmlObjectNode.isValid())
             return;
 
-        newQmlItemNode.setId(view->generateNewId(itemLibraryEntry.name()));
+        newQmlObjectNode.setId(view->generateNewId(itemLibraryEntry.name()));
 
         for (const auto &propertyBindingEntry : propertyBindingList)
-            newQmlItemNode.modelNode().bindingProperty(propertyBindingEntry.first).setExpression(propertyBindingEntry.second);
+            newQmlObjectNode.modelNode().bindingProperty(propertyBindingEntry.first).setExpression(propertyBindingEntry.second);
 
         for (const auto &propertyBindingEntry : propertyEnumList)
-            newQmlItemNode.modelNode().variantProperty(propertyBindingEntry.first).setEnumeration(propertyBindingEntry.second.toUtf8());
+            newQmlObjectNode.modelNode().variantProperty(propertyBindingEntry.first).setEnumeration(propertyBindingEntry.second.toUtf8());
 
-        Q_ASSERT(newQmlItemNode.isValid());
+        Q_ASSERT(newQmlObjectNode.isValid());
     });
 
-    Q_ASSERT(newQmlItemNode.isValid());
+    Q_ASSERT(newQmlObjectNode.isValid());
 
-    return newQmlItemNode;
+    return newQmlObjectNode;
 }
 
 QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QString &imageName, const QPointF &position, QmlItemNode parentQmlItemNode)
