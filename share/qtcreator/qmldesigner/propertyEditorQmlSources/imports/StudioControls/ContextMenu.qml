@@ -47,32 +47,32 @@ Menu {
     MenuSeparator {
     }
 
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Copy"
         enabled: myTextEdit.selectedText !== ""
         onTriggered: myTextEdit.copy()
         /* shortcut: StandardKey.Copy Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Cut"
         enabled: myTextEdit.selectedText !== "" && !myTextEdit.readOnly
         onTriggered: myTextEdit.cut()
         /* shortcut: StandardKey.Cut Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Paste"
         enabled: myTextEdit.canPaste
         onTriggered: myTextEdit.paste()
         /* shortcut: StandardKey.Paste Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Delete"
         enabled: myTextEdit.selectedText !== ""
         onTriggered: myTextEdit.remove(myTextEdit.selectionStart,
                                        myTextEdit.selectionEnd)
         /* shortcut: StandardKey.Delete Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Clear"
         enabled: myTextEdit.text !== ""
         onTriggered: myTextEdit.clear()
