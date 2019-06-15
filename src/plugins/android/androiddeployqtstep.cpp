@@ -234,15 +234,15 @@ bool AndroidDeployQtStep::init()
 
     if (m_useAndroiddeployqt) {
         const ProjectNode *node = target()->project()->findNodeForBuildKey(rc->buildKey());
+        if (!node)
+            return false;
         m_apkPath = Utils::FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
             m_manifestName = Utils::FilePath::fromString(node->data(Constants::AndroidManifest).toString());
             m_command = AndroidConfigurations::currentConfig().adbToolPath();
             AndroidManager::setManifestPath(target(), m_manifestName);
         } else {
-            QString jsonFile;
-            if (node)
-                jsonFile = node->data(Constants::AndroidDeploySettingsFile).toString();
+            QString jsonFile = node->data(Constants::AndroidDeploySettingsFile).toString();
             if (jsonFile.isEmpty()) {
                 emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
                 return false;
