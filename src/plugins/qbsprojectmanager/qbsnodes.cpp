@@ -403,9 +403,6 @@ QString QbsProductNode::buildKey() const
 
 QVariant QbsProductNode::data(Core::Id role) const
 {
-//    if (role == Android::Constants::AndroidExtraLibs)
-//        return value("ANDROID_EXTRA_LIBS");
-
     if (role == Android::Constants::AndroidDeploySettingsFile) {
         for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
             if (artifact.fileTags().contains("qt_androiddeployqt_input"))
@@ -419,11 +416,9 @@ QVariant QbsProductNode::data(Core::Id role) const
         for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
             if (artifact.fileTags().contains("dynamiclibrary")) {
                 ret << QFileInfo(artifact.filePath()).path();
-                qDebug() << artifact.properties().toString();
             }
         }
         ret.removeDuplicates();
-        qDebug() << ret;
         return ret;
     }
 
@@ -435,16 +430,8 @@ QVariant QbsProductNode::data(Core::Id role) const
         return {};
     }
 
-    if (role == Android::Constants::AndroidApk) {
-//        qDebug() << m_qbsProductData.name() << m_qbsProductData.targetExecutable() << m_qbsProductData.properties();
-//        for (const auto &artifact : m_qbsProductData.installableArtifacts()) {
-//            qDebug() << artifact.fileTags() << artifact.filePath();
-//        }
-//        for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
-//            qDebug() << artifact.fileTags() << artifact.filePath();
-//        }
+    if (role == Android::Constants::AndroidApk)
         return m_qbsProductData.targetExecutable();
-    }
 
     return {};
 }
