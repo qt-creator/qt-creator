@@ -317,8 +317,9 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     auto newRoot = generateProjectTree(m_allFiles);
     if (newRoot) {
-        setDisplayName(newRoot->displayName());
         setRootProjectNode(std::move(newRoot));
+        if (rootProjectNode())
+            setDisplayName(rootProjectNode()->displayName());
 
         for (const CMakeBuildTarget &bt : buildTargets) {
             const QString buildKey = CMakeTargetNode::generateId(bt.sourceDirectory, bt.title);
