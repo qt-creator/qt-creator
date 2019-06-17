@@ -298,8 +298,10 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 {
     d->m_isStandalone = flags & FlagsStandalone;
     if (d->m_isStandalone) {
-        connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-                this, &EditorToolBar::updateEditorListSelection);
+        connect(EditorManager::instance(),
+                &EditorManager::currentEditorChanged,
+                this,
+                &EditorToolBar::setCurrentEditor);
 
         disconnect(d->m_editorList, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
                    this, &EditorToolBar::listSelectionActivated);
@@ -328,15 +330,6 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
         updateToolBar(editor ? editor->toolBar() : nullptr);
 
     updateDocumentStatus(document);
-}
-
-void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
-{
-    if (newSelection) {
-        const Utils::optional<int> index = DocumentModel::rowOfDocument(newSelection->document());
-        if (QTC_GUARD(index))
-            d->m_editorList->setCurrentIndex(index.value());
-    }
 }
 
 void EditorToolBar::changeActiveEditor(int row)
