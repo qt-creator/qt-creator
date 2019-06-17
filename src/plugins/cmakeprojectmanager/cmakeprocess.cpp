@@ -139,9 +139,10 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     auto future = std::make_unique<QFutureInterface<void>>();
     future->setProgressRange(0, 1);
-    Core::ProgressManager::addTask(future->future(),
-                                   tr("Configuring \"%1\"").arg(parameters.projectName),
-                                   "CMake.Configure");
+    Core::ProgressManager::addTimedTask(*future.get(),
+                                        tr("Configuring \"%1\"").arg(parameters.projectName),
+                                        "CMake.Configure",
+                                        10);
 
     process->setCommand(commandLine);
     emit started();
