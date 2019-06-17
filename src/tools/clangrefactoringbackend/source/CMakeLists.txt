@@ -6,7 +6,7 @@ add_qtc_library(clangrefactoringbackend_lib STATIC
     clangHandleCXX clangIndex clangLex
     clangSerialization clangTooling clangQuery
     ClangSupport
-  DEFINES CLANGSUPPORT_BUILD_LIB
+  PUBLIC_DEFINES CLANGSUPPORT_BUILD_LIB
   PUBLIC_INCLUDES
     ${CLANG_INCLUDE_DIRS}
     "../../clangpchmanagerbackend/source"
