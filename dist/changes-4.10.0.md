@@ -22,7 +22,7 @@ you can check out from the public Git repository. For example:
 * Added support for `workspace/workspaceFolders` server request
 * Added Locator filter for current document (`.`)
 * Added Locator filters for symbols in workspace (`:`, `c`, and `m`) (QTCREATORBUG-21915)
-* Added hover information
+* Added support for showing tooltip information from server
 * Made client settings expand variables for executable and arguments
 * Improved completion item tooltip (QTCREATORBUG-22429)
 
