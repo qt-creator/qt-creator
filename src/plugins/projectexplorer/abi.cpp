@@ -360,9 +360,11 @@ static Abis abiOf(const QByteArray &data)
         case 3: // EM_386
             result.append(Abi(Abi::X86Architecture, os, flavor, Abi::ElfFormat, 32));
             break;
-        case 8: // EM_MIPS
-            result.append(Abi(Abi::MipsArchitecture, os, flavor, Abi::ElfFormat, 32));
+        case 8: { // EM_MIPS
+            const int width = getUint8(data, 4) == 2 ? 64 : 32;
+            result.append(Abi(Abi::MipsArchitecture, os, flavor, Abi::ElfFormat, width));
             break;
+        }
         case 20: // EM_PPC
             result.append(Abi(Abi::PowerPCArchitecture, os, flavor, Abi::ElfFormat, 32));
             break;
