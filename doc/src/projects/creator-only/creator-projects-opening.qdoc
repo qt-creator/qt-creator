@@ -59,8 +59,8 @@
     \uicontrol Options > \uicontrol Kits.
 
     Qt for Python projects rely on the \l{Using Language Servers}
-    {experimental language server client} for code completion,
-    highlighting, and other useful features.
+    {language server client} for code completion, highlighting, and
+    other useful features.
 
     If \QC cannot find an existing build for a particular \l{glossary-buildandrun-kit}{kit},
     it starts out
