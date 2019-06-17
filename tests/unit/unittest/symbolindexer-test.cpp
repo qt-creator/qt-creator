@@ -1667,6 +1667,15 @@ TEST_F(SymbolIndexer, PathsChangedUpdatesFileStatusCache)
     ASSERT_THAT(fileStatusCache.lastModifiedTime(sourceId), 65);
 }
 
+TEST_F(SymbolIndexer, PathsChangedCallsModifiedTimeChecker)
+{
+    auto sourceId = filePathId(TESTDATA_DIR "/symbolindexer_pathChanged.cpp");
+
+    EXPECT_CALL(mockModifiedTimeChecker, pathsChanged(ElementsAre(sourceId)));
+
+    indexer.pathsChanged({sourceId});
+}
+
 TEST_F(SymbolIndexer, GetUpdatableFilePathIdsIfCompilerMacrosAreDifferent)
 {
     ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<ProjectPartId>()))

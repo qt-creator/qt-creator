@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "clangpathwatcher.h"
 #include "filepathcachinginterface.h"
 #include "modifiedtimecheckerinterface.h"
 
@@ -54,7 +55,7 @@ public:
         return compareEntries(sourceEntries);
     }
 
-    void pathsChanged(const FilePathIds &filePathIds)
+    void pathsChanged(const FilePathIds &filePathIds) override
     {
         using SourceTimeStampReferences = std::vector<std::reference_wrapper<SourceTimeStamp>>;
 

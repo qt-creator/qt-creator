@@ -35,6 +35,7 @@ class MockSourceEntriesModifiedTimeChecker
 public:
     MOCK_CONST_METHOD1(isUpToDate,
                        bool (const ClangBackEnd::SourceEntries &sourceEntries));
+    MOCK_METHOD1(pathsChanged, void(const ClangBackEnd::FilePathIds &filePathIds));
 };
 
 class MockSourceTimeStampsModifiedTimeChecker
@@ -42,4 +43,5 @@ class MockSourceTimeStampsModifiedTimeChecker
 {
 public:
     MOCK_CONST_METHOD1(isUpToDate, bool(const ClangBackEnd::SourceTimeStamps &sourceTimeStamps));
+    MOCK_METHOD1(pathsChanged, void(const ClangBackEnd::FilePathIds &filePathIds));
 };
