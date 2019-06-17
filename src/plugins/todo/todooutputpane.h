@@ -80,8 +80,8 @@ private:
     void scopeButtonClicked(QAbstractButton *button);
     void todoTreeViewClicked(const QModelIndex &index);
     void updateTodoCount();
-    void updateFilter();
-    void clearFilter();
+    void updateKeywordFilter();
+    void clearKeywordFilter();
 
     void createTreeView();
     void freeTreeView();
