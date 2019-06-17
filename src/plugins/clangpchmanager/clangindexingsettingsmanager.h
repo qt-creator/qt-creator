@@ -44,6 +44,9 @@ public:
     ClangIndexingSettingsManager();
     ~ClangIndexingSettingsManager();
 
+    ClangIndexingSettingsManager(const ClangIndexingSettingsManager &) = delete;
+    ClangIndexingSettingsManager &operator=(const ClangIndexingSettingsManager &) = delete;
+
     ClangIndexingProjectSettings *settings(ProjectExplorer::Project *project);
     void remove(ProjectExplorer::Project *project);
 
