@@ -2006,13 +2006,6 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
     return results;
 }
 
-ToolChain *ClangClToolChainFactory::create()
-{
-    auto tc = new ClangClToolChain;
-    tc->setupVarsBat(Abi(), "", "");
-    return tc;
-}
-
 bool MsvcToolChain::operator==(const ToolChain &other) const
 {
     if (!ToolChain::operator==(other))
