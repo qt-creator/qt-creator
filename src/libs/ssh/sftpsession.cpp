@@ -83,6 +83,8 @@ struct SftpSession::SftpSessionPrivate
 
     SftpJobId queueCommand(CommandType command, const QStringList &paths)
     {
+        qCDebug(sshLog) << "queueing command" << int(command) << paths;
+
         const SftpJobId jobId = nextJobId++;
         pendingCommands.enqueue(Command(command, paths, jobId));
         runNextCommand();
@@ -111,6 +113,7 @@ SftpSession::SftpSession(const QStringList &connectionArgs) : d(new SftpSessionP
 {
     d->connectionArgs = connectionArgs;
     connect(&d->sftpProc, &QProcess::started, [this] {
+        qCDebug(sshLog) << "sftp process started";
         d->sftpProc.write("\n"); // Force initial prompt.
     });
     connect(&d->sftpProc, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
@@ -120,6 +123,8 @@ SftpSession::SftpSession(const QStringList &connectionArgs) : d(new SftpSessionP
         }
     });
     connect(&d->sftpProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this] {
+        qCDebug(sshLog) << "sftp process finished";
+
         d->state = State::Inactive;
         if (d->sftpProc.exitStatus() != QProcess::NormalExit) {
             emit done(tr("sftp crashed."));
@@ -269,6 +274,8 @@ void SftpSession::start()
 
 void SftpSession::quit()
 {
+    qCDebug(sshLog) << "quitting sftp session, current state is" << int(state());
+
     switch (state()) {
     case State::Starting:
     case State::Closing:
