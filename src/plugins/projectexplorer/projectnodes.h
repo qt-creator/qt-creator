@@ -84,6 +84,8 @@ enum ProjectAction {
     HideFolderActions,
 };
 
+enum class RemovedFilesFromProject { Ok, Wildcard, Error };
+
 class FileNode;
 class FolderNode;
 class ProjectNode;
@@ -262,7 +264,8 @@ public:
     bool supportsAction(ProjectAction action, const Node *node) const override;
 
     virtual bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr);
-    virtual bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr);
+    virtual RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+                                                QStringList *notRemoved = nullptr);
     virtual bool deleteFiles(const QStringList &filePaths);
     virtual bool canRenameFile(const QString &filePath, const QString &newFilePath);
     virtual bool renameFile(const QString &filePath, const QString &newFilePath);
@@ -338,7 +341,8 @@ public:
     bool showInSimpleTree() const override { return true; }
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
+    RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+                                        QStringList *notRemoved = nullptr) override;
     bool deleteFiles(const QStringList &filePaths) override;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;

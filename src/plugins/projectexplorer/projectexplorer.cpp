@@ -3642,7 +3642,12 @@ void ProjectExplorerPluginPrivate::removeFile()
         FolderNode *folderNode = currentNode->asFileNode()->parentFolderNode();
         QTC_ASSERT(folderNode, return);
 
-        if (!folderNode->removeFiles(QStringList(filePath.toString()))) {
+        const RemovedFilesFromProject status
+                = folderNode->removeFiles(QStringList(filePath.toString()));
+        const bool success = status == RemovedFilesFromProject::Ok
+                || (status == RemovedFilesFromProject::Wildcard
+                    && removeFileDialog.isDeleteFileChecked());
+        if (!success) {
             QMessageBox::warning(ICore::mainWindow(), tr("Removing File Failed"),
                                  tr("Could not remove file %1 from project %2.")
                                  .arg(filePath.toUserOutput())

@@ -276,7 +276,8 @@ bool QbsGroupNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
                                                  m_qbsGroupData, notAdded);
 }
 
-bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+RemovedFilesFromProject QbsGroupNode::removeFiles(const QStringList &filePaths,
+                                                  QStringList *notRemoved)
 {
     QStringList notRemovedDummy;
     if (!notRemoved)
@@ -285,13 +286,13 @@ bool QbsGroupNode::removeFiles(const QStringList &filePaths, QStringList *notRem
     const QbsProjectNode *prjNode = parentQbsProjectNode(this);
     if (!prjNode || !prjNode->qbsProject().isValid()) {
         *notRemoved += filePaths;
-        return false;
+        return RemovedFilesFromProject::Error;
     }
 
     const QbsProductNode *prdNode = parentQbsProductNode(this);
     if (!prdNode || !prdNode->qbsProductData().isValid()) {
         *notRemoved += filePaths;
-        return false;
+        return RemovedFilesFromProject::Error;
     }
 
     return prjNode->project()->removeFilesFromProduct(filePaths, prdNode->qbsProductData(),
@@ -361,7 +362,8 @@ bool QbsProductNode::addFiles(const QStringList &filePaths, QStringList *notAdde
     QTC_ASSERT(false, return false);
 }
 
-bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+RemovedFilesFromProject QbsProductNode::removeFiles(const QStringList &filePaths,
+                                                    QStringList *notRemoved)
 {
     QStringList notRemovedDummy;
     if (!notRemoved)
@@ -370,7 +372,7 @@ bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notR
     const QbsProjectNode *prjNode = parentQbsProjectNode(this);
     if (!prjNode || !prjNode->qbsProject().isValid()) {
         *notRemoved += filePaths;
-        return false;
+        return RemovedFilesFromProject::Error;
     }
 
     qbs::GroupData grp = findMainQbsGroup(m_qbsProductData);
@@ -379,7 +381,7 @@ bool QbsProductNode::removeFiles(const QStringList &filePaths, QStringList *notR
                                                           notRemoved);
     }
 
-    QTC_ASSERT(false, return false);
+    QTC_ASSERT(false, return RemovedFilesFromProject::Error);
 }
 
 bool QbsProductNode::renameFile(const QString &filePath, const QString &newFilePath)

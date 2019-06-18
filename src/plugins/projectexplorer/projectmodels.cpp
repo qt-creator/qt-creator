@@ -685,7 +685,10 @@ bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int r
             if (vcsAddPossible && !targetVcs.vcs->vcsAdd(targetFile))
                 failedVcsOp << targetFile;
         }
-        sourceProjectNode->removeFiles(filesToRemove, &failedRemoveFromProject);
+        const RemovedFilesFromProject result
+                = sourceProjectNode->removeFiles(filesToRemove, &failedRemoveFromProject);
+        if (result == RemovedFilesFromProject::Wildcard)
+            failedRemoveFromProject.clear();
         targetProjectNode->addFiles(filesToAdd, &failedAddToProject);
         break;
     }

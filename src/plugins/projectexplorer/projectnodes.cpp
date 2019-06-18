@@ -705,12 +705,12 @@ bool FolderNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
     return false;
 }
 
-bool FolderNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+RemovedFilesFromProject FolderNode::removeFiles(const QStringList &filePaths,
+                                                QStringList *notRemoved)
 {
-    ProjectNode *pn = managingProject();
-    if (pn)
+    if (ProjectNode * const pn = managingProject())
         return pn->removeFiles(filePaths, notRemoved);
-    return false;
+    return RemovedFilesFromProject::Error;
 }
 
 bool FolderNode::deleteFiles(const QStringList &filePaths)
@@ -848,11 +848,12 @@ bool ProjectNode::addFiles(const QStringList &filePaths, QStringList *notAdded)
     return false;
 }
 
-bool ProjectNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+RemovedFilesFromProject ProjectNode::removeFiles(const QStringList &filePaths,
+                                                 QStringList *notRemoved)
 {
     Q_UNUSED(filePaths)
     Q_UNUSED(notRemoved)
-    return false;
+    return RemovedFilesFromProject::Error;
 }
 
 bool ProjectNode::deleteFiles(const QStringList &filePaths)

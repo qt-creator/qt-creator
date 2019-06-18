@@ -40,7 +40,8 @@ public:
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+                                                         QStringList *) override;
     bool deleteFiles(const QStringList &) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 

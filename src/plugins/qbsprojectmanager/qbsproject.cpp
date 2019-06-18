@@ -296,31 +296,50 @@ bool QbsProject::addFilesToProduct(const QStringList &filePaths,
     return notAdded->isEmpty();
 }
 
-bool QbsProject::removeFilesFromProduct(const QStringList &filePaths,
-                                        const qbs::ProductData productData,
-                                        const qbs::GroupData groupData,
-                                        QStringList *notRemoved)
+RemovedFilesFromProject QbsProject::removeFilesFromProduct(const QStringList &filePaths,
+                                                           const qbs::ProductData &productData,
+                                                           const qbs::GroupData &groupData,
+                                                           QStringList *notRemoved)
 {
-    QTC_ASSERT(m_qbsProject.isValid(), return false);
-    QStringList allPaths = groupData.allFilePaths();
+    QTC_ASSERT(m_qbsProject.isValid(), return RemovedFilesFromProject::Error);
+
+    const QList<qbs::ArtifactData> allWildcardsInGroup = groupData.sourceArtifactsFromWildcards();
+    QStringList wildcardFiles;
+    QStringList nonWildcardFiles;
+    for (const QString &filePath : filePaths) {
+        if (contains(allWildcardsInGroup, [filePath](const qbs::ArtifactData &artifact) {
+                     return artifact.filePath() == filePath; })) {
+            wildcardFiles << filePath;
+        } else {
+            nonWildcardFiles << filePath;
+        }
+    }
     const QString productFilePath = productData.location().filePath();
     ChangeExpector expector(productFilePath, m_qbsDocuments);
     ensureWriteableQbsFile(productFilePath);
-    foreach (const QString &path, filePaths) {
-        qbs::ErrorInfo err
-                = m_qbsProject.removeFiles(productData, groupData, QStringList() << path);
+    for (const QString &path : qAsConst(nonWildcardFiles)) {
+        const qbs::ErrorInfo err = m_qbsProject.removeFiles(productData, groupData, {path});
         if (err.hasError()) {
             MessageManager::write(err.toString());
             *notRemoved += path;
-        } else {
-            allPaths.removeOne(path);
         }
     }
+
     if (notRemoved->count() != filePaths.count()) {
         m_projectData = m_qbsProject.projectData();
         delayedUpdateAfterParse();
     }
-    return notRemoved->isEmpty();
+
+    const bool success = notRemoved->isEmpty();
+    if (!wildcardFiles.isEmpty()) {
+        *notRemoved += wildcardFiles;
+        delayParsing();
+    }
+    if (!success)
+        return RemovedFilesFromProject::Error;
+    if (!wildcardFiles.isEmpty())
+        return RemovedFilesFromProject::Wildcard;
+    return RemovedFilesFromProject::Ok;
 }
 
 bool QbsProject::renameFileInProduct(const QString &oldPath, const QString &newPath,
@@ -330,8 +349,10 @@ bool QbsProject::renameFileInProduct(const QString &oldPath, const QString &newP
     if (newPath.isEmpty())
         return false;
     QStringList dummy;
-    if (!removeFilesFromProduct(QStringList(oldPath), productData, groupData, &dummy))
+    if (removeFilesFromProduct(QStringList(oldPath), productData, groupData, &dummy)
+            != RemovedFilesFromProject::Ok) {
         return false;
+    }
     qbs::ProductData newProductData;
     foreach (const qbs::ProductData &p, m_projectData.allProducts()) {
         if (uniqueProductName(p) == uniqueProductName(productData)) {

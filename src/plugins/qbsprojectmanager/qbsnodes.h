@@ -47,7 +47,8 @@ public:
     bool showInSimpleTree() const final { return false; }
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+            QStringList *notRemoved = nullptr) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 
 private:
@@ -68,7 +69,8 @@ public:
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded = nullptr) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved = nullptr) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+            QStringList *notRemoved = nullptr) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
     void build() override;
     QStringList targetApplications() const override;

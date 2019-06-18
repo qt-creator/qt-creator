@@ -43,7 +43,8 @@ public:
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+                                                        QStringList *notRemoved) override;
 
     bool addPrefix(const QString &prefix, const QString &lang);
     bool removePrefix(const QString &prefix, const QString &lang);
@@ -70,7 +71,8 @@ public:
     QString displayName() const override;
 
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) override;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) override;
+    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+                                                         QStringList *notRemoved) override;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
 

@@ -162,7 +162,8 @@ public:
 
     bool supportsAction(ProjectAction, const Node *node) const final;
     bool addFiles(const QStringList &filePaths, QStringList *notAdded) final;
-    bool removeFiles(const QStringList &filePaths, QStringList *notRemoved) final;
+    RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+                                        QStringList *notRemoved) final;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) final;
 
@@ -206,7 +207,8 @@ bool SimpleResourceFolderNode::addFiles(const QStringList &filePaths, QStringLis
     return addFilesToResource(m_topLevelNode->filePath(), filePaths, notAdded, m_prefix, m_lang);
 }
 
-bool SimpleResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+RemovedFilesFromProject SimpleResourceFolderNode::removeFiles(const QStringList &filePaths,
+                                                              QStringList *notRemoved)
 {
     return prefixNode()->removeFiles(filePaths, notRemoved);
 }
@@ -373,7 +375,8 @@ bool ResourceTopLevelNode::addFiles(const QStringList &filePaths, QStringList *n
     return addFilesToResource(filePath(), filePaths, notAdded, QLatin1String("/"), QString());
 }
 
-bool ResourceTopLevelNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+RemovedFilesFromProject ResourceTopLevelNode::removeFiles(const QStringList &filePaths,
+                                                           QStringList *notRemoved)
 {
     return parentFolderNode()->removeFiles(filePaths, notRemoved);
 }
@@ -495,16 +498,17 @@ bool ResourceFolderNode::addFiles(const QStringList &filePaths, QStringList *not
     return addFilesToResource(m_topLevelNode->filePath(), filePaths, notAdded, m_prefix, m_lang);
 }
 
-bool ResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+RemovedFilesFromProject ResourceFolderNode::removeFiles(const QStringList &filePaths,
+                                                        QStringList *notRemoved)
 {
     if (notRemoved)
         *notRemoved = filePaths;
     ResourceFile file(m_topLevelNode->filePath().toString());
     if (file.load() != IDocument::OpenResult::Success)
-        return false;
+        return RemovedFilesFromProject::Error;
     int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)
-        return false;
+        return RemovedFilesFromProject::Error;
     for (int j = 0; j < file.fileCount(index); ++j) {
         QString fileName = file.file(index, j);
         if (!filePaths.contains(fileName))
@@ -517,7 +521,7 @@ bool ResourceFolderNode::removeFiles(const QStringList &filePaths, QStringList *
     FileChangeBlocker changeGuard(m_topLevelNode->filePath().toString());
     file.save();
 
-    return true;
+    return RemovedFilesFromProject::Ok;
 }
 
 // QTCREATORBUG-15280

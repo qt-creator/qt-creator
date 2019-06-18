@@ -143,9 +143,11 @@ public:
         return m_project->addFiles(filePaths);
     }
 
-    bool removeFiles(const QStringList &filePaths, QStringList * = nullptr) override
+    RemovedFilesFromProject removeFiles(const QStringList &filePaths,
+                                        QStringList * = nullptr) override
     {
-        return m_project->removeFiles(filePaths);
+        return m_project->removeFiles(filePaths) ? RemovedFilesFromProject::Ok
+                                                 : RemovedFilesFromProject::Error;
     }
 
     bool renameFile(const QString &filePath, const QString &newFilePath) override

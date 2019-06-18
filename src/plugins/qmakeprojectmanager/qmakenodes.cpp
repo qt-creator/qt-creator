@@ -195,10 +195,28 @@ bool QmakePriFileNode::addFiles(const QStringList &filePaths, QStringList *notAd
     return pri->addFiles(actualFilePaths, notAdded);
 }
 
-bool QmakePriFileNode::removeFiles(const QStringList &filePaths, QStringList *notRemoved)
+RemovedFilesFromProject QmakePriFileNode::removeFiles(const QStringList &filePaths,
+                                                      QStringList *notRemoved)
 {
-    QmakePriFile *pri = priFile();
-    return pri ? pri->removeFiles(filePaths, notRemoved) : false;
+    QmakePriFile * const pri = priFile();
+    if (!pri)
+        return RemovedFilesFromProject::Error;
+    QStringList wildcardFiles;
+    QStringList nonWildcardFiles;
+    for (const QString &file : filePaths) {
+        if (pri->proFile()->isFileFromWildcard(file))
+            wildcardFiles << file;
+        else
+            nonWildcardFiles << file;
+    }
+    const bool success = pri->removeFiles(nonWildcardFiles, notRemoved);
+    if (notRemoved)
+        *notRemoved += wildcardFiles;
+    if (!success)
+        return RemovedFilesFromProject::Error;
+    if (!wildcardFiles.isEmpty())
+        return RemovedFilesFromProject::Wildcard;
+    return RemovedFilesFromProject::Ok;
 }
 
 bool QmakePriFileNode::deleteFiles(const QStringList &filePaths)

@@ -67,8 +67,8 @@ public:
     // for shared data.
     bool addFilesToProduct(const QStringList &filePaths, const qbs::ProductData productData,
                            const qbs::GroupData groupData, QStringList *notAdded);
-    bool removeFilesFromProduct(const QStringList &filePaths,
-            const qbs::ProductData productData, const qbs::GroupData groupData,
+    ProjectExplorer::RemovedFilesFromProject removeFilesFromProduct(const QStringList &filePaths,
+            const qbs::ProductData &productData, const qbs::GroupData &groupData,
             QStringList *notRemoved);
     bool renameFileInProduct(const QString &oldPath,
             const QString &newPath, const qbs::ProductData productData,

@@ -56,9 +56,11 @@ bool NimProjectNode::addFiles(const QStringList &filePaths, QStringList *)
     return m_project.addFiles(filePaths);
 }
 
-bool NimProjectNode::removeFiles(const QStringList &filePaths, QStringList *)
+RemovedFilesFromProject NimProjectNode::removeFiles(const QStringList &filePaths,
+                                                    QStringList *)
 {
-    return m_project.removeFiles(filePaths);
+    return m_project.removeFiles(filePaths) ? RemovedFilesFromProject::Ok
+                                            : RemovedFilesFromProject::Error;
 }
 
 bool NimProjectNode::deleteFiles(const QStringList &)
