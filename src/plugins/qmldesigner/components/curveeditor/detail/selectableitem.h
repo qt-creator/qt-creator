@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of the Qt Design Tooling
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -25,11 +25,61 @@
 
 #pragma once
 
-namespace QmlDesignerExtension {
-namespace Constants {
+#include <QGraphicsObject>
 
-const char ACTION_ID[] = "QmlDesignerExtension.Action";
-const char MENU_ID[] = "QmlDesignerExtension.Menu";
+namespace DesignTools {
 
-} // namespace QmlDesignerExtension
-} // namespace Constants
+enum ItemType
+{
+    ItemTypeKeyframe = QGraphicsItem::UserType + 1,
+    ItemTypeHandle = QGraphicsItem::UserType + 2,
+    ItemTypeCurve = QGraphicsItem::UserType + 3
+};
+
+enum class SelectionMode : unsigned int
+{
+    Undefined,
+    Clear,
+    New,
+    Add,
+    Remove,
+    Toggle
+};
+
+class SelectableItem : public QGraphicsObject
+{
+    Q_OBJECT
+
+public:
+    SelectableItem(QGraphicsItem *parent = nullptr);
+
+    ~SelectableItem() override;
+
+    bool activated() const;
+
+    bool selected() const;
+
+    void setActivated(bool active);
+
+    void setPreselected(SelectionMode mode);
+
+    void applyPreselection();
+
+protected:
+    virtual void selectionCallback();
+
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+
+private:
+    bool m_active;
+
+    bool m_selected;
+
+    SelectionMode m_preSelected;
+};
+
+} // End namespace DesignTools.

@@ -25,7 +25,7 @@ add_qtc_plugin(QmlDesigner
     switchsplittabwidget.cpp switchsplittabwidget.h
   EXPLICIT_MOC
     components/propertyeditor/propertyeditorvalue.h
-    qmldesignerextension/connectioneditor/connectionviewwidget.h
+    components/connectioneditor/connectionviewwidget.h
   SKIP_DEBUG_CMAKE_FILE_CHECK
 )
 
@@ -499,12 +499,12 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX qmldesignerextension/colortool
+  SOURCES_PREFIX components/colortool
   SOURCES colortool.cpp colortool.h
 )
 
 extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX qmldesignerextension/connectioneditor
+  SOURCES_PREFIX components/connectioneditor
   SOURCES
     addnewbackenddialog.cpp addnewbackenddialog.h addnewbackenddialog.ui
     backendmodel.cpp backendmodel.h
@@ -518,7 +518,7 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX qmldesignerextension
+  SOURCES_PREFIX components
   SOURCES
     pathtool/controlpoint.cpp pathtool/controlpoint.h
     pathtool/cubicsegment.cpp pathtool/cubicsegment.h
@@ -526,9 +526,6 @@ extend_qtc_plugin(QmlDesigner
     pathtool/pathselectionmanipulator.cpp pathtool/pathselectionmanipulator.h
     pathtool/pathtool.cpp pathtool/pathtool.h
     pathtool/pathtoolview.cpp pathtool/pathtoolview.h
-
-    qmldesignerextensionconstants.h
-    qmldesignerextension_global.h
 
     sourcetool/sourcetool.cpp sourcetool/sourcetool.h
 
@@ -538,7 +535,7 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX qmldesignerextension/timelineeditor
+  SOURCES_PREFIX components/timelineeditor
   SOURCES
     canvas.cpp canvas.h
     canvasstyledialog.cpp canvasstyledialog.h
@@ -574,6 +571,33 @@ extend_qtc_plugin(QmlDesigner
     timelineutils.cpp timelineutils.h
     timelineview.cpp timelineview.h
     timelinewidget.cpp timelinewidget.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/curveeditor
+  SOURCES
+    animationcurve.cpp animationcurve.h
+    curveeditor.cpp curveeditor.h
+    curveeditormodel.cpp curveeditormodel.h
+    curveeditorstyle.h
+    keyframe.cpp keyframe.h
+    treeitem.cpp treeitem.h
+    detail/colorcontrol.cpp detail/colorcontrol.h
+    detail/curveeditorstyledialog.cpp detail/curveeditorstyledialog.h
+    detail/curveitem.cpp detail/curveitem.h
+    detail/curvesegment.cpp detail/curvesegment.h
+    detail/graphicsscene.cpp detail/graphicsscene.h
+    detail/graphicsview.cpp detail/graphicsview.h
+    detail/handleitem.cpp detail/handleitem.h
+    detail/keyframeitem.cpp detail/keyframeitem.h
+    detail/playhead.cpp detail/playhead.h
+    detail/selectableitem.cpp detail/selectableitem.h
+    detail/selector.cpp detail/selector.h
+    detail/shortcut.cpp detail/shortcut.h
+    detail/treeitemdelegate.cpp detail/treeitemdelegate.h
+    detail/treemodel.cpp detail/treemodel.h
+    detail/treeview.cpp detail/treeview.h
+    detail/utils.cpp detail/utils.h
 )
 
 # Do the file comparison at the end, due to all the extend_qtc_plugin calls

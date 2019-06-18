@@ -29,7 +29,7 @@ Project {
 
         cpp.defines: base.concat([
             "DESIGNER_CORE_LIBRARY",
-            "TIMELINE_QML_PATH=\"" + FileInfo.joinPaths(path, "qmldesignerextension",
+            "TIMELINE_QML_PATH=\"" + FileInfo.joinPaths(path, "components",
                                                         "timelineeditor", "qml") + "\""
         ])
         cpp.enableExceptions: true
@@ -42,7 +42,10 @@ Project {
              "../../../share/qtcreator/qml/qmlpuppet/container",
              "../../../share/qtcreator/qml/qmlpuppet/commands",
              "../../../share/qtcreator/qml/qmlpuppet/types",
+             "components",
              "components/componentcore",
+             "components/curveeditor",
+             "components/connectioneditor",
              "components/debugview",
              "components/importmanager",
              "components/integration",
@@ -52,10 +55,7 @@ Project {
              "components/navigator",
              "components/pluginmanager",
              "components/stateseditor",
-             "components/texteditor",
-             "qmldesignerextension",
-             "qmldesignerextension/connectioneditor",
-             "qmldesignerextension/timelineeditor",
+             "components/texteditor"
         ])
 
         Properties {
@@ -608,7 +608,7 @@ Project {
 
         Group {
             name: "extension"
-            prefix: "qmldesignerextension/"
+            prefix: "components/"
             files: [
                 "colortool/colortool.cpp",
                 "colortool/colortool.h",
@@ -632,6 +632,49 @@ Project {
                 "connectioneditor/dynamicpropertiesmodel.cpp",
                 "connectioneditor/dynamicpropertiesmodel.h",
                 "connectioneditor/stylesheet.css",
+                "curveeditor/animationcurve.cpp",
+                "curveeditor/animationcurve.h",
+                "curveeditor/curveeditor.cpp",
+                "curveeditor/curveeditor.h",
+                "curveeditor/curveeditormodel.cpp",
+                "curveeditor/curveeditormodel.h",
+                "curveeditor/curveeditorstyle.h",
+                "curveeditor/keyframe.cpp",
+                "curveeditor/keyframe.h",
+                "curveeditor/treeitem.cpp",
+                "curveeditor/treeitem.h",
+                "curveeditor/detail/colorcontrol.cpp",
+                "curveeditor/detail/colorcontrol.h",
+                "curveeditor/detail/curveeditorstyledialog.cpp",
+                "curveeditor/detail/curveeditorstyledialog.h",
+                "curveeditor/detail/curveitem.cpp",
+                "curveeditor/detail/curveitem.h",
+                "curveeditor/detail/curvesegment.cpp",
+                "curveeditor/detail/curvesegment.h",
+                "curveeditor/detail/graphicsscene.cpp",
+                "curveeditor/detail/graphicsscene.h",
+                "curveeditor/detail/graphicsview.cpp",
+                "curveeditor/detail/graphicsview.h",
+                "curveeditor/detail/handleitem.cpp",
+                "curveeditor/detail/handleitem.h",
+                "curveeditor/detail/keyframeitem.cpp",
+                "curveeditor/detail/keyframeitem.h",
+                "curveeditor/detail/playhead.cpp",
+                "curveeditor/detail/playhead.h",
+                "curveeditor/detail/selectableitem.cpp",
+                "curveeditor/detail/selectableitem.h",
+                "curveeditor/detail/selector.cpp",
+                "curveeditor/detail/selector.h",
+                "curveeditor/detail/shortcut.cpp",
+                "curveeditor/detail/shortcut.h",
+                "curveeditor/detail/treeitemdelegate.cpp",
+                "curveeditor/detail/treeitemdelegate.h",
+                "curveeditor/detail/treemodel.cpp",
+                "curveeditor/detail/treemodel.h",
+                "curveeditor/detail/treeview.cpp",
+                "curveeditor/detail/treeview.h",
+                "curveeditor/detail/utils.cpp",
+                "curveeditor/detail/utils.h",
                 "pathtool/controlpoint.cpp",
                 "pathtool/controlpoint.h",
                 "pathtool/cubicsegment.cpp",
@@ -644,8 +687,6 @@ Project {
                 "pathtool/pathtool.h",
                 "pathtool/pathtoolview.cpp",
                 "pathtool/pathtoolview.h",
-                "qmldesignerextensionconstants.h",
-                "qmldesignerextension_global.h",
                 "sourcetool/sourcetool.cpp",
                 "sourcetool/sourcetool.h",
                 "texttool/textedititem.cpp",
