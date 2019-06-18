@@ -105,7 +105,6 @@ private:
     void updateActionShortcuts();
 
     void updateDocumentStatus(IDocument *document);
-    void updateEditorListSelection(IEditor *newSelection);
     void fillListContextMenu(QMenu *menu);
     void updateToolBar(QWidget *toolBar);
 

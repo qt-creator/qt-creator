@@ -203,8 +203,8 @@ TEST_F(PchCreatorVerySlowTest, ProjectPartPchsSendToPchManagerClient)
 
     EXPECT_CALL(mockPchManagerClient,
                 precompiledHeadersUpdated(
-                    Field(&ClangBackEnd::PrecompiledHeadersUpdatedMessage::projectPartPchs,
-                          ElementsAre(Eq(creator.projectPartPch())))));
+                    Field(&ClangBackEnd::PrecompiledHeadersUpdatedMessage::projectPartIds,
+                          ElementsAre(Eq(creator.projectPartPch().projectPartId)))));
 
     creator.doInMainThreadAfterFinished();
 }
@@ -313,6 +313,36 @@ TEST_F(PchCreatorVerySlowTest, FaultyProjectPartPchForCreatesFaultyPchForPchTask
                 AllOf(Field(&ProjectPartPch::projectPartId, Eq(0)),
                       Field(&ProjectPartPch::pchPath, IsEmpty()),
                       Field(&ProjectPartPch::lastModified, Gt(0))));
+}
+
+TEST_F(PchCreatorSlowTest, NoIncludes)
+{
+    pchTask1.includes = {};
+
+    creator.generatePch(std::move(pchTask1));
+
+    ASSERT_THAT(creator.projectPartPch(),
+                AllOf(Field(&ProjectPartPch::projectPartId, Eq(pchTask1.projectPartId())),
+                      Field(&ProjectPartPch::pchPath, IsEmpty()),
+                      Field(&ProjectPartPch::lastModified, Gt(0))));
+}
+
+TEST_F(PchCreatorSlowTest, NoIncludesInTheMainThreadCalls)
+{
+    pchTask1.includes = {};
+    creator.generatePch(std::move(pchTask1));
+
+    EXPECT_CALL(mockPchManagerClient,
+                precompiledHeadersUpdated(
+                    Field(&ClangBackEnd::PrecompiledHeadersUpdatedMessage::projectPartIds,
+                          ElementsAre(Eq(creator.projectPartPch().projectPartId)))));
+    EXPECT_CALL(mockClangPathWatcher,
+                updateIdPaths(
+                    ElementsAre(AllOf(Field(&ClangBackEnd::IdPaths::id, 1),
+                                      Field(&ClangBackEnd::IdPaths::filePathIds, IsEmpty())))));
+    EXPECT_CALL(mockBuildDependenciesStorage, updatePchCreationTimeStamp(Gt(0), Eq(1)));
+
+    creator.doInMainThreadAfterFinished();
 }
 
 TEST_F(PchCreatorVerySlowTest, GeneratedFile)

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "sqlitedatabasebackend.h"
+#include "sqlitedatabaseinterface.h"
 #include "sqliteglobal.h"
 #include "sqlitetable.h"
 #include "sqlitetransaction.h"
@@ -43,7 +44,7 @@ using namespace std::chrono_literals;
 class ReadStatement;
 class WriteStatement;
 
-class SQLITE_EXPORT Database final : public TransactionInterface
+class SQLITE_EXPORT Database final : public TransactionInterface, public DatabaseInterface
 {
     template <typename Database>
     friend class Statement;
@@ -105,19 +106,18 @@ public:
         return m_databaseBackend.changesCount();
     }
 
-    int totalChangesCount()
-    {
-        return m_databaseBackend.totalChangesCount();
-    }
+    int totalChangesCount() { return m_databaseBackend.totalChangesCount(); }
+
+    void walCheckpointFull() override { m_databaseBackend.walCheckpointFull(); }
 
 private:
-    void deferredBegin();
-    void immediateBegin();
-    void exclusiveBegin();
-    void commit();
-    void rollback();
-    void lock();
-    void unlock();
+    void deferredBegin() override;
+    void immediateBegin() override;
+    void exclusiveBegin() override;
+    void commit() override;
+    void rollback() override;
+    void lock() override;
+    void unlock() override;
 
     void initializeTables();
     void registerTransactionStatements();

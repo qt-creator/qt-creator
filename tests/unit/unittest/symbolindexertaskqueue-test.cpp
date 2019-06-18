@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include "mocksqlitedatabase.h"
 #include "mocktaskscheduler.h"
 
 #include <symbolindexertaskqueue.h>
@@ -54,7 +55,8 @@ protected:
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};
     NiceMock<MockTaskScheduler<Callable>> mockTaskScheduler;
-    ClangBackEnd::SymbolIndexerTaskQueue queue{mockTaskScheduler, progressCounter};
+    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    ClangBackEnd::SymbolIndexerTaskQueue queue{mockTaskScheduler, progressCounter, mockSqliteDatabase};
 };
 
 TEST_F(SymbolIndexerTaskQueue, AddTasks)
@@ -208,4 +210,35 @@ TEST_F(SymbolIndexerTaskQueue, ProcessTasksRemovesProcessedTasks)
 
     ASSERT_THAT(queue.tasks(), SizeIs(1));
 }
+
+TEST_F(SymbolIndexerTaskQueue,
+       ProcessTasksWritesBackTheDatabaseLogIfTheQueueIsEmptyAndTheIndexerHasNothingToDo)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTaskScheduler, slotUsage()).WillRepeatedly(Return(SlotUsage{2, 0}));
+    EXPECT_CALL(mockSqliteDatabase, walCheckpointFull());
+
+    queue.processEntries();
 }
+
+TEST_F(SymbolIndexerTaskQueue, ProcessTasksDoesNotWritesBackTheDatabaseLogIfTheIndexerHasSomethingToDo)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTaskScheduler, slotUsage()).WillRepeatedly(Return(SlotUsage{1, 1}));
+    EXPECT_CALL(mockSqliteDatabase, walCheckpointFull()).Times(0);
+
+    queue.processEntries();
+}
+
+TEST_F(SymbolIndexerTaskQueue, HandleExeptionInWalCheckPoint)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockTaskScheduler, slotUsage()).WillRepeatedly(Return(SlotUsage{2, 0}));
+    EXPECT_CALL(mockSqliteDatabase, walCheckpointFull()).WillOnce(Throw(Sqlite::DatabaseIsBusy{""}));
+
+    queue.processEntries();
+}
+} // namespace

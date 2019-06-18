@@ -42,10 +42,7 @@ public:
     PchManagerNotifierInterface(const PchManagerNotifierInterface &) = delete;
     PchManagerNotifierInterface &operator=(const PchManagerNotifierInterface &) = delete;
 
-    virtual void precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId,
-                                          const QString &pchFilePath,
-                                          long long lastModified)
-        = 0;
+    virtual void precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId) = 0;
     virtual void precompiledHeaderRemoved(ClangBackEnd::ProjectPartId projectPartId) = 0;
 
     PchManagerClient &m_pchManagerClient;

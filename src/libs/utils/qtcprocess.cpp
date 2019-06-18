@@ -595,12 +595,12 @@ static QString quoteArgWin(const QString &arg)
 }
 
 QtcProcess::Arguments QtcProcess::prepareArgs(const QString &cmd, SplitError *err, OsType osType,
-                                   const Environment *env, const QString *pwd)
+                                   const Environment *env, const QString *pwd, bool abortOnMeta)
 {
     if (osType == OsTypeWindows)
         return prepareArgsWin(cmd, err, env, pwd);
     else
-        return Arguments::createUnixArgs(splitArgs(cmd, osType, true, err, env, pwd));
+        return Arguments::createUnixArgs(splitArgs(cmd, osType, abortOnMeta, err, env, pwd));
 }
 
 

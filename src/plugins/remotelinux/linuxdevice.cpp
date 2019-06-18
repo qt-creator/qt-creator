@@ -196,9 +196,38 @@ LinuxDevice::LinuxDevice()
         }
     }});
 
+    setOpenTerminal([this](const Utils::Environment &env, const QString &workingDir) {
+        DeviceProcess * const proc = createProcess(nullptr);
+        QObject::connect(proc, &DeviceProcess::finished, [proc] {
+            if (!proc->errorString().isEmpty()) {
+                Core::MessageManager::write(tr("Error running remote shell: %1")
+                                            .arg(proc->errorString()),
+                                            Core::MessageManager::ModeSwitch);
+            }
+            proc->deleteLater();
+        });
+        QObject::connect(proc, &DeviceProcess::error, [proc] {
+            Core::MessageManager::write(tr("Error starting remote shell."),
+                                        Core::MessageManager::ModeSwitch);
+            proc->deleteLater();
+        });
+        Runnable runnable;
+        runnable.device = sharedFromThis();
+        runnable.environment = env;
+        runnable.workingDirectory = workingDir;
+
+        // It seems we cannot pass an environment to OpenSSH dynamically
+        // without specifying an executable.
+        if (env.size() > 0)
+            runnable.executable = "/bin/sh";
+
+        proc->setRunInTerminal(true);
+        proc->start(runnable);
+    });
+
     if (Utils::HostOsInfo::isAnyUnixHost()) {
         addDeviceAction({tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
-            device.staticCast<LinuxDevice>()->startRemoteShell(Utils::Environment());
+            device->openTerminal(Utils::Environment(), QString());
         }});
     }
 }
@@ -267,36 +296,6 @@ bool LinuxDevice::supportsRSync() const
 {
     return extraData("RemoteLinux.SupportsRSync").toBool();
 }
-
-void LinuxDevice::startRemoteShell(const Utils::Environment &env) const
-{
-    DeviceProcess * const proc = createProcess(nullptr);
-    QObject::connect(proc, &DeviceProcess::finished, [proc] {
-        if (!proc->errorString().isEmpty()) {
-            Core::MessageManager::write(tr("Error running remote shell: %1")
-                                        .arg(proc->errorString()),
-                                        Core::MessageManager::ModeSwitch);
-        }
-        proc->deleteLater();
-    });
-    QObject::connect(proc, &DeviceProcess::error, [proc] {
-        Core::MessageManager::write(tr("Error starting remote shell."),
-                                    Core::MessageManager::ModeSwitch);
-        proc->deleteLater();
-    });
-    Runnable runnable;
-    runnable.device = sharedFromThis();
-    runnable.environment = env;
-
-    // It seems we cannot pass an environment to OpenSSH dynamically
-    // without specifying an executable.
-    if (env.size() > 0)
-        runnable.executable = "/bin/sh";
-
-    proc->setRunInTerminal(true);
-    proc->start(runnable);
-}
-
 
 namespace Internal {
 

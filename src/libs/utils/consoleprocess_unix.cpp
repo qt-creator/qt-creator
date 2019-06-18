@@ -80,8 +80,12 @@ bool ConsoleProcess::start()
 
     QtcProcess::SplitError perr;
     QtcProcess::Arguments pargs = QtcProcess::prepareArgs(d->m_commandLine.arguments(),
-                                                          &perr, HostOsInfo::hostOs(),
-                                                          &d->m_environment, &d->m_workingDir);
+                                                          &perr,
+                                                          HostOsInfo::hostOs(),
+                                                          &d->m_environment,
+                                                          &d->m_workingDir,
+                                                          d->m_commandLine.metaCharMode()
+                                                              == CommandLine::MetaCharMode::Abort);
     QString pcmd;
     if (perr == QtcProcess::SplitOk) {
         pcmd = d->m_commandLine.executable().toString();

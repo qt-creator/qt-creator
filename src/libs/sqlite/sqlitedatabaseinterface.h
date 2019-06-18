@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,9 +23,15 @@
 **
 ****************************************************************************/
 
-#include "sqlitecolumn.h"
+#pragma once
 
 namespace Sqlite {
+class DatabaseInterface
+{
+public:
+    virtual void walCheckpointFull() = 0;
 
-
+protected:
+    ~DatabaseInterface() = default;
+};
 } // namespace Sqlite

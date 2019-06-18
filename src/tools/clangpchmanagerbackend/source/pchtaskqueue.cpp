@@ -33,6 +33,8 @@
 
 #include <utils/algorithm.h>
 
+#include <iostream>
+
 namespace ClangBackEnd {
 
 void PchTaskQueue::addPchTasks(PchTasks &&newPchTasks, PchTasks &destination)
@@ -145,7 +147,6 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createProjectTasks(PchTasks &&pchT
     auto convert = [this](auto &&pchTask) {
         return [pchTask = std::move(pchTask), this](PchCreatorInterface &pchCreator) mutable {
             const auto projectPartId = pchTask.projectPartId();
-            if (pchTask.includes.size()) {
                 pchTask.systemPchPath = m_precompiledHeaderStorage.fetchSystemPrecompiledHeaderPath(
                     projectPartId);
                 pchTask.preIncludeSearchPath = m_environment.preIncludeSearchPath();
@@ -157,9 +158,6 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createProjectTasks(PchTasks &&pchT
                     m_precompiledHeaderStorage.insertProjectPrecompiledHeader(
                         projectPartId, projectPartPch.pchPath, projectPartPch.lastModified);
                 }
-            } else {
-                m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(projectPartId);
-            }
         };
     };
 
@@ -179,7 +177,6 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createSystemTasks(PchTasks &&pchTa
     auto convert = [this](auto &&pchTask) {
         return [pchTask = std::move(pchTask), this](PchCreatorInterface &pchCreator) mutable {
             const auto projectPartIds = pchTask.projectPartIds;
-            if (pchTask.includes.size()) {
                 pchTask.preIncludeSearchPath = m_environment.preIncludeSearchPath();
                 pchCreator.generatePch(std::move(pchTask));
                 const auto &projectPartPch = pchCreator.projectPartPch();
@@ -189,9 +186,6 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createSystemTasks(PchTasks &&pchTa
                     m_precompiledHeaderStorage.insertSystemPrecompiledHeaders(
                         projectPartIds, projectPartPch.pchPath, projectPartPch.lastModified);
                 }
-            } else {
-                m_precompiledHeaderStorage.deleteSystemPrecompiledHeaders(projectPartIds);
-            }
         };
     };
 

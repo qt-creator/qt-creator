@@ -267,7 +267,8 @@ protected:
                                         mockProjectPartsStorage,
                                         mockModifiedTimeChecker,
                                         testEnvironment};
-    SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter};
+    NiceMock<MockSqliteDatabase> mockSqliteDatabase;
+    SymbolIndexerTaskQueue indexerQueue{indexerScheduler, progressCounter, mockSqliteDatabase};
     Scheduler indexerScheduler{collectorManger,
                                indexerQueue,
                                progressCounter,
@@ -917,6 +918,21 @@ TEST_F(SymbolIndexer, DependentSourceAreUpToDate)
     EXPECT_CALL(mockCollector, setFile(main1PathId, _)).Times(0);
     EXPECT_CALL(mockCollector, collectSymbols()).Times(0);
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(symbolEntries, sourceLocations)).Times(0);
+
+    indexer.updateProjectParts({projectPart1});
+}
+
+TEST_F(SymbolIndexer, SourcesAreWatched)
+{
+    using ClangBackEnd::IdPaths;
+    InSequence s;
+    FilePathIds sourcePathIds{4, 6, 8};
+
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchSources(projectPart1.projectPartId))
+        .WillOnce(Return(sourcePathIds));
+    EXPECT_CALL(mockPathWatcher,
+                updateIdPaths(ElementsAre(AllOf(Field(&IdPaths::id, projectPart1.projectPartId),
+                                                Field(&IdPaths::filePathIds, sourcePathIds)))));
 
     indexer.updateProjectParts({projectPart1});
 }

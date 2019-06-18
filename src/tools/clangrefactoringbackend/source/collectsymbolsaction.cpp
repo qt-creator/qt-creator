@@ -33,8 +33,7 @@ std::unique_ptr<clang::ASTConsumer> CollectSymbolsAction::newASTConsumer(
         clang::CompilerInstance &compilerInstance,
         llvm::StringRef inFile)
 {
-    m_indexDataConsumer->setSourceManager(&compilerInstance.getSourceManager());
-    return m_action.CreateASTConsumer(compilerInstance, inFile);
+    return clang::WrapperFrontendAction::CreateASTConsumer(compilerInstance, inFile);
 }
 
 } // namespace ClangBackEnd

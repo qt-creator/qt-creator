@@ -185,6 +185,7 @@ void StatesEditorModel::renameState(int internalNodeId, const QString &newName)
                                                newName.isEmpty() ?
                                                    tr("The empty string as a name is reserved for the base state.") :
                                                    tr("Name already used in another state"));
+        reset();
     } else {
         m_statesEditorView->renameState(internalNodeId, newName);
     }

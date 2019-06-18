@@ -226,9 +226,9 @@ void StudioWelcomePlugin::extensionsInitialized()
             s_view->setWindowModality(Qt::ApplicationModal);
             s_view->engine()->addImportPath("qrc:/studiofonts");
         #ifdef QT_DEBUG
-            s_view->engine()->addImportPath(QLatin1Literal(STUDIO_QML_PATH)
+            s_view->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
                                             + "splashscreen/imports");
-            s_view->setSource(QUrl::fromLocalFile(QLatin1Literal(STUDIO_QML_PATH)
+            s_view->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
                                           + "splashscreen/main.qml"));
         #else
             s_view->engine()->addImportPath("qrc:/qml/splashscreen/imports");
@@ -287,9 +287,9 @@ WelcomeMode::WelcomeMode()
     m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_modeWidget->engine()->addImportPath("qrc:/studiofonts");
 #ifdef QT_DEBUG
-    m_modeWidget->engine()->addImportPath(QLatin1Literal(STUDIO_QML_PATH)
+    m_modeWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
                                     + "welcomepage/imports");
-    m_modeWidget->setSource(QUrl::fromLocalFile(QLatin1Literal(STUDIO_QML_PATH)
+    m_modeWidget->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
                                   + "welcomepage/main.qml"));
 #else
     m_modeWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");

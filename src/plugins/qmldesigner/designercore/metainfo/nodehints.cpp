@@ -192,6 +192,19 @@ QString NodeHints::indexPropertyForStackedContainer() const
     return Internal::evaluateExpression(expression, modelNode(), ModelNode()).toString();
 }
 
+QStringList NodeHints::visibleNonDefaultProperties() const
+{
+    if (!isValid())
+        return {};
+
+    const QString expression = m_hints.value("visibleNonDefaultProperties");
+
+    if (expression.isEmpty())
+        return {};
+
+    return Internal::evaluateExpression(expression, modelNode(), ModelNode()).toString().split(",");
+}
+
 bool NodeHints::takesOverRenderingOfChildren() const
 {
     if (!isValid())
@@ -211,6 +224,16 @@ bool NodeHints::visibleInNavigator() const
 bool NodeHints::visibleInLibrary() const
 {
     return evaluateBooleanExpression("visibleInLibrary", true);
+}
+
+QString NodeHints::forceNonDefaultProperty() const
+{
+    const QString expression = m_hints.value("forceNonDefaultProperty");
+
+    if (expression.isEmpty())
+        return {};
+
+    return Internal::evaluateExpression(expression, modelNode(), ModelNode()).toString();
 }
 
 QHash<QString, QString> NodeHints::hints() const

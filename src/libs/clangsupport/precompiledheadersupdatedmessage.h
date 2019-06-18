@@ -25,7 +25,10 @@
 
 #pragma once
 
-#include "projectpartpch.h"
+#include "clangsupport_global.h"
+#include "projectpartid.h"
+
+#include <utils/smallstringio.h>
 
 namespace ClangBackEnd {
 
@@ -33,29 +36,26 @@ class PrecompiledHeadersUpdatedMessage
 {
 public:
     PrecompiledHeadersUpdatedMessage() = default;
-    PrecompiledHeadersUpdatedMessage(ProjectPartPch projectPartPch)
+    PrecompiledHeadersUpdatedMessage(ProjectPartId projectPartId)
     {
-        projectPartPchs.push_back(projectPartPch);
+        projectPartIds.push_back(projectPartId);
     }
-    PrecompiledHeadersUpdatedMessage(ProjectPartPchs &&projectPartPchs)
-        : projectPartPchs(std::move(projectPartPchs))
+    PrecompiledHeadersUpdatedMessage(ProjectPartIds &&projectPartIds)
+        : projectPartIds(std::move(projectPartIds))
     {}
 
-    ProjectPartPchs takeProjectPartPchs() const
-    {
-        return std::move(projectPartPchs);
-    }
+    ProjectPartIds takeProjectPartIds() const { return std::move(projectPartIds); }
 
     friend QDataStream &operator<<(QDataStream &out, const PrecompiledHeadersUpdatedMessage &message)
     {
-        out << message.projectPartPchs;
+        out << message.projectPartIds;
 
         return out;
     }
 
     friend QDataStream &operator>>(QDataStream &in, PrecompiledHeadersUpdatedMessage &message)
     {
-        in >> message.projectPartPchs;
+        in >> message.projectPartIds;
 
         return in;
     }
@@ -63,16 +63,13 @@ public:
     friend bool operator==(const PrecompiledHeadersUpdatedMessage &first,
                            const PrecompiledHeadersUpdatedMessage &second)
     {
-        return first.projectPartPchs == second.projectPartPchs;
+        return first.projectPartIds == second.projectPartIds;
     }
 
-    PrecompiledHeadersUpdatedMessage clone() const
-    {
-        return PrecompiledHeadersUpdatedMessage(Utils::clone(projectPartPchs));
-    }
+    PrecompiledHeadersUpdatedMessage clone() const { return *this; }
 
 public:
-    ProjectPartPchs projectPartPchs;
+    ProjectPartIds projectPartIds;
 };
 
 CLANGSUPPORT_EXPORT QDebug operator<<(QDebug debug, const PrecompiledHeadersUpdatedMessage &message);

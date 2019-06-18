@@ -56,6 +56,7 @@ public:
     virtual UsedMacros fetchUsedMacros(FilePathId sourceId) const = 0;
     virtual ProjectPartId fetchProjectPartId(Utils::SmallStringView projectPartName) = 0;
     virtual void updatePchCreationTimeStamp(long long pchCreationTimeStamp, ProjectPartId projectPartId) = 0;
+    virtual FilePathIds fetchSources(ProjectPartId projectPartId) const = 0;
 
 protected:
     ~BuildDependenciesStorageInterface() = default;

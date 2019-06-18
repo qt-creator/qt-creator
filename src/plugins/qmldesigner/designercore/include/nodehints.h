@@ -64,9 +64,11 @@ public:
     bool isStackedContainer() const;
     bool canBeReparentedTo(const ModelNode &potenialParent);
     QString indexPropertyForStackedContainer() const;
+    QStringList visibleNonDefaultProperties() const;
     bool takesOverRenderingOfChildren() const;
     bool visibleInNavigator() const;
     bool visibleInLibrary() const;
+    QString forceNonDefaultProperty() const;
 
     QHash<QString, QString> hints() const;
     static NodeHints fromModelNode(const ModelNode &modelNode);

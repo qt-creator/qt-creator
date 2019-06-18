@@ -19,16 +19,14 @@ SOURCES += \
     $$PWD/sqlitereadwritestatement.cpp \
     $$PWD/sqlitewritestatement.cpp \
     $$PWD/sqlstatementbuilder.cpp \
-    $$PWD/sqlstatementbuilderexception.cpp \
     $$PWD/utf8string.cpp \
     $$PWD/utf8stringvector.cpp \
     $$PWD/sqlitedatabase.cpp \
-    $$PWD/sqlitetable.cpp \
-    $$PWD/sqlitecolumn.cpp \
     $$PWD/sqlitebasestatement.cpp
 HEADERS += \
     $$PWD/createtablesqlstatementbuilder.h \
     $$PWD/sqlitedatabasebackend.h \
+    $$PWD/sqlitedatabaseinterface.h \
     $$PWD/sqliteexception.h \
     $$PWD/sqliteglobal.h \
     $$PWD/sqlitereadstatement.h \

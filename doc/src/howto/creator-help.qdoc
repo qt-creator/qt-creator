@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -22,12 +22,6 @@
 ** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
 **
 ****************************************************************************/
-
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
 
 /*!
     \contentspage index.html
@@ -62,13 +56,25 @@
 
         \li To select and configure how the documentation is displayed in the
             \uicontrol Help mode, select \uicontrol Tools > \uicontrol Options > \uicontrol Help.
-
     \endlist
 
     The following image displays the context sensitive help in the \uicontrol Edit
     mode.
 
     \image qtcreator-context-sensitive-help.png
+
+    If the help HTML file does not use a style sheet, you can change the font
+    family, style, and size in \uicontrol Tools > \uicontrol Options >
+    \uicontrol Help > \uicontrol General.
+
+    \image qtcreator-help-options.png
+
+    By default, you can use the mouse scroll wheel to zoom help pages. To
+    disable this feature, deselect the \uicontrol {Enable scroll wheel zooming}
+    check box.
+
+    To switch to the editor context when you close the last help page, select
+    the \uicontrol {Return to editor on closing the last page} check box.
 
     \section1 Viewing Function Tooltips
 
@@ -127,17 +133,19 @@
 
     \endlist
 
-    To import and export bookmarks, select \uicontrol {Tools > Options > Help >
-    General Settings > Import} or \uicontrol Export.
+    To import and export bookmarks, select \uicontrol Tools > \uicontrol Options
+     > \uicontrol Help > \uicontrol General > \uicontrol {Import Bookmarks} or
+     \uicontrol {Export Bookmarks}.
 
     \section2 Full-text Search
 
     In the \uicontrol Search pane, you can use full-text search for finding a
-    particular word in all the installed documents. In the \uicontrol {Search for}
-    field, enter the term you are looking for, and select the \uicontrol Search
-    button. All documents that contain the specified term are listed. The list
-    is sorted by the number of search hits that the documents contain. Select a
-    document in the list to open it.
+    particular word in all the installed documents. Enter the term you are
+    looking for, and select the \uicontrol Search button. All documents that
+    contain the specified term are listed. The list is sorted by document
+    version (if you have installed several Qt versions, for example) and
+    the number of search hits that the documents contain. Select a document in
+    the list to open it.
 
     \image qtcreator-help-search.png "Search pane"
 
@@ -158,12 +166,6 @@
             \c{deep copy}
 
     \endlist
-
-    For more flexibility, use the \uicontrol {Advanced search}. Specify words to
-    exclude from the search hits, or search for an exact phrase or for similar
-    words. For example, searching for \c{QStin}, \c{QSting}, or \c{QStrin} lists
-    all the documents with titles that are similar, such as \c{QString}.
-    Combine options to improve the search results.
 
     Full-text search is based on indexing all the installed documents the first
     time when you open the \uicontrol Search pane. If you add or remove documents,

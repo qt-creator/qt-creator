@@ -406,6 +406,27 @@ void DatabaseBackend::setBusyTimeout(std::chrono::milliseconds timeout)
     sqlite3_busy_timeout(m_databaseHandle, int(timeout.count()));
 }
 
+void DatabaseBackend::walCheckpointFull()
+{
+    int resultCode = sqlite3_wal_checkpoint_v2(m_databaseHandle,
+                                               nullptr,
+                                               SQLITE_CHECKPOINT_TRUNCATE,
+                                               nullptr,
+                                               nullptr);
+
+    switch (resultCode) {
+    case SQLITE_OK:
+        break;
+    case SQLITE_BUSY:
+        throw DatabaseIsBusy("DatabaseBackend::walCheckpointFull: Operation could not concluded "
+                             "because database is busy!");
+    case SQLITE_ERROR:
+        throwException("DatabaseBackend::walCheckpointFull: Error occurred!");
+    case SQLITE_MISUSE:
+        throwExceptionStatic("DatabaseBackend::walCheckpointFull: Misuse of database!");
+    }
+}
+
 void DatabaseBackend::throwExceptionStatic(const char *whatHasHappens)
 {
     throw Exception(whatHasHappens);

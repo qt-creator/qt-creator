@@ -40,15 +40,13 @@ class CollectBuildDependencyAction final : public clang::PreprocessOnlyAction
 {
 public:
     CollectBuildDependencyAction(BuildDependency &buildDependency,
-                          const FilePathCachingInterface &filePathCache,
-                          std::vector<uint> &excludedIncludeUID,
-                          std::vector<uint> &alreadyIncludedFileUIDs,
-                          SourcesManager &sourcesManager)
-        : m_buildDependency(buildDependency),
-          m_filePathCache(filePathCache),
-          m_excludedIncludeUID(excludedIncludeUID),
-          m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs),
-          m_sourcesManager(sourcesManager)
+                                 const FilePathCachingInterface &filePathCache,
+                                 std::vector<uint> &excludedIncludeUID,
+                                 std::vector<uint> &alreadyIncludedFileUIDs)
+        : m_buildDependency(buildDependency)
+        , m_filePathCache(filePathCache)
+        , m_excludedIncludeUID(excludedIncludeUID)
+        , m_alreadyIncludedFileUIDs(alreadyIncludedFileUIDs)
     {
     }
 
@@ -66,7 +64,6 @@ public:
                 m_excludedIncludeUID,
                 m_alreadyIncludedFileUIDs,
                 compilerInstance.getSourceManager(),
-                m_sourcesManager,
                 compilerInstance.getPreprocessorPtr());
 
             preprocessor.addPPCallbacks(
@@ -88,7 +85,6 @@ private:
     const FilePathCachingInterface &m_filePathCache;
     std::vector<uint> &m_excludedIncludeUID;
     std::vector<uint> &m_alreadyIncludedFileUIDs;
-    SourcesManager &m_sourcesManager;
 };
 
 } // namespace ClangBackEnd

@@ -45,6 +45,7 @@
 #include <QTimer>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Todo {
 namespace Internal {
@@ -90,7 +91,7 @@ void TodoItemsProvider::updateList()
     // Show only items of the current file if any
     if (m_settings.scanningScope == ScanningScopeCurrentFile) {
         if (m_currentEditor)
-            m_itemsList = m_itemsHash.value(m_currentEditor->document()->filePath().toString());
+            m_itemsList = m_itemsHash.value(m_currentEditor->document()->filePath());
     // Show only items of the current sub-project
     } else if (m_settings.scanningScope == ScanningScopeSubProject) {
         if (m_startupProject)
@@ -121,21 +122,19 @@ void TodoItemsProvider::createScanners()
 
 void TodoItemsProvider::setItemsListWithinStartupProject()
 {
-    QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
-    const QSet<QString> fileNames
-            = QSet<QString>::fromList(Utils::transform(m_startupProject->files(Project::SourceFiles),
-                                                       &Utils::FilePath::toString));
+    QHashIterator<FilePath, QList<TodoItem> > it(m_itemsHash);
+    const auto filePaths = QSet<FilePath>::fromList(m_startupProject->files(Project::SourceFiles));
 
     QVariantMap settings = m_startupProject->namedSettings(Constants::SETTINGS_NAME_KEY).toMap();
 
     while (it.hasNext()) {
         it.next();
-        QString fileName = it.key();
-        if (fileNames.contains(fileName)) {
+        const FilePath filePath = it.key();
+        if (filePaths.contains(filePath)) {
             bool skip = false;
             for (const QVariant &pattern : settings[Constants::EXCLUDES_LIST_KEY].toList()) {
                 QRegExp re(pattern.toString());
-                if (re.indexIn(fileName) != -1) {
+                if (re.indexIn(filePath.toString()) != -1) {
                     skip = true;
                     break;
                 }
@@ -154,22 +153,19 @@ void TodoItemsProvider::setItemsListWithinSubproject()
         ProjectNode *projectNode = node->parentProjectNode();
         if (projectNode) {
             // FIXME: The name doesn't match the implementation that lists all files.
-            QSet<Utils::FilePath> subprojectFileNames;
+            QSet<FilePath> subprojectFileNames;
             projectNode->forEachGenericNode([&](Node *node) {
                  subprojectFileNames.insert(node->filePath());
             });
 
             // files must be both in the current subproject and the startup-project.
-            const QSet<QString> fileNames
-                    = QSet<QString>::fromList(Utils::transform(m_startupProject->files(Project::SourceFiles),
-                                                               &Utils::FilePath::toString));
-            QHashIterator<QString, QList<TodoItem> > it(m_itemsHash);
+            const auto fileNames
+                    = QSet<FilePath>::fromList(m_startupProject->files(Project::SourceFiles));
+            QHashIterator<FilePath, QList<TodoItem> > it(m_itemsHash);
             while (it.hasNext()) {
                 it.next();
-                if (subprojectFileNames.contains(Utils::FilePath::fromString(it.key()))
-                        && fileNames.contains(it.key())) {
+                if (subprojectFileNames.contains(it.key()) && fileNames.contains(it.key()))
                     m_itemsList << it.value();
-                }
             }
         }
     }
@@ -178,7 +174,7 @@ void TodoItemsProvider::setItemsListWithinSubproject()
 void TodoItemsProvider::itemsFetched(const QString &fileName, const QList<TodoItem> &items)
 {
     // Replace old items with new ones
-    m_itemsHash.insert(fileName, items);
+    m_itemsHash.insert(FilePath::fromString(fileName), items);
 
     m_shouldUpdateList = true;
 }

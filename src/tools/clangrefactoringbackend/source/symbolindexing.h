@@ -105,6 +105,7 @@ public:
                     m_projectPartsStorage,
                     m_modifiedTimeChecker,
                     environment)
+        , m_indexerQueue(m_indexerScheduler, m_progressCounter, database)
         , m_indexerScheduler(m_collectorManger,
                              m_indexerQueue,
                              m_progressCounter,
@@ -152,7 +153,7 @@ private:
     ModifiedTimeChecker<ClangBackEnd::SourceTimeStamps> m_modifiedTimeChecker{getModifiedTime,
                                                                               m_filePathCache};
     SymbolIndexer m_indexer;
-    SymbolIndexerTaskQueue m_indexerQueue{m_indexerScheduler, m_progressCounter};
+    SymbolIndexerTaskQueue m_indexerQueue;
     SymbolIndexerTaskScheduler m_indexerScheduler;
 };
 

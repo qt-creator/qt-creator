@@ -30,9 +30,7 @@
 
 namespace ClangRefactoring {
 
-void RefactoringProjectUpdater::precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId,
-                                                         const QString &,
-                                                         long long)
+void RefactoringProjectUpdater::precompiledHeaderUpdated(ClangBackEnd::ProjectPartId projectPartId)
 {
     const QString projectPartName = fetchProjectPartName(projectPartId);
 

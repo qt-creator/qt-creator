@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,26 +25,35 @@
 
 #pragma once
 
-#include "projectpartpch.h"
+#include "filestatus.h"
+#include "symbolsvisitorbase.h"
 
-#include <utils/optional.h>
+#include <filepathid.h>
+
+#include <clang/Lex/PPCallbacks.h>
 
 namespace ClangBackEnd {
 
-class ProjectPartPchProviderInterface
+class FileStatusPreprocessorCallbacks final : public clang::PPCallbacks, public SymbolsVisitorBase
 {
 public:
-    ProjectPartPchProviderInterface() = default;
-    ProjectPartPchProviderInterface(const ProjectPartPchProviderInterface &) = delete;
-    ProjectPartPchProviderInterface &operator=(const ProjectPartPchProviderInterface &) = delete;
+    FileStatusPreprocessorCallbacks(FileStatuses &fileStatuses,
+                                    const FilePathCachingInterface &filePathCache,
+                                    const clang::SourceManager *sourceManager,
+                                    FilePathIds &filePathIndices)
+        : SymbolsVisitorBase(filePathCache, sourceManager, filePathIndices)
+        , m_fileStatuses(fileStatuses)
+    {}
 
-    virtual Utils::optional<ClangBackEnd::ProjectPartPch> projectPartPch(
-        ClangBackEnd::ProjectPartId projectPartId) const = 0;
-    virtual const ClangBackEnd::ProjectPartPchs &projectPartPchs() const = 0;
+    void FileChanged(clang::SourceLocation sourceLocation,
+                     clang::PPCallbacks::FileChangeReason reason,
+                     clang::SrcMgr::CharacteristicKind,
+                     clang::FileID) override;
 
+    void addFileStatus(const clang::FileEntry *fileEntry);
 
-protected:
-    ~ProjectPartPchProviderInterface() = default;
+private:
+    FileStatuses &m_fileStatuses;
 };
 
 } // namespace ClangBackEnd
