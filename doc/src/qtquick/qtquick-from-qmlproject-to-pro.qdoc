@@ -99,8 +99,9 @@
             \quotefromfile progressbar/main.cpp
             \skipto QQuickView view;
             \printuntil view.show()
-            Where \c {qml\main.qml} is the path to and the name of the main QML
-            file in the Qt Quick UI project.
+            Where \c {qrc:/qml/imports} is the import path and
+            \c {qrc:qml/ProgressBar.ui.qml} is the path to and the
+            name of the main QML file in the Qt Quick UI project.
         \li Select \uicontrol Build > \uicontrol Run to build and run your
             project.
     \endlist
