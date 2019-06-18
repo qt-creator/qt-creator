@@ -304,8 +304,8 @@ CMakeTool::PathMapper CMakeTool::pathMapper() const
 void CMakeTool::readInformation(CMakeTool::QueryType type) const
 {
     if ((type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())
-         || (type == QueryType::SERVER_MODE && m_introspection->m_queriedServerMode)
-         || (type == QueryType::VERSION && !m_introspection->m_version.fullVersion.isEmpty()))
+        || (type == QueryType::SERVER_MODE && m_introspection->m_queriedServerMode)
+        || (type == QueryType::VERSION && !m_introspection->m_version.fullVersion.isEmpty()))
         return;
 
     if (!m_introspection->m_triedCapabilities) {
@@ -323,7 +323,7 @@ void CMakeTool::readInformation(CMakeTool::QueryType type) const
     } else if (type == QueryType::VERSION) {
         fetchVersionFromVersionOutput();
     } else {
-        QTC_ASSERT(false, return);
+        QTC_ASSERT(false, return );
     }
 }
 
@@ -475,7 +475,7 @@ void CMakeTool::parseGeneratorsFromHelp(const QStringList &lines) const
 
 void CMakeTool::fetchVersionFromVersionOutput() const
 {
-    Utils::SynchronousProcessResponse response = run({"--version" });
+    Utils::SynchronousProcessResponse response = run({"--version"});
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
@@ -500,7 +500,7 @@ void CMakeTool::parseVersionFormVersionOutput(const QStringList &lines) const
 
 void CMakeTool::fetchFromCapabilities() const
 {
-    Utils::SynchronousProcessResponse response = run({"-E", "capabilities" }, true);
+    Utils::SynchronousProcessResponse response = run({"-E", "capabilities"}, true);
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 
@@ -510,7 +510,7 @@ void CMakeTool::fetchFromCapabilities() const
 static int getVersion(const QVariantMap &obj, const QString value)
 {
     bool ok;
-    int result  = obj.value(value).toInt(&ok);
+    int result = obj.value(value).toInt(&ok);
     if (!ok)
         return -1;
     return result;
@@ -536,7 +536,7 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
     {
         const QVariantMap fileApis = data.value("fileApi").toMap();
         const QVariantList requests = fileApis.value("requests").toList();
-        for (const QVariant &r: requests) {
+        for (const QVariant &r : requests) {
             const QVariantMap object = r.toMap();
             const QString kind = object.value("kind").toString();
             const QVariantMap versionObject = object.value("version").toMap();
