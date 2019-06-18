@@ -885,6 +885,8 @@ std::tuple<C, C> partition(const C &container, F predicate)
 {
     C hit;
     C miss;
+    reserve(hit, container.size());
+    reserve(miss, container.size());
     auto hitIns = inserter(hit);
     auto missIns = inserter(miss);
     for (auto i : container) {
