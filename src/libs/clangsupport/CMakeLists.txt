@@ -93,7 +93,6 @@ add_qtc_library(ClangSupport
     projectpartcontainer.cpp projectpartcontainer.h
     projectpartid.h
     projectpartpch.cpp projectpartpch.h
-    projectpartpchproviderinterface.h
     projectpartsstorage.h
     projectpartsstorageinterface.h
     readmessageblock.cpp readmessageblock.h

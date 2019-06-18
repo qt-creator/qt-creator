@@ -20,6 +20,7 @@ add_qtc_library(clangrefactoringbackend_lib STATIC
     collectsymbolsaction.cpp collectsymbolsaction.h
     filestatus.h
     filestatuscache.cpp filestatuscache.h
+    filestatuspreprocessorcallbacks.cpp filestatuspreprocessorcallbacks.h
     findcursorusr.h
     findlocationsofusrs.h
     findusrforcursoraction.cpp findusrforcursoraction.h
