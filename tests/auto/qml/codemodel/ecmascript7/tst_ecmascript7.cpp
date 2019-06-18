@@ -134,13 +134,13 @@ void tst_Ecmascript::initTestCase()
 
     QDirIterator it(sampledir, QDirIterator::Subdirectories);
 
-    QStringList skipList = readSkipList(sampledir, QLatin1Literal("skip.txt"));
+    QStringList skipList = readSkipList(sampledir, QLatin1String("skip.txt"));
     while (it.hasNext()) {
         QString path = it.next();
         if (skipList.contains(path))
             continue;
         QFileInfo f(path);
-        if (f.isFile() && f.suffix() == QLatin1Literal("js"))
+        if (f.isFile() && f.suffix() == QLatin1String("js"))
             m_files << f;
     }
 

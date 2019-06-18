@@ -74,8 +74,7 @@ public:
     friend bool operator==(const ProjectPartPch &first,
                            const ProjectPartPch &second)
     {
-        return first.projectPartId == second.projectPartId
-            && first.pchPath == second.pchPath;
+        return first.projectPartId == second.projectPartId && first.pchPath == second.pchPath;
     }
 
     ProjectPartPch clone() const

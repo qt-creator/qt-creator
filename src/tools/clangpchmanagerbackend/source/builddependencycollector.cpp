@@ -129,8 +129,7 @@ void BuildDependencyCollector::collect()
 
     auto action = std::make_unique<CollectBuildDependencyToolAction>(m_buildDependency,
                                                                      m_filePathCache,
-                                                                     m_excludedFilePaths,
-                                                                     m_sourcesManager);
+                                                                     m_excludedFilePaths);
 
     tool.run(action.get());
 }

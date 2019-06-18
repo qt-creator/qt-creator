@@ -17,12 +17,9 @@ SOURCES += \
     sqliteworkerthread.cpp \
     sqlitewritestatement.cpp \
     sqlstatementbuilder.cpp \
-    sqlstatementbuilderexception.cpp \
     utf8string.cpp \
     utf8stringvector.cpp \
     sqlitedatabase.cpp \
-    sqlitetable.cpp \
-    sqlitecolumn.cpp \
     tablewriteworker.cpp \
     tablewriteworkerproxy.cpp
 HEADERS += \

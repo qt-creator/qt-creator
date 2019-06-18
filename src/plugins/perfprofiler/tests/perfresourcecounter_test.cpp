@@ -140,9 +140,10 @@ void PerfResourceCounterTest::testUnitSized()
     QList<int> ids;
     for (int i = 0; i < 10000; ++i) {
         counter.request(1);
-        int id = qrand();
+        const int id = qrand();
         counter.obtain(id);
-        ids.append(id);
+        if (id != 0) // Otherwise it's the invalid ID and that means the allocation "failed".
+            ids.append(id);
         QCOMPARE(counter.currentTotal(), ids.length());
     }
     QCOMPARE(sum(container), counter.currentTotal());

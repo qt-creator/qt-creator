@@ -36,6 +36,7 @@
 namespace ClangBackEnd {
 
 inline namespace Pch {
+
 class ProjectPartsManager final : public ProjectPartsManagerInterface
 {
 public:
@@ -45,14 +46,14 @@ public:
         , m_precompiledHeaderStorage(precompiledHeaderStorage)
     {}
 
-    ProjectPartContainers update(ProjectPartContainers &&projectsParts) override;
+    UpToDataProjectParts update(ProjectPartContainers &&projectsParts) override;
     void remove(const ProjectPartIds &projectPartIds) override;
     ProjectPartContainers projects(const ProjectPartIds &projectPartIds) const override;
     void updateDeferred(const ProjectPartContainers &projectsParts) override;
     ProjectPartContainers deferredUpdates() override;
 
-    static ProjectPartContainers filterNewProjectParts(ProjectPartContainers &&newProjectsParts,
-                                                       const ProjectPartContainers &oldProjectParts);
+    static ProjectPartContainers filterProjectParts(const ProjectPartContainers &newProjectsParts,
+                                                    const ProjectPartContainers &oldProjectParts);
     void mergeProjectParts(const ProjectPartContainers &projectsParts);
     const ProjectPartContainers &projectParts() const;
 

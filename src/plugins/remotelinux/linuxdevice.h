@@ -32,8 +32,6 @@
 
 #include <QCoreApplication>
 
-namespace Utils { class Environment; }
-
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
@@ -63,8 +61,6 @@ public:
 
     void setSupportsRsync(bool supportsRsync);
     bool supportsRSync() const;
-
-    void startRemoteShell(const Utils::Environment &env) const;
 
 protected:
     LinuxDevice();

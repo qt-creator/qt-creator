@@ -30,6 +30,7 @@
 
 #include <filepathid.h>
 #include <progresscounter.h>
+#include <sqlitedatabase.h>
 #include <taskschedulerinterface.h>
 
 #include <utils/algorithm.h>
@@ -37,10 +38,6 @@
 
 #include <functional>
 #include <vector>
-
-namespace Sqlite {
-class TransactionInterface;
-}
 
 namespace ClangBackEnd {
 
@@ -53,9 +50,11 @@ public:
     using Task = SymbolIndexerTask::Callable;
 
     SymbolIndexerTaskQueue(TaskSchedulerInterface<Task> &symbolIndexerTaskScheduler,
-                           ProgressCounter &progressCounter)
-        : m_symbolIndexerScheduler(symbolIndexerTaskScheduler),
-          m_progressCounter(progressCounter)
+                           ProgressCounter &progressCounter,
+                           Sqlite::DatabaseInterface &database)
+        : m_symbolIndexerScheduler(symbolIndexerTaskScheduler)
+        , m_progressCounter(progressCounter)
+        , m_database(database)
     {}
 
     void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks)
@@ -94,12 +93,21 @@ public:
 
     void processEntries()
     {
-        uint taskCount = m_symbolIndexerScheduler.slotUsage().free;
+        auto slotUsage = m_symbolIndexerScheduler.slotUsage();
+        uint taskCount = slotUsage.free;
 
         auto newEnd = std::prev(m_tasks.end(), std::min<int>(int(taskCount), int(m_tasks.size())));
         m_symbolIndexerScheduler.addTasks({std::make_move_iterator(newEnd),
                                            std::make_move_iterator(m_tasks.end())});
         m_tasks.erase(newEnd, m_tasks.end());
+
+        if (m_tasks.empty() && slotUsage.used == 0) {
+            try {
+                m_database.walCheckpointFull();
+            } catch (Sqlite::Exception &exception) {
+                exception.printWarning();
+            }
+        }
     }
     void syncTasks();
 
@@ -108,6 +116,7 @@ private:
     std::vector<SymbolIndexerTask> m_tasks;
     TaskSchedulerInterface<Task> &m_symbolIndexerScheduler;
     ProgressCounter &m_progressCounter;
+    Sqlite::DatabaseInterface &m_database;
 };
 
 } // namespace ClangBackEnd

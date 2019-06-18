@@ -78,8 +78,9 @@ CommandLine::CommandLine(const FilePath &executable)
     : m_executable(executable)
 {}
 
-CommandLine::CommandLine(const FilePath &exe, const QStringList &args)
+CommandLine::CommandLine(const FilePath &exe, const QStringList &args, MetaCharMode metaCharMode)
     : m_executable(exe)
+    , m_metaCharMode(metaCharMode)
 {
     addArgs(args);
 }

@@ -56,18 +56,16 @@ public:
                                        SourceDependencies &sourceDependencies,
                                        FilePathCachingInterface &filePathCache,
                                        const clang::SourceManager &sourceManager,
-                                       std::shared_ptr<clang::Preprocessor> &&preprocessor,
-                                       SourcesManager &sourcesManager)
+                                       std::shared_ptr<clang::Preprocessor> &&preprocessor)
         : CollectUsedMacrosAndSourcesPreprocessorCallbacksBase(usedMacros,
                                                                filePathCache,
                                                                sourceManager,
-                                                               sourcesManager,
                                                                std::move(preprocessor),
                                                                sourceDependencies,
                                                                sourceFiles,
-                                                               fileStatuses),
-          m_symbolEntries(symbolEntries),
-          m_sourceLocationEntries(sourceLocationEntries)
+                                                               fileStatuses)
+        , m_symbolEntries(symbolEntries)
+        , m_sourceLocationEntries(sourceLocationEntries)
     {
     }
 
@@ -88,17 +86,15 @@ public:
     }
 
     void InclusionDirective(clang::SourceLocation hashLocation,
-                            const clang::Token &/*includeToken*/,
+                            const clang::Token & /*includeToken*/,
                             llvm::StringRef /*fileName*/,
                             bool /*isAngled*/,
                             clang::CharSourceRange /*fileNameRange*/,
                             const clang::FileEntry *file,
                             llvm::StringRef /*searchPath*/,
                             llvm::StringRef /*relativePath*/,
-                            const clang::Module * /*imported*/
-#if LLVM_VERSION_MAJOR >= 7
-                            , clang::SrcMgr::CharacteristicKind /*fileType*/
-#endif
+                            const clang::Module * /*imported*/,
+                            clang::SrcMgr::CharacteristicKind /*fileType*/
                             ) override
     {
         if (!m_skipInclude && file)
@@ -174,7 +170,6 @@ public:
     {
         filterOutHeaderGuards();
         mergeUsedMacros();
-        m_sourcesManager.updateModifiedTimeStamps();
     }
 
     static const clang::MacroInfo *firstMacroInfo(const clang::MacroDirective *macroDirective)

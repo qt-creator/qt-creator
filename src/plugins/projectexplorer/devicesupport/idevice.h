@@ -120,6 +120,7 @@ public:
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice : public QEnableSharedFromThis<IDevice>
 {
+    friend class Internal::IDevicePrivate;
 public:
     using Ptr = QSharedPointer<IDevice>;
     using ConstPtr = QSharedPointer<const IDevice>;
@@ -218,8 +219,14 @@ public:
 
     void setupId(Origin origin, Core::Id id = Core::Id());
 
+    bool canOpenTerminal() const;
+    void openTerminal(const Utils::Environment &env, const QString &workingDir) const;
+
 protected:
     IDevice();
+
+    using OpenTerminal = std::function<void(const Utils::Environment &, const QString &)>;
+    void setOpenTerminal(const OpenTerminal &openTerminal);
 
 private:
     IDevice(const IDevice &) = delete;

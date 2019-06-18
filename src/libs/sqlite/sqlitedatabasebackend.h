@@ -85,6 +85,8 @@ public:
 
     void setBusyTimeout(std::chrono::milliseconds timeout);
 
+    void walCheckpointFull();
+
 protected:
     bool databaseIsOpen() const;
 

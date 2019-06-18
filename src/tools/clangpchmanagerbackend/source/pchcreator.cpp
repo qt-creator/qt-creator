@@ -113,8 +113,11 @@ Utils::SmallStringVector PchCreator::generateClangCompilerArguments(const PchTas
 void PchCreator::generatePch(PchTask &&pchTask)
 {
     m_projectPartPch.projectPartId = pchTask.projectPartId();
-
     m_projectPartPch.lastModified = QDateTime::currentSecsSinceEpoch();
+
+    if (pchTask.includes.empty())
+        return;
+
     auto content = generatePchIncludeFileContent(pchTask.includes);
     auto pchOutputPath = generatePchFilePath();
 
@@ -180,7 +183,7 @@ void PchCreator::doInMainThreadAfterFinished()
         m_buildDependenciesStorage.updatePchCreationTimeStamp(m_projectPartPch.lastModified,
                                                               m_projectPartPch.projectPartId);
         m_clangPathwatcher.updateIdPaths({{m_projectPartPch.projectPartId, existingSources}});
-        m_pchManagerClient.precompiledHeadersUpdated({m_projectPartPch});
+        m_pchManagerClient.precompiledHeadersUpdated({m_projectPartPch.projectPartId});
     }
 }
 

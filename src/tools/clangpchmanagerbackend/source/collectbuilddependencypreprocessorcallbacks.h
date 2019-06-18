@@ -54,12 +54,10 @@ public:
                                          const std::vector<uint> &excludedIncludeUID,
                                          std::vector<uint> &alreadyIncludedFileUIDs,
                                          clang::SourceManager &sourceManager,
-                                         SourcesManager &sourcesManager,
                                          std::shared_ptr<clang::Preprocessor> preprocessor)
         : CollectUsedMacrosAndSourcesPreprocessorCallbacksBase(buildDependency.usedMacros,
                                                                filePathCache,
                                                                sourceManager,
-                                                               sourcesManager,
                                                                preprocessor,
                                                                buildDependency.sourceDependencies,
                                                                buildDependency.sourceFiles,
@@ -189,7 +187,6 @@ public:
     {
         filterOutHeaderGuards();
         mergeUsedMacros();
-        m_sourcesManager.updateModifiedTimeStamps();
         filterOutIncludesWithMissingIncludes();
     }
 

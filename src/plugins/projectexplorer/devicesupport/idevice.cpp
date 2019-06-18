@@ -153,6 +153,7 @@ public:
     QList<Utils::Icon> deviceIcons;
     QList<IDevice::DeviceAction> deviceActions;
     QVariantMap extraData;
+    IDevice::OpenTerminal openTerminal;
 };
 } // namespace Internal
 
@@ -162,11 +163,27 @@ IDevice::IDevice() : d(new Internal::IDevicePrivate)
 {
 }
 
+void IDevice::setOpenTerminal(const IDevice::OpenTerminal &openTerminal)
+{
+    d->openTerminal = openTerminal;
+}
+
 void IDevice::setupId(Origin origin, Core::Id id)
 {
     d->origin = origin;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
+}
+
+bool IDevice::canOpenTerminal() const
+{
+    return bool(d->openTerminal);
+}
+
+void IDevice::openTerminal(const Utils::Environment &env, const QString &workingDir) const
+{
+    QTC_ASSERT(canOpenTerminal(), return);
+    d->openTerminal(env, workingDir);
 }
 
 IDevice::~IDevice() = default;

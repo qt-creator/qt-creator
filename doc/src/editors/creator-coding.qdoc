@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -93,10 +93,10 @@
 
         \li \l{Using Language Servers}
 
-            The experimental language client provides code completion,
-            highlighting of the symbol under cursor, and jumping to the symbol
-            definition for other programming languages besides C++. In addition,
-            it integrates diagnostics from the language server.
+            The language client provides code completion, highlighting of the
+            symbol under cursor, and jumping to the symbol definition for other
+            programming languages besides C++. In addition, it integrates
+            diagnostics from the language server.
 
         \li \l{Editing MIME Types}
 

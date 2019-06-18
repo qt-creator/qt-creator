@@ -1,7 +1,7 @@
 add_qtc_library(clangpchmanagerbackend_lib STATIC
   DEPENDS clangrefactoringbackend_lib ClangSupport
   PUBLIC_DEPENDS libclang
-  DEFINES CLANGSUPPORT_BUILD_LIB
+  PUBLIC_DEFINES CLANGSUPPORT_BUILD_LIB
   PUBLIC_INCLUDES
     ${CLANG_INCLUDE_DIRS}
   SOURCES

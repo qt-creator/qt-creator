@@ -110,6 +110,46 @@
     documentation, see \l{Tips and Tricks}.
     \endif
 
+    \section1 Changing Languages
+
+    \QC has been localized into several languages. If the system language
+    is one of the supported languages, it is automatically selected. To
+    change the language, select \uicontrol Tools > \uicontrol Options >
+    \uicontrol Environment and select a language in the \uicontrol Language
+    field. The change takes effect after you restart \QC.
+
+    \section1 Viewing Images
+
+    \QC opens image files in the image viewer.
+
+    \image qtcreator-image-viewer.png "Image viewer"
+
+    Use the toolbar buttons (1) or \l{Keyboard Shortcuts}{keyboard shortcuts}
+    to:
+
+    \list
+
+        \li Export SVG images to pixmaps
+
+        \li Switch between background and outline modes
+
+        \li Zoom in and out
+
+        \li Fit images to screen
+
+        \li Return to original size
+
+        \li Play and pause animated GIF and MNG images
+
+    \endlist
+
+    \section2 Exporting SVG Images
+
+    If you receive a freely scalable icon in the SVG format from an UI designer,
+    you can export it to several images of different sizes to create a set of
+    pixmaps. You can then use QIcon::addPixmap() to add the pixmaps to icons in
+    different modes and states.
+
     \section1 Platform Notes
 
     This section describes the cases where the behavior of \QC depends on the
@@ -296,7 +336,7 @@
 
     \title Viewing Output
 
-    \image qtcreator-task-pane.png
+    \image qtcreator-general-messages.png "General Messages output pane"
 
     The task pane in \QC can display one of the following panes:
 
@@ -333,6 +373,9 @@
     the \uicontrol Find field and click the left and right arrows to search down and
     up in the pane. In these panes, you can also use the zoom buttons to increase and
     decrease the text size of the output.
+
+    To filter the output, enter a string in the \uicontrol Filter field.
+    Filtering is not supported in all output panes.
 
     To open the \uicontrol{General Messages} and
     \if defined(qtcreator)
@@ -404,7 +447,7 @@
     \uicontrol {Filter Tree}
     and then select a filter.
 
-    \image qtcreator-build-issues.png
+    \image qtcreator-issues.png "Issues output pane"
 
     Right-clicking on a line brings up a context menu with actions that you can
     apply to the contents of the line. You can remove a line, copy its contents
@@ -421,6 +464,11 @@
 
     To jump from one issue to the next or previous one, press \key F6 and
     \key Shift+F6.
+
+    By default, the \uicontrol Issues pane is cleared on a new build. To keep
+    the issues from the previous build rounds, deselect \uicontrol Tools >
+    \uicontrol Options > \uicontrol {Build & Run} > \uicontrol General >
+    \uicontrol {Clear issues list on new build}.
 
     \section1 Search Results
 
@@ -470,7 +518,7 @@
     The \uicontrol{Compile Output} is a more detailed version of information
     displayed in the \uicontrol{Issues} pane.
 
-    \image qtcreator-compile-pane.png
+    \image qtcreator-compile-output.png "Compile Output pane"
 
     Double-click on a file name in an error message to open the file in the
     code editor.
@@ -563,42 +611,4 @@
     \l{Showing Task List Files in Issues Pane}.
     \endif
 
-    \section1 Changing Languages
-
-    \QC has been localized into several languages. If the system language is one
-    of the supported languages, it is automatically selected. To change the
-    language, select \uicontrol {Tools > Options > Environment} and select a language
-    in the \uicontrol Language field. The change takes effect after you restart \QC.
-
-    \section1 Viewing Images
-
-    \QC opens image files in the image viewer.
-
-    \image qtcreator-image-viewer.png "Image viewer"
-
-    Use the toolbar buttons (1) or \l{Keyboard Shortcuts}{keyboard shortcuts}
-    to:
-
-    \list
-
-        \li Export SVG images to pixmaps
-
-        \li Switch between background and outline modes
-
-        \li Zoom in and out
-
-        \li Fit images to screen
-
-        \li Return to original size
-
-        \li Play and pause animated GIF and MNG images
-
-    \endlist
-
-    \section1 Exporting SVG Images
-
-    If you receive a freely scalable icon in the SVG format from an UI designer,
-    you can export it to several images of different sizes to create a set of
-    pixmaps. You can then use QIcon::addPixmap() to add the pixmaps to icons in
-    different modes and states.
 */

@@ -46,10 +46,10 @@ class SymbolsVisitorBase
 public:
     SymbolsVisitorBase(const FilePathCachingInterface &filePathCache,
                        const clang::SourceManager *sourceManager,
-                       SourcesManager &sourcesManager)
-        : m_filePathCache(filePathCache),
-          m_sourceManager(sourceManager),
-          m_sourcesManager(sourcesManager)
+                       FilePathIds &filePathIndices)
+        : m_filePathCache(filePathCache)
+        , m_sourceManager(sourceManager)
+        , m_filePathIndices(filePathIndices)
     {}
 
     FilePathId filePathId(clang::SourceLocation sourceLocation)
@@ -58,25 +58,6 @@ public:
         const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(clangFileId);
 
         return filePathId(fileEntry);
-    }
-
-    bool dependentFilesAreModified()
-    {
-        return m_sourcesManager.dependentFilesModified();
-    }
-
-    bool isAlreadyParsed(clang::FileID fileId)
-    {
-        const clang::FileEntry *fileEntry = m_sourceManager->getFileEntryForID(fileId);
-        if (!fileEntry)
-            return false;
-        return m_sourcesManager.alreadyParsed(filePathId(fileEntry),
-                                              fileEntry->getModificationTime());
-    }
-
-    bool alreadyParsed(clang::SourceLocation sourceLocation)
-    {
-        return isAlreadyParsed(m_sourceManager->getFileID(sourceLocation));
     }
 
     FilePathId filePathId(const clang::FileEntry *fileEntry)
@@ -156,22 +137,26 @@ public:
         return isSystem(m_sourceManager->getSLocEntry(fileId).getFile().getFileCharacteristic());
     }
 
+    bool isInSystemHeader(clang::SourceLocation sourceLocation) const
+    {
+        return m_sourceManager->isInSystemHeader(sourceLocation);
+    }
+
     static
     bool isSystem(clang::SrcMgr::CharacteristicKind kind)
     {
         return clang::SrcMgr::isSystem(kind);
     }
 
-    void clear()
-    {
-        m_filePathIndices.clear();
-    }
+    const FilePathCachingInterface &filePathCache() const { return m_filePathCache; }
+    const clang::SourceManager *sourceManager() const { return m_sourceManager; }
 
 protected:
-    std::vector<FilePathId> m_filePathIndices;
     const FilePathCachingInterface &m_filePathCache;
     const clang::SourceManager *m_sourceManager = nullptr;
-    SourcesManager &m_sourcesManager;
+
+private:
+    FilePathIds &m_filePathIndices;
 };
 
 } // namespace ClangBackend

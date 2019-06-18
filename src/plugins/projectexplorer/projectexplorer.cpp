@@ -268,11 +268,20 @@ static Utils::optional<Utils::Environment> buildEnv(const Project *project)
     return project->activeTarget()->activeBuildConfiguration()->environment();
 }
 
-static Utils::optional<Utils::Environment> runEnv(const Project *project)
+static bool canOpenTerminalWithRunEnv(const Project *project)
 {
-    if (!project || !project->activeTarget() || !project->activeTarget()->activeRunConfiguration())
-        return {};
-    return project->activeTarget()->activeRunConfiguration()->runnable().environment;
+    if (!project)
+        return false;
+    const Target * const target = project->activeTarget();
+    if (!target)
+        return false;
+    const RunConfiguration * const runConfig = target->activeRunConfiguration();
+    if (!runConfig)
+        return false;
+    IDevice::ConstPtr device = runConfig->runnable().device;
+    if (!device)
+        device = DeviceKitAspect::device(target->kit());
+    return device && device->canOpenTerminal();
 }
 
 static Target *activeTarget()
@@ -382,6 +391,7 @@ public:
     void updateUnloadProjectMenu();
     using EnvironmentGetter = std::function<Utils::optional<Utils::Environment>(const Project *project)>;
     void openTerminalHere(const EnvironmentGetter &env);
+    void openTerminalHereWithRunEnv();
 
     void invalidateProject(ProjectExplorer::Project *project);
 
@@ -1501,7 +1511,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(dd->m_openTerminalHere, &QAction::triggered, dd, []() { dd->openTerminalHere(sysEnv); });
     connect(dd->m_openTerminalHereBuildEnv, &QAction::triggered, dd, []() { dd->openTerminalHere(buildEnv); });
-    connect(dd->m_openTerminalHereRunEnv, &QAction::triggered, dd, []() { dd->openTerminalHere(runEnv); });
+    connect(dd->m_openTerminalHereRunEnv, &QAction::triggered, dd, []() { dd->openTerminalHereWithRunEnv(); });
 
     connect(dd->m_filePropertiesAction, &QAction::triggered, this, []() {
                 const Node *currentNode = ProjectTree::currentNode();
@@ -3244,7 +3254,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
 
         Project *project = ProjectTree::currentProject();
         m_openTerminalHereBuildEnv->setVisible(bool(buildEnv(project)));
-        m_openTerminalHereRunEnv->setVisible(bool(runEnv(project)));
+        m_openTerminalHereRunEnv->setVisible(canOpenTerminalWithRunEnv(project));
 
         if (pn && project) {
             if (pn == project->rootProjectNode()) {
@@ -3581,6 +3591,28 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
         return;
 
     FileUtils::openTerminal(directoryFor(currentNode), environment.value());
+}
+
+void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
+{
+    const Node *currentNode = ProjectTree::currentNode();
+    QTC_ASSERT(currentNode, return);
+
+    const Project * const project = ProjectTree::projectForNode(currentNode);
+    QTC_ASSERT(project, return);
+    const Target * const target = project->activeTarget();
+    QTC_ASSERT(target, return);
+    const RunConfiguration * const runConfig = target->activeRunConfiguration();
+    QTC_ASSERT(runConfig, return);
+
+    const Runnable runnable = runConfig->runnable();
+    IDevice::ConstPtr device = runnable.device;
+    if (!device)
+        device = DeviceKitAspect::device(target->kit());
+    QTC_ASSERT(device && device->canOpenTerminal(), return);
+    const QString workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
+            ? directoryFor(currentNode) : runnable.workingDirectory;
+    device->openTerminal(runnable.environment, workingDir);
 }
 
 void ProjectExplorerPluginPrivate::removeFile()

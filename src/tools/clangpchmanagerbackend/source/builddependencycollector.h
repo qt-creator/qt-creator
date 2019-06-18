@@ -95,7 +95,6 @@ private:
     BuildDependency m_buildDependency;
     ClangBackEnd::FilePaths m_excludedFilePaths;
     Utils::SmallStringVector m_directories;
-    SourcesManager m_sourcesManager;
     const FilePathCachingInterface &m_filePathCache;
     const GeneratedFilesInterface &m_generatedFiles;
     const Environment &m_environment;

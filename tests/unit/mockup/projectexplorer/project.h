@@ -47,6 +47,6 @@ public:
     void setNamedSettings(const QString &name, const QVariant &value) { settings[name] = value; }
 
     Utils::FileName rootProjectDirectoryPath;
-    std::map<QString, QVariant> settings;
+    mutable std::map<QString, QVariant> settings;
 };
 } // namespace ProjectExplorer

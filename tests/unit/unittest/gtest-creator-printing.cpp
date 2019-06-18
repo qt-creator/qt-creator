@@ -51,7 +51,7 @@
 #include <precompiledheadersupdatedmessage.h>
 #include <projectpartartefact.h>
 #include <projectpartentry.h>
-#include <projectpartid.h>
+#include <projectpartpch.h>
 #include <sourcedependency.h>
 #include <sourcelocationentry.h>
 #include <sourcelocationscontainer.h>
@@ -719,18 +719,14 @@ std::ostream &operator<<(std::ostream &out, const NativeFilePath &filePath)
 
 std::ostream &operator<<(std::ostream &out, const PrecompiledHeadersUpdatedMessage &message)
 {
-    out << "("
-        << message.projectPartPchs
-        << ")";
+    out << "(" << message.projectPartIds << ")";
 
     return out;
 }
 
 std::ostream &operator<<(std::ostream &out, const ProjectPartPch &projectPartPch)
 {
-    out << "("
-        << projectPartPch.projectPartId << ", "
-        << projectPartPch.pchPath << ", "
+    out << "(" << projectPartPch.projectPartId << ", " << projectPartPch.pchPath << ", "
         << projectPartPch.lastModified << ")";
 
     return out;

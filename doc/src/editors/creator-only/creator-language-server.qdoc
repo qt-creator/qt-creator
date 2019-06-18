@@ -39,8 +39,9 @@
     \list
         \li \l{Completing Code}{Code completion}
         \li Highlighting the symbol under cursor
-        \li \l{Moving to Symbol Definition or Declaration}
-            {Moving to the symbol definition}
+        \li Navigating in the code by using the \l{Searching with the Locator}
+            {locator} or \l{Moving to Symbol Definition or Declaration}
+            {moving to the symbol definition}
         \li Inspecting code by viewing the document
             \l{Viewing Defined Types and Symbols}{outline}
         \li \l{Finding Symbols}{Finding references to symbols}
@@ -50,8 +51,10 @@
 
     By providing a client for the language server protocol, \QC can support
     the above features for several other programming languages besides C++.
-    However, the experimental client does not support language servers that
-    require special handling.
+    However, the client does not support language servers that require special
+    handling.
+
+    \section1 Adding MIME Types for Language Servers
 
     \QC uses the \l{https://www.iana.org/assignments/media-types/media-types.xhtml}
     {MIME type} of the file to determine which language server to request
@@ -62,21 +65,11 @@
     only sent to the languge server if they are known to be handled by it. For
     more information about how \QC uses MIME types, see \l {Editing MIME Types}.
 
-    The experimental language service client has been mostly tested with Python.
-    If problems arise when you try some other language, please select
-    \uicontrol Help > \uicontrol {Report Bug} to report them in the Qt Bug
-    Tracker. The reports should include \QC console output with the environment
-    variable \c {QT_LOGGING_RULES=qtc.languageclient.*=true} set.
+    \section1 Specifying Settings for Language Clients
 
     To use a language server:
 
     \list 1
-        \li Enable the language server client by selecting \uicontrol Help >
-            \uicontrol {About Plugins} > \uicontrol {Other Languages} >
-            \uicontrol {Language Client} (or \uicontrol {Qt Creator} >
-            \uicontrol {About Plugins} > \uicontrol {Other Languages} >
-            \uicontrol {Language Client} on \macos).
-        \li Restart \QC to load the language client plugin.
         \li Select \uicontrol Tools > \uicontrol Options >
             \uicontrol {Language Client} (or \uicontrol {Qt Creator} >
             \uicontrol Preferences > \uicontrol {Language Client} > on
@@ -86,15 +79,48 @@
             language server.
         \li Select \uicontrol Add to add language servers.
         \li In the \uicontrol Name field, enter a name for the language server.
+            Select the \inlineimage replace.png
+            (\uicontrol {Variables}) button to use a variable for the server
+            name. For more information, see \l{Using Qt Creator Variables}.
         \li In the \uicontrol {Language} field, select
             \uicontrol {Set MIME Types} to select the MIME types of the files to
             send to the language server. In the field below, you can enter file
             patterns to extend the MIME types, separated by semicolons.
+        \li In the \uicontrol {Startup behavior} field, select whether the
+            language server is started when \QC starts or when a project or file
+            with a matching MIME type is opened. The
+            \uicontrol {General Messages} \l{Viewing Output}{output pane}
+            displays information about the connection to the language server.
+        \li In the \uicontrol Capabilities field, you can see the features
+            that are supported by the language server. Only some of them are
+            implemented by \QC.
         \li In the \uicontrol Executable field, enter the path to the language
             server executable.
         \li In the \uicontrol Arguments field, enter any required command line
+            arguments. Select \uicontrol Variables to use variables as
             arguments.
     \endlist
 
     To remove language servers from the list, select \uicontrol Delete.
+
+    \section1 Supported Locator Filters
+
+    The locator enables you to browse not only files, but any items defined by
+    \e {locator filters}. The language client plugin supports the following
+    locator filters:
+
+    \list
+            \li Locating symbols in the current project (\c {:})
+            \li Locating symbols in the current document (\c {.})
+            \li Locating class (\c {c}), enum, and function (\c {m})
+                definitions in your project
+    \endlist
+
+    \section1 Reporting Issues
+
+    The language service client has been mostly tested with Python.
+    If problems arise when you try it or some other language, please select
+    \uicontrol Help > \uicontrol {Report Bug} to report them in the Qt Bug
+    Tracker. The reports should include \QC console output with the environment
+    variable \c {QT_LOGGING_RULES=qtc.languageclient.*=true} set.
 */

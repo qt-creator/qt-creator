@@ -44,34 +44,35 @@ ProjectPartIds toProjectPartIds(const ProjectPartContainers &projectsParts)
     return ids;
 }
 
-ProjectPartContainers ProjectPartsManager::update(ProjectPartContainers &&projectsParts)
+ProjectPartsManager::UpToDataProjectParts ProjectPartsManager::update(ProjectPartContainers &&projectsParts)
 {
-    auto updatedProjectParts = filterNewProjectParts(std::move(projectsParts), m_projectParts);
+    auto notUpToDateProjectParts = filterProjectParts(projectsParts, m_projectParts);
 
-    if (updatedProjectParts.empty())
-        return {};
+    if (notUpToDateProjectParts.empty())
+        return {std::move(projectsParts), {}};
 
     auto persistentProjectParts = m_projectPartsStorage.fetchProjectParts(
-        toProjectPartIds(updatedProjectParts));
+        toProjectPartIds(notUpToDateProjectParts));
 
     if (persistentProjectParts.size() > 0) {
         mergeProjectParts(persistentProjectParts);
 
-        updatedProjectParts = filterNewProjectParts(std::move(updatedProjectParts),
-                                                    persistentProjectParts);
+        notUpToDateProjectParts = filterProjectParts(notUpToDateProjectParts, persistentProjectParts);
 
-        if (updatedProjectParts.empty())
+        if (notUpToDateProjectParts.empty())
             return {};
     }
 
-    m_projectPartsStorage.updateProjectParts(updatedProjectParts);
-    m_projectPartsStorage.resetIndexingTimeStamps(updatedProjectParts);
+    m_projectPartsStorage.updateProjectParts(notUpToDateProjectParts);
+    m_projectPartsStorage.resetIndexingTimeStamps(notUpToDateProjectParts);
     m_precompiledHeaderStorage.deleteProjectPrecompiledHeaders(
-        toProjectPartIds(updatedProjectParts));
+        toProjectPartIds(notUpToDateProjectParts));
 
-    mergeProjectParts(updatedProjectParts);
+    mergeProjectParts(notUpToDateProjectParts);
 
-    return updatedProjectParts;
+    auto upToDateProjectParts = filterProjectParts(projectsParts, notUpToDateProjectParts);
+
+    return {upToDateProjectParts, notUpToDateProjectParts};
 }
 
 void ProjectPartsManager::remove(const ProjectPartIds &projectPartIds)
@@ -176,8 +177,8 @@ ProjectPartContainers ProjectPartsManager::deferredUpdates()
     return deferredProjectParts;
 }
 
-ProjectPartContainers ProjectPartsManager::filterNewProjectParts(
-    ProjectPartContainers &&projectsParts, const ProjectPartContainers &oldProjectParts)
+ProjectPartContainers ProjectPartsManager::filterProjectParts(
+    const ProjectPartContainers &projectsParts, const ProjectPartContainers &oldProjectParts)
 {
     ProjectPartContainers updatedProjectPartContainers;
     updatedProjectPartContainers.reserve(projectsParts.size());

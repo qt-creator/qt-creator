@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -99,7 +99,7 @@
     \section1 Using Locator Filters
 
     The locator enables you to browse not only files, but any items defined by
-    \b{locator filters}. By default, the locator contains filters for:
+    \b{locator filters}. The filters that are available depend on the file type:
 
     \list
 
@@ -114,11 +114,11 @@
         \li Locating bookmarks (\c {b}).
             For more information, see \l{Using Bookmarks}.
 
-        \li Locating class (\c {c}), enum, and function (m) definitions in your
-            project or anywhere referenced from your project (\c {:})
+        \li Locating class (\c {c}), enum, and function (\c {m}) definitions in
+            your project or anywhere referenced from your project (\c {:})
         \endif
 
-        \li Locating QML methods (m)
+        \li Locating QML methods (\c {m})
 
         \li Locating symbols in the current document (\c {.})
 

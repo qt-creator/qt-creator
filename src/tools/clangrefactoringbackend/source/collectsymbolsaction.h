@@ -26,8 +26,8 @@
 #pragma once
 
 #include "clangrefactoringbackend_global.h"
-#include "sourcelocationentry.h"
 #include "indexdataconsumer.h"
+#include "sourcelocationentry.h"
 #include "symbolentry.h"
 
 #include <utils/smallstring.h>
@@ -37,53 +37,68 @@
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Frontend/FrontendAction.h>
 #include <clang/Index/IndexingAction.h>
+#include <clang/Lex/PreprocessorOptions.h>
 
 #include <mutex>
 
 namespace ClangBackEnd {
 
-class CollectSymbolsAction
+class CollectSymbolsAction : public clang::WrapperFrontendAction
 {
 public:
     CollectSymbolsAction(std::shared_ptr<IndexDataConsumer> indexDataConsumer)
-        : m_action(indexDataConsumer, createIndexingOptions()),
-          m_indexDataConsumer(indexDataConsumer.get())
+        : clang::WrapperFrontendAction(
+            clang::index::createIndexingAction(indexDataConsumer, createIndexingOptions(), nullptr))
+        , m_indexDataConsumer(indexDataConsumer)
     {}
 
     std::unique_ptr<clang::ASTConsumer> newASTConsumer(clang::CompilerInstance &compilerInstance,
                                                        llvm::StringRef inFile);
-private:
-    class WrappedIndexAction final : public clang::WrapperFrontendAction
-    {
-    public:
-        WrappedIndexAction(std::shared_ptr<clang::index::IndexDataConsumer> indexDataConsumer,
-                           clang::index::IndexingOptions indexingOptions)
-            : clang::WrapperFrontendAction(
-                  clang::index::createIndexingAction(indexDataConsumer, indexingOptions, nullptr))
-        {}
 
-        std::unique_ptr<clang::ASTConsumer>
-        CreateASTConsumer(clang::CompilerInstance &compilerInstance,
-                          llvm::StringRef inFile) override
-        {
-            return WrapperFrontendAction::CreateASTConsumer(compilerInstance, inFile);
-        }
-    };
-
-    static
-    clang::index::IndexingOptions createIndexingOptions()
+    static clang::index::IndexingOptions createIndexingOptions()
     {
         clang::index::IndexingOptions options;
 
         options.SystemSymbolFilter = clang::index::IndexingOptions::SystemSymbolFilterKind::None;
         options.IndexFunctionLocals = true;
+        options.IndexMacrosInPreprocessor = true;
 
         return options;
     }
 
+    bool BeginInvocation(clang::CompilerInstance &compilerInstance) override
+    {
+        m_indexDataConsumer->setSourceManager(&compilerInstance.getSourceManager());
+        compilerInstance.getPreprocessorOpts().AllowPCHWithCompilerErrors = true;
+        compilerInstance.getDiagnosticOpts().ErrorLimit = 1;
+
+        return clang::WrapperFrontendAction::BeginInvocation(compilerInstance);
+    }
+
+    bool BeginSourceFileAction(clang::CompilerInstance &compilerInstance) override
+    {
+        compilerInstance.getPreprocessor().SetSuppressIncludeNotFoundError(true);
+
+        return clang::WrapperFrontendAction::BeginSourceFileAction(compilerInstance);
+    }
+
+    void EndSourceFileAction() override { clang::WrapperFrontendAction::EndSourceFileAction(); }
+
+    bool PrepareToExecuteAction(clang::CompilerInstance &instance) override
+    {
+        return clang::WrapperFrontendAction::PrepareToExecuteAction(instance);
+    }
+
+    void ExecuteAction() override { clang::WrapperFrontendAction::ExecuteAction(); }
+
+    std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &compilerInstance,
+                                                          llvm::StringRef inFile) override
+    {
+        return WrapperFrontendAction::CreateASTConsumer(compilerInstance, inFile);
+    }
+
 private:
-    WrappedIndexAction m_action;
-    IndexDataConsumer *m_indexDataConsumer;
+    std::shared_ptr<IndexDataConsumer> m_indexDataConsumer;
 };
 
 } // namespace ClangBackEnd
