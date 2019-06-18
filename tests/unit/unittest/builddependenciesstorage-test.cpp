@@ -70,7 +70,7 @@ protected:
     MockSqliteWriteStatement &updatePchCreationTimeStampStatement = storage.updatePchCreationTimeStampStatement;
     MockSqliteWriteStatement &deleteAllProjectPartsFilesWithProjectPartNameStatement
         = storage.deleteAllProjectPartsFilesWithProjectPartNameStatement;
-    MockSqliteReadStatement &fetchProjectPartsFilesStatement = storage.fetchProjectPartsFilesStatement;
+    MockSqliteReadStatement &fetchProjectPartsFilesStatement = storage.fetchPchSourcesStatement;
 };
 
 TEST_F(BuildDependenciesStorage, ConvertStringsToJson)
@@ -238,7 +238,7 @@ TEST_F(BuildDependenciesStorage, FetchSources)
     ClangBackEnd::FilePathIds result{3, 5, 7};
     EXPECT_CALL(fetchProjectPartsFilesStatement, valuesReturnFilePathIds(_, 22)).WillOnce(Return(result));
 
-    auto sources = storage.fetchSources(22);
+    auto sources = storage.fetchPchSources(22);
 
     ASSERT_THAT(sources, result);
 }

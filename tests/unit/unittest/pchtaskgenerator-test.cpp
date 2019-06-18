@@ -117,7 +117,7 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                     &PchTaskSet::project,
                     AllOf(Field(&PchTask::projectPartIds, ElementsAre(ProjectPartId{1})),
                           Field(&PchTask::includes, ElementsAre(3)),
-                          Field(&PchTask::sources, ElementsAre(1, 2, 3, 4, 5)),
+                          Field(&PchTask::sources, ElementsAre(1, 3, 4, 5)),
                           Field(&PchTask::compilerMacros,
                                 ElementsAre(CompilerMacro{"YI", "1", 1}, CompilerMacro{"SAN", "3", 3})),
                           Field(&PchTask::systemIncludeSearchPaths,

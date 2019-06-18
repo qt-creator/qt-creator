@@ -226,16 +226,21 @@ TEST_F(PchCreatorVerySlowTest, SourcesAreWatchedAfterSucess)
     creator.doInMainThreadAfterFinished();
 }
 
-TEST_F(PchCreatorVerySlowTest, SourcesAreNotWatchedAfterFail)
+TEST_F(PchCreatorVerySlowTest, SourcesAreWatchedAfterFail)
 {
     pchTask1.systemIncludeSearchPaths = {};
     pchTask1.projectIncludeSearchPaths = {};
     creator.generatePch(std::move(pchTask1));
 
     EXPECT_CALL(mockClangPathWatcher,
-                updateIdPaths(
-                    ElementsAre(AllOf(Field(&ClangBackEnd::IdPaths::id, 1),
-                                      Field(&ClangBackEnd::IdPaths::filePathIds, IsEmpty())))));
+                updateIdPaths(ElementsAre(AllOf(
+                    Field(&ClangBackEnd::IdPaths::id, 1),
+                    Field(&ClangBackEnd::IdPaths::filePathIds,
+                          UnorderedElementsAre(
+                              id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp")))))));
 
     creator.doInMainThreadAfterFinished();
 }
@@ -337,9 +342,14 @@ TEST_F(PchCreatorSlowTest, NoIncludesInTheMainThreadCalls)
                     Field(&ClangBackEnd::PrecompiledHeadersUpdatedMessage::projectPartIds,
                           ElementsAre(Eq(creator.projectPartPch().projectPartId)))));
     EXPECT_CALL(mockClangPathWatcher,
-                updateIdPaths(
-                    ElementsAre(AllOf(Field(&ClangBackEnd::IdPaths::id, 1),
-                                      Field(&ClangBackEnd::IdPaths::filePathIds, IsEmpty())))));
+                updateIdPaths(ElementsAre(AllOf(
+                    Field(&ClangBackEnd::IdPaths::id, 1),
+                    Field(&ClangBackEnd::IdPaths::filePathIds,
+                          UnorderedElementsAre(
+                              id(TESTDATA_DIR "/builddependencycollector/project/header2.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/external/external1.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/external/external2.h"),
+                              id(TESTDATA_DIR "/builddependencycollector/project/main2.cpp")))))));
     EXPECT_CALL(mockBuildDependenciesStorage, updatePchCreationTimeStamp(Gt(0), Eq(1)));
 
     creator.doInMainThreadAfterFinished();

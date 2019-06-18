@@ -114,7 +114,7 @@ void PchCreator::generatePch(PchTask &&pchTask)
 {
     m_projectPartPch.projectPartId = pchTask.projectPartId();
     m_projectPartPch.lastModified = QDateTime::currentSecsSinceEpoch();
-
+    m_sources = std::move(pchTask.sources);
     if (pchTask.includes.empty())
         return;
 
@@ -127,10 +127,9 @@ void PchCreator::generatePch(PchTask &&pchTask)
     m_clangTool.addFile(std::move(headerFilePath), content.clone(), std::move(commandLine));
     bool success = generatePch(NativeFilePath{headerFilePath}, content);
 
-    if (success) {
-        m_sources = pchTask.sources;
-        m_projectPartPch.pchPath = std::move(pchOutputPath);
-    }
+
+    if (success)
+        m_projectPartPch.pchPath = std::move(pchOutputPath);   
 }
 
 const ProjectPartPch &PchCreator::projectPartPch()

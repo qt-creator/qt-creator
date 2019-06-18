@@ -107,7 +107,10 @@ TEST_F(RefactoringDatabaseInitializer, AddProjectPartsFilesTable)
                            "sourceId INTEGER, sourceType INTEGER, pchCreationTimeStamp INTEGER, "
                            "hasMissingIncludes INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsFiles_sourceId_projectPartId ON projectPartsFiles(sourceId, projectPartId)")));
-    EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId ON projectPartsFiles(projectPartId)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq(
+                    "CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId_sourceType "
+                    "ON projectPartsFiles(projectPartId, sourceType)")));
 
     initializer.createProjectPartsFilesTable();
 }
@@ -247,9 +250,10 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
         execute(
             Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_projectPartsFiles_sourceId_projectPartId "
                "ON projectPartsFiles(sourceId, projectPartId)")));
-    EXPECT_CALL(mockDatabase,
-                execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId ON "
-                           "projectPartsFiles(projectPartId)")));
+    EXPECT_CALL(
+        mockDatabase,
+        execute(Eq("CREATE INDEX IF NOT EXISTS index_projectPartsFiles_projectPartId_sourceType ON "
+                   "projectPartsFiles(projectPartId, sourceType)")));
     EXPECT_CALL(mockDatabase,
                 execute(Eq("CREATE TABLE IF NOT EXISTS usedMacros(usedMacroId INTEGER PRIMARY KEY, "
                            "sourceId INTEGER, macroName TEXT)")));

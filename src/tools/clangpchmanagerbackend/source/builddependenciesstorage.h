@@ -66,10 +66,9 @@ public:
         }
     }
 
-    FilePathIds fetchSources(ProjectPartId projectPartId) const override
+    FilePathIds fetchPchSources(ProjectPartId projectPartId) const override
     {
-        return fetchProjectPartsFilesStatement.template values<FilePathId>(1024,
-                                                                           projectPartId.projectPathId);
+        return fetchPchSourcesStatement.template values<FilePathId>(1024, projectPartId.projectPathId);
     }
 
     void insertOrUpdateFileStatuses(const FileStatuses &fileStatuses) override
@@ -252,8 +251,10 @@ public:
         "CONFLICT(sourceId, projectPartId) DO UPDATE SET sourceType = ?003, "
         "hasMissingIncludes = ?004",
         database};
-    mutable ReadStatement fetchProjectPartsFilesStatement{
-        "SELECT sourceId FROM projectPartsFiles WHERE projectPartId = ? ORDER BY sourceId", database};
+    mutable ReadStatement fetchPchSourcesStatement{
+        "SELECT sourceId FROM projectPartsFiles WHERE projectPartId = ? AND sourceType IN (0, 1, "
+        "3, 4) ORDER BY sourceId",
+        database};
     mutable ReadStatement fetchSourceDependenciesStatement{
         "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION "
         "SELECT dependencySourceId FROM sourceDependencies, "

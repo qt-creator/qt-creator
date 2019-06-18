@@ -923,7 +923,7 @@ TEST_F(SymbolIndexer, SourcesAreWatched)
     InSequence s;
     FilePathIds sourcePathIds{4, 6, 8};
 
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchSources(projectPart1.projectPartId))
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchPchSources(projectPart1.projectPartId))
         .WillOnce(Return(sourcePathIds));
     EXPECT_CALL(mockPathWatcher,
                 updateIdPaths(ElementsAre(AllOf(Field(&IdPaths::id, projectPart1.projectPartId),
