@@ -267,6 +267,7 @@ public:
     virtual bool deleteFiles(const QStringList &filePaths);
     virtual bool canRenameFile(const QString &filePath, const QString &newFilePath);
     virtual bool renameFile(const QString &filePath, const QString &newFilePath);
+    virtual bool addDependencies(const QStringList &dependencies);
 
     class AddNewInformation
     {
@@ -342,6 +343,7 @@ public:
     bool deleteFiles(const QStringList &filePaths) override;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    bool addDependencies(const QStringList &dependencies) override;
     bool supportsAction(ProjectAction action, const Node *node) const override;
 
     // by default returns false

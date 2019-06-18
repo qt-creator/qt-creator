@@ -60,6 +60,7 @@ public:
     bool deleteFiles(const QStringList &filePaths) override;
     bool canRenameFile(const QString &filePath, const QString &newFilePath) override;
     bool renameFile(const QString &filePath, const QString &newFilePath) override;
+    bool addDependencies(const QStringList &dependencies) override;
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
 
     bool deploysFolder(const QString &folder) const override;

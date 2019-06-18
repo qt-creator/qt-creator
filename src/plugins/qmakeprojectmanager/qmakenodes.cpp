@@ -219,6 +219,13 @@ bool QmakePriFileNode::renameFile(const QString &filePath, const QString &newFil
     return pri ? pri->renameFile(filePath, newFilePath) : false;
 }
 
+bool QmakePriFileNode::addDependencies(const QStringList &dependencies)
+{
+    if (QmakePriFile * const pri = priFile())
+        return pri->addDependencies(dependencies);
+    return false;
+}
+
 FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files)

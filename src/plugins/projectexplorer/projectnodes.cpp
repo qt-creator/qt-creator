@@ -737,6 +737,13 @@ bool FolderNode::renameFile(const QString &filePath, const QString &newFilePath)
     return false;
 }
 
+bool FolderNode::addDependencies(const QStringList &dependencies)
+{
+    if (ProjectNode * const pn = managingProject())
+        return pn->addDependencies(dependencies);
+    return false;
+}
+
 FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
     Q_UNUSED(files);
@@ -865,6 +872,12 @@ bool ProjectNode::renameFile(const QString &filePath, const QString &newFilePath
 {
     Q_UNUSED(filePath)
     Q_UNUSED(newFilePath)
+    return false;
+}
+
+bool ProjectNode::addDependencies(const QStringList &dependencies)
+{
+    Q_UNUSED(dependencies)
     return false;
 }
 

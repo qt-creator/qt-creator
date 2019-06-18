@@ -206,6 +206,10 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
                                        nativeFilePaths.join(QLatin1String(", "))));
             return;
         }
+        const QStringList dependencies = m_wizard->stringValue("Dependencies")
+                .split(':', QString::SkipEmptyParts);
+        if (!dependencies.isEmpty())
+            folder->addDependencies(dependencies);
     }
     return;
 }

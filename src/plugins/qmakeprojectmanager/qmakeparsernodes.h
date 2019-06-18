@@ -151,6 +151,7 @@ public:
     bool deleteFiles(const QStringList &filePaths);
     bool canRenameFile(const QString &filePath, const QString &newFilePath);
     bool renameFile(const QString &filePath, const QString &newFilePath);
+    bool addDependencies(const QStringList &dependencies);
 
     bool setProVariable(const QString &var, const QStringList &values,
                         const QString &scope = QString(),

@@ -632,6 +632,52 @@ bool QmakePriFile::renameFile(const QString &filePath, const QString &newFilePat
     return changeProFileOptional;
 }
 
+bool QmakePriFile::addDependencies(const QStringList &dependencies)
+{
+    if (dependencies.isEmpty())
+        return true;
+    if (!prepareForChange())
+        return false;
+
+    QStringList qtDependencies = filtered(dependencies, [](const QString &dep) {
+        return dep.length() > 3 && dep.startsWith("Qt.");
+    });
+    qtDependencies = transform(qtDependencies, [](const QString &dep) {
+        return dep.mid(3);
+    });
+    qtDependencies.removeOne("core");
+    if (qtDependencies.isEmpty())
+        return true;
+
+    const QPair<ProFile *, QStringList> pair = readProFile(filePath().toString());
+    ProFile * const includeFile = pair.first;
+    if (!includeFile)
+        return false;
+    QStringList lines = pair.second;
+
+    const QString indent = continuationIndent();
+    const ProWriter::PutFlags appendFlags(ProWriter::AppendValues | ProWriter::AppendOperator);
+    if (!proFile()->variableValue(Variable::Config).contains("qt")) {
+        if (lines.removeAll("CONFIG -= qt") == 0) {
+            ProWriter::putVarValues(includeFile, &lines, {"qt"}, "CONFIG", appendFlags,
+                                    QString(), indent);
+        }
+    }
+
+    const QStringList currentQtDependencies = proFile()->variableValue(Variable::Qt);
+    qtDependencies = filtered(qtDependencies, [currentQtDependencies](const QString &dep) {
+        return !currentQtDependencies.contains(dep);
+    });
+    if (!qtDependencies.isEmpty()) {
+        ProWriter::putVarValues(includeFile, &lines, qtDependencies,  "QT", appendFlags,
+                                QString(), indent);
+    }
+
+    save(lines);
+    includeFile->deref();
+    return true;
+}
+
 bool QmakePriFile::saveModifiedEditors()
 {
     Core::IDocument *document
