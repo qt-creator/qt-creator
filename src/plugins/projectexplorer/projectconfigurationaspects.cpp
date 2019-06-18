@@ -372,6 +372,7 @@ bool BaseBoolAspect::defaultValue() const
 void BaseBoolAspect::setDefaultValue(bool defaultValue)
 {
     d->m_defaultValue = defaultValue;
+    d->m_value = defaultValue;
 }
 
 bool BaseBoolAspect::value() const
