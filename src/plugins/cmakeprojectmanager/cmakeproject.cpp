@@ -634,9 +634,12 @@ QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
 
 ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const
 {
-    return contains(files(AllFiles), [](const FilePath &f) {
-        return f.fileName() == "QtCreatorDeployment.txt";
-    }) ? DeploymentKnowledge::Approximative : DeploymentKnowledge::Bad;
+    return !files([](const ProjectExplorer::Node *n) {
+                return n->filePath().fileName() == "QtCreatorDeployment.txt";
+            })
+                   .isEmpty()
+               ? DeploymentKnowledge::Approximative
+               : DeploymentKnowledge::Bad;
 }
 
 MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,

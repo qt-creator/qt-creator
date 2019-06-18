@@ -41,8 +41,9 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <texteditor/formattexteditor.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -103,10 +104,9 @@ QString ArtisticStyle::configurationFile() const
     if (m_settings.useOtherFiles()) {
         if (const ProjectExplorer::Project *project
                 = ProjectExplorer::ProjectTree::currentProject()) {
-            const Utils::FilePathList files = project->files(ProjectExplorer::Project::AllFiles);
-            for (const Utils::FilePath &file : files) {
-                if (!file.endsWith(".astylerc"))
-                    continue;
+            const Utils::FilePathList astyleRcfiles = project->files(
+                [](const ProjectExplorer::Node *n) { return n->filePath().endsWith(".astylerc"); });
+            for (const Utils::FilePath &file : astyleRcfiles) {
                 const QFileInfo fi = file.toFileInfo();
                 if (fi.isReadable())
                     return file.toString();

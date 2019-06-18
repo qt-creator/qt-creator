@@ -764,7 +764,11 @@ static void notifyChangedHelper(const FilePath &fileName, QmakeProFile *file)
 void QmakeProject::notifyChanged(const FilePath &name)
 {
     for (QmakeProject *project : s_projects) {
-        if (project->files(QmakeProject::SourceFiles).contains(name))
+        if (!project
+                 ->files([&name](const ProjectExplorer::Node *n) {
+                     return Project::SourceFiles(n) && n->filePath() == name;
+                 })
+                 .isEmpty())
             notifyChangedHelper(name, project->rootProFile());
     }
 }

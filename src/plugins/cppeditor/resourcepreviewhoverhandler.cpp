@@ -26,14 +26,15 @@
 #include "resourcepreviewhoverhandler.h"
 
 #include <coreplugin/icore.h>
-#include <utils/tooltip/tooltip.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <utils/mimetypes/mimedatabase.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <texteditor/texteditor.h>
 #include <utils/executeondestruction.h>
+#include <utils/fileutils.h>
+#include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <QPoint>
 #include <QTextBlock>
@@ -143,10 +144,9 @@ static QString findResourceInProject(const QString &resName)
         return QString();
 
     if (auto *project = ProjectExplorer::ProjectTree::currentProject()) {
-        const Utils::FilePathList files = project->files(ProjectExplorer::Project::AllFiles);
+        const Utils::FilePathList files = project->files(
+            [](const ProjectExplorer::Node *n) { return n->filePath().endsWith(".qrc"); });
         for (const Utils::FilePath &file : files) {
-            if (!file.endsWith(".qrc"))
-                continue;
             const QFileInfo fi = file.toFileInfo();
             if (!fi.isReadable())
                 continue;
