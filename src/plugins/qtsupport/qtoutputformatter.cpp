@@ -89,8 +89,11 @@ QtOutputFormatter::QtOutputFormatter(Project *project)
         d->projectFinder.setProjectFiles(project->files(Project::SourceFiles));
         d->projectFinder.setProjectDirectory(project->projectDirectory());
 
-        connect(project, &Project::fileListChanged,
-                this, &QtOutputFormatter::updateProjectFileList);
+        connect(project,
+                &Project::fileListChanged,
+                this,
+                &QtOutputFormatter::updateProjectFileList,
+                Qt::QueuedConnection);
     }
 }
 

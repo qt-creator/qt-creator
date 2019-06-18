@@ -43,6 +43,7 @@
 #include <coreplugin/messagemanager.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <texteditor/formattexteditor.h>
 #include <texteditor/textdocument.h>
@@ -50,13 +51,13 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/algorithm.h>
-#include <utils/textutils.h>
 #include <utils/fileutils.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>
+#include <utils/textutils.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -161,7 +162,12 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
     // Check if file is contained in the current project (if wished)
     if (m_generalSettings->autoFormatOnlyCurrentProject()) {
         const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
-        if (!pro || !pro->isKnownFile(document->filePath())) {
+        if (!pro
+            || pro->files([document](const ProjectExplorer::Node *n) {
+                      return ProjectExplorer::Project::SourceFiles(n)
+                             && n->filePath() == document->filePath();
+                  })
+                   .isEmpty()) {
             return;
         }
     }

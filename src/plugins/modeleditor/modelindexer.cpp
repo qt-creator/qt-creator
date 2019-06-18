@@ -370,8 +370,11 @@ QString ModelIndexer::findDiagram(const qmt::Uid &modelUid, const qmt::Uid &diag
 
 void ModelIndexer::onProjectAdded(ProjectExplorer::Project *project)
 {
-    connect(project, &ProjectExplorer::Project::fileListChanged,
-            this, [=]() { this->onProjectFileListChanged(project); });
+    connect(project,
+            &ProjectExplorer::Project::fileListChanged,
+            this,
+            [=]() { this->onProjectFileListChanged(project); },
+            Qt::QueuedConnection);
     scanProject(project);
 }
 

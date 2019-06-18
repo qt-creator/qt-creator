@@ -56,7 +56,11 @@ void ResourceHandler::ensureInitialized()
     m_initialized = true;
 
     auto connector = [this](Project *p) {
-        connect(p, &Project::fileListChanged, this, &ResourceHandler::updateResources);
+        connect(p,
+                &Project::fileListChanged,
+                this,
+                &ResourceHandler::updateResources,
+                Qt::QueuedConnection);
     };
 
     for (Project *p : SessionManager::projects())
