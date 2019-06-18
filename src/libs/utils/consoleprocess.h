@@ -72,7 +72,7 @@ public:
 
     enum class MetaCharMode { Abort, Ignore };
     bool start(const QString &program, const QString &args,
-               MetaCharMode metaCharMode = MetaCharMode::Ignore);
+               MetaCharMode metaCharMode = MetaCharMode::Abort);
 public slots:
     void stop();
 
