@@ -1246,6 +1246,14 @@ void MsvcToolChain::setupVarsBat(const Abi &abi, const QString &varsBat, const Q
     }
 }
 
+void MsvcToolChain::resetVarsBat()
+{
+    m_lastEnvironment = Utils::Environment::systemEnvironment();
+    m_abi = Abi();
+    m_vcvarsBat.clear();
+    m_varsBatArg.clear();
+}
+
 // --------------------------------------------------------------------------
 // MsvcBasedToolChainConfigWidget: Creates a simple GUI without error label
 // to display name and varsBat. Derived classes should add the error label and
@@ -1580,7 +1588,7 @@ static QList<ToolChain *> detectClangClToolChainInPath(const QString &clangClPat
             cltc->setDisplayName(name);
             cltc->setDetection(ToolChain::AutoDetection);
             cltc->setLanguage(language);
-            cltc->resetMsvcToolChain(toolChain);
+            cltc->setupVarsBat(toolChain->targetAbi(), toolChain->varsBat(), toolChain->varsBatArg());
             res << cltc;
         }
     }
@@ -1599,7 +1607,7 @@ void ClangClToolChainConfigWidget::applyImpl()
     clangClToolChain->setClangPath(clangClPath.toString());
 
     if (clangClPath.fileName() != "clang-cl.exe") {
-        clangClToolChain->resetMsvcToolChain();
+        clangClToolChain->resetVarsBat();
         setFromClangClToolChain();
         return;
     }
@@ -1610,11 +1618,12 @@ void ClangClToolChainConfigWidget::applyImpl()
                                                               displayedVarsBat);
 
     if (results.isEmpty()) {
-        clangClToolChain->resetMsvcToolChain();
+        clangClToolChain->resetVarsBat();
     } else {
         for (const ToolChain *toolchain : results) {
             if (toolchain->language() == clangClToolChain->language()) {
-                clangClToolChain->resetMsvcToolChain(static_cast<const MsvcToolChain *>(toolchain));
+                auto mstc = static_cast<const MsvcToolChain *>(toolchain);
+                clangClToolChain->setupVarsBat(mstc->targetAbi(), mstc->varsBat(), mstc->varsBatArg());
                 break;
             }
         }
@@ -1706,14 +1715,6 @@ bool ClangClToolChain::fromMap(const QVariantMap &data)
 std::unique_ptr<ToolChainConfigWidget> ClangClToolChain::createConfigurationWidget()
 {
     return std::make_unique<ClangClToolChainConfigWidget>(this);
-}
-
-void ClangClToolChain::resetMsvcToolChain(const MsvcToolChain *base)
-{
-    if (base)
-        setupVarsBat(base->targetAbi(), base->varsBat(), base->varsBatArg());
-    else
-        setupVarsBat(Abi(), "", "");
 }
 
 bool ClangClToolChain::operator==(const ToolChain &other) const

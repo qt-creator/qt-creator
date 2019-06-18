@@ -92,8 +92,8 @@ public:
 
     QString varsBatArg() const { return m_varsBatArg; }
     QString varsBat() const { return m_vcvarsBat; }
-    void setVarsBatArg(const QString &varsBA) { m_varsBatArg = varsBA; }
     void setupVarsBat(const Abi &abi, const QString &varsBat, const QString &varsBatArg);
+    void resetVarsBat();
 
     bool operator==(const ToolChain &) const override;
 
@@ -184,7 +184,6 @@ public:
     QString clangPath() const { return m_clangPath; }
     void setClangPath(const QString &path) { m_clangPath = path; }
 
-    void resetMsvcToolChain(const MsvcToolChain *base = nullptr);
     Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                 const Utils::Environment &env) const override;
     Utils::LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
