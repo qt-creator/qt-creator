@@ -845,7 +845,9 @@ static void addToAvailableMsvcToolchains(const MsvcToolChain *toolchain)
 
 MsvcToolChain::MsvcToolChain(Core::Id typeId)
     : ToolChain(typeId)
-{}
+{
+    setDisplayName("Microsoft Visual C++ Compiler");
+}
 
 void MsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
 {
@@ -1639,7 +1641,9 @@ void ClangClToolChainConfigWidget::makeReadOnlyImpl()
 
 ClangClToolChain::ClangClToolChain()
     : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID)
-{}
+{
+    setDisplayName("clang-cl");
+}
 
 bool ClangClToolChain::isValid() const
 {
@@ -2004,10 +2008,8 @@ QList<ToolChain *> ClangClToolChainFactory::autoDetect(const QList<ToolChain *> 
 
 ToolChain *ClangClToolChainFactory::create()
 {
-    // FIXME: Looks odd. Shouldn't clang-cl be the path?
     auto tc = new ClangClToolChain;
     tc->setupVarsBat(Abi(), "", "");
-    tc->setDisplayName("clang-cl");
     return tc;
 }
 
@@ -2130,7 +2132,6 @@ ToolChain *MsvcToolChainFactory::create()
 {
     auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID);
     tc->setupVarsBat(Abi::hostAbi(), g_availableMsvcToolchains.first()->varsBat(), "");
-    tc->setDisplayName("Microsoft Visual C++ Compiler");
     return tc;
 }
 
