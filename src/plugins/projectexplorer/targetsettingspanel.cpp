@@ -161,6 +161,9 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
 
 void TargetSetupPageWrapper::updateNoteText()
 {
+    if (!m_targetSetupPage)
+        return;
+
     Kit *k = KitManager::defaultKit();
 
     QString text;
