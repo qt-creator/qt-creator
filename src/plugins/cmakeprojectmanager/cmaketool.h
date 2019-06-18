@@ -31,6 +31,7 @@
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <utils/fileutils.h>
+#include <utils/optional.h>
 #include <utils/synchronousprocess.h>
 
 #include <QObject>
@@ -48,10 +49,9 @@ namespace Internal {  class IntrospectionData;  }
 class CMAKE_EXPORT CMakeTool
 {
 public:
-    enum Detection {
-        ManualDetection,
-        AutoDetection
-    };
+    enum Detection { ManualDetection, AutoDetection };
+
+    enum ReaderType { TeaLeaf, ServerMode, FileApi };
 
     struct Version
     {
@@ -110,6 +110,8 @@ public:
     void setPathMapper(const PathMapper &includePathMapper);
     PathMapper pathMapper() const;
 
+    ReaderType readerType() const;
+
 private:
     enum class QueryType {
         GENERATORS,
@@ -136,6 +138,8 @@ private:
     bool m_isAutoRun = true;
     bool m_isAutoDetected = false;
     bool m_autoCreateBuildDirectory = false;
+
+    Utils::optional<ReaderType> m_readerType;
 
     std::unique_ptr<Internal::IntrospectionData> m_introspection;
 

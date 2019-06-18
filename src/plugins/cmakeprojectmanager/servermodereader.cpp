@@ -109,6 +109,9 @@ void ServerModeReader::setParameters(const BuildDirParameters &p)
 bool ServerModeReader::isCompatible(const BuildDirParameters &p)
 {
     CMakeTool *newCmake = p.cmakeTool();
+    if (newCmake->readerType() != CMakeTool::FileApi)
+        return false;
+
     CMakeTool *oldCmake = m_parameters.cmakeTool();
     if (!newCmake || !oldCmake)
         return false;

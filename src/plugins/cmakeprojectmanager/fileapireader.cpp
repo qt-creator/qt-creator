@@ -107,7 +107,7 @@ void FileApiReader::setParameters(const BuildDirParameters &p)
 bool FileApiReader::isCompatible(const BuildDirParameters &p)
 {
     const CMakeTool *cmakeTool = p.cmakeTool();
-    return cmakeTool && cmakeTool->hasFileApi();
+    return cmakeTool && cmakeTool->readerType() == CMakeTool::FileApi;
 }
 
 void FileApiReader::resetData()

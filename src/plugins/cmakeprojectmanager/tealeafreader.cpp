@@ -135,9 +135,7 @@ void TeaLeafReader::setParameters(const BuildDirParameters &p)
 
 bool TeaLeafReader::isCompatible(const BuildDirParameters &p)
 {
-    if (!p.cmakeTool())
-        return false;
-    return !p.cmakeTool()->hasServerMode();
+    return p.cmakeTool() && p.cmakeTool()->readerType() == CMakeTool::TeaLeaf;
 }
 
 void TeaLeafReader::resetData()
