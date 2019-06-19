@@ -633,10 +633,10 @@ protected:
             if (!ast->typeModifier.isNull()) {
                 out(ast->typeModifierToken);
                 out("<");
-                out(ast->typeToken);
+                accept(ast->memberType);
                 out(">");
             } else {
-                out(ast->typeToken);
+                accept(ast->memberType);
             }
             out(" ");
             if (ast->statement) {
@@ -1329,9 +1329,8 @@ protected:
     {
         for (FormalParameterList *it = ast; it; it = it->next) {
             out(it->element->bindingIdentifier.toString()); // TODO
-            if (it->next) {
+            if (it->next)
                 out(", ");
-            }
         }
         return false;
     }
