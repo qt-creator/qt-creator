@@ -36,10 +36,11 @@
 namespace CMakeProjectManager {
 
 enum TargetType {
-    ExecutableType = 0,
-    StaticLibraryType = 2,
-    DynamicLibraryType = 3,
-    UtilityType = 64
+    ExecutableType,
+    StaticLibraryType,
+    DynamicLibraryType,
+    ObjectLibraryType,
+    UtilityType
 };
 
 class CMAKE_EXPORT CMakeBuildTarget

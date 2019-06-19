@@ -201,10 +201,10 @@ QList<CMakeBuildTarget> ServerModeReader::takeBuildTargets(QString &errorMessage
             type = ExecutableType;
         else if (t->type == "STATIC_LIBRARY")
             type = StaticLibraryType;
-        else if (t->type == "MODULE_LIBRARY"
-                 || t->type == "SHARED_LIBRARY"
-                 || t->type == "INTERFACE_LIBRARY"
-                 || t->type == "OBJECT_LIBRARY")
+        else if (t->type == "OBJECT_LIBRARY")
+            type = ObjectLibraryType;
+        else if (t->type == "MODULE_LIBRARY" || t->type == "SHARED_LIBRARY"
+                 || t->type == "INTERFACE_LIBRARY")
             type = DynamicLibraryType;
         else
             type = UtilityType;
