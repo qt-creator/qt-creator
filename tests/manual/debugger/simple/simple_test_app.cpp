@@ -276,8 +276,7 @@ void dummyStatement(...) {}
 
 #if USE_AUTOBREAK
 #   ifdef Q_CC_MSVC
-#       include <crtdbg.h>
-#       define BREAK_HERE _CrtDbgReport(_CRT_WARN, NULL, NULL, "simple_test_app", NULL)
+#       define BREAK_HERE DebugBreak();
 #   else
 #       define BREAK_HERE asm("int $3; mov %eax, %eax")
 #   endif
