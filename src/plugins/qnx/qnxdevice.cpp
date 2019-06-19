@@ -82,15 +82,11 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
 
 QnxDevice::QnxDevice()
 {
+    setDisplayType(tr("QNX"));
     addDeviceAction({tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
         QnxDeployQtLibrariesDialog dialog(device, parent);
         dialog.exec();
     }});
-}
-
-QString QnxDevice::displayType() const
-{
-    return tr("QNX");
 }
 
 OsType QnxDevice::osType() const

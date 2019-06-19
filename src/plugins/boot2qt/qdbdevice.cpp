@@ -141,6 +141,8 @@ private:
 
 QdbDevice::QdbDevice()
 {
+    setDisplayType(tr("Boot2Qt Device"));
+
     addDeviceAction({tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
         CommandLine cmd{FilePath::fromString("reboot")};
         (void) new DeviceApplicationObserver(device, cmd);
@@ -150,11 +152,6 @@ QdbDevice::QdbDevice()
         CommandLine cmd{FilePath::fromString("appcontroller"), {"--remove-default"}};
         (void) new DeviceApplicationObserver(device, cmd);
     }});
-}
-
-QString QdbDevice::displayType() const
-{
-    return tr("Boot2Qt Device");
 }
 
 ProjectExplorer::IDeviceWidget *QdbDevice::createWidget()

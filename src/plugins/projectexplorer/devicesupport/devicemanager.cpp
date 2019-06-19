@@ -410,11 +410,11 @@ public:
         setupId(AutoDetected, Core::Id::fromString(QUuid::createUuid().toString()));
         setType(testTypeId());
         setMachineType(Hardware);
+        setDisplayType("blubb");
     }
 
     static Core::Id testTypeId() { return "TestType"; }
 private:
-    QString displayType() const override { return QLatin1String("blubb"); }
     IDeviceWidget *createWidget() override { return nullptr; }
     DeviceProcessSignalOperation::Ptr signalOperation() const override
     {

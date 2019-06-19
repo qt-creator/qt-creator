@@ -40,7 +40,6 @@ class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
 public:
     IDevice::DeviceInfo deviceInformation() const override;
 
-    QString displayType() const override;
     IDeviceWidget *createWidget() override;
     bool canAutoDetectPorts() const override;
     bool canCreateProcessModel() const override;

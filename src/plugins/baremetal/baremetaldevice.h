@@ -45,7 +45,6 @@ public:
     static Ptr create() { return Ptr(new BareMetalDevice); }
     ~BareMetalDevice() final;
 
-    QString displayType() const final;
     ProjectExplorer::IDeviceWidget *createWidget() final;
     Utils::OsType osType() const final;
 

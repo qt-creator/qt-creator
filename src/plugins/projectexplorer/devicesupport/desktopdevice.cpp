@@ -55,6 +55,8 @@ DesktopDevice::DesktopDevice()
     setupId(IDevice::AutoDetected, DESKTOP_DEVICE_ID);
     setType(DESKTOP_DEVICE_TYPE);
     setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Local PC"));
+    setDisplayType(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Desktop"));
+
     setDeviceState(IDevice::DeviceStateUnknown);
     setMachineType(IDevice::Hardware);
     const QString portRange =
@@ -68,11 +70,6 @@ DesktopDevice::DesktopDevice()
 IDevice::DeviceInfo DesktopDevice::deviceInformation() const
 {
     return DeviceInfo();
-}
-
-QString DesktopDevice::displayType() const
-{
-    return QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Desktop");
 }
 
 IDeviceWidget *DesktopDevice::createWidget()

@@ -155,7 +155,8 @@ public:
 
     virtual bool isCompatibleWith(const Kit *k) const;
 
-    virtual QString displayType() const = 0;
+    QString displayType() const;
+
     virtual IDeviceWidget *createWidget() = 0;
 
     struct DeviceAction {
@@ -227,6 +228,7 @@ protected:
 
     using OpenTerminal = std::function<void(const Utils::Environment &, const QString &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);
+    void setDisplayType(const QString &type);
 
 private:
     IDevice(const IDevice &) = delete;

@@ -172,11 +172,6 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
     }
 };
 
-QString LinuxDevice::displayType() const
-{
-    return tr("Generic Linux");
-}
-
 IDeviceWidget *LinuxDevice::createWidget()
 {
     return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
@@ -189,6 +184,8 @@ Utils::OsType LinuxDevice::osType() const
 
 LinuxDevice::LinuxDevice()
 {
+    setDisplayType(tr("Generic Linux"));
+
     addDeviceAction({tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
         if (auto d = PublicKeyDeploymentDialog::createDialog(device, parent)) {
             d->exec();

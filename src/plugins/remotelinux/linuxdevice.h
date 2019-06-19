@@ -44,7 +44,6 @@ public:
 
     static Ptr create() { return Ptr(new LinuxDevice); }
 
-    QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     Utils::OsType osType() const override;
 

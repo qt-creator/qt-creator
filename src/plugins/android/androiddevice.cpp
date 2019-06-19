@@ -50,6 +50,7 @@ AndroidDevice::AndroidDevice()
     setupId(IDevice::AutoDetected, Constants::ANDROID_DEVICE_ID);
     setType(Constants::ANDROID_DEVICE_TYPE);
     setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
+    setDisplayType(QCoreApplication::translate("Android::Internal::AndroidDevice", "Android"));
     setMachineType(IDevice::Hardware);
     setDeviceState(DeviceReadyToUse);
     QString activityPath;
@@ -63,11 +64,6 @@ AndroidDevice::AndroidDevice()
 IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 {
     return IDevice::DeviceInfo();
-}
-
-QString AndroidDevice::displayType() const
-{
-    return QCoreApplication::translate("Android::Internal::AndroidDevice", "Android");
 }
 
 IDeviceWidget *AndroidDevice::createWidget()

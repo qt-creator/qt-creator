@@ -40,7 +40,6 @@ public:
 
     static Ptr create() { return Ptr(new QdbDevice); }
 
-    QString displayType() const final;
     ProjectExplorer::IDeviceWidget *createWidget() final;
 
     ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const final;

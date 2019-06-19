@@ -60,15 +60,11 @@ Q_LOGGING_CATEGORY(winrtDeviceLog, "qtc.winrt.deviceParser", QtWarningMsg)
 
 WinRtDevice::WinRtDevice()
 {
+    setDisplayType(displayNameForType(type()));
     Utils::PortList portList;
     portList.addRange(Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_START),
                       Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_END));
     setFreePorts(portList);
-}
-
-QString WinRtDevice::displayType() const
-{
-    return displayNameForType(type());
 }
 
 IDeviceWidget *WinRtDevice::createWidget()

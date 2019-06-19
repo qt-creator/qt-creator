@@ -41,7 +41,6 @@ public:
 
     static Ptr create() { return Ptr(new WinRtDevice); }
 
-    QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     void fromMap(const QVariantMap &map) override;

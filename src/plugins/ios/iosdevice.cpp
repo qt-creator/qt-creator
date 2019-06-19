@@ -84,6 +84,7 @@ IosDevice::IosDevice()
     setupId(IDevice::AutoDetected, Constants::IOS_DEVICE_ID);
     setType(Constants::IOS_DEVICE_TYPE);
     setDisplayName(IosDevice::name());
+    setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
     setMachineType(IDevice::Hardware);
     setDeviceState(DeviceDisconnected);
     Utils::PortList ports;
@@ -98,6 +99,7 @@ IosDevice::IosDevice(const QString &uid)
     setupId(IDevice::AutoDetected, Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid));
     setType(Constants::IOS_DEVICE_TYPE);
     setDisplayName(IosDevice::name());
+    setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
     setMachineType(IDevice::Hardware);
     setDeviceState(DeviceDisconnected);
 }
@@ -114,11 +116,6 @@ IDevice::DeviceInfo IosDevice::deviceInformation() const
             res.append(DeviceInfoItem(tMap.value(i.key()), tMap.value(i.value(), i.value())));
     }
     return res;
-}
-
-QString IosDevice::displayType() const
-{
-    return QCoreApplication::translate("Ios::Internal::IosDevice", "iOS");
 }
 
 IDeviceWidget *IosDevice::createWidget()

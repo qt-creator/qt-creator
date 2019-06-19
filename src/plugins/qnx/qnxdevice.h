@@ -49,7 +49,6 @@ public:
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
 
-    QString displayType() const override;
     Utils::OsType osType() const override;
 
     int qnxVersion() const;

@@ -52,7 +52,6 @@ public:
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    QString displayType() const override;
 
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;

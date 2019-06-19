@@ -52,6 +52,8 @@ const char gdbServerProviderIdKeyC[] = "GdbServerProviderId";
 
 BareMetalDevice::~BareMetalDevice()
 {
+    setDisplayType(QCoreApplication::translate("BareMetal::Internal::BareMetalDevice", "Bare Metal"));
+
     if (GdbServerProvider *provider = GdbServerProviderManager::findProvider(m_gdbServerProviderId))
         provider->unregisterDevice(this);
 }
@@ -133,11 +135,6 @@ QVariantMap BareMetalDevice::toMap() const
 DeviceProcessSignalOperation::Ptr BareMetalDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr();
-}
-
-QString BareMetalDevice::displayType() const
-{
-    return QCoreApplication::translate("BareMetal::Internal::BareMetalDevice", "Bare Metal");
 }
 
 IDeviceWidget *BareMetalDevice::createWidget()

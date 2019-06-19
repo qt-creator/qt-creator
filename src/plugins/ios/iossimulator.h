@@ -69,7 +69,6 @@ public:
     using Ptr = QSharedPointer<IosSimulator>;
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
 
-    QString displayType() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     Utils::Port nextPort() const;

@@ -138,6 +138,7 @@ public:
     IDevicePrivate() = default;
 
     QString displayName;
+    QString displayType;
     Core::Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
     Core::Id id;
@@ -199,9 +200,17 @@ QString IDevice::displayName() const
 
 void IDevice::setDisplayName(const QString &name)
 {
-    if (d->displayName == name)
-        return;
     d->displayName = name;
+}
+
+QString IDevice::displayType() const
+{
+    return d->displayType;
+}
+
+void IDevice::setDisplayType(const QString &type)
+{
+    d->displayType = type;
 }
 
 IDevice::DeviceInfo IDevice::deviceInformation() const
