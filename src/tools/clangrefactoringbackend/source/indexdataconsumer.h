@@ -75,7 +75,7 @@ public:
     void finish() override;
 
 private:
-    bool skipSymbol(clang::FileID fileId, clang::index::SymbolRoleSet symbolRoles);
+    bool skipSymbol(clang::FileID fileId);
     bool isAlreadyParsed(clang::FileID fileId, SourcesManager &sourcesManager);
 
 private:

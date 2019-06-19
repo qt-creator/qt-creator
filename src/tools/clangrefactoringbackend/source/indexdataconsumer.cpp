@@ -68,7 +68,7 @@ using SymbolKindAndTags = std::pair<SymbolKind, SymbolTags>;
 class IndexingDeclVisitor : public clang::ConstDeclVisitor<IndexingDeclVisitor, SymbolKindAndTags>
 {
 public:
-    SymbolKindAndTags VisitEnumDecl(const clang::EnumDecl *declaration)
+    SymbolKindAndTags VisitEnumDecl(const clang::EnumDecl */*declaration*/)
     {
         return {SymbolKind::Enumeration, {}};;
     }
@@ -103,23 +103,9 @@ SymbolKindAndTags symbolKindAndTags(const clang::Decl *declaration)
     return visitor.Visit(declaration);
 }
 
-bool isDeclaration(clang::index::SymbolRoleSet symbolRoles)
-{
-    using namespace clang::index;
-
-    return symbolRoles & (uint(SymbolRole::Declaration) | uint(SymbolRole::Definition));
-}
-
-bool isReference(clang::index::SymbolRoleSet symbolRoles)
-{
-    using namespace clang::index;
-
-    return symbolRoles & (uint(SymbolRole::Reference) | uint(SymbolRole::Call));
-}
-
 } // namespace
 
-bool IndexDataConsumer::skipSymbol(clang::FileID fileId, clang::index::SymbolRoleSet symbolRoles)
+bool IndexDataConsumer::skipSymbol(clang::FileID fileId)
 {
     return isAlreadyParsed(fileId, m_symbolSourcesManager)
            && !m_symbolSourcesManager.dependentFilesModified();
@@ -150,7 +136,7 @@ bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,
         if (!namedDeclaration->getIdentifier())
             return true;
 
-        if (skipSymbol(m_sourceManager->getFileID(sourceLocation), symbolRoles))
+        if (skipSymbol(m_sourceManager->getFileID(sourceLocation)))
             return true;
 
         SymbolIndex globalId = toSymbolIndex(declaration->getCanonicalDecl());
