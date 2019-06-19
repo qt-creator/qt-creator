@@ -50,10 +50,13 @@ const char gdbServerProviderIdKeyC[] = "GdbServerProviderId";
 
 // BareMetalDevice
 
-BareMetalDevice::~BareMetalDevice()
+BareMetalDevice::BareMetalDevice()
 {
     setDisplayType(QCoreApplication::translate("BareMetal::Internal::BareMetalDevice", "Bare Metal"));
+}
 
+BareMetalDevice::~BareMetalDevice()
+{
     if (GdbServerProvider *provider = GdbServerProviderManager::findProvider(m_gdbServerProviderId))
         provider->unregisterDevice(this);
 }

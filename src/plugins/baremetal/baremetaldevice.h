@@ -62,7 +62,7 @@ public:
     QVariantMap toMap() const final;
 
 private:
-    explicit BareMetalDevice() = default;
+    BareMetalDevice();
 
     void setChannelByServerProvider(GdbServerProvider *provider);
     QString m_gdbServerProviderId;
