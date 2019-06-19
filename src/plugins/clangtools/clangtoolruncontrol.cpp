@@ -477,6 +477,16 @@ void ClangToolRunControl::finalize()
     if (m_filesNotAnalyzed != 0) {
         QString msg = tr("%1: Not all files could be analyzed.").arg(toolName);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        if (m_target && !m_target->activeBuildConfiguration()->buildDirectory().exists()
+            && !ClangToolsProjectSettingsManager::getSettings(m_target->project())
+                    ->buildBeforeAnalysis()) {
+            msg = tr("%1: You might need to build the project to generate or update source "
+                     "files. To build automatically, enable \"Build the project before starting "
+                     "analysis\".")
+                      .arg(toolName);
+            TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
+        }
+
         TaskHub::requestPopup();
     }
 
