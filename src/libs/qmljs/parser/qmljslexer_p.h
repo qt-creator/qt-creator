@@ -146,6 +146,7 @@ public:
     int tokenStartColumn() const { return _tokenColumn; }
 
     inline QStringRef tokenSpell() const { return _tokenSpell; }
+    inline QStringRef rawString() const { return _rawString; }
     double tokenValue() const { return _tokenValue; }
     QString tokenText() const;
 
@@ -198,6 +199,7 @@ private:
     QString _tokenText;
     QString _errorMessage;
     QStringRef _tokenSpell;
+    QStringRef _rawString;
 
     const QChar *_codePtr;
     const QChar *_endPtr;
@@ -233,6 +235,7 @@ private:
     bool _followsClosingBrace;
     bool _delimited;
     bool _qmlMode;
+    bool _skipLinefeed = false;
     int _generatorLevel = 0;
     bool _staticIsKeyword = false;
 };
