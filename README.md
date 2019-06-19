@@ -253,9 +253,9 @@ You need to install CMake in order to build LLVM/Clang.
 Build LLVM/Clang by roughly following the instructions at
 http://llvm.org/docs/GettingStarted.html#git-mirror:
 
-   1. Clone LLVM and checkout a suitable branch
+   1. Clone LLVM/Clang and checkout a suitable branch
 
-          git clone -b release_80-based --recursive https://code.qt.io/clang/llvm
+          git clone -b release_80-based --recursive https://code.qt.io/clang/llvm-project.git
 
    2. Build and install LLVM/Clang
 
@@ -264,12 +264,12 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
       For Linux/macOS:
 
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ../llvm
+          cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_INSTALL_PREFIX=<installation location> ../llvm-project/llvm
           make install
 
       For Windows:
 
-          cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ..\llvm
+          cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_INSTALL_PREFIX=<installation location> ..\llvm-project\llvm
           jom install
 
 ## Third-party Components
@@ -328,18 +328,14 @@ we thank the authors who made this possible:
 
 ### LLVM/Clang
 
-  http://llvm.org/svn/llvm-project/llvm
-  http://llvm.org/svn/llvm-project/cfe/trunk
-  http://llvm.org/svn/llvm-project/clang-tools-extra/trunk
+  https://github.com/llvm/llvm-project.git
 
-  Copyright (C) 2003-2018 LLVM Team
+  Copyright (C) 2003-2019 LLVM Team
 
   Distributed under the University of Illinois/NCSA Open Source License (NCSA),
-  see https://github.com/llvm-mirror/llvm/blob/master/LICENSE.TXT
+  see https://github.com/llvm/llvm-project/blob/master/llvm/LICENSE.TXT
 
-  With backported/additional patches from
-      http://code.qt.io/cgit/clang/llvm.git/
-      http://code.qt.io/cgit/clang/clang.git/
+  With backported/additional patches from https://code.qt.io/clang/llvm-project.git
 
 ### Reference implementation for std::experimental::optional
 
