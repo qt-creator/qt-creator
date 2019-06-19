@@ -105,11 +105,6 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
             AndroidConfigurations::currentConfig().sdkLocation().toString());
 }
 
-FilePath AndroidToolChain::suggestedGdbServer() const
-{
-    return AndroidConfigurations::currentConfig().gdbServer(targetAbi());
-}
-
 bool AndroidToolChain::fromMap(const QVariantMap &data)
 {
     if (!ClangToolChain::fromMap(data))

@@ -26,6 +26,7 @@
 #include "androidgdbserverkitinformation.h"
 #include "androidconstants.h"
 #include "androidtoolchain.h"
+#include "androidconfigurations.h"
 
 #include <utils/pathchooser.h>
 #include <utils/elidinglabel.h>
@@ -129,8 +130,7 @@ FilePath AndroidGdbServerKitAspect::autoDetect(const Kit *kit)
     ToolChain *tc = ToolChainKitAspect::toolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return FilePath();
-    auto atc = static_cast<AndroidToolChain *>(tc);
-    return atc->suggestedGdbServer();
+    return AndroidConfigurations::currentConfig().gdbServer(tc->targetAbi());
 }
 
 ///////////////
