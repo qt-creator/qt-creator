@@ -157,6 +157,7 @@ HEADERS += \
     $$PWD/refactoringserverinterface.h \
     $$PWD/refactoringserverproxy.h \
     $$PWD/referencesmessage.h \
+    $$PWD/set_algorithm.h \
     $$PWD/unsavedfilesupdatedmessage.h \
     $$PWD/removeprojectpartsmessage.h \
     $$PWD/requestannotationsmessage.h \

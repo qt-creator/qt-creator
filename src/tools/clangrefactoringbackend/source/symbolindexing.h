@@ -148,12 +148,7 @@ private:
     FileStatusCache m_fileStatusCache{m_fileSytem};
     SymbolsCollectorManager m_collectorManger;
     ProgressCounter m_progressCounter;
-    std::function<TimeStamp(FilePathView filePath)> getModifiedTime{
-        [&](ClangBackEnd::FilePathView path) -> TimeStamp {
-            return QFileInfo(QString(path)).lastModified().toSecsSinceEpoch();
-        }};
-    ModifiedTimeChecker<ClangBackEnd::SourceTimeStamps> m_modifiedTimeChecker{getModifiedTime,
-                                                                              m_filePathCache};
+    ModifiedTimeChecker<ClangBackEnd::SourceTimeStamps> m_modifiedTimeChecker{m_fileSytem};
     SymbolIndexer m_indexer;
     SymbolIndexerTaskQueue m_indexerQueue;
     SymbolIndexerTaskScheduler m_indexerScheduler;

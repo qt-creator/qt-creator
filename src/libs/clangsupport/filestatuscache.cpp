@@ -26,6 +26,8 @@
 #include "filestatuscache.h"
 #include "filesystem.h"
 
+#include <set_algorithm.h>
+
 #include <utils/algorithm.h>
 
 #include <QDateTime>
@@ -51,49 +53,15 @@ void FileStatusCache::update(FilePathId filePathId)
         found->lastModified = m_fileSystem.lastModified(filePathId);
 }
 
-namespace {
-template<class InputIt1, class InputIt2, class Callable>
-void set_intersection_call(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Callable callable)
-{
-    while (first1 != last1 && first2 != last2) {
-        if (*first1 < *first2) {
-            ++first1;
-        } else {
-            if (!(*first2 < *first1))
-                callable(*first1++);
-            ++first2;
-        }
-    }
-}
-
-template<class InputIt1, class InputIt2, class Callable>
-void set_difference_call(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Callable callable)
-{
-    while (first1 != last1) {
-        if (first2 == last2) {
-            std::for_each(first1, last1, callable);
-            return;
-        }
-        if (*first1 < *first2) {
-            callable(*first1++);
-        } else {
-            if (!(*first2 < *first1))
-                ++first1;
-            ++first2;
-        }
-    }
-}
-} // namespace
-
 void FileStatusCache::update(FilePathIds filePathIds)
 {
-    set_intersection_call(m_cacheEntries.begin(),
+    std::set_intersection(m_cacheEntries.begin(),
                           m_cacheEntries.end(),
                           filePathIds.begin(),
                           filePathIds.end(),
-                          [&](auto &entry) {
+                          make_iterator([&](auto &entry) {
                               entry.lastModified = m_fileSystem.lastModified(entry.filePathId);
-                          });
+                          }));
 }
 
 FilePathIds FileStatusCache::modified(FilePathIds filePathIds) const
@@ -101,30 +69,30 @@ FilePathIds FileStatusCache::modified(FilePathIds filePathIds) const
     FilePathIds modifiedFilePathIds;
     modifiedFilePathIds.reserve(filePathIds.size());
 
-    set_intersection_call(m_cacheEntries.begin(),
+    std::set_intersection(m_cacheEntries.begin(),
                           m_cacheEntries.end(),
                           filePathIds.begin(),
                           filePathIds.end(),
-                          [&](auto &entry) {
+                          make_iterator([&](auto &entry) {
                               auto newLastModified = m_fileSystem.lastModified(entry.filePathId);
                               if (newLastModified > entry.lastModified) {
                                   modifiedFilePathIds.push_back(entry.filePathId);
                                   entry.lastModified = newLastModified;
                               }
-                          });
+                          }));
 
     Internal::FileStatusCacheEntries newEntries;
     newEntries.reserve(filePathIds.size());
 
-    set_difference_call(filePathIds.begin(),
+    std::set_difference(filePathIds.begin(),
                         filePathIds.end(),
                         m_cacheEntries.begin(),
                         m_cacheEntries.end(),
-                        [&](FilePathId newFilePathId) {
+                        make_iterator([&](FilePathId newFilePathId) {
                             newEntries.emplace_back(newFilePathId,
                                                     m_fileSystem.lastModified(newFilePathId));
                             modifiedFilePathIds.push_back(newFilePathId);
-                        });
+                        }));
 
     if (newEntries.size()) {
         Internal::FileStatusCacheEntries mergedEntries;

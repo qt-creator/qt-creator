@@ -214,12 +214,7 @@ struct Data // because we have a cycle dependency
     ClangBackEnd::BuildDependencyCollector buildDependencyCollector{filePathCache,
                                                                     generatedFiles,
                                                                     environment};
-    std::function<TimeStamp(FilePathView filePath)> getModifiedTime{
-        [&](ClangBackEnd::FilePathView path) -> TimeStamp {
-            return QFileInfo(QString(path)).lastModified().toSecsSinceEpoch();
-        }};
-    ClangBackEnd::ModifiedTimeChecker<ClangBackEnd::SourceEntries> modifiedTimeChecker{getModifiedTime,
-                                                                                       filePathCache};
+    ClangBackEnd::ModifiedTimeChecker<ClangBackEnd::SourceEntries> modifiedTimeChecker{fileSystem};
     ClangBackEnd::BuildDependenciesProvider buildDependencyProvider{buildDependencyStorage,
                                                                     modifiedTimeChecker,
                                                                     buildDependencyCollector,
