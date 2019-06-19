@@ -210,7 +210,6 @@ public:
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
 
     bool canCreate() const override;
-    ToolChain *create() override;
 
     static QString vcVarsBatFor(const QString &basePath,
                                 MsvcToolChain::Platform platform,

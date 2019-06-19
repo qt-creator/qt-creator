@@ -2122,13 +2122,6 @@ bool MsvcToolChainFactory::canCreate() const
     return !g_availableMsvcToolchains.isEmpty();
 }
 
-ToolChain *MsvcToolChainFactory::create()
-{
-    auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID);
-    tc->setupVarsBat(Abi::hostAbi(), g_availableMsvcToolchains.first()->varsBat(), "");
-    return tc;
-}
-
 MsvcToolChain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags)
     : m_flags(flags)
 {
