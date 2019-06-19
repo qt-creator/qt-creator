@@ -31,6 +31,8 @@
 #include <QPainter>
 #include <QPainterPath>
 
+#include <cmath>
+
 namespace DesignTools {
 
 CurveItem::CurveItem(QGraphicsItem *parent)
@@ -98,7 +100,7 @@ bool CurveItem::contains(const QPointF &point) const
     bool valid = false;
     QPointF transformed(m_transform.inverted(&valid).map(point));
 
-    double width = abs(20.0 / scaleY(m_transform));
+    double width = std::abs(20.0 / scaleY(m_transform));
 
     if (valid)
         return curve().intersects(transformed, width);

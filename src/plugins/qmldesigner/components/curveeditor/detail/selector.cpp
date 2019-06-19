@@ -29,6 +29,8 @@
 
 #include <QApplication>
 
+#include <cmath>
+
 namespace DesignTools {
 
 Selector::Selector() {}
