@@ -575,29 +575,6 @@ ProvisioningProfilePtr IosConfigurations::provisioningProfile(const QString &pro
                                 Utils::equal(&ProvisioningProfile::identifier, profileID));
 }
 
-static ClangToolChain *createIosToolChain(const XcodePlatform &platform,
-                                       const XcodePlatform::ToolchainTarget &target,
-                                       Core::Id l)
-{
-    if (!l.isValid())
-        return nullptr;
-
-    if (l != Core::Id(ProjectExplorer::Constants::C_LANGUAGE_ID)
-            && l != Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID))
-        return nullptr;
-
-    auto toolChain = new ClangToolChain;
-    toolChain->setDetection(ToolChain::AutoDetection);
-    toolChain->setLanguage(l);
-    toolChain->setDisplayName(target.name);
-    toolChain->setPlatformCodeGenFlags(target.backendFlags);
-    toolChain->setPlatformLinkerFlags(target.backendFlags);
-    toolChain->resetToolChain(l == Core::Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID) ?
-                                  platform.cxxCompilerPath : platform.cCompilerPath);
-
-    return toolChain;
-}
-
 IosToolChainFactory::IosToolChainFactory()
 {
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
@@ -610,13 +587,20 @@ QList<ToolChain *> IosToolChainFactory::autoDetect(const QList<ToolChain *> &exi
     const QList<XcodePlatform> platforms = XcodeProbe::detectPlatforms().values();
     QList<ToolChain *> toolChains;
     toolChains.reserve(platforms.size());
-    foreach (const XcodePlatform &platform, platforms) {
+    for (const XcodePlatform &platform : platforms) {
         for (const XcodePlatform::ToolchainTarget &target : platform.targets) {
             ToolChainPair platformToolchains = findToolChainForPlatform(platform, target,
                                                                         existingClangToolChains);
-            auto createOrAdd = [&](ClangToolChain* toolChain, Core::Id l) {
+            auto createOrAdd = [&](ClangToolChain *toolChain, Core::Id l) {
                 if (!toolChain) {
-                    toolChain = createIosToolChain(platform, target, l);
+                    toolChain = new ClangToolChain;
+                    toolChain->setDetection(ToolChain::AutoDetection);
+                    toolChain->setLanguage(l);
+                    toolChain->setDisplayName(target.name);
+                    toolChain->setPlatformCodeGenFlags(target.backendFlags);
+                    toolChain->setPlatformLinkerFlags(target.backendFlags);
+                    toolChain->resetToolChain(l == ProjectExplorer::Constants::CXX_LANGUAGE_ID ?
+                                                  platform.cxxCompilerPath : platform.cCompilerPath);
                     existingClangToolChains.append(toolChain);
                 }
                 toolChains.append(toolChain);
