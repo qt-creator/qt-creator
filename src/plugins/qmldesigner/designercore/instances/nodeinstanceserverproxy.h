@@ -29,8 +29,8 @@
 
 #include <QPointer>
 #include <QProcess>
+#include <QElapsedTimer>
 #include <QFile>
-#include <QTime>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -127,7 +127,7 @@ private:
     quint32 m_thirdLastReadCommandCounter = 0;
     RunModus m_runModus;
     int m_synchronizeId = -1;
-    QTime m_benchmarkTimer;
+    QElapsedTimer m_benchmarkTimer;
     bool m_destructing = false;
 };
 
