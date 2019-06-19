@@ -499,8 +499,13 @@ void JsonWizard::openProjectForNode(Node *node)
 {
     using namespace Utils;
 
-    ProjectNode *projNode = node->asProjectNode() ? node->asProjectNode() : node->parentProjectNode();
-
+    const ProjectNode *projNode = node->asProjectNode();
+    if (!projNode) {
+        if (ContainerNode * const cn = node->asContainerNode())
+            projNode = cn->rootProjectNode();
+        else
+            projNode = node->parentProjectNode();
+    }
     QTC_ASSERT(projNode, return);
 
     Utils::optional<FilePath> projFilePath = projNode->visibleAfterAddFileAction();
