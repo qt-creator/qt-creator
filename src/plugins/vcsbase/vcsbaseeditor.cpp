@@ -157,7 +157,8 @@ VcsBaseEditor::VcsBaseEditor()
 
 void VcsBaseEditor::finalizeInitialization()
 {
-    QTC_CHECK(qobject_cast<VcsBaseEditorWidget *>(editorWidget()));
+    QTC_ASSERT(qobject_cast<VcsBaseEditorWidget *>(editorWidget()), return);
+    editorWidget()->setReadOnly(true);
 }
 
 // ----------- VcsBaseEditorPrivate

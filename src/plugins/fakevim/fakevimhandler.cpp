@@ -4139,6 +4139,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
     // Process input for a sub-mode.
     if (input.isEscape()) {
         handled = handleEscape();
+    } else if (m_wasReadOnly) {
+        return EventUnhandled;
     } else if (g.subsubmode != NoSubSubMode) {
         handled = handleCommandSubSubMode(input);
     } else if (g.submode == NoSubMode) {
