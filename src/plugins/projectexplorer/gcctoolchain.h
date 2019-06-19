@@ -68,7 +68,7 @@ class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
 public:
     GccToolChain(Core::Id typeId);
-    QString typeDisplayName() const override;
+
     Abi targetAbi() const override;
     QString originalTargetTriple() const override;
     QString version() const;
@@ -174,8 +174,6 @@ protected:
     };
 
 private:
-    explicit GccToolChain();
-
     void updateSupportedAbis() const;
     static QStringList gccPrepareArguments(const QStringList &flags,
                                            const QString &sysRoot,
@@ -214,7 +212,6 @@ public:
     explicit ClangToolChain(Core::Id typeId);
     ~ClangToolChain() override;
 
-    QString typeDisplayName() const override;
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
@@ -256,7 +253,6 @@ private:
 class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
 public:
-    QString typeDisplayName() const override;
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
     QStringList suggestedMkspecList() const override;
@@ -275,8 +271,6 @@ private:
 class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
 {
 public:
-    QString typeDisplayName() const override;
-
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     IOutputParser *outputParser() const override;
 

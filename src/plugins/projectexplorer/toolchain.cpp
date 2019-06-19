@@ -70,6 +70,7 @@ public:
     QByteArray m_id;
     QSet<Core::Id> m_supportedLanguages;
     mutable QString m_displayName;
+    QString m_typeDisplayName;
     Core::Id m_typeId;
     Core::Id m_language;
     Detection m_detection = ToolChain::UninitializedDetection;
@@ -255,6 +256,16 @@ void ToolChain::setDetection(ToolChain::Detection de)
         d->m_detection = de;
         toolChainUpdated();
     }
+}
+
+QString ToolChain::typeDisplayName() const
+{
+    return d->m_typeDisplayName;
+}
+
+void ToolChain::setTypeDisplayName(const QString &typeName)
+{
+    d->m_typeDisplayName = typeName;
 }
 
 /*!

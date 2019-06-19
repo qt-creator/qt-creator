@@ -70,8 +70,6 @@ public:
 
     QStringList suggestedMkspecList() const override;
 
-    QString typeDisplayName() const override;
-
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
 
@@ -170,7 +168,6 @@ public:
     ClangClToolChain();
 
     bool isValid() const override;
-    QString typeDisplayName() const override;
     QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FilePath compilerCommand() const override;

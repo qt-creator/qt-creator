@@ -224,11 +224,8 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 
 IarToolChain::IarToolChain() :
     ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID)
-{ }
-
-QString IarToolChain::typeDisplayName() const
 {
-    return Internal::IarToolChainFactory::tr("IAREW");
+    setTypeDisplayName(Internal::IarToolChainFactory::tr("IAREW"));
 }
 
 void IarToolChain::setTargetAbi(const Abi &abi)

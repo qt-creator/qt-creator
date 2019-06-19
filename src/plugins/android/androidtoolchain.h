@@ -37,7 +37,6 @@ class AndroidToolChain : public ProjectExplorer::ClangToolChain
 public:
     ~AndroidToolChain() override;
 
-    QString typeDisplayName() const override;
     bool isValid() const override;
     void addToEnvironment(Utils::Environment &env) const override;
 

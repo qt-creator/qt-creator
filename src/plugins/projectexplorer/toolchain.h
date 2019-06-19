@@ -101,8 +101,10 @@ public:
     virtual QStringList suggestedMkspecList() const;
 
     Core::Id typeId() const;
-    virtual QString typeDisplayName() const = 0;
+    QString typeDisplayName() const;
+
     virtual Abi targetAbi() const = 0;
+
     virtual ProjectExplorer::Abis supportedAbis() const;
     virtual QString originalTargetTriple() const { return QString(); }
     virtual QStringList extraCodeModelFlags() const { return QStringList(); }
@@ -162,6 +164,8 @@ public:
 
 protected:
     explicit ToolChain(Core::Id typeId);
+
+    void setTypeDisplayName(const QString &typeName);
 
     const MacrosCache &predefinedMacrosCache() const;
     const HeaderPathsCache &headerPathsCache() const;

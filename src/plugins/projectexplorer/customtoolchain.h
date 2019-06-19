@@ -65,7 +65,6 @@ public:
         QString displayName; ///< A translateable name to show in the user interface
     };
 
-    QString typeDisplayName() const override;
     Abi targetAbi() const override;
     void setTargetAbi(const Abi &);
 

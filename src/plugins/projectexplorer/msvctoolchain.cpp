@@ -847,6 +847,7 @@ MsvcToolChain::MsvcToolChain(Core::Id typeId)
     : ToolChain(typeId)
 {
     setDisplayName("Microsoft Visual C++ Compiler");
+    setTypeDisplayName(MsvcToolChainFactory::tr("MSVC"));
 }
 
 void MsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
@@ -900,11 +901,6 @@ QString MsvcToolChain::originalTargetTriple() const
 {
     return m_abi.wordWidth() == 64 ? QLatin1String("x86_64-pc-windows-msvc")
                                    : QLatin1String("i686-pc-windows-msvc");
-}
-
-QString MsvcToolChain::typeDisplayName() const
-{
-    return MsvcToolChainFactory::tr("MSVC");
 }
 
 QStringList MsvcToolChain::suggestedMkspecList() const
@@ -1651,6 +1647,7 @@ ClangClToolChain::ClangClToolChain()
     : MsvcToolChain(Constants::CLANG_CL_TOOLCHAIN_TYPEID)
 {
     setDisplayName("clang-cl");
+    setTypeDisplayName(QCoreApplication::translate("ProjectExplorer::ClangToolChainFactory", "Clang"));
 }
 
 bool ClangClToolChain::isValid() const
@@ -1669,11 +1666,6 @@ void ClangClToolChain::addToEnvironment(Utils::Environment &env) const
 Utils::FilePath ClangClToolChain::compilerCommand() const
 {
     return Utils::FilePath::fromString(m_clangPath);
-}
-
-QString ClangClToolChain::typeDisplayName() const
-{
-    return QCoreApplication::translate("ProjectExplorer::ClangToolChainFactory", "Clang");
 }
 
 QStringList ClangClToolChain::suggestedMkspecList() const

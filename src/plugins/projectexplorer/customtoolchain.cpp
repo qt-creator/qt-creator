@@ -84,11 +84,8 @@ static const char warningExampleKeyC[] = "ProjectExplorer.CustomToolChain.Warnin
 CustomToolChain::CustomToolChain() :
     ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID),
     m_outputParserId(GccParser::id())
-{ }
-
-QString CustomToolChain::typeDisplayName() const
 {
-    return Internal::CustomToolChainFactory::tr("Custom");
+    setTypeDisplayName(Internal::CustomToolChainFactory::tr("Custom"));
 }
 
 Abi CustomToolChain::targetAbi() const

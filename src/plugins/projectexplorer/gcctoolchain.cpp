@@ -232,13 +232,11 @@ static QString gccVersion(const FilePath &path, const QStringList &env)
 // GccToolChain
 // --------------------------------------------------------------------------
 
-GccToolChain::GccToolChain() :
-    GccToolChain(Constants::GCC_TOOLCHAIN_TYPEID)
-{ }
-
 GccToolChain::GccToolChain(Core::Id typeId) :
     ToolChain(typeId)
-{ }
+{
+    setTypeDisplayName(GccToolChainFactory::tr("GCC"));
+}
 
 void GccToolChain::setCompilerCommand(const FilePath &path)
 {
@@ -287,11 +285,6 @@ QString GccToolChain::defaultDisplayName() const
 LanguageExtensions GccToolChain::defaultLanguageExtensions() const
 {
     return LanguageExtension::Gnu;
-}
-
-QString GccToolChain::typeDisplayName() const
-{
-    return GccToolChainFactory::tr("GCC");
 }
 
 Abi GccToolChain::targetAbi() const
@@ -867,7 +860,7 @@ GccToolChainFactory::GccToolChainFactory()
     setDisplayName(tr("GCC"));
     setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
-    setToolchainConstructor([] { return new GccToolChain; });
+    setToolchainConstructor([] { return new GccToolChain(Constants::GCC_TOOLCHAIN_TYPEID); });
     setUserCreatable(true);
 }
 
@@ -1265,14 +1258,14 @@ void ClangToolChain::syncAutodetectedWithParentToolchains()
 }
 
 ClangToolChain::ClangToolChain() :
-    GccToolChain(Constants::CLANG_TOOLCHAIN_TYPEID)
+    ClangToolChain(Constants::CLANG_TOOLCHAIN_TYPEID)
 {
-    syncAutodetectedWithParentToolchains();
 }
 
 ClangToolChain::ClangToolChain(Core::Id typeId) :
     GccToolChain(typeId)
 {
+    setTypeDisplayName(ClangToolChainFactory::tr("Clang"));
     syncAutodetectedWithParentToolchains();
 }
 
@@ -1280,11 +1273,6 @@ ClangToolChain::~ClangToolChain()
 {
     QObject::disconnect(m_thisToolchainRemovedConnection);
     QObject::disconnect(m_mingwToolchainAddedConnection);
-}
-
-QString ClangToolChain::typeDisplayName() const
-{
-    return ClangToolChainFactory::tr("Clang");
 }
 
 FilePath ClangToolChain::makeCommand(const Environment &environment) const
@@ -1594,11 +1582,8 @@ void ClangToolChainConfigWidget::makeReadOnlyImpl()
 
 MingwToolChain::MingwToolChain() :
     GccToolChain(Constants::MINGW_TOOLCHAIN_TYPEID)
-{ }
-
-QString MingwToolChain::typeDisplayName() const
 {
-    return MingwToolChainFactory::tr("MinGW");
+    setTypeDisplayName(MingwToolChainFactory::tr("MinGW"));
 }
 
 QStringList MingwToolChain::suggestedMkspecList() const
@@ -1673,11 +1658,8 @@ QList<ToolChain *> MingwToolChainFactory::autoDetect(const FilePath &compilerPat
 
 LinuxIccToolChain::LinuxIccToolChain() :
     GccToolChain(Constants::LINUXICC_TOOLCHAIN_TYPEID)
-{ }
-
-QString LinuxIccToolChain::typeDisplayName() const
 {
-    return LinuxIccToolChainFactory::tr("Linux ICC");
+    setTypeDisplayName(LinuxIccToolChainFactory::tr("Linux ICC"));
 }
 
 /**

@@ -103,11 +103,7 @@ QnxToolChain::QnxToolChain()
     : GccToolChain(Constants::QNX_TOOLCHAIN_ID)
 {
     setOptionsReinterpreter(&reinterpretOptions);
-}
-
-QString QnxToolChain::typeDisplayName() const
-{
-    return QnxToolChainFactory::tr("QCC");
+    setTypeDisplayName(QnxToolChainFactory::tr("QCC"));
 }
 
 std::unique_ptr<ToolChainConfigWidget> QnxToolChain::createConfigurationWidget()

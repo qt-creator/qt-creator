@@ -52,8 +52,6 @@ class KeilToolchain final : public ProjectExplorer::ToolChain
     Q_DECLARE_TR_FUNCTIONS(KeilToolchain)
 
 public:
-    QString typeDisplayName() const final;
-
     void setTargetAbi(const ProjectExplorer::Abi &abi);
     ProjectExplorer::Abi targetAbi() const final;
 

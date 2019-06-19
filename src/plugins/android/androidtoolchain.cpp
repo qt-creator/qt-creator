@@ -72,12 +72,13 @@ static ToolChain *findToolChain(Utils::FilePath &compilerPath, Core::Id lang, co
     return tc;
 }
 
-AndroidToolChain::~AndroidToolChain() = default;
-
-QString AndroidToolChain::typeDisplayName() const
+AndroidToolChain::AndroidToolChain()
+    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID)
 {
-    return AndroidToolChainFactory::tr("Android Clang");
+    setTypeDisplayName(AndroidToolChainFactory::tr("Android Clang"));
 }
+
+AndroidToolChain::~AndroidToolChain() = default;
 
 bool AndroidToolChain::isValid() const
 {
@@ -210,13 +211,6 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsForNdk(const ToolChai
 
     return result;
 }
-
-// for fromMap
-AndroidToolChain::AndroidToolChain()
-    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID)
-{
-}
-
 
 } // namespace Internal
 } // namespace Android

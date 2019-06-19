@@ -212,11 +212,8 @@ static Utils::FilePath compilerPathFromEnvironment(const QString &compilerName)
 
 SdccToolChain::SdccToolChain() :
     ToolChain(Constants::SDCC_TOOLCHAIN_TYPEID)
-{ }
-
-QString SdccToolChain::typeDisplayName() const
 {
-    return Internal::SdccToolChainFactory::tr("SDCC");
+    setTypeDisplayName(Internal::SdccToolChainFactory::tr("SDCC"));
 }
 
 void SdccToolChain::setTargetAbi(const Abi &abi)

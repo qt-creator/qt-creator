@@ -52,8 +52,6 @@ class SdccToolChain final : public ProjectExplorer::ToolChain
     Q_DECLARE_TR_FUNCTIONS(SdccToolChain)
 
 public:
-    QString typeDisplayName() const final;
-
     void setTargetAbi(const ProjectExplorer::Abi &abi);
     ProjectExplorer::Abi targetAbi() const final;
 

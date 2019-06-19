@@ -36,7 +36,6 @@ public:
     NimToolChain();
     explicit NimToolChain(Core::Id typeId);
 
-    QString typeDisplayName() const override;
     ProjectExplorer::Abi targetAbi() const override;
     bool isValid() const override;
 
@@ -62,8 +61,6 @@ public:
     static bool parseVersion(const Utils::FilePath &path, std::tuple<int, int, int> &version);
 
 private:
-    NimToolChain(const NimToolChain &other);
-
     Utils::FilePath m_compilerCommand;
     std::tuple<int, int, int> m_version;
 };

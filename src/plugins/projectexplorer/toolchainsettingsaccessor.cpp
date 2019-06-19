@@ -299,21 +299,19 @@ const char TestToolChainType[] = "TestToolChainType";
 class TTC : public ToolChain
 {
 public:
-    TTC() : ToolChain(TestToolChainType) {}
-
-    TTC(const QByteArray &t, bool v = true) :
+    TTC(const QByteArray &t = {}, bool v = true) :
         ToolChain(TestToolChainType),
         token(t),
         m_valid(v)
     {
         m_toolChains.append(this);
         setLanguage(Constants::CXX_LANGUAGE_ID);
+        setTypeDisplayName("Test Tool Chain");
     }
 
     static QList<TTC *> toolChains();
     static bool hasToolChains() { return !m_toolChains.isEmpty(); }
 
-    QString typeDisplayName() const override { return QString("Test Tool Chain"); }
     Abi targetAbi() const override { return Abi::hostAbi(); }
     bool isValid() const override { return m_valid; }
     MacroInspectionRunner createMacroInspectionRunner() const override { return MacroInspectionRunner(); }

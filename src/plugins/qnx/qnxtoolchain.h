@@ -36,8 +36,6 @@ class QnxToolChain : public ProjectExplorer::GccToolChain
 public:
     QnxToolChain();
 
-    QString typeDisplayName() const override;
-
     std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() override;
 
     void addToEnvironment(Utils::Environment &env) const override;

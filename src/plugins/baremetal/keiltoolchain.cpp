@@ -238,11 +238,8 @@ static QString buildDisplayName(Abi::Architecture arch, Core::Id language,
 
 KeilToolchain::KeilToolchain() :
     ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
-{ }
-
-QString KeilToolchain::typeDisplayName() const
 {
-    return Internal::KeilToolchainFactory::tr("KEIL");
+    setTypeDisplayName(Internal::KeilToolchainFactory::tr("KEIL"));
 }
 
 void KeilToolchain::setTargetAbi(const Abi &abi)
