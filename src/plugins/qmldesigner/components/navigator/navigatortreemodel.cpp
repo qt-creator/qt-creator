@@ -447,7 +447,7 @@ static bool findTargetProperty(const QModelIndex &rowModelIndex,
                                NavigatorTreeModel *navigatorTreeModel,
                                NodeAbstractProperty *targetProperty,
                                int *targetRowNumber,
-                               const QString &propertyName = {})
+                               const PropertyName &propertyName = {})
 {
     QModelIndex targetItemIndex;
     PropertyName targetPropertyName;
@@ -461,10 +461,10 @@ static bool findTargetProperty(const QModelIndex &rowModelIndex,
         if (!targetNode.metaInfo().hasDefaultProperty())
             return false;
 
-        if (propertyName.isEmpty())
+        if (propertyName.isEmpty() || !targetNode.metaInfo().hasProperty(propertyName))
             targetPropertyName = targetNode.metaInfo().defaultPropertyName();
         else
-            targetPropertyName = propertyName.toUtf8();
+            targetPropertyName = propertyName;
     }
 
     // Disallow dropping items between properties, which are listed first.
@@ -520,7 +520,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
     const QString targetPropertyName = hints.forceNonDefaultProperty();
 
-    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber, targetPropertyName);
+    bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber, targetPropertyName.toUtf8());
 
     if (foundTarget) {
         if (!NodeHints::fromItemLibraryEntry(itemLibraryEntry).canBeDroppedInNavigator())
