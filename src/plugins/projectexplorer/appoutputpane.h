@@ -120,6 +120,7 @@ private:
 
     void zoomIn(int range);
     void zoomOut(int range);
+    void resetZoom();
 
     void enableButtons(const RunControl *rc);
 

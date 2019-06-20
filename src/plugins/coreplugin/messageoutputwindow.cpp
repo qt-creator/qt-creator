@@ -56,6 +56,7 @@ MessageOutputWindow::MessageOutputWindow()
 
     connect(this, &IOutputPane::zoomIn, m_widget, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOut, m_widget, &Core::OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoom, m_widget, &Core::OutputWindow::resetZoom);
     connect(this, &IOutputPane::fontChanged, m_widget, &OutputWindow::setBaseFont);
     connect(this, &IOutputPane::wheelZoomEnabledChanged, m_widget, &OutputWindow::setWheelZoomEnabled);
 
@@ -65,6 +66,7 @@ MessageOutputWindow::MessageOutputWindow()
 
     setupFilterUi("MessageOutputPane.Filter");
     setFilteringEnabled(true);
+    setupContext(Constants::C_GENERAL_OUTPUT_PANE, m_widget);
 }
 
 MessageOutputWindow::~MessageOutputWindow()

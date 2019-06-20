@@ -213,6 +213,7 @@ AppOutputPane::AppOutputPane() :
 
     connect(this, &Core::IOutputPane::zoomIn, this, &AppOutputPane::zoomIn);
     connect(this, &Core::IOutputPane::zoomOut, this, &AppOutputPane::zoomOut);
+    connect(this, &IOutputPane::resetZoom, this, &AppOutputPane::resetZoom);
 
     m_settingsButton->setToolTip(tr("Open Settings Page"));
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
@@ -247,6 +248,7 @@ AppOutputPane::AppOutputPane() :
     setupFilterUi("AppOutputPane.Filter");
     setFilteringEnabled(false);
     setZoomButtonsEnabled(false);
+    setupContext("Core.AppOutputPane", m_mainWidget);
 }
 
 AppOutputPane::~AppOutputPane()
@@ -660,6 +662,12 @@ void AppOutputPane::zoomOut(int range)
 {
     for (const RunControlTab &tab : qAsConst(m_runControlTabs))
         tab.window->zoomOut(range);
+}
+
+void AppOutputPane::resetZoom()
+{
+    for (const RunControlTab &tab : qAsConst(m_runControlTabs))
+        tab.window->resetZoom();
 }
 
 void AppOutputPane::enableButtons(const RunControl *rc)

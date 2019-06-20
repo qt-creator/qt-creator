@@ -302,9 +302,11 @@ VcsOutputWindow::VcsOutputWindow()
 
     updateFontSettings();
     updateBehaviorSettings();
+    setupContext(Internal::C_VCS_OUTPUT_PANE, &d->widget);
 
     connect(this, &IOutputPane::zoomIn, &d->widget, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOut, &d->widget, &Core::OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoom, &d->widget, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
             this, updateFontSettings);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
