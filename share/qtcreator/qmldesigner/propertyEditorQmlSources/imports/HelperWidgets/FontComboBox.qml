@@ -39,7 +39,35 @@ StudioControls.ComboBox {
     onTextColorChanged: setColor()
 
     editable: true
-    model: ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
+
+    property string fontFilter: "*.ttf *.otf"
+
+
+    FileResourcesModel {
+        modelNodeBackendProperty: modelNodeBackend
+        filter: comboBox.fontFilter
+        id: fileModel
+    }
+
+    function fontUrlToName(url) {
+        var fontLoader = Qt.createQmlObject('import QtQuick 2.0; FontLoader { source: \"' + url + '\"; }',
+                                           comboBox,
+                                           "dynamicFontLoader");
+        return fontLoader.name
+    }
+
+    function setupModel() {
+        var files = fileModel.fileModel
+        var familyNames = ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
+
+        files.forEach(function (item, index) {
+            var name = fontUrlToName(fileModel.dirPath + "/" + item)
+            familyNames.push(name)
+        });
+
+        familyNames.sort()
+        comboBox.model = familyNames
+    }
 
     onModelChanged: {
         editText = comboBox.backendValue.valueToString
@@ -97,10 +125,12 @@ StudioControls.ComboBox {
         target: modelNodeBackend
         onSelectionChanged: {
             comboBox.editText = backendValue.value
+            setupModel()
         }
     }
 
     Component.onCompleted: {
+        setupModel()
         //Hack to style the text input
         for (var i = 0; i < comboBox.children.length; i++) {
             if (comboBox.children[i].text !== undefined) {
