@@ -670,9 +670,7 @@ QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
         const FilePath cmakeListsTxt = baseDirectory.pathAppended("CMakeLists.txt");
         if (cmakeListsTxt.exists())
             break;
-        QDir dir(baseDirectory.toString());
-        dir.cdUp();
-        baseDirectory = FilePath::fromString(dir.absolutePath());
+        baseDirectory = baseDirectory.parentDir();
     }
 
     QDir srcDirRoot = QDir(project.toString());
