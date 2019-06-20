@@ -29,12 +29,10 @@
 
 static inline QString properName(const QColor &color)
 {
-    QString s;
     if (color.alpha() == 255)
-        s.sprintf("#%02x%02x%02x", color.red(), color.green(), color.blue());
+        return QString::asprintf("#%02x%02x%02x", color.red(), color.green(), color.blue());
     else
-        s.sprintf("#%02x%02x%02x%02x", color.alpha(), color.red(), color.green(), color.blue());
-    return s;
+        return QString::asprintf("#%02x%02x%02x%02x", color.alpha(), color.red(), color.green(), color.blue());
 }
 
 static inline QColor properColor(const QString &str)

@@ -877,8 +877,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
             ret += values(map(args.at(0)));
         break;
     case E_LIST: {
-        QString tmp;
-        tmp.sprintf(".QMAKE_INTERNAL_TMP_variableName_%d", m_listCount++);
+        const QString tmp = QString::asprintf(".QMAKE_INTERNAL_TMP_variableName_%d", m_listCount++);
         ret = ProStringList(ProString(tmp));
         ProStringList lst;
         for (const ProString &arg : args)

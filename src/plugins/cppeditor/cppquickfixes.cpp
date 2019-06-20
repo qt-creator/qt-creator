@@ -1510,8 +1510,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
             0x20
 
         */
-        QString replacement;
-        replacement.sprintf("0x%lX", value);
+        const QString replacement = QString::asprintf("0x%lX", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
         op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Hexadecimal"));
         op->setPriority(priority);
@@ -1528,8 +1527,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
           With
             040
         */
-        QString replacement;
-        replacement.sprintf("0%lo", value);
+        const QString replacement = QString::asprintf("0%lo", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
         op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Octal"));
         op->setPriority(priority);
@@ -1546,8 +1544,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
            With
             32
         */
-        QString replacement;
-        replacement.sprintf("%lu", value);
+        const QString replacement = QString::asprintf("%lu", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
         op->setDescription(QApplication::translate("CppTools::QuickFix", "Convert to Decimal"));
         op->setPriority(priority);
