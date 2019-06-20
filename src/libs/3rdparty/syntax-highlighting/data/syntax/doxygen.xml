@@ -4,7 +4,7 @@
     <!ENTITY wordsep "([][,?;()]|\.$|\.?\s)">     <!-- things that end a TagWord -->
 ]>
 <language name="Doxygen"
-          version="5"
+          version="6"
           kateversion="5.0"
           section="Markup"
           extensions="*.dox;*.doxygen"
@@ -463,7 +463,7 @@
       <itemData name="Tags"         defStyleNum="dsAnnotation" bold="1" />
       <itemData name="Custom Tags"  defStyleNum="dsAnnotation" />
       <itemData name="Word"         defStyleNum="dsCommentVar" bold="1" italic="0" />
-      <itemData name="HTML Tag"     defStyleNum="dsKeyword" color="#000000" bold="1" italic="0" />
+      <itemData name="HTML Tag"     defStyleNum="dsKeyword" bold="1" italic="0" />
       <itemData name="Entities"     defStyleNum="dsOthers" color="#4086C0" bold="1" italic="1" />
       <itemData name="Description"  defStyleNum="dsDocumentation" />
       <itemData name="Comment"      defStyleNum="dsComment" />

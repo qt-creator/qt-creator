@@ -36,6 +36,9 @@ QT_END_NAMESPACE
 
 namespace KSyntaxHighlighting {
 
+class Repository;
+class DefinitionData;
+
 class KeywordList
 {
 public:
@@ -69,6 +72,7 @@ public:
     void load(QXmlStreamReader &reader);
     void setCaseSensitivity(Qt::CaseSensitivity caseSensitive);
     void initLookupForCaseSensitivity(Qt::CaseSensitivity caseSensitive);
+    void resolveIncludeKeywords(DefinitionData &def);
 
 private:
     /**
@@ -80,6 +84,11 @@ private:
      * raw list of keywords, as seen in XML (but trimmed)
      */
     QStringList m_keywords;
+
+    /**
+     * raw list of include keywords, as seen in XML (but trimmed)
+     */
+    QStringList m_includes;
 
     /**
      * default case-sensitivity setting

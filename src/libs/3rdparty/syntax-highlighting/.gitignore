@@ -7,3 +7,6 @@
 CMakeLists.txt.user
 callgrind.*
 heaptrack.*
+/build*/
+*.unc-backup*
+

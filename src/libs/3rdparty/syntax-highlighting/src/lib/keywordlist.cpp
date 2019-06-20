@@ -22,6 +22,9 @@
 */
 
 #include "keywordlist_p.h"
+#include "repository.h"
+#include "definition_p.h"
+#include "ksyntaxhighlighting_logging.h"
 
 #include <QDebug>
 #include <QXmlStreamReader>
@@ -55,6 +58,11 @@ void KeywordList::load(QXmlStreamReader& reader)
             case QXmlStreamReader::StartElement:
                 if (reader.name() == QLatin1String("item")) {
                     m_keywords.append(reader.readElementText().trimmed());
+                    reader.readNextStartElement();
+                    break;
+                }
+                else if (reader.name() == QLatin1String("include")) {
+                    m_includes.append(reader.readElementText().trimmed());
                     reader.readNextStartElement();
                     break;
                 }
@@ -101,4 +109,41 @@ void KeywordList::initLookupForCaseSensitivity(Qt::CaseSensitivity caseSensitive
      * sort with right predicate
      */
     std::sort(vectorToSort.begin(), vectorToSort.end(), [caseSensitive] (const QStringRef &a, const QStringRef &b) { return a.compare(b, caseSensitive) < 0; });
+}
+
+void KeywordList::resolveIncludeKeywords(DefinitionData &def)
+{
+    while (!m_includes.isEmpty()) {
+        const auto kw_include = std::move(m_includes.back());
+        m_includes.pop_back();
+
+        const auto idx = kw_include.indexOf(QLatin1String("##"));
+        KeywordList *keywords = nullptr;
+
+        if (idx >= 0) {
+            auto listName = kw_include.left(idx);
+            auto defName = kw_include.mid(idx + 2);
+            auto includeDef = def.repo->definitionForName(defName);
+            if (includeDef.isValid()) {
+                auto defData = DefinitionData::get(includeDef);
+                defData->load(DefinitionData::OnlyKeywords(true));
+                keywords = defData->keywordList(listName);
+            }
+            else {
+                qCWarning(Log) << "Unable to resolve external include keyword for definition" << defName << "in" << def.name;
+            }
+        } else {
+            keywords = def.keywordList(kw_include);
+        }
+
+        if (keywords) {
+            if (this != keywords) {
+                keywords->resolveIncludeKeywords(def);
+            }
+            m_keywords += keywords->m_keywords;
+        }
+        else {
+            qCWarning(Log) << "Unresolved include keyword" << kw_include << "in" << def.name;
+        }
+    }
 }

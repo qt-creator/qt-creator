@@ -156,15 +156,15 @@ void SyntaxHighlighter::highlightBlock(const QString& text)
 
 void SyntaxHighlighter::applyFormat(int offset, int length, const KSyntaxHighlighting::Format& format)
 {
-    if (format.isDefaultTextStyle(theme()) || length == 0)
+    if (length == 0)
         return;
 
     QTextCharFormat tf;
-    if (format.hasTextColor(theme()))
-        tf.setForeground(format.textColor(theme()));
+    // always set the foreground color to avoid palette issues
+    tf.setForeground(format.textColor(theme()));
+
     if (format.hasBackgroundColor(theme()))
         tf.setBackground(format.backgroundColor(theme()));
-
     if (format.isBold(theme()))
         tf.setFontWeight(QFont::Bold);
     if (format.isItalic(theme()))

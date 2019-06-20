@@ -59,7 +59,8 @@ static int matchEscapedChar(const QString &text, int offset)
     if (controlChars.contains(c))
         return offset + 2;
 
-    if (c == QLatin1Char('x')) { // hex encoded character
+    // hex encoded character
+    if (c == QLatin1Char('x')) {
         auto newOffset = offset + 2;
         for (int i = 0; i < 2 && newOffset + i < text.size(); ++i, ++newOffset) {
             if (!isHexChar(text.at(newOffset)))
@@ -70,14 +71,13 @@ static int matchEscapedChar(const QString &text, int offset)
         return newOffset;
     }
 
-    if (isOctalChar(c)) { // octal encoding
+    // octal encoding, simple \0 is OK, too, unlike simple \x above
+    if (isOctalChar(c)) {
         auto newOffset = offset + 2;
         for (int i = 0; i < 2 && newOffset + i < text.size(); ++i, ++newOffset) {
             if (!isOctalChar(text.at(newOffset)))
                 break;
         }
-        if (newOffset == offset + 2)
-            return offset;
         return newOffset;
     }
 

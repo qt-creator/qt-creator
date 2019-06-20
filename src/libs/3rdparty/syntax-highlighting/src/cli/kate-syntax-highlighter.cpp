@@ -92,14 +92,14 @@ int main(int argc, char **argv)
 
     Repository repo;
     if (parser.isSet(listDefs)) {
-        foreach (const auto &def, repo.definitions()) {
+        for (const auto &def : repo.definitions()) {
             std::cout << qPrintable(def.name()) << std::endl;
         }
         return 0;
     }
 
     if (parser.isSet(listThemes)) {
-        foreach (const auto &theme, repo.themes())
+        for (const auto &theme : repo.themes())
             std::cout << qPrintable(theme.name()) << std::endl;
         return 0;
     }

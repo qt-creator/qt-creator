@@ -40,6 +40,7 @@ ecm_generate_headers(SyntaxHighlighting_HEADERS
     HEADER_NAMES
         AbstractHighlighter
         Definition
+        DefinitionDownloader
         FoldingRegion
         Format
         Repository

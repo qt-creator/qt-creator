@@ -31,6 +31,7 @@
 #include "context_p.h"
 #include "format.h"
 #include "format_p.h"
+#include "repository.h"
 #include "repository_p.h"
 #include "rule_p.h"
 #include "ksyntaxhighlighting_logging.h"
@@ -222,13 +223,13 @@ QStringList Definition::foldingIgnoreList() const
 
 QStringList Definition::keywordLists() const
 {
-    d->load();
+    d->load(DefinitionData::OnlyKeywords(true));
     return d->keywordLists.keys();
 }
 
 QStringList Definition::keywordList(const QString& name) const
 {
-    d->load();
+    d->load(DefinitionData::OnlyKeywords(true));
     const auto list = d->keywordList(name);
     return list ? list->keywords() : QStringList();
 }
@@ -323,18 +324,18 @@ Context* DefinitionData::initialContext() const
     return contexts.first();
 }
 
-Context* DefinitionData::contextByName(const QString& name) const
+Context* DefinitionData::contextByName(const QString& wantedName) const
 {
-    foreach (auto context, contexts) {
-        if (context->name() == name)
+    for (const auto context : contexts) {
+        if (context->name() == wantedName)
             return context;
     }
     return nullptr;
 }
 
-KeywordList *DefinitionData::keywordList(const QString& name)
+KeywordList *DefinitionData::keywordList(const QString& wantedName)
 {
-    auto it = keywordLists.find(name);
+    auto it = keywordLists.find(wantedName);
     return (it == keywordLists.end()) ? nullptr : &it.value();
 }
 
@@ -343,9 +344,9 @@ bool DefinitionData::isWordDelimiter(QChar c) const
     return std::binary_search(wordDelimiters.constBegin(), wordDelimiters.constEnd(), c);
 }
 
-Format DefinitionData::formatByName(const QString& name) const
+Format DefinitionData::formatByName(const QString& wantedName) const
 {
-    const auto it = formats.constFind(name);
+    const auto it = formats.constFind(wantedName);
     if (it != formats.constEnd())
         return it.value();
 
@@ -357,12 +358,15 @@ bool DefinitionData::isLoaded() const
     return !contexts.isEmpty();
 }
 
-bool DefinitionData::load()
+bool DefinitionData::load(OnlyKeywords onlyKeywords)
 {
     if (fileName.isEmpty())
         return false;
 
     if (isLoaded())
+        return true;
+
+    if (bool(onlyKeywords) && keywordIsLoaded)
         return true;
 
     QFile file(fileName);
@@ -375,17 +379,22 @@ bool DefinitionData::load()
         if (token != QXmlStreamReader::StartElement)
             continue;
 
-        if (reader.name() == QLatin1String("highlighting"))
-            loadHighlighting(reader);
+        if (reader.name() == QLatin1String("highlighting")) {
+            loadHighlighting(reader, onlyKeywords);
+            if (bool(onlyKeywords)) {
+                return true;
+            }
+        }
 
         else if (reader.name() == QLatin1String("general"))
             loadGeneral(reader);
     }
 
-    for (auto it = keywordLists.begin(); it != keywordLists.end(); ++it)
-        (*it).setCaseSensitivity(caseSensitive);
+    for (auto it = keywordLists.begin(); it != keywordLists.end(); ++it) {
+        it->setCaseSensitivity(caseSensitive);
+    }
 
-    foreach (auto context, contexts) {
+    for (const auto context : qAsConst(contexts)) {
         context->resolveContexts();
         context->resolveIncludes();
         context->resolveAttributeFormat();
@@ -454,10 +463,10 @@ bool DefinitionData::loadMetaData(const QString &file, const QJsonObject &obj)
     fileName = file;
 
     const auto exts = obj.value(QLatin1String("extensions")).toString();
-    foreach (const auto &ext, exts.split(QLatin1Char(';'), QString::SkipEmptyParts))
+    for (const auto &ext : exts.split(QLatin1Char(';'), QString::SkipEmptyParts))
         extensions.push_back(ext);
     const auto mts = obj.value(QLatin1String("mimetype")).toString();
-    foreach (const auto &mt, mts.split(QLatin1Char(';'), QString::SkipEmptyParts))
+    for (const auto &mt : mts.split(QLatin1Char(';'), QString::SkipEmptyParts))
         mimetypes.push_back(mt);
 
     return true;
@@ -482,29 +491,42 @@ bool DefinitionData::loadLanguage(QXmlStreamReader &reader)
     author = reader.attributes().value(QStringLiteral("author")).toString();
     license = reader.attributes().value(QStringLiteral("license")).toString();
     const auto exts = reader.attributes().value(QStringLiteral("extensions")).toString();
-    foreach (const auto &ext, exts.split(QLatin1Char(';'), QString::SkipEmptyParts))
+    for (const auto &ext : exts.split(QLatin1Char(';'), QString::SkipEmptyParts))
         extensions.push_back(ext);
     const auto mts = reader.attributes().value(QStringLiteral("mimetype")).toString();
-    foreach (const auto &mt, mts.split(QLatin1Char(';'), QString::SkipEmptyParts))
+    for (const auto &mt : mts.split(QLatin1Char(';'), QString::SkipEmptyParts))
         mimetypes.push_back(mt);
     if (reader.attributes().hasAttribute(QStringLiteral("casesensitive")))
         caseSensitive = Xml::attrToBool(reader.attributes().value(QStringLiteral("casesensitive"))) ? Qt::CaseSensitive : Qt::CaseInsensitive;
     return true;
 }
 
-void DefinitionData::loadHighlighting(QXmlStreamReader& reader)
+void DefinitionData::loadHighlighting(QXmlStreamReader& reader, OnlyKeywords onlyKeywords)
 {
     Q_ASSERT(reader.name() == QLatin1String("highlighting"));
     Q_ASSERT(reader.tokenType() == QXmlStreamReader::StartElement);
+
+    // skip highlighting
+    reader.readNext();
 
     while (!reader.atEnd()) {
         switch (reader.tokenType()) {
             case QXmlStreamReader::StartElement:
                 if (reader.name() == QLatin1String("list")) {
-                    KeywordList keywords;
-                    keywords.load(reader);
-                    keywordLists.insert(keywords.name(), keywords);
+                    if (!keywordIsLoaded) {
+                        KeywordList keywords;
+                        keywords.load(reader);
+                        keywordLists.insert(keywords.name(), keywords);
+                    }
+                    else {
+                        reader.skipCurrentElement();
+                        reader.readNext(); // Skip </list>
+                    }
+                } else if (bool(onlyKeywords)) {
+                    resolveIncludeKeywords();
+                    return;
                 } else if (reader.name() == QLatin1String("contexts")) {
+                    resolveIncludeKeywords();
                     loadContexts(reader);
                     reader.readNext();
                 } else if (reader.name() == QLatin1String("itemDatas")) {
@@ -519,6 +541,19 @@ void DefinitionData::loadHighlighting(QXmlStreamReader& reader)
                 reader.readNext();
                 break;
         }
+    }
+}
+
+void DefinitionData::resolveIncludeKeywords()
+{
+    if (keywordIsLoaded) {
+        return;
+    }
+
+    keywordIsLoaded = true;
+
+    for (auto it = keywordLists.begin(); it != keywordLists.end(); ++it) {
+        it->resolveIncludeKeywords(*this);
     }
 }
 
@@ -598,7 +633,7 @@ void DefinitionData::loadGeneral(QXmlStreamReader& reader)
                     std::sort(wordDelimiters.begin(), wordDelimiters.end());
                     auto it = std::unique(wordDelimiters.begin(), wordDelimiters.end());
                     wordDelimiters.truncate(std::distance(wordDelimiters.begin(), it));
-                    foreach (const auto c, reader.attributes().value(QLatin1String("weakDeliminator")))
+                    for (const auto c : reader.attributes().value(QLatin1String("weakDeliminator")))
                         wordDelimiters.remove(c);
 
                     // adaptWordWrapDelimiters, and sort

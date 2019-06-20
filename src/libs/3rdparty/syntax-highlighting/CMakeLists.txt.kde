@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
-set(KF5_VERSION "5.52.0")
+set(KF5_VERSION "5.59.0")
 project(KSyntaxHighlighting VERSION ${KF5_VERSION})
 
-find_package(ECM 5.51.0 REQUIRED NO_MODULE)
+find_package(ECM 5.59.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 if(POLICY CMP0063)
     cmake_policy(SET CMP0063 NEW)
@@ -22,6 +22,7 @@ include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
 include(KDECMakeSettings)
 include(ECMMarkNonGuiExecutable)
 include(ECMAddQch)
+include(ECMOptionalAddSubdirectory)
 
 
 ecm_setup_version(PROJECT
@@ -33,15 +34,16 @@ ecm_setup_version(PROJECT
 #
 # Dependencies
 #
-set(REQUIRED_QT_VERSION 5.8.0)
+set(REQUIRED_QT_VERSION 5.10.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} NO_MODULE REQUIRED COMPONENTS Core Network Test)
 option(KSYNTAXHIGHLIGHTING_USE_GUI "Build components depending on Qt5Gui" ON)
 if(KSYNTAXHIGHLIGHTING_USE_GUI)
     find_package(Qt5 ${REQUIRED_QT_VERSION} NO_MODULE REQUIRED COMPONENTS Gui)
 endif()
-find_package(Qt5 ${REQUIRED_QT_VERSION} NO_MODULE QUIET OPTIONAL_COMPONENTS Widgets XmlPatterns)
+find_package(Qt5 ${REQUIRED_QT_VERSION} NO_MODULE QUIET OPTIONAL_COMPONENTS PrintSupport Widgets XmlPatterns)
 set_package_properties(Qt5 PROPERTIES URL "http://qt-project.org/")
 set_package_properties(Qt5Widgets PROPERTIES PURPOSE "Example application.")
+set_package_properties(Qt5PrintSupport PROPERTIES PURPOSE "Example application.")
 set_package_properties(Qt5XmlPatterns PROPERTIES PURPOSE "Compile-time validation of syntax definition files.")
 
 find_package(Perl REQUIRED)
@@ -81,6 +83,7 @@ endif()
 if (NO_STANDARD_PATHS)
     add_definitions(-DNO_STANDARD_PATHS)
 endif()
+add_definitions(-DQT_NO_FOREACH)
 
 #
 # Actually build the stuff
@@ -90,6 +93,9 @@ add_subdirectory(data)
 add_subdirectory(src)
 if(TARGET Qt5::Gui)
     add_subdirectory(examples)
+    if (BUILD_TESTING)
+        add_subdirectory(autotests)
+    endif()
 endif()
 
 #
