@@ -59,6 +59,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QDir>
+#include <QElapsedTimer>
 #include <QSet>
 
 using namespace ProjectExplorer;
@@ -67,6 +68,25 @@ using namespace Utils;
 namespace CMakeProjectManager {
 
 Q_LOGGING_CATEGORY(cmakeProjectLog, "qtc.cmake.project", QtWarningMsg);
+
+class TraceTimer
+{
+public:
+    TraceTimer(const QString &msg)
+        : m_message(msg)
+    {
+        m_timer.start();
+    }
+
+    ~TraceTimer()
+    {
+        qCInfo(cmakeProjectLog) << QString("%1 (%2ms)").arg(m_message).arg(m_timer.elapsed());
+    }
+
+private:
+    QElapsedTimer m_timer;
+    QString m_message;
+};
 
 using namespace Internal;
 
@@ -269,6 +289,7 @@ CMakeProject::~CMakeProject()
 
 void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 {
+    TraceTimer updateProjectTotalTimer(__PRETTY_FUNCTION__);
     qCDebug(cmakeProjectLog) << "Updating CMake project data";
     const CMakeBuildConfiguration *aBc = activeBc(this);
     QString errorMessage;
@@ -277,103 +298,131 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     QTC_ASSERT(bc == aBc, return);
     QTC_ASSERT(m_treeScanner.isFinished() && !m_buildDirManager.isParsing(), return);
 
-    const QList<CMakeBuildTarget> buildTargets = m_buildDirManager.takeBuildTargets(errorMessage);
-    checkAndReportError(errorMessage);
-    bc->setBuildTargets(buildTargets);
-    qCDebug(cmakeProjectLog) << "Build target data set.";
-    const CMakeConfig cmakeConfig = m_buildDirManager.takeCMakeConfiguration(errorMessage);
-    checkAndReportError(errorMessage);
-    bc->setConfigurationFromCMake(cmakeConfig);
-    qCDebug(cmakeProjectLog) << "CMake configuration data set.";
-
-    CMakeConfig patchedConfig = cmakeConfig;
     {
-        CMakeConfigItem settingFileItem;
-        settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
-        settingFileItem.value = bc->buildDirectory()
-                .pathAppended("android_deployment_settings.json").toString().toUtf8();
-        patchedConfig.append(settingFileItem);
+        TraceTimer buildTargetsTimer("    build targets");
+        const QList<CMakeBuildTarget> buildTargets = m_buildDirManager.takeBuildTargets(
+            errorMessage);
+        checkAndReportError(errorMessage);
+        bc->setBuildTargets(buildTargets);
+        qCDebug(cmakeProjectLog) << "Build target data set.";
     }
+    CMakeConfig patchedConfig;
+    {
+        TraceTimer cacheTimer("    cache data (plus patching)");
+        const CMakeConfig cmakeConfig = m_buildDirManager.takeCMakeConfiguration(errorMessage);
+        checkAndReportError(errorMessage);
+        bc->setConfigurationFromCMake(cmakeConfig);
+        qCDebug(cmakeProjectLog) << "CMake configuration data set.";
 
-    QSet<QString> res;
-    QStringList apps;
-    for (const auto &target : bc->buildTargets()) {
-        if (target.targetType == CMakeProjectManager::DynamicLibraryType) {
-            res.insert(target.executable.parentDir().toString());
-            apps.push_back(target.executable.toUserOutput());
+        patchedConfig = cmakeConfig;
+        {
+            CMakeConfigItem settingFileItem;
+            settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
+            settingFileItem.value = bc->buildDirectory()
+                                        .pathAppended("android_deployment_settings.json")
+                                        .toString()
+                                        .toUtf8();
+            patchedConfig.append(settingFileItem);
         }
-        // ### shall we add also the ExecutableType ?
     }
     {
-        CMakeConfigItem paths;
-        paths.key = "ANDROID_SO_LIBS_PATHS";
-        paths.values = res.toList();
-        patchedConfig.append(paths);
+        TraceTimer appsTimer("    application data");
+        QSet<QString> res;
+        QStringList apps;
+        for (const auto &target : bc->buildTargets()) {
+            if (target.targetType == CMakeProjectManager::DynamicLibraryType) {
+                res.insert(target.executable.parentDir().toString());
+                apps.push_back(target.executable.toUserOutput());
+            }
+            // ### shall we add also the ExecutableType ?
+        }
+        {
+            CMakeConfigItem paths;
+            paths.key = "ANDROID_SO_LIBS_PATHS";
+            paths.values = res.toList();
+            patchedConfig.append(paths);
+        }
+
+        apps.sort();
+        {
+            CMakeConfigItem appsPaths;
+            appsPaths.key = "TARGETS_BUILD_PATH";
+            appsPaths.values = apps;
+            patchedConfig.append(appsPaths);
+        }
     }
 
-    apps.sort();
     {
-        CMakeConfigItem appsPaths;
-        appsPaths.key = "TARGETS_BUILD_PATH";
-        appsPaths.values = apps;
-        patchedConfig.append(appsPaths);
-    }
-    qCDebug(cmakeProjectLog) << "Application data regenerated.";
+        TraceTimer projectTreeTimer("    project tree");
+        auto newRoot = generateProjectTree(m_allFiles);
+        if (newRoot) {
+            setRootProjectNode(std::move(newRoot));
+            if (rootProjectNode())
+                setDisplayName(rootProjectNode()->displayName());
 
-    auto newRoot = generateProjectTree(m_allFiles);
-    if (newRoot) {
-        setRootProjectNode(std::move(newRoot));
-        if (rootProjectNode())
-            setDisplayName(rootProjectNode()->displayName());
-
-        for (const CMakeBuildTarget &bt : buildTargets) {
-            const QString buildKey = CMakeTargetNode::generateId(bt.sourceDirectory, bt.title);
-            if (ProjectNode *node = findNodeForBuildKey(buildKey)) {
-                if (auto targetNode = dynamic_cast<CMakeTargetNode *>(node))
-                    targetNode->setConfig(patchedConfig);
+            for (const CMakeBuildTarget &bt : bc->buildTargets()) {
+                const QString buildKey = CMakeTargetNode::generateId(bt.sourceDirectory, bt.title);
+                if (ProjectNode *node = findNodeForBuildKey(buildKey)) {
+                    if (auto targetNode = dynamic_cast<CMakeTargetNode *>(node))
+                        targetNode->setConfig(patchedConfig);
+                }
             }
         }
     }
-    qCDebug(cmakeProjectLog) << "Project tree updated.";
 
-    Target *t = bc->target();
-    t->setApplicationTargets(bc->appTargets());
-    t->setDeploymentData(bc->deploymentData());
+    {
+        TraceTimer projectTreeTimer("    target updated");
+        Target *t = bc->target();
+        t->setApplicationTargets(bc->appTargets());
+        t->setDeploymentData(bc->deploymentData());
 
-    t->updateDefaultRunConfigurations();
+        t->updateDefaultRunConfigurations();
+    }
 
-    qDeleteAll(m_extraCompilers);
-    m_extraCompilers = findExtraCompilers();
-    CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
-    qCDebug(cmakeProjectLog) << "Extra compilers updated.";
+    {
+        TraceTimer projectTreeTimer("    extra compilers");
+        qDeleteAll(m_extraCompilers);
+        m_extraCompilers = findExtraCompilers();
+        CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
+        qCDebug(cmakeProjectLog) << "Extra compilers updated.";
+    }
 
     QtSupport::CppKitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
 
-    CppTools::RawProjectParts rpps = m_buildDirManager.createRawProjectParts(errorMessage);
-    checkAndReportError(errorMessage);
-    qCDebug(cmakeProjectLog) << "Raw project parts created.";
+    {
+        TraceTimer cxxCodemodelTimer("    cxx codemodel");
+        CppTools::RawProjectParts rpps = m_buildDirManager.createRawProjectParts(errorMessage);
+        checkAndReportError(errorMessage);
+        qCDebug(cmakeProjectLog) << "Raw project parts created.";
 
-    for (CppTools::RawProjectPart &rpp : rpps) {
-        rpp.setQtVersion(kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
-        if (kitInfo.cxxToolChain)
-            rpp.setFlagsForCxx({kitInfo.cxxToolChain, rpp.flagsForCxx.commandLineFlags});
-        if (kitInfo.cToolChain)
-            rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags});
+        for (CppTools::RawProjectPart &rpp : rpps) {
+            rpp.setQtVersion(
+                kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
+            if (kitInfo.cxxToolChain)
+                rpp.setFlagsForCxx({kitInfo.cxxToolChain, rpp.flagsForCxx.commandLineFlags});
+            if (kitInfo.cToolChain)
+                rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags});
+        }
+
+        m_cppCodeModelUpdater->update({this, kitInfo, rpps});
+    }
+    {
+        TraceTimer qmlCodemodelTimer("    qml codemodel");
+        updateQmlJSCodeModel();
     }
 
-    m_cppCodeModelUpdater->update({this, kitInfo, rpps});
-    qCDebug(cmakeProjectLog) << "C++ codemodel updated.";
+    {
+        TraceTimer resetTimer("    resetting builddirmanager");
+        m_buildDirManager.resetData();
+    }
 
-    updateQmlJSCodeModel();
-    qCDebug(cmakeProjectLog) << "QML codemodel updated.";
+    {
+        TraceTimer emitTimer("    emitting signals");
+        emit fileListChanged();
 
-    m_buildDirManager.resetData();
-    qCDebug(cmakeProjectLog) << "CMake specific data was reset.";
-
-    emit fileListChanged();
-
-    bc->emitBuildTypeChanged();
+        bc->emitBuildTypeChanged();
+    }
     qCDebug(cmakeProjectLog) << "All CMake project data up to date.";
 }
 
@@ -603,7 +652,10 @@ void CMakeProject::combineScanAndParse(CMakeBuildConfiguration *bc)
     if (m_combinedScanAndParseResult)
         updateProjectData(bc);
 
-    emitParsingFinished(m_combinedScanAndParseResult);
+    {
+        TraceTimer parsingDoneTimer("    parsing finished signal");
+        emitParsingFinished(m_combinedScanAndParseResult);
+    }
 }
 
 QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
