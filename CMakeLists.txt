@@ -5,9 +5,9 @@ include(FeatureSummary)
 #BINARY_ARTIFACTS_BRANCH = master
 #PROJECT_USER_FILE_EXTENSION = .user
 
-set(IDE_VERSION "4.9.82" CACHE STRING "The IDE version.")
-set(IDE_VERSION_COMPAT "4.9.82" CACHE STRING "The IDE Compatibility version.")
-set(IDE_VERSION_DISPLAY "4.10.0-beta1" CACHE STRING "The IDE display version.")
+set(IDE_VERSION "4.9.83" CACHE STRING "The IDE version.")
+set(IDE_VERSION_COMPAT "4.9.83" CACHE STRING "The IDE Compatibility version.")
+set(IDE_VERSION_DISPLAY "4.10.0-beta2" CACHE STRING "The IDE display version.")
 set(IDE_COPYRIGHT_YEAR "2019" CACHE STRING "The IDE copyright year.")
 
 set(IDE_REVISION FALSE CACHE BOOL "Marks the presence of IDE revision string.")
