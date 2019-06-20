@@ -2,6 +2,7 @@ QT += quickwidgets core-private
 CONFIG += exceptions
 
 INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/components
 
 unix:!openbsd:!osx: LIBS += -lrt # posix shared memory
 
@@ -20,7 +21,13 @@ include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
 include(components/debugview/debugview.pri)
 include(components/importmanager/importmanager.pri)
-include(qmldesignerextension/qmldesignerextension.pri)
+include(components/sourcetool/sourcetool.pri)
+include(components/colortool/colortool.pri)
+include(components/texttool/texttool.pri)
+include(components/pathtool/pathtool.pri)
+include(components/timelineeditor/timelineeditor.pri)
+include(components/connectioneditor/connectioneditor.pri)
+include(components/curveeditor/curveeditor.pri)
 
 
 BUILD_PUPPET_IN_CREATOR_BINPATH = $$(BUILD_PUPPET_IN_CREATOR_BINPATH)

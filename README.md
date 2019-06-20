@@ -155,8 +155,6 @@ For detailed information on the supported compilers, see
        * Before you launch Qt Creator you may prepend the PATH with
          the location of libclang.dll/.so that you want to be used.
          See more info in the section "Prebuilt LLVM/Clang packages".
-       * When you launch Qt Creator, activate the Clang Code Model plugin as
-         described in doc/src/editors/creator-only/creator-clang-codemodel.qdoc.
 
    11. You are now ready to configure and build Qt and Qt Creator.
        Please see <https://wiki.qt.io/Building_Qt_5_from_Git> for
@@ -237,32 +235,16 @@ Prebuilt packages of LLVM/Clang can be downloaded from
     https://download.qt.io/development_releases/prebuilt/libclang/
 
 This should be your preferred option because you will use the version that is
-shipped together with Qt Creator. In addition, MinGW packages for Windows are
-faster due to profile-guided optimization. If the prebuilt packages do not
-match your configuration, you need to build LLVM/Clang manually.
+shipped together with Qt Creator (with backported/additional patches). In
+addition, MinGW packages for Windows are faster due to profile-guided
+optimization. If the prebuilt packages do not match your configuration, you
+need to build LLVM/Clang manually.
 
 If you use the MSVC compiler to build Qt Creator the suggested way is:
     1. Download both MSVC and MinGW packages of libclang.
     2. Use the MSVC version of libclang during the Qt Creator build.
     3. Prepend PATH variable used for the run time with the location of MinGW version of libclang.dll.
     4. Launch Qt Creator.
-
-If you use GCC 5 or higher on Linux, please do not use our LLVM package, but get
-the package for your distribution. Our LLVM package is compiled with GCC 4, so
-you get linking errors, because GCC 5 is using a C++ 11 conforming string
-implementation, which is not used by GCC 4. To sum it up, do not mix GCC 5 and
-GCC 4 binaries. On Ubuntu, you can download the package from
-http://apt.llvm.org/ with:
-
-   wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-   sudo apt-add-repository "deb http://apt.llvm.org/`lsb_release -cs`/ llvm-toolchain-`lsb_release -cs`-8.0 main"
-   sudo apt-get update
-   sudo apt-get install llvm-8.0 libclang-8.0-dev
-
-There is a workaround to set _GLIBCXX_USE_CXX11_ABI to 1 or 0, but we recommend
-to download the package from http://apt.llvm.org/.
-
-   https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
 
 ### Building LLVM/Clang manually
 
@@ -271,9 +253,9 @@ You need to install CMake in order to build LLVM/Clang.
 Build LLVM/Clang by roughly following the instructions at
 http://llvm.org/docs/GettingStarted.html#git-mirror:
 
-   1. Clone LLVM and checkout a suitable branch
+   1. Clone LLVM/Clang and checkout a suitable branch
 
-          git clone -b release_80-based --recursive https://code.qt.io/clang/llvm
+          git clone -b release_80-based --recursive https://code.qt.io/clang/llvm-project.git
 
    2. Build and install LLVM/Clang
 
@@ -282,12 +264,12 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
       For Linux/macOS:
 
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ../llvm
+          cmake -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_INSTALL_PREFIX=<installation location> ../llvm-project/llvm
           make install
 
       For Windows:
 
-          cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation location> -DLLVM_ENABLE_RTTI=ON ..\llvm
+          cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_INSTALL_PREFIX=<installation location> ..\llvm-project\llvm
           jom install
 
 ## Third-party Components
@@ -346,18 +328,14 @@ we thank the authors who made this possible:
 
 ### LLVM/Clang
 
-  http://llvm.org/svn/llvm-project/llvm
-  http://llvm.org/svn/llvm-project/cfe/trunk
-  http://llvm.org/svn/llvm-project/clang-tools-extra/trunk
+  https://github.com/llvm/llvm-project.git
 
-  Copyright (C) 2003-2018 LLVM Team
+  Copyright (C) 2003-2019 LLVM Team
 
   Distributed under the University of Illinois/NCSA Open Source License (NCSA),
-  see https://github.com/llvm-mirror/llvm/blob/master/LICENSE.TXT
+  see https://github.com/llvm/llvm-project/blob/master/llvm/LICENSE.TXT
 
-  With backported/additional patches from
-      http://code.qt.io/cgit/clang/llvm.git/
-      http://code.qt.io/cgit/clang/clang.git/
+  With backported/additional patches from https://code.qt.io/clang/llvm-project.git
 
 ### Reference implementation for std::experimental::optional
 

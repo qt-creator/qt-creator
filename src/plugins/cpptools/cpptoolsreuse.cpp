@@ -327,7 +327,6 @@ bool fileSizeExceedsLimit(const QFileInfo &fileInfo, int sizeLimitInMb)
             Core::MessageManager::write(msg, Core::MessageManager::Silent);
         });
 
-        qWarning().noquote() << msg;
         return true;
     }
 

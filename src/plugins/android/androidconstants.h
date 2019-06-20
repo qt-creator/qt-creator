@@ -74,8 +74,9 @@ const char ANDROID_PACKAGE_SOURCE_DIR[] = "AndroidPackageSourceDir";
 const char ANDROID_EXTRA_LIBS[] = "AndroidExtraLibs";
 
 const char ANDROID_PACKAGENAME[] = "Android.PackageName";
-const char ANDROID_PACKAGE_INSTALLATION_STEP_ID[] =  "Android.PackageInstallationStep";
-const char ANDROID_BUILD_APK_ID[] = "Android.BuildApkStep";
+const char ANDROID_PACKAGE_INSTALLATION_STEP_ID[]
+    = "Qt4ProjectManager.AndroidPackageInstallationStep";
+const char ANDROID_BUILD_APK_ID[] = "QmakeProjectManager.AndroidBuildApkStep";
 
 const char AndroidPackageSourceDir[] = "AndroidPackageSourceDir"; // QString
 const char AndroidDeploySettingsFile[] = "AndroidDeploySettingsFile"; // QString

@@ -62,6 +62,7 @@
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/session.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -512,6 +513,10 @@ CppModelManager::CppModelManager()
 {
     d->m_indexingSupporter = nullptr;
     d->m_enableGC = true;
+
+    // Visual C++ has 1MiB, macOSX has 512KiB
+    if (Utils::HostOsInfo::isWindowsHost() || Utils::HostOsInfo::isMacHost())
+        d->m_threadPool.setStackSize(2 * 1024 * 1024);
 
     qRegisterMetaType<QSet<QString> >();
     connect(this, &CppModelManager::sourceFilesRefreshed,

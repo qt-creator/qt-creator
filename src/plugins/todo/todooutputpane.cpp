@@ -91,7 +91,7 @@ int TodoOutputPane::priorityInStatusBar() const
 
 void TodoOutputPane::clearContents()
 {
-    clearFilter();
+    clearKeywordFilter();
 }
 
 void TodoOutputPane::visibilityChanged(bool visible)
@@ -190,7 +190,7 @@ void TodoOutputPane::updateTodoCount()
     emit setBadgeNumber(m_todoTreeView->model()->rowCount());
 }
 
-void TodoOutputPane::updateFilter()
+void TodoOutputPane::updateKeywordFilter()
 {
     QStringList keywords;
     for (const QToolButton *btn: qAsConst(m_filterButtons)) {
@@ -208,12 +208,12 @@ void TodoOutputPane::updateFilter()
     updateTodoCount();
 }
 
-void TodoOutputPane::clearFilter()
+void TodoOutputPane::clearKeywordFilter()
 {
     for (QToolButton *btn: qAsConst(m_filterButtons))
         btn->setChecked(false);
 
-    updateFilter();
+    updateKeywordFilter();
 }
 
 void TodoOutputPane::createTreeView()
@@ -282,7 +282,7 @@ void TodoOutputPane::createScopeButtons()
         QToolButton *button = createCheckableToolButton(keyword.name, tooltip.arg(keyword.name), toolBarIcon(keyword.iconType));
         button->setProperty(Constants::FILTER_KEYWORD_NAME, keyword.name);
         button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-        connect(button, &QToolButton::clicked, this, &TodoOutputPane::updateFilter);
+        connect(button, &QToolButton::clicked, this, &TodoOutputPane::updateKeywordFilter);
 
         m_filterButtons.append(button);
     }

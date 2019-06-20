@@ -394,7 +394,8 @@ void NavigatorView::upButtonClicked()
             index--;
             if (index < 0)
                 index = node.parentProperty().count() - 1; //wrap around
-            node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+            if (oldIndex != index)
+                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
         }
     }
     updateItemSelection();
@@ -411,7 +412,8 @@ void NavigatorView::downButtonClicked()
             index++;
             if (index >= node.parentProperty().count())
                 index = 0; //wrap around
-            node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+            if (oldIndex != index)
+                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
         }
     }
     updateItemSelection();

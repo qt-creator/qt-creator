@@ -67,19 +67,28 @@ Rectangle {
                     SecondColumnLayout {
                         LineEdit {
                             id: lineEdit
-                            enabled: isBaseState
+
                             backendValue: backendValues.id
                             placeholderText: qsTr("id")
                             text: backendValues.id.value
                             Layout.fillWidth: true
+                            width: 240
                             showTranslateCheckBox: false
                             showExtendedFunctionButton: false
+                            enabled: !modelNodeBackend.multiSelection
                         }
-                        // workaround: without this item the lineedit does not shrink to the
-                        // right size after resizing to a wider width
-                        Item {
-                            width: 0
-                            height: 1
+
+                        Image {
+                            visible: !modelNodeBackend.multiSelection
+                            Layout.preferredWidth: 16
+                            Layout.preferredHeight: 16
+                            source: hasAliasExport ? "image://icons/alias-export-checked" : "image://icons/alias-export-unchecked"
+                            ToolTipArea {
+                                enabled: !modelNodeBackend.multiSelection
+                                anchors.fill: parent
+                                onClicked: toogleExportAlias()
+                                tooltip: qsTr("Toggles whether this item is exported as an alias property of the root item.")
+                            }
                         }
                     }
                 }

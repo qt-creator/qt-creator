@@ -33,7 +33,7 @@
     \contentspage index.html
     \page creator-keyboard-shortcuts.html
     \if defined(qtdesignstudio)
-    \previouspage studio-advanced.html
+    \previouspage studio-platforms.html
     \nextpage creator-coding.html
     \else
     \previouspage creator-cli.html

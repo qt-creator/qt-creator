@@ -472,8 +472,10 @@
     and the subproject that you add as a value of the \l{Variables#subdirs}
     {SUBDIRS variable}. It also adds all the necessary files for the subproject.
 
-    To add more subprojects, right-click the project name in the \uicontrol Projects
-    pane, and select \uicontrol {New Subproject} in the context menu.
+    To create more subprojects, right-click the project name in the
+    \uicontrol Projects pane, and select \uicontrol {New Subproject} in the
+    context menu. To add an existing project as a subproject, select
+    \uicontrol {Add Existing Projects}.
 
     To remove subprojects, right-click the project name in the \uicontrol Projects
     pane, and select \uicontrol {Remove Subproject} in the context menu.

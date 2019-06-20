@@ -116,6 +116,7 @@ void Lexer::setCode(const QString &code, int lineno, bool qmlMode)
     _tokenText.reserve(1024);
     _errorMessage.clear();
     _tokenSpell = QStringRef();
+    _rawString = QStringRef();
 
     _codePtr = code.unicode();
     _endPtr = _codePtr + code.length();
@@ -149,13 +150,20 @@ void Lexer::setCode(const QString &code, int lineno, bool qmlMode)
 
 void Lexer::scanChar()
 {
-    unsigned sequenceLength = isLineTerminatorSequence();
+    if (_skipLinefeed) {
+        Q_ASSERT(*_codePtr == QLatin1Char('\n'));
+        ++_codePtr;
+        _skipLinefeed = false;
+    }
     _char = *_codePtr++;
-    if (sequenceLength == 2)
-        _char = *_codePtr++;
-
     ++_currentColumnNumber;
+
     if (isLineTerminator()) {
+        if (_char == QLatin1Char('\r')) {
+            if (_codePtr < _endPtr && *_codePtr == QLatin1Char('\n'))
+                _skipLinefeed = true;
+            _char = QLatin1Char('\n');
+        }
         ++_currentLineNumber;
         _currentColumnNumber = 0;
     }
@@ -232,6 +240,7 @@ int Lexer::lex()
 
   again:
     _tokenSpell = QStringRef();
+    _rawString = QStringRef();
     _tokenKind = scanToken();
     _tokenLength = _codePtr - _tokenStartPtr - 1;
 
@@ -807,12 +816,15 @@ int Lexer::scanString(ScanStringMode mode)
     QChar quote = (mode == TemplateContinuation) ? QChar(TemplateHead) : QChar(mode);
     bool multilineStringLiteral = false;
 
-    const QChar *startCode = _codePtr;
+    const QChar *startCode = _codePtr - 1;
+    // in case we just parsed a \r, we need to reset this flag to get things working
+    // correctly in the loop below and afterwards
+    _skipLinefeed = false;
 
     if (_engine) {
         while (_codePtr <= _endPtr) {
-            if (isLineTerminator() && quote != QLatin1Char('`')) {
-                if (qmlMode())
+            if (isLineTerminator()) {
+                if ((quote == QLatin1Char('`') || qmlMode()))
                     break;
                 _errorCode = IllegalCharacter;
                 _errorMessage = QCoreApplication::translate("QmlParser", "Stray newline in string literal");
@@ -822,7 +834,8 @@ int Lexer::scanString(ScanStringMode mode)
             } else if (_char == '$' && quote == QLatin1Char('`')) {
                 break;
             } else if (_char == quote) {
-                _tokenSpell = _engine->midRef(startCode - _code.unicode() - 1, _codePtr - startCode);
+                _tokenSpell = _engine->midRef(startCode - _code.unicode(), _codePtr - startCode - 1);
+                _rawString = _tokenSpell;
                 scanChar();
 
                 if (quote == QLatin1Char('`'))
@@ -835,28 +848,36 @@ int Lexer::scanString(ScanStringMode mode)
                 else
                     return T_STRING_LITERAL;
             }
-            scanChar();
+            // don't use scanChar() here, that would transform \r sequences and the midRef() call would create the wrong result
+            _char = *_codePtr++;
+            ++_currentColumnNumber;
         }
     }
 
+    // rewind by one char, so things gets scanned correctly
+    --_codePtr;
+
     _validTokenText = true;
-    _tokenText.resize(0);
-    startCode--;
-    while (startCode != _codePtr - 1)
-        _tokenText += *startCode++;
+    _tokenText = QString(startCode, _codePtr - startCode);
+
+    auto setRawString = [&](const QChar *end) {
+        QString raw(startCode, end - startCode - 1);
+        raw.replace(QLatin1String("\r\n"), QLatin1String("\n"));
+        raw.replace(QLatin1Char('\r'), QLatin1Char('\n'));
+        _rawString = _engine->newStringRef(raw);
+    };
+
+    scanChar();
 
     while (_codePtr <= _endPtr) {
-        if (unsigned sequenceLength = isLineTerminatorSequence()) {
-            multilineStringLiteral = true;
-            _tokenText += _char;
-            if (sequenceLength == 2)
-                _tokenText += *_codePtr;
-            scanChar();
-        } else if (_char == mode) {
+        if (_char == quote) {
             scanChar();
 
-            if (_engine)
+            if (_engine) {
                 _tokenSpell = _engine->newStringRef(_tokenText);
+                if (quote == QLatin1Char('`'))
+                    setRawString(_codePtr - 1);
+            }
 
             if (quote == QLatin1Char('`'))
                 _bracesCount = _outerTemplateBraceCount.pop();
@@ -871,8 +892,10 @@ int Lexer::scanString(ScanStringMode mode)
             scanChar();
             scanChar();
             _bracesCount = 1;
-            if (_engine)
+            if (_engine) {
                 _tokenSpell = _engine->newStringRef(_tokenText);
+                setRawString(_codePtr - 2);
+            }
 
             return (mode == TemplateHead ? T_TEMPLATE_HEAD : T_TEMPLATE_MIDDLE);
         } else if (_char == QLatin1Char('\\')) {

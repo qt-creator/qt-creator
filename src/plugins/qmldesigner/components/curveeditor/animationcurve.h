@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of Qt Creator.
+** This file is part of the Qt Design Tooling
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -25,10 +25,45 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include "keyframe.h"
 
-#if defined(QMLDESIGNEREXTENSION_LIBRARY)
-#  define QMLDESIGNEREXTENSIONSHARED_EXPORT Q_DECL_EXPORT
-#else
-#  define QMLDESIGNEREXTENSIONSHARED_EXPORT Q_DECL_IMPORT
-#endif
+#include <vector>
+
+namespace DesignTools {
+
+class AnimationCurve
+{
+public:
+    AnimationCurve();
+
+    AnimationCurve(const std::vector<Keyframe> &frames);
+
+    bool isValid() const;
+
+    double minimumTime() const;
+
+    double maximumTime() const;
+
+    double minimumValue() const;
+
+    double maximumValue() const;
+
+    std::vector<Keyframe> keyframes() const;
+
+    std::vector<QPointF> extrema() const;
+
+    std::vector<double> yForX(double x) const;
+
+    std::vector<double> xForY(double y, uint segment) const;
+
+    bool intersects(const QPointF &coord, double radius);
+
+private:
+    std::vector<Keyframe> m_frames;
+
+    double m_minY;
+
+    double m_maxY;
+};
+
+} // End namespace DesignTools.

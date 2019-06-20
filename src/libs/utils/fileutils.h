@@ -138,7 +138,7 @@ public:
     explicit CommandLine(const FilePath &executable);
     CommandLine(const FilePath &exe,
                 const QStringList &args,
-                MetaCharMode metaCharMode = MetaCharMode::Ignore);
+                MetaCharMode metaCharMode = MetaCharMode::Abort);
     CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
 
     void addArg(const QString &arg, OsType osType = HostOsInfo::hostOs());
