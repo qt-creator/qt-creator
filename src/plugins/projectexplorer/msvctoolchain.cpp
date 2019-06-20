@@ -944,9 +944,9 @@ QStringList MsvcToolChain::suggestedMkspecList() const
                 "winrt-x64-msvc2015"};
     case Abi::WindowsMsvc2017Flavor:
         return {"win32-msvc",
-                "win32-msvc2017"
-                "winrt-arm-msvc2017"
-                "winrt-x86-msvc2017"
+                "win32-msvc2017",
+                "winrt-arm-msvc2017",
+                "winrt-x86-msvc2017",
                 "winrt-x64-msvc2017"};
     case Abi::WindowsMsvc2019Flavor:
         return {"win32-msvc",
