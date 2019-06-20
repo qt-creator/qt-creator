@@ -195,31 +195,35 @@ bool ServerModeReader::isParsing() const
 QList<CMakeBuildTarget> ServerModeReader::takeBuildTargets(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
-    const QList<CMakeBuildTarget> result = transform(m_targets, [](const Target *t) -> CMakeBuildTarget {
-        CMakeBuildTarget ct;
-        ct.title = t->name;
-        ct.executable = t->artifacts.isEmpty() ? FilePath() : t->artifacts.at(0);
-        TargetType type = UtilityType;
-        if (t->type == "EXECUTABLE")
-            type = ExecutableType;
-        else if (t->type == "STATIC_LIBRARY")
-            type = StaticLibraryType;
-        else if (t->type == "OBJECT_LIBRARY")
-            type = ObjectLibraryType;
-        else if (t->type == "MODULE_LIBRARY" || t->type == "SHARED_LIBRARY"
-                 || t->type == "INTERFACE_LIBRARY")
-            type = DynamicLibraryType;
-        else
-            type = UtilityType;
-        ct.targetType = type;
-        if (t->artifacts.isEmpty()) {
-            ct.workingDirectory = t->buildDirectory;
-        } else {
-            ct.workingDirectory = Utils::FilePath::fromString(t->artifacts.at(0).toFileInfo().absolutePath());
-        }
-        ct.sourceDirectory = t->sourceDirectory;
-        return ct;
-    });
+    QDir topSourceDir(m_parameters.sourceDirectory.toString());
+    const QList<CMakeBuildTarget> result
+        = transform(m_targets, [&topSourceDir](const Target *t) -> CMakeBuildTarget {
+              CMakeBuildTarget ct;
+              ct.title = t->name;
+              ct.executable = t->artifacts.isEmpty() ? FilePath() : t->artifacts.at(0);
+              TargetType type = UtilityType;
+              if (t->type == "EXECUTABLE")
+                  type = ExecutableType;
+              else if (t->type == "STATIC_LIBRARY")
+                  type = StaticLibraryType;
+              else if (t->type == "OBJECT_LIBRARY")
+                  type = ObjectLibraryType;
+              else if (t->type == "MODULE_LIBRARY" || t->type == "SHARED_LIBRARY"
+                       || t->type == "INTERFACE_LIBRARY")
+                  type = DynamicLibraryType;
+              else
+                  type = UtilityType;
+              ct.targetType = type;
+              if (t->artifacts.isEmpty()) {
+                  ct.workingDirectory = t->buildDirectory;
+              } else {
+                  ct.workingDirectory = Utils::FilePath::fromString(
+                      t->artifacts.at(0).toFileInfo().absolutePath());
+              }
+              ct.sourceDirectory = FilePath::fromString(
+                  QDir::cleanPath(topSourceDir.absoluteFilePath(t->sourceDirectory.toString())));
+              return ct;
+          });
     m_targets.clear();
     return result;
 }
