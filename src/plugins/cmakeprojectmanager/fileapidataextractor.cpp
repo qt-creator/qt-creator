@@ -362,7 +362,7 @@ QVector<FolderNode *> addSourceGroups(ProjectNode *targetRoot,
             targetRoot); // Only one source group, so do not bother to display any:-)
     } else {
         for (const QString &sg : td.sourceGroups) {
-            if (sg.isEmpty() || sg == "Source Files") {
+            if (sg.isEmpty()) {
                 sourceGroupNodes.append(targetRoot);
             } else {
                 auto sgNode = createCMakeVFolder(sourceDirectory,
