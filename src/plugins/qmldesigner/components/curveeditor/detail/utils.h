@@ -25,11 +25,13 @@
 
 #pragma once
 
+QT_BEGIN_NAMESPACE
 class QColor;
 class QPalette;
 class QPointF;
 class QRectF;
 class QTransform;
+QT_END_NAMESPACE
 
 namespace DesignTools {
 

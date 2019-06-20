@@ -28,9 +28,11 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
 class QPushButton;
 class QSpinBox;
 class QDoubleSpinBox;
+QT_END_NAMESPACE
 
 namespace DesignTools {
 

@@ -28,7 +28,9 @@
 #include <QRectF>
 #include <QTimer>
 
+QT_BEGIN_NAMESPACE
 class QPainter;
+QT_END_NAMESPACE
 
 namespace DesignTools {
 

@@ -33,8 +33,10 @@
 
 #include <vector>
 
+QT_BEGIN_NAMESPACE
 class QIcon;
 class QVariant;
+QT_END_NAMESPACE
 
 namespace DesignTools {
 
