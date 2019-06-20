@@ -47,7 +47,7 @@ public:
     QList<CMakeBuildTarget> buildTargets;
     CppTools::RawProjectParts projectParts;
     std::unique_ptr<CMakeProjectNode> rootProjectNode;
-    QVector<ProjectExplorer::FileNode *> knownHeaders;
+    QSet<Utils::FilePath> knownHeaders;
 };
 
 FileApiQtcData extractData(FileApiData &data,

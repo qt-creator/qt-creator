@@ -82,7 +82,7 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     CppTools::RawProjectParts m_projectParts;
     std::unique_ptr<CMakeProjectNode> m_rootProjectNode;
-    QVector<ProjectExplorer::FileNode *> m_knownHeaders;
+    QSet<Utils::FilePath> m_knownHeaders;
 
     Utils::optional<QFuture<FileApiQtcData *>> m_future;
 

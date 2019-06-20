@@ -67,7 +67,7 @@ CMakeTargetNode *createTargetNode(
     const QString &displayName);
 
 void addHeaderNodes(ProjectExplorer::ProjectNode *root,
-                    const QVector<ProjectExplorer::FileNode *> knownHeaders,
+                    QSet<Utils::FilePath> &seenHeaders,
                     const QList<const ProjectExplorer::FileNode *> &allFiles);
 
 } // namespace Internal

@@ -147,15 +147,15 @@ private:
 
     void addProjects(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                      const QList<Project *> &projects,
-                     QVector<ProjectExplorer::FileNode *> &knownHeaderNodes);
+                     QSet<Utils::FilePath> &knownHeaders);
     void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                     const QList<Target *> &targets,
-                    QVector<ProjectExplorer::FileNode *> &knownHeaderNodes);
+                    QSet<Utils::FilePath> &knownHeaders);
     void addFileGroups(ProjectExplorer::ProjectNode *targetRoot,
                        const Utils::FilePath &sourceDirectory,
                        const Utils::FilePath &buildDirectory,
                        const QList<FileGroup *> &fileGroups,
-                       QVector<ProjectExplorer::FileNode *> &knowHeaderNodes);
+                       QSet<Utils::FilePath> &knownHeaders);
 
     std::unique_ptr<ServerMode> m_cmakeServer;
     std::unique_ptr<QFutureInterface<void>> m_future;

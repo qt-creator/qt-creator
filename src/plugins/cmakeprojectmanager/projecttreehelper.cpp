@@ -174,7 +174,7 @@ CMakeTargetNode *createTargetNode(const QHash<Utils::FilePath, ProjectNode *> &c
 }
 
 void addHeaderNodes(ProjectNode *root,
-                    const QVector<FileNode *> knownHeaders,
+                    QSet<Utils::FilePath> &seenHeaders,
                     const QList<const FileNode *> &allFiles)
 {
     if (root->isEmpty())
@@ -187,9 +187,6 @@ void addHeaderNodes(ProjectNode *root,
     headerNode->setDisplayName(
         QCoreApplication::translate("CMakeProjectManager::Internal::ServerModeReader", "<Headers>"));
     headerNode->setIcon(headerNodeIcon);
-
-    // knownHeaders are already listed in their targets:
-    QSet<Utils::FilePath> seenHeaders = Utils::transform<QSet>(knownHeaders, &FileNode::filePath);
 
     // Add scanned headers:
     for (const FileNode *fn : allFiles) {

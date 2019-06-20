@@ -269,7 +269,7 @@ std::unique_ptr<CMakeProjectNode> ServerModeReader::generateProjectTree(const QL
 
     QHash<Utils::FilePath, ProjectNode *> cmakeListsNodes = addCMakeLists(root.get(),
                                                                           std::move(cmakeLists));
-    QVector<FileNode *> knownHeaders;
+    QSet<FilePath> knownHeaders;
     addProjects(cmakeListsNodes, m_projects, knownHeaders);
 
     addHeaderNodes(root.get(), knownHeaders, allFiles);
@@ -755,18 +755,18 @@ void ServerModeReader::fixTarget(ServerModeReader::Target *target) const
 
 void ServerModeReader::addProjects(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
                                    const QList<Project *> &projects,
-                                   QVector<FileNode *> &knownHeaderNodes)
+                                   QSet<FilePath> &knownHeaders)
 {
     for (const Project *p : projects) {
         createProjectNode(cmakeListsNodes, p->sourceDirectory, p->name);
-        addTargets(cmakeListsNodes, p->targets, knownHeaderNodes);
+        addTargets(cmakeListsNodes, p->targets, knownHeaders);
     }
 }
 
 void ServerModeReader::addTargets(
     const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
     const QList<Target *> &targets,
-    QVector<ProjectExplorer::FileNode *> &knownHeaderNodes)
+    QSet<Utils::FilePath> &knownHeaders)
 {
     for (const Target *t : targets) {
         CMakeTargetNode *tNode = createTargetNode(cmakeListsNodes, t->sourceDirectory, t->name);
@@ -802,7 +802,7 @@ void ServerModeReader::addTargets(
             }
         }
         tNode->setLocationInfo(info);
-        addFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, knownHeaderNodes);
+        addFileGroups(tNode, t->sourceDirectory, t->buildDirectory, t->fileGroups, knownHeaders);
     }
 }
 
@@ -810,7 +810,7 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
                                      const Utils::FilePath &sourceDirectory,
                                      const Utils::FilePath &buildDirectory,
                                      const QList<ServerModeReader::FileGroup *> &fileGroups,
-                                     QVector<FileNode *> &knownHeaderNodes)
+                                     QSet<Utils::FilePath> &knownHeaders)
 {
     std::vector<std::unique_ptr<FileNode>> toList;
     QSet<Utils::FilePath> alreadyListed;
@@ -825,15 +825,14 @@ void ServerModeReader::addFileGroups(ProjectNode *targetRoot,
             alreadyListed.insert(fn);
             return count != alreadyListed.count();
         });
-        std::vector<std::unique_ptr<FileNode>> newFileNodes
-                = Utils::transform<std::vector>(newSources,
-                                                [f, &knownHeaderNodes](const Utils::FilePath &fn) {
-            auto node = std::make_unique<FileNode>(fn, Node::fileTypeForFileName(fn));
-            node->setIsGenerated(f->isGenerated);
-            if (node->fileType() == FileType::Header)
-                knownHeaderNodes.append(node.get());
-            return node;
-        });
+        std::vector<std::unique_ptr<FileNode>> newFileNodes = Utils::transform<std::vector>(
+            newSources, [f, &knownHeaders](const Utils::FilePath &fn) {
+                auto node = std::make_unique<FileNode>(fn, Node::fileTypeForFileName(fn));
+                node->setIsGenerated(f->isGenerated);
+                if (node->fileType() == FileType::Header)
+                    knownHeaders.insert(node->filePath());
+                return node;
+            });
         std::move(std::begin(newFileNodes), std::end(newFileNodes), std::back_inserter(toList));
     }
 

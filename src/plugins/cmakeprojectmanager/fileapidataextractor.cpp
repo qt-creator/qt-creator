@@ -384,7 +384,7 @@ void addCompileGroups(ProjectNode *targetRoot,
                       const Utils::FilePath &sourceDirectory,
                       const Utils::FilePath &buildDirectory,
                       const TargetDetails &td,
-                      QVector<FileNode *> &knownHeaderNodes)
+                      QSet<FilePath> &knownHeaderNodes)
 {
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
     const QDir currentSourceDir(sourceDirectory.toString());
@@ -418,7 +418,7 @@ void addCompileGroups(ProjectNode *targetRoot,
 
         // Register headers:
         if (node->fileType() == FileType::Header)
-            knownHeaderNodes.append(node.get());
+            knownHeaderNodes.insert(node->filePath());
 
         // Where does the file node need to go?
         if (sourcePath.isChildOf(buildDirectory) && !inSourceBuild) {
@@ -450,7 +450,7 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
                 const FilePath &topSourceDir,
                 const QDir &sourceDir,
                 const QDir &buildDir,
-                QVector<ProjectExplorer::FileNode *> &knownHeaderNodes)
+                QSet<FilePath> &knownHeaderNodes)
 {
     for (const FileApiDetails::Target &t : config.targets) {
         const TargetDetails &td = Utils::findOrDefault(targetDetails,
@@ -470,10 +470,10 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
     }
 }
 
-std::pair<std::unique_ptr<CMakeProjectNode>, QVector<FileNode *>> generateRootProjectNode(
+std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> generateRootProjectNode(
     PreprocessedData &data, const FilePath &sourceDirectory, const FilePath &buildDirectory)
 {
-    std::pair<std::unique_ptr<CMakeProjectNode>, QVector<FileNode *>> result;
+    std::pair<std::unique_ptr<CMakeProjectNode>, QSet<FilePath>> result;
     result.first = std::make_unique<CMakeProjectNode>(sourceDirectory);
 
     const QDir sourceDir(sourceDirectory.toString());
@@ -488,7 +488,7 @@ std::pair<std::unique_ptr<CMakeProjectNode>, QVector<FileNode *>> generateRootPr
                                                                    std::move(data.cmakeListNodes));
     data.cmakeListNodes.clear(); // Remove all the nullptr in the vector...
 
-    QVector<FileNode *> knownHeaders;
+    QSet<FilePath> knownHeaders;
     addProjects(cmakeListsNodes, data.codemodel, sourceDir);
 
     addTargets(cmakeListsNodes,
