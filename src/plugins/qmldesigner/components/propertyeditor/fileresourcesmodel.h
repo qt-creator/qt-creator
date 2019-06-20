@@ -40,6 +40,7 @@ class FileResourcesModel : public QObject
     Q_PROPERTY(QString filter READ filter WRITE setFilter)
     Q_PROPERTY(QVariant modelNodeBackendProperty READ modelNodeBackend WRITE setModelNodeBackend NOTIFY modelNodeBackendChanged)
     Q_PROPERTY(QUrl path READ path WRITE setPath)
+    Q_PROPERTY(QUrl dirPath READ dirPath)
     Q_PROPERTY(QStringList fileModel READ fileModel NOTIFY fileModelChanged)
 
 public:
@@ -51,6 +52,7 @@ public:
     void setFileNameStr(const QString &fileName);
     void setPath(const QUrl &url);
     QUrl path() const;
+    QUrl dirPath() const;
     void setFilter(const QString &filter);
     QString filter() const;
     QStringList fileModel() const;
@@ -71,6 +73,7 @@ private:
 private:
     QUrl m_fileName;
     QUrl m_path;
+    QDir m_dirPath;
     QString m_filter;
     bool m_lock;
     QString m_currentPath;
