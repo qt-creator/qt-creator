@@ -82,11 +82,11 @@ Menu {
     MenuSeparator {
     }
 
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Select All"
         enabled: myTextEdit.text !== ""
                  && myTextEdit.selectedText !== myTextEdit.text
         onTriggered: myTextEdit.selectAll()
-        shortcut: StandardKey.SelectAll
+        /* shortcut: StandardKey.SelectAll Shortcuts in QQC2 seem to override global shortcuts */
     }
 }
