@@ -237,7 +237,7 @@ CppTools::RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             ++counter;
             CppTools::RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
-            rpp.setBuildSystemTarget(CMakeTargetNode::generateId(t.sourceDir, t.name));
+            rpp.setBuildSystemTarget(t.name);
             rpp.setDisplayName(t.id);
             rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
             rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));

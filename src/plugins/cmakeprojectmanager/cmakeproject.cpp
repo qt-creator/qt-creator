@@ -361,7 +361,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
                 setDisplayName(rootProjectNode()->displayName());
 
             for (const CMakeBuildTarget &bt : bc->buildTargets()) {
-                const QString buildKey = CMakeTargetNode::generateId(bt.sourceDirectory, bt.title);
+                const QString buildKey = bt.title;
                 if (ProjectNode *node = findNodeForBuildKey(buildKey)) {
                     if (auto targetNode = dynamic_cast<CMakeTargetNode *>(node))
                         targetNode->setConfig(patchedConfig);

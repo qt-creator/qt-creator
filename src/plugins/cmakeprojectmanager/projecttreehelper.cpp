@@ -160,7 +160,7 @@ CMakeTargetNode *createTargetNode(const QHash<Utils::FilePath, ProjectNode *> &c
     ProjectNode *cmln = cmakeListsNodes.value(dir);
     QTC_ASSERT(cmln, return nullptr);
 
-    QString targetId = CMakeTargetNode::generateId(dir, displayName);
+    QString targetId = displayName;
 
     CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(
         cmln->findNode([&targetId](const Node *n) { return n->buildKey() == targetId; }));

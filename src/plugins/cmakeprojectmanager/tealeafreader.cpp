@@ -349,7 +349,7 @@ CppTools::RawProjectParts TeaLeafReader::createRawProjectParts(QString &errorMes
         includePaths += m_parameters.workDirectory.toString();
         CppTools::RawProjectPart rpp;
         rpp.setProjectFileLocation(cbt.sourceDirectory.toString() + "/CMakeLists.txt");
-        rpp.setBuildSystemTarget(CMakeTargetNode::generateId(cbt.sourceDirectory, cbt.title));
+        rpp.setBuildSystemTarget(cbt.title);
         rpp.setIncludePaths(includePaths);
 
         CppTools::RawProjectPartFlags cProjectFlags;

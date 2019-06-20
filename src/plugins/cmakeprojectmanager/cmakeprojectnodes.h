@@ -63,8 +63,6 @@ class CMakeTargetNode : public ProjectExplorer::ProjectNode
 public:
     CMakeTargetNode(const Utils::FilePath &directory, const QString &target);
 
-    static QString generateId(const Utils::FilePath &directory, const QString &target);
-
     void setTargetInformation(const QList<Utils::FilePath> &artifacts, const QString &type);
 
     QString tooltip() const final;

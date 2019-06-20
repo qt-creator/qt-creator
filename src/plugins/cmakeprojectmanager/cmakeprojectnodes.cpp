@@ -177,11 +177,6 @@ CMakeTargetNode::CMakeTargetNode(const Utils::FilePath &directory, const QString
     setIsProduct();
 }
 
-QString CMakeTargetNode::generateId(const Utils::FilePath &directory, const QString &target)
-{
-    return directory.toString() + "///::///" + target;
-}
-
 QString CMakeTargetNode::tooltip() const
 {
     return m_tooltip;
@@ -189,7 +184,7 @@ QString CMakeTargetNode::tooltip() const
 
 QString CMakeTargetNode::buildKey() const
 {
-    return generateId(filePath(), m_target);
+    return m_target;
 }
 
 Utils::FilePath CMakeTargetNode::buildDirectory() const
