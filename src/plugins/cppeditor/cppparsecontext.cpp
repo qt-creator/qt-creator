@@ -118,7 +118,7 @@ int ParseContextModel::rowCount(const QModelIndex &) const
 
 QVariant ParseContextModel::data(const QModelIndex &index, int role) const
 {
-    if (m_projectParts.isEmpty())
+    if (!index.isValid() || index.row() < 0 || index.row() >= m_projectParts.size())
         return QVariant();
 
     const int row = index.row();
