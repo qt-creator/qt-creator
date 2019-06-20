@@ -97,8 +97,14 @@ TEST_F(UsedMacroFilter, Sources)
 {
     ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
 
-    ASSERT_THAT(filter.sources,
-                ElementsAre(FilePathId{2}, FilePathId{3}, FilePathId{4}, FilePathId{5}));
+    ASSERT_THAT(filter.sources, ElementsAre(FilePathId{6}));
+}
+
+TEST_F(UsedMacroFilter, UserIncludes)
+{
+    ClangBackEnd::UsedMacroFilter filter(sources, usedMacros, compileMacros);
+
+    ASSERT_THAT(filter.userIncludes, ElementsAre(FilePathId{1}));
 }
 
 TEST_F(UsedMacroFilter, SystemUsedMacros)

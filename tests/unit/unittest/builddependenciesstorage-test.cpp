@@ -28,8 +28,11 @@
 #include "mockfilepathcaching.h"
 #include "mocksqlitedatabase.h"
 
-#include <sqlitedatabase.h>
 #include <builddependenciesstorage.h>
+#include <refactoringdatabaseinitializer.h>
+#include <sqlitedatabase.h>
+#include <sqlitereadstatement.h>
+#include <sqlitewritestatement.h>
 
 #include <utils/optional.h>
 
@@ -70,7 +73,12 @@ protected:
     MockSqliteWriteStatement &updatePchCreationTimeStampStatement = storage.updatePchCreationTimeStampStatement;
     MockSqliteWriteStatement &deleteAllProjectPartsFilesWithProjectPartNameStatement
         = storage.deleteAllProjectPartsFilesWithProjectPartNameStatement;
-    MockSqliteReadStatement &fetchProjectPartsFilesStatement = storage.fetchPchSourcesStatement;
+    MockSqliteReadStatement &fetchPchSourcesStatement = storage.fetchPchSourcesStatement;
+    MockSqliteReadStatement &fetchSourcesStatement = storage.fetchSourcesStatement;
+    MockSqliteWriteStatement &inserOrUpdateIndexingTimesStampStatement = storage.inserOrUpdateIndexingTimesStampStatement;
+    MockSqliteReadStatement &fetchIndexingTimeStampsStatement = storage.fetchIndexingTimeStampsStatement;
+    MockSqliteReadStatement &fetchIncludedIndexingTimeStampsStatement = storage.fetchIncludedIndexingTimeStampsStatement;
+    MockSqliteReadStatement &fetchDependentSourceIdsStatement = storage.fetchDependentSourceIdsStatement;
 };
 
 TEST_F(BuildDependenciesStorage, ConvertStringsToJson)
@@ -233,13 +241,163 @@ TEST_F(BuildDependenciesStorage, FetchUsedMacros)
     ASSERT_THAT(usedMacros, result);
 }
 
-TEST_F(BuildDependenciesStorage, FetchSources)
+TEST_F(BuildDependenciesStorage, FetchPchSources)
 {
     ClangBackEnd::FilePathIds result{3, 5, 7};
-    EXPECT_CALL(fetchProjectPartsFilesStatement, valuesReturnFilePathIds(_, 22)).WillOnce(Return(result));
+    EXPECT_CALL(fetchPchSourcesStatement, valuesReturnFilePathIds(_, 22)).WillOnce(Return(result));
 
     auto sources = storage.fetchPchSources(22);
 
     ASSERT_THAT(sources, result);
+}
+
+TEST_F(BuildDependenciesStorage, FetchSources)
+{
+    ClangBackEnd::FilePathIds result{3, 5, 7};
+    EXPECT_CALL(fetchSourcesStatement, valuesReturnFilePathIds(_, 22)).WillOnce(Return(result));
+
+    auto sources = storage.fetchSources(22);
+
+    ASSERT_THAT(sources, result);
+}
+
+TEST_F(BuildDependenciesStorage, FetchIndexingTimeStampsIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchIndexingTimeStampsStatement, valuesReturnSourceTimeStamps(1024))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockDatabase, rollback());
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchIndexingTimeStampsStatement, valuesReturnSourceTimeStamps(1024));
+    EXPECT_CALL(mockDatabase, commit());
+
+    storage.fetchIndexingTimeStamps();
+}
+
+TEST_F(BuildDependenciesStorage, InsertIndexingTimeStamp)
+{
+    ClangBackEnd::FileStatuses fileStatuses{{1, 0, 34}, {2, 0, 37}};
+
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement, write(TypedEq<int>(1), TypedEq<int>(34)));
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement, write(TypedEq<int>(2), TypedEq<int>(37)));
+
+    storage.insertOrUpdateIndexingTimeStamps(fileStatuses);
+}
+
+TEST_F(BuildDependenciesStorage, InsertIndexingTimeStampsIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement, write(TypedEq<int>(1), TypedEq<int>(34)));
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement, write(TypedEq<int>(2), TypedEq<int>(34)));
+    EXPECT_CALL(mockDatabase, commit());
+
+    storage.insertOrUpdateIndexingTimeStamps({1, 2}, 34);
+}
+
+TEST_F(BuildDependenciesStorage, FetchIncludedIndexingTimeStampsIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchIncludedIndexingTimeStampsStatement,
+                valuesReturnSourceTimeStamps(1024, TypedEq<int>(1)))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockDatabase, rollback());
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchIncludedIndexingTimeStampsStatement,
+                valuesReturnSourceTimeStamps(1024, TypedEq<int>(1)));
+    EXPECT_CALL(mockDatabase, commit());
+
+    storage.fetchIncludedIndexingTimeStamps(1);
+}
+
+TEST_F(BuildDependenciesStorage, FetchDependentSourceIdsIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(3)));
+    EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(2)))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockDatabase, rollback());
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(3)));
+    EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(2)));
+    EXPECT_CALL(fetchDependentSourceIdsStatement, valuesReturnFilePathIds(1024, TypedEq<int>(7)));
+    EXPECT_CALL(mockDatabase, commit());
+
+    storage.fetchDependentSourceIds({3, 2, 7});
+}
+
+class BuildDependenciesStorageSlow : public testing::Test
+{
+protected:
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::BuildDependenciesStorage<> storage{database};
+};
+
+TEST_F(BuildDependenciesStorageSlow, InsertIndexingTimeStamps)
+{
+    storage.insertOrUpdateIndexingTimeStamps({1, 2}, 34);
+
+    ASSERT_THAT(storage.fetchIndexingTimeStamps(),
+                ElementsAre(SourceTimeStamp{1, 34}, SourceTimeStamp{2, 34}));
+}
+
+TEST_F(BuildDependenciesStorageSlow, UpdateIndexingTimeStamps)
+{
+    storage.insertOrUpdateIndexingTimeStamps({1, 2}, 34);
+
+    storage.insertOrUpdateIndexingTimeStamps({1}, 37);
+
+    ASSERT_THAT(storage.fetchIndexingTimeStamps(),
+                ElementsAre(SourceTimeStamp{1, 37}, SourceTimeStamp{2, 34}));
+}
+
+TEST_F(BuildDependenciesStorageSlow, InsertIndexingTimeStamp)
+{
+    storage.insertOrUpdateIndexingTimeStamps({{1, 0, 34}, {2, 0, 37}});
+
+    ASSERT_THAT(storage.fetchIndexingTimeStamps(),
+                ElementsAre(SourceTimeStamp{1, 34}, SourceTimeStamp{2, 37}));
+}
+
+TEST_F(BuildDependenciesStorageSlow, UpdateIndexingTimeStamp)
+{
+    storage.insertOrUpdateIndexingTimeStamps({{1, 0, 34}, {2, 0, 34}});
+
+    storage.insertOrUpdateIndexingTimeStamps({{2, 0, 37}});
+
+    ASSERT_THAT(storage.fetchIndexingTimeStamps(),
+                ElementsAre(SourceTimeStamp{1, 34}, SourceTimeStamp{2, 37}));
+}
+
+TEST_F(BuildDependenciesStorageSlow, FetchIncludedIndexingTimeStamps)
+{
+    storage.insertOrUpdateIndexingTimeStamps({1, 2, 3, 4, 5}, 34);
+    storage.insertOrUpdateSourceDependencies({{1, 2}, {1, 3}, {2, 3}, {3, 4}, {5, 3}});
+
+    auto timeStamps = storage.fetchIncludedIndexingTimeStamps(1);
+
+    ASSERT_THAT(timeStamps,
+                ElementsAre(SourceTimeStamp{1, 34},
+                            SourceTimeStamp{2, 34},
+                            SourceTimeStamp{3, 34},
+                            SourceTimeStamp{4, 34}));
+}
+
+TEST_F(BuildDependenciesStorageSlow, FetchDependentSourceIds)
+{
+    storage.insertOrUpdateSourceDependencies({{1, 2}, {1, 3}, {2, 3}, {4, 2}, {5, 6}, {7, 6}});
+
+    auto sourceIds = storage.fetchDependentSourceIds({3, 2, 7});
+
+    ASSERT_THAT(sourceIds, ElementsAre(FilePathId{1}, FilePathId{4}, FilePathId{7}));
 }
 } // namespace

@@ -60,7 +60,7 @@ public:
     void updateProjectParts(ProjectPartContainers &&projectParts);
     void updateProjectPart(ProjectPartContainer &&projectPart);
 
-    void pathsWithIdsChanged(const ProjectPartIds &ids) override;
+    void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
     void updateChangedPath(FilePathId filePath,
                            std::vector<SymbolIndexerTask> &symbolIndexerTask);
@@ -74,6 +74,9 @@ public:
 
     FilePathIds updatableFilePathIds(const ProjectPartContainer &projectPart,
                                      const Utils::optional<ProjectPartArtefact> &optionalArtefact) const;
+
+private:
+    FilePathIds filterProjectPartSources(const FilePathIds &filePathIds) const;
 
 private:
     SymbolIndexerTaskQueueInterface &m_symbolIndexerTaskQueue;

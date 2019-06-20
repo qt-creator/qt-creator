@@ -463,7 +463,6 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     Storage storage{database};
-    ClangBackEnd::SymbolStorage<> symbolStorage{database};
     ClangBackEnd::BuildDependenciesStorage<> buildDependenciesStorage{database};
 };
 
@@ -505,13 +504,13 @@ TEST_F(ProjectPartsStorageSlow, FetchProjectParts)
 
 TEST_F(ProjectPartsStorageSlow, ResetDependentIndexingTimeStamps)
 {
-    symbolStorage.insertOrUpdateIndexingTimeStamps({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 34);
+    buildDependenciesStorage.insertOrUpdateIndexingTimeStamps({1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 34);
     buildDependenciesStorage.insertOrUpdateSourceDependencies(
         {{3, 1}, {4, 1}, {1, 2}, {7, 5}, {8, 6}, {6, 5}, {9, 10}});
 
     storage.resetIndexingTimeStamps({projectPart1, projectPart2});
 
-    ASSERT_THAT(symbolStorage.fetchIndexingTimeStamps(),
+    ASSERT_THAT(buildDependenciesStorage.fetchIndexingTimeStamps(),
                 ElementsAre(SourceTimeStamp{1, 0},
                             SourceTimeStamp{2, 0},
                             SourceTimeStamp{3, 0},

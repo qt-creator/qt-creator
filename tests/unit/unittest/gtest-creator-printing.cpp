@@ -359,9 +359,8 @@ std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry)
 
 std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
 {
-    out << "("
-        << entry.id << ", "
-        << entry.filePathId
+    out << "(" << entry.directoryPathId << ", " << entry.filePathId << ", " << entry.id << ", "
+        << entry.lastModified << ", "
         << ")";
 
     return out;
@@ -1290,6 +1289,17 @@ std::ostream &operator<<(std::ostream &out, const PchPaths &pchPaths)
 {
     return out << "(" << pchPaths.projectPchPath << ", " << pchPaths.systemPchPath << ")";
 }
+
+std::ostream &operator<<(std::ostream &out, const ProjectChunkId &chunk)
+{
+    return out << "(" << chunk.id << ", " << typeToString(chunk.sourceType) << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const DirectoryPathId &id)
+{
+    return out << id.directoryPathId;
+}
+
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;

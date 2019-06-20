@@ -70,93 +70,6 @@ public:
         deleteNewLocationsTable();
     }
 
-    void insertOrUpdateIndexingTimeStamps(const FilePathIds &filePathIds, TimeStamp indexingTimeStamp) override
-    {
-        try {
-            Sqlite::ImmediateTransaction transaction{database};
-
-            for (FilePathId filePathId : filePathIds) {
-                inserOrUpdateIndexingTimesStampStatement.write(filePathId.filePathId,
-                                                               indexingTimeStamp.value);
-            }
-
-            transaction.commit();
-        } catch (const Sqlite::StatementIsBusy &) {
-            insertOrUpdateIndexingTimeStamps(filePathIds, indexingTimeStamp);
-        }
-    }
-
-    void insertOrUpdateIndexingTimeStamps(const FileStatuses &fileStatuses) override
-    {
-        for (FileStatus fileStatus : fileStatuses) {
-            inserOrUpdateIndexingTimesStampStatement.write(fileStatus.filePathId.filePathId,
-                                                           fileStatus.lastModified);
-        }
-    }
-
-    SourceTimeStamps fetchIndexingTimeStamps() const override
-    {
-        try {
-            Sqlite::DeferredTransaction transaction{database};
-
-            auto timeStamps = fetchIndexingTimeStampsStatement.template values<SourceTimeStamp, 2>(
-                1024);
-
-            transaction.commit();
-
-            return timeStamps;
-        } catch (const Sqlite::StatementIsBusy &) {
-            return fetchIndexingTimeStamps();
-        }
-    }
-
-    SourceTimeStamps fetchIncludedIndexingTimeStamps(FilePathId sourcePathId) const override
-    {
-        try {
-            Sqlite::DeferredTransaction transaction{database};
-
-            auto timeStamps = fetchIncludedIndexingTimeStampsStatement
-                                  .template values<SourceTimeStamp, 2>(1024, sourcePathId.filePathId);
-
-            transaction.commit();
-
-            return timeStamps;
-        } catch (const Sqlite::StatementIsBusy &) {
-            return fetchIncludedIndexingTimeStamps(sourcePathId);
-        }
-    }
-
-    FilePathIds fetchDependentSourceIds(const FilePathIds &sourcePathIds) const override
-    {
-        try {
-            FilePathIds dependentSourceIds;
-
-            Sqlite::DeferredTransaction transaction{database};
-
-            for (FilePathId sourcePathId : sourcePathIds) {
-                FilePathIds newDependentSourceIds;
-                newDependentSourceIds.reserve(dependentSourceIds.size() + 1024);
-
-                auto newIds = fetchDependentSourceIdsStatement
-                                  .template values<FilePathId>(1024, sourcePathId.filePathId);
-
-                std::set_union(dependentSourceIds.begin(),
-                               dependentSourceIds.end(),
-                               newIds.begin(),
-                               newIds.end(),
-                               std::back_inserter(newDependentSourceIds));
-
-                dependentSourceIds = std::move(newDependentSourceIds);
-            }
-
-            transaction.commit();
-
-            return dependentSourceIds;
-        } catch (const Sqlite::StatementIsBusy &) {
-            return fetchDependentSourceIds(sourcePathIds);
-        }
-    }
-
     void fillTemporarySymbolsTable(const SymbolEntries &symbolEntries)
     {
         WriteStatement &statement = insertSymbolsToNewSymbolsStatement;
@@ -278,25 +191,6 @@ public:
         database};
     WriteStatement deleteNewSymbolsTableStatement{"DELETE FROM newSymbols", database};
     WriteStatement deleteNewLocationsTableStatement{"DELETE FROM newLocations", database};
-    WriteStatement inserOrUpdateIndexingTimesStampStatement{
-        "INSERT INTO fileStatuses(sourceId, indexingTimeStamp) VALUES (?001, ?002) ON "
-        "CONFLICT(sourceId) DO UPDATE SET indexingTimeStamp = ?002",
-        database};
-    mutable ReadStatement fetchIncludedIndexingTimeStampsStatement{
-        "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT "
-        "dependencySourceId FROM sourceDependencies, collectedDependencies WHERE "
-        "sourceDependencies.sourceId == collectedDependencies.sourceId) SELECT DISTINCT sourceId, "
-        "indexingTimeStamp FROM collectedDependencies NATURAL JOIN fileStatuses ORDER BY sourceId",
-        database};
-    mutable ReadStatement fetchIndexingTimeStampsStatement{
-        "SELECT sourceId, indexingTimeStamp FROM fileStatuses", database};
-    mutable ReadStatement fetchDependentSourceIdsStatement{
-        "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT "
-        "sourceDependencies.sourceId FROM sourceDependencies, collectedDependencies WHERE "
-        "sourceDependencies.dependencySourceId == collectedDependencies.sourceId) SELECT sourceId "
-        "FROM collectedDependencies WHERE sourceId NOT IN (SELECT dependencySourceId FROM "
-        "sourceDependencies) ORDER BY sourceId",
-        database};
 };
 
 } // namespace ClangBackEnd

@@ -54,7 +54,10 @@ protected:
     ClangBackEnd::PchTasksMerger merger{mockPchTaskQueue};
     PchTask systemTask1{1,
                         {1, 2},
-                        {1, 2, 3},
+                        {},
+                        {},
+                        {},
+                        {},
                         {{"YI", "1", 1}, {"SAN", "3", 3}},
                         {"YI", "LIANG"},
                         {"--yi"},
@@ -66,6 +69,9 @@ protected:
     PchTask projectTask1{1,
                          {11, 12},
                          {11, 12},
+                         {21, 22},
+                         {31, 32},
+                         {41, 42},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
                          {"ER", "SAN"},
                          {"--yi"},
@@ -75,7 +81,10 @@ protected:
                           {"/to/path2", 2, IncludeSearchPathType::User}}};
     PchTask systemTask2{2,
                         {11, 12},
-                        {11, 12, 13},
+                        {},
+                        {},
+                        {},
+                        {},
                         {{"SE", "4", 4}, {"WU", "5", 5}},
                         {"ER", "SAN"},
                         {"--yi"},
@@ -87,6 +96,9 @@ protected:
     PchTask projectTask2{2,
                          {11, 12},
                          {11, 12},
+                         {21, 22},
+                         {31, 32},
+                         {41, 42},
                          {{"SE", "4", 4}, {"WU", "5", 5}},
                          {"ER", "SAN"},
                          {"--yi"},
@@ -97,7 +109,10 @@ protected:
                           {"/to/path2", 2, IncludeSearchPathType::User}}};
     PchTask systemTask3{3,
                         {1, 2},
-                        {1, 2},
+                        {},
+                        {},
+                        {},
+                        {},
                         {{"YI", "2", 1}, {"SAN", "3", 3}},
                         {"YI", "LIANG"},
                         {"--yi"},
@@ -268,18 +283,25 @@ TEST_F(PchTasksMerger, DontMergeIncludes)
     ASSERT_THAT(systemTask1.includes, ElementsAre(1, 2));
 }
 
-TEST_F(PchTasksMerger, MergeAllIncludes)
+TEST_F(PchTasksMerger, DontMergeWatchedSystemSources)
 {
     Merger::mergePchTasks(systemTask1, systemTask2);
 
-    ASSERT_THAT(systemTask1.sources, ElementsAre(1, 2, 3, 11, 12, 13));
+    ASSERT_THAT(systemTask1.watchedSystemIncludes, IsEmpty());
 }
 
-TEST_F(PchTasksMerger, DontAllMergeIncludes)
+TEST_F(PchTasksMerger, DontMergeWatchedProjectSources)
 {
     Merger::mergePchTasks(systemTask1, systemTask3);
 
-    ASSERT_THAT(systemTask1.sources, ElementsAre(1, 2, 3));
+    ASSERT_THAT(systemTask1.watchedProjectIncludes, IsEmpty());
+}
+
+TEST_F(PchTasksMerger, DontMergeWatchedUserSources)
+{
+    Merger::mergePchTasks(systemTask1, systemTask3);
+
+    ASSERT_THAT(systemTask1.watchedUserSources, IsEmpty());
 }
 
 TEST_F(PchTasksMerger, MergeProjectIds)

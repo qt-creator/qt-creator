@@ -200,6 +200,8 @@ struct ArgumentsEntry;
 class ProjectPartContainer;
 class ProjectPartId;
 class PchPaths;
+class ProjectChunkId;
+class DirectoryPathId;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -293,6 +295,8 @@ std::ostream &operator<<(std::ostream &out, const ArgumentsEntry &entry);
 std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container);
 std::ostream &operator<<(std::ostream &out, const ProjectPartId &projectPathId);
 std::ostream &operator<<(std::ostream &out, const PchPaths &pchPaths);
+std::ostream &operator<<(std::ostream &out, const ProjectChunkId &chunk);
+std::ostream &operator<<(std::ostream &out, const DirectoryPathId &id);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

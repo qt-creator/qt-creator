@@ -80,19 +80,24 @@ public:
     static Utils::SmallStringVector generateClangCompilerArguments(const PchTask &pchTask,
                                                                    FilePathView pchPath);
 
-    const ClangTool &clangTool() const
-    {
-        return m_clangTool;
-    }
+    const ClangTool &clangTool() const { return m_clangTool; }
 
-    const FilePathIds &sources() const { return m_sources; }
+    FilePathIds existingSources(FilePathIds sources) const;
+
+    const FilePathIds &watchedSystemIncludes() const { return m_watchedSystemIncludes; }
+    const FilePathIds &watchedProjectIncludes() const { return m_watchedProjectIncludes; }
+    const FilePathIds &watchedUserIncludes() const { return m_watchedUserIncludes; }
+    const FilePathIds &watchedSources() const { return m_watchedSources; }
 
 private:
     mutable std::mt19937_64 randomNumberGenator{std::random_device{}()};
     ClangTool m_clangTool;
     ProjectPartPch m_projectPartPch;
     FilePathCaching m_filePathCache;
-    FilePathIds m_sources;
+    FilePathIds m_watchedSystemIncludes;
+    FilePathIds m_watchedProjectIncludes;
+    FilePathIds m_watchedUserIncludes;
+    FilePathIds m_watchedSources;
     FilePathIds m_generatedFilePathIds;
     Environment &m_environment;
     PchManagerClientInterface &m_pchManagerClient;

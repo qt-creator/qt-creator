@@ -84,7 +84,8 @@ protected:
                                {2, SourceType::UserInclude, 1},
                                {3, SourceType::TopProjectInclude, 1},
                                {4, SourceType::SystemInclude, 1},
-                               {5, SourceType::TopSystemInclude, 1}};
+                               {5, SourceType::TopSystemInclude, 1},
+                               {6, SourceType::Source, 1}};
     UsedMacros usedMacros{{"LIANG", 0},{"YI", 1}, {"ER", 2}, {"SAN", 3}, {"SE", 4}, {"WU", 5}};
     BuildDependency buildDependency{firstSources, usedMacros, {}, {}, {}};
 };
@@ -100,7 +101,10 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                 Field(&PchTaskSet::system,
                       AllOf(Field(&PchTask::projectPartIds, ElementsAre(ProjectPartId{1})),
                             Field(&PchTask::includes, ElementsAre(5)),
-                            Field(&PchTask::sources, IsEmpty()),
+                            Field(&PchTask::watchedSystemIncludes, IsEmpty()),
+                            Field(&PchTask::watchedProjectIncludes, IsEmpty()),
+                            Field(&PchTask::watchedUserIncludes, IsEmpty()),
+                            Field(&PchTask::watchedUserSources, IsEmpty()),
                             Field(&PchTask::compilerMacros,
                                   ElementsAre(CompilerMacro{"SE", "4", 4}, CompilerMacro{"WU", "5", 5})),
                             Field(&PchTask::systemIncludeSearchPaths,
@@ -117,7 +121,10 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                     &PchTaskSet::project,
                     AllOf(Field(&PchTask::projectPartIds, ElementsAre(ProjectPartId{1})),
                           Field(&PchTask::includes, ElementsAre(3)),
-                          Field(&PchTask::sources, ElementsAre(1, 3, 4, 5)),
+                          Field(&PchTask::watchedSystemIncludes, ElementsAre(4, 5)),
+                          Field(&PchTask::watchedProjectIncludes, ElementsAre(1, 3)),
+                          Field(&PchTask::watchedUserIncludes, ElementsAre(2)),
+                          Field(&PchTask::watchedUserSources, ElementsAre(6)),
                           Field(&PchTask::compilerMacros,
                                 ElementsAre(CompilerMacro{"YI", "1", 1}, CompilerMacro{"SAN", "3", 3})),
                           Field(&PchTask::systemIncludeSearchPaths,

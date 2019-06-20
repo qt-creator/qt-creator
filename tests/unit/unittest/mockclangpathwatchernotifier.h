@@ -32,7 +32,7 @@
 class MockClangPathWatcherNotifier : public ClangBackEnd::ClangPathWatcherNotifier
 {
 public:
-    MOCK_METHOD1(pathsWithIdsChanged, void(const ClangBackEnd::ProjectPartIds &ids));
+    MOCK_METHOD1(pathsWithIdsChanged, void(const std::vector<ClangBackEnd::IdPaths> &idPaths));
 
     MOCK_METHOD1(pathsChanged,
                  void (const ClangBackEnd::FilePathIds &filePathIds));

@@ -225,7 +225,8 @@ struct Data // because we have a cycle dependency
     PchManagerServer clangPchManagerServer{includeWatcher,
                                            pchTaskGenerator,
                                            projectParts,
-                                           generatedFiles};
+                                           generatedFiles,
+                                           buildDependencyStorage};
     TaskScheduler systemTaskScheduler{pchCreatorManager,
                                       pchTaskQueue,
                                       pchCreationProgressCounter,

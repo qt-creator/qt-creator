@@ -99,6 +99,7 @@ public:
         projectIncludes.reserve(sources.size());
         topSystemIncludes.reserve(sources.size() / 10);
         topProjectIncludes.reserve(sources.size() / 10);
+        userIncludes.reserve(sources.size());
         this->sources.reserve(sources.size());
 
         for (SourceEntry source : sources)
@@ -128,23 +129,22 @@ private:
             case SourceType::TopSystemInclude:
                 topSystemIncludes.emplace_back(source.sourceId);
                 systemIncludes.emplace_back(source.sourceId);
-                sources.emplace_back(source.sourceId);
                 break;
             case SourceType::SystemInclude:
                 systemIncludes.emplace_back(source.sourceId);
-                sources.emplace_back(source.sourceId);
                 break;
             case SourceType::TopProjectInclude:
                 topProjectIncludes.emplace_back(source.sourceId);
                 projectIncludes.emplace_back(source.sourceId);
-                sources.emplace_back(source.sourceId);
                 break;
             case SourceType::ProjectInclude:
                 projectIncludes.emplace_back(source.sourceId);
-                sources.emplace_back(source.sourceId);
                 break;
             case SourceType::UserInclude:
+                userIncludes.emplace_back(source.sourceId);
+                break;
             case SourceType::Source:
+                sources.emplace_back(source.sourceId);
                 break;
         }
 
@@ -215,6 +215,7 @@ private:
 
 public:
     FilePathIds sources;
+    FilePathIds userIncludes;
     FilePathIds projectIncludes;
     FilePathIds systemIncludes;
     FilePathIds topProjectIncludes;
