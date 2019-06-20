@@ -150,11 +150,11 @@ public:
         QStringList arguments;
         arguments << "record";
         arguments += m_perfRecordArguments;
-        arguments << "-o" << "-" << "--" << perfRunnable.executable
+        arguments << "-o" << "-" << "--" << perfRunnable.executable.toString()
                   << Utils::QtcProcess::splitArgs(perfRunnable.commandLineArguments,
                                                   Utils::OsTypeLinux);
 
-        perfRunnable.executable = "perf";
+        perfRunnable.executable = FilePath::fromString("perf");
         perfRunnable.commandLineArguments = Utils::QtcProcess::joinArgs(arguments,
                                                                         Utils::OsTypeLinux);
         m_process->start(perfRunnable);

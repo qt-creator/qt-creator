@@ -96,7 +96,7 @@ public:
         addSupportedRunMode(QML_PREVIEW_RUN_MODE);
         setProducer([](RunControl *runControl) -> RunWorker * {
             const Runnable runnable = runControl->runConfiguration()->runnable();
-            return new AndroidQmlToolingSupport(runControl, runnable.executable);
+            return new AndroidQmlToolingSupport(runControl, runnable.executable.toString());
         });
         addConstraint([](RunConfiguration *runConfig) {
             return runConfig->isEnabled()

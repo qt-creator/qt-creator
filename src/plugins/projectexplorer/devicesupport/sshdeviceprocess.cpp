@@ -300,7 +300,7 @@ void SshDeviceProcess::handleKillOperationTimeout()
 
 QString SshDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
-    QString cmdLine = runnable.executable;
+    QString cmdLine = runnable.executable.toString();
     if (!runnable.commandLineArguments.isEmpty())
         cmdLine.append(QLatin1Char(' ')).append(runnable.commandLineArguments);
     return cmdLine;
@@ -327,7 +327,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
             if (processId != 0)
                 signalOperation->interruptProcess(processId);
             else
-                signalOperation->interruptProcess(runnable.executable);
+                signalOperation->interruptProcess(runnable.executable.toString());
         } else {
             if (killOperation) // We are already in the process of killing the app.
                 return;
@@ -338,7 +338,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
             if (processId != 0)
                 signalOperation->killProcess(processId);
             else
-                signalOperation->killProcess(runnable.executable);
+                signalOperation->killProcess(runnable.executable.toString());
         }
         break;
     }

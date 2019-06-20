@@ -143,8 +143,8 @@ public:
     void start() final
     {
         Runnable r = runnable();
-        r.commandLineArguments = r.executable + ' ' + r.commandLineArguments;
-        r.executable = Constants::AppcontrollerFilepath;
+        r.commandLineArguments = r.executable.toString() + ' ' + r.commandLineArguments;
+        r.executable = Utils::FilePath::fromString(Constants::AppcontrollerFilepath);
         setRunnable(r);
         SimpleTargetRunner::start();
     }

@@ -76,7 +76,7 @@ public:
     Utils::CommandLine commandLine() const;
     void setCommandLine(const Utils::CommandLine &cmdLine);
 
-    QString executable;
+    Utils::FilePath executable;
     QString commandLineArguments;
     QString workingDirectory;
     Utils::Environment environment;
@@ -84,7 +84,7 @@ public:
     QHash<Core::Id, QVariant> extraData;
 
     // FIXME: Not necessarily a display name
-    QString displayName() const { return executable; }
+    QString displayName() const { return executable.toString(); }
 };
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
@@ -126,7 +126,8 @@ public:
     void setSupportsReRunning(bool reRunningSupported);
     bool supportsReRunning() const;
 
-    static QString userMessageForProcessError(QProcess::ProcessError, const QString &programName);
+    static QString userMessageForProcessError(QProcess::ProcessError,
+                                              const Utils::FilePath &programName);
 
     bool isEssential() const;
     void setEssential(bool essential);

@@ -2634,7 +2634,7 @@ int ProjectExplorerPluginPrivate::queue(QList<Project *> projects, QList<Id> ste
                                               BuildConfiguration *bc = t ? t->activeBuildConfiguration() : nullptr;
                                               if (!bc)
                                                   return false;
-                                              if (!Utils::FilePath::fromString(rc->runnable().executable).isChildOf(bc->buildDirectory()))
+                                              if (!rc->runnable().executable.isChildOf(bc->buildDirectory()))
                                                   return false;
                                               IDevice::ConstPtr device = rc->runnable().device;
                                               if (device.isNull())

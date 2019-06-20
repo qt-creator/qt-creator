@@ -44,6 +44,7 @@
 #include <QTcpSocket>
 #include <QSignalSpy>
 
+using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
 QT_BEGIN_NAMESPACE
@@ -498,7 +499,7 @@ void ValgrindMemcheckParserTest::testRealValgrind()
     qDebug() << "running exe:" << executable << " HINT: set VALGRIND_TEST_BIN to change this";
 
     ProjectExplorer::Runnable debuggee;
-    debuggee.executable = executable;
+    debuggee.executable = FilePath::fromString(executable);
     debuggee.environment = sysEnv;
     ValgrindRunner runner;
     runner.setValgrindExecutable("valgrind");
@@ -535,7 +536,7 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     QFETCH(QString, debuggeeArgs);
 
     ProjectExplorer::Runnable debuggeeExecutable;
-    debuggeeExecutable.executable = debuggee;
+    debuggeeExecutable.executable = FilePath::fromString(debuggee);
     debuggeeExecutable.environment = Utils::Environment::systemEnvironment();
     debuggeeExecutable.commandLineArguments = debuggeeArgs;
 

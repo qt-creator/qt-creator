@@ -142,7 +142,7 @@ QString StartApplicationParameters::displayName() const
 {
     const int maxLength = 60;
 
-    QString name = FilePath::fromString(runnable.executable).fileName()
+    QString name = runnable.executable.fileName()
             + ' ' + runnable.commandLineArguments;
     if (name.size() > 60) {
         int index = name.lastIndexOf(' ', maxLength);
@@ -163,7 +163,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastKitId", kitId.toSetting());
     settings->setValue("LastServerPort", serverPort);
     settings->setValue("LastServerAddress", serverAddress);
-    settings->setValue("LastExternalExecutable", runnable.executable);
+    settings->setValue("LastExternalExecutable", runnable.executable.toVariant());
     settings->setValue("LastExternalExecutableArguments", runnable.commandLineArguments);
     settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory);
     settings->setValue("LastExternalBreakAtMain", breakAtMain);
@@ -177,7 +177,7 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     kitId = Id::fromSetting(settings->value("LastKitId"));
     serverPort = settings->value("LastServerPort").toUInt();
     serverAddress = settings->value("LastServerAddress").toString();
-    runnable.executable = settings->value("LastExternalExecutable").toString();
+    runnable.executable = FilePath::fromVariant(settings->value("LastExternalExecutable"));
     runnable.commandLineArguments = settings->value("LastExternalExecutableArguments").toString();
     runnable.workingDirectory = settings->value("LastExternalWorkingDirectory").toString();
     breakAtMain = settings->value("LastExternalBreakAtMain").toBool();
@@ -442,7 +442,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     StartApplicationParameters result;
     result.serverPort = d->serverPortSpinBox->value();
     result.serverAddress = d->channelOverrideEdit->text();
-    result.runnable.executable = d->localExecutablePathChooser->path();
+    result.runnable.executable = d->localExecutablePathChooser->fileName();
     result.serverStartScript = d->serverStartScriptPathChooser->fileName();
     result.kitId = d->kitChooser->currentKitId();
     result.debugInfoLocation = d->debuginfoPathChooser->path();
@@ -458,7 +458,7 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
     d->kitChooser->setCurrentKitId(p.kitId);
     d->serverPortSpinBox->setValue(p.serverPort);
     d->channelOverrideEdit->setText(p.serverAddress);
-    d->localExecutablePathChooser->setPath(p.runnable.executable);
+    d->localExecutablePathChooser->setFileName(p.runnable.executable);
     d->serverStartScriptPathChooser->setFileName(p.serverStartScript);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
     d->arguments->setText(p.runnable.commandLineArguments);

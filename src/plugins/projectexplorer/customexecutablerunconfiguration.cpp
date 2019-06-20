@@ -261,8 +261,8 @@ Runnable CustomExecutableRunConfiguration::runnable() const
     r.device = DeviceManager::instance()->defaultDevice(Constants::DESKTOP_DEVICE_TYPE);
 
     if (!r.executable.isEmpty()) {
-        QString expanded = macroExpander()->expand(r.executable);
-        r.executable = r.environment.searchInPath(expanded, {workingDirectory}).toString();
+        const QString expanded = macroExpander()->expand(r.executable.toString());
+        r.executable = r.environment.searchInPath(expanded, {workingDirectory});
     }
 
     return r;

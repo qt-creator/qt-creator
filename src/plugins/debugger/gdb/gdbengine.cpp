@@ -685,7 +685,7 @@ void GdbEngine::interruptInferior()
                             notifyInferiorStopFailed();
                         }
                     });
-            signalOperation->setDebuggerCommand(runParameters().debugger.executable);
+            signalOperation->setDebuggerCommand(runParameters().debugger.executable.toString());
             signalOperation->interruptProcess(inferiorPid());
         } else {
             interruptInferior2();
@@ -1700,8 +1700,7 @@ void GdbEngine::setLinuxOsAbi()
     const DebuggerRunParameters &rp = runParameters();
     bool isElf = (rp.toolChainAbi.binaryFormat() == Abi::ElfFormat);
     if (!isElf && !rp.inferior.executable.isEmpty()) {
-        isElf = Utils::anyOf(Abi::abisOfBinary(FilePath::fromString(rp.inferior.executable)),
-                             [](const Abi &abi) {
+        isElf = Utils::anyOf(Abi::abisOfBinary(rp.inferior.executable), [](const Abi &abi) {
             return abi.binaryFormat() == Abi::ElfFormat;
         });
     }
@@ -3524,7 +3523,7 @@ void GdbEngine::setupEngine()
         m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
 
     const DebuggerRunParameters &rp = runParameters();
-    CommandLine gdbCommand{FilePath::fromString(rp.debugger.executable), {}};
+    CommandLine gdbCommand{rp.debugger.executable};
 
     if (isPlainEngine()) {
         if (!m_outputCollector.listen()) {
@@ -3636,7 +3635,7 @@ void GdbEngine::setupEngine()
     Module module;
     module.startAddress = 0;
     module.endAddress = 0;
-    module.modulePath = rp.inferior.executable;
+    module.modulePath = rp.inferior.executable.toString();
     module.moduleName = "<executable>";
     modulesHandler()->updateModule(module);
 
@@ -3686,7 +3685,7 @@ void GdbEngine::setupEngine()
     //if (terminal()->isUsable())
     //    runCommand({"set inferior-tty " + QString::fromUtf8(terminal()->slaveDevice())});
 
-    const QFileInfo gdbBinaryFile(rp.debugger.executable);
+    const QFileInfo gdbBinaryFile = rp.debugger.executable.toFileInfo();
     const QString uninstalledData = gdbBinaryFile.absolutePath() + "/data-directory/python";
 
     runCommand({"python sys.path.insert(1, '" + dumperSourcePath + "')"});
@@ -3763,8 +3762,7 @@ void GdbEngine::reloadDebuggingHelpers()
 
 void GdbEngine::handleGdbError(QProcess::ProcessError error)
 {
-    const QString program = runParameters().debugger.executable;
-    QString msg = RunWorker::userMessageForProcessError(error, program);
+    QString msg = RunWorker::userMessageForProcessError(error, runParameters().debugger.executable);
     QString errorString = m_gdbProc.errorString();
     if (!errorString.isEmpty())
         msg += '\n' + errorString;
@@ -4062,10 +4060,8 @@ void GdbEngine::setupInferior()
 
         setLinuxOsAbi();
         QString symbolFile;
-        if (!rp.symbolFile.isEmpty()) {
-            QFileInfo fi(rp.symbolFile);
-            symbolFile = fi.absoluteFilePath();
-        }
+        if (!rp.symbolFile.isEmpty())
+            symbolFile = rp.symbolFile.toFileInfo().absoluteFilePath();
 
         //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
         //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
@@ -4122,7 +4118,7 @@ void GdbEngine::setupInferior()
 
         setLinuxOsAbi();
 
-        QString executable = rp.inferior.executable;
+        FilePath executable = rp.inferior.executable;
 
         if (executable.isEmpty()) {
             CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(rp.debugger, rp.coreFile);
@@ -4134,7 +4130,7 @@ void GdbEngine::setupInferior()
                 return;
             }
 
-            executable = cinfo.foundExecutableName;
+            executable = FilePath::fromString(cinfo.foundExecutableName);
             if (executable.isEmpty()) {
                 AsynchronousMessageBox::warning(tr("Error Loading Symbols"),
                                                 tr("No executable to load symbols from specified core."));
@@ -4144,7 +4140,7 @@ void GdbEngine::setupInferior()
         }
 
         // Do that first, otherwise no symbols are loaded.
-        QFileInfo fi(executable);
+        QFileInfo fi = executable.toFileInfo();
         QString path = fi.absoluteFilePath();
         runCommand({"-file-exec-and-symbols \"" + path + '"',
                     CB(handleFileExecAndSymbols)});
@@ -4170,7 +4166,7 @@ void GdbEngine::setupInferior()
             runCommand({"-exec-arguments " + args});
         }
 
-        QString executable = QFileInfo(runParameters().inferior.executable).absoluteFilePath();
+        QString executable = runParameters().inferior.executable.toFileInfo().absoluteFilePath();
         runCommand({"-file-exec-and-symbols \"" + executable + '"',
                     CB(handleFileExecAndSymbols)});
     }
@@ -4494,7 +4490,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
             runCommand({"attach " + QString::number(runParameters().attachPID.pid()),
                         CB(handleTargetExtendedAttach)});
         } else if (!runParameters().inferior.executable.isEmpty()) {
-            runCommand({"-gdb-set remote exec-file " + runParameters().inferior.executable,
+            runCommand({"-gdb-set remote exec-file " + runParameters().inferior.executable.toString(),
                         CB(handleTargetExtendedAttach)});
         } else {
             const QString title = tr("No Remote Executable or Process ID Specified");
@@ -4541,11 +4537,11 @@ void GdbEngine::handleTargetQnx(const DebuggerResponse &response)
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
 
         const DebuggerRunParameters &rp = runParameters();
-        const QString remoteExecutable = rp.inferior.executable;
         if (rp.attachPID.isValid())
             runCommand({"attach " + QString::number(rp.attachPID.pid()), CB(handleAttach)});
-        else if (!remoteExecutable.isEmpty())
-            runCommand({"set nto-executable " + remoteExecutable, CB(handleSetNtoExecutable)});
+        else if (!rp.inferior.executable.isEmpty())
+            runCommand({"set nto-executable " + rp.inferior.executable.toString(),
+                        CB(handleSetNtoExecutable)});
         else
             handleInferiorPrepared();
     } else {
@@ -4679,8 +4675,7 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const QS
     QStringList envLang = QProcess::systemEnvironment();
     Utils::Environment::setupEnglishOutput(&envLang);
     proc.setEnvironment(envLang);
-    SynchronousProcessResponse response
-            = proc.runBlocking({FilePath::fromString(debugger.executable), args});
+    SynchronousProcessResponse response = proc.runBlocking({debugger.executable, args});
 
     if (response.result == SynchronousProcessResponse::Finished) {
         QString output = response.stdOut();

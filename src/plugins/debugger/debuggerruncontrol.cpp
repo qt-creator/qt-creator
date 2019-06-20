@@ -316,7 +316,7 @@ void DebuggerRunTool::setSysRoot(const Utils::FilePath &sysRoot)
     m_runParameters.sysRoot = sysRoot;
 }
 
-void DebuggerRunTool::setSymbolFile(const QString &symbolFile)
+void DebuggerRunTool::setSymbolFile(const FilePath &symbolFile)
 {
     if (symbolFile.isEmpty())
         reportFailure(tr("Cannot debug: Local executable is not set."));
@@ -404,8 +404,9 @@ void DebuggerRunTool::setServerStartScript(const FilePath &serverStartScript)
 {
     if (!serverStartScript.isEmpty()) {
         // Provide script information about the environment
-        CommandLine serverStarter(serverStartScript, {});
-        serverStarter.addArgs({m_runParameters.inferior.executable, m_runParameters.remoteChannel});
+        const CommandLine serverStarter(serverStartScript,
+        {m_runParameters.inferior.executable.toString(),
+         m_runParameters.remoteChannel});
         addStartDependency(new LocalProcessRunner(this, serverStarter));
     }
 }
@@ -450,7 +451,7 @@ void DebuggerRunTool::setInferior(const Runnable &runnable)
     m_runParameters.inferior = runnable;
 }
 
-void DebuggerRunTool::setInferiorExecutable(const QString &executable)
+void DebuggerRunTool::setInferiorExecutable(const FilePath &executable)
 {
     m_runParameters.inferior.executable = executable;
 }
@@ -565,19 +566,19 @@ void DebuggerRunTool::start()
         return;
 
     if (m_runParameters.cppEngineType == CdbEngineType
-            && Utils::is64BitWindowsBinary(m_runParameters.inferior.executable)
-            && !Utils::is64BitWindowsBinary(m_runParameters.debugger.executable)) {
+            && Utils::is64BitWindowsBinary(m_runParameters.inferior.executable.toString())
+            && !Utils::is64BitWindowsBinary(m_runParameters.debugger.executable.toString())) {
         reportFailure(
             DebuggerPlugin::tr(
                 "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
                 "Please select a 64 bit Debugger in the kit settings for this kit.")
-                .arg(m_runParameters.inferior.executable));
+                .arg(m_runParameters.inferior.executable.toUserOutput()));
         return;
     }
 
     Utils::globalMacroExpander()->registerFileVariables(
                 "DebuggedExecutable", tr("Debugged executable"),
-                [this] { return m_runParameters.inferior.executable; }
+                [this] { return m_runParameters.inferior.executable.toString(); }
     );
 
     runControl()->setDisplayName(m_runParameters.displayName);
@@ -911,7 +912,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     m_runParameters.displayName = runControl->displayName();
 
     if (auto symbolsAspect = runControl->aspect<SymbolFileAspect>())
-        m_runParameters.symbolFile = symbolsAspect->value();
+        m_runParameters.symbolFile = symbolsAspect->fileName();
     if (auto terminalAspect = runControl->aspect<TerminalAspect>())
         m_runParameters.useTerminal = terminalAspect->useTerminal();
 
@@ -941,7 +942,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
-        m_runParameters.debugger.executable = QString::fromLocal8Bit(envBinary);
+        m_runParameters.debugger.executable = FileName::fromString(QString::fromLocal8Bit(envBinary));
 
     if (Project *project = runControl->project()) {
         m_runParameters.projectSourceDirectory = project->projectDirectory();
@@ -1116,9 +1117,9 @@ void GdbServerRunner::start()
     if (isQmlDebugging && !isCppDebugging) {
         gdbserver.executable = m_runnable.executable; // FIXME: Case should not happen?
     } else {
-        gdbserver.executable = device()->debugServerPath();
+        gdbserver.executable = FileName::fromString(device()->debugServerPath());
         if (gdbserver.executable.isEmpty())
-            gdbserver.executable = "gdbserver";
+            gdbserver.executable = FileName::fromString("gdbserver");
         args.clear();
         if (m_useMulti)
             args.append("--multi");

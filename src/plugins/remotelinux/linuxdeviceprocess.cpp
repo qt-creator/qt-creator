@@ -99,7 +99,7 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
     if (!runInTerminal())
         cmd.addArg("exec");
 
-    cmd.addArg(runnable.executable);
+    cmd.addArg(runnable.executable.toString());
     cmd.addArgs(runnable.commandLineArguments, CommandLine::Raw);
 
     return cmd.arguments();

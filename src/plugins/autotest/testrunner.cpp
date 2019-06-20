@@ -65,6 +65,8 @@
 
 #include <utils/algorithm.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -390,7 +392,7 @@ static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &bui
         runConfig = Utils::findOr(runConfigurations, nullptr, [&dName, &exe] (const RunConfiguration *rc) {
             if (rc->displayName() != dName)
                 return false;
-            return rc->runnable().executable == exe;
+            return rc->runnable().executable.toString() == exe;
         });
         if (runConfig && dialog.rememberChoice())
             AutotestPlugin::cacheRunConfigChoice(buildTargetKey, ChoicePair(dName, exe));
@@ -550,7 +552,7 @@ void TestRunner::debugTests()
 
     QStringList omitted;
     ProjectExplorer::Runnable inferior = config->runnable();
-    inferior.executable = commandFilePath;
+    inferior.executable = FilePath::fromString(commandFilePath);
 
     const QStringList args = config->argumentsForTestRunner(&omitted);
     inferior.commandLineArguments = Utils::QtcProcess::joinArgs(args);
@@ -589,7 +591,7 @@ void TestRunner::debugTests()
 
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->outputReader(*futureInterface, nullptr);
-        outputreader->setId(inferior.executable);
+        outputreader->setId(inferior.executable.toString());
         connect(outputreader, &TestOutputReader::newOutputAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutput);
         connect(runControl, &ProjectExplorer::RunControl::appendMessage,
@@ -755,7 +757,7 @@ void RunConfigurationSelectionDialog::populate()
         if (auto target = project->activeTarget()) {
             for (ProjectExplorer::RunConfiguration *rc : target->runConfigurations()) {
                 auto runnable = rc->runnable();
-                const QStringList rcDetails = { runnable.executable,
+                const QStringList rcDetails = { runnable.executable.toString(),
                                                 runnable.commandLineArguments,
                                                 runnable.workingDirectory };
                 m_rcCombo->addItem(rc->displayName(), rcDetails);

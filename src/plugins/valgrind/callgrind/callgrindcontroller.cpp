@@ -125,7 +125,7 @@ void CallgrindController::run(Option option)
             this, &CallgrindController::controllerProcessClosed);
 
     Runnable controller = m_valgrindRunnable;
-    controller.executable =  CALLGRIND_CONTROL_BINARY;
+    controller.executable =  FilePath::fromString(CALLGRIND_CONTROL_BINARY);
     controller.commandLineArguments = QString("%1 %2").arg(toOptionString(option)).arg(m_pid);
 
     if (!m_valgrindRunnable.device

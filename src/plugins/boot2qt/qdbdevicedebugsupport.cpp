@@ -118,12 +118,12 @@ public:
             lowerPort = upperPort = perfPort;
         }
         args.append(QString(" --port-range %1-%2 ").arg(lowerPort).arg(upperPort));
-        args.append(r.executable);
+        args.append(r.executable.toString());
         args.append(" ");
         args.append(r.commandLineArguments);
 
         r.commandLineArguments = args;
-        r.executable = Constants::AppcontrollerFilepath;
+        r.executable = FilePath::fromString(Constants::AppcontrollerFilepath);
 
         m_launcher.start(r, device());
     }

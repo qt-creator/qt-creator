@@ -52,6 +52,7 @@
 #include <QTimer>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace RemoteLinux {
 
@@ -145,7 +146,7 @@ class LinuxPortsGatheringMethod : public PortsGatheringMethod
 
         // /proc/net/tcp* covers /proc/net/tcp and /proc/net/tcp6
         Runnable runnable;
-        runnable.executable = "sed";
+        runnable.executable = FilePath::fromString("sed");
         runnable.commandLineArguments
                 = "-e 's/.*: [[:xdigit:]]*:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' /proc/net/tcp*";
         return runnable;
@@ -216,7 +217,7 @@ LinuxDevice::LinuxDevice()
         // It seems we cannot pass an environment to OpenSSH dynamically
         // without specifying an executable.
         if (env.size() > 0)
-            runnable.executable = "/bin/sh";
+            runnable.executable = FilePath::fromString("/bin/sh");
 
         proc->setRunInTerminal(true);
         proc->start(runnable);

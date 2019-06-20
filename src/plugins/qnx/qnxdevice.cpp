@@ -62,7 +62,7 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
     {
         Q_UNUSED(protocol);
         Runnable runnable;
-        runnable.executable = "netstat";
+        runnable.executable = FileName::fromString("netstat");
         runnable.commandLineArguments = "-na";
         return runnable;
     }
@@ -110,7 +110,7 @@ void QnxDevice::updateVersionNumber() const
     QObject::connect(&versionNumberProcess, &DeviceProcess::error, &eventLoop, &QEventLoop::quit);
 
     Runnable r;
-    r.executable = QLatin1String("uname");
+    r.executable = FileName::fromString("uname");
     r.commandLineArguments = QLatin1String("-r");
     versionNumberProcess.start(r);
 

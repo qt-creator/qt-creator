@@ -29,6 +29,7 @@
 
 namespace Core { class Id; }
 namespace ProjectExplorer { class Kit; }
+namespace Utils { class FilePath; }
 
 namespace Debugger {
 namespace Internal {
@@ -45,7 +46,7 @@ public:
 
     int exec() override;
 
-    QString symbolFile() const;
+    Utils::FilePath symbolFile() const;
     QString localCoreFile() const;
     QString remoteCoreFile() const;
     QString overrideStartScript() const;

@@ -73,7 +73,7 @@ void Slog2InfoRunner::printMissingWarning()
 void Slog2InfoRunner::start()
 {
     Runnable r;
-    r.executable = QLatin1String("slog2info");
+    r.executable = Utils::FilePath::fromString("slog2info");
     m_testProcess->start(r);
     reportStarted();
 }
@@ -111,7 +111,7 @@ void Slog2InfoRunner::handleTestProcessCompleted()
 void Slog2InfoRunner::readLaunchTime()
 {
     Runnable r;
-    r.executable = QLatin1String("date");
+    r.executable = Utils::FilePath::fromString("date");
     r.commandLineArguments = QLatin1String("+\"%d %H:%M:%S\"");
     m_launchDateTimeProcess->start(r);
 }
@@ -128,7 +128,7 @@ void Slog2InfoRunner::launchSlog2Info()
                                              QString::fromLatin1("dd HH:mm:ss"));
 
     Runnable r;
-    r.executable = QLatin1String("slog2info");
+    r.executable = Utils::FilePath::fromString("slog2info");
     r.commandLineArguments = QLatin1String("-w");
     m_logProcess->start(r);
 }

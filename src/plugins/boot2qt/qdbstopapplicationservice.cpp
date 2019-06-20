@@ -100,7 +100,7 @@ void QdbStopApplicationService::doDeploy()
             this, &QdbStopApplicationService::stdOutData);
 
     ProjectExplorer::Runnable runnable;
-    runnable.executable = Constants::AppcontrollerFilepath;
+    runnable.executable = Utils::FilePath::fromString(Constants::AppcontrollerFilepath);
     runnable.commandLineArguments = QStringLiteral("--stop");
     runnable.workingDirectory = QStringLiteral("/usr/bin");
 

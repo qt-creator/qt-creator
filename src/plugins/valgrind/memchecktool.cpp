@@ -679,7 +679,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
         rc->createMainWorker();
         const auto runnable = dlg.runnable();
         rc->setRunnable(runnable);
-        rc->setDisplayName(runnable.executable);
+        rc->setDisplayName(runnable.executable.toUserOutput());
         ProjectExplorerPlugin::startRunControl(rc);
     });
 
@@ -739,7 +739,7 @@ void MemcheckToolPrivate::heobAction()
         return;
     }
 
-    QString executable = sr.executable;
+    QString executable = sr.executable.toString();
     const QString workingDirectory = Utils::FileUtils::normalizePathName(sr.workingDirectory);
     const QString commandLineArguments = sr.commandLineArguments;
     const QStringList envStrings = sr.environment.toStringList();
@@ -966,7 +966,7 @@ void MemcheckToolPrivate::setupRunner(MemcheckToolRunner *runTool)
     m_loadExternalLogFile->setDisabled(true);
 
     QString dir = runControl->project()->projectDirectory().toString() + '/';
-    const QString name = FilePath::fromString(runTool->executable()).fileName();
+    const QString name = runTool->executable().fileName();
 
     m_errorView->setDefaultSuppressionFile(dir + name + ".supp");
 

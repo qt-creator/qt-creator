@@ -115,7 +115,7 @@ void ValgrindToolRunner::stop()
     m_runner.stop();
 }
 
-QString ValgrindToolRunner::executable() const
+FilePath ValgrindToolRunner::executable() const
 {
     return runnable().executable;
 }

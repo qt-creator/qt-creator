@@ -109,7 +109,7 @@ private:
         QStringList arguments;
         if (m_portsGatherer->useGdbServer()) {
             Port pdebugPort = m_portsGatherer->gdbServerPort();
-            r.executable = Constants::QNX_DEBUG_EXECUTABLE;
+            r.executable = FilePath::fromString(Constants::QNX_DEBUG_EXECUTABLE);
             arguments.append(pdebugPort.toString());
         }
         if (m_portsGatherer->useQmlServer()) {
@@ -183,7 +183,7 @@ public:
     }
 
     QString projectSource() const { return m_projectSource->path(); }
-    QString localExecutable() const { return m_localExecutable->path(); }
+    FilePath localExecutable() const { return m_localExecutable->fileName(); }
 
 private:
     PathChooser *m_projectSource;
@@ -209,7 +209,7 @@ private:
         Port pdebugPort = m_portsGatherer->gdbServerPort();
 
         Runnable r;
-        r.executable = Constants::QNX_DEBUG_EXECUTABLE;
+        r.executable = FilePath::fromString(Constants::QNX_DEBUG_EXECUTABLE);
         r.commandLineArguments = pdebugPort.toString();
         setRunnable(r);
 
@@ -258,10 +258,10 @@ void QnxAttachDebugSupport::showProcessesDialog()
     DeviceProcessItem process = dlg.currentProcess();
     const int pid = process.pid;
 //    QString projectSourceDirectory = dlg.projectSource();
-    QString localExecutable = dlg.localExecutable();
+    FilePath localExecutable = dlg.localExecutable();
     if (localExecutable.isEmpty()) {
         if (auto aspect = runConfig->aspect<SymbolFileAspect>())
-            localExecutable = aspect->fileName().toString();
+            localExecutable = aspect->fileName();
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);

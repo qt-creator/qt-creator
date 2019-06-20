@@ -176,8 +176,7 @@ void AndroidDebugSupport::start()
         solibSearchPath.removeDuplicates();
         setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog) << "SoLibSearchPath: "<<solibSearchPath;
-        setSymbolFile(target->activeBuildConfiguration()->buildDirectory().toString()
-                      + "/app_process");
+        setSymbolFile(target->activeBuildConfiguration()->buildDirectory().pathAppended("app_process"));
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
         QUrl gdbServer;

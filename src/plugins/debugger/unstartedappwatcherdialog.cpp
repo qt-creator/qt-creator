@@ -122,7 +122,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
             if (isLocal(runConfig)) {
                 resetExecutable->setEnabled(true);
                 connect(resetExecutable, &QPushButton::clicked, this, [this, runnable] {
-                    m_pathChooser->setPath(runnable.executable);
+                    m_pathChooser->setFileName(runnable.executable);
                 });
             }
         }
@@ -201,7 +201,7 @@ void UnstartedAppWatcherDialog::selectExecutable()
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
             const Runnable runnable = runConfig->runnable();
             if (isLocal(runConfig))
-                path = QFileInfo(runnable.executable).path();
+                path = runnable.executable.toFileInfo().path();
         }
     }
 

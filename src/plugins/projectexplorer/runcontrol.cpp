@@ -1119,8 +1119,7 @@ void SimpleTargetRunner::start()
         connect(&m_launcher, &ApplicationLauncher::error,
                 this, &SimpleTargetRunner::onProcessError);
 
-        const QString executable = m_runnable.executable;
-        if (executable.isEmpty()) {
+        if (m_runnable.executable.isEmpty()) {
             reportFailure(RunControl::tr("No executable specified."));
         } else {
             m_launcher.start(m_runnable);
@@ -1207,7 +1206,7 @@ void SimpleTargetRunner::onProcessError(QProcess::ProcessError error)
 {
     if (error == QProcess::Timedout)
         return; // No actual change on the process side.
-    QString msg = userMessageForProcessError(error, m_runnable.displayName());
+    const QString msg = userMessageForProcessError(error, m_runnable.executable);
     appendMessage(msg, Utils::NormalMessageFormat);
     if (!m_stopReported) {
         m_stopReported = true;
@@ -1496,7 +1495,7 @@ bool RunWorker::supportsReRunning() const
     return d->supportsReRunning;
 }
 
-QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const QString &program)
+QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const FilePath &program)
 {
     QString failedToStart = tr("The process failed to start.");
     QString msg = tr("An unknown error in the process occurred.");
@@ -1504,7 +1503,7 @@ QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, cons
         case QProcess::FailedToStart:
             msg = failedToStart + ' ' + tr("Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
-                "permissions to invoke the program.").arg(program);
+                "permissions to invoke the program.").arg(program.toUserOutput());
             break;
         case QProcess::Crashed:
             msg = tr("The process was ended forcefully.");
@@ -1551,12 +1550,12 @@ void RunWorker::stop()
 
 CommandLine Runnable::commandLine() const
 {
-    return CommandLine(FilePath::fromString(executable), commandLineArguments, CommandLine::Raw);
+    return CommandLine(executable, commandLineArguments, CommandLine::Raw);
 }
 
 void Runnable::setCommandLine(const CommandLine &cmdLine)
 {
-    executable = cmdLine.executable().toString();
+    executable = cmdLine.executable();
     commandLineArguments = cmdLine.arguments();
 }
 

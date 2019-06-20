@@ -851,7 +851,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 
         Kit *kit = nullptr;
         DebuggerStartMode startMode = StartExternal;
-        QString executable;
+        FilePath executable;
         QString remoteChannel;
         QString coreFile;
         bool useTerminal = false;
@@ -864,7 +864,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     if (key.isEmpty()) {
                         continue;
                     } else if (executable.isEmpty()) {
-                        executable = key;
+                        executable = FilePath::fromString(key);
                     } else {
                         *errorMessage = DebuggerPlugin::tr("Only one executable allowed.");
                         return false;
@@ -885,7 +885,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             }
         }
         if (!kit)
-            kit = guessKitFromAbis(Abi::abisOfBinary(FilePath::fromString(executable)));
+            kit = guessKitFromAbis(Abi::abisOfBinary(executable));
 
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(kit);
@@ -910,8 +910,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             debugger->setStartMessage(tr("Attaching to core file %1.").arg(coreFile));
         } else {
             debugger->setStartMode(StartExternal);
-            debugger->setRunControlName(tr("Executable file \"%1\"").arg(executable));
-            debugger->setStartMessage(tr("Debugging file %1.").arg(executable));
+            debugger->setRunControlName(tr("Executable file \"%1\"").arg(executable.toUserOutput()));
+            debugger->setStartMessage(tr("Debugging file %1.").arg(executable.toUserOutput()));
         }
         debugger->setUseTerminal(useTerminal);
 
@@ -1588,7 +1588,7 @@ void DebuggerPluginPrivate::attachCore()
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue("LastExternalExecutableFile", dlg.symbolFile());
+    setConfigValue("LastExternalExecutableFile", dlg.symbolFile().toVariant());
     setConfigValue("LastLocalCoreFile", dlg.localCoreFile());
     setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile());
     setConfigValue("LastExternalKit", dlg.kit()->id().toSetting());
@@ -1743,7 +1743,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     runControl->setDisplayName(tr("Process %1").arg(process.pid));
     auto debugger = new DebuggerRunTool(runControl);
     debugger->setAttachPid(ProcessHandle(process.pid));
-    debugger->setInferiorExecutable(process.exe);
+    debugger->setInferiorExecutable(FilePath::fromString(process.exe));
     debugger->setInferiorDevice(device);
     debugger->setStartMode(AttachExternal);
     debugger->setCloseMode(DetachAtClose);

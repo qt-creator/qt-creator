@@ -44,6 +44,7 @@
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testconfiguration", QtWarningMsg)
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -59,11 +60,11 @@ static bool isLocal(Target *target)
     return DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
-static QString ensureExeEnding(const QString& file)
+static FilePath ensureExeEnding(const FilePath &file)
 {
-    if (!Utils::HostOsInfo::isWindowsHost() || file.isEmpty() || file.toLower().endsWith(".exe"))
+    if (!HostOsInfo::isWindowsHost() || file.isEmpty() || file.toString().toLower().endsWith(".exe"))
         return file;
-    return Utils::HostOsInfo::withExecutableSuffix(file);
+    return FilePath::fromString(HostOsInfo::withExecutableSuffix(file.toString()));
 }
 
 void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguration *rc,
@@ -94,7 +95,7 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
 
     BuildTargetInfo targetInfo = rc->buildTargetInfo();
     if (!targetInfo.targetFilePath.isEmpty())
-        m_runnable.executable = ensureExeEnding(targetInfo.targetFilePath.toString());
+        m_runnable.executable = ensureExeEnding(targetInfo.targetFilePath);
 
     QString buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
@@ -157,7 +158,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         }
     }
 
-    const QString localExecutable = ensureExeEnding(targetInfo.targetFilePath.toString());
+    const FilePath localExecutable = ensureExeEnding(targetInfo.targetFilePath);
     if (localExecutable.isEmpty())
         return;
 
@@ -172,10 +173,10 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     // deployment information should get taken into account, but it pretty much seems as if
     // each build system uses it differently
     const DeploymentData &deployData = target->deploymentData();
-    const DeployableFile deploy = deployData.deployableForLocalFile(localExecutable);
+    const DeployableFile deploy = deployData.deployableForLocalFile(localExecutable.toString());
     // we might have a deployable executable
-    const QString deployedExecutable = ensureExeEnding((deploy.isValid() && deploy.isExecutable())
-            ? QDir::cleanPath(deploy.remoteFilePath()) : localExecutable);
+    const FilePath deployedExecutable = ensureExeEnding((deploy.isValid() && deploy.isExecutable())
+            ? FilePath::fromString(QDir::cleanPath(deploy.remoteFilePath())) : localExecutable);
 
     qCDebug(LOG) << " LocalExecutable" << localExecutable;
     qCDebug(LOG) << " DeployedExecutable" << deployedExecutable;
@@ -190,7 +191,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         const Runnable runnable = runConfig->runnable();
         // not the best approach - but depending on the build system and whether the executables
         // are going to get installed or not we have to soften the condition...
-        const QString currentExecutable = ensureExeEnding(runnable.executable);
+        const FilePath currentExecutable = ensureExeEnding(runnable.executable);
         const QString currentBST = runConfig->buildKey();
         qCDebug(LOG) << " CurrentExecutable" << currentExecutable;
         qCDebug(LOG) << " BST of RunConfig" << currentBST;
@@ -258,7 +259,7 @@ void TestConfiguration::setTestCaseCount(int count)
 
 void TestConfiguration::setExecutableFile(const QString &executableFile)
 {
-    m_runnable.executable = executableFile;
+    m_runnable.executable = Utils::FilePath::fromString(executableFile);
 }
 
 void TestConfiguration::setProjectFile(const QString &projectFile)
@@ -312,11 +313,11 @@ QString TestConfiguration::executableFilePath() const
     if (!hasExecutable())
         return QString();
 
-    QFileInfo commandFileInfo(m_runnable.executable);
+    QFileInfo commandFileInfo = m_runnable.executable.toFileInfo();
     if (commandFileInfo.isExecutable() && commandFileInfo.path() != ".") {
         return commandFileInfo.absoluteFilePath();
     } else if (commandFileInfo.path() == "."){
-        QString fullCommandFileName = m_runnable.executable;
+        QString fullCommandFileName = m_runnable.executable.toString();
         // TODO: check if we can use searchInPath() from Utils::Environment
         const QStringList &pathList = m_runnable.environment.toProcessEnvironment().value("PATH")
                 .split(Utils::HostOsInfo::pathListSeparator());

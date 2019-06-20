@@ -72,7 +72,7 @@ public:
     static void setBreakOnMainNextTime();
 
     void setInferior(const ProjectExplorer::Runnable &runnable);
-    void setInferiorExecutable(const QString &executable);
+    void setInferiorExecutable(const Utils::FilePath &executable);
     void setInferiorEnvironment(const Utils::Environment &env); // Used by GammaRay plugin
     void setInferiorDevice(ProjectExplorer::IDevice::ConstPtr device); // Used by cdbengine
     void setRunControlName(const QString &name);
@@ -93,7 +93,7 @@ public:
     void setAttachPid(qint64 pid);
 
     void setSysRoot(const Utils::FilePath &sysRoot);
-    void setSymbolFile(const QString &symbolFile);
+    void setSymbolFile(const Utils::FilePath &symbolFile);
     void setRemoteChannel(const QString &channel);
     void setRemoteChannel(const QString &host, int port);
     void setRemoteChannel(const QUrl &url);

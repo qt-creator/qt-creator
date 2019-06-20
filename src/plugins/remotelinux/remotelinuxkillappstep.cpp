@@ -47,7 +47,7 @@ RemoteLinuxKillAppStep::RemoteLinuxKillAppStep(BuildStepList *bsl, Core::Id id)
         Target * const theTarget = target();
         QTC_ASSERT(theTarget, return CheckResult::failure());
         RunConfiguration * const rc = theTarget->activeRunConfiguration();
-        const QString remoteExe = rc ? rc->runnable().executable : QString();
+        const QString remoteExe = rc ? rc->runnable().executable.toString() : QString();
         service->setRemoteExecutable(remoteExe);
         return CheckResult::success();
     });

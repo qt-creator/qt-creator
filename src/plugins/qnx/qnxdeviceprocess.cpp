@@ -47,7 +47,7 @@ QnxDeviceProcess::QnxDeviceProcess(const QSharedPointer<const IDevice> &device, 
 QString QnxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 {
     QStringList args = QtcProcess::splitArgs(runnable.commandLineArguments);
-    args.prepend(runnable.executable);
+    args.prepend(runnable.executable.toString());
     QString cmd = QtcProcess::Arguments::createUnixArgs(args).toString();
 
     QString fullCommandLine = QLatin1String(
@@ -71,7 +71,7 @@ void QnxDeviceProcess::doSignal(int sig)
 {
     auto signaler = new SshDeviceProcess(device(), this);
     Runnable r;
-    r.executable = QString::fromLatin1("kill -%2 `cat %1`").arg(m_pidFile).arg(sig);
+    r.executable = FileName::fromString(QString("kill -%2 `cat %1`").arg(m_pidFile).arg(sig));
     connect(signaler, &SshDeviceProcess::finished, signaler, &QObject::deleteLater);
     signaler->start(r);
 }

@@ -128,7 +128,7 @@ public:
     // Used by general remote debugging.
     QString remoteChannel;
     bool useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
-    QString symbolFile;
+    Utils::FilePath symbolFile;
 
     // Used by Mer plugin (3rd party)
     QMap<QString, QString> sourcePathMap;

@@ -139,7 +139,7 @@ bool ValgrindRunner::Private::run()
     if (HostOsInfo::isMacHost())
         // May be slower to start but without it we get no filenames for symbols.
         cmd.addArg("--dsymutil=yes");
-    cmd.addArg(m_debuggee.executable);
+    cmd.addArg(m_debuggee.executable.toString());
     cmd.addArgs(m_debuggee.commandLineArguments, CommandLine::Raw);
 
     emit q->valgrindExecuted(cmd.toUserOutput());
@@ -190,7 +190,7 @@ void ValgrindRunner::Private::remoteProcessStarted()
     const QString proc = m_valgrindExecutable.split(' ').last();
 
     Runnable findPid;
-    findPid.executable = "/bin/sh";
+    findPid.executable = FileName::fromString("/bin/sh");
     // sleep required since otherwise we might only match "bash -c..."
     //  and not the actual valgrind run
     findPid.commandLineArguments = QString("-c \""
@@ -200,7 +200,7 @@ void ValgrindRunner::Private::remoteProcessStarted()
                                            // we pick the last one, first would be "bash -c ..."
                                            " | awk '{print $1;}'" // get pid
                                            "\""
-                                           ).arg(proc, Utils::FilePath::fromString(m_debuggee.executable).fileName());
+                                           ).arg(proc, m_debuggee.executable.fileName());
 
 //    m_remote.m_findPID = m_remote.m_connection->createRemoteProcess(cmd.toUtf8());
     connect(&m_findPID, &ApplicationLauncher::remoteStderr,

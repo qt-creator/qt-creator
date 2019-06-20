@@ -2564,8 +2564,7 @@ QString DebuggerEngine::formatStartParameters() const
         str << "qml";
     str << '\n';
     if (!sp.inferior.executable.isEmpty()) {
-        str << "Executable: " << QDir::toNativeSeparators(sp.inferior.executable)
-            << ' ' << sp.inferior.commandLineArguments;
+        str << "Executable: " << sp.inferior.commandLine().toUserOutput();
         if (d->m_terminalRunner)
             str << " [terminal]";
         str << '\n';
@@ -2573,9 +2572,8 @@ QString DebuggerEngine::formatStartParameters() const
             str << "Directory: " << QDir::toNativeSeparators(sp.inferior.workingDirectory)
                 << '\n';
     }
-    QString cmd = sp.debugger.executable;
-    if (!cmd.isEmpty())
-        str << "Debugger: " << QDir::toNativeSeparators(cmd) << '\n';
+    if (!sp.debugger.executable.isEmpty())
+        str << "Debugger: " << sp.debugger.executable.toUserOutput() << '\n';
     if (!sp.coreFile.isEmpty())
         str << "Core: " << QDir::toNativeSeparators(sp.coreFile) << '\n';
     if (sp.attachPID.isValid())
@@ -2630,11 +2628,11 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 && rp.cppEngineType == CdbEngineType
                 && rp.startMode != AttachToRemoteServer) {
             QTC_ASSERT(!rp.symbolFile.isEmpty(), return);
-            if (!rp.symbolFile.endsWith(".exe", Qt::CaseInsensitive))
-                rp.symbolFile.append(".exe");
+            if (!rp.symbolFile.toString().endsWith(".exe", Qt::CaseInsensitive))
+                rp.symbolFile = FileName::fromString(rp.symbolFile.toString() + ".exe");
             QString errorMessage;
             QStringList rc;
-            if (getPDBFiles(rp.symbolFile, &rc, &errorMessage) && !rc.isEmpty())
+            if (getPDBFiles(rp.symbolFile.toString(), &rc, &errorMessage) && !rc.isEmpty())
                 return;
             if (!errorMessage.isEmpty()) {
                 detailedWarning.append('\n');
@@ -2655,11 +2653,11 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             break;
         }
 
-        Utils::ElfReader reader(rp.symbolFile);
+        Utils::ElfReader reader(rp.symbolFile.toString());
         const ElfData elfData = reader.readHeaders();
         const QString error = reader.errorString();
 
-        showMessage("EXAMINING " + rp.symbolFile, LogDebug);
+        showMessage("EXAMINING " + rp.symbolFile.toString(), LogDebug);
         QByteArray msg = "ELF SECTIONS: ";
 
         static const QList<QByteArray> interesting = {

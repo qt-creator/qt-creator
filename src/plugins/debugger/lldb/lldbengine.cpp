@@ -200,19 +200,19 @@ void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
-    QString lldbCmd = runParameters().debugger.executable;
+    const FilePath lldbCmd = runParameters().debugger.executable;
 
-    showMessage("STARTING LLDB: " + lldbCmd);
+    showMessage("STARTING LLDB: " + lldbCmd.toUserOutput());
     m_lldbProc.setEnvironment(runParameters().debugger.environment);
     if (QFileInfo(runParameters().debugger.workingDirectory).isDir())
         m_lldbProc.setWorkingDirectory(runParameters().debugger.workingDirectory);
 
-    m_lldbProc.setCommand(CommandLine(FilePath::fromString(lldbCmd)));
+    m_lldbProc.setCommand(CommandLine(lldbCmd));
     m_lldbProc.start();
 
     if (!m_lldbProc.waitForStarted()) {
         const QString msg = tr("Unable to start LLDB \"%1\": %2")
-            .arg(lldbCmd, m_lldbProc.errorString());
+            .arg(lldbCmd.toUserOutput(), m_lldbProc.errorString());
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
         if (!msg.isEmpty())
@@ -268,7 +268,7 @@ void LldbEngine::setupEngine()
     }
 
     DebuggerCommand cmd2("setupInferior");
-    cmd2.arg("executable", rp.inferior.executable);
+    cmd2.arg("executable", rp.inferior.executable.toString());
     cmd2.arg("breakonmain", rp.breakOnMain);
     cmd2.arg("useterminal", bool(terminal()));
     cmd2.arg("startmode", rp.startMode);
@@ -814,7 +814,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("The LLDB process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
-                .arg(runParameters().debugger.executable);
+                .arg(runParameters().debugger.executable.toUserOutput());
         case QProcess::Crashed:
             return tr("The LLDB process crashed some time after starting "
                 "successfully.");

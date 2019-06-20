@@ -416,9 +416,9 @@ QString AttachCoreDialog::localCoreFile() const
     return d->localCoreFileName->path();
 }
 
-QString AttachCoreDialog::symbolFile() const
+FilePath AttachCoreDialog::symbolFile() const
 {
-    return d->symbolFileName->path();
+    return d->symbolFileName->fileName();
 }
 
 void AttachCoreDialog::setSymbolFile(const QString &symbolFileName)

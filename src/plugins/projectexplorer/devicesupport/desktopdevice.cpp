@@ -137,10 +137,10 @@ class DesktopPortsGatheringMethod : public PortsGatheringMethod
 
         Runnable runnable;
         if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost()) {
-            runnable.executable = "netstat";
+            runnable.executable = FilePath::fromString("netstat");
             runnable.commandLineArguments =  "-a -n";
         } else if (HostOsInfo::isLinuxHost()) {
-            runnable.executable = "/bin/sh";
+            runnable.executable = FilePath::fromString("/bin/sh");
             runnable.commandLineArguments = "-c 'cat /proc/net/tcp*'";
         }
         return runnable;

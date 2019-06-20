@@ -349,7 +349,7 @@ void CdbEngine::setupEngine()
         return;
     }
 
-    bool cdbIs64Bit = Utils::is64BitWindowsBinary(sp.debugger.executable);
+    bool cdbIs64Bit = Utils::is64BitWindowsBinary(sp.debugger.executable.toString());
     if (!cdbIs64Bit)
         m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit));
@@ -369,7 +369,7 @@ void CdbEngine::setupEngine()
     }
 
     // Prepare command line.
-    CommandLine debugger{FilePath::fromString(sp.debugger.executable)};
+    CommandLine debugger{sp.debugger.executable};
 
     const QString extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode == AttachToRemoteServer;
@@ -406,7 +406,7 @@ void CdbEngine::setupEngine()
     switch (sp.startMode) {
     case StartInternal:
     case StartExternal:
-        debugger.addArg(QDir::toNativeSeparators(sp.inferior.executable));
+        debugger.addArg(sp.inferior.executable.toUserOutput());
         // Complete native argument string.
         debugger.addArgs(sp.inferior.commandLineArguments, CommandLine::Raw);
         break;
@@ -491,8 +491,7 @@ void CdbEngine::handleInitialSessionIdle()
     if (rp.breakOnMain) {
         BreakpointParameters bp(BreakpointAtMain);
         if (rp.startMode == StartInternal || rp.startMode == StartExternal) {
-            const QString &moduleFileName = Utils::FilePath::fromString(rp.inferior.executable)
-                                                .fileName();
+            const QString &moduleFileName = rp.inferior.executable.fileName();
             bp.module = moduleFileName.left(moduleFileName.indexOf('.'));
         }
         QString function = cdbAddBreakpointCommand(bp, m_sourcePathMappings);
@@ -826,7 +825,7 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
     connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &CdbEngine::handleDoInterruptInferior);
 
-    m_signalOperation->setDebuggerCommand(runParameters().debugger.executable);
+    m_signalOperation->setDebuggerCommand(runParameters().debugger.executable.toString());
     m_signalOperation->interruptProcess(inferiorPid());
 }
 

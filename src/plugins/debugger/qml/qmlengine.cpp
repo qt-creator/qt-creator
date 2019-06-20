@@ -539,9 +539,8 @@ void QmlEngine::startApplicationLauncher()
 {
     if (!d->applicationLauncher.isRunning()) {
         const Runnable runnable = runParameters().inferior;
-        showMessage(tr("Starting %1 %2").arg(QDir::toNativeSeparators(runnable.executable),
-                                             runnable.commandLineArguments),
-                    Utils::NormalMessageFormat);
+        showMessage(tr("Starting %1").arg(runnable.commandLine().toUserOutput()),
+                    NormalMessageFormat);
         d->applicationLauncher.start(runnable);
     }
 }

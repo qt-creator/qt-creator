@@ -384,7 +384,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
 
     auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     Runnable runnable;
-    runnable.executable = iosRunConfig->localExecutable().toUserOutput();
+    runnable.executable = iosRunConfig->localExecutable();
     runnable.commandLineArguments =
             runControl->aspect<ArgumentsAspect>()->arguments(iosRunConfig->macroExpander());
     runControl->setDisplayName(iosRunConfig->applicationName());
@@ -480,7 +480,7 @@ void IosDebugSupport::start()
     const bool cppDebug = isCppDebugging();
     const bool qmlDebug = isQmlDebugging();
     if (cppDebug) {
-        setInferiorExecutable(iosRunConfig->localExecutable().toString());
+        setInferiorExecutable(iosRunConfig->localExecutable());
         setRemoteChannel("connect://localhost:" + gdbServerPort.toString());
 
         QString bundlePath = iosRunConfig->bundleDirectory().toString();

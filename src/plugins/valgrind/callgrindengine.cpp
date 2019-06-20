@@ -108,7 +108,7 @@ QString CallgrindToolRunner::progressTitle() const
 
 void CallgrindToolRunner::start()
 {
-    appendMessage(tr("Profiling %1").arg(executable()), Utils::NormalMessageFormat);
+    appendMessage(tr("Profiling %1").arg(executable().toUserOutput()), Utils::NormalMessageFormat);
     return ValgrindToolRunner::start();
 }
 

@@ -79,7 +79,7 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
         return QString();
     ProjectExplorer::Runnable debuggee;
     const QString &binPath = binPathFileInfo.canonicalFilePath();
-    debuggee.executable = binPath;
+    debuggee.executable = Utils::FilePath::fromString(binPath);
     debuggee.environment = Utils::Environment::systemEnvironment();
     m_runner->setLocalServerAddress(QHostAddress::LocalHost);
     m_runner->setValgrindArguments(QStringList() << "--num-callers=50" << "--track-origins=yes" << vArgs);
