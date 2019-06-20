@@ -165,6 +165,7 @@ const int priorityGenericToolBar = 50;
 const int priorityLast = 60;
 
 const char addImagesDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Image Files");
+const char addFontsDisplayString[] = QT_TRANSLATE_NOOP("QmlDesignerAddResources", "Font Files");
 
 } //ComponentCoreConstants
 

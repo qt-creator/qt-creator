@@ -966,6 +966,38 @@ void addTabBarToStackedContainer(const SelectionContext &selectionContext)
 
 }
 
+bool addFontToProject(const QStringList &fileNames, const QString &defaultDirectory)
+{
+    QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);
+
+    if (directory.isEmpty())
+        return true;
+
+    bool allSuccessful = true;
+    for (const QString &fileName : fileNames) {
+        const QString targetFile = directory + "/" + QFileInfo(fileName).fileName();
+        const bool success = QFile::copy(fileName, targetFile);
+
+        auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
+
+        QTC_ASSERT(document, return false);
+
+        if (success) {
+            ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(document->fileName());
+            if (node) {
+                ProjectExplorer::FolderNode *containingFolder = node->parentFolderNode();
+                if (containingFolder)
+                    containingFolder->addFiles(QStringList(targetFile));
+            }
+        } else {
+            allSuccessful = false;
+        }
+    }
+
+    return allSuccessful;
+}
+
+
 bool addImageToProject(const QStringList &fileNames, const QString &defaultDirectory)
 {
     QString directory = AddImagesDialog::getDirectory(fileNames, defaultDirectory);

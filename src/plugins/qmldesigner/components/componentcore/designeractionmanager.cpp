@@ -1026,6 +1026,13 @@ void DesignerActionManager::createDefaultAddResourceHandler()
     registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addImagesDisplayString,
                                                   "*.svg",
                                                   ModelNodeOperations::addImageToProject));
+
+    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addFontsDisplayString,
+                                                  "*.ttf",
+                                                  ModelNodeOperations::addFontToProject));
+    registerAddResourceHandler(AddResourceHandler(ComponentCoreConstants::addFontsDisplayString,
+                                                  "*.otf",
+                                                  ModelNodeOperations::addFontToProject));
 }
 
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)

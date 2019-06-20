@@ -73,6 +73,7 @@ void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext);
 void addTabBarToStackedContainer(const SelectionContext &selectionContext);
 bool addImageToProject(const QStringList &fileNames, const QString &directory);
+bool addFontToProject(const QStringList &fileNames, const QString &directory);
 
 } // namespace ModelNodeOperationso
 } //QmlDesigner
