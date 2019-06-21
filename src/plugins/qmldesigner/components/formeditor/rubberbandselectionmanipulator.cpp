@@ -27,6 +27,8 @@
 
 #include "formeditorscene.h"
 
+#include <utils/algorithm.h>
+
 namespace QmlDesigner {
 
 RubberBandSelectionManipulator::RubberBandSelectionManipulator(LayerItem *layerItem, FormEditorView *editorView)
@@ -125,9 +127,9 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
         }
         break;
     case RemoveFromSelection: {
-            QSet<QmlItemNode> oldSelectionSet(m_oldSelectionList.toSet());
-            QSet<QmlItemNode> newSelectionSet(newNodeList.toSet());
-            nodeList.append(oldSelectionSet.subtract(newSelectionSet).toList());
+            QSet<QmlItemNode> oldSelectionSet = Utils::toSet(m_oldSelectionList);
+            const QSet<QmlItemNode> newSelectionSet = Utils::toSet(newNodeList);
+            nodeList.append(Utils::toList(oldSelectionSet.subtract(newSelectionSet)));
         }
     }
 
