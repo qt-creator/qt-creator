@@ -973,9 +973,9 @@ def qdumpHelper__std__vector(d, value, isLibCpp):
                 (start, soffset, pad, finish, foffset, pad, alloc) = value.split("pI@pI@p")
             else:
                 start = value["_M_start"]["_M_p"].pointer()
-                soffset = value["_M_start"]["_M_offset"]
+                soffset = value["_M_start"]["_M_offset"].integer()
                 finish = value["_M_finish"]["_M_p"].pointer()
-                foffset = value["_M_finish"]["_M_offset"]
+                foffset = value["_M_finish"]["_M_offset"].integer()
                 alloc = value["_M_end_of_storage"].pointer()
             size = (finish - start) * 8 + foffset - soffset # 8 is CHAR_BIT.
     else:
