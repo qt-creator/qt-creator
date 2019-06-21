@@ -248,6 +248,9 @@ public:
     Utils::FilePath cmakeReplyDirectory() const;
     QFileInfo scanForCMakeReplyFile() const;
 
+    QStringList cmakeQueryFileNames() const;
+    QStringList cmakeQueryFilePaths() const;
+
     static FileApiData parseData(const QFileInfo &replyFileInfo, QString &errorMessage);
 
 signals:

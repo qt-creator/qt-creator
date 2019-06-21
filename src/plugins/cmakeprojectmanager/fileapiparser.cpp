@@ -858,7 +858,7 @@ void FileApiParser::setupCMakeFileApi() const
     QTC_ASSERT(queryDir.exists(), );
 
     bool failedBefore = false;
-    for (const QString &fileName : QStringList({"cache-v2", "codemodel-v2", "cmakeFiles-v1"})) {
+    for (const QString &fileName : cmakeQueryFileNames()) {
         const QString filePath = queryDir.filePath(fileName);
 
         QFile f(filePath);
@@ -931,6 +931,19 @@ QFileInfo FileApiParser::scanForCMakeReplyFile() const
                                                      QDir::Files,
                                                      QDir::Name);
     return fis.isEmpty() ? QFileInfo() : fis.last();
+}
+
+QStringList FileApiParser::cmakeQueryFileNames() const
+{
+    return {"cache-v2", "codemodel-v2", "cmakeFiles-v1"};
+}
+
+QStringList FileApiParser::cmakeQueryFilePaths() const
+{
+    QDir queryDir(QDir::cleanPath(m_sourceDirectory.toString() + "/"
+                                  + QString::fromLatin1(CMAKE_RELATIVE_QUERY_PATH)));
+    return transform(cmakeQueryFileNames(),
+                     [&queryDir](const QString &name) { return queryDir.absoluteFilePath(name); });
 }
 
 void FileApiParser::replyDirectoryHasChanged(const QString &directory) const
