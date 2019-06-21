@@ -3323,8 +3323,10 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_diffFileAction->setEnabled(DiffService::instance()
                         && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
-            m_duplicateFileAction->setVisible(supports(DuplicateFile));
-            m_duplicateFileAction->setEnabled(supports(DuplicateFile));
+            const bool canDuplicate = supports(AddNewFile)
+                    && currentNode->asFileNode()->fileType() != FileType::Project;
+            m_duplicateFileAction->setVisible(canDuplicate);
+            m_duplicateFileAction->setEnabled(canDuplicate);
 
             EditorManager::populateOpenWithMenu(m_openWithMenu,
                                                 currentNode->filePath().toString());

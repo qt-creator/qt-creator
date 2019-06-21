@@ -84,7 +84,7 @@ QmakeProFileNode *QmakePriFileNode::proFileNode() const
 
 bool QmakePriFileNode::supportsAction(ProjectAction action, const Node *node) const
 {
-    if (action == Rename || action == DuplicateFile) {
+    if (action == Rename) {
         const FileNode *fileNode = node->asFileNode();
         return (fileNode && fileNode->fileType() != FileType::Project)
                 || dynamic_cast<const ResourceEditor::ResourceTopLevelNode *>(node);

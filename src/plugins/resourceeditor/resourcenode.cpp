@@ -197,7 +197,6 @@ bool SimpleResourceFolderNode::supportsAction(ProjectAction action, const Node *
         || action == AddExistingFile
         || action == AddExistingDirectory
         || action == RemoveFile
-        || action == DuplicateFile
         || action == Rename // Note: only works for the filename, works akwardly for relative file paths
         || action == InheritedFromParent; // Do not add to list of projects when adding new file
 }
@@ -487,7 +486,6 @@ bool ResourceFolderNode::supportsAction(ProjectAction action, const Node *node) 
         || action == AddExistingFile
         || action == AddExistingDirectory
         || action == RemoveFile
-        || action == DuplicateFile
         || action == Rename // Note: only works for the filename, works akwardly for relative file paths
         || action == HidePathActions; // hides open terminal etc.
 }
