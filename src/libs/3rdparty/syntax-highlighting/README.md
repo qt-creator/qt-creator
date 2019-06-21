@@ -30,3 +30,20 @@ out of scope:
 * management of text buffers or documents
 
 If you need any of this, check out [KTextEditor](https://api.kde.org/frameworks/ktexteditor/html/).
+
+## Adding unit tests for a syntax definition
+
+* add an input file into the autotests/input/ folder, lets call it test.<language-extension>
+
+* if the file extension is not sufficient to trigger the right syntax definition, you can add an
+  second file testname.<language-extension>.syntax that contains the syntax definition name
+  to enforce the use of the right extension
+
+* do "make && make test"
+
+* inspect the outputs found in your binary directory autotests/folding.out, autotests/html.output and autotests/output
+
+* if ok, run in the binary folder "./autotests/update-reference-data.sh" to copy the results to the right location
+
+* add the result references after the copying to the git
+

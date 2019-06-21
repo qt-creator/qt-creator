@@ -194,6 +194,82 @@ bool checkLookAhead(const QString &hlFilename, QXmlStreamReader &xml)
 }
 
 /**
+ * Helper class to search for non-existing keyword include.
+ */
+class KeywordIncludeChecker
+{
+public:
+    void processElement(const QString &hlFilename, const QString &hlName, QXmlStreamReader &xml)
+    {
+         if (xml.name() == QLatin1String("list")) {
+             auto &keywords = m_keywordMap[hlName];
+             keywords.filename = hlFilename;
+             auto name = xml.attributes().value(QLatin1String("name")).toString();
+             m_currentIncludes = &keywords.includes[name];
+         }
+         else if (xml.name() == QLatin1String("include")) {
+             if (!m_currentIncludes) {
+                 qWarning() << hlFilename << "line" << xml.lineNumber() << "<include> tag ouside <list>";
+                 m_success = false;
+             } else {
+                 m_currentIncludes->push_back({xml.lineNumber(), xml.readElementText()});
+             }
+         }
+    }
+
+    bool check() const
+    {
+        bool success = m_success;
+        for (auto &keywords : m_keywordMap) {
+            QMapIterator<QString, QVector<Keywords::Include>> includes(keywords.includes);
+            while (includes.hasNext()) {
+                includes.next();
+                for (auto &include : includes.value()) {
+                    bool containsKeywordName = true;
+                    int const idx = include.name.indexOf(QStringLiteral("##"));
+                    if (idx == -1) {
+                        auto &keywordName = includes.key();
+                        containsKeywordName = keywords.includes.contains(keywordName);
+                    }
+                    else {
+                        auto defName = include.name.mid(idx + 2);
+                        auto listName = include.name.left(idx);
+                        auto it = m_keywordMap.find(defName);
+                        if (it == m_keywordMap.end()) {
+                            qWarning() << keywords.filename << "line" << include.line << "unknown definition in" << include.name;
+                            success = false;
+                        } else {
+                            containsKeywordName = it->includes.contains(listName);
+                        }
+                    }
+
+                    if (!containsKeywordName) {
+                        qWarning() << keywords.filename << "line" << include.line << "unknown keyword name in" << include.name;
+                        success = false;
+                    }
+                }
+            }
+        }
+        return success;
+    }
+
+private:
+    struct Keywords
+    {
+        QString filename;
+        struct Include
+        {
+            qint64 line;
+            QString name;
+        };
+        QMap<QString, QVector<Include>> includes;
+    };
+    QHash<QString, Keywords> m_keywordMap;
+    QVector<Keywords::Include> *m_currentIncludes = nullptr;
+    bool m_success = true;
+};
+
+/**
  * Helper class to search for non-existing or unreferenced keyword lists.
  */
 class KeywordChecker
@@ -296,6 +372,7 @@ public:
             const auto unusedNames = language.existingContextNames - language.usedContextNames;
             if (!unusedNames.isEmpty()) {
                 qWarning() << language.hlFilename << "Unused contexts:" << unusedNames;
+                success = false;
             }
         }
 
@@ -457,9 +534,10 @@ int main(int argc, char *argv[])
 
     // index all given highlightings
     ContextChecker contextChecker;
+    KeywordIncludeChecker keywordIncludeChecker;
     QVariantMap hls;
     int anyError = 0;
-    foreach (const QString &hlFilename, hlFilenames) {
+    for (const QString &hlFilename : qAsConst(hlFilenames)) {
         QFile hlFile(hlFilename);
         if (!hlFile.open(QIODevice::ReadOnly)) {
             qWarning ("Failed to open %s", qPrintable(hlFilename));
@@ -493,7 +571,7 @@ int main(int argc, char *argv[])
         QVariantMap hl;
 
         // transfer text attributes
-        Q_FOREACH (const QString &attribute, textAttributes) {
+        for (const QString &attribute : qAsConst(textAttributes)) {
             hl[attribute] = xml.attributes().value(attribute).toString();
         }
 
@@ -527,6 +605,9 @@ int main(int argc, char *argv[])
 
             // search for used/existing contexts if applicable
             contextChecker.processElement(hlFilename, hlName, xml);
+
+            // search for existing keyword includes
+            keywordIncludeChecker.processElement(hlFilename, hlName, xml);
 
             // search for used/existing attributes if applicable
             attributeChecker.processElement(xml);
@@ -569,6 +650,9 @@ int main(int argc, char *argv[])
     }
 
     if (!contextChecker.check())
+        anyError = 7;
+
+    if (!keywordIncludeChecker.check())
         anyError = 7;
 
 

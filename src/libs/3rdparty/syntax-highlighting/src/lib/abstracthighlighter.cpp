@@ -53,7 +53,7 @@ void AbstractHighlighterPrivate::ensureDefinitionLoaded()
         defData = DefinitionData::get(m_definition);
     }
 
-    if (Q_UNLIKELY(!defData->repo && !defData->name.isEmpty()))
+    if (Q_UNLIKELY(!defData->repo && !defData->fileName.isEmpty()))
         qCCritical(Log) << "Repository got deleted while a highlighter is still active!";
 
     if (m_definition.isValid())
@@ -118,13 +118,13 @@ State AbstractHighlighter::highlightLine(const QString& text, const State &state
 
     // verify definition, deal with no highlighting being enabled
     d->ensureDefinitionLoaded();
-    if (!d->m_definition.isValid()) {
+    const auto defData = DefinitionData::get(d->m_definition);
+    if (!d->m_definition.isValid() || !defData->isLoaded()) {
         applyFormat(0, text.size(), Format());
         return State();
     }
 
     // verify/initialize state
-    auto defData = DefinitionData::get(d->m_definition);
     auto newState = state;
     auto stateData = StateData::get(newState);
     const DefinitionRef currentDefRef(d->m_definition);
@@ -139,9 +139,37 @@ State AbstractHighlighter::highlightLine(const QString& text, const State &state
 
     // process empty lines
     if (text.isEmpty()) {
-        while (!stateData->topContext()->lineEmptyContext().isStay()) {
-            if (!d->switchContext(stateData, stateData->topContext()->lineEmptyContext(), QStringList()))
+        /**
+         * handle line empty context switches
+         * guard against endless loops
+         * see https://phabricator.kde.org/D18509
+         */
+        int endlessLoopingCounter = 0;
+        while (!stateData->topContext()->lineEmptyContext().isStay() || (stateData->topContext()->lineEmptyContext().isStay() && !stateData->topContext()->lineEndContext().isStay())) {
+            /**
+             * line empty context switches
+             */
+            if (!stateData->topContext()->lineEmptyContext().isStay()) {
+                if (!d->switchContext(stateData, stateData->topContext()->lineEmptyContext(), QStringList())) {
+                    /**
+                     * end when trying to #pop the main context
+                     */
+                    break;
+                }
+            /**
+             * line end context switches only when lineEmptyContext is #stay. This avoids
+             * skipping empty lines after a line continuation character (see bug 405903)
+             */
+            } else if (!stateData->topContext()->lineEndContext().isStay() &&
+                       !d->switchContext(stateData, stateData->topContext()->lineEndContext(), QStringList()))
                 break;
+
+            // guard against endless loops
+            ++endlessLoopingCounter;
+            if (endlessLoopingCounter > 1024) {
+                qCDebug(Log) << "Endless switch context transitions for line empty context, aborting highlighting of line.";
+                break;
+            }
         }
         auto context = stateData->topContext();
         applyFormat(0, 0, context->attributeFormat());
@@ -238,11 +266,18 @@ State AbstractHighlighter::highlightLine(const QString& text, const State &state
             if (newOffset <= offset)
                 continue;
 
-            // apply folding
-            if (rule->endRegion().isValid())
-                applyFolding(offset, newOffset - offset, rule->endRegion());
+            /**
+             * apply folding.
+             * special cases:
+             *   - rule with endRegion + beginRegion: in endRegion, the length is 0
+             *   - rule with lookAhead: length is 0
+             */
+            if (rule->endRegion().isValid() && rule->beginRegion().isValid())
+                applyFolding(offset, 0, rule->endRegion());
+            else if (rule->endRegion().isValid())
+                applyFolding(offset, rule->isLookAhead() ? 0 : newOffset - offset, rule->endRegion());
             if (rule->beginRegion().isValid())
-                applyFolding(offset, newOffset - offset, rule->beginRegion());
+                applyFolding(offset, rule->isLookAhead() ? 0 : newOffset - offset, rule->beginRegion());
 
             if (rule->isLookAhead()) {
                 Q_ASSERT(!rule->context().isStay());
@@ -293,12 +328,30 @@ State AbstractHighlighter::highlightLine(const QString& text, const State &state
 
     } while (offset < text.size());
 
+    /**
+     * apply format for remaining text, if any
+     */
     if (beginOffset < offset)
         applyFormat(beginOffset, text.size() - beginOffset, *currentFormat);
 
-    while (!stateData->topContext()->lineEndContext().isStay() && !lineContinuation) {
-        if (!d->switchContext(stateData, stateData->topContext()->lineEndContext(), QStringList()))
-            break;
+    /**
+     * handle line end context switches
+     * guard against endless loops
+     * see https://phabricator.kde.org/D18509
+     */
+    {
+        int endlessLoopingCounter = 0;
+        while (!stateData->topContext()->lineEndContext().isStay() && !lineContinuation) {
+            if (!d->switchContext(stateData, stateData->topContext()->lineEndContext(), QStringList()))
+                break;
+
+            // guard against endless loops
+            ++endlessLoopingCounter;
+            if (endlessLoopingCounter > 1024) {
+                qCDebug(Log) << "Endless switch context transitions for line end context, aborting highlighting of line.";
+                break;
+            }
+        }
     }
 
     return newState;

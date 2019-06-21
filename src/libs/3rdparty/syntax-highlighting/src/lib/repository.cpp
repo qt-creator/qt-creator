@@ -69,7 +69,7 @@ Repository::~Repository()
 {
     // reset repo so we can detect in still alive definition instances
     // that the repo was deleted
-    foreach (const auto &def, d->m_sortedDefs)
+    for (const auto &def : qAsConst(d->m_sortedDefs))
         DefinitionData::get(def)->repo = nullptr;
 }
 
@@ -78,21 +78,16 @@ Definition Repository::definitionForName(const QString& defName) const
     return d->m_defs.value(defName);
 }
 
-static Definition bestCandidate(QVector<Definition> &&candidates)
+static void sortDefinitions(QVector<Definition> &definitions)
 {
-    if (candidates.isEmpty())
-        return Definition();
-
-    std::partial_sort(candidates.begin(), candidates.begin() + 1, candidates.end(), [](const Definition &lhs, const Definition &rhs) {
+    std::stable_sort(definitions.begin(), definitions.end(), [](const Definition &lhs, const Definition &rhs) {
         return lhs.priority() > rhs.priority();
     });
-
-    return candidates.at(0);
 }
 
 Definition Repository::definitionForFileName(const QString& fileName) const
 {
-    return bestCandidate(definitionsForFileName(fileName));
+    return definitionsForFileName(fileName).value(0);
 }
 
 QVector<Definition> Repository::definitionsForFileName(const QString &fileName) const
@@ -101,9 +96,8 @@ QVector<Definition> Repository::definitionsForFileName(const QString &fileName) 
     const auto name = fi.fileName();
 
     QVector<Definition> candidates;
-    for (auto it = d->m_defs.constBegin(); it != d->m_defs.constEnd(); ++it) {
-        auto def = it.value();
-        foreach (const auto &pattern, def.extensions()) {
+    for (const Definition &def : qAsConst(d->m_sortedDefs)) {
+        for (const auto &pattern : def.extensions()) {
             if (WildcardMatcher::exactMatch(name, pattern)) {
                 candidates.push_back(def);
                 break;
@@ -111,26 +105,28 @@ QVector<Definition> Repository::definitionsForFileName(const QString &fileName) 
         }
     }
 
+    sortDefinitions(candidates);
     return candidates;
 }
 
 Definition Repository::definitionForMimeType(const QString& mimeType) const
 {
-    return bestCandidate(definitionsForMimeType(mimeType));
+    return definitionsForMimeType(mimeType).value(0);
 }
 
 QVector<Definition> Repository::definitionsForMimeType(const QString &mimeType) const
 {
     QVector<Definition> candidates;
-    for (auto it = d->m_defs.constBegin(); it != d->m_defs.constEnd(); ++it) {
-        auto def = it.value();
-        foreach (const auto &matchType, def.mimeTypes()) {
+    for (const Definition &def : qAsConst(d->m_sortedDefs)) {
+        for (const auto &matchType : def.mimeTypes()) {
             if (mimeType == matchType) {
                 candidates.push_back(def);
                 break;
             }
         }
     }
+
+    sortDefinitions(candidates);
     return candidates;
 }
 
@@ -169,11 +165,11 @@ void RepositoryPrivate::load(Repository *repo)
 
     // do lookup in standard paths, if not disabled
 #ifndef NO_STANDARD_PATHS
-    foreach (const auto &dir, QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("org.kde.syntax-highlighting/syntax"), QStandardPaths::LocateDirectory))
+    for (const auto &dir : QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("org.kde.syntax-highlighting/syntax"), QStandardPaths::LocateDirectory))
         loadSyntaxFolder(repo, dir);
 
     // backward compatibility with Kate
-    foreach (const auto &dir, QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("katepart5/syntax"), QStandardPaths::LocateDirectory))
+    for (const auto &dir : QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("katepart5/syntax"), QStandardPaths::LocateDirectory))
         loadSyntaxFolder(repo, dir);
 #endif
 
@@ -181,7 +177,7 @@ void RepositoryPrivate::load(Repository *repo)
     loadSyntaxFolder(repo, QStringLiteral(":/org.kde.syntax-highlighting/syntax"));
 
     // user given extra paths
-    foreach (const auto &path, m_customSearchPaths)
+    for (const auto &path : qAsConst(m_customSearchPaths))
         loadSyntaxFolder(repo, path + QStringLiteral("/syntax"));
 
     m_sortedDefs.reserve(m_defs.size());
@@ -198,7 +194,7 @@ void RepositoryPrivate::load(Repository *repo)
 
     // do lookup in standard paths, if not disabled
 #ifndef NO_STANDARD_PATHS
-    foreach (const auto &dir, QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("org.kde.syntax-highlighting/themes"), QStandardPaths::LocateDirectory))
+    for (const auto &dir : QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("org.kde.syntax-highlighting/themes"), QStandardPaths::LocateDirectory))
         loadThemeFolder(dir);
 #endif
 
@@ -206,7 +202,7 @@ void RepositoryPrivate::load(Repository *repo)
     loadThemeFolder(QStringLiteral(":/org.kde.syntax-highlighting/themes"));
 
     // user given extra paths
-    foreach (const auto &path, m_customSearchPaths)
+    for (const auto &path : qAsConst(m_customSearchPaths))
         loadThemeFolder(path + QStringLiteral("/themes"));
 }
 
@@ -307,7 +303,7 @@ quint16 RepositoryPrivate::nextFormatId()
 void Repository::reload()
 {
     qCDebug(Log) << "Reloading syntax definitions!";
-    foreach (const auto &def, d->m_sortedDefs)
+    for (const auto &def : qAsConst(d->m_sortedDefs))
         DefinitionData::get(def)->clear();
     d->m_defs.clear();
     d->m_sortedDefs.clear();

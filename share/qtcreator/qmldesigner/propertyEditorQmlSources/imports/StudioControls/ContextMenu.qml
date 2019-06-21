@@ -31,17 +31,17 @@ Menu {
 
     property Item myTextEdit
 
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Undo"
         enabled: myTextEdit.canUndo
         onTriggered: myTextEdit.undo()
-        shortcut: StandardKey.Undo
+        /* shortcut: StandardKey.Undo Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Redo"
         enabled: myTextEdit.canRedo
         onTriggered: myTextEdit.redo()
-        shortcut: StandardKey.Redo
+        /* shortcut: StandardKey.Redo Shortcuts in QQC2 seem to override global shortcuts */
     }
 
     MenuSeparator {
@@ -82,11 +82,11 @@ Menu {
     MenuSeparator {
     }
 
-    Controls2.Action {
+    Controls2.MenuItem {
         text: "Select All"
         enabled: myTextEdit.text !== ""
                  && myTextEdit.selectedText !== myTextEdit.text
         onTriggered: myTextEdit.selectAll()
-        shortcut: StandardKey.SelectAll
+        /* shortcut: StandardKey.SelectAll Shortcuts in QQC2 seem to override global shortcuts */
     }
 }

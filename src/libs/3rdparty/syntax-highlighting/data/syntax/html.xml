@@ -5,7 +5,7 @@
 	<!ENTITY attributeName "[A-Za-z_:*#\(\[][\)\]\w.:_-]*">
 	<!ENTITY entref        "&amp;(#[0-9]+|#[xX][0-9A-Fa-f]+|&name;);">
 ]>
-<language name="HTML" version="5" kateversion="3.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
+<language name="HTML" version="7" kateversion="3.4" section="Markup" extensions="*.htm;*.html;*.shtml;*.shtm" mimetype="text/html"  author="Wilbert Berendsen (wilbert@kde.nl)" license="LGPL" priority="10">
 
 <highlighting>
 <contexts>
@@ -163,16 +163,23 @@
   </context>
 
   <context name="JS" attribute="Other Text" lineEndContext="#stay">
-    <Detect2Chars attribute="Element" context="#pop" char="/" char1="&gt;" endRegion="script" />
+    <RegExpr attribute="Attribute" context="Script-Type" String="(\s+|^)type(?=\=|\s|$)" insensitive="true"/>
     <DetectChar attribute="Element" context="JS content" char="&gt;" />
+    <IncludeRules context="DefaultJS" />
+  </context>
+  <context name="DefaultJS" attribute="Other Text" lineEndContext="#stay">
+    <Detect2Chars attribute="Element" context="#pop" char="/" char1="&gt;" endRegion="script" />
     <IncludeRules context="FindAttributes" />
     <RegExpr attribute="Error" context="#stay" String="\S" />
   </context>
 
   <context name="JS content" attribute="Other Text" lineEndContext="#stay">
+    <IncludeRules context="Default JS content"/>
+    <IncludeRules context="Normal##JavaScript" includeAttrib="true"/>
+  </context>
+  <context name="Default JS content" attribute="Other Text" lineEndContext="#stay">
     <RegExpr attribute="Element" context="El Close 2" String="&lt;/script\b" insensitive="true" endRegion="script" />
     <RegExpr attribute="Comment" context="JS comment close" String="//(?=.*&lt;/script\b)" insensitive="true" />
-    <IncludeRules context="Normal##JavaScript" includeAttrib="true"/>
   </context>
 
   <context name="JS comment close" attribute="Comment" lineEndContext="#pop">
@@ -200,6 +207,79 @@
   <context name="Value SQ" attribute="Value" lineEndContext="#stay">
     <DetectChar attribute="Value" context="#pop#pop" char="&apos;" />
     <IncludeRules context="FindEntityRefs" />
+  </context>
+
+  <!-- Read content from the "type" attribute to change the language to
+       highlight in the <script> tag. The default language is JavaScript. -->
+
+  <context name="Script-Type" attribute="Other Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop">
+    <DetectSpaces />
+    <DetectChar attribute="Attribute" context="#pop!Script-Type Value" char="=" />
+  </context>
+  <context name="Script-Type Value" attribute="Other Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop!Value">
+    <DetectSpaces />
+    <!-- TypeScript -->
+    <StringDetect attribute="Value" context="#pop#pop!TypeScript" String="&quot;text/typescript&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!TypeScript" String="&apos;text/typescript&apos;"/>
+    <!-- JSX (JavaScript React) -->
+    <StringDetect attribute="Value" context="#pop#pop!JSX" String="&quot;text/jsx&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!JSX" String="&apos;text/jsx&apos;"/>
+    <StringDetect attribute="Value" context="#pop#pop!JSX" String="&quot;text/babel&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!JSX" String="&apos;text/babel&apos;"/>
+    <!-- MustacheJS / HandlebarsJS / RactiveJS -->
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;x-tmpl-mustache&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;x-tmpl-mustache&apos;"/>
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;text/mustache&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;text/mustache&apos;"/>    
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;text/x-mustache-template&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;text/x-mustache-template&apos;"/>
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;text/x-handlebars-template&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;text/x-handlebars-template&apos;"/>
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&quot;text/ractive&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!MustacheJS" String="&apos;text/ractive&apos;"/>
+    <!-- HTML templates -->
+    <StringDetect attribute="Value" context="#pop#pop!Script HTML template" String="&quot;text/html&quot;"/>
+    <StringDetect attribute="Value" context="#pop#pop!Script HTML template" String="&apos;text/html&apos;"/>
+  </context>
+
+  <context name="JSX" attribute="Other Text" lineEndContext="#stay">
+    <DetectChar attribute="Element" context="JSX content" char="&gt;" />
+    <IncludeRules context="DefaultJS" />
+  </context>
+  <context name="JSX content" attribute="Other Text" lineEndContext="#stay">
+    <IncludeRules context="Default JS content"/>
+    <IncludeRules context="Normal##JavaScript React" includeAttrib="true"/>
+  </context>
+
+  <context name="TypeScript" attribute="Other Text" lineEndContext="#stay">
+    <DetectChar attribute="Element" context="TypeScript content" char="&gt;" />
+    <IncludeRules context="DefaultJS" />
+  </context>
+  <context name="TypeScript content" attribute="Other Text" lineEndContext="#stay">
+    <IncludeRules context="Default JS content"/>
+    <IncludeRules context="Normal##TypeScript" includeAttrib="true"/>
+  </context>
+
+  <context name="MustacheJS" attribute="Other Text" lineEndContext="#stay">
+    <DetectChar attribute="Element" context="MustacheJS content" char="&gt;" />
+    <IncludeRules context="DefaultJS" />
+  </context>
+  <context name="MustacheJS content" attribute="Other Text" lineEndContext="#stay">
+    <RegExpr attribute="Element" context="El Close 2" String="&lt;/script\b" insensitive="true" endRegion="script" />
+    <StringDetect attribute="Error" context="#stay" String="&lt;script&gt;" insensitive="true" />
+    <RegExpr attribute="Error" context="#stay" String="&lt;script\b" insensitive="true" />
+    <IncludeRules context="Base##Mustache/Handlebars (HTML)" includeAttrib="true"/>
+  </context>
+
+  <context name="Script HTML template" attribute="Other Text" lineEndContext="#stay">
+    <DetectChar attribute="Element" context="Script HTML template content" char="&gt;" />
+    <IncludeRules context="DefaultJS" />
+  </context>
+  <context name="Script HTML template content" attribute="Other Text" lineEndContext="#stay">
+    <RegExpr attribute="Element" context="El Close 2" String="&lt;/script\b" insensitive="true" endRegion="script" />
+    <StringDetect attribute="Error" context="#stay" String="&lt;script&gt;" insensitive="true" />
+    <RegExpr attribute="Error" context="#stay" String="&lt;script\b" insensitive="true" />
+    <IncludeRules context="FindHTML" />
   </context>
 
 </contexts>

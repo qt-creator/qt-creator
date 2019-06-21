@@ -31,7 +31,7 @@
 
 <language
     name="CMake"
-    version="11"
+    version="12"
     kateversion="2.4"
     section="Other"
     extensions="CMakeLists.txt;*.cmake;*.cmake.in"
@@ -317,6 +317,7 @@
       <item>PATTERN</item>
       <item>PERMISSIONS</item>
       <item>READ</item>
+      <item>READ_SYMLINK</item>
       <item>REGEX</item>
       <item>RELATIVE</item>
       <item>RELATIVE_PATH</item>
@@ -335,6 +336,7 @@
       <item>SHA3_512</item>
       <item>SHA512</item>
       <item>SHOW_PROGRESS</item>
+      <item>SIZE</item>
       <item>STATUS</item>
       <item>STRINGS</item>
       <item>TIMEOUT</item>
@@ -484,8 +486,10 @@
       <item>CACHE</item>
       <item>DIRECTORY</item>
       <item>EXT</item>
+      <item>LAST_EXT</item>
       <item>NAME</item>
       <item>NAME_WE</item>
+      <item>NAME_WLE</item>
       <item>PATH</item>
       <item>PROGRAM</item>
       <item>PROGRAM_ARGS</item>
@@ -1054,6 +1058,7 @@
       <item>COPY_FILE</item>
       <item>COPY_FILE_ERROR</item>
       <item>LINK_LIBRARIES</item>
+      <item>LINK_OPTIONS</item>
       <item>OUTPUT_VARIABLE</item>
       <item>RESULT_VAR</item>
       <item>SOURCES</item>
@@ -1065,6 +1070,7 @@
       <item>COMPILE_OUTPUT_VARIABLE</item>
       <item>COMPILE_RESULT_VAR</item>
       <item>LINK_LIBRARIES</item>
+      <item>LINK_OPTIONS</item>
       <item>OUTPUT_VARIABLE</item>
       <item>RUN_OUTPUT_VARIABLE</item>
       <item>RUN_RESULT_VAR</item>
@@ -1209,6 +1215,7 @@
       <item>CMAKE_ARCHIVE_OUTPUT_DIRECTORY</item>
       <item>CMAKE_ARGC</item>
       <item>CMAKE_ARGV0</item>
+      <item>CMAKE_AUTOGEN_ORIGIN_DEPENDS</item>
       <item>CMAKE_AUTOGEN_PARALLEL</item>
       <item>CMAKE_AUTOGEN_VERBOSE</item>
       <item>CMAKE_AUTOMOC</item>
@@ -1223,6 +1230,7 @@
       <item>CMAKE_BACKWARDS_COMPATIBILITY</item>
       <item>CMAKE_BINARY_DIR</item>
       <item>CMAKE_BUILD_RPATH</item>
+      <item>CMAKE_BUILD_RPATH_USE_ORIGIN</item>
       <item>CMAKE_BUILD_TOOL</item>
       <item>CMAKE_BUILD_TYPE</item>
       <item>CMAKE_BUILD_WITH_INSTALL_NAME_DIR</item>
@@ -1297,6 +1305,7 @@
       <item>CMAKE_FIND_PACKAGE_NAME</item>
       <item>CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY</item>
       <item>CMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY</item>
+      <item>CMAKE_FIND_PACKAGE_RESOLVE_SYMLINKS</item>
       <item>CMAKE_FIND_PACKAGE_SORT_DIRECTION</item>
       <item>CMAKE_FIND_PACKAGE_SORT_ORDER</item>
       <item>CMAKE_FIND_PACKAGE_WARN_NO_MODULE</item>
@@ -1316,6 +1325,10 @@
       <item>CMAKE_GENERATOR_INSTANCE</item>
       <item>CMAKE_GENERATOR_PLATFORM</item>
       <item>CMAKE_GENERATOR_TOOLSET</item>
+      <item>CMAKE_GLOBAL_AUTOGEN_TARGET</item>
+      <item>CMAKE_GLOBAL_AUTOGEN_TARGET_NAME</item>
+      <item>CMAKE_GLOBAL_AUTORCC_TARGET</item>
+      <item>CMAKE_GLOBAL_AUTORCC_TARGET_NAME</item>
       <item>CMAKE_GNUtoMS</item>
       <item>CMAKE_HAS_ANSI_STRING_STREAM</item>
       <item>CMAKE_HOME_DIRECTORY</item>
@@ -1412,6 +1425,7 @@
       <item>CMAKE_MAJOR_VERSION</item>
       <item>CMAKE_MAKE_PROGRAM</item>
       <item>CMAKE_MATCH_COUNT</item>
+      <item>CMAKE_MAXIMUM_RECURSION_DEPTH</item>
       <item>CMAKE_MFC_FLAG</item>
       <item>CMAKE_MINIMUM_REQUIRED_VERSION</item>
       <item>CMAKE_MINOR_VERSION</item>
@@ -1884,6 +1898,7 @@
       <item>CTEST_SCP_COMMAND</item>
       <item>CTEST_SITE</item>
       <item>CTEST_SOURCE_DIRECTORY</item>
+      <item>CTEST_SUBMIT_URL</item>
       <item>CTEST_SVN_COMMAND</item>
       <item>CTEST_SVN_OPTIONS</item>
       <item>CTEST_SVN_UPDATE_OPTIONS</item>
@@ -1964,6 +1979,8 @@
       <item>PROJECT_VERSION_PATCH</item>
       <item>PROJECT_VERSION_TWEAK</item>
       <item>QTIFWDIR</item>
+      <item>SWIG_OUTFILE_DIR</item>
+      <item>SWIG_SOURCE_FILE_EXTENSIONS</item>
       <item>THREADS_PREFER_PTHREAD_FLAG</item>
       <item>UNIX</item>
       <item>WIN32</item>
@@ -1982,6 +1999,7 @@
       <item>AUTORCC_SOURCE_GROUP</item>
       <item>CMAKE_CXX_KNOWN_FEATURES</item>
       <item>CMAKE_C_KNOWN_FEATURES</item>
+      <item>CMAKE_ROLE</item>
       <item>DEBUG_CONFIGURATIONS</item>
       <item>DISABLED_FEATURES</item>
       <item>ECLIPSE_EXTRA_NATURES</item>
@@ -2067,17 +2085,24 @@
       <item>ARCHIVE_OUTPUT_DIRECTORY</item>
       <item>ARCHIVE_OUTPUT_NAME</item>
       <item>AUTOGEN_BUILD_DIR</item>
+      <item>AUTOGEN_ORIGIN_DEPENDS</item>
       <item>AUTOGEN_TARGET_DEPENDS</item>
       <item>AUTOMOC</item>
+      <item>AUTOMOC_COMPILER_PREDEFINES</item>
       <item>AUTOMOC_DEPEND_FILTERS</item>
+      <item>AUTOMOC_EXECUTABLE</item>
+      <item>AUTOMOC_MACRO_NAMES</item>
       <item>AUTOMOC_MOC_OPTIONS</item>
       <item>AUTORCC</item>
+      <item>AUTORCC_EXECUTABLE</item>
       <item>AUTORCC_OPTIONS</item>
       <item>AUTOUIC</item>
+      <item>AUTOUIC_EXECUTABLE</item>
       <item>AUTOUIC_OPTIONS</item>
       <item>AUTOUIC_SEARCH_PATHS</item>
       <item>BINARY_DIR</item>
       <item>BUILD_RPATH</item>
+      <item>BUILD_RPATH_USE_ORIGIN</item>
       <item>BUILD_WITH_INSTALL_NAME_DIR</item>
       <item>BUILD_WITH_INSTALL_RPATH</item>
       <item>BUNDLE</item>

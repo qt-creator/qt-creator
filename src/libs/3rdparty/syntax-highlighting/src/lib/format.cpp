@@ -213,52 +213,52 @@ void FormatPrivate::load(QXmlStreamReader& reader)
     name = reader.attributes().value(QStringLiteral("name")).toString();
     defaultStyle = stringToDefaultFormat(reader.attributes().value(QStringLiteral("defStyleNum")));
 
-    QStringRef ref = reader.attributes().value(QStringLiteral("color"));
-    if (!ref.isEmpty()) {
-        style.textColor = QColor(ref.toString()).rgba();
+    QStringRef attribute = reader.attributes().value(QStringLiteral("color"));
+    if (!attribute.isEmpty()) {
+        style.textColor = QColor(attribute.toString()).rgba();
     }
 
-    ref = reader.attributes().value(QStringLiteral("selColor"));
-    if (!ref.isEmpty()) {
-        style.selectedTextColor = QColor(ref.toString()).rgba();
+    attribute = reader.attributes().value(QStringLiteral("selColor"));
+    if (!attribute.isEmpty()) {
+        style.selectedTextColor = QColor(attribute.toString()).rgba();
     }
 
-    ref = reader.attributes().value(QStringLiteral("backgroundColor"));
-    if (!ref.isEmpty()) {
-        style.backgroundColor = QColor(ref.toString()).rgba();
+    attribute = reader.attributes().value(QStringLiteral("backgroundColor"));
+    if (!attribute.isEmpty()) {
+        style.backgroundColor = QColor(attribute.toString()).rgba();
     }
 
-    ref = reader.attributes().value(QStringLiteral("selBackgroundColor"));
-    if (!ref.isEmpty()) {
-        style.selectedBackgroundColor = QColor(ref.toString()).rgba();
+    attribute = reader.attributes().value(QStringLiteral("selBackgroundColor"));
+    if (!attribute.isEmpty()) {
+        style.selectedBackgroundColor = QColor(attribute.toString()).rgba();
     }
 
-    ref = reader.attributes().value(QStringLiteral("italic"));
-    if (!ref.isEmpty()) {
+    attribute = reader.attributes().value(QStringLiteral("italic"));
+    if (!attribute.isEmpty()) {
         style.hasItalic = true;
-        style.italic = Xml::attrToBool(ref);
+        style.italic = Xml::attrToBool(attribute);
     }
 
-    ref = reader.attributes().value(QStringLiteral("bold"));
-    if (!ref.isEmpty()) {
+    attribute = reader.attributes().value(QStringLiteral("bold"));
+    if (!attribute.isEmpty()) {
         style.hasBold = true;
-        style.bold = Xml::attrToBool(ref);
+        style.bold = Xml::attrToBool(attribute);
     }
 
-    ref = reader.attributes().value(QStringLiteral("underline"));
-    if (!ref.isEmpty()) {
+    attribute = reader.attributes().value(QStringLiteral("underline"));
+    if (!attribute.isEmpty()) {
         style.hasUnderline = true;
-        style.underline = Xml::attrToBool(ref);
+        style.underline = Xml::attrToBool(attribute);
     }
 
-    ref = reader.attributes().value(QStringLiteral("strikeOut"));
-    if (!ref.isEmpty()) {
+    attribute = reader.attributes().value(QStringLiteral("strikeOut"));
+    if (!attribute.isEmpty()) {
         style.hasStrikeThrough = true;
-        style.strikeThrough = Xml::attrToBool(ref);
+        style.strikeThrough = Xml::attrToBool(attribute);
     }
 
-    ref = reader.attributes().value(QStringLiteral("spellChecking"));
-    if (!ref.isEmpty()) {
-        spellCheck = Xml::attrToBool(ref);
+    attribute = reader.attributes().value(QStringLiteral("spellChecking"));
+    if (!attribute.isEmpty()) {
+        spellCheck = Xml::attrToBool(attribute);
     }
 }

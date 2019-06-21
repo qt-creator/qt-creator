@@ -39,7 +39,7 @@
 
    Enhance tr/// and y/// support.
 -->
-<language name="Perl" version="7" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm;*.pl6;*.PL6;*.p6;*.pm6;" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
+<language name="Perl" version="8" kateversion="2.4" section="Scripts" extensions="*.pl;*.PL;*.pm;*.pl6;*.PL6;*.p6;*.pm6;" mimetype="application/x-perl;text/x-perl" priority="5" author="Anders Lund (anders@alweb.dk)" license="LGPLv2">
   <highlighting>
     <list name="keywords">
       <item>if</item>
@@ -383,8 +383,11 @@
 
         <RegExpr attribute="Operator" context="find_pattern" String="\b(?:m|qr)(?=\s*[^\w\s\]})])" />
 
-        <RegExpr attribute="Normal Text" context="#stay" String="[\w_]+\s*/" />
-        <RegExpr attribute="Normal Text" context="#stay" String="[&lt;&gt;&quot;':]/" />
+        <RegExpr attribute="Normal Text" context="#stay" String="[\w_]+\s*//?\=?" />
+        <RegExpr attribute="Normal Text" context="#stay" String="[&lt;&gt;&quot;':]//?\=?" />
+        <!-- Avoid conflicts between operators / and // -->
+        <StringDetect attribute="Normal Text" context="#stay" String="//=" />
+        <Detect2Chars attribute="Normal Text" context="#stay" char="/" char1="/" />
         <DetectChar attribute="Operator" context="pattern_slash" char="/" beginRegion="Pattern" />
         <RegExpr attribute="Operator" context="#stay" String="-[rwxoRWXOeszfdlpSbctugkTBMAC]\b" />
 

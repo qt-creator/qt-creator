@@ -121,10 +121,15 @@ def __compFunc__(it, foundComp, foundCompNames):
         pathLineEdit = findObject(":Path.Utils_BaseValidatingLineEdit")
         foundComp.append(str(pathLineEdit.text))
     except:
-        label = findObject("{buddy={container=':qt_tabwidget_stackedwidget_QWidget' "
-                           "text='Initialization:' type='QLabel' unnamed='1' visible='1'} "
-                           "type='QLabel' unnamed='1' visible='1'}")
-        foundComp.append({it:str(label.text)})
+        objectString = ("{buddy={container=':qt_tabwidget_stackedwidget_QWidget'"
+                        "        text='Initialization:' type='QLabel' unnamed='1' visible='1'}"
+                        " type='%s' unnamed='1' visible='1'}")
+        try:
+            foundText = findObject(objectString % "QLabel").text
+        except:
+            foundText = findObject(objectString % "QComboBox").currentText
+        foundComp.append({it:str(foundText)})
+
     foundCompNames.append(it)
 
 def __dbgFunc__(it, foundDbg):

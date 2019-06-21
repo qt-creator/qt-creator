@@ -85,6 +85,11 @@ QUrl FileResourcesModel::path() const
     return m_path;
 }
 
+QUrl FileResourcesModel::dirPath() const
+{
+    return QUrl::fromLocalFile(m_dirPath.path());
+}
+
 void FileResourcesModel::setFilter(const QString &filter)
 {
     if (m_filter != filter) {
@@ -162,16 +167,14 @@ void FileResourcesModel::setupModel()
     m_lock = true;
     m_model.clear();
 
-    QDir dir;
-
-    dir = QFileInfo(m_path.toLocalFile()).dir();
+    m_dirPath = QFileInfo(m_path.toLocalFile()).dir();
 
     QStringList filterList = m_filter.split(QLatin1Char(' '));
 
-    QDirIterator it(dir.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator it(m_dirPath.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         QString absolutePath = it.next();
-        m_model.append(dir.relativeFilePath(absolutePath));
+        m_model.append(m_dirPath.relativeFilePath(absolutePath));
     }
 
     m_lock = false;

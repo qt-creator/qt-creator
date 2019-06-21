@@ -31,7 +31,7 @@
 
 <!-- Hold the "language" opening tag on a single line, as mentioned in "language.dtd". -->
 <language name="Ruby" section="Scripts"
-	  version="9" kateversion="3.3"
+	  version="10" kateversion="3.3"
 	  extensions="*.rb;*.rjs;*.rxml;*.xml.erb;*.js.erb;*.rake;Rakefile;Gemfile;*.gemspec;Vagrantfile"
 	  mimetype="application/x-ruby"
 	  style="ruby" indenter="ruby"
@@ -179,11 +179,11 @@
 			<item>warn</item>
 		</list>
 
-                <list name="mixin-methods">
-                  <item>extend</item>
-                  <item>include</item>
-                  <item>prepend</item>
-                </list>
+		<list name="mixin-methods">
+			<item>extend</item>
+			<item>include</item>
+			<item>prepend</item>
+		</list>
 
 		<contexts>
 			<context name="Normal" attribute="Normal Text" lineEndContext="#stay">
@@ -204,7 +204,7 @@
 				<RegExpr attribute="Keyword" String="\;\s*(while|until)\b(?!.*\bdo\b)" context="#stay" beginRegion="def block"/>
 				<RegExpr attribute="Keyword" String="(if|unless)\b" context="#stay" beginRegion="def block" firstNonSpace="true"/>
 				<RegExpr attribute="Keyword" String="\;\s*(if|unless)\b" context="#stay" beginRegion="def block"/>
-				<WordDetect attribute="Keyword" String="class" context="#stay" beginRegion="def block"/>
+				<WordDetect attribute="Keyword" String="class" context="no_heredoc" beginRegion="def block"/>
 				<WordDetect attribute="Keyword" String="module" context="#stay" beginRegion="def block"/>
 				<WordDetect attribute="Keyword" String="begin" context="#stay" beginRegion="def block"/>
 				<RegExpr attribute="Keyword" String="\bfor\b(?!.*\bdo\b)" context="#stay" beginRegion="def block"/>
@@ -231,7 +231,7 @@
 				<keyword attribute="Pseudo variable" String="pseudo-variables"  context="check_div_1"/>
 				<keyword attribute="Default globals" String="default-globals" context="check_div_2"/>
 				<keyword attribute="Kernel methods" String="kernel-methods" context="check_div_2"/>
-                                <keyword attribute="Module mixin methods" String="mixin-methods" context="check_div_2"/>
+				<keyword attribute="Module mixin methods" String="mixin-methods" context="check_div_2"/>
 
 				<!-- (global) vars starting with $
 						Match them before $_.
@@ -263,8 +263,8 @@
 					push operator '<<' than requiring to put space between the operator
 					and the string.
 				-->
-				<RegExpr attribute="Operator" context="find_indented_heredoc" String="\s*&lt;&lt;-(?=\w+|[&quot;'])" beginRegion="HereDocument" />
-				<RegExpr attribute="Operator" context="find_heredoc" String="\s*&lt;&lt;(?=\w+|[&quot;'])" beginRegion="HereDocument" />
+				<RegExpr attribute="Operator" context="find_indented_heredoc" String="\s*&lt;&lt;[-~](?=\w+|[&quot;'`])" beginRegion="HereDocument" />
+				<RegExpr attribute="Operator" context="find_heredoc" String="\s*&lt;&lt;(?=\w+|[&quot;'`])" beginRegion="HereDocument" />
 
 				<DetectChar attribute="Operator" char="." context="#stay"/>
 				<Detect2Chars attribute="Operator" char="&amp;" char1="&amp;" context="#stay"/>
@@ -280,8 +280,10 @@
 				<RegExpr attribute="Symbol" String=":(@{1,2}|\$)?[a-zA-Z_][a-zA-Z0-9_]*[=?!]?" context="check_div_1"/>
 				<RegExpr attribute="Symbol" String=":\[\]=?" context="check_div_1"/>
 
-				<RegExpr attribute="Symbol" String="(@{1,2}|\$)?[a-zA-Z_][a-zA-Z0-9_]*[=?!]?: " context="check_div_1"/>
-				<RegExpr attribute="Symbol" String="\[\]=?: " context="check_div_1"/>
+				<!-- Do not send to "check_div_1" context!:
+				     after detecting these rules (": ") there can be a regular expression (see bug: #361875) -->
+				<RegExpr attribute="Symbol" String="(@{1,2}|\$)?[a-zA-Z_][a-zA-Z0-9_]*[=?!]?: " context="#stay"/>
+				<RegExpr attribute="Symbol" String="\[\]=?: " context="#stay"/>
 
 				<DetectChar attribute="String" char="&quot;" context="Quoted String"/>
 				<DetectChar attribute="Raw String" char="'" context="Apostrophed String"/>
@@ -436,13 +438,17 @@
 				The contexts below support both normal and indented heredocs
 			 -->
 			<!-- here we markup the heredoc markers -->
-			<context name="find_heredoc" attribute="Normal Text" lineEndContext="#pop" >
+			<context name="find_heredoc" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
 				<RegExpr attribute="Keyword" context="apostrophed_normal_heredoc" String="'(\w+)'" />
-				<RegExpr attribute="Keyword" context="normal_heredoc" String="&quot;?(\w+)&quot;?" />
+				<RegExpr attribute="Keyword" context="normal_heredoc" String="(\w+)" />
+				<RegExpr attribute="Keyword" context="normal_heredoc" String="&quot;(\w+)&quot;" />
+				<RegExpr attribute="Keyword" context="normal_heredoc" String="`(\w+)`" />
 			</context>
-			<context name="find_indented_heredoc" attribute="Normal Text" lineEndContext="#pop" >
+			<context name="find_indented_heredoc" attribute="Normal Text" lineEndContext="#pop" fallthrough="true" fallthroughContext="#pop">
 				<RegExpr attribute="Keyword" context="apostrophed_indented_heredoc" String="'(\w+)'" />
-				<RegExpr attribute="Keyword" context="indented_heredoc" String="&quot;?(\w+)&quot;?" />
+				<RegExpr attribute="Keyword" context="indented_heredoc" String="(\w+)" />
+				<RegExpr attribute="Keyword" context="indented_heredoc" String="&quot;(\w+)&quot;" />
+				<RegExpr attribute="Keyword" context="indented_heredoc" String="`(\w+)`" />
 			</context>
 			<!-- these are the real heredoc contexts -->
 			<context name="indented_heredoc" attribute="Here Document" lineEndContext="#stay" dynamic="true">
@@ -465,6 +471,16 @@
 			<context name="heredoc_rules" attribute="Normal Text" lineEndContext="#stay">
 				<RegExpr attribute="Substitution" String="#@{1,2}" context="Short Subst"/>
 				<Detect2Chars attribute="Substitution" char="#" char1="{" context="Subst"/>
+			</context>
+
+			<!-- avoid highlighting heredoc markers, for example, in singleton class definition (see bug: #358273) -->
+			<context name="no_heredoc" attribute="Normal Text" lineEndContext="#stay" fallthrough="true" fallthroughContext="#pop">
+				<DetectSpaces />
+				<Detect2Chars attribute="Operator" char="&lt;" char1="&lt;" context="#pop"/>
+				<!-- comments -->
+				<RegExpr attribute="Comment" String="#\s*BEGIN.*$"  context="#stay" beginRegion="marker" column="0"/>
+				<RegExpr attribute="Comment" String="#\s*END.*$"  context="#stay" endRegion="marker" column="0"/>
+				<DetectChar attribute="Comment" char="#" context="General Comment"/>
 			</context>
 
 			<!-- General delimited input support
@@ -892,7 +908,7 @@
 			<itemData name="Constant" defStyleNum="dsDataType"/>
 			<itemData name="Constant Value" defStyleNum="dsDataType" color="#bb1188"/>
 			<itemData name="Kernel methods" defStyleNum="dsNormal" color="#000080" selColor="#ffffff"/> <!-- #CC0E86 -->
-                        <itemData name="Module mixin methods" defStyleNum="dsNormal" color="#000080" selColor="#ffffff"/> <!-- #CC0E86 -->
+			<itemData name="Module mixin methods" defStyleNum="dsNormal" color="#000080" selColor="#ffffff"/> <!-- #CC0E86 -->
 			<itemData name="Member" defStyleNum="dsNormal"/>
 			<itemData name="Instance Variable" defStyleNum="dsOthers"/>
 			<itemData name="Class Variable" defStyleNum="dsOthers"/>
@@ -913,3 +929,5 @@
 		<keywords casesensitive="1" weakDeliminator="!?"/>
 	</general>
 </language>
+
+<!-- kate: replace-tabs off; -->

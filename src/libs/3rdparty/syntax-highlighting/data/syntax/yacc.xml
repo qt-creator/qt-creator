@@ -32,7 +32,7 @@ This code is released under the LGPL as part of kdelibs/kate.
 
 ========================================================================
 -->
-<language name="Yacc/Bison" version="4" kateversion="2.4" section="Sources" extensions="*.y;*.yy;*.ypp;*.y++" mimetype="text/x-yacc;text/x-bison" priority="5" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
+<language name="Yacc/Bison" version="5" kateversion="5.0" section="Sources" extensions="*.y;*.yy;*.ypp;*.y++" mimetype="text/x-yacc;text/x-bison" priority="5" author="Jan Villat (jan.villat@net2000.ch)" license="LGPL">
 
 <highlighting>
 <contexts>
@@ -200,9 +200,12 @@ This code is released under the LGPL as part of kdelibs/kate.
   </context>
   <context name="CommentStar" attribute="Comment" lineEndContext="#stay">
     <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" />
+    <IncludeRules context="##Alerts" />
+    <IncludeRules context="##Modelines" />
   </context>
-  <context name="CommentSlash" attribute="Comment" lineEndContext="#stay">
-    <RegExpr attribute="Comment" context="#pop" String="[^\\]$" />
+  <context name="CommentSlash" attribute="Comment" lineEndContext="#pop">
+    <IncludeRules context="##Alerts" />
+    <IncludeRules context="##Modelines" />
   </context>
 
   <context name="StringOrChar" attribute="Normal Text" lineEndContext="#stay">
