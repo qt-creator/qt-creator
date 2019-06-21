@@ -1,21 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
 
+## Add paths to check for cmake modules:
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 include(FeatureSummary)
-
-#BINARY_ARTIFACTS_BRANCH = master
-#PROJECT_USER_FILE_EXTENSION = .user
-
-set(IDE_VERSION "4.9.83")               # The IDE version.
-set(IDE_VERSION_COMPAT "4.9.83")        # The IDE Compatibility version.
-set(IDE_VERSION_DISPLAY "4.10.0-beta2") # The IDE display version.
-set(IDE_COPYRIGHT_YEAR "2019")          # The IDE copyright year.
-
-set(IDE_SETTINGSVARIANT "QtProject")                  # The IDE settings variation.
-set(IDE_COPY_SETTINGSVARIANT "Nokia")                 # The IDE settings to initially import.
-set(IDE_DISPLAY_NAME "Qt Creator")                    # The IDE display name.
-set(IDE_ID "qtcreator")                               # The IDE id (no spaces, lowercase!)
-set(IDE_CASED_ID "QtCreator")                         # The cased IDE id (no spaces!)
-set(IDE_BUNDLE_IDENTIFIER "org.qt-project.${IDE_ID}") # The macOS application bundle identifier.
+include(QtCreatorIDEBranding)
 
 set(IDE_REVISION FALSE CACHE BOOL "Marks the presence of IDE revision string.")
 set(IDE_REVISION_STR "" CACHE STRING "The IDE revision string.")
@@ -23,9 +12,6 @@ set(IDE_REVISION_STR "" CACHE STRING "The IDE revision string.")
 mark_as_advanced(IDE_REVISION IDE_REVISION_STR)
 
 project(QtCreator VERSION ${IDE_VERSION})
-
-## Add paths to check for cmake modules:
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Force C++ standard, do not fall back, do not use compiler extensions
 set(CMAKE_CXX_STANDARD 14)
@@ -126,7 +112,7 @@ endif()
 set(_IDE_APP_PATH "bin")
 
 if (APPLE)
-  set(_IDE_APP_TARGET "Qt Creator")
+  set(_IDE_APP_TARGET "${IDE_DISPLAY_NAME}")
 
   set(_IDE_OUTPUT_PATH "${_IDE_APP_PATH}/${_IDE_APP_TARGET}.app/Contents")
 
@@ -138,7 +124,7 @@ if (APPLE)
   set(_IDE_DOC_PATH "${_IDE_OUTPUT_PATH}/Resources/doc")
   set(_IDE_BIN_PATH "${_IDE_OUTPUT_PATH}/MacOS")
 else ()
-  set(_IDE_APP_TARGET "qtcreator")
+  set(_IDE_APP_TARGET "${IDE_ID}")
 
   set(_IDE_LIBRARY_BASE_PATH "lib")
   set(_IDE_LIBRARY_PATH "lib/qtcreator")
