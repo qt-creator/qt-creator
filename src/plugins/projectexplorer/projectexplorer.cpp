@@ -1902,15 +1902,15 @@ void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
 bool ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project)
 {
     QTC_ASSERT(project, return false);
-    QList<IDocument *> openFiles = DocumentModel::openedDocuments();
-    Utils::erase(openFiles, [project](const IDocument *doc) {
-        return !project->isKnownFile(doc->filePath());
+    QList<DocumentModel::Entry *> openFiles = DocumentModel::entries();
+    Utils::erase(openFiles, [project](const DocumentModel::Entry *entry) {
+        return entry->pinned || !project->isKnownFile(entry->fileName());
     });
     for (const Project * const otherProject : SessionManager::projects()) {
         if (otherProject == project)
             continue;
-        Utils::erase(openFiles, [otherProject](const IDocument *doc) {
-            return otherProject->isKnownFile(doc->filePath());
+        Utils::erase(openFiles, [otherProject](const DocumentModel::Entry *entry) {
+            return otherProject->isKnownFile(entry->fileName());
         });
     }
     return EditorManager::closeDocuments(openFiles);

@@ -79,7 +79,6 @@ public:
     bool hasWriteWarning = false;
     bool restored = false;
     bool isSuspendAllowed = false;
-    bool pinned = false;
 };
 
 } // namespace Internal
