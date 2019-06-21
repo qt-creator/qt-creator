@@ -1747,7 +1747,7 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
 
 void ProjectExplorerPluginPrivate::closeAllProjects()
 {
-    if (!EditorManager::closeAllEditors())
+    if (!EditorManager::closeAllDocuments())
         return; // Action has been cancelled
 
     SessionManager::closeAllProjects();

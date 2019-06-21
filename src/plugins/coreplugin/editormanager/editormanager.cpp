@@ -2429,12 +2429,12 @@ void EditorManager::closeOtherDocuments(IDocument *document)
     closeDocuments(documentsToClose, true);
 }
 
-void EditorManager::closeAllDocuments()
+bool EditorManager::closeAllDocuments()
 {
     // Only close the files that aren't pinned.
     const QList<DocumentModel::Entry *> entriesToClose
             = Utils::filtered(DocumentModel::entries(), Utils::equal(&DocumentModel::Entry::pinned, false));
-    EditorManager::closeDocuments(entriesToClose);
+    return EditorManager::closeDocuments(entriesToClose);
 }
 
 // SLOT connected to action
@@ -2631,7 +2631,7 @@ void EditorManager::closeDocument(DocumentModel::Entry *entry)
         closeDocuments({entry->document});
 }
 
-void EditorManager::closeDocuments(const QList<DocumentModel::Entry *> &entries)
+bool EditorManager::closeDocuments(const QList<DocumentModel::Entry *> &entries)
 {
     QList<IDocument *> documentsToClose;
     for (DocumentModel::Entry *entry : entries) {
@@ -2642,7 +2642,7 @@ void EditorManager::closeDocuments(const QList<DocumentModel::Entry *> &entries)
         else
             documentsToClose << entry->document;
     }
-    closeDocuments(documentsToClose);
+    return closeDocuments(documentsToClose);
 }
 
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
