@@ -289,7 +289,7 @@ CMakeProject::~CMakeProject()
 
 void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 {
-    TraceTimer updateProjectTotalTimer(__PRETTY_FUNCTION__);
+    TraceTimer updateProjectTotalTimer(Q_FUNC_INFO);
     qCDebug(cmakeProjectLog) << "Updating CMake project data";
     const CMakeBuildConfiguration *aBc = activeBc(this);
     QString errorMessage;
