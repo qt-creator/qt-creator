@@ -492,8 +492,10 @@ void CMakeProject::runCMake()
 
     BuildDirParameters parameters(bc);
     m_buildDirManager.setParametersAndRequestParse(parameters,
-                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION,
-                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION);
+                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION
+                                                       | BuildDirManager::REPARSE_FORCE_CMAKE_RUN,
+                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION
+                                                       | BuildDirManager::REPARSE_FORCE_CMAKE_RUN);
 }
 
 void CMakeProject::runCMakeAndScanProjectTree()
