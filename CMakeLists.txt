@@ -5,23 +5,22 @@ include(FeatureSummary)
 #BINARY_ARTIFACTS_BRANCH = master
 #PROJECT_USER_FILE_EXTENSION = .user
 
-set(IDE_VERSION "4.9.83" CACHE STRING "The IDE version.")
-set(IDE_VERSION_COMPAT "4.9.83" CACHE STRING "The IDE Compatibility version.")
-set(IDE_VERSION_DISPLAY "4.10.0-beta2" CACHE STRING "The IDE display version.")
-set(IDE_COPYRIGHT_YEAR "2019" CACHE STRING "The IDE copyright year.")
+set(IDE_VERSION "4.9.83")               # The IDE version.
+set(IDE_VERSION_COMPAT "4.9.83")        # The IDE Compatibility version.
+set(IDE_VERSION_DISPLAY "4.10.0-beta2") # The IDE display version.
+set(IDE_COPYRIGHT_YEAR "2019")          # The IDE copyright year.
+
+set(IDE_SETTINGSVARIANT "QtProject")                  # The IDE settings variation.
+set(IDE_COPY_SETTINGSVARIANT "Nokia")                 # The IDE settings to initially import.
+set(IDE_DISPLAY_NAME "Qt Creator")                    # The IDE display name.
+set(IDE_ID "qtcreator")                               # The IDE id (no spaces, lowercase!)
+set(IDE_CASED_ID "QtCreator")                         # The cased IDE id (no spaces!)
+set(IDE_BUNDLE_IDENTIFIER "org.qt-project.${IDE_ID}") # The macOS application bundle identifier.
 
 set(IDE_REVISION FALSE CACHE BOOL "Marks the presence of IDE revision string.")
 set(IDE_REVISION_STR "" CACHE STRING "The IDE revision string.")
-set(IDE_SETTINGSVARIANT "QtProject" CACHE STRING "The IDE settings variation.")
-set(IDE_COPY_SETTINGSVARIANT "Nokia" CACHE STRING "The IDE settings to initially import.")
-set(IDE_DISPLAY_NAME "Qt Creator" CACHE STRING "The IDE display name.")
-set(IDE_ID "qtcreator" CACHE STRING "The IDE id (no spaces, lowercase!)")
-set(IDE_CASED_ID "QtCreator" CACHE STRING "The cased IDE id (no spaces!)")
-set(IDE_BUNDLE_IDENTIFIER "org.qt-project.${IDE_ID}" CACHE STRING "The macOS application bundle identifier.")
 
-mark_as_advanced(IDE_VERSION_COMPAT IDE_VERSION_DISPLAY IDE_COPYRIGHT_YEAR
-  IDE_REVISION IDE_REVISION_STR IDE_SETTINGSVARIANT IDE_COPY_SETTINGSVARIANT
-  IDE_DISPLAY_NAME IDE_ID IDE_CASED_ID IDE_BUNDLE_IDENTIFIER)
+mark_as_advanced(IDE_REVISION IDE_REVISION_STR)
 
 project(QtCreator VERSION ${IDE_VERSION})
 
@@ -154,15 +153,15 @@ else ()
   set(_IDE_BIN_PATH "bin")
 endif ()
 
-set(IDE_APP_PATH "${_IDE_APP_PATH}" CACHE PATH "The target path of the IDE application (relative to CMAKE_INSTALL_PREFIX).")
-set(IDE_APP_TARGET "${_IDE_APP_TARGET}" CACHE PATH "The IDE application name.")
-set(IDE_PLUGIN_PATH "${_IDE_PLUGIN_PATH}" CACHE PATH "The IDE plugin path (relative to CMAKE_INSTALL_PREFIX).")
-set(IDE_LIBRARY_BASE_PATH "${_IDE_LIBRARY_BASE_PATH}" CACHE PATH "The IDE library base path (relative to CMAKE_INSTALL_PREFIX).")
-set(IDE_LIBRARY_PATH "${_IDE_LIBRARY_PATH}" CACHE PATH "The IDE library path (relative to CMAKE_INSTALL_PREFIX).")
-set(IDE_LIBEXEC_PATH "${_IDE_LIBEXEC_PATH}" CACHE PATH "The IDE libexec path (relative to CMAKE_INSTALL_PREFIX).")
-set(IDE_DATA_PATH "${_IDE_DATA_PATH}" CACHE PATH "The IDE data path (relative to CMAKE_INSTALL_PREFIX).")
-set(IDE_DOC_PATH "${_IDE_DOC_PATH}" CACHE PATH "The IDE documentation path (relative to CMAKE_INSTALL_PREFIX).")
-set(IDE_BIN_PATH "${_IDE_BIN_PATH}" CACHE PATH "The IDE bin path (relative to CMAKE_INSTALL_PREFIX).")
+set(IDE_APP_PATH "${_IDE_APP_PATH}")                    # The target path of the IDE application (relative to CMAKE_INSTALL_PREFIX).
+set(IDE_APP_TARGET "${_IDE_APP_TARGET}")                # The IDE application name.
+set(IDE_PLUGIN_PATH "${_IDE_PLUGIN_PATH}")              # The IDE plugin path (relative to CMAKE_INSTALL_PREFIX).
+set(IDE_LIBRARY_BASE_PATH "${_IDE_LIBRARY_BASE_PATH}")  # The IDE library base path (relative to CMAKE_INSTALL_PREFIX).
+set(IDE_LIBRARY_PATH "${_IDE_LIBRARY_PATH}")            # The IDE library path (relative to CMAKE_INSTALL_PREFIX).
+set(IDE_LIBEXEC_PATH "${_IDE_LIBEXEC_PATH}")            # The IDE libexec path (relative to CMAKE_INSTALL_PREFIX).
+set(IDE_DATA_PATH "${_IDE_DATA_PATH}")                  # The IDE data path (relative to CMAKE_INSTALL_PREFIX).
+set(IDE_DOC_PATH "${_IDE_DOC_PATH}")                    # The IDE documentation path (relative to CMAKE_INSTALL_PREFIX).
+set(IDE_BIN_PATH "${_IDE_BIN_PATH}")                    # The IDE bin path (relative to CMAKE_INSTALL_PREFIX).
 
 file(RELATIVE_PATH RELATIVE_PLUGIN_PATH "/${IDE_BIN_PATH}" "/${IDE_PLUGIN_PATH}")
 file(RELATIVE_PATH RELATIVE_LIBEXEC_PATH "/${IDE_BIN_PATH}" "/${IDE_LIBEXEC_PATH}")
