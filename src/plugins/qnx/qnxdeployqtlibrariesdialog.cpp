@@ -256,6 +256,11 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
     if (dirPath.isEmpty())
         return result;
 
+    static const QStringList unusedDirs = {"include", "mkspecs", "cmake", "pkgconfig"};
+    const QString dp = dirPath.endsWith('/') ? dirPath.left(dirPath.size() - 1) : dirPath;
+    if (unusedDirs.contains(dp))
+        return result;
+
     QDir dir(dirPath);
     QFileInfoList list = dir.entryInfoList(nameFilters,
             QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
@@ -265,6 +270,10 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles(
             result.append(gatherFiles(fileInfo.absoluteFilePath(), baseDirPath.isEmpty() ?
                                           dirPath : baseDirPath));
         } else {
+            static const QStringList unusedSuffixes = {"cmake", "la", "prl", "a", "pc"};
+            if (unusedSuffixes.contains(fileInfo.suffix()))
+                continue;
+
             QString remoteDir;
             if (baseDirPath.isEmpty()) {
                 remoteDir = fullRemoteDirectory() + QLatin1Char('/') +
