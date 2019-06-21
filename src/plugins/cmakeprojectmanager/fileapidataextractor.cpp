@@ -267,7 +267,7 @@ CppTools::RawProjectParts generateRawProjectParts(const PreprocessedData &input,
 FilePath directorySourceDir(const Configuration &c, const QDir &sourceDir, int directoryIndex)
 {
     const size_t di = static_cast<size_t>(directoryIndex);
-    QTC_ASSERT(di >= 0 && di < c.directories.size(), return FilePath());
+    QTC_ASSERT(di < c.directories.size(), return FilePath());
 
     return FilePath::fromString(
         QDir::cleanPath(sourceDir.absoluteFilePath(c.directories[di].sourcePath)));
@@ -276,7 +276,7 @@ FilePath directorySourceDir(const Configuration &c, const QDir &sourceDir, int d
 FilePath directoryBuildDir(const Configuration &c, const QDir &buildDir, int directoryIndex)
 {
     const size_t di = static_cast<size_t>(directoryIndex);
-    QTC_ASSERT(di >= 0 && di < c.directories.size(), return FilePath());
+    QTC_ASSERT(di < c.directories.size(), return FilePath());
 
     return FilePath::fromString(
         QDir::cleanPath(buildDir.absoluteFilePath(c.directories[di].buildPath)));
@@ -304,12 +304,12 @@ void addBacktraceInformation(FolderNode *node,
     FilePath targetPath = node->filePath().pathAppended("CMakeLists.txt");
     while (backtraceIndex != -1) {
         const size_t bi = static_cast<size_t>(backtraceIndex);
-        QTC_ASSERT((bi >= 0 && bi < backtraces.nodes.size()), break);
+        QTC_ASSERT(bi < backtraces.nodes.size(), break);
         const BacktraceNode &btNode = backtraces.nodes[bi];
         backtraceIndex = btNode.parent; // advance to next node
 
         const size_t fileIndex = static_cast<size_t>(btNode.file);
-        QTC_ASSERT((fileIndex >= 0 && fileIndex < backtraces.files.size()), break);
+        QTC_ASSERT(fileIndex < backtraces.files.size(), break);
         const FilePath path = FilePath::fromString(
             sourceDir.absoluteFilePath(backtraces.files[fileIndex]));
 
@@ -319,7 +319,7 @@ void addBacktraceInformation(FolderNode *node,
         }
 
         const size_t commandIndex = static_cast<size_t>(btNode.command);
-        QTC_ASSERT((commandIndex >= 0 && commandIndex < backtraces.commands.size()), break);
+        QTC_ASSERT(commandIndex < backtraces.commands.size(), break);
 
         const QString command = backtraces.commands[commandIndex];
 
