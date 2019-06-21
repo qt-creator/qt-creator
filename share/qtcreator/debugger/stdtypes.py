@@ -1095,7 +1095,7 @@ def qdump__std____cxx11__basic_string(d, value):
         (data, size) = value.split("pI")
     else:
         try:
-            data = value["_M_dataplus"]["_M_p"]
+            data = value["_M_dataplus"]["_M_p"].pointer()
             size = int(value["_M_string_length"])
         except:
             d.putEmptyValue()
