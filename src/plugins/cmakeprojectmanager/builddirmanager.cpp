@@ -291,7 +291,7 @@ void BuildDirManager::parse(int reparseParameters)
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
-    if (m_parameters.workDirectory.toFileInfo().exists("CMakeCache.txt")) {
+    if (!m_parameters.workDirectory.toFileInfo().exists("CMakeCache.txt")) {
         reparseParameters |= REPARSE_FORCE_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
     } else if (reparseParameters & REPARSE_CHECK_CONFIGURATION) {
         if (checkConfiguration())
