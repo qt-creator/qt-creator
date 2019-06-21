@@ -82,11 +82,11 @@ static QString readerTypeToString(const CMakeTool::ReaderType &type)
 {
     switch (type) {
     case CMakeTool::TeaLeaf:
-        return READER_TYPE_TEALEAF;
+        return QString(READER_TYPE_TEALEAF);
     case CMakeTool::ServerMode:
-        return READER_TYPE_SERVERMODE;
+        return QString(READER_TYPE_SERVERMODE);
     case CMakeTool::FileApi:
-        return READER_TYPE_FILEAPI;
+        return QString(READER_TYPE_FILEAPI);
     }
     return QString();
 }
