@@ -71,7 +71,7 @@ public:
     Qt::MouseButton mouseButtonPressed = Qt::NoButton;
     QTextCursor cursor;
     QString filterText;
-    QTextBlock lastFilteredBlock;
+    int lastFilteredBlockNumber = -1;
     QPalette originalPalette;
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
 };
@@ -279,7 +279,7 @@ void OutputWindow::updateFilterProperties(const QString &filterText,
             .setFlag(FilterModeFlag::RegExp, isRegexp);
     if (d->filterMode == flags && d->filterText == filterText)
         return;
-    d->lastFilteredBlock = {};
+    d->lastFilteredBlockNumber = -1;
     if (d->filterText != filterText) {
         const bool filterTextWasEmpty = d->filterText.isEmpty();
         d->filterText = filterText;
@@ -311,12 +311,9 @@ void OutputWindow::filterNewContent()
 {
     bool atBottom = isScrollbarAtBottom();
 
-    auto &lastBlock = d->lastFilteredBlock;
-
-    if (!lastBlock.isValid() || lastBlock.blockNumber() >= document()->blockCount()
-            || document()->findBlockByNumber(lastBlock.blockNumber()) != lastBlock) {
+    QTextBlock lastBlock = document()->findBlockByNumber(d->lastFilteredBlockNumber);
+    if (!lastBlock.isValid())
         lastBlock = document()->begin();
-    }
 
     if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
         QRegularExpression regExp(d->filterText);
@@ -338,7 +335,7 @@ void OutputWindow::filterNewContent()
         }
     }
 
-    lastBlock = document()->lastBlock();
+    d->lastFilteredBlockNumber = document()->lastBlock().blockNumber();
 
     // FIXME: Why on earth is this necessary? We should probably do something else instead...
     setDocument(document());
