@@ -47,7 +47,7 @@
 #include <QToolButton>
 
 using namespace ProjectExplorer;
-using Utils::QtcProcess;
+using namespace Utils;
 
 namespace WinRt {
 namespace Internal {
@@ -91,24 +91,24 @@ bool WinRtPackageDeploymentStep::init()
     if (!qt)
         return false;
 
-    QString args = QtcProcess::quoteArg(QDir::toNativeSeparators(m_targetFilePath));
-    args += ' ' + m_argsAspect->value();
+    const QString windeployqtPath = FileUtils::resolvePath(qt->binPath().toString(), "windeployqt.exe");
 
-    if (qt->type() == QLatin1String(Constants::WINRT_WINPHONEQT)) {
+    CommandLine windeployqt{FilePath::fromString(windeployqtPath)};
+    windeployqt.addArg(QDir::toNativeSeparators(m_targetFilePath));
+    windeployqt.addArgs(m_argsAspect->value(), CommandLine::Raw);
+
+    if (qt->type() == Constants::WINRT_WINPHONEQT) {
         m_createMappingFile = true;
-        args += QLatin1String(" -list mapping");
+        windeployqt.addArgs({"-list", "mapping"});
     }
 
     ProcessParameters *params = processParameters();
-    const QString windeployqtPath
-            = Utils::FileUtils::resolvePath(qt->binPath().toString(), "windeployqt.exe");
     if (!QFile::exists(windeployqtPath)) {
         raiseError(tr("Cannot find windeployqt.exe in \"%1\".").arg(
                     QDir::toNativeSeparators(qt->binPath().toString())));
         return false;
     }
-    params->setCommand(Utils::FilePath::fromString(windeployqtPath));
-    params->setArguments(args);
+    params->setCommandLine(windeployqt);
     params->setEnvironment(buildConfiguration()->environment());
 
     return AbstractProcessStep::init();

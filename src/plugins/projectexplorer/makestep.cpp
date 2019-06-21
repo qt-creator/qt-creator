@@ -488,7 +488,7 @@ void MakeStepConfigWidget::updateDetails()
 
     if (param.commandMissing())
         setSummaryText(tr("<b>Make:</b> %1 not found in the environment.")
-                       .arg(param.command().toString())); // Override display text
+                       .arg(param.command().executable().toUserOutput())); // Override display text
     else
         setSummaryText(param.summaryInWorkdir(displayName()));
 }

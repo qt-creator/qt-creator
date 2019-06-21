@@ -47,6 +47,7 @@
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 const char CONFIGURE_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.ConfigureStep.AdditionalArguments";
 const char CONFIGURE_STEP_ID[] = "AutotoolsProjectManager.ConfigureStep";
@@ -98,9 +99,9 @@ bool ConfigureStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(Utils::FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"));
-    pp->setArguments(m_additionalArgumentsAspect->value());
-    pp->resolveAll();
+    pp->setCommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
+                        m_additionalArgumentsAspect->value(),
+                        CommandLine::Raw});
 
     return AbstractProcessStep::init();
 }
@@ -159,8 +160,9 @@ void ConfigureStep::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setEnvironment(bc->environment());
     param.setWorkingDirectory(bc->buildDirectory());
-    param.setCommand(Utils::FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"));
-    param.setArguments(m_additionalArgumentsAspect->value());
+    param.setCommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
+                          m_additionalArgumentsAspect->value(),
+                          CommandLine::Raw});
 
     m_widget->setSummaryText(param.summaryInWorkdir(displayName()));
 }

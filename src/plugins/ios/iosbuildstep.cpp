@@ -39,14 +39,18 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
+
+#include <utils/fileutils.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Ios {
 namespace Internal {
@@ -91,9 +95,7 @@ bool IosBuildStep::init()
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    pp->setCommand(Utils::FilePath::fromString(buildCommand()));
-    pp->setArguments(Utils::QtcProcess::joinArgs(allArguments()));
-    pp->resolveAll();
+    pp->setCommandLine({buildCommand(), allArguments()});
 
     // If we are cleaning, then build can fail with an error code, but that doesn't mean
     // we should stop the clean queue
@@ -164,9 +166,9 @@ QStringList IosBuildStep::defaultArguments() const
     return res;
 }
 
-QString IosBuildStep::buildCommand() const
+FilePath IosBuildStep::buildCommand() const
 {
-    return QString("xcodebuild"); // add path?
+    return FilePath::fromString("xcodebuild"); // add path?
 }
 
 void IosBuildStep::doRun()
@@ -253,8 +255,7 @@ void IosBuildStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    param.setCommand(Utils::FilePath::fromString(m_buildStep->buildCommand()));
-    param.setArguments(Utils::QtcProcess::joinArgs(m_buildStep->allArguments()));
+    param.setCommandLine({m_buildStep->buildCommand(), m_buildStep->allArguments()});
 
     setSummaryText(param.summary(displayName()));
 }

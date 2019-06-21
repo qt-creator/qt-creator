@@ -70,18 +70,19 @@ bool AndroidPackageInstallationStep::init()
                                                        ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     QTC_ASSERT(tc, return false);
 
+    CommandLine cmd{tc->makeCommand(bc->environment())};
+    const QString innerQuoted = QtcProcess::quoteArg(dirPath);
+    const QString outerQuoted = QtcProcess::quoteArg("INSTALL_ROOT=" + innerQuoted);
+    cmd.addArgs(outerQuoted + " install", CommandLine::Raw);
+
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(tc->makeCommand(bc->environment()));
     Environment env = bc->environment();
     Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    const QString innerQuoted = QtcProcess::quoteArg(dirPath);
-    const QString outerQuoted = QtcProcess::quoteArg("INSTALL_ROOT=" + innerQuoted);
-    pp->setArguments(outerQuoted + " install");
+    pp->setCommandLine(cmd);
 
-    pp->resolveAll();
     setOutputParser(new GnuMakeParser());
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)

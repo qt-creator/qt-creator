@@ -39,14 +39,17 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
+
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Ios {
 namespace Internal {
@@ -72,9 +75,7 @@ bool IosDsymBuildStep::init()
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
     pp->setEnvironment(env);
-    pp->setCommand(Utils::FilePath::fromString(command()));
-    pp->setArguments(Utils::QtcProcess::joinArgs(arguments()));
-    pp->resolveAll();
+    pp->setCommandLine({command(), arguments()});
 
     // If we are cleaning, then build can fail with an error code, but that doesn't mean
     // we should stop the clean queue
@@ -97,7 +98,7 @@ QVariantMap IosDsymBuildStep::toMap() const
     map.insert(id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString(),
                isDefault());
     map.insert(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean);
-    map.insert(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), command());
+    map.insert(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), command().toVariant());
     return map;
 }
 
@@ -108,8 +109,7 @@ bool IosDsymBuildStep::fromMap(const QVariantMap &map)
     bool useDefaultArguments = map.value(
                 id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString()).toBool();
     m_clean = map.value(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean).toBool();
-    m_command = map.value(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), m_command)
-            .toString();
+    m_command = FilePath::fromVariant(map.value(id().withSuffix(COMMAND_PARTIAL_KEY).toString()));
     if (useDefaultArguments) {
         m_command = defaultCommand();
         m_arguments = defaultArguments();
@@ -125,12 +125,12 @@ QStringList IosDsymBuildStep::defaultArguments() const
     return defaultCmdList().mid(1);
 }
 
-QString IosDsymBuildStep::defaultCommand() const
+FilePath IosDsymBuildStep::defaultCommand() const
 {
     if (m_clean)
-        return defaultCleanCmdList().at(0);
+        return FilePath::fromString(defaultCleanCmdList().at(0));
     else
-        return defaultCmdList().at(0);
+        return FilePath::fromString(defaultCmdList().at(0));
 }
 
 QStringList IosDsymBuildStep::defaultCleanCmdList() const
@@ -158,14 +158,14 @@ QStringList IosDsymBuildStep::defaultCmdList() const
     return QStringList({dsymutilCmd, "-o", dsymPath, runConf->localExecutable().toUserOutput()});
 }
 
-QString IosDsymBuildStep::command() const
+FilePath IosDsymBuildStep::command() const
 {
     if (m_command.isEmpty())
         return defaultCommand();
     return m_command;
 }
 
-void IosDsymBuildStep::setCommand(const QString &command)
+void IosDsymBuildStep::setCommand(const FilePath &command)
 {
     if (command == m_command)
         return;
@@ -229,7 +229,7 @@ IosDsymBuildStepConfigWidget::IosDsymBuildStepConfigWidget(IosDsymBuildStep *bui
 
     Project *pro = m_buildStep->target()->project();
 
-    m_ui->commandLineEdit->setText(m_buildStep->command());
+    m_ui->commandLineEdit->setText(m_buildStep->command().toString());
     m_ui->argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(
                                                    m_buildStep->arguments()));
     m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());
@@ -270,15 +270,14 @@ void IosDsymBuildStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    param.setCommand(Utils::FilePath::fromString(m_buildStep->command()));
-    param.setArguments(Utils::QtcProcess::joinArgs(m_buildStep->arguments()));
+    param.setCommandLine({m_buildStep->command(), m_buildStep->arguments()});
 
     setSummaryText(param.summary(displayName()));
 }
 
 void IosDsymBuildStepConfigWidget::commandChanged()
 {
-    m_buildStep->setCommand(m_ui->commandLineEdit->text());
+    m_buildStep->setCommand(FilePath::fromString(m_ui->commandLineEdit->text()));
     m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());
     updateDetails();
 }
@@ -295,7 +294,7 @@ void IosDsymBuildStepConfigWidget::resetDefaults()
 {
     m_buildStep->setCommand(m_buildStep->defaultCommand());
     m_buildStep->setArguments(m_buildStep->defaultArguments());
-    m_ui->commandLineEdit->setText(m_buildStep->command());
+    m_ui->commandLineEdit->setText(m_buildStep->command().toString());
     m_ui->argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(
                                               m_buildStep->arguments()));
     m_ui->resetDefaultsButton->setEnabled(!m_buildStep->isDefault());

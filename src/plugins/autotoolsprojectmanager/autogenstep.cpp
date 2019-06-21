@@ -41,6 +41,7 @@
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 const char AUTOGEN_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.AutogenStep.AdditionalArguments";
 const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
@@ -78,9 +79,9 @@ bool AutogenStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->target()->project()->projectDirectory());
-    pp->setCommand(Utils::FilePath::fromString("./autogen.sh"));
-    pp->setArguments(m_additionalArgumentsAspect->value());
-    pp->resolveAll();
+    pp->setCommandLine({FilePath::fromString("./autogen.sh"),
+                        m_additionalArgumentsAspect->value(),
+                        CommandLine::Raw});
 
     return AbstractProcessStep::init();
 }
@@ -122,8 +123,9 @@ BuildStepConfigWidget *AutogenStep::createConfigWidget()
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->target()->project()->projectDirectory());
-        param.setCommand(Utils::FilePath::fromString("./autogen.sh"));
-        param.setArguments(m_additionalArgumentsAspect->value());
+        param.setCommandLine({FilePath::fromString("./autogen.sh"),
+                              m_additionalArgumentsAspect->value(),
+                              CommandLine::Raw});
 
         widget->setSummaryText(param.summary(displayName()));
     };

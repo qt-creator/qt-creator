@@ -31,7 +31,6 @@
 #include <utils/fileutils.h>
 
 namespace Utils {
-class CommandLine;
 class MacroExpander;
 } // Utils
 
@@ -44,12 +43,7 @@ public:
     ProcessParameters();
 
     void setCommandLine(const Utils::CommandLine &cmdLine);
-
-    void setCommand(const Utils::FilePath &cmd);
-    Utils::FilePath command() const { return m_command; }
-
-    void setArguments(const QString &arguments);
-    QString arguments() const { return m_arguments; }
+    Utils::CommandLine command() const { return m_command; }
 
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     Utils::FilePath workingDirectory() const { return m_workingDirectory; }
@@ -78,8 +72,7 @@ public:
     void resolveAll();
 private:
     Utils::FilePath m_workingDirectory;
-    Utils::FilePath m_command;
-    QString m_arguments;
+    Utils::CommandLine m_command;
     Utils::Environment m_environment;
     Utils::MacroExpander *m_macroExpander;
 

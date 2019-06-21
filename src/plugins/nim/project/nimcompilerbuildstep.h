@@ -72,7 +72,6 @@ private:
     void updateProcessParameters();
     void updateCommand();
     void updateWorkingDirectory();
-    void updateArguments();
     void updateEnvironment();
 
     void updateTargetNimFile();

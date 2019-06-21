@@ -54,7 +54,7 @@ public:
     QStringList baseArguments() const;
     QStringList allArguments() const;
     QStringList defaultArguments() const;
-    QString buildCommand() const;
+    Utils::FilePath buildCommand() const;
 
 private:
     bool init() override;

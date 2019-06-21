@@ -182,8 +182,7 @@ bool QMakeStep::init()
     else
         workingDirectory = qmakeBc->buildDirectory().toString();
 
-    m_qmakeExecutable = qtVersion->qmakeCommand();
-    m_qmakeArguments = allArguments(qtVersion);
+    m_qmakeCommand = CommandLine{qtVersion->qmakeCommand(), allArguments(qtVersion), CommandLine::Raw};
     m_runMakeQmake = (qtVersion->qtVersion() >= QtVersionNumber(5, 0 ,0));
 
     QString makefile = workingDirectory + '/';
@@ -201,17 +200,16 @@ bool QMakeStep::init()
     }
 
     if (m_runMakeQmake) {
-        m_makeExecutable = makeCommand();
-        if (m_makeExecutable.isEmpty()) {
+        const FilePath make = makeCommand();
+        if (make.isEmpty()) {
             emit addOutput(tr("Could not determine which \"make\" command to run. "
                               "Check the \"make\" step in the build configuration."),
                            BuildStep::OutputFormat::ErrorMessage);
             return false;
         }
-        m_makeArguments = makeArguments(makefile);
+        m_makeCommand = CommandLine{make, makeArguments(makefile), CommandLine::Raw};
     } else {
-        m_makeExecutable.clear();
-        m_makeArguments.clear();
+        m_makeCommand = {};
     }
 
     // Check whether we need to run qmake
@@ -311,12 +309,10 @@ void QMakeStep::finish(bool success)
     runNextCommand();
 }
 
-void QMakeStep::startOneCommand(const FilePath &command, const QString &args)
+void QMakeStep::startOneCommand(const CommandLine &command)
 {
     ProcessParameters *pp = processParameters();
-    pp->setCommand(command);
-    pp->setArguments(args);
-    pp->resolveAll();
+    pp->setCommandLine(command);
 
     AbstractProcessStep::doRun();
 }
@@ -338,7 +334,7 @@ void QMakeStep::runNextCommand()
     case State::RUN_QMAKE:
         setOutputParser(new QMakeParser);
         m_nextState = (m_runMakeQmake ? State::RUN_MAKE_QMAKE_ALL : State::POST_PROCESS);
-        startOneCommand(m_qmakeExecutable, m_qmakeArguments);
+        startOneCommand(m_qmakeCommand);
         return;
     case State::RUN_MAKE_QMAKE_ALL:
         {
@@ -346,7 +342,7 @@ void QMakeStep::runNextCommand()
             parser->setWorkingDirectory(processParameters()->workingDirectory().toString());
             setOutputParser(parser);
             m_nextState = State::POST_PROCESS;
-            startOneCommand(m_makeExecutable, m_makeArguments);
+            startOneCommand(m_makeCommand);
         }
         return;
     case State::POST_PROCESS:

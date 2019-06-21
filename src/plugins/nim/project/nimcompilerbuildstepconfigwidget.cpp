@@ -34,6 +34,7 @@
 #include <projectexplorer/processparameters.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -103,16 +104,10 @@ void NimCompilerBuildStepConfigWidget::updateCommandLineText()
 {
     ProcessParameters *parameters = m_buildStep->processParameters();
 
-    QStringList command;
-    command << parameters->command().toString();
-    command << parameters->arguments();
+    const CommandLine cmd = parameters->command();
+    const QStringList parts = QtcProcess::splitArgs(cmd.toUserOutput());
 
-    // Remove empty args
-    auto predicate = [](const QString & str) { return str.isEmpty(); };
-    auto it = std::remove_if(command.begin(), command.end(), predicate);
-    command.erase(it, command.end());
-
-    m_ui->commandTextEdit->setText(command.join(QChar::LineFeed));
+    m_ui->commandTextEdit->setText(parts.join(QChar::LineFeed));
 }
 
 void NimCompilerBuildStepConfigWidget::updateTargetComboBox()

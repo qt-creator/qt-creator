@@ -170,13 +170,11 @@ private:
     void doCancel() override;
     void finish(bool success) override;
 
-    void startOneCommand(const Utils::FilePath &command, const QString &args);
+    void startOneCommand(const Utils::CommandLine &command);
     void runNextCommand();
 
-    Utils::FilePath m_qmakeExecutable;
-    QString m_qmakeArguments;
-    Utils::FilePath m_makeExecutable;
-    QString m_makeArguments;
+    Utils::CommandLine m_qmakeCommand;
+    Utils::CommandLine m_makeCommand;
     QString m_userArgs;
     // Extra arguments for qmake and pro file parser
     QStringList m_extraArgs;

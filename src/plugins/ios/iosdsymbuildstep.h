@@ -27,6 +27,8 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 
+#include <utils/fileutils.h>
+
 namespace Ios {
 namespace Internal {
 namespace Ui { class IosPresetBuildStep; }
@@ -46,9 +48,9 @@ public:
     void setArguments(const QStringList &args);
     QStringList arguments() const;
     QStringList defaultArguments() const;
-    QString defaultCommand() const;
-    QString command() const;
-    void setCommand(const QString &command);
+    Utils::FilePath defaultCommand() const;
+    Utils::FilePath command() const;
+    void setCommand(const Utils::FilePath &command);
     bool isDefault() const;
 
 private:
@@ -61,7 +63,7 @@ private:
     QStringList defaultCmdList() const;
 
     QStringList m_arguments;
-    QString m_command;
+    Utils::FilePath m_command;
     bool m_clean;
 };
 

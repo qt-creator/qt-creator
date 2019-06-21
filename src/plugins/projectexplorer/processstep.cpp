@@ -33,9 +33,12 @@
 
 #include <coreplugin/variablechooser.h>
 
+#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 
 #include <QFormLayout>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 
@@ -81,8 +84,6 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
 {
     BuildConfiguration *bc = buildConfiguration();
 
-    QString command = m_command->value();
-    QString arguments = m_arguments->value();
     QString workingDirectory = m_workingDirectory->value();
     if (workingDirectory.isEmpty()) {
         if (bc)
@@ -94,8 +95,7 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
     pp->setMacroExpander(bc ? bc->macroExpander() : Utils::globalMacroExpander());
     pp->setEnvironment(bc ? bc->environment() : Utils::Environment::systemEnvironment());
     pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
-    pp->setCommand(Utils::FilePath::fromString(command));
-    pp->setArguments(arguments);
+    pp->setCommandLine({m_command->fileName(), m_arguments->value(), CommandLine::Raw});
     pp->resolveAll();
 }
 

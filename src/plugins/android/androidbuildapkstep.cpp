@@ -94,9 +94,7 @@ static void setupProcessParameters(ProcessParameters *pp,
     pp->setWorkingDirectory(bc->buildDirectory());
     Utils::Environment env = bc->environment();
     pp->setEnvironment(env);
-    pp->setCommand(FilePath::fromString(command));
-    pp->setArguments(Utils::QtcProcess::joinArgs(arguments));
-    pp->resolveAll();
+    pp->setCommandLine({FilePath::fromString(command), arguments});
 }
 
 class PasswordInputDialog : public QDialog
