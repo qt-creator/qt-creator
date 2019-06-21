@@ -507,7 +507,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
 
     // Query the user for permissions
     if (!roFiles.isEmpty()) {
-        ReadOnlyFilesDialog roDialog(roFiles.toList(), ICore::mainWindow());
+        ReadOnlyFilesDialog roDialog(Utils::toList(roFiles), ICore::mainWindow());
         roDialog.setShowFailWarning(true, tr("Aborting replace."));
         if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel)
             return QStringList();

@@ -31,6 +31,8 @@
 #include "locatorconstants.h"
 
 #include <coreplugin/coreconstants.h>
+
+#include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/qtcassert.h>
@@ -287,7 +289,7 @@ void LocatorSettingsPage::initializeModel()
         ILocatorFilter::msgIncludeByDefaultToolTip()
     });
     m_model->clear();
-    QSet<ILocatorFilter *> customFilterSet = m_customFilters.toSet();
+    QSet<ILocatorFilter *> customFilterSet = Utils::toSet(m_customFilters);
     auto builtIn = new CategoryItem(tr("Built-in"), 0/*order*/);
     for (ILocatorFilter *filter : qAsConst(m_filters))
         if (!filter->isHidden() && !customFilterSet.contains(filter))

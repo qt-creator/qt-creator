@@ -1408,7 +1408,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
             return false;
         if (!rejectedList.isEmpty()) {
             closingFailed = true;
-            QSet<IEditor*> skipSet = DocumentModel::editorsForDocuments(rejectedList).toSet();
+            QSet<IEditor*> skipSet = Utils::toSet(DocumentModel::editorsForDocuments(rejectedList));
             acceptedEditors = acceptedEditors.subtract(skipSet);
         }
     }
@@ -1474,7 +1474,7 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
         }
     }
 
-    emit m_instance->editorsClosed(acceptedEditors.toList());
+    emit m_instance->editorsClosed(Utils::toList(acceptedEditors));
 
     foreach (IEditor *editor, acceptedEditors)
         delete editor;
