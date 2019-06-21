@@ -148,8 +148,12 @@ void ServerModeReader::parse(bool forceCMakeRun, bool forceConfiguration)
 
     QTC_ASSERT(m_cmakeServer, return);
     QVariantMap extra;
-    if (forceCMakeRun)
+
+    bool delayConfigurationRun = false;
+    if (forceCMakeRun && m_cmakeServer->isConnected()) {
         createNewServer();
+        delayConfigurationRun = true;
+    }
 
     if (forceConfiguration) {
         QStringList cacheArguments = transform(m_parameters.configuration,
@@ -173,8 +177,11 @@ void ServerModeReader::parse(bool forceCMakeRun, bool forceConfiguration)
                                    tr("Configuring \"%1\"").arg(m_parameters.projectName),
                                    "CMake.Configure");
 
-    m_delayedErrorMessage.clear();
-    m_cmakeServer->sendRequest(CONFIGURE_TYPE, extra);
+    if (!delayConfigurationRun) {
+        sendConfigureRequest(extra);
+    } else {
+        m_delayedConfigurationData = extra;
+    }
 }
 
 void ServerModeReader::stop()
@@ -367,8 +374,11 @@ void ServerModeReader::createNewServer()
     });
     connect(m_cmakeServer.get(), &ServerMode::message,
             this, [](const QString &m) { Core::MessageManager::write(m); });
-    connect(m_cmakeServer.get(), &ServerMode::connected,
-            this, &ServerModeReader::isReadyNow, Qt::QueuedConnection); // Delay
+    connect(m_cmakeServer.get(),
+            &ServerMode::connected,
+            this,
+            &ServerModeReader::handleServerConnected,
+            Qt::QueuedConnection); // Delay
     connect(m_cmakeServer.get(), &ServerMode::disconnected,
             this, [this]() {
         stop();
@@ -459,6 +469,22 @@ void ServerModeReader::handleSignal(const QString &signal, const QVariantMap &da
     // CMake on Windows sends false dirty signals on each edit (QTCREATORBUG-17944)
     if (!HostOsInfo::isWindowsHost() && signal == "dirty")
         emit dirty();
+}
+
+void ServerModeReader::handleServerConnected()
+{
+    if (m_delayedConfigurationData) {
+        sendConfigureRequest(*m_delayedConfigurationData);
+        m_delayedConfigurationData.reset();
+    } else {
+        emit isReadyNow();
+    }
+}
+
+void ServerModeReader::sendConfigureRequest(const QVariantMap &extra)
+{
+    m_delayedErrorMessage.clear();
+    m_cmakeServer->sendRequest(CONFIGURE_TYPE, extra);
 }
 
 void ServerModeReader::reportError()

@@ -67,6 +67,9 @@ private:
     void handleError(const QString &message);
     void handleProgress(int min, int cur, int max, const QString &inReplyTo);
     void handleSignal(const QString &signal, const QVariantMap &data);
+    void handleServerConnected();
+
+    void sendConfigureRequest(const QVariantMap &extra);
 
     void reportError();
 
@@ -162,6 +165,8 @@ private:
 
     int m_progressStepMinimum = 0;
     int m_progressStepMaximum = 1000;
+
+    Utils::optional<QVariantMap> m_delayedConfigurationData;
 
     QString m_delayedErrorMessage;
 
