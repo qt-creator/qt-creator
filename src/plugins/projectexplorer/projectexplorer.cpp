@@ -148,6 +148,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QThreadPool>
@@ -1235,7 +1236,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // duplicate file action
-    dd->m_duplicateFileAction = new QAction(tr("Duplicate File"), this);
+    dd->m_duplicateFileAction = new QAction(tr("Duplicate File..."), this);
     cmd = ActionManager::registerAction(dd->m_duplicateFileAction, Constants::DUPLICATEFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
@@ -3663,24 +3664,33 @@ void ProjectExplorerPluginPrivate::duplicateFile()
     QFileInfo sourceFileInfo(filePath);
     QString baseName = sourceFileInfo.baseName();
 
-    QString newFilePath = filePath;
-    int copyTokenIndex = filePath.lastIndexOf(baseName)+baseName.length();
-    newFilePath.insert(copyTokenIndex, tr("_copy"));
+    QString newFileName = sourceFileInfo.fileName();
+    int copyTokenIndex = newFileName.lastIndexOf(baseName)+baseName.length();
+    newFileName.insert(copyTokenIndex, tr("_copy"));
 
-    // Build a new file name till a non-existing file is not found.
-    uint counter = 0;
-    while (QFileInfo::exists(newFilePath)) {
-        newFilePath = filePath;
-        newFilePath.insert(copyTokenIndex, tr("_copy%1").arg(++counter));
-    }
+    bool okPressed;
+    newFileName = QInputDialog::getText(ICore::mainWindow(), tr("Choose File Name"),
+            tr("New file name:"), QLineEdit::Normal, newFileName, &okPressed);
+    if (!okPressed)
+        return;
+    if (!ProjectTree::hasNode(currentNode))
+        return;
 
-    // Create a copy and add the file to the parent folder node.
+    const QString newFilePath = sourceFileInfo.path() + '/' + newFileName;
     FolderNode *folderNode = fileNode->parentFolderNode();
     QTC_ASSERT(folderNode, return);
-    if (!(QFile::copy(filePath, newFilePath) && folderNode->addFiles(QStringList(newFilePath)))) {
-        QMessageBox::warning(ICore::mainWindow(), tr("Duplicating File Failed"),
-                             tr("Could not duplicate the file %1.")
-                             .arg(QDir::toNativeSeparators(filePath)));
+    QFile sourceFile(filePath);
+    if (!sourceFile.copy(newFilePath)) {
+        QMessageBox::critical(ICore::mainWindow(), tr("Duplicating File Failed"),
+                             tr("Failed to copy file \"%1\" to \"%2\": %3.")
+                             .arg(QDir::toNativeSeparators(filePath),
+                                  QDir::toNativeSeparators(newFilePath), sourceFile.errorString()));
+        return;
+    }
+    if (!folderNode->addFiles(QStringList(newFilePath))) {
+        QMessageBox::critical(ICore::mainWindow(), tr("Duplicating File Failed"),
+                              tr("Failed to add new file \"%1\" to the project.")
+                              .arg(QDir::toNativeSeparators(newFilePath)));
     }
 }
 
