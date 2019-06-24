@@ -107,67 +107,17 @@ private:
     Utils::FileSystemWatcher *m_dirWatcher = nullptr;
     QTimer m_updateFileListTimer;
 
-
     friend class ProjectItem;
 };
 
-class QmlFileFilterItem : public FileFilterBaseItem {
-    Q_OBJECT
-
+class FileFilterItem : public FileFilterBaseItem {
 public:
-    QmlFileFilterItem(QObject *parent = nullptr);
-};
-
-class JsFileFilterItem : public FileFilterBaseItem {
-    Q_OBJECT
-    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
-
-    void setFilter(const QString &filter);
-
-signals:
-    void filterChanged();
-
-public:
-    JsFileFilterItem(QObject *parent = nullptr);
+    FileFilterItem(const QString &fileFilter, QObject *parent = nullptr);
 };
 
 class ImageFileFilterItem : public FileFilterBaseItem {
-    Q_OBJECT
-    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
-
-    void setFilter(const QString &filter);
-
-signals:
-    void filterChanged();
-
 public:
     ImageFileFilterItem(QObject *parent = nullptr);
-};
-
-class CssFileFilterItem : public FileFilterBaseItem {
-    Q_OBJECT
-    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
-
-    void setFilter(const QString &filter);
-
-signals:
-    void filterChanged();
-
-public:
-    CssFileFilterItem(QObject *parent = nullptr);
-};
-
-class OtherFileFilterItem : public FileFilterBaseItem {
-    Q_OBJECT
-    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged)
-
-    void setFilter(const QString &filter);
-
-signals:
-    void filterChanged();
-
-public:
-    OtherFileFilterItem(QObject *parent = nullptr);
 };
 
 } // namespace QmlProjectManager

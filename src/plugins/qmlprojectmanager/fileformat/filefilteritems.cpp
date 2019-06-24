@@ -293,24 +293,6 @@ QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir
     return fileSet;
 }
 
-QmlFileFilterItem::QmlFileFilterItem(QObject *parent)
-    : FileFilterBaseItem(parent)
-{
-    setFilter(QLatin1String("*.qml"));
-}
-
-JsFileFilterItem::JsFileFilterItem(QObject *parent)
-    : FileFilterBaseItem(parent)
-{
-    setFilter(QLatin1String("*.js"));
-}
-
-void JsFileFilterItem::setFilter(const QString &filter)
-{
-    FileFilterBaseItem::setFilter(filter);
-    emit filterChanged();
-}
-
 ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
     : FileFilterBaseItem(parent)
 {
@@ -323,33 +305,10 @@ ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
     setFilter(filter);
 }
 
-void ImageFileFilterItem::setFilter(const QString &filter)
-{
-    FileFilterBaseItem::setFilter(filter);
-    emit filterChanged();
-}
-
-CssFileFilterItem::CssFileFilterItem(QObject *parent)
+FileFilterItem::FileFilterItem(const QString &fileFilter, QObject *parent)
     : FileFilterBaseItem(parent)
 {
-    setFilter(QLatin1String("*.css"));
-}
-
-void CssFileFilterItem::setFilter(const QString &filter)
-{
-    FileFilterBaseItem::setFilter(filter);
-    emit filterChanged();
-}
-
-OtherFileFilterItem::OtherFileFilterItem(QObject *parent)
-    : FileFilterBaseItem(parent)
-{
-}
-
-void OtherFileFilterItem::setFilter(const QString &filter)
-{
-    FileFilterBaseItem::setFilter(filter);
-    emit filterChanged();
+    setFilter(fileFilter);
 }
 
 } // namespace QmlProjectManager
