@@ -124,6 +124,8 @@ public:
     static bool warnBeforeOpeningBigFilesEnabled();
     static void setBigFileSizeLimit(int limitInMB);
     static int bigFileSizeLimit();
+    static void setMaxRecentFiles(int count);
+    static int maxRecentFiles();
 
     static EditorWindow *createEditorWindow();
     static void splitNewWindow(Internal::EditorView *view);
@@ -276,6 +278,7 @@ private:
 
     bool m_warnBeforeOpeningBigFilesEnabled = true;
     int m_bigFileSizeLimitInMB = 5;
+    int m_maxRecentFiles = 8;
 
     QString m_placeholderText;
     QList<std::function<bool(IEditor *)>> m_closeEditorListeners;

@@ -121,6 +121,7 @@ static const char autoSuspendEnabledKey[] = "EditorManager/AutoSuspendEnabled";
 static const char autoSuspendMinDocumentCountKey[] = "EditorManager/AutoSuspendMinDocuments";
 static const char warnBeforeOpeningBigTextFilesKey[] = "EditorManager/WarnBeforeOpeningBigTextFiles";
 static const char bigTextFileSizeLimitKey[] = "EditorManager/BigTextFileSizeLimitInMB";
+static const char maxRecentFilesKey[] = "EditorManager/MaxRecentFiles";
 static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
 static const char preferredEditorFactoriesKey[] = "EditorManager/PreferredEditorFactories";
 
@@ -1020,6 +1021,7 @@ void EditorManagerPrivate::saveSettings()
     qsettings->setValue(warnBeforeOpeningBigTextFilesKey,
                         d->m_warnBeforeOpeningBigFilesEnabled);
     qsettings->setValue(bigTextFileSizeLimitKey, d->m_bigFileSizeLimitInMB);
+    qsettings->setValue(maxRecentFilesKey, d->m_maxRecentFiles);
 
     Qt::CaseSensitivity defaultSensitivity
             = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
@@ -1039,6 +1041,10 @@ void EditorManagerPrivate::readSettings()
                 = qs->value(warnBeforeOpeningBigTextFilesKey).toBool();
         d->m_bigFileSizeLimitInMB = qs->value(bigTextFileSizeLimitKey).toInt();
     }
+
+    const int maxRecentFiles = qs->value(maxRecentFilesKey).toInt();
+    if (maxRecentFiles > 0)
+        d->m_maxRecentFiles = maxRecentFiles;
 
     if (qs->contains(fileSystemCaseSensitivityKey)) {
         Qt::CaseSensitivity defaultSensitivity
@@ -1153,6 +1159,16 @@ void EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(bool enabled)
 int EditorManagerPrivate::bigFileSizeLimit()
 {
     return d->m_bigFileSizeLimitInMB;
+}
+
+void EditorManagerPrivate::setMaxRecentFiles(int count)
+{
+    d->m_maxRecentFiles = count;
+}
+
+int EditorManagerPrivate::maxRecentFiles()
+{
+    return d->m_maxRecentFiles;
 }
 
 void EditorManagerPrivate::setBigFileSizeLimit(int limitInMB)

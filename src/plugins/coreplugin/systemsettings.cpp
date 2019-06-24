@@ -118,6 +118,9 @@ QWidget *SystemSettings::widget()
         m_page->warnBeforeOpeningBigFiles->setChecked(
                     EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled());
         m_page->bigFilesLimitSpinBox->setValue(EditorManagerPrivate::bigFileSizeLimit());
+        m_page->maxRecentFilesSpinBox->setMinimum(1);
+        m_page->maxRecentFilesSpinBox->setMaximum(99);
+        m_page->maxRecentFilesSpinBox->setValue(EditorManagerPrivate::maxRecentFiles());
 
         if (HostOsInfo::isAnyUnixHost()) {
             connect(m_page->resetTerminalButton, &QAbstractButton::clicked,
@@ -183,6 +186,7 @@ void SystemSettings::apply()
     EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(
                 m_page->warnBeforeOpeningBigFiles->isChecked());
     EditorManagerPrivate::setBigFileSizeLimit(m_page->bigFilesLimitSpinBox->value());
+    EditorManagerPrivate::setMaxRecentFiles(m_page->maxRecentFilesSpinBox->value());
 
     if (HostOsInfo::isMacHost()) {
         Qt::CaseSensitivity defaultSensitivity
