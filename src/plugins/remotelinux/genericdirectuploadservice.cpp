@@ -132,11 +132,12 @@ void GenericDirectUploadService::doDeploy()
 }
 
 QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &file,
-                                                        SshRemoteProcess *statProc)
+                                                        SshRemoteProcess *statProc,
+                                                        const QString &errorMsg)
 {
     QString errorDetails;
-    if (statProc->exitStatus() != QProcess::NormalExit)
-        errorDetails = statProc->errorString();
+    if (!errorMsg.isEmpty())
+        errorDetails = errorMsg;
     else if (statProc->exitCode() != 0)
         errorDetails = QString::fromUtf8(statProc->readAllStandardError());
     if (!errorDetails.isEmpty()) {
@@ -242,11 +243,11 @@ void GenericDirectUploadService::queryFiles()
         SshRemoteProcess * const statProc = connection()->createRemoteProcess(statCmd).release();
         statProc->setParent(this);
         connect(statProc, &SshRemoteProcess::done, this,
-                [this, statProc, state = d->state] {
+                [this, statProc, state = d->state](const QString &errorMsg) {
             QTC_ASSERT(d->state == state, return);
             const DeployableFile file = d->getFileForProcess(statProc);
             QTC_ASSERT(file.isValid(), return);
-            const QDateTime timestamp = timestampFromStat(file, statProc);
+            const QDateTime timestamp = timestampFromStat(file, statProc, errorMsg);
             statProc->deleteLater();
             switch (state) {
             case PreChecking:

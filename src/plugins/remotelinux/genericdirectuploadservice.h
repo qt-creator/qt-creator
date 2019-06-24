@@ -62,7 +62,7 @@ public:
 
 private:
     QDateTime timestampFromStat(const ProjectExplorer::DeployableFile &file,
-                                QSsh::SshRemoteProcess *statProc);
+                                QSsh::SshRemoteProcess *statProc, const QString &errorMsg);
     void checkForStateChangeOnRemoteProcFinished();
 
     QList<ProjectExplorer::DeployableFile> collectFilesToUpload(
