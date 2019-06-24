@@ -112,6 +112,8 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
                 projectItem->appendContent(setupFileFilterItem(new ImageFileFilterItem(projectItem), childNode));
             } else if (childNode->name() == QLatin1String("CssFiles")) {
                 projectItem->appendContent(setupFileFilterItem(new FileFilterItem("*.css"), childNode));
+            } else if (childNode->name() == QLatin1String("FontFiles")) {
+                projectItem->appendContent(setupFileFilterItem(new FileFilterItem("*.ttf;*.otf"), childNode));
             } else if (childNode->name() == QLatin1String("Files")) {
                 projectItem->appendContent(setupFileFilterItem(new FileFilterBaseItem(), childNode));
             } else if (childNode->name() == "Environment") {
