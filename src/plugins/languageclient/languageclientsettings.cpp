@@ -650,8 +650,8 @@ QString BaseSettingsWidget::name() const
 
 LanguageFilter BaseSettingsWidget::filter() const
 {
-    return {m_mimeTypes->text().split(filterSeparator),
-                m_filePattern->text().split(filterSeparator)};
+    return {m_mimeTypes->text().split(filterSeparator, QString::SkipEmptyParts),
+                m_filePattern->text().split(filterSeparator, QString::SkipEmptyParts)};
 }
 
 BaseSettings::StartBehavior BaseSettingsWidget::startupBehavior() const
@@ -784,10 +784,10 @@ QString StdIOSettingsWidget::arguments() const
 
 bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString &mimeType) const
 {
-    if (mimeTypes.isEmpty() && filePattern.isEmpty())
-        return true;
     if (mimeTypes.contains(mimeType))
         return true;
+    if (filePattern.isEmpty() && filePath.isEmpty())
+        return mimeTypes.isEmpty();
     auto regexps = Utils::transform(filePattern, [](const QString &pattern){
         return QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(), QRegExp::Wildcard);
     });
