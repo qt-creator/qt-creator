@@ -49,6 +49,10 @@ StackTreeView::StackTreeView(QWidget *parent)
 void StackTreeView::setModel(QAbstractItemModel *model)
 {
     BaseTreeView::setModel(model);
+
+    if (model)
+        setRootIndex(model->index(0, 0, QModelIndex()));
+
     connect(static_cast<StackHandler*>(model), &StackHandler::stackChanged,
             this, [this]() {
         if (!m_contentsAdjusted)

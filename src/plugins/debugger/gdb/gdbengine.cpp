@@ -2581,7 +2581,7 @@ void GdbEngine::loadSymbolsForStack()
 {
     bool needUpdate = false;
     const Modules &modules = modulesHandler()->modules();
-    stackHandler()->forItemsAtLevel<1>([modules, &needUpdate, this](StackFrameItem *frameItem) {
+    stackHandler()->forItemsAtLevel<2>([modules, &needUpdate, this](StackFrameItem *frameItem) {
         const StackFrame &frame = frameItem->frame;
         if (frame.function == "??") {
             //qDebug() << "LOAD FOR " << frame.address;

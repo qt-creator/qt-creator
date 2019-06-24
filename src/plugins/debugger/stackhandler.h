@@ -34,6 +34,7 @@ namespace Debugger {
 namespace Internal {
 
 class DebuggerEngine;
+class StackHandler;
 
 enum StackColumns
 {
@@ -48,14 +49,41 @@ enum StackColumns
 class StackFrameItem : public Utils::TreeItem
 {
 public:
-    StackFrameItem();
-    explicit StackFrameItem(const StackFrame &frame) : frame(frame) {}
+    StackFrameItem(StackHandler *handler, const StackFrame &frame, int row = -1)
+        : handler(handler), frame(frame), row(row)
+    {}
+
+    QVariant data(int column, int role) const override;
+    Qt::ItemFlags flags(int column) const override;
 
 public:
+    StackHandler *handler = nullptr;
     StackFrame frame;
+    int row = -1;
 };
 
-using StackHandlerModel = Utils::TreeModel<Utils::TypedTreeItem<StackFrameItem>, StackFrameItem>;
+
+class SpecialStackItem : public StackFrameItem
+{
+public:
+    SpecialStackItem(StackHandler *handler)
+        : StackFrameItem(handler, StackFrame{})
+    {}
+
+    QVariant data(int column, int role) const override;
+};
+
+// FIXME: Move ThreadItem over here.
+class ThreadDummyItem : public Utils::TypedTreeItem<StackFrameItem>
+{
+public:
+};
+
+using StackHandlerModel = Utils::TreeModel<
+    Utils::TypedTreeItem<ThreadDummyItem>,
+    Utils::TypedTreeItem<StackFrameItem>,
+    StackFrameItem
+>;
 
 class StackHandler : public StackHandlerModel
 {
@@ -82,18 +110,20 @@ public:
     void removeAll();
     QAbstractItemModel *model() { return this; }
     bool isContentsValid() const { return m_contentsValid; }
+    bool operatesByInstruction() const;
     void scheduleResetLocation();
-    void resetLocation();
-    void resetModel() { beginResetModel(); endResetModel(); }
+
+    QIcon iconForRow(int row) const;
 
 signals:
     void stackChanged();
     void currentIndexChanged();
 
 private:
-    QVariant data(const QModelIndex &index, int role) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    int stackRowCount() const; // Including the <more...> "frame"
+
     bool setData(const QModelIndex &idx, const QVariant &data, int role) override;
+    ThreadDummyItem *dummyThreadItem() const;
 
     bool contextMenuEvent(const Utils::ItemViewEvent &event);
     void reloadFullStack();
@@ -103,7 +133,6 @@ private:
     DebuggerEngine *m_engine;
     int m_currentIndex = -1;
     bool m_canExpand = false;
-    bool m_resetLocationScheduled = false;
     bool m_contentsValid = false;
 };
 

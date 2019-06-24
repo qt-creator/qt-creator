@@ -101,7 +101,6 @@ public:
     QString watcherName(const QString &exp);
 
     void scheduleResetLocation();
-    void resetLocation();
 
     void setCurrentItem(const QString &iname);
     void updateLocalsWindow();

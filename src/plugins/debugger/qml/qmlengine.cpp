@@ -663,9 +663,8 @@ void QmlEngine::activateFrame(int index)
         return;
 
     stackHandler()->setCurrentIndex(index);
-    auto frameItem = stackHandler()->rootItem()->childAt(index);
-    QTC_ASSERT(frameItem, return);
-    gotoLocation(frameItem->frame);
+    const StackFrame &frame = stackHandler()->frameAt(index);
+    gotoLocation(frame);
 
     d->updateLocals();
 }

@@ -2640,10 +2640,6 @@ void WatchHandler::scheduleResetLocation()
     m_model->m_contentsValid = false;
 }
 
-void WatchHandler::resetLocation()
-{
-}
-
 void WatchHandler::setCurrentItem(const QString &iname)
 {
     if (WatchItem *item = m_model->findItem(iname)) {

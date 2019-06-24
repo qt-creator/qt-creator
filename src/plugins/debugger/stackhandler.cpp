@@ -74,32 +74,30 @@ StackHandler::StackHandler(DebuggerEngine *engine)
         this, &StackHandler::reloadFullStack);
     connect(action(MaximalStackDepth), &QAction::triggered,
         this, &StackHandler::reloadFullStack);
+
+    // For now there's always only "the" current thread.
+    rootItem()->appendChild(new ThreadDummyItem);
 }
 
 StackHandler::~StackHandler() = default;
 
-QVariant StackHandler::data(const QModelIndex &index, int role) const
+QVariant SpecialStackItem::data(int column, int role) const
 {
-    if (!index.isValid() || index.row() > rowCount())
-        return QVariant();
+    if (role == Qt::DisplayRole && column == StackLevelColumn)
+        return StackHandler::tr("...");
+    if (role == Qt::DisplayRole && column == StackFunctionNameColumn)
+        return StackHandler::tr("<More>");
+    if (role == Qt::DecorationRole && column == StackLevelColumn)
+        return Icons::EMPTY.icon();
+    return QVariant();
+}
 
-    if (isSpecialFrame(index.row())) {
-        if (role == Qt::DisplayRole && index.column() == StackLevelColumn)
-            return tr("...");
-        if (role == Qt::DisplayRole && index.column() == StackFunctionNameColumn)
-            return tr("<More>");
-        if (role == Qt::DecorationRole && index.column() == StackLevelColumn)
-            return Icons::EMPTY.icon();
-        return QVariant();
-    }
-
-    const StackFrameItem *frameItem = static_cast<StackFrameItem *>(itemForIndex(index));
-    const StackFrame &frame = frameItem->frame;
-
+QVariant StackFrameItem::data(int column, int role) const
+{
     if (role == Qt::DisplayRole) {
-        switch (index.column()) {
+        switch (column) {
         case StackLevelColumn:
-            return QString::number(index.row() + 1);
+            return row >= 0 ? QString::number(row + 1) : QString();
         case StackFunctionNameColumn:
             return simplifyType(frame.function);
         case StackFileNameColumn:
@@ -114,11 +112,8 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (role == Qt::DecorationRole && index.column() == StackLevelColumn) {
-        // Return icon that indicates whether this is the active stack frame
-        return (m_contentsValid && index.row() == m_currentIndex)
-            ? Icons::LOCATION.icon() : Icons::EMPTY.icon();
-    }
+    if (role == Qt::DecorationRole && column == StackLevelColumn)
+        return handler->iconForRow(row);
 
     if (role == Qt::ToolTipRole && boolSetting(UseToolTipsInStackView))
         return frame.toToolTip();
@@ -126,16 +121,18 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
+Qt::ItemFlags StackFrameItem::flags(int column) const
 {
-    if (index.row() >= rowCount())
-        return {};
-    if (index.row() == rowCount() - 1 && m_canExpand)
-        return StackHandlerModel::flags(index);
-    const StackFrame &frame = rootItem()->childAt(index.row())->frame;
-    const bool isValid = frame.isUsable() || m_engine->operatesByInstruction();
-    return isValid && m_contentsValid
-            ? StackHandlerModel::flags(index) : Qt::ItemFlags();
+    const bool isValid = frame.isUsable() || handler->operatesByInstruction();
+    return isValid && handler->isContentsValid()
+            ? TreeItem::flags(column) : Qt::ItemFlags();
+}
+
+QIcon StackHandler::iconForRow(int row) const
+{
+    // Return icon that indicates whether this is the active stack frame
+    return (m_contentsValid && row == m_currentIndex)
+            ? Icons::LOCATION.icon() : Icons::EMPTY.icon();
 }
 
 bool StackHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
@@ -154,6 +151,12 @@ bool StackHandler::setData(const QModelIndex &idx, const QVariant &data, int rol
     return false;
 }
 
+ThreadDummyItem *StackHandler::dummyThreadItem() const
+{
+    QTC_ASSERT(rootItem()->childCount() == 1, return nullptr);
+    return rootItem()->childAt(0);
+}
+
 StackFrame StackHandler::currentFrame() const
 {
     if (m_currentIndex == -1)
@@ -164,20 +167,22 @@ StackFrame StackHandler::currentFrame() const
 
 StackFrame StackHandler::frameAt(int index) const
 {
-    auto frameItem = static_cast<StackFrameItem *>(m_root->childAt(index));
+    auto threadItem = dummyThreadItem();
+    QTC_ASSERT(threadItem, return {});
+    StackFrameItem *frameItem = threadItem->childAt(index);
     QTC_ASSERT(frameItem, return {});
     return frameItem->frame;
 }
 
 int StackHandler::stackSize() const
 {
-    return rowCount() - m_canExpand;
+    return stackRowCount() - m_canExpand;
 }
 
 quint64 StackHandler::topAddress() const
 {
-    QTC_ASSERT(rowCount() > 0, return 0);
-    return rootItem()->childAt(0)->frame.address;
+    QTC_ASSERT(stackRowCount() > 0, return 0);
+    return frameAt(0).address;
 }
 
 void StackHandler::setCurrentIndex(int level)
@@ -199,28 +204,39 @@ void StackHandler::setCurrentIndex(int level)
 
 void StackHandler::removeAll()
 {
-    clear();
+    auto threadItem = dummyThreadItem();
+    QTC_ASSERT(threadItem, return);
+    threadItem->removeChildren();
+
     setCurrentIndex(-1);
+}
+
+bool StackHandler::operatesByInstruction() const
+{
+    return m_engine->operatesByInstruction();
 }
 
 void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
 {
-    clear();
+    auto threadItem = dummyThreadItem();
+    QTC_ASSERT(threadItem, return);
 
-    m_resetLocationScheduled = false;
+    threadItem->removeChildren();
+
     m_contentsValid = true;
     m_canExpand = canExpand;
 
+    int row = 0;
     for (const StackFrame &frame : frames)
-        rootItem()->appendChild(new StackFrameItem(frame));
+        threadItem->appendChild(new StackFrameItem(this, frame, row++));
 
     if (canExpand)
-        rootItem()->appendChild(new StackFrameItem(StackFrame()));
+        threadItem->appendChild(new SpecialStackItem(this));
 
-    if (rowCount() >= 0)
-        setCurrentIndex(0);
-    else
+    if (frames.isEmpty())
         m_currentIndex = -1;
+    else
+        setCurrentIndex(0);
 
     emit stackChanged();
 }
@@ -268,9 +284,11 @@ void StackHandler::prependFrames(const StackFrames &frames)
 {
     if (frames.isEmpty())
         return;
+    auto threadItem = dummyThreadItem();
+    QTC_ASSERT(threadItem, return);
     const int count = frames.size();
     for (int i = count - 1; i >= 0; --i)
-        rootItem()->prependChild(new StackFrameItem(frames.at(i)));
+        threadItem->prependChild(new StackFrameItem(this, frames.at(i)));
     if (m_currentIndex >= 0)
         setCurrentIndex(m_currentIndex + count);
     emit stackChanged();
@@ -278,14 +296,14 @@ void StackHandler::prependFrames(const StackFrames &frames)
 
 bool StackHandler::isSpecialFrame(int index) const
 {
-    return m_canExpand && index + 1 == rowCount();
+    return m_canExpand && index + 1 == stackRowCount();
 }
 
 int StackHandler::firstUsableIndex() const
 {
     if (!m_engine->operatesByInstruction()) {
-        for (int i = 0, n = rowCount(); i != n; ++i)
-            if (rootItem()->childAt(i)->frame.isUsable())
+        for (int i = 0, n = stackRowCount(); i != n; ++i)
+            if (frameAt(i).isUsable())
                 return i;
     }
     return 0;
@@ -293,17 +311,15 @@ int StackHandler::firstUsableIndex() const
 
 void StackHandler::scheduleResetLocation()
 {
-    m_resetLocationScheduled = true;
     m_contentsValid = false;
 }
 
-void StackHandler::resetLocation()
+int StackHandler::stackRowCount() const
 {
-    if (m_resetLocationScheduled) {
-        beginResetModel();
-        m_resetLocationScheduled = false;
-        endResetModel();
-    }
+    // Only one "thread" for now.
+    auto threadItem = dummyThreadItem();
+    QTC_ASSERT(threadItem, return 0);
+    return threadItem->childCount();
 }
 
 // Input a function to be disassembled. Accept CDB syntax
@@ -353,7 +369,7 @@ void StackHandler::saveTaskFile()
     }
 
     QTextStream str(&file);
-    forItemsAtLevel<1>([&str](StackFrameItem *item) {
+    forItemsAtLevel<2>([&str](StackFrameItem *item) {
         const StackFrame &frame = item->frame;
         if (frame.isUsable())
             str << frame.file << '\t' << frame.line << "\tstack\tFrame #" << frame.level << '\n';

@@ -439,8 +439,6 @@ public:
         m_lookupRequests.clear();
         m_locationTimer.stop();
         m_locationMark.reset();
-        m_stackHandler.resetLocation();
-        m_watchHandler.resetLocation();
         m_disassemblerAgent.resetLocation();
         m_toolTipManager.resetLocation();
     }
@@ -1889,7 +1887,7 @@ void DebuggerEngine::operateByInstructionTriggered(bool on)
 {
     // Go to source only if we have the file.
     //    if (DebuggerEngine *cppEngine = m_engine->cppEngine()) {
-    d->m_stackHandler.resetModel();
+    d->m_stackHandler.rootItem()->updateAll();
     if (d->m_stackHandler.currentIndex() >= 0) {
         const StackFrame frame = d->m_stackHandler.currentFrame();
         if (on || frame.isUsable())
