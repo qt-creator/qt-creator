@@ -53,17 +53,17 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
 
 def openCmakeProject(projectPath, buildDir):
     def additionalFunction():
-        pChooser = waitForObject("{leftWidget={text='Default' type='QCheckBox' unnamed='1' "
+        pChooser = waitForObject("{leftWidget={text='Debug' type='QCheckBox' unnamed='1' "
                                  "visible='1'} type='Utils::PathChooser' unnamed='1' visible='1'}")
         lineEdit = getChildByClass(pChooser, "Utils::FancyLineEdit")
         replaceEditorContent(lineEdit, buildDir)
-        # disable all build configurations except "Default"
-        configs = ['Debug', 'Release', 'Release with Debug Information', 'Minimum Size Release']
+        # disable all build configurations except "Debug"
+        configs = ['Release', 'Release with Debug Information', 'Minimum Size Release']
         for checkbox in configs:
             ensureChecked(waitForObject("{text='%s' type='QCheckBox' unnamed='1' visible='1' "
                                         "window=':Qt Creator_Core::Internal::MainWindow'}"
                                         % checkbox), False)
-        ensureChecked(waitForObject("{text='Default' type='QCheckBox' unnamed='1' visible='1' "
+        ensureChecked(waitForObject("{text='Debug' type='QCheckBox' unnamed='1' visible='1' "
                       "window=':Qt Creator_Core::Internal::MainWindow'}"), True)
 
     invokeMenuItem("File", "Open File or Project...")
