@@ -1512,7 +1512,7 @@ void HeobData::processFinished()
             debugger->setStartMode(AttachExternal);
             debugger->setCloseMode(DetachAtClose);
             debugger->setContinueAfterAttach(true);
-            debugger->setInferiorExecutable(Utils::imageName(m_data[1]));
+            debugger->setInferiorExecutable(FilePath::fromString(Utils::imageName(m_data[1])));
 
             connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);
             connect(m_runControl, &RunControl::stopped, this, &HeobData::debugStopped);
