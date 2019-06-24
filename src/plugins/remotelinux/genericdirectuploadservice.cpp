@@ -33,12 +33,13 @@
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
 
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
-#include <QList>
-#include <QString>
-#include <QDateTime>
 #include <QHash>
+#include <QList>
+#include <QQueue>
+#include <QString>
 
 using namespace ProjectExplorer;
 using namespace QSsh;
@@ -47,6 +48,8 @@ namespace RemoteLinux {
 namespace Internal {
 
 enum State { Inactive, PreChecking, Uploading, PostProcessing };
+
+const int MaxConcurrentStatCalls = 10;
 
 class GenericDirectUploadServicePrivate
 {
@@ -63,6 +66,7 @@ public:
     bool incremental = false;
     bool ignoreMissingFiles = false;
     QHash<SshRemoteProcess *, DeployableFile> remoteProcs;
+    QQueue<DeployableFile> filesToStat;
     State state = Inactive;
     QList<DeployableFile> filesToUpload;
     SftpTransferPtr uploader;
@@ -169,6 +173,8 @@ QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &fi
 
 void GenericDirectUploadService::checkForStateChangeOnRemoteProcFinished()
 {
+    if (d->remoteProcs.size() < MaxConcurrentStatCalls && !d->filesToStat.isEmpty())
+        runStat(d->filesToStat.dequeue());
     if (!d->remoteProcs.isEmpty())
         return;
     if (d->state == PreChecking) {
@@ -187,6 +193,39 @@ void GenericDirectUploadService::stopDeployment()
 
     setFinished();
     handleDeploymentDone();
+}
+
+void GenericDirectUploadService::runStat(const DeployableFile &file)
+{
+    // We'd like to use --format=%Y, but it's not supported by busybox.
+    const QString statCmd = "stat -t " + Utils::QtcProcess::quoteArgUnix(file.remoteFilePath());
+    SshRemoteProcess * const statProc = connection()->createRemoteProcess(statCmd).release();
+    statProc->setParent(this);
+    connect(statProc, &SshRemoteProcess::done, this,
+            [this, statProc, state = d->state](const QString &errorMsg) {
+        QTC_ASSERT(d->state == state, return);
+        const DeployableFile file = d->getFileForProcess(statProc);
+        QTC_ASSERT(file.isValid(), return);
+        const QDateTime timestamp = timestampFromStat(file, statProc, errorMsg);
+        statProc->deleteLater();
+        switch (state) {
+        case PreChecking:
+            if (!timestamp.isValid() || hasRemoteFileChanged(file, timestamp))
+                d->filesToUpload.append(file);
+            break;
+        case PostProcessing:
+            if (timestamp.isValid())
+                saveDeploymentTimeStamp(file, timestamp);
+            break;
+        case Inactive:
+        case Uploading:
+            QTC_CHECK(false);
+            break;
+        }
+        checkForStateChangeOnRemoteProcFinished();
+    });
+    d->remoteProcs.insert(statProc, file);
+    statProc->start();
 }
 
 QList<DeployableFile> GenericDirectUploadService::collectFilesToUpload(
@@ -213,6 +252,7 @@ QList<DeployableFile> GenericDirectUploadService::collectFilesToUpload(
 void GenericDirectUploadService::setFinished()
 {
     d->state = Inactive;
+    d->filesToStat.clear();
     for (auto it = d->remoteProcs.begin(); it != d->remoteProcs.end(); ++it) {
         it.key()->disconnect();
         it.key()->terminate();
@@ -238,35 +278,10 @@ void GenericDirectUploadService::queryFiles()
             d->filesToUpload.append(file);
             continue;
         }
-        // We'd like to use --format=%Y, but it's not supported by busybox.
-        const QString statCmd = "stat -t " + Utils::QtcProcess::quoteArgUnix(file.remoteFilePath());
-        SshRemoteProcess * const statProc = connection()->createRemoteProcess(statCmd).release();
-        statProc->setParent(this);
-        connect(statProc, &SshRemoteProcess::done, this,
-                [this, statProc, state = d->state](const QString &errorMsg) {
-            QTC_ASSERT(d->state == state, return);
-            const DeployableFile file = d->getFileForProcess(statProc);
-            QTC_ASSERT(file.isValid(), return);
-            const QDateTime timestamp = timestampFromStat(file, statProc, errorMsg);
-            statProc->deleteLater();
-            switch (state) {
-            case PreChecking:
-                if (!timestamp.isValid() || hasRemoteFileChanged(file, timestamp))
-                    d->filesToUpload.append(file);
-                break;
-            case PostProcessing:
-                if (timestamp.isValid())
-                    saveDeploymentTimeStamp(file, timestamp);
-                break;
-            case Inactive:
-            case Uploading:
-                QTC_CHECK(false);
-                break;
-            }
-            checkForStateChangeOnRemoteProcFinished();
-        });
-        d->remoteProcs.insert(statProc, file);
-        statProc->start();
+        if (d->remoteProcs.size() >= MaxConcurrentStatCalls)
+            d->filesToStat << file;
+        else
+            runStat(file);
     }
     checkForStateChangeOnRemoteProcFinished();
 }
