@@ -68,6 +68,7 @@ StackHandler::StackHandler(DebuggerEngine *engine)
   : m_engine(engine)
 {
     setObjectName("StackModel");
+    setHeader({tr("Level"), tr("Function"), tr("File"), tr("Line"), tr("Address") });
 
     connect(action(ExpandStack), &QAction::triggered,
         this, &StackHandler::reloadFullStack);
@@ -77,23 +78,12 @@ StackHandler::StackHandler(DebuggerEngine *engine)
 
 StackHandler::~StackHandler() = default;
 
-int StackHandler::rowCount(const QModelIndex &parent) const
-{
-    // Since the stack is not a tree, row count is 0 for any valid parent
-    return parent.isValid() ? 0 : (m_stackFrames.size() + m_canExpand);
-}
-
-int StackHandler::columnCount(const QModelIndex &parent) const
-{
-    return parent.isValid() ? 0 : StackColumnCount;
-}
-
 QVariant StackHandler::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_stackFrames.size() + m_canExpand)
+    if (!index.isValid() || index.row() > rowCount())
         return QVariant();
 
-    if (index.row() == m_stackFrames.size()) {
+    if (isSpecialFrame(index.row())) {
         if (role == Qt::DisplayRole && index.column() == StackLevelColumn)
             return tr("...");
         if (role == Qt::DisplayRole && index.column() == StackFunctionNameColumn)
@@ -103,7 +93,8 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    const StackFrame &frame = m_stackFrames.at(index.row());
+    const StackFrameItem *frameItem = static_cast<StackFrameItem *>(itemForIndex(index));
+    const StackFrame &frame = frameItem->frame;
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
@@ -135,31 +126,16 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-
-QVariant StackHandler::headerData(int section, Qt::Orientation orient, int role) const
-{
-    if (orient == Qt::Horizontal && role == Qt::DisplayRole) {
-        switch (section) {
-            case 0: return tr("Level");
-            case 1: return tr("Function");
-            case 2: return tr("File");
-            case 3: return tr("Line");
-            case 4: return tr("Address");
-        };
-    }
-    return QVariant();
-}
-
 Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
 {
-    if (index.row() >= m_stackFrames.size() + m_canExpand)
-        return nullptr;
-    if (index.row() == m_stackFrames.size())
-        return QAbstractTableModel::flags(index);
-    const StackFrame &frame = m_stackFrames.at(index.row());
+    if (index.row() >= rowCount())
+        return {};
+    if (index.row() == rowCount() - 1 && m_canExpand)
+        return StackHandlerModel::flags(index);
+    const StackFrame &frame = rootItem()->childAt(index.row())->frame;
     const bool isValid = frame.isUsable() || m_engine->operatesByInstruction();
     return isValid && m_contentsValid
-            ? QAbstractTableModel::flags(index) : Qt::ItemFlags();
+            ? StackHandlerModel::flags(index) : Qt::ItemFlags();
 }
 
 bool StackHandler::setData(const QModelIndex &idx, const QVariant &data, int role)
@@ -181,10 +157,27 @@ bool StackHandler::setData(const QModelIndex &idx, const QVariant &data, int rol
 StackFrame StackHandler::currentFrame() const
 {
     if (m_currentIndex == -1)
-        return StackFrame();
-    QTC_ASSERT(m_currentIndex >= 0, return StackFrame());
-    QTC_ASSERT(m_currentIndex < m_stackFrames.size(), return StackFrame());
-    return m_stackFrames.at(m_currentIndex);
+        return {};
+    QTC_ASSERT(m_currentIndex >= 0, return {});
+    return frameAt(m_currentIndex);
+}
+
+StackFrame StackHandler::frameAt(int index) const
+{
+    auto frameItem = static_cast<StackFrameItem *>(m_root->childAt(index));
+    QTC_ASSERT(frameItem, return {});
+    return frameItem->frame;
+}
+
+int StackHandler::stackSize() const
+{
+    return rowCount() - m_canExpand;
+}
+
+quint64 StackHandler::topAddress() const
+{
+    QTC_ASSERT(rowCount() > 0, return 0);
+    return rootItem()->childAt(0)->frame.address;
 }
 
 void StackHandler::setCurrentIndex(int level)
@@ -206,24 +199,29 @@ void StackHandler::setCurrentIndex(int level)
 
 void StackHandler::removeAll()
 {
-    beginResetModel();
-    m_stackFrames.clear();
+    clear();
     setCurrentIndex(-1);
-    endResetModel();
 }
 
 void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
 {
-    beginResetModel();
+    clear();
+
     m_resetLocationScheduled = false;
     m_contentsValid = true;
     m_canExpand = canExpand;
-    m_stackFrames = frames;
-    if (m_stackFrames.size() >= 0)
+
+    for (const StackFrame &frame : frames)
+        rootItem()->appendChild(new StackFrameItem(frame));
+
+    if (canExpand)
+        rootItem()->appendChild(new StackFrameItem(StackFrame()));
+
+    if (rowCount() >= 0)
         setCurrentIndex(0);
     else
         m_currentIndex = -1;
-    endResetModel();
+
     emit stackChanged();
 }
 
@@ -271,28 +269,26 @@ void StackHandler::prependFrames(const StackFrames &frames)
     if (frames.isEmpty())
         return;
     const int count = frames.size();
-    beginInsertRows(QModelIndex(), 0, count - 1);
     for (int i = count - 1; i >= 0; --i)
-        m_stackFrames.prepend(frames.at(i));
-    endInsertRows();
+        rootItem()->prependChild(new StackFrameItem(frames.at(i)));
     if (m_currentIndex >= 0)
         setCurrentIndex(m_currentIndex + count);
     emit stackChanged();
 }
 
+bool StackHandler::isSpecialFrame(int index) const
+{
+    return m_canExpand && index + 1 == rowCount();
+}
+
 int StackHandler::firstUsableIndex() const
 {
     if (!m_engine->operatesByInstruction()) {
-        for (int i = 0, n = m_stackFrames.size(); i != n; ++i)
-            if (m_stackFrames.at(i).isUsable())
+        for (int i = 0, n = rowCount(); i != n; ++i)
+            if (rootItem()->childAt(i)->frame.isUsable())
                 return i;
     }
     return 0;
-}
-
-const StackFrames &StackHandler::frames() const
-{
-    return m_stackFrames;
 }
 
 void StackHandler::scheduleResetLocation()
@@ -357,10 +353,11 @@ void StackHandler::saveTaskFile()
     }
 
     QTextStream str(&file);
-    for (const StackFrame &frame : frames()) {
+    forItemsAtLevel<1>([&str](StackFrameItem *item) {
+        const StackFrame &frame = item->frame;
         if (frame.isUsable())
             str << frame.file << '\t' << frame.line << "\tstack\tFrame #" << frame.level << '\n';
-    }
+    });
 }
 
 bool StackHandler::contextMenuEvent(const ItemViewEvent &ev)
@@ -441,7 +438,7 @@ void StackHandler::copyContentsToClipboard()
 {
     QString str;
     int n = rowCount();
-    int m = columnCount();
+    int m = columnCount(QModelIndex());
     QVector<int> largestColumnWidths(m, 0);
 
     // First, find the widths of the largest columns,

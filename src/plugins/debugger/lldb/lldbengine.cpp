@@ -434,7 +434,7 @@ void LldbEngine::activateFrame(int frameIndex)
         return;
 
     StackHandler *handler = stackHandler();
-    if (frameIndex == handler->stackSize()) {
+    if (handler->isSpecialFrame(frameIndex)) {
         fetchStack(handler->stackSize() * 10 + 3);
         return;
     }

@@ -2522,7 +2522,7 @@ bool DebuggerEngine::isNativeMixedActiveFrame() const
 {
     if (!isNativeMixedActive())
         return false;
-    if (stackHandler()->frames().isEmpty())
+    if (stackHandler()->rowCount() == 0)
         return false;
     StackFrame frame = stackHandler()->frameAt(0);
     return frame.language == QmlLanguage;

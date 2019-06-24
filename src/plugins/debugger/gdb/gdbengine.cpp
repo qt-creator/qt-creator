@@ -2581,7 +2581,8 @@ void GdbEngine::loadSymbolsForStack()
 {
     bool needUpdate = false;
     const Modules &modules = modulesHandler()->modules();
-    for (const StackFrame &frame : stackHandler()->frames()) {
+    stackHandler()->forItemsAtLevel<1>([modules, &needUpdate, this](StackFrameItem *frameItem) {
+        const StackFrame &frame = frameItem->frame;
         if (frame.function == "??") {
             //qDebug() << "LOAD FOR " << frame.address;
             for (const Module &module : modules) {
@@ -2592,7 +2593,7 @@ void GdbEngine::loadSymbolsForStack()
                 }
             }
         }
-    }
+    });
     if (needUpdate) {
         reloadStack();
         updateLocals();
@@ -2924,7 +2925,7 @@ void GdbEngine::activateFrame(int frameIndex)
 
     StackHandler *handler = stackHandler();
 
-    if (frameIndex == handler->stackSize()) {
+    if (handler->isSpecialFrame(frameIndex)) {
         reloadFullStack();
         return;
     }

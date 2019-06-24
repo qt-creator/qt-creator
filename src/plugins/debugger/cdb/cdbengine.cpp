@@ -1045,13 +1045,13 @@ void CdbEngine::activateFrame(int index)
     // TODO: assembler,etc
     if (index < 0)
         return;
-    const StackFrames &frames = stackHandler()->frames();
-    if (index >= frames.size()) {
+
+    if (stackHandler()->isSpecialFrame(index)) {
         reloadFullStack(); // Clicked on "More...".
         return;
     }
 
-    const StackFrame frame = frames.at(index);
+    const StackFrame frame = stackHandler()->frameAt(index);
     if (frame.language != CppLanguage) {
         gotoLocation(frame);
         return;
