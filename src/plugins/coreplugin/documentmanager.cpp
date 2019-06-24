@@ -153,7 +153,7 @@ public:
     QSet<QString> m_expectedFileNames; // set of file names without normalization
 
     QList<DocumentManager::RecentFile> m_recentFiles;
-    static const int m_maxRecentFiles = 7;
+    static const int m_maxRecentFiles = 8;
 
     bool m_postponeAutoReload = false;
     bool m_blockActivated = false;
@@ -1278,7 +1278,7 @@ void DocumentManager::addToRecentFiles(const QString &fileName, Id editorId)
         if (fileKey == recentFileKey)
             it.remove();
     }
-    if (d->m_recentFiles.count() > d->m_maxRecentFiles)
+    if (d->m_recentFiles.count() == d->m_maxRecentFiles)
         d->m_recentFiles.removeLast();
     d->m_recentFiles.prepend(RecentFile(fileName, editorId));
 }
