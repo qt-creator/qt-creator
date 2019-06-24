@@ -133,6 +133,17 @@
                     }
                 },
                 {
+                    "name": "AddQObjectMacro",
+                    "trDisplayName": "Add Q_OBJECT",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checkedValue": "AddQObjectMacro",
+                        "uncheckedValue": "",
+                        "checked": "%{JS: [ 'QObject', 'QWidget', 'QMainWindow', 'QDeclarativeItem', 'QQuickItem'].indexOf(value('Base')) >= 0 }"
+                    }
+                },
+                {
                     "name": "Sp2",
                     "type": "Spacer"
                 },

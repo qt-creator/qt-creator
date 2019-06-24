@@ -28,7 +28,7 @@ class %{CN} : public %{Base}
 class %{CN}
 @endif
 {
-@if %{isQObject}
+@if '%{AddQObjectMacro}'
      Q_OBJECT
 @endif
 public:
