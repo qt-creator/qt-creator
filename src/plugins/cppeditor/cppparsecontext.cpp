@@ -111,8 +111,10 @@ QString ParseContextModel::currentId() const
     return m_projectParts[m_currentIndex]->id();
 }
 
-int ParseContextModel::rowCount(const QModelIndex &) const
+int ParseContextModel::rowCount(const QModelIndex &parent) const
 {
+    if (parent.isValid())
+        return 0;
     return m_projectParts.size();
 }
 
