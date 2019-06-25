@@ -22,7 +22,6 @@ HEADERS += \
     project/nimcompilerbuildstep.h \
     project/nimcompilerbuildstepconfigwidget.h \
     project/nimcompilercleanstep.h \
-    project/nimcompilercleanstepconfigwidget.h \
     project/nimrunconfiguration.h \
     editor/nimeditorfactory.h \
     settings/nimcodestylesettingspage.h \
@@ -52,7 +51,6 @@ SOURCES += \
     project/nimcompilerbuildstep.cpp \
     project/nimcompilerbuildstepconfigwidget.cpp \
     project/nimcompilercleanstep.cpp \
-    project/nimcompilercleanstepconfigwidget.cpp \
     project/nimrunconfiguration.cpp \
     editor/nimeditorfactory.cpp \
     settings/nimcodestylesettingspage.cpp \
@@ -70,6 +68,5 @@ SOURCES += \
 
 FORMS += \
     project/nimcompilerbuildstepconfigwidget.ui \
-    project/nimcompilercleanstepconfigwidget.ui \
     settings/nimcodestylepreferenceswidget.ui \
     settings/nimtoolssettingswidget.ui

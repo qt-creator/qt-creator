@@ -38,8 +38,6 @@ class NimCompilerCleanStep : public ProjectExplorer::BuildStep
 public:
     NimCompilerCleanStep(ProjectExplorer::BuildStepList *parentList);
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
 private:
     bool init() override;
     void doRun() override;

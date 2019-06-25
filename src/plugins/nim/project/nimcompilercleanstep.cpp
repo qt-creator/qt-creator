@@ -25,10 +25,10 @@
 
 #include "nimcompilercleanstep.h"
 #include "nimbuildconfiguration.h"
-#include "nimcompilercleanstepconfigwidget.h"
 
 #include "../nimconstants.h"
 
+#include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
@@ -45,11 +45,15 @@ NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList)
 {
     setDefaultDisplayName(tr("Nim Clean Step"));
     setDisplayName(tr("Nim Clean Step"));
-}
 
-BuildStepConfigWidget *NimCompilerCleanStep::createConfigWidget()
-{
-    return new NimCompilerCleanStepConfigWidget(this);
+    auto workingDirectory = addAspect<BaseStringAspect>();
+    workingDirectory->setLabelText(tr("Working directory:"));
+    workingDirectory->setDisplayStyle(BaseStringAspect::LineEditDisplay);
+
+    setSummaryUpdater([this, workingDirectory] {
+        workingDirectory->setFileName(buildConfiguration()->buildDirectory());
+        return displayName();
+    });
 }
 
 bool NimCompilerCleanStep::init()
@@ -122,7 +126,7 @@ NimCompilerCleanStepFactory::NimCompilerCleanStepFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     setSupportedConfiguration(Constants::C_NIMBUILDCONFIGURATION_ID);
     setRepeatable(false);
-    setDisplayName(NimCompilerCleanStep::tr(Nim::Constants::C_NIMCOMPILERCLEANSTEP_DISPLAY));
+    setDisplayName(NimCompilerCleanStep::tr("Nim Compiler Clean Step"));
 }
 
 } // Nim

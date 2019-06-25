@@ -58,11 +58,6 @@ const char C_NIMCOMPILERBUILDSTEPWIDGET_SUMMARY[] = QT_TRANSLATE_NOOP("NimCompil
 
 // NimCompilerCleanStep
 const char C_NIMCOMPILERCLEANSTEP_ID[] = "Nim.NimCompilerCleanStep";
-const char C_NIMCOMPILERCLEANSTEP_DISPLAY[] = QT_TRANSLATE_NOOP("NimCompilerCleanStepFactory", "Nim Compiler Clean Step");
-
-// NimCompilerCleanStepWidget
-const char C_NIMCOMPILERCLEANSTEPWIDGET_DISPLAY[] = QT_TRANSLATE_NOOP("NimCompilerCleanStepWidget", "Nim clean step");
-const char C_NIMCOMPILERCLEANSTEPWIDGET_SUMMARY[] = QT_TRANSLATE_NOOP("NimCompilerCleanStepWidget", "Nim clean step");
 
 const char C_NIMLANGUAGE_ID[] = "Nim";
 const char C_NIMCODESTYLESETTINGSPAGE_ID[] = "Nim.NimCodeStyleSettings";
