@@ -74,7 +74,6 @@ QtcPlugin {
         "qbscleanstepconfigwidget.ui",
         "qbsinstallstep.cpp",
         "qbsinstallstep.h",
-        "qbsinstallstepconfigwidget.ui",
         "qbskitinformation.cpp",
         "qbskitinformation.h",
         "qbslogsink.cpp",

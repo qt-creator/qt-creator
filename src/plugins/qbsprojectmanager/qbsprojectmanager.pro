@@ -66,7 +66,6 @@ FORMS = \
     customqbspropertiesdialog.ui \
     qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
-    qbsinstallstepconfigwidget.ui \
     qbsprofilessettingswidget.ui
 
 RESOURCES += \

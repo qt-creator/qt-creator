@@ -35,8 +35,6 @@
 namespace QbsProjectManager {
 namespace Internal {
 
-class QbsInstallStepConfigWidget;
-
 class QbsInstallStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
@@ -84,29 +82,6 @@ private:
     ProjectExplorer::IOutputParser *m_parser = nullptr;
 
     friend class QbsInstallStepConfigWidget;
-};
-
-namespace Ui { class QbsInstallStepConfigWidget; }
-
-class QbsInstallStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-public:
-    QbsInstallStepConfigWidget(QbsInstallStep *step);
-    ~QbsInstallStepConfigWidget() override;
-
-private:
-    void updateState();
-
-    void changeRemoveFirst(bool rf);
-    void changeDryRun(bool dr);
-    void changeKeepGoing(bool kg);
-
-private:
-    Ui::QbsInstallStepConfigWidget *m_ui;
-
-    QbsInstallStep *m_step;
-    bool m_ignoreChange;
 };
 
 class QbsInstallStepFactory : public ProjectExplorer::BuildStepFactory
