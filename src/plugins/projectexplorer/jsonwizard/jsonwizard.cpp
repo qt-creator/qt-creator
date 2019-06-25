@@ -104,7 +104,7 @@ public:
         : QDialog(parent), m_view(new Utils::TreeView(this))
     {
         setWindowTitle(QCoreApplication::translate("ProjectExplorer::JsonWizard",
-                                                   "Choose project file"));
+                                                   "Choose Project File"));
         const auto model = new ProjectFilesModel(candidates, this);
         m_view->setSelectionMode(Utils::TreeView::ExtendedSelection);
         m_view->setSelectionBehavior(Utils::TreeView::SelectRows);
@@ -121,7 +121,7 @@ public:
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(new QLabel(QCoreApplication::translate("ProjectExplorer::JsonWizard",
             "The project contains more than one project file. "
-            "Please select the one you would like to use.")));
+            "Select the one you would like to use.")));
         layout->addWidget(m_view);
         layout->addWidget(buttonBox);
     }

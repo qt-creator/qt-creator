@@ -457,7 +457,7 @@ public:
         : m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel)),
           m_buttonGroup(new QButtonGroup(this))
     {
-        setWindowTitle(tr("Please choose a drop action"));
+        setWindowTitle(tr("Choose Drop Action"));
         const bool offerFileIo = !defaultTargetDir.isEmpty();
         auto * const layout = new QVBoxLayout(this);
         layout->addWidget(new QLabel(tr("You just dragged some files from one project node to "
@@ -469,8 +469,8 @@ public:
         m_buttonGroup->addButton(moveButton, int(DropAction::Move));
         layout->addWidget(moveButton);
         if (offerFileIo) {
-            copyButton->setText(tr("Copy only the file references"));
-            moveButton->setText(tr("Move only the file references"));
+            copyButton->setText(tr("Copy Only File References"));
+            moveButton->setText(tr("Move Only File References"));
             auto * const copyWithFilesButton
                     = new QRadioButton(tr("Copy file references and files"), this);
             m_buttonGroup->addButton(copyWithFilesButton, int(DropAction::CopyWithFiles));
@@ -506,8 +506,8 @@ public:
                 }
             });
         } else {
-            copyButton->setText(tr("Copy the file references"));
-            moveButton->setText(tr("Move the file references"));
+            copyButton->setText(tr("Copy File References"));
+            moveButton->setText(tr("Move File References"));
             moveButton->setChecked(true);
         }
         connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);

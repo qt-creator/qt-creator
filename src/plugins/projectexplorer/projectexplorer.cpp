@@ -3422,7 +3422,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     QTC_ASSERT(projectNode, return);
     const QString dir = directoryFor(currentNode);
     QStringList subProjectFilePaths = QFileDialog::getOpenFileNames(
-                ICore::mainWindow(), tr("Please choose a project file"), dir,
+                ICore::mainWindow(), tr("Choose Project File"), dir,
                 projectNode->subProjectFileNamePatterns().join(";;"));
     if (!ProjectTree::hasNode(projectNode))
         return;
