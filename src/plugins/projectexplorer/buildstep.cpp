@@ -32,6 +32,8 @@
 #include "project.h"
 #include "target.h"
 
+#include <coreplugin/variablechooser.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -160,6 +162,9 @@ BuildStepConfigWidget *BuildStep::createConfigWidget()
 
     widget->setSummaryUpdater(m_summaryUpdater);
 
+    if (m_addMacroExpander)
+        Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
+
     return widget;
 }
 
@@ -270,6 +275,11 @@ void BuildStep::doCancel()
 {
     QTC_ASSERT(!m_runInGuiThread, qWarning() << "Build step" << displayName()
                << "neeeds to implement the doCancel() function");
+}
+
+void BuildStep::addMacroExpander()
+{
+    m_addMacroExpander = true;
 }
 
 void BuildStep::setSummaryUpdater(const std::function<QString ()> &summaryUpdater)

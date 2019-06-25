@@ -99,6 +99,8 @@ public:
     virtual QVariant data(Core::Id id) const;
     void setSummaryUpdater(const std::function<QString ()> &summaryUpdater);
 
+    void addMacroExpander();
+
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task
@@ -130,6 +132,7 @@ private:
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
     bool m_runInGuiThread = true;
+    bool m_addMacroExpander = false;
     Utils::optional<bool> m_wasExpanded;
     std::function<QString()> m_summaryUpdater;
 };

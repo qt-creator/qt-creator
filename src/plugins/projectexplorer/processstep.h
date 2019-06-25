@@ -45,8 +45,6 @@ class PROJECTEXPLORER_EXPORT ProcessStep : public AbstractProcessStep
 public:
     explicit ProcessStep(BuildStepList *bsl);
 
-    BuildStepConfigWidget *createConfigWidget() override;
-
 private:
     bool init() override;
     void setupProcessParameters(ProcessParameters *pp);

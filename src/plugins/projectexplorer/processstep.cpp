@@ -71,6 +71,17 @@ ProcessStep::ProcessStep(BuildStepList *bsl)
     m_workingDirectory->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
     m_workingDirectory->setLabelText(tr("Working directory:"));
     m_workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
+
+    setSummaryUpdater([this] {
+        QString display = displayName();
+        if (display.isEmpty())
+            display = tr("Custom Process Step");
+        ProcessParameters param;
+        setupProcessParameters(&param);
+        return param.summary(display);
+    });
+
+    addMacroExpander();
 }
 
 bool ProcessStep::init()
@@ -97,33 +108,6 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
     pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
     pp->setCommandLine({m_command->fileName(), m_arguments->value(), CommandLine::Raw});
     pp->resolveAll();
-}
-
-BuildStepConfigWidget *ProcessStep::createConfigWidget()
-{
-    auto widget = AbstractProcessStep::createConfigWidget();
-
-    Core::VariableChooser::addSupportForChildWidgets(widget, macroExpander());
-
-    auto updateDetails = [this, widget] {
-        QString display = displayName();
-        if (display.isEmpty())
-            display = tr("Custom Process Step");
-        ProcessParameters param;
-        setupProcessParameters(&param);
-        widget->setSummaryText(param.summary(display));
-    };
-
-    updateDetails();
-
-    connect(m_command, &ProjectConfigurationAspect::changed,
-            widget, updateDetails);
-    connect(m_workingDirectory, &ProjectConfigurationAspect::changed,
-            widget, updateDetails);
-    connect(m_arguments, &ProjectConfigurationAspect::changed,
-            widget, updateDetails);
-
-    return widget;
 }
 
 //*******
