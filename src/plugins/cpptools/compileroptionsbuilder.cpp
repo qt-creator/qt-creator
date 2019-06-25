@@ -755,7 +755,7 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
 
         // Check whether a language version is already used.
         QString theOption = option;
-        if (theOption.startsWith("-std=")) {
+        if (theOption.startsWith("-std=") || theOption.startsWith("--std=")) {
             m_compilerFlags.isLanguageVersionSpecified = true;
             theOption.replace("=c18", "=c17");
             theOption.replace("=gnu18", "=gnu17");
