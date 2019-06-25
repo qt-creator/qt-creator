@@ -93,6 +93,7 @@ public:
     QPointer<QTextEdit> m_textEditDisplay;
     QPixmap m_labelPixmap;
     Utils::FilePath m_baseFileName;
+    bool m_readOnly = false;
 };
 
 class BaseIntegerAspectPrivate
@@ -234,6 +235,17 @@ void BaseStringAspect::setBaseFileName(const FilePath &baseFileName)
         d->m_pathChooserDisplay->setBaseFileName(baseFileName);
 }
 
+void BaseStringAspect::setReadOnly(bool readOnly)
+{
+    d->m_readOnly = readOnly;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setReadOnly(readOnly);
+    if (d->m_lineEditDisplay)
+        d->m_lineEditDisplay->setReadOnly(readOnly);
+    if (d->m_textEditDisplay)
+        d->m_textEditDisplay->setReadOnly(readOnly);
+}
+
 void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
 {
     QTC_CHECK(!d->m_label);
@@ -253,6 +265,7 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseFileName(d->m_baseFileName);
+        d->m_pathChooserDisplay->setReadOnly(d->m_readOnly);
         connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
                 this, &BaseStringAspect::setValue);
         hbox->addWidget(d->m_pathChooserDisplay);
@@ -262,6 +275,7 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
         d->m_lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         if (!d->m_historyCompleterKey.isEmpty())
             d->m_lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
+        d->m_lineEditDisplay->setReadOnly(d->m_readOnly);
         connect(d->m_lineEditDisplay, &FancyLineEdit::textEdited,
                 this, &BaseStringAspect::setValue);
         hbox->addWidget(d->m_lineEditDisplay);
@@ -269,6 +283,7 @@ void BaseStringAspect::addToConfigurationLayout(QFormLayout *layout)
     case TextEditDisplay:
         d->m_textEditDisplay = new QTextEdit(parent);
         d->m_textEditDisplay->setPlaceholderText(d->m_placeHolderText);
+        d->m_textEditDisplay->setReadOnly(d->m_readOnly);
         connect(d->m_textEditDisplay, &QTextEdit::textChanged, this, [this] {
             const QString value = d->m_textEditDisplay->document()->toPlainText();
             if (value != d->m_value) {

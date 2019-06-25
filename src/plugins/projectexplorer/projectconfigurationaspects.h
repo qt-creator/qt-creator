@@ -116,6 +116,7 @@ public:
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironment(const Utils::Environment &env);
     void setBaseFileName(const Utils::FilePath &baseFileName);
+    void setReadOnly(bool readOnly);
 
     bool isChecked() const;
     void makeCheckable(const QString &optionalLabel, const QString &optionalBaseKey);
