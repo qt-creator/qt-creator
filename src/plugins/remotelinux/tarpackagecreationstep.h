@@ -63,7 +63,6 @@ private:
     void addNeededDeploymentFiles(const ProjectExplorer::DeployableFile &deployable,
                                   const ProjectExplorer::Kit *kit);
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 

@@ -82,6 +82,14 @@ TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl)
     m_incrementalDeploymentAspect = addAspect<BaseBoolAspect>();
     m_incrementalDeploymentAspect->setLabel(tr("Package modified files only"));
     m_incrementalDeploymentAspect->setSettingsKey(IncrementalDeploymentKey);
+
+    setSummaryUpdater([this] {
+        QString path = packageFilePath();
+        if (path.isEmpty())
+            return QString("<font color=\"red\">" + tr("Tarball creation not possible.")
+                           + "</font>");
+        return QString("<b>" + tr("Create tarball:") + "</b> " + path);
+    });
 }
 
 bool TarPackageCreationStep::init()
@@ -342,29 +350,6 @@ bool TarPackageCreationStep::runImpl()
             this, &TarPackageCreationStep::deployFinished);
 
     return success;
-}
-
-BuildStepConfigWidget *TarPackageCreationStep::createConfigWidget()
-{
-    auto widget = BuildStep::createConfigWidget();
-
-    auto updateSummary = [this, widget] {
-        QString path = packageFilePath();
-        if (path.isEmpty()) {
-            widget->setSummaryText("<font color=\"red\">"
-                              + tr("Tarball creation not possible.")
-                              + "</font>");
-        } else {
-            widget->setSummaryText("<b>" + tr("Create tarball:") + "</b> " + path);
-        }
-    };
-
-    connect(this, &AbstractPackagingStep::packageFilePathChanged,
-            this, updateSummary);
-
-    updateSummary();
-
-    return widget;
 }
 
 bool TarPackageCreationStep::fromMap(const QVariantMap &map)

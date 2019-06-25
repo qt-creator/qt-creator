@@ -46,7 +46,6 @@ public:
     bool init() override;
 
 signals:
-    void packageFilePathChanged();
     void unmodifyDeploymentData();
 
 protected:
@@ -61,7 +60,6 @@ protected:
     virtual bool isPackagingNeeded() const;
 
 private:
-    void handleBuildConfigurationChanged();
     void setDeploymentDataUnmodified();
     void setDeploymentDataModified();
 
