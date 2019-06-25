@@ -103,7 +103,7 @@ public:
         m_warnAgainstUnalignedBuildDirCheckbox.setText(tr("Warn if a project's source and "
             "build directories are not at the same level"));
         m_warnAgainstUnalignedBuildDirCheckbox.setToolTip(tr("Qmake has subtle bugs that "
-            "can trigger if source and build directory are not at the same level."));
+            "can be triggered if source and build directory are not at the same level."));
         m_warnAgainstUnalignedBuildDirCheckbox.setChecked(
                     QmakeSettings::warnAgainstUnalignedBuildDir());
         m_alwaysRunQmakeCheckbox.setText(tr("Run qmake on every build"));
