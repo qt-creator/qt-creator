@@ -157,6 +157,9 @@ PerfProfilerTool::PerfProfilerTool()
         tracePointsAction->setEnabled(m_startAction->isEnabled());
     });
 
+    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
+            this, &PerfProfilerTool::updateRunActions);
+
     m_recordButton = new QToolButton;
     m_clearButton = new QToolButton;
     m_filterButton = new QToolButton;
@@ -340,9 +343,6 @@ void PerfProfilerTool::createViews()
         resetAction->setEnabled(m_flameGraphView->isZoomed());
         menu1->exec(m_flameGraphView->mapToGlobal(pos));
     });
-
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
-            this, &PerfProfilerTool::updateRunActions);
 
     m_perspective.addToolBarAction(m_startAction);
     m_perspective.addToolBarAction(m_stopAction);
