@@ -69,6 +69,24 @@ AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTOGEN_
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
     m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
+
+    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {
+        m_runAutogen = true;
+    });
+
+    setSummaryUpdater([this] {
+        BuildConfiguration *bc = buildConfiguration();
+
+        ProcessParameters param;
+        param.setMacroExpander(bc->macroExpander());
+        param.setEnvironment(bc->environment());
+        param.setWorkingDirectory(bc->target()->project()->projectDirectory());
+        param.setCommandLine({FilePath::fromString("./autogen.sh"),
+                              m_additionalArgumentsAspect->value(),
+                              CommandLine::Raw});
+
+        return param.summary(displayName());
+    });
 }
 
 bool AutogenStep::init()
@@ -110,32 +128,4 @@ void AutogenStep::doRun()
 
     m_runAutogen = false;
     AbstractProcessStep::doRun();
-}
-
-BuildStepConfigWidget *AutogenStep::createConfigWidget()
-{
-    auto widget = AbstractProcessStep::createConfigWidget();
-
-    auto updateDetails = [this, widget] {
-        BuildConfiguration *bc = buildConfiguration();
-
-        ProcessParameters param;
-        param.setMacroExpander(bc->macroExpander());
-        param.setEnvironment(bc->environment());
-        param.setWorkingDirectory(bc->target()->project()->projectDirectory());
-        param.setCommandLine({FilePath::fromString("./autogen.sh"),
-                              m_additionalArgumentsAspect->value(),
-                              CommandLine::Raw});
-
-        widget->setSummaryText(param.summary(displayName()));
-    };
-
-    updateDetails();
-
-    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [=] {
-        updateDetails();
-        m_runAutogen = true;
-    });
-
-    return widget;
 }

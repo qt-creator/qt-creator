@@ -66,6 +66,24 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AU
     m_additionalArgumentsAspect->setValue("--force --install");
     m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
+
+    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {
+        m_runAutoreconf = true;
+    });
+
+    setSummaryUpdater([this] {
+        BuildConfiguration *bc = buildConfiguration();
+
+        ProcessParameters param;
+        param.setMacroExpander(bc->macroExpander());
+        param.setEnvironment(bc->environment());
+        param.setWorkingDirectory(bc->target()->project()->projectDirectory());
+        param.setCommandLine({Utils::FilePath::fromString("autoreconf"),
+                              m_additionalArgumentsAspect->value(),
+                              Utils::CommandLine::Raw});
+
+        return param.summary(displayName());
+    });
 }
 
 bool AutoreconfStep::init()
@@ -100,32 +118,4 @@ void AutoreconfStep::doRun()
 
     m_runAutoreconf = false;
     AbstractProcessStep::doRun();
-}
-
-BuildStepConfigWidget *AutoreconfStep::createConfigWidget()
-{
-    auto widget = AbstractProcessStep::createConfigWidget();
-
-    auto updateDetails = [this, widget] {
-        BuildConfiguration *bc = buildConfiguration();
-
-        ProcessParameters param;
-        param.setMacroExpander(bc->macroExpander());
-        param.setEnvironment(bc->environment());
-        param.setWorkingDirectory(bc->target()->project()->projectDirectory());
-        param.setCommandLine({Utils::FilePath::fromString("autoreconf"),
-                              m_additionalArgumentsAspect->value(),
-                              Utils::CommandLine::Raw});
-
-        widget->setSummaryText(param.summary(displayName()));
-    };
-
-    updateDetails();
-
-    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [=] {
-        updateDetails();
-        m_runAutoreconf = true;
-    });
-
-    return widget;
 }

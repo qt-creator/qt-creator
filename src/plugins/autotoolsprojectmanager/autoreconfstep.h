@@ -68,7 +68,6 @@ public:
 
     bool init() override;
     void doRun() override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
 private:
     ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;

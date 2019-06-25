@@ -66,8 +66,6 @@ class AutogenStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit AutogenStep(ProjectExplorer::BuildStepList *bsl);
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
 private:
     bool init() override;
     void doRun() override;
