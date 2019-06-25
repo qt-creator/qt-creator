@@ -118,13 +118,13 @@ bool MakeInstallStep::init()
     }
     QDir rootDir(rootDirPath);
     if (cleanInstallRoot() && !rootDir.removeRecursively()) {
-        emit addTask(Task(Task::Error, tr("The install root '%1' could not be cleaned.")
+        emit addTask(Task(Task::Error, tr("The install root \"%1\" could not be cleaned.")
                           .arg(installRoot().toUserOutput()),
                           FilePath(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
         return false;
     }
     if (!rootDir.exists() && !QDir::root().mkpath(rootDirPath)) {
-        emit addTask(Task(Task::Error, tr("The install root '%1' could not be created.")
+        emit addTask(Task(Task::Error, tr("The install root \"%1\" could not be created.")
                           .arg(installRoot().toUserOutput()),
                           FilePath(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM));
         return false;
