@@ -25,7 +25,6 @@
 
 #include "baremetaldebugsupport.h"
 #include "baremetaldevice.h"
-#include "baremetalgdbcommandsdeploystep.h"
 
 #include "gdbserverprovider.h"
 #include "gdbserverprovidermanager.h"
@@ -104,22 +103,6 @@ void BareMetalDebugSupport::start()
     QTC_ASSERT(dev, reportFailure(); return);
     const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
     QTC_ASSERT(p, reportFailure(); return);
-
-#if 0
-    // Currently baremetal plugin does not provide way to configure deployments steps
-    // FIXME: Should it?
-    QString commands;
-    if (const BuildConfiguration *bc = target->activeBuildConfiguration()) {
-        if (BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId())) {
-            for (const BareMetalGdbCommandsDeployStep *bs : bsl->allOfType<BareMetalGdbCommandsDeployStep>()) {
-                if (!commands.endsWith("\n"))
-                    commands.append("\n");
-                commands.append(bs->gdbCommands());
-            }
-        }
-    }
-    setCommandsAfterConnect(commands);
-#endif
 
     Runnable inferior;
     inferior.executable = bin;

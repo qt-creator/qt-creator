@@ -10,7 +10,6 @@ add_qtc_plugin(BareMetal
     baremetaldeviceconfigurationwidget.cpp baremetaldeviceconfigurationwidget.h
     baremetaldeviceconfigurationwizard.cpp baremetaldeviceconfigurationwizard.h
     baremetaldeviceconfigurationwizardpages.cpp baremetaldeviceconfigurationwizardpages.h
-    baremetalgdbcommandsdeploystep.cpp baremetalgdbcommandsdeploystep.h
     baremetalplugin.cpp baremetalplugin.h
     baremetalrunconfiguration.cpp baremetalrunconfiguration.h
     defaultgdbserverprovider.cpp defaultgdbserverprovider.h

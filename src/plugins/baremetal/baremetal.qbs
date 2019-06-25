@@ -20,7 +20,6 @@ QtcPlugin {
         "baremetaldeviceconfigurationwidget.cpp", "baremetaldeviceconfigurationwidget.h",
         "baremetaldeviceconfigurationwizard.cpp", "baremetaldeviceconfigurationwizard.h",
         "baremetaldeviceconfigurationwizardpages.cpp", "baremetaldeviceconfigurationwizardpages.h",
-        "baremetalgdbcommandsdeploystep.cpp", "baremetalgdbcommandsdeploystep.h",
         "baremetalplugin.cpp", "baremetalplugin.h",
         "baremetalrunconfiguration.cpp", "baremetalrunconfiguration.h",
         "baremetaldebugsupport.cpp", "baremetaldebugsupport.h",

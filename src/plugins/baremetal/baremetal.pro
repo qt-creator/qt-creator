@@ -7,7 +7,6 @@ SOURCES += baremetalplugin.cpp \
     baremetalcustomrunconfiguration.cpp\
     baremetaldevice.cpp \
     baremetalrunconfiguration.cpp \
-    baremetalgdbcommandsdeploystep.cpp \
     baremetaldeviceconfigurationwizardpages.cpp \
     baremetaldeviceconfigurationwizard.cpp \
     baremetaldeviceconfigurationwidget.cpp \
@@ -32,7 +31,6 @@ HEADERS += baremetalplugin.h \
     baremetalcustomrunconfiguration.h \
     baremetaldevice.h \
     baremetalrunconfiguration.h \
-    baremetalgdbcommandsdeploystep.h \
     baremetaldeviceconfigurationwidget.h \
     baremetaldeviceconfigurationwizard.h \
     baremetaldeviceconfigurationwizardpages.h \
