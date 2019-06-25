@@ -97,6 +97,8 @@ public:
     void setImmutable(bool immutable) { m_immutable = immutable; }
 
     virtual QVariant data(Core::Id id) const;
+    void setSummaryUpdater(const std::function<QString ()> &summaryUpdater);
+
 signals:
     /// Adds a \p task to the Issues pane.
     /// Do note that for linking compile output with tasks, you should first emit the task
@@ -129,6 +131,7 @@ private:
     bool m_widgetExpandedByDefault = true;
     bool m_runInGuiThread = true;
     Utils::optional<bool> m_wasExpanded;
+    std::function<QString()> m_summaryUpdater;
 };
 
 class PROJECTEXPLORER_EXPORT BuildStepInfo
@@ -209,6 +212,9 @@ public:
     void setDisplayName(const QString &displayName);
     void setSummaryText(const QString &summaryText);
 
+    void setSummaryUpdater(const std::function<QString()> &summaryUpdater);
+    void recreateSummary();
+
 signals:
     void updateSummary();
 
@@ -216,6 +222,7 @@ private:
     BuildStep *m_step = nullptr;
     QString m_displayName;
     QString m_summaryText;
+    std::function<QString()> m_summaryUpdater;
 };
 
 } // namespace ProjectExplorer

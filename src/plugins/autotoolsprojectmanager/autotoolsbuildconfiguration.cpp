@@ -83,8 +83,6 @@ void AutotoolsBuildConfiguration::initialize(const BuildInfo &info)
     // ./configure.
     auto configureStep = new ConfigureStep(buildSteps);
     buildSteps->appendStep(configureStep);
-    connect(this, &BuildConfiguration::buildDirectoryChanged,
-            configureStep, &ConfigureStep::notifyBuildDirectoryChanged);
 
     // make
     auto makeStep = new MakeStep(buildSteps);

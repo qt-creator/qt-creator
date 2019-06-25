@@ -67,20 +67,14 @@ class ConfigureStep : public ProjectExplorer::AbstractProcessStep
 public:
     explicit ConfigureStep(ProjectExplorer::BuildStepList *bsl);
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
-
     void setAdditionalArguments(const QString &list);
-    void notifyBuildDirectoryChanged();
 
 private:
     bool init() override;
     void doRun() override;
 
-    void updateDetails();
-
     ProjectExplorer::BaseStringAspect *m_additionalArgumentsAspect = nullptr;
     bool m_runConfigure = false;
-    QPointer<ProjectExplorer::BuildStepConfigWidget> m_widget;
 };
 
 } // namespace Internal

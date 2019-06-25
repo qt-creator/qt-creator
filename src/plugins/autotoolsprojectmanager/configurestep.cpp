@@ -89,6 +89,25 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl) : AbstractProcessStep(bsl, CONF
     m_additionalArgumentsAspect->setSettingsKey(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY);
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
+
+    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {
+        m_runConfigure = true;
+    });
+
+    setSummaryUpdater([this] {
+        BuildConfiguration *bc = buildConfiguration();
+
+        ProcessParameters param;
+        param.setMacroExpander(bc->macroExpander());
+        param.setEnvironment(bc->environment());
+        param.setWorkingDirectory(bc->buildDirectory());
+        param.setCommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
+                              m_additionalArgumentsAspect->value(),
+                              CommandLine::Raw});
+
+        return param.summaryInWorkdir(displayName());
+    });
+
 }
 
 bool ConfigureStep::init()
@@ -128,41 +147,4 @@ void ConfigureStep::doRun()
 
     m_runConfigure = false;
     AbstractProcessStep::doRun();
-}
-
-BuildStepConfigWidget *ConfigureStep::createConfigWidget()
-{
-    m_widget = AbstractProcessStep::createConfigWidget();
-
-    updateDetails();
-
-    connect(m_additionalArgumentsAspect, &ProjectConfigurationAspect::changed, this, [this] {
-        m_runConfigure = true;
-        updateDetails();
-    });
-
-    return m_widget.data();
-}
-
-void ConfigureStep::notifyBuildDirectoryChanged()
-{
-    updateDetails();
-}
-
-void ConfigureStep::updateDetails()
-{
-    if (!m_widget)
-        return;
-
-    BuildConfiguration *bc = buildConfiguration();
-
-    ProcessParameters param;
-    param.setMacroExpander(bc->macroExpander());
-    param.setEnvironment(bc->environment());
-    param.setWorkingDirectory(bc->buildDirectory());
-    param.setCommandLine({FilePath::fromString(projectDirRelativeToBuildDir(bc) + "configure"),
-                          m_additionalArgumentsAspect->value(),
-                          CommandLine::Raw});
-
-    m_widget->setSummaryText(param.summaryInWorkdir(displayName()));
 }

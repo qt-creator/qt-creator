@@ -155,6 +155,11 @@ BuildStepConfigWidget *BuildStep::createConfigWidget()
             aspect->addToConfigurationLayout(formLayout);
     }
 
+    connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
+            widget, &BuildStepConfigWidget::recreateSummary);
+
+    widget->setSummaryUpdater(m_summaryUpdater);
+
     return widget;
 }
 
@@ -265,6 +270,11 @@ void BuildStep::doCancel()
 {
     QTC_ASSERT(!m_runInGuiThread, qWarning() << "Build step" << displayName()
                << "neeeds to implement the doCancel() function");
+}
+
+void BuildStep::setSummaryUpdater(const std::function<QString ()> &summaryUpdater)
+{
+    m_summaryUpdater = summaryUpdater;
 }
 
 void BuildStep::setEnabled(bool b)
@@ -412,6 +422,10 @@ BuildStepConfigWidget::BuildStepConfigWidget(BuildStep *step)
     m_summaryText = "<b>" + m_displayName + "</b>";
     connect(m_step, &ProjectConfiguration::displayNameChanged,
             this, &BuildStepConfigWidget::updateSummary);
+    for (auto aspect : step->aspects()) {
+        connect(aspect, &ProjectConfigurationAspect::changed,
+                this, &BuildStepConfigWidget::recreateSummary);
+    }
 }
 
 QString BuildStepConfigWidget::summaryText() const
@@ -435,6 +449,18 @@ void BuildStepConfigWidget::setSummaryText(const QString &summaryText)
         m_summaryText = summaryText;
         emit updateSummary();
     }
+}
+
+void BuildStepConfigWidget::setSummaryUpdater(const std::function<QString()> &summaryUpdater)
+{
+    m_summaryUpdater = summaryUpdater;
+    recreateSummary();
+}
+
+void BuildStepConfigWidget::recreateSummary()
+{
+    if (m_summaryUpdater)
+        setSummaryText(m_summaryUpdater());
 }
 
 } // ProjectExplorer
