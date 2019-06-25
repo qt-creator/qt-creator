@@ -41,5 +41,8 @@ namespace Internal {
 
 QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 
+QString hintAboutBuildBeforeAnalysis();
+void showHintAboutBuildBeforeAnalysis();
+
 } // namespace Internal
 } // namespace ClangTools

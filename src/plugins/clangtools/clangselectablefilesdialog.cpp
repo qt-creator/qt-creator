@@ -295,6 +295,7 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
     CppTools::ClangDiagnosticConfigsSelectionWidget *diagnosticConfigsSelectionWidget
             = m_ui->clangToolsBasicSettings->ui()->clangDiagnosticConfigsSelectionWidget;
     QCheckBox *buildBeforeAnalysis = m_ui->clangToolsBasicSettings->ui()->buildBeforeAnalysis;
+    buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
 
     ClangToolsProjectSettings *settings = ClangToolsProjectSettingsManager::getSettings(m_project);
     m_customDiagnosticConfig = diagnosticConfiguration(settings);
@@ -337,6 +338,8 @@ SelectableFilesDialog::SelectableFilesDialog(const ProjectInfo &projectInfo,
             m_customDiagnosticConfig = currentConfigId;
     });
     connect(buildBeforeAnalysis, &QCheckBox::toggled, [this](bool checked) {
+        if (!checked)
+            showHintAboutBuildBeforeAnalysis();
         if (m_ui->globalOrCustom->currentIndex() == CustomSettings)
             m_buildBeforeAnalysis = checked;
     });
