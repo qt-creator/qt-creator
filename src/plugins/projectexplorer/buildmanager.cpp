@@ -80,6 +80,7 @@ public:
     bool m_skipDisabled = false;
     bool m_canceling = false;
     bool m_lastStepSucceeded = true;
+    bool m_allStepsSucceeded = true;
     BuildStep *m_currentBuildStep = nullptr;
     QString m_currentConfiguration;
     // used to decide if we are building a project to decide when to emit buildStateChanged(Project *)
@@ -305,6 +306,7 @@ void BuildManager::startBuildQueue()
         d->m_progressFutureInterface->setProgressRange(0, d->m_maxProgress * 100);
 
         d->m_running = true;
+        d->m_allStepsSucceeded = true;
         d->m_progressFutureInterface->reportStarted();
         nextStep();
     } else {
@@ -372,6 +374,7 @@ void BuildManager::nextBuildQueue()
         nextStep();
     } else {
         // Build Failure
+        d->m_allStepsSucceeded = false;
         Target *t = d->m_currentBuildStep->target();
         const QString projectName = d->m_currentBuildStep->project()->displayName();
         const QString targetName = t->displayName();
@@ -382,10 +385,28 @@ void BuildManager::nextBuildQueue()
                               .arg(targetName), BuildStep::OutputFormat::Stderr);
         }
         addToOutputWindow(tr("When executing step \"%1\"").arg(d->m_currentBuildStep->displayName()), BuildStep::OutputFormat::Stderr);
-        // NBS TODO fix in qtconcurrent
-        d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, tr("Error while building/deploying project %1 (kit: %2)").arg(projectName, targetName));
 
-        clearBuildQueue();
+        bool abort = ProjectExplorerPlugin::projectExplorerSettings().abortBuildAllOnError;
+        if (!abort) {
+            while (!d->m_buildQueue.isEmpty()
+                   && d->m_buildQueue.front()->target() == t) {
+                BuildStep * const nextStepForFailedTarget = d->m_buildQueue.takeFirst();
+                disconnectOutput(nextStepForFailedTarget);
+                decrementActiveBuildSteps(nextStepForFailedTarget);
+            }
+            if (d->m_buildQueue.isEmpty())
+                abort = true;
+        }
+
+        if (abort) {
+            // NBS TODO fix in qtconcurrent
+            d->m_progressFutureInterface->setProgressValueAndText(d->m_progress * 100,
+                    tr("Error while building/deploying project %1 (kit: %2)")
+                        .arg(projectName, targetName));
+            clearBuildQueue();
+        } else {
+            nextStep();
+        }
     }
 }
 
@@ -438,7 +459,7 @@ void BuildManager::nextStep()
         delete d->m_progressFutureInterface;
         d->m_progressFutureInterface = nullptr;
         d->m_maxProgress = 0;
-        emit m_instance->buildQueueFinished(true);
+        emit m_instance->buildQueueFinished(d->m_allStepsSucceeded);
     }
 }
 
