@@ -709,6 +709,7 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
                                            qgetenv("QTC_CLANG_CMD_OPTIONS_BLACKLIST"))
                                            .split(';', QString::SkipEmptyParts);
 
+    const Core::Id &toolChain = m_projectPart.toolchainType;
     bool containsDriverMode = false;
     bool skipNext = false;
     for (const QString &option : m_projectPart.compilerFlags) {
@@ -719,6 +720,13 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
 
         if (userBlackList.contains(option))
             continue;
+
+        // TODO: Make it possible that the clang binary/driver ignores unknown options,
+        // as it is done for libclang/clangd (not checking for OPT_UNKNOWN).
+        if (toolChain == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID) {
+            if (option == "-fkeep-inline-dllexport" || option == "-fno-keep-inline-dllexport")
+                continue;
+        }
 
         // Ignore warning flags as these interfere with our user-configured diagnostics.
         // Note that once "-w" is provided, no warnings will be emitted, even if "-Wall" follows.
@@ -772,7 +780,6 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
         m_compilerFlags.flags.append(theOption);
     }
 
-    const Core::Id &toolChain = m_projectPart.toolchainType;
     if (!containsDriverMode
         && (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
             || toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)) {
