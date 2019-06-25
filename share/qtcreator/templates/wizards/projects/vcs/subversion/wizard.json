@@ -13,8 +13,8 @@
     [
         { "key": "vcsId", "value": "J.Subversion" },
         { "key": "vcsName", "value": "%{JS: Vcs.displayName('%{vcsId}')}" },
-        { "key": "SR", "value": "%{JS: '%{Repo}'.replace(/\\/trunk$/, '').replace(/\\/$/, '') }"},
-        { "key": "defaultDir", "value": "%{JS: '%{SR}'.substr('%{SR}'.lastIndexOf('/') + 1).replace(/\\./, '-') }"},
+        { "key": "SR", "value": "%{JS: '%{Repo}'.replace(/[/]trunk$/, '').replace(/[/]$/, '') }"},
+        { "key": "defaultDir", "value": "%{JS: '%{SR}'.substr('%{SR}'.lastIndexOf('/') + 1).replace(/[.]/g, '-') }"},
         { "key": "TargetPath", "value": "%{Path}/%{Dir}" }
     ],
 
