@@ -58,18 +58,16 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
     m_keepGoingAspect->setSettingsKey("Qbs.DryKeepGoing");
     m_keepGoingAspect->setLabel(tr("Keep going"));
 
-    m_effectiveCommandAspect = addAspect<BaseStringAspect>();
-    m_effectiveCommandAspect->setDisplayStyle(BaseStringAspect::TextEditDisplay);
-    m_effectiveCommandAspect->setLabelText(tr("Equivalent command line:"));
+    auto effectiveCommandAspect = addAspect<BaseStringAspect>();
+    effectiveCommandAspect->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+    effectiveCommandAspect->setLabelText(tr("Equivalent command line:"));
 
-    updateState();
-
-    connect(this, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
-            this, &QbsCleanStep::updateState);
-    connect(m_dryRunAspect, &BaseBoolAspect::changed,
-            this, &QbsCleanStep::updateState);
-    connect(m_keepGoingAspect, &BaseBoolAspect::changed,
-            this, &QbsCleanStep::updateState);
+    setSummaryUpdater([this, effectiveCommandAspect] {
+        QString command = static_cast<QbsBuildConfiguration *>(buildConfiguration())
+                 ->equivalentCommandLine(this);
+        effectiveCommandAspect->setValue(command);
+        return tr("<b>Qbs:</b> %1").arg(command);
+    });
 }
 
 QbsCleanStep::~QbsCleanStep()
@@ -119,15 +117,6 @@ void QbsCleanStep::doRun()
             this, &QbsCleanStep::handleProgress);
 }
 
-ProjectExplorer::BuildStepConfigWidget *QbsCleanStep::createConfigWidget()
-{
-    auto w = BuildStep::createConfigWidget();
-    connect(this, &QbsCleanStep::stateChanged, w, [this, w] {
-        w->setSummaryText(tr("<b>Qbs:</b> %1").arg(m_effectiveCommandAspect->value()));
-    });
-    return w;
-}
-
 void QbsCleanStep::doCancel()
 {
     if (m_job)
@@ -157,14 +146,6 @@ void QbsCleanStep::handleProgress(int value)
 {
     if (m_maxProgress > 0)
         emit progress(value * 100 / m_maxProgress, m_description);
-}
-
-void QbsCleanStep::updateState()
-{
-    QString command = static_cast<QbsBuildConfiguration *>(buildConfiguration())
-            ->equivalentCommandLine(this);
-    m_effectiveCommandAspect->setValue(command);
-    emit stateChanged();
 }
 
 void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message, const QString &file, int line)

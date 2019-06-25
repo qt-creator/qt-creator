@@ -47,26 +47,20 @@ public:
     bool dryRun() const { return m_dryRunAspect->value(); }
     bool keepGoing() const { return m_keepGoingAspect->value(); }
 
-signals:
-    void stateChanged();
-
 private:
     bool init() override;
     void doRun() override;
     void doCancel() override;
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
     void cleaningDone(bool success);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
-    void updateState();
 
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                              const QString &message, const QString &file, int line);
 
     ProjectExplorer::BaseBoolAspect *m_dryRunAspect = nullptr;
     ProjectExplorer::BaseBoolAspect *m_keepGoingAspect = nullptr;
-    ProjectExplorer::BaseStringAspect *m_effectiveCommandAspect = nullptr;
 
     QStringList m_products;
 
