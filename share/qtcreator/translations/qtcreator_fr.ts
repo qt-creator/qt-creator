@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr">
+<TS version="2.1" language="fr">
 <context>
     <name>Application</name>
     <message>
@@ -42412,7 +42412,7 @@ au gestionnaire de version (%2)</translation>
     </message>
     <message>
         <source>Set Message Tracepoint at Line %1...</source>
-        <translation>Définir un message de traçace à la ligne %1...</translation>
+        <translation>Définir un message de traçage à la ligne %1...</translation>
     </message>
     <message>
         <source>Disassemble Function &quot;%1&quot;</source>
@@ -70891,7 +70891,7 @@ réinitialisation du moniteur</translation>
     <message>
         <source>Get Started Now</source>
         <translatorcomment>attention à la longueur du texte, doit reste petit</translatorcomment>
-        <translation type="unfinished">Démarrer</translation>
+        <translation>Démarrer</translation>
     </message>
     <message>
         <source>Online Community</source>
