@@ -1119,11 +1119,11 @@ VcsBaseEditorWidget *GitClient::annotate(
     return editor;
 }
 
-void GitClient::checkout(const QString &workingDirectory, const QString &ref,
-                         StashMode stashMode)
+VcsCommand *GitClient::checkout(const QString &workingDirectory, const QString &ref,
+                                StashMode stashMode)
 {
     if (stashMode == StashMode::TryStash && !beginStashScope(workingDirectory, "Checkout"))
-        return;
+        return nullptr;
     QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
     VcsCommand *command = vcsExec(
                 workingDirectory, arguments, nullptr, true,
@@ -1135,6 +1135,7 @@ void GitClient::checkout(const QString &workingDirectory, const QString &ref,
         if (success)
             updateSubmodulesIfNeeded(workingDirectory, true);
     });
+    return command;
 }
 
 /* method used to setup arguments for checkout, in case user wants to create local branch */

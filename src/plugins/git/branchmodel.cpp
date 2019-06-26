@@ -602,15 +602,15 @@ void BranchModel::removeTag(const QModelIndex &idx)
     removeNode(idx);
 }
 
-void BranchModel::checkoutBranch(const QModelIndex &idx)
+VcsCommand *BranchModel::checkoutBranch(const QModelIndex &idx)
 {
     QString branch = fullName(idx, !isLocal(idx));
     if (branch.isEmpty())
-        return;
+        return nullptr;
 
     // No StashGuard since this function for now is only used with clean working dir.
     // If it is ever used from another place, please add StashGuard here
-    d->client->checkout(d->workingDirectory, branch, GitClient::StashMode::NoStash);
+    return d->client->checkout(d->workingDirectory, branch, GitClient::StashMode::NoStash);
 }
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)

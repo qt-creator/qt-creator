@@ -41,6 +41,7 @@
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QDir>
@@ -382,21 +383,28 @@ bool BranchView::checkout()
                 return false;
         }
 
-        m_model->checkoutBranch(selected);
-
-        QString stashName;
-        client->synchronousStashList(m_repository, &stashes);
-        for (const Stash &stash : qAsConst(stashes)) {
-            if (stash.message.startsWith(popMessageStart)) {
-                stashName = stash.name;
-                break;
-            }
+        VcsBase::VcsCommand *command = m_model->checkoutBranch(selected);
+        const bool moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch();
+        const bool popStash = branchCheckoutDialog.popStashOfNextBranch();
+        if (command && (moveChanges || popStash)) {
+            connect(command, &VcsBase::VcsCommand::finished,
+                    this, [this, client, popMessageStart, moveChanges, popStash] {
+                if (moveChanges) {
+                    client->endStashScope(m_repository);
+                } else if (popStash) {
+                    QList<Stash> stashes;
+                    QString stashName;
+                    client->synchronousStashList(m_repository, &stashes);
+                    for (const Stash &stash : qAsConst(stashes)) {
+                        if (stash.message.startsWith(popMessageStart)) {
+                            stashName = stash.name;
+                            break;
+                        }
+                    }
+                    client->synchronousStashRestore(m_repository, stashName, true);
+                }
+            });
         }
-
-        if (branchCheckoutDialog.moveLocalChangesToNextBranch())
-            client->endStashScope(m_repository);
-        else if (branchCheckoutDialog.popStashOfNextBranch())
-            client->synchronousStashRestore(m_repository, stashName, true);
     }
 
     if (QTC_GUARD(m_branchView))
