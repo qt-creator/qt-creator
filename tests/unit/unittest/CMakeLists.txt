@@ -22,7 +22,7 @@ add_qtc_test(unittest GTEST
     QT_USE_FAST_OPERATOR_PLUS QT_USE_FAST_CONCATENATION
     UNIT_TESTS
     DONT_CHECK_MESSAGE_COUNTER
-    QTC_RESOURCE_DIR="${CMAKE_SOURCE_DIR}/share/qtcreator"
+    QTC_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/share/qtcreator"
     TESTDATA_DIR="${CMAKE_CURRENT_BINARY_DIR}/data"
     ECHOSERVER="$<TARGET_FILE_DIR:echo>/echo"
     CPPTOOLS_JSON="${CMAKE_CURRENT_BINARY_DIR}/CppTools.json"
@@ -171,7 +171,7 @@ add_custom_command(TARGET unittest POST_BUILD
 )
 
 # create fake CppTools.json for the mime type definitions
-file(READ "${CMAKE_SOURCE_DIR}/src/plugins/cpptools/CppTools.json.in" plugin_json_in)
+file(READ "${PROJECT_SOURCE_DIR}/src/plugins/cpptools/CppTools.json.in" plugin_json_in)
 string(REPLACE "\\\"" "\"" plugin_json_in ${plugin_json_in})
 string(REPLACE "\\'" "'" plugin_json_in ${plugin_json_in})
 string(REPLACE "$$QTCREATOR_VERSION" "${IDE_VERSION}" plugin_json_in ${plugin_json_in})

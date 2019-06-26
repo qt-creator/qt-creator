@@ -1,4 +1,4 @@
-set(SRCDIR "${CMAKE_SOURCE_DIR}/share/qtcreator/qml/qmlpuppet")
+set(SRCDIR "${PROJECT_SOURCE_DIR}/share/qtcreator/qml/qmlpuppet")
 
 set(DESTDIR "${IDE_LIBEXEC_PATH}")
 if (APPLE)
@@ -17,7 +17,7 @@ add_qtc_executable(qml2puppet
 
 extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/commands"
-  INCLUDES "${CMAKE_SOURCE_DIR}/src/libs"
+  INCLUDES "${PROJECT_SOURCE_DIR}/src/libs"
   SOURCES
     changeauxiliarycommand.cpp changeauxiliarycommand.h
     changebindingscommand.cpp changebindingscommand.h

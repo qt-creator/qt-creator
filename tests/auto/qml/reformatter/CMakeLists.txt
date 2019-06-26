@@ -2,7 +2,7 @@ add_qtc_test(tst_qml_reformatter
   DEPENDS qmljs
   DEFINES
     QT_CREATOR
-    QTCREATORDIR="${CMAKE_SOURCE_DIR}"
+    QTCREATORDIR="${PROJECT_SOURCE_DIR}"
     TESTSRCDIR="${CMAKE_CURRENT_SOURCE_DIR}"
   SOURCES tst_reformatter.cpp
 )
