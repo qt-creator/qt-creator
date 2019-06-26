@@ -97,9 +97,9 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
     setSupportedProjectMimeTypeName(Constants::MAKEFILE_MIMETYPE);
 }
 
-QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath) const
 {
-    return {createBuildInfo(parent->kit(), parent->project()->projectDirectory())};
+    return {createBuildInfo(k, projectPath)};
 }
 
 QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const FilePath &projectPath) const

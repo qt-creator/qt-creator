@@ -71,7 +71,8 @@ public:
 class DummyBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
 public:
-    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Target *) const final
+    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *,
+                                                      const FilePath &) const final
     {
         return {};
     }

@@ -382,9 +382,10 @@ BuildInfo QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
     return info;
 }
 
-QList<BuildInfo> QbsBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo>
+    QbsBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &) const
 {
-    return {createBuildInfo(parent->kit(), BuildConfiguration::Debug)};
+    return {createBuildInfo(k, BuildConfiguration::Debug)};
 }
 
 QList<BuildInfo>

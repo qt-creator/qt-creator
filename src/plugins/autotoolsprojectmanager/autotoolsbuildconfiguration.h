@@ -53,7 +53,8 @@ public:
     AutotoolsBuildConfigurationFactory();
 
 private:
-    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Target *parent) const override;
+    QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
+                                                      const Utils::FilePath &projectPath) const override;
     QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
                                                       const Utils::FilePath &projectPath) const override;
 

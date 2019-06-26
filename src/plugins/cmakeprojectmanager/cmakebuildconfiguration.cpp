@@ -481,13 +481,14 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
         return BuildConfiguration::Unknown;
 }
 
-QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo>
+    CMakeBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath) const
 {
     QList<BuildInfo> result;
 
     for (int type = BuildTypeNone; type != BuildTypeLast; ++type) {
-        result << createBuildInfo(parent->kit(),
-                                  parent->project()->projectDirectory().toString(),
+        result << createBuildInfo(k,
+                                  projectPath.toString(),
                                   BuildType(type));
     }
     return result;

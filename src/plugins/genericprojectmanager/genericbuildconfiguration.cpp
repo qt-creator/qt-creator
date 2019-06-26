@@ -87,9 +87,10 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
 
 GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory() = default;
 
-QList<BuildInfo> GenericBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo>
+    GenericBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath) const
 {
-    return {createBuildInfo(parent->kit(), parent->project()->projectDirectory())};
+    return {createBuildInfo(k, projectPath)};
 }
 
 QList<BuildInfo>

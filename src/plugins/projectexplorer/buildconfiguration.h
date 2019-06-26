@@ -157,7 +157,8 @@ public:
                              const QString &projectPath, const QString &buildDir) const;
 
 protected:
-    virtual QList<BuildInfo> availableBuilds(const Target *parent) const = 0;
+    virtual QList<BuildInfo>
+        availableBuilds(const Kit *k, const Utils::FilePath &projectPath) const = 0;
     virtual QList<BuildInfo>
         availableSetups(const Kit *k, const Utils::FilePath &projectPath) const = 0;
 

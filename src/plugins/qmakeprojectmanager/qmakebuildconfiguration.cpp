@@ -665,15 +665,12 @@ static const QList<BuildConfiguration::BuildType> availableBuildTypes(const Base
     return types;
 }
 
-QList<BuildInfo> QmakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo> QmakeBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath) const
 {
     QList<BuildInfo> result;
 
-    const FilePath projectFilePath = parent->project()->projectFilePath();
-
-    for (BuildConfiguration::BuildType buildType :
-             availableBuildTypes(QtKitAspect::qtVersion(parent->kit()))) {
-        BuildInfo info = createBuildInfo(parent->kit(), projectFilePath, buildType);
+    for (BuildConfiguration::BuildType buildType : availableBuildTypes(QtKitAspect::qtVersion(k))) {
+        BuildInfo info = createBuildInfo(k, projectPath, buildType);
         info.displayName.clear(); // ask for a name
         info.buildDirectory.clear(); // This depends on the displayName
         result << info;

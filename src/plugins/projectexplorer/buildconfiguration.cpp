@@ -416,7 +416,7 @@ const Tasks BuildConfigurationFactory::reportIssues(ProjectExplorer::Kit *kit, c
 
 const QList<BuildInfo> BuildConfigurationFactory::allAvailableBuilds(const Target *parent) const
 {
-    return availableBuilds(parent);
+    return availableBuilds(parent->kit(), parent->project()->projectFilePath());
 }
 
 const QList<BuildInfo>

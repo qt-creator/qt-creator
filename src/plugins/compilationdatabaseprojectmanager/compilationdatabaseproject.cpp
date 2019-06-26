@@ -541,13 +541,12 @@ static QList<ProjectExplorer::BuildInfo> defaultBuildInfos(
     return buildInfos;
 }
 
-QList<ProjectExplorer::BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableBuilds(
-    const ProjectExplorer::Target * /*parent*/) const
+QList<BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableBuilds(const Kit *, const Utils::FilePath &) const
 {
     return defaultBuildInfos(this, tr("Release"));
 }
 
-QList<ProjectExplorer::BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit * /*k*/, const Utils::FilePath & /*projectPath*/) const
+QList<BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableSetups(const Kit *, const Utils::FilePath &) const
 {
     return defaultBuildInfos(this, tr("Release"));
 }

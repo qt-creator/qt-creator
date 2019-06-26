@@ -155,11 +155,11 @@ NimBuildConfigurationFactory::NimBuildConfigurationFactory()
     setSupportedProjectMimeTypeName(Constants::C_NIM_PROJECT_MIMETYPE);
 }
 
-QList<BuildInfo> NimBuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo> NimBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &) const
 {
     QList<BuildInfo> result;
     for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release})
-        result.push_back(createBuildInfo(parent->kit(), buildType));
+        result.push_back(createBuildInfo(k, buildType));
     return result;
 }
 
