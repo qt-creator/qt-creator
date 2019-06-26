@@ -239,7 +239,7 @@ void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
     setFormat(style);
 
     if (style == VcsOutputWindow::Command) {
-        const QString timeStamp = QTime::currentTime().toString("\nHH:mm ");
+        const QString timeStamp = QTime::currentTime().toString("\nHH:mm:ss ");
         appendLines(timeStamp + s, repository);
     } else {
         appendLines(s, repository);
