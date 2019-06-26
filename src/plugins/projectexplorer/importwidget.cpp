@@ -63,10 +63,14 @@ ImportWidget::ImportWidget(QWidget *parent) :
     connect(importButton, &QAbstractButton::clicked, this, &ImportWidget::handleImportRequest);
     connect(m_pathChooser->lineEdit(), &QLineEdit::returnPressed, this, [this] {
         if (m_pathChooser->isValid()) {
+            m_ownsReturnKey = true;
             handleImportRequest();
 
             // The next return should trigger the "Configure" button.
-            QTimer::singleShot(0, this, QOverload<>::of(&QWidget::setFocus));
+            QTimer::singleShot(0, this, [this] {
+                setFocus();
+                m_ownsReturnKey = false;
+            });
         }
     });
 
@@ -79,9 +83,9 @@ void ImportWidget::setCurrentDirectory(const Utils::FilePath &dir)
     m_pathChooser->setFileName(dir);
 }
 
-bool ImportWidget::lineEditHasFocus() const
+bool ImportWidget::ownsReturnKey() const
 {
-    return m_pathChooser->lineEdit()->hasFocus();
+    return m_ownsReturnKey;
 }
 
 void ImportWidget::handleImportRequest()

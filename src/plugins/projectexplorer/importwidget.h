@@ -44,7 +44,7 @@ public:
 
     void setCurrentDirectory(const Utils::FilePath &dir);
 
-    bool lineEditHasFocus() const;
+    bool ownsReturnKey() const;
 
 signals:
     void importFrom(const Utils::FilePath &dir);
@@ -53,6 +53,7 @@ private:
     void handleImportRequest();
 
     Utils::PathChooser *m_pathChooser;
+    bool m_ownsReturnKey = false;
 };
 
 } // namespace Internal
