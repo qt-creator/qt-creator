@@ -40,14 +40,11 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-const char AUTORECONF_STEP_ID[] = "AutotoolsProjectManager.AutoreconfStep";
-
-
 // AutoreconfStepFactory class
 
 AutoreconfStepFactory::AutoreconfStepFactory()
 {
-    registerStep<AutoreconfStep>(AUTORECONF_STEP_ID);
+    registerStep<AutoreconfStep>(Constants::AUTORECONF_STEP_ID);
     setDisplayName(AutoreconfStep::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
@@ -56,7 +53,8 @@ AutoreconfStepFactory::AutoreconfStepFactory()
 
 // AutoreconfStep class
 
-AutoreconfStep::AutoreconfStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTORECONF_STEP_ID)
+AutoreconfStep::AutoreconfStep(BuildStepList *bsl)
+    : AbstractProcessStep(bsl, Constants::AUTORECONF_STEP_ID)
 {
     setDefaultDisplayName(tr("Autoreconf"));
 

@@ -26,12 +26,9 @@
 ****************************************************************************/
 
 #include "autotoolsbuildconfiguration.h"
-#include "makestep.h"
+
 #include "autotoolsproject.h"
 #include "autotoolsprojectconstants.h"
-#include "autogenstep.h"
-#include "autoreconfstep.h"
-#include "configurestep.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildinfo.h>
@@ -72,26 +69,20 @@ void AutotoolsBuildConfiguration::initialize(const BuildInfo &info)
     // ### Build Steps Build ###
     // autogen.sh or autoreconf
     QFile autogenFile(target()->project()->projectDirectory().toString() + "/autogen.sh");
-    if (autogenFile.exists()) {
-        auto autogenStep = new AutogenStep(buildSteps);
-        buildSteps->appendStep(autogenStep);
-    } else {
-        auto autoreconfStep = new AutoreconfStep(buildSteps);
-        buildSteps->appendStep(autoreconfStep);
-    }
+    if (autogenFile.exists())
+        buildSteps->appendStep(Constants::AUTOGEN_STEP_ID);
+    else
+        buildSteps->appendStep(Constants::AUTORECONF_STEP_ID);
 
     // ./configure.
-    auto configureStep = new ConfigureStep(buildSteps);
-    buildSteps->appendStep(configureStep);
+    buildSteps->appendStep(Constants::CONFIGURE_STEP_ID);
 
     // make
-    auto makeStep = new MakeStep(buildSteps);
-    buildSteps->appendStep(makeStep);
+    buildSteps->appendStep(Constants::MAKE_STEP_ID);
 
     // ### Build Steps Clean ###
     BuildStepList *cleanSteps = stepList(BUILDSTEPS_CLEAN);
-    auto cleanMakeStep = new MakeStep(cleanSteps);
-    cleanSteps->appendStep(cleanMakeStep);
+    cleanSteps->appendStep(Constants::MAKE_STEP_ID);
 }
 
 

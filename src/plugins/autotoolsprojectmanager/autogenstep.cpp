@@ -43,15 +43,12 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-const char AUTOGEN_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.AutogenStep.AdditionalArguments";
-const char AUTOGEN_STEP_ID[] = "AutotoolsProjectManager.AutogenStep";
-
 
 // AutogenStepFactory
 
 AutogenStepFactory::AutogenStepFactory()
 {
-    registerStep<AutogenStep>(AUTOGEN_STEP_ID);
+    registerStep<AutogenStep>(Constants::AUTOGEN_STEP_ID);
     setDisplayName(AutogenStep::tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
@@ -60,12 +57,13 @@ AutogenStepFactory::AutogenStepFactory()
 
 // AutogenStep
 
-AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, AUTOGEN_STEP_ID)
+AutogenStep::AutogenStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Constants::AUTOGEN_STEP_ID)
 {
     setDefaultDisplayName(tr("Autogen"));
 
     m_additionalArgumentsAspect = addAspect<BaseStringAspect>();
-    m_additionalArgumentsAspect->setSettingsKey(AUTOGEN_ADDITIONAL_ARGUMENTS_KEY);
+    m_additionalArgumentsAspect->setSettingsKey(
+                "AutotoolsProjectManager.AutogenStep.AdditionalArguments");
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
     m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");

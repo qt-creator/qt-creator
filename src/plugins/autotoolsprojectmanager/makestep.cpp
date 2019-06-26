@@ -37,8 +37,6 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace AutotoolsProjectManager::Constants;
 
-const char MAKE_STEP_ID[] = "AutotoolsProjectManager.MakeStep";
-
 // MakeStepFactory
 
 MakeStepFactory::MakeStepFactory()

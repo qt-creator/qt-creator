@@ -49,9 +49,6 @@ using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-const char CONFIGURE_ADDITIONAL_ARGUMENTS_KEY[] = "AutotoolsProjectManager.ConfigureStep.AdditionalArguments";
-const char CONFIGURE_STEP_ID[] = "AutotoolsProjectManager.ConfigureStep";
-
 /////////////////////
 // Helper Function
 /////////////////////
@@ -71,7 +68,7 @@ static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
 
 ConfigureStepFactory::ConfigureStepFactory()
 {
-    registerStep<ConfigureStep>(CONFIGURE_STEP_ID);
+    registerStep<ConfigureStep>(Constants::CONFIGURE_STEP_ID);
     setDisplayName(ConfigureStep::tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
@@ -80,13 +77,15 @@ ConfigureStepFactory::ConfigureStepFactory()
 
 // ConfigureStep
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl) : AbstractProcessStep(bsl, CONFIGURE_STEP_ID)
+ConfigureStep::ConfigureStep(BuildStepList *bsl)
+    : AbstractProcessStep(bsl, Constants::CONFIGURE_STEP_ID)
 {
     setDefaultDisplayName(tr("Configure"));
 
     m_additionalArgumentsAspect = addAspect<BaseStringAspect>();
     m_additionalArgumentsAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
-    m_additionalArgumentsAspect->setSettingsKey(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY);
+    m_additionalArgumentsAspect->setSettingsKey(
+                "AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
     m_additionalArgumentsAspect->setLabelText(tr("Arguments:"));
     m_additionalArgumentsAspect->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
 
