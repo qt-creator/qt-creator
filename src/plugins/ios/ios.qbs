@@ -22,7 +22,6 @@ QtcPlugin {
         "iosbuildconfiguration.h",
         "iosbuildstep.cpp",
         "iosbuildstep.h",
-        "iosbuildstep.ui",
         "iosconfigurations.cpp",
         "iosconfigurations.h",
         "iosconstants.h",

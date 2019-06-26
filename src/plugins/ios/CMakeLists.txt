@@ -5,7 +5,7 @@ add_qtc_plugin(Ios
     createsimulatordialog.cpp createsimulatordialog.h createsimulatordialog.ui
     ios.qrc
     iosbuildconfiguration.cpp iosbuildconfiguration.h
-    iosbuildstep.cpp iosbuildstep.h iosbuildstep.ui
+    iosbuildstep.cpp iosbuildstep.h
     iosconfigurations.cpp iosconfigurations.h
     iosconstants.h
     iosdeploystep.cpp iosdeploystep.h

@@ -53,7 +53,6 @@ SOURCES += \
 
 FORMS += \
     iossettingswidget.ui \
-    iosbuildstep.ui \
     iospresetbuildstep.ui \
     createsimulatordialog.ui \
     simulatoroperationdialog.ui

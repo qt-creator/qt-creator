@@ -36,7 +36,6 @@ namespace Internal {
 
 class IosBuildStepConfigWidget;
 class IosBuildStepFactory;
-namespace Ui { class IosBuildStep; }
 
 class IosBuildStep : public ProjectExplorer::AbstractProcessStep
 {
@@ -66,24 +65,6 @@ private:
     QStringList m_extraArguments;
     bool m_useDefaultArguments = true;
     bool m_clean = false;
-};
-
-class IosBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
-{
-    Q_OBJECT
-
-public:
-    IosBuildStepConfigWidget(IosBuildStep *buildStep);
-    ~IosBuildStepConfigWidget() override;
-
-private:
-    void buildArgumentsChanged();
-    void resetDefaultArguments();
-    void extraArgumentsChanged();
-    void updateDetails();
-
-    Ui::IosBuildStep *m_ui;
-    IosBuildStep *m_buildStep;
 };
 
 class IosBuildStepFactory : public ProjectExplorer::BuildStepFactory
