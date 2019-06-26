@@ -53,10 +53,8 @@ using namespace ProjectExplorer;
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
-const char MAKESTEP_BS_ID[] = "Qt4ProjectManager.MakeStep";
-
 QmakeMakeStep::QmakeMakeStep(BuildStepList *bsl)
-    : MakeStep(bsl, MAKESTEP_BS_ID)
+    : MakeStep(bsl, Constants::MAKESTEP_BS_ID)
 {
     if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         setClean(true);
@@ -221,7 +219,7 @@ void QmakeMakeStep::finish(bool success)
 
 QmakeMakeStepFactory::QmakeMakeStepFactory()
 {
-    registerStep<QmakeMakeStep>(MAKESTEP_BS_ID);
+    registerStep<QmakeMakeStep>(Constants::MAKESTEP_BS_ID);
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setDisplayName(MakeStep::defaultDisplayName());
 }

@@ -40,7 +40,6 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/namedwidget.h>
-#include <projectexplorer/processstep.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
@@ -508,7 +507,7 @@ void CompilationDatabaseBuildConfiguration::initialize(const ProjectExplorer::Bu
 {
     ProjectExplorer::BuildConfiguration::initialize(info);
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    buildSteps->appendStep(new ProjectExplorer::ProcessStep(buildSteps));
+    buildSteps->appendStep(ProjectExplorer::Constants::PROCESS_STEP_ID);
 }
 
 ProjectExplorer::NamedWidget *CompilationDatabaseBuildConfiguration::createConfigWidget()

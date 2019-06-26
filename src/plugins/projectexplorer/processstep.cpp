@@ -42,13 +42,12 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-const char PROCESS_STEP_ID[] = "ProjectExplorer.ProcessStep";
 const char PROCESS_COMMAND_KEY[] = "ProjectExplorer.ProcessStep.Command";
 const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.WorkingDirectory";
 const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
 
 ProcessStep::ProcessStep(BuildStepList *bsl)
-    : AbstractProcessStep(bsl, PROCESS_STEP_ID)
+    : AbstractProcessStep(bsl, Constants::PROCESS_STEP_ID)
 {
     //: Default ProcessStep display name
     setDefaultDisplayName(tr("Custom Process Step"));
@@ -116,7 +115,7 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
 
 ProcessStepFactory::ProcessStepFactory()
 {
-    registerStep<ProcessStep>(PROCESS_STEP_ID);
+    registerStep<ProcessStep>(Constants::PROCESS_STEP_ID);
     setDisplayName(ProcessStep::tr("Custom Process Step", "item in combobox"));
 }
 

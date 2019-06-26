@@ -135,10 +135,10 @@ void QmakeBuildConfiguration::initialize(const BuildInfo &info)
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto qmakeStep = new QMakeStep(buildSteps);
     buildSteps->appendStep(qmakeStep);
-    buildSteps->appendStep(new QmakeMakeStep(buildSteps));
+    buildSteps->appendStep(Constants::MAKESTEP_BS_ID);
 
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(new QmakeMakeStep(cleanSteps));
+    cleanSteps->appendStep(Constants::MAKESTEP_BS_ID);
 
     const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
     BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());

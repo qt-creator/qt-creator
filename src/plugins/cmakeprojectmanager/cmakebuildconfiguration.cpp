@@ -91,7 +91,7 @@ void CMakeBuildConfiguration::initialize(const BuildInfo &info)
     BuildConfiguration::initialize(info);
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    buildSteps->appendStep(new CMakeBuildStep(buildSteps));
+    buildSteps->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
     if (DeviceTypeKitAspect::deviceTypeId(target()->kit())
             == Android::Constants::ANDROID_DEVICE_TYPE) {
@@ -125,7 +125,7 @@ void CMakeBuildConfiguration::initialize(const BuildInfo &info)
     }
 
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(new CMakeBuildStep(cleanSteps));
+    cleanSteps->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
     if (info.buildDirectory.isEmpty()) {
         auto project = target()->project();
