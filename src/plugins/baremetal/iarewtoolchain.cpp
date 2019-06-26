@@ -417,9 +417,9 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
         QString registryKey;
         QString subExePath;
     } knowToolchains[] = {
-        {"EWARM", "\\arm\\bin\\iccarm.exe"},
-        {"EWAVR", "\\avr\\bin\\iccavr.exe"},
-        {"EW8051", "\\8051\\bin\\icc8051.exe"},
+        {{"EWARM"}, {"\\arm\\bin\\iccarm.exe"}},
+        {{"EWAVR"}, {"\\avr\\bin\\iccavr.exe"}},
+        {{"EW8051"}, {"\\8051\\bin\\icc8051.exe"}},
     };
 
     QSettings registry(kRegistryNode, QSettings::NativeFormat);
