@@ -57,6 +57,9 @@ def main():
             type(editorWidget, "<Return>")
             type(editorWidget, "<Up>")
             delayedType(editorWidget, "class")
+            if useClang:
+                snooze(4)
+            type(editorWidget, "<Ctrl+Space>")
             listView = waitForObject(":popupFrame_Proposal_QListView")
             shownProposals = dumpItems(listView.model())
             usedProposal = "class derived from QObject"
