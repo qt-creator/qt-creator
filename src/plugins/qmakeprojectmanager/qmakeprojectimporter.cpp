@@ -96,7 +96,7 @@ QStringList QmakeProjectImporter::importCandidates()
     candidates << pfi.absolutePath();
 
     foreach (Kit *k, KitManager::kits()) {
-        QFileInfo fi(QmakeBuildConfiguration::shadowBuildDirectory(projectFilePath().toString(), k,
+        QFileInfo fi(QmakeBuildConfiguration::shadowBuildDirectory(projectFilePath(), k,
                                                                    QString(), BuildConfiguration::Unknown));
         const QString baseDir = fi.absolutePath();
 
@@ -235,7 +235,7 @@ const QList<BuildInfo> QmakeProjectImporter::buildInfoListForKit(const Kit *k, v
 {
     auto *data = static_cast<DirectoryData *>(directoryData);
     auto factory = qobject_cast<QmakeBuildConfigurationFactory *>(
-                BuildConfigurationFactory::find(k, projectFilePath().toString()));
+                BuildConfigurationFactory::find(k, projectFilePath()));
     if (!factory)
         return {};
 

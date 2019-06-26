@@ -349,7 +349,7 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoListForKit(const Kit *k, v
 {
     auto data = static_cast<const DirectoryData *>(directoryData);
     auto factory = qobject_cast<CMakeBuildConfigurationFactory *>(
-                BuildConfigurationFactory::find(k, projectFilePath().toString()));
+                BuildConfigurationFactory::find(k, projectFilePath()));
     if (!factory)
         return {};
 

@@ -52,7 +52,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     Project *project = bc->target()->project();
 
     m_defaultShadowBuildDir
-            = QmakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath().toString(),
+            = QmakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath(),
                                                             bc->target()->kit(),
                                                             Utils::FileUtils::qmakeFriendlyName(bc->displayName()),
                                                             bc->buildType());

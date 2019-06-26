@@ -267,7 +267,7 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
         return FilePath();
 
     const QString projectName = projectFilePath.parentDir().fileName();
-    ProjectMacroExpander expander(projectFilePath.toString(), projectName, k, bcName, buildType);
+    ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
     QDir projectDir = QDir(Project::projectDirectory(projectFilePath).toString());
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     buildPath.replace(" ", "-");
@@ -493,17 +493,17 @@ QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Target *p
     return result;
 }
 
-QList<BuildInfo> CMakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+QList<BuildInfo>
+    CMakeBuildConfigurationFactory::availableSetups(const Kit *k, const FilePath &projectPath) const
 {
     QList<BuildInfo> result;
-    const FilePath projectPathName = FilePath::fromString(projectPath);
     for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
         BuildInfo info = createBuildInfo(k,
-                                         ProjectExplorer::Project::projectDirectory(projectPathName).toString(),
+                                         ProjectExplorer::Project::projectDirectory(projectPath).toString(),
                                          BuildType(type));
         info.displayName = info.typeName;
         info.buildDirectory
-                = CMakeBuildConfiguration::shadowBuildDirectory(projectPathName, k,
+                = CMakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
                                                                 info.displayName, info.buildType);
         result << info;
     }

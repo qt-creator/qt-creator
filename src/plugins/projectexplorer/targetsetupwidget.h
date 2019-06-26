@@ -57,8 +57,7 @@ class TargetSetupWidget : public QWidget
     Q_OBJECT
 
 public:
-    TargetSetupWidget(Kit *k,
-                      const QString &projectPath);
+    TargetSetupWidget(Kit *k, const Utils::FilePath &projectPath);
 
     Kit *kit() const;
     void clearKit();
@@ -69,14 +68,14 @@ public:
     void addBuildInfo(const BuildInfo &info, bool isImport);
 
     const QList<BuildInfo> selectedBuildInfoList() const;
-    void setProjectPath(const QString &projectPath);
+    void setProjectPath(const Utils::FilePath &projectPath);
     void expandWidget();
 
 signals:
     void selectedToggled() const;
 
 private:
-    static const QList<BuildInfo> buildInfoList(const Kit *k, const QString &projectPath);
+    static const QList<BuildInfo> buildInfoList(const Kit *k, const Utils::FilePath &projectPath);
 
     void handleKitUpdate(ProjectExplorer::Kit *k);
 
@@ -90,7 +89,7 @@ private:
     void clear();
 
     Kit *m_kit;
-    QString m_projectPath;
+    Utils::FilePath m_projectPath;
     bool m_haveImported = false;
     Utils::DetailsWidget *m_detailsWidget;
     QPushButton *m_manageButton;

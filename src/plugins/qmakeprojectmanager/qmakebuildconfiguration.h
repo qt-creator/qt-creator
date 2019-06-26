@@ -60,7 +60,7 @@ public:
     void setQMakeBuildConfiguration(QtSupport::BaseQtVersion::QmakeBuildConfigs config);
 
     /// suffix should be unique
-    static QString shadowBuildDirectory(const QString &profilePath, const ProjectExplorer::Kit *k,
+    static QString shadowBuildDirectory(const Utils::FilePath &profilePath, const ProjectExplorer::Kit *k,
                                         const QString &suffix, BuildConfiguration::BuildType type);
 
     /// \internal for qmakestep
@@ -151,9 +151,9 @@ public:
 
     QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Target *parent) const override;
     QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
-                                                      const QString &projectPath) const override;
+                                                      const Utils::FilePath &projectPath) const override;
 private:
-    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k, const QString &projectPath,
+    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k, const Utils::FilePath &projectPath,
                                                ProjectExplorer::BuildConfiguration::BuildType type) const;
 };
 

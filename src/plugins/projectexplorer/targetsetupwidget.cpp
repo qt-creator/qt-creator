@@ -47,6 +47,8 @@
 #include <QLabel>
 #include <QPushButton>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -54,7 +56,7 @@ namespace Internal {
 // TargetSetupWidget
 // -------------------------------------------------------------------------
 
-TargetSetupWidget::TargetSetupWidget(Kit *k, const QString &projectPath) :
+TargetSetupWidget::TargetSetupWidget(Kit *k, const FilePath &projectPath) :
     m_kit(k)
 {
     Q_ASSERT(m_kit);
@@ -208,7 +210,7 @@ void TargetSetupWidget::manageKit()
     }
 }
 
-void TargetSetupWidget::setProjectPath(const QString &projectPath)
+void TargetSetupWidget::setProjectPath(const FilePath &projectPath)
 {
     if (!m_kit)
         return;
@@ -225,7 +227,7 @@ void TargetSetupWidget::expandWidget()
     m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
 }
 
-const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const QString &projectPath)
+const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const FilePath &projectPath)
 {
     if (auto factory = BuildConfigurationFactory::find(k, projectPath))
         return factory->allAvailableSetups(k, projectPath);
@@ -320,7 +322,7 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
     QString buildDir = info.buildDirectory.toString();
     Tasks issues;
     if (info.factory())
-        issues = info.factory()->reportIssues(m_kit, m_projectPath, buildDir);
+        issues = info.factory()->reportIssues(m_kit, m_projectPath.toString(), buildDir);
 
     QString text;
     Task::TaskType highestType = Task::Unknown;

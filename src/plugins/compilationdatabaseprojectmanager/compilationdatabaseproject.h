@@ -106,8 +106,8 @@ public:
 
     QList<ProjectExplorer::BuildInfo> availableBuilds(
         const ProjectExplorer::Target *parent) const override;
-    QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
-                                                      const QString &projectPath) const override;
+    QList<ProjectExplorer::BuildInfo> availableSetups(
+        const ProjectExplorer::Kit *k, const Utils::FilePath &projectPath) const override;
 };
 
 } // namespace Internal

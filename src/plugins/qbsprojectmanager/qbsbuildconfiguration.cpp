@@ -59,13 +59,13 @@ using namespace Utils;
 namespace QbsProjectManager {
 namespace Internal {
 
-static FilePath defaultBuildDirectory(const QString &projectFilePath, const Kit *k,
+static FilePath defaultBuildDirectory(const FilePath &projectFilePath, const Kit *k,
                                       const QString &bcName,
                                       BuildConfiguration::BuildType buildType)
 {
-    const QString projectName = QFileInfo(projectFilePath).completeBaseName();
+    const QString projectName = projectFilePath.toFileInfo().completeBaseName();
     ProjectMacroExpander expander(projectFilePath, projectName, k, bcName, buildType);
-    QString projectDir = Project::projectDirectory(FilePath::fromString(projectFilePath)).toString();
+    QString projectDir = Project::projectDirectory(projectFilePath).toString();
     QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     return FilePath::fromString(FileUtils::resolvePath(projectDir, buildPath));
 }
@@ -102,7 +102,7 @@ void QbsBuildConfiguration::initialize(const BuildInfo &info)
 
     Utils::FilePath buildDir = info.buildDirectory;
     if (buildDir.isEmpty())
-        buildDir = defaultBuildDirectory(target()->project()->projectFilePath().toString(),
+        buildDir = defaultBuildDirectory(target()->project()->projectFilePath(),
                                          target()->kit(), info.displayName, info.buildType);
     setBuildDirectory(buildDir);
 
@@ -387,7 +387,8 @@ QList<BuildInfo> QbsBuildConfigurationFactory::availableBuilds(const Target *par
     return {createBuildInfo(parent->kit(), BuildConfiguration::Debug)};
 }
 
-QList<BuildInfo> QbsBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+QList<BuildInfo>
+    QbsBuildConfigurationFactory::availableSetups(const Kit *k, const FilePath &projectPath) const
 {
     QList<BuildInfo> result;
 

@@ -140,14 +140,15 @@ public:
     const QList<BuildInfo> allAvailableBuilds(const Target *parent) const;
 
     // List of build information that can be used to initially set up a new build configuration.
-    const QList<BuildInfo> allAvailableSetups(const Kit *k, const QString &projectPath) const;
+    const QList<BuildInfo>
+        allAvailableSetups(const Kit *k, const Utils::FilePath &projectPath) const;
 
     BuildConfiguration *create(Target *parent, const BuildInfo &info) const;
 
     static BuildConfiguration *restore(Target *parent, const QVariantMap &map);
     static BuildConfiguration *clone(Target *parent, const BuildConfiguration *source);
 
-    static BuildConfigurationFactory *find(const Kit *k, const QString &projectPath);
+    static BuildConfigurationFactory *find(const Kit *k, const Utils::FilePath &projectPath);
     static BuildConfigurationFactory *find(Target *parent);
 
     using IssueReporter = std::function<Tasks(Kit *, const QString &, const QString &)>;
@@ -157,7 +158,8 @@ public:
 
 protected:
     virtual QList<BuildInfo> availableBuilds(const Target *parent) const = 0;
-    virtual QList<BuildInfo> availableSetups(const Kit *k, const QString &projectPath) const = 0;
+    virtual QList<BuildInfo>
+        availableSetups(const Kit *k, const Utils::FilePath &projectPath) const = 0;
 
     bool supportsTargetDeviceType(Core::Id id) const;
     void setSupportedProjectType(Core::Id id);

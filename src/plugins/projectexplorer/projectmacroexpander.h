@@ -37,8 +37,11 @@ class Kit;
 class PROJECTEXPLORER_EXPORT ProjectMacroExpander : public Utils::MacroExpander
 {
 public:
-    ProjectMacroExpander(const QString &mainFilePath, const QString &projectName, const Kit *kit,
-                         const QString &bcName, BuildConfiguration::BuildType buildType);
+    ProjectMacroExpander(const Utils::FilePath &mainFilePath,
+                         const QString &projectName,
+                         const Kit *kit,
+                         const QString &bcName,
+                         BuildConfiguration::BuildType buildType);
 };
 
 } // namespace ProjectExplorer

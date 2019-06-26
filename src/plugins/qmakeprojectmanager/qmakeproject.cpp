@@ -949,8 +949,8 @@ void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
                     && !Utils::contains(version->targetDeviceTypes(), [platforms](Core::Id i) { return platforms.contains(i); })))
             continue;
 
-        if (auto factory = BuildConfigurationFactory::find(k, projectFilePath().toString()))
-            infoList << factory->allAvailableSetups(k, projectFilePath().toString());
+        if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))
+            infoList << factory->allAvailableSetups(k, projectFilePath());
     }
     setup(infoList);
 }

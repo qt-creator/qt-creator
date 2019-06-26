@@ -68,7 +68,7 @@ public:
     // Call these before initializePage!
     void setRequiredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
     void setPreferredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
-    void setProjectPath(const QString &dir);
+    void setProjectPath(const Utils::FilePath &dir);
     void setProjectImporter(ProjectImporter *importer);
     bool importLineEditHasFocus() const;
 
@@ -120,7 +120,7 @@ private:
     ProjectExplorer::Kit::Predicate m_preferredPredicate;
     QPointer<ProjectImporter> m_importer;
     QLayout *m_baseLayout = nullptr;
-    QString m_projectPath;
+    Utils::FilePath m_projectPath;
     QString m_defaultShadowBuildLocation;
     std::vector<Internal::TargetSetupWidget *> m_widgets;
     Internal::TargetSetupWidget *m_firstWidget = nullptr;

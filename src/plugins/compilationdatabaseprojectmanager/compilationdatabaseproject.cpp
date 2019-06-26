@@ -547,8 +547,7 @@ QList<ProjectExplorer::BuildInfo> CompilationDatabaseBuildConfigurationFactory::
     return defaultBuildInfos(this, tr("Release"));
 }
 
-QList<ProjectExplorer::BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableSetups(
-    const ProjectExplorer::Kit * /*k*/, const QString & /*projectPath*/) const
+QList<ProjectExplorer::BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableSetups(const ProjectExplorer::Kit * /*k*/, const Utils::FilePath & /*projectPath*/) const
 {
     return defaultBuildInfos(this, tr("Release"));
 }

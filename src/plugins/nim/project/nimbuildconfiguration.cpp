@@ -52,13 +52,14 @@ using namespace Utils;
 namespace Nim {
 
 static FilePath defaultBuildDirectory(const Kit *k,
-                                      const QString &projectFilePath,
+                                      const FilePath &projectFilePath,
                                       const QString &bc,
                                       BuildConfiguration::BuildType buildType)
 {
-    QFileInfo projectFileInfo(projectFilePath);
+    QFileInfo projectFileInfo = projectFilePath.toFileInfo();
 
-    ProjectMacroExpander expander(projectFilePath, projectFileInfo.baseName(), k, bc, buildType);
+    ProjectMacroExpander expander(projectFilePath,
+                                  projectFileInfo.baseName(), k, bc, buildType);
     QString buildDirectory = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
 
     if (FileUtils::isAbsolutePath(buildDirectory))
@@ -85,7 +86,7 @@ void NimBuildConfiguration::initialize(const BuildInfo &info)
 
     // Create the build configuration and initialize it from build info
     setBuildDirectory(defaultBuildDirectory(target()->kit(),
-                                            project->projectFilePath().toString(),
+                                            project->projectFilePath(),
                                             info.displayName,
                                             info.buildType));
 
@@ -162,7 +163,7 @@ QList<BuildInfo> NimBuildConfigurationFactory::availableBuilds(const Target *par
     return result;
 }
 
-QList<BuildInfo> NimBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+QList<BuildInfo> NimBuildConfigurationFactory::availableSetups(const Kit *k, const FilePath &projectPath) const
 {
     QList<BuildInfo> result;
     for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release}) {

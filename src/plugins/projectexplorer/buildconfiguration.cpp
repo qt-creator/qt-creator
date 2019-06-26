@@ -52,6 +52,8 @@
 #include <QDebug>
 #include <QFormLayout>
 
+using namespace Utils;
+
 static const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
 static const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 static const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.ClearSystemEnvironment";
@@ -417,7 +419,8 @@ const QList<BuildInfo> BuildConfigurationFactory::allAvailableBuilds(const Targe
     return availableBuilds(parent);
 }
 
-const QList<BuildInfo> BuildConfigurationFactory::allAvailableSetups(const Kit *k, const QString &projectPath) const
+const QList<BuildInfo>
+    BuildConfigurationFactory::allAvailableSetups(const Kit *k, const FilePath &projectPath) const
 {
     return availableSetups(k, projectPath);
 }
@@ -430,12 +433,13 @@ bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const
 }
 
 // setup
-BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const QString &projectPath)
+BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const FilePath &projectPath)
 {
     QTC_ASSERT(k, return nullptr);
     const Core::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
     for (BuildConfigurationFactory *factory : g_buildConfigurationFactories) {
-        if (Utils::mimeTypeForFile(projectPath).matchesName(factory->m_supportedProjectMimeTypeName)
+        if (Utils::mimeTypeForFile(projectPath.toString())
+                .matchesName(factory->m_supportedProjectMimeTypeName)
                 && factory->supportsTargetDeviceType(deviceType))
             return factory;
     }

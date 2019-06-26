@@ -87,13 +87,12 @@ QbsProjectImporter::QbsProjectImporter(const FilePath &path) : QtProjectImporter
 {
 }
 
-static QString buildDir(const QString &projectFilePath, const Kit *k)
+static QString buildDir(const FilePath &projectFilePath, const Kit *k)
 {
-    const QString projectName = QFileInfo(projectFilePath).completeBaseName();
+    const QString projectName = projectFilePath.toFileInfo().completeBaseName();
     ProjectMacroExpander expander(projectFilePath, projectName, k, QString(),
                                   BuildConfiguration::Unknown);
-    const QString projectDir
-            = Project::projectDirectory(FilePath::fromString(projectFilePath)).toString();
+    const QString projectDir = Project::projectDirectory(projectFilePath).toString();
     const QString buildPath = expander.expand(ProjectExplorerPlugin::buildDirectoryTemplate());
     return FileUtils::resolvePath(projectDir, buildPath);
 }
@@ -125,7 +124,7 @@ QStringList QbsProjectImporter::importCandidates()
     seenCandidates.insert(projectDir);
     const auto &kits = KitManager::kits();
     for (Kit * const k : kits) {
-        QFileInfo fi(buildDir(projectFilePath().toString(), k));
+        QFileInfo fi(buildDir(projectFilePath(), k));
         const QString candidate = fi.absolutePath();
         if (!seenCandidates.contains(candidate)) {
             seenCandidates.insert(candidate);
@@ -224,7 +223,7 @@ const QList<BuildInfo> QbsProjectImporter::buildInfoListForKit(const Kit *k, voi
 {
     qCDebug(qbsPmLog) << "creating build info for kit" << k->displayName();
     const auto factory = qobject_cast<QbsBuildConfigurationFactory *>(
-                BuildConfigurationFactory::find(k, projectFilePath().toString()));
+                BuildConfigurationFactory::find(k, projectFilePath()));
     if (!factory) {
         qCDebug(qbsPmLog) << "no build config factory found";
         return {};

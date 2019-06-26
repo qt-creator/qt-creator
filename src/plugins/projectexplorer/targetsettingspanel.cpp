@@ -198,7 +198,7 @@ void TargetSetupPageWrapper::addTargetSetupPage()
 {
     m_targetSetupPage = new TargetSetupPage(this);
     m_targetSetupPage->setUseScrollArea(false);
-    m_targetSetupPage->setProjectPath(m_project->projectFilePath().toString());
+    m_targetSetupPage->setProjectPath(m_project->projectFilePath());
     m_targetSetupPage->setRequiredKitPredicate(m_project->requiredKitPredicate());
     m_targetSetupPage->setPreferredKitPredicate(m_project->preferredKitPredicate());
     m_targetSetupPage->setProjectImporter(m_project->projectImporter());

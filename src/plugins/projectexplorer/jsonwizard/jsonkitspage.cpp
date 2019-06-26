@@ -65,7 +65,7 @@ void JsonKitsPage::initializePage()
     setPreferredKitPredicate([platform, preferred](const Kit *k) {
         return k->supportedPlatforms().contains(platform) && k->hasFeatures(preferred);
     });
-    setProjectPath(wiz->expander()->expand(unexpandedProjectPath()));
+    setProjectPath(wiz->expander()->expand(Utils::FilePath::fromString(unexpandedProjectPath())));
 
     TargetSetupPage::initializePage();
 }

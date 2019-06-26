@@ -52,6 +52,8 @@
 #include <QVBoxLayout>
 #include <QCheckBox>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 static QList<IPotentialKit *> g_potentialKits;
@@ -67,10 +69,10 @@ IPotentialKit::~IPotentialKit()
 }
 
 namespace Internal {
-static Utils::FilePath importDirectory(const QString &projectPath)
+static FilePath importDirectory(const FilePath &projectPath)
 {
     // Setup import widget:
-    auto path = Utils::FilePath::fromString(projectPath);
+    auto path = projectPath;
     path = path.parentDir(); // base dir
     path = path.parentDir(); // parent dir
 
@@ -298,11 +300,11 @@ TargetSetupWidget *TargetSetupPage::widget(const Core::Id kitId,
     });
 }
 
-void TargetSetupPage::setProjectPath(const QString &path)
+void TargetSetupPage::setProjectPath(const FilePath &path)
 {
     m_projectPath = path;
     if (!m_projectPath.isEmpty()) {
-        QFileInfo fileInfo(QDir::cleanPath(path));
+        QFileInfo fileInfo(QDir::cleanPath(path.toString()));
         QStringList subDirsList = fileInfo.absolutePath().split('/');
         m_ui->headerLabel->setText(tr("The following kits can be used for project <b>%1</b>:",
                                       "%1: Project name").arg(subDirsList.last()));

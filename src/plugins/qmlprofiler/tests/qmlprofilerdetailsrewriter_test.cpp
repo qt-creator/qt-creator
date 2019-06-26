@@ -38,6 +38,9 @@
 #include <QLibraryInfo>
 #include <QTest>
 
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace QmlProfiler {
 namespace Internal {
 
@@ -74,7 +77,7 @@ public:
     }
 
     QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *,
-                                                      const QString &) const final
+                                                      const FilePath &) const final
     {
         return {};
     }
