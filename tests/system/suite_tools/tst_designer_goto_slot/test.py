@@ -50,14 +50,8 @@ def main():
             waitFor("macHackActivateContextMenuItem('Go to slot...', con[0])", 6000)
         else:
             activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Go to slot..."))
-        try:
-            # Creator built with Qt <= 5.9
-            signalWidgetObject = waitForObject(":Select signal.signalList_QTreeWidget", 5000)
-            signalName = con[2]
-        except:
-            # Creator built with Qt >= 5.10
-            signalWidgetObject = waitForObject(":Select signal.signalList_QTreeView")
-            signalName = con[1] + "." + con[2]
+        signalWidgetObject = waitForObject(":Select signal.signalList_QTreeView")
+        signalName = con[1] + "." + con[2]
         waitForObjectItem(signalWidgetObject, signalName)
         clickItem(signalWidgetObject, signalName, 5, 5, 0, Qt.LeftButton)
         clickButton(waitForObject(":Go to slot.OK_QPushButton"))
