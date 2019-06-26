@@ -6,11 +6,6 @@ include(../../shared/clang/clang_defines.pri)
 
 requires(!isEmpty(CLANGFORMAT_LIBS))
 
-win32 {
-    LLVM_BUILDMODE = $$system($$llvm_config --build-mode, lines)
-    CONFIG(debug, debug|release):requires(equals(LLVM_BUILDMODE, "Debug"))
-}
-
 LIBS += $$CLANGFORMAT_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
