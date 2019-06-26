@@ -37,6 +37,7 @@ namespace Internal {
 
 class FilterKitAspectsDialog : public QDialog
 {
+    Q_OBJECT
 public:
     FilterKitAspectsDialog(const Kit *kit, QWidget *parent);
     QSet<Core::Id> irrelevantAspects() const;

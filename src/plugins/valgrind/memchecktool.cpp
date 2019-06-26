@@ -630,7 +630,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
         });
 
         action = new QAction(this);
-        action->setText(tr("Valgrind Memory Analyzer with GDB"));
+        action->setText(MemcheckTool::tr("Valgrind Memory Analyzer with GDB"));
         action->setToolTip(MemcheckTool::tr("Valgrind Analyze Memory with GDB uses the "
             "Memcheck tool to find memory leaks.\nWhen a problem is detected, "
             "the application is interrupted and can be debugged."));
@@ -650,7 +650,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     } else {
         action = new QAction(MemcheckTool::tr("Heob"), this);
         Core::Command *cmd = Core::ActionManager::registerAction(action, "Memcheck.Local");
-        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+H")));
+        cmd->setDefaultKeySequence(QKeySequence(MemcheckTool::tr("Ctrl+Alt+H")));
         connect(action, &QAction::triggered, this, &MemcheckToolPrivate::heobAction);
         menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
         connect(m_startAction, &QAction::changed, action, [action, this] {
@@ -659,7 +659,7 @@ MemcheckToolPrivate::MemcheckToolPrivate()
     }
 
     action = new QAction(this);
-    action->setText(tr("Valgrind Memory Analyzer (External Application)"));
+    action->setText(MemcheckTool::tr("Valgrind Memory Analyzer (External Application)"));
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
@@ -724,7 +724,7 @@ void MemcheckToolPrivate::heobAction()
         }
     }
     if (!hasLocalRc) {
-        const QString msg = tr("Heob: No local run configuration available.");
+        const QString msg = MemcheckTool::tr("Heob: No local run configuration available.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -733,7 +733,7 @@ void MemcheckToolPrivate::heobAction()
             || abi.os() != Abi::WindowsOS
             || abi.binaryFormat() != Abi::PEFormat
             || (abi.wordWidth() != 32 && abi.wordWidth() != 64)) {
-        const QString msg = tr("Heob: No toolchain available.");
+        const QString msg = MemcheckTool::tr("Heob: No toolchain available.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -746,7 +746,7 @@ void MemcheckToolPrivate::heobAction()
 
     // target executable
     if (executable.isEmpty()) {
-        const QString msg = tr("Heob: No executable set.");
+        const QString msg = MemcheckTool::tr("Heob: No executable set.");
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -754,7 +754,7 @@ void MemcheckToolPrivate::heobAction()
     if (!QFile::exists(executable))
         executable = Utils::HostOsInfo::withExecutableSuffix(executable);
     if (!QFile::exists(executable)) {
-        const QString msg = tr("Heob: Cannot find %1.").arg(executable);
+        const QString msg = MemcheckTool::tr("Heob: Cannot find %1.").arg(executable);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;
@@ -775,9 +775,11 @@ void MemcheckToolPrivate::heobAction()
     const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
     const QString heobPath = dialog.path() + '/' + heob;
     if (!QFile::exists(heobPath)) {
-        QMessageBox::critical(Core::ICore::mainWindow(), tr("Heob"),
-                              tr("The %1 executables must be in the appropriate location.")
-                                  .arg("<a href=\"https://github.com/ssbssa/heob/releases\">Heob</a>"));
+        QMessageBox::critical(
+            Core::ICore::mainWindow(),
+            MemcheckTool::tr("Heob"),
+            MemcheckTool::tr("The %1 executables must be in the appropriate location.")
+                .arg("<a href=\"https://github.com/ssbssa/heob/releases\">Heob</a>"));
         return;
     }
 
@@ -786,13 +788,19 @@ void MemcheckToolPrivate::heobAction()
         const QString dwarfstack = QString("dwarfstack%1.dll").arg(abi.wordWidth());
         const QString dwarfstackPath = dialog.path() + '/' + dwarfstack;
         if (!QFile::exists(dwarfstackPath)
-                && CheckableMessageBox::doNotShowAgainInformation(
-                    Core::ICore::mainWindow(), tr("Heob"),
-                    tr("Heob used with MinGW projects needs the %1 DLLs for proper stacktrace resolution.")
-                        .arg("<a href=\"https://github.com/ssbssa/dwarfstack/releases\">Dwarfstack</a>"),
-                    ICore::settings(), "HeobDwarfstackInfo",
-                    QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                    QDialogButtonBox::Ok) != QDialogButtonBox::Ok)
+            && CheckableMessageBox::doNotShowAgainInformation(
+                   Core::ICore::mainWindow(),
+                   MemcheckTool::tr("Heob"),
+                   MemcheckTool::tr("Heob used with MinGW projects needs the %1 DLLs for proper "
+                                    "stacktrace resolution.")
+                       .arg(
+                           "<a "
+                           "href=\"https://github.com/ssbssa/dwarfstack/releases\">Dwarfstack</a>"),
+                   ICore::settings(),
+                   "HeobDwarfstackInfo",
+                   QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                   QDialogButtonBox::Ok)
+                   != QDialogButtonBox::Ok)
             return;
     }
 
@@ -837,7 +845,9 @@ void MemcheckToolPrivate::heobAction()
                        CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED | CREATE_NEW_CONSOLE, envPtr,
                        reinterpret_cast<LPCWSTR>(workingDirectory.utf16()), &si, &pi)) {
         DWORD e = GetLastError();
-        const QString msg = tr("Heob: Cannot create %1 process (%2).").arg(heob).arg(qt_error_string(e));
+        const QString msg = MemcheckTool::tr("Heob: Cannot create %1 process (%2).")
+                                .arg(heob)
+                                .arg(qt_error_string(e));
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
         return;

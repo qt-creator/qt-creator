@@ -92,7 +92,7 @@ class FilterKitAspectsModel : public TreeModel<TreeItem, FilterTreeItem>
 public:
     FilterKitAspectsModel(const Kit *kit, QObject *parent) : TreeModel(parent)
     {
-        setHeader({tr("Setting"), tr("Visible")});
+        setHeader({FilterKitAspectsDialog::tr("Setting"), FilterKitAspectsDialog::tr("Visible")});
         for (const KitAspect * const aspect : KitManager::kitAspects()) {
             if (kit && !aspect->isApplicableToKit(kit))
                 continue;
