@@ -789,16 +789,9 @@ void MimeXMLProvider::ensureLoaded()
                                                          QStandardPaths::LocateFile);
 
         if (allFiles.isEmpty()) {
-            // System freedesktop.org.xml file not found, try to use the one in QtCore.
-            // This is private API and has changed in the past:
-            // - Qt 5.11 added "package" subdir in 7a5644d6481a3c1a7416772998ca4e60c977bfbd
-            // - Qt 5.13 added an option to not bundle it at all
-            const QString fdoXml5_11 = QStringLiteral(":/qt-project.org/qmime/packages/freedesktop.org.xml");
-            if (QFile::exists(fdoXml5_11))
-                allFiles << fdoXml5_11;
-            else
-                qFatal("Utils::MimeXMLProvider: could not find the system freedesktop.org.xml file "
-                       "and QtCore does not have an accessible copy.");
+            // System freedsktop.org.xml file not found, use our bundled copy
+            const char freedesktopOrgXml[] = ":/utils/mimetypes/freedesktop.org.xml";
+            allFiles.prepend(QLatin1String(freedesktopOrgXml));
         }
 
         m_nameMimeTypeMap.clear();
