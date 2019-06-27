@@ -142,15 +142,12 @@ void BaseHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, Re
 
 void BaseHoverHandler::decorateToolTip()
 {
-    if (Qt::mightBeRichText(toolTip()))
-        setToolTip(toolTip().toHtmlEscaped());
+    m_toolTip = m_toolTip.toHtmlEscaped();
 
     if (lastHelpItemIdentified().isValid() && !lastHelpItemIdentified().isFuzzyMatch()) {
         const QString &helpContents = lastHelpItemIdentified().extractContent(false);
-        if (!helpContents.isEmpty()) {
-            m_toolTip = toolTip().toHtmlEscaped();
+        if (!helpContents.isEmpty())
             m_toolTip = m_toolTip.isEmpty() ? helpContents : ("<p>" + m_toolTip + "</p><hr/><p>" + helpContents + "</p>");
-        }
     }
 }
 
