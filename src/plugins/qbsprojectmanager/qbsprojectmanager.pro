@@ -64,7 +64,6 @@ SOURCES = \
 
 FORMS = \
     customqbspropertiesdialog.ui \
-    qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
     qbsprofilessettingswidget.ui
 

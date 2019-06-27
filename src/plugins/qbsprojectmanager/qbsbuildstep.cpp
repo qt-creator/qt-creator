@@ -31,8 +31,6 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagersettings.h"
 
-#include "ui_qbsbuildstepconfigwidget.h"
-
 #include <coreplugin/icore.h>
 #include <coreplugin/variablechooser.h>
 #include <projectexplorer/buildsteplist.h>
@@ -41,23 +39,35 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/macroexpander.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
-#include <qbs.h>
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QPlainTextEdit>
+#include <QSpinBox>
 
-static const char QBS_CONFIG[] = "Qbs.Configuration";
-static const char QBS_DRY_RUN[] = "Qbs.DryRun";
-static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
-static const char QBS_MAXJOBCOUNT[] = "Qbs.MaxJobs";
-static const char QBS_SHOWCOMMANDLINES[] = "Qbs.ShowCommandLines";
-static const char QBS_INSTALL[] = "Qbs.Install";
-static const char QBS_CLEAN_INSTALL_ROOT[] = "Qbs.CleanInstallRoot";
+#include <qbs.h>
 
 // --------------------------------------------------------------------
 // Constants:
 // --------------------------------------------------------------------
+
+const char QBS_CONFIG[] = "Qbs.Configuration";
+const char QBS_DRY_RUN[] = "Qbs.DryRun";
+const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
+const char QBS_MAXJOBCOUNT[] = "Qbs.MaxJobs";
+const char QBS_SHOWCOMMANDLINES[] = "Qbs.ShowCommandLines";
+const char QBS_INSTALL[] = "Qbs.Install";
+const char QBS_CLEAN_INSTALL_ROOT[] = "Qbs.CleanInstallRoot";
+
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -67,7 +77,6 @@ class QbsBuildStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     QbsBuildStepConfigWidget(QbsBuildStep *step);
-    ~QbsBuildStepConfigWidget() override;
 
 private:
     void updateState();
@@ -92,8 +101,6 @@ private:
 
     bool validateProperties(Utils::FancyLineEdit *edit, QString *errorMessage);
 
-    Ui::QbsBuildStepConfigWidget *m_ui;
-
     class Property
     {
     public:
@@ -114,7 +121,22 @@ private:
     };
 
     QList<Property> m_propertyCache;
-    bool m_ignoreChange;
+    bool m_ignoreChange = false;
+
+    QComboBox *buildVariantComboBox;
+    QSpinBox *jobSpinBox;
+    QCheckBox *qmlDebuggingLibraryCheckBox;
+    FancyLineEdit *propertyEdit;
+    PathChooser *installDirChooser;
+    QLabel *qmlDebuggingWarningIcon;
+    QLabel *qmlDebuggingWarningText;
+    QCheckBox *keepGoingCheckBox;
+    QCheckBox *showCommandLinesCheckBox;
+    QCheckBox *forceProbesCheckBox;
+    QCheckBox *installCheckBox;
+    QCheckBox *cleanInstallRootCheckBox;
+    QCheckBox *defaultInstallDirCheckBox;
+    QPlainTextEdit *commandLineTextEdit;
 };
 
 // --------------------------------------------------------------------
@@ -526,7 +548,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     BuildStepConfigWidget(step),
     m_ignoreChange(false)
 {
-    connect(step, &ProjectExplorer::ProjectConfiguration::displayNameChanged,
+    connect(step, &ProjectConfiguration::displayNameChanged,
             this, &QbsBuildStepConfigWidget::updateState);
     connect(step, &QbsBuildStep::qbsConfigurationChanged,
             this, &QbsBuildStepConfigWidget::updateState);
@@ -542,68 +564,153 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 
     setContentsMargins(0, 0, 0, 0);
 
-    m_ui = new Ui::QbsBuildStepConfigWidget;
-    m_ui->setupUi(this);
-    m_ui->installDirChooser->setExpectedKind(Utils::PathChooser::Directory);
+    buildVariantComboBox = new QComboBox(this);
+    buildVariantComboBox->addItem(tr("Debug"));
+    buildVariantComboBox->addItem(tr("Release"));
+
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setHeightForWidth(buildVariantComboBox->sizePolicy().hasHeightForWidth());
+    buildVariantComboBox->setSizePolicy(sizePolicy);
+
+    auto horizontalLayout_5 = new QHBoxLayout();
+    horizontalLayout_5->addWidget(buildVariantComboBox);
+    horizontalLayout_5->addItem(new QSpacerItem(70, 13, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    jobSpinBox = new QSpinBox(this);
+
+    auto horizontalLayout_6 = new QHBoxLayout();
+    horizontalLayout_6->addWidget(jobSpinBox);
+    horizontalLayout_6->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    qmlDebuggingLibraryCheckBox = new QCheckBox(this);
+    qmlDebuggingWarningIcon = new QLabel(this);
+    qmlDebuggingWarningText = new QLabel(this);
+
+    auto qmlDebuggingLayout = new QHBoxLayout();
+    qmlDebuggingLayout->addWidget(qmlDebuggingLibraryCheckBox);
+    qmlDebuggingLayout->addWidget(qmlDebuggingWarningIcon);
+    qmlDebuggingLayout->addWidget(qmlDebuggingWarningText);
+    qmlDebuggingLayout->addItem(new QSpacerItem(40, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    propertyEdit = new FancyLineEdit(this);
+
+    keepGoingCheckBox = new QCheckBox(this);
+
+    showCommandLinesCheckBox = new QCheckBox(this);
+
+    forceProbesCheckBox = new QCheckBox(this);
+
+    auto flagsLayout = new QHBoxLayout();
+    flagsLayout->addWidget(keepGoingCheckBox);
+    flagsLayout->addWidget(showCommandLinesCheckBox);
+    flagsLayout->addWidget(forceProbesCheckBox);
+    flagsLayout->addItem(new QSpacerItem(40, 13, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    installCheckBox = new QCheckBox(this);
+
+    cleanInstallRootCheckBox = new QCheckBox(this);
+
+    defaultInstallDirCheckBox = new QCheckBox(this);
+
+    auto installLayout = new QHBoxLayout();
+    installLayout->addWidget(installCheckBox);
+    installLayout->addWidget(cleanInstallRootCheckBox);
+    installLayout->addWidget(defaultInstallDirCheckBox);
+    installLayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    installDirChooser = new PathChooser(this);
+    installDirChooser->setExpectedKind(PathChooser::Directory);
+
+    commandLineTextEdit = new QPlainTextEdit(this);
+    commandLineTextEdit->setUndoRedoEnabled(false);
+    commandLineTextEdit->setReadOnly(true);
+    commandLineTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+
+    auto formLayout = new QFormLayout(this);
+    formLayout->addRow(tr("Build variant:"), horizontalLayout_5);
+    formLayout->addRow(tr("Parallel jobs:"), horizontalLayout_6);
+    formLayout->addRow(tr("Enable QML debugging:"), qmlDebuggingLayout);
+    formLayout->addRow(tr("Properties:"), propertyEdit);
+    formLayout->addRow(tr("Flags:"), flagsLayout);
+    formLayout->addRow(tr("Installation flags:"), installLayout);
+    formLayout->addRow(tr("Installation directory:"), installDirChooser);
+    formLayout->addRow(tr("Equivalent command line:"), commandLineTextEdit);
+
+    QWidget::setTabOrder(buildVariantComboBox, jobSpinBox);
+    QWidget::setTabOrder(jobSpinBox, qmlDebuggingLibraryCheckBox);
+    QWidget::setTabOrder(qmlDebuggingLibraryCheckBox, propertyEdit);
+    QWidget::setTabOrder(propertyEdit, keepGoingCheckBox);
+    QWidget::setTabOrder(keepGoingCheckBox, showCommandLinesCheckBox);
+    QWidget::setTabOrder(showCommandLinesCheckBox, forceProbesCheckBox);
+    QWidget::setTabOrder(forceProbesCheckBox, installCheckBox);
+    QWidget::setTabOrder(installCheckBox, cleanInstallRootCheckBox);
+    QWidget::setTabOrder(cleanInstallRootCheckBox, commandLineTextEdit);
+
+    jobSpinBox->setToolTip(tr("Number of concurrent build jobs."));
+    propertyEdit->setToolTip(tr("Properties to pass to the project."));
+    keepGoingCheckBox->setToolTip(tr("Keep going when errors occur (if at all possible)."));
+    keepGoingCheckBox->setText(tr("Keep going"));
+    showCommandLinesCheckBox->setText(tr("Show command lines"));
+    forceProbesCheckBox->setText(tr("Force probes"));
+    installCheckBox->setText(tr("Install"));
+    cleanInstallRootCheckBox->setText(tr("Clean install root"));
+    defaultInstallDirCheckBox->setText(tr("Use default location"));
 
     auto chooser = new Core::VariableChooser(this);
-    chooser->addSupportedWidget(m_ui->propertyEdit);
-    chooser->addSupportedWidget(m_ui->installDirChooser->lineEdit());
-    m_ui->propertyEdit->setValidationFunction([this](Utils::FancyLineEdit *edit,
-                                                     QString *errorMessage) {
+    chooser->addSupportedWidget(propertyEdit);
+    chooser->addSupportedWidget(installDirChooser->lineEdit());
+    propertyEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
         return validateProperties(edit, errorMessage);
     });
-    m_ui->qmlDebuggingWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
 
-    connect(m_ui->buildVariantComboBox,
+    qmlDebuggingWarningIcon->setPixmap(Utils::Icons::WARNING.pixmap());
+
+    connect(buildVariantComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &QbsBuildStepConfigWidget::changeBuildVariant);
-    connect(m_ui->keepGoingCheckBox, &QAbstractButton::toggled,
+    connect(keepGoingCheckBox, &QAbstractButton::toggled,
             this, &QbsBuildStepConfigWidget::changeKeepGoing);
-    connect(m_ui->jobSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+    connect(jobSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &QbsBuildStepConfigWidget::changeJobCount);
-    connect(m_ui->showCommandLinesCheckBox, &QCheckBox::toggled, this,
+    connect(showCommandLinesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeShowCommandLines);
-    connect(m_ui->installCheckBox, &QCheckBox::toggled, this,
+    connect(installCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeInstall);
-    connect(m_ui->cleanInstallRootCheckBox, &QCheckBox::toggled, this,
+    connect(cleanInstallRootCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeCleanInstallRoot);
-    connect(m_ui->defaultInstallDirCheckBox, &QCheckBox::toggled, this,
+    connect(defaultInstallDirCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeUseDefaultInstallDir);
-    connect(m_ui->installDirChooser, &Utils::PathChooser::rawPathChanged, this,
+    connect(installDirChooser, &Utils::PathChooser::rawPathChanged, this,
             &QbsBuildStepConfigWidget::changeInstallDir);
-    connect(m_ui->forceProbesCheckBox, &QCheckBox::toggled, this,
+    connect(forceProbesCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeForceProbes);
-    connect(m_ui->qmlDebuggingLibraryCheckBox, &QAbstractButton::toggled,
+    connect(qmlDebuggingLibraryCheckBox, &QAbstractButton::toggled,
             this, &QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked);
     updateState();
-}
-
-QbsBuildStepConfigWidget::~QbsBuildStepConfigWidget()
-{
-    delete m_ui;
 }
 
 void QbsBuildStepConfigWidget::updateState()
 {
     if (!m_ignoreChange) {
-        m_ui->keepGoingCheckBox->setChecked(qbsStep()->keepGoing());
-        m_ui->jobSpinBox->setValue(qbsStep()->maxJobs());
-        m_ui->showCommandLinesCheckBox->setChecked(qbsStep()->showCommandLines());
-        m_ui->installCheckBox->setChecked(qbsStep()->install());
-        m_ui->cleanInstallRootCheckBox->setChecked(qbsStep()->cleanInstallRoot());
-        m_ui->forceProbesCheckBox->setChecked(qbsStep()->forceProbes());
+        keepGoingCheckBox->setChecked(qbsStep()->keepGoing());
+        jobSpinBox->setValue(qbsStep()->maxJobs());
+        showCommandLinesCheckBox->setChecked(qbsStep()->showCommandLines());
+        installCheckBox->setChecked(qbsStep()->install());
+        cleanInstallRootCheckBox->setChecked(qbsStep()->cleanInstallRoot());
+        forceProbesCheckBox->setChecked(qbsStep()->forceProbes());
         updatePropertyEdit(qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables));
-        m_ui->qmlDebuggingLibraryCheckBox->setChecked(qbsStep()->isQmlDebuggingEnabled());
-        m_ui->installDirChooser->setFileName(qbsStep()->installRoot(QbsBuildStep::PreserveVariables));
-        m_ui->defaultInstallDirCheckBox->setChecked(!qbsStep()->hasCustomInstallRoot());
+        qmlDebuggingLibraryCheckBox->setChecked(qbsStep()->isQmlDebuggingEnabled());
+        installDirChooser->setFileName(qbsStep()->installRoot(QbsBuildStep::PreserveVariables));
+        defaultInstallDirCheckBox->setChecked(!qbsStep()->hasCustomInstallRoot());
     }
 
     updateQmlDebuggingOption();
 
     const QString buildVariant = qbsStep()->buildVariant();
     const int idx = (buildVariant == Constants::QBS_VARIANT_DEBUG) ? 0 : 1;
-    m_ui->buildVariantComboBox->setCurrentIndex(idx);
+    buildVariantComboBox->setCurrentIndex(idx);
     QString command = static_cast<QbsBuildConfiguration *>(step()->buildConfiguration())
             ->equivalentCommandLine(qbsStep());
 
@@ -613,7 +720,7 @@ void QbsBuildStepConfigWidget::updateState()
 
     if (qbsStep()->isQmlDebuggingEnabled())
         command.append(' ').append(Constants::QBS_CONFIG_QUICK_DEBUG_KEY).append(":true");
-    m_ui->commandLineTextEdit->setPlainText(command);
+    commandLineTextEdit->setPlainText(command);
 
     setSummaryText(tr("<b>Qbs:</b> %1").arg(command));
 }
@@ -623,15 +730,14 @@ void QbsBuildStepConfigWidget::updateQmlDebuggingOption()
     QString warningText;
     bool supported = QtSupport::BaseQtVersion::isQmlDebuggingSupported(step()->target()->kit(),
                                                                        &warningText);
-    m_ui->qmlDebuggingLibraryCheckBox->setEnabled(supported);
+    qmlDebuggingLibraryCheckBox->setEnabled(supported);
 
     if (supported && qbsStep()->isQmlDebuggingEnabled())
         warningText = tr("Might make your application vulnerable. Only use in a safe environment.");
 
-    m_ui->qmlDebuggingWarningText->setText(warningText);
-    m_ui->qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
+    qmlDebuggingWarningText->setText(warningText);
+    qmlDebuggingWarningIcon->setVisible(!warningText.isEmpty());
 }
-
 
 void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
 {
@@ -649,7 +755,7 @@ void QbsBuildStepConfigWidget::updatePropertyEdit(const QVariantMap &data)
     for (QVariantMap::const_iterator i = editable.constBegin(); i != editable.constEnd(); ++i)
         propertyList.append(i.key() + ':' + i.value().toString());
 
-    m_ui->propertyEdit->setText(Utils::QtcProcess::joinArgs(propertyList));
+    propertyEdit->setText(QtcProcess::joinArgs(propertyList));
 }
 
 void QbsBuildStepConfigWidget::changeBuildVariant(int idx)
@@ -703,11 +809,11 @@ void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
 {
     m_ignoreChange = true;
     QVariantMap config = qbsStep()->qbsConfiguration(QbsBuildStep::PreserveVariables);
-    m_ui->installDirChooser->setEnabled(!useDefault);
+    installDirChooser->setEnabled(!useDefault);
     if (useDefault)
         config.remove(Constants::QBS_INSTALL_ROOT_KEY);
     else
-        config.insert(Constants::QBS_INSTALL_ROOT_KEY, m_ui->installDirChooser->rawPath());
+        config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->rawPath());
     qbsStep()->setQbsConfiguration(config);
     m_ignoreChange = false;
 }
