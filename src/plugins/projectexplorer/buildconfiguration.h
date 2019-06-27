@@ -158,9 +158,7 @@ public:
 
 protected:
     virtual QList<BuildInfo>
-        availableBuilds(const Kit *k, const Utils::FilePath &projectPath) const = 0;
-    virtual QList<BuildInfo>
-        availableSetups(const Kit *k, const Utils::FilePath &projectPath) const = 0;
+        availableBuilds(const Kit *k, const Utils::FilePath &projectPath, bool forSetup) const = 0;
 
     bool supportsTargetDeviceType(Core::Id id) const;
     void setSupportedProjectType(Core::Id id);

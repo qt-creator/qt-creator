@@ -72,13 +72,7 @@ class DummyBuildConfigurationFactory : public ProjectExplorer::BuildConfiguratio
 {
 public:
     QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *,
-                                                      const FilePath &) const final
-    {
-        return {};
-    }
-
-    QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *,
-                                                      const FilePath &) const final
+                                                      const FilePath &, bool) const final
     {
         return {};
     }

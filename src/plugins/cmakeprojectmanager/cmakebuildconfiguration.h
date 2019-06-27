@@ -135,9 +135,8 @@ public:
     static ProjectExplorer::BuildConfiguration::BuildType cmakeBuildTypeToBuildType(const BuildType &in);
 
     QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath) const override;
-    QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath) const override;
+                                                      const Utils::FilePath &projectPath,
+                                                      bool forSetup) const override;
 
 private:
     ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k,

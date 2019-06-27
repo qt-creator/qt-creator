@@ -59,6 +59,7 @@
 #endif
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
@@ -529,26 +530,15 @@ CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurat
     setSupportedProjectMimeTypeName(Constants::COMPILATIONDATABASEMIMETYPE);
 }
 
-static QList<ProjectExplorer::BuildInfo> defaultBuildInfos(
-    const ProjectExplorer::BuildConfigurationFactory *factory, const QString &name)
+QList<BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableBuilds
+    (const Kit *, const FilePath &, bool) const
 {
-    ProjectExplorer::BuildInfo info(factory);
+    const QString name = tr("Release");
+    ProjectExplorer::BuildInfo info(this);
     info.typeName = name;
     info.displayName = name;
     info.buildType = BuildConfiguration::Release;
-    QList<ProjectExplorer::BuildInfo> buildInfos;
-    buildInfos << info;
-    return buildInfos;
-}
-
-QList<BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableBuilds(const Kit *, const Utils::FilePath &) const
-{
-    return defaultBuildInfos(this, tr("Release"));
-}
-
-QList<BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableSetups(const Kit *, const Utils::FilePath &) const
-{
-    return defaultBuildInfos(this, tr("Release"));
+    return {info};
 }
 
 } // namespace Internal

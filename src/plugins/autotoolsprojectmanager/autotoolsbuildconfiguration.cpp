@@ -97,28 +97,18 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
     setSupportedProjectMimeTypeName(Constants::MAKEFILE_MIMETYPE);
 }
 
-QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath) const
-{
-    return {createBuildInfo(k, projectPath)};
-}
-
-QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableSetups(const Kit *k, const FilePath &projectPath) const
-{
-    const QString path = projectPath.toFileInfo().absolutePath();
-    BuildInfo info = createBuildInfo(k, Utils::FilePath::fromString(path));
-    //: The name of the build configuration created by default for a autotools project.
-    info.displayName = tr("Default");
-    return {info};
-}
-
-BuildInfo AutotoolsBuildConfigurationFactory::createBuildInfo(const Kit *k,
-                                                              const Utils::FilePath &buildDir) const
+QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds
+    (const Kit *k, const FilePath &projectPath, bool forSetup) const
 {
     BuildInfo info(this);
     info.typeName = tr("Build");
-    info.buildDirectory = buildDir;
+    info.buildDirectory = forSetup ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
     info.kitId = k->id();
-    return info;
+    if (forSetup) {
+        //: The name of the build configuration created by default for a autotools project.
+        info.displayName = tr("Default");
+    }
+    return {info};
 }
 
 BuildConfiguration::BuildType AutotoolsBuildConfiguration::buildType() const

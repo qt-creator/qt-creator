@@ -64,15 +64,8 @@ public:
 
 private:
     QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath) const override;
-
-    QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath) const override;
-
-    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k,
-                                               ProjectExplorer::BuildConfiguration::BuildType buildType) const;
-
-    QString displayName(ProjectExplorer::BuildConfiguration::BuildType buildType) const;
+                                                      const Utils::FilePath &projectPath,
+                                                      bool forSetup) const override;
 };
 
 }

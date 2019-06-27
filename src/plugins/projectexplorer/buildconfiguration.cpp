@@ -416,13 +416,13 @@ const Tasks BuildConfigurationFactory::reportIssues(ProjectExplorer::Kit *kit, c
 
 const QList<BuildInfo> BuildConfigurationFactory::allAvailableBuilds(const Target *parent) const
 {
-    return availableBuilds(parent->kit(), parent->project()->projectFilePath());
+    return availableBuilds(parent->kit(), parent->project()->projectFilePath(), false);
 }
 
 const QList<BuildInfo>
     BuildConfigurationFactory::allAvailableSetups(const Kit *k, const FilePath &projectPath) const
 {
-    return availableSetups(k, projectPath);
+    return availableBuilds(k, projectPath, /* forSetup = */ true);
 }
 
 bool BuildConfigurationFactory::supportsTargetDeviceType(Core::Id id) const

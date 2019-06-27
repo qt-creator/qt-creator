@@ -481,31 +481,21 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
         return BuildConfiguration::Unknown;
 }
 
-QList<BuildInfo>
-    CMakeBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath) const
+QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds
+    (const Kit *k, const FilePath &projectPath, bool forSetup) const
 {
     QList<BuildInfo> result;
+
+    FilePath path = forSetup ? Project::projectDirectory(projectPath) : projectPath;
 
     for (int type = BuildTypeNone; type != BuildTypeLast; ++type) {
-        result << createBuildInfo(k,
-                                  projectPath.toString(),
-                                  BuildType(type));
-    }
-    return result;
-}
-
-QList<BuildInfo>
-    CMakeBuildConfigurationFactory::availableSetups(const Kit *k, const FilePath &projectPath) const
-{
-    QList<BuildInfo> result;
-    for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
-        BuildInfo info = createBuildInfo(k,
-                                         ProjectExplorer::Project::projectDirectory(projectPath).toString(),
-                                         BuildType(type));
-        info.displayName = info.typeName;
-        info.buildDirectory
-                = CMakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
-                                                                info.displayName, info.buildType);
+        BuildInfo info = createBuildInfo(k, path.toString(), BuildType(type));
+        if (forSetup) {
+            info.displayName = info.typeName;
+            info.buildDirectory
+                    = CMakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
+                                                                    info.displayName, info.buildType);
+        }
         result << info;
     }
     return result;

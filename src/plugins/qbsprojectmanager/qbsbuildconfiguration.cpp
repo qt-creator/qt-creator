@@ -369,6 +369,39 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
     });
 }
 
+QList<BuildInfo> QbsBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &projectPath, bool forSetup) const
+{
+    QList<BuildInfo> result;
+
+    if (forSetup) {
+
+        BuildInfo info = createBuildInfo(k, BuildConfiguration::Debug);
+        //: The name of the debug build configuration created by default for a qbs project.
+        info.displayName = tr("Debug");
+        //: Non-ASCII characters in directory suffix may cause build issues.
+        info.buildDirectory
+                = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"),
+                                        info.buildType);
+        result << info;
+
+        info = createBuildInfo(k, BuildConfiguration::Release);
+        //: The name of the release build configuration created by default for a qbs project.
+        info.displayName = tr("Release");
+        //: Non-ASCII characters in directory suffix may cause build issues.
+        info.buildDirectory
+                = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"),
+                                        info.buildType);
+        result << info;
+
+    } else {
+
+        result << createBuildInfo(k, BuildConfiguration::Debug);
+
+    }
+
+    return result;
+}
+
 BuildInfo QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                         BuildConfiguration::BuildType type) const
 {
@@ -380,38 +413,6 @@ BuildInfo QbsBuildConfigurationFactory::createBuildInfo(const Kit *k,
     config.insert("configName", type == BuildConfiguration::Debug ? "Debug" : "Release");
     info.extraInfo = config;
     return info;
-}
-
-QList<BuildInfo>
-    QbsBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &) const
-{
-    return {createBuildInfo(k, BuildConfiguration::Debug)};
-}
-
-QList<BuildInfo>
-    QbsBuildConfigurationFactory::availableSetups(const Kit *k, const FilePath &projectPath) const
-{
-    QList<BuildInfo> result;
-
-    BuildInfo info = createBuildInfo(k, BuildConfiguration::Debug);
-    //: The name of the debug build configuration created by default for a qbs project.
-    info.displayName = tr("Debug");
-    //: Non-ASCII characters in directory suffix may cause build issues.
-    info.buildDirectory
-            = defaultBuildDirectory(projectPath, k, tr("Debug", "Shadow build directory suffix"),
-                                    info.buildType);
-    result << info;
-
-    info = createBuildInfo(k, BuildConfiguration::Release);
-    //: The name of the release build configuration created by default for a qbs project.
-    info.displayName = tr("Release");
-    //: Non-ASCII characters in directory suffix may cause build issues.
-    info.buildDirectory
-            = defaultBuildDirectory(projectPath, k, tr("Release", "Shadow build directory suffix"),
-                                    info.buildType);
-    result << info;
-
-    return result;
 }
 
 } // namespace Internal

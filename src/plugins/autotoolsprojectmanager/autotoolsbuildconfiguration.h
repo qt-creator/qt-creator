@@ -29,8 +29,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 
-namespace Utils { class FilePath; }
-
 namespace AutotoolsProjectManager {
 namespace Internal {
 
@@ -54,11 +52,8 @@ public:
 
 private:
     QList<ProjectExplorer::BuildInfo> availableBuilds(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath) const override;
-    QList<ProjectExplorer::BuildInfo> availableSetups(const ProjectExplorer::Kit *k,
-                                                      const Utils::FilePath &projectPath) const override;
-
-    ProjectExplorer::BuildInfo createBuildInfo(const ProjectExplorer::Kit *k, const Utils::FilePath &buildDir) const;
+                                                      const Utils::FilePath &projectPath,
+                                                      bool forSetup) const override;
 };
 
 } // namespace Internal

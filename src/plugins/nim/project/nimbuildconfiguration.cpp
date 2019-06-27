@@ -155,47 +155,29 @@ NimBuildConfigurationFactory::NimBuildConfigurationFactory()
     setSupportedProjectMimeTypeName(Constants::C_NIM_PROJECT_MIMETYPE);
 }
 
-QList<BuildInfo> NimBuildConfigurationFactory::availableBuilds(const Kit *k, const FilePath &) const
-{
-    QList<BuildInfo> result;
-    for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release})
-        result.push_back(createBuildInfo(k, buildType));
-    return result;
-}
-
-QList<BuildInfo> NimBuildConfigurationFactory::availableSetups(const Kit *k, const FilePath &projectPath) const
+QList<BuildInfo> NimBuildConfigurationFactory::availableBuilds
+    (const Kit *k, const FilePath &projectPath, bool forSetup) const
 {
     QList<BuildInfo> result;
     for (auto buildType : {BuildConfiguration::Debug, BuildConfiguration::Release}) {
-        BuildInfo info = createBuildInfo(k, buildType);
-        info.displayName = info.typeName;
-        info.buildDirectory = defaultBuildDirectory(k, projectPath, info.typeName, buildType);
+        BuildInfo info(this);
+        info.buildType = buildType;
+        info.kitId = k->id();
+
+        if (buildType == BuildConfiguration::Debug)
+            info.typeName = tr("Debug");
+        else if (buildType == BuildConfiguration::Profile)
+            info.typeName = tr("Profile");
+        else if (buildType == BuildConfiguration::Release)
+            info.typeName = tr("Release");
+
+        if (forSetup) {
+            info.displayName = info.typeName;
+            info.buildDirectory = defaultBuildDirectory(k, projectPath, info.typeName, buildType);
+        }
         result.push_back(info);
     }
     return result;
-}
-
-BuildInfo NimBuildConfigurationFactory::createBuildInfo(const Kit *k, BuildConfiguration::BuildType buildType) const
-{
-    BuildInfo info(this);
-    info.buildType = buildType;
-    info.kitId = k->id();
-    info.typeName = displayName(buildType);
-    return info;
-}
-
-QString NimBuildConfigurationFactory::displayName(BuildConfiguration::BuildType buildType) const
-{
-    switch (buildType) {
-    case ProjectExplorer::BuildConfiguration::Debug:
-        return tr("Debug");
-    case ProjectExplorer::BuildConfiguration::Profile:
-        return tr("Profile");
-    case ProjectExplorer::BuildConfiguration::Release:
-        return tr("Release");
-    default:
-        return QString();
-    }
 }
 
 } // namespace Nim
