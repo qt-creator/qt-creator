@@ -79,7 +79,7 @@ public:
                              const QByteArray &contents,
                              uint documentRevision);
     void unsavedFilesUpdated(const FileContainers &fileContainers);
-    void unsavedFielsUpdatedFromCppEditorDocument(const QString &filePath);
+    void unsavedFilesUpdatedFromCppEditorDocument(const QString &filePath);
     void unsavedFilesRemoved(const FileContainers &fileContainers);
 
     void requestCompletions(ClangCompletionAssistProcessor *assistProcessor,

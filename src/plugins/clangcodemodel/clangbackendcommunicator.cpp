@@ -252,7 +252,7 @@ void BackendCommunicator::documentsChangedFromCppEditorDocument(const QString &f
     documentsChanged(filePath, document->contents(), document->revision());
 }
 
-void BackendCommunicator::unsavedFielsUpdatedFromCppEditorDocument(const QString &filePath)
+void BackendCommunicator::unsavedFilesUpdatedFromCppEditorDocument(const QString &filePath)
 {
     const CppTools::CppEditorDocumentHandle *document = ClangCodeModel::Utils::cppDocument(filePath);
     QTC_ASSERT(document, return);
@@ -387,7 +387,7 @@ void BackendCommunicator::unsavedFilesUpdated(Core::IDocument *document)
 {
     QTC_ASSERT(document, return);
 
-     unsavedFielsUpdatedFromCppEditorDocument(document->filePath().toString());
+     unsavedFilesUpdatedFromCppEditorDocument(document->filePath().toString());
 }
 
 void BackendCommunicator::onConnectedToBackend()
