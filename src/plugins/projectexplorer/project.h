@@ -156,7 +156,7 @@ public:
 
     virtual bool needsConfiguration() const;
     virtual bool needsBuildConfigurations() const;
-    virtual void configureAsExampleProject(const QSet<Core::Id> &platforms);
+    virtual void configureAsExampleProject();
 
     virtual ProjectImporter *projectImporter() const;
 

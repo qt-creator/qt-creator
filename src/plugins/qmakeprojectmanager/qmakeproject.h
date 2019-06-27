@@ -95,7 +95,7 @@ public:
     void watchFolders(const QStringList &l, QmakePriFile *file);
     void unwatchFolders(const QStringList &l, QmakePriFile *file);
 
-    void configureAsExampleProject(const QSet<Core::Id> &platforms) final;
+    void configureAsExampleProject() final;
 
     void emitBuildDirectoryInitialized();
     static void proFileParseError(const QString &errorMessage);

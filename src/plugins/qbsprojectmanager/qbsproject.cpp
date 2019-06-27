@@ -713,20 +713,15 @@ QString QbsProject::uniqueProductName(const qbs::ProductData &product)
     return product.name() + QLatin1Char('.') + product.multiplexConfigurationId();
 }
 
-void QbsProject::configureAsExampleProject(const QSet<Id> &platforms)
+void QbsProject::configureAsExampleProject()
 {
     QList<BuildInfo> infoList;
-    QList<Kit *> kits = KitManager::kits();
-    const auto qtVersionMatchesPlatform = [platforms](const QtSupport::BaseQtVersion *version) {
-        return platforms.isEmpty() || platforms.intersects(version->targetDeviceTypes());
-    };
-    foreach (Kit *k, kits) {
-        const QtSupport::BaseQtVersion * const qtVersion
-                = QtSupport::QtKitAspect::qtVersion(k);
-        if (!qtVersion || !qtVersionMatchesPlatform(qtVersion))
-            continue;
-        if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))
-            infoList << factory->allAvailableSetups(k, projectFilePath());
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits) {
+        if (QtSupport::QtKitAspect::qtVersion(k) != nullptr) {
+            if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))
+                infoList << factory->allAvailableSetups(k, projectFilePath());
+        }
     }
     setup(infoList);
     prepareForParsing();

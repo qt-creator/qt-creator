@@ -291,7 +291,7 @@ ProjectInfo ProjectOpenerAndCloser::open(const QString &projectFile, bool config
 
     Project *project = result.project();
     if (configureAsExampleProject)
-        project->configureAsExampleProject({ });
+        project->configureAsExampleProject();
 
     if (TestCase::waitUntilCppModelManagerIsAwareOf(project)) {
         m_openProjects.append(project);

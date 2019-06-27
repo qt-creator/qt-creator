@@ -844,9 +844,8 @@ bool Project::needsBuildConfigurations() const
     return true;
 }
 
-void Project::configureAsExampleProject(const QSet<Core::Id> &platforms)
+void Project::configureAsExampleProject()
 {
-    Q_UNUSED(platforms);
 }
 
 bool Project::knowsAllBuildExecutables() const

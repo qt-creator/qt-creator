@@ -938,19 +938,15 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
         m_project->updateCodeModels();
 }
 
-void QmakeProject::configureAsExampleProject(const QSet<Core::Id> &platforms)
+void QmakeProject::configureAsExampleProject()
 {
     QList<BuildInfo> infoList;
-    QList<Kit *> kits = KitManager::kits();
-    foreach (Kit *k, kits) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
-        if (!version
-                || (!platforms.isEmpty()
-                    && !Utils::contains(version->targetDeviceTypes(), [platforms](Core::Id i) { return platforms.contains(i); })))
-            continue;
-
-        if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))
-            infoList << factory->allAvailableSetups(k, projectFilePath());
+    const QList<Kit *> kits = KitManager::kits();
+    for (Kit *k : kits) {
+        if (QtSupport::QtKitAspect::qtVersion(k) != nullptr) {
+            if (auto factory = BuildConfigurationFactory::find(k, projectFilePath()))
+                infoList << factory->allAvailableSetups(k, projectFilePath());
+        }
     }
     setup(infoList);
 }
