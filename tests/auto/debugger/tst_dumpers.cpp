@@ -2064,10 +2064,10 @@ void tst_Dumpers::dumper_data()
                + Check("dir", quoted(tempDir), "@QDir")
             // + Check("dir.canonicalPath", quoted(tempDir), "@QString")
                + Check("dir.absolutePath", quoted(tempDir), "@QString") % Optional()
-               + Check("dir.entryInfoList.0", "[0]", quoted(tempDir + "/."), "@QFileInfo")
-               + Check("dir.entryInfoList.1", "[1]", quoted(tempDir + "/.."), "@QFileInfo")
-               + Check("dir.entryList.0", "[0]", "\".\"", "@QString")
-               + Check("dir.entryList.1", "[1]", "\"..\"", "@QString");
+               + Check("dir.entryInfoList.0", "[0]", quoted(tempDir + "/."), "@QFileInfo") % NoCdbEngine
+               + Check("dir.entryInfoList.1", "[1]", quoted(tempDir + "/.."), "@QFileInfo") % NoCdbEngine
+               + Check("dir.entryList.0", "[0]", "\".\"", "@QString") % NoCdbEngine
+               + Check("dir.entryList.1", "[1]", "\"..\"", "@QString") % NoCdbEngine;
 
 
     QTest::newRow("QFileInfo")
