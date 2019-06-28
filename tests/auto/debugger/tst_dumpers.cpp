@@ -6021,14 +6021,15 @@ void tst_Dumpers::dumper_data()
                + Check("x3", "", "X &");
 
     QTest::newRow("RValueReference")
-            << Data("",
-                    "struct S { int a = 32; };\n"
+            << Data("struct S { int a = 32; };",
                     "auto foo = [](int && i, S && s) { BREAK; return i + s.a; };\n"
                     "foo(int(1), S());\n")
                + Cxx11Profile()
                + GdbVersion(80200)
-               + Check("i", "1", "int &&")
-               + CheckType("s", "S &&")
+               + Check("i", "1", "int &&") % NoCdbEngine
+               + Check("i", "1", "int") % CdbEngine
+               + CheckType("s", "S &&") % NoCdbEngine
+               + CheckType("s", "S") % CdbEngine
                + Check("s.a", "32", "int");
 
     QTest::newRow("SSE")
