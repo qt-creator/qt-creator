@@ -227,7 +227,10 @@ def qdump__QStandardItemData(d, value):
 
 def qdump__QStandardItem(d, value):
     vtable, dptr = value.split('pp')
-    vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
+    if d.isMsvcTarget():
+        model, parent, values, children, rows, cols, item = d.split('ppPPIIp', dptr)
+    else:
+        vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
     d.putValue(' ')
     d.putNumChild(1)
     if d.isExpanded():
