@@ -26,7 +26,7 @@
 #include "customqbspropertiesdialog.h"
 #include "ui_customqbspropertiesdialog.h"
 
-#include <qbs.h>
+#include "qbsprofilemanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -49,7 +49,7 @@ CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properti
         nameItem->setData(Qt::DisplayRole, it.key());
         m_ui->propertiesTable->setItem(currentRow, 0, nameItem);
         auto * const valueItem = new QTableWidgetItem;
-        valueItem->setData(Qt::DisplayRole, qbs::settingsValueToRepresentation(it.value()));
+        valueItem->setData(Qt::DisplayRole, toJSLiteral(it.value()));
         m_ui->propertiesTable->setItem(currentRow, 1, valueItem);
         ++currentRow;
     }
@@ -70,8 +70,7 @@ QVariantMap CustomQbsPropertiesDialog::properties() const
         const QString name = nameItem->text();
         if (name.isEmpty())
             continue;
-        const QString rawString = m_ui->propertiesTable->item(row, 1)->text();
-        properties.insert(name, qbs::representationToSettingsValue(rawString));
+        properties.insert(name, fromJSLiteral(m_ui->propertiesTable->item(row, 1)->text()));
     }
     return properties;
 }

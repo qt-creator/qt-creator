@@ -27,6 +27,7 @@
 
 #include "qbsbuildconfiguration.h"
 #include "qbspmlogging.h"
+#include "qbssession.h"
 
 #include <coreplugin/documentmanager.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -41,8 +42,6 @@
 #include <qtsupport/qtkitinformation.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-
-#include <qbs.h>
 
 #include <QFileInfo>
 
@@ -62,10 +61,10 @@ struct BuildGraphData
     FilePath sysroot;
     QString buildVariant;
 };
-static BuildGraphData extractBgData(const qbs::Project::BuildGraphInfo &bgInfo)
+static BuildGraphData extractBgData(const QbsSession::BuildGraphInfo &bgInfo)
 {
     BuildGraphData bgData;
-    bgData.bgFilePath = FilePath::fromString(bgInfo.bgFilePath);
+    bgData.bgFilePath = bgInfo.bgFilePath;
     bgData.overriddenProperties = bgInfo.overriddenProperties;
     const QVariantMap &moduleProps = bgInfo.requestedProperties;
     const QVariantMap prjCompilerPathByLanguage
@@ -139,15 +138,15 @@ QList<void *> QbsProjectImporter::examineDirectory(const FilePath &importPath) c
 {
     qCDebug(qbsPmLog) << "examining build directory" << importPath.toUserOutput();
     QList<void *> data;
-    const QString bgFilePath = importPath.toString() + QLatin1Char('/') + importPath.fileName()
-            + QLatin1String(".bg");
+    const FilePath bgFilePath = importPath.pathAppended(importPath.fileName() + ".bg");
     const QStringList relevantProperties({
             "qbs.buildVariant", "qbs.sysroot", "qbs.toolchain",
             "cpp.compilerPath", "cpp.compilerPathByLanguage",
             "Qt.core.binPath"
     });
-    const qbs::Project::BuildGraphInfo bgInfo
-            = qbs::Project::getBuildGraphInfo(bgFilePath, relevantProperties);
+
+    const QbsSession::BuildGraphInfo bgInfo = QbsSession::getBuildGraphInfo(
+                bgFilePath, relevantProperties);
     if (bgInfo.error.hasError()) {
         qCDebug(qbsPmLog) << "error getting build graph info:" << bgInfo.error.toString();
         return data;

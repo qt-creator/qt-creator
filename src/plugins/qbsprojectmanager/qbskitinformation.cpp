@@ -26,13 +26,12 @@
 #include "qbskitinformation.h"
 
 #include "customqbspropertiesdialog.h"
+#include "qbsprofilemanager.h"
 
 #include <projectexplorer/kitmanager.h>
 
 #include <utils/elidinglabel.h>
 #include <utils/qtcassert.h>
-
-#include <qbs.h>
 
 #include <QPushButton>
 
@@ -85,7 +84,7 @@ QString QbsKitAspect::representation(const Kit *kit)
     for (auto it = props.begin(); it != props.end(); ++it) {
         if (!repr.isEmpty())
             repr += ' ';
-        repr += it.key() + ':' + qbs::settingsValueToRepresentation(it.value());
+        repr += it.key() + ':' + toJSLiteral(it.value());
     }
     return repr;
 }

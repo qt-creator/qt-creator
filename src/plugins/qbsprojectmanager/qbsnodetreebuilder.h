@@ -25,21 +25,18 @@
 
 #pragma once
 
-#include "qbsnodes.h"
-
-#include <qbs.h>
+#include <memory>
 
 namespace QbsProjectManager {
 namespace Internal {
 
-// ----------------------------------------------------------------------
-// QbsNodeTreeBuilder:
-// ----------------------------------------------------------------------
+class QbsBuildSystem;
+class QbsProjectNode;
 
 class QbsNodeTreeBuilder
 {
 public:
-    static std::unique_ptr<QbsRootProjectNode> buildTree(QbsBuildSystem *project);
+    static std::unique_ptr<QbsProjectNode> buildTree(const QbsBuildSystem *buildSystem);
 };
 
 } // namespace Internal

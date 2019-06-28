@@ -26,14 +26,15 @@
 #pragma once
 
 #include "qbsbuildconfiguration.h"
+#include "qbssession.h"
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/task.h>
 
-#include <qbs.h>
-
 namespace QbsProjectManager {
 namespace Internal {
+class ErrorInfo;
+class QbsSession;
 
 class QbsInstallStep : public ProjectExplorer::BuildStep
 {
@@ -43,11 +44,10 @@ public:
     explicit QbsInstallStep(ProjectExplorer::BuildStepList *bsl);
     ~QbsInstallStep() override;
 
-    qbs::InstallOptions installOptions() const;
     QString installRoot() const;
-    bool removeFirst() const;
-    bool dryRun() const;
-    bool keepGoing() const;
+    bool removeFirst() const { return m_cleanInstallRoot; }
+    bool dryRun() const { return m_dryRun; }
+    bool keepGoing() const { return m_keepGoing; }
 
 signals:
     void changed();
@@ -61,7 +61,7 @@ private:
     QVariantMap toMap() const override;
 
     const QbsBuildConfiguration *buildConfig() const;
-    void installDone(bool success);
+    void installDone(const ErrorInfo &error);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
 
@@ -71,14 +71,14 @@ private:
     void setRemoveFirst(bool rf);
     void setDryRun(bool dr);
     void setKeepGoing(bool kg);
-    void handleBuildConfigChanged();
 
-    qbs::InstallOptions m_qbsInstallOptions;
+    bool m_cleanInstallRoot = false;
+    bool m_dryRun = false;
+    bool m_keepGoing = false;
 
-    qbs::InstallJob *m_job = nullptr;
+    QbsSession *m_session = nullptr;
     QString m_description;
     int m_maxProgress;
-    bool m_showCompilerOutput = true;
     ProjectExplorer::IOutputParser *m_parser = nullptr;
 
     friend class QbsInstallStepConfigWidget;

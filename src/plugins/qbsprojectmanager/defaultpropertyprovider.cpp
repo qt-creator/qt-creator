@@ -41,8 +41,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <qbs.h>
-
 #include <android/androidconstants.h>
 #include <ios/iosconstants.h>
 #include <qtsupport/baseqtversion.h>

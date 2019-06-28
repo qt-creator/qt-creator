@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,48 +25,57 @@
 
 #pragma once
 
-#include "qbsprojectmanager_global.h"
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/fileutils.h>
 
-#include <QList>
-#include <QString>
-#include <QVariantMap>
-
-namespace qbs { class Settings; }
-
-namespace ProjectExplorer { class Kit; }
+#include <QObject>
+#include <QPointer>
 
 namespace QbsProjectManager {
 namespace Internal {
-class DefaultPropertyProvider;
-class QbsLogSink;
 
-class QbsManager : public QObject
+class QbsSettingsData {
+public:
+    Utils::FilePath qbsExecutableFilePath;
+    bool useCreatorSettings = true;
+};
+
+class QbsSettings : public QObject
 {
     Q_OBJECT
-
 public:
-    QbsManager();
-    ~QbsManager() override;
+    static QbsSettings &instance();
 
-    // QBS profiles management:
-    static QString profileForKit(const ProjectExplorer::Kit *k);
-    static void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
+    static Utils::FilePath qbsExecutableFilePath();
+    static bool useCreatorSettingsDirForQbs();
+    static QString qbsSettingsBaseDir();
 
-    static qbs::Settings *settings();
-    static Internal::QbsLogSink *logSink();
+    static void setSettingsData(const QbsSettingsData &settings);
+
+signals:
+    void settingsChanged();
 
 private:
-    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
-    void addProfile(const QString &name, const QVariantMap &data);
-    void addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k);
-    void addProfileFromKit(const ProjectExplorer::Kit *k);
-    void updateAllProfiles();
+    QbsSettings();
+    void loadSettings();
+    void storeSettings() const;
 
-    void handleKitUpdate(ProjectExplorer::Kit *kit);
-    void handleKitRemoval(ProjectExplorer::Kit *kit);
+    QbsSettingsData m_settings;
+};
 
-    DefaultPropertyProvider *m_defaultPropertyProvider;
-    QList<ProjectExplorer::Kit *> m_kitsToBeSetupForQbs;
+class QbsSettingsPage : public Core::IOptionsPage
+{
+    Q_OBJECT
+public:
+    QbsSettingsPage();
+
+private:
+    QWidget *widget() override;
+    void apply() override;
+    void finish() override;
+
+    class SettingsWidget;
+    QPointer<SettingsWidget> m_widget;
 };
 
 } // namespace Internal

@@ -29,6 +29,7 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagerplugin.h"
+#include "qbssession.h"
 
 #include <android/androidconstants.h>
 #include <coreplugin/fileiconprovider.h>
@@ -44,8 +45,10 @@
 #include <QtDebug>
 #include <QDir>
 #include <QIcon>
+#include <QJsonArray>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 // ----------------------------------------------------------------------
 // Helpers:
@@ -54,147 +57,26 @@ using namespace ProjectExplorer;
 namespace QbsProjectManager {
 namespace Internal {
 
-class FileTreeNode {
-public:
-    explicit FileTreeNode(const QString &n = QString(), FileTreeNode *p = nullptr, bool f = false) :
-        parent(p), name(n), m_isFile(f)
-    {
-        if (p)
-            p->children.append(this);
+const QbsProductNode *parentQbsProductNode(const ProjectExplorer::Node *node)
+{
+    for (; node; node = node->parentFolderNode()) {
+        const auto prdNode = dynamic_cast<const QbsProductNode *>(node);
+        if (prdNode)
+            return prdNode;
     }
-
-    ~FileTreeNode()
-    {
-        qDeleteAll(children);
-    }
-
-    FileTreeNode *addPart(const QString &n, bool isFile)
-    {
-        foreach (FileTreeNode *c, children) {
-            if (c->name == n)
-                return c;
-        }
-        return new FileTreeNode(n, this, isFile);
-    }
-
-    bool isFile() const { return m_isFile; }
-
-    static FileTreeNode *moveChildrenUp(FileTreeNode *node)
-    {
-        QTC_ASSERT(node, return nullptr);
-
-        FileTreeNode *newParent = node->parent;
-        if (!newParent)
-            return nullptr;
-
-        // disconnect node and parent:
-        node->parent = nullptr;
-        newParent->children.removeOne(node);
-
-        foreach (FileTreeNode *c, node->children) {
-            // update path, make sure there will be no / before "C:" on windows:
-            if (Utils::HostOsInfo::isWindowsHost() && node->name.isEmpty())
-                c->name = node->name;
-            else
-                c->name = node->name + QLatin1Char('/') + c->name;
-
-            newParent->children.append(c);
-            c->parent = newParent;
-        }
-
-        // Delete node
-        node->children.clear();
-        delete node;
-        return newParent;
-    }
-
-    // Moves the children of the node pointing to basedir to the root of the tree.
-    static void reorder(FileTreeNode *node, const QString &basedir)
-    {
-        QTC_CHECK(!basedir.isEmpty());
-        QString prefix = basedir;
-        if (basedir.startsWith(QLatin1Char('/')))
-            prefix = basedir.mid(1);
-        prefix.append(QLatin1Char('/'));
-
-        if (node->path() == basedir) {
-            // Find root node:
-            FileTreeNode *root = node;
-            while (root->parent)
-                root = root->parent;
-
-            foreach (FileTreeNode *c, node->children) {
-                // Update children names by prepending basedir
-                c->name = prefix + c->name;
-                // Update parent information:
-                c->parent = root;
-
-                root->children.append(c);
-            }
-
-            // Clean up node:
-            node->children.clear();
-            node->parent->children.removeOne(node);
-            node->parent = nullptr;
-            delete node;
-
-            return;
-        }
-
-        foreach (FileTreeNode *n, node->children)
-            reorder(n, basedir);
-    }
-
-    static void simplify(FileTreeNode *node)
-    {
-        foreach (FileTreeNode *c, node->children)
-            simplify(c);
-
-        if (!node->parent)
-            return;
-
-        if (node->children.isEmpty() && !node->isFile()) {
-            // Clean up empty folder nodes:
-            node->parent->children.removeOne(node);
-            node->parent = nullptr;
-            delete node;
-        } else if (node->children.count() == 1 && !node->children.at(0)->isFile()) {
-            // Compact folder nodes with one child only:
-            moveChildrenUp(node);
-        }
-    }
-
-    QString path() const
-    {
-        QString p = name;
-        FileTreeNode *node = parent;
-        while (node) {
-            if (!Utils::HostOsInfo::isWindowsHost() || !node->name.isEmpty())
-                p = node->name + QLatin1Char('/') + p;
-            node = node->parent;
-        }
-        return p;
-    }
-
-    QList<FileTreeNode *> children;
-    FileTreeNode *parent;
-    QString name;
-    bool m_isFile;
-};
-
+    return nullptr;
+}
 
 // --------------------------------------------------------------------
 // QbsGroupNode:
 // --------------------------------------------------------------------
 
-QbsGroupNode::QbsGroupNode(const qbs::GroupData &grp, const QString &productPath) :
-    ProjectNode(Utils::FilePath())
+QbsGroupNode::QbsGroupNode(const QJsonObject &grp) : ProjectNode(FilePath()), m_groupData(grp)
 {
     static QIcon groupIcon = QIcon(QString(Constants::QBS_GROUP_ICON));
     setIcon(groupIcon);
-
-    m_productPath = productPath;
-    m_qbsGroupData = grp;
+    setDisplayName(grp.value("name").toString());
+    setEnabled(grp.value("is-enabled").toBool());
 }
 
 FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList &files,
@@ -208,8 +90,15 @@ FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList 
 
 QVariant QbsGroupNode::data(Core::Id role) const
 {
-    if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
-        return m_qbsGroupData.properties().getModuleProperty("Qt.core", "enableKeywords");
+    if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED) {
+        QJsonObject modProps = m_groupData.value("module-properties").toObject();
+        if (modProps.isEmpty()) {
+            const QbsProductNode * const prdNode = parentQbsProductNode(this);
+            QTC_ASSERT(prdNode, return QVariant());
+            modProps = prdNode->productData().value("module-properties").toObject();
+        }
+        return modProps.value("Qt.core.enableKeywords").toBool();
+    }
     return QVariant();
 }
 
@@ -217,73 +106,89 @@ QVariant QbsGroupNode::data(Core::Id role) const
 // QbsProductNode:
 // --------------------------------------------------------------------
 
-QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
-    ProjectNode(Utils::FilePath::fromString(prd.location().filePath())),
-    m_qbsProductData(prd)
+QbsProductNode::QbsProductNode(const QJsonObject &prd) : ProjectNode(FilePath()), m_productData(prd)
 {
-    static QIcon productIcon = Core::FileIconProvider::directoryIcon(Constants::QBS_PRODUCT_OVERLAY_ICON);
+    static QIcon productIcon = Core::FileIconProvider::directoryIcon(
+                Constants::QBS_PRODUCT_OVERLAY_ICON);
     setIcon(productIcon);
-    if (m_qbsProductData.isRunnable()) {
+    if (prd.value("is-runnable").toBool()) {
         setProductType(ProductType::App);
-    } else if (m_qbsProductData.type().contains("dynamiclibrary")
-               || m_qbsProductData.type().contains("staticlibrary")) {
-        setProductType(ProductType::Lib);
     } else {
-        setProductType(ProductType::Other);
+        const QJsonArray type = prd.value("type").toArray();
+        if (type.contains("dynamiclibrary") || type.contains("staticlibrary"))
+            setProductType(ProductType::Lib);
+        else
+            setProductType(ProductType::Other);
     }
+    setEnabled(prd.value("is-enabled").toBool());
+    setDisplayName(prd.value("full-display-name").toString());
 }
 
 void QbsProductNode::build()
 {
     QbsProjectManagerPlugin::buildNamedProduct(static_cast<QbsProject *>(getProject()),
-                                               QbsProject::uniqueProductName(qbsProductData()));
+                                               m_productData.value("full-display-name").toString());
 }
 
 QStringList QbsProductNode::targetApplications() const
 {
-    return QStringList{m_qbsProductData.targetExecutable()};
+    return QStringList{m_productData.value("target-executable").toString()};
 }
 
 QString QbsProductNode::buildKey() const
 {
-    return QbsProject::uniqueProductName(m_qbsProductData);
+    return m_productData.value("full-display-name").toString();
 }
 
 QVariant QbsProductNode::data(Core::Id role) const
 {
     if (role == Android::Constants::AndroidDeploySettingsFile) {
-        for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
-            if (artifact.fileTags().contains("qt_androiddeployqt_input"))
-                return artifact.filePath();
+        for (const auto &a : m_productData.value("generated-artifacts").toArray()) {
+            const QJsonObject artifact = a.toObject();
+            if (artifact.value("file-tags").toArray().contains("qt_androiddeployqt_input"))
+                return artifact.value("file-path").toString();
         }
         return {};
     }
 
     if (role == Android::Constants::AndroidSoLibPath) {
-        QStringList ret{m_qbsProductData.buildDirectory()};
-        for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
-            if (artifact.fileTags().contains("dynamiclibrary")) {
-                ret << QFileInfo(artifact.filePath()).path();
-            }
-        }
+        QStringList ret{m_productData.value("build-directory").toString()};
+        forAllArtifacts(m_productData, ArtifactType::Generated, [&ret](const QJsonObject &artifact) {
+            if (artifact.value("file-tags").toArray().contains("dynamiclibrary"))
+                ret << QFileInfo(artifact.value("file-path").toString()).path();
+        });
         ret.removeDuplicates();
         return ret;
     }
 
     if (role == Android::Constants::AndroidManifest) {
-        for (const auto &artifact : m_qbsProductData.generatedArtifacts()) {
-            if (artifact.fileTags().contains("android.manifest_final"))
-                return artifact.filePath();
+        for (const auto &a : m_productData.value("generated-artifacts").toArray()) {
+            const QJsonObject artifact = a.toObject();
+            if (artifact.value("file-tags").toArray().contains("android.manifest_final"))
+                return artifact.value("file-path").toString();
         }
         return {};
     }
 
     if (role == Android::Constants::AndroidApk)
-        return m_qbsProductData.targetExecutable();
+        return m_productData.value("target-executable").toString();
 
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
-        return m_qbsProductData.moduleProperties().getModuleProperty("Qt.core", "enableKeywords");
+        return m_productData.value("module-properties").toObject()
+                .value("Qt.core.enableKeywords").toBool();
 
+    return {};
+}
+
+QJsonObject QbsProductNode::mainGroup() const
+{
+    for (const QJsonValue &g : m_productData.value("groups").toArray()) {
+        const QJsonObject grp = g.toObject();
+        if (grp.value("name") == m_productData.value("name")
+                && grp.value("location") == m_productData.value("location")) {
+            return grp;
+        }
+    }
     return {};
 }
 
@@ -291,32 +196,14 @@ QVariant QbsProductNode::data(Core::Id role) const
 // QbsProjectNode:
 // --------------------------------------------------------------------
 
-QbsProjectNode::QbsProjectNode(const Utils::FilePath &projectDirectory) :
-    ProjectNode(projectDirectory)
+QbsProjectNode::QbsProjectNode(const QJsonObject &projectData)
+    : ProjectNode(FilePath()), m_projectData(projectData)
 {
-    static QIcon projectIcon = Core::FileIconProvider::directoryIcon(ProjectExplorer::Constants::FILEOVERLAY_QT);
+    static QIcon projectIcon = Core::FileIconProvider::directoryIcon(
+                ProjectExplorer::Constants::FILEOVERLAY_QT);
     setIcon(projectIcon);
+    setDisplayName(projectData.value("name").toString());
 }
-
-Project *QbsProjectNode::project() const
-{
-    return static_cast<QbsProjectNode *>(parentFolderNode())->project();
-}
-
-void QbsProjectNode::setProjectData(const qbs::ProjectData &data)
-{
-    m_projectData = data;
-}
-
-// --------------------------------------------------------------------
-// QbsRootProjectNode:
-// --------------------------------------------------------------------
-
-QbsRootProjectNode::QbsRootProjectNode(Project *project) :
-    QbsProjectNode(project->projectDirectory()),
-    m_project(project)
-{ }
-
 
 } // namespace Internal
 } // namespace QbsProjectManager

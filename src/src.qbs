@@ -17,14 +17,11 @@ Project {
     ]
 
     property bool qbsSubModuleExists: File.exists(qbsProject.qbsBaseDir + "/qbs.qbs")
-    property path qbs_install_dir: Environment.getEnv("QBS_INSTALL_DIR")
-    property bool useExternalQbs: qbs_install_dir
-    property bool buildQbsProjectManager: useExternalQbs || qbsSubModuleExists
     Project {
         name: "qbs project"
         id: qbsProject
         property string qbsBaseDir: project.sharedSourcesDir + "/qbs"
-        condition: qbsSubModuleExists && !useExternalQbs
+        condition: qbsSubModuleExists
 
         // The first entry is for overriding qbs' own qbsbuildconfig module.
         qbsSearchPaths: [project.ide_source_tree + "/qbs", qbsBaseDir + "/qbs-resources"]

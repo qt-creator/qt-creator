@@ -6,33 +6,8 @@ QtcPlugin {
     name: "QbsProjectManager"
     type: base.concat(["qmltype-update"])
 
-    property var externalQbsIncludes: project.useExternalQbs
-            ? [project.qbs_install_dir + "/include/qbs"] : []
-    property var externalQbsLibraryPaths: project.useExternalQbs
-            ? [project.qbs_install_dir + '/' + qtc.libDirName] : []
-    property var externalQbsDynamicLibraries: {
-        var libs = []
-        if (!project.useExternalQbs)
-            return libs;
-        var suffix = "";
-        if (qbs.targetOS.contains("windows")) {
-            libs.push("shell32")
-            if (qbs.enableDebugCode)
-                suffix = "d";
-        }
-        libs.push("qbscore" + suffix);
-        return libs
-    }
+    Depends { name: "Qt"; submodules: [ "qml", "widgets" ] }
 
-    condition: project.buildQbsProjectManager
-
-    property bool useInternalQbsProducts: project.qbsSubModuleExists && !project.useExternalQbs
-
-    Depends { name: "Qt"; submodules: [ "widgets" ] }
-    Depends {
-        name: "qbscore"
-        condition: product.useInternalQbsProducts
-    }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
 
@@ -42,20 +17,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "QmlJSTools" }
     Depends { name: "app_version_header" }
-
-    cpp.defines: base.concat([
-        'QML_BUILD_STATIC_LIB',
-        'QBS_ENABLE_PROJECT_FILE_UPDATES', // TODO: Take from installed qbscore module
-        'QBS_INSTALL_DIR="'
-                + (project.useExternalQbs
-                       ? FileInfo.fromWindowsSeparators(project.qbs_install_dir)
-                       : '')
-                + '"'
-    ])
-    cpp.includePaths: base.concat(externalQbsIncludes)
-    cpp.libraryPaths: base.concat(externalQbsLibraryPaths)
-    cpp.rpaths: base.concat(externalQbsLibraryPaths)
-    cpp.dynamicLibraries: base.concat(externalQbsDynamicLibraries)
 
     files: [
         "customqbspropertiesdialog.h",
@@ -75,8 +36,6 @@ QtcPlugin {
         "qbsinstallstep.h",
         "qbskitinformation.cpp",
         "qbskitinformation.h",
-        "qbslogsink.cpp",
-        "qbslogsink.h",
         "qbsnodes.cpp",
         "qbsnodes.h",
         "qbsnodetreebuilder.cpp",
@@ -85,6 +44,8 @@ QtcPlugin {
         "qbsparser.h",
         "qbspmlogging.cpp",
         "qbspmlogging.h",
+        "qbsprofilemanager.cpp",
+        "qbsprofilemanager.h",
         "qbsprofilessettingspage.cpp",
         "qbsprofilessettingspage.h",
         "qbsprofilessettingswidget.ui",
@@ -92,23 +53,21 @@ QtcPlugin {
         "qbsproject.h",
         "qbsprojectimporter.cpp",
         "qbsprojectimporter.h",
-        "qbsprojectmanager.cpp",
-        "qbsprojectmanager.h",
         "qbsprojectmanager.qrc",
         "qbsprojectmanager_global.h",
         "qbsprojectmanagerconstants.h",
         "qbsprojectmanagerplugin.cpp",
         "qbsprojectmanagerplugin.h",
-        "qbsprojectmanagersettings.cpp",
-        "qbsprojectmanagersettings.h",
         "qbsprojectparser.cpp",
         "qbsprojectparser.h",
+        "qbssession.cpp",
+        "qbssession.h",
+        "qbssettings.cpp",
+        "qbssettings.h",
     ]
 
     // QML typeinfo stuff
-    property bool updateQmlTypeInfo: useInternalQbsProducts
     Group {
-        condition: !updateQmlTypeInfo
         name: "qbs qml type info"
         qbs.install: true
         qbs.installDir: FileInfo.joinPaths(qtc.ide_data_path, "qtcreator",
@@ -121,9 +80,9 @@ QtcPlugin {
         ]
     }
 
-    Depends { name: "qbs resources"; condition: updateQmlTypeInfo }
+    Depends { name: "qbs resources"; condition: project.qbsSubModuleExists }
     Rule {
-        condition: updateQmlTypeInfo
+        condition: project.qbsSubModuleExists
         inputsFromDependencies: ["qbs qml type descriptions", "qbs qml type bundle"]
         Artifact {
             filePath: "dummy." + input.fileName

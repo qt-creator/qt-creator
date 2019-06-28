@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "qbsprojectmanager.h"
+#include "qbsprofilemanager.h"
 
 #include "qbsnodes.h"
 
@@ -36,9 +36,8 @@
 
 #include <utils/environment.h>
 
-#include <qbs.h>
-
 #include <QHash>
+#include <QJsonObject>
 #include <QTimer>
 
 namespace CppTools { class CppProjectUpdater; }
@@ -46,8 +45,10 @@ namespace CppTools { class CppProjectUpdater; }
 namespace QbsProjectManager {
 namespace Internal {
 
+class ErrorInfo;
 class QbsBuildConfiguration;
 class QbsProjectParser;
+class QbsSession;
 
 class QbsProject : public ProjectExplorer::Project
 {
@@ -62,8 +63,6 @@ public:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
 
     void configureAsExampleProject() final;
-
-    static QString uniqueProductName(const qbs::ProductData &product);
 
 private:
     mutable ProjectExplorer::ProjectImporter *m_importer = nullptr;
@@ -94,24 +93,17 @@ public:
     QVariant additionalData(Core::Id id) const final;
 
     bool isProjectEditable() const;
-    // qbs::ProductData and qbs::GroupData are held by the nodes in the project tree.
-    // These methods change those trees and invalidate the lot, so pass in copies of
-    // the data we are interested in!
-    // The overhead is not as big as it seems at first glance: These all are handles
-    // for shared data.
-    bool addFilesToProduct(const QStringList &filePaths, const qbs::ProductData productData,
-                           const qbs::GroupData groupData, QStringList *notAdded);
+    bool addFilesToProduct(const QStringList &filePaths,
+            const QJsonObject &product,
+            const QJsonObject &group,
+            QStringList *notAdded);
     ProjectExplorer::RemovedFilesFromProject removeFilesFromProduct(const QStringList &filePaths,
-            const qbs::ProductData &productData, const qbs::GroupData &groupData,
+            const QJsonObject &product,
+            const QJsonObject &group,
             QStringList *notRemoved);
     bool renameFileInProduct(const QString &oldPath,
-            const QString &newPath, const qbs::ProductData productData,
-            const qbs::GroupData groupData);
-
-    qbs::BuildJob *build(const qbs::BuildOptions &opts, QStringList products, QString &error);
-    qbs::CleanJob *clean(const qbs::CleanOptions &opts, const QStringList &productNames,
-                         QString &error);
-    qbs::InstallJob *install(const qbs::InstallOptions &opts);
+            const QString &newPath, const QJsonObject &product,
+            const QJsonObject &group);
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
@@ -122,15 +114,16 @@ public:
     void cancelParsing();
     void updateAfterBuild();
 
-    qbs::Project qbsProject() const;
-    qbs::ProjectData qbsProjectData() const;
+    QbsSession *session() const { return m_session; }
+    QJsonObject projectData() const { return m_projectData; }
 
-    void generateErrors(const qbs::ErrorInfo &e);
+    void generateErrors(const ErrorInfo &e);
 
     void delayParsing();
 
 private:
     friend class QbsProject;
+
     void handleQbsParsingDone(bool success);
 
     void rebuildProjectTree();
@@ -138,13 +131,12 @@ private:
     void changeActiveTarget(ProjectExplorer::Target *t);
 
     void prepareForParsing();
-    void updateDocuments(const std::set<QString> &files);
+    void updateDocuments();
     void updateCppCodeModel();
     void updateQmlJsCodeModel();
     void updateApplicationTargets();
     void updateDeploymentInfo();
     void updateBuildTargetData();
-    void handleRuleExecutionDone();
     bool checkCancelStatus();
     void updateAfterParse();
     void delayedUpdateAfterParse();
@@ -153,16 +145,14 @@ private:
 
     static bool ensureWriteableQbsFile(const QString &file);
 
-    template<typename Options> qbs::AbstractJob *buildOrClean(const Options &opts,
-            const QStringList &productNames, QString &error);
+    QbsSession * const m_session;
+    QSet<Core::IDocument *> m_qbsDocuments;
+    QJsonObject m_projectData; // TODO: Perhaps store this in the root project node instead?
 
-    qbs::Project m_qbsProject;
-    qbs::ProjectData m_projectData; // Cached m_qbsProject.projectData()
-    Utils::Environment m_lastParseEnv;
-
+    QTimer m_parsingDelay;
     QbsProjectParser *m_qbsProjectParser = nullptr;
-
     QFutureInterface<bool> *m_qbsUpdateFutureInterface = nullptr;
+    Utils::Environment m_lastParseEnv;
     bool m_parsingScheduled = false;
 
     enum CancelStatus {
@@ -173,9 +163,8 @@ private:
 
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
-    QTimer m_parsingDelay;
+    QHash<ProjectExplorer::ExtraCompilerFactory *, QStringList> m_sourcesForGeneratedFiles;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
-    bool m_extraCompilersPending = false;
 
     QHash<QString, Utils::Environment> m_envCache;
 

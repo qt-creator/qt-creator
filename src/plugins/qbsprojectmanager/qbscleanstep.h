@@ -31,10 +31,10 @@
 #include <projectexplorer/projectconfigurationaspects.h>
 #include <projectexplorer/task.h>
 
-#include <qbs.h>
-
 namespace QbsProjectManager {
 namespace Internal {
+class ErrorInfo;
+class QbsSession;
 
 class QbsCleanStep : public ProjectExplorer::BuildStep
 {
@@ -52,7 +52,7 @@ private:
     void doRun() override;
     void doCancel() override;
 
-    void cleaningDone(bool success);
+    void cleaningDone(const ErrorInfo &error);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
 
@@ -65,8 +65,7 @@ private:
     QbsBuildSystem *qbsBuildSystem() const;
 
     QStringList m_products;
-
-    qbs::CleanJob *m_job = nullptr;
+    QbsSession *m_session = nullptr;
     QString m_description;
     int m_maxProgress;
     bool m_showCompilerOutput = true;

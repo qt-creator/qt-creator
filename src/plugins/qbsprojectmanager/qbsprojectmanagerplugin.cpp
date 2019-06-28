@@ -31,10 +31,11 @@
 #include "qbsinstallstep.h"
 #include "qbskitinformation.h"
 #include "qbsnodes.h"
+#include "qbsprofilemanager.h"
 #include "qbsprofilessettingspage.h"
 #include "qbsproject.h"
-#include "qbsprojectmanager.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbssettings.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -85,12 +86,13 @@ static QbsProject *currentEditorProject()
 class QbsProjectManagerPluginPrivate
 {
 public:
-    QbsManager manager;
+    QbsProfileManager manager;
     QbsBuildConfigurationFactory buildConfigFactory;
     QbsBuildStepFactory buildStepFactory;
     QbsCleanStepFactory cleanStepFactory;
     QbsInstallStepFactory installStepFactory;
-    QbsProfilesSettingsPage profilesSettingsPage;
+    QbsSettingsPage settingsPage;
+    QbsProfilesSettingsPage profilesSetttingsPage;
     QbsKitAspect qbsKitAspect;
 };
 
@@ -419,7 +421,7 @@ void QbsProjectManagerPlugin::runStepsForProductContextMenu(const QList<Core::Id
     const auto * const productNode = dynamic_cast<const QbsProductNode *>(node);
     QTC_ASSERT(productNode, return);
 
-    runStepsForProducts(project, {QbsProject::uniqueProductName(productNode->qbsProductData())},
+    runStepsForProducts(project, {productNode->productData().value("full-display-name").toString()},
                         {stepTypes});
 }
 
@@ -446,13 +448,13 @@ void QbsProjectManagerPlugin::runStepsForProduct(const QList<Core::Id> &stepType
     Node *node = currentEditorNode();
     if (!node)
         return;
-    auto product = dynamic_cast<QbsProductNode *>(node->parentProjectNode());
-    if (!product)
+    auto productNode = dynamic_cast<QbsProductNode *>(node->parentProjectNode());
+    if (!productNode)
         return;
     QbsProject *project = currentEditorProject();
     if (!project)
         return;
-    runStepsForProducts(project, {QbsProject::uniqueProductName(product->qbsProductData())},
+    runStepsForProducts(project, {productNode->productData().value("full-display-name").toString()},
                         {stepTypes});
 }
 
@@ -485,9 +487,9 @@ void QbsProjectManagerPlugin::runStepsForSubprojectContextMenu(const QList<Core:
     QTC_ASSERT(subProject, return);
 
     QStringList toBuild;
-    foreach (const qbs::ProductData &data, subProject->qbsProjectData().allProducts())
-        toBuild << QbsProject::uniqueProductName(data);
-
+    forAllProducts(subProject->projectData(), [&toBuild](const QJsonObject &data) {
+        toBuild << data.value("full-display-name").toString();
+    });
     runStepsForProducts(project, toBuild, {stepTypes});
 }
 

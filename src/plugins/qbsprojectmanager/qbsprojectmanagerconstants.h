@@ -93,7 +93,7 @@ const char XCODE_DEVELOPERPATH[] = "xcode.developerPath";
 const char XCODE_SDK[] = "xcode.sdk";
 
 // Settings page
-const char QBS_SETTINGS_CATEGORY[]  = "YM.qbs";
+const char QBS_SETTINGS_CATEGORY[]  = "K.Qbs";
 const char QBS_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("QbsProjectManager", "Qbs");
 const char QBS_SETTINGS_CATEGORY_ICON[]  = ":/projectexplorer/images/build.png";
 

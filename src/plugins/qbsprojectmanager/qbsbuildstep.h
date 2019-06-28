@@ -30,13 +30,13 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/task.h>
 
-#include <qbs.h>
-
 namespace Utils { class FancyLineEdit; }
 
 namespace QbsProjectManager {
 namespace Internal {
+class ErrorInfo;
 class QbsProject;
+class QbsSession;
 
 class QbsBuildStepConfigWidget;
 
@@ -61,10 +61,10 @@ public:
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
     void setQbsConfiguration(const QVariantMap &config);
 
-    bool keepGoing() const;
-    bool showCommandLines() const;
-    bool install() const;
-    bool cleanInstallRoot() const;
+    bool keepGoing() const { return m_keepGoing; }
+    bool showCommandLines() const { return m_showCommandLines; }
+    bool install() const { return m_install; }
+    bool cleanInstallRoot() const { return m_cleanInstallDir; }
     bool hasCustomInstallRoot() const;
     Utils::FilePath installRoot(VariableHandling variableHandling = ExpandVariables) const;
     int maxJobs() const;
@@ -93,12 +93,18 @@ private:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    void buildingDone(bool success);
+    void buildingDone(const ErrorInfo &error);
     void reparsingDone(bool success);
     void handleTaskStarted(const QString &desciption, int max);
     void handleProgress(int value);
-    void handleCommandDescriptionReport(const QString &highlight, const QString &message);
-    void handleProcessResultReport(const qbs::ProcessResult &result);
+    void handleCommandDescription(const QString &message);
+    void handleProcessResult(
+            const Utils::FilePath &executable,
+            const QStringList &arguments,
+            const Utils::FilePath &workingDir,
+            const QStringList &stdOut,
+            const QStringList &stdErr,
+            bool success);
 
     void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
                              const QString &message, const QString &file, int line);
@@ -117,7 +123,11 @@ private:
     void finish();
 
     QVariantMap m_qbsConfiguration;
-    qbs::BuildOptions m_qbsBuildOptions;
+    int m_maxJobCount = 0;
+    bool m_keepGoing = false;
+    bool m_showCommandLines = false;
+    bool m_install = true;
+    bool m_cleanInstallDir = false;
     bool m_forceProbes = false;
     bool m_enableQmlDebugging;
 
@@ -126,12 +136,14 @@ private:
     QStringList m_activeFileTags;
     QStringList m_products;
 
-    qbs::BuildJob *m_job = nullptr;
+    QbsSession *m_session = nullptr;
+
     QString m_currentTask;
     int m_maxProgress;
     bool m_lastWasSuccess;
     ProjectExplorer::IOutputParser *m_parser = nullptr;
     bool m_parsingProject = false;
+    bool m_parsingAfterBuild = false;
 
     friend class QbsBuildStepConfigWidget;
 };

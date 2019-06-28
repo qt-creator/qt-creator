@@ -30,7 +30,7 @@
 #include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
-#include "qbsprojectmanagersettings.h"
+#include "qbssettings.h"
 
 #include <coreplugin/documentmanager.h>
 
@@ -167,7 +167,7 @@ bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     if (m_configurationName->value().isEmpty()) { // pre-4.4 backwards compatibility
-        const QString profileName = QbsManager::profileForKit(target()->kit());
+        const QString profileName = QbsProfileManager::profileForKit(target()->kit());
         const QString buildVariant = qbsConfiguration()
                 .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
         m_configurationName->setValue(profileName + '-' + buildVariant);
@@ -328,9 +328,9 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     const QString buildDir = buildDirectory().toUserOutput();
     commandLine.addArgs({"-d", buildDir});
     commandLine.addArgs({"-f", buildStep->project()->projectFilePath().toUserOutput()});
-    if (QbsProjectManagerSettings::useCreatorSettingsDirForQbs()) {
+    if (QbsSettings::useCreatorSettingsDirForQbs()) {
         commandLine.addArgs({"--settings-dir",
-                QDir::toNativeSeparators(QbsProjectManagerSettings::qbsSettingsBaseDir())});
+                             QDir::toNativeSeparators(QbsSettings::qbsSettingsBaseDir())});
     }
     if (stepProxy.dryRun())
         commandLine.addArg("--dry-run");
@@ -350,7 +350,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const BuildStep *buildStep)
     if (jobCount > 0)
         commandLine.addArgs({"--jobs", QString::number(jobCount)});
 
-    const QString profileName = QbsManager::profileForKit(buildStep->target()->kit());
+    const QString profileName = QbsProfileManager::profileForKit(buildStep->target()->kit());
     const QString buildVariant = qbsConfiguration()
             .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
     commandLine.addArg("config:" + configurationName());

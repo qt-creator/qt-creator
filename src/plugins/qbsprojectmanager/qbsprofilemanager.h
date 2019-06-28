@@ -25,32 +25,49 @@
 
 #pragma once
 
-#include <QObject>
+#include "qbsprojectmanager_global.h"
+
+#include <QList>
+#include <QVariant>
+
+namespace ProjectExplorer { class Kit; }
 
 namespace QbsProjectManager {
 namespace Internal {
+class DefaultPropertyProvider;
 
-class QbsProjectManagerSettings : public QObject
+QString toJSLiteral(const QVariant &val);
+QVariant fromJSLiteral(const QString &str);
+
+class QbsProfileManager : public QObject
 {
     Q_OBJECT
-public:
-    static QbsProjectManagerSettings &instance();
 
-    static void setUseCreatorSettingsDirForQbs(bool useCreatorDir);
-    static bool useCreatorSettingsDirForQbs();
-    static QString qbsSettingsBaseDir();
-    static void writeSettings() { instance().doWriteSettings(); }
+public:
+    QbsProfileManager();
+    ~QbsProfileManager() override;
+
+    static QbsProfileManager *instance();
+
+    static QString profileForKit(const ProjectExplorer::Kit *k);
+    static void updateProfileIfNecessary(const ProjectExplorer::Kit *kit);
+    enum class QbsConfigOp { Get, Set, Unset }; static QString runQbsConfig(QbsConfigOp op, const QString &key, const QVariant &value = {});
 
 signals:
-    void settingsBaseChanged();
+    void qbsProfilesUpdated();
 
 private:
-    QbsProjectManagerSettings();
+    void setProfileForKit(const QString &name, const ProjectExplorer::Kit *k);
+    void addProfile(const QString &name, const QVariantMap &data);
+    void addQtProfileFromKit(const QString &profileName, const ProjectExplorer::Kit *k);
+    void addProfileFromKit(const ProjectExplorer::Kit *k);
+    void updateAllProfiles();
 
-    void readSettings();
-    void doWriteSettings();
+    void handleKitUpdate(ProjectExplorer::Kit *kit);
+    void handleKitRemoval(ProjectExplorer::Kit *kit);
 
-    bool m_useCreatorSettings;
+    DefaultPropertyProvider *m_defaultPropertyProvider;
+    QList<ProjectExplorer::Kit *> m_kitsToBeSetupForQbs;
 };
 
 } // namespace Internal

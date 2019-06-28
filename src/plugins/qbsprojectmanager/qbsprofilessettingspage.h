@@ -38,11 +38,10 @@ public:
 
 private:
     QWidget *widget() override;
-    void apply() override;
+    void apply() override { }
     void finish() override;
 
     QbsProfilesSettingsWidget *m_widget = nullptr;
-    bool m_useQtcSettingsDirPersistent;
 };
 
 } // namespace Internal

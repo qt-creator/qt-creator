@@ -28,6 +28,7 @@
 #include "qbsbuildconfiguration.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbssession.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
@@ -35,6 +36,9 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
+
+#include <QJsonArray>
+#include <QJsonObject>
 
 using namespace ProjectExplorer;
 
@@ -73,66 +77,60 @@ QbsCleanStep::QbsCleanStep(ProjectExplorer::BuildStepList *bsl) :
 QbsCleanStep::~QbsCleanStep()
 {
     doCancel();
-    if (m_job) {
-        m_job->deleteLater();
-        m_job = nullptr;
-    }
+    if (m_session)
+        m_session->disconnect(this);
 }
 
 bool QbsCleanStep::init()
 {
-    if (buildSystem()->isParsing() || m_job)
+    if (buildSystem()->isParsing() || m_session)
         return false;
-
-    auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
-
+    const auto bc = static_cast<QbsBuildConfiguration *>(buildConfiguration());
     if (!bc)
         return false;
-
     m_products = bc->products();
     return true;
 }
 
 void QbsCleanStep::doRun()
 {
-    qbs::CleanOptions options;
-    options.setDryRun(m_dryRunAspect->value());
-    options.setKeepGoing(m_keepGoingAspect->value());
-
-    QString error;
-    m_job = qbsBuildSystem()->clean(options, m_products, error);
-    if (!m_job) {
-        emit addOutput(error, OutputFormat::ErrorMessage);
+    m_session = static_cast<QbsBuildSystem*>(buildSystem())->session();
+    if (!m_session) {
+        emit addOutput(tr("No qbs session exists for this target."), OutputFormat::ErrorMessage);
         emit finished(false);
         return;
     }
 
+    QJsonObject request;
+    request.insert("type", "clean-project");
+    if (!m_products.isEmpty())
+        request.insert("products", QJsonArray::fromStringList(m_products));
+    request.insert("dry-run", m_dryRunAspect->value());
+    request.insert("keep-going", m_keepGoingAspect->value());
+    m_session->sendRequest(request);
     m_maxProgress = 0;
-
-    connect(m_job, &qbs::AbstractJob::finished, this, &QbsCleanStep::cleaningDone);
-    connect(m_job, &qbs::AbstractJob::taskStarted,
-            this, &QbsCleanStep::handleTaskStarted);
-    connect(m_job, &qbs::AbstractJob::taskProgress,
-            this, &QbsCleanStep::handleProgress);
+    connect(m_session, &QbsSession::projectCleaned, this, &QbsCleanStep::cleaningDone);
+    connect(m_session, &QbsSession::taskStarted, this, &QbsCleanStep::handleTaskStarted);
+    connect(m_session, &QbsSession::taskProgress, this, &QbsCleanStep::handleProgress);
+    connect(m_session, &QbsSession::errorOccurred, this, [this] {
+        cleaningDone(ErrorInfo(tr("Cleaning canceled: Qbs session failed.")));
+    });
 }
 
 void QbsCleanStep::doCancel()
 {
-    if (m_job)
-        m_job->cancel();
+    if (m_session)
+        m_session->cancelCurrentJob();
 }
 
-void QbsCleanStep::cleaningDone(bool success)
+void QbsCleanStep::cleaningDone(const ErrorInfo &error)
 {
-    // Report errors:
-    foreach (const qbs::ErrorItem &item, m_job->error().items()) {
-        createTaskAndOutput(ProjectExplorer::Task::Error, item.description(),
-                            item.codeLocation().filePath(), item.codeLocation().line());
-    }
+    m_session->disconnect(this);
+    m_session = nullptr;
 
-    emit finished(success);
-    m_job->deleteLater();
-    m_job = nullptr;
+    for (const ErrorInfoItem &item : error.items)
+        createTaskAndOutput(Task::Error, item.description, item.filePath.toString(), item.line);
+    emit finished(!error.hasError());
 }
 
 void QbsCleanStep::handleTaskStarted(const QString &desciption, int max)
@@ -149,9 +147,8 @@ void QbsCleanStep::handleProgress(int value)
 
 void QbsCleanStep::createTaskAndOutput(ProjectExplorer::Task::TaskType type, const QString &message, const QString &file, int line)
 {
-    ProjectExplorer::Task task = ProjectExplorer::Task(type, message,
-                                                       Utils::FilePath::fromString(file), line,
-                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+    Task task(type, message, Utils::FilePath::fromString(file), line,
+              ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
     emit addTask(task, 1);
     emit addOutput(message, OutputFormat::Stdout);
 }
