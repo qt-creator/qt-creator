@@ -56,7 +56,7 @@ Item {
 
     Button {
         // dummy button to display a tooltip
-        anchors.fill: parent
+        anchors.fill: txt
         tooltip: labelContainer.text
         style: ButtonStyle {
             background: Item {}
