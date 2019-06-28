@@ -5344,11 +5344,11 @@ void tst_Dumpers::dumper_data()
                + CheckType("t", "char [5]") % CdbEngine
                + Check("t.0", "[0]", "97", "char")
                + CheckType("w", "wchar_t [4]")
-               + Check("ch.0", "[0]", "97", "CHAR")
+               + Check("ch.0", "[0]", "97", TypeDef("char", "CHAR"))
                + CheckType("ch", "CHAR [5]") % NoCdbEngine
-               + CheckType("ch", "CHAR [4]") % CdbEngine
-               + Check("wch.0", "[0]", "97", "WCHAR")
-               + CheckType("wch", "WCHAR [4]");
+               + CheckType("ch", "char [4]") % CdbEngine
+               + Check("wch.0", "[0]", "97", TypeDef("wchar_t", "WCHAR"))
+               + CheckType("wch", TypeDef("wchar_t[4]", "WCHAR [4]"));
 
 
     QTest::newRow("CharPointers")
