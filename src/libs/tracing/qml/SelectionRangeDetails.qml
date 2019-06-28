@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Controls 2.0
+
 import TimelineTheme 1.0
 import TimelineTimeFormatter 1.0
 
@@ -133,5 +135,6 @@ Item {
         anchors.top: selectionRangeDetails.top
         implicitHeight: typeTitle.height
         onClicked: selectionRangeDetails.close()
+        ToolTip.text: qsTr("Close")
     }
 }

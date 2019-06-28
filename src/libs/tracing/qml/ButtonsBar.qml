@@ -24,9 +24,8 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0
-import QtQuick.Layouts 1.0
-import QtQuick.Controls.Styles 1.2
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 
 import TimelineTheme 1.0
 
@@ -55,18 +54,11 @@ ToolBar {
         return rangeButton.checked
     }
 
-    style: ToolBarStyle {
-        padding {
-            left: 0
-            right: 0
-            top: 0
-            bottom: 0
-        }
-        background: Rectangle {
-            anchors.fill: parent
-            color: Theme.color(Theme.PanelStatusBarBackgroundColor)
-        }
+    background: Rectangle {
+        anchors.fill: parent
+        color: Theme.color(Theme.PanelStatusBarBackgroundColor)
     }
+
 
     RowLayout {
         spacing: 0
@@ -77,7 +69,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/prev"
-            tooltip: qsTr("Jump to previous event.")
+            ToolTip.text: qsTr("Jump to previous event.")
             onClicked: buttons.jumpToPrev()
         }
 
@@ -86,7 +78,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/next"
-            tooltip: qsTr("Jump to next event.")
+            ToolTip.text: qsTr("Jump to next event.")
             onClicked: buttons.jumpToNext()
         }
 
@@ -95,7 +87,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/zoom"
-            tooltip: qsTr("Show zoom slider.")
+            ToolTip.text: qsTr("Show zoom slider.")
             checkable: true
             checked: false
             onCheckedChanged: buttons.zoomControlChanged()
@@ -106,7 +98,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/" + (checked ? "rangeselected" : "rangeselection");
-            tooltip: qsTr("Select range.")
+            ToolTip.text: qsTr("Select range.")
             checkable: true
             checked: false
             onCheckedChanged: buttons.rangeSelectChanged()
@@ -117,7 +109,7 @@ ToolBar {
             Layout.fillHeight: true
 
             imageSource: "image://icons/selectionmode"
-            tooltip: qsTr("View event information on mouseover.")
+            ToolTip.text: qsTr("View event information on mouseover.")
             checkable: true
             checked: false
             onCheckedChanged: buttons.lockChanged()

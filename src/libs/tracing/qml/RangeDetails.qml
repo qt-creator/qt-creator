@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 import QtQuick 2.9
+import QtQuick.Controls 2.0
+
 import TimelineTheme 1.0
 
 Item {
@@ -108,6 +110,7 @@ Item {
             implicitHeight: typeTitle.height
             visible: !rangeDetails.noteReadonly
             onClicked: noteEdit.focus = true
+            ToolTip.text: qsTr("Edit note")
         }
 
         ImageToolButton {
@@ -117,6 +120,7 @@ Item {
             anchors.right: closeIcon.left
             implicitHeight: typeTitle.height
             onClicked: locked = !locked
+            ToolTip.text: qsTr("View event information on mouseover.")
         }
 
         ImageToolButton {
@@ -126,6 +130,7 @@ Item {
             implicitHeight: typeTitle.height
             imageSource: "image://icons/close_window"
             onClicked: rangeDetails.clearSelection()
+            ToolTip.text: qsTr("Close")
         }
     }
 

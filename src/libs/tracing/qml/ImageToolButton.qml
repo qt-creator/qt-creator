@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0
-import QtQuick.Controls.Styles 1.2
+import QtQuick.Controls 2.0
 
 import TimelineTheme 1.0
 
@@ -33,6 +32,9 @@ ToolButton {
     implicitWidth: 30
 
     property string imageSource
+
+    ToolTip.visible: enabled && hovered
+    ToolTip.delay: 1000
 
     Image {
         source: parent.enabled ? parent.imageSource : parent.imageSource + "/disabled"
@@ -42,13 +44,11 @@ ToolButton {
         smooth: false
     }
 
-    style: ButtonStyle {
-        background: Rectangle {
-            color: (control.checked || control.pressed)
-                   ? Theme.color(Theme.FancyToolButtonSelectedColor)
-                   : control.hovered
-                     ? Theme.color(Theme.FancyToolButtonHoverColor)
-                     : "#00000000"
-        }
+    background: Rectangle {
+        color: (parent.checked || parent.pressed)
+               ? Theme.color(Theme.FancyToolButtonSelectedColor)
+               : parent.hovered
+                 ? Theme.color(Theme.FancyToolButtonHoverColor)
+                 : "#00000000"
     }
 }

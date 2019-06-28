@@ -28,7 +28,7 @@ import TimelineTheme 1.0
 
 import QtQml 2.2
 import QtQuick 2.9
-import QtQuick.Controls 1.3
+import QtQuick.Controls 2.3
 
 ScrollView {
     id: root
@@ -322,9 +322,11 @@ ScrollView {
             width: implicitWidth + 20
 
             text: qsTr("Visualize %1").arg(trRoleNames[root.sizeRole])
+            onClicked: modesMenu.open()
 
-            menu: Menu {
+            Menu {
                 id: modesMenu
+                y: parent.height
                 Instantiator {
                     model: root.modes
                     MenuItem {

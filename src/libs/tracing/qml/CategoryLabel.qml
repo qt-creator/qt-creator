@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.2
+import QtQuick.Controls 2.2
 
 import TimelineTheme 1.0
 
@@ -57,10 +56,10 @@ Item {
     Button {
         // dummy button to display a tooltip
         anchors.fill: txt
-        tooltip: labelContainer.text
-        style: ButtonStyle {
-            background: Item {}
-        }
+        ToolTip.text: labelContainer.text
+        ToolTip.visible: enabled && hovered
+        ToolTip.delay: 1000
+        background: Item {}
     }
 
     MouseArea {
@@ -170,7 +169,7 @@ Item {
 
         visible: eventIds.length > 0
         imageSource: "image://icons/note"
-        tooltip: texts.join("\n");
+        ToolTip.text: texts.join("\n");
         onClicked: {
             if (++currentNote >= eventIds.length)
                 currentNote = 0;
@@ -185,7 +184,7 @@ Item {
         implicitHeight: txt.height - 1
         enabled: expanded || (model && !model.empty)
         imageSource: expanded ? "image://icons/close_split" : "image://icons/split"
-        tooltip: expanded ? qsTr("Collapse category") : qsTr("Expand category")
+        ToolTip.text: expanded ? qsTr("Collapse category") : qsTr("Expand category")
         onClicked: model.expanded = !expanded
     }
 

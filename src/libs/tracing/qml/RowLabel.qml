@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
-import QtQuick.Controls 1.2
-import QtQuick.Controls.Styles 1.2
+import QtQuick.Controls 2.2
 import TimelineTheme 1.0
 
 Button {
@@ -38,25 +37,26 @@ Button {
     signal setRowHeight(int newHeight)
 
     property string labelText: label.description ? label.description : qsTr("[unknown]")
-    action: Action {
-        onTriggered: button.selectBySelectionId();
-        tooltip: button.labelText + (label.displayName ? (" (" + label.displayName + ")") : "")
+
+    onPressed: selectBySelectionId();
+    ToolTip.text: labelText + (label.displayName ? (" (" + label.displayName + ")") : "")
+    ToolTip.visible: hovered
+    ToolTip.delay: 1000
+
+    background: Rectangle {
+        border.width: 1
+        border.color: Theme.color(Theme.Timeline_DividerColor)
+        color: Theme.color(Theme.PanelStatusBarBackgroundColor)
     }
 
-    style: ButtonStyle {
-        background: Rectangle {
-            border.width: 1
-            border.color: Theme.color(Theme.Timeline_DividerColor)
-            color: Theme.color(Theme.PanelStatusBarBackgroundColor)
-        }
-        label: TimelineText {
-            text: button.labelText
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignLeft
-            elide: Text.ElideRight
-            color: Theme.color(Theme.PanelTextColorLight)
-        }
+    contentItem: TimelineText {
+        text: button.labelText
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignLeft
+        elide: Text.ElideRight
+        color: Theme.color(Theme.PanelTextColorLight)
     }
+
     MouseArea {
         hoverEnabled: true
         property bool resizing: false

@@ -24,8 +24,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0
-import QtQuick.Controls.Styles 1.0
+import QtQuick.Controls 2.0
 
 import TimelineTheme 1.0
 
@@ -73,7 +72,7 @@ Rectangle {
         rangeDetails.hide();
         selectionRangeMode = false;
         zoomSlider.externalUpdate = true;
-        zoomSlider.value = zoomSlider.minimumValue;
+        zoomSlider.value = zoomSlider.from;
     }
 
     // This is called from outside to synchronize the timeline to other views
@@ -192,6 +191,7 @@ Rectangle {
 
     TimelineContent {
         id: content
+
         anchors.left: buttonsBar.right
         anchors.top: buttonsBar.bottom
         anchors.bottom: overview.top
@@ -255,13 +255,13 @@ Rectangle {
 
         onReleased:  {
             if (selectionRange.creationState === selectionRange.creationSecondLimit) {
-                content.stayInteractive = true;
+                content.interactive = true;
                 selectionRange.creationState = selectionRange.creationFinished;
             }
         }
         onPressed:  {
             if (selectionRange.creationState === selectionRange.creationFirstLimit) {
-                content.stayInteractive = false;
+                content.interactive = false;
                 selectionRange.setPos(selectionRangeControl.mouseX + content.contentX);
                 selectionRange.creationState = selectionRange.creationSecondLimit;
             }
@@ -281,12 +281,12 @@ Rectangle {
         flickableDirection: Flickable.HorizontalFlick
         clip: true
         interactive: false
-        x: content.x + content.flickableItem.x
-        y: content.y + content.flickableItem.y
+        x: content.x
+        y: content.y
         height: (selectionRangeMode &&
                  selectionRange.creationState !== selectionRange.creationInactive) ?
-                    content.flickableItem.height : 0
-        width: content.flickableItem.width
+                    content.height : 0
+        width: content.width
         contentX: content.contentX
         contentWidth: content.contentWidth
 
@@ -320,11 +320,11 @@ Rectangle {
     }
 
     TimelineRulers {
-        contentX: buttonsBar.width - content.x - content.flickableItem.x + content.contentX
+        contentX: buttonsBar.width + content.contentX
         anchors.left: buttonsBar.right
         anchors.right: parent.right
         anchors.top: parent.top
-        height: content.flickableItem.height + buttonsBar.height
+        height: content.height + buttonsBar.height
         windowStart: zoomControl.windowStart
         viewTimePerPixel: selectionRange.viewTimePerPixel
         scaleHeight: buttonsBar.height
@@ -458,8 +458,8 @@ Rectangle {
         Slider {
             id: zoomSlider
             anchors.fill: parent
-            minimumValue: 1
-            maximumValue: 10000
+            from: 1
+            to: 10000
             stepSize: 100
 
             property int exponent: 3
@@ -478,7 +478,7 @@ Rectangle {
                 }
 
                 var windowLength = Math.max(
-                            Math.pow(value / maximumValue, exponent) * zoomControl.windowDuration,
+                            Math.pow(value / to, exponent) * zoomControl.windowDuration,
                             minWindowLength);
 
                 var startTime = Math.max(zoomControl.windowStart, fixedPoint - windowLength / 2)
