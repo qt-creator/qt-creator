@@ -75,9 +75,6 @@ protected:
 
     void setClampedXPosition(qreal x, qreal min, qreal max);
     TimelineGraphicsScene *timelineScene() const;
-
-private:
-    bool m_multiSelectedMove = false;
 };
 
 } // namespace QmlDesigner

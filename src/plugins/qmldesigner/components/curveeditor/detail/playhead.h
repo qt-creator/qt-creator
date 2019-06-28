@@ -65,8 +65,6 @@ private:
     QRectF m_rect;
 
     QTimer m_timer;
-
-    GraphicsView *m_view;
 };
 
 } // End namespace DesignTools.
