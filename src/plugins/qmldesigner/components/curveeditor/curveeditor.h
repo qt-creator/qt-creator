@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QToolBar>
 #include <QWidget>
 
 namespace DesignTools {
@@ -44,7 +45,11 @@ public:
 
     void zoomY(double zoom);
 
+    void clearCanvas();
+
 private:
+    QToolBar *createToolBar();
+
     TreeView *m_tree;
 
     GraphicsView *m_view;

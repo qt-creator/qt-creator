@@ -65,9 +65,19 @@ public:
 
     Keyframe keyframe() const;
 
+    HandleSlot handleSlot(HandleItem *item) const;
+
+    void setHandleVisibility(bool visible);
+
     void setComponentTransform(const QTransform &transform);
 
     void setStyle(const CurveEditorStyle &style);
+
+    void setKeyframe(const Keyframe &keyframe);
+
+    void setLeftHandle(const QPointF &pos);
+
+    void setRightHandle(const QPointF &pos);
 
     void moveKeyframe(const QPointF &direction);
 
@@ -75,6 +85,10 @@ public:
 
 protected:
     QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
+
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
     void selectionCallback() override;
 
@@ -93,6 +107,8 @@ private:
     HandleItem *m_left;
 
     HandleItem *m_right;
+
+    bool m_visibleOverride = true;
 };
 
 } // End namespace DesignTools.

@@ -77,10 +77,10 @@ void Selector::mouseMove(QMouseEvent *event, GraphicsView *view, Playhead &playh
     if (m_mouseInit.isNull())
         return;
 
-    QPointF delta = event->globalPos() - m_mouseInit;
-    if (delta.manhattanLength() < QApplication::startDragDistance())
+    if ((event->globalPos() - m_mouseInit).manhattanLength() < QApplication::startDragDistance())
         return;
 
+    QPointF delta = event->globalPos() - m_mouseCurr;
     if (m_shortcut == m_shortcuts.newSelection || m_shortcut == m_shortcuts.addToSelection
         || m_shortcut == m_shortcuts.removeFromSelection
         || m_shortcut == m_shortcuts.toggleSelection) {

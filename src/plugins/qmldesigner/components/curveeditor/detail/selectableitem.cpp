@@ -26,8 +26,6 @@
 #include "selectableitem.h"
 #include "keyframeitem.h"
 
-#include <QDebug>
-
 namespace DesignTools {
 
 SelectableItem::SelectableItem(QGraphicsItem *parent)

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <QtGlobal>
+
 QT_BEGIN_NAMESPACE
 class QColor;
 class QPalette;
@@ -33,11 +35,9 @@ class QRectF;
 class QTransform;
 QT_END_NAMESPACE
 
+#include <vector>
+
 namespace DesignTools {
-
-double clamp(double val, double lo, double hi);
-
-double lerp(double blend, double a, double b);
 
 double scaleX(const QTransform &transform);
 
@@ -48,5 +48,31 @@ void grow(QRectF &rect, const QPointF &point);
 QRectF bbox(const QRectF &rect, const QTransform &transform);
 
 QPalette singleColorPalette(const QColor &color);
+
+template<typename T>
+inline void freeClear(std::vector<T *> &vec)
+{
+    for (auto *&el : vec)
+        delete el;
+    vec.clear();
+}
+
+template<typename TV, typename TC>
+inline double clamp(const TV &val, const TC &lo, const TC &hi)
+{
+    return val < lo ? lo : (val > hi ? hi : val);
+}
+
+template<typename T>
+inline T lerp(double blend, const T &a, const T &b)
+{
+    return (1.0 - blend) * a + blend * b;
+}
+
+template<typename T>
+inline T reverseLerp(double blend, const T &a, const T &b)
+{
+    return (blend - b) / (a - b);
+}
 
 } // End namespace DesignTools.

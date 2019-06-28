@@ -30,66 +30,63 @@
 #include <array>
 #include <vector>
 
-QT_FORWARD_DECLARE_CLASS(QEasingCurve);
-QT_FORWARD_DECLARE_CLASS(QPainterPath);
+QT_BEGIN_NAMESPACE
+class QPointF;
+class QEasingCurve;
+class QPainterPath;
+QT_END_NAMESPACE
 
 namespace DesignTools {
 
-class CurveSegment;
-
-class AnimationCurve
+class CurveSegment
 {
 public:
-    AnimationCurve();
+    CurveSegment();
 
-    AnimationCurve(const std::vector<Keyframe> &frames);
-
-    AnimationCurve(const QEasingCurve &easing, const QPointF &start, const QPointF &end);
+    CurveSegment(const Keyframe &first, const Keyframe &last);
 
     bool isValid() const;
 
-    bool isFromData() const;
+    bool containsX(double x) const;
 
-    double minimumTime() const;
+    Keyframe left() const;
 
-    double maximumTime() const;
+    Keyframe right() const;
 
-    double minimumValue() const;
+    Keyframe::Interpolation interpolation() const;
 
-    double maximumValue() const;
+    QPointF evaluate(double t) const;
 
-    CurveSegment segment(double time) const;
+    QPainterPath path() const;
 
-    std::vector<CurveSegment> segments() const;
+    void extend(QPainterPath &path) const;
 
-    QPainterPath simplePath() const;
-
-    QPainterPath intersectionPath() const;
-
-    std::vector<Keyframe> keyframes() const;
+    QEasingCurve easingCurve() const;
 
     std::vector<QPointF> extrema() const;
 
+    std::vector<double> tForX(double x) const;
+
+    std::vector<double> tForY(double y) const;
+
     std::vector<double> yForX(double x) const;
 
-    std::vector<double> xForY(double y, uint segment) const;
+    std::vector<double> xForY(double y) const;
+
+    std::array<Keyframe, 3> splitAt(double time);
 
     bool intersects(const QPointF &coord, double radiusX, double radiusY) const;
 
-    void append(const AnimationCurve &other);
+    void setLeft(const Keyframe &frame);
 
-    void insert(double time);
+    void setRight(const Keyframe &frame);
+
+    void setInterpolation(const Keyframe::Interpolation &interpol);
 
 private:
-    void analyze();
+    Keyframe m_left;
 
-    bool m_fromData;
-
-    double m_minY;
-
-    double m_maxY;
-
-    std::vector<Keyframe> m_frames;
+    Keyframe m_right;
 };
 
 } // End namespace DesignTools.

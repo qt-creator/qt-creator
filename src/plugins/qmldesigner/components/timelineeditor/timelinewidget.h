@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "animationcurveeditormodel.h"
 #include "timelineutils.h"
 #include <coreplugin/icontext.h>
 
@@ -76,6 +77,8 @@ public slots:
     void setTimelineRecording(bool value);
     void changeScaleFactor(int factor);
     void scroll(const TimelineUtils::Side &side);
+
+    void updateAnimationCurve(DesignTools::PropertyTreeItem *item);
 
 protected:
     void showEvent(QShowEvent *event) override;

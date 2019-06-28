@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <qmldesignercorelib_global.h>
-#include "qmlmodelnodefacade.h"
 #include "qmlchangeset.h"
+#include "qmlmodelnodefacade.h"
+#include <qmldesignercorelib_global.h>
 
 namespace QmlDesigner {
 
@@ -37,7 +37,6 @@ class QmlTimeline;
 
 class QMLDESIGNERCORE_EXPORT QmlTimelineKeyframeGroup : public QmlModelNodeFacade
 {
-
 public:
     QmlTimelineKeyframeGroup();
     QmlTimelineKeyframeGroup(const ModelNode &modelNode);
@@ -64,6 +63,10 @@ public:
     qreal minActualKeyframe() const;
     qreal maxActualKeyframe() const;
 
+    ModelNode keyframe(qreal position) const;
+
+    const QList<ModelNode> keyframes() const;
+
     const QList<ModelNode> keyframePositions() const;
 
     static bool isValidKeyframe(const ModelNode &node);
@@ -83,4 +86,4 @@ public:
     QmlTimeline timeline() const;
 };
 
-} //QmlDesigner
+} // namespace QmlDesigner

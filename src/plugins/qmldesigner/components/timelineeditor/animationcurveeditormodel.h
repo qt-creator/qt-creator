@@ -25,41 +25,48 @@
 
 #pragma once
 
-#include "keyframe.h"
+#include "curveeditor/curveeditormodel.h"
+#include "curveeditor/treeitem.h"
 
-#include <vector>
+#include <qmltimelinekeyframegroup.h>
 
-QT_BEGIN_NAMESPACE
-class QPointF;
-QT_END_NAMESPACE
+namespace QmlDesigner {
 
-namespace DesignTools {
-
-class CurveSegment
+class AnimationCurveEditorModel : public DesignTools::CurveEditorModel
 {
+    Q_OBJECT
+
 public:
-    CurveSegment();
+    AnimationCurveEditorModel(double minTime, double maxTime);
 
-    CurveSegment(const Keyframe &first, const Keyframe &last);
+    ~AnimationCurveEditorModel() override;
 
-    bool containsX(double x) const;
+    double minimumTime() const override;
 
-    QPointF evaluate(double t) const;
+    double maximumTime() const override;
 
-    std::vector<QPointF> extrema() const;
+    DesignTools::CurveEditorStyle style() const override;
 
-    std::vector<double> yForX(double x) const;
+    void setTimeline(const QmlTimeline &timeline);
 
-    std::vector<double> xForY(double y) const;
+    void setMinimumTime(double time);
 
-    void setLeft(const Keyframe &frame);
-
-    void setRight(const Keyframe &frame);
+    void setMaximumTime(double time);
 
 private:
-    Keyframe m_left;
+    DesignTools::TreeItem *createTopLevelItem(const QmlTimeline &timeline, const ModelNode &node);
 
-    Keyframe m_right;
+    DesignTools::AnimationCurve createAnimationCurve(const QmlTimelineKeyframeGroup &group);
+
+    DesignTools::AnimationCurve createDoubleCurve(const QmlTimelineKeyframeGroup &group);
+
+    double valueFromVariant(const QVariant &variant);
+
+    void reset(const std::vector<DesignTools::TreeItem *> &items);
+
+    double m_minTime;
+
+    double m_maxTime;
 };
 
-} // End namespace DesignTools.
+} // namespace QmlDesigner

@@ -26,17 +26,33 @@
 #pragma once
 
 #include <QPointF>
+#include <QVariant>
 
 namespace DesignTools {
 
 class Keyframe
 {
 public:
+    enum class Interpolation
+    {
+        Undefined,
+        Step,
+        Linear,
+        Bezier,
+        Easing
+    };
+
     Keyframe();
 
     Keyframe(const QPointF &position);
 
+    Keyframe(const QPointF &position, const QVariant& data);
+
     Keyframe(const QPointF &position, const QPointF &leftHandle, const QPointF &rightHandle);
+
+    bool isValid() const;
+
+    bool hasData() const;
 
     bool hasLeftHandle() const;
 
@@ -48,18 +64,32 @@ public:
 
     QPointF rightHandle() const;
 
+    QVariant data() const;
+
+    Interpolation interpolation() const;
+
     void setPosition(const QPointF &pos);
 
     void setLeftHandle(const QPointF &pos);
 
     void setRightHandle(const QPointF &pos);
 
+    void setData(const QVariant& data);
+
+    void setInterpolation(Interpolation interpol);
+
 private:
+    Interpolation m_interpolation = Interpolation::Undefined;
+
     QPointF m_position;
 
     QPointF m_leftHandle;
 
     QPointF m_rightHandle;
+
+    QVariant m_data;
 };
+
+std::string toString(Keyframe::Interpolation interpol);
 
 } // End namespace DesignTools.

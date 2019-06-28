@@ -100,6 +100,8 @@ public:
 
     void reset(const std::vector<CurveItem *> &items);
 
+    void setInterpolation(Keyframe::Interpolation interpol);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -121,6 +123,10 @@ protected:
 
 private:
     void applyZoom(double x, double y, const QPoint &pivot = QPoint());
+
+    void insertKeyframe(double time);
+
+    void deleteSelectedKeyframes();
 
     void drawGrid(QPainter *painter, const QRectF &rect);
 

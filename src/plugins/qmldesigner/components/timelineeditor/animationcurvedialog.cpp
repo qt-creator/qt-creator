@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the Qt Design Tooling
+** This file is part of Qt Creator.
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -23,37 +23,44 @@
 **
 ****************************************************************************/
 
-#pragma once
+#include "animationcurvedialog.h"
 
-#include "curveeditorstyle.h"
-#include "selectableitem.h"
+#include <QVBoxLayout>
 
-namespace DesignTools {
+namespace QmlDesigner {
 
-class HandleItem : public SelectableItem
+AnimationCurveDialog::AnimationCurveDialog(QWidget *parent)
+    : QDialog(parent)
+    , m_editor(nullptr)
 {
-    Q_OBJECT
+    setWindowFlag(Qt::WindowStaysOnTopHint, true);
+    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+}
 
-public:
-    HandleItem(QGraphicsItem *parent);
+AnimationCurveDialog::AnimationCurveDialog(DesignTools::CurveEditorModel *model, QWidget *parent)
+    : QDialog(parent)
+    , m_editor(nullptr)
+{
+    setWindowFlag(Qt::WindowStaysOnTopHint, true);
+    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+    setModel(model);
+}
 
-    ~HandleItem() override;
+void AnimationCurveDialog::setModel(DesignTools::CurveEditorModel *model)
+{
+    if (m_editor)
+        return;
 
-    enum { Type = ItemTypeHandle };
+    m_editor = new DesignTools::CurveEditor(model);
 
-    int type() const override;
+    auto *layout = new QVBoxLayout;
+    layout->addWidget(m_editor);
+    setLayout(layout);
+}
 
-    QRectF boundingRect() const override;
+void AnimationCurveDialog::showEvent(QShowEvent *)
+{
+    m_editor->clearCanvas();
+}
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-
-    void setStyle(const CurveEditorStyle &style);
-
-protected:
-    QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
-
-private:
-    HandleItemStyleOption m_style;
-};
-
-} // End namespace DesignTools.
+} // namespace QmlDesigner

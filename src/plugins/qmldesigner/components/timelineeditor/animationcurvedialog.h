@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the Qt Design Tooling
+** This file is part of Qt Creator.
 **
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
@@ -25,35 +25,28 @@
 
 #pragma once
 
-#include "curveeditorstyle.h"
-#include "selectableitem.h"
+#include "curveeditor/curveeditor.h"
 
-namespace DesignTools {
+#include <QDialog>
 
-class HandleItem : public SelectableItem
+namespace QmlDesigner {
+
+class AnimationCurveDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    HandleItem(QGraphicsItem *parent);
+    AnimationCurveDialog(QWidget *parent = nullptr);
 
-    ~HandleItem() override;
+    AnimationCurveDialog(DesignTools::CurveEditorModel *model, QWidget *parent = nullptr);
 
-    enum { Type = ItemTypeHandle };
-
-    int type() const override;
-
-    QRectF boundingRect() const override;
-
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-
-    void setStyle(const CurveEditorStyle &style);
+    void setModel(DesignTools::CurveEditorModel *model);
 
 protected:
-    QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
+    void showEvent(QShowEvent *event) override;
 
 private:
-    HandleItemStyleOption m_style;
+    DesignTools::CurveEditor *m_editor;
 };
 
-} // End namespace DesignTools.
+} // namespace QmlDesigner

@@ -28,9 +28,11 @@
 #include "keyframeitem.h"
 #include "utils.h"
 
+#include <QEasingCurve>
 #include <QPainter>
 #include <QPainterPath>
 
+#include <algorithm>
 #include <cmath>
 
 namespace DesignTools {
@@ -39,41 +41,42 @@ CurveItem::CurveItem(QGraphicsItem *parent)
     : QGraphicsObject(parent)
     , m_id(0)
     , m_style()
+    , m_type(ValueType::Undefined)
+    , m_component(PropertyTreeItem::Component::Generic)
     , m_transform()
     , m_keyframes()
     , m_underMouse(false)
     , m_itemDirty(false)
-    , m_pathDirty(true)
 {}
 
 CurveItem::CurveItem(unsigned int id, const AnimationCurve &curve, QGraphicsItem *parent)
     : QGraphicsObject(parent)
     , m_id(id)
     , m_style()
+    , m_type(ValueType::Undefined)
+    , m_component(PropertyTreeItem::Component::Generic)
     , m_transform()
     , m_keyframes()
     , m_underMouse(false)
     , m_itemDirty(false)
-    , m_pathDirty(true)
 {
     setAcceptHoverEvents(true);
 
     setFlag(QGraphicsItem::ItemIsMovable, false);
 
-    auto emitCurveChanged = [this]() {
-        m_itemDirty = true;
-        m_pathDirty = true;
-        update();
-    };
-
     for (auto frame : curve.keyframes()) {
         auto *item = new KeyframeItem(frame, this);
-        QObject::connect(item, &KeyframeItem::redrawCurve, emitCurveChanged);
+        QObject::connect(item, &KeyframeItem::redrawCurve, this, &CurveItem::emitCurveChanged);
         m_keyframes.push_back(item);
     }
 }
 
 CurveItem::~CurveItem() {}
+
+bool CurveItem::isUnderMouse() const
+{
+    return m_underMouse;
+}
 
 int CurveItem::type() const
 {
@@ -100,10 +103,11 @@ bool CurveItem::contains(const QPointF &point) const
     bool valid = false;
     QPointF transformed(m_transform.inverted(&valid).map(point));
 
-    double width = std::abs(20.0 / scaleY(m_transform));
+    double widthX = std::abs(10.0 / scaleX(m_transform));
+    double widthY = std::abs(10.0 / scaleY(m_transform));
 
     if (valid)
-        return curve().intersects(transformed, width);
+        return curve().intersects(transformed, widthX, widthY);
 
     return false;
 }
@@ -112,15 +116,25 @@ void CurveItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
 {
     if (m_keyframes.size() > 1) {
         QPen pen = painter->pen();
-        QColor col = m_underMouse ? Qt::red : m_style.color;
-
         pen.setWidthF(m_style.width);
-        pen.setColor(hasSelection() ? m_style.selectionColor : col);
 
         painter->save();
         painter->setPen(pen);
-        painter->drawPath(path());
 
+        for (auto &&segment : curve().segments()) {
+            if (segment.interpolation() == Keyframe::Interpolation::Easing) {
+                pen.setColor(m_style.easingCurveColor);
+            } else {
+                if (m_underMouse)
+                    pen.setColor(Qt::red);
+                else if (hasSelection())
+                    pen.setColor(m_style.selectionColor);
+                else
+                    pen.setColor(m_style.color);
+            }
+            painter->setPen(pen);
+            painter->drawPath(m_transform.map(segment.path()));
+        }
         painter->restore();
     }
 }
@@ -136,7 +150,6 @@ bool CurveItem::hasSelection() const
         if (frame->selected())
             return true;
     }
-
     return false;
 }
 
@@ -145,41 +158,106 @@ unsigned int CurveItem::id() const
     return m_id;
 }
 
-QPainterPath CurveItem::path() const
+ValueType CurveItem::valueType() const
 {
-    if (m_pathDirty) {
-        Keyframe previous = m_keyframes.front()->keyframe();
-        Keyframe current;
+    return m_type;
+}
 
-        m_path = QPainterPath(m_transform.map(previous.position()));
-        for (size_t i = 1; i < m_keyframes.size(); ++i) {
-            current = m_keyframes[i]->keyframe();
-
-            if (previous.rightHandle().isNull() || current.leftHandle().isNull()) {
-                m_path.lineTo(m_transform.map(current.position()));
-            } else {
-                m_path.cubicTo(
-                    m_transform.map(previous.rightHandle()),
-                    m_transform.map(current.leftHandle()),
-                    m_transform.map(current.position()));
-            }
-
-            previous = current;
-        }
-        m_pathDirty = false;
-    }
-
-    return m_path;
+PropertyTreeItem::Component CurveItem::component() const
+{
+    return m_component;
 }
 
 AnimationCurve CurveItem::curve() const
 {
-    std::vector<Keyframe> out;
-    out.reserve(m_keyframes.size());
-    for (auto item : m_keyframes)
-        out.push_back(item->keyframe());
+    std::vector<Keyframe> frames;
+    frames.reserve(m_keyframes.size());
+    for (auto *frameItem : m_keyframes)
+        frames.push_back(frameItem->keyframe());
+
+    return AnimationCurve(frames);
+}
+
+AnimationCurve CurveItem::resolvedCurve() const
+{
+    std::vector<AnimationCurve> tmp = curves();
+
+    if (tmp.size() == 0)
+        return AnimationCurve();
+
+    if (tmp.size() == 1)
+        return tmp[0];
+
+    AnimationCurve out = tmp[0];
+    for (size_t i = 1; i < tmp.size(); ++i)
+        out.append(tmp[i]);
 
     return out;
+}
+
+std::vector<AnimationCurve> CurveItem::curves() const
+{
+    std::vector<AnimationCurve> out;
+
+    std::vector<Keyframe> tmp;
+
+    for (size_t i = 0; i < m_keyframes.size(); ++i) {
+        KeyframeItem *item = m_keyframes[i];
+
+        Keyframe current = item->keyframe();
+
+        if (current.interpolation() == Keyframe::Interpolation::Easing && i > 0) {
+            if (!tmp.empty()) {
+                Keyframe previous = tmp.back();
+
+                if (tmp.size() >= 2)
+                    out.push_back(AnimationCurve(tmp));
+
+                out.push_back(
+                    AnimationCurve(
+                        current.data().value<QEasingCurve>(),
+                        previous.position(),
+                        current.position()));
+
+                tmp.clear();
+                tmp.push_back(current);
+            }
+        } else {
+            tmp.push_back(current);
+        }
+    }
+
+    if (tmp.size() >= 2)
+        out.push_back(AnimationCurve(tmp));
+
+    return out;
+}
+
+void CurveItem::restore()
+{
+    if (m_keyframes.empty())
+        return;
+
+    auto byTime = [](auto a, auto b) {
+        return a->keyframe().position().x() < b->keyframe().position().x();
+    };
+    std::sort(m_keyframes.begin(), m_keyframes.end(), byTime);
+
+    KeyframeItem *prevItem = m_keyframes[0];
+    for (size_t i = 1; i < m_keyframes.size(); ++i) {
+        KeyframeItem *currItem = m_keyframes[i];
+
+        Keyframe prev = prevItem->keyframe();
+        Keyframe curr = currItem->keyframe();
+        CurveSegment segment(prev, curr);
+
+        segment.setInterpolation(segment.interpolation());
+
+        prevItem->setRightHandle(segment.left().rightHandle());
+        currItem->setLeftHandle(segment.right().leftHandle());
+
+        prevItem = currItem;
+    }
 }
 
 void CurveItem::setDirty(bool dirty)
@@ -187,10 +265,38 @@ void CurveItem::setDirty(bool dirty)
     m_itemDirty = dirty;
 }
 
+void CurveItem::setHandleVisibility(bool visible)
+{
+    for (auto frame : m_keyframes)
+        frame->setHandleVisibility(visible);
+}
+
+void CurveItem::setValueType(ValueType type)
+{
+    m_type = type;
+}
+
+void CurveItem::setComponent(PropertyTreeItem::Component comp)
+{
+    m_component = comp;
+}
+
+void CurveItem::setCurve(const AnimationCurve &curve)
+{
+    freeClear(m_keyframes);
+
+    for (auto frame : curve.keyframes()) {
+        auto *item = new KeyframeItem(frame, this);
+        item->setComponentTransform(m_transform);
+        m_keyframes.push_back(item);
+        QObject::connect(item, &KeyframeItem::redrawCurve, this, &CurveItem::emitCurveChanged);
+    }
+
+    emitCurveChanged();
+}
+
 QRectF CurveItem::setComponentTransform(const QTransform &transform)
 {
-    m_pathDirty = true;
-
     prepareGeometryChange();
     m_transform = transform;
     for (auto frame : m_keyframes)
@@ -207,6 +313,30 @@ void CurveItem::setStyle(const CurveEditorStyle &style)
         frame->setStyle(style);
 }
 
+void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
+{
+    if (m_keyframes.empty())
+        return;
+
+    KeyframeItem *prevItem = m_keyframes[0];
+    for (size_t i = 1; i < m_keyframes.size(); ++i) {
+        KeyframeItem *currItem = m_keyframes[i];
+        if (currItem->selected()) {
+            Keyframe prev = prevItem->keyframe();
+            Keyframe curr = currItem->keyframe();
+            CurveSegment segment(prev, curr);
+
+            segment.setInterpolation(interpolation);
+            prevItem->setKeyframe(segment.left());
+            currItem->setKeyframe(segment.right());
+
+            m_itemDirty = true;
+        }
+
+        prevItem = currItem;
+    }
+}
+
 void CurveItem::connect(GraphicsScene *scene)
 {
     for (auto *frame : m_keyframes) {
@@ -221,6 +351,33 @@ void CurveItem::setIsUnderMouse(bool under)
         m_underMouse = under;
         update();
     }
+}
+
+void CurveItem::insertKeyframeByTime(double time)
+{
+    AnimationCurve acurve = curve();
+    acurve.insert(time);
+    setCurve(acurve);
+}
+
+void CurveItem::deleteSelectedKeyframes()
+{
+    for (auto *&item : m_keyframes) {
+        if (item->selected()) {
+            delete item;
+            item = nullptr;
+        }
+    }
+    auto isNullptr = [](KeyframeItem *frame) { return frame == nullptr; };
+    auto iter = std::remove_if(m_keyframes.begin(), m_keyframes.end(), isNullptr);
+    m_keyframes.erase(iter, m_keyframes.end());
+    emitCurveChanged();
+}
+
+void CurveItem::emitCurveChanged()
+{
+    m_itemDirty = true;
+    update();
 }
 
 } // End namespace DesignTools.

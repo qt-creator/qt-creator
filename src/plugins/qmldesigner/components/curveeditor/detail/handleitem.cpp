@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "handleitem.h"
+#include "keyframeitem.h"
 #include "utils.h"
 
 #include <QPainter>
@@ -99,6 +100,26 @@ void HandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 void HandleItem::setStyle(const CurveEditorStyle &style)
 {
     m_style = style.handleStyle;
+}
+
+QVariant HandleItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+    if (change == ItemPositionChange) {
+        if (KeyframeItem *parent = qgraphicsitem_cast<KeyframeItem *>(parentItem())) {
+            HandleSlot slot = parent->handleSlot(this);
+            QPointF pos = value.toPointF();
+            if (slot == HandleSlot::Left) {
+                if (pos.x() > 0.0)
+                    pos.rx() = 0.0;
+
+            } else if (slot == HandleSlot::Right) {
+                if (pos.x() < 0.0)
+                    pos.rx() = 0.0;
+            }
+            return QVariant(pos);
+        }
+    }
+    return QGraphicsItem::itemChange(change, value);
 }
 
 } // End namespace DesignTools.

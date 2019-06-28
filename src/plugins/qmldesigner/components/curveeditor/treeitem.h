@@ -58,6 +58,10 @@ public:
 
     unsigned int id() const;
 
+    QString name() const;
+
+    bool hasChildren() const;
+
     bool locked() const;
 
     bool pinned() const;
@@ -102,7 +106,6 @@ protected:
     std::vector<TreeItem *> m_children;
 };
 
-
 class NodeTreeItem : public TreeItem
 {
 public:
@@ -116,20 +119,41 @@ private:
     QIcon m_icon;
 };
 
+enum class ValueType {
+    Undefined,
+    Bool,
+    Integer,
+    Double,
+};
 
 class PropertyTreeItem : public TreeItem
 {
 public:
-    PropertyTreeItem(const QString &name, const AnimationCurve &curve);
+    enum class Component { Generic, R, G, B, A, X, Y, Z, W };
+
+public:
+    PropertyTreeItem(const QString &name, const AnimationCurve &curve, const ValueType &type);
 
     PropertyTreeItem *asPropertyItem() override;
+
+    const NodeTreeItem *parentNodeTreeItem() const;
+
+    ValueType valueType() const;
+
+    Component component() const;
 
     AnimationCurve curve() const;
 
     void setCurve(const AnimationCurve &curve);
 
+    void setComponent(const Component &comp);
+
 private:
     using TreeItem::addChild;
+
+    ValueType m_type = ValueType::Undefined;
+
+    Component m_component = Component::Generic;
 
     AnimationCurve m_curve;
 };

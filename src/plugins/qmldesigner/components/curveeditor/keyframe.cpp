@@ -28,22 +28,48 @@
 namespace DesignTools {
 
 Keyframe::Keyframe()
-    : m_position()
+    : m_interpolation(Interpolation::Undefined)
+    , m_position()
     , m_leftHandle()
     , m_rightHandle()
+    , m_data()
 {}
 
 Keyframe::Keyframe(const QPointF &position)
-    : m_position(position)
+    : m_interpolation(Interpolation::Linear)
+    , m_position(position)
     , m_leftHandle()
     , m_rightHandle()
+    , m_data()
 {}
 
+Keyframe::Keyframe(const QPointF &position, const QVariant &data)
+    : m_interpolation(Interpolation::Undefined)
+    , m_position(position)
+    , m_leftHandle()
+    , m_rightHandle()
+    , m_data()
+{
+    setData(data);
+}
+
 Keyframe::Keyframe(const QPointF &position, const QPointF &leftHandle, const QPointF &rightHandle)
-    : m_position(position)
+    : m_interpolation(Interpolation::Bezier)
+    , m_position(position)
     , m_leftHandle(leftHandle)
     , m_rightHandle(rightHandle)
+    , m_data()
 {}
+
+bool Keyframe::isValid() const
+{
+    return m_interpolation != Interpolation::Undefined;
+}
+
+bool Keyframe::hasData() const
+{
+    return m_data.isValid();
+}
 
 bool Keyframe::hasLeftHandle() const
 {
@@ -70,6 +96,21 @@ QPointF Keyframe::rightHandle() const
     return m_rightHandle;
 }
 
+QVariant Keyframe::data() const
+{
+    return m_data;
+}
+
+Keyframe::Interpolation Keyframe::interpolation() const
+{
+    return m_interpolation;
+}
+
+void Keyframe::setInterpolation(Interpolation interpol)
+{
+    m_interpolation = interpol;
+}
+
 void Keyframe::setPosition(const QPointF &pos)
 {
     m_position = pos;
@@ -83,6 +124,32 @@ void Keyframe::setLeftHandle(const QPointF &pos)
 void Keyframe::setRightHandle(const QPointF &pos)
 {
     m_rightHandle = pos;
+}
+
+void Keyframe::setData(const QVariant &data)
+{
+    if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
+        m_interpolation = Interpolation::Easing;
+
+    m_data = data;
+}
+
+std::string toString(Keyframe::Interpolation interpol)
+{
+    switch (interpol) {
+    case Keyframe::Interpolation::Undefined:
+        return "Interpolation::Undefined";
+    case Keyframe::Interpolation::Step:
+        return "Interpolation::Step";
+    case Keyframe::Interpolation::Linear:
+        return "Interpolation::Linear";
+    case Keyframe::Interpolation::Bezier:
+        return "Interpolation::Bezier";
+    case Keyframe::Interpolation::Easing:
+        return "Interpolation::Easing";
+    default:
+        return "Interpolation::Undefined";
+    }
 }
 
 } // End namespace DesignTools.

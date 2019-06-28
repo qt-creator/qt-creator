@@ -44,6 +44,7 @@ TreeItem::~TreeItem()
     m_parent = nullptr;
 
     qDeleteAll(m_children);
+    m_children.clear();
 }
 
 QIcon TreeItem::icon() const
@@ -64,6 +65,16 @@ PropertyTreeItem *TreeItem::asPropertyItem()
 unsigned int TreeItem::id() const
 {
     return m_id;
+}
+
+QString TreeItem::name() const
+{
+    return m_name;
+}
+
+bool TreeItem::hasChildren() const
+{
+    return !m_children.empty();
 }
 
 bool TreeItem::locked() const
@@ -185,7 +196,6 @@ void TreeItem::setPinned(bool pinned)
     m_pinned = pinned;
 }
 
-
 NodeTreeItem::NodeTreeItem(const QString &name, const QIcon &icon)
     : TreeItem(name)
     , m_icon(icon)
@@ -203,15 +213,39 @@ QIcon NodeTreeItem::icon() const
     return m_icon;
 }
 
-
-PropertyTreeItem::PropertyTreeItem(const QString &name, const AnimationCurve &curve)
+PropertyTreeItem::PropertyTreeItem(const QString &name,
+                                   const AnimationCurve &curve,
+                                   const ValueType &type)
     : TreeItem(name)
+    , m_type(type)
+    , m_component(Component::Generic)
     , m_curve(curve)
 {}
 
 PropertyTreeItem *PropertyTreeItem::asPropertyItem()
 {
     return this;
+}
+
+const NodeTreeItem *PropertyTreeItem::parentNodeTreeItem() const
+{
+    TreeItem *p = parent();
+    while (p) {
+        if (NodeTreeItem *ni = p->asNodeItem())
+            return ni;
+        p = p->parent();
+    }
+    return nullptr;
+}
+
+ValueType PropertyTreeItem::valueType() const
+{
+    return m_type;
+}
+
+PropertyTreeItem::Component PropertyTreeItem::component() const
+{
+    return m_component;
 }
 
 AnimationCurve PropertyTreeItem::curve() const
@@ -222,6 +256,11 @@ AnimationCurve PropertyTreeItem::curve() const
 void PropertyTreeItem::setCurve(const AnimationCurve &curve)
 {
     m_curve = curve;
+}
+
+void PropertyTreeItem::setComponent(const Component &comp)
+{
+    m_component = comp;
 }
 
 } // End namespace DesignTools.

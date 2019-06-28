@@ -49,6 +49,8 @@ public:
 
     void setStyle(const CurveEditorStyle &style);
 
+    std::vector<CurveItem *> selection();
+
 protected:
     QSize sizeHint() const override;
 

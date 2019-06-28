@@ -26,7 +26,10 @@
 #pragma once
 
 #include "curveeditorstyle.h"
+#include "curvesegment.h"
+#include "keyframe.h"
 #include "selectableitem.h"
+#include "treeitem.h"
 
 #include <QGraphicsObject>
 
@@ -59,28 +62,58 @@ public:
 
     bool isDirty() const;
 
+    bool isUnderMouse() const;
+
     bool hasSelection() const;
 
     unsigned int id() const;
 
+    ValueType valueType() const;
+
+    PropertyTreeItem::Component component() const;
+
     AnimationCurve curve() const;
 
+    AnimationCurve resolvedCurve() const;
+
+    std::vector<AnimationCurve> curves() const;
+
+    void restore();
+
     void setDirty(bool dirty);
+
+    void setHandleVisibility(bool visible);
+
+    void setValueType(ValueType type);
+
+    void setComponent(PropertyTreeItem::Component comp);
+
+    void setCurve(const AnimationCurve &curve);
 
     QRectF setComponentTransform(const QTransform &transform);
 
     void setStyle(const CurveEditorStyle &style);
 
+    void setInterpolation(Keyframe::Interpolation interpolation);
+
     void connect(GraphicsScene *scene);
 
     void setIsUnderMouse(bool under);
 
+    void insertKeyframeByTime(double time);
+
+    void deleteSelectedKeyframes();
+
 private:
-    QPainterPath path() const;
+    void emitCurveChanged();
 
     unsigned int m_id;
 
     CurveItemStyleOption m_style;
+
+    ValueType m_type;
+
+    PropertyTreeItem::Component m_component;
 
     QTransform m_transform;
 
@@ -89,10 +122,6 @@ private:
     bool m_underMouse;
 
     bool m_itemDirty;
-
-    mutable bool m_pathDirty;
-
-    mutable QPainterPath m_path;
 };
 
 } // End namespace DesignTools.
