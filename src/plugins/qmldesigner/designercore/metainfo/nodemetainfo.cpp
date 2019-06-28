@@ -336,14 +336,14 @@ private:
 static inline bool isValueType(const TypeName &type)
 {
     static const PropertyTypeList objectValuesList({"QFont", "QPoint", "QPointF",
-        "QSize", "QSizeF", "QVector3D", "QVector2D"});
+        "QSize", "QSizeF", "QVector3D", "QVector2D", "font"});
     return objectValuesList.contains(type);
 }
 
 static inline bool isValueType(const QString &type)
 {
     static const QStringList objectValuesList({"QFont", "QPoint", "QPointF",
-        "QSize", "QSizeF", "QVector3D", "QVector2D"});
+        "QSize", "QSizeF", "QVector3D", "QVector2D", "font"});
     return objectValuesList.contains(type);
 }
 
