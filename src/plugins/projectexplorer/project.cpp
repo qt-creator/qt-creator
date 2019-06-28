@@ -667,7 +667,7 @@ void Project::changeRootProjectDirectory()
 {
     Utils::FilePath rootPath = Utils::FilePath::fromString(
         QFileDialog::getExistingDirectory(Core::ICore::dialogParent(),
-                                          tr("Select The Root Directory"),
+                                          tr("Select the Root Directory"),
                                           rootProjectDirectory().toString(),
                                           QFileDialog::ShowDirsOnly
                                               | QFileDialog::DontResolveSymlinks));
@@ -679,7 +679,7 @@ void Project::changeRootProjectDirectory()
 }
 
 /*!
-    Returns the common root directory that contains all files which belongs to a project.
+    Returns the common root directory that contains all files which belong to a project.
 */
 Utils::FilePath Project::rootProjectDirectory() const
 {

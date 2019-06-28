@@ -18,6 +18,7 @@ SOURCES += \
     $$PWD/clangcodemodelserverproxy.cpp \
     $$PWD/alivemessage.cpp \
     $$PWD/completionsmessage.cpp \
+    $$PWD/filesystem.cpp \
     $$PWD/requestcompletionsmessage.cpp \
     $$PWD/echomessage.cpp \
     $$PWD/endmessage.cpp \
@@ -87,7 +88,8 @@ SOURCES += \
     $$PWD/removegeneratedfilesmessage.cpp \
     $$PWD/generatedfiles.cpp \
     $$PWD/projectpartartefact.cpp \
-    $$PWD/projectpartcontainer.cpp
+    $$PWD/projectpartcontainer.cpp \
+    $$PWD/filestatuscache.cpp
 
 HEADERS += \
     $$PWD/cancelmessage.h \
@@ -109,7 +111,11 @@ HEADERS += \
     $$PWD/alivemessage.h \
     $$PWD/clangsupportexceptions.h \
     $$PWD/completionsmessage.h \
+    $$PWD/directoryandfilepathid.h \
+    $$PWD/directorypathid.h \
     $$PWD/executeinloop.h \
+    $$PWD/filesystem.h \
+    $$PWD/filesysteminterface.h \
     $$PWD/pchpaths.h \
     $$PWD/projectpartid.h \
     $$PWD/projectpartsstorage.h \
@@ -151,6 +157,7 @@ HEADERS += \
     $$PWD/refactoringserverinterface.h \
     $$PWD/refactoringserverproxy.h \
     $$PWD/referencesmessage.h \
+    $$PWD/set_algorithm.h \
     $$PWD/unsavedfilesupdatedmessage.h \
     $$PWD/removeprojectpartsmessage.h \
     $$PWD/requestannotationsmessage.h \
@@ -217,6 +224,8 @@ HEADERS += \
     $$PWD/sourceentry.h \
     $$PWD/modifiedtimecheckerinterface.h \
     $$PWD/environment.h \
+    $$PWD/filestatus.h \
+    $$PWD/filestatuscache.h \
     $$PWD/modifiedtimechecker.h
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols

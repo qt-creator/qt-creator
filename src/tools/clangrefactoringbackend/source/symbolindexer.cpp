@@ -87,8 +87,8 @@ SymbolIndexer::SymbolIndexer(SymbolIndexerTaskQueueInterface &symbolIndexerTaskQ
 
 void SymbolIndexer::updateProjectParts(ProjectPartContainers &&projectParts)
 {
-        for (ProjectPartContainer &projectPart : projectParts)
-            updateProjectPart(std::move(projectPart));
+    for (ProjectPartContainer &projectPart : projectParts)
+        updateProjectPart(std::move(projectPart));
 }
 
 void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
@@ -145,7 +145,7 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
     }
 
     m_pathWatcher.updateIdPaths(
-        {{projectPartId, m_buildDependencyStorage.fetchSources(projectPartId)}});
+        {{projectPartId, m_buildDependencyStorage.fetchPchSources(projectPartId)}});
     m_symbolIndexerTaskQueue.addOrUpdateTasks(std::move(symbolIndexerTask));
     m_symbolIndexerTaskQueue.processEntries();
 }
@@ -154,6 +154,8 @@ void SymbolIndexer::pathsWithIdsChanged(const ProjectPartIds &) {}
 
 void SymbolIndexer::pathsChanged(const FilePathIds &filePathIds)
 {
+    m_modifiedTimeChecker.pathsChanged(filePathIds);
+
     FilePathIds dependentSourcePathIds = m_symbolStorage.fetchDependentSourceIds(filePathIds);
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;

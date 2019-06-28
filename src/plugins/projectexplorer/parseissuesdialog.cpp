@@ -71,14 +71,14 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
     d->clearTasksCheckBox.setText(tr("Clear existing tasks"));
     d->clearTasksCheckBox.setChecked(true);
 
-    const auto loadFileButton = new QPushButton(tr("Load from file..."));
+    const auto loadFileButton = new QPushButton(tr("Load from File..."));
     connect(loadFileButton, &QPushButton::clicked, this, [this] {
         const QString filePath = QFileDialog::getOpenFileName(this, tr("Choose File"));
         if (filePath.isEmpty())
             return;
         QFile file(filePath);
         if (!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::critical(this, tr("Could not open file"),
+            QMessageBox::critical(this, tr("Could Not Open File"),
                                   tr("Could not open file: \"%1\": %2")
                                   .arg(filePath, file.errorString()));
             return;
@@ -116,7 +116,7 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
     // TODO: Only very few parsers are available from a Kit (basically just the Toolchain one).
     //       If we introduced factories for IOutputParsers, we could offer the user
     //       to combine arbitrary parsers here.
-    const auto parserGroupBox = new QGroupBox(tr("Parsing options"));
+    const auto parserGroupBox = new QGroupBox(tr("Parsing Options"));
     layout->addWidget(parserGroupBox);
     const auto parserLayout = new QVBoxLayout(parserGroupBox);
     const auto kitChooserWidget = new QWidget;
@@ -153,7 +153,7 @@ void ParseIssuesDialog::accept()
 {
     std::unique_ptr<IOutputParser> parser(d->kitChooser.currentKit()->createOutputParser());
     if (!parser) {
-        QMessageBox::critical(this, tr("Cannot parse"), tr("Cannot parse: The chosen kit does "
+        QMessageBox::critical(this, tr("Cannot Parse"), tr("Cannot parse: The chosen kit does "
                                                            "not provide an output parser."));
         return;
     }

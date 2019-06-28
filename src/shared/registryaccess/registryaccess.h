@@ -45,6 +45,7 @@ enum AccessMode {
 static const char *debuggerApplicationFileC = "qtcdebugger";
 static const WCHAR *debuggerRegistryKeyC = L"Software\\Microsoft\\Windows NT\\CurrentVersion\\AeDebug";
 static const WCHAR *debuggerRegistryValueNameC = L"Debugger";
+static const WCHAR *autoRegistryValueNameC = L"Auto";
 
 static inline QString wCharToQString(const WCHAR *w)
 {

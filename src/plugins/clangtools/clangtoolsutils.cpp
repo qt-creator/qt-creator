@@ -25,6 +25,7 @@
 
 #include "clangtoolsutils.h"
 
+#include "clangtool.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolssettings.h"
 
@@ -32,8 +33,9 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/hostosinfo.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 
 #include <QCoreApplication>
@@ -47,6 +49,25 @@ QString createFullLocationString(const Debugger::DiagnosticLocation &location)
 {
     return location.filePath + QLatin1Char(':') + QString::number(location.line)
             + QLatin1Char(':') + QString::number(location.column);
+}
+
+QString hintAboutBuildBeforeAnalysis()
+{
+    return ClangTool::tr(
+        "In general, the project should be built before starting the analysis to ensure that the "
+        "code to analyze is valid.<br/><br/>"
+        "Building the project might also run code generators that update the source files as "
+        "necessary.");
+}
+
+void showHintAboutBuildBeforeAnalysis()
+{
+    Utils::CheckableMessageBox::doNotShowAgainInformation(
+        Core::ICore::dialogParent(),
+        ClangTool::tr("Info About Build the Project Before Analysis"),
+        hintAboutBuildBeforeAnalysis(),
+        Core::ICore::settings(),
+        "ClangToolsDisablingBuildBeforeAnalysisHint");
 }
 
 } // namespace Internal

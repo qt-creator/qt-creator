@@ -122,7 +122,8 @@ def fetchItems(index, valIndex, treeView):
             tree.setName(name)
             tree.setValue(value)
     for row in range(model.rowCount(index)):
-        tree.addChild(fetchItems(model.index(row, 0, index), model.index(row, 1, index), treeView))
+        tree.addChild(fetchItems(model.index(row, 0, index),
+                                 model.index(row, 2, index), treeView))
     return tree
 
 def checkForEmptyRows(items, isRootCheck=True):

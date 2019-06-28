@@ -31,6 +31,7 @@
 
 namespace {
 
+using ClangBackEnd::DirectoryPathId;
 using ClangBackEnd::FilePathId;
 using Cache = ClangBackEnd::FilePathCache<NiceMock<MockFilePathStorage>>;
 using ClangBackEnd::FilePathId;
@@ -166,4 +167,153 @@ TEST_F(FilePathCache, DuplicateFilePathsAreEqual)
     ASSERT_THAT(filePath2Id, Eq(filePath1Id));
 }
 
+TEST_F(FilePathCache, DirectoryPathIdCallsFetchDirectoryId)
+{
+    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("/path/to")));
+
+    cache.directoryPathId(Utils::SmallString("/path/to"));
 }
+
+TEST_F(FilePathCache, SecondDirectoryPathIdCallsNotFetchDirectoryId)
+{
+    cache.directoryPathId(Utils::SmallString("/path/to"));
+
+    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("/path/to"))).Times(0);
+
+    cache.directoryPathId(Utils::SmallString("/path/to"));
+}
+
+TEST_F(FilePathCache, DirectoryPathIdWithTrailingSlash)
+{
+    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("/path/to")));
+
+    cache.directoryPathId(Utils::SmallString("/path/to/"));
+}
+
+TEST_F(FilePathCache, DirectoryPathId)
+{
+    auto id = cache.directoryPathId(Utils::SmallString("/path/to"));
+
+    ASSERT_THAT(id, Eq(DirectoryPathId{5}));
+}
+
+TEST_F(FilePathCache, DirectoryPathIdIsAlreadyInCache)
+{
+    auto firstId = cache.directoryPathId(Utils::SmallString("/path/to"));
+
+    auto secondId = cache.directoryPathId(Utils::SmallString("/path/to"));
+
+    ASSERT_THAT(secondId, firstId);
+}
+
+TEST_F(FilePathCache, DirectoryPathIdIsAlreadyInCacheWithTrailingSlash)
+{
+    auto firstId = cache.directoryPathId(Utils::SmallString("/path/to/"));
+
+    auto secondId = cache.directoryPathId(Utils::SmallString("/path/to/"));
+
+    ASSERT_THAT(secondId, firstId);
+}
+
+TEST_F(FilePathCache, DirectoryPathIdIsAlreadyInCacheWithAndWithoutTrailingSlash)
+{
+    auto firstId = cache.directoryPathId(Utils::SmallString("/path/to/"));
+
+    auto secondId = cache.directoryPathId(Utils::SmallString("/path/to"));
+
+    ASSERT_THAT(secondId, firstId);
+}
+
+TEST_F(FilePathCache, DirectoryPathIdIsAlreadyInCacheWithoutAndWithTrailingSlash)
+{
+    auto firstId = cache.directoryPathId(Utils::SmallString("/path/to"));
+
+    auto secondId = cache.directoryPathId(Utils::SmallString("/path/to/"));
+
+    ASSERT_THAT(secondId, firstId);
+}
+
+TEST_F(FilePathCache, ThrowForGettingADirectoryPathWithAnInvalidId)
+{
+    DirectoryPathId directoryPathId;
+
+    ASSERT_THROW(cache.directoryPath(directoryPathId),
+                 ClangBackEnd::NoDirectoryPathForInvalidDirectoryPathId);
+}
+
+TEST_F(FilePathCache, GetADirectoryPath)
+{
+    DirectoryPathId directoryPathId{5};
+
+    auto directoryPath = cache.directoryPath(directoryPathId);
+
+    ASSERT_THAT(directoryPath, Eq(Utils::SmallStringView{"/path/to"}));
+}
+
+TEST_F(FilePathCache, GetADirectoryPathWithCachedDirectoryPathId)
+{
+    DirectoryPathId directoryPathId{5};
+    cache.directoryPath(directoryPathId);
+
+    auto directoryPath = cache.directoryPath(directoryPathId);
+
+    ASSERT_THAT(directoryPath, Eq(Utils::SmallStringView{"/path/to"}));
+}
+
+TEST_F(FilePathCache, DirectoryPathCallsFetchDirectoryPath)
+{
+    EXPECT_CALL(mockStorage, fetchDirectoryPath(Eq(DirectoryPathId{5})));
+
+    cache.directoryPath(5);
+}
+
+TEST_F(FilePathCache, SecondDirectoryPathCallsNotFetchDirectoryPath)
+{
+    cache.directoryPath(5);
+
+    EXPECT_CALL(mockStorage, fetchDirectoryPath(_)).Times(0);
+
+    cache.directoryPath(5);
+}
+
+TEST_F(FilePathCache, ThrowForGettingADirectoryPathIdWithAnInvalidFilePathId)
+{
+    FilePathId filePathId;
+
+    ASSERT_THROW(cache.directoryPathId(filePathId), ClangBackEnd::NoFilePathForInvalidFilePathId);
+}
+
+TEST_F(FilePathCache, FetchDirectoryPathIdByFilePathId)
+{
+    auto directoryId = cache.directoryPathId(42);
+
+    ASSERT_THAT(directoryId, Eq(5));
+}
+
+TEST_F(FilePathCache, FetchDirectoryPathIdByFilePathIdCached)
+{
+    cache.directoryPathId(42);
+
+    auto directoryId = cache.directoryPathId(42);
+
+    ASSERT_THAT(directoryId, Eq(5));
+}
+
+TEST_F(FilePathCache, FetchFilePathAfterFetchingDirectoryIdByFilePathId)
+{
+    cache.directoryPathId(42);
+
+    auto filePath = cache.filePath(42);
+
+    ASSERT_THAT(filePath, Eq("/path/to/file.cpp"));
+}
+
+TEST_F(FilePathCache, FetchDirectoryPathIdAfterFetchingFilePathByFilePathId)
+{
+    cache.filePath(42);
+
+    auto directoryId = cache.directoryPathId(42);
+
+    ASSERT_THAT(directoryId, Eq(5));
+}
+} // namespace

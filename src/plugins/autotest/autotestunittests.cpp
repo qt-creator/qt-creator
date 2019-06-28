@@ -77,8 +77,9 @@ void AutoTestUnitTests::initTestCase()
     if (!qgetenv("BOOST_INCLUDE_DIR").isEmpty()) {
         m_checkBoost = true;
     } else {
-        if (QFileInfo::exists("/usr/include/boost/version.hpp")
-                || QFileInfo::exists("/usr/local/include/boost/version.hpp")) {
+        if (Utils::HostOsInfo::isLinuxHost()
+                && (QFileInfo::exists("/usr/include/boost/version.hpp")
+                    || QFileInfo::exists("/usr/local/include/boost/version.hpp"))) {
             qDebug() << "Found boost at system level - will run boost parser test.";
             m_checkBoost = true;
         }

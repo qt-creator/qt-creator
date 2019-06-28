@@ -38,6 +38,15 @@ public:
     }
 };
 
+class NoDirectoryPathForInvalidDirectoryPathId : std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "You cannot get a directory path for an invalid directory path id!";
+    }
+};
+
 class SourceNameIdDoesNotExists : std::exception
 {
 public:

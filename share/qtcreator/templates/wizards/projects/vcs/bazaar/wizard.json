@@ -14,7 +14,7 @@
         { "key": "vcsId", "value": "B.Bazaar" },
         { "key": "vcsName", "value": "%{JS: Vcs.displayName('%{vcsId}')}" },
         { "key": "SR", "value": "%{JS: '%{Repo}'.substr('%{Repo}'.indexOf(':') + 1) }" },
-        { "key": "defaultDir", "value": "%{JS: '%{SR}'.substr('%{SR}'.lastIndexOf('/') + 1).replace(/\\./, '-') }"},
+        { "key": "defaultDir", "value": "%{JS: '%{SR}'.substr('%{SR}'.lastIndexOf('/') + 1).replace(/[.]/g, '-') }"},
         { "key": "RevArg", "value": "%{JS: '%{Rev}' !== '' ? '-r' : ''}" },
         { "key": "TargetPath", "value": "%{Path}/%{Dir}" }
     ],

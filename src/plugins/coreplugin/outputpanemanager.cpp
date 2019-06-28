@@ -35,6 +35,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/optionspopup.h>
@@ -90,24 +91,27 @@ static bool g_managerConstructed = false; // For debugging reasons.
 
 IOutputPane::IOutputPane(QObject *parent)
     : QObject(parent),
-      m_zoomInButton(new QToolButton),
-      m_zoomOutButton(new QToolButton)
+      m_zoomInButton(new Core::CommandButton),
+      m_zoomOutButton(new Core::CommandButton)
 {
     // We need all pages first. Ignore latecomers and shout.
     QTC_ASSERT(!g_managerConstructed, return);
     g_outputPanes.append(OutputPaneData(this));
 
-    m_zoomInButton->setToolTip(tr("Increase Font Size"));
     m_zoomInButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+    m_zoomInButton->setCommandId(Constants::ZOOM_IN);
     connect(m_zoomInButton, &QToolButton::clicked, this, [this] { emit zoomIn(1); });
 
-    m_zoomOutButton->setToolTip(tr("Decrease Font Size"));
     m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
+    m_zoomOutButton->setCommandId(Constants::ZOOM_OUT);
     connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOut(1); });
 }
 
 IOutputPane::~IOutputPane()
 {
+    if (m_context)
+        ICore::removeContextObject(m_context);
+
     const int i = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::pane, this));
     QTC_ASSERT(i >= 0, return);
     delete g_outputPanes.at(i).button;
@@ -172,6 +176,26 @@ QString IOutputPane::filterText() const
 void IOutputPane::setFilteringEnabled(bool enable)
 {
     m_filterOutputLineEdit->setEnabled(enable);
+}
+
+void IOutputPane::setupContext(const char *context, QWidget *widget)
+{
+    QTC_ASSERT(!m_context, return);
+    m_context = new IContext(this);
+    m_context->setContext(Context(context));
+    m_context->setWidget(widget);
+    ICore::addContextObject(m_context);
+
+    const auto zoomInAction = new QAction(this);
+    Core::ActionManager::registerAction(zoomInAction, Constants::ZOOM_IN, m_context->context());
+    connect(zoomInAction, &QAction::triggered, this, [this] { emit zoomIn(1); });
+    const auto zoomOutAction = new QAction(this);
+    Core::ActionManager::registerAction(zoomOutAction, Constants::ZOOM_OUT, m_context->context());
+    connect(zoomOutAction, &QAction::triggered, this, [this] { emit zoomOut(1); });
+    const auto resetZoomAction = new QAction(this);
+    Core::ActionManager::registerAction(resetZoomAction, Constants::ZOOM_RESET,
+                                        m_context->context());
+    connect(resetZoomAction, &QAction::triggered, this, &IOutputPane::resetZoom);
 }
 
 void IOutputPane::setZoomButtonsEnabled(bool enabled)

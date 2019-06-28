@@ -144,7 +144,7 @@ void ClangCodeModelPlugin::createCompilationDBButton()
             message = tr("Clang compilation database generated at \"%1\".")
                     .arg(QDir::toNativeSeparators(result.filePath));
         } else {
-            message = tr("Generating clang compilation database failed: %1").arg(result.error);
+            message = tr("Generating Clang compilation database failed: %1").arg(result.error);
         }
         Core::MessageManager::write(message, Core::MessageManager::Flash);
         m_generateCompilationDBAction->setEnabled(

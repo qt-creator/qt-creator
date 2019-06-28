@@ -146,9 +146,9 @@ def verifyClickCommit():
                         "Verifying whether diff editor contains pointless_header.h file.")
             test.verify(pointlessHeader not in diffOriginal,
                         "Verifying whether original does not contain pointless_header.h file.")
-            test.verify("HEADERS += \\\n        mainwindow.h \\\n        pointless_header.h\n" in diffChanged,
+            test.verify("HEADERS += \\\n    mainwindow.h \\\n    pointless_header.h\n" in diffChanged,
                         "Verifying whether diff editor has pointless_header.h listed in pro file.")
-            test.verify("HEADERS += \\\n        mainwindow.h\n\n" in diffOriginal
+            test.verify("HEADERS += \\\n    mainwindow.h\n\n" in diffOriginal
                         and "pointless_header.h" not in diffOriginal,
                         "Verifying whether original has no additional header in pro file.")
         test.verify(original.readOnly and changed.readOnly,
@@ -173,7 +173,7 @@ def main():
                 % os.path.join(srcPath, projectName, ".git").replace("\\", "/") in str(vcsLog),
                 "Has initialization of repo been logged:\n%s " % vcsLog)
     createLocalGitConfig(os.path.join(srcPath, projectName, ".git"))
-    commitMessages = [commit("Initial Commit", "Committed 5 files.")]
+    commitMessages = [commit("Initial Commit", "Committed 6 files.")]
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     headerName = "pointless_header.h"
     addCPlusPlusFile(headerName, "C++ Header File", projectName + ".pro",

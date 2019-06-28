@@ -27,6 +27,7 @@
 
 #include <qmlitemnode.h>
 
+#include <QDir>
 #include <QObject>
 #include <QStringList>
 #include <QUrl>

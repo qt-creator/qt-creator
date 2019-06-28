@@ -381,7 +381,7 @@ void EnvironmentWidget::amendPathList(const PathListModifier &modifier)
 {
     const QString varName = d->m_model->indexToVariable(d->m_environmentView->currentIndex());
     const QString dir = QDir::toNativeSeparators(
-                QFileDialog::getExistingDirectory(this, tr("Choose a directory")));
+                QFileDialog::getExistingDirectory(this, tr("Choose Directory")));
     if (dir.isEmpty())
         return;
     QModelIndex index = d->m_model->variableToIndex(varName);

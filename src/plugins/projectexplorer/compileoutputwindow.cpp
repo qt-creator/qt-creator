@@ -177,6 +177,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     connect(this, &IOutputPane::zoomIn, m_outputWindow, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOut, m_outputWindow, &Core::OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoom, m_outputWindow, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
             this, updateFontSettings);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
@@ -194,6 +195,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     m_handler = new ShowOutputTaskHandler(this);
     ExtensionSystem::PluginManager::addObject(m_handler);
+    setupContext(C_COMPILE_OUTPUT, m_outputWindow);
     loadSettings();
     updateFromSettings();
 }

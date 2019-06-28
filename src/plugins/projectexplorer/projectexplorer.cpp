@@ -1780,7 +1780,7 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
 
 void ProjectExplorerPluginPrivate::closeAllProjects()
 {
-    if (!EditorManager::closeAllEditors())
+    if (!EditorManager::closeAllDocuments())
         return; // Action has been cancelled
 
     SessionManager::closeAllProjects();
@@ -1935,15 +1935,15 @@ void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
 bool ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project)
 {
     QTC_ASSERT(project, return false);
-    QList<IDocument *> openFiles = DocumentModel::openedDocuments();
-    Utils::erase(openFiles, [project](const IDocument *doc) {
-        return !project->isKnownFile(doc->filePath());
+    QList<DocumentModel::Entry *> openFiles = DocumentModel::entries();
+    Utils::erase(openFiles, [project](const DocumentModel::Entry *entry) {
+        return entry->pinned || !project->isKnownFile(entry->fileName());
     });
     for (const Project * const otherProject : SessionManager::projects()) {
         if (otherProject == project)
             continue;
-        Utils::erase(openFiles, [otherProject](const IDocument *doc) {
-            return otherProject->isKnownFile(doc->filePath());
+        Utils::erase(openFiles, [otherProject](const DocumentModel::Entry *entry) {
+            return otherProject->isKnownFile(entry->fileName());
         });
     }
     return EditorManager::closeDocuments(openFiles);
@@ -3470,7 +3470,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     QTC_ASSERT(projectNode, return);
     const QString dir = directoryFor(currentNode);
     QStringList subProjectFilePaths = QFileDialog::getOpenFileNames(
-                ICore::mainWindow(), tr("Please choose a project file"), dir,
+                ICore::mainWindow(), tr("Choose Project File"), dir,
                 projectNode->subProjectFileNamePatterns().join(";;"));
     if (!ProjectTree::hasNode(projectNode))
         return;

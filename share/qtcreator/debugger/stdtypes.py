@@ -953,43 +953,27 @@ def qdumpHelper__std__vector(d, value, isLibCpp):
     innerType = value.type[0]
     isBool = innerType.name == 'bool'
 
-    try:
-        allocator = value.type[1].name
-    except:
-        allocator = ''
-
-    isStdAllocator = allocator == 'std::allocator<%s>' % innerType.name
-
     if isBool:
         if isLibCpp:
-            if isStdAllocator:
-                (start, size) = value.split("pp")  # start is 'unsigned long *'
-            else:
-                start = value["__begin_"].pointer()
-                size = value["__size_"]
+            start = value["__begin_"].pointer()
+            size = value["__size_"]
             alloc = size
         else:
-            if isStdAllocator:
-                (start, soffset, pad, finish, foffset, pad, alloc) = value.split("pI@pI@p")
-            else:
-                start = value["_M_start"]["_M_p"].pointer()
-                soffset = value["_M_start"]["_M_offset"]
-                finish = value["_M_finish"]["_M_p"].pointer()
-                foffset = value["_M_finish"]["_M_offset"]
-                alloc = value["_M_end_of_storage"].pointer()
+            start = value["_M_start"]["_M_p"].pointer()
+            soffset = value["_M_start"]["_M_offset"].integer()
+            finish = value["_M_finish"]["_M_p"].pointer()
+            foffset = value["_M_finish"]["_M_offset"].integer()
+            alloc = value["_M_end_of_storage"].pointer()
             size = (finish - start) * 8 + foffset - soffset # 8 is CHAR_BIT.
     else:
-        if isStdAllocator:
-            (start, finish, alloc) = value.split("ppp")
+        if isLibCpp:
+            start = value["__begin_"].pointer()
+            finish = value["__end_"].pointer()
+            alloc = value["__end_cap_"].pointer()
         else:
-            if isLibCpp:
-                start = value["__begin_"].pointer()
-                finish = value["__end_"].pointer()
-                alloc = value["__end_cap_"].pointer()
-            else:
-                start = value["_M_start"].pointer()
-                finish = value["_M_finish"].pointer()
-                alloc = value["_M_end_of_storage"].pointer()
+            start = value["_M_start"].pointer()
+            finish = value["_M_finish"].pointer()
+            alloc = value["_M_end_of_storage"].pointer()
         size = int((finish - start) / innerType.size())
         d.check(finish <= alloc)
         if size > 0:
@@ -1088,19 +1072,12 @@ def qdump__std__basic_string(d, value):
 def qdump__std____cxx11__basic_string(d, value):
     innerType = value.type[0]
     try:
-        allocator = value.type[2].name
+        data = value["_M_dataplus"]["_M_p"].pointer()
+        size = int(value["_M_string_length"])
     except:
-        allocator = ''
-    if allocator == 'std::allocator<%s>' % innerType.name:
-        (data, size) = value.split("pI")
-    else:
-        try:
-            data = value["_M_dataplus"]["_M_p"]
-            size = int(value["_M_string_length"])
-        except:
-            d.putEmptyValue()
-            d.putPlainChildren(value)
-            return
+        d.putEmptyValue()
+        d.putPlainChildren(value)
+        return
     d.check(0 <= size) #and size <= alloc and alloc <= 100*1000*1000)
     d.putCharArrayHelper(data, size, innerType, d.currentItemFormat())
 

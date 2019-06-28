@@ -131,6 +131,10 @@ public:
         return first.sourceId < second.sourceId;
     }
 
+    friend bool operator<(SourceEntry first, FilePathId second) { return first.sourceId < second; }
+
+    friend bool operator<(FilePathId first, SourceEntry second) { return first < second.sourceId; }
+
     friend bool operator==(SourceEntry first, SourceEntry second)
     {
         return first.sourceId == second.sourceId && first.sourceType == second.sourceType

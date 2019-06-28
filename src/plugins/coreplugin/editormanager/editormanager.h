@@ -128,9 +128,9 @@ public:
     static bool closeDocument(IDocument *document, bool askAboutModifiedEditors = true);
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     static void closeDocument(DocumentModel::Entry *entry);
-    static void closeDocuments(const QList<DocumentModel::Entry *> &entries);
+    static bool closeDocuments(const QList<DocumentModel::Entry *> &entries);
     static void closeOtherDocuments(IDocument *document);
-    static void closeAllDocuments();
+    static bool closeAllDocuments();
 
     static void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
     static void cutForwardNavigationHistory();

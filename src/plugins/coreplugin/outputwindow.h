@@ -75,6 +75,7 @@ public:
     void setBaseFont(const QFont &newFont);
     float fontZoom() const;
     void setFontZoom(float zoom);
+    void resetZoom() { setFontZoom(0); }
     void setWheelZoomEnabled(bool enabled);
 
     void updateFilterProperties(const QString &filterText, Qt::CaseSensitivity caseSensitivity, bool regexp);

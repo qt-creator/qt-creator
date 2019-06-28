@@ -92,7 +92,7 @@ using ResponseHandler = std::function<void(const QByteArray &, QTextCodec *)>;
 using ResponseHandlers = std::function<void(MessageId, const QByteArray &, QTextCodec *)>;
 using MethodHandler = std::function<void(const QString, MessageId, const IContent *)>;
 
-inline LANGUAGESERVERPROTOCOL_EXPORT uint qHash(const LanguageServerProtocol::MessageId &id)
+inline uint qHash(const LanguageServerProtocol::MessageId &id)
 {
     if (Utils::holds_alternative<int>(id))
         return QT_PREPEND_NAMESPACE(qHash(Utils::get<int>(id)));
@@ -102,8 +102,7 @@ inline LANGUAGESERVERPROTOCOL_EXPORT uint qHash(const LanguageServerProtocol::Me
 }
 
 template <typename Error>
-inline LANGUAGESERVERPROTOCOL_EXPORT QDebug operator<<(QDebug stream,
-                                                       const LanguageServerProtocol::MessageId &id)
+inline QDebug operator<<(QDebug stream, const LanguageServerProtocol::MessageId &id)
 {
     if (Utils::holds_alternative<int>(id))
         stream << Utils::get<int>(id);

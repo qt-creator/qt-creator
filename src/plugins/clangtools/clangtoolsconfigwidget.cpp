@@ -56,9 +56,12 @@ ClangToolsConfigWidget::ClangToolsConfigWidget(
             [settings](int count) { settings->setSimultaneousProcesses(count); });
 
     QCheckBox *buildBeforeAnalysis = m_ui->clangToolsBasicSettings->ui()->buildBeforeAnalysis;
+    buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
     buildBeforeAnalysis->setCheckState(settings->savedBuildBeforeAnalysis()
                                               ? Qt::Checked : Qt::Unchecked);
     connect(buildBeforeAnalysis, &QCheckBox::toggled, [settings](bool checked) {
+        if (!checked)
+            showHintAboutBuildBeforeAnalysis();
         settings->setBuildBeforeAnalysis(checked);
     });
 

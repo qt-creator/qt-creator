@@ -63,6 +63,8 @@ public:
     bool isUsed() const override;
     void setIsUsed(bool isUsed) override;
 
+    bool isClean() const { return m_clangTool.isClean(); }
+
 private:
     FilePathCaching m_filePathCache;
     ClangTool m_clangTool;

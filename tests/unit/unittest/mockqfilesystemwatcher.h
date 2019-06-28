@@ -41,4 +41,5 @@ public:
 
 signals:
     void fileChanged(const QString &);
+    void directoryChanged(const QString &);
 };

@@ -179,9 +179,29 @@ public:
 
             transaction.commit();
 
-            return optionalSourceName.value();
+            return *optionalSourceName;
         } catch (const Sqlite::StatementIsBusy &) {
             return fetchSourceNameAndDirectoryId(sourceId);
+        }
+    }
+
+    int fetchDirectoryId(int sourceId)
+    {
+        try {
+            Sqlite::DeferredTransaction transaction{m_statementFactory.database};
+
+            ReadStatement &statement = m_statementFactory.selectDirectoryIdFromSourcesBySourceId;
+
+            auto optionalDirectoryId = statement.template value<int>(sourceId);
+
+            if (!optionalDirectoryId)
+                throw SourceNameIdDoesNotExists();
+
+            transaction.commit();
+
+            return *optionalDirectoryId;
+        } catch (const Sqlite::StatementIsBusy &) {
+            return fetchDirectoryId(sourceId);
         }
     }
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -31,27 +31,28 @@
 
     \title Running Autotests
 
-    \QC integrates the \l{Qt Test} framework and
-    \l{https://github.com/google/googletest}{Google C++ Testing Framework} for
-    unit testing applications and libraries. You can use \QC to build and run
-    Qt tests, Qt Quick tests (QML-based Qt tests), and Google tests for your
-    projects.
+    \QC integrates the \l{Qt Test} framework,
+    \l{https://github.com/google/googletest}{Google C++ Testing Framework}, and
+    \l{https://www.boost.org/doc/libs/1_70_0/libs/test/doc/html/index.html}
+    {Boost.Test} for unit testing applications and libraries. You can use \QC to
+    create, build, and run Qt tests, Qt Quick tests (QML-based Qt tests), Google
+    tests, and Boost tests for your projects.
 
     \image qtcreator-autotests.png
 
     \section1 Creating Tests
 
-    You can use a wizard to create projects that contain Qt or Google tests.
+    You can use a wizard to create projects that contain tests.
 
-    \section2 Creating Qt Tests
+    \section2 Creating Qt and Qt Quick Tests
 
-    To create a Qt test:
+    To create a Qt or Qt Quick test:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File or Project} >
             \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
             \uicontrol Choose to create a project with boilerplate code for a
-            Qt test.
+            Qt test or a Qt Quick test.
 
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test:
@@ -59,17 +60,17 @@
             \list 1
 
                 \li In the \uicontrol {Test framework} field, select
-                    \uicontrol {Qt Test}.
+                    \uicontrol {Qt Test} or \uicontrol {Qt Quick Test}.
 
-                \li Select the \uicontrol {GUI Application} check box to create
-                    a Qt application.
+                \li For a Qt test, select the \uicontrol {GUI Application} check
+                     box to create a Qt application.
 
                 \li In the \uicontrol {Test case name} field, enter a name for
                     the test case.
 
-                \li Select the \uicontrol {Requires QApplication} check box to
-                    add the include statement for QApplication to the main.cpp
-                    file of the project.
+                \li For a Qt test, select the \uicontrol {Requires \QApplication}
+                    check box to add the include statement for QApplication to
+                    the main.cpp file of the project.
 
                 \li Select the \uicontrol {Generate initialization and cleanup
                     code} checkbox to add functions to your test that are
@@ -134,6 +135,46 @@
     For more information about creating Google tests, see the
     \l{https://github.com/google/googletest/blob/master/googletest/docs/primer.md}
     {Google Test Primer}.
+
+    \section2 Creating Boost Tests
+
+    To build and run Boost tests, you must have the Boost.Test installed on the
+    development host. Typically, it is installed when you install Boost. You can
+    download Boost from \l{https://www.boost.org/}{Boost.org}.
+
+    If Boost libraries can be found by the used compiler and build system, you
+    do not need to specify the include directory when creating the test.
+
+    To create a Boost test:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File or Project} >
+            \uicontrol {Other Project} > \uicontrol {Auto Test Project} >
+            \uicontrol Choose to create a project with boilerplate code for a
+            Boost test.
+        \li In the \uicontrol {Project and Test Information} dialog, specify
+            settings for the project and test:
+            \list 1
+                \li In the \uicontrol {Test framework} field, select
+                    \uicontrol {Boost Test}.
+                \li In the \uicontrol {Test suite name} field, enter a name for
+                    the test suite.
+                \li In the \uicontrol {Test case name} field, enter a name for
+                    the test case.
+                \li In the \uicontrol {Boost include dir (optional)} field,
+                    enter the path to the directory that contains files needed
+                    by Boost.Test, such as \e version.hpp and a subfolder called
+                    \e test that contains the test header files.
+                \li In the \uicontrol {Build system} field, select the build
+                    system to use for building the project: qmake, CMake, or
+                    Qbs.
+            \endlist
+    \endlist
+
+    \QC creates the test in the specified project directory.
+    For more information about creating Boost tests, see
+    \l{https://www.boost.org/doc/libs/1_70_0/libs/test/doc/html/index.html}
+    {Boost.Test}.
 
     \section1 Setting Up the Google C++ Testing Framework
 
@@ -309,6 +350,30 @@
     \uicontrol {Break on failure while debugging} check box. To turn assertion
     failures into C++ exceptions, select the \uicontrol {Throw on failure} check
     box.
+
+    \section2 Specifying Settings for Running Boost Tests
+
+    \list 1
+        \li To specify settings for running Boost tests, select \uicontrol Tools
+            > \uicontrol Options > \uicontrol {Testing} >
+            \uicontrol {Boost Test}.
+            \image qtcreator-autotests-options-boost.png
+        \li In the \uicontrol {Log format} field, select the error report
+            format to specify the type of events you want recorded in the
+            test report.
+        \li In the \uicontrol {Report level} field, select the verbosity level
+            of the test result report. Select \uicontrol No if you do not want
+            a report.
+        \li Select the \uicontrol Randomize check box to execute the tests in
+            a random order, using the seed specified in the \uicontrol Seed
+            field for initializing the randomizer.
+        \li Select the \uicontrol {Catch system errors} check box to catch
+            system errors.
+        \li Select the \uicontrol {Floating point exceptions} check box to
+            detect floating point exceptions.
+        \li Select the \uicontrol {Detect memory leaks} check box to detect
+            memory leaks.
+    \endlist
 
     \section1 Viewing Test Output
 

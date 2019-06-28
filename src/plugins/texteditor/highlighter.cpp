@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/mimetypes/mimedatabase.h>
+#include <utils/qtcassert.h>
 
 #include <DefinitionDownloader>
 #include <Format>
@@ -119,6 +120,8 @@ Highlighter::Definition Highlighter::definitionForDocument(const TextDocument *d
 
 Highlighter::Definition Highlighter::definitionForMimeType(const QString &mimeType)
 {
+    if (mimeType.isEmpty())
+        return {};
     const Definitions definitions = definitionsForMimeType(mimeType);
     if (definitions.size() == 1)
         return definitions.first();
@@ -140,13 +143,23 @@ Highlighter::Definition Highlighter::definitionForName(const QString &name)
 
 Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument *document)
 {
-    const Utils::MimeType mimeType = Utils::mimeTypeForName(document->mimeType());
-    Definitions definitions;
-    if (mimeType.isValid())
-        definitions = Highlighter::definitionsForMimeType(mimeType.name());
-    if (definitions.isEmpty())
-        definitions = Highlighter::definitionsForFileName(document->filePath());
-    return definitions;
+    QTC_ASSERT(document, return {});
+    const Utils::MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
+    if (mimeType.isValid()) {
+        if (mimeType.name() == "text/plain") {
+            // text/plain is the base mime type for all text types so ignore it and try matching the
+            // file name against the pattern and only if no definition can be found for the
+            // file name try matching the mime type
+            const Definitions &fileNameDefinitions = definitionsForFileName(document->filePath());
+            if (!fileNameDefinitions.isEmpty())
+                return fileNameDefinitions;
+            return definitionsForMimeType(mimeType.name());
+        }
+        const Definitions &mimeTypeDefinitions = definitionsForMimeType(mimeType.name());
+        if (!mimeTypeDefinitions.isEmpty())
+            return mimeTypeDefinitions;
+    }
+    return definitionsForFileName(document->filePath());
 }
 
 static Highlighter::Definition definitionForSetting(const QString &settingsKey,
@@ -193,6 +206,7 @@ Highlighter::Definitions Highlighter::definitionsForFileName(const Utils::FilePa
 void Highlighter::rememberDefintionForDocument(const Highlighter::Definition &definition,
                                                const TextDocument *document)
 {
+    QTC_ASSERT(document, return );
     if (!definition.isValid())
         return;
     const QString &mimeType = document->mimeType();

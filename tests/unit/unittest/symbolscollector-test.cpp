@@ -53,17 +53,18 @@ using testing::Value;
 using testing::_;
 
 using ClangBackEnd::FilePath;
-using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathCaching;
-using ClangBackEnd::V2::FileContainers;
+using ClangBackEnd::FilePathId;
+using ClangBackEnd::FileStatus;
 using ClangBackEnd::SourceDependency;
 using ClangBackEnd::SourceLocationEntry;
+using ClangBackEnd::SourceLocationKind;
 using ClangBackEnd::SymbolEntry;
+using ClangBackEnd::SymbolIndex;
 using ClangBackEnd::SymbolKind;
 using ClangBackEnd::SymbolTag;
-using ClangBackEnd::SourceLocationKind;
-using ClangBackEnd::SymbolIndex;
 using ClangBackEnd::UsedMacro;
+using ClangBackEnd::V2::FileContainers;
 
 using Sqlite::Database;
 
@@ -130,6 +131,9 @@ MATCHER_P(HasSymbolTag, symbolTag,
 class SymbolsCollector : public testing::Test
 {
 protected:
+    SymbolsCollector() { setFilePathCache(&filePathCache); }
+    ~SymbolsCollector() { setFilePathCache({}); }
+
     FilePathId filePathId(Utils::SmallStringView filePath) const
     {
         return filePathCache.filePathId(ClangBackEnd::FilePathView{filePath});
@@ -663,5 +667,16 @@ TEST_F(SymbolsCollector, CollectReturnsFalseIfThereIsNoError)
     bool success = collector.collectSymbols();
 
     ASSERT_TRUE(success);
+}
+
+TEST_F(SymbolsCollector, ClearInputFilesAfterCollectingSymbols)
+{
+    collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/main2.cpp"), {"cc"});
+    collector.collectSymbols();
+    collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_TRUE(collector.isClean());
 }
 } // namespace

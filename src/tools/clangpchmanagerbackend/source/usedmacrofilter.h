@@ -128,23 +128,26 @@ private:
             case SourceType::TopSystemInclude:
                 topSystemIncludes.emplace_back(source.sourceId);
                 systemIncludes.emplace_back(source.sourceId);
+                sources.emplace_back(source.sourceId);
                 break;
             case SourceType::SystemInclude:
                 systemIncludes.emplace_back(source.sourceId);
+                sources.emplace_back(source.sourceId);
                 break;
             case SourceType::TopProjectInclude:
                 topProjectIncludes.emplace_back(source.sourceId);
                 projectIncludes.emplace_back(source.sourceId);
+                sources.emplace_back(source.sourceId);
                 break;
             case SourceType::ProjectInclude:
                 projectIncludes.emplace_back(source.sourceId);
+                sources.emplace_back(source.sourceId);
                 break;
             case SourceType::UserInclude:
             case SourceType::Source:
                 break;
         }
 
-        sources.emplace_back(source.sourceId);
     }
 
     static Utils::SmallStringVector filterUsedMarcos(const UsedMacros &usedMacros,

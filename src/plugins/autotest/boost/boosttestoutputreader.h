@@ -37,6 +37,7 @@ enum class ReportLevel;
 
 class BoostTestOutputReader : public TestOutputReader
 {
+    Q_OBJECT
 public:
     BoostTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                           QProcess *testApplication, const QString &buildDirectory,

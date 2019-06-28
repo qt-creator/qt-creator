@@ -38,6 +38,7 @@ public:
     ModifiedTimeCheckerInterface &operator=(const ModifiedTimeCheckerInterface &) = delete;
 
     virtual bool isUpToDate(const SourceEntries &sourceEntries) const = 0;
+    virtual void pathsChanged(const FilePathIds &filePathIds) = 0;
 
 protected:
     ~ModifiedTimeCheckerInterface() = default;

@@ -25,23 +25,23 @@
 
 #pragma once
 
-#include "filepathcachinginterface.h"
+#include "filesysteminterface.h"
 #include "modifiedtimecheckerinterface.h"
+#include "set_algorithm.h"
 
 #include <algorithm>
 #include <iterator>
 
 namespace ClangBackEnd {
+
 template<typename SourceEntries = ::ClangBackEnd::SourceEntries>
 class ModifiedTimeChecker final : public ModifiedTimeCheckerInterface<SourceEntries>
 {
     using SourceEntry = typename SourceEntries::value_type;
 
 public:
-    using GetModifiedTime = std::function<ClangBackEnd::TimeStamp(ClangBackEnd::FilePathView filePath)>;
-    ModifiedTimeChecker(GetModifiedTime &getModifiedTime, FilePathCachingInterface &filePathCache)
-        : m_getModifiedTime(getModifiedTime)
-        , m_filePathCache(filePathCache)
+    ModifiedTimeChecker(FileSystemInterface &fileSystem)
+        : m_fileSystem(fileSystem)
     {}
 
     bool isUpToDate(const SourceEntries &sourceEntries) const
@@ -51,165 +51,101 @@ public:
 
         updateCurrentSourceTimeStamps(sourceEntries);
 
-        return compareEntries(sourceEntries);
+        return compareEntries(sourceEntries) && notReseted(sourceEntries);
     }
 
-    void pathsChanged(const FilePathIds &filePathIds)
+    void pathsChanged(const FilePathIds &filePathIds) override
     {
-        using SourceTimeStampReferences = std::vector<std::reference_wrapper<SourceTimeStamp>>;
-
-        SourceTimeStampReferences timeStampsToUpdate;
-        timeStampsToUpdate.reserve(filePathIds.size());
-
         std::set_intersection(m_currentSourceTimeStamps.begin(),
                               m_currentSourceTimeStamps.end(),
                               filePathIds.begin(),
                               filePathIds.end(),
-                              std::back_inserter(timeStampsToUpdate));
+                              make_iterator([&](SourceTimeStamp &sourceTimeStamp) {
+                                  sourceTimeStamp.timeStamp = m_fileSystem.lastModified(
+                                      sourceTimeStamp.sourceId);
+                              }));
+    }
 
-        for (SourceTimeStamp &sourceTimeStamp : timeStampsToUpdate) {
-            sourceTimeStamp.timeStamp = m_getModifiedTime(
-                m_filePathCache.filePath(sourceTimeStamp.sourceId));
-        }
+    void reset(const FilePathIds &filePathIds)
+    {
+        FilePathIds newResetFilePathIds;
+        newResetFilePathIds.reserve(newResetFilePathIds.size() + m_resetFilePathIds.size());
+
+        std::set_union(m_resetFilePathIds.begin(),
+                       m_resetFilePathIds.end(),
+                       filePathIds.begin(),
+                       filePathIds.end(),
+                       std::back_inserter(newResetFilePathIds));
+
+        m_resetFilePathIds = std::move(newResetFilePathIds);
     }
 
 private:
     bool compareEntries(const SourceEntries &sourceEntries) const
     {
-        class CompareSourceId
-        {
-        public:
-            bool operator()(SourceTimeStamp first, SourceTimeStamp second)
-            {
-                return first.sourceId < second.sourceId;
-            }
-
-            bool operator()(::ClangBackEnd::SourceEntry first, ::ClangBackEnd::SourceEntry second)
-            {
-                return first.sourceId < second.sourceId;
-            }
-
-            bool operator()(SourceTimeStamp first, ::ClangBackEnd::SourceEntry second)
-            {
-                return first.sourceId < second.sourceId;
-            }
-
-            bool operator()(::ClangBackEnd::SourceEntry first, SourceTimeStamp second)
-            {
-                return first.sourceId < second.sourceId;
-            }
-        };
-
-        SourceTimeStamps currentSourceTimeStamp;
-        currentSourceTimeStamp.reserve(sourceEntries.size());
-        std::set_intersection(m_currentSourceTimeStamps.begin(),
-                              m_currentSourceTimeStamps.end(),
-                              sourceEntries.begin(),
-                              sourceEntries.end(),
-                              std::back_inserter(currentSourceTimeStamp),
-                              CompareSourceId{});
-
-        class CompareTime
-        {
-        public:
-            bool operator()(SourceTimeStamp first, SourceTimeStamp second)
-            {
-                return first.timeStamp <= second.timeStamp;
-            }
-
-            bool operator()(::ClangBackEnd::SourceEntry first, ::ClangBackEnd::SourceEntry second)
-            {
-                return first.timeStamp <= second.timeStamp;
-            }
-
-            bool operator()(SourceTimeStamp first, ::ClangBackEnd::SourceEntry second)
-            {
-                return first.timeStamp <= second.timeStamp;
-            }
-
-            bool operator()(::ClangBackEnd::SourceEntry first, SourceTimeStamp second)
-            {
-                return first.timeStamp <= second.timeStamp;
-            }
-        };
-
-        return std::lexicographical_compare(currentSourceTimeStamp.begin(),
-                                            currentSourceTimeStamp.end(),
-                                            sourceEntries.begin(),
-                                            sourceEntries.end(),
-                                            CompareTime{});
+        return set_intersection_compare(
+            m_currentSourceTimeStamps.begin(),
+            m_currentSourceTimeStamps.end(),
+            sourceEntries.begin(),
+            sourceEntries.end(),
+            [](auto first, auto second) { return second.timeStamp > first.timeStamp; },
+            [](auto first, auto second) { return first.sourceId < second.sourceId; });
     }
 
     void updateCurrentSourceTimeStamps(const SourceEntries &sourceEntries) const
     {
         SourceTimeStamps sourceTimeStamps = newSourceTimeStamps(sourceEntries);
 
-        for (SourceTimeStamp &newSourceTimeStamp : sourceTimeStamps) {
-            newSourceTimeStamp.timeStamp = m_getModifiedTime(
-                m_filePathCache.filePath(newSourceTimeStamp.sourceId));
-        }
-
         auto split = sourceTimeStamps.insert(sourceTimeStamps.end(),
                                              m_currentSourceTimeStamps.begin(),
                                              m_currentSourceTimeStamps.end());
         std::inplace_merge(sourceTimeStamps.begin(), split, sourceTimeStamps.end());
 
-        m_currentSourceTimeStamps = sourceTimeStamps;
+        m_currentSourceTimeStamps = std::move(sourceTimeStamps);
     }
 
     SourceTimeStamps newSourceTimeStamps(const SourceEntries &sourceEntries) const
     {
-        SourceEntries newSourceEntries;
-        newSourceEntries.reserve(sourceEntries.size());
-
-        class CompareSourceId
-        {
-        public:
-            bool operator()(SourceTimeStamp first, SourceTimeStamp second)
-            {
-                return first.sourceId < second.sourceId;
-            }
-
-            bool operator()(::ClangBackEnd::SourceEntry first, ::ClangBackEnd::SourceEntry second)
-            {
-                return first.sourceId < second.sourceId;
-            }
-
-            bool operator()(SourceTimeStamp first, ::ClangBackEnd::SourceEntry second)
-            {
-                return first.sourceId < second.sourceId;
-            }
-
-            bool operator()(::ClangBackEnd::SourceEntry first, SourceTimeStamp second)
-            {
-                return first.sourceId < second.sourceId;
-            }
-        };
+        SourceTimeStamps newTimeStamps;
+        newTimeStamps.reserve(sourceEntries.size());
 
         std::set_difference(sourceEntries.begin(),
                             sourceEntries.end(),
                             m_currentSourceTimeStamps.begin(),
                             m_currentSourceTimeStamps.end(),
-                            std::back_inserter(newSourceEntries),
-                            CompareSourceId{});
-
-        SourceTimeStamps newTimeStamps;
-        newTimeStamps.reserve(newSourceEntries.size());
-
-        std::transform(newSourceEntries.begin(),
-                       newSourceEntries.end(),
-                       std::back_inserter(newTimeStamps),
-                       [](SourceEntry entry) {
-                           return SourceTimeStamp{entry.sourceId, {}};
-                       });
+                            make_iterator([&](const SourceEntry &sourceEntry) {
+                                newTimeStamps.emplace_back(sourceEntry.sourceId,
+                                                           m_fileSystem.lastModified(
+                                                               sourceEntry.sourceId));
+                            }),
+                            [](auto first, auto second) {
+                                return first.sourceId < second.sourceId && first.timeStamp > 0;
+                            });
 
         return newTimeStamps;
     }
 
+    bool notReseted(const SourceEntries &sourceEntries) const
+    {
+        auto oldSize = m_resetFilePathIds.size();
+        FilePathIds newResetFilePathIds;
+        newResetFilePathIds.reserve(newResetFilePathIds.size());
+
+        std::set_difference(m_resetFilePathIds.begin(),
+                            m_resetFilePathIds.end(),
+                            sourceEntries.begin(),
+                            sourceEntries.end(),
+                            std::back_inserter(newResetFilePathIds));
+
+        m_resetFilePathIds = std::move(newResetFilePathIds);
+
+        return oldSize == m_resetFilePathIds.size();
+    }
+
 private:
     mutable SourceTimeStamps m_currentSourceTimeStamps;
-    GetModifiedTime &m_getModifiedTime;
-    FilePathCachingInterface &m_filePathCache;
+    mutable FilePathIds m_resetFilePathIds;
+    FileSystemInterface &m_fileSystem;
 };
 
 } // namespace ClangBackEnd

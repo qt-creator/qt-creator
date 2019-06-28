@@ -13,6 +13,12 @@ you can check out from the public Git repository. For example:
 
 * Removed support for KDE code paster after removal of official API
 * Added option for pinning files so they stay open when closing all files (QTCREATORBUG-21899)
+* Fixed low contrast of hovered folding markers (QTCREATORBUG-21702)
+
+### Generic Highlighter
+
+* Fixed that highlighting definition with MIME type `text/plain`
+  overrode better matching definitions (QTCREATORBUG-22540)
 
 ### Language Client
 
@@ -96,6 +102,9 @@ you can check out from the public Git repository. For example:
 
 * Improved auto-insertion of closing curly brace (QTCREATORBUG-18872)
 * Fixed that snippet completion could get in the way (QTCREATORBUG-21767)
+* Fixed crash because of small stack size (QTCREATORBUG-22496)
+* Fixed recognition of C++ version (QTCREATORBUG-22444)
+* Fixed `unknown argument: '-fno-keep-inline-dllexport'` (QTCREATORBUG-22452)
 
 ### Clang Format
 
@@ -105,6 +114,8 @@ you can check out from the public Git repository. For example:
 ## QML Support
 
 * Fixed various formatting issues
+* Fixed incorrect syntax warning in JavaScript template literal
+  (QTCREATORBUG-22474)
 
 ## Debugging
 
@@ -127,6 +138,7 @@ you can check out from the public Git repository. For example:
 * Added gradient picker that allows loading and saving of presets
 * Added support for changing properties for multiple items at once (QDS-324)
 * Added missing properties for `LineEdit` and `ComboBox`
+* Added all fonts from project directory to font selector (QDS-100)
 * Updated properties of `Flickable`
 * Improved handling of errors in state editor (QDS-695)
 
@@ -154,12 +166,11 @@ you can check out from the public Git repository. For example:
 * Added `Clone` for MSVC toolchains (QTCREATORBUG-22163)
 * Fixed that `mingw32-make`'s warnings were categorized as errors (QTCREATORBUG-22171)
 * Fixed bitness detection for MinGW (QTCREATORBUG-22160)
+* Fixed registration as post mortem debugger on recent Windows versions
 
 ### Linux
 
 * Improved auto-detection of toolchains (QTCREATORBUG-19179, QTCREATORBUG-20044, QTCREATORBUG-22081)
-
-### macOS
 
 ### Android
 
@@ -172,13 +183,12 @@ you can check out from the public Git repository. For example:
 * Added support for opening remote terminal with run environment
 * Added option for `rsync` flags for deployment (QTCREATORBUG-22352)
 
-### Boot to Qt
-
 ### Bare Metal
 
 * Added include path detection and output parsers for `IAR`, `KEIL` and `SDCC` toolchains
 
 ## Credits for these changes go to:
+
 Aleksei German  
 Alessandro Ambrosano  
 Alessandro Portale  
@@ -208,10 +218,12 @@ Ivan Komissarov
 Joel Smith  
 Jörg Bornemann  
 Kavindra Palaraja  
+Knud Dollereder  
 Leena Miettinen  
 Luca Carlon  
 Marco Bubke  
 Martin Haase  
+Michael Weghorn  
 Mitch Curtis  
 Nikolai Kosjar  
 Oliver Wolff  

@@ -129,7 +129,11 @@ bool SymbolsCollector::collectSymbols()
 
     auto actionFactory = ClangBackEnd::newFrontendActionFactory(&m_collectSymbolsAction);
 
-    return tool.run(actionFactory.get()) != 1;
+    bool noErrors = tool.run(actionFactory.get()) != 1;
+
+    m_clangTool = ClangTool();
+
+    return noErrors;
 }
 
 void SymbolsCollector::doInMainThreadAfterFinished()

@@ -1298,6 +1298,7 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc)
     m_mainLayout->removeRow(m_mainLayout->rowCount() - 1);
 
     QHBoxLayout *hLayout = new QHBoxLayout();
+    m_varsBatPathCombo->setObjectName("varsBatCombo");
     m_varsBatPathCombo->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     m_varsBatPathCombo->setEditable(true);
     for (const MsvcToolChain *tmpTc : g_availableMsvcToolchains) {
@@ -1442,6 +1443,7 @@ ClangClToolChainConfigWidget::ClangClToolChainConfigWidget(ToolChain *tc) :
 {
     m_mainLayout->removeRow(m_mainLayout->rowCount() - 1);
 
+    m_varsBatDisplayCombo->setObjectName("varsBatCombo");
     m_varsBatDisplayCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_mainLayout->addRow(tr("Initialization:"), m_varsBatDisplayCombo);
 

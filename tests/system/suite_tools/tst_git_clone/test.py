@@ -55,7 +55,7 @@ def verifyCloneLog(targetDir, canceled):
         if canceled:
             test.warning("Could not find resultLabel",
                          "Cloning might have failed before clicking 'Cancel'")
-            return object.exists(":New Text File_ProjectExplorer::JsonWizard")
+            return object.exists(":New_ProjectExplorer::JsonWizard")
         else:
             test.fail("Could not find resultLabel")
     return True

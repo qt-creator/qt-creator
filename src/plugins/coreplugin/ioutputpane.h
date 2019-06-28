@@ -41,6 +41,8 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
+class CommandButton;
+class IContext;
 
 class CORE_EXPORT IOutputPane : public QObject
 {
@@ -93,6 +95,7 @@ signals:
     void setBadgeNumber(int number);
     void zoomIn(int range);
     void zoomOut(int range);
+    void resetZoom();
     void wheelZoomEnabledChanged(bool enabled);
     void fontChanged(const QFont &font);
 
@@ -103,7 +106,7 @@ protected:
     Qt::CaseSensitivity filterCaseSensitivity() const { return m_filterCaseSensitivity; }
     void setFilteringEnabled(bool enable);
     QWidget *filterWidget() const { return m_filterOutputLineEdit; }
-
+    void setupContext(const char *context, QWidget *widget);
     void setZoomButtonsEnabled(bool enabled);
 
 private:
@@ -115,11 +118,12 @@ private:
     Id filterRegexpActionId() const;
     Id filterCaseSensitivityActionId() const;
 
-    QToolButton * const m_zoomInButton = nullptr;
-    QToolButton * const m_zoomOutButton = nullptr;
+    Core::CommandButton * const m_zoomInButton;
+    Core::CommandButton * const m_zoomOutButton;
     QAction *m_filterActionRegexp = nullptr;
     QAction *m_filterActionCaseSensitive = nullptr;
     Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
+    IContext *m_context = nullptr;
     bool m_filterRegexp = false;
     Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
 };

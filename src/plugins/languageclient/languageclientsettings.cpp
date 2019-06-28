@@ -605,7 +605,7 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
     mainLayout->addLayout(mimeLayout, row, 1);
     m_filePattern->setPlaceholderText(tr("File pattern"));
     mainLayout->addWidget(m_filePattern, ++row, 1);
-    mainLayout->addWidget(new QLabel(tr("Startup Behavior:")), ++row, 0);
+    mainLayout->addWidget(new QLabel(tr("Startup behavior:")), ++row, 0);
     for (int behavior = 0; behavior < BaseSettings::LastSentinel ; ++behavior)
         m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
     m_startupBehavior->setCurrentIndex(settings->m_startBehavior);
@@ -650,8 +650,8 @@ QString BaseSettingsWidget::name() const
 
 LanguageFilter BaseSettingsWidget::filter() const
 {
-    return {m_mimeTypes->text().split(filterSeparator),
-                m_filePattern->text().split(filterSeparator)};
+    return {m_mimeTypes->text().split(filterSeparator, QString::SkipEmptyParts),
+                m_filePattern->text().split(filterSeparator, QString::SkipEmptyParts)};
 }
 
 BaseSettings::StartBehavior BaseSettingsWidget::startupBehavior() const
@@ -784,10 +784,10 @@ QString StdIOSettingsWidget::arguments() const
 
 bool LanguageFilter::isSupported(const Utils::FilePath &filePath, const QString &mimeType) const
 {
-    if (mimeTypes.isEmpty() && filePattern.isEmpty())
-        return true;
     if (mimeTypes.contains(mimeType))
         return true;
+    if (filePattern.isEmpty() && filePath.isEmpty())
+        return mimeTypes.isEmpty();
     auto regexps = Utils::transform(filePattern, [](const QString &pattern){
         return QRegExp(pattern, Utils::HostOsInfo::fileNameCaseSensitivity(), QRegExp::Wildcard);
     });

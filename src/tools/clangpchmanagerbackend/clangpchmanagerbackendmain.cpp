@@ -31,6 +31,7 @@
 #include <environment.h>
 #include <executeinloop.h>
 #include <filepathcaching.h>
+#include <filesystem.h>
 #include <generatedfiles.h>
 #include <modifiedtimechecker.h>
 #include <pchcreator.h>
@@ -179,7 +180,8 @@ struct Data // because we have a cycle dependency
     Sqlite::Database database;
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
-    ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher{filePathCache};
+    ClangBackEnd::FileSystem fileSystem{filePathCache};
+    ClangPathWatcher<QFileSystemWatcher, QTimer> includeWatcher{filePathCache, fileSystem};
     ApplicationEnvironment environment;
     ProjectPartsStorage<> projectPartsStorage{database};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
@@ -212,12 +214,7 @@ struct Data // because we have a cycle dependency
     ClangBackEnd::BuildDependencyCollector buildDependencyCollector{filePathCache,
                                                                     generatedFiles,
                                                                     environment};
-    std::function<TimeStamp(FilePathView filePath)> getModifiedTime{
-        [&](ClangBackEnd::FilePathView path) -> TimeStamp {
-            return QFileInfo(QString(path)).lastModified().toSecsSinceEpoch();
-        }};
-    ClangBackEnd::ModifiedTimeChecker<ClangBackEnd::SourceEntries> modifiedTimeChecker{getModifiedTime,
-                                                                                       filePathCache};
+    ClangBackEnd::ModifiedTimeChecker<ClangBackEnd::SourceEntries> modifiedTimeChecker{fileSystem};
     ClangBackEnd::BuildDependenciesProvider buildDependencyProvider{buildDependencyStorage,
                                                                     modifiedTimeChecker,
                                                                     buildDependencyCollector,

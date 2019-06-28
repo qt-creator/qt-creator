@@ -1702,7 +1702,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFunction(
 
     if (m_valuemapStack.count() >= 100) {
         evalError(fL1S("Ran into infinite recursion (depth > 100)."));
-        vr = ReturnFalse;
+        vr = ReturnError;
     } else {
         m_valuemapStack.push(ProValueMap());
         m_locationStack.push(m_current);

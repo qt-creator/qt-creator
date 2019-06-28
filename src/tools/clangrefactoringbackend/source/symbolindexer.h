@@ -29,8 +29,8 @@
 #include "symbolindexertaskqueueinterface.h"
 #include "symbolstorageinterface.h"
 #include "builddependenciesstorageinterface.h"
-#include "clangpathwatcher.h"
 
+#include <clangpathwatcher.h>
 #include <filecontainerv2.h>
 #include <modifiedtimecheckerinterface.h>
 #include <precompiledheaderstorageinterface.h>

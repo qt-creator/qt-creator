@@ -17,8 +17,6 @@ HEADERS += \
     $$PWD/symbolsvisitorbase.h \
     $$PWD/usedmacro.h \
     $$PWD/sourcedependency.h \
-    $$PWD/filestatus.h \
-    $$PWD/filestatuscache.h \
     $$PWD/indexdataconsumer.h \
     $$PWD/sourcesmanager.h \
     $$PWD/symbolindexertaskqueue.h \
@@ -67,5 +65,4 @@ HEADERS += \
 SOURCES += \
     $$PWD/filestatuspreprocessorcallbacks.cpp \
     $$PWD/sourcerangefilter.cpp \
-    $$PWD/symbolindexer.cpp \
-    $$PWD/filestatuscache.cpp
+    $$PWD/symbolindexer.cpp

@@ -239,7 +239,7 @@ void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
     setFormat(style);
 
     if (style == VcsOutputWindow::Command) {
-        const QString timeStamp = QTime::currentTime().toString("\nHH:mm ");
+        const QString timeStamp = QTime::currentTime().toString("\nHH:mm:ss ");
         appendLines(timeStamp + s, repository);
     } else {
         appendLines(s, repository);
@@ -291,22 +291,17 @@ VcsOutputWindow::VcsOutputWindow()
     Q_ASSERT(d->passwordRegExp.isValid());
     m_instance = this;
 
-    auto updateFontSettings = [] {
-        d->widget.setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
-    };
-
     auto updateBehaviorSettings = [] {
         d->widget.setWheelZoomEnabled(
                     TextEditor::TextEditorSettings::behaviorSettings().m_scrollWheelZooming);
     };
 
-    updateFontSettings();
     updateBehaviorSettings();
+    setupContext(Internal::C_VCS_OUTPUT_PANE, &d->widget);
 
     connect(this, &IOutputPane::zoomIn, &d->widget, &Core::OutputWindow::zoomIn);
     connect(this, &IOutputPane::zoomOut, &d->widget, &Core::OutputWindow::zoomOut);
-    connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
-            this, updateFontSettings);
+    connect(this, &IOutputPane::resetZoom, &d->widget, &Core::OutputWindow::resetZoom);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             this, updateBehaviorSettings);
 }

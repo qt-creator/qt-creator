@@ -332,7 +332,7 @@ void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
 
 bool TargetSetupPage::importLineEditHasFocus() const
 {
-    return m_importWidget->lineEditHasFocus();
+    return m_importWidget->ownsReturnKey();
 }
 
 void TargetSetupPage::setNoteText(const QString &text)

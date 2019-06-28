@@ -36,7 +36,7 @@ CONFIG(release, debug|release):QMAKE_LFLAGS += -Wl,--strip-debug
 }
 
 gcc:!clang: QMAKE_CXXFLAGS += -Wno-noexcept-type
-msvc: QMAKE_CXXFLAGS += /bigobj
+msvc: QMAKE_CXXFLAGS += /bigobj /wd4267 /wd4141 /wd4146
 
 # create fake CppTools.json for the mime type definitions
 dependencyList = "\"Dependencies\" : []"
@@ -46,7 +46,6 @@ QMAKE_SUBSTITUTES += cpptoolsjson
 DEFINES += CPPTOOLS_JSON=\"R\\\"xxx($${cpptoolsjson.output})xxx\\\"\"
 
 SOURCES += \
-    changedfilepathcompressor-test.cpp \
     clangindexingsettingsmanager-test.cpp \
     clangpathwatcher-test.cpp \
     clangqueryexamplehighlightmarker-test.cpp \
@@ -56,6 +55,7 @@ SOURCES += \
     cppprojectfilecategorizer-test.cpp \
     cppprojectinfogenerator-test.cpp \
     cppprojectpartchooser-test.cpp \
+    directorypathcompressor-test.cpp \
     fakeprocess.cpp \
     filepath-test.cpp \
     filepathview-test.cpp \
@@ -177,7 +177,7 @@ SOURCES += \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \
-    utf8positionfromlinecolumn-test.cpp \
+    utf8positionfromlinecolumn-test.cpp
 }
 
 !isEmpty(LIBTOOLING_LIBS) {
@@ -228,6 +228,7 @@ HEADERS += \
     mockclangcodemodelserver.h \
     mockclangpathwatcher.h \
     mockclangpathwatchernotifier.h \
+    mockfilesystem.h \
     mockpchcreator.h \
     mockpchmanagerclient.h \
     mockpchmanagernotifier.h \

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -60,9 +60,8 @@
 
         \li \l{Running Autotests}
 
-            You can build and run Qt tests, Qt Quick tests, and Google tests
-            using \QC. In addition, you can use a wizard to create projects that
-            contain Qt or Google tests.
+            You can create, build and run Qt tests, Qt Quick tests, Google
+            tests, and Boost tests using \QC.
 
     \endlist
 

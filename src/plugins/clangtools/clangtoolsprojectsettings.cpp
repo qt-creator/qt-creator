@@ -87,7 +87,9 @@ void ClangToolsProjectSettings::load()
     m_useGlobalSettings = useGlobalVariant.isValid() ? useGlobalVariant.toBool() : true;
     m_diagnosticConfig = Core::Id::fromSetting(
         m_project->namedSettings(SETTINGS_KEY_DIAGNOSTIC_CONFIG));
-    m_buildBeforeAnalysis = m_project->namedSettings(SETTINGS_KEY_BUILD_BEFORE_ANALYSIS).toBool();
+
+    const QVariant value = m_project->namedSettings(SETTINGS_KEY_BUILD_BEFORE_ANALYSIS);
+    m_buildBeforeAnalysis = value.isValid() ? value.toBool() : true;
 
     auto toFileName = [](const QString &s) { return Utils::FilePath::fromString(s); };
 

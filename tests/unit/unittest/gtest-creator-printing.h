@@ -49,7 +49,7 @@ std::ostream &operator<<(std::ostream &out, const CompileCommand &command);
 } // namespace clang
 
 namespace Core {
-class LocatorFilterEntry;
+struct LocatorFilterEntry;
 
 std::ostream &operator<<(std::ostream &out, const LocatorFilterEntry &entry);
 

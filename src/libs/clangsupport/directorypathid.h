@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,52 +25,57 @@
 
 #pragma once
 
-#include <filepathcachinginterface.h>
+#include <QDataStream>
 
-QT_FORWARD_DECLARE_CLASS(QFileInfo)
+#include <vector>
 
 namespace ClangBackEnd {
-
-namespace Internal {
-class FileStatusCacheEntry
+class DirectoryPathId
 {
 public:
-    FileStatusCacheEntry(ClangBackEnd::FilePathId filePathId,
-                         long long lastModified = 0)
-        : filePathId(filePathId),
-          lastModified(lastModified)
+    constexpr DirectoryPathId() = default;
+
+    DirectoryPathId(const char *) = delete;
+
+    DirectoryPathId(int directoryPathId)
+        : directoryPathId(directoryPathId)
     {}
 
+    bool isValid() const { return directoryPathId >= 0; }
+
+    friend bool operator==(DirectoryPathId first, DirectoryPathId second)
+    {
+        return first.isValid() && first.directoryPathId == second.directoryPathId;
+    }
+
+    friend bool operator!=(DirectoryPathId first, DirectoryPathId second)
+    {
+        return !(first == second);
+    }
+
+    friend bool operator<(DirectoryPathId first, DirectoryPathId second)
+    {
+        return first.directoryPathId < second.directoryPathId;
+    }
+
+    friend QDataStream &operator<<(QDataStream &out, const DirectoryPathId &directoryPathId)
+    {
+        out << directoryPathId.directoryPathId;
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, DirectoryPathId &directoryPathId)
+    {
+        in >> directoryPathId.directoryPathId;
+
+        return in;
+    }
+
 public:
-    ClangBackEnd::FilePathId filePathId;
-    long long lastModified;
+    int directoryPathId = -1;
 };
 
-using FileStatusCacheEntries = std::vector<FileStatusCacheEntry>;
-
-}
-
-class FileStatusCache
-{
-public:
-    using size_type = Internal::FileStatusCacheEntries::size_type;
-
-    FileStatusCache(FilePathCachingInterface &filePathCache);
-    FileStatusCache &operator=(const FileStatusCache &) = delete;
-    FileStatusCache(const FileStatusCache &) = delete;
-
-    long long lastModifiedTime(ClangBackEnd::FilePathId filePathId) const;
-    void update(ClangBackEnd::FilePathId filePathId);
-
-    size_type size() const;
-
-private:
-    Internal::FileStatusCacheEntry findEntry(ClangBackEnd::FilePathId filePathId) const;
-    QFileInfo qFileInfo(ClangBackEnd::FilePathId filePathId) const;
-
-private:
-    mutable Internal::FileStatusCacheEntries m_cacheEntries;
-    FilePathCachingInterface &m_filePathCache;
-};
+using DirectoryPathIds = std::vector<DirectoryPathId>;
 
 } // namespace ClangBackEnd

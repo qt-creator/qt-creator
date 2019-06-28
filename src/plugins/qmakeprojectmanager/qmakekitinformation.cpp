@@ -164,7 +164,7 @@ KitAspect::ItemList QmakeKitAspect::toUserOutput(const Kit *k) const
 
 void QmakeKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
-    expander->registerVariable("Qmake:mkspec", tr("Mkspec configured for qmake by the Kit."),
+    expander->registerVariable("Qmake:mkspec", tr("Mkspec configured for qmake by the kit."),
                 [kit]() -> QString {
                     return QDir::toNativeSeparators(mkspec(kit));
                 });

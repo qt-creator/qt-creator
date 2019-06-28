@@ -2,7 +2,7 @@ import qbs
 
 Application {
 @if "%{UseVirtualKeyboard}" == "true"
-    Depends { name: "Qt"; submodules: "quick", "virtualkeyboard" }
+    Depends { name: "Qt"; submodules: ["quick", "virtualkeyboard"] }
 @else
     Depends { name: "Qt.quick" }
 @endif
