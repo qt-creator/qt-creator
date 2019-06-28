@@ -45,7 +45,7 @@ ScrollView {
     function resetRoot() { flamegraph.resetRoot(); }
     property bool zoomed: flamegraph.zoomed
 
-    property int sizeRole: -1
+    property var sizeRole: modes[Math.max(0, modesMenu.currentIndex)]
     property var model: null
 
     property int typeIdRole: -1
@@ -56,7 +56,7 @@ ScrollView {
     property int summaryRole: -1
     property int noteRole: -1
 
-    property var trRoleNames: []
+    property var trRoleNames: ({})
 
     property var modes: []
 
@@ -314,29 +314,11 @@ ScrollView {
             }
         }
 
-        Button {
+        ComboBox {
+            id: modesMenu
             x: flickable.width - width
             y: flickable.contentY
-
-            // It won't listen to anchors.margins and by default it doesn't add any margin. Great.
-            width: implicitWidth + 20
-
-            text: qsTr("Visualize %1").arg(trRoleNames[root.sizeRole])
-            onClicked: modesMenu.open()
-
-            Menu {
-                id: modesMenu
-                y: parent.height
-                Instantiator {
-                    model: root.modes
-                    MenuItem {
-                        text: root.trRoleNames[modelData]
-                        onTriggered: root.sizeRole = modelData
-                    }
-                    onObjectAdded: modesMenu.insertItem(index, object)
-                    onObjectRemoved: modesMenu.removeItem(object)
-                }
-            }
+            model: root.modes.map(function(role) { return root.trRoleNames[role] });
         }
     }
 }

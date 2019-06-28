@@ -30,7 +30,6 @@ FlameGraphView {
     id: root
 
     model: flameGraphModel
-    sizeRole: QmlProfilerFlameGraphModel.DurationRole
 
     typeIdRole: QmlProfilerFlameGraphModel.TypeIdRole
     sourceFileRole: QmlProfilerFlameGraphModel.FilenameRole

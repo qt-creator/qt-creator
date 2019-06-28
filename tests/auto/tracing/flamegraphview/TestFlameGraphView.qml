@@ -28,7 +28,6 @@ import "../tracing/"
 
 FlameGraphView {
     id: root
-    sizeRole: TestFlameGraphModel.SizeRole
 
     model: flameGraphModel
 
