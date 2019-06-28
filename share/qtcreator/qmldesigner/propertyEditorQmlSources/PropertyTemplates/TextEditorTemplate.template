@@ -1,0 +1,105 @@
+Section {
+    anchors.left: parent.left
+    anchors.right: parent.right
+    caption: "%1"
+
+    SectionLayout {
+        columns: 2
+        rows: 3
+        Label {
+            text: qsTr("Text")
+        }
+        LineEdit {
+            backendValue: backendValues.%2_text
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Wrap mode")
+        }
+
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: backendValues.%2_wrapMode
+            scope: "Text"
+            model: ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"]
+        }
+
+        Label {
+            text: qsTr("Elide")
+        }
+
+        ComboBox {
+            Layout.fillWidth: true
+            backendValue: backendValues.%2_elide
+            scope: "Text"
+            model: ["ElideNone", "ElideLeft", "ElideMiddle", "ElideRight"]
+        }
+
+        Label {
+            text: qsTr("Alignment")
+        }
+
+        AligmentHorizontalButtons {
+            backendValue: backendValues.%2_horizontalAlignment;
+
+        }
+
+        Label {
+            text: ("")
+        }
+
+        AligmentVerticalButtons {
+            backendValue: backendValues.%2_verticalAlignment;
+        }
+
+
+        Label {
+            text: qsTr("Format")
+        }
+        ComboBox {
+            scope: "Text"
+            model:  ["PlainText", "RichText", "AutoText"]
+            backendValue: backendValues.%2_textFormat
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Render type")
+            toolTip: qsTr("Override the default rendering type for this item.")
+        }
+        ComboBox {
+            scope: "Text"
+            model:  ["QtRendering", "NativeRendering"]
+            backendValue: backendValues.%2_renderType
+            Layout.fillWidth: true
+        }
+
+        Label {
+            text: qsTr("Font size mode")
+            toolTip: qsTr("Specifies how the font size of the displayed text is determined.")
+        }
+        ComboBox {
+            scope: "Text"
+            model:  ["FixedSize", "HorizontalFit", "VerticalFit", "Fit"]
+            backendValue: backendValues.%2_fontSizeMode
+            Layout.fillWidth: true
+        }
+
+
+        Label {
+            text: qsTr("Line height")
+            tooltip: qsTr("Sets the line height for the text.")
+        }
+
+        SpinBox {
+            Layout.fillWidth: true
+            backendValue: (backendValues.%2_lineHeight === undefined) ? dummyBackendValue : backendValues.lineHeight
+            maximumValue: 500
+            minimumValue: 0
+            decimals: 2
+            stepSize: 0.1
+        }
+
+    }
+}

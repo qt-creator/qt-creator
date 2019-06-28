@@ -35,16 +35,24 @@ Section {
     anchors.right: parent.right
     caption: qsTr("Font")
 
+    property string fontName: "font"
+
     property bool showStyle: false
 
-    property variant fontFamily: backendValues.font_family
-    property variant pointSize: backendValues.font_pointSize
-    property variant pixelSize: backendValues.font_pixelSize
+    function getBackendValue(name)
+    {
+        print(fontSection.fontName + "_" + name)
+        return backendValues[fontSection.fontName + "_" + name]
+    }
 
-    property variant boldStyle: backendValues.font_bold
-    property variant italicStyle: backendValues.font_italic
-    property variant underlineStyle: backendValues.font_underline
-    property variant strikeoutStyle: backendValues.font_strikeout
+    property variant fontFamily: getBackendValue("family")
+    property variant pointSize: getBackendValue("pointSize")
+    property variant pixelSize: getBackendValue("pixelSize")
+
+    property variant boldStyle: getBackendValue("bold")
+    property variant italicStyle: getBackendValue("italic")
+    property variant underlineStyle: getBackendValue("underline")
+    property variant strikeoutStyle: getBackendValue("strikeout")
 
     onPointSizeChanged: {
         sizeWidget.setPointPixelSize();
@@ -140,6 +148,10 @@ Section {
         }
         FontStyleButtons {
 
+            bold: fontSection.boldStyle
+            italic: fontSection.italicStyle
+            underline: fontSection.underlineStyle
+            strikeout: fontSection.strikeoutStyle
         }
 
         Label {
@@ -149,7 +161,7 @@ Section {
 
         ComboBox {
             Layout.fillWidth: true
-            backendValue: backendValues.font_capitalization
+            backendValue: getBackendValue("capitalization")
             model:  ["MixedCase", "AllUppercase", "AllLowercase", "SmallCaps", "Capitalize"]
             scope: "Font"
         }
@@ -161,7 +173,7 @@ Section {
 
         ComboBox {
             Layout.fillWidth: true
-            backendValue: backendValues.font_weight
+            backendValue: getBackendValue("weight")
             model:  ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
             scope: "Font"
         }
@@ -193,7 +205,7 @@ Section {
                 maximumValue: 500
                 minimumValue: -500
                 decimals: 2
-                backendValue: backendValues.font_wordSpacing
+                backendValue: getBackendValue("wordSpacing")
                 Layout.fillWidth: true
                 Layout.minimumWidth: 60
                 stepSize: 0.1
@@ -212,7 +224,7 @@ Section {
                 maximumValue: 500
                 minimumValue: -500
                 decimals: 2
-                backendValue: backendValues.font_letterSpacing
+                backendValue: getBackendValue("letterSpacing")
                 Layout.fillWidth: true
                 Layout.minimumWidth: 60
                 stepSize: 0.1
@@ -230,7 +242,7 @@ Section {
             CheckBox {
                 text: qsTr("Kerning")
                 Layout.fillWidth: true
-                backendValue: (backendValues.font_kerning === undefined) ? dummyBackendValue : backendValues.font_kerning
+                backendValue: getBackendValue("kerning")
                 tooltip: qsTr("Enables or disables the kerning OpenType feature when shaping the text. Disabling this may " +
                               "improve performance when creating or changing the text, at the expense of some cosmetic features. The default value is true.")
             }
@@ -238,7 +250,7 @@ Section {
             CheckBox {
                 text: qsTr("Prefer shaping")
                 Layout.fillWidth: true
-                backendValue: (backendValues.font_preferShaping === undefined) ? dummyBackendValue : backendValues.font_preferShaping
+                backendValue: getBackendValue("preferShaping")
                 tooltip: qsTr("Sometimes, a font will apply complex rules to a set of characters in order to display them correctly.\n" +
                               "In some writing systems, such as Brahmic scripts, this is required in order for the text to be legible, whereas in " +
                               "Latin script,\n it is merely a cosmetic feature. Setting the preferShaping property to false will disable all such features\nwhen they are not required, which will improve performance in most cases.")

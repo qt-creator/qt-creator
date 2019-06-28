@@ -1,0 +1,64 @@
+Section {
+    anchors.left: parent.left
+    anchors.right: parent.right
+    caption: qsTr("%2 Color")
+
+    ColorEditor {
+        caption: qsTr("Color")
+        backendValue: backendValues.%2_color
+        supportGradient: true
+    }
+
+
+}
+
+Section {
+    anchors.left: parent.left
+    anchors.right: parent.right
+    caption: qsTr("%2 Border Color")
+
+    ColorEditor {
+        caption: qsTr("Border Color")
+        backendValue: backendValues.%2_border_color
+        supportGradient: false
+    }
+}
+
+
+Section {
+    anchors.left: parent.left
+    anchors.right: parent.right
+    caption: "%2 Rectangle"
+
+    SectionLayout {
+        rows: 2
+        Label {
+            text: qsTr("Border")
+        }
+        SecondColumnLayout {
+            SpinBox {
+                backendValue: backendValues.%2_border_width
+                hasSlider: true
+                Layout.preferredWidth: 120
+            }
+            ExpandingSpacer {
+
+            }
+        }
+        Label {
+            text: qsTr("Radius")
+        }
+        SecondColumnLayout {
+            SpinBox {
+                backendValue: backendValues.%2_radius
+                hasSlider: true
+                Layout.preferredWidth: 120
+                minimumValue: 0
+                maximumValue: Math.min(backendValues.height.value, backendValues.width.value) / 2
+            }
+            ExpandingSpacer {
+
+            }
+        }
+    }
+}
