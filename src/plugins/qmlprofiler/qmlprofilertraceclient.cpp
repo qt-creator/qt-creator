@@ -55,6 +55,8 @@ inline bool operator!=(const QmlEventType &type1, const QmlEventType &type2)
     return !(type1 == type2);
 }
 
+struct ObjectDeleteLater { void operator()(QObject *o) { o->deleteLater(); } };
+
 class QmlProfilerTraceClientPrivate {
 public:
     QmlProfilerTraceClientPrivate(QmlProfilerTraceClient *q,
@@ -62,7 +64,7 @@ public:
                                   QmlProfilerModelManager *modelManager)
         : q(q)
         , modelManager(modelManager)
-        , engineControl(connection)
+        , engineControl(new QmlDebug::QmlEngineControlClient(connection))
         , maximumTime(0)
         , recording(false)
         , requestedFeatures(0)
@@ -81,8 +83,14 @@ public:
 
     QmlProfilerTraceClient *q;
     QmlProfilerModelManager *modelManager;
-    QmlDebug::QmlEngineControlClient engineControl;
-    QScopedPointer<QmlDebug::QDebugMessageClient> messageClient;
+
+    // Use deleteLater here. The connection will call stateChanged() on all clients that are
+    // alive when it gets disconnected. One way to notice a disconnection is failing to send the
+    // plugin advertisement when a client unregisters. If one of the other clients is
+    // half-destructed at that point, we get invalid memory accesses. Therefore, we cannot nest the
+    // dtor calls.
+    std::unique_ptr<QmlDebug::QmlEngineControlClient, ObjectDeleteLater> engineControl;
+    std::unique_ptr<QmlDebug::QDebugMessageClient, ObjectDeleteLater> messageClient;
     qint64 maximumTime;
     bool recording;
     quint64 requestedFeatures;
@@ -235,22 +243,22 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *cli
     , d(new QmlProfilerTraceClientPrivate(this, client, modelManager))
 {
     setRequestedFeatures(features);
-    connect(&d->engineControl, &QmlDebug::QmlEngineControlClient::engineAboutToBeAdded,
+    connect(d->engineControl.get(), &QmlDebug::QmlEngineControlClient::engineAboutToBeAdded,
             this, &QmlProfilerTraceClient::sendRecordingStatus);
-    connect(&d->engineControl, &QmlDebug::QmlEngineControlClient::engineAboutToBeRemoved,
+    connect(d->engineControl.get(), &QmlDebug::QmlEngineControlClient::engineAboutToBeRemoved,
             this, [this](int engineId) {
         // We may already be done with that engine. Then we don't need to block it.
         if (d->trackedEngines.contains(engineId))
-            d->engineControl.blockEngine(engineId);
+            d->engineControl->blockEngine(engineId);
     });
     connect(this, &QmlProfilerTraceClient::traceFinished,
-            &d->engineControl, [this](qint64 timestamp, const QList<int> &engineIds) {
+            d->engineControl.get(), [this](qint64 timestamp, const QList<int> &engineIds) {
         Q_UNUSED(timestamp);
         // The engines might not be blocked because the trace can get finished before engine control
         // sees them.
-        for (int blocked : d->engineControl.blockedEngines()) {
+        for (int blocked : d->engineControl->blockedEngines()) {
             if (engineIds.contains(blocked))
-                d->engineControl.releaseEngine(blocked);
+                d->engineControl->releaseEngine(blocked);
         }
     });
 }
@@ -317,7 +325,7 @@ void QmlProfilerTraceClient::setRequestedFeatures(quint64 features)
     d->requestedFeatures = features;
     if (features & static_cast<quint64>(1) << ProfileDebugMessages) {
         d->messageClient.reset(new QmlDebug::QDebugMessageClient(connection()));
-        connect(d->messageClient.data(), &QmlDebug::QDebugMessageClient::message, this,
+        connect(d->messageClient.get(), &QmlDebug::QDebugMessageClient::message, this,
                 [this](QtMsgType type, const QString &text,
                        const QmlDebug::QDebugContextInfo &context)
         {
