@@ -33,7 +33,7 @@ QtObject {
     property real baseFont: 12
     property real baseIconFont: 10
 
-    property real scaleFactor: 1
+    property real scaleFactor: 1.1
 
     property real height: Math.round(values.baseHeight * values.scaleFactor)
     property real myFontSize: Math.round(values.baseFont * values.scaleFactor)
