@@ -908,6 +908,115 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         categoryCompile)
                 )
             << QString();
+    QTest::newRow("GCC 9 output")
+            << QString("In file included from /usr/include/qt/QtCore/qlocale.h:43,\n"
+                       "                 from /usr/include/qt/QtCore/qtextstream.h:46,\n"
+                       "                 from /qtc/src/shared/proparser/proitems.cpp:31:\n"
+                       "/usr/include/qt/QtCore/qvariant.h: In constructor ‘QVariant::QVariant(QVariant&&)’:\n"
+                       "/usr/include/qt/QtCore/qvariant.h:273:25: warning: implicitly-declared ‘constexpr QVariant::Private& QVariant::Private::operator=(const QVariant::Private&)’ is deprecated [-Wdeprecated-copy]\n"
+                       "  273 |     { other.d = Private(); }\n"
+                       "      |                         ^\n"
+                       "/usr/include/qt/QtCore/qvariant.h:399:16: note: because ‘QVariant::Private’ has user-provided ‘QVariant::Private::Private(const QVariant::Private&)’\n"
+                       "  399 |         inline Private(const Private &other) Q_DECL_NOTHROW\n"
+                       "      |                      ^~~~~~~)\n"
+                       "t.cc: In function ‘int test(const shape&, const shape&)’:\n"
+                       "t.cc:15:4: error: no match for ‘operator+’ (operand types are ‘boxed_value<double>’ and ‘boxed_value<double>’)\n"
+                       "  14 |   return (width(s1) * height(s1)\n"
+                       "     |           ~~~~~~~~~~~~~~~~~~~~~~\n"
+                       "     |                     |\n"
+                       "     |                     boxed_value<[...]>\n"
+                       "  15 |    + width(s2) * height(s2));\n"
+                       "     |    ^ ~~~~~~~~~~~~~~~~~~~~~~\n"
+                       "     |                |\n"
+                       "     |                boxed_value<[...]>\n"
+                       "incomplete.c:1:6: error: ‘string’ in namespace ‘std’ does not name a type\n"
+                       "  1 | std::string test(void)\n"
+                       "    |      ^~~~~~\n"
+                       "incomplete.c:1:1: note: ‘std::string’ is defined in header ‘<string>’; did you forget to ‘#include <string>’?\n"
+                       " +++ |+#include <string>\n"
+                       "  1 | std::string test(void)\n"
+                       "param-type-mismatch.c: In function ‘caller’:\n"
+                       "param-type-mismatch.c:5:24: warning: passing argument 2 of ‘callee’ makes pointer from integer without a cast [-Wint-conversion]\n"
+                       "  5 |   return callee(first, second, third);\n"
+                       "    |                        ^~~~~~\n"
+                       "    |                        |\n"
+                       "    |                        int\n"
+                       "param-type-mismatch.c:1:40: note: expected ‘const char *’ but argument is of type ‘int’\n"
+                       "  1 | extern int callee(int one, const char *two, float three);\n"
+                       "    |                            ~~~~~~~~~~~~^~~"
+               )
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << Tasks{Task(Task::Unknown,
+                     "In file included from /usr/include/qt/QtCore/qlocale.h:43,",
+                     Utils::FilePath::fromUserInput("/usr/include/qt/QtCore/qlocale.h"), 43,
+                     categoryCompile),
+               Task(Task::Unknown,
+                    "from /usr/include/qt/QtCore/qtextstream.h:46,",
+                    Utils::FilePath::fromUserInput("/usr/include/qt/QtCore/qtextstream.h"), 46,
+                    categoryCompile),
+               Task(Task::Unknown,
+                    "from /qtc/src/shared/proparser/proitems.cpp:31:",
+                    Utils::FilePath::fromUserInput("/qtc/src/shared/proparser/proitems.cpp"), 31,
+                    categoryCompile),
+               Task(Task::Unknown,
+                    "In constructor ‘QVariant::QVariant(QVariant&&)’:",
+                    Utils::FilePath::fromUserInput("/usr/include/qt/QtCore/qvariant.h"), -1,
+                    categoryCompile),
+               Task(Task::Warning,
+                    "implicitly-declared ‘constexpr QVariant::Private& QVariant::Private::operator=(const QVariant::Private&)’ is deprecated [-Wdeprecated-copy]\n"
+                    "  273 |     { other.d = Private(); }\n"
+                    "      |                         ^",
+                    Utils::FilePath::fromUserInput("/usr/include/qt/QtCore/qvariant.h"), 273,
+                    categoryCompile),
+               Task(Task::Unknown,
+                    "because ‘QVariant::Private’ has user-provided ‘QVariant::Private::Private(const QVariant::Private&)’\n"
+                    "  399 |         inline Private(const Private &other) Q_DECL_NOTHROW\n"
+                    "      |                      ^~~~~~~)",
+                    Utils::FilePath::fromUserInput("/usr/include/qt/QtCore/qvariant.h"), 399,
+                    categoryCompile),
+               Task(Task::Unknown,
+                    "In function ‘int test(const shape&, const shape&)’:",
+                    Utils::FilePath::fromUserInput("t.cc"), -1,
+                    categoryCompile),
+               Task(Task::Error,
+                    "no match for ‘operator+’ (operand types are ‘boxed_value<double>’ and ‘boxed_value<double>’)\n"
+                    "  14 |   return (width(s1) * height(s1)\n"
+                    "     |           ~~~~~~~~~~~~~~~~~~~~~~\n"
+                    "     |                     |\n"
+                    "     |                     boxed_value<[...]>\n"
+                    "  15 |    + width(s2) * height(s2));\n"
+                    "     |    ^ ~~~~~~~~~~~~~~~~~~~~~~\n"
+                    "     |                |\n"
+                    "     |                boxed_value<[...]>",
+                    Utils::FilePath::fromUserInput("t.cc"), 15,
+                    categoryCompile),
+               Task(Task::Error,
+                    "‘string’ in namespace ‘std’ does not name a type\n"
+                    "  1 | std::string test(void)\n"
+                    "    |      ^~~~~~",
+                    Utils::FilePath::fromUserInput("incomplete.c"), 1, categoryCompile),
+               Task(Task::Unknown,
+                    "‘std::string’ is defined in header ‘<string>’; did you forget to ‘#include <string>’?\n"
+                    " +++ |+#include <string>\n"
+                    "  1 | std::string test(void)",
+                    Utils::FilePath::fromUserInput("incomplete.c"), 1, categoryCompile),
+               Task(Task::Unknown,
+                    "In function ‘caller’:",
+                    Utils::FilePath::fromUserInput("param-type-mismatch.c"), -1, categoryCompile),
+               Task(Task::Warning,
+                    "passing argument 2 of ‘callee’ makes pointer from integer without a cast [-Wint-conversion]\n"
+                    "  5 |   return callee(first, second, third);\n"
+                    "    |                        ^~~~~~\n"
+                    "    |                        |\n"
+                    "    |                        int",
+                    Utils::FilePath::fromUserInput("param-type-mismatch.c"), 5, categoryCompile),
+               Task(Task::Unknown,
+                    "expected ‘const char *’ but argument is of type ‘int’\n"
+                    "  1 | extern int callee(int one, const char *two, float three);\n"
+                    "    |                            ~~~~~~~~~~~~^~~",
+                    Utils::FilePath::fromUserInput("param-type-mismatch.c"), 1, categoryCompile)}
+            << QString();
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
