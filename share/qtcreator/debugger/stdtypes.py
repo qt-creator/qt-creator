@@ -340,11 +340,12 @@ def qdump__std__multimap(d, value):
     return qdump__std__map(d, value)
 
 def qdumpHelper__std__tree__iterator(d, value, isSet=False):
+    treeTypeName = None
     if value.type.name.endswith("::iterator"):
         treeTypeName = value.type.name[:-len("::iterator")]
     elif value.type.name.endswith("::const_iterator"):
         treeTypeName = value.type.name[:-len("::const_iterator")]
-    treeType = d.lookupType(treeTypeName)
+    treeType = d.lookupType(treeTypeName) if treeTypeName else value.type[0]
     keyType = treeType[0]
     valueType = treeType[1]
     node = value["_M_node"].dereference()   # std::_Rb_tree_node_base
