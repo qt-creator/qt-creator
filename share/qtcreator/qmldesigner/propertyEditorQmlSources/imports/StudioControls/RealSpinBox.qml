@@ -30,11 +30,15 @@ import StudioTheme 1.0 as StudioTheme
 T.SpinBox {
     id: mySpinBox
 
+    property real realFrom: 0.0
+    property real realTo: 99.0
+    property real realValue: 1.0
+    property real realStepSize: 1.0
+
     property alias labelColor: spinBoxInput.color
     property alias actionIndicator: actionIndicator
 
     property int decimals: 0
-    property int factor: Math.pow(10, decimals)
 
     property real minStepSize: 1
     property real maxStepSize: 10
@@ -48,16 +52,19 @@ T.SpinBox {
     property real __actionIndicatorHeight: StudioTheme.Values.height
 
     property bool spinBoxIndicatorVisible: true
-    property real __spinBoxIndicatorWidth: StudioTheme.Values.smallRectWidth - (2
-                                           * StudioTheme.Values.border)
-    property real __spinBoxIndicatorHeight: (StudioTheme.Values.height / 2)
+    property real __spinBoxIndicatorWidth: StudioTheme.Values.smallRectWidth - 2
+                                           * StudioTheme.Values.border
+    property real __spinBoxIndicatorHeight: StudioTheme.Values.height / 2
                                             - StudioTheme.Values.border
 
     property alias sliderIndicatorVisible: sliderIndicator.visible
     property real __sliderIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __sliderIndicatorHeight: StudioTheme.Values.height
 
-    signal compressedValueModified
+    signal realValueModified
+    signal compressedRealValueModified
+    signal dragStarted
+    signal dragEnded
 
     // Use custom wheel handling due to bugs
     property bool __wheelEnabled: false
@@ -72,70 +79,63 @@ T.SpinBox {
 
     font.pixelSize: StudioTheme.Values.myFontSize
     editable: true
-    validator: mySpinBox.decimals ? doubleValidator : intValidator
 
-    DoubleValidator {
+    // Leave this in for now
+    from: -99
+    value: 0
+    to: 99
+
+    validator: DoubleValidator {
         id: doubleValidator
         locale: mySpinBox.locale.name
         notation: DoubleValidator.StandardNotation
         decimals: mySpinBox.decimals
-        bottom: Math.min(mySpinBox.from, mySpinBox.to) / mySpinBox.factor
-        top: Math.max(mySpinBox.from, mySpinBox.to) / mySpinBox.factor
-    }
-
-    IntValidator {
-        id: intValidator
-        locale: mySpinBox.locale.name
-        bottom: Math.min(mySpinBox.from, mySpinBox.to)
-        top: Math.max(mySpinBox.from, mySpinBox.to)
+        bottom: Math.min(mySpinBox.realFrom, mySpinBox.realTo)
+        top: Math.max(mySpinBox.realFrom, mySpinBox.realTo)
     }
 
     ActionIndicator {
         id: actionIndicator
         myControl: mySpinBox
-
         x: 0
         y: 0
         width: actionIndicator.visible ? __actionIndicatorWidth : 0
         height: actionIndicator.visible ? __actionIndicatorHeight : 0
     }
 
-    up.indicator: SpinBoxIndicator {
+    up.indicator: RealSpinBoxIndicator {
         id: spinBoxIndicatorUp
         myControl: mySpinBox
-
-        visible: spinBoxIndicatorVisible
-        //hover: mySpinBox.up.hovered // TODO QTBUG-74688
-        pressed: mySpinBox.up.pressed
         iconFlip: -1
-
+        visible: spinBoxIndicatorVisible
+        onRealReleased: mySpinBox.realIncrease()
+        onRealPressAndHold: mySpinBox.realIncrease()
         x: actionIndicator.width + (actionIndicatorVisible ? 0 : StudioTheme.Values.border)
         y: StudioTheme.Values.border
         width: spinBoxIndicatorVisible ? __spinBoxIndicatorWidth : 0
         height: spinBoxIndicatorVisible ? __spinBoxIndicatorHeight : 0
 
-        enabled: (mySpinBox.from < mySpinBox.to) ? mySpinBox.value < mySpinBox.to : mySpinBox.value > mySpinBox.to
+        realEnabled: (mySpinBox.realFrom < mySpinBox.realTo) ? (mySpinBox.realValue < mySpinBox.realTo) : (mySpinBox.realValue > mySpinBox.realTo)
     }
 
-    down.indicator: SpinBoxIndicator {
+    down.indicator: RealSpinBoxIndicator {
         id: spinBoxIndicatorDown
         myControl: mySpinBox
-
         visible: spinBoxIndicatorVisible
-        //hover: mySpinBox.down.hovered // TODO QTBUG-74688
-        pressed: mySpinBox.down.pressed
-
+        onRealReleased: mySpinBox.realDecrease()
+        onRealPressAndHold: mySpinBox.realDecrease()
         x: actionIndicator.width + (actionIndicatorVisible ? 0 : StudioTheme.Values.border)
         y: spinBoxIndicatorUp.y + spinBoxIndicatorUp.height
         width: spinBoxIndicatorVisible ? __spinBoxIndicatorWidth : 0
         height: spinBoxIndicatorVisible ? __spinBoxIndicatorHeight : 0
 
-        enabled: (mySpinBox.from < mySpinBox.to) ? mySpinBox.value > mySpinBox.from : mySpinBox.value < mySpinBox.from
+        realEnabled: (mySpinBox.realFrom < mySpinBox.realTo) ? (mySpinBox.realValue > mySpinBox.realFrom) : (mySpinBox.realValue < mySpinBox.realFrom)
     }
 
-    contentItem: SpinBoxInput {
+    contentItem: RealSpinBoxInput {
         id: spinBoxInput
         myControl: mySpinBox
+        validator: doubleValidator
     }
 
     background: Rectangle {
@@ -151,17 +151,15 @@ T.SpinBox {
         id: sliderIndicator
         myControl: mySpinBox
         myPopup: sliderPopup
-
         x: spinBoxInput.x + spinBoxInput.width - StudioTheme.Values.border
         width: sliderIndicator.visible ? __sliderIndicatorWidth : 0
         height: sliderIndicator.visible ? __sliderIndicatorHeight : 0
         visible: false // reasonable default
     }
 
-    SliderPopup {
+    RealSliderPopup {
         id: sliderPopup
         myControl: mySpinBox
-
         x: spinBoxInput.x
         y: StudioTheme.Values.height - StudioTheme.Values.border
         width: spinBoxInput.width + sliderIndicator.width - StudioTheme.Values.border
@@ -174,12 +172,12 @@ T.SpinBox {
     }
 
     textFromValue: function (value, locale) {
-        return Number(value / mySpinBox.factor).toLocaleString(locale, 'f',
-                                                               mySpinBox.decimals)
+        return Number(mySpinBox.realValue).toLocaleString(locale, 'f', mySpinBox.decimals)
     }
 
     valueFromText: function (text, locale) {
-        return Number.fromLocaleString(locale, text) * mySpinBox.factor
+        mySpinBox.setRealValue(Number.fromLocaleString(locale, spinBoxInput.text))
+        return 0
     }
 
     states: [
@@ -243,10 +241,15 @@ T.SpinBox {
         repeat: false
         running: false
         interval: 100
-        onTriggered: mySpinBox.compressedValueModified()
+        onTriggered: mySpinBox.compressedRealValueModified()
     }
 
-    onValueModified: myTimer.restart()
+    onRealValueChanged: {
+        spinBoxInput.text = mySpinBox.textFromValue(mySpinBox.realValue, mySpinBox.locale)
+        mySpinBox.value = 0 // Without setting value back to 0, it can occur that one of
+                            // the indicator will be disabled due to range logic.
+    }
+    onRealValueModified: myTimer.restart()
     onFocusChanged: mySpinBox.setValueFromInput()
     onDisplayTextChanged: spinBoxInput.text = mySpinBox.displayText
     onActiveFocusChanged: {
@@ -263,32 +266,22 @@ T.SpinBox {
             event.accepted = true
 
             // Store current step size
-            var currStepSize = mySpinBox.stepSize
+            var currStepSize = mySpinBox.realStepSize
 
+            // Set stepSize according to used modifier key
             if (event.modifiers & Qt.ControlModifier)
-                mySpinBox.stepSize = mySpinBox.minStepSize
+                mySpinBox.realStepSize = mySpinBox.minStepSize
 
             if (event.modifiers & Qt.ShiftModifier)
-                mySpinBox.stepSize = mySpinBox.maxStepSize
-
-            // Check if value is in sync with text input, if not sync it!
-            var val = mySpinBox.valueFromText(spinBoxInput.text,
-                                              mySpinBox.locale)
-            if (mySpinBox.value !== val)
-                mySpinBox.value = val
-
-            var currValue = mySpinBox.value
+                mySpinBox.realStepSize = mySpinBox.maxStepSize
 
             if (event.key === Qt.Key_Up)
-                mySpinBox.increase()
+                mySpinBox.realIncrease()
             else
-                mySpinBox.decrease()
-
-            if (currValue !== mySpinBox.value)
-                mySpinBox.valueModified()
+                mySpinBox.realDecrease()
 
             // Reset step size
-            mySpinBox.stepSize = currStepSize
+            mySpinBox.realStepSize = currStepSize
         }
 
         if (event.key === Qt.Key_Escape)
@@ -300,29 +293,53 @@ T.SpinBox {
     }
 
     function clamp(v, lo, hi) {
-        if (v < lo || v > hi)
-            return Math.min(Math.max(lo, v), hi)
-
-        return v
+        return (v < lo || v > hi) ? Math.min(Math.max(lo, v), hi) : v
     }
 
     function setValueFromInput() {
         // FIX: This is a temporary fix for QTBUG-74239
-        var currValue = mySpinBox.value
+        var currValue = mySpinBox.realValue
 
-        if (!spinBoxInput.acceptableInput)
-            mySpinBox.value = clamp(valueFromText(spinBoxInput.text,
-                                                  mySpinBox.locale),
-                                    mySpinBox.validator.bottom * mySpinBox.factor,
-                                    mySpinBox.validator.top * mySpinBox.factor)
-        else
-            mySpinBox.value = valueFromText(spinBoxInput.text,
-                                            mySpinBox.locale)
+        // Call the function but don't use return value. The realValue property
+        // will be implicitly set inside the function/procedure.
+        mySpinBox.valueFromText(spinBoxInput.text, mySpinBox.locale)
 
-        if (spinBoxInput.text !== mySpinBox.displayText)
-            spinBoxInput.text = mySpinBox.displayText
+        if (mySpinBox.realValue !== currValue) {
+            mySpinBox.realValueModified()
+        } else {
+            // Check if input text differs in format from the current value
+            var tmpInputValue = mySpinBox.textFromValue(mySpinBox.realValue, mySpinBox.locale)
 
-        if (mySpinBox.value !== currValue)
-            mySpinBox.valueModified()
+            if (tmpInputValue !== spinBoxInput.text)
+                spinBoxInput.text = tmpInputValue
+        }
+    }
+
+    function setRealValue(value) {
+        mySpinBox.realValue = clamp(value,
+                                    mySpinBox.validator.bottom,
+                                    mySpinBox.validator.top)
+    }
+
+    function realDecrease() {
+        // Store the current value for comparison
+        var currValue = mySpinBox.realValue
+        mySpinBox.valueFromText(spinBoxInput.text, mySpinBox.locale)
+
+        setRealValue(mySpinBox.realValue - realStepSize)
+
+        if (mySpinBox.realValue !== currValue)
+            mySpinBox.realValueModified()
+    }
+
+    function realIncrease() {
+        // Store the current value for comparison
+        var currValue = mySpinBox.realValue
+        mySpinBox.valueFromText(spinBoxInput.text, mySpinBox.locale)
+
+        setRealValue(mySpinBox.realValue + realStepSize)
+
+        if (mySpinBox.realValue !== currValue)
+            mySpinBox.realValueModified()
     }
 }

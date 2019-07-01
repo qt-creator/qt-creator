@@ -34,22 +34,78 @@ Rectangle {
 
     property bool hover: false
     property bool pressed: false
+    property bool released: false
+    property bool realEnabled: true
+
+    signal realPressed
+    signal realPressAndHold
+    signal realReleased
 
     property alias iconFlip: spinBoxIndicatorIconScale.yScale
 
     color: StudioTheme.Values.themeControlBackground
     border.width: 0
 
+    onEnabledChanged: invalidateEnabled()
+    onRealEnabledChanged: {
+        invalidateEnabled()
+        if (spinBoxIndicator.realEnabled === false)
+            pressAndHoldTimer.stop()
+    }
+
+    // This function is meant to synchronize enabled with realEnable to avoid
+    // the internal logic messing with the actual state.
+    function invalidateEnabled() {
+        spinBoxIndicator.enabled = spinBoxIndicator.realEnabled
+    }
+
+    Timer {
+        id: pressAndHoldTimer
+        repeat: true
+        running: false
+        interval: 100
+        onTriggered: spinBoxIndicator.realPressAndHold()
+    }
+
     // This MouseArea is a workaround to avoid some hover state related bugs
     // when using the actual signal 'up.hovered'. QTBUG-74688
     MouseArea {
         id: spinBoxIndicatorMouseArea
+
+        property bool pressedAndHeld: false
+
         anchors.fill: parent
+        // Shift the MouseArea down by 1 pixel due to potentially overlapping areas
+        anchors.topMargin: iconFlip < 0 ? 0 : 1
+        anchors.bottomMargin: iconFlip < 0 ? 1 : 0
         hoverEnabled: true
+        pressAndHoldInterval: 500
         onContainsMouseChanged: spinBoxIndicator.hover = containsMouse
+        onContainsPressChanged: spinBoxIndicator.pressed = containsPress
         onPressed: {
             myControl.forceActiveFocus()
-            mouse.accepted = false
+            spinBoxIndicator.realPressed()
+            mouse.accepted = true
+        }
+        onPressAndHold: {
+            pressAndHoldTimer.restart()
+            pressedAndHeld = true
+        }
+        onReleased: {
+            // Only trigger real released when pressAndHold isn't active
+            if (!pressAndHoldTimer.running && containsMouse)
+                spinBoxIndicator.realReleased()
+            pressAndHoldTimer.stop()
+            mouse.accepted = true
+            pressedAndHeld = false
+        }
+        onEntered: {
+            if (pressedAndHeld)
+                pressAndHoldTimer.restart()
+        }
+        onExited: {
+            if (pressAndHoldTimer.running)
+                pressAndHoldTimer.stop()
         }
     }
 

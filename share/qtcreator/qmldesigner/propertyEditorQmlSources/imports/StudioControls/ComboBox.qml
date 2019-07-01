@@ -53,7 +53,7 @@ T.ComboBox {
     wheelEnabled: false
 
     onFocusChanged: {
-        if (!focus)
+        if (!myComboBox.focus)
             comboBoxPopup.close()
     }
 

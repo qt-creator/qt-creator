@@ -33,15 +33,13 @@ Item {
     property alias decimals: spinBox.decimals
     property alias hasSlider: spinBox.hasSlider
 
-    property real minimumValue: 0.0
-    property real maximumValue: 1.0
-    property real stepSize: 0.1
+    property alias minimumValue: spinBox.realFrom
+    property alias maximumValue: spinBox.realTo
+    property alias stepSize: spinBox.realStepSize
 
     property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
 
-    property real value
-
-    onValueChanged: spinBox.value = wrapper.value * spinBox.factor
+    property alias value: spinBox.realValue
 
     signal compressedValueModified
     signal valueModified
@@ -49,45 +47,20 @@ Item {
     width: 90
     implicitHeight: spinBox.height
 
-    onStepSizeChanged: spinBox.convert("stepSize", wrapper.stepSize)
-    onMinimumValueChanged: spinBox.convert("from", wrapper.minimumValue)
-    onMaximumValueChanged: spinBox.convert("to", wrapper.maximumValue)
-
-    StudioControls.SpinBox {
+    StudioControls.RealSpinBox {
         id: spinBox
 
-        onValueModified: wrapper.valueModified()
-        onCompressedValueModified: wrapper.compressedValueModified()
-
-        onValueChanged: {
-            if (spinBox.__initialized)
-                wrapper.value = spinBox.value / spinBox.factor
-        }
-
-        width: wrapper.width
+        realFrom: 0.0
+        realTo: 1.0
+        realStepSize: 0.1
         decimals: 2
 
+        onRealValueModified: wrapper.valueModified()
+        onCompressedRealValueModified: wrapper.compressedValueModified()
+
+        width: wrapper.width
         actionIndicatorVisible: false
 
-        property bool __initialized: false
-
         property bool hasSlider: spinBox.sliderIndicatorVisible
-
-        Component.onCompleted: {
-            spinBox.__initialized = true
-
-            spinBox.convert("stepSize", wrapper.stepSize)
-            spinBox.convert("from", wrapper.minimumValue)
-            spinBox.convert("to", wrapper.maximumValue)
-
-            spinBox.value = wrapper.value * spinBox.factor
-        }
-
-        function convert(target, value) {
-            if (!spinBox.__initialized)
-                return
-            spinBox[target] = Math.round(value * spinBox.factor)
-        }
-
     }
 }

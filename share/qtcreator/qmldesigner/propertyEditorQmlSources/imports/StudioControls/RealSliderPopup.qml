@@ -49,9 +49,9 @@ T.Popup {
         rightPadding: 3
         leftPadding: 3
 
-        from: myControl.from
-        value: myControl.value
-        to: myControl.to
+        from: myControl.realFrom
+        value: myControl.realValue
+        to: myControl.realTo
 
         focusPolicy: Qt.NoFocus
 
@@ -82,20 +82,10 @@ T.Popup {
 
         onMoved: {
             var currValue = myControl.value
-            myControl.value = slider.value
+            myControl.realValue = slider.value
 
-            if (currValue !== myControl.value)
-                myControl.valueModified()
-        }
-    }
-
-    onOpened: {
-        // Check if value is in sync with text input, if not sync it!
-        var val = myControl.valueFromText(myControl.contentItem.text,
-                                          myControl.locale)
-        if (myControl.value !== val) {
-            myControl.value = val
-            myControl.valueModified()
+            if (currValue !== myControl.realValue)
+                myControl.realValueModified()
         }
     }
 }

@@ -13,6 +13,10 @@ ItemDelegate 1.0 ItemDelegate.qml
 Menu 1.0 Menu.qml
 MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
+RealSliderPopup 1.0 RealSliderPopup.qml
+RealSpinBox 1.0 RealSpinBox.qml
+RealSpinBoxIndicator 1.0 RealSpinBoxIndicator.qml
+RealSpinBoxInput 1.0 RealSpinBoxInput.qml
 ScrollBar 1.0 ScrollBar.qml
 ScrollView 1.0 ScrollView.qml
 SecondColumnLayout 1.0 SecondColumnLayout.qml

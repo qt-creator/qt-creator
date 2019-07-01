@@ -47,10 +47,10 @@ QtObject {
     property real sliderHeight: values.height / 2 * 1.5 // TODO:Have a look at -> sliderAreaHeight: Data.Values.height/2*1.5
 
     property real sliderControlSize: 12
-    property real sliderControlSizeMulti: sliderControlSize * scaleFactor
+    property real sliderControlSizeMulti: values.sliderControlSize * values.scaleFactor
 
     property real spinControlIconSize: 8
-    property real spinControlIconSizeMulti: spinControlIconSize * scaleFactor
+    property real spinControlIconSizeMulti: values.spinControlIconSize * values.scaleFactor
 
     property real sliderTrackHeight: values.height / 4
     property real sliderHandleHeight: values.sliderTrackHeight * 2
@@ -62,18 +62,18 @@ QtObject {
     property real sliderPointerWidth: Math.round(7 * values.scaleFactor)
     property real sliderPointerHeight: Math.round(2 * values.scaleFactor)
 
-    property real checkBoxSpacing: 6 // TODO Does look strange with scale factor applied
+    property real checkBoxSpacing: Math.round(6 * values.scaleFactor)
 
     property real columnWidth: 225 + (175 * (values.scaleFactor * 2))
 
     property real marginTopBottom: 4
     property real border: 1
 
-    property real maxComboBoxPopupHeight: 300
-    property real maxTextAreaPopupHeight: 150
+    property real maxComboBoxPopupHeight: Math.round(300 * values.scaleFactor)
+    property real maxTextAreaPopupHeight: Math.round(150 * values.scaleFactor)
 
-    property real contextMenuLabelSpacing: 30
-    property real contextMenuHorizontalPadding: 6
+    property real contextMenuLabelSpacing: Math.round(30 * values.scaleFactor)
+    property real contextMenuHorizontalPadding: Math.round(6 * values.scaleFactor)
 
     property real inputHorizontalPadding: Math.round(4 * values.scaleFactor)
 

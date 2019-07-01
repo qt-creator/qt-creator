@@ -60,11 +60,9 @@ TextInput {
 
     Rectangle {
         id: textInputArea
-
         color: StudioTheme.Values.themeControlBackground
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
-
         x: 0
         y: 0
         z: -1
@@ -78,24 +76,25 @@ TextInput {
         acceptedDevices: PointerDevice.Mouse
         enabled: true
 
-        property int initialValue: 0
+        property real initialValue: 0
 
         onActiveChanged: {
-            if (active) {
-                initialValue = myControl.value
+            if (dragHandler.active) {
+                dragHandler.initialValue = myControl.realValue
                 mouseArea.cursorShape = Qt.ClosedHandCursor
                 myControl.drag = true
+                myControl.dragStarted()
             } else {
                 mouseArea.cursorShape = Qt.PointingHandCursor
                 myControl.drag = false
+                myControl.dragEnded()
             }
         }
         onTranslationChanged: {
-            var currValue = myControl.value
-            myControl.value = initialValue + translation.x
-
-            if (currValue !== myControl.value)
-                myControl.valueModified()
+            var currValue = myControl.realValue
+            myControl.setRealValue(dragHandler.initialValue + (translation.x * myControl.realStepSize))
+            if (currValue !== myControl.realValue)
+                myControl.realValueModified()
         }
     }
 
@@ -124,15 +123,12 @@ TextInput {
             if (!myControl.__wheelEnabled)
                 return
 
-            var val = myControl.valueFromText(textInput.text, myControl.locale)
-            if (myControl.value !== val)
-                myControl.value = val
+            var currValue = myControl.realValue
+            myControl.valueFromText(textInput.text, myControl.locale)
+            myControl.setRealValue(myControl.realValue + (wheel.angleDelta.y / 120.0 * myControl.realStepSize))
 
-            var currValue = myControl.value
-            myControl.value += wheel.angleDelta.y / 120
-
-            if (currValue !== myControl.value)
-                myControl.valueModified()
+            if (currValue !== myControl.realValue)
+                myControl.realValueModified()
         }
     }
 
