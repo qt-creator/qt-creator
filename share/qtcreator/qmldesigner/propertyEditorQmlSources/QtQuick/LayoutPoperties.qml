@@ -27,6 +27,7 @@ import QtQuick 2.0
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0 as Controls
+import StudioControls 1.0 as StudioControls
 
 SectionLayout {
     property bool isInModel: backendValue.isInModel;
@@ -40,7 +41,7 @@ SectionLayout {
     onBackendValueChanged: evaluateAlignment()
     onValueFromBackendChanged: evaluateAlignment()
 
-    property int spinBoxWidth: 62
+    property int spinBoxWidth: 82
 
     Connections {
         target: modelNodeBackend
@@ -129,38 +130,41 @@ SectionLayout {
 
     SecondColumnLayout {
 
-        Controls.ComboBox {
+        StudioControls.ComboBox {
             ColorLogic {
                 id: colorLogic
             }
+            Layout.fillWidth: true
 
-            ExtendedFunctionButton {
-                x: 2
-                anchors.verticalCenter: parent.verticalCenter
+            ExtendedFunctionLogic {
+                id: extFuncLogic
                 backendValue: backendValues.Layout_alignment
-                visible: horizontalAlignmentComboBox.enabled
                 onReseted:  {
                     horizontalAlignmentComboBox.currentIndex = 0
                     verticalAlignmentComboBox.currentIndex = 0
                 }
             }
 
+            actionIndicator.icon.color: extFuncLogic.color
+            actionIndicator.icon.text: extFuncLogic.glyph
+            actionIndicator.onClicked: extFuncLogic.show()
+
+            actionIndicator.visible: true
+
+            labelColor: horizontalAlignmentComboBox.currentIndex === 0 ? colorLogic.__defaultTextColor : colorLogic.__changedTextColor
+
             id: horizontalAlignmentComboBox
 
             property bool __isCompleted: false
-            property color textColor: currentIndex === 0 ? colorLogic.__defaultTextColor : colorLogic.__changedTextColor
 
             model: ["AlignLeft", "AlignHCenter", "AlignRight"]
 
-            onCurrentIndexChanged: {
+            onActivated: {
                 if (!horizontalAlignmentComboBox.__isCompleted)
                     return;
 
+                horizontalAlignmentComboBox.currentIndex = index
                 composeExpressionString();
-            }
-
-            style: CustomComboBoxStyle {
-                textColor: horizontalAlignmentComboBox.textColor
             }
 
             Component.onCompleted: {
@@ -181,34 +185,28 @@ SectionLayout {
 
     SecondColumnLayout {
 
-        Controls.ComboBox {
+        StudioControls.ComboBox {
             id: verticalAlignmentComboBox
+            Layout.fillWidth: true
 
-            ExtendedFunctionButton {
-                x: 2
-                anchors.verticalCenter: parent.verticalCenter
-                backendValue: backendValues.Layout_alignment
-                visible: verticalAlignmentComboBox.enabled
-                onReseted:  {
-                    horizontalAlignmentComboBox.currentIndex = 0
-                    verticalAlignmentComboBox.currentIndex = 0
-                }
-            }
+            actionIndicator.icon.color: extFuncLogic.color
+            actionIndicator.icon.text: extFuncLogic.glyph
+            actionIndicator.onClicked: extFuncLogic.show()
+
+            actionIndicator.visible: true
+
+            labelColor: verticalAlignmentComboBox.currentIndex === 0 ? colorLogic.__defaultTextColor : colorLogic.__changedTextColor
 
             property bool __isCompleted: false
-            property color textColor: currentIndex === 0 ? colorLogic.__defaultTextColor : colorLogic.__changedTextColor
 
             model: ["AlignVCenter", "AlignTop","AlignBottom","AlignBaseline"]
 
-            onCurrentIndexChanged: {
+            onActivated: {
                 if (!verticalAlignmentComboBox.__isCompleted)
                     return;
 
+                verticalAlignmentComboBox.currentIndex = index
                 composeExpressionString();
-            }
-
-            style: CustomComboBoxStyle {
-                textColor: verticalAlignmentComboBox.textColor
             }
 
             Component.onCompleted: {
