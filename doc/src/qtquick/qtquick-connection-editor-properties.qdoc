@@ -31,10 +31,19 @@
 
     \title Specifying Dynamic Properties
 
-    You can bind object properties to dynamic expressions to define global
-    properties for an object that can be read by other objects. For example,
-    you can specify global properties for the root object that you can use in
-    the child objects.
+    In addition to the properties predefined for QML types, you can specify
+    \e {dynamic properties} to add properties that would not otherwise
+    exist for a particular type. You bind the properties to dynamic expressions
+    to define global properties for an object that can be read by other objects.
+    For example, you can specify global properties for the root object that you
+    can use in the child objects.
+
+    For example, to specify spacing between UI elements, you could define a
+    margin for an object of a QML type that does not have a margin property,
+    and then use bindings to refer to the value of the margin property from
+    other objects.
+
+    Similarly, you can add dynamic properties at component level.
 
     You can specify dynamic properties for objects in the
     \uicontrol Connections view.
@@ -55,7 +64,7 @@
         \li Double-click the value in the \uicontrol {Property Type} column to
             specify the type of the property.
         \li Double-click the value in the \uicontrol {Property Value} column
-            to specify the value of the property.
+            to specify a dynamic expression as the value of the property.
     \endlist
 
 */
