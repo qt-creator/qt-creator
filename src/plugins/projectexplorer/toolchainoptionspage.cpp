@@ -97,7 +97,7 @@ public:
              }
             case Qt::ToolTipRole:
                 if (!toolChain->isValid())
-                    return ToolChainOptionsPage::tr("This toolchain is no longer valid.");
+                    return ToolChainOptionsPage::tr("This toolchain is invalid.");
                 return ToolChainOptionsPage::tr("<nobr><b>ABI:</b> %1").arg(
                     changed ? ToolChainOptionsPage::tr("not up-to-date")
                             : toolChain->targetAbi().toString());
