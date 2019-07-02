@@ -34,7 +34,7 @@ Section {
 
     id: root
 
-    property int spinBoxWidth: 62
+    property int spinBoxWidth: 96
 
     SectionLayout {
 
