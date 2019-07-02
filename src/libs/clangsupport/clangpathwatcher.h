@@ -98,9 +98,9 @@ public:
     ClangPathWatcher(FilePathCachingInterface &pathCache,
                      FileSystemInterface &fileSystem,
                      ClangPathWatcherNotifier *notifier = nullptr)
-        : m_pathCache(pathCache)
-        , m_fileStatusCache(fileSystem)
+        : m_fileStatusCache(fileSystem)
         , m_fileSystem(fileSystem)
+        , m_pathCache(pathCache)
         , m_notifier(notifier)
     {
         QObject::connect(&m_fileSystemWatcher,
