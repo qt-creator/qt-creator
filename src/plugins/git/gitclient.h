@@ -126,7 +126,8 @@ public:
 
     VcsBase::VcsCommand *vcsExecAbortable(const QString &workingDirectory,
                                           const QStringList &arguments,
-                                          bool isRebase = false);
+                                          bool isRebase = false,
+                                          QString abortCommand = QString());
 
     QString findRepositoryForDirectory(const QString &directory) const;
     QString findGitDirForRepository(const QString &repositoryDir) const;

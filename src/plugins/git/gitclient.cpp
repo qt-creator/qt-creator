@@ -2890,7 +2890,7 @@ void GitClient::pull(const QString &workingDirectory, bool rebase)
         abortCommand = "merge";
     }
 
-    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase);
+    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand);
     connect(command, &VcsCommand::success, this,
             [this, workingDirectory] { updateSubmodulesIfNeeded(workingDirectory, true); },
             Qt::QueuedConnection);
@@ -3092,11 +3092,13 @@ void GitClient::revert(const QString &workingDirectory, const QString &argument)
 // Stashing is handled prior to this call.
 VcsCommand *GitClient::vcsExecAbortable(const QString &workingDirectory,
                                         const QStringList &arguments,
-                                        bool isRebase)
+                                        bool isRebase,
+                                        QString abortCommand)
 {
     QTC_ASSERT(!arguments.isEmpty(), return nullptr);
 
-    QString abortCommand = arguments.at(0);
+    if (abortCommand.isEmpty())
+        abortCommand = arguments.at(0);
     VcsCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
     command->setCookie(workingDirectory);
     command->addFlags(VcsCommand::SshPasswordPrompt
