@@ -240,7 +240,7 @@ T.SpinBox {
         id: myTimer
         repeat: false
         running: false
-        interval: 100
+        interval: 200
         onTriggered: mySpinBox.compressedRealValueModified()
     }
 
@@ -250,6 +250,7 @@ T.SpinBox {
                             // the indicator will be disabled due to range logic.
     }
     onRealValueModified: myTimer.restart()
+
     onFocusChanged: mySpinBox.setValueFromInput()
     onDisplayTextChanged: spinBoxInput.text = mySpinBox.displayText
     onActiveFocusChanged: {
