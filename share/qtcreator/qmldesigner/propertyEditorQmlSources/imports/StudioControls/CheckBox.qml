@@ -65,6 +65,7 @@ T.CheckBox {
         text: myCheckBox.text
         font: myCheckBox.font
         color: StudioTheme.Values.themeTextColor
+        visible: text !== ""
     }
 
     ActionIndicator {
