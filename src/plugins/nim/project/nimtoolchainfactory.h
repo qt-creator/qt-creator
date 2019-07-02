@@ -42,7 +42,7 @@ public:
     NimToolChainFactory();
 
     QList<ProjectExplorer::ToolChain *> autoDetect(const QList<ProjectExplorer::ToolChain *> &alreadyKnown) final;
-    QList<ProjectExplorer::ToolChain *> detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language) final;
+    QList<ProjectExplorer::ToolChain *> detectForImport(const ProjectExplorer::ToolChainDescription &tcd) final;
 };
 
 class NimToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidget

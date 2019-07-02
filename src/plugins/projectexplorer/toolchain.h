@@ -72,6 +72,13 @@ class Kit;
 
 namespace Internal { class ToolChainSettingsAccessor; }
 
+class PROJECTEXPLORER_EXPORT ToolChainDescription
+{
+public:
+    Utils::FilePath compilerPath;
+    Core::Id language;
+};
+
 // --------------------------------------------------------------------------
 // ToolChain (documentation inside)
 // --------------------------------------------------------------------------
@@ -199,7 +206,7 @@ public:
     Core::Id supportedToolChainType() const;
 
     virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
-    virtual QList<ToolChain *> detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language);
+    virtual QList<ToolChain *> detectForImport(const ToolChainDescription &tcd);
 
     virtual bool canCreate() const;
     virtual ToolChain *create();

@@ -73,13 +73,13 @@ QList<ToolChain *> NimToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     return result;
 }
 
-QList<ToolChain *> NimToolChainFactory::detectForImport(const FilePath &compilerPath, const Core::Id &language)
+QList<ToolChain *> NimToolChainFactory::detectForImport(const ToolChainDescription &tcd)
 {
     QList<ToolChain *> result;
-    if (language == Constants::C_NIMLANGUAGE_ID) {
+    if (tcd.language == Constants::C_NIMLANGUAGE_ID) {
         auto tc = new NimToolChain;
         tc->setDetection(ToolChain::ManualDetection); // FIXME: sure?
-        tc->setCompilerCommand(compilerPath);
+        tc->setCompilerCommand(tcd.compilerPath);
         result.append(tc);
     }
     return result;

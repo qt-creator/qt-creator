@@ -53,22 +53,6 @@ namespace {
 
 Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import", QtWarningMsg);
 
-struct CMakeToolChainData
-{
-    QByteArray languageId;
-    Utils::FilePath compilerPath;
-    Core::Id mapLanguageIdToQtC() const
-    {
-        const QByteArray li = languageId.toLower();
-        if (li == "cxx")
-            return ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        else if (li == "c")
-            return ProjectExplorer::Constants::C_LANGUAGE_ID;
-        else
-            return Core::Id::fromName(languageId);
-    }
-};
-
 struct DirectoryData
 {
     // Project Stuff:
@@ -83,7 +67,7 @@ struct DirectoryData
     QByteArray toolset;
     QByteArray sysroot;
     QtProjectImporter::QtVersionData qt;
-    QVector<CMakeToolChainData> toolChains;
+    QVector<ToolChainDescription> toolChains;
 };
 
 static QStringList scanDirectory(const QString &path, const QString &prefix)
@@ -218,14 +202,21 @@ static Utils::FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     return Utils::FilePath();
 }
 
-QVector<CMakeToolChainData> extractToolChainsFromCache(const CMakeConfig &config)
+static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfig &config)
 {
-    QVector<CMakeToolChainData> result;
+    QVector<ToolChainDescription> result;
     for (const CMakeConfigItem &i : config) {
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
             continue;
         const QByteArray language = i.key.mid(6, i.key.count() - 6 - 9); // skip "CMAKE_" and "_COMPILER"
-        result.append({language, Utils::FilePath::fromUtf8(i.value)});
+        Core::Id languageId;
+        if (language == "CXX")
+            languageId = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+        else  if (language == "C")
+            languageId = ProjectExplorer::Constants::C_LANGUAGE_ID;
+        else
+            languageId = Core::Id::fromName(language);
+        result.append({Utils::FilePath::fromUtf8(i.value), languageId});
     }
     return result;
 }
@@ -300,8 +291,8 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId())
         return false;
 
-    for (const CMakeToolChainData &tcd : data->toolChains) {
-        ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.mapLanguageIdToQtC());
+    for (const ToolChainDescription &tcd : data->toolChains) {
+        ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
         if (!tc || tc->compilerCommand() != tcd.compilerPath)
             return false;
     }
@@ -328,9 +319,8 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
         SysRootKitAspect::setSysRoot(k, Utils::FilePath::fromUtf8(data->sysroot));
 
-        for (const CMakeToolChainData &cmtcd : data->toolChains) {
-            const ToolChainData tcd
-                    = findOrCreateToolChains(cmtcd.compilerPath, cmtcd.mapLanguageIdToQtC());
+        for (const ToolChainDescription &cmtcd : data->toolChains) {
+            const ToolChainData tcd = findOrCreateToolChains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
             if (tcd.areTemporary) {
@@ -464,17 +454,17 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain_data()
             << QStringList("CMAKE_SOMETHING_ELSE=/tmp") << QByteArrayList() << QStringList();
     QTest::newRow("CXX compiler")
             << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++"})
-            << QByteArrayList({"CXX"})
+            << QByteArrayList({"Cxx"})
             << QStringList({"/usr/bin/g++"});
     QTest::newRow("CXX compiler, C compiler")
             << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++", "CMAKE_C_COMPILER=/usr/bin/clang"})
-            << QByteArrayList({"CXX", "C"})
+            << QByteArrayList({"Cxx", "C"})
             << QStringList({"/usr/bin/g++", "/usr/bin/clang"});
     QTest::newRow("CXX compiler, C compiler, strange compiler")
             << QStringList({"CMAKE_CXX_COMPILER=/usr/bin/g++",
                              "CMAKE_C_COMPILER=/usr/bin/clang",
                              "CMAKE_STRANGE_LANGUAGE_COMPILER=/tmp/strange/compiler"})
-            << QByteArrayList({"CXX", "C", "STRANGE_LANGUAGE"})
+            << QByteArrayList({"Cxx", "C", "STRANGE_LANGUAGE"})
             << QStringList({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
     QTest::newRow("CXX compiler, C compiler, strange compiler (with junk)")
             << QStringList({"FOO=test",
@@ -484,7 +474,7 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain_data()
                              "SOMETHING_COMPILER=/usr/bin/something",
                              "CMAKE_STRANGE_LANGUAGE_COMPILER=/tmp/strange/compiler",
                              "BAR=more test"})
-            << QByteArrayList({"CXX", "C", "STRANGE_LANGUAGE"})
+            << QByteArrayList({"Cxx", "C", "STRANGE_LANGUAGE"})
             << QStringList({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
 }
 
@@ -505,10 +495,10 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
         config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
-    QVector<CMakeToolChainData> tcs = extractToolChainsFromCache(config);
+    const QVector<ToolChainDescription> tcs = extractToolChainsFromCache(config);
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
-        QCOMPARE(tcs.at(i).languageId, expectedLanguages.at(i));
+        QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
         QCOMPARE(tcs.at(i).compilerPath.toString(), expectedToolChains.at(i));
     }
 }

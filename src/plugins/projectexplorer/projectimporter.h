@@ -27,11 +27,9 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/id.h>
+#include "toolchain.h"
 
 #include <utils/fileutils.h>
-
-#include <QVariant>
 
 namespace ProjectExplorer {
 
@@ -110,7 +108,7 @@ protected:
     // Does *any* kit feature the requested data yet?
     bool hasKitWithTemporaryData(Core::Id id, const QVariant &data) const;
 
-    ToolChainData findOrCreateToolChains(const Utils::FilePath &toolChainPath, const Core::Id &language) const;
+    ToolChainData findOrCreateToolChains(const ToolChainDescription &tcd) const;
 
 private:
     void markKitAsTemporary(Kit *k) const;

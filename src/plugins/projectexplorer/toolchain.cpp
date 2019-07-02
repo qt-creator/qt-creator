@@ -438,15 +438,14 @@ const QList<ToolChainFactory *> ToolChainFactory::allToolChainFactories()
 
 QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
-    Q_UNUSED(alreadyKnown);
-    return QList<ToolChain *>();
+    Q_UNUSED(alreadyKnown)
+    return {};
 }
 
-QList<ToolChain *> ToolChainFactory::detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language)
+QList<ToolChain *> ToolChainFactory::detectForImport(const ToolChainDescription &tcd)
 {
-    Q_UNUSED(compilerPath);
-    Q_UNUSED(language);
-    return QList<ToolChain *>();
+    Q_UNUSED(tcd)
+    return {};
 }
 
 bool ToolChainFactory::canCreate() const
