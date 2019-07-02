@@ -77,7 +77,8 @@ source_include_patterns = [
     r"^src/plugins/help/images/.*$",
     r"^src/plugins/projectexplorer/images/.*$",
     r"^src/plugins/qmldesigner/components/componentcore/images/.*$",
-    r"^src/plugins/qmldesigner/qmldesignerextension/timelineeditor/images/.*$",
+    r"^src/plugins/qmldesigner/components/timelineeditor/images/.*$",
+    r"^src/plugins/qmldesigner/qmlpreviewplugin/images/.*$",
     r"^src/plugins/texteditor/images/.*$"
     # also some single files
     r"^src/plugins/qmldesigner/components/formeditor/.*\.png$",
