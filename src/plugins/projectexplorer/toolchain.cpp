@@ -442,7 +442,7 @@ QList<ToolChain *> ToolChainFactory::autoDetect(const QList<ToolChain *> &alread
     return QList<ToolChain *>();
 }
 
-QList<ToolChain *> ToolChainFactory::autoDetect(const Utils::FilePath &compilerPath, const Core::Id &language)
+QList<ToolChain *> ToolChainFactory::detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language)
 {
     Q_UNUSED(compilerPath);
     Q_UNUSED(language);

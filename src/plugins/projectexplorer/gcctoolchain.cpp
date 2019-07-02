@@ -880,7 +880,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alr
     return tcs;
 }
 
-QList<ToolChain *> GccToolChainFactory::autoDetect(const FilePath &compilerPath, const Core::Id &language)
+QList<ToolChain *> GccToolChainFactory::detectForImport(const FilePath &compilerPath, const Core::Id &language)
 {
     const QString fileName = compilerPath.fileName();
     if ((language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
@@ -1455,7 +1455,7 @@ QList<ToolChain *> ClangToolChainFactory::autoDetect(const QList<ToolChain *> &a
     return tcs;
 }
 
-QList<ToolChain *> ClangToolChainFactory::autoDetect(const FilePath &compilerPath, const Core::Id &language)
+QList<ToolChain *> ClangToolChainFactory::detectForImport(const FilePath &compilerPath, const Core::Id &language)
 {
     const QString fileName = compilerPath.fileName();
     if ((language == Constants::C_LANGUAGE_ID && fileName.startsWith("clang") && !fileName.startsWith("clang++"))
@@ -1637,7 +1637,7 @@ QList<ToolChain *> MingwToolChainFactory::autoDetect(const QList<ToolChain *> &a
     return result;
 }
 
-QList<ToolChain *> MingwToolChainFactory::autoDetect(const FilePath &compilerPath, const Core::Id &language)
+QList<ToolChain *> MingwToolChainFactory::detectForImport(const FilePath &compilerPath, const Core::Id &language)
 {
     const QString fileName = compilerPath.fileName();
     if ((language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
@@ -1714,7 +1714,7 @@ QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const QList<ToolChain *>
     return result;
 }
 
-QList<ToolChain *> LinuxIccToolChainFactory::autoDetect(const FilePath &compilerPath, const Core::Id &language)
+QList<ToolChain *> LinuxIccToolChainFactory::detectForImport(const FilePath &compilerPath, const Core::Id &language)
 {
     const QString fileName = compilerPath.fileName();
     if ((language == Constants::CXX_LANGUAGE_ID && fileName.startsWith("icpc")) ||

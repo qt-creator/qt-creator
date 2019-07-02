@@ -372,7 +372,7 @@ createToolChains(const Utils::FilePath &toolChainPath, const Core::Id &language)
     ProjectImporter::ToolChainData data;
 
     for (ToolChainFactory *factory : ToolChainFactory::allToolChainFactories()) {
-        data.tcs = factory->autoDetect(toolChainPath, language);
+        data.tcs = factory->detectForImport(toolChainPath, language);
         if (data.tcs.isEmpty())
             continue;
 

@@ -55,7 +55,7 @@ public:
     GccToolChainFactory();
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
-    QList<ToolChain *> autoDetect(const Utils::FilePath &compilerPath, const Core::Id &language) override;
+    QList<ToolChain *> detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language) override;
 
 protected:
     enum class DetectVariants { Yes, No };
@@ -138,7 +138,7 @@ public:
     ClangToolChainFactory();
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
-    QList<ToolChain *> autoDetect(const Utils::FilePath &compilerPath, const Core::Id &language) final;
+    QList<ToolChain *> detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language) final;
 };
 
 // --------------------------------------------------------------------------
@@ -153,7 +153,7 @@ public:
     MingwToolChainFactory();
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
-    QList<ToolChain *> autoDetect(const Utils::FilePath &compilerPath, const Core::Id &language) final;
+    QList<ToolChain *> detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language) final;
 };
 
 // --------------------------------------------------------------------------
@@ -168,7 +168,7 @@ public:
     LinuxIccToolChainFactory();
 
     QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown) override;
-    QList<ToolChain *> autoDetect(const Utils::FilePath &compilerPath, const Core::Id &language) final;
+    QList<ToolChain *> detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language) final;
 };
 
 } // namespace Internal

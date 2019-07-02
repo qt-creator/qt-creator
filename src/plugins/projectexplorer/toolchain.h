@@ -199,7 +199,7 @@ public:
     Core::Id supportedToolChainType() const;
 
     virtual QList<ToolChain *> autoDetect(const QList<ToolChain *> &alreadyKnown);
-    virtual QList<ToolChain *> autoDetect(const Utils::FilePath &compilerPath, const Core::Id &language);
+    virtual QList<ToolChain *> detectForImport(const Utils::FilePath &compilerPath, const Core::Id &language);
 
     virtual bool canCreate() const;
     virtual ToolChain *create();
