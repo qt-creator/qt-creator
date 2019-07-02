@@ -49,6 +49,7 @@ public:
     static void extensionsInitialized();
 
     static bool isBuilding();
+    static bool isDeploying();
     static bool tasksAvailable();
 
     static bool buildLists(QList<BuildStepList *> bsls,

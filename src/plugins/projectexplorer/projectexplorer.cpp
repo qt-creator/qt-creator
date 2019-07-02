@@ -2368,6 +2368,7 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
     m_delayedRunConfiguration = nullptr;
     m_shouldHaveRunConfiguration = false;
     m_runMode = Constants::NO_RUN_MODE;
+    emit m_instance->updateRunActions();
 }
 
 void ProjectExplorerPluginPrivate::runConfigurationConfigurationFinished()
@@ -2857,9 +2858,10 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
 
     QList<Id> stepIds;
     if (!forceSkipDeploy && dd->m_projectExplorerSettings.deployBeforeRun) {
-        if (dd->m_projectExplorerSettings.buildBeforeDeploy)
+        if (!BuildManager::isBuilding() && dd->m_projectExplorerSettings.buildBeforeDeploy)
             stepIds << Id(Constants::BUILDSTEPS_BUILD);
-        stepIds << Id(Constants::BUILDSTEPS_DEPLOY);
+        if (!BuildManager::isDeploying())
+            stepIds << Id(Constants::BUILDSTEPS_DEPLOY);
     }
 
     Project *pro = rc->target()->project();
@@ -2868,7 +2870,9 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
     if (queueCount < 0) // something went wrong
         return;
 
-    if (queueCount > 0) {
+    if (queueCount > 0 || BuildManager::isBuilding(rc->project())) {
+        QTC_ASSERT(dd->m_runMode == Constants::NO_RUN_MODE, return);
+
         // delay running till after our queued steps were processed
         dd->m_runMode = runMode;
         dd->m_delayedRunConfiguration = rc;
@@ -3083,15 +3087,21 @@ bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyN
         return false;
     }
 
-
     if (dd->m_projectExplorerSettings.buildBeforeDeploy
             && dd->m_projectExplorerSettings.deployBeforeRun
+            && !BuildManager::isBuilding(project)
             && hasBuildSettings(project)) {
         QPair<bool, QString> buildState = dd->buildSettingsEnabled(project);
         if (!buildState.first) {
             if (whyNot)
                 *whyNot = buildState.second;
             return false;
+        }
+
+        if (BuildManager::isBuilding()) {
+            if (whyNot)
+                *whyNot = tr("A build is still in progress.");
+             return false;
         }
     }
 
@@ -3102,9 +3112,9 @@ bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyN
         return false;
     }
 
-    if (BuildManager::isBuilding()) {
+    if (dd->m_delayedRunConfiguration && dd->m_delayedRunConfiguration->project() == project) {
         if (whyNot)
-            *whyNot = tr("A build is still in progress.");
+            *whyNot = tr("A run action is already scheduled for the active project.");
         return false;
     }
 

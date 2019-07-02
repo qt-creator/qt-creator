@@ -76,6 +76,7 @@ public:
     int m_progress = 0;
     int m_maxProgress = 0;
     bool m_running = false;
+    bool m_isDeploying = false;
     // is set to true while canceling, so that nextBuildStep knows that the BuildStep finished because of canceling
     bool m_skipDisabled = false;
     bool m_canceling = false;
@@ -180,6 +181,11 @@ bool BuildManager::isBuilding()
     return !d->m_buildQueue.isEmpty() || d->m_running;
 }
 
+bool BuildManager::isDeploying()
+{
+    return d->m_isDeploying;
+}
+
 int BuildManager::getErrorTaskCount()
 {
     const int errors =
@@ -243,6 +249,7 @@ void BuildManager::clearBuildQueue()
     d->m_buildQueue.clear();
     d->m_enabledState.clear();
     d->m_running = false;
+    d->m_isDeploying = false;
     d->m_previousBuildStepProject = nullptr;
     d->m_currentBuildStep = nullptr;
 
@@ -452,6 +459,7 @@ void BuildManager::nextStep()
         d->m_currentBuildStep->run();
     } else {
         d->m_running = false;
+        d->m_isDeploying = false;
         d->m_previousBuildStepProject = nullptr;
         d->m_progressFutureInterface->reportFinished();
         d->m_progressWatcher.setFuture(QFuture<void>());
@@ -532,6 +540,7 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &pr
     foreach (BuildStepList *list, bsls) {
         steps.append(list->steps());
         stepListNames.append(ProjectExplorerPlugin::displayNameForStepId(list->id()));
+        d->m_isDeploying = d->m_isDeploying || list->id() == Constants::BUILDSTEPS_DEPLOY;
     }
 
     QStringList names;
