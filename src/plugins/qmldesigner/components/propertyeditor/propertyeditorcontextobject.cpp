@@ -35,6 +35,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+#include <QCursor>
 #include <QQmlContext>
 
 static uchar fromHex(const uchar c, const uchar c2)
@@ -384,6 +386,24 @@ void PropertyEditorContextObject::setHasAliasExport(bool hasAliasExport)
 
     m_aliasExport = hasAliasExport;
     emit hasAliasExportChanged();
+}
+
+void PropertyEditorContextObject::hideCursor()
+{
+    if (QApplication::overrideCursor())
+        return;
+
+    QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+    m_lastPos = QCursor::pos();
+}
+
+void PropertyEditorContextObject::restoreCursor()
+{
+    if (!QApplication::overrideCursor())
+        return;
+
+    QCursor::setPos(m_lastPos);
+    QApplication::restoreOverrideCursor();
 }
 
 } //QmlDesigner

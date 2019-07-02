@@ -32,6 +32,7 @@
 #include <QQmlPropertyMap>
 #include <QQmlComponent>
 #include <QColor>
+#include <QPoint>
 
 namespace QmlDesigner {
 
@@ -84,6 +85,9 @@ public:
 
     Q_INVOKABLE void changeTypeName(const QString &typeName);
     Q_INVOKABLE void insertKeyframe(const QString &propertyName);
+
+    Q_INVOKABLE void hideCursor();
+    Q_INVOKABLE void restoreCursor();
 
     int majorVersion() const;
     int majorQtQuickVersion() const;
@@ -156,6 +160,8 @@ private:
     int m_minorQtQuickVersion = -1;
     QQmlComponent *m_qmlComponent;
     QQmlContext *m_qmlContext;
+
+    QPoint m_lastPos;
 
     Model *m_model = nullptr;
 
