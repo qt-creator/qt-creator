@@ -52,7 +52,6 @@ public:
     explicit RefactoringServerProxy(RefactoringClientInterface *client, QIODevice *ioDevice);
 
     void end() override;
-    void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) override;
     void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message) override;
     void requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message) override;
     void updateProjectParts(UpdateProjectPartsMessage &&message) override;

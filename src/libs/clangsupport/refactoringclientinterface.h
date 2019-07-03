@@ -47,10 +47,8 @@ public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;
 
     virtual void alive() = 0;
-    virtual void sourceLocationsForRenamingMessage(SourceLocationsForRenamingMessage &&message) = 0;
     virtual void sourceRangesAndDiagnosticsForQueryMessage(SourceRangesAndDiagnosticsForQueryMessage &&message) = 0;
     virtual void sourceRangesForQueryMessage(SourceRangesForQueryMessage &&message) = 0;
-    virtual void setLocalRenamingCallback(RenameCallback &&localRenamingCallback) = 0;
     virtual void progress(ProgressMessage &&message) = 0;
 
 protected:

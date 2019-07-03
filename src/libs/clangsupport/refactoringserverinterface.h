@@ -32,7 +32,6 @@
 namespace ClangBackEnd {
 
 class RefactoringClientInterface;
-class RequestSourceLocationsForRenamingMessage;
 class RequestSourceRangesAndDiagnosticsForQueryMessage;
 class RequestSourceRangesForQueryMessage;
 class CancelMessage;
@@ -46,7 +45,6 @@ public:
     void dispatch(const MessageEnvelop &messageEnvelop) override;
 
     virtual void end() = 0;
-    virtual void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) = 0;
     virtual void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message) = 0;
     virtual void requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message) = 0;
     virtual void cancel() = 0;

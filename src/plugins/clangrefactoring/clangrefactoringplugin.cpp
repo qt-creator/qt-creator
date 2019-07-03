@@ -96,10 +96,6 @@ public:
     SymbolQuery<QuerySqliteReadStatementFactory> symbolQuery{statementFactory};
     ClangBackEnd::ProjectPartsStorage<Sqlite::Database> projectPartsStorage{database};
     RefactoringEngine engine{connectionClient.serverProxy(), refactoringClient, filePathCache, symbolQuery};
-    QtCreatorSearch qtCreatorSearch;
-    QtCreatorClangQueryFindFilter qtCreatorfindFilter{connectionClient.serverProxy(),
-                                                      qtCreatorSearch,
-                                                      refactoringClient};
     QtCreatorRefactoringProjectUpdater projectUpdate{connectionClient.serverProxy(),
                                                      ClangPchManagerPlugin::pchManagerClient(),
                                                      filePathCache,
@@ -126,7 +122,6 @@ bool ClangRefactoringPlugin::initialize(const QStringList & /*arguments*/, QStri
 
     d->refactoringClient.setRefactoringEngine(&d->engine);
     d->refactoringClient.setRefactoringConnectionClient(&d->connectionClient);
-    ExtensionSystem::PluginManager::addObject(&d->qtCreatorfindFilter);
 
     connectBackend();
     startBackend();
@@ -145,7 +140,6 @@ void ClangRefactoringPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag ClangRefactoringPlugin::aboutToShutdown()
 {
-    ExtensionSystem::PluginManager::removeObject(&d->qtCreatorfindFilter);
     CppTools::CppModelManager::removeRefactoringEngine(
                 CppTools::RefactoringEngineType::ClangRefactoring);
     d->refactoringClient.setRefactoringConnectionClient(nullptr);

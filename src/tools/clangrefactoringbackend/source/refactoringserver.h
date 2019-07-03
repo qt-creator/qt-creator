@@ -60,7 +60,6 @@ public:
                       GeneratedFiles &generatedFiles);
 
     void end() override;
-    void requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message) override;
     void requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message) override;
     void requestSourceRangesForQueryMessage(RequestSourceRangesForQueryMessage &&message) override;
     void updateProjectParts(UpdateProjectPartsMessage &&message) override;

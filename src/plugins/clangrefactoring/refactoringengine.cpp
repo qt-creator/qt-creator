@@ -28,7 +28,6 @@
 
 #include <filepath.h>
 #include <refactoringserverinterface.h>
-#include <requestsourcelocationforrenamingmessage.h>
 
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -47,7 +46,6 @@
 
 namespace ClangRefactoring {
 
-using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 
 RefactoringEngine::RefactoringEngine(ClangBackEnd::RefactoringServerInterface &server,
                                      ClangBackEnd::RefactoringClientInterface &client,
@@ -62,34 +60,10 @@ RefactoringEngine::RefactoringEngine(ClangBackEnd::RefactoringServerInterface &s
 
 RefactoringEngine::~RefactoringEngine() = default;
 
-void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &data,
-                                           CppTools::ProjectPart *projectPart,
-                                           RenameCallback &&renameSymbolsCallback)
+void RefactoringEngine::startLocalRenaming(const CppTools::CursorInEditor &,
+                                           CppTools::ProjectPart *,
+                                           RenameCallback &&)
 {
-    using CppTools::CompilerOptionsBuilder;
-
-    setRefactoringEngineAvailable(false);
-
-    m_client.setLocalRenamingCallback(std::move(renameSymbolsCallback));
-
-    QString filePath = data.filePath().toString();
-    QTextCursor textCursor = data.cursor();
-    CompilerOptionsBuilder optionsBuilder{*projectPart, CppTools::UseSystemHeader::Yes};
-    Utils::SmallStringVector commandLine{optionsBuilder.build(
-                    fileKindInProjectPart(projectPart, filePath),
-                    CppTools::getPchUsage())};
-
-    commandLine.push_back(filePath);
-
-    RequestSourceLocationsForRenamingMessage message(ClangBackEnd::FilePath(filePath),
-                                                     uint(textCursor.blockNumber() + 1),
-                                                     uint(textCursor.positionInBlock() + 1),
-                                                     textCursor.document()->toPlainText(),
-                                                     std::move(commandLine),
-                                                     textCursor.document()->revision());
-
-
-    m_server.requestSourceLocationsForRenamingMessage(std::move(message));
 }
 
 CppTools::Usages RefactoringEngine::locationsAt(const CppTools::CursorInEditor &data) const

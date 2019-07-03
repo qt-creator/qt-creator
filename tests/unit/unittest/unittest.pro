@@ -194,7 +194,6 @@ SOURCES += \
     sourcerangeextractor-test.cpp \
     symbolindexing-test.cpp \
     symbolscollector-test.cpp \
-    symbolfinder-test.cpp \
     testclangtool.cpp \
     usedmacrocollector-test.cpp \
     builddependencycollector-test.cpp

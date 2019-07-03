@@ -107,45 +107,10 @@ protected:
     ProjectExplorer::Project project;
     CppTools::ProjectPart::Ptr projectPart;
     CppTools::ProjectFile projectFile{qStringFilePath, CppTools::ProjectFile::CXXSource};
-    SourceLocationsForRenamingMessage renameMessage{"symbol",
-                                                    {{{42, 1, 1, 0}, {42, 2, 5, 10}}},
-                                                    1};
     SourceRangesForQueryMessage queryResultMessage{{{{42, 1, 1, 0, 1, 5, 4, ""},
                                                      {42, 2, 1, 5, 2, 5, 10, ""}}}};
     SourceRangesForQueryMessage emptyQueryResultMessage;
 };
-
-TEST_F(RefactoringClient, SourceLocationsForRenaming)
-{
-    client.setLocalRenamingCallback(mockLocalRenaming.AsStdFunction());
-
-    EXPECT_CALL(mockLocalRenaming, Call(renameMessage.symbolName.toQString(),
-                                        renameMessage.sourceLocations,
-                                        renameMessage.textDocumentRevision));
-
-    client.sourceLocationsForRenamingMessage(std::move(renameMessage));
-}
-
-TEST_F(RefactoringClient, AfterSourceLocationsForRenamingEngineIsUsableAgain)
-{
-    client.setLocalRenamingCallback(mockLocalRenaming.AsStdFunction());
-    EXPECT_CALL(mockLocalRenaming, Call(_,_,_));
-
-    client.sourceLocationsForRenamingMessage(std::move(renameMessage));
-
-    ASSERT_TRUE(engine.isRefactoringEngineAvailable());
-}
-
-TEST_F(RefactoringClient, AfterStartLocalRenameHasValidCallback)
-{
-    engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
-                              projectPart.data(),
-                              [&] (const QString &,
-                                   const ClangBackEnd::SourceLocationsContainer &,
-                                   int) {});
-
-    ASSERT_TRUE(client.hasValidLocalRenamingCallback());
-}
 
 TEST_F(RefactoringClient, CallAddResultsForEmptyQueryMessage)
 {

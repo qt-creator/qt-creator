@@ -34,19 +34,12 @@ class MockRefactoringClient : public ClangBackEnd::RefactoringClientInterface
 public:
     MOCK_METHOD0(alive,
                  void());
-    MOCK_METHOD1(sourceLocationsForRenamingMessage,
-                 void (const ClangBackEnd::SourceLocationsForRenamingMessage&));
     MOCK_METHOD1(sourceRangesAndDiagnosticsForQueryMessage,
                  void (const ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage&));
     MOCK_METHOD1(sourceRangesForQueryMessage,
                  void (const ClangBackEnd::SourceRangesForQueryMessage&));
     MOCK_METHOD1(progress,
                  void (const ClangBackEnd::ProgressMessage&));
-
-    void sourceLocationsForRenamingMessage(ClangBackEnd::SourceLocationsForRenamingMessage &&message) override
-    {
-        sourceLocationsForRenamingMessage(message);
-    }
 
     void sourceRangesAndDiagnosticsForQueryMessage(ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message) override
     {
@@ -56,10 +49,6 @@ public:
     void sourceRangesForQueryMessage(ClangBackEnd::SourceRangesForQueryMessage &&message) override
     {
         sourceRangesForQueryMessage(message);
-    }
-
-    void setLocalRenamingCallback(RenameCallback &&) override
-    {
     }
 
     void progress(ClangBackEnd::ProgressMessage &&message) override

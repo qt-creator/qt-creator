@@ -810,19 +810,6 @@ std::ostream &operator<<(std::ostream &out, const ToolTipInfo &info)
     return out;
 }
 
-std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenamingMessage &message)
-{
-    os << "("
-       << message.filePath << ", "
-       << message.line << ", "
-       << message.column << ", "
-       << message.unsavedContent << ", "
-       << message.commandLine
-       << ")";
-
-    return os;
-}
-
 std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosticsForQueryMessage &message)
 {
     os << "("
@@ -849,17 +836,6 @@ std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &contai
        << container.line << ", "
        << container.column
        << ")";
-
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessage &message)
-{
-    os << "("
-        << message.symbolName << ", "
-        << message.textDocumentRevision << ", "
-        << message.sourceLocations
-        << ")";
 
     return os;
 }

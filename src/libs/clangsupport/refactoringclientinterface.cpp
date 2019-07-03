@@ -38,9 +38,6 @@ void RefactoringClientInterface::dispatch(const MessageEnvelop &messageEnvelop)
         case MessageType::AliveMessage:
             alive();
             break;
-        case MessageType::SourceLocationsForRenamingMessage:
-            sourceLocationsForRenamingMessage(messageEnvelop.message<SourceLocationsForRenamingMessage>());
-            break;
         case MessageType::SourceRangesAndDiagnosticsForQueryMessage:
             sourceRangesAndDiagnosticsForQueryMessage(messageEnvelop.message<SourceRangesAndDiagnosticsForQueryMessage>());
             break;

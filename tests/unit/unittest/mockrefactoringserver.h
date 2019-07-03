@@ -35,9 +35,6 @@ public:
     MOCK_METHOD0(end,
                  void());
 
-    MOCK_METHOD1(requestSourceLocationsForRenamingMessage,
-                 void (const ClangBackEnd::RequestSourceLocationsForRenamingMessage&));
-
     MOCK_METHOD1(requestSourceRangesAndDiagnosticsForQueryMessage,
                  void (const ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage&));
 
@@ -61,11 +58,6 @@ public:
 
     MOCK_METHOD2(setProgress,
                  void(int, int));
-
-    void requestSourceLocationsForRenamingMessage(ClangBackEnd::RequestSourceLocationsForRenamingMessage &&message) override
-    {
-        requestSourceLocationsForRenamingMessage(message);
-    }
 
     void requestSourceRangesAndDiagnosticsForQueryMessage(ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage &&message) override
     {

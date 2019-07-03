@@ -38,9 +38,6 @@ void RefactoringServerInterface::dispatch(const MessageEnvelop &messageEnvelop)
         case MessageType::EndMessage:
             end();
             break;
-        case MessageType::RequestSourceLocationsForRenamingMessage:
-            requestSourceLocationsForRenamingMessage(messageEnvelop.message<RequestSourceLocationsForRenamingMessage>());
-            break;
         case MessageType::RequestSourceRangesAndDiagnosticsForQueryMessage:
             requestSourceRangesAndDiagnosticsForQueryMessage(messageEnvelop.message<RequestSourceRangesAndDiagnosticsForQueryMessage>());
             break;
