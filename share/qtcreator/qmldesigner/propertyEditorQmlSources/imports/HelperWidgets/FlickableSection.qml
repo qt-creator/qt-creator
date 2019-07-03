@@ -71,7 +71,7 @@ Section {
 
         Label {
             text: qsTr("Movement")
-            tooltip: qsTr("Determines whether the flickable will give a feeling that the edges of the view are soft, rather than a hard physical boundary.")
+            tooltip: qsTr("Determines whether the Flickable will give a feeling that the edges of the view are soft, rather than a hard physical boundary.")
         }
 
         SecondColumnLayout {
