@@ -1249,20 +1249,20 @@ OutputIterator set_union(InputIterator1 first1,
 template <class T>
 QSet<T> toSet(const QList<T> &list)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 13, 0))
+#if (QT_VERSION <= QT_VERSION_CHECK(5, 13, 0))
     return list.toSet();
 #else
-    return QSet<T>{list.begin(), list.end()};
+    return QSet<T>(list.begin(), list.end());
 #endif
 }
 
 template <class T>
 QList<T> toList(const QSet<T> &set)
 {
-#if (QT_VERSION < QT_VERSION_CHECK(5, 13, 0))
+#if (QT_VERSION <= QT_VERSION_CHECK(5, 13, 0))
     return set.toList();
 #else
-    return QList<T>{set.begin(), set.end()};
+    return QList<T>(set.begin(), set.end());
 #endif
 }
 
