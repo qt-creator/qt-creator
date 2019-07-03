@@ -227,26 +227,36 @@ TEST_F(PchManagerServer, SetPathWatcherNotifier)
 
 TEST_F(PchManagerServer, UpdateProjectPartQueueByPathIds)
 {
+    InSequence s;
     server.updateProjectParts(ClangBackEnd::UpdateProjectPartsMessage{
         {projectPart1, projectPart2, projectPart3, projectPart4, projectPart5, projectPart6},
         {"toolChainArgument"}});
 
     EXPECT_CALL(mockProjectPartsManager,
-                projects(ElementsAre(projectPart1.projectPartId,
-                                     projectPart2.projectPartId,
-                                     projectPart4.projectPartId,
-                                     projectPart5.projectPartId)))
-        .WillOnce(Return(std::vector<ClangBackEnd::ProjectPartContainer>{
-            {projectPart1, projectPart2, projectPart4, projectPart5}}));
+                projects(ElementsAre(projectPart1.projectPartId, projectPart2.projectPartId)))
+        .WillOnce(
+            Return(std::vector<ClangBackEnd::ProjectPartContainer>{{projectPart1, projectPart2}}));
     EXPECT_CALL(mockPchTaskGenerator,
-                addProjectParts(ElementsAre(projectPart1, projectPart2, projectPart4, projectPart5),
+                addProjectParts(ElementsAre(projectPart1, projectPart2),
                                 ElementsAre("toolChainArgument")));
+    EXPECT_CALL(mockProjectPartsManager,
+                projects(ElementsAre(projectPart4.projectPartId, projectPart5.projectPartId)))
+        .WillOnce(
+            Return(std::vector<ClangBackEnd::ProjectPartContainer>{{projectPart4, projectPart5}}));
+    EXPECT_CALL(mockPchTaskGenerator,
+                addNonSystemProjectParts(ElementsAre(projectPart4, projectPart5),
+                                         ElementsAre("toolChainArgument")));
 
-    server.pathsWithIdsChanged({{{projectPartId1, ClangBackEnd::SourceType::TopProjectInclude}, {}},
-                                {{projectPartId2, ClangBackEnd::SourceType::TopSystemInclude}, {}},
+    server.pathsWithIdsChanged({{{projectPartId1, ClangBackEnd::SourceType::TopSystemInclude}, {}},
+                                {{projectPartId1, ClangBackEnd::SourceType::ProjectInclude}, {}},
+                                {{projectPartId1, ClangBackEnd::SourceType::UserInclude}, {}},
+                                {{projectPartId2, ClangBackEnd::SourceType::SystemInclude}, {}},
+                                {{projectPartId2, ClangBackEnd::SourceType::ProjectInclude}, {}},
                                 {{projectPartId3, ClangBackEnd::SourceType::UserInclude}, {}},
-                                {{projectPartId4, ClangBackEnd::SourceType::ProjectInclude}, {}},
-                                {{projectPartId5, ClangBackEnd::SourceType::SystemInclude}, {}},
+                                {{projectPartId4, ClangBackEnd::SourceType::TopProjectInclude}, {}},
+                                {{projectPartId4, ClangBackEnd::SourceType::Source}, {}},
+                                {{projectPartId4, ClangBackEnd::SourceType::UserInclude}, {}},
+                                {{projectPartId5, ClangBackEnd::SourceType::ProjectInclude}, {}},
                                 {{projectPartId6, ClangBackEnd::SourceType::Source}, {}}});
 }
 

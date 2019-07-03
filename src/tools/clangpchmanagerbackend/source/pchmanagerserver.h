@@ -66,6 +66,10 @@ public:
     void setDependencyCreationProgress(int progress, int total);
 
 private:
+    void addCompleteProjectParts(const ProjectPartIds &projectPartIds);
+    void addNonSystemProjectParts(const ProjectPartIds &projectPartIds);
+
+private:
     ClangPathWatcherInterface &m_fileSystemWatcher;
     PchTaskGeneratorInterface &m_pchTaskGenerator;
     ProjectPartsManagerInterface &m_projectPartsManager;

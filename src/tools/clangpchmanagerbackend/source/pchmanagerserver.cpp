@@ -143,46 +143,67 @@ struct FilterResults
     ProjectPartIds userIds;
 };
 
-std::pair<ProjectPartIds, ProjectPartIds> pchProjectPartIds(const std::vector<IdPaths> &idPaths)
+ProjectPartIds removeIds(const ProjectPartIds &subtrahend, const ProjectPartIds &minuend)
 {
-    ProjectPartIds changedProjectPartIds;
-    changedProjectPartIds.reserve(idPaths.size());
+    ProjectPartIds difference;
+    difference.reserve(subtrahend.size());
 
-    ProjectPartIds changedPchProjectPartIds;
-    changedPchProjectPartIds.reserve(idPaths.size());
+    std::set_difference(subtrahend.begin(),
+                        subtrahend.end(),
+                        minuend.begin(),
+                        minuend.end(),
+                        std::back_inserter(difference));
+
+    return difference;
+}
+
+FilterResults pchProjectPartIds(const std::vector<IdPaths> &idPaths)
+{
+    ProjectPartIds changedUserProjectPartIds;
+    changedUserProjectPartIds.reserve(idPaths.size());
+
+    ProjectPartIds changedSystemPchProjectPartIds;
+    changedSystemPchProjectPartIds.reserve(idPaths.size());
+
+    ProjectPartIds changedProjectPchProjectPartIds;
+    changedProjectPchProjectPartIds.reserve(idPaths.size());
 
     for (const IdPaths &idPath : idPaths) {
         switch (idPath.id.sourceType) {
         case SourceType::TopSystemInclude:
         case SourceType::SystemInclude:
+            changedSystemPchProjectPartIds.push_back(idPath.id.id);
+            break;
         case SourceType::TopProjectInclude:
         case SourceType::ProjectInclude:
-            changedPchProjectPartIds.push_back(idPath.id.id);
+            changedProjectPchProjectPartIds.push_back(idPath.id.id);
             break;
         case SourceType::UserInclude:
         case SourceType::Source:
-            changedProjectPartIds.push_back(idPath.id.id);
+            changedUserProjectPartIds.push_back(idPath.id.id);
             break;
         }
     }
 
-    changedPchProjectPartIds.erase(std::unique(changedPchProjectPartIds.begin(),
-                                               changedPchProjectPartIds.end()),
-                                   changedPchProjectPartIds.end());
-    changedPchProjectPartIds.erase(std::unique(changedPchProjectPartIds.begin(),
-                                               changedPchProjectPartIds.end()),
-                                   changedPchProjectPartIds.end());
+    changedSystemPchProjectPartIds.erase(std::unique(changedSystemPchProjectPartIds.begin(),
+                                                     changedSystemPchProjectPartIds.end()),
+                                         changedSystemPchProjectPartIds.end());
+    changedProjectPchProjectPartIds.erase(std::unique(changedProjectPchProjectPartIds.begin(),
+                                                      changedProjectPchProjectPartIds.end()),
+                                          changedProjectPchProjectPartIds.end());
+    changedUserProjectPartIds.erase(std::unique(changedUserProjectPartIds.begin(),
+                                                changedUserProjectPartIds.end()),
+                                    changedUserProjectPartIds.end());
 
-    ProjectPartIds changedUserProjectPartIds;
-    changedProjectPartIds.reserve(changedProjectPartIds.size());
+    changedProjectPchProjectPartIds = removeIds(changedProjectPchProjectPartIds,
+                                                changedSystemPchProjectPartIds);
 
-    std::set_difference(changedProjectPartIds.begin(),
-                        changedProjectPartIds.end(),
-                        changedPchProjectPartIds.begin(),
-                        changedPchProjectPartIds.end(),
-                        std::back_inserter(changedUserProjectPartIds));
+    changedUserProjectPartIds = removeIds(changedUserProjectPartIds, changedSystemPchProjectPartIds);
+    changedUserProjectPartIds = removeIds(changedUserProjectPartIds, changedProjectPchProjectPartIds);
 
-    return {changedPchProjectPartIds, changedUserProjectPartIds};
+    return {std::move(changedSystemPchProjectPartIds),
+            std::move(changedProjectPchProjectPartIds),
+            std::move(changedUserProjectPartIds)};
 }
 } // namespace
 
@@ -190,14 +211,11 @@ void PchManagerServer::pathsWithIdsChanged(const std::vector<IdPaths> &idPaths)
 {
     auto changedProjectPartIds = pchProjectPartIds(idPaths);
 
-    ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(changedProjectPartIds.first);
+    addCompleteProjectParts(changedProjectPartIds.systemIds);
 
-    for (ArgumentsEntry &entry : entries) {
-        m_pchTaskGenerator.addProjectParts(m_projectPartsManager.projects(entry.ids),
-                                           std::move(entry.arguments));
-    }
+    addNonSystemProjectParts(changedProjectPartIds.projectIds);
 
-    client()->precompiledHeadersUpdated(std::move(changedProjectPartIds.second));
+    client()->precompiledHeadersUpdated(std::move(changedProjectPartIds.userIds));
 }
 
 void PchManagerServer::pathsChanged(const FilePathIds &filePathIds)
@@ -213,6 +231,26 @@ void PchManagerServer::setPchCreationProgress(int progress, int total)
 void PchManagerServer::setDependencyCreationProgress(int progress, int total)
 {
     client()->progress({ProgressType::DependencyCreation, progress, total});
+}
+
+void PchManagerServer::addCompleteProjectParts(const ProjectPartIds &projectPartIds)
+{
+    ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(projectPartIds);
+
+    for (ArgumentsEntry &entry : entries) {
+        m_pchTaskGenerator.addProjectParts(m_projectPartsManager.projects(entry.ids),
+                                           std::move(entry.arguments));
+    }
+}
+
+void PchManagerServer::addNonSystemProjectParts(const ProjectPartIds &projectPartIds)
+{
+    ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(projectPartIds);
+
+    for (ArgumentsEntry &entry : entries) {
+        m_pchTaskGenerator.addNonSystemProjectParts(m_projectPartsManager.projects(entry.ids),
+                                                    std::move(entry.arguments));
+    }
 }
 
 } // namespace ClangBackEnd
