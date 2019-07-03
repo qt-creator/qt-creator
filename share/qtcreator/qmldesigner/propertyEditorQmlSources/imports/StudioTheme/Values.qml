@@ -87,7 +87,7 @@ QtObject {
     property string themePanelBackground: "#2a2a2a"
     property string themeHoverHighlight: "#313131"
     property string themeColumnBackground: "#363636"
-    property string themeFocusEdit: "#606060"
+    property string themeFocusEdit: "#444444"
     property string themeFocusDrag: "#565656"
 
     property string themeControlBackgroundPressed: "#606060"

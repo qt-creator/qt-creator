@@ -40,18 +40,14 @@ Item {
 
     property int sliderMargins: 6
 
-    onHueChanged: {
-        //hueSlider.value = hue;
-        invalidateColor();
-    }
+    property bool block: false
 
     signal clicked
 
     onAlphaChanged: invalidateColor();
-
     onSaturationChanged: invalidateColor();
-
     onLightnessChanged: invalidateColor();
+    onHueChanged: invalidateColor();
 
     onColorChanged: {
         var myAlpha = color.a
@@ -59,8 +55,6 @@ Item {
 
         colorButton.alpha = myAlpha
     }
-
-    property bool block: false
 
     function invalidateColor() {
         if (block)
@@ -145,14 +139,12 @@ Item {
 
             onPaint: {
                 var ctx = hubeBox.getContext('2d')
-
                 ctx.save()
-
                 ctx.clearRect(0, 0, hubeBox.width, hubeBox.height);
 
                 for (var row = 0; row < hubeBox.height; row++){
                     var gradient = ctx.createLinearGradient(0, 0, hubeBox.width,0);
-                    var l = Math.abs(row  - hubeBox.height) / hubeBox.height
+                    var l = Math.abs(row - hubeBox.height) / hubeBox.height
 
                     gradient.addColorStop(0, Qt.hsla(hubeBox.hue, 0, l, 1));
                     gradient.addColorStop(1, Qt.hsla(hubeBox.hue, 1, l, 1));
@@ -160,20 +152,15 @@ Item {
                     ctx.fillStyle = gradient;
                     ctx.fillRect(0, row, hubeBox.width, 1);
                 }
-
                 ctx.restore()
-
             }
-
         }
 
         Canvas {
             id: canvas
 
             opacity: 0.8
-
             anchors.fill: parent
-
             antialiasing: true
 
             property real cavnasSaturation: colorButton.saturation
@@ -197,7 +184,6 @@ Item {
                 ctx.strokeStyle = canvas.strokeStyle
                 ctx.lineWidth = 1
 
-
                 ctx.beginPath()
                 ctx.moveTo(0, yy)
                 ctx.lineTo(canvas.width, yy)
@@ -210,7 +196,6 @@ Item {
 
                 ctx.restore()
             }
-
         }
 
         MouseArea {
@@ -221,12 +206,11 @@ Item {
                     var xx = Math.max(0, Math.min(mouse.x, parent.width))
                     var yy = Math.max(0, Math.min(mouse.y, parent.height))
 
-                    colorButton.lightness =  1.0 - yy / parent.height;
-                    colorButton.saturation =  xx / parent.width;
+                    colorButton.lightness = 1.0 - yy / parent.height;
+                    colorButton.saturation = xx / parent.width;
                 }
             }
             onPressed: positionChanged(mouse)
-
             onReleased: colorButton.clicked()
         }
         Rectangle {
@@ -237,7 +221,6 @@ Item {
             border.width: 1
         }
     }
-
 
     HueSlider {
         id: hueSlider
@@ -250,7 +233,6 @@ Item {
                 colorButton.hue = value
         }
         onClicked: colorButton.clicked()
-
     }
 
     Row {
@@ -259,9 +241,7 @@ Item {
         spacing: 10
 
         Column {
-
             spacing: 10
-
             Row {
                 z: 3
                 spacing: 1
@@ -281,9 +261,10 @@ Item {
                     maximumValue: 255
                     decimals: 0
 
-                    onCompressedValueModified: {
-                        if (color.r !== value  && !colorButton.block) {
-                            color.r = (value / 255.0)
+                    onValueModified: {
+                        var tmp = redSlider.value / 255.0
+                        if (colorButton.color.r !== tmp && !colorButton.block) {
+                            colorButton.color.r = tmp
                             colorButton.clicked()
                         }
                     }
@@ -300,7 +281,6 @@ Item {
                     elide: Text.ElideRight
                     anchors.verticalCenter: parent.verticalCenter
                 }
-
                 DoubleSpinBox {
                     id: greenSlider
                     width: 64
@@ -310,9 +290,10 @@ Item {
                     maximumValue: 255
                     decimals: 0
 
-                    onCompressedValueModified: {
-                        if (color.g !== value  && !colorButton.block) {
-                            color.g = (value / 255.0)
+                    onValueModified: {
+                        var tmp = greenSlider.value / 255.0
+                        if (colorButton.color.g !== tmp && !colorButton.block) {
+                            colorButton.color.g = tmp
                             colorButton.clicked()
                         }
                     }
@@ -338,9 +319,10 @@ Item {
                     maximumValue: 255
                     decimals: 0
 
-                    onCompressedValueModified: {
-                        if (color.b !== value  && !colorButton.block) {
-                            color.b = (value / 255.0)
+                    onValueModified: {
+                        var tmp = blueSlider.value / 255.0
+                        if (colorButton.color.b !== tmp && !colorButton.block) {
+                            colorButton.color.b = tmp
                             colorButton.clicked()
                         }
                     }
@@ -357,13 +339,12 @@ Item {
                     elide: Text.ElideRight
                     anchors.verticalCenter: parent.verticalCenter
                 }
-
                 DoubleSpinBox {
                     id: alphaSlider
                     width: 64
-                    onCompressedValueModified: {
-                        if (colorButton.alpha !== value  && !colorButton.block) {
-                            colorButton.alpha = value
+                    onValueModified: {
+                        if (colorButton.alpha !== alphaSlider.value && !colorButton.block) {
+                            colorButton.alpha = alphaSlider.value
                             colorButton.clicked()
                         }
                     }
@@ -372,7 +353,6 @@ Item {
         }
 
         Column {
-
             spacing: 10
             Row {
                 z: 3
@@ -387,9 +367,9 @@ Item {
                 DoubleSpinBox {
                     id: hueSlider2
                     width: 64
-                    onCompressedValueModified: {
-                        if (colorButton.hue !== value  && !colorButton.block) {
-                            colorButton.hue = value
+                    onValueModified: {
+                        if (colorButton.hue !== hueSlider2.value && !colorButton.block) {
+                            colorButton.hue = hueSlider2.value
                             colorButton.clicked()
                         }
                     }
@@ -406,13 +386,12 @@ Item {
                     elide: Text.ElideRight
                     anchors.verticalCenter: parent.verticalCenter
                 }
-
                 DoubleSpinBox {
                     id: saturationSlider
                     width: 64
-                    onCompressedValueModified: {
-                        if (colorButton.saturation !== value  && !colorButton.block) {
-                            colorButton.saturation = value
+                    onValueModified: {
+                        if (colorButton.saturation !== saturationSlider.value && !colorButton.block) {
+                            colorButton.saturation = saturationSlider.value
                             colorButton.clicked()
                         }
                     }
@@ -432,9 +411,9 @@ Item {
                 DoubleSpinBox {
                     id: lightnessSlider
                     width: 64
-                    onCompressedValueModified: {
-                        if (colorButton.lightness !== value && !colorButton.block) {
-                            colorButton.lightness = value
+                    onValueModified: {
+                        if (colorButton.lightness !== lightnessSlider.value && !colorButton.block) {
+                            colorButton.lightness = lightnessSlider.value
                             colorButton.clicked()
                         }
                     }

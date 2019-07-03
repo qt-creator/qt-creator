@@ -125,6 +125,25 @@ Rectangle {
             origin.y: spinBoxIndicatorIcon.height / 2
             yScale: 1
         }
+
+        states: [
+            State {
+                name: "default"
+                when: myControl.enabled && spinBoxIndicator.enabled
+                PropertyChanges {
+                    target: spinBoxIndicatorIcon
+                    color: StudioTheme.Values.themeTextColor
+                }
+            },
+            State {
+                name: "disabled"
+                when: !myControl.enabled || !spinBoxIndicator.enabled
+                PropertyChanges {
+                    target: spinBoxIndicatorIcon
+                    color: StudioTheme.Values.themeTextColorDisabled
+                }
+            }
+        ]
     }
 
     states: [
@@ -133,7 +152,7 @@ Rectangle {
             when: myControl.enabled && !(spinBoxIndicator.hover
                                          || myControl.hover)
                   && !spinBoxIndicator.pressed && !myControl.edit
-                  && !myControl.drag && spinBoxIndicator.enabled
+                  && !myControl.drag
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeControlBackground
@@ -143,7 +162,7 @@ Rectangle {
             name: "hovered"
             when: (spinBoxIndicator.hover || myControl.hover)
                   && !spinBoxIndicator.pressed && !myControl.edit
-                  && !myControl.drag && spinBoxIndicator.enabled
+                  && !myControl.drag
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeHoverHighlight
@@ -151,7 +170,7 @@ Rectangle {
         },
         State {
             name: "pressed"
-            when: spinBoxIndicator.pressed && spinBoxIndicator.enabled
+            when: spinBoxIndicator.pressed
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeInteraction
@@ -159,7 +178,7 @@ Rectangle {
         },
         State {
             name: "edit"
-            when: myControl.edit && spinBoxIndicator.enabled
+            when: myControl.edit
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeFocusEdit
@@ -167,22 +186,10 @@ Rectangle {
         },
         State {
             name: "drag"
-            when: myControl.drag && spinBoxIndicator.enabled
+            when: myControl.drag
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeFocusDrag
-            }
-        },
-        State {
-            name: "disabled"
-            when: !myControl.enabled || !spinBoxIndicator.enabled
-            PropertyChanges {
-                target: spinBoxIndicator
-                color: StudioTheme.Values.themeControlBackgroundDisabled
-            }
-            PropertyChanges {
-                target: spinBoxIndicatorIcon
-                color: StudioTheme.Values.themeTextColorDisabled
             }
         }
     ]

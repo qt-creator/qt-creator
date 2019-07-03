@@ -33,15 +33,14 @@ Item {
     property alias decimals: spinBox.decimals
     property alias hasSlider: spinBox.hasSlider
 
+    property alias value: spinBox.realValue
+
     property alias minimumValue: spinBox.realFrom
     property alias maximumValue: spinBox.realTo
     property alias stepSize: spinBox.realStepSize
 
     property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
 
-    property alias value: spinBox.realValue
-
-    signal compressedValueModified
     signal valueModified
 
     width: 90
@@ -50,17 +49,16 @@ Item {
     StudioControls.RealSpinBox {
         id: spinBox
 
+        property bool hasSlider: spinBox.sliderIndicatorVisible
+
+        width: wrapper.width
+        actionIndicatorVisible: false
+
         realFrom: 0.0
         realTo: 1.0
         realStepSize: 0.1
         decimals: 2
 
         onRealValueModified: wrapper.valueModified()
-        onCompressedRealValueModified: wrapper.compressedValueModified()
-
-        width: wrapper.width
-        actionIndicatorVisible: false
-
-        property bool hasSlider: spinBox.sliderIndicatorVisible
     }
 }
