@@ -190,7 +190,7 @@ public:
         m_addButton = new QPushButton(ToolChainOptionsPage::tr("Add"), this);
         auto addMenu = new QMenu;
         foreach (ToolChainFactory *factory, m_factories) {
-            QList<Core::Id> languages = factory->supportedLanguages().toList();
+            QList<Core::Id> languages = Utils::toList(factory->supportedLanguages());
             if (languages.isEmpty())
                 continue;
 

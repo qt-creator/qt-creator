@@ -275,7 +275,7 @@ void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString
     refresh(Files);
     if (!removed.isEmpty()) {
         if (auto modelManager = QmlJS::ModelManagerInterface::instance())
-            modelManager->removeFiles(removed.toList());
+            modelManager->removeFiles(Utils::toList(removed));
     }
     refreshTargetDirectory();
 }

@@ -382,7 +382,7 @@ static void onReplaceUsagesClicked(const QString &text,
 
     const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
     if (!fileNames.isEmpty()) {
-        modelManager->updateSourceFiles(fileNames.toSet());
+        modelManager->updateSourceFiles(Utils::toSet(fileNames));
         SearchResultWindow::instance()->hide();
     }
 }

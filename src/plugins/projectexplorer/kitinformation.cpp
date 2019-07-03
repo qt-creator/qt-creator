@@ -226,14 +226,14 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setColumnStretch(1, 2);
 
-        QList<Core::Id> languageList = ToolChainManager::allLanguages().toList();
+        QList<Core::Id> languageList = Utils::toList(ToolChainManager::allLanguages());
         Utils::sort(languageList, [](Core::Id l1, Core::Id l2) {
             return ToolChainManager::displayNameOfLanguageId(l1)
                     < ToolChainManager::displayNameOfLanguageId(l2);
         });
         QTC_ASSERT(!languageList.isEmpty(), return);
         int row = 0;
-        foreach (Core::Id l, languageList) {
+        for (Core::Id l : qAsConst(languageList)) {
             layout->addWidget(new QLabel(ToolChainManager::displayNameOfLanguageId(l) + ':'), row, 0);
             auto cb = new QComboBox;
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
@@ -385,7 +385,7 @@ Tasks ToolChainKitAspect::validate(const Kit *k) const
         }
         if (targetAbis.count() != 1) {
             result << Task(Task::Error, tr("Compilers produce code for different ABIs: %1")
-                           .arg(Utils::transform(targetAbis, &Abi::toString).toList().join(", ")),
+                           .arg(Utils::transform<QList>(targetAbis, &Abi::toString).join(", ")),
                            Utils::FilePath(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     }
@@ -606,7 +606,7 @@ QList<ToolChain *> ToolChainKitAspect::toolChains(const Kit *k)
 
     const QVariantMap value = k->value(ToolChainKitAspect::id()).toMap();
     const QList<ToolChain *> tcList
-            = Utils::transform(ToolChainManager::allLanguages().toList(),
+            = Utils::transform<QList>(ToolChainManager::allLanguages(),
                                [&value](Core::Id l) -> ToolChain * {
                                    return ToolChainManager::findToolChain(value.value(l.toString()).toByteArray());
                                });

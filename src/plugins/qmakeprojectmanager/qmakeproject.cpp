@@ -925,7 +925,7 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
         QSet<QString> alreadyAdded = m_watcher.directories().toSet();
         tmp.subtract(alreadyAdded);
         if (!tmp.isEmpty())
-            m_watcher.addPaths(tmp.toList());
+            m_watcher.addPaths(Utils::toList(tmp));
         m_recursiveWatchedFolders += tmp;
     }
 

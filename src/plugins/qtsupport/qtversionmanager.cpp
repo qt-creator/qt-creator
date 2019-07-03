@@ -422,7 +422,7 @@ static FilePathList gatherQmakePathsFromQtChooser()
         if (!possibleQMake.isEmpty())
             foundQMakes << possibleQMake;
     }
-    return foundQMakes.toList();
+    return Utils::toList(foundQMakes);
 }
 
 static void findSystemQt()

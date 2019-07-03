@@ -306,7 +306,7 @@ void AndroidSdkModel::selectMissingEssentials()
 
 QList<const AndroidSdkPackage *> AndroidSdkModel::userSelection() const
 {
-    return m_changeState.toList();
+    return Utils::toList(m_changeState);
 }
 
 void AndroidSdkModel::resetSelection()

@@ -89,7 +89,7 @@ static QList<ToolChain *> makeUniqueByEqual(const QList<ToolChain *> &a)
 
 static QList<ToolChain *> makeUniqueByPointerEqual(const QList<ToolChain *> &a)
 {
-    return QSet<ToolChain *>::fromList(a).toList();
+    return Utils::toList(Utils::toSet(a));
 }
 
 static QList<ToolChain *> subtractById(const QList<ToolChain *> &a, const QList<ToolChain *> &b)
@@ -480,12 +480,12 @@ void ProjectExplorerPlugin::testToolChainMerging()
 
     Internal::ToolChainOperations ops = Internal::mergeToolChainLists(system, user, autodetect);
 
-    QSet<ToolChain *> expToRegister = QSet<ToolChain *>::fromList(toRegister);
-    QSet<ToolChain *> expToDemote = QSet<ToolChain *>::fromList(toDemote);
+    QSet<ToolChain *> expToRegister = Utils::toSet(toRegister);
+    QSet<ToolChain *> expToDemote = Utils::toSet(toDemote);
 
-    QSet<ToolChain *> actToRegister = QSet<ToolChain *>::fromList(ops.toRegister);
-    QSet<ToolChain *> actToDemote = QSet<ToolChain *>::fromList(ops.toDemote);
-    QSet<ToolChain *> actToDelete = QSet<ToolChain *>::fromList(ops.toDelete);
+    QSet<ToolChain *> actToRegister = Utils::toSet(ops.toRegister);
+    QSet<ToolChain *> actToDemote = Utils::toSet(ops.toDemote);
+    QSet<ToolChain *> actToDelete = Utils::toSet(ops.toDelete);
 
     QCOMPARE(actToRegister.count(), ops.toRegister.count()); // no dups!
     QCOMPARE(actToDemote.count(), ops.toDemote.count()); // no dups!
@@ -501,12 +501,12 @@ void ProjectExplorerPlugin::testToolChainMerging()
 
     tmp = actToRegister;
     tmp.unite(actToDelete);
-    QCOMPARE(tmp, QSet<ToolChain *>::fromList(system + user + autodetect)); // All input is accounted for
+    QCOMPARE(tmp, Utils::toSet(system + user + autodetect)); // All input is accounted for
 
     QCOMPARE(expToRegister, actToRegister);
     QCOMPARE(expToDemote, actToDemote);
-    QCOMPARE(QSet<ToolChain *>::fromList(system + user + autodetect),
-             QSet<ToolChain *>::fromList(ops.toRegister + ops.toDemote + ops.toDelete));
+    QCOMPARE(Utils::toSet(system + user + autodetect),
+             Utils::toSet(ops.toRegister + ops.toDemote + ops.toDelete));
 }
 
 } // namespace ProjectExplorer

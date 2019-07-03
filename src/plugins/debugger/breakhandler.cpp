@@ -2439,7 +2439,7 @@ GlobalBreakpoints BreakpointManager::findBreakpointsByIndex(const QList<QModelIn
         if (GlobalBreakpoint gbp = findBreakpointByIndex(index))
             items.insert(gbp);
     }
-    return items.toList();
+    return Utils::toList(items);
 }
 
 GlobalBreakpoint BreakpointManager::createBreakpoint(const BreakpointParameters &params)

@@ -297,7 +297,7 @@ void TeaLeafReader::generateProjectTree(CMakeProjectNode *root, const QList<cons
                 = Utils::filtered(bt.includeFiles, [this](const Utils::FilePath &fn) {
             return fn.isChildOf(m_parameters.sourceDirectory);
         });
-        allIncludePathSet.unite(QSet<FilePath>::fromList(targetIncludePaths));
+        allIncludePathSet.unite(Utils::toSet(targetIncludePaths));
     }
     const QList<FilePath> allIncludePaths = allIncludePathSet.toList();
 

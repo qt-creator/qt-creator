@@ -347,7 +347,7 @@ DeploymentData Target::deploymentData() const
 
 void Target::setApplicationTargets(const QList<BuildTargetInfo> &appTargets)
 {
-    if (appTargets.toSet() != d->m_appTargets.toSet()) {
+    if (Utils::toSet(appTargets) != Utils::toSet(d->m_appTargets)) {
         d->m_appTargets = appTargets;
         emit applicationTargetsChanged();
     }

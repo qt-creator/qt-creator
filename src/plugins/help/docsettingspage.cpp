@@ -210,7 +210,7 @@ void DocSettingsPage::addDocumentation()
         // file with the same namespace but a different path, we need to unregister the namespace before
         // we can register the new one. Help engine allows just one registered namespace.
         if (m_filesToUnregister.contains(nameSpace)) {
-            QSet<QString> values = m_filesToUnregister.values(nameSpace).toSet();
+            QSet<QString> values = Utils::toSet(m_filesToUnregister.values(nameSpace));
             values.remove(filePath);
             m_filesToUnregister.remove(nameSpace);
             foreach (const QString &value, values)

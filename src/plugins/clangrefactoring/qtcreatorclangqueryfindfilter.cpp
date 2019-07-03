@@ -130,7 +130,8 @@ void QtCreatorClangQueryFindFilter::prepareFind()
 
     const CppTools::ProjectInfo projectInfo = CppTools::CppModelManager::instance()->projectInfo(currentProject);
 
-    setProjectParts(projectInfo.projectParts().toStdVector());
+    const QVector<CppTools::ProjectPart::Ptr> parts = projectInfo.projectParts();
+    setProjectParts({parts.begin(), parts.end()});
 
     setUnsavedContent(createUnsavedContents());
 }

@@ -388,7 +388,7 @@ void CppToolsPlugin::test_global_completion()
     QVERIFY(test.succeededSoFar());
     const QStringList completions = test.getCompletions();
     QVERIFY(isProbablyGlobalCompletion(completions));
-    QVERIFY(completions.toSet().contains(requiredCompletionItems.toSet()));
+    QVERIFY(Utils::toSet(completions).contains(Utils::toSet(requiredCompletionItems)));
 }
 
 void CppToolsPlugin::test_doxygen_tag_completion_data()

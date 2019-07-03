@@ -29,6 +29,7 @@
 #include "qmljsutils.h"
 #include "parser/qmljsast_p.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QColor>
@@ -666,7 +667,7 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
         _isQtQuick2 = isQtQuick2();
     }
 
-    _enabledMessages = Message::allMessageTypes().toSet();
+    _enabledMessages = Utils::toSet(Message::allMessageTypes());
     disableMessage(HintAnonymousFunctionSpacing);
     disableMessage(HintDeclareVarsInOneLine);
     disableMessage(HintDeclarationsShouldBeAtStartOfFunction);
@@ -1539,7 +1540,7 @@ void Check::scanCommentsForAnnotations()
 
         // enable all checks annotation
         if (comment.contains("@enable-all-checks"))
-            _enabledMessages = Message::allMessageTypes().toSet();
+            _enabledMessages = Utils::toSet(Message::allMessageTypes());
 
         // find all disable annotations
         int lastOffset = -1;

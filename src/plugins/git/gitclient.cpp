@@ -2805,9 +2805,9 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
     QStringList stagedFiles = allStagedFiles;
     QStringList unstagedFiles = allUnstagedFiles;
     if (!isDirectory) {
-        const QSet<QString> filesSet = files.toSet();
-        stagedFiles = allStagedFiles.toSet().intersect(filesSet).toList();
-        unstagedFiles = allUnstagedFiles.toSet().intersect(filesSet).toList();
+        const QSet<QString> filesSet = Utils::toSet(files);
+        stagedFiles = Utils::toList(Utils::toSet(allStagedFiles).intersect(filesSet));
+        unstagedFiles = Utils::toList(Utils::toSet(allUnstagedFiles).intersect(filesSet));
     }
     if ((!revertStaging || stagedFiles.empty()) && unstagedFiles.empty())
         return RevertUnchanged;
