@@ -42,22 +42,28 @@
     use \c {.pyqtc} files, but we recommend that you choose \c{.pyproject} files
     for new projects.
 
-    The Window wizard adds the following imports to the \c {main.py}
-    file to provide access to the QApplication and QMainWindow classes
-    in the Qt Widgets module:
+    The \uicontrol {Qt for Python - Window} wizard enables you to create a
+    Python source file for a new class that you can add to a Python project.
+    Specify the class name, base class, and and source file for the class.
+
+    \image qtcreator-python-wizard-app-window.png
+
+    The Window wizard adds the imports to the source file to provide
+    access to the QApplication and the base class you selected in the Qt
+    Widgets module:
 
     \badcode
     import sys
-    from PySide2.QtWidgets import QApplication, QMainWindow
+    from PySide2.QtWidgets import QApplication, QWidget
     \endcode
 
-    The Window wizard also adds a \c MainWindow class that inherits from
-    QMainWindow:
+    The Window wizard also adds a main class with the specified name that
+    inherits from the specified base class:
 
     \badcode
-    class MainWindow(QMainWindow):
+    class MyWidget(QWidget):
         def __init__(self):
-        QMainWindow.__init__(self)
+            QWidget.__init__(self)
     \endcode
 
     Next, the Window wizard adds a main function, where it creates a
@@ -68,13 +74,12 @@
     \badcode
     if __name__ == "__main__":
         app = QApplication([])
-        ...
     \endcode
 
     Next, the Window wizard instantiates the \c MainWindow class and shows it:
 
     \badcode
-        window = MainWindow()
+        window = MyWidget()
         window.show()
         ...
     \endcode
@@ -86,7 +91,7 @@
         sys.exit(app.exec_())
     \endcode
 
-    The Empty wizard adds similar code to the \c {main.py} file, but it does
+    The Empty wizard adds similar code to the source file, but it does
     not add any classes, so you need to add and instantiate them yourself.
 
     For examples of creating Qt for Python applications, see
