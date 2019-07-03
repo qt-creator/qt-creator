@@ -88,7 +88,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id lang
     QStringList arguments;
     arguments.push_back(fakeIn.fileName());
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        arguments.push_back("--ec++");
+        arguments.push_back("--c++");
     arguments.push_back("--predef_macros");
     arguments.push_back(outpath);
 
@@ -134,7 +134,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Core::Id lang
     QStringList arguments;
     arguments.push_back(fakeIn.fileName());
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        arguments.push_back("--ec++");
+        arguments.push_back("--c++");
     arguments.push_back("--preinclude");
     arguments.push_back(".");
 
