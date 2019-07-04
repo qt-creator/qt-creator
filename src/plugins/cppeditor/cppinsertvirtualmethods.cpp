@@ -36,6 +36,8 @@
 
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/Overview.h>
+
+#include <utils/algorithm.h>
 #include <utils/changeset.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -1086,11 +1088,11 @@ void InsertVirtualMethodsDialog::saveSettings()
     m_settings->overrideReplacementIndex = m_overrideReplacementComboBox->currentIndex();
     if (m_overrideReplacementComboBox && m_overrideReplacementComboBox->isEnabled())
         m_settings->overrideReplacement = m_overrideReplacementComboBox->currentText().trimmed();
-    QSet<QString> addedReplacements = m_availableOverrideReplacements.toSet();
+    QSet<QString> addedReplacements = Utils::toSet(m_availableOverrideReplacements);
     addedReplacements.insert(m_settings->overrideReplacement);
-    addedReplacements.subtract(defaultOverrideReplacements().toSet());
+    addedReplacements.subtract(Utils::toSet(defaultOverrideReplacements()));
     m_settings->userAddedOverrideReplacements =
-            sortedAndTrimmedStringListWithoutEmptyElements(addedReplacements.toList());
+            sortedAndTrimmedStringListWithoutEmptyElements(Utils::toList(addedReplacements));
     m_settings->write();
 }
 

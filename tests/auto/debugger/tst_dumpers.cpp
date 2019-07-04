@@ -2064,10 +2064,10 @@ void tst_Dumpers::dumper_data()
                + Check("dir", quoted(tempDir), "@QDir")
             // + Check("dir.canonicalPath", quoted(tempDir), "@QString")
                + Check("dir.absolutePath", quoted(tempDir), "@QString") % Optional()
-               + Check("dir.entryInfoList.0", "[0]", quoted(tempDir + "/."), "@QFileInfo")
-               + Check("dir.entryInfoList.1", "[1]", quoted(tempDir + "/.."), "@QFileInfo")
-               + Check("dir.entryList.0", "[0]", "\".\"", "@QString")
-               + Check("dir.entryList.1", "[1]", "\"..\"", "@QString");
+               + Check("dir.entryInfoList.0", "[0]", quoted(tempDir + "/."), "@QFileInfo") % NoCdbEngine
+               + Check("dir.entryInfoList.1", "[1]", quoted(tempDir + "/.."), "@QFileInfo") % NoCdbEngine
+               + Check("dir.entryList.0", "[0]", "\".\"", "@QString") % NoCdbEngine
+               + Check("dir.entryList.1", "[1]", "\"..\"", "@QString") % NoCdbEngine;
 
 
     QTest::newRow("QFileInfo")
@@ -4804,6 +4804,17 @@ void tst_Dumpers::dumper_data()
                + Check("s3.1.a", "2", "int");
 
 
+    QTest::newRow("StdBasicString")
+            << Data("#include <string>\n"
+                    "template<class T>\n"
+                    "class myallocator : public std::allocator<T> {};\n",
+                    "std::basic_string<char, std::char_traits<char>, myallocator<char>> str(\"hello\");\n"
+                    "unused(&str);\n")
+               + Check("str", "\"hello\"", "std::basic_string<char, std::char_traits<char>, myallocator<char> >")
+               + Check("str.0", "[0]", "104", "char") // 104: ASCII 'h'
+               + Check("str.1", "[1]", "101", "char"); // 101: ASCII 'e'
+
+
     QTest::newRow("StdString")
             << Data("#include <string>\n",
                     "std::string str0, str;\n"
@@ -4925,7 +4936,9 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("StdVector")
             << Data("#include <vector>\n"
-                    "#include <list>\n",
+                    "#include <list>\n"
+                    "template<class T>\n"
+                    "class myallocator : public std::allocator<T> {};\n",
 
                     "std::vector<double> v0, v1;\n"
                     "v1.push_back(1);\n"
@@ -4970,7 +4983,12 @@ void tst_Dumpers::dumper_data()
                     "unused(&b2);\n\n"
 
                     "std::vector<bool> b3(300);\n"
-                    "unused(&b3);\n")
+                    "unused(&b3);\n"
+
+                    "std::vector<bool, myallocator<bool>> b4;\n"
+                    "b4.push_back(true);\n"
+                    "b4.push_back(false);\n"
+                    "unused(&b4);\n")
 
                + Check("v0", "<0 items>", "std::vector<double>")
                + Check("v1", "<3 items>", "std::vector<double>")
@@ -5010,8 +5028,11 @@ void tst_Dumpers::dumper_data()
 
                + Check("b3", "<300 items>", "std::vector<bool>")
                + Check("b3.0", "[0]", "0", "bool")
-               + Check("b3.299", "[299]", "0", "bool");
+               + Check("b3.299", "[299]", "0", "bool")
 
+               + Check("b4", "<2 items>", "std::vector<bool, myallocator<bool> >")
+               + Check("b4.0", "[0]", "1", "bool")
+               + Check("b4.1", "[1]", "0", "bool");
 
     QTest::newRow("StdVectorQt")
             << Data("#include <vector>\n" + fooData,
@@ -6000,14 +6021,15 @@ void tst_Dumpers::dumper_data()
                + Check("x3", "", "X &");
 
     QTest::newRow("RValueReference")
-            << Data("",
-                    "struct S { int a = 32; };\n"
+            << Data("struct S { int a = 32; };",
                     "auto foo = [](int && i, S && s) { BREAK; return i + s.a; };\n"
                     "foo(int(1), S());\n")
                + Cxx11Profile()
                + GdbVersion(80200)
-               + Check("i", "1", "int &&")
-               + CheckType("s", "S &&")
+               + Check("i", "1", "int &&") % NoCdbEngine
+               + Check("i", "1", "int") % CdbEngine
+               + CheckType("s", "S &&") % NoCdbEngine
+               + CheckType("s", "S") % CdbEngine
                + Check("s.a", "32", "int");
 
     QTest::newRow("SSE")

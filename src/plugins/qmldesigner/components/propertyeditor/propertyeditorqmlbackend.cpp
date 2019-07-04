@@ -401,6 +401,39 @@ QString PropertyEditorQmlBackend::propertyEditorResourcesPath() {
     return Core::ICore::resourcePath() + QStringLiteral("/qmldesigner/propertyEditorQmlSources");
 }
 
+inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &type, const PropertyName &name)
+{
+    if (!name.contains("."))
+        return true;
+
+    if (name.count('.') > 1)
+        return false;
+
+    QList<QByteArray> list =name.split('.');
+    const PropertyName parentProperty = list.first();
+    const PropertyName itemProperty = list.last();
+
+    TypeName typeName = type.propertyTypeName(parentProperty);
+
+    NodeMetaInfo itemInfo = node.view()->model()->metaInfo("QtQuick.Item");
+    NodeMetaInfo textInfo = node.view()->model()->metaInfo("QtQuick.Text");
+    NodeMetaInfo rectangleInfo = node.view()->model()->metaInfo("QtQuick.Rectangle");
+
+    if (itemInfo.hasProperty(itemProperty))
+        return false;
+
+    if (typeName == "font")
+        return false;
+
+    if (textInfo.isSubclassOf(typeName))
+            return false;
+
+    if (rectangleInfo.isSubclassOf(typeName))
+            return false;
+
+    return true;
+}
+
 QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
                                                      const NodeMetaInfo &superType,
                                                      const QmlObjectNode &node)
@@ -461,9 +494,9 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
 
         auto nodes = templateConfiguration()->children();
 
-        if (!superType.hasProperty(name) && type.propertyIsWritable(name) && !name.contains(".")) {
+        if (!superType.hasProperty(name) && type.propertyIsWritable(name) && dotPropertyHeuristic(node, type, name)) {
 
-            foreach (const QmlJS::SimpleReaderNode::Ptr &node, nodes)
+            for (const QmlJS::SimpleReaderNode::Ptr &node : nodes) {
                 if (variantToStringList(node->property(QStringLiteral("typeNames"))).contains(QString::fromLatin1(typeName))) {
                     const QString fileName = propertyTemplatesPath() + node->property(QStringLiteral("sourceFile")).toString();
                     QFile file(fileName);
@@ -472,10 +505,6 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
                         file.close();
                         const bool section = node->propertyNames().contains("separateSection");
                         if (section) {
-                            qmlTemplate += "Section {\n";
-                            qmlTemplate += "anchors.left: parent.left\n";
-                            qmlTemplate += "anchors.right: parent.right\n";
-                            qmlTemplate += QString("caption: \"%1\"\n").arg(QString::fromUtf8(properName));
                         } else if (!sectionStarted) {
                             qmlTemplate += QStringLiteral("Section {\n");
                             qmlTemplate += QStringLiteral("caption: \"%1\"\n").arg(QString::fromUtf8(type.simplifiedTypeName()));
@@ -486,13 +515,12 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
                         }
 
                         qmlTemplate += source.arg(QString::fromUtf8(name)).arg(QString::fromUtf8(properName));
-                        if (section)
-                            qmlTemplate += "}\n";
                         emptyTemplate = false;
                     } else {
                         qWarning().nospace() << "template definition source file not found:" << fileName;
                     }
                 }
+            }
         }
     }
     if (sectionStarted) {
@@ -666,3 +694,4 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 
 
 } //QmlDesigner
+

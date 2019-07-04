@@ -77,8 +77,8 @@ T.Slider {
     handle: Rectangle {
         id: sliderHandle
         x: slider.leftPadding + (slider.visualPosition * slider.availableWidth)
-           - sliderHandle.width / 2
-        y: slider.topPadding + slider.availableHeight / 2 - sliderHandle.height / 2
+           - (sliderHandle.width / 2)
+        y: slider.topPadding + (slider.availableHeight / 2) - (sliderHandle.height / 2)
         z: 20
         implicitWidth: StudioTheme.Values.sliderHandleWidth
         implicitHeight: StudioTheme.Values.sliderHandleHeight

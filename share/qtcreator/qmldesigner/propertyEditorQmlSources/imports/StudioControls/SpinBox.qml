@@ -36,7 +36,6 @@ T.SpinBox {
     property int decimals: 0
     property int factor: Math.pow(10, decimals)
 
-    property real defaultStepSize: 1
     property real minStepSize: 1
     property real maxStepSize: 10
 
@@ -49,9 +48,9 @@ T.SpinBox {
     property real __actionIndicatorHeight: StudioTheme.Values.height
 
     property bool spinBoxIndicatorVisible: true
-    property real __spinBoxIndicatorWidth: StudioTheme.Values.smallRectWidth - 2
-                                           * StudioTheme.Values.border
-    property real __spinBoxIndicatorHeight: StudioTheme.Values.height / 2
+    property real __spinBoxIndicatorWidth: StudioTheme.Values.smallRectWidth - (2
+                                           * StudioTheme.Values.border)
+    property real __spinBoxIndicatorHeight: (StudioTheme.Values.height / 2)
                                             - StudioTheme.Values.border
 
     property alias sliderIndicatorVisible: sliderIndicator.visible
@@ -80,8 +79,8 @@ T.SpinBox {
         locale: mySpinBox.locale.name
         notation: DoubleValidator.StandardNotation
         decimals: mySpinBox.decimals
-        bottom: Math.min(mySpinBox.from, mySpinBox.to) / factor
-        top: Math.max(mySpinBox.from, mySpinBox.to) / factor
+        bottom: Math.min(mySpinBox.from, mySpinBox.to) / mySpinBox.factor
+        top: Math.max(mySpinBox.from, mySpinBox.to) / mySpinBox.factor
     }
 
     IntValidator {
@@ -110,10 +109,12 @@ T.SpinBox {
         pressed: mySpinBox.up.pressed
         iconFlip: -1
 
-        x: actionIndicator.width + (actionIndicator.visible ? 0 : StudioTheme.Values.border)
+        x: actionIndicator.width + (actionIndicatorVisible ? 0 : StudioTheme.Values.border)
         y: StudioTheme.Values.border
         width: spinBoxIndicatorVisible ? __spinBoxIndicatorWidth : 0
         height: spinBoxIndicatorVisible ? __spinBoxIndicatorHeight : 0
+
+        enabled: (mySpinBox.from < mySpinBox.to) ? mySpinBox.value < mySpinBox.to : mySpinBox.value > mySpinBox.to
     }
 
     down.indicator: SpinBoxIndicator {
@@ -128,6 +129,8 @@ T.SpinBox {
         y: spinBoxIndicatorUp.y + spinBoxIndicatorUp.height
         width: spinBoxIndicatorVisible ? __spinBoxIndicatorWidth : 0
         height: spinBoxIndicatorVisible ? __spinBoxIndicatorHeight : 0
+
+        enabled: (mySpinBox.from < mySpinBox.to) ? mySpinBox.value > mySpinBox.from : mySpinBox.value < mySpinBox.from
     }
 
     contentItem: SpinBoxInput {
@@ -171,12 +174,12 @@ T.SpinBox {
     }
 
     textFromValue: function (value, locale) {
-        return Number(value / factor).toLocaleString(locale, 'f',
-                                                     mySpinBox.decimals)
+        return Number(value / mySpinBox.factor).toLocaleString(locale, 'f',
+                                                               mySpinBox.decimals)
     }
 
     valueFromText: function (text, locale) {
-        return Number.fromLocaleString(locale, text) * factor
+        return Number.fromLocaleString(locale, text) * mySpinBox.factor
     }
 
     states: [
@@ -235,38 +238,6 @@ T.SpinBox {
         }
     ]
 
-    onActiveFocusChanged: {
-        if (mySpinBox.activeFocus)
-            // QTBUG-75862 && mySpinBox.focusReason === Qt.TabFocusReason)
-            spinBoxInput.selectAll()
-
-        if (sliderPopup.opened && !mySpinBox.activeFocus)
-            sliderPopup.close()
-    }
-
-    onFocusChanged: {
-        // FIX: This is a temporary fix for QTBUG-74239
-        var currValue = mySpinBox.value
-
-        if (!spinBoxInput.acceptableInput)
-            mySpinBox.value = clamp(valueFromText(spinBoxInput.text,
-                                                  mySpinBox.locale),
-                                    mySpinBox.validator.bottom * factor,
-                                    mySpinBox.validator.top * factor)
-        else
-            mySpinBox.value = valueFromText(spinBoxInput.text, mySpinBox.locale)
-
-        if (spinBoxInput.text !== mySpinBox.displayText)
-            spinBoxInput.text = mySpinBox.displayText
-
-        if (mySpinBox.value !== currValue)
-            mySpinBox.valueModified()
-    }
-
-    onDisplayTextChanged: {
-        spinBoxInput.text = mySpinBox.displayText
-    }
-
     Timer {
         id: myTimer
         repeat: false
@@ -276,57 +247,56 @@ T.SpinBox {
     }
 
     onValueModified: myTimer.restart()
+    onFocusChanged: mySpinBox.setValueFromInput()
+    onDisplayTextChanged: spinBoxInput.text = mySpinBox.displayText
+    onActiveFocusChanged: {
+        if (mySpinBox.activeFocus)
+            // QTBUG-75862 && mySpinBox.focusReason === Qt.TabFocusReason)
+            spinBoxInput.selectAll()
+
+        if (sliderPopup.opened && !mySpinBox.activeFocus)
+            sliderPopup.close()
+    }
 
     Keys.onPressed: {
         if (event.key === Qt.Key_Up || event.key === Qt.Key_Down) {
             event.accepted = true
 
-            mySpinBox.stepSize = defaultStepSize
+            // Store current step size
+            var currStepSize = mySpinBox.stepSize
 
             if (event.modifiers & Qt.ControlModifier)
-                mySpinBox.stepSize = minStepSize
+                mySpinBox.stepSize = mySpinBox.minStepSize
 
             if (event.modifiers & Qt.ShiftModifier)
-                mySpinBox.stepSize = maxStepSize
+                mySpinBox.stepSize = mySpinBox.maxStepSize
 
+            // Check if value is in sync with text input, if not sync it!
             var val = mySpinBox.valueFromText(spinBoxInput.text,
                                               mySpinBox.locale)
             if (mySpinBox.value !== val)
                 mySpinBox.value = val
 
-            var curValue = mySpinBox.value
+            var currValue = mySpinBox.value
 
             if (event.key === Qt.Key_Up)
                 mySpinBox.increase()
             else
                 mySpinBox.decrease()
 
-            if (curValue !== mySpinBox.value)
+            if (currValue !== mySpinBox.value)
                 mySpinBox.valueModified()
+
+            // Reset step size
+            mySpinBox.stepSize = currStepSize
         }
 
         if (event.key === Qt.Key_Escape)
             mySpinBox.focus = false
 
         // FIX: This is a temporary fix for QTBUG-74239
-        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-            var currValue = mySpinBox.value
-
-            if (!spinBoxInput.spinBoxInput)
-                mySpinBox.value = clamp(valueFromText(spinBoxInput.text,
-                                                      mySpinBox.locale),
-                                        mySpinBox.validator.bottom * factor,
-                                        mySpinBox.validator.top * factor)
-            else
-                mySpinBox.value = valueFromText(spinBoxInput.text,
-                                                mySpinBox.locale)
-
-            if (spinBoxInput.text !== mySpinBox.displayText)
-                spinBoxInput.text = mySpinBox.displayText
-
-            if (mySpinBox.value !== currValue)
-                mySpinBox.valueModified()
-        }
+        if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
+            mySpinBox.setValueFromInput()
     }
 
     function clamp(v, lo, hi) {
@@ -334,5 +304,25 @@ T.SpinBox {
             return Math.min(Math.max(lo, v), hi)
 
         return v
+    }
+
+    function setValueFromInput() {
+        // FIX: This is a temporary fix for QTBUG-74239
+        var currValue = mySpinBox.value
+
+        if (!spinBoxInput.acceptableInput)
+            mySpinBox.value = clamp(valueFromText(spinBoxInput.text,
+                                                  mySpinBox.locale),
+                                    mySpinBox.validator.bottom * mySpinBox.factor,
+                                    mySpinBox.validator.top * mySpinBox.factor)
+        else
+            mySpinBox.value = valueFromText(spinBoxInput.text,
+                                            mySpinBox.locale)
+
+        if (spinBoxInput.text !== mySpinBox.displayText)
+            spinBoxInput.text = mySpinBox.displayText
+
+        if (mySpinBox.value !== currValue)
+            mySpinBox.valueModified()
     }
 }

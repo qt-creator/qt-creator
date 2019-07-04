@@ -65,6 +65,7 @@ T.CheckBox {
         text: myCheckBox.text
         font: myCheckBox.font
         color: StudioTheme.Values.themeTextColor
+        visible: text !== ""
     }
 
     ActionIndicator {
@@ -90,9 +91,9 @@ T.CheckBox {
         border.width: StudioTheme.Values.border
 
         T.Label {
-            id: checkBoxIcon
-            x: (parent.width - width) / 2
-            y: (parent.height - height) / 2
+            id: checkedIcon
+            x: (parent.width - checkedIcon.width) / 2
+            y: (parent.height - checkedIcon.height) / 2
             text: StudioTheme.Constants.tickIcon
             visible: myCheckBox.checkState === Qt.Checked
             color: StudioTheme.Values.themeTextColor
@@ -100,17 +101,16 @@ T.CheckBox {
             font.family: StudioTheme.Constants.iconFont.family
         }
 
-        /*
-        // Tristate only
-        Rectangle {
-            x: (parent.width - width) / 2
-            y: (parent.height - height) / 2
-            width: 16
-            height: 3
-            color: myCheckBox.palette.text
+        T.Label {
+            id: partiallyCheckedIcon
+            x: (parent.width - checkedIcon.width) / 2
+            y: (parent.height - checkedIcon.height) / 2
+            text: StudioTheme.Constants.triState
             visible: myCheckBox.checkState === Qt.PartiallyChecked
+            color: StudioTheme.Values.themeTextColor
+            font.pixelSize: StudioTheme.Values.sliderControlSizeMulti
+            font.family: StudioTheme.Constants.iconFont.family
         }
-*/
     }
 
     states: [
@@ -150,7 +150,11 @@ T.CheckBox {
                 border.color: StudioTheme.Values.themeControlOutlineDisabled
             }
             PropertyChanges {
-                target: checkBoxIcon
+                target: checkedIcon
+                color: StudioTheme.Values.themeTextColorDisabled
+            }
+            PropertyChanges {
+                target: partiallyCheckedIcon
                 color: StudioTheme.Values.themeTextColorDisabled
             }
             PropertyChanges {

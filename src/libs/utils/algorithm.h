@@ -1259,4 +1259,27 @@ OutputIterator set_union(InputIterator1 first1,
     return Utils::set_union_impl(
         first1, last1, first2, last2, result, std::less<typename InputIterator1::value_type>{});
 }
+
+// Replacement for deprecated Qt functionality
+
+template <class T>
+QSet<T> toSet(const QList<T> &list)
+{
+#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
+    return list.toSet();
+#else
+    return QSet<T>(list.begin(), list.end());
+#endif
+}
+
+template <class T>
+QList<T> toList(const QSet<T> &set)
+{
+#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
+    return set.toList();
+#else
+    return QList<T>(set.begin(), set.end());
+#endif
+}
+
 } // namespace Utils

@@ -3502,7 +3502,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     }
     if (!failedProjects.empty()) {
         const QString message = tr("The following subprojects could not be added to project "
-                                   "\"%2\":").arg(projectNode->managingProject()->displayName());
+                                   "\"%1\":").arg(projectNode->managingProject()->displayName());
         QMessageBox::warning(ICore::mainWindow(), tr("Adding Subproject Failed"),
                              message + "\n  " + failedProjects.join("\n  "));
         return;

@@ -102,7 +102,7 @@ void tst_LanguageServerProtocol::baseMessageParse_data()
             << QByteArray()
             << false // complete
             << false // valid
-            << true  // errorMessage
+            << false // errorMessage
             << defaultCodec
             << BaseMessage();
 
@@ -224,7 +224,7 @@ void tst_LanguageServerProtocol::baseMessageParse_data()
             << QByteArray("foobar")
             << true // complete
             << true // valid
-            << true // errorMessage
+            << false // errorMessage
             << defaultCodec
             << BaseMessage();
 
@@ -237,7 +237,7 @@ void tst_LanguageServerProtocol::baseMessageParse_data()
             << QByteArray("foobar")
             << true // complete
             << true // valid
-            << true // errorMessage
+            << false // errorMessage
             << defaultCodec
             << BaseMessage();
 

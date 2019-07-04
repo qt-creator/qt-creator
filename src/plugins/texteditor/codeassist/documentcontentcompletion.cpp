@@ -32,6 +32,7 @@
 #include "iassistprocessor.h"
 #include "../snippets/snippetassistcollector.h"
 
+#include <utils/algorithm.h>
 #include <utils/runextensions.h>
 
 #include <QElapsedTimer>
@@ -104,7 +105,7 @@ static void createProposal(QFutureInterface<QStringList> &future, const QString 
             words.insert(word);
     }
 
-    future.reportResult(words.toList());
+    future.reportResult(Utils::toList(words));
 }
 
 IAssistProposal *DocumentContentCompletionProcessor::perform(const AssistInterface *interface)

@@ -25,6 +25,7 @@
 
 #include "iosprobe.h"
 
+#include <utils/algorithm.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
@@ -120,7 +121,7 @@ void XcodeProbe::setupDefaultToolchains(const QString &devPath)
         const QFileInfo sdkPathInfo(sdk.path.toString());
         if (sdkPathInfo.exists() && sdkPathInfo.isDir()) {
             clangProfile.sdks.push_back(sdk);
-            allArchitectures += sdk.architectures.toSet();
+            allArchitectures += Utils::toSet(sdk.architectures);
         }
     }
 

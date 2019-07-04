@@ -29,6 +29,7 @@
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
@@ -269,7 +270,7 @@ void BuiltinEditorDocumentParser::addFileAndDependencies(Snapshot *snapshot,
     toRemove->insert(fileName);
     if (fileName != Utils::FilePath::fromString(filePath())) {
         Utils::FilePathList deps = snapshot->filesDependingOn(fileName);
-        toRemove->unite(QSet<Utils::FilePath>::fromList(deps));
+        toRemove->unite(Utils::toSet(deps));
     }
 }
 

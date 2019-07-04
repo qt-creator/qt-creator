@@ -35,6 +35,8 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
+Q_DECLARE_METATYPE(QLocalSocket::LocalSocketError)
+
 namespace QmlDebug {
 
 const int protocolVersion = 1;
@@ -244,6 +246,11 @@ void QmlDebugConnection::protocolReadyRead()
 QmlDebugConnection::QmlDebugConnection(QObject *parent)
     : QObject(parent), d_ptr(new QmlDebugConnectionPrivate)
 {
+    static const int metaTypes[] = {
+        qRegisterMetaType<QAbstractSocket::SocketError>(),
+        qRegisterMetaType<QLocalSocket::LocalSocketError>()
+    };
+    Q_UNUSED(metaTypes);
 }
 
 QmlDebugConnection::~QmlDebugConnection()
@@ -343,9 +350,10 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
             this, [this](QAbstractSocket::SocketError error) {
         emit logError(socketErrorToString(error));
         socketDisconnected();
-    });
+    }, Qt::QueuedConnection);
     connect(socket, &QAbstractSocket::connected, this, &QmlDebugConnection::socketConnected);
-    connect(socket, &QAbstractSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
+    connect(socket, &QAbstractSocket::disconnected, this, &QmlDebugConnection::socketDisconnected,
+            Qt::QueuedConnection);
     socket->connectToHost(hostName.isEmpty() ? QString("localhost") : hostName, port);
 }
 
@@ -376,13 +384,14 @@ void QmlDebugConnection::newConnection()
     QObject::connect(d->protocol, &QPacketProtocol::readyRead,
                      this, &QmlDebugConnection::protocolReadyRead);
 
-    connect(socket, &QLocalSocket::disconnected, this, &QmlDebugConnection::socketDisconnected);
+    connect(socket, &QLocalSocket::disconnected, this, &QmlDebugConnection::socketDisconnected,
+            Qt::QueuedConnection);
 
     connect(socket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error),
             this, [this](QLocalSocket::LocalSocketError error) {
         emit logError(socketErrorToString(static_cast<QAbstractSocket::SocketError>(error)));
         socketDisconnected();
-    });
+    }, Qt::QueuedConnection);
 
     connect(socket, &QLocalSocket::stateChanged,
             this, [this](QLocalSocket::LocalSocketState state) {

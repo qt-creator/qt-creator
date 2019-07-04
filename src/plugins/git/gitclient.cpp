@@ -1163,11 +1163,11 @@ VcsBaseEditorWidget *GitClient::annotate(
     return editor;
 }
 
-void GitClient::checkout(const QString &workingDirectory, const QString &ref,
-                         StashMode stashMode)
+VcsCommand *GitClient::checkout(const QString &workingDirectory, const QString &ref,
+                                StashMode stashMode)
 {
     if (stashMode == StashMode::TryStash && !beginStashScope(workingDirectory, "Checkout"))
-        return;
+        return nullptr;
     QStringList arguments = setupCheckoutArguments(workingDirectory, ref);
     VcsCommand *command = vcsExec(
                 workingDirectory, arguments, nullptr, true,
@@ -1179,6 +1179,7 @@ void GitClient::checkout(const QString &workingDirectory, const QString &ref,
         if (success)
             updateSubmodulesIfNeeded(workingDirectory, true);
     });
+    return command;
 }
 
 /* method used to setup arguments for checkout, in case user wants to create local branch */
@@ -2848,9 +2849,9 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
     QStringList stagedFiles = allStagedFiles;
     QStringList unstagedFiles = allUnstagedFiles;
     if (!isDirectory) {
-        const QSet<QString> filesSet = files.toSet();
-        stagedFiles = allStagedFiles.toSet().intersect(filesSet).toList();
-        unstagedFiles = allUnstagedFiles.toSet().intersect(filesSet).toList();
+        const QSet<QString> filesSet = Utils::toSet(files);
+        stagedFiles = Utils::toList(Utils::toSet(allStagedFiles).intersect(filesSet));
+        unstagedFiles = Utils::toList(Utils::toSet(allUnstagedFiles).intersect(filesSet));
     }
     if ((!revertStaging || stagedFiles.empty()) && unstagedFiles.empty())
         return RevertUnchanged;
@@ -2933,7 +2934,7 @@ void GitClient::pull(const QString &workingDirectory, bool rebase)
         abortCommand = "merge";
     }
 
-    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase);
+    VcsCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand);
     connect(command, &VcsCommand::success, this,
             [this, workingDirectory] { updateSubmodulesIfNeeded(workingDirectory, true); },
             Qt::QueuedConnection);
@@ -3135,11 +3136,13 @@ void GitClient::revert(const QString &workingDirectory, const QString &argument)
 // Stashing is handled prior to this call.
 VcsCommand *GitClient::vcsExecAbortable(const QString &workingDirectory,
                                         const QStringList &arguments,
-                                        bool isRebase)
+                                        bool isRebase,
+                                        QString abortCommand)
 {
     QTC_ASSERT(!arguments.isEmpty(), return nullptr);
 
-    QString abortCommand = arguments.at(0);
+    if (abortCommand.isEmpty())
+        abortCommand = arguments.at(0);
     VcsCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
     command->setCookie(workingDirectory);
     command->addFlags(VcsCommand::SshPasswordPrompt

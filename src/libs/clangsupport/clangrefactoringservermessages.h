@@ -27,7 +27,6 @@
 
 #include "cancelmessage.h"
 #include "endmessage.h"
-#include "requestsourcelocationforrenamingmessage.h"
 #include "requestsourcerangesanddiagnosticsforquerymessage.h"
 #include "requestsourcerangesforquerymessage.h"
 #include "removegeneratedfilesmessage.h"

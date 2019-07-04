@@ -25,21 +25,60 @@
 
 #pragma once
 
-#include "projectpartid.h"
 #include "filepathid.h"
+#include "projectpartid.h"
+#include "sourceentry.h"
 
 namespace ClangBackEnd {
+
+class ProjectChunkId
+{
+public:
+    ProjectPartId id;
+    SourceType sourceType;
+
+    friend bool operator==(ProjectChunkId first, ProjectChunkId second)
+    {
+        return first.id == second.id && first.sourceType == second.sourceType;
+    }
+
+    friend bool operator==(ProjectChunkId first, ProjectPartId second)
+    {
+        return first.id == second;
+    }
+
+    friend bool operator==(ProjectPartId first, ProjectChunkId second)
+    {
+        return first == second.id;
+    }
+
+    friend bool operator!=(ProjectChunkId first, ProjectChunkId second)
+    {
+        return !(first == second);
+    }
+
+    friend bool operator<(ProjectChunkId first, ProjectChunkId second)
+    {
+        return std::tie(first.id, first.sourceType) < std::tie(second.id, second.sourceType);
+    }
+
+    friend bool operator<(ProjectChunkId first, ProjectPartId second) { return first.id < second; }
+
+    friend bool operator<(ProjectPartId first, ProjectChunkId second) { return first < second.id; }
+};
 
 class IdPaths
 {
 public:
-    ProjectPartId id;
+    ProjectChunkId id;
     FilePathIds filePathIds;
 
-    friend bool operator==(const IdPaths &first, const IdPaths &second)
+    friend bool operator==(IdPaths first, IdPaths second)
     {
         return first.id == second.id && first.filePathIds == second.filePathIds;
     }
 };
+
+using ProjectChunkIds = std::vector<ProjectChunkId>;
 
 } // namespace ClangBackEnd

@@ -147,11 +147,9 @@ class RequestAnnotationsMessage;
 class RequestFollowSymbolMessage;
 class RequestReferencesMessage;
 class RequestToolTipMessage;
-class RequestSourceLocationsForRenamingMessage;
 class RequestSourceRangesAndDiagnosticsForQueryMessage;
 class RequestSourceRangesForQueryMessage;
 class SourceLocationContainer;
-class SourceLocationsForRenamingMessage;
 class SourceRangeContainer;
 class SourceRangesAndDiagnosticsForQueryMessage;
 class SourceRangesContainer;
@@ -200,6 +198,8 @@ struct ArgumentsEntry;
 class ProjectPartContainer;
 class ProjectPartId;
 class PchPaths;
+class ProjectChunkId;
+class DirectoryPathId;
 
 std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
@@ -239,11 +239,10 @@ std::ostream &operator<<(std::ostream &out, const RequestFollowSymbolMessage &me
 std::ostream &operator<<(std::ostream &out, const RequestReferencesMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestToolTipMessage &message);
 std::ostream &operator<<(std::ostream &out, const ToolTipInfo &info);
-std::ostream &operator<<(std::ostream &out, const RequestSourceLocationsForRenamingMessage &message);
-std::ostream &operator<<(std::ostream &out, const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
+std::ostream &operator<<(std::ostream &out,
+                         const RequestSourceRangesAndDiagnosticsForQueryMessage &message);
 std::ostream &operator<<(std::ostream &out, const RequestSourceRangesForQueryMessage &message);
 std::ostream &operator<<(std::ostream &out, const SourceLocationContainer &container);
-std::ostream &operator<<(std::ostream &out, const SourceLocationsForRenamingMessage &message);
 std::ostream &operator<<(std::ostream &out, const SourceRangeContainer &container);
 std::ostream &operator<<(std::ostream &out, const SourceRangesAndDiagnosticsForQueryMessage &message);
 std::ostream &operator<<(std::ostream &out, const SourceRangesContainer &container);
@@ -293,6 +292,8 @@ std::ostream &operator<<(std::ostream &out, const ArgumentsEntry &entry);
 std::ostream &operator<<(std::ostream &out, const ProjectPartContainer &container);
 std::ostream &operator<<(std::ostream &out, const ProjectPartId &projectPathId);
 std::ostream &operator<<(std::ostream &out, const PchPaths &pchPaths);
+std::ostream &operator<<(std::ostream &out, const ProjectChunkId &chunk);
+std::ostream &operator<<(std::ostream &out, const DirectoryPathId &id);
 
 void PrintTo(const FilePath &filePath, ::std::ostream *os);
 void PrintTo(const FilePathView &filePathView, ::std::ostream *os);

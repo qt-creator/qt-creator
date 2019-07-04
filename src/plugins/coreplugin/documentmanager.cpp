@@ -43,6 +43,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/globalfilechangeblocker.h>
 #include <utils/hostosinfo.h>
@@ -743,7 +744,7 @@ QString DocumentManager::allDocumentFactoryFiltersString(QString *allFilesFilter
         }
     }
 
-    QStringList filters = uniqueFilters.toList();
+    QStringList filters = Utils::toList(uniqueFilters);
     filters.sort();
     const QString allFiles = Utils::allFilesFilterString();
     if (allFilesFilter)

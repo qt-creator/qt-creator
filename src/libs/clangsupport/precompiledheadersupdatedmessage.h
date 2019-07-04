@@ -26,6 +26,7 @@
 #pragma once
 
 #include "clangsupport_global.h"
+#include "filepathid.h"
 #include "projectpartid.h"
 
 #include <utils/smallstringio.h>
@@ -37,6 +38,7 @@ class PrecompiledHeadersUpdatedMessage
 public:
     PrecompiledHeadersUpdatedMessage() = default;
     PrecompiledHeadersUpdatedMessage(ProjectPartId projectPartId)
+
     {
         projectPartIds.push_back(projectPartId);
     }

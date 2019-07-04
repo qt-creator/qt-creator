@@ -24,16 +24,18 @@
 ****************************************************************************/
 
 #include "synchronousprocess.h"
-#include "qtcassert.h"
+#include "executeondestruction.h"
 #include "hostosinfo.h"
-#include "fileutils.h"
+#include "qtcassert.h"
+#include "qtcprocess.h"
 
 #include <QDebug>
-#include <QTimer>
-#include <QTextCodec>
 #include <QDir>
+#include <QLoggingCategory>
 #include <QMessageBox>
+#include <QTextCodec>
 #include <QThread>
+#include <QTimer>
 
 #include <QApplication>
 
@@ -81,6 +83,8 @@ enum { syncDebug = 0 };
 enum { defaultMaxHangTimerCount = 10 };
 
 namespace Utils {
+
+Q_LOGGING_CATEGORY(processLog, "qtc.utils.synchronousprocess", QtWarningMsg);
 
 // A special QProcess derivative allowing for terminal control.
 class TerminalControllingProcess : public QProcess {
@@ -445,8 +449,10 @@ static bool isGuiThread()
 SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
                                                    const QByteArray &writeData)
 {
-    if (debug)
-        qDebug() << '>' << Q_FUNC_INFO << cmd.toUserOutput();
+    qCDebug(processLog).noquote() << "Starting:" << cmd.toUserOutput();
+    ExecuteOnDestruction logResult([this] {
+        qCDebug(processLog) << d->m_result;
+    });
 
     d->clearForRun();
 
@@ -492,13 +498,16 @@ SynchronousProcessResponse SynchronousProcess::run(const CommandLine &cmd,
             QApplication::restoreOverrideCursor();
     }
 
-    if (debug)
-        qDebug() << '<' << Q_FUNC_INFO << cmd.executable().toString() << d->m_result;
     return  d->m_result;
 }
 
 SynchronousProcessResponse SynchronousProcess::runBlocking(const CommandLine &cmd)
 {
+    qCDebug(processLog).noquote() << "Starting blocking:" << cmd.toUserOutput();
+    ExecuteOnDestruction logResult([this] {
+        qCDebug(processLog) << d->m_result;
+    });
+
     d->clearForRun();
 
     // On Windows, start failure is triggered immediately if the

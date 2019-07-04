@@ -55,7 +55,7 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel
 
 void SelectableFilesModel::setInitialMarkedFiles(const Utils::FilePathList &files)
 {
-    m_files = files.toSet();
+    m_files = Utils::toSet(files);
     m_allFiles = files.isEmpty();
 }
 
@@ -320,14 +320,14 @@ void SelectableFilesModel::collectPaths(Tree *root, Utils::FilePathList *result)
 
 Utils::FilePathList SelectableFilesModel::selectedFiles() const
 {
-    Utils::FilePathList result = m_outOfBaseDirFiles.toList();
+    Utils::FilePathList result = Utils::toList(m_outOfBaseDirFiles);
     collectFiles(m_root, &result);
     return result;
 }
 
 Utils::FilePathList SelectableFilesModel::preservedFiles() const
 {
-    return m_outOfBaseDirFiles.toList();
+    return Utils::toList(m_outOfBaseDirFiles);
 }
 
 bool SelectableFilesModel::hasCheckedFiles() const

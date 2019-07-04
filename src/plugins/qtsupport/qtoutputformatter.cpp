@@ -242,7 +242,11 @@ void QtOutputFormatter::handleLink(const QString &href)
         const QRegularExpressionMatch qmlLineMatch = qmlLineLink.match(href);
 
         if (qmlLineMatch.hasMatch()) {
-            const QUrl fileUrl = QUrl(qmlLineMatch.captured(1));
+            const char scheme[] = "file://";
+            const QString filePath = qmlLineMatch.captured(1);
+            QUrl fileUrl = QUrl(filePath);
+            if (!fileUrl.isValid() && filePath.startsWith(scheme))
+                fileUrl = QUrl::fromLocalFile(filePath.mid(strlen(scheme)));
             const int line = qmlLineMatch.captured(2).toInt();
             openEditor(getFileToOpen(fileUrl), line);
             return;
@@ -418,15 +422,27 @@ void QtSupportPlugin::testQtOutputFormatter_data()
             << "   Loc: [../TestProject/test.cpp(123)]"
             << 9 << 37 << "../TestProject/test.cpp(123)"
             << "../TestProject/test.cpp" << 123 << -1;
+
+    QTest::newRow("Unix relative file link")
+            << "file://../main.cpp:157"
+            << 0 << 22 << "file://../main.cpp:157"
+            << "../main.cpp" << 157 << -1;
+
     if (HostOsInfo::isWindowsHost()) {
         QTest::newRow("Windows failed QTest link")
                 << "..\\TestProject\\test.cpp(123) : failure location"
                 << 0 << 28 << "..\\TestProject\\test.cpp(123)"
                 << "../TestProject/test.cpp" << 123 << -1;
+
         QTest::newRow("Windows failed QTest link with carriage return")
                 << "..\\TestProject\\test.cpp(123) : failure location\r"
                 << 0 << 28 << "..\\TestProject\\test.cpp(123)"
                 << "../TestProject/test.cpp" << 123 << -1;
+
+        QTest::newRow("Windows relative file link with native separator")
+                << "file://..\\main.cpp:157"
+                << 0 << 22 << "file://..\\main.cpp:157"
+                << "../main.cpp" << 157 << -1;
     }
 }
 

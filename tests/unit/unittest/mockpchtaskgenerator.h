@@ -35,11 +35,20 @@ public:
     MOCK_METHOD2(addProjectParts,
                  void(const ClangBackEnd::ProjectPartContainers &projectParts,
                       const Utils::SmallStringVector &toolChainArguments));
+    MOCK_METHOD2(addNonSystemProjectParts,
+                 void(const ClangBackEnd::ProjectPartContainers &projectParts,
+                      const Utils::SmallStringVector &toolChainArguments));
     MOCK_METHOD1(removeProjectParts, void(const ClangBackEnd::ProjectPartIds &projectsPartIds));
 
     void addProjectParts(ClangBackEnd::ProjectPartContainers &&projectParts,
                          Utils::SmallStringVector &&toolChainArguments) override
     {
         addProjectParts(projectParts, toolChainArguments);
+    }
+
+    void addNonSystemProjectParts(ClangBackEnd::ProjectPartContainers &&projectParts,
+                                  Utils::SmallStringVector &&toolChainArguments) override
+    {
+        addNonSystemProjectParts(projectParts, toolChainArguments);
     }
 };

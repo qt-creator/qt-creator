@@ -339,7 +339,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
         {
             CMakeConfigItem paths;
             paths.key = "ANDROID_SO_LIBS_PATHS";
-            paths.values = res.toList();
+            paths.values = Utils::toList(res);
             patchedConfig.append(paths);
         }
 

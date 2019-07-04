@@ -266,11 +266,12 @@ public:
 class QMAKEPROJECTMANAGER_EXPORT InstallsItem {
 public:
     InstallsItem() = default;
-    InstallsItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a)
-        : path(p), files(f), active(a) {}
+    InstallsItem(QString p, QVector<ProFileEvaluator::SourceFile> f, bool a, bool e)
+        : path(p), files(f), active(a), executable(e) {}
     QString path;
     QVector<ProFileEvaluator::SourceFile> files;
     bool active = false;
+    bool executable = false;
 };
 
 class QMAKEPROJECTMANAGER_EXPORT InstallsList {

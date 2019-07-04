@@ -634,7 +634,7 @@ static QList<ModelNode> collectParents(const QList<ModelNode> &modelNodes)
         }
     }
 
-    return parents.toList();
+    return Utils::toList(parents);
 }
 
 QList<QPersistentModelIndex> NavigatorTreeModel::nodesToPersistentIndex(const QList<ModelNode> &modelNodes)

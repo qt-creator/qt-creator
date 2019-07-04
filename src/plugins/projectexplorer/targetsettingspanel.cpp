@@ -95,8 +95,10 @@ protected:
 
     void keyPressEvent(QKeyEvent *event) override
     {
-        if (m_targetSetupPage && m_targetSetupPage->importLineEditHasFocus())
+        if ((m_targetSetupPage && m_targetSetupPage->importLineEditHasFocus())
+                || (m_configureButton && !m_configureButton->isEnabled())) {
             return;
+        }
         if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
             event->accept();
             if (m_targetSetupPage)

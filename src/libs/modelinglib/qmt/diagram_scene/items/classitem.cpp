@@ -52,6 +52,8 @@
 #include "qmt/tasks/diagramscenecontroller.h"
 #include "qmt/tasks/ielementtasks.h"
 
+#include <utils/algorithm.h>
+
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 #include <QGraphicsSimpleTextItem>
@@ -346,7 +348,7 @@ void ClassItem::relationDrawn(const QString &id, ObjectItem *targetItem, const Q
                                 { CustomRelation::Relationship::Aggregation, MAssociationEnd::Aggregation },
                                 { CustomRelation::Relationship::Composition, MAssociationEnd::Composition } };
                             diagramSceneController->modelController()->startUpdateRelation(mAssociation);
-                            mAssociation->setStereotypes(customRelation.stereotypes().toList());
+                            mAssociation->setStereotypes(Utils::toList(customRelation.stereotypes()));
                             mAssociation->setName(customRelation.name());
                             MAssociationEnd endA;
                             endA.setCardinality(customRelation.endA().cardinality());

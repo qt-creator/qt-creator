@@ -152,7 +152,7 @@ def verifyPreview(menuItems, comboItems):
     prev = "{name='MainWindow' type='QMainWindow' visible='1' windowTitle='MainWindow - [Preview]'}"
     invokeMenuItem("Tools", "Form Editor", "Preview...")
     # verify menu
-    menuBar = waitForObject("{name='menuBar' type='QMenuBar' visible='1' window=%s}" % prev)
+    menuBar = waitForObject("{name='menubar' type='QMenuBar' visible='1' window=%s}" % prev)
     menu = None
     activateItem(menuBar, "SquishTestFile")
     # known issue for Squish using Qt5 on Mac

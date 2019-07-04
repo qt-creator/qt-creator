@@ -32,6 +32,8 @@
 
 #include <coreplugin/helpmanager.h>
 
+#include <utils/algorithm.h>
+
 #include <QCoreApplication>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -99,7 +101,7 @@ void FilterSettingsPage::updateFilterPage()
     QSet<QString> attributes;
     filters = HelpManager::filters();
     for (it = filters.constBegin(); it != filters.constEnd(); ++it)
-        attributes += it.value().toSet();
+        attributes += Utils::toSet(it.value());
 
     foreach (const QString &attribute, attributes)
         new QTreeWidgetItem(m_ui.attributeWidget, QStringList(attribute));

@@ -197,7 +197,7 @@ void index(QFutureInterface<void> &indexingFuture,
     const int sourceCount = sources.size();
     QStringList files = sources + headers;
 
-    sourceProcessor->setTodo(files.toSet());
+    sourceProcessor->setTodo(Utils::toSet(files));
 
     const QString conf = CppModelManager::configurationFileName();
     bool processingHeaders = false;

@@ -97,7 +97,7 @@ public:
              }
             case Qt::ToolTipRole:
                 if (!toolChain->isValid())
-                    return ToolChainOptionsPage::tr("This toolchain is no longer valid.");
+                    return ToolChainOptionsPage::tr("This toolchain is invalid.");
                 return ToolChainOptionsPage::tr("<nobr><b>ABI:</b> %1").arg(
                     changed ? ToolChainOptionsPage::tr("not up-to-date")
                             : toolChain->targetAbi().toString());
@@ -190,7 +190,7 @@ public:
         m_addButton = new QPushButton(ToolChainOptionsPage::tr("Add"), this);
         auto addMenu = new QMenu;
         foreach (ToolChainFactory *factory, m_factories) {
-            QList<Core::Id> languages = factory->supportedLanguages().toList();
+            QList<Core::Id> languages = Utils::toList(factory->supportedLanguages());
             if (languages.isEmpty())
                 continue;
 

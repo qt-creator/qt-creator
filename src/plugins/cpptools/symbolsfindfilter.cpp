@@ -129,7 +129,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     QSet<QString> projectFileNames;
     if (parameters.scope == SymbolSearcher::SearchProjectsOnly) {
         for (ProjectExplorer::Project *project : ProjectExplorer::SessionManager::projects())
-            projectFileNames += Utils::transform(project->files(ProjectExplorer::Project::AllFiles), &Utils::FilePath::toString).toSet();
+            projectFileNames += Utils::transform<QSet>(project->files(ProjectExplorer::Project::AllFiles), &Utils::FilePath::toString);
     }
 
     auto watcher = new QFutureWatcher<SearchResultItem>;

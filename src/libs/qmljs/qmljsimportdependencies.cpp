@@ -27,6 +27,7 @@
 #include "qmljsinterpreter.h"
 #include "qmljsviewercontext.h"
 
+#include <utils/algorithm.h>
 #include <utils/qrcparser.h>
 #include <utils/qtcassert.h>
 
@@ -521,7 +522,7 @@ QByteArray DependencyInfo::calculateFingerprint(const ImportDependencies &deps)
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);
     rootImport.addToHash(hash);
-    QStringList coreImports = allCoreImports.toList();
+    QStringList coreImports = Utils::toList(allCoreImports);
     coreImports.sort();
     foreach (const QString importId, coreImports) {
         hash.addData(reinterpret_cast<const char*>(importId.constData()), importId.size() * sizeof(QChar));
@@ -529,9 +530,9 @@ QByteArray DependencyInfo::calculateFingerprint(const ImportDependencies &deps)
         hash.addData(coreImportFingerprint);
     }
     hash.addData("/", 1);
-    QList<ImportKey> imports(allImports.toList());
+    QList<ImportKey> imports = Utils::toList(allImports);
     std::sort(imports.begin(), imports.end());
-    foreach (const ImportKey &k, imports)
+    for (const ImportKey &k : qAsConst(imports))
         k.addToHash(hash);
     return hash.result();
 }

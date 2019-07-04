@@ -11,7 +11,6 @@ add_qtc_library(ClangSupport
     annotationsmessage.cpp annotationsmessage.h
     baseserverproxy.cpp baseserverproxy.h
     cancelmessage.cpp cancelmessage.h
-    changedfilepathcompressor.h
     clangcodemodelclientinterface.cpp clangcodemodelclientinterface.h
     clangcodemodelclientmessages.h
     clangcodemodelclientproxy.cpp clangcodemodelclientproxy.h
@@ -36,6 +35,8 @@ add_qtc_library(ClangSupport
     connectionclient.cpp connectionclient.h
     connectionserver.cpp connectionserver.h
     diagnosticcontainer.cpp diagnosticcontainer.h
+    directoryandfilepathid.h
+    directorypathid.h
     documentschangedmessage.cpp documentschangedmessage.h
     documentsclosedmessage.cpp documentsclosedmessage.h
     documentsopenedmessage.cpp documentsopenedmessage.h
@@ -61,6 +62,10 @@ add_qtc_library(ClangSupport
     filepathstoragesources.h
     filepathstoragesqlitestatementfactory.h
     filepathview.h
+    filestatus.h
+    filestatuscache.cpp filestatuscache.h
+    filesystem.cpp filesystem.h
+    filesysteminterface.h
     fixitcontainer.cpp fixitcontainer.h
     followsymbolmessage.cpp followsymbolmessage.h
     generatedfiles.cpp generatedfiles.h

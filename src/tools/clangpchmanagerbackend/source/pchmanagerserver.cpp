@@ -25,10 +25,11 @@
 
 #include "pchmanagerserver.h"
 
+#include <builddependenciesstorage.h>
 #include <pchmanagerclientinterface.h>
+#include <pchtaskgeneratorinterface.h>
 #include <precompiledheadersupdatedmessage.h>
 #include <progressmessage.h>
-#include <pchtaskgeneratorinterface.h>
 #include <removegeneratedfilesmessage.h>
 #include <removeprojectpartsmessage.h>
 #include <updategeneratedfilesmessage.h>
@@ -39,16 +40,20 @@
 
 #include <QApplication>
 
+#include <algorithm>
+
 namespace ClangBackEnd {
 
 PchManagerServer::PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
                                    PchTaskGeneratorInterface &pchTaskGenerator,
                                    ProjectPartsManagerInterface &projectParts,
-                                   GeneratedFilesInterface &generatedFiles)
+                                   GeneratedFilesInterface &generatedFiles,
+                                   BuildDependenciesStorageInterface &buildDependenciesStorage)
     : m_fileSystemWatcher(fileSystemWatcher)
     , m_pchTaskGenerator(pchTaskGenerator)
     , m_projectPartsManager(projectParts)
     , m_generatedFiles(generatedFiles)
+    , m_buildDependenciesStorage(buildDependenciesStorage)
 {
     m_fileSystemWatcher.setNotifier(this);
 }
@@ -130,18 +135,92 @@ void PchManagerServer::removeGeneratedFiles(RemoveGeneratedFilesMessage &&messag
     m_generatedFiles.remove(message.takeGeneratedFiles());
 }
 
-void PchManagerServer::pathsWithIdsChanged(const ProjectPartIds &ids)
+namespace {
+struct FilterResults
 {
-    ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(ids);
+    ProjectPartIds systemIds;
+    ProjectPartIds projectIds;
+    ProjectPartIds userIds;
+};
 
-    for (ArgumentsEntry &entry : entries) {
-        m_pchTaskGenerator.addProjectParts(m_projectPartsManager.projects(entry.ids),
-                                           std::move(entry.arguments));
-    }
+ProjectPartIds removeIds(const ProjectPartIds &subtrahend, const ProjectPartIds &minuend)
+{
+    ProjectPartIds difference;
+    difference.reserve(subtrahend.size());
+
+    std::set_difference(subtrahend.begin(),
+                        subtrahend.end(),
+                        minuend.begin(),
+                        minuend.end(),
+                        std::back_inserter(difference));
+
+    return difference;
 }
 
-void PchManagerServer::pathsChanged(const FilePathIds &/*filePathIds*/)
+FilterResults pchProjectPartIds(const std::vector<IdPaths> &idPaths)
 {
+    ProjectPartIds changedUserProjectPartIds;
+    changedUserProjectPartIds.reserve(idPaths.size());
+
+    ProjectPartIds changedSystemPchProjectPartIds;
+    changedSystemPchProjectPartIds.reserve(idPaths.size());
+
+    ProjectPartIds changedProjectPchProjectPartIds;
+    changedProjectPchProjectPartIds.reserve(idPaths.size());
+
+    for (const IdPaths &idPath : idPaths) {
+        switch (idPath.id.sourceType) {
+        case SourceType::TopSystemInclude:
+        case SourceType::SystemInclude:
+            changedSystemPchProjectPartIds.push_back(idPath.id.id);
+            break;
+        case SourceType::TopProjectInclude:
+        case SourceType::ProjectInclude:
+            changedProjectPchProjectPartIds.push_back(idPath.id.id);
+            break;
+        case SourceType::UserInclude:
+        case SourceType::Source:
+            changedUserProjectPartIds.push_back(idPath.id.id);
+            break;
+        }
+    }
+
+    changedSystemPchProjectPartIds.erase(std::unique(changedSystemPchProjectPartIds.begin(),
+                                                     changedSystemPchProjectPartIds.end()),
+                                         changedSystemPchProjectPartIds.end());
+    changedProjectPchProjectPartIds.erase(std::unique(changedProjectPchProjectPartIds.begin(),
+                                                      changedProjectPchProjectPartIds.end()),
+                                          changedProjectPchProjectPartIds.end());
+    changedUserProjectPartIds.erase(std::unique(changedUserProjectPartIds.begin(),
+                                                changedUserProjectPartIds.end()),
+                                    changedUserProjectPartIds.end());
+
+    changedProjectPchProjectPartIds = removeIds(changedProjectPchProjectPartIds,
+                                                changedSystemPchProjectPartIds);
+
+    changedUserProjectPartIds = removeIds(changedUserProjectPartIds, changedSystemPchProjectPartIds);
+    changedUserProjectPartIds = removeIds(changedUserProjectPartIds, changedProjectPchProjectPartIds);
+
+    return {std::move(changedSystemPchProjectPartIds),
+            std::move(changedProjectPchProjectPartIds),
+            std::move(changedUserProjectPartIds)};
+}
+} // namespace
+
+void PchManagerServer::pathsWithIdsChanged(const std::vector<IdPaths> &idPaths)
+{
+    auto changedProjectPartIds = pchProjectPartIds(idPaths);
+
+    addCompleteProjectParts(changedProjectPartIds.systemIds);
+
+    addNonSystemProjectParts(changedProjectPartIds.projectIds);
+
+    client()->precompiledHeadersUpdated(std::move(changedProjectPartIds.userIds));
+}
+
+void PchManagerServer::pathsChanged(const FilePathIds &filePathIds)
+{
+    m_buildDependenciesStorage.insertOrUpdateIndexingTimeStamps(filePathIds, 0);
 }
 
 void PchManagerServer::setPchCreationProgress(int progress, int total)
@@ -152,6 +231,26 @@ void PchManagerServer::setPchCreationProgress(int progress, int total)
 void PchManagerServer::setDependencyCreationProgress(int progress, int total)
 {
     client()->progress({ProgressType::DependencyCreation, progress, total});
+}
+
+void PchManagerServer::addCompleteProjectParts(const ProjectPartIds &projectPartIds)
+{
+    ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(projectPartIds);
+
+    for (ArgumentsEntry &entry : entries) {
+        m_pchTaskGenerator.addProjectParts(m_projectPartsManager.projects(entry.ids),
+                                           std::move(entry.arguments));
+    }
+}
+
+void PchManagerServer::addNonSystemProjectParts(const ProjectPartIds &projectPartIds)
+{
+    ArgumentsEntries entries = m_toolChainsArgumentsCache.arguments(projectPartIds);
+
+    for (ArgumentsEntry &entry : entries) {
+        m_pchTaskGenerator.addNonSystemProjectParts(m_projectPartsManager.projects(entry.ids),
+                                                    std::move(entry.arguments));
+    }
 }
 
 } // namespace ClangBackEnd

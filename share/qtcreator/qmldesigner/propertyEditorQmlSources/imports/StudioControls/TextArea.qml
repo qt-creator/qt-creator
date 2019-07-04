@@ -38,9 +38,9 @@ TextField {
 
     T.Popup {
         id: popup
-        x: relativePopupX
+        x: myTextField.relativePopupX
         y: myTextField.height - StudioTheme.Values.border
-        width: popupWidth
+        width: myTextField.popupWidth
         height: scrollView.height
         background: Rectangle {
             color: StudioTheme.Values.themeFocusEdit
@@ -128,12 +128,8 @@ TextField {
     }
 
     Keys.onPressed: {
-        if (event.key === Qt.Key_Escape) {
-            if (popup.opened)
-                popup.close()
-            else
-                myTextField.focus = false
-        }
+        if (event.key === Qt.Key_Escape)
+            popup.opened ? popup.close() : myTextField.focus = false
 
         if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
                 && !popup.opened) {

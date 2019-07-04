@@ -39,6 +39,7 @@ namespace ClangBackEnd {
 
 class SourceRangesAndDiagnosticsForQueryMessage;
 class PchTaskGeneratorInterface;
+class BuildDependenciesStorageInterface;
 
 class PchManagerServer : public PchManagerServerInterface,
                          public ClangPathWatcherNotifier,
@@ -49,7 +50,8 @@ public:
     PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
                      PchTaskGeneratorInterface &pchTaskGenerator,
                      ProjectPartsManagerInterface &projectParts,
-                     GeneratedFilesInterface &generatedFiles);
+                     GeneratedFilesInterface &generatedFiles,
+                     BuildDependenciesStorageInterface &buildDependenciesStorage);
 
     void end() override;
     void updateProjectParts(UpdateProjectPartsMessage &&message) override;
@@ -57,17 +59,22 @@ public:
     void updateGeneratedFiles(UpdateGeneratedFilesMessage &&message) override;
     void removeGeneratedFiles(RemoveGeneratedFilesMessage &&message) override;
 
-    void pathsWithIdsChanged(const ProjectPartIds &ids) override;
+    void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) override;
     void pathsChanged(const FilePathIds &filePathIds) override;
 
     void setPchCreationProgress(int progress, int total);
     void setDependencyCreationProgress(int progress, int total);
 
 private:
+    void addCompleteProjectParts(const ProjectPartIds &projectPartIds);
+    void addNonSystemProjectParts(const ProjectPartIds &projectPartIds);
+
+private:
     ClangPathWatcherInterface &m_fileSystemWatcher;
     PchTaskGeneratorInterface &m_pchTaskGenerator;
     ProjectPartsManagerInterface &m_projectPartsManager;
     GeneratedFilesInterface &m_generatedFiles;
+    BuildDependenciesStorageInterface &m_buildDependenciesStorage;
     ToolChainsArgumentsCache m_toolChainsArgumentsCache;
 };
 

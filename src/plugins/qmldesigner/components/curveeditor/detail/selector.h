@@ -70,8 +70,6 @@ private:
 
     Shortcut m_shortcut;
 
-    SelectionMode m_mode = SelectionMode::Undefined;
-
     SelectionTool m_tool = SelectionTool::Rectangle;
 
     QPoint m_mouseInit = QPoint();

@@ -48,8 +48,11 @@ using ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathId;
 using ClangBackEnd::FilePathIds;
 using ClangBackEnd::FilePathView;
+using ClangBackEnd::IdPaths;
+using ClangBackEnd::ProjectChunkId;
 using ClangBackEnd::ProjectPartId;
 using ClangBackEnd::ProjectPartIds;
+using ClangBackEnd::SourceType;
 using ClangBackEnd::WatcherEntries;
 using ClangBackEnd::WatcherEntry;
 
@@ -111,9 +114,9 @@ protected:
     NiceMock<MockFileSystem> mockFileSystem;
     Watcher watcher{mockFilePathCache, mockFileSystem, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
-    ProjectPartId id1{2};
-    ProjectPartId id2{3};
-    ProjectPartId id3{4};
+    ProjectChunkId id1{2, SourceType::ProjectInclude};
+    ProjectChunkId id2{2, SourceType::Source};
+    ProjectChunkId id3{4, SourceType::SystemInclude};
     FilePathView path1{"/path/path1"};
     FilePathView path2{"/path/path2"};
     FilePathView path3{"/path2/path1"};
@@ -128,14 +131,15 @@ protected:
     Utils::PathString directoryPathString2 = directoryPath2;
     FilePathIds pathIds = {1, 2, 3, 4, 5};
     ClangBackEnd::DirectoryPathIds directoryPaths = {1, 2, 3};
-    ClangBackEnd::ProjectPartIds ids{id1, id2, id3};
-    WatcherEntry watcherEntry1{ids[0], directoryPaths[0], pathIds[0]};
-    WatcherEntry watcherEntry2{ids[1], directoryPaths[0], pathIds[0]};
-    WatcherEntry watcherEntry3{ids[0], directoryPaths[0], pathIds[1]};
-    WatcherEntry watcherEntry4{ids[1], directoryPaths[0], pathIds[1]};
-    WatcherEntry watcherEntry5{ids[2], directoryPaths[0], pathIds[1]};
-    WatcherEntry watcherEntry6{ids[0], directoryPaths[1], pathIds[2]};
-    WatcherEntry watcherEntry7{ids[1], directoryPaths[1], pathIds[3]};
+    ClangBackEnd::ProjectChunkIds ids{id1, id2, id3};
+    WatcherEntry watcherEntry1{id1, directoryPaths[0], pathIds[0]};
+    WatcherEntry watcherEntry2{id2, directoryPaths[0], pathIds[0]};
+    WatcherEntry watcherEntry3{id1, directoryPaths[0], pathIds[1]};
+    WatcherEntry watcherEntry4{id2, directoryPaths[0], pathIds[1]};
+    WatcherEntry watcherEntry5{id3, directoryPaths[0], pathIds[1]};
+    WatcherEntry watcherEntry6{id1, directoryPaths[1], pathIds[2]};
+    WatcherEntry watcherEntry7{id2, directoryPaths[1], pathIds[3]};
+    WatcherEntry watcherEntry8{id3, directoryPaths[1], pathIds[3]};
 };
 
 TEST_F(ClangPathWatcher, AddIdPaths)
@@ -260,12 +264,13 @@ TEST_F(ClangPathWatcher, DontAddNewEntriesWithDifferentIdAndSamePaths)
 
 TEST_F(ClangPathWatcher, RemoveEntriesWithId)
 {
-    watcher.updateIdPaths(
-        {{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1]}}, {id3, {pathIds[1]}}});
+    watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1]}},
+                           {id2, {pathIds[0], pathIds[1]}},
+                           {id3, {pathIds[1], pathIds[3]}}});
 
-    watcher.removeIds({id1});
+    watcher.removeIds({2});
 
-    ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry2, watcherEntry4, watcherEntry5));
+    ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry5, watcherEntry8));
 }
 
 TEST_F(ClangPathWatcher, RemoveNoPathsForEmptyIds)
@@ -284,28 +289,28 @@ TEST_F(ClangPathWatcher, RemoveNoPathsForOneId)
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(_))
             .Times(0);
 
-    watcher.removeIds({id3});
+    watcher.removeIds({id3.id});
 }
 
 TEST_F(ClangPathWatcher, RemovePathForOneId)
 {
     watcher.updateIdPaths(
-        {{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
+        {{id1, {pathIds[0], pathIds[1]}}, {id3, {pathIds[0], pathIds[1], pathIds[3]}}});
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath2)));
 
-    watcher.removeIds({id2});
+    watcher.removeIds({id3.id});
 }
 
 TEST_F(ClangPathWatcher, RemoveNoPathSecondTime)
 {
     watcher.updateIdPaths(
         {{id1, {pathIds[0], pathIds[1]}}, {id2, {pathIds[0], pathIds[1], pathIds[3]}}});
-    watcher.removeIds({id2});
+    watcher.removeIds({id2.id});
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(_)).Times(0);
 
-    watcher.removeIds({id2});
+    watcher.removeIds({id2.id});
 }
 
 TEST_F(ClangPathWatcher, RemoveAllPathsForThreeId)
@@ -315,7 +320,7 @@ TEST_F(ClangPathWatcher, RemoveAllPathsForThreeId)
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath, directoryPath2)));
 
-    watcher.removeIds({id1, id2, id3});
+    watcher.removeIds({id1.id, id2.id, id3.id});
 }
 
 TEST_F(ClangPathWatcher, RemoveOnePathForTwoId)
@@ -325,7 +330,7 @@ TEST_F(ClangPathWatcher, RemoveOnePathForTwoId)
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath)));
 
-    watcher.removeIds({id1, id2});
+    watcher.removeIds({id1.id, id2.id});
 }
 
 TEST_F(ClangPathWatcher, NotAnymoreWatchedEntriesWithId)
@@ -349,13 +354,14 @@ TEST_F(ClangPathWatcher, RemoveUnusedEntries)
 TEST_F(ClangPathWatcher, TwoNotifyFileChanges)
 {
     watcher.updateIdPaths({{id1, {pathIds[0], pathIds[1], pathIds[2]}},
-                           {id2, {pathIds[0], pathIds[1], pathIds[3]}},
+                           {id2, {pathIds[0], pathIds[1], pathIds[2], pathIds[3], pathIds[4]}},
                            {id3, {pathIds[4]}}});
     ON_CALL(mockFileSystem, lastModified(Eq(pathIds[0]))).WillByDefault(Return(2));
     ON_CALL(mockFileSystem, lastModified(Eq(pathIds[1]))).WillByDefault(Return(2));
     ON_CALL(mockFileSystem, lastModified(Eq(pathIds[3]))).WillByDefault(Return(2));
 
-    EXPECT_CALL(notifier, pathsWithIdsChanged(ElementsAre(id1, id2)));
+    EXPECT_CALL(notifier,
+                pathsWithIdsChanged(ElementsAre(IdPaths{id1, {1, 2}}, IdPaths{id2, {1, 2, 4}})));
 
     mockQFileSytemWatcher.directoryChanged(directoryPath);
     mockQFileSytemWatcher.directoryChanged(directoryPath2);

@@ -90,28 +90,6 @@ TEST_F(RefactoringClientServerInProcess, SendAliveMessage)
     scheduleClientMessages();
 }
 
-TEST_F(RefactoringClientServerInProcess, SendSourceLocationsForRenamingMessage)
-{
-    ClangBackEnd::SourceLocationsContainer container;
-    ClangBackEnd::SourceLocationsForRenamingMessage message("symbolName", std::move(container), 1);
-
-    EXPECT_CALL(mockRefactoringClient, sourceLocationsForRenamingMessage(message));
-
-    clientProxy.sourceLocationsForRenamingMessage(message.clone());
-    scheduleClientMessages();
-}
-
-TEST_F(RefactoringClientServerInProcess, SendRequestSourceLocationsForRenamingMessage)
-{
-    RequestSourceLocationsForRenamingMessage message{
-        {TESTDATA_DIR, "renamevariable.cpp"}, 1, 5, "int v;\n\nint x = v + 3;\n", {"cc"}, 1};
-
-    EXPECT_CALL(mockRefactoringServer, requestSourceLocationsForRenamingMessage(message));
-
-    serverProxy.requestSourceLocationsForRenamingMessage(message.clone());
-    scheduleServerMessages();
-}
-
 TEST_F(RefactoringClientServerInProcess, SourceRangesAndDiagnosticsForQueryMessage)
 {
     ClangBackEnd::SourceRangesContainer sourceRangesContainer;

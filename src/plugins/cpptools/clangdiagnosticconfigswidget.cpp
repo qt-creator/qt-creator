@@ -381,7 +381,7 @@ private:
 
             levelNode->childDirectories.append(checkNode);
 
-            m_topics.unite(check.topics.toSet());
+            m_topics.unite(Utils::toSet(check.topics));
         }
     }
 
@@ -1003,7 +1003,7 @@ void ClangDiagnosticConfigsWidget::setupTabs()
     setupTreeView(m_clazyChecks->checksView, m_clazySortFilterProxyModel, 2);
     m_clazyChecks->checksView->setSortingEnabled(true);
     m_clazyChecks->checksView->sortByColumn(0, Qt::AscendingOrder);
-    auto topicsModel = new QStringListModel(m_clazyTreeModel->topics().toList(), this);
+    auto topicsModel = new QStringListModel(Utils::toList(m_clazyTreeModel->topics()), this);
     topicsModel->sort(0);
     m_clazyChecks->topicsView->setModel(topicsModel);
     connect(m_clazyChecks->topicsResetButton, &QPushButton::clicked, [this](){

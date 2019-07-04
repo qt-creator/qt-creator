@@ -1,4 +1,4 @@
-; /****************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -57,7 +57,7 @@ void set_greedy_intersection_call(
 class WatcherEntry
 {
 public:
-    ProjectPartId id;
+    ProjectChunkId id;
     DirectoryPathId directoryPathId;
     FilePathId filePathId;
     long long lastModified = -1;
@@ -98,9 +98,9 @@ public:
     ClangPathWatcher(FilePathCachingInterface &pathCache,
                      FileSystemInterface &fileSystem,
                      ClangPathWatcherNotifier *notifier = nullptr)
-        : m_pathCache(pathCache)
-        , m_fileStatusCache(fileSystem)
+        : m_fileStatusCache(fileSystem)
         , m_fileSystem(fileSystem)
+        , m_pathCache(pathCache)
         , m_notifier(notifier)
     {
         QObject::connect(&m_fileSystemWatcher,
@@ -140,25 +140,6 @@ public:
         m_notifier = notifier;
     }
 
-    static std::vector<uint> idsFromIdPaths(const std::vector<IdPaths> &idPaths)
-    {
-        std::vector<uint> ids;
-        ids.reserve(idPaths.size());
-
-        auto extractId = [] (const IdPaths &idPath) {
-            return idPath.id;
-        };
-
-        std::transform(idPaths.begin(),
-                       idPaths.end(),
-                       std::back_inserter(ids),
-                       extractId);
-
-        std::sort(ids.begin(), ids.end());
-
-        return ids;
-    }
-
     std::size_t sizeOfIdPaths(const std::vector<IdPaths> &idPaths)
     {
         auto sumSize = [] (std::size_t size, const IdPaths &idPath) {
@@ -168,19 +149,19 @@ public:
         return std::accumulate(idPaths.begin(), idPaths.end(), std::size_t(0), sumSize);
     }
 
-    std::pair<WatcherEntries, ProjectPartIds> convertIdPathsToWatcherEntriesAndIds(
+    std::pair<WatcherEntries, ProjectChunkIds> convertIdPathsToWatcherEntriesAndIds(
         const std::vector<IdPaths> &idPaths)
     {
         WatcherEntries entries;
         entries.reserve(sizeOfIdPaths(idPaths));
-        ProjectPartIds ids;
+        ProjectChunkIds ids;
         ids.reserve(ids.size());
 
         auto outputIterator = std::back_inserter(entries);
 
         for (const IdPaths &idPath : idPaths)
         {
-            ProjectPartId id = idPath.id;
+            ProjectChunkId id = idPath.id;
 
             ids.push_back(id);
 
@@ -214,7 +195,7 @@ public:
             m_fileSystemWatcher.addPaths(convertWatcherEntriesToDirectoryPathList(filteredPaths));
     }
 
-    void removeUnusedEntries(const WatcherEntries &entries, const ProjectPartIds &ids)
+    void removeUnusedEntries(const WatcherEntries &entries, const ProjectChunkIds &ids)
     {
         auto oldEntries = notAnymoreWatchedEntriesWithIds(entries, ids);
 
@@ -294,7 +275,7 @@ public:
     }
 
     WatcherEntries notAnymoreWatchedEntriesWithIds(const WatcherEntries &newEntries,
-                                                   const ProjectPartIds &ids) const
+                                                   const ProjectChunkIds &ids) const
     {
         auto oldEntries = notAnymoreWatchedEntries(newEntries, std::less<WatcherEntry>());
 
@@ -420,25 +401,22 @@ public:
         return filePathIds;
     }
 
-    ProjectPartIds idsForWatcherEntries(const WatcherEntries &foundEntries)
+    std::vector<IdPaths> idPathsForWatcherEntries(WatcherEntries &&foundEntries)
     {
-        ProjectPartIds ids;
-        ids.reserve(foundEntries.size());
+        std::sort(foundEntries.begin(), foundEntries.end(), [](WatcherEntry first, WatcherEntry second) {
+            return std::tie(first.id, first.filePathId) < std::tie(second.id, second.filePathId);
+        });
 
-        std::transform(foundEntries.begin(),
-                       foundEntries.end(),
-                       std::back_inserter(ids),
-                       [&](WatcherEntry entry) { return entry.id; });
+        std::vector<IdPaths> idPaths;
+        idPaths.reserve(foundEntries.size());
 
-        return ids;
-    }
+        for (WatcherEntry entry : foundEntries) {
+            if (idPaths.empty() || idPaths.back().id != entry.id)
+                idPaths.push_back({entry.id, {}});
+            idPaths.back().filePathIds.push_back(entry.filePathId);
+        }
 
-    ProjectPartIds uniqueIds(ProjectPartIds &&ids)
-    {
-        std::sort(ids.begin(), ids.end());
-        ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
-
-        return std::move(ids);
+        return idPaths;
     }
 
     void addChangedPathForFilePath(DirectoryPathIds &&directoryPathIds)
@@ -446,10 +424,12 @@ public:
         if (m_notifier) {
             WatcherEntries foundEntries = watchedEntriesForPaths(std::move(directoryPathIds));
 
-            ProjectPartIds changedIds = idsForWatcherEntries(foundEntries);
+            FilePathIds watchedFilePathIds = watchedPaths(foundEntries);
 
-            m_notifier->pathsWithIdsChanged(uniqueIds(std::move(changedIds)));
-            m_notifier->pathsChanged(watchedPaths(foundEntries));
+            std::vector<IdPaths> changedIdPaths = idPathsForWatcherEntries(std::move(foundEntries));
+
+            m_notifier->pathsChanged(watchedFilePathIds);
+            m_notifier->pathsWithIdsChanged(changedIdPaths);
         }
     }
 

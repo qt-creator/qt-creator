@@ -42,6 +42,8 @@
 #include "qmt/tasks/diagramscenecontroller.h"
 
 #include <projectexplorer/projectnodes.h>
+
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -154,7 +156,7 @@ void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int
         auto menu = new QMenu;
         menu->addAction(new MenuAction(tr("Add Component %1").arg(elementName), elementName,
                                        MenuAction::TYPE_ADD_COMPONENT, menu));
-        QStringList classNames = d->classViewController->findClassDeclarations(filePath, line, column).toList();
+        QStringList classNames = Utils::toList(d->classViewController->findClassDeclarations(filePath, line, column));
         if (!classNames.empty()) {
             menu->addSeparator();
             int index = 0;

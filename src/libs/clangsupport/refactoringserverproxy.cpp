@@ -50,11 +50,6 @@ void RefactoringServerProxy::end()
     m_writeMessageBlock.write(EndMessage());
 }
 
-void RefactoringServerProxy::requestSourceLocationsForRenamingMessage(RequestSourceLocationsForRenamingMessage &&message)
-{
-    m_writeMessageBlock.write(message);
-}
-
 void RefactoringServerProxy::requestSourceRangesAndDiagnosticsForQueryMessage(RequestSourceRangesAndDiagnosticsForQueryMessage &&message)
 {
     m_writeMessageBlock.write(message);

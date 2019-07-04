@@ -37,17 +37,21 @@
 
 #include <aggregation/aggregate.h>
 #include <cpptools/cppmodelmanager.h>
+
+#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/completingtextedit.h>
-#include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
 #include <utils/icon.h>
-#include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 #include <utils/temporarydirectory.h>
-#include <coreplugin/find/basetextfind.h>
+#include <utils/theme/theme.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -459,7 +463,7 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
     // Populate completer with symbols
     if (!uniqueSymbols.isEmpty()) {
         QCompleter *completer = d->m_widget->descriptionEdit()->completer();
-        QStringList symbolsList = uniqueSymbols.toList();
+        QStringList symbolsList = Utils::toList(uniqueSymbols);
         symbolsList.sort();
         completer->setModel(new QStringListModel(symbolsList, completer));
     }

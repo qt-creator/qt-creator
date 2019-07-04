@@ -91,10 +91,10 @@ TextInput {
             }
         }
         onTranslationChanged: {
-            var curValue = myControl.value
+            var currValue = myControl.value
             myControl.value = initialValue + translation.x
 
-            if (curValue !== myControl.value)
+            if (currValue !== myControl.value)
                 myControl.valueModified()
         }
     }
@@ -128,10 +128,10 @@ TextInput {
             if (myControl.value !== val)
                 myControl.value = val
 
-            var curValue = myControl.value
+            var currValue = myControl.value
             myControl.value += wheel.angleDelta.y / 120
 
-            if (curValue !== myControl.value)
+            if (currValue !== myControl.value)
                 myControl.valueModified()
         }
     }

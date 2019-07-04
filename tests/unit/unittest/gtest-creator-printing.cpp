@@ -359,9 +359,8 @@ std::ostream &operator<<(std::ostream &out, const SourceLocationEntry &entry)
 
 std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
 {
-    out << "("
-        << entry.id << ", "
-        << entry.filePathId
+    out << "(" << entry.directoryPathId << ", " << entry.filePathId << ", " << entry.id << ", "
+        << entry.lastModified << ", "
         << ")";
 
     return out;
@@ -811,19 +810,6 @@ std::ostream &operator<<(std::ostream &out, const ToolTipInfo &info)
     return out;
 }
 
-std::ostream &operator<<(std::ostream &os, const RequestSourceLocationsForRenamingMessage &message)
-{
-    os << "("
-       << message.filePath << ", "
-       << message.line << ", "
-       << message.column << ", "
-       << message.unsavedContent << ", "
-       << message.commandLine
-       << ")";
-
-    return os;
-}
-
 std::ostream &operator<<(std::ostream &os, const RequestSourceRangesAndDiagnosticsForQueryMessage &message)
 {
     os << "("
@@ -850,17 +836,6 @@ std::ostream &operator<<(std::ostream &os, const SourceLocationContainer &contai
        << container.line << ", "
        << container.column
        << ")";
-
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const SourceLocationsForRenamingMessage &message)
-{
-    os << "("
-        << message.symbolName << ", "
-        << message.textDocumentRevision << ", "
-        << message.sourceLocations
-        << ")";
 
     return os;
 }
@@ -1290,6 +1265,17 @@ std::ostream &operator<<(std::ostream &out, const PchPaths &pchPaths)
 {
     return out << "(" << pchPaths.projectPchPath << ", " << pchPaths.systemPchPath << ")";
 }
+
+std::ostream &operator<<(std::ostream &out, const ProjectChunkId &chunk)
+{
+    return out << "(" << chunk.id << ", " << typeToString(chunk.sourceType) << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const DirectoryPathId &id)
+{
+    return out << id.directoryPathId;
+}
+
 void PrintTo(const FilePath &filePath, ::std::ostream *os)
 {
     *os << filePath;

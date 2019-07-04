@@ -100,6 +100,7 @@ Column {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
                     scope: "Qt"
+                    Layout.fillWidth: true
                 }
 
                 ExpandingSpacer {
@@ -117,6 +118,7 @@ Column {
                     model: ["NoSnap", "SnapToItem", "SnapOneItem"]
                     backendValue: backendValues.snapMode
                     scope: "ListView"
+                    Layout.fillWidth: true
                 }
 
                 ExpandingSpacer {

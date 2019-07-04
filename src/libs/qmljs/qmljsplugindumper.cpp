@@ -29,8 +29,8 @@
 
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsviewercontext.h>
-//#include <projectexplorer/session.h>
-//#include <coreplugin/messagemanager.h>
+
+#include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -437,7 +437,7 @@ void PluginDumper::loadDependencies(const QStringList &dependencies,
     }
     QStringList newDependencies;
     loadQmlTypeDescription(dependenciesPaths, errors, warnings, objects, 0, &newDependencies);
-    newDependencies = (newDependencies.toSet() - *visitedPtr).toList();
+    newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visitedPtr);
     if (!newDependencies.isEmpty())
         loadDependencies(newDependencies, errors, warnings, objects, visitedPtr.take());
 }

@@ -43,10 +43,10 @@ T.ScrollView {
     ScrollBar.vertical: ScrollBar {
         id: verticalScrollBar
         parent: control
-        x: control.width - width - StudioTheme.Values.border
+        x: control.width - verticalScrollBar.width - StudioTheme.Values.border
         y: StudioTheme.Values.border
-        height: control.availableHeight - 2 * StudioTheme.Values.border
-                - (bothVisible ? horizontalThickness : 0)
+        height: control.availableHeight - (2 * StudioTheme.Values.border)
+                - (control.bothVisible ? control.horizontalThickness : 0)
         active: control.ScrollBar.horizontal.active
     }
 
@@ -54,9 +54,9 @@ T.ScrollView {
         id: horizontalScrollBar
         parent: control
         x: StudioTheme.Values.border
-        y: control.height - height - StudioTheme.Values.border
-        width: control.availableWidth - 2 * StudioTheme.Values.border
-               - (bothVisible ? verticalThickness : 0)
+        y: control.height - horizontalScrollBar.height - StudioTheme.Values.border
+        width: control.availableWidth - (2 * StudioTheme.Values.border)
+               - (control.bothVisible ? control.verticalThickness : 0)
         active: control.ScrollBar.vertical.active
     }
 }

@@ -49,8 +49,6 @@ using testing::_;
 
 using CppTools::CompilerOptionsBuilder;
 
-using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
-
 using Utils::SmallString;
 using Utils::SmallStringVector;
 
@@ -89,33 +87,6 @@ protected:
     CppTools::ProjectPart::Ptr projectPart;
     CppTools::ProjectFile projectFile{qStringFilePath, CppTools::ProjectFile::CXXSource};
 };
-
-TEST_F(RefactoringEngine, SendRequestSourceLocationsForRenamingMessage)
-{
-    cursor.setPosition(11);
-    RequestSourceLocationsForRenamingMessage message(clangBackEndFilePath.clone(),
-                                                     2,
-                                                     5,
-                                                     fileContent,
-                                                     commandLine.clone(),
-                                                     1);
-
-    EXPECT_CALL(mockRefactoringServer, requestSourceLocationsForRenamingMessage(message))
-        .Times(1);
-
-    engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
-                              projectPart.data(), {});
-}
-
-TEST_F(RefactoringEngine, AfterSendRequestSourceLocationsForRenamingMessageIsUnusable)
-{
-    EXPECT_CALL(mockRefactoringServer, requestSourceLocationsForRenamingMessage(_));
-
-    engine.startLocalRenaming(CppTools::CursorInEditor{cursor, filePath},
-                              projectPart.data(), {});
-
-    ASSERT_FALSE(engine.isRefactoringEngineAvailable());
-}
 
 TEST_F(RefactoringEngine, ExpectSourceUsagesAtInFindUsages)
 {

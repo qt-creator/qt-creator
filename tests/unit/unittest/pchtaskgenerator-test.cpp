@@ -26,6 +26,7 @@
 #include "googletest.h"
 
 #include "mockbuilddependenciesprovider.h"
+#include "mockpchtaskqueue.h"
 #include "mockpchtasksmerger.h"
 
 #include <pchtaskgenerator.h>
@@ -52,11 +53,13 @@ class PchTaskGenerator : public testing::Test
 protected:
     NiceMock<MockBuildDependenciesProvider> mockBuildDependenciesProvider;
     NiceMock<MockPchTasksMerger> mockPchTaskMerger;
+    NiceMock<MockPchTaskQueue> mockPchTaskQueue;
     NiceMock<MockFunction<void(int, int)>> mockProgressCounterCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockProgressCounterCallback.AsStdFunction()};
     ClangBackEnd::PchTaskGenerator generator{mockBuildDependenciesProvider,
                                              mockPchTaskMerger,
-                                             progressCounter};
+                                             progressCounter,
+                                             mockPchTaskQueue};
     ClangBackEnd::ProjectPartContainer projectPart1{
         1,
         {"--yi"},
@@ -84,7 +87,8 @@ protected:
                                {2, SourceType::UserInclude, 1},
                                {3, SourceType::TopProjectInclude, 1},
                                {4, SourceType::SystemInclude, 1},
-                               {5, SourceType::TopSystemInclude, 1}};
+                               {5, SourceType::TopSystemInclude, 1},
+                               {6, SourceType::Source, 1}};
     UsedMacros usedMacros{{"LIANG", 0},{"YI", 1}, {"ER", 2}, {"SAN", 3}, {"SE", 4}, {"WU", 5}};
     BuildDependency buildDependency{firstSources, usedMacros, {}, {}, {}};
 };
@@ -100,7 +104,10 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                 Field(&PchTaskSet::system,
                       AllOf(Field(&PchTask::projectPartIds, ElementsAre(ProjectPartId{1})),
                             Field(&PchTask::includes, ElementsAre(5)),
-                            Field(&PchTask::sources, IsEmpty()),
+                            Field(&PchTask::watchedSystemIncludes, IsEmpty()),
+                            Field(&PchTask::watchedProjectIncludes, IsEmpty()),
+                            Field(&PchTask::watchedUserIncludes, IsEmpty()),
+                            Field(&PchTask::watchedUserSources, IsEmpty()),
                             Field(&PchTask::compilerMacros,
                                   ElementsAre(CompilerMacro{"SE", "4", 4}, CompilerMacro{"WU", "5", 5})),
                             Field(&PchTask::systemIncludeSearchPaths,
@@ -117,7 +124,10 @@ TEST_F(PchTaskGenerator, AddProjectParts)
                     &PchTaskSet::project,
                     AllOf(Field(&PchTask::projectPartIds, ElementsAre(ProjectPartId{1})),
                           Field(&PchTask::includes, ElementsAre(3)),
-                          Field(&PchTask::sources, ElementsAre(1, 3, 4, 5)),
+                          Field(&PchTask::watchedSystemIncludes, ElementsAre(4, 5)),
+                          Field(&PchTask::watchedProjectIncludes, ElementsAre(1, 3)),
+                          Field(&PchTask::watchedUserIncludes, ElementsAre(2)),
+                          Field(&PchTask::watchedUserSources, ElementsAre(6)),
                           Field(&PchTask::compilerMacros,
                                 ElementsAre(CompilerMacro{"YI", "1", 1}, CompilerMacro{"SAN", "3", 3})),
                           Field(&PchTask::systemIncludeSearchPaths,
@@ -136,6 +146,36 @@ TEST_F(PchTaskGenerator, AddProjectParts)
             ElementsAre(Eq("ToolChainArgument"))));
 
     generator.addProjectParts({projectPart1}, {"ToolChainArgument"});
+}
+
+TEST_F(PchTaskGenerator, AddNonSystemProjectParts)
+{
+    ON_CALL(mockBuildDependenciesProvider, create(_)).WillByDefault(Return(buildDependency));
+
+    EXPECT_CALL(
+        mockPchTaskQueue,
+        addProjectPchTasks(ElementsAre(AllOf(
+            Field(&PchTask::projectPartIds, ElementsAre(ProjectPartId{1})),
+            Field(&PchTask::includes, ElementsAre(3)),
+            Field(&PchTask::watchedSystemIncludes, ElementsAre(4, 5)),
+            Field(&PchTask::watchedProjectIncludes, ElementsAre(1, 3)),
+            Field(&PchTask::watchedUserIncludes, ElementsAre(2)),
+            Field(&PchTask::watchedUserSources, ElementsAre(6)),
+            Field(&PchTask::compilerMacros,
+                  ElementsAre(CompilerMacro{"YI", "1", 1}, CompilerMacro{"SAN", "3", 3})),
+            Field(&PchTask::systemIncludeSearchPaths,
+                  ElementsAre(IncludeSearchPath{"/system/path", 2, IncludeSearchPathType::System},
+                              IncludeSearchPath{"/builtin/path", 3, IncludeSearchPathType::BuiltIn},
+                              IncludeSearchPath{"/framework/path", 1, IncludeSearchPathType::System})),
+            Field(&PchTask::projectIncludeSearchPaths,
+                  ElementsAre(IncludeSearchPath{"/to/path1", 1, IncludeSearchPathType::User},
+                              IncludeSearchPath{"/to/path2", 2, IncludeSearchPathType::User})),
+            Field(&PchTask::toolChainArguments, ElementsAre("--yi")),
+            Field(&PchTask::language, Eq(Utils::Language::Cxx)),
+            Field(&PchTask::languageVersion, Eq(Utils::LanguageVersion::CXX11)),
+            Field(&PchTask::languageExtension, Eq(Utils::LanguageExtension::All))))));
+
+    generator.addNonSystemProjectParts({projectPart1}, {"ToolChainArgument"});
 }
 
 TEST_F(PchTaskGenerator, ProgressCounter)

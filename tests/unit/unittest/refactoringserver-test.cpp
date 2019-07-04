@@ -56,11 +56,9 @@ using testing::_;
 using ClangBackEnd::FilePath;
 using ClangBackEnd::IncludeSearchPaths;
 using ClangBackEnd::IncludeSearchPathType;
-using ClangBackEnd::RequestSourceLocationsForRenamingMessage;
 using ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage;
 using ClangBackEnd::RequestSourceRangesForQueryMessage;
 using ClangBackEnd::SourceLocationsContainer;
-using ClangBackEnd::SourceLocationsForRenamingMessage;
 using ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage;
 using ClangBackEnd::SourceRangesContainer;
 using ClangBackEnd::SourceRangesForQueryMessage;
@@ -108,23 +106,6 @@ protected:
 
 using RefactoringServerSlowTest = RefactoringServer;
 using RefactoringServerVerySlowTest = RefactoringServer;
-
-TEST_F(RefactoringServerSlowTest, RequestSourceLocationsForRenamingMessage)
-{
-    RequestSourceLocationsForRenamingMessage message{
-        {TESTDATA_DIR, "renamevariable.cpp"}, 1, 5, "int v;\n\nint x = v + 3;\n", {"cc"}, 1};
-
-    EXPECT_CALL(mockRefactoringClient,
-                sourceLocationsForRenamingMessage(
-                    AllOf(Field(&SourceLocationsForRenamingMessage::textDocumentRevision, 1),
-                          Field(&SourceLocationsForRenamingMessage::symbolName, "v"),
-                          Field(&SourceLocationsForRenamingMessage::sourceLocations,
-                                Property(&SourceLocationsContainer::sourceLocationContainers,
-                                         AllOf(Contains(IsSourceLocation(1, 5)),
-                                               Contains(IsSourceLocation(3, 9))))))));
-
-    refactoringServer.requestSourceLocationsForRenamingMessage(std::move(message));
-}
 
 TEST_F(RefactoringServerSlowTest, RequestSingleSourceRangesForQueryMessage)
 {

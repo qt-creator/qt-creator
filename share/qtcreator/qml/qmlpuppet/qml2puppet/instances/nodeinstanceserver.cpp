@@ -67,6 +67,8 @@
 #include <tokencommand.h>
 #include <removesharedmemorycommand.h>
 
+#include <utils/algorithm.h>
+
 #include <QDebug>
 #include <QQmlEngine>
 #include <QQmlApplicationEngine>
@@ -88,7 +90,10 @@
 #include <algorithm>
 
 namespace {
-bool testImportStatements(const QStringList &importStatementList, const QUrl &url, QString *errorMessage = 0) {
+
+bool testImportStatements(const QStringList &importStatementList,
+                          const QUrl &url, QString *errorMessage = nullptr)
+{
     if (importStatementList.isEmpty())
         return false;
     // ToDo: move engine outside of this function, this makes it expensive
@@ -455,7 +460,7 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
 
     delete m_importComponent.data();
     delete m_importComponentObject.data();
-    const QStringList importStatementList(importStatementSet.toList());
+    const QStringList importStatementList = Utils::toList(importStatementSet);
     const QStringList fullImportStatementList(QStringList(qtQuickImport) + importStatementList);
 
     // check possible import statements combinations

@@ -227,7 +227,10 @@ def qdump__QStandardItemData(d, value):
 
 def qdump__QStandardItem(d, value):
     vtable, dptr = value.split('pp')
-    vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
+    if d.isMsvcTarget():
+        model, parent, values, children, rows, cols, item = d.split('ppPPIIp', dptr)
+    else:
+        vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
     d.putValue(' ')
     d.putNumChild(1)
     if d.isExpanded():
@@ -396,8 +399,7 @@ def qdump__QDateTime(d, value):
 
 
 def qdump__QDir(d, value):
-    if not d.isMsvcTarget():
-        d.putNumChild(1)
+    d.putNumChild(1)
     privAddress = d.extractPointer(value)
     bit32 = d.ptrSize() == 4
     qt5 = d.qtVersion() >= 0x050000
@@ -468,21 +470,22 @@ def qdump__QDir(d, value):
         absoluteDirEntryOffset = dirEntryOffset + fileSystemEntrySize
 
     d.putStringValue(privAddress + dirEntryOffset)
-    if d.isExpanded() and not d.isMsvcTarget():
+    if d.isExpanded():
         with Children(d):
-            ns = d.qtNamespace()
-            d.call('int', value, 'count')  # Fill cache.
-            #d.putCallItem('absolutePath', '@QString', value, 'absolutePath')
-            #d.putCallItem('canonicalPath', '@QString', value, 'canonicalPath')
-            with SubItem(d, 'absolutePath'):
-                typ = d.lookupType(ns + 'QString')
-                d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
-            with SubItem(d, 'entryInfoList'):
-                typ = d.lookupType(ns + 'QFileInfo')
-                qdumpHelper_QList(d, privAddress + fileInfosOffset, typ)
-            with SubItem(d, 'entryList'):
-                typ = d.lookupType(ns + 'QStringList')
-                d.putItem(d.createValue(privAddress + filesOffset, typ))
+            if not d.isMsvcTarget():
+                ns = d.qtNamespace()
+                d.call('int', value, 'count')  # Fill cache.
+                #d.putCallItem('absolutePath', '@QString', value, 'absolutePath')
+                #d.putCallItem('canonicalPath', '@QString', value, 'canonicalPath')
+                with SubItem(d, 'absolutePath'):
+                    typ = d.lookupType(ns + 'QString')
+                    d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
+                with SubItem(d, 'entryInfoList'):
+                    typ = d.lookupType(ns + 'QFileInfo')
+                    qdumpHelper_QList(d, privAddress + fileInfosOffset, typ)
+                with SubItem(d, 'entryList'):
+                    typ = d.lookupType(ns + 'QStringList')
+                    d.putItem(d.createValue(privAddress + filesOffset, typ))
             d.putFields(value)
 
 

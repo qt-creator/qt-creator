@@ -40,16 +40,6 @@ void RefactoringClient::alive()
         m_connectionClient->resetProcessAliveTimer();
 }
 
-void RefactoringClient::sourceLocationsForRenamingMessage(
-        ClangBackEnd::SourceLocationsForRenamingMessage &&message)
-{
-    m_localRenamingCallback(message.symbolName.toQString(),
-                            message.sourceLocations,
-                            message.textDocumentRevision);
-
-    m_refactoringEngine->setRefactoringEngineAvailable(true);
-}
-
 void RefactoringClient::sourceRangesAndDiagnosticsForQueryMessage(
         ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message)
 {
@@ -62,12 +52,6 @@ void RefactoringClient::sourceRangesForQueryMessage(ClangBackEnd::SourceRangesFo
     ++m_resultCounter;
     addSearchResults(message.sourceRanges);
     setResultCounterAndSendSearchIsFinishedIfFinished();
-}
-
-void RefactoringClient::setLocalRenamingCallback(
-        CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback)
-{
-    m_localRenamingCallback = std::move(localRenamingCallback);
 }
 
 void RefactoringClient::progress(ClangBackEnd::ProgressMessage &&message)
@@ -98,11 +82,6 @@ void RefactoringClient::setClangQueryExampleHighlighter(ClangQueryExampleHighlig
 void RefactoringClient::setClangQueryHighlighter(ClangQueryHighlighter *highlighter)
 {
     m_clangQueryHighlighter = highlighter;
-}
-
-bool RefactoringClient::hasValidLocalRenamingCallback() const
-{
-    return bool(m_localRenamingCallback);
 }
 
 void RefactoringClient::setExpectedResultCount(uint count)

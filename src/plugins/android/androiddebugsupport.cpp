@@ -82,15 +82,15 @@ static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
             paths.insert(it.fileInfo().absolutePath());
         }
     }
-    return paths.toList();
+    return Utils::toList(paths);
 }
 
 static QStringList uniquePaths(const QStringList &files)
 {
     QSet<QString> paths;
-    foreach (const QString &file, files)
-        paths<<QFileInfo(file).absolutePath();
-    return paths.toList();
+    for (const QString &file : files)
+        paths << QFileInfo(file).absolutePath();
+    return Utils::toList(paths);
 }
 
 static QStringList getSoLibSearchPath(const ProjectNode *node)

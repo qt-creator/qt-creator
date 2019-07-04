@@ -77,7 +77,7 @@ Rectangle {
             when: myControl.enabled && !(spinBoxIndicator.hover
                                          || myControl.hover)
                   && !spinBoxIndicator.pressed && !myControl.edit
-                  && !myControl.drag
+                  && !myControl.drag && spinBoxIndicator.enabled
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeControlBackground
@@ -87,7 +87,7 @@ Rectangle {
             name: "hovered"
             when: (spinBoxIndicator.hover || myControl.hover)
                   && !spinBoxIndicator.pressed && !myControl.edit
-                  && !myControl.drag
+                  && !myControl.drag && spinBoxIndicator.enabled
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeHoverHighlight
@@ -95,7 +95,7 @@ Rectangle {
         },
         State {
             name: "pressed"
-            when: spinBoxIndicator.pressed
+            when: spinBoxIndicator.pressed && spinBoxIndicator.enabled
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeInteraction
@@ -103,7 +103,7 @@ Rectangle {
         },
         State {
             name: "edit"
-            when: myControl.edit
+            when: myControl.edit && spinBoxIndicator.enabled
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeFocusEdit
@@ -111,7 +111,7 @@ Rectangle {
         },
         State {
             name: "drag"
-            when: myControl.drag
+            when: myControl.drag && spinBoxIndicator.enabled
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeFocusDrag
@@ -119,7 +119,7 @@ Rectangle {
         },
         State {
             name: "disabled"
-            when: !myControl.enabled
+            when: !myControl.enabled || !spinBoxIndicator.enabled
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeControlBackgroundDisabled

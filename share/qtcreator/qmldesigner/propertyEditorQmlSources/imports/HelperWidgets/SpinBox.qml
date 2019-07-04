@@ -34,9 +34,9 @@ Item {
     property alias decimals: spinBox.decimals
     property alias hasSlider: spinBox.hasSlider
 
-    property real minimumValue: 0.0
-    property real maximumValue: 99
-    property real stepSize: 1.0
+    property alias minimumValue: spinBox.realFrom
+    property alias maximumValue: spinBox.realTo
+    property alias stepSize: spinBox.realStepSize
 
     property alias backendValue: spinBox.backendValue
     property alias sliderIndicatorVisible: spinBox.sliderIndicatorVisible
@@ -44,35 +44,15 @@ Item {
     width: 96
     implicitHeight: spinBox.height
 
-    property bool __initialized: false
-
-    Component.onCompleted: {
-        wrapper.__initialized = true
-
-        convert("stepSize", stepSize)
-        convert("from", minimumValue)
-        convert("to", maximumValue)
-    }
-
-    onStepSizeChanged: convert("stepSize", stepSize)
-    onMinimumValueChanged: convert("from", minimumValue)
-    onMaximumValueChanged: convert("to", maximumValue)
-
-    function convert(target, value) {
-        if (!wrapper.__initialized)
-            return
-        spinBox[target] = Math.round(value * spinBox.factor)
-    }
-
-    StudioControls.SpinBox {
+    StudioControls.RealSpinBox {
         id: spinBox
 
-        property real realValue: value / factor
+        onDragStarted: hideCursor();
+        onDragEnded: restoreCursor();
+
         property variant backendValue
         property bool hasSlider: wrapper.sliderIndicatorVisible
 
-        from: minimumValue * factor
-        to: maximumValue * factor
         width: wrapper.width
 
         ExtendedFunctionLogic {
@@ -88,13 +68,14 @@ Item {
             id: colorLogic
             backendValue: spinBox.backendValue
             onValueFromBackendChanged: {
-                spinBox.value = valueFromBackend * spinBox.factor;
+                if (valueFromBackend !== undefined)
+                    spinBox.realValue = valueFromBackend
             }
         }
 
         labelColor: edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
 
-        onCompressedValueModified: {
+        onCompressedRealValueModified: {
             if (backendValue.value !== realValue)
                 backendValue.value = realValue;
         }

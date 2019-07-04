@@ -57,7 +57,7 @@ T.Popup {
 
         handle: Rectangle {
             x: slider.leftPadding + slider.visualPosition * (slider.availableWidth - width)
-            y: slider.topPadding + slider.availableHeight / 2 - height / 2
+            y: slider.topPadding + (slider.availableHeight / 2) - (height / 2)
             width: StudioTheme.Values.sliderHandleWidth
             height: StudioTheme.Values.sliderHandleHeight
             radius: 0
@@ -66,7 +66,7 @@ T.Popup {
 
         background: Rectangle {
             x: slider.leftPadding
-            y: slider.topPadding + slider.availableHeight / 2 - height / 2
+            y: slider.topPadding + (slider.availableHeight / 2) - (height / 2)
             width: slider.availableWidth
             height: StudioTheme.Values.sliderTrackHeight
             radius: 0
@@ -81,7 +81,20 @@ T.Popup {
         }
 
         onMoved: {
-            myControl.value = value
+            var currValue = myControl.value
+            myControl.value = slider.value
+
+            if (currValue !== myControl.value)
+                myControl.valueModified()
+        }
+    }
+
+    onOpened: {
+        // Check if value is in sync with text input, if not sync it!
+        var val = myControl.valueFromText(myControl.contentItem.text,
+                                          myControl.locale)
+        if (myControl.value !== val) {
+            myControl.value = val
             myControl.valueModified()
         }
     }

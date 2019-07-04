@@ -167,11 +167,11 @@ static QHash<XcodePlatform::ToolchainTarget, ToolChainPair> findToolChains(const
 
 static QSet<Kit *> existingAutoDetectedIosKits()
 {
-    return Utils::filtered(KitManager::kits(), [](Kit *kit) -> bool {
+    return Utils::toSet(Utils::filtered(KitManager::kits(), [](Kit *kit) -> bool {
         Core::Id deviceKind = DeviceTypeKitAspect::deviceTypeId(kit);
         return kit->isAutoDetected() && (deviceKind == Constants::IOS_DEVICE_TYPE
                                          || deviceKind == Constants::IOS_SIMULATOR_TYPE);
-    }).toSet();
+    }));
 }
 
 static void printKits(const QSet<Kit *> &kits)
@@ -249,9 +249,9 @@ void IosConfigurations::updateAutomaticKitList()
     // target -> tool chain
     const auto targetToolChainHash = findToolChains(platforms);
 
-    const auto qtVersions = QtVersionManager::versions([](const BaseQtVersion *v) {
+    const auto qtVersions = Utils::toSet(QtVersionManager::versions([](const BaseQtVersion *v) {
         return v->isValid() && v->type() == Constants::IOSQT;
-    }).toSet();
+    }));
 
     const DebuggerItem *possibleDebugger = DebuggerItemManager::findByEngineType(LldbEngineType);
     const QVariant debuggerId = (possibleDebugger ? possibleDebugger->id() : QVariant());

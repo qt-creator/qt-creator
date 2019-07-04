@@ -506,7 +506,7 @@ void DebuggerMainWindow::savePersistentSettings()
 
     QSettings *settings = ICore::settings();
     settings->beginGroup(MAINWINDOW_KEY);
-    settings->setValue(CHANGED_DOCK_KEY, QStringList(changedDocks.toList()));
+    settings->setValue(CHANGED_DOCK_KEY, QStringList(Utils::toList(changedDocks)));
     settings->setValue(STATE_KEY, states);
     settings->setValue(AUTOHIDE_TITLEBARS_KEY, theMainWindow->autoHideTitleBars());
     settings->setValue(SHOW_CENTRALWIDGET_KEY, theMainWindow->isCentralWidgetShown());

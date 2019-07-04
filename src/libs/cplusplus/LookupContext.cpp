@@ -37,6 +37,8 @@
 #include <cplusplus/Scope.h>
 #include <cplusplus/Control.h>
 
+#include <utils/algorithm.h>
+
 #include <QStack>
 #include <QHash>
 #include <QVarLengthArray>
@@ -1175,7 +1177,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
     if (!name->isTemplateNameId())
         _alreadyConsideredClasses.insert(referenceClass);
 
-    QSet<ClassOrNamespace *> knownUsings = reference->usings().toSet();
+    QSet<ClassOrNamespace *> knownUsings = Utils::toSet(reference->usings());
 
     // If we are dealling with a template type, more work is required, since we need to
     // construct all instantiation data.

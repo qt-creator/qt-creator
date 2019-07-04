@@ -128,10 +128,10 @@ void ClangToolsProjectSettings::store()
     m_project->setNamedSettings(SETTINGS_KEY_DIAGNOSTIC_CONFIG, m_diagnosticConfig.toSetting());
     m_project->setNamedSettings(SETTINGS_KEY_BUILD_BEFORE_ANALYSIS, m_buildBeforeAnalysis);
 
-    const QStringList dirs = Utils::transform(m_selectedDirs.toList(), &Utils::FilePath::toString);
+    const QStringList dirs = Utils::transform<QList>(m_selectedDirs, &Utils::FilePath::toString);
     m_project->setNamedSettings(SETTINGS_KEY_SELECTED_DIRS, dirs);
 
-    const QStringList files = Utils::transform(m_selectedFiles.toList(), &Utils::FilePath::toString);
+    const QStringList files = Utils::transform<QList>(m_selectedFiles, &Utils::FilePath::toString);
     m_project->setNamedSettings(SETTINGS_KEY_SELECTED_FILES, files);
 
     QVariantList list;

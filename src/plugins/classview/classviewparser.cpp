@@ -587,8 +587,7 @@ void Parser::clearCache()
 
 void Parser::setFileList(const QStringList &fileList)
 {
-    d->fileList.clear();
-    d->fileList = QSet<QString>::fromList(fileList);
+    d->fileList = ::Utils::toSet(fileList);
 }
 
 /*!

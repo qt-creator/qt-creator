@@ -121,23 +121,23 @@ void writeQtIncludeSection(const QStringList &qt4,
         qt4Only.subtract(common);
         qt5Only.subtract(common);
 
-        qtSection(common.toList(), str);
+        qtSection(Utils::toList(common), str);
 
         if (!qt4Only.isEmpty() || !qt5Only.isEmpty()) {
             if (addQtVersionCheck)
                 writeBeginQtVersionCheck(str);
-            qtSection(qt5Only.toList(), str);
+            qtSection(Utils::toList(qt5Only), str);
             if (addQtVersionCheck)
                 str << QLatin1String("#else\n");
-            qtSection(qt4Only.toList(), str);
+            qtSection(Utils::toList(qt4Only), str);
             if (addQtVersionCheck)
                 str << QLatin1String("#endif\n");
         }
     } else {
         if (!qt5Only.isEmpty()) // default to Qt5
-            qtSection(qt5Only.toList(), str);
+            qtSection(Utils::toList(qt5Only), str);
         else
-            qtSection(qt4Only.toList(), str);
+            qtSection(Utils::toList(qt4Only), str);
     }
 }
 

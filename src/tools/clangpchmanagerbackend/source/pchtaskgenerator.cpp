@@ -26,6 +26,7 @@
 #include "pchtaskgenerator.h"
 
 #include "builddependenciesproviderinterface.h"
+#include "pchtaskqueueinterface.h"
 #include "pchtasksmergerinterface.h"
 #include "usedmacrofilter.h"
 
@@ -52,6 +53,9 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
         pchTaskSets.emplace_back(PchTask{projectPart.projectPartId,
                                          std::move(filter.topSystemIncludes),
                                          {},
+                                         {},
+                                         {},
+                                         {},
                                          std::move(filter.systemCompilerMacros),
                                          std::move(filter.systemUsedMacros),
                                          projectPart.toolChainArguments,
@@ -62,6 +66,9 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
                                          projectPart.languageExtension},
                                  PchTask{projectPart.projectPartId,
                                          std::move(filter.topProjectIncludes),
+                                         std::move(filter.systemIncludes),
+                                         std::move(filter.projectIncludes),
+                                         std::move(filter.userIncludes),
                                          std::move(filter.sources),
                                          std::move(filter.projectCompilerMacros),
                                          std::move(filter.projectUsedMacros),
@@ -80,6 +87,40 @@ void PchTaskGenerator::addProjectParts(ProjectPartContainers &&projectParts,
 void PchTaskGenerator::removeProjectParts(const ProjectPartIds &projectsPartIds)
 {
     m_pchTasksMergerInterface.removePchTasks(projectsPartIds);
+}
+
+void PchTaskGenerator::addNonSystemProjectParts(ProjectPartContainers &&projectParts,
+                                                Utils::SmallStringVector &&)
+{
+    PchTasks pchTasks;
+    pchTasks.reserve(projectParts.size());
+
+    m_progressCounter.addTotal(static_cast<int>(projectParts.size()));
+
+    for (auto &projectPart : projectParts) {
+        BuildDependency buildDependency = m_buildDependenciesProvider.create(projectPart);
+        UsedMacroFilter filter{buildDependency.sources,
+                               buildDependency.usedMacros,
+                               projectPart.compilerMacros};
+
+        pchTasks.emplace_back(projectPart.projectPartId,
+                              std::move(filter.topProjectIncludes),
+                              std::move(filter.systemIncludes),
+                              std::move(filter.projectIncludes),
+                              std::move(filter.userIncludes),
+                              std::move(filter.sources),
+                              std::move(filter.projectCompilerMacros),
+                              std::move(filter.projectUsedMacros),
+                              projectPart.toolChainArguments,
+                              projectPart.systemIncludeSearchPaths,
+                              projectPart.projectIncludeSearchPaths,
+                              projectPart.language,
+                              projectPart.languageVersion,
+                              projectPart.languageExtension);
+        m_progressCounter.addProgress(1);
+    }
+
+    m_pchTaskQueue.addProjectPchTasks(std::move(pchTasks));
 }
 
 } // namespace ClangBackEnd

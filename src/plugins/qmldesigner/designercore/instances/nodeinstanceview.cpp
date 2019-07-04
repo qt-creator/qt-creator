@@ -25,10 +25,6 @@
 
 #include "nodeinstanceview.h"
 
-#include <QUrl>
-#include <QMultiHash>
-#include <QTimerEvent>
-
 #include <model.h>
 #include <modelnode.h>
 #include <metainfo.h>
@@ -71,6 +67,12 @@
 #include "debugoutputcommand.h"
 
 #include "nodeinstanceserverproxy.h"
+
+#include <utils/algorithm.h>
+
+#include <QUrl>
+#include <QMultiHash>
+#include <QTimerEvent>
 
 enum {
     debug = false
@@ -1189,7 +1191,7 @@ void NodeInstanceView::pixmapChanged(const PixmapChangedCommand &command)
     m_nodeInstanceServer->benchmark(Q_FUNC_INFO + QString::number(renderImageChangeSet.count()));
 
     if (!renderImageChangeSet.isEmpty())
-        emitInstancesRenderImageChanged(renderImageChangeSet.toList().toVector());
+        emitInstancesRenderImageChanged(Utils::toList(renderImageChangeSet).toVector());
 }
 
 QMultiHash<ModelNode, InformationName> NodeInstanceView::informationChanged(const QVector<InformationContainer> &containerVector)

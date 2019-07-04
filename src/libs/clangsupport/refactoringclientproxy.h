@@ -50,12 +50,9 @@ public:
     void readMessages();
 
     void alive() override;
-    void sourceLocationsForRenamingMessage(SourceLocationsForRenamingMessage &&message) override;
     void sourceRangesAndDiagnosticsForQueryMessage(SourceRangesAndDiagnosticsForQueryMessage &&message) override;
     void sourceRangesForQueryMessage(SourceRangesForQueryMessage &&message) override;
     void progress(ProgressMessage &&message) override;
-
-    void setLocalRenamingCallback(RenameCallback &&) final {}
 
 private:
     ClangBackEnd::WriteMessageBlock writeMessageBlock;

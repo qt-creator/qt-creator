@@ -930,7 +930,7 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
         QSet<QString> alreadyAdded = m_watcher.directories().toSet();
         tmp.subtract(alreadyAdded);
         if (!tmp.isEmpty())
-            m_watcher.addPaths(tmp.toList());
+            m_watcher.addPaths(Utils::toList(tmp));
         m_recursiveWatchedFolders += tmp;
     }
 
@@ -1063,8 +1063,10 @@ void QmakeProject::collectData(const QmakeProFile *file, DeploymentData &deploym
     for (const InstallsItem &item : installsList.items) {
         if (!item.active)
             continue;
-        foreach (const auto &localFile, item.files)
-            deploymentData.addFile(localFile.fileName, item.path);
+        for (const auto &localFile : item.files) {
+            deploymentData.addFile(localFile.fileName, item.path, item.executable
+                                   ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);
+        }
     }
 
     switch (file->projectType()) {

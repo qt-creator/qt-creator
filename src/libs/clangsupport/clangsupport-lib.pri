@@ -56,14 +56,12 @@ SOURCES += \
     $$PWD/requestannotationsmessage.cpp \
     $$PWD/requestfollowsymbolmessage.cpp \
     $$PWD/requestreferencesmessage.cpp \
-    $$PWD/requestsourcelocationforrenamingmessage.cpp \
     $$PWD/requestsourcerangesanddiagnosticsforquerymessage.cpp \
     $$PWD/requestsourcerangesforquerymessage.cpp \
     $$PWD/requesttooltipmessage.cpp \
     $$PWD/sourcelocationcontainer.cpp \
     $$PWD/sourcelocationcontainerv2.cpp \
     $$PWD/sourcelocationscontainer.cpp \
-    $$PWD/sourcelocationsforrenamingmessage.cpp \
     $$PWD/sourcerangecontainer.cpp \
     $$PWD/processcreator.cpp \
     $$PWD/processexception.cpp \
@@ -163,14 +161,12 @@ HEADERS += \
     $$PWD/requestannotationsmessage.h \
     $$PWD/requestfollowsymbolmessage.h \
     $$PWD/requestreferencesmessage.h \
-    $$PWD/requestsourcelocationforrenamingmessage.h \
     $$PWD/requestsourcerangesanddiagnosticsforquerymessage.h \
     $$PWD/requestsourcerangesforquerymessage.h \
     $$PWD/requesttooltipmessage.h \
     $$PWD/sourcelocationcontainer.h \
     $$PWD/sourcelocationcontainerv2.h \
     $$PWD/sourcelocationscontainer.h \
-    $$PWD/sourcelocationsforrenamingmessage.h \
     $$PWD/sourcerangecontainer.h \
     $$PWD/filepath.h \
     $$PWD/processcreator.h \

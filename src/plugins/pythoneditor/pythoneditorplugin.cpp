@@ -384,7 +384,7 @@ static QStringList readLinesJson(const Utils::FilePath &projectFile,
         for (const auto &file : files_array)
             visited.insert(file.toString());
 
-        lines.append(visited.toList());
+        lines.append(Utils::toList(visited));
     }
 
     return lines;

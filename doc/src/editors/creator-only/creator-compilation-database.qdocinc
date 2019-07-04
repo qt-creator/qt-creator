@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -40,9 +40,19 @@
     To generate a compilation database from the information that the code model
     has, select \uicontrol Build > \uicontrol {Generate Compilation Database}.
 
+    You can add files, such as non-C files, to the project in
+    \e {compile_database.json.files}.
+
     You can use the experimental Compilation Database Project Manager to open
     the files in a compilation database with access to all the editing features
     provided by the Clang code model.
+
+    To switch between header and source files, select \uicontrol Tools >
+    \uicontrol C++ > \uicontrol {Switch Header/Source}.
+
+    You can specify custom build steps and run settings for compilation
+    database projects in the \uicontrol Projects mode. For more information,
+    see \l{Adding Custom Build Steps} and \l {Specifying Run Settings}.
 
     To enable the plugin, select \uicontrol Help > \uicontrol {About Plugins} >
     \uicontrol {Build Systems} > \uicontrol {Compilation Database Project Manager}.

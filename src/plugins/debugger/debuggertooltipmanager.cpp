@@ -259,13 +259,13 @@ ToolTipWatchItem::ToolTipWatchItem(TreeItem *item)
 {
     const QAbstractItemModel *model = item->model();
     QModelIndex idx = item->index();
-    name = model->data(idx.sibling(idx.row(), 0), Qt::DisplayRole).toString();
-    value = model->data(idx.sibling(idx.row(), 1), Qt::DisplayRole).toString();
-    type = model->data(idx.sibling(idx.row(), 2), Qt::DisplayRole).toString();
-    iname = model->data(idx.sibling(idx.row(), 0), LocalsINameRole).toString();
-    valueColor = model->data(idx.sibling(idx.row(), 1), Qt::ForegroundRole).value<QColor>();
+    name = model->data(idx.sibling(idx.row(), WatchModelBase::NameColumn), Qt::DisplayRole).toString();
+    value = model->data(idx.sibling(idx.row(), WatchModelBase::ValueColumn), Qt::DisplayRole).toString();
+    type = model->data(idx.sibling(idx.row(), WatchModelBase::TypeColumn), Qt::DisplayRole).toString();
+    iname = model->data(idx.sibling(idx.row(), WatchModelBase::NameColumn), LocalsINameRole).toString();
+    valueColor = model->data(idx.sibling(idx.row(), WatchModelBase::ValueColumn), Qt::ForegroundRole).value<QColor>();
     expandable = model->hasChildren(idx);
-    expression = model->data(idx.sibling(idx.row(), 0), Qt::EditRole).toString();
+    expression = model->data(idx.sibling(idx.row(), WatchModelBase::NameColumn), Qt::EditRole).toString();
     for (TreeItem *child : *item)
         appendChild(new ToolTipWatchItem(child));
 }

@@ -38,6 +38,9 @@ public:
     explicit Quick2PropertyEditorView(QWidget *parent = nullptr);
 
     static void registerQmlTypes();
+
+protected:
+    bool event(QEvent *e) override;
 };
 
 } //QmlDesigner

@@ -221,11 +221,13 @@ struct Data // because we have a cycle dependency
                                                                     database};
     ClangBackEnd::PchTaskGenerator pchTaskGenerator{buildDependencyProvider,
                                                     pchTaskMerger,
-                                                    dependencyCreationProgressCounter};
+                                                    dependencyCreationProgressCounter,
+                                                    pchTaskQueue};
     PchManagerServer clangPchManagerServer{includeWatcher,
                                            pchTaskGenerator,
                                            projectParts,
-                                           generatedFiles};
+                                           generatedFiles,
+                                           buildDependencyStorage};
     TaskScheduler systemTaskScheduler{pchCreatorManager,
                                       pchTaskQueue,
                                       pchCreationProgressCounter,

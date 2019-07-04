@@ -372,12 +372,12 @@ void HelpManager::setupHelpManager()
     d->cleanUpDocumentation();
 
     if (!d->m_nameSpacesToUnregister.isEmpty()) {
-        m_instance->unregisterDocumentation(d->m_nameSpacesToUnregister.toList());
+        m_instance->unregisterDocumentation(Utils::toList(d->m_nameSpacesToUnregister));
         d->m_nameSpacesToUnregister.clear();
     }
 
     if (!d->m_filesToRegister.isEmpty()) {
-        m_instance->registerDocumentation(d->m_filesToRegister.toList());
+        m_instance->registerDocumentation(Utils::toList(d->m_filesToRegister));
         d->m_filesToRegister.clear();
     }
 
@@ -432,13 +432,13 @@ const QStringList HelpManagerPrivate::documentationFromInstaller()
 
 void HelpManagerPrivate::readSettings()
 {
-    m_userRegisteredFiles = ICore::settings()->value(QLatin1String(kUserDocumentationKey))
-            .toStringList().toSet();
+    m_userRegisteredFiles = Utils::toSet(ICore::settings()->value(QLatin1String(kUserDocumentationKey))
+            .toStringList());
 }
 
 void HelpManagerPrivate::writeSettings()
 {
-    const QStringList list = m_userRegisteredFiles.toList();
+    const QStringList list = Utils::toList(m_userRegisteredFiles);
     ICore::settings()->setValue(QLatin1String(kUserDocumentationKey), list);
 }
 

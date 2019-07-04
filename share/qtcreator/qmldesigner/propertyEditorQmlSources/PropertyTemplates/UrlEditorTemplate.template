@@ -2,8 +2,7 @@ Label {
     text: "%1"
     tooltip: "%1"
 }
-LineEdit {
-    backendValue: backendValues.%2
+UrlChooser {
     Layout.fillWidth: true
-    showTranslateCheckBox: false
+    backendValue:  backendValues.%2
 }

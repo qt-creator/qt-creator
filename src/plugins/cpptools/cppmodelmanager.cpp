@@ -479,7 +479,7 @@ void CppModelManager::initCppTools()
             this, &CppModelManager::updateModifiedSourceFiles);
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::filesChangedInternally,
             [this](const QStringList &files) {
-        updateSourceFiles(files.toSet());
+        updateSourceFiles(Utils::toSet(files));
     });
 
     connect(this, &CppModelManager::documentUpdated,
@@ -925,7 +925,7 @@ public:
     {
         QSet<QString> removed = projectPartIds(m_old.projectParts());
         removed.subtract(projectPartIds(m_new.projectParts()));
-        return removed.toList();
+        return Utils::toList(removed);
     }
 
     /// Returns a list of common files that have a changed timestamp.
@@ -1020,7 +1020,7 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated) const
 
     // Mark invisible documents dirty
     QSet<Core::IDocument *> invisibleCppEditorDocuments
-        = Core::DocumentModel::openedDocuments().toSet();
+        = Utils::toSet(Core::DocumentModel::openedDocuments());
     invisibleCppEditorDocuments.subtract(visibleCppEditorDocuments);
     foreach (Core::IDocument *document, invisibleCppEditorDocuments) {
         const QString filePath = document->filePath().toString();
@@ -1085,7 +1085,7 @@ QFuture<void> CppModelManager::updateProjectInfo(QFutureInterface<void> &futureI
                 const QSet<QString> removedFiles = comparer.removedFiles();
                 if (!removedFiles.isEmpty()) {
                     filesRemoved = true;
-                    emit aboutToRemoveFiles(removedFiles.toList());
+                    emit aboutToRemoveFiles(Utils::toList(removedFiles));
                     removeFilesFromSnapshot(removedFiles);
                 }
             }
@@ -1150,9 +1150,8 @@ QList<ProjectPart::Ptr> CppModelManager::projectPartFromDependencies(
     const Utils::FilePathList deps = snapshot().filesDependingOn(fileName);
 
     QMutexLocker locker(&d->m_projectMutex);
-    foreach (const Utils::FilePath &dep, deps) {
-        parts.unite(QSet<ProjectPart::Ptr>::fromList(d->m_fileToProjectParts.value(dep)));
-    }
+    for (const Utils::FilePath &dep : deps)
+        parts.unite(Utils::toSet(d->m_fileToProjectParts.value(dep)));
 
     return parts.values();
 }
@@ -1218,10 +1217,10 @@ void CppModelManager::delayedGC()
 
 static QStringList removedProjectParts(const QStringList &before, const QStringList &after)
 {
-    QSet<QString> b = before.toSet();
-    b.subtract(after.toSet());
+    QSet<QString> b = Utils::toSet(before);
+    b.subtract(Utils::toSet(after));
 
-    return b.toList();
+    return Utils::toList(b);
 }
 
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)

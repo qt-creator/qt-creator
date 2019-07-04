@@ -26,6 +26,8 @@
 #include "contentnoteditableindicator.h"
 #include "nodemetainfo.h"
 
+#include <utils/algorithm.h>
+
 #include <QSet>
 #include <QPen>
 
@@ -68,9 +70,9 @@ void ContentNotEditableIndicator::setItems(const QList<FormEditorItem*> &itemLis
 void ContentNotEditableIndicator::updateItems(const QList<FormEditorItem *> &itemList)
 {
     QSet<FormEditorItem*> affectedFormEditorItemItems;
-    affectedFormEditorItemItems.unite(itemList.toSet());
+    affectedFormEditorItemItems.unite(Utils::toSet(itemList));
     foreach (FormEditorItem *formEditorItem, itemList)
-        affectedFormEditorItemItems.unite(formEditorItem->offspringFormEditorItems().toSet());
+        affectedFormEditorItemItems.unite(Utils::toSet(formEditorItem->offspringFormEditorItems()));
 
     foreach (const EntryPair &entryPair, m_entryList) {
          foreach (FormEditorItem *formEditorItem, affectedFormEditorItemItems) {

@@ -241,12 +241,12 @@ Id Id::versionedId(const QByteArray &prefix, int major, int minor)
 
 QSet<Id> Id::fromStringList(const QStringList &list)
 {
-    return QSet<Id>::fromList(Utils::transform(list, &Id::fromString));
+    return Utils::transform<QSet<Id>>(list, &Id::fromString);
 }
 
 QStringList Id::toStringList(const QSet<Id> &ids)
 {
-    QList<Id> idList = ids.toList();
+    QList<Id> idList = Utils::toList(ids);
     Utils::sort(idList);
     return Utils::transform(idList, &Id::toString);
 }

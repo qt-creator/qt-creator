@@ -87,7 +87,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id lang
 
     CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        cmd.addArg("--ec++");
+        cmd.addArg("--c++");
     cmd.addArg("--predef_macros");
     cmd.addArg(outpath);
 
@@ -132,7 +132,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Core::Id lang
 
     CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        cmd.addArg("--ec++");
+        cmd.addArg("--c++");
     cmd.addArg("--preinclude");
     cmd.addArg(".");
 

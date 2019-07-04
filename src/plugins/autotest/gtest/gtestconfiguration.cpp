@@ -58,18 +58,18 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
                                                          "--gtest_print_time="
                                                          };
 
-    QSet<QString> allowed = Utils::filtered(provided.toSet(), [] (const QString &arg) {
+    QSet<QString> allowed = Utils::filtered(Utils::toSet(provided), [] (const QString &arg) {
         return Utils::allOf(knownInterferingOptions, [&arg] (const QString &interfering) {
             return !arg.startsWith(interfering);
         });
     });
 
     if (omitted) {
-        QSet<QString> providedSet = provided.toSet();
+        QSet<QString> providedSet = Utils::toSet(provided);
         providedSet.subtract(allowed);
-        omitted->append(providedSet.toList());
+        omitted->append(Utils::toList(providedSet));
     }
-    return allowed.toList();
+    return Utils::toList(allowed);
 }
 
 QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) const

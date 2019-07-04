@@ -1,5 +1,11 @@
 
+Section {
+    anchors.left: parent.left
+    anchors.right: parent.right
+    caption: "%1"
+
 ColorEditor {
     backendValue: backendValues.%2
     supportGradient: false
+}
 }

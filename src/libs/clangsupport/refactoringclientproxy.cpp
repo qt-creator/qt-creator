@@ -66,11 +66,6 @@ void RefactoringClientProxy::alive()
     writeMessageBlock.write(AliveMessage());
 }
 
-void RefactoringClientProxy::sourceLocationsForRenamingMessage(SourceLocationsForRenamingMessage &&message)
-{
-    writeMessageBlock.write(message);
-}
-
 void RefactoringClientProxy::sourceRangesAndDiagnosticsForQueryMessage(SourceRangesAndDiagnosticsForQueryMessage &&message)
 {
     writeMessageBlock.write(message);

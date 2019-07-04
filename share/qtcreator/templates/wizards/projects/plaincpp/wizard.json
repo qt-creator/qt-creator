@@ -49,7 +49,7 @@
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
-                                "condition": "%{JS: value('Plugins).indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
                             },
                             {
                                 "trKey": "Qbs",

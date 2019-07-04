@@ -54,15 +54,11 @@ public:
     {}
 
     void alive() override;
-    void sourceLocationsForRenamingMessage(
-            ClangBackEnd::SourceLocationsForRenamingMessage &&message) override;
     void sourceRangesAndDiagnosticsForQueryMessage(
             ClangBackEnd::SourceRangesAndDiagnosticsForQueryMessage &&message) override;
     void sourceRangesForQueryMessage(
             ClangBackEnd::SourceRangesForQueryMessage &&message) override;
 
-    void setLocalRenamingCallback(
-            CppTools::RefactoringEngineInterface::RenameCallback &&localRenamingCallback) override;
     void progress(ClangBackEnd::ProgressMessage &&message) override;
 
     void setRefactoringEngine(ClangRefactoring::RefactoringEngine *refactoringEngine);
@@ -70,8 +66,6 @@ public:
     ClangRefactoring::SearchHandle *searchHandle() const;
     void setClangQueryExampleHighlighter(ClangQueryExampleHighlighter *highlighter);
     void setClangQueryHighlighter(ClangQueryHighlighter *highlighter);
-
-    bool hasValidLocalRenamingCallback() const;
 
     void setExpectedResultCount(uint count);
     uint expectedResultCount() const;
@@ -90,7 +84,6 @@ private:
     void sendSearchIsFinished();
 
 private:
-    CppTools::RefactoringEngineInterface::RenameCallback m_localRenamingCallback;
     ClangBackEnd::RefactoringConnectionClient *m_connectionClient = nullptr;
     SearchHandle *m_searchHandle = nullptr;
     RefactoringEngine *m_refactoringEngine = nullptr;

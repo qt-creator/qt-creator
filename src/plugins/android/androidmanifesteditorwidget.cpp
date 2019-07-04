@@ -45,6 +45,7 @@
 
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 
@@ -924,7 +925,7 @@ void AndroidManifestEditorWidget::parseManifest(QXmlStreamReader &reader, QXmlSt
     QXmlStreamAttributes result = modifyXmlStreamAttributes(attributes, keys, values);
     writer.writeAttributes(result);
 
-    QSet<QString> permissions = m_permissionsModel->permissions().toSet();
+    QSet<QString> permissions = Utils::toSet(m_permissionsModel->permissions());
 
     bool foundUsesSdk = false;
     bool foundPermissionComment = false;
