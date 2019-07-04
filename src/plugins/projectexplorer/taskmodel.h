@@ -140,6 +140,7 @@ public:
     void setFilteredCategories(const QList<Core::Id> &categoryIds) { m_categoryIds = categoryIds; invalidateFilter(); }
 
     Task task(const QModelIndex &index) const { return taskModel()->task(mapToSource(index)); }
+    int issuesCount(int startRow, int endRow) const;
 
     bool hasFile(const QModelIndex &index) const
     { return taskModel()->hasFile(mapToSource(index)); }

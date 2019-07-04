@@ -227,6 +227,7 @@ public:
     QToolButton *m_categoriesButton;
     QMenu *m_categoriesMenu;
     QList<QAction *> m_actions;
+    int m_visibleIssuesCount = 0;
 };
 
 static QToolButton *createFilterButton(const QIcon &icon, const QString &toolTip,
@@ -304,12 +305,20 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(hub, &TaskHub::showTask, this, &TaskWindow::showTask);
     connect(hub, &TaskHub::openTask, this, &TaskWindow::openTask);
 
-    connect(d->m_filter, &TaskFilterModel::rowsRemoved,
-            [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
+    connect(d->m_filter, &TaskFilterModel::rowsAboutToBeRemoved,
+            [this](const QModelIndex &, int first, int last) {
+        d->m_visibleIssuesCount -= d->m_filter->issuesCount(first, last);
+        emit setBadgeNumber(d->m_visibleIssuesCount);
+    });
     connect(d->m_filter, &TaskFilterModel::rowsInserted,
-            [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
-    connect(d->m_filter, &TaskFilterModel::modelReset,
-            [this]() { emit setBadgeNumber(d->m_filter->rowCount()); });
+            [this](const QModelIndex &, int first, int last) {
+        d->m_visibleIssuesCount += d->m_filter->issuesCount(first, last);
+        emit setBadgeNumber(d->m_visibleIssuesCount);
+    });
+    connect(d->m_filter, &TaskFilterModel::modelReset, [this] {
+        d->m_visibleIssuesCount = d->m_filter->issuesCount(0, d->m_filter->rowCount());
+        emit setBadgeNumber(d->m_visibleIssuesCount);
+    });
 
     SessionManager *session = SessionManager::instance();
     connect(session, &SessionManager::aboutToSaveSession, this, &TaskWindow::saveSettings);
