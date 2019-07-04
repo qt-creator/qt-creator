@@ -34,6 +34,7 @@
 #ifdef BUILD_CRASH_HANDLER
 
 #include <QApplication>
+#include <QFileInfo>
 #include <QString>
 
 #include <stdlib.h>
@@ -95,8 +96,14 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
                                      const QString &executableDirPath)
 {
 #ifdef BUILD_CRASH_HANDLER
-    if (qEnvironmentVariableIsEmpty("QTC_USE_CRASH_HANDLER"))
+    const QString value = qEnvironmentVariable("QTC_USE_CRASH_HANDLER");
+    if (value.trimmed().isEmpty())
         return;
+    if (!QStringList{"1", "all", "yes"}.contains(value)) {
+        const QString binaryName = QFileInfo(QCoreApplication::applicationFilePath()).fileName();
+        if (!value.split(",", QString::SkipEmptyParts).contains(binaryName))
+            return;
+    }
 
     appNameC = qstrdup(qPrintable(appName));
 
