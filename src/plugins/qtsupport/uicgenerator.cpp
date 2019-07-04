@@ -67,7 +67,7 @@ Utils::FilePath UicGenerator::command() const
 
 QStringList UicGenerator::arguments() const
 {
-    return {source().toString()};
+    return {"-p", source().toString()};
 }
 
 FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
@@ -81,7 +81,9 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
         return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
     // conversion below is to normalize both the encoding, and the line terminators.
-    result[targetList.first()] = QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8();
+    QByteArray content = QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8();
+    content.prepend("#pragma once\n");
+    result[targetList.first()] = content;
     return result;
 }
 
