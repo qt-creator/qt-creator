@@ -26,21 +26,19 @@
 #include "tooltip.h"
 #include "tips.h"
 #include "effects.h"
-#include "reuse.h"
 
 #include <utils/faketooltip.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QString>
+#include <QApplication>
 #include <QColor>
-#include <QGuiApplication>
+#include <QDebug>
+#include <QDesktopWidget>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QWidget>
-#include <QMenu>
-
-#include <QDebug>
 
 using namespace Utils;
 using namespace Internal;

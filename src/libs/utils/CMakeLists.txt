@@ -144,7 +144,6 @@ add_qtc_library(Utils
     textutils.cpp textutils.h
     theme/theme.cpp theme/theme.h theme/theme_p.h
     tooltip/effects.h
-    tooltip/reuse.h
     tooltip/tips.cpp tooltip/tips.h
     tooltip/tooltip.cpp tooltip/tooltip.h
     touchbar/touchbar.h

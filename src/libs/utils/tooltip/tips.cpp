@@ -25,8 +25,8 @@
 
 #include "tips.h"
 #include "tooltip.h"
-#include "reuse.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QRect>
@@ -42,6 +42,12 @@
 #include <QResizeEvent>
 #include <QPaintEvent>
 #include <QVBoxLayout>
+
+#include <QPoint>
+#include <QRect>
+#include <QWidget>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #include <memory>
 
@@ -285,6 +291,22 @@ bool WidgetTip::equals(int typeId, const QVariant &other, const QVariant &otherC
 {
     return typeId == ToolTip::WidgetContent && otherContextHelp == contextHelp()
             && other.value<QWidget *>() == m_widget;
+}
+
+
+int screenNumber(const QPoint &pos, QWidget *w)
+{
+    if (QApplication::desktop()->isVirtualDesktop())
+        return QApplication::desktop()->screenNumber(pos);
+    else
+        return QApplication::desktop()->screenNumber(w);
+}
+
+QRect screenGeometry(const QPoint &pos, QWidget *w)
+{
+    if (HostOsInfo::isMacHost())
+        return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
+    return QApplication::desktop()->screenGeometry(screenNumber(pos, w));
 }
 
 } // namespace Internal

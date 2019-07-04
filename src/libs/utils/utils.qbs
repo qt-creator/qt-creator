@@ -293,7 +293,6 @@ Project {
             prefix: "tooltip/"
             files: [
                 "effects.h",
-                "reuse.h",
                 "tips.cpp",
                 "tips.h",
                 "tooltip.cpp",

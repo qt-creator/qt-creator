@@ -36,6 +36,9 @@
 namespace Utils {
 namespace Internal {
 
+int screenNumber(const QPoint &pos, QWidget *w);
+QRect screenGeometry(const QPoint &pos, QWidget *w);
+
 class TipLabel : public QLabel
 {
 public:
