@@ -1860,8 +1860,9 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
     bool fixInstallPrefix = (installPrefix != devInstallPrefix);
 
     foreach (const QString &item, itemList) {
-        bool active = !reader->values(item + QLatin1String(".CONFIG"))
-                        .contains(QLatin1String("no_default_install"));
+        const QStringList config = reader->values(item + ".CONFIG");
+        const bool active = !config.contains("no_default_install");
+        const bool executable = config.contains("executable");
         const QString pathVar = item + QLatin1String(".path");
         const QStringList &itemPaths = reader->values(pathVar);
         if (itemPaths.count() != 1) {
@@ -1889,7 +1890,7 @@ InstallsList QmakeProFile::installsList(const QtSupport::ProFileReader *reader, 
         } else {
             const auto &itemFiles = reader->fixifiedValues(
                         item + QLatin1String(".files"), projectDir, buildDir, true);
-            result.items << InstallsItem(itemPath, itemFiles, active);
+            result.items << InstallsItem(itemPath, itemFiles, active, executable);
         }
     }
     return result;
