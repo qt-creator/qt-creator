@@ -260,7 +260,8 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
     } else {
         int index = m_rootContextQueryIds.indexOf(queryId);
         if (index < 0) {
-            m_qmlEngine->expressionEvaluated(queryId, value);
+            if (QTC_GUARD(m_qmlEngine))
+                m_qmlEngine->expressionEvaluated(queryId, value);
         } else {
             Q_ASSERT(index < m_engines.length());
             const int engineId = m_engines.at(index).debugId();
