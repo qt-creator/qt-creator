@@ -92,6 +92,11 @@ public:
         ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
     }
 
+    Q_INVOKABLE int get(int)
+    {
+        return -1;
+    }
+
     Q_INVOKABLE void showHelp()
     {
         QDesktopServices::openUrl(QUrl("qthelp://org.qt-project.qtcreator/doc/index.html"));
