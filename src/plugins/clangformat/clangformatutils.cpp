@@ -197,13 +197,13 @@ static QString configForFile(Utils::FilePath fileName, bool checkForSettings)
 {
     QDir overrideDir;
     if (!checkForSettings || useProjectOverriddenSettings()) {
-        overrideDir = projectPath().toString();
+        overrideDir.setPath(projectPath().toString());
         if (!overrideDir.isEmpty() && overrideDir.exists(Constants::SETTINGS_FILE_NAME))
             return overrideDir.filePath(Constants::SETTINGS_FILE_NAME);
     }
 
     if (!checkForSettings || useGlobalOverriddenSettings()) {
-        overrideDir = globalPath().toString();
+        overrideDir.setPath(globalPath().toString());
         if (!overrideDir.isEmpty() && overrideDir.exists(Constants::SETTINGS_FILE_NAME))
             return overrideDir.filePath(Constants::SETTINGS_FILE_NAME);
     }

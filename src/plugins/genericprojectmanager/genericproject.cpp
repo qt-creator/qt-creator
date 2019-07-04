@@ -289,7 +289,7 @@ bool GenericProject::addFiles(const QStringList &filePaths)
     for (const QString &filePath : filePaths)
         insertSorted(&newList, baseDir.relativeFilePath(filePath));
 
-    const QSet<QString> includes = m_projectIncludePaths.toSet();
+    const QSet<QString> includes = Utils::toSet(m_projectIncludePaths);
     QSet<QString> toAdd;
 
     for (const QString &filePath : filePaths) {

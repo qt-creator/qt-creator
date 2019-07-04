@@ -1637,7 +1637,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
                 });
         }
         const QStringList directoriesToAdd = Utils::filtered<QStringList>(
-            result->directoriesWithWildcards.toList(),
+            Utils::toList(result->directoriesWithWildcards),
             [this](const QString &path) {
                 return !m_wildcardWatcher->watchesDirectory(path);
             });

@@ -320,7 +320,7 @@ QmlEngine::~QmlEngine()
         if (textEditPtr)
             documentsToClose << textEditPtr.data()->document();
     }
-    EditorManager::closeDocuments(documentsToClose.toList());
+    EditorManager::closeDocuments(Utils::toList(documentsToClose));
 
     delete d;
 }
