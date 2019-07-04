@@ -341,6 +341,16 @@ void TaskFilterModel::setFilterIncludesWarnings(bool b)
     invalidateFilter();
 }
 
+int TaskFilterModel::issuesCount(int startRow, int endRow) const
+{
+    int count = 0;
+    for (int r = startRow; r <= endRow; ++r) {
+        if (task(index(r, 0)).type != Task::Unknown)
+            ++count;
+    }
+    return count;
+}
+
 void TaskFilterModel::updateFilterProperties(const QString &filterText,
                                              Qt::CaseSensitivity caseSensitivity, bool isRegexp)
 {
