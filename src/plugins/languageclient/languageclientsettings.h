@@ -48,8 +48,6 @@ namespace ProjectExplorer { class Project; }
 
 namespace LanguageClient {
 
-constexpr char noLanguageFilter[] = "No Filter";
-
 class Client;
 class BaseClientInterface;
 
