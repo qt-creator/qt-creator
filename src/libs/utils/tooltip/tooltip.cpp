@@ -356,6 +356,7 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
             !m_rect.contains(static_cast<QMouseEvent*>(event)->pos())) {
             hideTipWithDelay();
         }
+        break;
     default:
         break;
     }
