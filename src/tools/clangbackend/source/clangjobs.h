@@ -50,7 +50,7 @@ public:
     };
 
     using RunningJobs = QHash<IAsyncJob *, RunningJob>;
-    using JobFinishedCallback = std::function<void(RunningJob, IAsyncJob *)>;
+    using JobFinishedCallback = std::function<bool(RunningJob, IAsyncJob *)>;
 
 public:
     Jobs(Documents &documents,

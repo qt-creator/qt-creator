@@ -60,6 +60,7 @@ void SupportiveTranslationUnitInitializer::startInitializing()
 
     m_jobs.setJobFinishedCallback([this](const Jobs::RunningJob &runningJob, IAsyncJob *) {
         checkIfParseJobFinished(runningJob);
+        return false;
     });
     addJob(JobRequest::Type::ParseSupportiveTranslationUnit);
     m_jobs.process();
