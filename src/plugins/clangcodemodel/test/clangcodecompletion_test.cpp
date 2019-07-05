@@ -226,7 +226,7 @@ bool OpenEditorAtCursorPosition::waitUntilProjectPartChanged(const QString &newP
 
 bool OpenEditorAtCursorPosition::waitUntil(const std::function<bool ()> &condition, int timeout)
 {
-    QTime time;
+    QElapsedTimer time;
     time.start();
 
     forever {
@@ -432,7 +432,7 @@ bool MonitorGeneratedUiFile::waitUntilGenerated(int timeout) const
     if (m_isGenerated)
         return true;
 
-    QTime time;
+    QElapsedTimer time;
     time.start();
 
     forever {
@@ -472,10 +472,10 @@ public:
     {
         QTC_ASSERT(writeFile(m_filePath, m_fileContents), return false);
 
-        QTime totalTime;
+        QElapsedTimer totalTime;
         totalTime.start();
 
-        QTime writeFileAgainTime;
+        QElapsedTimer writeFileAgainTime;
         writeFileAgainTime.start();
 
         forever {
