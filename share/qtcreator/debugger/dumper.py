@@ -1230,12 +1230,28 @@ class DumperBase:
         ns = self.qtNamespace()
         if len(ns) > 0 and typeName.startswith(ns):
             typeName = typeName[len(ns):]
-        pos = typeName.find('<')
-        # FIXME: make it recognize  foo<A>::bar<B>::iterator?
-        while pos != -1:
-            pos1 = typeName.rfind('>', pos)
-            typeName = typeName[0:pos] + typeName[pos1+1:]
-            pos = typeName.find('<')
+        # warn( 'stripping %s' % typeName )
+        lvl = 0
+        pos = None
+        stripChunks = []
+        sz = len(typeName)
+        for index in range(0, sz):
+            s = typeName[index]
+            if s == '<':
+                lvl += 1
+                if lvl == 1:
+                    pos = index
+                continue
+            elif s == '>':
+                lvl -= 1
+                if lvl < 0 :
+                    error("Unbalanced '<' in type, @index %d" % index)
+                if lvl == 0:
+                    stripChunks.append((pos, index+1))
+        if lvl != 0:
+            error("unbalanced at end of type name")
+        for (f, l) in reversed(stripChunks):
+            typeName = typeName[:f] + typeName[l:]
         return typeName
 
     def tryPutPrettyItem(self, typeName, value):
