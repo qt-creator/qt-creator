@@ -103,20 +103,6 @@ SymbolKindAndTags symbolKindAndTags(const clang::Decl *declaration)
     return visitor.Visit(declaration);
 }
 
-bool isDeclaration(clang::index::SymbolRoleSet symbolRoles)
-{
-    using namespace clang::index;
-
-    return symbolRoles & (uint(SymbolRole::Declaration) | uint(SymbolRole::Definition));
-}
-
-bool isReference(clang::index::SymbolRoleSet symbolRoles)
-{
-    using namespace clang::index;
-
-    return symbolRoles & (uint(SymbolRole::Reference) | uint(SymbolRole::Call));
-}
-
 } // namespace
 
 bool IndexDataConsumer::skipSymbol(clang::FileID fileId, clang::index::SymbolRoleSet symbolRoles)
