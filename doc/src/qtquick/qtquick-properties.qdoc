@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -69,9 +69,6 @@
     To set the visibility of the item, select \uicontrol Edit >
     \uicontrol Visibility in the context menu.
 
-    To specify the color of the selected item in the \uicontrol {Select Color}
-    dialog, select \uicontrol {Edit Color} in the context menu.
-
     For more information on the properties available for an item, press
     \key {F1}.
 
@@ -125,6 +122,39 @@
             \li FALSE (hightlighted)
             \li The type is explicitly set to hidden.
     \endtable
+
+    \section1 Picking Colors
+
+    To specify the color of the selected item in the color picker view (1),
+    select the color picker icon (2) in the \uicontrol Properties pane.
+
+    \image qtquick-designer-color-picker.png "Color Picker view"
+
+    You can use either a solid color (3) or a gradient (4). You can select the
+    gradient in the \uicontrol {Gradient Picker} (5).
+
+    The \uicontrol Original field displays the original color of the item,
+    whereas the \uicontrol New field displays the current color. The
+    \uicontrol Recent field displays the colors that you have last selected.
+
+    \section1 Picking Gradients
+
+    The \uicontrol {Gradient Picker} enables you to specify
+    \l{https://webgradients.com/}{WebGradients} for QML types
+    that support \l QGradient.
+
+    To open the \uicontrol {Gradient Picker}, select the
+    \uicontrol {Gradient Picker Dialog} icon in the \uicontrol Properties view.
+
+    \image qtquick-designer-gradient-picker.png "Gradient Picker dialog"
+
+    To apply a gradient on the selected item, select \uicontrol Apply.
+
+    To save a gradient in the \uicontrol {User Presets} tab, select
+    \uicontrol Save.
+
+    By default, a linear gradient (4) is used, but you can select another
+    supported gradient type in the \uicontrol Properties view.
 
     \section1 Marking Text Items for Translation
 
