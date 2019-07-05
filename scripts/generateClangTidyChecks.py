@@ -150,9 +150,9 @@ def main():
     process = subprocess.Popen([arguments.tidypath, '-checks=*', '-list-checks'], stdout=subprocess.PIPE)
     lines = process.stdout.read().splitlines()
     lines.pop(0) # 'Enabled checks:'
-    major_checks = ['android-', 'boost-', 'bugprone-', 'cert-', 'clang-analyzer-',
+    major_checks = ['abseil-', 'android-', 'boost-', 'bugprone-', 'cert-', 'clang-analyzer-',
         'cppcoreguidelines-', 'fuchsia-', 'google-', 'hicpp-', 'llvm-', 'misc-', 'modernize-',
-        'mpi-', 'objc-', 'performance-', 'readability-']
+        'mpi-', 'objc-', 'performance-', 'portability-', 'readability-', 'zircon-']
     current_major = 0
     major_groups = {}
     for line in lines:
