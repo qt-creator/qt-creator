@@ -40,12 +40,20 @@ T.SpinBox {
 
     property int decimals: 0
 
-    property real minStepSize: 1
-    property real maxStepSize: 10
+    property real minStepSize: {
+        var tmpMinStepSize = Number((mySpinBox.realStepSize * 0.1).toFixed(mySpinBox.decimals))
+        return (tmpMinStepSize) ? tmpMinStepSize : mySpinBox.realStepSize
+    }
+    property real maxStepSize: {
+        var tmpMaxStepSize = Number((mySpinBox.realStepSize * 10.0).toFixed(mySpinBox.decimals))
+        return (tmpMaxStepSize < mySpinBox.realTo) ? tmpMaxStepSize : mySpinBox.realStepSize
+    }
 
     property bool edit: spinBoxInput.activeFocus
     property bool hover: false // This property is used to indicate the global hover state
     property bool drag: false
+
+    property real realDragRange: realTo - realFrom
 
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
@@ -246,11 +254,10 @@ T.SpinBox {
 
     onRealValueChanged: {
         spinBoxInput.text = mySpinBox.textFromValue(mySpinBox.realValue, mySpinBox.locale)
-        mySpinBox.value = 0 // Without setting value back to 0, it can occur that one of
+        mySpinBox.value = 0 // Without setting value back to 0, it can happen that one of
                             // the indicator will be disabled due to range logic.
     }
     onRealValueModified: myTimer.restart()
-
     onFocusChanged: mySpinBox.setValueFromInput()
     onDisplayTextChanged: spinBoxInput.text = mySpinBox.displayText
     onActiveFocusChanged: {
@@ -269,7 +276,7 @@ T.SpinBox {
             // Store current step size
             var currStepSize = mySpinBox.realStepSize
 
-            // Set stepSize according to used modifier key
+            // Set realStepSize according to used modifier key
             if (event.modifiers & Qt.ControlModifier)
                 mySpinBox.realStepSize = mySpinBox.minStepSize
 
@@ -281,7 +288,7 @@ T.SpinBox {
             else
                 mySpinBox.realDecrease()
 
-            // Reset step size
+            // Reset realStepSize
             mySpinBox.realStepSize = currStepSize
         }
 

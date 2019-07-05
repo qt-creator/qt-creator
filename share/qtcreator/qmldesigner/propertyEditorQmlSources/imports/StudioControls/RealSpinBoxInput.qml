@@ -76,25 +76,53 @@ TextInput {
         acceptedDevices: PointerDevice.Mouse
         enabled: true
 
-        property real initialValue: 0
+        property real initialValue: myControl.realValue
+        property real multiplier: 1.0
 
         onActiveChanged: {
             if (dragHandler.active) {
                 dragHandler.initialValue = myControl.realValue
-                mouseArea.cursorShape = Qt.ClosedHandCursor
+                mouseArea.cursorShape = Qt.ClosedHandCursor // TODO
                 myControl.drag = true
                 myControl.dragStarted()
+                // Force focus on the non visible component to receive key events
+                dragModifierWorkaround.forceActiveFocus()
             } else {
-                mouseArea.cursorShape = Qt.PointingHandCursor
+                mouseArea.cursorShape = Qt.PointingHandCursor // TODO
                 myControl.drag = false
                 myControl.dragEnded()
+                // Avoid active focus on the component after dragging
+                dragModifierWorkaround.focus = false
+                textInput.focus = false
+                myControl.focus = false
             }
         }
-        onTranslationChanged: {
+        onTranslationChanged: calcValue()
+        onMultiplierChanged: calcValue()
+
+        function calcValue() {
+            var tmp = myControl.realDragRange / StudioTheme.Values.dragLength
             var currValue = myControl.realValue
-            myControl.setRealValue(dragHandler.initialValue + (translation.x * myControl.realStepSize))
+            myControl.setRealValue(dragHandler.initialValue + (tmp * dragHandler.translation.x * dragHandler.multiplier))
             if (currValue !== myControl.realValue)
                 myControl.realValueModified()
+        }
+    }
+
+    Item {
+        id: dragModifierWorkaround
+        Keys.onPressed: {
+            event.accepted = true
+
+            if (event.modifiers & Qt.ControlModifier)
+                dragHandler.multiplier = 0.1
+
+            if (event.modifiers & Qt.ShiftModifier)
+                dragHandler.multiplier = 10.0
+        }
+        Keys.onReleased: {
+            event.accepted = true
+            dragHandler.multiplier = 1.0
         }
     }
 
@@ -110,6 +138,9 @@ TextInput {
 
     MouseArea {
         id: mouseArea
+
+        property real stepSize: myControl.realStepSize
+
         anchors.fill: parent
         enabled: true
         hoverEnabled: true
@@ -123,12 +154,22 @@ TextInput {
             if (!myControl.__wheelEnabled)
                 return
 
+            // Set stepSize according to used modifier key
+            if (wheel.modifiers & Qt.ControlModifier)
+                mouseArea.stepSize = myControl.minStepSize
+
+            if (wheel.modifiers & Qt.ShiftModifier)
+                mouseArea.stepSize = myControl.maxStepSize
+
             var currValue = myControl.realValue
             myControl.valueFromText(textInput.text, myControl.locale)
-            myControl.setRealValue(myControl.realValue + (wheel.angleDelta.y / 120.0 * myControl.realStepSize))
+            myControl.setRealValue(myControl.realValue + (wheel.angleDelta.y / 120.0 * mouseArea.stepSize))
 
             if (currValue !== myControl.realValue)
                 myControl.realValueModified()
+
+            // Reset stepSize
+            mouseArea.stepSize = myControl.realStepSize
         }
     }
 
@@ -166,7 +207,7 @@ TextInput {
         },
         State {
             name: "edit"
-            when: textInput.edit
+            when: textInput.edit && !myControl.drag
             PropertyChanges {
                 target: textInputArea
                 color: StudioTheme.Values.themeFocusEdit
