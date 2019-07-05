@@ -3,8 +3,15 @@ import qbs.FileInfo
 
 Module {
     Depends { name: "qtc" }
+    Depends { name: "cpp" }
 
-    property bool priority: 1 // TODO: Remove declaration after 1.11 is out.
+    Properties {
+        condition: qbs.toolchain.contains("gcc") && !qbs.toolchain.contains("clang")
+                   && Utilities.versionCompare(cpp.compilerVersion, "9") >= 0
+        cpp.cxxFlags: ["-Wno-deprecated-copy", "-Wno-init-list-lifetime"]
+    }
+
+    priority: 1
 
     property bool enableUnitTests: false
     property bool enableProjectFileUpdates: true
