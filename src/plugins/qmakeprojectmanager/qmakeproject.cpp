@@ -287,7 +287,7 @@ void QmakeProject::updateCppCodeModel()
     }
 
     CppTools::GeneratedCodeModelSupport::update(generators);
-    m_cppCodeModelUpdater->update({this, kitInfo, rpps});
+    m_cppCodeModelUpdater->update({this, kitInfo, activeBuildEnvironment(), rpps});
 }
 
 void QmakeProject::updateQmlJSCodeModel()

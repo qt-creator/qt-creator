@@ -63,9 +63,11 @@ public:
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const final;
     ProjectExplorer::WarningFlags warningFlags(const QStringList &cxxflags) const final;
 
-    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const final;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
+            const Utils::Environment &) const final;
     ProjectExplorer::HeaderPaths builtInHeaderPaths(const QStringList &cxxFlags,
-                                                    const Utils::FilePath &) const final;
+                                                    const Utils::FilePath &,
+                                                    const Utils::Environment &env) const final;
     void addToEnvironment(Utils::Environment &env) const final;
     ProjectExplorer::IOutputParser *outputParser() const final;
 

@@ -83,9 +83,10 @@ public:
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Macros predefinedMacros(const QStringList &cxxflags) const override;
 
-    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &env) const override;
     HeaderPaths builtInHeaderPaths(const QStringList &flags,
-                                   const Utils::FilePath &sysRootPath) const override;
+                                   const Utils::FilePath &sysRootPath,
+                                   const Utils::Environment &env) const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
@@ -225,7 +226,8 @@ public:
     QString originalTargetTriple() const override;
     QString sysRoot() const override;
 
-    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
+            const Utils::Environment &env) const override;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
 

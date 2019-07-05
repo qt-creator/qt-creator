@@ -144,6 +144,7 @@ private:
     QHash<ProjectExplorer::Target *, qbs::Project> m_qbsProjects;
     qbs::Project m_qbsProject; // for activeTarget()
     qbs::ProjectData m_projectData; // Cached m_qbsProject.projectData()
+    Utils::Environment m_lastParseEnv;
     QSet<Core::IDocument *> m_qbsDocuments;
 
     QbsProjectParser *m_qbsProjectParser = nullptr;

@@ -1119,27 +1119,29 @@ WarningFlags MsvcToolChain::warningFlags(const QStringList &cflags) const
     return flags;
 }
 
-ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunner(
+        const Environment &env) const
 {
-    Utils::Environment env(m_lastEnvironment);
-    addToEnvironment(env);
+    Utils::Environment fullEnv = env;
+    addToEnvironment(fullEnv);
 
-    return [this, env](const QStringList &, const QString &, const QString &) {
+    return [this, fullEnv](const QStringList &, const QString &, const QString &) {
         QMutexLocker locker(&m_headerPathsMutex);
         if (m_headerPaths.isEmpty()) {
-            foreach (const QString &path,
-                     env.value(QLatin1String("INCLUDE")).split(QLatin1Char(';'))) {
-                m_headerPaths.append({path, HeaderPathType::BuiltIn});
-            }
+            m_headerPaths = transform<QVector>(fullEnv.pathListValue("INCLUDE"),
+                                               [](const FilePath &p) {
+                return HeaderPath(p.toString(), HeaderPathType::BuiltIn);
+            });
         }
         return m_headerPaths;
     };
 }
 
 HeaderPaths MsvcToolChain::builtInHeaderPaths(const QStringList &cxxflags,
-                                              const Utils::FilePath &sysRoot) const
+                                              const Utils::FilePath &sysRoot,
+                                              const Environment &env) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxflags, sysRoot.toString(), "");
+    return createBuiltInHeaderPathsRunner(env)(cxxflags, sysRoot.toString(), "");
 }
 
 void MsvcToolChain::addToEnvironment(Utils::Environment &env) const
@@ -1750,14 +1752,15 @@ Utils::LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &
     return MsvcToolChain::msvcLanguageVersion(cxxflags, language, macros);
 }
 
-ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeaderPathsRunner() const
+ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeaderPathsRunner(
+        const Environment &env) const
 {
     {
         QMutexLocker locker(&m_headerPathsMutex);
         m_headerPaths.clear();
     }
 
-    return MsvcToolChain::createBuiltInHeaderPathsRunner();
+    return MsvcToolChain::createBuiltInHeaderPathsRunner(env);
 }
 
 // --------------------------------------------------------------------------

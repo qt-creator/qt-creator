@@ -502,7 +502,7 @@ void GenericProject::refreshCppCodeModel()
     rpp.setFlagsForC({nullptr, m_cflags});
     rpp.setFiles(m_files);
 
-    m_cppCodeModelUpdater->update({this, kitInfo, {rpp}});
+    m_cppCodeModelUpdater->update({this, kitInfo, activeBuildEnvironment(), {rpp}});
 }
 
 void GenericProject::updateDeploymentData()

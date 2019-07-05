@@ -82,6 +82,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
     QTC_ASSERT(!dir.isEmpty(), return);
 
     m_currentProgressBase = 0;
+    m_environment = env;
 
     qbs::SetupProjectParameters params;
     QVariantMap userConfig = config;

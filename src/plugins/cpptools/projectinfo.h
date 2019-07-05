@@ -47,7 +47,7 @@ class ToolChainInfo
 public:
     ToolChainInfo() = default;
     ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
-                  const QString &sysRootPath);
+                  const QString &sysRootPath, const Utils::Environment &env);
 
     bool isValid() const { return type.isValid(); }
 
@@ -69,6 +69,7 @@ public:
     ProjectUpdateInfo() = default;
     ProjectUpdateInfo(ProjectExplorer::Project *project,
                       const KitInfo &kitInfo,
+                      const Utils::Environment &env,
                       const RawProjectParts &rawProjectParts);
     bool isValid() const { return project && !rawProjectParts.isEmpty(); }
 

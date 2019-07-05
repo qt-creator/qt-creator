@@ -275,9 +275,14 @@ FilePath Environment::searchInPath(const QString &executable,
 
 FilePathList Environment::path() const
 {
-    const QStringList pathComponents = value("PATH")
+    return pathListValue("PATH");
+}
+
+FilePathList Environment::pathListValue(const QString &varName) const
+{
+    const QStringList pathComponents = value(varName)
             .split(OsSpecificAspects::pathListSeparator(m_osType), QString::SkipEmptyParts);
-    return Utils::transform(pathComponents, &FilePath::fromUserInput);
+    return transform(pathComponents, &FilePath::fromUserInput);
 }
 
 void Environment::modifySystemEnvironment(const EnvironmentItems &list)

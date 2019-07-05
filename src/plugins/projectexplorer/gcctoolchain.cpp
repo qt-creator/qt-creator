@@ -574,7 +574,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
     if (!originalTargetTriple.isEmpty())
         arguments << "-target" << originalTargetTriple;
 
-    const Utils::optional<HeaderPaths> cachedPaths = headerCache->check(arguments);
+    const Utils::optional<HeaderPaths> cachedPaths = headerCache->check(qMakePair(env, arguments));
     if (cachedPaths)
         return cachedPaths.value();
 
@@ -582,7 +582,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
                                        arguments,
                                        env.toStringList());
     extraHeaderPathsFunction(paths);
-    headerCache->insert(arguments, paths);
+    headerCache->insert(qMakePair(env, arguments), paths);
 
     qCDebug(gccLog) << "Reporting header paths to code model:";
     for (const HeaderPath &hp : paths) {
@@ -594,14 +594,15 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
     return paths;
 }
 
-ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner(
+        const Environment &env) const
 {
     // Using a clean environment breaks ccache/distcc/etc.
-    Environment env = Environment::systemEnvironment();
-    addToEnvironment(env);
+    Environment fullEnv = env;
+    addToEnvironment(fullEnv);
 
     // This runner must be thread-safe!
-    return [env,
+    return [fullEnv,
             compilerCommand = m_compilerCommand,
             platformCodeGenFlags = m_platformCodeGenFlags,
             reinterpretOptions = m_optionsReinterpreter,
@@ -610,7 +611,7 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
             extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
                                                                    const QString &sysRoot,
                                                                    const QString &) {
-        return builtInHeaderPaths(env,
+        return builtInHeaderPaths(fullEnv,
                                   compilerCommand,
                                   platformCodeGenFlags,
                                   reinterpretOptions,
@@ -624,12 +625,13 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
 }
 
 HeaderPaths GccToolChain::builtInHeaderPaths(const QStringList &flags,
-                                             const FilePath &sysRootPath) const
+                                             const FilePath &sysRootPath,
+                                             const Environment &env) const
 {
-    return createBuiltInHeaderPathsRunner()(flags,
-                                            sysRootPath.isEmpty() ? sysRoot()
-                                                                  : sysRootPath.toString(),
-                                            originalTargetTriple());
+    return createBuiltInHeaderPathsRunner(env)(flags,
+                                               sysRootPath.isEmpty() ? sysRoot()
+                                                                     : sysRootPath.toString(),
+                                               originalTargetTriple());
 }
 
 void GccToolChain::addCommandPathToEnvironment(const FilePath &command, Environment &env)
@@ -1391,14 +1393,15 @@ QString ClangToolChain::sysRoot() const
     return mingwCompiler.parentDir().parentDir().toString();
 }
 
-ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunner(
+        const Environment &env) const
 {
     // Using a clean environment breaks ccache/distcc/etc.
-    Environment env = Environment::systemEnvironment();
-    addToEnvironment(env);
+    Environment fullEnv = env;
+    addToEnvironment(fullEnv);
 
     // This runner must be thread-safe!
-    return [env,
+    return [fullEnv,
             compilerCommand = m_compilerCommand,
             platformCodeGenFlags = m_platformCodeGenFlags,
             reinterpretOptions = m_optionsReinterpreter,
@@ -1407,7 +1410,7 @@ ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunn
             extraHeaderPathsFunction = m_extraHeaderPathsFunction](const QStringList &flags,
                                                                    const QString &sysRoot,
                                                                    const QString &target) {
-        return builtInHeaderPaths(env,
+        return builtInHeaderPaths(fullEnv,
                                   compilerCommand,
                                   platformCodeGenFlags,
                                   reinterpretOptions,

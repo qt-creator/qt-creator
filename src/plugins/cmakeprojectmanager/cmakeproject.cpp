@@ -405,7 +405,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
                 rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags});
         }
 
-        m_cppCodeModelUpdater->update({this, kitInfo, rpps});
+        m_cppCodeModelUpdater->update({this, kitInfo, activeBuildEnvironment(), rpps});
     }
     {
         TraceTimer qmlCodemodelTimer("    qml codemodel");

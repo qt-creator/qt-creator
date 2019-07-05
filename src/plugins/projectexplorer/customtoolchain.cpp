@@ -155,7 +155,8 @@ void CustomToolChain::setPredefinedMacros(const Macros &macros)
     toolChainUpdated();
 }
 
-ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRunner(
+        const Environment &) const
 {
     const HeaderPaths builtInHeaderPaths = m_builtInHeaderPaths;
 
@@ -173,9 +174,10 @@ ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRun
 }
 
 HeaderPaths CustomToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                               const FilePath &fileName) const
+                                                const FilePath &fileName,
+                                                const Environment &env) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
+    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
 }
 
 void CustomToolChain::addToEnvironment(Environment &env) const

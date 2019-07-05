@@ -298,7 +298,8 @@ WarningFlags KeilToolchain::warningFlags(const QStringList &cxxflags) const
     return WarningFlags::Default;
 }
 
-ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunner(
+        const Environment &) const
 {
     const Utils::FilePath compilerCommand = m_compilerCommand;
 
@@ -317,9 +318,10 @@ ToolChain::BuiltInHeaderPathsRunner KeilToolchain::createBuiltInHeaderPathsRunne
 }
 
 HeaderPaths KeilToolchain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                              const FilePath &fileName) const
+                                              const FilePath &fileName,
+                                              const Environment &env) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
+    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
 }
 
 void KeilToolchain::addToEnvironment(Environment &env) const

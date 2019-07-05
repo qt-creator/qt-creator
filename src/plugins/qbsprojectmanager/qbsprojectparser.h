@@ -50,6 +50,7 @@ public:
                const QString &configName);
     void startRuleExecution();
     void cancel();
+    Utils::Environment environment() const { return m_environment; }
 
     qbs::Project qbsProject() const;
     qbs::ErrorInfo error();
@@ -69,6 +70,7 @@ private:
 
     void handleRuleExecutionDone();
 
+    Utils::Environment m_environment;
     QString m_projectFilePath;
     qbs::SetupProjectJob *m_qbsSetupProjectJob = nullptr;
     qbs::BuildJob *m_ruleExecutionJob = nullptr;

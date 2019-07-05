@@ -85,12 +85,14 @@ WarningFlags NimToolChain::warningFlags(const QStringList &) const
     return WarningFlags::NoWarnings;
 }
 
-ToolChain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner(
+        const Environment &) const
 {
     return ToolChain::BuiltInHeaderPathsRunner();
 }
 
-HeaderPaths NimToolChain::builtInHeaderPaths(const QStringList &, const FilePath &) const
+HeaderPaths NimToolChain::builtInHeaderPaths(const QStringList &, const FilePath &,
+                                             const Environment &) const
 {
     return {};
 }

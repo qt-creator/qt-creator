@@ -77,9 +77,11 @@ public:
     const Macros &rawPredefinedMacros() const;
     void setPredefinedMacros(const Macros &macros);
 
-    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const override;
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
+            const Utils::Environment &) const override;
     HeaderPaths builtInHeaderPaths(const QStringList &cxxFlags,
-                                   const Utils::FilePath &) const override;
+                                   const Utils::FilePath &,
+                                   const Utils::Environment &env) const override;
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
     IOutputParser *outputParser() const override;

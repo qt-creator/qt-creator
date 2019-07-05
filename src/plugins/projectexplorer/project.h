@@ -42,7 +42,10 @@
 #include <functional>
 
 namespace Core { class Context; }
-namespace Utils { class MacroExpander; }
+namespace Utils {
+class Environment;
+class MacroExpander;
+}
 
 namespace ProjectExplorer {
 
@@ -262,6 +265,8 @@ protected:
 
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);
+
+    Utils::Environment activeBuildEnvironment() const;
 
 private:
     void handleSubTreeChanged(FolderNode *node);

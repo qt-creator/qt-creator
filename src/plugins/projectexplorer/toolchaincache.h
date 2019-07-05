@@ -27,14 +27,14 @@
 
 #include <QMutex>
 #include <QMutexLocker>
-#include <QStringList>
+#include <QPair>
 #include <QVector>
 
 #include <utils/optional.h>
 
 namespace ProjectExplorer {
 
-template<class T, int Size = 16>
+template<class K, class T, int Size = 16>
 class Cache
 {
 public:
@@ -61,14 +61,14 @@ public:
         return *this;
     }
 
-    void insert(const QStringList &compilerArguments, const T &values)
+    void insert(const K &key, const T &values)
     {
         CacheItem runResults;
-        runResults.first = compilerArguments;
+        runResults.first = key;
         runResults.second = values;
 
         QMutexLocker locker(&m_mutex);
-        if (!checkImpl(compilerArguments)) {
+        if (!checkImpl(key)) {
             if (m_cache.size() < Size) {
                 m_cache.push_back(runResults);
             } else {
@@ -78,10 +78,10 @@ public:
         }
     }
 
-    Utils::optional<T> check(const QStringList &compilerArguments)
+    Utils::optional<T> check(const K &key)
     {
         QMutexLocker locker(&m_mutex);
-        return checkImpl(compilerArguments);
+        return checkImpl(key);
     }
 
     void invalidate()
@@ -91,17 +91,17 @@ public:
     }
 
 private:
-    Utils::optional<T> checkImpl(const QStringList &compilerArguments)
+    Utils::optional<T> checkImpl(const K &key)
     {
         auto it = std::stable_partition(m_cache.begin(), m_cache.end(), [&](const CacheItem &ci) {
-            return ci.first != compilerArguments;
+            return ci.first != key;
         });
         if (it != m_cache.end())
             return m_cache.back().second;
         return {};
     }
 
-    using CacheItem = QPair<QStringList, T>;
+    using CacheItem = QPair<K, T>;
 
     QMutex m_mutex;
     QVector<CacheItem> m_cache;

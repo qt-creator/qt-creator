@@ -533,6 +533,8 @@ void QbsProject::handleQbsParsingDone(bool success)
     m_qbsProject = m_qbsProjectParser->qbsProject();
     m_qbsProjects.insert(activeTarget(), m_qbsProject);
     bool dataChanged = false;
+    bool envChanged = m_lastParseEnv != m_qbsProjectParser->environment();
+    m_lastParseEnv = m_qbsProjectParser->environment();
     if (success) {
         QTC_ASSERT(m_qbsProject.isValid(), return);
         const qbs::ProjectData &projectData = m_qbsProject.projectData();
@@ -552,6 +554,8 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     if (dataChanged)
         updateAfterParse();
+    else if (envChanged)
+        updateCppCodeModel();
     emitParsingFinished(success);
 }
 
@@ -1085,7 +1089,7 @@ void QbsProject::updateCppCodeModel()
     }
 
     CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
-    m_cppCodeModelUpdater->update({this, kitInfo, rpps});
+    m_cppCodeModelUpdater->update({this, kitInfo, activeBuildEnvironment(), rpps});
 }
 
 void QbsProject::updateQmlJsCodeModel()

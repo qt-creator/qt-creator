@@ -274,34 +274,25 @@ WarningFlags SdccToolChain::warningFlags(const QStringList &cxxflags) const
     return WarningFlags::Default;
 }
 
-ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner SdccToolChain::createBuiltInHeaderPathsRunner(
+        const Environment &) const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
 
     const Utils::FilePath compilerCommand = m_compilerCommand;
-    const Core::Id languageId = language();
     const Abi abi = m_targetAbi;
 
-    HeaderPathsCache headerPaths = headerPathsCache();
-
-    return [env, compilerCommand, headerPaths, languageId, abi](const QStringList &flags,
-                                                                const QString &fileName,
-                                                                const QString &) {
-        Q_UNUSED(flags)
-        Q_UNUSED(fileName)
-
-        const HeaderPaths paths = dumpHeaderPaths(compilerCommand, env.toStringList(), abi);
-        headerPaths->insert({}, paths);
-
-        return paths;
+    return [env, compilerCommand, abi](const QStringList &, const QString &, const QString &) {
+        return dumpHeaderPaths(compilerCommand, env.toStringList(), abi);
     };
 }
 
 HeaderPaths SdccToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                              const FilePath &fileName) const
+                                              const FilePath &fileName,
+                                              const Environment &env) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
+    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
 }
 
 void SdccToolChain::addToEnvironment(Environment &env) const

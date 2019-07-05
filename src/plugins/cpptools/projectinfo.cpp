@@ -35,7 +35,7 @@
 namespace CppTools {
 
 ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
-                             const QString &sysRootPath)
+                             const QString &sysRootPath, const Utils::Environment &env)
 {
     if (toolChain) {
         // Keep the following cheap/non-blocking for the ui thread...
@@ -49,20 +49,21 @@ ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
         // ...and save the potentially expensive operations for later so that
         // they can be run from a worker thread.
         this->sysRootPath = sysRootPath;
-        headerPathsRunner = toolChain->createBuiltInHeaderPathsRunner();
+        headerPathsRunner = toolChain->createBuiltInHeaderPathsRunner(env);
         macroInspectionRunner = toolChain->createMacroInspectionRunner();
     }
 }
 
 ProjectUpdateInfo::ProjectUpdateInfo(ProjectExplorer::Project *project,
                                      const KitInfo &kitInfo,
+                                     const Utils::Environment &env,
                                      const RawProjectParts &rawProjectParts)
     : project(project)
     , rawProjectParts(rawProjectParts)
     , cToolChain(kitInfo.cToolChain)
     , cxxToolChain(kitInfo.cxxToolChain)
-    , cToolChainInfo(ToolChainInfo(cToolChain, kitInfo.sysRootPath))
-    , cxxToolChainInfo(ToolChainInfo(cxxToolChain, kitInfo.sysRootPath))
+    , cToolChainInfo(ToolChainInfo(cToolChain, kitInfo.sysRootPath, env))
+    , cxxToolChainInfo(ToolChainInfo(cxxToolChain, kitInfo.sysRootPath, env))
 {
 }
 

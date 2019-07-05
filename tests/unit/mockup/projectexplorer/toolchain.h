@@ -33,6 +33,8 @@
 
 #include <functional>
 
+namespace Utils { class Environment; }
+
 namespace ProjectExplorer {
 
 class ToolChain
@@ -45,7 +47,9 @@ public:
 
     using BuiltInHeaderPathsRunner = std::function<HeaderPaths(
         const QStringList &cxxflags, const QString &sysRoot, const QString &originalTargetTriple)>;
-    virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner() const { return BuiltInHeaderPathsRunner(); }
+    virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &env) const {
+        return BuiltInHeaderPathsRunner();
+    }
 
     class MacroInspectionReport
     {

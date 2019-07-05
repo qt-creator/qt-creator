@@ -46,7 +46,7 @@ void tst_ToolChainCache::insertOne()
 {
     const QStringList key1 = {"one"};
     const QString value1 = "value1";
-    ProjectExplorer::Cache<QString, 2> cache;
+    ProjectExplorer::Cache<QStringList, QString, 2> cache;
 
     cache.insert(key1, value1);
 
@@ -59,7 +59,7 @@ void tst_ToolChainCache::insertOneOne()
 {
     const QStringList key1 = {"one"};
     const QString value1 = "value1";
-    ProjectExplorer::Cache<QString, 2> cache;
+    ProjectExplorer::Cache<QStringList, QString, 2> cache;
 
     cache.insert(key1, value1);
     cache.insert(key1, value1);
@@ -75,7 +75,7 @@ void tst_ToolChainCache::insertOneTwo()
     const QString value1 = "value1";
     const QStringList key2 = {"two"};
     const QString value2 = "value2";
-    ProjectExplorer::Cache<QString, 2> cache;
+    ProjectExplorer::Cache<QStringList, QString, 2> cache;
 
     cache.insert(key1, value1);
     cache.insert(key2, value2);
@@ -95,7 +95,7 @@ void tst_ToolChainCache::insertOneTwoThree()
     const QString value2 = "value2";
     const QStringList key3 = {"three"};
     const QString value3 = "value3";
-    ProjectExplorer::Cache<QString, 2> cache;
+    ProjectExplorer::Cache<QStringList, QString, 2> cache;
 
     cache.insert(key1, value1);
     cache.insert(key2, value2);
@@ -117,7 +117,7 @@ void tst_ToolChainCache::insertOneTwoOneThree()
     const QString value2 = "value2";
     const QStringList key3 = {"three"};
     const QString value3 = "value3";
-    ProjectExplorer::Cache<QString, 2> cache;
+    ProjectExplorer::Cache<QStringList, QString, 2> cache;
 
     cache.insert(key1, value1);
     cache.insert(key2, value2);

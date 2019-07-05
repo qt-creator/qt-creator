@@ -48,8 +48,9 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projecttree.h>
 
-#include <utils/pointeralgorithm.h>
+#include <utils/environment.h>
 #include <utils/macroexpander.h>
+#include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFileDialog>
@@ -809,6 +810,14 @@ void Project::projectLoaded()
 Task Project::createProjectTask(Task::TaskType type, const QString &description)
 {
     return Task(type, description, Utils::FilePath(), -1, Core::Id());
+}
+
+Utils::Environment Project::activeBuildEnvironment() const
+{
+    const BuildConfiguration * const buildConfiguration = activeTarget()
+            ? activeTarget()->activeBuildConfiguration() : nullptr;
+    return buildConfiguration ? buildConfiguration->environment()
+                              : Utils::Environment::systemEnvironment();
 }
 
 Core::Context Project::projectContext() const

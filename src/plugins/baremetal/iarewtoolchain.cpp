@@ -288,7 +288,8 @@ WarningFlags IarToolChain::warningFlags(const QStringList &cxxflags) const
     return WarningFlags::Default;
 }
 
-ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner() const
+ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner(
+        const Environment &) const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
@@ -312,9 +313,10 @@ ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
 }
 
 HeaderPaths IarToolChain::builtInHeaderPaths(const QStringList &cxxFlags,
-                                             const FilePath &fileName) const
+                                             const FilePath &fileName,
+                                             const Environment &env) const
 {
-    return createBuiltInHeaderPathsRunner()(cxxFlags, fileName.toString(), "");
+    return createBuiltInHeaderPathsRunner(env)(cxxFlags, fileName.toString(), "");
 }
 
 void IarToolChain::addToEnvironment(Environment &env) const
