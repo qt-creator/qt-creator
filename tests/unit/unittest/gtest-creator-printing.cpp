@@ -402,7 +402,6 @@ std::ostream &operator<<(std::ostream &os, const RequestCompletionsMessage &mess
        << message.filePath << ", "
        << message.line << ", "
        << message.column << ", "
-       << message.projectPartId << ", "
        << message.ticketNumber << ", "
        << message.funcNameStartLine << ", "
        << message.funcNameStartColumn

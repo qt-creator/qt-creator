@@ -38,7 +38,6 @@ QDebug operator<<(QDebug debug, const RequestCompletionsMessage &message)
     debug.nospace() << message.filePath << ", ";
     debug.nospace() << message.line << ", ";
     debug.nospace() << message.column << ", ";
-    debug.nospace() << message.projectPartId << ", ";
     debug.nospace() << message.ticketNumber;
     debug.nospace() << message.funcNameStartLine << ", ";
     debug.nospace() << message.funcNameStartColumn << ", ";

@@ -88,7 +88,6 @@ public:
 
 public:
     Utf8String filePath;
-    Utf8String projectPartId;
     static CLANGSUPPORT_EXPORT quint64 ticketCounter;
     quint64 ticketNumber = 0;
     quint32 line = 0;
