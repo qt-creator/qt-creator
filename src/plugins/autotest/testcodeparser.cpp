@@ -491,7 +491,7 @@ void TestCodeParser::onPartialParsingFinished()
 void TestCodeParser::parsePostponedFiles()
 {
     m_reparseTimerTimedOut = true;
-    scanForTests(m_postponedFiles.toList());
+    scanForTests(Utils::toList(m_postponedFiles));
 }
 
 void TestCodeParser::releaseParserInternals()
