@@ -3218,6 +3218,51 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
+       transform="translate(-213,-84)"
+       id="src/plugins/python/images/settingscategory_python">
+      <use
+         style="display:inline"
+         transform="translate(1128,148)"
+         height="100%"
+         width="100%"
+         id="use2493"
+         xlink:href="#backgroundRect_24"
+         y="0"
+         x="0" />
+      <path
+         sodipodi:nodetypes="ccccccsssscc"
+         inkscape:connector-curvature="0"
+         id="path1631-9"
+         d="m 1112,567 v 1 h 4 v 1 h -4 c -5.3,0 -5.3,7 0,7 v -1.5 c 0,-1.5 1.5,-2.5 2.5,-2.5 h 2 c 1.8137,0 2.5,-0.75 2.5,-2.5 V 567 c 0,-2.66 -7,-2.66 -7,0 z"
+         style="stroke-width:0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path1631-9"
+         id="use2537"
+         transform="rotate(-180,1116,572.5)"
+         width="100%"
+         height="100%" />
+      <path
+         style="fill:#ffffff"
+         d="m 1121,570.75 c 0,1.75 -1.5,3.25 -3.5,3.25 h -2.5 c -0.66,0 -1,0.33 -1,1 v 3 c 0,0 -0.031,1 2.3654,1 1.7918,0 2.6346,0.21875 2.6346,-0.99998 h -4 v -3 h 5 c 4,0 3.5,-4.75 1,-4.75 z"
+         id="path2539"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="sscccscccccs" />
+      <circle
+         style="fill:#ffffff"
+         id="path2541"
+         cx="1113.5"
+         cy="566.5"
+         r="0.625" />
+      <circle
+         style="fill:#000000"
+         id="path2541-4"
+         cx="1117.5"
+         cy="578.5"
+         r="0.5" />
+    </g>
+    <g
        id="src/plugins/autotest/images/settingscategory_autotest"
        transform="translate(-220,-84)">
       <use

@@ -14,6 +14,7 @@ QtcPlugin {
     Group {
         name: "General"
         files: [
+            "python.qrc",
             "pythoneditor.cpp", "pythoneditor.h",
             "pythonconstants.h",
             "pythonplugin.cpp", "pythonplugin.h",
@@ -21,6 +22,7 @@ QtcPlugin {
             "pythonindenter.cpp", "pythonindenter.h",
             "pythonformattoken.h",
             "pythonscanner.h", "pythonscanner.cpp",
+            "pythonsettings.cpp", "pythonsettings.h",
         ]
     }
 }

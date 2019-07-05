@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/python">
+        <file>images/settingscategory_python.png</file>
+        <file>images/settingscategory_python@2x.png</file>
+    </qresource>
+</RCC>

@@ -11,10 +11,15 @@ HEADERS += \
     pythonindenter.h \
     pythonformattoken.h \
     pythonscanner.h \
+    pythonsettings.h
 
 SOURCES += \
     pythonplugin.cpp \
     pythoneditor.cpp \
     pythonhighlighter.cpp \
     pythonindenter.cpp \
-    pythonscanner.cpp
+    pythonscanner.cpp \
+    pythonsettings.cpp
+
+RESOURCES += \
+    python.qrc

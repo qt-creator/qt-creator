@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,23 +25,38 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <utils/fileutils.h>
+
+#include <QUuid>
 
 namespace Python {
-namespace Constants {
+namespace Internal {
 
-const char C_PYTHONEDITOR_ID[] = "PythonEditor.PythonEditor";
-const char C_EDITOR_DISPLAY_NAME[] =
-        QT_TRANSLATE_NOOP("OpenWith::Editors", "Python Editor");
+class Interpreter
+{
+public:
+    QString id;
+    QString name;
+    Utils::FilePath command;
+};
 
-const char C_PYTHONOPTIONS_PAGE_ID[] = "PythonEditor.OptionsPage";
-const char C_PYTHON_SETTINGS_CATEGORY[] = "P.Python";
+class PythonSettings : public QObject
+{
+    Q_OBJECT
+public:
+    static void init();
 
-/*******************************************************************************
- * MIME type
- ******************************************************************************/
-const char C_PY_MIMETYPE[] = "text/x-python";
-const char C_PY_MIME_ICON[] = "text-x-python";
+    static QList<Interpreter> interpreters();
+    static Interpreter defaultInterpreter();
+    static void setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId);
+    static PythonSettings *instance();
 
-} // namespace Constants
-} // namespace Python
+signals:
+    void interpretersChanged(const QList<Interpreter> &interpreters, const QString &defaultId);
+
+private:
+    PythonSettings();
+};
+
+} // namespace Internal
+} // namespace PythonEditor

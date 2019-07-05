@@ -27,6 +27,7 @@
 #include "pythoneditor.h"
 #include "pythonconstants.h"
 #include "pythonhighlighter.h"
+#include "pythonsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -56,16 +57,19 @@
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
+#include <QComboBox>
 #include <QDir>
-#include <QRegExp>
-#include <QRegularExpression>
-#include <QRegularExpressionMatch>
-#include <QTextCursor>
+#include <QFormLayout>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QJsonValue>
-#include <QJsonArray>
+#include <QPushButton>
+#include <QRegExp>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QTextCursor>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -217,13 +221,102 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-class InterpreterAspect : public BaseStringAspect
+class InterpreterAspect : public ProjectConfigurationAspect
 {
     Q_OBJECT
 
 public:
     InterpreterAspect() = default;
+
+    Interpreter currentInterpreter() const;
+    void updateInterpreters(const QList<Interpreter> &interpreters);
+    void setDefaultInterpreter(const Interpreter &interpreter) { m_defaultId = interpreter.id; }
+
+    void fromMap(const QVariantMap &) override;
+    void toMap(QVariantMap &) const override;
+    void addToConfigurationLayout(QFormLayout *layout) override;
+
+private:
+    void updateCurrentInterpreter();
+    void updateComboBox();
+    QList<Interpreter> m_interpreters;
+    QPointer<QComboBox> m_comboBox;
+    QString m_defaultId;
+    QString m_currentId;
 };
+
+Interpreter InterpreterAspect::currentInterpreter() const
+{
+    return m_comboBox ? m_interpreters.value(m_comboBox->currentIndex()) : Interpreter();
+}
+
+void InterpreterAspect::updateInterpreters(const QList<Interpreter> &interpreters)
+{
+    m_interpreters = interpreters;
+    if (m_comboBox)
+        updateComboBox();
+}
+
+void InterpreterAspect::fromMap(const QVariantMap &map)
+{
+    m_currentId = map.value(settingsKey(), m_defaultId).toString();
+}
+
+void InterpreterAspect::toMap(QVariantMap &map) const
+{
+    map.insert(settingsKey(), m_currentId);
+}
+
+void InterpreterAspect::addToConfigurationLayout(QFormLayout *layout)
+{
+    if (QTC_GUARD(m_comboBox.isNull()))
+        m_comboBox = new QComboBox;
+
+    updateComboBox();
+    connect(m_comboBox,
+            &QComboBox::currentTextChanged,
+            this,
+            &InterpreterAspect::updateCurrentInterpreter);
+
+    auto manageButton = new QPushButton(tr("Manage..."));
+    connect(manageButton, &QPushButton::clicked, []() {
+        Core::ICore::showOptionsDialog(Constants::C_PYTHONOPTIONS_PAGE_ID);
+    });
+
+    auto rowLayout = new QHBoxLayout;
+    rowLayout->addWidget(m_comboBox);
+    rowLayout->addWidget(manageButton);
+    layout->addRow(tr("Interpreter"), rowLayout);
+}
+
+void InterpreterAspect::updateCurrentInterpreter()
+{
+    m_currentId = currentInterpreter().id;
+    m_comboBox->setToolTip(currentInterpreter().command.toUserOutput());
+    emit changed();
+}
+
+void InterpreterAspect::updateComboBox()
+{
+    int currentIndex = -1;
+    int defaultIndex = -1;
+    const QString currentId = m_currentId;
+    m_comboBox->clear();
+    for (const Interpreter &interpreter : m_interpreters) {
+        int index = m_comboBox->count();
+        m_comboBox->addItem(interpreter.name);
+        m_comboBox->setItemData(index, interpreter.command.toUserOutput(), Qt::ToolTipRole);
+        if (interpreter.id == currentId)
+            currentIndex = index;
+        if (interpreter.id == m_defaultId)
+            defaultIndex = index;
+    }
+    if (currentIndex >= 0)
+        m_comboBox->setCurrentIndex(currentIndex);
+    else if (defaultIndex >= 0)
+        m_comboBox->setCurrentIndex(defaultIndex);
+    updateCurrentInterpreter();
+}
 
 class MainScriptAspect : public BaseStringAspect
 {
@@ -251,7 +344,7 @@ private:
     bool supportsDebugger() const { return true; }
     QString mainScript() const { return aspect<MainScriptAspect>()->value(); }
     QString arguments() const { return aspect<ArgumentsAspect>()->arguments(macroExpander()); }
-    QString interpreter() const { return aspect<InterpreterAspect>()->value(); }
+    QString interpreter() const { return aspect<InterpreterAspect>()->currentInterpreter().command.toString(); }
 
     void updateTargetInformation();
 };
@@ -259,15 +352,14 @@ private:
 PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
 {
-    const Environment sysEnv = Environment::systemEnvironment();
-    const QString exec = sysEnv.searchInPath("python").toString();
-
     auto interpreterAspect = addAspect<InterpreterAspect>();
     interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
-    interpreterAspect->setLabelText(tr("Interpreter:"));
-    interpreterAspect->setDisplayStyle(BaseStringAspect::PathChooserDisplay);
-    interpreterAspect->setHistoryCompleter("PythonEditor.Interpreter.History");
-    interpreterAspect->setValue(exec.isEmpty() ? "python" : exec);
+
+    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
+            interpreterAspect, &InterpreterAspect::updateInterpreters);
+
+    interpreterAspect->updateInterpreters(PythonSettings::interpreters());
+    interpreterAspect->setDefaultInterpreter(PythonSettings::defaultInterpreter());
 
     auto scriptAspect = addAspect<MainScriptAspect>();
     scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
@@ -282,7 +374,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
 
     setOutputFormatter<PythonOutputFormatter>();
     setCommandLineGetter([this, interpreterAspect, argumentsAspect] {
-        CommandLine cmd{interpreterAspect->value(), {mainScript()}};
+        CommandLine cmd{interpreterAspect->currentInterpreter().command, {mainScript()}};
         cmd.addArgs(argumentsAspect->arguments(macroExpander()), CommandLine::Raw);
         return cmd;
     });
@@ -736,6 +828,8 @@ bool PythonPlugin::initialize(const QStringList &arguments, QString *errorMessag
     d = new PythonPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
+
+    PythonSettings::init();
 
     return true;
 }
