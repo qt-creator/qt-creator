@@ -31,6 +31,8 @@
 #include "qmt/model/mdependency.h"
 #include "qmt/model_controller/modelcontroller.h"
 
+#include <utils/algorithm.h>
+
 #include <QSet>
 
 namespace ModelEditor {
@@ -151,7 +153,7 @@ void PackageViewController::createAncestorDependencies(qmt::MObject *object1, qm
 bool PackageViewController::haveMatchingStereotypes(const qmt::MObject *object1,
                                                     const qmt::MObject *object2)
 {
-    return !(object1->stereotypes().toSet() & object2->stereotypes().toSet()).isEmpty();
+    return !(Utils::toSet(object1->stereotypes()) & Utils::toSet(object2->stereotypes())).isEmpty();
 }
 
 

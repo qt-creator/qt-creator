@@ -40,6 +40,7 @@
 #include <QDebug>
 #include <QVariant>
 #include <QVBoxLayout>
+#include <QElapsedTimer>
 
 enum { debug = false };
 
@@ -267,7 +268,7 @@ void NavigationWidget::onDataUpdate(QSharedPointer<QStandardItem> result)
     if (result.isNull())
         return;
 
-    QTime timer;
+    QElapsedTimer timer;
     if (debug)
         timer.start();
     // update is received. root item must be updated - and received information

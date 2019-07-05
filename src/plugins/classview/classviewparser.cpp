@@ -53,6 +53,7 @@
 #include <QReadWriteLock>
 #include <QReadLocker>
 #include <QWriteLocker>
+#include <QElapsedTimer>
 
 enum { debug = false };
 
@@ -274,7 +275,7 @@ ParserTreeItem::ConstPtr Parser::findItemByRoot(const QStandardItem *item, bool 
 
 ParserTreeItem::ConstPtr Parser::parse()
 {
-    QTime time;
+    QElapsedTimer time;
     if (debug)
         time.start();
 

@@ -77,6 +77,7 @@
 #include <QSettings>
 #include <QPluginLoader>
 #include <QTime>
+#include <QElapsedTimer>
 
 #include <algorithm>
 
@@ -351,9 +352,9 @@ void FormEditorData::setupViewActions()
 void FormEditorData::fullInit()
 {
     QTC_ASSERT(m_initStage == FormEditorW::RegisterPlugins, return);
-    QTime *initTime = 0;
+    QElapsedTimer *initTime = 0;
     if (Designer::Constants::Internal::debug) {
-        initTime = new QTime;
+        initTime = new QElapsedTimer;
         initTime->start();
     }
 
