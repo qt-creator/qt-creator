@@ -625,9 +625,10 @@ bool QmlObjectNode::hasInstanceParent() const
 
 bool QmlObjectNode::hasInstanceParentItem() const
 {
-    return nodeInstance().parentId() >= 0
-            && nodeInstanceView()->hasInstanceForId(nodeInstance().parentId())
-            && QmlItemNode::isItemOrWindow(view()->modelNodeForInternalId(nodeInstance().parentId()));
+    return isValid()
+           && nodeInstance().parentId() >= 0
+           && nodeInstanceView()->hasInstanceForId(nodeInstance().parentId())
+           && QmlItemNode::isItemOrWindow(view()->modelNodeForInternalId(nodeInstance().parentId()));
 }
 
 
