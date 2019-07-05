@@ -564,4 +564,25 @@ TEST_F(ClangCompletionContextAnalyzer, QualifiedFunctionNameStartPosition)
     ASSERT_THAT(functionNameStartPosition, 1);
 }
 
+TEST_F(ClangCompletionContextAnalyzer, SnippetsAfterOpeningBrace)
+{
+    auto analyzer = runAnalyzer("{@");
+
+    ASSERT_TRUE(analyzer.addSnippets());
 }
+
+TEST_F(ClangCompletionContextAnalyzer, NoSnippetsAfterFunctionCallLike_OpeningBrace)
+{
+    auto analyzer = runAnalyzer("foo{@");
+
+    ASSERT_FALSE(analyzer.addSnippets());
+}
+
+TEST_F(ClangCompletionContextAnalyzer, NoSnippetsAfterFunctionCallLike_OpeningParen)
+{
+    auto analyzer = runAnalyzer("foo(@");
+
+    ASSERT_FALSE(analyzer.addSnippets());
+}
+
+} // namespace

@@ -168,6 +168,7 @@ void ClangCompletionContextAnalyzer::handleFunctionCall(int afterOperatorPositio
         } else {
             const int functionNameStart = startOfFunctionCall(afterOperatorPosition);
             if (functionNameStart >= 0) {
+                m_addSnippets = functionNameStart == afterOperatorPosition;
                 // Always pass the position right after '(' to libclang because
                 // positions after the comma might be problematic if a preceding
                 // argument is invalid code.
