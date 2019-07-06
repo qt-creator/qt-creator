@@ -19,9 +19,6 @@ add_qtc_library(clangrefactoringbackend_lib STATIC
     collectmacrossourcefilecallbacks.cpp collectmacrossourcefilecallbacks.h
     collectsymbolsaction.cpp collectsymbolsaction.h
     filestatuspreprocessorcallbacks.cpp filestatuspreprocessorcallbacks.h
-    findcursorusr.h
-    findlocationsofusrs.h
-    findusrforcursoraction.cpp findusrforcursoraction.h
     indexdataconsumer.cpp indexdataconsumer.h
     locationsourcefilecallbacks.cpp locationsourcefilecallbacks.h
     macropreprocessorcallbacks.cpp macropreprocessorcallbacks.h
@@ -35,14 +32,12 @@ add_qtc_library(clangrefactoringbackend_lib STATIC
     sourcerangefilter.cpp sourcerangefilter.h
     sourcesmanager.h
     symbolentry.h
-    symbolfinder.cpp symbolfinder.h
     symbolindexer.cpp symbolindexer.h
     symbolindexertask.h
     symbolindexertaskqueue.h
     symbolindexertaskqueueinterface.h
     symbolindexing.cpp symbolindexing.h
     symbolindexinginterface.h
-    symbollocationfinderaction.cpp symbollocationfinderaction.h
     symbolscollector.cpp symbolscollector.h
     symbolscollectorinterface.h
     symbolstorage.h

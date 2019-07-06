@@ -262,7 +262,6 @@ if (TARGET clangTooling)
     sourcerangeextractor-test.cpp
     symbolindexing-test.cpp
     symbolscollector-test.cpp
-    symbolfinder-test.cpp
     testclangtool.cpp testclangtool.h
     usedmacrocollector-test.cpp
     builddependencycollector-test.cpp
