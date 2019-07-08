@@ -1654,6 +1654,7 @@ void tst_Dumpers::dumper()
                 localsBeginPos = output.indexOf(locals, localsBeginPos);
         } while (localsBeginPos != -1);
         actual.fromString(contents);
+        context.nameSpace = actual["result"]["qtnamespace"].data();
         actual = actual["result"]["data"];
     }
 
@@ -1991,7 +1992,7 @@ void tst_Dumpers::dumper_data()
                     "FooFlags f1(a);\n"
                     "FooFlags f2(a | b);\n")
                + CoreProfile()
-               + Check("f1", "a (1)", TypeDef("QFlags<enum Foo>", "FooFlags")) % CdbEngine
+               + Check("f1", "a (1)", TypeDef("@QFlags<enum Foo>", "FooFlags")) % CdbEngine
                + Check("f1", "a (0x0001)", "FooFlags") % NoCdbEngine
                + Check("f2", "(a | b) (0x0003)", "FooFlags") % GdbEngine;
 
@@ -2079,9 +2080,9 @@ void tst_Dumpers::dumper_data()
                     "QFileInfo fi(\"C:\\\\Program Files\\\\tt\");\n"
                     "QString s = fi.absoluteFilePath();\n")
                + CoreProfile()
-               + Check("fi", "\"C:/Program Files/tt\"", "QFileInfo")
-               + Check("file", "\"C:\\Program Files\\t\"", "QFile")
-               + Check("s", "\"C:/Program Files/tt\"", "QString");
+               + Check("fi", "\"C:/Program Files/tt\"", "@QFileInfo")
+               + Check("file", "\"C:\\Program Files\\t\"", "@QFile")
+               + Check("s", "\"C:/Program Files/tt\"", "@QString");
 #else
             << Data("#include <QFile>\n"
                     "#include <QFileInfo>\n",
@@ -2195,7 +2196,7 @@ void tst_Dumpers::dumper_data()
                + Check("h7.2.key", "\".\"", "@QString")
                + CheckType("h7.2.value", "@QPointer<@QObject>")
 
-               + Check("h8", "<3 items>", TypeDef("QHash<int,float>", "Hash"))
+               + Check("h8", "<3 items>", TypeDef("@QHash<int,float>", "Hash"))
                + Check("h8.0", "[0] 22", FloatValue("22"), "")
                + Check("it1.key", "22", "int")
                + Check("it1.value", FloatValue("22"), "float")
@@ -2499,8 +2500,8 @@ void tst_Dumpers::dumper_data()
                + Check("r.0", "[0]", "3", "int")
                + Check("r.1", "[1]", "2", "int")
                + Check("r.2", "[2]", "1", "int")
-               + Check("rend", "", TypeDef("std::reverse_iterator<QList<int>::iterator>", "Reverse"))
-               + Check("rit", "", TypeDef("std::reverse_iterator<QList<int>::iterator>", "Reverse"));
+               + Check("rend", "", TypeDef("std::reverse_iterator<@QList<int>::iterator>", "Reverse"))
+               + Check("rit", "", TypeDef("std::reverse_iterator<@QList<int>::iterator>", "Reverse"));
 
 
    QTest::newRow("QLocale")
@@ -2595,7 +2596,7 @@ void tst_Dumpers::dumper_data()
               + Check("m2.0", "[0] 11", FloatValue("31.0"), "")
               + Check("m2.1", "[1] 22", FloatValue("32.0"), "")
 
-              + Check("m3", "<2 items>", TypeDef("QMap<unsigned int,QStringList>", "T"))
+              + Check("m3", "<2 items>", TypeDef("@QMap<unsigned int,@QStringList>", "T"))
 
               + Check("m4", "<1 items>", "@QMap<@QString, float>")
               + Check("m4.0.key", "\"22.0\"", "@QString")
@@ -3181,8 +3182,8 @@ void tst_Dumpers::dumper_data()
 
                + CoreProfile()
 
-               + Check("ptr0", "(null)", "@QPointer<QTimer>")
-               + Check("ptr1", "", "@QPointer<QTimer>");
+               + Check("ptr0", "(null)", "@QPointer<@QTimer>")
+               + Check("ptr1", "", "@QPointer<@QTimer>");
 
 
     QTest::newRow("QScopedPointer")
@@ -3696,7 +3697,7 @@ void tst_Dumpers::dumper_data()
                //+ Check("v1", "\"Some string\"", "@QVariant (QString)")
                + CheckType("v1", "@QVariant (QString)")
 
-               + Check("my", "<2 items>", TypeDef("QMap<unsigned int,QStringList>", "MyType"))
+               + Check("my", "<2 items>", TypeDef("@QMap<unsigned int,@QStringList>", "MyType"))
                + Check("my.0.key", "1", "unsigned int")
                + Check("my.0.value", "<1 items>", "@QStringList")
                + Check("my.0.value.0", "[0]", "\"Hello\"", "@QString")
@@ -3704,7 +3705,6 @@ void tst_Dumpers::dumper_data()
                + Check("my.1.value", "<1 items>", "@QStringList")
                + Check("my.1.value.0", "[0]", "\"World\"", "@QString")
                //+ CheckType("v2", "@QVariant (MyType)")
-               + Check("my", "<2 items>", TypeDef("QMap<unsigned int,QStringList>", "MyType"))
                + Check("v2.data.0.key", "1", "unsigned int") % NoCdbEngine
                + Check("v2.data.0.value", "<1 items>", "@QStringList") % NoCdbEngine
                + Check("v2.data.0.value.0", "[0]", "\"Hello\"", "@QString") % NoCdbEngine
@@ -4072,7 +4072,7 @@ void tst_Dumpers::dumper_data()
                + Check("v2.1", "[1]", "", "Foo")
                + Check("v2.1.a", "2", "int")
 
-               + Check("v3", "<2 items>", TypeDef("QVector<Foo>", "FooVector"))
+               + Check("v3", "<2 items>", TypeDef("@QVector<Foo>", "FooVector"))
                + Check("v3.0", "[0]", "", "Foo")
                + Check("v3.0.a", "1", "int")
                + Check("v3.1", "[1]", "", "Foo")
