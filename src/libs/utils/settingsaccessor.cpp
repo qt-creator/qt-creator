@@ -277,7 +277,10 @@ BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
                 QApplication::translate("Utils::SettingsAccessor",
                                         "<p>No valid settings file could be found.</p>"
                                         "<p>All settings files found in directory \"%1\" "
-                                        "were unsuitable for the current version of %2.</p>")
+                                        "were unsuitable for the current version of %2, "
+                                        "for instance because they were written by an incompatible "
+                                        "version of %2, or because a different settings path "
+                                        "was used.</p>")
                 .arg(path.toUserOutput()).arg(applicationDisplayName), Issue::Type::ERROR);
         i.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
         result.issue = i;
