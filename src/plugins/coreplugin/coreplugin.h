@@ -80,6 +80,7 @@ private slots:
 
 private:
     static void addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu);
+    void checkSettings();
 
     MainWindow *m_mainWindow = nullptr;
     EditMode *m_editMode = nullptr;
