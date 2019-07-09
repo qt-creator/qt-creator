@@ -141,6 +141,11 @@
     backreferences. For example, if \c %{variable} is \c my123var, then
     \c %{variable/(..)(\d+)/\2\1} is expanded to \c {123myvar}.
 
+    Instead of the forward slash, you can also use the pound sign (\c #) as
+    the substitution character. This can be helpful if the value is supposed
+    to be a file path, in which case forward slashes might get translated
+    to backslashes on Windows hosts.
+
     To use the default value if the variable is not set, use:
 
     \badcode

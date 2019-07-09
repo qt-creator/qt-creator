@@ -136,6 +136,7 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
     QString *currArg = &varName;
     QChar prev;
     QChar c;
+    QChar replacementChar;
     bool replaceAll = false;
 
     int i = *pos;
@@ -192,13 +193,14 @@ bool AbstractMacroExpander::expandNestedMacros(const QString &str, int *pos, QSt
         } else if (currArg == &varName && c == '-' && prev == ':' && validateVarName(varName)) {
             varName.chop(1);
             currArg = &defaultValue;
-        } else if (currArg == &varName && c == '/' && validateVarName(varName)) {
+        } else if (currArg == &varName && (c == '/' || c == '#') && validateVarName(varName)) {
+            replacementChar = c;
             currArg = &pattern;
-            if (i < strLen && str.at(i) == '/') {
+            if (i < strLen && str.at(i) == replacementChar) {
                 ++i;
                 replaceAll = true;
             }
-        } else if (currArg == &pattern && c == '/') {
+        } else if (currArg == &pattern && c == replacementChar) {
             currArg = &replace;
         } else {
             *currArg += c;
