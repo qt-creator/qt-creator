@@ -67,9 +67,9 @@ public:
 
     void clear() { rootItem()->removeChildren(); }
 
-    using const_iterator = typename QVector<TreeItem *>::const_iterator;
-    const_iterator begin() const { return rootItem()->begin(); }
-    const_iterator end() const { return rootItem()->end(); }
+    using const_iterator = typename QVector<ChildType *>::const_iterator;
+    const_iterator begin() const { return const_iterator(rootItem()->begin()); }
+    const_iterator end() const { return const_iterator(rootItem()->end()); }
 
 };
 
