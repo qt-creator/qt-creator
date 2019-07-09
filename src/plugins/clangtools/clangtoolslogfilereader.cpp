@@ -122,7 +122,7 @@ static ExplainingStep buildFixIt(const CXDiagnostic cxDiagnostic, unsigned index
 }
 
 static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
-                                  const Utils::FilePath &projectRootDir,
+                                  const QSet<Utils::FilePath> &projectFiles,
                                   const QString &nativeFilePath)
 {
     Diagnostic diagnostic;
@@ -136,7 +136,7 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
 
     diagnostic.location = diagLocationFromSourceLocation(cxLocation);
     const auto diagnosticFilePath = Utils::FilePath::fromString(diagnostic.location.filePath);
-    if (!diagnosticFilePath.isChildOf(projectRootDir))
+    if (!projectFiles.contains(diagnosticFilePath))
         return diagnostic;
 
     // TODO: Introduce CppTools::ProjectFile::isGenerated to filter these out properly
@@ -183,7 +183,7 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
 }
 
 static QList<Diagnostic> readSerializedDiagnostics_helper(const QString &filePath,
-                                                          const Utils::FilePath &projectRootDir,
+                                                          const QSet<Utils::FilePath> &projectFiles,
                                                           const QString &logFilePath)
 {
     QList<Diagnostic> list;
@@ -206,7 +206,7 @@ static QList<Diagnostic> readSerializedDiagnostics_helper(const QString &filePat
         Utils::ExecuteOnDestruction cleanUpDiagnostic([&]() {
             clang_disposeDiagnostic(cxDiagnostic);
         });
-        const Diagnostic diagnostic = buildDiagnostic(cxDiagnostic, projectRootDir, nativeFilePath);
+        const Diagnostic diagnostic = buildDiagnostic(cxDiagnostic, projectFiles, nativeFilePath);
         if (!diagnostic.isValid())
             continue;
 
@@ -232,14 +232,14 @@ static bool checkFilePath(const QString &filePath, QString *errorMessage)
 }
 
 QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
-                                            const Utils::FilePath &projectRootDir,
+                                            const QSet<Utils::FilePath> &projectFiles,
                                             const QString &logFilePath,
                                             QString *errorMessage)
 {
     if (!checkFilePath(logFilePath, errorMessage))
         return QList<Diagnostic>();
 
-    return readSerializedDiagnostics_helper(filePath, projectRootDir, logFilePath);
+    return readSerializedDiagnostics_helper(filePath, projectFiles, logFilePath);
 }
 
 } // namespace Internal

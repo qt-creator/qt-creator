@@ -288,6 +288,7 @@ void ClangToolRunControl::start()
     }
 
     m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(m_target->project());
+    m_projectFiles = Utils::toSet(m_target->project()->files(Project::AllFiles));
 
     // Some projects provides CompilerCallData once a build is finished,
     if (m_projectInfo.configurationOrFilesChanged(m_projectInfoBeforeBuild)) {
@@ -360,6 +361,7 @@ void ClangToolRunControl::stop()
         QObject::disconnect(runner, nullptr, this, nullptr);
         delete runner;
     }
+    m_projectFiles.clear();
     m_runners.clear();
     m_unitsToProcess.clear();
     m_progress.reportFinished();
@@ -390,22 +392,14 @@ void ClangToolRunControl::analyzeNextFile()
                   Utils::StdOutFormat);
 }
 
-static Utils::FilePath cleanPath(const Utils::FilePath &filePath)
-{
-    return Utils::FilePath::fromString(QDir::cleanPath(filePath.toString()));
-}
-
 void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
 {
     const QString logFilePath = qobject_cast<ClangToolRunner *>(sender())->logFilePath();
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
 
-    QTC_ASSERT(m_projectInfo.project(), return);
-    const Utils::FilePath projectRootDir = cleanPath(m_projectInfo.project()->projectDirectory());
-
     QString errorMessage;
     const QList<Diagnostic> diagnostics = tool()->read(filePath,
-                                                       projectRootDir,
+                                                       m_projectFiles,
                                                        logFilePath,
                                                        &errorMessage);
     QFile::remove(logFilePath); // Clean-up.

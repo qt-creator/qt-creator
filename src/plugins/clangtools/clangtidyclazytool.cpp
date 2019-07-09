@@ -464,11 +464,11 @@ void ClangTidyClazyTool::handleStateUpdate()
 }
 
 QList<Diagnostic> ClangTidyClazyTool::read(const QString &filePath,
-                                           const Utils::FilePath &projectRootDir,
+                                           const QSet<Utils::FilePath> &projectFiles,
                                            const QString &logFilePath,
                                            QString *errorMessage) const
 {
-    return readSerializedDiagnostics(filePath, projectRootDir, logFilePath, errorMessage);
+    return readSerializedDiagnostics(filePath, projectFiles, logFilePath, errorMessage);
 }
 
 void ClangTidyClazyTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
