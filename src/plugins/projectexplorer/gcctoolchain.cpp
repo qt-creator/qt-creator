@@ -855,6 +855,38 @@ QString GccToolChain::detectVersion() const
 // GccToolChainFactory
 // --------------------------------------------------------------------------
 
+static Utils::FilePathList searchPathsFromRegistry()
+{
+    if (!HostOsInfo::isWindowsHost())
+        return {};
+
+    // Registry token for the "GNU Tools for ARM Embedded Processors".
+    static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
+                                         "Windows\\CurrentVersion\\Uninstall\\";
+
+    Utils::FilePathList searchPaths;
+
+    QSettings registry(kRegistryToken, QSettings::NativeFormat);
+    const auto productGroups = registry.childGroups();
+    for (const QString &productKey : productGroups) {
+        if (!productKey.startsWith("GNU Tools for ARM Embedded Processors"))
+            continue;
+        registry.beginGroup(productKey);
+        QString uninstallFilePath = registry.value("UninstallString").toString();
+        if (uninstallFilePath.startsWith(QLatin1Char('"')))
+            uninstallFilePath.remove(0, 1);
+        if (uninstallFilePath.endsWith(QLatin1Char('"')))
+            uninstallFilePath.remove(uninstallFilePath.size() - 1, 1);
+        registry.endGroup();
+
+        const QString toolkitRootPath = QFileInfo(uninstallFilePath).path();
+        const QString toolchainPath = toolkitRootPath + QLatin1String("/bin");
+        searchPaths.push_back(FilePath::fromString(toolchainPath));
+    }
+
+    return searchPaths;
+}
+
 GccToolChainFactory::GccToolChainFactory()
 {
     setDisplayName(tr("GCC"));
@@ -904,7 +936,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
         if (fi.isFile())
             compilerPaths << FilePath::fromString(compilerName);
     } else {
-        const FilePathList searchPaths = Environment::systemEnvironment().path();
+        FilePathList searchPaths = Environment::systemEnvironment().path();
+        searchPaths << searchPathsFromRegistry();
         for (const FilePath &dir : searchPaths) {
             static const QRegularExpression regexp(binaryRegexp);
             QDir binDir(dir.toString());
