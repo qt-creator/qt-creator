@@ -273,6 +273,45 @@ FilePath Environment::searchInPath(const QString &executable,
     return FilePath();
 }
 
+FilePathList Environment::findAllInPath(const QString &executable,
+                                        const FilePathList &additionalDirs,
+                                        const Environment::PathFilter &func) const
+{
+    if (executable.isEmpty())
+        return {};
+
+    const QString exec = QDir::cleanPath(expandVariables(executable));
+    const QFileInfo fi(exec);
+
+    const QStringList execs = appendExeExtensions(exec);
+
+    if (fi.isAbsolute()) {
+        for (const QString &path : execs) {
+            QFileInfo pfi = QFileInfo(path);
+            if (pfi.isFile() && pfi.isExecutable())
+                return {FilePath::fromString(path)};
+        }
+        return {FilePath::fromString(exec)};
+    }
+
+    QSet<FilePath> result;
+    QSet<FilePath> alreadyChecked;
+    for (const FilePath &dir : additionalDirs) {
+        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
+        if (!tmp.isEmpty() && (!func || func(tmp)))
+            result << tmp;
+    }
+
+    if (!executable.contains('/')) {
+        for (const FilePath &p : path()) {
+            FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
+            if (!tmp.isEmpty() && (!func || func(tmp)))
+                result << tmp;
+        }
+    }
+    return result.values();
+}
+
 FilePathList Environment::path() const
 {
     return pathListValue("PATH");

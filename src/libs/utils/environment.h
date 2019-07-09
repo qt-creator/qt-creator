@@ -66,6 +66,9 @@ public:
     FilePath searchInPath(const QString &executable,
                           const FilePathList &additionalDirs = FilePathList(),
                           const PathFilter &func = PathFilter()) const;
+    FilePathList findAllInPath(const QString &executable,
+                               const FilePathList &additionalDirs = FilePathList(),
+                               const PathFilter &func = PathFilter()) const;
 
     FilePathList path() const;
     FilePathList pathListValue(const QString &varName) const;
