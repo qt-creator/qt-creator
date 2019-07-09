@@ -94,6 +94,7 @@ public:
     QPushButton *m_addButton;
     QPushButton *m_resetButton;
     QPushButton *m_unsetButton;
+    QPushButton *m_toggleButton;
     QPushButton *m_batchEditButton;
     QPushButton *m_appendPathButton = nullptr;
     QPushButton *m_prependPathButton = nullptr;
@@ -165,6 +166,13 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
     d->m_unsetButton->setEnabled(false);
     d->m_unsetButton->setText(tr("&Unset"));
     buttonLayout->addWidget(d->m_unsetButton);
+
+    d->m_toggleButton = new QPushButton(tr("Disable"), this);
+    buttonLayout->addWidget(d->m_toggleButton);
+    connect(d->m_toggleButton, &QPushButton::clicked, this, [this] {
+        d->m_model->toggleVariable(d->m_environmentView->currentIndex());
+        updateButtons();
+    });
 
     if (type == TypeLocal) {
         d->m_appendPathButton = new QPushButton(this);
@@ -287,10 +295,19 @@ void EnvironmentWidget::updateSummaryText()
     foreach (const Utils::EnvironmentItem &item, list) {
         if (item.name != Utils::EnvironmentModel::tr("<VARIABLE>")) {
             text.append(QLatin1String("<br>"));
-            if (item.operation == Utils::EnvironmentItem::Unset)
+            switch (item.operation) {
+            case Utils::EnvironmentItem::Unset:
                 text.append(tr("Unset <a href=\"%1\"><b>%1</b></a>").arg(item.name.toHtmlEscaped()));
-            else
+                break;
+            case Utils::EnvironmentItem::SetEnabled:
+            case Utils::EnvironmentItem::Append:
+            case Utils::EnvironmentItem::Prepend:
                 text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b>").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                break;
+            case Utils::EnvironmentItem::SetDisabled:
+                text.append(tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b> [disabled]").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                break;
+            }
         }
     }
 
@@ -429,13 +446,17 @@ void EnvironmentWidget::environmentCurrentIndexChanged(const QModelIndex &curren
         d->m_editButton->setEnabled(true);
         const QString &name = d->m_model->indexToVariable(current);
         bool modified = d->m_model->canReset(name) && d->m_model->changes(name);
-        bool unset = d->m_model->canUnset(name);
+        bool unset = d->m_model->isUnset(name);
         d->m_resetButton->setEnabled(modified || unset);
         d->m_unsetButton->setEnabled(!unset);
+        d->m_toggleButton->setEnabled(!unset);
+        d->m_toggleButton->setText(d->m_model->isEnabled(name) ? tr("Disable") : tr("Enable"));
     } else {
         d->m_editButton->setEnabled(false);
         d->m_resetButton->setEnabled(false);
         d->m_unsetButton->setEnabled(false);
+        d->m_toggleButton->setEnabled(false);
+        d->m_toggleButton->setText(tr("Disable"));
     }
     if (d->m_appendPathButton) {
         d->m_appendPathButton->setEnabled(currentEntryIsPathList(current));

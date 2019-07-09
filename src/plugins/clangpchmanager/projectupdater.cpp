@@ -189,7 +189,7 @@ void updateWithSettings(ClangBackEnd::CompilerMacros &macros,
     });
 
     auto point = std::partition_point(settingsItems.begin(), settingsItems.end(), [](const auto &entry) {
-        return entry.operation == Utils::NameValueItem::Set;
+        return entry.operation == Utils::NameValueItem::SetEnabled;
     });
 
     std::transform(

@@ -28,11 +28,15 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/namevaluedictionary.h>
+#include <utils/qtcassert.h>
 
+#include <QBrush>
+#include <QColor>
 #include <QFont>
 #include <QString>
 
 namespace Utils {
+
 namespace Internal {
 
 class NameValueModelPrivate
@@ -142,19 +146,21 @@ QVariant NameValueModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole || role == Qt::ToolTipRole) {
-        if (index.column() == 0) {
-            return d->m_resultNameValueDictionary.key(d->m_resultNameValueDictionary.constBegin()
-                                                      + index.row());
-        } else if (index.column() == 1) {
+    const auto resultIterator = d->m_resultNameValueDictionary.constBegin() + index.row();
+    switch (role) {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+    case Qt::ToolTipRole:
+        if (index.column() == 0)
+            return d->m_resultNameValueDictionary.key(resultIterator);
+        if (index.column() == 1) {
             // Do not return "<UNSET>" when editing a previously unset variable:
             if (role == Qt::EditRole) {
                 int pos = d->findInChanges(indexToVariable(index));
-                if (pos >= 0)
+                if (pos != -1)
                     return d->m_items.at(pos).value;
             }
-            QString value = d->m_resultNameValueDictionary.value(
-                d->m_resultNameValueDictionary.constBegin() + index.row());
+            QString value = d->m_resultNameValueDictionary.value(resultIterator);
             if (role == Qt::ToolTipRole && value.length() > 80) {
                 // Use html to enable text wrapping
                 value = value.toHtmlEscaped();
@@ -163,16 +169,15 @@ QVariant NameValueModel::data(const QModelIndex &index, int role) const
             }
             return value;
         }
+        break;
+    case Qt::FontRole: {
+        QFont f;
+        f.setStrikeOut(!d->m_resultNameValueDictionary.isEnabled(resultIterator));
+        return f;
     }
-    if (role == Qt::FontRole) {
-        // check whether this name value item variable exists in d->m_items
-        if (changes(d->m_resultNameValueDictionary.key(d->m_resultNameValueDictionary.constBegin()
-                                                       + index.row()))) {
-            QFont f;
-            f.setBold(true);
-            return QVariant(f);
-        }
-        return QFont();
+    case Qt::ForegroundRole:
+        return changes(d->m_resultNameValueDictionary.key(resultIterator))
+                ? QBrush(Qt::blue) : QBrush();
     }
     return QVariant();
 }
@@ -236,15 +241,20 @@ bool NameValueModel::setData(const QModelIndex &index, const QVariant &value, in
         // We are changing an existing value:
         const QString stringValue = value.toString();
         if (changesPos != -1) {
+            const auto oldIt = d->m_baseNameValueDictionary.constFind(oldName);
+            const auto newIt = d->m_resultNameValueDictionary.constFind(oldName);
             // We have already changed this value
-            if (d->m_baseNameValueDictionary.hasKey(oldName)
-                && stringValue == d->m_baseNameValueDictionary.value(oldName)) {
+            if (oldIt != d->m_baseNameValueDictionary.constEnd()
+                    && stringValue == d->m_baseNameValueDictionary.value(oldIt)
+                    && d->m_baseNameValueDictionary.isEnabled(oldIt)
+                            == d->m_resultNameValueDictionary.isEnabled(newIt)) {
                 // ... and now went back to the base value
                 d->m_items.removeAt(changesPos);
             } else {
                 // ... and changed it again
                 d->m_items[changesPos].value = stringValue;
-                d->m_items[changesPos].operation = NameValueItem::Set;
+                if (d->m_items[changesPos].operation == NameValueItem::Unset)
+                    d->m_items[changesPos].operation = NameValueItem::SetEnabled;
             }
         } else {
             // Add a new change item:
@@ -346,13 +356,39 @@ void NameValueModel::unsetVariable(const QString &name)
     emit userChangesChanged();
 }
 
-bool NameValueModel::canUnset(const QString &name)
+void NameValueModel::toggleVariable(const QModelIndex &idx)
 {
-    int pos = d->findInChanges(name);
-    if (pos != -1)
-        return d->m_items.at(pos).operation == NameValueItem::Unset;
-    else
-        return false;
+    const QString name = indexToVariable(idx);
+    const auto newIt = d->m_resultNameValueDictionary.constFind(name);
+    QTC_ASSERT(newIt != d->m_resultNameValueDictionary.constEnd(), return);
+    const auto op = d->m_resultNameValueDictionary.isEnabled(newIt)
+            ? NameValueItem::SetDisabled : NameValueItem::SetEnabled;
+    const int changesPos = d->findInChanges(name);
+    if (changesPos != -1) {
+        const auto oldIt = d->m_baseNameValueDictionary.constFind(name);
+        if (oldIt == d->m_baseNameValueDictionary.constEnd()
+                || oldIt.value().first != newIt.value().first) {
+            d->m_items[changesPos].operation = op;
+        } else {
+            d->m_items.removeAt(changesPos);
+        }
+    } else {
+        d->m_items.append({name, d->m_resultNameValueDictionary.value(newIt), op});
+    }
+    d->updateResultNameValueDictionary();
+    emit dataChanged(index(idx.row(), 0), index(idx.row(), 1));
+    emit userChangesChanged();
+}
+
+bool NameValueModel::isUnset(const QString &name)
+{
+    const int pos = d->findInChanges(name);
+    return pos == -1 ? false : d->m_items.at(pos).operation == NameValueItem::Unset;
+}
+
+bool NameValueModel::isEnabled(const QString &name) const
+{
+    return d->m_resultNameValueDictionary.isEnabled(d->m_resultNameValueDictionary.constFind(name));
 }
 
 bool NameValueModel::canReset(const QString &name)

@@ -33,7 +33,7 @@ namespace Utils {
 
 using NameValuePair = std::pair<QString, QString>;
 using NameValuePairs = QVector<NameValuePair>;
-using NameValueMap = QMap<QString, QString>;
+using NameValueMap = QMap<QString, QPair<QString, bool>>;
 
 class QTCREATOR_UTILS_EXPORT NameValueDictionary
 {
@@ -48,7 +48,7 @@ public:
 
     QStringList toStringList() const;
     QString value(const QString &key) const;
-    void set(const QString &key, const QString &value);
+    void set(const QString &key, const QString &value, bool enabled = true);
     void unset(const QString &key);
     void modify(const NameValueItems &items);
     /// Return the KeyValueDictionary changes necessary to modify this into the other environment.
@@ -61,15 +61,13 @@ public:
     void clear();
     int size() const;
 
-    QString key(NameValueDictionary::const_iterator it) const { return it.key(); }
+    QString key(const_iterator it) const { return it.key(); }
+    QString value(const_iterator it) const { return it.value().first; }
+    bool isEnabled(const_iterator it) const { return it.value().second; }
 
-    QString value(NameValueDictionary::const_iterator it) const { return it.value(); }
-
-    NameValueDictionary::const_iterator constBegin() const { return m_values.constBegin(); }
-
-    NameValueDictionary::const_iterator constEnd() const { return m_values.constEnd(); }
-
-    NameValueDictionary::const_iterator constFind(const QString &name) const;
+    const_iterator constBegin() const { return m_values.constBegin(); }
+    const_iterator constEnd() const { return m_values.constEnd(); }
+    const_iterator constFind(const QString &name) const;
 
     friend bool operator!=(const NameValueDictionary &first, const NameValueDictionary &second)
     {

@@ -37,9 +37,9 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT NameValueItem
 {
 public:
-    enum Operation : char { Set, Unset, Prepend, Append };
+    enum Operation : char { SetEnabled, Unset, Prepend, Append, SetDisabled };
     NameValueItem() = default;
-    NameValueItem(const QString &key, const QString &value, Operation operation = Set)
+    NameValueItem(const QString &key, const QString &value, Operation operation = SetEnabled)
         : name(key)
         , value(value)
         , operation(operation)

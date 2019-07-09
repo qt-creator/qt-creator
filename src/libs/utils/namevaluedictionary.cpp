@@ -79,19 +79,22 @@ NameValueDictionary::NameValueDictionary(const NameValuePairs &nameValues)
 QStringList NameValueDictionary::toStringList() const
 {
     QStringList result;
-    for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it)
-        result.append(it.key() + '=' + it.value());
+    for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it) {
+        if (it.value().second)
+            result.append(it.key() + '=' + it.value().first);
+    }
     return result;
 }
 
-void NameValueDictionary::set(const QString &key, const QString &value)
+void NameValueDictionary::set(const QString &key, const QString &value, bool enabled)
 {
     QTC_ASSERT(!key.contains('='), return );
     auto it = findKey(m_values, m_osType, key);
+    const auto valuePair = qMakePair(value, enabled);
     if (it == m_values.end())
-        m_values.insert(key, value);
+        m_values.insert(key, valuePair);
     else
-        it.value() = value;
+        it.value() = valuePair;
 }
 
 void NameValueDictionary::unset(const QString &key)
@@ -110,7 +113,7 @@ void NameValueDictionary::clear()
 QString NameValueDictionary::value(const QString &key) const
 {
     const auto it = findKey(m_values, m_osType, key);
-    return it != m_values.end() ? it.value() : QString();
+    return it != m_values.end() && it.value().second ? it.value().first : QString();
 }
 
 NameValueDictionary::const_iterator NameValueDictionary::constFind(const QString &name) const
@@ -146,8 +149,9 @@ NameValueItems NameValueDictionary::diff(const NameValueDictionary &other, bool 
 
     NameValueItems result;
     while (thisIt != constEnd() || otherIt != other.constEnd()) {
-        if (thisIt == constEnd()) {
-            result.append(NameValueItem(otherIt.key(), otherIt.value()));
+        if (thisIt == constEnd() || thisIt.key() > otherIt.key()) {
+            result.append({otherIt.key(), otherIt.value().first,
+                otherIt.value().second ? NameValueItem::SetEnabled : NameValueItem::SetDisabled});
             ++otherIt;
         } else if (otherIt == other.constEnd()) {
             result.append(NameValueItem(thisIt.key(), QString(), NameValueItem::Unset));
@@ -155,25 +159,27 @@ NameValueItems NameValueDictionary::diff(const NameValueDictionary &other, bool 
         } else if (thisIt.key() < otherIt.key()) {
             result.append(NameValueItem(thisIt.key(), QString(), NameValueItem::Unset));
             ++thisIt;
-        } else if (thisIt.key() > otherIt.key()) {
-            result.append(NameValueItem(otherIt.key(), otherIt.value()));
-            ++otherIt;
         } else {
-            const QString &oldValue = thisIt.value();
-            const QString &newValue = otherIt.value();
+            const QString &oldValue = thisIt.value().first;
+            const QString &newValue = otherIt.value().first;
+            const bool oldEnabled = thisIt.value().second;
+            const bool newEnabled = otherIt.value().second;
             if (oldValue != newValue) {
-                if (checkAppendPrepend && newValue.startsWith(oldValue)) {
+                if (checkAppendPrepend && newValue.startsWith(oldValue)
+                        && oldEnabled == newEnabled) {
                     QString appended = newValue.right(newValue.size() - oldValue.size());
                     if (appended.startsWith(QLatin1Char(pathSepC)))
                         appended.remove(0, 1);
                     result.append(NameValueItem(otherIt.key(), appended, NameValueItem::Append));
-                } else if (checkAppendPrepend && newValue.endsWith(oldValue)) {
+                } else if (checkAppendPrepend && newValue.endsWith(oldValue)
+                           && oldEnabled == newEnabled) {
                     QString prepended = newValue.left(newValue.size() - oldValue.size());
                     if (prepended.endsWith(QLatin1Char(pathSepC)))
                         prepended.chop(1);
                     result.append(NameValueItem(otherIt.key(), prepended, NameValueItem::Prepend));
                 } else {
-                    result.append(NameValueItem(otherIt.key(), newValue));
+                    result.append({otherIt.key(), newValue, newEnabled
+                            ? NameValueItem::SetEnabled : NameValueItem::SetDisabled});
                 }
             }
             ++otherIt;

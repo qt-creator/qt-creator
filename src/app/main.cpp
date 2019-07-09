@@ -408,7 +408,7 @@ int main(int argc, char **argv)
                 {{"LD_LIBRARY_PATH", "", Utils::EnvironmentItem::Unset}});
         } else {
             Utils::Environment::modifySystemEnvironment(
-                {{"LD_LIBRARY_PATH", *options.userLibraryPath, Utils::EnvironmentItem::Set}});
+                {{"LD_LIBRARY_PATH", *options.userLibraryPath, Utils::EnvironmentItem::SetEnabled}});
         }
     }
 

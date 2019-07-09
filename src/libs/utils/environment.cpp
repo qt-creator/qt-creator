@@ -68,8 +68,10 @@ static NameValueMap::const_iterator findKey(const NameValueMap &input,
 QProcessEnvironment Environment::toProcessEnvironment() const
 {
     QProcessEnvironment result;
-    for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it)
-        result.insert(it.key(), it.value());
+    for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it) {
+        if (it.value().second)
+            result.insert(it.key(), it.value().first);
+    }
     return result;
 }
 
@@ -90,12 +92,12 @@ void Environment::appendOrSet(const QString &key, const QString &value, const QS
     QTC_ASSERT(!key.contains('='), return );
     auto it = findKey(m_values, m_osType, key);
     if (it == m_values.end()) {
-        m_values.insert(key, value);
+        m_values.insert(key, qMakePair(value, true));
     } else {
         // Append unless it is already there
         const QString toAppend = sep + value;
-        if (!it.value().endsWith(toAppend))
-            it.value().append(toAppend);
+        if (!it.value().first.endsWith(toAppend))
+            it.value().first.append(toAppend);
     }
 }
 
@@ -104,12 +106,12 @@ void Environment::prependOrSet(const QString &key, const QString &value, const Q
     QTC_ASSERT(!key.contains('='), return );
     auto it = findKey(m_values, m_osType, key);
     if (it == m_values.end()) {
-        m_values.insert(key, value);
+        m_values.insert(key, qMakePair(value, true));
     } else {
         // Prepend unless it is already there
         const QString toPrepend = value + sep;
-        if (!it.value().startsWith(toPrepend))
-            it.value().prepend(toPrepend);
+        if (!it.value().first.startsWith(toPrepend))
+            it.value().first.prepend(toPrepend);
     }
 }
 
@@ -346,8 +348,8 @@ QString Environment::expandVariables(const QString &input) const
                 if (vStart > 0) {
                     const_iterator it = findKey(m_values, m_osType, result.mid(vStart, i - vStart - 1));
                     if (it != m_values.constEnd()) {
-                        result.replace(vStart - 1, i - vStart + 1, *it);
-                        i = vStart - 1 + it->length();
+                        result.replace(vStart - 1, i - vStart + 1, it->first);
+                        i = vStart - 1 + it->first.length();
                         vStart = -1;
                     } else {
                         vStart = i;
@@ -380,8 +382,8 @@ QString Environment::expandVariables(const QString &input) const
                 if (c == '}') {
                     const_iterator it = m_values.constFind(result.mid(vStart, i - 1 - vStart));
                     if (it != constEnd()) {
-                        result.replace(vStart - 2, i - vStart + 2, *it);
-                        i = vStart - 2 + it->length();
+                        result.replace(vStart - 2, i - vStart + 2, it->first);
+                        i = vStart - 2 + it->first.length();
                     }
                     state = BASE;
                 }
@@ -389,8 +391,8 @@ QString Environment::expandVariables(const QString &input) const
                 if (!c.isLetterOrNumber() && c != '_') {
                     const_iterator it = m_values.constFind(result.mid(vStart, i - vStart - 1));
                     if (it != constEnd()) {
-                        result.replace(vStart - 1, i - vStart, *it);
-                        i = vStart - 1 + it->length();
+                        result.replace(vStart - 1, i - vStart, it->first);
+                        i = vStart - 1 + it->first.length();
                     }
                     state = BASE;
                 }
@@ -399,7 +401,7 @@ QString Environment::expandVariables(const QString &input) const
         if (state == VARIABLE) {
             const_iterator it = m_values.constFind(result.mid(vStart));
             if (it != constEnd())
-                result.replace(vStart - 1, result.length() - vStart + 1, *it);
+                result.replace(vStart - 1, result.length() - vStart + 1, it->first);
         }
     }
     return result;

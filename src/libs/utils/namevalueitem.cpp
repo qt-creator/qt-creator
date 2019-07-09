@@ -42,10 +42,17 @@ NameValueItems NameValueItem::fromStringList(const QStringList &list)
     NameValueItems result;
     for (const QString &string : list) {
         int pos = string.indexOf('=', 1);
-        if (pos == -1)
+        if (pos == -1) {
             result.append(NameValueItem(string, QString(), NameValueItem::Unset));
-        else
-            result.append(NameValueItem(string.left(pos), string.mid(pos + 1)));
+            continue;
+        }
+        const int hashPos = string.indexOf('#');
+        if (hashPos != -1 && hashPos < pos) {
+            result.append({string.mid(hashPos + 1, pos - hashPos - 1), string.mid(pos + 1),
+                           NameValueItem::SetDisabled});
+        } else {
+            result.append({string.left(pos), string.mid(pos + 1)});
+        }
     }
     return result;
 }
@@ -55,7 +62,8 @@ QStringList NameValueItem::toStringList(const NameValueItems &list)
     return Utils::transform<QStringList>(list, [](const NameValueItem &item) {
         if (item.operation == NameValueItem::Unset)
             return QString(item.name);
-        return QString(item.name + '=' + item.value);
+        return QString((item.operation == NameValueItem::SetDisabled ? "#" : "")
+                       + item.name + '=' + item.value);
     });
 }
 
@@ -103,7 +111,7 @@ static QString expand(const NameValueDictionary *dictionary, QString value)
                     const QString &key = value.mid(i + 2, end - i - 2);
                     NameValueDictionary::const_iterator it = dictionary->constFind(key);
                     if (it != dictionary->constEnd())
-                        value.replace(i, end - i + 1, it.value());
+                        value.replace(i, end - i + 1, it.value().first);
                     ++replaceCount;
                     QTC_ASSERT(replaceCount < 100, break);
                 }
@@ -124,8 +132,11 @@ enum : char {
 void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
 {
     switch (op) {
-    case Set:
+    case SetEnabled:
         dictionary->set(name, expand(dictionary, value));
+        break;
+    case SetDisabled:
+        dictionary->set(name, expand(dictionary, value), false);
         break;
     case Unset:
         dictionary->unset(name);
@@ -133,7 +144,7 @@ void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
     case Prepend: {
         const NameValueDictionary::const_iterator it = dictionary->constFind(name);
         if (it != dictionary->constEnd()) {
-            QString v = it.value();
+            QString v = dictionary->value(it);
             const QChar pathSep{QLatin1Char(pathSepC)};
             int sepCount = 0;
             if (v.startsWith(pathSep))
@@ -147,13 +158,13 @@ void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
             v.prepend(expand(dictionary, value));
             dictionary->set(name, v);
         } else {
-            apply(dictionary, Set);
+            apply(dictionary, SetEnabled);
         }
     } break;
     case Append: {
         const NameValueDictionary::const_iterator it = dictionary->constFind(name);
         if (it != dictionary->constEnd()) {
-            QString v = it.value();
+            QString v = dictionary->value(it);
             const QChar pathSep{QLatin1Char(pathSepC)};
             int sepCount = 0;
             if (v.endsWith(pathSep))
@@ -167,7 +178,7 @@ void NameValueItem::apply(NameValueDictionary *dictionary, Operation op) const
             v.append(expand(dictionary, value));
             dictionary->set(name, v);
         } else {
-            apply(dictionary, Set);
+            apply(dictionary, SetEnabled);
         }
     } break;
     }
@@ -180,8 +191,11 @@ QDebug operator<<(QDebug debug, const NameValueItem &i)
     debug.nospace();
     debug << "KeyValueItem(";
     switch (i.operation) {
-    case NameValueItem::Set:
+    case NameValueItem::SetEnabled:
         debug << "set \"" << i.name << "\" to \"" << i.value << '"';
+        break;
+    case NameValueItem::SetDisabled:
+        debug << "set \"" << i.name << "\" to \"" << i.value << '"' << "[disabled]";
         break;
     case NameValueItem::Unset:
         debug << "unset \"" << i.name << '"';

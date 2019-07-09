@@ -59,7 +59,9 @@ public:
     QModelIndex addVariable(const NameValueItem &item);
     void resetVariable(const QString &name);
     void unsetVariable(const QString &name);
-    bool canUnset(const QString &name);
+    void toggleVariable(const QModelIndex &index);
+    bool isUnset(const QString &name);
+    bool isEnabled(const QString &name) const;
     bool canReset(const QString &name);
     QString indexToVariable(const QModelIndex &index) const;
     QModelIndex variableToIndex(const QString &name) const;

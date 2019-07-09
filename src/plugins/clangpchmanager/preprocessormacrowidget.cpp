@@ -237,7 +237,7 @@ void PreprocessorMacroWidget::currentIndexChanged(const QModelIndex &current)
         m_editButton->setEnabled(true);
         const QString &name = m_model->indexToVariable(current);
         bool modified = m_model->canReset(name) && m_model->changes(name);
-        bool unset = m_model->canUnset(name);
+        bool unset = m_model->isUnset(name);
         m_resetButton->setEnabled(modified || unset);
         m_unsetButton->setEnabled(!unset);
     } else {

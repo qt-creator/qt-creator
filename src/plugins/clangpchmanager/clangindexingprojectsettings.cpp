@@ -58,7 +58,7 @@ void ClangIndexingProjectSettings::saveMacros(const Utils::NameValueItems &items
     for (const Utils::NameValueItem &item : items) {
         using Operation = Utils::NameValueItem::Operation;
         switch (item.operation) {
-        case Operation::Set:
+        case Operation::SetEnabled:
             sets[item.name] = item.value;
             break;
         case Operation::Unset:
@@ -88,7 +88,7 @@ Utils::NameValueItems ClangIndexingProjectSettings::readMacros() const
 
     QVariant sets = m_project->namedSettings("set_indexing_macro");
 
-    items += fromQVariantMap(sets.toMap(), Utils::NameValueItem::Set);
+    items += fromQVariantMap(sets.toMap(), Utils::NameValueItem::SetEnabled);
 
     return items;
 }
