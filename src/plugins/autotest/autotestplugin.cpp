@@ -210,10 +210,9 @@ void AutotestPlugin::extensionsInitialized()
     contextMenu->addSeparator();
     contextMenu->addAction(command);
 
-    action = new QAction(tr("&Debug Test Under Cursor"), this);;
+    action = new QAction(tr("&Debug Test Under Cursor"), this);
     action->setEnabled(false);
     action->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
-
 
     command = ActionManager::registerAction(action, Constants::ACTION_RUN_DBG_UCURSOR);
     connect(action, &QAction::triggered, std::bind(&AutotestPlugin::onRunUnderCursorTriggered, this,
