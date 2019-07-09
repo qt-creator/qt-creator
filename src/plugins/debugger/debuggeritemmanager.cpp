@@ -696,10 +696,43 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
     }
 }
 
+static Utils::FilePathList searchGdbPathsFromRegistry()
+{
+    if (!HostOsInfo::isWindowsHost())
+        return {};
+
+    // Registry token for the "GNU Tools for ARM Embedded Processors".
+    static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
+                                         "Windows\\CurrentVersion\\Uninstall\\";
+
+    Utils::FilePathList searchPaths;
+
+    QSettings registry(kRegistryToken, QSettings::NativeFormat);
+    const auto productGroups = registry.childGroups();
+    for (const QString &productKey : productGroups) {
+        if (!productKey.startsWith("GNU Tools for ARM Embedded Processors"))
+            continue;
+        registry.beginGroup(productKey);
+        QString uninstallFilePath = registry.value("UninstallString").toString();
+        if (uninstallFilePath.startsWith(QLatin1Char('"')))
+            uninstallFilePath.remove(0, 1);
+        if (uninstallFilePath.endsWith(QLatin1Char('"')))
+            uninstallFilePath.remove(uninstallFilePath.size() - 1, 1);
+        registry.endGroup();
+
+        const QString toolkitRootPath = QFileInfo(uninstallFilePath).path();
+        const QString toolchainPath = toolkitRootPath + QLatin1String("/bin");
+        searchPaths.push_back(FilePath::fromString(toolchainPath));
+    }
+
+    return searchPaths;
+}
+
 void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
 {
     const QStringList filters = {"gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
-                                 "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*"};
+                                 "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*",
+                                 "arm-none-eabi-gdb-py.exe"};
 
 //    DebuggerItem result;
 //    result.setAutoDetected(true);
@@ -739,6 +772,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     }
 
     Utils::FilePathList path = Environment::systemEnvironment().path();
+    path << searchGdbPathsFromRegistry();
     path = Utils::filteredUnique(path);
     QDir dir;
     dir.setNameFilters(filters);
