@@ -981,14 +981,18 @@ void QbsProject::updateCppCodeModel()
                         QLatin1String(CONFIG_DEFINES));
             rpp.setMacros(Utils::transform<QVector>(list, [](const QString &s) { return ProjectExplorer::Macro::fromKeyValue(s); }));
 
-            list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
-                                                         QLatin1String(CONFIG_INCLUDEPATHS));
-            list.append(props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
-                                                              QLatin1String(CONFIG_SYSTEM_INCLUDEPATHS)));
-            list.removeDuplicates();
             ProjectExplorer::HeaderPaths grpHeaderPaths;
-            foreach (const QString &p, list)
+            list = props.getModulePropertiesAsStringList(CONFIG_CPP_MODULE, CONFIG_INCLUDEPATHS);
+            list.removeDuplicates();
+            for (const QString &p : qAsConst(list))
                 grpHeaderPaths += {FilePath::fromUserInput(p).toString(),  HeaderPathType::User};
+
+            list = props.getModulePropertiesAsStringList(CONFIG_CPP_MODULE,
+                                                         CONFIG_SYSTEM_INCLUDEPATHS);
+
+            list.removeDuplicates();
+            for (const QString &p : qAsConst(list))
+                grpHeaderPaths += {FilePath::fromUserInput(p).toString(),  HeaderPathType::System};
 
             list = props.getModulePropertiesAsStringList(QLatin1String(CONFIG_CPP_MODULE),
                                                          QLatin1String(CONFIG_FRAMEWORKPATHS));
