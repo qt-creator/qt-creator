@@ -25,8 +25,9 @@
 
 #include "clangtoolsunittests.h"
 
-#include "clangtoolsdiagnostic.h"
 #include "clangtidyclazytool.h"
+#include "clangtoolsdiagnostic.h"
+#include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
@@ -49,6 +50,8 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+
+Q_DECLARE_METATYPE(CppTools::ClangDiagnosticConfig)
 
 namespace ClangTools {
 namespace Internal {
@@ -75,16 +78,17 @@ void ClangToolsUnitTests::cleanupTestCase()
     delete m_tmpDir;
 }
 
-static CppTools::ClangDiagnosticConfig createTidyClazyConfig()
+static CppTools::ClangDiagnosticConfig configFor(const QString &tidyChecks,
+                                                 const QString &clazyChecks)
 {
     CppTools::ClangDiagnosticConfig config;
-    config.setId("Test.ClangTidy");
+    config.setId("Test.MyTestConfig");
     config.setDisplayName("Test");
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-Wno-everything")});
     config.setClangTidyMode(CppTools::ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
-    config.setClangTidyChecks("modernize-*, misc-*");
-    config.setClazyChecks("level2");
+    config.setClangTidyChecks(tidyChecks);
+    config.setClazyChecks(clazyChecks);
     return config;
 }
 
@@ -92,6 +96,7 @@ void ClangToolsUnitTests::testProject()
 {
     QFETCH(QString, projectFilePath);
     QFETCH(int, expectedDiagCount);
+    QFETCH(CppTools::ClangDiagnosticConfig, diagnosticConfig);
     if (projectFilePath.contains("mingw")) {
         const ToolChain * const toolchain
                 = ToolChainKitAspect::toolChain(KitManager::kits().constFirst(),
@@ -106,23 +111,25 @@ void ClangToolsUnitTests::testProject()
     ClangTool *tool = ClangTidyClazyTool::instance();
 
     // Change configs
-    QSharedPointer<CppTools::CppCodeModelSettings> settings = CppTools::codeModelSettings();
-    const CppTools::ClangDiagnosticConfigs originalConfigs = settings->clangCustomDiagnosticConfigs();
-    const Core::Id originalId = settings->clangDiagnosticConfigId();
+    QSharedPointer<CppTools::CppCodeModelSettings> cppToolsSettings = CppTools::codeModelSettings();
+    ClangToolsSettings *clangToolsSettings = ClangToolsSettings::instance();
+    const CppTools::ClangDiagnosticConfigs originalConfigs = cppToolsSettings
+                                                                 ->clangCustomDiagnosticConfigs();
+    const Core::Id originalId = clangToolsSettings->diagnosticConfigId();
 
     CppTools::ClangDiagnosticConfigs modifiedConfigs = originalConfigs;
-
-    const CppTools::ClangDiagnosticConfig clangTidyConfig = createTidyClazyConfig();
-    modifiedConfigs.push_back(clangTidyConfig);
+    modifiedConfigs.push_back(diagnosticConfig);
 
     ExecuteOnDestruction executeOnDestruction([=]() {
         // Restore configs
-        settings->setClangCustomDiagnosticConfigs(originalConfigs);
-        settings->setClangDiagnosticConfigId(originalId);
+        cppToolsSettings->setClangCustomDiagnosticConfigs(originalConfigs);
+        clangToolsSettings->setDiagnosticConfigId(originalId);
+        clangToolsSettings->writeSettings();
     });
 
-    settings->setClangCustomDiagnosticConfigs(modifiedConfigs);
-    settings->setClangDiagnosticConfigId(clangTidyConfig.id());
+    cppToolsSettings->setClangCustomDiagnosticConfigs(modifiedConfigs);
+    clangToolsSettings->setDiagnosticConfigId(diagnosticConfig.id());
+    clangToolsSettings->writeSettings();
 
     tool->startTool(false);
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
@@ -137,43 +144,50 @@ void ClangToolsUnitTests::testProject_data()
 {
     QTest::addColumn<QString>("projectFilePath");
     QTest::addColumn<int>("expectedDiagCount");
+    QTest::addColumn<CppTools::ClangDiagnosticConfig>("diagnosticConfig");
 
-    // For the simple project, we expect the following warning:
-    //   warning: use nullptr [modernize-use-nullptr]
-    addTestRow("simple/simple.qbs", 1);
-    addTestRow("simple/simple.pro", 1);
+    // Test simple C++ project.
+    CppTools::ClangDiagnosticConfig config = configFor("modernize-use-nullptr", QString());
+    addTestRow("simple/simple.qbs", 1, config);
+    addTestRow("simple/simple.pro", 1, config);
 
-    addTestRow("simple-library/simple-library.qbs", 0);
-    addTestRow("simple-library/simple-library.pro", 0);
+    // Test simple Qt project.
+    config = configFor("readability-static-accessed-through-instance", QString());
+    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 1, config);
+    addTestRow("qt-widgets-app/qt-widgets-app.pro", 1, config);
 
-    addTestRow("stdc++11-includes/stdc++11-includes.qbs", 0);
-    addTestRow("stdc++11-includes/stdc++11-includes.pro", 0);
+    // Test that libraries can be analyzed.
+    config = configFor(QString(), QString());
+    addTestRow("simple-library/simple-library.qbs", 0, config);
+    addTestRow("simple-library/simple-library.pro", 0, config);
 
-    // For qt-widgets-app, we expect the following warning for "a.exec()",
-    // "a" being the QApplication object:
-    //   warning: static member accessed through instance
-    //    [readability-static-accessed-through-instance]
-    addTestRow("qt-widgets-app/qt-widgets-app.qbs", 1);
-    addTestRow("qt-widgets-app/qt-widgets-app.pro", 1);
+    // Test that standard headers can be parsed.
+    addTestRow("stdc++11-includes/stdc++11-includes.qbs", 0, config);
+    addTestRow("stdc++11-includes/stdc++11-includes.pro", 0, config);
 
-    addTestRow("qt-essential-includes/qt-essential-includes.qbs", 0);
-    addTestRow("qt-essential-includes/qt-essential-includes.pro", 0);
+    // Test that qt essential headers can be parsed.
+    addTestRow("qt-essential-includes/qt-essential-includes.qbs", 0, config);
+    addTestRow("qt-essential-includes/qt-essential-includes.pro", 0, config);
 
-    addTestRow("mingw-includes/mingw-includes.qbs", 0);
-    addTestRow("mingw-includes/mingw-includes.pro", 0);
+    // Test that mingw includes can be parsed.
+    addTestRow("mingw-includes/mingw-includes.qbs", 0, config);
+    addTestRow("mingw-includes/mingw-includes.pro", 0, config);
 
+    // Test that tidy and clazy diagnostics are emitted for the same project.
     addTestRow("clangtidy_clazy/clangtidy_clazy.pro",
-               4 /* ClangTidy: modernize-*,misc-* */
-               + 2 /* Clazy: level1 */);
+               1 /*tidy*/ + 1 /*clazy*/,
+               configFor("misc-unconventional-assign-operator", "base-class-event"));
 }
 
 void ClangToolsUnitTests::addTestRow(const QByteArray &relativeFilePath,
-                                     int expectedDiagCount)
+                                     int expectedDiagCount,
+                                     const CppTools::ClangDiagnosticConfig &diagnosticConfig)
 {
     const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
     const QString fileName = QFileInfo(absoluteFilePath).fileName();
 
-    QTest::newRow(fileName.toUtf8().constData()) << absoluteFilePath << expectedDiagCount;
+    QTest::newRow(fileName.toUtf8().constData())
+        << absoluteFilePath << expectedDiagCount << diagnosticConfig;
 }
 
 } // namespace Internal
