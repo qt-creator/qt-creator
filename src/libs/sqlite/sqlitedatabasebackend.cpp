@@ -25,10 +25,10 @@
 
 #include "sqlitedatabasebackend.h"
 
+#include "sqlitebasestatement.h"
 #include "sqliteexception.h"
 #include "sqlitereadstatement.h"
 #include "sqlitereadwritestatement.h"
-#include "sqlitebasestatement.h"
 #include "sqlitewritestatement.h"
 
 #include <QFileInfo>
@@ -177,8 +177,12 @@ void DatabaseBackend::setLastInsertedRowId(int64_t rowId)
 
 void DatabaseBackend::execute(Utils::SmallStringView sqlStatement)
 {
-    ReadWriteStatement statement(sqlStatement, m_database);
-    statement.execute();
+    try {
+        ReadWriteStatement statement(sqlStatement, m_database);
+        statement.execute();
+    } catch (StatementIsBusy &) {
+        execute(sqlStatement);
+    }
 }
 
 void DatabaseBackend::close()
@@ -217,14 +221,14 @@ void DatabaseBackend::registerBusyHandler()
 
 void DatabaseBackend::registerRankingFunction()
 {
-    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25", -1, SQLITE_ANY, 0, okapi_bm25, 0, 0, 0);
-    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25f", -1, SQLITE_UTF8, 0, okapi_bm25f, 0, 0, 0);
-    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25f_kb", -1, SQLITE_UTF8, 0, okapi_bm25f_kb, 0, 0, 0);
+    //    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25", -1, SQLITE_ANY, 0, okapi_bm25, 0, 0, 0);
+    //    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25f", -1, SQLITE_UTF8, 0, okapi_bm25f, 0, 0, 0);
+    //    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25f_kb", -1, SQLITE_UTF8, 0, okapi_bm25f_kb, 0, 0, 0);
 }
 
 int DatabaseBackend::busyHandlerCallback(void *, int counter)
 {
-    Q_UNUSED(counter);
+    Q_UNUSED(counter)
 #ifdef QT_DEBUG
     //qWarning() << "Busy handler invoked" << counter << "times!";
 #endif
@@ -453,11 +457,15 @@ void DatabaseBackend::throwDatabaseIsNotOpen(const char *whatHasHappens) const
 template <typename Type>
 Type DatabaseBackend::toValue(Utils::SmallStringView sqlStatement)
 {
-    ReadWriteStatement statement(sqlStatement, m_database);
+    try {
+        ReadWriteStatement statement(sqlStatement, m_database);
 
-    statement.next();
+        statement.next();
 
-    return statement.fetchValue<Type>(0);
+        return statement.fetchValue<Type>(0);
+    } catch (StatementIsBusy &) {
+        return toValue<Type>(sqlStatement);
+    }
 }
 
 } // namespace Sqlite
