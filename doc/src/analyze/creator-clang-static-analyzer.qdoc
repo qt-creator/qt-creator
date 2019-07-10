@@ -103,12 +103,12 @@
 
     \image qtcreator-clang-tools.png "Clang-Tidy and Clazy view"
 
-    Select the link in the \uicontrol Location column to move to the location
-    where the issue appears in the code editor.
+    Double-click an issue to move to the location where the issue appears in
+    the code editor.
 
-    In the \uicontrol {Fixit Status} column, select issues that you want to
-    apply refactoring actions to, and then select \uicontrol {Apply Fixits}.
-    The status of the issues is updated in the \uicontrol {Fixit Status} column.
+    If a fixit exists for an issue, you can select the check box next to the
+    issue to schedule it for fixing. You can see the status of the issue by
+    hovering the mouse pointer over the icon next to the check box.
 
     \section1 Configuring Clang Tools
 
