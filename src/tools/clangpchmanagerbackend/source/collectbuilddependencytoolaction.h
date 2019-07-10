@@ -73,8 +73,10 @@ public:
         std::vector<uint> fileUIDs;
         fileUIDs.reserve(m_excludedFilePaths.size());
 
-        for (const ClangBackEnd::FilePath &filePath : m_excludedFilePaths) {
-            const clang::FileEntry *file = fileManager.getFile({filePath.data(), filePath.size()},
+        for (const FilePath &filePath : m_excludedFilePaths) {
+            NativeFilePath nativeFilePath{filePath};
+            const clang::FileEntry *file = fileManager.getFile({nativeFilePath.path().data(),
+                                                                nativeFilePath.path().size()},
                                                                true);
 
             if (file)

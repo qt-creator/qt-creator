@@ -136,19 +136,7 @@ void BuildDependencyCollector::collect()
 
 void BuildDependencyCollector::setExcludedFilePaths(ClangBackEnd::FilePaths &&excludedFilePaths)
 {
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        m_excludedFilePaths.clear();
-        m_excludedFilePaths.reserve(excludedFilePaths.size());
-        std::transform(std::make_move_iterator(excludedFilePaths.begin()),
-                       std::make_move_iterator(excludedFilePaths.end()),
-                       std::back_inserter(m_excludedFilePaths),
-                       [](auto &&path) {
-                           path.replace("/", "\\");
-                           return std::move(path);
-                       });
-    } else {
-        m_excludedFilePaths = std::move(excludedFilePaths);
-    }
+    m_excludedFilePaths = std::move(excludedFilePaths);
 }
 
 void BuildDependencyCollector::addFiles(const FilePathIds &filePathIds,

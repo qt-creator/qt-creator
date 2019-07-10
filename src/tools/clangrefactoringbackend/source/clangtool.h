@@ -55,12 +55,12 @@ struct FileContent
 
 struct UnsavedFileContent
 {
-    UnsavedFileContent(FilePath &&filePath, Utils::SmallString &&content)
+    UnsavedFileContent(NativeFilePath &&filePath, Utils::SmallString &&content)
         : filePath(std::move(filePath))
         , content(std::move(content))
     {}
 
-    FilePath filePath;
+    NativeFilePath filePath;
     Utils::SmallString content;
 };
 
