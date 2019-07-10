@@ -142,7 +142,8 @@ void RefactoringServer::setGathererProcessingSlotCount(uint count)
 
 void RefactoringServer::setProgress(int progress, int total)
 {
-    client()->progress({ProgressType::Indexing, progress, total});
+    if (client())
+        client()->progress({ProgressType::Indexing, progress, total});
 }
 
 void RefactoringServer::gatherSourceRangesForQueryMessages(
