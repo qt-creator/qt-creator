@@ -174,10 +174,13 @@ void TestRunner::scheduleNext()
             tr("Executable path is empty. (%1)").arg(m_currentConfig->displayName()));
         delete m_currentConfig;
         m_currentConfig = nullptr;
-        if (m_selectedTests.isEmpty())
+        if (m_selectedTests.isEmpty()) {
+            if (m_fakeFutureInterface)
+                m_fakeFutureInterface->reportFinished();
             onFinished();
-        else
+        } else {
             onProcessFinished();
+        }
         return;
     }
     if (!m_currentConfig->project())
