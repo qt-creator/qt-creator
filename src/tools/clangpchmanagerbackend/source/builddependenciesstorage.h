@@ -68,7 +68,18 @@ public:
 
     FilePathIds fetchPchSources(ProjectPartId projectPartId) const override
     {
-        return fetchPchSourcesStatement.template values<FilePathId>(1024, projectPartId.projectPathId);
+        try {
+            Sqlite::DeferredTransaction transaction{database};
+
+            FilePathIds values = fetchPchSourcesStatement
+                                     .template values<FilePathId>(1024, projectPartId.projectPathId);
+
+            transaction.commit();
+
+            return values;
+        } catch (const Sqlite::StatementIsBusy &) {
+            return fetchPchSources(projectPartId);
+        }
     }
 
     FilePathIds fetchSources(ProjectPartId projectPartId) const override
