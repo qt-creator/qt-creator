@@ -264,9 +264,12 @@
 
     To add a variable value to the environment, enter the variable name and
     value, separated by the equals sign. For example, the following line
-    prepends \c /opt/bin to the existing PATH:
+    prepends the \c /opt/bin folder to the existing PATH:
 
-    \c {PATH=/opt/bin:${PATH}}
+    \list
+        \li On Windows: \c {PATH=C:\opt\bin;${PATH}}
+        \li On Linux: \c {PATH=/opt/bin:${PATH}}
+    \endlist
 
     To add or remove several variables, place them on separate lines. The order
     is important. If you remove a value on a line, you cannot refer to it on the
