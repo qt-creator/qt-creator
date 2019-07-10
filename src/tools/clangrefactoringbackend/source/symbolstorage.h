@@ -54,6 +54,7 @@ public:
         , database(database)
     {
         transaction.commit();
+        database.walCheckpointFull();
     }
 
     void addSymbolsAndSourceLocations(const SymbolEntries &symbolEntries,
