@@ -1036,7 +1036,6 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
     addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::JSON_MIMETYPE);
 
     setDocumentCreator([]() { return new QmlJSEditorDocument; });
     setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });
