@@ -947,6 +947,8 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(
             if (detectVariants == DetectVariants::Yes) {
                 nameFilters
                         << compilerName + "-[1-9]*" // "clang-8", "gcc-5"
+                        << ("*-" + compilerName) // "avr-gcc", "avr32-gcc"
+                        << ("*-" + compilerName + "-[1-9]*")// "avr-gcc-4.8.1", "avr32-gcc-4.4.7"
                         << ("*-*-*-" + compilerName) // "arm-none-eabi-gcc"
                         << ("*-*-*-" + compilerName + "-[1-9]*") // "arm-none-eabi-gcc-9.1.0"
                         << ("*-*-*-*-" + compilerName) // "x86_64-pc-linux-gnu-gcc"
