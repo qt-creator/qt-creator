@@ -50,7 +50,7 @@ using namespace Utils;
 
 namespace {
 
-enum { debug = 0 };
+const bool debug = qEnvironmentVariable("QTC_DEBUG_CPPLOCATORFILTERTESTCASE") == "1";
 
 QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 
