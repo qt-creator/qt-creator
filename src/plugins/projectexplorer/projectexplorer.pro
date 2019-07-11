@@ -102,6 +102,7 @@ HEADERS += projectexplorer.h \
     miniprojecttargetselector.h \
     buildenvironmentwidget.h \
     ldparser.h \
+    lldparser.h \
     linuxiccparser.h \
     runconfigurationaspects.h \
     processparameters.h \
@@ -253,6 +254,7 @@ SOURCES += projectexplorer.cpp \
     miniprojecttargetselector.cpp \
     buildenvironmentwidget.cpp \
     ldparser.cpp \
+    lldparser.cpp \
     linuxiccparser.cpp \
     runconfigurationaspects.cpp \
     taskhub.cpp \

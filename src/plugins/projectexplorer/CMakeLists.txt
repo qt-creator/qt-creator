@@ -109,6 +109,7 @@ add_qtc_plugin(ProjectExplorer
     kitmodel.cpp kitmodel.h
     kitoptionspage.cpp kitoptionspage.h
     ldparser.cpp ldparser.h
+    lldparser.cpp lldparser.h
     linuxiccparser.cpp linuxiccparser.h
     localenvironmentaspect.cpp localenvironmentaspect.h
     makestep.cpp makestep.h makestep.ui

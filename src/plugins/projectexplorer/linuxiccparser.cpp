@@ -25,6 +25,7 @@
 
 #include "linuxiccparser.h"
 #include "ldparser.h"
+#include "lldparser.h"
 #include "projectexplorerconstants.h"
 
 #include <utils/qtcassert.h>
@@ -62,6 +63,7 @@ LinuxIccParser::LinuxIccParser() :
     m_pchInfoLine.setMinimal(true);
     QTC_CHECK(m_pchInfoLine.isValid());
 
+    appendOutputParser(new Internal::LldParser);
     appendOutputParser(new LdParser);
 }
 

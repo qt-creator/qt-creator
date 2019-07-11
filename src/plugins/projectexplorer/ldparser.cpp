@@ -65,7 +65,7 @@ void LdParser::stdError(const QString &line)
         return;
     }
 
-    if (lne.startsWith(QLatin1String("collect2:"))) {
+    if (lne.startsWith("collect2:") || lne.startsWith("collect2.exe:")) {
         Task task = Task(Task::Error,
                          lne /* description */,
                          Utils::FilePath() /* filename */,

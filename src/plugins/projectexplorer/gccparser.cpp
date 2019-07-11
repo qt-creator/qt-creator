@@ -25,6 +25,7 @@
 
 #include "gccparser.h"
 #include "ldparser.h"
+#include "lldparser.h"
 #include "task.h"
 #include "projectexplorerconstants.h"
 #include "buildmanager.h"
@@ -34,6 +35,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 // opt. drive letter + filename: (2 brackets)
 static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+):";
@@ -58,6 +60,7 @@ GccParser::GccParser()
     m_regExpGccNames.setPattern(QLatin1String(COMMAND_PATTERN));
     QTC_CHECK(m_regExpGccNames.isValid());
 
+    appendOutputParser(new Internal::LldParser);
     appendOutputParser(new LdParser);
 }
 
@@ -874,6 +877,130 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         categoryCompile)
                 )
             << QString();
+
+    const auto task = [categoryCompile](Task::TaskType type, const QString &msg,
+                                        const QString &file = {}, int line = -1) {
+        return Task(type, msg, FilePath::fromString(file), line, categoryCompile);
+    };
+    const auto errorTask = [&task](const QString &msg, const QString &file = {}, int line = -1) {
+        return task(Task::Error, msg, file, line);
+    };
+    const auto unknownTask = [&task](const QString &msg, const QString &file = {}, int line = -1) {
+        return task(Task::Unknown, msg, file, line);
+    };
+    QTest::newRow("lld: undefined reference with debug info")
+            << "ld.lld: error: undefined symbol: func()\n"
+               ">>> referenced by test.cpp:5\n"
+               ">>>               /tmp/ccg8pzRr.o:(main)\n"
+               "collect2: error: ld returned 1 exit status"
+            << OutputParserTester::STDERR << QString() << QString()
+            << Tasks{
+                   errorTask("ld.lld: error: undefined symbol: func()"),
+                   unknownTask("referenced by test.cpp:5", "test.cpp", 5),
+                   unknownTask("/tmp/ccg8pzRr.o:(main)",  "/tmp/ccg8pzRr.o"),
+                   errorTask("collect2: error: ld returned 1 exit status")}
+            << QString();
+    QTest::newRow("lld: undefined reference with debug info (more verbose format)")
+            << "ld.lld: error: undefined symbol: someFunc()\n"
+               ">>> referenced by main.cpp:10 (/tmp/untitled4/main.cpp:10)\n"
+               ">>>               /tmp/Debug4/untitled4.5abe06ac/3a52ce780950d4d9/main.cpp.o:(main)\n"
+               "clang-8: error: linker command failed with exit code 1 (use -v to see invocation)"
+            << OutputParserTester::STDERR << QString()
+            << QString("clang-8: error: linker command failed with exit code 1 (use -v to see invocation)\n")
+            << Tasks{
+                   errorTask("ld.lld: error: undefined symbol: someFunc()"),
+                   unknownTask("referenced by main.cpp:10 (/tmp/untitled4/main.cpp:10)",
+                               "/tmp/untitled4/main.cpp", 10),
+                   unknownTask("/tmp/Debug4/untitled4.5abe06ac/3a52ce780950d4d9/main.cpp.o:(main)",
+                               "/tmp/Debug4/untitled4.5abe06ac/3a52ce780950d4d9/main.cpp.o")}
+            << QString();
+    QTest::newRow("lld: undefined reference without debug info")
+            << "ld.lld: error: undefined symbol: func()\n"
+               ">>> referenced by test.cpp\n"
+               ">>>               /tmp/ccvjyJph.o:(main)\n"
+               "collect2: error: ld returned 1 exit status"
+            << OutputParserTester::STDERR << QString() << QString()
+            << Tasks{
+                   errorTask("ld.lld: error: undefined symbol: func()"),
+                   unknownTask("referenced by test.cpp", "test.cpp"),
+                   unknownTask("/tmp/ccvjyJph.o:(main)",  "/tmp/ccvjyJph.o"),
+                   errorTask("collect2: error: ld returned 1 exit status")}
+            << QString();
+    if (HostOsInfo::isWindowsHost()) {
+        QTest::newRow("lld: undefined reference with mingw")
+                << "lld-link: error: undefined symbol: __Z4funcv\n"
+                   ">>> referenced by C:\\Users\\orgads\\AppData\\Local\\Temp\\cccApKoz.o:(.text)\n"
+                   "collect2.exe: error: ld returned 1 exit status"
+                << OutputParserTester::STDERR << QString() << QString()
+                << Tasks{
+                       errorTask("lld-link: error: undefined symbol: __Z4funcv"),
+                       unknownTask("referenced by C:\\Users\\orgads\\AppData\\Local\\Temp\\cccApKoz.o:(.text)",
+                                   "C:/Users/orgads/AppData/Local/Temp/cccApKoz.o"),
+                       errorTask("collect2.exe: error: ld returned 1 exit status")}
+                << QString();
+    }
+    QTest::newRow("lld: multiple definitions with debug info")
+            << "ld.lld: error: duplicate symbol: func()\n"
+               ">>> defined at test1.cpp:1\n"
+               ">>>            test1.o:(func())\n"
+               ">>> defined at test1.cpp:1\n"
+               ">>>            test1.o:(.text+0x0)\n"
+               "collect2: error: ld returned 1 exit status"
+            << OutputParserTester::STDERR << QString() << QString()
+            << Tasks{
+                   errorTask("ld.lld: error: duplicate symbol: func()"),
+                   unknownTask("defined at test1.cpp:1", "test1.cpp", 1),
+                   unknownTask("test1.o:(func())",  "test1.o"),
+                   unknownTask("defined at test1.cpp:1", "test1.cpp", 1),
+                   unknownTask("test1.o:(.text+0x0)",  "test1.o"),
+                   errorTask("collect2: error: ld returned 1 exit status")}
+            << QString();
+    QTest::newRow("lld: multiple definitions with debug info (more verbose format)")
+            << "ld.lld: error: duplicate symbol: theFunc()\n"
+               ">>> defined at file.cpp:1 (/tmp/untitled3/file.cpp:1)\n"
+               ">>>            /tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/file.cpp.o:(theFunc())\n"
+               ">>> defined at main.cpp:5 (/tmp/untitled3/main.cpp:5)\n"
+               ">>>            /tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/main.cpp.o:(.text+0x0)\n"
+               "collect2: error: ld returned 1 exit status"
+            << OutputParserTester::STDERR << QString() << QString()
+            << Tasks{
+                   errorTask("ld.lld: error: duplicate symbol: theFunc()"),
+                   unknownTask("defined at file.cpp:1 (/tmp/untitled3/file.cpp:1)",
+                               "/tmp/untitled3/file.cpp", 1),
+                   unknownTask("/tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/file.cpp.o:(theFunc())",
+                               "/tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/file.cpp.o"),
+                   unknownTask("defined at main.cpp:5 (/tmp/untitled3/main.cpp:5)",
+                               "/tmp/untitled3/main.cpp", 5),
+                   unknownTask("/tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/main.cpp.o:(.text+0x0)",
+                               "/tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/main.cpp.o"),
+                   errorTask("collect2: error: ld returned 1 exit status")}
+            << QString();
+    QTest::newRow("lld: multiple definitions without debug info")
+            << "ld.lld: error: duplicate symbol: func()\n"
+               ">>> defined at test1.cpp\n"
+               ">>>            test1.o:(func())\n"
+               ">>> defined at test1.cpp\n"
+               ">>>            test1.o:(.text+0x0)\n"
+               "collect2: error: ld returned 1 exit status"
+            << OutputParserTester::STDERR << QString() << QString()
+            << Tasks{
+                   errorTask("ld.lld: error: duplicate symbol: func()"),
+                   unknownTask("defined at test1.cpp", "test1.cpp"),
+                   unknownTask("test1.o:(func())",  "test1.o"),
+                   unknownTask("defined at test1.cpp", "test1.cpp"),
+                   unknownTask("test1.o:(.text+0x0)",  "test1.o"),
+                   errorTask("collect2: error: ld returned 1 exit status")}
+            << QString();
+    if (HostOsInfo::isWindowsHost()) {
+        QTest::newRow("lld: multiple definitions with mingw")
+                << "lld-link: error: duplicate symbol: __Z4funcv in test1.o and in test2.o\n"
+                   "collect2.exe: error: ld returned 1 exit status"
+                << OutputParserTester::STDERR << QString() << QString()
+                << Tasks{
+                       errorTask("lld-link: error: duplicate symbol: __Z4funcv in test1.o and in test2.o"),
+                       errorTask("collect2.exe: error: ld returned 1 exit status", {})}
+                << QString();
+    }
 
     QTest::newRow("Mac: ranlib warning")
             << QString::fromLatin1("ranlib: file: lib/libtest.a(Test0.cpp.o) has no symbols")
