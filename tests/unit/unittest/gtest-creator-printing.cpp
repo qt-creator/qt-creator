@@ -35,15 +35,12 @@
 #include <builddependency.h>
 #include <clangcodemodelclientmessages.h>
 #include <clangcodemodelservermessages.h>
-#include <clangdocumentsuspenderresumer.h>
 #include <clangpathwatcher.h>
 #include <clangrefactoringmessages.h>
-#include <clangreferencescollector.h>
 #include <filepath.h>
 #include <filepathcaching.h>
 #include <filepathview.h>
 #include <filestatus.h>
-#include <fulltokeninfo.h>
 #include <includesearchpath.h>
 #include <nativefilepath.h>
 #include <pchpaths.h>
@@ -58,16 +55,12 @@
 #include <symbol.h>
 #include <symbolentry.h>
 #include <symbolindexertaskqueue.h>
-#include <tokenprocessor.h>
 #include <toolchainargumentscache.h>
 #include <tooltipinfo.h>
 #include <usedmacro.h>
-
 #include <cpptools/usages.h>
-
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/headerpath.h>
-
 #include <coreplugin/find/searchresultitem.h>
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -924,35 +917,6 @@ std::ostream &operator<<(std::ostream &os, const DocumentVisibilityChangedMessag
     return os;
 }
 
-std::ostream &operator<<(std::ostream &os, const TokenInfo &tokenInfo)
-{
-    os << "(type: " << tokenInfo.types() << ", "
-       << " line: " << tokenInfo.line() << ", "
-       << " column: " << tokenInfo.column() << ", "
-       << " length: " << tokenInfo.length()
-       << ")";
-
-    return  os;
-}
-
-template<class T>
-std::ostream &operator<<(std::ostream &out, const TokenProcessor<T> &tokenInfos)
-{
-    out << "[";
-
-    for (const T &entry : tokenInfos)
-        out << entry;
-
-    out << "]";
-
-    return out;
-}
-
-template
-std::ostream &operator<<(std::ostream &out, const TokenProcessor<TokenInfo> &tokenInfos);
-template
-std::ostream &operator<<(std::ostream &out, const TokenProcessor<FullTokenInfo> &tokenInfos);
-
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath)
 {
     return out << "(" << filePath.path() << ", " << filePath.slashIndex() << ")";
@@ -1076,30 +1040,6 @@ std::ostream &operator<<(std::ostream &out, const UpdateGeneratedFilesMessage &m
 std::ostream &operator<<(std::ostream &out, const RemoveGeneratedFilesMessage &message)
 {
     return out << "(" << message.generatedFiles << ")";
-}
-
-std::ostream &operator<<(std::ostream &out, const SuspendResumeJobsEntry &entry)
-{
-    return out << "("
-               << entry.document.filePath() << ", "
-               << entry.jobRequestType << ", "
-               << entry.preferredTranslationUnit
-               << ")";
-}
-
-std::ostream &operator<<(std::ostream &os, const ReferencesResult &value)
-{
-    os << "ReferencesResult(";
-    os << value.isLocalVariable << ", {";
-    for (const SourceRangeContainer &r : value.references) {
-        os << r.start.line << ",";
-        os << r.start.column << ",";
-        EXPECT_THAT(r.start.line, testing::Eq(r.end.line));
-        os << r.end.column - r.start.column << ",";
-    }
-    os << "})";
-
-    return os;
 }
 
 std::ostream &operator<<(std::ostream &out, const SymbolIndexerTask &task)

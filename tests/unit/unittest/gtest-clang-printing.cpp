@@ -23,9 +23,17 @@
 **
 ****************************************************************************/
 
+#include "gtest-creator-printing.h"
+
 #ifdef CLANG_UNIT_TESTS
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/SourceManager.h>
+
+#include <clangdocumentsuspenderresumer.h>
+#include <clangreferencescollector.h>
+#include <fulltokeninfo.h>
+#include <tokenprocessor.h>
+
 #endif
 
 #include <gtest/gtest-printers.h>
@@ -77,3 +85,52 @@ void PrintTo(const SourceRange &sourceRange, ::std::ostream *os)
 }
 
 }
+
+namespace ClangBackEnd {
+std::ostream &operator<<(std::ostream &os, const TokenInfo &tokenInfo)
+{
+    os << "(type: " << tokenInfo.types() << ", "
+       << " line: " << tokenInfo.line() << ", "
+       << " column: " << tokenInfo.column() << ", "
+       << " length: " << tokenInfo.length() << ")";
+
+    return os;
+}
+
+template<class T>
+std::ostream &operator<<(std::ostream &out, const TokenProcessor<T> &tokenInfos)
+{
+    out << "[";
+
+    for (const T &entry : tokenInfos)
+        out << entry;
+
+    out << "]";
+
+    return out;
+}
+
+template std::ostream &operator<<(std::ostream &out, const TokenProcessor<TokenInfo> &tokenInfos);
+template std::ostream &operator<<(std::ostream &out, const TokenProcessor<FullTokenInfo> &tokenInfos);
+
+std::ostream &operator<<(std::ostream &out, const SuspendResumeJobsEntry &entry)
+{
+    return out << "(" << entry.document.filePath() << ", " << entry.jobRequestType << ", "
+               << entry.preferredTranslationUnit << ")";
+}
+
+std::ostream &operator<<(std::ostream &os, const ReferencesResult &value)
+{
+    os << "ReferencesResult(";
+    os << value.isLocalVariable << ", {";
+    for (const SourceRangeContainer &r : value.references) {
+        os << r.start.line << ",";
+        os << r.start.column << ",";
+        os << r.end.column - r.start.column << ",";
+    }
+    os << "})";
+
+    return os;
+}
+
+} // namespace ClangBackEnd

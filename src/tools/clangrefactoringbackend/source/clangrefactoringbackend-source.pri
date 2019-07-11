@@ -2,7 +2,6 @@ INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/clangrefactoringbackend_global.h \
-    $$PWD/filestatuspreprocessorcallbacks.h \
     $$PWD/sourcerangefilter.h \
     $$PWD/symbolindexer.h \
     $$PWD/symbolentry.h \
@@ -14,10 +13,8 @@ HEADERS += \
     $$PWD/symbolindexinginterface.h \
     $$PWD/collectmacrospreprocessorcallbacks.h \
     $$PWD/projectpartentry.h \
-    $$PWD/symbolsvisitorbase.h \
     $$PWD/usedmacro.h \
     $$PWD/sourcedependency.h \
-    $$PWD/indexdataconsumer.h \
     $$PWD/sourcesmanager.h \
     $$PWD/symbolindexertaskqueue.h \
     $$PWD/symbolindexertaskqueueinterface.h \
@@ -35,6 +32,7 @@ SOURCES += \
     $$PWD/collectsymbolsaction.cpp \
     $$PWD/collectmacrossourcefilecallbacks.cpp \
     $$PWD/symbolscollector.cpp \
+    $$PWD/filestatuspreprocessorcallbacks.cpp \
     $$PWD/clangquerygatherer.cpp \
     $$PWD/symbolindexing.cpp \
     $$PWD/indexdataconsumer.cpp
@@ -51,10 +49,12 @@ HEADERS += \
     $$PWD/collectsymbolsaction.h \
     $$PWD/collectmacrossourcefilecallbacks.h \
     $$PWD/symbolscollector.h \
+    $$PWD/symbolsvisitorbase.h \
+    $$PWD/indexdataconsumer.h \
+    $$PWD/filestatuspreprocessorcallbacks.h \
     $$PWD/clangquerygatherer.h
 }
 
 SOURCES += \
-    $$PWD/filestatuspreprocessorcallbacks.cpp \
     $$PWD/sourcerangefilter.cpp \
     $$PWD/symbolindexer.cpp

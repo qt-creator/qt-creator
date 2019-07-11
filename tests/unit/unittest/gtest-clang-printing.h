@@ -27,6 +27,8 @@
 
 #include <iosfwd>
 
+#include <gtest/gtest-printers.h>
+
 namespace llvm {
 
 class StringRef;
@@ -48,3 +50,17 @@ namespace TestGlobal {
 void setSourceManager(const clang::SourceManager *sourceManager);
 }
 
+namespace ClangBackEnd {
+class TokenInfo;
+template<typename T>
+class TokenProcessor;
+class SuspendResumeJobsEntry;
+class ReferencesResult;
+
+std::ostream &operator<<(std::ostream &os, const TokenInfo &tokenInfo);
+template<class T>
+std::ostream &operator<<(std::ostream &out, const TokenProcessor<T> &tokenInfos);
+std::ostream &operator<<(std::ostream &out, const SuspendResumeJobsEntry &entry);
+std::ostream &operator<<(std::ostream &os, const ReferencesResult &value);
+
+} // namespace ClangBackEnd
