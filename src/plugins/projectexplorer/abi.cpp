@@ -458,7 +458,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     int unknownCount = 0;
 
     for (const QStringRef &p : parts) {
-        if (p == "unknown" || p == "pc" || p == "none"
+        if (p == "unknown" || p == "pc"
                 || p == "gnu" || p == "uclibc"
                 || p == "86_64" || p == "redhat"
                 || p == "w64") {
@@ -541,6 +541,10 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             format = ElfFormat;
         } else if (p.startsWith("qnx")) {
             os = QnxOS;
+            flavor = GenericFlavor;
+            format = ElfFormat;
+        } else if (p == "none") {
+            os = BareMetalOS;
             flavor = GenericFlavor;
             format = ElfFormat;
         } else {
