@@ -35,8 +35,6 @@
 #include <QThread>
 #include <QDebug>
 
-#include "okapi_bm25.h"
-
 #include "sqlite3.h"
 
 namespace Sqlite {
@@ -221,9 +219,6 @@ void DatabaseBackend::registerBusyHandler()
 
 void DatabaseBackend::registerRankingFunction()
 {
-    //    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25", -1, SQLITE_ANY, 0, okapi_bm25, 0, 0, 0);
-    //    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25f", -1, SQLITE_UTF8, 0, okapi_bm25f, 0, 0, 0);
-    //    sqlite3_create_function_v2(sqliteDatabaseHandle(), "okapi_bm25f_kb", -1, SQLITE_UTF8, 0, okapi_bm25f_kb, 0, 0, 0);
 }
 
 int DatabaseBackend::busyHandlerCallback(void *, int counter)
