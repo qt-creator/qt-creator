@@ -382,7 +382,7 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
                 if (++iArg < allFlags.length() && !arguments.contains(a))
                     arguments << a << allFlags.at(iArg);
             } else if (a == "--sysroot" || a == "-isysroot" || a == "-D" || a == "-U"
-                       || a == "-gcc-toolchain" || a == "-target") {
+                       || a == "-gcc-toolchain" || a == "-target" || a == "-mllvm") {
                 if (++iArg < allFlags.length())
                     arguments << a << allFlags.at(iArg);
             } else if (a.startsWith("-m") || a == "-Os" || a == "-O0" || a == "-O1" || a == "-O2"
