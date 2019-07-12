@@ -1439,6 +1439,8 @@ QStringList ClangToolChain::suggestedMkspecList() const
         return {"linux-clang", "unsupported/linux-clang"};
     if (abi.os() == Abi::WindowsOS)
         return {"win32-clang-g++"};
+    if (abi.architecture() == Abi::AsmJsArchitecture && abi.binaryFormat() == Abi::EmscriptenFormat)
+        return {"wasm-emscripten"};
     return {}; // Note: Not supported by Qt yet, so default to the mkspec the Qt was build with
 }
 

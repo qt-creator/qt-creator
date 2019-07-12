@@ -161,6 +161,8 @@ static Abi::Architecture architectureFromQt()
         return Abi::ShArchitecture;
     if (arch.startsWith("avr")) // Not in Qt documentation!
         return Abi::AvrArchitecture;
+    if (arch.startsWith("asmjs"))
+        return Abi::AsmJsArchitecture;
 
     return Abi::UnknownArchitecture;
 }
@@ -411,6 +413,11 @@ static Abis abiOf(const QByteArray &data)
             result.append(macAbiForCpu(type));
             pos += 20;
         }
+    } else if (getUint8(data, 0) == 'B' && getUint8(data, 1) == 'C'
+                && getUint8(data, 2) == 0xc0 && getUint8(data, 3) == 0xde) {
+        // https://llvm.org/docs/BitCodeFormat.html#llvm-ir-magic-number
+        result.append(Abi(Abi::AsmJsArchitecture, Abi::UnknownOS, Abi::UnknownFlavor,
+                          Abi::EmscriptenFormat, 32));
     } else if (data.size() >= 64){
         // Windows PE: values are LE (except for a few exceptions which we will not use here).
 
@@ -543,6 +550,11 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             os = QnxOS;
             flavor = GenericFlavor;
             format = ElfFormat;
+        } else if (p.startsWith("emscripten")) {
+            format = EmscriptenFormat;
+            width = 32;
+        } else if (p.startsWith("asmjs")) {
+            arch = AsmJsArchitecture;
         } else if (p == "none") {
             os = BareMetalOS;
             flavor = GenericFlavor;
@@ -677,6 +689,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("itanium");
     case ShArchitecture:
         return QLatin1String("sh");
+    case AsmJsArchitecture:
+        return QLatin1String("asmjs");
     case UnknownArchitecture:
         Q_FALLTHROUGH();
     default:
@@ -734,6 +748,8 @@ QString Abi::toString(const BinaryFormat &bf)
         return QLatin1String("ubrof");
     case OmfFormat:
         return QLatin1String("omf");
+    case EmscriptenFormat:
+        return QLatin1String("emscripten");
     case UnknownFormat:
         Q_FALLTHROUGH();
     default:
@@ -813,6 +829,8 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
         return ShArchitecture;
     else if (a == "xtensa")
         return XtensaArchitecture;
+    if (a == "asmjs")
+        return AsmJsArchitecture;
 
     return UnknownArchitecture;
 }
@@ -865,6 +883,8 @@ Abi::BinaryFormat Abi::binaryFormatFromString(const QStringRef &bf)
         return OmfFormat;
     if (bf == "qml_rt")
         return RuntimeQmlFormat;
+    if (bf == "emscripten")
+        return EmscriptenFormat;
     return UnknownFormat;
 }
 
@@ -1150,6 +1170,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("static QtCore: linux 64bit")
             << QString::fromLatin1("%1/static/linux-64bit-release.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-linux-generic-elf-64bit"));
+    QTest::newRow("static QtCore: asmjs emscripten 32bit")
+            << QString::fromLatin1("%1/static/asmjs-emscripten.a").arg(prefix)
+            << (QStringList() << QString::fromLatin1("asmjs-unknown-unknown-emscripten-32bit"));
 
     QTest::newRow("static stdc++: mac fat")
             << QString::fromLatin1("%1/static/mac-fat.a").arg(prefix)
@@ -1350,6 +1373,10 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet_data()
     QTest::newRow("avr") << int(Abi::AvrArchitecture)
                          << int(Abi::BareMetalOS) << int(Abi::GenericFlavor)
                          << int(Abi::ElfFormat) << 16;
+
+    QTest::newRow("asmjs-unknown-emscripten") << int(Abi::AsmJsArchitecture)
+                                              << int(Abi::UnknownOS) << int(Abi::UnknownFlavor)
+                                              << int(Abi::EmscriptenFormat) << 32;
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testAbiFromTargetTriplet()

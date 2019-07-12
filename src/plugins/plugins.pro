@@ -61,7 +61,8 @@ SUBDIRS   = \
     cppcheck \
     compilationdatabaseprojectmanager \
     qmlpreview \
-    studiowelcome
+    studiowelcome \
+    webassembly
 
 qtHaveModule(serialport) {
     SUBDIRS += serialterminal

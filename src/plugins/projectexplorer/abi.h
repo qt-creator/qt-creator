@@ -58,6 +58,7 @@ public:
         AvrArchitecture,
         XtensaArchitecture,
         Mcs51Architecture,
+        AsmJsArchitecture,
         UnknownArchitecture
     };
 
@@ -114,6 +115,7 @@ public:
         RuntimeQmlFormat,
         UbrofFormat,
         OmfFormat,
+        EmscriptenFormat,
         UnknownFormat
     };
 
