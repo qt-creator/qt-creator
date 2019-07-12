@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -33,7 +33,7 @@
     \contentspage index.html
     \previouspage creator-scxml.html
     \page creator-building-running.html
-    \nextpage creator-building-targets.html
+    \nextpage creator-live-preview.html
 
     \title Building and Running
 
@@ -46,6 +46,14 @@
     running your project.
 
     \list
+
+        \li \l {Previewing}
+
+            You can use the QML live preview to preview a QML file or an
+            entire Qt Quick application on the desktop, as well as on
+            Android and embedded Linux devices. The changes you make to
+            the UI are instantly visible to you in the preview.
+
         \li \l{Building for Multiple Platforms}
 
             \e {Build configurations} contain everything you need to compile

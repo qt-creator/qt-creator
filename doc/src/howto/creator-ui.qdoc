@@ -371,8 +371,12 @@
     To search within the \uicontrol{Application Output} and \uicontrol{Compile Output}
     panes, press \key {Ctrl+F} when the pane is active. Enter search criteria in
     the \uicontrol Find field and click the left and right arrows to search down and
-    up in the pane. In these panes, you can also use the zoom buttons to increase and
-    decrease the text size of the output.
+    up in the pane.
+
+    To increase or decrease the output text size, select \inlineimage plus.png
+    (\uicontrol {Zoom In}) or \inlineimage minus.png
+    (\uicontrol {Zoom Out}), or press \key Ctrl++ or \key Ctrl+-. Zooming is
+    not supported in all output panes.
 
     To filter the output, enter a string in the \uicontrol Filter field.
     Filtering is not supported in all output panes.

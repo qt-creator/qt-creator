@@ -61,8 +61,9 @@ public:
     void stopDeployment() override;
 
 private:
+    void runStat(const ProjectExplorer::DeployableFile &file);
     QDateTime timestampFromStat(const ProjectExplorer::DeployableFile &file,
-                                QSsh::SshRemoteProcess *statProc);
+                                QSsh::SshRemoteProcess *statProc, const QString &errorMsg);
     void checkForStateChangeOnRemoteProcFinished();
 
     QList<ProjectExplorer::DeployableFile> collectFilesToUpload(

@@ -50,7 +50,7 @@ public:
     virtual void startTool(bool askUserForFileSelection) = 0;
 
     virtual QList<Diagnostic> read(const QString &filePath,
-                                   const Utils::FilePath &projectRootDir,
+                                   const QSet<Utils::FilePath> &projectFiles,
                                    const QString &logFilePath,
                                    QString *errorMessage) const = 0;
 

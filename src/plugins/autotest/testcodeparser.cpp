@@ -110,7 +110,7 @@ void TestCodeParser::setState(State state)
             m_partialUpdatePostponed = false;
             qCDebug(LOG) << "calling scanForTests with postponed files (setState)";
             if (!m_reparseTimer.isActive())
-                scanForTests(m_postponedFiles.toList());
+                scanForTests(Utils::toList(m_postponedFiles));
         }
     }
 }
@@ -469,7 +469,7 @@ void TestCodeParser::onPartialParsingFinished()
         m_partialUpdatePostponed = false;
         qCDebug(LOG) << "calling scanForTests with postponed files (onPartialParsingFinished)";
         if (!m_reparseTimer.isActive())
-            scanForTests(m_postponedFiles.toList());
+            scanForTests(Utils::toList(m_postponedFiles));
     } else {
         m_dirty |= m_codeModelParsing;
         if (m_dirty) {
@@ -491,7 +491,7 @@ void TestCodeParser::onPartialParsingFinished()
 void TestCodeParser::parsePostponedFiles()
 {
     m_reparseTimerTimedOut = true;
-    scanForTests(m_postponedFiles.toList());
+    scanForTests(Utils::toList(m_postponedFiles));
 }
 
 void TestCodeParser::releaseParserInternals()

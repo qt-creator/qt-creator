@@ -36,7 +36,7 @@
     \previouspage creator-modes.html
     \nextpage {Tutorials}
     \else
-    \previouspage creator-quick-ui-forms.html
+    \previouspage quick-projects.html
     \nextpage quick-components.html
     \endif
 

@@ -263,7 +263,10 @@
             \li Show the changes in a branch.
         \row
             \li \uicontrol Reset
-            \li Hard reset the active branch to the selected branch.
+            \li Reset the active branch to the selected branch. You
+                can choose between a \uicontrol Hard, \uicontrol Mixed,
+                and \uicontrol Soft reset. For more information, see
+                \l{Resetting Local Repository}.
         \row
             \li \uicontrol Merge
             \li Join the development histories in two branches together.

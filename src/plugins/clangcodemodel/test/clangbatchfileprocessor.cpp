@@ -50,6 +50,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QLoggingCategory>
 #include <QSharedPointer>
@@ -302,7 +303,7 @@ WaitForUpdatedCodeWarnings::WaitForUpdatedCodeWarnings(ClangEditorDocumentProces
 
 bool WaitForUpdatedCodeWarnings::wait(int timeOutInMs) const
 {
-    QTime time;
+    QElapsedTimer time;
     time.start();
 
     forever {
@@ -580,7 +581,7 @@ bool ProcessEventsCommand::run()
 {
     qCDebug(debug) << "line" << context().lineNumber << "ProcessEventsCommand" << m_durationInMs;
 
-    QTime time;
+    QElapsedTimer time;
     time.start();
 
     forever {

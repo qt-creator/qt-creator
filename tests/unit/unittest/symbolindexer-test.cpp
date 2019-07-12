@@ -39,9 +39,10 @@
 
 #include <filepathcaching.h>
 #include <filestatuscache.h>
+#include <processormanager.h>
 #include <projectpartcontainer.h>
 #include <refactoringdatabaseinitializer.h>
-#include <processormanager.h>
+#include <sqliteexception.h>
 #include <symbolindexer.h>
 #include <symbolindexertaskqueue.h>
 #include <taskscheduler.h>
@@ -868,29 +869,29 @@ TEST_F(SymbolIndexer, UpdateProjectPartsCallsGetsNoPchPathsAndHasErrors)
 TEST_F(SymbolIndexer, UpdateProjectPartsFetchIncludedIndexingTimeStamps)
 {
     InSequence s;
-    ProjectPartContainer projectPart{1,
-                                     {"-Wno-pragma-once-outside-header"},
-                                     {{"BAR", "1", 1}, {"FOO", "1", 2}},
-                                     Utils::clone(systemIncludeSearchPaths),
-                                     Utils::clone(projectIncludeSearchPaths),
-                                     {header1PathId},
-                                     {main1PathId, main2PathId},
-                                     Utils::Language::Cxx,
-                                     Utils::LanguageVersion::CXX14,
-                                     Utils::LanguageExtension::None};
 
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchIncludedIndexingTimeStamps(Eq(main1PathId)))
-        .WillOnce(Return(dependentSourceTimeStamps1));
-    EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(dependentSourceTimeStamps1));
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchIncludedIndexingTimeStamps(Eq(main2PathId)))
-        .WillOnce(Return(dependentSourceTimeStamps2));
-    EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(dependentSourceTimeStamps2));
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses1));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateIndexingTimeStamps(fileStatuses1));
-    EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses2));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateIndexingTimeStamps(fileStatuses2));
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateIndexingTimeStamps(_));
+    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
-    indexer.updateProjectParts({projectPart});
+    indexer.updateProjectParts({projectPart1});
+}
+
+TEST_F(SymbolIndexer, UpdateProjectPartsIsBusyInStoringData)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin())
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
+    EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses1));
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateIndexingTimeStamps(_));
+    EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
+
+    indexer.updateProjectParts({projectPart1});
 }
 
 TEST_F(SymbolIndexer, DependentSourceAreNotUpToDate)

@@ -156,6 +156,11 @@
         \endlist
         \li \l{Building and Running}
         \list
+            \li \l{Previewing}
+            \list
+                \li \l{Previewing on Desktop}
+                \li \l{Previewing on Devices}
+            \endlist
             \li \l{Building for Multiple Platforms}
             \li \l{Running on Multiple Platforms}
             \li \l{Deploying to Devices}

@@ -68,9 +68,9 @@ protected:
                                                              mockProjectPartsStorage,
                                                              settingsManager};
     ClangBackEnd::ProjectPartId projectPartId{1};
-    PrecompiledHeadersUpdatedMessage message{{projectPartId}};
+    PrecompiledHeadersUpdatedMessage message{projectPartId};
     ClangBackEnd::ProjectPartId projectPartId2{2};
-    PrecompiledHeadersUpdatedMessage message2{{projectPartId2}};
+    PrecompiledHeadersUpdatedMessage message2{projectPartId2};
 };
 
 TEST_F(PchManagerClient, NotifierAttached)

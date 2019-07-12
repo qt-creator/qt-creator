@@ -170,7 +170,8 @@ void Jobs::onJobFinished(IAsyncJob *asyncJob)
 
     if (m_jobFinishedCallback) {
         const RunningJob runningJob = m_running.value(asyncJob);
-        m_jobFinishedCallback(runningJob, asyncJob);
+        if (m_jobFinishedCallback(runningJob, asyncJob))
+            return;
     }
 
     m_running.remove(asyncJob);

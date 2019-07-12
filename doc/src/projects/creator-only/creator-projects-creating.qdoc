@@ -256,6 +256,8 @@
     For more information about creating Qt Quick projects, see
     \l {Creating Qt Quick Projects}.
 
+    \include creator-python-project.qdocinc python project wizards
+
     \section1 Adding Files to Projects
 
     You can use wizards also to add individual files to your projects.
@@ -407,8 +409,6 @@
 
     The above functions are also available in the context menu in the
     \uicontrol Projects view.
-
-    \include creator-python-project.qdocinc python project wizards
 
     \section2 Creating OpenGL Fragment and Vertex Shaders
 

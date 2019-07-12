@@ -442,7 +442,7 @@ void DebuggerMainWindow::restorePersistentSettings()
     theMainWindow->setAutoHideTitleBars(settings->value(AUTOHIDE_TITLEBARS_KEY, true).toBool());
     theMainWindow->showCentralWidget(settings->value(SHOW_CENTRALWIDGET_KEY, true).toBool());
     theMainWindow->d->m_persistentChangedDocks
-            = QSet<QString>::fromList(settings->value(CHANGED_DOCK_KEY).toStringList());
+            = Utils::toSet(settings->value(CHANGED_DOCK_KEY).toStringList());
     settings->endGroup();
 
     qCDebug(perspectivesLog) << "LOADED DOCKS:" << theMainWindow->d->m_persistentChangedDocks;

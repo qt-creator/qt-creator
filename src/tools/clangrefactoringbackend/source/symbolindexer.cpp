@@ -91,12 +91,31 @@ void SymbolIndexer::updateProjectParts(ProjectPartContainers &&projectParts)
         updateProjectPart(std::move(projectPart));
 }
 
+namespace {
+void store(SymbolStorageInterface &symbolStorage,
+           BuildDependenciesStorageInterface &buildDependencyStorage,
+           Sqlite::TransactionInterface &transactionInterface,
+           SymbolsCollectorInterface &symbolsCollector)
+{
+    try {
+        Sqlite::ImmediateTransaction transaction{transactionInterface};
+        buildDependencyStorage.insertOrUpdateIndexingTimeStamps(symbolsCollector.fileStatuses());
+        symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
+                                                   symbolsCollector.sourceLocations());
+        transaction.commit();
+    } catch (const Sqlite::StatementIsBusy &) {
+        store(symbolStorage, buildDependencyStorage, transactionInterface, symbolsCollector);
+    }
+}
+} // namespace
+
 void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
 {
     ProjectPartId projectPartId = projectPart.projectPartId;
 
     std::vector<SymbolIndexerTask> symbolIndexerTask;
     symbolIndexerTask.reserve(projectPart.sourcePathIds.size());
+
     for (FilePathId sourcePathId : projectPart.sourcePathIds) {
         SourceTimeStamps dependentTimeStamps = m_buildDependencyStorage.fetchIncludedIndexingTimeStamps(
             sourcePathId);
@@ -117,27 +136,28 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
                                                preIncludeSearchPath};
                     symbolsCollector.setFile(sourcePathId, commandLineBuilder.commandLine);
 
-                    return symbolsCollector.collectSymbols();
-                };
 
-                auto store = [&] {
-                    Sqlite::ImmediateTransaction transaction{m_transactionInterface};
-                    m_buildDependencyStorage.insertOrUpdateIndexingTimeStamps(
-                        symbolsCollector.fileStatuses());
-                    m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
-                                                                 symbolsCollector.sourceLocations());
-                    transaction.commit();
+                    return symbolsCollector.collectSymbols();
                 };
 
                 const PchPaths pchPaths = m_precompiledHeaderStorage.fetchPrecompiledHeaders(
                     projectPart.projectPartId);
 
                 if (pchPaths.projectPchPath.size() && collect(pchPaths.projectPchPath)) {
-                    store();
+                    store(m_symbolStorage,
+                          m_buildDependencyStorage,
+                          m_transactionInterface,
+                          symbolsCollector);
                 } else if (pchPaths.systemPchPath.size() && collect(pchPaths.systemPchPath)) {
-                    store();
+                    store(m_symbolStorage,
+                          m_buildDependencyStorage,
+                          m_transactionInterface,
+                          symbolsCollector);
                 } else if (collect({})) {
-                    store();
+                    store(m_symbolStorage,
+                          m_buildDependencyStorage,
+                          m_transactionInterface,
+                          symbolsCollector);
                 }
             };
 
@@ -196,23 +216,15 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
             return symbolsCollector.collectSymbols();
         };
 
-        auto store = [&] {
-            Sqlite::ImmediateTransaction transaction{m_transactionInterface};
-            m_buildDependencyStorage.insertOrUpdateIndexingTimeStamps(symbolsCollector.fileStatuses());
-            m_symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
-                                                         symbolsCollector.sourceLocations());
-            transaction.commit();
-        };
-
         const PchPaths pchPaths = m_precompiledHeaderStorage.fetchPrecompiledHeaders(
             optionalArtefact->projectPartId);
 
         if (pchPaths.projectPchPath.size() && collect(pchPaths.projectPchPath)) {
-            store();
+            store(m_symbolStorage, m_buildDependencyStorage, m_transactionInterface, symbolsCollector);
         } else if (pchPaths.systemPchPath.size() && collect(pchPaths.systemPchPath)) {
-            store();
+            store(m_symbolStorage, m_buildDependencyStorage, m_transactionInterface, symbolsCollector);
         } else if (collect({})) {
-            store();
+            store(m_symbolStorage, m_buildDependencyStorage, m_transactionInterface, symbolsCollector);
         }
     };
 

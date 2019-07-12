@@ -1006,7 +1006,7 @@ Breakpoints BreakHandler::findBreakpointsByIndex(const QList<QModelIndex> &list)
         if (Breakpoint bp = findBreakpointByIndex(index))
             items.insert(bp);
     }
-    return items.toList();
+    return Utils::toList(items);
 }
 
 SubBreakpoints BreakHandler::findSubBreakpointsByIndex(const QList<QModelIndex> &list) const
@@ -1016,7 +1016,7 @@ SubBreakpoints BreakHandler::findSubBreakpointsByIndex(const QList<QModelIndex> 
         if (SubBreakpoint sbp = findSubBreakpointByIndex(index))
             items.insert(sbp);
     }
-    return items.toList();
+    return Utils::toList(items);
 
 }
 

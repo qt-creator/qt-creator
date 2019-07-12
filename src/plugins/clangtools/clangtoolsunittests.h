@@ -27,7 +27,10 @@
 
 #include <QObject>
 
-namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
+namespace CppTools {
+class ClangDiagnosticConfig;
+namespace Tests { class TemporaryCopiedDir; }
+} // namespace CppTools
 
 namespace ClangTools {
 namespace Internal {
@@ -46,7 +49,9 @@ private slots:
     void testProject_data();
 
 private:
-    void addTestRow(const QByteArray &relativeFilePath, int expectedDiagCount);
+    void addTestRow(const QByteArray &relativeFilePath,
+                    int expectedDiagCount,
+                    const CppTools::ClangDiagnosticConfig &diagnosticConfig);
 
 private:
     CppTools::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;

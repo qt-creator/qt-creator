@@ -17,6 +17,7 @@ add_qtc_executable(qml2puppet
 
 extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/commands"
+  INCLUDES "${CMAKE_SOURCE_DIR}/src/libs"
   SOURCES
     changeauxiliarycommand.cpp changeauxiliarycommand.h
     changebindingscommand.cpp changebindingscommand.h

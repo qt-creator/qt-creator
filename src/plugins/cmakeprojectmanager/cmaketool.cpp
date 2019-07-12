@@ -415,8 +415,7 @@ static QStringList parseDefinition(const QString &definition)
 
 void CMakeTool::parseFunctionDetailsOutput(const QString &output)
 {
-    QSet<QString> functionSet;
-    functionSet.fromList(m_introspection->m_functions);
+    const QSet<QString> functionSet = Utils::toSet(m_introspection->m_functions);
 
     bool expectDefinition = false;
     QString currentDefinition;

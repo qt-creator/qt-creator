@@ -9,6 +9,8 @@ include(clang_dependency.pri)
 include(creator_dependency.pri)
 include(benchmark_dependency.pri)
 
+requires(isEmpty(QTC_CLANG_BUILDMODE_MISMATCH))
+
 OBJECTS_DIR = $$OUT_PWD/obj # workaround for qmake bug in object_parallel_to_source
 
 !msvc:force_debug_info:QMAKE_CXXFLAGS += -fno-omit-frame-pointer

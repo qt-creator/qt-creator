@@ -27,7 +27,7 @@
 
 #include <QList>
 #include <QDialog>
-#include <QTime>
+#include <QElapsedTimer>
 
 #include "runcontrol.h"
 
@@ -51,7 +51,7 @@ private:
 
     QList<ProjectExplorer::RunControl *> m_runControls;
     QLabel *m_progressLabel;
-    QTime m_timer;
+    QElapsedTimer m_timer;
 };
 
 } // namespace Internal

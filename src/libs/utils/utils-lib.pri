@@ -223,7 +223,6 @@ HEADERS += \
     $$PWD/elidinglabel.h \
     $$PWD/tooltip/tooltip.h \
     $$PWD/tooltip/tips.h \
-    $$PWD/tooltip/reuse.h \
     $$PWD/tooltip/effects.h \
     $$PWD/unixutils.h \
     $$PWD/ansiescapecodehandler.h \

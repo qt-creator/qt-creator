@@ -49,6 +49,9 @@ Item {
     StudioControls.RealSpinBox {
         id: spinBox
 
+        onDragStarted: hideCursor();
+        onDragEnded: restoreCursor();
+
         property bool hasSlider: spinBox.sliderIndicatorVisible
 
         width: wrapper.width

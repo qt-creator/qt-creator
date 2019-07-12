@@ -179,6 +179,8 @@ void LayoutInGridLayout::doIt()
     initializeCells();
     markUsedCells();
 
+    QTC_ASSERT(m_parentNode.isValid(), return);
+
     if (QmlItemNode::isValidQmlItemNode(m_selectionContext.firstSelectedModelNode())) {
         const QmlItemNode qmlItemNode = QmlItemNode(m_selectionContext.firstSelectedModelNode());
 
@@ -256,6 +258,10 @@ void LayoutInGridLayout::collectItemNodes()
                 m_qmlItemNodes.append(itemNode);
         }
     }
+
+    if (m_qmlItemNodes.isEmpty())
+        return;
+
     m_parentNode = m_qmlItemNodes.constFirst().instanceParentItem();
 }
 

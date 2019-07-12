@@ -50,6 +50,16 @@
     then select \uicontrol Reset to remove the property values before trying
     again.
 
+    To modify the common properties of multiple items simultaneously, select
+    them in the \uicontrol Navigator or on the canvas:
+
+    \list
+        \li On Windows, press and hold \key Ctrl and \key Shift, and then click
+            the items to select them.
+        \li On \macos, press \key Shift to select a range of items or \key Cmd
+            to select multiple single items.
+    \endlist
+
     To return an item to its implicit position after moving it, select the
     \inlineimage qtcreator-reset-position-icon.png
     (\uicontrol {Reset Position}) button on the toolbar. To return it to its

@@ -831,7 +831,7 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qmake
         // we add the recursive directories we find
         QSet<QString> tmp = recursiveDirs(folder);
         if (!tmp.isEmpty())
-            m_watcher.addPaths(tmp.toList());
+            m_watcher.addPaths(Utils::toList(tmp));
         m_recursiveWatchedFolders += tmp;
     }
 }
@@ -927,7 +927,7 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
     // If a subdirectory was added, watch it too
     QSet<QString> tmp = recursiveDirs(folderWithSlash);
     if (!tmp.isEmpty()) {
-        QSet<QString> alreadyAdded = m_watcher.directories().toSet();
+        QSet<QString> alreadyAdded = Utils::toSet(m_watcher.directories());
         tmp.subtract(alreadyAdded);
         if (!tmp.isEmpty())
             m_watcher.addPaths(Utils::toList(tmp));

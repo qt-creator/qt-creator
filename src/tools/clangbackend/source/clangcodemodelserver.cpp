@@ -103,7 +103,7 @@ void ClangCodeModelServer::documentsOpened(const ClangBackEnd::DocumentsOpenedMe
             document.setDirtyIfDependencyIsMet(document.filePath());
             DocumentProcessor processor = documentProcessors().create(document);
             processor.jobs().setJobFinishedCallback([this](const Jobs::RunningJob &a, IAsyncJob *b) {
-                onJobFinished(a, b);
+                return onJobFinished(a, b);
             });
         }
         const std::vector<Document> resetDocuments_ = resetDocuments(toReset);
@@ -401,12 +401,14 @@ void ClangCodeModelServer::processSuspendResumeJobs(const std::vector<Document> 
     }
 }
 
-void ClangCodeModelServer::onJobFinished(const Jobs::RunningJob &jobRecord, IAsyncJob *job)
+bool ClangCodeModelServer::onJobFinished(const Jobs::RunningJob &jobRecord, IAsyncJob *job)
 {
     if (jobRecord.jobRequest.type == JobRequest::Type::UpdateAnnotations) {
         const auto updateJob = static_cast<UpdateAnnotationsJob *>(job);
-        resetDocumentsWithUnresolvedIncludes({updateJob->pinnedDocument()});
+        return resetDocumentsWithUnresolvedIncludes({updateJob->pinnedDocument()});
     }
+
+    return false;
 }
 
 void ClangCodeModelServer::categorizeFileContainers(const QVector<FileContainer> &fileContainers,
@@ -476,7 +478,7 @@ static bool isDocumentWithUnresolvedIncludesFixable(const Document &document,
     return false;
 }
 
-void ClangCodeModelServer::resetDocumentsWithUnresolvedIncludes(
+int ClangCodeModelServer::resetDocumentsWithUnresolvedIncludes(
     const std::vector<Document> &documents)
 {
     DocumentResetInfos toReset;
@@ -489,6 +491,8 @@ void ClangCodeModelServer::resetDocumentsWithUnresolvedIncludes(
     }
 
     resetDocuments(toReset);
+
+    return toReset.size();
 }
 
 void ClangCodeModelServer::setUpdateAnnotationsTimeOutInMsForTestsOnly(int value)

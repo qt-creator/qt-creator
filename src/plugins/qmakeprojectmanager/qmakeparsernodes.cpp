@@ -385,8 +385,8 @@ void QmakePriFile::watchFolders(const QSet<FilePath> &folders)
     QSet<QString> toWatch = folderStrings;
     toWatch.subtract(m_watchedFolders);
 
-    m_project->unwatchFolders(toUnwatch.toList(), this);
-    m_project->watchFolders(toWatch.toList(), this);
+    m_project->unwatchFolders(Utils::toList(toUnwatch), this);
+    m_project->watchFolders(Utils::toList(toWatch), this);
 
     m_watchedFolders = folderStrings;
 }
@@ -1366,7 +1366,7 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
                 result->includedFiles.children.insert(subDirName, subDir);
             }
 
-            result->exactSubdirs = subDirs.toSet();
+            result->exactSubdirs = Utils::toSet(subDirs);
         }
 
         // Convert ProFileReader::includeFiles to IncludedPriFile structure
@@ -1691,7 +1691,7 @@ void QmakeProFile::applyEvaluate(QmakeEvalResult *evalResult)
                 });
         }
         const QStringList directoriesToAdd = Utils::filtered<QStringList>(
-            result->directoriesWithWildcards.toList(),
+            Utils::toList(result->directoriesWithWildcards),
             [this](const QString &path) {
                 return !m_wildcardWatcher->watchesDirectory(path);
             });

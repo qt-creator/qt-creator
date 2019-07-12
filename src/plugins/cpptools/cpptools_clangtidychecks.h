@@ -48,10 +48,10 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
     "",
     {
         {
-            "android-",
+            "abseil-",
             {
                 {
-                    "uration-",
+                    "duration-",
                     {
                         "comparison",
                         "division",
@@ -65,18 +65,23 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                         "subtraction"
                     }
                 },
-                "aster-strsplit-delimiter",
+                "faster-strsplit-delimiter",
                 {
-                    "o-",
+                    "no-",
                     {
                         "internal-dependencies",
                         "namespace"
                     }
                 },
-                "edundant-strcat-calls",
-                "tr-cat-append",
-                "tring-find-startswith",
-                "pgrade-duration-conversions",
+                "redundant-strcat-calls",
+                "str-cat-append",
+                "string-find-startswith",
+                "upgrade-duration-conversions"
+            }
+        },
+        {
+            "android-",
+            {
                 {
                     "cloexec-",
                     {
@@ -715,7 +720,12 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                         "copy-initialization",
                         "value-param"
                     }
-                },
+                }
+            }
+        },
+        {
+            "portability-",
+            {
                 "simd-intrinsics"
             }
         },
@@ -773,8 +783,13 @@ static const TidyNode CLANG_TIDY_CHECKS_ROOT
                 },
                 "string-compare",
                 "uniqueptr-delete-release",
-                "uppercase-literal-suffix",
-                "rary-objects"
+                "uppercase-literal-suffix"
+            }
+        },
+        {
+            "zircon-",
+            {
+                "temporary-objects"
             }
         }
     }

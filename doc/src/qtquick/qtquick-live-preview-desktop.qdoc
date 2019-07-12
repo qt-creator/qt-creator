@@ -1,0 +1,70 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Design Studio documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+/*!
+    \contentspage {Qt Creator}
+    \previouspage creator-live-preview.html
+    \page creator-live-preview-desktop.html
+    \nextpage creator-live-preview-devices.html
+
+    \title Previewing on Desktop
+
+    To preview the currently active QML file on the desktop:
+
+    \list
+        \li Select \uicontrol Build > \uicontrol {QML Preview}.
+        \li Select the \inlineimage live_preview.png
+            (\uicontrol {Show Live Preview}) button.
+        \li Press \key {Alt+P}.
+    \endlist
+
+    \if defined(qtcreator)
+    \image qtcreator-live-preview.png
+    \else
+    \image studio-live-preview.png
+    \endif
+
+    To preview any QML file that belongs to the project, right-click the project
+    name in the \uicontrol Project tab in the \uicontrol Navigator, and select
+    \uicontrol {Preview file}.
+
+    To preview the whole UI, select \uicontrol {Show Live Preview}
+    when viewing the main QML UI file of the project.
+
+    To view the UI in different sizes, select the zooming level on the toolbar.
+
+    The frames-per-second (FPS) refresh rate of animations is displayed in the
+    \uicontrol FPS field.
+
+    \if defined(qtdesignstudio)
+    \section1 Selecting the Preview Tool
+
+    By default, the \c qmlscene utility is used for previewing. To use some
+    other tool, specify it in the \uicontrol {QML viewer} field in the run
+    settings of the project in the Projects mode.
+
+    \image studio-run-settings.png "Run settings"
+    \endif
+*/

@@ -116,7 +116,7 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
     Keyword keyword;
     keyword.name = item->text();
     keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
-    keyword.color = item->textColor();
+    keyword.color = item->foreground().color();
 
     QSet<QString> keywordNamesButThis = keywordNames();
     keywordNamesButThis.remove(keyword.name);
@@ -127,7 +127,7 @@ void OptionsDialog::editKeyword(QListWidgetItem *item)
         item->setIcon(icon(keyword.iconType));
         item->setText(keyword.name);
         item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
-        item->setTextColor(keyword.color);
+        item->setForeground(keyword.color);
     }
 }
 

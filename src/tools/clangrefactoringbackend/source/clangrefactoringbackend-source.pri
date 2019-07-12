@@ -44,7 +44,6 @@ HEADERS += \
     $$PWD/refactoringserver.h \
     $$PWD/macropreprocessorcallbacks.h \
     $$PWD/sourcelocationsutils.h \
-    $$PWD/findcursorusr.h \
     $$PWD/clangquery.h \
     $$PWD/clangtool.h \
     $$PWD/sourcerangeextractor.h \

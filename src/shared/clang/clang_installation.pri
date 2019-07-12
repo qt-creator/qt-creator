@@ -195,14 +195,24 @@ isEmpty(LLVM_VERSION) {
 
     LLVM_STATIC_LIBS = $$split(LLVM_STATIC_LIBS_STRING, " ")
 
-    CLANGFORMAT_MAIN_HEADER = $$LLVM_INCLUDEPATH/clang/Format/Format.h
-    exists($$CLANGFORMAT_MAIN_HEADER) {
-        CLANGFORMAT_LIBS=-lclangFormat -lclangToolingInclusions -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
-        ALL_CLANG_LIBS=-lclangFormat -lclangToolingInclusions -lclangTooling -lclangToolingCore \
-                       -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
-                       -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
-                       -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
-        win32:CLANGFORMAT_LIBS += -lversion
+    win32 {
+        LLVM_BUILDMODE = $$system($$llvm_config --build-mode, lines)
+        CONFIG(debug, debug|release):!equals(LLVM_BUILDMODE, "Debug") {
+            message("Mismatching build config (Debug vs Release) setting QTC_CLANG_BUILDMODE_MISMATCH")
+            QTC_CLANG_BUILDMODE_MISMATCH=1
+        }
+    }
+
+    isEmpty(QTC_CLANG_BUILDMODE_MISMATCH)|!equals(QTC_CLANG_BUILDMODE_MISMATCH, 1) {
+        CLANGFORMAT_MAIN_HEADER = $$LLVM_INCLUDEPATH/clang/Format/Format.h
+        exists($$CLANGFORMAT_MAIN_HEADER) {
+            CLANGFORMAT_LIBS=-lclangFormat -lclangToolingInclusions -lclangToolingCore -lclangRewrite -lclangLex -lclangBasic
+            ALL_CLANG_LIBS=-lclangFormat -lclangToolingInclusions -lclangTooling -lclangToolingCore \
+                           -lclangRewrite -lclangIndex -lclangFrontend -lclangParse -lclangSerialization \
+                           -lclangSema -lclangEdit -lclangAnalysis -lclangDriver -lclangDynamicASTMatchers \
+                           -lclangASTMatchers -lclangAST -lclangLex -lclangBasic
+            win32:CLANGFORMAT_LIBS += -lversion
+        }
     }
     win32:ALL_CLANG_LIBS += -lversion
 
@@ -225,10 +235,12 @@ isEmpty(LLVM_VERSION) {
     !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBCLANG_LIBS = -L$${LLVM_LIBDIR}
     LIBCLANG_LIBS += $${CLANG_LIB}
 
-    QTC_DISABLE_CLANG_REFACTORING=$$(QTC_DISABLE_CLANG_REFACTORING)
-    isEmpty(QTC_DISABLE_CLANG_REFACTORING) {
-        !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
-        LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
+    isEmpty(QTC_CLANG_BUILDMODE_MISMATCH)|!equals(QTC_CLANG_BUILDMODE_MISMATCH, 1) {
+        QTC_DISABLE_CLANG_REFACTORING=$$(QTC_DISABLE_CLANG_REFACTORING)
+        isEmpty(QTC_DISABLE_CLANG_REFACTORING) {
+            !contains(QMAKE_DEFAULT_LIBDIRS, $$LLVM_LIBDIR): LIBTOOLING_LIBS = -L$${LLVM_LIBDIR}
+            LIBTOOLING_LIBS += $$CLANGTOOLING_LIBS $$LLVM_STATIC_LIBS
+        }
     }
 
     !isEmpty(CLANGFORMAT_LIBS) {

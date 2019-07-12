@@ -251,6 +251,32 @@ TEST_F(BuildDependenciesStorage, FetchPchSources)
     ASSERT_THAT(sources, result);
 }
 
+TEST_F(BuildDependenciesStorage, FetchPchSourcesCalls)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchPchSourcesStatement, valuesReturnFilePathIds(_, 22));
+    EXPECT_CALL(mockDatabase, commit());
+
+    auto sources = storage.fetchPchSources(22);
+}
+
+TEST_F(BuildDependenciesStorage, FetchPchSourcesCallsIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchPchSourcesStatement, valuesReturnFilePathIds(_, 22))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockDatabase, rollback());
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(fetchPchSourcesStatement, valuesReturnFilePathIds(_, 22));
+    EXPECT_CALL(mockDatabase, commit());
+
+    auto sources = storage.fetchPchSources(22);
+}
+
 TEST_F(BuildDependenciesStorage, FetchSources)
 {
     ClangBackEnd::FilePathIds result{3, 5, 7};

@@ -47,6 +47,7 @@
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QGridLayout>
 #include <QHeaderView>
 #include <QIdentityProxyModel>
@@ -608,7 +609,7 @@ private:
     const QColor foregroundColor2 = themeColor(Theme::Welcome_ForegroundSecondaryColor); // blacker.
 
     mutable QPersistentModelIndex m_previousIndex;
-    mutable QTime m_startTime;
+    mutable QElapsedTimer m_startTime;
     mutable QRect m_currentArea;
     mutable QPointer<QAbstractItemView> m_currentWidget;
     mutable QVector<QPair<QString, QRect>> m_currentTagRects;

@@ -275,7 +275,7 @@ std::unique_ptr<CMakeProjectNode> TeaLeafReader::generateProjectTree(
         });
         allIncludePathSet.unite(Utils::toSet(targetIncludePaths));
     }
-    const QList<FilePath> allIncludePaths = allIncludePathSet.toList();
+    const QList<FilePath> allIncludePaths = Utils::toList(allIncludePathSet);
 
     const QList<const FileNode *> missingHeaders
             = Utils::filtered(allFiles, [&allIncludePaths](const FileNode *fn) -> bool {

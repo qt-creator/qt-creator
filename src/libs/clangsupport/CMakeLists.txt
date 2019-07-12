@@ -113,7 +113,6 @@ add_qtc_library(ClangSupport
     requestcompletionsmessage.cpp requestcompletionsmessage.h
     requestfollowsymbolmessage.cpp requestfollowsymbolmessage.h
     requestreferencesmessage.cpp requestreferencesmessage.h
-    requestsourcelocationforrenamingmessage.cpp requestsourcelocationforrenamingmessage.h
     requestsourcerangesanddiagnosticsforquerymessage.cpp requestsourcerangesanddiagnosticsforquerymessage.h
     requestsourcerangesforquerymessage.cpp requestsourcerangesforquerymessage.h
     requesttooltipmessage.cpp requesttooltipmessage.h
@@ -121,7 +120,6 @@ add_qtc_library(ClangSupport
     sourcelocationcontainer.cpp sourcelocationcontainer.h
     sourcelocationcontainerv2.cpp sourcelocationcontainerv2.h
     sourcelocationscontainer.cpp sourcelocationscontainer.h
-    sourcelocationsforrenamingmessage.cpp sourcelocationsforrenamingmessage.h
     sourcerangecontainer.cpp sourcerangecontainer.h
     sourcerangecontainerv2.cpp sourcerangecontainerv2.h
     sourcerangesanddiagnosticsforquerymessage.cpp sourcerangesanddiagnosticsforquerymessage.h

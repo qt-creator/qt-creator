@@ -453,6 +453,14 @@ class Dumper(DumperBase):
 
         self.put('],partial="%d"' % (len(self.partialVariable) > 0))
         self.put(',timings=%s' % self.timings)
+
+        if self.forceQtNamespace:
+            self.qtNamespaceToReport = self.qtNamespace()
+
+        if self.qtNamespaceToReport:
+            self.output += ',qtnamespace="%s"' % self.qtNamespaceToReport
+            self.qtNamespaceToReport = None
+
         self.reportResult(self.output, args)
 
     def report(self, stuff):

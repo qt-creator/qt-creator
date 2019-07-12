@@ -92,7 +92,7 @@ SimpleReaderNode::Ptr SimpleReaderNode::create(const QString &name, WeakPtr pare
     Ptr newNode(new SimpleReaderNode(name, parent));
     newNode->m_weakThis = newNode;
     if (parent)
-        parent.data()->m_children.append(newNode);
+        parent.toStrongRef().data()->m_children.append(newNode);
     return newNode;
 }
 
@@ -323,21 +323,21 @@ void SimpleReader::elementEnd()
 {
     Q_ASSERT(m_currentNode);
 
-    qCDebug(simpleReaderLog) << "elementEnd()" << m_currentNode.data()->name();
+    qCDebug(simpleReaderLog) << "elementEnd()" << m_currentNode.toStrongRef().data()->name();
 
-    m_currentNode = m_currentNode.data()->parent();
+    m_currentNode = m_currentNode.toStrongRef().data()->parent();
 }
 
 void SimpleReader::propertyDefinition(const QString &name, const QVariant &value)
 {
     Q_ASSERT(m_currentNode);
 
-    qCDebug(simpleReaderLog) << "propertyDefinition()" << m_currentNode.data()->name() << name << value;
+    qCDebug(simpleReaderLog) << "propertyDefinition()" << m_currentNode.toStrongRef().data()->name() << name << value;
 
-    if (m_currentNode.data()->propertyNames().contains(name))
+    if (m_currentNode.toStrongRef().data()->propertyNames().contains(name))
         addError(tr("Property is defined twice."), currentSourceLocation());
 
-    m_currentNode.data()->setProperty(name, value);
+    m_currentNode.toStrongRef().data()->setProperty(name, value);
 }
 
 } // namespace QmlJS
