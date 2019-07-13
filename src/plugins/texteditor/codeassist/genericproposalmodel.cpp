@@ -116,12 +116,11 @@ struct ContentLessThan
     {
         bool operator()(const QChar &a, const QChar &b)
         {
-            if (a == QLatin1Char('_'))
+            if (a == '_')
                 return false;
-            else if (b == QLatin1Char('_'))
+            if (b == '_')
                 return true;
-            else
-                return a < b;
+            return a < b;
         }
     };
 
@@ -158,7 +157,7 @@ static QString cleanText(const QString &original)
     int ignore = 0;
     for (int i = clean.length() - 1; i >= 0; --i, ++ignore) {
         const QChar &c = clean.at(i);
-        if (c.isLetterOrNumber() || c == QLatin1Char('_')
+        if (c.isLetterOrNumber() || c == '_'
                 || c.isHighSurrogate() || c.isLowSurrogate()) {
             break;
         }
@@ -300,7 +299,7 @@ void GenericProposalModel::filter(const QString &prefix)
 
     m_currentItems.clear();
     const QString lowerPrefix = prefix.toLower();
-    foreach (const auto &item, m_originalItems) {
+    for (const auto &item : qAsConst(m_originalItems)) {
         const QString &text = item->text();
         if (regExp.match(text).capturedStart() == 0) {
             m_currentItems.append(item);
