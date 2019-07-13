@@ -111,7 +111,8 @@ static int matchLevelFor(const QRegularExpressionMatch &match, const QString &ma
 QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &origEntry)
 {
     QList<LocatorFilterEntry> entries[4];
-    const QString entry = QDir::fromNativeSeparators(origEntry);
+    // If search string contains spaces, treat them as wildcard '*' and search in full path
+    const QString entry = QDir::fromNativeSeparators(origEntry).replace(' ', '*');
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
 
     const QRegularExpression regexp = createRegExp(fp.filePath);
@@ -119,12 +120,15 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
         d->m_current.clear(); // free memory
         return entries[0];
     }
-    const QChar pathSeparator('/');
-    const bool hasPathSeparator = fp.filePath.contains(pathSeparator);
+    auto containsPathSeparator = [](const QString &candidate) {
+        return candidate.contains('/') || candidate.contains('*');
+    };
+
+    const bool hasPathSeparator = containsPathSeparator(fp.filePath);
     const bool containsPreviousEntry = !d->m_current.previousEntry.isEmpty()
             && fp.filePath.contains(d->m_current.previousEntry);
-    const bool pathSeparatorAdded = !d->m_current.previousEntry.contains(pathSeparator)
-            && fp.filePath.contains(pathSeparator);
+    const bool pathSeparatorAdded = !containsPathSeparator(d->m_current.previousEntry)
+            && hasPathSeparator;
     const bool searchInPreviousResults = !d->m_current.forceNewSearchList && containsPreviousEntry
             && !pathSeparatorAdded;
     if (searchInPreviousResults)
