@@ -72,7 +72,7 @@ QRegularExpression FuzzyMatcher::createRegExp(
     const QLatin1String lowercaseWordFirst("(?<=\\b|[A-Z0-9_])");
     const QLatin1String uppercaseWordContinuation("[a-z0-9_]*");
     const QLatin1String lowercaseWordContinuation("(?:[a-zA-Z0-9]*_)?");
-    const QLatin1String upperSnakeWordContinuation("[A-Z0-9]*_");
+    const QLatin1String upperSnakeWordContinuation("[A-Z0-9]*_?");
     keyRegExp += "(?:";
     for (const QChar &c : pattern) {
         if (!c.isLetterOrNumber()) {

@@ -86,6 +86,7 @@ void tst_FuzzyMatcher::fuzzyMatcher_data()
     QTest::newRow("middle-no-hump") << "window" << "mainwindow.cpp" << 4;
     QTest::newRow("case-insensitive") << "window" << "MAINWINDOW.cpp" << 4;
     QTest::newRow("case-insensitive-2") << "wINDow" << "MainwiNdow.cpp" << 4;
+    QTest::newRow("uppercase-word-and-humps") << "htvideoele" << "HTMLVideoElement" << 0;
 }
 
 typedef QVector<QPair<int, int>> Matches;
@@ -159,6 +160,8 @@ void tst_FuzzyMatcher::highlighting_data()
                                        << Matches{{4, 2}, {7, 1}};
     QTest::newRow("middle-no-hump") << "window" << "mainwindow.cpp"
                                     << Matches{{4, 6}};
+    QTest::newRow("uppercase-word-and-humps") << "htvideoele" << "HTMLVideoElement"
+                                              << Matches{{0, 2}, {4, 8}};
 }
 
 QTEST_APPLESS_MAIN(tst_FuzzyMatcher)
