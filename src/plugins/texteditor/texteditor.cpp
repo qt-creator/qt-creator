@@ -90,6 +90,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QCoreApplication>
+#include <QComboBox>
 #include <QDebug>
 #include <QFutureWatcher>
 #include <QGridLayout>
@@ -624,6 +625,9 @@ public:
     FixedSizeClickLabel *m_fileEncodingLabel = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
 
+    QComboBox *m_fileLineEnding = nullptr;
+    QAction *m_fileLineEndingAction = nullptr;
+
     bool m_contentsChanged = false;
     bool m_lastCursorChangeWasInteresting = false;
 
@@ -824,6 +828,11 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     const int spacing = q->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
     m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
     m_toolBarWidget->layout()->addWidget(m_cursorPositionLabel);
+
+    m_fileLineEnding = new QComboBox();
+    m_fileLineEnding->addItems(ExtraEncodingSettings::lineTerminationModeNames());
+    m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
+    m_fileLineEndingAction = m_toolBar->addWidget(m_fileLineEnding);
 
     m_fileEncodingLabel = new FixedSizeClickLabel;
     m_fileEncodingLabel->setContentsMargins(spacing, 0, spacing, 0);
@@ -1063,6 +1072,13 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     connect(m_document->document(), &QTextDocument::modificationChanged,
             q, &TextEditorWidget::updateTextCodecLabel);
     q->updateTextCodecLabel();
+
+    connect(m_fileLineEnding, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            q, &TextEditorWidget::selectLineEnding);
+    connect(m_document->document(), &QTextDocument::modificationChanged,
+            q, &TextEditorWidget::updateTextLineEndingLabel);
+    q->updateTextLineEndingLabel();
+
 }
 
 TextEditorWidget::~TextEditorWidget()
@@ -1316,6 +1332,21 @@ void TextEditorWidget::selectEncoding()
     case CodecSelector::Cancel:
         break;
     }
+}
+
+void TextEditorWidget::selectLineEnding(int index)
+{
+    QTC_CHECK(index >= 0);
+    const auto newMode = Utils::TextFileFormat::LineTerminationMode(index);
+    if (d->m_document->lineTerminationMode() != newMode) {
+        d->m_document->setLineTerminationMode(newMode);
+        d->q->document()->setModified(true);
+    }
+}
+
+void TextEditorWidget::updateTextLineEndingLabel()
+{
+    d->m_fileLineEnding->setCurrentIndex(d->m_document->lineTerminationMode());
 }
 
 void TextEditorWidget::updateTextCodecLabel()

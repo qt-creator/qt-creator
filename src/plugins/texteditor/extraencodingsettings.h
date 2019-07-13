@@ -49,6 +49,8 @@ public:
 
     bool equals(const ExtraEncodingSettings &s) const;
 
+    static QStringList lineTerminationModeNames();
+
     enum Utf8BomSetting {
         AlwaysAdd = 0,
         OnlyKeep = 1,

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "extraencodingsettings.h"
+#include "behaviorsettingswidget.h"
 
 #include <utils/settingsutils.h>
 
@@ -70,4 +71,10 @@ void ExtraEncodingSettings::fromMap(const QString &prefix, const QVariantMap &ma
 bool ExtraEncodingSettings::equals(const ExtraEncodingSettings &s) const
 {
     return m_utf8BomSetting == s.m_utf8BomSetting;
+}
+
+QStringList ExtraEncodingSettings::lineTerminationModeNames()
+{
+    return {BehaviorSettingsWidget::tr("Unix (LF)"),
+                BehaviorSettingsWidget::tr("Windows (CRLF)")};
 }

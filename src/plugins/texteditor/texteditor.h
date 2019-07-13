@@ -381,6 +381,8 @@ public:
     void unfold();
     void selectEncoding();
     void updateTextCodecLabel();
+    void selectLineEnding(int index);
+    void updateTextLineEndingLabel();
 
     void gotoBlockStart();
     void gotoBlockEnd();

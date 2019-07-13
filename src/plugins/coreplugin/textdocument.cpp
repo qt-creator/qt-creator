@@ -101,6 +101,11 @@ void BaseTextDocument::setSupportsUtf8Bom(bool value)
     d->m_supportsUtf8Bom = value;
 }
 
+void BaseTextDocument::setLineTerminationMode(Utils::TextFileFormat::LineTerminationMode mode)
+{
+    d->m_format.lineTerminationMode = mode;
+}
+
 /*!
     Autodetects format and reads in the text file specified by \a fileName.
 */
@@ -147,6 +152,11 @@ void BaseTextDocument::switchUtf8Bom()
 bool BaseTextDocument::supportsUtf8Bom() const
 {
     return d->m_supportsUtf8Bom;
+}
+
+Utils::TextFileFormat::LineTerminationMode BaseTextDocument::lineTerminationMode() const
+{
+    return d->m_format.lineTerminationMode;
 }
 
 /*!

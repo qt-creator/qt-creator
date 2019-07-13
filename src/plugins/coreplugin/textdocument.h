@@ -48,6 +48,7 @@ public:
     void setCodec(const QTextCodec *);
     void switchUtf8Bom();
     bool supportsUtf8Bom() const;
+    Utils::TextFileFormat::LineTerminationMode lineTerminationMode() const;
 
     ReadResult read(const QString &fileName, QStringList *plainTextList, QString *errorString);
     ReadResult read(const QString &fileName, QString *plainText, QString *errorString);
@@ -59,6 +60,7 @@ public:
     bool write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const;
 
     void setSupportsUtf8Bom(bool value);
+    void setLineTerminationMode(Utils::TextFileFormat::LineTerminationMode mode);
 
 private:
     Internal::TextDocumentPrivate *d;
