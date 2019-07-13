@@ -250,6 +250,42 @@ function(qtc_plugin_enabled varName name)
   endif()
 endfunction()
 
+function(enable_pch target)
+  if (BUILD_WITH_PCH)
+    get_target_property(target_sources ${target} SOURCES)
+    list(LENGTH target_sources target_sources_number)
+    if (${target_sources_number} GREATER "3")
+      set(PCH_FILE "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_pch.h")
+
+      function(_recursively_collect_dependencies input_target)
+        get_target_property(input_type ${input_target} TYPE)
+        if (${input_type} STREQUAL "INTERFACE_LIBRARY")
+          set(prefix "INTERFACE_")
+        endif()
+        get_target_property(link_libraries ${input_target} ${prefix}LINK_LIBRARIES)
+        foreach(library IN LISTS link_libraries)
+          if(TARGET ${library} AND NOT ${library} IN_LIST dependencies)
+            list(APPEND dependencies ${library})
+            _recursively_collect_dependencies(${library})
+          endif()
+        endforeach()
+        set(dependencies ${dependencies} PARENT_SCOPE)
+      endfunction()
+      _recursively_collect_dependencies(${target})
+
+      if ("Qt5::Widgets" IN_LIST dependencies)
+        set(PCH_FILE "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h")
+      endif()
+
+      if (EXISTS ${PCH_FILE})
+        set_target_properties(${target} PROPERTIES PRECOMPILE_HEADERS ${PCH_FILE})
+      endif()
+    elseif(WITH_DEBUG_CMAKE)
+      message(STATUS "Skipped PCH for ${target}")
+    endif()
+  endif()
+endfunction()
+
 #
 # Public API functions
 #
@@ -330,6 +366,7 @@ function(add_qtc_library name)
     ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_LIBRARY_PATH}"
     ${_arg_PROPERTIES}
   )
+  enable_pch(${name})
 
   unset(NAMELINK_OPTION)
   if (library_type STREQUAL "SHARED")
@@ -528,6 +565,7 @@ function(add_qtc_plugin target_name)
     OUTPUT_NAME "${name}"
     ${_arg_PROPERTIES}
   )
+  enable_pch(${target_name})
 
   foreach(file IN LISTS _arg_EXPLICIT_MOC)
     set_explicit_moc(${target_name} "${file}")
@@ -589,6 +627,15 @@ function(extend_qtc_target target_name)
     set(_arg_SOURCES ${prefixed_sources})
   endif()
   target_sources(${target_name} PRIVATE ${_arg_SOURCES})
+
+  if (APPLE AND BUILD_WITH_PCH)
+    foreach(source IN LISTS _arg_SOURCES)
+      if (source MATCHES "^.*\.mm$")
+        set_source_files_properties(${source} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+      endif()
+    endforeach()
+  endif()
+
   set_public_headers(${target_name} "${_arg_SOURCES}")
 
   foreach(file IN LISTS _arg_EXPLICIT_MOC)
@@ -656,6 +703,7 @@ function(add_qtc_executable name)
     RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${_DESTINATION}"
     ${_arg_PROPERTIES}
   )
+  enable_pch(${name})
 
   if (NOT _arg_SKIP_INSTALL)
     install(TARGETS ${name} DESTINATION "${_DESTINATION}")
@@ -696,6 +744,7 @@ function(add_qtc_test name)
     BUILD_RPATH "${_RPATH_BASE}/${_RPATH}"
     INSTALL_RPATH "${_RPATH_BASE}/${_RPATH}"
   )
+  enable_pch(${name})
 
   if (NOT _arg_GTEST)
     add_test(NAME ${name} COMMAND ${name})
