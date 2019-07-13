@@ -75,7 +75,7 @@ QRegularExpression FuzzyMatcher::createRegExp(
     const QLatin1String upperSnakeWordContinuation("[A-Z0-9]*_");
     keyRegExp += "(?:";
     for (const QChar &c : pattern) {
-        if (!c.isLetter()) {
+        if (!c.isLetterOrNumber()) {
             if (c == question) {
                 keyRegExp += '.';
                 plainRegExp += ").(";

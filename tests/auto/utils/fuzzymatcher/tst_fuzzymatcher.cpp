@@ -68,7 +68,12 @@ void tst_FuzzyMatcher::fuzzyMatcher_data()
     QTest::newRow("incorrect-hump") << "lyn" << "VeryLongCamelHump" << -1;
     QTest::newRow("humps") << "VL" << "VeryLongCamelHump" << 0;
     QTest::newRow("skipped-humps-upper") << "VH" << "VeryLongCamelHump" << -1;
-    QTest::newRow("numbers") << "4" << "Test4Fun" << 4;
+    QTest::newRow("numbers-searched") << "4" << "Test4Fun" << 4;
+    QTest::newRow("numbers-skipped") << "fpt" << "Fancy4PartThingy" << 0;
+    QTest::newRow("numbers-camel") << "f4pt" << "Fancy4PartThingy" << 0;
+    QTest::newRow("multi-numbers-camel") << "f4pt" << "Fancy4567PartThingy" << 0;
+    QTest::newRow("numbers-underscore") << "f4pt" << "fancy_4_part_thingy" << 0;
+    QTest::newRow("numbers-underscore-upper") << "f4pt" << "FANCY_4_PART_THINGY" << 0;
     QTest::newRow("question-wildcard") << "Lon?Ca" << "VeryLongCamelHump" << 4;
     QTest::newRow("unmatched-question-wildcard") << "Long?Ca" << "VeryLongCamelHump" << -1;
     QTest::newRow("asterisk-wildcard") << "Long*Ca" << "VeryLongCamelHump" << 4;
@@ -136,8 +141,18 @@ void tst_FuzzyMatcher::highlighting_data()
                                      << Matches{{4, 2}, {8, 2}};
     QTest::newRow("duplicate-match") << "som" << "SomeMatch"
                                      << Matches{{0, 3}};
-    QTest::newRow("numbers") << "4" << "TestJust4Fun"
-                             << Matches{{8, 1}};
+    QTest::newRow("numbers-searched") << "4" << "TestJust4Fun"
+                                      << Matches{{8, 1}};
+    QTest::newRow("numbers-plain") << "boot2qt" << "use_boot2qt_for_embedded"
+                                   << Matches{{4, 7}};
+    QTest::newRow("numbers-skipped") << "fpt" << "Fancy4PartThingy"
+                                     << Matches{{0, 1}, {6, 1}, {10, 1}};
+    QTest::newRow("numbers-camel") << "f4pt" << "Fancy4PartThingy"
+                                   << Matches{{0, 1}, {5, 2}, {10, 1}};
+    QTest::newRow("numbers-snake") << "f4pt" << "fancy_4_part_thingy"
+                                   << Matches{{0, 1}, {6, 1}, {8, 1}, {13, 1}};
+    QTest::newRow("numbers-snake-upper") << "f4pt" << "FANCY_4_PART_THINGY"
+                                         << Matches{{0, 1}, {6, 1}, {8, 1}, {13, 1}};
     QTest::newRow("wildcard-asterisk") << "Lo*Hu" << "VeryLongCamelHump"
                                        << Matches{{4, 2}, {13, 2}};
     QTest::newRow("wildcard-question") << "Lo?g" << "VeryLongCamelHump"
