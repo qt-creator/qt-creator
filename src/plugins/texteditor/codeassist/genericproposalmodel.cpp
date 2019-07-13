@@ -301,7 +301,10 @@ void GenericProposalModel::filter(const QString &prefix)
     const QString lowerPrefix = prefix.toLower();
     for (const auto &item : qAsConst(m_originalItems)) {
         const QString &text = item->text();
-        if (regExp.match(text).capturedStart() == 0) {
+        const QRegularExpressionMatch match = regExp.match(text);
+        const bool hasPrefixMatch = match.capturedStart() == 0;
+        const bool hasInfixMatch = prefix.size() >= 3 && match.hasMatch();
+        if (hasPrefixMatch || hasInfixMatch) {
             m_currentItems.append(item);
             if (text.startsWith(prefix)) {
                 // Direct match
@@ -312,7 +315,9 @@ void GenericProposalModel::filter(const QString &prefix)
             }
 
             if (text.startsWith(lowerPrefix, Qt::CaseInsensitive))
-                item->setPrefixMatch(AssistProposalItemInterface::PrefixMatch::Lower);
+                item->setPrefixMatch(AssistProposalItemInterface::PrefixMatch::Prefix);
+            else if (text.contains(lowerPrefix, Qt::CaseInsensitive))
+                item->setPrefixMatch(AssistProposalItemInterface::PrefixMatch::Infix);
         }
     }
 }

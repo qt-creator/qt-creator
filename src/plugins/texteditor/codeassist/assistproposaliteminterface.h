@@ -46,8 +46,9 @@ public:
     {
         Full = 0,
         Exact = 1,
-        Lower = 2,
-        None = 3
+        Prefix = 2,
+        Infix = 3,
+        None = 4
     };
 
     AssistProposalItemInterface() = default;
