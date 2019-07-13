@@ -476,7 +476,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
         d->m_model->sort(prefix);
     d->m_completionListView->reset();
 
-    // Try to find the previosly explicit selection (if any). If we can find the item set it
+    // Try to find the previously explicit selection (if any). If we can find the item set it
     // as the current. Otherwise (it might have been filtered out) select the first row.
     if (d->m_explicitlySelected) {
         Q_ASSERT(preferredItemId != -1);
