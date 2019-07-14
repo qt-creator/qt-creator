@@ -33,6 +33,7 @@
 #include <QRegularExpression>
 
 #include <algorithm>
+#include <numeric>
 
 using namespace CppTools;
 using namespace CppTools::Internal;
@@ -68,16 +69,14 @@ void CppLocatorFilter::refresh(QFutureInterface<void> &future)
 QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
         QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
-    QList<Core::LocatorFilterEntry> normalEntries;
-    QList<Core::LocatorFilterEntry> goodEntries;
-    QList<Core::LocatorFilterEntry> betterEntries;
-    QList<Core::LocatorFilterEntry> bestEntries;
+    enum { Best = 0, Better, Good, Normal, EntryNumber };
+    QList<Core::LocatorFilterEntry> entries[EntryNumber];
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
     const IndexItem::ItemType wanted = matchTypes();
 
     const QRegularExpression regexp = createRegExp(entry);
     if (!regexp.isValid())
-        return goodEntries;
+        return {};
     const bool hasColonColon = entry.contains("::");
     const QRegularExpression shortRegexp =
             hasColonColon ? createRegExp(entry.mid(entry.lastIndexOf("::") + 2)) : regexp;
@@ -114,13 +113,13 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
                 }
 
                 if (matchInParameterList)
-                    normalEntries.append(filterEntry);
+                    entries[Normal].append(filterEntry);
                 else if (filterEntry.displayName.startsWith(entry, caseSensitivityForPrefix))
-                    bestEntries.append(filterEntry);
+                    entries[Best].append(filterEntry);
                 else if (filterEntry.displayName.contains(entry, caseSensitivityForPrefix))
-                    betterEntries.append(filterEntry);
+                    entries[Better].append(filterEntry);
                 else
-                    goodEntries.append(filterEntry);
+                    entries[Good].append(filterEntry);
             }
         }
 
@@ -130,19 +129,12 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
             return IndexItem::Recurse;
     });
 
-    if (normalEntries.size() < 1000)
-        Utils::sort(normalEntries, Core::LocatorFilterEntry::compareLexigraphically);
-    if (goodEntries.size() < 1000)
-        Utils::sort(goodEntries, Core::LocatorFilterEntry::compareLexigraphically);
-    if (betterEntries.size() < 1000)
-        Utils::sort(betterEntries, Core::LocatorFilterEntry::compareLexigraphically);
-    if (bestEntries.size() < 1000)
-        Utils::sort(bestEntries, Core::LocatorFilterEntry::compareLexigraphically);
+    for (auto &entry : entries) {
+        if (entry.size() < 1000)
+            Utils::sort(entry, Core::LocatorFilterEntry::compareLexigraphically);
+    }
 
-    bestEntries += betterEntries;
-    bestEntries += goodEntries;
-    bestEntries += normalEntries;
-    return bestEntries;
+    return std::accumulate(std::begin(entries), std::end(entries), QList<Core::LocatorFilterEntry>());
 }
 
 void CppLocatorFilter::accept(Core::LocatorFilterEntry selection,
