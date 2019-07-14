@@ -97,13 +97,11 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     // use only 'name' for case sensitivity decision, because we need to make the path
     // match the case on the file system for case-sensitive file systems
     const Qt::CaseSensitivity caseSensitivity_ = caseSensitivity(entryFileName);
-    QStringList dirs = dirInfo.entryList(dirFilter,
-                                      QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
+    const QStringList dirs = QStringList("..")
+            + dirInfo.entryList(dirFilter, QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     const QStringList files = dirInfo.entryList(fileFilter,
                                                 QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
-    dirs.prepend("..");
-
-    for (const QString &dir : qAsConst(dirs)) {
+    for (const QString &dir : dirs) {
         if (future.isCanceled())
             break;
         int index = -1;
