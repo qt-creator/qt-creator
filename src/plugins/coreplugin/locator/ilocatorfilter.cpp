@@ -207,9 +207,9 @@ Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
     return str == str.toLower() ? Qt::CaseInsensitive : Qt::CaseSensitive;
 }
 
-QRegularExpression ILocatorFilter::createRegExp(const QString &text)
+QRegularExpression ILocatorFilter::createRegExp(const QString &text, Qt::CaseSensitivity caseSensitivity)
 {
-    return FuzzyMatcher::createRegExp(text);
+    return FuzzyMatcher::createRegExp(text, caseSensitivity);
 }
 
 LocatorFilterEntry::HighlightInfo ILocatorFilter::highlightInfo(

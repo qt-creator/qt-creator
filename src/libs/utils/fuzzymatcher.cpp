@@ -122,6 +122,21 @@ QRegularExpression FuzzyMatcher::createRegExp(
     return QRegularExpression('(' + plainRegExp + ")|" + keyRegExp);
 }
 
+/**
+    \overload
+    This overload eases the construction of a fuzzy regexp from a given
+    Qt::CaseSensitivity.
+ */
+QRegularExpression FuzzyMatcher::createRegExp(const QString &pattern,
+                                              Qt::CaseSensitivity caseSensitivity)
+{
+    const CaseSensitivity sensitivity = (caseSensitivity == Qt::CaseSensitive)
+            ? CaseSensitivity::CaseSensitive
+            : CaseSensitivity::CaseInsensitive;
+
+    return createRegExp(pattern, sensitivity);
+}
+
 /*!
  * \brief Returns a list of matched character positions and their matched lengths for the
  * given regular expression \a match.

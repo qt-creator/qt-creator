@@ -35,29 +35,33 @@
 #include <utils/fileutils.h>
 
 #include <QDir>
+#include <QRegularExpression>
 
 using namespace Core;
 using namespace Core::Internal;
 
-namespace {
+enum class MatchLevel {
+    Best = 0,
+    Better,
+    Good,
+    Normal,
+    Number
+};
 
-QList<LocatorFilterEntry> *categorize(const QString &entry, const QString &candidate,
-                               Qt::CaseSensitivity caseSensitivity,
-                               QList<LocatorFilterEntry> *betterEntries, QList<LocatorFilterEntry> *goodEntries,
-                               int *index)
+static MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText)
 {
-    const int position = candidate.indexOf(entry, 0, caseSensitivity);
-    if (index)
-        *index = position;
-
-    if (entry.isEmpty() || position == 0)
-        return betterEntries;
-    if (position >= 0)
-        return goodEntries;
-    return nullptr;
+    const int consecutivePos = match.capturedStart(1);
+    if (consecutivePos == 0)
+        return MatchLevel::Best;
+    if (consecutivePos > 0) {
+        const QChar prevChar = matchText.at(consecutivePos - 1);
+        if (prevChar == '_' || prevChar == '.')
+            return MatchLevel::Better;
+    }
+    if (match.capturedStart() == 0)
+        return MatchLevel::Good;
+    return MatchLevel::Normal;
 }
-
-} // anynoumous namespace
 
 FileSystemFilter::FileSystemFilter()
 {
@@ -76,8 +80,7 @@ void FileSystemFilter::prepareSearch(const QString &entry)
 QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                        const QString &entry)
 {
-    QList<LocatorFilterEntry> goodEntries;
-    QList<LocatorFilterEntry> betterEntries;
+    QList<LocatorFilterEntry> entries[int(MatchLevel::Number)];
     const QFileInfo entryInfo(entry);
     const QString entryFileName = entryInfo.fileName();
     QString directory = entryInfo.path();
@@ -101,19 +104,24 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
             + dirInfo.entryList(dirFilter, QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     const QStringList files = dirInfo.entryList(fileFilter,
                                                 QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
+
+    const QRegularExpression regExp = createRegExp(entryFileName, caseSensitivity_);
+    if (!regExp.isValid())
+        return {};
+
     for (const QString &dir : dirs) {
         if (future.isCanceled())
             break;
-        int index = -1;
-        if (QList<LocatorFilterEntry> *category = categorize(entryFileName, dir, caseSensitivity_,
-                                                             &betterEntries, &goodEntries, &index)) {
+
+        const QRegularExpressionMatch match = regExp.match(dir);
+        if (match.hasMatch()) {
+            const MatchLevel level = matchLevelFor(match, dir);
             const QString fullPath = dirInfo.filePath(dir);
             LocatorFilterEntry filterEntry(this, dir, QVariant());
             filterEntry.fileName = fullPath;
-            if (index >= 0)
-                filterEntry.highlightInfo = {index, entryFileName.length()};
+            filterEntry.highlightInfo = highlightInfo(match);
 
-            category->append(filterEntry);
+            entries[int(level)].append(filterEntry);
         }
     }
     // file names can match with +linenumber or :linenumber
@@ -122,29 +130,29 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     for (const QString &file : files) {
         if (future.isCanceled())
             break;
-        int index = -1;
-        if (QList<LocatorFilterEntry> *category = categorize(fileName, file, caseSensitivity_,
-                                                             &betterEntries, &goodEntries, &index)) {
+
+        const QRegularExpressionMatch match = regExp.match(file);
+        if (match.hasMatch()) {
+            const MatchLevel level = matchLevelFor(match, file);
             const QString fullPath = dirInfo.filePath(file);
             LocatorFilterEntry filterEntry(this, file, QString(fullPath + fp.postfix));
             filterEntry.fileName = fullPath;
-            if (index >= 0)
-                filterEntry.highlightInfo = {index, fileName.length()};
+            filterEntry.highlightInfo = highlightInfo(match);
 
-            category->append(filterEntry);
+            entries[int(level)].append(filterEntry);
         }
     }
-    betterEntries.append(goodEntries);
 
     // "create and open" functionality
     const QString fullFilePath = dirInfo.filePath(fileName);
-    if (!QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
+    const bool containsWildcard = entry.contains('?') || entry.contains('*');
+    if (!containsWildcard && !QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
         LocatorFilterEntry createAndOpen(this, tr("Create and Open \"%1\"").arg(entry), fullFilePath);
         createAndOpen.extraInfo = Utils::FilePath::fromString(dirInfo.absolutePath()).shortNativePath();
-        betterEntries.append(createAndOpen);
+        entries[int(MatchLevel::Normal)].append(createAndOpen);
     }
 
-    return betterEntries;
+    return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
 }
 
 void FileSystemFilter::accept(LocatorFilterEntry selection,

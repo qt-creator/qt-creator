@@ -145,7 +145,8 @@ public:
     bool isEnabled() const;
 
     static Qt::CaseSensitivity caseSensitivity(const QString &str);
-    static QRegularExpression createRegExp(const QString &text);
+    static QRegularExpression createRegExp(const QString &text,
+                                           Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive);
     LocatorFilterEntry::HighlightInfo highlightInfo(const QRegularExpressionMatch &match,
         LocatorFilterEntry::HighlightInfo::DataType dataType = LocatorFilterEntry::HighlightInfo::DisplayName);
 

@@ -54,5 +54,7 @@ public:
 
     static QRegularExpression createRegExp(const QString &pattern,
             CaseSensitivity caseSensitivity = CaseSensitivity::CaseInsensitive);
+    static QRegularExpression createRegExp(const QString &pattern,
+                                           Qt::CaseSensitivity caseSensitivity);
     static HighlightingPositions highlightingPositions(const QRegularExpressionMatch &match);
 };
