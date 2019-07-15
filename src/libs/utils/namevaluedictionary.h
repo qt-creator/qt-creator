@@ -71,9 +71,6 @@ public:
 
     NameValueDictionary::const_iterator constFind(const QString &name) const;
 
-    QString expandVariables(const QString &input) const;
-    QStringList expandVariables(const QStringList &input) const;
-
     friend bool operator!=(const NameValueDictionary &first, const NameValueDictionary &second)
     {
         return !(first == second);
