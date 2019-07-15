@@ -32,14 +32,14 @@ Rectangle {
 
     property Item myControl
 
+    property bool showBackground: true
     property alias icon: actionIndicatorIcon
 
     property bool hover: false
     property bool pressed: false
 
-    color: StudioTheme.Values.themeControlBackground
-    border.color: StudioTheme.Values.themeControlOutline
-    state: "default"
+    color: actionIndicator.showBackground ? StudioTheme.Values.themeControlBackground : "transparent"
+    border.color: actionIndicator.showBackground ? StudioTheme.Values.themeControlOutline : "transparent"
 
     implicitWidth: StudioTheme.Values.height
     implicitHeight: StudioTheme.Values.height
@@ -55,6 +55,26 @@ Rectangle {
         font.pixelSize: StudioTheme.Values.myIconFontSize
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
+
+        states: [
+            State {
+                name: "hovered"
+                when: actionIndicator.hover && !actionIndicator.pressed
+                      && !myControl.edit && !myControl.drag && myControl.enabled
+                PropertyChanges {
+                    target: actionIndicatorIcon
+                    scale: 1.2
+                }
+            },
+            State {
+                name: "disabled"
+                when: !myControl.enabled
+                PropertyChanges {
+                    target: actionIndicatorIcon
+                    color: StudioTheme.Values.themeTextColorDisabled
+                }
+            }
+        ]
     }
 
     MouseArea {
@@ -70,7 +90,7 @@ Rectangle {
             name: "default"
             when: myControl.enabled && !actionIndicator.hover
                   && !actionIndicator.pressed && !myControl.hover
-                  && !myControl.edit && !myControl.drag
+                  && !myControl.edit && !myControl.drag && actionIndicator.showBackground
             PropertyChanges {
                 target: actionIndicator
                 color: StudioTheme.Values.themeControlBackground
@@ -78,19 +98,10 @@ Rectangle {
             }
         },
         State {
-            name: "hovered"
-            when: actionIndicator.hover && !actionIndicator.pressed
-                  && !myControl.edit && !myControl.drag
-            PropertyChanges {
-                target: actionIndicatorIcon
-                scale: 1.2
-            }
-        },
-        State {
             name: "globalHover"
             when: myControl.hover && !actionIndicator.hover
                   && !actionIndicator.pressed && !myControl.edit
-                  && !myControl.drag
+                  && !myControl.drag && actionIndicator.showBackground
             PropertyChanges {
                 target: actionIndicator
                 color: StudioTheme.Values.themeHoverHighlight
@@ -99,7 +110,7 @@ Rectangle {
         },
         State {
             name: "edit"
-            when: myControl.edit
+            when: myControl.edit && actionIndicator.showBackground
             PropertyChanges {
                 target: actionIndicator
                 color: StudioTheme.Values.themeFocusEdit
@@ -108,7 +119,7 @@ Rectangle {
         },
         State {
             name: "drag"
-            when: myControl.drag
+            when: myControl.drag && actionIndicator.showBackground
             PropertyChanges {
                 target: actionIndicator
                 color: StudioTheme.Values.themeFocusDrag
@@ -117,15 +128,11 @@ Rectangle {
         },
         State {
             name: "disabled"
-            when: !myControl.enabled
+            when: !myControl.enabled && actionIndicator.showBackground
             PropertyChanges {
                 target: actionIndicator
                 color: StudioTheme.Values.themeControlBackgroundDisabled
                 border.color: StudioTheme.Values.themeControlOutlineDisabled
-            }
-            PropertyChanges {
-                target: actionIndicatorIcon
-                color: StudioTheme.Values.themeTextColorDisabled
             }
         }
     ]

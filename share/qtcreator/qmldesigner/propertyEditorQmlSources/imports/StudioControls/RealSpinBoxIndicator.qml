@@ -53,7 +53,7 @@ Rectangle {
             pressAndHoldTimer.stop()
     }
 
-    // This function is meant to synchronize enabled with realEnable to avoid
+    // This function is meant to synchronize enabled with realEnabled to avoid
     // the internal logic messing with the actual state.
     function invalidateEnabled() {
         spinBoxIndicator.enabled = spinBoxIndicator.realEnabled
@@ -190,6 +190,14 @@ Rectangle {
             PropertyChanges {
                 target: spinBoxIndicator
                 color: StudioTheme.Values.themeFocusDrag
+            }
+        },
+        State {
+            name: "disabled"
+            when: !myControl.enabled
+            PropertyChanges {
+                target: spinBoxIndicator
+                color: StudioTheme.Values.themeControlBackgroundDisabled
             }
         }
     ]
