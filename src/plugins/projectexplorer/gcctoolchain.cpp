@@ -900,6 +900,9 @@ static Utils::FilePathList atmelSearchPathsFromRegistry()
 
     Utils::FilePathList searchPaths;
     QSettings registry(kRegistryToken, QSettings::NativeFormat);
+
+    // This code enumerate the installed toolchains provided
+    // by the Atmel Studio v6.x.
     const auto toolchainGroups = registry.childGroups();
     for (const QString &toolchainKey : toolchainGroups) {
         if (!toolchainKey.endsWith("GCC"))
@@ -935,6 +938,31 @@ static Utils::FilePathList atmelSearchPathsFromRegistry()
         }
         registry.endGroup();
     }
+
+    // This code enumerate the installed toolchains provided
+    // by the Atmel Studio v7.
+    registry.beginGroup("AtmelStudio");
+    const auto productVersions = registry.childGroups();
+    for (const auto &productVersionKey : productVersions) {
+        registry.beginGroup(productVersionKey);
+        const QString installDir = registry.value("InstallDir").toString();
+        registry.endGroup();
+
+        const QStringList knownToolchainSubdirs = {
+            "/toolchain/arm/arm-gnu-toolchain/bin/",
+            "/toolchain/avr8/avr8-gnu-toolchain/bin/",
+            "/toolchain/avr32/avr32-gnu-toolchain/bin/",
+        };
+
+        for (const auto &subdir : knownToolchainSubdirs) {
+            const QString toolchainPath = installDir + subdir;
+            const FilePath path = FilePath::fromString(toolchainPath);
+            if (!path.exists())
+                continue;
+            searchPaths.push_back(path);
+        }
+    }
+    registry.endGroup();
 
     return searchPaths;
 }
