@@ -367,6 +367,10 @@ void SessionManager::setStartupProject(Project *startupProject)
         return;
 
     d->m_startupProject = startupProject;
+    if (d->m_startupProject && d->m_startupProject->needsConfiguration()) {
+        ModeManager::activateMode(Constants::MODE_SESSION);
+        ModeManager::setFocusToCurrentMode();
+    }
     emit m_instance->startupProjectChanged(startupProject);
 }
 
