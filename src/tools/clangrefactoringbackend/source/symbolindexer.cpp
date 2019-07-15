@@ -183,12 +183,10 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
 {
     m_fileStatusCache.update(filePathId);
 
-    Sqlite::DeferredTransaction transaction{m_transactionInterface};
     const Utils::optional<ProjectPartArtefact>
         optionalArtefact = m_projectPartsStorage.fetchProjectPartArtefact(filePathId);
     if (!optionalArtefact)
         return;
-    transaction.commit();
 
     ProjectPartId projectPartId = optionalArtefact->projectPartId;
 

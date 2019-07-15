@@ -233,16 +233,36 @@ public:
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(FilePathId sourceId) const override
     {
-        ReadStatement &statement = getProjectPartArtefactsBySourceId;
+        try {
+            Sqlite::DeferredTransaction transaction{database};
 
-        return statement.template value<ProjectPartArtefact, 8>(sourceId.filePathId);
+            ReadStatement &statement = getProjectPartArtefactsBySourceId;
+
+            auto value = statement.template value<ProjectPartArtefact, 8>(sourceId.filePathId);
+
+            transaction.commit();
+
+            return value;
+        } catch (const Sqlite::StatementIsBusy &) {
+            return fetchProjectPartArtefact(sourceId);
+        }
     }
 
     Utils::optional<ProjectPartArtefact> fetchProjectPartArtefact(ProjectPartId projectPartId) const override
     {
-        ReadStatement &statement = getProjectPartArtefactsByProjectPartId;
+        try {
+            Sqlite::DeferredTransaction transaction{database};
 
-        return statement.template value<ProjectPartArtefact, 8>(projectPartId.projectPathId);
+            ReadStatement &statement = getProjectPartArtefactsByProjectPartId;
+
+            auto value = statement.template value<ProjectPartArtefact, 8>(projectPartId.projectPathId);
+
+            transaction.commit();
+
+            return value;
+        } catch (const Sqlite::StatementIsBusy &) {
+            return fetchProjectPartArtefact(projectPartId);
+        }
     }
 
     void resetIndexingTimeStamps(const ProjectPartContainers &projectsParts) override

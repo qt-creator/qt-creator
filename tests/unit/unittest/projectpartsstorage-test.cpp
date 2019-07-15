@@ -392,12 +392,31 @@ TEST_F(ProjectPartsStorage, UpdateProjectPartsIsBusy)
 
 TEST_F(ProjectPartsStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatement)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
         .WillRepeatedly(Return(artefact));
+    EXPECT_CALL(mockDatabase, commit());
 
     storage.fetchProjectPartArtefact(FilePathId{1});
 }
 
+TEST_F(ProjectPartsStorage, FetchProjectPartArtefactBySourceIdCallsValueInStatementIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockDatabase, rollback());
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
+        .WillRepeatedly(Return(artefact));
+    EXPECT_CALL(mockDatabase, commit());
+
+    storage.fetchProjectPartArtefact(FilePathId{1});
+}
 TEST_F(ProjectPartsStorage, FetchProjectPartArtefactBySourceIdReturnArtefact)
 {
     EXPECT_CALL(getProjectPartArtefactsBySourceId, valueReturnProjectPartArtefact(1))
@@ -410,8 +429,12 @@ TEST_F(ProjectPartsStorage, FetchProjectPartArtefactBySourceIdReturnArtefact)
 
 TEST_F(ProjectPartsStorage, FetchProjectPartArtefactByProjectPartIdCallsValueInStatement)
 {
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
     EXPECT_CALL(getProjectPartArtefactsByProjectPartId, valueReturnProjectPartArtefact(74))
         .WillRepeatedly(Return(artefact));
+    EXPECT_CALL(mockDatabase, commit());
 
     storage.fetchProjectPartArtefact(ProjectPartId{74});
 }
@@ -424,6 +447,22 @@ TEST_F(ProjectPartsStorage, FetchProjectPartArtefactByProjectPartIdReturnArtefac
     auto result = storage.fetchProjectPartArtefact(ProjectPartId{74});
 
     ASSERT_THAT(result, Eq(artefact));
+}
+
+TEST_F(ProjectPartsStorage, FetchProjectPartArtefactByProjectPartIdReturnArtefactIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(getProjectPartArtefactsByProjectPartId, valueReturnProjectPartArtefact(74))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(mockDatabase, rollback());
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(getProjectPartArtefactsByProjectPartId, valueReturnProjectPartArtefact(74))
+        .WillRepeatedly(Return(artefact));
+    EXPECT_CALL(mockDatabase, commit());
+
+    storage.fetchProjectPartArtefact(ProjectPartId{74});
 }
 
 TEST_F(ProjectPartsStorage, ResetDependentIndexingTimeStamps)
