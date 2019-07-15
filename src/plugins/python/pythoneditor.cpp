@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "pythoneditor.h"
-#include "pythoneditorconstants.h"
-#include "pythoneditorplugin.h"
+#include "pythonconstants.h"
+#include "pythonplugin.h"
 #include "pythonindenter.h"
 #include "pythonhighlighter.h"
 
@@ -39,7 +39,7 @@
 
 using namespace TextEditor;
 
-namespace PythonEditor {
+namespace Python {
 namespace Internal {
 
 PythonEditorFactory::PythonEditorFactory()
@@ -62,4 +62,4 @@ PythonEditorFactory::PythonEditorFactory()
 }
 
 } // namespace Internal
-} // namespace PythonEditor
+} // namespace Python

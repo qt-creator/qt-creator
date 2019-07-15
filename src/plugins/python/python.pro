@@ -1,19 +1,19 @@
 include(../../qtcreatorplugin.pri)
 
 DEFINES += \
-    PYTHONEDITOR_LIBRARY
+    PYTHON_LIBRARY
 
 HEADERS += \
-    pythoneditorplugin.h \
+    pythonplugin.h \
     pythoneditor.h \
-    pythoneditorconstants.h \
+    pythonconstants.h \
     pythonhighlighter.h \
     pythonindenter.h \
     pythonformattoken.h \
     pythonscanner.h \
 
 SOURCES += \
-    pythoneditorplugin.cpp \
+    pythonplugin.cpp \
     pythoneditor.cpp \
     pythonhighlighter.cpp \
     pythonindenter.cpp \

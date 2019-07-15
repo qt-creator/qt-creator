@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-#include "pythoneditorplugin.h"
+#include "pythonplugin.h"
 #include "pythoneditor.h"
-#include "pythoneditorconstants.h"
+#include "pythonconstants.h"
 #include "pythonhighlighter.h"
 
 #include <coreplugin/icore.h>
@@ -69,10 +69,10 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace PythonEditor::Constants;
+using namespace Python::Constants;
 using namespace Utils;
 
-namespace PythonEditor {
+namespace Python {
 namespace Internal {
 
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
@@ -711,11 +711,11 @@ bool PythonProjectNode::renameFile(const QString &filePath, const QString &newFi
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
-// PythonEditorPlugin
+// PythonPlugin
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
-class PythonEditorPluginPrivate
+class PythonPluginPrivate
 {
 public:
     PythonEditorFactory editorFactory;
@@ -723,24 +723,24 @@ public:
     SimpleRunWorkerFactory<SimpleTargetRunner, PythonRunConfiguration> runWorkerFactory;
 };
 
-PythonEditorPlugin::~PythonEditorPlugin()
+PythonPlugin::~PythonPlugin()
 {
     delete d;
 }
 
-bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+bool PythonPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    d = new PythonEditorPluginPrivate;
+    d = new PythonPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
 
     return true;
 }
 
-void PythonEditorPlugin::extensionsInitialized()
+void PythonPlugin::extensionsInitialized()
 {
     // Add MIME overlay icons (these icons displayed at Project dock panel)
     QString imageFile = creatorTheme()->imageFile(Theme::IconOverlayPro,
@@ -751,6 +751,6 @@ void PythonEditorPlugin::extensionsInitialized()
 }
 
 } // namespace Internal
-} // namespace PythonEditor
+} // namespace Python
 
-#include "pythoneditorplugin.moc"
+#include "pythonplugin.moc"

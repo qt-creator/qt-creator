@@ -34,7 +34,7 @@ SUBDIRS   = \
     qmljseditor \
     qmlprojectmanager \
     glsleditor \
-    pythoneditor \
+    python \
     nim \
     mercurial \
     bazaar \

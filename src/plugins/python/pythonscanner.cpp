@@ -25,10 +25,10 @@
 
 #include "pythonscanner.h"
 
-#include "pythoneditorconstants.h"
-#include "pythoneditorplugin.h"
+#include "pythonconstants.h"
+#include "pythonplugin.h"
 
-namespace PythonEditor {
+namespace Python {
 namespace Internal {
 
 Scanner::Scanner(const QChar *text, const int length)
@@ -389,4 +389,4 @@ void Scanner::parseState(State &state, QChar &savedData) const
 }
 
 } // namespace Internal
-} // namespace PythonEditor
+} // namespace Python

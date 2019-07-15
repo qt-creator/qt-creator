@@ -1,5 +1,5 @@
 {
-    \"Name\" : \"PythonEditor\",
+    \"Name\" : \"Python\",
     \"Version\" : \"$$QTCREATOR_VERSION\",
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Vendor\" : \"The Qt Company Ltd\",
@@ -13,7 +13,7 @@
                   \"Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html.\"
     ],
     \"Category\" : \"Other Languages\",
-    \"Description\" : \"Editor and file creation wizards for Python. Example plugin for QtCreator API demonstration.\",
+    \"Description\" : \"Plugin for supporting the Python language.\",
     \"Url\" : \"http://www.qt.io\",
     $$dependencyList,
 

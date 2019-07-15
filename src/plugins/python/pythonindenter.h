@@ -25,26 +25,23 @@
 
 #pragma once
 
-#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/textindenter.h>
 
-namespace PythonEditor {
-namespace Internal {
+namespace Python {
 
-class Scanner;
-
-class PythonHighlighter : public TextEditor::SyntaxHighlighter
+class PythonIndenter : public TextEditor::TextIndenter
 {
 public:
-    PythonHighlighter();
-
+    explicit PythonIndenter(QTextDocument *doc);
 private:
-    void highlightBlock(const QString &text) override;
-    int highlightLine(const QString &text, int initialState);
-    void highlightImport(Internal::Scanner &scanner);
+    bool isElectricCharacter(const QChar &ch) const override;
+    int indentFor(const QTextBlock &block,
+                  const TextEditor::TabSettings &tabSettings,
+                  int cursorPositionInEditor = -1) override;
 
-    int m_lastIndent = 0;
-    bool withinLicenseHeader = false;
+    bool isElectricLine(const QString &line) const;
+    int getIndentDiff(const QString &previousLine,
+                      const TextEditor::TabSettings &tabSettings) const;
 };
 
-} // namespace Internal
-} // namespace PythonEditor
+} // namespace Python

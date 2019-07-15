@@ -52,7 +52,7 @@ Project {
         "perfprofiler/perfprofiler.qbs",
         "projectexplorer/projectexplorer.qbs",
         "qbsprojectmanager/qbsprojectmanager.qbs",
-        "pythoneditor/pythoneditor.qbs",
+        "python/python.qbs",
         "qmldesigner/qmldesigner.qbs",
         "qmljseditor/qmljseditor.qbs",
         "qmljstools/qmljstools.qbs",

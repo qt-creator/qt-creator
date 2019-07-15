@@ -25,16 +25,26 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
+#include <texteditor/syntaxhighlighter.h>
 
-namespace PythonEditor {
+namespace Python {
 namespace Internal {
 
-class PythonEditorFactory : public TextEditor::TextEditorFactory
+class Scanner;
+
+class PythonHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
-    PythonEditorFactory();
+    PythonHighlighter();
+
+private:
+    void highlightBlock(const QString &text) override;
+    int highlightLine(const QString &text, int initialState);
+    void highlightImport(Internal::Scanner &scanner);
+
+    int m_lastIndent = 0;
+    bool withinLicenseHeader = false;
 };
 
 } // namespace Internal
-} // namespace PythonEditor
+} // namespace Python

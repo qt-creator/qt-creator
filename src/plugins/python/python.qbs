@@ -1,7 +1,7 @@
 import qbs 1.0
 
 QtcPlugin {
-    name: "PythonEditor"
+    name: "Python"
 
     Depends { name: "Qt.widgets" }
     Depends { name: "Utils" }
@@ -15,8 +15,8 @@ QtcPlugin {
         name: "General"
         files: [
             "pythoneditor.cpp", "pythoneditor.h",
-            "pythoneditorconstants.h",
-            "pythoneditorplugin.cpp", "pythoneditorplugin.h",
+            "pythonconstants.h",
+            "pythonplugin.cpp", "pythonplugin.h",
             "pythonhighlighter.h", "pythonhighlighter.cpp",
             "pythonindenter.cpp", "pythonindenter.h",
             "pythonformattoken.h",

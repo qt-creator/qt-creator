@@ -25,20 +25,26 @@
 
 #pragma once
 
-#include <QtGlobal>
+#include <extensionsystem/iplugin.h>
 
-namespace PythonEditor {
-namespace Constants {
+namespace Python {
+namespace Internal {
 
-const char C_PYTHONEDITOR_ID[] = "PythonEditor.PythonEditor";
-const char C_EDITOR_DISPLAY_NAME[] =
-        QT_TRANSLATE_NOOP("OpenWith::Editors", "Python Editor");
+class PythonPlugin : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Python.json")
 
-/*******************************************************************************
- * MIME type
- ******************************************************************************/
-const char C_PY_MIMETYPE[] = "text/x-python";
-const char C_PY_MIME_ICON[] = "text-x-python";
+public:
+    PythonPlugin() = default;
+    ~PythonPlugin() final;
 
-} // namespace Constants
-} // namespace PythonEditor
+private:
+    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void extensionsInitialized() final;
+
+    class PythonPluginPrivate *d = nullptr;
+};
+
+} // namespace Internal
+} // namespace Python

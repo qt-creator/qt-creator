@@ -41,7 +41,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 
-namespace PythonEditor {
+namespace Python {
 namespace Internal {
 
 /**
@@ -198,4 +198,4 @@ void PythonHighlighter::highlightImport(Scanner &scanner)
 }
 
 } // namespace Internal
-} // namespace PythonEditor
+} // namespace Python

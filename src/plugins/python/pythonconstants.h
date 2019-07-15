@@ -25,23 +25,20 @@
 
 #pragma once
 
-#include <texteditor/textindenter.h>
+#include <QtGlobal>
 
-namespace PythonEditor {
+namespace Python {
+namespace Constants {
 
-class PythonIndenter : public TextEditor::TextIndenter
-{
-public:
-    explicit PythonIndenter(QTextDocument *doc);
-private:
-    bool isElectricCharacter(const QChar &ch) const override;
-    int indentFor(const QTextBlock &block,
-                  const TextEditor::TabSettings &tabSettings,
-                  int cursorPositionInEditor = -1) override;
+const char C_PYTHONEDITOR_ID[] = "PythonEditor.PythonEditor";
+const char C_EDITOR_DISPLAY_NAME[] =
+        QT_TRANSLATE_NOOP("OpenWith::Editors", "Python Editor");
 
-    bool isElectricLine(const QString &line) const;
-    int getIndentDiff(const QString &previousLine,
-                      const TextEditor::TabSettings &tabSettings) const;
-};
+/*******************************************************************************
+ * MIME type
+ ******************************************************************************/
+const char C_PY_MIMETYPE[] = "text/x-python";
+const char C_PY_MIME_ICON[] = "text-x-python";
 
-} // namespace PythonEditor
+} // namespace Constants
+} // namespace Python

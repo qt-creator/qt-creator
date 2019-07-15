@@ -29,7 +29,7 @@
 
 #include <QString>
 
-namespace PythonEditor {
+namespace Python {
 namespace Internal {
 
 /**
@@ -95,4 +95,4 @@ private:
 };
 
 } // namespace Internal
-} // namespace PythonEditor
+} // namespace Python

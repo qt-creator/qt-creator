@@ -30,7 +30,7 @@
 
 #include <algorithm>
 
-namespace PythonEditor {
+namespace Python {
 
 static bool isEmptyLine(const QString &t)
 {
@@ -124,4 +124,4 @@ int PythonIndenter::getIndentDiff(const QString &previousLine,
     return 0;
 }
 
-} // namespace PythonEditor
+} // namespace Python
