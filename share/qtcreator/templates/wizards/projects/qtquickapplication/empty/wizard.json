@@ -124,7 +124,7 @@
                                 "value":
                                 {
                                     "QtQuickVersion": "2.9",
-                                    "QtQuickWindowVersion": "2.9",
+                                    "QtQuickWindowVersion": "2.2",
                                     "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.2"
                                 }
                             },
@@ -133,7 +133,7 @@
                                 "value":
                                 {
                                     "QtQuickVersion": "2.8",
-                                    "QtQuickWindowVersion": "2.8",
+                                    "QtQuickWindowVersion": "2.2",
                                     "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.1"
                                 }
                             },
@@ -142,7 +142,7 @@
                                 "value":
                                 {
                                     "QtQuickVersion": "2.7",
-                                    "QtQuickWindowVersion": "2.7",
+                                    "QtQuickWindowVersion": "2.2",
                                     "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.1"
                                 }
                             },
@@ -151,8 +151,8 @@
                                 "value":
                                 {
                                     "QtQuickVersion": "2.6",
-                                    "QtQuickWindowVersion": "2.6",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.0"
+                                    "QtQuickWindowVersion": "2.2",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.Enterprise.VirtualKeyboard 2.0"
                                 }
                             }
                         ]
