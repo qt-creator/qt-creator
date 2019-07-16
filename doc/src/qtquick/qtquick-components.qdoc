@@ -461,6 +461,9 @@
     For an example of defining your own style and using it in the Design mode, see
     \l {Qt Quick Controls 2 - Flat Style}.
 
+    For more information about how to customize a particular control, see
+    \l{Customization Reference}.
+
     Qt Quick Controls 2 work in conjunction with Qt Quick and Qt Quick Layouts.
 
     The \QC project wizards create Qt Quick applications that use Qt Quick
