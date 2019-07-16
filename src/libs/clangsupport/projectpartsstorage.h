@@ -374,9 +374,11 @@ public:
     WriteStatement insertProjectPartsSourcesStatement{
         "INSERT INTO projectPartsSources(projectPartId, sourceId) VALUES (?,?)", database};
     mutable ReadStatement fetchProjectPartsHeadersByIdStatement{
-        "SELECT sourceId FROM projectPartsHeaders WHERE projectPartId = ?", database};
+        "SELECT sourceId FROM projectPartsHeaders WHERE projectPartId = ? ORDER BY sourceId",
+        database};
     mutable ReadStatement fetchProjectPartsSourcesByIdStatement{
-        "SELECT sourceId FROM projectPartsSources WHERE projectPartId = ?", database};
+        "SELECT sourceId FROM projectPartsSources WHERE projectPartId = ? ORDER BY sourceId",
+        database};
     mutable ReadStatement fetchProjectPrecompiledHeaderPathStatement{
         "SELECT projectPchPath FROM precompiledHeaders WHERE projectPartId = ?", database};
     WriteStatement resetDependentIndexingTimeStampsStatement{
