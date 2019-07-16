@@ -254,6 +254,23 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
     m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant::fromValue(project));
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant::fromValue(node));
     m_wizard->setValue(QLatin1String(KEY_IS_SUBPROJECT), node ? true : false);
+    bool qtKeyWordsEnabled = true;
+    if (ProjectTree::hasNode(node)) {
+        const ProjectNode *projectNode = node->asProjectNode();
+        if (!projectNode)
+            projectNode = node->parentProjectNode();
+        while (projectNode) {
+            const QVariant keywordsEnabled = projectNode->data(Constants::QT_KEYWORDS_ENABLED);
+            if (keywordsEnabled.isValid()) {
+                qtKeyWordsEnabled = keywordsEnabled.toBool();
+                break;
+            }
+            if (projectNode->isProduct())
+                break;
+            projectNode = projectNode->parentProjectNode();
+        }
+    }
+    m_wizard->setValue("QtKeywordsEnabled", qtKeyWordsEnabled);
 
     updateFileList();
 }

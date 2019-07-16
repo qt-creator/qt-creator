@@ -339,6 +339,9 @@ QVariant QmakeProFileNode::data(Core::Id role) const
             return info.buildDir.toString();
     }
 
+    if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
+        return !proFile()->variableValue(Variable::Config).contains("no_keywords");
+
     QTC_CHECK(false);
     return {};
 }

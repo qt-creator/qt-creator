@@ -312,6 +312,13 @@ FolderNode::AddNewInformation QbsGroupNode::addNewInformation(const QStringList 
     return info;
 }
 
+QVariant QbsGroupNode::data(Core::Id role) const
+{
+    if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
+        return m_qbsGroupData.properties().getModuleProperty("Qt.core", "enableKeywords");
+    return QVariant();
+}
+
 // --------------------------------------------------------------------
 // QbsProductNode:
 // --------------------------------------------------------------------
@@ -432,6 +439,9 @@ QVariant QbsProductNode::data(Core::Id role) const
 
     if (role == Android::Constants::AndroidApk)
         return m_qbsProductData.targetExecutable();
+
+    if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
+        return m_qbsProductData.moduleProperties().getModuleProperty("Qt.core", "enableKeywords");
 
     return {};
 }

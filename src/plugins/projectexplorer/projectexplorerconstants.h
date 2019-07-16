@@ -144,6 +144,7 @@ const char PREFERRED_PROJECT_NODE[] = "ProjectExplorer.PreferredProjectNode";
 const char PREFERRED_PROJECT_NODE_PATH[] = "ProjectExplorer.PreferredProjectPath";
 const char PROJECT_POINTER[] = "ProjectExplorer.Project";
 const char PROJECT_KIT_IDS[] = "ProjectExplorer.Profile.Ids";
+const char QT_KEYWORDS_ENABLED[] = "ProjectExplorer.QtKeywordsEnabled";
 
 // Build step lists ids:
 const char BUILDSTEPS_CLEAN[] = "ProjectExplorer.BuildSteps.Clean";

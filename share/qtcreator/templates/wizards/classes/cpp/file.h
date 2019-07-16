@@ -46,9 +46,17 @@ public:
 @endif
 @if %{isQObject}
 
+@if %{QtKeywordsEnabled}
 signals:
+@else
+Q_SIGNALS:
+@endif
 
+@if %{QtKeywordsEnabled}
 public slots:
+@else
+public Q_SLOTS:
+@endif
 @endif
 @if '%{IncludeQSharedData}'
 

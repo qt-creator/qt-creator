@@ -53,6 +53,7 @@ public:
 
 private:
     AddNewInformation addNewInformation(const QStringList &files, Node *context) const override;
+    QVariant data(Core::Id role) const override;
 
     qbs::GroupData m_qbsGroupData;
     QString m_productPath;
