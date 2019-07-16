@@ -50,19 +50,30 @@ protected:
 
     NiceMock<MockFileSystem> mockFileSystem;
     ClangBackEnd::ModifiedTimeChecker<> checker{mockFileSystem};
-    SourceEntries upToDateEntries = {{1, SourceType::UserInclude, 100},
+    SourceEntries upToDateEntries = {{1, SourceType::UserInclude, 51},
                                      {2, SourceType::SystemInclude, 30},
-                                     {3, SourceType::UserInclude, 100},
-                                     {4, SourceType::SystemInclude, 30}};
+                                     {3, SourceType::UserInclude, 50},
+                                     {4, SourceType::SystemInclude, 31}};
+    SourceEntries equalEntries = {{1, SourceType::UserInclude, 50},
+                                  {2, SourceType::SystemInclude, 30},
+                                  {3, SourceType::UserInclude, 50},
+                                  {4, SourceType::SystemInclude, 30}};
     SourceEntries notUpToDateEntries = {{1, SourceType::UserInclude, 50},
-                                        {2, SourceType::SystemInclude, 20},
-                                        {3, SourceType::UserInclude, 100},
+                                        {2, SourceType::SystemInclude, 29},
+                                        {3, SourceType::UserInclude, 50},
                                         {4, SourceType::SystemInclude, 30}};
 };
 
 TEST_F(ModifiedTimeChecker, IsUpToDate)
 {
     auto isUpToDate = checker.isUpToDate(upToDateEntries);
+
+    ASSERT_TRUE(isUpToDate);
+}
+
+TEST_F(ModifiedTimeChecker, EqualEntriesAreUpToDate)
+{
+    auto isUpToDate = checker.isUpToDate(equalEntries);
 
     ASSERT_TRUE(isUpToDate);
 }

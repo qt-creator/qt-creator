@@ -89,13 +89,13 @@ bool set_intersection_compare(
             ++first1;
         } else {
             if (!comp(*first2, *first1)) {
-                if (call(*first2, *first1++))
-                    return false;
+                if (call(*first1++, *first2))
+                    return true;
             }
             ++first2;
         }
     }
 
-    return true;
+    return false;
 }
 } // namespace ClangBackEnd

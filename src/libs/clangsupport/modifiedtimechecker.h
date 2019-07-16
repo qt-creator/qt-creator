@@ -83,12 +83,12 @@ public:
 private:
     bool compareEntries(const SourceEntries &sourceEntries) const
     {
-        return set_intersection_compare(
+        return !set_intersection_compare(
             m_currentSourceTimeStamps.begin(),
             m_currentSourceTimeStamps.end(),
             sourceEntries.begin(),
             sourceEntries.end(),
-            [](auto first, auto second) { return second.timeStamp > first.timeStamp; },
+            [](auto first, auto second) { return first.timeStamp > second.timeStamp; },
             [](auto first, auto second) { return first.sourceId < second.sourceId; });
     }
 
