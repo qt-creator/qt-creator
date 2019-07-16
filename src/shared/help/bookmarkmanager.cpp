@@ -95,7 +95,8 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
             &QStandardItemModel::itemChanged,
             this, &BookmarkDialog::itemChanged);
 
-    connect(ui.bookmarkFolders, &QComboBox::currentTextChanged,
+    connect(ui.bookmarkFolders,
+            QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
             this, &BookmarkDialog::selectBookmarkFolder);
 
     connect(ui.treeView, &TreeView::customContextMenuRequested,

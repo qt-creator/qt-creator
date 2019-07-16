@@ -230,7 +230,8 @@ NewDialog::NewDialog(QWidget *parent) :
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &NewDialog::accept);
     connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &NewDialog::reject);
 
-    connect(m_ui->comboBox, &QComboBox::currentTextChanged,
+    connect(m_ui->comboBox,
+            QOverload<const QString &>::of(&QComboBox::currentIndexChanged),
             this, &NewDialog::setSelectedPlatform);
 }
 
