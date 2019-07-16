@@ -44,16 +44,18 @@ void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
 {
     QMutexLocker locker(&m_pendingDocumentsMutex);
 
-    int i = 0, ei = m_pendingDocuments.size();
-    for (; i < ei; ++i) {
+    bool isPending = false;
+    for (int i = 0, ei = m_pendingDocuments.size(); i < ei; ++i) {
         const CPlusPlus::Document::Ptr &doc = m_pendingDocuments.at(i);
-        if (doc->fileName() == document->fileName() && doc->revision() <= document->revision()) {
-            m_pendingDocuments[i] = document;
+        if (doc->fileName() == document->fileName()) {
+            isPending = true;
+            if (document->revision() >= doc->revision())
+                m_pendingDocuments[i] = document;
             break;
         }
     }
 
-    if (i == ei && QFileInfo(document->fileName()).suffix() != "moc")
+    if (!isPending && QFileInfo(document->fileName()).suffix() != "moc")
         m_pendingDocuments.append(document);
 
     flushPendingDocument(false);
