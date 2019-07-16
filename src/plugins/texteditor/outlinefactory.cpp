@@ -30,6 +30,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <utils/utilsicons.h>
+#include <utils/qtcassert.h>
 
 #include <QToolButton>
 #include <QLabel>
@@ -40,6 +41,7 @@
 namespace TextEditor {
 
 static QList<IOutlineWidgetFactory *> g_outlineWidgetFactories;
+static QPointer<Internal::OutlineFactory> g_outlineFactory;
 
 IOutlineWidgetFactory::IOutlineWidgetFactory()
 {
@@ -49,6 +51,12 @@ IOutlineWidgetFactory::IOutlineWidgetFactory()
 IOutlineWidgetFactory::~IOutlineWidgetFactory()
 {
     g_outlineWidgetFactories.removeOne(this);
+}
+
+void IOutlineWidgetFactory::updateOutline()
+{
+    if (QTC_GUARD(!g_outlineFactory.isNull()))
+        emit g_outlineFactory->updateOutline();
 }
 
 namespace Internal {
@@ -88,8 +96,10 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_filterButton->setMenu(m_filterMenu);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
+            this, &OutlineWidgetStack::updateEditor);
+    connect(factory, &OutlineFactory::updateOutline,
             this, &OutlineWidgetStack::updateCurrentEditor);
-    updateCurrentEditor(Core::EditorManager::currentEditor());
+    updateCurrentEditor();
 }
 
 OutlineWidgetStack::~OutlineWidgetStack() = default;
@@ -159,7 +169,12 @@ void OutlineWidgetStack::updateFilterMenu()
     m_filterButton->setVisible(!m_filterMenu->actions().isEmpty());
 }
 
-void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
+void OutlineWidgetStack::updateCurrentEditor()
+{
+    updateEditor(Core::EditorManager::currentEditor());
+}
+
+void OutlineWidgetStack::updateEditor(Core::IEditor *editor)
 {
     IOutlineWidget *newWidget = nullptr;
 
@@ -195,6 +210,8 @@ void OutlineWidgetStack::updateCurrentEditor(Core::IEditor *editor)
 
 OutlineFactory::OutlineFactory()
 {
+    QTC_CHECK(g_outlineFactory.isNull());
+    g_outlineFactory = this;
     setDisplayName(tr("Outline"));
     setId("Outline");
     setPriority(600);

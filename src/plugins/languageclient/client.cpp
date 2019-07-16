@@ -43,6 +43,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
+#include <texteditor/ioutlinewidget.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
@@ -1138,6 +1139,10 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
     for (Core::IEditor *editor : Core::DocumentModel::editorsForOpenedDocuments()) {
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
             textEditor->editorWidget()->addHoverHandler(&m_hoverHandler);
+    }
+    if (m_dynamicCapabilities.isRegistered(DocumentSymbolsRequest::methodName)
+            .value_or(capabilities().documentSymbolProvider().value_or(false))) {
+        TextEditor::IOutlineWidgetFactory::updateOutline();
     }
     emit initialized(m_serverCapabilities);
 }

@@ -56,6 +56,8 @@ public:
 
     virtual bool supportsEditor(Core::IEditor *editor) const = 0;
     virtual IOutlineWidget *createWidget(Core::IEditor *editor) = 0;
+
+    static void updateOutline();
 };
 
 } // namespace TextEditor

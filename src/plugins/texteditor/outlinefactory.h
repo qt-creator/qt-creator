@@ -55,7 +55,8 @@ private:
     QWidget *dummyWidget() const;
     void updateFilterMenu();
     void toggleCursorSynchronization();
-    void updateCurrentEditor(Core::IEditor *editor);
+    void updateEditor(Core::IEditor *editor);
+    void updateCurrentEditor();
 
     QStackedWidget *m_widgetStack;
     OutlineFactory *m_factory;
@@ -76,6 +77,9 @@ public:
     Core::NavigationView createWidget() override;
     void saveSettings(QSettings *settings, int position, QWidget *widget) override;
     void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
+
+signals:
+    void updateOutline();
 };
 
 } // namespace Internal
