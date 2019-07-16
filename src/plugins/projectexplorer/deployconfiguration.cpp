@@ -223,7 +223,10 @@ DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Q
     if (!dc->fromMap(map)) {
         delete dc;
         dc = nullptr;
+    } else if (factory->postRestore()) {
+        factory->postRestore()(dc, map);
     }
+
     return dc;
 }
 

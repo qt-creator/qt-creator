@@ -155,6 +155,18 @@ public:
     static QVariant process(const QVariant &entry);
 };
 
+// Version 21 adds a "make install" step to an existing RemoteLinux deploy configuration
+// if and only if such a step would be added when creating a new one.
+// See QTCREATORBUG-22689.
+class UserFileVersion21Upgrader : public VersionUpgrader
+{
+public:
+    UserFileVersion21Upgrader() : VersionUpgrader(21, "4.10-pre1") { }
+    QVariantMap upgrade(const QVariantMap &map) final;
+
+    static QVariant process(const QVariant &entry);
+};
+
 } // namespace
 
 //
@@ -315,6 +327,7 @@ UserFileAccessor::UserFileAccessor(Project *project) :
     addVersionUpgrader(std::make_unique<UserFileVersion18Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion19Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion20Upgrader>());
+    addVersionUpgrader(std::make_unique<UserFileVersion21Upgrader>());
 }
 
 Project *UserFileAccessor::project() const
@@ -850,6 +863,33 @@ QVariant UserFileVersion20Upgrader::process(const QVariant &entry)
                     res.second = UserFileVersion20Upgrader::process(item.second);
                 return res;
             });
+    default:
+        return entry;
+    }
+}
+
+QVariantMap UserFileVersion21Upgrader::upgrade(const QVariantMap &map)
+{
+    return process(map).toMap();
+}
+
+QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
+{
+    switch (entry.type()) {
+    case QVariant::List:
+        return Utils::transform(entry.toList(), &UserFileVersion21Upgrader::process);
+    case QVariant::Map: {
+        QVariantMap entryMap = entry.toMap();
+        if (entryMap.value("ProjectExplorer.ProjectConfiguration.Id").toString()
+                == "DeployToGenericLinux") {
+            entryMap.insert("_checkMakeInstall", true);
+            return entryMap;
+        }
+        return Utils::transform<QVariantMap>(
+            entryMap.toStdMap(), [](const std::pair<const QString, QVariant> &item) {
+                return qMakePair(item.first, UserFileVersion21Upgrader::process(item.second));
+            });
+    }
     default:
         return entry;
     }
