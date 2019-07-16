@@ -784,28 +784,22 @@ void MimeXMLProvider::ensureLoaded()
 {
     if (!m_loaded /*|| shouldCheck()*/) {
         m_loaded = true;
-//        bool fdoXmlFound = false;
-        QStringList allFiles;
+        QStringList allFiles = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation,
+                                                         QStringLiteral("mime/packages/freedesktop.org.xml"),
+                                                         QStandardPaths::LocateFile);
 
-//        const QStringList packageDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime/packages"), QStandardPaths::LocateDirectory);
-//        //qDebug() << "packageDirs=" << packageDirs;
-//        for (const QString &packageDir : packageDirs) {
-//            QDir dir(packageDir);
-//            const QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-//            //qDebug() << static_cast<const void *>(this) << packageDir << files;
-//            if (!fdoXmlFound)
-//                fdoXmlFound = files.contains(QLatin1String("freedesktop.org.xml"));
-//            QStringList::const_iterator endIt(files.constEnd());
-//            for (QStringList::const_iterator it(files.constBegin()); it != endIt; ++it) {
-//                allFiles.append(packageDir + QLatin1Char('/') + *it);
-//            }
-//        }
-
-//        if (!fdoXmlFound) {
-//            // We could instead install the file as part of installing Qt?
-              const char freedesktopOrgXml[] = ":/qt-project.org/qmime/packages/freedesktop.org.xml";
-            allFiles.prepend(QLatin1String(freedesktopOrgXml));
-//        }
+        if (allFiles.isEmpty()) {
+            // System freedesktop.org.xml file not found, try to use the one in QtCore.
+            // This is private API and has changed in the past:
+            // - Qt 5.11 added "package" subdir in 7a5644d6481a3c1a7416772998ca4e60c977bfbd
+            // - Qt 5.13 added an option to not bundle it at all
+            const QString fdoXml5_11 = QStringLiteral(":/qt-project.org/qmime/packages/freedesktop.org.xml");
+            if (QFile::exists(fdoXml5_11))
+                allFiles << fdoXml5_11;
+            else
+                qFatal("Utils::MimeXMLProvider: could not find the system freedesktop.org.xml file "
+                       "and QtCore does not have an accessible copy.");
+        }
 
         m_nameMimeTypeMap.clear();
         m_aliases.clear();
