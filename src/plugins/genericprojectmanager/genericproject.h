@@ -26,6 +26,7 @@
 #pragma once
 
 #include <projectexplorer/project.h>
+#include <utils/fileutils.h>
 
 namespace CppTools { class CppProjectUpdater; }
 namespace Utils { class FileSystemWatcher; }
@@ -45,6 +46,8 @@ public:
     bool removeFiles(const QStringList &filePaths);
     bool setFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
+
+    Utils::FilePath filesFilePath() const { return Utils::FilePath::fromString(m_filesFileName); }
 
     enum RefreshOptions {
         Files         = 0x01,
