@@ -55,7 +55,7 @@ class KitAspectWidget;
 class KitManager;
 
 namespace Internal {
-class KitModel;
+class KitManagerConfigWidget;
 } // namespace Internal
 
 /**
@@ -220,7 +220,7 @@ private:
 
     friend class ProjectExplorerPlugin; // for constructor
     friend class Kit;
-    friend class Internal::KitModel;
+    friend class Internal::KitManagerConfigWidget;
     friend class KitAspect; // for notifyAboutUpdate and self-registration
 };
 
