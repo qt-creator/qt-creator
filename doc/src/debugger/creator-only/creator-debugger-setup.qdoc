@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -77,10 +77,9 @@
 
     \QC supports native debuggers when working with compiled code. On
     most supported platforms, the GNU Symbolic Debugger GDB can be used. On
-    Microsoft Windows, when using the Microsoft tool chain the Microsoft Console
-    Debugger CDB, is needed. On \macos, the LLDB debugger can be used. Basic
-    support for LLDB is also available on Linux, but it is restricted by LLDB's
-    capabilities there, and considered experimental.
+    Microsoft Windows, when using the Microsoft tool chain, the Microsoft
+    Console Debugger CDB is needed. On \macos and Linux, the LLDB debugger
+    can be used.
 
     The following table summarizes the support for debugging C++ code:
 
@@ -92,7 +91,7 @@
         \row
             \li Linux
             \li GCC, ICC
-            \li GDB, LLDB (experimental)
+            \li GDB, LLDB
         \row
             \li Unix
             \li GCC, ICC
@@ -340,29 +339,4 @@
             of the project.
 
     \endlist
-
-    \section1 Setting Up Experimental LLDB Support
-
-    To use the experimental interface to LLDB, you must set up a kit that uses
-    the LLDB engine and select the kit for your project:
-
-    \list 1
-
-        \li Select \uicontrol Tools > \uicontrol Options >
-            \uicontrol Kits.
-
-        \li Select an automatically created kit in the list, and then select
-            \uicontrol Clone to create a copy of the kit.
-
-        \li In the \uicontrol Debugger field, select an LLDB Engine. If an LLDB
-            Engine is not listed, select \uicontrol Manage to add it in
-            \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
-            \uicontrol Debuggers. For more information, see
-            \l {Adding Debuggers}.
-
-        \li To use the debugger, add the kit in the \uicontrol {Build Settings}
-            of the project.
-
-    \endlist
-
 */
