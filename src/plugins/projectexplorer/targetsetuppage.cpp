@@ -274,7 +274,6 @@ void TargetSetupPage::setupWidgets(const QString &filterText)
     m_importWidget->setCurrentDirectory(Internal::importDirectory(m_projectPath));
 
     updateVisibility();
-    selectAtLeastOneKit();
 }
 
 void TargetSetupPage::reset()
@@ -473,6 +472,7 @@ void TargetSetupPage::kitFilterChanged(const QString &filterText)
     // Reset currently shown kits
     reset();
     setupWidgets(filterText);
+    selectAtLeastOneKit();
 }
 
 void TargetSetupPage::changeAllKitsSelections()
