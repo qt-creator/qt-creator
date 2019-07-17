@@ -2626,8 +2626,8 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 && rp.cppEngineType == CdbEngineType
                 && rp.startMode != AttachToRemoteServer) {
             QTC_ASSERT(!rp.symbolFile.isEmpty(), return);
-            if (!rp.symbolFile.toString().endsWith(".exe", Qt::CaseInsensitive))
-                rp.symbolFile = FileName::fromString(rp.symbolFile.toString() + ".exe");
+            if (!rp.symbolFile.exists() && !rp.symbolFile.endsWith(".exe"))
+                rp.symbolFile = rp.symbolFile.stringAppended(".exe");
             QString errorMessage;
             QStringList rc;
             if (getPDBFiles(rp.symbolFile.toString(), &rc, &errorMessage) && !rc.isEmpty())
