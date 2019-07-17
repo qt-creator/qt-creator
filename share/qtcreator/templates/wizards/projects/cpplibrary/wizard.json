@@ -59,7 +59,7 @@
                         "items":
                         [
                             {
-                                "trKey": "Qmake",
+                                "trKey": "qmake",
                                 "value": "qmake",
                                 "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
                             },
