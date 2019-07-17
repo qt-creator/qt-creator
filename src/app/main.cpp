@@ -120,15 +120,15 @@ static inline QString toHtml(const QString &t)
 
 static void displayHelpText(const QString &t)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
-        QMessageBox::information(0, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), toHtml(t));
+    if (Utils::HostOsInfo::isWindowsHost() && qApp)
+        QMessageBox::information(nullptr, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), toHtml(t));
     else
         qWarning("%s", qPrintable(t));
 }
 
 static void displayError(const QString &t)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (Utils::HostOsInfo::isWindowsHost() && qApp)
         QMessageBox::critical(0, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), t);
     else
         qCritical("%s", qPrintable(t));
