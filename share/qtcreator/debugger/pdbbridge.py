@@ -26,19 +26,19 @@
 import os
 import re
 import sys
-import dis
 import code
-import glob
 import base64
+import linecache
 import signal
 import string
 import inspect
 import traceback
-import linecache
 import fnmatch
+
 
 class QuitException(Exception):
     pass
+
 
 class QtcInternalBreakpoint:
     """Breakpoint class.
@@ -55,11 +55,11 @@ class QtcInternalBreakpoint:
                 # index 0 is unused, except for marking an
                 # effective break .... see effective()
 
-    def __init__(self, file, line, temporary=False, cond=None, funcname=None):
+    def __init__(self, filepath, line, temporary=False, cond=None, funcname=None):
         self.funcname = funcname
         # Needed if funcname is not None.
         self.func_first_executable_line = None
-        self.file = file    # This better be in canonical form!
+        self.file = filepath    # This better be in canonical form!
         self.line = line
         self.temporary = temporary
         self.cond = cond
@@ -70,10 +70,10 @@ class QtcInternalBreakpoint:
         QtcInternalBreakpoint.next += 1
         # Build the two lists
         self.bpbynumber.append(self)
-        if (file, line) in self.bplist:
-            self.bplist[file, line].append(self)
+        if (filepath, line) in self.bplist:
+            self.bplist[filepath, line].append(self)
         else:
-            self.bplist[file, line] = [self]
+            self.bplist[filepath, line] = [self]
 
     def deleteMe(self):
         index = (self.file, self.line)
@@ -119,9 +119,10 @@ def checkfuncname(b, frame):
         return False
     return True
 
+
 # Determines if there is an effective (active) breakpoint at this
 # line of code. Returns breakpoint number or 0 if none
-def effective(file, line, frame):
+def effective(filename, line, frame):
     """Determine which breakpoint for this file:line is to be acted upon.
 
     Called only if we know there is a bpt at this
@@ -129,7 +130,7 @@ def effective(file, line, frame):
     that indicates if it is ok to delete a temporary bp.
 
     """
-    possibles = QtcInternalBreakpoint.bplist[file, line]
+    possibles = QtcInternalBreakpoint.bplist[filename, line]
     for b in possibles:
         if not b.enabled:
             continue
@@ -167,8 +168,8 @@ def effective(file, line, frame):
     return (None, None)
 
 
+# __all__ = ['QtcInternalDumper']
 
-#__all__ = ['QtcInternalDumper']
 
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % re.escape(funcname))
@@ -183,10 +184,13 @@ def find_function(funcname, filename):
                 return funcname, filename, lineno
     return None
 
+
 class _rstr(str):
     """String that doesn't quote its repr."""
+
     def __repr__(self):
         return self
+
 
 class QtcInternalDumper:
     identchars = string.ascii_letters + string.digits + '_'
@@ -194,7 +198,7 @@ class QtcInternalDumper:
     use_rawinput = 1
 
     def __init__(self, stdin=None, stdout=None):
-        self.skip = None
+        self.skip = []
         self.breaks = {}
         self.fncache = {}
         self.frame_returning = None
@@ -226,21 +230,47 @@ class QtcInternalDumper:
         self.allow_kbdint = False
         self.nosigint = nosigint
 
-        self.commands = {} # associates a command list to breakpoint numbers
+        self.commands = {}  # associates a command list to breakpoint numbers
+        self.botframe = None
+        self.currentbp = -1
+        self.stopframe = None
+        self.returnframe = None
+        self.quitting = False
+        self.stoplineno = 0
+        self.mainpyfile = ''
+        self._user_requested_quit = False
+        self.stack = []
+        self.curindex = 0
+        self.curframe = None
+        self.curframe_locals = {}
+        self.typeformats = {}
+        self.formats = {}
+        self.output = ''
+        self.expandedINames = []
 
     # Hex decoding operating on str, return str.
-    def hexdecode(self, s):
+    @staticmethod
+    def hexdecode(s):
         if sys.version_info[0] == 2:
             return s.decode('hex')
         return bytes.fromhex(s).decode('utf8')
 
     # Hex encoding operating on str or bytes, return str.
-    def hexencode(self, s):
+    @staticmethod
+    def hexencode(s):
         if sys.version_info[0] == 2:
             return s.encode('hex')
         if isinstance(s, str):
             s = s.encode('utf8')
         return base64.b16encode(s).decode('utf8')
+
+    @staticmethod
+    def cleanAddress(addr):
+        if addr is None:
+            return '<no address>'
+        h = hex(addr)
+        return '0x%x' % (int(h, 16) if sys.version_info[0] >= 3 else long(h, 16))
+
     def canonic(self, filename):
         if filename == '<' + filename[1:-1] + '>':
             return filename
@@ -252,7 +282,6 @@ class QtcInternalDumper:
         return canonic
 
     def reset(self):
-        import linecache
         linecache.checkcache()
         self.botframe = None
         self._set_stopinfo(None, None)
@@ -260,7 +289,7 @@ class QtcInternalDumper:
 
     def trace_dispatch(self, frame, event, arg):
         if self.quitting:
-            return # None
+            return None
         if event == 'line':
             return self.dispatch_line(frame)
         if event == 'call':
@@ -281,22 +310,24 @@ class QtcInternalDumper:
     def dispatch_line(self, frame):
         if self.stop_here(frame) or self.break_here(frame):
             self.user_line(frame)
-            if self.quitting: raise QuitException
+            if self.quitting:
+                raise QuitException
         return self.trace_dispatch
 
     def dispatch_call(self, frame):
         if self.botframe is None:
             # First call of dispatch since reset()
-            self.botframe = frame.f_back # (CT) Note that this may also be None!
+            self.botframe = frame.f_back  # (CT) Note that this may also be None!
             return self.trace_dispatch
         if not (self.stop_here(frame) or self.break_anywhere(frame)):
             # No need to trace this function
-            return # None
+            return None
         # Ignore call events in generator except when stepping.
         if self.stopframe and frame.f_code.co_flags & inspect.CO_GENERATOR:
             return self.trace_dispatch
         self.user_call(frame)
-        if self.quitting: raise QuitException
+        if self.quitting:
+            raise QuitException
         return self.trace_dispatch
 
     def dispatch_return(self, frame, arg):
@@ -309,7 +340,8 @@ class QtcInternalDumper:
                 self.user_return(frame, arg)
             finally:
                 self.frame_returning = None
-            if self.quitting: raise QuitException
+            if self.quitting:
+                raise QuitException
             # The user issued a 'next' or 'until' command.
             if self.stopframe is frame and self.stoplineno != -1:
                 self._set_stopinfo(None, None)
@@ -323,16 +355,18 @@ class QtcInternalDumper:
             if not (frame.f_code.co_flags & inspect.CO_GENERATOR
                     and arg[0] is StopIteration and arg[2] is None):
                 self.user_exception(frame, arg)
-                if self.quitting: raise QuitException
+                if self.quitting:
+                    raise QuitException
         # Stop at the StopIteration or GeneratorExit exception when the user
         # has set stopframe in a generator by issuing a return command, or a
         # next/until command at the last statement in the generator before the
         # exception.
         elif (self.stopframe and frame is not self.stopframe
-                and self.stopframe.f_code.co_flags & inspect.CO_GENERATOR
-                and arg[0] in (StopIteration, GeneratorExit)):
+              and self.stopframe.f_code.co_flags & inspect.CO_GENERATOR
+              and arg[0] in (StopIteration, GeneratorExit)):
             self.user_exception(frame, arg)
-            if self.quitting: raise QuitException
+            if self.quitting:
+                raise QuitException
 
         return self.trace_dispatch
 
@@ -450,14 +484,14 @@ class QtcInternalDumper:
     def set_break(self, filename, lineno, temporary=False, cond=None,
                   funcname=None):
         filename = self.canonic(filename)
-        import linecache # Import as late as possible
         line = linecache.getline(filename, lineno)
         if not line:
             return 'Line %s:%d does not exist' % (filename, lineno)
-        list = self.breaks.setdefault(filename, [])
-        if lineno not in list:
-            list.append(lineno)
-        bp = QtcInternalBreakpoint(filename, lineno, temporary, cond, funcname)
+        lines = self.breaks.setdefault(filename, [])
+        if lineno not in lines:
+            lines.append(lineno)
+        QtcInternalBreakpoint(filename, lineno, temporary, cond, funcname)
+        return None
 
     def _prune_breaks(self, filename, lineno):
         if (filename, lineno) not in QtcInternalBreakpoint.bplist:
@@ -476,6 +510,7 @@ class QtcInternalDumper:
         for bp in QtcInternalBreakpoint.bplist[filename, lineno][:]:
             bp.deleteMe()
         self._prune_breaks(filename, lineno)
+        return None
 
     def clear_bpbynumber(self, arg):
         try:
@@ -484,11 +519,12 @@ class QtcInternalDumper:
             return str(err)
         bp.deleteMe()
         self._prune_breaks(bp.file, bp.line)
+        return None
 
     def clear_all_file_breaks(self, filename):
         filename = self.canonic(filename)
         if filename not in self.breaks:
-            return 'There are no breakpoints in %s' % filename
+            return
         for line in self.breaks[filename]:
             blist = QtcInternalBreakpoint.bplist[filename, line]
             for bp in blist:
@@ -497,13 +533,14 @@ class QtcInternalDumper:
 
     def clear_all_breaks(self):
         if not self.breaks:
-            return 'There are no breakpoints'
+            return
         for bp in QtcInternalBreakpoint.bpbynumber:
             if bp:
                 bp.deleteMe()
         self.breaks = {}
 
-    def get_bpbynumber(self, arg):
+    @staticmethod
+    def get_bpbynumber(arg):
         if not arg:
             raise ValueError('Breakpoint number expected')
         try:
@@ -525,16 +562,11 @@ class QtcInternalDumper:
 
     def get_breaks(self, filename, lineno):
         filename = self.canonic(filename)
-        return filename in self.breaks and \
-            lineno in self.breaks[filename] and \
-            QtcInternalBreakpoint.bplist[filename, lineno] or []
+        return QtcInternalBreakpoint.bplist.get((filename, lineno), [])
 
     def get_file_breaks(self, filename):
         filename = self.canonic(filename)
-        if filename in self.breaks:
-            return self.breaks[filename]
-        else:
-            return []
+        return self.breaks.get(filename, [])
 
     def get_all_breaks(self):
         return self.breaks
@@ -542,21 +574,21 @@ class QtcInternalDumper:
     # Derived classes and clients can call the following method
     # to get a data structure representing a stack trace.
 
-    def get_stack(self, f, t):
+    def get_stack(self, frame, tb):
         stack = []
-        if t and t.tb_frame is f:
-            t = t.tb_next
-        while f is not None:
-            stack.append((f, f.f_lineno))
-            if f is self.botframe:
+        if tb and tb.tb_frame is frame:
+            tb = tb.tb_next
+        while frame is not None:
+            stack.append((frame, frame.f_lineno))
+            if frame is self.botframe:
                 break
-            f = f.f_back
+            frame = frame.f_back
         stack.reverse()
         i = max(0, len(stack) - 1)
-        while t is not None:
-            stack.append((t.tb_frame, t.tb_lineno))
-            t = t.tb_next
-        if f is None:
+        while tb is not None:
+            stack.append((tb.tb_frame, tb.tb_lineno))
+            tb = tb.tb_next
+        if frame is None:
             i = max(0, len(stack) - 1)
         return stack, i
 
@@ -564,40 +596,39 @@ class QtcInternalDumper:
     # a debugger to debug a statement or an expression.
     # Both can be given as a string, or a code object.
 
-    def run(self, cmd, globals=None, locals=None):
-        if globals is None:
+    def run(self, cmd, pyGlobals=None, pyLocals=None):
+        if pyGlobals is None:
             import __main__
-            globals = __main__.__dict__
-        if locals is None:
-            locals = globals
+            pyGlobals = __main__.__dict__
+        if pyLocals is None:
+            pyLocals = pyGlobals
         self.reset()
         if isinstance(cmd, str):
             cmd = compile(cmd, '<string>', 'exec')
         sys.settrace(self.trace_dispatch)
         try:
-            exec(cmd, globals, locals)
+            exec(cmd, pyGlobals, pyLocals)
         except QuitException:
             pass
         finally:
             self.quitting = True
             sys.settrace(None)
 
-    def runeval(self, expr, globals=None, locals=None):
-        if globals is None:
+    def runeval(self, expr, pyGlobals=None, pyLocals=None):
+        if pyGlobals is None:
             import __main__
-            globals = __main__.__dict__
-        if locals is None:
-            locals = globals
+            pyGlobals = __main__.__dict__
+        if pyLocals is None:
+            pyLocals = pyGlobals
         self.reset()
         sys.settrace(self.trace_dispatch)
         try:
-            return eval(expr, globals, locals)
+            return eval(expr, pyGlobals, pyLocals)
         except QuitException:
             pass
         finally:
             self.quitting = True
             sys.settrace(None)
-
 
     # This method is more useful to debug a single function call.
     def runcall(self, func, *args, **kwds):
@@ -612,7 +643,6 @@ class QtcInternalDumper:
             self.quitting = True
             sys.settrace(None)
         return res
-
 
     def cmdloop(self):
         """Repeatedly accept input, parse an initial prefix
@@ -637,7 +667,7 @@ class QtcInternalDumper:
                         self.stdout.write('')
                         self.stdout.flush()
                         line = self.stdin.readline()
-                        if not len(line):
+                        if not line:
                             line = 'EOF'
                         else:
                             line = line.rstrip('\r\n')
@@ -661,8 +691,9 @@ class QtcInternalDumper:
                 line = 'shell ' + line[1:]
             else:
                 return None, None, line
-        i, n = 0, len(line)
-        while i < n and line[i] in self.identchars: i = i+1
+        i, length = 0, len(line)
+        while i < length and line[i] in self.identchars:
+            i = i+1
         cmd, arg = line[:i], line[i:].strip()
         return cmd, arg, line
 
@@ -680,7 +711,7 @@ class QtcInternalDumper:
         if cmd is None:
             return self.default(line)
         self.lastcmd = line
-        if line == 'EOF' :
+        if line == 'EOF':
             self.lastcmd = ''
         if cmd == '':
             return self.default(line)
@@ -688,11 +719,9 @@ class QtcInternalDumper:
             func = getattr(self, 'do_' + cmd, None)
             if func:
                 return func(arg)
-            else:
-                return self.default(line)
+            return self.default(line)
 
     def runit(self):
-
         print('DIR: %s' % dir())
         if sys.argv[0] == '-c':
             sys.argv = sys.argv[2:]
@@ -711,12 +740,12 @@ class QtcInternalDumper:
                 # So we clear up the __main__ and set several special variables
                 # (this gets rid of pdb's globals and cleans old variables on restarts).
 
-                #import __main__
-                #__main__.__dict__.clear()
-                #__main__.__dict__.update({'__name__'    : '__main__',
-                #                          '__file__'    : mainpyfile,
-                #                          '__builtins__': __builtins__,
-                #                         })
+                # import __main__
+                # __main__.__dict__.clear()
+                # __main__.__dict__.update({'__name__'    : '__main__',
+                #                           '__file__'    : mainpyfile,
+                #                           '__builtins__': __builtins__,
+                #                          })
 
                 # When bdb sets tracing, a number of call and line events happens
                 # BEFORE debugger even reaches user's code (and the exact sequence of
@@ -757,14 +786,13 @@ class QtcInternalDumper:
         signal.signal(signal.SIGINT, self._previous_sigint_handler)
 
     def forget(self):
-        self.lineno = None
         self.stack = []
         self.curindex = 0
         self.curframe = None
 
-    def setup(self, f, tb):
+    def setup(self, frame, tb):
         self.forget()
-        self.stack, self.curindex = self.get_stack(f, tb)
+        self.stack, self.curindex = self.get_stack(frame, tb)
         self.curframe = self.stack[self.curindex][0]
         # The f_locals dictionary is updated from the actual frame
         # locals whenever the .f_locals accessor is called, so we
@@ -784,7 +812,7 @@ class QtcInternalDumper:
         """This function is called when we stop or break at this line."""
         if self._wait_for_mainpyfile:
             if (self.mainpyfile != self.canonic(frame.f_code.co_filename)
-                or frame.f_lineno <= 0):
+                    or frame.f_lineno <= 0):
                 return
             self._wait_for_mainpyfile = False
         if self.bp_commands(frame):
@@ -806,8 +834,8 @@ class QtcInternalDumper:
                 self.onecmd(line)
             self.lastcmd = lastcmd_back
             self.forget()
-            return
-        return 1
+            return False
+        return True
 
     def user_return(self, frame, return_value):
         """This function is called when a return trap is set here."""
@@ -831,13 +859,13 @@ class QtcInternalDumper:
         # actually occurred in this case. The debugger uses this debug event to
         # stop when the debuggee is returning from such generators.
         prefix = 'Internal ' if (not exc_traceback
-                                    and exc_type is StopIteration) else ''
+                                 and exc_type is StopIteration) else ''
         self.message('%s%s' % (prefix,
-            traceback.format_exception_only(exc_type, exc_value)[-1].strip()))
+                               traceback.format_exception_only(exc_type, exc_value)[-1].strip()))
         self.interaction(frame, exc_traceback)
 
-    def interaction(self, frame, traceback):
-        if self.setup(frame, traceback):
+    def interaction(self, frame, tb):
+        if self.setup(frame, tb):
             # no interaction desired at this time (happens if .pdbrc contains
             # a command like 'continue')
             self.forget()
@@ -868,9 +896,10 @@ class QtcInternalDumper:
             self.message(repr(obj))
 
     def default(self, line):
-        if line[:1] == '!': line = line[1:]
-        locals = self.curframe_locals
-        globals = self.curframe.f_globals
+        if line[:1] == '!':
+            line = line[1:]
+        pyLocals = self.curframe_locals
+        pyGlobals = self.curframe.f_globals
         try:
             code = compile(line + '\n', '<stdin>', 'single')
             save_stdout = sys.stdout
@@ -880,7 +909,7 @@ class QtcInternalDumper:
                 sys.stdin = self.stdin
                 sys.stdout = self.stdout
                 sys.displayhook = self.displayhook
-                exec(code, globals, locals)
+                exec(code, pyGlobals, pyLocals)
             finally:
                 sys.stdout = save_stdout
                 sys.stdin = save_stdin
@@ -889,15 +918,16 @@ class QtcInternalDumper:
             exc_info = sys.exc_info()[:2]
             self.error(traceback.format_exception_only(*exc_info)[-1].strip())
 
-    def message(self, msg):
+    @staticmethod
+    def message(msg):
         print(msg)
+
+    @staticmethod
+    def error(msg):
+        # print('***'+ msg)
         pass
 
-    def error(self, msg):
-        #print('***'+ msg)
-        pass
-
-    def do_break(self, arg, temporary = 0):
+    def do_break(self, arg, temporary=0):
         """b(reak) [ ([filename:]lineno | function) [, condition] ]
         Without argument, list all breaks.
 
@@ -961,8 +991,8 @@ class QtcInternalDumper:
                     if hasattr(func, '__func__'):
                         func = func.__func__
                     code = func.__code__
-                    #use co_name to identify the bkpt (function names
-                    #could be aliased, but co_name is invariant)
+                    # use co_name to identify the bkpt (function names
+                    # could be aliased, but co_name is invariant)
                     funcname = code.co_name
                     lineno = code.co_firstlineno
                     filename = code.co_filename
@@ -973,7 +1003,7 @@ class QtcInternalDumper:
                         self.error('The specified object %r is not a function '
                                    'or was not found along sys.path.' % arg)
                         return
-                    funcname = ok # ok contains a function name
+                    funcname = ok  # ok contains a function name
                     lineno = int(ln)
         if not filename:
             filename = self.defaultFile()
@@ -1010,18 +1040,19 @@ class QtcInternalDumper:
         idstring = identifier.split("'")
         if len(idstring) == 1:
             # not in single quotes
-            id = idstring[0].strip()
+            tmp_id = idstring[0].strip()
         elif len(idstring) == 3:
             # quoted
-            id = idstring[1].strip()
+            tmp_id = idstring[1].strip()
         else:
             return failed
-        if id == '': return failed
-        parts = id.split('.')
+        if tmp_id == '':
+            return failed
+        parts = tmp_id.split('.')
         # Protection for derived debuggers
         if parts[0] == 'self':
             del parts[0]
-            if len(parts) == 0:
+            if not parts:
                 return failed
         # Best first guess at file to look at
         fname = self.defaultFile()
@@ -1053,7 +1084,7 @@ class QtcInternalDumper:
         line = line.strip()
         # Don't allow setting breakpoint at a blank line
         if (not line or (line[0] == '#') or
-             (line[:3] == '"""') or line[:3] == "'''"):
+                (line[:3] == '"""') or line[:3] == "'''"):
             self.error('Blank or comment')
             return 0
         return lineno
@@ -1209,11 +1240,11 @@ class QtcInternalDumper:
                 lineno = int(arg)
             except ValueError:
                 self.error('Error in argument: %r' % arg)
-                return
+                return 0
             if lineno <= self.curframe.f_lineno:
                 self.error('"until" line number is smaller than current '
                            'line number')
-                return
+                return 0
         else:
             lineno = None
             lineno = self.curframe.f_lineno + 1
@@ -1287,11 +1318,11 @@ class QtcInternalDumper:
         executed in the current environment).
         """
         sys.settrace(None)
-        globals = self.curframe.f_globals
-        locals = self.curframe_locals
+        pyGlobals = self.curframe.f_globals
+        pyLocals = self.curframe_locals
         p = QtcInternalDumper(self.stdin, self.stdout)
         self.message('ENTERING RECURSIVE DEBUGGER')
-        sys.call_tracing(p.run, (arg, globals, locals))
+        sys.call_tracing(p.run, (arg, pyGlobals, pyLocals))
         self.message('LEAVING RECURSIVE DEBUGGER')
         sys.settrace(self.trace_dispatch)
         self.lastcmd = p.lastcmd
@@ -1318,14 +1349,16 @@ class QtcInternalDumper:
         Print the argument list of the current function.
         """
         co = self.curframe.f_code
-        dict = self.curframe_locals
+        loc = self.curframe_locals
         n = co.co_argcount
-        if co.co_flags & 4: n = n+1
-        if co.co_flags & 8: n = n+1
+        if co.co_flags & 4:
+            n = n + 1
+        if co.co_flags & 8:
+            n = n + 1
         for i in range(n):
             name = co.co_varnames[i]
-            if name in dict:
-                self.message('%s = %r' % (name, dict[name]))
+            if name in loc:
+                self.message('%s = %r' % (name, loc[name]))
             else:
                 self.message('%s = *** undefined ***' % (name,))
 
@@ -1350,8 +1383,7 @@ class QtcInternalDumper:
         try:
             if frame is None:
                 return eval(arg, self.curframe.f_globals, self.curframe_locals)
-            else:
-                return eval(arg, frame.f_globals, frame.f_locals)
+            return eval(arg, frame.f_globals, frame.f_locals)
         except:
             exc_info = sys.exc_info()[:2]
             err = traceback.format_exception_only(*exc_info)[-1].strip()
@@ -1409,9 +1441,9 @@ class QtcInternalDumper:
         if os.path.isabs(filename) and os.path.exists(filename):
             return filename
         f = os.path.join(sys.path[0], filename)
-        if  os.path.exists(f) and self.canonic(f) == self.mainpyfile:
+        if os.path.exists(f) and self.canonic(f) == self.mainpyfile:
             return f
-        root, ext = os.path.splitext(filename)
+        ext = os.path.splitext(filename)[1]
         if ext == '':
             filename = filename + '.py'
         if os.path.isabs(filename):
@@ -1437,9 +1469,8 @@ class QtcInternalDumper:
         if frameNr == -1:
             frameNr = 0
 
-        frame_lineno = self.stack[-1-frameNr]
-        frame, lineno = frame_lineno
-        filename = self.canonic(frame.f_code.co_filename)
+        frame_lineno = self.stack[-1 - frameNr]
+        frame = frame_lineno[0]
 
         self.output += 'data={'
         for var in frame.f_locals.keys():
@@ -1469,7 +1500,7 @@ class QtcInternalDumper:
             except:
                 self.putValue('<unavailable>')
             self.put('}')
-            #self.dumpValue(eval(value), escapedExp, iname)
+            # self.dumpValue(eval(value), escapedExp, iname)
 
         self.output += '}'
         self.output += '{frame="%s"}' % frameNr
@@ -1481,7 +1512,7 @@ class QtcInternalDumper:
         self.output = ''
 
     def put(self, value):
-        #sys.stdout.write(value)
+        # sys.stdout.write(value)
         self.output += value
 
     def putField(self, name, value):
@@ -1490,53 +1521,46 @@ class QtcInternalDumper:
     def putItemCount(self, count):
         self.put('value="<%s items>",numchild="%s",' % (count, count))
 
-    def cleanType(self, type):
-        t = str(type)
+    @staticmethod
+    def cleanType(typename):
+        t = str(typename)
         if t.startswith("<type '") and t.endswith("'>"):
             t = t[7:-2]
         if t.startswith("<class '") and t.endswith("'>"):
             t = t[8:-2]
         return t
 
-    def putType(self, type, priority = 0):
-        self.putField('type', self.cleanType(type))
+    def putType(self, typeName, priority=0):
+        self.putField('type', QtcInternalDumper.cleanType(typeName))
 
     def putNumChild(self, numchild):
         self.put('numchild="%s",' % numchild)
 
-    def putValue(self, value, encoding = None, priority = 0):
+    def putValue(self, value, encoding=None, priority=0):
         self.putField('value', value)
 
     def putName(self, name):
         self.put('name="%s",' % name)
 
     def isExpanded(self, iname):
-        #self.warn('IS EXPANDED: %s in %s' % (iname, self.expandedINames))
+        # self.warn('IS EXPANDED: %s in %s' % (iname, self.expandedINames))
         if iname.startswith('None'):
             raise "Illegal iname '%s'" % iname
-        #self.warn('   --> %s' % (iname in self.expandedINames))
+        # self.warn('   --> %s' % (iname in self.expandedINames))
         return iname in self.expandedINames
 
     def isExpandedIName(self, iname):
         return iname in self.expandedINames
 
     def itemFormat(self, item):
-        format = self.formats.get(str(cleanAddress(item.value.address)))
-        if format is None:
-            format = self.typeformats.get(str(item.value.type))
-        return format
-
-    # Hex encoding operating on str or bytes, return str.
-    def hexencode(self, s):
-        if sys.version_info[0] == 2:
-            return s.encode('hex')
-        if isinstance(s, str):
-            s = s.encode('utf8')
-        return base64.b16encode(s).decode('utf8')
+        form = self.formats.get(str(QtcInternalDumper.cleanAddress(item.value.address)))
+        if form is None:
+            form = self.typeformats.get(str(item.value.type))
+        return form
 
     def dumpValue(self, value, name, iname):
         t = type(value)
-        tt = self.cleanType(t)
+        tt = QtcInternalDumper.cleanType(t)
         if tt == 'module' or tt == 'function':
             return
         if str(value).startswith("<class '"):
@@ -1554,10 +1578,10 @@ class QtcInternalDumper:
         elif tt == 'list' or tt == 'tuple':
             self.putType(tt)
             self.putItemCount(len(value))
-            #self.putValue(value)
+            # self.putValue(value)
             self.put('children=[')
-            for i in range(len(value)):
-                self.dumpValue(value[i], str(i), '%s.%d' % (iname, i))
+            for i, val in enumerate(value):
+                self.dumpValue(val, str(i), '%s.%d' % (iname, i))
             self.put(']')
         elif tt == 'str':
             v = value
@@ -1645,12 +1669,11 @@ class QtcInternalDumper:
                 self.put('],')
         self.put('},')
 
-
     def warn(self, msg):
         self.putField('warning', msg)
 
     def listModules(self, args):
-        self.put('modules=[');
+        self.put('modules=[')
         for name in sys.modules:
             self.put('{')
             self.putName(name)
@@ -1663,19 +1686,19 @@ class QtcInternalDumper:
         moduleName = args['module']
         module = sys.modules.get(moduleName, None)
         self.put("symbols={module='%s',symbols='%s'}"
-                % (module, dir(module) if module else []))
+                 % (module, dir(module) if module else []))
         self.flushOutput()
 
     def assignValue(self, args):
         exp = args['expression']
         value = args['value']
-        cmd = '%s=%s' % (exp, exp, value)
+        cmd = '%s=%s' % (exp, value)
         eval(cmd, {})
         self.put('CMD: "%s"' % cmd)
         self.flushOutput()
 
     def stackListFrames(self, args):
-        #result = 'stack={current-thread="%s"' % thread.GetThreadID()
+        # result = 'stack={current-thread="%s"' % thread.GetThreadID()
         result = 'stack={current-thread="%s"' % 1
 
         result += ',frames=['
@@ -1696,12 +1719,13 @@ class QtcInternalDumper:
             pass
         result += ']'
 
-        #result += ',hasmore="%d"' % isLimited
-        #result += ',limit="%d"' % limit
+        # result += ',hasmore="%d"' % isLimited
+        # result += ',limit="%d"' % limit
         result += '}'
         self.report(result)
 
-    def report(self, stuff):
+    @staticmethod
+    def report(stuff):
         sys.stdout.write('@\n' + stuff + '@\n')
         sys.stdout.flush()
 
@@ -1710,6 +1734,7 @@ def qdebug(cmd, args):
     global __the_dumper__
     method = getattr(__the_dumper__, cmd)
     method(args)
+
 
 __the_dumper__ = QtcInternalDumper()
 __the_dumper__.runit()
