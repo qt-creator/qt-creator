@@ -40,7 +40,7 @@ import fnmatch
 class QuitException(Exception):
     pass
 
-class Breakpoint:
+class QtcInternalBreakpoint:
     """Breakpoint class.
     Breakpoints are indexed by number through bpbynumber and by
     the file,line tuple using bplist. The former points to a
@@ -66,8 +66,8 @@ class Breakpoint:
         self.enabled = True
         self.ignore = 0
         self.hits = 0
-        self.number = Breakpoint.next
-        Breakpoint.next += 1
+        self.number = QtcInternalBreakpoint.next
+        QtcInternalBreakpoint.next += 1
         # Build the two lists
         self.bpbynumber.append(self)
         if (file, line) in self.bplist:
@@ -129,7 +129,7 @@ def effective(file, line, frame):
     that indicates if it is ok to delete a temporary bp.
 
     """
-    possibles = Breakpoint.bplist[file, line]
+    possibles = QtcInternalBreakpoint.bplist[file, line]
     for b in possibles:
         if not b.enabled:
             continue
@@ -168,7 +168,7 @@ def effective(file, line, frame):
 
 
 
-#__all__ = ['Dumper']
+#__all__ = ['QtcInternalDumper']
 
 def find_function(funcname, filename):
     cre = re.compile(r'def\s+%s\s*[(]' % re.escape(funcname))
@@ -188,7 +188,7 @@ class _rstr(str):
     def __repr__(self):
         return self
 
-class Dumper:
+class QtcInternalDumper:
     identchars = string.ascii_letters + string.digits + '_'
     lastcmd = ''
     use_rawinput = 1
@@ -457,10 +457,10 @@ class Dumper:
         list = self.breaks.setdefault(filename, [])
         if lineno not in list:
             list.append(lineno)
-        bp = Breakpoint(filename, lineno, temporary, cond, funcname)
+        bp = QtcInternalBreakpoint(filename, lineno, temporary, cond, funcname)
 
     def _prune_breaks(self, filename, lineno):
-        if (filename, lineno) not in Breakpoint.bplist:
+        if (filename, lineno) not in QtcInternalBreakpoint.bplist:
             self.breaks[filename].remove(lineno)
         if not self.breaks[filename]:
             del self.breaks[filename]
@@ -473,7 +473,7 @@ class Dumper:
             return 'There is no breakpoint at %s:%d' % (filename, lineno)
         # If there's only one bp in the list for that file,line
         # pair, then remove the breaks entry
-        for bp in Breakpoint.bplist[filename, lineno][:]:
+        for bp in QtcInternalBreakpoint.bplist[filename, lineno][:]:
             bp.deleteMe()
         self._prune_breaks(filename, lineno)
 
@@ -490,7 +490,7 @@ class Dumper:
         if filename not in self.breaks:
             return 'There are no breakpoints in %s' % filename
         for line in self.breaks[filename]:
-            blist = Breakpoint.bplist[filename, line]
+            blist = QtcInternalBreakpoint.bplist[filename, line]
             for bp in blist:
                 bp.deleteMe()
         del self.breaks[filename]
@@ -498,7 +498,7 @@ class Dumper:
     def clear_all_breaks(self):
         if not self.breaks:
             return 'There are no breakpoints'
-        for bp in Breakpoint.bpbynumber:
+        for bp in QtcInternalBreakpoint.bpbynumber:
             if bp:
                 bp.deleteMe()
         self.breaks = {}
@@ -511,7 +511,7 @@ class Dumper:
         except ValueError:
             raise ValueError('Non-numeric breakpoint number %s' % arg)
         try:
-            bp = Breakpoint.bpbynumber[number]
+            bp = QtcInternalBreakpoint.bpbynumber[number]
         except IndexError:
             raise ValueError('Breakpoint number %d out of range' % number)
         if bp is None:
@@ -527,7 +527,7 @@ class Dumper:
         filename = self.canonic(filename)
         return filename in self.breaks and \
             lineno in self.breaks[filename] and \
-            Breakpoint.bplist[filename, lineno] or []
+            QtcInternalBreakpoint.bplist[filename, lineno] or []
 
     def get_file_breaks(self, filename):
         filename = self.canonic(filename)
@@ -915,7 +915,7 @@ class Dumper:
         if not arg:
             if self.breaks:  # There's at least one
                 self.message('Num Type         Disp Enb   Where')
-                for bp in Breakpoint.bpbynumber:
+                for bp in QtcInternalBreakpoint.bpbynumber:
                     if bp:
                         self.message(bp.bpformat())
             return
@@ -1163,7 +1163,7 @@ class Dumper:
                 reply = 'no'
             reply = reply.strip().lower()
             if reply in ('y', 'yes'):
-                bplist = [bp for bp in Breakpoint.bpbynumber if bp]
+                bplist = [bp for bp in QtcInternalBreakpoint.bpbynumber if bp]
                 self.clear_all_breaks()
                 for bp in bplist:
                     self.message('Deleted %s' % bp)
@@ -1289,7 +1289,7 @@ class Dumper:
         sys.settrace(None)
         globals = self.curframe.f_globals
         locals = self.curframe_locals
-        p = Dumper(self.stdin, self.stdout)
+        p = QtcInternalDumper(self.stdin, self.stdout)
         self.message('ENTERING RECURSIVE DEBUGGER')
         sys.call_tracing(p.run, (arg, globals, locals))
         self.message('LEAVING RECURSIVE DEBUGGER')
@@ -1444,7 +1444,8 @@ class Dumper:
         self.output += 'data={'
         for var in frame.f_locals.keys():
             if var in ('__file__', '__name__', '__package__', '__spec__',
-                       '__doc__', '__loader__', '__cached__', '__the_dumper__'):
+                       '__doc__', '__loader__', '__cached__', '__the_dumper__',
+                       '__annotations__', 'QtcInternalBreakpoint', 'QtcInternalDumper'):
                 continue
             value = frame.f_locals[var]
             # this applies only for anonymous arguments
@@ -1710,5 +1711,5 @@ def qdebug(cmd, args):
     method = getattr(__the_dumper__, cmd)
     method(args)
 
-__the_dumper__=Dumper()
+__the_dumper__ = QtcInternalDumper()
 __the_dumper__.runit()
