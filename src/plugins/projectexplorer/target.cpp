@@ -118,6 +118,12 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
 {
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
+    connect(project, &Project::parsingFinished, this, [this](bool success) {
+        if (success && this->project() == SessionManager::startupProject()
+                && this == this->project()->activeTarget()) {
+            updateDefaultRunConfigurations();
+        }
+    }, Qt::QueuedConnection); // Must wait for run configs to change their enabled state.
 
     setDisplayName(d->m_kit->displayName());
     setToolTip(d->m_kit->toHtml());

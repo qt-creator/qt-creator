@@ -131,7 +131,6 @@ private:
     void setAllBuildConfigurationsEnabled(bool enabled);
 
     QString executableFor(const QmakeProFile *file);
-    void updateRunConfigurations();
 
     void updateCppCodeModel();
     void updateQmlJSCodeModel();

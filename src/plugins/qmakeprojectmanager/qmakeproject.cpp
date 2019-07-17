@@ -348,12 +348,6 @@ void QmakeProject::updateQmlJSCodeModel()
     modelManager->updateProjectInfo(projectInfo, this);
 }
 
-void QmakeProject::updateRunConfigurations()
-{
-    if (activeTarget())
-        activeTarget()->updateDefaultRunConfigurations();
-}
-
 void QmakeProject::scheduleAsyncUpdate(QmakeProFile *file, QmakeProFile::AsyncUpdateDelay delay)
 {
     if (m_asyncUpdateState == ShuttingDown)
@@ -492,7 +486,6 @@ void QmakeProject::decrementPendingEvaluateFutures()
             updateBuildSystemData();
             if (activeTarget())
                 activeTarget()->updateDefaultDeployConfigurations();
-            updateRunConfigurations();
             emitParsingFinished(true); // Qmake always returns (some) data, even when it failed:-)
         }
     }

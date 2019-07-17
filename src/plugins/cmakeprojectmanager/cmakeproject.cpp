@@ -375,8 +375,6 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
         Target *t = bc->target();
         t->setApplicationTargets(bc->appTargets());
         t->setDeploymentData(bc->deploymentData());
-
-        t->updateDefaultRunConfigurations();
     }
 
     {

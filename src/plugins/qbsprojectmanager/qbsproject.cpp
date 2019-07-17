@@ -1199,8 +1199,6 @@ void QbsProject::updateBuildTargetData()
     OpTimer optimer("updateBuildTargetData");
     updateApplicationTargets();
     updateDeploymentInfo();
-    if (activeTarget())
-        activeTarget()->updateDefaultRunConfigurations();
 }
 
 } // namespace Internal
