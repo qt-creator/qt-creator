@@ -299,45 +299,6 @@
          id="rect3235"
          style="fill:none;stroke:none" />
     </clipPath>
-    <filter
-       id="filter4057"
-       inkscape:label="Inner Shadow"
-       inkscape:menu="Shadows and Glows"
-       inkscape:menu-tooltip="Adds a colorizable drop shadow inside"
-       color-interpolation-filters="sRGB">
-      <feGaussianBlur
-         id="feGaussianBlur4059"
-         stdDeviation="1.5"
-         result="result8" />
-      <feOffset
-         id="feOffset4061"
-         dx="0"
-         dy="2"
-         result="result11" />
-      <feComposite
-         id="feComposite4063"
-         in2="result11"
-         result="result6"
-         in="SourceGraphic"
-         operator="in" />
-      <feFlood
-         id="feFlood4065"
-         result="result10"
-         in="result6"
-         flood-opacity="1"
-         flood-color="rgb(0,0,0)" />
-      <feBlend
-         id="feBlend4067"
-         in2="result10"
-         mode="normal"
-         in="result6"
-         result="result12" />
-      <feComposite
-         id="feComposite4069"
-         in2="SourceGraphic"
-         result="result2"
-         operator="atop" />
-    </filter>
     <clipPath
        clipPathUnits="userSpaceOnUse"
        id="clipPath3231">
@@ -553,6 +514,78 @@
        fy="91.5"
        r="18.5"
        gradientUnits="userSpaceOnUse" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       height="1"
+       width="1"
+       y="0"
+       x="0"
+       inkscape:label="Outline"
+       id="filter4057">
+      <feGaussianBlur
+         in="SourceAlpha"
+         stdDeviation="1"
+         result="blur1"
+         id="feGaussianBlur4140" />
+      <feComposite
+         in="blur1"
+         in2="SourceGraphic"
+         operator="out"
+         result="composite1"
+         id="feComposite4142" />
+      <feColorMatrix
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 -0 "
+         result="colormatrix1"
+         id="feColorMatrix4144" />
+      <feGaussianBlur
+         stdDeviation="0.40000000000000002"
+         result="blur2"
+         id="feGaussianBlur4146" />
+      <feComposite
+         in="blur2"
+         in2="blur2"
+         operator="out"
+         result="composite2"
+         id="feComposite4148" />
+      <feColorMatrix
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 -0 "
+         result="colormatrix2"
+         id="feColorMatrix4150" />
+      <feGaussianBlur
+         stdDeviation="0.5"
+         result="blur3"
+         id="feGaussianBlur4152" />
+      <feColorMatrix
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="colormatrix3"
+         id="feColorMatrix4154" />
+      <feFlood
+         flood-opacity="1"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood4156" />
+      <feComposite
+         in="flood"
+         in2="colormatrix3"
+         k2="1"
+         operator="in"
+         result="composite3"
+         id="feComposite4158" />
+      <feComposite
+         in="SourceGraphic"
+         in2="colormatrix3"
+         operator="copy"
+         result="composite4"
+         id="feComposite4160" />
+      <feComposite
+         in="composite4"
+         in2="composite3"
+         k2="1"
+         k3="1"
+         operator="arithmetic"
+         result="composite5"
+         id="feComposite4162" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -2206,7 +2239,8 @@
     </g>
     <g
        id="share/qtcreator/templates/wizards/projects/vcs/git/icon"
-       transform="translate(0,-60)">
+       transform="translate(0,-60)"
+       style="filter:url(#filter4057)">
       <use
          style="display:inline"
          x="0"
@@ -2225,7 +2259,8 @@
     </g>
     <g
        id="src/plugins/genericprojectmanager/images/genericprojectmanager"
-       transform="translate(60)">
+       transform="translate(60)"
+       style="filter:url(#filter4057)">
       <use
          style="display:inline"
          x="0"
@@ -2252,7 +2287,8 @@
        height="100%" />
     <g
        id="share/qtcreator/templates/wizards/projects/vcs/cvs/icon"
-       transform="translate(120)">
+       transform="translate(120)"
+       style="filter:url(#filter4057)">
       <use
          style="display:inline"
          x="0"
@@ -7972,7 +8008,7 @@
          style="opacity:0.2"
          clip-path="url(#clipPath3231)">
         <rect
-           style="fill:#ffffff;fill-opacity:1;stroke:none;filter:url(#filter4057)"
+           style="fill:#ffffff;fill-opacity:1;stroke:none;"
            id="rect4866"
            width="14"
            height="14"
