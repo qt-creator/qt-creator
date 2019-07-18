@@ -980,9 +980,9 @@ void FindReferences::displayResults(int first, int last)
         connect(m_currentSearch.data(), &SearchResult::paused, this, &FindReferences::setPaused);
         SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
 
-        FutureProgress *progress = ProgressManager::addTask(
-                    m_watcher.future(), tr("Searching for Usages"),
-                    QmlJSEditor::Constants::TASK_SEARCH);
+        FutureProgress *progress = ProgressManager::addTask(m_watcher.future(),
+                                                            tr("Searching for Usages"),
+                                                            "QmlJSEditor.TaskSearch");
         connect(progress, &FutureProgress::clicked, m_currentSearch.data(), &SearchResult::popup);
 
         ++first;

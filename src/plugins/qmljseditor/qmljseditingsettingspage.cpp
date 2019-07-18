@@ -33,6 +33,10 @@
 #include <QTextStream>
 #include <QCheckBox>
 
+const char AUTO_FORMAT_ON_SAVE[] = "QmlJSEditor.AutoFormatOnSave";
+const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "QmlJSEditor.AutoFormatOnlyCurrentProject";
+const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
+const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
@@ -52,33 +56,22 @@ void QmlJsEditingSettings::set()
 
 void QmlJsEditingSettings::fromSettings(QSettings *settings)
 {
-    settings->beginGroup(QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML));
-    m_enableContextPane = settings->value(
-                QLatin1String(QmlJSEditor::Constants::QML_CONTEXTPANE_KEY),
-                QVariant(false)).toBool();
-    m_pinContextPane = settings->value(
-                QLatin1String(QmlJSEditor::Constants::QML_CONTEXTPANEPIN_KEY),
-                QVariant(false)).toBool();
-    m_autoFormatOnSave = settings->value(
-                QLatin1String(QmlJSEditor::Constants::AUTO_FORMAT_ON_SAVE),
-                QVariant(false)).toBool();
-    m_autoFormatOnlyCurrentProject = settings->value(
-                QLatin1String(QmlJSEditor::Constants::AUTO_FORMAT_ONLY_CURRENT_PROJECT),
-                QVariant(false)).toBool();
+    settings->beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
+    m_enableContextPane = settings->value(QML_CONTEXTPANE_KEY, QVariant(false)).toBool();
+    m_pinContextPane = settings->value(QML_CONTEXTPANEPIN_KEY, QVariant(false)).toBool();
+    m_autoFormatOnSave = settings->value(AUTO_FORMAT_ON_SAVE, QVariant(false)).toBool();
+    m_autoFormatOnlyCurrentProject
+        = settings->value(AUTO_FORMAT_ONLY_CURRENT_PROJECT, QVariant(false)).toBool();
     settings->endGroup();
 }
 
 void QmlJsEditingSettings::toSettings(QSettings *settings) const
 {
-    settings->beginGroup(QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML));
-    settings->setValue(QLatin1String(QmlJSEditor::Constants::QML_CONTEXTPANE_KEY),
-                       m_enableContextPane);
-    settings->setValue(QLatin1String(QmlJSEditor::Constants::QML_CONTEXTPANEPIN_KEY),
-                       m_pinContextPane);
-    settings->setValue(QLatin1String(QmlJSEditor::Constants::AUTO_FORMAT_ON_SAVE),
-                       m_autoFormatOnSave);
-    settings->setValue(QLatin1String(QmlJSEditor::Constants::AUTO_FORMAT_ONLY_CURRENT_PROJECT),
-                       m_autoFormatOnlyCurrentProject);
+    settings->beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
+    settings->setValue(QML_CONTEXTPANE_KEY, m_enableContextPane);
+    settings->setValue(QML_CONTEXTPANEPIN_KEY, m_pinContextPane);
+    settings->setValue(AUTO_FORMAT_ON_SAVE, m_autoFormatOnSave);
+    settings->setValue(AUTO_FORMAT_ONLY_CURRENT_PROJECT, m_autoFormatOnlyCurrentProject);
     settings->endGroup();
 }
 

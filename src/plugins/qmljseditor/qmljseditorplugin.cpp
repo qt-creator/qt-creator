@@ -161,26 +161,29 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     qmlToolsMenu->addAction(cmd);
 
     QAction *renameUsagesAction = new QAction(QmlJSEditorPlugin::tr("Rename Symbol Under Cursor"), this);
-    cmd = ActionManager::registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
+    cmd = ActionManager::registerAction(renameUsagesAction, "QmlJSEditor.RenameUsages", context);
     cmd->setDefaultKeySequence(QKeySequence(QmlJSEditorPlugin::tr("Ctrl+Shift+R")));
     connect(renameUsagesAction, &QAction::triggered, this, &QmlJSEditorPluginPrivate::renameUsages);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *semanticScan = new QAction(QmlJSEditorPlugin::tr("Run Checks"), this);
-    cmd = ActionManager::registerAction(semanticScan, Id(Constants::RUN_SEMANTIC_SCAN));
+    cmd = ActionManager::registerAction(semanticScan, Id("QmlJSEditor.RunSemanticScan"));
     cmd->setDefaultKeySequence(QKeySequence(QmlJSEditorPlugin::tr("Ctrl+Shift+C")));
     connect(semanticScan, &QAction::triggered, this, &QmlJSEditorPluginPrivate::runSemanticScan);
     qmlToolsMenu->addAction(cmd);
 
     m_reformatFileAction = new QAction(QmlJSEditorPlugin::tr("Reformat File"), this);
-    cmd = ActionManager::registerAction(m_reformatFileAction, Id(Constants::REFORMAT_FILE), context);
+    cmd = ActionManager::registerAction(m_reformatFileAction,
+                                        Id("QmlJSEditor.ReformatFile"),
+                                        context);
     connect(m_reformatFileAction, &QAction::triggered, this, &QmlJSEditorPluginPrivate::reformatFile);
     qmlToolsMenu->addAction(cmd);
 
     QAction *inspectElementAction = new QAction(QmlJSEditorPlugin::tr("Inspect API for Element Under Cursor"), this);
     cmd = ActionManager::registerAction(inspectElementAction,
-                                              Id(Constants::INSPECT_ELEMENT_UNDER_CURSOR), context);
+                                        Id("QmlJSEditor.InspectElementUnderCursor"),
+                                        context);
     connect(inspectElementAction, &QAction::triggered, [] {
         if (auto widget = qobject_cast<QmlJSEditorWidget *>(EditorManager::currentEditor()->widget()))
             widget->inspectElementUnderCursor();

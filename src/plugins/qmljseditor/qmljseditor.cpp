@@ -92,6 +92,9 @@ enum {
     UPDATE_OUTLINE_INTERVAL = 500 // msecs after new semantic info has been arrived / cursor has moved
 };
 
+const char QML_JS_EDITOR_PLUGIN[] = "QmlJSEditorPlugin";
+const char QT_QUICK_TOOLBAR_MARKER_ID[] = "QtQuickToolbarMarkerId";
+
 using namespace Core;
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -286,8 +289,8 @@ void QmlJSEditorWidget::updateContextPane()
 
         if (m_contextPane->isAvailable(this, info.document, newNode) &&
             !m_contextPane->widget()->isVisible()) {
-            QList<RefactorMarker> markers = RefactorMarker::filterOutType(
-                refactorMarkers(), Constants::QT_QUICK_TOOLBAR_MARKER_ID);
+            QList<RefactorMarker> markers
+                = RefactorMarker::filterOutType(refactorMarkers(), QT_QUICK_TOOLBAR_MARKER_ID);
             if (UiObjectMember *m = newNode->uiObjectMemberCast()) {
                 const int start = qualifiedTypeNameId(m)->identifierToken.begin();
                 for (UiQualifiedId *q = qualifiedTypeNameId(m); q; q = q->next) {
@@ -299,7 +302,7 @@ void QmlJSEditorWidget::updateContextPane()
                             tc.setPosition(end);
                             marker.cursor = tc;
                             marker.tooltip = tr("Show Qt Quick ToolBar");
-                            marker.type = Constants::QT_QUICK_TOOLBAR_MARKER_ID;
+                            marker.type = QT_QUICK_TOOLBAR_MARKER_ID;
                             marker.callback = [this](TextEditorWidget *) {
                                 showContextPane();
                             };
@@ -310,8 +313,8 @@ void QmlJSEditorWidget::updateContextPane()
             }
             setRefactorMarkers(markers);
         } else if (oldNode != newNode) {
-            setRefactorMarkers(RefactorMarker::filterOutType(
-                refactorMarkers(), Constants::QT_QUICK_TOOLBAR_MARKER_ID));
+            setRefactorMarkers(
+                RefactorMarker::filterOutType(refactorMarkers(), QT_QUICK_TOOLBAR_MARKER_ID));
         }
         m_oldCursorPosition = position();
 
@@ -672,7 +675,7 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
     const CppComponentValue *cppValue = findCppComponentToInspect(semanticInfo, cursorPosition);
     if (!cppValue) {
         QString title = tr("Code Model Not Available");
-        const QString documentId = Constants::QML_JS_EDITOR_PLUGIN + QStringLiteral(".NothingToShow");
+        const QString documentId = QML_JS_EDITOR_PLUGIN + QStringLiteral(".NothingToShow");
         EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
                                               tr("Code model not available.").toUtf8(), documentId,
                                               EditorManager::IgnoreNavigationHistory);
@@ -680,8 +683,8 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
     }
 
     QString title = tr("Code Model of %1").arg(cppValue->metaObject()->className());
-    const QString documentId = Constants::QML_JS_EDITOR_PLUGIN + QStringLiteral(".Class.")
-            + cppValue->metaObject()->className();
+    const QString documentId = QML_JS_EDITOR_PLUGIN + QStringLiteral(".Class.")
+                               + cppValue->metaObject()->className();
     IEditor *outputEditor = EditorManager::openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, QByteArray(),
                 documentId, EditorManager::IgnoreNavigationHistory);
@@ -812,8 +815,8 @@ void QmlJSEditorWidget::showContextPane()
                              &scopeChain,
                              newNode, false, true);
         m_oldCursorPosition = position();
-        setRefactorMarkers(RefactorMarker::filterOutType(
-            refactorMarkers(), Constants::QT_QUICK_TOOLBAR_MARKER_ID));
+        setRefactorMarkers(
+            RefactorMarker::filterOutType(refactorMarkers(), QT_QUICK_TOOLBAR_MARKER_ID));
     }
 }
 
@@ -1028,7 +1031,7 @@ bool QmlJSEditor::isDesignModePreferred() const
 QmlJSEditorFactory::QmlJSEditorFactory()
 {
     setId(Constants::C_QMLJSEDITOR_ID);
-    setDisplayName(QCoreApplication::translate("OpenWith::Editors", Constants::C_QMLJSEDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "QMLJS Editor"));
 
     addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QMLUI_MIMETYPE);

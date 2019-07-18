@@ -43,6 +43,8 @@
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 
+const char QML_UI_FILE_WARNING[] = "QmlJSEditor.QmlUiFileWarning";
+
 using namespace QmlJSEditor;
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -564,8 +566,8 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
     if (m_firstSementicInfo) {
         m_firstSementicInfo = false;
         if (semanticInfo.document->language() == Dialect::QmlQtQuick2Ui
-                && !q->infoBar()->containsInfo(Core::Id(Constants::QML_UI_FILE_WARNING))) {
-            Core::InfoBarEntry info(Core::Id(Constants::QML_UI_FILE_WARNING),
+            && !q->infoBar()->containsInfo(Core::Id(QML_UI_FILE_WARNING))) {
+            Core::InfoBarEntry info(Core::Id(QML_UI_FILE_WARNING),
                                     tr("This file should only be edited in <b>Design</b> mode."));
             info.setCustomButtonInfo(tr("Switch Mode"), []() {
                 Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
