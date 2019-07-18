@@ -66,7 +66,7 @@ private:
     QStringList processEntries(const QStringList &paths,
                                QHash<QString, QString> *map = nullptr) const;
 
-    static QString findCommonSourceRoot(const QStringList &list);
+    Utils::FilePath findCommonSourceRoot();
     void refreshCppCodeModel();
     void updateDeploymentData();
     void activeTargetWasChanged();
