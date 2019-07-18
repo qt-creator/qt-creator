@@ -110,9 +110,9 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
         if (fileNode) {
             // We do not want qbs groups or qmake .pri files here, as they contain only a subset
             // of the relevant files.
-            do
-                projectNode = fileNode->parentProjectNode();
-            while (projectNode && !projectNode->isProduct());
+            projectNode = fileNode->parentProjectNode();
+            while (projectNode && !projectNode->isProduct())
+                projectNode = projectNode->parentProjectNode();
         }
         if (!projectNode)
             projectNode = project->rootProjectNode();

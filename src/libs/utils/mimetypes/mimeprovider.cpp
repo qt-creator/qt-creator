@@ -784,28 +784,15 @@ void MimeXMLProvider::ensureLoaded()
 {
     if (!m_loaded /*|| shouldCheck()*/) {
         m_loaded = true;
-//        bool fdoXmlFound = false;
-        QStringList allFiles;
+        QStringList allFiles = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation,
+                                                         QStringLiteral("mime/packages/freedesktop.org.xml"),
+                                                         QStandardPaths::LocateFile);
 
-//        const QStringList packageDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime/packages"), QStandardPaths::LocateDirectory);
-//        //qDebug() << "packageDirs=" << packageDirs;
-//        for (const QString &packageDir : packageDirs) {
-//            QDir dir(packageDir);
-//            const QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-//            //qDebug() << static_cast<const void *>(this) << packageDir << files;
-//            if (!fdoXmlFound)
-//                fdoXmlFound = files.contains(QLatin1String("freedesktop.org.xml"));
-//            QStringList::const_iterator endIt(files.constEnd());
-//            for (QStringList::const_iterator it(files.constBegin()); it != endIt; ++it) {
-//                allFiles.append(packageDir + QLatin1Char('/') + *it);
-//            }
-//        }
-
-//        if (!fdoXmlFound) {
-//            // We could instead install the file as part of installing Qt?
-              const char freedesktopOrgXml[] = ":/qt-project.org/qmime/packages/freedesktop.org.xml";
+        if (allFiles.isEmpty()) {
+            // System freedsktop.org.xml file not found, use our bundled copy
+            const char freedesktopOrgXml[] = ":/utils/mimetypes/freedesktop.org.xml";
             allFiles.prepend(QLatin1String(freedesktopOrgXml));
-//        }
+        }
 
         m_nameMimeTypeMap.clear();
         m_aliases.clear();

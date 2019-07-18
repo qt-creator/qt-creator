@@ -1,0 +1,7 @@
+This contains a copy of freedesktop.org's shared-mime-info base package.
+
+Update instructions:
+
+  curl https://people.freedesktop.org/~hadess/shared-mime-info-{VERSION}.tar.xz | \
+  xzcat | \
+  tar -xO shared-mime-info-{VERSION}/freedestop.org.xml > freedesktop.org.xml

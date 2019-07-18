@@ -143,6 +143,9 @@ void tst_Ssh::errorHandling_data()
 
 void tst_Ssh::errorHandling()
 {
+    if (SshSettings::sshFilePath().isEmpty())
+        QSKIP("No ssh found in PATH - skipping this test.");
+
     QFETCH(QString, host);
     QFETCH(quint16, port);
     QFETCH(SshConnectionParameters::AuthenticationType, authType);

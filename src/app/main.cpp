@@ -120,15 +120,15 @@ static inline QString toHtml(const QString &t)
 
 static void displayHelpText(const QString &t)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
-        QMessageBox::information(0, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), toHtml(t));
+    if (Utils::HostOsInfo::isWindowsHost() && qApp)
+        QMessageBox::information(nullptr, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), toHtml(t));
     else
         qWarning("%s", qPrintable(t));
 }
 
 static void displayError(const QString &t)
 {
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (Utils::HostOsInfo::isWindowsHost() && qApp)
         QMessageBox::critical(0, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), t);
     else
         qCritical("%s", qPrintable(t));
@@ -246,7 +246,7 @@ static inline QStringList getPluginPaths()
 static void setupInstallSettings(QString &installSettingspath)
 {
     if (!installSettingspath.isEmpty() && !QFileInfo(installSettingspath).isDir()) {
-        displayHelpText(QString("-installsettingspath needs to be the path where a %1/%2.ini exist.").arg(
+        displayError(QString("-installsettingspath \"%0\" needs to be the path where a %1/%2.ini exist.").arg(installSettingspath,
             QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR), QLatin1String(Core::Constants::IDE_CASED_ID)));
         installSettingspath.clear();
     }

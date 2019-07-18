@@ -70,7 +70,7 @@ public:
     static QString msgNoMakeCommand();
     static Task makeCommandMissingTask();
 
-    bool isJobCountSupported() const;
+    virtual bool isJobCountSupported() const;
     int jobCount() const;
     void setJobCount(int count);
     bool jobCountOverridesMakeflags() const;

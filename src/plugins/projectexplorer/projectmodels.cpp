@@ -148,7 +148,9 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
                 static QIcon warnIcon = Utils::Icons::WARNING.icon();
                 static QIcon emptyIcon = Utils::Icons::EMPTY16.icon();
                 if (project) {
-                    if (project->isParsing())
+                    if (project->needsConfiguration())
+                        result = warnIcon;
+                    else if (project->isParsing())
                         result = emptyIcon;
                     else if (!project->activeTarget()
                              || !project->projectIssues(project->activeTarget()->kit()).isEmpty())
@@ -180,7 +182,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Project::isParsingRole: {
-            result = project ? project->isParsing() : false;
+            result = project ? project->isParsing() && !project->needsConfiguration() : false;
             break;
         }
         }

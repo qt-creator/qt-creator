@@ -1,7 +1,6 @@
 INCLUDEPATH *= $$PWD
 
-HEADERS += $$PWD/okapi_bm25.h \
-           $$PWD/sqlite3.h \
+HEADERS += $$PWD/sqlite3.h \
            $$PWD/sqlite3ext.h
 
 SOURCES += $$PWD/sqlite3.c

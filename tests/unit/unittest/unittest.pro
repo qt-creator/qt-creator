@@ -99,10 +99,8 @@ SOURCES += \
     nativefilepath-test.cpp \
     nativefilepathview-test.cpp \
     mocktimer.cpp \
-    tokenprocessor-test.cpp \
     projectpartartefact-test.cpp \
     filestatuscache-test.cpp \
-    highlightingresultreporter-test.cpp \
     precompiledheaderstorage-test.cpp \
     generatedfiles-test.cpp \
     sourcesmanager-test.cpp \
@@ -165,6 +163,7 @@ SOURCES += \
     diagnosticset-test.cpp \
     diagnostic-test.cpp \
     fixit-test.cpp \
+    highlightingresultreporter-test.cpp \
     senddocumenttracker-test.cpp \
     skippedsourceranges-test.cpp \
     sourcelocation-test.cpp \
@@ -176,6 +175,7 @@ SOURCES += \
     sqlitetable-test.cpp \
     sqlstatementbuilder-test.cpp \
     token-test.cpp \
+    tokenprocessor-test.cpp \
     translationunitupdater-test.cpp \
     unsavedfiles-test.cpp \
     unsavedfile-test.cpp \
@@ -207,7 +207,7 @@ SOURCES += \
     SOURCES += clangformat-test.cpp
 }
 
-exists($$GOOGLEBENCHMARK_DIR) {
+!isEmpty(GOOGLEBENCHMARK_DIR):exists($$GOOGLEBENCHMARK_DIR) {
 SOURCES += \
     smallstring-benchmark.cpp
 }
