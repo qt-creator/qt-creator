@@ -3264,20 +3264,21 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions()
             m_addExistingFilesAction->setEnabled(supports(AddExistingFile));
             m_addExistingDirectoryAction->setEnabled(supports(AddExistingDirectory));
             m_renameFileAction->setEnabled(supports(Rename));
-        } else if (currentNode->asFileNode()) {
+        } else if (auto fileNode = currentNode->asFileNode()) {
             // Enable and show remove / delete in magic ways:
             // If both are disabled show Remove
             // If both are enabled show both (can't happen atm)
             // If only removeFile is enabled only show it
             // If only deleteFile is enable only show it
-            bool enableRemove = supports(RemoveFile);
+            bool isTypeProject = fileNode->fileType() == FileType::Project;
+            bool enableRemove = !isTypeProject && supports(RemoveFile);
             m_removeFileAction->setEnabled(enableRemove);
-            bool enableDelete = supports(EraseFile);
+            bool enableDelete = !isTypeProject && supports(EraseFile);
             m_deleteFileAction->setEnabled(enableDelete);
             m_deleteFileAction->setVisible(enableDelete);
 
             m_removeFileAction->setVisible(!enableDelete || enableRemove);
-            m_renameFileAction->setEnabled(supports(Rename));
+            m_renameFileAction->setEnabled(!isTypeProject && supports(Rename));
             const bool currentNodeIsTextFile = isTextFile(
                         currentNode->filePath().toString());
             m_diffFileAction->setEnabled(DiffService::instance()
