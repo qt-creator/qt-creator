@@ -399,7 +399,7 @@ public:
 
         if (role == ContextMenuItemAdderRole) {
             auto *menu = data.value<QMenu *>();
-            addToContextMenu(menu);
+            addToContextMenu(menu, flags(column) & Qt::ItemIsSelectable);
             return true;
         }
 
@@ -440,7 +440,7 @@ public:
         return false;
     }
 
-    void addToContextMenu(QMenu *menu)
+    void addToContextMenu(QMenu *menu, bool isSelectable)
     {
         Kit *kit = KitManager::kit(m_kitId);
         QTC_ASSERT(kit, return);
@@ -448,13 +448,13 @@ public:
         const QString projectName = m_project->displayName();
 
         QAction *enableAction = menu->addAction(tr("Enable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
-        enableAction->setEnabled(m_kitId.isValid() && !isEnabled());
+        enableAction->setEnabled(isSelectable && m_kitId.isValid() && !isEnabled());
         QObject::connect(enableAction, &QAction::triggered, [this, kit] {
             m_project->addTarget(m_project->createTarget(kit));
         });
 
         QAction *disableAction = menu->addAction(tr("Disable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
-        disableAction->setEnabled(m_kitId.isValid() && isEnabled());
+        disableAction->setEnabled(isSelectable && m_kitId.isValid() && isEnabled());
         QObject::connect(disableAction, &QAction::triggered, m_project, [this] {
             Target *t = target();
             QTC_ASSERT(t, return);
