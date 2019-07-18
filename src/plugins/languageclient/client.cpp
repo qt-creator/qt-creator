@@ -469,6 +469,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             cursor.setPosition(position + charsRemoved);
             cursor.setPosition(position, QTextCursor::KeepAnchor);
             change.setRange(Range(cursor));
+            change.setRangeLength(cursor.selectionEnd() - cursor.selectionStart());
             change.setText(document->textAt(position, charsAdded));
             params.setContentChanges({change});
         } else {
