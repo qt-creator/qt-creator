@@ -1123,8 +1123,10 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
     } else {
         const InitializeResult &result = _result.value();
         QStringList error;
-        if (!result.isValid(&error)) // continue on ill formed result
+        if (!result.isValid(&error)) { // continue on ill formed result
+            std::reverse(error.begin(), error.end());
             log(tr("Initialize result is not valid: ") + error.join("->"));
+        }
 
         m_serverCapabilities = result.capabilities().value_or(ServerCapabilities());
     }
