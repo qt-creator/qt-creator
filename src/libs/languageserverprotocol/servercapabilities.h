@@ -373,10 +373,8 @@ public:
     void clearDocumentLinkProvider() { remove(documentLinkProviderKey); }
 
     // The server provides color provider support.
-    Utils::optional<TextDocumentRegistrationOptions> colorProvider() const
-    { return optionalValue<TextDocumentRegistrationOptions>(colorProviderKey); }
-    void setColorProvider(TextDocumentRegistrationOptions colorProvider)
-    { insert(colorProviderKey, colorProvider); }
+    Utils::optional<Utils::variant<bool, JsonObject>> colorProvider() const;
+    void setColorProvider(Utils::variant<bool, JsonObject> colorProvider);
     void clearColorProvider() { remove(colorProviderKey); }
 
     // The server provides execute command support.

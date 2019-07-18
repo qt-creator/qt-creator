@@ -130,6 +130,25 @@ void ServerCapabilities::setRenameProvider(Utils::variant<ServerCapabilities::Re
         insert(renameProviderKey, Utils::get<RenameOptions>(renameProvider));
 }
 
+Utils::optional<Utils::variant<bool, JsonObject>> ServerCapabilities::colorProvider() const
+{
+    using RetType = Utils::variant<bool, JsonObject>;
+    const QJsonValue &localValue = value(colorProviderKey);
+    if (localValue.isBool())
+        return RetType(localValue.toBool());
+    if (localValue.isObject())
+        return RetType(JsonObject(localValue.toObject()));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setColorProvider(Utils::variant<bool, JsonObject> colorProvider)
+{
+    if (Utils::holds_alternative<bool>(colorProvider))
+        insert(renameProviderKey, Utils::get<bool>(colorProvider));
+    else if (Utils::holds_alternative<JsonObject>(colorProvider))
+        insert(renameProviderKey, Utils::get<JsonObject>(colorProvider));
+}
+
 bool ServerCapabilities::isValid(QStringList *error) const
 {
     return checkOptional<TextDocumentSyncOptions, int>(error, textDocumentSyncKey)
@@ -149,7 +168,7 @@ bool ServerCapabilities::isValid(QStringList *error) const
             && checkOptional<bool>(error, documentRangeFormattingProviderKey)
             && checkOptional<bool, RenameOptions>(error, renameProviderKey)
             && checkOptional<DocumentLinkOptions>(error, documentLinkProviderKey)
-            && checkOptional<TextDocumentRegistrationOptions>(error, colorProviderKey)
+            && checkOptional<bool, JsonObject>(error, colorProviderKey)
             && checkOptional<ExecuteCommandOptions>(error, executeCommandProviderKey)
             && checkOptional<WorkspaceServerCapabilities>(error, workspaceKey);
 }
