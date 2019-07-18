@@ -563,19 +563,6 @@ void QmlJSEditorDocumentPrivate::acceptNewSemanticInfo(const SemanticInfo &seman
     m_outlineModelNeedsUpdate = true;
     m_semanticHighlightingNecessary = true;
 
-    if (m_firstSementicInfo) {
-        m_firstSementicInfo = false;
-        if (semanticInfo.document->language() == Dialect::QmlQtQuick2Ui
-            && !q->infoBar()->containsInfo(Core::Id(QML_UI_FILE_WARNING))) {
-            Core::InfoBarEntry info(Core::Id(QML_UI_FILE_WARNING),
-                                    tr("This file should only be edited in <b>Design</b> mode."));
-            info.setCustomButtonInfo(tr("Switch Mode"), []() {
-                Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
-            });
-            q->infoBar()->addInfo(info);
-        }
-    }
-
     createTextMarks(m_semanticInfo);
     emit q->semanticInfoUpdated(m_semanticInfo); // calls triggerPendingUpdates as necessary
 }
@@ -648,10 +635,10 @@ void QmlJSEditorDocumentPrivate::cleanSemanticMarks()
 
 } // Internal
 
-QmlJSEditorDocument::QmlJSEditorDocument()
+QmlJSEditorDocument::QmlJSEditorDocument(Core::Id id)
     : d(new Internal::QmlJSEditorDocumentPrivate(this))
 {
-    setId(Constants::C_QMLJSEDITOR_ID);
+    setId(id);
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
     setSyntaxHighlighter(new QmlJSHighlighter(document()));
@@ -686,6 +673,28 @@ Internal::QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
 TextEditor::IAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
 {
     return Internal::QmlJSEditorPlugin::quickFixAssistProvider();
+}
+
+void QmlJSEditorDocument::setIsDesignModePreferred(bool value)
+{
+    d->m_isDesignModePreferred = value;
+    if (value) {
+        if (infoBar()->canInfoBeAdded(QML_UI_FILE_WARNING)) {
+            Core::InfoBarEntry info(QML_UI_FILE_WARNING,
+                                    tr("This file should only be edited in <b>Design</b> mode."));
+            info.setCustomButtonInfo(tr("Switch Mode"), []() {
+                Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
+            });
+            infoBar()->addInfo(info);
+        }
+    } else if (infoBar()->containsInfo(QML_UI_FILE_WARNING)) {
+        infoBar()->removeInfo(QML_UI_FILE_WARNING);
+    }
+}
+
+bool QmlJSEditorDocument::isDesignModePreferred() const
+{
+    return d->m_isDesignModePreferred;
 }
 
 void QmlJSEditorDocument::setDiagnosticRanges(const QVector<QTextLayout::FormatRange> &ranges)

@@ -1008,37 +1008,39 @@ QmlJSEditor::QmlJSEditor()
     addContext(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 }
 
+QmlJSEditorDocument *QmlJSEditor::qmlJSDocument() const
+{
+    return qobject_cast<QmlJSEditorDocument *>(document());
+}
+
 bool QmlJSEditor::isDesignModePreferred() const
 {
 
-    bool alwaysPreferDesignMode = false;
-    // always prefer design mode for .ui.qml files
-    if (textDocument() && textDocument()->mimeType() == QLatin1String(QmlJSTools::Constants::QMLUI_MIMETYPE))
-        alwaysPreferDesignMode = true;
-
     // stay in design mode if we are there
-    Id mode = ModeManager::currentModeId();
-    return alwaysPreferDesignMode || mode == Core::Constants::MODE_DESIGN;
+    const Id mode = ModeManager::currentModeId();
+    return qmlJSDocument()->isDesignModePreferred() || mode == Core::Constants::MODE_DESIGN;
 }
-
 
 //
 // QmlJSEditorFactory
 //
 
 QmlJSEditorFactory::QmlJSEditorFactory()
+    : QmlJSEditorFactory(Constants::C_QMLJSEDITOR_ID)
+{}
+
+QmlJSEditorFactory::QmlJSEditorFactory(Core::Id _id)
 {
-    setId(Constants::C_QMLJSEDITOR_ID);
+    setId(_id);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", "QMLJS Editor"));
 
     addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QMLUI_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
     addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
     addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
 
-    setDocumentCreator([]() { return new QmlJSEditorDocument; });
+    setDocumentCreator([this]() { return new QmlJSEditorDocument(id()); });
     setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });
     setEditorCreator([]() { return new QmlJSEditor; });
     setAutoCompleterCreator([]() { return new AutoCompleter; });

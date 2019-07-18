@@ -141,10 +141,12 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     // recompute messages when project data changes (files added or removed)
     connect(modelManager, &QmlJS::ModelManagerInterface::projectInfoUpdated,
             &m_qmlTaskManager, &QmlTaskManager::updateMessages);
-    connect(modelManager, &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
-            &m_qmlTaskManager, &QmlTaskManager::documentsRemoved);
+    connect(modelManager,
+            &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
+            &m_qmlTaskManager,
+            &QmlTaskManager::documentsRemoved);
 
-    Context context(Constants::C_QMLJSEDITOR_ID);
+    Context context(Constants::C_QMLJSEDITOR_ID, Constants::C_QTQUICKDESIGNEREDITOR_ID);
 
     ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
     ActionContainer *qmlToolsMenu = ActionManager::actionContainer(Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
@@ -352,7 +354,8 @@ void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document)
         return;
 
     // Check that we are dealing with a QML/JS editor
-    if (document->id() != Constants::C_QMLJSEDITOR_ID)
+    if (document->id() != Constants::C_QMLJSEDITOR_ID
+        && document->id() != Constants::C_QTQUICKDESIGNEREDITOR_ID)
         return;
 
     // Check if file is contained in the current project (if wished)

@@ -136,6 +136,7 @@ class QMLJSEDITOR_EXPORT QmlJSEditor : public TextEditor::BaseTextEditor
 public:
     QmlJSEditor();
 
+    QmlJSEditorDocument *qmlJSDocument() const;
     bool isDesignModePreferred() const override;
 };
 
@@ -145,6 +146,7 @@ class QMLJSEDITOR_EXPORT QmlJSEditorFactory : public TextEditor::TextEditorFacto
 
 public:
     QmlJSEditorFactory();
+    QmlJSEditorFactory(Core::Id id);
 
     static void decorateEditor(TextEditor::TextEditorWidget *editor);
 };

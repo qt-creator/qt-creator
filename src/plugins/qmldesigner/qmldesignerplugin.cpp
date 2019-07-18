@@ -39,7 +39,9 @@
 #include <timelineeditor/timelineview.h>
 #include <pathtool/pathtool.h>
 
+#include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
+#include <qmljseditor/qmljseditordocument.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
 
@@ -77,6 +79,29 @@ using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
 
+namespace Internal {
+
+class QtQuickDesignerFactory : public QmlJSEditor::QmlJSEditorFactory
+{
+public:
+    QtQuickDesignerFactory();
+};
+
+QtQuickDesignerFactory::QtQuickDesignerFactory()
+    : QmlJSEditorFactory(QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)
+{
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Qt Quick Designer"));
+
+    addMimeType(QmlJSTools::Constants::QMLUI_MIMETYPE);
+    setDocumentCreator([this]() {
+        auto document = new QmlJSEditor::QmlJSEditorDocument(id());
+        document->setIsDesignModePreferred(true);
+        return document;
+    });
+}
+
+} // namespace Internal
+
 class QmlDesignerPluginPrivate
 {
 public:
@@ -87,6 +112,7 @@ public:
     DesignModeWidget mainWidget;
     DesignerSettings settings;
     DesignModeContext *context = nullptr;
+    QtQuickDesignerFactory m_qtQuickDesignerFactory;
     bool blockEditorChange = false;
 };
 
@@ -99,7 +125,9 @@ static bool isInDesignerMode()
 
 static bool checkIfEditorIsQtQuick(Core::IEditor *editor)
 {
-    if (editor && editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+    if (editor
+        && (editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
+            || editor->document()->id() == QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)) {
         QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
         QmlJS::Document::Ptr document = modelManager->ensuredGetDocumentForPath(editor->document()->filePath().toString());
         if (!document.isNull())
@@ -545,4 +573,4 @@ void QmlDesignerPlugin::setSettings(const DesignerSettings &s)
     }
 }
 
-}
+} // namespace QmlDesigner

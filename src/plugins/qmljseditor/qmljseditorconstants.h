@@ -34,7 +34,8 @@ const char M_CONTEXT[] = "QML JS Editor.ContextMenu";
 
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "QmlJSEditor.RefactorGroup";
 
-const char C_QMLJSEDITOR_ID[] = "QMLProjectManager.QMLJSEditor";
+const char C_QMLJSEDITOR_ID[] = "QmlJSEditor.QMLJSEditor";
+const char C_QTQUICKDESIGNEREDITOR_ID[] = "QmlJSEditor.QtQuickDesignerEditor";
 const char SETTINGS_CATEGORY_QML[] = "J.QtQuick";
 
 const char SHOW_QT_QUICK_HELPER[] = "QmlJSEditor.ShowQtQuickHelper";

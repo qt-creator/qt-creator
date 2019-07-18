@@ -43,7 +43,7 @@ class QMLJSEDITOR_EXPORT QmlJSEditorDocument : public TextEditor::TextDocument
 {
     Q_OBJECT
 public:
-    QmlJSEditorDocument();
+    QmlJSEditorDocument(Core::Id id);
     ~QmlJSEditorDocument() override;
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
@@ -53,6 +53,9 @@ public:
     Internal::QmlOutlineModel *outlineModel() const;
 
     TextEditor::IAssistProvider *quickFixAssistProvider() const override;
+
+    void setIsDesignModePreferred(bool value);
+    bool isDesignModePreferred() const;
 
 signals:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);

@@ -76,11 +76,11 @@ public:
     SemanticHighlighter *m_semanticHighlighter = nullptr;
     bool m_semanticHighlightingNecessary = false;
     bool m_outlineModelNeedsUpdate = false;
-    bool m_firstSementicInfo = true;
     QTimer m_updateOutlineModelTimer;
     Internal::QmlOutlineModel *m_outlineModel = nullptr;
     QVector<TextEditor::TextMark *> m_diagnosticMarks;
     QVector<TextEditor::TextMark *> m_semanticMarks;
+    bool m_isDesignModePreferred = false;
 };
 
 } // Internal
