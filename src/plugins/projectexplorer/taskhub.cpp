@@ -71,7 +71,13 @@ public:
                                                    : QApplication::translate("TaskHub", "Warning"));
         setPriority(task.type == Task::Error ? TextEditor::TextMark::NormalPriority
                                              : TextEditor::TextMark::LowPriority);
-        setToolTip(task.description);
+        if (task.category == Constants::TASK_CATEGORY_COMPILE) {
+            setToolTip("<html><body><b>" + QApplication::translate("TaskHub", "Build Issue")
+                       + "</b><br/><code style=\"white-space:pre;font-family:monospace\">"
+                       + task.description.toHtmlEscaped() + "</code></body></html>");
+        } else {
+            setToolTip(task.description);
+        }
         setIcon(task.icon);
         setVisible(!task.icon.isNull());
     }
@@ -154,7 +160,7 @@ void TaskHub::addTask(Task task)
         task.line = -1;
     task.movedLine = task.line;
 
-    if ((task.options & Task::AddTextMark) && task.line != -1)
+    if ((task.options & Task::AddTextMark) && task.line != -1 && task.type != Task::Unknown)
         task.setMark(new TaskMark(task));
     emit m_instance->taskAdded(task);
 }
