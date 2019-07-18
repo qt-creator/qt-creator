@@ -43,6 +43,7 @@ protected:
     Utils::FilePath command() const override;
     QStringList arguments() const override;
     ProjectExplorer::FileNameToContentsHash handleProcessFinished(QProcess *process) override;
+    void handleProcessStarted(QProcess *process, const QByteArray &sourceContents) override;
 };
 
 class UicGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory

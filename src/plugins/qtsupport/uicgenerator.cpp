@@ -67,7 +67,7 @@ Utils::FilePath UicGenerator::command() const
 
 QStringList UicGenerator::arguments() const
 {
-    return {"-p", source().toString()};
+    return {"-p"};
 }
 
 FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
@@ -85,6 +85,12 @@ FileNameToContentsHash UicGenerator::handleProcessFinished(QProcess *process)
     content.prepend("#pragma once\n");
     result[targetList.first()] = content;
     return result;
+}
+
+void UicGenerator::handleProcessStarted(QProcess *process, const QByteArray &sourceContents)
+{
+    process->write(sourceContents);
+    process->closeWriteChannel();
 }
 
 FileType UicGeneratorFactory::sourceType() const
