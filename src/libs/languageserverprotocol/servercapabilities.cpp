@@ -111,6 +111,25 @@ Utils::optional<Utils::variant<bool, CodeActionOptions>> ServerCapabilities::cod
     return Utils::nullopt;
 }
 
+Utils::optional<Utils::variant<ServerCapabilities::RenameOptions, bool>> ServerCapabilities::renameProvider() const
+{
+    using RetType = Utils::variant<ServerCapabilities::RenameOptions, bool>;
+    const QJsonValue &localValue = value(renameProviderKey);
+    if (localValue.isBool())
+        return RetType(localValue.toBool());
+    if (localValue.isObject())
+        return RetType(RenameOptions(localValue.toObject()));
+    return Utils::nullopt;
+}
+
+void ServerCapabilities::setRenameProvider(Utils::variant<ServerCapabilities::RenameOptions, bool> renameProvider)
+{
+    if (Utils::holds_alternative<bool>(renameProvider))
+        insert(renameProviderKey, Utils::get<bool>(renameProvider));
+    else if (Utils::holds_alternative<RenameOptions>(renameProvider))
+        insert(renameProviderKey, Utils::get<RenameOptions>(renameProvider));
+}
+
 bool ServerCapabilities::isValid(QStringList *error) const
 {
     return checkOptional<TextDocumentSyncOptions, int>(error, textDocumentSyncKey)
@@ -128,7 +147,7 @@ bool ServerCapabilities::isValid(QStringList *error) const
             && checkOptional<CodeLensOptions>(error, codeLensProviderKey)
             && checkOptional<bool>(error, documentFormattingProviderKey)
             && checkOptional<bool>(error, documentRangeFormattingProviderKey)
-            && checkOptional<bool>(error, renameProviderKey)
+            && checkOptional<bool, RenameOptions>(error, renameProviderKey)
             && checkOptional<DocumentLinkOptions>(error, documentLinkProviderKey)
             && checkOptional<TextDocumentRegistrationOptions>(error, colorProviderKey)
             && checkOptional<ExecuteCommandOptions>(error, executeCommandProviderKey)

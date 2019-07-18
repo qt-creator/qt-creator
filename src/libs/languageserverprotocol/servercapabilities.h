@@ -346,9 +346,23 @@ public:
     { insert(documentRangeFormattingProviderKey, documentRangeFormattingProvider); }
     void clearDocumentRangeFormattingProvider() { remove(documentRangeFormattingProviderKey); }
 
+    class RenameOptions : public JsonObject
+    {
+    public:
+        using JsonObject::JsonObject;
+
+        // Renames should be checked and tested before being executed.
+        Utils::optional<bool> prepareProvider() const { return optionalValue<bool>(prepareProviderKey); }
+        void setPrepareProvider(bool prepareProvider) { insert(prepareProviderKey, prepareProvider); }
+        void clearPrepareProvider() { remove(prepareProviderKey); }
+
+        bool isValid(QStringList * error) const override
+        { return checkOptional<bool>(error, prepareProviderKey); }
+    };
+
     // The server provides rename support.
-    Utils::optional<bool> renameProvider() const { return optionalValue<bool>(renameProviderKey); }
-    void setRenameProvider(bool renameProvider) { insert(renameProviderKey, renameProvider); }
+    Utils::optional<Utils::variant<RenameOptions, bool>> renameProvider() const;
+    void setRenameProvider(Utils::variant<RenameOptions,bool> renameProvider);
     void clearRenameProvider() { remove(renameProviderKey); }
 
     // The server provides document link support.
