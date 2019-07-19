@@ -2690,7 +2690,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                 if (Symbol *symbol = simpleDecl->symbols->value) {
                     if (Declaration *decl = symbol->asDeclaration()) {
                         if (Function *func = decl->type()->asFunctionType()) {
-                            if (func->isSignal())
+                            if (func->isSignal() || func->isPureVirtual())
                                 return;
 
                             // Check if there is already a definition
