@@ -44,10 +44,8 @@ public:
     }
 
     QString message;
-    QString extendedMessage;
     Debugger::DiagnosticLocation location;
     QVector<Debugger::DiagnosticLocation> ranges;
-    int depth = 0;
     bool isFixIt = false;
 };
 
@@ -59,8 +57,6 @@ public:
     QString description;
     QString category;
     QString type;
-    QString issueContextKind;
-    QString issueContext;
     Debugger::DiagnosticLocation location;
     QVector<ExplainingStep> explainingSteps;
     bool hasFixits = false;

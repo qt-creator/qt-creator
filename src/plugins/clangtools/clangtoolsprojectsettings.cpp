@@ -42,8 +42,6 @@ static const char SETTINGS_KEY_SELECTED_FILES[] = "ClangTools.SelectedFiles";
 static const char SETTINGS_KEY_SUPPRESSED_DIAGS[] = "ClangTools.SuppressedDiagnostics";
 static const char SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH[] = "ClangTools.SuppressedDiagnosticFilePath";
 static const char SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE[] = "ClangTools.SuppressedDiagnosticMessage";
-static const char SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXTKIND[] = "ClangTools.SuppressedDiagnosticContextKind";
-static const char SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXT[] = "ClangTools.SuppressedDiagnosticContext";
 static const char SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER[] = "ClangTools.SuppressedDiagnosticUniquifier";
 
 ClangToolsProjectSettings::ClangToolsProjectSettings(ProjectExplorer::Project *project)
@@ -113,11 +111,10 @@ void ClangToolsProjectSettings::load()
             fullPath = m_project->projectDirectory().pathAppended(fp);
         if (!fullPath.exists())
             continue;
-        const QString contextKind = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXTKIND).toString();
-        const QString context = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXT).toString();
         const int uniquifier = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER).toInt();
-        m_suppressedDiagnostics << SuppressedDiagnostic(Utils::FilePath::fromString(fp), message,
-                                                        contextKind, context, uniquifier);
+        m_suppressedDiagnostics << SuppressedDiagnostic(Utils::FilePath::fromString(fp),
+                                                        message,
+                                                        uniquifier);
     }
     emit suppressedDiagnosticsChanged();
 }
@@ -139,8 +136,6 @@ void ClangToolsProjectSettings::store()
         QVariantMap diagMap;
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH, diag.filePath.toString());
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE, diag.description);
-        diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXTKIND, diag.contextKind);
-        diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_CONTEXT, diag.context);
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER, diag.uniquifier);
         list << diagMap;
     }
@@ -203,8 +198,6 @@ ClangToolsProjectSettingsManager::SettingsMap ClangToolsProjectSettingsManager::
 SuppressedDiagnostic::SuppressedDiagnostic(const Diagnostic &diag)
     : filePath(Utils::FilePath::fromString(diag.location.filePath))
     , description(diag.description)
-    , contextKind(diag.issueContextKind)
-    , context(diag.issueContext)
     , uniquifier(diag.explainingSteps.count())
 {
 }

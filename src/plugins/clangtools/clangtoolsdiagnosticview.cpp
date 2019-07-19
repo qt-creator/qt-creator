@@ -210,8 +210,7 @@ void DiagnosticView::suppressCurrentDiagnostic()
                 = filePath.relativeChildPath(project->projectDirectory());
         if (!relativeFilePath.isEmpty())
             filePath = relativeFilePath;
-        const SuppressedDiagnostic supDiag(filePath, diag.description, diag.issueContextKind,
-                                           diag.issueContext, diag.explainingSteps.count());
+        const SuppressedDiagnostic supDiag(filePath, diag.description, diag.explainingSteps.count());
         ClangToolsProjectSettingsManager::getSettings(project)->addSuppressedDiagnostic(supDiag);
     } else {
         filterModel->addSuppressedDiagnostic(SuppressedDiagnostic(diag));

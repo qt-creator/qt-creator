@@ -45,7 +45,7 @@ public:
     SuppressedDiagnostic diagnosticAt(int i) const;
 
 private:
-    enum Columns { ColumnFile, ColumnContext, ColumnDescription, ColumnLast = ColumnDescription };
+    enum Columns { ColumnFile, ColumnDescription, ColumnLast = ColumnDescription };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex & = QModelIndex()) const override { return ColumnLast + 1; }
@@ -137,8 +137,6 @@ QVariant SuppressedDiagnosticsModel::headerData(int section, Qt::Orientation ori
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         if (section == ColumnFile)
             return tr("File");
-        if (section == ColumnContext)
-            return tr("Context");
         if (section == ColumnDescription)
             return tr("Diagnostic");
     }
@@ -152,11 +150,6 @@ QVariant SuppressedDiagnosticsModel::data(const QModelIndex &index, int role) co
     const SuppressedDiagnostic &diag = m_diagnostics.at(index.row());
     if (index.column() == ColumnFile)
         return diag.filePath.toUserOutput();
-    if (index.column() == ColumnContext) {
-        if (diag.contextKind == QLatin1String("function") && !diag.context.isEmpty())
-            return tr("Function \"%1\"").arg(diag.context);
-        return QString();
-    }
     if (index.column() == ColumnDescription)
         return diag.description;
     return QVariant();

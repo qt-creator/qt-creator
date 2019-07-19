@@ -39,12 +39,9 @@ class Diagnostic;
 class SuppressedDiagnostic
 {
 public:
-    SuppressedDiagnostic(const Utils::FilePath &filePath, const QString &description,
-                         const QString &contextKind, const QString &context, int uniquifier)
+    SuppressedDiagnostic(const Utils::FilePath &filePath, const QString &description, int uniquifier)
         : filePath(filePath)
         , description(description)
-        , contextKind(contextKind)
-        , context(context)
         , uniquifier(uniquifier)
     {
     }
@@ -53,16 +50,14 @@ public:
 
     Utils::FilePath filePath; // Relative for files in project, absolute otherwise.
     QString description;
-    QString contextKind;
-    QString context;
     int uniquifier;
 };
 
 inline bool operator==(const SuppressedDiagnostic &d1, const SuppressedDiagnostic &d2)
 {
-    return d1.filePath == d2.filePath && d1.description == d2.description
-            && d1.contextKind == d2.contextKind && d1.context == d2.context
-            && d1.uniquifier == d2.uniquifier;
+    return d1.filePath == d2.filePath
+        && d1.description == d2.description
+        && d1.uniquifier == d2.uniquifier;
 }
 
 using SuppressedDiagnosticsList = QList<SuppressedDiagnostic>;

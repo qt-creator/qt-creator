@@ -92,8 +92,6 @@ QDebug operator<<(QDebug debug, const Diagnostic &d)
 {
     return debug << "category:" << d.category
                  << "type:" << d.type
-                 << "context:" << d.issueContext
-                 << "contextKind:" << d.issueContextKind
                  << "hasFixits:" << d.hasFixits
                  << "explainingSteps:" << d.explainingSteps.size()
                  << "location:" << d.location
@@ -233,13 +231,6 @@ static QString createDiagnosticToolTipString(const Diagnostic &diagnostic, Fixit
                      diagnostic.description.toHtmlEscaped());
     }
 
-    if (!diagnostic.issueContext.isEmpty() && !diagnostic.issueContextKind.isEmpty()) {
-        lines << qMakePair(
-                     QCoreApplication::translate("ClangTools::Diagnostic", "Context:"),
-                     diagnostic.issueContextKind.toHtmlEscaped() + QLatin1Char(' ')
-                     + diagnostic.issueContext.toHtmlEscaped());
-    }
-
     lines << qMakePair(
         QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
                 createFullLocationString(diagnostic.location));
@@ -266,9 +257,6 @@ static QString createDiagnosticToolTipString(const Diagnostic &diagnostic, Fixit
 
 static QString createExplainingStepToolTipString(const ExplainingStep &step)
 {
-    if (step.message == step.extendedMessage)
-        return createFullLocationString(step.location);
-
     using StringPair = QPair<QString, QString>;
     QList<StringPair> lines;
 
@@ -276,11 +264,6 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
         lines << qMakePair(
             QCoreApplication::translate("ClangTools::ExplainingStep", "Message:"),
                 step.message.toHtmlEscaped());
-    }
-    if (!step.extendedMessage.isEmpty()) {
-        lines << qMakePair(
-            QCoreApplication::translate("ClangTools::ExplainingStep", "Extended message:"),
-                step.extendedMessage.toHtmlEscaped());
     }
 
     lines << qMakePair(
