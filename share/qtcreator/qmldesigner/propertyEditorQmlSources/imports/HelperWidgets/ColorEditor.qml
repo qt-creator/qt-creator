@@ -518,8 +518,8 @@ Column {
                 height: 20
                 visible: colorEditor.supportGradient
 
-                color: "white"
-                border.color: "white"
+                color: Theme.qmlDesignerButtonColor()
+                border.color: Theme.qmlDesignerBorderColor()
                 border.width: 1
 
                 ToolTipArea {
@@ -566,20 +566,18 @@ Column {
                     }
                 }
 
-                Rectangle {
-                    width: 18
-                    height: 18
+                Image {
+                    id: image
+                    width: 16
+                    height: 16
+                    smooth: false
                     anchors.centerIn: parent
-                    color: "steelblue"
-
-                    border.color: "black"
-                    border.width: 1
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            presetList.open()
-                        }
+                    source: "images/icon-gradient-list.png"
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        presetList.open()
                     }
                 }
             }
