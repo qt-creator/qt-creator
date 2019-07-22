@@ -62,7 +62,7 @@ void CppHoverHandler::identifyMatch(TextEditorWidget *editorWidget, int pos, Rep
         const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
         const QStringList candidates = cppElement->helpIdCandidates;
         const HelpItem helpItem(candidates + fallback, cppElement->helpMark, cppElement->helpCategory);
-        setLastHelpItemIdentified(helpItem); // tool tip appended by decorateToolTip
+        setLastHelpItemIdentified(helpItem); // tool tip appended by BaseHoverHandler::decorateToolTip
         if (!helpItem.isValid())
             tip += cppElement->tooltip;
     } else {

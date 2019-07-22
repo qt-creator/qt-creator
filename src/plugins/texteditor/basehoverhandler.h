@@ -80,11 +80,11 @@ protected:
     //    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
     // at the beginning of an implementation to ensure this in any case.
     virtual void identifyMatch(TextEditorWidget *editorWidget, int pos, ReportPriority report);
-    virtual void decorateToolTip();
     virtual void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point);
 
 private:
     void process(TextEditorWidget *widget, int pos, ReportPriority report);
+    void decorateToolTip();
 
     QString m_toolTip;
     Core::HelpItem m_lastHelpItemIdentified;
