@@ -384,10 +384,13 @@ void GenericProject::parseProject(RefreshOptions options)
     }
 }
 
-QString GenericProject::findCommonSourceRoot(const QStringList &list)
+FilePath GenericProject::findCommonSourceRoot()
 {
-    QString root = list.front();
-    for (const QString &item : list) {
+    if (m_files.isEmpty())
+        return FilePath::fromFileInfo(QFileInfo(m_filesFileName).absolutePath());
+
+    QString root = m_files.front();
+    for (const QString &item : m_files) {
         if (root.length() > item.length())
             root.truncate(item.length());
 
@@ -398,7 +401,7 @@ QString GenericProject::findCommonSourceRoot(const QStringList &list)
             }
         }
     }
-    return QFileInfo(root).absolutePath();
+    return FilePath::fromString(QFileInfo(root).absolutePath());
 }
 
 void GenericProject::refresh(RefreshOptions options)
@@ -410,7 +413,7 @@ void GenericProject::refresh(RefreshOptions options)
         auto newRoot = std::make_unique<GenericProjectNode>(this);
 
         // find the common base directory of all source files
-        Utils::FilePath baseDir = FilePath::fromFileInfo(QFileInfo(findCommonSourceRoot(m_files)));
+        Utils::FilePath baseDir = findCommonSourceRoot();
 
         for (const QString &f : m_files) {
             FileType fileType = FileType::Source; // ### FIXME

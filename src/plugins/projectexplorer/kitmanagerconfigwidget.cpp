@@ -172,6 +172,7 @@ void KitManagerConfigWidget::apply()
     const auto copyIntoKit = [this](Kit *k) { k->copyFrom(m_modifiedKit.get()); };
     if (m_kit) {
         copyIntoKit(m_kit);
+        KitManager::notifyAboutUpdate(m_kit);
     } else {
         m_isRegistering = true;
         m_kit = KitManager::registerKit(copyIntoKit);

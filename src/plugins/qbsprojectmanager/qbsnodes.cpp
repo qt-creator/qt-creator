@@ -218,17 +218,8 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
     const QbsProject * const project = parentQbsProjectNode(node)->project();
     if (!project->isProjectEditable())
         return false;
-
-    auto equalsNodeFilePath = [node](const QString &str)
-    {
-        return str == node->filePath().toString();
-    };
-
-    if (action == RemoveFile || action == Rename) {
-       if (node->asFileNode())
-           return !Utils::contains(project->qbsProject().buildSystemFiles(), equalsNodeFilePath);
-    }
-
+    if (action == RemoveFile || action == Rename)
+        return node->asFileNode();
     return false;
 }
 

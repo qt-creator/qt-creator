@@ -655,6 +655,7 @@ void ClangCodeCompletionTest::testCompleteProjectDependingCodeAfterChangingProje
 
         // Check completion with project configuration 2
         QVERIFY(projectLoader.updateProject({{"PROJECT_CONFIGURATION_2"}}));
+        openEditor.waitUntilBackendIsNotified();
         proposal = completionResults(openEditor.editor());
 
         QVERIFY(!hasItem(proposal, "projectConfiguration1"));

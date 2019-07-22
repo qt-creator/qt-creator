@@ -159,6 +159,7 @@ private:
     std::function<QStringList(const QStringList &)> m_filterFiles;
     QTextCodec *m_encoding;
     QStack<QDir> m_dirs;
+    QSet<QString> m_knownDirs;
     QStack<qreal> m_progressValues;
     QStack<bool> m_processedValues;
     qreal m_progress;

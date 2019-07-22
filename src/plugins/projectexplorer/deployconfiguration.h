@@ -97,6 +97,10 @@ public:
     void setConfigWidgetCreator(const std::function<NamedWidget *(Target *)> &configWidgetCreator);
     void setUseDeploymentDataView();
 
+    using PostRestore = std::function<void(DeployConfiguration *dc, const QVariantMap &)>;
+    void setPostRestore(const PostRestore &postRestore) {  m_postRestore = postRestore; }
+    PostRestore postRestore() const { return m_postRestore; }
+
 protected:
     using DeployConfigurationCreator = std::function<DeployConfiguration *(Target *)>;
     void setConfigBaseId(Core::Id deployConfigBaseId);
@@ -109,6 +113,7 @@ private:
     QList<BuildStepList::StepCreationInfo> m_initialSteps;
     QString m_defaultDisplayName;
     std::function<NamedWidget *(Target *)> m_configWidgetCreator;
+    PostRestore m_postRestore;
 };
 
 class DefaultDeployConfigurationFactory : public DeployConfigurationFactory

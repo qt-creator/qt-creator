@@ -357,9 +357,23 @@ public:
     { insert(documentRangeFormattingProviderKey, documentRangeFormattingProvider); }
     void clearDocumentRangeFormattingProvider() { remove(documentRangeFormattingProviderKey); }
 
+    class RenameOptions : public JsonObject
+    {
+    public:
+        using JsonObject::JsonObject;
+
+        // Renames should be checked and tested before being executed.
+        Utils::optional<bool> prepareProvider() const { return optionalValue<bool>(prepareProviderKey); }
+        void setPrepareProvider(bool prepareProvider) { insert(prepareProviderKey, prepareProvider); }
+        void clearPrepareProvider() { remove(prepareProviderKey); }
+
+        bool isValid(QStringList * error) const override
+        { return checkOptional<bool>(error, prepareProviderKey); }
+    };
+
     // The server provides rename support.
-    Utils::optional<bool> renameProvider() const { return optionalValue<bool>(renameProviderKey); }
-    void setRenameProvider(bool renameProvider) { insert(renameProviderKey, renameProvider); }
+    Utils::optional<Utils::variant<RenameOptions, bool>> renameProvider() const;
+    void setRenameProvider(Utils::variant<RenameOptions,bool> renameProvider);
     void clearRenameProvider() { remove(renameProviderKey); }
 
     // The server provides document link support.
@@ -370,10 +384,8 @@ public:
     void clearDocumentLinkProvider() { remove(documentLinkProviderKey); }
 
     // The server provides color provider support.
-    Utils::optional<TextDocumentRegistrationOptions> colorProvider() const
-    { return optionalValue<TextDocumentRegistrationOptions>(colorProviderKey); }
-    void setColorProvider(TextDocumentRegistrationOptions colorProvider)
-    { insert(colorProviderKey, colorProvider); }
+    Utils::optional<Utils::variant<bool, JsonObject>> colorProvider() const;
+    void setColorProvider(Utils::variant<bool, JsonObject> colorProvider);
     void clearColorProvider() { remove(colorProviderKey); }
 
     // The server provides execute command support.

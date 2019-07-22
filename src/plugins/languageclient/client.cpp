@@ -45,6 +45,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
+#include <texteditor/ioutlinewidget.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
@@ -487,6 +488,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             cursor.setPosition(position + charsRemoved);
             cursor.setPosition(position, QTextCursor::KeepAnchor);
             change.setRange(Range(cursor));
+            change.setRangeLength(cursor.selectionEnd() - cursor.selectionStart());
             change.setText(document->textAt(position, charsAdded));
             params.setContentChanges({change});
         } else {
@@ -1175,8 +1177,10 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
     } else {
         const InitializeResult &result = _result.value();
         QStringList error;
-        if (!result.isValid(&error)) // continue on ill formed result
+        if (!result.isValid(&error)) { // continue on ill formed result
+            std::reverse(error.begin(), error.end());
             log(tr("Initialize result is not valid: ") + error.join("->"));
+        }
 
         m_serverCapabilities = result.capabilities().value_or(ServerCapabilities());
     }
@@ -1192,6 +1196,10 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
     for (Core::IEditor *editor : Core::DocumentModel::editorsForOpenedDocuments()) {
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
             textEditor->editorWidget()->addHoverHandler(&m_hoverHandler);
+    }
+    if (m_dynamicCapabilities.isRegistered(DocumentSymbolsRequest::methodName)
+            .value_or(capabilities().documentSymbolProvider().value_or(false))) {
+        TextEditor::IOutlineWidgetFactory::updateOutline();
     }
     emit initialized(m_serverCapabilities);
 }
