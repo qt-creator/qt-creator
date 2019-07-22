@@ -36,6 +36,7 @@ import inspect
 import traceback
 import linecache
 import fnmatch
+import platform
 
 class QuitException(Exception):
     pass
@@ -248,6 +249,8 @@ class Dumper:
         if not canonic:
             canonic = os.path.abspath(filename)
             canonic = os.path.normcase(canonic)
+            if platform.system() in ('Microsoft', 'Windows'):
+                canonic = canonic.replace('\\', '/')
             self.fncache[filename] = canonic
         return canonic
 
