@@ -14,14 +14,24 @@ QtcPlugin {
         name: "General"
         files: [
             "python.qrc",
-            "pythoneditor.cpp", "pythoneditor.h",
+            "pythoneditor.cpp",
+            "pythoneditor.h",
             "pythonconstants.h",
-            "pythonplugin.cpp", "pythonplugin.h",
-            "pythonhighlighter.h", "pythonhighlighter.cpp",
-            "pythonindenter.cpp", "pythonindenter.h",
+            "pythonplugin.cpp",
+            "pythonplugin.h",
+            "pythonhighlighter.h",
+            "pythonhighlighter.cpp",
+            "pythonindenter.cpp",
+            "pythonindenter.h",
             "pythonformattoken.h",
-            "pythonscanner.h", "pythonscanner.cpp",
-            "pythonsettings.cpp", "pythonsettings.h",
+            "pythonproject.cpp",
+            "pythonproject.h",
+            "pythonrunconfiguration.cpp",
+            "pythonrunconfiguration.h",
+            "pythonscanner.h",
+            "pythonscanner.cpp",
+            "pythonsettings.cpp",
+            "pythonsettings.h",
         ]
     }
 }

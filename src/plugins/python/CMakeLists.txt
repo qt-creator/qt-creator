@@ -8,6 +8,8 @@ add_qtc_plugin(Python
     pythonformattoken.h
     pythonhighlighter.cpp pythonhighlighter.h
     pythonindenter.cpp pythonindenter.h
+    pythonproject.cpp pythonproject.h
+    pythonrunconfiguration.cpp pythonrunconfiguration.h
     pythonsettings.cpp pythonsettings.h
     pythonscanner.cpp pythonscanner.h
 )

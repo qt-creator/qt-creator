@@ -10,6 +10,8 @@ HEADERS += \
     pythonhighlighter.h \
     pythonindenter.h \
     pythonformattoken.h \
+    pythonproject.h \
+    pythonrunconfiguration.h \
     pythonscanner.h \
     pythonsettings.h
 
@@ -18,6 +20,8 @@ SOURCES += \
     pythoneditor.cpp \
     pythonhighlighter.cpp \
     pythonindenter.cpp \
+    pythonproject.cpp \
+    pythonrunconfiguration.cpp \
     pythonscanner.cpp \
     pythonsettings.cpp
 
