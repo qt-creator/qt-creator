@@ -1327,6 +1327,8 @@ WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
 
 QStringList ClangToolChain::suggestedMkspecList() const
 {
+    if (const ToolChain * const parentTc = ToolChainManager::findToolChain(m_parentToolChainId))
+        return parentTc->suggestedMkspecList();
     const Abi abi = targetAbi();
     if (abi.os() == Abi::DarwinOS)
         return {"macx-clang", "macx-clang-32", "unsupported/macx-clang", "macx-ios-clang"};
@@ -1560,6 +1562,8 @@ void ClangToolChainConfigWidget::applyImpl()
         for (const ToolChain *mingwTC : mingwToolChains()) {
             if (parentId == mingwTC->id()) {
                 tc->m_parentToolChainId = mingwTC->id();
+                tc->setTargetAbi(mingwTC->targetAbi());
+                tc->setSupportedAbis(mingwTC->supportedAbis());
                 break;
             }
         }
