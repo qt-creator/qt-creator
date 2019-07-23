@@ -102,6 +102,9 @@ phony.c
 # Squish generated files
 /tests/system/suite_*/config.xml
 
+# Clang tooling files
+compile_commands.json
+
 # Directories to ignore
 # ---------------------
 
