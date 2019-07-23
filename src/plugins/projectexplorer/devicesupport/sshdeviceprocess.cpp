@@ -322,7 +322,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(Signal signal)
     case SshDeviceProcessPrivate::Connected:
     case SshDeviceProcessPrivate::ProcessRunning:
         DeviceProcessSignalOperation::Ptr signalOperation = q->device()->signalOperation();
-        quint64 processId = q->processId();
+        const qint64 processId = q->processId();
         if (signal == Signal::Interrupt) {
             if (processId != 0)
                 signalOperation->interruptProcess(processId);
