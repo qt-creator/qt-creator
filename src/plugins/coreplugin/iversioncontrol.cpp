@@ -26,9 +26,12 @@
 #include "iversioncontrol.h"
 #include "vcsmanager.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QStringList>
 
 /*!
@@ -88,6 +91,50 @@ ShellCommand *IVersionControl::createInitialCheckoutCommand(const QString &url,
     Q_UNUSED(localName)
     Q_UNUSED(extraArgs)
     return nullptr;
+}
+
+IVersionControl::RepoUrl::RepoUrl(const QString &location)
+{
+    if (location.isEmpty())
+        return;
+
+    // Check for local remotes (refer to the root or relative path)
+    // On Windows, local paths typically starts with <drive>:
+    auto locationIsOnWindowsDrive = [&location] {
+        if (!Utils::HostOsInfo::isWindowsHost() || location.size() < 2)
+            return false;
+        const QChar drive = location.at(0).toLower();
+        return drive >= 'a' && drive <= 'z' && location.at(1) == ':';
+    };
+    if (location.startsWith("file://") || location.startsWith('/') || location.startsWith('.')
+            || locationIsOnWindowsDrive()) {
+        protocol = "file";
+        path = QDir::fromNativeSeparators(location.startsWith("file://")
+                                               ? location.mid(7) : location);
+        isValid = true;
+        return;
+    }
+
+    // TODO: Why not use QUrl?
+    static const QRegularExpression remotePattern(
+                "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)"
+                "(?::(?<port>\\d+))?:?(?<path>.*)$");
+    const QRegularExpressionMatch match = remotePattern.match(location);
+    if (!match.hasMatch())
+        return;
+
+    bool ok  = false;
+    protocol = match.captured("protocol");
+    userName = match.captured("user");
+    host = match.captured("host");
+    port = match.captured("port").toUShort(&ok);
+    path = match.captured("path");
+    isValid = !host.isEmpty() && (ok || match.captured("port").isEmpty());
+}
+
+IVersionControl::RepoUrl IVersionControl::getRepoUrl(const QString &location) const
+{
+    return RepoUrl(location);
 }
 
 QString IVersionControl::vcsTopic(const QString &topLevel)

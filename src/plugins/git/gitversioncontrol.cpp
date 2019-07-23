@@ -163,6 +163,11 @@ Core::ShellCommand *GitVersionControl::createInitialCheckoutCommand(const QStrin
     return command;
 }
 
+GitVersionControl::RepoUrl GitVersionControl::getRepoUrl(const QString &location) const
+{
+    return GitRemote(location);
+}
+
 QStringList GitVersionControl::additionalToolsPath() const
 {
     QStringList res = m_client->settings().searchPathList();

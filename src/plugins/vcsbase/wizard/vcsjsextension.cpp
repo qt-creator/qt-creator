@@ -45,5 +45,11 @@ QString VcsJsExtension::displayName(const QString &vcsId) const
     return vc ? vc->displayName() : QString();
 }
 
+bool VcsJsExtension::isValidRepoUrl(const QString &vcsId, const QString &location) const
+{
+    const IVersionControl * const vc = VcsManager::versionControl(Id::fromString(vcsId));
+    return vc && vc->getRepoUrl(location).isValid;
+}
+
 } // namespace Internal
 } // namespace VcsBase

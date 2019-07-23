@@ -29,6 +29,7 @@
 #include "commitdata.h"
 
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/iversioncontrol.h>
 #include <vcsbase/vcsbaseclient.h>
 
 #include <utils/fileutils.h>
@@ -381,16 +382,10 @@ private:
     QFutureSynchronizer<void> m_synchronizer; // for commit updates
 };
 
-class GitRemote {
+class GitRemote : public Core::IVersionControl::RepoUrl
+{
 public:
-    GitRemote(const QString &url);
-
-    QString protocol;
-    QString userName;
-    QString host;
-    QString path;
-    quint16 port = 0;
-    bool    isValid = false;
+    GitRemote(const QString &location);
 };
 
 } // namespace Internal

@@ -37,6 +37,7 @@ class VcsJsExtension : public QObject
 public:
     Q_INVOKABLE bool isConfigured(const QString &vcsId) const;
     Q_INVOKABLE QString displayName(const QString &vcsId) const;
+    Q_INVOKABLE bool isValidRepoUrl(const QString &vcsId, const QString &location) const;
 };
 
 } // namespace Internal

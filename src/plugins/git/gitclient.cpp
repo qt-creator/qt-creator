@@ -3458,44 +3458,10 @@ void GitClient::StashInfo::end()
     m_stashResult = NotStashed;
 }
 
-// GitRemote
-
-GitRemote::GitRemote(const QString &url)
+GitRemote::GitRemote(const QString &location) : Core::IVersionControl::RepoUrl(location)
 {
-    static const QRegularExpression remotePattern(
-                "^(?:(?<protocol>[^:]+)://)?(?:(?<user>[^@]+)@)?(?<host>[^:/]+)"
-                "(?::(?<port>\\d+))?:?(?<path>.*)$");
-
-    if (url.isEmpty())
-        return;
-
-    // Check for local remotes (refer to the root or relative path)
-    // On Windows, local paths typically starts with <drive>:
-    auto startsWithWindowsDrive = [](const QString &url) {
-        if (!HostOsInfo::isWindowsHost() || url.size() < 2)
-            return false;
-        const QChar drive = url.at(0).toLower();
-        return drive >= 'a' && drive <= 'z' && url.at(1) == ':';
-    };
-    if (url.startsWith("file://") || url.startsWith('/') || url.startsWith('.')
-            || startsWithWindowsDrive(url)) {
-        protocol = "file";
-        path = QDir::fromNativeSeparators(url.startsWith("file://") ? url.mid(7) : url);
+    if (isValid && protocol == "file")
         isValid = QDir(path).exists() || QDir(path + ".git").exists();
-        return;
-    }
-
-    const QRegularExpressionMatch match = remotePattern.match(url);
-    if (!match.hasMatch())
-        return;
-
-    bool ok  = false;
-    protocol = match.captured("protocol");
-    userName = match.captured("user");
-    host     = match.captured("host");
-    port     = match.captured("port").toUShort(&ok);
-    path     = match.captured("path");
-    isValid  = ok || match.captured("port").isEmpty();
 }
 
 } // namespace Internal

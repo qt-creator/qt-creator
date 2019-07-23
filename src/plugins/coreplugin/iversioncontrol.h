@@ -217,6 +217,19 @@ public:
                                                        const QString &localName,
                                                        const QStringList &extraArgs);
 
+    class RepoUrl {
+    public:
+        RepoUrl(const QString &location);
+
+        QString protocol;
+        QString userName;
+        QString host;
+        QString path;
+        quint16 port = 0;
+        bool isValid = false;
+    };
+    virtual RepoUrl getRepoUrl(const QString &location) const;
+
 signals:
     void repositoryChanged(const QString &repository);
     void filesChanged(const QStringList &files);

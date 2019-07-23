@@ -63,6 +63,8 @@ public:
                                                      const QString &localName,
                                                      const QStringList &extraArgs) final;
 
+    RepoUrl getRepoUrl(const QString &location) const override;
+
     QStringList additionalToolsPath() const final;
 
     void emitFilesChanged(const QStringList &);

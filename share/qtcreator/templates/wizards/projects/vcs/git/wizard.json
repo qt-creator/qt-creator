@@ -39,7 +39,9 @@
                 {
                     "name": "Repo",
                     "trDisplayName": "Repository:",
-                    "type": "LineEdit"
+                    "type": "LineEdit",
+                    "isComplete": "%{JS: Vcs.isValidRepoUrl('%{vcsId}', '%{Repo}')}",
+                    "trIncompleteMessage": "Repository URL is not valid"
                 },
                 {
                     "name": "Branch",
