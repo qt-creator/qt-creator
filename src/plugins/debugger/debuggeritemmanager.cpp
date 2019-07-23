@@ -759,8 +759,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
     if (HostOsInfo::isMacHost()) {
         SynchronousProcess lldbInfo;
         lldbInfo.setTimeoutS(2);
-        SynchronousProcessResponse response
-            = lldbInfo.runBlocking(CommandLine(FilePath::fromString("xcrun"), {"--find", "lldb"}));
+        SynchronousProcessResponse response = lldbInfo.runBlocking({"xcrun", {"--find", "lldb"}});
         if (response.result == Utils::SynchronousProcessResponse::Finished) {
             QString lPath = response.allOutput().trimmed();
             if (!lPath.isEmpty()) {

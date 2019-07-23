@@ -239,7 +239,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     Utils::SynchronousProcess vsWhereProcess;
     const int timeoutS = 5;
     vsWhereProcess.setTimeoutS(timeoutS);
-    const CommandLine cmd(FilePath::fromString(vswhere),
+    const CommandLine cmd(vswhere,
             {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"});
     Utils::SynchronousProcessResponse response = vsWhereProcess.runBlocking(cmd);
     switch (response.result) {
@@ -1512,7 +1512,7 @@ static QVersionNumber clangClVersion(const QString &clangClPath)
 {
     SynchronousProcess clangClProcess;
     const SynchronousProcessResponse response
-        = clangClProcess.runBlocking({FilePath::fromString(clangClPath), {"--version"}});
+        = clangClProcess.runBlocking({clangClPath, {"--version"}});
     if (response.result != SynchronousProcessResponse::Finished || response.exitCode != 0)
         return {};
     const QRegularExpressionMatch match = QRegularExpression(

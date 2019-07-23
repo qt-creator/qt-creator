@@ -1369,7 +1369,8 @@ bool GitClient::synchronousReset(const QString &workingDirectory,
 // Initialize repository
 bool GitClient::synchronousInit(const QString &workingDirectory)
 {
-    const SynchronousProcessResponse resp = vcsFullySynchronousExec(workingDirectory, {"init"});
+    const SynchronousProcessResponse resp = vcsFullySynchronousExec(workingDirectory,
+                                                                    QStringList{"init"});
     // '[Re]Initialized...'
     VcsOutputWindow::append(resp.stdOut());
     if (resp.result == SynchronousProcessResponse::Finished) {
@@ -1581,7 +1582,7 @@ QString GitClient::synchronousTopic(const QString &workingDirectory) const
 
     // No tag or remote branch - try git describe
     const SynchronousProcessResponse resp =
-            vcsFullySynchronousExec(workingDirectory, {"describe"}, VcsCommand::NoOutput);
+        vcsFullySynchronousExec(workingDirectory, QStringList{"describe"}, VcsCommand::NoOutput);
     if (resp.result == SynchronousProcessResponse::Finished) {
         const QString stdOut = resp.stdOut().trimmed();
         if (!stdOut.isEmpty())
@@ -2422,7 +2423,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
         arguments.append(QtcProcess::splitArgs(gitkOpts, HostOsInfo::hostOs()));
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
-    VcsOutputWindow::appendCommand(workingDirectory, {FilePath::fromString(binary), arguments});
+    VcsOutputWindow::appendCommand(workingDirectory, {binary, arguments});
     // This should always use QProcess::startDetached (as not to kill
     // the child), but that does not have an environment parameter.
     bool success = false;

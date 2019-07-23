@@ -93,7 +93,7 @@ bool WinRtPackageDeploymentStep::init()
 
     const QString windeployqtPath = FileUtils::resolvePath(qt->binPath().toString(), "windeployqt.exe");
 
-    CommandLine windeployqt{FilePath::fromString(windeployqtPath)};
+    CommandLine windeployqt{windeployqtPath};
     windeployqt.addArg(QDir::toNativeSeparators(m_targetFilePath));
     windeployqt.addArgs(m_argsAspect->value(), CommandLine::Raw);
 

@@ -67,7 +67,7 @@ void XcodeProbe::detectDeveloperPaths()
 {
     Utils::SynchronousProcess selectedXcode;
     selectedXcode.setTimeoutS(5);
-    const CommandLine xcodeSelect{FilePath::fromString("/usr/bin/xcode-select"), {"--print-path"}};
+    const CommandLine xcodeSelect{"/usr/bin/xcode-select", {"--print-path"}};
     Utils::SynchronousProcessResponse response = selectedXcode.run(xcodeSelect);
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         qCWarning(probeLog)

@@ -405,8 +405,7 @@ void DebuggerRunTool::setServerStartScript(const FilePath &serverStartScript)
     if (!serverStartScript.isEmpty()) {
         // Provide script information about the environment
         const CommandLine serverStarter(serverStartScript,
-        {m_runParameters.inferior.executable.toString(),
-         m_runParameters.remoteChannel});
+            {m_runParameters.inferior.executable.toString(), m_runParameters.remoteChannel});
         addStartDependency(new LocalProcessRunner(this, serverStarter));
     }
 }

@@ -282,7 +282,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
 
     setOutputFormatter<PythonOutputFormatter>();
     setCommandLineGetter([this, interpreterAspect, argumentsAspect] {
-        CommandLine cmd{FilePath::fromString(interpreterAspect->value()), {mainScript()}};
+        CommandLine cmd{interpreterAspect->value(), {mainScript()}};
         cmd.addArgs(argumentsAspect->arguments(macroExpander()), CommandLine::Raw);
         return cmd;
     });

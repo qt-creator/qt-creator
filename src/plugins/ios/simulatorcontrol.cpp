@@ -91,7 +91,7 @@ static bool runCommand(const CommandLine &command, QString *output)
 static bool runSimCtlCommand(QStringList args, QString *output)
 {
     args.prepend("simctl");
-    return runCommand({FilePath::fromString("xcrun"), args}, output);
+    return runCommand({"xcrun", args}, output);
 }
 
 static bool launchSimulator(const QString &simUdid) {
@@ -102,7 +102,7 @@ static bool launchSimulator(const QString &simUdid) {
     if (IosConfigurations::xcodeVersion() >= QVersionNumber(9)) {
         // For XCode 9 boot the second device instead of launching simulator app twice.
         QString psOutput;
-        if (runCommand({FilePath::fromString("ps"), {"-A", "-o", "comm"}}, &psOutput)) {
+        if (runCommand({"ps", {"-A", "-o", "comm"}}, &psOutput)) {
             for (const QString &comm : psOutput.split('\n')) {
                 if (comm == simulatorAppPath)
                     return runSimCtlCommand({"boot", simUdid}, nullptr);

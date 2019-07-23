@@ -140,8 +140,7 @@ namespace {
                 SynchronousProcess proc;
                 proc.setProcessChannelMode(QProcess::MergedChannels);
                 proc.setTimeoutS(30);
-                SynchronousProcessResponse response
-                        = proc.runBlocking({FilePath::fromString(executable), {shell}});
+                SynchronousProcessResponse response = proc.runBlocking({executable, {shell}});
                 if (response.result != SynchronousProcessResponse::Finished)
                     return true;
                 return !response.allOutput().contains("x86-64");
@@ -1189,7 +1188,7 @@ void AndroidConfigurations::load()
                 proc.setTimeoutS(2);
                 proc.setProcessChannelMode(QProcess::MergedChannels);
                 SynchronousProcessResponse response =
-                        proc.runBlocking({FilePath::fromString(javaHomeExec.absoluteFilePath()), {}});
+                        proc.runBlocking({javaHomeExec.absoluteFilePath(), {}});
                 if (response.result == SynchronousProcessResponse::Finished) {
                     const QString &javaHome = response.allOutput().trimmed();
                     if (!javaHome.isEmpty() && QFileInfo::exists(javaHome))

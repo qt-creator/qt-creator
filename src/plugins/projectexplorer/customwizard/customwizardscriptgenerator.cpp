@@ -108,7 +108,7 @@ static bool
     }
     process.setWorkingDirectory(workingDirectory);
     process.setTimeoutS(30);
-    const Utils::CommandLine cmd(Utils::FilePath::fromString(binary), arguments);
+    const Utils::CommandLine cmd(binary, arguments);
     if (CustomWizard::verbose())
         qDebug("In %s, running:\n%s\n", qPrintable(workingDirectory),
                qPrintable(cmd.toUserOutput()));

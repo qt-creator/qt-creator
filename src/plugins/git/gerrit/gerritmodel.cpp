@@ -314,8 +314,7 @@ void QueryContext::start()
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress.reportStarted();
     // Order: synchronous call to error handling if something goes wrong.
-    VcsOutputWindow::appendCommand(
-                m_process.workingDirectory(), {Utils::FilePath::fromString(m_binary), m_arguments});
+    VcsOutputWindow::appendCommand(m_process.workingDirectory(), {m_binary, m_arguments});
     m_timer.start();
     m_process.start(m_binary, m_arguments);
     m_process.closeWriteChannel();

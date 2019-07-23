@@ -996,8 +996,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
         }
     }
     process.setTimeOutMessageBoxEnabled(true);
-    const SynchronousProcessResponse sp_resp = process.run(
-        CommandLine{FilePath::fromString(settings().p4BinaryPath()), args});
+    const SynchronousProcessResponse sp_resp = process.run({settings().p4BinaryPath(), args});
 
     PerforceResponse response;
     response.error = true;
@@ -1119,7 +1118,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        VcsOutputWindow::appendCommand(workingDir, {FilePath::fromString(settings().p4BinaryPath()), actualArgs});
+        VcsOutputWindow::appendCommand(workingDir, {settings().p4BinaryPath(), actualArgs});
 
     if (flags & ShowBusyCursor)
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

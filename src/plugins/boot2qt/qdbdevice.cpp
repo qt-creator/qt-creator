@@ -144,13 +144,11 @@ QdbDevice::QdbDevice()
     setDisplayType(tr("Boot2Qt Device"));
 
     addDeviceAction({tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
-        CommandLine cmd{FilePath::fromString("reboot")};
-        (void) new DeviceApplicationObserver(device, cmd);
+        (void) new DeviceApplicationObserver(device, CommandLine{"reboot"});
     }});
 
     addDeviceAction({tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
-        CommandLine cmd{FilePath::fromString("appcontroller"), {"--remove-default"}};
-        (void) new DeviceApplicationObserver(device, cmd);
+        (void) new DeviceApplicationObserver(device, CommandLine{"appcontroller", {"--remove-default"}});
     }});
 }
 

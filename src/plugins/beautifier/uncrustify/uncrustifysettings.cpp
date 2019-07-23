@@ -152,7 +152,7 @@ void UncrustifySettings::createDocumentationFile() const
     Utils::SynchronousProcess process;
     process.setTimeoutS(2);
     Utils::SynchronousProcessResponse response
-            = process.runBlocking(Utils::CommandLine(command(), {"--show-config"}));
+            = process.runBlocking({command(), {"--show-config"}});
     if (response.result != Utils::SynchronousProcessResponse::Finished)
         return;
 

@@ -135,7 +135,9 @@ public:
     enum class MetaCharMode { Abort, Ignore };
 
     CommandLine() {}
+    explicit CommandLine(const QString &executable);
     explicit CommandLine(const FilePath &executable);
+    CommandLine(const QString &exe, const QStringList &args);
     CommandLine(const FilePath &exe,
                 const QStringList &args,
                 MetaCharMode metaCharMode = MetaCharMode::Abort);

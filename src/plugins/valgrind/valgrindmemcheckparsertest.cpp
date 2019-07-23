@@ -477,7 +477,7 @@ void ValgrindMemcheckParserTest::testValgrindGarbage()
 void ValgrindMemcheckParserTest::testParserStop()
 {
     ValgrindRunner runner;
-    runner.setValgrindCommand({FilePath::fromString(fakeValgrindExecutable()),
+    runner.setValgrindCommand({fakeValgrindExecutable(),
                                {QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()),
                                 "-i", dataFile("memcheck-output-sample1.xml"), "--wait", "5" }});
     runner.setProcessChannelMode(QProcess::ForwardedChannels);
@@ -502,7 +502,7 @@ void ValgrindMemcheckParserTest::testRealValgrind()
     debuggee.executable = FilePath::fromString(executable);
     debuggee.environment = sysEnv;
     ValgrindRunner runner;
-    runner.setValgrindCommand({FilePath::fromString("valgrind"), {}});
+    runner.setValgrindCommand({"valgrind", {}});
     runner.setDebuggee(debuggee);
     runner.setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
                          ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
@@ -541,7 +541,7 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     debuggeeExecutable.commandLineArguments = debuggeeArgs;
 
     ValgrindRunner runner;
-    runner.setValgrindCommand({FilePath::fromString(valgrindExe), valgrindArgs});
+    runner.setValgrindCommand({valgrindExe, valgrindArgs});
     runner.setDebuggee(debuggeeExecutable);
     runner.setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
                          ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));

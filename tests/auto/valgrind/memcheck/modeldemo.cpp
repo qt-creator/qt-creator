@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Error>();
 
     ValgrindRunner runner;
-    runner.setValgrindCommand({Utils::FilePath::fromString(VALGRIND_FAKE_PATH),
+    runner.setValgrindCommand({VALGRIND_FAKE_PATH,
                               {"-i", PARSERTESTS_DATA_DIR "/memcheck-output-sample1.xml"}});
 
     ModelDemo demo(&runner);

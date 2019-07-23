@@ -414,8 +414,8 @@ static QString filled(const QString &s, int min)
 QString PluginManager::systemInformation() const
 {
     QString result;
-    CommandLine qtDiag(FilePath::fromString(HostOsInfo::withExecutableSuffix(
-                QLibraryInfo::location(QLibraryInfo::BinariesPath) + "/qtdiag")));
+    CommandLine qtDiag(HostOsInfo::withExecutableSuffix(
+                QLibraryInfo::location(QLibraryInfo::BinariesPath) + "/qtdiag"));
     SynchronousProcess qtdiagProc;
     const SynchronousProcessResponse response = qtdiagProc.runBlocking(qtDiag);
     if (response.result == SynchronousProcessResponse::Finished)

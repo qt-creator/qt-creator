@@ -1453,7 +1453,7 @@ ClearCasePlugin::runCleartool(const QString &workingDir,
 
     const SynchronousProcessResponse sp_resp =
             VcsBasePlugin::runVcs(workingDir,
-                                  {FilePath::fromUserInput(executable), arguments},
+                                  {executable, arguments},
                                   timeOutS,
                                   flags, outputCodec);
 
@@ -2141,7 +2141,7 @@ void ClearCasePlugin::diffGraphical(const QString &file1, const QString &file2)
 QString ClearCasePlugin::runExtDiff(const QString &workingDir, const QStringList &arguments,
                                     int timeOutS, QTextCodec *outputCodec)
 {
-    CommandLine diff(FilePath::fromString("diff"));
+    CommandLine diff("diff");
     diff.addArgs(m_settings.diffArgs.split(' ', QString::SkipEmptyParts));
     diff.addArgs(arguments);
 

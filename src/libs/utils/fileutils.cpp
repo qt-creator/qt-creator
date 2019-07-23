@@ -74,8 +74,16 @@ namespace Utils {
 
 */
 
+CommandLine::CommandLine(const QString &executable)
+    : m_executable(FilePath::fromString(executable))
+{}
+
 CommandLine::CommandLine(const FilePath &executable)
     : m_executable(executable)
+{}
+
+CommandLine::CommandLine(const QString &exe, const QStringList &args)
+    : CommandLine(FilePath::fromString(exe), args)
 {}
 
 CommandLine::CommandLine(const FilePath &exe, const QStringList &args, MetaCharMode metaCharMode)

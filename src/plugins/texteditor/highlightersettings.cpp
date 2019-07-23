@@ -74,7 +74,7 @@ QString findFallbackDefinitionsLocation()
             Utils::SynchronousProcess process;
             process.setTimeoutS(5);
             Utils::SynchronousProcessResponse response
-                    = process.runBlocking({Utils::FilePath::fromString(program), {"--prefix"}});
+                    = process.runBlocking({program, {"--prefix"}});
             if (response.result == Utils::SynchronousProcessResponse::Finished) {
                 QString output = response.stdOut();
                 output.remove(QLatin1Char('\n'));
