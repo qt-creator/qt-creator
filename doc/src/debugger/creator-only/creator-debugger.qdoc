@@ -588,6 +588,8 @@
     \include creator-debugger-common.qdocinc debugger-call-stack-trace
     \include creator-debugger-common.qdocinc debugger-locals
     \include creator-debugger-common.qdocinc debugger-expressions
+    \include creator-debugger-common.qdocinc debugger-expressions-cpp
+    \include creator-debugger-common.qdocinc debugger-qt-basic-objects
 
     \section1 Directly Interacting with Native Debuggers
 
