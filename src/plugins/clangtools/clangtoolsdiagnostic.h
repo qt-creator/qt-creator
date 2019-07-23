@@ -62,6 +62,8 @@ public:
     bool hasFixits = false;
 };
 
+using Diagnostics = QList<Diagnostic>;
+
 quint32 qHash(const Diagnostic &diagnostic);
 
 } // namespace Internal

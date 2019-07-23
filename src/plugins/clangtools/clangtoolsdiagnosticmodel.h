@@ -113,7 +113,7 @@ class ClangToolsDiagnosticModel : public ClangToolsDiagnosticModelBase
 public:
     ClangToolsDiagnosticModel(QObject *parent = nullptr);
 
-    void addDiagnostics(const QList<Diagnostic> &diagnostics);
+    void addDiagnostics(const Diagnostics &diagnostics);
     QSet<Diagnostic> diagnostics() const;
 
     enum ItemRole {

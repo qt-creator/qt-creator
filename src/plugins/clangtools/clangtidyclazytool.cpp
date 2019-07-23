@@ -463,15 +463,15 @@ void ClangTidyClazyTool::handleStateUpdate()
     Debugger::showPermanentStatusMessage(message);
 }
 
-QList<Diagnostic> ClangTidyClazyTool::read(const QString &filePath,
-                                           const QSet<Utils::FilePath> &projectFiles,
-                                           const QString &logFilePath,
-                                           QString *errorMessage) const
+Diagnostics ClangTidyClazyTool::read(const QString &filePath,
+                                     const QSet<Utils::FilePath> &projectFiles,
+                                     const QString &logFilePath,
+                                     QString *errorMessage) const
 {
     return readSerializedDiagnostics(filePath, projectFiles, logFilePath, errorMessage);
 }
 
-void ClangTidyClazyTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
+void ClangTidyClazyTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics)
 {
     ClangTool::onNewDiagnosticsAvailable(diagnostics);
     if (!m_diagnosticFilterModel->filterRegExp().pattern().isEmpty())

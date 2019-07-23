@@ -99,7 +99,7 @@ QDebug operator<<(QDebug debug, const Diagnostic &d)
                  ;
 }
 
-void ClangToolsDiagnosticModel::addDiagnostics(const QList<Diagnostic> &diagnostics)
+void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics)
 {
     const auto onFixitStatusChanged = [this](FixitStatus newStatus) {
         if (newStatus == FixitStatus::Scheduled)

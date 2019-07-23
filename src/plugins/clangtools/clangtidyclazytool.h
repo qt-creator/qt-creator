@@ -53,12 +53,12 @@ public:
 
     void startTool(bool askUserForFileSelection) final;
 
-    QList<Diagnostic> read(const QString &filePath,
-                           const QSet<Utils::FilePath> &projectFiles,
-                           const QString &logFilePath,
-                           QString *errorMessage) const final;
+    Diagnostics read(const QString &filePath,
+                     const QSet<Utils::FilePath> &projectFiles,
+                     const QString &logFilePath,
+                     QString *errorMessage) const final;
 
-    void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics) override;
+    void onNewDiagnosticsAvailable(const Diagnostics &diagnostics) override;
 
 private:
     void handleStateUpdate() final;

@@ -398,10 +398,10 @@ void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
 
     QString errorMessage;
-    const QList<Diagnostic> diagnostics = tool()->read(filePath,
-                                                       m_projectFiles,
-                                                       logFilePath,
-                                                       &errorMessage);
+    const Diagnostics diagnostics = tool()->read(filePath,
+                                                 m_projectFiles,
+                                                 logFilePath,
+                                                 &errorMessage);
     QFile::remove(logFilePath); // Clean-up.
 
     if (!errorMessage.isEmpty()) {

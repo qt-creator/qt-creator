@@ -144,7 +144,7 @@ QSet<Diagnostic> ClangTool::diagnostics() const
     });
 }
 
-void ClangTool::onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics)
+void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics)
 {
     QTC_ASSERT(m_diagnosticModel, return);
     m_diagnosticModel->addDiagnostics(diagnostics);

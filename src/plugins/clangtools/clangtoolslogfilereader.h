@@ -34,10 +34,10 @@ namespace Utils { class FilePath; }
 namespace ClangTools {
 namespace Internal {
 
-QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
-                                            const QSet<Utils::FilePath> &projectFiles,
-                                            const QString &logFilePath,
-                                            QString *errorMessage);
+Diagnostics readSerializedDiagnostics(const QString &filePath,
+                                      const QSet<Utils::FilePath> &projectFiles,
+                                      const QString &logFilePath,
+                                      QString *errorMessage);
 
 } // namespace Internal
 } // namespace ClangTools

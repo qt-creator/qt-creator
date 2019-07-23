@@ -26,6 +26,7 @@
 #pragma once
 
 #include "clangfileinfo.h"
+#include "clangtoolsdiagnostic.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
@@ -49,10 +50,10 @@ public:
 
     virtual void startTool(bool askUserForFileSelection) = 0;
 
-    virtual QList<Diagnostic> read(const QString &filePath,
-                                   const QSet<Utils::FilePath> &projectFiles,
-                                   const QString &logFilePath,
-                                   QString *errorMessage) const = 0;
+    virtual Diagnostics read(const QString &filePath,
+                             const QSet<Utils::FilePath> &projectFiles,
+                             const QString &logFilePath,
+                             QString *errorMessage) const = 0;
 
     FileInfos collectFileInfos(ProjectExplorer::Project *project,
                                bool askUserForFileSelection) const;
@@ -62,7 +63,7 @@ public:
 
     const QString &name() const;
 
-    virtual void onNewDiagnosticsAvailable(const QList<Diagnostic> &diagnostics);
+    virtual void onNewDiagnosticsAvailable(const Diagnostics &diagnostics);
 
 signals:
     void finished(bool success); // For testing.

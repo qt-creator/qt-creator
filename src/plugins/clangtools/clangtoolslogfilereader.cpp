@@ -182,11 +182,11 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
     return diagnostic;
 }
 
-static QList<Diagnostic> readSerializedDiagnostics_helper(const QString &filePath,
-                                                          const QSet<Utils::FilePath> &projectFiles,
-                                                          const QString &logFilePath)
+static Diagnostics readSerializedDiagnostics_helper(const QString &filePath,
+                                                    const QSet<Utils::FilePath> &projectFiles,
+                                                    const QString &logFilePath)
 {
-    QList<Diagnostic> list;
+    Diagnostics list;
     CXLoadDiag_Error error;
     CXString errorString;
 
@@ -231,13 +231,13 @@ static bool checkFilePath(const QString &filePath, QString *errorMessage)
     return true;
 }
 
-QList<Diagnostic> readSerializedDiagnostics(const QString &filePath,
-                                            const QSet<Utils::FilePath> &projectFiles,
-                                            const QString &logFilePath,
-                                            QString *errorMessage)
+Diagnostics readSerializedDiagnostics(const QString &filePath,
+                                      const QSet<Utils::FilePath> &projectFiles,
+                                      const QString &logFilePath,
+                                      QString *errorMessage)
 {
     if (!checkFilePath(logFilePath, errorMessage))
-        return QList<Diagnostic>();
+        return {};
 
     return readSerializedDiagnostics_helper(filePath, projectFiles, logFilePath);
 }
