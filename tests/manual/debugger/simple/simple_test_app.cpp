@@ -423,7 +423,7 @@ class XX : virtual public Foo { public: XX() { } };
 
 class Y : virtual public Foo { public: Y() { } };
 
-class D : public X, public Y { int diamond; D(){Q_UNUSED(diamond);} }
+class D : public X, public Y { int diamond; D(){Q_UNUSED(diamond)} };
 
 
 namespace peekandpoke {
