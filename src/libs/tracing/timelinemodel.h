@@ -40,6 +40,8 @@ class TRACING_EXPORT TimelineModel : public QObject
     Q_OBJECT
     Q_PROPERTY(int modelId READ modelId CONSTANT)
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName NOTIFY displayNameChanged)
+    Q_PROPERTY(QString tooltip READ tooltip NOTIFY tooltipChanged)
+    Q_PROPERTY(QColor categoryColor READ categoryColor NOTIFY categoryColorChanged)
     Q_PROPERTY(bool empty READ isEmpty NOTIFY contentChanged)
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
     Q_PROPERTY(bool expanded READ expanded WRITE setExpanded NOTIFY expandedChanged)
@@ -92,10 +94,17 @@ public:
     int collapsedRowCount() const;
     int rowCount() const;
 
+    QString tooltip() const;
+    void setTooltip(const QString &text);
+
+    QColor categoryColor() const;
+    void setCategoryColor(const QColor &color);
+
     // Methods which can optionally be implemented by child models.
     Q_INVOKABLE virtual QRgb color(int index) const;
     virtual QVariantList labels() const;
     Q_INVOKABLE virtual QVariantMap details(int index) const;
+    Q_INVOKABLE virtual QVariantMap orderedDetails(int index) const;
     Q_INVOKABLE virtual int expandedRow(int index) const;
     Q_INVOKABLE virtual int collapsedRow(int index) const;
     Q_INVOKABLE int row(int index) const;
@@ -124,6 +133,8 @@ signals:
     void heightChanged();
     void rowCountChanged();
     void displayNameChanged();
+    void tooltipChanged();
+    void categoryColorChanged();
     void labelsChanged();
     void detailsChanged();
 

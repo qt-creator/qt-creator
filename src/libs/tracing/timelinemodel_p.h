@@ -138,6 +138,8 @@ public:
     QVector<int> rowOffsets;
     const int modelId;
     QString displayName;
+    QString tooltip;
+    QColor categoryColor;
 
     bool expanded;
     bool hidden;

@@ -404,17 +404,9 @@ Rectangle {
 
         function showInfo() {
             var timelineModel = timelineModelAggregator.models[selectedModel];
-            var eventData = timelineModel.details(selectedItem)
-            var content = [];
-            for (var k in eventData) {
-                if (k === "displayName") {
-                    dialogTitle = eventData[k];
-                } else {
-                    content.push(k);
-                    content.push(eventData[k]);
-                }
-            }
-            rangeDetails.model = content;
+            var eventData = timelineModel.orderedDetails(selectedItem)
+            dialogTitle = eventData["title"] || "";
+            rangeDetails.model = eventData["content"] || [];
 
             var location = timelineModel.location(selectedItem)
             if (location.hasOwnProperty("file")) { // not empty

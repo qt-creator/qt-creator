@@ -135,8 +135,8 @@ int TimelineModel::row(int index) const
 }
 
 TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId) :
-    modelId(modelId), expanded(false), hidden(false),
-    expandedRowCount(1), collapsedRowCount(1)
+    modelId(modelId), categoryColor(Qt::transparent), expanded(false),
+    hidden(false), expandedRowCount(1), collapsedRowCount(1)
 {
 }
 
@@ -514,6 +514,28 @@ int TimelineModel::rowCount() const
     return d->expanded ? d->expandedRowCount : d->collapsedRowCount;
 }
 
+QString TimelineModel::tooltip() const
+{
+    return d->tooltip;
+}
+
+void TimelineModel::setTooltip(const QString &text)
+{
+    d->tooltip = text;
+    emit tooltipChanged();
+}
+
+QColor TimelineModel::categoryColor() const
+{
+    return d->categoryColor;
+}
+
+void TimelineModel::setCategoryColor(const QColor &color)
+{
+    d->categoryColor = color;
+    emit categoryColorChanged();
+}
+
 QRgb TimelineModel::color(int index) const
 {
     Q_UNUSED(index)
@@ -529,6 +551,32 @@ QVariantMap TimelineModel::details(int index) const
 {
     Q_UNUSED(index)
     return QVariantMap();
+}
+
+/**
+ * @brief TimelineModel::orderedDetails returns the title and content for the details popup
+ * @param index of the selected item
+ * @return QVariantMap containing the fields 'title' (QString) and 'content' (QVariantList
+ * with alternating keys and values as QStrings)
+ */
+QVariantMap TimelineModel::orderedDetails(int index) const
+{
+    QVariantMap info = details(index);
+    QVariantMap data;
+    QVariantList content;
+    auto it = info.constBegin();
+    auto end = info.constEnd();
+    while (it != end) {
+        if (it.key() == "displayName") {
+            data.insert("title", it.value());
+        } else {
+            content.append(it.key());
+            content.append(it.value());
+        }
+        ++it;
+    }
+    data.insert("content", content);
+    return data;
 }
 
 int TimelineModel::expandedRow(int index) const

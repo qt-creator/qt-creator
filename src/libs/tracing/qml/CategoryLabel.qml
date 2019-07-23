@@ -53,15 +53,6 @@ Item {
 
     property bool reverseSelect: false
 
-    Button {
-        // dummy button to display a tooltip
-        anchors.fill: txt
-        ToolTip.text: labelContainer.text
-        ToolTip.visible: enabled && hovered
-        ToolTip.delay: 1000
-        background: Item {}
-    }
-
     MouseArea {
         id: dragArea
         anchors.fill: txt
@@ -70,6 +61,12 @@ Item {
         drag.minimumY: dragging ? 0 : -dragOffset // Account for parent change below
         drag.maximumY: draggerParent.height - (dragging ? 0 : dragOffset)
         drag.axis: Drag.YAxis
+        hoverEnabled: true
+        ToolTip {
+            text: model.tooltip || labelContainer.text
+            visible: enabled && parent.containsMouse
+            delay: 1000
+        }
     }
 
     DropArea {

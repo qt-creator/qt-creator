@@ -86,6 +86,12 @@ Flickable {
                     height: loader.height
                     width: loader.width
 
+                    Rectangle {
+                        height: loader.height
+                        width: 3
+                        color: modelData.categoryColor
+                    }
+
                     CategoryLabel {
                         id: label
                         model: modelData
