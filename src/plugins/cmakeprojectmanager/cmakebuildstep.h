@@ -98,6 +98,8 @@ private:
     void doRun() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;
 
+    QString defaultBuildTarget() const;
+
     void runImpl();
     void handleProjectWasParsed(bool success);
 
