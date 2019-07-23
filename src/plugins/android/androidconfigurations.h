@@ -161,7 +161,7 @@ private:
 
     Utils::FilePath openJDKBinPath() const;
     int getSDKVersion(const QString &device) const;
-    static int getSDKVersion(const Utils::FileName &adbToolPath, const QString &device);
+    static int getSDKVersion(const Utils::FilePath &adbToolPath, const QString &device);
     QStringList getAbis(const QString &device) const;
     static QStringList getAbis(const Utils::FilePath &adbToolPath, const QString &device);
     static bool isBootToQt(const Utils::FilePath &adbToolPath, const QString &device);

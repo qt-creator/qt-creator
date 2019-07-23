@@ -190,7 +190,7 @@ void ValgrindRunner::Private::remoteProcessStarted()
     const QString proc = m_valgrindExecutable.split(' ').last();
 
     Runnable findPid;
-    findPid.executable = FileName::fromString("/bin/sh");
+    findPid.executable = FilePath::fromString("/bin/sh");
     // sleep required since otherwise we might only match "bash -c..."
     //  and not the actual valgrind run
     findPid.commandLineArguments = QString("-c \""

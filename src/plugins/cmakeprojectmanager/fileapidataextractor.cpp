@@ -354,7 +354,7 @@ void addBacktraceInformation(FolderNode *node,
 
 QVector<FolderNode *> addSourceGroups(ProjectNode *targetRoot,
                                       const TargetDetails &td,
-                                      const Utils::FileName &sourceDirectory)
+                                      const FilePath &sourceDirectory)
 {
     QVector<FolderNode *> sourceGroupNodes;
     if (td.sourceGroups.size() == 1) {

@@ -175,7 +175,7 @@ bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
 
     m_host = data.value(QLatin1String(hostKeyC)).toString();
     m_port = data.value(QLatin1String(portKeyC)).toInt();
-    m_executableFile = FileName::fromVariant(data.value(QLatin1String(executableFileKeyC)));
+    m_executableFile = FilePath::fromVariant(data.value(QLatin1String(executableFileKeyC)));
     m_verboseLevel = data.value(QLatin1String(verboseLevelKeyC)).toInt();
     m_extendedMode = data.value(QLatin1String(extendedModeKeyC)).toBool();
     m_resetBoard = data.value(QLatin1String(resetBoardKeyC)).toBool();

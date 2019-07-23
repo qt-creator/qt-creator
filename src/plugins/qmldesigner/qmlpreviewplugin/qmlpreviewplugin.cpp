@@ -130,7 +130,7 @@ QString QmlPreviewPlugin::metaInfo() const
 void QmlPreviewPlugin::setQmlFile()
 {
     if (s_previewPlugin) {
-        const Utils::FileName qmlFileName =
+        const Utils::FilePath qmlFileName =
                 QmlDesignerPlugin::instance()->currentDesignDocument()->fileName();
         s_previewPlugin->setProperty("previewedFile", qmlFileName.toString());
     }

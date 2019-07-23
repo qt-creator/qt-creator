@@ -106,10 +106,10 @@ void PerfTracePointDialog::runScript()
     Runnable runnable;
     const QString elevate = m_ui->privilegesChooser->currentText();
     if (elevate != QLatin1String("n.a.")) {
-        runnable.executable = Utils::FileName::fromString(elevate);
+        runnable.executable = Utils::FilePath::fromString(elevate);
         runnable.commandLineArguments = "sh";
     } else {
-        runnable.executable = Utils::FileName::fromString("sh");
+        runnable.executable = Utils::FilePath::fromString("sh");
     }
 
     connect(m_process.get(), &DeviceProcess::started,

@@ -71,7 +71,7 @@ void QnxDeviceProcess::doSignal(int sig)
 {
     auto signaler = new SshDeviceProcess(device(), this);
     Runnable r;
-    r.executable = FileName::fromString(QString("kill -%2 `cat %1`").arg(m_pidFile).arg(sig));
+    r.executable = FilePath::fromString(QString("kill -%2 `cat %1`").arg(m_pidFile).arg(sig));
     connect(signaler, &SshDeviceProcess::finished, signaler, &QObject::deleteLater);
     signaler->start(r);
 }

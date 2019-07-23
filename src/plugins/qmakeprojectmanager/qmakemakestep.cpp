@@ -69,7 +69,7 @@ bool QmakeMakeStep::init()
         emit addTask(Task::buildConfigurationMissingTask());
 
     const Utils::CommandLine unmodifiedMake = effectiveMakeCommand();
-    const Utils::FileName makeExecutable = unmodifiedMake.executable();
+    const Utils::FilePath makeExecutable = unmodifiedMake.executable();
     if (makeExecutable.isEmpty())
         emit addTask(makeCommandMissingTask());
 

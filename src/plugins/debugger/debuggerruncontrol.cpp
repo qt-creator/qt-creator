@@ -942,7 +942,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
-        m_runParameters.debugger.executable = FileName::fromString(QString::fromLocal8Bit(envBinary));
+        m_runParameters.debugger.executable = FilePath::fromString(QString::fromLocal8Bit(envBinary));
 
     if (Project *project = runControl->project()) {
         m_runParameters.projectSourceDirectory = project->projectDirectory();
@@ -1117,9 +1117,9 @@ void GdbServerRunner::start()
     if (isQmlDebugging && !isCppDebugging) {
         gdbserver.executable = m_runnable.executable; // FIXME: Case should not happen?
     } else {
-        gdbserver.executable = FileName::fromString(device()->debugServerPath());
+        gdbserver.executable = FilePath::fromString(device()->debugServerPath());
         if (gdbserver.executable.isEmpty())
-            gdbserver.executable = FileName::fromString("gdbserver");
+            gdbserver.executable = FilePath::fromString("gdbserver");
         args.clear();
         if (m_useMulti)
             args.append("--multi");
