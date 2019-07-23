@@ -111,7 +111,7 @@ public:
 
     uint hash(uint seed) const;
 
-    // NOTE: FileName operations on FilePath created from URL currenly
+    // NOTE: FilePath operations on FilePath created from URL currenly
     // do not work except for .toVariant() and .toUrl().
     static FilePath fromUrl(const QUrl &url);
     QUrl toUrl() const;
@@ -124,9 +124,6 @@ private:
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);
 
 using FilePathList = QList<FilePath>;
-
-using FileName = FilePath;
-using FileNameList = FilePathList;
 
 class QTCREATOR_UTILS_EXPORT CommandLine
 {
