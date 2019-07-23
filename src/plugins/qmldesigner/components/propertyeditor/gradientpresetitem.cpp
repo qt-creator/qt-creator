@@ -169,7 +169,7 @@ QGradient GradientPresetItem::createGradientFromPreset(Preset value)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
     return QGradient(value);
 #else
-    Q_UNUSED(value);
+    Q_UNUSED(value)
     return {};
 #endif
 }

@@ -88,8 +88,8 @@ QString formatTime(qint64 timestamp, qint64 reference)
 
 static QObject *createFormatter(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
-    Q_UNUSED(engine);
-    Q_UNUSED(scriptEngine);
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
     return new TimeFormatter;
 }
 
@@ -97,7 +97,7 @@ void TimeFormatter::setupTimeFormatter()
 {
     static const int typeIndex = qmlRegisterSingletonType<TimeFormatter>(
                 "TimelineTimeFormatter", 1, 0, "TimeFormatter", createFormatter);
-    Q_UNUSED(typeIndex);
+    Q_UNUSED(typeIndex)
 }
 
 }

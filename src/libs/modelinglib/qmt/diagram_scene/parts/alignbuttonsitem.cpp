@@ -54,8 +54,8 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
     {
-        Q_UNUSED(option);
-        Q_UNUSED(widget);
+        Q_UNUSED(option)
+        Q_UNUSED(widget)
 
         painter->save();
         painter->setPen(pen());
@@ -66,7 +66,7 @@ public:
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event)
     {
-        Q_UNUSED(event);
+        Q_UNUSED(event)
     }
 
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -107,9 +107,9 @@ QRectF AlignButtonsItem::boundingRect() const
 
 void AlignButtonsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(painter)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 }
 
 void AlignButtonsItem::clear()

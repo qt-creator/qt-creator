@@ -108,7 +108,7 @@ void ModelTreeView::selectFromSourceModelIndex(const QModelIndex &index)
 
 void ModelTreeView::startDrag(Qt::DropActions supportedActions)
 {
-    Q_UNUSED(supportedActions);
+    Q_UNUSED(supportedActions)
 
     TreeModel *treeModel = m_sortedTreeModel->treeModel();
     QMT_ASSERT(treeModel, return);
@@ -231,7 +231,7 @@ void ModelTreeView::dropEvent(QDropEvent *event)
 
 void ModelTreeView::focusInEvent(QFocusEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     emit treeViewActivated();
 }

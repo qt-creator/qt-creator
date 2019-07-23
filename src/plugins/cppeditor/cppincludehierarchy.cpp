@@ -180,7 +180,7 @@ private:
 
 QVariant CppIncludeHierarchyItem::data(int column, int role) const
 {
-    Q_UNUSED(column);
+    Q_UNUSED(column)
     if (role == Qt::DisplayRole) {
         if (isPhony() && childCount() == 0)
             return QString(m_fileName + ' ' + CppIncludeHierarchyModel::tr("(none)"));

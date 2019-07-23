@@ -221,7 +221,7 @@ GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
 bool SimpleProjectWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l,
                                              QString *errorMessage) const
 {
-    Q_UNUSED(w);
+    Q_UNUSED(w)
     return CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 

@@ -71,7 +71,7 @@ class MacroExpanderWrapper
 {
 public:
     MacroExpanderWrapper() = default;
-    MacroExpanderWrapper(const MacroExpanderWrapper &other) { Q_UNUSED(other); }
+    MacroExpanderWrapper(const MacroExpanderWrapper &other) { Q_UNUSED(other) }
     MacroExpanderWrapper(MacroExpanderWrapper &&other) = default;
 
     Utils::MacroExpander *macroExpander(const BaseQtVersion *qtversion) const;

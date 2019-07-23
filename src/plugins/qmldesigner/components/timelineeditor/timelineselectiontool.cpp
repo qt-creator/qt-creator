@@ -68,8 +68,8 @@ SelectionMode TimelineSelectionTool::selectionMode(QGraphicsSceneMouseEvent *eve
 void TimelineSelectionTool::mousePressEvent(TimelineMovableAbstractItem *item,
                                             QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item);
-    Q_UNUSED(event);
+    Q_UNUSED(item)
+    Q_UNUSED(event)
 
     if (event->buttons() == Qt::LeftButton && selectionMode(event) == SelectionMode::New)
         deselect();
@@ -78,7 +78,7 @@ void TimelineSelectionTool::mousePressEvent(TimelineMovableAbstractItem *item,
 void TimelineSelectionTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
                                            QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item);
+    Q_UNUSED(item)
 
     if (event->buttons() == Qt::LeftButton) {
         auto endPoint = event->scenePos();
@@ -97,8 +97,8 @@ void TimelineSelectionTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
 void TimelineSelectionTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
                                               QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item);
-    Q_UNUSED(event);
+    Q_UNUSED(item)
+    Q_UNUSED(event)
 
     commitSelection(selectionMode(event));
 
@@ -108,20 +108,20 @@ void TimelineSelectionTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
 void TimelineSelectionTool::mouseDoubleClickEvent(TimelineMovableAbstractItem *item,
                                                   QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item);
-    Q_UNUSED(event);
+    Q_UNUSED(item)
+    Q_UNUSED(event)
 
     reset();
 }
 
 void TimelineSelectionTool::keyPressEvent(QKeyEvent *keyEvent)
 {
-    Q_UNUSED(keyEvent);
+    Q_UNUSED(keyEvent)
 }
 
 void TimelineSelectionTool::keyReleaseEvent(QKeyEvent *keyEvent)
 {
-    Q_UNUSED(keyEvent);
+    Q_UNUSED(keyEvent)
 }
 
 void TimelineSelectionTool::deselect()

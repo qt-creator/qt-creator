@@ -246,7 +246,7 @@ QmlProfilerTool::QmlProfilerTool()
     if (EditorManager *editorManager = EditorManager::instance()) {
         connect(editorManager, &EditorManager::editorCreated,
                 model, [this, model](Core::IEditor *editor, const QString &fileName) {
-            Q_UNUSED(editor);
+            Q_UNUSED(editor)
             model->createMarks(d->m_viewContainer, fileName);
         });
     }
@@ -721,7 +721,7 @@ void QmlProfilerTool::updateFeatures(quint64 features)
 template<>
 void QmlProfilerTool::updateFeatures<MaximumProfileFeature>(quint64 features)
 {
-    Q_UNUSED(features);
+    Q_UNUSED(features)
     return;
 }
 

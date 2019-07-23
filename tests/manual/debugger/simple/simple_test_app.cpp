@@ -423,7 +423,7 @@ class XX : virtual public Foo { public: XX() { } };
 
 class Y : virtual public Foo { public: Y() { } };
 
-class D : public X, public Y { int diamond; D(){Q_UNUSED(diamond);} };
+class D : public X, public Y { int diamond; D(){Q_UNUSED(diamond);} }
 
 
 namespace peekandpoke {
@@ -3408,7 +3408,7 @@ namespace lambda {
         std::string x;
         auto f = [&] () -> const std::string & {
                 size_t z = x.size();
-                Q_UNUSED(z);
+                Q_UNUSED(z)
                 return x;
          };
         auto c = f();
@@ -6633,7 +6633,7 @@ namespace bug5106 {
     class A5106
     {
     public:
-            A5106(int a, int b) : m_a(a), m_b(b) {Q_UNUSED(m_a);Q_UNUSED(m_b);}
+            A5106(int a, int b) : m_a(a), m_b(b) {Q_UNUSED(m_a);Q_UNUSED(m_b)}
             virtual int test() { return 5; }
     private:
             int m_a, m_b;
@@ -6642,7 +6642,7 @@ namespace bug5106 {
     class B5106 : public A5106
     {
     public:
-            B5106(int c, int a, int b) : A5106(a, b), m_c(c) {Q_UNUSED(m_c);}
+            B5106(int c, int a, int b) : A5106(a, b), m_c(c) {Q_UNUSED(m_c)}
             virtual int test() { return 4; BREAK_HERE; }
     private:
             int m_c;
@@ -7224,7 +7224,7 @@ template <class X> int ffff(X)
 int main(int argc, char *argv[])
 {
     int z = ffff(3) + ffff(2.0);
-    Q_UNUSED(z);
+    Q_UNUSED(z)
 
     #if USE_GUILIB
     QApplication app(argc, argv);

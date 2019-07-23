@@ -246,7 +246,7 @@ public:
     ~TestVersionControl() override;
 
     bool isVcsFileOrDirectory(const Utils::FilePath &fileName) const final
-    { Q_UNUSED(fileName); return false; }
+    { Q_UNUSED(fileName) return false; }
 
     void setManagedDirectories(const QHash<QString, QString> &dirs);
     void setManagedFiles(const QSet<QString> &files);

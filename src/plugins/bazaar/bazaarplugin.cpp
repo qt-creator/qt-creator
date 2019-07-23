@@ -145,8 +145,8 @@ BazaarPlugin::~BazaarPlugin()
 
 bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     Context context(Constants::BAZAAR_CONTEXT);
 

@@ -49,7 +49,7 @@ bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task) const
 void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
 {
     QTC_ASSERT(canHandle(task), return);
-    Q_UNUSED(task);
+    Q_UNUSED(task)
     TaskListPlugin::stopMonitoring();
 }
 

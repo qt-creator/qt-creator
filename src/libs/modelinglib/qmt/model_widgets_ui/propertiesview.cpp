@@ -209,8 +209,8 @@ void PropertiesView::onEndResetModel()
 
 void PropertiesView::onBeginUpdateObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void PropertiesView::onEndUpdateObject(int row, const MObject *parent)
@@ -222,14 +222,14 @@ void PropertiesView::onEndUpdateObject(int row, const MObject *parent)
 
 void PropertiesView::onBeginInsertObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void PropertiesView::onEndInsertObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void PropertiesView::onBeginRemoveObject(int row, const MObject *parent)
@@ -241,14 +241,14 @@ void PropertiesView::onBeginRemoveObject(int row, const MObject *parent)
 
 void PropertiesView::onEndRemoveObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void PropertiesView::onBeginMoveObject(int formerRow, const MObject *formerOwner)
 {
-    Q_UNUSED(formerRow);
-    Q_UNUSED(formerOwner);
+    Q_UNUSED(formerRow)
+    Q_UNUSED(formerOwner)
 }
 
 void PropertiesView::onEndMoveObject(int row, const MObject *owner)
@@ -260,8 +260,8 @@ void PropertiesView::onEndMoveObject(int row, const MObject *owner)
 
 void PropertiesView::onBeginUpdateRelation(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void PropertiesView::onEndUpdateRelation(int row, const MObject *parent)
@@ -273,14 +273,14 @@ void PropertiesView::onEndUpdateRelation(int row, const MObject *parent)
 
 void PropertiesView::onBeginInsertRelation(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void PropertiesView::onEndInsertRelation(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void PropertiesView::onBeginRemoveRelation(int row, const MObject *parent)
@@ -292,14 +292,14 @@ void PropertiesView::onBeginRemoveRelation(int row, const MObject *parent)
 
 void PropertiesView::onEndRemoveRelation(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void PropertiesView::onBeginMoveRelation(int formerRow, const MObject *formerOwner)
 {
-    Q_UNUSED(formerRow);
-    Q_UNUSED(formerOwner);
+    Q_UNUSED(formerRow)
+    Q_UNUSED(formerOwner)
 }
 
 void PropertiesView::onEndMoveRelation(int row, const MObject *owner)
@@ -311,7 +311,7 @@ void PropertiesView::onEndMoveRelation(int row, const MObject *owner)
 
 void PropertiesView::onRelationEndChanged(MRelation *relation, MObject *endObject)
 {
-    Q_UNUSED(endObject);
+    Q_UNUSED(endObject)
     if (relation && m_selectedModelElements.contains(relation))
         m_mview->update(m_selectedModelElements);
 }
@@ -327,7 +327,7 @@ void PropertiesView::onEndResetAllDiagrams()
 
 void PropertiesView::onBeginResetDiagram(const MDiagram *diagram)
 {
-    Q_UNUSED(diagram);
+    Q_UNUSED(diagram)
 }
 
 void PropertiesView::onEndResetDiagram(const MDiagram *diagram)
@@ -338,8 +338,8 @@ void PropertiesView::onEndResetDiagram(const MDiagram *diagram)
 
 void PropertiesView::onBeginUpdateElement(int row, const MDiagram *diagram)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(diagram);
+    Q_UNUSED(row)
+    Q_UNUSED(diagram)
 }
 
 void PropertiesView::onEndUpdateElement(int row, const MDiagram *diagram)
@@ -353,14 +353,14 @@ void PropertiesView::onEndUpdateElement(int row, const MDiagram *diagram)
 
 void PropertiesView::onBeginInsertElement(int row, const MDiagram *diagram)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(diagram);
+    Q_UNUSED(row)
+    Q_UNUSED(diagram)
 }
 
 void PropertiesView::onEndInsertElement(int row, const MDiagram *diagram)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(diagram);
+    Q_UNUSED(row)
+    Q_UNUSED(diagram)
 }
 
 void PropertiesView::onBeginRemoveElement(int row, const MDiagram *diagram)
@@ -374,8 +374,8 @@ void PropertiesView::onBeginRemoveElement(int row, const MDiagram *diagram)
 
 void PropertiesView::onEndRemoveElement(int row, const MDiagram *diagram)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(diagram);
+    Q_UNUSED(row)
+    Q_UNUSED(diagram)
 }
 
 void PropertiesView::beginUpdate(MElement *modelElement)

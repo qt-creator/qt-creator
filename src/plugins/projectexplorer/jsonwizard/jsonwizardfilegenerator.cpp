@@ -227,7 +227,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
 
 bool JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
 {
-    Q_UNUSED(wizard);
+    Q_UNUSED(wizard)
     if (!(file->attributes() & Core::GeneratedFile::KeepExistingFileAttribute)) {
         if (!file->write(errorMessage))
             return false;

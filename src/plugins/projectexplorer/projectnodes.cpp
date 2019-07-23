@@ -746,7 +746,7 @@ bool FolderNode::addDependencies(const QStringList &dependencies)
 
 FolderNode::AddNewInformation FolderNode::addNewInformation(const QStringList &files, Node *context) const
 {
-    Q_UNUSED(files);
+    Q_UNUSED(files)
     return AddNewInformation(displayName(), context == this ? 120 : 100);
 }
 
@@ -864,8 +864,8 @@ bool ProjectNode::deleteFiles(const QStringList &filePaths)
 
 bool ProjectNode::canRenameFile(const QString &filePath, const QString &newFilePath)
 {
-    Q_UNUSED(filePath);
-    Q_UNUSED(newFilePath);
+    Q_UNUSED(filePath)
+    Q_UNUSED(newFilePath)
     return true;
 }
 
@@ -889,7 +889,7 @@ bool ProjectNode::supportsAction(ProjectAction, const Node *) const
 
 bool ProjectNode::deploysFolder(const QString &folder) const
 {
-    Q_UNUSED(folder);
+    Q_UNUSED(folder)
     return false;
 }
 
@@ -905,14 +905,14 @@ ProjectNode *ProjectNode::projectNode(const Utils::FilePath &file) const
 
 QVariant ProjectNode::data(Core::Id role) const
 {
-    Q_UNUSED(role);
+    Q_UNUSED(role)
     return QVariant();
 }
 
 bool ProjectNode::setData(Core::Id role, const QVariant &value) const
 {
-    Q_UNUSED(role);
-    Q_UNUSED(value);
+    Q_UNUSED(role)
+    Q_UNUSED(value)
     return false;
 }
 

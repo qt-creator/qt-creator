@@ -158,7 +158,7 @@ void QmlDebugConnectionManager::retryConnect()
 
 void QmlDebugConnectionManager::logState(const QString &message)
 {
-    Q_UNUSED(message);
+    Q_UNUSED(message)
 }
 
 QmlDebugConnection *QmlDebugConnectionManager::connection() const

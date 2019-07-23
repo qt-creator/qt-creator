@@ -204,8 +204,8 @@ StudioWelcomePlugin::~StudioWelcomePlugin()
 
 bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorString);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
 
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
 

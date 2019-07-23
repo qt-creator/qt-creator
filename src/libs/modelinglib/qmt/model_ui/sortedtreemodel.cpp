@@ -79,9 +79,9 @@ bool SortedTreeModel::lessThan(const QModelIndex &left, const QModelIndex &right
 
 void SortedTreeModel::onTreeModelRowsInserted(const QModelIndex &parent, int start, int end)
 {
-    Q_UNUSED(parent);
-    Q_UNUSED(start);
-    Q_UNUSED(end);
+    Q_UNUSED(parent)
+    Q_UNUSED(start)
+    Q_UNUSED(end)
 
     startDelayedSortTimer();
 }

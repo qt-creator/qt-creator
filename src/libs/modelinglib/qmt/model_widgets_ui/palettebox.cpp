@@ -92,7 +92,7 @@ void PaletteBox::setCurrentIndex(int index)
 
 void PaletteBox::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     QPainter painter(this);
     qreal w = static_cast<qreal>(width()) / static_cast<qreal>(m_brushes.size());

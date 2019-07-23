@@ -230,7 +230,7 @@ void ModelsManager::setDiagramClipboard(ExtDocumentController *documentControlle
 void ModelsManager::onAboutToShowContextMenu(ProjectExplorer::Project *project,
                                              ProjectExplorer::Node *node)
 {
-    Q_UNUSED(project);
+    Q_UNUSED(project)
 
     bool canOpenDiagram = false;
 

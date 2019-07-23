@@ -108,7 +108,7 @@ void RewriterTransaction::commit()
         if (m_activeIdentifier) {
             qDebug() << "Commit RewriterTransaction:" << m_identifier << m_identifierNumber;
             bool success = m_identifierList.removeOne(m_identifier + QByteArrayLiteral("-") + QByteArray::number(m_identifierNumber));
-            Q_UNUSED(success);
+            Q_UNUSED(success)
             Q_ASSERT(success);
         }
     }

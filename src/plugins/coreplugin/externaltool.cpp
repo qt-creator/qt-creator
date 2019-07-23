@@ -697,7 +697,7 @@ void ExternalToolRunner::error(QProcess::ProcessError error)
     if (m_tool->modifiesCurrentDocument())
         DocumentManager::unexpectFileChange(m_expectedFileName);
     // TODO inform about errors
-    Q_UNUSED(error);
+    Q_UNUSED(error)
     deleteLater();
 }
 

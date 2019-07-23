@@ -158,7 +158,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
 
 void TimelineRenderer::mousePressEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 }
 
 int TimelineRenderer::TimelineRendererPrivate::rowFromPosition(int y) const

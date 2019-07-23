@@ -50,7 +50,7 @@ bool ConfigTaskHandler::canHandle(const Task &task) const
 
 void ConfigTaskHandler::handle(const Task &task)
 {
-    Q_UNUSED(task);
+    Q_UNUSED(task)
     Core::ICore::showOptionsDialog(m_targetPage);
 }
 

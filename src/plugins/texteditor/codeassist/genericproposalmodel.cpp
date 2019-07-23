@@ -337,7 +337,7 @@ FuzzyMatcher::CaseSensitivity
 
 bool GenericProposalModel::isSortable(const QString &prefix) const
 {
-    Q_UNUSED(prefix);
+    Q_UNUSED(prefix)
 
     if (m_currentItems.size() < kMaxSort)
         return true;

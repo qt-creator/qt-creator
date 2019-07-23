@@ -75,7 +75,7 @@ RegisterPostMortemAction::RegisterPostMortemAction(QObject *parent) : Utils::Sav
 
 void RegisterPostMortemAction::readSettings(const QSettings *)
 {
-    Q_UNUSED(debuggerRegistryValueNameC); // avoid warning from MinGW
+    Q_UNUSED(debuggerRegistryValueNameC) // avoid warning from MinGW
 
     bool registered = false;
     HKEY handle = NULL;

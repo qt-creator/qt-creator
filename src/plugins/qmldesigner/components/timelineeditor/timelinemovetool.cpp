@@ -67,14 +67,14 @@ TimelineMoveTool::TimelineMoveTool(TimelineGraphicsScene *scene, TimelineToolDel
 void TimelineMoveTool::mousePressEvent(TimelineMovableAbstractItem *item,
                                        QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item);
-    Q_UNUSED(event);
+    Q_UNUSED(item)
+    Q_UNUSED(event)
 }
 
 void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
                                       QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item);
+    Q_UNUSED(item)
 
     if (!currentItem())
         return;
@@ -116,8 +116,8 @@ void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
 void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
                                          QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item);
-    Q_UNUSED(event);
+    Q_UNUSED(item)
+    Q_UNUSED(event)
 
     if (auto *current = currentItem()) {
         if (current->asTimelineFrameHandle()) {
@@ -156,18 +156,18 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
 void TimelineMoveTool::mouseDoubleClickEvent(TimelineMovableAbstractItem *item,
                                              QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item);
-    Q_UNUSED(event);
+    Q_UNUSED(item)
+    Q_UNUSED(event)
 }
 
 void TimelineMoveTool::keyPressEvent(QKeyEvent *keyEvent)
 {
-    Q_UNUSED(keyEvent);
+    Q_UNUSED(keyEvent)
 }
 
 void TimelineMoveTool::keyReleaseEvent(QKeyEvent *keyEvent)
 {
-    Q_UNUSED(keyEvent);
+    Q_UNUSED(keyEvent)
 }
 
 } // namespace QmlDesigner

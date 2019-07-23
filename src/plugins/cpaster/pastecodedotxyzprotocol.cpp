@@ -86,7 +86,7 @@ void PasteCodeDotXyzProtocol::paste(const QString &text, Protocol::ContentType c
         return QByteArray(); // Crutch for compiler.
     };
     data += "&lang=" + langValue(ct);
-    Q_UNUSED(comment);
+    Q_UNUSED(comment)
 
     QNetworkReply * const reply = httpPost(apiUrl() + "/create", data);
     connect(reply, &QNetworkReply::finished, this, [this, reply] {

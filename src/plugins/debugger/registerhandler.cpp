@@ -434,7 +434,7 @@ public:
     {
         //return column == 1 ? Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
         //                   : Qt::ItemIsSelectable|Qt::ItemIsEnabled;
-        Q_UNUSED(column);
+        Q_UNUSED(column)
         return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     }
 

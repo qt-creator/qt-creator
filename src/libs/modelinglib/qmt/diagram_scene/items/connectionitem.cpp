@@ -75,7 +75,7 @@ void ConnectionItem::updateEndLabels(const DConnectionEnd &end, const DConnectio
                                       QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality,
                                       const Style *style)
 {
-    Q_UNUSED(end);
+    Q_UNUSED(end)
 
     if (!otherEnd.name().isEmpty()) {
         if (!*endName)

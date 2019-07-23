@@ -227,7 +227,7 @@ void SuppressionDialog::accept()
     foreach (const QModelIndex &index, indices) {
         bool removed = model->removeRow(index.row());
         QTC_ASSERT(removed, qt_noop());
-        Q_UNUSED(removed);
+        Q_UNUSED(removed)
     }
 
     // One suppression might hide multiple rows, care for that.

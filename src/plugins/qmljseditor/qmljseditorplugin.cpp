@@ -116,8 +116,8 @@ QmlJSEditorPlugin::~QmlJSEditorPlugin()
 
 bool QmlJSEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     d = new QmlJSEditorPluginPrivate;
 

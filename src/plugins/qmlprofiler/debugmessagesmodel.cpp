@@ -95,7 +95,7 @@ int DebugMessagesModel::expandedRow(int index) const
 
 int DebugMessagesModel::collapsedRow(int index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return Constants::QML_MIN_LEVEL;
 }
 

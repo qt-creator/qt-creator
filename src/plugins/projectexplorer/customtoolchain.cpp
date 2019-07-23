@@ -138,7 +138,7 @@ Utils::LanguageExtensions CustomToolChain::languageExtensions(const QStringList 
 
 WarningFlags CustomToolChain::warningFlags(const QStringList &cxxflags) const
 {
-    Q_UNUSED(cxxflags);
+    Q_UNUSED(cxxflags)
     return WarningFlags::Default;
 }
 

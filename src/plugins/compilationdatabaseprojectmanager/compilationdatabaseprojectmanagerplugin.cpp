@@ -47,8 +47,8 @@ const char COMPILE_COMMANDS_JSON[] = "compile_commands.json";
 
 bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
     Core::FileIconProvider::registerIconOverlayForFilename(
                 Utils::Icons::PROJECT.imageFileName(),
                 COMPILE_COMMANDS_JSON);

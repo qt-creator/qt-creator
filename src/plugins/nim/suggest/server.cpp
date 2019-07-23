@@ -107,7 +107,7 @@ void NimSuggestServer::onFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     clearState();
 
-    Q_UNUSED(exitCode);
+    Q_UNUSED(exitCode)
     if (exitStatus == QProcess::ExitStatus::CrashExit)
         emit crashed();
     else

@@ -118,8 +118,8 @@ ClangToolsPlugin::~ClangToolsPlugin()
 
 bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorString);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
 
     d = new ClangToolsPluginPrivate;
 

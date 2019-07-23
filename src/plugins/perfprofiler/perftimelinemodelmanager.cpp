@@ -113,7 +113,7 @@ void PerfTimelineModelManager::finalize()
 
 void PerfTimelineModelManager::loadEvent(const PerfEvent &event, const PerfEventType &type)
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     const int parallel = m_traceManager->threads().size();
     auto i = m_unfinished.find(event.tid());
     if (i == m_unfinished.end()) {

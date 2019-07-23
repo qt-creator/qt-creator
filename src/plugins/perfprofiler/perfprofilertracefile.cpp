@@ -497,7 +497,7 @@ void PerfProfilerTraceFile::writeToDevice()
         CompressedDataStream bufferStream(m_device.data());
         int i = 0;
         traceManager->replayPerfEvents([&](const PerfEvent &event, const PerfEventType &type) {
-            Q_UNUSED(type);
+            Q_UNUSED(type)
             Packet packet(&bufferStream);
             packet << event;
 

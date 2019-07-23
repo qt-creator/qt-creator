@@ -294,7 +294,7 @@ Utils::LanguageExtensions KeilToolchain::languageExtensions(const QStringList &)
 
 WarningFlags KeilToolchain::warningFlags(const QStringList &cxxflags) const
 {
-    Q_UNUSED(cxxflags);
+    Q_UNUSED(cxxflags)
     return WarningFlags::Default;
 }
 

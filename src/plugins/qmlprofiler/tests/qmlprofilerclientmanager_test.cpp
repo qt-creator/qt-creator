@@ -123,7 +123,7 @@ void QmlProfilerClientManagerTest::testConnectionFailure()
     QByteArray fatalAsserts =  qgetenv("QTC_FATAL_ASSERTS");
     qunsetenv("QTC_FATAL_ASSERTS");
     MessageHandler handler(&softAssertMessageHandler);
-    Q_UNUSED(handler);
+    Q_UNUSED(handler)
 
     QFETCH(QmlProfilerModelManager *, modelManager);
     QFETCH(QmlProfilerStateManager *, stateManager);
@@ -342,7 +342,7 @@ void invalidHelloMessageHandler(QtMsgType type, const QMessageLogContext &contex
 void QmlProfilerClientManagerTest::testInvalidData()
 {
     MessageHandler handler(&invalidHelloMessageHandler);
-    Q_UNUSED(handler);
+    Q_UNUSED(handler)
 
     QSignalSpy openedSpy(&clientManager, SIGNAL(connectionOpened()));
     QSignalSpy closedSpy(&clientManager, SIGNAL(connectionClosed()));

@@ -120,7 +120,7 @@ QStringList AndroidToolChain::suggestedMkspecList() const
 
 FilePath AndroidToolChain::makeCommand(const Environment &env) const
 {
-    Q_UNUSED(env);
+    Q_UNUSED(env)
     FilePath makePath = AndroidConfigurations::currentConfig().makePath();
     return makePath.exists() ? makePath : FilePath::fromString("make");
 }

@@ -65,7 +65,7 @@ bool QmlProfilerRangeModel::supportsBindingLoops() const
 
 void QmlProfilerRangeModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     // store starttime-based instance
     if (event.rangeStage() == RangeStart) {
         int index = insertStart(event.timestamp(), event.typeIndex());

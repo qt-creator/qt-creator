@@ -458,7 +458,7 @@ void ModelTest::data()
  */
 void ModelTest::rowsAboutToBeInserted(const QModelIndex &parent, int start, int end)
 {
-    Q_UNUSED(end);
+    Q_UNUSED(end)
     Changing c;
     c.parent = parent;
     c.oldSize = model->rowCount(parent);

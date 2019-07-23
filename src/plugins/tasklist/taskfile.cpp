@@ -43,14 +43,14 @@ TaskFile::TaskFile(QObject *parent) : Core::IDocument(parent)
 
 Core::IDocument::ReloadBehavior TaskFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
-    Q_UNUSED(state);
-    Q_UNUSED(type);
+    Q_UNUSED(state)
+    Q_UNUSED(type)
     return BehaviorSilent;
 }
 
 bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 {
-    Q_UNUSED(flag);
+    Q_UNUSED(flag)
 
     if (type == TypePermissions)
         return true;

@@ -104,8 +104,8 @@ QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
 
 bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     d = new QbsProjectManagerPluginPrivate;
 

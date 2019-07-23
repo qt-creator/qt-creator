@@ -80,7 +80,7 @@ void TodoItemsProvider::settingsChanged(const Settings &newSettings)
 
 void TodoItemsProvider::projectSettingsChanged(Project *project)
 {
-    Q_UNUSED(project);
+    Q_UNUSED(project)
     updateList();
 }
 

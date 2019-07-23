@@ -96,8 +96,8 @@ QRectF CustomIconItem::boundingRect() const
 
 void CustomIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     painter->save();
     painter->setBrush(m_brush);

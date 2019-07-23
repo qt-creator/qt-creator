@@ -389,7 +389,7 @@ void QbsBuildStep::handleProgress(int value)
 
 void QbsBuildStep::handleCommandDescriptionReport(const QString &highlight, const QString &message)
 {
-    Q_UNUSED(highlight);
+    Q_UNUSED(highlight)
     emit addOutput(message, OutputFormat::Stdout);
 }
 

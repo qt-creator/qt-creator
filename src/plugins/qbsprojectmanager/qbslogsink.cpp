@@ -77,7 +77,7 @@ void QbsLogSink::doPrintWarning(const qbs::ErrorInfo &warning)
 
 void QbsLogSink::doPrintMessage(qbs::LoggerLevel level, const QString &message, const QString &tag)
 {
-    Q_UNUSED(tag);
+    Q_UNUSED(tag)
 
     {
         QMutexLocker l(&m_mutex);

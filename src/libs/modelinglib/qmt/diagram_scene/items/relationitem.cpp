@@ -238,9 +238,9 @@ QRectF RelationItem::boundingRect() const
 
 void RelationItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(painter)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
 #ifdef DEBUG_PAINT_SHAPE
     painter->save();
@@ -518,12 +518,12 @@ void RelationItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void RelationItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 }
 
 void RelationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 }
 
 const Style *RelationItem::adaptedStyle()

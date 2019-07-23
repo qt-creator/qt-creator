@@ -123,7 +123,7 @@ public:
     }
     void processErrorReceived(const QString &s)
     {
-        Q_UNUSED(s);
+        Q_UNUSED(s)
         // qDebug() << "error received:" << s; // this can be a lot of text
         m_errorReceived = true;
     }

@@ -106,7 +106,7 @@ void StickyNotesPasteProtocol::paste(const QString &text,
     enum { maxDescriptionLength = 30 }; // Length of description is limited.
 
     Q_UNUSED(username)
-    Q_UNUSED(comment);
+    Q_UNUSED(comment)
     QTC_ASSERT(!m_pasteReply, return);
 
     // Format body

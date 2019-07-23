@@ -977,7 +977,7 @@ void DebuggerPluginPrivate::parseCommandLineArguments()
 bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     QString *errorMessage)
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
 
     const Context debuggerNotRunning(C_DEBUGGER_NOTRUNNING);
     ICore::addAdditionalContext(debuggerNotRunning);
@@ -2287,8 +2287,8 @@ QObject *DebuggerPlugin::remoteCommand(const QStringList &options,
                                        const QString &workingDirectory,
                                        const QStringList &list)
 {
-    Q_UNUSED(workingDirectory);
-    Q_UNUSED(list);
+    Q_UNUSED(workingDirectory)
+    Q_UNUSED(list)
     dd->remoteCommand(options);
     return nullptr;
 }

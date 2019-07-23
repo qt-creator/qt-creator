@@ -805,13 +805,13 @@ TargetItem *TargetGroupItem::targetItem(Target *target) const
 
 void TargetGroupItemPrivate::handleRemovedKit(Kit *kit)
 {
-    Q_UNUSED(kit);
+    Q_UNUSED(kit)
     rebuildContents();
 }
 
 void TargetGroupItemPrivate::handleUpdatedKit(Kit *kit)
 {
-    Q_UNUSED(kit);
+    Q_UNUSED(kit)
     rebuildContents();
 }
 

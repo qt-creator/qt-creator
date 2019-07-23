@@ -1297,8 +1297,8 @@ void CommandSession::reportProgress(CFDictionaryRef dict)
 
 void CommandSession::reportProgress2(int progress, const QString &status)
 {
-    Q_UNUSED(progress);
-    Q_UNUSED(status);
+    Q_UNUSED(progress)
+    Q_UNUSED(status)
 }
 
 QString CommandSession::commandName()

@@ -977,20 +977,20 @@ DisassemblerAgent *DebuggerEngine::disassemblerAgent() const
 
 void DebuggerEngine::fetchMemory(MemoryAgent *, quint64 addr, quint64 length)
 {
-    Q_UNUSED(addr);
-    Q_UNUSED(length);
+    Q_UNUSED(addr)
+    Q_UNUSED(length)
 }
 
 void DebuggerEngine::changeMemory(MemoryAgent *, quint64 addr, const QByteArray &data)
 {
-    Q_UNUSED(addr);
-    Q_UNUSED(data);
+    Q_UNUSED(addr)
+    Q_UNUSED(data)
 }
 
 void DebuggerEngine::setRegisterValue(const QString &name, const QString &value)
 {
-    Q_UNUSED(name);
-    Q_UNUSED(value);
+    Q_UNUSED(name)
+    Q_UNUSED(value)
 }
 
 void DebuggerEngine::setRunParameters(const DebuggerRunParameters &runParameters)

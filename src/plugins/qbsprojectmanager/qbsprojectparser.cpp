@@ -187,7 +187,7 @@ void QbsProjectParser::handleQbsParsingProgress(int progress)
 
 void QbsProjectParser::handleQbsParsingTaskSetup(const QString &description, int maximumProgressValue)
 {
-    Q_UNUSED(description);
+    Q_UNUSED(description)
     if (m_fi) {
         m_currentProgressBase = m_fi->progressValue();
         m_fi->setProgressRange(0, m_currentProgressBase + maximumProgressValue);

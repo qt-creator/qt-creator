@@ -145,7 +145,7 @@ void IosDeployStep::handleIsTransferringApp(IosToolHandler *handler, const QStri
                                             const QString &deviceId, int progress, int maxProgress,
                                             const QString &info)
 {
-    Q_UNUSED(handler); Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
+    Q_UNUSED(handler); Q_UNUSED(bundlePath); Q_UNUSED(deviceId)
     QTC_CHECK(m_transferStatus == TransferInProgress);
     emit this->progress(progress * 100 / maxProgress, info);
 }
@@ -153,7 +153,7 @@ void IosDeployStep::handleIsTransferringApp(IosToolHandler *handler, const QStri
 void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const QString &bundlePath,
                                          const QString &deviceId, IosToolHandler::OpStatus status)
 {
-    Q_UNUSED(handler); Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
+    Q_UNUSED(handler); Q_UNUSED(bundlePath); Q_UNUSED(deviceId)
     QTC_CHECK(m_transferStatus == TransferInProgress);
     if (status == IosToolHandler::Success) {
         m_transferStatus = TransferOk;
@@ -188,7 +188,7 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
 
 void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
-    Q_UNUSED(handler);
+    Q_UNUSED(handler)
     if (msg.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
         TaskHub::addTask(Task::Warning,
                          tr("The Info.plist might be incorrect."),

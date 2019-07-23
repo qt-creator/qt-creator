@@ -154,7 +154,7 @@ void DeviceManagerModel::handleDeviceListChanged()
 
 int DeviceManagerModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return d->devices.count();
 }
 

@@ -359,7 +359,7 @@ QVariant ToolTipWatchItem::data(int column, int role) const
 
 void ToolTipModel::restoreTreeModel(QXmlStreamReader &r)
 {
-    Q_UNUSED(r);
+    Q_UNUSED(r)
 #if 0
 // Helper for building a QStandardItemModel of a tree form (see TreeModelVisitor).
 // The recursion/building is based on the scheme: \code

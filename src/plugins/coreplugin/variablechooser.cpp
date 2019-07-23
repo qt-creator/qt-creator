@@ -466,7 +466,7 @@ void VariableChooserPrivate::updateButtonGeometry()
 
 void VariableChooserPrivate::updateCurrentEditor(QWidget *old, QWidget *widget)
 {
-    Q_UNUSED(old);
+    Q_UNUSED(old)
     if (!widget) // we might loose focus, but then keep the previous state
         return;
     // prevent children of the chooser itself, and limit to children of chooser's parent

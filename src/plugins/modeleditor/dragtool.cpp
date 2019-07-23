@@ -95,7 +95,7 @@ QSize DragTool::sizeHint() const
 
 void DragTool::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     QMargins margins = contentsMargins();
     QPixmap pixmap = d->icon.pixmap(d->iconSize, isEnabled() ? QIcon::Normal : QIcon::Disabled, QIcon::Off);
     QPainter painter(this);
@@ -122,13 +122,13 @@ void DragTool::paintEvent(QPaintEvent *event)
 
 void DragTool::enterEvent(QEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     update();
 }
 
 void DragTool::leaveEvent(QEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     update();
 }
 
@@ -157,7 +157,7 @@ void DragTool::mousePressEvent(QMouseEvent *event)
             d->disableFrame = true;
             update();
             Qt::DropAction dropAction = drag->exec();
-            Q_UNUSED(dropAction);
+            Q_UNUSED(dropAction)
             d->disableFrame = false;
             update();
         }
@@ -166,7 +166,7 @@ void DragTool::mousePressEvent(QMouseEvent *event)
 
 void DragTool::mouseMoveEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     const bool containsMouse = rect().contains(QWidget::mapFromGlobal(QCursor::pos()));
     if ((d->framePainted && !containsMouse) || (!d->framePainted && containsMouse))
         update();

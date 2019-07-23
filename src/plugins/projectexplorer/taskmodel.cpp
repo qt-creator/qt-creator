@@ -372,7 +372,7 @@ void TaskFilterModel::updateFilterProperties(const QString &filterText,
 
 bool TaskFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    Q_UNUSED(source_parent);
+    Q_UNUSED(source_parent)
     return filterAcceptsTask(taskModel()->tasks().at(source_row));
 }
 

@@ -92,7 +92,7 @@ protected:
     SettingsMergeResult merge(const SettingsMergeData &global,
                               const SettingsMergeData &local) const final
     {
-        Q_UNUSED(global);
+        Q_UNUSED(global)
 
         const QString key = local.key;
         const QVariant main = local.main.value(key);

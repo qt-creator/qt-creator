@@ -108,7 +108,7 @@ PerfProfilerStatisticsModel::PerfProfilerStatisticsModel(Relation relation, QObj
 
 int PerfProfilerStatisticsModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return m_columns.length();
 }
 
@@ -163,7 +163,7 @@ void PerfProfilerStatisticsMainModel::finalize(PerfProfilerStatisticsData *data)
 
 int PerfProfilerStatisticsMainModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return m_data.length();
 }
 
@@ -213,7 +213,7 @@ void PerfProfilerStatisticsData::loadEvent(const PerfEvent &event, const PerfEve
     if (event.timestamp() < 0)
         return;
 
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     ++totalSamples;
     auto data = mainData.end();
     const QVector<qint32> &stack = event.frames();
@@ -370,7 +370,7 @@ PerfProfilerStatisticsRelativesModel::PerfProfilerStatisticsRelativesModel(
 
 int PerfProfilerStatisticsRelativesModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return m_data.value(m_currentRelative).data.length();
 }
 

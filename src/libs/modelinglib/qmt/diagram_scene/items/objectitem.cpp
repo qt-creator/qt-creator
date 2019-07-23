@@ -83,9 +83,9 @@ QRectF ObjectItem::boundingRect() const
 
 void ObjectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(painter)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 }
 
 QPointF ObjectItem::pos() const
@@ -273,7 +273,7 @@ ILatchable::Action ObjectItem::verticalLatchAction() const
 
 QList<ILatchable::Latch> ObjectItem::horizontalLatches(ILatchable::Action action, bool grabbedItem) const
 {
-    Q_UNUSED(grabbedItem);
+    Q_UNUSED(grabbedItem)
 
     QRectF rect = mapRectToScene(this->rect());
     QList<ILatchable::Latch> result;
@@ -301,7 +301,7 @@ QList<ILatchable::Latch> ObjectItem::horizontalLatches(ILatchable::Action action
 
 QList<ILatchable::Latch> ObjectItem::verticalLatches(ILatchable::Action action, bool grabbedItem) const
 {
-    Q_UNUSED(grabbedItem);
+    Q_UNUSED(grabbedItem)
 
     QRectF rect = mapRectToScene(this->rect());
     QList<ILatchable::Latch> result;
@@ -394,7 +394,7 @@ void ObjectItem::relationDrawn(const QString &id, ObjectItem *targetItem, const 
 
 void ObjectItem::align(IAlignable::AlignType alignType, const QString &identifier)
 {
-    Q_UNUSED(identifier); // avoid warning in release mode
+    Q_UNUSED(identifier) // avoid warning in release mode
 
     // subclasses may support other identifiers than the standard ones.
     // but this implementation does not. So assert the names.
@@ -541,7 +541,7 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
 QSizeF ObjectItem::stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon,
                                              qreal minimumWidth, qreal minimumHeight) const
 {
-    Q_UNUSED(minimumWidth);
+    Q_UNUSED(minimumWidth)
 
     qreal width = 0.0;
     qreal height = 0.0;
@@ -946,14 +946,14 @@ bool ObjectItem::showContext() const
 
 bool ObjectItem::extendContextMenu(QMenu *menu)
 {
-    Q_UNUSED(menu);
+    Q_UNUSED(menu)
 
     return false;
 }
 
 bool ObjectItem::handleSelectedContextMenuAction(const QString &id)
 {
-    Q_UNUSED(id);
+    Q_UNUSED(id)
 
     return false;
 }

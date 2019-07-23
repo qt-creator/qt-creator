@@ -238,7 +238,7 @@ unsigned ShellCommand::processFlags() const
 
 void ShellCommand::addTask(QFuture<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
 }
 
 int ShellCommand::timeoutS() const

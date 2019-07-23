@@ -542,7 +542,7 @@ QString NavigationWidget::settingsKey(const QString &key) const
 
 void NavigationWidget::onSubWidgetFactoryIndexChanged(int factoryIndex)
 {
-    Q_UNUSED(factoryIndex);
+    Q_UNUSED(factoryIndex)
     auto subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
     QTC_ASSERT(subWidget, return);
     Id factoryId = subWidget->factory()->id();

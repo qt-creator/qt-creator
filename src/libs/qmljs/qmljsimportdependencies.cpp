@@ -717,8 +717,8 @@ ImportDependencies::ImportElements ImportDependencies::candidateImports(
 QList<DependencyInfo::ConstPtr> ImportDependencies::createDependencyInfos(
         const ImportKey &mainDoc, const ViewerContext &vContext) const
 {
-    Q_UNUSED(mainDoc);
-    Q_UNUSED(vContext);
+    Q_UNUSED(mainDoc)
+    Q_UNUSED(vContext)
     QList<DependencyInfo::ConstPtr> res;
     QTC_CHECK(false);
     return res;
@@ -897,8 +897,8 @@ public:
                     const Export &e,
                     const CoreImport &cI) const
     {
-        Q_UNUSED(m);
-        Q_UNUSED(cI);
+        Q_UNUSED(m)
+        Q_UNUSED(cI)
         imports.insert(e.exportName.flatKey());
         return true;
     }
@@ -931,7 +931,7 @@ void ImportDependencies::checkConsistency() const
             foreach (const Export &e, m_coreImports.value(s).possibleExports)
                 if (e.exportName == j.key())
                     found = true;
-            Q_ASSERT(found); Q_UNUSED(found);
+            Q_ASSERT(found); Q_UNUSED(found)
         }
     }
     QMapIterator<QString,CoreImport> i(m_coreImports);

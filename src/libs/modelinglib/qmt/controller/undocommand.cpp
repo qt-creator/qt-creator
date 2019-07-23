@@ -58,7 +58,7 @@ bool UndoCommand::mergeWith(const QUndoCommand *other)
 
 bool UndoCommand::mergeWith(const UndoCommand *other)
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
 
     return false;
 }

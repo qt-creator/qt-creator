@@ -122,7 +122,7 @@ bool AssistProposalItem::implicitlyApplies() const
 
 bool AssistProposalItem::prematurelyApplies(const QChar &c) const
 {
-    Q_UNUSED(c);
+    Q_UNUSED(c)
     return false;
 }
 

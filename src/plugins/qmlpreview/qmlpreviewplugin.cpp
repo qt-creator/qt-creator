@@ -101,8 +101,8 @@ static void defaultFpsHandler(quint16 frames[8])
 
 bool QmlPreviewPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorString);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
 
     setFileLoader(&defaultFileLoader);
     setFileClassifier(&defaultFileClassifier);
@@ -430,7 +430,7 @@ void QmlPreviewPlugin::triggerPreview(const QString &changedFile, const QByteArr
 QmlPreviewParser::QmlPreviewParser()
 {
     static const int dialectMeta = qRegisterMetaType<QmlJS::Dialect::Enum>();
-    Q_UNUSED(dialectMeta);
+    Q_UNUSED(dialectMeta)
 }
 
 void QmlPreviewParser::parse(const QString &name, const QByteArray &contents,

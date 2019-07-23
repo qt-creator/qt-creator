@@ -1425,7 +1425,7 @@ QSet<Id> BaseQtVersion::features() const
 
 void BaseQtVersion::addToEnvironment(const Kit *k, Environment &env) const
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
     env.set("QTDIR", QDir::toNativeSeparators(qmakeProperty("QT_HOST_DATA")));
 }
 
@@ -1469,8 +1469,8 @@ void BaseQtVersion::recheckDumper()
 
 Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
 {
-    Q_UNUSED(proFile);
-    Q_UNUSED(buildDir);
+    Q_UNUSED(proFile)
+    Q_UNUSED(buildDir)
     Tasks results;
 
     if (!isValid()) {

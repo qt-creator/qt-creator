@@ -218,7 +218,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const QString &bun
                                      Port qmlPort)
 {
     // Called when debugging on Device.
-    Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
+    Q_UNUSED(bundlePath); Q_UNUSED(deviceId)
 
     if (m_toolHandler != handler)
         return;
@@ -247,7 +247,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
                                      const QString &deviceId, qint64 pid)
 {
     // Called when debugging on Simulator.
-    Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
+    Q_UNUSED(bundlePath); Q_UNUSED(deviceId)
 
     if (m_toolHandler != handler)
         return;
@@ -272,7 +272,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
 
 void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 {
-    Q_UNUSED(handler);
+    Q_UNUSED(handler)
     QRegExp qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
     int index = qmlPortRe.indexIn(output);
     QString res(output);
@@ -284,7 +284,7 @@ void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 
 void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
-    Q_UNUSED(handler);
+    Q_UNUSED(handler)
     QString res(msg);
     QString lockedErr ="Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)";
     if (msg.contains("AMDeviceStartService returned -402653150")) {
@@ -308,7 +308,7 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 
 void IosRunner::handleToolExited(IosToolHandler *handler, int code)
 {
-    Q_UNUSED(handler);
+    Q_UNUSED(handler)
     m_cleanExit = (code == 0);
 }
 

@@ -164,7 +164,7 @@ void UnifiedView::setCurrentDiffFileIndex(int index)
 
 void UnifiedView::setSync(bool sync)
 {
-    Q_UNUSED(sync);
+    Q_UNUSED(sync)
 }
 
 SideBySideView::SideBySideView()

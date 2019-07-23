@@ -234,7 +234,7 @@ void CppEditorDocument::reparseWithPreferredParseContext(const QString &parseCon
 void CppEditorDocument::onFilePathChanged(const Utils::FilePath &oldPath,
                                           const Utils::FilePath &newPath)
 {
-    Q_UNUSED(oldPath);
+    Q_UNUSED(oldPath)
 
     if (!newPath.isEmpty()) {
         indenter()->setFileName(newPath);

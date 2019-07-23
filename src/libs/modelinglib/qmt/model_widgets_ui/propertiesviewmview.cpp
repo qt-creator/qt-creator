@@ -341,7 +341,7 @@ void PropertiesView::MView::edit()
 
 void PropertiesView::MView::visitMElement(const MElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 
     prepare();
     if (!m_stereotypeComboBox) {
@@ -848,7 +848,7 @@ void PropertiesView::MView::visitMConnection(const MConnection *connection)
 
 void PropertiesView::MView::visitDElement(const DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 
     if (m_modelElements.size() > 0 && m_modelElements.at(0)) {
         m_propertiesTitle.clear();

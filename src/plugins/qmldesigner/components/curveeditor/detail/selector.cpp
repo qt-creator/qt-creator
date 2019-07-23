@@ -108,7 +108,7 @@ void Selector::mouseMove(QMouseEvent *event, GraphicsView *view, Playhead &playh
 
 void Selector::mouseRelease(QMouseEvent *event, GraphicsView *view)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     applyPreSelection(view);
 

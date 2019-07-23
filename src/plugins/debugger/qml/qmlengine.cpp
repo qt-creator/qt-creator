@@ -970,7 +970,7 @@ void QmlEngine::quitDebugger()
 
 void QmlEngine::doUpdateLocals(const UpdateParameters &params)
 {
-    Q_UNUSED(params);
+    Q_UNUSED(params)
     d->updateLocals();
 }
 

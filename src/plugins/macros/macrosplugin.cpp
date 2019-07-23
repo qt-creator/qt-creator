@@ -63,8 +63,8 @@ MacrosPlugin::~MacrosPlugin()
 
 bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorMessage)
 
     d = new MacrosPluginPrivate;
 

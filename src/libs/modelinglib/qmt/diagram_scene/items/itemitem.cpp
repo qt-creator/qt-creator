@@ -69,7 +69,7 @@ void ItemItem::update()
     updateStereotypeIconDisplay();
 
     auto diagramItem = dynamic_cast<DItem *>(object());
-    Q_UNUSED(diagramItem); // avoid warning about unsed variable
+    Q_UNUSED(diagramItem) // avoid warning about unsed variable
     QMT_ASSERT(diagramItem, return);
 
     const Style *style = adaptedStyle(shapeIconId());

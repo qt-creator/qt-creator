@@ -80,7 +80,7 @@ static ICodeStylePreferences *codeStylePreferences(Project *project, Id language
 
 bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
 
     if (file->isBinary() || file->contents().isEmpty())
         return true; // nothing to do
@@ -124,33 +124,33 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
 
 bool JsonWizardGenerator::writeFile(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
 {
-    Q_UNUSED(wizard);
-    Q_UNUSED(file);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(wizard)
+    Q_UNUSED(file)
+    Q_UNUSED(errorMessage)
     return true;
 }
 
 bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
 {
-    Q_UNUSED(wizard);
-    Q_UNUSED(file);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(wizard)
+    Q_UNUSED(file)
+    Q_UNUSED(errorMessage)
     return true;
 }
 
 bool JsonWizardGenerator::polish(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
 {
-    Q_UNUSED(wizard);
-    Q_UNUSED(file);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(wizard)
+    Q_UNUSED(file)
+    Q_UNUSED(errorMessage)
     return true;
 }
 
 bool JsonWizardGenerator::allDone(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
 {
-    Q_UNUSED(wizard);
-    Q_UNUSED(file);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(wizard)
+    Q_UNUSED(file)
+    Q_UNUSED(errorMessage)
     return true;
 }
 
@@ -309,9 +309,9 @@ JsonWizardGenerator *FileGeneratorFactory::create(Id typeId, const QVariant &dat
                                                   const QString &path, Id platform,
                                                   const QVariantMap &variables)
 {
-    Q_UNUSED(path);
-    Q_UNUSED(platform);
-    Q_UNUSED(variables);
+    Q_UNUSED(path)
+    Q_UNUSED(platform)
+    Q_UNUSED(variables)
 
     QTC_ASSERT(canCreate(typeId), return nullptr);
 
@@ -349,9 +349,9 @@ JsonWizardGenerator *ScannerGeneratorFactory::create(Id typeId, const QVariant &
                                                      const QString &path, Id platform,
                                                      const QVariantMap &variables)
 {
-    Q_UNUSED(path);
-    Q_UNUSED(platform);
-    Q_UNUSED(variables);
+    Q_UNUSED(path)
+    Q_UNUSED(platform)
+    Q_UNUSED(variables)
 
     QTC_ASSERT(canCreate(typeId), return nullptr);
 

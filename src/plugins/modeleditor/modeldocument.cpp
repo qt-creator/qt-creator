@@ -69,7 +69,7 @@ ModelDocument::~ModelDocument()
 Core::IDocument::OpenResult ModelDocument::open(QString *errorString, const QString &fileName,
                                                 const QString &realFileName)
 {
-    Q_UNUSED(fileName);
+    Q_UNUSED(fileName)
 
     OpenResult result = load(errorString, realFileName);
     return result;

@@ -58,9 +58,9 @@ bool CppModelManagerBase::trySetExtraDiagnostics(const QString &fileName, const 
 bool CppModelManagerBase::setExtraDiagnostics(const QString &fileName, const QString &kind,
                                               const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics)
 {
-    Q_UNUSED(fileName);
-    Q_UNUSED(kind);
-    Q_UNUSED(diagnostics);
+    Q_UNUSED(fileName)
+    Q_UNUSED(kind)
+    Q_UNUSED(diagnostics)
     return false;
 }
 

@@ -50,7 +50,7 @@ public:
     virtual IFrameworkSettings *createFrameworkSettings() const { return nullptr; }
     virtual ITestSettingsPage *createSettingsPage(QSharedPointer<IFrameworkSettings> settings) const
     {
-        Q_UNUSED(settings);
+        Q_UNUSED(settings)
         return nullptr;
     }
 

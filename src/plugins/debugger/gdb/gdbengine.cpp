@@ -4720,7 +4720,7 @@ void GdbEngine::handleTargetCore(const DebuggerResponse &response)
 void GdbEngine::handleCoreRoundTrip(const DebuggerResponse &response)
 {
     CHECK_STATE(InferiorUnrunnable);
-    Q_UNUSED(response);
+    Q_UNUSED(response)
     loadSymbolsForStack();
     handleStop3();
     QTimer::singleShot(1000, this, &GdbEngine::loadAllSymbols);

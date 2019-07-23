@@ -928,7 +928,7 @@ void CMakeConfigurationKitAspect::fromStringList(Kit *k, const QStringList &in)
 
 CMakeConfig CMakeConfigurationKitAspect::defaultConfiguration(const Kit *k)
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
     CMakeConfig config;
     // Qt4:
     config << CMakeConfigItem(CMAKE_QMAKE_KEY, "%{Qt:qmakeExecutable}");
@@ -943,7 +943,7 @@ CMakeConfig CMakeConfigurationKitAspect::defaultConfiguration(const Kit *k)
 
 QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
 
     // FIXME: Convert preload scripts
     CMakeConfig config = defaultConfiguration(k);
@@ -1058,7 +1058,7 @@ void CMakeConfigurationKitAspect::setup(Kit *k)
 
 void CMakeConfigurationKitAspect::fix(Kit *k)
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
 }
 
 KitAspect::ItemList CMakeConfigurationKitAspect::toUserOutput(const Kit *k) const

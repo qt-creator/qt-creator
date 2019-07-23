@@ -130,17 +130,17 @@ Core::IDocument::ReloadBehavior
 ProjectDocument::reloadBehavior(Core::IDocument::ChangeTrigger state,
                                 Core::IDocument::ChangeType type) const
 {
-    Q_UNUSED(state);
-    Q_UNUSED(type);
+    Q_UNUSED(state)
+    Q_UNUSED(type)
     return BehaviorSilent;
 }
 
 bool ProjectDocument::reload(QString *errorString, Core::IDocument::ReloadFlag flag,
                              Core::IDocument::ChangeType type)
 {
-    Q_UNUSED(errorString);
-    Q_UNUSED(flag);
-    Q_UNUSED(type);
+    Q_UNUSED(errorString)
+    Q_UNUSED(flag)
+    Q_UNUSED(type)
 
     if (m_callback)
         m_callback();
@@ -702,7 +702,7 @@ ContainerNode *Project::containerNode() const
 
 Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMessage)
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
     if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
         QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
         d->m_editorConfiguration.fromMap(values);
@@ -756,7 +756,7 @@ EditorConfiguration *Project::editorConfiguration() const
 
 QStringList Project::filesGeneratedFrom(const QString &file) const
 {
-    Q_UNUSED(file);
+    Q_UNUSED(file)
     return QStringList();
 }
 
@@ -912,8 +912,8 @@ Utils::MacroExpander *Project::macroExpander() const
 
 QVariant Project::additionalData(Core::Id id, const Target *target) const
 {
-    Q_UNUSED(id);
-    Q_UNUSED(target);
+    Q_UNUSED(id)
+    Q_UNUSED(target)
     return QVariant();
 }
 

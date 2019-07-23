@@ -122,11 +122,11 @@ public:
 #ifndef NO_PARSER_OR_SEMANTIC_ERROR_MESSAGES
             qDebug() << fileName->chars()<<':'<<line<<':'<<column<<' ' << QString::vasprintf(format, ap);
 #else
-            Q_UNUSED(fileName);
-            Q_UNUSED(line);
-            Q_UNUSED(column);
-            Q_UNUSED(format);
-            Q_UNUSED(ap);
+            Q_UNUSED(fileName)
+            Q_UNUSED(line)
+            Q_UNUSED(column)
+            Q_UNUSED(format)
+            Q_UNUSED(ap)
 #endif
         }
     };

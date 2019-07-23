@@ -57,7 +57,7 @@ public:
 
     QString displayText(const QVariant &value, const QLocale &locale) const
     {
-        Q_UNUSED(locale);
+        Q_UNUSED(locale)
         return QString::fromLatin1("0x%1").arg(value.toULongLong(), 16, 16, QLatin1Char('0'));
     }
 };

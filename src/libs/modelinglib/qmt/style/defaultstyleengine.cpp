@@ -144,15 +144,15 @@ class BoundaryStyleKey
 
 uint qHash(const BoundaryStyleKey &styleKey)
 {
-    Q_UNUSED(styleKey);
+    Q_UNUSED(styleKey)
 
     return 1;
 }
 
 bool operator==(const BoundaryStyleKey &lhs, const BoundaryStyleKey &rhs)
 {
-    Q_UNUSED(lhs);
-    Q_UNUSED(rhs);
+    Q_UNUSED(lhs)
+    Q_UNUSED(rhs)
 
     return true;
 }
@@ -164,15 +164,15 @@ class SwimlaneStyleKey
 
 uint qHash(const SwimlaneStyleKey &styleKey)
 {
-    Q_UNUSED(styleKey);
+    Q_UNUSED(styleKey)
 
     return 1;
 }
 
 bool operator==(const SwimlaneStyleKey &lhs, const SwimlaneStyleKey &rhs)
 {
-    Q_UNUSED(lhs);
-    Q_UNUSED(rhs);
+    Q_UNUSED(lhs)
+    Q_UNUSED(rhs)
 
     return true;
 }
@@ -344,7 +344,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
 const Style *DefaultStyleEngine::applyRelationStyle(const Style *baseStyle, const StyledRelation &styledRelation,
                                                     const Parameters *parameters)
 {
-    Q_UNUSED(parameters);
+    Q_UNUSED(parameters)
 
     ElementType elementType = objectType(styledRelation.endA());
     RelationStyleKey key(elementType, styledRelation.endA() ? styledRelation.endA()->visualPrimaryRole() : DObject::PrimaryRoleNormal);
@@ -391,14 +391,14 @@ const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, co
 const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, const DBoundary *boundary,
                                                     const Parameters *parameters)
 {
-    Q_UNUSED(boundary);
+    Q_UNUSED(boundary)
 
     return applyBoundaryStyle(baseStyle, parameters);
 }
 
 const Style *DefaultStyleEngine::applySwimlaneStyle(const Style *baseStyle, const DSwimlane *swimlane, const StyleEngine::Parameters *parameters)
 {
-    Q_UNUSED(swimlane);
+    Q_UNUSED(swimlane)
 
     return applySwimlaneStyle(baseStyle, parameters);
 }
@@ -406,7 +406,7 @@ const Style *DefaultStyleEngine::applySwimlaneStyle(const Style *baseStyle, cons
 const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, DAnnotation::VisualRole visualRole,
                                                       const StyleEngine::Parameters *parameters)
 {
-    Q_UNUSED(parameters);
+    Q_UNUSED(parameters)
 
     AnnotationStyleKey key(visualRole);
     const Style *derivedStyle = m_annotationStyleMap.value(key);
@@ -447,7 +447,7 @@ const Style *DefaultStyleEngine::applyAnnotationStyle(const Style *baseStyle, DA
 
 const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, const StyleEngine::Parameters *parameters)
 {
-    Q_UNUSED(parameters);
+    Q_UNUSED(parameters)
 
     BoundaryStyleKey key;
     const Style *derivedStyle = m_boundaryStyleMap.value(key);
@@ -463,7 +463,7 @@ const Style *DefaultStyleEngine::applyBoundaryStyle(const Style *baseStyle, cons
 
 const Style *DefaultStyleEngine::applySwimlaneStyle(const Style *baseStyle, const StyleEngine::Parameters *parameters)
 {
-    Q_UNUSED(parameters);
+    Q_UNUSED(parameters)
 
     SwimlaneStyleKey key;
     const Style *derivedStyle = m_swimlaneStyleMap.value(key);
@@ -614,7 +614,7 @@ QColor DefaultStyleEngine::fillColor(ElementType elementType, const ObjectVisual
 
 QColor DefaultStyleEngine::textColor(const DObject *object, int depth)
 {
-    Q_UNUSED(depth);
+    Q_UNUSED(depth)
 
     QColor textColor;
     DObject::VisualPrimaryRole visualRole = object ? object->visualPrimaryRole() : DObject::PrimaryRoleNormal;
@@ -627,7 +627,7 @@ QColor DefaultStyleEngine::textColor(const DObject *object, int depth)
 
 QColor DefaultStyleEngine::textColor(ElementType elementType, const ObjectVisuals &objectVisuals)
 {
-    Q_UNUSED(elementType);
+    Q_UNUSED(elementType)
 
     QColor textColor;
     if (objectVisuals.visualSecondaryRole() == DObject::SecondaryRoleSoften)

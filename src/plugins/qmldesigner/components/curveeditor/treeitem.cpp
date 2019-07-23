@@ -190,7 +190,7 @@ NodeTreeItem::NodeTreeItem(const QString &name, const QIcon &icon)
     : TreeItem(name)
     , m_icon(icon)
 {
-    Q_UNUSED(icon);
+    Q_UNUSED(icon)
 }
 
 NodeTreeItem *NodeTreeItem::asNodeItem()

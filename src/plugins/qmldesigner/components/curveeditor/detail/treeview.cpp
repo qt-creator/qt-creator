@@ -91,8 +91,8 @@ void TreeView::changeCurve(unsigned int id, const AnimationCurve &curve)
 
 void TreeView::changeSelection(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    Q_UNUSED(selected);
-    Q_UNUSED(deselected);
+    Q_UNUSED(selected)
+    Q_UNUSED(deselected)
 
     std::vector<CurveItem *> curves;
     for (auto index : selectedIndexes()) {

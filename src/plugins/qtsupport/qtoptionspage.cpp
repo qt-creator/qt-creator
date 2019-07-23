@@ -699,8 +699,8 @@ void QtOptionsPageWidget::updateDescriptionLabel()
 
 void QtOptionsPageWidget::versionChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    Q_UNUSED(current);
-    Q_UNUSED(previous);
+    Q_UNUSED(current)
+    Q_UNUSED(previous)
     userChangedCurrentVersion();
 }
 

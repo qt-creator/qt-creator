@@ -59,7 +59,7 @@ DFactory::DFactory()
 
 void DFactory::visitMElement(const MElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
     QMT_CHECK(m_product);
 }
 

@@ -548,7 +548,7 @@ QString QmlObjectNode::generateTranslatableText(const QString &text)
         }
     return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
 #else
-    Q_UNUSED(text);
+    Q_UNUSED(text)
     return QString();
 #endif
 }

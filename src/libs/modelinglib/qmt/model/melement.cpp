@@ -39,7 +39,7 @@ void MExpansion::assign(MElement *lhs, const MElement &rhs)
 
 void MExpansion::destroy(MElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 
     delete this;
 }

@@ -460,7 +460,7 @@ void ProjectTreeWidget::editCurrentItem()
 void ProjectTreeWidget::renamed(const FilePath &oldPath, const FilePath &newPath)
 {
     update();
-    Q_UNUSED(oldPath);
+    Q_UNUSED(oldPath)
     if (!currentNode() || currentNode()->filePath() != newPath) {
         // try to find the node
         Node *node = nodeForFile(newPath);
@@ -503,7 +503,7 @@ void ProjectTreeWidget::setCurrentItem(Node *node)
 
 void ProjectTreeWidget::handleCurrentItemChange(const QModelIndex &current)
 {
-    Q_UNUSED(current);
+    Q_UNUSED(current)
     ProjectTree::nodeChanged(this);
 }
 

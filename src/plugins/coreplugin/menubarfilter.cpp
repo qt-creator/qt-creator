@@ -71,17 +71,17 @@ static const QList<QAction *> menuBarActions()
 QList<LocatorFilterEntry> MenuBarFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                     const QString &entry)
 {
-    Q_UNUSED(future);
-    Q_UNUSED(entry);
+    Q_UNUSED(future)
+    Q_UNUSED(entry)
     return std::move(m_entries);
 }
 
 void MenuBarFilter::accept(LocatorFilterEntry selection, QString *newText,
                            int *selectionStart, int *selectionLength) const
 {
-    Q_UNUSED(newText);
-    Q_UNUSED(selectionStart);
-    Q_UNUSED(selectionLength);
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     if (auto action = selection.internalData.value<QPointer<QAction>>()) {
         QTimer::singleShot(0, action, [action] {
             if (action->isEnabled())
@@ -92,7 +92,7 @@ void MenuBarFilter::accept(LocatorFilterEntry selection, QString *newText,
 
 void MenuBarFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
 }
 
 QList<LocatorFilterEntry> MenuBarFilter::matchesForAction(QAction *action,
@@ -182,7 +182,7 @@ void MenuBarFilter::updateEnabledActionCache()
 
 void Core::Internal::MenuBarFilter::prepareSearch(const QString &entry)
 {
-    Q_UNUSED(entry);
+    Q_UNUSED(entry)
     static const QString separators = ". >/";
     static const QRegularExpression seperatorRegExp(QString("[%1]").arg(separators));
     QString normalized = entry;

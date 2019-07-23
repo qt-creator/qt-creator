@@ -57,7 +57,7 @@ void QmlProfilerAnimationsModel::clear()
 
 void QmlProfilerAnimationsModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     AnimationThread lastThread = (AnimationThread)event.number<qint32>(2);
 
     // initial estimation of the event duration: 1/framerate

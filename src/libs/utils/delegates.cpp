@@ -131,8 +131,8 @@ void PathChooserDelegate::setPromptDialogFilter(const QString &filter)
 
 QWidget *PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    Q_UNUSED(option);
-    Q_UNUSED(index);
+    Q_UNUSED(option)
+    Q_UNUSED(index)
 
     auto editor = new Utils::PathChooser(parent);
 
@@ -167,7 +167,7 @@ void PathChooserDelegate::setModelData(QWidget *editor, QAbstractItemModel *mode
 
 void PathChooserDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
 
     editor->setGeometry(option.rect);
 }
@@ -200,8 +200,8 @@ QWidget *CompleterDelegate::createEditor(QWidget *parent,
                                          const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
 {
-    Q_UNUSED(option);
-    Q_UNUSED(index);
+    Q_UNUSED(option)
+    Q_UNUSED(index)
 
     auto edit = new CompletingLineEdit(parent);
 
@@ -229,7 +229,7 @@ void CompleterDelegate::updateEditorGeometry(QWidget *editor,
                                              const QStyleOptionViewItem &option,
                                              const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
 
     editor->setGeometry(option.rect);
 }

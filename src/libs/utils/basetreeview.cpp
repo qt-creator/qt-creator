@@ -345,7 +345,7 @@ public:
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const override
     {
-        Q_UNUSED(option);
+        Q_UNUSED(option)
         QLabel *label = new QLabel(parent);
         label->setAutoFillBackground(true);
         label->setTextInteractionFlags(Qt::TextSelectableByMouse

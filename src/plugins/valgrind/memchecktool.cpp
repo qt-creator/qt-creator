@@ -818,7 +818,7 @@ void MemcheckToolPrivate::heobAction()
     // process environment
     QByteArray env;
     void *envPtr = nullptr;
-    Q_UNUSED(envPtr);
+    Q_UNUSED(envPtr)
     if (!envStrings.isEmpty()) {
         uint pos = 0;
         for (const QString &par : envStrings) {

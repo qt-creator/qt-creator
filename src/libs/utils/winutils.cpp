@@ -131,9 +131,9 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
     }
     return rc;
 #endif
-    Q_UNUSED(t);
-    Q_UNUSED(name);
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(t)
+    Q_UNUSED(name)
+    Q_UNUSED(errorMessage)
     return QString();
 }
 
@@ -182,7 +182,7 @@ QTCREATOR_UTILS_EXPORT QString imageName(quint32 processId)
         result = QString::fromUtf16(reinterpret_cast<const ushort*>(path));
     CloseHandle(handle);
 #else
-    Q_UNUSED(processId);
+    Q_UNUSED(processId)
 #endif
     return result;
 }

@@ -74,8 +74,8 @@ Abis IosQtVersion::detectQtAbis() const
 
 void IosQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
-    Q_UNUSED(k);
-    Q_UNUSED(env);
+    Q_UNUSED(k)
+    Q_UNUSED(env)
 }
 
 QString IosQtVersion::description() const

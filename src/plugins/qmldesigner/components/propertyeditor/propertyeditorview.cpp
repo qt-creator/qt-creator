@@ -529,7 +529,7 @@ void PropertyEditorView::removePropertyFromModel(const PropertyName &propertyNam
 void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                           const QList<ModelNode> &lastSelectedNodeList)
 {
-    Q_UNUSED(lastSelectedNodeList);
+    Q_UNUSED(lastSelectedNodeList)
 
     if (selectedNodeList.isEmpty())
         select(ModelNode());

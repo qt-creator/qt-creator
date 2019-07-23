@@ -313,7 +313,7 @@ void BuildConfiguration::setUseSystemEnvironment(bool b)
 
 void BuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
-    Q_UNUSED(env);
+    Q_UNUSED(env)
 }
 
 bool BuildConfiguration::useSystemEnvironment() const
@@ -346,7 +346,7 @@ QString BuildConfiguration::disabledReason() const
 
 bool BuildConfiguration::regenerateBuildFiles(Node *node)
 {
-    Q_UNUSED(node);
+    Q_UNUSED(node)
     return false;
 }
 

@@ -376,13 +376,13 @@ QStringList ProcessExtraCompiler::arguments() const
 
 bool ProcessExtraCompiler::prepareToRun(const QByteArray &sourceContents)
 {
-    Q_UNUSED(sourceContents);
+    Q_UNUSED(sourceContents)
     return true;
 }
 
 Tasks ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
 {
-    Q_UNUSED(stdErr);
+    Q_UNUSED(stdErr)
     return {};
 }
 

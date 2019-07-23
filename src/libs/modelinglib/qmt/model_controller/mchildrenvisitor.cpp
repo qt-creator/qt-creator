@@ -40,7 +40,7 @@ namespace qmt {
 
 void MChildrenVisitor::visitMElement(MElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 }
 
 void MChildrenVisitor::visitMObject(MObject *object)

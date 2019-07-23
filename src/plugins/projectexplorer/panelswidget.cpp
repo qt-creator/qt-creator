@@ -64,7 +64,7 @@ public:
     }
     void paintEvent(QPaintEvent *e) override
     {
-        Q_UNUSED(e);
+        Q_UNUSED(e)
         QPainter p(this);
         QColor fillColor = creatorTheme()->color(Theme::PanelsWidgetSeparatorLineColor);
         p.fillRect(contentsRect(), fillColor);

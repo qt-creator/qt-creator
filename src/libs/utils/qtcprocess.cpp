@@ -672,8 +672,8 @@ QtcProcess::QtcProcess(QObject *parent)
 {
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
-    Q_UNUSED(qProcessExitStatusMeta);
-    Q_UNUSED(qProcessProcessErrorMeta);
+    Q_UNUSED(qProcessExitStatusMeta)
+    Q_UNUSED(qProcessProcessErrorMeta)
 }
 
 void QtcProcess::setUseCtrlCStub(bool enabled)

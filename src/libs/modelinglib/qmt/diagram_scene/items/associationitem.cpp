@@ -75,7 +75,7 @@ void AssociationItem::updateEndLabels(const DAssociationEnd &end, const DAssocia
                                       QGraphicsSimpleTextItem **endName, QGraphicsSimpleTextItem **endCardinality,
                                       const Style *style)
 {
-    Q_UNUSED(end);
+    Q_UNUSED(end)
 
     if (!otherEnd.name().isEmpty()) {
         if (!*endName)

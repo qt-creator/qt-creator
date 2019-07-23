@@ -246,7 +246,7 @@ void PerfConfigWidget::handleProcessError(QProcess::ProcessError error)
 QWidget *SettingsDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                                         const QModelIndex &index) const
 {
-    Q_UNUSED(option);
+    Q_UNUSED(option)
     const int row = index.row();
     const int column = index.column();
     const PerfConfigEventsModel *model = qobject_cast<const PerfConfigEventsModel *>(index.model());
@@ -406,7 +406,7 @@ void SettingsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 void SettingsDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                                             const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     editor->setGeometry(option.rect);
 }
 

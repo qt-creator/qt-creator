@@ -111,9 +111,9 @@ QRectF RectangularSelectionItem::boundingRect() const
 
 void RectangularSelectionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(painter)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 }
 
 void RectangularSelectionItem::setRect(const QRectF &rectangle)
@@ -226,7 +226,7 @@ void RectangularSelectionItem::update()
 
 void RectangularSelectionItem::moveHandle(Handle handle, const QPointF &deltaMove, HandleStatus handleStatus, HandleQualifier handleQualifier)
 {
-    Q_UNUSED(handleQualifier);
+    Q_UNUSED(handleQualifier)
 
     switch (handleStatus) {
     case Press:

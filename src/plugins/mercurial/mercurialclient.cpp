@@ -170,8 +170,8 @@ bool MercurialClient::synchronousClone(const QString &workingDir,
                                        const QString &dstLocation,
                                        const QStringList &extraOptions)
 {
-    Q_UNUSED(workingDir);
-    Q_UNUSED(extraOptions);
+    Q_UNUSED(workingDir)
+    Q_UNUSED(extraOptions)
     QDir workingDirectory(srcLocation);
     const unsigned flags = VcsCommand::SshPasswordPrompt |
             VcsCommand::ShowStdOut |
@@ -391,7 +391,7 @@ void MercurialClient::commit(const QString &repositoryRoot, const QStringList &f
 void MercurialClient::diff(const QString &workingDir, const QStringList &files,
                            const QStringList &extraOptions)
 {
-    Q_UNUSED(extraOptions);
+    Q_UNUSED(extraOptions)
 
     QString fileName;
 

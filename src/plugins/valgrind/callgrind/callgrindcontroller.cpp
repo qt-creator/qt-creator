@@ -187,7 +187,7 @@ void CallgrindController::controllerProcessFinished(int rc, QProcess::ExitStatus
 
 void CallgrindController::controllerProcessClosed(bool success)
 {
-    Q_UNUSED(success);
+    Q_UNUSED(success)
     //    QTC_ASSERT(m_remote.m_process, return);
 
 //    m_remote.m_errorString = m_remote.m_process->errorString();

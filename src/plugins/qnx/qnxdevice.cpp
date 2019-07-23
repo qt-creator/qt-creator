@@ -60,7 +60,7 @@ class QnxPortsGatheringMethod : public PortsGatheringMethod
     // used to be fixed. These two can now be matched to each other.
     Runnable runnable(QAbstractSocket::NetworkLayerProtocol protocol) const override
     {
-        Q_UNUSED(protocol);
+        Q_UNUSED(protocol)
         Runnable runnable;
         runnable.executable = FileName::fromString("netstat");
         runnable.commandLineArguments = "-na";

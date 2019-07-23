@@ -342,15 +342,15 @@ int AutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 bool AutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
                                               const QString &textToInsert) const
 {
-    Q_UNUSED(cursor);
-    Q_UNUSED(textToInsert);
+    Q_UNUSED(cursor)
+    Q_UNUSED(textToInsert)
     return false;
 }
 
 bool AutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor, const QString &textToInsert) const
 {
-    Q_UNUSED(cursor);
-    Q_UNUSED(textToInsert);
+    Q_UNUSED(cursor)
+    Q_UNUSED(textToInsert)
     return false;
 }
 
@@ -361,13 +361,13 @@ bool AutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) c
 
 bool AutoCompleter::isInComment(const QTextCursor &cursor) const
 {
-    Q_UNUSED(cursor);
+    Q_UNUSED(cursor)
     return false;
 }
 
 bool AutoCompleter::isInString(const QTextCursor &cursor) const
 {
-    Q_UNUSED(cursor);
+    Q_UNUSED(cursor)
     return false;
 }
 
@@ -377,11 +377,11 @@ QString AutoCompleter::insertMatchingBrace(const QTextCursor &cursor,
                                            bool skipChars,
                                            int *skippedChars) const
 {
-    Q_UNUSED(cursor);
-    Q_UNUSED(text);
-    Q_UNUSED(lookAhead);
-    Q_UNUSED(skipChars);
-    Q_UNUSED(skippedChars);
+    Q_UNUSED(cursor)
+    Q_UNUSED(text)
+    Q_UNUSED(lookAhead)
+    Q_UNUSED(skipChars)
+    Q_UNUSED(skippedChars)
     return QString();
 }
 
@@ -391,16 +391,16 @@ QString AutoCompleter::insertMatchingQuote(const QTextCursor &cursor,
                                            bool skipChars,
                                            int *skippedChars) const
 {
-    Q_UNUSED(cursor);
-    Q_UNUSED(text);
-    Q_UNUSED(lookAhead);
-    Q_UNUSED(skipChars);
-    Q_UNUSED(skippedChars);
+    Q_UNUSED(cursor)
+    Q_UNUSED(text)
+    Q_UNUSED(lookAhead)
+    Q_UNUSED(skipChars)
+    Q_UNUSED(skippedChars)
     return QString();
 }
 
 QString AutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) const
 {
-    Q_UNUSED(cursor);
+    Q_UNUSED(cursor)
     return QString();
 }

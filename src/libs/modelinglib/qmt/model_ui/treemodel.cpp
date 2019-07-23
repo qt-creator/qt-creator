@@ -80,13 +80,13 @@ public:
 
     void visitMElement(const MElement *element)
     {
-        Q_UNUSED(element);
+        Q_UNUSED(element)
         QMT_CHECK(false);
     }
 
     void visitMObject(const MObject *object)
     {
-        Q_UNUSED(object);
+        Q_UNUSED(object)
         QMT_ASSERT(m_item, return);
         m_item->setEditable(false);
     }
@@ -156,7 +156,7 @@ public:
 
     void visitMRelation(const MRelation *relation)
     {
-        Q_UNUSED(relation);
+        Q_UNUSED(relation)
         QMT_ASSERT(m_item, return);
         m_item->setEditable(false);
         m_item->setData(TreeModel::Relation, TreeModel::RoleItemType);
@@ -216,7 +216,7 @@ public:
 
     void visitMElement(const MElement *element)
     {
-        Q_UNUSED(element);
+        Q_UNUSED(element)
         QMT_CHECK(false);
     }
 
@@ -502,8 +502,8 @@ void TreeModel::onEndResetModel()
 
 void TreeModel::onBeginUpdateObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
     QMT_CHECK(m_busyState == NotBusy);
     m_busyState = UpdateElement;
 }
@@ -536,8 +536,8 @@ void TreeModel::onEndUpdateObject(int row, const MObject *parent)
 
 void TreeModel::onBeginInsertObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
     QMT_CHECK(m_busyState == NotBusy);
     m_busyState = InsertElement;
 }
@@ -569,8 +569,8 @@ void TreeModel::onBeginRemoveObject(int row, const MObject *parent)
 
 void TreeModel::onEndRemoveObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
     QMT_CHECK(m_busyState == RemoveElement);
     m_busyState = NotBusy;
 }
@@ -602,8 +602,8 @@ void TreeModel::onEndMoveObject(int row, const MObject *owner)
 
 void TreeModel::onBeginUpdateRelation(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
     QMT_CHECK(m_busyState == NotBusy);
     m_busyState = UpdateRelation;
 }
@@ -637,8 +637,8 @@ void TreeModel::onEndUpdateRelation(int row, const MObject *parent)
 
 void TreeModel::onBeginInsertRelation(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
     QMT_CHECK(m_busyState == NotBusy);
     m_busyState = InsertRelation;
 }
@@ -668,8 +668,8 @@ void TreeModel::onBeginRemoveRelation(int row, const MObject *parent)
 
 void TreeModel::onEndRemoveRelation(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
     QMT_CHECK(m_busyState == RemoveRelation);
     m_busyState = NotBusy;
 }
@@ -699,7 +699,7 @@ void TreeModel::onEndMoveRelation(int row, const MObject *owner)
 
 void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
 {
-    Q_UNUSED(endObject);
+    Q_UNUSED(endObject)
     QMT_CHECK(m_busyState == NotBusy);
 
     MObject *parent = relation->owner();
@@ -725,8 +725,8 @@ void TreeModel::onRelationEndChanged(MRelation *relation, MObject *endObject)
 
 void TreeModel::onModelDataChanged(const QModelIndex &topleft, const QModelIndex &bottomright)
 {
-    Q_UNUSED(topleft);
-    Q_UNUSED(bottomright);
+    Q_UNUSED(topleft)
+    Q_UNUSED(bottomright)
     // TODO fix editing object name in model tree
     // item->text() no longer returns a simple object name
     // classes contains namespace label

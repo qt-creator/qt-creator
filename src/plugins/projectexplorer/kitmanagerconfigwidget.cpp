@@ -410,7 +410,7 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
 
 void KitManagerConfigWidget::showEvent(QShowEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     foreach (KitAspectWidget *widget, m_widgets)
         widget->refresh();
 }

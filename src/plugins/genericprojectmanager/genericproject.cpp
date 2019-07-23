@@ -99,8 +99,8 @@ public:
 
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
     {
-        Q_UNUSED(errorString);
-        Q_UNUSED(flag);
+        Q_UNUSED(errorString)
+        Q_UNUSED(flag)
         if (type == TypePermissions)
             return true;
         m_project->refresh(m_options);

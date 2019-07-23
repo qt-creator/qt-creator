@@ -102,7 +102,7 @@ void StackedDiagramsView::onCurrentChanged(int tabIndex)
 
 void StackedDiagramsView::onDiagramRenamed(const MDiagram *diagram)
 {
-    Q_UNUSED(diagram);
+    Q_UNUSED(diagram)
 
     // nothing to do!
 }

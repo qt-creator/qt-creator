@@ -460,7 +460,7 @@ void UrlTextCursorHandler::handleCurrentContents()
 
 void UrlTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) const
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     menu->addSeparator();
     menu->addAction(createOpenUrlAction(tr("Open URL in Browser...")));
     menu->addAction(createCopyUrlAction(tr("Copy URL Location")));
@@ -527,7 +527,7 @@ EmailTextCursorHandler::EmailTextCursorHandler(VcsBaseEditorWidget *editorWidget
 
 void EmailTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) const
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     menu->addSeparator();
     menu->addAction(createOpenUrlAction(tr("Send Email To...")));
     menu->addAction(createCopyUrlAction(tr("Copy Email Address")));
@@ -673,7 +673,7 @@ bool VcsBaseEditorWidget::supportChangeLinks() const
 
 QString VcsBaseEditorWidget::fileNameForLine(int line) const
 {
-    Q_UNUSED(line);
+    Q_UNUSED(line)
     return source();
 }
 
@@ -1212,7 +1212,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
 
 void VcsBaseEditorWidget::reportCommandFinished(bool ok, int exitCode, const QVariant &data)
 {
-    Q_UNUSED(exitCode);
+    Q_UNUSED(exitCode)
 
     hideProgressIndicator();
     if (!ok) {
@@ -1549,13 +1549,13 @@ QString VcsBaseEditorWidget::decorateVersion(const QString &revision) const
 
 bool VcsBaseEditorWidget::isValidRevision(const QString &revision) const
 {
-    Q_UNUSED(revision);
+    Q_UNUSED(revision)
     return true;
 }
 
 QString VcsBaseEditorWidget::revisionSubject(const QTextBlock &inBlock) const
 {
-    Q_UNUSED(inBlock);
+    Q_UNUSED(inBlock)
     return QString();
 }
 

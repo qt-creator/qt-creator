@@ -138,7 +138,7 @@ void QbsCleanStep::cleaningDone(bool success)
 
 void QbsCleanStep::handleTaskStarted(const QString &desciption, int max)
 {
-    Q_UNUSED(desciption);
+    Q_UNUSED(desciption)
     m_maxProgress = max;
 }
 

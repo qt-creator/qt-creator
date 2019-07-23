@@ -442,13 +442,13 @@ void RunControl::registerWorkerCreator(Core::Id id, const WorkerCreator &workerC
 {
     theWorkerCreators().insert(id, workerCreator);
     auto keys = theWorkerCreators().keys();
-    Q_UNUSED(keys);
+    Q_UNUSED(keys)
 }
 
 RunWorker *RunControl::createWorker(Core::Id id)
 {
     auto keys = theWorkerCreators().keys();
-    Q_UNUSED(keys);
+    Q_UNUSED(keys)
     WorkerCreator creator = theWorkerCreators().value(id);
     if (creator)
         return creator(this);

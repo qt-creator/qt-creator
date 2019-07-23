@@ -416,7 +416,7 @@ FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
 
 bool FancyLineEdit::validateWithValidator(FancyLineEdit *edit, QString *errorMessage)
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
     if (const QValidator *v = edit->validator()) {
         QString tmp = edit->text();
         int pos = edit->cursorPosition();

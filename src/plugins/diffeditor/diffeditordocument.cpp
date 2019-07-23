@@ -181,7 +181,7 @@ bool DiffEditorDocument::ignoreWhitespace() const
 
 bool DiffEditorDocument::setContents(const QByteArray &contents)
 {
-    Q_UNUSED(contents);
+    Q_UNUSED(contents)
     return true;
 }
 

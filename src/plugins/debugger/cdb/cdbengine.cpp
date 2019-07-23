@@ -277,7 +277,7 @@ void CdbEngine::adjustOperateByInstruction(bool operateByInstruction)
 
 bool CdbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
 {
-    Q_UNUSED(context);
+    Q_UNUSED(context)
     // Tooltips matching local variables are already handled in the
     // base class. We don't handle anything else here in CDB
     // as it can slow debugging down.

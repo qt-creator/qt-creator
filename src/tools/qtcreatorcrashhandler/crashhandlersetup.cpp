@@ -154,9 +154,9 @@ CrashHandlerSetup::CrashHandlerSetup(const QString &appName,
         }
     }
 #else
-    Q_UNUSED(appName);
-    Q_UNUSED(restartCap);
-    Q_UNUSED(executableDirPath);
+    Q_UNUSED(appName)
+    Q_UNUSED(restartCap)
+    Q_UNUSED(executableDirPath)
 #endif // BUILD_CRASH_HANDLER
 }
 

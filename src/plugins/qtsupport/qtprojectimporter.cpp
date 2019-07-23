@@ -243,7 +243,7 @@ Kit *TestQtProjectImporter::createKit(void *directoryData) const
 
 const QList<BuildInfo> TestQtProjectImporter::buildInfoListForKit(const Kit *k, void *directoryData) const
 {
-    Q_UNUSED(directoryData);
+    Q_UNUSED(directoryData)
     assert(m_testData.contains(directoryData));
     assert(!m_deletedTestData.contains(directoryData));
     assert(static_cast<const DirectoryData *>(directoryData)->importPath == m_path);

@@ -165,7 +165,7 @@ void CppEditorPlugin::test_useSelections_data()
                 );
 
     QTest::newRow("local use as macro argument 1 - argument expanded")
-            << _("#define Q_UNUSED(x) (void)x;\n"
+            << _("#define Q_UNUSED(x) (void)x\n"
                  "void f(int arg)\n"
                  "{\n"
                  "    Q_UNUSED(@arg)\n"

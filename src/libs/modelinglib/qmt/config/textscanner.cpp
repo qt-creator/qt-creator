@@ -296,7 +296,7 @@ Token TextScanner::scanOperator(const SourceChar &firstChar)
                 unreadChar(extraChars.pop());
             }
             QMT_CHECK(haveOperator);
-            Q_UNUSED(haveOperator); // avoid warning in release mode
+            Q_UNUSED(haveOperator) // avoid warning in release mode
             return Token(Token::TokenOperator, subtype, op, firstChar.pos);
         }
         text += sourceChar.ch;

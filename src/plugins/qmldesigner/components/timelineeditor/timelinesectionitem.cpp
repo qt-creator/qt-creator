@@ -846,8 +846,8 @@ void TimelineBarItem::scrollOffsetChanged()
 
 void TimelineBarItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     QColor brushColorSelected = Theme::getColor(Theme::QmlDesigner_HighlightColor);
     QColor brushColor = Theme::getColor(Theme::QmlDesigner_HighlightColor).darker(120);

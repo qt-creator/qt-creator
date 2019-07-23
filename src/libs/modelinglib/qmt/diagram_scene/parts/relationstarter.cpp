@@ -59,8 +59,8 @@ QRectF RelationStarter::boundingRect() const
 
 void RelationStarter::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     painter->save();
     painter->setPen(pen());
@@ -153,7 +153,7 @@ void RelationStarter::keyPressEvent(QKeyEvent *event)
 
 void RelationStarter::focusOutEvent(QFocusEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     if (m_currentPreviewArrow) {
         m_currentPreviewArrow->scene()->removeItem(m_currentPreviewArrow);
         delete m_currentPreviewArrow;

@@ -73,7 +73,7 @@ void AlignOnRasterVisitor::setDiagram(MDiagram *diagram)
 
 void AlignOnRasterVisitor::visitDElement(DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 
     QMT_CHECK(false);
 }
@@ -116,7 +116,7 @@ void AlignOnRasterVisitor::visitDItem(DItem *item)
 
 void AlignOnRasterVisitor::visitDRelation(DRelation *relation)
 {
-    Q_UNUSED(relation);
+    Q_UNUSED(relation)
 }
 
 void AlignOnRasterVisitor::visitDInheritance(DInheritance *inheritance)

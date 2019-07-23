@@ -148,9 +148,9 @@ QString qt_readRegistryKey(HKEY parentHandle, const QString &rSubkey, unsigned l
 
     RegCloseKey(handle);
 #else
-    Q_UNUSED(parentHandle);
+    Q_UNUSED(parentHandle)
     Q_UNUSED(rSubkey)
-    Q_UNUSED(options);
+    Q_UNUSED(options)
 #endif
 
     return result;

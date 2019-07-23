@@ -394,7 +394,7 @@ QVariant VcsBaseClientSettings::keyDefaultValue(const QString &key) const
 
 void VcsBaseClientSettings::readLegacySettings(const QSettings *settings)
 {
-    Q_UNUSED(settings);
+    Q_UNUSED(settings)
 }
 
 } // namespace VcsBase

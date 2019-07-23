@@ -50,7 +50,7 @@ DCloneVisitor::DCloneVisitor()
 
 void DCloneVisitor::visitDElement(const DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
     QMT_CHECK(m_cloned);
 }
 
@@ -158,7 +158,7 @@ DCloneDeepVisitor::DCloneDeepVisitor()
 
 void DCloneDeepVisitor::visitDElement(const DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
     QMT_CHECK(m_cloned);
 }
 

@@ -55,8 +55,8 @@ CppcheckPlugin::~CppcheckPlugin() = default;
 
 bool CppcheckPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorString);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
 
     d.reset(new CppcheckPluginPrivate);
 

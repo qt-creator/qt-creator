@@ -183,7 +183,7 @@ void MetaObject::createNewDynamicProperty(const QString &name)
     copyTypeMetaObject();
     setValue(id, QVariant());
     Q_ASSERT(id >= 0);
-    Q_UNUSED(id);
+    Q_UNUSED(id)
 
     //Updating cache
     QQmlPropertyCache *oldParent = m_cache->parent();

@@ -100,7 +100,7 @@ bool SettingsAccessor::saveSettings(const QVariantMap &data, QWidget *parent) co
  */
 SettingsAccessor::RestoreData SettingsAccessor::readData(const FilePath &path, QWidget *parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     RestoreData result = readFile(path);
     if (!result.data.isEmpty())
         result.data = preprocessReadSettings(result.data);
@@ -113,7 +113,7 @@ SettingsAccessor::RestoreData SettingsAccessor::readData(const FilePath &path, Q
 optional<SettingsAccessor::Issue>
 SettingsAccessor::writeData(const FilePath &path, const QVariantMap &data, QWidget *parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return writeFile(path, prepareToWriteSettings(data));
 }
 
@@ -365,7 +365,7 @@ int VersionedBackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,
 optional<FilePath>
 VersionedBackUpStrategy::backupName(const QVariantMap &oldData, const FilePath &path, const QVariantMap &data) const
 {
-    Q_UNUSED(data);
+    Q_UNUSED(data)
     FilePath backupName = path;
     const QByteArray oldEnvironmentId = settingsIdFromMap(oldData);
     const int oldVersion = versionFromMap(oldData);
@@ -707,8 +707,8 @@ QVariantMap MergingSettingsAccessor::postprocessMerge(const QVariantMap &main,
                                                       const QVariantMap &secondary,
                                                       const QVariantMap &result) const
 {
-    Q_UNUSED(main);
-    Q_UNUSED(secondary);
+    Q_UNUSED(main)
+    Q_UNUSED(secondary)
     return result;
 }
 

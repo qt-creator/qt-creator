@@ -149,7 +149,7 @@ int PerfProfilerFlameGraphModel::rowCount(const QModelIndex &parent) const
 
 int PerfProfilerFlameGraphModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 1;
 }
 
@@ -227,7 +227,7 @@ void PerfProfilerFlameGraphData::updateTraceData(const PerfEvent &event, const P
                                                  PerfProfilerFlameGraphModel::Data *data,
                                                  int numSamples)
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     for (int i = 0, end = event.numAttributes(); i < end; ++i) {
         const PerfEventType::Attribute &attribute = manager->attribute(event.attributeId(i));
         if (attribute.type != PerfEventType::TypeTracepoint)

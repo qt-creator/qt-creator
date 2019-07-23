@@ -51,7 +51,7 @@ void TextIndenter::indentBlock(const QTextBlock &block,
                                const TabSettings &tabSettings,
                                int /*cursorPositionInEditor*/)
 {
-    Q_UNUSED(typedChar);
+    Q_UNUSED(typedChar)
     const int indent = indentFor(block, tabSettings);
     if (indent < 0)
         return;

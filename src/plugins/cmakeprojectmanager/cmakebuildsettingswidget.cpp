@@ -408,7 +408,7 @@ void CMakeBuildSettingsWidget::setConfigurationForCMake()
 
 void CMakeBuildSettingsWidget::updateSelection(const QModelIndex &current, const QModelIndex &previous)
 {
-    Q_UNUSED(previous);
+    Q_UNUSED(previous)
 
     m_editButton->setEnabled(current.isValid() && current.flags().testFlag(Qt::ItemIsEditable));
     m_unsetButton->setEnabled(current.isValid() && current.flags().testFlag(Qt::ItemIsSelectable));

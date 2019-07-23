@@ -211,7 +211,7 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
 bool GenericProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
                                              QString *errorMessage) const
 {
-    Q_UNUSED(w);
+    Q_UNUSED(w)
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 

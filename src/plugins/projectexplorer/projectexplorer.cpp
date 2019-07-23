@@ -622,7 +622,7 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
 
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    Q_UNUSED(error);
+    Q_UNUSED(error)
 
     dd = new ProjectExplorerPluginPrivate;
 
@@ -2914,7 +2914,7 @@ void ProjectExplorerPluginPrivate::projectAdded(Project *pro)
 
 void ProjectExplorerPluginPrivate::projectRemoved(Project *pro)
 {
-    Q_UNUSED(pro);
+    Q_UNUSED(pro)
     m_projectsMode.setEnabled(SessionManager::hasProjects());
 }
 

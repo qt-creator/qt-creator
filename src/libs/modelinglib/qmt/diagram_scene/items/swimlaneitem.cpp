@@ -68,9 +68,9 @@ QRectF SwimlaneItem::boundingRect() const
 
 void SwimlaneItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(painter)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 }
 
 void SwimlaneItem::update()
@@ -81,7 +81,7 @@ void SwimlaneItem::update()
     prepareGeometryChange();
 
     const Style *style = adaptedStyle();
-    Q_UNUSED(style);
+    Q_UNUSED(style)
 
     // swimline line
     if (!m_lineItem)
@@ -137,7 +137,7 @@ bool SwimlaneItem::isFocusSelected() const
 
 void SwimlaneItem::setFocusSelected(bool focusSelected)
 {
-    Q_UNUSED(focusSelected);
+    Q_UNUSED(focusSelected)
 }
 
 QRectF SwimlaneItem::getSecondarySelectionBoundary()

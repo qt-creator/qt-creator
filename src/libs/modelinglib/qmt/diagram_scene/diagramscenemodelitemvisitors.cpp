@@ -63,13 +63,13 @@ DiagramSceneModel::CreationVisitor::CreationVisitor(DiagramSceneModel *diagramSc
 
 void DiagramSceneModel::CreationVisitor::visitDElement(DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
     QMT_CHECK(false);
 }
 
 void DiagramSceneModel::CreationVisitor::visitDObject(DObject *object)
 {
-    Q_UNUSED(object);
+    Q_UNUSED(object)
     QMT_CHECK(false);
 }
 
@@ -159,7 +159,7 @@ DiagramSceneModel::UpdateVisitor::UpdateVisitor(QGraphicsItem *item, DiagramScen
 
 void DiagramSceneModel::UpdateVisitor::visitDElement(DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
     QMT_CHECK(false);
 }
 
@@ -284,7 +284,7 @@ void DiagramSceneModel::UpdateVisitor::visitDConnection(DConnection *connection)
 
 void DiagramSceneModel::UpdateVisitor::visitDAnnotation(DAnnotation *annotation)
 {
-    Q_UNUSED(annotation); // avoid warning in release mode
+    Q_UNUSED(annotation) // avoid warning in release mode
     QMT_ASSERT(m_graphicsItem, return);
 
     AnnotationItem *annotationItem = qgraphicsitem_cast<AnnotationItem *>(m_graphicsItem);
@@ -295,7 +295,7 @@ void DiagramSceneModel::UpdateVisitor::visitDAnnotation(DAnnotation *annotation)
 
 void DiagramSceneModel::UpdateVisitor::visitDBoundary(DBoundary *boundary)
 {
-    Q_UNUSED(boundary); // avoid warning in release mode
+    Q_UNUSED(boundary) // avoid warning in release mode
     QMT_ASSERT(m_graphicsItem, return);
 
     BoundaryItem *boundaryItem = qgraphicsitem_cast<BoundaryItem *>(m_graphicsItem);
@@ -306,7 +306,7 @@ void DiagramSceneModel::UpdateVisitor::visitDBoundary(DBoundary *boundary)
 
 void DiagramSceneModel::UpdateVisitor::visitDSwimlane(DSwimlane *swimlane)
 {
-    Q_UNUSED(swimlane); // avoid warning in release mode
+    Q_UNUSED(swimlane) // avoid warning in release mode
     QMT_ASSERT(m_graphicsItem, return);
 
     SwimlaneItem *swimlaneItem = qgraphicsitem_cast<SwimlaneItem *>(m_graphicsItem);

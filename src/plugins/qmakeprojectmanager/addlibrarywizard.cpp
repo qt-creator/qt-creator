@@ -58,7 +58,7 @@ static bool validateLibraryPath(const Utils::FilePath &filePath,
                                 const Utils::PathChooser *pathChooser,
                                 QString *errorMessage)
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
     if (!filePath.exists())
         return false;
 

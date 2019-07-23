@@ -83,10 +83,10 @@ ShellCommand *IVersionControl::createInitialCheckoutCommand(const QString &url,
                                                             const QString &localName,
                                                             const QStringList &extraArgs)
 {
-    Q_UNUSED(url);
-    Q_UNUSED(baseDirectory);
-    Q_UNUSED(localName);
-    Q_UNUSED(extraArgs);
+    Q_UNUSED(url)
+    Q_UNUSED(baseDirectory)
+    Q_UNUSED(localName)
+    Q_UNUSED(extraArgs)
     return nullptr;
 }
 
@@ -102,7 +102,7 @@ IVersionControl::~IVersionControl()
 
 IVersionControl::OpenSupportMode IVersionControl::openSupportMode(const QString &fileName) const
 {
-    Q_UNUSED(fileName);
+    Q_UNUSED(fileName)
     return NoOpen;
 }
 

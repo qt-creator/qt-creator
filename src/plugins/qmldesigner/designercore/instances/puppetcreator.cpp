@@ -395,7 +395,7 @@ QString PuppetCreator::qmlPuppetFallbackDirectory(const DesignerSettings &settin
         return defaultPuppetFallbackDirectory();
     return puppetFallbackDirectory;
 #else
-    Q_UNUSED(settings);
+    Q_UNUSED(settings)
     return QString();
 #endif
 }

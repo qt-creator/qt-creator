@@ -237,7 +237,7 @@ ModelManagerInterface::WorkingCopy ModelManagerInterface::workingCopyInternal() 
 void ModelManagerInterface::addTaskInternal(QFuture<void> result, const QString &msg,
                                             const char *taskId) const
 {
-    Q_UNUSED(result);
+    Q_UNUSED(result)
     qCDebug(qmljsLog) << "started " << taskId << " " << msg;
 }
 

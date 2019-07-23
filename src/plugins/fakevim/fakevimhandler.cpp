@@ -8263,7 +8263,7 @@ void FakeVimHandler::Private::selectWORDTextObject(bool inner)
 
 void FakeVimHandler::Private::selectSentenceTextObject(bool inner)
 {
-    Q_UNUSED(inner);
+    Q_UNUSED(inner)
 }
 
 void FakeVimHandler::Private::selectParagraphTextObject(bool inner)

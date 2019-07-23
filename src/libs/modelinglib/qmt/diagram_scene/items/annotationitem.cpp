@@ -87,9 +87,9 @@ QRectF AnnotationItem::boundingRect() const
 
 void AnnotationItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(painter)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 }
 
 void AnnotationItem::update()
@@ -161,10 +161,10 @@ void AnnotationItem::setPosAndRect(const QPointF &originalPos, const QRectF &ori
 void AnnotationItem::alignItemSizeToRaster(Side adjustHorizontalSide, Side adjustVerticalSide,
                                            double rasterWidth, double rasterHeight)
 {
-    Q_UNUSED(adjustHorizontalSide);
-    Q_UNUSED(adjustVerticalSide);
-    Q_UNUSED(rasterWidth);
-    Q_UNUSED(rasterHeight);
+    Q_UNUSED(adjustHorizontalSide)
+    Q_UNUSED(adjustVerticalSide)
+    Q_UNUSED(rasterWidth)
+    Q_UNUSED(rasterHeight)
 }
 
 void AnnotationItem::moveDelta(const QPointF &delta)

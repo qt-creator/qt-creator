@@ -250,7 +250,7 @@ QmlDebugConnection::QmlDebugConnection(QObject *parent)
         qRegisterMetaType<QAbstractSocket::SocketError>(),
         qRegisterMetaType<QLocalSocket::LocalSocketError>()
     };
-    Q_UNUSED(metaTypes);
+    Q_UNUSED(metaTypes)
 }
 
 QmlDebugConnection::~QmlDebugConnection()

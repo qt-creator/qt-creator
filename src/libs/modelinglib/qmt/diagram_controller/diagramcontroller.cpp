@@ -576,8 +576,8 @@ void DiagramController::onEndResetModel()
 
 void DiagramController::onBeginUpdateObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 
     // nothing to do
 }
@@ -608,8 +608,8 @@ void DiagramController::onEndUpdateObject(int row, const MObject *parent)
 
 void DiagramController::onBeginInsertObject(int row, const MObject *owner)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(owner);
+    Q_UNUSED(row)
+    Q_UNUSED(owner)
 }
 
 void DiagramController::onEndInsertObject(int row, const MObject *owner)
@@ -634,14 +634,14 @@ void DiagramController::onBeginRemoveObject(int row, const MObject *parent)
 
 void DiagramController::onEndRemoveObject(int row, const MObject *parent)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(parent)
 }
 
 void DiagramController::onBeginMoveObject(int formerRow, const MObject *formerOwner)
 {
-    Q_UNUSED(formerRow);
-    Q_UNUSED(formerOwner);
+    Q_UNUSED(formerRow)
+    Q_UNUSED(formerOwner)
 }
 
 void DiagramController::onEndMoveObject(int row, const MObject *owner)
@@ -663,8 +663,8 @@ void DiagramController::onEndMoveObject(int row, const MObject *owner)
 
 void DiagramController::onBeginUpdateRelation(int row, const MObject *owner)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(owner);
+    Q_UNUSED(row)
+    Q_UNUSED(owner)
 
     // nothing to do
 }
@@ -691,14 +691,14 @@ void DiagramController::onBeginRemoveRelation(int row, const MObject *owner)
 
 void DiagramController::onEndRemoveRelation(int row, const MObject *owner)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(owner);
+    Q_UNUSED(row)
+    Q_UNUSED(owner)
 }
 
 void DiagramController::onBeginMoveRelation(int formerRow, const MObject *formerOwner)
 {
-    Q_UNUSED(formerRow);
-    Q_UNUSED(formerOwner);
+    Q_UNUSED(formerRow)
+    Q_UNUSED(formerOwner)
 
     // nothing to do
 }

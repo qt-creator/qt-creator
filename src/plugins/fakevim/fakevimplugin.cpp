@@ -970,7 +970,7 @@ public:
 
     void setActive(const QString &needle, bool forward, FakeVimHandler *handler)
     {
-        Q_UNUSED(forward);
+        Q_UNUSED(forward)
         m_handler = handler;
         if (!m_handler)
             return;

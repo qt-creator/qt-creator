@@ -383,8 +383,8 @@ bool LabelField::parseData(const QVariant &data, QString *errorMessage)
 
 QWidget *LabelField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
-    Q_UNUSED(displayName);
-    Q_UNUSED(page);
+    Q_UNUSED(displayName)
+    Q_UNUSED(page)
     auto w = new QLabel;
     w->setWordWrap(m_wordWrap);
     w->setText(m_text);
@@ -426,8 +426,8 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
 
 QWidget *SpacerField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
-    Q_UNUSED(displayName);
-    Q_UNUSED(page);
+    Q_UNUSED(displayName)
+    Q_UNUSED(page)
     int size = QApplication::style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing) * m_factor;
 
     auto w = new QWidget();
@@ -481,7 +481,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
 
 QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
-    Q_UNUSED(displayName);
+    Q_UNUSED(displayName)
     auto w = new FancyLineEdit;
 
     if (m_validatorRegExp.isValid()) {
@@ -581,8 +581,8 @@ bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
 QWidget *TextEditField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
     // TODO: Set up modification monitoring...
-    Q_UNUSED(displayName);
-    Q_UNUSED(page);
+    Q_UNUSED(displayName)
+    Q_UNUSED(page)
     auto w = new QTextEdit;
     w->setAcceptRichText(m_acceptRichText);
     return w;
@@ -673,8 +673,8 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
 
 QWidget *PathChooserField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
-    Q_UNUSED(displayName);
-    Q_UNUSED(page);
+    Q_UNUSED(displayName)
+    Q_UNUSED(page)
     auto w = new PathChooser;
     if (!m_historyId.isEmpty())
         w->setHistoryCompleter(m_historyId);
@@ -754,7 +754,7 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
 
 QWidget *CheckBoxField::createWidget(const QString &displayName, JsonFieldPage *page)
 {
-    Q_UNUSED(page);
+    Q_UNUSED(page)
     return new QCheckBox(displayName);
 }
 

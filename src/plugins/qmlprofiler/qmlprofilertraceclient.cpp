@@ -253,7 +253,7 @@ QmlProfilerTraceClient::QmlProfilerTraceClient(QmlDebug::QmlDebugConnection *cli
     });
     connect(this, &QmlProfilerTraceClient::traceFinished,
             d->engineControl.get(), [this](qint64 timestamp, const QList<int> &engineIds) {
-        Q_UNUSED(timestamp);
+        Q_UNUSED(timestamp)
         // The engines might not be blocked because the trace can get finished before engine control
         // sees them.
         for (int blocked : d->engineControl->blockedEngines()) {

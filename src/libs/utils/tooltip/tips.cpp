@@ -283,7 +283,7 @@ void WidgetTip::pinToolTipWidget(QWidget *parent)
 bool WidgetTip::canHandleContentReplacement(int typeId) const
 {
     // Always create a new widget.
-    Q_UNUSED(typeId);
+    Q_UNUSED(typeId)
     return false;
 }
 

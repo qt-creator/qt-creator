@@ -521,7 +521,7 @@ void ModelTest::data()
  */
 void ModelTest::rowsAboutToBeInserted(const QModelIndex &parent, int start, int end)
 {
-    Q_UNUSED(end);
+    Q_UNUSED(end)
     Changing c;
     c.parent = parent;
     c.oldSize = model->rowCount(parent);
@@ -628,22 +628,22 @@ int TreeItem::indexOf(const TreeItem *item) const
 
 QVariant TreeItem::data(int column, int role) const
 {
-    Q_UNUSED(column);
-    Q_UNUSED(role);
+    Q_UNUSED(column)
+    Q_UNUSED(role)
     return QVariant();
 }
 
 bool TreeItem::setData(int column, const QVariant &data, int role)
 {
-    Q_UNUSED(column);
-    Q_UNUSED(data);
-    Q_UNUSED(role);
+    Q_UNUSED(column)
+    Q_UNUSED(data)
+    Q_UNUSED(role)
     return false;
 }
 
 Qt::ItemFlags TreeItem::flags(int column) const
 {
-    Q_UNUSED(column);
+    Q_UNUSED(column)
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
@@ -1195,7 +1195,7 @@ QVariant StaticTreeItem::data(int column, int role) const
 
 Qt::ItemFlags StaticTreeItem::flags(int column) const
 {
-    Q_UNUSED(column);
+    Q_UNUSED(column)
     return Qt::ItemIsEnabled;
 }
 

@@ -533,7 +533,7 @@ private:
 bool FlatModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column,
                              const QModelIndex &parent)
 {
-    Q_UNUSED(action);
+    Q_UNUSED(action)
 
     const auto * const dropData = dynamic_cast<const DropMimeData *>(data);
     QTC_ASSERT(dropData, return false);

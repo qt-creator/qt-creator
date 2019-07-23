@@ -739,7 +739,7 @@ void ToolChainKitAspect::toolChainUpdated(ToolChain *tc)
 
 void ToolChainKitAspect::toolChainRemoved(ToolChain *tc)
 {
-    Q_UNUSED(tc);
+    Q_UNUSED(tc)
     foreach (Kit *k, KitManager::kits())
         fix(k);
 }
@@ -811,7 +811,7 @@ void DeviceTypeKitAspect::setup(Kit *k)
 
 Tasks DeviceTypeKitAspect::validate(const Kit *k) const
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
     return {};
 }
 

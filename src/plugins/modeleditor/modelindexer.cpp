@@ -356,7 +356,7 @@ QString ModelIndexer::findModel(const qmt::Uid &modelUid)
 
 QString ModelIndexer::findDiagram(const qmt::Uid &modelUid, const qmt::Uid &diagramUid)
 {
-    Q_UNUSED(modelUid); // avoid warning in release mode
+    Q_UNUSED(modelUid) // avoid warning in release mode
 
     QMutexLocker locker(&d->indexerMutex);
     QSet<IndexedDiagramReference *> indexedDiagramReferences = d->indexedDiagramReferencesByDiagramUid.value(diagramUid);

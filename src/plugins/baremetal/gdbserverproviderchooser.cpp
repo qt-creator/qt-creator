@@ -87,7 +87,7 @@ void GdbServerProviderChooser::manageButtonClicked()
 
 void GdbServerProviderChooser::currentIndexChanged(int index)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     emit providerChanged();
 }
 

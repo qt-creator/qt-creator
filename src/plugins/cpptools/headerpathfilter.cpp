@@ -86,8 +86,8 @@ QString clangIncludeDirectory(const QString &clangVersion, const QString &clangR
 #ifndef UNIT_TESTS
     return Core::ICore::clangIncludeDirectory(clangVersion, clangResourceDirectory);
 #else
-    Q_UNUSED(clangVersion);
-    Q_UNUSED(clangResourceDirectory);
+    Q_UNUSED(clangVersion)
+    Q_UNUSED(clangResourceDirectory)
     return CLANG_RESOURCE_DIR;
 #endif
 }

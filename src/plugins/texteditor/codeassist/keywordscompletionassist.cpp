@@ -158,7 +158,7 @@ QString KeywordsFunctionHintModel::text(int index) const
 
 int KeywordsFunctionHintModel::activeArgument(const QString &prefix) const
 {
-    Q_UNUSED(prefix);
+    Q_UNUSED(prefix)
     return 1;
 }
 

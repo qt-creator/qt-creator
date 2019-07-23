@@ -78,7 +78,7 @@ VcsConfigurationPageFactory::VcsConfigurationPageFactory()
 Utils::WizardPage *VcsConfigurationPageFactory::create(JsonWizard *wizard, Id typeId,
                                                        const QVariant &data)
 {
-    Q_UNUSED(wizard);
+    Q_UNUSED(wizard)
 
     QTC_ASSERT(canCreate(typeId), return 0);
 

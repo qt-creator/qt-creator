@@ -32,7 +32,7 @@ namespace Internal {
 
 QString AndroidErrorMessage::getMessage(ErrorCode errorCode, const QVariantList &parameters)
 {
-    Q_UNUSED(parameters);
+    Q_UNUSED(parameters)
     switch (errorCode) {
     case SDKInstallationError:
         return tr("Android: SDK installation error 0x%1").arg(errorCode, 0, 16);

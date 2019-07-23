@@ -269,7 +269,7 @@ OpaqueColoredPoint2DWithSize *OpaqueColoredPoint2DWithSize::fromVertexData(QSGGe
     Q_ASSERT(attributes[3].position == 3);
     Q_ASSERT(attributes[3].tupleSize == 4);
     Q_ASSERT(attributes[3].type == GL_UNSIGNED_BYTE);
-    Q_UNUSED(attributes);
+    Q_UNUSED(attributes)
     return static_cast<OpaqueColoredPoint2DWithSize *>(geometry->vertexData());
 }
 
@@ -383,7 +383,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
                                                            int indexTo, bool stateChanged,
                                                            float spacing) const
 {
-    Q_UNUSED(stateChanged);
+    Q_UNUSED(stateChanged)
     const TimelineModel *model = renderer->model();
     if (!model || indexFrom < 0 || indexTo > model->count() || indexFrom >= indexTo)
         return oldState;

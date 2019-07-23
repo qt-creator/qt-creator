@@ -54,8 +54,8 @@ TodoPlugin::~TodoPlugin() = default;
 
 bool TodoPlugin::initialize(const QStringList& args, QString *errMsg)
 {
-    Q_UNUSED(args);
-    Q_UNUSED(errMsg);
+    Q_UNUSED(args)
+    Q_UNUSED(errMsg)
 
     m_settings.load(Core::ICore::settings());
 

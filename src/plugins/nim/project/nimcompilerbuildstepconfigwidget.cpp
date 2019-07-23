@@ -75,7 +75,7 @@ NimCompilerBuildStepConfigWidget::~NimCompilerBuildStepConfigWidget() = default;
 
 void NimCompilerBuildStepConfigWidget::onTargetChanged(int index)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     auto data = m_ui->targetComboBox->currentData();
     FilePath path = FilePath::fromString(data.toString());
     m_buildStep->setTargetNimFile(path);

@@ -75,7 +75,7 @@ void LatchController::addToGraphicsScene(QGraphicsScene *graphicsScene)
 
 void LatchController::removeFromGraphicsScene(QGraphicsScene *graphicsScene)
 {
-    Q_UNUSED(graphicsScene); // avoid warning in release mode
+    Q_UNUSED(graphicsScene) // avoid warning in release mode
 
     if (m_verticalAlignLine->scene()) {
         QMT_CHECK(graphicsScene == m_verticalAlignLine->scene());

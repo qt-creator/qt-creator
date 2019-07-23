@@ -296,7 +296,7 @@ Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersion
                                               const QMakeStepConfig::TargetArchConfig &archConfig,
                                               const QMakeStepConfig::OsType &osType) const
 {
-    Q_UNUSED(osType); // TODO use this to select the right toolchain?
+    Q_UNUSED(osType) // TODO use this to select the right toolchain?
     return QtProjectImporter::createTemporaryKit(data,
                                                  [&data, parsedSpec, archConfig](Kit *k) -> void {
         for (ToolChain * const tc : preferredToolChains(data.qt, parsedSpec, archConfig))

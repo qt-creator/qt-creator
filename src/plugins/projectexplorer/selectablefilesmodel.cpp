@@ -298,7 +298,7 @@ void SelectableFilesModel::propagateDown(const QModelIndex &idx)
 
 Qt::ItemFlags SelectableFilesModel::flags(const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
 

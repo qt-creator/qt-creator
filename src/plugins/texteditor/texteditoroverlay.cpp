@@ -393,7 +393,7 @@ void TextEditorOverlay::fillSelection(QPainter *painter,
 
 void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
 {
-    Q_UNUSED(clip);
+    Q_UNUSED(clip)
     for (int i = m_selections.size()-1; i >= 0; --i) {
         const OverlaySelection &selection = m_selections.at(i);
         if (selection.m_dropShadow)
@@ -420,7 +420,7 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
 
 void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect &clip)
 {
-    Q_UNUSED(clip);
+    Q_UNUSED(clip)
     for (int i = m_selections.size()-1; i >= 0; --i) {
         const OverlaySelection &selection = m_selections.at(i);
         if (selection.m_dropShadow)

@@ -208,7 +208,7 @@ void ConsoleView::contextMenuEvent(QContextMenuEvent *event)
 
 void ConsoleView::focusInEvent(QFocusEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
     selectionModel()->setCurrentIndex(model()->index(model()->rowCount() - 1, 0),
                                       QItemSelectionModel::ClearAndSelect);
 }

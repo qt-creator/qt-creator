@@ -110,13 +110,13 @@ int RemoteModel::remoteCount() const
 
 int RemoteModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return remoteCount();
 }
 
 int RemoteModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return 2;
 }
 
@@ -167,7 +167,7 @@ bool RemoteModel::setData(const QModelIndex &index, const QVariant &value, int r
 
 Qt::ItemFlags RemoteModel::flags(const QModelIndex &index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return m_flags;
 }
 

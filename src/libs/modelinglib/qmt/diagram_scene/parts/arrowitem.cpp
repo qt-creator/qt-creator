@@ -79,9 +79,9 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override
     {
-        Q_UNUSED(painter);
-        Q_UNUSED(option);
-        Q_UNUSED(widget);
+        Q_UNUSED(painter)
+        Q_UNUSED(option)
+        Q_UNUSED(widget)
 
 #ifdef DEBUG_PAINT_SHAPE
         painter->setPen(QPen(Qt::blue));
@@ -323,9 +323,9 @@ QRectF ArrowItem::boundingRect() const
 
 void ArrowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(painter);
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(painter)
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
 #ifdef DEBUG_PAINT_SHAPE
     painter->setPen(QPen(Qt::blue));

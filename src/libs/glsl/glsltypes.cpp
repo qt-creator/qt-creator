@@ -39,7 +39,7 @@ bool UndefinedType::isEqualTo(const Type *other) const
 
 bool UndefinedType::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asUndefinedType() != 0);
     return false;
@@ -54,7 +54,7 @@ bool VoidType::isEqualTo(const Type *other) const
 
 bool VoidType::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asVoidType() != 0);
     return false;
@@ -69,7 +69,7 @@ bool BoolType::isEqualTo(const Type *other) const
 
 bool BoolType::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asBoolType() != 0);
     return false;
@@ -84,7 +84,7 @@ bool IntType::isEqualTo(const Type *other) const
 
 bool IntType::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asIntType() != 0);
     return false;
@@ -99,7 +99,7 @@ bool UIntType::isEqualTo(const Type *other) const
 
 bool UIntType::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asUIntType() != 0);
     return false;
@@ -114,7 +114,7 @@ bool FloatType::isEqualTo(const Type *other) const
 
 bool FloatType::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asFloatType() != 0);
     return false;
@@ -129,7 +129,7 @@ bool DoubleType::isEqualTo(const Type *other) const
 
 bool DoubleType::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     Q_ASSERT(other != 0);
     Q_ASSERT(other->asDoubleType() != 0);
     return false;
@@ -353,13 +353,13 @@ Symbol *Struct::find(const QString &name) const
 
 bool Struct::isEqualTo(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     return false;
 }
 
 bool Struct::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     return false;
 }
 
@@ -420,13 +420,13 @@ Argument *Function::argumentAt(int index) const
 
 bool Function::isEqualTo(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     return false;
 }
 
 bool Function::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     return false;
 }
 
@@ -506,12 +506,12 @@ void OverloadSet::add(Symbol *symbol)
 
 bool OverloadSet::isEqualTo(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     return false;
 }
 
 bool OverloadSet::isLessThan(const Type *other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     return false;
 }

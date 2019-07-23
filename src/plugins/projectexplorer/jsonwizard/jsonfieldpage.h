@@ -74,7 +74,7 @@ public:
         virtual bool validate(Utils::MacroExpander *expander, QString *message);
 
         void initialize(Utils::MacroExpander *expander);
-        virtual void cleanup(Utils::MacroExpander *expander) {  Q_UNUSED(expander); }
+        virtual void cleanup(Utils::MacroExpander *expander) {  Q_UNUSED(expander) }
 
         virtual bool suppressName() const { return false; }
 
@@ -89,10 +89,10 @@ public:
     protected:
         QWidget *widget() const;
         virtual bool parseData(const QVariant &data, QString *errorMessage) = 0;
-        virtual void initializeData(Utils::MacroExpander *expander) { Q_UNUSED(expander); }
+        virtual void initializeData(Utils::MacroExpander *expander) { Q_UNUSED(expander) }
         virtual QWidget *createWidget(const QString &displayName, JsonFieldPage *page) = 0;
         virtual void setup(JsonFieldPage *page, const QString &name)
-        { Q_UNUSED(page); Q_UNUSED(name); }
+        { Q_UNUSED(page); Q_UNUSED(name) }
 
         QString type();
 

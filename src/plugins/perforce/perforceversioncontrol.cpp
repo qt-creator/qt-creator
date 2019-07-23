@@ -51,7 +51,7 @@ Core::Id PerforceVersionControl::id() const
 
 bool PerforceVersionControl::isVcsFileOrDirectory(const Utils::FilePath &fileName) const
 {
-    Q_UNUSED(fileName);
+    Q_UNUSED(fileName)
     return false; // Perforce does not seem to litter its files into the source tree.
 }
 
@@ -83,7 +83,7 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
 
 Core::IVersionControl::OpenSupportMode PerforceVersionControl::openSupportMode(const QString &fileName) const
 {
-    Q_UNUSED(fileName);
+    Q_UNUSED(fileName)
     return OpenOptional;
 }
 

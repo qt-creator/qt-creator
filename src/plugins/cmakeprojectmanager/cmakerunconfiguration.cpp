@@ -72,7 +72,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
 
 void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
 {
-    Q_UNUSED(info);
+    Q_UNUSED(info)
     updateTargetInformation();
 }
 

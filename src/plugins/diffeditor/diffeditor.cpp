@@ -138,7 +138,7 @@ void DescriptionEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 
 void DescriptionEditorWidget::setMarginSettings(const MarginSettings &ms)
 {
-    Q_UNUSED(ms);
+    Q_UNUSED(ms)
     TextEditorWidget::setMarginSettings(MarginSettings());
 }
 

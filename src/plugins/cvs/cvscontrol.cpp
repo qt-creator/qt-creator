@@ -90,7 +90,7 @@ bool CvsControl::supportsOperation(Operation operation) const
 
 Core::IVersionControl::OpenSupportMode CvsControl::openSupportMode(const QString &fileName) const
 {
-    Q_UNUSED(fileName);
+    Q_UNUSED(fileName)
     return OpenOptional;
 }
 
@@ -114,8 +114,8 @@ bool CvsControl::vcsDelete(const QString &fileName)
 
 bool CvsControl::vcsMove(const QString &from, const QString &to)
 {
-    Q_UNUSED(from);
-    Q_UNUSED(to);
+    Q_UNUSED(from)
+    Q_UNUSED(to)
     return false;
 }
 

@@ -84,8 +84,8 @@ ModelEditorPlugin::~ModelEditorPlugin()
 
 bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorString);
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
 
     d->modelsManager = new ModelsManager(this);
     d->uiController = new UiController(this);

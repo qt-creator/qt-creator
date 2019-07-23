@@ -45,7 +45,7 @@ MemoryUsageModel::MemoryUsageModel(QmlProfilerModelManager *manager,
 
 qint64 MemoryUsageModel::rowMaxValue(int rowNumber) const
 {
-    Q_UNUSED(rowNumber);
+    Q_UNUSED(rowNumber)
     return m_maxSize;
 }
 
@@ -271,7 +271,7 @@ void MemoryUsageModel::clear()
 
 bool MemoryUsageModel::handlesTypeId(int typeId) const
 {
-    Q_UNUSED(typeId);
+    Q_UNUSED(typeId)
     // We don't want the memory ranges allocated by some QML/JS function to be highlighted when
     // propagating a typeId selection to the timeline. The actual range should be highlighted.
     return false;

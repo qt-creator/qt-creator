@@ -80,7 +80,7 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
                                                           const QString &projectDir,
                                                           QString *errorMessage)
 {
-    Q_UNUSED(wizardDir);
+    Q_UNUSED(wizardDir)
     errorMessage->clear();
 
     QDir project(projectDir);

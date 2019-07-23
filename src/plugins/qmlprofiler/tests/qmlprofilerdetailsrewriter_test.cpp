@@ -89,7 +89,7 @@ QmlProfilerDetailsRewriterTest::QmlProfilerDetailsRewriterTest(QObject *parent) 
 void QmlProfilerDetailsRewriterTest::testMissingModelManager()
 {
     DummyBuildConfigurationFactory factory;
-    Q_UNUSED(factory);
+    Q_UNUSED(factory)
 
     seedRewriter();
     delete m_modelManager;
@@ -99,8 +99,8 @@ void QmlProfilerDetailsRewriterTest::testMissingModelManager()
     QVERIFY(!m_rewriterDone);
     auto rewriteConnection = connect(&m_rewriter, &QmlProfilerDetailsRewriter::rewriteDetailsString,
             this, [&](int typeId, const QString &string) {
-        Q_UNUSED(typeId);
-        Q_UNUSED(string);
+        Q_UNUSED(typeId)
+        Q_UNUSED(string)
         QFAIL("found nonexisting file in nonexisting model manager");
     });
     m_rewriter.requestDetailsForLocation(44, QmlEventLocation("Test.qml", 12, 12));
@@ -113,7 +113,7 @@ void QmlProfilerDetailsRewriterTest::testMissingModelManager()
 void QmlProfilerDetailsRewriterTest::testRequestDetailsForLocation()
 {
     DummyBuildConfigurationFactory factory;
-    Q_UNUSED(factory);
+    Q_UNUSED(factory)
 
     seedRewriter();
     QVERIFY(!m_rewriterDone);
@@ -164,7 +164,7 @@ void QmlProfilerDetailsRewriterTest::testRequestDetailsForLocation()
 void QmlProfilerDetailsRewriterTest::testGetLocalFile()
 {
     DummyBuildConfigurationFactory factory;
-    Q_UNUSED(factory);
+    Q_UNUSED(factory)
 
     seedRewriter();
     QCOMPARE(m_rewriter.getLocalFile("notthere.qml"), QString());

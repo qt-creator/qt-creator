@@ -453,7 +453,7 @@ void ServerMode::parseJson(const QVariantMap &data)
 
 void ServerMode::handleHello(const QVariantMap &data)
 {
-    Q_UNUSED(data);
+    Q_UNUSED(data)
     QVariantMap extra;
     QVariantMap version;
     version.insert("major", m_majorProtocol);

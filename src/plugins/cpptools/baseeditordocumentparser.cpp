@@ -55,7 +55,7 @@ BaseEditorDocumentParser::BaseEditorDocumentParser(const QString &filePath)
     : m_filePath(filePath)
 {
     static int meta = qRegisterMetaType<ProjectPartInfo>("CppTools::ProjectPartInfo");
-    Q_UNUSED(meta);
+    Q_UNUSED(meta)
 }
 
 BaseEditorDocumentParser::~BaseEditorDocumentParser() = default;

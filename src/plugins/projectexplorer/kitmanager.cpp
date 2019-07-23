@@ -580,38 +580,38 @@ int KitAspect::weight(const Kit *k) const
 
 void KitAspect::addToEnvironment(const Kit *k, Environment &env) const
 {
-    Q_UNUSED(k);
-    Q_UNUSED(env);
+    Q_UNUSED(k)
+    Q_UNUSED(env)
 }
 
 IOutputParser *KitAspect::createOutputParser(const Kit *k) const
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
     return nullptr;
 }
 
 QString KitAspect::displayNamePostfix(const Kit *k) const
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
     return QString();
 }
 
 QSet<Id> KitAspect::supportedPlatforms(const Kit *k) const
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
     return QSet<Id>();
 }
 
 QSet<Id> KitAspect::availableFeatures(const Kit *k) const
 {
-    Q_UNUSED(k);
+    Q_UNUSED(k)
     return QSet<Id>();
 }
 
 void KitAspect::addToMacroExpander(Kit *k, MacroExpander *expander) const
 {
-    Q_UNUSED(k);
-    Q_UNUSED(expander);
+    Q_UNUSED(k)
+    Q_UNUSED(expander)
 }
 
 void KitAspect::notifyAboutUpdate(Kit *k)

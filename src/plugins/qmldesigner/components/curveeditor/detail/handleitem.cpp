@@ -75,8 +75,8 @@ QRectF HandleItem::boundingRect() const
 
 void HandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
+    Q_UNUSED(option)
+    Q_UNUSED(widget)
 
     QColor handleColor(isSelected() ? m_style.selectionColor : m_style.color);
 

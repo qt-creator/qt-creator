@@ -389,7 +389,7 @@ void PdbEngine::assignValueInDebugger(WatchItem *, const QString &expression, co
 
 void PdbEngine::updateItem(const QString &iname)
 {
-    Q_UNUSED(iname);
+    Q_UNUSED(iname)
     updateAll();
 }
 

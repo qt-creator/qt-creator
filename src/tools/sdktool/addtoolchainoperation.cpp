@@ -264,7 +264,7 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map, const QS
     QString newLang; // QtC 4.3 and later
     QString oldLang; // QtC 4.2
     int langInt = lang.toInt(&ok);
-    Q_UNUSED(langInt);
+    Q_UNUSED(langInt)
     if (lang == "2" || lang == "Cxx") {
         newLang = "Cxx";
         oldLang = "2";

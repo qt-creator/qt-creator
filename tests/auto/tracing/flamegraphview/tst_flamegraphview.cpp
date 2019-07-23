@@ -87,9 +87,9 @@ public:
 
     Q_INVOKABLE void gotoSourceLocation(const QString &file, int line, int column)
     {
-        Q_UNUSED(file);
-        Q_UNUSED(line);
-        Q_UNUSED(column);
+        Q_UNUSED(file)
+        Q_UNUSED(line)
+        Q_UNUSED(column)
     }
 };
 

@@ -85,8 +85,8 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
     {
-        Q_UNUSED(option);
-        Q_UNUSED(widget);
+        Q_UNUSED(option)
+        Q_UNUSED(widget)
 
         QPen pen(QBrush(Qt::gray), 1.0, Qt::DotLine);
         painter->setPen(pen);
@@ -539,7 +539,7 @@ void DiagramSceneModel::selectItem(QGraphicsItem *item, bool multiSelect)
 
 void DiagramSceneModel::moveSelectedItems(QGraphicsItem *grabbedItem, const QPointF &delta)
 {
-    Q_UNUSED(grabbedItem);
+    Q_UNUSED(grabbedItem)
 
     if (delta != QPointF(0.0, 0.0)) {
         foreach (QGraphicsItem *item, m_selectedItems) {
@@ -754,8 +754,8 @@ void DiagramSceneModel::onEndResetDiagram(const MDiagram *diagram)
 
 void DiagramSceneModel::onBeginUpdateElement(int row, const MDiagram *diagram)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(diagram);
+    Q_UNUSED(row)
+    Q_UNUSED(diagram)
     QMT_CHECK(m_busyState == NotBusy);
     m_busyState = UpdateElement;
 
@@ -775,8 +775,8 @@ void DiagramSceneModel::onEndUpdateElement(int row, const MDiagram *diagram)
 
 void DiagramSceneModel::onBeginInsertElement(int row, const MDiagram *diagram)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(diagram);
+    Q_UNUSED(row)
+    Q_UNUSED(diagram)
     QMT_CHECK(m_busyState == NotBusy);
     m_busyState = InsertElement;
 }
@@ -825,8 +825,8 @@ void DiagramSceneModel::onBeginRemoveElement(int row, const MDiagram *diagram)
 
 void DiagramSceneModel::onEndRemoveElement(int row, const MDiagram *diagram)
 {
-    Q_UNUSED(row);
-    Q_UNUSED(diagram);
+    Q_UNUSED(row)
+    Q_UNUSED(diagram)
     QMT_CHECK(m_busyState == RemoveElement);
     // update elements from store (see above)
     for (const Uid &end_uid : m_relationEndsUid) {

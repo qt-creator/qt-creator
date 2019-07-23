@@ -101,7 +101,7 @@ void TodoOutputTreeView::resizeEvent(QResizeEvent *event)
 
 void TodoOutputTreeView::todoColumnResized(int column, int oldSize, int newSize)
 {
-    Q_UNUSED(oldSize);
+    Q_UNUSED(oldSize)
     if (column == Constants::OUTPUT_COLUMN_TEXT)
         m_textColumnDefaultWidth = newSize;
     else if (column == Constants::OUTPUT_COLUMN_FILE)

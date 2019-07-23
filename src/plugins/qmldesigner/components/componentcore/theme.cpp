@@ -93,7 +93,7 @@ void Theme::setupTheme(QQmlEngine *engine)
         "Theme", [](QQmlEngine *, QJSEngine *) {
             return qobject_cast<QObject*>(new Theme(Utils::creatorTheme(), nullptr));
     });
-    Q_UNUSED(typeIndex);
+    Q_UNUSED(typeIndex)
 
     engine->addImageProvider(QLatin1String("icons"), new QmlDesignerIconProvider());
 }

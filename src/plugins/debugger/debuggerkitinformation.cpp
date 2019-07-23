@@ -115,7 +115,7 @@ private:
 
     void currentDebuggerChanged(int idx)
     {
-        Q_UNUSED(idx);
+        Q_UNUSED(idx)
         if (m_ignoreChanges)
             return;
 

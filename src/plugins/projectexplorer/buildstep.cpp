@@ -237,7 +237,7 @@ void BuildStep::setWidgetExpandedByDefault(bool widgetExpandedByDefault)
 
 QVariant BuildStep::data(Core::Id id) const
 {
-    Q_UNUSED(id);
+    Q_UNUSED(id)
     return {};
 }
 

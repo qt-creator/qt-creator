@@ -220,7 +220,7 @@ void AutotoolsProject::makefileParsingFinished()
 
 void AutotoolsProject::onFileChanged(const QString &file)
 {
-    Q_UNUSED(file);
+    Q_UNUSED(file)
     loadProjectTree();
 }
 

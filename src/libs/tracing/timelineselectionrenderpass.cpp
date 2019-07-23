@@ -66,7 +66,7 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
         const TimelineAbstractRenderer *renderer, const TimelineRenderState *parentState,
         State *oldState, int firstIndex, int lastIndex, bool stateChanged, float spacing) const
 {
-    Q_UNUSED(stateChanged);
+    Q_UNUSED(stateChanged)
 
     const TimelineModel *model = renderer->model();
     if (!model || model->isEmpty())

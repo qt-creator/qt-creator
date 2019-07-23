@@ -51,8 +51,8 @@ void NimIndenter::indentBlock(const QTextBlock &block,
                               const TextEditor::TabSettings &settings,
                               int cursorPositionInEditor)
 {
-    Q_UNUSED(typedChar);
-    Q_UNUSED(cursorPositionInEditor);
+    Q_UNUSED(typedChar)
+    Q_UNUSED(cursorPositionInEditor)
 
     const QString currentLine = block.text();
 

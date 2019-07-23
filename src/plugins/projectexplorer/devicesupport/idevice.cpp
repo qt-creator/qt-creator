@@ -289,7 +289,7 @@ PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const
 
 DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     QTC_ASSERT(false, qDebug("This should not have been called..."); return nullptr);
     return nullptr;
 }

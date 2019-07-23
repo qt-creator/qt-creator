@@ -170,7 +170,7 @@ int TimelineModel::modelId() const
 
 int TimelineModel::collapsedRowHeight(int rowNumber) const
 {
-    Q_UNUSED(rowNumber);
+    Q_UNUSED(rowNumber)
     return TimelineModelPrivate::DefaultRowHeight;
 }
 
@@ -367,7 +367,7 @@ int TimelineModel::parentIndex(int index) const
 
 QVariantMap TimelineModel::location(int index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     QVariantMap map;
     return map;
 }
@@ -379,25 +379,25 @@ QVariantMap TimelineModel::location(int index) const
  */
 bool TimelineModel::handlesTypeId(int typeIndex) const
 {
-    Q_UNUSED(typeIndex);
+    Q_UNUSED(typeIndex)
     return false;
 }
 
 float TimelineModel::relativeHeight(int index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return 1.0f;
 }
 
 qint64 TimelineModel::rowMinValue(int rowNumber) const
 {
-    Q_UNUSED(rowNumber);
+    Q_UNUSED(rowNumber)
     return 0;
 }
 
 qint64 TimelineModel::rowMaxValue(int rowNumber) const
 {
-    Q_UNUSED(rowNumber);
+    Q_UNUSED(rowNumber)
     return 0;
 }
 
@@ -516,7 +516,7 @@ int TimelineModel::rowCount() const
 
 QRgb TimelineModel::color(int index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return QRgb();
 }
 
@@ -527,19 +527,19 @@ QVariantList TimelineModel::labels() const
 
 QVariantMap TimelineModel::details(int index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return QVariantMap();
 }
 
 int TimelineModel::expandedRow(int index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return 0;
 }
 
 int TimelineModel::collapsedRow(int index) const
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     return 0;
 }
 

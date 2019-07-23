@@ -45,7 +45,7 @@ namespace qmt {
 
 void MVoidVisitor::visitMElement(MElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 }
 
 void MVoidVisitor::visitMObject(MObject *object)
@@ -110,7 +110,7 @@ void MVoidVisitor::visitMConnection(MConnection *connection)
 
 void MVoidConstVisitor::visitMElement(const MElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 }
 
 void MVoidConstVisitor::visitMObject(const MObject *object)

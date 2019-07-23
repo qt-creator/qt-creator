@@ -59,7 +59,7 @@ JavaScriptFilter::~JavaScriptFilter()
 
 void JavaScriptFilter::prepareSearch(const QString &entry)
 {
-    Q_UNUSED(entry);
+    Q_UNUSED(entry)
 
     if (!m_engine)
         setupEngine();
@@ -70,7 +70,7 @@ void JavaScriptFilter::prepareSearch(const QString &entry)
 QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
         QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
 
     QList<LocatorFilterEntry> entries;
     if (entry.trimmed().isEmpty()) {
@@ -94,9 +94,9 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
 void JavaScriptFilter::accept(Core::LocatorFilterEntry selection, QString *newText,
                               int *selectionStart, int *selectionLength) const
 {
-    Q_UNUSED(newText);
-    Q_UNUSED(selectionStart);
-    Q_UNUSED(selectionLength);
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
 
     if (selection.internalData.isNull())
         return;
@@ -112,7 +112,7 @@ void JavaScriptFilter::accept(Core::LocatorFilterEntry selection, QString *newTe
 
 void JavaScriptFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
     // Nothing to refresh
 }
 

@@ -331,8 +331,8 @@ void QtKitAspect::qtVersionsChanged(const QList<int> &addedIds,
                                          const QList<int> &removedIds,
                                          const QList<int> &changedIds)
 {
-    Q_UNUSED(addedIds);
-    Q_UNUSED(removedIds);
+    Q_UNUSED(addedIds)
+    Q_UNUSED(removedIds)
     foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits()) {
         if (changedIds.contains(qtVersionId(k))) {
             k->validate(); // Qt version may have become (in)valid

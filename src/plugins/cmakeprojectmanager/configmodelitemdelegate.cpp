@@ -126,8 +126,8 @@ void ConfigModelItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *
 QSize CMakeProjectManager::ConfigModelItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                                                              const QModelIndex &index) const
 {
-    Q_UNUSED(option);
-    Q_UNUSED(index);
+    Q_UNUSED(option)
+    Q_UNUSED(index)
     return QSize(100, m_measurement.sizeHint().height());
 }
 

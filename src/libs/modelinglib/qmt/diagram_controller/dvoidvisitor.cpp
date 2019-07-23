@@ -49,7 +49,7 @@ DVoidVisitor::DVoidVisitor()
 
 void DVoidVisitor::visitDElement(DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 }
 
 void DVoidVisitor::visitDObject(DObject *object)
@@ -128,7 +128,7 @@ DConstVoidVisitor::DConstVoidVisitor()
 
 void DConstVoidVisitor::visitDElement(const DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 }
 
 void DConstVoidVisitor::visitDObject(const DObject *object)

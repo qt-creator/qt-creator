@@ -62,7 +62,7 @@ FieldPageFactory::FieldPageFactory()
 
 Utils::WizardPage *FieldPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
-    Q_UNUSED(wizard);
+    Q_UNUSED(wizard)
 
     QTC_ASSERT(canCreate(typeId), return nullptr);
 
@@ -109,8 +109,8 @@ FilePageFactory::FilePageFactory()
 
 Utils::WizardPage *FilePageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
-    Q_UNUSED(wizard);
-    Q_UNUSED(data);
+    Q_UNUSED(wizard)
+    Q_UNUSED(data)
     QTC_ASSERT(canCreate(typeId), return nullptr);
 
     return new JsonFilePage;
@@ -143,7 +143,7 @@ KitsPageFactory::KitsPageFactory()
 
 Utils::WizardPage *KitsPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
-    Q_UNUSED(wizard);
+    Q_UNUSED(wizard)
     QTC_ASSERT(canCreate(typeId), return nullptr);
 
     auto page = new JsonKitsPage;
@@ -203,8 +203,8 @@ ProjectPageFactory::ProjectPageFactory()
 
 Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
-    Q_UNUSED(wizard);
-    Q_UNUSED(data);
+    Q_UNUSED(wizard)
+    Q_UNUSED(data)
     QTC_ASSERT(canCreate(typeId), return nullptr);
 
     auto page = new JsonProjectPage;
@@ -226,7 +226,7 @@ Utils::WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Core::Id typeI
 
 bool ProjectPageFactory::validateData(Core::Id typeId, const QVariant &data, QString *errorMessage)
 {
-    Q_UNUSED(errorMessage);
+    Q_UNUSED(errorMessage)
 
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && data.type() != QVariant::Map) {
@@ -263,8 +263,8 @@ SummaryPageFactory::SummaryPageFactory()
 
 Utils::WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Core::Id typeId, const QVariant &data)
 {
-    Q_UNUSED(wizard);
-    Q_UNUSED(data);
+    Q_UNUSED(wizard)
+    Q_UNUSED(data)
     QTC_ASSERT(canCreate(typeId), return nullptr);
 
     auto page = new JsonSummaryPage;

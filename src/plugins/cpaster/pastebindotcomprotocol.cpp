@@ -105,8 +105,8 @@ void PasteBinDotComProtocol::paste(const QString &text,
                                    const QString &comment,
                                    const QString &description)
 {
-    Q_UNUSED(comment);
-    Q_UNUSED(description);
+    Q_UNUSED(comment)
+    Q_UNUSED(description)
     QTC_ASSERT(!m_pasteReply, return);
 
     // Format body

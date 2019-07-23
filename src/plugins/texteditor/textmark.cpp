@@ -267,7 +267,7 @@ bool TextMark::isDraggable() const
 
 void TextMark::dragToLine(int lineNumber)
 {
-    Q_UNUSED(lineNumber);
+    Q_UNUSED(lineNumber)
 }
 
 void TextMark::addToToolTipLayout(QGridLayout *target) const

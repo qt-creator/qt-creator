@@ -65,7 +65,7 @@ void DUpdateVisitor::setCheckNeedsUpdate(bool checkNeedsUpdate)
 
 void DUpdateVisitor::visitMElement(const MElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 
     QMT_CHECK(m_target);
 }

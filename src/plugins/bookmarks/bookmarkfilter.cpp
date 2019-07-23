@@ -46,7 +46,7 @@ BookmarkFilter::BookmarkFilter(BookmarkManager *manager)
 QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                      const QString &entry)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
     if (m_manager->rowCount() == 0)
         return QList<LocatorFilterEntry>();
 
@@ -120,9 +120,9 @@ QList<LocatorFilterEntry> BookmarkFilter::matchesFor(QFutureInterface<LocatorFil
 void BookmarkFilter::accept(LocatorFilterEntry selection, QString *newText,
                             int *selectionStart, int *selectionLength) const
 {
-    Q_UNUSED(newText);
-    Q_UNUSED(selectionStart);
-    Q_UNUSED(selectionLength);
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
     if (const Bookmark *bookmark = m_manager->bookmarkForIndex(
                 selection.internalData.toModelIndex())) {
         m_manager->gotoBookmark(bookmark);
@@ -131,5 +131,5 @@ void BookmarkFilter::accept(LocatorFilterEntry selection, QString *newText,
 
 void BookmarkFilter::refresh(QFutureInterface<void> &future)
 {
-    Q_UNUSED(future);
+    Q_UNUSED(future)
 }

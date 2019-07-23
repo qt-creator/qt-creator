@@ -106,9 +106,9 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstrac
                                                            int lastIndex, bool stateChanged,
                                                            float spacing) const
 {
-    Q_UNUSED(firstIndex);
-    Q_UNUSED(lastIndex);
-    Q_UNUSED(spacing);
+    Q_UNUSED(firstIndex)
+    Q_UNUSED(lastIndex)
+    Q_UNUSED(spacing)
 
     const TimelineNotesModel *notes = renderer->notes();
     const TimelineModel *model = renderer->model();

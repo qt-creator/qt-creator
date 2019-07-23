@@ -45,12 +45,12 @@ TimelineRenderPass::State *DummyRenderPass::update(const TimelineAbstractRendere
                                                    State *state, int indexFrom, int indexTo,
                                                    bool stateChanged, float spacing) const
 {
-    Q_UNUSED(renderer);
-    Q_UNUSED(parentState);
-    Q_UNUSED(indexFrom);
-    Q_UNUSED(indexTo);
-    Q_UNUSED(stateChanged);
-    Q_UNUSED(spacing);
+    Q_UNUSED(renderer)
+    Q_UNUSED(parentState)
+    Q_UNUSED(indexFrom)
+    Q_UNUSED(indexTo)
+    Q_UNUSED(stateChanged)
+    Q_UNUSED(spacing)
     return state;
 }
 

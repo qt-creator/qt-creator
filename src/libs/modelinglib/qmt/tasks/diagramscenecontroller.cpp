@@ -90,7 +90,7 @@ public:
 
     void visitMObject(const MObject *object) override
     {
-        Q_UNUSED(object);
+        Q_UNUSED(object)
         if (auto connection = dynamic_cast<const MConnection *>(m_relation)) {
             CustomRelation customRelation = m_stereotypeController->findCustomRelation(connection->customRelationId());
             if (!customRelation.isNull()) {
@@ -594,7 +594,7 @@ QRectF alignObjectHeight(DObject *object, const QSizeF &size)
 
 QRectF alignObjectSize(DObject *object, const QSizeF &size)
 {
-    Q_UNUSED(object);
+    Q_UNUSED(object)
 
     QRectF rect;
     rect.setX(-size.width() / 2.0);

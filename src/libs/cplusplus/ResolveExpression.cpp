@@ -963,8 +963,8 @@ bool ResolveExpression::visit(ArrayAccessAST *ast)
 
 QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const Name *memberName) const
 {
-    Q_UNUSED(binding);
-    Q_UNUSED(memberName);
+    Q_UNUSED(binding)
+    Q_UNUSED(memberName)
 
     // ### port me
     QList<LookupItem> members;

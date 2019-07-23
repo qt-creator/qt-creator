@@ -123,7 +123,7 @@ QmlProfilerTraceFile::QmlProfilerTraceFile(QObject *parent) : Timeline::Timeline
         qRegisterMetaType<QVector<QmlEventType> >(),
         qRegisterMetaType<QVector<QmlNote> >()
     };
-    Q_UNUSED(meta);
+    Q_UNUSED(meta)
 }
 
 void QmlProfilerTraceFile::load(QIODevice *device)
@@ -834,7 +834,7 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
 
     qint64 lastProgressTimestamp = traceStart();
     modelManager()->replayQmlEvents([&](const QmlEvent &event, const QmlEventType &type) {
-        Q_UNUSED(type);
+        Q_UNUSED(type)
         bufferStream << event;
         // 32MB buffer should be plenty for efficient compression
         if (buffer.data().length() > (1 << 25)) {

@@ -818,7 +818,7 @@ IosSimulatorToolHandlerPrivate::~IosSimulatorToolHandlerPrivate()
 void IosSimulatorToolHandlerPrivate::requestTransferApp(const QString &appBundlePath,
                                                         const QString &deviceIdentifier, int timeout)
 {
-    Q_UNUSED(timeout);
+    Q_UNUSED(timeout)
     m_bundlePath = appBundlePath;
     m_deviceId = deviceIdentifier;
     isTransferringApp(m_bundlePath, m_deviceId, 0, 100, "");
@@ -847,8 +847,8 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
                                                    IosToolHandler::RunKind runType,
                                                    const QString &deviceIdentifier, int timeout)
 {
-    Q_UNUSED(timeout);
-    Q_UNUSED(deviceIdentifier);
+    Q_UNUSED(timeout)
+    Q_UNUSED(deviceIdentifier)
     m_bundlePath = appBundlePath;
     m_deviceId = m_devType.identifier;
     m_runKind = runType;
@@ -880,8 +880,8 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &appBundlePath,
 
 void IosSimulatorToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, int timeout)
 {
-    Q_UNUSED(timeout);
-    Q_UNUSED(deviceId);
+    Q_UNUSED(timeout)
+    Q_UNUSED(deviceId)
 }
 
 bool IosSimulatorToolHandlerPrivate::isRunning() const
@@ -962,7 +962,7 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             QThread::msleep(1000);
         } while (!fi.isCanceled() && kill(pid, 0) == 0);
 #else
-    Q_UNUSED(pid);
+    Q_UNUSED(pid)
 #endif
         // Future is cancelled if the app is stopped from the qt creator.
         if (!fi.isCanceled())

@@ -55,8 +55,8 @@ FormPageFactory::FormPageFactory()
 Utils::WizardPage *FormPageFactory::create(ProjectExplorer::JsonWizard *wizard, Core::Id typeId,
                                            const QVariant &data)
 {
-    Q_UNUSED(wizard);
-    Q_UNUSED(data);
+    Q_UNUSED(wizard)
+    Q_UNUSED(data)
 
     QTC_ASSERT(canCreate(typeId), return 0);
 

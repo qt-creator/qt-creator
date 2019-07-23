@@ -270,7 +270,7 @@ Utils::LanguageExtensions SdccToolChain::languageExtensions(const QStringList &)
 
 WarningFlags SdccToolChain::warningFlags(const QStringList &cxxflags) const
 {
-    Q_UNUSED(cxxflags);
+    Q_UNUSED(cxxflags)
     return WarningFlags::Default;
 }
 

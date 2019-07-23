@@ -127,7 +127,7 @@ AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
         qRegisterMetaType<Utils::Port>("Utils::Port"),
         qRegisterMetaType<AndroidDeviceInfo>("Android::AndroidDeviceInfo")
     };
-    Q_UNUSED(metaTypes);
+    Q_UNUSED(metaTypes)
 
     m_checkAVDTimer.setInterval(2000);
     connect(&m_checkAVDTimer, &QTimer::timeout, this, &AndroidRunner::checkAVD);

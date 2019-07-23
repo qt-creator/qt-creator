@@ -136,7 +136,7 @@ void TextEditorMacroHandler::changeEditor(Core::IEditor *editor)
 
 void TextEditorMacroHandler::closeEditor(Core::IEditor *editor)
 {
-    Q_UNUSED(editor);
+    Q_UNUSED(editor)
     if (isRecording() && m_currentEditor && m_currentEditor->widget())
         m_currentEditor->widget()->removeEventFilter(this);
     m_currentEditor = nullptr;

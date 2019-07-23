@@ -151,7 +151,7 @@ void OutputFormatter::initFormats()
 
 void OutputFormatter::handleLink(const QString &href)
 {
-    Q_UNUSED(href);
+    Q_UNUSED(href)
 }
 
 void OutputFormatter::setBoldFontEnabled(bool enabled)

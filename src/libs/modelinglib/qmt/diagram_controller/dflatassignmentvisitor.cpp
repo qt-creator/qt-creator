@@ -54,7 +54,7 @@ DFlatAssignmentVisitor::DFlatAssignmentVisitor(DElement *target)
 
 void DFlatAssignmentVisitor::visitDElement(const DElement *element)
 {
-    Q_UNUSED(element);
+    Q_UNUSED(element)
 }
 
 void DFlatAssignmentVisitor::visitDObject(const DObject *object)
