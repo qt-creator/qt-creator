@@ -1,0 +1,10 @@
+---
+MainSourceFile:  'FILE_PATH'
+Diagnostics:
+  - DiagnosticName:  clang-diagnostic-unused-parameter
+    DiagnosticMessage:
+      Message:         'unused parameter ''g'''
+      FilePath:        'FILE_PATH'
+      FileOffset:      153
+      Replacements:    []
+...

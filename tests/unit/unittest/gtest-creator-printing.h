@@ -328,4 +328,18 @@ class Usage;
 std::ostream &operator<<(std::ostream &out, const Usage &usage);
 } // namespace CppTools
 
+namespace Debugger {
+class DiagnosticLocation;
+std::ostream &operator<<(std::ostream &out, const DiagnosticLocation &loc);
+} // namespace Debugger
+
+namespace ClangTools {
+namespace Internal {
+class ExplainingStep;
+class Diagnostic;
+std::ostream &operator<<(std::ostream &out, const ExplainingStep &step);
+std::ostream &operator<<(std::ostream &out, const Diagnostic &diag);
+} // namespace Internal
+} // namespace CppTools
+
 void setFilePathCache(ClangBackEnd::FilePathCaching *filePathCache);

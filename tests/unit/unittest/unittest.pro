@@ -120,7 +120,8 @@ SOURCES += \
     commandlinebuilder-test.cpp \
     headerpathfilter-test.cpp \
     toolchainargumentscache-test.cpp \
-    modifiedtimechecker-test.cpp
+    modifiedtimechecker-test.cpp \
+    readexporteddiagnostics-test.cpp
 
 !isEmpty(LIBCLANG_LIBS) {
 SOURCES += \

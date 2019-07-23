@@ -62,6 +62,8 @@ public:
     bool hasFixits = false;
 };
 
+bool operator==(const Diagnostic &lhs, const Diagnostic &rhs);
+
 using Diagnostics = QList<Diagnostic>;
 
 quint32 qHash(const Diagnostic &diagnostic);

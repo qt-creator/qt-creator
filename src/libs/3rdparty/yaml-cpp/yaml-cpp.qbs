@@ -99,6 +99,7 @@ Project {
         Export {
             Depends { name: "cpp" }
             cpp.includePaths: [product.sourceDirectory + "/include/"]
+            cpp.defines: base.concat(["YAML_CPP_DLL"])
         }
     }
 }

@@ -1,0 +1,23 @@
+---
+MainSourceFile:  'FILE_PATH'
+Diagnostics:
+  - DiagnosticName:  clang-analyzer-core.DivideZero
+    DiagnosticMessage:
+      Message:         Division by zero
+      FilePath:        'FILE_PATH'
+      FileOffset:      180
+      Replacements:    []
+    Notes:
+      - Message:         'Assuming ''z'' is equal to 0'
+        FilePath:        'FILE_PATH'
+        FileOffset:      158
+        Replacements:    []
+      - Message:         Taking true branch
+        FilePath:        'FILE_PATH'
+        FileOffset:      154
+        Replacements:    []
+      - Message:         Division by zero
+        FilePath:        'FILE_PATH'
+        FileOffset:      180
+        Replacements:    []
+...

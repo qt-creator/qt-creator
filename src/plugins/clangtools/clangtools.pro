@@ -8,7 +8,9 @@ LIBS += $$LIBCLANG_LIBS
 INCLUDEPATH += $$LLVM_INCLUDEPATH
 
 include(../../shared/yaml-cpp/yaml-cpp_installation.pri)
-!isEmpty(EXTERNAL_YAML_CPP_FOUND) {
+isEmpty(EXTERNAL_YAML_CPP_FOUND) {
+    DEFINES += YAML_CPP_DLL
+} else {
     LIBS += $$EXTERNAL_YAML_CPP_LIBS
     QMAKE_CXXFLAGS += $$EXTERNAL_YAML_CPP_CXXFLAGS
 }

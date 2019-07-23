@@ -15,6 +15,7 @@ if (NOT yaml-cpp_FOUND)
   add_qtc_library(yaml-cpp
     DEFINES YAML_CPP_DLL yaml_cpp_EXPORTS
     INCLUDES ${YAML_SOURCE_DIR}/include
+    PUBLIC_DEFINES YAML_CPP_DLL
     PUBLIC_INCLUDES ${YAML_SOURCE_DIR}/include
     SOURCES
       ${YAML_SOURCE_DIR}/include/yaml-cpp

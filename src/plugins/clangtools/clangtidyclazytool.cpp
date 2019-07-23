@@ -37,6 +37,8 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
 
 #include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/cppcodemodelsettings.h>
@@ -55,6 +57,7 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QFileDialog>
 #include <QToolButton>
 
 using namespace Core;
@@ -249,6 +252,13 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     connect(action, &QAction::triggered, m_diagnosticView, &DetailedErrorView::goNext);
     m_goNext = action;
 
+    // Load diagnostics from file
+    action = new QAction(this);
+    action->setIcon(Utils::Icons::OPENFILE_TOOLBAR.icon());
+    action->setToolTip(tr("Load Diagnostics from YAML Files exported with \"-export-fixes\"."));
+    connect(action, &QAction::triggered, this, &ClangTidyClazyTool::loadDiagnosticsFromFiles);
+    m_loadExported = action;
+
     // Clear data
     action = new QAction(this);
     action->setDisabled(true);
@@ -325,6 +335,7 @@ ClangTidyClazyTool::ClangTidyClazyTool()
 
     m_perspective.addToolBarAction(m_startAction);
     m_perspective.addToolBarAction(m_stopAction);
+    m_perspective.addToolBarAction(m_loadExported);
     m_perspective.addToolBarAction(m_clear);
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
@@ -416,6 +427,7 @@ void ClangTidyClazyTool::updateRunActions()
         QString tooltipText = tr("Clang-Tidy and Clazy are still running.");
         m_startAction->setToolTip(tooltipText);
         m_stopAction->setEnabled(true);
+        m_loadExported->setEnabled(false);
         m_clear->setEnabled(false);
     } else {
         QString toolTip = tr("Start Clang-Tidy and Clazy.");
@@ -430,8 +442,45 @@ void ClangTidyClazyTool::updateRunActions()
         m_startAction->setToolTip(toolTip);
         m_startAction->setEnabled(canRun);
         m_stopAction->setEnabled(false);
+        m_loadExported->setEnabled(true);
         m_clear->setEnabled(m_diagnosticModel->diagnostics().count());
     }
+}
+
+void ClangTidyClazyTool::loadDiagnosticsFromFiles()
+{
+    // Ask user for files
+    const QStringList filePaths
+        = QFileDialog::getOpenFileNames(Core::ICore::mainWindow(),
+                                        tr("Select YAML Files with Diagnostics"),
+                                        QDir::homePath(),
+                                        tr("YAML Files (*.yml *.yaml);;All Files (*)"));
+    if (filePaths.isEmpty())
+        return;
+
+    // Load files
+    Diagnostics diagnostics;
+    QString errors;
+    for (const QString &filePath : filePaths) {
+        QString currentError;
+        diagnostics << readExportedDiagnostics(Utils::FilePath::fromString(filePath),
+                                               {},
+                                               &currentError);
+
+        if (!currentError.isEmpty()) {
+            if (!errors.isEmpty())
+                errors.append("\n");
+            errors.append(currentError);
+        }
+    }
+
+    // Show errors
+    if (!errors.isEmpty())
+        AsynchronousMessageBox::critical(tr("Error Loading Diagnostics"), errors);
+
+    // Show imported
+    m_diagnosticModel->clear();
+    onNewDiagnosticsAvailable(diagnostics);
 }
 
 void ClangTidyClazyTool::handleStateUpdate()
@@ -445,7 +494,10 @@ void ClangTidyClazyTool::handleStateUpdate()
     const int issuesVisible = m_diagnosticFilterModel->rowCount();
     m_goBack->setEnabled(issuesVisible > 1);
     m_goNext->setEnabled(issuesVisible > 1);
+    m_clear->setEnabled(issuesFound > 0);
     m_expandCollapse->setEnabled(issuesVisible);
+
+    m_loadExported->setEnabled(!m_running);
 
     QString message;
     if (m_running) {

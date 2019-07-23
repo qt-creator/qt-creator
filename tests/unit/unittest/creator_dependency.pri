@@ -14,6 +14,8 @@ include($$PWD/../../../src/tools/clangpchmanagerbackend/source/clangpchmanagerba
 include($$PWD/../../../src/plugins/clangrefactoring/clangrefactoring-source.pri)
 include($$PWD/../../../src/plugins/clangpchmanager/clangpchmanager-source.pri)
 include($$PWD/../../../src/plugins/cpptools/cpptoolsunittestfiles.pri)
+include($$PWD/../../../src/plugins/clangtools/clangtoolsunittestfiles.pri)
+include($$PWD/../../../src/plugins/debugger/debuggerunittestfiles.pri)
 include($$PWD/../../../src/plugins/compilationdatabaseprojectmanager/compilationdatabaseunittestfiles.pri)
 include(cplusplus.pri)
 !isEmpty(LLVM_VERSION) {

@@ -29,6 +29,8 @@
 
 #if defined(DEBUGGER_LIBRARY)
 #  define DEBUGGER_EXPORT Q_DECL_EXPORT
+#elif defined(DEBUGGER_STATIC_LIBRARY) // Abuse single files for tests
+#  define DEBUGGER_EXPORT
 #else
 #  define DEBUGGER_EXPORT Q_DECL_IMPORT
 #endif

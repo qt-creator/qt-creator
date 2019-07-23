@@ -64,6 +64,7 @@ private:
     void handleStateUpdate() final;
 
     void updateRunActions();
+    void loadDiagnosticsFromFiles();
 
     DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
 
@@ -72,6 +73,7 @@ private:
 
     QAction *m_goBack = nullptr;
     QAction *m_goNext = nullptr;
+    QAction *m_loadExported = nullptr;
     QAction *m_clear = nullptr;
     QAction *m_expandCollapse = nullptr;
 
