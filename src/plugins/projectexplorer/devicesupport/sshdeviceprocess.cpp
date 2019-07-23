@@ -201,9 +201,8 @@ void SshDeviceProcess::handleConnected()
                 this, &SshDeviceProcess::handleProcessStarted);
         connect(&d->consoleProcess, &ConsoleProcess::stubStopped,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
-        d->consoleProcess.setCommand({FilePath::fromString(cmdLine.first()),
-                                      cmdLine.mid(1),
-                                      CommandLine::MetaCharMode::Ignore});
+        d->consoleProcess.setAbortOnMetaChars(false);
+        d->consoleProcess.setCommand({cmdLine.first(), cmdLine.mid(1)});
         d->consoleProcess.start();
     } else {
         connect(d->process.get(), &QSsh::SshRemoteProcess::started,

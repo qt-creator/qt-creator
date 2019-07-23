@@ -132,15 +132,12 @@ class QTCREATOR_UTILS_EXPORT CommandLine
 {
 public:
     enum RawType { Raw };
-    enum class MetaCharMode { Abort, Ignore };
 
     CommandLine() {}
     explicit CommandLine(const QString &executable);
     explicit CommandLine(const FilePath &executable);
     CommandLine(const QString &exe, const QStringList &args);
-    CommandLine(const FilePath &exe,
-                const QStringList &args,
-                MetaCharMode metaCharMode = MetaCharMode::Abort);
+    CommandLine(const FilePath &exe, const QStringList &args);
     CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
 
     void addArg(const QString &arg, OsType osType = HostOsInfo::hostOs());
@@ -152,13 +149,11 @@ public:
 
     FilePath executable() const { return m_executable; }
     QString arguments() const { return m_arguments; }
-    MetaCharMode metaCharMode() const { return m_metaCharMode; }
     QStringList splitArguments(OsType osType = HostOsInfo::hostOs()) const;
 
 private:
     FilePath m_executable;
     QString m_arguments;
-    MetaCharMode m_metaCharMode;
 };
 
 class QTCREATOR_UTILS_EXPORT FileUtils {

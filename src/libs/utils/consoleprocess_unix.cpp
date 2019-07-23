@@ -65,6 +65,11 @@ void ConsoleProcess::setCommand(const Utils::CommandLine &command)
     d->m_commandLine = command;
 }
 
+void ConsoleProcess::setAbortOnMetaChars(bool abort)
+{
+    d->m_abortOnMetaChars = abort;
+}
+
 void ConsoleProcess::setSettings(QSettings *settings)
 {
     d->m_settings = settings;
@@ -84,8 +89,8 @@ bool ConsoleProcess::start()
                                                           HostOsInfo::hostOs(),
                                                           &d->m_environment,
                                                           &d->m_workingDir,
-                                                          d->m_commandLine.metaCharMode()
-                                                              == CommandLine::MetaCharMode::Abort);
+                                                          d->m_abortOnMetaChars);
+
     QString pcmd;
     if (perr == QtcProcess::SplitOk) {
         pcmd = d->m_commandLine.executable().toString();

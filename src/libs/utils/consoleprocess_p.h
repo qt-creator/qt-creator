@@ -60,6 +60,7 @@ struct ConsoleProcessPrivate {
     QTemporaryFile *m_tempFile = nullptr;
     QProcess::ProcessError m_error = QProcess::UnknownError;
     QString m_errorString;
+    bool m_abortOnMetaChars = true;
 
 #ifdef Q_OS_UNIX
     QProcess m_process;
