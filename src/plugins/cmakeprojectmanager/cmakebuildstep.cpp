@@ -115,7 +115,7 @@ void CMakeBuildStep::handleBuildTargetChanges(bool success)
         return; // Do not change when parsing failed.
     if (!isCurrentExecutableTarget(m_buildTarget)
         && !static_cast<CMakeProject *>(project())->buildTargetTitles().contains(m_buildTarget)) {
-        setBuildTarget(allTarget());
+        setBuildTarget(defaultBuildTarget());
     }
     emit buildTargetsChanged();
 }
