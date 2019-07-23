@@ -28,7 +28,7 @@
 #include "ssh_global.h"
 #include "sshprocess.h"
 
-#include <QStringList>
+#include <utils/fileutils.h>
 
 namespace QSsh {
 class SshConnection;
@@ -46,7 +46,7 @@ public:
     void start();
 
     bool isRunning() const;
-    QStringList fullLocalCommandLine() const;
+    Utils::CommandLine fullLocalCommandLine() const;
 
 signals:
     void done(const QString &error);

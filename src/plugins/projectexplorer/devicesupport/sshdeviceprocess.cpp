@@ -194,7 +194,6 @@ void SshDeviceProcess::handleConnected()
         d->process->requestX11Forwarding(display);
     if (runInTerminal()) {
         d->process->requestTerminal();
-        const QStringList cmdLine = d->process->fullLocalCommandLine();
         connect(&d->consoleProcess, QOverload<QProcess::ProcessError>::of(&ConsoleProcess::error),
                 this, &DeviceProcess::error);
         connect(&d->consoleProcess, &ConsoleProcess::processStarted,
@@ -202,7 +201,7 @@ void SshDeviceProcess::handleConnected()
         connect(&d->consoleProcess, &ConsoleProcess::stubStopped,
                 this, [this] { handleProcessFinished(d->consoleProcess.errorString()); });
         d->consoleProcess.setAbortOnMetaChars(false);
-        d->consoleProcess.setCommand({cmdLine.first(), cmdLine.mid(1)});
+        d->consoleProcess.setCommand(d->process->fullLocalCommandLine());
         d->consoleProcess.start();
     } else {
         connect(d->process.get(), &QSsh::SshRemoteProcess::started,
