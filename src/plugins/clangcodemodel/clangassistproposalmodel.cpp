@@ -52,9 +52,9 @@ void ClangAssistProposalModel::sort(const QString &/*prefix*/)
 
     auto currentItemsCompare = [](AssistProposalItemInterface *first,
                                   AssistProposalItemInterface *second) {
-        if (first->prefixMatch() != second->prefixMatch()) {
-            return static_cast<int>(first->prefixMatch())
-                    < static_cast<int>(second->prefixMatch());
+        if (first->proposalMatch() != second->proposalMatch()) {
+            return static_cast<int>(first->proposalMatch())
+                    < static_cast<int>(second->proposalMatch());
         }
         return false;
     };

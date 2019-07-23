@@ -307,16 +307,16 @@ void GenericProposalModel::filter(const QString &prefix)
             m_currentItems.append(item);
             if (text.startsWith(prefix)) {
                 // Direct match
-                item->setPrefixMatch(text.length() == prefix.length()
-                                     ? AssistProposalItemInterface::PrefixMatch::Full
-                                     : AssistProposalItemInterface::PrefixMatch::Exact);
+                item->setProposalMatch(text.length() == prefix.length()
+                                       ? AssistProposalItemInterface::ProposalMatch::Full
+                                       : AssistProposalItemInterface::ProposalMatch::Exact);
                 continue;
             }
 
             if (text.startsWith(lowerPrefix, Qt::CaseInsensitive))
-                item->setPrefixMatch(AssistProposalItemInterface::PrefixMatch::Prefix);
+                item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Prefix);
             else if (text.contains(lowerPrefix, Qt::CaseInsensitive))
-                item->setPrefixMatch(AssistProposalItemInterface::PrefixMatch::Infix);
+                item->setProposalMatch(AssistProposalItemInterface::ProposalMatch::Infix);
         }
     }
 }
