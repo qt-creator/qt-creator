@@ -56,7 +56,7 @@ QByteArray DirectoryFilter::saveState() const
     out << m_filters;
     out << shortcutString();
     out << isIncludedByDefault();
-    out << m_files;
+    out << Utils::transform(m_files, &Utils::FilePath::toString);
     out << m_exclusionFilters;
     return value;
 }
@@ -69,6 +69,7 @@ void DirectoryFilter::restoreState(const QByteArray &state)
     QStringList directories;
     QString shortcut;
     bool defaultFilter;
+    QStringList files;
 
     QDataStream in(state);
     in >> name;
@@ -76,7 +77,8 @@ void DirectoryFilter::restoreState(const QByteArray &state)
     in >> m_filters;
     in >> shortcut;
     in >> defaultFilter;
-    in >> m_files;
+    in >> files;
+    m_files = Utils::transform(files, &Utils::FilePath::fromString);
     if (!in.atEnd()) // Qt Creator 4.3 and later
         in >> m_exclusionFilters;
     else
@@ -231,12 +233,12 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     }
     Utils::SubDirFileIterator subDirIterator(directories, m_filters, m_exclusionFilters);
     future.setProgressRange(0, subDirIterator.maxProgress());
-    QStringList filesFound;
+    Utils::FilePathList filesFound;
     auto end = subDirIterator.end();
     for (auto it = subDirIterator.begin(); it != end; ++it) {
         if (future.isCanceled())
             break;
-        filesFound << (*it).filePath;
+        filesFound << Utils::FilePath::fromString((*it).filePath);
         if (future.isProgressUpdateNeeded()
                 || future.progressValue() == 0 /*workaround for regression in Qt*/) {
             future.setProgressValueAndText(subDirIterator.currentProgress(),

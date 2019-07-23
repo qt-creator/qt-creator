@@ -45,7 +45,7 @@ QTC_DECLARE_MYTESTDATADIR("../../../../tests/locators/")
 class MyBaseFileFilter : public Core::BaseFileFilter
 {
 public:
-    MyBaseFileFilter(const QStringList &theFiles)
+    MyBaseFileFilter(const Utils::FilePathList &theFiles)
     {
         setFileIterator(new BaseFileFilter::ListIterator(theFiles));
     }
@@ -74,7 +74,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     QFETCH(QStringList, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
 
-    MyBaseFileFilter filter(testFiles);
+    MyBaseFileFilter filter(Utils::transform(testFiles, &Utils::FilePath::fromString));
     BasicLocatorFilterTest test(&filter);
 
     for (const ReferenceData &reference : qAsConst(referenceDataList)) {

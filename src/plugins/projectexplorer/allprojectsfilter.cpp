@@ -57,9 +57,9 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
     if (!fileIterator()) {
-        QStringList paths;
+        Utils::FilePathList paths;
         for (Project *project : SessionManager::projects())
-            paths.append(Utils::transform(project->files(Project::AllFiles), &Utils::FilePath::toString));
+            paths.append(project->files(Project::AllFiles));
         Utils::sort(paths);
         setFileIterator(new BaseFileFilter::ListIterator(paths));
     }

@@ -37,9 +37,9 @@
 #include <QTimer>
 
 using namespace Core;
-using namespace CppTools;
-using namespace CppTools::Internal;
 using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace CppTools {
 namespace Internal {
 
@@ -50,9 +50,8 @@ public:
 
     void toFront() override;
     bool hasNext() const override;
-    QString next() override;
-    QString filePath() const override;
-    QString fileName() const override;
+    Utils::FilePath next() override;
+    Utils::FilePath filePath() const override;
 
 private:
     void fetchMore();
@@ -62,12 +61,8 @@ private:
     QSet<QString> m_queuedPaths;
     QSet<QString> m_allResultPaths;
     QStringList m_resultQueue;
-    QString m_currentPath;
+    FilePath m_currentPath;
 };
-
-} // Internal
-} // CppTools
-
 
 CppIncludesIterator::CppIncludesIterator(CPlusPlus::Snapshot snapshot,
                                          const QSet<QString> &seedPaths)
@@ -90,24 +85,19 @@ bool CppIncludesIterator::hasNext() const
     return !m_resultQueue.isEmpty();
 }
 
-QString CppIncludesIterator::next()
+FilePath CppIncludesIterator::next()
 {
     if (m_resultQueue.isEmpty())
-        return QString();
-    m_currentPath = m_resultQueue.takeFirst();
+        return {};
+    m_currentPath = FilePath::fromString(m_resultQueue.takeFirst());
     if (m_resultQueue.isEmpty())
         fetchMore();
     return m_currentPath;
 }
 
-QString CppIncludesIterator::filePath() const
+FilePath CppIncludesIterator::filePath() const
 {
     return m_currentPath;
-}
-
-QString CppIncludesIterator::fileName() const
-{
-    return QFileInfo(m_currentPath).fileName();
 }
 
 void CppIncludesIterator::fetchMore()
@@ -186,3 +176,7 @@ void CppIncludesFilter::markOutdated()
     m_needsUpdate = true;
     setFileIterator(nullptr); // clean up
 }
+
+} // Internal
+} // CppTools
+
