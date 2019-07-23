@@ -182,15 +182,15 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
     return diagnostic;
 }
 
-static Diagnostics readSerializedDiagnostics_helper(const QString &filePath,
+static Diagnostics readSerializedDiagnostics_helper(const Utils::FilePath &filePath,
                                                     const QSet<Utils::FilePath> &projectFiles,
-                                                    const QString &logFilePath)
+                                                    const Utils::FilePath &logFilePath)
 {
     Diagnostics list;
     CXLoadDiag_Error error;
     CXString errorString;
 
-    CXDiagnosticSet diagnostics = clang_loadDiagnostics(logFilePath.toStdString().c_str(),
+    CXDiagnosticSet diagnostics = clang_loadDiagnostics(logFilePath.toString().toStdString().c_str(),
                                                         &error,
                                                         &errorString);
     if (error != CXLoadDiag_None || !diagnostics)
@@ -200,7 +200,7 @@ static Diagnostics readSerializedDiagnostics_helper(const QString &filePath,
         clang_disposeDiagnosticSet(diagnostics);
     });
 
-    const QString nativeFilePath = QDir::toNativeSeparators(filePath);
+    const QString nativeFilePath = QDir::toNativeSeparators(filePath.toString());
     for (unsigned i = 0; i < clang_getNumDiagnosticsInSet(diagnostics); ++i) {
         CXDiagnostic cxDiagnostic = clang_getDiagnosticInSet(diagnostics, i);
         Utils::ExecuteOnDestruction cleanUpDiagnostic([&]() {
@@ -216,24 +216,24 @@ static Diagnostics readSerializedDiagnostics_helper(const QString &filePath,
     return list;
 }
 
-static bool checkFilePath(const QString &filePath, QString *errorMessage)
+static bool checkFilePath(const Utils::FilePath &filePath, QString *errorMessage)
 {
-    QFileInfo fi(filePath);
+    QFileInfo fi(filePath.toFileInfo());
     if (!fi.exists() || !fi.isReadable()) {
         if (errorMessage) {
             *errorMessage
                     = QString(QT_TRANSLATE_NOOP("LogFileReader",
                                                 "File \"%1\" does not exist or is not readable."))
-                    .arg(filePath);
+                    .arg(filePath.toUserOutput());
         }
         return false;
     }
     return true;
 }
 
-Diagnostics readSerializedDiagnostics(const QString &filePath,
+Diagnostics readSerializedDiagnostics(const Utils::FilePath &filePath,
                                       const QSet<Utils::FilePath> &projectFiles,
-                                      const QString &logFilePath,
+                                      const Utils::FilePath &logFilePath,
                                       QString *errorMessage)
 {
     if (!checkFilePath(logFilePath, errorMessage))

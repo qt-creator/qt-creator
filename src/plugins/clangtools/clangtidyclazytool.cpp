@@ -468,7 +468,10 @@ Diagnostics ClangTidyClazyTool::read(const QString &filePath,
                                      const QString &logFilePath,
                                      QString *errorMessage) const
 {
-    return readSerializedDiagnostics(filePath, projectFiles, logFilePath, errorMessage);
+    return readSerializedDiagnostics(Utils::FilePath::fromString(filePath),
+                                     projectFiles,
+                                     Utils::FilePath::fromString(logFilePath),
+                                     errorMessage);
 }
 
 void ClangTidyClazyTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics)

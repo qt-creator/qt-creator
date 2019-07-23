@@ -27,16 +27,16 @@
 
 #include "clangtoolsdiagnostic.h"
 
-#include <QList>
+#include <QSet>
 
 namespace Utils { class FilePath; }
 
 namespace ClangTools {
 namespace Internal {
 
-Diagnostics readSerializedDiagnostics(const QString &filePath,
+Diagnostics readSerializedDiagnostics(const Utils::FilePath &filePath,
                                       const QSet<Utils::FilePath> &projectFiles,
-                                      const QString &logFilePath,
+                                      const Utils::FilePath &logFilePath,
                                       QString *errorMessage);
 
 } // namespace Internal
