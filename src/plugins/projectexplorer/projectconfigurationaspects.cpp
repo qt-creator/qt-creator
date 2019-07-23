@@ -94,6 +94,7 @@ public:
     QPixmap m_labelPixmap;
     Utils::FilePath m_baseFileName;
     bool m_readOnly = false;
+    bool m_showToolTipOnLabel = false;
 };
 
 class BaseIntegerAspectPrivate
@@ -174,6 +175,12 @@ void BaseStringAspect::setLabelPixmap(const QPixmap &labelPixmap)
     d->m_labelPixmap = labelPixmap;
     if (d->m_label)
         d->m_label->setPixmap(labelPixmap);
+}
+
+void BaseStringAspect::setShowToolTipOnLabel(bool show)
+{
+    d->m_showToolTipOnLabel = show;
+    update();
 }
 
 QString BaseStringAspect::labelText() const
@@ -334,8 +341,10 @@ void BaseStringAspect::update()
         d->m_textEditDisplay->setEnabled(enabled);
     }
 
-    if (d->m_labelDisplay)
+    if (d->m_labelDisplay) {
         d->m_labelDisplay->setText(displayedString);
+        d->m_labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : QString());
+    }
 
     if (d->m_label) {
         d->m_label->setText(d->m_labelText);

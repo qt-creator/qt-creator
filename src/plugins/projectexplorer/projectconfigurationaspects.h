@@ -109,6 +109,7 @@ public:
     QString labelText() const;
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);
+    void setShowToolTipOnLabel(bool show);
 
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setPlaceHolderText(const QString &placeHolderText);

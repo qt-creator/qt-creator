@@ -470,6 +470,7 @@ void ExecutableAspect::setPlaceHolderText(const QString &placeHolderText)
 void ExecutableAspect::setExecutable(const FilePath &executable)
 {
    m_executable.setValue(executable.toString());
+   m_executable.setShowToolTipOnLabel(true);
 }
 
 void ExecutableAspect::setSettingsKey(const QString &key)
