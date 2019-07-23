@@ -463,14 +463,14 @@ void ClangTidyClazyTool::handleStateUpdate()
     Debugger::showPermanentStatusMessage(message);
 }
 
-Diagnostics ClangTidyClazyTool::read(const QString &filePath,
+Diagnostics ClangTidyClazyTool::read(const QString &logFilePath,
+                                     const QString &mainFilePath,
                                      const QSet<Utils::FilePath> &projectFiles,
-                                     const QString &logFilePath,
                                      QString *errorMessage) const
 {
-    return readSerializedDiagnostics(Utils::FilePath::fromString(filePath),
+    return readSerializedDiagnostics(Utils::FilePath::fromString(logFilePath),
+                                     Utils::FilePath::fromString(mainFilePath),
                                      projectFiles,
-                                     Utils::FilePath::fromString(logFilePath),
                                      errorMessage);
 }
 

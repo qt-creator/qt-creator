@@ -50,9 +50,9 @@ public:
 
     virtual void startTool(bool askUserForFileSelection) = 0;
 
-    virtual Diagnostics read(const QString &filePath,
+    virtual Diagnostics read(const QString &logFilePath,
+                             const QString &mainFilePath,
                              const QSet<Utils::FilePath> &projectFiles,
-                             const QString &logFilePath,
                              QString *errorMessage) const = 0;
 
     FileInfos collectFileInfos(ProjectExplorer::Project *project,

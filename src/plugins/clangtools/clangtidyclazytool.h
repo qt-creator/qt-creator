@@ -53,9 +53,9 @@ public:
 
     void startTool(bool askUserForFileSelection) final;
 
-    Diagnostics read(const QString &filePath,
+    Diagnostics read(const QString &logFilePath,
+                     const QString &mainFilePath,
                      const QSet<Utils::FilePath> &projectFiles,
-                     const QString &logFilePath,
                      QString *errorMessage) const final;
 
     void onNewDiagnosticsAvailable(const Diagnostics &diagnostics) override;

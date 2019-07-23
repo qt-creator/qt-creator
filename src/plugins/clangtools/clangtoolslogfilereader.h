@@ -34,9 +34,9 @@ namespace Utils { class FilePath; }
 namespace ClangTools {
 namespace Internal {
 
-Diagnostics readSerializedDiagnostics(const Utils::FilePath &filePath,
+Diagnostics readSerializedDiagnostics(const Utils::FilePath &logFilePath,
+                                      const Utils::FilePath &mainFilePath,
                                       const QSet<Utils::FilePath> &projectFiles,
-                                      const Utils::FilePath &logFilePath,
                                       QString *errorMessage);
 
 } // namespace Internal

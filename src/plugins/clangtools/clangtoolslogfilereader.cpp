@@ -182,9 +182,9 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
     return diagnostic;
 }
 
-static Diagnostics readSerializedDiagnostics_helper(const Utils::FilePath &filePath,
-                                                    const QSet<Utils::FilePath> &projectFiles,
-                                                    const Utils::FilePath &logFilePath)
+static Diagnostics readSerializedDiagnostics_helper(const Utils::FilePath &logFilePath,
+                                                    const Utils::FilePath &mainFilePath,
+                                                    const QSet<Utils::FilePath> &projectFiles)
 {
     Diagnostics list;
     CXLoadDiag_Error error;
@@ -200,7 +200,7 @@ static Diagnostics readSerializedDiagnostics_helper(const Utils::FilePath &fileP
         clang_disposeDiagnosticSet(diagnostics);
     });
 
-    const QString nativeFilePath = QDir::toNativeSeparators(filePath.toString());
+    const QString nativeFilePath = QDir::toNativeSeparators(mainFilePath.toString());
     for (unsigned i = 0; i < clang_getNumDiagnosticsInSet(diagnostics); ++i) {
         CXDiagnostic cxDiagnostic = clang_getDiagnosticInSet(diagnostics, i);
         Utils::ExecuteOnDestruction cleanUpDiagnostic([&]() {
@@ -231,15 +231,15 @@ static bool checkFilePath(const Utils::FilePath &filePath, QString *errorMessage
     return true;
 }
 
-Diagnostics readSerializedDiagnostics(const Utils::FilePath &filePath,
+Diagnostics readSerializedDiagnostics(const Utils::FilePath &logFilePath,
+                                      const Utils::FilePath &mainFilePath,
                                       const QSet<Utils::FilePath> &projectFiles,
-                                      const Utils::FilePath &logFilePath,
                                       QString *errorMessage)
 {
     if (!checkFilePath(logFilePath, errorMessage))
         return {};
 
-    return readSerializedDiagnostics_helper(filePath, projectFiles, logFilePath);
+    return readSerializedDiagnostics_helper(logFilePath, mainFilePath, projectFiles);
 }
 
 } // namespace Internal
