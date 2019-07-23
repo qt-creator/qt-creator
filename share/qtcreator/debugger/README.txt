@@ -5,6 +5,7 @@ session, too.
 
 With
 
+        python import sys
         python sys.path.insert(1, '<path/to/qtcreator>/share/qtcreator/debugger/')
         python from gdbbridge import *
 
