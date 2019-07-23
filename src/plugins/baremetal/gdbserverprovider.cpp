@@ -49,6 +49,9 @@ const char initCommandsKeyC[] = "BareMetal.GdbServerProvider.InitCommands";
 const char resetCommandsKeyC[] = "BareMetal.GdbServerProvider.ResetCommands";
 const char useExtendedRemoteKeyC[] = "BareMetal.GdbServerProvider.UseExtendedRemote";
 
+const char hostKeySuffixC[] = ".Host";
+const char portKeySuffixC[] = ".Port";
+
 static QString createId(const QString &id)
 {
     QString newId = id.left(id.indexOf(QLatin1Char(':')));
@@ -128,6 +131,11 @@ bool GdbServerProvider::useExtendedRemote() const
     return m_useExtendedRemote;
 }
 
+QString GdbServerProvider::typeDisplayName() const
+{
+    return m_typeDisplayName;
+}
+
 void GdbServerProvider::setUseExtendedRemote(bool useExtendedRemote)
 {
     m_useExtendedRemote = useExtendedRemote;
@@ -141,6 +149,22 @@ QString GdbServerProvider::resetCommands() const
 void GdbServerProvider::setResetCommands(const QString &cmds)
 {
     m_resetCommands = cmds;
+}
+
+void GdbServerProvider::setChannel(const QUrl &channel)
+{
+    m_channel = channel;
+}
+
+void GdbServerProvider::setDefaultChannel(const QString &host, int port)
+{
+    m_channel.setHost(host);
+    m_channel.setPort(port);
+}
+
+QUrl GdbServerProvider::channel() const
+{
+    return m_channel;
 }
 
 Utils::CommandLine GdbServerProvider::command() const
@@ -158,10 +182,19 @@ bool GdbServerProvider::operator==(const GdbServerProvider &other) const
 
     // We ignore displayname
     return thisId == otherId
+            && m_channel == other.m_channel
             && m_startupMode == other.m_startupMode
             && m_initCommands == other.m_initCommands
             && m_resetCommands == other.m_resetCommands
             && m_useExtendedRemote == other.m_useExtendedRemote;
+}
+
+QString GdbServerProvider::channelString() const
+{
+    // Just return as "host:port" form.
+    if (m_channel.port() <= 0)
+        return m_channel.host();
+    return m_channel.host() + ':' + QString::number(m_channel.port());
 }
 
 QVariantMap GdbServerProvider::toMap() const
@@ -173,12 +206,14 @@ QVariantMap GdbServerProvider::toMap() const
         {QLatin1String(initCommandsKeyC), m_initCommands},
         {QLatin1String(resetCommandsKeyC), m_resetCommands},
         {QLatin1String(useExtendedRemoteKeyC), m_useExtendedRemote},
+        {m_settingsBase + hostKeySuffixC, m_channel.host()},
+        {m_settingsBase + portKeySuffixC, m_channel.port()},
     };
 }
 
 bool GdbServerProvider::isValid() const
 {
-    return !channel().isNull();
+    return !channelString().isEmpty();
 }
 
 bool GdbServerProvider::canStartupMode(StartupMode m) const
@@ -211,7 +246,20 @@ bool GdbServerProvider::fromMap(const QVariantMap &data)
     m_initCommands = data.value(QLatin1String(initCommandsKeyC)).toString();
     m_resetCommands = data.value(QLatin1String(resetCommandsKeyC)).toString();
     m_useExtendedRemote = data.value(QLatin1String(useExtendedRemoteKeyC)).toBool();
+    m_channel.setHost(data.value(m_settingsBase + hostKeySuffixC).toString());
+    m_channel.setPort(data.value(m_settingsBase + portKeySuffixC).toInt());
+
     return true;
+}
+
+void GdbServerProvider::setTypeDisplayName(const QString &typeDisplayName)
+{
+    m_typeDisplayName = typeDisplayName;
+}
+
+void GdbServerProvider::setSettingsKeyBase(const QString &settingsBase)
+{
+    m_settingsBase = settingsBase;
 }
 
 // GdbServerProviderFactory
@@ -410,26 +458,19 @@ HostWidget::HostWidget(QWidget *parent)
             this, &HostWidget::dataChanged);
 }
 
-void HostWidget::setHost(const QString &host)
+void HostWidget::setChannel(const QUrl &channel)
 {
     const QSignalBlocker blocker(this);
-    m_hostLineEdit->setText(host);
+    m_hostLineEdit->setText(channel.host());
+    m_portSpinBox->setValue(channel.port());
 }
 
-QString HostWidget::host() const
+QUrl HostWidget::channel() const
 {
-    return m_hostLineEdit->text();
-}
-
-void HostWidget::setPort(const quint16 &port)
-{
-    const QSignalBlocker blocker(this);
-    m_portSpinBox->setValue(port);
-}
-
-quint16 HostWidget::port() const
-{
-    return m_portSpinBox->value();
+    QUrl url;
+    url.setHost(m_hostLineEdit->text());
+    url.setPort(m_portSpinBox->value());
+    return url;
 }
 
 } // namespace Internal

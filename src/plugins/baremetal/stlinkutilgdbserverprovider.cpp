@@ -47,8 +47,6 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char hostKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.Host";
-const char portKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.Port";
 const char executableFileKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.ExecutableFile";
 const char verboseLevelKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.VerboseLevel";
 const char extendedModeKeyC[] = "BareMetal.StLinkUtilGdbServerProvider.ExtendedMode";
@@ -62,13 +60,14 @@ StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
+    setDefaultChannel("localhost", 4242);
+    setSettingsKeyBase("BareMetal.StLinkUtilGdbServerProvider");
+    setTypeDisplayName(StLinkUtilGdbServerProviderFactory::tr("ST-LINK Utility"));
 }
 
 StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider(
         const StLinkUtilGdbServerProvider &other)
     : GdbServerProvider(other)
-    , m_host(other.m_host)
-    , m_port(other.m_port)
     , m_executableFile(other.m_executableFile)
     , m_verboseLevel(0)
     , m_extendedMode(false)
@@ -87,19 +86,14 @@ QString StLinkUtilGdbServerProvider::defaultResetCommands()
     return {};
 }
 
-QString StLinkUtilGdbServerProvider::typeDisplayName() const
-{
-    return StLinkUtilGdbServerProviderFactory::tr("ST-LINK Utility");
-}
-
-QString StLinkUtilGdbServerProvider::channel() const
+QString StLinkUtilGdbServerProvider::channelString() const
 {
     switch (startupMode()) {
     case NoStartup:
         // fallback
     case StartupOnNetwork:
         // Just return as "host:port" form.
-        return m_host + QLatin1Char(':') + QString::number(m_port);
+        return GdbServerProvider::channelString();
     case StartupOnPipe:
         // Unsupported mode
         return {};
@@ -119,7 +113,7 @@ CommandLine StLinkUtilGdbServerProvider::command() const
         cmd.addArg("--no-reset");
 
     cmd.addArg("--stlink_version=" + QString::number(m_transport));
-    cmd.addArg("--listen_port=" + QString::number(m_port));
+    cmd.addArg("--listen_port=" + QString::number(channel().port()));
     cmd.addArg("--verbose=" + QString::number(m_verboseLevel));
 
     return cmd;
@@ -138,7 +132,7 @@ bool StLinkUtilGdbServerProvider::isValid() const
     const StartupMode m = startupMode();
 
     if (m == NoStartup || m == StartupOnNetwork) {
-        if (m_host.isEmpty())
+        if (channel().host().isEmpty())
             return false;
     }
 
@@ -158,8 +152,6 @@ GdbServerProvider *StLinkUtilGdbServerProvider::clone() const
 QVariantMap StLinkUtilGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(QLatin1String(hostKeyC), m_host);
-    data.insert(QLatin1String(portKeyC), m_port);
     data.insert(QLatin1String(executableFileKeyC), m_executableFile.toVariant());
     data.insert(QLatin1String(verboseLevelKeyC), m_verboseLevel);
     data.insert(QLatin1String(extendedModeKeyC), m_extendedMode);
@@ -173,8 +165,6 @@ bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_host = data.value(QLatin1String(hostKeyC)).toString();
-    m_port = data.value(QLatin1String(portKeyC)).toInt();
     m_executableFile = FilePath::fromVariant(data.value(QLatin1String(executableFileKeyC)));
     m_verboseLevel = data.value(QLatin1String(verboseLevelKeyC)).toInt();
     m_extendedMode = data.value(QLatin1String(extendedModeKeyC)).toBool();
@@ -190,9 +180,7 @@ bool StLinkUtilGdbServerProvider::operator==(const GdbServerProvider &other) con
         return false;
 
     const auto p = static_cast<const StLinkUtilGdbServerProvider *>(&other);
-    return m_host == p->m_host
-            && m_port == p->m_port
-            && m_executableFile == p->m_executableFile
+    return m_executableFile == p->m_executableFile
             && m_verboseLevel == p->m_verboseLevel
             && m_extendedMode == p->m_extendedMode
             && m_resetBoard == p->m_resetBoard
@@ -329,8 +317,7 @@ void StLinkUtilGdbServerProviderConfigWidget::applyImpl()
     const auto p = static_cast<StLinkUtilGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    p->m_host = m_hostWidget->host();
-    p->m_port = m_hostWidget->port();
+    p->setChannel(m_hostWidget->channel());
     p->m_executableFile = m_executableFileChooser->fileName();
     p->m_verboseLevel = m_verboseLevelSpinBox->value();
     p->m_extendedMode = m_extendedModeCheckBox->isChecked();
@@ -387,8 +374,7 @@ void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()
 
     const QSignalBlocker blocker(this);
     startupModeChanged();
-    m_hostWidget->setHost(p->m_host);
-    m_hostWidget->setPort(p->m_port);
+    m_hostWidget->setChannel(p->channel());
     m_executableFileChooser->setFileName(p->m_executableFile);
     m_verboseLevelSpinBox->setValue(p->m_verboseLevel);
     m_extendedModeCheckBox->setChecked(p->m_extendedMode);

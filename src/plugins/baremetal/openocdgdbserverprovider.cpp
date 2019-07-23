@@ -46,8 +46,6 @@ using namespace Utils;
 namespace BareMetal {
 namespace Internal {
 
-const char hostKeyC[] = "BareMetal.OpenOcdGdbServerProvider.Host";
-const char portKeyC[] = "BareMetal.OpenOcdGdbServerProvider.Port";
 const char executableFileKeyC[] = "BareMetal.OpenOcdGdbServerProvider.ExecutableFile";
 const char rootScriptsDirKeyC[] = "BareMetal.OpenOcdGdbServerProvider.RootScriptsDir";
 const char configurationFileKeyC[] = "BareMetal.OpenOcdGdbServerProvider.ConfigurationPath";
@@ -60,10 +58,10 @@ OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
 {
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
+    setDefaultChannel("localhost", 3333);
+    setSettingsKeyBase("BareMetal.OpenOcdGdbServerProvider");
+    setTypeDisplayName(OpenOcdGdbServerProviderFactory::tr("OpenOCD"));
 }
-
-OpenOcdGdbServerProvider::OpenOcdGdbServerProvider(
-        const OpenOcdGdbServerProvider &other) = default;
 
 QString OpenOcdGdbServerProvider::defaultInitCommands()
 {
@@ -79,19 +77,14 @@ QString OpenOcdGdbServerProvider::defaultResetCommands()
     return QLatin1String("monitor reset halt\n");
 }
 
-QString OpenOcdGdbServerProvider::typeDisplayName() const
-{
-    return OpenOcdGdbServerProviderFactory::tr("OpenOCD");
-}
-
-QString OpenOcdGdbServerProvider::channel() const
+QString OpenOcdGdbServerProvider::channelString() const
 {
     switch (startupMode()) {
     case NoStartup:
         // fallback
     case StartupOnNetwork:
         // Just return as "host:port" form.
-        return m_host + QLatin1Char(':') + QString::number(m_port);
+        return GdbServerProvider::channelString();
     case StartupOnPipe: {
         // In the pipe mode need to add quotes to each item of arguments;
         // otherwise running will be stuck.
@@ -118,7 +111,7 @@ CommandLine OpenOcdGdbServerProvider::command() const
     if (startupMode() == StartupOnPipe)
         cmd.addArg("gdb_port pipe");
     else
-        cmd.addArg("gdb_port " + QString::number(m_port));
+        cmd.addArg("gdb_port " + QString::number(channel().port()));
 
     if (!m_rootScriptsDir.isEmpty())
         cmd.addArgs({"-s", m_rootScriptsDir});
@@ -145,7 +138,7 @@ bool OpenOcdGdbServerProvider::isValid() const
     const StartupMode m = startupMode();
 
     if (m == NoStartup || m == StartupOnNetwork) {
-        if (m_host.isEmpty())
+        if (channel().host().isEmpty())
             return false;
     }
 
@@ -165,8 +158,6 @@ GdbServerProvider *OpenOcdGdbServerProvider::clone() const
 QVariantMap OpenOcdGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(QLatin1String(hostKeyC), m_host);
-    data.insert(QLatin1String(portKeyC), m_port);
     data.insert(QLatin1String(executableFileKeyC), m_executableFile.toVariant());
     data.insert(QLatin1String(rootScriptsDirKeyC), m_rootScriptsDir);
     data.insert(QLatin1String(configurationFileKeyC), m_configurationFile);
@@ -179,8 +170,6 @@ bool OpenOcdGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_host = data.value(QLatin1String(hostKeyC)).toString();
-    m_port = data.value(QLatin1String(portKeyC)).toInt();
     m_executableFile = FilePath::fromVariant(data.value(QLatin1String(executableFileKeyC)));
     m_rootScriptsDir = data.value(QLatin1String(rootScriptsDirKeyC)).toString();
     m_configurationFile = data.value(QLatin1String(configurationFileKeyC)).toString();
@@ -194,9 +183,7 @@ bool OpenOcdGdbServerProvider::operator==(const GdbServerProvider &other) const
         return false;
 
     const auto p = static_cast<const OpenOcdGdbServerProvider *>(&other);
-    return m_host == p->m_host
-            && m_port == p->m_port
-            && m_executableFile == p->m_executableFile
+    return m_executableFile == p->m_executableFile
             && m_rootScriptsDir == p->m_rootScriptsDir
             && m_configurationFile == p->m_configurationFile
             && m_additionalArguments == p->m_additionalArguments;
@@ -320,8 +307,7 @@ void OpenOcdGdbServerProviderConfigWidget::applyImpl()
     const auto p = static_cast<OpenOcdGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    p->m_host = m_hostWidget->host();
-    p->m_port = m_hostWidget->port();
+    p->setChannel(m_hostWidget->channel());
     p->m_executableFile = m_executableFileChooser->fileName();
     p->m_rootScriptsDir = m_rootScriptsDirChooser->fileName().toString();
     p->m_configurationFile = m_configurationFileChooser->fileName().toString();
@@ -342,8 +328,7 @@ void OpenOcdGdbServerProviderConfigWidget::setFromProvider()
 
     const QSignalBlocker blocker(this);
     startupModeChanged();
-    m_hostWidget->setHost(p->m_host);
-    m_hostWidget->setPort(p->m_port);
+    m_hostWidget->setChannel(p->channel());
     m_executableFileChooser->setFileName(p->m_executableFile);
     m_rootScriptsDirChooser->setFileName(Utils::FilePath::fromString(p->m_rootScriptsDir));
     m_configurationFileChooser->setFileName(Utils::FilePath::fromString(p->m_configurationFile));

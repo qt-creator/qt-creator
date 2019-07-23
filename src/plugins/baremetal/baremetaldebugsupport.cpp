@@ -113,7 +113,7 @@ void BareMetalDebugSupport::start()
     setStartMode(AttachToRemoteServer);
     setCommandsAfterConnect(p->initCommands()); // .. and here?
     setCommandsForReset(p->resetCommands());
-    setRemoteChannel(p->channel());
+    setRemoteChannel(p->channelString());
     setUseContinueInsteadOfRun(true);
     setUseExtendedRemote(p->useExtendedRemote());
 

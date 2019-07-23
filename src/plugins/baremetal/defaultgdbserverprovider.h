@@ -38,32 +38,11 @@ class DefaultGdbServerProviderFactory;
 class DefaultGdbServerProvider final : public GdbServerProvider
 {
 public:
-    QString typeDisplayName() const final;
-
-    QVariantMap toMap() const final;
-    bool fromMap(const QVariantMap &data) final;
-
-    bool operator==(const GdbServerProvider &) const final;
-
     GdbServerProviderConfigWidget *configurationWidget() final;
     GdbServerProvider *clone() const final;
 
-    QString channel() const final;
-
-    bool isValid() const final;
-
-    QString host() const;
-    void setHost(const QString &host);
-
-    quint16 port() const;
-    void setPort(const quint16 &port);
-
 private:
     explicit DefaultGdbServerProvider();
-    explicit DefaultGdbServerProvider(const DefaultGdbServerProvider &);
-
-    QString m_host = QLatin1String("localhost");
-    quint16 m_port = 3333;
 
     friend class DefaultGdbServerProviderConfigWidget;
     friend class DefaultGdbServerProviderFactory;

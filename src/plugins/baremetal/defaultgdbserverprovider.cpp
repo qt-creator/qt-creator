@@ -38,94 +38,19 @@
 namespace BareMetal {
 namespace Internal {
 
-static const char hostKeyC[] = "BareMetal.DefaultGdbServerProvider.Host";
-static const char portKeyC[] = "BareMetal.DefaultGdbServerProvider.Port";
-
 // DefaultGdbServerProvider
 
 DefaultGdbServerProvider::DefaultGdbServerProvider()
     : GdbServerProvider(QLatin1String(Constants::DEFAULT_PROVIDER_ID))
 {
-}
-
-DefaultGdbServerProvider::DefaultGdbServerProvider(const DefaultGdbServerProvider &other) = default;
-
-quint16 DefaultGdbServerProvider::port() const
-{
-    return m_port;
-}
-
-void DefaultGdbServerProvider::setPort(const quint16 &port)
-{
-    m_port = port;
-}
-
-QString DefaultGdbServerProvider::host() const
-{
-    return m_host;
-}
-
-void DefaultGdbServerProvider::setHost(const QString &host)
-{
-    if (m_host == host)
-        return;
-    m_host = host;
-    providerUpdated();
-}
-
-QString DefaultGdbServerProvider::typeDisplayName() const
-{
-    return DefaultGdbServerProviderFactory::tr("Default");
-}
-
-QString DefaultGdbServerProvider::channel() const
-{
-    // Just return as "host:port" form.
-    if (m_port == 0)
-        return m_host;
-    return m_host + QLatin1Char(':') + QString::number(m_port);
-}
-
-bool DefaultGdbServerProvider::isValid() const
-{
-    if (!GdbServerProvider::isValid())
-        return false;
-
-    if (m_host.isEmpty())
-        return false;
-    return true;
+    setDefaultChannel("localhost", 3333);
+    setSettingsKeyBase("BareMetal.DefaultGdbServerProvider");
+    setTypeDisplayName(DefaultGdbServerProviderFactory::tr("Default"));
 }
 
 GdbServerProvider *DefaultGdbServerProvider::clone() const
 {
     return new DefaultGdbServerProvider(*this);
-}
-
-QVariantMap DefaultGdbServerProvider::toMap() const
-{
-    auto data = GdbServerProvider::toMap();
-    data.insert(QLatin1String(hostKeyC), m_host);
-    data.insert(QLatin1String(portKeyC), m_port);
-    return data;
-}
-
-bool DefaultGdbServerProvider::fromMap(const QVariantMap &data)
-{
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
-    m_host = data.value(QLatin1String(hostKeyC)).toString();
-    m_port = data.value(QLatin1String(portKeyC)).toInt();
-    return true;
-}
-
-bool DefaultGdbServerProvider::operator==(const GdbServerProvider &other) const
-{
-    if (!GdbServerProvider::operator==(other))
-        return false;
-
-    const auto p = static_cast<const DefaultGdbServerProvider *>(&other);
-    return m_host == p->m_host && m_port == p->m_port;
 }
 
 GdbServerProviderConfigWidget *DefaultGdbServerProvider::configurationWidget()
@@ -206,8 +131,7 @@ void DefaultGdbServerProviderConfigWidget::applyImpl()
     auto p = static_cast<DefaultGdbServerProvider *>(provider());
     Q_ASSERT(p);
 
-    p->setHost(m_hostWidget->host());
-    p->setPort(m_hostWidget->port());
+    p->setChannel(m_hostWidget->channel());
     p->setUseExtendedRemote(m_useExtendedRemoteCheckBox->isChecked());
     p->setInitCommands(m_initCommandsTextEdit->toPlainText());
     p->setResetCommands(m_resetCommandsTextEdit->toPlainText());
@@ -224,8 +148,7 @@ void DefaultGdbServerProviderConfigWidget::setFromProvider()
     Q_ASSERT(p);
 
     const QSignalBlocker blocker(this);
-    m_hostWidget->setHost(p->m_host);
-    m_hostWidget->setPort(p->m_port);
+    m_hostWidget->setChannel(p->channel());
     m_useExtendedRemoteCheckBox->setChecked(p->useExtendedRemote());
     m_initCommandsTextEdit->setPlainText(p->initCommands());
     m_resetCommandsTextEdit->setPlainText(p->resetCommands());

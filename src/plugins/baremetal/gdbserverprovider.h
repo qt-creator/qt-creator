@@ -72,14 +72,13 @@ public:
     QString initCommands() const;
     QString resetCommands() const;
     bool useExtendedRemote() const;
+    QString typeDisplayName() const;
 
     virtual bool operator==(const GdbServerProvider &) const;
 
-    virtual QString typeDisplayName() const = 0;
-
     virtual GdbServerProviderConfigWidget *configurationWidget() = 0;
 
-    virtual QString channel() const = 0;
+    virtual QString channelString() const;
     virtual GdbServerProvider *clone() const = 0;
 
     virtual QVariantMap toMap() const;
@@ -92,6 +91,10 @@ public:
     void registerDevice(BareMetalDevice *);
     void unregisterDevice(BareMetalDevice *);
 
+    QUrl channel() const;
+    void setChannel(const QUrl &channelString);
+    void setDefaultChannel(const QString &host, int port);
+
 protected:
     explicit GdbServerProvider(const QString &id);
     explicit GdbServerProvider(const GdbServerProvider &);
@@ -100,6 +103,8 @@ protected:
     void setInitCommands(const QString &);
     void setResetCommands(const QString &);
     void setUseExtendedRemote(bool);
+    void setSettingsKeyBase(const QString &settingsBase);
+    void setTypeDisplayName(const QString &typeDisplayName);
 
     void providerUpdated();
 
@@ -107,7 +112,10 @@ protected:
 
 private:
     QString m_id;
+    QString m_settingsBase;
     mutable QString m_displayName;
+    QString m_typeDisplayName;
+    QUrl m_channel;
     StartupMode m_startupMode = NoStartup;
     QString m_initCommands;
     QString m_resetCommands;
@@ -195,10 +203,8 @@ class HostWidget final : public QWidget
 public:
     explicit HostWidget(QWidget *parent = nullptr);
 
-    void setHost(const QString &host);
-    QString host() const;
-    void setPort(const quint16 &port);
-    quint16 port() const;
+    void setChannel(const QUrl &host);
+    QUrl channel() const;
 
 signals:
     void dataChanged();

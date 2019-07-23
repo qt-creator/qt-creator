@@ -95,7 +95,7 @@ void BareMetalDevice::providerUpdated(GdbServerProvider *provider)
 void BareMetalDevice::setChannelByServerProvider(GdbServerProvider *provider)
 {
     QTC_ASSERT(provider, return);
-    const QString channel = provider->channel();
+    const QString channel = provider->channelString();
     const int colon = channel.indexOf(QLatin1Char(':'));
     if (colon < 0)
         return;
@@ -116,9 +116,8 @@ void BareMetalDevice::fromMap(const QVariantMap &map)
         } else {
             const QSsh::SshConnectionParameters sshParams = sshParameters();
             const auto newProvider = new DefaultGdbServerProvider;
+            newProvider->setChannel(sshParams.url);
             newProvider->setDisplayName(name);
-            newProvider->m_host = sshParams.host();
-            newProvider->m_port = sshParams.port();
             if (GdbServerProviderManager::registerProvider(newProvider))
                 gdbServerProvider = newProvider->id();
             else

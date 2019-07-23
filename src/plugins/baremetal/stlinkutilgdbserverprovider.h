@@ -45,7 +45,6 @@ class StLinkUtilGdbServerProvider final : public GdbServerProvider
 {
 public:
     enum TransportLayer { ScsiOverUsb = 1, RawUsb = 2 };
-    QString typeDisplayName() const final;
 
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;
@@ -55,7 +54,7 @@ public:
     GdbServerProviderConfigWidget *configurationWidget() final;
     GdbServerProvider *clone() const final;
 
-    QString channel() const final;
+    QString channelString() const final;
     Utils::CommandLine command() const final;
 
     bool canStartupMode(StartupMode mode) const final;
@@ -68,8 +67,6 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    QString m_host = QLatin1String("localhost");
-    quint16 m_port = 4242;
     Utils::FilePath m_executableFile = Utils::FilePath::fromString("st-util");
     int m_verboseLevel = 0; // 0..99
     bool m_extendedMode = false; // Listening for connections after disconnect

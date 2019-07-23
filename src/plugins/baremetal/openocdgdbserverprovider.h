@@ -40,8 +40,6 @@ class OpenOcdGdbServerProviderFactory;
 class OpenOcdGdbServerProvider final : public GdbServerProvider
 {
 public:
-    QString typeDisplayName() const final;
-
     QVariantMap toMap() const final;
     bool fromMap(const QVariantMap &data) final;
 
@@ -50,7 +48,7 @@ public:
     GdbServerProviderConfigWidget *configurationWidget() final;
     GdbServerProvider *clone() const final;
 
-    QString channel() const final;
+    QString channelString() const final;
     Utils::CommandLine command() const final;
 
     bool canStartupMode(StartupMode mode) const final;
@@ -58,13 +56,10 @@ public:
 
 private:
     explicit OpenOcdGdbServerProvider();
-    explicit OpenOcdGdbServerProvider(const OpenOcdGdbServerProvider &);
 
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    QString m_host = QLatin1String("localhost");
-    quint16 m_port = 3333;
     Utils::FilePath m_executableFile = Utils::FilePath::fromString("openocd");
     QString m_rootScriptsDir;
     QString m_configurationFile;
