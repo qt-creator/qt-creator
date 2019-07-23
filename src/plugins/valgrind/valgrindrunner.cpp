@@ -63,8 +63,7 @@ public:
 
     ApplicationLauncher m_findPID;
 
-    QString m_valgrindExecutable;
-    QStringList m_valgrindArguments;
+    CommandLine m_valgrindCommand;
 
     QHostAddress localServerAddress;
     QProcess::ProcessChannelMode channelMode = QProcess::SeparateChannels;
@@ -82,7 +81,7 @@ public:
 
 bool ValgrindRunner::Private::run()
 {
-    CommandLine cmd{FilePath::fromString(m_valgrindExecutable)};
+    CommandLine cmd{m_valgrindCommand.executable(), {}};
 
     if (!localServerAddress.isNull()) {
         if (!q->startServers())
@@ -112,7 +111,7 @@ bool ValgrindRunner::Private::run()
         if (enableXml)
             cmd.addArg("--xml=yes");
     }
-    cmd.addArgs(m_valgrindArguments);
+    cmd.addArgs(m_valgrindCommand.arguments(), CommandLine::Raw);
 
     m_valgrindProcess.setProcessChannelMode(channelMode);
     // consider appending our options last so they override any interfering user-supplied options
@@ -187,7 +186,8 @@ void ValgrindRunner::Private::remoteProcessStarted()
     // hence we need to do something more complex...
 
     // plain path to exe, m_valgrindExe contains e.g. env vars etc. pp.
-    const QString proc = m_valgrindExecutable.split(' ').last();
+    // FIXME: Really?
+    const QString proc = m_valgrindCommand.executable().toString().split(' ').last();
 
     Runnable findPid;
     findPid.executable = FilePath::fromString("/bin/sh");
@@ -227,7 +227,7 @@ void ValgrindRunner::Private::findPidOutputReceived(const QString &out)
 
 void ValgrindRunner::Private::closed(bool success)
 {
-    Q_UNUSED(success);
+    Q_UNUSED(success)
 //    QTC_ASSERT(m_remote.m_process, return);
 
 //    m_remote.m_errorString = m_remote.m_process->errorString();
@@ -263,14 +263,9 @@ ValgrindRunner::~ValgrindRunner()
     d = nullptr;
 }
 
-void ValgrindRunner::setValgrindExecutable(const QString &executable)
+void ValgrindRunner::setValgrindCommand(const Utils::CommandLine &command)
 {
-    d->m_valgrindExecutable = executable;
-}
-
-void ValgrindRunner::setValgrindArguments(const QStringList &toolArguments)
-{
-    d->m_valgrindArguments = toolArguments;
+    d->m_valgrindCommand = command;
 }
 
 void ValgrindRunner::setDebuggee(const Runnable &debuggee)

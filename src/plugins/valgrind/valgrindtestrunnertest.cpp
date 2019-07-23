@@ -46,7 +46,9 @@
 
 #define HEADER_LENGTH 25
 
+using namespace ProjectExplorer;
 using namespace Valgrind::XmlProtocol;
+using namespace Utils;
 
 namespace Valgrind {
 namespace Test {
@@ -77,15 +79,21 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
     const QFileInfo binPathFileInfo(appBinDir, binary);
     if (!binPathFileInfo.isExecutable())
         return QString();
-    ProjectExplorer::Runnable debuggee;
+
+    Runnable debuggee;
     const QString &binPath = binPathFileInfo.canonicalFilePath();
     debuggee.executable = Utils::FilePath::fromString(binPath);
     debuggee.environment = Utils::Environment::systemEnvironment();
+
+    CommandLine valgrind{FilePath::fromString("valgrind")};
+    valgrind.addArgs({"--num-callers=50", "--track-origins=yes"});
+    valgrind.addArgs(vArgs);
+
     m_runner->setLocalServerAddress(QHostAddress::LocalHost);
-    m_runner->setValgrindArguments(QStringList() << "--num-callers=50" << "--track-origins=yes" << vArgs);
+    m_runner->setValgrindCommand(valgrind);
     m_runner->setDebuggee(debuggee);
-    m_runner->setDevice(ProjectExplorer::DeviceManager::instance()->defaultDevice(
-                            Core::Id(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)));
+    m_runner->setDevice(DeviceManager::instance()->defaultDevice(
+                            ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE));
     m_runner->start();
     m_runner->waitForFinished();
     return binPath;
@@ -131,7 +139,6 @@ void ValgrindTestRunnerTest::init()
 
     Q_ASSERT(!m_runner);
     m_runner = new ValgrindRunner;
-    m_runner->setValgrindExecutable("valgrind");
     m_runner->setProcessChannelMode(QProcess::ForwardedChannels);
     connect(m_runner, &ValgrindRunner::logMessageReceived,
             this, &ValgrindTestRunnerTest::logMessageReceived);

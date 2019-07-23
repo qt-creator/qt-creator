@@ -44,8 +44,7 @@ public:
     explicit ValgrindRunner(QObject *parent = nullptr);
     ~ValgrindRunner() override;
 
-    void setValgrindExecutable(const QString &executable);
-    void setValgrindArguments(const QStringList &toolArguments);
+    void setValgrindCommand(const Utils::CommandLine &command);
     void setDebuggee(const ProjectExplorer::Runnable &debuggee);
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     void setLocalServerAddress(const QHostAddress &localServerAddress);
