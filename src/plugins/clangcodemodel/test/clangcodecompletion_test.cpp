@@ -84,15 +84,6 @@ bool writeFile(const QString &filePath, const QByteArray &contents)
     return true;
 }
 
-void insertTextAtTopOfEditor(TextEditor::BaseTextEditor *editor, const QByteArray &text)
-{
-    QTC_ASSERT(editor, return);
-    ::Utils::ChangeSet cs;
-    cs.insert(0, QString::fromUtf8(text));
-    QTextCursor textCursor = editor->textCursor();
-    cs.apply(&textCursor);
-}
-
 class ChangeDocumentReloadSetting
 {
 public:
