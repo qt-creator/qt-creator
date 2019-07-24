@@ -45,10 +45,6 @@
 
 #include <private/qcore_unix_p.h>
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-#define QStringLiteral(str) QString::fromLatin1(str)
-#endif
-
 namespace QmlDesigner {
 
 class SharedMemoryLocker
@@ -74,7 +70,7 @@ public:
 
         m_sharedMemory->m_errorString = QStringLiteral("%1: unable to lock").arg(function);
         m_sharedMemory->m_error = QSharedMemory::LockError;
-        m_sharedMemory = 0;
+        m_sharedMemory = nullptr;
         return false;
     }
 
@@ -98,7 +94,7 @@ static QByteArray makePlatformSafeKey(const QString &key)
 
 
 SharedMemory::SharedMemory()
-    : m_memory(0),
+    : m_memory(nullptr),
       m_size(0),
       m_error(QSharedMemory::NoError),
       m_systemSemaphore(QString()),
@@ -109,7 +105,7 @@ SharedMemory::SharedMemory()
 }
 
 SharedMemory::SharedMemory(const QString &key)
-    : m_memory(0),
+    : m_memory(nullptr),
       m_size(0),
       m_error(QSharedMemory::NoError),
       m_systemSemaphore(QString()),
@@ -176,12 +172,12 @@ bool SharedMemory::create(int size, QSharedMemory::AccessMode mode)
         return false;
     }
 
-    return createInternal(mode ,size);
+    return createInternal(mode, size_t(size));
 }
 
 int SharedMemory::size() const
 {
-    return m_size;
+    return int(m_size);
 }
 
 bool SharedMemory::attach(QSharedMemory::AccessMode mode)
@@ -202,7 +198,7 @@ bool SharedMemory::attach(QSharedMemory::AccessMode mode)
 
 bool SharedMemory::isAttached() const
 {
-    return (0 != m_memory);
+    return m_memory != nullptr;
 }
 
 bool SharedMemory::detach()
@@ -348,7 +344,7 @@ void SharedMemory::cleanHandleInternal()
     m_fileHandle = -1;
 }
 
-bool SharedMemory::createInternal(QSharedMemory::AccessMode mode, int size)
+bool SharedMemory::createInternal(QSharedMemory::AccessMode mode, size_t size)
 {
     detachInternal();
 
@@ -390,10 +386,10 @@ bool SharedMemory::createInternal(QSharedMemory::AccessMode mode, int size)
     struct stat statBuffer;
     if (fstat(m_fileHandle, &statBuffer) == -1)
         return false;
-    int fileSize = statBuffer.st_size;
+    size_t fileSize = size_t(statBuffer.st_size);
 
     if (fileSize < size) {
-        int returnValue = ftruncate(m_fileHandle, size);
+        int returnValue = ftruncate(m_fileHandle, ssize_t(size));
         if (returnValue == -1) {
             switch (errno) {
             case EFBIG:
@@ -414,12 +410,12 @@ bool SharedMemory::createInternal(QSharedMemory::AccessMode mode, int size)
     }
 
     int protection = mode == QSharedMemory::ReadOnly ? PROT_READ : PROT_WRITE;
-    m_memory = mmap(0, size, protection, MAP_SHARED, m_fileHandle, 0);
+    m_memory = mmap(nullptr, size, protection, MAP_SHARED, m_fileHandle, 0);
 
     if (m_memory == MAP_FAILED) {
         close(m_fileHandle);
         shm_unlink(m_nativeKey.constData());
-        m_memory = 0;
+        m_memory = nullptr;
         m_fileHandle = -1;
         m_size = 0;
 
@@ -460,13 +456,13 @@ bool SharedMemory::attachInternal(QSharedMemory::AccessMode mode)
     struct stat statBuffer;
     if (fstat(m_fileHandle, &statBuffer) == -1)
         return false;
-    int size = statBuffer.st_size;
+    size_t size = size_t(statBuffer.st_size);
 
     int protection = mode == QSharedMemory::ReadOnly ? PROT_READ : PROT_WRITE;
-    m_memory = mmap(0, size, protection, MAP_SHARED, m_fileHandle, 0);
+    m_memory = mmap(nullptr, size, protection, MAP_SHARED, m_fileHandle, 0);
 
     if (m_memory == MAP_FAILED) {
-        m_memory = 0;
+        m_memory = nullptr;
 
         return false;
     }
@@ -480,7 +476,7 @@ bool SharedMemory::detachInternal()
 {
     if (m_memory) {
         munmap(m_memory, m_size);
-        m_memory = 0;
+        m_memory = nullptr;
         m_size = 0;
     }
 

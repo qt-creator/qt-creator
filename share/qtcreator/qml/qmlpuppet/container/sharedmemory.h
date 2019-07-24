@@ -62,7 +62,7 @@ protected:
 #ifdef Q_OS_UNIX
     bool initKeyInternal();
     void cleanHandleInternal();
-    bool createInternal(QSharedMemory::AccessMode mode, int size);
+    bool createInternal(QSharedMemory::AccessMode mode, size_t size);
     bool attachInternal(QSharedMemory::AccessMode mode);
     bool detachInternal();
     int handle();
@@ -74,7 +74,7 @@ private:
     QSharedMemory m_sharedMemory;
 #else
     void *m_memory;
-    int m_size;
+    size_t m_size;
     QString m_key;
     QByteArray m_nativeKey;
     QSharedMemory::SharedMemoryError m_error;
