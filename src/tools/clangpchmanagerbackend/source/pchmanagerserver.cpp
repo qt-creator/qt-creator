@@ -220,7 +220,7 @@ void PchManagerServer::pathsWithIdsChanged(const std::vector<IdPaths> &idPaths)
 
 void PchManagerServer::pathsChanged(const FilePathIds &filePathIds)
 {
-    m_buildDependenciesStorage.insertOrUpdateIndexingTimeStamps(filePathIds, 0);
+    m_buildDependenciesStorage.insertOrUpdateIndexingTimeStamps(filePathIds, -1);
 }
 
 void PchManagerServer::setPchCreationProgress(int progress, int total)
