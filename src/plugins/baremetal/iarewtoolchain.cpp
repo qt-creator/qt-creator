@@ -433,7 +433,7 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
                     if (!compilerPath.isEmpty()) {
                         // Build full compiler path.
                         compilerPath += entry.subExePath;
-                        const FileName fn = FileName::fromString(compilerPath);
+                        const FilePath fn = FilePath::fromString(compilerPath);
                         if (compilerExists(fn)) {
                             // Note: threeLevelKey is a guessed toolchain version.
                             candidates.push_back({fn, threeLevelKey});

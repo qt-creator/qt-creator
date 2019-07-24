@@ -602,7 +602,7 @@ void tst_SettingsAccessor::findIssues_ok()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FileName path = Utils::FileName::fromString("/foo/baz.user");
+    const Utils::FilePath path = Utils::FilePath::fromString("/foo/baz.user");
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -613,7 +613,7 @@ void tst_SettingsAccessor::findIssues_emptyData()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data;
-    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user");
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -624,7 +624,7 @@ void tst_SettingsAccessor::findIssues_tooNew()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(42, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user");
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -635,7 +635,7 @@ void tst_SettingsAccessor::findIssues_tooOld()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(2, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user");
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -646,7 +646,7 @@ void tst_SettingsAccessor::findIssues_wrongId()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(6, "foo");
-    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user");
+    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user");
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 
@@ -657,7 +657,7 @@ void tst_SettingsAccessor::findIssues_nonDefaultPath()
 {
     const TestSettingsAccessor accessor;
     const QVariantMap data = versionedMap(6, TESTACCESSOR_DEFAULT_ID);
-    const Utils::FileName path = Utils::FileName::fromString("/foo/bar.user.foobar");
+    const Utils::FilePath path = Utils::FilePath::fromString("/foo/bar.user.foobar");
 
     const Utils::optional<Utils::SettingsAccessor::Issue> info = accessor.findIssues(data, path);
 

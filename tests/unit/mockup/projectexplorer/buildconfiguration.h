@@ -32,6 +32,6 @@ namespace ProjectExplorer {
 class BuildConfiguration
 {
 public:
-    Utils::FileName buildDirectory() const { return {}; }
+    Utils::FilePath buildDirectory() const { return {}; }
 }; // namespace Target
 } // namespace ProjectExplorer

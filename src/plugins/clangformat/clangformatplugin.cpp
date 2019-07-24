@@ -135,7 +135,7 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
                     const QString fileName = openClangFormatConfigAction->data().toString();
                     if (!fileName.isEmpty()) {
                         const QString clangFormatConfigPath = configForFile(
-                            Utils::FileName::fromString(fileName));
+                            Utils::FilePath::fromString(fileName));
                         Core::EditorManager::openEditor(clangFormatConfigPath);
                     }
                 });

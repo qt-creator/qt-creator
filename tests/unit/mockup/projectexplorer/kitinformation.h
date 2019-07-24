@@ -34,7 +34,7 @@ class Kit;
 class SysRootKitInformation
 {
 public:
-    static Utils::FileName sysRoot(const Kit *) { return Utils::FileName(); }
+    static Utils::FilePath sysRoot(const Kit *) { return Utils::FilePath(); }
 };
 
 } // namespace ProjectExplorer
