@@ -691,6 +691,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("sh");
     case AsmJsArchitecture:
         return QLatin1String("asmjs");
+    case Stm8Architecture:
+        return QLatin1String("stm8");
     case UnknownArchitecture:
         Q_FALLTHROUGH();
     default:
@@ -827,6 +829,8 @@ Abi::Architecture Abi::architectureFromString(const QStringRef &a)
         return ItaniumArchitecture;
     if (a == "sh")
         return ShArchitecture;
+    if (a == "stm8")
+        return Stm8Architecture;
     else if (a == "xtensa")
         return XtensaArchitecture;
     if (a == "asmjs")

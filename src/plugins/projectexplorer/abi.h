@@ -59,6 +59,7 @@ public:
         XtensaArchitecture,
         Mcs51Architecture,
         AsmJsArchitecture,
+        Stm8Architecture,
         UnknownArchitecture
     };
 
