@@ -36,7 +36,8 @@ public:
                  void(ClangBackEnd::ProjectPartId projectPartId,
                       Utils::SmallStringView pchPath,
                       long long pchBuildTime));
-    MOCK_METHOD1(deleteProjectPrecompiledHeader, void(ClangBackEnd::ProjectPartId projectPartId));
+    MOCK_METHOD2(deleteProjectPrecompiledHeader,
+                 void(ClangBackEnd::ProjectPartId projectPartId, long long buildTime));
     MOCK_METHOD1(deleteProjectPrecompiledHeaders,
                  void(const ClangBackEnd::ProjectPartIds &projectPartIds));
     MOCK_METHOD3(insertSystemPrecompiledHeaders,

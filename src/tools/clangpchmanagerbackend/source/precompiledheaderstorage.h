@@ -65,16 +65,17 @@ public:
         }
     }
 
-    void deleteProjectPrecompiledHeader(ProjectPartId projectPartId) override
+    void deleteProjectPrecompiledHeader(ProjectPartId projectPartId, long long pchBuildTime) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{database};
 
-            deleteProjectPrecompiledHeaderStatement.write(projectPartId.projectPathId);
+            deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement.write(projectPartId.projectPathId,
+                                                                             pchBuildTime);
 
             transaction.commit();
         } catch (const Sqlite::StatementIsBusy) {
-            deleteProjectPrecompiledHeader(projectPartId);
+            deleteProjectPrecompiledHeader(projectPartId, pchBuildTime);
         }
     }
 
@@ -197,6 +198,10 @@ public:
     WriteStatement deleteProjectPrecompiledHeaderStatement{
         "UPDATE OR IGNORE precompiledHeaders SET projectPchPath=NULL,projectPchBuildTime=NULL "
         "WHERE projectPartId = ?",
+        database};
+    WriteStatement deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement{
+        "UPDATE OR IGNORE precompiledHeaders SET projectPchPath=NULL,projectPchBuildTime=?002 "
+        "WHERE projectPartId = ?001",
         database};
     WriteStatement deleteSystemPrecompiledHeaderStatement{
         "UPDATE OR IGNORE precompiledHeaders SET systemPchPath=NULL,systemPchBuildTime=NULL "

@@ -44,6 +44,8 @@ protected:
     Storage storage{database};
     MockSqliteWriteStatement &insertProjectPrecompiledHeaderStatement = storage.insertProjectPrecompiledHeaderStatement;
     MockSqliteWriteStatement &deleteProjectPrecompiledHeaderStatement = storage.deleteProjectPrecompiledHeaderStatement;
+    MockSqliteWriteStatement &deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement
+        = storage.deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement;
     MockSqliteWriteStatement &insertSystemPrecompiledHeaderStatement = storage.insertSystemPrecompiledHeaderStatement;
     MockSqliteWriteStatement &deleteSystemPrecompiledHeaderStatement = storage.deleteSystemPrecompiledHeaderStatement;
     MockSqliteReadStatement &fetchSystemPrecompiledHeaderPathStatement = storage.fetchSystemPrecompiledHeaderPathStatement;
@@ -95,10 +97,11 @@ TEST_F(PrecompiledHeaderStorage, DeleteProjectPrecompiledHeader)
     InSequence s;
 
     EXPECT_CALL(database, immediateBegin());
-    EXPECT_CALL(deleteProjectPrecompiledHeaderStatement, write(TypedEq<int>(1)));
+    EXPECT_CALL(deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement,
+                write(TypedEq<int>(1), TypedEq<long long>(13)));
     EXPECT_CALL(database, commit());
 
-    storage.deleteProjectPrecompiledHeader(1);
+    storage.deleteProjectPrecompiledHeader(1, 13);
 }
 
 TEST_F(PrecompiledHeaderStorage, DeleteProjectPrecompiledHeaderStatementIsBusy)
@@ -107,10 +110,11 @@ TEST_F(PrecompiledHeaderStorage, DeleteProjectPrecompiledHeaderStatementIsBusy)
 
     EXPECT_CALL(database, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
     EXPECT_CALL(database, immediateBegin());
-    EXPECT_CALL(deleteProjectPrecompiledHeaderStatement, write(TypedEq<int>(1)));
+    EXPECT_CALL(deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement,
+                write(TypedEq<int>(1), TypedEq<long long>(13)));
     EXPECT_CALL(database, commit());
 
-    storage.deleteProjectPrecompiledHeader(1);
+    storage.deleteProjectPrecompiledHeader(1, 13);
 }
 
 TEST_F(PrecompiledHeaderStorage, DeleteProjectPrecompiledHeaders)

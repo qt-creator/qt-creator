@@ -32,6 +32,7 @@
 #include "includesearchpath.h"
 #include "projectpartartefact.h"
 #include "projectpartid.h"
+#include "sourceentry.h"
 
 #include <utils/cpplanguage_details.h>
 #include <utils/smallstringio.h>
@@ -126,12 +127,12 @@ public:
     friend bool operator==(const ProjectPartContainer &first, const ProjectPartContainer &second)
     {
         return first.projectPartId == second.projectPartId
-            && first.toolChainArguments == second.toolChainArguments
-            && first.compilerMacros == second.compilerMacros
-            && first.systemIncludeSearchPaths == second.systemIncludeSearchPaths
-            && first.projectIncludeSearchPaths == second.projectIncludeSearchPaths
-            && first.headerPathIds == second.headerPathIds
-            && first.sourcePathIds == second.sourcePathIds&& first.language == second.language
+               && first.toolChainArguments == second.toolChainArguments
+               && first.compilerMacros == second.compilerMacros
+               && first.systemIncludeSearchPaths == second.systemIncludeSearchPaths
+               && first.projectIncludeSearchPaths == second.projectIncludeSearchPaths
+               && first.headerPathIds == second.headerPathIds
+               && first.sourcePathIds == second.sourcePathIds && first.language == second.language
                && first.languageVersion == second.languageVersion
                && first.languageExtension == second.languageExtension;
     }
@@ -148,7 +149,7 @@ public:
                         first.language,
                         first.languageVersion,
                         first.languageExtension,
-                        first.hasPrecompiledHeader)
+                        first.preCompiledHeaderWasGenerated)
                < std::tie(second.projectPartId,
                           second.toolChainArguments,
                           second.compilerMacros,
@@ -159,7 +160,7 @@ public:
                           second.language,
                           second.languageVersion,
                           second.languageExtension,
-                          second.hasPrecompiledHeader);
+                          second.preCompiledHeaderWasGenerated);
     }
 
     ProjectPartContainer clone() const
@@ -171,7 +172,7 @@ public:
     FilePathIds headerPathIds;
     FilePathIds sourcePathIds;
     bool updateIsDeferred = false;
-    bool hasPrecompiledHeader = true;
+    bool preCompiledHeaderWasGenerated = true;
 };
 
 using ProjectPartContainerReference = std::reference_wrapper<ProjectPartContainer>;

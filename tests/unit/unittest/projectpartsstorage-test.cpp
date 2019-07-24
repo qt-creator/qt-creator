@@ -104,7 +104,8 @@ protected:
     MockSqliteWriteStatement &insertProjectPartsSourcesStatement = storage.insertProjectPartsSourcesStatement;
     MockSqliteReadStatement &fetchProjectPartsHeadersByIdStatement = storage.fetchProjectPartsHeadersByIdStatement;
     MockSqliteReadStatement &fetchProjectPartsSourcesByIdStatement = storage.fetchProjectPartsSourcesByIdStatement;
-    MockSqliteReadStatement &fetchProjectPrecompiledHeaderPathStatement = storage.fetchProjectPrecompiledHeaderPathStatement;
+    MockSqliteReadStatement &fetchProjectPrecompiledHeaderPathStatement = storage.fetchProjectPrecompiledHeaderBuildTimeStatement;
+    MockSqliteReadStatement &fetchProjectPrecompiledHeaderBuildTimeStatement = storage.fetchProjectPrecompiledHeaderBuildTimeStatement;
     MockSqliteWriteStatement &resetDependentIndexingTimeStampsStatement = storage.resetDependentIndexingTimeStampsStatement;
     IncludeSearchPaths systemIncludeSearchPaths{{"/includes", 1, IncludeSearchPathType::BuiltIn},
                                                 {"/other/includes", 2, IncludeSearchPathType::System}};
@@ -257,11 +258,11 @@ TEST_F(ProjectPartsStorage, FetchProjectPartsByIds)
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(1)));
     EXPECT_CALL(fetchProjectPartsHeadersByIdStatement, valuesReturnFilePathIds(1024, Eq(1)));
     EXPECT_CALL(fetchProjectPartsSourcesByIdStatement, valuesReturnFilePathIds(1024, Eq(1)));
-    EXPECT_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(1)));
+    EXPECT_CALL(fetchProjectPrecompiledHeaderBuildTimeStatement, valueReturnInt64(Eq(1)));
     EXPECT_CALL(fetchProjectPartByIdStatement, valueReturnProjectPartContainer(Eq(2)));
     EXPECT_CALL(fetchProjectPartsHeadersByIdStatement, valuesReturnFilePathIds(1024, Eq(2)));
     EXPECT_CALL(fetchProjectPartsSourcesByIdStatement, valuesReturnFilePathIds(1024, Eq(2)));
-    EXPECT_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(2)));
+    EXPECT_CALL(fetchProjectPrecompiledHeaderBuildTimeStatement, valueReturnInt64(Eq(2)));
     EXPECT_CALL(mockDatabase, commit());
 
     storage.fetchProjectParts({1, 2});
@@ -284,34 +285,34 @@ TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsIsBusy)
     storage.fetchProjectParts({1, 2});
 }
 
-TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsHasPrecompiledNullOptional)
+TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsPreCompiledHeaderWasGeneratedNullOptional)
 {
-    ON_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(1)))
-        .WillByDefault(Return(Utils::optional<Utils::SmallString>{}));
+    ON_CALL(fetchProjectPrecompiledHeaderBuildTimeStatement, valueReturnInt64(Eq(1)))
+        .WillByDefault(Return(Utils::optional<long long>{}));
 
     auto projectParts = storage.fetchProjectParts({1});
 
-    ASSERT_FALSE(projectParts.front().hasPrecompiledHeader);
+    ASSERT_FALSE(projectParts.front().preCompiledHeaderWasGenerated);
 }
 
-TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsHasPrecompiledEmptyString)
+TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsPreCompiledHeaderWasGeneratedZero)
 {
-    ON_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(1)))
-        .WillByDefault(Return(Utils::optional<Utils::SmallString>{""}));
+    ON_CALL(fetchProjectPrecompiledHeaderBuildTimeStatement, valueReturnInt64(Eq(1)))
+        .WillByDefault(Return(Utils::optional<long long>{0}));
 
     auto projectParts = storage.fetchProjectParts({1});
 
-    ASSERT_FALSE(projectParts.front().hasPrecompiledHeader);
+    ASSERT_FALSE(projectParts.front().preCompiledHeaderWasGenerated);
 }
 
-TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsHasPrecompiledStringWithContent)
+TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsPreCompiledHeaderWasGeneratedSomeNumber)
 {
-    ON_CALL(fetchProjectPrecompiledHeaderPathStatement, valueReturnSmallString(Eq(1)))
-        .WillByDefault(Return(Utils::optional<Utils::SmallString>{"/some/path"}));
+    ON_CALL(fetchProjectPrecompiledHeaderBuildTimeStatement, valueReturnInt64(Eq(1)))
+        .WillByDefault(Return(Utils::optional<long long>{23}));
 
     auto projectParts = storage.fetchProjectParts({1});
 
-    ASSERT_TRUE(projectParts.front().hasPrecompiledHeader);
+    ASSERT_TRUE(projectParts.front().preCompiledHeaderWasGenerated);
 }
 
 TEST_F(ProjectPartsStorage, FetchProjectPartsByIdsHasMissingId)
@@ -550,12 +551,12 @@ TEST_F(ProjectPartsStorageSlow, ResetDependentIndexingTimeStamps)
     storage.resetIndexingTimeStamps({projectPart1, projectPart2});
 
     ASSERT_THAT(buildDependenciesStorage.fetchIndexingTimeStamps(),
-                ElementsAre(SourceTimeStamp{1, 0},
-                            SourceTimeStamp{2, 0},
+                ElementsAre(SourceTimeStamp{1, 34},
+                            SourceTimeStamp{2, 34},
                             SourceTimeStamp{3, 0},
                             SourceTimeStamp{4, 0},
-                            SourceTimeStamp{5, 0},
-                            SourceTimeStamp{6, 0},
+                            SourceTimeStamp{5, 34},
+                            SourceTimeStamp{6, 34},
                             SourceTimeStamp{7, 0},
                             SourceTimeStamp{8, 0},
                             SourceTimeStamp{9, 34},

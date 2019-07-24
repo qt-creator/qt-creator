@@ -153,7 +153,8 @@ std::vector<PchTaskQueue::Task> PchTaskQueue::createProjectTasks(PchTasks &&pchT
                 pchCreator.generatePch(std::move(pchTask));
                 const auto &projectPartPch = pchCreator.projectPartPch();
                 if (projectPartPch.pchPath.empty()) {
-                    m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(projectPartId);
+                    m_precompiledHeaderStorage.deleteProjectPrecompiledHeader(projectPartId,
+                                                                              projectPartPch.lastModified);
                 } else {
                     m_precompiledHeaderStorage.insertProjectPrecompiledHeader(
                         projectPartId, projectPartPch.pchPath, projectPartPch.lastModified);

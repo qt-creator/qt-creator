@@ -47,7 +47,7 @@ public:
                                                 Utils::SmallStringView pchPath,
                                                 long long pchBuildTime)
         = 0;
-    virtual void deleteProjectPrecompiledHeader(ProjectPartId projectPartId) = 0;
+    virtual void deleteProjectPrecompiledHeader(ProjectPartId projectPartId, long long pchBuildTime) = 0;
     virtual void deleteProjectPrecompiledHeaders(const ProjectPartIds &projectPartIds) = 0;
     virtual void insertSystemPrecompiledHeaders(const ProjectPartIds &projectPartIds,
                                                 Utils::SmallStringView pchPath,

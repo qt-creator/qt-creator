@@ -74,12 +74,12 @@ public:
             .template values<FilePathId>(1024, projectPartId.projectPathId);
     }
 
-    bool hasPrecompiledHeader(ProjectPartId projectPartId) const
+    bool preCompiledHeaderWasGenerated(ProjectPartId projectPartId) const
     {
-        auto value = fetchProjectPrecompiledHeaderPathStatement.template value<Utils::SmallString>(
+        auto value = fetchProjectPrecompiledHeaderBuildTimeStatement.template value<long long>(
             projectPartId.projectPathId);
 
-        return value && value->hasContent();
+        return value && *value > 0;
     }
 
     ProjectPartContainers fetchProjectParts(const ProjectPartIds &projectPartIds) const override
@@ -96,7 +96,7 @@ public:
                 if (value) {
                     value->headerPathIds = fetchHeaders(projectPartId);
                     value->sourcePathIds = fetchSources(projectPartId);
-                    value->hasPrecompiledHeader = hasPrecompiledHeader(projectPartId);
+                    value->preCompiledHeaderWasGenerated = preCompiledHeaderWasGenerated(projectPartId);
                     projectParts.push_back(*std::move(value));
                 }
             }
@@ -379,13 +379,9 @@ public:
     mutable ReadStatement fetchProjectPartsSourcesByIdStatement{
         "SELECT sourceId FROM projectPartsSources WHERE projectPartId = ? ORDER BY sourceId",
         database};
-    mutable ReadStatement fetchProjectPrecompiledHeaderPathStatement{
-        "SELECT projectPchPath FROM precompiledHeaders WHERE projectPartId = ?", database};
+    mutable ReadStatement fetchProjectPrecompiledHeaderBuildTimeStatement{
+        "SELECT projectPchBuildTime FROM precompiledHeaders WHERE projectPartId = ?", database};
     WriteStatement resetDependentIndexingTimeStampsStatement{
-        "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT "
-        "dependencySourceId FROM sourceDependencies, collectedDependencies WHERE "
-        "sourceDependencies.sourceId == collectedDependencies.sourceId) UPDATE fileStatuses SET "
-        "indexingTimeStamp = NULL WHERE sourceId IN (SELECT sourceId FROM collectedDependencies)",
-        database};
+        "UPDATE fileStatuses SET indexingTimeStamp = NULL WHERE sourceId = ?", database};
 };
 } // namespace ClangBackEnd

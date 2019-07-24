@@ -43,7 +43,7 @@ class ProjectPartsManager : public testing::Test
 protected:
     ProjectPartsManager()
     {
-        projectPartContainerWithoutPrecompiledHeader1.hasPrecompiledHeader = false;
+        projectPartContainerWithoutPrecompiledHeader1.preCompiledHeaderWasGenerated = false;
     }
     NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
     NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
