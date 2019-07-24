@@ -55,7 +55,10 @@ long long FileSystem::lastModified(FilePathId filePathId) const
 
     fileInfo.refresh();
 
-    return fileInfo.lastModified().toMSecsSinceEpoch() / 1000;
+    if (fileInfo.exists())
+        return fileInfo.lastModified().toMSecsSinceEpoch() / 1000;
+
+    return 0;
 }
 
 } // namespace ClangBackEnd
