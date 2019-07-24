@@ -27,8 +27,7 @@ source("../../shared/qtcreator.py")
 
 def ensureSaveBeforeBuildChecked(shouldBeChecked):
     invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Build & Run")
-    clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Build & Run"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
     if test.compare(waitForObject(":Build and Run.Save all files before build_QCheckBox").checked,
                     shouldBeChecked, "'Save all files before build' should be %s" % str(shouldBeChecked)):

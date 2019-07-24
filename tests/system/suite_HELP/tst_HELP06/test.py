@@ -34,7 +34,7 @@ def renameBookmarkFolder(view, item, newName):
 
 def invokeContextMenuItemOnBookmarkFolder(view, item, menuItem):
     aboveWidget = "{name='line' type='QFrame' visible='1' window=':Add Bookmark_BookmarkDialog'}"
-    mouseClick(waitForObjectItem(view, item), 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(view, item))
     openItemContextMenu(view, item, 5, 5, 0)
     activateItem(waitForObject("{aboveWidget=%s type='QMenu' unnamed='1' visible='1' "
                                "window=':Add Bookmark_BookmarkDialog'}" % aboveWidget), menuItem)
@@ -81,7 +81,7 @@ def main():
     clickButton(waitForObject(":Add Bookmark.New Folder_QPushButton"))
     renameBookmarkFolder(bookmarkView, "Sample.Folder 1.New Folder*", "Folder 2")
     clickButton(waitForObject(":Add Bookmark.OK_QPushButton"))
-    mouseClick(manualQModelIndex, 5, 5, 0, Qt.LeftButton)
+    mouseClick(manualQModelIndex)
     type(waitForObject(":Qt Creator_QHelpContentWidget"), "<Down>")
     clickButton(waitForObject(":Qt Creator.Add Bookmark_QToolButton"))
     clickButton(waitForObject(":Add Bookmark.ExpandBookmarksList_QToolButton"))
@@ -106,7 +106,7 @@ def main():
                 checkIfObjectExists(bldRunQModelIndex, verboseOnFail = True) and
                 checkIfObjectExists(manualQModelIndex, verboseOnFail = True),
                 "Verifying if all folders and bookmarks are present")
-    mouseClick(waitForObject(":Qt Creator_Bookmarks_TreeView"), 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObject(":Qt Creator_Bookmarks_TreeView"))
     for _ in range(6):
         type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Right>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Return>")

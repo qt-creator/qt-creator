@@ -55,7 +55,7 @@ def main():
         # skip non-configurable
         if "Import" in category:
             continue
-        clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
+        mouseClick(waitForObjectItem(categoriesView, "Projects." + category))
         templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
         # needed because categoriesView and templatesView using same model
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
@@ -147,12 +147,12 @@ def __createProject__(category, template):
     invokeMenuItem("File", "New File or Project...")
     selectFromCombo(waitForObject(":New.comboBox_QComboBox"), "All Templates")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
-    clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(categoriesView, "Projects." + category))
     templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
 
     test.log("Verifying '%s' -> '%s'" % (category.replace("\\.", "."), template.replace("\\.", ".")))
     origTxt = safeGetTextBrowserText()
-    clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(templatesView, template))
     waitFor("origTxt != safeGetTextBrowserText() != ''", 2000)
     displayedPlatforms = __getSupportedPlatforms__(safeGetTextBrowserText(), template, True)[0]
     safeClickButton("Choose...")

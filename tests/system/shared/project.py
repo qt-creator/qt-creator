@@ -88,11 +88,11 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
         invokeMenuItem("File", "New File or Project...")
     categoriesView = waitForObject(":New.templateCategoryView_QTreeView")
     if isProject:
-        clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
+        mouseClick(waitForObjectItem(categoriesView, "Projects." + category))
     else:
-        clickItem(categoriesView, "Files and Classes." + category, 5, 5, 0, Qt.LeftButton)
+        mouseClick(waitForObjectItem(categoriesView, "Files and Classes." + category))
     templatesView = waitForObject("{name='templatesView' type='QListView'}")
-    clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(templatesView, template))
     text = waitForObject("{type='QTextBrowser' name='templateDescription' visible='1'}").plainText
     clickButton(waitForObject("{text='Choose...' type='QPushButton' unnamed='1' visible='1'}"))
     return __getSupportedPlatforms__(str(text), template)[0]

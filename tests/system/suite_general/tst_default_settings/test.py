@@ -50,8 +50,7 @@ def __createMinimumIni__(emptyParent):
     iniFile.close()
 
 def __checkKits__():
-    waitForObjectItem(":Options_QListView", "Kits")
-    clickItem(":Options_QListView", "Kits", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
     # check compilers
     expectedCompilers = __getExpectedCompilers__()
     foundCompilers = []
@@ -95,7 +94,7 @@ def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
             itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
         currentSelectedTreeItem = waitForObject(itObj, 3000)
         tree.scrollTo(it)
-        mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
+        mouseClick(currentSelectedTreeItem)
         additionalFunc(indexName, *additionalParameters)
         currentSelectedTreeItem = None
         if model.rowCount(it) > 0:

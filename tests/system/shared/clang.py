@@ -53,8 +53,7 @@ def startCreatorVerifyingClang(useClang):
 
 def __openCodeModelOptions__():
     invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "C++")
-    clickItem(":Options_QListView", "C++", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "C++"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Code Model")
 
 def getCodeModelString(useClang):
