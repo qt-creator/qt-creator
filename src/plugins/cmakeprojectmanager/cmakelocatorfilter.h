@@ -30,19 +30,21 @@
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeLocatorFilter : public Core::ILocatorFilter
+class CMakeTargetLocatorFilter : public Core::ILocatorFilter
 {
     Q_OBJECT
 
 public:
-    CMakeLocatorFilter();
+    CMakeTargetLocatorFilter();
 
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
-                                               const QString &entry) override;
+                                               const QString &entry) final;
     void accept(Core::LocatorFilterEntry selection,
-                QString *newText, int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
+                QString *newText,
+                int *selectionStart,
+                int *selectionLength) const final;
+    void refresh(QFutureInterface<void> &future) final;
 
 private:
     void projectListUpdated();

@@ -41,7 +41,11 @@ using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-CMakeLocatorFilter::CMakeLocatorFilter()
+// --------------------------------------------------------------------
+// CMakeTargetLocatorFilter:
+// --------------------------------------------------------------------
+
+CMakeTargetLocatorFilter::CMakeTargetLocatorFilter()
 {
     setId("Build CMake target");
     setDisplayName(tr("Build CMake target"));
@@ -49,15 +53,15 @@ CMakeLocatorFilter::CMakeLocatorFilter()
     setPriority(High);
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
-            this, &CMakeLocatorFilter::projectListUpdated);
+            this, &CMakeTargetLocatorFilter::projectListUpdated);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
-            this, &CMakeLocatorFilter::projectListUpdated);
+            this, &CMakeTargetLocatorFilter::projectListUpdated);
 
     // Initialize the filter
     projectListUpdated();
 }
 
-void CMakeLocatorFilter::prepareSearch(const QString &entry)
+void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
 {
     m_result.clear();
     const QList<Project *> projects = SessionManager::projects();
@@ -78,14 +82,14 @@ void CMakeLocatorFilter::prepareSearch(const QString &entry)
     }
 }
 
-QList<Core::LocatorFilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
+QList<Core::LocatorFilterEntry> CMakeTargetLocatorFilter::matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
     Q_UNUSED(future)
     Q_UNUSED(entry)
     return m_result;
 }
 
-void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection,
+void CMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
                                 QString *newText, int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)
@@ -116,12 +120,12 @@ void CMakeLocatorFilter::accept(Core::LocatorFilterEntry selection,
     buildStep->setBuildTarget(oldTarget);
 }
 
-void CMakeLocatorFilter::refresh(QFutureInterface<void> &future)
+void CMakeTargetLocatorFilter::refresh(QFutureInterface<void> &future)
 {
     Q_UNUSED(future)
 }
 
-void CMakeLocatorFilter::projectListUpdated()
+void CMakeTargetLocatorFilter::projectListUpdated()
 {
     // Enable the filter if there's at least one CMake project
     setEnabled(Utils::contains(SessionManager::projects(), [](Project *p) { return qobject_cast<CMakeProject *>(p); }));
