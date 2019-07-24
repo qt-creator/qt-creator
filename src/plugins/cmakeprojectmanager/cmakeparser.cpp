@@ -50,6 +50,11 @@ CMakeParser::CMakeParser()
     QTC_CHECK(m_locationLine.isValid());
 }
 
+void CMakeParser::setSourceDirectory(const QString &sourceDir)
+{
+    m_sourceDirectory = QDir(sourceDir);
+}
+
 void CMakeParser::stdError(const QString &line)
 {
     QString trimmedLine = rightTrimmed(line);
@@ -67,8 +72,15 @@ void CMakeParser::stdError(const QString &line)
             m_skippedFirstEmptyLine = false;
 
         if (m_commonError.indexIn(trimmedLine) != -1) {
-            m_lastTask = Task(Task::Error, QString(), Utils::FilePath::fromUserInput(m_commonError.cap(1)),
-                              m_commonError.cap(2).toInt(), Constants::TASK_CATEGORY_BUILDSYSTEM);
+            QString path = m_sourceDirectory ? m_sourceDirectory->absoluteFilePath(
+                               QDir::fromNativeSeparators(m_commonError.cap(1)))
+                                             : QDir::fromNativeSeparators(m_commonError.cap(1));
+
+            m_lastTask = Task(Task::Error,
+                              QString(),
+                              Utils::FilePath::fromUserInput(path),
+                              m_commonError.cap(2).toInt(),
+                              Constants::TASK_CATEGORY_BUILDSYSTEM);
             m_lines = 1;
             return;
         } else if (m_nextSubError.indexIn(trimmedLine) != -1) {

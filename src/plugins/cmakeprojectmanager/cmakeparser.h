@@ -30,6 +30,7 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
+#include <QDir>
 #include <QRegExp>
 #include <QRegularExpression>
 
@@ -41,6 +42,7 @@ class CMAKE_EXPORT CMakeParser : public ProjectExplorer::IOutputParser
 
 public:
     explicit CMakeParser();
+    void setSourceDirectory(const QString &sourceDir);
     void stdError(const QString &line) override;
 
 protected:
@@ -51,6 +53,7 @@ private:
 
     TripleLineError m_expectTripleLineErrorData = NONE;
 
+    Utils::optional<QDir> m_sourceDirectory;
     ProjectExplorer::Task m_lastTask;
     QRegExp m_commonError;
     QRegExp m_nextSubError;

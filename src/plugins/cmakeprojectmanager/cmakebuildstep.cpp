@@ -52,9 +52,10 @@
 #include <utils/qtcprocess.h>
 #include <utils/pathchooser.h>
 
+#include <QCheckBox>
+#include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QCheckBox>
 #include <QLineEdit>
 #include <QListWidget>
 
@@ -212,7 +213,9 @@ bool CMakeBuildStep::init()
     pp->setCommandLine(cmakeCommand(rc));
     pp->resolveAll();
 
-    setOutputParser(new CMakeParser);
+    CMakeParser *cmakeParser = new CMakeParser;
+    cmakeParser->setSourceDirectory(projectDirectory.toString());
+    setOutputParser(cmakeParser);
     appendOutputParser(new GnuMakeParser);
     IOutputParser *parser = target()->kit()->createOutputParser();
     if (parser)

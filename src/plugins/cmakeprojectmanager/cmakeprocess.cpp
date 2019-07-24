@@ -104,6 +104,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     const QString srcDir = parameters.sourceDirectory.toString();
 
     auto parser = std::make_unique<CMakeParser>();
+    parser->setSourceDirectory(srcDir);
     QDir source = QDir(srcDir);
     connect(parser.get(), &IOutputParser::addTask, parser.get(),
             [source](const Task &task) {

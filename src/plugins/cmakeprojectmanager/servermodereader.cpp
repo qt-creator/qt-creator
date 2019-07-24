@@ -103,6 +103,7 @@ void ServerModeReader::setParameters(const BuildDirParameters &p)
 
     m_parameters = p;
 
+    m_parser.setSourceDirectory(m_parameters.sourceDirectory.toString());
     createNewServer();
 }
 
