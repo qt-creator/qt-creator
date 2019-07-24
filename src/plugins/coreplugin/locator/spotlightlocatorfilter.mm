@@ -54,9 +54,8 @@ public:
 
     void toFront();
     bool hasNext() const;
-    QString next();
-    QString filePath() const;
-    QString fileName() const;
+    Utils::FilePath next() override;
+    Utils::FilePath filePath() const override;
 
 private:
     void ensureNext();
@@ -132,24 +131,18 @@ bool SpotlightIterator::hasNext() const
     return (m_index + 1 < m_filePaths.size());
 }
 
-QString SpotlightIterator::next()
+Utils::FilePath SpotlightIterator::next()
 {
     ensureNext();
     ++m_index;
-    QTC_ASSERT(m_index < m_filePaths.size(), return QString());
-    return m_filePaths.at(m_index);
+    QTC_ASSERT(m_index < m_filePaths.size(), return Utils::FilePath());
+    return Utils::FilePath::fromString(m_filePaths.at(m_index));
 }
 
-QString SpotlightIterator::filePath() const
+Utils::FilePath SpotlightIterator::filePath() const
 {
-    QTC_ASSERT(m_index < m_filePaths.size(), return QString());
-    return m_filePaths.at(m_index);
-}
-
-QString SpotlightIterator::fileName() const
-{
-    QTC_ASSERT(m_index < m_fileNames.size(), return QString());
-    return m_fileNames.at(m_index);
+    QTC_ASSERT(m_index < m_filePaths.size(), return Utils::FilePath());
+    return Utils::FilePath::fromString(m_filePaths.at(m_index));
 }
 
 void SpotlightIterator::ensureNext()
@@ -183,7 +176,7 @@ void SpotlightLocatorFilter::prepareSearch(const QString &entry)
 {
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
     if (fp.filePath.isEmpty()) {
-        setFileIterator(new BaseFileFilter::ListIterator(QStringList()));
+        setFileIterator(new BaseFileFilter::ListIterator(Utils::FilePathList()));
     } else {
         // only pass the file name part to spotlight to allow searches like "somepath/*foo"
         int lastSlash = fp.filePath.lastIndexOf(QLatin1Char('/'));
