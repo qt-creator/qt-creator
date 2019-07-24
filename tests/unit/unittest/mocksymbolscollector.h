@@ -74,9 +74,6 @@ public:
     MOCK_CONST_METHOD0(usedMacros,
                        const ClangBackEnd::UsedMacros &());
 
-    MOCK_CONST_METHOD0(fileStatuses,
-                       const ClangBackEnd::FileStatuses &());
-
     MOCK_CONST_METHOD0(sourceDependencies,
                        const ClangBackEnd::SourceDependencies &());
 

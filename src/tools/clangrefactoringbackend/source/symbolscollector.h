@@ -58,7 +58,6 @@ public:
 
     const SymbolEntries &symbols() const override;
     const SourceLocationEntries &sourceLocations() const override;
-    const FileStatuses &fileStatuses() const override;
 
     bool isUsed() const override;
     void setIsUsed(bool isUsed) override;
@@ -70,7 +69,6 @@ private:
     ClangTool m_clangTool;
     SymbolEntries m_symbolEntries;
     SourceLocationEntries m_sourceLocationEntries;
-    FileStatuses m_fileStatuses;
     std::shared_ptr<IndexDataConsumer> m_indexDataConsumer;
     CollectSymbolsAction m_collectSymbolsAction;
     SourcesManager m_symbolSourcesManager;

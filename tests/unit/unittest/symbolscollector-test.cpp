@@ -295,16 +295,6 @@ TEST_F(SymbolsCollector, ClearSourceLocations)
     ASSERT_THAT(collector.sourceLocations(), IsEmpty());
 }
 
-TEST_F(SymbolsCollector, ClearFileStatus)
-{
-    collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
-    collector.collectSymbols();
-
-    collector.clear();
-
-    ASSERT_THAT(collector.fileStatuses(), IsEmpty());
-}
-
 TEST_F(SymbolsCollector, DontCollectSymbolsAfterFilesAreCleared)
 {
     collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
@@ -313,16 +303,6 @@ TEST_F(SymbolsCollector, DontCollectSymbolsAfterFilesAreCleared)
     collector.collectSymbols();
 
     ASSERT_THAT(collector.symbols(), IsEmpty());
-}
-
-TEST_F(SymbolsCollector, DontCollectFileStatusAfterFilesAreCleared)
-{
-    collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/main.cpp"), {"cc"});
-
-    collector.clear();
-    collector.collectSymbols();
-
-    ASSERT_THAT(collector.fileStatuses(), IsEmpty());
 }
 
 TEST_F(SymbolsCollector, CollectMacroDefinitionSourceLocation)
@@ -455,19 +435,6 @@ TEST_F(SymbolsCollector, DISABLED_CollectMacroCompilerArgumentSymbols)
 
     ASSERT_THAT(collector.symbols(),
                 Contains(AllOf(HasSymbolName("COMPILER_ARGUMENT"), HasSymbolKind(SymbolKind::Macro))));
-}
-
-TEST_F(SymbolsCollector, CollectFileStatuses)
-{
-    auto fileId = filePathId(TESTDATA_DIR "/symbolscollector/main.cpp");
-    collector.setFile(fileId, {"cc"});
-
-    collector.collectSymbols();
-
-    ASSERT_THAT(collector.fileStatuses(),
-                ElementsAre(fileStatus(TESTDATA_DIR "/symbolscollector/main.cpp"),
-                            fileStatus(TESTDATA_DIR "/symbolscollector/header1.h"),
-                            fileStatus(TESTDATA_DIR "/symbolscollector/header2.h")));
 }
 
 TEST_F(SymbolsCollector, IsClassSymbol)

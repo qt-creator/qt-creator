@@ -35,7 +35,6 @@ SymbolsCollector::SymbolsCollector(Sqlite::Database &database)
     : m_filePathCache(database)
     , m_indexDataConsumer(std::make_shared<IndexDataConsumer>(m_symbolEntries,
                                                               m_sourceLocationEntries,
-                                                              m_fileStatuses,
                                                               m_filePathCache,
                                                               m_symbolSourcesManager,
                                                               m_macroSourcesManager))
@@ -63,7 +62,6 @@ void SymbolsCollector::clear()
 {
     m_symbolEntries.clear();
     m_sourceLocationEntries.clear();
-    m_fileStatuses.clear();
     m_clangTool = ClangTool();
 }
 
@@ -148,11 +146,6 @@ const SymbolEntries &SymbolsCollector::symbols() const
 const SourceLocationEntries &SymbolsCollector::sourceLocations() const
 {
     return m_sourceLocationEntries;
-}
-
-const FileStatuses &SymbolsCollector::fileStatuses() const
-{
-    return m_fileStatuses;
 }
 
 bool SymbolsCollector::isUsed() const

@@ -111,7 +111,6 @@ protected:
         ON_CALL(mockCollector, sourceLocations()).WillByDefault(ReturnRef(sourceLocations));
         ON_CALL(mockCollector, sourceFiles()).WillByDefault(ReturnRef(sourceFileIds));
         ON_CALL(mockCollector, usedMacros()).WillByDefault(ReturnRef(usedMacros));
-        ON_CALL(mockCollector, fileStatuses()).WillByDefault(ReturnRef(fileStatus));
         ON_CALL(mockCollector, sourceDependencies()).WillByDefault(ReturnRef(sourceDependencies));
         ON_CALL(mockProjectPartsStorage, fetchProjectPartArtefact(A<FilePathId>()))
             .WillByDefault(Return(artefact));
@@ -871,7 +870,6 @@ TEST_F(SymbolIndexer, UpdateProjectPartsFetchIncludedIndexingTimeStamps)
     InSequence s;
 
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses1));
     EXPECT_CALL(mockBuildDependenciesStorage,
                 insertOrUpdateIndexingTimeStampsWithoutTransaction(_, _));
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _));
@@ -887,7 +885,6 @@ TEST_F(SymbolIndexer, UpdateProjectPartsIsBusyInStoringData)
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin())
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
-    EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses1));
     EXPECT_CALL(mockBuildDependenciesStorage,
                 insertOrUpdateIndexingTimeStampsWithoutTransaction(_, _));
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _));

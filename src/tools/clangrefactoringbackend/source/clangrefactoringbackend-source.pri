@@ -32,7 +32,6 @@ SOURCES += \
     $$PWD/collectsymbolsaction.cpp \
     $$PWD/collectmacrossourcefilecallbacks.cpp \
     $$PWD/symbolscollector.cpp \
-    $$PWD/filestatuspreprocessorcallbacks.cpp \
     $$PWD/clangquerygatherer.cpp \
     $$PWD/symbolindexing.cpp \
     $$PWD/indexdataconsumer.cpp
@@ -51,7 +50,6 @@ HEADERS += \
     $$PWD/symbolscollector.h \
     $$PWD/symbolsvisitorbase.h \
     $$PWD/indexdataconsumer.h \
-    $$PWD/filestatuspreprocessorcallbacks.h \
     $$PWD/clangquerygatherer.h
 }
 

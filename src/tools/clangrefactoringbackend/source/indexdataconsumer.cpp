@@ -25,7 +25,6 @@
 
 #include "indexdataconsumer.h"
 #include "collectsymbolsaction.h"
-#include "filestatuspreprocessorcallbacks.h"
 
 #include <clang/AST/DeclVisitor.h>
 #include <clang/Basic/SourceLocation.h>
@@ -117,12 +116,6 @@ bool IndexDataConsumer::isAlreadyParsed(clang::FileID fileId, SourcesManager &so
     if (!fileEntry)
         return false;
     return sourcesManager.alreadyParsed(filePathId(fileEntry), fileEntry->getModificationTime());
-}
-
-void IndexDataConsumer::setPreprocessor(std::shared_ptr<clang::Preprocessor> preprocessor)
-{
-    preprocessor->addPPCallbacks(std::make_unique<FileStatusPreprocessorCallbacks>(
-        m_fileStatuses, m_filePathCache, m_sourceManager, m_filePathIndices));
 }
 
 bool IndexDataConsumer::handleDeclOccurence(const clang::Decl *declaration,

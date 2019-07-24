@@ -43,14 +43,12 @@ class IndexDataConsumer : public clang::index::IndexDataConsumer,
 public:
     IndexDataConsumer(SymbolEntries &symbolEntries,
                       SourceLocationEntries &sourceLocationEntries,
-                      FileStatuses &fileStatuses,
                       FilePathCachingInterface &filePathCache,
                       SourcesManager &symbolSourcesManager,
                       SourcesManager &macroSourcesManager)
         : SymbolsVisitorBase(filePathCache, nullptr, m_filePathIndices)
         , m_symbolEntries(symbolEntries)
         , m_sourceLocationEntries(sourceLocationEntries)
-        , m_fileStatuses(fileStatuses)
         , m_symbolSourcesManager(symbolSourcesManager)
         , m_macroSourcesManager(macroSourcesManager)
 
@@ -58,8 +56,6 @@ public:
 
     IndexDataConsumer(const IndexDataConsumer &) = delete;
     IndexDataConsumer &operator=(const IndexDataConsumer &) = delete;
-
-    void setPreprocessor(std::shared_ptr<clang::Preprocessor> preprocessor) override;
 
     bool handleDeclOccurence(const clang::Decl *declaration,
                              clang::index::SymbolRoleSet symbolRoles,
@@ -82,7 +78,6 @@ private:
     FilePathIds m_filePathIndices;
     SymbolEntries &m_symbolEntries;
     SourceLocationEntries &m_sourceLocationEntries;
-    FileStatuses &m_fileStatuses;
     SourcesManager &m_symbolSourcesManager;
     SourcesManager &m_macroSourcesManager;
 };
