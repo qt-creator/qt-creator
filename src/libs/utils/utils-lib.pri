@@ -132,9 +132,6 @@ SOURCES += \
     $$PWD/jsontreeitem.cpp \
     $$PWD/namevaluevalidator.cpp
 
-win32:SOURCES += $$PWD/consoleprocess_win.cpp
-else:SOURCES += $$PWD/consoleprocess_unix.cpp
-
 HEADERS += \
     $$PWD/environmentfwd.h \
     $$PWD/genericconstants.h \
@@ -179,7 +176,6 @@ HEADERS += \
     $$PWD/qtcolorbutton.h \
     $$PWD/savedaction.h \
     $$PWD/consoleprocess.h \
-    $$PWD/consoleprocess_p.h \
     $$PWD/synchronousprocess.h \
     $$PWD/savefile.h \
     $$PWD/fileutils.h \

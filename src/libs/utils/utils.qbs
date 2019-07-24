@@ -66,7 +66,6 @@ Project {
             "completingtextedit.h",
             "consoleprocess.cpp",
             "consoleprocess.h",
-            "consoleprocess_p.h",
             "cpplanguage_details.h",
             "crumblepath.cpp",
             "crumblepath.h",
@@ -309,22 +308,6 @@ Project {
                 "tips.h",
                 "tooltip.cpp",
                 "tooltip.h",
-            ]
-        }
-
-        Group {
-            name: "WindowsUtils"
-            condition: qbs.targetOS.contains("windows")
-            files: [
-                "consoleprocess_win.cpp",
-            ]
-        }
-
-        Group {
-            name: "ConsoleProcess_unix"
-            condition: qbs.targetOS.contains("unix")
-            files: [
-                "consoleprocess_unix.cpp",
             ]
         }
 

@@ -31,7 +31,7 @@ add_qtc_library(Utils
     codegeneration.cpp codegeneration.h
     completinglineedit.cpp completinglineedit.h
     completingtextedit.cpp completingtextedit.h
-    consoleprocess.cpp consoleprocess.h consoleprocess_p.h
+    consoleprocess.cpp consoleprocess.h
     cpplanguage_details.h
     crumblepath.cpp crumblepath.h
     delegates.cpp delegates.h
@@ -177,7 +177,6 @@ add_qtc_library(Utils
 
 extend_qtc_target(Utils CONDITION WIN32
   SOURCES
-    consoleprocess_win.cpp
     process_ctrlc_stub.cpp
     touchbar/touchbar.cpp
   DEPENDS
@@ -190,7 +189,6 @@ extend_qtc_target(Utils CONDITION WIN32
 
 extend_qtc_target(Utils CONDITION APPLE
   SOURCES
-    consoleprocess_unix.cpp
     fileutils_mac.mm fileutils_mac.h
     processhandle_mac.mm
     theme/theme_mac.mm theme/theme_mac.h
@@ -202,7 +200,6 @@ extend_qtc_target(Utils CONDITION APPLE
 
 extend_qtc_target(Utils CONDITION UNIX AND NOT APPLE
   SOURCES
-    consoleprocess_unix.cpp
     touchbar/touchbar.cpp
 )
 
