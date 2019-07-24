@@ -47,11 +47,6 @@ using namespace Utils;
 
 CMakeTargetLocatorFilter::CMakeTargetLocatorFilter()
 {
-    setId("Build CMake target");
-    setDisplayName(tr("Build CMake target"));
-    setShortcutString("cm");
-    setPriority(High);
-
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, &CMakeTargetLocatorFilter::projectListUpdated);
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
@@ -89,23 +84,49 @@ QList<Core::LocatorFilterEntry> CMakeTargetLocatorFilter::matchesFor(QFutureInte
     return m_result;
 }
 
-void CMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
-                                QString *newText, int *selectionStart, int *selectionLength) const
+void CMakeTargetLocatorFilter::refresh(QFutureInterface<void> &future)
+{
+    Q_UNUSED(future)
+}
+
+void CMakeTargetLocatorFilter::projectListUpdated()
+{
+    // Enable the filter if there's at least one CMake project
+    setEnabled(Utils::contains(SessionManager::projects(), [](Project *p) { return qobject_cast<CMakeProject *>(p); }));
+}
+
+// --------------------------------------------------------------------
+// BuildCMakeTargetLocatorFilter:
+// --------------------------------------------------------------------
+
+BuildCMakeTargetLocatorFilter::BuildCMakeTargetLocatorFilter()
+{
+    setId("Build CMake target");
+    setDisplayName(tr("Build CMake target"));
+    setShortcutString("cm");
+    setPriority(High);
+}
+
+void BuildCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
+                                           QString *newText,
+                                           int *selectionStart,
+                                           int *selectionLength) const
 {
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
     // Get the project containing the target selected
     const auto cmakeProject = qobject_cast<CMakeProject *>(
-                Utils::findOrDefault(SessionManager::projects(), [selection](Project *p) {
-                    return p->projectFilePath().toString() == selection.internalData.toString();
-                }));
-    if (!cmakeProject || !cmakeProject->activeTarget() || !cmakeProject->activeTarget()->activeBuildConfiguration())
+        Utils::findOrDefault(SessionManager::projects(), [selection](Project *p) {
+            return p->projectFilePath().toString() == selection.internalData.toString();
+        }));
+    if (!cmakeProject || !cmakeProject->activeTarget()
+        || !cmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
     // Find the make step
-    BuildStepList *buildStepList = cmakeProject->activeTarget()->activeBuildConfiguration()
-            ->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    BuildStepList *buildStepList = cmakeProject->activeTarget()->activeBuildConfiguration()->stepList(
+        ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto buildStep = buildStepList->firstOfType<CMakeBuildStep>();
     if (!buildStep)
         return;
@@ -118,15 +139,4 @@ void CMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
     // Build
     ProjectExplorerPlugin::buildProject(cmakeProject);
     buildStep->setBuildTarget(oldTarget);
-}
-
-void CMakeTargetLocatorFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-}
-
-void CMakeTargetLocatorFilter::projectListUpdated()
-{
-    // Enable the filter if there's at least one CMake project
-    setEnabled(Utils::contains(SessionManager::projects(), [](Project *p) { return qobject_cast<CMakeProject *>(p); }));
 }

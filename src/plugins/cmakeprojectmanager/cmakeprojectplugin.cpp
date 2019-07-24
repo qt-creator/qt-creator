@@ -75,7 +75,7 @@ public:
     SimpleRunWorkerFactory<SimpleTargetRunner, CMakeRunConfiguration> runWorkerFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
-    CMakeTargetLocatorFilter locatorFiler;
+    BuildCMakeTargetLocatorFilter buildCMakeTargetLocatorFiler;
 
     CMakeKitAspect cmakeKitAspect;
     CMakeGeneratorKitAspect cmakeGeneratorKitAspect;

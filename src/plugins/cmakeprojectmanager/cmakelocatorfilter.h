@@ -40,16 +40,25 @@ public:
     void prepareSearch(const QString &entry) override;
     QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
                                                const QString &entry) final;
-    void accept(Core::LocatorFilterEntry selection,
-                QString *newText,
-                int *selectionStart,
-                int *selectionLength) const final;
     void refresh(QFutureInterface<void> &future) final;
 
 private:
     void projectListUpdated();
 
     QList<Core::LocatorFilterEntry> m_result;
+};
+
+class BuildCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
+{
+    Q_OBJECT
+
+public:
+    BuildCMakeTargetLocatorFilter();
+
+    void accept(Core::LocatorFilterEntry selection,
+                QString *newText,
+                int *selectionStart,
+                int *selectionLength) const final;
 };
 
 } // namespace Internal
