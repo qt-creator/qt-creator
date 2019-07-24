@@ -53,6 +53,9 @@ public:
     Utils::FilePath sourceDirectory;
     Utils::FilePath makeCommand;
 
+    Utils::FilePath definitionFile;
+    int definitionLine = -1;
+
     // code model
     QList<Utils::FilePath> includeFiles;
     QStringList compilerOptions;

@@ -194,6 +194,17 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
         }
         ct.sourceDirectory = FilePath::fromString(
             QDir::cleanPath(sourceDir.absoluteFilePath(t.sourceDir.toString())));
+
+        if (t.backtrace >= 0) {
+            const BacktraceNode &node = t.backtraceGraph.nodes[static_cast<size_t>(t.backtrace)];
+            const int fileIndex = node.file;
+            if (fileIndex >= 0) {
+                ct.definitionFile = FilePath::fromString(QDir::cleanPath(sourceDir.absoluteFilePath(
+                    t.backtraceGraph.files[static_cast<size_t>(fileIndex)])));
+                ct.definitionLine = node.line;
+            }
+        }
+
         return ct;
     });
     return result;
