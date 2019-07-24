@@ -51,6 +51,11 @@ void ConsoleProcess::setCommand(const Utils::CommandLine &command)
     d->m_commandLine = command;
 }
 
+void ConsoleProcess::setAbortOnMetaChars(bool abort)
+{
+    d->m_abortOnMetaChars = abort;
+}
+
 qint64 ConsoleProcess::applicationMainThreadID() const
 {
     return d->m_appMainThreadId;
