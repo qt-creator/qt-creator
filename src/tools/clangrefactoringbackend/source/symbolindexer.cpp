@@ -92,20 +92,39 @@ void SymbolIndexer::updateProjectParts(ProjectPartContainers &&projectParts)
 }
 
 namespace {
+
 void store(SymbolStorageInterface &symbolStorage,
            BuildDependenciesStorageInterface &buildDependencyStorage,
            Sqlite::TransactionInterface &transactionInterface,
-           SymbolsCollectorInterface &symbolsCollector)
+           SymbolsCollectorInterface &symbolsCollector,
+           const FilePathIds &dependentSources)
 {
     try {
+        long long now = std::chrono::duration_cast<std::chrono::seconds>(
+                            std::chrono::system_clock::now().time_since_epoch())
+                            .count();
+
         Sqlite::ImmediateTransaction transaction{transactionInterface};
-        buildDependencyStorage.insertOrUpdateIndexingTimeStamps(symbolsCollector.fileStatuses());
+        buildDependencyStorage.insertOrUpdateIndexingTimeStampsWithoutTransaction(dependentSources,
+                                                                                  now);
+
         symbolStorage.addSymbolsAndSourceLocations(symbolsCollector.symbols(),
                                                    symbolsCollector.sourceLocations());
         transaction.commit();
     } catch (const Sqlite::StatementIsBusy &) {
-        store(symbolStorage, buildDependencyStorage, transactionInterface, symbolsCollector);
+        store(symbolStorage,
+              buildDependencyStorage,
+              transactionInterface,
+              symbolsCollector,
+              dependentSources);
     }
+}
+
+FilePathIds toFilePathIds(const SourceTimeStamps &sourceTimeStamps)
+{
+    return Utils::transform<FilePathIds>(sourceTimeStamps, [](SourceTimeStamp sourceTimeStamp) {
+        return sourceTimeStamp.sourceId;
+    });
 }
 } // namespace
 
@@ -124,6 +143,7 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
             auto indexing = [projectPart,
                              sourcePathId,
                              preIncludeSearchPath = m_environment.preIncludeSearchPath(),
+                             dependentSources = toFilePathIds(dependentTimeStamps),
                              this](SymbolsCollectorInterface &symbolsCollector) {
                 auto collect = [&](const FilePath &pchPath) {
                     using Builder = CommandLineBuilder<ProjectPartContainer, Utils::SmallStringVector>;
@@ -147,17 +167,20 @@ void SymbolIndexer::updateProjectPart(ProjectPartContainer &&projectPart)
                     store(m_symbolStorage,
                           m_buildDependencyStorage,
                           m_transactionInterface,
-                          symbolsCollector);
+                          symbolsCollector,
+                          dependentSources);
                 } else if (pchPaths.systemPchPath.size() && collect(pchPaths.systemPchPath)) {
                     store(m_symbolStorage,
                           m_buildDependencyStorage,
                           m_transactionInterface,
-                          symbolsCollector);
+                          symbolsCollector,
+                          dependentSources);
                 } else if (collect({})) {
                     store(m_symbolStorage,
                           m_buildDependencyStorage,
                           m_transactionInterface,
-                          symbolsCollector);
+                          symbolsCollector,
+                          dependentSources);
                 }
             };
 
@@ -196,6 +219,7 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
     auto indexing = [optionalArtefact = std::move(optionalArtefact),
                      filePathId,
                      preIncludeSearchPath = m_environment.preIncludeSearchPath(),
+                     dependentSources = toFilePathIds(dependentTimeStamps),
                      this](SymbolsCollectorInterface &symbolsCollector) {
         auto collect = [&](const FilePath &pchPath) {
             const ProjectPartArtefact &artefact = *optionalArtefact;
@@ -218,11 +242,23 @@ void SymbolIndexer::updateChangedPath(FilePathId filePathId,
             optionalArtefact->projectPartId);
 
         if (pchPaths.projectPchPath.size() && collect(pchPaths.projectPchPath)) {
-            store(m_symbolStorage, m_buildDependencyStorage, m_transactionInterface, symbolsCollector);
+            store(m_symbolStorage,
+                  m_buildDependencyStorage,
+                  m_transactionInterface,
+                  symbolsCollector,
+                  dependentSources);
         } else if (pchPaths.systemPchPath.size() && collect(pchPaths.systemPchPath)) {
-            store(m_symbolStorage, m_buildDependencyStorage, m_transactionInterface, symbolsCollector);
+            store(m_symbolStorage,
+                  m_buildDependencyStorage,
+                  m_transactionInterface,
+                  symbolsCollector,
+                  dependentSources);
         } else if (collect({})) {
-            store(m_symbolStorage, m_buildDependencyStorage, m_transactionInterface, symbolsCollector);
+            store(m_symbolStorage,
+                  m_buildDependencyStorage,
+                  m_transactionInterface,
+                  symbolsCollector,
+                  dependentSources);
         }
     };
 

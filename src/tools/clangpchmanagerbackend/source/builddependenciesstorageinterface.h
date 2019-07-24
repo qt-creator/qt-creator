@@ -59,7 +59,9 @@ public:
     virtual FilePathIds fetchPchSources(ProjectPartId projectPartId) const = 0;
     virtual FilePathIds fetchSources(ProjectPartId projectPartId) const = 0;
     virtual void insertOrUpdateIndexingTimeStamps(const FilePathIds &filePathIds, TimeStamp indexingTimeStamp) = 0;
-    virtual void insertOrUpdateIndexingTimeStamps(const FileStatuses &fileStatuses) = 0;
+    virtual void insertOrUpdateIndexingTimeStampsWithoutTransaction(const FilePathIds &filePathIds,
+                                                                    TimeStamp indexingTimeStamp)
+        = 0;
     virtual SourceTimeStamps fetchIndexingTimeStamps() const = 0;
     virtual SourceTimeStamps fetchIncludedIndexingTimeStamps(FilePathId sourcePathId) const = 0;
     virtual FilePathIds fetchDependentSourceIds(const FilePathIds &sourcePathIds) const = 0;

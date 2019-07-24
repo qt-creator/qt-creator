@@ -872,7 +872,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsFetchIncludedIndexingTimeStamps)
 
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses1));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateIndexingTimeStamps(_));
+    EXPECT_CALL(mockBuildDependenciesStorage,
+                insertOrUpdateIndexingTimeStampsWithoutTransaction(_, _));
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
@@ -887,7 +888,8 @@ TEST_F(SymbolIndexer, UpdateProjectPartsIsBusyInStoringData)
         .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
     EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
     EXPECT_CALL(mockCollector, fileStatuses()).WillRepeatedly(ReturnRef(fileStatuses1));
-    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateIndexingTimeStamps(_));
+    EXPECT_CALL(mockBuildDependenciesStorage,
+                insertOrUpdateIndexingTimeStampsWithoutTransaction(_, _));
     EXPECT_CALL(mockSymbolStorage, addSymbolsAndSourceLocations(_, _));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 

@@ -95,6 +95,8 @@ public:
     MOCK_METHOD1(write,
                  void (int));
 
+    MOCK_METHOD2(write, void(int, long long));
+
     MOCK_METHOD2(write,
                  void (int, int));
 

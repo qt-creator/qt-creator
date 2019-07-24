@@ -58,6 +58,9 @@ public:
     MOCK_METHOD2(insertOrUpdateIndexingTimeStamps,
                  void(const ClangBackEnd::FilePathIds &filePathIds,
                       ClangBackEnd::TimeStamp indexingTimeStamp));
+    MOCK_METHOD2(insertOrUpdateIndexingTimeStampsWithoutTransaction,
+                 void(const ClangBackEnd::FilePathIds &filePathIds,
+                      ClangBackEnd::TimeStamp indexingTimeStamp));
     MOCK_METHOD1(insertOrUpdateIndexingTimeStamps, void(const ClangBackEnd::FileStatuses &));
     MOCK_CONST_METHOD0(fetchIndexingTimeStamps, ClangBackEnd::SourceTimeStamps());
     MOCK_CONST_METHOD1(fetchIncludedIndexingTimeStamps,

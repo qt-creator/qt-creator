@@ -177,11 +177,12 @@ public:
         }
     }
 
-    void insertOrUpdateIndexingTimeStamps(const FileStatuses &fileStatuses) override
+    void insertOrUpdateIndexingTimeStampsWithoutTransaction(const FilePathIds &filePathIds,
+                                                            TimeStamp indexingTimeStamp) override
     {
-        for (FileStatus fileStatus : fileStatuses) {
-            inserOrUpdateIndexingTimesStampStatement.write(fileStatus.filePathId.filePathId,
-                                                           fileStatus.lastModified);
+        for (FilePathId filePathId : filePathIds) {
+            inserOrUpdateIndexingTimesStampStatement.write(filePathId.filePathId,
+                                                           indexingTimeStamp.value);
         }
     }
 

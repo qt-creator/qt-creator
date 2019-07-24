@@ -302,14 +302,32 @@ TEST_F(BuildDependenciesStorage, FetchIndexingTimeStampsIsBusy)
     storage.fetchIndexingTimeStamps();
 }
 
+TEST_F(BuildDependenciesStorage, InsertIndexingTimeStampWithoutTransaction)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, immediateBegin()).Times(0);
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
+                write(TypedEq<int>(1), TypedEq<long long>(34)));
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
+                write(TypedEq<int>(2), TypedEq<long long>(34)));
+    EXPECT_CALL(mockDatabase, commit()).Times(0);
+
+    storage.insertOrUpdateIndexingTimeStampsWithoutTransaction({1, 2}, 34);
+}
+
 TEST_F(BuildDependenciesStorage, InsertIndexingTimeStamp)
 {
-    ClangBackEnd::FileStatuses fileStatuses{{1, 0, 34}, {2, 0, 37}};
+    InSequence s;
 
-    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement, write(TypedEq<int>(1), TypedEq<int>(34)));
-    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement, write(TypedEq<int>(2), TypedEq<int>(37)));
+    EXPECT_CALL(mockDatabase, immediateBegin());
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
+                write(TypedEq<int>(1), TypedEq<long long>(34)));
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
+                write(TypedEq<int>(2), TypedEq<long long>(34)));
+    EXPECT_CALL(mockDatabase, commit());
 
-    storage.insertOrUpdateIndexingTimeStamps(fileStatuses);
+    storage.insertOrUpdateIndexingTimeStamps({1, 2}, 34);
 }
 
 TEST_F(BuildDependenciesStorage, InsertIndexingTimeStampsIsBusy)
@@ -318,8 +336,10 @@ TEST_F(BuildDependenciesStorage, InsertIndexingTimeStampsIsBusy)
 
     EXPECT_CALL(mockDatabase, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy{""}));
     EXPECT_CALL(mockDatabase, immediateBegin());
-    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement, write(TypedEq<int>(1), TypedEq<int>(34)));
-    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement, write(TypedEq<int>(2), TypedEq<int>(34)));
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
+                write(TypedEq<int>(1), TypedEq<long long>(34)));
+    EXPECT_CALL(inserOrUpdateIndexingTimesStampStatement,
+                write(TypedEq<int>(2), TypedEq<long long>(34)));
     EXPECT_CALL(mockDatabase, commit());
 
     storage.insertOrUpdateIndexingTimeStamps({1, 2}, 34);
@@ -386,19 +406,11 @@ TEST_F(BuildDependenciesStorageSlow, UpdateIndexingTimeStamps)
                 ElementsAre(SourceTimeStamp{1, 37}, SourceTimeStamp{2, 34}));
 }
 
-TEST_F(BuildDependenciesStorageSlow, InsertIndexingTimeStamp)
-{
-    storage.insertOrUpdateIndexingTimeStamps({{1, 0, 34}, {2, 0, 37}});
-
-    ASSERT_THAT(storage.fetchIndexingTimeStamps(),
-                ElementsAre(SourceTimeStamp{1, 34}, SourceTimeStamp{2, 37}));
-}
-
 TEST_F(BuildDependenciesStorageSlow, UpdateIndexingTimeStamp)
 {
-    storage.insertOrUpdateIndexingTimeStamps({{1, 0, 34}, {2, 0, 34}});
+    storage.insertOrUpdateIndexingTimeStamps({1, 2}, 34);
 
-    storage.insertOrUpdateIndexingTimeStamps({{2, 0, 37}});
+    storage.insertOrUpdateIndexingTimeStamps({2}, 37);
 
     ASSERT_THAT(storage.fetchIndexingTimeStamps(),
                 ElementsAre(SourceTimeStamp{1, 34}, SourceTimeStamp{2, 37}));

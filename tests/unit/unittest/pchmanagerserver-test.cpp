@@ -290,7 +290,7 @@ TEST_F(PchManagerServer, ResetTimeStampForChangedFilesInDatabase)
 {
     EXPECT_CALL(mockBuildDependenciesStorage,
                 insertOrUpdateIndexingTimeStamps(ElementsAre(FilePathId{1}, FilePathId{3}, FilePathId{5}),
-                                                 TypedEq<ClangBackEnd::TimeStamp>(0)));
+                                                 TypedEq<ClangBackEnd::TimeStamp>(-1)));
 
     server.pathsChanged({1, 3, 5});
 }
