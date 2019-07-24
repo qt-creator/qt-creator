@@ -40,6 +40,7 @@
 #include <utils/utilsicons.h>
 
 #include <QFile>
+#include <QMenu>
 #include <QTextDocument>
 #include <QToolBar>
 #include <QToolButton>
@@ -200,30 +201,34 @@ void updateEditorToolBar(Core::IEditor *editor)
     if (!widget)
         return;
 
-    const Core::IDocument *document = editor->document();
-    QStringList clientsWithDoc;
-    for (auto client : LanguageClientManager::clients()) {
-        if (client->documentOpen(document))
-            clientsWithDoc << client->name();
-    }
+    Core::IDocument *document = editor->document();
+    Client *client = LanguageClientManager::clientForDocument(document);
 
     static QMap<QWidget *, QAction *> actions;
 
     if (actions.contains(widget)) {
         auto action = actions[widget];
-        if (clientsWithDoc.isEmpty()) {
+        if (client) {
+            action->setText(client->name());
+        } else {
             widget->toolBar()->removeAction(action);
             actions.remove(widget);
-        } else {
-            action->setText(clientsWithDoc.join(';'));
         }
-    } else if (!clientsWithDoc.isEmpty()) {
-        const QIcon icon
-            = Utils::Icon({{":/languageclient/images/languageclient.png",
-                            Utils::Theme::IconsBaseColor}})
-                  .icon();
-        actions[widget] = widget->toolBar()->addAction(icon, clientsWithDoc.join(';'), []() {
-            Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+    } else if (client) {
+        const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
+                                         Utils::Theme::IconsBaseColor}})
+                               .icon();
+        actions[widget] = widget->toolBar()->addAction(icon, client->name(), [document]() {
+            auto menu = new QMenu;
+            for (auto client : LanguageClientManager::clientsSupportingDocument(document))
+                menu->addAction(client->name(), [client = QPointer<Client>(client), document]() {
+                    if (client)
+                        LanguageClientManager::reOpenDocumentWithClient(document, client);
+                });
+            menu->addAction("Manage...", []() {
+                Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+            });
+            menu->popup(QCursor::pos());
         });
         QObject::connect(widget, &QWidget::destroyed, [widget]() {
             actions.remove(widget);

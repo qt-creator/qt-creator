@@ -381,11 +381,17 @@ void Client::cancelRequest(const MessageId &id)
     sendContent(CancelRequest(CancelParameter(id)));
 }
 
-void Client::closeDocument(const DidCloseTextDocumentParams &params)
+void Client::closeDocument(Core::IDocument *document)
 {
-    const DocumentUri &uri = params.textDocument().uri();
+    m_openedDocument.remove(document->filePath());
+    const DocumentUri &uri = DocumentUri::fromFileName(document->filePath());
+    const DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
     m_highlights[uri].clear();
     sendContent(uri, DidCloseTextDocumentNotification(params));
+    auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+    if (!textDocument)
+        return;
+    textDocument->setCompletionAssistProvider(m_resetAssistProvider.take(textDocument));
 }
 
 bool Client::documentOpen(const Core::IDocument *document) const
@@ -935,6 +941,20 @@ void Client::log(const QString &message, Core::MessageManager::PrintToOutputPane
     Core::MessageManager::write(QString("LanguageClient %1: %2").arg(name(), message), flag);
 }
 
+void Client::showDiagnostics(Core::IDocument *doc)
+{
+    showDiagnostics(DocumentUri::fromFileName(doc->filePath()));
+}
+
+void Client::hideDiagnostics(Core::IDocument *doc)
+{
+    if (auto *textDocument = qobject_cast<TextEditor::TextDocument *>(doc)) {
+        DocumentUri uri = DocumentUri::fromFileName(doc->filePath());
+        for (TextMark *mark : m_diagnostics.value(uri))
+                textDocument->removeMark(mark);
+    }
+}
+
 const ServerCapabilities &Client::capabilities() const
 {
     return m_serverCapabilities;
@@ -1187,16 +1207,6 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Initialized;
     sendContent(InitializeNotification());
-    for (auto openedDocument : Core::DocumentModel::openedDocuments()) {
-        if (openDocument(openedDocument)) {
-            for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(openedDocument))
-                updateEditorToolBar(editor);
-        }
-    }
-    for (Core::IEditor *editor : Core::DocumentModel::editorsForOpenedDocuments()) {
-        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
-            textEditor->editorWidget()->addHoverHandler(&m_hoverHandler);
-    }
     if (m_dynamicCapabilities.isRegistered(DocumentSymbolsRequest::methodName)
             .value_or(capabilities().documentSymbolProvider().value_or(false))) {
         TextEditor::IOutlineWidgetFactory::updateOutline();

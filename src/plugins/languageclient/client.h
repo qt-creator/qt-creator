@@ -96,7 +96,7 @@ public:
 
     // document synchronization
     bool openDocument(Core::IDocument *document);
-    void closeDocument(const LanguageServerProtocol::DidCloseTextDocumentParams &params);
+    void closeDocument(Core::IDocument *document);
     bool documentOpen(const Core::IDocument *document) const;
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
@@ -154,6 +154,9 @@ public:
     void log(const LanguageServerProtocol::ResponseError<Error> &responseError,
              Core::MessageManager::PrintToOutputPaneFlag flag = Core::MessageManager::NoModeSwitch)
     { log(responseError.toString(), flag); }
+
+    void showDiagnostics(Core::IDocument *doc);
+    void hideDiagnostics(Core::IDocument *doc);
 
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
     const DynamicCapabilities &dynamicCapabilities() const;

@@ -57,7 +57,7 @@ public:
     static void init();
 
     static void startClient(Client *client);
-    static void startClient(BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
+    static Client *startClient(BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
     static QVector<Client *> clients();
 
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
@@ -70,13 +70,14 @@ public:
 
     static LanguageClientManager *instance();
 
-    static QList<Client *> clientsSupportingDocument(const TextEditor::TextDocument *doc);
+    static QList<Client *> clientsSupportingDocument(const Core::IDocument *doc);
 
     static void applySettings();
     static QList<BaseSettings *> currentSettings();
     static QVector<Client *> clientForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
-    static Client *clientForEditor(Core::IEditor *editor);
+    static Client *clientForDocument(Core::IDocument *document);
+    static bool reOpenDocumentWithClient(Core::IDocument *document, Client *client);
 
 signals:
     void shutdownFinished();
@@ -86,6 +87,7 @@ private:
 
     void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
+    bool openDocumentWithClient(Core::IDocument *document, Client *client);
     void documentClosed(Core::IDocument *document);
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
@@ -99,12 +101,14 @@ private:
     QVector<Client *> reachableClients();
     void sendToAllReachableServers(const LanguageServerProtocol::IContent &content);
 
+    void clientInitialized(Client *client);
     void clientFinished(Client *client);
 
     bool m_shuttingDown = false;
     QVector<Client *> m_clients;
     QList<BaseSettings *>  m_currentSettings; // owned
     QMap<QString, QVector<Client *>> m_clientsForSetting;
+    QHash<Core::IDocument *, QPointer<Client>> m_clientForDocument;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
     DocumentLocatorFilter m_currentDocumentLocatorFilter;
     WorkspaceLocatorFilter m_workspaceLocatorFilter;
