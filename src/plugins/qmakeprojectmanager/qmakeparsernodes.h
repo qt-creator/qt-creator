@@ -31,6 +31,7 @@
 
 #include <coreplugin/idocument.h>
 #include <cpptools/generatedcodemodelsupport.h>
+#include <utils/textfileformat.h>
 
 #include <QHash>
 #include <QStringList>
@@ -202,7 +203,7 @@ private:
 
     bool prepareForChange();
     static bool ensureWriteableProFile(const QString &file);
-    static QPair<ProFile *, QStringList> readProFile(const QString &file);
+    QPair<ProFile *, QStringList> readProFile();
     static QPair<ProFile *, QStringList> readProFileFromContents(const QString &contents);
     void save(const QStringList &lines);
     bool saveModifiedEditors();
@@ -228,6 +229,7 @@ private:
     QVector<QmakePriFile *> m_children;
 
     std::unique_ptr<Core::IDocument> m_priFileDocument;
+    Utils::TextFileFormat m_textFormat;
 
     // Memory is cheap...
     QMap<ProjectExplorer::FileType, QSet<Utils::FilePath>> m_files;

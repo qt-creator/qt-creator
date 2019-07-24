@@ -649,7 +649,7 @@ bool QmakePriFile::addDependencies(const QStringList &dependencies)
     if (qtDependencies.isEmpty())
         return true;
 
-    const QPair<ProFile *, QStringList> pair = readProFile(filePath().toString());
+    const QPair<ProFile *, QStringList> pair = readProFile();
     ProFile * const includeFile = pair.first;
     if (!includeFile)
         return false;
@@ -750,27 +750,30 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
     return true;
 }
 
-QPair<ProFile *, QStringList> QmakePriFile::readProFile(const QString &file)
+QPair<ProFile *, QStringList> QmakePriFile::readProFile()
 {
     QStringList lines;
     ProFile *includeFile = nullptr;
     {
         QString contents;
         {
-            FileReader reader;
-            if (!reader.fetch(file, QIODevice::Text)) {
-                QmakeProject::proFileParseError(reader.errorString());
+            QString errorMsg;
+            if (TextFileFormat::readFile(
+                        filePath().toString(),
+                        Core::EditorManager::defaultTextCodec(),
+                        &contents,
+                        &m_textFormat,
+                        &errorMsg) != TextFileFormat::ReadSuccess) {
+                QmakeProject::proFileParseError(errorMsg);
                 return qMakePair(includeFile, lines);
             }
-            const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-            contents = codec->toUnicode(reader.data());
-            lines = contents.split(QLatin1Char('\n'));
+            lines = contents.split('\n');
         }
 
         QMakeVfs vfs;
         QtSupport::ProMessageHandler handler;
         QMakeParser parser(nullptr, &vfs, &handler);
-        includeFile = parser.parsedProBlock(QStringRef(&contents), 0, file, 1);
+        includeFile = parser.parsedProBlock(QStringRef(&contents), 0, filePath().toString(), 1);
     }
     return qMakePair(includeFile, lines);
 }
@@ -788,7 +791,7 @@ bool QmakePriFile::renameFile(const QString &oldName,
     if (!prepareForChange())
         return false;
 
-    QPair<ProFile *, QStringList> pair = readProFile(filePath().toString());
+    QPair<ProFile *, QStringList> pair = readProFile();
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
@@ -834,7 +837,7 @@ void QmakePriFile::changeFiles(const QString &mimeType,
     if (!prepareForChange())
         return;
 
-    QPair<ProFile *, QStringList> pair = readProFile(filePath().toString());
+    QPair<ProFile *, QStringList> pair = readProFile();
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
@@ -876,7 +879,7 @@ bool QmakePriFile::setProVariable(const QString &var, const QStringList &values,
     if (!prepareForChange())
         return false;
 
-    QPair<ProFile *, QStringList> pair = readProFile(filePath().toString());
+    QPair<ProFile *, QStringList> pair = readProFile();
     ProFile *includeFile = pair.first;
     QStringList lines = pair.second;
 
@@ -895,11 +898,13 @@ bool QmakePriFile::setProVariable(const QString &var, const QStringList &values,
 void QmakePriFile::save(const QStringList &lines)
 {
     {
+        QTC_ASSERT(m_textFormat.codec, return);
         FileChangeBlocker changeGuard(filePath().toString());
-        FileSaver saver(filePath().toString(), QIODevice::Text);
-        const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-        saver.write(codec->fromUnicode(lines.join(QLatin1Char('\n'))));
-        saver.finalize(Core::ICore::mainWindow());
+        QString errorMsg;
+        if (!m_textFormat.writeFile(filePath().toString(), lines.join('\n'), &errorMsg)) {
+            QMessageBox::critical(Core::ICore::mainWindow(), QCoreApplication::translate(
+                                      "QmakePriFile", "File Error"), errorMsg);
+        }
     }
 
     // This is a hack.
