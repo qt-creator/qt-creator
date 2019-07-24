@@ -35,7 +35,6 @@ namespace ClangCodeModel {
 namespace Internal {
 
 using FileToFixits = QMap<QString, QVector<ClangBackEnd::FixItContainer>>;
-using FileToFixitsIterator = QMapIterator<QString, QVector<ClangBackEnd::FixItContainer>>;
 using RefactoringFilePtr = QSharedPointer<TextEditor::RefactoringFile>;
 
 ClangFixItOperation::ClangFixItOperation(
@@ -75,9 +74,7 @@ void ClangFixItOperation::perform()
     const TextEditor::RefactoringChanges refactoringChanges;
     const FileToFixits fileToFixIts = fixitsPerFile(fixItContainers);
 
-    FileToFixitsIterator i(fileToFixIts);
-    while (i.hasNext()) {
-        i.next();
+    for (auto i = fileToFixIts.cbegin(), end = fileToFixIts.cend(); i != end; ++i) {
         const QString filePath = i.key();
         const QVector<ClangBackEnd::FixItContainer> fixits = i.value();
 

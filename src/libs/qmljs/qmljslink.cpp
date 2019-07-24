@@ -143,23 +143,18 @@ Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const Librar
 
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
     if (modelManager) {
-        ModelManagerInterface::CppDataHash cppDataHash = modelManager->cppData();
+        const ModelManagerInterface::CppDataHash cppDataHash = modelManager->cppData();
         {
             // populate engine with types from C++
-            ModelManagerInterface::CppDataHashIterator cppDataHashIterator(cppDataHash);
-            while (cppDataHashIterator.hasNext()) {
-                cppDataHashIterator.next();
-                d->valueOwner->cppQmlTypes().load(cppDataHashIterator.key(),
-                                                  cppDataHashIterator.value().exportedTypes);
-            }
+            for (auto it = cppDataHash.cbegin(), end = cppDataHash.cend(); it != end; ++it)
+                d->valueOwner->cppQmlTypes().load(it.key(), it.value().exportedTypes);
         }
 
         // build an object with the context properties from C++
         ObjectValue *cppContextProperties = d->valueOwner->newObject(/* prototype = */ 0);
-        foreach (const ModelManagerInterface::CppData &cppData, cppDataHash) {
-            QHashIterator<QString, QString> it(cppData.contextProperties);
-            while (it.hasNext()) {
-                it.next();
+        for (const ModelManagerInterface::CppData &cppData : cppDataHash) {
+            for (auto it = cppData.contextProperties.cbegin(), end = cppData.contextProperties.cend();
+                    it != end; ++it) {
                 const Value *value = 0;
                 const QString cppTypeName = it.value();
                 if (!cppTypeName.isEmpty())
@@ -332,10 +327,8 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
 
         importLibrary(doc, path, &import);
 
-        QMapIterator<QString,QStringList> iter(ModelManagerInterface::instance()
-                                               ->filesInQrcPath(path));
-        while (iter.hasNext()) {
-            iter.next();
+        const QMap<QString, QStringList> paths = ModelManagerInterface::instance()->filesInQrcPath(path);
+        for (auto iter = paths.cbegin(), end = paths.cend(); iter != end; ++iter) {
             if (ModelManagerInterface::guessLanguageOfFile(iter.key()).isQmlLikeLanguage()) {
                 Document::Ptr importedDoc = snapshot.document(iter.value().at(0));
                 if (importedDoc && importedDoc->bind()->rootObjectValue()) {

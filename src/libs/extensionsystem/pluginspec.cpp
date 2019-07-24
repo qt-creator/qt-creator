@@ -929,9 +929,7 @@ QVector<PluginSpec *> PluginSpecPrivate::enableDependenciesIndirectly(bool enabl
     if (!q->isEffectivelyEnabled()) // plugin not enabled, nothing to do
         return {};
     QVector<PluginSpec *> enabled;
-    QHashIterator<PluginDependency, PluginSpec *> it(dependencySpecs);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = dependencySpecs.cbegin(), end = dependencySpecs.cend(); it != end; ++it) {
         if (it.key().type != PluginDependency::Required
                 && (!enableTestDependencies || it.key().type != PluginDependency::Test))
             continue;

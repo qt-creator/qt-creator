@@ -508,11 +508,9 @@ void ProgressManagerPrivate::updateSummaryProgressBar()
     stopFadeOfSummaryProgress();
 
     m_summaryProgressBar->setFinished(false);
-    QMapIterator<QFutureWatcher<void> *, Id> it(m_runningTasks);
     static const int TASK_RANGE = 100;
     int value = 0;
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = m_runningTasks.cbegin(), end = m_runningTasks.cend(); it != end; ++it) {
         QFutureWatcher<void> *watcher = it.key();
         int min = watcher->progressMinimum();
         int range = watcher->progressMaximum() - min;

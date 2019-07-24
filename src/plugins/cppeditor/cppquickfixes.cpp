@@ -3729,10 +3729,8 @@ void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOpera
     // Identify what would be parameters for the new function and its return value, if any.
     Symbol *funcReturn = nullptr;
     QList<QPair<QString, QString> > relevantDecls;
-    SemanticInfo::LocalUseIterator it(interface.semanticInfo().localUses);
-    while (it.hasNext()) {
-        it.next();
-
+    const SemanticInfo::LocalUseMap &localUses = interface.semanticInfo().localUses;
+    for (auto it = localUses.cbegin(), end = localUses.cend(); it != end; ++it) {
         bool usedBeforeExtraction = false;
         bool usedAfterExtraction = false;
         bool usedInsideExtraction = false;

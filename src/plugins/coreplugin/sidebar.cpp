@@ -108,9 +108,7 @@ SideBar::~SideBar()
 
 QString SideBar::idForTitle(const QString &title) const
 {
-    QMapIterator<QString, QPointer<SideBarItem> > iter(d->m_itemMap);
-    while (iter.hasNext()) {
-        iter.next();
+    for (auto iter = d->m_itemMap.cbegin(), end = d->m_itemMap.cend(); iter != end; ++iter) {
         if (iter.value().data()->title() == title)
             return iter.key();
     }
@@ -266,11 +264,8 @@ void SideBar::saveSettings(QSettings *settings, const QString &name)
         if (!currentItemId.isEmpty())
             views.append(currentItemId);
     }
-    if (views.isEmpty() && d->m_itemMap.size()) {
-        QMapIterator<QString, QPointer<SideBarItem> > iter(d->m_itemMap);
-        iter.next();
-        views.append(iter.key());
-    }
+    if (views.isEmpty() && !d->m_itemMap.isEmpty())
+        views.append(d->m_itemMap.cbegin().key());
 
     settings->setValue(prefix + QLatin1String("Views"), views);
     settings->setValue(prefix + QLatin1String("Visible"),

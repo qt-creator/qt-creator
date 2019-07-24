@@ -251,9 +251,8 @@ bool ColorScheme::save(const QString &fileName, QWidget *parent) const
         if (!m_displayName.isEmpty())
             w.writeAttribute(QLatin1String("name"), m_displayName);
 
-        QMapIterator<TextStyle, Format> i(m_formats);
-        while (i.hasNext()) {
-            const Format &format = i.next().value();
+        for (auto i = m_formats.cbegin(), end = m_formats.cend(); i != end; ++i) {
+            const Format &format = i.value();
             w.writeStartElement(QLatin1String("style"));
             w.writeAttribute(QLatin1String("name"), QString::fromLatin1(Constants::nameForStyle(i.key())));
             if (format.foreground().isValid())

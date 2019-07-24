@@ -468,12 +468,9 @@ void FancyMainWindow::handleVisibilityChanged(bool visible)
 
 void FancyMainWindow::saveSettings(QSettings *settings) const
 {
-    QHash<QString, QVariant> hash = saveSettings();
-    QHashIterator<QString, QVariant> it(hash);
-    while (it.hasNext()) {
-        it.next();
+    const QHash<QString, QVariant> hash = saveSettings();
+    for (auto it = hash.cbegin(), end = hash.cend(); it != end; ++it)
         settings->setValue(it.key(), it.value());
-    }
 }
 
 void FancyMainWindow::restoreSettings(const QSettings *settings)

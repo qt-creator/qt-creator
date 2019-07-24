@@ -2048,9 +2048,7 @@ void GdbEngine::setTokenBarrier()
 {
     //QTC_ASSERT(m_nonDiscardableCount == 0, /**/);
     bool good = true;
-    QHashIterator<int, DebuggerCommand> it(m_commandForToken);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = m_commandForToken.cbegin(), end = m_commandForToken.cend(); it != end; ++it) {
         if (!(m_flagsForToken.value(it.key()) & Discardable)) {
             qDebug() << "TOKEN: " << it.key() << "CMD:" << it.value().function;
             good = false;

@@ -86,9 +86,8 @@ struct EditorConfigurationPrivate
 EditorConfiguration::EditorConfiguration() : d(std::make_unique<EditorConfigurationPrivate>())
 {
     const QMap<Core::Id, ICodeStylePreferences *> languageCodeStylePreferences = TextEditorSettings::codeStyles();
-    QMapIterator<Core::Id, ICodeStylePreferences *> itCodeStyle(languageCodeStylePreferences);
-    while (itCodeStyle.hasNext()) {
-        itCodeStyle.next();
+    for (auto itCodeStyle = languageCodeStylePreferences.cbegin(), end = languageCodeStylePreferences.cend();
+            itCodeStyle != end; ++itCodeStyle) {
         Core::Id languageId = itCodeStyle.key();
         // global prefs for language
         ICodeStylePreferences *originalPreferences = itCodeStyle.value();
@@ -189,10 +188,11 @@ QVariantMap EditorConfiguration::toMap() const
     map.insert(kCodec, d->m_textCodec->name());
 
     map.insert(kCodeStyleCount, d->m_languageCodeStylePreferences.count());
-    QMapIterator<Core::Id, ICodeStylePreferences *> itCodeStyle(d->m_languageCodeStylePreferences);
+
     int i = 0;
-    while (itCodeStyle.hasNext()) {
-        itCodeStyle.next();
+    for (auto itCodeStyle = d->m_languageCodeStylePreferences.cbegin(),
+               end = d->m_languageCodeStylePreferences.cend();
+            itCodeStyle != end; ++itCodeStyle) {
         QVariantMap settingsIdMap;
         settingsIdMap.insert(QLatin1String("language"), itCodeStyle.key().toSetting());
         QVariantMap value;

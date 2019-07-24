@@ -108,9 +108,7 @@ IosDevice::IosDevice(const QString &uid)
 IDevice::DeviceInfo IosDevice::deviceInformation() const
 {
     IDevice::DeviceInfo res;
-    QMapIterator<QString, QString> i(m_extraInfo);
-    while (i.hasNext()) {
-        i.next();
+    for (auto i = m_extraInfo.cbegin(), end = m_extraInfo.cend(); i != end; ++i) {
         IosDeviceManager::TranslationMap tMap = IosDeviceManager::translationMap();
         if (tMap.contains(i.key()))
             res.append(DeviceInfoItem(tMap.value(i.key()), tMap.value(i.value(), i.value())));
@@ -131,24 +129,19 @@ DeviceProcessSignalOperation::Ptr IosDevice::signalOperation() const
 void IosDevice::fromMap(const QVariantMap &map)
 {
     IDevice::fromMap(map);
-    QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
-    QMapIterator<QString, QVariant> i(vMap);
+
     m_extraInfo.clear();
-    while (i.hasNext()) {
-        i.next();
+    const QVariantMap vMap = map.value(QLatin1String(Constants::EXTRA_INFO_KEY)).toMap();
+    for (auto i = vMap.cbegin(), end = vMap.cend(); i != end; ++i)
         m_extraInfo.insert(i.key(), i.value().toString());
-    }
 }
 
 QVariantMap IosDevice::toMap() const
 {
     QVariantMap res = IDevice::toMap();
     QVariantMap vMap;
-    QMapIterator<QString, QString> i(m_extraInfo);
-    while (i.hasNext()) {
-        i.next();
+    for (auto i = m_extraInfo.cbegin(), end = m_extraInfo.cend(); i != end; ++i)
         vMap.insert(i.key(), i.value());
-    }
     res.insert(QLatin1String(Constants::EXTRA_INFO_KEY), vMap);
     return res;
 }

@@ -581,18 +581,14 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
     accept(ast->expression);
     unsigned unaryOp = tokenKind(ast->unary_op_token);
     if (unaryOp == T_AMPER) {
-        QMutableListIterator<LookupItem > it(_results);
-        while (it.hasNext()) {
-            LookupItem p = it.next();
+        for (LookupItem &p : _results) {
             FullySpecifiedType ty = p.type();
             ty.setType(control()->pointerType(ty));
             p.setType(ty);
-            it.setValue(p);
         }
     } else if (unaryOp == T_STAR) {
-        QMutableListIterator<LookupItem > it(_results);
-        while (it.hasNext()) {
-            LookupItem p = it.next();
+        for (int i = 0; i < _results.size(); ++i) {
+            LookupItem &p = _results[i];
             FullySpecifiedType ty = p.type();
             NamedType *namedTy = ty->asNamedType();
             if (namedTy != 0) {
@@ -603,7 +599,6 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
             bool added = false;
             if (PointerType *ptrTy = ty->asPointerType()) {
                 p.setType(ptrTy->elementType());
-                it.setValue(p);
                 added = true;
             } else if (namedTy != 0) {
                 const Name *starOp = control()->operatorNameId(OperatorNameId::StarOp);
@@ -616,7 +611,6 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
                                     FullySpecifiedType retTy = proto->returnType().simplified();
                                     p.setType(retTy);
                                     p.setScope(proto->enclosingScope());
-                                    it.setValue(p);
                                     added = true;
                                     break;
                                 }
@@ -626,7 +620,7 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
                 }
             }
             if (!added)
-                it.remove();
+                _results.removeAt(i--);
         }
     }
     return false;

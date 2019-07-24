@@ -152,9 +152,7 @@ bool ScreenshotCropper::saveAreasOfInterest(const QString &areasXmlFile, QMap<QS
     writer.setAutoFormatting(true);
     writer.writeStartDocument();
     writer.writeStartElement(xmlTagAreas);
-    QMapIterator<QString, QRect> i(areas);
-    while (i.hasNext()) {
-        i.next();
+    for (auto i = areas.cbegin(), end = areas.cend(); i != end; ++i) {
         writer.writeStartElement(xmlTagArea);
         writer.writeAttribute(xmlAttributeImage, i.key());
         writer.writeAttribute(xmlAttributeX, QString::number(i.value().x()));

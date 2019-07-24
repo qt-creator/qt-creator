@@ -40,12 +40,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), 
 
     const EditorConfiguration *config = m_project->editorConfiguration();
 
-    QMap<Core::Id, ICodeStylePreferencesFactory *> factories
-            = TextEditorSettings::codeStyleFactories();
-    QMapIterator<Core::Id, ICodeStylePreferencesFactory *> it(factories);
-    while (it.hasNext()) {
-        it.next();
-        ICodeStylePreferencesFactory *factory = it.value();
+    for (ICodeStylePreferencesFactory *factory : TextEditorSettings::codeStyleFactories()) {
         Core::Id languageId = factory->languageId();
         ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
 

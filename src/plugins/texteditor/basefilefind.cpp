@@ -496,10 +496,8 @@ QStringList BaseFileFind::replaceAll(const QString &text,
         changes[QDir::fromNativeSeparators(item.path.first())].append(item);
 
     // Checking for files without write permissions
-    QHashIterator<QString, QList<SearchResultItem> > it(changes);
     QSet<FilePath> roFiles;
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = changes.cbegin(), end = changes.cend(); it != end; ++it) {
         const QFileInfo fileInfo(it.key());
         if (!fileInfo.isWritable())
             roFiles.insert(FilePath::fromString(it.key()));
@@ -513,9 +511,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
             return QStringList();
     }
 
-    it.toFront();
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = changes.cbegin(), end = changes.cend(); it != end; ++it) {
         const QString fileName = it.key();
         const QList<SearchResultItem> changeItems = it.value();
 

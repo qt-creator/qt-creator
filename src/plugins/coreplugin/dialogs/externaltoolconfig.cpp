@@ -58,11 +58,8 @@ ExternalToolModel::ExternalToolModel(QObject *parent)
 
 ExternalToolModel::~ExternalToolModel()
 {
-    QMapIterator<QString, QList<ExternalTool *> > it(m_tools);
-    while (it.hasNext()) {
-        it.next();
-        qDeleteAll(it.value());
-    }
+    for (QList<ExternalTool *> &toolInCategory : m_tools)
+        qDeleteAll(toolInCategory);
 }
 
 Qt::DropActions ExternalToolModel::supportedDropActions() const
@@ -192,10 +189,8 @@ QModelIndex ExternalToolModel::parent(const QModelIndex &child) const
 {
     if (ExternalTool *tool = toolForIndex(child)) {
         int categoryIndex = 0;
-        QMapIterator<QString, QList<ExternalTool *> > it(m_tools);
-        while (it.hasNext()) {
-            it.next();
-            if (it.value().contains(tool))
+        for (const QList<ExternalTool *> &toolsInCategory : m_tools) {
+            if (toolsInCategory.contains(tool))
                 return index(categoryIndex, 0);
             ++categoryIndex;
         }
@@ -376,10 +371,7 @@ void ExternalToolModel::removeTool(const QModelIndex &modelIndex)
     QTC_ASSERT(!tool->preset(), return);
     // remove the tool and the tree item
     int categoryIndex = 0;
-    QMutableMapIterator<QString, QList<ExternalTool *> > it(m_tools);
-    while (it.hasNext()) {
-        it.next();
-        QList<ExternalTool *> &items = it.value();
+    for (QList<ExternalTool *> &items : m_tools) {
         int pos = items.indexOf(tool);
         if (pos != -1) {
             beginRemoveRows(index(categoryIndex, 0), pos, pos);
@@ -473,9 +465,7 @@ ExternalToolConfig::~ExternalToolConfig()
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
 {
     QMap<QString, QList<ExternalTool *> > toolsCopy;
-    QMapIterator<QString, QList<ExternalTool *> > it(tools);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it) {
         QList<ExternalTool *> itemCopy;
         for (ExternalTool *tool : it.value())
             itemCopy.append(new ExternalTool(tool));

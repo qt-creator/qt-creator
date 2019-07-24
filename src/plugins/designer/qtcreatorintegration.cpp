@@ -516,13 +516,11 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                 newDocTable.insert(i.value());
         }
     } else {
-        const CppTools::WorkingCopy workingCopy =
-                CppTools::CppModelManager::instance()->workingCopy();
         const Utils::FilePath configFileName =
                 Utils::FilePath::fromString(CppTools::CppModelManager::configurationFileName());
-        QHashIterator<Utils::FilePath, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
-        while (it.hasNext()) {
-            it.next();
+        const CppTools::WorkingCopy::Table &elements =
+                CppTools::CppModelManager::instance()->workingCopy().elements();
+        for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
             const Utils::FilePath &fileName = it.key();
             if (fileName != configFileName)
                 newDocTable.insert(docTable.document(fileName));

@@ -70,14 +70,14 @@ public:
     QPair<QByteArray, unsigned> get(const Utils::FilePath &fileName) const
     { return _elements.value(fileName); }
 
-    QHashIterator<Utils::FilePath, QPair<QByteArray, unsigned> > iterator() const
-    { return QHashIterator<Utils::FilePath, QPair<QByteArray, unsigned> >(_elements); }
+    using Table = QHash<Utils::FilePath, QPair<QByteArray, unsigned> >;
+    const Table &elements() const
+    { return _elements; }
 
     int size() const
     { return _elements.size(); }
 
 private:
-    using Table = QHash<Utils::FilePath, QPair<QByteArray, unsigned> >;
     Table _elements;
 };
 

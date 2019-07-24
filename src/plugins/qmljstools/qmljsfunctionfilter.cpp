@@ -65,14 +65,11 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
     if (!regexp.isValid())
         return goodEntries;
 
-    QHashIterator<QString, QList<LocatorData::Entry> > it(m_data->entries());
-    while (it.hasNext()) {
+    const QHash<QString, QList<LocatorData::Entry> > entries = m_data->entries();
+    for (const QList<LocatorData::Entry> &items : entries) {
         if (future.isCanceled())
             break;
 
-        it.next();
-
-        const QList<LocatorData::Entry> items = it.value();
         for (const LocatorData::Entry &info : items) {
             if (info.type != LocatorData::Function)
                 continue;

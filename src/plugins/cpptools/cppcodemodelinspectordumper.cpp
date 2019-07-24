@@ -618,9 +618,8 @@ void Dumper::dumpWorkingCopy(const WorkingCopy &workingCopy)
     m_out << "Working Copy contains " << workingCopy.size() << " entries{{{1\n";
 
     const QByteArray i1 = indent(1);
-    QHashIterator< ::Utils::FilePath, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
-    while (it.hasNext()) {
-        it.next();
+    const WorkingCopy::Table &elements = workingCopy.elements();
+    for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
         const ::Utils::FilePath &filePath = it.key();
         unsigned sourcRevision = it.value().second;
         m_out << i1 << "rev=" << sourcRevision << ", " << filePath << "\n";

@@ -767,13 +767,12 @@ void MimeXMLProvider::setGlobPatternsForMimeType(const MimeType &mimeType, const
 void MimeXMLProvider::setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<MimeMagicRule> > &rules)
 {
     // remove all previous rules
-    QMutableListIterator<MimeMagicRuleMatcher> matcherIt(m_magicMatchers);
-    while (matcherIt.hasNext()) {
-        if (matcherIt.next().mimetype() == mimeType.name())
-            matcherIt.remove();
+    for (int i = 0; i < m_magicMatchers.size(); ++i) {
+        if (m_magicMatchers.at(i).mimetype() == mimeType.name())
+            m_magicMatchers.removeAt(i--);
     }
     // add new rules
-    for (auto it = rules.constBegin(); it != rules.constEnd(); ++it) {
+    for (auto it = rules.cbegin(); it != rules.cend(); ++it) {
         MimeMagicRuleMatcher matcher(mimeType.name(), it.key()/*priority*/);
         matcher.addRules(it.value());
         addMagicMatcher(matcher);
@@ -804,15 +803,14 @@ void MimeXMLProvider::ensureLoaded()
 
         // add custom mime types first, which override any default from freedesktop.org.xml
         MimeTypeParser parser(*this);
-        QHashIterator<QString, QByteArray> it(m_additionalData);
-        while (it.hasNext()) {
-            it.next();
+        for (auto it = m_additionalData.constBegin(), end = m_additionalData.constEnd(); it != end; ++it) {
             QString errorMessage;
             if (!parser.parse(it.value(), it.key(), &errorMessage)) {
                 qWarning("MimeDatabase: Error loading %s\n%s", qPrintable(it.key()),
                          qPrintable(errorMessage));
             }
         }
+
         foreach (const QString &file, allFiles)
             load(file);
     }

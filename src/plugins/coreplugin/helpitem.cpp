@@ -222,11 +222,8 @@ const HelpItem::Links &HelpItem::links() const
                     }
                 }
             }
-            QMapIterator<QString, QUrl> it(helpLinks);
-            while (it.hasNext()) {
-                it.next();
+            for (auto it = helpLinks.cbegin(), end = helpLinks.cend(); it != end; ++it)
                 m_helpLinks->emplace_back(it.key(), it.value());
-            }
         }
         Utils::sort(*m_helpLinks, linkLessThan);
     }

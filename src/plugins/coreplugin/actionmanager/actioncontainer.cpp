@@ -276,9 +276,7 @@ void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *m
     auto containerPrivate = static_cast<ActionContainerPrivate *>(menu);
     QTC_ASSERT(containerPrivate->canBeAddedToContainer(this), return);
 
-    QMutableListIterator<Group> it(m_groups);
-    while (it.hasNext()) {
-        Group &group = it.next();
+    for (Group &group : m_groups) {
         const int insertionPoint = group.items.indexOf(before);
         if (insertionPoint >= 0) {
             group.items.insert(insertionPoint, menu);
@@ -319,9 +317,7 @@ Command *ActionContainerPrivate::addSeparator(const Context &context, Id group, 
 
 void ActionContainerPrivate::clear()
 {
-    QMutableListIterator<Group> it(m_groups);
-    while (it.hasNext()) {
-        Group &group = it.next();
+    for (Group &group : m_groups) {
         foreach (QObject *item, group.items) {
             if (auto command = qobject_cast<Command *>(item)) {
                 removeAction(command);
@@ -343,9 +339,7 @@ void ActionContainerPrivate::clear()
 void ActionContainerPrivate::itemDestroyed()
 {
     QObject *obj = sender();
-    QMutableListIterator<Group> it(m_groups);
-    while (it.hasNext()) {
-        Group &group = it.next();
+    for (Group &group : m_groups) {
         if (group.items.removeAll(obj) > 0)
             break;
     }
@@ -454,9 +448,7 @@ bool MenuActionContainer::updateInternal()
     bool hasitems = false;
     QList<QAction *> actions = m_menu->actions();
 
-    QListIterator<Group> it(m_groups);
-    while (it.hasNext()) {
-        const Group &group = it.next();
+    for (const Group &group : m_groups) {
         foreach (QObject *item, group.items) {
             if (auto container = qobject_cast<ActionContainerPrivate*>(item)) {
                 actions.removeAll(container->menu()->menuAction());

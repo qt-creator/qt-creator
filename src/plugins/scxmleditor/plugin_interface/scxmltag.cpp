@@ -552,11 +552,8 @@ void ScxmlTag::writeXml(QXmlStreamWriter &xml)
     // Write editorinfo if necessary
     if (!m_editorInfo.isEmpty()) {
         xml.writeStartElement("qt:editorinfo");
-        QHashIterator<QString, QString> i(m_editorInfo);
-        while (i.hasNext()) {
-            i.next();
+        for (auto i = m_editorInfo.cbegin(), end = m_editorInfo.cend(); i != end; ++i)
             xml.writeAttribute(i.key(), i.value());
-        }
         xml.writeEndElement();
     }
 

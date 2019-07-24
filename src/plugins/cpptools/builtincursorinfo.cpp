@@ -205,9 +205,7 @@ private:
 
         LookupContext context(m_document, m_snapshot);
 
-        CppTools::SemanticInfo::LocalUseIterator it(uses);
-        while (it.hasNext()) {
-            it.next();
+        for (auto it = uses.cbegin(), end = uses.cend(); it != end; ++it) {
             const SemanticUses &uses = it.value();
 
             bool good = false;

@@ -584,10 +584,8 @@ void ImportDependencies::filter(const ViewerContext &vContext)
 {
     QMap<QString, CoreImport> newCoreImports;
     QMap<ImportKey, QStringList> newImportCache;
-    QMapIterator<QString, CoreImport> j(m_coreImports);
     bool hasChanges = false;
-    while (j.hasNext()) {
-        j.next();
+    for (auto j = m_coreImports.cbegin(), end = m_coreImports.cend(); j != end; ++j) {
         const CoreImport &cImport = j.value();
         if (vContext.languageIsCompatible(cImport.language)) {
             QList<Export> newExports;
@@ -923,10 +921,8 @@ QSet<ImportKey> ImportDependencies::subdirImports(
 
 void ImportDependencies::checkConsistency() const
 {
-    QMapIterator<ImportKey, QStringList> j(m_importCache);
-    while (j.hasNext()) {
-        j.next();
-        foreach (const QString &s, j.value()) {
+    for (auto j = m_importCache.cbegin(), end = m_importCache.cend(); j != end; ++j) {
+        for (const QString &s : j.value()) {
             bool found = false;
             foreach (const Export &e, m_coreImports.value(s).possibleExports)
                 if (e.exportName == j.key())
@@ -934,19 +930,15 @@ void ImportDependencies::checkConsistency() const
             Q_ASSERT(found); Q_UNUSED(found)
         }
     }
-    QMapIterator<QString,CoreImport> i(m_coreImports);
-    while (i.hasNext()) {
-        i.next();
+    for (auto i = m_coreImports.cbegin(), end = m_coreImports.cend(); i != end; ++i) {
         foreach (const Export &e, i.value().possibleExports) {
             if (!m_importCache.value(e.exportName).contains(i.key())) {
                 qCWarning(importsLog) << e.exportName.toString();
                 qCWarning(importsLog) << i.key();
 
-                QMapIterator<ImportKey, QStringList> j(m_importCache);
-                while (j.hasNext()) {
-                    j.next();
+                for (auto j = m_importCache.cbegin(), end = m_importCache.cend(); j != end; ++j)
                     qCWarning(importsLog) << j.key().toString() << j.value();
-                }
+
                 qCWarning(importsLog) << m_importCache.contains(e.exportName);
                 qCWarning(importsLog) << m_importCache.value(e.exportName);
             }

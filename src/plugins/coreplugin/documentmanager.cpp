@@ -427,9 +427,8 @@ void DocumentManager::renamedFile(const QString &from, const QString &to)
 
     // gather the list of IDocuments
     QList<IDocument *> documentsToRename;
-    QMapIterator<IDocument *, QStringList> it(d->m_documentsWithWatch);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = d->m_documentsWithWatch.cbegin(), end = d->m_documentsWithWatch.cend();
+            it != end; ++it) {
         if (it.value().contains(fromKey))
             documentsToRename.append(it.key());
     }
@@ -1247,9 +1246,7 @@ void DocumentManager::checkForReload()
 
     // handle deleted files
     EditorManager::closeDocuments(documentsToClose, false);
-    QHashIterator<IDocument *, QString> it(documentsToSave);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = documentsToSave.cbegin(), end = documentsToSave.cend(); it != end; ++it) {
         saveDocument(it.key(), it.value());
         it.key()->checkPermissions();
     }
@@ -1270,14 +1267,10 @@ void DocumentManager::addToRecentFiles(const QString &fileName, Id editorId)
 {
     if (fileName.isEmpty())
         return;
-    QString fileKey = filePathKey(fileName, KeepLinks);
-    QMutableListIterator<RecentFile > it(d->m_recentFiles);
-    while (it.hasNext()) {
-        RecentFile file = it.next();
-        QString recentFileKey(filePathKey(file.first, DocumentManager::KeepLinks));
-        if (fileKey == recentFileKey)
-            it.remove();
-    }
+    const QString fileKey = filePathKey(fileName, KeepLinks);
+    Utils::erase(d->m_recentFiles, [fileKey](const RecentFile &file) {
+        return fileKey == filePathKey(file.first, DocumentManager::KeepLinks);
+    });
     while (d->m_recentFiles.count() >= EditorManagerPrivate::maxRecentFiles())
         d->m_recentFiles.removeLast();
     d->m_recentFiles.prepend(RecentFile(fileName, editorId));
@@ -1325,15 +1318,15 @@ void readSettings()
     QSettings *s = ICore::settings();
     d->m_recentFiles.clear();
     s->beginGroup(QLatin1String(settingsGroupC));
-    QStringList recentFiles = s->value(QLatin1String(filesKeyC)).toStringList();
-    QStringList recentEditorIds = s->value(QLatin1String(editorsKeyC)).toStringList();
+    const QStringList recentFiles = s->value(QLatin1String(filesKeyC)).toStringList();
+    const QStringList recentEditorIds = s->value(QLatin1String(editorsKeyC)).toStringList();
     s->endGroup();
     // clean non-existing files
-    QStringListIterator ids(recentEditorIds);
-    foreach (const QString &fileName, recentFiles) {
+    for (int i = 0, n = recentFiles.size(); i < n; ++i) {
+        const QString &fileName = recentFiles.at(i);
         QString editorId;
-        if (ids.hasNext()) // guard against old or weird settings
-            editorId = ids.next();
+        if (i < recentEditorIds.size()) // guard against old or weird settings
+            editorId = recentEditorIds.at(i);
         if (QFileInfo(fileName).isFile())
             d->m_recentFiles.append(DocumentManager::RecentFile(QDir::fromNativeSeparators(fileName), // from native to guard against old settings
                                                Id::fromString(editorId)));

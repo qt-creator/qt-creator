@@ -175,15 +175,10 @@ Dialect ModelManagerInterface::guessLanguageOfFile(const QString &fileName)
 
 QStringList ModelManagerInterface::globPatternsForLanguages(const QList<Dialect> languages)
 {
-    QHash<QString, Dialect> lMapping;
-    if (instance())
-        lMapping = instance()->languageForSuffix();
-    else
-        lMapping = defaultLanguageMapping();
     QStringList patterns;
-    QHashIterator<QString,Dialect> i(lMapping);
-    while (i.hasNext()) {
-        i.next();
+    const QHash<QString, Dialect> lMapping =
+            instance() ? instance()->languageForSuffix() : defaultLanguageMapping();
+    for (auto i = lMapping.cbegin(), end = lMapping.cend(); i != end; ++i) {
         if (languages.contains(i.value()))
             patterns << QLatin1String("*.") + i.key();
     }
@@ -725,9 +720,8 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
                     *importedFiles += importPath;
             }
         } else if (import.type() == ImportType::QrcDirectory) {
-            QMapIterator<QString,QStringList> dirContents(ModelManagerInterface::instance()->filesInQrcPath(importName));
-            while (dirContents.hasNext()) {
-                dirContents.next();
+            const QMap<QString, QStringList> files = ModelManagerInterface::instance()->filesInQrcPath(importName);
+            for (auto dirContents = files.cbegin(), end = files.cend(); dirContents != end; ++dirContents) {
                 if (ModelManagerInterface::guessLanguageOfFile(dirContents.key()).isQmlLikeOrJsLanguage()) {
                     foreach (const QString &filePath, dirContents.value()) {
                         if (! snapshot.document(filePath))
@@ -1091,10 +1085,7 @@ void ModelManagerInterface::updateImportPaths()
     PathsAndLanguages allImportPaths;
     QmlLanguageBundles activeBundles;
     QmlLanguageBundles extendedBundles;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> pInfoIter(m_projects);
-    QHashIterator<Dialect, QmlJS::ViewerContext> vCtxsIter = m_defaultVContexts;
-    while (pInfoIter.hasNext()) {
-        pInfoIter.next();
+    for (auto pInfoIter = m_projects.cbegin(), end = m_projects.cend(); pInfoIter != end; ++pInfoIter) {
         const PathsAndLanguages &iPaths = pInfoIter.value().importPaths;
         for (int i = 0; i < iPaths.size(); ++i) {
             PathAndLanguage pAndL = iPaths.at(i);
@@ -1104,14 +1095,12 @@ void ModelManagerInterface::updateImportPaths()
                                            pAndL.language());
         }
     }
-    while (vCtxsIter.hasNext()) {
-        vCtxsIter.next();
+    for (auto vCtxsIter = m_defaultVContexts.cbegin(), end = m_defaultVContexts.cend();
+            vCtxsIter != end; ++ vCtxsIter) {
         foreach (const QString &path, vCtxsIter.value().paths)
             allImportPaths.maybeInsert(Utils::FilePath::fromString(path), vCtxsIter.value().language);
     }
-    pInfoIter.toFront();
-    while (pInfoIter.hasNext()) {
-        pInfoIter.next();
+    for (auto pInfoIter = m_projects.cbegin(), end = m_projects.cend(); pInfoIter != end; ++pInfoIter) {
         activeBundles.mergeLanguageBundles(pInfoIter.value().activeBundle);
         foreach (Dialect l, pInfoIter.value().activeBundle.languages()) {
             foreach (const QString &path, pInfoIter.value().activeBundle.bundleForLanguage(l)
@@ -1122,9 +1111,7 @@ void ModelManagerInterface::updateImportPaths()
             }
         }
     }
-    pInfoIter.toFront();
-    while (pInfoIter.hasNext()) {
-        pInfoIter.next();
+    for (auto pInfoIter = m_projects.cbegin(), end = m_projects.cend(); pInfoIter != end; ++pInfoIter) {
         QString pathAtt = pInfoIter.value().qtQmlPath;
         if (!pathAtt.isEmpty())
             allImportPaths.maybeInsert(Utils::FilePath::fromString(pathAtt), Dialect::QmlQtQuick2);

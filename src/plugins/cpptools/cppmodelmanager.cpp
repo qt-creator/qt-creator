@@ -608,10 +608,7 @@ void CppModelManager::ensureUpdated()
 QStringList CppModelManager::internalProjectFiles() const
 {
     QStringList files;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(d->m_projectToProjectsInfo);
-    while (it.hasNext()) {
-        it.next();
-        const ProjectInfo pinfo = it.value();
+    for (const ProjectInfo &pinfo : d->m_projectToProjectsInfo) {
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             foreach (const ProjectFile &file, part->files)
                 files += file.path;
@@ -624,10 +621,7 @@ QStringList CppModelManager::internalProjectFiles() const
 ProjectExplorer::HeaderPaths CppModelManager::internalHeaderPaths() const
 {
     ProjectExplorer::HeaderPaths headerPaths;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(d->m_projectToProjectsInfo);
-    while (it.hasNext()) {
-        it.next();
-        const ProjectInfo pinfo = it.value();
+    for (const ProjectInfo &pinfo : d->m_projectToProjectsInfo) {
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
             foreach (const ProjectExplorer::HeaderPath &path, part->headerPaths) {
                 ProjectExplorer::HeaderPath hp(QDir::cleanPath(path.path), path.type);
@@ -655,10 +649,7 @@ ProjectExplorer::Macros CppModelManager::internalDefinedMacros() const
 {
     ProjectExplorer::Macros macros;
     QSet<ProjectExplorer::Macro> alreadyIn;
-    QMapIterator<ProjectExplorer::Project *, ProjectInfo> it(d->m_projectToProjectsInfo);
-    while (it.hasNext()) {
-        it.next();
-        const ProjectInfo pinfo = it.value();
+    for (const ProjectInfo &pinfo : d->m_projectToProjectsInfo) {
         for (const ProjectPart::Ptr &part : pinfo.projectParts()) {
             addUnique(part->toolChainMacros, macros, alreadyIn);
             addUnique(part->projectMacros, macros, alreadyIn);
@@ -783,11 +774,8 @@ WorkingCopy CppModelManager::buildWorkingCopyList()
                            cppEditorDocument->revision());
     }
 
-    QSetIterator<AbstractEditorSupport *> it(d->m_extraEditorSupports);
-    while (it.hasNext()) {
-        AbstractEditorSupport *es = it.next();
+    for (AbstractEditorSupport *es : qAsConst(d->m_extraEditorSupports))
         workingCopy.insert(es->fileName(), es->contents(), es->revision());
-    }
 
     // Add the project configuration file
     QByteArray conf = codeModelConfiguration();
@@ -815,9 +803,7 @@ static QSet<QString> tooBigFilesRemoved(const QSet<QString> &files, int fileSize
     QSet<QString> result;
     QFileInfo fileInfo;
 
-    QSetIterator<QString> i(files);
-    while (i.hasNext()) {
-        const QString filePath = i.next();
+    for (const QString &filePath : files) {
         fileInfo.setFile(filePath);
         if (fileSizeExceedsLimit(fileInfo, fileSizeLimitInMb))
             continue;
@@ -887,9 +873,8 @@ QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments() const
 void CppModelManager::removeFilesFromSnapshot(const QSet<QString> &filesToRemove)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
-    QSetIterator<QString> i(filesToRemove);
-    while (i.hasNext())
-        d->m_snapshot.remove(i.next());
+    for (const QString &file : filesToRemove)
+        d->m_snapshot.remove(file);
 }
 
 class ProjectInfoComparer
@@ -935,9 +920,7 @@ public:
         commonSourceFiles.intersect(m_oldSourceFiles);
 
         QList<Document::Ptr> documentsToCheck;
-        QSetIterator<QString> i(commonSourceFiles);
-        while (i.hasNext()) {
-            const QString file = i.next();
+        for (const QString &file : commonSourceFiles) {
             if (Document::Ptr document = snapshot.document(file))
                 documentsToCheck << document;
         }

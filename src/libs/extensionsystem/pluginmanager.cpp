@@ -390,9 +390,8 @@ QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec)
     while (!queue.empty()) {
         PluginSpec *checkSpec = queue.front();
         queue.pop();
-        QHashIterator<PluginDependency, PluginSpec *> depIt(checkSpec->dependencySpecs());
-        while (depIt.hasNext()) {
-            depIt.next();
+        const QHash<PluginDependency, PluginSpec *> deps = checkSpec->dependencySpecs();
+        for (auto depIt = deps.cbegin(), end = deps.cend(); depIt != end; ++depIt) {
             if (depIt.key().type != PluginDependency::Required)
                 continue;
             PluginSpec *depSpec = depIt.value();
@@ -933,7 +932,6 @@ void PluginManagerPrivate::deleteAll()
 #ifdef WITH_TESTS
 
 using TestPlan = QMap<QObject *, QStringList>; // Object -> selected test functions
-using TestPlanIterator = QMapIterator<QObject *, QStringList>;
 
 static bool isTestFunction(const QMetaMethod &metaMethod)
 {
@@ -1019,9 +1017,7 @@ static int executeTestPlan(const TestPlan &testPlan)
 {
     int failedTests = 0;
 
-    TestPlanIterator it(testPlan);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = testPlan.cbegin(), end = testPlan.cend(); it != end; ++it) {
         QObject *testObject = it.key();
         QStringList functions = it.value();
 
@@ -1326,9 +1322,8 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
     }
 
     // add dependencies
-    QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
-    while (it.hasNext()) {
-        it.next();
+    const QHash<PluginDependency, PluginSpec *> deps = spec->dependencySpecs();
+    for (auto it = deps.cbegin(), end = deps.cend(); it != end; ++it) {
         // Skip test dependencies since they are not real dependencies but just force-loaded
         // plugins when running tests
         if (it.key().type == PluginDependency::Test)
@@ -1374,9 +1369,8 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         break;
     }
     // check if dependencies have loaded without error
-    QHashIterator<PluginDependency, PluginSpec *> it(spec->dependencySpecs());
-    while (it.hasNext()) {
-        it.next();
+    const QHash<PluginDependency, PluginSpec *> deps = spec->dependencySpecs();
+    for (auto it = deps.cbegin(), end = deps.cend(); it != end; ++it) {
         if (it.key().type != PluginDependency::Required)
             continue;
         PluginSpec *depSpec = it.value();

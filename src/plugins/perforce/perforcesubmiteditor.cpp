@@ -54,11 +54,8 @@ QByteArray PerforceSubmitEditor::fileContents() const
     const_cast<PerforceSubmitEditor*>(this)->updateEntries();
     QString text;
     QTextStream out(&text);
-    QMapIterator<QString, QString> it(m_entries);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = m_entries.cbegin(), end  = m_entries.cend(); it != end; ++it)
         out << it.key() << ":" << it.value();
-    }
     return text.toLocal8Bit();
 }
 

@@ -62,7 +62,6 @@ public:
 public:
     using Use = TextEditor::HighlightingResult;
     using LocalUseMap = QHash<CPlusPlus::Symbol *, QList<Use>>;
-    using LocalUseIterator = QHashIterator<CPlusPlus::Symbol *, QList<Use>>;
 
     // Document specific
     unsigned revision = 0;

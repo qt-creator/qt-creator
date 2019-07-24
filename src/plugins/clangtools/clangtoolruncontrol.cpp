@@ -356,9 +356,7 @@ void ClangToolRunControl::start()
 
 void ClangToolRunControl::stop()
 {
-    QSetIterator<ClangToolRunner *> i(m_runners);
-    while (i.hasNext()) {
-        ClangToolRunner *runner = i.next();
+    for (ClangToolRunner *runner : m_runners) {
         QObject::disconnect(runner, nullptr, this, nullptr);
         delete runner;
     }

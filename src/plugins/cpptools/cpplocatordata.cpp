@@ -103,10 +103,7 @@ QList<IndexItem::Ptr> CppLocatorData::allIndexItems(
         const QHash<QString, QList<IndexItem::Ptr>> &items) const
 {
     QList<IndexItem::Ptr> result;
-    QHashIterator<QString, QList<IndexItem::Ptr> > it(items);
-    while (it.hasNext()) {
-        it.next();
-        result.append(it.value());
-    }
+    for (const QList<IndexItem::Ptr> &subItems : items)
+        result.append(subItems);
     return result;
 }

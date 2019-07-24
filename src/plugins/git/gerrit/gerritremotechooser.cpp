@@ -103,11 +103,9 @@ bool GerritRemoteChooser::updateRemotes(bool forceReload)
     m_remoteComboBox->clear();
     m_remotes.clear();
     QString errorMessage; // Mute errors. We'll just fallback to the defaults
-    QMap<QString, QString> remotesList =
+    const QMap<QString, QString> remotesList =
             Git::Internal::GitPlugin::client()->synchronousRemotesList(m_repository, &errorMessage);
-    QMapIterator<QString, QString> mapIt(remotesList);
-    while (mapIt.hasNext()) {
-        mapIt.next();
+    for (auto mapIt = remotesList.cbegin(), end = remotesList.cend(); mapIt != end; ++mapIt) {
         GerritServer server;
         if (!server.fillFromRemote(mapIt.value(), *m_parameters, forceReload))
             continue;

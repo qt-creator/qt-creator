@@ -53,11 +53,9 @@ static bool overlaps(int posA, int lengthA, int posB, int lengthB) {
     }
 }
 
-bool ChangeSet::hasOverlap(int pos, int length)
+bool ChangeSet::hasOverlap(int pos, int length) const
 {
-    QListIterator<EditOp> i(m_operationList);
-    while (i.hasNext()) {
-        const EditOp &cmd = i.next();
+    for (const EditOp &cmd : m_operationList) {
 
         switch (cmd.type) {
         case EditOp::Replace:
@@ -251,9 +249,7 @@ void ChangeSet::doReplace(const EditOp &op, QList<EditOp> *replaceList)
     Q_ASSERT(op.type == EditOp::Replace);
 
     {
-        QMutableListIterator<EditOp> i(*replaceList);
-        while (i.hasNext()) {
-            EditOp &c = i.next();
+        for (EditOp &c : *replaceList) {
             if (op.pos1 <= c.pos1)
                 c.pos1 += op.text.size();
             if (op.pos1 < c.pos1)

@@ -587,13 +587,8 @@ QList<ServerNodeInstance> NodeInstanceServer::setupInstances(const CreateSceneCo
         setInstanceAuxiliaryData(container);
     }
 
-
-    QListIterator<ServerNodeInstance> instanceListIterator(instanceList);
-    instanceListIterator.toBack();
-    while (instanceListIterator.hasPrevious()) {
-        ServerNodeInstance instance = instanceListIterator.previous();
-        instance.doComponentComplete();
-    }
+    for (int i = instanceList.size(); --i >= 0; )
+        instanceList[i].doComponentComplete();
 
     return instanceList;
 }

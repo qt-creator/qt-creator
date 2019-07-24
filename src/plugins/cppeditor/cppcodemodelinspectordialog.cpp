@@ -1254,9 +1254,8 @@ void WorkingCopyModel::configure(const WorkingCopy &workingCopy)
 {
     emit layoutAboutToBeChanged();
     m_workingCopyList.clear();
-    QHashIterator<Utils::FilePath, QPair<QByteArray, unsigned> > it = workingCopy.iterator();
-    while (it.hasNext()) {
-        it.next();
+    const WorkingCopy::Table &elements = workingCopy.elements();
+    for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
         m_workingCopyList << WorkingCopyEntry(it.key().toString(), it.value().first,
                                               it.value().second);
     }

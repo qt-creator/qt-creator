@@ -86,15 +86,18 @@ void BackendReceiver::addExpectedCompletionsMessage(
 
 void BackendReceiver::deleteProcessorsOfEditorWidget(TextEditor::TextEditorWidget *textEditorWidget)
 {
-    QMutableHashIterator<quint64, ClangCompletionAssistProcessor *> it(m_assistProcessorsTable);
-    while (it.hasNext()) {
-        it.next();
+    QList<quint64> toRemove;
+    for (auto it = m_assistProcessorsTable.cbegin(), end = m_assistProcessorsTable.cend();
+            it != end; ++it)
+    {
         ClangCompletionAssistProcessor *assistProcessor = it.value();
         if (assistProcessor->textEditorWidget() == textEditorWidget) {
             delete assistProcessor;
-            it.remove();
+            toRemove.append(it.key());
         }
     }
+    for (quint64 item : toRemove)
+        m_assistProcessorsTable.remove(item);
 }
 
 QFuture<CppTools::CursorInfo> BackendReceiver::addExpectedReferencesMessage(

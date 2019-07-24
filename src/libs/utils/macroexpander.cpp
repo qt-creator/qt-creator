@@ -313,11 +313,8 @@ QVariant MacroExpander::expandVariant(const QVariant &v) const
     } else if (type == QMetaType::QVariantMap) {
         const auto map = v.toMap();
         QVariantMap result;
-        QMapIterator<QString, QVariant> it(map);
-        while (it.hasNext()) {
-            it.next();
+        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it)
             result.insert(it.key(), expandVariant(it.value()));
-        }
         return result;
     }
     return v;

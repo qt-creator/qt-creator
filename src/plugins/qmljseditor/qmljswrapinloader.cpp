@@ -139,9 +139,7 @@ public:
 
         // handle inner ids
         QString innerIdForwarders;
-        QHashIterator<QString, SourceLocation> it(innerIds);
-        while (it.hasNext()) {
-            it.next();
+        for (auto it = innerIds.cbegin(), end = innerIds.cend(); it != end; ++it) {
             const QString innerId = it.key();
             comment += tr("//       Rename all outer uses of the id \"%1\" to \"%2.item.%1\".\n").arg(
                         innerId, loaderId);

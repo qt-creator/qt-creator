@@ -105,7 +105,7 @@ private:
     bool flip_helper(int pos1, int length1, int pos2, int length2);
     bool copy_helper(int pos, int length, int to);
 
-    bool hasOverlap(int pos, int length);
+    bool hasOverlap(int pos, int length) const;
     QString textAt(int pos, int length);
 
     void doReplace(const EditOp &replace, QList<EditOp> *replaceList);

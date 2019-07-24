@@ -133,17 +133,15 @@ void ScxmlDocument::addNamespace(ScxmlNamespace *ns)
 
     ScxmlTag *scxmlTag = scxmlRootTag();
     if (scxmlTag) {
-        QMapIterator<QString, ScxmlNamespace*> i(m_namespaces);
-        while (i.hasNext()) {
-            i.next();
-            QString prefix = i.value()->prefix();
+        for (ScxmlNamespace *ns : qAsConst(m_namespaces)) {
+            QString prefix = ns->prefix();
             if (prefix.isEmpty())
                 prefix = "xmlns";
 
             if (prefix.startsWith("xmlns"))
-                scxmlTag->setAttribute(prefix, i.value()->name());
+                scxmlTag->setAttribute(prefix, ns->name());
             else
-                scxmlTag->setAttribute(QString::fromLatin1("xmlns:%1").arg(prefix), i.value()->name());
+                scxmlTag->setAttribute(QString::fromLatin1("xmlns:%1").arg(prefix), ns->name());
         }
     }
 }
@@ -172,17 +170,15 @@ bool ScxmlDocument::generateSCXML(QIODevice *io, ScxmlTag *tag) const
 ScxmlTag *ScxmlDocument::createScxmlTag()
 {
     auto tag = new ScxmlTag(Scxml, this);
-    QMapIterator<QString, ScxmlNamespace*> i(m_namespaces);
-    while (i.hasNext()) {
-        i.next();
-        QString prefix = i.value()->prefix();
+    for (ScxmlNamespace *ns : m_namespaces) {
+        QString prefix = ns->prefix();
         if (prefix.isEmpty())
             prefix = "xmlns";
 
         if (prefix.startsWith("xmlns"))
-            tag->setAttribute(prefix, i.value()->name());
+            tag->setAttribute(prefix, ns->name());
         else
-            tag->setAttribute(QString::fromLatin1("xmlns:%1").arg(prefix), i.value()->name());
+            tag->setAttribute(QString::fromLatin1("xmlns:%1").arg(prefix), ns->name());
     }
     return tag;
 }

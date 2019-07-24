@@ -286,12 +286,9 @@ public:
     ReplaceInTrie() { }
     void operator()(QString s)
     {
-        QHashIterator<QString, QString> i(replacements);
         QString res = s;
-        while (i.hasNext()) {
-            i.next();
+        for (auto i = replacements.cbegin(), end = replacements.cend(); i != end; ++i)
             res.replace(i.key(), i.value());
-        }
         trie = TrieNode::insertF(trie,res);
     }
 };

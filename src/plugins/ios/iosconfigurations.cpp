@@ -474,9 +474,8 @@ void IosConfigurations::loadProvisioningData(bool notify)
     const QSettings xcodeSettings(xcodePlistPath, QSettings::NativeFormat);
     const QVariantMap teamMap = xcodeSettings.value(provisioningTeamsTag).toMap();
     QList<QVariantMap> teams;
-    QMapIterator<QString, QVariant> accountiterator(teamMap);
-    while (accountiterator.hasNext()) {
-        accountiterator.next();
+    for (auto accountiterator = teamMap.cbegin(), end = teamMap.cend();
+            accountiterator != end; ++accountiterator) {
         QVariantMap teamInfo = accountiterator.value().toMap();
         int provisioningTeamIsFree = teamInfo.value(freeTeamTag).toBool() ? 1 : 0;
         teamInfo[freeTeamTag] = provisioningTeamIsFree;

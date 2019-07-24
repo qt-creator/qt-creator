@@ -56,10 +56,8 @@ QList<Core::LocatorFilterEntry> MacroLocatorFilter::matchesFor(QFutureInterface<
     const Qt::CaseSensitivity entryCaseSensitivity = caseSensitivity(entry);
 
     const QMap<QString, Macro*> &macros = MacroManager::macros();
-    QMapIterator<QString, Macro*> it(macros);
 
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = macros.cbegin(), end = macros.cend(); it != end; ++it) {
         const QString displayName = it.key();
         const QString description = it.value()->description();
 

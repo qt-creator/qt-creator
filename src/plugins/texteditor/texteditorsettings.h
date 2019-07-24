@@ -79,7 +79,7 @@ public:
     static const CommentsSettings &commentsSettings();
 
     static ICodeStylePreferencesFactory *codeStyleFactory(Core::Id languageId);
-    static QMap<Core::Id, ICodeStylePreferencesFactory *> codeStyleFactories();
+    static const QMap<Core::Id, ICodeStylePreferencesFactory *> &codeStyleFactories();
     static void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);
     static void unregisterCodeStyleFactory(Core::Id languageId);
 

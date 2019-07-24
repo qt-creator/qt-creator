@@ -473,7 +473,7 @@ void TextEditorSettings::unregisterCodeStyleFactory(Core::Id languageId)
     d->m_languageToFactory.remove(languageId);
 }
 
-QMap<Core::Id, ICodeStylePreferencesFactory *> TextEditorSettings::codeStyleFactories()
+const QMap<Core::Id, ICodeStylePreferencesFactory *> &TextEditorSettings::codeStyleFactories()
 {
     return d->m_languageToFactory;
 }

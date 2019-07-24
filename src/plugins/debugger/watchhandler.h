@@ -86,8 +86,8 @@ public:
     static QStringList watchedExpressions();
     static QMap<QString, int> watcherNames();
 
-    void appendFormatRequests(DebuggerCommand *cmd);
-    void appendWatchersAndTooltipRequests(DebuggerCommand *cmd);
+    void appendFormatRequests(DebuggerCommand *cmd) const;
+    void appendWatchersAndTooltipRequests(DebuggerCommand *cmd) const;
 
     QString typeFormatRequests() const;
     QString individualFormatRequests() const;

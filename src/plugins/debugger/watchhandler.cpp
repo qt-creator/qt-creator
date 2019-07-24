@@ -220,18 +220,14 @@ static void saveWatchers()
 
 static void loadFormats()
 {
-    QVariant value = SessionManager::value("DefaultFormats");
-    QMapIterator<QString, QVariant> it(value.toMap());
-    while (it.hasNext()) {
-        it.next();
+    QMap<QString, QVariant> value = SessionManager::value("DefaultFormats").toMap();
+    for (auto it = value.cbegin(), end = value.cend(); it != end; ++it) {
         if (!it.key().isEmpty())
             theTypeFormats.insert(it.key(), it.value().toInt());
     }
 
-    value = SessionManager::value("IndividualFormats");
-    it = QMapIterator<QString, QVariant>(value.toMap());
-    while (it.hasNext()) {
-        it.next();
+    value = SessionManager::value("IndividualFormats").toMap();
+    for (auto it = value.cbegin(), end = value.cend(); it != end; ++it) {
         if (!it.key().isEmpty())
             theIndividualFormats.insert(it.key(), it.value().toInt());
     }
@@ -240,9 +236,7 @@ static void loadFormats()
 static void saveFormats()
 {
     QMap<QString, QVariant> formats;
-    QHashIterator<QString, int> it(theTypeFormats);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = theTypeFormats.cbegin(), end = theTypeFormats.cend(); it != end; ++it) {
         const int format = it.value();
         if (format != AutomaticFormat) {
             const QString key = it.key().trimmed();
@@ -253,9 +247,7 @@ static void saveFormats()
     SessionManager::setValue("DefaultFormats", formats);
 
     formats.clear();
-    it = QHashIterator<QString, int>(theIndividualFormats);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = theIndividualFormats.cbegin(), end = theIndividualFormats.cend(); it != end; ++it) {
         const int format = it.value();
         const QString key = it.key().trimmed();
         if (!key.isEmpty())
@@ -2395,9 +2387,7 @@ QStringList WatchHandler::watchedExpressions()
 {
     // Filter out invalid watchers.
     QStringList watcherNames;
-    QMapIterator<QString, int> it(theWatcherNames);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = theWatcherNames.cbegin(), end = theWatcherNames.cend(); it != end; ++it) {
         const QString &watcherName = it.key();
         if (!watcherName.isEmpty())
             watcherNames.push_back(watcherName);
@@ -2512,9 +2502,7 @@ QString WatchHandler::typeFormatRequests() const
 {
     QString ba;
     if (!theTypeFormats.isEmpty()) {
-        QHashIterator<QString, int> it(theTypeFormats);
-        while (it.hasNext()) {
-            it.next();
+        for (auto it = theTypeFormats.cbegin(), end = theTypeFormats.cend(); it != end; ++it) {
             const int format = it.value();
             if (format != AutomaticFormat) {
                 ba.append(toHex(it.key()));
@@ -2532,9 +2520,7 @@ QString WatchHandler::individualFormatRequests() const
 {
     QString res;
     if (!theIndividualFormats.isEmpty()) {
-        QHashIterator<QString, int> it(theIndividualFormats);
-        while (it.hasNext()) {
-            it.next();
+        for (auto it = theIndividualFormats.cbegin(), end = theIndividualFormats.cend(); it != end; ++it) {
             const int format = it.value();
             if (format != AutomaticFormat) {
                 res.append(it.key());
@@ -2548,19 +2534,16 @@ QString WatchHandler::individualFormatRequests() const
     return res;
 }
 
-void WatchHandler::appendFormatRequests(DebuggerCommand *cmd)
+void WatchHandler::appendFormatRequests(DebuggerCommand *cmd) const
 {
     QJsonArray expanded;
-    QSetIterator<QString> jt(m_model->m_expandedINames);
-    while (jt.hasNext())
-        expanded.append(jt.next());
+    for (const QString &name : qAsConst(m_model->m_expandedINames))
+        expanded.append(name);
 
     cmd->arg("expanded", expanded);
 
     QJsonObject typeformats;
-    QHashIterator<QString, int> it(theTypeFormats);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = theTypeFormats.cbegin(), end = theTypeFormats.cend(); it != end; ++it) {
         const int format = it.value();
         if (format != AutomaticFormat)
             typeformats.insert(it.key(), format);
@@ -2568,12 +2551,10 @@ void WatchHandler::appendFormatRequests(DebuggerCommand *cmd)
     cmd->arg("typeformats", typeformats);
 
     QJsonObject formats;
-    QHashIterator<QString, int> it2(theIndividualFormats);
-    while (it2.hasNext()) {
-        it2.next();
-        const int format = it2.value();
+    for (auto it = theIndividualFormats.cbegin(), end = theIndividualFormats.cend(); it != end; ++it) {
+        const int format = it.value();
         if (format != AutomaticFormat)
-            formats.insert(it2.key(), format);
+            formats.insert(it.key(), format);
     }
     cmd->arg("formats", formats);
 }
@@ -2586,18 +2567,16 @@ static inline QJsonObject watcher(const QString &iname, const QString &exp)
     return watcher;
 }
 
-void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd)
+void WatchHandler::appendWatchersAndTooltipRequests(DebuggerCommand *cmd) const
 {
     QJsonArray watchers;
     const DebuggerToolTipContexts toolTips = m_engine->toolTipManager()->pendingTooltips();
     for (const DebuggerToolTipContext &p : toolTips)
         watchers.append(watcher(p.iname, p.expression));
 
-    QMapIterator<QString, int> it(WatchHandler::watcherNames());
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = theWatcherNames.cbegin(), end = theWatcherNames.cend(); it != end; ++it)
         watchers.append(watcher("watch." + QString::number(it.value()), it.key()));
-    }
+
     cmd->arg("watchers", watchers);
 }
 

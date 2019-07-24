@@ -325,14 +325,13 @@ void Action::addOverrideAction(QAction *action, const Context &context, bool scr
 
 void Action::removeOverrideAction(QAction *action)
 {
-    QMutableMapIterator<Id, QPointer<QAction> > it(m_contextActionMap);
-    while (it.hasNext()) {
-        it.next();
-        if (it.value() == nullptr)
-            it.remove();
-        else if (it.value() == action)
-            it.remove();
+    QList<Id> toRemove;
+    for (auto it = m_contextActionMap.cbegin(), end = m_contextActionMap.cend(); it != end; ++it) {
+        if (it.value() == nullptr || it.value() == action)
+            toRemove.append(it.key());
     }
+    for (Id id : toRemove)
+        m_contextActionMap.remove(id);
     setCurrentContext(m_context);
 }
 

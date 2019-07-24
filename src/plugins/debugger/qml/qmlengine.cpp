@@ -886,12 +886,10 @@ static ConsoleItem *constructLogItemTree(const QVariant &result,
         else
             text = key + " : Object";
 
-        QMap<QString, QVariant> resultMap = result.toMap();
+        const QMap<QString, QVariant> resultMap = result.toMap();
         QVarLengthArray<ConsoleItem *> children(resultMap.size());
-        QMapIterator<QString, QVariant> i(result.toMap());
         auto it = children.begin();
-        while (i.hasNext()) {
-            i.next();
+        for (auto i = resultMap.cbegin(), end = resultMap.cend(); i != end; ++i) {
             *(it++) = constructLogItemTree(i.value(), i.key());
         }
 

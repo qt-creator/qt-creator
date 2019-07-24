@@ -321,7 +321,6 @@ private:
     QString m_fileName;
 };
 using Marks = QHash<QChar, Mark>;
-using MarksIterator = QHashIterator<QChar, Mark>;
 
 struct State
 {
@@ -3605,8 +3604,7 @@ void FakeVimHandler::Private::updateSelection()
 {
     QList<QTextEdit::ExtraSelection> selections = m_extraSelections;
     if (hasConfig(ConfigShowMarks)) {
-        for (MarksIterator it(m_buffer->marks); it.hasNext(); ) {
-            it.next();
+        for (auto it = m_buffer->marks.cbegin(), end = m_buffer->marks.cend(); it != end; ++it) {
             QTextEdit::ExtraSelection sel;
             sel.cursor = m_cursor;
             setCursorPosition(&sel.cursor, it.value().position(document()));
@@ -5724,9 +5722,7 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
     QByteArray regs = cmd.args.toLatin1();
     if (regs.isEmpty()) {
         regs = "\"0123456789";
-        QHashIterator<int, Register> it(g.registers);
-        while (it.hasNext()) {
-            it.next();
+        for (auto it = g.registers.cbegin(), end = g.registers.cend(); it != end; ++it) {
             if (it.key() > '9')
                 regs += char(it.key());
         }
@@ -8535,10 +8531,8 @@ bool FakeVimHandler::Private::jumpToMark(QChar mark, bool backTickMode)
 
 void FakeVimHandler::Private::updateMarks(const Marks &newMarks)
 {
-    for (MarksIterator it(newMarks); it.hasNext(); ) {
-        it.next();
+    for (auto it = newMarks.cbegin(), end = newMarks.cend(); it != end; ++it)
         m_buffer->marks[it.key()] = it.value();
-    }
 }
 
 RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const

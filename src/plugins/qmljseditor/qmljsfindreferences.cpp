@@ -814,9 +814,8 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
     // update snapshot from workingCopy to make sure it's up to date
     // ### remove?
     // ### this is a great candidate for map-reduce
-    QHashIterator< QString, QPair<QString, int> > it(workingCopy.all());
-    while (it.hasNext()) {
-        it.next();
+    const ModelManagerInterface::WorkingCopy::Table &all = workingCopy.all();
+    for (auto it = all.cbegin(), end = all.cend(); it != end; ++it) {
         const QString fileName = it.key();
         Document::Ptr oldDoc = snapshot.document(fileName);
         if (oldDoc && oldDoc->editorRevision() == it.value().second)

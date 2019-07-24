@@ -469,9 +469,7 @@ QVariantMap UserFileAccessor::prepareToWriteSettings(const QVariantMap &data) co
 QVariantMap UserFileVersion14Upgrader::upgrade(const QVariantMap &map)
 {
     QVariantMap result;
-    QMapIterator<QString, QVariant> it(map);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
         if (it.value().type() == QVariant::Map)
             result.insert(it.key(), upgrade(it.value().toMap()));
         else if (it.key() == "AutotoolsProjectManager.AutotoolsBuildConfiguration.BuildDirectory"

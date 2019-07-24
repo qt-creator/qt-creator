@@ -239,9 +239,8 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
     using TranslationUnitIds = QSet<Utf8String>;
     TranslationUnitIds translationUnitsScheduledForThisRun;
 
-    QMutableVectorIterator<JobRequest> i(m_queue);
-    while (i.hasNext()) {
-        const JobRequest &request = i.next();
+    for (int pos = 0; pos < m_queue.size(); ++pos) {
+        const JobRequest &request = m_queue.at(pos);
 
         try {
             const Document &document = m_documents.document(request.filePath);
@@ -258,7 +257,7 @@ JobRequests JobQueue::takeJobRequestsToRunNow()
 
             translationUnitsScheduledForThisRun.insert(id);
             jobsToRun += request;
-            i.remove();
+            m_queue.removeAt(pos--);
         } catch (const std::exception &exception) {
             qWarning() << "Error in Jobs::takeJobRequestsToRunNow for"
                        << request << ":" << exception.what();

@@ -122,13 +122,11 @@ void TodoItemsProvider::createScanners()
 
 void TodoItemsProvider::setItemsListWithinStartupProject()
 {
-    QHashIterator<FilePath, QList<TodoItem> > it(m_itemsHash);
     const auto filePaths = Utils::toSet(m_startupProject->files(Project::SourceFiles));
 
     QVariantMap settings = m_startupProject->namedSettings(Constants::SETTINGS_NAME_KEY).toMap();
 
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = m_itemsHash.cbegin(), end = m_itemsHash.cend(); it != end; ++it) {
         const FilePath filePath = it.key();
         if (filePaths.contains(filePath)) {
             bool skip = false;
@@ -160,9 +158,7 @@ void TodoItemsProvider::setItemsListWithinSubproject()
 
             // files must be both in the current subproject and the startup-project.
             const auto fileNames = Utils::toSet(m_startupProject->files(Project::SourceFiles));
-            QHashIterator<FilePath, QList<TodoItem> > it(m_itemsHash);
-            while (it.hasNext()) {
-                it.next();
+            for (auto it = m_itemsHash.cbegin(), end = m_itemsHash.cend(); it != end; ++it) {
                 if (subprojectFileNames.contains(it.key()) && fileNames.contains(it.key()))
                     m_itemsList << it.value();
             }

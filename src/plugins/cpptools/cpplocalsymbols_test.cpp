@@ -93,9 +93,7 @@ struct Result
     {
         QList<Result> result;
 
-        CppTools::SemanticInfo::LocalUseIterator it(localUses);
-        while (it.hasNext()) {
-            it.next();
+        for (auto it = localUses.cbegin(), end = localUses.cend(); it != end; ++it) {
             const CPlusPlus::Symbol *symbol = it.key();
             const QList<CppTools::SemanticInfo::Use> &uses = it.value();
             foreach (const CppTools::SemanticInfo::Use &use, uses)

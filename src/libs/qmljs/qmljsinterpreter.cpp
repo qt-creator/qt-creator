@@ -1098,11 +1098,7 @@ bool ObjectValue::checkPrototype(const ObjectValue *, QSet<const ObjectValue *> 
 
 void ObjectValue::processMembers(MemberProcessor *processor) const
 {
-    QHashIterator<QString, PropertyData> it(m_members);
-
-    while (it.hasNext()) {
-        it.next();
-
+    for (auto it = m_members.cbegin(), end = m_members.cend(); it != end; ++it) {
         if (! processor->processProperty(it.key(), it.value().value, it.value().propertyInfo))
             break;
     }
@@ -2359,10 +2355,9 @@ TypeScope::TypeScope(const Imports *imports, ValueOwner *valueOwner)
 const Value *TypeScope::lookupMember(const QString &name, const Context *context,
                                            const ObjectValue **foundInObject, bool) const
 {
-    QListIterator<Import> it(m_imports->all());
-    it.toBack();
-    while (it.hasPrevious()) {
-        const Import &i = it.previous();
+    const QList<Import> &imports = m_imports->all();
+    for (int pos = imports.size(); --pos >= 0; ) {
+        const Import &i = imports.at(pos);
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
@@ -2374,7 +2369,7 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
             if (info.as() == name) {
                 if (foundInObject)
                     *foundInObject = this;
-                i.used = true;
+                i.used = true;  // FIXME: This evilly modifies a 'const' object
                 return import;
             }
             continue;
@@ -2392,10 +2387,9 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
 
 void TypeScope::processMembers(MemberProcessor *processor) const
 {
-    QListIterator<Import> it(m_imports->all());
-    it.toBack();
-    while (it.hasPrevious()) {
-        const Import &i = it.previous();
+    const QList<Import> &imports = m_imports->all();
+    for (int pos = imports.size(); --pos >= 0; ) {
+        const Import &i = imports.at(pos);
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
@@ -2424,10 +2418,9 @@ JSImportScope::JSImportScope(const Imports *imports, ValueOwner *valueOwner)
 const Value *JSImportScope::lookupMember(const QString &name, const Context *,
                                          const ObjectValue **foundInObject, bool) const
 {
-    QListIterator<Import> it(m_imports->all());
-    it.toBack();
-    while (it.hasPrevious()) {
-        const Import &i = it.previous();
+    const QList<Import> &imports = m_imports->all();
+    for (int pos = imports.size(); --pos >= 0; ) {
+        const Import &i = imports.at(pos);
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
@@ -2449,10 +2442,9 @@ const Value *JSImportScope::lookupMember(const QString &name, const Context *,
 
 void JSImportScope::processMembers(MemberProcessor *processor) const
 {
-    QListIterator<Import> it(m_imports->all());
-    it.toBack();
-    while (it.hasPrevious()) {
-        const Import &i = it.previous();
+    const QList<Import> &imports = m_imports->all();
+    for (int pos = imports.size(); --pos >= 0; ) {
+        const Import &i = imports.at(pos);
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
@@ -2505,10 +2497,8 @@ ImportInfo Imports::info(const QString &name, const Context *context) const
     if (dotIdx != -1)
         firstId = firstId.left(dotIdx);
 
-    QListIterator<Import> it(m_imports);
-    it.toBack();
-    while (it.hasPrevious()) {
-        const Import &i = it.previous();
+    for (int pos = m_imports.size(); --pos >= 0; ) {
+        const Import &i = m_imports.at(pos);
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
@@ -2531,10 +2521,8 @@ ImportInfo Imports::info(const QString &name, const Context *context) const
 
 QString Imports::nameForImportedObject(const ObjectValue *value, const Context *context) const
 {
-    QListIterator<Import> it(m_imports);
-    it.toBack();
-    while (it.hasPrevious()) {
-        const Import &i = it.previous();
+    for (int pos = m_imports.size(); --pos >= 0; ) {
+        const Import &i = m_imports.at(pos);
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
@@ -2617,10 +2605,8 @@ public:
 void Imports::dump() const
 {
     qCDebug(qmljsLog) << "Imports contents, in search order:";
-    QListIterator<Import> it(m_imports);
-    it.toBack();
-    while (it.hasPrevious()) {
-        const Import &i = it.previous();
+    for (int pos = m_imports.size(); --pos >= 0; ) {
+        const Import &i = m_imports.at(pos);
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 

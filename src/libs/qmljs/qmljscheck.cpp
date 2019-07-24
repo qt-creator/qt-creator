@@ -1577,9 +1577,8 @@ void Check::scanCommentsForAnnotations()
 
 void Check::warnAboutUnnecessarySuppressions()
 {
-    QHashIterator< int, QList<MessageTypeAndSuppression> > it(m_disabledMessageTypesByLine);
-    while (it.hasNext()) {
-        it.next();
+    for (auto it = m_disabledMessageTypesByLine.cbegin(), end = m_disabledMessageTypesByLine.cend();
+           it != end; ++it) {
         foreach (const MessageTypeAndSuppression &entry, it.value()) {
             if (!entry.wasSuppressed)
                 addMessage(WarnUnnecessaryMessageSuppression, entry.suppressionSource);
