@@ -393,7 +393,8 @@ public:
         "WITH RECURSIVE collectedDependencies(sourceId) AS (VALUES(?) UNION SELECT "
         "dependencySourceId FROM sourceDependencies, collectedDependencies WHERE "
         "sourceDependencies.sourceId == collectedDependencies.sourceId) SELECT DISTINCT sourceId, "
-        "indexingTimeStamp FROM collectedDependencies NATURAL JOIN fileStatuses ORDER BY sourceId",
+        "indexingTimeStamp FROM collectedDependencies NATURAL LEFT JOIN fileStatuses ORDER BY "
+        "sourceId",
         database};
     mutable ReadStatement fetchIndexingTimeStampsStatement{
         "SELECT sourceId, indexingTimeStamp FROM fileStatuses", database};
