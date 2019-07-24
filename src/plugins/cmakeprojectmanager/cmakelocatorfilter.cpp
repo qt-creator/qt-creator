@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "cmakelocatorfilter.h"
+#include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
 #include "cmakeproject.h"
 
@@ -62,15 +63,30 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
     const QList<Project *> projects = SessionManager::projects();
     for (Project *p : projects) {
         auto cmakeProject = qobject_cast<const CMakeProject *>(p);
-        if (!cmakeProject)
+        if (!cmakeProject || !cmakeProject->activeTarget())
             continue;
-        const QStringList buildTargetTitles = cmakeProject->buildTargetTitles();
-        for (const QString &title : buildTargetTitles) {
-            const int index = title.indexOf(entry);
+        auto bc = qobject_cast<CMakeBuildConfiguration *>(
+            cmakeProject->activeTarget()->activeBuildConfiguration());
+        if (!bc)
+            continue;
+
+        const QList<CMakeBuildTarget> buildTargets = bc->buildTargets();
+        for (const CMakeBuildTarget &target : buildTargets) {
+            const int index = target.title.indexOf(entry);
             if (index >= 0) {
-                Core::LocatorFilterEntry filterEntry(this, title, cmakeProject->projectFilePath().toString());
-                filterEntry.extraInfo = cmakeProject->projectFilePath().shortNativePath();
+                const FilePath path = target.definitionFile.isEmpty()
+                                          ? cmakeProject->projectFilePath()
+                                          : target.definitionFile;
+                QVariantMap extraData;
+                extraData.insert("project", cmakeProject->projectFilePath().toString());
+                extraData.insert("line", target.definitionLine);
+                extraData.insert("file", path.toString());
+
+                Core::LocatorFilterEntry filterEntry(this, target.title, extraData);
+                filterEntry.extraInfo = path.shortNativePath();
                 filterEntry.highlightInfo = {index, entry.length()};
+                filterEntry.fileName = path.toString();
+
                 m_result.append(filterEntry);
             }
         }
@@ -115,10 +131,14 @@ void BuildCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
+
+    const QVariantMap extraData = selection.internalData.toMap();
+    const FilePath projectPath = FilePath::fromString(extraData.value("project").toString());
+
     // Get the project containing the target selected
     const auto cmakeProject = qobject_cast<CMakeProject *>(
-        Utils::findOrDefault(SessionManager::projects(), [selection](Project *p) {
-            return p->projectFilePath().toString() == selection.internalData.toString();
+        Utils::findOrDefault(SessionManager::projects(), [projectPath](Project *p) {
+            return p->projectFilePath() == projectPath;
         }));
     if (!cmakeProject || !cmakeProject->activeTarget()
         || !cmakeProject->activeTarget()->activeBuildConfiguration())
