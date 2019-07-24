@@ -40,9 +40,9 @@
 
 struct LineColumn
 {
-    LineColumn(unsigned line = 0, unsigned column = 0) : line(line), column(column) {}
-    unsigned line;
-    unsigned column;
+    LineColumn(int line = 0, int column = 0) : line(line), column(column) {}
+    int line;
+    int column;
 };
 typedef QList<LineColumn> LineColumnList;
 Q_DECLARE_METATYPE(LineColumnList)
@@ -128,8 +128,8 @@ private:
 
             Diagnostic() : errorCount(0) {}
 
-            void report(int /*level*/, const StringLiteral *fileName, unsigned line,
-                        unsigned column, const char *format, va_list ap)
+            void report(int /*level*/, const StringLiteral *fileName, int line,
+                        int column, const char *format, va_list ap)
             {
                 ++errorCount;
                 qDebug() << fileName->chars() << ':' << line << ':' << column
@@ -145,8 +145,8 @@ private:
     public:
         TokenGetter(TranslationUnit *translationUnit) : m_translationUnit(translationUnit) {}
         virtual ~TokenGetter() {}
-        virtual unsigned tokenCount() { return m_translationUnit->tokenCount(); }
-        virtual Token tokenAt(unsigned index) { return m_translationUnit->tokenAt(index); }
+        virtual int tokenCount() { return m_translationUnit->tokenCount(); }
+        virtual Token tokenAt(int index) { return m_translationUnit->tokenAt(index); }
     protected:
         TranslationUnit *m_translationUnit;
     };
@@ -155,8 +155,8 @@ private:
     {
     public:
         CommentTokenGetter(TranslationUnit *translationUnit) : TokenGetter(translationUnit) {}
-        unsigned tokenCount() { return m_translationUnit->commentCount(); }
-        Token tokenAt(unsigned index) { return m_translationUnit->commentAt(index); }
+        int tokenCount() override { return m_translationUnit->commentCount(); }
+        Token tokenAt(int index) override { return m_translationUnit->commentAt(index); }
     };
 
     static void compareTokenLocations(TranslationUnit *translationUnit,
@@ -168,11 +168,11 @@ void tst_TranslationUnit::compareTokenLocations(TranslationUnit *translationUnit
                                                 tst_TranslationUnit::TokenGetter *tokenGetter,
                                                 const LineColumnList &expectedLinesColumns)
 {
-    QCOMPARE(tokenGetter->tokenCount(), (unsigned) expectedLinesColumns.count());
-    for (unsigned i = 0, tokenCount = tokenGetter->tokenCount(); i < tokenCount; ++i) {
+    QCOMPARE(tokenGetter->tokenCount(), expectedLinesColumns.count());
+    for (int i = 0, tokenCount = tokenGetter->tokenCount(); i < tokenCount; ++i) {
         const LineColumn expected = expectedLinesColumns.at(i);
-        const unsigned utf16CharOffset = tokenGetter->tokenAt(i).utf16charsBegin();
-        unsigned line, column;
+        const int utf16CharOffset = tokenGetter->tokenAt(i).utf16charsBegin();
+        int line, column;
         translationUnit->getPosition(utf16CharOffset, &line, &column);
 //        qDebug("%d: LineColumn(%u, %u)", i, line, column);
         QCOMPARE(line, expected.line);

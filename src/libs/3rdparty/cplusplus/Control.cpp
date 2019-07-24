@@ -579,15 +579,15 @@ const OperatorNameId *Control::findOperatorNameId(OperatorNameId::Kind operatorI
         return &*i;
 }
 
-const Identifier *Control::findIdentifier(const char *chars, unsigned size) const
+const Identifier *Control::findIdentifier(const char *chars, int size) const
 { return d->identifiers.findLiteral(chars, size); }
 
-const Identifier *Control::identifier(const char *chars, unsigned size)
+const Identifier *Control::identifier(const char *chars, int size)
 { return d->identifiers.findOrInsertLiteral(chars, size); }
 
 const Identifier *Control::identifier(const char *chars)
 {
-    const unsigned length = unsigned(std::strlen(chars));
+    const int length = int(std::strlen(chars));
     return identifier(chars, length);
 }
 
@@ -609,28 +609,28 @@ Control::NumericLiteralIterator Control::firstNumericLiteral() const
 Control::NumericLiteralIterator Control::lastNumericLiteral() const
 { return d->numericLiterals.end(); }
 
-const StringLiteral *Control::stringLiteral(const char *chars, unsigned size)
+const StringLiteral *Control::stringLiteral(const char *chars, int size)
 { return d->stringLiterals.findOrInsertLiteral(chars, size); }
 
 const StringLiteral *Control::stringLiteral(const char *chars)
 {
-    const unsigned length = unsigned(std::strlen(chars));
+    const int length = int(std::strlen(chars));
     return stringLiteral(chars, length);
 }
 
-const NumericLiteral *Control::numericLiteral(const char *chars, unsigned size)
+const NumericLiteral *Control::numericLiteral(const char *chars, int size)
 { return d->numericLiterals.findOrInsertLiteral(chars, size); }
 
 const NumericLiteral *Control::numericLiteral(const char *chars)
 {
-    const unsigned length = unsigned(std::strlen(chars));
+    const int length = int(std::strlen(chars));
     return numericLiteral(chars, length);
 }
 
 const TemplateNameId *Control::templateNameId(const Identifier *id,
                                               bool isSpecialization,
                                               const FullySpecifiedType *const args,
-                                              unsigned argv)
+                                              int argv)
 {
     return d->findOrInsertTemplateNameId(id, isSpecialization, args, args + argv);
 }
@@ -650,7 +650,7 @@ const QualifiedNameId *Control::qualifiedNameId(const Name *base, const Name *na
 }
 
 const SelectorNameId *Control::selectorNameId(const Name *const *names,
-                                              unsigned nameCount,
+                                              int nameCount,
                                               bool hasArguments)
 {
     return d->findOrInsertSelectorNameId(names, names + nameCount, hasArguments);
@@ -675,88 +675,88 @@ PointerType *Control::pointerType(const FullySpecifiedType &elementType)
 ReferenceType *Control::referenceType(const FullySpecifiedType &elementType, bool rvalueRef)
 { return d->findOrInsertReferenceType(elementType, rvalueRef); }
 
-ArrayType *Control::arrayType(const FullySpecifiedType &elementType, unsigned size)
+ArrayType *Control::arrayType(const FullySpecifiedType &elementType, int size)
 { return d->findOrInsertArrayType(elementType, size); }
 
 NamedType *Control::namedType(const Name *name)
 { return d->findOrInsertNamedType(name); }
 
-Argument *Control::newArgument(unsigned sourceLocation, const Name *name)
+Argument *Control::newArgument(int sourceLocation, const Name *name)
 { return d->newArgument(sourceLocation, name); }
 
-TypenameArgument *Control::newTypenameArgument(unsigned sourceLocation, const Name *name)
+TypenameArgument *Control::newTypenameArgument(int sourceLocation, const Name *name)
 { return d->newTypenameArgument(sourceLocation, name); }
 
-Function *Control::newFunction(unsigned sourceLocation, const Name *name)
+Function *Control::newFunction(int sourceLocation, const Name *name)
 { return d->newFunction(sourceLocation, name); }
 
-Namespace *Control::newNamespace(unsigned sourceLocation, const Name *name)
+Namespace *Control::newNamespace(int sourceLocation, const Name *name)
 { return d->newNamespace(sourceLocation, name); }
 
-Template *Control::newTemplate(unsigned sourceLocation, const Name *name)
+Template *Control::newTemplate(int sourceLocation, const Name *name)
 { return d->newTemplate(sourceLocation, name); }
 
-NamespaceAlias *Control::newNamespaceAlias(unsigned sourceLocation, const Name *name)
+NamespaceAlias *Control::newNamespaceAlias(int sourceLocation, const Name *name)
 { return d->newNamespaceAlias(sourceLocation, name); }
 
-BaseClass *Control::newBaseClass(unsigned sourceLocation, const Name *name)
+BaseClass *Control::newBaseClass(int sourceLocation, const Name *name)
 { return d->newBaseClass(sourceLocation, name); }
 
-Class *Control::newClass(unsigned sourceLocation, const Name *name)
+Class *Control::newClass(int sourceLocation, const Name *name)
 { return d->newClass(sourceLocation, name); }
 
-Enum *Control::newEnum(unsigned sourceLocation, const Name *name)
+Enum *Control::newEnum(int sourceLocation, const Name *name)
 { return d->newEnum(sourceLocation, name); }
 
-Block *Control::newBlock(unsigned sourceLocation)
+Block *Control::newBlock(int sourceLocation)
 { return d->newBlock(sourceLocation); }
 
-Declaration *Control::newDeclaration(unsigned sourceLocation, const Name *name)
+Declaration *Control::newDeclaration(int sourceLocation, const Name *name)
 { return d->newDeclaration(sourceLocation, name); }
 
-EnumeratorDeclaration *Control::newEnumeratorDeclaration(unsigned sourceLocation, const Name *name)
+EnumeratorDeclaration *Control::newEnumeratorDeclaration(int sourceLocation, const Name *name)
 { return d->newEnumeratorDeclaration(sourceLocation, name); }
 
-UsingNamespaceDirective *Control::newUsingNamespaceDirective(unsigned sourceLocation,
+UsingNamespaceDirective *Control::newUsingNamespaceDirective(int sourceLocation,
                                                                 const Name *name)
 { return d->newUsingNamespaceDirective(sourceLocation, name); }
 
-UsingDeclaration *Control::newUsingDeclaration(unsigned sourceLocation, const Name *name)
+UsingDeclaration *Control::newUsingDeclaration(int sourceLocation, const Name *name)
 { return d->newUsingDeclaration(sourceLocation, name); }
 
-ForwardClassDeclaration *Control::newForwardClassDeclaration(unsigned sourceLocation,
+ForwardClassDeclaration *Control::newForwardClassDeclaration(int sourceLocation,
                                                              const Name *name)
 { return d->newForwardClassDeclaration(sourceLocation, name); }
 
-QtPropertyDeclaration *Control::newQtPropertyDeclaration(unsigned sourceLocation,
+QtPropertyDeclaration *Control::newQtPropertyDeclaration(int sourceLocation,
                                                          const Name *name)
 { return d->newQtPropertyDeclaration(sourceLocation, name); }
 
-QtEnum *Control::newQtEnum(unsigned sourceLocation, const Name *name)
+QtEnum *Control::newQtEnum(int sourceLocation, const Name *name)
 { return d->newQtEnum(sourceLocation, name); }
 
-ObjCBaseClass *Control::newObjCBaseClass(unsigned sourceLocation, const Name *name)
+ObjCBaseClass *Control::newObjCBaseClass(int sourceLocation, const Name *name)
 { return d->newObjCBaseClass(sourceLocation, name); }
 
-ObjCBaseProtocol *Control::newObjCBaseProtocol(unsigned sourceLocation, const Name *name)
+ObjCBaseProtocol *Control::newObjCBaseProtocol(int sourceLocation, const Name *name)
 { return d->newObjCBaseProtocol(sourceLocation, name); }
 
-ObjCClass *Control::newObjCClass(unsigned sourceLocation, const Name *name)
+ObjCClass *Control::newObjCClass(int sourceLocation, const Name *name)
 { return d->newObjCClass(sourceLocation, name); }
 
-ObjCForwardClassDeclaration *Control::newObjCForwardClassDeclaration(unsigned sourceLocation, const Name *name)
+ObjCForwardClassDeclaration *Control::newObjCForwardClassDeclaration(int sourceLocation, const Name *name)
 { return d->newObjCForwardClassDeclaration(sourceLocation, name); }
 
-ObjCProtocol *Control::newObjCProtocol(unsigned sourceLocation, const Name *name)
+ObjCProtocol *Control::newObjCProtocol(int sourceLocation, const Name *name)
 { return d->newObjCProtocol(sourceLocation, name); }
 
-ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(unsigned sourceLocation, const Name *name)
+ObjCForwardProtocolDeclaration *Control::newObjCForwardProtocolDeclaration(int sourceLocation, const Name *name)
 { return d->newObjCForwardProtocolDeclaration(sourceLocation, name); }
 
-ObjCMethod *Control::newObjCMethod(unsigned sourceLocation, const Name *name)
+ObjCMethod *Control::newObjCMethod(int sourceLocation, const Name *name)
 { return d->newObjCMethod(sourceLocation, name); }
 
-ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name)
+ObjCPropertyDeclaration *Control::newObjCPropertyDeclaration(int sourceLocation, const Name *name)
 { return d->newObjCPropertyDeclaration(sourceLocation, name); }
 
 const Identifier *Control::deprecatedId() const
@@ -811,7 +811,7 @@ Symbol **Control::lastSymbol() const
     return &*d->symbols.begin() + d->symbols.size();
 }
 
-unsigned Control::symbolCount() const
+int Control::symbolCount() const
 {
     return unsigned(d->symbols.size());
 }

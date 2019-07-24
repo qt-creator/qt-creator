@@ -31,9 +31,9 @@ namespace TextEditor {
 
 class HighlightingResult {
 public:
-    unsigned line;
-    unsigned column;
-    unsigned length;
+    int line;
+    int column;
+    int length;
     TextStyles textStyles;
     int kind;
     bool useTextSyles;
@@ -48,11 +48,11 @@ public:
         : line(0), column(0), length(0), kind(0)
     {}
 
-    HighlightingResult(unsigned line, unsigned column, unsigned length, int kind)
+    HighlightingResult(int line, int column, int length, int kind)
         : line(line), column(column), length(length), kind(kind), useTextSyles(false)
     {}
 
-    HighlightingResult(unsigned line, unsigned column, unsigned length, TextStyles textStyles)
+    HighlightingResult(int line, int column, int length, TextStyles textStyles)
         : line(line), column(column), length(length), textStyles(textStyles), useTextSyles(true)
     {}
 

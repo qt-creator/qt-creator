@@ -54,9 +54,9 @@ public:
                    CXSourceLocation cxSourceLocation);
 
     const Utf8String &filePath() const;
-    uint line() const;
-    uint column() const;
-    uint offset() const;
+    int line() const;
+    int column() const;
+    int offset() const;
 
     SourceLocationContainer toSourceLocationContainer() const;
 
@@ -71,9 +71,9 @@ private:
    CXSourceLocation m_cxSourceLocation;
    CXTranslationUnit m_cxTranslationUnit;
    mutable Utf8String m_filePath;
-   mutable uint m_line = 0;
-   mutable uint m_column = 0;
-   mutable uint m_offset = 0;
+   mutable int m_line = 0;
+   mutable int m_column = 0;
+   mutable int m_offset = 0;
    mutable bool m_isFilePathNormalized = true;
    mutable bool m_isEvaluated = false;
 };

@@ -88,7 +88,7 @@ struct BoostTestInfo
 {
     QString fullName; // formatted like UNIX path
     BoostTestTreeItem::TestStates state;
-    unsigned line;
+    int line;
 };
 
 typedef QVector<BoostTestInfo> BoostTestInfoList;

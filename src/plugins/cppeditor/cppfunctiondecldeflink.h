@@ -94,8 +94,8 @@ public:
     // The 'target' prefix denotes information about the remote declaration matching
     // the 'source' declaration, where we will try to apply the user changes.
     // 1-based line and column
-    unsigned targetLine = 0;
-    unsigned targetColumn = 0;
+    int targetLine = 0;
+    int targetColumn = 0;
     QString targetInitial;
 
     CppTools::CppRefactoringFileConstPtr targetFile;

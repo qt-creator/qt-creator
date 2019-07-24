@@ -42,6 +42,7 @@ namespace CppCodeModelInspector {
 struct CPPTOOLS_EXPORT Utils
 {
     static QString toString(bool value);
+    static QString toString(int value);
     static QString toString(unsigned value);
     static QString toString(const QDateTime &dateTime);
     static QString toString(CPlusPlus::Document::CheckMode checkMode);

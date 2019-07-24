@@ -46,16 +46,16 @@ class CPPTOOLS_EXPORT CursorInfo
 public:
     struct Range {
         Range() = default;
-        Range(unsigned line, unsigned column, unsigned length)
+        Range(int line, int column, int length)
             : line(line)
             , column(column)
             , length(length)
         {
         }
 
-        unsigned line = 0; // 1-based
-        unsigned column = 0; // 1-based
-        unsigned length = 0;
+        int line = 0; // 1-based
+        int column = 0; // 1-based
+        int length = 0;
     };
     using Ranges = QVector<Range>;
 

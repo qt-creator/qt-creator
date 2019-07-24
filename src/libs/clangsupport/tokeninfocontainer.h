@@ -103,7 +103,7 @@ class TokenInfoContainer
 {
 public:
     TokenInfoContainer() = default;
-    TokenInfoContainer(uint line, uint column, uint length, HighlightingTypes types)
+    TokenInfoContainer(int line, int column, int length, HighlightingTypes types)
         : line(line)
         , column(column)
         , length(length)
@@ -111,7 +111,7 @@ public:
     {
     }
 
-    TokenInfoContainer(uint line, uint column, uint length, HighlightingTypes types,
+    TokenInfoContainer(int line, int column, int length, HighlightingTypes types,
                        const ExtraInfo &extraInfo)
         : line(line)
         , column(column)
@@ -184,9 +184,9 @@ public:
             && first.extraInfo == second.extraInfo;
     }
 
-    uint line = 0;
-    uint column = 0;
-    uint length = 0;
+    int line = 0;
+    int column = 0;
+    int length = 0;
     HighlightingTypes types;
     ExtraInfo extraInfo;
     bool noExtraInfo = true;

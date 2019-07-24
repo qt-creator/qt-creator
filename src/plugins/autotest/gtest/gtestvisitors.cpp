@@ -69,8 +69,8 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
 
         const bool disabled = testName.startsWith(disabledPrefix);
         const bool disabledCase = testCaseName.startsWith(disabledPrefix);
-        unsigned line = 0;
-        unsigned column = 0;
+        int line = 0;
+        int column = 0;
         unsigned token = id->firstToken();
         m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
 

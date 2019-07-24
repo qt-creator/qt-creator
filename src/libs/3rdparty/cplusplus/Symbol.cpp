@@ -86,7 +86,7 @@ private:
     unsigned _value;
 };
 
-Symbol::Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
+Symbol::Symbol(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : _name(0),
       _enclosingScope(0),
       _next(0),
@@ -142,7 +142,7 @@ void Symbol::visitSymbol(Symbol *symbol, SymbolVisitor *visitor)
     symbol->visitSymbol(visitor);
 }
 
-unsigned Symbol::sourceLocation() const
+int Symbol::sourceLocation() const
 { return _sourceLocation; }
 
 bool Symbol::isGenerated() const
@@ -160,7 +160,7 @@ bool Symbol::isUnavailable() const
 void Symbol::setUnavailable(bool isUnavailable)
 { _isUnavailable = isUnavailable; }
 
-void Symbol::setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit)
+void Symbol::setSourceLocation(int sourceLocation, TranslationUnit *translationUnit)
 {
     _sourceLocation = sourceLocation;
 
@@ -176,12 +176,12 @@ void Symbol::setSourceLocation(unsigned sourceLocation, TranslationUnit *transla
     }
 }
 
-unsigned Symbol::line() const
+int Symbol::line() const
 {
     return _line;
 }
 
-unsigned Symbol::column() const
+int Symbol::column() const
 {
     return _column;
 }
@@ -194,7 +194,7 @@ const StringLiteral *Symbol::fileId() const
 const char *Symbol::fileName() const
 { return _fileId ? _fileId->chars() : ""; }
 
-unsigned Symbol::fileNameLength() const
+int Symbol::fileNameLength() const
 { return _fileId ? _fileId->size() : 0; }
 
 const Name *Symbol::unqualifiedName() const
@@ -439,10 +439,10 @@ void Symbol::copy(Symbol *other)
 
 Utils::Link Symbol::toLink() const
 {
-    const QString filename = QString::fromUtf8(fileName(), static_cast<int>(fileNameLength()));
+    const QString filename = QString::fromUtf8(fileName(), fileNameLength());
 
-    int line = static_cast<int>(this->line());
-    int column = static_cast<int>(this->column());
+    int line = this->line();
+    int column = this->column();
 
     if (column)
         --column;

@@ -77,8 +77,8 @@ class tst_cxx11: public QObject
 
         virtual void report(int level,
                             const StringLiteral *fileName,
-                            unsigned line, unsigned column,
-                            const char *format, va_list ap)
+                            int line, int column,
+                            const char *format, va_list ap) override
         {
             if (! errors)
                 return;

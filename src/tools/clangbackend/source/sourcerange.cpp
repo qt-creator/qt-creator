@@ -64,7 +64,7 @@ SourceLocation SourceRange::end() const
     return {cxTranslationUnit, clang_getRangeEnd(cxSourceRange)};
 }
 
-bool SourceRange::contains(unsigned line, unsigned column) const
+bool SourceRange::contains(int line, int column) const
 {
     const SourceLocation start_ = start();
     const SourceLocation end_ = end();

@@ -114,7 +114,7 @@ public:
 
         virtual void report(int /*level*/,
                             const StringLiteral *fileName,
-                            unsigned line, unsigned column,
+                            int line, int column,
                             const char *format, va_list ap)
         {
             ++errorCount;
@@ -198,7 +198,7 @@ void tst_Semantic::function_declaration_1()
 {
     QSharedPointer<Document> doc = document("void foo();");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
@@ -207,7 +207,7 @@ void tst_Semantic::function_declaration_1()
     Function *funTy = declTy->asFunctionType();
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
-    QCOMPARE(funTy->argumentCount(), 0U);
+    QCOMPARE(funTy->argumentCount(), 0);
     QCOMPARE(funTy->refQualifier(), Function::NoRefQualifier);
 
     QVERIFY(decl->name()->isNameId());
@@ -222,7 +222,7 @@ void tst_Semantic::function_declaration_2()
 {
     QSharedPointer<Document> doc = document("void foo(const QString &s);");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
@@ -231,7 +231,7 @@ void tst_Semantic::function_declaration_2()
     Function *funTy = declTy->asFunctionType();
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
-    QCOMPARE(funTy->argumentCount(), 1U);
+    QCOMPARE(funTy->argumentCount(), 1);
     QCOMPARE(funTy->refQualifier(), Function::NoRefQualifier);
 
     // check the formal argument.
@@ -351,7 +351,7 @@ void tst_Semantic::function_declaration_ref_qualifier()
         return;
     }
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
@@ -360,7 +360,7 @@ void tst_Semantic::function_declaration_ref_qualifier()
     Function *funTy = declTy->asFunctionType();
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
-    QCOMPARE(funTy->argumentCount(), 0U);
+    QCOMPARE(funTy->argumentCount(), 0);
 
     // check the ref-qualifier
     QCOMPARE(funTy->refQualifier(), refQualifier);
@@ -370,12 +370,12 @@ void tst_Semantic::function_definition_1()
 {
     QSharedPointer<Document> doc = document("void foo() {}");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Function *funTy = doc->globals->memberAt(0)->asFunction();
     QVERIFY(funTy);
     QVERIFY(funTy->returnType()->isVoidType());
-    QCOMPARE(funTy->argumentCount(), 0U);
+    QCOMPARE(funTy->argumentCount(), 0);
     QCOMPARE(funTy->refQualifier(), Function::NoRefQualifier);
 
     QVERIFY(funTy->name()->isNameId());
@@ -398,7 +398,7 @@ void tst_Semantic::nested_class_1()
 "};\n"
     );
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 2U);
+    QCOMPARE(doc->globals->memberCount(), 2);
 
     Class *classObject = doc->globals->memberAt(0)->asClass();
     QVERIFY(classObject);
@@ -407,8 +407,8 @@ void tst_Semantic::nested_class_1()
     QVERIFY(classObjectNameId);
     const Identifier *objectId = classObjectNameId->identifier();
     QCOMPARE(QByteArray(objectId->chars(), objectId->size()), QByteArray("Object"));
-    QCOMPARE(classObject->baseClassCount(), 0U);
-    QCOMPARE(classObject->memberCount(), 2U);
+    QCOMPARE(classObject->baseClassCount(), 0);
+    QCOMPARE(classObject->memberCount(), 2);
 
     Class *classObjectData = doc->globals->memberAt(1)->asClass();
     QVERIFY(classObjectData);
@@ -439,7 +439,7 @@ void tst_Semantic::alias_declaration_1()
                 , false, false, true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl->name());
@@ -464,11 +464,11 @@ void tst_Semantic::typedef_1()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 3U);
+    QCOMPARE(doc->globals->memberCount(), 3);
 
     Class *anonStruct = doc->globals->memberAt(0)->asClass();
     QVERIFY(anonStruct);
-    QCOMPARE(anonStruct->memberCount(), 2U);
+    QCOMPARE(anonStruct->memberCount(), 2);
 
     Declaration *typedefPointDecl = doc->globals->memberAt(1)->asDeclaration();
     QVERIFY(typedefPointDecl);
@@ -493,11 +493,11 @@ void tst_Semantic::typedef_2()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 3U);
+    QCOMPARE(doc->globals->memberCount(), 3);
 
     Class *_pointStruct= doc->globals->memberAt(0)->asClass();
     QVERIFY(_pointStruct);
-    QCOMPARE(_pointStruct->memberCount(), 2U);
+    QCOMPARE(_pointStruct->memberCount(), 2);
 
     Declaration *typedefPointDecl = doc->globals->memberAt(1)->asDeclaration();
     QVERIFY(typedefPointDecl);
@@ -518,11 +518,11 @@ void tst_Semantic::typedef_3()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 2U);
+    QCOMPARE(doc->globals->memberCount(), 2);
 
     Class *_pointStruct= doc->globals->memberAt(0)->asClass();
     QVERIFY(_pointStruct);
-    QCOMPARE(_pointStruct->memberCount(), 2U);
+    QCOMPARE(_pointStruct->memberCount(), 2);
 
     Declaration *typedefPointDecl = doc->globals->memberAt(1)->asDeclaration();
     QVERIFY(typedefPointDecl);
@@ -539,14 +539,14 @@ void tst_Semantic::const_1()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
     QVERIFY(decl->type()->isFunctionType());
     Function *funTy = decl->type()->asFunctionType();
     QVERIFY(funTy->returnType()->isIntegerType());
-    QCOMPARE(funTy->argumentCount(), 1U);
+    QCOMPARE(funTy->argumentCount(), 1);
     Argument *arg = funTy->argumentAt(0)->asArgument();
     QVERIFY(arg);
     QVERIFY(! arg->type().isConst());
@@ -562,14 +562,14 @@ void tst_Semantic::const_2()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
     QVERIFY(decl->type()->isFunctionType());
     Function *funTy = decl->type()->asFunctionType();
     QVERIFY(funTy->returnType()->isIntegerType());
-    QCOMPARE(funTy->argumentCount(), 1U);
+    QCOMPARE(funTy->argumentCount(), 1);
     Argument *arg = funTy->argumentAt(0)->asArgument();
     QVERIFY(arg);
     QVERIFY(arg->type().isConst());
@@ -582,7 +582,7 @@ void tst_Semantic::pointer_to_function_1()
 {
     QSharedPointer<Document> doc = document("void (*QtSomething)();");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Declaration *decl = doc->globals->memberAt(0)->asDeclaration();
     QVERIFY(decl);
@@ -604,7 +604,7 @@ void tst_Semantic::template_instance_1()
 {
     QSharedPointer<Document> doc = document("template <typename _Tp> class QList { void append(const _Tp &value); };");
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     Template *templ = doc->globals->memberAt(0)->asTemplate();
     QVERIFY(templ);
@@ -716,17 +716,17 @@ void tst_Semantic::objcClass_1()
                                             true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 2U);
+    QCOMPARE(doc->globals->memberCount(), 2);
 
     ObjCClass *iface = doc->globals->memberAt(0)->asObjCClass();
     QVERIFY(iface);
     QVERIFY(iface->isInterface());
-    QCOMPARE(iface->memberCount(), 2U);
+    QCOMPARE(iface->memberCount(), 2);
 
     ObjCClass *impl = doc->globals->memberAt(1)->asObjCClass();
     QVERIFY(impl);
     QVERIFY(!impl->isInterface());
-    QCOMPARE(impl->memberCount(), 3U);
+    QCOMPARE(impl->memberCount(), 3);
 
     ObjCMethod *allocMethod = impl->memberAt(0)->asObjCMethod();
     QVERIFY(allocMethod);
@@ -750,19 +750,19 @@ void tst_Semantic::objcSelector_1()
                                             true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     ObjCClass *iface = doc->globals->memberAt(0)->asObjCClass();
     QVERIFY(iface);
     QVERIFY(iface->isInterface());
-    QCOMPARE(iface->memberCount(), 1U);
+    QCOMPARE(iface->memberCount(), 1);
 
     Declaration *decl = iface->memberAt(0)->asDeclaration();
     QVERIFY(decl);
     QVERIFY(decl->name());
     const SelectorNameId *selId = decl->name()->asSelectorNameId();
     QVERIFY(selId);
-    QCOMPARE(selId->nameCount(), 3U);
+    QCOMPARE(selId->nameCount(), 3);
     QCOMPARE(selId->nameAt(0)->identifier()->chars(), "a");
     QCOMPARE(selId->nameAt(1)->identifier()->chars(), "b");
     QCOMPARE(selId->nameAt(2)->identifier()->chars(), "c");
@@ -796,11 +796,11 @@ void tst_Semantic::objcSelector_2()
                                             true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 
     ObjCClass *iface = doc->globals->memberAt(0)->asObjCClass();
     QVERIFY(iface);
-    QCOMPARE(iface->memberCount(), 1U);
+    QCOMPARE(iface->memberCount(), 1);
 
     QList<ObjCSelectorAST*>selectors = CollectSelectors(doc->unit)();
     QCOMPARE(selectors.size(), 2);
@@ -810,7 +810,7 @@ void tst_Semantic::objcSelector_2()
 
     const SelectorNameId *selId = sel->name->asSelectorNameId();
     QVERIFY(selId);
-    QCOMPARE(selId->nameCount(), 3U);
+    QCOMPARE(selId->nameCount(), 3);
     QCOMPARE(selId->nameAt(0)->identifier()->chars(), "a");
     QCOMPARE(selId->nameAt(1)->identifier()->chars(), "b");
     QCOMPARE(selId->nameAt(2)->identifier()->chars(), "c");
@@ -827,7 +827,7 @@ void tst_Semantic::q_enum_1()
                                             false, true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
     QVERIFY(doc->unit);
     TranslationUnitAST *xUnit = doc->unit->ast()->asTranslationUnit();
     QVERIFY(xUnit);
@@ -851,7 +851,7 @@ void tst_Semantic::lambda_1()
                                             "}\n", false, false, true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 }
 
 void tst_Semantic::lambda_2()
@@ -864,15 +864,15 @@ void tst_Semantic::lambda_2()
                 , false, false, true);
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
     Class *A = doc->globals->memberAt(0)->asClass();
     QVERIFY(A);
-    QCOMPARE(A->memberCount(), 1U);
+    QCOMPARE(A->memberCount(), 1);
     Declaration *d = A->memberAt(0)->asDeclaration();
     QCOMPARE(d->name()->identifier()->chars(), "f");
     Function *ty = d->type()->asFunctionType();
     QVERIFY(ty);
-    QCOMPARE(ty->argumentCount(), 1U);
+    QCOMPARE(ty->argumentCount(), 1);
     Argument *arg = ty->argumentAt(0)->asArgument();
     QVERIFY(arg);
     const StringLiteral *init = arg->initializer();
@@ -888,7 +888,7 @@ void tst_Semantic::diagnostic_error()
                                             false, false);
 
     QCOMPARE(doc->errorCount, 1U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
 }
 
 namespace {
@@ -916,10 +916,10 @@ void tst_Semantic::enum_constantValue1()
                                             );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
     Enum *e = doc->globals->memberAt(0)->asEnum();
     QVERIFY(e);
-    QCOMPARE(e->memberCount(), 3U);
+    QCOMPARE(e->memberCount(), 3);
 
     testEnumaratorDeclarator(e, 0, "0");
     testEnumaratorDeclarator(e, 1, "1");
@@ -937,10 +937,10 @@ void tst_Semantic::enum_constantValue2()
                                             );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
     Enum *e = doc->globals->memberAt(0)->asEnum();
     QVERIFY(e);
-    QCOMPARE(e->memberCount(), 3U);
+    QCOMPARE(e->memberCount(), 3);
 
     testEnumaratorDeclarator(e, 0, "10");
     testEnumaratorDeclarator(e, 1, "11");
@@ -958,10 +958,10 @@ void tst_Semantic::enum_constantValue3()
                                             );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
     Enum *e = doc->globals->memberAt(0)->asEnum();
     QVERIFY(e);
-    QCOMPARE(e->memberCount(), 3U);
+    QCOMPARE(e->memberCount(), 3);
 
     testEnumaratorDeclarator(e, 0, "0");
     testEnumaratorDeclarator(e, 1, "10");
@@ -981,10 +981,10 @@ void tst_Semantic::enum_constantValue4()
                                             );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
     Enum *e = doc->globals->memberAt(0)->asEnum();
     QVERIFY(e);
-    QCOMPARE(e->memberCount(), 5U);
+    QCOMPARE(e->memberCount(), 5);
 
     testEnumaratorDeclarator(e, 0, "0");
     testEnumaratorDeclarator(e, 1, "E1+10");
@@ -1006,10 +1006,10 @@ void tst_Semantic::enum_constantValue5()
                                             );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
     Enum *e = doc->globals->memberAt(0)->asEnum();
     QVERIFY(e);
-    QCOMPARE(e->memberCount(), 5U);
+    QCOMPARE(e->memberCount(), 5);
 
     testEnumaratorDeclarator(e, 0, "0");
     testEnumaratorDeclarator(e, 1, "0");
@@ -1030,10 +1030,10 @@ void tst_Semantic::enum_constantValueNegative()
     );
 
     QCOMPARE(doc->errorCount, 0U);
-    QCOMPARE(doc->globals->memberCount(), 1U);
+    QCOMPARE(doc->globals->memberCount(), 1);
     Enum *e = doc->globals->memberAt(0)->asEnum();
     QVERIFY(e);
-    QCOMPARE(e->memberCount(), 4U);
+    QCOMPARE(e->memberCount(), 4);
 
     testEnumaratorDeclarator(e, 0, "-2");
     testEnumaratorDeclarator(e, 1, "-1");

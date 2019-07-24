@@ -142,8 +142,8 @@ static QList<Document::Ptr> findDocumentsIncluding(const Snapshot &docTable,
 // Does klass inherit baseClass?
 static bool inherits(const Overview &o, const Class *klass, const QString &baseClass)
 {
-    const unsigned int baseClassCount = klass->baseClassCount();
-    for (unsigned int b = 0; b < baseClassCount; ++b)
+    const int baseClassCount = klass->baseClassCount();
+    for (int b = 0; b < baseClassCount; ++b)
         if (o.prettyName(klass->baseClassAt(b)->name()) == baseClass)
             return true;
     return false;
@@ -171,14 +171,14 @@ static const Class *findClass(const Namespace *parentNameSpace, const LookupCont
         qDebug() << Q_FUNC_INFO << className;
 
     const Overview o;
-    const unsigned namespaceMemberCount = parentNameSpace->memberCount();
-    for (unsigned i = 0; i < namespaceMemberCount; ++i) { // we go through all namespace members
+    const int namespaceMemberCount = parentNameSpace->memberCount();
+    for (int i = 0; i < namespaceMemberCount; ++i) { // we go through all namespace members
         const Symbol *sym = parentNameSpace->memberAt(i);
         // we have found a class - we are interested in classes only
         if (const Class *cl = sym->asClass()) {
             // 1) we go through class members
-            const unsigned classMemberCount = cl->memberCount();
-            for (unsigned j = 0; j < classMemberCount; ++j)
+            const int classMemberCount = cl->memberCount();
+            for (int j = 0; j < classMemberCount; ++j)
                 if (Declaration *decl = cl->memberAt(j)->asDeclaration()) {
                 // we want to know if the class contains a member (so we look into
                 // a declaration) of uiClassName type

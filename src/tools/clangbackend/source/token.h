@@ -72,9 +72,9 @@ public:
 
     std::vector<Cursor> annotate() const;
 
-    size_t size() const { return m_tokens.size(); }
-    const Token &operator[](size_t index) const;
-    Token &operator[](size_t index);
+    int size() const { return static_cast<int>(m_tokens.size()); }
+    const Token &operator[](int index) const;
+    Token &operator[](int index);
 
     std::vector<Token>::const_iterator cbegin() const;
     std::vector<Token>::const_iterator cend() const;

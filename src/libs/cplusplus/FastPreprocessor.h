@@ -55,26 +55,26 @@ public:
                    bool mergeDefinedMacrosOfDocument = false);
 
     // CPlusPlus::Client
-    virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode,
+    virtual void sourceNeeded(int line, const QString &fileName, IncludeType mode,
                               const QStringList &initialIncludes = QStringList());
 
     virtual void macroAdded(const Macro &);
 
-    virtual void passedMacroDefinitionCheck(unsigned, unsigned, unsigned, const Macro &);
-    virtual void failedMacroDefinitionCheck(unsigned, unsigned, const ByteArrayRef &);
+    virtual void passedMacroDefinitionCheck(int, int, int, const Macro &);
+    virtual void failedMacroDefinitionCheck(int, int, const ByteArrayRef &);
 
-    virtual void notifyMacroReference(unsigned, unsigned, unsigned, const Macro &);
+    virtual void notifyMacroReference(int, int, int, const Macro &);
 
-    virtual void startExpandingMacro(unsigned,
-                                     unsigned,
-                                     unsigned,
+    virtual void startExpandingMacro(int,
+                                     int,
+                                     int,
                                      const Macro &,
                                      const QVector<MacroArgumentReference> &);
-    virtual void stopExpandingMacro(unsigned, const Macro &) {}
+    virtual void stopExpandingMacro(int, const Macro &) {}
     virtual void markAsIncludeGuard(const QByteArray &macroName);
 
-    virtual void startSkippingBlocks(unsigned) {}
-    virtual void stopSkippingBlocks(unsigned) {}
+    virtual void startSkippingBlocks(int) {}
+    virtual void stopSkippingBlocks(int) {}
 };
 
 } // namespace CPlusPlus

@@ -64,7 +64,7 @@ void Bind::setSkipFunctionBodies(bool skipFunctionBodies)
     _skipFunctionBodies = skipFunctionBodies;
 }
 
-unsigned Bind::location(DeclaratorAST *ast, unsigned defaultLocation) const
+int Bind::location(DeclaratorAST *ast, int defaultLocation) const
 {
     if (! ast)
         return defaultLocation;
@@ -75,7 +75,7 @@ unsigned Bind::location(DeclaratorAST *ast, unsigned defaultLocation) const
     return ast->firstToken();
 }
 
-unsigned Bind::location(CoreDeclaratorAST *ast, unsigned defaultLocation) const
+int Bind::location(CoreDeclaratorAST *ast, int defaultLocation) const
 {
     if (! ast)
         return defaultLocation;
@@ -89,7 +89,7 @@ unsigned Bind::location(CoreDeclaratorAST *ast, unsigned defaultLocation) const
     return ast->firstToken();
 }
 
-unsigned Bind::location(NameAST *name, unsigned defaultLocation) const
+int Bind::location(NameAST *name, int defaultLocation) const
 {
     if (! name)
         return defaultLocation;
@@ -316,7 +316,7 @@ void Bind::attribute(GnuAttributeAST *ast)
     if (! ast)
         return;
 
-    // unsigned identifier_token = ast->identifier_token;
+    // int identifier_token = ast->identifier_token;
     if (const Identifier *id = identifier(ast->identifier_token)) {
         if (id == control()->deprecatedId())
             _type.setDeprecated(true);
@@ -324,12 +324,12 @@ void Bind::attribute(GnuAttributeAST *ast)
             _type.setUnavailable(true);
     }
 
-    // unsigned lparen_token = ast->lparen_token;
-    // unsigned tag_token = ast->tag_token;
+    // int lparen_token = ast->lparen_token;
+    // int tag_token = ast->tag_token;
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         ExpressionTy value = this->expression(it->value);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
 }
 
 bool Bind::visit(DeclaratorAST *ast)
@@ -413,12 +413,12 @@ bool Bind::visit(BaseSpecifierAST *ast)
     return false;
 }
 
-void Bind::baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *klass)
+void Bind::baseSpecifier(BaseSpecifierAST *ast, int colon_token, Class *klass)
 {
     if (! ast)
         return;
 
-    unsigned sourceLocation = location(ast->name, ast->firstToken());
+    int sourceLocation = location(ast->name, ast->firstToken());
     if (! sourceLocation)
         sourceLocation = std::max(colon_token, klass->sourceLocation());
 
@@ -448,11 +448,11 @@ void Bind::ctorInitializer(CtorInitializerAST *ast, Function *fun)
     if (! ast)
         return;
 
-    // unsigned colon_token = ast->colon_token;
+    // int colon_token = ast->colon_token;
     for (MemInitializerListAST *it = ast->member_initializer_list; it; it = it->next) {
         this->memInitializer(it->value, fun);
     }
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+    // int dot_dot_dot_token = ast->dot_dot_dot_token;
 }
 
 bool Bind::visit(EnumeratorAST *ast)
@@ -508,7 +508,7 @@ void calculateConstantValue(const Symbol *symbol, EnumeratorDeclaration *e, Cont
                         const std::string buffer
                                 = std::to_string(static_cast<long long>(constantValueAsInt));
                         e->setConstantValue(control->stringLiteral(buffer.c_str(),
-                                                                   unsigned(buffer.size())));
+                                                                   int(buffer.size())));
                     }
                 }
             }
@@ -543,8 +543,8 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
     if (! ast)
         return;
 
-    // unsigned identifier_token = ast->identifier_token;
-    // unsigned equal_token = ast->equal_token;
+    // int identifier_token = ast->identifier_token;
+    // int equal_token = ast->equal_token;
     /*ExpressionTy expression =*/ this->expression(ast->expression);
 
     if (ast->identifier_token) {
@@ -587,16 +587,16 @@ FullySpecifiedType Bind::exceptionSpecification(ExceptionSpecificationAST *ast, 
         return type;
 
     if (DynamicExceptionSpecificationAST *dyn = ast->asDynamicExceptionSpecification()) {
-        // unsigned throw_token = ast->throw_token;
-        // unsigned lparen_token = ast->lparen_token;
-        // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+        // int throw_token = ast->throw_token;
+        // int lparen_token = ast->lparen_token;
+        // int dot_dot_dot_token = ast->dot_dot_dot_token;
         for (ExpressionListAST *it = dyn->type_id_list; it; it = it->next) {
             /*ExpressionTy value =*/ this->expression(it->value);
         }
     } else if (NoExceptSpecificationAST *no = ast->asNoExceptSpecification()) {
         /*ExpressionTy value =*/ this->expression(no->expression);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return type;
 }
 
@@ -637,11 +637,11 @@ const Name *Bind::nestedNameSpecifier(NestedNameSpecifierAST *ast)
 
 bool Bind::visit(ExpressionListParenAST *ast)
 {
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         /*ExpressionTy value =*/ this->expression(it->value);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
 
     return false;
 }
@@ -651,11 +651,11 @@ void Bind::newPlacement(ExpressionListParenAST *ast)
     if (! ast)
         return;
 
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         ExpressionTy value = this->expression(it->value);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
 }
 
 bool Bind::visit(NewArrayDeclaratorAST *ast)
@@ -672,9 +672,9 @@ FullySpecifiedType Bind::newArrayDeclarator(NewArrayDeclaratorAST *ast, const Fu
     if (! ast)
         return type;
 
-    // unsigned lbracket_token = ast->lbracket_token;
+    // int lbracket_token = ast->lbracket_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rbracket_token = ast->rbracket_token;
+    // int rbracket_token = ast->rbracket_token;
     return type;
 }
 
@@ -719,9 +719,9 @@ OperatorNameId::Kind Bind::cppOperator(OperatorAST *ast)
     if (! ast)
         return kind;
 
-    // unsigned op_token = ast->op_token;
-    // unsigned open_token = ast->open_token;
-    // unsigned close_token = ast->close_token;
+    // int op_token = ast->op_token;
+    // int open_token = ast->open_token;
+    // int close_token = ast->close_token;
 
     switch (tokenKind(ast->op_token)) {
     case T_NEW:
@@ -904,7 +904,7 @@ bool Bind::visit(ParameterDeclarationClauseAST *ast)
     return false;
 }
 
-void Bind::parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsigned lparen_token, Function *fun)
+void Bind::parameterDeclarationClause(ParameterDeclarationClauseAST *ast, int lparen_token, Function *fun)
 {
     if (! ast)
         return;
@@ -992,7 +992,7 @@ FullySpecifiedType Bind::objCTypeName(ObjCTypeNameAST *ast)
     if (! ast)
         return FullySpecifiedType();
 
-    // unsigned type_qualifier_token = ast->type_qualifier_token;
+    // int type_qualifier_token = ast->type_qualifier_token;
     ExpressionTy type_id = this->expression(ast->type_id);
     return type_id;
 }
@@ -1011,11 +1011,11 @@ void Bind::objCInstanceVariablesDeclaration(ObjCInstanceVariablesDeclarationAST 
     if (! ast)
         return;
 
-    // unsigned lbrace_token = ast->lbrace_token;
+    // int lbrace_token = ast->lbrace_token;
     for (DeclarationListAST *it = ast->instance_variable_list; it; it = it->next) {
         this->declaration(it->value);
     }
-    // unsigned rbrace_token = ast->rbrace_token;
+    // int rbrace_token = ast->rbrace_token;
 }
 
 bool Bind::visit(ObjCPropertyAttributeAST *ast)
@@ -1030,8 +1030,8 @@ void Bind::objCPropertyAttribute(ObjCPropertyAttributeAST *ast)
     if (! ast)
         return;
 
-    // unsigned attribute_identifier_token = ast->attribute_identifier_token;
-    // unsigned equals_token = ast->equals_token;
+    // int attribute_identifier_token = ast->attribute_identifier_token;
+    // int equals_token = ast->equals_token;
     /*const Name *method_selector =*/ this->name(ast->method_selector);
 }
 
@@ -1072,11 +1072,11 @@ ObjCMethod *Bind::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
     if (! ast)
         return 0;
 
-    // unsigned method_type_token = ast->method_type_token;
+    // int method_type_token = ast->method_type_token;
     FullySpecifiedType returnType = this->objCTypeName(ast->type_name);
     const Name *selector = this->name(ast->selector);
 
-    const unsigned sourceLocation = location(ast->selector, ast->firstToken());
+    const int sourceLocation = location(ast->selector, ast->firstToken());
     ObjCMethod *method = control()->newObjCMethod(sourceLocation, selector);
     // ### set the offsets
     method->setReturnType(returnType);
@@ -1115,9 +1115,9 @@ void Bind::objCSynthesizedProperty(ObjCSynthesizedPropertyAST *ast)
     if (! ast)
         return;
 
-    // unsigned property_identifier_token = ast->property_identifier_token;
-    // unsigned equals_token = ast->equals_token;
-    // unsigned alias_identifier_token = ast->alias_identifier_token;
+    // int property_identifier_token = ast->property_identifier_token;
+    // int equals_token = ast->equals_token;
+    // int alias_identifier_token = ast->alias_identifier_token;
 }
 
 bool Bind::visit(LambdaIntroducerAST *ast)
@@ -1132,9 +1132,9 @@ void Bind::lambdaIntroducer(LambdaIntroducerAST *ast)
     if (! ast)
         return;
 
-    // unsigned lbracket_token = ast->lbracket_token;
+    // int lbracket_token = ast->lbracket_token;
     this->lambdaCapture(ast->lambda_capture);
-    // unsigned rbracket_token = ast->rbracket_token;
+    // int rbracket_token = ast->rbracket_token;
 }
 
 bool Bind::visit(LambdaCaptureAST *ast)
@@ -1149,7 +1149,7 @@ void Bind::lambdaCapture(LambdaCaptureAST *ast)
     if (! ast)
         return;
 
-    // unsigned default_capture_token = ast->default_capture_token;
+    // int default_capture_token = ast->default_capture_token;
     for (CaptureListAST *it = ast->capture_list; it; it = it->next) {
         this->capture(it->value);
     }
@@ -1191,13 +1191,13 @@ Function *Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
         type = this->trailingReturnType(ast->trailing_return_type, type);
     ast->symbol = fun;
 
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     this->parameterDeclarationClause(ast->parameter_declaration_clause, ast->lparen_token, fun);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     for (SpecifierListAST *it = ast->attributes; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    // unsigned mutable_token = ast->mutable_token;
+    // int mutable_token = ast->mutable_token;
     type = this->exceptionSpecification(ast->exception_specification, type);
 
     if (!type.isValid())
@@ -1220,7 +1220,7 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
     if (! ast)
         return type;
 
-    // unsigned arrow_token = ast->arrow_token;
+    // int arrow_token = ast->arrow_token;
     for (SpecifierListAST *it = ast->attributes; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
@@ -1235,16 +1235,16 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
 const StringLiteral *Bind::asStringLiteral(const ExpressionAST *ast)
 {
     CPP_ASSERT(ast, return 0);
-    const unsigned firstToken = ast->firstToken();
-    const unsigned lastToken = ast->lastToken();
+    const int firstToken = ast->firstToken();
+    const int lastToken = ast->lastToken();
     std::string buffer;
-    for (unsigned index = firstToken; index != lastToken; ++index) {
+    for (int index = firstToken; index != lastToken; ++index) {
         const Token &tk = tokenAt(index);
         if (index != firstToken && (tk.whitespace() || tk.newline()))
             buffer += ' ';
         buffer += tk.spell();
     }
-    return control()->stringLiteral(buffer.c_str(), unsigned(buffer.size()));
+    return control()->stringLiteral(buffer.c_str(), int(buffer.size()));
 }
 
 // StatementAST
@@ -1266,7 +1266,7 @@ bool Bind::visit(QtMemberDeclarationAST *ast)
                 privateClass += nameId->identifier()->chars();
                 privateClass += "Private";
 
-                const Name *privName = control()->identifier(privateClass.c_str(), unsigned(privateClass.size()));
+                const Name *privName = control()->identifier(privateClass.c_str(), int(privateClass.size()));
                 declTy.setType(control()->namedType(privName));
             }
         }
@@ -1289,7 +1289,7 @@ bool Bind::visit(CaseStatementAST *ast)
 bool Bind::visit(CompoundStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    unsigned startScopeToken = ast->lbrace_token ? ast->lbrace_token : ast->firstToken();
+    int startScopeToken = ast->lbrace_token ? ast->lbrace_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     ast->symbol = block;
@@ -1325,14 +1325,14 @@ bool Bind::visit(ExpressionOrDeclarationStatementAST *ast)
 bool Bind::visit(ExpressionStatementAST *ast)
 {
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned semicolon_token = ast->semicolon_token;
+    // int semicolon_token = ast->semicolon_token;
     return false;
 }
 
 bool Bind::visit(ForeachStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    const int startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
@@ -1358,12 +1358,12 @@ bool Bind::visit(ForeachStatementAST *ast)
         else if (ast->expression != 0) {
             const StringLiteral *sl = asStringLiteral(ast->expression);
             const std::string buff = std::string("*") + sl->chars() + ".begin()";
-            initializer = control()->stringLiteral(buff.c_str(), unsigned(buff.size()));
+            initializer = control()->stringLiteral(buff.c_str(), int(buff.size()));
         }
     }
 
     if (declaratorId && declaratorId->name) {
-        unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
+        int sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
         decl->setInitializer(initializer);
@@ -1380,7 +1380,7 @@ bool Bind::visit(ForeachStatementAST *ast)
 bool Bind::visit(RangeBasedForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    const int startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
@@ -1406,12 +1406,12 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
         else if (ast->expression != 0) {
             const StringLiteral *sl = asStringLiteral(ast->expression);
             const std::string buff = std::string("*") + sl->chars() + ".begin()";
-            initializer = control()->stringLiteral(buff.c_str(), unsigned(buff.size()));
+            initializer = control()->stringLiteral(buff.c_str(), int(buff.size()));
         }
     }
 
     if (declaratorId && declaratorId->name) {
-        unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
+        int sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
         decl->setInitializer(initializer);
@@ -1427,7 +1427,7 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
 bool Bind::visit(ForStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    const int startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
@@ -1436,9 +1436,9 @@ bool Bind::visit(ForStatementAST *ast)
     Scope *previousScope = switchScope(block);
     this->statement(ast->initializer);
     /*ExpressionTy condition =*/ this->expression(ast->condition);
-    // unsigned semicolon_token = ast->semicolon_token;
+    // int semicolon_token = ast->semicolon_token;
     /*ExpressionTy expression =*/ this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     this->statement(ast->statement);
     (void) switchScope(previousScope);
     return false;
@@ -1447,7 +1447,7 @@ bool Bind::visit(ForStatementAST *ast)
 bool Bind::visit(IfStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    const int startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
@@ -1463,8 +1463,8 @@ bool Bind::visit(IfStatementAST *ast)
 
 bool Bind::visit(LabeledStatementAST *ast)
 {
-    // unsigned label_token = ast->label_token;
-    // unsigned colon_token = ast->colon_token;
+    // int label_token = ast->label_token;
+    // int colon_token = ast->colon_token;
     this->statement(ast->statement);
     return false;
 }
@@ -1472,25 +1472,25 @@ bool Bind::visit(LabeledStatementAST *ast)
 bool Bind::visit(BreakStatementAST *ast)
 {
     (void) ast;
-    // unsigned break_token = ast->break_token;
-    // unsigned semicolon_token = ast->semicolon_token;
+    // int break_token = ast->break_token;
+    // int semicolon_token = ast->semicolon_token;
     return false;
 }
 
 bool Bind::visit(ContinueStatementAST *ast)
 {
     (void) ast;
-    // unsigned continue_token = ast->continue_token;
-    // unsigned semicolon_token = ast->semicolon_token;
+    // int continue_token = ast->continue_token;
+    // int semicolon_token = ast->semicolon_token;
     return false;
 }
 
 bool Bind::visit(GotoStatementAST *ast)
 {
     (void) ast;
-    // unsigned goto_token = ast->goto_token;
-    // unsigned identifier_token = ast->identifier_token;
-    // unsigned semicolon_token = ast->semicolon_token;
+    // int goto_token = ast->goto_token;
+    // int identifier_token = ast->identifier_token;
+    // int semicolon_token = ast->semicolon_token;
     return false;
 }
 
@@ -1503,7 +1503,7 @@ bool Bind::visit(ReturnStatementAST *ast)
 bool Bind::visit(SwitchStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    const int startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
@@ -1518,7 +1518,7 @@ bool Bind::visit(SwitchStatementAST *ast)
 
 bool Bind::visit(TryBlockStatementAST *ast)
 {
-    // unsigned try_token = ast->try_token;
+    // int try_token = ast->try_token;
     this->statement(ast->statement);
     for (CatchClauseListAST *it = ast->catch_clause_list; it; it = it->next) {
         this->statement(it->value);
@@ -1529,7 +1529,7 @@ bool Bind::visit(TryBlockStatementAST *ast)
 bool Bind::visit(CatchClauseAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    const int startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
@@ -1537,7 +1537,7 @@ bool Bind::visit(CatchClauseAST *ast)
 
     Scope *previousScope = switchScope(block);
     this->declaration(ast->exception_declaration);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     this->statement(ast->statement);
     (void) switchScope(previousScope);
     return false;
@@ -1546,7 +1546,7 @@ bool Bind::visit(CatchClauseAST *ast)
 bool Bind::visit(WhileStatementAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    const int startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
@@ -1562,7 +1562,7 @@ bool Bind::visit(WhileStatementAST *ast)
 bool Bind::visit(ObjCFastEnumerationAST *ast)
 {
     Block *block = control()->newBlock(ast->firstToken());
-    const unsigned startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
+    const int startScopeToken = ast->lparen_token ? ast->lparen_token : ast->firstToken();
     block->setStartOffset(tokenAt(startScopeToken).utf16charsEnd());
     block->setEndOffset(tokenAt(ast->lastToken()).utf16charsBegin());
     _scope->addMember(block);
@@ -1577,7 +1577,7 @@ bool Bind::visit(ObjCFastEnumerationAST *ast)
     type = this->declarator(ast->declarator, type, &declaratorId);
 
     if (declaratorId && declaratorId->name) {
-        unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
+        int sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
         block->addMember(decl);
@@ -1592,10 +1592,10 @@ bool Bind::visit(ObjCFastEnumerationAST *ast)
 
 bool Bind::visit(ObjCSynchronizedStatementAST *ast)
 {
-    // unsigned synchronized_token = ast->synchronized_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int synchronized_token = ast->synchronized_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy synchronized_object = this->expression(ast->synchronized_object);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     this->statement(ast->statement);
     return false;
 }
@@ -1610,45 +1610,45 @@ bool Bind::visit(IdExpressionAST *ast)
 
 bool Bind::visit(CompoundExpressionAST *ast)
 {
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     this->statement(ast->statement);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(CompoundLiteralAST *ast)
 {
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy type_id = this->expression(ast->type_id);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     ExpressionTy initializer = this->expression(ast->initializer);
     return false;
 }
 
 bool Bind::visit(QtMethodAST *ast)
 {
-    // unsigned method_token = ast->method_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int method_token = ast->method_token;
+    // int lparen_token = ast->lparen_token;
     FullySpecifiedType type;
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(BinaryExpressionAST *ast)
 {
     ExpressionTy left_expression = this->expression(ast->left_expression);
-    // unsigned binary_op_token = ast->binary_op_token;
+    // int binary_op_token = ast->binary_op_token;
     ExpressionTy right_expression = this->expression(ast->right_expression);
     return false;
 }
 
 bool Bind::visit(CastExpressionAST *ast)
 {
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy type_id = this->expression(ast->type_id);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     ExpressionTy expression = this->expression(ast->expression);
     return false;
 }
@@ -1663,7 +1663,7 @@ bool Bind::visit(ConditionAST *ast)
     type = this->declarator(ast->declarator, type, &declaratorId);
 
     if (declaratorId && declaratorId->name) {
-        unsigned sourceLocation = location(declaratorId->name, ast->firstToken());
+        int sourceLocation = location(declaratorId->name, ast->firstToken());
         Declaration *decl = control()->newDeclaration(sourceLocation, declaratorId->name->name);
         decl->setType(type);
 
@@ -1679,53 +1679,53 @@ bool Bind::visit(ConditionAST *ast)
 bool Bind::visit(ConditionalExpressionAST *ast)
 {
     ExpressionTy condition = this->expression(ast->condition);
-    // unsigned question_token = ast->question_token;
+    // int question_token = ast->question_token;
     ExpressionTy left_expression = this->expression(ast->left_expression);
-    // unsigned colon_token = ast->colon_token;
+    // int colon_token = ast->colon_token;
     ExpressionTy right_expression = this->expression(ast->right_expression);
     return false;
 }
 
 bool Bind::visit(CppCastExpressionAST *ast)
 {
-    // unsigned cast_token = ast->cast_token;
-    // unsigned less_token = ast->less_token;
+    // int cast_token = ast->cast_token;
+    // int less_token = ast->less_token;
     ExpressionTy type_id = this->expression(ast->type_id);
-    // unsigned greater_token = ast->greater_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int greater_token = ast->greater_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(DeleteExpressionAST *ast)
 {
-    // unsigned scope_token = ast->scope_token;
-    // unsigned delete_token = ast->delete_token;
-    // unsigned lbracket_token = ast->lbracket_token;
-    // unsigned rbracket_token = ast->rbracket_token;
+    // int scope_token = ast->scope_token;
+    // int delete_token = ast->delete_token;
+    // int lbracket_token = ast->lbracket_token;
+    // int rbracket_token = ast->rbracket_token;
     ExpressionTy expression = this->expression(ast->expression);
     return false;
 }
 
 bool Bind::visit(ArrayInitializerAST *ast)
 {
-    // unsigned lbrace_token = ast->lbrace_token;
+    // int lbrace_token = ast->lbrace_token;
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         ExpressionTy value = this->expression(it->value);
     }
-    // unsigned rbrace_token = ast->rbrace_token;
+    // int rbrace_token = ast->rbrace_token;
     return false;
 }
 
 bool Bind::visit(NewExpressionAST *ast)
 {
-    // unsigned scope_token = ast->scope_token;
-    // unsigned new_token = ast->new_token;
+    // int scope_token = ast->scope_token;
+    // int new_token = ast->new_token;
     this->newPlacement(ast->new_placement);
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy type_id = this->expression(ast->type_id);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     this->newTypeId(ast->new_type_id);
     this->expression(ast->new_initializer);
     return false;
@@ -1733,16 +1733,16 @@ bool Bind::visit(NewExpressionAST *ast)
 
 bool Bind::visit(TypeidExpressionAST *ast)
 {
-    // unsigned typeid_token = ast->typeid_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int typeid_token = ast->typeid_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(TypenameCallExpressionAST *ast)
 {
-    // unsigned typename_token = ast->typename_token;
+    // int typename_token = ast->typename_token;
     /*const Name *name =*/ this->name(ast->name);
     this->expression(ast->expression);
     return false;
@@ -1760,60 +1760,60 @@ bool Bind::visit(TypeConstructorCallAST *ast)
 
 bool Bind::visit(SizeofExpressionAST *ast)
 {
-    // unsigned sizeof_token = ast->sizeof_token;
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int sizeof_token = ast->sizeof_token;
+    // int dot_dot_dot_token = ast->dot_dot_dot_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(PointerLiteralAST *ast)
 {
     (void) ast;
-    // unsigned literal_token = ast->literal_token;
+    // int literal_token = ast->literal_token;
     return false;
 }
 
 bool Bind::visit(NumericLiteralAST *ast)
 {
     (void) ast;
-    // unsigned literal_token = ast->literal_token;
+    // int literal_token = ast->literal_token;
     return false;
 }
 
 bool Bind::visit(BoolLiteralAST *ast)
 {
     (void) ast;
-    // unsigned literal_token = ast->literal_token;
+    // int literal_token = ast->literal_token;
     return false;
 }
 
 bool Bind::visit(ThisExpressionAST *ast)
 {
     (void) ast;
-    // unsigned this_token = ast->this_token;
+    // int this_token = ast->this_token;
     return false;
 }
 
 bool Bind::visit(NestedExpressionAST *ast)
 {
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(StringLiteralAST *ast)
 {
-    // unsigned literal_token = ast->literal_token;
+    // int literal_token = ast->literal_token;
     ExpressionTy next = this->expression(ast->next);
     return false;
 }
 
 bool Bind::visit(ThrowExpressionAST *ast)
 {
-    // unsigned throw_token = ast->throw_token;
+    // int throw_token = ast->throw_token;
     ExpressionTy expression = this->expression(ast->expression);
     return false;
 }
@@ -1832,46 +1832,46 @@ bool Bind::visit(TypeIdAST *ast)
 
 bool Bind::visit(UnaryExpressionAST *ast)
 {
-    // unsigned unary_op_token = ast->unary_op_token;
+    // int unary_op_token = ast->unary_op_token;
     ExpressionTy expression = this->expression(ast->expression);
     return false;
 }
 
 bool Bind::visit(ObjCMessageExpressionAST *ast)
 {
-    // unsigned lbracket_token = ast->lbracket_token;
+    // int lbracket_token = ast->lbracket_token;
     /*ExpressionTy receiver_expression =*/ this->expression(ast->receiver_expression);
     /*const Name *selector =*/ this->name(ast->selector);
     for (ObjCMessageArgumentListAST *it = ast->argument_list; it; it = it->next) {
         this->objCMessageArgument(it->value);
     }
-    // unsigned rbracket_token = ast->rbracket_token;
+    // int rbracket_token = ast->rbracket_token;
     return false;
 }
 
 bool Bind::visit(ObjCProtocolExpressionAST *ast)
 {
     (void) ast;
-    // unsigned protocol_token = ast->protocol_token;
-    // unsigned lparen_token = ast->lparen_token;
-    // unsigned identifier_token = ast->identifier_token;
-    // unsigned rparen_token = ast->rparen_token;
+    // int protocol_token = ast->protocol_token;
+    // int lparen_token = ast->lparen_token;
+    // int identifier_token = ast->identifier_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(ObjCEncodeExpressionAST *ast)
 {
-    // unsigned encode_token = ast->encode_token;
+    // int encode_token = ast->encode_token;
     FullySpecifiedType type = this->objCTypeName(ast->type_name);
     return false;
 }
 
 bool Bind::visit(ObjCSelectorExpressionAST *ast)
 {
-    // unsigned selector_token = ast->selector_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int selector_token = ast->selector_token;
+    // int lparen_token = ast->lparen_token;
     /*const Name *selector =*/ this->name(ast->selector);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
@@ -1892,12 +1892,12 @@ bool Bind::visit(LambdaExpressionAST *ast)
 
 bool Bind::visit(BracedInitializerAST *ast)
 {
-    // unsigned lbrace_token = ast->lbrace_token;
+    // int lbrace_token = ast->lbrace_token;
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         /*ExpressionTy value =*/ this->expression(it->value);
     }
-    // unsigned comma_token = ast->comma_token;
-    // unsigned rbrace_token = ast->rbrace_token;
+    // int comma_token = ast->comma_token;
+    // int rbrace_token = ast->rbrace_token;
     return false;
 }
 
@@ -1920,7 +1920,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
     if (ast->qt_invokable_token)
         methodKey = methodKeyForInvokableToken(tokenKind(ast->qt_invokable_token));
 
-    // unsigned qt_invokable_token = ast->qt_invokable_token;
+    // int qt_invokable_token = ast->qt_invokable_token;
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
@@ -1934,7 +1934,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             elabTypeSpec = it->value->asElaboratedTypeSpecifier();
 
         if (elabTypeSpec && tokenKind(elabTypeSpec->classkey_token) != T_TYPENAME) {
-            unsigned sourceLocation = elabTypeSpec->firstToken();
+            int sourceLocation = elabTypeSpec->firstToken();
             const Name *name = 0;
             if (elabTypeSpec->name) {
                 sourceLocation = location(elabTypeSpec->name, sourceLocation);
@@ -1957,7 +1957,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
         FullySpecifiedType declTy = this->declarator(it->value, type, &declaratorId);
 
         const Name *declName = 0;
-        unsigned sourceLocation = location(it->value, ast->firstToken());
+        int sourceLocation = location(it->value, ast->firstToken());
         if (declaratorId && declaratorId->name)
             declName = declaratorId->name->name;
 
@@ -2006,7 +2006,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
 bool Bind::visit(EmptyDeclarationAST *ast)
 {
     (void) ast;
-    unsigned semicolon_token = ast->semicolon_token;
+    int semicolon_token = ast->semicolon_token;
     if (_scope && (_scope->isClass() || _scope->isNamespace())) {
         const Token &tk = tokenAt(semicolon_token);
 
@@ -2034,25 +2034,25 @@ bool Bind::visit(AccessDeclarationAST *ast)
 bool Bind::visit(QtObjectTagAST *ast)
 {
     (void) ast;
-    // unsigned q_object_token = ast->q_object_token;
+    // int q_object_token = ast->q_object_token;
     return false;
 }
 
 bool Bind::visit(QtPrivateSlotAST *ast)
 {
-    // unsigned q_private_slot_token = ast->q_private_slot_token;
-    // unsigned lparen_token = ast->lparen_token;
-    // unsigned dptr_token = ast->dptr_token;
-    // unsigned dptr_lparen_token = ast->dptr_lparen_token;
-    // unsigned dptr_rparen_token = ast->dptr_rparen_token;
-    // unsigned comma_token = ast->comma_token;
+    // int q_private_slot_token = ast->q_private_slot_token;
+    // int lparen_token = ast->lparen_token;
+    // int dptr_token = ast->dptr_token;
+    // int dptr_lparen_token = ast->dptr_lparen_token;
+    // int dptr_rparen_token = ast->dptr_rparen_token;
+    // int comma_token = ast->comma_token;
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
@@ -2075,12 +2075,12 @@ static void qtPropertyAttribute(TranslationUnit *unit, ExpressionAST *expression
 
 bool Bind::visit(QtPropertyDeclarationAST *ast)
 {
-    // unsigned property_specifier_token = ast->property_specifier_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int property_specifier_token = ast->property_specifier_token;
+    // int lparen_token = ast->lparen_token;
     ExpressionTy type_id = this->expression(ast->type_id);
     const Name *property_name = this->name(ast->property_name);
 
-    unsigned sourceLocation = ast->firstToken();
+    int sourceLocation = ast->firstToken();
     if (ast->property_name)
         sourceLocation = ast->property_name->firstToken();
     QtPropertyDeclaration *propertyDeclaration = control()->newQtPropertyDeclaration(sourceLocation, property_name);
@@ -2128,14 +2128,14 @@ bool Bind::visit(QtPropertyDeclarationAST *ast)
     }
     propertyDeclaration->setFlags(flags);
     _scope->addMember(propertyDeclaration);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(QtEnumDeclarationAST *ast)
 {
-    // unsigned enum_specifier_token = ast->enum_specifier_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int enum_specifier_token = ast->enum_specifier_token;
+    // int lparen_token = ast->lparen_token;
     for (NameListAST *it = ast->enumerator_list; it; it = it->next) {
         const Name *value = this->name(it->value);
         if (!value)
@@ -2144,29 +2144,29 @@ bool Bind::visit(QtEnumDeclarationAST *ast)
         _scope->addMember(qtEnum);
     }
 
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(QtFlagsDeclarationAST *ast)
 {
-    // unsigned flags_specifier_token = ast->flags_specifier_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int flags_specifier_token = ast->flags_specifier_token;
+    // int lparen_token = ast->lparen_token;
     for (NameListAST *it = ast->flag_enums_list; it; it = it->next) {
         /*const Name *value =*/ this->name(it->value);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(QtInterfacesDeclarationAST *ast)
 {
-    // unsigned interfaces_token = ast->interfaces_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int interfaces_token = ast->interfaces_token;
+    // int lparen_token = ast->lparen_token;
     for (QtInterfaceNameListAST *it = ast->interface_name_list; it; it = it->next) {
         this->qtInterfaceName(it->value);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
@@ -2194,11 +2194,11 @@ bool Bind::visit(AliasDeclarationAST *ast)
 bool Bind::visit(AsmDefinitionAST *ast)
 {
     (void) ast;
-    // unsigned asm_token = ast->asm_token;
-    // unsigned volatile_token = ast->volatile_token;
-    // unsigned lparen_token = ast->lparen_token;
-    // unsigned rparen_token = ast->rparen_token;
-    // unsigned semicolon_token = ast->semicolon_token;
+    // int asm_token = ast->asm_token;
+    // int volatile_token = ast->volatile_token;
+    // int lparen_token = ast->lparen_token;
+    // int rparen_token = ast->rparen_token;
+    // int semicolon_token = ast->semicolon_token;
     return false;
 }
 
@@ -2218,7 +2218,7 @@ bool Bind::visit(ExceptionDeclarationAST *ast)
     arg->setType(type);
     _scope->addMember(arg);
 
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+    // int dot_dot_dot_token = ast->dot_dot_dot_token;
 
     return false;
 }
@@ -2270,32 +2270,32 @@ bool Bind::visit(FunctionDefinitionAST *ast)
 
 bool Bind::visit(LinkageBodyAST *ast)
 {
-    // unsigned lbrace_token = ast->lbrace_token;
+    // int lbrace_token = ast->lbrace_token;
     for (DeclarationListAST *it = ast->declaration_list; it; it = it->next) {
         this->declaration(it->value);
     }
-    // unsigned rbrace_token = ast->rbrace_token;
+    // int rbrace_token = ast->rbrace_token;
     return false;
 }
 
 bool Bind::visit(LinkageSpecificationAST *ast)
 {
-    // unsigned extern_token = ast->extern_token;
-    // unsigned extern_type_token = ast->extern_type_token;
+    // int extern_token = ast->extern_token;
+    // int extern_type_token = ast->extern_type_token;
     this->declaration(ast->declaration);
     return false;
 }
 
 bool Bind::visit(NamespaceAST *ast)
 {
-    // unsigned namespace_token = ast->namespace_token;
-    // unsigned identifier_token = ast->identifier_token;
+    // int namespace_token = ast->namespace_token;
+    // int identifier_token = ast->identifier_token;
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
 
-    unsigned sourceLocation = ast->firstToken();
+    int sourceLocation = ast->firstToken();
     const Name *namespaceName = 0;
     if (ast->identifier_token) {
         sourceLocation = ast->identifier_token;
@@ -2317,7 +2317,7 @@ bool Bind::visit(NamespaceAST *ast)
 
 bool Bind::visit(NamespaceAliasDefinitionAST *ast)
 {
-    unsigned sourceLocation = ast->firstToken();
+    int sourceLocation = ast->firstToken();
     const Name *name = 0;
     if (ast->namespace_name_token) {
         sourceLocation = ast->namespace_name_token;
@@ -2338,7 +2338,7 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
-    // unsigned equal_token = ast->equal_token;
+    // int equal_token = ast->equal_token;
     ExpressionTy expression = this->expression(ast->expression);
 
     const Name *argName = 0;
@@ -2368,7 +2368,7 @@ bool Bind::visit(TemplateDeclarationAST *ast)
     for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next) {
         this->declaration(it->value);
     }
-    // unsigned greater_token = ast->greater_token;
+    // int greater_token = ast->greater_token;
     this->declaration(ast->declaration);
     (void) switchScope(previousScope);
 
@@ -2383,9 +2383,9 @@ bool Bind::visit(TemplateDeclarationAST *ast)
 
 bool Bind::visit(TypenameTypeParameterAST *ast)
 {
-    unsigned sourceLocation = location(ast->name, ast->firstToken());
-    // unsigned classkey_token = ast->classkey_token;
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+    int sourceLocation = location(ast->name, ast->firstToken());
+    // int classkey_token = ast->classkey_token;
+    // int dot_dot_dot_token = ast->dot_dot_dot_token;
     const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
     CPlusPlus::Kind classKey = translationUnit()->tokenKind(ast->classkey_token);
@@ -2400,19 +2400,19 @@ bool Bind::visit(TypenameTypeParameterAST *ast)
 
 bool Bind::visit(TemplateTypeParameterAST *ast)
 {
-    unsigned sourceLocation = location(ast->name, ast->firstToken());
+    int sourceLocation = location(ast->name, ast->firstToken());
 
-    // unsigned template_token = ast->template_token;
-    // unsigned less_token = ast->less_token;
+    // int template_token = ast->template_token;
+    // int less_token = ast->less_token;
     // ### process the template prototype
 #if 0
     for (DeclarationListAST *it = ast->template_parameter_list; it; it = it->next) {
         this->declaration(it->value);
     }
 #endif
-    // unsigned greater_token = ast->greater_token;
-    // unsigned class_token = ast->class_token;
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+    // int greater_token = ast->greater_token;
+    // int class_token = ast->class_token;
+    // int dot_dot_dot_token = ast->dot_dot_dot_token;
 
     const Name *name = this->name(ast->name);
     ExpressionTy type_id = this->expression(ast->type_id);
@@ -2428,7 +2428,7 @@ bool Bind::visit(TemplateTypeParameterAST *ast)
 
 bool Bind::visit(UsingAST *ast)
 {
-    unsigned sourceLocation = location(ast->name, ast->firstToken());
+    int sourceLocation = location(ast->name, ast->firstToken());
     const Name *name = this->name(ast->name);
 
     UsingDeclaration *symbol = control()->newUsingDeclaration(sourceLocation, name);
@@ -2439,7 +2439,7 @@ bool Bind::visit(UsingAST *ast)
 
 bool Bind::visit(UsingDirectiveAST *ast)
 {
-    unsigned sourceLocation = location(ast->name, ast->firstToken());
+    int sourceLocation = location(ast->name, ast->firstToken());
     const Name *name = this->name(ast->name);
     UsingNamespaceDirective *symbol = control()->newUsingNamespaceDirective(sourceLocation, name);
     ast->symbol = symbol;
@@ -2456,11 +2456,11 @@ bool Bind::visit(ObjCClassForwardDeclarationAST *ast)
 
     List<ObjCForwardClassDeclaration *> **symbolTail = &ast->symbols;
 
-    // unsigned class_token = ast->class_token;
+    // int class_token = ast->class_token;
     for (NameListAST *it = ast->identifier_list; it; it = it->next) {
         const Name *name = this->name(it->value);
 
-        const unsigned sourceLocation = location(it->value, ast->firstToken());
+        const int sourceLocation = location(it->value, ast->firstToken());
         ObjCForwardClassDeclaration *fwd = control()->newObjCForwardClassDeclaration(sourceLocation, name);
         setDeclSpecifiers(fwd, declSpecifiers);
         _scope->addMember(fwd);
@@ -2472,18 +2472,18 @@ bool Bind::visit(ObjCClassForwardDeclarationAST *ast)
     return false;
 }
 
-unsigned Bind::calculateScopeStart(ObjCClassDeclarationAST *ast) const
+int Bind::calculateScopeStart(ObjCClassDeclarationAST *ast) const
 {
     if (ast->inst_vars_decl)
-        if (unsigned pos = ast->inst_vars_decl->lbrace_token)
+        if (int pos = ast->inst_vars_decl->lbrace_token)
             return tokenAt(pos).utf16charsEnd();
 
     if (ast->protocol_refs)
-        if (unsigned pos = ast->protocol_refs->lastToken())
+        if (int pos = ast->protocol_refs->lastToken())
             return tokenAt(pos - 1).utf16charsEnd();
 
     if (ast->superclass)
-        if (unsigned pos = ast->superclass->lastToken())
+        if (int pos = ast->superclass->lastToken())
             return tokenAt(pos - 1).utf16charsEnd();
 
     if (ast->colon_token)
@@ -2493,14 +2493,14 @@ unsigned Bind::calculateScopeStart(ObjCClassDeclarationAST *ast) const
         return tokenAt(ast->rparen_token).utf16charsEnd();
 
     if (ast->category_name)
-        if (unsigned pos = ast->category_name->lastToken())
+        if (int pos = ast->category_name->lastToken())
             return tokenAt(pos - 1).utf16charsEnd();
 
     if (ast->lparen_token)
         return tokenAt(ast->lparen_token).utf16charsEnd();
 
     if (ast->class_name)
-        if (unsigned pos = ast->class_name->lastToken())
+        if (int pos = ast->class_name->lastToken())
             return tokenAt(pos - 1).utf16charsEnd();
 
     return tokenAt(ast->firstToken()).utf16charsBegin();
@@ -2515,7 +2515,7 @@ bool Bind::visit(ObjCClassDeclarationAST *ast)
     const Name *class_name = this->name(ast->class_name);
     const Name *category_name = this->name(ast->category_name);
 
-    const unsigned sourceLocation = location(ast->class_name, ast->firstToken());
+    const int sourceLocation = location(ast->class_name, ast->firstToken());
     ObjCClass *klass = control()->newObjCClass(sourceLocation, class_name);
     ast->symbol = klass;
     _scope->addMember(klass);
@@ -2560,11 +2560,11 @@ bool Bind::visit(ObjCProtocolForwardDeclarationAST *ast)
 
     List<ObjCForwardProtocolDeclaration *> **symbolTail = &ast->symbols;
 
-    // unsigned class_token = ast->class_token;
+    // int class_token = ast->class_token;
     for (NameListAST *it = ast->identifier_list; it; it = it->next) {
         const Name *name = this->name(it->value);
 
-        const unsigned sourceLocation = location(it->value, ast->firstToken());
+        const int sourceLocation = location(it->value, ast->firstToken());
         ObjCForwardProtocolDeclaration *fwd = control()->newObjCForwardProtocolDeclaration(sourceLocation, name);
         setDeclSpecifiers(fwd, declSpecifiers);
         _scope->addMember(fwd);
@@ -2576,13 +2576,13 @@ bool Bind::visit(ObjCProtocolForwardDeclarationAST *ast)
     return false;
 }
 
-unsigned Bind::calculateScopeStart(ObjCProtocolDeclarationAST *ast) const
+int Bind::calculateScopeStart(ObjCProtocolDeclarationAST *ast) const
 {
     if (ast->protocol_refs)
-        if (unsigned pos = ast->protocol_refs->lastToken())
+        if (int pos = ast->protocol_refs->lastToken())
             return tokenAt(pos - 1).utf16charsEnd();
     if (ast->name)
-        if (unsigned pos = ast->name->lastToken())
+        if (int pos = ast->name->lastToken())
             return tokenAt(pos - 1).utf16charsEnd();
 
     return tokenAt(ast->firstToken()).utf16charsBegin();
@@ -2594,10 +2594,10 @@ bool Bind::visit(ObjCProtocolDeclarationAST *ast)
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    // unsigned protocol_token = ast->protocol_token;
+    // int protocol_token = ast->protocol_token;
     const Name *name = this->name(ast->name);
 
-    const unsigned sourceLocation = location(ast->name, ast->firstToken());
+    const int sourceLocation = location(ast->name, ast->firstToken());
     ObjCProtocol *protocol = control()->newObjCProtocol(sourceLocation, name);
     protocol->setStartOffset(calculateScopeStart(ast));
     protocol->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
@@ -2630,12 +2630,12 @@ bool Bind::visit(ObjCPropertyDeclarationAST *ast)
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    // unsigned property_token = ast->property_token;
-    // unsigned lparen_token = ast->lparen_token;
+    // int property_token = ast->property_token;
+    // int lparen_token = ast->lparen_token;
     for (ObjCPropertyAttributeListAST *it = ast->property_attribute_list; it; it = it->next) {
         this->objCPropertyAttribute(it->value);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     this->declaration(ast->simple_declaration);
     // List<ObjCPropertyDeclaration *> *symbols = ast->symbols;
     return false;
@@ -2647,7 +2647,7 @@ bool Bind::visit(ObjCMethodDeclarationAST *ast)
 
     if (! ast->function_body) {
         const Name *name = method->name();
-        unsigned sourceLocation = ast->firstToken();
+        int sourceLocation = ast->firstToken();
         Declaration *decl = control()->newDeclaration(sourceLocation, name);
         decl->setType(method);
         _scope->addMember(decl);
@@ -2665,21 +2665,21 @@ bool Bind::visit(ObjCMethodDeclarationAST *ast)
 
 bool Bind::visit(ObjCSynthesizedPropertiesDeclarationAST *ast)
 {
-    // unsigned synthesized_token = ast->synthesized_token;
+    // int synthesized_token = ast->synthesized_token;
     for (ObjCSynthesizedPropertyListAST *it = ast->property_identifier_list; it; it = it->next) {
         this->objCSynthesizedProperty(it->value);
     }
-    // unsigned semicolon_token = ast->semicolon_token;
+    // int semicolon_token = ast->semicolon_token;
     return false;
 }
 
 bool Bind::visit(ObjCDynamicPropertiesDeclarationAST *ast)
 {
-    // unsigned dynamic_token = ast->dynamic_token;
+    // int dynamic_token = ast->dynamic_token;
     for (NameListAST *it = ast->property_identifier_list; it; it = it->next) {
         /*const Name *value =*/ this->name(it->value);
     }
-    // unsigned semicolon_token = ast->semicolon_token;
+    // int semicolon_token = ast->semicolon_token;
     return false;
 }
 
@@ -2696,7 +2696,7 @@ bool Bind::visit(ObjCSelectorAST *ast) // ### review
     }
 
     if (! arguments.empty()) {
-        _name = control()->selectorNameId(&arguments[0], unsigned(arguments.size()), hasArgs);
+        _name = control()->selectorNameId(&arguments[0], int(arguments.size()), hasArgs);
         ast->name = _name;
     }
 
@@ -2781,7 +2781,7 @@ bool Bind::visit(TemplateIdAST *ast)
         _name = control()->templateNameId(id, isSpecialization);
     else
         _name = control()->templateNameId(id, isSpecialization, &templateArguments[0],
-                unsigned(templateArguments.size()));
+                int(templateArguments.size()));
 
     ast->name = _name;
     return false;
@@ -3003,14 +3003,14 @@ bool Bind::visit(AlignmentSpecifierAST *ast)
 
 bool Bind::visit(GnuAttributeSpecifierAST *ast)
 {
-    // unsigned attribute_token = ast->attribute_token;
-    // unsigned first_lparen_token = ast->first_lparen_token;
-    // unsigned second_lparen_token = ast->second_lparen_token;
+    // int attribute_token = ast->attribute_token;
+    // int first_lparen_token = ast->first_lparen_token;
+    // int second_lparen_token = ast->second_lparen_token;
     for (GnuAttributeListAST *it = ast->attribute_list; it; it = it->next) {
         this->attribute(it->value);
     }
-    // unsigned first_rparen_token = ast->first_rparen_token;
-    // unsigned second_rparen_token = ast->second_rparen_token;
+    // int first_rparen_token = ast->first_rparen_token;
+    // int second_rparen_token = ast->second_rparen_token;
     return false;
 }
 
@@ -3029,9 +3029,9 @@ bool Bind::visit(DecltypeSpecifierAST *ast)
 
 bool Bind::visit(ClassSpecifierAST *ast)
 {
-    // unsigned classkey_token = ast->classkey_token;
-    unsigned sourceLocation = ast->firstToken();
-    unsigned startScopeOffset = tokenAt(sourceLocation).utf16charsEnd(); // at the end of the class key
+    // int classkey_token = ast->classkey_token;
+    int sourceLocation = ast->firstToken();
+    int startScopeOffset = tokenAt(sourceLocation).utf16charsEnd(); // at the end of the class key
 
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         _type = this->specifier(it->value, _type);
@@ -3062,7 +3062,7 @@ bool Bind::visit(ClassSpecifierAST *ast)
         klass->setVisibility(_visibility);
 
     // set the class key
-    unsigned classKey = tokenKind(ast->classkey_token);
+    int classKey = tokenKind(ast->classkey_token);
     if (classKey == T_CLASS)
         klass->setClassKey(Class::ClassKey);
     else if (classKey == T_STRUCT)
@@ -3079,7 +3079,7 @@ bool Bind::visit(ClassSpecifierAST *ast)
     for (BaseSpecifierListAST *it = ast->base_clause_list; it; it = it->next) {
         this->baseSpecifier(it->value, ast->colon_token, klass);
     }
-    // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+    // int dot_dot_dot_token = ast->dot_dot_dot_token;
     for (DeclarationListAST *it = ast->member_specifier_list; it; it = it->next) {
         this->declaration(it->value);
     }
@@ -3100,7 +3100,7 @@ bool Bind::visit(NamedTypeSpecifierAST *ast)
 
 bool Bind::visit(ElaboratedTypeSpecifierAST *ast)
 {
-    // unsigned classkey_token = ast->classkey_token;
+    // int classkey_token = ast->classkey_token;
     for (SpecifierListAST *it = ast->attribute_list; it; it = it->next) {
         _type = this->specifier(it->value, _type);
     }
@@ -3110,7 +3110,7 @@ bool Bind::visit(ElaboratedTypeSpecifierAST *ast)
 
 bool Bind::visit(EnumSpecifierAST *ast)
 {
-    unsigned sourceLocation = location(ast->name, ast->firstToken());
+    int sourceLocation = location(ast->name, ast->firstToken());
     const Name *enumName = this->name(ast->name);
 
     Enum *e = control()->newEnum(sourceLocation, enumName);
@@ -3184,35 +3184,35 @@ bool Bind::visit(ReferenceAST *ast)
 bool Bind::visit(CallAST *ast)
 {
     /*ExpressionTy base_expression =*/ this->expression(ast->base_expression);
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
         /*ExpressionTy value =*/ this->expression(it->value);
     }
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     return false;
 }
 
 bool Bind::visit(ArrayAccessAST *ast)
 {
     /*ExpressionTy base_expression =*/ this->expression(ast->base_expression);
-    // unsigned lbracket_token = ast->lbracket_token;
+    // int lbracket_token = ast->lbracket_token;
     /*ExpressionTy expression =*/ this->expression(ast->expression);
-    // unsigned rbracket_token = ast->rbracket_token;
+    // int rbracket_token = ast->rbracket_token;
     return false;
 }
 
 bool Bind::visit(PostIncrDecrAST *ast)
 {
     ExpressionTy base_expression = this->expression(ast->base_expression);
-    // unsigned incr_decr_token = ast->incr_decr_token;
+    // int incr_decr_token = ast->incr_decr_token;
     return false;
 }
 
 bool Bind::visit(MemberAccessAST *ast)
 {
     ExpressionTy base_expression = this->expression(ast->base_expression);
-    // unsigned access_token = ast->access_token;
-    // unsigned template_token = ast->template_token;
+    // int access_token = ast->access_token;
+    // int template_token = ast->template_token;
     /*const Name *member_name =*/ this->name(ast->member_name);
     return false;
 }
@@ -3243,9 +3243,9 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
         _type = this->trailingReturnType(ast->trailing_return_type, _type);
     fun->setReturnType(_type);
 
-    // unsigned lparen_token = ast->lparen_token;
+    // int lparen_token = ast->lparen_token;
     this->parameterDeclarationClause(ast->parameter_declaration_clause, ast->lparen_token, fun);
-    // unsigned rparen_token = ast->rparen_token;
+    // int rparen_token = ast->rparen_token;
     FullySpecifiedType type(fun);
     for (SpecifierListAST *it = ast->cv_qualifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
@@ -3283,7 +3283,7 @@ bool Bind::visit(ArrayDeclaratorAST *ast)
     return false;
 }
 
-void Bind::ensureValidClassName(const Name **name, unsigned sourceLocation)
+void Bind::ensureValidClassName(const Name **name, int sourceLocation)
 {
     if (!*name)
         return;

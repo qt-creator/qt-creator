@@ -157,10 +157,10 @@ void FindUsages::reportResult(unsigned tokenIndex)
 
     _processed.insert(tokenIndex);
 
-    unsigned line, col;
+    int line, col;
     getTokenStartPosition(tokenIndex, &line, &col);
     QString lineText;
-    if (line < _sourceLineEnds.size())
+    if (line < int(_sourceLineEnds.size()))
         lineText = fetchLine(line);
     else
         lineText = matchingLine(tk);

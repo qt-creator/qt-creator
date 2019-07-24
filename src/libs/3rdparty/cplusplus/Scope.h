@@ -29,7 +29,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT Scope: public Symbol
 {
 public:
-    Scope(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Scope(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Scope(Clone *clone, Subst *subst, Scope *original);
     virtual ~Scope();
 
@@ -40,10 +40,10 @@ public:
     bool isEmpty() const;
 
     /// Returns the number of symbols is in the scope.
-    unsigned memberCount() const;
+    int memberCount() const;
 
     /// Returns the Symbol at the given position.
-    Symbol *memberAt(unsigned index) const;
+    Symbol *memberAt(int index) const;
 
     typedef Symbol **iterator;
 
@@ -57,12 +57,12 @@ public:
     Symbol *find(OperatorNameId::Kind operatorId) const;
 
     /// Set the start offset of the scope
-    unsigned startOffset() const;
-    void setStartOffset(unsigned offset);
+    int startOffset() const;
+    void setStartOffset(int offset);
 
     /// Set the end offset of the scope
-    unsigned endOffset() const;
-    void setEndOffset(unsigned offset);
+    int endOffset() const;
+    void setEndOffset(int offset);
 
     virtual const Scope *asScope() const
     { return this; }
@@ -72,8 +72,8 @@ public:
 
 private:
     SymbolTable *_members;
-    unsigned _startOffset;
-    unsigned _endOffset;
+    int _startOffset;
+    int _endOffset;
 };
 
 } // namespace CPlusPlus

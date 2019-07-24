@@ -147,7 +147,7 @@ public:
         return document;
     }
 
-    Use findUse(unsigned line, unsigned column)
+    Use findUse(int line, int column)
     {
         const int resultCount = future.resultCount();
         for (int i = resultCount - 1; i >= 0; --i) {
@@ -1326,8 +1326,8 @@ void tst_CheckSymbols::findField()
     QVERIFY(position != -1);
     QByteArray truncated = source;
     truncated.truncate(position);
-    const unsigned line = truncated.count('\n') + 1;
-    const unsigned column = position - truncated.lastIndexOf('\n', position) + 1;
+    const int line = truncated.count('\n') + 1;
+    const int column = position - truncated.lastIndexOf('\n', position) + 1;
     source[position] = ' ';
     BaseTestCase tc(source);
     Use use = tc.findUse(line, column);

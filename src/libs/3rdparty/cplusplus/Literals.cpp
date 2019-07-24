@@ -28,7 +28,7 @@
 using namespace CPlusPlus;
 
 ////////////////////////////////////////////////////////////////////////////////
-Literal::Literal(const char *chars, unsigned size)
+Literal::Literal(const char *chars, int size)
     : _next(0), _index(0)
 {
     _chars = new char[size + 1];
@@ -79,7 +79,7 @@ unsigned Literal::hashCode(const char *chars, unsigned size)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-NumericLiteral::NumericLiteral(const char *chars, unsigned size)
+NumericLiteral::NumericLiteral(const char *chars, int size)
     : Literal(chars, size), _flags(0)
 {
     f._type = NumericLiteralIsInt;

@@ -39,7 +39,7 @@ FindCdbBreakpoint::FindCdbBreakpoint(TranslationUnit *unit)
 {
 }
 
-unsigned FindCdbBreakpoint::searchFrom(unsigned line)
+int FindCdbBreakpoint::searchFrom(int line)
 {
     m_initialLine = line;
     m_breakpointLine = NO_LINE_FOUND;
@@ -51,18 +51,18 @@ unsigned FindCdbBreakpoint::searchFrom(unsigned line)
 
 void FindCdbBreakpoint::foundLine(unsigned tokenIndex)
 {
-    unsigned dummy = 0;
+    int dummy = 0;
     getTokenStartPosition(tokenIndex, &m_breakpointLine, &dummy);
 }
 
-unsigned FindCdbBreakpoint::endLine(unsigned tokenIndex) const
+int FindCdbBreakpoint::endLine(unsigned tokenIndex) const
 {
-    unsigned line = 0, column = 0;
+    int line = 0, column = 0;
     getTokenEndPosition(tokenIndex, &line, &column);
     return line;
 }
 
-unsigned FindCdbBreakpoint::endLine(AST *ast) const
+int FindCdbBreakpoint::endLine(AST *ast) const
 {
     if (ast)
         return endLine(ast->lastToken() - 1);

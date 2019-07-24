@@ -57,7 +57,7 @@ class ContextProperty {
 public:
     QString name;
     QString expression;
-    unsigned line, column;
+    int line, column;
 };
 
 class FindExportsVisitor : protected ASTVisitor
@@ -245,7 +245,7 @@ protected:
         if (StringLiteralAST *nameAst = skipStringCall(nameExp)->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
-            unsigned line, column;
+            int line, column;
             translationUnit()->getTokenStartPosition(nameExp->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
@@ -290,7 +290,7 @@ protected:
             const Token end = _doc->translationUnit()->tokenAt(ast->firstToken());
 
             // go through comments backwards to find the annotation closest to the call
-            for (unsigned i = _doc->translationUnit()->commentCount(); i-- > 0; ) {
+            for (int i = _doc->translationUnit()->commentCount(); i-- > 0; ) {
                 const Token commentToken = _doc->translationUnit()->commentAt(i);
                 if (commentToken.utf16charsBegin() >= end.utf16charsBegin()
                         || commentToken.utf16charsEnd() <= begin.utf16charsBegin()) {
@@ -305,7 +305,7 @@ protected:
         }
         if (packageName.isEmpty()) {
             packageName = QmlJS::CppQmlTypes::defaultPackage;
-            unsigned line, column;
+            int line, column;
             translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
@@ -341,7 +341,7 @@ protected:
         }
 
         // we want to do lookup later, so also store the surrounding scope
-        unsigned line, column;
+        int line, column;
         translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
         exportedType.scope = _doc->scopeAt(line, column);
 
@@ -483,7 +483,7 @@ protected:
         if (StringLiteralAST *nameAst = skipStringCall(ast->expression_list->value)->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
-            unsigned line, column;
+            int line, column;
             translationUnit()->getTokenStartPosition(ast->expression_list->value->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
@@ -666,7 +666,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
     // add the no-package export, so the cpp name can be used in properties
     fmo->addExport(fmo->className(), QmlJS::CppQmlTypes::cppPackage, ComponentVersion());
 
-    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+    for (int i = 0; i < klass->memberCount(); ++i) {
         Symbol *member = klass->memberAt(i);
         if (!member->name())
             continue;
@@ -678,7 +678,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
                 method.setMethodType(FakeMetaMethod::Signal);
             else
                 method.setMethodType(FakeMetaMethod::Slot);
-            for (unsigned a = 0, argc = func->argumentCount(); a < argc; ++a) {
+            for (int a = 0, argc = func->argumentCount(); a < argc; ++a) {
                 Symbol *arg = func->argumentAt(a);
                 QString name;
                 if (arg->name())
@@ -715,7 +715,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
                 continue;
 
             FakeMetaEnum metaEnum(namePrinter.prettyName(e->name()));
-            for (unsigned j = 0; j < e->memberCount(); ++j) {
+            for (int j = 0; j < e->memberCount(); ++j) {
                 Symbol *enumMember = e->memberAt(j);
                 if (!enumMember->name())
                     continue;

@@ -293,7 +293,7 @@ bool Matcher::match(const ObjCMethod *type, const ObjCMethod *otherType)
     else if (! type->returnType().match(otherType->returnType(), this))
         return false;
 
-    for (unsigned i = 0; i < type->argumentCount(); ++i) {
+    for (int i = 0; i < type->argumentCount(); ++i) {
         Symbol *l = type->argumentAt(i);
         Symbol *r = otherType->argumentAt(i);
         if (! l->type().match(r->type(), this))
@@ -356,10 +356,10 @@ bool Matcher::match(const QualifiedNameId *name, const QualifiedNameId *otherNam
 
 bool Matcher::match(const SelectorNameId *name, const SelectorNameId *otherName)
 {
-    const unsigned nc = name->nameCount();
+    const int nc = name->nameCount();
     if (name->hasArguments() != otherName->hasArguments() || nc != otherName->nameCount())
         return false;
-    for (unsigned i = 0; i < nc; ++i)
+    for (int i = 0; i < nc; ++i)
         if (! Matcher::match(name->nameAt(i), otherName->nameAt(i), this))
             return false;
     return true;

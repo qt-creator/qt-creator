@@ -65,8 +65,8 @@ void ClassViewController::appendClassDeclarationsFromDocument(CPlusPlus::Documen
                                                               int line, int column,
                                                               QSet<QString> *classNames)
 {
-    unsigned int total = document->globalSymbolCount();
-    for (unsigned int i = 0; i < total; ++i) {
+    int total = document->globalSymbolCount();
+    for (int i = 0; i < total; ++i) {
         CPlusPlus::Symbol *symbol = document->globalSymbolAt(i);
         appendClassDeclarationsFromSymbol(symbol, line, column, classNames);
     }
@@ -77,9 +77,7 @@ void ClassViewController::appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *s
                                                             QSet<QString> *classNames)
 {
     if (symbol->isClass()
-            && (line <= 0
-                || (symbol->line() == static_cast<unsigned int>(line)
-                    && symbol->column() == static_cast<unsigned int>(column + 1))))
+            && (line <= 0 || (symbol->line() == line && symbol->column() == column + 1)))
     {
         CPlusPlus::Overview overview;
         QString className = overview.prettyName(
@@ -91,8 +89,8 @@ void ClassViewController::appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *s
 
     if (symbol->isScope()) {
         CPlusPlus::Scope *scope = symbol->asScope();
-        unsigned int total = scope->memberCount();
-        for (unsigned int i = 0; i < total; ++i) {
+        int total = scope->memberCount();
+        for (int i = 0; i < total; ++i) {
             CPlusPlus::Symbol *member = scope->memberAt(i);
             appendClassDeclarationsFromSymbol(member, line, column, classNames);
         }

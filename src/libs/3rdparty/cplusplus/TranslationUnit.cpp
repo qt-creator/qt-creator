@@ -70,7 +70,7 @@ const StringLiteral *TranslationUnit::fileId() const
 const char *TranslationUnit::fileName() const
 { return _fileId->chars(); }
 
-unsigned TranslationUnit::fileNameLength() const
+int TranslationUnit::fileNameLength() const
 { return _fileId->size(); }
 
 const char *TranslationUnit::firstSourceChar() const
@@ -79,16 +79,16 @@ const char *TranslationUnit::firstSourceChar() const
 const char *TranslationUnit::lastSourceChar() const
 { return _lastSourceChar; }
 
-unsigned TranslationUnit::sourceLength() const
+int TranslationUnit::sourceLength() const
 { return _lastSourceChar - _firstSourceChar; }
 
-void TranslationUnit::setSource(const char *source, unsigned size)
+void TranslationUnit::setSource(const char *source, int size)
 {
     _firstSourceChar = source;
     _lastSourceChar = source + size;
 }
 
-const char *TranslationUnit::spell(unsigned index) const
+const char *TranslationUnit::spell(int index) const
 {
     if (! index)
         return 0;
@@ -96,25 +96,25 @@ const char *TranslationUnit::spell(unsigned index) const
     return tokenAt(index).spell();
 }
 
-unsigned TranslationUnit::commentCount() const
-{ return unsigned(_comments->size()); }
+int TranslationUnit::commentCount() const
+{ return int(_comments->size()); }
 
-const Token &TranslationUnit::commentAt(unsigned index) const
+const Token &TranslationUnit::commentAt(int index) const
 { return _comments->at(index); }
 
-const Identifier *TranslationUnit::identifier(unsigned index) const
+const Identifier *TranslationUnit::identifier(int index) const
 { return tokenAt(index).identifier; }
 
-const Literal *TranslationUnit::literal(unsigned index) const
+const Literal *TranslationUnit::literal(int index) const
 { return tokenAt(index).literal; }
 
-const StringLiteral *TranslationUnit::stringLiteral(unsigned index) const
+const StringLiteral *TranslationUnit::stringLiteral(int index) const
 { return tokenAt(index).string; }
 
-const NumericLiteral *TranslationUnit::numericLiteral(unsigned index) const
+const NumericLiteral *TranslationUnit::numericLiteral(int index) const
 { return tokenAt(index).number; }
 
-unsigned TranslationUnit::matchingBrace(unsigned index) const
+int TranslationUnit::matchingBrace(int index) const
 { return tokenAt(index).close_brace; }
 
 MemoryPool *TranslationUnit::memoryPool() const
@@ -140,7 +140,7 @@ void TranslationUnit::tokenize()
     lex.setLanguageFeatures(_languageFeatures);
     lex.setScanCommentTokens(true);
 
-    std::stack<unsigned> braces;
+    std::stack<int> braces;
     _tokens->push_back(nullToken); // the first token needs to be invalid!
 
     pushLineOffset(0);
@@ -153,8 +153,8 @@ void TranslationUnit::tokenize()
 
     // We need to track information about the expanded tokens. A vector with an addition
     // explicit index control is used instead of queue mainly for performance reasons.
-    std::vector<std::pair<unsigned, unsigned> > lineColumn;
-    unsigned lineColumnIdx = 0;
+    std::vector<std::pair<int, int> > lineColumn;
+    int lineColumnIdx = 0;
 
     Token tk;
     do {
@@ -162,7 +162,7 @@ void TranslationUnit::tokenize()
 
 recognize:
         if (tk.is(T_POUND) && tk.newline()) {
-            const unsigned utf16CharOffset = tk.utf16charOffset;
+            const int utf16CharOffset = tk.utf16charOffset;
             lex(&tk);
 
             if (! tk.newline() && tk.is(T_IDENTIFIER) && tk.identifier == expansionId) {
@@ -175,10 +175,10 @@ recognize:
                         lex(&tk);
 
                         // Gather where the expansion happens and its length.
-                        //unsigned macroOffset = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                        //int macroOffset = static_cast<int>(strtoul(tk.spell(), 0, 0));
                         lex(&tk);
                         lex(&tk); // Skip the separating comma
-                        //unsigned macroLength = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                        //int macroLength = static_cast<int>(strtoul(tk.spell(), 0, 0));
                         lex(&tk);
 
                         // NOTE: We are currently not using the macro offset and length. They
@@ -198,7 +198,7 @@ recognize:
                                 // Get the total number of generated tokens and specify "null"
                                 // information for them.
                                 unsigned totalGenerated =
-                                        static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                                        static_cast<int>(strtoul(tk.spell(), 0, 0));
                                 const std::size_t previousSize = lineColumn.size();
                                 lineColumn.resize(previousSize + totalGenerated);
                                 std::fill(lineColumn.begin() + previousSize,
@@ -207,10 +207,10 @@ recognize:
 
                                 lex(&tk);
                             } else if (tk.is(T_NUMERIC_LITERAL)) {
-                                unsigned line = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                                int line = static_cast<int>(strtoul(tk.spell(), 0, 0));
                                 lex(&tk);
                                 lex(&tk); // Skip the separating colon
-                                unsigned column = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                                int column = static_cast<int>(strtoul(tk.spell(), 0, 0));
 
                                 // Store line and column for this non-generated token.
                                 lineColumn.push_back(std::make_pair(line, column));
@@ -230,7 +230,7 @@ recognize:
                 if (! tk.newline() && tk.is(T_IDENTIFIER) && tk.identifier == lineId)
                     lex(&tk);
                 if (! tk.newline() && tk.is(T_NUMERIC_LITERAL)) {
-                    unsigned line = (unsigned) strtoul(tk.spell(), 0, 0);
+                    int line = static_cast<int>(strtol(tk.spell(), 0, 0));
                     lex(&tk);
                     if (! tk.newline() && tk.is(T_STRING_LITERAL)) {
                         const StringLiteral *fileName =
@@ -244,12 +244,12 @@ recognize:
             }
             goto recognize;
         } else if (tk.kind() == T_LBRACE) {
-            braces.push(unsigned(_tokens->size()));
+            braces.push(int(_tokens->size()));
         } else if (tk.kind() == T_RBRACE && ! braces.empty()) {
-            const unsigned open_brace_index = braces.top();
+            const int open_brace_index = braces.top();
             braces.pop();
             if (open_brace_index < tokenCount())
-                (*_tokens)[open_brace_index].close_brace = unsigned(_tokens->size());
+                (*_tokens)[open_brace_index].close_brace = int(_tokens->size());
         } else if (tk.isComment()) {
             _comments->push_back(tk);
             continue; // comments are not in the regular token stream
@@ -258,9 +258,9 @@ recognize:
         bool currentExpanded = false;
         bool currentGenerated = false;
 
-        if (!lineColumn.empty() && lineColumnIdx < lineColumn.size()) {
+        if (!lineColumn.empty() && lineColumnIdx < static_cast<int>(lineColumn.size())) {
             currentExpanded = true;
-            const std::pair<unsigned, unsigned> &p = lineColumn[lineColumnIdx];
+            const std::pair<int, int> &p = lineColumn[lineColumnIdx];
             if (p.first)
                 _expandedLineColumn.insert(std::make_pair(tk.utf16charsBegin(), p));
             else
@@ -276,8 +276,8 @@ recognize:
     } while (tk.kind());
 
     for (; ! braces.empty(); braces.pop()) {
-        unsigned open_brace_index = braces.top();
-        (*_tokens)[open_brace_index].close_brace = unsigned(_tokens->size());
+        int open_brace_index = braces.top();
+        (*_tokens)[open_brace_index].close_brace = int(_tokens->size());
     }
 }
 
@@ -338,17 +338,17 @@ bool TranslationUnit::parse(ParseMode mode)
     return parsed;
 }
 
-void TranslationUnit::pushLineOffset(unsigned offset)
+void TranslationUnit::pushLineOffset(int offset)
 { _lineOffsets.push_back(offset); }
 
-void TranslationUnit::pushPreprocessorLine(unsigned utf16charOffset,
-                                           unsigned line,
+void TranslationUnit::pushPreprocessorLine(int utf16charOffset,
+                                           int line,
                                            const StringLiteral *fileName)
 { _ppLines.push_back(PPLine(utf16charOffset, line, fileName)); }
 
-unsigned TranslationUnit::findLineNumber(unsigned utf16charOffset) const
+int TranslationUnit::findLineNumber(int utf16charOffset) const
 {
-    std::vector<unsigned>::const_iterator it =
+    std::vector<int>::const_iterator it =
         std::lower_bound(_lineOffsets.begin(), _lineOffsets.end(), utf16charOffset);
 
     if (it != _lineOffsets.begin())
@@ -357,7 +357,7 @@ unsigned TranslationUnit::findLineNumber(unsigned utf16charOffset) const
     return it - _lineOffsets.begin();
 }
 
-TranslationUnit::PPLine TranslationUnit::findPreprocessorLine(unsigned utf16charOffset) const
+TranslationUnit::PPLine TranslationUnit::findPreprocessorLine(int utf16charOffset) const
 {
     std::vector<PPLine>::const_iterator it =
         std::lower_bound(_ppLines.begin(), _ppLines.end(), PPLine(utf16charOffset));
@@ -368,7 +368,7 @@ TranslationUnit::PPLine TranslationUnit::findPreprocessorLine(unsigned utf16char
     return *it;
 }
 
-unsigned TranslationUnit::findColumnNumber(unsigned utf16CharOffset, unsigned lineNumber) const
+int TranslationUnit::findColumnNumber(int utf16CharOffset, int lineNumber) const
 {
     if (! utf16CharOffset)
         return 0;
@@ -376,29 +376,29 @@ unsigned TranslationUnit::findColumnNumber(unsigned utf16CharOffset, unsigned li
     return utf16CharOffset - _lineOffsets[lineNumber];
 }
 
-void TranslationUnit::getTokenPosition(unsigned index,
-                                       unsigned *line,
-                                       unsigned *column,
+void TranslationUnit::getTokenPosition(int index,
+                                       int *line,
+                                       int *column,
                                        const StringLiteral **fileName) const
 { return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
 
-void TranslationUnit::getTokenStartPosition(unsigned index, unsigned *line,
-                                            unsigned *column,
+void TranslationUnit::getTokenStartPosition(int index, int *line,
+                                            int *column,
                                             const StringLiteral **fileName) const
 { return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
 
-void TranslationUnit::getTokenEndPosition(unsigned index, unsigned *line,
-                                          unsigned *column,
+void TranslationUnit::getTokenEndPosition(int index, int *line,
+                                          int *column,
                                           const StringLiteral **fileName) const
 { return getPosition(tokenAt(index).utf16charsEnd(), line, column, fileName); }
 
-void TranslationUnit::getPosition(unsigned utf16charOffset,
-                                  unsigned *line,
-                                  unsigned *column,
+void TranslationUnit::getPosition(int utf16charOffset,
+                                  int *line,
+                                  int *column,
                                   const StringLiteral **fileName) const
 {
-    unsigned lineNumber = 0;
-    unsigned columnNumber = 0;
+    int lineNumber = 0;
+    int columnNumber = 0;
     const StringLiteral *file = 0;
 
     // If this token is expanded we already have the information directly from the expansion
@@ -433,14 +433,14 @@ void TranslationUnit::getPosition(unsigned utf16charOffset,
        *fileName = file;
 }
 
-void TranslationUnit::message(DiagnosticClient::Level level, unsigned index, const char *format, va_list args)
+void TranslationUnit::message(DiagnosticClient::Level level, int index, const char *format, va_list args)
 {
     if (f._blockErrors)
         return;
 
     index = std::min(index, tokenCount() - 1);
 
-    unsigned line = 0, column = 0;
+    int line = 0, column = 0;
     const StringLiteral *fileName = 0;
     getTokenPosition(index, &line, &column, &fileName);
 
@@ -448,7 +448,7 @@ void TranslationUnit::message(DiagnosticClient::Level level, unsigned index, con
         client->report(level, fileName, line, column, format, args);
 }
 
-void TranslationUnit::warning(unsigned index, const char *format, ...)
+void TranslationUnit::warning(int index, const char *format, ...)
 {
     if (f._blockErrors)
         return;
@@ -461,7 +461,7 @@ void TranslationUnit::warning(unsigned index, const char *format, ...)
     va_end(args);
 }
 
-void TranslationUnit::error(unsigned index, const char *format, ...)
+void TranslationUnit::error(int index, const char *format, ...)
 {
     if (f._blockErrors)
         return;
@@ -474,7 +474,7 @@ void TranslationUnit::error(unsigned index, const char *format, ...)
     va_end(args);
 }
 
-void TranslationUnit::fatal(unsigned index, const char *format, ...)
+void TranslationUnit::fatal(int index, const char *format, ...)
 {
     if (f._blockErrors)
         return;
@@ -487,13 +487,13 @@ void TranslationUnit::fatal(unsigned index, const char *format, ...)
     va_end(args);
 }
 
-unsigned TranslationUnit::findPreviousLineOffset(unsigned tokenIndex) const
+int TranslationUnit::findPreviousLineOffset(int tokenIndex) const
 {
-    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(tokenIndex).utf16charsBegin())];
+    int lineOffset = _lineOffsets[findLineNumber(tokenAt(tokenIndex).utf16charsBegin())];
     return lineOffset;
 }
 
-bool TranslationUnit::maybeSplitGreaterGreaterToken(unsigned tokenIndex)
+bool TranslationUnit::maybeSplitGreaterGreaterToken(int tokenIndex)
 {
     if (tokenIndex >= tokenCount())
         return false;

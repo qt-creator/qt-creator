@@ -133,7 +133,7 @@ private:
         unsigned m_bytesOffsetRef;
         unsigned m_utf16charsOffsetRef;
         QByteArray *m_result;
-        unsigned m_lineRef;
+        int m_lineRef;
 
         ExpansionStatus m_expansionStatus;
         void setExpansionStatus(ExpansionStatus status)

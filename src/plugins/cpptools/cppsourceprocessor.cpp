@@ -324,8 +324,8 @@ void CppSourceProcessor::macroAdded(const CPlusPlus::Macro &macro)
     m_currentDoc->appendMacro(macro);
 }
 
-void CppSourceProcessor::passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
-                                                    unsigned line, const CPlusPlus::Macro &macro)
+void CppSourceProcessor::passedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
+                                                    int line, const CPlusPlus::Macro &macro)
 {
     if (!m_currentDoc)
         return;
@@ -336,7 +336,7 @@ void CppSourceProcessor::passedMacroDefinitionCheck(unsigned bytesOffset, unsign
                               line, QVector<MacroArgumentReference>());
 }
 
-void CppSourceProcessor::failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charOffset,
+void CppSourceProcessor::failedMacroDefinitionCheck(int bytesOffset, int utf16charOffset,
                                                     const ByteArrayRef &name)
 {
     if (!m_currentDoc)
@@ -346,8 +346,8 @@ void CppSourceProcessor::failedMacroDefinitionCheck(unsigned bytesOffset, unsign
                                        bytesOffset, utf16charOffset);
 }
 
-void CppSourceProcessor::notifyMacroReference(unsigned bytesOffset, unsigned utf16charOffset,
-                                              unsigned line, const CPlusPlus::Macro &macro)
+void CppSourceProcessor::notifyMacroReference(int bytesOffset, int utf16charOffset,
+                                              int line, const CPlusPlus::Macro &macro)
 {
     if (!m_currentDoc)
         return;
@@ -358,8 +358,8 @@ void CppSourceProcessor::notifyMacroReference(unsigned bytesOffset, unsigned utf
                               line, QVector<MacroArgumentReference>());
 }
 
-void CppSourceProcessor::startExpandingMacro(unsigned bytesOffset, unsigned utf16charOffset,
-                                             unsigned line, const CPlusPlus::Macro &macro,
+void CppSourceProcessor::startExpandingMacro(int bytesOffset, int utf16charOffset,
+                                             int line, const CPlusPlus::Macro &macro,
                                              const QVector<MacroArgumentReference> &actuals)
 {
     if (!m_currentDoc)
@@ -371,7 +371,7 @@ void CppSourceProcessor::startExpandingMacro(unsigned bytesOffset, unsigned utf1
                               line, actuals);
 }
 
-void CppSourceProcessor::stopExpandingMacro(unsigned, const CPlusPlus::Macro &)
+void CppSourceProcessor::stopExpandingMacro(int, const CPlusPlus::Macro &)
 {
     if (!m_currentDoc)
         return;
@@ -409,19 +409,19 @@ void CppSourceProcessor::mergeEnvironment(Document::Ptr doc)
     m_env.addMacros(doc->definedMacros());
 }
 
-void CppSourceProcessor::startSkippingBlocks(unsigned utf16charsOffset)
+void CppSourceProcessor::startSkippingBlocks(int utf16charsOffset)
 {
     if (m_currentDoc)
         m_currentDoc->startSkippingBlocks(utf16charsOffset);
 }
 
-void CppSourceProcessor::stopSkippingBlocks(unsigned utf16charsOffset)
+void CppSourceProcessor::stopSkippingBlocks(int utf16charsOffset)
 {
     if (m_currentDoc)
         m_currentDoc->stopSkippingBlocks(utf16charsOffset);
 }
 
-void CppSourceProcessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType type,
+void CppSourceProcessor::sourceNeeded(int line, const QString &fileName, IncludeType type,
                                       const QStringList &initialIncludes)
 {
     if (fileName.isEmpty())

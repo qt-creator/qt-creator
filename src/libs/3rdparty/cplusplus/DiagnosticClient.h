@@ -42,7 +42,7 @@ public:
 
     virtual void report(int level,
                         const StringLiteral *fileName,
-                        unsigned line, unsigned column,
+                        int line, int column,
                         const char *format, va_list ap) = 0;
 };
 

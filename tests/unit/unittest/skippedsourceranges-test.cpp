@@ -71,9 +71,9 @@ MATCHER_P4(IsSourceLocation, filePath, line, column, offset,
            )
 {
     if (!arg.filePath().endsWith(filePath)
-     || arg.line() != uint(line)
-     || arg.column() != uint(column)
-     || arg.offset() != uint(offset)) {
+     || arg.line() != line
+     || arg.column() != column
+     || arg.offset() != offset) {
         return false;
     }
 

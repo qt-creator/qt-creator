@@ -33,13 +33,12 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT FindCdbBreakpoint: protected ASTVisitor
 {
 public:
-    static const unsigned NO_LINE_FOUND = 0;
+    static const int NO_LINE_FOUND = 0;
 
 public:
     FindCdbBreakpoint(TranslationUnit *unit);
 
-    unsigned operator()(unsigned line)
-    { return searchFrom(line); }
+    int operator()(int line) { return searchFrom(line); }
 
     /**
      * Search for the next breakable line of code.
@@ -49,12 +48,12 @@ public:
      * \return the next breakable code line (1-based), or \c NO_LINE_FOUND if
      *         no line could be found.
      */
-    unsigned searchFrom(unsigned line);
+    int searchFrom(int line);
 
 protected:
     void foundLine(unsigned tokenIndex);
-    unsigned endLine(unsigned tokenIndex) const;
-    unsigned endLine(AST *ast) const;
+    int endLine(unsigned tokenIndex) const;
+    int endLine(AST *ast) const;
 
 protected:
     using ASTVisitor::visit;
@@ -86,9 +85,9 @@ protected:
     bool visit(ObjCSynchronizedStatementAST *ast);
 
 private:
-    unsigned m_initialLine;
+    int m_initialLine;
 
-    unsigned m_breakpointLine;
+    int m_breakpointLine;
 };
 
 } // namespace CPlusPlus

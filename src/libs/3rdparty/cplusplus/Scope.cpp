@@ -58,10 +58,10 @@ public:
     bool isEmpty() const;
 
     /// Returns the number of symbols is in the scope.
-    unsigned symbolCount() const;
+    int symbolCount() const;
 
     /// Returns the Symbol at the given position.
-    Symbol *symbolAt(unsigned index) const;
+    Symbol *symbolAt(int index) const;
 
     /// Returns the first Symbol in the scope.
     iterator firstSymbol() const;
@@ -210,10 +210,10 @@ unsigned SymbolTable::hashValue(Symbol *symbol) const
 bool SymbolTable::isEmpty() const
 { return _symbolCount == -1; }
 
-unsigned SymbolTable::symbolCount() const
+int SymbolTable::symbolCount() const
 { return _symbolCount + 1; }
 
-Symbol *SymbolTable::symbolAt(unsigned index) const
+Symbol *SymbolTable::symbolAt(int index) const
 {
     if (! _symbols)
         return 0;
@@ -226,7 +226,7 @@ SymbolTable::iterator SymbolTable::firstSymbol() const
 SymbolTable::iterator SymbolTable::lastSymbol() const
 { return _symbols + _symbolCount + 1; }
 
-Scope::Scope(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name)
+Scope::Scope(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
       _members(0),
       _startOffset(0),
@@ -260,11 +260,11 @@ bool Scope::isEmpty() const
 { return _members ? _members->isEmpty() : true; }
 
 /// Returns the number of symbols is in the scope.
-unsigned Scope::memberCount() const
+int Scope::memberCount() const
 { return _members ? _members->symbolCount() : 0; }
 
 /// Returns the Symbol at the given position.
-Symbol *Scope::memberAt(unsigned index) const
+Symbol *Scope::memberAt(int index) const
 { return _members ? _members->symbolAt(index) : 0; }
 
 /// Returns the first Symbol in the scope.
@@ -282,17 +282,17 @@ Symbol *Scope::find(OperatorNameId::Kind operatorId) const
 { return _members ? _members->lookat(operatorId) : 0; }
 
 /// Set the start offset of the scope
-unsigned Scope::startOffset() const
+int Scope::startOffset() const
 { return _startOffset; }
 
-void Scope::setStartOffset(unsigned offset)
+void Scope::setStartOffset(int offset)
 { _startOffset = offset; }
 
 /// Set the end offset of the scope
-unsigned Scope::endOffset() const
+int Scope::endOffset() const
 { return _endOffset; }
 
-void Scope::setEndOffset(unsigned offset)
+void Scope::setEndOffset(int offset)
 { _endOffset = offset; }
 
 } // namespace CPlusPlus

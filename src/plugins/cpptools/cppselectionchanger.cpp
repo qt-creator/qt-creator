@@ -136,13 +136,12 @@ int CppSelectionChanger::getTokenStartCursorPosition(
         unsigned tokenIndex,
         const QTextCursor &cursor) const
 {
-    unsigned startLine, startColumn;
+    int startLine, startColumn;
     m_unit->getTokenStartPosition(tokenIndex, &startLine, &startColumn);
 
     const QTextDocument *document = cursor.document();
-    const int startPosition =
-            document->findBlockByNumber(static_cast<int>(startLine) - 1).position()
-            + static_cast<int>(startColumn) - 1;
+    const int startPosition = document->findBlockByNumber(startLine - 1).position()
+                                    + startColumn - 1;
 
     return startPosition;
 }
@@ -151,13 +150,12 @@ int CppSelectionChanger::getTokenEndCursorPosition(
         unsigned tokenIndex,
         const QTextCursor &cursor) const
 {
-    unsigned endLine, endColumn;
+    int endLine, endColumn;
     m_unit->getTokenEndPosition(tokenIndex, &endLine, &endColumn);
 
     const QTextDocument *document = cursor.document();
-    const int endPosition =
-            document->findBlockByNumber(static_cast<int>(endLine) - 1).position()
-            + static_cast<int>(endColumn) - 1;
+    const int endPosition = document->findBlockByNumber(endLine - 1).position()
+                                    + endColumn - 1;
 
     return endPosition;
 }
@@ -167,7 +165,7 @@ void CppSelectionChanger::printTokenDebugInfo(
         const QTextCursor &cursor,
         QString prefix) const
 {
-    unsigned line, column;
+    int line, column;
     const Token token = m_unit->tokenAt(tokenIndex);
     m_unit->getTokenStartPosition(tokenIndex, &line, &column);
     const int startPos = getTokenStartCursorPosition(tokenIndex, cursor);
@@ -571,7 +569,7 @@ void CppSelectionChanger::fineTuneASTNodePositions(ASTNodePositions &positions) 
 
             // Start position will be the end position minus the size of the actual contents of the
             // literal.
-            int newPosStart = newPosEnd - static_cast<int>(firstToken.string->size());
+            int newPosStart = newPosEnd - firstToken.string->size();
 
             // Skip raw literal parentheses.
             if (isRawLiteral)
@@ -591,7 +589,7 @@ void CppSelectionChanger::fineTuneASTNodePositions(ASTNodePositions &positions) 
                     qDebug() << "Selecting inner contents of char literal.";
 
                 positions.astPosEnd = positions.astPosEnd - 1;
-                positions.astPosStart = positions.astPosEnd - int(firstToken.literal->size());
+                positions.astPosStart = positions.astPosEnd - firstToken.literal->size();
             }
         }
     } else if (ForStatementAST *forStatementAST = ast->asForStatement()) {

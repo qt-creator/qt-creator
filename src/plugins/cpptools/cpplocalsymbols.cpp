@@ -71,14 +71,14 @@ protected:
     {
         _scopeStack.append(scope);
 
-        for (unsigned i = 0; i < scope->memberCount(); ++i) {
+        for (int i = 0; i < scope->memberCount(); ++i) {
             if (Symbol *member = scope->memberAt(i)) {
                 if (member->isTypedef())
                     continue;
                 if (!member->isGenerated() && (member->isDeclaration() || member->isArgument())) {
                     if (member->name() && member->name()->isNameId()) {
                         const Token token = tokenAt(member->sourceLocation());
-                        unsigned line, column;
+                        int line, column;
                         getPosition(token.utf16charsBegin(), &line, &column);
                         localUses[member].append(
                                     HighlightingResult(line, column, token.utf16chars(),
@@ -89,7 +89,7 @@ protected:
         }
     }
 
-    bool checkLocalUse(NameAST *nameAst, unsigned firstToken)
+    bool checkLocalUse(NameAST *nameAst, int firstToken)
     {
         if (SimpleNameAST *simpleName = nameAst->asSimpleName()) {
             const Token token = tokenAt(simpleName->identifier_token);
@@ -102,7 +102,7 @@ protected:
                         continue;
                     if (!member->isGenerated() && (member->sourceLocation() < firstToken
                                                    || member->enclosingScope()->isFunction())) {
-                        unsigned line, column;
+                        int line, column;
                         getTokenStartPosition(simpleName->identifier_token, &line, &column);
                         localUses[member].append(
                                     HighlightingResult(line, column, token.utf16chars(),

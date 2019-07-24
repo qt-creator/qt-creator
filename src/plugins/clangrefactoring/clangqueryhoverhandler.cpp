@@ -53,8 +53,8 @@ void ClangQueryHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorW
     int line = textCursor.blockNumber() + 1;
     int column = textCursor.columnNumber() + 1;
 
-    Messages messages = m_highligher->messagesForLineAndColumn(uint(line), uint(column));
-    Contexts contexts = m_highligher->contextsForLineAndColumn(uint(line), uint(column));
+    Messages messages = m_highligher->messagesForLineAndColumn(line, column);
+    Contexts contexts = m_highligher->contextsForLineAndColumn(line, column);
 
     if (!messages.empty())
         setToolTip(QString("%1: %2").arg(QString(messages[0].errorTypeText())).arg(QString(messages[0].arguments.join(", "))));

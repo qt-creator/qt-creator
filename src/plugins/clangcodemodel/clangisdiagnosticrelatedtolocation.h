@@ -31,8 +31,8 @@ namespace ClangCodeModel {
 namespace Internal {
 
 static bool isWithinRange(const ClangBackEnd::SourceRangeContainer &range,
-                          uint line,
-                          uint column)
+                          int line,
+                          int column)
 {
     const ClangBackEnd::SourceLocationContainer &startLocation = range.start;
     const ClangBackEnd::SourceLocationContainer &endLocation = range.end;
@@ -44,8 +44,8 @@ static bool isWithinRange(const ClangBackEnd::SourceRangeContainer &range,
 }
 
 static bool isWithinOneRange(const QVector<ClangBackEnd::SourceRangeContainer> &ranges,
-                             uint line,
-                             uint column)
+                             int line,
+                             int column)
 {
     for (const ClangBackEnd::SourceRangeContainer &range : ranges) {
         if (isWithinRange(range, line, column))
@@ -57,8 +57,8 @@ static bool isWithinOneRange(const QVector<ClangBackEnd::SourceRangeContainer> &
 
 bool isDiagnosticRelatedToLocation(const ClangBackEnd::DiagnosticContainer &diagnostic,
                                    const QVector<ClangBackEnd::SourceRangeContainer> &additionalRanges,
-                                   uint line,
-                                   uint column)
+                                   int line,
+                                   int column)
 {
     const ClangBackEnd::SourceLocationContainer &location = diagnostic.location;
 

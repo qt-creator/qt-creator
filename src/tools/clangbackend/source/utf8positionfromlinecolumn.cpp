@@ -35,7 +35,7 @@ Utf8PositionFromLineColumn::Utf8PositionFromLineColumn(const char *utf8Text)
 {
 }
 
-bool Utf8PositionFromLineColumn::find(uint line, uint column)
+bool Utf8PositionFromLineColumn::find(int line, int column)
 {
     if (!m_utf8Text || *m_utf8Text == '\0' || line == 0 || column == 0)
         return false;
@@ -49,12 +49,12 @@ uint Utf8PositionFromLineColumn::position() const
     return m_previousByte - m_utf8Text;
 }
 
-bool Utf8PositionFromLineColumn::advanceToLine(uint line)
+bool Utf8PositionFromLineColumn::advanceToLine(int line)
 {
     if (line == 1)
         return true;
 
-    uint currentLine = 1;
+    int currentLine = 1;
     do {
         if (*m_currentByte == '\n' && ++currentLine == line) {
             advanceCodePoint();
@@ -65,7 +65,7 @@ bool Utf8PositionFromLineColumn::advanceToLine(uint line)
     return false;
 }
 
-bool Utf8PositionFromLineColumn::advanceToColumn(uint column)
+bool Utf8PositionFromLineColumn::advanceToColumn(int column)
 {
     while (column) {
         if (advanceCodePoint(/*stopOnNewLine=*/ true))

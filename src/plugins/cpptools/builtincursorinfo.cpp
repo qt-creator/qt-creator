@@ -55,26 +55,24 @@ CursorInfo::Range toRange(const SemanticInfo::Use &use)
 
 CursorInfo::Range toRange(int tokenIndex, TranslationUnit *translationUnit)
 {
-    unsigned line, column;
-    translationUnit->getTokenPosition(static_cast<unsigned>(tokenIndex), &line, &column);
+    int line, column;
+    translationUnit->getTokenPosition(tokenIndex, &line, &column);
     if (column)
         --column;  // adjust the column position.
 
     return {line,
             column + 1,
-            translationUnit->tokenAt(static_cast<unsigned>(tokenIndex)).utf16chars()};
+            translationUnit->tokenAt(tokenIndex).utf16chars()};
 }
 
-CursorInfo::Range toRange(const QTextCursor &textCursor,
-                                unsigned utf16offset,
-                                unsigned length)
+CursorInfo::Range toRange(const QTextCursor &textCursor, int utf16offset, int length)
 {
     QTextCursor cursor(textCursor.document());
-    cursor.setPosition(static_cast<int>(utf16offset));
+    cursor.setPosition(utf16offset);
     const QTextBlock textBlock = cursor.block();
 
-    return {static_cast<unsigned>(textBlock.blockNumber() + 1),
-            static_cast<unsigned>(cursor.position() - textBlock.position() + 1),
+    return {textBlock.blockNumber() + 1,
+            cursor.position() - textBlock.position() + 1,
             length};
 }
 
@@ -102,8 +100,8 @@ CursorInfo::Ranges toRanges(const QList<int> &tokenIndices, TranslationUnit *tra
 
 class FunctionDefinitionUnderCursor: protected ASTVisitor
 {
-    unsigned m_line = 0;
-    unsigned m_column = 0;
+    int m_line = 0;
+    int m_column = 0;
     DeclarationAST *m_functionDefinition = nullptr;
 
 public:
@@ -111,7 +109,7 @@ public:
         : ASTVisitor(translationUnit)
     { }
 
-    DeclarationAST *operator()(AST *ast, unsigned line, unsigned column)
+    DeclarationAST *operator()(AST *ast, int line, int column)
     {
         m_functionDefinition = nullptr;
         m_line = line;
@@ -140,8 +138,8 @@ protected:
 private:
     bool checkDeclaration(DeclarationAST *ast)
     {
-        unsigned startLine, startColumn;
-        unsigned endLine, endColumn;
+        int startLine, startColumn;
+        int endLine, endColumn;
         getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
         getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
 
@@ -214,9 +212,8 @@ private:
 
             bool good = false;
             foreach (const CppTools::SemanticInfo::Use &use, uses) {
-                const auto l = static_cast<unsigned>(m_line);
-                const auto c = static_cast<unsigned>(m_column);
-                if (l == use.line && c >= use.column && c <= (use.column + use.length)) {
+                if (m_line == use.line && m_column >= use.column
+                        && m_column <= static_cast<int>(use.column + use.length)) {
                     good = true;
                     break;
                 }
@@ -293,7 +290,7 @@ bool handleMacroCase(const Document::Ptr document,
     if (!macro)
         return false;
 
-    const unsigned length = static_cast<unsigned>(macro->nameToQString().size());
+    const int length = macro->nameToQString().size();
 
     // Macro definition
     if (macro->fileName() == document->fileName())
@@ -359,9 +356,7 @@ BuiltinCursorInfo::findLocalUses(const Document::Ptr &document, int line, int co
 
     AST *ast = document->translationUnit()->ast();
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(document->translationUnit());
-    DeclarationAST *declaration = functionDefinitionUnderCursor(ast,
-                                                                static_cast<unsigned>(line),
-                                                                static_cast<unsigned>(column));
+    DeclarationAST *declaration = functionDefinitionUnderCursor(ast, line, column);
     return CppTools::LocalSymbols(document, declaration).uses;
 }
 

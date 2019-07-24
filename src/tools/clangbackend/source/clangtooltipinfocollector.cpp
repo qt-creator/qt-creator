@@ -269,7 +269,7 @@ Utf8String ToolTipInfoCollector::textForNamespaceAlias(const Cursor &cursor) con
 
     Utf8String aliasedName;
     // Start at 3 in order to skip these tokens: namespace X =
-    for (uint i = 3; i < tokens.size(); ++i)
+    for (int i = 3; i < tokens.size(); ++i)
         aliasedName += tokens[i].spelling();
 
     return aliasedName;

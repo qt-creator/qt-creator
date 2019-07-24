@@ -38,27 +38,27 @@ public:
     void setTranslationUnit(TranslationUnit *translationUnit);
 
     Control *control() const;
-    unsigned tokenCount() const;
-    const Token &tokenAt(unsigned index) const;
-    int tokenKind(unsigned index) const;
-    const char *spell(unsigned index) const;
-    const Identifier *identifier(unsigned index) const;
-    const Literal *literal(unsigned index) const;
-    const NumericLiteral *numericLiteral(unsigned index) const;
-    const StringLiteral *stringLiteral(unsigned index) const;
+    int tokenCount() const;
+    const Token &tokenAt(int index) const;
+    int tokenKind(int index) const;
+    const char *spell(int index) const;
+    const Identifier *identifier(int index) const;
+    const Literal *literal(int index) const;
+    const NumericLiteral *numericLiteral(int index) const;
+    const StringLiteral *stringLiteral(int index) const;
 
-    void getPosition(unsigned offset,
-                     unsigned *line,
-                     unsigned *column = 0,
-                     const StringLiteral **fileName = 0) const;
+    void getPosition(int offset,
+                     int *line,
+                     int *column = nullptr,
+                     const StringLiteral **fileName = nullptr) const;
 
-    void getTokenPosition(unsigned index,
-                          unsigned *line,
-                          unsigned *column = 0,
-                          const StringLiteral **fileName = 0) const;
+    void getTokenPosition(int index,
+                          int *line,
+                          int *column = nullptr,
+                          const StringLiteral **fileName = nullptr) const;
 
-    void getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const;
-    void getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const;
+    void getTokenStartPosition(int index, int *line, int *column) const;
+    void getTokenEndPosition(int index, int *line, int *column) const;
 
     void accept(AST *ast);
 

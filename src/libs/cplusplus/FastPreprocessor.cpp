@@ -70,7 +70,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
     return preprocessed;
 }
 
-void FastPreprocessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType mode,
+void FastPreprocessor::sourceNeeded(int line, const QString &fileName, IncludeType mode,
                                     const QStringList &initialIncludes)
 {
     Q_UNUSED(initialIncludes)
@@ -115,8 +115,8 @@ static const Macro revision(const Snapshot &s, const Macro &m)
     return m;
 }
 
-void FastPreprocessor::passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
-                                                  unsigned line, const Macro &macro)
+void FastPreprocessor::passedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
+                                                  int line, const Macro &macro)
 {
     Q_ASSERT(_currentDoc);
 
@@ -126,7 +126,7 @@ void FastPreprocessor::passedMacroDefinitionCheck(unsigned bytesOffset, unsigned
                              line, QVector<MacroArgumentReference>());
 }
 
-void FastPreprocessor::failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+void FastPreprocessor::failedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
                                                   const ByteArrayRef &name)
 {
     Q_ASSERT(_currentDoc);
@@ -135,8 +135,8 @@ void FastPreprocessor::failedMacroDefinitionCheck(unsigned bytesOffset, unsigned
                                       bytesOffset, utf16charsOffset);
 }
 
-void FastPreprocessor::notifyMacroReference(unsigned bytesOffset, unsigned utf16charsOffset,
-                                            unsigned line, const Macro &macro)
+void FastPreprocessor::notifyMacroReference(int bytesOffset, int utf16charsOffset,
+                                            int line, const Macro &macro)
 {
     Q_ASSERT(_currentDoc);
 
@@ -146,8 +146,8 @@ void FastPreprocessor::notifyMacroReference(unsigned bytesOffset, unsigned utf16
                              line, QVector<MacroArgumentReference>());
 }
 
-void FastPreprocessor::startExpandingMacro(unsigned bytesOffset, unsigned utf16charsOffset,
-                                           unsigned line, const Macro &macro,
+void FastPreprocessor::startExpandingMacro(int bytesOffset, int utf16charsOffset,
+                                           int line, const Macro &macro,
                                            const QVector<MacroArgumentReference> &actuals)
 {
     Q_ASSERT(_currentDoc);

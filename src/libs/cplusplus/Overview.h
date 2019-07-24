@@ -70,7 +70,7 @@ public:
     bool showEnclosingTemplate: 1;
     bool includeWhiteSpaceInOperatorName: 1; /// "operator =()" vs "operator=()"
 
-    unsigned markedArgument;
+    int markedArgument;
     int markedArgumentBegin;
     int markedArgumentEnd;
 };

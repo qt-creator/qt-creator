@@ -86,7 +86,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         return;
     }
 
-    const unsigned firstNonSpace = tokens.first().utf16charsBegin();
+    const int firstNonSpace = tokens.first().utf16charsBegin();
 
     Parentheses parentheses;
     parentheses.reserve(5);
@@ -97,7 +97,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
 
-        unsigned previousTokenEnd = 0;
+        int previousTokenEnd = 0;
         if (i != 0) {
             // mark the whitespaces
             previousTokenEnd = tokens.at(i - 1).utf16charsBegin() +

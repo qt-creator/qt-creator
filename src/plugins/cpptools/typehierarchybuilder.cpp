@@ -71,13 +71,13 @@ void DerivedHierarchyVisitor::execute(const CPlusPlus::Document::Ptr &doc,
     _otherBases.clear();
     _context = CPlusPlus::LookupContext(doc, snapshot);
 
-    for (unsigned i = 0; i < doc->globalSymbolCount(); ++i)
+    for (int i = 0; i < doc->globalSymbolCount(); ++i)
         accept(doc->globalSymbolAt(i));
 }
 
 bool DerivedHierarchyVisitor::visit(CPlusPlus::Class *symbol)
 {
-    for (unsigned i = 0; i < symbol->baseClassCount(); ++i) {
+    for (int i = 0; i < symbol->baseClassCount(); ++i) {
         CPlusPlus::BaseClass *baseSymbol = symbol->baseClassAt(i);
 
         QString baseName = _actualBases.value(baseSymbol);

@@ -58,21 +58,21 @@ const Utf8String &SourceLocation::filePath() const
     return m_filePath;
 }
 
-uint SourceLocation::line() const
+int SourceLocation::line() const
 {
     if (!m_isEvaluated)
         evaluate();
     return m_line;
 }
 
-uint SourceLocation::column() const
+int SourceLocation::column() const
 {
     if (!m_isEvaluated)
         evaluate();
     return m_column;
 }
 
-uint SourceLocation::offset() const
+int SourceLocation::offset() const
 {
     if (!m_isEvaluated)
         evaluate();
@@ -92,11 +92,15 @@ void SourceLocation::evaluate() const
 
     CXFile cxFile;
 
+    unsigned line, column, offset;
     clang_getFileLocation(m_cxSourceLocation,
                           &cxFile,
-                          &m_line,
-                          &m_column,
-                          &m_offset);
+                          &line,
+                          &column,
+                          &offset);
+    m_line = line;
+    m_column = column;
+    m_offset = offset;
 
     m_isFilePathNormalized = false;
     if (!cxFile)
@@ -104,15 +108,14 @@ void SourceLocation::evaluate() const
 
     m_filePath = ClangString(clang_getFileName(cxFile));
     if (m_column > 1) {
-        const uint lineStart = m_offset + 1 - m_column;
+        const int lineStart = m_offset + 1 - m_column;
         const char *contents = clang_getFileContents(m_cxTranslationUnit, cxFile, nullptr);
         if (!contents)
             return;
         // (1) column in SourceLocation is the actual column shown by CppEditor.
         // (2) column in Clang is the utf8 byte offset from the beginning of the line.
         // Here we convert column from (2) to (1).
-        m_column = static_cast<uint>(QString::fromUtf8(&contents[lineStart],
-                                                       static_cast<int>(m_column) - 1).size()) + 1;
+        m_column = QString::fromUtf8(&contents[lineStart], m_column - 1).size() + 1;
     }
 }
 

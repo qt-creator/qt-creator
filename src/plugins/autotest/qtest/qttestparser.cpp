@@ -126,8 +126,8 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
                                                   const CPlusPlus::Snapshot &snapshot,
                                                   const QString &testCaseName,
                                                   const QStringList &alternativeFiles = {},
-                                                  unsigned *line = nullptr,
-                                                  unsigned *column = nullptr)
+                                                  int *line = nullptr,
+                                                  int *column = nullptr)
 {
     CPlusPlus::Document::Ptr declaringDoc;
     CPlusPlus::TypeOfExpression typeOfExpr;
@@ -293,8 +293,8 @@ static bool handleQtTest(QFutureInterface<TestParseResultPtr> futureInterface,
     if (testCaseName.isEmpty())
         testCaseName = oldTestCaseName;
     if (!testCaseName.isEmpty()) {
-        unsigned line = 0;
-        unsigned column = 0;
+        int line = 0;
+        int column = 0;
         CPlusPlus::Document::Ptr declaringDoc = declaringDocument(document, snapshot, testCaseName,
                                                                   alternativeFiles, &line, &column);
         if (declaringDoc.isNull())

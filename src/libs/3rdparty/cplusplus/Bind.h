@@ -43,9 +43,9 @@ public:
 protected:
     using ASTVisitor::translationUnit;
 
-    unsigned location(DeclaratorAST *ast, unsigned defaultLocation) const;
-    unsigned location(CoreDeclaratorAST *ast, unsigned defaultLocation) const;
-    unsigned location(NameAST *name, unsigned defaultLocation) const;
+    int location(DeclaratorAST *ast, int defaultLocation) const;
+    int location(CoreDeclaratorAST *ast, int defaultLocation) const;
+    int location(NameAST *name, int defaultLocation) const;
 
     static int visibilityForAccessSpecifier(int tokenKind);
     static int visibilityForClassKey(int tokenKind);
@@ -72,14 +72,14 @@ protected:
     int switchMethodKey(int methodKey);
     int switchObjCVisibility(int visibility);
 
-    unsigned calculateScopeStart(ObjCClassDeclarationAST *ast) const;
-    unsigned calculateScopeStart(ObjCProtocolDeclarationAST *ast) const;
+    int calculateScopeStart(ObjCClassDeclarationAST *ast) const;
+    int calculateScopeStart(ObjCProtocolDeclarationAST *ast) const;
 
     const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
     void attribute(GnuAttributeAST *ast);
     FullySpecifiedType declarator(DeclaratorAST *ast, const FullySpecifiedType &init, DeclaratorIdAST **declaratorId);
     void qtInterfaceName(QtInterfaceNameAST *ast);
-    void baseSpecifier(BaseSpecifierAST *ast, unsigned colon_token, Class *klass);
+    void baseSpecifier(BaseSpecifierAST *ast, int colon_token, Class *klass);
     void ctorInitializer(CtorInitializerAST *ast, Function *fun);
     void enumerator(EnumeratorAST *ast, Enum *symbol);
     FullySpecifiedType exceptionSpecification(ExceptionSpecificationAST *ast, const FullySpecifiedType &init);
@@ -89,7 +89,7 @@ protected:
     FullySpecifiedType newArrayDeclarator(NewArrayDeclaratorAST *ast, const FullySpecifiedType &init);
     FullySpecifiedType newTypeId(NewTypeIdAST *ast);
     OperatorNameId::Kind cppOperator(OperatorAST *ast);
-    void parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsigned lparen_token, Function *fun);
+    void parameterDeclarationClause(ParameterDeclarationClauseAST *ast, int lparen_token, Function *fun);
     void translationUnit(TranslationUnitAST *ast);
     void objCProtocolRefs(ObjCProtocolRefsAST *ast, Symbol *objcClassOrProtocol);
     void objCMessageArgument(ObjCMessageArgumentAST *ast);
@@ -282,7 +282,7 @@ protected:
 private:
     static const int kMaxDepth;
 
-    void ensureValidClassName(const Name **name, unsigned sourceLocation);
+    void ensureValidClassName(const Name **name, int sourceLocation);
 
     Scope *_scope;
     ExpressionTy _expression;

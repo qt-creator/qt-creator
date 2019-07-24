@@ -42,7 +42,7 @@ public:
     {
     }
 
-    bool contains(unsigned line, unsigned column) const
+    bool contains(int line, int column) const
     {
         if (line < start.line || line > end.line)
             return false;

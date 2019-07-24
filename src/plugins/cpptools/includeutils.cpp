@@ -319,7 +319,7 @@ QList<IncludeGroup> IncludeGroup::detectIncludeGroupsByNewLines(QList<Document::
 {
     // Create groups
     QList<IncludeGroup> result;
-    unsigned lastLine = 0;
+    int lastLine = 0;
     QList<Include> currentIncludes;
     bool isFirst = true;
     foreach (const Include &include, includes) {

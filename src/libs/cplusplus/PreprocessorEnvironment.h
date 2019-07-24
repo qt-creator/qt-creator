@@ -88,7 +88,7 @@ private:
 public:
     QString currentFile;
     QByteArray currentFileUtf8;
-    unsigned currentLine;
+    int currentLine;
     bool hideNext;
 
 private:

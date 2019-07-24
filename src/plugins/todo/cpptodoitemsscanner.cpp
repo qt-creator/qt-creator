@@ -77,7 +77,7 @@ void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
     QList<TodoItem> itemList;
     CPlusPlus::TranslationUnit *translationUnit = doc->translationUnit();
 
-    for (unsigned i = 0; i < translationUnit->commentCount(); ++i) {
+    for (int i = 0; i < translationUnit->commentCount(); ++i) {
 
         // Get comment source
         CPlusPlus::Token token = doc->translationUnit()->commentAt(i);
@@ -89,7 +89,7 @@ void CppTodoItemsScanner::processDocument(CPlusPlus::Document::Ptr doc)
         }
 
         // Process every line of the comment
-        unsigned lineNumber = 0;
+        int lineNumber = 0;
         translationUnit->getPosition(token.utf16charsBegin(), &lineNumber);
 
         for (int from = 0, sz = source.size(); from < sz; ++lineNumber) {

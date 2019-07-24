@@ -54,20 +54,20 @@ public:
 
 public:
     /// Constructs a Symbol with the given source location, name and translation unit.
-    Symbol(TranslationUnit *translationUnit, unsigned sourceLocation, const Name *name);
+    Symbol(TranslationUnit *translationUnit, int sourceLocation, const Name *name);
     Symbol(Clone *clone, Subst *subst, Symbol *original);
 
     /// Destroy this Symbol.
     virtual ~Symbol();
 
     /// Returns this Symbol's source location.
-    unsigned sourceLocation() const;
+    int sourceLocation() const;
 
     /// \returns this Symbol's line number. The line number is 1-based.
-    unsigned line() const;
+    int line() const;
 
     /// \returns this Symbol's column number. The column number is 1-based.
-    unsigned column() const;
+    int column() const;
 
     /// Returns this Symbol's file name.
     const StringLiteral *fileId() const;
@@ -76,7 +76,7 @@ public:
     const char *fileName() const;
 
     /// Returns this Symbol's file name length.
-    unsigned fileNameLength() const;
+    int fileNameLength() const;
 
     /// Returns this Symbol's name.
     const Name *name() const;
@@ -294,7 +294,7 @@ public:
 
     void setEnclosingScope(Scope *enclosingScope); // ### make me private
     void resetEnclosingScope(); // ### make me private
-    void setSourceLocation(unsigned sourceLocation, TranslationUnit *translationUnit); // ### make me private
+    void setSourceLocation(int sourceLocation, TranslationUnit *translationUnit); // ### make me private
 
     void visitSymbol(SymbolVisitor *visitor);
     static void visitSymbol(Symbol *symbol, SymbolVisitor *visitor);
@@ -309,13 +309,13 @@ private:
     Scope *_enclosingScope;
     Symbol *_next;
     const StringLiteral *_fileId;
-    unsigned _sourceLocation;
+    int _sourceLocation;
     unsigned _hashCode;
     int _storage;
     int _visibility;
-    unsigned _index;
-    unsigned _line;
-    unsigned _column;
+    int _index;
+    int _line;
+    int _column;
 
     bool _isGenerated: 1;
     bool _isDeprecated: 1;

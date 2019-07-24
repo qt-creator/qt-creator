@@ -49,44 +49,40 @@ TranslationUnit *ASTVisitor::translationUnit() const
 void ASTVisitor::setTranslationUnit(TranslationUnit *translationUnit)
 { _translationUnit = translationUnit; }
 
-unsigned ASTVisitor::tokenCount() const
+int ASTVisitor::tokenCount() const
 { return translationUnit()->tokenCount(); }
 
-const Token &ASTVisitor::tokenAt(unsigned index) const
+const Token &ASTVisitor::tokenAt(int index) const
 { return translationUnit()->tokenAt(index); }
 
-int ASTVisitor::tokenKind(unsigned index) const
+int ASTVisitor::tokenKind(int index) const
 { return translationUnit()->tokenKind(index); }
 
-const char *ASTVisitor::spell(unsigned index) const
+const char *ASTVisitor::spell(int index) const
 { return translationUnit()->spell(index); }
 
-const Identifier *ASTVisitor::identifier(unsigned index) const
+const Identifier *ASTVisitor::identifier(int index) const
 { return translationUnit()->identifier(index); }
 
-const Literal *ASTVisitor::literal(unsigned index) const
+const Literal *ASTVisitor::literal(int index) const
 { return translationUnit()->literal(index); }
 
-const NumericLiteral *ASTVisitor::numericLiteral(unsigned index) const
+const NumericLiteral *ASTVisitor::numericLiteral(int index) const
 { return translationUnit()->numericLiteral(index); }
 
-const StringLiteral *ASTVisitor::stringLiteral(unsigned index) const
+const StringLiteral *ASTVisitor::stringLiteral(int index) const
 { return translationUnit()->stringLiteral(index); }
 
-void ASTVisitor::getPosition(unsigned offset,
-                             unsigned *line,
-                             unsigned *column,
+void ASTVisitor::getPosition(int offset, int *line, int *column,
                              const StringLiteral **fileName) const
 { translationUnit()->getPosition(offset, line, column, fileName); }
 
-void ASTVisitor::getTokenPosition(unsigned index,
-                                  unsigned *line,
-                                  unsigned *column,
+void ASTVisitor::getTokenPosition(int index, int *line, int *column,
                                   const StringLiteral **fileName) const
 { translationUnit()->getTokenPosition(index, line, column, fileName); }
 
-void ASTVisitor::getTokenStartPosition(unsigned index, unsigned *line, unsigned *column) const
+void ASTVisitor::getTokenStartPosition(int index, int *line, int *column) const
 { getPosition(tokenAt(index).utf16charsBegin(), line, column); }
 
-void ASTVisitor::getTokenEndPosition(unsigned index, unsigned *line, unsigned *column) const
+void ASTVisitor::getTokenEndPosition(int index, int *line, int *column) const
 { getPosition(tokenAt(index).utf16charsEnd(), line, column); }

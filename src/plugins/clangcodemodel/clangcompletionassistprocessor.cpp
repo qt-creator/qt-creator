@@ -189,7 +189,7 @@ CodeCompletions ClangCompletionAssistProcessor::applyCompletionFixIt(const CodeC
     ClangFixItOperation fixItOperation(Utf8String(), completion.requiredFixIts);
     fixItOperation.perform();
 
-    const int fixItLength = static_cast<int>(fixIt.range.end.column - fixIt.range.start.column);
+    const int fixItLength = fixIt.range.end.column - fixIt.range.start.column;
     const QString fixItText = fixIt.text.toString();
     m_positionForProposal += fixItText.length() - fixItLength;
 

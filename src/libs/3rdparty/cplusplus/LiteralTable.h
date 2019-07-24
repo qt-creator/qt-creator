@@ -69,10 +69,10 @@ public:
     bool empty() const
     { return _literalCount == -1; }
 
-    unsigned size() const
+    int size() const
     { return _literalCount + 1; }
 
-    const Literal *at(unsigned index) const
+    const Literal *at(int index) const
     { return _literals[index]; }
 
     iterator begin() const
@@ -81,7 +81,7 @@ public:
     iterator end() const
     { return _literals + _literalCount + 1; }
 
-    const Literal *findLiteral(const char *chars, unsigned size) const
+    const Literal *findLiteral(const char *chars, int size) const
     {
         if (_buckets) {
             unsigned h = Literal::hashCode(chars, size);
@@ -95,7 +95,7 @@ public:
         return 0;
     }
 
-    const Literal *findOrInsertLiteral(const char *chars, unsigned size)
+    const Literal *findOrInsertLiteral(const char *chars, int size)
     {
         if (_buckets) {
             unsigned h = Literal::hashCode(chars, size);

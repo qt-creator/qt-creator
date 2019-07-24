@@ -72,7 +72,7 @@ public:
     bool parseConstantExpression(ExpressionAST *&node);
     bool parseCtorInitializer(CtorInitializerAST *&node);
     bool parseCvQualifiers(SpecifierListAST *&node);
-    bool parseRefQualifier(unsigned &ref_qualifier);
+    bool parseRefQualifier(int &ref_qualifier);
     bool parseOverrideFinalQualifiers(SpecifierListAST *&node);
     bool parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list);
     bool parseDeclaration(DeclarationAST *&node);
@@ -100,7 +100,7 @@ public:
     bool parseInclusiveOrExpression(ExpressionAST *&node);
     bool parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass);
     bool parseInitializerList(ExpressionListAST *&node);
-    bool parseInitializer(ExpressionAST *&node, unsigned *equals_token);
+    bool parseInitializer(ExpressionAST *&node, int *equals_token);
     bool parseInitializerClause(ExpressionAST *&node);
     bool parseLabeledStatement(StatementAST *&node);
     bool parseLinkageBody(DeclarationAST *&node);
@@ -111,7 +111,7 @@ public:
     bool parseMemInitializerList(MemInitializerListAST *&node);
     bool parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *declaringClass);
     bool parseMultiplicativeExpression(ExpressionAST *&node);
-    bool parseTemplateId(NameAST *&node, unsigned template_token = 0);
+    bool parseTemplateId(NameAST *&node, int template_token = 0);
     bool parseClassOrNamespaceName(NameAST *&node);
     bool parseNameId(NameAST *&node);
     bool parseName(NameAST *&node, bool acceptTemplateId = true);
@@ -195,7 +195,7 @@ public:
     bool parseQtMethod(ExpressionAST *&node);
 
     // C++0x
-    bool parseInitializer0x(ExpressionAST *&node, unsigned *equals_token);
+    bool parseInitializer0x(ExpressionAST *&node, int *equals_token);
     bool parseBraceOrEqualInitializer0x(ExpressionAST *&node);
     bool parseInitializerClause0x(ExpressionAST *&node);
     bool parseInitializerList0x(ExpressionListAST *&node);
@@ -241,11 +241,11 @@ public:
     bool parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node);
     bool parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node);
     bool parseObjCTypeName(ObjCTypeNameAST *&node);
-    bool parseObjCSelector(unsigned &selector_token);
+    bool parseObjCSelector(int &selector_token);
     bool parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, ObjCMessageArgumentDeclarationAST *&node);
-    bool parseObjCTypeQualifiers(unsigned &type_qualifier);
+    bool parseObjCTypeQualifiers(int &type_qualifier);
     bool peekAtObjCContextKeyword(int kind);
-    bool parseObjCContextKeyword(int kind, unsigned &in_token);
+    bool parseObjCContextKeyword(int kind, int &in_token);
 
     bool lookAtObjCSelector() const;
 
@@ -269,7 +269,7 @@ public:
     const Identifier *className(ClassSpecifierAST *ast) const;
     const Identifier *identifier(NameAST *name) const;
 
-    void match(int kind, unsigned *token);
+    void match(int kind, int *token);
 
     bool maybeAmbiguousStatement(DeclarationStatementAST *ast, StatementAST *&node);
     bool maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const;
@@ -280,9 +280,9 @@ public:
     bool maybeSplitGreaterGreaterToken(int n = 1);
 
     bool blockErrors(bool block) { return _translationUnit->blockErrors(block); }
-    void warning(unsigned index, const char *format, ...);
-    void error(unsigned index, const char *format, ...);
-    void fatal(unsigned index, const char *format, ...);
+    void warning(int index, const char *format, ...);
+    void error(int index, const char *format, ...);
+    void fatal(int index, const char *format, ...);
 
     inline const Token &tok(int i = 1) const
     { return _translationUnit->tokenAt(_tokenIndex + i - 1); }
@@ -293,21 +293,21 @@ public:
     inline int consumeToken()
     { return _tokenIndex++; }
 
-    inline unsigned cursor() const
+    inline int cursor() const
     { return _tokenIndex; }
 
-    void rewind(unsigned cursor);
+    void rewind(int cursor);
 
     struct TemplateArgumentListEntry {
-        unsigned index;
-        unsigned cursor;
+        int index;
+        int cursor;
         ExpressionListAST *ast;
 
-        TemplateArgumentListEntry(unsigned index = 0, unsigned cursor = 0, ExpressionListAST *ast = 0)
+        TemplateArgumentListEntry(int index = 0, int cursor = 0, ExpressionListAST *ast = 0)
             : index(index), cursor(cursor), ast(ast) {}
     };
 
-    TemplateArgumentListEntry *templateArgumentListEntry(unsigned tokenIndex);
+    TemplateArgumentListEntry *templateArgumentListEntry(int tokenIndex);
     void clearTemplateArgumentList() { _templateArgumentList.clear(); }
 
 private:
@@ -315,7 +315,7 @@ private:
     Control *_control;
     MemoryPool *_pool;
     LanguageFeatures _languageFeatures;
-    unsigned _tokenIndex;
+    int _tokenIndex;
     bool _templateArguments: 1;
     bool _inFunctionBody: 1;
     bool _inExpressionStatement: 1;
@@ -324,7 +324,7 @@ private:
     std::stack<int> _initializerClauseDepth;
 
     MemoryPool _expressionStatementTempPool;
-    std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
+    std::map<int, TemplateArgumentListEntry> _templateArgumentList;
 
     class ASTCache;
     ASTCache *_astCache;

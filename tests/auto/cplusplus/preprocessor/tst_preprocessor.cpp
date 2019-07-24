@@ -84,13 +84,13 @@ static bool compare(const QByteArray &actual, const QByteArray &expected)
 
 struct Include
 {
-    Include(const QString &fileName, Client::IncludeType type, unsigned line)
+    Include(const QString &fileName, Client::IncludeType type, int line)
         : fileName(fileName), type(type), line(line)
     {}
 
     QString fileName;
     Client::IncludeType type;
-    unsigned line;
+    int line;
 };
 
 QDebug &operator<<(QDebug& d, const Include &i)
@@ -108,10 +108,10 @@ class MockClient : public Client
 public:
     struct Block {
         Block() : start(0), end(0) {}
-        Block(unsigned start) : start(start), end(0) {}
+        Block(int start) : start(start), end(0) {}
 
-        unsigned start;
-        unsigned end;
+        int start;
+        int end;
     };
 
 public:
@@ -130,31 +130,31 @@ public:
         m_definedMacrosLine.append(macro.line());
     }
 
-    virtual void passedMacroDefinitionCheck(unsigned /*bytesOffset*/,
-                                            unsigned /*utf16charsOffset*/,
-                                            unsigned line,
+    virtual void passedMacroDefinitionCheck(int /*bytesOffset*/,
+                                            int /*utf16charsOffset*/,
+                                            int line,
                                             const Macro &macro)
     {
         m_definitionsResolvedFromLines[macro.name()].append(line);
     }
 
-    virtual void failedMacroDefinitionCheck(unsigned /*offset*/,
-                                            unsigned /*utf16charsOffset*/,
+    virtual void failedMacroDefinitionCheck(int /*offset*/,
+                                            int /*utf16charsOffset*/,
                                             const ByteArrayRef &name)
     {
         m_unresolvedDefines.insert(name.toByteArray());
     }
 
-    virtual void notifyMacroReference(unsigned bytesOffset, unsigned /*utf16charsOffset*/,
-                                      unsigned line, const Macro &macro)
+    virtual void notifyMacroReference(int bytesOffset, int /*utf16charsOffset*/,
+                                      int line, const Macro &macro)
     {
         m_macroUsesLine[macro.name()].append(line);
         m_expandedMacrosOffset.append(bytesOffset);
     }
 
-    virtual void startExpandingMacro(unsigned bytesOffset,
-                                     unsigned /*utf16charsOffset*/,
-                                     unsigned line,
+    virtual void startExpandingMacro(int bytesOffset,
+                                     int /*utf16charsOffset*/,
+                                     int line,
                                      const Macro &macro,
                                      const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>())
@@ -166,15 +166,15 @@ public:
         m_usedMacros.insert(macro.name(), actuals);
     }
 
-    virtual void stopExpandingMacro(unsigned /*offset*/, const Macro &/*macro*/) {}
+    virtual void stopExpandingMacro(int /*offset*/, const Macro &/*macro*/) {}
 
-    virtual void startSkippingBlocks(unsigned utf16charsOffset)
+    virtual void startSkippingBlocks(int utf16charsOffset)
     { m_skippedBlocks.append(Block(utf16charsOffset)); }
 
-    virtual void stopSkippingBlocks(unsigned utf16charsOffset)
+    virtual void stopSkippingBlocks(int utf16charsOffset)
     { m_skippedBlocks.last().end = utf16charsOffset; }
 
-    virtual void sourceNeeded(unsigned line, const QString &includedFileName, IncludeType mode,
+    virtual void sourceNeeded(int line, const QString &includedFileName, IncludeType mode,
                               const QStringList &initialIncludes = QStringList())
     {
         Q_UNUSED(initialIncludes)
@@ -267,19 +267,19 @@ public:
     QList<QByteArray> expandedMacros() const
     { return m_expandedMacros; }
 
-    QList<unsigned> expandedMacrosOffset() const
+    QList<int> expandedMacrosOffset() const
     { return m_expandedMacrosOffset; }
 
     QList<QByteArray> definedMacros() const
     { return m_definedMacros; }
 
-    QList<unsigned> definedMacrosLine() const
+    QList<int> definedMacrosLine() const
     { return m_definedMacrosLine; }
 
-    QHash<QByteArray, QList<unsigned> > macroUsesLine() const
+    QHash<QByteArray, QList<int> > macroUsesLine() const
     { return m_macroUsesLine; }
 
-    QHash<QByteArray, QList<unsigned> > definitionsResolvedFromLines() const
+    QHash<QByteArray, QList<int> > definitionsResolvedFromLines() const
     { return m_definitionsResolvedFromLines; }
 
     QSet<QByteArray> unresolvedDefines() const
@@ -296,16 +296,16 @@ private:
     QByteArray *m_output;
     Preprocessor m_pp;
     QList<QDir> m_includePaths;
-    unsigned m_includeDepth;
+    int m_includeDepth;
     QByteArray m_includeGuardMacro;
     QList<Block> m_skippedBlocks;
     QList<Include> m_recordedIncludes;
     QList<QByteArray> m_expandedMacros;
-    QList<unsigned> m_expandedMacrosOffset;
+    QList<int> m_expandedMacrosOffset;
     QList<QByteArray> m_definedMacros;
-    QList<unsigned> m_definedMacrosLine;
-    QHash<QByteArray, QList<unsigned> > m_macroUsesLine;
-    QHash<QByteArray, QList<unsigned> > m_definitionsResolvedFromLines;
+    QList<int> m_definedMacrosLine;
+    QHash<QByteArray, QList<int> > m_macroUsesLine;
+    QHash<QByteArray, QList<int> > m_definitionsResolvedFromLines;
     QSet<QByteArray> m_unresolvedDefines;
     QList<int> m_macroArgsCount;
     QMap<QByteArray, QVector<MacroArgumentReference >> m_usedMacros;
@@ -313,10 +313,10 @@ private:
 
 QT_BEGIN_NAMESPACE
 namespace QTest {
-    template<> char *toString(const QList<unsigned> &list)
+    template<> char *toString(const QList<int> &list)
     {
-        QByteArray ba = "QList<unsigned>(";
-        foreach (const unsigned& item, list) {
+        QByteArray ba = "QList<int>(";
+        foreach (const int& item, list) {
             ba += QTest::toString(item);
             ba += ',';
         }
@@ -545,10 +545,10 @@ void tst_Preprocessor::macro_args_offsets()
     QFETCH(QString, fileName);
     QFETCH(QByteArray, source);
     QFETCH(QByteArray, macroName);
-    QFETCH(unsigned, bytesOffset);
-    QFETCH(unsigned, bytesLength);
-    QFETCH(unsigned, utf16charsOffset);
-    QFETCH(unsigned, utf16charsLength);
+    QFETCH(int, bytesOffset);
+    QFETCH(int, bytesLength);
+    QFETCH(int, utf16charsOffset);
+    QFETCH(int, utf16charsLength);
 
     Environment env;
     QByteArray output;
@@ -573,10 +573,10 @@ void tst_Preprocessor::macro_args_offsets_data()
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<QByteArray>("source");
     QTest::addColumn<QByteArray>("macroName");
-    QTest::addColumn<unsigned>("bytesOffset");
-    QTest::addColumn<unsigned>("bytesLength");
-    QTest::addColumn<unsigned>("utf16charsOffset");
-    QTest::addColumn<unsigned>("utf16charsLength");
+    QTest::addColumn<int>("bytesOffset");
+    QTest::addColumn<int>("bytesLength");
+    QTest::addColumn<int>("utf16charsOffset");
+    QTest::addColumn<int>("utf16charsLength");
 
     QString fN = QLatin1String("<stdin>");
     QByteArray src = QByteArray("#define SQR(a) ( a * a )\n"
@@ -585,26 +585,26 @@ void tst_Preprocessor::macro_args_offsets_data()
                                 "int j = SQR(10);\n"
                                 "}");
     QTest::newRow("ascii_only_before_ref") << fN << src << QByteArray("SQR")
-                                           << 59u << 2u << 59u << 2u;
+                                           << 59 << 2 << 59 << 2;
     src.replace("int i", "int äöü");
     QTest::newRow("ascii_with_umlauts_before_ref") << fN << src << QByteArray("SQR")
-                                                   << 64u << 2u << 61u << 2u;
+                                                   << 64 << 2 << 61 << 2;
     src.clear();
     src.append("#define OUT(format, ...) printf(\"%s %d: \" format, __FILE__, __LINE__)\n"
                "void f(){\n"
                "OUT(\"Hei verden!\\n\");\n"
                "}\n");
     QTest::newRow("arg_ascii_only") << fN << src << QByteArray("OUT")
-                                    << 84u << 15u << 84u << 15u;
+                                    << 84 << 15 << 84 << 15;
     src.replace("Hei verden", UC_U00FC);
     QTest::newRow("arg_ascii_with_unicode_00fc") << fN << src << QByteArray("OUT")
-                                                 << 84u << 7u << 84u << 6u;
+                                                 << 84 << 7 << 84 << 6;
     src.replace(UC_U00FC, UC_U4E8C);
     QTest::newRow("arg_ascii_with_unicode_4e8c") << fN << src << QByteArray("OUT")
-                                                 << 84u << 8u << 84u << 6u;
+                                                 << 84 << 8 << 84 << 6;
     src.replace(UC_U4E8C, UC_U10302);
     QTest::newRow("arg_ascii_with_unicode_10302") << fN << src << QByteArray("OUT")
-                                                  << 84u << 9u << 84u << 7u;
+                                                  << 84 << 9 << 84 << 7;
 }
 
 void tst_Preprocessor::invalid_param_count()
@@ -643,9 +643,9 @@ void tst_Preprocessor::macro_uses()
     QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"), buffer);
     QVERIFY(compare(simplified(preprocessed), "void test(){int x=8;int y=9;}"));
     QCOMPARE(client.expandedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
-    QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>() << buffer.indexOf("FOO;") << buffer.indexOf("BAR;"));
+    QCOMPARE(client.expandedMacrosOffset(), QList<int>() << buffer.indexOf("FOO;") << buffer.indexOf("BAR;"));
     QCOMPARE(client.definedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
-    QCOMPARE(client.definedMacrosLine(), QList<unsigned>() << 2 << 3);
+    QCOMPARE(client.definedMacrosLine(), QList<int>() << 2 << 3);
 }
 
 void tst_Preprocessor::macro_uses_lines()
@@ -680,14 +680,14 @@ void tst_Preprocessor::macro_uses_lines()
     Preprocessor preprocess(&client, &env);
     preprocess.run(QLatin1String("<stdin>"), buffer);
 
-    QCOMPARE(client.macroUsesLine().value("FOO"), QList<unsigned>() << 2U << 23U);
-    QCOMPARE(client.macroUsesLine().value("HEADER"), QList<unsigned>() << 5U);
-    QCOMPARE(client.macroUsesLine().value("DECLARE"), QList<unsigned>() << 9U);
-    QCOMPARE(client.macroUsesLine().value("NOTHING"), QList<unsigned>() << 13U);
-    QCOMPARE(client.macroUsesLine().value("ENABLE"), QList<unsigned>() << 18U << 22U << 23U);
-    QCOMPARE(client.macroUsesLine().value("ENABLE_COOL"), QList<unsigned>() << 21U);
-    QCOMPARE(client.definitionsResolvedFromLines().value("ENABLE_COOL"), QList<unsigned>() << 18U);
-    QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>()
+    QCOMPARE(client.macroUsesLine().value("FOO"), QList<int>() << 2 << 23);
+    QCOMPARE(client.macroUsesLine().value("HEADER"), QList<int>() << 5);
+    QCOMPARE(client.macroUsesLine().value("DECLARE"), QList<int>() << 9);
+    QCOMPARE(client.macroUsesLine().value("NOTHING"), QList<int>() << 13);
+    QCOMPARE(client.macroUsesLine().value("ENABLE"), QList<int>() << 18 << 22 << 23);
+    QCOMPARE(client.macroUsesLine().value("ENABLE_COOL"), QList<int>() << 21);
+    QCOMPARE(client.definitionsResolvedFromLines().value("ENABLE_COOL"), QList<int>() << 18);
+    QCOMPARE(client.expandedMacrosOffset(), QList<int>()
              << buffer.lastIndexOf("FOO\n")
              << buffer.lastIndexOf("HEADER")
              << buffer.lastIndexOf("DECLARE")
@@ -1007,8 +1007,8 @@ void tst_Preprocessor::blockSkipping()
     QList<MockClient::Block> blocks = client.skippedBlocks();
     QCOMPARE(blocks.size(), 1);
     MockClient::Block b = blocks.at(0);
-    QCOMPARE(b.start, 6U);
-    QCOMPARE(b.end, 34U);
+    QCOMPARE(b.start, 6);
+    QCOMPARE(b.end, 34);
 }
 
 void tst_Preprocessor::includes_1()
@@ -1034,16 +1034,16 @@ void tst_Preprocessor::includes_1()
     QCOMPARE(incs.size(), 4);
     QCOMPARE(incs.at(0).fileName, QLatin1String("foo.h"));
     QCOMPARE(incs.at(0).type, Client::IncludeGlobal);
-    QCOMPARE(incs.at(0).line, 4U);
+    QCOMPARE(incs.at(0).line, 4);
     QCOMPARE(incs.at(1).fileName, QLatin1String("bar.h"));
     QCOMPARE(incs.at(1).type, Client::IncludeLocal);
-    QCOMPARE(incs.at(1).line, 5U);
+    QCOMPARE(incs.at(1).line, 5);
     QCOMPARE(incs.at(2).fileName, QLatin1String("zoo.h"));
     QCOMPARE(incs.at(2).type, Client::IncludeGlobal);
-    QCOMPARE(incs.at(2).line, 7U);
+    QCOMPARE(incs.at(2).line, 7);
     QCOMPARE(incs.at(3).fileName, QLatin1String("mooze.h"));
     QCOMPARE(incs.at(3).type, Client::IncludeLocal);
-    QCOMPARE(incs.at(3).line, 8U);
+    QCOMPARE(incs.at(3).line, 8);
 }
 
 void tst_Preprocessor::defined()
@@ -1202,10 +1202,10 @@ void tst_Preprocessor::defined_usage()
             "#endif\n"
             ;
     pp.run(QLatin1String("<stdin>"), source);
-    QHash<QByteArray, QList<unsigned> > definitionsResolvedFromLines =
+    QHash<QByteArray, QList<int> > definitionsResolvedFromLines =
             client.definitionsResolvedFromLines();
-    QCOMPARE(definitionsResolvedFromLines["X"], QList<unsigned>() << 3 << 7 << 17 << 19);
-    QCOMPARE(definitionsResolvedFromLines["Y"], QList<unsigned>() << 5 << 9 << 19);
+    QCOMPARE(definitionsResolvedFromLines["X"], QList<int>() << 3 << 7 << 17 << 19);
+    QCOMPARE(definitionsResolvedFromLines["Y"], QList<int>() << 5 << 9 << 19);
     QCOMPARE(client.unresolvedDefines(), QSet<QByteArray>() << "ABSENT" << "ABSENT2" << "ABSENT3");
 }
 
@@ -1989,27 +1989,27 @@ void tst_Preprocessor::undef()
     Macro *macro = env.macroAt(0);
     QCOMPARE(macro->name(), QByteArray("FOO"));
     QCOMPARE(macro->bytesOffset(), 8U);
-    QCOMPARE(macro->line(), 1U);
+    QCOMPARE(macro->line(), 1);
     QVERIFY(!macro->isHidden());
     macro = env.macroAt(1);
     QCOMPARE(macro->name(), QByteArray("FOO2"));
     QCOMPARE(macro->bytesOffset(), 20U);
-    QCOMPARE(macro->line(), 2U);
+    QCOMPARE(macro->line(), 2);
     QVERIFY(!macro->isHidden());
     macro = env.macroAt(2);
     QCOMPARE(macro->name(), QByteArray("FOO"));
     QCOMPARE(macro->bytesOffset(), 32U);
-    QCOMPARE(macro->line(), 3U);
+    QCOMPARE(macro->line(), 3);
     QVERIFY(macro->isHidden());
     macro = env.macroAt(3);
     QCOMPARE(macro->name(), QByteArray("BAR"));
     QCOMPARE(macro->bytesOffset(), 43U);
-    QCOMPARE(macro->line(), 4U);
+    QCOMPARE(macro->line(), 4);
     QVERIFY(macro->isHidden());
     QList<QByteArray> macros = client.definedMacros();
     QVERIFY(macros.contains("FOO"));
     QVERIFY(macros.contains("FOO2"));
-    QCOMPARE(client.macroUsesLine()["FOO"], (QList<unsigned>() << 3U));
+    QCOMPARE(client.macroUsesLine()["FOO"], (QList<int>() << 3));
     QVERIFY(client.macroUsesLine()["BAR"].isEmpty());
 }
 

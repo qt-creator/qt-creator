@@ -64,8 +64,8 @@ private:
 
 private:
     Document::Ptr _doc;
-    unsigned _line;
-    unsigned _column;
+    int _line;
+    int _column;
     QList<AST *> _nodes;
 };
 

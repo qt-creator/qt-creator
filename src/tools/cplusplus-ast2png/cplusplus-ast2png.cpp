@@ -127,15 +127,15 @@ protected:
         return name;
     }
 
-    QByteArray terminalId(unsigned token)
+    QByteArray terminalId(int token)
     { return 't' + QByteArray::number(token); }
 
-    void terminal(unsigned token, AST *node) {
+    void terminal(int token, AST *node) {
         _connections.append(qMakePair(_id[node], terminalId(token)));
     }
 
     void generateTokens() {
-        for (unsigned token = 1; token < translationUnit()->tokenCount(); ++token) {
+        for (int token = 1; token < translationUnit()->tokenCount(); ++token) {
             if (translationUnit()->tokenKind(token) == T_EOF_SYMBOL)
                 break;
 
@@ -413,7 +413,7 @@ public:
 
     void report(int level,
                 const StringLiteral *fileName,
-                unsigned line, unsigned column,
+                int line, int column,
                 const char *format, va_list ap)
     {
         ++m_errorCount;

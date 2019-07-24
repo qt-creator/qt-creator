@@ -397,7 +397,7 @@ void CppElementEvaluator::checkDiagnosticMessage(int pos)
     }
 }
 
-bool CppElementEvaluator::matchIncludeFile(const Document::Ptr &document, unsigned line)
+bool CppElementEvaluator::matchIncludeFile(const Document::Ptr &document, int line)
 {
     foreach (const Document::Include &includeFile, document->resolvedIncludes()) {
         if (includeFile.line() == line) {
@@ -408,11 +408,11 @@ bool CppElementEvaluator::matchIncludeFile(const Document::Ptr &document, unsign
     return false;
 }
 
-bool CppElementEvaluator::matchMacroInUse(const Document::Ptr &document, unsigned pos)
+bool CppElementEvaluator::matchMacroInUse(const Document::Ptr &document, int pos)
 {
     foreach (const Document::MacroUse &use, document->macroUses()) {
         if (use.containsUtf16charOffset(pos)) {
-            const unsigned begin = use.utf16charsBegin();
+            const int begin = use.utf16charsBegin();
             if (pos < begin + use.macro().nameToQString().size()) {
                 m_element = QSharedPointer<CppElement>(new CppMacro(use.macro()));
                 return true;

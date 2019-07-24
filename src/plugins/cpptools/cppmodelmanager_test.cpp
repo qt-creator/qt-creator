@@ -498,7 +498,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
 
     document = snapshot.document(fileToChange);
     const QDateTime lastModifiedBefore = document->lastModified();
-    QCOMPARE(document->globalSymbolCount(), 1U);
+    QCOMPARE(document->globalSymbolCount(), 1);
     QCOMPARE(document->globalSymbolAt(0)->name()->identifier()->chars(), "someGlobal");
 
     // Modify the file
@@ -527,7 +527,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     document = snapshot.document(fileToChange);
     const QDateTime lastModifiedAfter = document->lastModified();
     QVERIFY(lastModifiedAfter > lastModifiedBefore);
-    QCOMPARE(document->globalSymbolCount(), 2U);
+    QCOMPARE(document->globalSymbolCount(), 2);
     QCOMPARE(document->globalSymbolAt(0)->name()->identifier()->chars(), "someGlobal");
     QCOMPARE(document->globalSymbolAt(1)->name()->identifier()->chars(), "addedOtherGlobal");
 }

@@ -68,12 +68,12 @@ bool AST::match(AST *pattern, ASTMatcher *matcher)
     return match0(pattern, matcher);
 }
 
-unsigned GnuAttributeSpecifierAST::firstToken() const
+int GnuAttributeSpecifierAST::firstToken() const
 {
     return attribute_token;
 }
 
-unsigned BaseSpecifierAST::firstToken() const
+int BaseSpecifierAST::firstToken() const
 {
     if (virtual_token && access_specifier_token)
         return std::min(virtual_token, access_specifier_token);
@@ -87,7 +87,7 @@ unsigned BaseSpecifierAST::firstToken() const
     return 0;
 }
 
-unsigned BaseSpecifierAST::lastToken() const
+int BaseSpecifierAST::lastToken() const
 {
     if (ellipsis_token)
         return ellipsis_token;
@@ -104,7 +104,7 @@ unsigned BaseSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned AccessDeclarationAST::firstToken() const
+int AccessDeclarationAST::firstToken() const
 {
     if (access_specifier_token)
         return access_specifier_token;
@@ -116,7 +116,7 @@ unsigned AccessDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned AccessDeclarationAST::lastToken() const
+int AccessDeclarationAST::lastToken() const
 {
     if (colon_token)
         return colon_token + 1;
@@ -128,15 +128,15 @@ unsigned AccessDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned ArrayAccessAST::firstToken() const
+int ArrayAccessAST::firstToken() const
 {
     if (base_expression)
-        if (unsigned candidate = base_expression->firstToken())
+        if (int candidate = base_expression->firstToken())
             return candidate;
     if (lbracket_token)
         return lbracket_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rbracket_token)
         return rbracket_token;
@@ -144,28 +144,28 @@ unsigned ArrayAccessAST::firstToken() const
 }
 
 /** \generated */
-unsigned ArrayAccessAST::lastToken() const
+int ArrayAccessAST::lastToken() const
 {
     if (rbracket_token)
         return rbracket_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lbracket_token)
         return lbracket_token + 1;
     if (base_expression)
-        if (unsigned candidate = base_expression->lastToken())
+        if (int candidate = base_expression->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ArrayDeclaratorAST::firstToken() const
+int ArrayDeclaratorAST::firstToken() const
 {
     if (lbracket_token)
         return lbracket_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rbracket_token)
         return rbracket_token;
@@ -173,12 +173,12 @@ unsigned ArrayDeclaratorAST::firstToken() const
 }
 
 /** \generated */
-unsigned ArrayDeclaratorAST::lastToken() const
+int ArrayDeclaratorAST::lastToken() const
 {
     if (rbracket_token)
         return rbracket_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lbracket_token)
         return lbracket_token + 1;
@@ -186,12 +186,12 @@ unsigned ArrayDeclaratorAST::lastToken() const
 }
 
 /** \generated */
-unsigned ArrayInitializerAST::firstToken() const
+int ArrayInitializerAST::firstToken() const
 {
     if (lbrace_token)
         return lbrace_token;
     if (expression_list)
-        if (unsigned candidate = expression_list->firstToken())
+        if (int candidate = expression_list->firstToken())
             return candidate;
     if (rbrace_token)
         return rbrace_token;
@@ -199,12 +199,12 @@ unsigned ArrayInitializerAST::firstToken() const
 }
 
 /** \generated */
-unsigned ArrayInitializerAST::lastToken() const
+int ArrayInitializerAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
     if (expression_list)
-        if (unsigned candidate = expression_list->lastToken())
+        if (int candidate = expression_list->lastToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token + 1;
@@ -212,7 +212,7 @@ unsigned ArrayInitializerAST::lastToken() const
 }
 
 /** \generated */
-unsigned AsmDefinitionAST::firstToken() const
+int AsmDefinitionAST::firstToken() const
 {
     if (asm_token)
         return asm_token;
@@ -228,7 +228,7 @@ unsigned AsmDefinitionAST::firstToken() const
 }
 
 /** \generated */
-unsigned AsmDefinitionAST::lastToken() const
+int AsmDefinitionAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
@@ -244,7 +244,7 @@ unsigned AsmDefinitionAST::lastToken() const
 }
 
 /** \generated */
-unsigned GnuAttributeAST::firstToken() const
+int GnuAttributeAST::firstToken() const
 {
     if (identifier_token)
         return identifier_token;
@@ -253,7 +253,7 @@ unsigned GnuAttributeAST::firstToken() const
     if (tag_token)
         return tag_token;
     if (expression_list)
-        if (unsigned candidate = expression_list->firstToken())
+        if (int candidate = expression_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -261,12 +261,12 @@ unsigned GnuAttributeAST::firstToken() const
 }
 
 /** \generated */
-unsigned GnuAttributeAST::lastToken() const
+int GnuAttributeAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression_list)
-        if (unsigned candidate = expression_list->lastToken())
+        if (int candidate = expression_list->lastToken())
             return candidate;
     if (tag_token)
         return tag_token + 1;
@@ -278,35 +278,35 @@ unsigned GnuAttributeAST::lastToken() const
 }
 
 /** \generated */
-unsigned BinaryExpressionAST::firstToken() const
+int BinaryExpressionAST::firstToken() const
 {
     if (left_expression)
-        if (unsigned candidate = left_expression->firstToken())
+        if (int candidate = left_expression->firstToken())
             return candidate;
     if (binary_op_token)
         return binary_op_token;
     if (right_expression)
-        if (unsigned candidate = right_expression->firstToken())
+        if (int candidate = right_expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned BinaryExpressionAST::lastToken() const
+int BinaryExpressionAST::lastToken() const
 {
     if (right_expression)
-        if (unsigned candidate = right_expression->lastToken())
+        if (int candidate = right_expression->lastToken())
             return candidate;
     if (binary_op_token)
         return binary_op_token + 1;
     if (left_expression)
-        if (unsigned candidate = left_expression->lastToken())
+        if (int candidate = left_expression->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned BoolLiteralAST::firstToken() const
+int BoolLiteralAST::firstToken() const
 {
     if (literal_token)
         return literal_token;
@@ -314,7 +314,7 @@ unsigned BoolLiteralAST::firstToken() const
 }
 
 /** \generated */
-unsigned BoolLiteralAST::lastToken() const
+int BoolLiteralAST::lastToken() const
 {
     if (literal_token)
         return literal_token + 1;
@@ -322,12 +322,12 @@ unsigned BoolLiteralAST::lastToken() const
 }
 
 /** \generated */
-unsigned BracedInitializerAST::firstToken() const
+int BracedInitializerAST::firstToken() const
 {
     if (lbrace_token)
         return lbrace_token;
     if (expression_list)
-        if (unsigned candidate = expression_list->firstToken())
+        if (int candidate = expression_list->firstToken())
             return candidate;
     if (comma_token)
         return comma_token;
@@ -337,14 +337,14 @@ unsigned BracedInitializerAST::firstToken() const
 }
 
 /** \generated */
-unsigned BracedInitializerAST::lastToken() const
+int BracedInitializerAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
     if (comma_token)
         return comma_token + 1;
     if (expression_list)
-        if (unsigned candidate = expression_list->lastToken())
+        if (int candidate = expression_list->lastToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token + 1;
@@ -352,7 +352,7 @@ unsigned BracedInitializerAST::lastToken() const
 }
 
 /** \generated */
-unsigned BreakStatementAST::firstToken() const
+int BreakStatementAST::firstToken() const
 {
     if (break_token)
         return break_token;
@@ -362,7 +362,7 @@ unsigned BreakStatementAST::firstToken() const
 }
 
 /** \generated */
-unsigned BreakStatementAST::lastToken() const
+int BreakStatementAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
@@ -372,15 +372,15 @@ unsigned BreakStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned CallAST::firstToken() const
+int CallAST::firstToken() const
 {
     if (base_expression)
-        if (unsigned candidate = base_expression->firstToken())
+        if (int candidate = base_expression->firstToken())
             return candidate;
     if (lparen_token)
         return lparen_token;
     if (expression_list)
-        if (unsigned candidate = expression_list->firstToken())
+        if (int candidate = expression_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -388,37 +388,37 @@ unsigned CallAST::firstToken() const
 }
 
 /** \generated */
-unsigned CallAST::lastToken() const
+int CallAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression_list)
-        if (unsigned candidate = expression_list->lastToken())
+        if (int candidate = expression_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
     if (base_expression)
-        if (unsigned candidate = base_expression->lastToken())
+        if (int candidate = base_expression->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned CaptureAST::firstToken() const
+int CaptureAST::firstToken() const
 {
     if (amper_token)
         return amper_token;
     if (identifier)
-        if (unsigned candidate = identifier->firstToken())
+        if (int candidate = identifier->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned CaptureAST::lastToken() const
+int CaptureAST::lastToken() const
 {
     if (identifier)
-        if (unsigned candidate = identifier->lastToken())
+        if (int candidate = identifier->lastToken())
             return candidate;
     if (amper_token)
         return amper_token + 1;
@@ -426,31 +426,31 @@ unsigned CaptureAST::lastToken() const
 }
 
 /** \generated */
-unsigned CaseStatementAST::firstToken() const
+int CaseStatementAST::firstToken() const
 {
     if (case_token)
         return case_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (colon_token)
         return colon_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned CaseStatementAST::lastToken() const
+int CaseStatementAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (colon_token)
         return colon_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (case_token)
         return case_token + 1;
@@ -458,31 +458,31 @@ unsigned CaseStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned CastExpressionAST::firstToken() const
+int CastExpressionAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned CastExpressionAST::lastToken() const
+int CastExpressionAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -490,33 +490,33 @@ unsigned CastExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned CatchClauseAST::firstToken() const
+int CatchClauseAST::firstToken() const
 {
     if (catch_token)
         return catch_token;
     if (lparen_token)
         return lparen_token;
     if (exception_declaration)
-        if (unsigned candidate = exception_declaration->firstToken())
+        if (int candidate = exception_declaration->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned CatchClauseAST::lastToken() const
+int CatchClauseAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (exception_declaration)
-        if (unsigned candidate = exception_declaration->lastToken())
+        if (int candidate = exception_declaration->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -526,29 +526,29 @@ unsigned CatchClauseAST::lastToken() const
 }
 
 /** \generated */
-unsigned ClassSpecifierAST::firstToken() const
+int ClassSpecifierAST::firstToken() const
 {
     if (classkey_token)
         return classkey_token;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (final_token)
         return final_token;
     if (colon_token)
         return colon_token;
     if (base_clause_list)
-        if (unsigned candidate = base_clause_list->firstToken())
+        if (int candidate = base_clause_list->firstToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
     if (lbrace_token)
         return lbrace_token;
     if (member_specifier_list)
-        if (unsigned candidate = member_specifier_list->firstToken())
+        if (int candidate = member_specifier_list->firstToken())
             return candidate;
     if (rbrace_token)
         return rbrace_token;
@@ -556,29 +556,29 @@ unsigned ClassSpecifierAST::firstToken() const
 }
 
 /** \generated */
-unsigned ClassSpecifierAST::lastToken() const
+int ClassSpecifierAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
     if (member_specifier_list)
-        if (unsigned candidate = member_specifier_list->lastToken())
+        if (int candidate = member_specifier_list->lastToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token + 1;
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
     if (base_clause_list)
-        if (unsigned candidate = base_clause_list->lastToken())
+        if (int candidate = base_clause_list->lastToken())
             return candidate;
     if (colon_token)
         return colon_token + 1;
     if (final_token)
         return final_token + 1;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     if (classkey_token)
         return classkey_token + 1;
@@ -586,12 +586,12 @@ unsigned ClassSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned CompoundExpressionAST::firstToken() const
+int CompoundExpressionAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -599,12 +599,12 @@ unsigned CompoundExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned CompoundExpressionAST::lastToken() const
+int CompoundExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -612,31 +612,31 @@ unsigned CompoundExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned CompoundLiteralAST::firstToken() const
+int CompoundLiteralAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (initializer)
-        if (unsigned candidate = initializer->firstToken())
+        if (int candidate = initializer->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned CompoundLiteralAST::lastToken() const
+int CompoundLiteralAST::lastToken() const
 {
     if (initializer)
-        if (unsigned candidate = initializer->lastToken())
+        if (int candidate = initializer->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -644,12 +644,12 @@ unsigned CompoundLiteralAST::lastToken() const
 }
 
 /** \generated */
-unsigned CompoundStatementAST::firstToken() const
+int CompoundStatementAST::firstToken() const
 {
     if (lbrace_token)
         return lbrace_token;
     if (statement_list)
-        if (unsigned candidate = statement_list->firstToken())
+        if (int candidate = statement_list->firstToken())
             return candidate;
     if (rbrace_token)
         return rbrace_token;
@@ -657,12 +657,12 @@ unsigned CompoundStatementAST::firstToken() const
 }
 
 /** \generated */
-unsigned CompoundStatementAST::lastToken() const
+int CompoundStatementAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
     if (statement_list)
-        if (unsigned candidate = statement_list->lastToken())
+        if (int candidate = statement_list->lastToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token + 1;
@@ -670,69 +670,69 @@ unsigned CompoundStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned ConditionAST::firstToken() const
+int ConditionAST::firstToken() const
 {
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ConditionAST::lastToken() const
+int ConditionAST::lastToken() const
 {
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ConditionalExpressionAST::firstToken() const
+int ConditionalExpressionAST::firstToken() const
 {
     if (condition)
-        if (unsigned candidate = condition->firstToken())
+        if (int candidate = condition->firstToken())
             return candidate;
     if (question_token)
         return question_token;
     if (left_expression)
-        if (unsigned candidate = left_expression->firstToken())
+        if (int candidate = left_expression->firstToken())
             return candidate;
     if (colon_token)
         return colon_token;
     if (right_expression)
-        if (unsigned candidate = right_expression->firstToken())
+        if (int candidate = right_expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ConditionalExpressionAST::lastToken() const
+int ConditionalExpressionAST::lastToken() const
 {
     if (right_expression)
-        if (unsigned candidate = right_expression->lastToken())
+        if (int candidate = right_expression->lastToken())
             return candidate;
     if (colon_token)
         return colon_token + 1;
     if (left_expression)
-        if (unsigned candidate = left_expression->lastToken())
+        if (int candidate = left_expression->lastToken())
             return candidate;
     if (question_token)
         return question_token + 1;
     if (condition)
-        if (unsigned candidate = condition->lastToken())
+        if (int candidate = condition->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ContinueStatementAST::firstToken() const
+int ContinueStatementAST::firstToken() const
 {
     if (continue_token)
         return continue_token;
@@ -742,7 +742,7 @@ unsigned ContinueStatementAST::firstToken() const
 }
 
 /** \generated */
-unsigned ContinueStatementAST::lastToken() const
+int ContinueStatementAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
@@ -752,27 +752,27 @@ unsigned ContinueStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned ConversionFunctionIdAST::firstToken() const
+int ConversionFunctionIdAST::firstToken() const
 {
     if (operator_token)
         return operator_token;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (ptr_operator_list)
-        if (unsigned candidate = ptr_operator_list->firstToken())
+        if (int candidate = ptr_operator_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ConversionFunctionIdAST::lastToken() const
+int ConversionFunctionIdAST::lastToken() const
 {
     if (ptr_operator_list)
-        if (unsigned candidate = ptr_operator_list->lastToken())
+        if (int candidate = ptr_operator_list->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     if (operator_token)
         return operator_token + 1;
@@ -780,21 +780,21 @@ unsigned ConversionFunctionIdAST::lastToken() const
 }
 
 /** \generated */
-unsigned CppCastExpressionAST::firstToken() const
+int CppCastExpressionAST::firstToken() const
 {
     if (cast_token)
         return cast_token;
     if (less_token)
         return less_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     if (greater_token)
         return greater_token;
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -802,19 +802,19 @@ unsigned CppCastExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned CppCastExpressionAST::lastToken() const
+int CppCastExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
     if (greater_token)
         return greater_token + 1;
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (less_token)
         return less_token + 1;
@@ -824,12 +824,12 @@ unsigned CppCastExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned CtorInitializerAST::firstToken() const
+int CtorInitializerAST::firstToken() const
 {
     if (colon_token)
         return colon_token;
     if (member_initializer_list)
-        if (unsigned candidate = member_initializer_list->firstToken())
+        if (int candidate = member_initializer_list->firstToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
@@ -837,12 +837,12 @@ unsigned CtorInitializerAST::firstToken() const
 }
 
 /** \generated */
-unsigned CtorInitializerAST::lastToken() const
+int CtorInitializerAST::lastToken() const
 {
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
     if (member_initializer_list)
-        if (unsigned candidate = member_initializer_list->lastToken())
+        if (int candidate = member_initializer_list->lastToken())
             return candidate;
     if (colon_token)
         return colon_token + 1;
@@ -850,91 +850,91 @@ unsigned CtorInitializerAST::lastToken() const
 }
 
 /** \generated */
-unsigned DeclarationStatementAST::firstToken() const
+int DeclarationStatementAST::firstToken() const
 {
     if (declaration)
-        if (unsigned candidate = declaration->firstToken())
+        if (int candidate = declaration->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned DeclarationStatementAST::lastToken() const
+int DeclarationStatementAST::lastToken() const
 {
     if (declaration)
-        if (unsigned candidate = declaration->lastToken())
+        if (int candidate = declaration->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned DeclaratorAST::firstToken() const
+int DeclaratorAST::firstToken() const
 {
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (ptr_operator_list)
-        if (unsigned candidate = ptr_operator_list->firstToken())
+        if (int candidate = ptr_operator_list->firstToken())
             return candidate;
     if (core_declarator)
-        if (unsigned candidate = core_declarator->firstToken())
+        if (int candidate = core_declarator->firstToken())
             return candidate;
     if (postfix_declarator_list)
-        if (unsigned candidate = postfix_declarator_list->firstToken())
+        if (int candidate = postfix_declarator_list->firstToken())
             return candidate;
     if (post_attribute_list)
-        if (unsigned candidate = post_attribute_list->firstToken())
+        if (int candidate = post_attribute_list->firstToken())
             return candidate;
     if (equal_token)
         return equal_token;
     if (initializer)
-        if (unsigned candidate = initializer->firstToken())
+        if (int candidate = initializer->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned DeclaratorAST::lastToken() const
+int DeclaratorAST::lastToken() const
 {
     if (initializer)
-        if (unsigned candidate = initializer->lastToken())
+        if (int candidate = initializer->lastToken())
             return candidate;
     if (equal_token)
         return equal_token + 1;
     if (post_attribute_list)
-        if (unsigned candidate = post_attribute_list->lastToken())
+        if (int candidate = post_attribute_list->lastToken())
             return candidate;
     if (postfix_declarator_list)
-        if (unsigned candidate = postfix_declarator_list->lastToken())
+        if (int candidate = postfix_declarator_list->lastToken())
             return candidate;
     if (core_declarator)
-        if (unsigned candidate = core_declarator->lastToken())
+        if (int candidate = core_declarator->lastToken())
             return candidate;
     if (ptr_operator_list)
-        if (unsigned candidate = ptr_operator_list->lastToken())
+        if (int candidate = ptr_operator_list->lastToken())
             return candidate;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned DeclaratorIdAST::firstToken() const
+int DeclaratorIdAST::firstToken() const
 {
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned DeclaratorIdAST::lastToken() const
+int DeclaratorIdAST::lastToken() const
 {
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
@@ -942,7 +942,7 @@ unsigned DeclaratorIdAST::lastToken() const
 }
 
 /** \generated */
-unsigned DeleteExpressionAST::firstToken() const
+int DeleteExpressionAST::firstToken() const
 {
     if (scope_token)
         return scope_token;
@@ -953,16 +953,16 @@ unsigned DeleteExpressionAST::firstToken() const
     if (rbracket_token)
         return rbracket_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned DeleteExpressionAST::lastToken() const
+int DeleteExpressionAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (rbracket_token)
         return rbracket_token + 1;
@@ -976,21 +976,21 @@ unsigned DeleteExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned DestructorNameAST::firstToken() const
+int DestructorNameAST::firstToken() const
 {
     if (tilde_token)
         return tilde_token;
     if (unqualified_name)
-        if (unsigned candidate = unqualified_name->firstToken())
+        if (int candidate = unqualified_name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned DestructorNameAST::lastToken() const
+int DestructorNameAST::lastToken() const
 {
     if (unqualified_name)
-        if (unsigned candidate = unqualified_name->lastToken())
+        if (int candidate = unqualified_name->lastToken())
             return candidate;
     if (tilde_token)
         return tilde_token + 1;
@@ -998,19 +998,19 @@ unsigned DestructorNameAST::lastToken() const
 }
 
 /** \generated */
-unsigned DoStatementAST::firstToken() const
+int DoStatementAST::firstToken() const
 {
     if (do_token)
         return do_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     if (while_token)
         return while_token;
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -1020,21 +1020,21 @@ unsigned DoStatementAST::firstToken() const
 }
 
 /** \generated */
-unsigned DoStatementAST::lastToken() const
+int DoStatementAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
     if (while_token)
         return while_token + 1;
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (do_token)
         return do_token + 1;
@@ -1042,27 +1042,27 @@ unsigned DoStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned ElaboratedTypeSpecifierAST::firstToken() const
+int ElaboratedTypeSpecifierAST::firstToken() const
 {
     if (classkey_token)
         return classkey_token;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ElaboratedTypeSpecifierAST::lastToken() const
+int ElaboratedTypeSpecifierAST::lastToken() const
 {
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     if (classkey_token)
         return classkey_token + 1;
@@ -1070,7 +1070,7 @@ unsigned ElaboratedTypeSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned EmptyDeclarationAST::firstToken() const
+int EmptyDeclarationAST::firstToken() const
 {
     if (semicolon_token)
         return semicolon_token;
@@ -1078,7 +1078,7 @@ unsigned EmptyDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned EmptyDeclarationAST::lastToken() const
+int EmptyDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
@@ -1086,24 +1086,24 @@ unsigned EmptyDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned EnumSpecifierAST::firstToken() const
+int EnumSpecifierAST::firstToken() const
 {
     if (enum_token)
         return enum_token;
     if (key_token)
         return key_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (colon_token)
         return colon_token;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token;
     if (enumerator_list)
-        if (unsigned candidate = enumerator_list->firstToken())
+        if (int candidate = enumerator_list->firstToken())
             return candidate;
     if (stray_comma_token)
         return stray_comma_token;
@@ -1113,24 +1113,24 @@ unsigned EnumSpecifierAST::firstToken() const
 }
 
 /** \generated */
-unsigned EnumSpecifierAST::lastToken() const
+int EnumSpecifierAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
     if (stray_comma_token)
         return stray_comma_token + 1;
     if (enumerator_list)
-        if (unsigned candidate = enumerator_list->lastToken())
+        if (int candidate = enumerator_list->lastToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token + 1;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     if (colon_token)
         return colon_token + 1;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (key_token)
         return key_token + 1;
@@ -1140,23 +1140,23 @@ unsigned EnumSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned EnumeratorAST::firstToken() const
+int EnumeratorAST::firstToken() const
 {
     if (identifier_token)
         return identifier_token;
     if (equal_token)
         return equal_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned EnumeratorAST::lastToken() const
+int EnumeratorAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (equal_token)
         return equal_token + 1;
@@ -1166,13 +1166,13 @@ unsigned EnumeratorAST::lastToken() const
 }
 
 /** \generated */
-unsigned ExceptionDeclarationAST::firstToken() const
+int ExceptionDeclarationAST::firstToken() const
 {
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
@@ -1180,21 +1180,21 @@ unsigned ExceptionDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ExceptionDeclarationAST::lastToken() const
+int ExceptionDeclarationAST::lastToken() const
 {
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned DynamicExceptionSpecificationAST::firstToken() const
+int DynamicExceptionSpecificationAST::firstToken() const
 {
     if (throw_token)
         return throw_token;
@@ -1203,7 +1203,7 @@ unsigned DynamicExceptionSpecificationAST::firstToken() const
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
     if (type_id_list)
-        if (unsigned candidate = type_id_list->firstToken())
+        if (int candidate = type_id_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -1211,12 +1211,12 @@ unsigned DynamicExceptionSpecificationAST::firstToken() const
 }
 
 /** \generated */
-unsigned DynamicExceptionSpecificationAST::lastToken() const
+int DynamicExceptionSpecificationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (type_id_list)
-        if (unsigned candidate = type_id_list->lastToken())
+        if (int candidate = type_id_list->lastToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
@@ -1228,34 +1228,34 @@ unsigned DynamicExceptionSpecificationAST::lastToken() const
 }
 
 /** \generated */
-unsigned ExpressionOrDeclarationStatementAST::firstToken() const
+int ExpressionOrDeclarationStatementAST::firstToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (declaration)
-        if (unsigned candidate = declaration->firstToken())
+        if (int candidate = declaration->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ExpressionOrDeclarationStatementAST::lastToken() const
+int ExpressionOrDeclarationStatementAST::lastToken() const
 {
     if (declaration)
-        if (unsigned candidate = declaration->lastToken())
+        if (int candidate = declaration->lastToken())
             return candidate;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ExpressionStatementAST::firstToken() const
+int ExpressionStatementAST::firstToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -1263,60 +1263,60 @@ unsigned ExpressionStatementAST::firstToken() const
 }
 
 /** \generated */
-unsigned ExpressionStatementAST::lastToken() const
+int ExpressionStatementAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ForStatementAST::firstToken() const
+int ForStatementAST::firstToken() const
 {
     if (for_token)
         return for_token;
     if (lparen_token)
         return lparen_token;
     if (initializer)
-        if (unsigned candidate = initializer->firstToken())
+        if (int candidate = initializer->firstToken())
             return candidate;
     if (condition)
-        if (unsigned candidate = condition->firstToken())
+        if (int candidate = condition->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ForStatementAST::lastToken() const
+int ForStatementAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token + 1;
     if (condition)
-        if (unsigned candidate = condition->lastToken())
+        if (int candidate = condition->lastToken())
             return candidate;
     if (initializer)
-        if (unsigned candidate = initializer->lastToken())
+        if (int candidate = initializer->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -1326,55 +1326,55 @@ unsigned ForStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned ForeachStatementAST::firstToken() const
+int ForeachStatementAST::firstToken() const
 {
     if (foreach_token)
         return foreach_token;
     if (lparen_token)
         return lparen_token;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (initializer)
-        if (unsigned candidate = initializer->firstToken())
+        if (int candidate = initializer->firstToken())
             return candidate;
     if (comma_token)
         return comma_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ForeachStatementAST::lastToken() const
+int ForeachStatementAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (comma_token)
         return comma_token + 1;
     if (initializer)
-        if (unsigned candidate = initializer->lastToken())
+        if (int candidate = initializer->lastToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -1384,53 +1384,53 @@ unsigned ForeachStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned FunctionDeclaratorAST::firstToken() const
+int FunctionDeclaratorAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (parameter_declaration_clause)
-        if (unsigned candidate = parameter_declaration_clause->firstToken())
+        if (int candidate = parameter_declaration_clause->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (cv_qualifier_list)
-        if (unsigned candidate = cv_qualifier_list->firstToken())
+        if (int candidate = cv_qualifier_list->firstToken())
             return candidate;
     if (ref_qualifier_token)
         return ref_qualifier_token;
     if (exception_specification)
-        if (unsigned candidate = exception_specification->firstToken())
+        if (int candidate = exception_specification->firstToken())
             return candidate;
     if (trailing_return_type)
-        if (unsigned candidate = trailing_return_type->firstToken())
+        if (int candidate = trailing_return_type->firstToken())
             return candidate;
     if (as_cpp_initializer)
-        if (unsigned candidate = as_cpp_initializer->firstToken())
+        if (int candidate = as_cpp_initializer->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned FunctionDeclaratorAST::lastToken() const
+int FunctionDeclaratorAST::lastToken() const
 {
     if (as_cpp_initializer)
-        if (unsigned candidate = as_cpp_initializer->lastToken())
+        if (int candidate = as_cpp_initializer->lastToken())
             return candidate;
     if (trailing_return_type)
-        if (unsigned candidate = trailing_return_type->lastToken())
+        if (int candidate = trailing_return_type->lastToken())
             return candidate;
     if (exception_specification)
-        if (unsigned candidate = exception_specification->lastToken())
+        if (int candidate = exception_specification->lastToken())
             return candidate;
     if (ref_qualifier_token)
         return ref_qualifier_token + 1;
     if (cv_qualifier_list)
-        if (unsigned candidate = cv_qualifier_list->lastToken())
+        if (int candidate = cv_qualifier_list->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (parameter_declaration_clause)
-        if (unsigned candidate = parameter_declaration_clause->lastToken())
+        if (int candidate = parameter_declaration_clause->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -1438,39 +1438,39 @@ unsigned FunctionDeclaratorAST::lastToken() const
 }
 
 /** \generated */
-unsigned FunctionDefinitionAST::firstToken() const
+int FunctionDefinitionAST::firstToken() const
 {
     if (qt_invokable_token)
         return qt_invokable_token;
     if (decl_specifier_list)
-        if (unsigned candidate = decl_specifier_list->firstToken())
+        if (int candidate = decl_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (ctor_initializer)
-        if (unsigned candidate = ctor_initializer->firstToken())
+        if (int candidate = ctor_initializer->firstToken())
             return candidate;
     if (function_body)
-        if (unsigned candidate = function_body->firstToken())
+        if (int candidate = function_body->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned FunctionDefinitionAST::lastToken() const
+int FunctionDefinitionAST::lastToken() const
 {
     if (function_body)
-        if (unsigned candidate = function_body->lastToken())
+        if (int candidate = function_body->lastToken())
             return candidate;
     if (ctor_initializer)
-        if (unsigned candidate = ctor_initializer->lastToken())
+        if (int candidate = ctor_initializer->lastToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (decl_specifier_list)
-        if (unsigned candidate = decl_specifier_list->lastToken())
+        if (int candidate = decl_specifier_list->lastToken())
             return candidate;
     if (qt_invokable_token)
         return qt_invokable_token + 1;
@@ -1478,7 +1478,7 @@ unsigned FunctionDefinitionAST::lastToken() const
 }
 
 /** \generated */
-unsigned GotoStatementAST::firstToken() const
+int GotoStatementAST::firstToken() const
 {
     if (goto_token)
         return goto_token;
@@ -1490,7 +1490,7 @@ unsigned GotoStatementAST::firstToken() const
 }
 
 /** \generated */
-unsigned GotoStatementAST::lastToken() const
+int GotoStatementAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
@@ -1502,61 +1502,61 @@ unsigned GotoStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned IdExpressionAST::firstToken() const
+int IdExpressionAST::firstToken() const
 {
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned IdExpressionAST::lastToken() const
+int IdExpressionAST::lastToken() const
 {
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned IfStatementAST::firstToken() const
+int IfStatementAST::firstToken() const
 {
     if (if_token)
         return if_token;
     if (lparen_token)
         return lparen_token;
     if (condition)
-        if (unsigned candidate = condition->firstToken())
+        if (int candidate = condition->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     if (else_token)
         return else_token;
     if (else_statement)
-        if (unsigned candidate = else_statement->firstToken())
+        if (int candidate = else_statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned IfStatementAST::lastToken() const
+int IfStatementAST::lastToken() const
 {
     if (else_statement)
-        if (unsigned candidate = else_statement->lastToken())
+        if (int candidate = else_statement->lastToken())
             return candidate;
     if (else_token)
         return else_token + 1;
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (condition)
-        if (unsigned candidate = condition->lastToken())
+        if (int candidate = condition->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -1566,23 +1566,23 @@ unsigned IfStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned LabeledStatementAST::firstToken() const
+int LabeledStatementAST::firstToken() const
 {
     if (label_token)
         return label_token;
     if (colon_token)
         return colon_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned LabeledStatementAST::lastToken() const
+int LabeledStatementAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (colon_token)
         return colon_token + 1;
@@ -1592,21 +1592,21 @@ unsigned LabeledStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned LambdaCaptureAST::firstToken() const
+int LambdaCaptureAST::firstToken() const
 {
     if (default_capture_token)
         return default_capture_token;
     if (capture_list)
-        if (unsigned candidate = capture_list->firstToken())
+        if (int candidate = capture_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned LambdaCaptureAST::lastToken() const
+int LambdaCaptureAST::lastToken() const
 {
     if (capture_list)
-        if (unsigned candidate = capture_list->lastToken())
+        if (int candidate = capture_list->lastToken())
             return candidate;
     if (default_capture_token)
         return default_capture_token + 1;
@@ -1614,47 +1614,47 @@ unsigned LambdaCaptureAST::lastToken() const
 }
 
 /** \generated */
-unsigned LambdaDeclaratorAST::firstToken() const
+int LambdaDeclaratorAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (parameter_declaration_clause)
-        if (unsigned candidate = parameter_declaration_clause->firstToken())
+        if (int candidate = parameter_declaration_clause->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (attributes)
-        if (unsigned candidate = attributes->firstToken())
+        if (int candidate = attributes->firstToken())
             return candidate;
     if (mutable_token)
         return mutable_token;
     if (exception_specification)
-        if (unsigned candidate = exception_specification->firstToken())
+        if (int candidate = exception_specification->firstToken())
             return candidate;
     if (trailing_return_type)
-        if (unsigned candidate = trailing_return_type->firstToken())
+        if (int candidate = trailing_return_type->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned LambdaDeclaratorAST::lastToken() const
+int LambdaDeclaratorAST::lastToken() const
 {
     if (trailing_return_type)
-        if (unsigned candidate = trailing_return_type->lastToken())
+        if (int candidate = trailing_return_type->lastToken())
             return candidate;
     if (exception_specification)
-        if (unsigned candidate = exception_specification->lastToken())
+        if (int candidate = exception_specification->lastToken())
             return candidate;
     if (mutable_token)
         return mutable_token + 1;
     if (attributes)
-        if (unsigned candidate = attributes->lastToken())
+        if (int candidate = attributes->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (parameter_declaration_clause)
-        if (unsigned candidate = parameter_declaration_clause->lastToken())
+        if (int candidate = parameter_declaration_clause->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -1662,42 +1662,42 @@ unsigned LambdaDeclaratorAST::lastToken() const
 }
 
 /** \generated */
-unsigned LambdaExpressionAST::firstToken() const
+int LambdaExpressionAST::firstToken() const
 {
     if (lambda_introducer)
-        if (unsigned candidate = lambda_introducer->firstToken())
+        if (int candidate = lambda_introducer->firstToken())
             return candidate;
     if (lambda_declarator)
-        if (unsigned candidate = lambda_declarator->firstToken())
+        if (int candidate = lambda_declarator->firstToken())
             return candidate;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned LambdaExpressionAST::lastToken() const
+int LambdaExpressionAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (lambda_declarator)
-        if (unsigned candidate = lambda_declarator->lastToken())
+        if (int candidate = lambda_declarator->lastToken())
             return candidate;
     if (lambda_introducer)
-        if (unsigned candidate = lambda_introducer->lastToken())
+        if (int candidate = lambda_introducer->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned LambdaIntroducerAST::firstToken() const
+int LambdaIntroducerAST::firstToken() const
 {
     if (lbracket_token)
         return lbracket_token;
     if (lambda_capture)
-        if (unsigned candidate = lambda_capture->firstToken())
+        if (int candidate = lambda_capture->firstToken())
             return candidate;
     if (rbracket_token)
         return rbracket_token;
@@ -1705,12 +1705,12 @@ unsigned LambdaIntroducerAST::firstToken() const
 }
 
 /** \generated */
-unsigned LambdaIntroducerAST::lastToken() const
+int LambdaIntroducerAST::lastToken() const
 {
     if (rbracket_token)
         return rbracket_token + 1;
     if (lambda_capture)
-        if (unsigned candidate = lambda_capture->lastToken())
+        if (int candidate = lambda_capture->lastToken())
             return candidate;
     if (lbracket_token)
         return lbracket_token + 1;
@@ -1718,12 +1718,12 @@ unsigned LambdaIntroducerAST::lastToken() const
 }
 
 /** \generated */
-unsigned LinkageBodyAST::firstToken() const
+int LinkageBodyAST::firstToken() const
 {
     if (lbrace_token)
         return lbrace_token;
     if (declaration_list)
-        if (unsigned candidate = declaration_list->firstToken())
+        if (int candidate = declaration_list->firstToken())
             return candidate;
     if (rbrace_token)
         return rbrace_token;
@@ -1731,12 +1731,12 @@ unsigned LinkageBodyAST::firstToken() const
 }
 
 /** \generated */
-unsigned LinkageBodyAST::lastToken() const
+int LinkageBodyAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
     if (declaration_list)
-        if (unsigned candidate = declaration_list->lastToken())
+        if (int candidate = declaration_list->lastToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token + 1;
@@ -1744,23 +1744,23 @@ unsigned LinkageBodyAST::lastToken() const
 }
 
 /** \generated */
-unsigned LinkageSpecificationAST::firstToken() const
+int LinkageSpecificationAST::firstToken() const
 {
     if (extern_token)
         return extern_token;
     if (extern_type_token)
         return extern_type_token;
     if (declaration)
-        if (unsigned candidate = declaration->firstToken())
+        if (int candidate = declaration->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned LinkageSpecificationAST::lastToken() const
+int LinkageSpecificationAST::lastToken() const
 {
     if (declaration)
-        if (unsigned candidate = declaration->lastToken())
+        if (int candidate = declaration->lastToken())
             return candidate;
     if (extern_type_token)
         return extern_type_token + 1;
@@ -1770,81 +1770,81 @@ unsigned LinkageSpecificationAST::lastToken() const
 }
 
 /** \generated */
-unsigned MemInitializerAST::firstToken() const
+int MemInitializerAST::firstToken() const
 {
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned MemInitializerAST::lastToken() const
+int MemInitializerAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned MemberAccessAST::firstToken() const
+int MemberAccessAST::firstToken() const
 {
     if (base_expression)
-        if (unsigned candidate = base_expression->firstToken())
+        if (int candidate = base_expression->firstToken())
             return candidate;
     if (access_token)
         return access_token;
     if (template_token)
         return template_token;
     if (member_name)
-        if (unsigned candidate = member_name->firstToken())
+        if (int candidate = member_name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned MemberAccessAST::lastToken() const
+int MemberAccessAST::lastToken() const
 {
     if (member_name)
-        if (unsigned candidate = member_name->lastToken())
+        if (int candidate = member_name->lastToken())
             return candidate;
     if (template_token)
         return template_token + 1;
     if (access_token)
         return access_token + 1;
     if (base_expression)
-        if (unsigned candidate = base_expression->lastToken())
+        if (int candidate = base_expression->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned NamedTypeSpecifierAST::firstToken() const
+int NamedTypeSpecifierAST::firstToken() const
 {
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned NamedTypeSpecifierAST::lastToken() const
+int NamedTypeSpecifierAST::lastToken() const
 {
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned NamespaceAST::firstToken() const
+int NamespaceAST::firstToken() const
 {
     if (inline_token)
         return inline_token;
@@ -1853,22 +1853,22 @@ unsigned NamespaceAST::firstToken() const
     if (identifier_token)
         return identifier_token;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (linkage_body)
-        if (unsigned candidate = linkage_body->firstToken())
+        if (int candidate = linkage_body->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned NamespaceAST::lastToken() const
+int NamespaceAST::lastToken() const
 {
     if (linkage_body)
-        if (unsigned candidate = linkage_body->lastToken())
+        if (int candidate = linkage_body->lastToken())
             return candidate;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     if (identifier_token)
         return identifier_token + 1;
@@ -1880,7 +1880,7 @@ unsigned NamespaceAST::lastToken() const
 }
 
 /** \generated */
-unsigned NamespaceAliasDefinitionAST::firstToken() const
+int NamespaceAliasDefinitionAST::firstToken() const
 {
     if (namespace_token)
         return namespace_token;
@@ -1889,7 +1889,7 @@ unsigned NamespaceAliasDefinitionAST::firstToken() const
     if (equal_token)
         return equal_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -1897,12 +1897,12 @@ unsigned NamespaceAliasDefinitionAST::firstToken() const
 }
 
 /** \generated */
-unsigned NamespaceAliasDefinitionAST::lastToken() const
+int NamespaceAliasDefinitionAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (equal_token)
         return equal_token + 1;
@@ -1914,12 +1914,12 @@ unsigned NamespaceAliasDefinitionAST::lastToken() const
 }
 
 /** \generated */
-unsigned NestedDeclaratorAST::firstToken() const
+int NestedDeclaratorAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -1927,12 +1927,12 @@ unsigned NestedDeclaratorAST::firstToken() const
 }
 
 /** \generated */
-unsigned NestedDeclaratorAST::lastToken() const
+int NestedDeclaratorAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -1940,12 +1940,12 @@ unsigned NestedDeclaratorAST::lastToken() const
 }
 
 /** \generated */
-unsigned NestedExpressionAST::firstToken() const
+int NestedExpressionAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -1953,12 +1953,12 @@ unsigned NestedExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned NestedExpressionAST::lastToken() const
+int NestedExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -1966,10 +1966,10 @@ unsigned NestedExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned NestedNameSpecifierAST::firstToken() const
+int NestedNameSpecifierAST::firstToken() const
 {
     if (class_or_namespace_name)
-        if (unsigned candidate = class_or_namespace_name->firstToken())
+        if (int candidate = class_or_namespace_name->firstToken())
             return candidate;
     if (scope_token)
         return scope_token;
@@ -1977,23 +1977,23 @@ unsigned NestedNameSpecifierAST::firstToken() const
 }
 
 /** \generated */
-unsigned NestedNameSpecifierAST::lastToken() const
+int NestedNameSpecifierAST::lastToken() const
 {
     if (scope_token)
         return scope_token + 1;
     if (class_or_namespace_name)
-        if (unsigned candidate = class_or_namespace_name->lastToken())
+        if (int candidate = class_or_namespace_name->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned NewArrayDeclaratorAST::firstToken() const
+int NewArrayDeclaratorAST::firstToken() const
 {
     if (lbracket_token)
         return lbracket_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rbracket_token)
         return rbracket_token;
@@ -2001,12 +2001,12 @@ unsigned NewArrayDeclaratorAST::firstToken() const
 }
 
 /** \generated */
-unsigned NewArrayDeclaratorAST::lastToken() const
+int NewArrayDeclaratorAST::lastToken() const
 {
     if (rbracket_token)
         return rbracket_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lbracket_token)
         return lbracket_token + 1;
@@ -2014,49 +2014,49 @@ unsigned NewArrayDeclaratorAST::lastToken() const
 }
 
 /** \generated */
-unsigned NewExpressionAST::firstToken() const
+int NewExpressionAST::firstToken() const
 {
     if (scope_token)
         return scope_token;
     if (new_token)
         return new_token;
     if (new_placement)
-        if (unsigned candidate = new_placement->firstToken())
+        if (int candidate = new_placement->firstToken())
             return candidate;
     if (lparen_token)
         return lparen_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (new_type_id)
-        if (unsigned candidate = new_type_id->firstToken())
+        if (int candidate = new_type_id->firstToken())
             return candidate;
     if (new_initializer)
-        if (unsigned candidate = new_initializer->firstToken())
+        if (int candidate = new_initializer->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned NewExpressionAST::lastToken() const
+int NewExpressionAST::lastToken() const
 {
     if (new_initializer)
-        if (unsigned candidate = new_initializer->lastToken())
+        if (int candidate = new_initializer->lastToken())
             return candidate;
     if (new_type_id)
-        if (unsigned candidate = new_type_id->lastToken())
+        if (int candidate = new_type_id->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
     if (new_placement)
-        if (unsigned candidate = new_placement->lastToken())
+        if (int candidate = new_placement->lastToken())
             return candidate;
     if (new_token)
         return new_token + 1;
@@ -2066,12 +2066,12 @@ unsigned NewExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned ExpressionListParenAST::firstToken() const
+int ExpressionListParenAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (expression_list)
-        if (unsigned candidate = expression_list->firstToken())
+        if (int candidate = expression_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -2079,12 +2079,12 @@ unsigned ExpressionListParenAST::firstToken() const
 }
 
 /** \generated */
-unsigned ExpressionListParenAST::lastToken() const
+int ExpressionListParenAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression_list)
-        if (unsigned candidate = expression_list->lastToken())
+        if (int candidate = expression_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -2092,37 +2092,37 @@ unsigned ExpressionListParenAST::lastToken() const
 }
 
 /** \generated */
-unsigned NewTypeIdAST::firstToken() const
+int NewTypeIdAST::firstToken() const
 {
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (ptr_operator_list)
-        if (unsigned candidate = ptr_operator_list->firstToken())
+        if (int candidate = ptr_operator_list->firstToken())
             return candidate;
     if (new_array_declarator_list)
-        if (unsigned candidate = new_array_declarator_list->firstToken())
+        if (int candidate = new_array_declarator_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned NewTypeIdAST::lastToken() const
+int NewTypeIdAST::lastToken() const
 {
     if (new_array_declarator_list)
-        if (unsigned candidate = new_array_declarator_list->lastToken())
+        if (int candidate = new_array_declarator_list->lastToken())
             return candidate;
     if (ptr_operator_list)
-        if (unsigned candidate = ptr_operator_list->lastToken())
+        if (int candidate = ptr_operator_list->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned NumericLiteralAST::firstToken() const
+int NumericLiteralAST::firstToken() const
 {
     if (literal_token)
         return literal_token;
@@ -2130,7 +2130,7 @@ unsigned NumericLiteralAST::firstToken() const
 }
 
 /** \generated */
-unsigned NumericLiteralAST::lastToken() const
+int NumericLiteralAST::lastToken() const
 {
     if (literal_token)
         return literal_token + 1;
@@ -2138,38 +2138,38 @@ unsigned NumericLiteralAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCClassDeclarationAST::firstToken() const
+int ObjCClassDeclarationAST::firstToken() const
 {
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (interface_token)
         return interface_token;
     if (implementation_token)
         return implementation_token;
     if (class_name)
-        if (unsigned candidate = class_name->firstToken())
+        if (int candidate = class_name->firstToken())
             return candidate;
     if (lparen_token)
         return lparen_token;
     if (category_name)
-        if (unsigned candidate = category_name->firstToken())
+        if (int candidate = category_name->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (colon_token)
         return colon_token;
     if (superclass)
-        if (unsigned candidate = superclass->firstToken())
+        if (int candidate = superclass->firstToken())
             return candidate;
     if (protocol_refs)
-        if (unsigned candidate = protocol_refs->firstToken())
+        if (int candidate = protocol_refs->firstToken())
             return candidate;
     if (inst_vars_decl)
-        if (unsigned candidate = inst_vars_decl->firstToken())
+        if (int candidate = inst_vars_decl->firstToken())
             return candidate;
     if (member_declaration_list)
-        if (unsigned candidate = member_declaration_list->firstToken())
+        if (int candidate = member_declaration_list->firstToken())
             return candidate;
     if (end_token)
         return end_token;
@@ -2177,54 +2177,54 @@ unsigned ObjCClassDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCClassDeclarationAST::lastToken() const
+int ObjCClassDeclarationAST::lastToken() const
 {
     if (end_token)
         return end_token + 1;
     if (member_declaration_list)
-        if (unsigned candidate = member_declaration_list->lastToken())
+        if (int candidate = member_declaration_list->lastToken())
             return candidate;
     if (inst_vars_decl)
-        if (unsigned candidate = inst_vars_decl->lastToken())
+        if (int candidate = inst_vars_decl->lastToken())
             return candidate;
     if (protocol_refs)
-        if (unsigned candidate = protocol_refs->lastToken())
+        if (int candidate = protocol_refs->lastToken())
             return candidate;
     if (superclass)
-        if (unsigned candidate = superclass->lastToken())
+        if (int candidate = superclass->lastToken())
             return candidate;
     if (colon_token)
         return colon_token + 1;
     if (rparen_token)
         return rparen_token + 1;
     if (category_name)
-        if (unsigned candidate = category_name->lastToken())
+        if (int candidate = category_name->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
     if (class_name)
-        if (unsigned candidate = class_name->lastToken())
+        if (int candidate = class_name->lastToken())
             return candidate;
     if (implementation_token)
         return implementation_token + 1;
     if (interface_token)
         return interface_token + 1;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCClassForwardDeclarationAST::firstToken() const
+int ObjCClassForwardDeclarationAST::firstToken() const
 {
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (class_token)
         return class_token;
     if (identifier_list)
-        if (unsigned candidate = identifier_list->firstToken())
+        if (int candidate = identifier_list->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -2232,28 +2232,28 @@ unsigned ObjCClassForwardDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCClassForwardDeclarationAST::lastToken() const
+int ObjCClassForwardDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (identifier_list)
-        if (unsigned candidate = identifier_list->lastToken())
+        if (int candidate = identifier_list->lastToken())
             return candidate;
     if (class_token)
         return class_token + 1;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCDynamicPropertiesDeclarationAST::firstToken() const
+int ObjCDynamicPropertiesDeclarationAST::firstToken() const
 {
     if (dynamic_token)
         return dynamic_token;
     if (property_identifier_list)
-        if (unsigned candidate = property_identifier_list->firstToken())
+        if (int candidate = property_identifier_list->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -2261,12 +2261,12 @@ unsigned ObjCDynamicPropertiesDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCDynamicPropertiesDeclarationAST::lastToken() const
+int ObjCDynamicPropertiesDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (property_identifier_list)
-        if (unsigned candidate = property_identifier_list->lastToken())
+        if (int candidate = property_identifier_list->lastToken())
             return candidate;
     if (dynamic_token)
         return dynamic_token + 1;
@@ -2274,21 +2274,21 @@ unsigned ObjCDynamicPropertiesDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCEncodeExpressionAST::firstToken() const
+int ObjCEncodeExpressionAST::firstToken() const
 {
     if (encode_token)
         return encode_token;
     if (type_name)
-        if (unsigned candidate = type_name->firstToken())
+        if (int candidate = type_name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCEncodeExpressionAST::lastToken() const
+int ObjCEncodeExpressionAST::lastToken() const
 {
     if (type_name)
-        if (unsigned candidate = type_name->lastToken())
+        if (int candidate = type_name->lastToken())
             return candidate;
     if (encode_token)
         return encode_token + 1;
@@ -2296,55 +2296,55 @@ unsigned ObjCEncodeExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCFastEnumerationAST::firstToken() const
+int ObjCFastEnumerationAST::firstToken() const
 {
     if (for_token)
         return for_token;
     if (lparen_token)
         return lparen_token;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (initializer)
-        if (unsigned candidate = initializer->firstToken())
+        if (int candidate = initializer->firstToken())
             return candidate;
     if (in_token)
         return in_token;
     if (fast_enumeratable_expression)
-        if (unsigned candidate = fast_enumeratable_expression->firstToken())
+        if (int candidate = fast_enumeratable_expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCFastEnumerationAST::lastToken() const
+int ObjCFastEnumerationAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (fast_enumeratable_expression)
-        if (unsigned candidate = fast_enumeratable_expression->lastToken())
+        if (int candidate = fast_enumeratable_expression->lastToken())
             return candidate;
     if (in_token)
         return in_token + 1;
     if (initializer)
-        if (unsigned candidate = initializer->lastToken())
+        if (int candidate = initializer->lastToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -2354,12 +2354,12 @@ unsigned ObjCFastEnumerationAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCInstanceVariablesDeclarationAST::firstToken() const
+int ObjCInstanceVariablesDeclarationAST::firstToken() const
 {
     if (lbrace_token)
         return lbrace_token;
     if (instance_variable_list)
-        if (unsigned candidate = instance_variable_list->firstToken())
+        if (int candidate = instance_variable_list->firstToken())
             return candidate;
     if (rbrace_token)
         return rbrace_token;
@@ -2367,12 +2367,12 @@ unsigned ObjCInstanceVariablesDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCInstanceVariablesDeclarationAST::lastToken() const
+int ObjCInstanceVariablesDeclarationAST::lastToken() const
 {
     if (rbrace_token)
         return rbrace_token + 1;
     if (instance_variable_list)
-        if (unsigned candidate = instance_variable_list->lastToken())
+        if (int candidate = instance_variable_list->lastToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token + 1;
@@ -2380,66 +2380,66 @@ unsigned ObjCInstanceVariablesDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCMessageArgumentAST::firstToken() const
+int ObjCMessageArgumentAST::firstToken() const
 {
     if (parameter_value_expression)
-        if (unsigned candidate = parameter_value_expression->firstToken())
+        if (int candidate = parameter_value_expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCMessageArgumentAST::lastToken() const
+int ObjCMessageArgumentAST::lastToken() const
 {
     if (parameter_value_expression)
-        if (unsigned candidate = parameter_value_expression->lastToken())
+        if (int candidate = parameter_value_expression->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCMessageArgumentDeclarationAST::firstToken() const
+int ObjCMessageArgumentDeclarationAST::firstToken() const
 {
     if (type_name)
-        if (unsigned candidate = type_name->firstToken())
+        if (int candidate = type_name->firstToken())
             return candidate;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (param_name)
-        if (unsigned candidate = param_name->firstToken())
+        if (int candidate = param_name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCMessageArgumentDeclarationAST::lastToken() const
+int ObjCMessageArgumentDeclarationAST::lastToken() const
 {
     if (param_name)
-        if (unsigned candidate = param_name->lastToken())
+        if (int candidate = param_name->lastToken())
             return candidate;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     if (type_name)
-        if (unsigned candidate = type_name->lastToken())
+        if (int candidate = type_name->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCMessageExpressionAST::firstToken() const
+int ObjCMessageExpressionAST::firstToken() const
 {
     if (lbracket_token)
         return lbracket_token;
     if (receiver_expression)
-        if (unsigned candidate = receiver_expression->firstToken())
+        if (int candidate = receiver_expression->firstToken())
             return candidate;
     if (selector)
-        if (unsigned candidate = selector->firstToken())
+        if (int candidate = selector->firstToken())
             return candidate;
     if (argument_list)
-        if (unsigned candidate = argument_list->firstToken())
+        if (int candidate = argument_list->firstToken())
             return candidate;
     if (rbracket_token)
         return rbracket_token;
@@ -2447,18 +2447,18 @@ unsigned ObjCMessageExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCMessageExpressionAST::lastToken() const
+int ObjCMessageExpressionAST::lastToken() const
 {
     if (rbracket_token)
         return rbracket_token + 1;
     if (argument_list)
-        if (unsigned candidate = argument_list->lastToken())
+        if (int candidate = argument_list->lastToken())
             return candidate;
     if (selector)
-        if (unsigned candidate = selector->lastToken())
+        if (int candidate = selector->lastToken())
             return candidate;
     if (receiver_expression)
-        if (unsigned candidate = receiver_expression->lastToken())
+        if (int candidate = receiver_expression->lastToken())
             return candidate;
     if (lbracket_token)
         return lbracket_token + 1;
@@ -2466,13 +2466,13 @@ unsigned ObjCMessageExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCMethodDeclarationAST::firstToken() const
+int ObjCMethodDeclarationAST::firstToken() const
 {
     if (method_prototype)
-        if (unsigned candidate = method_prototype->firstToken())
+        if (int candidate = method_prototype->firstToken())
             return candidate;
     if (function_body)
-        if (unsigned candidate = function_body->firstToken())
+        if (int candidate = function_body->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -2480,57 +2480,57 @@ unsigned ObjCMethodDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCMethodDeclarationAST::lastToken() const
+int ObjCMethodDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (function_body)
-        if (unsigned candidate = function_body->lastToken())
+        if (int candidate = function_body->lastToken())
             return candidate;
     if (method_prototype)
-        if (unsigned candidate = method_prototype->lastToken())
+        if (int candidate = method_prototype->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCMethodPrototypeAST::firstToken() const
+int ObjCMethodPrototypeAST::firstToken() const
 {
     if (method_type_token)
         return method_type_token;
     if (type_name)
-        if (unsigned candidate = type_name->firstToken())
+        if (int candidate = type_name->firstToken())
             return candidate;
     if (selector)
-        if (unsigned candidate = selector->firstToken())
+        if (int candidate = selector->firstToken())
             return candidate;
     if (argument_list)
-        if (unsigned candidate = argument_list->firstToken())
+        if (int candidate = argument_list->firstToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCMethodPrototypeAST::lastToken() const
+int ObjCMethodPrototypeAST::lastToken() const
 {
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
     if (argument_list)
-        if (unsigned candidate = argument_list->lastToken())
+        if (int candidate = argument_list->lastToken())
             return candidate;
     if (selector)
-        if (unsigned candidate = selector->lastToken())
+        if (int candidate = selector->lastToken())
             return candidate;
     if (type_name)
-        if (unsigned candidate = type_name->lastToken())
+        if (int candidate = type_name->lastToken())
             return candidate;
     if (method_type_token)
         return method_type_token + 1;
@@ -2538,23 +2538,23 @@ unsigned ObjCMethodPrototypeAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCPropertyAttributeAST::firstToken() const
+int ObjCPropertyAttributeAST::firstToken() const
 {
     if (attribute_identifier_token)
         return attribute_identifier_token;
     if (equals_token)
         return equals_token;
     if (method_selector)
-        if (unsigned candidate = method_selector->firstToken())
+        if (int candidate = method_selector->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCPropertyAttributeAST::lastToken() const
+int ObjCPropertyAttributeAST::lastToken() const
 {
     if (method_selector)
-        if (unsigned candidate = method_selector->lastToken())
+        if (int candidate = method_selector->lastToken())
             return candidate;
     if (equals_token)
         return equals_token + 1;
@@ -2564,63 +2564,63 @@ unsigned ObjCPropertyAttributeAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCPropertyDeclarationAST::firstToken() const
+int ObjCPropertyDeclarationAST::firstToken() const
 {
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (property_token)
         return property_token;
     if (lparen_token)
         return lparen_token;
     if (property_attribute_list)
-        if (unsigned candidate = property_attribute_list->firstToken())
+        if (int candidate = property_attribute_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (simple_declaration)
-        if (unsigned candidate = simple_declaration->firstToken())
+        if (int candidate = simple_declaration->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCPropertyDeclarationAST::lastToken() const
+int ObjCPropertyDeclarationAST::lastToken() const
 {
     if (simple_declaration)
-        if (unsigned candidate = simple_declaration->lastToken())
+        if (int candidate = simple_declaration->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (property_attribute_list)
-        if (unsigned candidate = property_attribute_list->lastToken())
+        if (int candidate = property_attribute_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
     if (property_token)
         return property_token + 1;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCProtocolDeclarationAST::firstToken() const
+int ObjCProtocolDeclarationAST::firstToken() const
 {
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (protocol_token)
         return protocol_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (protocol_refs)
-        if (unsigned candidate = protocol_refs->firstToken())
+        if (int candidate = protocol_refs->firstToken())
             return candidate;
     if (member_declaration_list)
-        if (unsigned candidate = member_declaration_list->firstToken())
+        if (int candidate = member_declaration_list->firstToken())
             return candidate;
     if (end_token)
         return end_token;
@@ -2628,29 +2628,29 @@ unsigned ObjCProtocolDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCProtocolDeclarationAST::lastToken() const
+int ObjCProtocolDeclarationAST::lastToken() const
 {
     if (end_token)
         return end_token + 1;
     if (member_declaration_list)
-        if (unsigned candidate = member_declaration_list->lastToken())
+        if (int candidate = member_declaration_list->lastToken())
             return candidate;
     if (protocol_refs)
-        if (unsigned candidate = protocol_refs->lastToken())
+        if (int candidate = protocol_refs->lastToken())
             return candidate;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (protocol_token)
         return protocol_token + 1;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCProtocolExpressionAST::firstToken() const
+int ObjCProtocolExpressionAST::firstToken() const
 {
     if (protocol_token)
         return protocol_token;
@@ -2664,7 +2664,7 @@ unsigned ObjCProtocolExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCProtocolExpressionAST::lastToken() const
+int ObjCProtocolExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
@@ -2678,15 +2678,15 @@ unsigned ObjCProtocolExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCProtocolForwardDeclarationAST::firstToken() const
+int ObjCProtocolForwardDeclarationAST::firstToken() const
 {
     if (attribute_list)
-        if (unsigned candidate = attribute_list->firstToken())
+        if (int candidate = attribute_list->firstToken())
             return candidate;
     if (protocol_token)
         return protocol_token;
     if (identifier_list)
-        if (unsigned candidate = identifier_list->firstToken())
+        if (int candidate = identifier_list->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -2694,28 +2694,28 @@ unsigned ObjCProtocolForwardDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCProtocolForwardDeclarationAST::lastToken() const
+int ObjCProtocolForwardDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (identifier_list)
-        if (unsigned candidate = identifier_list->lastToken())
+        if (int candidate = identifier_list->lastToken())
             return candidate;
     if (protocol_token)
         return protocol_token + 1;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCProtocolRefsAST::firstToken() const
+int ObjCProtocolRefsAST::firstToken() const
 {
     if (less_token)
         return less_token;
     if (identifier_list)
-        if (unsigned candidate = identifier_list->firstToken())
+        if (int candidate = identifier_list->firstToken())
             return candidate;
     if (greater_token)
         return greater_token;
@@ -2723,12 +2723,12 @@ unsigned ObjCProtocolRefsAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCProtocolRefsAST::lastToken() const
+int ObjCProtocolRefsAST::lastToken() const
 {
     if (greater_token)
         return greater_token + 1;
     if (identifier_list)
-        if (unsigned candidate = identifier_list->lastToken())
+        if (int candidate = identifier_list->lastToken())
             return candidate;
     if (less_token)
         return less_token + 1;
@@ -2736,25 +2736,25 @@ unsigned ObjCProtocolRefsAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCSelectorAST::firstToken() const
+int ObjCSelectorAST::firstToken() const
 {
     if (selector_argument_list)
-        if (unsigned candidate = selector_argument_list->firstToken())
+        if (int candidate = selector_argument_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCSelectorAST::lastToken() const
+int ObjCSelectorAST::lastToken() const
 {
     if (selector_argument_list)
-        if (unsigned candidate = selector_argument_list->lastToken())
+        if (int candidate = selector_argument_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ObjCSelectorArgumentAST::firstToken() const
+int ObjCSelectorArgumentAST::firstToken() const
 {
     if (name_token)
         return name_token;
@@ -2764,7 +2764,7 @@ unsigned ObjCSelectorArgumentAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCSelectorArgumentAST::lastToken() const
+int ObjCSelectorArgumentAST::lastToken() const
 {
     if (colon_token)
         return colon_token + 1;
@@ -2774,14 +2774,14 @@ unsigned ObjCSelectorArgumentAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCSelectorExpressionAST::firstToken() const
+int ObjCSelectorExpressionAST::firstToken() const
 {
     if (selector_token)
         return selector_token;
     if (lparen_token)
         return lparen_token;
     if (selector)
-        if (unsigned candidate = selector->firstToken())
+        if (int candidate = selector->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -2789,12 +2789,12 @@ unsigned ObjCSelectorExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCSelectorExpressionAST::lastToken() const
+int ObjCSelectorExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (selector)
-        if (unsigned candidate = selector->lastToken())
+        if (int candidate = selector->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -2804,33 +2804,33 @@ unsigned ObjCSelectorExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCSynchronizedStatementAST::firstToken() const
+int ObjCSynchronizedStatementAST::firstToken() const
 {
     if (synchronized_token)
         return synchronized_token;
     if (lparen_token)
         return lparen_token;
     if (synchronized_object)
-        if (unsigned candidate = synchronized_object->firstToken())
+        if (int candidate = synchronized_object->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ObjCSynchronizedStatementAST::lastToken() const
+int ObjCSynchronizedStatementAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (synchronized_object)
-        if (unsigned candidate = synchronized_object->lastToken())
+        if (int candidate = synchronized_object->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -2840,12 +2840,12 @@ unsigned ObjCSynchronizedStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCSynthesizedPropertiesDeclarationAST::firstToken() const
+int ObjCSynthesizedPropertiesDeclarationAST::firstToken() const
 {
     if (synthesized_token)
         return synthesized_token;
     if (property_identifier_list)
-        if (unsigned candidate = property_identifier_list->firstToken())
+        if (int candidate = property_identifier_list->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -2853,12 +2853,12 @@ unsigned ObjCSynthesizedPropertiesDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCSynthesizedPropertiesDeclarationAST::lastToken() const
+int ObjCSynthesizedPropertiesDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (property_identifier_list)
-        if (unsigned candidate = property_identifier_list->lastToken())
+        if (int candidate = property_identifier_list->lastToken())
             return candidate;
     if (synthesized_token)
         return synthesized_token + 1;
@@ -2866,7 +2866,7 @@ unsigned ObjCSynthesizedPropertiesDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCSynthesizedPropertyAST::firstToken() const
+int ObjCSynthesizedPropertyAST::firstToken() const
 {
     if (property_identifier_token)
         return property_identifier_token;
@@ -2878,7 +2878,7 @@ unsigned ObjCSynthesizedPropertyAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCSynthesizedPropertyAST::lastToken() const
+int ObjCSynthesizedPropertyAST::lastToken() const
 {
     if (alias_identifier_token)
         return alias_identifier_token + 1;
@@ -2890,14 +2890,14 @@ unsigned ObjCSynthesizedPropertyAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCTypeNameAST::firstToken() const
+int ObjCTypeNameAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
     if (type_qualifier_token)
         return type_qualifier_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -2905,12 +2905,12 @@ unsigned ObjCTypeNameAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCTypeNameAST::lastToken() const
+int ObjCTypeNameAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (type_qualifier_token)
         return type_qualifier_token + 1;
@@ -2920,7 +2920,7 @@ unsigned ObjCTypeNameAST::lastToken() const
 }
 
 /** \generated */
-unsigned ObjCVisibilityDeclarationAST::firstToken() const
+int ObjCVisibilityDeclarationAST::firstToken() const
 {
     if (visibility_token)
         return visibility_token;
@@ -2928,7 +2928,7 @@ unsigned ObjCVisibilityDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned ObjCVisibilityDeclarationAST::lastToken() const
+int ObjCVisibilityDeclarationAST::lastToken() const
 {
     if (visibility_token)
         return visibility_token + 1;
@@ -2936,7 +2936,7 @@ unsigned ObjCVisibilityDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned OperatorAST::firstToken() const
+int OperatorAST::firstToken() const
 {
     if (op_token)
         return op_token;
@@ -2948,7 +2948,7 @@ unsigned OperatorAST::firstToken() const
 }
 
 /** \generated */
-unsigned OperatorAST::lastToken() const
+int OperatorAST::lastToken() const
 {
     if (close_token)
         return close_token + 1;
@@ -2960,21 +2960,21 @@ unsigned OperatorAST::lastToken() const
 }
 
 /** \generated */
-unsigned OperatorFunctionIdAST::firstToken() const
+int OperatorFunctionIdAST::firstToken() const
 {
     if (operator_token)
         return operator_token;
     if (op)
-        if (unsigned candidate = op->firstToken())
+        if (int candidate = op->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned OperatorFunctionIdAST::lastToken() const
+int OperatorFunctionIdAST::lastToken() const
 {
     if (op)
-        if (unsigned candidate = op->lastToken())
+        if (int candidate = op->lastToken())
             return candidate;
     if (operator_token)
         return operator_token + 1;
@@ -2982,44 +2982,44 @@ unsigned OperatorFunctionIdAST::lastToken() const
 }
 
 /** \generated */
-unsigned ParameterDeclarationAST::firstToken() const
+int ParameterDeclarationAST::firstToken() const
 {
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (equal_token)
         return equal_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ParameterDeclarationAST::lastToken() const
+int ParameterDeclarationAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (equal_token)
         return equal_token + 1;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned ParameterDeclarationClauseAST::firstToken() const
+int ParameterDeclarationClauseAST::firstToken() const
 {
     if (parameter_declaration_list)
-        if (unsigned candidate = parameter_declaration_list->firstToken())
+        if (int candidate = parameter_declaration_list->firstToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
@@ -3027,32 +3027,32 @@ unsigned ParameterDeclarationClauseAST::firstToken() const
 }
 
 /** \generated */
-unsigned ParameterDeclarationClauseAST::lastToken() const
+int ParameterDeclarationClauseAST::lastToken() const
 {
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
     if (parameter_declaration_list)
-        if (unsigned candidate = parameter_declaration_list->lastToken())
+        if (int candidate = parameter_declaration_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned PointerAST::firstToken() const
+int PointerAST::firstToken() const
 {
     if (star_token)
         return star_token;
     if (cv_qualifier_list)
-        if (unsigned candidate = cv_qualifier_list->firstToken())
+        if (int candidate = cv_qualifier_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned PointerAST::lastToken() const
+int PointerAST::lastToken() const
 {
     if (cv_qualifier_list)
-        if (unsigned candidate = cv_qualifier_list->lastToken())
+        if (int candidate = cv_qualifier_list->lastToken())
             return candidate;
     if (star_token)
         return star_token + 1;
@@ -3060,17 +3060,17 @@ unsigned PointerAST::lastToken() const
 }
 
 /** \generated */
-unsigned PointerToMemberAST::firstToken() const
+int PointerToMemberAST::firstToken() const
 {
     if (global_scope_token)
         return global_scope_token;
     if (nested_name_specifier_list)
-        if (unsigned candidate = nested_name_specifier_list->firstToken())
+        if (int candidate = nested_name_specifier_list->firstToken())
             return candidate;
     if (star_token)
         return star_token;
     if (cv_qualifier_list)
-        if (unsigned candidate = cv_qualifier_list->firstToken())
+        if (int candidate = cv_qualifier_list->firstToken())
             return candidate;
     if (ref_qualifier_token)
         return ref_qualifier_token;
@@ -3078,17 +3078,17 @@ unsigned PointerToMemberAST::firstToken() const
 }
 
 /** \generated */
-unsigned PointerToMemberAST::lastToken() const
+int PointerToMemberAST::lastToken() const
 {
     if (ref_qualifier_token)
         return ref_qualifier_token + 1;
     if (cv_qualifier_list)
-        if (unsigned candidate = cv_qualifier_list->lastToken())
+        if (int candidate = cv_qualifier_list->lastToken())
             return candidate;
     if (star_token)
         return star_token + 1;
     if (nested_name_specifier_list)
-        if (unsigned candidate = nested_name_specifier_list->lastToken())
+        if (int candidate = nested_name_specifier_list->lastToken())
             return candidate;
     if (global_scope_token)
         return global_scope_token + 1;
@@ -3096,10 +3096,10 @@ unsigned PointerToMemberAST::lastToken() const
 }
 
 /** \generated */
-unsigned PostIncrDecrAST::firstToken() const
+int PostIncrDecrAST::firstToken() const
 {
     if (base_expression)
-        if (unsigned candidate = base_expression->firstToken())
+        if (int candidate = base_expression->firstToken())
             return candidate;
     if (incr_decr_token)
         return incr_decr_token;
@@ -3107,25 +3107,25 @@ unsigned PostIncrDecrAST::firstToken() const
 }
 
 /** \generated */
-unsigned PostIncrDecrAST::lastToken() const
+int PostIncrDecrAST::lastToken() const
 {
     if (incr_decr_token)
         return incr_decr_token + 1;
     if (base_expression)
-        if (unsigned candidate = base_expression->lastToken())
+        if (int candidate = base_expression->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned QtEnumDeclarationAST::firstToken() const
+int QtEnumDeclarationAST::firstToken() const
 {
     if (enum_specifier_token)
         return enum_specifier_token;
     if (lparen_token)
         return lparen_token;
     if (enumerator_list)
-        if (unsigned candidate = enumerator_list->firstToken())
+        if (int candidate = enumerator_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3133,12 +3133,12 @@ unsigned QtEnumDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned QtEnumDeclarationAST::lastToken() const
+int QtEnumDeclarationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (enumerator_list)
-        if (unsigned candidate = enumerator_list->lastToken())
+        if (int candidate = enumerator_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3148,14 +3148,14 @@ unsigned QtEnumDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned QtFlagsDeclarationAST::firstToken() const
+int QtFlagsDeclarationAST::firstToken() const
 {
     if (flags_specifier_token)
         return flags_specifier_token;
     if (lparen_token)
         return lparen_token;
     if (flag_enums_list)
-        if (unsigned candidate = flag_enums_list->firstToken())
+        if (int candidate = flag_enums_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3163,12 +3163,12 @@ unsigned QtFlagsDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned QtFlagsDeclarationAST::lastToken() const
+int QtFlagsDeclarationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (flag_enums_list)
-        if (unsigned candidate = flag_enums_list->lastToken())
+        if (int candidate = flag_enums_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3178,38 +3178,38 @@ unsigned QtFlagsDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned QtInterfaceNameAST::firstToken() const
+int QtInterfaceNameAST::firstToken() const
 {
     if (interface_name)
-        if (unsigned candidate = interface_name->firstToken())
+        if (int candidate = interface_name->firstToken())
             return candidate;
     if (constraint_list)
-        if (unsigned candidate = constraint_list->firstToken())
+        if (int candidate = constraint_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned QtInterfaceNameAST::lastToken() const
+int QtInterfaceNameAST::lastToken() const
 {
     if (constraint_list)
-        if (unsigned candidate = constraint_list->lastToken())
+        if (int candidate = constraint_list->lastToken())
             return candidate;
     if (interface_name)
-        if (unsigned candidate = interface_name->lastToken())
+        if (int candidate = interface_name->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned QtInterfacesDeclarationAST::firstToken() const
+int QtInterfacesDeclarationAST::firstToken() const
 {
     if (interfaces_token)
         return interfaces_token;
     if (lparen_token)
         return lparen_token;
     if (interface_name_list)
-        if (unsigned candidate = interface_name_list->firstToken())
+        if (int candidate = interface_name_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3217,12 +3217,12 @@ unsigned QtInterfacesDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned QtInterfacesDeclarationAST::lastToken() const
+int QtInterfacesDeclarationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (interface_name_list)
-        if (unsigned candidate = interface_name_list->lastToken())
+        if (int candidate = interface_name_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3232,14 +3232,14 @@ unsigned QtInterfacesDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned QtMemberDeclarationAST::firstToken() const
+int QtMemberDeclarationAST::firstToken() const
 {
     if (q_token)
         return q_token;
     if (lparen_token)
         return lparen_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3247,12 +3247,12 @@ unsigned QtMemberDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned QtMemberDeclarationAST::lastToken() const
+int QtMemberDeclarationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3262,14 +3262,14 @@ unsigned QtMemberDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned QtMethodAST::firstToken() const
+int QtMethodAST::firstToken() const
 {
     if (method_token)
         return method_token;
     if (lparen_token)
         return lparen_token;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3277,12 +3277,12 @@ unsigned QtMethodAST::firstToken() const
 }
 
 /** \generated */
-unsigned QtMethodAST::lastToken() const
+int QtMethodAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3292,7 +3292,7 @@ unsigned QtMethodAST::lastToken() const
 }
 
 /** \generated */
-unsigned QtObjectTagAST::firstToken() const
+int QtObjectTagAST::firstToken() const
 {
     if (q_object_token)
         return q_object_token;
@@ -3300,7 +3300,7 @@ unsigned QtObjectTagAST::firstToken() const
 }
 
 /** \generated */
-unsigned QtObjectTagAST::lastToken() const
+int QtObjectTagAST::lastToken() const
 {
     if (q_object_token)
         return q_object_token + 1;
@@ -3308,7 +3308,7 @@ unsigned QtObjectTagAST::lastToken() const
 }
 
 /** \generated */
-unsigned QtPrivateSlotAST::firstToken() const
+int QtPrivateSlotAST::firstToken() const
 {
     if (q_private_slot_token)
         return q_private_slot_token;
@@ -3323,10 +3323,10 @@ unsigned QtPrivateSlotAST::firstToken() const
     if (comma_token)
         return comma_token;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3334,15 +3334,15 @@ unsigned QtPrivateSlotAST::firstToken() const
 }
 
 /** \generated */
-unsigned QtPrivateSlotAST::lastToken() const
+int QtPrivateSlotAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     if (comma_token)
         return comma_token + 1;
@@ -3360,25 +3360,25 @@ unsigned QtPrivateSlotAST::lastToken() const
 }
 
 /** \generated */
-unsigned QtPropertyDeclarationAST::firstToken() const
+int QtPropertyDeclarationAST::firstToken() const
 {
     if (property_specifier_token)
         return property_specifier_token;
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (comma_token)
         return comma_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     if (property_name)
-        if (unsigned candidate = property_name->firstToken())
+        if (int candidate = property_name->firstToken())
             return candidate;
     if (property_declaration_item_list)
-        if (unsigned candidate = property_declaration_item_list->firstToken())
+        if (int candidate = property_declaration_item_list->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3386,23 +3386,23 @@ unsigned QtPropertyDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned QtPropertyDeclarationAST::lastToken() const
+int QtPropertyDeclarationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (property_declaration_item_list)
-        if (unsigned candidate = property_declaration_item_list->lastToken())
+        if (int candidate = property_declaration_item_list->lastToken())
             return candidate;
     if (property_name)
-        if (unsigned candidate = property_name->lastToken())
+        if (int candidate = property_name->lastToken())
             return candidate;
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (comma_token)
         return comma_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3412,21 +3412,21 @@ unsigned QtPropertyDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned QtPropertyDeclarationItemAST::firstToken() const
+int QtPropertyDeclarationItemAST::firstToken() const
 {
     if (item_name_token)
         return item_name_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned QtPropertyDeclarationItemAST::lastToken() const
+int QtPropertyDeclarationItemAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (item_name_token)
         return item_name_token + 1;
@@ -3434,27 +3434,27 @@ unsigned QtPropertyDeclarationItemAST::lastToken() const
 }
 
 /** \generated */
-unsigned QualifiedNameAST::firstToken() const
+int QualifiedNameAST::firstToken() const
 {
     if (global_scope_token)
         return global_scope_token;
     if (nested_name_specifier_list)
-        if (unsigned candidate = nested_name_specifier_list->firstToken())
+        if (int candidate = nested_name_specifier_list->firstToken())
             return candidate;
     if (unqualified_name)
-        if (unsigned candidate = unqualified_name->firstToken())
+        if (int candidate = unqualified_name->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned QualifiedNameAST::lastToken() const
+int QualifiedNameAST::lastToken() const
 {
     if (unqualified_name)
-        if (unsigned candidate = unqualified_name->lastToken())
+        if (int candidate = unqualified_name->lastToken())
             return candidate;
     if (nested_name_specifier_list)
-        if (unsigned candidate = nested_name_specifier_list->lastToken())
+        if (int candidate = nested_name_specifier_list->lastToken())
             return candidate;
     if (global_scope_token)
         return global_scope_token + 1;
@@ -3462,7 +3462,7 @@ unsigned QualifiedNameAST::lastToken() const
 }
 
 /** \generated */
-unsigned ReferenceAST::firstToken() const
+int ReferenceAST::firstToken() const
 {
     if (reference_token)
         return reference_token;
@@ -3470,7 +3470,7 @@ unsigned ReferenceAST::firstToken() const
 }
 
 /** \generated */
-unsigned ReferenceAST::lastToken() const
+int ReferenceAST::lastToken() const
 {
     if (reference_token)
         return reference_token + 1;
@@ -3478,12 +3478,12 @@ unsigned ReferenceAST::lastToken() const
 }
 
 /** \generated */
-unsigned ReturnStatementAST::firstToken() const
+int ReturnStatementAST::firstToken() const
 {
     if (return_token)
         return return_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -3491,12 +3491,12 @@ unsigned ReturnStatementAST::firstToken() const
 }
 
 /** \generated */
-unsigned ReturnStatementAST::lastToken() const
+int ReturnStatementAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (return_token)
         return return_token + 1;
@@ -3504,15 +3504,15 @@ unsigned ReturnStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned SimpleDeclarationAST::firstToken() const
+int SimpleDeclarationAST::firstToken() const
 {
     if (qt_invokable_token)
         return qt_invokable_token;
     if (decl_specifier_list)
-        if (unsigned candidate = decl_specifier_list->firstToken())
+        if (int candidate = decl_specifier_list->firstToken())
             return candidate;
     if (declarator_list)
-        if (unsigned candidate = declarator_list->firstToken())
+        if (int candidate = declarator_list->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -3520,15 +3520,15 @@ unsigned SimpleDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned SimpleDeclarationAST::lastToken() const
+int SimpleDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (declarator_list)
-        if (unsigned candidate = declarator_list->lastToken())
+        if (int candidate = declarator_list->lastToken())
             return candidate;
     if (decl_specifier_list)
-        if (unsigned candidate = decl_specifier_list->lastToken())
+        if (int candidate = decl_specifier_list->lastToken())
             return candidate;
     if (qt_invokable_token)
         return qt_invokable_token + 1;
@@ -3536,7 +3536,7 @@ unsigned SimpleDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned SimpleNameAST::firstToken() const
+int SimpleNameAST::firstToken() const
 {
     if (identifier_token)
         return identifier_token;
@@ -3544,7 +3544,7 @@ unsigned SimpleNameAST::firstToken() const
 }
 
 /** \generated */
-unsigned SimpleNameAST::lastToken() const
+int SimpleNameAST::lastToken() const
 {
     if (identifier_token)
         return identifier_token + 1;
@@ -3552,7 +3552,7 @@ unsigned SimpleNameAST::lastToken() const
 }
 
 /** \generated */
-unsigned SimpleSpecifierAST::firstToken() const
+int SimpleSpecifierAST::firstToken() const
 {
     if (specifier_token)
         return specifier_token;
@@ -3560,7 +3560,7 @@ unsigned SimpleSpecifierAST::firstToken() const
 }
 
 /** \generated */
-unsigned SimpleSpecifierAST::lastToken() const
+int SimpleSpecifierAST::lastToken() const
 {
     if (specifier_token)
         return specifier_token + 1;
@@ -3568,7 +3568,7 @@ unsigned SimpleSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned SizeofExpressionAST::firstToken() const
+int SizeofExpressionAST::firstToken() const
 {
     if (sizeof_token)
         return sizeof_token;
@@ -3577,7 +3577,7 @@ unsigned SizeofExpressionAST::firstToken() const
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3585,12 +3585,12 @@ unsigned SizeofExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned SizeofExpressionAST::lastToken() const
+int SizeofExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3602,21 +3602,21 @@ unsigned SizeofExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned StringLiteralAST::firstToken() const
+int StringLiteralAST::firstToken() const
 {
     if (literal_token)
         return literal_token;
     if (next)
-        if (unsigned candidate = next->firstToken())
+        if (int candidate = next->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned StringLiteralAST::lastToken() const
+int StringLiteralAST::lastToken() const
 {
     if (next)
-        if (unsigned candidate = next->lastToken())
+        if (int candidate = next->lastToken())
             return candidate;
     if (literal_token)
         return literal_token + 1;
@@ -3624,33 +3624,33 @@ unsigned StringLiteralAST::lastToken() const
 }
 
 /** \generated */
-unsigned SwitchStatementAST::firstToken() const
+int SwitchStatementAST::firstToken() const
 {
     if (switch_token)
         return switch_token;
     if (lparen_token)
         return lparen_token;
     if (condition)
-        if (unsigned candidate = condition->firstToken())
+        if (int candidate = condition->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned SwitchStatementAST::lastToken() const
+int SwitchStatementAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (condition)
-        if (unsigned candidate = condition->lastToken())
+        if (int candidate = condition->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3660,7 +3660,7 @@ unsigned SwitchStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned TemplateDeclarationAST::firstToken() const
+int TemplateDeclarationAST::firstToken() const
 {
     if (export_token)
         return export_token;
@@ -3669,26 +3669,26 @@ unsigned TemplateDeclarationAST::firstToken() const
     if (less_token)
         return less_token;
     if (template_parameter_list)
-        if (unsigned candidate = template_parameter_list->firstToken())
+        if (int candidate = template_parameter_list->firstToken())
             return candidate;
     if (greater_token)
         return greater_token;
     if (declaration)
-        if (unsigned candidate = declaration->firstToken())
+        if (int candidate = declaration->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TemplateDeclarationAST::lastToken() const
+int TemplateDeclarationAST::lastToken() const
 {
     if (declaration)
-        if (unsigned candidate = declaration->lastToken())
+        if (int candidate = declaration->lastToken())
             return candidate;
     if (greater_token)
         return greater_token + 1;
     if (template_parameter_list)
-        if (unsigned candidate = template_parameter_list->lastToken())
+        if (int candidate = template_parameter_list->lastToken())
             return candidate;
     if (less_token)
         return less_token + 1;
@@ -3700,7 +3700,7 @@ unsigned TemplateDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned TemplateIdAST::firstToken() const
+int TemplateIdAST::firstToken() const
 {
     if (template_token)
         return template_token;
@@ -3709,7 +3709,7 @@ unsigned TemplateIdAST::firstToken() const
     if (less_token)
         return less_token;
     if (template_argument_list)
-        if (unsigned candidate = template_argument_list->firstToken())
+        if (int candidate = template_argument_list->firstToken())
             return candidate;
     if (greater_token)
         return greater_token;
@@ -3717,12 +3717,12 @@ unsigned TemplateIdAST::firstToken() const
 }
 
 /** \generated */
-unsigned TemplateIdAST::lastToken() const
+int TemplateIdAST::lastToken() const
 {
     if (greater_token)
         return greater_token + 1;
     if (template_argument_list)
-        if (unsigned candidate = template_argument_list->lastToken())
+        if (int candidate = template_argument_list->lastToken())
             return candidate;
     if (less_token)
         return less_token + 1;
@@ -3734,14 +3734,14 @@ unsigned TemplateIdAST::lastToken() const
 }
 
 /** \generated */
-unsigned TemplateTypeParameterAST::firstToken() const
+int TemplateTypeParameterAST::firstToken() const
 {
     if (template_token)
         return template_token;
     if (less_token)
         return less_token;
     if (template_parameter_list)
-        if (unsigned candidate = template_parameter_list->firstToken())
+        if (int candidate = template_parameter_list->firstToken())
             return candidate;
     if (greater_token)
         return greater_token;
@@ -3750,26 +3750,26 @@ unsigned TemplateTypeParameterAST::firstToken() const
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (equal_token)
         return equal_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TemplateTypeParameterAST::lastToken() const
+int TemplateTypeParameterAST::lastToken() const
 {
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (equal_token)
         return equal_token + 1;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
@@ -3778,7 +3778,7 @@ unsigned TemplateTypeParameterAST::lastToken() const
     if (greater_token)
         return greater_token + 1;
     if (template_parameter_list)
-        if (unsigned candidate = template_parameter_list->lastToken())
+        if (int candidate = template_parameter_list->lastToken())
             return candidate;
     if (less_token)
         return less_token + 1;
@@ -3788,7 +3788,7 @@ unsigned TemplateTypeParameterAST::lastToken() const
 }
 
 /** \generated */
-unsigned ThisExpressionAST::firstToken() const
+int ThisExpressionAST::firstToken() const
 {
     if (this_token)
         return this_token;
@@ -3796,7 +3796,7 @@ unsigned ThisExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned ThisExpressionAST::lastToken() const
+int ThisExpressionAST::lastToken() const
 {
     if (this_token)
         return this_token + 1;
@@ -3804,21 +3804,21 @@ unsigned ThisExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned ThrowExpressionAST::firstToken() const
+int ThrowExpressionAST::firstToken() const
 {
     if (throw_token)
         return throw_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned ThrowExpressionAST::lastToken() const
+int ThrowExpressionAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (throw_token)
         return throw_token + 1;
@@ -3826,33 +3826,33 @@ unsigned ThrowExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned TrailingReturnTypeAST::firstToken() const
+int TrailingReturnTypeAST::firstToken() const
 {
     if (arrow_token)
         return arrow_token;
     if (attributes)
-        if (unsigned candidate = attributes->firstToken())
+        if (int candidate = attributes->firstToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TrailingReturnTypeAST::lastToken() const
+int TrailingReturnTypeAST::lastToken() const
 {
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     if (attributes)
-        if (unsigned candidate = attributes->lastToken())
+        if (int candidate = attributes->lastToken())
             return candidate;
     if (arrow_token)
         return arrow_token + 1;
@@ -3860,45 +3860,45 @@ unsigned TrailingReturnTypeAST::lastToken() const
 }
 
 /** \generated */
-unsigned TranslationUnitAST::firstToken() const
+int TranslationUnitAST::firstToken() const
 {
     if (declaration_list)
-        if (unsigned candidate = declaration_list->firstToken())
+        if (int candidate = declaration_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TranslationUnitAST::lastToken() const
+int TranslationUnitAST::lastToken() const
 {
     if (declaration_list)
-        if (unsigned candidate = declaration_list->lastToken())
+        if (int candidate = declaration_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned TryBlockStatementAST::firstToken() const
+int TryBlockStatementAST::firstToken() const
 {
     if (try_token)
         return try_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     if (catch_clause_list)
-        if (unsigned candidate = catch_clause_list->firstToken())
+        if (int candidate = catch_clause_list->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TryBlockStatementAST::lastToken() const
+int TryBlockStatementAST::lastToken() const
 {
     if (catch_clause_list)
-        if (unsigned candidate = catch_clause_list->lastToken())
+        if (int candidate = catch_clause_list->lastToken())
             return candidate;
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (try_token)
         return try_token + 1;
@@ -3906,62 +3906,62 @@ unsigned TryBlockStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned TypeConstructorCallAST::firstToken() const
+int TypeConstructorCallAST::firstToken() const
 {
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TypeConstructorCallAST::lastToken() const
+int TypeConstructorCallAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned TypeIdAST::firstToken() const
+int TypeIdAST::firstToken() const
 {
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TypeIdAST::lastToken() const
+int TypeIdAST::lastToken() const
 {
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned TypeidExpressionAST::firstToken() const
+int TypeidExpressionAST::firstToken() const
 {
     if (typeid_token)
         return typeid_token;
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -3969,12 +3969,12 @@ unsigned TypeidExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned TypeidExpressionAST::lastToken() const
+int TypeidExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -3984,27 +3984,27 @@ unsigned TypeidExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned TypenameCallExpressionAST::firstToken() const
+int TypenameCallExpressionAST::firstToken() const
 {
     if (typename_token)
         return typename_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TypenameCallExpressionAST::lastToken() const
+int TypenameCallExpressionAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (typename_token)
         return typename_token + 1;
@@ -4012,33 +4012,33 @@ unsigned TypenameCallExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned TypenameTypeParameterAST::firstToken() const
+int TypenameTypeParameterAST::firstToken() const
 {
     if (classkey_token)
         return classkey_token;
     if (dot_dot_dot_token)
         return dot_dot_dot_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (equal_token)
         return equal_token;
     if (type_id)
-        if (unsigned candidate = type_id->firstToken())
+        if (int candidate = type_id->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned TypenameTypeParameterAST::lastToken() const
+int TypenameTypeParameterAST::lastToken() const
 {
     if (type_id)
-        if (unsigned candidate = type_id->lastToken())
+        if (int candidate = type_id->lastToken())
             return candidate;
     if (equal_token)
         return equal_token + 1;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (dot_dot_dot_token)
         return dot_dot_dot_token + 1;
@@ -4048,14 +4048,14 @@ unsigned TypenameTypeParameterAST::lastToken() const
 }
 
 /** \generated */
-unsigned TypeofSpecifierAST::firstToken() const
+int TypeofSpecifierAST::firstToken() const
 {
     if (typeof_token)
         return typeof_token;
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -4063,12 +4063,12 @@ unsigned TypeofSpecifierAST::firstToken() const
 }
 
 /** \generated */
-unsigned TypeofSpecifierAST::lastToken() const
+int TypeofSpecifierAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -4078,21 +4078,21 @@ unsigned TypeofSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned UnaryExpressionAST::firstToken() const
+int UnaryExpressionAST::firstToken() const
 {
     if (unary_op_token)
         return unary_op_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned UnaryExpressionAST::lastToken() const
+int UnaryExpressionAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (unary_op_token)
         return unary_op_token + 1;
@@ -4100,14 +4100,14 @@ unsigned UnaryExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned UsingAST::firstToken() const
+int UsingAST::firstToken() const
 {
     if (using_token)
         return using_token;
     if (typename_token)
         return typename_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -4115,12 +4115,12 @@ unsigned UsingAST::firstToken() const
 }
 
 /** \generated */
-unsigned UsingAST::lastToken() const
+int UsingAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (typename_token)
         return typename_token + 1;
@@ -4130,14 +4130,14 @@ unsigned UsingAST::lastToken() const
 }
 
 /** \generated */
-unsigned UsingDirectiveAST::firstToken() const
+int UsingDirectiveAST::firstToken() const
 {
     if (using_token)
         return using_token;
     if (namespace_token)
         return namespace_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -4145,12 +4145,12 @@ unsigned UsingDirectiveAST::firstToken() const
 }
 
 /** \generated */
-unsigned UsingDirectiveAST::lastToken() const
+int UsingDirectiveAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (namespace_token)
         return namespace_token + 1;
@@ -4160,33 +4160,33 @@ unsigned UsingDirectiveAST::lastToken() const
 }
 
 /** \generated */
-unsigned WhileStatementAST::firstToken() const
+int WhileStatementAST::firstToken() const
 {
     if (while_token)
         return while_token;
     if (lparen_token)
         return lparen_token;
     if (condition)
-        if (unsigned candidate = condition->firstToken())
+        if (int candidate = condition->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned WhileStatementAST::lastToken() const
+int WhileStatementAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (condition)
-        if (unsigned candidate = condition->lastToken())
+        if (int candidate = condition->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -4196,14 +4196,14 @@ unsigned WhileStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned GnuAttributeSpecifierAST::lastToken() const
+int GnuAttributeSpecifierAST::lastToken() const
 {
     if (second_rparen_token)
         return second_rparen_token + 1;
     if (first_rparen_token)
         return first_rparen_token + 1;
     if (attribute_list)
-        if (unsigned candidate = attribute_list->lastToken())
+        if (int candidate = attribute_list->lastToken())
             return candidate;
     if (second_lparen_token)
         return second_lparen_token + 1;
@@ -4215,7 +4215,7 @@ unsigned GnuAttributeSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned PointerLiteralAST::firstToken() const
+int PointerLiteralAST::firstToken() const
 {
     if (literal_token)
         return literal_token;
@@ -4223,7 +4223,7 @@ unsigned PointerLiteralAST::firstToken() const
 }
 
 /** \generated */
-unsigned PointerLiteralAST::lastToken() const
+int PointerLiteralAST::lastToken() const
 {
     if (literal_token)
         return literal_token + 1;
@@ -4231,14 +4231,14 @@ unsigned PointerLiteralAST::lastToken() const
 }
 
 /** \generated */
-unsigned NoExceptSpecificationAST::firstToken() const
+int NoExceptSpecificationAST::firstToken() const
 {
     if (noexcept_token)
         return noexcept_token;
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -4246,12 +4246,12 @@ unsigned NoExceptSpecificationAST::firstToken() const
 }
 
 /** \generated */
-unsigned NoExceptSpecificationAST::lastToken() const
+int NoExceptSpecificationAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -4261,19 +4261,19 @@ unsigned NoExceptSpecificationAST::lastToken() const
 }
 
 /** \generated */
-unsigned StaticAssertDeclarationAST::firstToken() const
+int StaticAssertDeclarationAST::firstToken() const
 {
     if (static_assert_token)
         return static_assert_token;
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (comma_token)
         return comma_token;
     if (string_literal)
-        if (unsigned candidate = string_literal->firstToken())
+        if (int candidate = string_literal->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -4283,19 +4283,19 @@ unsigned StaticAssertDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned StaticAssertDeclarationAST::lastToken() const
+int StaticAssertDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (rparen_token)
         return rparen_token + 1;
     if (string_literal)
-        if (unsigned candidate = string_literal->lastToken())
+        if (int candidate = string_literal->lastToken())
             return candidate;
     if (comma_token)
         return comma_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -4305,14 +4305,14 @@ unsigned StaticAssertDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned DecltypeSpecifierAST::firstToken() const
+int DecltypeSpecifierAST::firstToken() const
 {
     if (decltype_token)
         return decltype_token;
     if (lparen_token)
         return lparen_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -4320,12 +4320,12 @@ unsigned DecltypeSpecifierAST::firstToken() const
 }
 
 /** \generated */
-unsigned DecltypeSpecifierAST::lastToken() const
+int DecltypeSpecifierAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -4335,49 +4335,49 @@ unsigned DecltypeSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned RangeBasedForStatementAST::firstToken() const
+int RangeBasedForStatementAST::firstToken() const
 {
     if (for_token)
         return for_token;
     if (lparen_token)
         return lparen_token;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->firstToken())
+        if (int candidate = type_specifier_list->firstToken())
             return candidate;
     if (declarator)
-        if (unsigned candidate = declarator->firstToken())
+        if (int candidate = declarator->firstToken())
             return candidate;
     if (colon_token)
         return colon_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
     if (statement)
-        if (unsigned candidate = statement->firstToken())
+        if (int candidate = statement->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned RangeBasedForStatementAST::lastToken() const
+int RangeBasedForStatementAST::lastToken() const
 {
     if (statement)
-        if (unsigned candidate = statement->lastToken())
+        if (int candidate = statement->lastToken())
             return candidate;
     if (rparen_token)
         return rparen_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (colon_token)
         return colon_token + 1;
     if (declarator)
-        if (unsigned candidate = declarator->lastToken())
+        if (int candidate = declarator->lastToken())
             return candidate;
     if (type_specifier_list)
-        if (unsigned candidate = type_specifier_list->lastToken())
+        if (int candidate = type_specifier_list->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -4387,14 +4387,14 @@ unsigned RangeBasedForStatementAST::lastToken() const
 }
 
 /** \generated */
-unsigned AlignofExpressionAST::firstToken() const
+int AlignofExpressionAST::firstToken() const
 {
     if (alignof_token)
         return alignof_token;
     if (lparen_token)
         return lparen_token;
     if (typeId)
-        if (unsigned candidate = typeId->firstToken())
+        if (int candidate = typeId->firstToken())
             return candidate;
     if (rparen_token)
         return rparen_token;
@@ -4402,12 +4402,12 @@ unsigned AlignofExpressionAST::firstToken() const
 }
 
 /** \generated */
-unsigned AlignofExpressionAST::lastToken() const
+int AlignofExpressionAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (typeId)
-        if (unsigned candidate = typeId->lastToken())
+        if (int candidate = typeId->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -4417,17 +4417,17 @@ unsigned AlignofExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned AliasDeclarationAST::firstToken() const
+int AliasDeclarationAST::firstToken() const
 {
     if (using_token)
         return using_token;
     if (name)
-        if (unsigned candidate = name->firstToken())
+        if (int candidate = name->firstToken())
             return candidate;
     if (equal_token)
         return equal_token;
     if (typeId)
-        if (unsigned candidate = typeId->firstToken())
+        if (int candidate = typeId->firstToken())
             return candidate;
     if (semicolon_token)
         return semicolon_token;
@@ -4435,17 +4435,17 @@ unsigned AliasDeclarationAST::firstToken() const
 }
 
 /** \generated */
-unsigned AliasDeclarationAST::lastToken() const
+int AliasDeclarationAST::lastToken() const
 {
     if (semicolon_token)
         return semicolon_token + 1;
     if (typeId)
-        if (unsigned candidate = typeId->lastToken())
+        if (int candidate = typeId->lastToken())
             return candidate;
     if (equal_token)
         return equal_token + 1;
     if (name)
-        if (unsigned candidate = name->lastToken())
+        if (int candidate = name->lastToken())
             return candidate;
     if (using_token)
         return using_token + 1;
@@ -4453,40 +4453,40 @@ unsigned AliasDeclarationAST::lastToken() const
 }
 
 /** \generated */
-unsigned DesignatedInitializerAST::firstToken() const
+int DesignatedInitializerAST::firstToken() const
 {
     if (designator_list)
-        if (unsigned candidate = designator_list->firstToken())
+        if (int candidate = designator_list->firstToken())
             return candidate;
     if (equal_token)
         return equal_token;
     if (initializer)
-        if (unsigned candidate = initializer->firstToken())
+        if (int candidate = initializer->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned DesignatedInitializerAST::lastToken() const
+int DesignatedInitializerAST::lastToken() const
 {
     if (initializer)
-        if (unsigned candidate = initializer->lastToken())
+        if (int candidate = initializer->lastToken())
             return candidate;
     if (equal_token)
         return equal_token + 1;
     if (designator_list)
-        if (unsigned candidate = designator_list->lastToken())
+        if (int candidate = designator_list->lastToken())
             return candidate;
     return 1;
 }
 
 /** \generated */
-unsigned BracketDesignatorAST::firstToken() const
+int BracketDesignatorAST::firstToken() const
 {
     if (lbracket_token)
         return lbracket_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     if (rbracket_token)
         return rbracket_token;
@@ -4494,12 +4494,12 @@ unsigned BracketDesignatorAST::firstToken() const
 }
 
 /** \generated */
-unsigned BracketDesignatorAST::lastToken() const
+int BracketDesignatorAST::lastToken() const
 {
     if (rbracket_token)
         return rbracket_token + 1;
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (lbracket_token)
         return lbracket_token + 1;
@@ -4507,7 +4507,7 @@ unsigned BracketDesignatorAST::lastToken() const
 }
 
 /** \generated */
-unsigned DotDesignatorAST::firstToken() const
+int DotDesignatorAST::firstToken() const
 {
     if (dot_token)
         return dot_token;
@@ -4517,7 +4517,7 @@ unsigned DotDesignatorAST::firstToken() const
 }
 
 /** \generated */
-unsigned DotDesignatorAST::lastToken() const
+int DotDesignatorAST::lastToken() const
 {
     if (identifier_token)
         return identifier_token + 1;
@@ -4527,14 +4527,14 @@ unsigned DotDesignatorAST::lastToken() const
 }
 
 /** \generated */
-unsigned AlignmentSpecifierAST::firstToken() const
+int AlignmentSpecifierAST::firstToken() const
 {
     if (align_token)
         return align_token;
     if (lparen_token)
         return lparen_token;
     if (typeIdExprOrAlignmentExpr)
-        if (unsigned candidate = typeIdExprOrAlignmentExpr->firstToken())
+        if (int candidate = typeIdExprOrAlignmentExpr->firstToken())
             return candidate;
     if (ellipses_token)
         return ellipses_token;
@@ -4544,14 +4544,14 @@ unsigned AlignmentSpecifierAST::firstToken() const
 }
 
 /** \generated */
-unsigned AlignmentSpecifierAST::lastToken() const
+int AlignmentSpecifierAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;
     if (ellipses_token)
         return ellipses_token + 1;
     if (typeIdExprOrAlignmentExpr)
-        if (unsigned candidate = typeIdExprOrAlignmentExpr->lastToken())
+        if (int candidate = typeIdExprOrAlignmentExpr->lastToken())
             return candidate;
     if (lparen_token)
         return lparen_token + 1;
@@ -4561,21 +4561,21 @@ unsigned AlignmentSpecifierAST::lastToken() const
 }
 
 /** \generated */
-unsigned NoExceptOperatorExpressionAST::firstToken() const
+int NoExceptOperatorExpressionAST::firstToken() const
 {
     if (noexcept_token)
         return noexcept_token;
     if (expression)
-        if (unsigned candidate = expression->firstToken())
+        if (int candidate = expression->firstToken())
             return candidate;
     return 0;
 }
 
 /** \generated */
-unsigned NoExceptOperatorExpressionAST::lastToken() const
+int NoExceptOperatorExpressionAST::lastToken() const
 {
     if (expression)
-        if (unsigned candidate = expression->lastToken())
+        if (int candidate = expression->lastToken())
             return candidate;
     if (noexcept_token)
         return noexcept_token + 1;

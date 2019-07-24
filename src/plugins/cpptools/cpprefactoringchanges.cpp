@@ -159,7 +159,7 @@ void CppRefactoringFile::setCppDocument(Document::Ptr document)
 
 Scope *CppRefactoringFile::scopeAt(unsigned index) const
 {
-    unsigned line, column;
+    int line, column;
     cppDocument()->translationUnit()->getTokenStartPosition(index, &line, &column);
     return cppDocument()->scopeAt(line, column);
 }
@@ -195,10 +195,10 @@ bool CppRefactoringFile::isCursorOn(const AST *ast) const
 Utils::ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
 {
     const Token &token = tokenAt(tokenIndex);
-    unsigned line, column;
+    int line, column;
     cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     const int start = document()->findBlockByNumber(line - 1).position() + column - 1;
-    return {start, static_cast<int>(start + token.utf16chars())};
+    return {start, start + token.utf16chars()};
 }
 
 Utils::ChangeSet::Range CppRefactoringFile::range(AST *ast) const
@@ -208,7 +208,7 @@ Utils::ChangeSet::Range CppRefactoringFile::range(AST *ast) const
 
 int CppRefactoringFile::startOf(unsigned index) const
 {
-    unsigned line, column;
+    int line, column;
     cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsBegin(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
 }
@@ -220,21 +220,21 @@ int CppRefactoringFile::startOf(const AST *ast) const
 
 int CppRefactoringFile::endOf(unsigned index) const
 {
-    unsigned line, column;
+    int line, column;
     cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsEnd(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 
 int CppRefactoringFile::endOf(const AST *ast) const
 {
-    unsigned end = ast->lastToken();
+    int end = ast->lastToken();
     QTC_ASSERT(end > 0, return -1);
     return endOf(end - 1);
 }
 
 void CppRefactoringFile::startAndEndOf(unsigned index, int *start, int *end) const
 {
-    unsigned line, column;
+    int line, column;
     Token token(tokenAt(index));
     cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     *start = document()->findBlockByNumber(line - 1).position() + column - 1;

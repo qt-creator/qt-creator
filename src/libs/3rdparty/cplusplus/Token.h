@@ -313,13 +313,13 @@ public:
     inline bool generated() const { return f.generated; }
     inline bool userDefinedLiteral() const { return f.userDefinedLiteral; }
 
-    inline unsigned bytes() const { return f.bytes; }
-    inline unsigned bytesBegin() const { return byteOffset; }
-    inline unsigned bytesEnd() const { return byteOffset + f.bytes; }
+    inline int bytes() const { return f.bytes; }
+    inline int bytesBegin() const { return byteOffset; }
+    inline int bytesEnd() const { return byteOffset + f.bytes; }
 
-    inline unsigned utf16chars() const { return f.utf16chars; }
-    inline unsigned utf16charsBegin() const { return utf16charOffset; }
-    inline unsigned utf16charsEnd() const { return utf16charOffset + f.utf16chars; }
+    inline int utf16chars() const { return f.utf16chars; }
+    inline int utf16charsBegin() const { return utf16charOffset; }
+    inline int utf16charsEnd() const { return utf16charOffset + f.utf16chars; }
 
     inline bool isLiteral() const
     { return f.kind >= T_FIRST_LITERAL && f.kind <= T_LAST_LITERAL; }
@@ -405,7 +405,7 @@ public:
         const StringLiteral *string;
         const Identifier *identifier;
         unsigned close_brace;
-        unsigned lineno;
+        int lineno;
     };
 };
 

@@ -50,8 +50,8 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
     const CPlusPlus::Overview o;
     CPlusPlus::LookupContext lc;
 
-    unsigned count = symbol->memberCount();
-    for (unsigned i = 0; i < count; ++i) {
+    int count = symbol->memberCount();
+    for (int i = 0; i < count; ++i) {
         CPlusPlus::Symbol *member = symbol->memberAt(i);
         CPlusPlus::Type *type = member->type().type();
 
@@ -87,7 +87,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 m_privSlots.insert(className + "::" + name, locationAndType);
             }
         }
-        for (unsigned counter = 0, end = symbol->baseClassCount(); counter < end; ++counter) {
+        for (int counter = 0, end = symbol->baseClassCount(); counter < end; ++counter) {
             if (CPlusPlus::BaseClass *base = symbol->baseClassAt(counter)) {
                 const QString &baseClassName = o.prettyName(lc.fullyQualifiedName(base));
                 if (baseClassName != "QObject")
@@ -224,8 +224,8 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
                     bool ok = false;
                     QString name = extractNameFromAST(stringLiteral, &ok);
                     if (ok) {
-                        unsigned line = 0;
-                        unsigned column = 0;
+                        int line = 0;
+                        int column = 0;
                         m_currentDoc->translationUnit()->getTokenStartPosition(
                                     firstToken, &line, &column);
                         QtTestCodeLocationAndType locationAndType;

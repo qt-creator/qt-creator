@@ -43,8 +43,8 @@ namespace Internal {
 
 // Returns invalid Mark if it is not found at (line, column)
 static bool findMark(const QVector<ClangBackEnd::TokenInfoContainer> &marks,
-                     uint line,
-                     uint column,
+                     int line,
+                     int column,
                      ClangBackEnd::TokenInfoContainer &mark)
 {
     mark = Utils::findOrDefault(marks,

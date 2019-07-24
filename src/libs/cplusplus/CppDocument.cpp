@@ -61,15 +61,15 @@ namespace {
 class LastVisibleSymbolAt: protected SymbolVisitor
 {
     Symbol *root;
-    unsigned line;
-    unsigned column;
+    int line;
+    int column;
     Symbol *symbol;
 
 public:
     LastVisibleSymbolAt(Symbol *root)
         : root(root), line(0), column(0), symbol(0) {}
 
-    Symbol *operator()(unsigned line, unsigned column)
+    Symbol *operator()(int line, int column)
     {
         this->line = line;
         this->column = column;
@@ -97,13 +97,13 @@ protected:
 class FindScopeAt: protected SymbolVisitor
 {
     TranslationUnit *_unit;
-    unsigned _line;
-    unsigned _column;
+    int _line;
+    int _column;
     Scope *_scope;
 
 public:
     /** line and column should be 1-based */
-    FindScopeAt(TranslationUnit *unit, unsigned line, unsigned column)
+    FindScopeAt(TranslationUnit *unit, int line, int column)
         : _unit(unit), _line(line), _column(column), _scope(0) {}
 
     Scope *operator()(Symbol *symbol)
@@ -118,18 +118,18 @@ protected:
         if (! _scope) {
             Scope *scope = symbol;
 
-            for (unsigned i = 0; i < scope->memberCount(); ++i) {
+            for (int i = 0; i < scope->memberCount(); ++i) {
                 accept(scope->memberAt(i));
 
                 if (_scope)
                     return false;
             }
 
-            unsigned startLine, startColumn;
+            int startLine, startColumn;
             _unit->getPosition(scope->startOffset(), &startLine, &startColumn);
 
             if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-                unsigned endLine, endColumn;
+                int endLine, endColumn;
                 _unit->getPosition(scope->endOffset(), &endLine, &endColumn);
 
                 if (_line < endLine || (_line == endLine && _column < endColumn))
@@ -211,7 +211,7 @@ public:
 
     void report(int level,
                 const StringLiteral *fileId,
-                unsigned line, unsigned column,
+                int line, int column,
                 const char *format, va_list ap) override
     {
         if (level == Error) {
@@ -375,9 +375,9 @@ void Document::appendMacro(const Macro &macro)
 }
 
 void Document::addMacroUse(const Macro &macro,
-                           unsigned bytesOffset, unsigned bytesLength,
-                           unsigned utf16charsOffset, unsigned utf16charLength,
-                           unsigned beginLine,
+                           int bytesOffset, int bytesLength,
+                           int utf16charsOffset, int utf16charLength,
+                           int beginLine,
                            const QVector<MacroArgumentReference> &actuals)
 {
     MacroUse use(macro,
@@ -397,7 +397,7 @@ void Document::addMacroUse(const Macro &macro,
 }
 
 void Document::addUndefinedMacroUse(const QByteArray &name,
-                                    unsigned bytesOffset, unsigned utf16charsOffset)
+                                    int bytesOffset, int utf16charsOffset)
 {
     QByteArray copy(name.data(), name.size());
     UndefinedMacroUse use(copy, bytesOffset, utf16charsOffset);
@@ -468,7 +468,7 @@ void Document::setSkipFunctionBody(bool skipFunctionBody)
     _translationUnit->setSkipFunctionBody(skipFunctionBody);
 }
 
-unsigned Document::globalSymbolCount() const
+int Document::globalSymbolCount() const
 {
     if (! _globalNamespace)
         return 0;
@@ -476,7 +476,7 @@ unsigned Document::globalSymbolCount() const
     return _globalNamespace->memberCount();
 }
 
-Symbol *Document::globalSymbolAt(unsigned index) const
+Symbol *Document::globalSymbolAt(int index) const
 {
     return _globalNamespace->memberAt(index);
 }
@@ -527,23 +527,17 @@ QString Document::functionAt(int line, int column, int *lineOpeningDeclaratorPar
         return QString();
 
     // We found the function scope
-    if (lineOpeningDeclaratorParenthesis) {
-        unsigned line;
-        translationUnit()->getPosition(scope->startOffset(), &line);
-        *lineOpeningDeclaratorParenthesis = static_cast<int>(line);
-    }
+    if (lineOpeningDeclaratorParenthesis)
+        translationUnit()->getPosition(scope->startOffset(), lineOpeningDeclaratorParenthesis);
 
-    if (lineClosingBrace) {
-        unsigned line;
-        translationUnit()->getPosition(scope->endOffset(), &line);
-        *lineClosingBrace = static_cast<int>(line);
-    }
+    if (lineClosingBrace)
+        translationUnit()->getPosition(scope->endOffset(), lineClosingBrace);
 
     const QList<const Name *> fullyQualifiedName = LookupContext::fullyQualifiedName(scope);
     return Overview().prettyName(fullyQualifiedName);
 }
 
-Scope *Document::scopeAt(unsigned line, unsigned column)
+Scope *Document::scopeAt(int line, int column)
 {
     FindScopeAt findScopeAt(_translationUnit, line, column);
     if (Scope *scope = findScopeAt(_globalNamespace))
@@ -551,13 +545,13 @@ Scope *Document::scopeAt(unsigned line, unsigned column)
     return globalNamespace();
 }
 
-Symbol *Document::lastVisibleSymbolAt(unsigned line, unsigned column) const
+Symbol *Document::lastVisibleSymbolAt(int line, int column) const
 {
     LastVisibleSymbolAt lastVisibleSymbolAt(globalNamespace());
     return lastVisibleSymbolAt(line, column);
 }
 
-const Macro *Document::findMacroDefinitionAt(unsigned line) const
+const Macro *Document::findMacroDefinitionAt(int line) const
 {
     foreach (const Macro &macro, _definedMacros) {
         if (macro.line() == line)
@@ -566,7 +560,7 @@ const Macro *Document::findMacroDefinitionAt(unsigned line) const
     return 0;
 }
 
-const Document::MacroUse *Document::findMacroUseAt(unsigned utf16charsOffset) const
+const Document::MacroUse *Document::findMacroUseAt(int utf16charsOffset) const
 {
     foreach (const Document::MacroUse &use, _macroUses) {
         if (use.containsUtf16charOffset(utf16charsOffset)
@@ -577,7 +571,7 @@ const Document::MacroUse *Document::findMacroUseAt(unsigned utf16charsOffset) co
     return 0;
 }
 
-const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(unsigned utf16charsOffset) const
+const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(int utf16charsOffset) const
 {
     foreach (const Document::UndefinedMacroUse &use, _undefinedMacroUses) {
         if (use.containsUtf16charOffset(utf16charsOffset)
@@ -616,17 +610,17 @@ void Document::setLanguageFeatures(LanguageFeatures features)
         tu->setLanguageFeatures(features);
 }
 
-void Document::startSkippingBlocks(unsigned utf16charsOffset)
+void Document::startSkippingBlocks(int utf16charsOffset)
 {
     _skippedBlocks.append(Block(0, 0, utf16charsOffset, 0));
 }
 
-void Document::stopSkippingBlocks(unsigned utf16charsOffset)
+void Document::stopSkippingBlocks(int utf16charsOffset)
 {
     if (_skippedBlocks.isEmpty())
         return;
 
-    unsigned start = _skippedBlocks.back().utf16charsBegin();
+    int start = _skippedBlocks.back().utf16charsBegin();
     if (start > utf16charsOffset)
         _skippedBlocks.removeLast(); // Ignore this block, it's invalid.
     else
@@ -783,7 +777,7 @@ static QList<Macro> macrosDefinedUntilLine(const QList<Macro> &macros, int line)
     QList<Macro> filtered;
 
     foreach (const Macro &macro, macros) {
-        if (macro.line() <= unsigned(line))
+        if (macro.line() <= line)
             filtered.append(macro);
         else
             break;

@@ -119,7 +119,7 @@ void tst_Lookup::base_class_defined_1()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -238,7 +238,7 @@ void tst_Lookup::simple_class_1()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -246,12 +246,12 @@ void tst_Lookup::simple_class_1()
     ObjCClass *iface = doc->globalSymbolAt(0)->asObjCClass();
     QVERIFY(iface);
     QVERIFY(iface->isInterface());
-    QCOMPARE(iface->memberCount(), 2U);
+    QCOMPARE(iface->memberCount(), 2);
 
     ObjCClass *impl = doc->globalSymbolAt(1)->asObjCClass();
     QVERIFY(impl);
     QVERIFY(!impl->isInterface());
-    QCOMPARE(impl->memberCount(), 3U);
+    QCOMPARE(impl->memberCount(), 3);
 
     Declaration *allocMethodIface = iface->memberAt(0)->asDeclaration();
     QVERIFY(allocMethodIface);
@@ -301,7 +301,7 @@ void tst_Lookup::class_with_baseclass()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 3U);
+    QCOMPARE(doc->globalSymbolCount(), 3);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -311,7 +311,7 @@ void tst_Lookup::class_with_baseclass()
     ObjCClass *baseZoo = doc->globalSymbolAt(0)->asObjCClass();
     QVERIFY(baseZoo);
     QVERIFY(!baseZoo->isInterface());
-    QCOMPARE(baseZoo->memberCount(), 2U);
+    QCOMPARE(baseZoo->memberCount(), 2);
 
     ObjCClass *zooIface = doc->globalSymbolAt(1)->asObjCClass();
     QVERIFY(zooIface);
@@ -321,7 +321,7 @@ void tst_Lookup::class_with_baseclass()
     ObjCClass *zooImpl = doc->globalSymbolAt(2)->asObjCClass();
     QVERIFY(zooImpl);
     QVERIFY(!zooImpl->isInterface());
-    QCOMPARE(zooImpl->memberCount(), 3U);
+    QCOMPARE(zooImpl->memberCount(), 3);
 
     Declaration *baseDecl = baseZoo->memberAt(0)->asDeclaration();
     QVERIFY(baseDecl);
@@ -362,15 +362,15 @@ void tst_Lookup::class_with_protocol_with_protocol()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 4U);
+    QCOMPARE(doc->globalSymbolCount(), 4);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     ObjCProtocol *P1 = doc->globalSymbolAt(0)->asObjCProtocol();
     QVERIFY(P1);
-    QCOMPARE(P1->memberCount(), 1U);
-    QCOMPARE(P1->protocolCount(), 0U);
+    QCOMPARE(P1->memberCount(), 1);
+    QCOMPARE(P1->protocolCount(), 0);
 
     Declaration *p1method = P1->memberAt(0)->asDeclaration();
     QVERIFY(p1method);
@@ -378,8 +378,8 @@ void tst_Lookup::class_with_protocol_with_protocol()
 
     ObjCProtocol *P2 = doc->globalSymbolAt(1)->asObjCProtocol();
     QVERIFY(P2);
-    QCOMPARE(P2->memberCount(), 1U);
-    QCOMPARE(P2->protocolCount(), 1U);
+    QCOMPARE(P2->memberCount(), 1);
+    QCOMPARE(P2->protocolCount(), 1);
     QCOMPARE(QLatin1String(P2->protocolAt(0)->name()->identifier()->chars()), QLatin1String("P1"));
 
     ObjCClass *zooImpl = doc->globalSymbolAt(3)->asObjCClass();
@@ -416,7 +416,7 @@ void tst_Lookup::iface_impl_scoping()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -428,15 +428,15 @@ void tst_Lookup::iface_impl_scoping()
     QVERIFY(impl);
     QVERIFY(!impl->isInterface());
 
-    QCOMPARE(iface->memberCount(), 2U);
-    QCOMPARE(impl->memberCount(), 1U);
+    QCOMPARE(iface->memberCount(), 2);
+    QCOMPARE(impl->memberCount(), 1);
 
     ObjCMethod *method1Impl = impl->memberAt(0)->asObjCMethod();
     QVERIFY(method1Impl);
     QCOMPARE(method1Impl->identifier()->chars(), "method1");
 
     // get the body of method1
-    QCOMPARE(method1Impl->memberCount(), 2U);
+    QCOMPARE(method1Impl->memberCount(), 2);
     Argument *method1Arg = method1Impl->memberAt(0)->asArgument();
     QVERIFY(method1Arg);
     QCOMPARE(method1Arg->identifier()->chars(), "arg");
@@ -448,7 +448,7 @@ void tst_Lookup::iface_impl_scoping()
     const LookupContext context(doc, snapshot);
 
     { // verify if we can resolve "arg" in the body
-        QCOMPARE(method1Impl->argumentCount(), 1U);
+        QCOMPARE(method1Impl->argumentCount(), 1);
         Argument *arg = method1Impl->argumentAt(0)->asArgument();
         QVERIFY(arg);
         QVERIFY(arg->name());

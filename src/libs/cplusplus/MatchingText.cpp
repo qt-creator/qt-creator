@@ -128,7 +128,7 @@ static int countSkippedChars(const QString &blockText, const QString &textToProc
     return skippedChars;
 }
 
-static const Token tokenAtPosition(const Tokens &tokens, const unsigned pos)
+static const Token tokenAtPosition(const Tokens &tokens, const int pos)
 {
     for (int i = tokens.size() - 1; i >= 0; --i) {
         const Token tk = tokens.at(i);
@@ -450,7 +450,7 @@ bool MatchingText::contextAllowsElectricCharacters(const QTextCursor &cursor)
         return false;
 
     if (token.isStringLiteral() || token.isCharLiteral()) {
-        const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+        const int pos = cursor.selectionEnd() - cursor.block().position();
         if (pos <= token.utf16charsEnd())
             return false;
     }
@@ -485,7 +485,7 @@ bool MatchingText::isInCommentHelper(const QTextCursor &cursor, Token *retToken)
     int prevState = 0;
     const Tokens tokens = getTokens(cursor, prevState);
 
-    const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+    const int pos = cursor.selectionEnd() - cursor.block().position();
 
     if (tokens.isEmpty() || pos < tokens.first().utf16charsBegin())
         return prevState > 0;
@@ -510,7 +510,7 @@ Kind MatchingText::stringKindAtCursor(const QTextCursor &cursor)
     int prevState = 0;
     const Tokens tokens = getTokens(cursor, prevState);
 
-    const unsigned pos = cursor.selectionEnd() - cursor.block().position();
+    const int pos = cursor.selectionEnd() - cursor.block().position();
 
     if (tokens.isEmpty() || pos <= tokens.first().utf16charsBegin())
         return T_EOF_SYMBOL;

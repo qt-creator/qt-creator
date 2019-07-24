@@ -219,7 +219,7 @@ CppTools::CursorInfo::Range toCursorInfoRange(const SourceRangeContainer &source
 {
     const SourceLocationContainer &start = sourceRange.start;
     const SourceLocationContainer &end = sourceRange.end;
-    const unsigned length = end.column - start.column;
+    const int length = end.column - start.column;
 
     return {start.line, start.column, length};
 }
@@ -249,10 +249,10 @@ CppTools::SymbolInfo toSymbolInfo(const FollowSymbolMessage &message)
 
     const SourceLocationContainer &start = range.start;
     const SourceLocationContainer &end = range.end;
-    result.startLine = static_cast<int>(start.line);
-    result.startColumn = static_cast<int>(start.column);
-    result.endLine = static_cast<int>(end.line);
-    result.endColumn = static_cast<int>(end.column);
+    result.startLine = start.line;
+    result.startColumn = start.column;
+    result.endLine = end.line;
+    result.endColumn = end.column;
     result.fileName = start.filePath;
 
     result.isResultOnlyForFallBack = message.result.isResultOnlyForFallBack;

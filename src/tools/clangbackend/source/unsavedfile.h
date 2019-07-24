@@ -44,9 +44,9 @@ public:
     Utf8String fileContent() const;
 
     // 1-based line and column
-    uint toUtf8Position(uint line, uint column, bool *ok) const;
-    bool hasCharacterAt(uint line, uint column, char character) const;
-    Utf8String lineRange(uint fromLine, uint toLine) const;
+    uint toUtf8Position(int line, int column, bool *ok) const;
+    bool hasCharacterAt(int line, int column, char character) const;
+    Utf8String lineRange(int fromLine, int toLine) const;
 
     // 0-based position
     bool hasCharacterAt(uint position, char character) const;

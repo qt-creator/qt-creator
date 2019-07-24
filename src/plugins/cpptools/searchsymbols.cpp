@@ -70,7 +70,7 @@ IndexItem::Ptr SearchSymbols::operator()(Document::Ptr doc, const QString &scope
         QTC_ASSERT(_parent->fileName() == Internal::StringTable::insert(doc->fileName()),
                    return IndexItem::Ptr());
 
-        for (unsigned i = 0, ei = doc->globalSymbolCount(); i != ei; ++i)
+        for (int i = 0, ei = doc->globalSymbolCount(); i != ei; ++i)
             accept(doc->globalSymbolAt(i));
 
         Internal::StringTable::scheduleGC();
@@ -95,7 +95,7 @@ bool SearchSymbols::visit(Enum *symbol)
     QString newScope = scopedSymbolName(name, symbol);
     ScopedScope scopeRaii(_scope, newScope);
 
-    for (unsigned i = 0, ei = symbol->memberCount(); i != ei; ++i)
+    for (int i = 0, ei = symbol->memberCount(); i != ei; ++i)
         accept(symbol->memberAt(i));
 
     return false;
@@ -112,7 +112,7 @@ bool SearchSymbols::visit(Namespace *symbol)
     QString name = scopedSymbolName(symbol);
     QString newScope = name;
     ScopedScope raii(_scope, newScope);
-    for (unsigned i = 0; i < symbol->memberCount(); ++i) {
+    for (int i = 0; i < symbol->memberCount(); ++i) {
         accept(symbol->memberAt(i));
     }
     return false;
@@ -321,7 +321,7 @@ void SearchSymbols::processClass(T *clazz)
 
     QString newScope = scopedSymbolName(name, clazz);
     ScopedScope scopeRaii(_scope, newScope);
-    for (unsigned i = 0, ei = clazz->memberCount(); i != ei; ++i)
+    for (int i = 0, ei = clazz->memberCount(); i != ei; ++i)
         accept(clazz->memberAt(i));
 }
 

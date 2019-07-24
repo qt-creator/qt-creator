@@ -124,7 +124,7 @@ public:
     ReferencesResult collect(uint line, uint column, bool localReferences = false) const;
 
 private:
-    bool pointsToIdentifier(uint line, uint column, unsigned *tokenIndex) const;
+    bool pointsToIdentifier(int line, int column, unsigned *tokenIndex) const;
     bool matchesIdentifier(const Token &token, const Utf8String &identifier) const;
     bool checkToken(unsigned index, const Utf8String &identifier, const Utf8String &usr) const;
 
@@ -141,9 +141,9 @@ ReferencesCollector::ReferencesCollector(CXTranslationUnit cxTranslationUnit)
 {
 }
 
-bool ReferencesCollector::pointsToIdentifier(uint line, uint column, unsigned *tokenIndex) const
+bool ReferencesCollector::pointsToIdentifier(int line, int column, unsigned *tokenIndex) const
 {
-    for (uint i = 0; i < m_tokens.size(); ++i) {
+    for (int i = 0; i < m_tokens.size(); ++i) {
         const Token &token = m_tokens[i];
         if (token.kind() == CXToken_Identifier && token.extent().contains(line, column)) {
             *tokenIndex = i;
@@ -202,7 +202,7 @@ ReferencesResult ReferencesCollector::collect(uint line, uint column, bool local
 
     const Token &token = m_tokens[index];
     const Utf8String identifier = token.spelling();
-    for (uint i = 0; i < m_tokens.size(); ++i) {
+    for (int i = 0; i < m_tokens.size(); ++i) {
         if (checkToken(i, identifier, usr))
             result.references.append(m_tokens[i].extent());
     }

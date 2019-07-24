@@ -1321,7 +1321,7 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
     }
 }
 
-static void adjustForCommentOrStringNewlines(unsigned *currentLine, const PPToken &tk)
+static void adjustForCommentOrStringNewlines(int *currentLine, const PPToken &tk)
 {
     if (tk.isComment() || tk.isStringLiteral())
         (*currentLine) += tk.asByteArrayRef().count('\n');
@@ -1343,7 +1343,7 @@ void Preprocessor::synchronizeOutputLines(const PPToken &tk, bool forceLine)
             generateOutputLineMarker(tk.lineno);
         }
     } else {
-        for (unsigned i = m_env->currentLine; i < tk.lineno; ++i)
+        for (int i = m_env->currentLine; i < tk.lineno; ++i)
             currentOutputBuffer().append('\n');
     }
 
@@ -1419,7 +1419,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
 
     ScopedSwap<QString> savedFileName(m_env->currentFile, fileName);
     ScopedSwap<QByteArray> savedUtf8FileName(m_env->currentFileUtf8, fileName.toUtf8());
-    ScopedSwap<unsigned> savedCurrentLine(m_env->currentLine, 1);
+    ScopedSwap<int> savedCurrentLine(m_env->currentLine, 1);
 
     if (!m_state.m_noLines)
         generateOutputLineMarker(1);

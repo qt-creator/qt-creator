@@ -67,12 +67,12 @@ bool ASTPath::preVisit(AST *ast)
         if (lastToken <= firstToken)
             return false;
 
-        unsigned startLine, startColumn;
+        int startLine, startColumn;
         getTokenStartPosition(firstToken, &startLine, &startColumn);
 
         if (_line > startLine || (_line == startLine && _column >= startColumn)) {
 
-            unsigned endLine, endColumn;
+            int endLine, endColumn;
             getTokenEndPosition(lastToken - 1, &endLine, &endColumn);
 
             if (_line < endLine || (_line == endLine && _column <= endColumn)) {

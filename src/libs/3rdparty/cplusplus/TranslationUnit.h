@@ -43,29 +43,29 @@ public:
 
     const StringLiteral *fileId() const;
     const char *fileName() const;
-    unsigned fileNameLength() const;
+    int fileNameLength() const;
 
     const char *firstSourceChar() const;
     const char *lastSourceChar() const;
-    unsigned sourceLength() const;
+    int sourceLength() const;
 
-    void setSource(const char *source, unsigned size);
+    void setSource(const char *source, int size);
 
-    unsigned tokenCount() const { return _tokens ? unsigned(_tokens->size()) : unsigned(0); }
-    const Token &tokenAt(unsigned index) const
+    int tokenCount() const { return _tokens ? int(_tokens->size()) : 0; }
+    const Token &tokenAt(int index) const
     { return _tokens && index < tokenCount() ? (*_tokens)[index] : nullToken; }
 
-    Kind tokenKind(unsigned index) const { return tokenAt(index).kind(); }
-    const char *spell(unsigned index) const;
+    Kind tokenKind(int index) const { return tokenAt(index).kind(); }
+    const char *spell(int index) const;
 
-    unsigned commentCount() const;
-    const Token &commentAt(unsigned index) const;
+    int commentCount() const;
+    const Token &commentAt(int index) const;
 
-    unsigned matchingBrace(unsigned index) const;
-    const Identifier *identifier(unsigned index) const;
-    const Literal *literal(unsigned index) const;
-    const StringLiteral *stringLiteral(unsigned index) const;
-    const NumericLiteral *numericLiteral(unsigned index) const;
+    int matchingBrace(int index) const;
+    const Identifier *identifier(int index) const;
+    const Literal *literal(int index) const;
+    const StringLiteral *stringLiteral(int index) const;
+    const NumericLiteral *numericLiteral(int index) const;
 
     MemoryPool *memoryPool() const;
     AST *ast() const;
@@ -78,11 +78,11 @@ public:
         return previous;
     }
 
-    void warning(unsigned index, const char *fmt, ...);
-    void error(unsigned index, const char *fmt, ...);
-    void fatal(unsigned index, const char *fmt, ...);
+    void warning(int index, const char *fmt, ...);
+    void error(int index, const char *fmt, ...);
+    void fatal(int index, const char *fmt, ...);
 
-    void message(DiagnosticClient::Level level, unsigned index,
+    void message(DiagnosticClient::Level level, int index,
                  const char *format, va_list ap);
 
     bool isTokenized() const;
@@ -106,44 +106,44 @@ public:
     void resetAST();
     void release();
 
-    void getTokenStartPosition(unsigned index, unsigned *line,
-                               unsigned *column = 0,
-                               const StringLiteral **fileName = 0) const;
+    void getTokenStartPosition(int index, int *line,
+                               int *column = nullptr,
+                               const StringLiteral **fileName = nullptr) const;
 
-    void getTokenEndPosition(unsigned index, unsigned *line,
-                             unsigned *column = 0,
-                             const StringLiteral **fileName = 0) const;
+    void getTokenEndPosition(int index, int *line,
+                             int *column = nullptr,
+                             const StringLiteral **fileName = nullptr) const;
 
-    void getPosition(unsigned utf16charOffset,
-                     unsigned *line,
-                     unsigned *column = 0,
-                     const StringLiteral **fileName = 0) const;
+    void getPosition(int utf16charOffset,
+                     int *line,
+                     int *column = nullptr,
+                     const StringLiteral **fileName = nullptr) const;
 
-    void getTokenPosition(unsigned index,
-                          unsigned *line,
-                          unsigned *column = 0,
-                          const StringLiteral **fileName = 0) const;
+    void getTokenPosition(int index,
+                          int *line,
+                          int *column = nullptr,
+                          const StringLiteral **fileName = nullptr) const;
 
-    void pushLineOffset(unsigned offset);
-    void pushPreprocessorLine(unsigned utf16charOffset,
-                              unsigned line,
+    void pushLineOffset(int offset);
+    void pushPreprocessorLine(int utf16charOffset,
+                              int line,
                               const StringLiteral *fileName);
 
-    unsigned findPreviousLineOffset(unsigned tokenIndex) const;
+    int findPreviousLineOffset(int tokenIndex) const;
 
-    bool maybeSplitGreaterGreaterToken(unsigned tokenIndex);
+    bool maybeSplitGreaterGreaterToken(int tokenIndex);
 
     LanguageFeatures languageFeatures() const { return _languageFeatures; }
     void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
 private:
     struct PPLine {
-        unsigned utf16charOffset;
-        unsigned line;
+        int utf16charOffset;
+        int line;
         const StringLiteral *fileName;
 
-        PPLine(unsigned utf16charOffset = 0,
-               unsigned line = 0,
+        PPLine(int utf16charOffset = 0,
+               int line = 0,
                const StringLiteral *fileName = 0)
             : utf16charOffset(utf16charOffset), line(line), fileName(fileName)
         { }
@@ -159,9 +159,9 @@ private:
     };
 
     void releaseTokensAndComments();
-    unsigned findLineNumber(unsigned utf16charOffset) const;
-    unsigned findColumnNumber(unsigned utf16CharOffset, unsigned lineNumber) const;
-    PPLine findPreprocessorLine(unsigned utf16charOffset) const;
+    int findLineNumber(int utf16charOffset) const;
+    int findColumnNumber(int utf16CharOffset, int lineNumber) const;
+    PPLine findPreprocessorLine(int utf16charOffset) const;
 
     static const Token nullToken;
 
@@ -171,9 +171,9 @@ private:
     const char *_lastSourceChar;
     std::vector<Token> *_tokens;
     std::vector<Token> *_comments;
-    std::vector<unsigned> _lineOffsets;
+    std::vector<int> _lineOffsets;
     std::vector<PPLine> _ppLines;
-    typedef std::unordered_map<unsigned, std::pair<unsigned, unsigned> > TokenLineColumn;
+    typedef std::unordered_map<unsigned, std::pair<int, int> > TokenLineColumn;
     TokenLineColumn _expandedLineColumn;
     MemoryPool *_pool;
     AST *_ast;

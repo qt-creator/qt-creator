@@ -145,17 +145,17 @@ void tst_FindUsages::inlineMethod()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    QCOMPARE(doc->globalSymbolCount(), 1);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Class *tst = doc->globalSymbolAt(0)->asClass();
     QVERIFY(tst);
-    QCOMPARE(tst->memberCount(), 1U);
+    QCOMPARE(tst->memberCount(), 1);
     Function *method = tst->memberAt(0)->asFunction();
     QVERIFY(method);
-    QCOMPARE(method->argumentCount(), 1U);
+    QCOMPARE(method->argumentCount(), 1);
     Argument *arg = method->argumentAt(0)->asArgument();
     QVERIFY(arg);
     QCOMPARE(arg->identifier()->chars(), "arg");
@@ -179,16 +179,16 @@ void tst_FindUsages::lambdaCaptureByValue()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    QCOMPARE(doc->globalSymbolCount(), 1);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Function *f = doc->globalSymbolAt(0)->asFunction();
     QVERIFY(f);
-    QCOMPARE(f->memberCount(), 1U);
+    QCOMPARE(f->memberCount(), 1);
     Block *b = f->memberAt(0)->asBlock();
-    QCOMPARE(b->memberCount(), 2U);
+    QCOMPARE(b->memberCount(), 2);
     Declaration *d = b->memberAt(0)->asDeclaration();
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "test");
@@ -211,16 +211,16 @@ void tst_FindUsages::lambdaCaptureByReference()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    QCOMPARE(doc->globalSymbolCount(), 1);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Function *f = doc->globalSymbolAt(0)->asFunction();
     QVERIFY(f);
-    QCOMPARE(f->memberCount(), 1U);
+    QCOMPARE(f->memberCount(), 1);
     Block *b = f->memberAt(0)->asBlock();
-    QCOMPARE(b->memberCount(), 2U);
+    QCOMPARE(b->memberCount(), 2);
     Declaration *d = b->memberAt(0)->asDeclaration();
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "test");
@@ -246,7 +246,7 @@ void tst_FindUsages::shadowedNames_1()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 5U);
+    QCOMPARE(doc->globalSymbolCount(), 5);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -275,7 +275,7 @@ void tst_FindUsages::shadowedNames_2()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 5U);
+    QCOMPARE(doc->globalSymbolCount(), 5);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -283,7 +283,7 @@ void tst_FindUsages::shadowedNames_2()
     Class *c = doc->globalSymbolAt(1)->asClass();
     QVERIFY(c);
     QCOMPARE(c->name()->identifier()->chars(), "X");
-    QCOMPARE(c->memberCount(), 1U);
+    QCOMPARE(c->memberCount(), 1);
     Declaration *d = c->memberAt(0)->asDeclaration();
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "a");
@@ -321,7 +321,7 @@ void tst_FindUsages::staticVariables()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 3U);
+    QCOMPARE(doc->globalSymbolCount(), 3);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -329,7 +329,7 @@ void tst_FindUsages::staticVariables()
     Class *c = doc->globalSymbolAt(0)->asClass();
     QVERIFY(c);
     QCOMPARE(c->name()->identifier()->chars(), "Outer");
-    QCOMPARE(c->memberCount(), 2U);
+    QCOMPARE(c->memberCount(), 2);
     Declaration *d = c->memberAt(0)->asDeclaration();
     QVERIFY(d);
     QCOMPARE(d->name()->identifier()->chars(), "Foo");
@@ -361,7 +361,7 @@ void tst_FindUsages::objc_args()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -373,7 +373,7 @@ void tst_FindUsages::objc_args()
     ObjCClass *iface = doc->globalSymbolAt(0)->asObjCClass();
     QVERIFY(iface);
     QVERIFY(iface->isInterface());
-    QCOMPARE(iface->memberCount(), 1U);
+    QCOMPARE(iface->memberCount(), 1);
 
     Declaration *methodIface = iface->memberAt(0)->asDeclaration();
     QVERIFY(methodIface);
@@ -383,12 +383,12 @@ void tst_FindUsages::objc_args()
     ObjCClass *impl = doc->globalSymbolAt(1)->asObjCClass();
     QVERIFY(impl);
     QVERIFY(!impl->isInterface());
-    QCOMPARE(impl->memberCount(), 1U);
+    QCOMPARE(impl->memberCount(), 1);
 
     ObjCMethod *methodImpl = impl->memberAt(0)->asObjCMethod();
     QVERIFY(methodImpl);
     QCOMPARE(methodImpl->identifier()->chars(), "method");
-    QCOMPARE(methodImpl->argumentCount(), 1U);
+    QCOMPARE(methodImpl->argumentCount(), 1);
     Argument *arg = methodImpl->argumentAt(0)->asArgument();
     QCOMPARE(arg->identifier()->chars(), "arg");
 
@@ -417,18 +417,18 @@ void tst_FindUsages::qproperty_1()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    QCOMPARE(doc->globalSymbolCount(), 1);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Class *tst = doc->globalSymbolAt(0)->asClass();
     QVERIFY(tst);
-    QCOMPARE(tst->memberCount(), 5U);
+    QCOMPARE(tst->memberCount(), 5);
     Function *setX_method = tst->memberAt(2)->asFunction();
     QVERIFY(setX_method);
     QCOMPARE(setX_method->identifier()->chars(), "setX");
-    QCOMPARE(setX_method->argumentCount(), 1U);
+    QCOMPARE(setX_method->argumentCount(), 1);
 
     FindUsages findUsages(src, doc, snapshot);
     findUsages(setX_method);
@@ -462,14 +462,14 @@ void tst_FindUsages::instantiateTemplateWithNestedClass()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 3U);
+    QCOMPARE(doc->globalSymbolCount(), 3);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Class *classFoo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(classFoo);
-    QCOMPARE(classFoo->memberCount(), 1U);
+    QCOMPARE(classFoo->memberCount(), 1);
     Declaration *barDeclaration = classFoo->memberAt(0)->asDeclaration();
     QVERIFY(barDeclaration);
     QCOMPARE(barDeclaration->name()->identifier()->chars(), "bar");
@@ -507,13 +507,13 @@ void tst_FindUsages::operatorAsteriskOfNestedClassOfTemplateClass_QTCREATORBUG90
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 3U);
+    QCOMPARE(doc->globalSymbolCount(), 3);
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Class *classFoo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(classFoo);
-    QCOMPARE(classFoo->memberCount(), 1U);
+    QCOMPARE(classFoo->memberCount(), 1);
     Declaration *fooDeclaration = classFoo->memberAt(0)->asDeclaration();
     QVERIFY(fooDeclaration);
     QCOMPARE(fooDeclaration->name()->identifier()->chars(), "foo");
@@ -549,14 +549,14 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG8963()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 5U);
+    QCOMPARE(doc->globalSymbolCount(), 5);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Class *structSymbol = doc->globalSymbolAt(2)->asClass();
     QVERIFY(structSymbol);
-    QCOMPARE(structSymbol->memberCount(), 2U);
+    QCOMPARE(structSymbol->memberCount(), 2);
     Declaration *isNotIntDeclaration = structSymbol->memberAt(1)->asDeclaration();
     QVERIFY(isNotIntDeclaration);
     QCOMPARE(isNotIntDeclaration->name()->identifier()->chars(), "isNotInt");
@@ -588,7 +588,7 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG11859()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 4U);
+    QCOMPARE(doc->globalSymbolCount(), 4);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -597,7 +597,7 @@ void tst_FindUsages::anonymousClass_QTCREATORBUG11859()
     QVERIFY(fooAsStruct);
     Class *structSymbol = doc->globalSymbolAt(1)->asClass();
     QVERIFY(structSymbol);
-    QCOMPARE(structSymbol->memberCount(), 1U);
+    QCOMPARE(structSymbol->memberCount(), 1);
     Declaration *fooAsMemberOfAnonymousStruct = structSymbol->memberAt(0)->asDeclaration();
     QVERIFY(fooAsMemberOfAnonymousStruct);
     QCOMPARE(fooAsMemberOfAnonymousStruct->name()->identifier()->chars(), "Foo");
@@ -633,14 +633,14 @@ void tst_FindUsages::using_insideGlobalNamespace()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 3U);
+    QCOMPARE(doc->globalSymbolCount(), 3);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Namespace *nsSymbol = doc->globalSymbolAt(0)->asNamespace();
     QVERIFY(nsSymbol);
-    QCOMPARE(nsSymbol->memberCount(), 1U);
+    QCOMPARE(nsSymbol->memberCount(), 1);
     Class *structSymbol = nsSymbol->memberAt(0)->asClass();
     QVERIFY(structSymbol);
 
@@ -676,14 +676,14 @@ void tst_FindUsages::using_insideNamespace()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Namespace *nsSymbol = doc->globalSymbolAt(0)->asNamespace();
     QVERIFY(nsSymbol);
-    QCOMPARE(nsSymbol->memberCount(), 1U);
+    QCOMPARE(nsSymbol->memberCount(), 1);
     Class *structSymbol = nsSymbol->memberAt(0)->asClass();
     QVERIFY(structSymbol);
 
@@ -716,14 +716,14 @@ void tst_FindUsages::using_insideFunction()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Namespace *nsSymbol = doc->globalSymbolAt(0)->asNamespace();
     QVERIFY(nsSymbol);
-    QCOMPARE(nsSymbol->memberCount(), 1U);
+    QCOMPARE(nsSymbol->memberCount(), 1);
     Class *structSymbol = nsSymbol->memberAt(0)->asClass();
     QVERIFY(structSymbol);
 
@@ -760,14 +760,14 @@ void tst_FindUsages::operatorArrowOfNestedClassOfTemplateClass_QTCREATORBUG9005(
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 3U);
+    QCOMPARE(doc->globalSymbolCount(), 3);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Class *classFoo = doc->globalSymbolAt(0)->asClass();
     QVERIFY(classFoo);
-    QCOMPARE(classFoo->memberCount(), 1U);
+    QCOMPARE(classFoo->memberCount(), 1);
     Declaration *fooDeclaration = classFoo->memberAt(0)->asDeclaration();
     QVERIFY(fooDeclaration);
     QCOMPARE(fooDeclaration->name()->identifier()->chars(), "foo");
@@ -795,15 +795,15 @@ void tst_FindUsages::templateClassParameters()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    QCOMPARE(doc->globalSymbolCount(), 1);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Template *templateClassTS = doc->globalSymbolAt(0)->asTemplate();
     QVERIFY(templateClassTS);
-    QCOMPARE(templateClassTS->memberCount(), 2U);
-    QCOMPARE(templateClassTS->templateParameterCount(), 1U);
+    QCOMPARE(templateClassTS->memberCount(), 2);
+    QCOMPARE(templateClassTS->templateParameterCount(), 1);
     TypenameArgument *templArgument = templateClassTS->templateParameterAt(0)->asTypenameArgument();
     QVERIFY(templArgument);
 
@@ -837,7 +837,7 @@ void tst_FindUsages::templateClass_className()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 3U);
+    QCOMPARE(doc->globalSymbolCount(), 3);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -846,7 +846,7 @@ void tst_FindUsages::templateClass_className()
     QVERIFY(templateClassTS);
     Class *classTS = templateClassTS->memberAt(1)->asClass();
     QVERIFY(classTS);
-    QCOMPARE(classTS->memberCount(), 2U);
+    QCOMPARE(classTS->memberCount(), 2);
 
     FindUsages findUsages(src, doc, snapshot);
     findUsages(classTS);
@@ -869,15 +869,15 @@ void tst_FindUsages::templateFunctionParameters()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 1U);
+    QCOMPARE(doc->globalSymbolCount(), 1);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Template *templateFunctionTS = doc->globalSymbolAt(0)->asTemplate();
     QVERIFY(templateFunctionTS);
-    QCOMPARE(templateFunctionTS->memberCount(), 2U);
-    QCOMPARE(templateFunctionTS->templateParameterCount(), 1U);
+    QCOMPARE(templateFunctionTS->memberCount(), 2);
+    QCOMPARE(templateFunctionTS->templateParameterCount(), 1);
     TypenameArgument *templArgument = templateFunctionTS->templateParameterAt(0)->asTypenameArgument();
     QVERIFY(templArgument);
 
@@ -901,14 +901,14 @@ void tst_FindUsages::templatedFunction_QTCREATORBUG9749()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Template *funcTempl = doc->globalSymbolAt(0)->asTemplate();
     QVERIFY(funcTempl);
-    QCOMPARE(funcTempl->memberCount(), 2U);
+    QCOMPARE(funcTempl->memberCount(), 2);
     Function *func = funcTempl->memberAt(1)->asFunction();
 
     FindUsages findUsages(src, doc, snapshot);
@@ -940,14 +940,14 @@ void tst_FindUsages::usingInDifferentNamespace_QTCREATORBUG7978()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 4U);
+    QCOMPARE(doc->globalSymbolCount(), 4);
 
     Snapshot snapshot;
     snapshot.insert(doc);
 
     Namespace *ns = doc->globalSymbolAt(1)->asNamespace();
     QVERIFY(ns);
-    QCOMPARE(ns->memberCount(), 1U);
+    QCOMPARE(ns->memberCount(), 1);
     Template *templateClass = ns->memberAt(0)->asTemplate();
 
     FindUsages findUsages(src, doc, snapshot);
@@ -968,7 +968,7 @@ void tst_FindUsages::unicodeIdentifier()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -997,7 +997,7 @@ void tst_FindUsages::inAlignas()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 2U);
+    QCOMPARE(doc->globalSymbolCount(), 2);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -1037,7 +1037,7 @@ void tst_FindUsages::memberAccessAsTemplate()
     doc->check();
 
     QVERIFY(doc->diagnosticMessages().isEmpty());
-    QCOMPARE(doc->globalSymbolCount(), 4U);
+    QCOMPARE(doc->globalSymbolCount(), 4);
 
     Snapshot snapshot;
     snapshot.insert(doc);
@@ -1060,7 +1060,7 @@ void tst_FindUsages::memberAccessAsTemplate()
         Class *c = doc->globalSymbolAt(1)->asClass();
         QVERIFY(c);
         QCOMPARE(c->name()->identifier()->chars(), "Bar");
-        QCOMPARE(c->memberCount(), 1U);
+        QCOMPARE(c->memberCount(), 1);
 
         Template *f = c->memberAt(0)->asTemplate();
         QVERIFY(f);

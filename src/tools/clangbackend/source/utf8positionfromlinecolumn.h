@@ -35,13 +35,13 @@ public:
     Utf8PositionFromLineColumn(const char *utf8Text);
 
     // 1-based line and column
-    bool find(uint line, uint column);
+    bool find(int line, int column);
 
     uint position() const;
 
 private:
-    bool advanceToLine(uint line);
-    bool advanceToColumn(uint column);
+    bool advanceToLine(int line);
+    bool advanceToColumn(int column);
     bool advanceCodePoint(bool stopOnNewLine = false);
 
 private:

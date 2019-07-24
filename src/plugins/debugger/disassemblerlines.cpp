@@ -108,7 +108,7 @@ struct SourceFileCache
 
 Q_GLOBAL_STATIC(SourceFileCache, sourceFileCache)
 
-void DisassemblerLines::appendSourceLine(const QString &fileName, uint lineNumber)
+void DisassemblerLines::appendSourceLine(const QString &fileName, int lineNumber)
 {
 
     if (fileName.isEmpty() || lineNumber == 0)
@@ -124,7 +124,7 @@ void DisassemblerLines::appendSourceLine(const QString &fileName, uint lineNumbe
             cache->lines = ts.readAll().split('\n');
         }
     }
-    if (lineNumber >= uint(cache->lines.size()))
+    if (lineNumber >= cache->lines.size())
         return;
     DisassemblerLine dl;
     dl.lineNumber = lineNumber;

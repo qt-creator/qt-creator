@@ -55,7 +55,7 @@ public:
     const TemplateNameId *templateNameId(const Identifier *id,
                                          bool isSpecialization,
                                          const FullySpecifiedType *const args = 0,
-                                         unsigned argc = 0);
+                                         int argc = 0);
 
     /// Returns the canonical destructor name id.
     const DestructorNameId *destructorNameId(const Name *name);
@@ -70,7 +70,7 @@ public:
     const QualifiedNameId *qualifiedNameId(const Name *base, const Name *name);
 
     const SelectorNameId *selectorNameId(const Name *const *names,
-                                         unsigned nameCount,
+                                         int nameCount,
                                          bool hasArguments);
 
     /// Returns a Type object of type VoidType.
@@ -93,82 +93,82 @@ public:
     ReferenceType *referenceType(const FullySpecifiedType &elementType, bool rvalueRef);
 
     /// Retruns a Type object of type ArrayType.
-    ArrayType *arrayType(const FullySpecifiedType &elementType, unsigned size = 0);
+    ArrayType *arrayType(const FullySpecifiedType &elementType, int size = 0);
 
     /// Returns a Type object of type NamedType.
     NamedType *namedType(const Name *name);
 
     /// Creates a new Declaration symbol.
-    Declaration *newDeclaration(unsigned sourceLocation, const Name *name);
+    Declaration *newDeclaration(int sourceLocation, const Name *name);
 
     /// Creates a new EnumeratorDeclaration symbol.
-    EnumeratorDeclaration *newEnumeratorDeclaration(unsigned sourceLocation, const Name *name);
+    EnumeratorDeclaration *newEnumeratorDeclaration(int sourceLocation, const Name *name);
 
     /// Creates a new Argument symbol.
-    Argument *newArgument(unsigned sourceLocation, const Name *name = 0);
+    Argument *newArgument(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Argument symbol.
-    TypenameArgument *newTypenameArgument(unsigned sourceLocation, const Name *name = 0);
+    TypenameArgument *newTypenameArgument(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Function symbol.
-    Function *newFunction(unsigned sourceLocation, const Name *name = 0);
+    Function *newFunction(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Namespace symbol.
-    Namespace *newNamespace(unsigned sourceLocation, const Name *name = 0);
+    Namespace *newNamespace(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Template symbol.
-    Template *newTemplate(unsigned sourceLocation, const Name *name = 0);
+    Template *newTemplate(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Namespace symbol.
-    NamespaceAlias *newNamespaceAlias(unsigned sourceLocation, const Name *name = 0);
+    NamespaceAlias *newNamespaceAlias(int sourceLocation, const Name *name = 0);
 
     /// Creates a new BaseClass symbol.
-    BaseClass *newBaseClass(unsigned sourceLocation, const Name *name = 0);
+    BaseClass *newBaseClass(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Class symbol.
-    Class *newClass(unsigned sourceLocation, const Name *name = 0);
+    Class *newClass(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Enum symbol.
-    Enum *newEnum(unsigned sourceLocation, const Name *name = 0);
+    Enum *newEnum(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Block symbol.
-    Block *newBlock(unsigned sourceLocation);
+    Block *newBlock(int sourceLocation);
 
     /// Creates a new UsingNamespaceDirective symbol.
-    UsingNamespaceDirective *newUsingNamespaceDirective(unsigned sourceLocation, const Name *name = 0);
+    UsingNamespaceDirective *newUsingNamespaceDirective(int sourceLocation, const Name *name = 0);
 
     /// Creates a new UsingDeclaration symbol.
-    UsingDeclaration *newUsingDeclaration(unsigned sourceLocation, const Name *name = 0);
+    UsingDeclaration *newUsingDeclaration(int sourceLocation, const Name *name = 0);
 
     /// Creates a new ForwardClassDeclaration symbol.
-    ForwardClassDeclaration *newForwardClassDeclaration(unsigned sourceLocation, const Name *name = 0);
+    ForwardClassDeclaration *newForwardClassDeclaration(int sourceLocation, const Name *name = 0);
 
     /// Creates a new QtPropertyDeclaration symbol.
-    QtPropertyDeclaration *newQtPropertyDeclaration(unsigned sourceLocation, const Name *name = 0);
+    QtPropertyDeclaration *newQtPropertyDeclaration(int sourceLocation, const Name *name = 0);
 
     /// Creates a new QtEnum symbol.
-    QtEnum *newQtEnum(unsigned sourceLocation, const Name *name = 0);
+    QtEnum *newQtEnum(int sourceLocation, const Name *name = 0);
 
-    ObjCBaseClass *newObjCBaseClass(unsigned sourceLocation, const Name *name);
-    ObjCBaseProtocol *newObjCBaseProtocol(unsigned sourceLocation, const Name *name);
+    ObjCBaseClass *newObjCBaseClass(int sourceLocation, const Name *name);
+    ObjCBaseProtocol *newObjCBaseProtocol(int sourceLocation, const Name *name);
 
     /// Creates a new Objective-C class symbol.
-    ObjCClass *newObjCClass(unsigned sourceLocation, const Name *name = 0);
+    ObjCClass *newObjCClass(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C class forward declaration symbol.
-    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(unsigned sourceLocation, const Name *name = 0);
+    ObjCForwardClassDeclaration *newObjCForwardClassDeclaration(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C protocol symbol.
-    ObjCProtocol *newObjCProtocol(unsigned sourceLocation, const Name *name = 0);
+    ObjCProtocol *newObjCProtocol(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C protocol forward declaration symbol.
-    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(unsigned sourceLocation, const Name *name = 0);
+    ObjCForwardProtocolDeclaration *newObjCForwardProtocolDeclaration(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C method symbol.
-    ObjCMethod *newObjCMethod(unsigned sourceLocation, const Name *name = 0);
+    ObjCMethod *newObjCMethod(int sourceLocation, const Name *name = 0);
 
     /// Creates a new Objective-C @property declaration symbol.
-    ObjCPropertyDeclaration *newObjCPropertyDeclaration(unsigned sourceLocation, const Name *name);
+    ObjCPropertyDeclaration *newObjCPropertyDeclaration(int sourceLocation, const Name *name);
 
     const Identifier *deprecatedId() const;
     const Identifier *unavailableId() const;
@@ -187,8 +187,8 @@ public:
 
     const OperatorNameId *findOperatorNameId(OperatorNameId::Kind operatorId) const;
 
-    const Identifier *findIdentifier(const char *chars, unsigned size) const;
-    const Identifier *identifier(const char *chars, unsigned size);
+    const Identifier *findIdentifier(const char *chars, int size) const;
+    const Identifier *identifier(const char *chars, int size);
     const Identifier *identifier(const char *chars);
 
     typedef const Identifier *const *IdentifierIterator;
@@ -204,15 +204,15 @@ public:
     NumericLiteralIterator firstNumericLiteral() const;
     NumericLiteralIterator lastNumericLiteral() const;
 
-    const StringLiteral *stringLiteral(const char *chars, unsigned size);
+    const StringLiteral *stringLiteral(const char *chars, int size);
     const StringLiteral *stringLiteral(const char *chars);
 
-    const NumericLiteral *numericLiteral(const char *chars, unsigned size);
+    const NumericLiteral *numericLiteral(const char *chars, int size);
     const NumericLiteral *numericLiteral(const char *chars);
 
     Symbol **firstSymbol() const;
     Symbol **lastSymbol() const;
-    unsigned symbolCount() const;
+    int symbolCount() const;
 
     bool hasSymbol(Symbol *symbol) const;
     void addSymbol(Symbol *symbol);

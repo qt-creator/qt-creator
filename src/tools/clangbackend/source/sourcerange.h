@@ -49,7 +49,7 @@ public:
     SourceLocation start() const;
     SourceLocation end() const;
 
-    bool contains(unsigned line, unsigned column) const;
+    bool contains(int line, int column) const;
 
     SourceRangeContainer toSourceRangeContainer() const;
 

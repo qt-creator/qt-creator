@@ -110,7 +110,7 @@ Tokens SimpleLexer::operator()(const QString &text, int state)
     return tokens;
 }
 
-int SimpleLexer::tokenAt(const Tokens &tokens, unsigned utf16charsOffset)
+int SimpleLexer::tokenAt(const Tokens &tokens, int utf16charsOffset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);
@@ -122,7 +122,7 @@ int SimpleLexer::tokenAt(const Tokens &tokens, unsigned utf16charsOffset)
 }
 
 Token SimpleLexer::tokenAt(const QString &text,
-                           unsigned utf16charsOffset,
+                           int utf16charsOffset,
                            int state,
                            const LanguageFeatures &languageFeatures)
 {
@@ -133,7 +133,7 @@ Token SimpleLexer::tokenAt(const QString &text,
     return (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 }
 
-int SimpleLexer::tokenBefore(const Tokens &tokens, unsigned utf16charsOffset)
+int SimpleLexer::tokenBefore(const Tokens &tokens, int utf16charsOffset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);

@@ -41,7 +41,7 @@ public:
         : value(value), next(0)
     { }
 
-    unsigned firstToken() const
+    int firstToken() const
     {
         if (value)
             return value->firstToken();
@@ -50,7 +50,7 @@ public:
         return 0;
     }
 
-    unsigned lastToken() const
+    int lastToken() const
     {
         Tptr lv = lastValue();
 
@@ -118,8 +118,8 @@ public:
         return false;
     }
 
-    virtual unsigned firstToken() const = 0;
-    virtual unsigned lastToken() const = 0;
+    virtual int firstToken() const = 0;
+    virtual int lastToken() const = 0;
 
     virtual AST *clone(MemoryPool *pool) const = 0;
 
@@ -397,8 +397,8 @@ public:
 class CPLUSPLUS_EXPORT ObjCSelectorArgumentAST: public AST
 {
 public:
-    unsigned name_token;
-    unsigned colon_token;
+    int name_token;
+    int colon_token;
 
 public:
     ObjCSelectorArgumentAST()
@@ -408,8 +408,8 @@ public:
 
     virtual ObjCSelectorArgumentAST *asObjCSelectorArgument() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCSelectorArgumentAST *clone(MemoryPool *pool) const;
 
@@ -430,8 +430,8 @@ public:
 
     virtual ObjCSelectorAST *asObjCSelector() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCSelectorAST *clone(MemoryPool *pool) const;
 
@@ -443,7 +443,7 @@ protected:
 class CPLUSPLUS_EXPORT SimpleSpecifierAST: public SpecifierAST
 {
 public:
-    unsigned specifier_token;
+    int specifier_token;
 
 public:
     SimpleSpecifierAST()
@@ -452,8 +452,8 @@ public:
 
     virtual SimpleSpecifierAST *asSimpleSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual SimpleSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -476,11 +476,11 @@ public:
 class CPLUSPLUS_EXPORT AlignmentSpecifierAST: public AttributeSpecifierAST
 {
 public:
-    unsigned align_token;
-    unsigned lparen_token;
+    int align_token;
+    int lparen_token;
     ExpressionAST *typeIdExprOrAlignmentExpr;
-    unsigned ellipses_token;
-    unsigned rparen_token;
+    int ellipses_token;
+    int rparen_token;
 
 public:
     AlignmentSpecifierAST()
@@ -493,8 +493,8 @@ public:
 
     virtual AlignmentSpecifierAST *asAlignmentSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual AlignmentSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -507,12 +507,12 @@ protected:
 class CPLUSPLUS_EXPORT GnuAttributeSpecifierAST: public AttributeSpecifierAST
 {
 public:
-    unsigned attribute_token;
-    unsigned first_lparen_token;
-    unsigned second_lparen_token;
+    int attribute_token;
+    int first_lparen_token;
+    int second_lparen_token;
     GnuAttributeListAST *attribute_list;
-    unsigned first_rparen_token;
-    unsigned second_rparen_token;
+    int first_rparen_token;
+    int second_rparen_token;
 
 public:
     GnuAttributeSpecifierAST()
@@ -526,8 +526,8 @@ public:
 
     virtual GnuAttributeSpecifierAST *asGnuAttributeSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual GnuAttributeSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -539,11 +539,11 @@ protected:
 class CPLUSPLUS_EXPORT GnuAttributeAST: public AST
 {
 public:
-    unsigned identifier_token;
-    unsigned lparen_token;
-    unsigned tag_token;
+    int identifier_token;
+    int lparen_token;
+    int tag_token;
     ExpressionListAST *expression_list;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     GnuAttributeAST()
@@ -556,8 +556,8 @@ public:
 
     virtual GnuAttributeAST *asGnuAttribute() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual GnuAttributeAST *clone(MemoryPool *pool) const;
 
@@ -569,10 +569,10 @@ protected:
 class CPLUSPLUS_EXPORT TypeofSpecifierAST: public SpecifierAST
 {
 public:
-    unsigned typeof_token;
-    unsigned lparen_token;
+    int typeof_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     TypeofSpecifierAST()
@@ -584,8 +584,8 @@ public:
 
     virtual TypeofSpecifierAST *asTypeofSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TypeofSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -597,10 +597,10 @@ protected:
 class CPLUSPLUS_EXPORT DecltypeSpecifierAST: public SpecifierAST
 {
 public:
-    unsigned decltype_token;
-    unsigned lparen_token;
+    int decltype_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     DecltypeSpecifierAST()
@@ -612,8 +612,8 @@ public:
 
     virtual DecltypeSpecifierAST *asDecltypeSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DecltypeSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -630,7 +630,7 @@ public:
     CoreDeclaratorAST *core_declarator;
     PostfixDeclaratorListAST *postfix_declarator_list;
     SpecifierListAST *post_attribute_list;
-    unsigned equal_token;
+    int equal_token;
     ExpressionAST *initializer;
 
 public:
@@ -646,8 +646,8 @@ public:
 
     virtual DeclaratorAST *asDeclarator() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DeclaratorAST *clone(MemoryPool *pool) const;
 
@@ -659,10 +659,10 @@ protected:
 class CPLUSPLUS_EXPORT SimpleDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned qt_invokable_token;
+    int qt_invokable_token;
     SpecifierListAST *decl_specifier_list;
     DeclaratorListAST *declarator_list;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     List<Symbol *> *symbols;
@@ -678,8 +678,8 @@ public:
 
     virtual SimpleDeclarationAST *asSimpleDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual SimpleDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -691,7 +691,7 @@ protected:
 class CPLUSPLUS_EXPORT EmptyDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     EmptyDeclarationAST()
@@ -700,8 +700,8 @@ public:
 
     virtual EmptyDeclarationAST *asEmptyDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual EmptyDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -713,9 +713,9 @@ protected:
 class CPLUSPLUS_EXPORT AccessDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned access_specifier_token;
-    unsigned slots_token;
-    unsigned colon_token;
+    int access_specifier_token;
+    int slots_token;
+    int colon_token;
 
 public:
     AccessDeclarationAST()
@@ -726,8 +726,8 @@ public:
 
     virtual AccessDeclarationAST *asAccessDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual AccessDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -739,7 +739,7 @@ protected:
 class CPLUSPLUS_EXPORT QtObjectTagAST: public DeclarationAST
 {
 public:
-    unsigned q_object_token;
+    int q_object_token;
 
 public:
     QtObjectTagAST()
@@ -748,8 +748,8 @@ public:
 
     virtual QtObjectTagAST *asQtObjectTag() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtObjectTagAST *clone(MemoryPool *pool) const;
 
@@ -761,15 +761,15 @@ protected:
 class CPLUSPLUS_EXPORT QtPrivateSlotAST: public DeclarationAST
 {
 public:
-    unsigned q_private_slot_token;
-    unsigned lparen_token;
-    unsigned dptr_token;
-    unsigned dptr_lparen_token;
-    unsigned dptr_rparen_token;
-    unsigned comma_token;
+    int q_private_slot_token;
+    int lparen_token;
+    int dptr_token;
+    int dptr_lparen_token;
+    int dptr_rparen_token;
+    int comma_token;
     SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     QtPrivateSlotAST()
@@ -786,8 +786,8 @@ public:
 
     virtual QtPrivateSlotAST *asQtPrivateSlot() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtPrivateSlotAST *clone(MemoryPool *pool) const;
 
@@ -799,7 +799,7 @@ protected:
 class QtPropertyDeclarationItemAST: public AST
 {
 public:
-    unsigned item_name_token;
+    int item_name_token;
     ExpressionAST *expression;
 
 public:
@@ -810,8 +810,8 @@ public:
 
     virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtPropertyDeclarationItemAST *clone(MemoryPool *pool) const;
 
@@ -823,14 +823,14 @@ protected:
 class CPLUSPLUS_EXPORT QtPropertyDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned property_specifier_token;
-    unsigned lparen_token;
+    int property_specifier_token;
+    int lparen_token;
     ExpressionAST *expression; // for Q_PRIVATE_PROPERTY(expression, ...)
-    unsigned comma_token;
+    int comma_token;
     ExpressionAST *type_id;
     NameAST *property_name;
     QtPropertyDeclarationItemListAST *property_declaration_item_list;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     QtPropertyDeclarationAST()
@@ -846,8 +846,8 @@ public:
 
     virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtPropertyDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -859,10 +859,10 @@ protected:
 class CPLUSPLUS_EXPORT QtEnumDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned enum_specifier_token;
-    unsigned lparen_token;
+    int enum_specifier_token;
+    int lparen_token;
     NameListAST *enumerator_list;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     QtEnumDeclarationAST()
@@ -874,8 +874,8 @@ public:
 
     virtual QtEnumDeclarationAST *asQtEnumDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtEnumDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -887,10 +887,10 @@ protected:
 class CPLUSPLUS_EXPORT QtFlagsDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned flags_specifier_token;
-    unsigned lparen_token;
+    int flags_specifier_token;
+    int lparen_token;
     NameListAST *flag_enums_list;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     QtFlagsDeclarationAST()
@@ -902,8 +902,8 @@ public:
 
     virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtFlagsDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -926,8 +926,8 @@ public:
 
     virtual QtInterfaceNameAST *asQtInterfaceName() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtInterfaceNameAST *clone(MemoryPool *pool) const;
 
@@ -939,10 +939,10 @@ protected:
 class CPLUSPLUS_EXPORT QtInterfacesDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned interfaces_token;
-    unsigned lparen_token;
+    int interfaces_token;
+    int lparen_token;
     QtInterfaceNameListAST *interface_name_list;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     QtInterfacesDeclarationAST()
@@ -954,8 +954,8 @@ public:
 
     virtual QtInterfacesDeclarationAST *asQtInterfacesDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtInterfacesDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -967,13 +967,13 @@ protected:
 class CPLUSPLUS_EXPORT AsmDefinitionAST: public DeclarationAST
 {
 public:
-    unsigned asm_token;
-    unsigned volatile_token;
-    unsigned lparen_token;
+    int asm_token;
+    int volatile_token;
+    int lparen_token;
     // ### string literals
     // ### asm operand list
-    unsigned rparen_token;
-    unsigned semicolon_token;
+    int rparen_token;
+    int semicolon_token;
 
 public:
     AsmDefinitionAST()
@@ -986,8 +986,8 @@ public:
 
     virtual AsmDefinitionAST *asAsmDefinition() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual AsmDefinitionAST *clone(MemoryPool *pool) const;
 
@@ -999,10 +999,10 @@ protected:
 class CPLUSPLUS_EXPORT BaseSpecifierAST: public AST
 {
 public:
-    unsigned virtual_token;
-    unsigned access_specifier_token;
+    int virtual_token;
+    int access_specifier_token;
     NameAST *name;
-    unsigned ellipsis_token;
+    int ellipsis_token;
 
 public: // annotations
     BaseClass *symbol;
@@ -1018,8 +1018,8 @@ public:
 
     virtual BaseSpecifierAST *asBaseSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual BaseSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -1040,8 +1040,8 @@ public:
 
     virtual IdExpressionAST *asIdExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual IdExpressionAST *clone(MemoryPool *pool) const;
 
@@ -1053,9 +1053,9 @@ protected:
 class CPLUSPLUS_EXPORT CompoundExpressionAST: public ExpressionAST
 {
 public:
-    unsigned lparen_token;
+    int lparen_token;
     CompoundStatementAST *statement;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     CompoundExpressionAST()
@@ -1066,8 +1066,8 @@ public:
 
     virtual CompoundExpressionAST *asCompoundExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CompoundExpressionAST *clone(MemoryPool *pool) const;
 
@@ -1079,9 +1079,9 @@ protected:
 class CPLUSPLUS_EXPORT CompoundLiteralAST: public ExpressionAST
 {
 public:
-    unsigned lparen_token;
+    int lparen_token;
     ExpressionAST *type_id;
-    unsigned rparen_token;
+    int rparen_token;
     ExpressionAST *initializer;
 
 public:
@@ -1094,8 +1094,8 @@ public:
 
     virtual CompoundLiteralAST *asCompoundLiteral() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CompoundLiteralAST *clone(MemoryPool *pool) const;
 
@@ -1107,10 +1107,10 @@ protected:
 class CPLUSPLUS_EXPORT QtMethodAST: public ExpressionAST
 {
 public:
-    unsigned method_token;
-    unsigned lparen_token;
+    int method_token;
+    int lparen_token;
     DeclaratorAST *declarator;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     QtMethodAST()
@@ -1122,8 +1122,8 @@ public:
 
     virtual QtMethodAST *asQtMethod() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtMethodAST *clone(MemoryPool *pool) const;
 
@@ -1135,10 +1135,10 @@ protected:
 class CPLUSPLUS_EXPORT QtMemberDeclarationAST: public StatementAST
 {
 public:
-    unsigned q_token;
-    unsigned lparen_token;
+    int q_token;
+    int lparen_token;
     ExpressionAST *type_id;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     QtMemberDeclarationAST()
@@ -1150,8 +1150,8 @@ public:
 
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QtMemberDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -1164,7 +1164,7 @@ class CPLUSPLUS_EXPORT BinaryExpressionAST: public ExpressionAST
 {
 public:
     ExpressionAST *left_expression;
-    unsigned binary_op_token;
+    int binary_op_token;
     ExpressionAST *right_expression;
 
 public:
@@ -1176,8 +1176,8 @@ public:
 
     virtual BinaryExpressionAST *asBinaryExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual BinaryExpressionAST *clone(MemoryPool *pool) const;
 
@@ -1189,9 +1189,9 @@ protected:
 class CPLUSPLUS_EXPORT CastExpressionAST: public ExpressionAST
 {
 public:
-    unsigned lparen_token;
+    int lparen_token;
     ExpressionAST *type_id;
-    unsigned rparen_token;
+    int rparen_token;
     ExpressionAST *expression;
 
 public:
@@ -1204,8 +1204,8 @@ public:
 
     virtual CastExpressionAST *asCastExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CastExpressionAST *clone(MemoryPool *pool) const;
 
@@ -1217,16 +1217,16 @@ protected:
 class CPLUSPLUS_EXPORT ClassSpecifierAST: public SpecifierAST
 {
 public:
-    unsigned classkey_token;
+    int classkey_token;
     SpecifierListAST *attribute_list;
     NameAST *name;
-    unsigned final_token;
-    unsigned colon_token;
+    int final_token;
+    int colon_token;
     BaseSpecifierListAST *base_clause_list;
-    unsigned dot_dot_dot_token;
-    unsigned lbrace_token;
+    int dot_dot_dot_token;
+    int lbrace_token;
     DeclarationListAST *member_specifier_list;
-    unsigned rbrace_token;
+    int rbrace_token;
 
 public: // annotations
     Class *symbol;
@@ -1248,8 +1248,8 @@ public:
 
     virtual ClassSpecifierAST *asClassSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ClassSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -1261,9 +1261,9 @@ protected:
 class CPLUSPLUS_EXPORT CaseStatementAST: public StatementAST
 {
 public:
-    unsigned case_token;
+    int case_token;
     ExpressionAST *expression;
-    unsigned colon_token;
+    int colon_token;
     StatementAST *statement;
 
 public:
@@ -1276,8 +1276,8 @@ public:
 
     virtual CaseStatementAST *asCaseStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CaseStatementAST *clone(MemoryPool *pool) const;
 
@@ -1289,9 +1289,9 @@ protected:
 class CPLUSPLUS_EXPORT CompoundStatementAST: public StatementAST
 {
 public:
-    unsigned lbrace_token;
+    int lbrace_token;
     StatementListAST *statement_list;
-    unsigned rbrace_token;
+    int rbrace_token;
 
 public: // annotations
     Block *symbol;
@@ -1306,8 +1306,8 @@ public:
 
     virtual CompoundStatementAST *asCompoundStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CompoundStatementAST *clone(MemoryPool *pool) const;
 
@@ -1330,8 +1330,8 @@ public:
 
     virtual ConditionAST *asCondition() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ConditionAST *clone(MemoryPool *pool) const;
 
@@ -1344,9 +1344,9 @@ class CPLUSPLUS_EXPORT ConditionalExpressionAST: public ExpressionAST
 {
 public:
     ExpressionAST *condition;
-    unsigned question_token;
+    int question_token;
     ExpressionAST *left_expression;
-    unsigned colon_token;
+    int colon_token;
     ExpressionAST *right_expression;
 
 public:
@@ -1360,8 +1360,8 @@ public:
 
     virtual ConditionalExpressionAST *asConditionalExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ConditionalExpressionAST *clone(MemoryPool *pool) const;
 
@@ -1373,13 +1373,13 @@ protected:
 class CPLUSPLUS_EXPORT CppCastExpressionAST: public ExpressionAST
 {
 public:
-    unsigned cast_token;
-    unsigned less_token;
+    int cast_token;
+    int less_token;
     ExpressionAST *type_id;
-    unsigned greater_token;
-    unsigned lparen_token;
+    int greater_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     CppCastExpressionAST()
@@ -1394,8 +1394,8 @@ public:
 
     virtual CppCastExpressionAST *asCppCastExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CppCastExpressionAST *clone(MemoryPool *pool) const;
 
@@ -1407,9 +1407,9 @@ protected:
 class CPLUSPLUS_EXPORT CtorInitializerAST: public AST
 {
 public:
-    unsigned colon_token;
+    int colon_token;
     MemInitializerListAST *member_initializer_list;
-    unsigned dot_dot_dot_token;
+    int dot_dot_dot_token;
 
 public:
     CtorInitializerAST()
@@ -1420,8 +1420,8 @@ public:
 
     virtual CtorInitializerAST *asCtorInitializer() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CtorInitializerAST *clone(MemoryPool *pool) const;
 
@@ -1442,8 +1442,8 @@ public:
 
     virtual DeclarationStatementAST *asDeclarationStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DeclarationStatementAST *clone(MemoryPool *pool) const;
 
@@ -1455,7 +1455,7 @@ protected:
 class CPLUSPLUS_EXPORT DeclaratorIdAST: public CoreDeclaratorAST
 {
 public:
-    unsigned dot_dot_dot_token;
+    int dot_dot_dot_token;
     NameAST *name;
 
 public:
@@ -1466,8 +1466,8 @@ public:
 
     virtual DeclaratorIdAST *asDeclaratorId() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DeclaratorIdAST *clone(MemoryPool *pool) const;
 
@@ -1479,9 +1479,9 @@ protected:
 class CPLUSPLUS_EXPORT NestedDeclaratorAST: public CoreDeclaratorAST
 {
 public:
-    unsigned lparen_token;
+    int lparen_token;
     DeclaratorAST *declarator;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     NestedDeclaratorAST()
@@ -1492,8 +1492,8 @@ public:
 
     virtual NestedDeclaratorAST *asNestedDeclarator() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NestedDeclaratorAST *clone(MemoryPool *pool) const;
 
@@ -1505,11 +1505,11 @@ protected:
 class CPLUSPLUS_EXPORT FunctionDeclaratorAST: public PostfixDeclaratorAST
 {
 public:
-    unsigned lparen_token;
+    int lparen_token;
     ParameterDeclarationClauseAST *parameter_declaration_clause;
-    unsigned rparen_token;
+    int rparen_token;
     SpecifierListAST *cv_qualifier_list;
-    unsigned ref_qualifier_token;
+    int ref_qualifier_token;
     ExceptionSpecificationAST *exception_specification;
     TrailingReturnTypeAST *trailing_return_type;
     // Some FunctionDeclarators can also be interpreted as an initializer, like for 'A b(c);'
@@ -1533,8 +1533,8 @@ public:
 
     virtual FunctionDeclaratorAST *asFunctionDeclarator() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual FunctionDeclaratorAST *clone(MemoryPool *pool) const;
 
@@ -1546,9 +1546,9 @@ protected:
 class CPLUSPLUS_EXPORT ArrayDeclaratorAST: public PostfixDeclaratorAST
 {
 public:
-    unsigned lbracket_token;
+    int lbracket_token;
     ExpressionAST *expression;
-    unsigned rbracket_token;
+    int rbracket_token;
 
 public:
     ArrayDeclaratorAST()
@@ -1559,8 +1559,8 @@ public:
 
     virtual ArrayDeclaratorAST *asArrayDeclarator() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ArrayDeclaratorAST *clone(MemoryPool *pool) const;
 
@@ -1572,10 +1572,10 @@ protected:
 class CPLUSPLUS_EXPORT DeleteExpressionAST: public ExpressionAST
 {
 public:
-    unsigned scope_token;
-    unsigned delete_token;
-    unsigned lbracket_token;
-    unsigned rbracket_token;
+    int scope_token;
+    int delete_token;
+    int lbracket_token;
+    int rbracket_token;
     ExpressionAST *expression;
 
 public:
@@ -1589,8 +1589,8 @@ public:
 
     virtual DeleteExpressionAST *asDeleteExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DeleteExpressionAST *clone(MemoryPool *pool) const;
 
@@ -1602,13 +1602,13 @@ protected:
 class CPLUSPLUS_EXPORT DoStatementAST: public StatementAST
 {
 public:
-    unsigned do_token;
+    int do_token;
     StatementAST *statement;
-    unsigned while_token;
-    unsigned lparen_token;
+    int while_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
-    unsigned semicolon_token;
+    int rparen_token;
+    int semicolon_token;
 
 public:
     DoStatementAST()
@@ -1623,8 +1623,8 @@ public:
 
     virtual DoStatementAST *asDoStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DoStatementAST *clone(MemoryPool *pool) const;
 
@@ -1645,8 +1645,8 @@ public:
 
     virtual NamedTypeSpecifierAST *asNamedTypeSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NamedTypeSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -1658,7 +1658,7 @@ protected:
 class CPLUSPLUS_EXPORT ElaboratedTypeSpecifierAST: public SpecifierAST
 {
 public:
-    unsigned classkey_token;
+    int classkey_token;
     SpecifierListAST *attribute_list;
     NameAST *name;
 
@@ -1671,8 +1671,8 @@ public:
 
     virtual ElaboratedTypeSpecifierAST *asElaboratedTypeSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ElaboratedTypeSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -1684,15 +1684,15 @@ protected:
 class CPLUSPLUS_EXPORT EnumSpecifierAST: public SpecifierAST
 {
 public:
-    unsigned enum_token;
-    unsigned key_token; // struct, class or 0
+    int enum_token;
+    int key_token; // struct, class or 0
     NameAST *name;
-    unsigned colon_token; // can be 0 if there is no enum-base
+    int colon_token; // can be 0 if there is no enum-base
     SpecifierListAST *type_specifier_list; // ditto
-    unsigned lbrace_token;
+    int lbrace_token;
     EnumeratorListAST *enumerator_list;
-    unsigned stray_comma_token;
-    unsigned rbrace_token;
+    int stray_comma_token;
+    int rbrace_token;
 
 public: // annotations
     Enum *symbol;
@@ -1713,8 +1713,8 @@ public:
 
     virtual EnumSpecifierAST *asEnumSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual EnumSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -1726,8 +1726,8 @@ protected:
 class CPLUSPLUS_EXPORT EnumeratorAST: public AST
 {
 public:
-    unsigned identifier_token;
-    unsigned equal_token;
+    int identifier_token;
+    int equal_token;
     ExpressionAST *expression;
 
 public:
@@ -1739,8 +1739,8 @@ public:
 
     virtual EnumeratorAST *asEnumerator() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual EnumeratorAST *clone(MemoryPool *pool) const;
 
@@ -1754,7 +1754,7 @@ class CPLUSPLUS_EXPORT ExceptionDeclarationAST: public DeclarationAST
 public:
     SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
-    unsigned dot_dot_dot_token;
+    int dot_dot_dot_token;
 
 public:
     ExceptionDeclarationAST()
@@ -1765,8 +1765,8 @@ public:
 
     virtual ExceptionDeclarationAST *asExceptionDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ExceptionDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -1789,11 +1789,11 @@ public:
 class CPLUSPLUS_EXPORT DynamicExceptionSpecificationAST: public ExceptionSpecificationAST
 {
 public:
-    unsigned throw_token;
-    unsigned lparen_token;
-    unsigned dot_dot_dot_token;
+    int throw_token;
+    int lparen_token;
+    int dot_dot_dot_token;
     ExpressionListAST *type_id_list;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     DynamicExceptionSpecificationAST()
@@ -1806,8 +1806,8 @@ public:
 
     virtual DynamicExceptionSpecificationAST *asDynamicExceptionSpecification() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DynamicExceptionSpecificationAST *clone(MemoryPool *pool) const;
 
@@ -1819,10 +1819,10 @@ protected:
 class CPLUSPLUS_EXPORT NoExceptSpecificationAST: public ExceptionSpecificationAST
 {
 public:
-    unsigned noexcept_token;
-    unsigned lparen_token;
+    int noexcept_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     NoExceptSpecificationAST()
@@ -1834,8 +1834,8 @@ public:
 
     virtual NoExceptSpecificationAST *asNoExceptSpecification() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NoExceptSpecificationAST *clone(MemoryPool *pool) const;
 
@@ -1858,8 +1858,8 @@ public:
 
     virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ExpressionOrDeclarationStatementAST *clone(MemoryPool *pool) const;
 
@@ -1872,7 +1872,7 @@ class CPLUSPLUS_EXPORT ExpressionStatementAST: public StatementAST
 {
 public:
     ExpressionAST *expression;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     ExpressionStatementAST()
@@ -1882,8 +1882,8 @@ public:
 
     virtual ExpressionStatementAST *asExpressionStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ExpressionStatementAST *clone(MemoryPool *pool) const;
 
@@ -1895,7 +1895,7 @@ protected:
 class CPLUSPLUS_EXPORT FunctionDefinitionAST: public DeclarationAST
 {
 public:
-    unsigned qt_invokable_token;
+    int qt_invokable_token;
     SpecifierListAST *decl_specifier_list;
     DeclaratorAST *declarator;
     CtorInitializerAST *ctor_initializer;
@@ -1916,8 +1916,8 @@ public:
 
     virtual FunctionDefinitionAST *asFunctionDefinition() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual FunctionDefinitionAST *clone(MemoryPool *pool) const;
 
@@ -1929,16 +1929,16 @@ protected:
 class CPLUSPLUS_EXPORT ForeachStatementAST: public StatementAST
 {
 public:
-    unsigned foreach_token;
-    unsigned lparen_token;
+    int foreach_token;
+    int lparen_token;
     // declaration
     SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
     // or an expression
     ExpressionAST *initializer;
-    unsigned comma_token;
+    int comma_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
 
 public: // annotations
@@ -1960,8 +1960,8 @@ public:
 
     virtual ForeachStatementAST *asForeachStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ForeachStatementAST *clone(MemoryPool *pool) const;
 
@@ -1973,15 +1973,15 @@ protected:
 class CPLUSPLUS_EXPORT RangeBasedForStatementAST : public StatementAST
 {
 public:
-    unsigned for_token;
-    unsigned lparen_token;
+    int for_token;
+    int lparen_token;
     // declaration
     SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
     // or an expression
-    unsigned colon_token;
+    int colon_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
 
 public: // annotations
@@ -2002,8 +2002,8 @@ public:
 
     virtual RangeBasedForStatementAST *asRangeBasedForStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual RangeBasedForStatementAST *clone(MemoryPool *pool) const;
 
@@ -2015,13 +2015,13 @@ protected:
 class CPLUSPLUS_EXPORT ForStatementAST: public StatementAST
 {
 public:
-    unsigned for_token;
-    unsigned lparen_token;
+    int for_token;
+    int lparen_token;
     StatementAST *initializer;
     ExpressionAST *condition;
-    unsigned semicolon_token;
+    int semicolon_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
 
 public: // annotations
@@ -2042,8 +2042,8 @@ public:
 
     virtual ForStatementAST *asForStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ForStatementAST *clone(MemoryPool *pool) const;
 
@@ -2055,12 +2055,12 @@ protected:
 class CPLUSPLUS_EXPORT IfStatementAST: public StatementAST
 {
 public:
-    unsigned if_token;
-    unsigned lparen_token;
+    int if_token;
+    int lparen_token;
     ExpressionAST *condition;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
-    unsigned else_token;
+    int else_token;
     StatementAST *else_statement;
 
 public: // annotations
@@ -2080,8 +2080,8 @@ public:
 
     virtual IfStatementAST *asIfStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual IfStatementAST *clone(MemoryPool *pool) const;
 
@@ -2093,9 +2093,9 @@ protected:
 class CPLUSPLUS_EXPORT ArrayInitializerAST: public ExpressionAST
 {
 public:
-    unsigned lbrace_token;
+    int lbrace_token;
     ExpressionListAST *expression_list;
-    unsigned rbrace_token;
+    int rbrace_token;
 
 public:
     ArrayInitializerAST()
@@ -2106,8 +2106,8 @@ public:
 
     virtual ArrayInitializerAST *asArrayInitializer() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ArrayInitializerAST *clone(MemoryPool *pool) const;
 
@@ -2119,8 +2119,8 @@ protected:
 class CPLUSPLUS_EXPORT LabeledStatementAST: public StatementAST
 {
 public:
-    unsigned label_token;
-    unsigned colon_token;
+    int label_token;
+    int colon_token;
     StatementAST *statement;
 
 public:
@@ -2132,8 +2132,8 @@ public:
 
     virtual LabeledStatementAST *asLabeledStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual LabeledStatementAST *clone(MemoryPool *pool) const;
 
@@ -2145,9 +2145,9 @@ protected:
 class CPLUSPLUS_EXPORT LinkageBodyAST: public DeclarationAST
 {
 public:
-    unsigned lbrace_token;
+    int lbrace_token;
     DeclarationListAST *declaration_list;
-    unsigned rbrace_token;
+    int rbrace_token;
 
 public:
     LinkageBodyAST()
@@ -2157,8 +2157,8 @@ public:
     {}
 
     virtual LinkageBodyAST *asLinkageBody() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual LinkageBodyAST *clone(MemoryPool *pool) const;
 
@@ -2170,8 +2170,8 @@ protected:
 class CPLUSPLUS_EXPORT LinkageSpecificationAST: public DeclarationAST
 {
 public:
-    unsigned extern_token;
-    unsigned extern_type_token;
+    int extern_token;
+    int extern_type_token;
     DeclarationAST *declaration;
 
 public:
@@ -2183,8 +2183,8 @@ public:
 
     virtual LinkageSpecificationAST *asLinkageSpecification() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual LinkageSpecificationAST *clone(MemoryPool *pool) const;
 
@@ -2208,8 +2208,8 @@ public:
 
     virtual MemInitializerAST *asMemInitializer() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual MemInitializerAST *clone(MemoryPool *pool) const;
 
@@ -2222,7 +2222,7 @@ class CPLUSPLUS_EXPORT NestedNameSpecifierAST: public AST
 {
 public:
     NameAST *class_or_namespace_name;
-    unsigned scope_token;
+    int scope_token;
 
 public:
     NestedNameSpecifierAST()
@@ -2232,8 +2232,8 @@ public:
 
     virtual NestedNameSpecifierAST *asNestedNameSpecifier() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NestedNameSpecifierAST *clone(MemoryPool *pool) const;
 
@@ -2245,7 +2245,7 @@ protected:
 class CPLUSPLUS_EXPORT QualifiedNameAST: public NameAST
 {
 public:
-    unsigned global_scope_token;
+    int global_scope_token;
     NestedNameSpecifierListAST *nested_name_specifier_list;
     NameAST *unqualified_name;
 
@@ -2258,8 +2258,8 @@ public:
 
     virtual QualifiedNameAST *asQualifiedName() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual QualifiedNameAST *clone(MemoryPool *pool) const;
 
@@ -2271,7 +2271,7 @@ protected:
 class CPLUSPLUS_EXPORT OperatorFunctionIdAST: public NameAST
 {
 public:
-    unsigned operator_token;
+    int operator_token;
     OperatorAST *op;
 
 public:
@@ -2282,8 +2282,8 @@ public:
 
     virtual OperatorFunctionIdAST *asOperatorFunctionId() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual OperatorFunctionIdAST *clone(MemoryPool *pool) const;
 
@@ -2295,7 +2295,7 @@ protected:
 class CPLUSPLUS_EXPORT ConversionFunctionIdAST: public NameAST
 {
 public:
-    unsigned operator_token;
+    int operator_token;
     SpecifierListAST *type_specifier_list;
     PtrOperatorListAST *ptr_operator_list;
 
@@ -2308,8 +2308,8 @@ public:
 
     virtual ConversionFunctionIdAST *asConversionFunctionId() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ConversionFunctionIdAST *clone(MemoryPool *pool) const;
 
@@ -2321,15 +2321,15 @@ protected:
 class CPLUSPLUS_EXPORT AnonymousNameAST: public NameAST
 {
 public:
-    unsigned class_token;
+    int class_token;
 public:
     AnonymousNameAST()
         : class_token(0)
     {}
 
     virtual AnonymousNameAST *asAnonymousName() { return this; }
-    virtual unsigned firstToken() const { return 0; }
-    virtual unsigned lastToken() const { return 0; }
+    virtual int firstToken() const { return 0; }
+    virtual int lastToken() const { return 0; }
 
     virtual AnonymousNameAST *clone(MemoryPool *pool) const;
 
@@ -2341,7 +2341,7 @@ protected:
 class CPLUSPLUS_EXPORT SimpleNameAST: public NameAST
 {
 public:
-    unsigned identifier_token;
+    int identifier_token;
 
 public:
     SimpleNameAST()
@@ -2350,8 +2350,8 @@ public:
 
     virtual SimpleNameAST *asSimpleName() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual SimpleNameAST *clone(MemoryPool *pool) const;
 
@@ -2363,7 +2363,7 @@ protected:
 class CPLUSPLUS_EXPORT DestructorNameAST: public NameAST
 {
 public:
-    unsigned tilde_token;
+    int tilde_token;
     NameAST *unqualified_name;
 
 public:
@@ -2374,8 +2374,8 @@ public:
 
     virtual DestructorNameAST *asDestructorName() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DestructorNameAST *clone(MemoryPool *pool) const;
 
@@ -2387,11 +2387,11 @@ protected:
 class CPLUSPLUS_EXPORT TemplateIdAST: public NameAST
 {
 public:
-    unsigned template_token;
-    unsigned identifier_token;
-    unsigned less_token;
+    int template_token;
+    int identifier_token;
+    int less_token;
     ExpressionListAST *template_argument_list;
-    unsigned greater_token;
+    int greater_token;
 
 public:
     TemplateIdAST()
@@ -2404,8 +2404,8 @@ public:
 
     virtual TemplateIdAST *asTemplateId() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TemplateIdAST *clone(MemoryPool *pool) const;
 
@@ -2417,9 +2417,9 @@ protected:
 class CPLUSPLUS_EXPORT NamespaceAST: public DeclarationAST
 {
 public:
-    unsigned inline_token;
-    unsigned namespace_token;
-    unsigned identifier_token;
+    int inline_token;
+    int namespace_token;
+    int identifier_token;
     SpecifierListAST *attribute_list;
     DeclarationAST *linkage_body;
 
@@ -2438,8 +2438,8 @@ public:
 
     virtual NamespaceAST *asNamespace() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NamespaceAST *clone(MemoryPool *pool) const;
 
@@ -2451,11 +2451,11 @@ protected:
 class CPLUSPLUS_EXPORT NamespaceAliasDefinitionAST: public DeclarationAST
 {
 public:
-    unsigned namespace_token;
-    unsigned namespace_name_token;
-    unsigned equal_token;
+    int namespace_token;
+    int namespace_name_token;
+    int equal_token;
     NameAST *name;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     NamespaceAliasDefinitionAST()
@@ -2468,8 +2468,8 @@ public:
 
     virtual NamespaceAliasDefinitionAST *asNamespaceAliasDefinition() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NamespaceAliasDefinitionAST *clone(MemoryPool *pool) const;
 
@@ -2481,11 +2481,11 @@ protected:
 class CPLUSPLUS_EXPORT AliasDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned using_token;
+    int using_token;
     NameAST *name;
-    unsigned equal_token;
+    int equal_token;
     TypeIdAST *typeId;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public: // annotations
     Declaration *symbol;
@@ -2502,8 +2502,8 @@ public:
 
     virtual AliasDeclarationAST *asAliasDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual AliasDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -2515,9 +2515,9 @@ protected:
 class CPLUSPLUS_EXPORT ExpressionListParenAST: public ExpressionAST
 {
 public:
-    unsigned lparen_token;
+    int lparen_token;
     ExpressionListAST *expression_list;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     ExpressionListParenAST()
@@ -2528,8 +2528,8 @@ public:
 
     virtual ExpressionListParenAST *asExpressionListParen() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ExpressionListParenAST *clone(MemoryPool *pool) const;
 
@@ -2541,9 +2541,9 @@ protected:
 class CPLUSPLUS_EXPORT NewArrayDeclaratorAST: public AST
 {
 public:
-    unsigned lbracket_token;
+    int lbracket_token;
     ExpressionAST *expression;
-    unsigned rbracket_token;
+    int rbracket_token;
 
 public:
     NewArrayDeclaratorAST()
@@ -2554,8 +2554,8 @@ public:
 
     virtual NewArrayDeclaratorAST *asNewArrayDeclarator() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NewArrayDeclaratorAST *clone(MemoryPool *pool) const;
 
@@ -2567,13 +2567,13 @@ protected:
 class CPLUSPLUS_EXPORT NewExpressionAST: public ExpressionAST
 {
 public:
-    unsigned scope_token;
-    unsigned new_token;
+    int scope_token;
+    int new_token;
     ExpressionListParenAST *new_placement;
 
-    unsigned lparen_token;
+    int lparen_token;
     ExpressionAST *type_id;
-    unsigned rparen_token;
+    int rparen_token;
 
     NewTypeIdAST *new_type_id;
 
@@ -2593,8 +2593,8 @@ public:
 
     virtual NewExpressionAST *asNewExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NewExpressionAST *clone(MemoryPool *pool) const;
 
@@ -2619,8 +2619,8 @@ public:
 
     virtual NewTypeIdAST *asNewTypeId() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NewTypeIdAST *clone(MemoryPool *pool) const;
 
@@ -2632,9 +2632,9 @@ protected:
 class CPLUSPLUS_EXPORT OperatorAST: public AST
 {
 public:
-    unsigned op_token;
-    unsigned open_token;
-    unsigned close_token;
+    int op_token;
+    int open_token;
+    int close_token;
 
 public:
     OperatorAST()
@@ -2645,8 +2645,8 @@ public:
 
     virtual OperatorAST *asOperator() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual OperatorAST *clone(MemoryPool *pool) const;
 
@@ -2660,7 +2660,7 @@ class CPLUSPLUS_EXPORT ParameterDeclarationAST: public DeclarationAST
 public:
     SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
-    unsigned equal_token;
+    int equal_token;
     ExpressionAST *expression;
 
 public: // annotations
@@ -2677,8 +2677,8 @@ public:
 
     virtual ParameterDeclarationAST *asParameterDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ParameterDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -2691,7 +2691,7 @@ class CPLUSPLUS_EXPORT ParameterDeclarationClauseAST: public AST
 {
 public:
     ParameterDeclarationListAST *parameter_declaration_list;
-    unsigned dot_dot_dot_token;
+    int dot_dot_dot_token;
 
 public:
     ParameterDeclarationClauseAST()
@@ -2701,8 +2701,8 @@ public:
 
     virtual ParameterDeclarationClauseAST *asParameterDeclarationClause() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ParameterDeclarationClauseAST *clone(MemoryPool *pool) const;
 
@@ -2715,9 +2715,9 @@ class CPLUSPLUS_EXPORT CallAST: public PostfixAST
 {
 public:
     ExpressionAST *base_expression;
-    unsigned lparen_token;
+    int lparen_token;
     ExpressionListAST *expression_list;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     CallAST()
@@ -2729,8 +2729,8 @@ public:
 
     virtual CallAST *asCall() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CallAST *clone(MemoryPool *pool) const;
 
@@ -2743,9 +2743,9 @@ class CPLUSPLUS_EXPORT ArrayAccessAST: public PostfixAST
 {
 public:
     ExpressionAST *base_expression;
-    unsigned lbracket_token;
+    int lbracket_token;
     ExpressionAST *expression;
-    unsigned rbracket_token;
+    int rbracket_token;
 
 public:
     ArrayAccessAST()
@@ -2757,8 +2757,8 @@ public:
 
     virtual ArrayAccessAST *asArrayAccess() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ArrayAccessAST *clone(MemoryPool *pool) const;
 
@@ -2771,7 +2771,7 @@ class CPLUSPLUS_EXPORT PostIncrDecrAST: public PostfixAST
 {
 public:
     ExpressionAST *base_expression;
-    unsigned incr_decr_token;
+    int incr_decr_token;
 
 public:
     PostIncrDecrAST()
@@ -2781,8 +2781,8 @@ public:
 
     virtual PostIncrDecrAST *asPostIncrDecr() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual PostIncrDecrAST *clone(MemoryPool *pool) const;
 
@@ -2795,8 +2795,8 @@ class CPLUSPLUS_EXPORT MemberAccessAST: public PostfixAST
 {
 public:
     ExpressionAST *base_expression;
-    unsigned access_token;
-    unsigned template_token;
+    int access_token;
+    int template_token;
     NameAST *member_name;
 
 public:
@@ -2809,8 +2809,8 @@ public:
 
     virtual MemberAccessAST *asMemberAccess() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual MemberAccessAST *clone(MemoryPool *pool) const;
 
@@ -2822,10 +2822,10 @@ protected:
 class CPLUSPLUS_EXPORT TypeidExpressionAST: public ExpressionAST
 {
 public:
-    unsigned typeid_token;
-    unsigned lparen_token;
+    int typeid_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     TypeidExpressionAST()
@@ -2837,8 +2837,8 @@ public:
 
     virtual TypeidExpressionAST *asTypeidExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TypeidExpressionAST *clone(MemoryPool *pool) const;
 
@@ -2850,7 +2850,7 @@ protected:
 class CPLUSPLUS_EXPORT TypenameCallExpressionAST: public ExpressionAST
 {
 public:
-    unsigned typename_token;
+    int typename_token;
     NameAST *name;
     ExpressionAST *expression; // either ExpressionListParenAST or BracedInitializerAST
 
@@ -2863,8 +2863,8 @@ public:
 
     virtual TypenameCallExpressionAST *asTypenameCallExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TypenameCallExpressionAST *clone(MemoryPool *pool) const;
 
@@ -2887,8 +2887,8 @@ public:
 
     virtual TypeConstructorCallAST *asTypeConstructorCall() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TypeConstructorCallAST *clone(MemoryPool *pool) const;
 
@@ -2900,11 +2900,11 @@ protected:
 class CPLUSPLUS_EXPORT PointerToMemberAST: public PtrOperatorAST
 {
 public:
-    unsigned global_scope_token;
+    int global_scope_token;
     NestedNameSpecifierListAST *nested_name_specifier_list;
-    unsigned star_token;
+    int star_token;
     SpecifierListAST *cv_qualifier_list;
-    unsigned ref_qualifier_token;
+    int ref_qualifier_token;
 
 public:
     PointerToMemberAST()
@@ -2917,8 +2917,8 @@ public:
 
     virtual PointerToMemberAST *asPointerToMember() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual PointerToMemberAST *clone(MemoryPool *pool) const;
 
@@ -2930,7 +2930,7 @@ protected:
 class CPLUSPLUS_EXPORT PointerAST: public PtrOperatorAST
 {
 public:
-    unsigned star_token;
+    int star_token;
     SpecifierListAST *cv_qualifier_list;
 
 public:
@@ -2941,8 +2941,8 @@ public:
 
     virtual PointerAST *asPointer() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual PointerAST *clone(MemoryPool *pool) const;
 
@@ -2954,7 +2954,7 @@ protected:
 class CPLUSPLUS_EXPORT ReferenceAST: public PtrOperatorAST
 {
 public:
-    unsigned reference_token;
+    int reference_token;
 
 public:
     ReferenceAST()
@@ -2963,8 +2963,8 @@ public:
 
     virtual ReferenceAST *asReference() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ReferenceAST *clone(MemoryPool *pool) const;
 
@@ -2976,8 +2976,8 @@ protected:
 class CPLUSPLUS_EXPORT BreakStatementAST: public StatementAST
 {
 public:
-    unsigned break_token;
-    unsigned semicolon_token;
+    int break_token;
+    int semicolon_token;
 
 public:
     BreakStatementAST()
@@ -2987,8 +2987,8 @@ public:
 
     virtual BreakStatementAST *asBreakStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual BreakStatementAST *clone(MemoryPool *pool) const;
 
@@ -3000,8 +3000,8 @@ protected:
 class CPLUSPLUS_EXPORT ContinueStatementAST: public StatementAST
 {
 public:
-    unsigned continue_token;
-    unsigned semicolon_token;
+    int continue_token;
+    int semicolon_token;
 
 public:
     ContinueStatementAST()
@@ -3011,8 +3011,8 @@ public:
 
     virtual ContinueStatementAST *asContinueStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ContinueStatementAST *clone(MemoryPool *pool) const;
 
@@ -3024,9 +3024,9 @@ protected:
 class CPLUSPLUS_EXPORT GotoStatementAST: public StatementAST
 {
 public:
-    unsigned goto_token;
-    unsigned identifier_token;
-    unsigned semicolon_token;
+    int goto_token;
+    int identifier_token;
+    int semicolon_token;
 
 public:
     GotoStatementAST()
@@ -3037,8 +3037,8 @@ public:
 
     virtual GotoStatementAST *asGotoStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual GotoStatementAST *clone(MemoryPool *pool) const;
 
@@ -3050,9 +3050,9 @@ protected:
 class CPLUSPLUS_EXPORT ReturnStatementAST: public StatementAST
 {
 public:
-    unsigned return_token;
+    int return_token;
     ExpressionAST *expression;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     ReturnStatementAST()
@@ -3063,8 +3063,8 @@ public:
 
     virtual ReturnStatementAST *asReturnStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ReturnStatementAST *clone(MemoryPool *pool) const;
 
@@ -3076,11 +3076,11 @@ protected:
 class CPLUSPLUS_EXPORT SizeofExpressionAST: public ExpressionAST
 {
 public:
-    unsigned sizeof_token;
-    unsigned dot_dot_dot_token;
-    unsigned lparen_token;
+    int sizeof_token;
+    int dot_dot_dot_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     SizeofExpressionAST()
@@ -3093,8 +3093,8 @@ public:
 
     virtual SizeofExpressionAST *asSizeofExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual SizeofExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3106,10 +3106,10 @@ protected:
 class CPLUSPLUS_EXPORT AlignofExpressionAST: public ExpressionAST
 {
 public:
-    unsigned alignof_token;
-    unsigned lparen_token;
+    int alignof_token;
+    int lparen_token;
     TypeIdAST *typeId;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     AlignofExpressionAST()
@@ -3121,8 +3121,8 @@ public:
 
     virtual AlignofExpressionAST *asAlignofExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual AlignofExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3134,7 +3134,7 @@ protected:
 class CPLUSPLUS_EXPORT PointerLiteralAST: public ExpressionAST
 {
 public:
-    unsigned literal_token;
+    int literal_token;
 
 public:
     PointerLiteralAST()
@@ -3143,8 +3143,8 @@ public:
 
     virtual PointerLiteralAST *asPointerLiteral() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual PointerLiteralAST *clone(MemoryPool *pool) const;
 
@@ -3156,7 +3156,7 @@ protected:
 class CPLUSPLUS_EXPORT NumericLiteralAST: public ExpressionAST
 {
 public:
-    unsigned literal_token;
+    int literal_token;
 
 public:
     NumericLiteralAST()
@@ -3165,8 +3165,8 @@ public:
 
     virtual NumericLiteralAST *asNumericLiteral() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NumericLiteralAST *clone(MemoryPool *pool) const;
 
@@ -3178,7 +3178,7 @@ protected:
 class CPLUSPLUS_EXPORT BoolLiteralAST: public ExpressionAST
 {
 public:
-    unsigned literal_token;
+    int literal_token;
 
 public:
     BoolLiteralAST()
@@ -3187,8 +3187,8 @@ public:
 
     virtual BoolLiteralAST *asBoolLiteral() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual BoolLiteralAST *clone(MemoryPool *pool) const;
 
@@ -3200,7 +3200,7 @@ protected:
 class CPLUSPLUS_EXPORT ThisExpressionAST: public ExpressionAST
 {
 public:
-    unsigned this_token;
+    int this_token;
 
 public:
     ThisExpressionAST()
@@ -3209,8 +3209,8 @@ public:
 
     virtual ThisExpressionAST *asThisExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ThisExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3222,9 +3222,9 @@ protected:
 class CPLUSPLUS_EXPORT NestedExpressionAST: public ExpressionAST
 {
 public:
-    unsigned lparen_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     NestedExpressionAST()
@@ -3235,8 +3235,8 @@ public:
 
     virtual NestedExpressionAST *asNestedExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NestedExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3248,13 +3248,13 @@ protected:
 class CPLUSPLUS_EXPORT StaticAssertDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned static_assert_token;
-    unsigned lparen_token;
+    int static_assert_token;
+    int lparen_token;
     ExpressionAST *expression;
-    unsigned comma_token;
+    int comma_token;
     ExpressionAST *string_literal;
-    unsigned rparen_token;
-    unsigned semicolon_token;
+    int rparen_token;
+    int semicolon_token;
 
 public:
     StaticAssertDeclarationAST()
@@ -3269,8 +3269,8 @@ public:
 
     virtual StaticAssertDeclarationAST *asStaticAssertDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual StaticAssertDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -3282,7 +3282,7 @@ protected:
 class CPLUSPLUS_EXPORT StringLiteralAST: public ExpressionAST
 {
 public:
-    unsigned literal_token;
+    int literal_token;
     StringLiteralAST *next;
 
 public:
@@ -3293,8 +3293,8 @@ public:
 
     virtual StringLiteralAST *asStringLiteral() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual StringLiteralAST *clone(MemoryPool *pool) const;
 
@@ -3306,10 +3306,10 @@ protected:
 class CPLUSPLUS_EXPORT SwitchStatementAST: public StatementAST
 {
 public:
-    unsigned switch_token;
-    unsigned lparen_token;
+    int switch_token;
+    int lparen_token;
     ExpressionAST *condition;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
 
 public: // annotations
@@ -3327,8 +3327,8 @@ public:
 
     virtual SwitchStatementAST *asSwitchStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual SwitchStatementAST *clone(MemoryPool *pool) const;
 
@@ -3340,11 +3340,11 @@ protected:
 class CPLUSPLUS_EXPORT TemplateDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned export_token;
-    unsigned template_token;
-    unsigned less_token;
+    int export_token;
+    int template_token;
+    int less_token;
     DeclarationListAST *template_parameter_list;
-    unsigned greater_token;
+    int greater_token;
     DeclarationAST *declaration;
 
 public: // annotations
@@ -3363,8 +3363,8 @@ public:
 
     virtual TemplateDeclarationAST *asTemplateDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TemplateDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -3376,7 +3376,7 @@ protected:
 class CPLUSPLUS_EXPORT ThrowExpressionAST: public ExpressionAST
 {
 public:
-    unsigned throw_token;
+    int throw_token;
     ExpressionAST *expression;
 
 public:
@@ -3387,8 +3387,8 @@ public:
 
     virtual ThrowExpressionAST *asThrowExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ThrowExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3400,7 +3400,7 @@ protected:
 class CPLUSPLUS_EXPORT NoExceptOperatorExpressionAST: public ExpressionAST
 {
 public:
-    unsigned noexcept_token;
+    int noexcept_token;
     ExpressionAST *expression;
 
 public:
@@ -3411,8 +3411,8 @@ public:
 
     virtual NoExceptOperatorExpressionAST *asNoExceptOperatorExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual NoExceptOperatorExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3433,8 +3433,8 @@ public:
 
     virtual TranslationUnitAST *asTranslationUnit() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TranslationUnitAST *clone(MemoryPool *pool) const;
 
@@ -3446,7 +3446,7 @@ protected:
 class CPLUSPLUS_EXPORT TryBlockStatementAST: public StatementAST
 {
 public:
-    unsigned try_token;
+    int try_token;
     StatementAST *statement;
     CatchClauseListAST *catch_clause_list;
 
@@ -3459,8 +3459,8 @@ public:
 
     virtual TryBlockStatementAST *asTryBlockStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TryBlockStatementAST *clone(MemoryPool *pool) const;
 
@@ -3472,10 +3472,10 @@ protected:
 class CPLUSPLUS_EXPORT CatchClauseAST: public StatementAST
 {
 public:
-    unsigned catch_token;
-    unsigned lparen_token;
+    int catch_token;
+    int lparen_token;
     ExceptionDeclarationAST *exception_declaration;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
 
 public: // annotations
@@ -3493,8 +3493,8 @@ public:
 
     virtual CatchClauseAST *asCatchClause() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CatchClauseAST *clone(MemoryPool *pool) const;
 
@@ -3517,8 +3517,8 @@ public:
 
     virtual TypeIdAST *asTypeId() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TypeIdAST *clone(MemoryPool *pool) const;
 
@@ -3530,10 +3530,10 @@ protected:
 class CPLUSPLUS_EXPORT TypenameTypeParameterAST: public DeclarationAST
 {
 public:
-    unsigned classkey_token;
-    unsigned dot_dot_dot_token;
+    int classkey_token;
+    int dot_dot_dot_token;
     NameAST *name;
-    unsigned equal_token;
+    int equal_token;
     ExpressionAST *type_id;
 
 public: // annotations
@@ -3551,8 +3551,8 @@ public:
 
     virtual TypenameTypeParameterAST *asTypenameTypeParameter() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TypenameTypeParameterAST *clone(MemoryPool *pool) const;
 
@@ -3564,14 +3564,14 @@ protected:
 class CPLUSPLUS_EXPORT TemplateTypeParameterAST: public DeclarationAST
 {
 public:
-    unsigned template_token;
-    unsigned less_token;
+    int template_token;
+    int less_token;
     DeclarationListAST *template_parameter_list;
-    unsigned greater_token;
-    unsigned class_token;
-    unsigned dot_dot_dot_token;
+    int greater_token;
+    int class_token;
+    int dot_dot_dot_token;
     NameAST *name;
-    unsigned equal_token;
+    int equal_token;
     ExpressionAST *type_id;
 
 public:
@@ -3593,8 +3593,8 @@ public:
 
     virtual TemplateTypeParameterAST *asTemplateTypeParameter() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TemplateTypeParameterAST *clone(MemoryPool *pool) const;
 
@@ -3606,7 +3606,7 @@ protected:
 class CPLUSPLUS_EXPORT UnaryExpressionAST: public ExpressionAST
 {
 public:
-    unsigned unary_op_token;
+    int unary_op_token;
     ExpressionAST *expression;
 
 public:
@@ -3617,8 +3617,8 @@ public:
 
     virtual UnaryExpressionAST *asUnaryExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual UnaryExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3630,10 +3630,10 @@ protected:
 class CPLUSPLUS_EXPORT UsingAST: public DeclarationAST
 {
 public:
-    unsigned using_token;
-    unsigned typename_token;
+    int using_token;
+    int typename_token;
     NameAST *name;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public: // annotations
     UsingDeclaration *symbol;
@@ -3649,8 +3649,8 @@ public:
 
     virtual UsingAST *asUsing() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual UsingAST *clone(MemoryPool *pool) const;
 
@@ -3662,10 +3662,10 @@ protected:
 class CPLUSPLUS_EXPORT UsingDirectiveAST: public DeclarationAST
 {
 public:
-    unsigned using_token;
-    unsigned namespace_token;
+    int using_token;
+    int namespace_token;
     NameAST *name;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     UsingNamespaceDirective *symbol;
@@ -3681,8 +3681,8 @@ public:
 
     virtual UsingDirectiveAST *asUsingDirective() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual UsingDirectiveAST *clone(MemoryPool *pool) const;
 
@@ -3694,10 +3694,10 @@ protected:
 class CPLUSPLUS_EXPORT WhileStatementAST: public StatementAST
 {
 public:
-    unsigned while_token;
-    unsigned lparen_token;
+    int while_token;
+    int lparen_token;
     ExpressionAST *condition;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
 
 public: // annotations
@@ -3715,8 +3715,8 @@ public:
 
     virtual WhileStatementAST *asWhileStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual WhileStatementAST *clone(MemoryPool *pool) const;
 
@@ -3729,9 +3729,9 @@ class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned class_token;
+    int class_token;
     NameListAST *identifier_list;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public: // annotations
     List<ObjCForwardClassDeclaration *> *symbols;
@@ -3747,8 +3747,8 @@ public:
 
     virtual ObjCClassForwardDeclarationAST *asObjCClassForwardDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCClassForwardDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -3761,18 +3761,18 @@ class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned interface_token;
-    unsigned implementation_token;
+    int interface_token;
+    int implementation_token;
     NameAST *class_name;
-    unsigned lparen_token;
+    int lparen_token;
     NameAST *category_name;
-    unsigned rparen_token;
-    unsigned colon_token;
+    int rparen_token;
+    int colon_token;
     NameAST *superclass;
     ObjCProtocolRefsAST *protocol_refs;
     ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
     DeclarationListAST *member_declaration_list;
-    unsigned end_token;
+    int end_token;
 
 public: // annotations
     ObjCClass *symbol;
@@ -3797,8 +3797,8 @@ public:
 
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCClassDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -3811,9 +3811,9 @@ class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned protocol_token;
+    int protocol_token;
     NameListAST *identifier_list;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public: // annotations
     List<ObjCForwardProtocolDeclaration *> *symbols;
@@ -3829,8 +3829,8 @@ public:
 
     virtual ObjCProtocolForwardDeclarationAST *asObjCProtocolForwardDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCProtocolForwardDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -3843,11 +3843,11 @@ class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned protocol_token;
+    int protocol_token;
     NameAST *name;
     ObjCProtocolRefsAST *protocol_refs;
     DeclarationListAST *member_declaration_list;
-    unsigned end_token;
+    int end_token;
 
 public: // annotations
     ObjCProtocol *symbol;
@@ -3865,8 +3865,8 @@ public:
 
     virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCProtocolDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -3878,9 +3878,9 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolRefsAST: public AST
 {
 public:
-    unsigned less_token;
+    int less_token;
     NameListAST *identifier_list;
-    unsigned greater_token;
+    int greater_token;
 
 public:
     ObjCProtocolRefsAST()
@@ -3891,8 +3891,8 @@ public:
 
     virtual ObjCProtocolRefsAST *asObjCProtocolRefs() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCProtocolRefsAST *clone(MemoryPool *pool) const;
 
@@ -3913,8 +3913,8 @@ public:
 
     virtual ObjCMessageArgumentAST *asObjCMessageArgument() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCMessageArgumentAST *clone(MemoryPool *pool) const;
 
@@ -3926,11 +3926,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
 {
 public:
-    unsigned lbracket_token;
+    int lbracket_token;
     ExpressionAST *receiver_expression;
     ObjCSelectorAST *selector;
     ObjCMessageArgumentListAST *argument_list;
-    unsigned rbracket_token;
+    int rbracket_token;
 
 public:
     ObjCMessageExpressionAST()
@@ -3943,8 +3943,8 @@ public:
 
     virtual ObjCMessageExpressionAST *asObjCMessageExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCMessageExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3956,10 +3956,10 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolExpressionAST: public ExpressionAST
 {
 public:
-    unsigned protocol_token;
-    unsigned lparen_token;
-    unsigned identifier_token;
-    unsigned rparen_token;
+    int protocol_token;
+    int lparen_token;
+    int identifier_token;
+    int rparen_token;
 
 public:
     ObjCProtocolExpressionAST()
@@ -3971,8 +3971,8 @@ public:
 
     virtual ObjCProtocolExpressionAST *asObjCProtocolExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCProtocolExpressionAST *clone(MemoryPool *pool) const;
 
@@ -3984,10 +3984,10 @@ protected:
 class CPLUSPLUS_EXPORT ObjCTypeNameAST: public AST
 {
 public:
-    unsigned lparen_token;
-    unsigned type_qualifier_token;
+    int lparen_token;
+    int type_qualifier_token;
     ExpressionAST *type_id;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     ObjCTypeNameAST()
@@ -3999,8 +3999,8 @@ public:
 
     virtual ObjCTypeNameAST *asObjCTypeName() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCTypeNameAST *clone(MemoryPool *pool) const;
 
@@ -4012,7 +4012,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCEncodeExpressionAST: public ExpressionAST
 {
 public:
-    unsigned encode_token;
+    int encode_token;
     ObjCTypeNameAST *type_name;
 
 public:
@@ -4023,8 +4023,8 @@ public:
 
     virtual ObjCEncodeExpressionAST *asObjCEncodeExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCEncodeExpressionAST *clone(MemoryPool *pool) const;
 
@@ -4036,10 +4036,10 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSelectorExpressionAST: public ExpressionAST
 {
 public:
-    unsigned selector_token;
-    unsigned lparen_token;
+    int selector_token;
+    int lparen_token;
     ObjCSelectorAST *selector;
-    unsigned rparen_token;
+    int rparen_token;
 
 public:
     ObjCSelectorExpressionAST()
@@ -4051,8 +4051,8 @@ public:
 
     virtual ObjCSelectorExpressionAST *asObjCSelectorExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCSelectorExpressionAST *clone(MemoryPool *pool) const;
 
@@ -4064,9 +4064,9 @@ protected:
 class CPLUSPLUS_EXPORT ObjCInstanceVariablesDeclarationAST: public AST
 {
 public:
-    unsigned lbrace_token;
+    int lbrace_token;
     DeclarationListAST *instance_variable_list;
-    unsigned rbrace_token;
+    int rbrace_token;
 
 public:
     ObjCInstanceVariablesDeclarationAST()
@@ -4077,8 +4077,8 @@ public:
 
     virtual ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCInstanceVariablesDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -4090,7 +4090,7 @@ protected:
 class CPLUSPLUS_EXPORT ObjCVisibilityDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned visibility_token;
+    int visibility_token;
 
 public:
     ObjCVisibilityDeclarationAST()
@@ -4099,8 +4099,8 @@ public:
 
     virtual ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCVisibilityDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -4112,8 +4112,8 @@ protected:
 class CPLUSPLUS_EXPORT ObjCPropertyAttributeAST: public AST
 {
 public:
-    unsigned attribute_identifier_token;
-    unsigned equals_token;
+    int attribute_identifier_token;
+    int equals_token;
     ObjCSelectorAST *method_selector;
 
 public:
@@ -4125,8 +4125,8 @@ public:
 
     virtual ObjCPropertyAttributeAST *asObjCPropertyAttribute() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCPropertyAttributeAST *clone(MemoryPool *pool) const;
 
@@ -4139,10 +4139,10 @@ class CPLUSPLUS_EXPORT ObjCPropertyDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned property_token;
-    unsigned lparen_token;
+    int property_token;
+    int lparen_token;
     ObjCPropertyAttributeListAST *property_attribute_list;
-    unsigned rparen_token;
+    int rparen_token;
     DeclarationAST *simple_declaration;
 
 public: // annotations
@@ -4161,8 +4161,8 @@ public:
 
     virtual ObjCPropertyDeclarationAST *asObjCPropertyDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCPropertyDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -4191,8 +4191,8 @@ public:
 
     virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCMessageArgumentDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -4204,11 +4204,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public AST
 {
 public:
-    unsigned method_type_token;
+    int method_type_token;
     ObjCTypeNameAST *type_name;
     ObjCSelectorAST *selector;
     ObjCMessageArgumentDeclarationListAST *argument_list;
-    unsigned dot_dot_dot_token;
+    int dot_dot_dot_token;
     SpecifierListAST *attribute_list;
 
 public: // annotations
@@ -4227,8 +4227,8 @@ public:
 
     virtual ObjCMethodPrototypeAST *asObjCMethodPrototype() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCMethodPrototypeAST *clone(MemoryPool *pool) const;
 
@@ -4242,7 +4242,7 @@ class CPLUSPLUS_EXPORT ObjCMethodDeclarationAST: public DeclarationAST
 public:
     ObjCMethodPrototypeAST *method_prototype;
     StatementAST *function_body;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     ObjCMethodDeclarationAST()
@@ -4253,8 +4253,8 @@ public:
 
     virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCMethodDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -4266,9 +4266,9 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertyAST: public AST
 {
 public:
-    unsigned property_identifier_token;
-    unsigned equals_token;
-    unsigned alias_identifier_token;
+    int property_identifier_token;
+    int equals_token;
+    int alias_identifier_token;
 
 public:
     ObjCSynthesizedPropertyAST()
@@ -4279,8 +4279,8 @@ public:
 
     virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCSynthesizedPropertyAST *clone(MemoryPool *pool) const;
 
@@ -4292,9 +4292,9 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertiesDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned synthesized_token;
+    int synthesized_token;
     ObjCSynthesizedPropertyListAST *property_identifier_list;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     ObjCSynthesizedPropertiesDeclarationAST()
@@ -4305,8 +4305,8 @@ public:
 
     virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCSynthesizedPropertiesDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -4318,9 +4318,9 @@ protected:
 class CPLUSPLUS_EXPORT ObjCDynamicPropertiesDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned dynamic_token;
+    int dynamic_token;
     NameListAST *property_identifier_list;
-    unsigned semicolon_token;
+    int semicolon_token;
 
 public:
     ObjCDynamicPropertiesDeclarationAST()
@@ -4331,8 +4331,8 @@ public:
 
     virtual ObjCDynamicPropertiesDeclarationAST *asObjCDynamicPropertiesDeclaration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCDynamicPropertiesDeclarationAST *clone(MemoryPool *pool) const;
 
@@ -4344,8 +4344,8 @@ protected:
 class CPLUSPLUS_EXPORT ObjCFastEnumerationAST: public StatementAST
 {
 public:
-    unsigned for_token;
-    unsigned lparen_token;
+    int for_token;
+    int lparen_token;
 
     // declaration
     SpecifierListAST *type_specifier_list;
@@ -4353,9 +4353,9 @@ public:
     // or an expression
     ExpressionAST *initializer;
 
-    unsigned in_token;
+    int in_token;
     ExpressionAST *fast_enumeratable_expression;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
 
 public: // annotations
@@ -4377,8 +4377,8 @@ public:
 
     virtual ObjCFastEnumerationAST *asObjCFastEnumeration() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCFastEnumerationAST *clone(MemoryPool *pool) const;
 
@@ -4390,10 +4390,10 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSynchronizedStatementAST: public StatementAST
 {
 public:
-    unsigned synchronized_token;
-    unsigned lparen_token;
+    int synchronized_token;
+    int lparen_token;
     ExpressionAST *synchronized_object;
-    unsigned rparen_token;
+    int rparen_token;
     StatementAST *statement;
 
 public:
@@ -4407,8 +4407,8 @@ public:
 
     virtual ObjCSynchronizedStatementAST *asObjCSynchronizedStatement() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual ObjCSynchronizedStatementAST *clone(MemoryPool *pool) const;
 
@@ -4434,8 +4434,8 @@ public:
 
     virtual LambdaExpressionAST *asLambdaExpression() { return this; }
 
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
     virtual LambdaExpressionAST *clone(MemoryPool *pool) const;
 
 protected:
@@ -4446,9 +4446,9 @@ protected:
 class LambdaIntroducerAST: public AST
 {
 public:
-    unsigned lbracket_token;
+    int lbracket_token;
     LambdaCaptureAST *lambda_capture;
-    unsigned rbracket_token;
+    int rbracket_token;
 
 public:
     LambdaIntroducerAST()
@@ -4458,8 +4458,8 @@ public:
     {}
 
     virtual LambdaIntroducerAST *asLambdaIntroducer() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual LambdaIntroducerAST *clone(MemoryPool *pool) const;
 
@@ -4471,7 +4471,7 @@ protected:
 class LambdaCaptureAST: public AST
 {
 public:
-    unsigned default_capture_token;
+    int default_capture_token;
     CaptureListAST *capture_list;
 
 public:
@@ -4481,8 +4481,8 @@ public:
     {}
 
     virtual LambdaCaptureAST *asLambdaCapture() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual LambdaCaptureAST *clone(MemoryPool *pool) const;
 
@@ -4494,7 +4494,7 @@ protected:
 class CaptureAST: public AST
 {
 public:
-    unsigned amper_token;
+    int amper_token;
     NameAST *identifier;
 
 public:
@@ -4504,8 +4504,8 @@ public:
     {}
 
     virtual CaptureAST *asCapture() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual CaptureAST *clone(MemoryPool *pool) const;
 
@@ -4517,11 +4517,11 @@ protected:
 class LambdaDeclaratorAST: public AST
 {
 public:
-    unsigned lparen_token;
+    int lparen_token;
     ParameterDeclarationClauseAST *parameter_declaration_clause;
-    unsigned rparen_token;
+    int rparen_token;
     SpecifierListAST *attributes;
-    unsigned mutable_token;
+    int mutable_token;
     ExceptionSpecificationAST *exception_specification;
     TrailingReturnTypeAST *trailing_return_type;
 
@@ -4541,8 +4541,8 @@ public:
     {}
 
     virtual LambdaDeclaratorAST *asLambdaDeclarator() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual LambdaDeclaratorAST *clone(MemoryPool *pool) const;
 
@@ -4554,7 +4554,7 @@ protected:
 class TrailingReturnTypeAST: public AST
 {
 public:
-    unsigned arrow_token;
+    int arrow_token;
     SpecifierListAST *attributes;
     SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
@@ -4568,8 +4568,8 @@ public:
     {}
 
     virtual TrailingReturnTypeAST *asTrailingReturnType() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual TrailingReturnTypeAST *clone(MemoryPool *pool) const;
 
@@ -4581,10 +4581,10 @@ protected:
 class BracedInitializerAST: public ExpressionAST
 {
 public:
-    unsigned lbrace_token;
+    int lbrace_token;
     ExpressionListAST *expression_list;
-    unsigned comma_token;
-    unsigned rbrace_token;
+    int comma_token;
+    int rbrace_token;
 
 public:
     BracedInitializerAST()
@@ -4595,8 +4595,8 @@ public:
     {}
 
     virtual BracedInitializerAST *asBracedInitializer() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual BracedInitializerAST *clone(MemoryPool *pool) const;
 
@@ -4618,8 +4618,8 @@ public:
 class DotDesignatorAST: public DesignatorAST
 {
 public:
-    unsigned dot_token;
-    unsigned identifier_token;
+    int dot_token;
+    int identifier_token;
 public:
     DotDesignatorAST()
         : dot_token(0)
@@ -4627,8 +4627,8 @@ public:
     {}
 
     virtual DotDesignatorAST *asDotDesignator() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DotDesignatorAST *clone(MemoryPool *pool) const;
 
@@ -4640,9 +4640,9 @@ protected:
 class BracketDesignatorAST: public DesignatorAST
 {
 public:
-    unsigned lbracket_token;
+    int lbracket_token;
     ExpressionAST *expression;
-    unsigned rbracket_token;
+    int rbracket_token;
 public:
     BracketDesignatorAST()
         : lbracket_token(0)
@@ -4651,8 +4651,8 @@ public:
     {}
 
     virtual BracketDesignatorAST *asBracketDesignator() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual BracketDesignatorAST *clone(MemoryPool *pool) const;
 
@@ -4665,7 +4665,7 @@ class DesignatedInitializerAST: public ExpressionAST
 {
 public:
     DesignatorListAST *designator_list;
-    unsigned equal_token;
+    int equal_token;
     ExpressionAST *initializer;
 
 public:
@@ -4676,8 +4676,8 @@ public:
     {}
 
     virtual DesignatedInitializerAST *asDesignatedInitializer() { return this; }
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
+    virtual int firstToken() const;
+    virtual int lastToken() const;
 
     virtual DesignatedInitializerAST *clone(MemoryPool *pool) const;
 

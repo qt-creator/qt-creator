@@ -80,7 +80,7 @@ QString textAt(QTextCursor tc, int pos, int length)
     return tc.selectedText().replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
 }
 
-QTextCursor selectAt(QTextCursor textCursor, uint line, uint column, uint length)
+QTextCursor selectAt(QTextCursor textCursor, int line, int column, uint length)
 {
     if (line < 1)
         line = 1;

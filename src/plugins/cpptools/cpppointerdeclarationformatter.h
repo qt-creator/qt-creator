@@ -101,9 +101,9 @@ private:
     class TokenRange {
     public:
         TokenRange() = default;
-        TokenRange(unsigned start, unsigned end) : start(start), end(end) {}
-        unsigned start = 0;
-        unsigned end = 0;
+        TokenRange(int start, int end) : start(start), end(end) {}
+        int start = 0;
+        int end = 0;
     };
 
     void processIfWhileForStatement(ExpressionAST *expression, Symbol *symbol);

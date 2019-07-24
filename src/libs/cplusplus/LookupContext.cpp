@@ -299,7 +299,7 @@ QList<LookupItem> LookupContext::lookupByUsing(const Name *name,
     if (name->isNameId() || name->isTemplateNameId()) {
         foreach (Symbol *s, bindingScope->symbols()) {
             if (Scope *scope = s->asScope()) {
-                for (unsigned i = 0, count = scope->memberCount(); i < count; ++i) {
+                for (int i = 0, count = scope->memberCount(); i < count; ++i) {
                     if (UsingDeclaration *u = scope->memberAt(i)->asUsingDeclaration()) {
                         if (const Name *usingDeclarationName = u->name()) {
                             if (const QualifiedNameId *q
@@ -362,7 +362,7 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
     if (! scope || ! name) {
         return 0;
     } else if (Block *block = scope->asBlock()) {
-        for (unsigned i = 0; i < block->memberCount(); ++i) {
+        for (int i = 0; i < block->memberCount(); ++i) {
             Symbol *m = block->memberAt(i);
             if (UsingNamespaceDirective *u = m->asUsingNamespaceDirective()) {
                 if (ClassOrNamespace *uu = lookupType(u->name(), scope->enclosingNamespace())) {
@@ -450,7 +450,7 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                     break;
             }
 
-            for (unsigned i = 0; i < scope->memberCount(); ++i) {
+            for (int i = 0; i < scope->memberCount(); ++i) {
                 if (UsingNamespaceDirective *u = scope->memberAt(i)->asUsingNamespaceDirective()) {
                     if (ClassOrNamespace *uu = lookupType(u->name(), scope->enclosingNamespace())) {
                         candidates = uu->find(name);
@@ -905,7 +905,7 @@ Symbol *ClassOrNamespace::lookupInScope(const QList<const Name *> &fullName)
 
         for (int j = 0; j < symbols().size(); ++j) {
             if (Scope *scope = symbols().at(j)->asScope()) {
-                for (unsigned i = 0; i < scope->memberCount(); ++i) {
+                for (int i = 0; i < scope->memberCount(); ++i) {
                     Symbol *s = scope->memberAt(i);
                     _scopeLookupCache->insert(LookupContext::fullyQualifiedName(s), s);
                 }
@@ -994,9 +994,9 @@ static ClassOrNamespace *findSpecializationWithMatchingTemplateArgument(const Na
     foreach (Symbol *s, reference->symbols()) {
         if (Class *clazz = s->asClass()) {
             if (Template *templateSpecialization = clazz->enclosingTemplate()) {
-                const unsigned argumentCountOfSpecialization
+                const int argumentCountOfSpecialization
                                     = templateSpecialization->templateParameterCount();
-                for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+                for (int i = 0; i < argumentCountOfSpecialization; ++i) {
                     if (TypenameArgument *tParam
                             = templateSpecialization->templateParameterAt(i)->asTypenameArgument()) {
                         if (const Name *name = tParam->name()) {
@@ -1018,14 +1018,14 @@ ClassOrNamespace *ClassOrNamespace::findSpecialization(const TemplateNameId *tem
     for (TemplateNameIdTable::const_iterator cit = specializations.begin();
          cit != specializations.end(); ++cit) {
         const TemplateNameId *specializationNameId = cit->first;
-        const unsigned specializationTemplateArgumentCount
+        const int specializationTemplateArgumentCount
                 = specializationNameId->templateArgumentCount();
-        const unsigned initializationTemplateArgumentCount
+        const int initializationTemplateArgumentCount
                 = templId->templateArgumentCount();
         // for now it works only when we have the same number of arguments in specialization
         // and initialization(in future it should be more clever)
         if (specializationTemplateArgumentCount == initializationTemplateArgumentCount) {
-            for (unsigned i = 0; i < initializationTemplateArgumentCount; ++i) {
+            for (int i = 0; i < initializationTemplateArgumentCount; ++i) {
                 const FullySpecifiedType &specializationTemplateArgument
                         = specializationNameId->templateArgumentAt(i);
                 const FullySpecifiedType &initializationTemplateArgument
@@ -1155,7 +1155,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
     QList<const Name *> allBases;
     foreach (Symbol *s, reference->symbols()) {
         if (Class *clazz = s->asClass()) {
-            for (unsigned i = 0; i < clazz->baseClassCount(); ++i) {
+            for (int i = 0; i < clazz->baseClassCount(); ++i) {
                 BaseClass *baseClass = clazz->baseClassAt(i);
                 if (baseClass->name())
                     allBases.append(baseClass->name());
@@ -1207,18 +1207,18 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
         // It gets a bit complicated if the reference is actually a class template because we
         // now must worry about dependent names in base classes.
         if (Template *templateSpecialization = referenceClass->enclosingTemplate()) {
-            const unsigned argumentCountOfInitialization = templId->templateArgumentCount();
-            const unsigned argumentCountOfSpecialization
+            const int argumentCountOfInitialization = templId->templateArgumentCount();
+            const int argumentCountOfSpecialization
                     = templateSpecialization->templateParameterCount();
 
             Subst subst(_control.data());
             if (_factory->expandTemplates()) {
                 const TemplateNameId *templSpecId
                         = templateSpecialization->name()->asTemplateNameId();
-                const unsigned templSpecArgumentCount = templSpecId ?
+                const int templSpecArgumentCount = templSpecId ?
                             templSpecId->templateArgumentCount() : 0;
                 Clone cloner(_control.data());
-                for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+                for (int i = 0; i < argumentCountOfSpecialization; ++i) {
                     const TypenameArgument *tParam
                             = templateSpecialization->templateParameterAt(i)->asTypenameArgument();
                     if (!tParam)
@@ -1251,8 +1251,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                         oo.showTemplateParameters = true;
                         qDebug() << "cloned" << oo(clone->type());
                         if (Class *klass = clone->asClass()) {
-                            const unsigned klassMemberCount = klass->memberCount();
-                            for (unsigned i = 0; i < klassMemberCount; ++i){
+                            const int klassMemberCount = klass->memberCount();
+                            for (int i = 0; i < klassMemberCount; ++i){
                                 Symbol *klassMemberAsSymbol = klass->memberAt(i);
                                 if (klassMemberAsSymbol->isTypedef()) {
                                     if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
@@ -1267,8 +1267,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                 instantiation->_symbols.append(reference->symbols());
             }
 
-            QHash<const Name*, unsigned> templParams;
-            for (unsigned i = 0; i < argumentCountOfSpecialization; ++i)
+            QHash<const Name*, int> templParams;
+            for (int i = 0; i < argumentCountOfSpecialization; ++i)
                 templParams.insert(templateSpecialization->templateParameterAt(i)->name(), i);
 
             foreach (const Name *baseName, allBases) {
@@ -1278,7 +1278,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                     // This is the simple case in which a template parameter is itself a base.
                     // Ex.: template <class T> class A : public T {};
                     if (templParams.contains(nameId)) {
-                        const unsigned parameterIndex = templParams.value(nameId);
+                        const int parameterIndex = templParams.value(nameId);
                         if (parameterIndex < argumentCountOfInitialization) {
                             const FullySpecifiedType &fullType =
                                     templId->templateArgumentAt(parameterIndex);
@@ -1297,7 +1297,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
                     }
                 } else {
                     SubstitutionMap map;
-                    for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+                    for (int i = 0; i < argumentCountOfSpecialization; ++i) {
                         const Name *name = templateSpecialization->templateParameterAt(i)->name();
                         FullySpecifiedType ty = (i < argumentCountOfInitialization) ?
                                     templId->templateArgumentAt(i):
@@ -1664,7 +1664,7 @@ bool CreateBindings::visit(Namespace *ns)
 {
     ClassOrNamespace *previous = enterClassOrNamespaceBinding(ns);
 
-    for (unsigned i = 0; i < ns->memberCount(); ++i)
+    for (int i = 0; i < ns->memberCount(); ++i)
         process(ns->memberAt(i));
 
     if (ns->isInline() && previous)
@@ -1689,10 +1689,10 @@ bool CreateBindings::visit(Class *klass)
     _currentClassOrNamespace = binding;
     _currentClassOrNamespace->addSymbol(klass);
 
-    for (unsigned i = 0; i < klass->baseClassCount(); ++i)
+    for (int i = 0; i < klass->baseClassCount(); ++i)
         process(klass->baseClassAt(i));
 
-    for (unsigned i = 0; i < klass->memberCount(); ++i)
+    for (int i = 0; i < klass->memberCount(); ++i)
         process(klass->memberAt(i));
 
     _currentClassOrNamespace = previous;
@@ -1759,7 +1759,7 @@ bool CreateBindings::visit(Function *function)
     if (!binding)
         return false;
     _currentClassOrNamespace = binding;
-    for (unsigned i = 0, count = function->memberCount(); i < count; ++i) {
+    for (int i = 0, count = function->memberCount(); i < count; ++i) {
         Symbol *s = function->memberAt(i);
         if (Block *b = s->asBlock())
             visit(b);
@@ -1778,7 +1778,7 @@ bool CreateBindings::visit(Block *block)
     _currentClassOrNamespace = binding;
     _currentClassOrNamespace->addSymbol(block);
 
-    for (unsigned i = 0; i < block->memberCount(); ++i)
+    for (int i = 0; i < block->memberCount(); ++i)
         // we cannot use lazy processing here, because we have to know
         // does this block contain any other blocks or classOrNamespaces
         process(block->memberAt(i), _currentClassOrNamespace);
@@ -1862,10 +1862,10 @@ bool CreateBindings::visit(ObjCClass *klass)
 
     process(klass->baseClass());
 
-    for (unsigned i = 0; i < klass->protocolCount(); ++i)
+    for (int i = 0; i < klass->protocolCount(); ++i)
         process(klass->protocolAt(i));
 
-    for (unsigned i = 0; i < klass->memberCount(); ++i)
+    for (int i = 0; i < klass->memberCount(); ++i)
         process(klass->memberAt(i));
 
     _currentClassOrNamespace = previous;
@@ -1894,10 +1894,10 @@ bool CreateBindings::visit(ObjCProtocol *proto)
 {
     ClassOrNamespace *previous = enterGlobalClassOrNamespace(proto);
 
-    for (unsigned i = 0; i < proto->protocolCount(); ++i)
+    for (int i = 0; i < proto->protocolCount(); ++i)
         process(proto->protocolAt(i));
 
-    for (unsigned i = 0; i < proto->memberCount(); ++i)
+    for (int i = 0; i < proto->memberCount(); ++i)
         process(proto->memberAt(i));
 
     _currentClassOrNamespace = previous;
@@ -1930,12 +1930,12 @@ bool CreateBindings::visit(ObjCMethod *)
 Symbol *CreateBindings::instantiateTemplateFunction(const TemplateNameId *instantiation,
                                                     Template *specialization) const
 {
-    const unsigned argumentCountOfInitialization = instantiation->templateArgumentCount();
-    const unsigned argumentCountOfSpecialization = specialization->templateParameterCount();
+    const int argumentCountOfInitialization = instantiation->templateArgumentCount();
+    const int argumentCountOfSpecialization = specialization->templateParameterCount();
 
     Clone cloner(_control.data());
     Subst subst(_control.data());
-    for (unsigned i = 0; i < argumentCountOfSpecialization; ++i) {
+    for (int i = 0; i < argumentCountOfSpecialization; ++i) {
         const TypenameArgument *tParam
                 = specialization->templateParameterAt(i)->asTypenameArgument();
         if (!tParam)

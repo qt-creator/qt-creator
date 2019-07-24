@@ -93,10 +93,10 @@ bool TemplateNameId::match0(const Name *otherName, Matcher *matcher) const
 const Identifier *TemplateNameId::identifier() const
 { return _identifier; }
 
-unsigned TemplateNameId::templateArgumentCount() const
-{ return unsigned(_templateArguments.size()); }
+int TemplateNameId::templateArgumentCount() const
+{ return int(_templateArguments.size()); }
 
-const FullySpecifiedType &TemplateNameId::templateArgumentAt(unsigned index) const
+const FullySpecifiedType &TemplateNameId::templateArgumentAt(int index) const
 { return _templateArguments[index]; }
 
 bool TemplateNameId::Compare::operator()(const TemplateNameId *name,
@@ -200,23 +200,23 @@ const Identifier *SelectorNameId::identifier() const
     return nameAt(0)->identifier();
 }
 
-unsigned SelectorNameId::nameCount() const
-{ return unsigned(_names.size()); }
+int SelectorNameId::nameCount() const
+{ return int(_names.size()); }
 
-const Name *SelectorNameId::nameAt(unsigned index) const
+const Name *SelectorNameId::nameAt(int index) const
 { return _names[index]; }
 
 bool SelectorNameId::hasArguments() const
 { return _hasArguments; }
 
-AnonymousNameId::AnonymousNameId(unsigned classTokenIndex)
+AnonymousNameId::AnonymousNameId(int classTokenIndex)
     : _classTokenIndex(classTokenIndex)
 { }
 
 AnonymousNameId::~AnonymousNameId()
 { }
 
-unsigned AnonymousNameId::classTokenIndex() const
+int AnonymousNameId::classTokenIndex() const
 {
     return _classTokenIndex;
 }

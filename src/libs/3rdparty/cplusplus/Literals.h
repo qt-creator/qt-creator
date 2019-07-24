@@ -36,15 +36,15 @@ public:
     typedef iterator const_iterator;
 
 public:
-    Literal(const char *chars, unsigned size);
+    Literal(const char *chars, int size);
     virtual ~Literal();
 
     iterator begin() const { return _chars; }
     iterator end() const { return _chars + _size; }
 
-    char at(unsigned index) const { return _chars[index]; }
+    char at(int index) const { return _chars[index]; }
     const char *chars() const { return _chars; }
-    unsigned size() const { return _size; }
+    int size() const { return _size; }
 
     unsigned hashCode() const { return _hashCode; }
     static unsigned hashCode(const char *chars, unsigned size);
@@ -73,7 +73,7 @@ public:
 class CPLUSPLUS_EXPORT NumericLiteral: public Literal
 {
 public:
-    NumericLiteral(const char *chars, unsigned size);
+    NumericLiteral(const char *chars, int size);
 
     enum {
         NumericLiteralIsInt,
@@ -108,7 +108,7 @@ private:
 class CPLUSPLUS_EXPORT Identifier: public Literal, public Name
 {
 public:
-    Identifier(const char *chars, unsigned size)
+    Identifier(const char *chars, int size)
         : Literal(chars, size)
     { }
 

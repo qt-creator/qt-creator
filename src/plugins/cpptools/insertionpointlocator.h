@@ -35,7 +35,7 @@ class CPPTOOLS_EXPORT InsertionLocation
 public:
     InsertionLocation();
     InsertionLocation(const QString &fileName, const QString &prefix,
-                      const QString &suffix, unsigned line, unsigned column);
+                      const QString &suffix, int line, int column);
 
     QString fileName() const
     { return m_fileName; }
@@ -49,11 +49,11 @@ public:
     { return m_suffix; }
 
     /// \returns The line where to insert. The line number is 1-based.
-    unsigned line() const
+    int line() const
     { return m_line; }
 
     /// \returns The column where to insert. The column number is 1-based.
-    unsigned column() const
+    int column() const
     { return m_column; }
 
     bool isValid() const
@@ -63,8 +63,8 @@ private:
     QString m_fileName;
     QString m_prefix;
     QString m_suffix;
-    unsigned m_line = 0;
-    unsigned m_column = 0;
+    int m_line = 0;
+    int m_column = 0;
 };
 
 class CPPTOOLS_EXPORT InsertionPointLocator

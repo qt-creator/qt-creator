@@ -88,8 +88,8 @@ public:
     virtual const Identifier *identifier() const;
 
     // ### find a better name
-    unsigned templateArgumentCount() const;
-    const FullySpecifiedType &templateArgumentAt(unsigned index) const;
+    int templateArgumentCount() const;
+    const FullySpecifiedType &templateArgumentAt(int index) const;
 
     virtual const TemplateNameId *asTemplateNameId() const
     { return this; }
@@ -224,8 +224,8 @@ public:
 
     virtual const Identifier *identifier() const;
 
-    unsigned nameCount() const;
-    const Name *nameAt(unsigned index) const;
+    int nameCount() const;
+    const Name *nameAt(int index) const;
     bool hasArguments() const;
 
     virtual const SelectorNameId *asSelectorNameId() const
@@ -248,10 +248,10 @@ private:
 class CPLUSPLUS_EXPORT AnonymousNameId: public Name
 {
 public:
-    AnonymousNameId(unsigned classTokenIndex);
+    AnonymousNameId(int classTokenIndex);
     virtual ~AnonymousNameId();
 
-    unsigned classTokenIndex() const;
+    int classTokenIndex() const;
 
     virtual const Identifier *identifier() const;
 
@@ -263,7 +263,7 @@ protected:
     virtual bool match0(const Name *otherName, Matcher *matcher) const;
 
 private:
-    unsigned _classTokenIndex;
+    int _classTokenIndex;
 };
 
 

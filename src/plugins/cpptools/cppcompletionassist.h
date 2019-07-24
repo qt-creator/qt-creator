@@ -111,7 +111,7 @@ private:
     bool tryObjCCompletion();
     bool objcKeywordsWanted() const;
     int startCompletionInternal(const QString &fileName,
-                                unsigned line, unsigned positionInBlock,
+                                int line, int positionInBlock,
                                 const QString &expression,
                                 int endOfExpression);
 

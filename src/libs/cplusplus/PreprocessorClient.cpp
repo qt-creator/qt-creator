@@ -40,7 +40,7 @@ using namespace CPlusPlus;
 */
 
 /*!
-    \fn void Client::passedMacroDefinitionCheck(unsigned offset, unsigned line, const Macro &macro)
+    \fn void Client::passedMacroDefinitionCheck(int offset, int line, const Macro &macro)
 
     Called when the preprocessor checks whether a macro is defined or not and the
     result is positive.
@@ -49,7 +49,7 @@ using namespace CPlusPlus;
 */
 
 /*!
-    \fn void Client::failedMacroDefinitionCheck(unsigned offset, const ByteArrayRef &name)
+    \fn void Client::failedMacroDefinitionCheck(int offset, const ByteArrayRef &name)
 
     Called when the preprocessor checks whether a macro is defined or not and the
     result is negative.
@@ -58,8 +58,8 @@ using namespace CPlusPlus;
 */
 
 /*!
-    \fn void Client::startExpandingMacro(unsigned offset,
-                                   unsigned line,
+    \fn void Client::startExpandingMacro(int offset,
+                                   int line,
                                    const Macro &macro,
                                    const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>())

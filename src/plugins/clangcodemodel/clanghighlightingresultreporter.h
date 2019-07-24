@@ -65,7 +65,7 @@ private:
     int m_chunkSize = 100;
 
     bool m_flushRequested = false;
-    unsigned m_flushLine = 0;
+    int m_flushLine = 0;
 };
 
 } // namespace Internal

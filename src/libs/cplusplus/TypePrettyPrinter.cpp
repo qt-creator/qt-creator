@@ -169,7 +169,7 @@ void TypePrettyPrinter::visit(Template *type)
         const Overview &oo = *overview();
         if (oo.showTemplateParameters && ! _name.isEmpty()) {
             _name += QLatin1Char('<');
-            for (unsigned index = 0; index < type->templateParameterCount(); ++index) {
+            for (int index = 0; index < type->templateParameterCount(); ++index) {
                 if (index)
                     _name += QLatin1String(", ");
                 QString arg = oo.prettyName(type->templateParameterAt(index)->name());
@@ -410,7 +410,7 @@ void TypePrettyPrinter::visit(Function *type)
     if (_overview->showEnclosingTemplate) {
         if (Template *templ = type->enclosingTemplate()) {
             QString templateScope = "template<";
-            for (unsigned i = 0, total = templ->templateParameterCount(); i < total; ++i) {
+            for (int i = 0, total = templ->templateParameterCount(); i < total; ++i) {
                 if (Symbol *param = templ->templateParameterAt(i)) {
                     if (i > 0)
                         templateScope.append(", ");
@@ -437,7 +437,7 @@ void TypePrettyPrinter::visit(Function *type)
 
         _text += QLatin1Char('(');
 
-        for (unsigned index = 0, argc = type->argumentCount(); index < argc; ++index) {
+        for (int index = 0, argc = type->argumentCount(); index < argc; ++index) {
             if (index != 0)
                 _text += QLatin1String(", ");
 

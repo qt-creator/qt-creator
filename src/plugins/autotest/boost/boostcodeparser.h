@@ -75,7 +75,7 @@ private:
     QVector<BoostTestInfo> m_suites;
     QString m_currentSuite;
     BoostTestTreeItem::TestStates m_currentState = BoostTestTreeItem::Enabled;
-    unsigned m_lineNo = 0;
+    int m_lineNo = 0;
 };
 
 } // Internal

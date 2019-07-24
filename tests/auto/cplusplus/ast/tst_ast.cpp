@@ -92,7 +92,7 @@ public:
 
         virtual void report(int /*level*/,
                             const StringLiteral *fileName,
-                            unsigned line, unsigned column,
+                            int line, int column,
                             const char *format, va_list ap)
         {
             ++errorCount;
@@ -301,7 +301,7 @@ void tst_AST::simple_name_1()
 
     QVERIFY(ast != 0);
     QVERIFY(ast->asIdExpression()->name->asSimpleName() != 0);
-    QCOMPARE(ast->asIdExpression()->name->asSimpleName()->identifier_token, 1U);
+    QCOMPARE(ast->asIdExpression()->name->asSimpleName()->identifier_token, 1);
 }
 
 void tst_AST::template_id_1()
@@ -311,14 +311,14 @@ void tst_AST::template_id_1()
 
     QVERIFY(ast != 0);
     QVERIFY(ast->asIdExpression()->name->asTemplateId() != 0);
-    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->identifier_token, 1U);
-    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->less_token, 2U);
+    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->identifier_token, 1);
+    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->less_token, 2);
     QVERIFY(ast->asIdExpression()->name->asTemplateId()->template_argument_list != 0);
     QVERIFY(ast->asIdExpression()->name->asTemplateId()->template_argument_list->value != 0);
     QVERIFY(ast->asIdExpression()->name->asTemplateId()->template_argument_list->value->asNumericLiteral() != 0);
-    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->template_argument_list->value->asNumericLiteral()->literal_token, 3U);
+    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->template_argument_list->value->asNumericLiteral()->literal_token, 3);
     QVERIFY(ast->asIdExpression()->name->asTemplateId()->template_argument_list->next == 0);
-    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->greater_token, 4U);
+    QCOMPARE(ast->asIdExpression()->name->asTemplateId()->greater_token, 4);
 }
 
 void tst_AST::new_expression_1()
@@ -333,12 +333,12 @@ void tst_AST::new_expression_1()
     NewExpressionAST *expr = ast->asNewExpression();
     QVERIFY(expr != 0);
 
-    QCOMPARE(expr->scope_token, 0U);
-    QCOMPARE(expr->new_token, 1U);
+    QCOMPARE(expr->scope_token, 0);
+    QCOMPARE(expr->new_token, 1);
     QVERIFY(expr->new_placement == 0);
-    QCOMPARE(expr->lparen_token, 0U);
+    QCOMPARE(expr->lparen_token, 0);
     QVERIFY(expr->type_id == 0);
-    QCOMPARE(expr->rparen_token, 0U);
+    QCOMPARE(expr->rparen_token, 0);
     QVERIFY(expr->new_type_id != 0);
     QVERIFY(expr->new_initializer == 0);
 
@@ -364,12 +364,12 @@ void tst_AST::new_expression_2()
     NewExpressionAST *expr = stmt->expression->asNewExpression();
     QVERIFY(expr != 0);
 
-    QCOMPARE(expr->scope_token, 1U);
-    QCOMPARE(expr->new_token, 2U);
+    QCOMPARE(expr->scope_token, 1);
+    QCOMPARE(expr->new_token, 2);
     QVERIFY(expr->new_placement != 0);
-    QCOMPARE(expr->lparen_token, 0U);
+    QCOMPARE(expr->lparen_token, 0);
     QVERIFY(expr->type_id == 0);
-    QCOMPARE(expr->rparen_token, 0U);
+    QCOMPARE(expr->rparen_token, 0);
     QVERIFY(expr->new_type_id != 0);
     QVERIFY(expr->new_initializer != 0);
 }
@@ -868,23 +868,23 @@ void tst_AST::if_statement_1()
 
     IfStatementAST *stmt = ast->asIfStatement();
     QVERIFY(stmt != 0);
-    QCOMPARE(stmt->if_token, 1U);
-    QCOMPARE(stmt->lparen_token, 2U);
+    QCOMPARE(stmt->if_token, 1);
+    QCOMPARE(stmt->lparen_token, 2);
     QVERIFY(stmt->condition != 0);
-    QCOMPARE(stmt->rparen_token, 4U);
+    QCOMPARE(stmt->rparen_token, 4);
     QVERIFY(stmt->statement != 0);
-    QCOMPARE(stmt->else_token, 0U);
+    QCOMPARE(stmt->else_token, 0);
     QVERIFY(stmt->else_statement == 0);
 
     // check the `then' statement1
     ExpressionStatementAST *then_stmt = stmt->statement->asExpressionStatement();
     QVERIFY(then_stmt != 0);
     QVERIFY(then_stmt->expression != 0);
-    QCOMPARE(then_stmt->semicolon_token, 6U);
+    QCOMPARE(then_stmt->semicolon_token, 6);
 
     SimpleNameAST *id_expr = then_stmt->expression->asIdExpression()->name->asSimpleName();
     QVERIFY(id_expr != 0);
-    QCOMPARE(id_expr->identifier_token, 5U);
+    QCOMPARE(id_expr->identifier_token, 5);
 }
 
 void tst_AST::if_statement_2()
@@ -924,33 +924,33 @@ void tst_AST::if_else_statement()
 
     IfStatementAST *stmt = ast->asIfStatement();
     QVERIFY(stmt != 0);
-    QCOMPARE(stmt->if_token, 1U);
-    QCOMPARE(stmt->lparen_token, 2U);
+    QCOMPARE(stmt->if_token, 1);
+    QCOMPARE(stmt->lparen_token, 2);
     QVERIFY(stmt->condition != 0);
-    QCOMPARE(stmt->rparen_token, 4U);
+    QCOMPARE(stmt->rparen_token, 4);
     QVERIFY(stmt->statement != 0);
-    QCOMPARE(stmt->else_token, 7U);
+    QCOMPARE(stmt->else_token, 7);
     QVERIFY(stmt->else_statement != 0);
 
     // check the `then' statement
     ExpressionStatementAST *then_stmt = stmt->statement->asExpressionStatement();
     QVERIFY(then_stmt != 0);
     QVERIFY(then_stmt->expression != 0);
-    QCOMPARE(then_stmt->semicolon_token, 6U);
+    QCOMPARE(then_stmt->semicolon_token, 6);
 
     SimpleNameAST *a_id_expr = then_stmt->expression->asIdExpression()->name->asSimpleName();
     QVERIFY(a_id_expr != 0);
-    QCOMPARE(a_id_expr->identifier_token, 5U);
+    QCOMPARE(a_id_expr->identifier_token, 5);
 
     // check the `then' statement
     ExpressionStatementAST *else_stmt = stmt->else_statement->asExpressionStatement();
     QVERIFY(else_stmt != 0);
     QVERIFY(else_stmt->expression != 0);
-    QCOMPARE(else_stmt->semicolon_token, 9U);
+    QCOMPARE(else_stmt->semicolon_token, 9);
 
     SimpleNameAST *b_id_expr = else_stmt->expression->asIdExpression()->name->asSimpleName();
     QVERIFY(b_id_expr != 0);
-    QCOMPARE(b_id_expr->identifier_token, 8U);
+    QCOMPARE(b_id_expr->identifier_token, 8);
 }
 
 void tst_AST::while_statement()
@@ -962,22 +962,22 @@ void tst_AST::while_statement()
 
     WhileStatementAST *stmt = ast->asWhileStatement();
     QVERIFY(stmt != 0);
-    QCOMPARE(stmt->while_token, 1U);
-    QCOMPARE(stmt->lparen_token, 2U);
+    QCOMPARE(stmt->while_token, 1);
+    QCOMPARE(stmt->lparen_token, 2);
     QVERIFY(stmt->condition != 0);
-    QCOMPARE(stmt->rparen_token, 4U);
+    QCOMPARE(stmt->rparen_token, 4);
     QVERIFY(stmt->statement != 0);
 
     // check condition
     QVERIFY(stmt->condition->asIdExpression()->name->asSimpleName() != 0);
-    QCOMPARE(stmt->condition->asIdExpression()->name->asSimpleName()->identifier_token, 3U);
+    QCOMPARE(stmt->condition->asIdExpression()->name->asSimpleName()->identifier_token, 3);
 
     // check the `body' statement
     CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
     QVERIFY(body_stmt != 0);
-    QCOMPARE(body_stmt->lbrace_token, 5U);
+    QCOMPARE(body_stmt->lbrace_token, 5);
     QVERIFY(body_stmt->statement_list == 0);
-    QCOMPARE(body_stmt->rbrace_token, 6U);
+    QCOMPARE(body_stmt->rbrace_token, 6);
 }
 
 void tst_AST::while_condition_statement()
@@ -989,10 +989,10 @@ void tst_AST::while_condition_statement()
 
     WhileStatementAST *stmt = ast->asWhileStatement();
     QVERIFY(stmt != 0);
-    QCOMPARE(stmt->while_token, 1U);
-    QCOMPARE(stmt->lparen_token, 2U);
+    QCOMPARE(stmt->while_token, 1);
+    QCOMPARE(stmt->lparen_token, 2);
     QVERIFY(stmt->condition != 0);
-    QCOMPARE(stmt->rparen_token, 7U);
+    QCOMPARE(stmt->rparen_token, 7);
     QVERIFY(stmt->statement != 0);
 
     // check condition
@@ -1000,25 +1000,25 @@ void tst_AST::while_condition_statement()
     QVERIFY(condition != 0);
     QVERIFY(condition->type_specifier_list != 0);
     QVERIFY(condition->type_specifier_list->value->asSimpleSpecifier() != 0);
-    QCOMPARE(condition->type_specifier_list->value->asSimpleSpecifier()->specifier_token, 3U);
+    QCOMPARE(condition->type_specifier_list->value->asSimpleSpecifier()->specifier_token, 3);
     QVERIFY(condition->type_specifier_list->next == 0);
     QVERIFY(condition->declarator != 0);
     QVERIFY(condition->declarator->core_declarator != 0);
     QVERIFY(condition->declarator->core_declarator->asDeclaratorId() != 0);
     QVERIFY(condition->declarator->core_declarator->asDeclaratorId()->name != 0);
     QVERIFY(condition->declarator->core_declarator->asDeclaratorId()->name->asSimpleName() != 0);
-    QCOMPARE(condition->declarator->core_declarator->asDeclaratorId()->name->asSimpleName()->identifier_token, 4U);
+    QCOMPARE(condition->declarator->core_declarator->asDeclaratorId()->name->asSimpleName()->identifier_token, 4);
     QVERIFY(condition->declarator->postfix_declarator_list == 0);
     QVERIFY(condition->declarator->initializer != 0);
     QVERIFY(condition->declarator->initializer->asIdExpression()->name->asSimpleName() != 0);
-    QCOMPARE(condition->declarator->initializer->asIdExpression()->name->asSimpleName()->identifier_token, 6U);
+    QCOMPARE(condition->declarator->initializer->asIdExpression()->name->asSimpleName()->identifier_token, 6);
 
     // check the `body' statement
     CompoundStatementAST *body_stmt = stmt->statement->asCompoundStatement();
     QVERIFY(body_stmt != 0);
-    QCOMPARE(body_stmt->lbrace_token, 8U);
+    QCOMPARE(body_stmt->lbrace_token, 8);
     QVERIFY(body_stmt->statement_list == 0);
-    QCOMPARE(body_stmt->rbrace_token, 9U);
+    QCOMPARE(body_stmt->rbrace_token, 9);
 }
 
 void tst_AST::for_statement()
@@ -1029,20 +1029,20 @@ void tst_AST::for_statement()
 
     ForStatementAST *stmt = ast->asForStatement();
     QVERIFY(stmt != 0);
-    QCOMPARE(stmt->for_token, 1U);
-    QCOMPARE(stmt->lparen_token, 2U);
+    QCOMPARE(stmt->for_token, 1);
+    QCOMPARE(stmt->lparen_token, 2);
     QVERIFY(stmt->initializer != 0);
     QVERIFY(stmt->initializer->asExpressionStatement() != 0);
-    QCOMPARE(stmt->initializer->asExpressionStatement()->semicolon_token, 3U);
+    QCOMPARE(stmt->initializer->asExpressionStatement()->semicolon_token, 3);
     QVERIFY(stmt->condition == 0);
-    QCOMPARE(stmt->semicolon_token, 4U);
+    QCOMPARE(stmt->semicolon_token, 4);
     QVERIFY(stmt->expression == 0);
-    QCOMPARE(stmt->rparen_token, 5U);
+    QCOMPARE(stmt->rparen_token, 5);
     QVERIFY(stmt->statement != 0);
     QVERIFY(stmt->statement->asCompoundStatement() != 0);
-    QCOMPARE(stmt->statement->asCompoundStatement()->lbrace_token, 6U);
+    QCOMPARE(stmt->statement->asCompoundStatement()->lbrace_token, 6);
     QVERIFY(stmt->statement->asCompoundStatement()->statement_list == 0);
-    QCOMPARE(stmt->statement->asCompoundStatement()->rbrace_token, 7U);
+    QCOMPARE(stmt->statement->asCompoundStatement()->rbrace_token, 7);
 }
 
 void tst_AST::cpp_initializer_or_function_declaration()
@@ -1063,7 +1063,7 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(simple_decl->decl_specifier_list->next == 0);
     QVERIFY(simple_decl->declarator_list != 0);
     QVERIFY(simple_decl->declarator_list->next == 0);
-    QCOMPARE(simple_decl->semicolon_token, 6U);
+    QCOMPARE(simple_decl->semicolon_token, 6);
 
     NamedTypeSpecifierAST *named_ty = simple_decl->decl_specifier_list->value->asNamedTypeSpecifier();
     QVERIFY(named_ty != 0);
@@ -1071,7 +1071,7 @@ void tst_AST::cpp_initializer_or_function_declaration()
 
     SimpleNameAST *simple_named_ty = named_ty->name->asSimpleName();
     QVERIFY(simple_named_ty != 0);
-    QCOMPARE(simple_named_ty->identifier_token, 1U);
+    QCOMPARE(simple_named_ty->identifier_token, 1);
 
     DeclaratorAST *declarator = simple_decl->declarator_list->value;
     QVERIFY(declarator != 0);
@@ -1084,19 +1084,19 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(decl_id != 0);
     QVERIFY(decl_id->name != 0);
     QVERIFY(decl_id->name->asSimpleName() != 0);
-    QCOMPARE(decl_id->name->asSimpleName()->identifier_token, 2U);
+    QCOMPARE(decl_id->name->asSimpleName()->identifier_token, 2);
 
     FunctionDeclaratorAST *fun_declarator = declarator->postfix_declarator_list->value->asFunctionDeclarator();
     QVERIFY(fun_declarator != 0);
-    QCOMPARE(fun_declarator->lparen_token, 3U);
+    QCOMPARE(fun_declarator->lparen_token, 3);
     QVERIFY(fun_declarator->parameter_declaration_clause != 0);
-    QCOMPARE(fun_declarator->rparen_token, 5U);
+    QCOMPARE(fun_declarator->rparen_token, 5);
 
     // check the formal arguments
     ParameterDeclarationClauseAST *param_clause = fun_declarator->parameter_declaration_clause;
     QVERIFY(param_clause->parameter_declaration_list != 0);
     QVERIFY(param_clause->parameter_declaration_list->next == 0);
-    QCOMPARE(param_clause->dot_dot_dot_token, 0U);
+    QCOMPARE(param_clause->dot_dot_dot_token, 0);
 
     // check the parameter
     ParameterDeclarationListAST *declarations = param_clause->parameter_declaration_list;
@@ -1111,7 +1111,7 @@ void tst_AST::cpp_initializer_or_function_declaration()
     QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier() != 0);
     QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier()->name != 0);
     QVERIFY(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName() != 0);
-    QCOMPARE(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4U);
+    QCOMPARE(param->type_specifier_list->value->asNamedTypeSpecifier()->name->asSimpleName()->identifier_token, 4);
 }
 
 void tst_AST::cpp_constructor_one_unamed_arg()
@@ -2026,13 +2026,13 @@ void tst_AST::line_and_column_1()
     QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
                                                           "int i;\n",
                                                           false, true));
-    unsigned line, column = 0;
+    int line, column = 0;
     QVERIFY(unit->ast());
     QVERIFY(unit->tokenAt(1).is(T_INT));
     unit->getTokenPosition(1, &line, &column);
     QEXPECT_FAIL("", "See QTCREATORBUG-9799.", Continue);
-    QCOMPARE(line, 2U);
-    QCOMPARE(column, 1U);
+    QCOMPARE(line, 2);
+    QCOMPARE(column, 1);
 }
 
 QTEST_APPLESS_MAIN(tst_AST)

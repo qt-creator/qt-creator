@@ -71,7 +71,7 @@ QList<QTextEdit::ExtraSelection> toTextEditorSelections(
         QTextCursor c(textDocument->findBlockByNumber(m.line() - 1));
         const QString text = c.block().text();
         const int startPos = m.column() > 0 ? m.column() - 1 : 0;
-        if (m.length() > 0 && startPos + m.length() <= (unsigned)text.size()) {
+        if (m.length() > 0 && startPos + m.length() <= text.size()) {
             c.setPosition(c.position() + startPos);
             c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, m.length());
         } else {

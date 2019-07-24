@@ -100,10 +100,10 @@ public:
     void setFileRevision(unsigned fileRevision)
     { _fileRevision = fileRevision; }
 
-    unsigned line() const
+    int line() const
     { return _line; }
 
-    void setLine(unsigned line)
+    void setLine(int line)
     { _line = line; }
 
     unsigned bytesOffset() const
@@ -165,7 +165,7 @@ private:
     QString _fileName;
     unsigned _hashcode;
     unsigned _fileRevision;
-    unsigned _line;
+    int _line;
     unsigned _bytesOffset;
     unsigned _utf16charsOffset;
     unsigned _length;

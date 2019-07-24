@@ -99,12 +99,12 @@ std::vector<Cursor> Tokens::annotate() const
     return cursors;
 }
 
-const Token &Tokens::operator[](size_t index) const
+const Token &Tokens::operator[](int index) const
 {
     return m_tokens[index];
 }
 
-Token &Tokens::operator[](size_t index)
+Token &Tokens::operator[](int index)
 {
     return m_tokens[index];
 }

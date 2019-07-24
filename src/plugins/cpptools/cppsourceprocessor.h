@@ -93,20 +93,20 @@ private:
 
     // Client interface
     void macroAdded(const CPlusPlus::Macro &macro) override;
-    void passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
-                                    unsigned line, const CPlusPlus::Macro &macro) override;
-    void failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charOffset,
+    void passedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
+                                    int line, const CPlusPlus::Macro &macro) override;
+    void failedMacroDefinitionCheck(int bytesOffset, int utf16charOffset,
                                     const CPlusPlus::ByteArrayRef &name) override;
-    void notifyMacroReference(unsigned bytesOffset, unsigned utf16charOffset,
-                              unsigned line, const CPlusPlus::Macro &macro) override;
-    void startExpandingMacro(unsigned bytesOffset, unsigned utf16charOffset,
-                             unsigned line, const CPlusPlus::Macro &macro,
+    void notifyMacroReference(int bytesOffset, int utf16charOffset,
+                              int line, const CPlusPlus::Macro &macro) override;
+    void startExpandingMacro(int bytesOffset, int utf16charOffset,
+                             int line, const CPlusPlus::Macro &macro,
                              const QVector<CPlusPlus::MacroArgumentReference> &actuals) override;
-    void stopExpandingMacro(unsigned bytesOffset, const CPlusPlus::Macro &macro) override;
+    void stopExpandingMacro(int bytesOffset, const CPlusPlus::Macro &macro) override;
     void markAsIncludeGuard(const QByteArray &macroName) override;
-    void startSkippingBlocks(unsigned utf16charsOffset) override;
-    void stopSkippingBlocks(unsigned utf16charsOffset) override;
-    void sourceNeeded(unsigned line, const QString &fileName, IncludeType type,
+    void startSkippingBlocks(int utf16charsOffset) override;
+    void stopSkippingBlocks(int utf16charsOffset) override;
+    void sourceNeeded(int line, const QString &fileName, IncludeType type,
                       const QStringList &initialIncludes) override;
 
 private:

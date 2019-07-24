@@ -74,7 +74,7 @@ static SourceRangeContainer extractMatchingTokenRange(const Cursor &cursor,
 static int getTokenIndex(CXTranslationUnit tu, const Tokens &tokens, uint line, uint column)
 {
     int tokenIndex = -1;
-    for (int i = static_cast<int>(tokens.size() - 1); i >= 0; --i) {
+    for (int i = tokens.size() - 1; i >= 0; --i) {
         const SourceRange range(tu, tokens[i].extent());
         if (range.contains(line, column)) {
             tokenIndex = i;

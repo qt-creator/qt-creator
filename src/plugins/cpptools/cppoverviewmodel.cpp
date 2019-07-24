@@ -82,8 +82,8 @@ QVariant SymbolItem::data(int /*column*/, int role) const
         if (Template *t = symbl->asTemplate())
             if (Symbol *templateDeclaration = t->declaration()) {
                 QStringList parameters;
-                parameters.reserve(static_cast<int>(t->templateParameterCount()));
-                for (unsigned i = 0; i < t->templateParameterCount(); ++i) {
+                parameters.reserve(t->templateParameterCount());
+                for (int i = 0; i < t->templateParameterCount(); ++i) {
                     parameters.append(overviewModel->_overview.prettyName(
                                           t->templateParameterAt(i)->name()));
                 }
@@ -119,7 +119,7 @@ QVariant SymbolItem::data(int /*column*/, int role) const
         return Icons::iconForSymbol(symbol);
 
     case AbstractOverviewModel::FileNameRole:
-            return QString::fromUtf8(symbol->fileName(), static_cast<int>(symbol->fileNameLength()));
+            return QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
 
     case AbstractOverviewModel::LineNumberRole:
             return symbol->line();
@@ -135,15 +135,15 @@ bool OverviewModel::hasDocument() const
     return _cppDocument;
 }
 
-unsigned OverviewModel::globalSymbolCount() const
+int OverviewModel::globalSymbolCount() const
 {
-    unsigned count = 0;
+    int count = 0;
     if (_cppDocument)
         count += _cppDocument->globalSymbolCount();
     return count;
 }
 
-Symbol *OverviewModel::globalSymbolAt(unsigned index) const
+Symbol *OverviewModel::globalSymbolAt(int index) const
 { return _cppDocument->globalSymbolAt(index); }
 
 Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
@@ -185,8 +185,8 @@ Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIn
     CPlusPlus::Symbol *symbol = symbolFromIndex(sourceIndex);
     if (!symbol)
         return lineColumn;
-    lineColumn.line = static_cast<int>(symbol->line());
-    lineColumn.column = static_cast<int>(symbol->column());
+    lineColumn.line = symbol->line();
+    lineColumn.column = symbol->column();
     return lineColumn;
 }
 
@@ -202,8 +202,8 @@ void OverviewModel::buildTree(SymbolItem *root, bool isRoot)
         return;
 
     if (isRoot) {
-        unsigned rows = globalSymbolCount();
-        for (unsigned row = 0; row < rows; ++row) {
+        int rows = globalSymbolCount();
+        for (int row = 0; row < rows; ++row) {
             Symbol *symbol = globalSymbolAt(row);
             auto currentItem = new SymbolItem(symbol);
             buildTree(currentItem, false);

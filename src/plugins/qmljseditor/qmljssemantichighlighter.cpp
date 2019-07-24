@@ -522,7 +522,7 @@ private:
     ScopeBuilder m_scopeBuilder;
     QStringList m_stateNames;
     QVector<SemanticHighlighter::Use> m_uses;
-    unsigned m_lineOfLastUse;
+    int m_lineOfLastUse;
     QVector<SemanticHighlighter::Use> m_delayedUses;
     int m_nextExtraFormat;
     int m_currentDelayedUse;

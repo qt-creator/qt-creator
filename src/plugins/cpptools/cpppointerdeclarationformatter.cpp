@@ -377,7 +377,7 @@ void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
     CHECK_R(symbol, "No symbol");
 
     // Check for expanded tokens
-    for (unsigned token = tokenRange.start; token <= tokenRange.end; ++token)
+    for (int token = tokenRange.start; token <= tokenRange.end; ++token)
         CHECK_R(!tokenAt(token).expanded(), "Token is expanded");
 
     Utils::ChangeSet::Range range(m_cppRefactoringFile->startOf(tokenRange.start),
@@ -455,7 +455,7 @@ void PointerDeclarationFormatter::printCandidate(AST *ast)
 {
 #if DEBUG_OUTPUT
     QString tokens;
-    for (unsigned token = ast->firstToken(); token < ast->lastToken(); token++)
+    for (int token = ast->firstToken(); token < ast->lastToken(); token++)
         tokens += QString::fromLatin1(tokenAt(token).spell()) + QLatin1Char(' ');
 
 #  ifdef __GNUC__

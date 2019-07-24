@@ -67,7 +67,7 @@ public:
     bool visit(CPlusPlus::Function * f) override;
 
 private:
-    const size_t m_length;
+    const int m_length;
     const char *m_name;
 
     FunctionList m_matches;
@@ -82,8 +82,8 @@ SearchFunction::SearchFunction(const char *name) :
 SearchFunction::FunctionList SearchFunction::operator()(const DocumentPtr &doc)
 {
     m_matches.clear();
-    const unsigned globalSymbolCount = doc->globalSymbolCount();
-    for (unsigned i = 0; i < globalSymbolCount; ++i)
+    const int globalSymbolCount = doc->globalSymbolCount();
+    for (int i = 0; i < globalSymbolCount; ++i)
         accept(doc->globalSymbolAt(i));
     return m_matches;
 }
@@ -93,7 +93,7 @@ bool SearchFunction::visit(CPlusPlus::Function * f)
     if (const CPlusPlus::Name *name = f->name())
         if (const CPlusPlus::Identifier *id = name->identifier())
             if (id->size() == m_length)
-                if (!qstrncmp(m_name, id->chars(), uint(m_length)))
+                if (!qstrncmp(m_name, id->chars(), m_length))
                     m_matches.push_back(f);
     return true;
 }

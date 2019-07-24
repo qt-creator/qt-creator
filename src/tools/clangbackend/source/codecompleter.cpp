@@ -94,7 +94,7 @@ static void replaceWithOpeningParen(UnsavedFile &file, uint line, uint column)
     file.replaceAt(pos, 1, Utf8String("(", 1));
 }
 
-CodeCompletions CodeCompleter::complete(uint line, uint column,
+CodeCompletions CodeCompleter::complete(int line, int column,
                                         int funcNameStartLine,
                                         int funcNameStartColumn)
 {

@@ -59,13 +59,13 @@ public:
     int state() const
     { return _lastState; }
 
-    static int tokenAt(const Tokens &tokens, unsigned utf16charsOffset);
+    static int tokenAt(const Tokens &tokens, int utf16charsOffset);
     static Token tokenAt(const QString &text,
-                         unsigned utf16charsOffset,
+                         int utf16charsOffset,
                          int state,
                          const LanguageFeatures &languageFeatures);
 
-    static int tokenBefore(const Tokens &tokens, unsigned utf16charsOffset);
+    static int tokenBefore(const Tokens &tokens, int utf16charsOffset);
 
 private:
     int _lastState;

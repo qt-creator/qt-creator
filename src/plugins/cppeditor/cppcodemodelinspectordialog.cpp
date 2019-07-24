@@ -902,7 +902,7 @@ QModelIndex SymbolsModel::index(int row, int column, const QModelIndex &parent) 
         scope = m_document->globalNamespace();
 
     if (scope) {
-        if ((unsigned)row < scope->memberCount())
+        if (row < scope->memberCount())
             return createIndex(row, column, scope->memberAt(row));
     }
 
@@ -997,8 +997,8 @@ public:
 private:
     struct TokenInfo {
         Token token;
-        unsigned line;
-        unsigned column;
+        int line;
+        int column;
     };
     QList<TokenInfo> m_tokenInfos;
 };

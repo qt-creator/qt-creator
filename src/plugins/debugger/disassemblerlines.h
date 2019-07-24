@@ -52,7 +52,7 @@ public:
     QString function;       // (ass) Function to which current instruction belongs.
     QString fileName;       // (src) Source file
     uint offset = 0;        // (ass) Offset of instruction in relation to current function.
-    uint lineNumber = 0;    // (src) Line number in source.
+    int lineNumber = 0;     // (src) Line number in source.
     uint hunk = 0;          // (src) Number of hunk if source line was split
     QByteArray rawData;     // (ass) Raw bytes of the instruction
     QString data;           // (ass) Instruction text, (src) source text, (cmt) arbitrary.
@@ -69,7 +69,7 @@ public:
     void appendLine(const DisassemblerLine &dl);
     void appendComment(const QString &line);
     // Mixed source/assembly: Retrieve contents of source (cached)
-    void appendSourceLine(const QString &fileName, uint line);
+    void appendSourceLine(const QString &fileName, int line);
     QString toString() const;
     void setBytesLength(int x) { m_bytesLength = x; }
     int bytesLength() const  { return m_bytesLength; }

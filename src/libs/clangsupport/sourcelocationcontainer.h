@@ -36,8 +36,8 @@ class CLANGSUPPORT_EXPORT SourceLocationContainer
 public:
     SourceLocationContainer() = default;
     SourceLocationContainer(const Utf8String &filePath,
-                            uint line,
-                            uint column)
+                            int line,
+                            int column)
         : filePath(filePath),
           line(line),
           column(column)
@@ -46,8 +46,8 @@ public:
 
 public:
     Utf8String filePath;
-    uint line = 0;
-    uint column = 0;
+    int line = 0;
+    int column = 0;
 };
 
 CLANGSUPPORT_EXPORT QDataStream &operator<<(QDataStream &out, const SourceLocationContainer &container);

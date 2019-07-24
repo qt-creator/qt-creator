@@ -196,7 +196,7 @@ public:
     Symbol *symbol(Symbol *symbol, Subst *subst);
 
     Symbol *instantiate(Template *templ,
-                        const FullySpecifiedType *const args, unsigned argc,
+                        const FullySpecifiedType *const args, int argc,
                         Subst *subst = 0);
 
 private:

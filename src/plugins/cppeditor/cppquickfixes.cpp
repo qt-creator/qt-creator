@@ -131,7 +131,7 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol, const bool u
     // ...failed,
     // if class member try to get position right after class
     CppRefactoringFilePtr file = refactoring.file(fileName);
-    unsigned line = 0, column = 0;
+    int line = 0, column = 0;
     if (Class *clazz = symbol->enclosingClass()) {
         if (symbol->fileName() == fileName.toUtf8()) {
             file->cppDocument()->translationUnit()->getPosition(clazz->endOffset(), &line, &column);
@@ -1854,7 +1854,7 @@ bool canLookupDefinition(const CppQuickFixInterface &interface, const NameAST *n
     QTC_ASSERT(nameAst && nameAst->name, return false);
 
     // Find the enclosing scope
-    unsigned line, column;
+    int line, column;
     const Document::Ptr &doc = interface.semanticInfo().doc;
     doc->translationUnit()->getTokenStartPosition(nameAst->firstToken(), &line, &column);
     Scope *scope = doc->scopeAt(line, column);
@@ -2364,7 +2364,7 @@ void CompleteSwitchCaseStatement::match(const CppQuickFixInterface &interface,
                 // check the possible enum values
                 QStringList values;
                 Overview prettyPrint;
-                for (unsigned i = 0; i < e->memberCount(); ++i) {
+                for (int i = 0; i < e->memberCount(); ++i) {
                     if (Declaration *decl = e->memberAt(i)->asDeclaration())
                         values << prettyPrint.prettyName(LookupContext::fullyQualifiedName(decl));
                 }
@@ -2752,7 +2752,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
 
                             // Insert Position: Inside Class
                             // Determine insert location direct after the declaration.
-                            unsigned line, column;
+                            int line, column;
                             const CppRefactoringFilePtr file = interface.currentFile();
                             file->lineAndColumn(file->endOf(simpleDecl), &line, &column);
                             const InsertionLocation loc
@@ -2779,7 +2779,7 @@ bool hasClassMemberWithGetPrefix(const Class *klass)
     if (!klass)
         return false;
 
-    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+    for (int i = 0; i < klass->memberCount(); ++i) {
         const Symbol *symbol = klass->memberAt(i);
         if (symbol->isFunction() || symbol->isDeclaration()) {
             if (const Name *symbolName = symbol->name()) {
@@ -2872,7 +2872,7 @@ public:
         bool hasGetter = false;
         bool hasSetter = false;
         if (Class *klass = m_classSpecifier->symbol) {
-            for (unsigned i = 0; i < klass->memberCount(); ++i) {
+            for (int i = 0; i < klass->memberCount(); ++i) {
                 Symbol *symbol = klass->memberAt(i);
                 if (symbol->isQtPropertyDeclaration())
                     continue;
@@ -3125,7 +3125,7 @@ public:
 
         // Create and apply changes
         ChangeSet currChanges;
-        int declInsertPos = currentFile->position(qMax(1u, declLocation.line()),
+        int declInsertPos = currentFile->position(qMax(1, declLocation.line()),
                                                   declLocation.column());
         currChanges.insert(declInsertPos, declaration);
 
@@ -4608,7 +4608,7 @@ void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
     Class *c = klass->symbol;
 
     Overview overview;
-    for (unsigned i = 0; i < c->memberCount(); ++i) {
+    for (int i = 0; i < c->memberCount(); ++i) {
         Symbol *member = c->memberAt(i);
         FullySpecifiedType type = member->type();
         if (member->asFunction() || (type.isValid() && type->asFunctionType())) {

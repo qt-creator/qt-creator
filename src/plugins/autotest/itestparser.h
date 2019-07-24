@@ -51,8 +51,8 @@ public:
     QString fileName;
     QString proFile;
     QString name;
-    unsigned line = 0;
-    unsigned column = 0;
+    int line = 0;
+    int column = 0;
 };
 
 using TestParseResultPtr = QSharedPointer<TestParseResult>;

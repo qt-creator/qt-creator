@@ -61,7 +61,7 @@ Utf8String UnsavedFile::fileContent() const
     return m_fileContent;
 }
 
-uint UnsavedFile::toUtf8Position(uint line, uint column, bool *ok) const
+uint UnsavedFile::toUtf8Position(int line, int column, bool *ok) const
 {
     Utf8PositionFromLineColumn converter(m_fileContent.constData());
     if (converter.find(line, column)) {
@@ -73,7 +73,7 @@ uint UnsavedFile::toUtf8Position(uint line, uint column, bool *ok) const
     return 0;
 }
 
-bool UnsavedFile::hasCharacterAt(uint line, uint column, char character) const
+bool UnsavedFile::hasCharacterAt(int line, int column, char character) const
 {
     bool positionIsOk = false;
     const uint utf8Position = toUtf8Position(line, column, &positionIsOk);
@@ -81,7 +81,7 @@ bool UnsavedFile::hasCharacterAt(uint line, uint column, char character) const
     return positionIsOk && hasCharacterAt(utf8Position, character);
 }
 
-Utf8String UnsavedFile::lineRange(uint fromLine, uint toLine) const
+Utf8String UnsavedFile::lineRange(int fromLine, int toLine) const
 {
     if (fromLine > toLine)
         return Utf8String();

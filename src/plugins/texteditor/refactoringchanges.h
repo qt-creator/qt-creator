@@ -66,9 +66,9 @@ public:
     TextEditorWidget *editor() const;
 
     // converts 1-based line and column into 0-based source offset
-    int position(unsigned line, unsigned column) const;
+    int position(int line, int column) const;
     // converts 0-based source offset into 1-based line and column
-    void lineAndColumn(int offset, unsigned *line, unsigned *column) const;
+    void lineAndColumn(int offset, int *line, int *column) const;
 
     QChar charAt(int pos) const;
     QString textOf(int start, int end) const;

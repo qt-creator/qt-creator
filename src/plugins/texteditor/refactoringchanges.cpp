@@ -232,7 +232,7 @@ TextEditorWidget *RefactoringFile::editor() const
     return m_editor;
 }
 
-int RefactoringFile::position(unsigned line, unsigned column) const
+int RefactoringFile::position(int line, int column) const
 {
     QTC_ASSERT(line != 0, return -1);
     QTC_ASSERT(column != 0, return -1);
@@ -241,7 +241,7 @@ int RefactoringFile::position(unsigned line, unsigned column) const
     return -1;
 }
 
-void RefactoringFile::lineAndColumn(int offset, unsigned *line, unsigned *column) const
+void RefactoringFile::lineAndColumn(int offset, int *line, int *column) const
 {
     QTC_ASSERT(line, return);
     QTC_ASSERT(column, return);
@@ -322,7 +322,7 @@ bool RefactoringFile::apply()
 
     // open / activate / goto position
     if (m_openEditor && !m_fileName.isEmpty()) {
-        auto line = unsigned(-1), column = unsigned(-1);
+        int line = -1, column = -1;
         if (m_editorCursorPosition != -1)
             lineAndColumn(m_editorCursorPosition, &line, &column);
         m_editor = RefactoringChanges::openEditor(m_fileName, m_activateEditor, line, column);

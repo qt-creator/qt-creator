@@ -153,7 +153,7 @@ using SeenHash = QHash<QString, int>;
 
 static void blockRecursion(const Overview &overview,
                            const Scope *scope,
-                           unsigned line,
+                           int line,
                            QStringList *uninitializedVariables,
                            SeenHash *seenHash,
                            int level = 0)

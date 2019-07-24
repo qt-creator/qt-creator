@@ -53,8 +53,8 @@ protected:
 
     DiagnosticContainer createDiagnostic(const QString &text,
                                          ClangBackEnd::DiagnosticSeverity severity,
-                                         uint line,
-                                         uint column,
+                                         int line,
+                                         int column,
                                          const QString &filePath) const;
     QVector<DiagnosticContainer> diagnosticsFromMainFile() const;
     QVector<DiagnosticContainer> errorDiagnosticsFromHeaders() const;
@@ -141,8 +141,8 @@ void TranslationUnit::reparse()
 
 DiagnosticContainer TranslationUnit::createDiagnostic(const QString &text,
                                                       ClangBackEnd::DiagnosticSeverity severity,
-                                                      uint line,
-                                                      uint column,
+                                                      int line,
+                                                      int column,
                                                       const QString &filePath) const
 {
     return DiagnosticContainer(

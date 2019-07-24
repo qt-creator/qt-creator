@@ -71,11 +71,11 @@ public:
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro,
-                     unsigned bytesOffset, unsigned bytesLength,
-                     unsigned utf16charsOffset, unsigned utf16charLength,
-                     unsigned beginLine, const QVector<MacroArgumentReference> &range);
+                     int bytesOffset, int bytesLength,
+                     int utf16charsOffset, int utf16charLength,
+                     int beginLine, const QVector<MacroArgumentReference> &range);
     void addUndefinedMacroUse(const QByteArray &name,
-                              unsigned bytesOffset, unsigned utf16charsOffset);
+                              int bytesOffset, int utf16charsOffset);
 
     Control *control() const;
     Control *swapControl(Control *newControl);
@@ -84,8 +84,8 @@ public:
     bool skipFunctionBody() const;
     void setSkipFunctionBody(bool skipFunctionBody);
 
-    unsigned globalSymbolCount() const;
-    Symbol *globalSymbolAt(unsigned index) const;
+    int globalSymbolCount() const;
+    Symbol *globalSymbolAt(int index) const;
 
     Namespace *globalNamespace() const;
     void setGlobalNamespace(Namespace *globalNamespace); // ### internal
@@ -93,10 +93,10 @@ public:
     QList<Macro> definedMacros() const
     { return _definedMacros; }
 
-    QString functionAt(int line, int column, int *lineOpeningDeclaratorParenthesis = 0,
-                       int *lineClosingBrace = 0) const;
-    Symbol *lastVisibleSymbolAt(unsigned line, unsigned column = 0) const;
-    Scope *scopeAt(unsigned line, unsigned column = 0);
+    QString functionAt(int line, int column, int *lineOpeningDeclaratorParenthesis = nullptr,
+                       int *lineClosingBrace = nullptr) const;
+    Symbol *lastVisibleSymbolAt(int line, int column = 0) const;
+    Scope *scopeAt(int line, int column = 0);
 
     QByteArray utf8Source() const;
     void setUtf8Source(const QByteArray &utf8Source);
@@ -108,8 +108,8 @@ public:
     LanguageFeatures languageFeatures() const;
     void setLanguageFeatures(LanguageFeatures features);
 
-    void startSkippingBlocks(unsigned utf16charsOffset);
-    void stopSkippingBlocks(unsigned utf16charsOffset);
+    void startSkippingBlocks(int utf16charsOffset);
+    void stopSkippingBlocks(int utf16charsOffset);
 
     enum ParseMode { // ### keep in sync with CPlusPlus::TranslationUnit
         ParseTranlationUnit,
@@ -146,9 +146,9 @@ public:
 
     public:
         DiagnosticMessage(int level, const QString &fileName,
-                          unsigned line, unsigned column,
+                          int line, int column,
                           const QString &text,
-                          unsigned length = 0)
+                          int length = 0)
             : _level(level),
               _line(line),
               _fileName(fileName),
@@ -172,13 +172,13 @@ public:
         QString fileName() const
         { return _fileName; }
 
-        unsigned line() const
+        int line() const
         { return _line; }
 
-        unsigned column() const
+        int column() const
         { return _column; }
 
-        unsigned length() const
+        int length() const
         { return _length; }
 
         QString text() const
@@ -189,10 +189,10 @@ public:
 
     private:
         int _level;
-        unsigned _line;
+        int _line;
         QString _fileName;
-        unsigned _column;
-        unsigned _length;
+        int _column;
+        int _length;
         QString _text;
     };
 
@@ -207,44 +207,44 @@ public:
 
     class Block
     {
-        unsigned _bytesBegin;
-        unsigned _bytesEnd;
-        unsigned _utf16charsBegin;
-        unsigned _utf16charsEnd;
+        int _bytesBegin;
+        int _bytesEnd;
+        int _utf16charsBegin;
+        int _utf16charsEnd;
 
     public:
-        inline Block(unsigned bytesBegin = 0, unsigned bytesEnd = 0,
-                     unsigned utf16charsBegin = 0, unsigned utf16charsEnd = 0)
+        inline Block(int bytesBegin = 0, int bytesEnd = 0,
+                     int utf16charsBegin = 0, int utf16charsEnd = 0)
             : _bytesBegin(bytesBegin),
               _bytesEnd(bytesEnd),
               _utf16charsBegin(utf16charsBegin),
               _utf16charsEnd(utf16charsEnd)
         {}
 
-        inline unsigned bytesBegin() const
+        inline int bytesBegin() const
         { return _bytesBegin; }
 
-        inline unsigned bytesEnd() const
+        inline int bytesEnd() const
         { return _bytesEnd; }
 
-        inline unsigned utf16charsBegin() const
+        inline int utf16charsBegin() const
         { return _utf16charsBegin; }
 
-        inline unsigned utf16charsEnd() const
+        inline int utf16charsEnd() const
         { return _utf16charsEnd; }
 
-        bool containsUtf16charOffset(unsigned utf16charOffset) const
+        bool containsUtf16charOffset(int utf16charOffset) const
         { return utf16charOffset >= _utf16charsBegin && utf16charOffset < _utf16charsEnd; }
     };
 
     class Include {
         QString _resolvedFileName;
         QString _unresolvedFileName;
-        unsigned _line;
+        int _line;
         Client::IncludeType _type;
 
     public:
-        Include(const QString &unresolvedFileName, const QString &resolvedFileName, unsigned line,
+        Include(const QString &unresolvedFileName, const QString &resolvedFileName, int line,
                 Client::IncludeType type)
             : _resolvedFileName(resolvedFileName)
             , _unresolvedFileName(unresolvedFileName)
@@ -258,7 +258,7 @@ public:
         QString unresolvedFileName() const
         { return _unresolvedFileName; }
 
-        unsigned line() const
+        int line() const
         { return _line; }
 
         Client::IncludeType type() const
@@ -268,13 +268,13 @@ public:
     class MacroUse: public Block {
         Macro _macro;
         QVector<Block> _arguments;
-        unsigned _beginLine;
+        int _beginLine;
 
     public:
         inline MacroUse(const Macro &macro,
-                        unsigned bytesBegin, unsigned bytesEnd,
-                        unsigned utf16charsBegin, unsigned utf16charsEnd,
-                        unsigned beginLine)
+                        int bytesBegin, int bytesEnd,
+                        int utf16charsBegin, int utf16charsEnd,
+                        int beginLine)
             : Block(bytesBegin, bytesEnd, utf16charsBegin, utf16charsEnd),
               _macro(macro),
               _beginLine(beginLine)
@@ -289,7 +289,7 @@ public:
         QVector<Block> arguments() const
         { return _arguments; }
 
-        unsigned beginLine() const
+        int beginLine() const
         { return _beginLine; }
 
     private:
@@ -308,8 +308,8 @@ public:
     public:
         inline UndefinedMacroUse(
                 const QByteArray &name,
-                unsigned bytesBegin,
-                unsigned utf16charsBegin)
+                int bytesBegin,
+                int utf16charsBegin)
             : Block(bytesBegin,
                     bytesBegin + name.length(),
                     utf16charsBegin,
@@ -346,9 +346,9 @@ public:
     QByteArray includeGuardMacroName() const
     { return _includeGuardMacroName; }
 
-    const Macro *findMacroDefinitionAt(unsigned line) const;
-    const MacroUse *findMacroUseAt(unsigned utf16charsOffset) const;
-    const UndefinedMacroUse *findUndefinedMacroUseAt(unsigned utf16charsOffset) const;
+    const Macro *findMacroDefinitionAt(int line) const;
+    const MacroUse *findMacroUseAt(int utf16charsOffset) const;
+    const UndefinedMacroUse *findUndefinedMacroUseAt(int utf16charsOffset) const;
 
     void keepSourceAndAST();
     void releaseSourceAndAST();
@@ -397,7 +397,7 @@ public:
 
     typedef Base::const_iterator iterator;
     typedef Base::const_iterator const_iterator;
-    typedef QPair<Document::Ptr, unsigned> IncludeLocation;
+    typedef QPair<Document::Ptr, int> IncludeLocation;
 
     int size() const; // ### remove
     bool isEmpty() const;

@@ -68,8 +68,8 @@ void tst_Misc::diagnosticClient_error()
 
     const Document::DiagnosticMessage &msg = diagnostics.at(0);
     QCOMPARE(msg.level(), (int) Document::DiagnosticMessage::Error);
-    QCOMPARE(msg.line(), 2U);
-    QCOMPARE(msg.column(), 1U);
+    QCOMPARE(msg.line(), 2);
+    QCOMPARE(msg.column(), 1);
 }
 
 void tst_Misc::diagnosticClient_warning()
@@ -88,8 +88,8 @@ void tst_Misc::diagnosticClient_warning()
 
     const Document::DiagnosticMessage &msg = diagnostics.at(0);
     QCOMPARE(msg.level(), (int) Document::DiagnosticMessage::Warning);
-    QCOMPARE(msg.line(), 1U);
-    QCOMPARE(msg.column(), 17U);
+    QCOMPARE(msg.line(), 1);
+    QCOMPARE(msg.column(), 17);
 }
 
 void tst_Misc::findBreakpoints()
@@ -138,11 +138,11 @@ void tst_Misc::findBreakpoints()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     FindCdbBreakpoint findBreakpoint(doc->translationUnit());
 
-    QCOMPARE(findBreakpoint(0), 5U);
-    QCOMPARE(findBreakpoint(7), 8U);
-    QCOMPARE(findBreakpoint(11), 16U);
-    QCOMPARE(findBreakpoint(17), 23U);
-    QCOMPARE(findBreakpoint(18), 23U);
+    QCOMPARE(findBreakpoint(0), 5);
+    QCOMPARE(findBreakpoint(7), 8);
+    QCOMPARE(findBreakpoint(11), 16);
+    QCOMPARE(findBreakpoint(17), 23);
+    QCOMPARE(findBreakpoint(18), 23);
 }
 
 void tst_Misc::findBreakpoints2()
@@ -167,14 +167,14 @@ void tst_Misc::findBreakpoints2()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     FindCdbBreakpoint findBreakpoint(doc->translationUnit());
 
-    QCOMPARE(findBreakpoint(0), 2U);
-    QCOMPARE(findBreakpoint(1), 2U);
-    QCOMPARE(findBreakpoint(2), 2U);
-    QCOMPARE(findBreakpoint(3), 3U);
-    QCOMPARE(findBreakpoint(4), 5U);
-    QCOMPARE(findBreakpoint(5), 5U);
-    QCOMPARE(findBreakpoint(6), 6U);
-    QCOMPARE(findBreakpoint(7), 7U);
+    QCOMPARE(findBreakpoint(0), 2);
+    QCOMPARE(findBreakpoint(1), 2);
+    QCOMPARE(findBreakpoint(2), 2);
+    QCOMPARE(findBreakpoint(3), 3);
+    QCOMPARE(findBreakpoint(4), 5);
+    QCOMPARE(findBreakpoint(5), 5);
+    QCOMPARE(findBreakpoint(6), 6);
+    QCOMPARE(findBreakpoint(7), 7);
 }
 
 void tst_Misc::findBreakpoints3()
@@ -197,11 +197,11 @@ void tst_Misc::findBreakpoints3()
     QCOMPARE(doc->diagnosticMessages().size(), 0);
     FindCdbBreakpoint findBreakpoint(doc->translationUnit());
 
-    QCOMPARE(findBreakpoint(2), 3U);
-    QCOMPARE(findBreakpoint(3), 3U);
-    QCOMPARE(findBreakpoint(4), 5U);
-    QCOMPARE(findBreakpoint(5), 5U);
-    QCOMPARE(findBreakpoint(7), 7U);
+    QCOMPARE(findBreakpoint(2), 3);
+    QCOMPARE(findBreakpoint(3), 3);
+    QCOMPARE(findBreakpoint(4), 5);
+    QCOMPARE(findBreakpoint(5), 5);
+    QCOMPARE(findBreakpoint(7), 7);
 }
 
 static Document::Ptr documentCreatedWithFastPreprocessor(const QByteArray source)

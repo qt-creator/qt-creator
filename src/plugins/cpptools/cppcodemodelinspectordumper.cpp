@@ -53,6 +53,11 @@ QString Utils::toString(bool value)
     return value ? QLatin1String("Yes") : QLatin1String("No");
 }
 
+QString Utils::toString(int value)
+{
+    return QString::number(value);
+}
+
 QString Utils::toString(unsigned value)
 {
     return QString::number(value);

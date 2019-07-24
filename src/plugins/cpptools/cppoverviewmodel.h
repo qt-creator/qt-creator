@@ -59,8 +59,8 @@ public:
 private:
     CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &index) const;
     bool hasDocument() const;
-    unsigned globalSymbolCount() const;
-    CPlusPlus::Symbol *globalSymbolAt(unsigned index) const;
+    int globalSymbolCount() const;
+    CPlusPlus::Symbol *globalSymbolAt(int index) const;
     void buildTree(SymbolItem *root, bool isRoot);
 
 private:

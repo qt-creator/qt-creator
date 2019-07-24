@@ -308,7 +308,7 @@ public:
                         << "    if (debug_todo)" << std::endl
                         << "        translationUnit()->warning(ast->firstToken(), \"TODO: %s\", __func__);" << std::endl;
 
-                for (unsigned i = 0; i < klass->memberCount(); ++i) {
+                for (int i = 0; i < klass->memberCount(); ++i) {
                     Declaration *decl = klass->memberAt(i)->asDeclaration();
                     if (! decl)
                         continue;

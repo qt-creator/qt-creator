@@ -288,7 +288,7 @@ void AutotestPlugin::onRunUnderCursorTriggered(TestRunMode mode)
         return; // Wrong location triggered
 
     // check whether we have been triggered on a test function definition
-    const uint line = uint(currentEditor->currentLine());
+    const int line = currentEditor->currentLine();
     const QString &filePath = currentEditor->textDocument()->filePath().toString();
     const QList<TestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](TestTreeItem *it){
         return it->line() == line && it->filePath() == filePath;

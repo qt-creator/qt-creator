@@ -353,7 +353,7 @@ Link attemptFuncDeclDef(const QTextCursor &cursor, Snapshot snapshot,
     if (target) {
         result = target->toLink();
 
-        unsigned startLine, startColumn, endLine, endColumn;
+        int startLine, startColumn, endLine, endColumn;
         document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,
                                                            &startColumn);
         document->translationUnit()->getTokenEndPosition(name->lastToken() - 1, &endLine,
@@ -540,8 +540,7 @@ void FollowSymbolUnderCursor::findLink(
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
 
-        if (static_cast<unsigned>(positionInBlock) >= tk.utf16charsBegin()
-                && static_cast<unsigned>(positionInBlock) < tk.utf16charsEnd()) {
+        if (positionInBlock >= tk.utf16charsBegin() && positionInBlock < tk.utf16charsEnd()) {
             int closingParenthesisPos = tokens.size();
             if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
                 && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
@@ -583,8 +582,7 @@ void FollowSymbolUnderCursor::findLink(
 
             // In this case we want to look at one token before the current position to recognize
             // an operator if the cursor is inside the actual operator: operator[$]
-            if (static_cast<unsigned>(positionInBlock) >= tk.utf16charsBegin()
-                    && static_cast<unsigned>(positionInBlock) <= tk.utf16charsEnd()) {
+            if (positionInBlock >= tk.utf16charsBegin() && positionInBlock <= tk.utf16charsEnd()) {
                 cursorRegionReached = true;
                 if (tk.is(T_OPERATOR)) {
                     link = attemptFuncDeclDef(cursor, theSnapshot,
@@ -633,7 +631,7 @@ void FollowSymbolUnderCursor::findLink(
 
         // Handle include directives
         if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
-            const unsigned lineno = cursor.blockNumber() + 1;
+            const int lineno = cursor.blockNumber() + 1;
             foreach (const Document::Include &incl, doc->resolvedIncludes()) {
                 if (incl.line() == lineno) {
                     link.targetFileName = incl.resolvedFileName();
@@ -697,8 +695,7 @@ void FollowSymbolUnderCursor::findLink(
                 if (d->isDeclaration() || d->isFunction()) {
                     const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
                     if (data.filePath().toString() == fileName) {
-                        if (static_cast<unsigned>(line) == d->line()
-                            && static_cast<unsigned>(positionInBlock) >= d->column()) {
+                        if (line == d->line() && positionInBlock >= d->column()) {
                             // TODO: check the end
                             result = r; // take the symbol under cursor.
                             break;
@@ -709,9 +706,9 @@ void FollowSymbolUnderCursor::findLink(
                     int tokenBeginColumnNumber = 0;
                     Utils::Text::convertPosition(document, beginOfToken, &tokenBeginLineNumber,
                                                  &tokenBeginColumnNumber);
-                    if (static_cast<unsigned>(tokenBeginLineNumber) > d->line()
-                            || (static_cast<unsigned>(tokenBeginLineNumber) == d->line()
-                                && static_cast<unsigned>(tokenBeginColumnNumber) >= d->column())) {
+                    if (tokenBeginLineNumber > d->line()
+                            || (tokenBeginLineNumber == d->line()
+                                && tokenBeginColumnNumber >= d->column())) {
                         result = r; // take the symbol under cursor.
                         break;
                     }

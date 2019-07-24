@@ -58,7 +58,7 @@ static int ordering(InsertionPointLocator::AccessSpec xsSpec)
 
 struct AccessRange
 {
-    unsigned start = 0;
+    int start = 0;
     unsigned end = 0;
     InsertionPointLocator::AccessSpec xsSpec = InsertionPointLocator::Invalid;
     unsigned colonToken = 0;
@@ -119,7 +119,7 @@ protected:
         bool needsSuffix = false;
         findMatch(ranges, _xsSpec, beforeToken, needsLeadingEmptyLine, needsPrefix, needsSuffix);
 
-        unsigned line = 0, column = 0;
+        int line = 0, column = 0;
         getTokenStartPosition(beforeToken, &line, &column);
 
         QString prefix;
@@ -253,7 +253,7 @@ InsertionLocation::InsertionLocation() = default;
 InsertionLocation::InsertionLocation(const QString &fileName,
                                      const QString &prefix,
                                      const QString &suffix,
-                                     unsigned line, unsigned column)
+                                     int line, int column)
     : m_fileName(fileName)
     , m_prefix(prefix)
     , m_suffix(suffix)
@@ -350,7 +350,7 @@ public:
         : ASTVisitor(translationUnit)
     {}
 
-    void operator()(Symbol *decl, unsigned *line, unsigned *column)
+    void operator()(Symbol *decl, int *line, int *column)
     {
         // default to end of file
         const unsigned lastToken = translationUnit()->ast()->lastToken();
@@ -408,15 +408,15 @@ protected:
 class FindFunctionDefinition : protected ASTVisitor
 {
     FunctionDefinitionAST *_result = nullptr;
-    unsigned _line = 0;
-    unsigned _column = 0;
+    int _line = 0;
+    int _column = 0;
 public:
     explicit FindFunctionDefinition(TranslationUnit *translationUnit)
         : ASTVisitor(translationUnit)
     {
     }
 
-    FunctionDefinitionAST *operator()(unsigned line, unsigned column)
+    FunctionDefinitionAST *operator()(int line, int column)
     {
         _result = nullptr;
         _line = line;
@@ -430,7 +430,7 @@ protected:
     {
         if (_result)
             return false;
-        unsigned line, column;
+        int line, column;
         translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
         if (line > _line || (line == _line && column > _column))
             return false;
@@ -473,7 +473,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
 
     // find the index of declaration
     int declIndex = -1;
-    for (unsigned i = 0; i < klass->memberCount(); ++i) {
+    for (int i = 0; i < klass->memberCount(); ++i) {
         Symbol *s = klass->memberAt(i);
         if (s == declaration) {
             declIndex = i;
@@ -505,7 +505,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
     }
     if (!definitionFunction) {
         // try to find one below
-        for (unsigned i = declIndex + 1; i < klass->memberCount(); ++i) {
+        for (int i = declIndex + 1; i < klass->memberCount(); ++i) {
             Symbol *s = klass->memberAt(i);
             surroundingFunctionDecl = isNonVirtualFunctionDeclaration(s);
             if (!surroundingFunctionDecl)
@@ -526,7 +526,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
     if (!definitionFunction)
         return noResult;
 
-    unsigned line, column;
+    int line, column;
     if (suffix.isEmpty()) {
         Document::Ptr targetDoc = changes.snapshot().document(QString::fromUtf8(definitionFunction->fileName()));
         if (!targetDoc)
@@ -586,7 +586,7 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(Symbol *declara
     if (doc.isNull())
         return result;
 
-    unsigned line = 0, column = 0;
+    int line = 0, column = 0;
     FindMethodDefinitionInsertPoint finder(doc->translationUnit());
     finder(declaration, &line, &column);
 

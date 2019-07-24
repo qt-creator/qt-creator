@@ -41,30 +41,30 @@ class Macro;
 
 class CPLUSPLUS_EXPORT MacroArgumentReference
 {
-  unsigned _bytesOffset;
-  unsigned _bytesLength;
-  unsigned _utf16charsOffset;
-  unsigned _utf16charsLength;
+  int _bytesOffset;
+  int _bytesLength;
+  int _utf16charsOffset;
+  int _utf16charsLength;
 
 public:
-  explicit MacroArgumentReference(unsigned bytesOffset = 0, unsigned bytesLength = 0,
-                                  unsigned utf16charsOffset = 0, unsigned utf16charsLength = 0)
+  explicit MacroArgumentReference(int bytesOffset = 0, int bytesLength = 0,
+                                  int utf16charsOffset = 0, int utf16charsLength = 0)
     : _bytesOffset(bytesOffset)
     , _bytesLength(bytesLength)
     , _utf16charsOffset(utf16charsOffset)
     , _utf16charsLength(utf16charsLength)
   { }
 
-  unsigned bytesOffset() const
+  int bytesOffset() const
   { return _bytesOffset; }
 
-  unsigned bytesLength() const
+  int bytesLength() const
   { return _bytesLength; }
 
-  unsigned utf16charsOffset() const
+  int utf16charsOffset() const
   { return _utf16charsOffset; }
 
-  unsigned utf16charsLength() const
+  int utf16charsLength() const
   { return _utf16charsLength; }
 };
 
@@ -86,28 +86,28 @@ public:
 
   virtual void macroAdded(const Macro &macro) = 0;
 
-  virtual void passedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
-                                          unsigned line, const Macro &macro) = 0;
-  virtual void failedMacroDefinitionCheck(unsigned bytesOffset, unsigned utf16charsOffset,
+  virtual void passedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
+                                          int line, const Macro &macro) = 0;
+  virtual void failedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
                                           const ByteArrayRef &name) = 0;
 
-  virtual void notifyMacroReference(unsigned bytesOffset, unsigned utf16charsOffset,
-                                    unsigned line, const Macro &macro) = 0;
+  virtual void notifyMacroReference(int bytesOffset, int utf16charsOffset,
+                                    int line, const Macro &macro) = 0;
 
-  virtual void startExpandingMacro(unsigned bytesOffset, unsigned utf16charsOffset,
-                                   unsigned line, const Macro &macro,
+  virtual void startExpandingMacro(int bytesOffset, int utf16charsOffset,
+                                   int line, const Macro &macro,
                                    const QVector<MacroArgumentReference> &actuals
                                             = QVector<MacroArgumentReference>()) = 0;
-  virtual void stopExpandingMacro(unsigned bytesOffset, const Macro &macro) = 0; // TODO: ?!
+  virtual void stopExpandingMacro(int bytesOffset, const Macro &macro) = 0; // TODO: ?!
 
   /// Mark the given macro name as the include guard for the current file.
   virtual void markAsIncludeGuard(const QByteArray &macroName) = 0;
 
   /// Start skipping from the given utf16charsOffset.
-  virtual void startSkippingBlocks(unsigned utf16charsOffset) = 0;
-  virtual void stopSkippingBlocks(unsigned utf16charsOffset) = 0;
+  virtual void startSkippingBlocks(int utf16charsOffset) = 0;
+  virtual void stopSkippingBlocks(int utf16charsOffset) = 0;
 
-  virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode,
+  virtual void sourceNeeded(int line, const QString &fileName, IncludeType mode,
                             const QStringList &initialIncludes = QStringList()) = 0;
 
   static inline bool isInjectedFile(const QString &fileName)
