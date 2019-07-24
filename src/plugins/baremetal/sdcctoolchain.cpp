@@ -72,6 +72,8 @@ static QString compilerTargetFlag(const Abi &abi)
     switch (abi.architecture()) {
     case Abi::Architecture::Mcs51Architecture:
         return QString("-mmcs51");
+    case Abi::Architecture::Stm8Architecture:
+        return QString("-mstm8");
     default:
         return {};
     }
@@ -169,6 +171,8 @@ static Abi::Architecture guessArchitecture(const Macros &macros)
     for (const Macro &macro : macros) {
         if (macro.key == "__SDCC_mcs51")
             return Abi::Architecture::Mcs51Architecture;
+        if (macro.key == "__SDCC_stm8")
+            return Abi::Architecture::Stm8Architecture;
     }
     return Abi::Architecture::UnknownArchitecture;
 }
@@ -443,21 +447,41 @@ QList<ToolChain *> SdccToolChainFactory::autoDetectToolchain(
         const Candidate &candidate, Core::Id language) const
 {
     const auto env = Environment::systemEnvironment();
-    const Macros macros = dumpPredefinedMacros(candidate.compilerPath, env.toStringList(), {});
-    if (macros.isEmpty())
-        return {};
-    const Abi abi = guessAbi(macros);
 
-    const auto tc = new SdccToolChain;
-    tc->setDetection(ToolChain::AutoDetection);
-    tc->setLanguage(language);
-    tc->setCompilerCommand(candidate.compilerPath);
-    tc->setTargetAbi(abi);
-    tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.compilerVersion));
+    // Table of supported ABI's by SDCC compiler.
+    const Abi knownAbis[] = {
+        {Abi::Mcs51Architecture},
+        {Abi::Stm8Architecture}
+    };
 
-    const auto languageVersion = ToolChain::languageVersion(language, macros);
-    tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
-    return {tc};
+    QList<ToolChain *> tcs;
+
+    // Probe each ABI from the table, because the SDCC compiler
+    // can be compiled with or without the specified architecture.
+    for (const auto &knownAbi : knownAbis) {
+        const Macros macros = dumpPredefinedMacros(candidate.compilerPath,
+                                                   env.toStringList(), knownAbi);
+        if (macros.isEmpty())
+            continue;
+        const Abi abi = guessAbi(macros);
+        if (knownAbi.architecture() != abi.architecture())
+            continue;
+
+        const auto tc = new SdccToolChain;
+        tc->setDetection(ToolChain::AutoDetection);
+        tc->setLanguage(language);
+        tc->setCompilerCommand(candidate.compilerPath);
+        tc->setTargetAbi(abi);
+        tc->setDisplayName(buildDisplayName(abi.architecture(), language,
+                                            candidate.compilerVersion));
+
+        const auto languageVersion = ToolChain::languageVersion(language, macros);
+        tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
+
+        tcs.push_back(tc);
+    }
+
+    return tcs;
 }
 
 // SdccToolChainConfigWidget
