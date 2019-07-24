@@ -111,8 +111,6 @@ private:
     ProjectExplorer::MakeInstallCommand makeInstallCommand(const ProjectExplorer::Target *target,
                                                            const QString &installRoot) override;
 
-    // TODO probably need a CMake specific node structure
-    QList<CMakeBuildTarget> m_buildTargets;
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
