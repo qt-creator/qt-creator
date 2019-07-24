@@ -61,5 +61,18 @@ public:
                 int *selectionLength) const final;
 };
 
+class OpenCMakeTargetLocatorFilter : CMakeTargetLocatorFilter
+{
+    Q_OBJECT
+
+public:
+    OpenCMakeTargetLocatorFilter();
+
+    void accept(Core::LocatorFilterEntry selection,
+                QString *newText,
+                int *selectionStart,
+                int *selectionLength) const final;
+};
+
 } // namespace Internal
 } // namespace CMakeProjectManager

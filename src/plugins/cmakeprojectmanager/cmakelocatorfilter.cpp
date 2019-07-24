@@ -28,12 +28,13 @@
 #include "cmakebuildstep.h"
 #include "cmakeproject.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/buildsteplist.h>
 
 #include <utils/algorithm.h>
 
@@ -159,4 +160,35 @@ void BuildCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
     // Build
     ProjectExplorerPlugin::buildProject(cmakeProject);
     buildStep->setBuildTarget(oldTarget);
+}
+
+// --------------------------------------------------------------------
+// OpenCMakeTargetLocatorFilter:
+// --------------------------------------------------------------------
+
+OpenCMakeTargetLocatorFilter::OpenCMakeTargetLocatorFilter()
+{
+    setId("Open CMake target definition");
+    setDisplayName(tr("Open CMake target"));
+    setShortcutString("cmo");
+    setPriority(Medium);
+}
+
+void OpenCMakeTargetLocatorFilter::accept(Core::LocatorFilterEntry selection,
+                                          QString *newText,
+                                          int *selectionStart,
+                                          int *selectionLength) const
+{
+    Q_UNUSED(newText)
+    Q_UNUSED(selectionStart)
+    Q_UNUSED(selectionLength)
+
+    const QVariantMap extraData = selection.internalData.toMap();
+    const int line = extraData.value("line").toInt();
+    const QString file = extraData.value("file").toString();
+
+    if (line >= 0)
+        Core::EditorManager::openEditorAt(file, line);
+    else
+        Core::EditorManager::openEditor(file);
 }
