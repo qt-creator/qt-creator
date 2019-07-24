@@ -51,7 +51,7 @@ public:
 
         updateCurrentSourceTimeStamps(sourceEntries);
 
-        return compareEntries(sourceEntries) && notReseted(sourceEntries);
+        return compareEntries(sourceEntries);
     }
 
     void pathsChanged(const FilePathIds &filePathIds) override
@@ -64,20 +64,6 @@ public:
                                   sourceTimeStamp.timeStamp = m_fileSystem.lastModified(
                                       sourceTimeStamp.sourceId);
                               }));
-    }
-
-    void reset(const FilePathIds &filePathIds)
-    {
-        FilePathIds newResetFilePathIds;
-        newResetFilePathIds.reserve(newResetFilePathIds.size() + m_resetFilePathIds.size());
-
-        std::set_union(m_resetFilePathIds.begin(),
-                       m_resetFilePathIds.end(),
-                       filePathIds.begin(),
-                       filePathIds.end(),
-                       std::back_inserter(newResetFilePathIds));
-
-        m_resetFilePathIds = std::move(newResetFilePathIds);
     }
 
 private:
@@ -118,33 +104,13 @@ private:
                                                            m_fileSystem.lastModified(
                                                                sourceEntry.sourceId));
                             }),
-                            [](auto first, auto second) {
-                                return first.sourceId < second.sourceId && first.timeStamp > 0;
-                            });
+                            [](auto first, auto second) { return first.sourceId < second.sourceId; });
 
         return newTimeStamps;
     }
 
-    bool notReseted(const SourceEntries &sourceEntries) const
-    {
-        auto oldSize = m_resetFilePathIds.size();
-        FilePathIds newResetFilePathIds;
-        newResetFilePathIds.reserve(newResetFilePathIds.size());
-
-        std::set_difference(m_resetFilePathIds.begin(),
-                            m_resetFilePathIds.end(),
-                            sourceEntries.begin(),
-                            sourceEntries.end(),
-                            std::back_inserter(newResetFilePathIds));
-
-        m_resetFilePathIds = std::move(newResetFilePathIds);
-
-        return oldSize == m_resetFilePathIds.size();
-    }
-
 private:
     mutable SourceTimeStamps m_currentSourceTimeStamps;
-    mutable FilePathIds m_resetFilePathIds;
     FileSystemInterface &m_fileSystem;
 };
 
