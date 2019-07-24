@@ -54,11 +54,6 @@ private slots:
     void testCompleteProjectDependingCode();
     void testCompleteProjectDependingCodeAfterChangingProject();
     void testCompleteProjectDependingCodeInGeneratedUiFile();
-
-    void testCompleteAfterModifyingIncludedHeaderInOtherEditor();
-    void testCompleteAfterModifyingIncludedHeaderByRefactoringActions();
-    void testCompleteAfterChangingIncludedAndOpenHeaderExternally();
-    void testCompleteAfterChangingIncludedAndNotOpenHeaderExternally();
 };
 
 } // namespace Tests
