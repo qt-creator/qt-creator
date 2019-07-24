@@ -25,6 +25,8 @@
 
 #include "utf8positionfromlinecolumn.h"
 
+#include <utils/textutils.h>
+
 #include <QtGlobal>
 
 namespace ClangBackEnd {
@@ -77,31 +79,13 @@ bool Utf8PositionFromLineColumn::advanceToColumn(int column)
     return column == 0;
 }
 
-static bool isByteOfMultiByteCodePoint(unsigned char byte)
-{
-    return byte & 0x80; // Check if most significant bit is set
-}
-
 bool Utf8PositionFromLineColumn::advanceCodePoint(bool stopOnNewLine)
 {
     if (Q_UNLIKELY(*m_currentByte == '\0') || (stopOnNewLine && *m_currentByte == '\n'))
         return false;
 
     m_previousByte = m_currentByte;
-
-    // Process multi-byte UTF-8 code point (non-latin1)
-    if (Q_UNLIKELY(isByteOfMultiByteCodePoint(*m_currentByte))) {
-        unsigned trailingBytesCurrentCodePoint = 1;
-        for (unsigned char c = (*m_currentByte) << 2; isByteOfMultiByteCodePoint(c); c <<= 1)
-            ++trailingBytesCurrentCodePoint;
-        m_currentByte += trailingBytesCurrentCodePoint + 1;
-
-    // Process single-byte UTF-8 code point (latin1)
-    } else {
-        ++m_currentByte;
-    }
-
-    return true;
+    return Utils::Text::utf8AdvanceCodePoint(m_currentByte);
 }
 
 } // namespace ClangBackEnd

@@ -190,5 +190,30 @@ QString utf16LineTextInUtf8Buffer(const QByteArray &utf8Buffer, int currentUtf8O
         utf8Buffer.mid(lineStartUtf8Offset, lineEndUtf8Offset - lineStartUtf8Offset));
 }
 
+static bool isByteOfMultiByteCodePoint(unsigned char byte)
+{
+    return byte & 0x80; // Check if most significant bit is set
+}
+
+bool utf8AdvanceCodePoint(const char *&current)
+{
+    if (Q_UNLIKELY(*current == '\0'))
+        return false;
+
+    // Process multi-byte UTF-8 code point (non-latin1)
+    if (Q_UNLIKELY(isByteOfMultiByteCodePoint(*current))) {
+        unsigned trailingBytesCurrentCodePoint = 1;
+        for (unsigned char c = (*current) << 2; isByteOfMultiByteCodePoint(c); c <<= 1)
+            ++trailingBytesCurrentCodePoint;
+        current += trailingBytesCurrentCodePoint + 1;
+
+    // Process single-byte UTF-8 code point (latin1)
+    } else {
+        ++current;
+    }
+
+    return true;
+}
+
 } // Text
 } // Utils
