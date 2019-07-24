@@ -82,7 +82,7 @@ public:
 
     const ClangTool &clangTool() const { return m_clangTool; }
 
-    FilePathIds existingSources(FilePathIds sources) const;
+    FilePathIds existingSources(const FilePathIds &sources) const;
 
     const FilePathIds &watchedSystemIncludes() const { return m_watchedSystemIncludes; }
     const FilePathIds &watchedProjectIncludes() const { return m_watchedProjectIncludes; }

@@ -112,7 +112,7 @@ Utils::SmallStringVector PchCreator::generateClangCompilerArguments(const PchTas
     return builder.commandLine;
 }
 
-FilePathIds PchCreator::existingSources(FilePathIds sources) const
+FilePathIds PchCreator::existingSources(const FilePathIds &sources) const
 {
     FilePathIds existingSources;
     existingSources.reserve(sources.size());
