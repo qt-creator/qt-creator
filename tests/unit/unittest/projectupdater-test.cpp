@@ -338,7 +338,7 @@ TEST_F(ProjectUpdater, FilterSettingsMacros)
 {
     auto paths = updater.createCompilerMacros({{"YI", "1"}, {"SAN", "3"}, {"SE", "4"}, {"WU", "5"}},
                                               {{"SE", "44", Utils::NameValueItem::Unset},
-                                               {"ER", "2", Utils::NameValueItem::Set},
+                                               {"ER", "2", Utils::NameValueItem::SetEnabled},
                                                {"WU", "5", Utils::NameValueItem::Unset}});
 
     ASSERT_THAT(paths,
