@@ -60,16 +60,6 @@ static void reportFileApiSetupFailure()
         "Failed to set up cmake fileapi support. Creator can not extract project information."));
 }
 
-static bool shouldProcessFile(const QString &filePath, bool update = true)
-{
-    static QString lastSeenFilePath;
-    if (filePath == lastSeenFilePath)
-        return false;
-    if (update)
-        lastSeenFilePath = filePath;
-    return true;
-}
-
 static std::pair<int, int> cmakeVersion(const QJsonObject &obj)
 {
     const QJsonObject version = obj.value("version").toObject();
@@ -946,11 +936,16 @@ QStringList FileApiParser::cmakeQueryFilePaths() const
                      [&queryDir](const QString &name) { return queryDir.absoluteFilePath(name); });
 }
 
+void FileApiParser::setParsedReplyFilePath(const QString &filePath)
+{
+    m_lastParsedReplyFile = filePath;
+}
+
 void FileApiParser::replyDirectoryHasChanged(const QString &directory) const
 {
     if (directory == cmakeReplyDirectory().toString()) {
         QFileInfo fi = scanForCMakeReplyFile();
-        if (fi.isFile() && shouldProcessFile(fi.filePath(), false)) {
+        if (fi.isFile() && fi.filePath() != m_lastParsedReplyFile) {
             emit dirty();
         }
     }

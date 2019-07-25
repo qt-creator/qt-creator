@@ -231,6 +231,8 @@ void FileApiReader::endState(const QFileInfo &replyFi)
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.workDirectory;
 
+    m_fileApi->setParsedReplyFilePath(replyFi.filePath());
+
     m_future = runAsync(ProjectExplorerPlugin::sharedThreadPool(),
                         [replyFi, sourceDirectory, buildDirectory]() {
                             auto result = std::make_unique<FileApiQtcData>();

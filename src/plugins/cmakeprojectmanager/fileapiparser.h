@@ -251,6 +251,8 @@ public:
     QStringList cmakeQueryFileNames() const;
     QStringList cmakeQueryFilePaths() const;
 
+    void setParsedReplyFilePath(const QString &filePath);
+
     static FileApiData parseData(const QFileInfo &replyFileInfo, QString &errorMessage);
 
 signals:
@@ -266,6 +268,7 @@ private:
 
     void replyDirectoryHasChanged(const QString &directory) const;
     Utils::FileSystemWatcher m_watcher;
+    QString m_lastParsedReplyFile;
 };
 
 } // namespace Internal
