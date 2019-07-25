@@ -99,7 +99,12 @@ public:
         m_autoCreateBuildDirectory(item->autoCreateBuildDirectory()),
         m_autodetected(item->isAutoDetected()),
         m_changed(changed)
-    {}
+    {
+        m_tooltip = tr("Version: %1<br>Supports fileApi: %2<br>Supports server-mode: %3")
+                        .arg(QString::fromUtf8(item->version().fullVersion))
+                        .arg(item->hasFileApi() ? tr("yes") : tr("no"))
+                        .arg(item->hasServerMode() ? tr("yes") : tr("no"));
+    }
 
     CMakeToolTreeItem(const QString &name, const Utils::FilePath &executable,
                       bool autoRun, bool autoCreate, bool autodetected) :
@@ -137,12 +142,16 @@ public:
             font.setItalic(model()->defaultItemId() == m_id);
             return font;
         }
+        case Qt::ToolTipRole: {
+            return m_tooltip;
+        }
         }
         return QVariant();
     }
 
     Core::Id m_id;
-    QString  m_name;
+    QString m_name;
+    QString m_tooltip;
     FilePath m_executable;
     bool m_isAutoRun = true;
     bool m_autoCreateBuildDirectory = false;
