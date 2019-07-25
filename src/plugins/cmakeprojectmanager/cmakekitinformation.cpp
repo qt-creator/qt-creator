@@ -678,7 +678,8 @@ Tasks CMakeGeneratorKitAspect::validate(const Kit *k) const
                                    Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
                 }
             }
-            if (!tool->hasServerMode() && info.extraGenerator != "CodeBlocks") {
+            if ((!tool->hasServerMode() && !tool->hasFileApi())
+                && info.extraGenerator != "CodeBlocks") {
                 result << Task(Task::Warning, tr("The selected CMake binary has no server-mode and the CMake "
                                                  "generator does not generate a CodeBlocks file. "
                                                  "%1 will not be able to parse CMake projects.")
