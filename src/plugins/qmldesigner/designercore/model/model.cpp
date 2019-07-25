@@ -1393,14 +1393,8 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
 
 void ModelPrivate::setSelectedNodes(const QList<InternalNode::Pointer> &selectedNodeList)
 {
-
-    QList<InternalNode::Pointer> sortedSelectedList(selectedNodeList);
-    QMutableListIterator<InternalNode::Pointer> iterator(sortedSelectedList);
-    while (iterator.hasNext()) {
-        InternalNode::Pointer node(iterator.next());
-        if (!node->isValid())
-            iterator.remove();
-    }
+    QList<InternalNode::Pointer> sortedSelectedList
+            = Utils::filtered(selectedNodeList, &InternalNode::isValid);
 
     sortedSelectedList = sortedSelectedList.toSet().toList();
     Utils::sort(sortedSelectedList);
