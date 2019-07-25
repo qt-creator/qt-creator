@@ -13,6 +13,7 @@ add_qtc_executable(sdktool
     addkitoperation.cpp addkitoperation.h
     addqtoperation.cpp addqtoperation.h
     addtoolchainoperation.cpp addtoolchainoperation.h
+    addvalueoperation.cpp addvalueoperation.h
     findkeyoperation.cpp findkeyoperation.h
     findvalueoperation.cpp findvalueoperation.h
     getoperation.cpp getoperation.h

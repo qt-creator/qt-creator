@@ -35,6 +35,7 @@
 #include "addkitoperation.h"
 #include "addqtoperation.h"
 #include "addtoolchainoperation.h"
+#include "addvalueoperation.h"
 #include "findkeyoperation.h"
 #include "findvalueoperation.h"
 #include "getoperation.h"
@@ -187,6 +188,7 @@ int main(int argc, char *argv[])
     operations.emplace_back(std::make_unique<AddDeviceOperation>());
     operations.emplace_back(std::make_unique<AddQtOperation>());
     operations.emplace_back(std::make_unique<AddToolChainOperation>());
+    operations.emplace_back(std::make_unique<AddValueOperation>());
 
     operations.emplace_back(std::make_unique<AddKitOperation>());
 

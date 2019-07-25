@@ -38,6 +38,8 @@ QtcTool {
         "addqtoperation.h",
         "addtoolchainoperation.cpp",
         "addtoolchainoperation.h",
+        "addvalueoperation.cpp",
+        "addvalueoperation.h",
         "findkeyoperation.cpp",
         "findkeyoperation.h",
         "findvalueoperation.cpp",

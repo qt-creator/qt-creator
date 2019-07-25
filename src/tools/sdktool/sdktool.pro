@@ -18,6 +18,7 @@ SOURCES += \
     addkitoperation.cpp \
     addqtoperation.cpp \
     addtoolchainoperation.cpp \
+    addvalueoperation.cpp \
     findkeyoperation.cpp \
     findvalueoperation.cpp \
     getoperation.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     addkitoperation.h \
     addqtoperation.h \
     addtoolchainoperation.h \
+    addvalueoperation.h \
     findkeyoperation.h \
     findvalueoperation.h \
     getoperation.h \
