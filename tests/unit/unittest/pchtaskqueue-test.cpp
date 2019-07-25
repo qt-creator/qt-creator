@@ -334,7 +334,7 @@ TEST_F(PchTaskQueue, CreateProjectTaskFromPchTask)
     EXPECT_CALL(mockPchCreator, generatePch(Eq(projectTask)));
     EXPECT_CALL(mockPchCreator, projectPartPch()).WillOnce(ReturnRef(projectPartPch));
     EXPECT_CALL(mockPrecompiledHeaderStorage,
-                insertProjectPrecompiledHeader(Eq(1), Eq("/path/to/pch"), 99));
+                insertProjectPrecompiledHeader(Eq(1), Eq("/path/to/pch"), Eq(99)));
 
     tasks.front()(mockPchCreator);
 }
@@ -377,7 +377,7 @@ TEST_F(PchTaskQueue, CreateSystemTaskFromPchTask)
     EXPECT_CALL(mockPchCreator, generatePch(Eq(systemTask)));
     EXPECT_CALL(mockPchCreator, projectPartPch()).WillOnce(ReturnRef(projectPartPch));
     EXPECT_CALL(mockPrecompiledHeaderStorage,
-                insertSystemPrecompiledHeaders(UnorderedElementsAre(1, 3), Eq("/path/to/pch"), 99));
+                insertSystemPrecompiledHeaders(UnorderedElementsAre(1, 3), Eq("/path/to/pch"), Eq(99)));
 
     tasks.front()(mockPchCreator);
 }

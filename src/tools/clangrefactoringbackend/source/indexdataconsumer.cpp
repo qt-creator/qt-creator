@@ -69,7 +69,7 @@ class IndexingDeclVisitor : public clang::ConstDeclVisitor<IndexingDeclVisitor, 
 public:
     SymbolKindAndTags VisitEnumDecl(const clang::EnumDecl */*declaration*/)
     {
-        return {SymbolKind::Enumeration, {}};;
+        return {SymbolKind::Enumeration, {}};
     }
     SymbolKindAndTags VisitRecordDecl(const clang::RecordDecl *declaration)
     {

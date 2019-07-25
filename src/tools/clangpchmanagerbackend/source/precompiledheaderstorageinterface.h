@@ -29,6 +29,7 @@
 
 #include <pchpaths.h>
 #include <projectpartid.h>
+#include <sourceentry.h>
 
 #include <utils/smallstringvector.h>
 #include <utils/optional.h>
@@ -45,13 +46,13 @@ public:
 
     virtual void insertProjectPrecompiledHeader(ProjectPartId projectPartId,
                                                 Utils::SmallStringView pchPath,
-                                                long long pchBuildTime)
+                                                TimeStamp pchBuildTime)
         = 0;
-    virtual void deleteProjectPrecompiledHeader(ProjectPartId projectPartId, long long pchBuildTime) = 0;
+    virtual void deleteProjectPrecompiledHeader(ProjectPartId projectPartId, TimeStamp pchBuildTime) = 0;
     virtual void deleteProjectPrecompiledHeaders(const ProjectPartIds &projectPartIds) = 0;
     virtual void insertSystemPrecompiledHeaders(const ProjectPartIds &projectPartIds,
                                                 Utils::SmallStringView pchPath,
-                                                long long pchBuildTime)
+                                                TimeStamp pchBuildTime)
         = 0;
     virtual void deleteSystemPrecompiledHeaders(const ProjectPartIds &projectPartIds) = 0;
     virtual FilePath fetchSystemPrecompiledHeaderPath(ProjectPartId projectPartId) = 0;

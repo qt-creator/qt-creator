@@ -50,14 +50,14 @@ public:
 
     void insertProjectPrecompiledHeader(ProjectPartId projectPartId,
                                         Utils::SmallStringView pchPath,
-                                        long long pchBuildTime) override
+                                        TimeStamp pchBuildTime) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{database};
 
             insertProjectPrecompiledHeaderStatement.write(projectPartId.projectPathId,
                                                           pchPath,
-                                                          pchBuildTime);
+                                                          pchBuildTime.value);
 
             transaction.commit();
         } catch (const Sqlite::StatementIsBusy &) {
@@ -65,13 +65,13 @@ public:
         }
     }
 
-    void deleteProjectPrecompiledHeader(ProjectPartId projectPartId, long long pchBuildTime) override
+    void deleteProjectPrecompiledHeader(ProjectPartId projectPartId, TimeStamp pchBuildTime) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{database};
 
             deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement.write(projectPartId.projectPathId,
-                                                                             pchBuildTime);
+                                                                             pchBuildTime.value);
 
             transaction.commit();
         } catch (const Sqlite::StatementIsBusy) {
@@ -95,7 +95,7 @@ public:
 
     void insertSystemPrecompiledHeaders(const ProjectPartIds &projectPartIds,
                                         Utils::SmallStringView pchPath,
-                                        long long pchBuildTime) override
+                                        TimeStamp pchBuildTime) override
     {
         try {
             Sqlite::ImmediateTransaction transaction{database};
@@ -103,7 +103,7 @@ public:
             for (ProjectPartId projectPartId : projectPartIds) {
                 insertSystemPrecompiledHeaderStatement.write(projectPartId.projectPathId,
                                                              pchPath,
-                                                             pchBuildTime);
+                                                             pchBuildTime.value);
             }
             transaction.commit();
         } catch (const Sqlite::StatementIsBusy) {
