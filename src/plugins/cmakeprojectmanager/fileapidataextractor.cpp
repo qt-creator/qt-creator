@@ -166,14 +166,20 @@ PreprocessedData preprocess(FileApiData &data,
 }
 
 QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
-                                             const FilePath &sourceDirectory)
+                                             const FilePath &sourceDirectory,
+                                             const FilePath &buildDirectory)
 {
     QDir sourceDir(sourceDirectory.toString());
+    QDir buildDir(buildDirectory.toString());
+
     const QList<CMakeBuildTarget> result = transform<
-        QList>(input.targetDetails, [&sourceDir](const TargetDetails &t) -> CMakeBuildTarget {
+        QList>(input.targetDetails, [&sourceDir, &buildDir](const TargetDetails &t) -> CMakeBuildTarget {
         CMakeBuildTarget ct;
         ct.title = t.name;
-        ct.executable = t.artifacts.isEmpty() ? FilePath() : t.artifacts.at(0);
+        ct.executable = t.artifacts.isEmpty()
+                            ? FilePath()
+                            : FilePath::fromString(QDir::cleanPath(
+                                buildDir.absoluteFilePath(t.artifacts.at(0).toString())));
         TargetType type = UtilityType;
         if (t.type == "EXECUTABLE")
             type = ExecutableType;
@@ -554,7 +560,7 @@ FileApiQtcData extractData(FileApiData &input,
         return {};
     }
 
-    result.buildTargets = generateBuildTargets(data, sourceDirectory);
+    result.buildTargets = generateBuildTargets(data, sourceDirectory, buildDirectory);
     result.cmakeFiles = std::move(data.cmakeFiles);
     result.projectParts = generateRawProjectParts(data, sourceDirectory);
 
