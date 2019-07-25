@@ -35,6 +35,9 @@ class BuildDependenciesProviderInterface
 {
 public:
     virtual BuildDependency create(const ProjectPartContainer &projectPart) = 0;
+    virtual BuildDependency create(const ProjectPartContainer &projectPart, SourceEntries &&sourceEntries) = 0;
+    virtual SourceEntries createSourceEntriesFromStorage(const FilePathIds &sourcePathIds,
+                                                         ProjectPartId projectPartId) const = 0;
 
 protected:
     ~BuildDependenciesProviderInterface() = default;

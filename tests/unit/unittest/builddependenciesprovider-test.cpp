@@ -176,13 +176,30 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchDependSourcesFromGeneratorIfTi
     provider.create(projectPart1);
 }
 
+TEST_F(BuildDependenciesProvider,
+       CreateCallsFetchDependSourcesFromGeneratorIfProvidedTimeStampsAreNotUpToDate)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(false));
+    EXPECT_CALL(mockBuildDependenciesGenerator, create(projectPart1)).WillOnce(Return(buildDependency));
+    EXPECT_CALL(mockSqliteTransactionBackend, immediateBegin());
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateSources(Eq(secondSources), {1}));
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateFileStatuses(Eq(fileStatuses)));
+    EXPECT_CALL(mockBuildDependenciesStorage,
+                insertOrUpdateSourceDependencies(Eq(sourceDependencies)));
+    EXPECT_CALL(mockBuildDependenciesStorage, insertOrUpdateUsedMacros(Eq(secondUsedMacros)));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
+
+    provider.create(projectPart1, std::move(firstSources));
+}
+
 TEST_F(BuildDependenciesProvider, FetchDependSourcesFromGenerator)
 {
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {1})).WillByDefault(Return(firstSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillByDefault(Return(false));
     ON_CALL(mockBuildDependenciesGenerator, create(projectPart1)).WillByDefault(Return(buildDependency));
 
-    auto buildDependency = provider.create(projectPart1);
+    auto buildDependency = provider.create(projectPart1, std::move(firstSources));
 
     ASSERT_THAT(buildDependency.sources, ElementsAre(HasSourceId(1), HasSourceId(3), HasSourceId(8)));
 }
@@ -191,10 +208,6 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchUsedMacrosFromStorageIfTimeSta
 {
     InSequence s;
 
-    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
-    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {1}))
-        .WillRepeatedly(Return(firstSources));
-    EXPECT_CALL(mockSqliteTransactionBackend, commit());
     EXPECT_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillRepeatedly(Return(true));
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
     EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros({1}));
@@ -202,26 +215,60 @@ TEST_F(BuildDependenciesProvider, CreateCallsFetchUsedMacrosFromStorageIfTimeSta
     EXPECT_CALL(mockBuildDependenciesStorage, fetchUsedMacros({10}));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
-    provider.create(projectPart1);
+    provider.create(projectPart1, std::move(firstSources));
 }
 
 TEST_F(BuildDependenciesProvider, FetchUsedMacrosFromStorageIfDependSourcesAreUpToDate)
 {
-    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {1})).WillByDefault(Return(firstSources));
     ON_CALL(mockModifiedTimeChecker, isUpToDate(firstSources)).WillByDefault(Return(true));
     ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({1})).WillByDefault(Return(firstUsedMacros));
     ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({2})).WillByDefault(Return(secondUsedMacros));
     ON_CALL(mockBuildDependenciesStorage, fetchUsedMacros({10})).WillByDefault(Return(thirdUsedMacros));
 
-    auto buildDependency = provider.create(projectPart1);
+    auto buildDependency = provider.create(projectPart1, std::move(firstSources));
 
-    ASSERT_THAT(buildDependency.usedMacros, ElementsAre(UsedMacro{"YI", 1}, UsedMacro{"ER", 2}, UsedMacro{"LIANG", 2}, UsedMacro{"SAN", 10}));
+    ASSERT_THAT(buildDependency.usedMacros,
+                ElementsAre(UsedMacro{"YI", 1},
+                            UsedMacro{"ER", 2},
+                            UsedMacro{"LIANG", 2},
+                            UsedMacro{"SAN", 10}));
 }
 
 TEST_F(BuildDependenciesProvider, CallEnsureAliveMessageIsSentCallback)
 {
     EXPECT_CALL(mockEnsureAliveMessageIsSentCallback, Call());
 
-    provider.create(projectPart1);
+    provider.create(projectPart1, std::move(firstSources));
 }
+
+TEST_F(BuildDependenciesProvider, CreateSourceEntriesFromStorage)
+{
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {2})).WillByDefault(Return(firstSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({3}, {2}))
+        .WillByDefault(Return(secondSources));
+    ON_CALL(mockBuildDependenciesStorage, fetchDependSources({4}, {2})).WillByDefault(Return(thirdSources));
+    ON_CALL(mockModifiedTimeChecker, isUpToDate(_)).WillByDefault(Return(true));
+
+    auto sources = provider.createSourceEntriesFromStorage(projectPart2.sourcePathIds,
+                                                           projectPart2.projectPartId);
+
+    ASSERT_THAT(sources,
+                ElementsAre(HasSourceId(1),
+                            HasSourceId(2),
+                            HasSourceId(3),
+                            HasSourceId(4),
+                            HasSourceId(8),
+                            HasSourceId(10)));
 }
+
+TEST_F(BuildDependenciesProvider, CreateSourceEntriesFromStorageCalls)
+{
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockBuildDependenciesStorage, fetchDependSources({2}, {1}))
+        .WillRepeatedly(Return(firstSources));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
+
+    auto sources = provider.createSourceEntriesFromStorage(projectPart1.sourcePathIds,
+                                                           projectPart1.projectPartId);
+}
+} // namespace

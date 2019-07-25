@@ -52,17 +52,20 @@ public:
     {}
 
     BuildDependency create(const ProjectPartContainer &projectPart) override;
+    BuildDependency create(const ProjectPartContainer &projectPart,
+                           SourceEntries &&sourceEntries) override;
 
     void setEnsureAliveMessageIsSentCallback(std::function<void()> &&callback)
     {
         m_ensureAliveMessageIsSentCallback = std::move(callback);
     }
 
+    SourceEntries createSourceEntriesFromStorage(const FilePathIds &sourcePathIds,
+                                                 ProjectPartId projectPartId) const override;
+
 private:
     BuildDependency createBuildDependencyFromStorage(SourceEntries &&includes) const;
     UsedMacros createUsedMacrosFromStorage(const SourceEntries &includes) const;
-    std::pair<SourceEntries, ProjectPartId> createSourceEntriesFromStorage(
-        const FilePathIds &sourcePathIds, ProjectPartId projectPartId) const;
     void storeBuildDependency(const BuildDependency &buildDependency, ProjectPartId projectPartId);
 
 private:

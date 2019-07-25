@@ -55,21 +55,24 @@ OutputContainer setUnion(InputContainer1 &&input1,
 
 BuildDependency BuildDependenciesProvider::create(const ProjectPartContainer &projectPart)
 {
+    return create(projectPart,
+                  createSourceEntriesFromStorage(projectPart.sourcePathIds, projectPart.projectPartId));
+}
+
+BuildDependency BuildDependenciesProvider::create(const ProjectPartContainer &projectPart,
+                                                  SourceEntries &&sourceEntries)
+{
     m_ensureAliveMessageIsSentCallback();
 
-    auto sourcesAndProjectPart = createSourceEntriesFromStorage(projectPart.sourcePathIds,
-                                                                projectPart.projectPartId);
-
-    if (!m_modifiedTimeChecker.isUpToDate(sourcesAndProjectPart.first)) {
+    if (!m_modifiedTimeChecker.isUpToDate(sourceEntries)) {
         BuildDependency buildDependency = m_generator.create(projectPart);
 
-        storeBuildDependency(buildDependency, sourcesAndProjectPart.second);
+        storeBuildDependency(buildDependency, projectPart.projectPartId);
 
         return buildDependency;
     }
 
-    return createBuildDependencyFromStorage(
-        std::move(sourcesAndProjectPart.first));
+    return createBuildDependencyFromStorage(std::move(sourceEntries));
 }
 
 BuildDependency BuildDependenciesProvider::createBuildDependencyFromStorage(
@@ -103,7 +106,7 @@ UsedMacros BuildDependenciesProvider::createUsedMacrosFromStorage(const SourceEn
     return usedMacros;
 }
 
-std::pair<SourceEntries, ProjectPartId> BuildDependenciesProvider::createSourceEntriesFromStorage(
+SourceEntries BuildDependenciesProvider::createSourceEntriesFromStorage(
     const FilePathIds &sourcePathIds, ProjectPartId projectPartId) const
 {
     SourceEntries includes;
@@ -119,7 +122,7 @@ std::pair<SourceEntries, ProjectPartId> BuildDependenciesProvider::createSourceE
 
     transaction.commit();
 
-    return {includes, projectPartId};
+    return includes;
 }
 
 void BuildDependenciesProvider::storeBuildDependency(const BuildDependency &buildDependency,
