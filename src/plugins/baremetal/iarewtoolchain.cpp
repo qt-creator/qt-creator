@@ -70,9 +70,9 @@ static QString cppLanguageOption(const FilePath &compiler)
 {
     const QString baseName = compiler.toFileInfo().baseName();
     if (baseName == "iccarm")
-        return "--c++";
+        return QString("--c++");
     if (baseName == "icc8051" || baseName == "iccavr")
-        return "--ec++";
+        return QString("--ec++");
     return {};
 }
 
