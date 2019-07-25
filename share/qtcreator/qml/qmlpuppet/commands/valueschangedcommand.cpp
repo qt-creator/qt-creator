@@ -62,7 +62,7 @@ quint32 ValuesChangedCommand::keyNumber() const
 
 void ValuesChangedCommand::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
 {
-    foreach (qint32 keyNumber, keyNumberVector) {
+    for (qint32 keyNumber : keyNumberVector) {
         SharedMemory *sharedMemory = globalSharedMemoryContainer()->take(keyNumber);
         delete sharedMemory;
     }

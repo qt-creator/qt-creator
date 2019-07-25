@@ -189,7 +189,7 @@ QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QVector<Inst
 {
     Q_ASSERT(declarativeView() || quickView());
     QList<ServerNodeInstance> instanceList;
-    foreach (const InstanceContainer &instanceContainer, containerVector) {
+    for (const InstanceContainer &instanceContainer : containerVector) {
         ServerNodeInstance instance;
         if (instanceContainer.nodeSourceType() == InstanceContainer::ComponentSource) {
             instance = ServerNodeInstance::create(this, instanceContainer, ServerNodeInstance::WrapAsComponent);

@@ -79,7 +79,7 @@ void ImageContainer::setImage(const QImage &image)
 
 void ImageContainer::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
 {
-    foreach (qint32 keyNumber, keyNumberVector) {
+    for (qint32 keyNumber : keyNumberVector) {
         SharedMemory *sharedMemory = globalSharedMemoryContainer()->take(keyNumber);
         delete sharedMemory;
     }

@@ -303,9 +303,8 @@ void NodeInstanceClientProxy::readDataStream()
             break;
     }
 
-    foreach (const QVariant &command, commandList) {
+    for (const QVariant &command : qAsConst(commandList))
         dispatchCommand(command);
-    }
 }
 
 void NodeInstanceClientProxy::sendPuppetAliveCommand()
