@@ -182,6 +182,26 @@ public:
         return {};
     }
 
+    PrecompiledHeaderTimeStamps fetchTimeStamps(ProjectPartId projectPartId) const override
+    {
+        try {
+            Sqlite::DeferredTransaction transaction{database};
+
+            auto value = fetchTimeStampsStatement.template value<PrecompiledHeaderTimeStamps, 2>(
+                projectPartId.projectPathId);
+
+            transaction.commit();
+
+            if (value)
+                return *value;
+
+        } catch (const Sqlite::StatementIsBusy) {
+            return fetchTimeStamps(projectPartId);
+        }
+
+        return {};
+    }
+
 public:
     Sqlite::ImmediateNonThrowingDestructorTransaction transaction;
     Database &database;
@@ -215,6 +235,10 @@ public:
         database};
     mutable ReadStatement fetchPrecompiledHeadersStatement{
         "SELECT projectPchPath, systemPchPath FROM precompiledHeaders WHERE projectPartId = ?",
+        database};
+    mutable ReadStatement fetchTimeStampsStatement{
+        "SELECT projectPchBuildTime, systemPchBuildTime FROM precompiledHeaders WHERE "
+        "projectPartId = ?",
         database};
 };
 

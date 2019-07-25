@@ -59,6 +59,19 @@ public:
     int64 value = -1;
 };
 
+class PrecompiledHeaderTimeStamps
+{
+public:
+    PrecompiledHeaderTimeStamps() = default;
+    PrecompiledHeaderTimeStamps(long long projectTimeStamp, long long systemTimeStamp)
+        : project(projectTimeStamp)
+        , system(systemTimeStamp)
+    {}
+
+    TimeStamp project;
+    TimeStamp system;
+};
+
 class SourceTimeStamp
 {
     using int64 = long long;

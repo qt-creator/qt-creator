@@ -253,3 +253,10 @@ MockSqliteReadStatement::value<Sources::SourceNameAndDirectoryId, 2>(const int &
 {
     return valueReturnSourceNameAndDirectoryId(id);
 }
+
+template<>
+Utils::optional<ClangBackEnd::PrecompiledHeaderTimeStamps>
+MockSqliteReadStatement::value<ClangBackEnd::PrecompiledHeaderTimeStamps, 2>(const int &projectPartId)
+{
+    return valuesReturnPrecompiledHeaderTimeStamps(projectPartId);
+}

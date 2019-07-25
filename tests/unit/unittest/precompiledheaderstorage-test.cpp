@@ -51,6 +51,7 @@ protected:
     MockSqliteReadStatement &fetchSystemPrecompiledHeaderPathStatement = storage.fetchSystemPrecompiledHeaderPathStatement;
     MockSqliteReadStatement &fetchPrecompiledHeaderStatement = storage.fetchPrecompiledHeaderStatement;
     MockSqliteReadStatement &fetchPrecompiledHeadersStatement = storage.fetchPrecompiledHeadersStatement;
+    MockSqliteReadStatement &fetchTimeStampsStatement = storage.fetchTimeStampsStatement;
 };
 
 TEST_F(PrecompiledHeaderStorage, UseTransaction)
@@ -337,6 +338,74 @@ TEST_F(PrecompiledHeaderStorage, FetchEmptyPrecompiledHeaders)
     ASSERT_THAT(paths,
                 AllOf(Field(&ClangBackEnd::PchPaths::projectPchPath, IsEmpty()),
                       Field(&ClangBackEnd::PchPaths::systemPchPath, IsEmpty())));
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchTimeStamps)
+{
+    ClangBackEnd::PrecompiledHeaderTimeStamps precompiledHeaderTimeStamps{22, 33};
+    ON_CALL(fetchTimeStampsStatement, valuesReturnPrecompiledHeaderTimeStamps(Eq(23)))
+        .WillByDefault(Return(precompiledHeaderTimeStamps));
+
+    auto timeStamps = storage.fetchTimeStamps(23);
+
+    ASSERT_THAT(timeStamps,
+                AllOf(Field(&ClangBackEnd::PrecompiledHeaderTimeStamps::project, Eq(22)),
+                      Field(&ClangBackEnd::PrecompiledHeaderTimeStamps::system, Eq(33))));
+}
+
+TEST_F(PrecompiledHeaderStorage, NoFetchTimeStamps)
+{
+    auto timeStamps = storage.fetchTimeStamps(23);
+
+    ASSERT_THAT(timeStamps,
+                AllOf(Field(&ClangBackEnd::PrecompiledHeaderTimeStamps::project, Eq(-1)),
+                      Field(&ClangBackEnd::PrecompiledHeaderTimeStamps::system, Eq(-1))));
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchTimeStampsCalls)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchTimeStampsStatement, valuesReturnPrecompiledHeaderTimeStamps(Eq(23)));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchTimeStamps(23);
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchTimeStampsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchTimeStampsStatement, valuesReturnPrecompiledHeaderTimeStamps(Eq(23)))
+        .WillOnce(Throw(Sqlite::StatementIsBusy{""}));
+    EXPECT_CALL(database, rollback());
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchTimeStampsStatement, valuesReturnPrecompiledHeaderTimeStamps(Eq(23)));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchTimeStamps(23);
+}
+
+class PrecompiledHeaderStorageSlowTest : public testing::Test
+{
+protected:
+    Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+    ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
+    ClangBackEnd::PrecompiledHeaderStorage<> storage{database};
+};
+
+TEST_F(PrecompiledHeaderStorageSlowTest, NoFetchTimeStamps)
+{
+    storage.insertProjectPrecompiledHeader(23, {}, 22);
+    storage.insertSystemPrecompiledHeaders({23}, {}, 33);
+
+    auto timeStamps = storage.fetchTimeStamps(23);
+
+    ASSERT_THAT(timeStamps,
+                AllOf(Field(&ClangBackEnd::PrecompiledHeaderTimeStamps::project, Eq(22)),
+                      Field(&ClangBackEnd::PrecompiledHeaderTimeStamps::system, Eq(33))));
 }
 
 } // namespace

@@ -57,9 +57,10 @@ using ClangRefactoring::SourceLocation;
 using ClangRefactoring::SourceLocations;
 using std::int64_t;
 namespace Sources = ClangBackEnd::Sources;
+using ClangBackEnd::PrecompiledHeaderTimeStamps;
+using ClangBackEnd::UsedMacros;
 using ClangRefactoring::Symbol;
 using ClangRefactoring::Symbols;
-using ClangBackEnd::UsedMacros;
 
 class MockSqliteDatabase;
 
@@ -142,10 +143,11 @@ public:
     MOCK_METHOD1(valuesReturnSourceTimeStamps, SourceTimeStamps(std::size_t));
     MOCK_METHOD2(valuesReturnSourceTimeStamps, SourceTimeStamps(std::size_t, int sourcePathId));
 
-    template <typename ResultType,
-              int ResultTypeCount = 1,
-              typename... QueryType>
-    std::vector<ResultType> values(std::size_t reserveSize, const QueryType&... queryValues);
+    MOCK_METHOD1(valuesReturnPrecompiledHeaderTimeStamps,
+                 PrecompiledHeaderTimeStamps(int projectPartId));
+
+    template<typename ResultType, int ResultTypeCount = 1, typename... QueryType>
+    std::vector<ResultType> values(std::size_t reserveSize, const QueryType &... queryValues);
 
     template <typename ResultType,
               int ResultTypeCount = 1,
@@ -306,3 +308,7 @@ SourceTimeStamps MockSqliteReadStatement::values<SourceTimeStamp, 2>(std::size_t
 template <>
 Utils::optional<Sources::SourceNameAndDirectoryId>
 MockSqliteReadStatement::value<Sources::SourceNameAndDirectoryId, 2>(const int&);
+
+template<>
+Utils::optional<ClangBackEnd::PrecompiledHeaderTimeStamps>
+MockSqliteReadStatement::value<ClangBackEnd::PrecompiledHeaderTimeStamps, 2>(const int &);
