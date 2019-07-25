@@ -93,6 +93,7 @@ public:
     static const QVector<PluginSpec *> plugins();
     static QHash<QString, QVector<PluginSpec *>> pluginCollections();
     static bool hasError();
+    static const QStringList allErrors();
     static QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
     static QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
 

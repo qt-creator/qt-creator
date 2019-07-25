@@ -354,6 +354,15 @@ bool PluginManager::hasError()
     });
 }
 
+const QStringList PluginManager::allErrors()
+{
+    return Utils::transform<QStringList>(Utils::filtered(plugins(), [](const PluginSpec *spec) {
+        return spec->hasError() && spec->isEffectivelyEnabled();
+    }), [](const PluginSpec *spec) {
+        return spec->name().append(": ").append(spec->errorString());
+    });
+}
+
 /*!
     Returns all plugins that require \a spec to be loaded. Recurses into dependencies.
  */
@@ -1120,8 +1129,9 @@ static TestPlan generateCustomTestPlan(IPlugin *plugin,
 void PluginManagerPrivate::startTests()
 {
     if (PluginManager::hasError()) {
-        qWarning("Errors occurred while loading plugins, skipping test run. "
-                 "For details, start without \"-test\" option.");
+        qWarning("Errors occurred while loading plugins, skipping test run.");
+        for (const QString &pluginError : PluginManager::allErrors())
+            qWarning("%s", qPrintable(pluginError));
         QTimer::singleShot(1, QCoreApplication::instance(), &QCoreApplication::quit);
         return;
     }
