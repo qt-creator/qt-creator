@@ -57,16 +57,6 @@ public:
         }
         return nullptr;
     }
-    template <class BS> QList<BS *>allOfType() {
-        QList<BS *> result;
-        BS *bs = nullptr;
-        for (int i = 0; i < count(); ++i) {
-            bs = qobject_cast<BS *>(at(i));
-            if (bs)
-                result.append(bs);
-        }
-        return result;
-    }
 
     int count() const;
     bool isEmpty() const;
