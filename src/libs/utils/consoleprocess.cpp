@@ -329,7 +329,7 @@ bool ConsoleProcess::startTerminalEmulator(QSettings *settings, const QString &w
     // cmdLine is assumed to be detached -
     // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083
 
-    QString totalEnvironment = env.toStringList().join('\0') + '\0';
+    QString totalEnvironment = env.toStringList().join(QChar('\0')) + '\0';
     LPVOID envPtr = (env != Environment::systemEnvironment())
             ? (WCHAR *)(totalEnvironment.utf16()) : nullptr;
 
