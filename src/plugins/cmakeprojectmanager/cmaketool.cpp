@@ -594,11 +594,21 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
         for (const QVariant &r : requests) {
             const QVariantMap object = r.toMap();
             const QString kind = object.value("kind").toString();
-            const QVariantMap versionObject = object.value("version").toMap();
-            const std::pair<int, int> version = std::make_pair(getVersion(versionObject, "major"),
-                                                               getVersion(versionObject, "minor"));
-            if (!kind.isNull() && version.first != -1 && version.second != -1)
-                m_introspection->m_fileApis.append({kind, version});
+            const QVariantList versionList = object.value("version").toList();
+            std::pair<int, int> highestVersion = std::make_pair(-1, -1);
+            for (const QVariant &v : versionList) {
+                const QVariantMap versionObject = v.toMap();
+                const std::pair<int, int> version = std::make_pair(getVersion(versionObject,
+                                                                              "major"),
+                                                                   getVersion(versionObject,
+                                                                              "minor"));
+                if (version.first > highestVersion.first
+                    || (version.first == highestVersion.first
+                        && version.second > highestVersion.second))
+                    highestVersion = version;
+            }
+            if (!kind.isNull() && highestVersion.first != -1 && highestVersion.second != -1)
+                m_introspection->m_fileApis.append({kind, highestVersion});
         }
     }
 
