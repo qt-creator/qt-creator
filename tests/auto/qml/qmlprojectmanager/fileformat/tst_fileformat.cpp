@@ -26,11 +26,23 @@
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
 #include "qmlprojectfileformat.h"
+
+#include <utils/algorithm.h>
+
 #include <QtTest>
 
 //TESTED_COMPONENT=src/plugins/qmlprojectmanager/fileformat
 
 using namespace QmlProjectManager;
+
+#define COMPARE_AS_SETS(actual, expected) \
+    do {\
+        if (!QTest::qCompare(Utils::toSet(actual), Utils::toSet(expected), #actual, #expected, __FILE__, __LINE__)) {\
+            qDebug() << actual << "\nvs." << expected; \
+            return;\
+        }\
+    } while (false)
+
 
 class tst_FileFormat : public QObject
 {
@@ -49,7 +61,7 @@ tst_FileFormat::tst_FileFormat()
 {
 }
 
-QString testDataDir = QLatin1String(SRCDIR "/data");
+static QString testDataDir = QLatin1String(SRCDIR "/data");
 
 static QmlProjectItem *loadQmlProject(QString name, QString *error)
 {
@@ -73,7 +85,7 @@ void tst_FileFormat::testFileFilter()
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml"
                                                 << testDataDir + "/subdir/file3.qml");
-        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        COMPARE_AS_SETS(project->files(), expectedFiles);
         delete project;
     }
 
@@ -89,7 +101,7 @@ void tst_FileFormat::testFileFilter()
 
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml");
-        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        COMPARE_AS_SETS(project->files(), expectedFiles);
         delete project;
     }
 
@@ -104,7 +116,7 @@ void tst_FileFormat::testFileFilter()
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() <<  testDataDir + "/subdir/file3.qml");
-        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        COMPARE_AS_SETS(project->files(), expectedFiles);
         delete project;
     }
 
@@ -122,7 +134,7 @@ void tst_FileFormat::testFileFilter()
                                                 << testDataDir + "/file2.qml"
                                                 << testDataDir + "/subdir/file3.qml");
         QCOMPARE(project->files().size(), 3);
-        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        COMPARE_AS_SETS(project->files(), expectedFiles);
         delete project;
     }
 
@@ -138,7 +150,7 @@ void tst_FileFormat::testFileFilter()
 
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml");
-        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        COMPARE_AS_SETS(project->files(), expectedFiles);
         delete project;
     }
 
@@ -153,8 +165,7 @@ void tst_FileFormat::testFileFilter()
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
-        qDebug() << project->files().toSet() << expectedFiles.toSet();
-        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        COMPARE_AS_SETS(project->files(), expectedFiles);
         delete project;
     }
 
@@ -169,8 +180,7 @@ void tst_FileFormat::testFileFilter()
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
-        qDebug() << project->files().toSet() << expectedFiles.toSet();
-        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        COMPARE_AS_SETS(project->files(), expectedFiles);
         delete project;
     }
 
@@ -185,8 +195,7 @@ void tst_FileFormat::testFileFilter()
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
-        qDebug() << project->files().toSet() << expectedFiles.toSet();
-        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        COMPARE_AS_SETS(project->files(), expectedFiles);
         delete project;
     }
 }
@@ -226,8 +235,7 @@ void tst_FileFormat::testLibraryPaths()
     const QDir base(testDataDir);
     const QStringList expectedPaths({base.relativeFilePath(SRCDIR "/otherLibrary"),
                                      base.relativeFilePath(SRCDIR "/data/library")});
-    qDebug() << expectedPaths << project->importPaths();
-    QCOMPARE(project->importPaths().toSet(), expectedPaths.toSet());
+    COMPARE_AS_SETS(project->importPaths(), expectedPaths);
     delete project;
 }
 
