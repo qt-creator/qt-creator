@@ -115,7 +115,8 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
                                                  static_cast<int>(NoEngineType)).toInt());
     m_lastModified = data.value(DEBUGGER_INFORMATION_LASTMODIFIED).toDateTime();
 
-    foreach (const QString &a, data.value(DEBUGGER_INFORMATION_ABIS).toStringList()) {
+    const QStringList abis = data.value(DEBUGGER_INFORMATION_ABIS).toStringList();
+    for (const QString &a : abis) {
         Abi abi = Abi::fromString(a);
         if (!abi.isNull())
             m_abis.append(abi);

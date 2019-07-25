@@ -350,8 +350,9 @@ DebuggerItem DebuggerItemConfigWidget::item() const
     item.setCommand(m_binaryChooser->fileName());
     item.setWorkingDirectory(m_workingDirectoryChooser->fileName());
     item.setAutoDetected(m_autodetected);
-    ProjectExplorer::Abis abiList;
-    foreach (const QString &a, m_abis->text().split(QRegExp("[^A-Za-z0-9-_]+"))) {
+    Abis abiList;
+    const QStringList abis = m_abis->text().split(QRegExp("[^A-Za-z0-9-_]+"));
+    for (const QString &a : abis) {
         if (a.isNull())
             continue;
         abiList << Abi::fromString(a);
@@ -770,19 +771,20 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers()
         }
     }
 
-    Utils::FilePathList path = Environment::systemEnvironment().path();
-    path << searchGdbPathsFromRegistry();
-    path = Utils::filteredUnique(path);
+    FilePathList path = Utils::filteredUnique(
+                Environment::systemEnvironment().path() + searchGdbPathsFromRegistry());
+
     QDir dir;
     dir.setNameFilters(filters);
     dir.setFilter(QDir::Files | QDir::Executable);
-    foreach (const Utils::FilePath &base, path) {
+    for (const FilePath &base : path) {
         dir.setPath(base.toFileInfo().absoluteFilePath());
-        foreach (const QString &entry, dir.entryList())
+        const QStringList entries = dir.entryList();
+        for (const QString &entry : entries)
             suspects.append(FilePath::fromString(dir.absoluteFilePath(entry)));
     }
 
-    foreach (const FilePath &command, suspects) {
+    for (const FilePath &command : qAsConst(suspects)) {
         const auto commandMatches = [command](const DebuggerTreeItem *titem) {
             return titem->m_item.command() == command;
         };

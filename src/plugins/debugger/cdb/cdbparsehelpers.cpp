@@ -497,7 +497,8 @@ DisassemblerLines parseCdbDisassembler(const QString &a)
     quint64 functionOffset = 0;
     QString sourceFile;
 
-    foreach (const QString &line, a.split('\n')) {
+    const QStringList lines = a.split('\n');
+    for (const QString &line : lines) {
         // New function. Append as comment line.
         if (parseCdbDisassemblerFunctionLine(line, &currentFunction, &functionOffset, &sourceFile)) {
             functionAddress = 0;

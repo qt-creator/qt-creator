@@ -668,27 +668,27 @@ void DebuggerSettings::insertItem(int code, SavedAction *item)
 void DebuggerSettings::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
-    foreach (SavedAction *item, m_items)
+    for (SavedAction *item : qAsConst(m_items))
         item->readSettings(settings);
 }
 
 void DebuggerSettings::writeSettings() const
 {
     QSettings *settings = Core::ICore::settings();
-    foreach (SavedAction *item, m_items)
+    for (SavedAction *item : qAsConst(m_items))
         item->writeSettings(settings);
 }
 
 SavedAction *DebuggerSettings::item(int code) const
 {
-    QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return nullptr);
-    return m_items.value(code, 0);
+    QTC_ASSERT(m_items.value(code, nullptr), qDebug() << "CODE: " << code; return nullptr);
+    return m_items.value(code, nullptr);
 }
 
 QString DebuggerSettings::dump()
 {
     QStringList settings;
-    foreach (SavedAction *item, theDebuggerSettings->m_items) {
+    for (SavedAction *item : qAsConst(theDebuggerSettings->m_items)) {
         QString key = item->settingsKey();
         if (!key.isEmpty()) {
             const QString current = item->value().toString();

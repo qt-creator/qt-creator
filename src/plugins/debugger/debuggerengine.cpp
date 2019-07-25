@@ -225,7 +225,7 @@ public:
     {
         auto agent = new MemoryAgent(data, engine);
         if (agent->isUsable()) {
-            m_agents.append(agent);
+            m_agents.push_back(agent);
         } else {
             delete agent;
             AsynchronousMessageBox::warning(
@@ -238,7 +238,7 @@ public:
     // On stack frame completed and on request.
     void updateContents()
     {
-        foreach (MemoryAgent *agent, m_agents) {
+        for (MemoryAgent *agent : m_agents) {
             if (agent)
                 agent->updateContents();
         }
@@ -246,14 +246,14 @@ public:
 
     void handleDebuggerFinished()
     {
-        foreach (MemoryAgent *agent, m_agents) {
+        for (MemoryAgent *agent : m_agents) {
             if (agent)
                 agent->setFinished(); // Prevent triggering updates, etc.
         }
     }
 
 private:
-    QList<MemoryAgent *> m_agents;
+    std::vector<MemoryAgent *> m_agents;
 };
 
 
@@ -2698,7 +2698,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             QSharedPointer<GlobalDebuggerOptions> options = Internal::globalDebuggerOptions();
             SourcePathRegExpMap globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(options->sourcePathRegExpMap.size());
-            foreach (auto entry, options->sourcePathRegExpMap) {
+            for (auto entry : qAsConst(options->sourcePathRegExpMap)) {
                 const QString expanded = Utils::globalMacroExpander()->expand(entry.second);
                 if (!expanded.isEmpty())
                     globalRegExpSourceMap.push_back(qMakePair(entry.first, expanded));
@@ -2735,7 +2735,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         if (hasEmbeddedInfo || hasLink)
             return;
 
-        foreach (const QByteArray &name, interesting) {
+        for (const QByteArray &name : qAsConst(interesting)) {
             const QString found = seen.contains(name) ? DebuggerEngine::tr("Found.")
                                                       : DebuggerEngine::tr("Not found.");
             detailedWarning.append('\n' + DebuggerEngine::tr("Section %1: %2").arg(QString::fromUtf8(name)).arg(found));

@@ -1319,7 +1319,8 @@ void CdbEngine::handleResolveSymbol(const DebuggerResponse &response, const QStr
 {
     // Insert all matches of (potentially) ambiguous symbols
     if (!response.data.data().isEmpty()) {
-        foreach (const QString &line, response.data.data().split('\n')) {
+        const QStringList lines = response.data.data().split('\n');
+        for (const QString &line : lines) {
             if (const quint64 address = resolvedAddress(line)) {
                 m_symbolAddressCache.insert(symbol, address);
                 showMessage(QString("Obtained 0x%1 for %2").
@@ -1939,7 +1940,8 @@ void CdbEngine::ensureUsing32BitStackInWow64(const DebuggerResponse &response, c
 {
     // Parsing the header of the stack output to check which bitness
     // the cdb is currently using.
-    foreach (const QStringRef &line, response.data.data().splitRef('\n')) {
+    const QVector<QStringRef> lines = response.data.data().splitRef('\n');
+    for (const QStringRef &line : lines) {
         if (!line.startsWith("Child"))
             continue;
         if (line.startsWith("ChildEBP")) {

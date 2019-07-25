@@ -107,11 +107,11 @@ CdbBreakEventWidget::CdbBreakEventWidget(QWidget *parent) : QWidget(parent)
 
 void CdbBreakEventWidget::clear()
 {
-    foreach (QLineEdit *l, m_lineEdits) {
+    for (QLineEdit *l : qAsConst(m_lineEdits)) {
         if (l)
             l->clear();
     }
-    foreach (QCheckBox *c, m_checkBoxes)
+    for (QCheckBox *c : qAsConst(m_checkBoxes))
         c->setChecked(false);
 }
 

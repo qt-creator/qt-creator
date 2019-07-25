@@ -248,7 +248,7 @@ QWidget *CommonOptionsPage::widget()
         }
 
         SourcePathMap allPathMap = m_options->sourcePathMap;
-        foreach (auto regExpMap, m_options->sourcePathRegExpMap)
+        for (auto regExpMap : qAsConst(m_options->sourcePathRegExpMap))
             allPathMap.insert(regExpMap.first.pattern(), regExpMap.second);
         m_sourceMappingWidget->setSourcePathMap(allPathMap);
     }
