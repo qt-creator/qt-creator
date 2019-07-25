@@ -43,7 +43,7 @@ std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
     auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
     newFolder->setPriority(priority);
     newFolder->setDisplayName(displayName);
-    return std::move(newFolder);
+    return newFolder;
 }
 
 void addCMakeVFolder(FolderNode *base,
@@ -126,7 +126,7 @@ QHash<Utils::FilePath, ProjectNode *> addCMakeLists(
                              if (cmakeDirs.contains(fp)) {
                                  auto fn = std::make_unique<CMakeListsNode>(fp);
                                  cmakeListsNodes.insert(fp, fn.get());
-                                 return std::move(fn);
+                                 return fn;
                              }
 
                              return std::make_unique<FolderNode>(fp);
