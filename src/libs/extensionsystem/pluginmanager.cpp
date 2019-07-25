@@ -31,20 +31,19 @@
 #include "iplugin.h"
 
 #include <QCoreApplication>
-#include <QEventLoop>
 #include <QDateTime>
+#include <QDebug>
 #include <QDir>
+#include <QEventLoop>
 #include <QFile>
 #include <QLibrary>
 #include <QLibraryInfo>
 #include <QMetaProperty>
 #include <QSettings>
-#include <QTextStream>
-#include <QTime>
-#include <QWriteLocker>
-#include <QDebug>
-#include <QTimer>
 #include <QSysInfo>
+#include <QTextStream>
+#include <QTimer>
+#include <QWriteLocker>
 
 #include <utils/algorithm.h>
 #include <utils/benchmarker.h>
@@ -1175,7 +1174,7 @@ void PluginManagerPrivate::addObject(QObject *obj)
         if (m_profilingVerbosity && !m_profileTimer.isNull()) {
             // Report a timestamp when adding an object. Useful for profiling
             // its initialization time.
-            const int absoluteElapsedMS = m_profileTimer->elapsed();
+            const int absoluteElapsedMS = int(m_profileTimer->elapsed());
             qDebug("  %-43s %8dms", obj->metaObject()->className(), absoluteElapsedMS);
         }
 
@@ -1518,7 +1517,7 @@ PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const
 void PluginManagerPrivate::initProfiling()
 {
     if (m_profileTimer.isNull()) {
-        m_profileTimer.reset(new QTime);
+        m_profileTimer.reset(new QElapsedTimer);
         m_profileTimer->start();
         m_profileElapsedMS = 0;
         qDebug("Profiling started");
@@ -1530,7 +1529,7 @@ void PluginManagerPrivate::initProfiling()
 void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *spec /* = 0 */)
 {
     if (!m_profileTimer.isNull()) {
-        const int absoluteElapsedMS = m_profileTimer->elapsed();
+        const int absoluteElapsedMS = int(m_profileTimer->elapsed());
         const int elapsedMS = absoluteElapsedMS - m_profileElapsedMS;
         m_profileElapsedMS = absoluteElapsedMS;
         if (spec)

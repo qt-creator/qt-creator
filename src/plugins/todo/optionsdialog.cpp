@@ -75,7 +75,7 @@ void OptionsDialog::addToKeywordsList(const Keyword &keyword)
     QListWidgetItem *item = new QListWidgetItem(
                 icon(keyword.iconType), keyword.name);
     item->setData(Qt::UserRole, static_cast<int>(keyword.iconType));
-    item->setTextColor(keyword.color);
+    item->setForeground(keyword.color);
     ui->keywordsList->addItem(item);
 }
 
@@ -179,7 +179,7 @@ Settings OptionsDialog::settingsFromUi()
         Keyword keyword;
         keyword.name = item->text();
         keyword.iconType = static_cast<IconType>(item->data(Qt::UserRole).toInt());
-        keyword.color = item->textColor();
+        keyword.color = item->foreground().color();
 
         settings.keywords << keyword;
     }

@@ -23,39 +23,9 @@
 **
 ****************************************************************************/
 
-#pragma once
+import QtQuick 2.1
+import StudioControls 1.0 as StudioControls
+import QtQuick.Controls.Styles 1.1
 
-#include <QObject>
-
-namespace ClangCodeModel {
-namespace Internal {
-namespace Tests {
-
-class ActivateClangModelManagerSupport;
-
-class ClangCodeCompletionTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testCompleteDoxygenKeywords();
-    void testCompletePreprocessorKeywords();
-    void testCompleteIncludeDirective();
-
-    void testCompleteGlobals();
-    void testCompleteMembers();
-    void testCompleteFunctions();
-    void testCompleteConstructor();
-    void testCompleteClassAndConstructor();
-
-    void testCompleteWithDotToArrowCorrection();
-    void testDontCompleteWithDotToArrowCorrectionForFloats();
-
-    void testCompleteProjectDependingCode();
-    void testCompleteProjectDependingCodeAfterChangingProject();
-    void testCompleteProjectDependingCodeInGeneratedUiFile();
-};
-
-} // namespace Tests
-} // namespace Internal
-} // namespace ClangCodeModel
+StudioControls.ActionIndicator {
+}

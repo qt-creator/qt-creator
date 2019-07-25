@@ -58,9 +58,9 @@ T.TextField {
     persistentSelection: focus // QTBUG-73807
     clip: true
 
+    width: StudioTheme.Values.height * 5
     height: StudioTheme.Values.height
     implicitHeight: StudioTheme.Values.height
-    width: StudioTheme.Values.height * 5
 
     leftPadding: StudioTheme.Values.inputHorizontalPadding + actionIndicator.width
                  - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
@@ -108,7 +108,9 @@ T.TextField {
         color: StudioTheme.Values.themeControlBackground
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
-        anchors.fill: parent
+        x: actionIndicator.width - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
+        width: myTextField.width - actionIndicator.width
+        height: myTextField.height
     }
 
     TranslationIndicator {

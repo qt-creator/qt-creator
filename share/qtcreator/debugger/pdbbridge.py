@@ -34,6 +34,7 @@ import string
 import inspect
 import traceback
 import fnmatch
+import platform
 
 
 class QuitException(Exception):
@@ -278,6 +279,8 @@ class QtcInternalDumper:
         if not canonic:
             canonic = os.path.abspath(filename)
             canonic = os.path.normcase(canonic)
+            if platform.system() in ('Microsoft', 'Windows'):
+                canonic = canonic.replace('\\', '/')
             self.fncache[filename] = canonic
         return canonic
 

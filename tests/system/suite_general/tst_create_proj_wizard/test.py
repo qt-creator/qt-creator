@@ -81,8 +81,13 @@ def main():
                     # are there more Quick combinations - then recreate this project
                     if counter < len(qtVersionsForQuick) - 1:
                         displayedPlatforms = __createProject__(category, template)
-                continue
-            handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
+            elif template in ("Qt Widgets Application", "C++ Library"):
+                def skipDetails(_):
+                    clickButton(waitForObject(":Next_QPushButton"))
+                handleBuildSystemVerifyKits(category, template, kits,
+                                            displayedPlatforms, skipDetails)
+            else:
+                handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms)
 
     invokeMenuItem("File", "Exit")
 

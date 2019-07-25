@@ -87,7 +87,8 @@ T.ComboBox {
         color: StudioTheme.Values.themeControlOutline
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
-        width: myComboBox.width
+        x: actionIndicator.width - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
+        width: myComboBox.width - actionIndicator.width
         height: myComboBox.height
     }
 

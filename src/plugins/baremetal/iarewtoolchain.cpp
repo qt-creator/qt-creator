@@ -66,6 +66,16 @@ static bool compilerExists(const FilePath &compilerPath)
     return fi.exists() && fi.isExecutable() && fi.isFile();
 }
 
+static QString cppLanguageOption(const FilePath &compiler)
+{
+    const QString baseName = compiler.toFileInfo().baseName();
+    if (baseName == "iccarm")
+        return QString("--c++");
+    if (baseName == "icc8051" || baseName == "iccavr")
+        return QString("--ec++");
+    return {};
+}
+
 static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id languageId,
                                    const QStringList &env)
 {
@@ -87,7 +97,7 @@ static Macros dumpPredefinedMacros(const FilePath &compiler, const Core::Id lang
 
     CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        cmd.addArg("--c++");
+        cmd.addArg(cppLanguageOption(compiler));
     cmd.addArg("--predef_macros");
     cmd.addArg(outpath);
 
@@ -132,7 +142,7 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler, const Core::Id lang
 
     CommandLine cmd(compiler, {fakeIn.fileName()});
     if (languageId == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-        cmd.addArg("--c++");
+        cmd.addArg(cppLanguageOption(compiler));
     cmd.addArg("--preinclude");
     cmd.addArg(".");
 

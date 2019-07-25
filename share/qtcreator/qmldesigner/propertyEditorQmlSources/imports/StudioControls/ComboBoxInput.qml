@@ -74,8 +74,8 @@ TextInput {
                 if (myControl.popup.opened) {
                     myControl.popup.close()
                 } else {
-                    myControl.popup.open()
                     myControl.forceActiveFocus()
+                    myControl.popup.open()
                 }
             } else {
                 textInput.forceActiveFocus()
@@ -105,6 +105,10 @@ TextInput {
                 target: textInputArea
                 color: StudioTheme.Values.themeControlBackground
                 border.color: StudioTheme.Values.themeControlOutline
+            }
+            PropertyChanges {
+                target: tapHandler
+                enabled: true
             }
             PropertyChanges {
                 target: mouseArea

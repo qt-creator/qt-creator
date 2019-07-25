@@ -151,7 +151,8 @@ T.SpinBox {
         color: StudioTheme.Values.themeControlOutline
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
-        width: mySpinBox.width
+        x: actionIndicator.width - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
+        width: mySpinBox.width - actionIndicator.width
         height: mySpinBox.height
     }
 

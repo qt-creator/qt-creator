@@ -29,11 +29,12 @@
 
 #include <utils/algorithm.h>
 
+#include <QElapsedTimer>
+#include <QObject>
+#include <QReadWriteLock>
+#include <QScopedPointer>
 #include <QSet>
 #include <QStringList>
-#include <QObject>
-#include <QScopedPointer>
-#include <QReadWriteLock>
 
 #include <queue>
 
@@ -117,7 +118,7 @@ public:
     QEventLoop *shutdownEventLoop = nullptr; // used for async shutdown
 
     QStringList arguments;
-    QScopedPointer<QTime> m_profileTimer;
+    QScopedPointer<QElapsedTimer> m_profileTimer;
     QHash<const PluginSpec *, int> m_profileTotal;
     int m_profileElapsedMS = 0;
     unsigned m_profilingVerbosity = 0;

@@ -282,7 +282,14 @@
     Note that functions used in the expressions are called each time, even if
     they have side-effects.
 
-    All backends support simple C and C++ expressions. Functions can be called
+    The QML debugger can evaluate JavaScript expressions.
+
+//! [debugger-expressions]
+
+//! [debugger-expressions-cpp]
+
+    GDB, LLDB and CDB support the evaluation of simple C and C++ expressions.
+    Functions can be called
     only if they are actually compiled into the debugged executable or a library
     used by the executable. Most notably, inlined functions such as most
     \c{operator[]} implementations of standard containers are typically \e{not}
@@ -318,6 +325,14 @@
                 however, can be recognized as such.
     \endtable
 
+    \note The set of evaluated expressions is saved in your session.
+
+//! [debugger-expressions-cpp]
+
+//! [debugger-qt-basic-objects]
+
+    \section1 Inspecting Basic Qt Objects
+
     The \uicontrol {Locals} and \uicontrol {Expressions} views also provide access
     to the most powerful feature of the debugger: comprehensive display of data
     belonging to Qt's basic objects. For example, in case of QObject, instead of
@@ -327,7 +342,7 @@
     Similarly, instead of displaying many pointers and integers, \QC's debugger
     displays the contents of a QHash or QMap in an orderly manner. Also, the
     debugger displays access data for QFileInfo and provides access to the
-    "real" contents of QVariant.
+    \e real contents of QVariant.
 
     Right-click in the \uicontrol {Locals} or the \uicontrol {Expressions} view
     to open a context menu that provides additional options for viewing data. The
@@ -354,8 +369,5 @@
     You can enable tooltips in the main editor displaying this information.
     For more information, see \l{Showing Tooltips in Debug Mode}.
 
-    \note The set of evaluated expressions is saved in your session.
-
-//! [debugger-expressions]
-
+//! [debugger-qt-basic-objects]
 */

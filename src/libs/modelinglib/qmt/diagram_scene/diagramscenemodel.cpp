@@ -470,10 +470,10 @@ bool DiagramSceneModel::exportPdf(const QString &fileName, bool selectedElements
     QSizeF pageSize = status.m_sceneBoundingRect.size();
     pageSize += QSizeF(2.0 * border, 2.0 * border);
     pageSize *= scaleFactor;
+    pageSize *= dotsPerMm;
 
     QPdfWriter pdfWriter(fileName);
-    pdfWriter.setPageSize(QPdfWriter::Custom);
-    pdfWriter.setPageSizeMM(pageSize * dotsPerMm);
+    pdfWriter.setPageSize(QPageSize(pageSize, QPageSize::Millimeter));
 
     QPainter pdfPainter;
     pdfPainter.begin(&pdfWriter);

@@ -87,7 +87,7 @@
 
             \image qtquick-example-stack.png
 
-        \li Examine the local variables in the \uicontrol {Locals and Expressions}
+        \li Examine the local variables in the \uicontrol Locals
             view. Step through the code to see how the information changes in
             the view.
 
@@ -105,8 +105,8 @@
         \li To remove a breakpoint, right-click it and select
             \uicontrol {Delete Breakpoint}.
 
-        \li Select the \uicontrol {Locals and Expressions} tab to explore the object
-            structure at runtime:
+        \li In the \uicontrol Locals view, explore the object structure at
+            runtime.
 
             \image qtquick-example-qml-inspector.png
 
@@ -115,11 +115,11 @@
 
         \li Select \uicontrol Debug > \uicontrol Select to activate selection
             mode and then click the \uicontrol Menu button to move into the
-            \uicontrol menuButton component in the
-            \uicontrol {Locals and Expressions} view and the code editor.
+            \uicontrol menuButton component in the \uicontrol Locals view and
+            the code editor.
 
-        \li In the \uicontrol {Locals and Expressions} view, double-click the
-            value of a property to change it.
+        \li In the \uicontrol Locals view, double-click the value of a property
+            to change it.
 
     \endlist
 

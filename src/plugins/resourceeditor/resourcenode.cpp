@@ -234,6 +234,7 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
     setPriority(Node::DefaultFilePriority);
     setListInProject(true);
     setAddFileFilter("*.png; *.jpg; *.gif; *.svg; *.ico; *.qml; *.qml.ui");
+    setShowWhenEmpty(true);
 
     if (!filePath.isEmpty()) {
         QFileInfo fi = filePath.toFileInfo();
@@ -470,7 +471,6 @@ ResourceFolderNode::ResourceFolderNode(const QString &prefix, const QString &lan
       m_prefix(prefix),
       m_lang(lang)
 {
-    setShowWhenEmpty(true);
 }
 
 ResourceFolderNode::~ResourceFolderNode() = default;

@@ -162,7 +162,7 @@
         \li \l{Local Variables and Function Parameters}
               {Viewing local variables and function parameters}
 
-        \li \l{Inspecting Items}{Evaluating expressions at runtime}
+        \li \l{Evaluating Expressions}
 
     \endlist
 
@@ -170,20 +170,21 @@
     \include creator-debugger-common.qdocinc debugger-breakpoints
     \include creator-debugger-common.qdocinc debugger-call-stack-trace
     \include creator-debugger-common.qdocinc debugger-locals
+    \include creator-debugger-common.qdocinc debugger-expressions
     \endif
 
     \section1 Inspecting Items
 
     While the application is running, you can use the \uicontrol {Locals}
-    and \uicontrol{Expressions} views to explore the QML item structure.
+    view to explore the QML item structure.
 
     \image qml-observer-view.png "QML item tree"
 
     To keep the application visible while you interact with the debugger, select
     \uicontrol Debug > \uicontrol {Show Application on Top}.
 
-    You can view a QML item in \uicontrol {Locals} and \uicontrol {Expressions}
-    in the following ways:
+    You can view a QML item in the \uicontrol {Locals} view in the following
+    ways:
 
     \list
 
