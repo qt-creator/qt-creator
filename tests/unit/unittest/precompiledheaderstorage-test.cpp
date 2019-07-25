@@ -224,6 +224,18 @@ TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderCalls)
     storage.fetchSystemPrecompiledHeaderPath(1);
 }
 
+TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeaderCallsWithReturnValue)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchSystemPrecompiledHeaderPathStatement, valueReturnFilePath(TypedEq<int>(1)))
+        .WillOnce(Return(ClangBackEnd::FilePath{}));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchSystemPrecompiledHeaderPath(1);
+}
+
 TEST_F(PrecompiledHeaderStorage, FetchSystemPrecompiledHeader)
 {
     EXPECT_CALL(fetchSystemPrecompiledHeaderPathStatement, valueReturnFilePath(TypedEq<int>(1)))
@@ -258,6 +270,16 @@ TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCallsValueInStatement)
 {
     EXPECT_CALL(database, deferredBegin());
     EXPECT_CALL(fetchPrecompiledHeaderStatement, valueReturnFilePath(Eq(25)));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchPrecompiledHeader(25);
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCallsWithValue)
+{
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchPrecompiledHeaderStatement, valueReturnFilePath(Eq(25)))
+        .WillOnce(Return(ClangBackEnd::FilePath{}));
     EXPECT_CALL(database, commit());
 
     storage.fetchPrecompiledHeader(25);
@@ -300,6 +322,16 @@ TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCalls)
 {
     EXPECT_CALL(database, deferredBegin());
     EXPECT_CALL(fetchPrecompiledHeadersStatement, valueReturnPchPaths(Eq(25)));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchPrecompiledHeaders(25);
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchPrecompiledHeaderCallsWithReturnValue)
+{
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchPrecompiledHeadersStatement, valueReturnPchPaths(Eq(25)))
+        .WillOnce(Return(ClangBackEnd::PchPaths{}));
     EXPECT_CALL(database, commit());
 
     storage.fetchPrecompiledHeaders(25);
@@ -368,6 +400,18 @@ TEST_F(PrecompiledHeaderStorage, FetchTimeStampsCalls)
 
     EXPECT_CALL(database, deferredBegin());
     EXPECT_CALL(fetchTimeStampsStatement, valuesReturnPrecompiledHeaderTimeStamps(Eq(23)));
+    EXPECT_CALL(database, commit());
+
+    storage.fetchTimeStamps(23);
+}
+
+TEST_F(PrecompiledHeaderStorage, FetchTimeStampsCallsWithReturnValue)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, deferredBegin());
+    EXPECT_CALL(fetchTimeStampsStatement, valuesReturnPrecompiledHeaderTimeStamps(Eq(23)))
+        .WillOnce(Return(ClangBackEnd::PrecompiledHeaderTimeStamps{}));
     EXPECT_CALL(database, commit());
 
     storage.fetchTimeStamps(23);

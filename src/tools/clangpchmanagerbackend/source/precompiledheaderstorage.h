@@ -133,10 +133,11 @@ public:
             auto value = fetchSystemPrecompiledHeaderPathStatement.template value<FilePath>(
                 projectPartId.projectPathId);
 
+            transaction.commit();
+
             if (value)
                 return *value;
 
-            transaction.commit();
         } catch (const Sqlite::StatementIsBusy) {
             return fetchSystemPrecompiledHeaderPath(projectPartId);
         }
@@ -152,10 +153,11 @@ public:
             auto value = fetchPrecompiledHeaderStatement.template value<FilePath>(
                 projectPartId.projectPathId);
 
+            transaction.commit();
+
             if (value)
                 return *value;
 
-            transaction.commit();
         } catch (const Sqlite::StatementIsBusy) {
             return fetchPrecompiledHeader(projectPartId);
         }
@@ -171,10 +173,11 @@ public:
             auto value = fetchPrecompiledHeadersStatement.template value<PchPaths, 2>(
                 projectPartId.projectPathId);
 
+            transaction.commit();
+
             if (value)
                 return *value;
 
-            transaction.commit();
         } catch (const Sqlite::StatementIsBusy) {
             return fetchPrecompiledHeaders(projectPartId);
         }
