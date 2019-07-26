@@ -26,6 +26,11 @@ HEADERS += \\
 FORMS += \\
     %{FormFileName}
 @endif
+@if %{HasTranslation}
+
+TRANSLATIONS += \\
+    %{TsFileName}
+@endif
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

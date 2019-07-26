@@ -36,6 +36,11 @@ HEADERS += \\
     %{GlobalHdrFileName} \\
 @endif
     %{HdrFileName}
+@if %{HasTranslation}
+
+TRANSLATIONS += \\
+    %{TsFileName}
+@endif
 @if %{IsQtPlugin}
 
 DISTFILES += %{PluginJsonFile}

@@ -41,6 +41,9 @@ DynamicLibrary {
 @if %{IsQtPlugin}
         "%{PluginJsonFile}",
 @endif
+@if %{HasTranslation}
+        "%{TsFileName}",
+@endif
     ]
 
 @if '%{TargetInstallPath}' != ''

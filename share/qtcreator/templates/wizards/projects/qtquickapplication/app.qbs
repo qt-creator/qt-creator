@@ -29,6 +29,9 @@ Application {
         "%{MainCppFileName}",
         "main.qml",
         "qml.qrc",
+@if %{HasTranslation}
+        "%{TsFileName}",
+@endif
     ]
 
     Group {     // Properties for the produced executable

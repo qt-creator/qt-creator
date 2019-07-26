@@ -17,7 +17,12 @@ QtApplication {
     ]
 
     consoleApplication: true
-    files: "%{CppFileName}"
+    files: [
+        "%{CppFileName}",
+@if %{HasTranslation}
+        "%{TsFileName}",
+@endif
+    ]
 
     Group {     // Properties for the produced executable
         fileTagsFilter: "application"

@@ -34,6 +34,7 @@
 #include "qtsupportconstants.h"
 #include "qtversionfactory.h"
 #include "qtversionmanager.h"
+#include "translationwizardpage.h"
 #include "uicgenerator.h"
 #include "qscxmlcgenerator.h"
 
@@ -44,6 +45,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
 
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
@@ -101,6 +103,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     new ProFileCacheManager(this);
 
     JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
+    ProjectExplorer::JsonWizardFactory::registerPageFactory(new TranslationWizardPageFactory);
 
     d = new QtSupportPluginPrivate;
 

@@ -11,18 +11,40 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+@if %{HasTranslation}
+find_package(Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
+
+set(TS_FILES %{TsFileName})
+@else
 find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+@endif
 
 if(ANDROID)
-    add_library(%{ProjectName} SHARED %{MainCppFileName} qml.qrc)
+    add_library(%{ProjectName} SHARED
+      %{MainCppFileName}
+      qml.qrc
+@if %{HasTranslation}
+      ${TS_FILES}
+@endif
+    )
 else()
-    add_executable(%{ProjectName} %{MainCppFileName} qml.qrc)
+    add_executable(%{ProjectName}
+      %{MainCppFileName}
+      qml.qrc
+@if %{HasTranslation}
+      ${TS_FILES}
+@endif
+    )
 endif()
 
 target_compile_definitions(%{ProjectName}
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(%{ProjectName}
   PRIVATE Qt5::Core Qt5::Quick)
+@if %{HasTranslation}
+
+qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+@endif
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
 # Check http://doc.qt.io/qt-5/deployment-android.html for more information.

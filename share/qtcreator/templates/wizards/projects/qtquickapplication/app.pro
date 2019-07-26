@@ -21,6 +21,11 @@ SOURCES += \\
         %{MainCppFileName}
 
 RESOURCES += qml.qrc
+@if %{HasTranslation}
+
+TRANSLATIONS += \\
+    %{TsFileName}
+@endif
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

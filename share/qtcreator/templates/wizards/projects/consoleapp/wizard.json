@@ -16,6 +16,7 @@
         { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
         { "key": "QbsFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qbs')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "CppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" }
     ],
 
@@ -64,6 +65,11 @@
             ]
         },
         {
+            "trDisplayName": "Translation File",
+            "trShortTitle": "Translation",
+            "typeId": "QtTranslation"
+        },
+        {
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
@@ -103,6 +109,11 @@
                     "source": "main.cpp",
                     "target": "%{CppFileName}",
                     "openInEditor": true
+                },
+                {
+                    "source": "../translation.ts",
+                    "target": "%{TsFileName}",
+                    "condition": "%{HasTranslation}"
                 },
                 {
                     "source": "../git.ignore",

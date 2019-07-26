@@ -32,7 +32,8 @@ HEADERS += \
     desktopqtversion.h \
     uicgenerator.h \
     qscxmlcgenerator.h \
-    desktoprunconfiguration.h
+    desktoprunconfiguration.h \
+    translationwizardpage.h
 
 SOURCES += \
     codegenerator.cpp \
@@ -58,7 +59,8 @@ SOURCES += \
     desktopqtversion.cpp \
     uicgenerator.cpp \
     qscxmlcgenerator.cpp \
-    desktoprunconfiguration.cpp
+    desktoprunconfiguration.cpp \
+    translationwizardpage.cpp
 
 FORMS   +=  \
     codegensettingspagewidget.ui \

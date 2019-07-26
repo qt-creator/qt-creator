@@ -107,6 +107,8 @@ Project {
             "screenshotcropper.cpp",
             "screenshotcropper.h",
             "showbuildlog.ui",
+            "translationwizardpage.cpp",
+            "translationwizardpage.h",
             "uicgenerator.cpp",
             "uicgenerator.h",
         ]

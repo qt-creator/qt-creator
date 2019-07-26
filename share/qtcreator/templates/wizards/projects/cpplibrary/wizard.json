@@ -31,6 +31,7 @@
         { "key": "TargetInstallPath", "value": "%{JS: value('IsShared') === 'true' ? '/usr/lib' : (value('IsQtPlugin') && value('PluginTargetPath') ? '$$[QT_INSTALL_PLUGINS]/' + value('PluginTargetPath') : '')}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
         { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Util.suffix(value('HdrFileName')))}" },
+        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "GLOBAL_GUARD", "value": "%{JS: Cpp.headerGuard(value('GlobalHdrFileName'))}" }
     ],
 
@@ -272,6 +273,12 @@
             ]
         },
         {
+            "trDisplayName": "Translation File",
+            "trShortTitle": "Translation",
+            "data": { "enabled": "%{JS: value('QtModule') === 'none' ? 'no' : 'yes'}" },
+            "typeId": "QtTranslation"
+        },
+        {
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
@@ -325,6 +332,11 @@
                     "source": "project.json",
                     "target": "%{PluginJsonFile}",
                     "condition": "%{JS: value('Type') === 'qtplugin'}"
+                },
+                {
+                    "source": "../translation.ts",
+                    "target": "%{TsFileName}",
+                    "condition": "%{HasTranslation}"
                 },
                 {
                     "source": "../git.ignore",

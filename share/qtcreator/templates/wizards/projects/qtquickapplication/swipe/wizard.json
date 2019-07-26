@@ -24,6 +24,7 @@
         { "key": "QtQuickControlsStyleTheme", "value": "%{JS: value('ControlsStyle').QtQuickControlsStyleTheme}" },
         { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
+        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "SetQPAPhysicalSize", "value": "%{UseVirtualKeyboardByDefault}" }
     ],
 
@@ -239,6 +240,11 @@
             ]
         },
         {
+            "trDisplayName": "Translation File",
+            "trShortTitle": "Translation",
+            "typeId": "QtTranslation"
+        },
+        {
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
@@ -301,6 +307,11 @@
                 },
                 {
                     "source": "qml.qrc"
+                },
+                {
+                    "source": "../../translation.ts",
+                    "target": "%{TsFileName}",
+                    "condition": "%{HasTranslation}"
                 },
                 {
                     "source": "../../git.ignore",

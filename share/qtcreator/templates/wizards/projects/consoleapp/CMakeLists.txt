@@ -11,7 +11,22 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt5Core)
+@if %{HasTranslation}
+find_package(Qt5 COMPONENTS Core LinguistTools REQUIRED)
 
-add_executable(%{ProjectName} %{CppFileName})
+set(TS_FILES %{TsFileName})
+@else
+find_package(Qt5Core)
+@endif
+
+add_executable(%{ProjectName}
+  %{CppFileName}
+@if %{HasTranslation}
+  ${TS_FILES}
+@endif
+)
 target_link_libraries(%{ProjectName} Qt5::Core)
+@if %{HasTranslation}
+
+qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+@endif

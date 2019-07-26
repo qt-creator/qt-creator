@@ -19,9 +19,12 @@ QtApplication {
         "%{MainFileName}",
         "%{SrcFileName}",
         "%{HdrFileName}",
-        @if %{GenerateForm}
+@if %{GenerateForm}
         "%{FormFileName}",
-        @endif
+@endif
+@if %{HasTranslation}
+        "%{TsFileName}",
+@endif
     ]
 
     install: true

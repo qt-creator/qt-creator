@@ -19,6 +19,7 @@
         { "key": "MainFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
         { "key": "UiHdrFileName", "value": "%{JS: (value('BuildSystem') === 'cmake' ? (Util.path(value('FormFileName')) + '/') : '') + 'ui_' + Util.completeBaseName(value('FormFileName')) + '.h'}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
+        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
         { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Util.suffix(value('HdrFileName')))}" }
     ],
 
@@ -140,6 +141,11 @@
             ]
         },
         {
+            "trDisplayName": "Translation File",
+            "trShortTitle": "Translation",
+            "typeId": "QtTranslation"
+        },
+        {
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
@@ -192,6 +198,11 @@
                     "source": "widget.ui",
                     "target": "%{FormFileName}",
                     "condition": "%{GenerateForm}"
+                },
+                {
+                    "source": "../translation.ts",
+                    "target": "%{TsFileName}",
+                    "condition": "%{HasTranslation}"
                 },
                 {
                     "source": "../git.ignore",
