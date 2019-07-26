@@ -47,7 +47,7 @@ public:
     void clear();
 
     QList<BuildStep *> steps() const;
-    QList<BuildStep *> steps(const std::function<bool(const BuildStep *)> &filter) const;
+
     template <class BS> BS *firstOfType() {
         BS *bs = nullptr;
         for (int i = 0; i < count(); ++i) {
