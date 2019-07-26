@@ -903,29 +903,6 @@ private:
     Overview oo;
 };
 
-static QList<QTextCursor> removeConstructors(ClassSpecifierAST *classAST,
-                                             TranslationUnit *translationUnit,
-                                             QTextDocument *document)
-{
-    Overview oo;
-    QList<QTextCursor> cursors;
-    const QString className = oo(classAST->symbol->name());
-
-    for (DeclarationListAST *iter = classAST->member_specifier_list; iter; iter = iter->next) {
-        if (FunctionDefinitionAST *funDef = iter->value->asFunctionDefinition()) {
-            if (oo(funDef->symbol->name()) == className) {
-                // found it:
-                QTextCursor tc = createCursor(translationUnit, funDef, document);
-                tc.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-                tc.setPosition(tc.position() + 1, QTextCursor::KeepAnchor);
-                cursors.append(tc);
-            }
-        }
-    }
-
-    return cursors;
-}
-
 static QStringList collectFieldNames(ClassSpecifierAST *classAST, bool onlyTokensAndASTNodes)
 {
     QStringList fields;
@@ -951,32 +928,6 @@ static QStringList collectFieldNames(ClassSpecifierAST *classAST, bool onlyToken
         }
     }
     return fields;
-}
-
-static QString createConstructor(ClassSpecifierAST *classAST)
-{
-    Overview oo;
-    Class *clazz = classAST->symbol;
-
-    QString result(QLatin1String("    "));
-    result.append(oo(clazz->name()));
-    result.append(QLatin1String("()\n"));
-
-    QStringList classFields = collectFieldNames(classAST, false);
-    for (int i = 0; i < classFields.size(); ++i) {
-        if (i == 0) {
-            result.append(QLatin1String("        : "));
-            result.append(classFields.at(i));
-            result.append(QLatin1String("(0)\n"));
-        } else {
-            result.append(QLatin1String("        , "));
-            result.append(classFields.at(i));
-            result.append(QLatin1String("(0)\n"));
-        }
-    }
-
-    result.append(QLatin1String("    {}\n"));
-    return result;
 }
 
 bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
@@ -1378,8 +1329,6 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
     QList<QTextCursor> baseCastMethodCursors = removeCastMethods(astNodes.base);
     QMap<ClassSpecifierAST *, QList<QTextCursor> > cursors;
     QMap<ClassSpecifierAST *, QString> replacementCastMethods;
-    QMap<ClassSpecifierAST *, QList<QTextCursor> > constructors;
-    QMap<ClassSpecifierAST *, QString> replacementConstructors;
 
     Overview oo;
 
@@ -1395,10 +1344,6 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
                 QString::fromLatin1("    virtual %1 *%2() { return nullptr; }\n")
                     .arg(className, methodName));
         astDerivedClasses.append(className);
-
-        constructors[classAST] = removeConstructors(classAST, AST_h_document->translationUnit(),
-                                                    &document);
-        replacementConstructors[classAST] = createConstructor(classAST);
     }
 
     if (! baseCastMethodCursors.isEmpty()) {
@@ -1419,16 +1364,8 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
                 c[i].removeSelectedText();
             }
         }
-        { // remove the constructors.
-            QList<QTextCursor> c = constructors.value(classAST);
-            for (int i = 0; i < c.length(); ++i) {
-                c[i].removeSelectedText();
-            }
-        }
 
         astNodes.endOfPublicClassSpecifiers[classIndex].insertText(
-                replacementConstructors.value(classAST) +
-                QLatin1String("\n") +
                 replacementCastMethods.value(classAST));
     }
 

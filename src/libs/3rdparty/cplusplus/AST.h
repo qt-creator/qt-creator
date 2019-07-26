@@ -294,9 +294,6 @@ protected:
 class CPLUSPLUS_EXPORT StatementAST: public AST
 {
 public:
-    StatementAST()
-    {}
-
     virtual StatementAST *asStatement() { return this; }
 
     virtual StatementAST *clone(MemoryPool *pool) const = 0;
@@ -305,9 +302,6 @@ public:
 class CPLUSPLUS_EXPORT ExpressionAST: public AST
 {
 public:
-    ExpressionAST()
-    {}
-
     virtual ExpressionAST *asExpression() { return this; }
 
     virtual ExpressionAST *clone(MemoryPool *pool) const = 0;
@@ -316,9 +310,6 @@ public:
 class CPLUSPLUS_EXPORT DeclarationAST: public AST
 {
 public:
-    DeclarationAST()
-    {}
-
     virtual DeclarationAST *asDeclaration() { return this; }
 
     virtual DeclarationAST *clone(MemoryPool *pool) const = 0;
@@ -327,13 +318,9 @@ public:
 class CPLUSPLUS_EXPORT NameAST: public AST
 {
 public: // annotations
-    const Name *name;
+    const Name *name = nullptr;
 
 public:
-    NameAST()
-        : name(0)
-    {}
-
     virtual NameAST *asName() { return this; }
 
     virtual NameAST *clone(MemoryPool *pool) const = 0;
@@ -342,9 +329,6 @@ public:
 class CPLUSPLUS_EXPORT SpecifierAST: public AST
 {
 public:
-    SpecifierAST()
-    {}
-
     virtual SpecifierAST *asSpecifier() { return this; }
 
     virtual SpecifierAST *clone(MemoryPool *pool) const = 0;
@@ -353,9 +337,6 @@ public:
 class CPLUSPLUS_EXPORT PtrOperatorAST: public AST
 {
 public:
-    PtrOperatorAST()
-    {}
-
     virtual PtrOperatorAST *asPtrOperator() { return this; }
 
     virtual PtrOperatorAST *clone(MemoryPool *pool) const = 0;
@@ -364,9 +345,6 @@ public:
 class CPLUSPLUS_EXPORT PostfixAST: public ExpressionAST
 {
 public:
-    PostfixAST()
-    {}
-
     virtual PostfixAST *asPostfix() { return this; }
 
     virtual PostfixAST *clone(MemoryPool *pool) const = 0;
@@ -375,9 +353,6 @@ public:
 class CPLUSPLUS_EXPORT CoreDeclaratorAST: public AST
 {
 public:
-    CoreDeclaratorAST()
-    {}
-
     virtual CoreDeclaratorAST *asCoreDeclarator() { return this; }
 
     virtual CoreDeclaratorAST *clone(MemoryPool *pool) const = 0;
@@ -386,9 +361,6 @@ public:
 class CPLUSPLUS_EXPORT PostfixDeclaratorAST: public AST
 {
 public:
-    PostfixDeclaratorAST()
-    {}
-
     virtual PostfixDeclaratorAST *asPostfixDeclarator() { return this; }
 
     virtual PostfixDeclaratorAST *clone(MemoryPool *pool) const = 0;
@@ -397,15 +369,10 @@ public:
 class CPLUSPLUS_EXPORT ObjCSelectorArgumentAST: public AST
 {
 public:
-    int name_token;
-    int colon_token;
+    int name_token = 0;
+    int colon_token = 0;
 
 public:
-    ObjCSelectorArgumentAST()
-        : name_token(0)
-        , colon_token(0)
-    {}
-
     virtual ObjCSelectorArgumentAST *asObjCSelectorArgument() { return this; }
 
     virtual int firstToken() const;
@@ -421,13 +388,9 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSelectorAST: public NameAST
 {
 public:
-    ObjCSelectorArgumentListAST *selector_argument_list;
+    ObjCSelectorArgumentListAST *selector_argument_list = nullptr;
 
 public:
-    ObjCSelectorAST()
-        : selector_argument_list(0)
-    {}
-
     virtual ObjCSelectorAST *asObjCSelector() { return this; }
 
     virtual int firstToken() const;
@@ -443,13 +406,9 @@ protected:
 class CPLUSPLUS_EXPORT SimpleSpecifierAST: public SpecifierAST
 {
 public:
-    int specifier_token;
+    int specifier_token = 0;
 
 public:
-    SimpleSpecifierAST()
-        : specifier_token(0)
-    {}
-
     virtual SimpleSpecifierAST *asSimpleSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -465,9 +424,6 @@ protected:
 class CPLUSPLUS_EXPORT AttributeSpecifierAST: public SpecifierAST
 {
 public:
-    AttributeSpecifierAST()
-    {}
-
     virtual AttributeSpecifierAST *asAttributeSpecifier() { return this; }
 
     virtual AttributeSpecifierAST *clone(MemoryPool *pool) const = 0;
@@ -476,21 +432,13 @@ public:
 class CPLUSPLUS_EXPORT AlignmentSpecifierAST: public AttributeSpecifierAST
 {
 public:
-    int align_token;
-    int lparen_token;
-    ExpressionAST *typeIdExprOrAlignmentExpr;
-    int ellipses_token;
-    int rparen_token;
+    int align_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *typeIdExprOrAlignmentExpr = nullptr;
+    int ellipses_token = 0;
+    int rparen_token = 0;
 
 public:
-    AlignmentSpecifierAST()
-        : align_token(0)
-        , lparen_token(0)
-        , typeIdExprOrAlignmentExpr(0)
-        , ellipses_token(0)
-        , rparen_token(0)
-    {}
-
     virtual AlignmentSpecifierAST *asAlignmentSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -507,23 +455,14 @@ protected:
 class CPLUSPLUS_EXPORT GnuAttributeSpecifierAST: public AttributeSpecifierAST
 {
 public:
-    int attribute_token;
-    int first_lparen_token;
-    int second_lparen_token;
-    GnuAttributeListAST *attribute_list;
-    int first_rparen_token;
-    int second_rparen_token;
+    int attribute_token = 0;
+    int first_lparen_token = 0;
+    int second_lparen_token = 0;
+    GnuAttributeListAST *attribute_list = nullptr;
+    int first_rparen_token = 0;
+    int second_rparen_token = 0;
 
 public:
-    GnuAttributeSpecifierAST()
-        : attribute_token(0)
-        , first_lparen_token(0)
-        , second_lparen_token(0)
-        , attribute_list(0)
-        , first_rparen_token(0)
-        , second_rparen_token(0)
-    {}
-
     virtual GnuAttributeSpecifierAST *asGnuAttributeSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -539,21 +478,13 @@ protected:
 class CPLUSPLUS_EXPORT GnuAttributeAST: public AST
 {
 public:
-    int identifier_token;
-    int lparen_token;
-    int tag_token;
-    ExpressionListAST *expression_list;
-    int rparen_token;
+    int identifier_token = 0;
+    int lparen_token = 0;
+    int tag_token = 0;
+    ExpressionListAST *expression_list = nullptr;
+    int rparen_token = 0;
 
 public:
-    GnuAttributeAST()
-        : identifier_token(0)
-        , lparen_token(0)
-        , tag_token(0)
-        , expression_list(0)
-        , rparen_token(0)
-    {}
-
     virtual GnuAttributeAST *asGnuAttribute() { return this; }
 
     virtual int firstToken() const;
@@ -569,19 +500,12 @@ protected:
 class CPLUSPLUS_EXPORT TypeofSpecifierAST: public SpecifierAST
 {
 public:
-    int typeof_token;
-    int lparen_token;
-    ExpressionAST *expression;
-    int rparen_token;
+    int typeof_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
 
 public:
-    TypeofSpecifierAST()
-        : typeof_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-    {}
-
     virtual TypeofSpecifierAST *asTypeofSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -597,19 +521,12 @@ protected:
 class CPLUSPLUS_EXPORT DecltypeSpecifierAST: public SpecifierAST
 {
 public:
-    int decltype_token;
-    int lparen_token;
-    ExpressionAST *expression;
-    int rparen_token;
+    int decltype_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
 
 public:
-    DecltypeSpecifierAST()
-        : decltype_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-    {}
-
     virtual DecltypeSpecifierAST *asDecltypeSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -625,25 +542,15 @@ protected:
 class CPLUSPLUS_EXPORT DeclaratorAST: public AST
 {
 public:
-    SpecifierListAST *attribute_list;
-    PtrOperatorListAST *ptr_operator_list;
-    CoreDeclaratorAST *core_declarator;
-    PostfixDeclaratorListAST *postfix_declarator_list;
-    SpecifierListAST *post_attribute_list;
-    int equal_token;
-    ExpressionAST *initializer;
+    SpecifierListAST *attribute_list = nullptr;
+    PtrOperatorListAST *ptr_operator_list = nullptr;
+    CoreDeclaratorAST *core_declarator = nullptr;
+    PostfixDeclaratorListAST *postfix_declarator_list = nullptr;
+    SpecifierListAST *post_attribute_list = nullptr;
+    int equal_token = 0;
+    ExpressionAST *initializer = nullptr;
 
 public:
-    DeclaratorAST()
-        : attribute_list(0)
-        , ptr_operator_list(0)
-        , core_declarator(0)
-        , postfix_declarator_list(0)
-        , post_attribute_list(0)
-        , equal_token(0)
-        , initializer(0)
-    {}
-
     virtual DeclaratorAST *asDeclarator() { return this; }
 
     virtual int firstToken() const;
@@ -659,23 +566,15 @@ protected:
 class CPLUSPLUS_EXPORT SimpleDeclarationAST: public DeclarationAST
 {
 public:
-    int qt_invokable_token;
-    SpecifierListAST *decl_specifier_list;
-    DeclaratorListAST *declarator_list;
-    int semicolon_token;
+    int qt_invokable_token = 0;
+    SpecifierListAST *decl_specifier_list = nullptr;
+    DeclaratorListAST *declarator_list = nullptr;
+    int semicolon_token = 0;
 
 public:
-    List<Symbol *> *symbols;
+    List<Symbol *> *symbols = nullptr;
 
 public:
-    SimpleDeclarationAST()
-        : qt_invokable_token(0)
-        , decl_specifier_list(0)
-        , declarator_list(0)
-        , semicolon_token(0)
-        , symbols(0)
-    {}
-
     virtual SimpleDeclarationAST *asSimpleDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -691,13 +590,9 @@ protected:
 class CPLUSPLUS_EXPORT EmptyDeclarationAST: public DeclarationAST
 {
 public:
-    int semicolon_token;
+    int semicolon_token = 0;
 
 public:
-    EmptyDeclarationAST()
-        : semicolon_token(0)
-    {}
-
     virtual EmptyDeclarationAST *asEmptyDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -713,17 +608,11 @@ protected:
 class CPLUSPLUS_EXPORT AccessDeclarationAST: public DeclarationAST
 {
 public:
-    int access_specifier_token;
-    int slots_token;
-    int colon_token;
+    int access_specifier_token = 0;
+    int slots_token = 0;
+    int colon_token = 0;
 
 public:
-    AccessDeclarationAST()
-        : access_specifier_token(0)
-        , slots_token(0)
-        , colon_token(0)
-    {}
-
     virtual AccessDeclarationAST *asAccessDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -739,13 +628,9 @@ protected:
 class CPLUSPLUS_EXPORT QtObjectTagAST: public DeclarationAST
 {
 public:
-    int q_object_token;
+    int q_object_token = 0;
 
 public:
-    QtObjectTagAST()
-        : q_object_token(0)
-    {}
-
     virtual QtObjectTagAST *asQtObjectTag() { return this; }
 
     virtual int firstToken() const;
@@ -761,29 +646,17 @@ protected:
 class CPLUSPLUS_EXPORT QtPrivateSlotAST: public DeclarationAST
 {
 public:
-    int q_private_slot_token;
-    int lparen_token;
-    int dptr_token;
-    int dptr_lparen_token;
-    int dptr_rparen_token;
-    int comma_token;
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
-    int rparen_token;
+    int q_private_slot_token = 0;
+    int lparen_token = 0;
+    int dptr_token = 0;
+    int dptr_lparen_token = 0;
+    int dptr_rparen_token = 0;
+    int comma_token = 0;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
+    int rparen_token = 0;
 
 public:
-    QtPrivateSlotAST()
-        : q_private_slot_token(0)
-        , lparen_token(0)
-        , dptr_token(0)
-        , dptr_lparen_token(0)
-        , dptr_rparen_token(0)
-        , comma_token(0)
-        , type_specifier_list(0)
-        , declarator(0)
-        , rparen_token(0)
-    {}
-
     virtual QtPrivateSlotAST *asQtPrivateSlot() { return this; }
 
     virtual int firstToken() const;
@@ -799,15 +672,10 @@ protected:
 class QtPropertyDeclarationItemAST: public AST
 {
 public:
-    int item_name_token;
-    ExpressionAST *expression;
+    int item_name_token = 0;
+    ExpressionAST *expression = nullptr;
 
 public:
-    QtPropertyDeclarationItemAST()
-        : item_name_token(0)
-        , expression(0)
-    {}
-
     virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return this; }
 
     virtual int firstToken() const;
@@ -823,27 +691,16 @@ protected:
 class CPLUSPLUS_EXPORT QtPropertyDeclarationAST: public DeclarationAST
 {
 public:
-    int property_specifier_token;
-    int lparen_token;
-    ExpressionAST *expression; // for Q_PRIVATE_PROPERTY(expression, ...)
-    int comma_token;
-    ExpressionAST *type_id;
-    NameAST *property_name;
-    QtPropertyDeclarationItemListAST *property_declaration_item_list;
-    int rparen_token;
+    int property_specifier_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr; // for Q_PRIVATE_PROPERTY(expression, ...)
+    int comma_token = 0;
+    ExpressionAST *type_id = nullptr;
+    NameAST *property_name = nullptr;
+    QtPropertyDeclarationItemListAST *property_declaration_item_list = nullptr;
+    int rparen_token = 0;
 
 public:
-    QtPropertyDeclarationAST()
-        : property_specifier_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , comma_token(0)
-        , type_id(0)
-        , property_name(0)
-        , property_declaration_item_list(0)
-        , rparen_token(0)
-    {}
-
     virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -859,19 +716,12 @@ protected:
 class CPLUSPLUS_EXPORT QtEnumDeclarationAST: public DeclarationAST
 {
 public:
-    int enum_specifier_token;
-    int lparen_token;
-    NameListAST *enumerator_list;
-    int rparen_token;
+    int enum_specifier_token = 0;
+    int lparen_token = 0;
+    NameListAST *enumerator_list = nullptr;
+    int rparen_token = 0;
 
 public:
-    QtEnumDeclarationAST()
-        : enum_specifier_token(0)
-        , lparen_token(0)
-        , enumerator_list(0)
-        , rparen_token(0)
-    {}
-
     virtual QtEnumDeclarationAST *asQtEnumDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -887,19 +737,12 @@ protected:
 class CPLUSPLUS_EXPORT QtFlagsDeclarationAST: public DeclarationAST
 {
 public:
-    int flags_specifier_token;
-    int lparen_token;
-    NameListAST *flag_enums_list;
-    int rparen_token;
+    int flags_specifier_token = 0;
+    int lparen_token = 0;
+    NameListAST *flag_enums_list = nullptr;
+    int rparen_token = 0;
 
 public:
-    QtFlagsDeclarationAST()
-        : flags_specifier_token(0)
-        , lparen_token(0)
-        , flag_enums_list(0)
-        , rparen_token(0)
-    {}
-
     virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -915,15 +758,10 @@ protected:
 class CPLUSPLUS_EXPORT QtInterfaceNameAST: public AST
 {
 public:
-    NameAST *interface_name;
-    NameListAST *constraint_list;
+    NameAST *interface_name = nullptr;
+    NameListAST *constraint_list = nullptr;
 
 public:
-    QtInterfaceNameAST()
-        : interface_name(0)
-        , constraint_list(0)
-    {}
-
     virtual QtInterfaceNameAST *asQtInterfaceName() { return this; }
 
     virtual int firstToken() const;
@@ -939,19 +777,12 @@ protected:
 class CPLUSPLUS_EXPORT QtInterfacesDeclarationAST: public DeclarationAST
 {
 public:
-    int interfaces_token;
-    int lparen_token;
-    QtInterfaceNameListAST *interface_name_list;
-    int rparen_token;
+    int interfaces_token = 0;
+    int lparen_token = 0;
+    QtInterfaceNameListAST *interface_name_list = nullptr;
+    int rparen_token = 0;
 
 public:
-    QtInterfacesDeclarationAST()
-        : interfaces_token(0)
-        , lparen_token(0)
-        , interface_name_list(0)
-        , rparen_token(0)
-    {}
-
     virtual QtInterfacesDeclarationAST *asQtInterfacesDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -967,23 +798,15 @@ protected:
 class CPLUSPLUS_EXPORT AsmDefinitionAST: public DeclarationAST
 {
 public:
-    int asm_token;
-    int volatile_token;
-    int lparen_token;
+    int asm_token = 0;
+    int volatile_token = 0;
+    int lparen_token = 0;
     // ### string literals
     // ### asm operand list
-    int rparen_token;
-    int semicolon_token;
+    int rparen_token = 0;
+    int semicolon_token = 0;
 
 public:
-    AsmDefinitionAST()
-        : asm_token(0)
-        , volatile_token(0)
-        , lparen_token(0)
-        , rparen_token(0)
-        , semicolon_token(0)
-    {}
-
     virtual AsmDefinitionAST *asAsmDefinition() { return this; }
 
     virtual int firstToken() const;
@@ -999,23 +822,15 @@ protected:
 class CPLUSPLUS_EXPORT BaseSpecifierAST: public AST
 {
 public:
-    int virtual_token;
-    int access_specifier_token;
-    NameAST *name;
-    int ellipsis_token;
+    int virtual_token = 0;
+    int access_specifier_token = 0;
+    NameAST *name = nullptr;
+    int ellipsis_token = 0;
 
 public: // annotations
-    BaseClass *symbol;
+    BaseClass *symbol = nullptr;
 
 public:
-    BaseSpecifierAST()
-        : virtual_token(0)
-        , access_specifier_token(0)
-        , name(0)
-        , ellipsis_token(0)
-        , symbol(0)
-    {}
-
     virtual BaseSpecifierAST *asBaseSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -1031,13 +846,9 @@ protected:
 class CPLUSPLUS_EXPORT IdExpressionAST: public ExpressionAST
 {
 public:
-    NameAST *name;
+    NameAST *name = nullptr;
 
 public:
-    IdExpressionAST()
-        : name(0)
-    {}
-
     virtual IdExpressionAST *asIdExpression() { return this; }
 
     virtual int firstToken() const;
@@ -1053,17 +864,11 @@ protected:
 class CPLUSPLUS_EXPORT CompoundExpressionAST: public ExpressionAST
 {
 public:
-    int lparen_token;
-    CompoundStatementAST *statement;
-    int rparen_token;
+    int lparen_token = 0;
+    CompoundStatementAST *statement = nullptr;
+    int rparen_token = 0;
 
 public:
-    CompoundExpressionAST()
-        : lparen_token(0)
-        , statement(0)
-        , rparen_token(0)
-    {}
-
     virtual CompoundExpressionAST *asCompoundExpression() { return this; }
 
     virtual int firstToken() const;
@@ -1079,19 +884,12 @@ protected:
 class CPLUSPLUS_EXPORT CompoundLiteralAST: public ExpressionAST
 {
 public:
-    int lparen_token;
-    ExpressionAST *type_id;
-    int rparen_token;
-    ExpressionAST *initializer;
+    int lparen_token = 0;
+    ExpressionAST *type_id = nullptr;
+    int rparen_token = 0;
+    ExpressionAST *initializer = nullptr;
 
 public:
-    CompoundLiteralAST()
-        : lparen_token(0)
-        , type_id(0)
-        , rparen_token(0)
-        , initializer(0)
-    {}
-
     virtual CompoundLiteralAST *asCompoundLiteral() { return this; }
 
     virtual int firstToken() const;
@@ -1107,19 +905,12 @@ protected:
 class CPLUSPLUS_EXPORT QtMethodAST: public ExpressionAST
 {
 public:
-    int method_token;
-    int lparen_token;
-    DeclaratorAST *declarator;
-    int rparen_token;
+    int method_token = 0;
+    int lparen_token = 0;
+    DeclaratorAST *declarator = nullptr;
+    int rparen_token = 0;
 
 public:
-    QtMethodAST()
-        : method_token(0)
-        , lparen_token(0)
-        , declarator(0)
-        , rparen_token(0)
-    {}
-
     virtual QtMethodAST *asQtMethod() { return this; }
 
     virtual int firstToken() const;
@@ -1135,19 +926,12 @@ protected:
 class CPLUSPLUS_EXPORT QtMemberDeclarationAST: public StatementAST
 {
 public:
-    int q_token;
-    int lparen_token;
-    ExpressionAST *type_id;
-    int rparen_token;
+    int q_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *type_id = nullptr;
+    int rparen_token = 0;
 
 public:
-    QtMemberDeclarationAST()
-        : q_token(0)
-        , lparen_token(0)
-        , type_id(0)
-        , rparen_token(0)
-    {}
-
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -1163,17 +947,11 @@ protected:
 class CPLUSPLUS_EXPORT BinaryExpressionAST: public ExpressionAST
 {
 public:
-    ExpressionAST *left_expression;
-    int binary_op_token;
-    ExpressionAST *right_expression;
+    ExpressionAST *left_expression = nullptr;
+    int binary_op_token = 0;
+    ExpressionAST *right_expression = nullptr;
 
 public:
-    BinaryExpressionAST()
-        : left_expression(0)
-        , binary_op_token(0)
-        , right_expression(0)
-    {}
-
     virtual BinaryExpressionAST *asBinaryExpression() { return this; }
 
     virtual int firstToken() const;
@@ -1189,19 +967,12 @@ protected:
 class CPLUSPLUS_EXPORT CastExpressionAST: public ExpressionAST
 {
 public:
-    int lparen_token;
-    ExpressionAST *type_id;
-    int rparen_token;
-    ExpressionAST *expression;
+    int lparen_token = 0;
+    ExpressionAST *type_id = nullptr;
+    int rparen_token = 0;
+    ExpressionAST *expression = nullptr;
 
 public:
-    CastExpressionAST()
-        : lparen_token(0)
-        , type_id(0)
-        , rparen_token(0)
-        , expression(0)
-    {}
-
     virtual CastExpressionAST *asCastExpression() { return this; }
 
     virtual int firstToken() const;
@@ -1217,35 +988,21 @@ protected:
 class CPLUSPLUS_EXPORT ClassSpecifierAST: public SpecifierAST
 {
 public:
-    int classkey_token;
-    SpecifierListAST *attribute_list;
-    NameAST *name;
-    int final_token;
-    int colon_token;
-    BaseSpecifierListAST *base_clause_list;
-    int dot_dot_dot_token;
-    int lbrace_token;
-    DeclarationListAST *member_specifier_list;
-    int rbrace_token;
+    int classkey_token = 0;
+    SpecifierListAST *attribute_list = nullptr;
+    NameAST *name = nullptr;
+    int final_token = 0;
+    int colon_token = 0;
+    BaseSpecifierListAST *base_clause_list = nullptr;
+    int dot_dot_dot_token = 0;
+    int lbrace_token = 0;
+    DeclarationListAST *member_specifier_list = nullptr;
+    int rbrace_token = 0;
 
 public: // annotations
-    Class *symbol;
+    Class *symbol = nullptr;
 
 public:
-    ClassSpecifierAST()
-        : classkey_token(0)
-        , attribute_list(0)
-        , name(0)
-        , final_token(0)
-        , colon_token(0)
-        , base_clause_list(0)
-        , dot_dot_dot_token(0)
-        , lbrace_token(0)
-        , member_specifier_list(0)
-        , rbrace_token(0)
-        , symbol(0)
-    {}
-
     virtual ClassSpecifierAST *asClassSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -1261,19 +1018,12 @@ protected:
 class CPLUSPLUS_EXPORT CaseStatementAST: public StatementAST
 {
 public:
-    int case_token;
-    ExpressionAST *expression;
-    int colon_token;
-    StatementAST *statement;
+    int case_token = 0;
+    ExpressionAST *expression = nullptr;
+    int colon_token = 0;
+    StatementAST *statement = nullptr;
 
 public:
-    CaseStatementAST()
-        : case_token(0)
-        , expression(0)
-        , colon_token(0)
-        , statement(0)
-    {}
-
     virtual CaseStatementAST *asCaseStatement() { return this; }
 
     virtual int firstToken() const;
@@ -1289,21 +1039,14 @@ protected:
 class CPLUSPLUS_EXPORT CompoundStatementAST: public StatementAST
 {
 public:
-    int lbrace_token;
-    StatementListAST *statement_list;
-    int rbrace_token;
+    int lbrace_token = 0;
+    StatementListAST *statement_list = nullptr;
+    int rbrace_token = 0;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    CompoundStatementAST()
-        : lbrace_token(0)
-        , statement_list(0)
-        , rbrace_token(0)
-        , symbol(0)
-    {}
-
     virtual CompoundStatementAST *asCompoundStatement() { return this; }
 
     virtual int firstToken() const;
@@ -1319,15 +1062,10 @@ protected:
 class CPLUSPLUS_EXPORT ConditionAST: public ExpressionAST
 {
 public:
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
 
 public:
-    ConditionAST()
-        : type_specifier_list(0)
-        , declarator(0)
-    {}
-
     virtual ConditionAST *asCondition() { return this; }
 
     virtual int firstToken() const;
@@ -1343,21 +1081,13 @@ protected:
 class CPLUSPLUS_EXPORT ConditionalExpressionAST: public ExpressionAST
 {
 public:
-    ExpressionAST *condition;
-    int question_token;
-    ExpressionAST *left_expression;
-    int colon_token;
-    ExpressionAST *right_expression;
+    ExpressionAST *condition = nullptr;
+    int question_token = 0;
+    ExpressionAST *left_expression = nullptr;
+    int colon_token = 0;
+    ExpressionAST *right_expression = nullptr;
 
 public:
-    ConditionalExpressionAST()
-        : condition(0)
-        , question_token(0)
-        , left_expression(0)
-        , colon_token(0)
-        , right_expression(0)
-    {}
-
     virtual ConditionalExpressionAST *asConditionalExpression() { return this; }
 
     virtual int firstToken() const;
@@ -1373,25 +1103,15 @@ protected:
 class CPLUSPLUS_EXPORT CppCastExpressionAST: public ExpressionAST
 {
 public:
-    int cast_token;
-    int less_token;
-    ExpressionAST *type_id;
-    int greater_token;
-    int lparen_token;
-    ExpressionAST *expression;
-    int rparen_token;
+    int cast_token = 0;
+    int less_token = 0;
+    ExpressionAST *type_id = nullptr;
+    int greater_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
 
 public:
-    CppCastExpressionAST()
-        : cast_token(0)
-        , less_token(0)
-        , type_id(0)
-        , greater_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-    {}
-
     virtual CppCastExpressionAST *asCppCastExpression() { return this; }
 
     virtual int firstToken() const;
@@ -1407,17 +1127,11 @@ protected:
 class CPLUSPLUS_EXPORT CtorInitializerAST: public AST
 {
 public:
-    int colon_token;
-    MemInitializerListAST *member_initializer_list;
-    int dot_dot_dot_token;
+    int colon_token = 0;
+    MemInitializerListAST *member_initializer_list = nullptr;
+    int dot_dot_dot_token = 0;
 
 public:
-    CtorInitializerAST()
-        : colon_token(0)
-        , member_initializer_list(0)
-        , dot_dot_dot_token(0)
-    {}
-
     virtual CtorInitializerAST *asCtorInitializer() { return this; }
 
     virtual int firstToken() const;
@@ -1433,13 +1147,9 @@ protected:
 class CPLUSPLUS_EXPORT DeclarationStatementAST: public StatementAST
 {
 public:
-    DeclarationAST *declaration;
+    DeclarationAST *declaration = nullptr;
 
 public:
-    DeclarationStatementAST()
-        : declaration(0)
-    {}
-
     virtual DeclarationStatementAST *asDeclarationStatement() { return this; }
 
     virtual int firstToken() const;
@@ -1455,15 +1165,10 @@ protected:
 class CPLUSPLUS_EXPORT DeclaratorIdAST: public CoreDeclaratorAST
 {
 public:
-    int dot_dot_dot_token;
-    NameAST *name;
+    int dot_dot_dot_token = 0;
+    NameAST *name = nullptr;
 
 public:
-    DeclaratorIdAST()
-        : dot_dot_dot_token(0)
-        , name(0)
-    {}
-
     virtual DeclaratorIdAST *asDeclaratorId() { return this; }
 
     virtual int firstToken() const;
@@ -1479,17 +1184,11 @@ protected:
 class CPLUSPLUS_EXPORT NestedDeclaratorAST: public CoreDeclaratorAST
 {
 public:
-    int lparen_token;
-    DeclaratorAST *declarator;
-    int rparen_token;
+    int lparen_token = 0;
+    DeclaratorAST *declarator = nullptr;
+    int rparen_token = 0;
 
 public:
-    NestedDeclaratorAST()
-        : lparen_token(0)
-        , declarator(0)
-        , rparen_token(0)
-    {}
-
     virtual NestedDeclaratorAST *asNestedDeclarator() { return this; }
 
     virtual int firstToken() const;
@@ -1505,32 +1204,20 @@ protected:
 class CPLUSPLUS_EXPORT FunctionDeclaratorAST: public PostfixDeclaratorAST
 {
 public:
-    int lparen_token;
-    ParameterDeclarationClauseAST *parameter_declaration_clause;
-    int rparen_token;
-    SpecifierListAST *cv_qualifier_list;
-    int ref_qualifier_token;
-    ExceptionSpecificationAST *exception_specification;
-    TrailingReturnTypeAST *trailing_return_type;
+    int lparen_token = 0;
+    ParameterDeclarationClauseAST *parameter_declaration_clause = nullptr;
+    int rparen_token = 0;
+    SpecifierListAST *cv_qualifier_list = nullptr;
+    int ref_qualifier_token = 0;
+    ExceptionSpecificationAST *exception_specification = nullptr;
+    TrailingReturnTypeAST *trailing_return_type = nullptr;
     // Some FunctionDeclarators can also be interpreted as an initializer, like for 'A b(c);'
-    ExpressionAST *as_cpp_initializer;
+    ExpressionAST *as_cpp_initializer = nullptr;
 
 public: // annotations
-    Function *symbol;
+    Function *symbol = nullptr;
 
 public:
-    FunctionDeclaratorAST()
-        : lparen_token(0)
-        , parameter_declaration_clause(0)
-        , rparen_token(0)
-        , cv_qualifier_list(0)
-        , ref_qualifier_token(0)
-        , exception_specification(0)
-        , trailing_return_type(0)
-        , as_cpp_initializer(0)
-        , symbol(0)
-    {}
-
     virtual FunctionDeclaratorAST *asFunctionDeclarator() { return this; }
 
     virtual int firstToken() const;
@@ -1546,17 +1233,11 @@ protected:
 class CPLUSPLUS_EXPORT ArrayDeclaratorAST: public PostfixDeclaratorAST
 {
 public:
-    int lbracket_token;
-    ExpressionAST *expression;
-    int rbracket_token;
+    int lbracket_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rbracket_token = 0;
 
 public:
-    ArrayDeclaratorAST()
-        : lbracket_token(0)
-        , expression(0)
-        , rbracket_token(0)
-    {}
-
     virtual ArrayDeclaratorAST *asArrayDeclarator() { return this; }
 
     virtual int firstToken() const;
@@ -1572,21 +1253,13 @@ protected:
 class CPLUSPLUS_EXPORT DeleteExpressionAST: public ExpressionAST
 {
 public:
-    int scope_token;
-    int delete_token;
-    int lbracket_token;
-    int rbracket_token;
-    ExpressionAST *expression;
+    int scope_token = 0;
+    int delete_token = 0;
+    int lbracket_token = 0;
+    int rbracket_token = 0;
+    ExpressionAST *expression = nullptr;
 
 public:
-    DeleteExpressionAST()
-        : scope_token(0)
-        , delete_token(0)
-        , lbracket_token(0)
-        , rbracket_token(0)
-        , expression(0)
-    {}
-
     virtual DeleteExpressionAST *asDeleteExpression() { return this; }
 
     virtual int firstToken() const;
@@ -1602,25 +1275,15 @@ protected:
 class CPLUSPLUS_EXPORT DoStatementAST: public StatementAST
 {
 public:
-    int do_token;
-    StatementAST *statement;
-    int while_token;
-    int lparen_token;
-    ExpressionAST *expression;
-    int rparen_token;
-    int semicolon_token;
+    int do_token = 0;
+    StatementAST *statement = nullptr;
+    int while_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
+    int semicolon_token = 0;
 
 public:
-    DoStatementAST()
-        : do_token(0)
-        , statement(0)
-        , while_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-        , semicolon_token(0)
-    {}
-
     virtual DoStatementAST *asDoStatement() { return this; }
 
     virtual int firstToken() const;
@@ -1636,13 +1299,9 @@ protected:
 class CPLUSPLUS_EXPORT NamedTypeSpecifierAST: public SpecifierAST
 {
 public:
-    NameAST *name;
+    NameAST *name = nullptr;
 
 public:
-    NamedTypeSpecifierAST()
-        : name(0)
-    {}
-
     virtual NamedTypeSpecifierAST *asNamedTypeSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -1658,17 +1317,11 @@ protected:
 class CPLUSPLUS_EXPORT ElaboratedTypeSpecifierAST: public SpecifierAST
 {
 public:
-    int classkey_token;
-    SpecifierListAST *attribute_list;
-    NameAST *name;
+    int classkey_token = 0;
+    SpecifierListAST *attribute_list = nullptr;
+    NameAST *name = nullptr;
 
 public:
-    ElaboratedTypeSpecifierAST()
-        : classkey_token(0)
-        , attribute_list(0)
-        , name(0)
-    {}
-
     virtual ElaboratedTypeSpecifierAST *asElaboratedTypeSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -1684,33 +1337,20 @@ protected:
 class CPLUSPLUS_EXPORT EnumSpecifierAST: public SpecifierAST
 {
 public:
-    int enum_token;
-    int key_token; // struct, class or 0
-    NameAST *name;
-    int colon_token; // can be 0 if there is no enum-base
-    SpecifierListAST *type_specifier_list; // ditto
-    int lbrace_token;
-    EnumeratorListAST *enumerator_list;
-    int stray_comma_token;
-    int rbrace_token;
+    int enum_token = 0;
+    int key_token = 0; // struct, class or 0
+    NameAST *name = nullptr;
+    int colon_token = 0; // can be 0 if there is no enum-base
+    SpecifierListAST *type_specifier_list = nullptr; // ditto
+    int lbrace_token = 0;
+    EnumeratorListAST *enumerator_list = nullptr;
+    int stray_comma_token = 0;
+    int rbrace_token = 0;
 
 public: // annotations
-    Enum *symbol;
+    Enum *symbol = nullptr;
 
 public:
-    EnumSpecifierAST()
-        : enum_token(0)
-        , key_token(0)
-        , name(0)
-        , colon_token(0)
-        , type_specifier_list(0)
-        , lbrace_token(0)
-        , enumerator_list(0)
-        , stray_comma_token(0)
-        , rbrace_token(0)
-        , symbol(0)
-    {}
-
     virtual EnumSpecifierAST *asEnumSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -1726,17 +1366,11 @@ protected:
 class CPLUSPLUS_EXPORT EnumeratorAST: public AST
 {
 public:
-    int identifier_token;
-    int equal_token;
-    ExpressionAST *expression;
+    int identifier_token = 0;
+    int equal_token = 0;
+    ExpressionAST *expression = nullptr;
 
 public:
-    EnumeratorAST()
-        : identifier_token(0)
-        , equal_token(0)
-        , expression(0)
-    {}
-
     virtual EnumeratorAST *asEnumerator() { return this; }
 
     virtual int firstToken() const;
@@ -1752,17 +1386,11 @@ protected:
 class CPLUSPLUS_EXPORT ExceptionDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
-    int dot_dot_dot_token;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
+    int dot_dot_dot_token = 0;
 
 public:
-    ExceptionDeclarationAST()
-        : type_specifier_list(0)
-        , declarator(0)
-        , dot_dot_dot_token(0)
-    {}
-
     virtual ExceptionDeclarationAST *asExceptionDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -1778,9 +1406,6 @@ protected:
 class CPLUSPLUS_EXPORT ExceptionSpecificationAST: public AST
 {
 public:
-    ExceptionSpecificationAST()
-    {}
-
     virtual ExceptionSpecificationAST *asExceptionSpecification() { return this; }
 
     virtual ExceptionSpecificationAST *clone(MemoryPool *pool) const = 0;
@@ -1789,21 +1414,13 @@ public:
 class CPLUSPLUS_EXPORT DynamicExceptionSpecificationAST: public ExceptionSpecificationAST
 {
 public:
-    int throw_token;
-    int lparen_token;
-    int dot_dot_dot_token;
-    ExpressionListAST *type_id_list;
-    int rparen_token;
+    int throw_token = 0;
+    int lparen_token = 0;
+    int dot_dot_dot_token = 0;
+    ExpressionListAST *type_id_list = nullptr;
+    int rparen_token = 0;
 
 public:
-    DynamicExceptionSpecificationAST()
-        : throw_token(0)
-        , lparen_token(0)
-        , dot_dot_dot_token(0)
-        , type_id_list(0)
-        , rparen_token(0)
-    {}
-
     virtual DynamicExceptionSpecificationAST *asDynamicExceptionSpecification() { return this; }
 
     virtual int firstToken() const;
@@ -1819,19 +1436,12 @@ protected:
 class CPLUSPLUS_EXPORT NoExceptSpecificationAST: public ExceptionSpecificationAST
 {
 public:
-    int noexcept_token;
-    int lparen_token;
-    ExpressionAST *expression;
-    int rparen_token;
+    int noexcept_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
 
 public:
-    NoExceptSpecificationAST()
-        : noexcept_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-    {}
-
     virtual NoExceptSpecificationAST *asNoExceptSpecification() { return this; }
 
     virtual int firstToken() const;
@@ -1847,15 +1457,10 @@ protected:
 class CPLUSPLUS_EXPORT ExpressionOrDeclarationStatementAST: public StatementAST
 {
 public:
-    ExpressionStatementAST *expression;
-    DeclarationStatementAST *declaration;
+    ExpressionStatementAST *expression = nullptr;
+    DeclarationStatementAST *declaration = nullptr;
 
 public:
-    ExpressionOrDeclarationStatementAST()
-        : expression(0)
-        , declaration(0)
-    {}
-
     virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() { return this; }
 
     virtual int firstToken() const;
@@ -1871,15 +1476,10 @@ protected:
 class CPLUSPLUS_EXPORT ExpressionStatementAST: public StatementAST
 {
 public:
-    ExpressionAST *expression;
-    int semicolon_token;
+    ExpressionAST *expression = nullptr;
+    int semicolon_token = 0;
 
 public:
-    ExpressionStatementAST()
-        : expression(0)
-        , semicolon_token(0)
-    {}
-
     virtual ExpressionStatementAST *asExpressionStatement() { return this; }
 
     virtual int firstToken() const;
@@ -1895,25 +1495,16 @@ protected:
 class CPLUSPLUS_EXPORT FunctionDefinitionAST: public DeclarationAST
 {
 public:
-    int qt_invokable_token;
-    SpecifierListAST *decl_specifier_list;
-    DeclaratorAST *declarator;
-    CtorInitializerAST *ctor_initializer;
-    StatementAST *function_body;
+    int qt_invokable_token = 0;
+    SpecifierListAST *decl_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
+    CtorInitializerAST *ctor_initializer = nullptr;
+    StatementAST *function_body = nullptr;
 
 public: // annotations
-    Function *symbol;
+    Function *symbol = nullptr;
 
 public:
-    FunctionDefinitionAST()
-        : qt_invokable_token(0)
-        , decl_specifier_list(0)
-        , declarator(0)
-        , ctor_initializer(0)
-        , function_body(0)
-        , symbol(0)
-    {}
-
     virtual FunctionDefinitionAST *asFunctionDefinition() { return this; }
 
     virtual int firstToken() const;
@@ -1929,35 +1520,22 @@ protected:
 class CPLUSPLUS_EXPORT ForeachStatementAST: public StatementAST
 {
 public:
-    int foreach_token;
-    int lparen_token;
+    int foreach_token = 0;
+    int lparen_token = 0;
     // declaration
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
     // or an expression
-    ExpressionAST *initializer;
-    int comma_token;
-    ExpressionAST *expression;
-    int rparen_token;
-    StatementAST *statement;
+    ExpressionAST *initializer = nullptr;
+    int comma_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    ForeachStatementAST()
-        : foreach_token(0)
-        , lparen_token(0)
-        , type_specifier_list(0)
-        , declarator(0)
-        , initializer(0)
-        , comma_token(0)
-        , expression(0)
-        , rparen_token(0)
-        , statement(0)
-        , symbol(0)
-    {}
-
     virtual ForeachStatementAST *asForeachStatement() { return this; }
 
     virtual int firstToken() const;
@@ -1973,33 +1551,21 @@ protected:
 class CPLUSPLUS_EXPORT RangeBasedForStatementAST : public StatementAST
 {
 public:
-    int for_token;
-    int lparen_token;
+    int for_token = 0;
+    int lparen_token = 0;
     // declaration
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
     // or an expression
-    int colon_token;
-    ExpressionAST *expression;
-    int rparen_token;
-    StatementAST *statement;
+    int colon_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    RangeBasedForStatementAST()
-        : for_token(0)
-        , lparen_token(0)
-        , type_specifier_list(0)
-        , declarator(0)
-        , colon_token(0)
-        , expression(0)
-        , rparen_token(0)
-        , statement(0)
-        , symbol(0)
-    {}
-
     virtual RangeBasedForStatementAST *asRangeBasedForStatement() { return this; }
 
     virtual int firstToken() const;
@@ -2015,31 +1581,19 @@ protected:
 class CPLUSPLUS_EXPORT ForStatementAST: public StatementAST
 {
 public:
-    int for_token;
-    int lparen_token;
-    StatementAST *initializer;
-    ExpressionAST *condition;
-    int semicolon_token;
-    ExpressionAST *expression;
-    int rparen_token;
-    StatementAST *statement;
+    int for_token = 0;
+    int lparen_token = 0;
+    StatementAST *initializer = nullptr;
+    ExpressionAST *condition = nullptr;
+    int semicolon_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    ForStatementAST()
-        : for_token(0)
-        , lparen_token(0)
-        , initializer(0)
-        , condition(0)
-        , semicolon_token(0)
-        , expression(0)
-        , rparen_token(0)
-        , statement(0)
-        , symbol(0)
-    {}
-
     virtual ForStatementAST *asForStatement() { return this; }
 
     virtual int firstToken() const;
@@ -2055,29 +1609,18 @@ protected:
 class CPLUSPLUS_EXPORT IfStatementAST: public StatementAST
 {
 public:
-    int if_token;
-    int lparen_token;
-    ExpressionAST *condition;
-    int rparen_token;
-    StatementAST *statement;
-    int else_token;
-    StatementAST *else_statement;
+    int if_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *condition = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
+    int else_token = 0;
+    StatementAST *else_statement = nullptr;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    IfStatementAST()
-        : if_token(0)
-        , lparen_token(0)
-        , condition(0)
-        , rparen_token(0)
-        , statement(0)
-        , else_token(0)
-        , else_statement(0)
-        , symbol(0)
-    {}
-
     virtual IfStatementAST *asIfStatement() { return this; }
 
     virtual int firstToken() const;
@@ -2093,17 +1636,11 @@ protected:
 class CPLUSPLUS_EXPORT ArrayInitializerAST: public ExpressionAST
 {
 public:
-    int lbrace_token;
-    ExpressionListAST *expression_list;
-    int rbrace_token;
+    int lbrace_token = 0;
+    ExpressionListAST *expression_list = nullptr;
+    int rbrace_token = 0;
 
 public:
-    ArrayInitializerAST()
-        : lbrace_token(0)
-        , expression_list(0)
-        , rbrace_token(0)
-    {}
-
     virtual ArrayInitializerAST *asArrayInitializer() { return this; }
 
     virtual int firstToken() const;
@@ -2119,17 +1656,11 @@ protected:
 class CPLUSPLUS_EXPORT LabeledStatementAST: public StatementAST
 {
 public:
-    int label_token;
-    int colon_token;
-    StatementAST *statement;
+    int label_token = 0;
+    int colon_token = 0;
+    StatementAST *statement = nullptr;
 
 public:
-    LabeledStatementAST()
-        : label_token(0)
-        , colon_token(0)
-        , statement(0)
-    {}
-
     virtual LabeledStatementAST *asLabeledStatement() { return this; }
 
     virtual int firstToken() const;
@@ -2145,17 +1676,11 @@ protected:
 class CPLUSPLUS_EXPORT LinkageBodyAST: public DeclarationAST
 {
 public:
-    int lbrace_token;
-    DeclarationListAST *declaration_list;
-    int rbrace_token;
+    int lbrace_token = 0;
+    DeclarationListAST *declaration_list = nullptr;
+    int rbrace_token = 0;
 
 public:
-    LinkageBodyAST()
-        : lbrace_token(0)
-        , declaration_list(0)
-        , rbrace_token(0)
-    {}
-
     virtual LinkageBodyAST *asLinkageBody() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -2170,17 +1695,11 @@ protected:
 class CPLUSPLUS_EXPORT LinkageSpecificationAST: public DeclarationAST
 {
 public:
-    int extern_token;
-    int extern_type_token;
-    DeclarationAST *declaration;
+    int extern_token = 0;
+    int extern_type_token = 0;
+    DeclarationAST *declaration = nullptr;
 
 public:
-    LinkageSpecificationAST()
-        : extern_token(0)
-        , extern_type_token(0)
-        , declaration(0)
-    {}
-
     virtual LinkageSpecificationAST *asLinkageSpecification() { return this; }
 
     virtual int firstToken() const;
@@ -2196,16 +1715,11 @@ protected:
 class CPLUSPLUS_EXPORT MemInitializerAST: public AST
 {
 public:
-    NameAST *name;
+    NameAST *name = nullptr;
     // either a BracedInitializerAST or a ExpressionListParenAST
-    ExpressionAST *expression;
+    ExpressionAST *expression = nullptr;
 
 public:
-    MemInitializerAST()
-        : name(0)
-        , expression(0)
-    {}
-
     virtual MemInitializerAST *asMemInitializer() { return this; }
 
     virtual int firstToken() const;
@@ -2221,15 +1735,10 @@ protected:
 class CPLUSPLUS_EXPORT NestedNameSpecifierAST: public AST
 {
 public:
-    NameAST *class_or_namespace_name;
-    int scope_token;
+    NameAST *class_or_namespace_name = nullptr;
+    int scope_token = 0;
 
 public:
-    NestedNameSpecifierAST()
-        : class_or_namespace_name(0)
-        , scope_token(0)
-    {}
-
     virtual NestedNameSpecifierAST *asNestedNameSpecifier() { return this; }
 
     virtual int firstToken() const;
@@ -2245,17 +1754,11 @@ protected:
 class CPLUSPLUS_EXPORT QualifiedNameAST: public NameAST
 {
 public:
-    int global_scope_token;
-    NestedNameSpecifierListAST *nested_name_specifier_list;
-    NameAST *unqualified_name;
+    int global_scope_token = 0;
+    NestedNameSpecifierListAST *nested_name_specifier_list = nullptr;
+    NameAST *unqualified_name = nullptr;
 
 public:
-    QualifiedNameAST()
-        : global_scope_token(0)
-        , nested_name_specifier_list(0)
-        , unqualified_name(0)
-    {}
-
     virtual QualifiedNameAST *asQualifiedName() { return this; }
 
     virtual int firstToken() const;
@@ -2271,15 +1774,10 @@ protected:
 class CPLUSPLUS_EXPORT OperatorFunctionIdAST: public NameAST
 {
 public:
-    int operator_token;
-    OperatorAST *op;
+    int operator_token = 0;
+    OperatorAST *op = nullptr;
 
 public:
-    OperatorFunctionIdAST()
-        : operator_token(0)
-        , op(0)
-    {}
-
     virtual OperatorFunctionIdAST *asOperatorFunctionId() { return this; }
 
     virtual int firstToken() const;
@@ -2295,17 +1793,11 @@ protected:
 class CPLUSPLUS_EXPORT ConversionFunctionIdAST: public NameAST
 {
 public:
-    int operator_token;
-    SpecifierListAST *type_specifier_list;
-    PtrOperatorListAST *ptr_operator_list;
+    int operator_token = 0;
+    SpecifierListAST *type_specifier_list = nullptr;
+    PtrOperatorListAST *ptr_operator_list = nullptr;
 
 public:
-    ConversionFunctionIdAST()
-        : operator_token(0)
-        , type_specifier_list(0)
-        , ptr_operator_list(0)
-    {}
-
     virtual ConversionFunctionIdAST *asConversionFunctionId() { return this; }
 
     virtual int firstToken() const;
@@ -2321,12 +1813,9 @@ protected:
 class CPLUSPLUS_EXPORT AnonymousNameAST: public NameAST
 {
 public:
-    int class_token;
-public:
-    AnonymousNameAST()
-        : class_token(0)
-    {}
+    int class_token = 0;
 
+public:
     virtual AnonymousNameAST *asAnonymousName() { return this; }
     virtual int firstToken() const { return 0; }
     virtual int lastToken() const { return 0; }
@@ -2341,13 +1830,9 @@ protected:
 class CPLUSPLUS_EXPORT SimpleNameAST: public NameAST
 {
 public:
-    int identifier_token;
+    int identifier_token = 0;
 
 public:
-    SimpleNameAST()
-        : identifier_token(0)
-    {}
-
     virtual SimpleNameAST *asSimpleName() { return this; }
 
     virtual int firstToken() const;
@@ -2363,15 +1848,10 @@ protected:
 class CPLUSPLUS_EXPORT DestructorNameAST: public NameAST
 {
 public:
-    int tilde_token;
-    NameAST *unqualified_name;
+    int tilde_token = 0;
+    NameAST *unqualified_name = nullptr;
 
 public:
-    DestructorNameAST()
-        : tilde_token(0)
-        , unqualified_name(0)
-    {}
-
     virtual DestructorNameAST *asDestructorName() { return this; }
 
     virtual int firstToken() const;
@@ -2387,21 +1867,13 @@ protected:
 class CPLUSPLUS_EXPORT TemplateIdAST: public NameAST
 {
 public:
-    int template_token;
-    int identifier_token;
-    int less_token;
-    ExpressionListAST *template_argument_list;
-    int greater_token;
+    int template_token = 0;
+    int identifier_token = 0;
+    int less_token = 0;
+    ExpressionListAST *template_argument_list = nullptr;
+    int greater_token = 0;
 
 public:
-    TemplateIdAST()
-        : template_token(0)
-        , identifier_token(0)
-        , less_token(0)
-        , template_argument_list(0)
-        , greater_token(0)
-    {}
-
     virtual TemplateIdAST *asTemplateId() { return this; }
 
     virtual int firstToken() const;
@@ -2417,25 +1889,16 @@ protected:
 class CPLUSPLUS_EXPORT NamespaceAST: public DeclarationAST
 {
 public:
-    int inline_token;
-    int namespace_token;
-    int identifier_token;
-    SpecifierListAST *attribute_list;
-    DeclarationAST *linkage_body;
+    int inline_token = 0;
+    int namespace_token = 0;
+    int identifier_token = 0;
+    SpecifierListAST *attribute_list = nullptr;
+    DeclarationAST *linkage_body = nullptr;
 
 public: // annotations
-    Namespace *symbol;
+    Namespace *symbol = nullptr;
 
 public:
-    NamespaceAST()
-        : inline_token(0)
-        , namespace_token(0)
-        , identifier_token(0)
-        , attribute_list(0)
-        , linkage_body(0)
-        , symbol(0)
-    {}
-
     virtual NamespaceAST *asNamespace() { return this; }
 
     virtual int firstToken() const;
@@ -2451,21 +1914,13 @@ protected:
 class CPLUSPLUS_EXPORT NamespaceAliasDefinitionAST: public DeclarationAST
 {
 public:
-    int namespace_token;
-    int namespace_name_token;
-    int equal_token;
-    NameAST *name;
-    int semicolon_token;
+    int namespace_token = 0;
+    int namespace_name_token = 0;
+    int equal_token = 0;
+    NameAST *name = nullptr;
+    int semicolon_token = 0;
 
 public:
-    NamespaceAliasDefinitionAST()
-        : namespace_token(0)
-        , namespace_name_token(0)
-        , equal_token(0)
-        , name(0)
-        , semicolon_token(0)
-    {}
-
     virtual NamespaceAliasDefinitionAST *asNamespaceAliasDefinition() { return this; }
 
     virtual int firstToken() const;
@@ -2481,25 +1936,16 @@ protected:
 class CPLUSPLUS_EXPORT AliasDeclarationAST: public DeclarationAST
 {
 public:
-    int using_token;
-    NameAST *name;
-    int equal_token;
-    TypeIdAST *typeId;
-    int semicolon_token;
+    int using_token = 0;
+    NameAST *name = nullptr;
+    int equal_token = 0;
+    TypeIdAST *typeId = nullptr;
+    int semicolon_token = 0;
 
 public: // annotations
-    Declaration *symbol;
+    Declaration *symbol = nullptr;
 
 public:
-    AliasDeclarationAST()
-        : using_token(0)
-        , name(0)
-        , equal_token(0)
-        , typeId(0)
-        , semicolon_token(0)
-        , symbol(0)
-    {}
-
     virtual AliasDeclarationAST *asAliasDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -2515,17 +1961,11 @@ protected:
 class CPLUSPLUS_EXPORT ExpressionListParenAST: public ExpressionAST
 {
 public:
-    int lparen_token;
-    ExpressionListAST *expression_list;
-    int rparen_token;
+    int lparen_token = 0;
+    ExpressionListAST *expression_list = nullptr;
+    int rparen_token = 0;
 
 public:
-    ExpressionListParenAST()
-        : lparen_token(0)
-        , expression_list(0)
-        , rparen_token(0)
-    {}
-
     virtual ExpressionListParenAST *asExpressionListParen() { return this; }
 
     virtual int firstToken() const;
@@ -2541,17 +1981,11 @@ protected:
 class CPLUSPLUS_EXPORT NewArrayDeclaratorAST: public AST
 {
 public:
-    int lbracket_token;
-    ExpressionAST *expression;
-    int rbracket_token;
+    int lbracket_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rbracket_token = 0;
 
 public:
-    NewArrayDeclaratorAST()
-        : lbracket_token(0)
-        , expression(0)
-        , rbracket_token(0)
-    {}
-
     virtual NewArrayDeclaratorAST *asNewArrayDeclarator() { return this; }
 
     virtual int firstToken() const;
@@ -2567,30 +2001,19 @@ protected:
 class CPLUSPLUS_EXPORT NewExpressionAST: public ExpressionAST
 {
 public:
-    int scope_token;
-    int new_token;
-    ExpressionListParenAST *new_placement;
+    int scope_token = 0;
+    int new_token = 0;
+    ExpressionListParenAST *new_placement = nullptr;
 
-    int lparen_token;
-    ExpressionAST *type_id;
-    int rparen_token;
+    int lparen_token = 0;
+    ExpressionAST *type_id = nullptr;
+    int rparen_token = 0;
 
-    NewTypeIdAST *new_type_id;
+    NewTypeIdAST *new_type_id = nullptr;
 
-    ExpressionAST *new_initializer; // either ExpressionListParenAST or BracedInitializerAST
+    ExpressionAST *new_initializer = nullptr; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
-    NewExpressionAST()
-        : scope_token(0)
-        , new_token(0)
-        , new_placement(0)
-        , lparen_token(0)
-        , type_id(0)
-        , rparen_token(0)
-        , new_type_id(0)
-        , new_initializer(0)
-    {}
-
     virtual NewExpressionAST *asNewExpression() { return this; }
 
     virtual int firstToken() const;
@@ -2606,17 +2029,11 @@ protected:
 class CPLUSPLUS_EXPORT NewTypeIdAST: public AST
 {
 public:
-    SpecifierListAST *type_specifier_list;
-    PtrOperatorListAST *ptr_operator_list;
-    NewArrayDeclaratorListAST *new_array_declarator_list;
+    SpecifierListAST *type_specifier_list = nullptr;
+    PtrOperatorListAST *ptr_operator_list = nullptr;
+    NewArrayDeclaratorListAST *new_array_declarator_list = nullptr;
 
 public:
-    NewTypeIdAST()
-        : type_specifier_list(0)
-        , ptr_operator_list(0)
-        , new_array_declarator_list(0)
-    {}
-
     virtual NewTypeIdAST *asNewTypeId() { return this; }
 
     virtual int firstToken() const;
@@ -2632,17 +2049,11 @@ protected:
 class CPLUSPLUS_EXPORT OperatorAST: public AST
 {
 public:
-    int op_token;
-    int open_token;
-    int close_token;
+    int op_token = 0;
+    int open_token = 0;
+    int close_token = 0;
 
 public:
-    OperatorAST()
-        : op_token(0)
-        , open_token(0)
-        , close_token(0)
-    {}
-
     virtual OperatorAST *asOperator() { return this; }
 
     virtual int firstToken() const;
@@ -2658,23 +2069,15 @@ protected:
 class CPLUSPLUS_EXPORT ParameterDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
-    int equal_token;
-    ExpressionAST *expression;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
+    int equal_token = 0;
+    ExpressionAST *expression = nullptr;
 
 public: // annotations
-    Argument *symbol;
+    Argument *symbol = nullptr;
 
 public:
-    ParameterDeclarationAST()
-        : type_specifier_list(0)
-        , declarator(0)
-        , equal_token(0)
-        , expression(0)
-        , symbol(0)
-    {}
-
     virtual ParameterDeclarationAST *asParameterDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -2690,15 +2093,10 @@ protected:
 class CPLUSPLUS_EXPORT ParameterDeclarationClauseAST: public AST
 {
 public:
-    ParameterDeclarationListAST *parameter_declaration_list;
-    int dot_dot_dot_token;
+    ParameterDeclarationListAST *parameter_declaration_list = nullptr;
+    int dot_dot_dot_token = 0;
 
 public:
-    ParameterDeclarationClauseAST()
-        : parameter_declaration_list(0)
-        , dot_dot_dot_token(0)
-    {}
-
     virtual ParameterDeclarationClauseAST *asParameterDeclarationClause() { return this; }
 
     virtual int firstToken() const;
@@ -2714,19 +2112,12 @@ protected:
 class CPLUSPLUS_EXPORT CallAST: public PostfixAST
 {
 public:
-    ExpressionAST *base_expression;
-    int lparen_token;
-    ExpressionListAST *expression_list;
-    int rparen_token;
+    ExpressionAST *base_expression = nullptr;
+    int lparen_token = 0;
+    ExpressionListAST *expression_list = nullptr;
+    int rparen_token = 0;
 
 public:
-    CallAST()
-        : base_expression(0)
-        , lparen_token(0)
-        , expression_list(0)
-        , rparen_token(0)
-    {}
-
     virtual CallAST *asCall() { return this; }
 
     virtual int firstToken() const;
@@ -2742,19 +2133,12 @@ protected:
 class CPLUSPLUS_EXPORT ArrayAccessAST: public PostfixAST
 {
 public:
-    ExpressionAST *base_expression;
-    int lbracket_token;
-    ExpressionAST *expression;
-    int rbracket_token;
+    ExpressionAST *base_expression = nullptr;
+    int lbracket_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rbracket_token = 0;
 
 public:
-    ArrayAccessAST()
-        : base_expression(0)
-        , lbracket_token(0)
-        , expression(0)
-        , rbracket_token(0)
-    {}
-
     virtual ArrayAccessAST *asArrayAccess() { return this; }
 
     virtual int firstToken() const;
@@ -2770,15 +2154,10 @@ protected:
 class CPLUSPLUS_EXPORT PostIncrDecrAST: public PostfixAST
 {
 public:
-    ExpressionAST *base_expression;
-    int incr_decr_token;
+    ExpressionAST *base_expression = nullptr;
+    int incr_decr_token = 0;
 
 public:
-    PostIncrDecrAST()
-        : base_expression(0)
-        , incr_decr_token(0)
-    {}
-
     virtual PostIncrDecrAST *asPostIncrDecr() { return this; }
 
     virtual int firstToken() const;
@@ -2794,19 +2173,12 @@ protected:
 class CPLUSPLUS_EXPORT MemberAccessAST: public PostfixAST
 {
 public:
-    ExpressionAST *base_expression;
-    int access_token;
-    int template_token;
-    NameAST *member_name;
+    ExpressionAST *base_expression = nullptr;
+    int access_token = 0;
+    int template_token = 0;
+    NameAST *member_name = nullptr;
 
 public:
-    MemberAccessAST()
-        : base_expression(0)
-        , access_token(0)
-        , template_token(0)
-        , member_name(0)
-    {}
-
     virtual MemberAccessAST *asMemberAccess() { return this; }
 
     virtual int firstToken() const;
@@ -2822,19 +2194,12 @@ protected:
 class CPLUSPLUS_EXPORT TypeidExpressionAST: public ExpressionAST
 {
 public:
-    int typeid_token;
-    int lparen_token;
-    ExpressionAST *expression;
-    int rparen_token;
+    int typeid_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
 
 public:
-    TypeidExpressionAST()
-        : typeid_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-    {}
-
     virtual TypeidExpressionAST *asTypeidExpression() { return this; }
 
     virtual int firstToken() const;
@@ -2850,17 +2215,11 @@ protected:
 class CPLUSPLUS_EXPORT TypenameCallExpressionAST: public ExpressionAST
 {
 public:
-    int typename_token;
-    NameAST *name;
-    ExpressionAST *expression; // either ExpressionListParenAST or BracedInitializerAST
+    int typename_token = 0;
+    NameAST *name = nullptr;
+    ExpressionAST *expression = nullptr; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
-    TypenameCallExpressionAST()
-        : typename_token(0)
-        , name(0)
-        , expression(0)
-    {}
-
     virtual TypenameCallExpressionAST *asTypenameCallExpression() { return this; }
 
     virtual int firstToken() const;
@@ -2876,15 +2235,10 @@ protected:
 class CPLUSPLUS_EXPORT TypeConstructorCallAST: public ExpressionAST
 {
 public:
-    SpecifierListAST *type_specifier_list;
-    ExpressionAST *expression; // either ExpressionListParenAST or BracedInitializerAST
+    SpecifierListAST *type_specifier_list = nullptr;
+    ExpressionAST *expression = nullptr; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
-    TypeConstructorCallAST()
-        : type_specifier_list(0)
-        , expression(0)
-    {}
-
     virtual TypeConstructorCallAST *asTypeConstructorCall() { return this; }
 
     virtual int firstToken() const;
@@ -2900,21 +2254,13 @@ protected:
 class CPLUSPLUS_EXPORT PointerToMemberAST: public PtrOperatorAST
 {
 public:
-    int global_scope_token;
-    NestedNameSpecifierListAST *nested_name_specifier_list;
-    int star_token;
-    SpecifierListAST *cv_qualifier_list;
-    int ref_qualifier_token;
+    int global_scope_token = 0;
+    NestedNameSpecifierListAST *nested_name_specifier_list = nullptr;
+    int star_token = 0;
+    SpecifierListAST *cv_qualifier_list = nullptr;
+    int ref_qualifier_token = 0;
 
 public:
-    PointerToMemberAST()
-        : global_scope_token(0)
-        , nested_name_specifier_list(0)
-        , star_token(0)
-        , cv_qualifier_list(0)
-        , ref_qualifier_token(0)
-    {}
-
     virtual PointerToMemberAST *asPointerToMember() { return this; }
 
     virtual int firstToken() const;
@@ -2930,15 +2276,10 @@ protected:
 class CPLUSPLUS_EXPORT PointerAST: public PtrOperatorAST
 {
 public:
-    int star_token;
-    SpecifierListAST *cv_qualifier_list;
+    int star_token = 0;
+    SpecifierListAST *cv_qualifier_list = nullptr;
 
 public:
-    PointerAST()
-        : star_token(0)
-        , cv_qualifier_list(0)
-    {}
-
     virtual PointerAST *asPointer() { return this; }
 
     virtual int firstToken() const;
@@ -2954,13 +2295,9 @@ protected:
 class CPLUSPLUS_EXPORT ReferenceAST: public PtrOperatorAST
 {
 public:
-    int reference_token;
+    int reference_token = 0;
 
 public:
-    ReferenceAST()
-        : reference_token(0)
-    {}
-
     virtual ReferenceAST *asReference() { return this; }
 
     virtual int firstToken() const;
@@ -2976,15 +2313,10 @@ protected:
 class CPLUSPLUS_EXPORT BreakStatementAST: public StatementAST
 {
 public:
-    int break_token;
-    int semicolon_token;
+    int break_token = 0;
+    int semicolon_token = 0;
 
 public:
-    BreakStatementAST()
-        : break_token(0)
-        , semicolon_token(0)
-    {}
-
     virtual BreakStatementAST *asBreakStatement() { return this; }
 
     virtual int firstToken() const;
@@ -3000,15 +2332,10 @@ protected:
 class CPLUSPLUS_EXPORT ContinueStatementAST: public StatementAST
 {
 public:
-    int continue_token;
-    int semicolon_token;
+    int continue_token = 0;
+    int semicolon_token = 0;
 
 public:
-    ContinueStatementAST()
-        : continue_token(0)
-        , semicolon_token(0)
-    {}
-
     virtual ContinueStatementAST *asContinueStatement() { return this; }
 
     virtual int firstToken() const;
@@ -3024,17 +2351,11 @@ protected:
 class CPLUSPLUS_EXPORT GotoStatementAST: public StatementAST
 {
 public:
-    int goto_token;
-    int identifier_token;
-    int semicolon_token;
+    int goto_token = 0;
+    int identifier_token = 0;
+    int semicolon_token = 0;
 
 public:
-    GotoStatementAST()
-        : goto_token(0)
-        , identifier_token(0)
-        , semicolon_token(0)
-    {}
-
     virtual GotoStatementAST *asGotoStatement() { return this; }
 
     virtual int firstToken() const;
@@ -3050,17 +2371,11 @@ protected:
 class CPLUSPLUS_EXPORT ReturnStatementAST: public StatementAST
 {
 public:
-    int return_token;
-    ExpressionAST *expression;
-    int semicolon_token;
+    int return_token = 0;
+    ExpressionAST *expression = nullptr;
+    int semicolon_token = 0;
 
 public:
-    ReturnStatementAST()
-        : return_token(0)
-        , expression(0)
-        , semicolon_token(0)
-    {}
-
     virtual ReturnStatementAST *asReturnStatement() { return this; }
 
     virtual int firstToken() const;
@@ -3076,21 +2391,13 @@ protected:
 class CPLUSPLUS_EXPORT SizeofExpressionAST: public ExpressionAST
 {
 public:
-    int sizeof_token;
-    int dot_dot_dot_token;
-    int lparen_token;
-    ExpressionAST *expression;
-    int rparen_token;
+    int sizeof_token = 0;
+    int dot_dot_dot_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
 
 public:
-    SizeofExpressionAST()
-        : sizeof_token(0)
-        , dot_dot_dot_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-    {}
-
     virtual SizeofExpressionAST *asSizeofExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3106,19 +2413,12 @@ protected:
 class CPLUSPLUS_EXPORT AlignofExpressionAST: public ExpressionAST
 {
 public:
-    int alignof_token;
-    int lparen_token;
+    int alignof_token = 0;
+    int lparen_token = 0;
     TypeIdAST *typeId;
-    int rparen_token;
+    int rparen_token = 0;
 
 public:
-    AlignofExpressionAST()
-        : alignof_token(0)
-        , lparen_token(0)
-        , typeId(0)
-        , rparen_token(0)
-    {}
-
     virtual AlignofExpressionAST *asAlignofExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3134,13 +2434,9 @@ protected:
 class CPLUSPLUS_EXPORT PointerLiteralAST: public ExpressionAST
 {
 public:
-    int literal_token;
+    int literal_token = 0;
 
 public:
-    PointerLiteralAST()
-        : literal_token(0)
-    {}
-
     virtual PointerLiteralAST *asPointerLiteral() { return this; }
 
     virtual int firstToken() const;
@@ -3156,13 +2452,9 @@ protected:
 class CPLUSPLUS_EXPORT NumericLiteralAST: public ExpressionAST
 {
 public:
-    int literal_token;
+    int literal_token = 0;
 
 public:
-    NumericLiteralAST()
-        : literal_token(0)
-    {}
-
     virtual NumericLiteralAST *asNumericLiteral() { return this; }
 
     virtual int firstToken() const;
@@ -3178,13 +2470,9 @@ protected:
 class CPLUSPLUS_EXPORT BoolLiteralAST: public ExpressionAST
 {
 public:
-    int literal_token;
+    int literal_token = 0;
 
 public:
-    BoolLiteralAST()
-        : literal_token(0)
-    {}
-
     virtual BoolLiteralAST *asBoolLiteral() { return this; }
 
     virtual int firstToken() const;
@@ -3200,13 +2488,9 @@ protected:
 class CPLUSPLUS_EXPORT ThisExpressionAST: public ExpressionAST
 {
 public:
-    int this_token;
+    int this_token = 0;
 
 public:
-    ThisExpressionAST()
-        : this_token(0)
-    {}
-
     virtual ThisExpressionAST *asThisExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3222,17 +2506,11 @@ protected:
 class CPLUSPLUS_EXPORT NestedExpressionAST: public ExpressionAST
 {
 public:
-    int lparen_token;
-    ExpressionAST *expression;
-    int rparen_token;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rparen_token = 0;
 
 public:
-    NestedExpressionAST()
-        : lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-    {}
-
     virtual NestedExpressionAST *asNestedExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3248,25 +2526,15 @@ protected:
 class CPLUSPLUS_EXPORT StaticAssertDeclarationAST: public DeclarationAST
 {
 public:
-    int static_assert_token;
-    int lparen_token;
-    ExpressionAST *expression;
-    int comma_token;
-    ExpressionAST *string_literal;
-    int rparen_token;
-    int semicolon_token;
+    int static_assert_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *expression = nullptr;
+    int comma_token = 0;
+    ExpressionAST *string_literal = nullptr;
+    int rparen_token = 0;
+    int semicolon_token = 0;
 
 public:
-    StaticAssertDeclarationAST()
-        : static_assert_token(0)
-        , lparen_token(0)
-        , expression(0)
-        , comma_token(0)
-        , string_literal(0)
-        , rparen_token(0)
-        , semicolon_token(0)
-    {}
-
     virtual StaticAssertDeclarationAST *asStaticAssertDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -3282,15 +2550,10 @@ protected:
 class CPLUSPLUS_EXPORT StringLiteralAST: public ExpressionAST
 {
 public:
-    int literal_token;
-    StringLiteralAST *next;
+    int literal_token = 0;
+    StringLiteralAST *next = nullptr;
 
 public:
-    StringLiteralAST()
-        : literal_token(0)
-        , next(0)
-    {}
-
     virtual StringLiteralAST *asStringLiteral() { return this; }
 
     virtual int firstToken() const;
@@ -3306,25 +2569,16 @@ protected:
 class CPLUSPLUS_EXPORT SwitchStatementAST: public StatementAST
 {
 public:
-    int switch_token;
-    int lparen_token;
-    ExpressionAST *condition;
-    int rparen_token;
-    StatementAST *statement;
+    int switch_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *condition = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    SwitchStatementAST()
-        : switch_token(0)
-        , lparen_token(0)
-        , condition(0)
-        , rparen_token(0)
-        , statement(0)
-        , symbol(0)
-    {}
-
     virtual SwitchStatementAST *asSwitchStatement() { return this; }
 
     virtual int firstToken() const;
@@ -3340,27 +2594,17 @@ protected:
 class CPLUSPLUS_EXPORT TemplateDeclarationAST: public DeclarationAST
 {
 public:
-    int export_token;
-    int template_token;
-    int less_token;
-    DeclarationListAST *template_parameter_list;
-    int greater_token;
-    DeclarationAST *declaration;
+    int export_token = 0;
+    int template_token = 0;
+    int less_token = 0;
+    DeclarationListAST *template_parameter_list = nullptr;
+    int greater_token = 0;
+    DeclarationAST *declaration = nullptr;
 
 public: // annotations
-    Template *symbol;
+    Template *symbol = nullptr;
 
 public:
-    TemplateDeclarationAST()
-        : export_token(0)
-        , template_token(0)
-        , less_token(0)
-        , template_parameter_list(0)
-        , greater_token(0)
-        , declaration(0)
-        , symbol(0)
-    {}
-
     virtual TemplateDeclarationAST *asTemplateDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -3376,15 +2620,10 @@ protected:
 class CPLUSPLUS_EXPORT ThrowExpressionAST: public ExpressionAST
 {
 public:
-    int throw_token;
-    ExpressionAST *expression;
+    int throw_token = 0;
+    ExpressionAST *expression = nullptr;
 
 public:
-    ThrowExpressionAST()
-        : throw_token(0)
-        , expression(0)
-    {}
-
     virtual ThrowExpressionAST *asThrowExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3400,15 +2639,10 @@ protected:
 class CPLUSPLUS_EXPORT NoExceptOperatorExpressionAST: public ExpressionAST
 {
 public:
-    int noexcept_token;
-    ExpressionAST *expression;
+    int noexcept_token = 0;
+    ExpressionAST *expression = nullptr;
 
 public:
-    NoExceptOperatorExpressionAST()
-        : noexcept_token(0)
-        , expression(0)
-    {}
-
     virtual NoExceptOperatorExpressionAST *asNoExceptOperatorExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3424,13 +2658,9 @@ protected:
 class CPLUSPLUS_EXPORT TranslationUnitAST: public AST
 {
 public:
-    DeclarationListAST *declaration_list;
+    DeclarationListAST *declaration_list = nullptr;
 
 public:
-    TranslationUnitAST()
-        : declaration_list(0)
-    {}
-
     virtual TranslationUnitAST *asTranslationUnit() { return this; }
 
     virtual int firstToken() const;
@@ -3446,17 +2676,11 @@ protected:
 class CPLUSPLUS_EXPORT TryBlockStatementAST: public StatementAST
 {
 public:
-    int try_token;
-    StatementAST *statement;
-    CatchClauseListAST *catch_clause_list;
+    int try_token = 0;
+    StatementAST *statement = nullptr;
+    CatchClauseListAST *catch_clause_list = nullptr;
 
 public:
-    TryBlockStatementAST()
-        : try_token(0)
-        , statement(0)
-        , catch_clause_list(0)
-    {}
-
     virtual TryBlockStatementAST *asTryBlockStatement() { return this; }
 
     virtual int firstToken() const;
@@ -3472,25 +2696,16 @@ protected:
 class CPLUSPLUS_EXPORT CatchClauseAST: public StatementAST
 {
 public:
-    int catch_token;
-    int lparen_token;
-    ExceptionDeclarationAST *exception_declaration;
-    int rparen_token;
-    StatementAST *statement;
+    int catch_token = 0;
+    int lparen_token = 0;
+    ExceptionDeclarationAST *exception_declaration = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    CatchClauseAST()
-        : catch_token(0)
-        , lparen_token(0)
-        , exception_declaration(0)
-        , rparen_token(0)
-        , statement(0)
-        , symbol(0)
-    {}
-
     virtual CatchClauseAST *asCatchClause() { return this; }
 
     virtual int firstToken() const;
@@ -3506,15 +2721,10 @@ protected:
 class CPLUSPLUS_EXPORT TypeIdAST: public ExpressionAST
 {
 public:
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
 
 public:
-    TypeIdAST()
-        : type_specifier_list(0)
-        , declarator(0)
-    {}
-
     virtual TypeIdAST *asTypeId() { return this; }
 
     virtual int firstToken() const;
@@ -3530,25 +2740,16 @@ protected:
 class CPLUSPLUS_EXPORT TypenameTypeParameterAST: public DeclarationAST
 {
 public:
-    int classkey_token;
-    int dot_dot_dot_token;
-    NameAST *name;
-    int equal_token;
-    ExpressionAST *type_id;
+    int classkey_token = 0;
+    int dot_dot_dot_token = 0;
+    NameAST *name = nullptr;
+    int equal_token = 0;
+    ExpressionAST *type_id = nullptr;
 
 public: // annotations
-    TypenameArgument *symbol;
+    TypenameArgument *symbol = nullptr;
 
 public:
-    TypenameTypeParameterAST()
-        : classkey_token(0)
-        , dot_dot_dot_token(0)
-        , name(0)
-        , equal_token(0)
-        , type_id(0)
-        , symbol(0)
-    {}
-
     virtual TypenameTypeParameterAST *asTypenameTypeParameter() { return this; }
 
     virtual int firstToken() const;
@@ -3564,33 +2765,20 @@ protected:
 class CPLUSPLUS_EXPORT TemplateTypeParameterAST: public DeclarationAST
 {
 public:
-    int template_token;
-    int less_token;
-    DeclarationListAST *template_parameter_list;
-    int greater_token;
-    int class_token;
-    int dot_dot_dot_token;
-    NameAST *name;
-    int equal_token;
-    ExpressionAST *type_id;
+    int template_token = 0;
+    int less_token = 0;
+    DeclarationListAST *template_parameter_list = nullptr;
+    int greater_token = 0;
+    int class_token = 0;
+    int dot_dot_dot_token = 0;
+    NameAST *name = nullptr;
+    int equal_token = 0;
+    ExpressionAST *type_id = nullptr;
 
 public:
-    TypenameArgument *symbol;
+    TypenameArgument *symbol = nullptr;
 
 public:
-    TemplateTypeParameterAST()
-        : template_token(0)
-        , less_token(0)
-        , template_parameter_list(0)
-        , greater_token(0)
-        , class_token(0)
-        , dot_dot_dot_token(0)
-        , name(0)
-        , equal_token(0)
-        , type_id(0)
-        , symbol(0)
-    {}
-
     virtual TemplateTypeParameterAST *asTemplateTypeParameter() { return this; }
 
     virtual int firstToken() const;
@@ -3606,15 +2794,10 @@ protected:
 class CPLUSPLUS_EXPORT UnaryExpressionAST: public ExpressionAST
 {
 public:
-    int unary_op_token;
-    ExpressionAST *expression;
+    int unary_op_token = 0;
+    ExpressionAST *expression = nullptr;
 
 public:
-    UnaryExpressionAST()
-        : unary_op_token(0)
-        , expression(0)
-    {}
-
     virtual UnaryExpressionAST *asUnaryExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3630,23 +2813,15 @@ protected:
 class CPLUSPLUS_EXPORT UsingAST: public DeclarationAST
 {
 public:
-    int using_token;
-    int typename_token;
-    NameAST *name;
-    int semicolon_token;
+    int using_token = 0;
+    int typename_token = 0;
+    NameAST *name = nullptr;
+    int semicolon_token = 0;
 
 public: // annotations
-    UsingDeclaration *symbol;
+    UsingDeclaration *symbol = nullptr;
 
 public:
-    UsingAST()
-        : using_token(0)
-        , typename_token(0)
-        , name(0)
-        , semicolon_token(0)
-        , symbol(0)
-    {}
-
     virtual UsingAST *asUsing() { return this; }
 
     virtual int firstToken() const;
@@ -3662,23 +2837,15 @@ protected:
 class CPLUSPLUS_EXPORT UsingDirectiveAST: public DeclarationAST
 {
 public:
-    int using_token;
-    int namespace_token;
-    NameAST *name;
-    int semicolon_token;
+    int using_token = 0;
+    int namespace_token = 0;
+    NameAST *name = nullptr;
+    int semicolon_token = 0;
 
 public:
-    UsingNamespaceDirective *symbol;
+    UsingNamespaceDirective *symbol = nullptr;
 
 public:
-    UsingDirectiveAST()
-        : using_token(0)
-        , namespace_token(0)
-        , name(0)
-        , semicolon_token(0)
-        , symbol(0)
-    {}
-
     virtual UsingDirectiveAST *asUsingDirective() { return this; }
 
     virtual int firstToken() const;
@@ -3694,25 +2861,16 @@ protected:
 class CPLUSPLUS_EXPORT WhileStatementAST: public StatementAST
 {
 public:
-    int while_token;
-    int lparen_token;
-    ExpressionAST *condition;
-    int rparen_token;
-    StatementAST *statement;
+    int while_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *condition = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    WhileStatementAST()
-        : while_token(0)
-        , lparen_token(0)
-        , condition(0)
-        , rparen_token(0)
-        , statement(0)
-        , symbol(0)
-    {}
-
     virtual WhileStatementAST *asWhileStatement() { return this; }
 
     virtual int firstToken() const;
@@ -3728,23 +2886,15 @@ protected:
 class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierListAST *attribute_list;
-    int class_token;
-    NameListAST *identifier_list;
-    int semicolon_token;
+    SpecifierListAST *attribute_list = nullptr;
+    int class_token = 0;
+    NameListAST *identifier_list = nullptr;
+    int semicolon_token = 0;
 
 public: // annotations
-    List<ObjCForwardClassDeclaration *> *symbols;
+    List<ObjCForwardClassDeclaration *> *symbols = nullptr;
 
 public:
-    ObjCClassForwardDeclarationAST()
-        : attribute_list(0)
-        , class_token(0)
-        , identifier_list(0)
-        , semicolon_token(0)
-        , symbols(0)
-    {}
-
     virtual ObjCClassForwardDeclarationAST *asObjCClassForwardDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -3760,41 +2910,24 @@ protected:
 class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierListAST *attribute_list;
-    int interface_token;
-    int implementation_token;
-    NameAST *class_name;
-    int lparen_token;
-    NameAST *category_name;
-    int rparen_token;
-    int colon_token;
-    NameAST *superclass;
-    ObjCProtocolRefsAST *protocol_refs;
-    ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
-    DeclarationListAST *member_declaration_list;
-    int end_token;
+    SpecifierListAST *attribute_list = nullptr;
+    int interface_token = 0;
+    int implementation_token = 0;
+    NameAST *class_name = nullptr;
+    int lparen_token = 0;
+    NameAST *category_name = nullptr;
+    int rparen_token = 0;
+    int colon_token = 0;
+    NameAST *superclass = nullptr;
+    ObjCProtocolRefsAST *protocol_refs = nullptr;
+    ObjCInstanceVariablesDeclarationAST *inst_vars_decl = nullptr;
+    DeclarationListAST *member_declaration_list = nullptr;
+    int end_token = 0;
 
 public: // annotations
-    ObjCClass *symbol;
+    ObjCClass *symbol = nullptr;
 
 public:
-    ObjCClassDeclarationAST()
-        : attribute_list(0)
-        , interface_token(0)
-        , implementation_token(0)
-        , class_name(0)
-        , lparen_token(0)
-        , category_name(0)
-        , rparen_token(0)
-        , colon_token(0)
-        , superclass(0)
-        , protocol_refs(0)
-        , inst_vars_decl(0)
-        , member_declaration_list(0)
-        , end_token(0)
-        , symbol(0)
-    {}
-
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -3810,23 +2943,15 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierListAST *attribute_list;
-    int protocol_token;
-    NameListAST *identifier_list;
-    int semicolon_token;
+    SpecifierListAST *attribute_list = nullptr;
+    int protocol_token = 0;
+    NameListAST *identifier_list = nullptr;
+    int semicolon_token = 0;
 
 public: // annotations
-    List<ObjCForwardProtocolDeclaration *> *symbols;
+    List<ObjCForwardProtocolDeclaration *> *symbols = nullptr;
 
 public:
-    ObjCProtocolForwardDeclarationAST()
-        : attribute_list(0)
-        , protocol_token(0)
-        , identifier_list(0)
-        , semicolon_token(0)
-        , symbols(0)
-    {}
-
     virtual ObjCProtocolForwardDeclarationAST *asObjCProtocolForwardDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -3842,27 +2967,17 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierListAST *attribute_list;
-    int protocol_token;
-    NameAST *name;
-    ObjCProtocolRefsAST *protocol_refs;
-    DeclarationListAST *member_declaration_list;
-    int end_token;
+    SpecifierListAST *attribute_list = nullptr;
+    int protocol_token = 0;
+    NameAST *name = nullptr;
+    ObjCProtocolRefsAST *protocol_refs = nullptr;
+    DeclarationListAST *member_declaration_list = nullptr;
+    int end_token = 0;
 
 public: // annotations
-    ObjCProtocol *symbol;
+    ObjCProtocol *symbol = nullptr;
 
 public:
-    ObjCProtocolDeclarationAST()
-        : attribute_list(0)
-        , protocol_token(0)
-        , name(0)
-        , protocol_refs(0)
-        , member_declaration_list(0)
-        , end_token(0)
-        , symbol(0)
-    {}
-
     virtual ObjCProtocolDeclarationAST *asObjCProtocolDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -3878,17 +2993,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolRefsAST: public AST
 {
 public:
-    int less_token;
-    NameListAST *identifier_list;
-    int greater_token;
+    int less_token = 0;
+    NameListAST *identifier_list = nullptr;
+    int greater_token = 0;
 
 public:
-    ObjCProtocolRefsAST()
-        : less_token(0)
-        , identifier_list(0)
-        , greater_token(0)
-    {}
-
     virtual ObjCProtocolRefsAST *asObjCProtocolRefs() { return this; }
 
     virtual int firstToken() const;
@@ -3904,13 +3013,9 @@ protected:
 class CPLUSPLUS_EXPORT ObjCMessageArgumentAST: public AST
 {
 public:
-    ExpressionAST *parameter_value_expression;
+    ExpressionAST *parameter_value_expression = nullptr;
 
 public:
-    ObjCMessageArgumentAST()
-        : parameter_value_expression(0)
-    {}
-
     virtual ObjCMessageArgumentAST *asObjCMessageArgument() { return this; }
 
     virtual int firstToken() const;
@@ -3926,21 +3031,13 @@ protected:
 class CPLUSPLUS_EXPORT ObjCMessageExpressionAST: public ExpressionAST
 {
 public:
-    int lbracket_token;
-    ExpressionAST *receiver_expression;
-    ObjCSelectorAST *selector;
-    ObjCMessageArgumentListAST *argument_list;
-    int rbracket_token;
+    int lbracket_token = 0;
+    ExpressionAST *receiver_expression = nullptr;
+    ObjCSelectorAST *selector = nullptr;
+    ObjCMessageArgumentListAST *argument_list = nullptr;
+    int rbracket_token = 0;
 
 public:
-    ObjCMessageExpressionAST()
-        : lbracket_token(0)
-        , receiver_expression(0)
-        , selector(0)
-        , argument_list(0)
-        , rbracket_token(0)
-    {}
-
     virtual ObjCMessageExpressionAST *asObjCMessageExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3956,19 +3053,12 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolExpressionAST: public ExpressionAST
 {
 public:
-    int protocol_token;
-    int lparen_token;
-    int identifier_token;
-    int rparen_token;
+    int protocol_token = 0;
+    int lparen_token = 0;
+    int identifier_token = 0;
+    int rparen_token = 0;
 
 public:
-    ObjCProtocolExpressionAST()
-        : protocol_token(0)
-        , lparen_token(0)
-        , identifier_token(0)
-        , rparen_token(0)
-    {}
-
     virtual ObjCProtocolExpressionAST *asObjCProtocolExpression() { return this; }
 
     virtual int firstToken() const;
@@ -3984,19 +3074,12 @@ protected:
 class CPLUSPLUS_EXPORT ObjCTypeNameAST: public AST
 {
 public:
-    int lparen_token;
-    int type_qualifier_token;
-    ExpressionAST *type_id;
-    int rparen_token;
+    int lparen_token = 0;
+    int type_qualifier_token = 0;
+    ExpressionAST *type_id = nullptr;
+    int rparen_token = 0;
 
 public:
-    ObjCTypeNameAST()
-        : lparen_token(0)
-        , type_qualifier_token(0)
-        , type_id(0)
-        , rparen_token(0)
-    {}
-
     virtual ObjCTypeNameAST *asObjCTypeName() { return this; }
 
     virtual int firstToken() const;
@@ -4012,15 +3095,10 @@ protected:
 class CPLUSPLUS_EXPORT ObjCEncodeExpressionAST: public ExpressionAST
 {
 public:
-    int encode_token;
-    ObjCTypeNameAST *type_name;
+    int encode_token = 0;
+    ObjCTypeNameAST *type_name = nullptr;
 
 public:
-    ObjCEncodeExpressionAST()
-        : encode_token(0)
-        , type_name(0)
-    {}
-
     virtual ObjCEncodeExpressionAST *asObjCEncodeExpression() { return this; }
 
     virtual int firstToken() const;
@@ -4036,19 +3114,12 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSelectorExpressionAST: public ExpressionAST
 {
 public:
-    int selector_token;
-    int lparen_token;
-    ObjCSelectorAST *selector;
-    int rparen_token;
+    int selector_token = 0;
+    int lparen_token = 0;
+    ObjCSelectorAST *selector = nullptr;
+    int rparen_token = 0;
 
 public:
-    ObjCSelectorExpressionAST()
-        : selector_token(0)
-        , lparen_token(0)
-        , selector(0)
-        , rparen_token(0)
-    {}
-
     virtual ObjCSelectorExpressionAST *asObjCSelectorExpression() { return this; }
 
     virtual int firstToken() const;
@@ -4064,17 +3135,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCInstanceVariablesDeclarationAST: public AST
 {
 public:
-    int lbrace_token;
-    DeclarationListAST *instance_variable_list;
-    int rbrace_token;
+    int lbrace_token = 0;
+    DeclarationListAST *instance_variable_list = nullptr;
+    int rbrace_token = 0;
 
 public:
-    ObjCInstanceVariablesDeclarationAST()
-        : lbrace_token(0)
-        , instance_variable_list(0)
-        , rbrace_token(0)
-    {}
-
     virtual ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -4090,13 +3155,9 @@ protected:
 class CPLUSPLUS_EXPORT ObjCVisibilityDeclarationAST: public DeclarationAST
 {
 public:
-    int visibility_token;
+    int visibility_token = 0;
 
 public:
-    ObjCVisibilityDeclarationAST()
-        : visibility_token(0)
-    {}
-
     virtual ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -4112,17 +3173,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCPropertyAttributeAST: public AST
 {
 public:
-    int attribute_identifier_token;
-    int equals_token;
-    ObjCSelectorAST *method_selector;
+    int attribute_identifier_token = 0;
+    int equals_token = 0;
+    ObjCSelectorAST *method_selector = nullptr;
 
 public:
-    ObjCPropertyAttributeAST()
-        : attribute_identifier_token(0)
-        , equals_token(0)
-        , method_selector(0)
-    {}
-
     virtual ObjCPropertyAttributeAST *asObjCPropertyAttribute() { return this; }
 
     virtual int firstToken() const;
@@ -4138,27 +3193,17 @@ protected:
 class CPLUSPLUS_EXPORT ObjCPropertyDeclarationAST: public DeclarationAST
 {
 public:
-    SpecifierListAST *attribute_list;
-    int property_token;
-    int lparen_token;
-    ObjCPropertyAttributeListAST *property_attribute_list;
-    int rparen_token;
-    DeclarationAST *simple_declaration;
+    SpecifierListAST *attribute_list = nullptr;
+    int property_token = 0;
+    int lparen_token = 0;
+    ObjCPropertyAttributeListAST *property_attribute_list = nullptr;
+    int rparen_token = 0;
+    DeclarationAST *simple_declaration = nullptr;
 
 public: // annotations
-    List<ObjCPropertyDeclaration *> *symbols;
+    List<ObjCPropertyDeclaration *> *symbols = nullptr;
 
 public:
-    ObjCPropertyDeclarationAST()
-        : attribute_list(0)
-        , property_token(0)
-        , lparen_token(0)
-        , property_attribute_list(0)
-        , rparen_token(0)
-        , simple_declaration(0)
-        , symbols(0)
-    {}
-
     virtual ObjCPropertyDeclarationAST *asObjCPropertyDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -4174,21 +3219,14 @@ protected:
 class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public AST
 {
 public:
-    ObjCTypeNameAST* type_name;
-    SpecifierListAST *attribute_list;
-    NameAST *param_name;
+    ObjCTypeNameAST *type_name = nullptr;
+    SpecifierListAST *attribute_list = nullptr;
+    NameAST *param_name = nullptr;
 
 public: // annotations
-    Argument *argument;
+    Argument *argument = nullptr;
 
 public:
-    ObjCMessageArgumentDeclarationAST()
-        : type_name(0)
-        , attribute_list(0)
-        , param_name(0)
-        , argument(0)
-    {}
-
     virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -4204,27 +3242,17 @@ protected:
 class CPLUSPLUS_EXPORT ObjCMethodPrototypeAST: public AST
 {
 public:
-    int method_type_token;
-    ObjCTypeNameAST *type_name;
-    ObjCSelectorAST *selector;
-    ObjCMessageArgumentDeclarationListAST *argument_list;
-    int dot_dot_dot_token;
-    SpecifierListAST *attribute_list;
+    int method_type_token = 0;
+    ObjCTypeNameAST *type_name = nullptr;
+    ObjCSelectorAST *selector = nullptr;
+    ObjCMessageArgumentDeclarationListAST *argument_list = nullptr;
+    int dot_dot_dot_token = 0;
+    SpecifierListAST *attribute_list = nullptr;
 
 public: // annotations
-    ObjCMethod *symbol;
+    ObjCMethod *symbol = nullptr;
 
 public:
-    ObjCMethodPrototypeAST()
-        : method_type_token(0)
-        , type_name(0)
-        , selector(0)
-        , argument_list(0)
-        , dot_dot_dot_token(0)
-        , attribute_list(0)
-        , symbol(0)
-    {}
-
     virtual ObjCMethodPrototypeAST *asObjCMethodPrototype() { return this; }
 
     virtual int firstToken() const;
@@ -4240,17 +3268,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCMethodDeclarationAST: public DeclarationAST
 {
 public:
-    ObjCMethodPrototypeAST *method_prototype;
-    StatementAST *function_body;
-    int semicolon_token;
+    ObjCMethodPrototypeAST *method_prototype = nullptr;
+    StatementAST *function_body = nullptr;
+    int semicolon_token = 0;
 
 public:
-    ObjCMethodDeclarationAST()
-        : method_prototype(0)
-        , function_body(0)
-        , semicolon_token(0)
-    {}
-
     virtual ObjCMethodDeclarationAST *asObjCMethodDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -4266,17 +3288,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertyAST: public AST
 {
 public:
-    int property_identifier_token;
-    int equals_token;
-    int alias_identifier_token;
+    int property_identifier_token = 0;
+    int equals_token = 0;
+    int alias_identifier_token = 0;
 
 public:
-    ObjCSynthesizedPropertyAST()
-        : property_identifier_token(0)
-        , equals_token(0)
-        , alias_identifier_token(0)
-    {}
-
     virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return this; }
 
     virtual int firstToken() const;
@@ -4292,17 +3308,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSynthesizedPropertiesDeclarationAST: public DeclarationAST
 {
 public:
-    int synthesized_token;
-    ObjCSynthesizedPropertyListAST *property_identifier_list;
-    int semicolon_token;
+    int synthesized_token = 0;
+    ObjCSynthesizedPropertyListAST *property_identifier_list = nullptr;
+    int semicolon_token = 0;
 
 public:
-    ObjCSynthesizedPropertiesDeclarationAST()
-        : synthesized_token(0)
-        , property_identifier_list(0)
-        , semicolon_token(0)
-    {}
-
     virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -4318,17 +3328,11 @@ protected:
 class CPLUSPLUS_EXPORT ObjCDynamicPropertiesDeclarationAST: public DeclarationAST
 {
 public:
-    int dynamic_token;
-    NameListAST *property_identifier_list;
-    int semicolon_token;
+    int dynamic_token = 0;
+    NameListAST *property_identifier_list = nullptr;
+    int semicolon_token = 0;
 
 public:
-    ObjCDynamicPropertiesDeclarationAST()
-        : dynamic_token(0)
-        , property_identifier_list(0)
-        , semicolon_token(0)
-    {}
-
     virtual ObjCDynamicPropertiesDeclarationAST *asObjCDynamicPropertiesDeclaration() { return this; }
 
     virtual int firstToken() const;
@@ -4344,37 +3348,24 @@ protected:
 class CPLUSPLUS_EXPORT ObjCFastEnumerationAST: public StatementAST
 {
 public:
-    int for_token;
-    int lparen_token;
+    int for_token = 0;
+    int lparen_token = 0;
 
     // declaration
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
     // or an expression
-    ExpressionAST *initializer;
+    ExpressionAST *initializer = nullptr;
 
-    int in_token;
-    ExpressionAST *fast_enumeratable_expression;
-    int rparen_token;
-    StatementAST *statement;
+    int in_token = 0;
+    ExpressionAST *fast_enumeratable_expression = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
 
 public: // annotations
-    Block *symbol;
+    Block *symbol = nullptr;
 
 public:
-    ObjCFastEnumerationAST()
-        : for_token(0)
-        , lparen_token(0)
-        , type_specifier_list(0)
-        , declarator(0)
-        , initializer(0)
-        , in_token(0)
-        , fast_enumeratable_expression(0)
-        , rparen_token(0)
-        , statement(0)
-        , symbol(0)
-    {}
-
     virtual ObjCFastEnumerationAST *asObjCFastEnumeration() { return this; }
 
     virtual int firstToken() const;
@@ -4390,21 +3381,13 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSynchronizedStatementAST: public StatementAST
 {
 public:
-    int synchronized_token;
-    int lparen_token;
-    ExpressionAST *synchronized_object;
-    int rparen_token;
-    StatementAST *statement;
+    int synchronized_token = 0;
+    int lparen_token = 0;
+    ExpressionAST *synchronized_object = nullptr;
+    int rparen_token = 0;
+    StatementAST *statement = nullptr;
 
 public:
-    ObjCSynchronizedStatementAST()
-        : synchronized_token(0)
-        , lparen_token(0)
-        , synchronized_object(0)
-        , rparen_token(0)
-        , statement(0)
-    {}
-
     virtual ObjCSynchronizedStatementAST *asObjCSynchronizedStatement() { return this; }
 
     virtual int firstToken() const;
@@ -4421,17 +3404,11 @@ protected:
 class LambdaExpressionAST: public ExpressionAST
 {
 public:
-    LambdaIntroducerAST *lambda_introducer;
-    LambdaDeclaratorAST *lambda_declarator;
-    StatementAST *statement;
+    LambdaIntroducerAST *lambda_introducer = nullptr;
+    LambdaDeclaratorAST *lambda_declarator = nullptr;
+    StatementAST *statement = nullptr;
 
 public:
-    LambdaExpressionAST()
-        : lambda_introducer(0)
-        , lambda_declarator(0)
-        , statement(0)
-    {}
-
     virtual LambdaExpressionAST *asLambdaExpression() { return this; }
 
     virtual int firstToken() const;
@@ -4446,17 +3423,11 @@ protected:
 class LambdaIntroducerAST: public AST
 {
 public:
-    int lbracket_token;
-    LambdaCaptureAST *lambda_capture;
-    int rbracket_token;
+    int lbracket_token = 0;
+    LambdaCaptureAST *lambda_capture = nullptr;
+    int rbracket_token = 0;
 
 public:
-    LambdaIntroducerAST()
-        : lbracket_token(0)
-        , lambda_capture(0)
-        , rbracket_token(0)
-    {}
-
     virtual LambdaIntroducerAST *asLambdaIntroducer() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -4471,15 +3442,10 @@ protected:
 class LambdaCaptureAST: public AST
 {
 public:
-    int default_capture_token;
-    CaptureListAST *capture_list;
+    int default_capture_token = 0;
+    CaptureListAST *capture_list = nullptr;
 
 public:
-    LambdaCaptureAST()
-        : default_capture_token(0)
-        , capture_list(0)
-    {}
-
     virtual LambdaCaptureAST *asLambdaCapture() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -4494,15 +3460,10 @@ protected:
 class CaptureAST: public AST
 {
 public:
-    int amper_token;
-    NameAST *identifier;
+    int amper_token = 0;
+    NameAST *identifier = nullptr;
 
 public:
-    CaptureAST()
-        : amper_token(0)
-        , identifier(0)
-    {}
-
     virtual CaptureAST *asCapture() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -4517,29 +3478,18 @@ protected:
 class LambdaDeclaratorAST: public AST
 {
 public:
-    int lparen_token;
-    ParameterDeclarationClauseAST *parameter_declaration_clause;
-    int rparen_token;
-    SpecifierListAST *attributes;
-    int mutable_token;
-    ExceptionSpecificationAST *exception_specification;
-    TrailingReturnTypeAST *trailing_return_type;
+    int lparen_token = 0;
+    ParameterDeclarationClauseAST *parameter_declaration_clause = nullptr;
+    int rparen_token = 0;
+    SpecifierListAST *attributes = nullptr;
+    int mutable_token = 0;
+    ExceptionSpecificationAST *exception_specification = nullptr;
+    TrailingReturnTypeAST *trailing_return_type = nullptr;
 
 public: // annotations
-    Function *symbol;
+    Function *symbol = nullptr;
 
 public:
-    LambdaDeclaratorAST()
-        : lparen_token(0)
-        , parameter_declaration_clause(0)
-        , rparen_token(0)
-        , attributes(0)
-        , mutable_token(0)
-        , exception_specification(0)
-        , trailing_return_type(0)
-        , symbol(0)
-    {}
-
     virtual LambdaDeclaratorAST *asLambdaDeclarator() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -4554,19 +3504,12 @@ protected:
 class TrailingReturnTypeAST: public AST
 {
 public:
-    int arrow_token;
-    SpecifierListAST *attributes;
-    SpecifierListAST *type_specifier_list;
-    DeclaratorAST *declarator;
+    int arrow_token = 0;
+    SpecifierListAST *attributes = nullptr;
+    SpecifierListAST *type_specifier_list = nullptr;
+    DeclaratorAST *declarator = nullptr;
 
 public:
-    TrailingReturnTypeAST()
-        : arrow_token(0)
-        , attributes(0)
-        , type_specifier_list(0)
-        , declarator(0)
-    {}
-
     virtual TrailingReturnTypeAST *asTrailingReturnType() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -4581,19 +3524,12 @@ protected:
 class BracedInitializerAST: public ExpressionAST
 {
 public:
-    int lbrace_token;
-    ExpressionListAST *expression_list;
-    int comma_token;
-    int rbrace_token;
+    int lbrace_token = 0;
+    ExpressionListAST *expression_list = nullptr;
+    int comma_token = 0;
+    int rbrace_token = 0;
 
 public:
-    BracedInitializerAST()
-        : lbrace_token(0)
-        , expression_list(0)
-        , comma_token(0)
-        , rbrace_token(0)
-    {}
-
     virtual BracedInitializerAST *asBracedInitializer() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -4608,9 +3544,6 @@ protected:
 class DesignatorAST: public AST
 {
 public:
-    DesignatorAST()
-    {}
-
     virtual DesignatorAST *asDesignator() { return this; }
     virtual DesignatorAST *clone(MemoryPool *pool) const = 0;
 };
@@ -4618,14 +3551,10 @@ public:
 class DotDesignatorAST: public DesignatorAST
 {
 public:
-    int dot_token;
-    int identifier_token;
-public:
-    DotDesignatorAST()
-        : dot_token(0)
-        , identifier_token(0)
-    {}
+    int dot_token = 0;
+    int identifier_token = 0;
 
+public:
     virtual DotDesignatorAST *asDotDesignator() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -4640,16 +3569,11 @@ protected:
 class BracketDesignatorAST: public DesignatorAST
 {
 public:
-    int lbracket_token;
-    ExpressionAST *expression;
-    int rbracket_token;
-public:
-    BracketDesignatorAST()
-        : lbracket_token(0)
-        , expression(0)
-        , rbracket_token(0)
-    {}
+    int lbracket_token = 0;
+    ExpressionAST *expression = nullptr;
+    int rbracket_token = 0;
 
+public:
     virtual BracketDesignatorAST *asBracketDesignator() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
@@ -4664,17 +3588,11 @@ protected:
 class DesignatedInitializerAST: public ExpressionAST
 {
 public:
-    DesignatorListAST *designator_list;
-    int equal_token;
-    ExpressionAST *initializer;
+    DesignatorListAST *designator_list = nullptr;
+    int equal_token = 0;
+    ExpressionAST *initializer = nullptr;
 
 public:
-    DesignatedInitializerAST()
-        : designator_list(0)
-        , equal_token(0)
-        , initializer(0)
-    {}
-
     virtual DesignatedInitializerAST *asDesignatedInitializer() { return this; }
     virtual int firstToken() const;
     virtual int lastToken() const;
