@@ -71,7 +71,7 @@ static QString cppLanguageOption(const FilePath &compiler)
     const QString baseName = compiler.toFileInfo().baseName();
     if (baseName == "iccarm")
         return QString("--c++");
-    if (baseName == "icc8051" || baseName == "iccavr")
+    if (baseName == "icc8051" || baseName == "iccavr" || baseName == "iccstm8")
         return QString("--ec++");
     return {};
 }
