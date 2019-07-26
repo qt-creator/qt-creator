@@ -82,7 +82,7 @@ void setupArtifacts(FolderNode *root, const QList<qbs::ArtifactData> &artifacts)
         };
         auto node = std::make_unique<FileNode>(path, type);
         node->setIsGenerated(isGenerated);
-        node->setListInProject(!isGenerated || ad.fileTags().toSet().intersects(sourceTags));
+        node->setListInProject(!isGenerated || Utils::toSet(ad.fileTags()).intersects(sourceTags));
         root->addNestedNode(std::move(node));
     }
     root->compress();
@@ -194,7 +194,7 @@ QStringList unreferencedBuildSystemFiles(const qbs::Project &p)
         return result;
 
     const std::set<QString> &available = p.buildSystemFiles();
-    QList<QString> referenced = referencedBuildSystemFiles(p.projectData()).toList();
+    QList<QString> referenced = Utils::toList(referencedBuildSystemFiles(p.projectData()));
     Utils::sort(referenced);
     std::set_difference(available.begin(), available.end(), referenced.begin(), referenced.end(),
                         std::back_inserter(result));

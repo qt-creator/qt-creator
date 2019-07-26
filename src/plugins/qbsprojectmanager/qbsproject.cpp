@@ -1076,7 +1076,7 @@ void QbsProject::updateCppCodeModel()
                                     << grp.name() << "in product" << prd.name();
                 qCWarning(qbsPmLog) << "Expect problems with code model";
             }
-            rpp.setPreCompiledHeaders(pchFiles.toList());
+            rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
             rpp.setFiles(grp.allFilePaths(), [filePathToSourceArtifact](const QString &filePath) {
                 // Keep this lambda thread-safe!
                 return CppTools::ProjectFile(filePath,
