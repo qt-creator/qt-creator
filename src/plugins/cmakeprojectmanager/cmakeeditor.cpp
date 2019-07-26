@@ -130,12 +130,9 @@ void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 static bool isValidFileNameChar(const QChar &c)
 {
-    return c.isLetterOrNumber()
-            || c == QLatin1Char('.')
-            || c == QLatin1Char('_')
-            || c == QLatin1Char('-')
-            || c == QLatin1Char('/')
-            || c == QLatin1Char('\\');
+    return c.isLetterOrNumber() || c == QLatin1Char('.') || c == QLatin1Char('_')
+           || c == QLatin1Char('-') || c == QLatin1Char('/') || c == QLatin1Char('\\') || c == '{'
+           || c == '}' || c == '$';
 }
 
 void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
@@ -185,9 +182,12 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     if (buffer.isEmpty())
         return processLinkCallback(link);
 
-    // TODO: Resolve variables
-
     QDir dir(textDocument()->filePath().toFileInfo().absolutePath());
+    buffer.replace("${CMAKE_CURRENT_SOURCE_DIR}", dir.path());
+    buffer.replace("${CMAKE_CURRENT_LIST_DIR}", dir.path());
+
+    // TODO: Resolve more variables
+
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
     if (fi.exists()) {
