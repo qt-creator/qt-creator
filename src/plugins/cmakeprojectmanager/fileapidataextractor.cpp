@@ -172,47 +172,45 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
     QDir sourceDir(sourceDirectory.toString());
     QDir buildDir(buildDirectory.toString());
 
-    const QList<CMakeBuildTarget> result = transform<
-        QList>(input.targetDetails, [&sourceDir, &buildDir](const TargetDetails &t) -> CMakeBuildTarget {
-        CMakeBuildTarget ct;
-        ct.title = t.name;
-        ct.executable = t.artifacts.isEmpty()
-                            ? FilePath()
-                            : FilePath::fromString(QDir::cleanPath(
-                                buildDir.absoluteFilePath(t.artifacts.at(0).toString())));
-        TargetType type = UtilityType;
-        if (t.type == "EXECUTABLE")
-            type = ExecutableType;
-        else if (t.type == "STATIC_LIBRARY")
-            type = StaticLibraryType;
-        else if (t.type == "OBJECT_LIBRARY")
-            type = ObjectLibraryType;
-        else if (t.type == "MODULE_LIBRARY" || t.type == "SHARED_LIBRARY")
-            type = DynamicLibraryType;
-        else
-            type = UtilityType;
-        ct.targetType = type;
-        if (t.artifacts.isEmpty()) {
-            ct.workingDirectory = t.buildDir;
-        } else {
-            ct.workingDirectory = FilePath::fromString(QDir::cleanPath(
-                QDir(t.buildDir.toString()).absoluteFilePath(t.artifacts.at(0).toString() + "/..")));
-        }
-        ct.sourceDirectory = FilePath::fromString(
-            QDir::cleanPath(sourceDir.absoluteFilePath(t.sourceDir.toString())));
+    const QList<CMakeBuildTarget> result = transform<QList>(
+        input.targetDetails, [&sourceDir, &buildDir](const TargetDetails &t) -> CMakeBuildTarget {
+            CMakeBuildTarget ct;
+            ct.title = t.name;
+            ct.executable = t.artifacts.isEmpty()
+                                ? FilePath()
+                                : FilePath::fromString(QDir::cleanPath(
+                                    buildDir.absoluteFilePath(t.artifacts.at(0).toString())));
+            TargetType type = UtilityType;
+            if (t.type == "EXECUTABLE")
+                type = ExecutableType;
+            else if (t.type == "STATIC_LIBRARY")
+                type = StaticLibraryType;
+            else if (t.type == "OBJECT_LIBRARY")
+                type = ObjectLibraryType;
+            else if (t.type == "MODULE_LIBRARY" || t.type == "SHARED_LIBRARY")
+                type = DynamicLibraryType;
+            else
+                type = UtilityType;
+            ct.targetType = type;
+            ct.workingDirectory = ct.executable.isEmpty() ? FilePath::fromString(
+                                      buildDir.absoluteFilePath(t.buildDir.toString()))
+                                                          : ct.executable.parentDir();
+            ct.sourceDirectory = FilePath::fromString(
+                QDir::cleanPath(sourceDir.absoluteFilePath(t.sourceDir.toString())));
 
-        if (t.backtrace >= 0) {
-            const BacktraceNode &node = t.backtraceGraph.nodes[static_cast<size_t>(t.backtrace)];
-            const int fileIndex = node.file;
-            if (fileIndex >= 0) {
-                ct.definitionFile = FilePath::fromString(QDir::cleanPath(sourceDir.absoluteFilePath(
-                    t.backtraceGraph.files[static_cast<size_t>(fileIndex)])));
-                ct.definitionLine = node.line;
+            if (t.backtrace >= 0) {
+                const BacktraceNode &node = t.backtraceGraph.nodes[static_cast<size_t>(t.backtrace)];
+                const int fileIndex = node.file;
+                if (fileIndex >= 0) {
+                    ct.definitionFile = FilePath::fromString(
+                        QDir::cleanPath(sourceDir.absoluteFilePath(
+                            t.backtraceGraph.files[static_cast<size_t>(fileIndex)])));
+                    ct.definitionLine = node.line;
+                }
             }
-        }
 
-        return ct;
-    });
+            return ct;
+        });
     return result;
 }
 
