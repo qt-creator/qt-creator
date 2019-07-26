@@ -60,17 +60,22 @@ const char MAKEFLAGS[] = "MAKEFLAGS";
 
 namespace ProjectExplorer {
 
-MakeStep::MakeStep(BuildStepList *parent,
-                   Core::Id id,
-                   const QString &buildTarget,
-                   const QStringList &availableTargets)
+MakeStep::MakeStep(BuildStepList *parent, Core::Id id)
     : AbstractProcessStep(parent, id),
-      m_availableTargets(availableTargets),
       m_userJobCount(defaultJobCount())
 {
     setDefaultDisplayName(defaultDisplayName());
+}
+
+void MakeStep::setBuildTarget(const QString &buildTarget)
+{
     if (!buildTarget.isEmpty())
         setBuildTarget(buildTarget, true);
+}
+
+void MakeStep::setAvailableBuildTargets(const QStringList &buildTargets)
+{
+    m_availableTargets = buildTargets;
 }
 
 bool MakeStep::init()

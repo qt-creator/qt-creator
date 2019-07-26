@@ -45,10 +45,10 @@ class PROJECTEXPLORER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessS
     Q_OBJECT
 
 public:
-    explicit MakeStep(ProjectExplorer::BuildStepList *parent,
-                      Core::Id id,
-                      const QString &buildTarget = QString(),
-                      const QStringList &availableTargets = {});
+    explicit MakeStep(ProjectExplorer::BuildStepList *parent, Core::Id id);
+
+    void setBuildTarget(const QString &buildTarget);
+    void setAvailableBuildTargets(const QStringList &buildTargets);
 
     bool init() override;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget() override;

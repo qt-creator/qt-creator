@@ -36,8 +36,10 @@ namespace Internal {
 const char GENERIC_MS_ID[] = "GenericProjectManager.GenericMakeStep";
 
 GenericMakeStep::GenericMakeStep(BuildStepList *parent, const QString &buildTarget)
-    : MakeStep(parent, GENERIC_MS_ID, buildTarget, {"all", "clean"})
+    : MakeStep(parent, GENERIC_MS_ID)
 {
+    setBuildTarget(buildTarget);
+    setAvailableBuildTargets({"all", "clean"});
 }
 
 //
@@ -48,7 +50,7 @@ GenericMakeAllStepFactory::GenericMakeAllStepFactory()
 {
     struct Step : GenericMakeStep
     {
-        Step(BuildStepList *bsl) : GenericMakeStep(bsl, QString("all")) { }
+        Step(BuildStepList *bsl) : GenericMakeStep(bsl) { setBuildTarget("all"); }
     };
 
     registerStep<Step>(GENERIC_MS_ID);
