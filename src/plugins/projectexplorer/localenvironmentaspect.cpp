@@ -30,8 +30,6 @@
 #include "kit.h"
 #include "target.h"
 
-#include <utils/qtcassert.h>
-
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -56,15 +54,10 @@ LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target)
         return  env;
     });
 
-    target->subscribeSignal(&BuildConfiguration::environmentChanged,
-                            this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
     connect(target, &Target::activeBuildConfigurationChanged,
-            this, &LocalEnvironmentAspect::buildEnvironmentHasChanged);
-}
-
-void LocalEnvironmentAspect::buildEnvironmentHasChanged()
-{
-    emit environmentChanged();
+            this, &EnvironmentAspect::environmentChanged);
+    connect(target, &Target::buildEnvironmentChanged,
+            this, &EnvironmentAspect::environmentChanged);
 }
 
 } // namespace ProjectExplorer

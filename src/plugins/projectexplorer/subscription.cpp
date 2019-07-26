@@ -124,22 +124,5 @@ ProjectSubscription::ProjectSubscription(const Subscription::Connector &s, const
 
 ProjectSubscription::~ProjectSubscription() = default;
 
-TargetSubscription::TargetSubscription(const Subscription::Connector &s, const QObject *r,
-                                       Target *t) :
-    Subscription(s, r, t)
-{
-    QTC_ASSERT(m_subscriber, return);
-
-    subscribe(t);
-
-    // Disconnect on removal of a target, to make it save to remove/add a target:
-    connect(t->project(), &Project::removedTarget, this,
-            [t, this](const Target *reportedTarget) { if (t == reportedTarget) { destroy(); } });
-    connect(t, &Target::addedProjectConfiguration, this, &TargetSubscription::subscribe);
-    connect(t, &Target::removedProjectConfiguration, this, &TargetSubscription::unsubscribe);
-}
-
-TargetSubscription::~TargetSubscription() = default;
-
 } // namespace Internal
 } // namespace ProjectExplorer

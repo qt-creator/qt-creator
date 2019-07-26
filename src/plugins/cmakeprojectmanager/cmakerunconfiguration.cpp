@@ -103,7 +103,7 @@ void CMakeRunConfiguration::updateTargetInformation()
     BuildTargetInfo bti = buildTargetInfo();
     aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
     aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-    aspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
+    aspect<LocalEnvironmentAspect>()->environmentChanged();
 
     auto terminalAspect = aspect<TerminalAspect>();
     terminalAspect->setUseTerminalHint(bti.usesTerminal);

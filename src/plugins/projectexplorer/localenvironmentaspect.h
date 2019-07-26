@@ -35,8 +35,6 @@ class PROJECTEXPLORER_EXPORT LocalEnvironmentAspect : public EnvironmentAspect
 
 public:
     explicit LocalEnvironmentAspect(Target *parent);
-
-    void buildEnvironmentHasChanged();
 };
 
 } // namespace ProjectExplorer

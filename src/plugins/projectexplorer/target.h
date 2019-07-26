@@ -119,15 +119,6 @@ public:
     QVariant additionalData(Core::Id id) const;
     MakeInstallCommand makeInstallCommand(const QString &installRoot) const;
 
-    template<typename S, typename R, typename T>
-    void subscribeSignal(void (S::*sig)(), R*recv, T (R::*sl)()) {
-        new Internal::TargetSubscription([sig, recv, sl, this](ProjectConfiguration *pc) {
-            if (S* sender = qobject_cast<S*>(pc))
-                return connect(sender, sig, recv, sl);
-            return QMetaObject::Connection();
-        }, recv, this);
-    }
-
 signals:
     void targetEnabled(bool);
     void iconChanged();
@@ -150,6 +141,7 @@ signals:
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *);
+    void buildEnvironmentChanged(ProjectExplorer::BuildConfiguration *bc);
 
     void removedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);
     void addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc);

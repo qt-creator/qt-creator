@@ -84,8 +84,8 @@ QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
         });
     }
 
-    connect(project(), &Project::parsingFinished, this,
-            [envAspect]() { envAspect->buildEnvironmentHasChanged(); });
+    connect(project(), &Project::parsingFinished,
+            envAspect, &EnvironmentAspect::environmentChanged);
 
     connect(target, &Target::deploymentDataChanged,
             this, &QbsRunConfiguration::updateTargetInformation);

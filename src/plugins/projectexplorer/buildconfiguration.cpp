@@ -101,6 +101,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
 
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         m_buildDirectoryAspect->setEnvironment(environment());
+        this->target()->buildEnvironmentChanged(this);
     });
 }
 

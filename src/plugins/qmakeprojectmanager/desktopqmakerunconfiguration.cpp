@@ -97,7 +97,7 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core:
 void DesktopQmakeRunConfiguration::updateTargetInformation()
 {
     setDefaultDisplayName(defaultDisplayName());
-    aspect<LocalEnvironmentAspect>()->buildEnvironmentHasChanged();
+    aspect<EnvironmentAspect>()->environmentChanged();
 
     BuildTargetInfo bti = buildTargetInfo();
 

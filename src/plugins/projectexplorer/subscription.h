@@ -70,12 +70,5 @@ public:
     ~ProjectSubscription() final;
 };
 
-class PROJECTEXPLORER_EXPORT TargetSubscription : public Subscription
-{
-public:
-    TargetSubscription(const Connector &s, const QObject *receiver, Target *t);
-    ~TargetSubscription() final;
-};
-
 } // namespace Internal
 } // namespace ProjectExplorer
