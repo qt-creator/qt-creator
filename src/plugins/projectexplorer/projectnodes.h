@@ -246,13 +246,22 @@ public:
     void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
 
-    class LocationInfo {
+    class LocationInfo
+    {
     public:
-        LocationInfo(const QString &dn, const Utils::FilePath &p, const int l = -1) :
-            path(p), line(l), displayName(dn) { }
+        LocationInfo(const QString &dn,
+                     const Utils::FilePath &p,
+                     const int l = 0,
+                     const unsigned int prio = 0)
+            : path(p)
+            , line(l)
+            , priority(prio)
+            , displayName(dn)
+        {}
 
         Utils::FilePath path;
         int line = -1;
+        unsigned int priority = 0;
         QString displayName;
     };
     void setLocationInfo(const QList<LocationInfo> &info);

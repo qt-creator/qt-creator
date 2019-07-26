@@ -673,6 +673,7 @@ void FolderNode::setIcon(const QIcon &icon)
 void FolderNode::setLocationInfo(const QList<FolderNode::LocationInfo> &info)
 {
     m_locations = info;
+    Utils::sort(m_locations, &LocationInfo::priority);
 }
 
 const QList<FolderNode::LocationInfo> FolderNode::locationInfo() const

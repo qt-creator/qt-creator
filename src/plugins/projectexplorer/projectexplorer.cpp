@@ -3399,7 +3399,13 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
     if (!isVisible)
         return;
 
+    unsigned int lastPriority = 0;
     for (const FolderNode::LocationInfo &li : locations) {
+        if (li.priority != lastPriority) {
+            projectMenu->addSeparator();
+            folderMenu->addSeparator();
+            lastPriority = li.priority;
+        }
         const int line = li.line;
         const Utils::FilePath path = li.path;
         auto *action = new QAction(li.displayName, nullptr);
