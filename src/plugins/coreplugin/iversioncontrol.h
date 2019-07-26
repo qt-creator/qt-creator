@@ -217,7 +217,7 @@ public:
                                                        const QString &localName,
                                                        const QStringList &extraArgs);
 
-    class RepoUrl {
+    class CORE_EXPORT RepoUrl {
     public:
         RepoUrl(const QString &location);
 
