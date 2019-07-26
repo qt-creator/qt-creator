@@ -49,7 +49,7 @@ public:
         return ast;
     }
 
-    ObjCSelectorAST *ObjCSelector(ObjCSelectorArgumentListAST *selector_argument_list = 0)
+    ObjCSelectorAST *ObjCSelector(ObjCSelectorArgumentListAST *selector_argument_list = nullptr)
     {
         ObjCSelectorAST *ast = new (&pool) ObjCSelectorAST;
         ast->selector_argument_list = selector_argument_list;
@@ -62,42 +62,42 @@ public:
         return ast;
     }
 
-    AlignmentSpecifierAST *AlignmentSpecifier(ExpressionAST *typeIdExprOrAlignmentExpr = 0)
+    AlignmentSpecifierAST *AlignmentSpecifier(ExpressionAST *typeIdExprOrAlignmentExpr = nullptr)
     {
         AlignmentSpecifierAST *ast = new (&pool) AlignmentSpecifierAST;
         ast->typeIdExprOrAlignmentExpr = typeIdExprOrAlignmentExpr;
         return ast;
     }
 
-    GnuAttributeSpecifierAST *GnuAttributeSpecifier(GnuAttributeListAST *attribute_list = 0)
+    GnuAttributeSpecifierAST *GnuAttributeSpecifier(GnuAttributeListAST *attribute_list = nullptr)
     {
         GnuAttributeSpecifierAST *ast = new (&pool) GnuAttributeSpecifierAST;
         ast->attribute_list = attribute_list;
         return ast;
     }
 
-    GnuAttributeAST *GnuAttribute(ExpressionListAST *expression_list = 0)
+    GnuAttributeAST *GnuAttribute(ExpressionListAST *expression_list = nullptr)
     {
         GnuAttributeAST *ast = new (&pool) GnuAttributeAST;
         ast->expression_list = expression_list;
         return ast;
     }
 
-    TypeofSpecifierAST *TypeofSpecifier(ExpressionAST *expression = 0)
+    TypeofSpecifierAST *TypeofSpecifier(ExpressionAST *expression = nullptr)
     {
         TypeofSpecifierAST *ast = new (&pool) TypeofSpecifierAST;
         ast->expression = expression;
         return ast;
     }
 
-    DecltypeSpecifierAST *DecltypeSpecifier(ExpressionAST *expression = 0)
+    DecltypeSpecifierAST *DecltypeSpecifier(ExpressionAST *expression = nullptr)
     {
         DecltypeSpecifierAST *ast = new (&pool) DecltypeSpecifierAST;
         ast->expression = expression;
         return ast;
     }
 
-    DeclaratorAST *Declarator(SpecifierListAST *attribute_list = 0, PtrOperatorListAST *ptr_operator_list = 0, CoreDeclaratorAST *core_declarator = 0, PostfixDeclaratorListAST *postfix_declarator_list = 0, SpecifierListAST *post_attribute_list = 0, ExpressionAST *initializer = 0)
+    DeclaratorAST *Declarator(SpecifierListAST *attribute_list = nullptr, PtrOperatorListAST *ptr_operator_list = nullptr, CoreDeclaratorAST *core_declarator = nullptr, PostfixDeclaratorListAST *postfix_declarator_list = nullptr, SpecifierListAST *post_attribute_list = nullptr, ExpressionAST *initializer = nullptr)
     {
         DeclaratorAST *ast = new (&pool) DeclaratorAST;
         ast->attribute_list = attribute_list;
@@ -109,7 +109,7 @@ public:
         return ast;
     }
 
-    SimpleDeclarationAST *SimpleDeclaration(SpecifierListAST *decl_specifier_list = 0, DeclaratorListAST *declarator_list = 0)
+    SimpleDeclarationAST *SimpleDeclaration(SpecifierListAST *decl_specifier_list = nullptr, DeclaratorListAST *declarator_list = nullptr)
     {
         SimpleDeclarationAST *ast = new (&pool) SimpleDeclarationAST;
         ast->decl_specifier_list = decl_specifier_list;
@@ -135,7 +135,7 @@ public:
         return ast;
     }
 
-    QtPrivateSlotAST *QtPrivateSlot(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
+    QtPrivateSlotAST *QtPrivateSlot(SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr)
     {
         QtPrivateSlotAST *ast = new (&pool) QtPrivateSlotAST;
         ast->type_specifier_list = type_specifier_list;
@@ -143,14 +143,14 @@ public:
         return ast;
     }
 
-    QtPropertyDeclarationItemAST *QtPropertyDeclarationItem(ExpressionAST *expression = 0)
+    QtPropertyDeclarationItemAST *QtPropertyDeclarationItem(ExpressionAST *expression = nullptr)
     {
         QtPropertyDeclarationItemAST *ast = new (&pool) QtPropertyDeclarationItemAST;
         ast->expression = expression;
         return ast;
     }
 
-    QtPropertyDeclarationAST *QtPropertyDeclaration(ExpressionAST *expression = 0, ExpressionAST *type_id = 0, NameAST *property_name = 0, QtPropertyDeclarationItemListAST *property_declaration_item_list = 0)
+    QtPropertyDeclarationAST *QtPropertyDeclaration(ExpressionAST *expression = nullptr, ExpressionAST *type_id = nullptr, NameAST *property_name = nullptr, QtPropertyDeclarationItemListAST *property_declaration_item_list = nullptr)
     {
         QtPropertyDeclarationAST *ast = new (&pool) QtPropertyDeclarationAST;
         ast->expression = expression;
@@ -160,21 +160,21 @@ public:
         return ast;
     }
 
-    QtEnumDeclarationAST *QtEnumDeclaration(NameListAST *enumerator_list = 0)
+    QtEnumDeclarationAST *QtEnumDeclaration(NameListAST *enumerator_list = nullptr)
     {
         QtEnumDeclarationAST *ast = new (&pool) QtEnumDeclarationAST;
         ast->enumerator_list = enumerator_list;
         return ast;
     }
 
-    QtFlagsDeclarationAST *QtFlagsDeclaration(NameListAST *flag_enums_list = 0)
+    QtFlagsDeclarationAST *QtFlagsDeclaration(NameListAST *flag_enums_list = nullptr)
     {
         QtFlagsDeclarationAST *ast = new (&pool) QtFlagsDeclarationAST;
         ast->flag_enums_list = flag_enums_list;
         return ast;
     }
 
-    QtInterfaceNameAST *QtInterfaceName(NameAST *interface_name = 0, NameListAST *constraint_list = 0)
+    QtInterfaceNameAST *QtInterfaceName(NameAST *interface_name = nullptr, NameListAST *constraint_list = nullptr)
     {
         QtInterfaceNameAST *ast = new (&pool) QtInterfaceNameAST;
         ast->interface_name = interface_name;
@@ -182,7 +182,7 @@ public:
         return ast;
     }
 
-    QtInterfacesDeclarationAST *QtInterfacesDeclaration(QtInterfaceNameListAST *interface_name_list = 0)
+    QtInterfacesDeclarationAST *QtInterfacesDeclaration(QtInterfaceNameListAST *interface_name_list = nullptr)
     {
         QtInterfacesDeclarationAST *ast = new (&pool) QtInterfacesDeclarationAST;
         ast->interface_name_list = interface_name_list;
@@ -195,28 +195,28 @@ public:
         return ast;
     }
 
-    BaseSpecifierAST *BaseSpecifier(NameAST *name = 0)
+    BaseSpecifierAST *BaseSpecifier(NameAST *name = nullptr)
     {
         BaseSpecifierAST *ast = new (&pool) BaseSpecifierAST;
         ast->name = name;
         return ast;
     }
 
-    IdExpressionAST *IdExpression(NameAST *name = 0)
+    IdExpressionAST *IdExpression(NameAST *name = nullptr)
     {
         IdExpressionAST *ast = new (&pool) IdExpressionAST;
         ast->name = name;
         return ast;
     }
 
-    CompoundExpressionAST *CompoundExpression(CompoundStatementAST *statement = 0)
+    CompoundExpressionAST *CompoundExpression(CompoundStatementAST *statement = nullptr)
     {
         CompoundExpressionAST *ast = new (&pool) CompoundExpressionAST;
         ast->statement = statement;
         return ast;
     }
 
-    CompoundLiteralAST *CompoundLiteral(ExpressionAST *type_id = 0, ExpressionAST *initializer = 0)
+    CompoundLiteralAST *CompoundLiteral(ExpressionAST *type_id = nullptr, ExpressionAST *initializer = nullptr)
     {
         CompoundLiteralAST *ast = new (&pool) CompoundLiteralAST;
         ast->type_id = type_id;
@@ -224,21 +224,21 @@ public:
         return ast;
     }
 
-    QtMethodAST *QtMethod(DeclaratorAST *declarator = 0)
+    QtMethodAST *QtMethod(DeclaratorAST *declarator = nullptr)
     {
         QtMethodAST *ast = new (&pool) QtMethodAST;
         ast->declarator = declarator;
         return ast;
     }
 
-    QtMemberDeclarationAST *QtMemberDeclaration(ExpressionAST *type_id = 0)
+    QtMemberDeclarationAST *QtMemberDeclaration(ExpressionAST *type_id = nullptr)
     {
         QtMemberDeclarationAST *ast = new (&pool) QtMemberDeclarationAST;
         ast->type_id = type_id;
         return ast;
     }
 
-    BinaryExpressionAST *BinaryExpression(ExpressionAST *left_expression = 0, ExpressionAST *right_expression = 0)
+    BinaryExpressionAST *BinaryExpression(ExpressionAST *left_expression = nullptr, ExpressionAST *right_expression = nullptr)
     {
         BinaryExpressionAST *ast = new (&pool) BinaryExpressionAST;
         ast->left_expression = left_expression;
@@ -246,7 +246,7 @@ public:
         return ast;
     }
 
-    CastExpressionAST *CastExpression(ExpressionAST *type_id = 0, ExpressionAST *expression = 0)
+    CastExpressionAST *CastExpression(ExpressionAST *type_id = nullptr, ExpressionAST *expression = nullptr)
     {
         CastExpressionAST *ast = new (&pool) CastExpressionAST;
         ast->type_id = type_id;
@@ -254,7 +254,7 @@ public:
         return ast;
     }
 
-    ClassSpecifierAST *ClassSpecifier(SpecifierListAST *attribute_list = 0, NameAST *name = 0, BaseSpecifierListAST *base_clause_list = 0, DeclarationListAST *member_specifier_list = 0)
+    ClassSpecifierAST *ClassSpecifier(SpecifierListAST *attribute_list = nullptr, NameAST *name = nullptr, BaseSpecifierListAST *base_clause_list = nullptr, DeclarationListAST *member_specifier_list = nullptr)
     {
         ClassSpecifierAST *ast = new (&pool) ClassSpecifierAST;
         ast->attribute_list = attribute_list;
@@ -264,7 +264,7 @@ public:
         return ast;
     }
 
-    CaseStatementAST *CaseStatement(ExpressionAST *expression = 0, StatementAST *statement = 0)
+    CaseStatementAST *CaseStatement(ExpressionAST *expression = nullptr, StatementAST *statement = nullptr)
     {
         CaseStatementAST *ast = new (&pool) CaseStatementAST;
         ast->expression = expression;
@@ -272,14 +272,14 @@ public:
         return ast;
     }
 
-    CompoundStatementAST *CompoundStatement(StatementListAST *statement_list = 0)
+    CompoundStatementAST *CompoundStatement(StatementListAST *statement_list = nullptr)
     {
         CompoundStatementAST *ast = new (&pool) CompoundStatementAST;
         ast->statement_list = statement_list;
         return ast;
     }
 
-    ConditionAST *Condition(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
+    ConditionAST *Condition(SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr)
     {
         ConditionAST *ast = new (&pool) ConditionAST;
         ast->type_specifier_list = type_specifier_list;
@@ -287,7 +287,7 @@ public:
         return ast;
     }
 
-    ConditionalExpressionAST *ConditionalExpression(ExpressionAST *condition = 0, ExpressionAST *left_expression = 0, ExpressionAST *right_expression = 0)
+    ConditionalExpressionAST *ConditionalExpression(ExpressionAST *condition = nullptr, ExpressionAST *left_expression = nullptr, ExpressionAST *right_expression = nullptr)
     {
         ConditionalExpressionAST *ast = new (&pool) ConditionalExpressionAST;
         ast->condition = condition;
@@ -296,7 +296,7 @@ public:
         return ast;
     }
 
-    CppCastExpressionAST *CppCastExpression(ExpressionAST *type_id = 0, ExpressionAST *expression = 0)
+    CppCastExpressionAST *CppCastExpression(ExpressionAST *type_id = nullptr, ExpressionAST *expression = nullptr)
     {
         CppCastExpressionAST *ast = new (&pool) CppCastExpressionAST;
         ast->type_id = type_id;
@@ -304,35 +304,35 @@ public:
         return ast;
     }
 
-    CtorInitializerAST *CtorInitializer(MemInitializerListAST *member_initializer_list = 0)
+    CtorInitializerAST *CtorInitializer(MemInitializerListAST *member_initializer_list = nullptr)
     {
         CtorInitializerAST *ast = new (&pool) CtorInitializerAST;
         ast->member_initializer_list = member_initializer_list;
         return ast;
     }
 
-    DeclarationStatementAST *DeclarationStatement(DeclarationAST *declaration = 0)
+    DeclarationStatementAST *DeclarationStatement(DeclarationAST *declaration = nullptr)
     {
         DeclarationStatementAST *ast = new (&pool) DeclarationStatementAST;
         ast->declaration = declaration;
         return ast;
     }
 
-    DeclaratorIdAST *DeclaratorId(NameAST *name = 0)
+    DeclaratorIdAST *DeclaratorId(NameAST *name = nullptr)
     {
         DeclaratorIdAST *ast = new (&pool) DeclaratorIdAST;
         ast->name = name;
         return ast;
     }
 
-    NestedDeclaratorAST *NestedDeclarator(DeclaratorAST *declarator = 0)
+    NestedDeclaratorAST *NestedDeclarator(DeclaratorAST *declarator = nullptr)
     {
         NestedDeclaratorAST *ast = new (&pool) NestedDeclaratorAST;
         ast->declarator = declarator;
         return ast;
     }
 
-    FunctionDeclaratorAST *FunctionDeclarator(ParameterDeclarationClauseAST *parameter_declaration_clause = 0, SpecifierListAST *cv_qualifier_list = 0, ExceptionSpecificationAST *exception_specification = 0, TrailingReturnTypeAST *trailing_return_type = 0, ExpressionAST *as_cpp_initializer = 0)
+    FunctionDeclaratorAST *FunctionDeclarator(ParameterDeclarationClauseAST *parameter_declaration_clause = nullptr, SpecifierListAST *cv_qualifier_list = nullptr, ExceptionSpecificationAST *exception_specification = nullptr, TrailingReturnTypeAST *trailing_return_type = nullptr, ExpressionAST *as_cpp_initializer = nullptr)
     {
         FunctionDeclaratorAST *ast = new (&pool) FunctionDeclaratorAST;
         ast->parameter_declaration_clause = parameter_declaration_clause;
@@ -343,21 +343,21 @@ public:
         return ast;
     }
 
-    ArrayDeclaratorAST *ArrayDeclarator(ExpressionAST *expression = 0)
+    ArrayDeclaratorAST *ArrayDeclarator(ExpressionAST *expression = nullptr)
     {
         ArrayDeclaratorAST *ast = new (&pool) ArrayDeclaratorAST;
         ast->expression = expression;
         return ast;
     }
 
-    DeleteExpressionAST *DeleteExpression(ExpressionAST *expression = 0)
+    DeleteExpressionAST *DeleteExpression(ExpressionAST *expression = nullptr)
     {
         DeleteExpressionAST *ast = new (&pool) DeleteExpressionAST;
         ast->expression = expression;
         return ast;
     }
 
-    DoStatementAST *DoStatement(StatementAST *statement = 0, ExpressionAST *expression = 0)
+    DoStatementAST *DoStatement(StatementAST *statement = nullptr, ExpressionAST *expression = nullptr)
     {
         DoStatementAST *ast = new (&pool) DoStatementAST;
         ast->statement = statement;
@@ -365,14 +365,14 @@ public:
         return ast;
     }
 
-    NamedTypeSpecifierAST *NamedTypeSpecifier(NameAST *name = 0)
+    NamedTypeSpecifierAST *NamedTypeSpecifier(NameAST *name = nullptr)
     {
         NamedTypeSpecifierAST *ast = new (&pool) NamedTypeSpecifierAST;
         ast->name = name;
         return ast;
     }
 
-    ElaboratedTypeSpecifierAST *ElaboratedTypeSpecifier(SpecifierListAST *attribute_list = 0, NameAST *name = 0)
+    ElaboratedTypeSpecifierAST *ElaboratedTypeSpecifier(SpecifierListAST *attribute_list = nullptr, NameAST *name = nullptr)
     {
         ElaboratedTypeSpecifierAST *ast = new (&pool) ElaboratedTypeSpecifierAST;
         ast->attribute_list = attribute_list;
@@ -380,7 +380,7 @@ public:
         return ast;
     }
 
-    EnumSpecifierAST *EnumSpecifier(NameAST *name = 0, SpecifierListAST *type_specifier_list = 0, EnumeratorListAST *enumerator_list = 0)
+    EnumSpecifierAST *EnumSpecifier(NameAST *name = nullptr, SpecifierListAST *type_specifier_list = nullptr, EnumeratorListAST *enumerator_list = nullptr)
     {
         EnumSpecifierAST *ast = new (&pool) EnumSpecifierAST;
         ast->name = name;
@@ -389,14 +389,14 @@ public:
         return ast;
     }
 
-    EnumeratorAST *Enumerator(ExpressionAST *expression = 0)
+    EnumeratorAST *Enumerator(ExpressionAST *expression = nullptr)
     {
         EnumeratorAST *ast = new (&pool) EnumeratorAST;
         ast->expression = expression;
         return ast;
     }
 
-    ExceptionDeclarationAST *ExceptionDeclaration(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
+    ExceptionDeclarationAST *ExceptionDeclaration(SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr)
     {
         ExceptionDeclarationAST *ast = new (&pool) ExceptionDeclarationAST;
         ast->type_specifier_list = type_specifier_list;
@@ -404,21 +404,21 @@ public:
         return ast;
     }
 
-    DynamicExceptionSpecificationAST *DynamicExceptionSpecification(ExpressionListAST *type_id_list = 0)
+    DynamicExceptionSpecificationAST *DynamicExceptionSpecification(ExpressionListAST *type_id_list = nullptr)
     {
         DynamicExceptionSpecificationAST *ast = new (&pool) DynamicExceptionSpecificationAST;
         ast->type_id_list = type_id_list;
         return ast;
     }
 
-    NoExceptSpecificationAST *NoExceptSpecification(ExpressionAST *expression = 0)
+    NoExceptSpecificationAST *NoExceptSpecification(ExpressionAST *expression = nullptr)
     {
         NoExceptSpecificationAST *ast = new (&pool) NoExceptSpecificationAST;
         ast->expression = expression;
         return ast;
     }
 
-    ExpressionOrDeclarationStatementAST *ExpressionOrDeclarationStatement(ExpressionStatementAST *expression = 0, DeclarationStatementAST *declaration = 0)
+    ExpressionOrDeclarationStatementAST *ExpressionOrDeclarationStatement(ExpressionStatementAST *expression = nullptr, DeclarationStatementAST *declaration = nullptr)
     {
         ExpressionOrDeclarationStatementAST *ast = new (&pool) ExpressionOrDeclarationStatementAST;
         ast->expression = expression;
@@ -426,14 +426,14 @@ public:
         return ast;
     }
 
-    ExpressionStatementAST *ExpressionStatement(ExpressionAST *expression = 0)
+    ExpressionStatementAST *ExpressionStatement(ExpressionAST *expression = nullptr)
     {
         ExpressionStatementAST *ast = new (&pool) ExpressionStatementAST;
         ast->expression = expression;
         return ast;
     }
 
-    FunctionDefinitionAST *FunctionDefinition(SpecifierListAST *decl_specifier_list = 0, DeclaratorAST *declarator = 0, CtorInitializerAST *ctor_initializer = 0, StatementAST *function_body = 0)
+    FunctionDefinitionAST *FunctionDefinition(SpecifierListAST *decl_specifier_list = nullptr, DeclaratorAST *declarator = nullptr, CtorInitializerAST *ctor_initializer = nullptr, StatementAST *function_body = nullptr)
     {
         FunctionDefinitionAST *ast = new (&pool) FunctionDefinitionAST;
         ast->decl_specifier_list = decl_specifier_list;
@@ -443,7 +443,7 @@ public:
         return ast;
     }
 
-    ForeachStatementAST *ForeachStatement(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *initializer = 0, ExpressionAST *expression = 0, StatementAST *statement = 0)
+    ForeachStatementAST *ForeachStatement(SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr, ExpressionAST *initializer = nullptr, ExpressionAST *expression = nullptr, StatementAST *statement = nullptr)
     {
         ForeachStatementAST *ast = new (&pool) ForeachStatementAST;
         ast->type_specifier_list = type_specifier_list;
@@ -454,7 +454,7 @@ public:
         return ast;
     }
 
-    RangeBasedForStatementAST *RangeBasedForStatement(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *expression = 0, StatementAST *statement = 0)
+    RangeBasedForStatementAST *RangeBasedForStatement(SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr, ExpressionAST *expression = nullptr, StatementAST *statement = nullptr)
     {
         RangeBasedForStatementAST *ast = new (&pool) RangeBasedForStatementAST;
         ast->type_specifier_list = type_specifier_list;
@@ -464,7 +464,7 @@ public:
         return ast;
     }
 
-    ForStatementAST *ForStatement(StatementAST *initializer = 0, ExpressionAST *condition = 0, ExpressionAST *expression = 0, StatementAST *statement = 0)
+    ForStatementAST *ForStatement(StatementAST *initializer = nullptr, ExpressionAST *condition = nullptr, ExpressionAST *expression = nullptr, StatementAST *statement = nullptr)
     {
         ForStatementAST *ast = new (&pool) ForStatementAST;
         ast->initializer = initializer;
@@ -474,7 +474,7 @@ public:
         return ast;
     }
 
-    IfStatementAST *IfStatement(ExpressionAST *condition = 0, StatementAST *statement = 0, StatementAST *else_statement = 0)
+    IfStatementAST *IfStatement(ExpressionAST *condition = nullptr, StatementAST *statement = nullptr, StatementAST *else_statement = nullptr)
     {
         IfStatementAST *ast = new (&pool) IfStatementAST;
         ast->condition = condition;
@@ -483,35 +483,35 @@ public:
         return ast;
     }
 
-    ArrayInitializerAST *ArrayInitializer(ExpressionListAST *expression_list = 0)
+    ArrayInitializerAST *ArrayInitializer(ExpressionListAST *expression_list = nullptr)
     {
         ArrayInitializerAST *ast = new (&pool) ArrayInitializerAST;
         ast->expression_list = expression_list;
         return ast;
     }
 
-    LabeledStatementAST *LabeledStatement(StatementAST *statement = 0)
+    LabeledStatementAST *LabeledStatement(StatementAST *statement = nullptr)
     {
         LabeledStatementAST *ast = new (&pool) LabeledStatementAST;
         ast->statement = statement;
         return ast;
     }
 
-    LinkageBodyAST *LinkageBody(DeclarationListAST *declaration_list = 0)
+    LinkageBodyAST *LinkageBody(DeclarationListAST *declaration_list = nullptr)
     {
         LinkageBodyAST *ast = new (&pool) LinkageBodyAST;
         ast->declaration_list = declaration_list;
         return ast;
     }
 
-    LinkageSpecificationAST *LinkageSpecification(DeclarationAST *declaration = 0)
+    LinkageSpecificationAST *LinkageSpecification(DeclarationAST *declaration = nullptr)
     {
         LinkageSpecificationAST *ast = new (&pool) LinkageSpecificationAST;
         ast->declaration = declaration;
         return ast;
     }
 
-    MemInitializerAST *MemInitializer(NameAST *name = 0, ExpressionAST *expression = 0)
+    MemInitializerAST *MemInitializer(NameAST *name = nullptr, ExpressionAST *expression = nullptr)
     {
         MemInitializerAST *ast = new (&pool) MemInitializerAST;
         ast->name = name;
@@ -519,14 +519,14 @@ public:
         return ast;
     }
 
-    NestedNameSpecifierAST *NestedNameSpecifier(NameAST *class_or_namespace_name = 0)
+    NestedNameSpecifierAST *NestedNameSpecifier(NameAST *class_or_namespace_name = nullptr)
     {
         NestedNameSpecifierAST *ast = new (&pool) NestedNameSpecifierAST;
         ast->class_or_namespace_name = class_or_namespace_name;
         return ast;
     }
 
-    QualifiedNameAST *QualifiedName(NestedNameSpecifierListAST *nested_name_specifier_list = 0, NameAST *unqualified_name = 0)
+    QualifiedNameAST *QualifiedName(NestedNameSpecifierListAST *nested_name_specifier_list = nullptr, NameAST *unqualified_name = nullptr)
     {
         QualifiedNameAST *ast = new (&pool) QualifiedNameAST;
         ast->nested_name_specifier_list = nested_name_specifier_list;
@@ -534,14 +534,14 @@ public:
         return ast;
     }
 
-    OperatorFunctionIdAST *OperatorFunctionId(OperatorAST *op = 0)
+    OperatorFunctionIdAST *OperatorFunctionId(OperatorAST *op = nullptr)
     {
         OperatorFunctionIdAST *ast = new (&pool) OperatorFunctionIdAST;
         ast->op = op;
         return ast;
     }
 
-    ConversionFunctionIdAST *ConversionFunctionId(SpecifierListAST *type_specifier_list = 0, PtrOperatorListAST *ptr_operator_list = 0)
+    ConversionFunctionIdAST *ConversionFunctionId(SpecifierListAST *type_specifier_list = nullptr, PtrOperatorListAST *ptr_operator_list = nullptr)
     {
         ConversionFunctionIdAST *ast = new (&pool) ConversionFunctionIdAST;
         ast->type_specifier_list = type_specifier_list;
@@ -561,21 +561,21 @@ public:
         return ast;
     }
 
-    DestructorNameAST *DestructorName(NameAST *unqualified_name = 0)
+    DestructorNameAST *DestructorName(NameAST *unqualified_name = nullptr)
     {
         DestructorNameAST *ast = new (&pool) DestructorNameAST;
         ast->unqualified_name = unqualified_name;
         return ast;
     }
 
-    TemplateIdAST *TemplateId(ExpressionListAST *template_argument_list = 0)
+    TemplateIdAST *TemplateId(ExpressionListAST *template_argument_list = nullptr)
     {
         TemplateIdAST *ast = new (&pool) TemplateIdAST;
         ast->template_argument_list = template_argument_list;
         return ast;
     }
 
-    NamespaceAST *Namespace(SpecifierListAST *attribute_list = 0, DeclarationAST *linkage_body = 0)
+    NamespaceAST *Namespace(SpecifierListAST *attribute_list = nullptr, DeclarationAST *linkage_body = nullptr)
     {
         NamespaceAST *ast = new (&pool) NamespaceAST;
         ast->attribute_list = attribute_list;
@@ -583,14 +583,14 @@ public:
         return ast;
     }
 
-    NamespaceAliasDefinitionAST *NamespaceAliasDefinition(NameAST *name = 0)
+    NamespaceAliasDefinitionAST *NamespaceAliasDefinition(NameAST *name = nullptr)
     {
         NamespaceAliasDefinitionAST *ast = new (&pool) NamespaceAliasDefinitionAST;
         ast->name = name;
         return ast;
     }
 
-    AliasDeclarationAST *AliasDeclaration(NameAST *name = 0, TypeIdAST *typeId = 0)
+    AliasDeclarationAST *AliasDeclaration(NameAST *name = nullptr, TypeIdAST *typeId = nullptr)
     {
         AliasDeclarationAST *ast = new (&pool) AliasDeclarationAST;
         ast->name = name;
@@ -598,21 +598,21 @@ public:
         return ast;
     }
 
-    ExpressionListParenAST *ExpressionListParen(ExpressionListAST *expression_list = 0)
+    ExpressionListParenAST *ExpressionListParen(ExpressionListAST *expression_list = nullptr)
     {
         ExpressionListParenAST *ast = new (&pool) ExpressionListParenAST;
         ast->expression_list = expression_list;
         return ast;
     }
 
-    NewArrayDeclaratorAST *NewArrayDeclarator(ExpressionAST *expression = 0)
+    NewArrayDeclaratorAST *NewArrayDeclarator(ExpressionAST *expression = nullptr)
     {
         NewArrayDeclaratorAST *ast = new (&pool) NewArrayDeclaratorAST;
         ast->expression = expression;
         return ast;
     }
 
-    NewExpressionAST *NewExpression(ExpressionListParenAST *new_placement = 0, ExpressionAST *type_id = 0, NewTypeIdAST *new_type_id = 0, ExpressionAST *new_initializer = 0)
+    NewExpressionAST *NewExpression(ExpressionListParenAST *new_placement = nullptr, ExpressionAST *type_id = nullptr, NewTypeIdAST *new_type_id = nullptr, ExpressionAST *new_initializer = nullptr)
     {
         NewExpressionAST *ast = new (&pool) NewExpressionAST;
         ast->new_placement = new_placement;
@@ -622,7 +622,7 @@ public:
         return ast;
     }
 
-    NewTypeIdAST *NewTypeId(SpecifierListAST *type_specifier_list = 0, PtrOperatorListAST *ptr_operator_list = 0, NewArrayDeclaratorListAST *new_array_declarator_list = 0)
+    NewTypeIdAST *NewTypeId(SpecifierListAST *type_specifier_list = nullptr, PtrOperatorListAST *ptr_operator_list = nullptr, NewArrayDeclaratorListAST *new_array_declarator_list = nullptr)
     {
         NewTypeIdAST *ast = new (&pool) NewTypeIdAST;
         ast->type_specifier_list = type_specifier_list;
@@ -637,7 +637,7 @@ public:
         return ast;
     }
 
-    ParameterDeclarationAST *ParameterDeclaration(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *expression = 0)
+    ParameterDeclarationAST *ParameterDeclaration(SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr, ExpressionAST *expression = nullptr)
     {
         ParameterDeclarationAST *ast = new (&pool) ParameterDeclarationAST;
         ast->type_specifier_list = type_specifier_list;
@@ -646,14 +646,14 @@ public:
         return ast;
     }
 
-    ParameterDeclarationClauseAST *ParameterDeclarationClause(ParameterDeclarationListAST *parameter_declaration_list = 0)
+    ParameterDeclarationClauseAST *ParameterDeclarationClause(ParameterDeclarationListAST *parameter_declaration_list = nullptr)
     {
         ParameterDeclarationClauseAST *ast = new (&pool) ParameterDeclarationClauseAST;
         ast->parameter_declaration_list = parameter_declaration_list;
         return ast;
     }
 
-    CallAST *Call(ExpressionAST *base_expression = 0, ExpressionListAST *expression_list = 0)
+    CallAST *Call(ExpressionAST *base_expression = nullptr, ExpressionListAST *expression_list = nullptr)
     {
         CallAST *ast = new (&pool) CallAST;
         ast->base_expression = base_expression;
@@ -661,7 +661,7 @@ public:
         return ast;
     }
 
-    ArrayAccessAST *ArrayAccess(ExpressionAST *base_expression = 0, ExpressionAST *expression = 0)
+    ArrayAccessAST *ArrayAccess(ExpressionAST *base_expression = nullptr, ExpressionAST *expression = nullptr)
     {
         ArrayAccessAST *ast = new (&pool) ArrayAccessAST;
         ast->base_expression = base_expression;
@@ -669,14 +669,14 @@ public:
         return ast;
     }
 
-    PostIncrDecrAST *PostIncrDecr(ExpressionAST *base_expression = 0)
+    PostIncrDecrAST *PostIncrDecr(ExpressionAST *base_expression = nullptr)
     {
         PostIncrDecrAST *ast = new (&pool) PostIncrDecrAST;
         ast->base_expression = base_expression;
         return ast;
     }
 
-    MemberAccessAST *MemberAccess(ExpressionAST *base_expression = 0, NameAST *member_name = 0)
+    MemberAccessAST *MemberAccess(ExpressionAST *base_expression = nullptr, NameAST *member_name = nullptr)
     {
         MemberAccessAST *ast = new (&pool) MemberAccessAST;
         ast->base_expression = base_expression;
@@ -684,14 +684,14 @@ public:
         return ast;
     }
 
-    TypeidExpressionAST *TypeidExpression(ExpressionAST *expression = 0)
+    TypeidExpressionAST *TypeidExpression(ExpressionAST *expression = nullptr)
     {
         TypeidExpressionAST *ast = new (&pool) TypeidExpressionAST;
         ast->expression = expression;
         return ast;
     }
 
-    TypenameCallExpressionAST *TypenameCallExpression(NameAST *name = 0, ExpressionAST *expression = 0)
+    TypenameCallExpressionAST *TypenameCallExpression(NameAST *name = nullptr, ExpressionAST *expression = nullptr)
     {
         TypenameCallExpressionAST *ast = new (&pool) TypenameCallExpressionAST;
         ast->name = name;
@@ -699,7 +699,7 @@ public:
         return ast;
     }
 
-    TypeConstructorCallAST *TypeConstructorCall(SpecifierListAST *type_specifier_list = 0, ExpressionAST *expression = 0)
+    TypeConstructorCallAST *TypeConstructorCall(SpecifierListAST *type_specifier_list = nullptr, ExpressionAST *expression = nullptr)
     {
         TypeConstructorCallAST *ast = new (&pool) TypeConstructorCallAST;
         ast->type_specifier_list = type_specifier_list;
@@ -707,7 +707,7 @@ public:
         return ast;
     }
 
-    PointerToMemberAST *PointerToMember(NestedNameSpecifierListAST *nested_name_specifier_list = 0, SpecifierListAST *cv_qualifier_list = 0)
+    PointerToMemberAST *PointerToMember(NestedNameSpecifierListAST *nested_name_specifier_list = nullptr, SpecifierListAST *cv_qualifier_list = nullptr)
     {
         PointerToMemberAST *ast = new (&pool) PointerToMemberAST;
         ast->nested_name_specifier_list = nested_name_specifier_list;
@@ -715,7 +715,7 @@ public:
         return ast;
     }
 
-    PointerAST *Pointer(SpecifierListAST *cv_qualifier_list = 0)
+    PointerAST *Pointer(SpecifierListAST *cv_qualifier_list = nullptr)
     {
         PointerAST *ast = new (&pool) PointerAST;
         ast->cv_qualifier_list = cv_qualifier_list;
@@ -746,21 +746,21 @@ public:
         return ast;
     }
 
-    ReturnStatementAST *ReturnStatement(ExpressionAST *expression = 0)
+    ReturnStatementAST *ReturnStatement(ExpressionAST *expression = nullptr)
     {
         ReturnStatementAST *ast = new (&pool) ReturnStatementAST;
         ast->expression = expression;
         return ast;
     }
 
-    SizeofExpressionAST *SizeofExpression(ExpressionAST *expression = 0)
+    SizeofExpressionAST *SizeofExpression(ExpressionAST *expression = nullptr)
     {
         SizeofExpressionAST *ast = new (&pool) SizeofExpressionAST;
         ast->expression = expression;
         return ast;
     }
 
-    AlignofExpressionAST *AlignofExpression(TypeIdAST *typeId = 0)
+    AlignofExpressionAST *AlignofExpression(TypeIdAST *typeId = nullptr)
     {
         AlignofExpressionAST *ast = new (&pool) AlignofExpressionAST;
         ast->typeId = typeId;
@@ -791,14 +791,14 @@ public:
         return ast;
     }
 
-    NestedExpressionAST *NestedExpression(ExpressionAST *expression = 0)
+    NestedExpressionAST *NestedExpression(ExpressionAST *expression = nullptr)
     {
         NestedExpressionAST *ast = new (&pool) NestedExpressionAST;
         ast->expression = expression;
         return ast;
     }
 
-    StaticAssertDeclarationAST *StaticAssertDeclaration(ExpressionAST *expression = 0, ExpressionAST *string_literal = 0)
+    StaticAssertDeclarationAST *StaticAssertDeclaration(ExpressionAST *expression = nullptr, ExpressionAST *string_literal = nullptr)
     {
         StaticAssertDeclarationAST *ast = new (&pool) StaticAssertDeclarationAST;
         ast->expression = expression;
@@ -806,14 +806,14 @@ public:
         return ast;
     }
 
-    StringLiteralAST *StringLiteral(StringLiteralAST *next = 0)
+    StringLiteralAST *StringLiteral(StringLiteralAST *next = nullptr)
     {
         StringLiteralAST *ast = new (&pool) StringLiteralAST;
         ast->next = next;
         return ast;
     }
 
-    SwitchStatementAST *SwitchStatement(ExpressionAST *condition = 0, StatementAST *statement = 0)
+    SwitchStatementAST *SwitchStatement(ExpressionAST *condition = nullptr, StatementAST *statement = nullptr)
     {
         SwitchStatementAST *ast = new (&pool) SwitchStatementAST;
         ast->condition = condition;
@@ -821,7 +821,7 @@ public:
         return ast;
     }
 
-    TemplateDeclarationAST *TemplateDeclaration(DeclarationListAST *template_parameter_list = 0, DeclarationAST *declaration = 0)
+    TemplateDeclarationAST *TemplateDeclaration(DeclarationListAST *template_parameter_list = nullptr, DeclarationAST *declaration = nullptr)
     {
         TemplateDeclarationAST *ast = new (&pool) TemplateDeclarationAST;
         ast->template_parameter_list = template_parameter_list;
@@ -829,28 +829,28 @@ public:
         return ast;
     }
 
-    ThrowExpressionAST *ThrowExpression(ExpressionAST *expression = 0)
+    ThrowExpressionAST *ThrowExpression(ExpressionAST *expression = nullptr)
     {
         ThrowExpressionAST *ast = new (&pool) ThrowExpressionAST;
         ast->expression = expression;
         return ast;
     }
 
-    NoExceptOperatorExpressionAST *NoExceptOperatorExpression(ExpressionAST *expression = 0)
+    NoExceptOperatorExpressionAST *NoExceptOperatorExpression(ExpressionAST *expression = nullptr)
     {
         NoExceptOperatorExpressionAST *ast = new (&pool) NoExceptOperatorExpressionAST;
         ast->expression = expression;
         return ast;
     }
 
-    TranslationUnitAST *TranslationUnit(DeclarationListAST *declaration_list = 0)
+    TranslationUnitAST *TranslationUnit(DeclarationListAST *declaration_list = nullptr)
     {
         TranslationUnitAST *ast = new (&pool) TranslationUnitAST;
         ast->declaration_list = declaration_list;
         return ast;
     }
 
-    TryBlockStatementAST *TryBlockStatement(StatementAST *statement = 0, CatchClauseListAST *catch_clause_list = 0)
+    TryBlockStatementAST *TryBlockStatement(StatementAST *statement = nullptr, CatchClauseListAST *catch_clause_list = nullptr)
     {
         TryBlockStatementAST *ast = new (&pool) TryBlockStatementAST;
         ast->statement = statement;
@@ -858,7 +858,7 @@ public:
         return ast;
     }
 
-    CatchClauseAST *CatchClause(ExceptionDeclarationAST *exception_declaration = 0, StatementAST *statement = 0)
+    CatchClauseAST *CatchClause(ExceptionDeclarationAST *exception_declaration = nullptr, StatementAST *statement = nullptr)
     {
         CatchClauseAST *ast = new (&pool) CatchClauseAST;
         ast->exception_declaration = exception_declaration;
@@ -866,7 +866,7 @@ public:
         return ast;
     }
 
-    TypeIdAST *TypeId(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
+    TypeIdAST *TypeId(SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr)
     {
         TypeIdAST *ast = new (&pool) TypeIdAST;
         ast->type_specifier_list = type_specifier_list;
@@ -874,7 +874,7 @@ public:
         return ast;
     }
 
-    TypenameTypeParameterAST *TypenameTypeParameter(NameAST *name = 0, ExpressionAST *type_id = 0)
+    TypenameTypeParameterAST *TypenameTypeParameter(NameAST *name = nullptr, ExpressionAST *type_id = nullptr)
     {
         TypenameTypeParameterAST *ast = new (&pool) TypenameTypeParameterAST;
         ast->name = name;
@@ -882,7 +882,7 @@ public:
         return ast;
     }
 
-    TemplateTypeParameterAST *TemplateTypeParameter(DeclarationListAST *template_parameter_list = 0, NameAST *name = 0, ExpressionAST *type_id = 0)
+    TemplateTypeParameterAST *TemplateTypeParameter(DeclarationListAST *template_parameter_list = nullptr, NameAST *name = nullptr, ExpressionAST *type_id = nullptr)
     {
         TemplateTypeParameterAST *ast = new (&pool) TemplateTypeParameterAST;
         ast->template_parameter_list = template_parameter_list;
@@ -891,28 +891,28 @@ public:
         return ast;
     }
 
-    UnaryExpressionAST *UnaryExpression(ExpressionAST *expression = 0)
+    UnaryExpressionAST *UnaryExpression(ExpressionAST *expression = nullptr)
     {
         UnaryExpressionAST *ast = new (&pool) UnaryExpressionAST;
         ast->expression = expression;
         return ast;
     }
 
-    UsingAST *Using(NameAST *name = 0)
+    UsingAST *Using(NameAST *name = nullptr)
     {
         UsingAST *ast = new (&pool) UsingAST;
         ast->name = name;
         return ast;
     }
 
-    UsingDirectiveAST *UsingDirective(NameAST *name = 0)
+    UsingDirectiveAST *UsingDirective(NameAST *name = nullptr)
     {
         UsingDirectiveAST *ast = new (&pool) UsingDirectiveAST;
         ast->name = name;
         return ast;
     }
 
-    WhileStatementAST *WhileStatement(ExpressionAST *condition = 0, StatementAST *statement = 0)
+    WhileStatementAST *WhileStatement(ExpressionAST *condition = nullptr, StatementAST *statement = nullptr)
     {
         WhileStatementAST *ast = new (&pool) WhileStatementAST;
         ast->condition = condition;
@@ -920,7 +920,7 @@ public:
         return ast;
     }
 
-    ObjCClassForwardDeclarationAST *ObjCClassForwardDeclaration(SpecifierListAST *attribute_list = 0, NameListAST *identifier_list = 0)
+    ObjCClassForwardDeclarationAST *ObjCClassForwardDeclaration(SpecifierListAST *attribute_list = nullptr, NameListAST *identifier_list = nullptr)
     {
         ObjCClassForwardDeclarationAST *ast = new (&pool) ObjCClassForwardDeclarationAST;
         ast->attribute_list = attribute_list;
@@ -928,7 +928,7 @@ public:
         return ast;
     }
 
-    ObjCClassDeclarationAST *ObjCClassDeclaration(SpecifierListAST *attribute_list = 0, NameAST *class_name = 0, NameAST *category_name = 0, NameAST *superclass = 0, ObjCProtocolRefsAST *protocol_refs = 0, ObjCInstanceVariablesDeclarationAST *inst_vars_decl = 0, DeclarationListAST *member_declaration_list = 0)
+    ObjCClassDeclarationAST *ObjCClassDeclaration(SpecifierListAST *attribute_list = nullptr, NameAST *class_name = nullptr, NameAST *category_name = nullptr, NameAST *superclass = nullptr, ObjCProtocolRefsAST *protocol_refs = nullptr, ObjCInstanceVariablesDeclarationAST *inst_vars_decl = nullptr, DeclarationListAST *member_declaration_list = nullptr)
     {
         ObjCClassDeclarationAST *ast = new (&pool) ObjCClassDeclarationAST;
         ast->attribute_list = attribute_list;
@@ -941,7 +941,7 @@ public:
         return ast;
     }
 
-    ObjCProtocolForwardDeclarationAST *ObjCProtocolForwardDeclaration(SpecifierListAST *attribute_list = 0, NameListAST *identifier_list = 0)
+    ObjCProtocolForwardDeclarationAST *ObjCProtocolForwardDeclaration(SpecifierListAST *attribute_list = nullptr, NameListAST *identifier_list = nullptr)
     {
         ObjCProtocolForwardDeclarationAST *ast = new (&pool) ObjCProtocolForwardDeclarationAST;
         ast->attribute_list = attribute_list;
@@ -949,7 +949,7 @@ public:
         return ast;
     }
 
-    ObjCProtocolDeclarationAST *ObjCProtocolDeclaration(SpecifierListAST *attribute_list = 0, NameAST *name = 0, ObjCProtocolRefsAST *protocol_refs = 0, DeclarationListAST *member_declaration_list = 0)
+    ObjCProtocolDeclarationAST *ObjCProtocolDeclaration(SpecifierListAST *attribute_list = nullptr, NameAST *name = nullptr, ObjCProtocolRefsAST *protocol_refs = nullptr, DeclarationListAST *member_declaration_list = nullptr)
     {
         ObjCProtocolDeclarationAST *ast = new (&pool) ObjCProtocolDeclarationAST;
         ast->attribute_list = attribute_list;
@@ -959,21 +959,21 @@ public:
         return ast;
     }
 
-    ObjCProtocolRefsAST *ObjCProtocolRefs(NameListAST *identifier_list = 0)
+    ObjCProtocolRefsAST *ObjCProtocolRefs(NameListAST *identifier_list = nullptr)
     {
         ObjCProtocolRefsAST *ast = new (&pool) ObjCProtocolRefsAST;
         ast->identifier_list = identifier_list;
         return ast;
     }
 
-    ObjCMessageArgumentAST *ObjCMessageArgument(ExpressionAST *parameter_value_expression = 0)
+    ObjCMessageArgumentAST *ObjCMessageArgument(ExpressionAST *parameter_value_expression = nullptr)
     {
         ObjCMessageArgumentAST *ast = new (&pool) ObjCMessageArgumentAST;
         ast->parameter_value_expression = parameter_value_expression;
         return ast;
     }
 
-    ObjCMessageExpressionAST *ObjCMessageExpression(ExpressionAST *receiver_expression = 0, ObjCSelectorAST *selector = 0, ObjCMessageArgumentListAST *argument_list = 0)
+    ObjCMessageExpressionAST *ObjCMessageExpression(ExpressionAST *receiver_expression = nullptr, ObjCSelectorAST *selector = nullptr, ObjCMessageArgumentListAST *argument_list = nullptr)
     {
         ObjCMessageExpressionAST *ast = new (&pool) ObjCMessageExpressionAST;
         ast->receiver_expression = receiver_expression;
@@ -988,28 +988,28 @@ public:
         return ast;
     }
 
-    ObjCTypeNameAST *ObjCTypeName(ExpressionAST *type_id = 0)
+    ObjCTypeNameAST *ObjCTypeName(ExpressionAST *type_id = nullptr)
     {
         ObjCTypeNameAST *ast = new (&pool) ObjCTypeNameAST;
         ast->type_id = type_id;
         return ast;
     }
 
-    ObjCEncodeExpressionAST *ObjCEncodeExpression(ObjCTypeNameAST *type_name = 0)
+    ObjCEncodeExpressionAST *ObjCEncodeExpression(ObjCTypeNameAST *type_name = nullptr)
     {
         ObjCEncodeExpressionAST *ast = new (&pool) ObjCEncodeExpressionAST;
         ast->type_name = type_name;
         return ast;
     }
 
-    ObjCSelectorExpressionAST *ObjCSelectorExpression(ObjCSelectorAST *selector = 0)
+    ObjCSelectorExpressionAST *ObjCSelectorExpression(ObjCSelectorAST *selector = nullptr)
     {
         ObjCSelectorExpressionAST *ast = new (&pool) ObjCSelectorExpressionAST;
         ast->selector = selector;
         return ast;
     }
 
-    ObjCInstanceVariablesDeclarationAST *ObjCInstanceVariablesDeclaration(DeclarationListAST *instance_variable_list = 0)
+    ObjCInstanceVariablesDeclarationAST *ObjCInstanceVariablesDeclaration(DeclarationListAST *instance_variable_list = nullptr)
     {
         ObjCInstanceVariablesDeclarationAST *ast = new (&pool) ObjCInstanceVariablesDeclarationAST;
         ast->instance_variable_list = instance_variable_list;
@@ -1022,14 +1022,14 @@ public:
         return ast;
     }
 
-    ObjCPropertyAttributeAST *ObjCPropertyAttribute(ObjCSelectorAST *method_selector = 0)
+    ObjCPropertyAttributeAST *ObjCPropertyAttribute(ObjCSelectorAST *method_selector = nullptr)
     {
         ObjCPropertyAttributeAST *ast = new (&pool) ObjCPropertyAttributeAST;
         ast->method_selector = method_selector;
         return ast;
     }
 
-    ObjCPropertyDeclarationAST *ObjCPropertyDeclaration(SpecifierListAST *attribute_list = 0, ObjCPropertyAttributeListAST *property_attribute_list = 0, DeclarationAST *simple_declaration = 0)
+    ObjCPropertyDeclarationAST *ObjCPropertyDeclaration(SpecifierListAST *attribute_list = nullptr, ObjCPropertyAttributeListAST *property_attribute_list = nullptr, DeclarationAST *simple_declaration = nullptr)
     {
         ObjCPropertyDeclarationAST *ast = new (&pool) ObjCPropertyDeclarationAST;
         ast->attribute_list = attribute_list;
@@ -1038,7 +1038,7 @@ public:
         return ast;
     }
 
-    ObjCMessageArgumentDeclarationAST *ObjCMessageArgumentDeclaration(ObjCTypeNameAST *type_name = 0, SpecifierListAST *attribute_list = 0, NameAST *param_name = 0)
+    ObjCMessageArgumentDeclarationAST *ObjCMessageArgumentDeclaration(ObjCTypeNameAST *type_name = nullptr, SpecifierListAST *attribute_list = nullptr, NameAST *param_name = nullptr)
     {
         ObjCMessageArgumentDeclarationAST *ast = new (&pool) ObjCMessageArgumentDeclarationAST;
         ast->type_name = type_name;
@@ -1047,7 +1047,7 @@ public:
         return ast;
     }
 
-    ObjCMethodPrototypeAST *ObjCMethodPrototype(ObjCTypeNameAST *type_name = 0, ObjCSelectorAST *selector = 0, ObjCMessageArgumentDeclarationListAST *argument_list = 0, SpecifierListAST *attribute_list = 0)
+    ObjCMethodPrototypeAST *ObjCMethodPrototype(ObjCTypeNameAST *type_name = nullptr, ObjCSelectorAST *selector = nullptr, ObjCMessageArgumentDeclarationListAST *argument_list = nullptr, SpecifierListAST *attribute_list = nullptr)
     {
         ObjCMethodPrototypeAST *ast = new (&pool) ObjCMethodPrototypeAST;
         ast->type_name = type_name;
@@ -1057,7 +1057,7 @@ public:
         return ast;
     }
 
-    ObjCMethodDeclarationAST *ObjCMethodDeclaration(ObjCMethodPrototypeAST *method_prototype = 0, StatementAST *function_body = 0)
+    ObjCMethodDeclarationAST *ObjCMethodDeclaration(ObjCMethodPrototypeAST *method_prototype = nullptr, StatementAST *function_body = nullptr)
     {
         ObjCMethodDeclarationAST *ast = new (&pool) ObjCMethodDeclarationAST;
         ast->method_prototype = method_prototype;
@@ -1071,21 +1071,21 @@ public:
         return ast;
     }
 
-    ObjCSynthesizedPropertiesDeclarationAST *ObjCSynthesizedPropertiesDeclaration(ObjCSynthesizedPropertyListAST *property_identifier_list = 0)
+    ObjCSynthesizedPropertiesDeclarationAST *ObjCSynthesizedPropertiesDeclaration(ObjCSynthesizedPropertyListAST *property_identifier_list = nullptr)
     {
         ObjCSynthesizedPropertiesDeclarationAST *ast = new (&pool) ObjCSynthesizedPropertiesDeclarationAST;
         ast->property_identifier_list = property_identifier_list;
         return ast;
     }
 
-    ObjCDynamicPropertiesDeclarationAST *ObjCDynamicPropertiesDeclaration(NameListAST *property_identifier_list = 0)
+    ObjCDynamicPropertiesDeclarationAST *ObjCDynamicPropertiesDeclaration(NameListAST *property_identifier_list = nullptr)
     {
         ObjCDynamicPropertiesDeclarationAST *ast = new (&pool) ObjCDynamicPropertiesDeclarationAST;
         ast->property_identifier_list = property_identifier_list;
         return ast;
     }
 
-    ObjCFastEnumerationAST *ObjCFastEnumeration(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *initializer = 0, ExpressionAST *fast_enumeratable_expression = 0, StatementAST *statement = 0)
+    ObjCFastEnumerationAST *ObjCFastEnumeration(SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr, ExpressionAST *initializer = nullptr, ExpressionAST *fast_enumeratable_expression = nullptr, StatementAST *statement = nullptr)
     {
         ObjCFastEnumerationAST *ast = new (&pool) ObjCFastEnumerationAST;
         ast->type_specifier_list = type_specifier_list;
@@ -1096,7 +1096,7 @@ public:
         return ast;
     }
 
-    ObjCSynchronizedStatementAST *ObjCSynchronizedStatement(ExpressionAST *synchronized_object = 0, StatementAST *statement = 0)
+    ObjCSynchronizedStatementAST *ObjCSynchronizedStatement(ExpressionAST *synchronized_object = nullptr, StatementAST *statement = nullptr)
     {
         ObjCSynchronizedStatementAST *ast = new (&pool) ObjCSynchronizedStatementAST;
         ast->synchronized_object = synchronized_object;
@@ -1104,7 +1104,7 @@ public:
         return ast;
     }
 
-    LambdaExpressionAST *LambdaExpression(LambdaIntroducerAST *lambda_introducer = 0, LambdaDeclaratorAST *lambda_declarator = 0, StatementAST *statement = 0)
+    LambdaExpressionAST *LambdaExpression(LambdaIntroducerAST *lambda_introducer = nullptr, LambdaDeclaratorAST *lambda_declarator = nullptr, StatementAST *statement = nullptr)
     {
         LambdaExpressionAST *ast = new (&pool) LambdaExpressionAST;
         ast->lambda_introducer = lambda_introducer;
@@ -1113,28 +1113,28 @@ public:
         return ast;
     }
 
-    LambdaIntroducerAST *LambdaIntroducer(LambdaCaptureAST *lambda_capture = 0)
+    LambdaIntroducerAST *LambdaIntroducer(LambdaCaptureAST *lambda_capture = nullptr)
     {
         LambdaIntroducerAST *ast = new (&pool) LambdaIntroducerAST;
         ast->lambda_capture = lambda_capture;
         return ast;
     }
 
-    LambdaCaptureAST *LambdaCapture(CaptureListAST *capture_list = 0)
+    LambdaCaptureAST *LambdaCapture(CaptureListAST *capture_list = nullptr)
     {
         LambdaCaptureAST *ast = new (&pool) LambdaCaptureAST;
         ast->capture_list = capture_list;
         return ast;
     }
 
-    CaptureAST *Capture(NameAST *identifier = 0)
+    CaptureAST *Capture(NameAST *identifier = nullptr)
     {
         CaptureAST *ast = new (&pool) CaptureAST;
         ast->identifier = identifier;
         return ast;
     }
 
-    LambdaDeclaratorAST *LambdaDeclarator(ParameterDeclarationClauseAST *parameter_declaration_clause = 0, SpecifierListAST *attributes = 0, ExceptionSpecificationAST *exception_specification = 0, TrailingReturnTypeAST *trailing_return_type = 0)
+    LambdaDeclaratorAST *LambdaDeclarator(ParameterDeclarationClauseAST *parameter_declaration_clause = nullptr, SpecifierListAST *attributes = nullptr, ExceptionSpecificationAST *exception_specification = nullptr, TrailingReturnTypeAST *trailing_return_type = nullptr)
     {
         LambdaDeclaratorAST *ast = new (&pool) LambdaDeclaratorAST;
         ast->parameter_declaration_clause = parameter_declaration_clause;
@@ -1144,7 +1144,7 @@ public:
         return ast;
     }
 
-    TrailingReturnTypeAST *TrailingReturnType(SpecifierListAST *attributes = 0, SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0)
+    TrailingReturnTypeAST *TrailingReturnType(SpecifierListAST *attributes = nullptr, SpecifierListAST *type_specifier_list = nullptr, DeclaratorAST *declarator = nullptr)
     {
         TrailingReturnTypeAST *ast = new (&pool) TrailingReturnTypeAST;
         ast->attributes = attributes;
@@ -1153,7 +1153,7 @@ public:
         return ast;
     }
 
-    BracedInitializerAST *BracedInitializer(ExpressionListAST *expression_list = 0)
+    BracedInitializerAST *BracedInitializer(ExpressionListAST *expression_list = nullptr)
     {
         BracedInitializerAST *ast = new (&pool) BracedInitializerAST;
         ast->expression_list = expression_list;
@@ -1166,14 +1166,14 @@ public:
         return ast;
     }
 
-    BracketDesignatorAST *BracketDesignator(ExpressionAST *expression = 0)
+    BracketDesignatorAST *BracketDesignator(ExpressionAST *expression = nullptr)
     {
         BracketDesignatorAST *ast = new (&pool) BracketDesignatorAST;
         ast->expression = expression;
         return ast;
     }
 
-    DesignatedInitializerAST *DesignatedInitializer(DesignatorListAST *designator_list = 0, ExpressionAST *initializer = 0)
+    DesignatedInitializerAST *DesignatedInitializer(DesignatorListAST *designator_list = nullptr, ExpressionAST *initializer = nullptr)
     {
         DesignatedInitializerAST *ast = new (&pool) DesignatedInitializerAST;
         ast->designator_list = designator_list;
