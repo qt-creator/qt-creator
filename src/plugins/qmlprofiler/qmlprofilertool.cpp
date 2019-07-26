@@ -74,6 +74,7 @@
 
 #include <QApplication>
 #include <QDockWidget>
+#include <QElapsedTimer>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -120,7 +121,7 @@ public:
     // elapsed time display
     QLabel *m_timeLabel = nullptr;
     QTimer m_recordingTimer;
-    QTime m_recordingElapsedTime;
+    QElapsedTimer m_recordingElapsedTime;
 
     bool m_toolBusy = false;
 };
