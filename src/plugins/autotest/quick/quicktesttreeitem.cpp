@@ -323,11 +323,11 @@ TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
             TestTreeItem *group = findFirstLevelChild([path](TestTreeItem *group) {
                     return group->filePath() == path;
             });
-            return group ? group->findChildByFile(result->fileName) : nullptr;
+            return group ? group->findChildByNameAndFile(result->name, result->fileName) : nullptr;
         }
-        return findChildByFile(result->fileName);
+        return findChildByNameAndFile(result->name, result->fileName);
     case GroupNode:
-        return findChildByFile(result->fileName);
+        return findChildByNameAndFile(result->name, result->fileName);
     case TestCase:
         return name().isEmpty() ? findChildByNameAndFile(result->name, result->fileName)
                                 : findChildByName(result->name);
@@ -345,9 +345,9 @@ TestTreeItem *QuickTestTreeItem::findChild(const TestTreeItem *other)
     case Root:
         if (otherType == TestCase && other->name().isEmpty())
             return unnamedQuickTests();
-        return findChildByFileAndType(other->filePath(), otherType);
+        return findChildByFileNameAndType(other->filePath(), other->name(), otherType);
     case GroupNode:
-        return findChildByFileAndType(other->filePath(), otherType);
+        return findChildByFileNameAndType(other->filePath(), other->name(), otherType);
     case TestCase:
         if (otherType != TestFunction && otherType != TestDataFunction && otherType != TestSpecialFunction)
             return nullptr;
@@ -442,6 +442,16 @@ void QuickTestTreeItem::markForRemovalRecursively(const QString &filePath)
                 it->markForRemoval(true);
         });
     }
+}
+
+TestTreeItem *QuickTestTreeItem::findChildByFileNameAndType(const QString &filePath,
+                                                            const QString &name,
+                                                            TestTreeItem::Type tType)
+
+{
+    return findFirstLevelChild([filePath, name, tType](const TestTreeItem *other) {
+        return other->type() == tType && other->name() == name && other->filePath() == filePath;
+    });
 }
 
 TestTreeItem *QuickTestTreeItem::unnamedQuickTests() const

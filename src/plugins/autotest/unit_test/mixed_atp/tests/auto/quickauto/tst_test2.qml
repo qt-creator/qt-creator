@@ -34,21 +34,38 @@ TestCase {
         verify(blubb == bla, "Comparing concat equality")
     }
 
-// nested TestCases actually fail
-//    TestCase {
-//        name: "boo"
+    TestCase {
+        name: "boo"
 
-//        function test_boo() {
-//            verify(true);
-//        }
+        function test_boo() {
+            verify(true);
+        }
 
-//        TestCase {
-//            name: "far"
+        TestCase {
+            name: "far"
 
-//            function test_far() {
-//                verify(true);
-//            }
-//        }
-//    }
+            function test_far() {
+                verify(true);
+            }
+        }
+
+        function test_boo2() { // should not get added to "far", but to "boo"
+            verify(false);
+        }
+    }
+
+    TestCase {
+        name: "secondBoo"
+
+        function test_bar() {
+            compare(1, 1);
+        }
+    }
+
+    TestCase { // unnamed
+        function test_func() {
+            verify(true);
+        }
+    }
 }
 

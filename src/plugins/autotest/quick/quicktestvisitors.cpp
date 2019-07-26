@@ -31,6 +31,7 @@
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsutils.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 namespace Autotest {
 namespace Internal {
@@ -96,18 +97,23 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 
     m_typeIsTestCase = true;
     m_insideTestCase = true;
-    m_currentTestCaseName.clear();
     const auto sourceLocation = ast->firstSourceLocation();
-    m_testCaseLocation.m_name = m_currentDoc->fileName();
-    m_testCaseLocation.m_line = sourceLocation.startLine;
-    m_testCaseLocation.m_column = sourceLocation.startColumn - 1;
-    m_testCaseLocation.m_type = TestTreeItem::TestCase;
+    QuickTestCaseSpec currentSpec;
+    currentSpec.m_name = m_currentDoc->fileName();
+    currentSpec.m_line = sourceLocation.startLine;
+    currentSpec.m_column = sourceLocation.startColumn - 1;
+    currentSpec.m_type = TestTreeItem::TestCase;
+    m_testCases.push(currentSpec);
     return true;
 }
 
 void TestQmlVisitor::endVisit(QmlJS::AST::UiObjectDefinition *)
 {
-    m_insideTestCase = m_objectStack.pop() == "TestCase";
+    if (!m_objectStack.isEmpty() && m_objectStack.pop() == "TestCase") {
+        if (!m_testCases.isEmpty())
+            m_testCases.pop();
+        m_insideTestCase = !m_objectStack.isEmpty() && m_objectStack.top() == "TestCase";
+    }
 }
 
 bool TestQmlVisitor::visit(QmlJS::AST::ExpressionStatement *ast)
@@ -148,15 +154,22 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         else
             locationAndType.m_type = TestTreeItem::TestFunction;
 
-        m_testFunctions.insert(name.toString(), locationAndType);
+        if (m_testCases.isEmpty()) // invalid qml code
+            return false;
+
+        QuickTestCaseSpec testCaseWithFunc = m_testCases.top();
+        testCaseWithFunc.m_functionName = name.toString();
+        testCaseWithFunc.m_functionLocationAndType = locationAndType;
+        m_testFunctions.append(testCaseWithFunc);
     }
     return false;
 }
 
 bool TestQmlVisitor::visit(QmlJS::AST::StringLiteral *ast)
 {
-    if (m_expectTestCaseName && m_currentTestCaseName.isEmpty()) {
-        m_currentTestCaseName = ast->value.toString();
+    if (m_expectTestCaseName) {
+        QTC_ASSERT(!m_testCases.isEmpty(), return false);
+        m_testCases.top().m_caseName = ast->value.toString();
         m_expectTestCaseName = false;
     }
     return false;

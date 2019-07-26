@@ -37,6 +37,14 @@
 namespace Autotest {
 namespace Internal {
 
+class QuickTestCaseSpec : public TestCodeLocationAndType
+{
+public:
+    QString m_caseName;
+    QString m_functionName;
+    TestCodeLocationAndType m_functionLocationAndType;
+};
+
 class TestQmlVisitor : public QmlJS::AST::Visitor
 {
 public:
@@ -50,17 +58,14 @@ public:
     bool visit(QmlJS::AST::FunctionDeclaration *ast) override;
     bool visit(QmlJS::AST::StringLiteral *ast) override;
 
-    QString testCaseName() const { return m_currentTestCaseName; }
-    TestCodeLocationAndType testCaseLocation() const { return m_testCaseLocation; }
-    QMap<QString, TestCodeLocationAndType> testFunctions() const { return m_testFunctions; }
+    QVector<QuickTestCaseSpec> testFunctions() const { return m_testFunctions; }
     bool isValid() const { return m_typeIsTestCase; }
 
 private:
     QmlJS::Document::Ptr m_currentDoc;
     QmlJS::Snapshot m_snapshot;
-    QString m_currentTestCaseName;
-    TestCodeLocationAndType m_testCaseLocation;
-    QMap<QString, TestCodeLocationAndType> m_testFunctions;
+    QStack<QuickTestCaseSpec> m_testCases;
+    QVector<QuickTestCaseSpec> m_testFunctions;
     QStack<QString> m_objectStack;
     bool m_typeIsTestCase = false;
     bool m_insideTestCase = false;
