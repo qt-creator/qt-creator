@@ -3389,8 +3389,8 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
 
     const FolderNode *const fn
             = ProjectTree::currentNode() ? ProjectTree::currentNode()->asFolderNode() : nullptr;
-    const QList<FolderNode::LocationInfo> locations
-            = fn ? fn->locationInfo() : QList<FolderNode::LocationInfo>();
+    const QVector<FolderNode::LocationInfo> locations = fn ? fn->locationInfo()
+                                                           : QVector<FolderNode::LocationInfo>();
 
     const bool isVisible = !locations.isEmpty();
     projectMenu->menuAction()->setVisible(isVisible);
@@ -3408,7 +3408,10 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
         }
         const int line = li.line;
         const Utils::FilePath path = li.path;
-        auto *action = new QAction(li.displayName, nullptr);
+        QString displayName = fn->filePath() == li.path
+                                  ? li.displayName
+                                  : tr("%1 in %2").arg(li.displayName).arg(li.path.toUserOutput());
+        auto *action = new QAction(displayName, nullptr);
         connect(action, &QAction::triggered, this, [line, path]() {
             Core::EditorManager::openEditorAt(path.toString(), line);
         });

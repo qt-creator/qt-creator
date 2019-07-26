@@ -314,7 +314,7 @@ void addBacktraceInformation(FolderNode *node,
                              const QDir &sourceDir,
                              int backtraceIndex)
 {
-    QList<FolderNode::LocationInfo> info;
+    QVector<FolderNode::LocationInfo> info;
     // Set up a default target path:
     FilePath targetPath = node->filePath().pathAppended("CMakeLists.txt");
     while (backtraceIndex != -1) {

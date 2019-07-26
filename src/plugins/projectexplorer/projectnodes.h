@@ -249,6 +249,7 @@ public:
     class LocationInfo
     {
     public:
+        LocationInfo() = default;
         LocationInfo(const QString &dn,
                      const Utils::FilePath &p,
                      const int l = 0,
@@ -264,8 +265,8 @@ public:
         unsigned int priority = 0;
         QString displayName;
     };
-    void setLocationInfo(const QList<LocationInfo> &info);
-    const QList<LocationInfo> locationInfo() const;
+    void setLocationInfo(const QVector<LocationInfo> &info);
+    const QVector<LocationInfo> locationInfo() const;
 
     QString addFileFilter() const;
     void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
@@ -311,7 +312,7 @@ protected:
     virtual void handleSubTreeChanged(FolderNode *node);
 
     std::vector<std::unique_ptr<Node>> m_nodes;
-    QList<LocationInfo> m_locations;
+    QVector<LocationInfo> m_locations;
 
 private:
     std::unique_ptr<Node> takeNode(Node *node);
