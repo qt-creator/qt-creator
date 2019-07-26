@@ -189,6 +189,8 @@ static Abi::Architecture guessArchitecture(const Macros &macros)
             return Abi::Architecture::Mcs51Architecture;
         if (macro.key == "__ICCAVR__")
             return Abi::Architecture::AvrArchitecture;
+        if (macro.key == "__ICCSTM8__")
+            return Abi::Architecture::Stm8Architecture;
     }
     return Abi::Architecture::UnknownArchitecture;
 }
@@ -205,8 +207,10 @@ static unsigned char guessWordWidth(const Macros &macros)
 
 static Abi::BinaryFormat guessFormat(Abi::Architecture arch)
 {
-    if (arch == Abi::Architecture::ArmArchitecture)
+    if (arch == Abi::Architecture::ArmArchitecture
+            || arch == Abi::Architecture::Stm8Architecture) {
         return Abi::BinaryFormat::ElfFormat;
+    }
     if (arch == Abi::Architecture::Mcs51Architecture
             || arch == Abi::Architecture::AvrArchitecture) {
         return Abi::BinaryFormat::UbrofFormat;
@@ -426,6 +430,7 @@ QList<ToolChain *> IarToolChainFactory::autoDetect(const QList<ToolChain *> &alr
         {{"EWARM"}, {"\\arm\\bin\\iccarm.exe"}},
         {{"EWAVR"}, {"\\avr\\bin\\iccavr.exe"}},
         {{"EW8051"}, {"\\8051\\bin\\icc8051.exe"}},
+        {{"EWSTM8"}, {"\\stm8\\bin\\iccstm8.exe"}},
     };
 
     QSettings registry(kRegistryNode, QSettings::NativeFormat);
