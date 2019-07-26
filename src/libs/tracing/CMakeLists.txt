@@ -6,7 +6,6 @@ endif()
 
 add_qtc_library(Tracing
   DEPENDS Utils Qt5::Qml Qt5::Quick
-  PUBLIC_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}"
   SOURCES ${TEST_SOURCES}
     flamegraph.cpp flamegraph.h
     flamegraphattached.h

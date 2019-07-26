@@ -41,7 +41,7 @@ def commit(commitMessage, expectedLogMessage, uncheckUntracked=False):
         model = treeView.model()
         for indexStr in dumpItems(model):
             if 'untracked' in indexStr:
-                clickItem(treeView, indexStr, 5, 5, 0, Qt.LeftButton)
+                mouseClick(waitForObjectItem(treeView, indexStr))
     checkOrFixCommitterInformation('invalidAuthorLabel', 'authorLineEdit', 'Nobody')
     checkOrFixCommitterInformation('invalidEmailLabel', 'emailLineEdit', 'nobody@nowhere.com')
     clickButton(waitForObject(":splitter.Commit File(s)_VcsBase::QActionPushButton"))

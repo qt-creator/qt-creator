@@ -135,7 +135,7 @@ def performEditCombo():
     test.compare(dumpItems(itemListWidget.model()), expectedItems,
                  "Verifying last item has moved to top of the list.")
     # remove the "Combo Item 1" item from the list
-    clickItem(itemListWidget, "Combo Item 1", 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(itemListWidget, "Combo Item 1"))
     clickButton("{name='deleteListItemButton' type='QToolButton' visible='1' window=%s}"
                 % edComboWin)
     waitFor("itemListWidget.model().rowCount() == len(expectedItems) - 1", 2000)

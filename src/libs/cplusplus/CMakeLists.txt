@@ -6,7 +6,7 @@ add_qtc_library(CPlusPlus
   DEPENDS Utils
   DEFINES CPLUSPLUS_BUILD_LIB
   PUBLIC_DEPENDS 3rd_cplusplus Qt5::Concurrent Qt5::Gui
-  PUBLIC_INCLUDES "${CMAKE_SOURCE_DIR}/src/libs/3rdparty"
+  PUBLIC_INCLUDES src/libs/3rdparty
   SOURCES
     ASTParent.cpp ASTParent.h
     ASTPath.cpp ASTPath.h

@@ -94,6 +94,7 @@ if (TARGET Qt5::Svg AND ENABLE_SVG_SUPPORT)
 else()
   target_compile_definitions(OptionalSvg INTERFACE QT_NO_SVG)
 endif()
+install(TARGETS OptionalSvg EXPORT QtCreator)
 
 find_package(LLVM QUIET)
 find_package(Clang COMPONENTS libclang QUIET)
@@ -109,73 +110,7 @@ if (APPLE)
   find_library(FWWebKit WebKit)
 endif()
 
-set(_IDE_APP_PATH "bin")
-
-if (APPLE)
-  set(_IDE_APP_TARGET "${IDE_DISPLAY_NAME}")
-
-  set(_IDE_OUTPUT_PATH "${_IDE_APP_PATH}/${_IDE_APP_TARGET}.app/Contents")
-
-  set(_IDE_PLUGIN_PATH "${_IDE_OUTPUT_PATH}/PlugIns")
-  set(_IDE_LIBRARY_BASE_PATH "Frameworks")
-  set(_IDE_LIBRARY_PATH "${_IDE_OUTPUT_PATH}/Frameworks")
-  set(_IDE_LIBEXEC_PATH "${_IDE_OUTPUT_PATH}/Resources")
-  set(_IDE_DATA_PATH "${_IDE_OUTPUT_PATH}/Resources")
-  set(_IDE_DOC_PATH "${_IDE_OUTPUT_PATH}/Resources/doc")
-  set(_IDE_BIN_PATH "${_IDE_OUTPUT_PATH}/MacOS")
-else ()
-  set(_IDE_APP_TARGET "${IDE_ID}")
-
-  set(_IDE_LIBRARY_BASE_PATH "lib")
-  set(_IDE_LIBRARY_PATH "lib/qtcreator")
-  set(_IDE_PLUGIN_PATH "lib/qtcreator/plugins")
-  if (WIN32)
-    set(_IDE_LIBEXEC_PATH "bin")
-  else ()
-    set(_IDE_LIBEXEC_PATH "libexec/qtcreator/bin")
-  endif ()
-  set(_IDE_DATA_PATH "share/qtcreator")
-  set(_IDE_DOC_PATH "share/doc/qtcreator")
-  set(_IDE_BIN_PATH "bin")
-endif ()
-
-set(IDE_APP_PATH "${_IDE_APP_PATH}")                    # The target path of the IDE application (relative to CMAKE_INSTALL_PREFIX).
-set(IDE_APP_TARGET "${_IDE_APP_TARGET}")                # The IDE application name.
-set(IDE_PLUGIN_PATH "${_IDE_PLUGIN_PATH}")              # The IDE plugin path (relative to CMAKE_INSTALL_PREFIX).
-set(IDE_LIBRARY_BASE_PATH "${_IDE_LIBRARY_BASE_PATH}")  # The IDE library base path (relative to CMAKE_INSTALL_PREFIX).
-set(IDE_LIBRARY_PATH "${_IDE_LIBRARY_PATH}")            # The IDE library path (relative to CMAKE_INSTALL_PREFIX).
-set(IDE_LIBEXEC_PATH "${_IDE_LIBEXEC_PATH}")            # The IDE libexec path (relative to CMAKE_INSTALL_PREFIX).
-set(IDE_DATA_PATH "${_IDE_DATA_PATH}")                  # The IDE data path (relative to CMAKE_INSTALL_PREFIX).
-set(IDE_DOC_PATH "${_IDE_DOC_PATH}")                    # The IDE documentation path (relative to CMAKE_INSTALL_PREFIX).
-set(IDE_BIN_PATH "${_IDE_BIN_PATH}")                    # The IDE bin path (relative to CMAKE_INSTALL_PREFIX).
-
-file(RELATIVE_PATH RELATIVE_PLUGIN_PATH "/${IDE_BIN_PATH}" "/${IDE_PLUGIN_PATH}")
-file(RELATIVE_PATH RELATIVE_LIBEXEC_PATH "/${IDE_BIN_PATH}" "/${IDE_LIBEXEC_PATH}")
-file(RELATIVE_PATH RELATIVE_DATA_PATH "/${IDE_BIN_PATH}" "/${IDE_DATA_PATH}")
-file(RELATIVE_PATH RELATIVE_DOC_PATH "/${IDE_BIN_PATH}" "/${IDE_DOC_PATH}")
-
-list(APPEND DEFAULT_DEFINES
-  RELATIVE_PLUGIN_PATH="${RELATIVE_PLUGIN_PATH}"
-  RELATIVE_LIBEXEC_PATH="${RELATIVE_LIBEXEC_PATH}"
-  RELATIVE_DATA_PATH="${RELATIVE_DATA_PATH}"
-  RELATIVE_DOC_PATH="${RELATIVE_DOC_PATH}"
-)
-
-file(RELATIVE_PATH _PLUGIN_TO_LIB "/${IDE_PLUGIN_PATH}" "/${IDE_LIBRARY_PATH}")
-
-if (APPLE)
-  set(_RPATH_BASE "@executable_path")
-  set(_LIB_RPATH "@loader_path")
-  set(_PLUGIN_RPATH "@loader_path;@loader_path/${_PLUGIN_TO_LIB}")
-elseif (WIN32)
-  set(_RPATH_BASE "")
-  set(_LIB_RPATH "")
-  set(_PLUGIN_RPATH "")
-else()
-  set(_RPATH_BASE "\$ORIGIN")
-  set(_LIB_RPATH "\$ORIGIN")
-  set(_PLUGIN_RPATH "\$ORIGIN;\$ORIGIN/${_PLUGIN_TO_LIB}")
-endif ()
+include(QtCreatorAPI)
 
 if (UNIX)
   add_subdirectory(bin)
