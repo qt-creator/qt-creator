@@ -126,6 +126,7 @@ static QList<BuildStepFactory *> g_buildStepFactories;
 BuildStep::BuildStep(BuildStepList *bsl, Core::Id id) :
     ProjectConfiguration(bsl, id)
 {
+    QTC_CHECK(bsl->target() && bsl->target() == this->target());
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Build Step"));
     expander->setAccumulating(true);
@@ -202,16 +203,6 @@ DeployConfiguration *BuildStep::deployConfiguration() const
 ProjectConfiguration *BuildStep::projectConfiguration() const
 {
     return static_cast<ProjectConfiguration *>(parent()->parent());
-}
-
-Target *BuildStep::target() const
-{
-    return qobject_cast<Target *>(parent()->parent()->parent());
-}
-
-Project *BuildStep::project() const
-{
-    return target()->project();
 }
 
 void BuildStep::reportRunResult(QFutureInterface<bool> &fi, bool success)

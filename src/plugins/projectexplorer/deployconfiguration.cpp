@@ -44,6 +44,7 @@ DeployConfiguration::DeployConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id),
       m_stepList(this, Constants::BUILDSTEPS_DEPLOY)
 {
+    QTC_CHECK(target && target == this->target());
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Deploy Settings"));
     expander->setAccumulating(true);
@@ -106,16 +107,6 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
     }
 
     return true;
-}
-
-Target *DeployConfiguration::target() const
-{
-    return static_cast<Target *>(parent());
-}
-
-Project *DeployConfiguration::project() const
-{
-    return target()->project();
 }
 
 bool DeployConfiguration::isActive() const

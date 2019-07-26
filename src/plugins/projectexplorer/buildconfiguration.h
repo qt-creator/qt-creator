@@ -75,9 +75,6 @@ public:
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
 
-    Target *target() const;
-    Project *project() const override;
-
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
 

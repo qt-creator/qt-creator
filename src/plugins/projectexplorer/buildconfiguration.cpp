@@ -65,6 +65,7 @@ namespace ProjectExplorer {
 BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id)
 {
+    QTC_CHECK(target && target == this->target());
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Build Settings"));
     expander->setAccumulating(true);
@@ -269,16 +270,6 @@ void BuildConfiguration::setConfigWidgetHasFrame(bool configWidgetHasFrame)
 void BuildConfiguration::setBuildDirectorySettingsKey(const QString &key)
 {
     m_buildDirectoryAspect->setSettingsKey(key);
-}
-
-Target *BuildConfiguration::target() const
-{
-    return static_cast<Target *>(parent());
-}
-
-Project *BuildConfiguration::project() const
-{
-    return target()->project();
 }
 
 Utils::Environment BuildConfiguration::baseEnvironment() const

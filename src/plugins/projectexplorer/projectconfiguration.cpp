@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "projectconfiguration.h"
+#include "target.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -86,9 +87,24 @@ ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id)
 {
     QTC_CHECK(id.isValid());
     setObjectName(id.toString());
+    for (QObject *obj = this; obj; obj = obj->parent()) {
+        m_target = qobject_cast<Target *>(obj);
+        if (m_target != nullptr)
+            break;
+    }
+
+    // FIXME: Below triggers on 'real' Targets with this here a base class as it's
+    // not a real Target at this point of time. Plan is to cut this dependency and
+    // enable the check, for now the item is set manually in the Target ctor.
+    // QTC_CHECK(m_target);
 }
 
 ProjectConfiguration::~ProjectConfiguration() = default;
+
+Project *ProjectConfiguration::project() const
+{
+    return m_target->project();
+}
 
 Core::Id ProjectConfiguration::id() const
 {
@@ -157,6 +173,12 @@ QVariantMap ProjectConfiguration::toMap() const
     m_aspects.toMap(map);
 
     return map;
+}
+
+Target *ProjectConfiguration::target() const
+{
+    return m_target;
+
 }
 
 bool ProjectConfiguration::fromMap(const QVariantMap &map)

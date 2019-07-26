@@ -53,7 +53,7 @@ public:
     QbsBuildStep *qbsStep() const;
     QVariantMap qbsConfiguration() const;
 
-    Internal::QbsProject *project() const override;
+    Internal::QbsProject *qbsProject() const;
 
     bool isEnabled() const override;
     QString disabledReason() const override;

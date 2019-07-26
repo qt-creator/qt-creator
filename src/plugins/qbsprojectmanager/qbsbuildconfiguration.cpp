@@ -158,21 +158,21 @@ QVariantMap QbsBuildConfiguration::qbsConfiguration() const
     return config;
 }
 
-Internal::QbsProject *QbsBuildConfiguration::project() const
+Internal::QbsProject *QbsBuildConfiguration::qbsProject() const
 {
-    return qobject_cast<Internal::QbsProject *>(BuildConfiguration::project());
+    return qobject_cast<Internal::QbsProject *>(project());
 }
 
 bool QbsBuildConfiguration::isEnabled() const
 {
-    return !project()->isParsing() && project()->hasParseResult();
+    return !project()->isParsing() && qbsProject()->hasParseResult();
 }
 
 QString QbsBuildConfiguration::disabledReason() const
 {
     if (project()->isParsing())
         return tr("Parsing the Qbs project.");
-    if (!project()->hasParseResult())
+    if (!qbsProject()->hasParseResult())
         return tr("Parsing of Qbs project has failed.");
     return QString();
 }

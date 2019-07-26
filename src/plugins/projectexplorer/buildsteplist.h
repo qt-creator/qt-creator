@@ -77,9 +77,6 @@ public:
     void moveStepUp(int position);
     BuildStep *at(int position);
 
-    Target *target() const;
-    Project *project() const override;
-
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &map) override;
 

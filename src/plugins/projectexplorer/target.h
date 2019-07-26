@@ -57,9 +57,9 @@ public:
     Target(Project *parent, Kit *k, _constructor_tag);
     ~Target() override;
 
-    Project *project() const override;
-
     bool isActive() const final;
+
+    Project *project() const;
 
     // Kit:
     Kit *kit() const;

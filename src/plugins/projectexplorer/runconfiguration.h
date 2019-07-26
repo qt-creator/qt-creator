@@ -152,9 +152,6 @@ public:
     // TODO rename function
     virtual ConfigurationState ensureConfigured(QString *errorMessage = nullptr);
 
-    Target *target() const;
-    Project *project() const override;
-
     Utils::OutputFormatter *createOutputFormatter() const;
 
     bool fromMap(const QVariantMap &map) override;

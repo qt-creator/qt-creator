@@ -46,6 +46,7 @@ const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 BuildStepList::BuildStepList(QObject *parent, Core::Id id)
     : ProjectConfiguration(parent, id)
 {
+    QTC_CHECK(parent && parent->parent() && parent->parent() == target());
     if (id == Constants::BUILDSTEPS_BUILD) {
         //: Display name of the build build step list. Used as part of the labels in the project window.
         setDefaultDisplayName(tr("Build"));
@@ -191,21 +192,4 @@ void BuildStepList::moveStepUp(int position)
 BuildStep *BuildStepList::at(int position)
 {
     return m_steps.at(position);
-}
-
-Target *BuildStepList::target() const
-{
-    Q_ASSERT(parent());
-    auto bc = qobject_cast<BuildConfiguration *>(parent());
-    if (bc)
-        return bc->target();
-    auto dc = qobject_cast<DeployConfiguration *>(parent());
-    if (dc)
-        return dc->target();
-    return nullptr;
-}
-
-Project *BuildStepList::project() const
-{
-    return target()->project();
 }

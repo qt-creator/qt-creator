@@ -160,6 +160,7 @@ static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id)
 {
+    QTC_CHECK(target && target == this->target());
     connect(target->project(), &Project::parsingStarted,
             this, [this]() { updateEnabledState(); });
     connect(target->project(), &Project::parsingFinished,
@@ -306,16 +307,6 @@ BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
     if (!target())
         return nullptr;
     return target()->activeBuildConfiguration();
-}
-
-Target *RunConfiguration::target() const
-{
-    return static_cast<Target *>(parent());
-}
-
-Project *RunConfiguration::project() const
-{
-    return target()->project();
 }
 
 QVariantMap RunConfiguration::toMap() const

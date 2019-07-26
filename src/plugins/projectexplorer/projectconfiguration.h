@@ -42,6 +42,7 @@ namespace ProjectExplorer {
 
 class Project;
 class ProjectConfigurationAspects;
+class Target;
 
 class PROJECTEXPLORER_EXPORT ProjectConfigurationAspect : public QObject
 {
@@ -153,7 +154,8 @@ public:
     Utils::MacroExpander *macroExpander() { return &m_macroExpander; }
     const Utils::MacroExpander *macroExpander() const { return &m_macroExpander; }
 
-    virtual Project *project() const = 0;
+    Target *target() const;
+    Project *project() const;
 
     virtual bool isActive() const = 0;
 
@@ -180,6 +182,8 @@ protected:
     ProjectConfigurationAspects m_aspects;
 
 private:
+    friend class Target; // FIXME: Remove
+    Target *m_target = nullptr;
     const Core::Id m_id;
     QString m_displayName;
     QString m_defaultDisplayName;
