@@ -368,8 +368,10 @@ QList<CMakeBuildTarget> BuildDirManager::takeBuildTargets(QString &errorMessage)
 
         // Guess at the target definition position when no details are known
         for (CMakeBuildTarget &t : readerTargets) {
-            if (t.definitionFile.isEmpty()) {
-                t.definitionFile = t.sourceDirectory.pathAppended("CMakeLists.txt");
+            if (t.backtrace.isEmpty()) {
+                t.backtrace.append(
+                    FolderNode::LocationInfo(tr("CMakeLists.txt in source directory"),
+                                             t.sourceDirectory.pathAppended("CMakeLists.txt")));
             }
         }
         result.append(readerTargets);

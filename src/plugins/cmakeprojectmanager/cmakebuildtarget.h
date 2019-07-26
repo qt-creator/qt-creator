@@ -28,6 +28,7 @@
 #include "cmake_global.h"
 
 #include <projectexplorer/projectmacro.h>
+#include <projectexplorer/projectnodes.h>
 
 #include <utils/fileutils.h>
 
@@ -43,6 +44,9 @@ enum TargetType {
     UtilityType
 };
 
+using Backtrace = QVector<ProjectExplorer::FolderNode::LocationInfo>;
+using Backtraces = QVector<Backtrace>;
+
 class CMAKE_EXPORT CMakeBuildTarget
 {
 public:
@@ -53,8 +57,13 @@ public:
     Utils::FilePath sourceDirectory;
     Utils::FilePath makeCommand;
 
-    Utils::FilePath definitionFile;
-    int definitionLine = -1;
+    Backtrace backtrace;
+
+    Backtraces dependencyDefinitions;
+    Backtraces sourceDefinitions;
+    Backtraces defineDefinitions;
+    Backtraces includeDefinitions;
+    Backtraces installDefinitions;
 
     // code model
     QList<Utils::FilePath> includeFiles;

@@ -75,12 +75,13 @@ void CMakeTargetLocatorFilter::prepareSearch(const QString &entry)
         for (const CMakeBuildTarget &target : buildTargets) {
             const int index = target.title.indexOf(entry);
             if (index >= 0) {
-                const FilePath path = target.definitionFile.isEmpty()
-                                          ? cmakeProject->projectFilePath()
-                                          : target.definitionFile;
+                const FilePath path = target.backtrace.isEmpty() ? cmakeProject->projectFilePath()
+                                                                 : target.backtrace.first().path;
+                const int line = target.backtrace.isEmpty() ? -1 : target.backtrace.first().line;
+
                 QVariantMap extraData;
                 extraData.insert("project", cmakeProject->projectFilePath().toString());
-                extraData.insert("line", target.definitionLine);
+                extraData.insert("line", line);
                 extraData.insert("file", path.toString());
 
                 Core::LocatorFilterEntry filterEntry(this, target.title, extraData);
