@@ -29,7 +29,8 @@ def handleInsertVirtualFunctions(expected, toAdd):
     def __checkVirtualFunction(treeView, classIndex, isCheckedF, child):
         item = "%s.%s" % (str(classIndex.text), str(child.text))
         test.log("Checking '%s'." % item)
-        mouseClick(waitForObjectItem(treeView, item.replace("_", "\\_")))
+        # params required here
+        mouseClick(waitForObjectItem(treeView, item.replace("_", "\\_")), 5, 5, 0, Qt.LeftButton)
         test.verify(waitFor("isCheckedF(child)", 1000), "Function must be checked after clicking")
 
     treeView = waitForObject("{container={title='Functions to insert:' type='QGroupBox' unnamed='1'"

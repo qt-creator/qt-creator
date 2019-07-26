@@ -99,7 +99,8 @@ def selectFromCombo(objectSpec, itemName):
     else:
         mouseClick(object)
         snooze(1)
-        mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")))
+        # params required here
+        mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")), 5, 5, 0, Qt.LeftButton)
         test.verify(waitFor("str(object.currentText)==itemName", 5000),
                     "Switched combo item to '%s'" % itemName)
         return True
