@@ -468,9 +468,13 @@ Diagnostics ClangTidyClazyTool::read(const QString &logFilePath,
                                      const QSet<Utils::FilePath> &projectFiles,
                                      QString *errorMessage) const
 {
+    const auto acceptFromFilePath = [projectFiles](const Utils::FilePath &filePath) {
+        return projectFiles.contains(filePath);
+    };
+
     return readSerializedDiagnostics(Utils::FilePath::fromString(logFilePath),
                                      Utils::FilePath::fromString(mainFilePath),
-                                     projectFiles,
+                                     acceptFromFilePath,
                                      errorMessage);
 }
 

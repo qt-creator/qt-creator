@@ -27,16 +27,16 @@
 
 #include "clangtoolsdiagnostic.h"
 
-#include <QSet>
-
 namespace Utils { class FilePath; }
 
 namespace ClangTools {
 namespace Internal {
 
+using AcceptDiagsFromFilePath = std::function<bool(const Utils::FilePath &)>;
+
 Diagnostics readSerializedDiagnostics(const Utils::FilePath &logFilePath,
                                       const Utils::FilePath &mainFilePath,
-                                      const QSet<Utils::FilePath> &projectFiles,
+                                      const AcceptDiagsFromFilePath &acceptFromFilePath,
                                       QString *errorMessage);
 
 } // namespace Internal

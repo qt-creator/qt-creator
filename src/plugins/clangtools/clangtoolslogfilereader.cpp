@@ -122,7 +122,7 @@ static ExplainingStep buildFixIt(const CXDiagnostic cxDiagnostic, unsigned index
 }
 
 static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
-                                  const QSet<Utils::FilePath> &projectFiles,
+                                  const AcceptDiagsFromFilePath &acceptFromFilePath,
                                   const QString &nativeFilePath)
 {
     Diagnostic diagnostic;
@@ -136,7 +136,7 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
 
     diagnostic.location = diagLocationFromSourceLocation(cxLocation);
     const auto diagnosticFilePath = Utils::FilePath::fromString(diagnostic.location.filePath);
-    if (!projectFiles.contains(diagnosticFilePath))
+    if (acceptFromFilePath && !acceptFromFilePath(diagnosticFilePath))
         return diagnostic;
 
     // TODO: Introduce CppTools::ProjectFile::isGenerated to filter these out properly
@@ -184,7 +184,7 @@ static Diagnostic buildDiagnostic(const CXDiagnostic cxDiagnostic,
 
 static Diagnostics readSerializedDiagnostics_helper(const Utils::FilePath &logFilePath,
                                                     const Utils::FilePath &mainFilePath,
-                                                    const QSet<Utils::FilePath> &projectFiles)
+                                                    const AcceptDiagsFromFilePath &acceptFromFilePath)
 {
     Diagnostics list;
     CXLoadDiag_Error error;
@@ -206,7 +206,7 @@ static Diagnostics readSerializedDiagnostics_helper(const Utils::FilePath &logFi
         Utils::ExecuteOnDestruction cleanUpDiagnostic([&]() {
             clang_disposeDiagnostic(cxDiagnostic);
         });
-        const Diagnostic diagnostic = buildDiagnostic(cxDiagnostic, projectFiles, nativeFilePath);
+        const Diagnostic diagnostic = buildDiagnostic(cxDiagnostic, acceptFromFilePath, nativeFilePath);
         if (!diagnostic.isValid())
             continue;
 
@@ -233,13 +233,13 @@ static bool checkFilePath(const Utils::FilePath &filePath, QString *errorMessage
 
 Diagnostics readSerializedDiagnostics(const Utils::FilePath &logFilePath,
                                       const Utils::FilePath &mainFilePath,
-                                      const QSet<Utils::FilePath> &projectFiles,
+                                      const AcceptDiagsFromFilePath &acceptFromFilePath,
                                       QString *errorMessage)
 {
     if (!checkFilePath(logFilePath, errorMessage))
         return {};
 
-    return readSerializedDiagnostics_helper(logFilePath, mainFilePath, projectFiles);
+    return readSerializedDiagnostics_helper(logFilePath, mainFilePath, acceptFromFilePath);
 }
 
 } // namespace Internal
