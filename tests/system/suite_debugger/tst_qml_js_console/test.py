@@ -28,7 +28,7 @@ source("../../shared/qtcreator.py")
 def typeToDebuggerConsole(expression):
     editableIndex = getQModelIndexStr("text=''",
                                       ":DebugModeWidget_Debugger::Internal::ConsoleView")
-    mouseClick(editableIndex, 5, 5, 0, Qt.LeftButton)
+    mouseClick(editableIndex)
     type(waitForObject(":Debugger::Internal::ConsoleEdit"), expression)
     type(waitForObject(":Debugger::Internal::ConsoleEdit"), "<Return>")
 
@@ -82,7 +82,7 @@ def getQmlJSConsoleOutput():
         return [""]
 
 def runChecks(elementProps, parent, checks):
-    mouseClick(getQModelIndexStr(elementProps, parent), 5, 5, 0, Qt.LeftButton)
+    mouseClick(getQModelIndexStr(elementProps, parent))
     for check in checks:
         useDebuggerConsole(*check)
 

@@ -52,8 +52,7 @@ def main():
             activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Go to slot..."))
         signalWidgetObject = waitForObject(":Select signal.signalList_QTreeView")
         signalName = con[1] + "." + con[2]
-        waitForObjectItem(signalWidgetObject, signalName)
-        clickItem(signalWidgetObject, signalName, 5, 5, 0, Qt.LeftButton)
+        mouseClick(waitForObjectItem(signalWidgetObject, signalName))
         clickButton(waitForObject(":Go to slot.OK_QPushButton"))
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         type(editor, "<Up>")

@@ -103,7 +103,7 @@ def main():
                 "Verifying if usages were properly found using context menu.")
     # clear previous results & prepare for next search
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
-    mouseClick(editorArea, 5, 5, 0, Qt.LeftButton)
+    mouseClick(editorArea)
     # 2. check usages using menu
     # place cursor to component
     if not placeCursorToLine(editorArea, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"):
@@ -122,7 +122,7 @@ def main():
                 "Verifying if usages were properly found using main menu.")
     # clear previous results & prepare for next search
     clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
-    mouseClick(editorArea, 5, 5, 0, Qt.LeftButton)
+    mouseClick(editorArea)
     # 3. check usages using keyboard shortcut
     # place cursor to component
     if not placeCursorToLine(editorArea, "SequentialAnimation on opacity {"):

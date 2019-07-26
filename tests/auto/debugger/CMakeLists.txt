@@ -1,4 +1,4 @@
-set(DEBUGGERDIR "${CMAKE_SOURCE_DIR}/src/plugins/debugger")
+set(DEBUGGERDIR "${PROJECT_SOURCE_DIR}/src/plugins/debugger")
 
 add_qtc_test(tst_debugger_disassembler
   INCLUDES "${DEBUGGERDIR}"
@@ -10,7 +10,7 @@ add_qtc_test(tst_debugger_disassembler
 if (WITH_DEBUGGER_DUMPERS)
   add_qtc_test(tst_debugger_dumpers
     DEPENDS Qt5::Network Utils
-    DEFINES DUMPERDIR="${CMAKE_SOURCE_DIR}/share/qtcreator/debugger"
+    DEFINES DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
     INCLUDES
       "${DEBUGGERDIR}"
     SOURCES

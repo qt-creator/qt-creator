@@ -45,7 +45,7 @@ def createFile(folder, filename):
     __createProjectHandleLastPage__()
 
 def clickTableGetPatternLineEdit(table, row):
-    clickItem(table, row, 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(table, row))
     return waitForObject("{name='patternsLineEdit' type='QLineEdit' visible='1'}")
 
 def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
@@ -54,7 +54,7 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
     result = []
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Environment")
-    clickItem(":Options_QListView", "Environment", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
                   "text='MIME Types'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "MIME Types")
@@ -118,7 +118,7 @@ def addHighlighterDefinition(*languages):
     test.log("Updating highlighter definitions...")
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Text Editor")
-    clickItem(":Options_QListView", "Text Editor", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Text Editor"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
                   "text='Generic Highlighter'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Generic Highlighter")

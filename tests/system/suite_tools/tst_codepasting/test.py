@@ -157,8 +157,7 @@ def fetchSnippet(protocol, description, pasteId, skippedPasting):
             replaceEditorContent(waitForObject(":PasteSelectDialog.pasteEdit_QLineEdit"), pasteId)
     if foundSnippet:
         pasteLine = pasteLine.replace(".", "\\.")
-        waitForObjectItem(":PasteSelectDialog.listWidget_QListWidget", pasteLine)
-        clickItem(":PasteSelectDialog.listWidget_QListWidget", pasteLine, 5, 5, 0, Qt.LeftButton)
+        mouseClick(waitForObjectItem(":PasteSelectDialog.listWidget_QListWidget", pasteLine))
     clickButton(waitForObject(":PasteSelectDialog.OK_QPushButton"))
     return pasteId
 

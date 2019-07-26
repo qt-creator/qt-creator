@@ -65,7 +65,7 @@ def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
     except:
         # widgets not derived from QCheckbox don't have checkState()
         if not waitFor('widget.checked == shouldBeChecked', 1500):
-            mouseClick(widget, 10, 6, 0, Qt.LeftButton)
+            mouseClick(widget)
         test.verify(waitFor("widget.checked == shouldBeChecked", 1000))
     test.log("New state for QCheckBox: %s" % state,
              str(objectName))
@@ -97,9 +97,9 @@ def selectFromCombo(objectSpec, itemName):
     if itemName == str(object.currentText):
         return False
     else:
-        mouseClick(object, 5, 5, 0, Qt.LeftButton)
+        mouseClick(object)
         snooze(1)
-        mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")), 5, 5, 0, Qt.LeftButton)
+        mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")))
         test.verify(waitFor("str(object.currentText)==itemName", 5000),
                     "Switched combo item to '%s'" % itemName)
         return True
@@ -277,8 +277,7 @@ def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
 # param which a list/tuple of the paths to the qch files to be added
 def addHelpDocumentation(which):
     invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Help")
-    clickItem(":Options_QListView", "Help", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Help"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
     # get rid of all docs already registered
@@ -304,8 +303,7 @@ def addCurrentCreatorDocumentation():
         test.fatal("Missing current Qt Creator documentation (expected in %s)" % docPath)
         return
     invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Help")
-    clickItem(":Options_QListView", "Help", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Help"))
     waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
     clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
@@ -361,8 +359,7 @@ def getConfiguredKits():
         return str(treeView.currentIndex().data().toString())
     # end of internal function for iterateQtVersions
     def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
-        treeView = waitForObject(":BuildAndRun_QTreeView")
-        clickItem(treeView, kit, 5, 5, 0, Qt.LeftButton)
+        mouseClick(waitForObjectItem(":BuildAndRun_QTreeView", kit))
         qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
         kitsQtVersionName[kitName] = qtVersionStr
     # end of internal function for iterate kits
@@ -433,8 +430,7 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     additionalResult = []
     if not alreadyOnOptionsDialog:
         invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Kits")
-    clickItem(":Options_QListView", "Kits", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     pattern = re.compile("Qt version (?P<version>.*?) for (?P<target>.*)")
     treeView = waitForObject(":qtdirList_QTreeView")
@@ -443,7 +439,7 @@ def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
         rootChildText = str(rootIndex.data()).replace(".", "\\.").replace("_", "\\_")
         for subIndex in dumpIndices(model, rootIndex):
             subChildText = str(subIndex.data()).replace(".", "\\.").replace("_", "\\_")
-            clickItem(treeView, ".".join([rootChildText,subChildText]), 5, 5, 0, Qt.LeftButton)
+            mouseClick(waitForObjectItem(treeView, ".".join([rootChildText,subChildText])))
             currentText = str(waitForObject(":QtSupport__Internal__QtVersionManager.QLabel").text)
             matches = pattern.match(currentText)
             if matches:
@@ -493,8 +489,7 @@ def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
     additionalResult = []
     if not alreadyOnOptionsDialog:
         invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Build & Run")
-    clickItem(":Options_QListView", "Kits", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     treeView = waitForObject(":BuildAndRun_QTreeView")
     model = treeView.model()
@@ -539,8 +534,7 @@ class HelpViewer:
 
 def setFixedHelpViewer(helpViewer):
     invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Help")
-    clickItem(":Options_QListView", "Help", 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Help"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "General")
     mode = "Always Show "
     if helpViewer == HelpViewer.HELPMODE:

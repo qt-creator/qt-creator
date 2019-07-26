@@ -68,8 +68,7 @@ def checkQtCreatorHelpVersion(expectedVersion):
 
 def setKeyboardShortcutForAboutQtC():
     invokeMenuItem("Tools", "Options...")
-    waitForObjectItem(":Options_QListView", "Environment")
-    clickItem(":Options_QListView", "Environment", 14, 15, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Keyboard")
     filter = waitForObject("{container={title='Keyboard Shortcuts' type='QGroupBox' unnamed='1' "
                            "visible='1'} type='Utils::FancyLineEdit' unnamed='1' visible='1' "
@@ -79,7 +78,7 @@ def setKeyboardShortcutForAboutQtC():
     modelIndex = waitForObject("{column='0' text='AboutQtCreator' type='QModelIndex' "
                                "container={column='0' text='QtCreator' type='QModelIndex' "
                                "container=%s}}" % objectMap.realName(treewidget))
-    mouseClick(modelIndex, 5, 5, 0, Qt.LeftButton)
+    mouseClick(modelIndex)
     shortcutGB = "{title='Shortcut' type='QGroupBox' unnamed='1' visible='1'}"
     record = waitForObject("{container=%s type='Core::Internal::ShortcutButton' unnamed='1' "
                            "visible='1' text~='(Stop Recording|Record)'}" % shortcutGB)

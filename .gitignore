@@ -46,9 +46,11 @@ wrapper.sh
 *.qbs.user*
 *.qmlproject.user*
 CMakeLists.txt.user
-/share/qtcreator/externaltools
+/share/qtcreator/examples/
+/share/qtcreator/externaltools/
 /share/qtcreator/fonts/
 /share/qtcreator/generic-highlighter/
+/share/qtcreator/qmldesigner/QtProject/
 /src/app/Info.plist
 /src/plugins/**/*.json
 /src/plugins/coreplugin/ide_version.h

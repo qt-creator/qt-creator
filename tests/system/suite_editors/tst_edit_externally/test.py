@@ -34,7 +34,7 @@ def modifyExternally(filePath):
 def switchOpenDocsTo(filename):
     selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Open Documents")
     docs = waitForObject(":OpenDocuments_Widget")
-    clickItem(docs, filename.replace(".", "\\.").replace("_", "\\_"), 5, 5, 0, Qt.LeftButton)
+    mouseClick(waitForObjectItem(docs, filename.replace(".", "\\.").replace("_", "\\_")))
     return getEditorForFileSuffix(filename)
 
 def main():

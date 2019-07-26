@@ -7,12 +7,14 @@ else()
   set(plugin_output_name "testd4")
 endif()
 
+file(RELATIVE_PATH TEST_PLUGIN_PATH ${QtCreator_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
 add_qtc_plugin(testplugin
   DEPENDS ExtensionSystem
   DEFINES MYPLUGIN_LIBRARY
   SOURCES
     testplugin.cpp testplugin.h
-  PLUGIN_PATH "${CMAKE_CURRENT_BINARY_DIR}"
+  PLUGIN_PATH "${TEST_PLUGIN_PATH}"
   PROPERTIES
     OUTPUT_NAME ${plugin_output_name}
   SKIP_INSTALL

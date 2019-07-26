@@ -22,6 +22,7 @@ find_path(GOOGLE_BENCHMARK_INCLUDE_DIR
   PATH_SUFFIXES include
   HINTS
     "${GOOGLEBENCHMARK_DIR}" ENV GOOGLEBENCHMARK_DIR
+    "${CMAKE_SOURCE_DIR}/benchmark"
     "${CMAKE_SOURCE_DIR}/../benchmark"
     "${CMAKE_SOURCE_DIR}/../../benchmark"
 )
@@ -31,6 +32,7 @@ find_path(GOOGLE_BENCHMARK_SRC_DIR
   PATH_SUFFIXES src
   HINTS
     "${GOOGLEBENCHMARK_DIR}" ENV GOOGLEBENCHMARK_DIR
+    "${CMAKE_SOURCE_DIR}/benchmark"
     "${CMAKE_SOURCE_DIR}/../benchmark"
     "${CMAKE_SOURCE_DIR}/../../benchmark"
 )
