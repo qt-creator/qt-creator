@@ -28,6 +28,8 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
+namespace Utils { class PathChooser; }
+
 namespace BareMetal {
 namespace Internal {
 
@@ -46,9 +48,11 @@ public:
 
 private:
     void gdbServerProviderChanged();
+    void peripheralDescriptionFileChanged();
     void updateDeviceFromUi() final;
 
     GdbServerProviderChooser *m_gdbServerProviderChooser = nullptr;
+    Utils::PathChooser *m_peripheralDescriptionFileChooser = nullptr;
 };
 
 } // namespace Internal

@@ -29,6 +29,7 @@
 
 #include <debugger/breakhandler.h>
 #include <debugger/registerhandler.h>
+#include <debugger/peripheralregisterhandler.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchutils.h>
 #include <debugger/debuggeritem.h>
@@ -266,10 +267,13 @@ private: ////////// General Interface //////////
     // Register specific stuff
     //
     void reloadRegisters() final;
+    void reloadPeripheralRegisters() final;
     void setRegisterValue(const QString &name, const QString &value) final;
+    void setPeripheralRegisterValue(quint64 address, quint64 value) final;
     void handleRegisterListNames(const DebuggerResponse &response);
     void handleRegisterListing(const DebuggerResponse &response);
     void handleRegisterListValues(const DebuggerResponse &response);
+    void handlePeripheralRegisterListValues(const DebuggerResponse &response);
     void handleMaintPrintRegisters(const DebuggerResponse &response);
     QHash<int, Register> m_registers; // Map GDB register numbers to indices
 

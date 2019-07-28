@@ -30,6 +30,7 @@
 #include "gdbserverprovider.h"
 #include "gdbserverproviderchooser.h"
 
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <QFormLayout>
@@ -56,6 +57,19 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
 
     connect(m_gdbServerProviderChooser, &GdbServerProviderChooser::providerChanged,
             this, &BareMetalDeviceConfigurationWidget::gdbServerProviderChanged);
+
+    m_peripheralDescriptionFileChooser = new Utils::PathChooser(this);
+    m_peripheralDescriptionFileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_peripheralDescriptionFileChooser->setPromptDialogFilter(
+                tr("Peripheral description files (*.svd)"));
+    m_peripheralDescriptionFileChooser->setPromptDialogTitle(
+                tr("Select Peripheral Description File"));
+    m_peripheralDescriptionFileChooser->setPath(dev->peripheralDescriptionFilePath());
+    formLayout->addRow(tr("Peripheral description file:"),
+                       m_peripheralDescriptionFileChooser);
+
+    connect(m_peripheralDescriptionFileChooser, &Utils::PathChooser::pathChanged,
+            this, &BareMetalDeviceConfigurationWidget::peripheralDescriptionFileChanged);
 }
 
 void BareMetalDeviceConfigurationWidget::gdbServerProviderChanged()
@@ -63,6 +77,13 @@ void BareMetalDeviceConfigurationWidget::gdbServerProviderChanged()
     const auto dev = qSharedPointerCast<BareMetalDevice>(device());
     QTC_ASSERT(dev, return);
     dev->setGdbServerProviderId(m_gdbServerProviderChooser->currentProviderId());
+}
+
+void BareMetalDeviceConfigurationWidget::peripheralDescriptionFileChanged()
+{
+    const auto dev = qSharedPointerCast<BareMetalDevice>(device());
+    QTC_ASSERT(dev, return);
+    dev->setPeripheralDescriptionFilePath(m_peripheralDescriptionFileChooser->path());
 }
 
 void BareMetalDeviceConfigurationWidget::updateDeviceFromUi()

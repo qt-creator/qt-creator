@@ -1030,6 +1030,7 @@ void GdbEngine::updateAll()
     stackHandler()->setCurrentIndex(0);
     runCommand({"-thread-info", CB(handleThreadInfo)});
     reloadRegisters();
+    reloadPeripheralRegisters();
     updateLocals();
 }
 
@@ -2903,6 +2904,7 @@ void GdbEngine::handleStackListFrames(const DebuggerResponse &response, bool isF
         // logStreamOutput: "Previous frame identical to this frame (corrupt stack?)\n"
         //qDebug() << "LISTING STACK FAILED: " << response.toString();
         reloadRegisters();
+        reloadPeripheralRegisters();
         return;
     }
 
@@ -2943,6 +2945,7 @@ void GdbEngine::activateFrame(int frameIndex)
 
     updateLocals();
     reloadRegisters();
+    reloadPeripheralRegisters();
 }
 
 void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
@@ -3062,6 +3065,22 @@ void GdbEngine::reloadRegisters()
     }
 }
 
+void GdbEngine::reloadPeripheralRegisters()
+{
+    if (!isPeripheralRegistersWindowVisible())
+        return;
+
+    const QList<quint64> addresses = peripheralRegisterHandler()->activeRegisters();
+    if (addresses.isEmpty())
+        return; // Nothing to update.
+
+    for (const quint64 address : addresses) {
+        const QString fun = QStringLiteral("x/1u 0x%1")
+                .arg(QString::number(address, 16));
+        runCommand({fun, CB(handlePeripheralRegisterListValues)});
+    }
+}
+
 static QString readWord(const QString &ba, int *pos)
 {
     const int n = ba.size();
@@ -3125,6 +3144,15 @@ void GdbEngine::setRegisterValue(const QString &name, const QString &value)
         fullName += ".uint128";
     runCommand({"set $" + fullName  + "=" + value});
     reloadRegisters();
+}
+
+void GdbEngine::setPeripheralRegisterValue(quint64 address, quint64 value)
+{
+    const QString fun = QStringLiteral("set {int}0x%1=%2")
+            .arg(QString::number(address, 16))
+            .arg(value);
+    runCommand({fun});
+    reloadPeripheralRegisters();
 }
 
 void GdbEngine::handleRegisterListNames(const DebuggerResponse &response)
@@ -3227,6 +3255,28 @@ void GdbEngine::handleRegisterListValues(const DebuggerResponse &response)
     handler->commitUpdates();
 }
 
+void GdbEngine::handlePeripheralRegisterListValues(
+        const DebuggerResponse &response)
+{
+    if (response.resultClass != ResultDone)
+        return;
+
+    const QString output = response.consoleStreamOutput;
+    // Regexp to match for '0x50060800:\t0\n'.
+    const QRegularExpression re("^(0x[0-9A-F]+):\\t(\\d+)\\n$");
+    const QRegularExpressionMatch m = re.match(output);
+    if (!m.hasMatch())
+        return;
+    enum { AddressMatch = 1, ValueMatch = 2 };
+    bool aok = false;
+    bool vok = false;
+    const quint64 address = m.captured(AddressMatch).toULongLong(&aok, 16);
+    const quint64 value = m.captured(ValueMatch).toULongLong(&vok, 10);
+    if (!aok || !vok)
+        return;
+
+    peripheralRegisterHandler()->updateRegister(address, value);
+}
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -3703,6 +3753,9 @@ void GdbEngine::setupEngine()
         runCommand({commands});
 
     runCommand({"loadDumpers", CB(handlePythonSetup)});
+
+    // Reload peripheral register description.
+    peripheralRegisterHandler()->updateRegisterGroups();
 }
 
 void GdbEngine::handleGdbStartFailed()

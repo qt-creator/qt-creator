@@ -212,6 +212,9 @@ public:
     QString debugServerPath() const;
     void setDebugServerPath(const QString &path);
 
+    QString peripheralDescriptionFilePath() const;
+    void setPeripheralDescriptionFilePath(const QString &path);
+
     QString qmlsceneCommand() const;
     void setQmlsceneCommand(const QString &path);
 

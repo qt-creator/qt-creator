@@ -101,6 +101,7 @@ class LocationMark;
 class LogWindow;
 class ModulesHandler;
 class RegisterHandler;
+class PeripheralRegisterHandler;
 class StackHandler;
 class StackFrame;
 class SourceFilesHandler;
@@ -316,12 +317,14 @@ public:
     virtual void requestModuleSections(const QString &moduleName);
 
     virtual void reloadRegisters();
+    virtual void reloadPeripheralRegisters();
     virtual void reloadSourceFiles();
     virtual void reloadFullStack();
     virtual void loadAdditionalQmlStack();
     virtual void reloadDebuggingHelpers();
 
     virtual void setRegisterValue(const QString &name, const QString &value);
+    virtual void setPeripheralRegisterValue(quint64 address, quint64 value);
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const;
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}
@@ -356,6 +359,7 @@ public:
 
     ModulesHandler *modulesHandler() const;
     RegisterHandler *registerHandler() const;
+    PeripheralRegisterHandler *peripheralRegisterHandler() const;
     StackHandler *stackHandler() const;
     ThreadsHandler *threadsHandler() const;
     WatchHandler *watchHandler() const;
@@ -453,6 +457,7 @@ public:
     QString debuggerName() const;
 
     bool isRegistersWindowVisible() const;
+    bool isPeripheralRegistersWindowVisible() const;
     bool isModulesWindowVisible() const;
 
     void openMemoryEditor();
@@ -551,6 +556,7 @@ private:
     friend class DebuggerPluginPrivate;
     friend class DebuggerEnginePrivate;
     friend class LocationMark;
+    friend class PeripheralRegisterHandler;
     DebuggerEnginePrivate *d;
 };
 

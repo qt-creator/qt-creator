@@ -43,6 +43,7 @@
 #include "memoryagent.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
+#include "peripheralregisterhandler.h"
 #include "sourcefileshandler.h"
 #include "sourceutils.h"
 #include "stackhandler.h"
@@ -274,6 +275,7 @@ public:
           m_breakHandler(engine),
           m_modulesHandler(engine),
           m_registerHandler(engine),
+          m_peripheralRegisterHandler(engine),
           m_sourceFilesHandler(engine),
           m_stackHandler(engine),
           m_threadsHandler(engine),
@@ -343,6 +345,7 @@ public:
         delete m_watchersWindow;
         delete m_inspectorWindow;
         delete m_registerWindow;
+        delete m_peripheralRegisterWindow;
         delete m_modulesWindow;
         delete m_sourceFilesWindow;
         delete m_stackWindow;
@@ -354,6 +357,7 @@ public:
         delete m_watchersView;
         delete m_inspectorView;
         delete m_registerView;
+        delete m_peripheralRegisterView;
         delete m_modulesView;
         delete m_sourceFilesView;
         delete m_stackView;
@@ -469,6 +473,7 @@ public:
     BreakHandler m_breakHandler;
     ModulesHandler m_modulesHandler;
     RegisterHandler m_registerHandler;
+    PeripheralRegisterHandler m_peripheralRegisterHandler;
     SourceFilesHandler m_sourceFilesHandler;
     StackHandler m_stackHandler;
     ThreadsHandler m_threadsHandler;
@@ -493,6 +498,7 @@ public:
     QPointer<BaseTreeView> m_watchersView;
     QPointer<WatchTreeView> m_inspectorView;
     QPointer<BaseTreeView> m_registerView;
+    QPointer<BaseTreeView> m_peripheralRegisterView;
     QPointer<BaseTreeView> m_modulesView;
     QPointer<BaseTreeView> m_sourceFilesView;
     QPointer<BaseTreeView> m_stackView;
@@ -503,6 +509,7 @@ public:
     QPointer<QWidget> m_watchersWindow;
     QPointer<QWidget> m_inspectorWindow;
     QPointer<QWidget> m_registerWindow;
+    QPointer<QWidget> m_peripheralRegisterWindow;
     QPointer<QWidget> m_modulesWindow;
     QPointer<QWidget> m_sourceFilesWindow;
     QPointer<QWidget> m_stackWindow;
@@ -642,6 +649,17 @@ void DebuggerEnginePrivate::setupViews()
     m_registerWindow = addSearch(m_registerView);
     m_registerWindow->setObjectName("Debugger.Dock.Register." + engineId);
     m_registerWindow->setWindowTitle(tr("Reg&isters"));
+
+    m_peripheralRegisterView = new BaseTreeView;
+    m_peripheralRegisterView->setModel(m_peripheralRegisterHandler.model());
+    m_peripheralRegisterView->setRootIsDecorated(true);
+    m_peripheralRegisterView->setSettings(settings, "Debugger.PeripheralRegisterView");
+    connect(m_peripheralRegisterView, &BaseTreeView::aboutToShow,
+            m_engine, &DebuggerEngine::reloadPeripheralRegisters,
+            Qt::QueuedConnection);
+    m_peripheralRegisterWindow = addSearch(m_peripheralRegisterView);
+    m_peripheralRegisterWindow->setObjectName("Debugger.Dock.PeripheralRegister." + engineId);
+    m_peripheralRegisterWindow->setWindowTitle(tr("Peripheral Reg&isters"));
 
     m_stackView = new StackTreeView;
     m_stackView->setModel(m_stackHandler.model());
@@ -816,6 +834,7 @@ void DebuggerEnginePrivate::setupViews()
         m_modulesWindow->setFont(font);
         //m_consoleWindow->setFont(font);
         m_registerWindow->setFont(font);
+        m_peripheralRegisterWindow->setFont(font);
         m_returnWindow->setFont(font);
         m_sourceFilesWindow->setFont(font);
         m_stackWindow->setFont(font);
@@ -832,6 +851,7 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addWindow(m_localsAndInspectorWindow, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
     m_perspective->addWindow(m_watchersWindow, Perspective::SplitVertical, m_localsAndInspectorWindow, true, Qt::RightDockWidgetArea);
     m_perspective->addWindow(m_registerWindow, Perspective::AddToTab, m_localsAndInspectorWindow, false, Qt::RightDockWidgetArea);
+    m_perspective->addWindow(m_peripheralRegisterWindow, Perspective::AddToTab, m_localsAndInspectorWindow, false, Qt::RightDockWidgetArea);
     m_perspective->addWindow(m_logWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
     m_perspective->select();
@@ -909,6 +929,11 @@ bool DebuggerEngine::isRegistersWindowVisible() const
     return d->m_registerWindow->isVisible();
 }
 
+bool DebuggerEngine::isPeripheralRegistersWindowVisible() const
+{
+    return d->m_peripheralRegisterWindow->isVisible();
+}
+
 bool DebuggerEngine::isModulesWindowVisible() const
 {
     return d->m_modulesWindow->isVisible();
@@ -938,6 +963,11 @@ ModulesHandler *DebuggerEngine::modulesHandler() const
 RegisterHandler *DebuggerEngine::registerHandler() const
 {
     return &d->m_registerHandler;
+}
+
+PeripheralRegisterHandler *DebuggerEngine::peripheralRegisterHandler() const
+{
+    return &d->m_peripheralRegisterHandler;
 }
 
 StackHandler *DebuggerEngine::stackHandler() const
@@ -990,6 +1020,12 @@ void DebuggerEngine::changeMemory(MemoryAgent *, quint64 addr, const QByteArray 
 void DebuggerEngine::setRegisterValue(const QString &name, const QString &value)
 {
     Q_UNUSED(name)
+    Q_UNUSED(value)
+}
+
+void DebuggerEngine::setPeripheralRegisterValue(quint64 address, quint64 value)
+{
+    Q_UNUSED(address)
     Q_UNUSED(value)
 }
 
@@ -1593,6 +1629,7 @@ void DebuggerEnginePrivate::setBusyCursor(bool busy)
     m_modulesWindow->setCursor(cursor);
     m_logWindow->setCursor(cursor);
     m_registerWindow->setCursor(cursor);
+    m_peripheralRegisterWindow->setCursor(cursor);
     m_returnWindow->setCursor(cursor);
     m_sourceFilesWindow->setCursor(cursor);
     m_stackWindow->setCursor(cursor);
@@ -2072,6 +2109,10 @@ void DebuggerEngine::requestModuleSections(const QString &)
 }
 
 void DebuggerEngine::reloadRegisters()
+{
+}
+
+void DebuggerEngine::reloadPeripheralRegisters()
 {
 }
 

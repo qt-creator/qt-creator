@@ -17,29 +17,36 @@ HEADERS += \
     commonoptionspage.h \
     debugger_global.h \
     debuggeractions.h \
-    debuggercore.h \
     debuggerconstants.h \
+    debuggercore.h \
+    debuggerdialogs.h \
+    debuggerengine.h \
+    debuggericons.h \
     debuggerinternalconstants.h \
     debuggeritem.h \
     debuggeritemmanager.h \
-    debuggerdialogs.h \
-    debuggerengine.h \
+    debuggerkitinformation.h \
     debuggermainwindow.h \
     debuggerplugin.h \
     debuggerprotocol.h \
     debuggerrunconfigurationaspect.h \
     debuggerruncontrol.h \
-    debuggerkitinformation.h \
+    debuggersourcepathmappingwidget.h \
+    debuggertooltipmanager.h \
     disassembleragent.h \
     disassemblerlines.h \
+    enginemanager.h \
+    imageviewer.h \
     loadcoredialog.h \
+    localsandexpressionswindow.h \
     logwindow.h \
     memoryagent.h \
     moduleshandler.h \
     outputcollector.h \
+    peripheralregisterhandler.h \
     procinterrupt.h \
     registerhandler.h \
-    enginemanager.h \
+    simplifytype.h \
     sourceagent.h \
     sourcefileshandler.h \
     sourceutils.h \
@@ -47,19 +54,13 @@ HEADERS += \
     stackhandler.h \
     stackwindow.h \
     terminal.h \
-    watchhandler.h \
-    watchutils.h \
-    watchwindow.h \
     threaddata.h \
     threadshandler.h \
-    watchdelegatewidgets.h \
-    debuggertooltipmanager.h \
-    debuggersourcepathmappingwidget.h \
-    localsandexpressionswindow.h \
-    imageviewer.h \
-    simplifytype.h \
     unstartedappwatcherdialog.h \
-    debuggericons.h
+    watchdelegatewidgets.h \
+    watchhandler.h \
+    watchutils.h \
+    watchwindow.h
 
 SOURCES += \
     breakhandler.cpp \
@@ -68,44 +69,45 @@ SOURCES += \
     debuggeractions.cpp \
     debuggerdialogs.cpp \
     debuggerengine.cpp \
+    debuggericons.cpp \
     debuggeritem.cpp \
     debuggeritemmanager.cpp \
+    debuggerkitinformation.cpp \
     debuggermainwindow.cpp \
     debuggerplugin.cpp \
     debuggerprotocol.cpp \
     debuggerrunconfigurationaspect.cpp \
     debuggerruncontrol.cpp \
-    debuggerkitinformation.cpp \
+    debuggersourcepathmappingwidget.cpp \
+    debuggertooltipmanager.cpp \
     disassembleragent.cpp \
     disassemblerlines.cpp \
+    enginemanager.cpp \
+    imageviewer.cpp \
     loadcoredialog.cpp \
+    localsandexpressionswindow.cpp \
     logwindow.cpp \
     memoryagent.cpp \
     moduleshandler.cpp \
     outputcollector.cpp \
+    peripheralregisterhandler.cpp \
     procinterrupt.cpp \
     registerhandler.cpp \
-    enginemanager.cpp \
+    simplifytype.cpp \
     sourceagent.cpp \
     sourcefileshandler.cpp \
     sourceutils.cpp \
+    stackframe.cpp \
     stackhandler.cpp \
     stackwindow.cpp \
-    threadshandler.cpp \
     terminal.cpp \
+    threadshandler.cpp \
+    unstartedappwatcherdialog.cpp \
     watchdata.cpp \
+    watchdelegatewidgets.cpp \
     watchhandler.cpp \
     watchutils.cpp \
-    watchwindow.cpp \
-    stackframe.cpp \
-    watchdelegatewidgets.cpp \
-    debuggertooltipmanager.cpp \
-    debuggersourcepathmappingwidget.cpp \
-    localsandexpressionswindow.cpp \
-    imageviewer.cpp \
-    simplifytype.cpp \
-    unstartedappwatcherdialog.cpp \
-    debuggericons.cpp
+    watchwindow.cpp
 
 RESOURCES += debugger.qrc
 
