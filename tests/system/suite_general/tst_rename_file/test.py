@@ -93,7 +93,9 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
     try:
         openItemContextMenu(treeview, itemText, 5, 5, 0)
     except:
-        openItemContextMenu(treeview, addBranchWildcardToRoot(itemText), 5, 5, 0)
+        itemWithWildcard = addBranchWildcardToRoot(itemText)
+        waitForObjectItem(treeview, itemWithWildcard, 10000)
+        openItemContextMenu(treeview, itemWithWildcard, 5, 5, 0)
     # hack for Squish5/Qt5.2 problems of handling menus on Mac - remove asap
     if platform.system() == 'Darwin':
         waitFor("macHackActivateContextMenuItem('Rename...')", 5000)

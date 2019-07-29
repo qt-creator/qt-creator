@@ -53,11 +53,11 @@ def closeHTTPStatusAndPasterDialog(protocol, pasterDialog):
         if 'Service Unavailable' in text:
             test.warning(text)
             return True
+        test.log("Closed dialog without expected error.", text)
     except:
         t,v = sys.exc_info()[:2]
         test.warning("An exception occurred in closeHTTPStatusAndPasterDialog(): %s(%s)"
                      % (str(t), str(v)))
-    test.log("Closed dialog without expected error.", text)
     return False
 
 def pasteFile(sourceFile, protocol):
