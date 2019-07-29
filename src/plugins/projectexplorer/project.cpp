@@ -258,15 +258,12 @@ void Project::addTarget(std::unique_ptr<Target> &&t)
     QTC_ASSERT(!target(t->kit()), return);
     Q_ASSERT(t->project() == this);
 
-    t->setDefaultDisplayName(t->displayName());
-
     // add it
     d->m_targets.emplace_back(std::move(t));
     connect(pointer, &Target::addedProjectConfiguration, this, &Project::addedProjectConfiguration);
     connect(pointer, &Target::aboutToRemoveProjectConfiguration, this, &Project::aboutToRemoveProjectConfiguration);
     connect(pointer, &Target::removedProjectConfiguration, this, &Project::removedProjectConfiguration);
     connect(pointer, &Target::activeProjectConfigurationChanged, this, &Project::activeProjectConfigurationChanged);
-    emit addedProjectConfiguration(pointer);
     emit addedTarget(pointer);
 
     // check activeTarget:
@@ -281,7 +278,6 @@ bool Project::removeTarget(Target *target)
     if (BuildManager::isBuilding(target))
         return false;
 
-    emit aboutToRemoveProjectConfiguration(target);
     emit aboutToRemoveTarget(target);
     auto keep = Utils::take(d->m_targets, target);
     if (target == d->m_activeTarget) {
@@ -289,7 +285,6 @@ bool Project::removeTarget(Target *target)
         SessionManager::setActiveTarget(this, newActiveTarget, SetActive::Cascade);
     }
     emit removedTarget(target);
-    emit removedProjectConfiguration(target);
 
     return true;
 }
@@ -313,7 +308,6 @@ void Project::setActiveTarget(Target *target)
     if ((!target && d->m_targets.size() == 0) ||
         (target && Utils::contains(d->m_targets, target))) {
         d->m_activeTarget = target;
-        emit activeProjectConfigurationChanged(d->m_activeTarget);
         emit activeTargetChanged(d->m_activeTarget);
     }
 }

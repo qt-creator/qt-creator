@@ -53,21 +53,26 @@ void Subscription::subscribe(ProjectConfiguration *pc)
         return;
 
     connectTo(pc);
+}
 
-    if (auto t = qobject_cast<Target *>(pc)) {
-        for (ProjectConfiguration *pc : t->projectConfigurations())
-            connectTo(pc);
-    }
+void Subscription::subscribeTarget(Target *target)
+{
+    if (!m_subscriber)
+        return;
+
+    for (ProjectConfiguration *pc : target->projectConfigurations())
+        connectTo(pc);
 }
 
 void Subscription::unsubscribe(ProjectConfiguration *pc)
 {
     disconnectFrom(pc);
+}
 
-    if (auto t = qobject_cast<Target *>(pc)) {
-        for (ProjectConfiguration *pc : t->projectConfigurations())
-            disconnectFrom(pc);
-    }
+void Subscription::unsubscribeTarget(Target *target)
+{
+    for (ProjectConfiguration *pc : target->projectConfigurations())
+        disconnectFrom(pc);
 }
 
 void Subscription::unsubscribeAll()
@@ -113,13 +118,15 @@ ProjectSubscription::ProjectSubscription(const Subscription::Connector &s, const
     QTC_ASSERT(m_subscriber, return);
 
     for (Target *t : p->targets())
-        subscribe(t);
+        subscribeTarget(t);
 
     // Disconnect on removal of a project, to make it save to remove/add a project:
     connect(SessionManager::instance(), &SessionManager::projectRemoved,
             this, [this, p](Project *reported) { if (p == reported) { destroy(); } });
     connect(p, &Project::addedProjectConfiguration, this, &ProjectSubscription::subscribe);
+    connect(p, &Project::addedTarget, this, &ProjectSubscription::subscribeTarget);
     connect(p, &Project::removedProjectConfiguration, this, &ProjectSubscription::unsubscribe);
+    connect(p, &Project::removedTarget, this, &ProjectSubscription::unsubscribeTarget);
 }
 
 ProjectSubscription::~ProjectSubscription() = default;

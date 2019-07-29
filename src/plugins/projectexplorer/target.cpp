@@ -47,6 +47,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -55,6 +56,8 @@
 #include <QPainter>
 
 #include <limits>
+
+using namespace Utils;
 
 namespace {
 const char ACTIVE_BC_KEY[] = "ProjectExplorer.Target.ActiveBuildConfiguration";
@@ -106,6 +109,7 @@ public:
     QVariantMap m_pluginSettings;
 
     Kit *const m_kit;
+    MacroExpander m_macroExpander;
 };
 
 TargetPrivate::TargetPrivate(Kit *k) :
@@ -113,12 +117,9 @@ TargetPrivate::TargetPrivate(Kit *k) :
 { }
 
 Target::Target(Project *project, Kit *k, _constructor_tag) :
-    ProjectConfiguration(project, k->id()),
+    QObject(project),
     d(std::make_unique<TargetPrivate>(k))
 {
-    // FIXME: Remove, see comment in ProjectConfiguration ctor.
-    m_target = this;
-
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
     connect(project, &Project::parsingFinished, this, [this](bool success) {
@@ -127,9 +128,6 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
             updateDefaultRunConfigurations();
         }
     }, Qt::QueuedConnection); // Must wait for run configs to change their enabled state.
-
-    setDisplayName(d->m_kit->displayName());
-    setToolTip(d->m_kit->toHtml());
 
     KitManager *km = KitManager::instance();
     connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
@@ -164,10 +162,8 @@ void Target::handleKitUpdates(Kit *k)
     if (k != d->m_kit)
         return;
 
-    setDisplayName(k->displayName());
     updateDefaultDeployConfigurations();
     updateDeviceState(); // in case the device changed...
-    setToolTip(k->toHtml());
 
     emit iconChanged();
     emit kitChanged();
@@ -193,6 +189,21 @@ Project *Target::project() const
 Kit *Target::kit() const
 {
     return d->m_kit;
+}
+
+Core::Id Target::id() const
+{
+    return d->m_kit->id();
+}
+
+QString Target::displayName() const
+{
+    return d->m_kit->displayName();
+}
+
+QString Target::toolTip() const
+{
+    return d->m_kit->toHtml();
 }
 
 void Target::addBuildConfiguration(BuildConfiguration *bc)
@@ -477,7 +488,18 @@ QVariantMap Target::toMap() const
     if (!d->m_kit) // Kit was deleted, target is only around to be copied.
         return QVariantMap();
 
-    QVariantMap map(ProjectConfiguration::toMap());
+    QVariantMap map;
+
+    {
+        // FIXME: For compatibility within the 4.11 cycle, remove this block later.
+        // This is only read by older versions of Creator, but even there not actively used.
+        const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
+        const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
+        const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
+        map.insert(QLatin1String(CONFIGURATION_ID_KEY), id().toSetting());
+        map.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
+        map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), displayName());
+    }
 
     const QList<BuildConfiguration *> bcs = buildConfigurations();
     map.insert(QLatin1String(ACTIVE_BC_KEY), bcs.indexOf(d->m_activeBuildConfiguration));
@@ -701,6 +723,11 @@ MakeInstallCommand Target::makeInstallCommand(const QString &installRoot) const
     return project()->makeInstallCommand(this, installRoot);
 }
 
+MacroExpander *Target::macroExpander() const
+{
+    return &d->m_macroExpander;
+}
+
 void Target::updateDeviceState()
 {
     IDevice::ConstPtr current = DeviceKitAspect::device(kit());
@@ -746,13 +773,7 @@ void Target::setEnabled(bool enabled)
 
 bool Target::fromMap(const QVariantMap &map)
 {
-    if (!ProjectConfiguration::fromMap(map))
-        return false;
-
     QTC_ASSERT(d->m_kit == KitManager::kit(id()), return false);
-
-    setDisplayName(d->m_kit->displayName()); // Overwrite displayname read from file
-    setDefaultDisplayName(d->m_kit->displayName());
 
     bool ok;
     int bcCount = map.value(QLatin1String(BC_COUNT_KEY), 0).toInt(&ok);

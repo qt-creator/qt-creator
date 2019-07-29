@@ -46,7 +46,7 @@ class RunConfiguration;
 
 class TargetPrivate;
 
-class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
+class PROJECTEXPLORER_EXPORT Target : public QObject
 {
     friend class SessionManager; // for setActiveBuild and setActiveDeployConfiguration
     Q_OBJECT
@@ -57,12 +57,14 @@ public:
     Target(Project *parent, Kit *k, _constructor_tag);
     ~Target() override;
 
-    bool isActive() const final;
+    bool isActive() const;
 
     Project *project() const;
-
-    // Kit:
     Kit *kit() const;
+
+    Core::Id id() const;
+    QString displayName() const;
+    QString toolTip() const;
 
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *bc);
@@ -107,7 +109,7 @@ public:
     void setOverlayIcon(const QIcon &icon);
     QString overlayIconToolTip();
 
-    QVariantMap toMap() const override;
+    QVariantMap toMap() const;
 
     void updateDefaultBuildConfigurations();
     void updateDefaultDeployConfigurations();
@@ -118,6 +120,8 @@ public:
 
     QVariant additionalData(Core::Id id) const;
     MakeInstallCommand makeInstallCommand(const QString &installRoot) const;
+
+    Utils::MacroExpander *macroExpander() const;
 
 signals:
     void targetEnabled(bool);
@@ -153,7 +157,7 @@ signals:
 private:
     void setEnabled(bool);
 
-    bool fromMap(const QVariantMap &map) override;
+    bool fromMap(const QVariantMap &map);
 
     void updateDeviceState();
 

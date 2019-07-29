@@ -150,7 +150,6 @@ private:
     Kit(const Kit &other);
     void operator=(const Kit &other);
 
-    void kitDisplayNameChanged();
     void kitUpdated();
 
     QVariantMap toMap() const;

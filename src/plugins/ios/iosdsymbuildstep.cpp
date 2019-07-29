@@ -255,6 +255,10 @@ IosDsymBuildStepConfigWidget::IosDsymBuildStepConfigWidget(IosDsymBuildStep *bui
         if (pc && pc->isActive())
             updateDetails();
     });
+    connect(pro, &Project::activeTargetChanged, this, [this](Target *target) {
+        if (target && target->isActive())
+            updateDetails();
+    });
 }
 
 IosDsymBuildStepConfigWidget::~IosDsymBuildStepConfigWidget()

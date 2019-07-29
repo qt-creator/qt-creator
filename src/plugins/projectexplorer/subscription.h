@@ -51,7 +51,9 @@ public:
 
 protected:
     void subscribe(ProjectConfiguration *pc);
+    void subscribeTarget(Target *target);
     void unsubscribe(ProjectConfiguration *pc);
+    void unsubscribeTarget(Target *target);
 
     void unsubscribeAll();
     void connectTo(ProjectConfiguration *pc);

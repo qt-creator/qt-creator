@@ -92,11 +92,7 @@ ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id)
         if (m_target != nullptr)
             break;
     }
-
-    // FIXME: Below triggers on 'real' Targets with this here a base class as it's
-    // not a real Target at this point of time. Plan is to cut this dependency and
-    // enable the check, for now the item is set manually in the Target ctor.
-    // QTC_CHECK(m_target);
+    QTC_CHECK(m_target);
 }
 
 ProjectConfiguration::~ProjectConfiguration() = default;

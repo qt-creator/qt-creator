@@ -113,19 +113,21 @@ public:
     explicit GenericListWidget(QWidget *parent = nullptr);
 
 signals:
-    void changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration *dc);
+    void changeActiveProjectConfiguration(QObject *dc);
 
 public:
-    void setProjectConfigurations(const QList<ProjectConfiguration *> &list, ProjectConfiguration *active);
-    void setActiveProjectConfiguration(ProjectConfiguration *active);
-    void addProjectConfiguration(ProjectConfiguration *pc);
-    void removeProjectConfiguration(ProjectConfiguration *pc);
+    void setProjectConfigurations(const QList<QObject *> &list, QObject *active);
+    void setActiveProjectConfiguration(QObject *active);
+    void addProjectConfiguration(QObject *pc);
+    void removeProjectConfiguration(QObject *pc);
 
 private:
+    QObject *objectAt(int row) const;
+
     void rowChanged(int index);
     void displayNameChanged();
     void toolTipChanged();
-    QListWidgetItem *itemForProjectConfiguration(ProjectConfiguration *pc);
+    QListWidgetItem *itemForProjectConfiguration(QObject *pc);
     bool m_ignoreIndexChange;
 };
 
@@ -148,8 +150,10 @@ public:
 private:
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
-    void handleNewProjectConfiguration(ProjectConfiguration *pc);
-    void handleRemovalOfProjectConfiguration(ProjectConfiguration *pc);
+    void handleNewProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void handleNewTarget(Target *target);
+    void handleRemovalOfProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
+    void handleRemovalOfTarget(Target *pc);
 
     void changeStartupProject(ProjectExplorer::Project *project);
     void activeTargetChanged(ProjectExplorer::Target *target);

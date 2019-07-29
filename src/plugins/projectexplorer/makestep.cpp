@@ -434,6 +434,10 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
             updateDetails();
         }
     });
+    connect(pro, &Project::activeTargetChanged, this, [this](Target *target) {
+        if (target && target->isActive())
+            updateDetails();
+    });
 
     Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());
 }

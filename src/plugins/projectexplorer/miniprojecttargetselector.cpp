@@ -97,6 +97,27 @@ static bool projectLesserThan(Project *p1, Project *p2)
         return p1 < p2;
 }
 
+static QString displayNameFor(QObject *object)
+{
+    if (auto t = qobject_cast<Target *>(object))
+        return t->displayName();
+    if (auto pc = qobject_cast<ProjectConfiguration *>(object))
+        return pc->displayName();
+    QTC_CHECK(false);
+    return {};
+}
+
+static QString toolTipFor(QObject *object)
+{
+    if (auto t = qobject_cast<Target *>(object))
+        return t->toolTip();
+    if (auto pc = qobject_cast<ProjectConfiguration *>(object))
+        return pc->toolTip();
+    QTC_CHECK(false);
+    return {};
+}
+
+
 ////////
 // TargetSelectorDelegate
 ////////
@@ -407,22 +428,27 @@ GenericListWidget::GenericListWidget(QWidget *parent)
             this, &GenericListWidget::rowChanged);
 }
 
-void GenericListWidget::setProjectConfigurations(const QList<ProjectConfiguration *> &list, ProjectConfiguration *active)
+void GenericListWidget::setProjectConfigurations(const QList<QObject *> &list, QObject *active)
 {
     m_ignoreIndexChange = true;
     clear();
 
     for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        disconnect(p, &ProjectConfiguration::displayNameChanged,
+        auto obj = objectAt(i);
+        if (auto t = qobject_cast<Target *>(obj)) {
+            disconnect(t, &Target::kitChanged,
                    this, &GenericListWidget::displayNameChanged);
+        } else if (auto pc = qobject_cast<ProjectConfiguration *>(obj)) {
+            disconnect(pc, &ProjectConfiguration::displayNameChanged,
+                   this, &GenericListWidget::displayNameChanged);
+        }
     }
 
     QFontMetrics fn(font());
     int width = 0;
-    foreach (ProjectConfiguration *pc, list) {
+    for (QObject *pc : list) {
         addProjectConfiguration(pc);
-        width = qMax(width, fn.horizontalAdvance(pc->displayName()) + padding());
+        width = qMax(width, fn.horizontalAdvance(displayNameFor(pc)) + padding());
     }
     setOptimalWidth(width);
     setActiveProjectConfiguration(active);
@@ -430,57 +456,77 @@ void GenericListWidget::setProjectConfigurations(const QList<ProjectConfiguratio
     m_ignoreIndexChange = false;
 }
 
-void GenericListWidget::setActiveProjectConfiguration(ProjectConfiguration *active)
+QObject *GenericListWidget::objectAt(int row) const
+{
+    return item(row)->data(Qt::UserRole).value<QObject *>();
+}
+
+void GenericListWidget::setActiveProjectConfiguration(QObject *active)
 {
     QListWidgetItem *item = itemForProjectConfiguration(active);
     setCurrentItem(item);
 }
 
-void GenericListWidget::addProjectConfiguration(ProjectConfiguration *pc)
+void GenericListWidget::addProjectConfiguration(QObject *obj)
 {
+    const QString displayName = displayNameFor(obj);
+    const QString toolTip = toolTipFor(obj);
+
     m_ignoreIndexChange = true;
     auto lwi = new QListWidgetItem();
-    lwi->setText(pc->displayName());
-    lwi->setData(Qt::ToolTipRole, pc->toolTip());
-    lwi->setData(Qt::UserRole + 1, pc->toolTip());
-    lwi->setData(Qt::UserRole, QVariant::fromValue(pc));
+    lwi->setText(displayName);
+    lwi->setData(Qt::ToolTipRole, toolTip);
+    lwi->setData(Qt::UserRole + 1, toolTip);
+    lwi->setData(Qt::UserRole, QVariant::fromValue(obj));
 
     // Figure out pos
     int pos = count();
     for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        if (caseFriendlyCompare(pc->displayName(), p->displayName()) < 0) {
+        QObject *p = objectAt(i);
+        if (caseFriendlyCompare(displayName, displayNameFor(p)) < 0) {
             pos = i;
             break;
         }
     }
     insertItem(pos, lwi);
 
-    connect(pc, &ProjectConfiguration::displayNameChanged,
-            this, &GenericListWidget::displayNameChanged);
-    connect(pc, &ProjectConfiguration::toolTipChanged, this, &GenericListWidget::toolTipChanged);
+    if (auto t = qobject_cast<Target *>(obj)) {
+        connect(t, &Target::kitChanged, this,
+                &GenericListWidget::displayNameChanged);
+        connect(t, &Target::kitChanged, this,
+                &GenericListWidget::toolTipChanged);
+    } else if (auto pc = qobject_cast<ProjectConfiguration *>(obj)) {
+        connect(pc, &ProjectConfiguration::displayNameChanged,
+                this, &GenericListWidget::displayNameChanged);
+        connect(pc, &ProjectConfiguration::toolTipChanged,
+                this, &GenericListWidget::toolTipChanged);
+    }
 
     QFontMetrics fn(font());
-    int width = fn.horizontalAdvance(pc->displayName()) + padding();
+    int width = fn.horizontalAdvance(displayName) + padding();
     if (width > optimalWidth())
         setOptimalWidth(width);
 
     m_ignoreIndexChange = false;
 }
 
-void GenericListWidget::removeProjectConfiguration(ProjectConfiguration *pc)
+void GenericListWidget::removeProjectConfiguration(QObject *obj)
 {
     m_ignoreIndexChange = true;
-    disconnect(pc, &ProjectConfiguration::displayNameChanged,
-               this, &GenericListWidget::displayNameChanged);
-    delete itemForProjectConfiguration(pc);
+    if (auto t = qobject_cast<Target *>(obj)) {
+        disconnect(t, &Target::kitChanged,
+                   this, &GenericListWidget::displayNameChanged);
+    } else if (auto pc = qobject_cast<ProjectConfiguration *>(obj)) {
+        disconnect(pc, &ProjectConfiguration::displayNameChanged,
+                   this, &GenericListWidget::displayNameChanged);
+    }
+    delete itemForProjectConfiguration(obj);
 
     QFontMetrics fn(font());
     int width = 0;
-    for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        width = qMax(width, fn.horizontalAdvance(p->displayName()) + padding());
-    }
+    for (int i = 0; i < count(); ++i)
+        width = qMax(width, fn.horizontalAdvance(displayNameFor(objectAt(i))) + padding());
+
     setOptimalWidth(width);
 
     m_ignoreIndexChange = false;
@@ -492,15 +538,15 @@ void GenericListWidget::rowChanged(int index)
         return;
     if (index < 0)
         return;
-    emit changeActiveProjectConfiguration(item(index)->data(Qt::UserRole).value<ProjectConfiguration *>());
+    emit changeActiveProjectConfiguration(objectAt(index));
 }
 
 void GenericListWidget::displayNameChanged()
 {
     m_ignoreIndexChange = true;
-    ProjectConfiguration *activeProjectConfiguration = nullptr;
+    QObject *activeObject = nullptr;
     if (currentItem())
-        activeProjectConfiguration = currentItem()->data(Qt::UserRole).value<ProjectConfiguration *>();
+        activeObject = currentItem()->data(Qt::UserRole).value<QObject *>();
 
     auto *pc = qobject_cast<ProjectConfiguration *>(sender());
     int index = -1;
@@ -518,22 +564,20 @@ void GenericListWidget::displayNameChanged()
     lwi->setText(pc->displayName());
     int pos = count();
     for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        if (caseFriendlyCompare(pc->displayName(), p->displayName()) < 0) {
+        if (caseFriendlyCompare(displayNameFor(pc), displayNameFor(objectAt(i))) < 0) {
             pos = i;
             break;
         }
     }
     insertItem(pos, lwi);
-    if (activeProjectConfiguration)
-        setCurrentItem(itemForProjectConfiguration(activeProjectConfiguration));
+    if (activeObject)
+        setCurrentItem(itemForProjectConfiguration(activeObject));
 
     QFontMetrics fn(font());
     int width = 0;
-    for (int i = 0; i < count(); ++i) {
-        auto *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
-        width = qMax(width, fn.horizontalAdvance(p->displayName()) + padding());
-    }
+    for (int i = 0; i < count(); ++i)
+        width = qMax(width, fn.horizontalAdvance(displayNameFor(objectAt(i))) + padding());
+
     setOptimalWidth(width);
 
     m_ignoreIndexChange = false;
@@ -548,11 +592,11 @@ void GenericListWidget::toolTipChanged()
     }
 }
 
-QListWidgetItem *GenericListWidget::itemForProjectConfiguration(ProjectConfiguration *pc)
+QListWidgetItem *GenericListWidget::itemForProjectConfiguration(QObject *pc)
 {
     for (int i = 0; i < count(); ++i) {
         QListWidgetItem *lwi = item(i);
-        if (lwi->data(Qt::UserRole).value<ProjectConfiguration *>() == pc)
+        if (lwi->data(Qt::UserRole).value<QObject *>() == pc)
             return lwi;
     }
     return nullptr;
@@ -725,21 +769,21 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             this, &MiniProjectTargetSelector::kitChanged);
 
     connect(m_listWidgets[TARGET], &GenericListWidget::changeActiveProjectConfiguration,
-            this, [this](ProjectConfiguration *pc) {
+            this, [this](QObject *pc) {
                 SessionManager::setActiveTarget(m_project, static_cast<Target *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[BUILD], &GenericListWidget::changeActiveProjectConfiguration,
-            this, [this](ProjectConfiguration *pc) {
+            this, [this](QObject *pc) {
                  SessionManager::setActiveBuildConfiguration(m_project->activeTarget(),
                                                              static_cast<BuildConfiguration *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[DEPLOY], &GenericListWidget::changeActiveProjectConfiguration,
-            this, [this](ProjectConfiguration *pc) {
+            this, [this](QObject *pc) {
                  SessionManager::setActiveDeployConfiguration(m_project->activeTarget(),
                                                               static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[RUN], &GenericListWidget::changeActiveProjectConfiguration,
-            this, [this](ProjectConfiguration *pc) {
+            this, [this](QObject *pc) {
                  m_project->activeTarget()->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
             });
 }
@@ -979,9 +1023,13 @@ void MiniProjectTargetSelector::projectAdded(Project *project)
 {
     connect(project, &Project::addedProjectConfiguration,
             this, &MiniProjectTargetSelector::handleNewProjectConfiguration);
+    connect(project, &Project::addedTarget,
+            this, &MiniProjectTargetSelector::handleNewTarget);
 
     connect(project, &Project::removedProjectConfiguration,
             this, &MiniProjectTargetSelector::handleRemovalOfProjectConfiguration);
+    connect(project, &Project::removedTarget,
+            this, &MiniProjectTargetSelector::handleRemovalOfTarget);
 
     foreach (Target *t, project->targets())
         addedTarget(t);
@@ -997,9 +1045,13 @@ void MiniProjectTargetSelector::projectRemoved(Project *project)
 {
     disconnect(project, &Project::addedProjectConfiguration,
                this, &MiniProjectTargetSelector::handleNewProjectConfiguration);
+    disconnect(project, &Project::addedTarget,
+               this, &MiniProjectTargetSelector::handleNewTarget);
 
     disconnect(project, &Project::removedProjectConfiguration,
                this, &MiniProjectTargetSelector::handleRemovalOfProjectConfiguration);
+    disconnect(project, &Project::removedTarget,
+               this, &MiniProjectTargetSelector::handleRemovalOfTarget);
 
     foreach (Target *t, project->targets())
         removedTarget(t);
@@ -1011,16 +1063,17 @@ void MiniProjectTargetSelector::projectRemoved(Project *project)
     updateRunListVisible();
 }
 
+void MiniProjectTargetSelector::handleNewTarget(Target *target)
+{
+    addedTarget(target);
+    updateTargetListVisible();
+    updateBuildListVisible();
+    updateDeployListVisible();
+    updateRunListVisible();
+}
+
 void MiniProjectTargetSelector::handleNewProjectConfiguration(ProjectConfiguration *pc)
 {
-    if (auto t = qobject_cast<Target *>(pc)) {
-        addedTarget(t);
-        updateTargetListVisible();
-        updateBuildListVisible();
-        updateDeployListVisible();
-        updateRunListVisible();
-        return;
-    }
     if (auto bc = qobject_cast<BuildConfiguration *>(pc)) {
         if (addedBuildConfiguration(bc))
             updateBuildListVisible();
@@ -1038,17 +1091,18 @@ void MiniProjectTargetSelector::handleNewProjectConfiguration(ProjectConfigurati
     }
 }
 
+void MiniProjectTargetSelector::handleRemovalOfTarget(Target *target)
+{
+    removedTarget(target);
+
+    updateTargetListVisible();
+    updateBuildListVisible();
+    updateDeployListVisible();
+    updateRunListVisible();
+}
+
 void MiniProjectTargetSelector::handleRemovalOfProjectConfiguration(ProjectConfiguration *pc)
 {
-    if (auto t = qobject_cast<Target *>(pc)) {
-        removedTarget(t);
-
-        updateTargetListVisible();
-        updateBuildListVisible();
-        updateDeployListVisible();
-        updateRunListVisible();
-        return;
-    }
     if (auto bc = qobject_cast<BuildConfiguration *>(pc)) {
         if (removedBuildConfiguration(bc))
             updateBuildListVisible();
@@ -1232,12 +1286,12 @@ void MiniProjectTargetSelector::changeStartupProject(Project *project)
     }
 
     if (project) {
-        QList<ProjectConfiguration *> list;
+        QList<QObject *> list;
         foreach (Target *t, project->targets())
             list.append(t);
         m_listWidgets[TARGET]->setProjectConfigurations(list, project->activeTarget());
     } else {
-        m_listWidgets[TARGET]->setProjectConfigurations(QList<ProjectConfiguration *>(), nullptr);
+        m_listWidgets[TARGET]->setProjectConfigurations(QList<QObject *>(), nullptr);
     }
 
     updateActionAndSummary();
@@ -1246,9 +1300,7 @@ void MiniProjectTargetSelector::changeStartupProject(Project *project)
 void MiniProjectTargetSelector::activeTargetChanged(Target *target)
 {
     if (m_target) {
-        disconnect(m_target, &ProjectConfiguration::displayNameChanged,
-                   this, &MiniProjectTargetSelector::updateActionAndSummary);
-        disconnect(m_target, &Target::toolTipChanged,
+        disconnect(m_target, &Target::kitChanged,
                    this, &MiniProjectTargetSelector::updateActionAndSummary);
         disconnect(m_target, &Target::iconChanged,
                    this, &MiniProjectTargetSelector::updateActionAndSummary);
@@ -1278,17 +1330,17 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
                    this, &MiniProjectTargetSelector::updateActionAndSummary);
 
     if (m_target) {
-        QList<ProjectConfiguration *> bl;
+        QList<QObject *> bl;
         foreach (BuildConfiguration *bc, target->buildConfigurations())
             bl.append(bc);
         m_listWidgets[BUILD]->setProjectConfigurations(bl, target->activeBuildConfiguration());
 
-        QList<ProjectConfiguration *> dl;
+        QList<QObject *> dl;
         foreach (DeployConfiguration *dc, target->deployConfigurations())
             dl.append(dc);
         m_listWidgets[DEPLOY]->setProjectConfigurations(dl, target->activeDeployConfiguration());
 
-        QList<ProjectConfiguration *> rl;
+        QList<QObject *> rl;
         foreach (RunConfiguration *rc, target->runConfigurations())
             rl.append(rc);
         m_listWidgets[RUN]->setProjectConfigurations(rl, target->activeRunConfiguration());
@@ -1306,9 +1358,7 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
             connect(m_runConfiguration, &ProjectConfiguration::displayNameChanged,
                     this, &MiniProjectTargetSelector::updateActionAndSummary);
 
-        connect(m_target, &ProjectConfiguration::displayNameChanged,
-                this, &MiniProjectTargetSelector::updateActionAndSummary);
-        connect(m_target, &Target::toolTipChanged,
+        connect(m_target, &Target::kitChanged,
                 this, &MiniProjectTargetSelector::updateActionAndSummary);
         connect(m_target, &Target::iconChanged,
                 this, &MiniProjectTargetSelector::updateActionAndSummary);
@@ -1319,9 +1369,9 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
         connect(m_target, &Target::activeRunConfigurationChanged,
                 this, &MiniProjectTargetSelector::activeRunConfigurationChanged);
     } else {
-        m_listWidgets[BUILD]->setProjectConfigurations(QList<ProjectConfiguration *>(), nullptr);
-        m_listWidgets[DEPLOY]->setProjectConfigurations(QList<ProjectConfiguration *>(), nullptr);
-        m_listWidgets[RUN]->setProjectConfigurations(QList<ProjectConfiguration *>(), nullptr);
+        m_listWidgets[BUILD]->setProjectConfigurations(QList<QObject *>(), nullptr);
+        m_listWidgets[DEPLOY]->setProjectConfigurations(QList<QObject *>(), nullptr);
+        m_listWidgets[RUN]->setProjectConfigurations(QList<QObject *>(), nullptr);
         m_buildConfiguration = nullptr;
         m_deployConfiguration = nullptr;
         m_runConfiguration = nullptr;

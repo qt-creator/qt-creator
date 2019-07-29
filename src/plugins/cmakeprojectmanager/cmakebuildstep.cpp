@@ -456,6 +456,10 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
         if (pc && pc->isActive())
             updateDetails();
     });
+    connect(m_buildStep->project(), &Project::activeTargetChanged, this, [this](Target *target) {
+        if (target && target->isActive())
+            updateDetails();
+    });
 }
 
 void CMakeBuildStepConfigWidget::toolArgumentsEdited()

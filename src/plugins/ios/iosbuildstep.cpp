@@ -129,6 +129,10 @@ public:
             if (pc && pc->isActive())
                 updateDetails();
         });
+        connect(pro, &Project::activeTargetChanged, this, [this](Target *target) {
+            if (target && target->isActive())
+                updateDetails();
+        });
     }
 
 private:

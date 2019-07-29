@@ -155,6 +155,10 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
         if (pc && pc->isActive())
             environmentChanged();
     });
+    connect(project, &Project::activeTargetChanged, this, [this](Target *target) {
+        if (target && target->isActive())
+            environmentChanged();
+    });
 
     auto qmakeProject = static_cast<QmakeProject *>(bc->target()->project());
     connect(qmakeProject, &QmakeProject::buildDirectoryInitialized,
