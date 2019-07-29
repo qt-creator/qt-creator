@@ -104,17 +104,13 @@ QList<LineParser::KeywordEntry> LineParser::keywordEntriesFromCandidates(
         return QList<KeywordEntry>();
 
     // Convert candidates to entries
+    std::vector<KeywordEntry> tmp;
+    for (auto it = candidates.cbegin(), end = candidates.cend(); it != end; ++it)
+        tmp.emplace_back(it.key(), it.value(), QString());
+
     QList<KeywordEntry> entries;
-    QMapIterator<int, int> i(candidates);
-    i.toBack();
-
-    while (i.hasPrevious()) {
-        i.previous();
-
-        KeywordEntry entry;
-
-        entry.keywordStart = i.key();
-        entry.keywordIndex = i.value();
+    for (auto it = tmp.crbegin(), end = tmp.crend(); it != end; ++it) {
+        KeywordEntry entry = *it;
 
         int keywordLength = m_keywords.at(entry.keywordIndex).name.length();
 
