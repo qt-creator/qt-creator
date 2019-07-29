@@ -311,11 +311,6 @@ bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const
                                     buildDirectory().toString());
 }
 
-void QmakeBuildConfiguration::emitQMakeBuildConfigurationChanged()
-{
-    emit qmakeBuildConfigurationChanged();
-}
-
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;

@@ -360,7 +360,7 @@ void QMakeStep::setUserArguments(const QString &arguments)
 
     emit userArgumentsChanged();
 
-    qmakeBuildConfiguration()->emitQMakeBuildConfigurationChanged();
+    emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
     qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
@@ -374,7 +374,7 @@ void QMakeStep::setExtraArguments(const QStringList &args)
     if (m_extraArgs != args) {
         m_extraArgs = args;
         emit extraArgumentsChanged();
-        qmakeBuildConfiguration()->emitQMakeBuildConfigurationChanged();
+        emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
         qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
     }
 }
@@ -403,7 +403,7 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 
     emit linkQmlDebuggingLibraryChanged();
 
-    qmakeBuildConfiguration()->emitQMakeBuildConfigurationChanged();
+    emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
     qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
@@ -421,7 +421,7 @@ void QMakeStep::setUseQtQuickCompiler(bool enable)
 
     emit useQtQuickCompilerChanged();
 
-    qmakeBuildConfiguration()->emitQMakeBuildConfigurationChanged();
+    emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
     qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
@@ -438,7 +438,7 @@ void QMakeStep::setSeparateDebugInfo(bool enable)
 
     emit separateDebugInfoChanged();
 
-    qmakeBuildConfiguration()->emitQMakeBuildConfigurationChanged();
+    emit qmakeBuildConfiguration()->qmakeBuildConfigurationChanged();
     qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 

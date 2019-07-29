@@ -63,12 +63,6 @@ public:
     static QString shadowBuildDirectory(const Utils::FilePath &profilePath, const ProjectExplorer::Kit *k,
                                         const QString &suffix, BuildConfiguration::BuildType type);
 
-    /// \internal for qmakestep
-    // used by qmake step to notify that the qmake args have changed
-    // not really nice, the build configuration should save the arguments
-    // since they are needed for reevaluation
-    void emitQMakeBuildConfigurationChanged();
-
     QStringList configCommandLineArguments() const;
 
     // Those functions are used in a few places.
