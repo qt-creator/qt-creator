@@ -44,11 +44,19 @@ using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
+/// returns whether this is a shadow build configuration or not
+/// note, even if shadowBuild() returns true, it might be using the
+/// source directory as the shadow build directory, thus it
+/// still is a in-source build
+static bool isShadowBuild(BuildConfiguration *bc)
+{
+    return bc->buildDirectory() != bc->target()->project()->projectDirectory();
+}
+
 QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     : NamedWidget(),
       m_buildConfiguration(bc)
 {
-    const bool isShadowBuild = bc->isShadowBuild();
     Project *project = bc->target()->project();
 
     m_defaultShadowBuildDir
@@ -71,7 +79,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     shadowBuildLabel->setText(tr("Shadow build:"));
 
     shadowBuildCheckBox = new QCheckBox(details);
-    shadowBuildCheckBox->setChecked(isShadowBuild);
+    shadowBuildCheckBox->setChecked(isShadowBuild(m_buildConfiguration));
 
     buildDirLabel = new QLabel(details);
     buildDirLabel->setText(tr("Build directory:"));
@@ -115,7 +123,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     shadowBuildDirEdit->setHistoryCompleter(QLatin1String("Qmake.BuildDir.History"));
     shadowBuildDirEdit->setEnvironment(bc->environment());
     shadowBuildDirEdit->setBaseFileName(project->projectDirectory());
-    if (isShadowBuild) {
+    if (isShadowBuild(m_buildConfiguration)) {
         shadowBuildDirEdit->setPath(bc->rawBuildDirectory().toString());
         inSourceBuildDirEdit->setVisible(false);
     } else {
@@ -296,7 +304,7 @@ void QmakeProjectConfigWidget::updateProblemLabel()
 
     if (allGood) {
         QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory().toString();
-        if (m_buildConfiguration->isShadowBuild())
+        if (isShadowBuild(m_buildConfiguration))
             buildDirectory = m_buildConfiguration->buildDirectory().toString();
         Tasks issues;
         issues = version->reportIssues(proFileName, buildDirectory);

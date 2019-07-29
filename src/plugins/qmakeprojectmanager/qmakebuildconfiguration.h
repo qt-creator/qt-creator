@@ -48,7 +48,6 @@ public:
 
     void initialize(const ProjectExplorer::BuildInfo &info) override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
-    bool isShadowBuild() const;
 
     void setSubNodeBuild(QmakeProFileNode *node);
     QmakeProFileNode *subNodeBuild() const;

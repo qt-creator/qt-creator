@@ -255,15 +255,6 @@ void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
     m_fileNodeBuild = node;
 }
 
-/// returns whether this is a shadow build configuration or not
-/// note, even if shadowBuild() returns true, it might be using the
-/// source directory as the shadow build directory, thus it
-/// still is a in-source build
-bool QmakeBuildConfiguration::isShadowBuild() const
-{
-    return buildDirectory() != target()->project()->projectDirectory();
-}
-
 QString QmakeBuildConfiguration::makefile() const
 {
     auto rootNode = dynamic_cast<QmakeProFileNode *>(target()->project()->rootProjectNode());
