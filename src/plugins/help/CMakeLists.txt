@@ -47,3 +47,16 @@ extend_qtc_plugin(Help
     webenginehelpviewer.cpp
     webenginehelpviewer.h
 )
+
+find_package(litehtml QUIET)
+if (TARGET litehtml)
+  add_subdirectory(qlitehtml)
+  extend_qtc_plugin(Help
+    CONDITION TARGET qlitehtml
+    DEPENDS qlitehtml
+    DEFINES QTC_LITEHTML_HELPVIEWER
+    SOURCES
+      litehtmlhelpviewer.cpp
+      litehtmlhelpviewer.h
+  )
+endif()

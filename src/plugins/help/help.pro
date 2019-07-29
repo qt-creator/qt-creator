@@ -78,6 +78,12 @@ osx {
     }
 }
 
+!isEmpty(LITEHTML_INSTALL_DIR) {
+    include(qlitehtml/qlitehtml.pri)
+    HEADERS += litehtmlhelpviewer.h
+    SOURCES += litehtmlhelpviewer.cpp
+    DEFINES += QTC_LITEHTML_HELPVIEWER
+}
 
 RESOURCES += help.qrc
 include(../../shared/help/help.pri)

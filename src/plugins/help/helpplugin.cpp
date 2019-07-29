@@ -46,6 +46,9 @@
 #include "textbrowserhelpviewer.h"
 #include "topicchooser.h"
 
+#ifdef QTC_LITEHTML_HELPVIEWER
+#include "litehtmlhelpviewer.h"
+#endif
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
 #include "macwebkithelpviewer.h"
 #endif
@@ -455,10 +458,15 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     using ViewerFactory = std::function<HelpViewer *()>;
     using ViewerFactoryItem = QPair<QByteArray, ViewerFactory>; // id -> factory
     QVector<ViewerFactoryItem> factories;
-#ifdef QTC_WEBENGINE_HELPVIEWER
-    factories.append(qMakePair(QByteArray("qtwebengine"), []() { return new WebEngineHelpViewer(); }));
+#ifdef QTC_LITEHTML_HELPVIEWER
+    factories.append(qMakePair(QByteArray("litehtml"), [] { return new LiteHtmlHelpViewer(); }));
 #endif
-    factories.append(qMakePair(QByteArray("textbrowser"), []() { return new TextBrowserHelpViewer(); }));
+#ifdef QTC_WEBENGINE_HELPVIEWER
+    factories.append(
+        qMakePair(QByteArray("qtwebengine"), []() { return new WebEngineHelpViewer(); }));
+#endif
+    factories.append(
+        qMakePair(QByteArray("textbrowser"), []() { return new TextBrowserHelpViewer(); }));
 
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
     // default setting
