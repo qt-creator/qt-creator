@@ -97,7 +97,8 @@ QStringList globalQtEnums()
 QStringList knownEnumScopes()
 {
     static const QStringList list = {
-        "TextInput", "TextEdit", "Material", "Universal", "Font", "Shape", "ShapePath", "AbstractButton"
+        "TextInput", "TextEdit", "Material", "Universal", "Font", "Shape", "ShapePath",
+        "AbstractButton", "Text"
     };
     return list;
 }
