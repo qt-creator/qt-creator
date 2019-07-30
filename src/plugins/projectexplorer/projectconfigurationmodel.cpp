@@ -34,8 +34,6 @@
 #include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
-using namespace ProjectExplorer;
-
 /*!
     \class ProjectExplorer::BuildConfigurationModel
     \brief The BuildConfigurationModel class is a model to represent the build
@@ -48,14 +46,12 @@ using namespace ProjectExplorer;
     TODO might it possible to share code without making the code a complete mess.
 */
 
-namespace {
+namespace ProjectExplorer {
 
-const auto ComparisonOperator =
-    [](const ProjectConfiguration *a, const ProjectConfiguration *b) {
-        return Utils::caseFriendlyCompare(a->displayName(), b->displayName()) < 0;
-    };
-
-} // namespace
+static bool isOrderedBefore(const ProjectConfiguration *a, const ProjectConfiguration *b)
+{
+    return Utils::caseFriendlyCompare(a->displayName(), b->displayName()) < 0;
+}
 
 ProjectConfigurationModel::ProjectConfigurationModel(Target *target) :
     m_target(target)
@@ -83,10 +79,10 @@ void ProjectConfigurationModel::displayNameChanged()
     if (oldPos < 0)
         return;
 
-    if (oldPos >= 1 && ComparisonOperator(m_projectConfigurations.at(oldPos), m_projectConfigurations.at(oldPos - 1))) {
+    if (oldPos >= 1 && isOrderedBefore(m_projectConfigurations.at(oldPos), m_projectConfigurations.at(oldPos - 1))) {
         // We need to move up
         int newPos = oldPos - 1;
-        while (newPos >= 0 && ComparisonOperator(m_projectConfigurations.at(oldPos), m_projectConfigurations.at(newPos))) {
+        while (newPos >= 0 && isOrderedBefore(m_projectConfigurations.at(oldPos), m_projectConfigurations.at(newPos))) {
             --newPos;
         }
         ++newPos;
@@ -98,11 +94,11 @@ void ProjectConfigurationModel::displayNameChanged()
         // Not only did we move, we also changed...
         emit dataChanged(index(newPos, 0), index(newPos,0));
     } else if (oldPos < m_projectConfigurations.size() - 1
-               && ComparisonOperator(m_projectConfigurations.at(oldPos + 1), m_projectConfigurations.at(oldPos))) {
+               && isOrderedBefore(m_projectConfigurations.at(oldPos + 1), m_projectConfigurations.at(oldPos))) {
         // We need to move down
         int newPos = oldPos + 1;
         while (newPos < m_projectConfigurations.size()
-            && ComparisonOperator(m_projectConfigurations.at(newPos), m_projectConfigurations.at(oldPos))) {
+            && isOrderedBefore(m_projectConfigurations.at(newPos), m_projectConfigurations.at(oldPos))) {
             ++newPos;
         }
         beginMoveRows(QModelIndex(), oldPos, oldPos, QModelIndex(), newPos);
@@ -145,7 +141,7 @@ void ProjectConfigurationModel::addProjectConfiguration(ProjectConfiguration *pc
     // Find the right place to insert
     int i = 0;
     for (; i < m_projectConfigurations.size(); ++i) {
-        if (ComparisonOperator(pc, m_projectConfigurations.at(i)))
+        if (isOrderedBefore(pc, m_projectConfigurations.at(i)))
             break;
     }
 
@@ -166,3 +162,5 @@ void ProjectConfigurationModel::removeProjectConfiguration(ProjectConfiguration 
     m_projectConfigurations.removeAt(i);
     endRemoveRows();
 }
+
+} // ProjectExplorer
