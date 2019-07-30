@@ -603,7 +603,16 @@ def qdump__QFile(d, value):
     # 9fc0965 and a373ffcd change the layout of the private structure
     qtVersion = d.qtVersion()
     is32bit = d.ptrSize() == 4
-    if qtVersion >= 0x050700:
+    if qtVersion >= 0x050600 and d.qtTypeInfoVersion() >= 17:
+        # Some QRingBuffer member got removed in 8f92baf5c9
+        if d.isWindowsTarget():
+            if d.isMsvcTarget():
+                offset = 164 if is32bit else 224
+            else:
+               offset = 160 if is32bit else 224
+        else:
+            offset = 156 if is32bit else 224
+    elif qtVersion >= 0x050700:
         if d.isWindowsTarget():
             if d.isMsvcTarget():
                 offset = 176 if is32bit else 248
