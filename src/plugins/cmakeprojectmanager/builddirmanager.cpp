@@ -216,17 +216,10 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
 
     updateReaderType(m_parameters,
                      [this, old, newReaderReparseOptions, existingReaderReparseOptions]() {
-        int options = REPARSE_DEFAULT;
-        if (old != m_reader.get()) {
-            options = newReaderReparseOptions;
-        } else {
-            if (!QFileInfo::exists(m_parameters.workDirectory.toString() + "/CMakeCache.txt"))
-                options = newReaderReparseOptions;
-            else
-                options = existingReaderReparseOptions;
-        }
-        emit requestReparse(options);
-    });
+                         int options = (old != m_reader.get()) ? newReaderReparseOptions
+                                                               : existingReaderReparseOptions;
+                         emit requestReparse(options);
+                     });
 }
 
 CMakeBuildConfiguration *BuildDirManager::buildConfiguration() const
