@@ -204,9 +204,9 @@ CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEM
             // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake without configuration arguments if the reader stays
             m_buildDirManager.setParametersAndRequestParse(
-                        BuildDirParameters(senderBc),
-                        BuildDirManager::REPARSE_FAIL,
-                        BuildDirManager::REPARSE_CHECK_CONFIGURATION);
+                BuildDirParameters(senderBc),
+                BuildDirManager::REPARSE_CHECK_CONFIGURATION, // server-mode might need a restart...
+                BuildDirManager::REPARSE_CHECK_CONFIGURATION);
         }
     });
     subscribeSignal(&CMakeBuildConfiguration::buildDirectoryChanged, this, [this]() {
