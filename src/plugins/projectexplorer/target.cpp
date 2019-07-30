@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "projectconfigurationmodel.h"
 #include "target.h"
 
 #include "buildconfiguration.h"
@@ -59,7 +60,8 @@
 
 using namespace Utils;
 
-namespace {
+namespace ProjectExplorer {
+
 const char ACTIVE_BC_KEY[] = "ProjectExplorer.Target.ActiveBuildConfiguration";
 const char BC_KEY_PREFIX[] = "ProjectExplorer.Target.BuildConfiguration.";
 const char BC_COUNT_KEY[] = "ProjectExplorer.Target.BuildConfigurationCount";
@@ -82,18 +84,19 @@ static QString formatDeviceInfo(const ProjectExplorer::IDevice::DeviceInfo &inpu
     return lines.join(QLatin1String("<br>"));
 }
 
-} // namespace
-
 // -------------------------------------------------------------------------
 // Target
 // -------------------------------------------------------------------------
 
-namespace ProjectExplorer {
-
 class TargetPrivate
 {
 public:
-    TargetPrivate(Kit *k);
+    TargetPrivate(Target *t, Kit *k) :
+        m_kit(k),
+        m_buildConfigurationModel(t),
+        m_deployConfigurationModel(t),
+        m_runConfigurationModel(t)
+    { }
 
     bool m_isEnabled = true;
     QIcon m_overlayIcon;
@@ -110,15 +113,16 @@ public:
 
     Kit *const m_kit;
     MacroExpander m_macroExpander;
+
+    ProjectConfigurationModel m_buildConfigurationModel;
+    ProjectConfigurationModel m_deployConfigurationModel;
+    ProjectConfigurationModel m_runConfigurationModel;
 };
 
-TargetPrivate::TargetPrivate(Kit *k) :
-    m_kit(k)
-{ }
 
 Target::Target(Project *project, Kit *k, _constructor_tag) :
     QObject(project),
-    d(std::make_unique<TargetPrivate>(k))
+    d(std::make_unique<TargetPrivate>(this, k))
 {
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
@@ -227,6 +231,7 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
 
     emit addedProjectConfiguration(bc);
     emit addedBuildConfiguration(bc);
+    d->m_buildConfigurationModel.addProjectConfiguration(bc);
 
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(bc);
@@ -255,6 +260,7 @@ bool Target::removeBuildConfiguration(BuildConfiguration *bc)
 
     emit removedBuildConfiguration(bc);
     emit removedProjectConfiguration(bc);
+    d->m_buildConfigurationModel.removeProjectConfiguration(bc);
 
     delete bc;
     return true;
@@ -296,6 +302,7 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     d->m_deployConfigurations.push_back(dc);
 
     emit addedProjectConfiguration(dc);
+    d->m_deployConfigurationModel.addProjectConfiguration(dc);
     emit addedDeployConfiguration(dc);
 
     if (!d->m_activeDeployConfiguration)
@@ -324,6 +331,7 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
     }
 
     emit removedProjectConfiguration(dc);
+    d->m_deployConfigurationModel.removeProjectConfiguration(dc);
     emit removedDeployConfiguration(dc);
 
     delete dc;
@@ -413,6 +421,7 @@ void Target::addRunConfiguration(RunConfiguration *rc)
     d->m_runConfigurations.push_back(rc);
 
     emit addedProjectConfiguration(rc);
+    d->m_runConfigurationModel.addProjectConfiguration(rc);
     emit addedRunConfiguration(rc);
 
     if (!activeRunConfiguration())
@@ -435,6 +444,7 @@ void Target::removeRunConfiguration(RunConfiguration *rc)
 
     emit removedRunConfiguration(rc);
     emit removedProjectConfiguration(rc);
+    d->m_runConfigurationModel.removeProjectConfiguration(rc);
 
     delete rc;
 }
@@ -726,6 +736,21 @@ MakeInstallCommand Target::makeInstallCommand(const QString &installRoot) const
 MacroExpander *Target::macroExpander() const
 {
     return &d->m_macroExpander;
+}
+
+ProjectConfigurationModel *Target::buildConfigurationModel() const
+{
+    return &d->m_buildConfigurationModel;
+}
+
+ProjectConfigurationModel *Target::deployConfigurationModel() const
+{
+    return &d->m_deployConfigurationModel;
+}
+
+ProjectConfigurationModel *Target::runConfigurationModel() const
+{
+    return &d->m_runConfigurationModel;
 }
 
 void Target::updateDeviceState()

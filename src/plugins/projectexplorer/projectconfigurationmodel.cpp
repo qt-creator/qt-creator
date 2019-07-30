@@ -57,23 +57,9 @@ const auto ComparisonOperator =
 
 } // namespace
 
-ProjectConfigurationModel::ProjectConfigurationModel(Target *target, FilterFunction filter,
-                                                     QObject *parent) :
-    QAbstractListModel(parent),
-    m_target(target),
-    m_filter(filter)
+ProjectConfigurationModel::ProjectConfigurationModel(Target *target) :
+    m_target(target)
 {
-    m_projectConfigurations = Utils::filtered(m_target->projectConfigurations(), m_filter);
-    Utils::sort(m_projectConfigurations, ComparisonOperator);
-
-    connect(target, &Target::addedProjectConfiguration,
-            this, &ProjectConfigurationModel::addedProjectConfiguration);
-    connect(target, &Target::removedProjectConfiguration,
-            this, &ProjectConfigurationModel::removedProjectConfiguration);
-
-    foreach (ProjectConfiguration *pc, m_projectConfigurations)
-        connect(pc, &ProjectConfiguration::displayNameChanged,
-                this, &ProjectConfigurationModel::displayNameChanged);
 }
 
 int ProjectConfigurationModel::rowCount(const QModelIndex &parent) const
@@ -142,33 +128,20 @@ QVariant ProjectConfigurationModel::data(const QModelIndex &index, int role) con
     return QVariant();
 }
 
-ProjectConfiguration *ProjectConfigurationModel::projectConfigurationAt(int i)
+ProjectConfiguration *ProjectConfigurationModel::projectConfigurationAt(int i) const
 {
     if (i > m_projectConfigurations.size() || i < 0)
         return nullptr;
     return m_projectConfigurations.at(i);
 }
 
-ProjectConfiguration *ProjectConfigurationModel::projectConfigurationFor(const QModelIndex &idx)
+int ProjectConfigurationModel::indexFor(ProjectConfiguration *pc) const
 {
-    if (idx.row() > m_projectConfigurations.size() || idx.row() < 0)
-        return nullptr;
-    return m_projectConfigurations.at(idx.row());
+    return m_projectConfigurations.indexOf(pc);
 }
 
-QModelIndex ProjectConfigurationModel::indexFor(ProjectConfiguration *pc)
+void ProjectConfigurationModel::addProjectConfiguration(ProjectConfiguration *pc)
 {
-    int idx = m_projectConfigurations.indexOf(pc);
-    if (idx == -1)
-        return QModelIndex();
-    return index(idx, 0);
-}
-
-void ProjectConfigurationModel::addedProjectConfiguration(ProjectConfiguration *pc)
-{
-    if (!m_filter(pc))
-        return;
-
     // Find the right place to insert
     int i = 0;
     for (; i < m_projectConfigurations.size(); ++i) {
@@ -184,7 +157,7 @@ void ProjectConfigurationModel::addedProjectConfiguration(ProjectConfiguration *
             this, &ProjectConfigurationModel::displayNameChanged);
 }
 
-void ProjectConfigurationModel::removedProjectConfiguration(ProjectConfiguration *pc)
+void ProjectConfigurationModel::removeProjectConfiguration(ProjectConfiguration *pc)
 {
     int i = m_projectConfigurations.indexOf(pc);
     if (i < 0)
@@ -193,27 +166,3 @@ void ProjectConfigurationModel::removedProjectConfiguration(ProjectConfiguration
     m_projectConfigurations.removeAt(i);
     endRemoveRows();
 }
-
-BuildConfigurationModel::BuildConfigurationModel(Target *t, QObject *parent) :
-    ProjectConfigurationModel(t,
-                              [](const ProjectConfiguration *pc) {
-                                  return qobject_cast<const BuildConfiguration *>(pc) != nullptr;
-                              },
-                              parent)
-{ }
-
-DeployConfigurationModel::DeployConfigurationModel(Target *t, QObject *parent) :
-    ProjectConfigurationModel(t,
-                              [](const ProjectConfiguration *pc) {
-                                  return qobject_cast<const DeployConfiguration *>(pc) != nullptr;
-                              },
-                              parent)
-{ }
-
-RunConfigurationModel::RunConfigurationModel(Target *t, QObject *parent) :
-    ProjectConfigurationModel(t,
-                              [](const ProjectConfiguration *pc) {
-                                  return qobject_cast<const RunConfiguration *>(pc) != nullptr;
-                              },
-                              parent)
-{ }

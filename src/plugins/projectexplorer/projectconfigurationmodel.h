@@ -37,46 +37,25 @@ class ProjectConfiguration;
 class ProjectConfigurationModel : public QAbstractListModel
 {
     Q_OBJECT
-public:
-    using FilterFunction = std::function<bool(const ProjectConfiguration *)>;
 
-    explicit ProjectConfigurationModel(Target *target, FilterFunction filter,
-                                       QObject *parent = nullptr);
+public:
+    explicit ProjectConfigurationModel(Target *target);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    ProjectConfiguration *projectConfigurationAt(int i);
-    ProjectConfiguration *projectConfigurationFor(const QModelIndex &idx);
-    QModelIndex indexFor(ProjectConfiguration *pc);
+    ProjectConfiguration *projectConfigurationAt(int i) const;
+    int indexFor(ProjectConfiguration *pc) const;
+
+    void addProjectConfiguration(ProjectConfiguration *pc);
+    void removeProjectConfiguration(ProjectConfiguration *pc);
 
 private:
-    void addedProjectConfiguration(ProjectConfiguration *pc);
-    void removedProjectConfiguration(ProjectConfiguration *pc);
     void displayNameChanged();
 
     Target *m_target;
-    FilterFunction m_filter;
     QList<ProjectConfiguration *> m_projectConfigurations;
-};
-
-class BuildConfigurationModel : public ProjectConfigurationModel
-{
-public:
-    explicit BuildConfigurationModel(Target *t, QObject *parent = nullptr);
-};
-
-class DeployConfigurationModel : public ProjectConfigurationModel
-{
-public:
-    explicit DeployConfigurationModel(Target *t, QObject *parent = nullptr);
-};
-
-class RunConfigurationModel : public ProjectConfigurationModel
-{
-public:
-    explicit RunConfigurationModel(Target *t, QObject *parent = nullptr);
 };
 
 } // namespace ProjectExplorer

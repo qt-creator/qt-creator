@@ -39,10 +39,8 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class DeployConfiguration;
-class DeployConfigurationModel;
 class NamedWidget;
 class RunConfiguration;
-class RunConfigurationModel;
 class RunConfigWidget;
 class Target;
 
@@ -83,8 +81,6 @@ private:
     void updateEnabledState();
 
     Target *m_target;
-    RunConfigurationModel *m_runConfigurationsModel;
-    DeployConfigurationModel *m_deployConfigurationModel;
     QWidget *m_runConfigurationWidget = nullptr;
     RunConfiguration *m_runConfiguration = nullptr;
     QVBoxLayout *m_runLayout = nullptr;

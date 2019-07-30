@@ -83,7 +83,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
         hbox->addWidget(new QLabel(tr("Edit build configuration:"), this));
         m_buildConfigurationComboBox = new QComboBox(this);
         m_buildConfigurationComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        m_buildConfigurationComboBox->setModel(new BuildConfigurationModel(m_target, this));
+        m_buildConfigurationComboBox->setModel(m_target->buildConfigurationModel());
         hbox->addWidget(m_buildConfigurationComboBox);
 
         m_addButton = new QPushButton(this);
@@ -113,8 +113,8 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     }
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
-    auto model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
-    m_buildConfigurationComboBox->setCurrentIndex(model->indexFor(m_buildConfiguration).row());
+    m_buildConfigurationComboBox->setCurrentIndex(
+                m_target->buildConfigurationModel()->indexFor(m_buildConfiguration));
 
     updateAddButtonMenu();
     updateBuildSettings();
@@ -217,8 +217,8 @@ void BuildSettingsWidget::updateBuildSettings()
 
 void BuildSettingsWidget::currentIndexChanged(int index)
 {
-    auto model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
-    auto buildConfiguration = qobject_cast<BuildConfiguration *>(model->projectConfigurationAt(index));
+    auto buildConfiguration = qobject_cast<BuildConfiguration *>(
+                m_target->buildConfigurationModel()->projectConfigurationAt(index));
     SessionManager::setActiveBuildConfiguration(m_target, buildConfiguration, SetActive::Cascade);
 }
 
@@ -229,8 +229,8 @@ void BuildSettingsWidget::updateActiveConfiguration()
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
 
-    auto model = static_cast<BuildConfigurationModel *>(m_buildConfigurationComboBox->model());
-    m_buildConfigurationComboBox->setCurrentIndex(model->indexFor(m_buildConfiguration).row());
+    m_buildConfigurationComboBox->setCurrentIndex(
+                m_target->buildConfigurationModel()->indexFor(m_buildConfiguration));
 
     updateBuildSettings();
 }

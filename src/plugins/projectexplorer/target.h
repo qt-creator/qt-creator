@@ -42,6 +42,7 @@ class DeploymentData;
 class Kit;
 class MakeInstallCommand;
 class Project;
+class ProjectConfigurationModel;
 class RunConfiguration;
 
 class TargetPrivate;
@@ -122,6 +123,10 @@ public:
     MakeInstallCommand makeInstallCommand(const QString &installRoot) const;
 
     Utils::MacroExpander *macroExpander() const;
+
+    ProjectConfigurationModel *buildConfigurationModel() const;
+    ProjectConfigurationModel *deployConfigurationModel() const;
+    ProjectConfigurationModel *runConfigurationModel() const;
 
 signals:
     void targetEnabled(bool);
