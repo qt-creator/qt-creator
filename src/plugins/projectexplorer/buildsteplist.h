@@ -27,8 +27,9 @@
 
 #include "projectexplorer_export.h"
 
-#include "projectconfiguration.h"
+#include <coreplugin/id.h>
 
+#include <QObject>
 #include <QVariantMap>
 
 namespace ProjectExplorer {
@@ -36,7 +37,7 @@ namespace ProjectExplorer {
 class BuildStep;
 class Target;
 
-class PROJECTEXPLORER_EXPORT BuildStepList : public ProjectConfiguration
+class PROJECTEXPLORER_EXPORT BuildStepList : public QObject
 {
     Q_OBJECT
 
@@ -71,16 +72,18 @@ public:
         Core::Id stepId;
         std::function<bool(Target *)> condition; // unset counts as unrestricted
     };
-    void appendSteps(const QList<StepCreationInfo> &infos);
 
     bool removeStep(int position);
     void moveStepUp(int position);
     BuildStep *at(int position);
 
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &map) override;
+    Target *target() { return m_target; }
 
-    bool isActive() const override;
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map);
+
+    Core::Id id() const { return m_id; }
+    QString displayName() const;
 
 signals:
     void stepInserted(int position);
@@ -89,6 +92,8 @@ signals:
     void stepMoved(int from, int to);
 
 private:
+    Target *m_target;
+    Core::Id m_id;
     QList<BuildStep *> m_steps;
 };
 

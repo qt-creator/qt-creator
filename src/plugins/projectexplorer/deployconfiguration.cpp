@@ -53,8 +53,6 @@ DeployConfiguration::DeployConfiguration(Target *target, Core::Id id)
         return bc ? bc->macroExpander() : target->macroExpander();
     });
 
-    //: Display name of the deploy build step list. Used as part of the labels in the project window.
-    m_stepList.setDefaultDisplayName(tr("Deploy"));
     //: Default DeployConfiguration display name
     setDefaultDisplayName(tr("Deploy locally"));
 }
@@ -100,7 +98,6 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
             m_stepList.clear();
             return false;
         }
-        m_stepList.setDefaultDisplayName(tr("Deploy"));
     } else {
         qWarning() << "No data for deploy step list found!";
         return false;
@@ -188,7 +185,11 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent)
     QTC_ASSERT(canHandle(parent), return nullptr);
     DeployConfiguration *dc = createDeployConfiguration(parent);
     QTC_ASSERT(dc, return nullptr);
-    dc->stepList()->appendSteps(m_initialSteps);
+    BuildStepList *stepList = dc->stepList();
+    for (const BuildStepList::StepCreationInfo &info : qAsConst(m_initialSteps)) {
+        if (!info.condition || info.condition(parent))
+            stepList->appendStep(info.stepId);
+    }
     return dc;
 }
 
