@@ -227,7 +227,9 @@ def qdump__QStandardItemData(d, value):
 
 def qdump__QStandardItem(d, value):
     vtable, dptr = value.split('pp')
-    if d.isMsvcTarget():
+    # There used to be a virtual destructor that got removed in
+    # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
+    if d.qtVersion() >= 0x050900 or d.isMsvcTarget():
         model, parent, values, children, rows, cols, item = d.split('ppPPIIp', dptr)
     else:
         vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
