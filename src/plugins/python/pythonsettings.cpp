@@ -191,7 +191,7 @@ void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QM
 void InterpreterOptionsWidget::addItem()
 {
     const QModelIndex &index = m_model.indexForItem(
-                m_model.appendItem({QUuid::createUuid().toString(), "Python", FilePath()}));
+                m_model.appendItem({QUuid::createUuid().toString(), QString("Python"), FilePath()}));
     QTC_ASSERT(index.isValid(), return);
     m_view.setCurrentIndex(index);
 }
