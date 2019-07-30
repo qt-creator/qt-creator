@@ -149,7 +149,7 @@ NameValueItems NameValueDictionary::diff(const NameValueDictionary &other, bool 
 
     NameValueItems result;
     while (thisIt != constEnd() || otherIt != other.constEnd()) {
-        if (thisIt == constEnd() || thisIt.key() > otherIt.key()) {
+        if (thisIt == constEnd()) {
             result.append({otherIt.key(), otherIt.value().first,
                 otherIt.value().second ? NameValueItem::SetEnabled : NameValueItem::SetDisabled});
             ++otherIt;
@@ -159,6 +159,10 @@ NameValueItems NameValueDictionary::diff(const NameValueDictionary &other, bool 
         } else if (thisIt.key() < otherIt.key()) {
             result.append(NameValueItem(thisIt.key(), QString(), NameValueItem::Unset));
             ++thisIt;
+        } else if (thisIt.key() > otherIt.key()) {
+            result.append({otherIt.key(), otherIt.value().first,
+                otherIt.value().second ? NameValueItem::SetEnabled : NameValueItem::SetDisabled});
+            ++otherIt;
         } else {
             const QString &oldValue = thisIt.value().first;
             const QString &newValue = otherIt.value().first;
