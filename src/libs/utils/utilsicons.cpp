@@ -194,6 +194,8 @@ const Icon SORT_ALPHABETICALLY_TOOLBAR({
         {QLatin1String(":/utils/images/sort_alphabetically.png"), Theme::IconsBaseColor}});
 const Icon TOGGLE_PROGRESSDETAILS_TOOLBAR({
     {QLatin1String(":/utils/images/toggleprogressdetails.png"), Theme::IconsBaseColor}});
+const Icon ONLINE_TOOLBAR({
+        {QLatin1String(":/utils/images/online.png"), Theme::IconsBaseColor}});
 
 const Icon WARNING({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},

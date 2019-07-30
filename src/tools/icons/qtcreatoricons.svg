@@ -3727,6 +3727,39 @@
          width="100%"
          height="100%" />
     </g>
+    <g
+       id="src/libs/utils/images/online"
+       transform="translate(176)"
+       style="display:inline">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6217"
+         width="100%"
+         height="100%"
+         transform="translate(1740,132)"
+         style="display:inline" />
+      <circle
+         style="fill:none;stroke:#000000"
+         id="path6227"
+         cx="1732.5"
+         cy="575.5"
+         r="6" />
+      <ellipse
+         cy="575.5"
+         cx="1732.5"
+         id="circle6239"
+         style="fill:none;stroke:#000000"
+         ry="6"
+         rx="2.8299999" />
+      <path
+         id="path2519"
+         style="fill:none;stroke:#000000"
+         d="m 1727,572.5 h 11 m -11,6 h 11 m -11,-3 h 11"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

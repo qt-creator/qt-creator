@@ -223,6 +223,8 @@
         <file>images/toggleprogressdetails@2x.png</file>
         <file>images/unknownfile.png</file>
         <file>images/dir.png</file>
+        <file>images/online.png</file>
+        <file>images/online@2x.png</file>
         <file alias="mimetypes/freedesktop.org.xml" compression-algorithm="best">../3rdparty/xdg/freedesktop.org.xml</file>
     </qresource>
     <qresource prefix="/codemodel">

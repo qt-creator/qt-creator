@@ -208,7 +208,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     layout->addWidget(new Utils::StyledSeparator(toolBar));
     layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_addBookmarkAction, cmd));
 
-    m_openOnlineDocumentationAction = new QAction(Utils::Icons::EXPORTFILE_TOOLBAR.icon(), tr("Open Online Documentation..."), this);
+    m_openOnlineDocumentationAction = new QAction(Utils::Icons::ONLINE_TOOLBAR.icon(), tr("Open Online Documentation..."), this);
     cmd = Core::ActionManager::registerAction(m_openOnlineDocumentationAction, Constants::HELP_OPENONLINE, context);
     connect(m_openOnlineDocumentationAction, &QAction::triggered, this, &HelpWidget::openOnlineDocumentation);
     layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_openOnlineDocumentationAction, cmd));
