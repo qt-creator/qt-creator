@@ -33,6 +33,7 @@
 #include <nodeinstanceclientinterface.h>
 #include <nodeinstanceserverinterface.h>
 
+#include <QElapsedTimer>
 #include <QHash>
 #include <QImage>
 #include <QPointer>
@@ -195,7 +196,7 @@ private: //variables
 
     QPointer<NodeInstanceServerInterface> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
-    QTime m_lastCrashTime;
+    QElapsedTimer m_lastCrashTime;
     NodeInstanceServerInterface::RunModus m_runModus;
     ProjectExplorer::Kit *m_currentKit = nullptr;
     ProjectExplorer::Project *m_currentProject = nullptr;

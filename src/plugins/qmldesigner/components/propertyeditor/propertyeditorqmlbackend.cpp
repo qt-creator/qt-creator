@@ -273,7 +273,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         qCInfo(propertyEditorBenchmark) << Q_FUNC_INFO;
 
-        QTime time;
+        QElapsedTimer time;
         if (propertyEditorBenchmark().isInfoEnabled())
             time.start();
 

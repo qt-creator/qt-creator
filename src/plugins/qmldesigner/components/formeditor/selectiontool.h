@@ -33,6 +33,7 @@
 #include "bindingindicator.h"
 #include "contentnoteditableindicator.h"
 
+#include <QElapsedTimer>
 #include <QTime>
 
 namespace QmlDesigner {
@@ -87,7 +88,7 @@ private:
     AnchorIndicator m_anchorIndicator;
     BindingIndicator m_bindingIndicator;
     ContentNotEditableIndicator m_contentNotEditableIndicator;
-    QTime m_mousePressTimer;
+    QElapsedTimer m_mousePressTimer;
     QCursor m_cursor;
     bool m_itemAlreadySelected = false;
 };

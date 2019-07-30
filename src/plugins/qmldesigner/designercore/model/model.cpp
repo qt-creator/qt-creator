@@ -1396,7 +1396,7 @@ void ModelPrivate::setSelectedNodes(const QList<InternalNode::Pointer> &selected
     QList<InternalNode::Pointer> sortedSelectedList
             = Utils::filtered(selectedNodeList, &InternalNode::isValid);
 
-    sortedSelectedList = sortedSelectedList.toSet().toList();
+    sortedSelectedList = Utils::toList(Utils::toSet(sortedSelectedList));
     Utils::sort(sortedSelectedList);
 
     if (sortedSelectedList == m_selectedInternalNodeList)
@@ -1767,7 +1767,8 @@ QList<InternalNodePointer> ModelPrivate::allNodes() const
 
     nodeList.append(m_rootInternalNode);
     nodeList.append(m_rootInternalNode->allSubNodes());
-    nodeList.append((m_nodeSet - nodeList.toSet()).toList());
+    // FIXME: This is horribly expensive compared to a loop.
+    nodeList.append(Utils::toList(m_nodeSet - Utils::toSet(nodeList)));
 
     return nodeList;
 }

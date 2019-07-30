@@ -47,6 +47,7 @@
 
 #include <utils/algorithm.h>
 
+#include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QTabWidget>
 
@@ -102,8 +103,7 @@ DesignDocument *ViewManager::currentDesignDocument() const
 
 void ViewManager::attachNodeInstanceView()
 {
-
-    QTime time;
+    QElapsedTimer time;
     if (viewBenchmark().isInfoEnabled())
         time.start();
 
@@ -117,7 +117,7 @@ void ViewManager::attachNodeInstanceView()
 
 void ViewManager::attachRewriterView()
 {
-    QTime time;
+    QElapsedTimer time;
     if (viewBenchmark().isInfoEnabled())
         time.start();
 
@@ -253,7 +253,7 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
 
     attachNodeInstanceView();
 
-    QTime time;
+    QElapsedTimer time;
     if (viewBenchmark().isInfoEnabled())
         time.start();
 

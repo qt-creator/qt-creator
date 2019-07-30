@@ -39,6 +39,7 @@
 #include <QGraphicsView>
 
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QList>
 #include <QTime>
 
@@ -255,16 +256,16 @@ void FormEditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         currentTool()->mousePressEvent(removeLayerItems(itemsAt(event->scenePos())), event);
 }
 
-static QTime staticTimer()
+static QElapsedTimer staticTimer()
 {
-    QTime timer;
+    QElapsedTimer timer;
     timer.start();
     return timer;
 }
 
 void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    static QTime time = staticTimer();
+    static QElapsedTimer time = staticTimer();
 
     QGraphicsScene::mouseMoveEvent(event);
 

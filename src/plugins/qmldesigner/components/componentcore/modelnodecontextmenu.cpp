@@ -63,7 +63,7 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
 
     actionInterfaces.subtract(matchingFactories);
 
-    QList<ActionInterface* > matchingFactoriesList = matchingFactories.toList();
+    QList<ActionInterface* > matchingFactoriesList = Utils::toList(matchingFactories);
     Utils::sort(matchingFactoriesList, [](ActionInterface *l, ActionInterface *r) {
         return l->priority() > r->priority();
     });
@@ -100,8 +100,7 @@ void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBoo
 
     manager.setupContext();
 
-     QSet<ActionInterface* > factories =
-             QSet<ActionInterface* >::fromList(manager.designerActions());
+    QSet<ActionInterface* > factories = Utils::toSet(manager.designerActions());
 
      populateMenu(factories, QByteArray(), mainMenu, m_selectionContext);
 
