@@ -152,8 +152,17 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         else
             locationAndType.m_type = TestTreeItem::TestFunction;
 
-        m_caseParseStack.top().m_functions.append(
-            QuickTestFunctionSpec{name.toString(), locationAndType});
+        const QString nameStr = name.toString();
+        // identical test functions inside the same file are not working - will fail at runtime
+        if (!Utils::anyOf(m_caseParseStack.top().m_functions,
+                          [nameStr, locationAndType](const QuickTestFunctionSpec func) {
+                          return func.m_locationAndType.m_type == locationAndType.m_type
+                          && func.m_functionName == nameStr
+                          && func.m_locationAndType.m_name == locationAndType.m_name;
+        })) {
+            m_caseParseStack.top().m_functions.append(
+                        QuickTestFunctionSpec{nameStr, locationAndType});
+        }
     }
     return false;
 }

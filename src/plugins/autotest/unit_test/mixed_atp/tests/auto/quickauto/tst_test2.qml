@@ -67,5 +67,11 @@ TestCase {
             verify(true);
         }
     }
+
+    TestCase { // 2nd unnamed with same function name - legal as long it's a different TestCase
+        function test_func() {
+            verify(true);
+        }
+    }
 }
 

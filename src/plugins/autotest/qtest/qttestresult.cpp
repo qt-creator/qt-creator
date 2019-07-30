@@ -95,7 +95,8 @@ bool QtTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermed
                 return qtOther->m_dataTag == m_dataTag;
             }
         } else if (qtOther->isTestFunction()) {
-            return isTestCase() || m_function == qtOther->m_function;
+            return isTestCase() || (m_function == qtOther->m_function
+                                    && qtOther->result() != ResultType::TestStart);
         }
     }
     return false;
