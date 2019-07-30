@@ -14,6 +14,7 @@ you can check out from the public Git repository. For example:
 * Removed support for KDE code paster after removal of official API
 * Added option for pinning files so they stay open when closing all files (QTCREATORBUG-21899)
 * Fixed low contrast of hovered folding markers (QTCREATORBUG-21702)
+* Fixed infinite global search in case of symlink loop (QTCREATORBUG-22662)
 
 ### Generic Highlighter
 
@@ -120,11 +121,21 @@ you can check out from the public Git repository. For example:
 ## Debugging
 
 * Added pretty printer for `QMargin`
+* Fixed pretty printer for `std::vector` and `std::basic_string` with custom allocator
+* Fixed pretty printer for `std::map<K,V>::iterator`
 * Fixed issues with restoring layout (QTCREATORBUG-21669)
 
 ### CDB
 
 * Fixed loading of custom debugging helpers (QTCREATORBUG-20481)
+
+## Clang Analyzer Tools
+
+* Fixed display of diagnostic for files outside of project directory (QTCREATORBUG-22213)
+
+## QML Profiler
+
+* Improved behavior in case of slow connections (QTCREATORBUG-22641)
 
 ## Perf Profiler
 
@@ -151,6 +162,7 @@ you can check out from the public Git repository. For example:
 * Added support for different reset types in `Branches` view
 * Added choice of build system to `Git Clone` wizard if cloned project supports multiple
   build systems (QTCREATORBUG-17828)
+* Fixed popping stash after checkout from `Branches` view
 
 ## Test Integration
 
@@ -182,13 +194,14 @@ you can check out from the public Git repository. For example:
   in its install step (QTCREATORBUG-21855)
 * Added support for opening remote terminal with run environment
 * Added option for `rsync` flags for deployment (QTCREATORBUG-22352)
+* Fixed deployment of files with `executable` `CONFIG` value (QTCREATORBUG-22663)
+* Fixed `Unexpected stat output for remote file` (QTCREATORBUG-22603)
 
 ### Bare Metal
 
 * Added include path detection and output parsers for `IAR`, `KEIL` and `SDCC` toolchains
 
 ## Credits for these changes go to:
-
 Aleksei German  
 Alessandro Ambrosano  
 Alessandro Portale  
@@ -221,6 +234,7 @@ Kavindra Palaraja
 Knud Dollereder  
 Leena Miettinen  
 Luca Carlon  
+Marc Mutz  
 Marco Bubke  
 Martin Haase  
 Michael Weghorn  
@@ -230,6 +244,7 @@ Oliver Wolff
 Orgad Shaneh  
 Przemyslaw Gorszkowski  
 Robert Löhning  
+Thiago Macieira  
 Thomas Hartmann  
 Thomas Otto  
 Tim Henning  
@@ -238,4 +253,5 @@ Tobias Hunger
 Tor Arne Vestbø  
 Uladzislau Paulovich  
 Ulf Hermann  
+Vikas Pachdha  
 Ville Nummela  
