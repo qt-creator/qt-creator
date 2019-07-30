@@ -94,7 +94,7 @@ def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
             itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
         currentSelectedTreeItem = waitForObject(itObj, 3000)
         tree.scrollTo(it)
-        mouseClick(currentSelectedTreeItem)
+        mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
         additionalFunc(indexName, *additionalParameters)
         currentSelectedTreeItem = None
         if model.rowCount(it) > 0:
