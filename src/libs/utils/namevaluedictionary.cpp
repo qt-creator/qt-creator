@@ -134,14 +134,6 @@ void NameValueDictionary::modify(const NameValueItems &items)
     *this = resultKeyValueDictionary;
 }
 
-enum : char {
-#ifdef Q_OS_WIN
-    pathSepC = ';'
-#else
-    pathSepC = ':'
-#endif
-};
-
 NameValueItems NameValueDictionary::diff(const NameValueDictionary &other, bool checkAppendPrepend) const
 {
     NameValueMap::const_iterator thisIt = constBegin();
@@ -172,13 +164,13 @@ NameValueItems NameValueDictionary::diff(const NameValueDictionary &other, bool 
                 if (checkAppendPrepend && newValue.startsWith(oldValue)
                         && oldEnabled == newEnabled) {
                     QString appended = newValue.right(newValue.size() - oldValue.size());
-                    if (appended.startsWith(QLatin1Char(pathSepC)))
+                    if (appended.startsWith(OsSpecificAspects::pathListSeparator(osType())))
                         appended.remove(0, 1);
                     result.append(NameValueItem(otherIt.key(), appended, NameValueItem::Append));
                 } else if (checkAppendPrepend && newValue.endsWith(oldValue)
                            && oldEnabled == newEnabled) {
                     QString prepended = newValue.left(newValue.size() - oldValue.size());
-                    if (prepended.endsWith(QLatin1Char(pathSepC)))
+                    if (prepended.endsWith(OsSpecificAspects::pathListSeparator(osType())))
                         prepended.chop(1);
                     result.append(NameValueItem(otherIt.key(), prepended, NameValueItem::Prepend));
                 } else {
