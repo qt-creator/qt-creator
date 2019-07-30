@@ -190,33 +190,33 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
     if (!qmlVisitor.isValid())
         return false;
 
-    const QVector<QuickTestCaseSpec> &testFunctions = qmlVisitor.testFunctions();
+    const QVector<QuickTestCaseSpec> &testCases = qmlVisitor.testCases();
 
-    for (const QuickTestCaseSpec &it : testFunctions) {
-        const QString testCaseName = it.m_caseName;
-        const QString functionName = it.m_functionName;
-        const TestCodeLocationAndType &loc = it.m_functionLocationAndType;
+    for (const QuickTestCaseSpec &testCase : testCases) {
+        const QString testCaseName = testCase.m_caseName;
 
         QuickTestParseResult *parseResult = new QuickTestParseResult(id);
         parseResult->proFile = proFile;
         parseResult->itemType = TestTreeItem::TestCase;
         if (!testCaseName.isEmpty()) {
-            parseResult->fileName = it.m_name;
+            parseResult->fileName = testCase.m_locationAndType.m_name;
             parseResult->name = testCaseName;
-            parseResult->line = it.m_line;
-            parseResult->column = it.m_column;
+            parseResult->line = testCase.m_locationAndType.m_line;
+            parseResult->column = testCase.m_locationAndType.m_column;
         }
 
-        QuickTestParseResult *funcResult = new QuickTestParseResult(id);
-        funcResult->name = functionName;
-        funcResult->displayName = functionName;
-        funcResult->itemType = loc.m_type;
-        funcResult->fileName = loc.m_name;
-        funcResult->line = loc.m_line;
-        funcResult->column = loc.m_column;
-        funcResult->proFile = proFile;
+        for (auto function : testCase.m_functions) {
+            QuickTestParseResult *funcResult = new QuickTestParseResult(id);
+            funcResult->name = function.m_functionName;
+            funcResult->displayName = function.m_functionName;
+            funcResult->itemType = function.m_locationAndType.m_type;
+            funcResult->fileName = function.m_locationAndType.m_name;
+            funcResult->line = function.m_locationAndType.m_line;
+            funcResult->column = function.m_locationAndType.m_column;
+            funcResult->proFile = proFile;
 
-        parseResult->children.append(funcResult);
+            parseResult->children.append(funcResult);
+        }
 
         futureInterface.reportResult(TestParseResultPtr(parseResult));
     }
