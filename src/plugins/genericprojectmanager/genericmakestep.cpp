@@ -26,6 +26,7 @@
 #include "genericmakestep.h"
 #include "genericprojectconstants.h"
 
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace ProjectExplorer;
@@ -33,52 +34,23 @@ using namespace ProjectExplorer;
 namespace GenericProjectManager {
 namespace Internal {
 
-const char GENERIC_MS_ID[] = "GenericProjectManager.GenericMakeStep";
-
-GenericMakeStep::GenericMakeStep(BuildStepList *parent, const QString &buildTarget)
-    : MakeStep(parent, GENERIC_MS_ID)
+GenericMakeStep::GenericMakeStep(BuildStepList *parent)
+    : MakeStep(parent, Constants::GENERIC_MS_ID)
 {
-    setBuildTarget(buildTarget);
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
+        setBuildTarget("all");
+    } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+        setBuildTarget("clean");
+        setClean(true);
+    }
     setAvailableBuildTargets({"all", "clean"});
 }
 
-//
-// GenericMakeAllStepFactory
-//
-
-GenericMakeAllStepFactory::GenericMakeAllStepFactory()
+GenericMakeStepFactory::GenericMakeStepFactory()
 {
-    struct Step : GenericMakeStep
-    {
-        Step(BuildStepList *bsl) : GenericMakeStep(bsl) { setBuildTarget("all"); }
-    };
-
-    registerStep<Step>(GENERIC_MS_ID);
+    registerStep<GenericMakeStep>(Constants::GENERIC_MS_ID);
     setDisplayName(MakeStep::defaultDisplayName());
     setSupportedProjectType(Constants::GENERICPROJECT_ID);
-    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
-                           ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
-}
-
-//
-// GenericMakeCleanStepFactory
-//
-
-GenericMakeCleanStepFactory::GenericMakeCleanStepFactory()
-{
-    struct Step : GenericMakeStep
-    {
-        Step(BuildStepList *bsl) : GenericMakeStep(bsl)
-        {
-            setBuildTarget("clean", true);
-            setClean(true);
-        }
-    };
-
-    registerStep<Step>(GENERIC_MS_ID);
-    setDisplayName(MakeStep::defaultDisplayName());
-    setSupportedProjectType(Constants::GENERICPROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
 }
 
 } // namespace Internal

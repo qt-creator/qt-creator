@@ -64,8 +64,7 @@ public:
     GenericProjectPluginPrivate();
 
     ProjectFilesFactory projectFilesFactory;
-    GenericMakeAllStepFactory makeAllStepFactory;
-    GenericMakeCleanStepFactory makeCleanStepFactory;
+    GenericMakeStepFactory makeStepFactory;
     GenericBuildConfigurationFactory buildConfigFactory;
 
     QAction editFilesAction{GenericProjectPlugin::tr("Edit Files..."), nullptr};

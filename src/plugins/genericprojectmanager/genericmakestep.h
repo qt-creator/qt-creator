@@ -37,19 +37,13 @@ class GenericMakeStep : public ProjectExplorer::MakeStep
     Q_OBJECT
 
 public:
-    explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent, const QString &buildTarget = {});
+    explicit GenericMakeStep(ProjectExplorer::BuildStepList *parent);
 };
 
-class GenericMakeAllStepFactory : public ProjectExplorer::BuildStepFactory
+class GenericMakeStepFactory : public ProjectExplorer::BuildStepFactory
 {
 public:
-    GenericMakeAllStepFactory();
-};
-
-class GenericMakeCleanStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    GenericMakeCleanStepFactory();
+    GenericMakeStepFactory();
 };
 
 } // namespace Internal

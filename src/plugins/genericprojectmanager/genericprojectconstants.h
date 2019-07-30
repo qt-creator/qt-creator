@@ -30,6 +30,8 @@ namespace Constants {
 
 const char GENERICMIMETYPE[]    = "text/x-generic-project"; // ### FIXME
 
+const char GENERIC_MS_ID[] = "GenericProjectManager.GenericMakeStep";
+
 // Contexts
 const char FILES_EDITOR_ID[]    = "QT4.FilesEditor";
 

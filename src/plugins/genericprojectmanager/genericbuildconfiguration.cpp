@@ -63,10 +63,10 @@ void GenericBuildConfiguration::initialize(const BuildInfo &info)
     BuildConfiguration::initialize(info);
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    buildSteps->appendStep(new GenericMakeStep(buildSteps, "all"));
+    buildSteps->appendStep(Constants::GENERIC_MS_ID);
 
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(new GenericMakeStep(cleanSteps, "clean"));
+    cleanSteps->appendStep(Constants::GENERIC_MS_ID);
 
     updateCacheAndEmitEnvironmentChanged();
 }
