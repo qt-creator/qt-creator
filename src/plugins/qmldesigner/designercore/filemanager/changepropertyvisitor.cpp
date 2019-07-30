@@ -142,7 +142,7 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
             if (publicMember->semicolonToken.isValid())
                 endOffset = publicMember->semicolonToken.end();
             else
-                endOffset = publicMember->statement->lastSourceLocation().offset;
+                endOffset = publicMember->statement->lastSourceLocation().end();
         } else {
             startOffset = publicMember->lastSourceLocation().end();
             endOffset = startOffset;
