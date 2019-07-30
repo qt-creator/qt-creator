@@ -35,15 +35,11 @@
 #include <utils/stringutils.h>
 
 /*!
-    \class ProjectExplorer::BuildConfigurationModel
-    \brief The BuildConfigurationModel class is a model to represent the build
-    configurations of a target.
+    \class ProjectExplorer::ProjectConfigurationModel
+    \brief The ProjectConfigurationModel class is a model to represent the build,
+    deploy and run configurations of a target.
 
     To be used in the dropdown lists of comboboxes.
-    Automatically adjusts itself to added and removed BuildConfigurations.
-    Very similar to the Run Configuration Model.
-
-    TODO might it possible to share code without making the code a complete mess.
 */
 
 namespace ProjectExplorer {
