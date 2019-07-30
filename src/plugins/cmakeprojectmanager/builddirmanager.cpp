@@ -243,7 +243,7 @@ void BuildDirManager::becameDirty()
     if (!tool->isAutoRun())
         return;
 
-    emit requestReparse(REPARSE_CHECK_CONFIGURATION);
+    emit requestReparse(REPARSE_CHECK_CONFIGURATION | REPARSE_SCAN);
 }
 
 void BuildDirManager::resetData()
