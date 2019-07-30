@@ -1,0 +1,42 @@
+From 72546402c08fc548efb248761870a83e78eb5ea3 Mon Sep 17 00:00:00 2001
+From: Nikolai Kosjar <nikolai.kosjar@qt.io>
+Date: Wed, 31 Jul 2019 09:08:55 +0200
+Subject: [PATCH] yaml-cpp: Make dll.h compatible with -fvisibility=hidden
+
+Change-Id: Ic09ace43e37102294d290768b3a7994c7a6b42c6
+---
+ src/libs/3rdparty/yaml-cpp/include/yaml-cpp/dll.h | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/dll.h b/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/dll.h
+index a32c06b2e3..897f1533df 100644
+--- a/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/dll.h
++++ b/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/dll.h
+@@ -18,13 +18,22 @@
+ 
+ #ifdef YAML_CPP_DLL      // Using or Building YAML-CPP DLL (definition defined
+                          // manually)
++
++#if defined(_WIN32) || defined(WIN32)
++#  define YAML_CPP_API_IMPORT __declspec(dllimport)
++#  define YAML_CPP_API_EXPORT __declspec(dllexport)
++#else
++#  define YAML_CPP_API_IMPORT __attribute__((visibility("default")))
++#  define YAML_CPP_API_EXPORT __attribute__((visibility("default")))
++#endif
++
+ #ifdef yaml_cpp_EXPORTS  // Building YAML-CPP DLL (definition created by CMake
+                          // or defined manually)
+ //	#pragma message( "Defining YAML_CPP_API for DLL export" )
+-#define YAML_CPP_API __declspec(dllexport)
++#define YAML_CPP_API YAML_CPP_API_EXPORT
+ #else  // yaml_cpp_EXPORTS
+ //	#pragma message( "Defining YAML_CPP_API for DLL import" )
+-#define YAML_CPP_API __declspec(dllimport)
++#define YAML_CPP_API YAML_CPP_API_IMPORT
+ #endif  // yaml_cpp_EXPORTS
+ #else   // YAML_CPP_DLL
+ #define YAML_CPP_API
+-- 
+2.17.1
+

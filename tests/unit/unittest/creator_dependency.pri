@@ -4,6 +4,7 @@ IDE_LIBEXEC_PATH=$$PWD
 IDE_BIN_PATH=$$PWD
 include($$PWD/../../../src/libs/utils/utils-lib.pri)
 
+include($$PWD/../../../src/libs/3rdparty/yaml-cpp/yaml-cpp.pri)
 include($$PWD/../../../src/libs/sqlite/sqlite-lib.pri)
 include($$PWD/../../../src/libs/clangsupport/clangsupport-lib.pri)
 include($$PWD/../../../src/plugins/coreplugin/corepluginunittestfiles.pri)

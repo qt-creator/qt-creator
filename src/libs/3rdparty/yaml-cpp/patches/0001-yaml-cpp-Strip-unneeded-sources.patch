@@ -1,0 +1,1667 @@
+From dd3d5fa32be556e54d2ee2247a06e1fc7e5c8026 Mon Sep 17 00:00:00 2001
+From: Nikolai Kosjar <nikolai.kosjar@qt.io>
+Date: Thu, 22 Aug 2019 15:00:03 +0200
+Subject: [PATCH] yaml-cpp: Strip unneeded sources
+
+Change-Id: I2f863b06c1cd42abadc64897cd6282c4a2c8a8e3
+---
+ src/libs/3rdparty/yaml-cpp/.codedocs          |   50 -
+ src/libs/3rdparty/yaml-cpp/.gitignore         |    1 -
+ src/libs/3rdparty/yaml-cpp/.travis.yml        |   28 -
+ src/libs/3rdparty/yaml-cpp/CMakeLists.txt     |  365 -
+ src/libs/3rdparty/yaml-cpp/CONTRIBUTING.md    |   26 -
+ .../include/yaml-cpp/contrib/anchordict.h     |   39 -
+ .../include/yaml-cpp/contrib/graphbuilder.h   |  149 -
+ src/libs/3rdparty/yaml-cpp/install.txt        |   24 -
+ .../yaml-cpp/src/contrib/graphbuilder.cpp     |   17 -
+ .../src/contrib/graphbuilderadapter.cpp       |   94 -
+ .../src/contrib/graphbuilderadapter.h         |   79 -
+ .../3rdparty/yaml-cpp/test/CMakeLists.txt     |   44 -
+ .../yaml-cpp/test/create-emitter-tests.py     |  211 -
+ .../yaml-cpp/test/gtest-1.8.0/.gitignore      |    2 -
+ .../yaml-cpp/test/gtest-1.8.0/.travis.yml     |   46 -
+ .../yaml-cpp/test/gtest-1.8.0/CMakeLists.txt  |   16 -
+ .../yaml-cpp/test/gtest-1.8.0/README.md       |  142 -
+ .../yaml-cpp/test/gtest-1.8.0/appveyor.yml    |   71 -
+ .../test/gtest-1.8.0/googlemock/CHANGES       |  126 -
+ .../gtest-1.8.0/googlemock/CMakeLists.txt     |  202 -
+ .../test/gtest-1.8.0/googlemock/CONTRIBUTORS  |   40 -
+ .../test/gtest-1.8.0/googlemock/LICENSE       |   28 -
+ .../test/gtest-1.8.0/googlemock/README.md     |  333 -
+ .../gtest-1.8.0/googlemock/build-aux/.keep    |    0
+ .../test/gtest-1.8.0/googlemock/configure.ac  |  146 -
+ .../gtest-1.8.0/googlemock/docs/CheatSheet.md |  562 -
+ .../gtest-1.8.0/googlemock/docs/CookBook.md   | 3675 -------
+ .../gtest-1.8.0/googlemock/docs/DesignDoc.md  |  280 -
+ .../gtest-1.8.0/googlemock/docs/DevGuide.md   |  132 -
+ .../googlemock/docs/Documentation.md          |   12 -
+ .../gtest-1.8.0/googlemock/docs/ForDummies.md |  439 -
+ .../docs/FrequentlyAskedQuestions.md          |  628 --
+ .../googlemock/docs/KnownIssues.md            |   19 -
+ .../googlemock/docs/v1_5/CheatSheet.md        |  525 -
+ .../googlemock/docs/v1_5/CookBook.md          | 3250 ------
+ .../googlemock/docs/v1_5/Documentation.md     |   11 -
+ .../googlemock/docs/v1_5/ForDummies.md        |  439 -
+ .../docs/v1_5/FrequentlyAskedQuestions.md     |  624 --
+ .../googlemock/docs/v1_6/CheatSheet.md        |  534 -
+ .../googlemock/docs/v1_6/CookBook.md          | 3342 ------
+ .../googlemock/docs/v1_6/Documentation.md     |   12 -
+ .../googlemock/docs/v1_6/ForDummies.md        |  439 -
+ .../docs/v1_6/FrequentlyAskedQuestions.md     |  628 --
+ .../googlemock/docs/v1_7/CheatSheet.md        |  556 -
+ .../googlemock/docs/v1_7/CookBook.md          | 3432 ------
+ .../googlemock/docs/v1_7/Documentation.md     |   12 -
+ .../googlemock/docs/v1_7/ForDummies.md        |  439 -
+ .../docs/v1_7/FrequentlyAskedQuestions.md     |  628 --
+ .../googlemock/include/gmock/gmock-actions.h  | 1205 --
+ .../include/gmock/gmock-cardinalities.h       |  147 -
+ .../include/gmock/gmock-generated-actions.h   | 2377 ----
+ .../gmock/gmock-generated-actions.h.pump      |  794 --
+ .../gmock/gmock-generated-function-mockers.h  | 1095 --
+ .../gmock-generated-function-mockers.h.pump   |  291 -
+ .../include/gmock/gmock-generated-matchers.h  | 2179 ----
+ .../gmock/gmock-generated-matchers.h.pump     |  672 --
+ .../gmock/gmock-generated-nice-strict.h       |  397 -
+ .../gmock/gmock-generated-nice-strict.h.pump  |  161 -
+ .../googlemock/include/gmock/gmock-matchers.h | 4399 --------
+ .../include/gmock/gmock-more-actions.h        |  246 -
+ .../include/gmock/gmock-more-matchers.h       |   58 -
+ .../include/gmock/gmock-spec-builders.h       | 1847 ----
+ .../googlemock/include/gmock/gmock.h          |   94 -
+ .../internal/custom/gmock-generated-actions.h |    8 -
+ .../custom/gmock-generated-actions.h.pump     |   10 -
+ .../gmock/internal/custom/gmock-matchers.h    |   39 -
+ .../gmock/internal/custom/gmock-port.h        |   46 -
+ .../internal/gmock-generated-internal-utils.h |  279 -
+ .../gmock-generated-internal-utils.h.pump     |  136 -
+ .../gmock/internal/gmock-internal-utils.h     |  511 -
+ .../include/gmock/internal/gmock-port.h       |   91 -
+ .../googlemock/msvc/2005/gmock_config.vsprops |   15 -
+ .../googlemock/msvc/2010/gmock_config.props   |   19 -
+ .../googlemock/msvc/2015/gmock_config.props   |   19 -
+ .../googlemock/scripts/fuse_gmock_files.py    |  240 -
+ .../googlemock/scripts/generator/LICENSE      |  203 -
+ .../googlemock/scripts/generator/README       |   35 -
+ .../scripts/generator/README.cppclean         |  115 -
+ .../scripts/generator/cpp/__init__.py         |    0
+ .../googlemock/scripts/generator/cpp/ast.py   | 1733 ---
+ .../scripts/generator/cpp/gmock_class.py      |  227 -
+ .../scripts/generator/cpp/gmock_class_test.py |  448 -
+ .../scripts/generator/cpp/keywords.py         |   59 -
+ .../scripts/generator/cpp/tokenize.py         |  287 -
+ .../googlemock/scripts/generator/cpp/utils.py |   41 -
+ .../googlemock/scripts/generator/gmock_gen.py |   31 -
+ .../googlemock/scripts/gmock-config.in        |  303 -
+ .../googlemock/scripts/gmock_doctor.py        |  640 --
+ .../gtest-1.8.0/googlemock/scripts/upload.py  | 1387 ---
+ .../googlemock/scripts/upload_gmock.py        |   78 -
+ .../gtest-1.8.0/googlemock/src/gmock-all.cc   |   47 -
+ .../googlemock/src/gmock-cardinalities.cc     |  156 -
+ .../googlemock/src/gmock-internal-utils.cc    |  174 -
+ .../googlemock/src/gmock-matchers.cc          |  498 -
+ .../googlemock/src/gmock-spec-builders.cc     |  823 --
+ .../test/gtest-1.8.0/googlemock/src/gmock.cc  |  183 -
+ .../gtest-1.8.0/googlemock/src/gmock_main.cc  |   54 -
+ .../googlemock/test/gmock-actions_test.cc     | 1411 ---
+ .../test/gmock-cardinalities_test.cc          |  428 -
+ .../test/gmock-generated-actions_test.cc      | 1228 ---
+ .../gmock-generated-function-mockers_test.cc  |  622 --
+ .../gmock-generated-internal-utils_test.cc    |  127 -
+ .../test/gmock-generated-matchers_test.cc     | 1286 ---
+ .../test/gmock-internal-utils_test.cc         |  699 --
+ .../googlemock/test/gmock-matchers_test.cc    | 5652 ----------
+ .../test/gmock-more-actions_test.cc           |  708 --
+ .../googlemock/test/gmock-nice-strict_test.cc |  424 -
+ .../googlemock/test/gmock-port_test.cc        |   43 -
+ .../test/gmock-spec-builders_test.cc          | 2644 -----
+ .../googlemock/test/gmock_all_test.cc         |   51 -
+ .../googlemock/test/gmock_ex_test.cc          |   81 -
+ .../googlemock/test/gmock_leak_test.py        |  108 -
+ .../googlemock/test/gmock_leak_test_.cc       |  100 -
+ .../googlemock/test/gmock_link2_test.cc       |   40 -
+ .../googlemock/test/gmock_link_test.cc        |   40 -
+ .../googlemock/test/gmock_link_test.h         |  669 --
+ .../googlemock/test/gmock_output_test.py      |  180 -
+ .../googlemock/test/gmock_output_test_.cc     |  291 -
+ .../test/gmock_output_test_golden.txt         |  310 -
+ .../googlemock/test/gmock_stress_test.cc      |  322 -
+ .../gtest-1.8.0/googlemock/test/gmock_test.cc |  220 -
+ .../googlemock/test/gmock_test_utils.py       |  112 -
+ .../test/gtest-1.8.0/googletest/.gitignore    |    2 -
+ .../test/gtest-1.8.0/googletest/CHANGES       |  157 -
+ .../gtest-1.8.0/googletest/CMakeLists.txt     |  286 -
+ .../test/gtest-1.8.0/googletest/CONTRIBUTORS  |   37 -
+ .../test/gtest-1.8.0/googletest/LICENSE       |   28 -
+ .../test/gtest-1.8.0/googletest/README.md     |  280 -
+ .../gtest-1.8.0/googletest/build-aux/.keep    |    0
+ .../googletest/cmake/internal_utils.cmake     |  254 -
+ .../googletest/codegear/gtest.cbproj          |  138 -
+ .../googletest/codegear/gtest.groupproj       |   54 -
+ .../googletest/codegear/gtest_all.cc          |   38 -
+ .../googletest/codegear/gtest_link.cc         |   40 -
+ .../googletest/codegear/gtest_main.cbproj     |   82 -
+ .../googletest/codegear/gtest_unittest.cbproj |   88 -
+ .../test/gtest-1.8.0/googletest/configure.ac  |   68 -
+ .../googletest/docs/AdvancedGuide.md          | 2182 ----
+ .../gtest-1.8.0/googletest/docs/DevGuide.md   |  126 -
+ .../googletest/docs/Documentation.md          |   14 -
+ .../test/gtest-1.8.0/googletest/docs/FAQ.md   | 1087 --
+ .../gtest-1.8.0/googletest/docs/Primer.md     |  502 -
+ .../gtest-1.8.0/googletest/docs/PumpManual.md |  177 -
+ .../gtest-1.8.0/googletest/docs/Samples.md    |   14 -
+ .../googletest/docs/V1_5_AdvancedGuide.md     | 2096 ----
+ .../googletest/docs/V1_5_Documentation.md     |   12 -
+ .../gtest-1.8.0/googletest/docs/V1_5_FAQ.md   |  886 --
+ .../googletest/docs/V1_5_Primer.md            |  497 -
+ .../googletest/docs/V1_5_PumpManual.md        |  177 -
+ .../googletest/docs/V1_5_XcodeGuide.md        |   93 -
+ .../googletest/docs/V1_6_AdvancedGuide.md     | 2178 ----
+ .../googletest/docs/V1_6_Documentation.md     |   14 -
+ .../gtest-1.8.0/googletest/docs/V1_6_FAQ.md   | 1038 --
+ .../googletest/docs/V1_6_Primer.md            |  501 -
+ .../googletest/docs/V1_6_PumpManual.md        |  177 -
+ .../googletest/docs/V1_6_Samples.md           |   14 -
+ .../googletest/docs/V1_6_XcodeGuide.md        |   93 -
+ .../googletest/docs/V1_7_AdvancedGuide.md     | 2181 ----
+ .../googletest/docs/V1_7_Documentation.md     |   14 -
+ .../gtest-1.8.0/googletest/docs/V1_7_FAQ.md   | 1082 --
+ .../googletest/docs/V1_7_Primer.md            |  501 -
+ .../googletest/docs/V1_7_PumpManual.md        |  177 -
+ .../googletest/docs/V1_7_Samples.md           |   14 -
+ .../googletest/docs/V1_7_XcodeGuide.md        |   93 -
+ .../gtest-1.8.0/googletest/docs/XcodeGuide.md |   93 -
+ .../include/gtest/gtest-death-test.h          |  294 -
+ .../googletest/include/gtest/gtest-message.h  |  250 -
+ .../include/gtest/gtest-param-test.h          | 1444 ---
+ .../include/gtest/gtest-param-test.h.pump     |  510 -
+ .../googletest/include/gtest/gtest-printers.h |  993 --
+ .../googletest/include/gtest/gtest-spi.h      |  232 -
+ .../include/gtest/gtest-test-part.h           |  179 -
+ .../include/gtest/gtest-typed-test.h          |  263 -
+ .../googletest/include/gtest/gtest.h          | 2236 ----
+ .../include/gtest/gtest_pred_impl.h           |  358 -
+ .../googletest/include/gtest/gtest_prod.h     |   58 -
+ .../gtest/internal/custom/gtest-port.h        |   69 -
+ .../gtest/internal/custom/gtest-printers.h    |   42 -
+ .../include/gtest/internal/custom/gtest.h     |   41 -
+ .../internal/gtest-death-test-internal.h      |  319 -
+ .../include/gtest/internal/gtest-filepath.h   |  206 -
+ .../include/gtest/internal/gtest-internal.h   | 1238 ---
+ .../include/gtest/internal/gtest-linked_ptr.h |  243 -
+ .../internal/gtest-param-util-generated.h     | 5146 ---------
+ .../gtest-param-util-generated.h.pump         |  286 -
+ .../include/gtest/internal/gtest-param-util.h |  731 --
+ .../include/gtest/internal/gtest-port-arch.h  |   93 -
+ .../include/gtest/internal/gtest-port.h       | 2554 -----
+ .../include/gtest/internal/gtest-string.h     |  167 -
+ .../include/gtest/internal/gtest-tuple.h      | 1020 --
+ .../include/gtest/internal/gtest-tuple.h.pump |  347 -
+ .../include/gtest/internal/gtest-type-util.h  | 3331 ------
+ .../gtest/internal/gtest-type-util.h.pump     |  297 -
+ .../gtest-1.8.0/googletest/m4/acx_pthread.m4  |  363 -
+ .../test/gtest-1.8.0/googletest/m4/gtest.m4   |   74 -
+ .../googletest/samples/prime_tables.h         |  123 -
+ .../gtest-1.8.0/googletest/samples/sample1.cc |   68 -
+ .../gtest-1.8.0/googletest/samples/sample1.h  |   43 -
+ .../googletest/samples/sample10_unittest.cc   |  144 -
+ .../googletest/samples/sample1_unittest.cc    |  153 -
+ .../gtest-1.8.0/googletest/samples/sample2.cc |   56 -
+ .../gtest-1.8.0/googletest/samples/sample2.h  |   85 -
+ .../googletest/samples/sample2_unittest.cc    |  109 -
+ .../googletest/samples/sample3-inl.h          |  172 -
+ .../googletest/samples/sample3_unittest.cc    |  151 -
+ .../gtest-1.8.0/googletest/samples/sample4.cc |   46 -
+ .../gtest-1.8.0/googletest/samples/sample4.h  |   53 -
+ .../googletest/samples/sample4_unittest.cc    |   45 -
+ .../googletest/samples/sample5_unittest.cc    |  199 -
+ .../googletest/samples/sample6_unittest.cc    |  224 -
+ .../googletest/samples/sample7_unittest.cc    |  130 -
+ .../googletest/samples/sample8_unittest.cc    |  173 -
+ .../googletest/samples/sample9_unittest.cc    |  160 -
+ .../gtest-1.8.0/googletest/scripts/common.py  |   83 -
+ .../googletest/scripts/fuse_gtest_files.py    |  253 -
+ .../googletest/scripts/gen_gtest_pred_impl.py |  730 --
+ .../googletest/scripts/gtest-config.in        |  274 -
+ .../gtest-1.8.0/googletest/scripts/pump.py    |  855 --
+ .../googletest/scripts/release_docs.py        |  158 -
+ .../gtest-1.8.0/googletest/scripts/upload.py  | 1387 ---
+ .../googletest/scripts/upload_gtest.py        |   78 -
+ .../gtest-1.8.0/googletest/src/gtest-all.cc   |   48 -
+ .../googletest/src/gtest-death-test.cc        | 1342 ---
+ .../googletest/src/gtest-filepath.cc          |  387 -
+ .../googletest/src/gtest-internal-inl.h       | 1183 --
+ .../gtest-1.8.0/googletest/src/gtest-port.cc  | 1259 ---
+ .../googletest/src/gtest-printers.cc          |  373 -
+ .../googletest/src/gtest-test-part.cc         |  110 -
+ .../googletest/src/gtest-typed-test.cc        |  118 -
+ .../test/gtest-1.8.0/googletest/src/gtest.cc  | 5388 ---------
+ .../gtest-1.8.0/googletest/src/gtest_main.cc  |   38 -
+ .../test/gtest-death-test_ex_test.cc          |   93 -
+ .../googletest/test/gtest-death-test_test.cc  | 1427 ---
+ .../googletest/test/gtest-filepath_test.cc    |  662 --
+ .../googletest/test/gtest-linked_ptr_test.cc  |  154 -
+ .../googletest/test/gtest-listener_test.cc    |  311 -
+ .../googletest/test/gtest-message_test.cc     |  159 -
+ .../googletest/test/gtest-options_test.cc     |  215 -
+ .../googletest/test/gtest-param-test2_test.cc |   65 -
+ .../googletest/test/gtest-param-test_test.cc  | 1055 --
+ .../googletest/test/gtest-param-test_test.h   |   57 -
+ .../googletest/test/gtest-port_test.cc        | 1304 ---
+ .../googletest/test/gtest-printers_test.cc    | 1635 ---
+ .../googletest/test/gtest-test-part_test.cc   |  208 -
+ .../googletest/test/gtest-tuple_test.cc       |  320 -
+ .../googletest/test/gtest-typed-test2_test.cc |   45 -
+ .../googletest/test/gtest-typed-test_test.cc  |  380 -
+ .../googletest/test/gtest-typed-test_test.h   |   66 -
+ .../test/gtest-unittest-api_test.cc           |  341 -
+ .../googletest/test/gtest_all_test.cc         |   47 -
+ .../test/gtest_break_on_failure_unittest.py   |  212 -
+ .../test/gtest_break_on_failure_unittest_.cc  |   88 -
+ .../test/gtest_catch_exceptions_test.py       |  237 -
+ .../test/gtest_catch_exceptions_test_.cc      |  311 -
+ .../googletest/test/gtest_color_test.py       |  130 -
+ .../googletest/test/gtest_color_test_.cc      |   71 -
+ .../googletest/test/gtest_env_var_test.py     |  117 -
+ .../googletest/test/gtest_env_var_test_.cc    |  126 -
+ .../googletest/test/gtest_environment_test.cc |  192 -
+ .../googletest/test/gtest_filter_unittest.py  |  636 --
+ .../googletest/test/gtest_filter_unittest_.cc |  140 -
+ .../googletest/test/gtest_help_test.py        |  172 -
+ .../googletest/test/gtest_help_test_.cc       |   46 -
+ .../test/gtest_list_tests_unittest.py         |  207 -
+ .../test/gtest_list_tests_unittest_.cc        |  157 -
+ .../googletest/test/gtest_main_unittest.cc    |   45 -
+ .../googletest/test/gtest_no_test_unittest.cc |   56 -
+ .../googletest/test/gtest_output_test.py      |  340 -
+ .../googletest/test/gtest_output_test_.cc     | 1062 --
+ .../test/gtest_output_test_golden_lin.txt     |  743 --
+ .../test/gtest_pred_impl_unittest.cc          | 2427 ----
+ .../test/gtest_premature_exit_test.cc         |  127 -
+ .../googletest/test/gtest_prod_test.cc        |   57 -
+ .../googletest/test/gtest_repeat_test.cc      |  253 -
+ .../googletest/test/gtest_shuffle_test.py     |  325 -
+ .../googletest/test/gtest_shuffle_test_.cc    |  103 -
+ .../googletest/test/gtest_sole_header_test.cc |   57 -
+ .../googletest/test/gtest_stress_test.cc      |  256 -
+ .../googletest/test/gtest_test_utils.py       |  320 -
+ .../test/gtest_throw_on_failure_ex_test.cc    |   92 -
+ .../test/gtest_throw_on_failure_test.py       |  171 -
+ .../test/gtest_throw_on_failure_test_.cc      |   72 -
+ .../test/gtest_uninitialized_test.py          |   70 -
+ .../test/gtest_uninitialized_test_.cc         |   43 -
+ .../googletest/test/gtest_unittest.cc         | 7706 -------------
+ .../test/gtest_xml_outfile1_test_.cc          |   49 -
+ .../test/gtest_xml_outfile2_test_.cc          |   49 -
+ .../test/gtest_xml_outfiles_test.py           |  132 -
+ .../test/gtest_xml_output_unittest.py         |  308 -
+ .../test/gtest_xml_output_unittest_.cc        |  181 -
+ .../googletest/test/gtest_xml_test_utils.py   |  194 -
+ .../gtest-1.8.0/googletest/test/production.cc |   36 -
+ .../gtest-1.8.0/googletest/test/production.h  |   55 -
+ .../xcode/Config/DebugProject.xcconfig        |   30 -
+ .../xcode/Config/FrameworkTarget.xcconfig     |   17 -
+ .../googletest/xcode/Config/General.xcconfig  |   41 -
+ .../xcode/Config/ReleaseProject.xcconfig      |   32 -
+ .../xcode/Config/StaticLibraryTarget.xcconfig |   18 -
+ .../xcode/Config/TestTarget.xcconfig          |    8 -
+ .../googletest/xcode/Resources/Info.plist     |   30 -
+ .../xcode/Samples/FrameworkSample/Info.plist  |   28 -
+ .../WidgetFramework.xcodeproj/project.pbxproj |  457 -
+ .../xcode/Samples/FrameworkSample/runtests.sh |   62 -
+ .../xcode/Samples/FrameworkSample/widget.cc   |   63 -
+ .../xcode/Samples/FrameworkSample/widget.h    |   59 -
+ .../Samples/FrameworkSample/widget_test.cc    |   68 -
+ .../googletest/xcode/Scripts/runtests.sh      |   65 -
+ .../xcode/Scripts/versiongenerate.py          |  100 -
+ .../xcode/gtest.xcodeproj/project.pbxproj     | 1135 --
+ .../yaml-cpp/test/gtest-1.8.0/travis.sh       |   15 -
+ .../3rdparty/yaml-cpp/test/handler_test.h     |   32 -
+ .../test/integration/emitter_test.cpp         | 1038 --
+ .../test/integration/encoding_test.cpp        |  182 -
+ .../test/integration/gen_emitter_test.cpp     | 9759 -----------------
+ .../test/integration/handler_spec_test.cpp    | 1611 ---
+ .../test/integration/handler_test.cpp         |   76 -
+ .../test/integration/load_node_test.cpp       |  241 -
+ .../test/integration/node_spec_test.cpp       | 1131 --
+ src/libs/3rdparty/yaml-cpp/test/main.cpp      |    6 -
+ .../yaml-cpp/test/mock_event_handler.h        |   26 -
+ .../3rdparty/yaml-cpp/test/node/node_test.cpp |  517 -
+ .../yaml-cpp/test/ostream_wrapper_test.cpp    |   66 -
+ .../3rdparty/yaml-cpp/test/regex_test.cpp     |  177 -
+ .../3rdparty/yaml-cpp/test/specexamples.h     |  846 --
+ .../3rdparty/yaml-cpp/util/CMakeLists.txt     |   14 -
+ src/libs/3rdparty/yaml-cpp/util/api.cpp       |  137 -
+ src/libs/3rdparty/yaml-cpp/util/parse.cpp     |   61 -
+ src/libs/3rdparty/yaml-cpp/util/read.cpp      |  103 -
+ src/libs/3rdparty/yaml-cpp/util/sandbox.cpp   |   36 -
+ .../yaml-cpp/yaml-cpp-config-version.cmake.in |   11 -
+ .../yaml-cpp/yaml-cpp-config.cmake.in         |   14 -
+ 331 files changed, 167784 deletions(-)
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/.codedocs
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/.gitignore
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/.travis.yml
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/CMakeLists.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/CONTRIBUTING.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/include/yaml-cpp/contrib/anchordict.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/include/yaml-cpp/contrib/graphbuilder.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/install.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilder.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilderadapter.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilderadapter.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/CMakeLists.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/create-emitter-tests.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/.gitignore
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/.travis.yml
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/CMakeLists.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/README.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/appveyor.yml
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CHANGES
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CMakeLists.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CONTRIBUTORS
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/LICENSE
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/README.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/build-aux/.keep
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/configure.ac
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/CheatSheet.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/CookBook.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/DesignDoc.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/DevGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/Documentation.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/ForDummies.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/FrequentlyAskedQuestions.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/KnownIssues.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/CheatSheet.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/CookBook.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/Documentation.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/ForDummies.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/FrequentlyAskedQuestions.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/CheatSheet.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/CookBook.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/Documentation.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/ForDummies.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/FrequentlyAskedQuestions.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/CheatSheet.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/CookBook.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/Documentation.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/ForDummies.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/FrequentlyAskedQuestions.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-actions.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-cardinalities.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-actions.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-actions.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-function-mockers.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-function-mockers.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-matchers.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-matchers.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-nice-strict.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-nice-strict.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-matchers.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-more-actions.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-more-matchers.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-spec-builders.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-matchers.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-port.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-generated-internal-utils.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-generated-internal-utils.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-internal-utils.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-port.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2005/gmock_config.vsprops
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2010/gmock_config.props
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2015/gmock_config.props
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/fuse_gmock_files.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/LICENSE
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/README
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/README.cppclean
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/__init__.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/ast.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/gmock_class.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/gmock_class_test.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/keywords.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/tokenize.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/utils.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/gmock_gen.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/gmock-config.in
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/gmock_doctor.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/upload.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/upload_gmock.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-all.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-cardinalities.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-internal-utils.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-matchers.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-spec-builders.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock_main.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-actions_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-cardinalities_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-actions_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-function-mockers_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-internal-utils_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-matchers_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-internal-utils_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-matchers_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-more-actions_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-nice-strict_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-port_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-spec-builders_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_all_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_ex_test.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_leak_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_leak_test_.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link2_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link_test.h
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test_.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test_golden.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_stress_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_test.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_test_utils.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/.gitignore
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CHANGES
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CMakeLists.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CONTRIBUTORS
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/LICENSE
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/README.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/build-aux/.keep
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/cmake/internal_utils.cmake
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest.cbproj
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest.groupproj
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_all.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_link.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_main.cbproj
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_unittest.cbproj
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/configure.ac
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/AdvancedGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/DevGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Documentation.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/FAQ.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Primer.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/PumpManual.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Samples.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_AdvancedGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_Documentation.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_FAQ.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_Primer.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_PumpManual.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_XcodeGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_AdvancedGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Documentation.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_FAQ.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Primer.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_PumpManual.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Samples.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_XcodeGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_AdvancedGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Documentation.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_FAQ.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Primer.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_PumpManual.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Samples.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_XcodeGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/XcodeGuide.md
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-death-test.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-message.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-param-test.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-param-test.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-printers.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-spi.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-test-part.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-typed-test.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest_pred_impl.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest_prod.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest-port.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest-printers.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-death-test-internal.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-filepath.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-internal.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-linked_ptr.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util-generated.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util-generated.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-port-arch.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-port.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-string.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-tuple.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-tuple.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-type-util.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-type-util.h.pump
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/m4/acx_pthread.m4
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/m4/gtest.m4
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/prime_tables.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample10_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample3-inl.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample3_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample5_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample6_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample7_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample8_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample9_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/common.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/fuse_gtest_files.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/gen_gtest_pred_impl.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/gtest-config.in
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/pump.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/release_docs.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/upload.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/upload_gtest.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-all.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-death-test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-filepath.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-internal-inl.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-port.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-printers.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-test-part.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-typed-test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest_main.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-death-test_ex_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-death-test_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-filepath_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-linked_ptr_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-listener_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-message_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-options_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test2_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test_test.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-port_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-printers_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-test-part_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-tuple_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test2_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test_test.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-unittest-api_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_all_test.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_break_on_failure_unittest.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_break_on_failure_unittest_.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_catch_exceptions_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_catch_exceptions_test_.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_color_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_color_test_.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_env_var_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_env_var_test_.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_environment_test.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_filter_unittest.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_filter_unittest_.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_help_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_help_test_.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_list_tests_unittest.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_list_tests_unittest_.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_main_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_no_test_unittest.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test_.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test_golden_lin.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_pred_impl_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_premature_exit_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_prod_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_repeat_test.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_shuffle_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_shuffle_test_.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_sole_header_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_stress_test.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_test_utils.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_ex_test.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_test_.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_uninitialized_test.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_uninitialized_test_.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_unittest.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfile1_test_.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfile2_test_.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfiles_test.py
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_output_unittest.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_output_unittest_.cc
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_test_utils.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/production.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/production.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/DebugProject.xcconfig
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/FrameworkTarget.xcconfig
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/General.xcconfig
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/ReleaseProject.xcconfig
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/StaticLibraryTarget.xcconfig
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/TestTarget.xcconfig
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Resources/Info.plist
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/Info.plist
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/WidgetFramework.xcodeproj/project.pbxproj
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/runtests.sh
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget_test.cc
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Scripts/runtests.sh
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Scripts/versiongenerate.py
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/gtest.xcodeproj/project.pbxproj
+ delete mode 100755 src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/travis.sh
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/handler_test.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/integration/emitter_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/integration/encoding_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/integration/gen_emitter_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/integration/handler_spec_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/integration/handler_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/integration/load_node_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/integration/node_spec_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/main.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/mock_event_handler.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/node/node_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/ostream_wrapper_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/regex_test.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/test/specexamples.h
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/util/CMakeLists.txt
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/util/api.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/util/parse.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/util/read.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/util/sandbox.cpp
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/yaml-cpp-config-version.cmake.in
+ delete mode 100644 src/libs/3rdparty/yaml-cpp/yaml-cpp-config.cmake.in
+
+diff --git a/src/libs/3rdparty/yaml-cpp/.codedocs b/src/libs/3rdparty/yaml-cpp/.codedocs
+deleted file mode 100644
+index 02e438213a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/.gitignore b/src/libs/3rdparty/yaml-cpp/.gitignore
+deleted file mode 100644
+index 567609b123..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/.travis.yml b/src/libs/3rdparty/yaml-cpp/.travis.yml
+deleted file mode 100644
+index d0b6a04efe..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/CMakeLists.txt b/src/libs/3rdparty/yaml-cpp/CMakeLists.txt
+deleted file mode 100644
+index d2d8810288..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/CONTRIBUTING.md b/src/libs/3rdparty/yaml-cpp/CONTRIBUTING.md
+deleted file mode 100644
+index cd09a1aca8..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/contrib/anchordict.h b/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/contrib/anchordict.h
+deleted file mode 100644
+index 78db9ec928..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/contrib/graphbuilder.h b/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/contrib/graphbuilder.h
+deleted file mode 100644
+index f0a38f2887..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/install.txt b/src/libs/3rdparty/yaml-cpp/install.txt
+deleted file mode 100644
+index 939236249b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilder.cpp b/src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilder.cpp
+deleted file mode 100644
+index 416c1359db..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilderadapter.cpp b/src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilderadapter.cpp
+deleted file mode 100644
+index 02a3d972a5..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilderadapter.h b/src/libs/3rdparty/yaml-cpp/src/contrib/graphbuilderadapter.h
+deleted file mode 100644
+index 0d1e579208..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/CMakeLists.txt b/src/libs/3rdparty/yaml-cpp/test/CMakeLists.txt
+deleted file mode 100644
+index 3633da578b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/create-emitter-tests.py b/src/libs/3rdparty/yaml-cpp/test/create-emitter-tests.py
+deleted file mode 100644
+index 7a03c41e1b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/.gitignore b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/.gitignore
+deleted file mode 100644
+index ce310bc357..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/.travis.yml b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/.travis.yml
+deleted file mode 100644
+index 3204dfac17..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/CMakeLists.txt b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/CMakeLists.txt
+deleted file mode 100644
+index 8d2b552ef7..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/README.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/README.md
+deleted file mode 100644
+index 076484e4fa..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/appveyor.yml b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/appveyor.yml
+deleted file mode 100644
+index d613fd6027..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CHANGES b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CHANGES
+deleted file mode 100644
+index d6f2f760e3..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CMakeLists.txt b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CMakeLists.txt
+deleted file mode 100644
+index beb259a2e9..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CONTRIBUTORS b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/CONTRIBUTORS
+deleted file mode 100644
+index 6e9ae362b6..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/LICENSE b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/LICENSE
+deleted file mode 100644
+index 1941a11f8c..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/README.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/README.md
+deleted file mode 100644
+index 332beab388..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/build-aux/.keep b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/build-aux/.keep
+deleted file mode 100644
+index e69de29bb2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/configure.ac b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/configure.ac
+deleted file mode 100644
+index 3b740f205e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/CheatSheet.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/CheatSheet.md
+deleted file mode 100644
+index ef4451b878..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/CookBook.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/CookBook.md
+deleted file mode 100644
+index c52f1009d1..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/DesignDoc.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/DesignDoc.md
+deleted file mode 100644
+index 3f515c3b6d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/DevGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/DevGuide.md
+deleted file mode 100644
+index f4bab75ca7..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/Documentation.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/Documentation.md
+deleted file mode 100644
+index 444151ee9e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/ForDummies.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/ForDummies.md
+deleted file mode 100644
+index 0da4cbe27b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/FrequentlyAskedQuestions.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/FrequentlyAskedQuestions.md
+deleted file mode 100644
+index 5eac83f4b9..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/KnownIssues.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/KnownIssues.md
+deleted file mode 100644
+index adadf5144b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/CheatSheet.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/CheatSheet.md
+deleted file mode 100644
+index 3c7bed4c6f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/CookBook.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/CookBook.md
+deleted file mode 100644
+index 26e153c6ba..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/Documentation.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/Documentation.md
+deleted file mode 100644
+index 315b0a2989..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/ForDummies.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/ForDummies.md
+deleted file mode 100644
+index fcc3b56174..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/FrequentlyAskedQuestions.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_5/FrequentlyAskedQuestions.md
+deleted file mode 100644
+index 7593243c3a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/CheatSheet.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/CheatSheet.md
+deleted file mode 100644
+index 91de1d210e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/CookBook.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/CookBook.md
+deleted file mode 100644
+index f5975a0035..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/Documentation.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/Documentation.md
+deleted file mode 100644
+index dcc9156c2a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/ForDummies.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/ForDummies.md
+deleted file mode 100644
+index 19ee63ab0c..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/FrequentlyAskedQuestions.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_6/FrequentlyAskedQuestions.md
+deleted file mode 100644
+index f74715d2e3..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/CheatSheet.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/CheatSheet.md
+deleted file mode 100644
+index db421e51be..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/CookBook.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/CookBook.md
+deleted file mode 100644
+index 419a001071..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/Documentation.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/Documentation.md
+deleted file mode 100644
+index d9181f28e1..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/ForDummies.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/ForDummies.md
+deleted file mode 100644
+index ee03c5b989..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/FrequentlyAskedQuestions.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/docs/v1_7/FrequentlyAskedQuestions.md
+deleted file mode 100644
+index fa21233aa2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-actions.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-actions.h
+deleted file mode 100644
+index b3f654af34..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-cardinalities.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-cardinalities.h
+deleted file mode 100644
+index fc315f92ab..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-actions.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-actions.h
+deleted file mode 100644
+index b5a889c0c3..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-actions.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-actions.h.pump
+deleted file mode 100644
+index 66d9f9d551..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-function-mockers.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-function-mockers.h
+deleted file mode 100644
+index 4fa5ca9484..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-function-mockers.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-function-mockers.h.pump
+deleted file mode 100644
+index 811502d0ce..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-matchers.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-matchers.h
+deleted file mode 100644
+index 57056fd91d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-matchers.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-matchers.h.pump
+deleted file mode 100644
+index de30c2c92b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-nice-strict.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-nice-strict.h
+deleted file mode 100644
+index 4095f4d5bc..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-nice-strict.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-generated-nice-strict.h.pump
+deleted file mode 100644
+index 3ee1ce7f30..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-matchers.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-matchers.h
+deleted file mode 100644
+index 33b37a7a5d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-more-actions.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-more-actions.h
+deleted file mode 100644
+index 3d387b6b7d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-more-matchers.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-more-matchers.h
+deleted file mode 100644
+index 3db899f429..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-spec-builders.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock-spec-builders.h
+deleted file mode 100644
+index fed7de66bc..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/gmock.h
+deleted file mode 100644
+index 6735c71bf8..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h
+deleted file mode 100644
+index 7dc3b1ad54..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-generated-actions.h.pump
+deleted file mode 100644
+index d26c8a08a4..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-matchers.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-matchers.h
+deleted file mode 100644
+index f2efef91db..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-port.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/custom/gmock-port.h
+deleted file mode 100644
+index 9ce8bfe06b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-generated-internal-utils.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-generated-internal-utils.h
+deleted file mode 100644
+index 7811e43f87..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-generated-internal-utils.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-generated-internal-utils.h.pump
+deleted file mode 100644
+index 800af17c1d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-internal-utils.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-internal-utils.h
+deleted file mode 100644
+index e2ddb05c91..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-port.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/include/gmock/internal/gmock-port.h
+deleted file mode 100644
+index 63f4a6802e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2005/gmock_config.vsprops b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2005/gmock_config.vsprops
+deleted file mode 100644
+index 9b5ff7f38a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2010/gmock_config.props b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2010/gmock_config.props
+deleted file mode 100644
+index 77bc95b192..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2015/gmock_config.props b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/msvc/2015/gmock_config.props
+deleted file mode 100644
+index 77bc95b192..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/fuse_gmock_files.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/fuse_gmock_files.py
+deleted file mode 100755
+index cb7fdf2f78..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/LICENSE b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/LICENSE
+deleted file mode 100644
+index 87ea063651..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/README b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/README
+deleted file mode 100644
+index d6f95974b6..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/README.cppclean b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/README.cppclean
+deleted file mode 100644
+index 65431b6175..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/__init__.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/__init__.py
+deleted file mode 100755
+index e69de29bb2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/ast.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/ast.py
+deleted file mode 100755
+index 11cbe9126a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/gmock_class.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/gmock_class.py
+deleted file mode 100755
+index f9966cbb4b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/gmock_class_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/gmock_class_test.py
+deleted file mode 100755
+index 018f90a650..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/keywords.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/keywords.py
+deleted file mode 100755
+index f694450e37..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/tokenize.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/tokenize.py
+deleted file mode 100755
+index 359d5562d7..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/utils.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/cpp/utils.py
+deleted file mode 100755
+index eab36eec33..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/gmock_gen.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/generator/gmock_gen.py
+deleted file mode 100755
+index 8cc0d135d6..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/gmock-config.in b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/gmock-config.in
+deleted file mode 100755
+index 2baefe94d6..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/gmock_doctor.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/gmock_doctor.py
+deleted file mode 100755
+index 74992bc744..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/upload.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/upload.py
+deleted file mode 100755
+index 6e6f9a1471..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/upload_gmock.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/scripts/upload_gmock.py
+deleted file mode 100755
+index 5dc484b391..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-all.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-all.cc
+deleted file mode 100644
+index 7aebce7afe..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-cardinalities.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-cardinalities.cc
+deleted file mode 100644
+index 50ec7286ee..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-internal-utils.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-internal-utils.cc
+deleted file mode 100644
+index fb5308018a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-matchers.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-matchers.cc
+deleted file mode 100644
+index e7424510fc..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-spec-builders.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock-spec-builders.cc
+deleted file mode 100644
+index 9551342070..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock.cc
+deleted file mode 100644
+index eac3d842ba..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock_main.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/src/gmock_main.cc
+deleted file mode 100644
+index bd5be03be2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-actions_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-actions_test.cc
+deleted file mode 100644
+index f470de4c55..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-cardinalities_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-cardinalities_test.cc
+deleted file mode 100644
+index 64815e57a3..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-actions_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-actions_test.cc
+deleted file mode 100644
+index 5ca5bc7892..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-function-mockers_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-function-mockers_test.cc
+deleted file mode 100644
+index a86a613578..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-internal-utils_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-internal-utils_test.cc
+deleted file mode 100644
+index e0a535a346..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-matchers_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-generated-matchers_test.cc
+deleted file mode 100644
+index 0e9f77f5eb..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-internal-utils_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-internal-utils_test.cc
+deleted file mode 100644
+index 9d5ec60927..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-matchers_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-matchers_test.cc
+deleted file mode 100644
+index 9f62c3d826..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-more-actions_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-more-actions_test.cc
+deleted file mode 100644
+index 77e15bd586..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-nice-strict_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-nice-strict_test.cc
+deleted file mode 100644
+index d0adcbbed8..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-port_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-port_test.cc
+deleted file mode 100644
+index d6a8d44466..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-spec-builders_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock-spec-builders_test.cc
+deleted file mode 100644
+index 59ea87c894..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_all_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_all_test.cc
+deleted file mode 100644
+index 56d6c49ccc..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_ex_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_ex_test.cc
+deleted file mode 100644
+index 3afed86ab9..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_leak_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_leak_test.py
+deleted file mode 100755
+index 997680ce1a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_leak_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_leak_test_.cc
+deleted file mode 100644
+index 1d27d22f62..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link2_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link2_test.cc
+deleted file mode 100644
+index 4c310c3d83..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link_test.cc
+deleted file mode 100644
+index 61e97d10ca..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link_test.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_link_test.h
+deleted file mode 100644
+index 1f55f5bd7f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test.py
+deleted file mode 100755
+index eced8a81f2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test_.cc
+deleted file mode 100644
+index 44cba342ad..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test_golden.txt b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_output_test_golden.txt
+deleted file mode 100644
+index 689d5eeb03..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_stress_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_stress_test.cc
+deleted file mode 100644
+index 0e97aeed0b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_test.cc
+deleted file mode 100644
+index d8d0c57b16..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_test_utils.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googlemock/test/gmock_test_utils.py
+deleted file mode 100755
+index 20e3d3d446..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/.gitignore b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/.gitignore
+deleted file mode 100644
+index 4b7be4b91b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CHANGES b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CHANGES
+deleted file mode 100644
+index 0552132421..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CMakeLists.txt b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CMakeLists.txt
+deleted file mode 100644
+index 621d0f0421..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CONTRIBUTORS b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/CONTRIBUTORS
+deleted file mode 100644
+index feae2fc044..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/LICENSE b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/LICENSE
+deleted file mode 100644
+index 1941a11f8c..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/README.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/README.md
+deleted file mode 100644
+index edd4408054..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/build-aux/.keep b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/build-aux/.keep
+deleted file mode 100644
+index e69de29bb2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/cmake/internal_utils.cmake b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/cmake/internal_utils.cmake
+deleted file mode 100644
+index 777b91ed4b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest.cbproj b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest.cbproj
+deleted file mode 100644
+index 285bb2a87b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest.groupproj b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest.groupproj
+deleted file mode 100644
+index 849f4c4b81..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_all.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_all.cc
+deleted file mode 100644
+index ba7ad68ad1..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_link.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_link.cc
+deleted file mode 100644
+index b955ebf2f9..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_main.cbproj b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_main.cbproj
+deleted file mode 100644
+index fae32cb29b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_unittest.cbproj b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/codegear/gtest_unittest.cbproj
+deleted file mode 100644
+index 33f7056346..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/configure.ac b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/configure.ac
+deleted file mode 100644
+index cc592e1583..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/AdvancedGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/AdvancedGuide.md
+deleted file mode 100644
+index 93a65200da..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/DevGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/DevGuide.md
+deleted file mode 100644
+index 06467a3277..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Documentation.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Documentation.md
+deleted file mode 100644
+index 8ca1aac759..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/FAQ.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/FAQ.md
+deleted file mode 100644
+index 5fd6cb7238..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Primer.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Primer.md
+deleted file mode 100644
+index 474c1d2ab6..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/PumpManual.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/PumpManual.md
+deleted file mode 100644
+index 8184f153ca..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Samples.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/Samples.md
+deleted file mode 100644
+index f21d200567..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_AdvancedGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_AdvancedGuide.md
+deleted file mode 100644
+index 34e19c26fd..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_Documentation.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_Documentation.md
+deleted file mode 100644
+index 46bba2ec86..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_FAQ.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_FAQ.md
+deleted file mode 100644
+index e870aff000..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_Primer.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_Primer.md
+deleted file mode 100644
+index 6960d2ce4c..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_PumpManual.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_PumpManual.md
+deleted file mode 100644
+index 15710789dd..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_XcodeGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_5_XcodeGuide.md
+deleted file mode 100644
+index bf24bf51bf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_AdvancedGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_AdvancedGuide.md
+deleted file mode 100644
+index 78864b1667..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Documentation.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Documentation.md
+deleted file mode 100644
+index ca924660a3..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_FAQ.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_FAQ.md
+deleted file mode 100644
+index 2b7f784077..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Primer.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Primer.md
+deleted file mode 100644
+index 8d840ef45b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_PumpManual.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_PumpManual.md
+deleted file mode 100644
+index 8184f153ca..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Samples.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_Samples.md
+deleted file mode 100644
+index f21d200567..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_XcodeGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_6_XcodeGuide.md
+deleted file mode 100644
+index bf24bf51bf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_AdvancedGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_AdvancedGuide.md
+deleted file mode 100644
+index dd4af8f366..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Documentation.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Documentation.md
+deleted file mode 100644
+index 282697a50b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_FAQ.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_FAQ.md
+deleted file mode 100644
+index 3dd914dcf1..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Primer.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Primer.md
+deleted file mode 100644
+index b1827c7355..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_PumpManual.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_PumpManual.md
+deleted file mode 100644
+index 8184f153ca..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Samples.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_Samples.md
+deleted file mode 100644
+index f21d200567..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_XcodeGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/V1_7_XcodeGuide.md
+deleted file mode 100644
+index bf24bf51bf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/XcodeGuide.md b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/docs/XcodeGuide.md
+deleted file mode 100644
+index bf24bf51bf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-death-test.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-death-test.h
+deleted file mode 100644
+index 957a69c6a9..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-message.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-message.h
+deleted file mode 100644
+index fe879bca79..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-param-test.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-param-test.h
+deleted file mode 100644
+index 038f9ba79e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-param-test.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-param-test.h.pump
+deleted file mode 100644
+index 3078d6d2a1..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-printers.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-printers.h
+deleted file mode 100644
+index 8a33164cb3..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-spi.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-spi.h
+deleted file mode 100644
+index f63fa9a1b2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-test-part.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-test-part.h
+deleted file mode 100644
+index 77eb844839..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-typed-test.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest-typed-test.h
+deleted file mode 100644
+index 5f69d5678e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest.h
+deleted file mode 100644
+index f846c5bd66..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest_pred_impl.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest_pred_impl.h
+deleted file mode 100644
+index 30ae712f50..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest_prod.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/gtest_prod.h
+deleted file mode 100644
+index da80ddc6c7..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest-port.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest-port.h
+deleted file mode 100644
+index 7e744bd3bb..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest-printers.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest-printers.h
+deleted file mode 100644
+index 60c1ea050b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/custom/gtest.h
+deleted file mode 100644
+index c27412a898..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-death-test-internal.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-death-test-internal.h
+deleted file mode 100644
+index 2b3a78f5bf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-filepath.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-filepath.h
+deleted file mode 100644
+index 7a13b4b0de..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-internal.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-internal.h
+deleted file mode 100644
+index ebd1cf615d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-linked_ptr.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-linked_ptr.h
+deleted file mode 100644
+index 3602942217..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util-generated.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util-generated.h
+deleted file mode 100644
+index 4d1d81d20f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util-generated.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util-generated.h.pump
+deleted file mode 100644
+index 5c7c47af0b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-param-util.h
+deleted file mode 100644
+index 82cab9b020..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-port-arch.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-port-arch.h
+deleted file mode 100644
+index 74ab949057..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-port.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-port.h
+deleted file mode 100644
+index 0094ed5077..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-string.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-string.h
+deleted file mode 100644
+index 97f1a7fdd2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-tuple.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-tuple.h
+deleted file mode 100644
+index e9b405340a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-tuple.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-tuple.h.pump
+deleted file mode 100644
+index 429ddfeeca..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-type-util.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-type-util.h
+deleted file mode 100644
+index e46f7cfcb4..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-type-util.h.pump b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/include/gtest/internal/gtest-type-util.h.pump
+deleted file mode 100644
+index 251fdf025b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/m4/acx_pthread.m4 b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/m4/acx_pthread.m4
+deleted file mode 100644
+index 2cf20de144..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/m4/gtest.m4 b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/m4/gtest.m4
+deleted file mode 100644
+index 6598ba75a4..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/prime_tables.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/prime_tables.h
+deleted file mode 100644
+index 92ce16a014..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1.cc
+deleted file mode 100644
+index f171e2609d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1.h
+deleted file mode 100644
+index 3dfeb98c45..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample10_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample10_unittest.cc
+deleted file mode 100644
+index 0051cd5dcd..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample1_unittest.cc
+deleted file mode 100644
+index aefc4f1d86..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2.cc
+deleted file mode 100644
+index 5f763b9bdf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2.h
+deleted file mode 100644
+index cb485c70fb..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample2_unittest.cc
+deleted file mode 100644
+index 4fa19b71c7..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample3-inl.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample3-inl.h
+deleted file mode 100644
+index 7e3084d638..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample3_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample3_unittest.cc
+deleted file mode 100644
+index bf3877d013..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4.cc
+deleted file mode 100644
+index ae44bda6f1..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4.h
+deleted file mode 100644
+index cd60f0dd2d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample4_unittest.cc
+deleted file mode 100644
+index fa5afc7d5a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample5_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample5_unittest.cc
+deleted file mode 100644
+index 43d8e57775..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample6_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample6_unittest.cc
+deleted file mode 100644
+index 8f2036a516..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample7_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample7_unittest.cc
+deleted file mode 100644
+index 1b651a21d6..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample8_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample8_unittest.cc
+deleted file mode 100644
+index 7274334067..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample9_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/samples/sample9_unittest.cc
+deleted file mode 100644
+index b2e2079bf3..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/common.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/common.py
+deleted file mode 100644
+index 3c0347a75b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/fuse_gtest_files.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/fuse_gtest_files.py
+deleted file mode 100755
+index 3f3e9f36d6..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/gen_gtest_pred_impl.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/gen_gtest_pred_impl.py
+deleted file mode 100755
+index 3e7ab042ea..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/gtest-config.in b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/gtest-config.in
+deleted file mode 100755
+index 780f8432ef..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/pump.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/pump.py
+deleted file mode 100755
+index 5efb653c20..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/release_docs.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/release_docs.py
+deleted file mode 100755
+index 1291347f67..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/upload.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/upload.py
+deleted file mode 100755
+index 6e6f9a1471..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/upload_gtest.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/scripts/upload_gtest.py
+deleted file mode 100755
+index be19ae8091..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-all.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-all.cc
+deleted file mode 100644
+index 0a9cee5223..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-death-test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-death-test.cc
+deleted file mode 100644
+index a01a369830..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-filepath.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-filepath.cc
+deleted file mode 100644
+index 0292dc1195..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-internal-inl.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-internal-inl.h
+deleted file mode 100644
+index ed8a682a96..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-port.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-port.cc
+deleted file mode 100644
+index e5bf3dd2be..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-printers.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-printers.cc
+deleted file mode 100644
+index a2df412f8a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-test-part.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-test-part.cc
+deleted file mode 100644
+index fb0e35425e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-typed-test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest-typed-test.cc
+deleted file mode 100644
+index df1eef4754..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest.cc
+deleted file mode 100644
+index d882ab2e36..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest_main.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/src/gtest_main.cc
+deleted file mode 100644
+index f302822552..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-death-test_ex_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-death-test_ex_test.cc
+deleted file mode 100644
+index b50a13d5e2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-death-test_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-death-test_test.cc
+deleted file mode 100644
+index bb4a3d1b38..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-filepath_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-filepath_test.cc
+deleted file mode 100644
+index da72986926..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-linked_ptr_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-linked_ptr_test.cc
+deleted file mode 100644
+index 6fcf5124a8..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-listener_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-listener_test.cc
+deleted file mode 100644
+index 90747685f0..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-message_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-message_test.cc
+deleted file mode 100644
+index 175238ef4e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-options_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-options_test.cc
+deleted file mode 100644
+index 5586dc3b1b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test2_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test2_test.cc
+deleted file mode 100644
+index 4a782fe708..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test_test.cc
+deleted file mode 100644
+index 8b278bb94b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test_test.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-param-test_test.h
+deleted file mode 100644
+index 26ea122b10..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-port_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-port_test.cc
+deleted file mode 100644
+index 6ea607bc70..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-printers_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-printers_test.cc
+deleted file mode 100644
+index 3e97cc24ab..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-test-part_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-test-part_test.cc
+deleted file mode 100644
+index ca8ba933ae..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-tuple_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-tuple_test.cc
+deleted file mode 100644
+index bfaa3e0ac4..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test2_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test2_test.cc
+deleted file mode 100644
+index c284700b02..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test_test.cc
+deleted file mode 100644
+index 93628ba080..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test_test.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-typed-test_test.h
+deleted file mode 100644
+index 41d75704cf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-unittest-api_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest-unittest-api_test.cc
+deleted file mode 100644
+index b1f51688af..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_all_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_all_test.cc
+deleted file mode 100644
+index 955aa62828..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_break_on_failure_unittest.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_break_on_failure_unittest.py
+deleted file mode 100755
+index 78f3e0f53b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_break_on_failure_unittest_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_break_on_failure_unittest_.cc
+deleted file mode 100644
+index dd07478c07..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_catch_exceptions_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_catch_exceptions_test.py
+deleted file mode 100755
+index e6fc22fd1f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_catch_exceptions_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_catch_exceptions_test_.cc
+deleted file mode 100644
+index d0fc82c998..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_color_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_color_test.py
+deleted file mode 100755
+index d02a53ed85..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_color_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_color_test_.cc
+deleted file mode 100644
+index f61ebb89b8..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_env_var_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_env_var_test.py
+deleted file mode 100755
+index 424075cfa3..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_env_var_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_env_var_test_.cc
+deleted file mode 100644
+index 539afc9683..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_environment_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_environment_test.cc
+deleted file mode 100644
+index 3cff19e70e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_filter_unittest.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_filter_unittest.py
+deleted file mode 100755
+index ec0b151b11..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_filter_unittest_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_filter_unittest_.cc
+deleted file mode 100644
+index 77deffc38f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_help_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_help_test.py
+deleted file mode 100755
+index 093c838d9e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_help_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_help_test_.cc
+deleted file mode 100644
+index 31f78c2441..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_list_tests_unittest.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_list_tests_unittest.py
+deleted file mode 100755
+index f2d2fd1b1c..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_list_tests_unittest_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_list_tests_unittest_.cc
+deleted file mode 100644
+index 907c176ba9..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_main_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_main_unittest.cc
+deleted file mode 100644
+index ecd9bb876f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_no_test_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_no_test_unittest.cc
+deleted file mode 100644
+index 292599af8d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test.py
+deleted file mode 100755
+index 06dbee0980..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test_.cc
+deleted file mode 100644
+index 1070a9f26f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test_golden_lin.txt b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_output_test_golden_lin.txt
+deleted file mode 100644
+index 2223d560e2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_pred_impl_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_pred_impl_unittest.cc
+deleted file mode 100644
+index a84eff860a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_premature_exit_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_premature_exit_test.cc
+deleted file mode 100644
+index 3b4dc7d43f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_prod_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_prod_test.cc
+deleted file mode 100644
+index 060abce187..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_repeat_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_repeat_test.cc
+deleted file mode 100644
+index 481012adc2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_shuffle_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_shuffle_test.py
+deleted file mode 100755
+index 30d0303d19..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_shuffle_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_shuffle_test_.cc
+deleted file mode 100644
+index 6fb441bd4d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_sole_header_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_sole_header_test.cc
+deleted file mode 100644
+index ccd091a281..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_stress_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_stress_test.cc
+deleted file mode 100644
+index e7daa430df..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_test_utils.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_test_utils.py
+deleted file mode 100755
+index 4acd36c975..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_ex_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_ex_test.cc
+deleted file mode 100644
+index 8d46c76f16..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_test.py
+deleted file mode 100755
+index 3e7740cabb..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_throw_on_failure_test_.cc
+deleted file mode 100644
+index 2b88fe3d9b..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_uninitialized_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_uninitialized_test.py
+deleted file mode 100755
+index 4358370097..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_uninitialized_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_uninitialized_test_.cc
+deleted file mode 100644
+index 44316987fb..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_unittest.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_unittest.cc
+deleted file mode 100644
+index 88e94134b9..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfile1_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfile1_test_.cc
+deleted file mode 100644
+index 531ced49d4..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfile2_test_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfile2_test_.cc
+deleted file mode 100644
+index 7b400b2760..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfiles_test.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_outfiles_test.py
+deleted file mode 100755
+index 524e437e6c..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_output_unittest.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_output_unittest.py
+deleted file mode 100755
+index bcd5975991..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_output_unittest_.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_output_unittest_.cc
+deleted file mode 100644
+index 48b8771b52..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_test_utils.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/gtest_xml_test_utils.py
+deleted file mode 100755
+index 341956b54d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/production.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/production.cc
+deleted file mode 100644
+index 8b8a40b44e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/production.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/test/production.h
+deleted file mode 100644
+index 98fd5e476c..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/DebugProject.xcconfig b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/DebugProject.xcconfig
+deleted file mode 100644
+index 3d68157d5d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/FrameworkTarget.xcconfig b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/FrameworkTarget.xcconfig
+deleted file mode 100644
+index 357b1c8fbf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/General.xcconfig b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/General.xcconfig
+deleted file mode 100644
+index f23e322272..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/ReleaseProject.xcconfig b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/ReleaseProject.xcconfig
+deleted file mode 100644
+index 5349f0a04a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/StaticLibraryTarget.xcconfig b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/StaticLibraryTarget.xcconfig
+deleted file mode 100644
+index 3922fa51d5..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/TestTarget.xcconfig b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Config/TestTarget.xcconfig
+deleted file mode 100644
+index e6652ba859..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Resources/Info.plist b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Resources/Info.plist
+deleted file mode 100644
+index 9dd28ea148..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/Info.plist b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/Info.plist
+deleted file mode 100644
+index f3852edea2..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/WidgetFramework.xcodeproj/project.pbxproj b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/WidgetFramework.xcodeproj/project.pbxproj
+deleted file mode 100644
+index 497617eb68..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/runtests.sh b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/runtests.sh
+deleted file mode 100644
+index 4a0d413e52..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget.cc
+deleted file mode 100644
+index bfc4e7fcfd..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget.h b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget.h
+deleted file mode 100644
+index 0c55cdc8cf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget_test.cc b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Samples/FrameworkSample/widget_test.cc
+deleted file mode 100644
+index 8725994218..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Scripts/runtests.sh b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Scripts/runtests.sh
+deleted file mode 100644
+index 3fc229f1d4..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Scripts/versiongenerate.py b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/Scripts/versiongenerate.py
+deleted file mode 100755
+index 81de8c96ac..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/gtest.xcodeproj/project.pbxproj b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/googletest/xcode/gtest.xcodeproj/project.pbxproj
+deleted file mode 100644
+index aefaa88b05..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/travis.sh b/src/libs/3rdparty/yaml-cpp/test/gtest-1.8.0/travis.sh
+deleted file mode 100755
+index bdecbd964d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/handler_test.h b/src/libs/3rdparty/yaml-cpp/test/handler_test.h
+deleted file mode 100644
+index 668a58d01e..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/integration/emitter_test.cpp b/src/libs/3rdparty/yaml-cpp/test/integration/emitter_test.cpp
+deleted file mode 100644
+index 27808380d5..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/integration/encoding_test.cpp b/src/libs/3rdparty/yaml-cpp/test/integration/encoding_test.cpp
+deleted file mode 100644
+index 9bd6586378..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/integration/gen_emitter_test.cpp b/src/libs/3rdparty/yaml-cpp/test/integration/gen_emitter_test.cpp
+deleted file mode 100644
+index e44eee6da7..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/integration/handler_spec_test.cpp b/src/libs/3rdparty/yaml-cpp/test/integration/handler_spec_test.cpp
+deleted file mode 100644
+index d142a0d302..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/integration/handler_test.cpp b/src/libs/3rdparty/yaml-cpp/test/integration/handler_test.cpp
+deleted file mode 100644
+index 6011460713..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/integration/load_node_test.cpp b/src/libs/3rdparty/yaml-cpp/test/integration/load_node_test.cpp
+deleted file mode 100644
+index 02bb8fe58d..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/integration/node_spec_test.cpp b/src/libs/3rdparty/yaml-cpp/test/integration/node_spec_test.cpp
+deleted file mode 100644
+index aedf38b2bf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/main.cpp b/src/libs/3rdparty/yaml-cpp/test/main.cpp
+deleted file mode 100644
+index 443e2dbb3f..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/mock_event_handler.h b/src/libs/3rdparty/yaml-cpp/test/mock_event_handler.h
+deleted file mode 100644
+index 49d1f0c334..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/node/node_test.cpp b/src/libs/3rdparty/yaml-cpp/test/node/node_test.cpp
+deleted file mode 100644
+index 485ad09e1a..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/ostream_wrapper_test.cpp b/src/libs/3rdparty/yaml-cpp/test/ostream_wrapper_test.cpp
+deleted file mode 100644
+index cdc1f05083..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/regex_test.cpp b/src/libs/3rdparty/yaml-cpp/test/regex_test.cpp
+deleted file mode 100644
+index 7589d2e4bf..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/test/specexamples.h b/src/libs/3rdparty/yaml-cpp/test/specexamples.h
+deleted file mode 100644
+index 3c81c77791..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/util/CMakeLists.txt b/src/libs/3rdparty/yaml-cpp/util/CMakeLists.txt
+deleted file mode 100644
+index 22866273c7..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/util/api.cpp b/src/libs/3rdparty/yaml-cpp/util/api.cpp
+deleted file mode 100644
+index 8ae5ff2978..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/util/parse.cpp b/src/libs/3rdparty/yaml-cpp/util/parse.cpp
+deleted file mode 100644
+index f3f0279ce5..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/util/read.cpp b/src/libs/3rdparty/yaml-cpp/util/read.cpp
+deleted file mode 100644
+index fc88f1f9b9..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/util/sandbox.cpp b/src/libs/3rdparty/yaml-cpp/util/sandbox.cpp
+deleted file mode 100644
+index 1df25bb242..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/yaml-cpp-config-version.cmake.in b/src/libs/3rdparty/yaml-cpp/yaml-cpp-config-version.cmake.in
+deleted file mode 100644
+index 80b9c79add..0000000000
+diff --git a/src/libs/3rdparty/yaml-cpp/yaml-cpp-config.cmake.in b/src/libs/3rdparty/yaml-cpp/yaml-cpp-config.cmake.in
+deleted file mode 100644
+index 7b41e3f30c..0000000000
+-- 
+2.17.1
+

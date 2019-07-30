@@ -324,7 +324,7 @@ function(add_qtc_library name)
   add_library(${IDE_CASED_ID}::${name} ALIAS ${name})
   set_public_headers(${name} "${_arg_SOURCES}")
 
-  if (${name} MATCHES "^[^0-9]+")
+  if (${name} MATCHES "^[^0-9-]+$")
     string(TOUPPER "${name}_LIBRARY" EXPORT_SYMBOL)
   endif()
 

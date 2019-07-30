@@ -1,0 +1,52 @@
+From b6f98df7d1ebdd788e7b5029c3884dcf38a6f17d Mon Sep 17 00:00:00 2001
+From: Nikolai Kosjar <nikolai.kosjar@qt.io>
+Date: Tue, 27 Aug 2019 12:01:03 +0200
+Subject: [PATCH] yaml-cpp: MSVC: Fix "unknown override specifier" for
+ _NOEXCEPT
+
+Change-Id: If07000f7b3e8c4c1b87b683ff9cd29e57d43ab60
+---
+ src/libs/3rdparty/yaml-cpp/include/yaml-cpp/exceptions.h | 8 +-------
+ src/libs/3rdparty/yaml-cpp/src/exceptions.cpp            | 8 +-------
+ 2 files changed, 2 insertions(+), 14 deletions(-)
+
+diff --git a/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/exceptions.h b/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/exceptions.h
+index 9c96859b2c..eae31968b7 100644
+--- a/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/exceptions.h
++++ b/src/libs/3rdparty/yaml-cpp/include/yaml-cpp/exceptions.h
+@@ -13,13 +13,7 @@
+ #include <stdexcept>
+ #include <string>
+ 
+-// This is here for compatibility with older versions of Visual Studio
+-// which don't support noexcept
+-#ifdef _MSC_VER
+-    #define YAML_CPP_NOEXCEPT _NOEXCEPT
+-#else
+-    #define YAML_CPP_NOEXCEPT noexcept
+-#endif
++#define YAML_CPP_NOEXCEPT noexcept
+ 
+ namespace YAML {
+ // error messages
+diff --git a/src/libs/3rdparty/yaml-cpp/src/exceptions.cpp b/src/libs/3rdparty/yaml-cpp/src/exceptions.cpp
+index 9b6d8912c1..d5e10b23c1 100644
+--- a/src/libs/3rdparty/yaml-cpp/src/exceptions.cpp
++++ b/src/libs/3rdparty/yaml-cpp/src/exceptions.cpp
+@@ -1,12 +1,6 @@
+ #include "yaml-cpp/exceptions.h"
+ 
+-// This is here for compatibility with older versions of Visual Studio
+-// which don't support noexcept
+-#ifdef _MSC_VER
+-    #define YAML_CPP_NOEXCEPT _NOEXCEPT
+-#else
+-    #define YAML_CPP_NOEXCEPT noexcept
+-#endif
++#define YAML_CPP_NOEXCEPT noexcept
+ 
+ namespace YAML {
+ 
+-- 
+2.17.1
+

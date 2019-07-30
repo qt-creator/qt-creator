@@ -13,6 +13,7 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "libclang"; required: false }
+    Depends { name: "yaml-cpp" }
     Depends { name: "clang_defines" }
 
     Depends { name: "Qt.widgets" }

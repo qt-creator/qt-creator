@@ -2,9 +2,11 @@ if (WITH_TESTS)
   set(TST_COMPONENT QmakeProjectManager)
 endif()
 
+find_package(yaml-cpp QUIET MODULE)
+
 add_qtc_plugin(ClangTools
-  CONDITION TARGET libclang
-  DEPENDS ClangSupport libclang
+  CONDITION TARGET libclang AND TARGET yaml-cpp
+  DEPENDS ClangSupport libclang yaml-cpp
   PLUGIN_DEPENDS Core Debugger CppTools ${TST_COMPONENT}
   INCLUDES ${CLANG_INCLUDE_DIRS}
   SOURCES

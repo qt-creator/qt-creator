@@ -33,6 +33,9 @@ for(l, SUBDIRS) {
 SUBDIRS += \
     utils/process_stub.pro
 
+include(../shared/yaml-cpp/yaml-cpp_installation.pri)
+isEmpty(EXTERNAL_YAML_CPP_FOUND): SUBDIRS += 3rdparty/yaml-cpp
+
 isEmpty(KSYNTAXHIGHLIGHTING_LIB_DIR): KSYNTAXHIGHLIGHTING_LIB_DIR=$$(KSYNTAXHIGHLIGHTING_LIB_DIR)
 !isEmpty(KSYNTAXHIGHLIGHTING_LIB_DIR) {
     # enable short information message
