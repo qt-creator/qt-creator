@@ -502,11 +502,8 @@ QMultiHash<ModelNode, InformationName> convertModelNodeInformationHash(const QMu
 {
     QMultiHash<ModelNode, InformationName>  convertedModelNodeInformationHash;
 
-    QHashIterator<ModelNode, InformationName> hashIterator(informationChangeHash);
-    while (hashIterator.hasNext()) {
-        hashIterator.next();
-        convertedModelNodeInformationHash.insert(ModelNode(hashIterator.key(), view), hashIterator.value());
-    }
+    for (auto it = informationChangeHash.cbegin(), end = informationChangeHash.cend(); it != end; ++it)
+        convertedModelNodeInformationHash.insert(ModelNode(it.key(), view), it.value());
 
     return convertedModelNodeInformationHash;
 }

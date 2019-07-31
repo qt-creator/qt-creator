@@ -42,19 +42,14 @@ ResizeIndicator::~ResizeIndicator()
 
 void ResizeIndicator::show()
 {
-    QHashIterator<FormEditorItem*, ResizeController> itemControllerIterator(m_itemControllerHash);
-    while (itemControllerIterator.hasNext()) {
-        ResizeController controller = itemControllerIterator.next().value();
+    for (ResizeController controller : m_itemControllerHash)
         controller.show();
-    }
 }
+
 void ResizeIndicator::hide()
 {
-    QHashIterator<FormEditorItem*, ResizeController> itemControllerIterator(m_itemControllerHash);
-    while (itemControllerIterator.hasNext()) {
-        ResizeController controller = itemControllerIterator.next().value();
+    for (ResizeController controller : m_itemControllerHash)
         controller.hide();
-    }
 }
 
 void ResizeIndicator::clear()

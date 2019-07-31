@@ -204,8 +204,8 @@ void NodeInstanceView::modelAboutToBeDetached(Model * model)
 
 void NodeInstanceView::handleCrash()
 {
-    int elaspsedTimeSinceLastCrash = m_lastCrashTime.restart();
-    int forceRestartTime = 2000;
+    qint64 elaspsedTimeSinceLastCrash = m_lastCrashTime.restart();
+    qint64 forceRestartTime = 2000;
 #ifdef QT_DEBUG
     forceRestartTime = 4000;
 #endif
@@ -816,9 +816,10 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         bindingPropertyList.append(node.bindingProperties());
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            QHashIterator<PropertyName, QVariant> auxiliaryIterator(node.auxiliaryData());
-            while (auxiliaryIterator.hasNext()) {
-                auxiliaryIterator.next();
+            const QHash<PropertyName, QVariant> aux = node.auxiliaryData();
+            for (auto auxiliaryIterator = aux.cbegin(), end = aux.cend();
+                      auxiliaryIterator != end;
+                      ++auxiliaryIterator) {
                 PropertyValueContainer container(instance.instanceId(), auxiliaryIterator.key(), auxiliaryIterator.value(), TypeName());
                 auxiliaryContainerVector.append(container);
             }

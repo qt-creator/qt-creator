@@ -311,9 +311,9 @@ QList<QLineF> Snapper::findSnappingLines(const SnapLineMap &snappingLineMap,
 {
     QList<QLineF> lineList;
 
-    SnapLineMapIterator snappingLineIterator(snappingLineMap);
-    while (snappingLineIterator.hasNext()) {
-        snappingLineIterator.next();
+    for (auto snappingLineIterator = snappingLineMap.cbegin(), end = snappingLineMap.cend();
+              snappingLineIterator != end;
+              ++snappingLineIterator) {
 
         if (compareLines(snapLine, snappingLineIterator.key())) { // near distance snapping lines
             lineList += createSnapLine(orientation,
@@ -339,9 +339,9 @@ QList<QLineF> Snapper::findSnappingOffsetLines(const SnapLineMap &snappingOffset
 {
     QList<QLineF> lineList;
 
-    SnapLineMapIterator snappingOffsetIterator(snappingOffsetMap);
-    while (snappingOffsetIterator.hasNext()) {
-        snappingOffsetIterator.next();
+    for (auto snappingOffsetIterator = snappingOffsetMap.cbegin(), end = snappingOffsetMap.cend();
+              snappingOffsetIterator != end;
+              ++snappingOffsetIterator) {
 
         const QRectF &formEditorItemRect(snappingOffsetIterator.value().first);
         double formEditorItemRectLowerLimit;
@@ -377,9 +377,9 @@ double Snapper::snappedOffsetForLines(const SnapLineMap &snappingLineMap,
 {
     QMultiMap<double, double> minimumSnappingLineMap;
 
-    SnapLineMapIterator snappingLineIterator(snappingLineMap);
-    while (snappingLineIterator.hasNext()) {
-        snappingLineIterator.next();
+    for (auto snappingLineIterator = snappingLineMap.cbegin(), end = snappingLineMap.cend();
+              snappingLineIterator != end;
+              ++snappingLineIterator) {
         double snapLine = snappingLineIterator.key();
         double offset = value - snapLine;
         double distance = qAbs(offset);
@@ -403,9 +403,9 @@ double Snapper::snappedOffsetForOffsetLines(const SnapLineMap &snappingOffsetMap
 {
     QMultiMap<double, double> minimumSnappingLineMap;
 
-    SnapLineMapIterator snappingOffsetIterator(snappingOffsetMap);
-    while (snappingOffsetIterator.hasNext()) {
-        snappingOffsetIterator.next();
+    for (auto snappingOffsetIterator = snappingOffsetMap.cbegin(), end = snappingOffsetMap.cend();
+              snappingOffsetIterator != end;
+              ++snappingOffsetIterator) {
         double snapLine = snappingOffsetIterator.key();
         const QRectF &formEditorItemRect(snappingOffsetIterator.value().first);
         double formEditorItemRectLowerLimit;
@@ -492,13 +492,12 @@ static QList<QLineF> mergedHorizontalLines(const QList<QLineF> &lineList)
     });
 
     QList<QLineF> lineWithTheSameY;
-    QListIterator<QLineF>  sortedLineListIterator(sortedLineList);
-    while (sortedLineListIterator.hasNext()) {
-        QLineF line = sortedLineListIterator.next();
+    for (int i = 0, n = sortedLineList.size(); i < n; ++i) {
+        QLineF line = sortedLineList.at(i);
         lineWithTheSameY.append(line);
 
-        if (sortedLineListIterator.hasNext()) {
-            QLineF nextLine = sortedLineListIterator.peekNext();
+        if (i + 1 < n) {
+            QLineF nextLine = sortedLineList.at(i + 1);
             if (!qFuzzyCompare(line.y1(), nextLine.y1())) {
                 mergedLineList.append(mergedHorizontalLine(lineWithTheSameY));
                 lineWithTheSameY.clear();
@@ -521,13 +520,12 @@ static QList<QLineF> mergedVerticalLines(const QList<QLineF> &lineList)
     });
 
     QList<QLineF> lineWithTheSameX;
-    QListIterator<QLineF>  sortedLineListIterator(sortedLineList);
-    while (sortedLineListIterator.hasNext()) {
-        QLineF line = sortedLineListIterator.next();
+    for (int i = 0, n = sortedLineList.size(); i < n; ++i) {
+        QLineF line = sortedLineList.at(i);
         lineWithTheSameX.append(line);
 
-        if (sortedLineListIterator.hasNext()) {
-            QLineF nextLine = sortedLineListIterator.peekNext();
+        if (i + 1 < n) {
+            QLineF nextLine = sortedLineList.at(i + 1);
             if (!qFuzzyCompare(line.x1(), nextLine.x1())) {
                 mergedLineList.append(mergedVerticalLine(lineWithTheSameX));
                 lineWithTheSameX.clear();
@@ -565,9 +563,9 @@ static QmlItemNode findItemOnSnappingLine(const QmlItemNode &sourceQmlItemNode, 
     else
         compareAnchorLineType = AnchorLineLeft;
 
-    SnapLineMapIterator  snapLineIterator(snappingLines);
-    while (snapLineIterator.hasNext()) {
-        snapLineIterator.next();
+    for (auto snapLineIterator = snappingLines.cbegin(), end = snappingLines.cend();
+              snapLineIterator != end;
+              ++snapLineIterator) {
         double snapLine = snapLineIterator.key();
 
         if (qAbs(snapLine - anchorLine ) < 1.0) {

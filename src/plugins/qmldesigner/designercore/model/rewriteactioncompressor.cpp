@@ -67,10 +67,8 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
     QHash<Import, RewriteAction *> addedImports;
     QHash<Import, RewriteAction *> removedImports;
 
-    QMutableListIterator<RewriteAction *> iter(actions);
-    iter.toBack();
-    while (iter.hasPrevious()) {
-        RewriteAction *action = iter.previous();
+    for (int i = actions.size(); --i >= 0; ) {
+        RewriteAction *action = actions.at(i);
 
         if (RemoveImportRewriteAction *removeImportAction = action->asRemoveImportRewriteAction()) {
             const Import import = removeImportAction->import();
@@ -113,10 +111,8 @@ void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &
     QList<RewriteAction *> actionsToRemove;
     QHash<ModelNode, ReparentNodeRewriteAction *> reparentedNodes;
 
-    QMutableListIterator<RewriteAction*> iter(actions);
-    iter.toBack();
-    while (iter.hasPrevious()) {
-        RewriteAction *action = iter.previous();
+    for (int i = actions.size(); --i >= 0; ) {
+        RewriteAction *action = actions.at(i);
 
         if (ReparentNodeRewriteAction *reparentAction = action->asReparentNodeRewriteAction()) {
             const ModelNode reparentedNode = reparentAction->reparentedNode();
@@ -139,10 +135,9 @@ void RewriteActionCompressor::compressRereparentActions(QList<RewriteAction *> &
 void RewriteActionCompressor::compressReparentIntoSamePropertyActions(QList<RewriteAction *> &actions) const
 {
     QList<RewriteAction *> actionsToRemove;
-    QMutableListIterator<RewriteAction *> iter(actions);
-    iter.toBack();
-    while (iter.hasPrevious()) {
-        RewriteAction *action = iter.previous();
+
+    for (int i = actions.size(); --i >= 0; ) {
+        RewriteAction *action = actions.at(i);
 
         if (ReparentNodeRewriteAction *reparentAction = action->asReparentNodeRewriteAction()) {
             if (reparentAction->targetProperty() == reparentAction->oldParentProperty())
@@ -161,10 +156,8 @@ void RewriteActionCompressor::compressAddEditRemoveNodeActions(QList<RewriteActi
     QList<RewriteAction *> actionsToRemove;
     QHash<ModelNode, RewriteAction *> removedNodes;
 
-    QMutableListIterator<RewriteAction*> iter(actions);
-    iter.toBack();
-    while (iter.hasPrevious()) {
-        RewriteAction *action = iter.previous();
+    for (int i = actions.size(); --i >= 0; ) {
+        RewriteAction *action = actions.at(i);
 
         if (RemoveNodeRewriteAction *removeNodeAction = action->asRemoveNodeRewriteAction()) {
             const ModelNode modelNode = removeNodeAction->node();
@@ -220,10 +213,8 @@ void RewriteActionCompressor::compressPropertyActions(QList<RewriteAction *> &ac
     QHash<AbstractProperty, ChangePropertyRewriteAction *> changedProperties;
     QHash<AbstractProperty, AddPropertyRewriteAction *> addedProperties;
 
-    QMutableListIterator<RewriteAction*> iter(actions);
-    iter.toBack();
-    while (iter.hasPrevious()) {
-        RewriteAction *action = iter.previous();
+    for (int i = actions.size(); --i >= 0; ) {
+        RewriteAction *action = actions.at(i);
 
         if (RemovePropertyRewriteAction *removeAction = action->asRemovePropertyRewriteAction()) {
             const AbstractProperty property = removeAction->property();
@@ -271,10 +262,7 @@ void RewriteActionCompressor::compressAddEditActions(QList<RewriteAction *> &act
     QSet<ModelNode> addedNodes;
     QSet<RewriteAction *> dirtyActions;
 
-    QMutableListIterator<RewriteAction*> iter(actions);
-    while (iter.hasNext()) {
-        RewriteAction *action = iter.next();
-
+    for (RewriteAction *action : qAsConst(actions)) {
         if (action->asAddPropertyRewriteAction() || action->asChangePropertyRewriteAction()) {
             AbstractProperty property;
             ModelNode containedNode;
@@ -343,10 +331,8 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
     QList<RewriteAction *> actionsToRemove;
     QMap<ModelNode, RewriteAction*> addedNodes;
 
-    QMutableListIterator<RewriteAction*> iter(actions);
-    while (iter.hasNext()) {
-        RewriteAction *action = iter.next();
-
+    for (int i = 0, n = actions.size(); i < n; ++i) {
+        RewriteAction *action = actions.at(i);
         if (action->asAddPropertyRewriteAction() || action->asChangePropertyRewriteAction()) {
             ModelNode containedNode;
 
@@ -377,7 +363,7 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
                                                                      changeAction->containedModelNode());
                 }
 
-                iter.setValue(replacementAction);
+                actions[i] = replacementAction;
                 delete action;
             }
         }

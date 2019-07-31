@@ -96,9 +96,9 @@ static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QV
             node.setAuxiliaryData(propertyName, QVariant());
     }
 
-    QHashIterator<PropertyName, QVariant> propertyIterator(propertyHash);
-    while (propertyIterator.hasNext()) {
-        propertyIterator.next();
+    for (auto propertyIterator = propertyHash.cbegin(), end = propertyHash.cend();
+              propertyIterator != end;
+              ++propertyIterator) {
         const PropertyName propertyName = propertyIterator.key();
         if (propertyName == "width" || propertyName == "height") {
             node.setAuxiliaryData(propertyIterator.key(), propertyIterator.value());
