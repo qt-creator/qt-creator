@@ -518,7 +518,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     } else {
         const Utils::FilePath configFileName =
                 Utils::FilePath::fromString(CppTools::CppModelManager::configurationFileName());
-        const CppTools::WorkingCopy::Table &elements =
+        const CppTools::WorkingCopy::Table elements =
                 CppTools::CppModelManager::instance()->workingCopy().elements();
         for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
             const Utils::FilePath &fileName = it.key();
