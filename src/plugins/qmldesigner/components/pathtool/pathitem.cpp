@@ -471,7 +471,7 @@ static QRectF boundingRectForPath(const QList<ControlPoint> &controlPoints)
         yMaximum = qMax(yMaximum, controlPoint.coordinate().y());
     }
 
-    return QRect(xMinimum, yMinimum, xMaximum - xMinimum, yMaximum - yMinimum);
+    return QRectF(xMinimum, yMinimum, xMaximum - xMinimum, yMaximum - yMinimum);
 }
 
 void PathItem::updateBoundingRect()
