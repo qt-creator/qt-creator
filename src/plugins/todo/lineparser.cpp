@@ -106,7 +106,7 @@ QList<LineParser::KeywordEntry> LineParser::keywordEntriesFromCandidates(
     // Convert candidates to entries
     std::vector<KeywordEntry> tmp;
     for (auto it = candidates.cbegin(), end = candidates.cend(); it != end; ++it)
-        tmp.emplace_back(KeywordEntry{it.key(), it.value(), QString()});
+        tmp.emplace_back(KeywordEntry{it.value(), it.key(), QString()});
 
     QList<KeywordEntry> entries;
     for (auto it = tmp.crbegin(), end = tmp.crend(); it != end; ++it) {
