@@ -260,10 +260,6 @@ void Project::addTarget(std::unique_ptr<Target> &&t)
 
     // add it
     d->m_targets.emplace_back(std::move(t));
-    connect(pointer, &Target::addedProjectConfiguration, this, &Project::addedProjectConfiguration);
-    connect(pointer, &Target::aboutToRemoveProjectConfiguration, this, &Project::aboutToRemoveProjectConfiguration);
-    connect(pointer, &Target::removedProjectConfiguration, this, &Project::removedProjectConfiguration);
-    connect(pointer, &Target::activeProjectConfigurationChanged, this, &Project::activeProjectConfigurationChanged);
     emit addedTarget(pointer);
 
     // check activeTarget:
