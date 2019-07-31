@@ -31,6 +31,7 @@
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsutils.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 namespace Autotest {
 namespace Internal {
@@ -85,29 +86,29 @@ static bool isDerivedFromTestCase(QmlJS::AST::UiQualifiedId *id, const QmlJS::Do
 bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
     const QStringRef name = ast->qualifiedTypeNameId->name;
-    m_objectStack.push(name.toString());
+    m_objectIsTestStack.push(false);
     if (name != "TestCase") {
-        m_insideTestCase = false;
         if (!isDerivedFromTestCase(ast->qualifiedTypeNameId, m_currentDoc, m_snapshot))
             return true;
     } else if (!documentImportsQtTest(m_currentDoc.data())) {
         return true; // find nested TestCase items as well
     }
 
-    m_typeIsTestCase = true;
-    m_insideTestCase = true;
-    m_currentTestCaseName.clear();
+    m_objectIsTestStack.top() = true;
     const auto sourceLocation = ast->firstSourceLocation();
-    m_testCaseLocation.m_name = m_currentDoc->fileName();
-    m_testCaseLocation.m_line = sourceLocation.startLine;
-    m_testCaseLocation.m_column = sourceLocation.startColumn - 1;
-    m_testCaseLocation.m_type = TestTreeItem::TestCase;
+    QuickTestCaseSpec currentSpec;
+    currentSpec.m_locationAndType.m_name = m_currentDoc->fileName();
+    currentSpec.m_locationAndType.m_line = sourceLocation.startLine;
+    currentSpec.m_locationAndType.m_column = sourceLocation.startColumn - 1;
+    currentSpec.m_locationAndType.m_type = TestTreeItem::TestCase;
+    m_caseParseStack.push(currentSpec);
     return true;
 }
 
 void TestQmlVisitor::endVisit(QmlJS::AST::UiObjectDefinition *)
 {
-    m_insideTestCase = m_objectStack.pop() == "TestCase";
+    if (!m_objectIsTestStack.isEmpty() && m_objectIsTestStack.pop() && !m_caseParseStack.isEmpty())
+        m_testCases << m_caseParseStack.pop();
 }
 
 bool TestQmlVisitor::visit(QmlJS::AST::ExpressionStatement *ast)
@@ -118,7 +119,7 @@ bool TestQmlVisitor::visit(QmlJS::AST::ExpressionStatement *ast)
 
 bool TestQmlVisitor::visit(QmlJS::AST::UiScriptBinding *ast)
 {
-    if (m_insideTestCase)
+    if (m_objectIsTestStack.top())
         m_expectTestCaseName = ast->qualifiedId->name == "name";
     return m_expectTestCaseName;
 }
@@ -131,6 +132,9 @@ void TestQmlVisitor::endVisit(QmlJS::AST::UiScriptBinding *)
 
 bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
 {
+    if (m_caseParseStack.isEmpty())
+        return false;
+
     const QStringRef name = ast->name;
     if (name.startsWith("test_")
             || name.startsWith("benchmark_")
@@ -148,15 +152,17 @@ bool TestQmlVisitor::visit(QmlJS::AST::FunctionDeclaration *ast)
         else
             locationAndType.m_type = TestTreeItem::TestFunction;
 
-        m_testFunctions.insert(name.toString(), locationAndType);
+        m_caseParseStack.top().m_functions.append(
+            QuickTestFunctionSpec{name.toString(), locationAndType});
     }
     return false;
 }
 
 bool TestQmlVisitor::visit(QmlJS::AST::StringLiteral *ast)
 {
-    if (m_expectTestCaseName && m_currentTestCaseName.isEmpty()) {
-        m_currentTestCaseName = ast->value.toString();
+    if (m_expectTestCaseName) {
+        QTC_ASSERT(!m_caseParseStack.isEmpty(), return false);
+        m_caseParseStack.top().m_caseName = ast->value.toString();
         m_expectTestCaseName = false;
     }
     return false;

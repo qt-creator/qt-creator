@@ -190,35 +190,36 @@ static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr
     if (!qmlVisitor.isValid())
         return false;
 
-    const QString testCaseName = qmlVisitor.testCaseName();
-    const TestCodeLocationAndType tcLocationAndType = qmlVisitor.testCaseLocation();
-    const QMap<QString, TestCodeLocationAndType> &testFunctions = qmlVisitor.testFunctions();
+    const QVector<QuickTestCaseSpec> &testCases = qmlVisitor.testCases();
 
-    QuickTestParseResult *parseResult = new QuickTestParseResult(id);
-    parseResult->proFile = proFile;
-    parseResult->itemType = TestTreeItem::TestCase;
-    QMap<QString, TestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
-    const QMap<QString, TestCodeLocationAndType>::ConstIterator end = testFunctions.end();
-    for ( ; it != end; ++it) {
-        const TestCodeLocationAndType &loc = it.value();
-        QuickTestParseResult *funcResult = new QuickTestParseResult(id);
-        funcResult->name = it.key();
-        funcResult->displayName = it.key();
-        funcResult->itemType = loc.m_type;
-        funcResult->fileName = loc.m_name;
-        funcResult->line = loc.m_line;
-        funcResult->column = loc.m_column;
-        funcResult->proFile = proFile;
+    for (const QuickTestCaseSpec &testCase : testCases) {
+        const QString testCaseName = testCase.m_caseName;
 
-        parseResult->children.append(funcResult);
+        QuickTestParseResult *parseResult = new QuickTestParseResult(id);
+        parseResult->proFile = proFile;
+        parseResult->itemType = TestTreeItem::TestCase;
+        if (!testCaseName.isEmpty()) {
+            parseResult->fileName = testCase.m_locationAndType.m_name;
+            parseResult->name = testCaseName;
+            parseResult->line = testCase.m_locationAndType.m_line;
+            parseResult->column = testCase.m_locationAndType.m_column;
+        }
+
+        for (auto function : testCase.m_functions) {
+            QuickTestParseResult *funcResult = new QuickTestParseResult(id);
+            funcResult->name = function.m_functionName;
+            funcResult->displayName = function.m_functionName;
+            funcResult->itemType = function.m_locationAndType.m_type;
+            funcResult->fileName = function.m_locationAndType.m_name;
+            funcResult->line = function.m_locationAndType.m_line;
+            funcResult->column = function.m_locationAndType.m_column;
+            funcResult->proFile = proFile;
+
+            parseResult->children.append(funcResult);
+        }
+
+        futureInterface.reportResult(TestParseResultPtr(parseResult));
     }
-    if (!testCaseName.isEmpty()) {
-        parseResult->fileName = tcLocationAndType.m_name;
-        parseResult->name = testCaseName;
-        parseResult->line = tcLocationAndType.m_line;
-        parseResult->column = tcLocationAndType.m_column;
-    }
-    futureInterface.reportResult(TestParseResultPtr(parseResult));
     return true;
 }
 

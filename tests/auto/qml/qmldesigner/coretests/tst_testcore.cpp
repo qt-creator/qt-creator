@@ -611,6 +611,8 @@ void tst_TestCore::testRewriterDynamicProperties()
     const QString inThere = testRewriterView1->rootModelNode().variantProperty("vv").value().value<QString>();
     QCOMPARE(inThere, QString("Hello"));
 
+    rootModelNode.variantProperty("vv").setDynamicTypeNameAndValue("variant", "hallo2");
+
     // test model2text
 //    QPlainTextEdit textEdit2;
 //    textEdit2.setPlainText("import QtQuick 1.1; Item{}");

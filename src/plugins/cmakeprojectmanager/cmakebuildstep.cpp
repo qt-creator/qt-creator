@@ -357,10 +357,15 @@ Utils::CommandLine CMakeBuildStep::cmakeCommand(CMakeRunConfiguration *rc) const
     QString target;
 
     if (isCurrentExecutableTarget(m_buildTarget)) {
-        if (rc)
-            target = rc->buildKey().section('\n', 0, 0);
-        else
+        if (rc) {
+            target = rc->buildKey();
+            const int pos = target.indexOf("///::///");
+            if (pos >= 0) {
+                target = target.mid(pos + 8);
+            }
+        } else {
             target = "<i>&lt;" + tr(ADD_RUNCONFIGURATION_TEXT) + "&gt;</i>";
+        }
     } else {
         target = m_buildTarget;
     }

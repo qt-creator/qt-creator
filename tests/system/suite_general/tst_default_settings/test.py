@@ -94,7 +94,7 @@ def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
             itObj = "%s occurrence='%d'}" % (itObj[:-1], alreadyDone + 1)
         currentSelectedTreeItem = waitForObject(itObj, 3000)
         tree.scrollTo(it)
-        mouseClick(currentSelectedTreeItem)
+        mouseClick(currentSelectedTreeItem, 5, 5, 0, Qt.LeftButton)
         additionalFunc(indexName, *additionalParameters)
         currentSelectedTreeItem = None
         if model.rowCount(it) > 0:
@@ -210,6 +210,7 @@ def __getExpectedCompilers__():
     compilers = ["g++", "gcc"]
     if platform.system() in ('Linux', 'Darwin'):
         compilers.extend(["clang++", "clang", "afl-clang"])
+        compilers.extend(findAllFilesInPATH("clang-[0-9]"))
         compilers.extend(findAllFilesInPATH("clang-[0-9].[0-9]"))
         compilers.extend(findAllFilesInPATH("*g++*"))
         compilers.extend(findAllFilesInPATH("*gcc*"))

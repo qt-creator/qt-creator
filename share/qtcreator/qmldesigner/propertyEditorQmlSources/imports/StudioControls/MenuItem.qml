@@ -46,11 +46,6 @@ T.MenuItem {
     action: Action {}
 
     contentItem: Item {
-        id: menuItem
-
-        width: control.menu.width
-        height: StudioTheme.Values.height
-
         Text {
             id: textLabel
             text: control.text
@@ -77,11 +72,11 @@ T.MenuItem {
 
     background: Rectangle {
         implicitWidth: textLabel.implicitWidth + control.labelSpacing + shortcutLabel.implicitWidth
-                       + control.leftPadding + control.rightPadding // TODO
+                       + control.leftPadding + control.rightPadding
         implicitHeight: StudioTheme.Values.height
         x: StudioTheme.Values.border
         y: StudioTheme.Values.border
-        width: control.width - (StudioTheme.Values.border * 2)
+        width: control.menu.width - (StudioTheme.Values.border * 2)
         height: control.height - (StudioTheme.Values.border * 2)
         color: control.down ? control.palette.midlight : control.highlighted ? StudioTheme.Values.themeInteraction : "transparent"
     }

@@ -162,6 +162,33 @@ QVariant FileResourcesModel::modelNodeBackend() const
     return QVariant();
 }
 
+bool filterMetaIcons(const QString &fileName)
+{
+
+    QFileInfo info(fileName);
+
+    if (info.dir().path().split("/").contains("designer")) {
+
+        QDir currentDir = info.dir();
+
+        int i = 0;
+        while (!currentDir.isRoot() && i < 3) {
+            if (currentDir.dirName() == "designer") {
+                if (!currentDir.entryList({"*.metainfo"}).isEmpty())
+                    return false;
+            }
+
+            currentDir.cdUp();
+            ++i;
+        }
+
+        if (info.dir().dirName() == "designer")
+            return false;
+    }
+
+    return true;
+}
+
 void FileResourcesModel::setupModel()
 {
     m_lock = true;
@@ -174,7 +201,8 @@ void FileResourcesModel::setupModel()
     QDirIterator it(m_dirPath.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         QString absolutePath = it.next();
-        m_model.append(m_dirPath.relativeFilePath(absolutePath));
+        if (filterMetaIcons(absolutePath))
+            m_model.append(m_dirPath.relativeFilePath(absolutePath));
     }
 
     m_lock = false;

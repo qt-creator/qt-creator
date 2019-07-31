@@ -24,20 +24,19 @@
 ****************************************************************************/
 
 import QtQuick 2.12
-import QtQuick.Controls 2.12 as Controls2
 
 Menu {
     id: contextMenu
 
     property Item myTextEdit
 
-    Controls2.MenuItem {
+    MenuItem {
         text: "Undo"
         enabled: myTextEdit.canUndo
         onTriggered: myTextEdit.undo()
         /* shortcut: StandardKey.Undo Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.MenuItem {
+    MenuItem {
         text: "Redo"
         enabled: myTextEdit.canRedo
         onTriggered: myTextEdit.redo()
@@ -47,32 +46,32 @@ Menu {
     MenuSeparator {
     }
 
-    Controls2.MenuItem {
+    MenuItem {
         text: "Copy"
         enabled: myTextEdit.selectedText !== ""
         onTriggered: myTextEdit.copy()
         /* shortcut: StandardKey.Copy Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.MenuItem {
+    MenuItem {
         text: "Cut"
         enabled: myTextEdit.selectedText !== "" && !myTextEdit.readOnly
         onTriggered: myTextEdit.cut()
         /* shortcut: StandardKey.Cut Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.MenuItem {
+    MenuItem {
         text: "Paste"
         enabled: myTextEdit.canPaste
         onTriggered: myTextEdit.paste()
         /* shortcut: StandardKey.Paste Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.MenuItem {
+    MenuItem {
         text: "Delete"
         enabled: myTextEdit.selectedText !== ""
         onTriggered: myTextEdit.remove(myTextEdit.selectionStart,
                                        myTextEdit.selectionEnd)
         /* shortcut: StandardKey.Delete Shortcuts in QQC2 seem to override global shortcuts */
     }
-    Controls2.MenuItem {
+    MenuItem {
         text: "Clear"
         enabled: myTextEdit.text !== ""
         onTriggered: myTextEdit.clear()
@@ -82,7 +81,7 @@ Menu {
     MenuSeparator {
     }
 
-    Controls2.MenuItem {
+    MenuItem {
         text: "Select All"
         enabled: myTextEdit.text !== ""
                  && myTextEdit.selectedText !== myTextEdit.text

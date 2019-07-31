@@ -42,6 +42,7 @@ find_package(Qt5WebEngineWidgets QUIET)
 extend_qtc_plugin(Help
   CONDITION TARGET Qt5::WebEngineWidgets
   DEPENDS Qt5::WebEngineWidgets
+  DEFINES QTC_WEBENGINE_HELPVIEWER
   SOURCES
     webenginehelpviewer.cpp
     webenginehelpviewer.h

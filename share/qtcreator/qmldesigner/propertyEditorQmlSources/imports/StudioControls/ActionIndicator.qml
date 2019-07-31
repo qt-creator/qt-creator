@@ -60,7 +60,8 @@ Rectangle {
             State {
                 name: "hovered"
                 when: actionIndicator.hover && !actionIndicator.pressed
-                      && !myControl.edit && !myControl.drag && myControl.enabled
+                      && (!myControl || (!myControl.edit && !myControl.drag))
+                      && actionIndicator.enabled
                 PropertyChanges {
                     target: actionIndicatorIcon
                     scale: 1.2
@@ -68,7 +69,7 @@ Rectangle {
             },
             State {
                 name: "disabled"
-                when: !myControl.enabled
+                when: !actionIndicator.enabled
                 PropertyChanges {
                     target: actionIndicatorIcon
                     color: StudioTheme.Values.themeTextColorDisabled
