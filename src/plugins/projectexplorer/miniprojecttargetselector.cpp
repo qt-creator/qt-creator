@@ -548,23 +548,25 @@ void GenericListWidget::displayNameChanged()
     if (currentItem())
         activeObject = currentItem()->data(Qt::UserRole).value<QObject *>();
 
-    auto *pc = qobject_cast<ProjectConfiguration *>(sender());
+    QObject *obj = sender();
     int index = -1;
     int i = 0;
     for (; i < count(); ++i) {
         QListWidgetItem *lwi = item(i);
-        if (lwi->data(Qt::UserRole).value<ProjectConfiguration *>() == pc) {
+        if (lwi->data(Qt::UserRole).value<QObject *>() == obj) {
             index = i;
             break;
         }
     }
     if (index == -1)
         return;
+
+    const QString displayName = displayNameFor(obj);
     QListWidgetItem *lwi = takeItem(i);
-    lwi->setText(pc->displayName());
+    lwi->setText(displayName);
     int pos = count();
     for (int i = 0; i < count(); ++i) {
-        if (caseFriendlyCompare(displayNameFor(pc), displayNameFor(objectAt(i))) < 0) {
+        if (caseFriendlyCompare(displayName, displayNameFor(objectAt(i))) < 0) {
             pos = i;
             break;
         }
@@ -585,10 +587,11 @@ void GenericListWidget::displayNameChanged()
 
 void GenericListWidget::toolTipChanged()
 {
-    auto *pc = qobject_cast<ProjectConfiguration *>(sender());
-    if (QListWidgetItem *lwi = itemForProjectConfiguration(pc)) {
-        lwi->setData(Qt::ToolTipRole, pc->toolTip());
-        lwi->setData(Qt::UserRole + 1, pc->toolTip());
+    QObject *obj = sender();
+    if (QListWidgetItem *lwi = itemForProjectConfiguration(obj)) {
+        const QString toolTip = toolTipFor(obj);
+        lwi->setData(Qt::ToolTipRole, toolTip);
+        lwi->setData(Qt::UserRole + 1, toolTip);
     }
 }
 
