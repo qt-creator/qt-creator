@@ -25,6 +25,7 @@
 
 import QtQuick 2.1
 import QtQuickDesignerTheme 1.0
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     width: grid.width
@@ -41,10 +42,19 @@ Item {
     readonly property color selectedColor: Theme.qmlDesignerBackgroundColorDarkAlternate()
     readonly property color unselectedColor: Theme.qmlDesignerBackgroundColorDarker()
 
-    ExtendedFunctionButton {
+    ExtendedFunctionLogic {
+        id: extFuncLogic
         backendValue: originControl.backendValue
-        visible: originControl.enabled
+    }
+
+    ActionIndicator {
         anchors.left: grid.right
+        anchors.leftMargin: grid.spacing
+
+        visible: originControl.enabled
+        icon.color: extFuncLogic.color
+        icon.text: extFuncLogic.glyph
+        onClicked: extFuncLogic.show()
     }
 
     ColorLogic {
@@ -100,8 +110,8 @@ Item {
         Rectangle {
             property bool selected: false
             id: topLeft
-            width: 15
-            height: 15
+            width: StudioTheme.Values.height
+            height: StudioTheme.Values.height
             color: selected ? selectedColor : unselectedColor
             border.width: selected ? 2 : 1
             border.color: selected ? originControl.borderColorSelected : originControl.borderColor

@@ -36,11 +36,10 @@ T.MenuSeparator {
                              implicitContentHeight + topPadding + bottomPadding)
 
     padding: 0
-    verticalPadding: padding
 
     contentItem: Rectangle {
-        implicitWidth: 10
-        implicitHeight: StudioTheme.Values.border
+        width: control.parent.width
+        height: StudioTheme.Values.border
         color: StudioTheme.Values.themeControlOutline
     }
 }

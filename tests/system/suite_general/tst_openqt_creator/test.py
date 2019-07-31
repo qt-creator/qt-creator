@@ -62,12 +62,10 @@ def main():
     if not test.verify(object.exists(":Qt Creator_Core::OutputWindow"),
                        "Did the General Messages view show up?"):
         openGeneralMessages()
-    # Verify messages appear once, from using default kit before configuring
+    # Verify message appears once, written before a kit was selected for qtcreator.pro
     generalMessages = str(waitForObject(":Qt Creator_Core::OutputWindow").plainText)
-    test.compare(generalMessages.count("Project MESSAGE: Cannot build Qt Creator with Qt version 5.6.1."), 1,
-                 "Warning about outdated Qt shown?")
-    test.compare(generalMessages.count("Project ERROR: Use at least Qt 5.9.0."), 1,
-                 "Minimum Qt version shown (once when parsing with default kit, once with selected)?")
+    test.compare(generalMessages.count('Cannot parse project "qtcreator": No kit selected.'), 1,
+                 'Warning about missing kit selection shown?')
 
     # Verify that qmljs.g is in the project even when we don't know where (QTCREATORBUG-17609)
     selectFromLocator("p qmljs.g", "qmljs.g")

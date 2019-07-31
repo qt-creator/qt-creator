@@ -57,6 +57,8 @@ public:
     QSet<QString> internalTargets() const override;
     void markForRemovalRecursively(const QString &filePath) override;
 private:
+    TestTreeItem *findChildByFileNameAndType(const QString &filePath, const QString &name,
+                                             Type tType);
     TestTreeItem *unnamedQuickTests() const;
 };
 
