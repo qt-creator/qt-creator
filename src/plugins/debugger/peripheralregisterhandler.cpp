@@ -799,6 +799,7 @@ QMenu *PeripheralRegisterHandler::createRegisterGroupsMenu(DebuggerState state) 
         hasActions = true;
     }
     groupMenu->setEnabled(hasActions);
+    groupMenu->setStyleSheet("QMenu { menu-scrollable: 1; }");
     return groupMenu;
 }
 
