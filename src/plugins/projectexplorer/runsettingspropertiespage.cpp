@@ -26,22 +26,19 @@
 #include "runsettingspropertiespage.h"
 
 #include "addrunconfigdialog.h"
+#include "buildmanager.h"
 #include "buildstepspage.h"
 #include "deployconfiguration.h"
-#include "runconfiguration.h"
-#include "target.h"
 #include "projectconfigurationmodel.h"
+#include "runconfiguration.h"
 #include "session.h"
+#include "target.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/buildmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <QVariant>
 #include <QAction>
 #include <QComboBox>
 #include <QGridLayout>
@@ -56,24 +53,7 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-struct FactoryAndId
-{
-    RunConfigurationFactory *factory;
-    Core::Id id;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
-
-Q_DECLARE_METATYPE(ProjectExplorer::Internal::FactoryAndId)
-
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
-using ExtensionSystem::PluginManager;
-
-///
-/// RunSettingsWidget
-///
+// RunSettingsWidget
 
 RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_target(target)
@@ -552,3 +532,6 @@ void RunSettingsWidget::updateEnabledState()
     m_disabledText->setVisible(!enable && !reason.isEmpty());
     m_disabledText->setText(reason);
 }
+
+} // Internal
+} // ProjectExplorer
