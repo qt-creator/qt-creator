@@ -74,6 +74,8 @@ namespace Utils {
 
 */
 
+CommandLine::CommandLine() = default;
+
 CommandLine::CommandLine(const QString &executable)
     : m_executable(FilePath::fromString(executable))
 {}

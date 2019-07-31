@@ -130,7 +130,7 @@ class QTCREATOR_UTILS_EXPORT CommandLine
 public:
     enum RawType { Raw };
 
-    CommandLine() {}
+    CommandLine();
     explicit CommandLine(const QString &executable);
     explicit CommandLine(const FilePath &executable);
     CommandLine(const QString &exe, const QStringList &args);
@@ -300,3 +300,4 @@ template<> struct hash<Utils::FilePath>
 } // namespace std
 
 Q_DECLARE_METATYPE(Utils::FilePath)
+Q_DECLARE_METATYPE(Utils::CommandLine)
