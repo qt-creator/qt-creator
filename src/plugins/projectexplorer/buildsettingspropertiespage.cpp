@@ -207,8 +207,13 @@ void BuildSettingsWidget::updateBuildSettings()
     if (generalConfigWidget)
         addSubWidget(generalConfigWidget);
 
-    addSubWidget(new BuildStepsPage(m_buildConfiguration, Core::Id(Constants::BUILDSTEPS_BUILD)));
-    addSubWidget(new BuildStepsPage(m_buildConfiguration, Core::Id(Constants::BUILDSTEPS_CLEAN)));
+    auto buildStepsWidget = new BuildStepListWidget(this);
+    buildStepsWidget->init(m_buildConfiguration->stepList(Constants::BUILDSTEPS_BUILD));
+    addSubWidget(buildStepsWidget);
+
+    auto cleanStepsWidget = new BuildStepListWidget(this);
+    cleanStepsWidget->init(m_buildConfiguration->stepList(Constants::BUILDSTEPS_CLEAN));
+    addSubWidget(cleanStepsWidget);
 
     QList<NamedWidget *> subConfigWidgets = m_buildConfiguration->createSubConfigWidgets();
     foreach (NamedWidget *subConfigWidget, subConfigWidgets)

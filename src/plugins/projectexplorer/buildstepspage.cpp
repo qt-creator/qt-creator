@@ -426,20 +426,3 @@ void BuildStepListWidget::updateBuildStepButtonsState()
         s->toolWidget->setUpVisible(m_buildStepList->count() != 1);
     }
 }
-
-BuildStepsPage::BuildStepsPage(BuildConfiguration *bc, Core::Id id) :
-    m_id(id),
-    m_widget(new BuildStepListWidget(this))
-{
-    auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    layout->addWidget(m_widget);
-
-    m_widget->init(bc->stepList(m_id));
-
-    if (m_id == Constants::BUILDSTEPS_BUILD)
-        setDisplayName(tr("Build Steps"));
-    if (m_id == Constants::BUILDSTEPS_CLEAN)
-        setDisplayName(tr("Clean Steps"));
-}

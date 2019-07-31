@@ -123,19 +123,5 @@ private:
     QPushButton *m_addButton = nullptr;
 };
 
-namespace Ui { class BuildStepsPage; }
-
-class BuildStepsPage : public NamedWidget
-{
-    Q_OBJECT
-
-public:
-    BuildStepsPage(BuildConfiguration *bc, Core::Id id);
-
-private:
-    Core::Id m_id;
-    BuildStepListWidget *m_widget = nullptr;
-};
-
 } // Internal
 } // ProjectExplorer
