@@ -42,7 +42,7 @@ public:
     enum SplitterStyle {Dark, Light};
 
     MiniSplitter(QWidget *parent = nullptr, SplitterStyle style = Dark);
-    MiniSplitter(Qt::Orientation orientation, SplitterStyle style = Dark);
+    MiniSplitter(Qt::Orientation orientation, QWidget *parent = nullptr, SplitterStyle style = Dark);
 
 protected:
     QSplitterHandle *createHandle() override;

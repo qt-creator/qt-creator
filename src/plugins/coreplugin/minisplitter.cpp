@@ -92,8 +92,8 @@ MiniSplitter::MiniSplitter(QWidget *parent, SplitterStyle style)
     setProperty("minisplitter", true);
 }
 
-MiniSplitter::MiniSplitter(Qt::Orientation orientation, SplitterStyle style)
-    : QSplitter(orientation),
+MiniSplitter::MiniSplitter(Qt::Orientation orientation, QWidget *parent, SplitterStyle style)
+    : QSplitter(orientation, parent),
       m_style(style)
 {
     setHandleWidth(1);

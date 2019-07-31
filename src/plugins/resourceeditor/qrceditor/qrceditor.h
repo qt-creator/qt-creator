@@ -28,13 +28,13 @@
 #include "ui_qrceditor.h"
 #include "resourceview.h"
 
-#include <QWidget>
+#include <coreplugin/minisplitter.h>
 #include <QUndoStack>
 
 namespace ResourceEditor {
 namespace Internal {
 
-class QrcEditor : public QWidget
+class QrcEditor : public Core::MiniSplitter
 {
     Q_OBJECT
 
@@ -79,7 +79,6 @@ private:
     Ui::QrcEditor m_ui;
     QUndoStack m_history;
     ResourceView *m_treeview;
-    QAction *m_addFileAction = nullptr;
 
     QString m_currentAlias;
     QString m_currentPrefix;

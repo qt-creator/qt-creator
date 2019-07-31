@@ -39,28 +39,20 @@ using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
 QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
-  : QWidget(parent),
+  : Core::MiniSplitter(Qt::Vertical, parent),
     m_treeview(new ResourceView(model, &m_history))
 {
-    m_ui.setupUi(this);
-    auto layout = new QHBoxLayout;
-    layout->setSpacing(0);
-    layout->setMargin(0);
-    m_ui.centralWidget->setLayout(layout);
+    addWidget(m_treeview);
+    auto widget = new QWidget;
+    m_ui.setupUi(widget);
+    addWidget(widget);
     m_treeview->setFrameStyle(QFrame::NoFrame);
-    layout->addWidget(m_treeview);
 
+    connect(m_ui.addPrefixButton, &QAbstractButton::clicked, this, &QrcEditor::onAddPrefix);
+    connect(m_ui.addFilesButton, &QAbstractButton::clicked, this, &QrcEditor::onAddFiles);
     connect(m_ui.removeButton, &QAbstractButton::clicked, this, &QrcEditor::onRemove);
     connect(m_ui.removeNonExistingButton, &QPushButton::clicked,
             this, &QrcEditor::onRemoveNonExisting);
-
-    // 'Add' button with menu
-    auto addMenu = new QMenu(this);
-    m_addFileAction = addMenu->addAction(tr("Add Files"));
-    connect(m_addFileAction, &QAction::triggered, this, &QrcEditor::onAddFiles);
-    connect(addMenu->addAction(tr("Add Prefix")), &QAction::triggered,
-            this, &QrcEditor::onAddPrefix);
-    m_ui.addButton->setMenu(addMenu);
 
     connect(m_treeview, &ResourceView::removeItem, this, &QrcEditor::onRemove);
     connect(m_treeview->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -139,8 +131,7 @@ void QrcEditor::updateCurrent()
     m_currentLanguage = m_treeview->currentLanguage();
     m_ui.languageText->setText(m_currentLanguage);
 
-    m_ui.addButton->setEnabled(true);
-    m_addFileAction->setEnabled(isValid);
+    m_ui.addFilesButton->setEnabled(isValid);
     m_ui.removeButton->setEnabled(isValid);
 }
 
