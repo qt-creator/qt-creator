@@ -111,14 +111,12 @@ void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem
 
 void ContentNotEditableIndicator::removeEntriesWhichAreNotInTheList(const QList<FormEditorItem *> &itemList)
 {
-    QMutableListIterator<EntryPair> entryIterator(m_entryList);
-
-    while (entryIterator.hasNext()) {
-        EntryPair &entryPair = entryIterator.next();
+    for (int i = 0; i < m_entryList.size(); ++i) {
+        const EntryPair &entryPair = m_entryList.at(i);
         if (!itemList.contains(entryPair.first)) {
             delete entryPair.second;
             entryPair.first->blurContent(false);
-            entryIterator.remove();
+            m_entryList.removeAt(i--);
         }
     }
 }
