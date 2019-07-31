@@ -967,10 +967,7 @@ QStringList QmakePriFile::varNames(FileType type, QtSupport::ProFileReader *read
         vars << QLatin1String("DISTFILES");
         break;
     default:
-        vars << QLatin1String("OTHER_FILES");
-        vars << QLatin1String("DISTFILES");
-        vars << QLatin1String("ICON");
-        vars << QLatin1String("QMAKE_INFO_PLIST");
+        vars << "DISTFILES" << "ICON" << "OTHER_FILES" << "QMAKE_INFO_PLIST" << "TRANSLATIONS";
         break;
     }
     return vars;
