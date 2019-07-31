@@ -536,13 +536,19 @@ public:
         if (!projectWelcomePage->m_projectModel)
             projectWelcomePage->m_projectModel = new ProjectModel(this);
 
+        auto manageSessionsButton = new WelcomePageButton(this);
+        manageSessionsButton->setText(ProjectWelcomePage::tr("Manage"));
+        const Icon icon({{":/utils/images/settings.png", Theme::Welcome_ForegroundSecondaryColor}}, Icon::Tint);
+        manageSessionsButton->setIcon(icon.pixmap());
+        manageSessionsButton->setOnClicked([] { ProjectExplorerPlugin::showSessionManager(); });
+
         auto newButton = new WelcomePageButton(this);
-        newButton->setText(ProjectWelcomePage::tr("New Project"));
+        newButton->setText(ProjectWelcomePage::tr("New"));
         newButton->setIcon(pixmap("new", Theme::Welcome_ForegroundSecondaryColor));
         newButton->setOnClicked([] { ProjectExplorerPlugin::openNewProjectDialog(); });
 
         auto openButton = new WelcomePageButton(this);
-        openButton->setText(ProjectWelcomePage::tr("Open Project"));
+        openButton->setText(ProjectWelcomePage::tr("Open"));
         openButton->setIcon(pixmap("open", Theme::Welcome_ForegroundSecondaryColor));
         openButton->setOnClicked([] { ProjectExplorerPlugin::openOpenProjectDialog(); });
 
@@ -552,7 +558,7 @@ public:
 
         auto recentProjectsLabel = new QLabel(this);
         recentProjectsLabel->setFont(sizedFont(16, this));
-        recentProjectsLabel->setText(ProjectWelcomePage::tr("Recent Projects"));
+        recentProjectsLabel->setText(ProjectWelcomePage::tr("Projects"));
 
         auto sessionsList = new TreeView(this);
         sessionsList->setModel(projectWelcomePage->m_sessionModel);
@@ -568,11 +574,17 @@ public:
 
         auto hbox11 = new QHBoxLayout;
         hbox11->setContentsMargins(0, 0, 0, 0);
-        hbox11->addWidget(newButton);
+        hbox11->addWidget(sessionsLabel);
+        hbox11->addSpacing(16);
+        hbox11->addWidget(manageSessionsButton);
         hbox11->addStretch(1);
 
         auto hbox21 = new QHBoxLayout;
         hbox21->setContentsMargins(0, 0, 0, 0);
+        hbox21->addWidget(recentProjectsLabel);
+        hbox21->addSpacing(16);
+        hbox21->addWidget(newButton);
+        hbox21->addSpacing(16);
         hbox21->addWidget(openButton);
         hbox21->addStretch(1);
 
@@ -581,16 +593,13 @@ public:
         vbox1->addStrut(200);
         vbox1->addItem(hbox11);
         vbox1->addSpacing(16);
-        vbox1->addWidget(sessionsLabel);
-        vbox1->addSpacing(21);
         vbox1->addWidget(sessionsList);
 
         auto vbox2 = new QVBoxLayout;
         vbox2->setContentsMargins(0, 0, 0, 0);
+        vbox1->addStrut(200);
         vbox2->addItem(hbox21);
         vbox2->addSpacing(16);
-        vbox2->addWidget(recentProjectsLabel);
-        vbox2->addSpacing(21);
         vbox2->addWidget(projectsList);
 
         auto hbox = new QHBoxLayout(this);

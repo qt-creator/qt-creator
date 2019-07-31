@@ -163,6 +163,7 @@ public:
 
     static QThreadPool *sharedThreadPool();
 
+    static void showSessionManager();
     static void openNewProjectDialog();
     static void openOpenProjectDialog();
 

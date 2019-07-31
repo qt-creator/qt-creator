@@ -1899,6 +1899,11 @@ ExtensionSystem::IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     return AsynchronousShutdown;
 }
 
+void ProjectExplorerPlugin::showSessionManager()
+{
+    dd->showSessionManager();
+}
+
 void ProjectExplorerPlugin::openNewProjectDialog()
 {
     if (!ICore::isNewItemDialogRunning()) {
