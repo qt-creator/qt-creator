@@ -32,6 +32,8 @@
 
 #include "resizehandleitem.h"
 
+#include <utils/algorithm.h>
+
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QAction>
@@ -341,28 +343,20 @@ void MoveTool::beginWithPoint(const QPointF &beginPoint)
     m_moveManipulator.begin(beginPoint);
 }
 
-
-
-QList<FormEditorItem*> movalbeItems(const QList<FormEditorItem*> &itemList)
+static QList<FormEditorItem *> movableItems(const QList<FormEditorItem *> &itemList)
 {
-    QList<FormEditorItem*> filteredItemList(itemList);
-
-    QMutableListIterator<FormEditorItem*> listIterator(filteredItemList);
-    while (listIterator.hasNext()) {
-        FormEditorItem *item = listIterator.next();
-        if (!item->qmlItemNode().isValid()
-                || !item->qmlItemNode().instanceIsMovable()
-                || !item->qmlItemNode().modelIsMovable()
-                || item->qmlItemNode().instanceIsInLayoutable())
-            listIterator.remove();
-    }
-
-    return filteredItemList;
+    return Utils::filtered(itemList, [](FormEditorItem *item) {
+        const QmlItemNode node = item->qmlItemNode();
+        return node.isValid()
+            && node.instanceIsMovable()
+            && node.modelIsMovable()
+            && !node.instanceIsInLayoutable();
+    });
 }
 
 QList<FormEditorItem*> MoveTool::movingItems(const QList<FormEditorItem*> &selectedItemList)
 {
-    QList<FormEditorItem*> filteredItemList = movalbeItems(selectedItemList);
+    QList<FormEditorItem*> filteredItemList = movableItems(selectedItemList);
 
     FormEditorItem* ancestorItem = ancestorIfOtherItemsAreChild(filteredItemList);
 
