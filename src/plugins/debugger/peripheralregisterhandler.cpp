@@ -167,7 +167,7 @@ QString PeripheralRegisterField::bitRangeString() const
 {
     const int from = bitOffset;
     const int to = bitOffset + bitWidth - 1;
-    return PeripheralRegisterHandler::tr("[%1..%2]").arg(from).arg(to);
+    return PeripheralRegisterHandler::tr("[%1..%2]").arg(to).arg(from);
 }
 
 QString PeripheralRegisterField::bitValueString(quint64 regValue) const
