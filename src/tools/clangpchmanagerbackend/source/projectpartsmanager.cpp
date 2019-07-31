@@ -25,7 +25,11 @@
 
 #include "projectpartsmanager.h"
 
+#include <builddependenciesproviderinterface.h>
+#include <filecontainerv2.h>
+#include <filepathcachinginterface.h>
 #include <projectpartcontainer.h>
+#include <set_algorithm.h>
 
 #include <algorithm>
 
@@ -44,38 +48,171 @@ ProjectPartIds toProjectPartIds(const ProjectPartContainers &projectsParts)
     return ids;
 }
 
-ProjectPartsManager::UpToDataProjectParts ProjectPartsManager::update(ProjectPartContainers &&projectsParts)
+namespace {
+
+enum class Change { System, Project, No };
+
+Change changedSourceType(const SourceEntries &sources)
 {
-    auto notUpToDateProjectParts = filterProjectParts(projectsParts, m_projectParts);
-
-    if (notUpToDateProjectParts.empty())
-        return {std::move(projectsParts), {}};
-
-    auto persistentProjectParts = m_projectPartsStorage.fetchProjectParts(
-        toProjectPartIds(notUpToDateProjectParts));
-
-    if (persistentProjectParts.size() > 0) {
-        mergeProjectParts(persistentProjectParts);
-
-        notUpToDateProjectParts = filterProjectParts(notUpToDateProjectParts, persistentProjectParts);
-
-        if (notUpToDateProjectParts.empty())
-            return {};
+    Change change = Change::No;
+    for (SourceEntry sourceEntry : sources) {
+        switch (sourceEntry.sourceType) {
+        case SourceType::SystemInclude:
+        case SourceType::TopSystemInclude:
+            return Change::System;
+        case SourceType::ProjectInclude:
+        case SourceType::TopProjectInclude:
+            change = Change::Project;
+            break;
+        case SourceType::Source:
+        case SourceType::UserInclude:
+            break;
+        }
     }
 
-    m_projectPartsStorage.updateProjectParts(notUpToDateProjectParts);
-    m_projectPartsStorage.resetIndexingTimeStamps(notUpToDateProjectParts);
-    m_precompiledHeaderStorage.deleteProjectPrecompiledHeaders(
-        toProjectPartIds(notUpToDateProjectParts));
-
-    mergeProjectParts(notUpToDateProjectParts);
-
-    auto upToDateProjectParts = filterProjectParts(projectsParts, notUpToDateProjectParts);
-
-    return {upToDateProjectParts, notUpToDateProjectParts};
+    return change;
 }
 
-void ProjectPartsManager::remove(const ProjectPartIds &projectPartIds)
+} // namespace
+
+ProjectPartsManager::UpToDataProjectParts ProjectPartsManager::update(ProjectPartContainers &&projectsParts)
+{
+    auto updateSystemProjectParts = filterProjectParts(projectsParts, m_projectParts);
+
+    if (!updateSystemProjectParts.empty()) {
+        auto persistentProjectParts = m_projectPartsStorage.fetchProjectParts(
+            toProjectPartIds(updateSystemProjectParts));
+
+        if (persistentProjectParts.size() > 0) {
+            mergeProjectParts(persistentProjectParts);
+
+            updateSystemProjectParts = filterProjectParts(updateSystemProjectParts,
+                                                          persistentProjectParts);
+        }
+
+        if (updateSystemProjectParts.size()) {
+            m_projectPartsStorage.updateProjectParts(updateSystemProjectParts);
+
+            mergeProjectParts(updateSystemProjectParts);
+        }
+    }
+
+    auto upToDateProjectParts = filterProjectParts(projectsParts, updateSystemProjectParts);
+
+    auto updates = checkDependeciesAndTime(std::move(upToDateProjectParts),
+                                           std::move(updateSystemProjectParts));
+
+    if (updates.updateSystem.size()) {
+        m_projectPartsStorage.resetIndexingTimeStamps(updates.updateSystem);
+        m_precompiledHeaderStorage.deleteSystemAndProjectPrecompiledHeaders(
+            toProjectPartIds(updates.updateSystem));
+    }
+    if (updates.updateProject.size()) {
+        m_projectPartsStorage.resetIndexingTimeStamps(updates.updateProject);
+        m_precompiledHeaderStorage.deleteProjectPrecompiledHeaders(
+            toProjectPartIds(updates.updateProject));
+    }
+
+    return updates;
+}
+
+ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDependeciesAndTime(
+    ProjectPartContainers &&upToDateProjectParts, ProjectPartContainers &&updateSystemProjectParts)
+{
+    ProjectPartContainerReferences changeProjectParts;
+    changeProjectParts.reserve(upToDateProjectParts.size());
+
+    ProjectPartContainers updateProjectProjectParts;
+    updateProjectProjectParts.reserve(upToDateProjectParts.size());
+
+    updateSystemProjectParts.reserve(updateProjectProjectParts.size() + upToDateProjectParts.size());
+
+    auto systemSplit = updateSystemProjectParts.end();
+
+    for (ProjectPartContainer &projectPart : upToDateProjectParts) {
+        auto oldSources = m_buildDependenciesProvider.createSourceEntriesFromStorage(
+            projectPart.sourcePathIds, projectPart.projectPartId);
+
+        BuildDependency buildDependency = m_buildDependenciesProvider.create(projectPart,
+                                                                             Utils::clone(oldSources));
+
+        auto newSources = buildDependency.sources;
+
+        SourceEntries updatedSourceTyes;
+        updatedSourceTyes.reserve(newSources.size());
+
+        std::set_symmetric_difference(newSources.begin(),
+                                      newSources.end(),
+                                      oldSources.begin(),
+                                      oldSources.end(),
+                                      std::back_inserter(updatedSourceTyes),
+                                      [](SourceEntry first, SourceEntry second) {
+                                          return std::tie(first.sourceId, first.sourceType)
+                                                 < std::tie(second.sourceId, second.sourceType);
+                                      });
+
+        auto change = changedSourceType(updatedSourceTyes);
+
+        switch (change) {
+        case Change::Project:
+            updateProjectProjectParts.emplace_back(std::move(projectPart));
+            projectPart.projectPartId = -1;
+            break;
+        case Change::System:
+            updateSystemProjectParts.emplace_back(std::move(projectPart));
+            projectPart.projectPartId = -1;
+            break;
+        case Change::No:
+            break;
+        }
+
+        if (change == Change::No) {
+            SourceEntries updatedTimeStamps;
+            updatedTimeStamps.reserve(newSources.size());
+
+            std::set_difference(newSources.begin(),
+                                newSources.end(),
+                                oldSources.begin(),
+                                oldSources.end(),
+                                std::back_inserter(updatedTimeStamps),
+                                [](SourceEntry first, SourceEntry second) {
+                                    return std::tie(first.sourceId, first.timeStamp)
+                                           < std::tie(second.sourceId, second.timeStamp);
+                                });
+
+            auto change = changedSourceType(updatedTimeStamps);
+
+            switch (change) {
+            case Change::Project:
+                updateProjectProjectParts.emplace_back(std::move(projectPart));
+                projectPart.projectPartId = -1;
+                break;
+            case Change::System:
+                updateSystemProjectParts.emplace_back(std::move(projectPart));
+                projectPart.projectPartId = -1;
+                break;
+            case Change::No:
+                break;
+            }
+        }
+    }
+
+    std::inplace_merge(updateSystemProjectParts.begin(), systemSplit, updateSystemProjectParts.end());
+    upToDateProjectParts.erase(std::remove_if(upToDateProjectParts.begin(),
+                                              upToDateProjectParts.end(),
+                                              [](const ProjectPartContainer &projectPart) {
+                                                  return !projectPart.projectPartId.isValid();
+                                              }),
+                               upToDateProjectParts.end());
+
+    return {std::move(upToDateProjectParts),
+            std::move(updateSystemProjectParts),
+            updateProjectProjectParts};
+}
+
+namespace {
+ProjectPartContainers removed(ProjectPartContainers &&projectParts,
+                              const ProjectPartIds &projectPartIds)
 {
     ProjectPartContainers projectPartsWithoutIds;
 
@@ -99,14 +236,22 @@ void ProjectPartsManager::remove(const ProjectPartIds &projectPartIds)
         }
     };
 
-    std::set_difference(std::make_move_iterator(m_projectParts.begin()),
-                        std::make_move_iterator(m_projectParts.end()),
+    std::set_difference(std::make_move_iterator(projectParts.begin()),
+                        std::make_move_iterator(projectParts.end()),
                         projectPartIds.begin(),
                         projectPartIds.end(),
                         std::back_inserter(projectPartsWithoutIds),
                         Compare{});
 
-    m_projectParts = std::move(projectPartsWithoutIds);
+    return projectPartsWithoutIds;
+}
+} // namespace
+
+void ProjectPartsManager::remove(const ProjectPartIds &projectPartIds)
+{
+    m_projectParts = removed(std::move(m_projectParts), projectPartIds);
+    m_systemDeferredProjectParts = removed(std::move(m_systemDeferredProjectParts), projectPartIds);
+    m_projectDeferredProjectParts = removed(std::move(m_projectDeferredProjectParts), projectPartIds);
 }
 
 ProjectPartContainers ProjectPartsManager::projects(const ProjectPartIds &projectPartIds) const
@@ -143,38 +288,42 @@ ProjectPartContainers ProjectPartsManager::projects(const ProjectPartIds &projec
     return projectPartsWithIds;
 }
 
-void ProjectPartsManager::updateDeferred(const ProjectPartContainers &deferredProjectsParts)
+namespace {
+ProjectPartContainers merge(ProjectPartContainers &&newProjectParts,
+                            ProjectPartContainers &&oldProjectParts)
 {
-    ProjectPartContainerReferences deferredProjectPartPointers;
-    deferredProjectPartPointers.reserve(deferredProjectsParts.size());
+    ProjectPartContainers mergedProjectParts;
+    mergedProjectParts.reserve(newProjectParts.size() + oldProjectParts.size());
 
-    std::set_intersection(m_projectParts.begin(),
-                          m_projectParts.end(),
-                          deferredProjectsParts.begin(),
-                          deferredProjectsParts.end(),
-                          std::back_inserter(deferredProjectPartPointers),
-                          [](const ProjectPartContainer &first, const ProjectPartContainer &second) {
-                              return first.projectPartId < second.projectPartId;
-                          });
+    std::set_union(std::make_move_iterator(newProjectParts.begin()),
+                   std::make_move_iterator(newProjectParts.end()),
+                   std::make_move_iterator(oldProjectParts.begin()),
+                   std::make_move_iterator(oldProjectParts.end()),
+                   std::back_inserter(mergedProjectParts),
+                   [](const ProjectPartContainer &first, const ProjectPartContainer &second) {
+                       return first.projectPartId < second.projectPartId;
+                   });
 
-    for (ProjectPartContainer &projectPart : deferredProjectPartPointers)
-        projectPart.updateIsDeferred = true;
+    return mergedProjectParts;
+}
+} // namespace
+
+void ProjectPartsManager::updateDeferred(ProjectPartContainers &&system,
+                                         ProjectPartContainers &&project)
+{
+    m_systemDeferredProjectParts = merge(std::move(system), std::move(m_systemDeferredProjectParts));
+    m_projectDeferredProjectParts = merge(std::move(project),
+                                          std::move(m_projectDeferredProjectParts));
 }
 
-ProjectPartContainers ProjectPartsManager::deferredUpdates()
+ProjectPartContainers ProjectPartsManager::deferredSystemUpdates()
 {
-    ProjectPartContainers deferredProjectParts;
-    deferredProjectParts.reserve(m_projectParts.size());
+    return std::move(m_systemDeferredProjectParts);
+}
 
-    std::copy_if(m_projectParts.cbegin(),
-                 m_projectParts.cend(),
-                 std::back_inserter(deferredProjectParts),
-                 [](const ProjectPartContainer &projectPart) { return projectPart.updateIsDeferred; });
-
-    for (ProjectPartContainer &projectPart : m_projectParts)
-        projectPart.updateIsDeferred = false;
-
-    return deferredProjectParts;
+ProjectPartContainers ProjectPartsManager::deferredProjectUpdates()
+{
+    return std::move(m_projectDeferredProjectParts);
 }
 
 ProjectPartContainers ProjectPartsManager::filterProjectParts(

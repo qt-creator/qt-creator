@@ -117,16 +117,7 @@ public:
         push_back(std::move(string));
     }
 
-    BasicSmallStringVector clone() const
-    {
-        BasicSmallStringVector clonedVector;
-        clonedVector.reserve(Base::size());
-
-        for (auto &&entry : *this)
-            clonedVector.push_back(entry.clone());
-
-        return clonedVector;
-    }
+    BasicSmallStringVector clone() const { return *this; }
 
     operator std::vector<std::string>() const
     {

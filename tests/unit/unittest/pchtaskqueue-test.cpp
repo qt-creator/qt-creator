@@ -47,7 +47,7 @@ class PchTaskQueue : public testing::Test
 protected:
     NiceMock<MockTaskScheduler<ClangBackEnd::PchTaskQueue::Task>> mockSytemPchTaskScheduler;
     NiceMock<MockTaskScheduler<ClangBackEnd::PchTaskQueue::Task>> mockProjectPchTaskScheduler;
-    MockPrecompiledHeaderStorage mockPrecompiledHeaderStorage;
+    NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
     MockSqliteTransactionBackend mockSqliteTransactionBackend;
     NiceMock<MockFunction<void(int, int)>> mockSetProgressCallback;
     ClangBackEnd::ProgressCounter progressCounter{mockSetProgressCallback.AsStdFunction()};

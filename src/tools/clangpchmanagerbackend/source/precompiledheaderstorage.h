@@ -125,6 +125,20 @@ public:
         }
     }
 
+    void deleteSystemAndProjectPrecompiledHeaders(const ProjectPartIds &projectPartIds) override
+    {
+        try {
+            Sqlite::ImmediateTransaction transaction{database};
+
+            for (ProjectPartId projectPartId : projectPartIds)
+                deleteSystemAndProjectPrecompiledHeaderStatement.write(projectPartId.projectPathId);
+
+            transaction.commit();
+        } catch (const Sqlite::StatementIsBusy) {
+            deleteSystemAndProjectPrecompiledHeaders(projectPartIds);
+        }
+    }
+
     FilePath fetchSystemPrecompiledHeaderPath(ProjectPartId projectPartId) override
     {
         try {
@@ -228,6 +242,11 @@ public:
         database};
     WriteStatement deleteSystemPrecompiledHeaderStatement{
         "UPDATE OR IGNORE precompiledHeaders SET systemPchPath=NULL,systemPchBuildTime=NULL "
+        "WHERE projectPartId = ?",
+        database};
+    WriteStatement deleteSystemAndProjectPrecompiledHeaderStatement{
+        "UPDATE OR IGNORE precompiledHeaders SET "
+        "systemPchPath=NULL,systemPchBuildTime=NULL,projectPchPath=NULL,projectPchBuildTime=NULL "
         "WHERE projectPartId = ?",
         database};
     ReadStatement fetchSystemPrecompiledHeaderPathStatement{

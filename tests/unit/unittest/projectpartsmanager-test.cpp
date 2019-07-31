@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "googletest.h"
+#include "mockbuilddependenciesprovider.h"
+#include "mockfilepathcaching.h"
+#include "mockgeneratedfiles.h"
 #include "mockprecompiledheaderstorage.h"
 #include "mockprojectpartsstorage.h"
 
@@ -37,6 +40,8 @@ using ClangBackEnd::FilePathId;
 using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::ProjectPartContainers;
 using UpToDataProjectParts = ClangBackEnd::ProjectPartsManagerInterface::UpToDataProjectParts;
+using ClangBackEnd::SourceEntries;
+using ClangBackEnd::SourceType;
 
 class ProjectPartsManager : public testing::Test
 {
@@ -47,8 +52,10 @@ protected:
     }
     NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
     NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
-
-    ClangBackEnd::ProjectPartsManager manager{mockProjectPartsStorage, mockPrecompiledHeaderStorage};
+    NiceMock<MockBuildDependenciesProvider> mockBuildDependenciesProvider;
+    ClangBackEnd::ProjectPartsManager manager{mockProjectPartsStorage,
+                                              mockPrecompiledHeaderStorage,
+                                              mockBuildDependenciesProvider};
     FilePathId firstHeader{1};
     FilePathId secondHeader{2};
     FilePathId firstSource{11};
@@ -101,13 +108,36 @@ protected:
         2,
         {"-DUNIX", "-O2"},
         {{"DEFINE", "1", 1}},
-        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::System}},
         {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
-        {firstHeader, secondHeader},
-        {firstSource, secondSource},
-        Utils::Language::C,
-        Utils::LanguageVersion::C11,
+        {firstHeader},
+        {firstSource},
+        Utils::Language::Cxx,
+        Utils::LanguageVersion::CXX14,
         Utils::LanguageExtension::All};
+    ProjectPartContainer projectPartContainer3{
+        3,
+        {"-DUNIX", "-O2"},
+        {{"DEFINE", "1", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::Framework}},
+        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {secondHeader},
+        {firstSource},
+        Utils::Language::C,
+        Utils::LanguageVersion::C18,
+        Utils::LanguageExtension::All};
+    ProjectPartContainer projectPartContainer4{
+        4,
+        {"-DUNIX", "-O2"},
+        {{"DEFINE", "1", 1}},
+        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {firstHeader},
+        {firstSource},
+        Utils::Language::Cxx,
+        Utils::LanguageVersion::CXX03,
+        Utils::LanguageExtension::All};
+    ClangBackEnd::V2::FileContainers generatedFiles;
 };
 
 TEST_F(ProjectPartsManager, GetNoProjectPartsForAddingEmptyProjectParts)
@@ -116,7 +146,7 @@ TEST_F(ProjectPartsManager, GetNoProjectPartsForAddingEmptyProjectParts)
 
     ASSERT_THAT(projectParts,
                 AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
-                      Field(&UpToDataProjectParts::notUpToDate, IsEmpty())));
+                      Field(&UpToDataProjectParts::updateSystem, IsEmpty())));
 }
 
 TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPart)
@@ -125,7 +155,7 @@ TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPart)
 
     ASSERT_THAT(projectParts,
                 AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
-                      Field(&UpToDataProjectParts::notUpToDate, ElementsAre(projectPartContainer1))));
+                      Field(&UpToDataProjectParts::updateSystem, ElementsAre(projectPartContainer1))));
 }
 
 TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPartWithProjectPartAlreadyInTheDatabase)
@@ -137,7 +167,7 @@ TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPartWithProjectPartAlr
 
     ASSERT_THAT(projectParts,
                 AllOf(Field(&UpToDataProjectParts::upToDate, ElementsAre(projectPartContainer1)),
-                      Field(&UpToDataProjectParts::notUpToDate, ElementsAre(projectPartContainer2))));
+                      Field(&UpToDataProjectParts::updateSystem, ElementsAre(projectPartContainer2))));
 }
 
 TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPartWithOlderProjectPartAlreadyInTheDatabase)
@@ -149,7 +179,7 @@ TEST_F(ProjectPartsManager, GetProjectPartForAddingProjectPartWithOlderProjectPa
 
     ASSERT_THAT(projectParts,
                 AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
-                      Field(&UpToDataProjectParts::notUpToDate,
+                      Field(&UpToDataProjectParts::updateSystem,
                             ElementsAre(updatedProjectPartContainer1, projectPartContainer2))));
 }
 
@@ -198,7 +228,7 @@ TEST_F(ProjectPartsManager, DoNotUpdateNotNewProjectPart)
 
     ASSERT_THAT(projectParts,
                 AllOf(Field(&UpToDataProjectParts::upToDate, ElementsAre(projectPartContainer1)),
-                      Field(&UpToDataProjectParts::notUpToDate, IsEmpty())));
+                      Field(&UpToDataProjectParts::updateSystem, IsEmpty())));
 }
 
 TEST_F(ProjectPartsManager, NoDuplicateProjectPartAfterUpdatingWithNotNewProjectPart)
@@ -242,7 +272,7 @@ TEST_F(ProjectPartsManager, GetUpdatedProjectPart)
 
     ASSERT_THAT(projectParts,
                 AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
-                      Field(&UpToDataProjectParts::notUpToDate,
+                      Field(&UpToDataProjectParts::updateSystem,
                             ElementsAre(updatedProjectPartContainer1))));
 }
 
@@ -265,6 +295,24 @@ TEST_F(ProjectPartsManager, Remove)
     ASSERT_THAT(manager.projectParts(), ElementsAre(projectPartContainer2));
 }
 
+TEST_F(ProjectPartsManager, RemoveSystemDeferred)
+{
+    manager.updateDeferred({projectPartContainer1, projectPartContainer2}, {});
+
+    manager.remove({projectPartContainer1.projectPartId});
+
+    ASSERT_THAT(manager.deferredSystemUpdates(), ElementsAre(projectPartContainer2));
+}
+
+TEST_F(ProjectPartsManager, RemoveProjectDeferred)
+{
+    manager.updateDeferred({}, {projectPartContainer1, projectPartContainer2});
+
+    manager.remove({projectPartContainer1.projectPartId});
+
+    ASSERT_THAT(manager.deferredProjectUpdates(), ElementsAre(projectPartContainer2));
+}
+
 TEST_F(ProjectPartsManager, GetProjectById)
 {
     manager.update({projectPartContainer1, projectPartContainer2});
@@ -284,40 +332,84 @@ TEST_F(ProjectPartsManager, GetProjectsByIds)
     ASSERT_THAT(projectPartContainers, UnorderedElementsAre(projectPartContainer1, projectPartContainer2));
 }
 
-TEST_F(ProjectPartsManager, UpdateDeferred)
+TEST_F(ProjectPartsManager, UpdateSystemDeferred)
 {
-    auto projectPartContainers = manager.update({projectPartContainer1, projectPartContainer2});
+    manager.updateDeferred({projectPartContainer1}, {});
 
-    manager.updateDeferred({projectPartContainer1});
-
-    ASSERT_THAT(manager.deferredUpdates(), ElementsAre(projectPartContainer1));
+    ASSERT_THAT(manager.deferredSystemUpdates(), ElementsAre(projectPartContainer1));
 }
 
-TEST_F(ProjectPartsManager, NotUpdateDeferred)
+TEST_F(ProjectPartsManager, UpdateProjectDeferred)
 {
-    manager.update({projectPartContainer1, projectPartContainer2});
+    manager.updateDeferred({}, {projectPartContainer1});
 
-    ASSERT_THAT(manager.deferredUpdates(), IsEmpty());
+    ASSERT_THAT(manager.deferredProjectUpdates(), ElementsAre(projectPartContainer1));
 }
 
-TEST_F(ProjectPartsManager, UpdateDeferredCleansDeferredUpdates)
+TEST_F(ProjectPartsManager, NotUpdateSystemDeferred)
 {
-    manager.update({projectPartContainer1, projectPartContainer2});
-    manager.updateDeferred({projectPartContainer1});
-
-    manager.deferredUpdates();
-
-    ASSERT_THAT(manager.deferredUpdates(), IsEmpty());
+    ASSERT_THAT(manager.deferredSystemUpdates(), IsEmpty());
 }
 
+TEST_F(ProjectPartsManager, NotUpdateProjectDeferred)
+{
+    ASSERT_THAT(manager.deferredProjectUpdates(), IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, UpdateSystemDeferredCleansDeferredUpdates)
+{
+    manager.updateDeferred({projectPartContainer1}, {});
+
+    manager.deferredSystemUpdates();
+
+    ASSERT_THAT(manager.deferredSystemUpdates(), IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, UpdateProjectDeferredCleansDeferredUpdates)
+{
+    manager.updateDeferred({}, {projectPartContainer1});
+
+    manager.deferredProjectUpdates();
+
+    ASSERT_THAT(manager.deferredProjectUpdates(), IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, UpdateSystemDeferredMultiple)
+{
+    manager.updateDeferred({projectPartContainer1, projectPartContainer3}, {});
+
+    manager.updateDeferred({updatedProjectPartContainer1, projectPartContainer2, projectPartContainer4},
+                           {});
+
+    ASSERT_THAT(manager.deferredSystemUpdates(),
+                ElementsAre(updatedProjectPartContainer1,
+                            projectPartContainer2,
+                            projectPartContainer3,
+                            projectPartContainer4));
+}
+
+TEST_F(ProjectPartsManager, UpdateProjectDeferredMultiple)
+{
+    manager.updateDeferred({}, {projectPartContainer1, projectPartContainer3});
+
+    manager.updateDeferred({},
+                           {updatedProjectPartContainer1, projectPartContainer2, projectPartContainer4});
+
+    ASSERT_THAT(manager.deferredProjectUpdates(),
+                ElementsAre(updatedProjectPartContainer1,
+                            projectPartContainer2,
+                            projectPartContainer3,
+                            projectPartContainer4));
+}
 TEST_F(ProjectPartsManager, UpdateCallsIfNewProjectPartIsAdded)
 {
     EXPECT_CALL(mockProjectPartsStorage,
                 fetchProjectParts(ElementsAre(Eq(projectPartContainer1.projectPartId))));
     EXPECT_CALL(mockProjectPartsStorage, updateProjectParts(ElementsAre(projectPartContainer1)));
-    EXPECT_CALL(mockPrecompiledHeaderStorage,
-                deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)));
     EXPECT_CALL(mockProjectPartsStorage, resetIndexingTimeStamps(ElementsAre(projectPartContainer1)));
+    EXPECT_CALL(mockPrecompiledHeaderStorage,
+                deleteSystemAndProjectPrecompiledHeaders(
+                    ElementsAre(projectPartContainer1.projectPartId)));
 
     manager.update({projectPartContainer1});
 }
@@ -348,6 +440,19 @@ TEST_F(ProjectPartsManager, UpdateCallsNotDeleteProjectPrecompiledHeadersIfNoNew
 
     EXPECT_CALL(mockPrecompiledHeaderStorage,
                 deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)))
+        .Times(0);
+
+    manager.update({projectPartContainer1});
+}
+
+TEST_F(ProjectPartsManager,
+       UpdateCallsNotDeleteSystemAndProjectPrecompiledHeadersIfNoNewerProjectPartsExists)
+{
+    manager.update({projectPartContainer1});
+
+    EXPECT_CALL(mockPrecompiledHeaderStorage,
+                deleteSystemAndProjectPrecompiledHeaders(
+                    ElementsAre(projectPartContainer1.projectPartId)))
         .Times(0);
 
     manager.update({projectPartContainer1});
@@ -388,7 +493,8 @@ TEST_F(ProjectPartsManager, UpdateCallsIfUpdatedProjectPartIsAdded)
     EXPECT_CALL(mockProjectPartsStorage,
                 updateProjectParts(ElementsAre(updatedProjectPartContainer1)));
     EXPECT_CALL(mockPrecompiledHeaderStorage,
-                deleteProjectPrecompiledHeaders(ElementsAre(projectPartContainer1.projectPartId)));
+                deleteSystemAndProjectPrecompiledHeaders(
+                    ElementsAre(projectPartContainer1.projectPartId)));
     EXPECT_CALL(mockProjectPartsStorage,
                 resetIndexingTimeStamps(ElementsAre(updatedProjectPartContainer1)));
 
@@ -405,7 +511,7 @@ TEST_F(ProjectPartsManager,
 
     ASSERT_THAT(projectParts,
                 AllOf(Field(&UpToDataProjectParts::upToDate, IsEmpty()),
-                      Field(&UpToDataProjectParts::notUpToDate, ElementsAre(projectPartContainer1))));
+                      Field(&UpToDataProjectParts::updateSystem, ElementsAre(projectPartContainer1))));
 }
 
 TEST_F(ProjectPartsManager, ProjectPartAddedWithProjectPartAlreadyInTheDatabaseButWithoutEntries)
@@ -416,6 +522,314 @@ TEST_F(ProjectPartsManager, ProjectPartAddedWithProjectPartAlreadyInTheDatabaseB
     manager.update({projectPartContainer1});
 
     ASSERT_THAT(manager.projectParts(), ElementsAre(projectPartContainer1));
+}
+
+TEST_F(ProjectPartsManager, SystemSourcesTimeChanged)
+{
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100},
+                             {2, SourceType::ProjectInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 101},
+                             {2, SourceType::ProjectInclude, 101}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateSystem, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, TopSystemSourcesTimeChanged)
+{
+    SourceEntries oldSources{{1, SourceType::TopSystemInclude, 100},
+                             {2, SourceType::ProjectInclude, 100}};
+    SourceEntries newSources{{1, SourceType::TopSystemInclude, 101},
+                             {2, SourceType::ProjectInclude, 101}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateSystem, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, ProjectSourcesTimeChanged)
+{
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100},
+                             {2, SourceType::ProjectInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 100},
+                             {2, SourceType::ProjectInclude, 101}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateProject, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateSystem, IsEmpty());
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, TopProjectSourcesTimeChanged)
+{
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100},
+                             {2, SourceType::TopProjectInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 100},
+                             {2, SourceType::TopProjectInclude, 101}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateProject, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateSystem, IsEmpty());
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, UserIncludeSourcesTimeChanged)
+{
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100}, {2, SourceType::UserInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 100}, {2, SourceType::UserInclude, 101}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.upToDate, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+    ASSERT_THAT(upToDate.updateSystem, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, SourcesTimeChanged)
+{
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100}, {2, SourceType::Source, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 100}, {2, SourceType::Source, 101}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.upToDate, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+    ASSERT_THAT(upToDate.updateSystem, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, SourcesTimeNotChanged)
+{
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 100}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.upToDate, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateSystem, IsEmpty());
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, TimeChangedForOneProject)
+{
+    manager.update({projectPartContainer1, projectPartContainer2});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(SourceEntries{{1, SourceType::SystemInclude, 100}}));
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer2.sourcePathIds),
+                                           Eq(projectPartContainer2.projectPartId)))
+        .WillByDefault(Return(SourceEntries{{4, SourceType::SystemInclude, 100}}));
+    ON_CALL(mockBuildDependenciesProvider,
+            create(Eq(projectPartContainer1), Eq(SourceEntries{{1, SourceType::SystemInclude, 100}})))
+        .WillByDefault(Return(
+            ClangBackEnd::BuildDependency{{{1, SourceType::SystemInclude, 101}}, {}, {}, {}, {}}));
+    ON_CALL(mockBuildDependenciesProvider,
+            create(Eq(projectPartContainer2), Eq(SourceEntries{{4, SourceType::SystemInclude, 100}})))
+        .WillByDefault(Return(
+            ClangBackEnd::BuildDependency{{{4, SourceType::SystemInclude, 100}}, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1, projectPartContainer2});
+
+    ASSERT_THAT(upToDate.updateSystem, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+    ASSERT_THAT(upToDate.upToDate, ElementsAre(projectPartContainer2));
+}
+
+TEST_F(ProjectPartsManager, AddSystemInclude)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 100}, {2, SourceType::SystemInclude, 100}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateSystem, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, ChangeFromProjectToSystemInclude)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::ProjectInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 100}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateSystem, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, ChangeFromSystemToProjectInclude)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100}};
+    SourceEntries newSources{{1, SourceType::ProjectInclude, 100}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateSystem, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, ChangeFromProjectToUserInclude)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::ProjectInclude, 100}};
+    SourceEntries newSources{{1, SourceType::UserInclude, 100}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateProject, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+    ASSERT_THAT(upToDate.updateSystem, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, ChangeFromSystemToUserInclude)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100}};
+    SourceEntries newSources{{1, SourceType::UserInclude, 100}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.updateSystem, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.upToDate, IsEmpty());
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, ChangeFromSourceToUserInclude)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::Source, 100}};
+    SourceEntries newSources{{1, SourceType::UserInclude, 100}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.upToDate, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateSystem, IsEmpty());
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, ChangeFromUserIncludeToSource)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::UserInclude, 100}};
+    SourceEntries newSources{{1, SourceType::Source, 100}};
+    manager.update({projectPartContainer1});
+    ON_CALL(mockBuildDependenciesProvider,
+            createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
+                                           Eq(projectPartContainer1.projectPartId)))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(Eq(projectPartContainer1), Eq(oldSources)))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    auto upToDate = manager.update({projectPartContainer1});
+
+    ASSERT_THAT(upToDate.upToDate, ElementsAre(projectPartContainer1));
+    ASSERT_THAT(upToDate.updateSystem, IsEmpty());
+    ASSERT_THAT(upToDate.updateProject, IsEmpty());
 }
 
 } // namespace

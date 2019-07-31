@@ -185,8 +185,12 @@ struct Data // because we have a cycle dependency
     ApplicationEnvironment environment;
     ProjectPartsStorage<> projectPartsStorage{database};
     PrecompiledHeaderStorage<> preCompiledHeaderStorage{database};
-    ProjectPartsManager projectParts{projectPartsStorage, preCompiledHeaderStorage};
     GeneratedFiles generatedFiles;
+    ProjectPartsManager projectParts{projectPartsStorage,
+                                     preCompiledHeaderStorage,
+                                     buildDependencyProvider,
+                                     filePathCache,
+                                     generatedFiles};
     PchCreatorManager pchCreatorManager{generatedFiles,
                                         environment,
                                         database,
@@ -227,7 +231,9 @@ struct Data // because we have a cycle dependency
                                            pchTaskGenerator,
                                            projectParts,
                                            generatedFiles,
-                                           buildDependencyStorage};
+                                           buildDependencyStorage/*,
+                                           buildDependencyProvider,
+                                           filePathCache*/};
     TaskScheduler systemTaskScheduler{pchCreatorManager,
                                       pchTaskQueue,
                                       pchCreationProgressCounter,

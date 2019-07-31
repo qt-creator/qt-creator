@@ -39,12 +39,21 @@ public:
     MOCK_CONST_METHOD1(
         projects,
         ClangBackEnd::ProjectPartContainers(const ClangBackEnd::ProjectPartIds &projectPartIds));
-    MOCK_METHOD1(updateDeferred, void(const ClangBackEnd::ProjectPartContainers &projectsParts));
-    MOCK_METHOD0(deferredUpdates, ClangBackEnd::ProjectPartContainers());
+    MOCK_METHOD2(updateDeferred,
+                 void(const ClangBackEnd::ProjectPartContainers &system,
+                      const ClangBackEnd::ProjectPartContainers &project));
+    MOCK_METHOD0(deferredSystemUpdates, ClangBackEnd::ProjectPartContainers());
+    MOCK_METHOD0(deferredProjectUpdates, ClangBackEnd::ProjectPartContainers());
 
     ClangBackEnd::ProjectPartsManagerInterface::UpToDataProjectParts update(
         ClangBackEnd::ProjectPartContainers &&projectsParts) override
     {
         return update(projectsParts);
+    }
+
+    void updateDeferred(ClangBackEnd::ProjectPartContainers &&system,
+                        ClangBackEnd::ProjectPartContainers &&project) override
+    {
+        return updateDeferred(system, project);
     }
 };

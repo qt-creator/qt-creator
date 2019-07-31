@@ -945,8 +945,8 @@ clone(const std::unordered_map<Key, Value, Hash, KeyEqual, Allocator> &map)
     return clonedMap;
 }
 
-template <typename Type>
-std::vector<Type> clone(const std::vector<Type> &vector)
+template<typename Type>
+Type clone(const Type &vector)
 {
     return vector;
 }

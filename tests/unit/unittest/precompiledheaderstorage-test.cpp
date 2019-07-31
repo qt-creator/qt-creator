@@ -48,6 +48,7 @@ protected:
         = storage.deleteProjectPrecompiledHeaderPathAndSetBuildTimeStatement;
     MockSqliteWriteStatement &insertSystemPrecompiledHeaderStatement = storage.insertSystemPrecompiledHeaderStatement;
     MockSqliteWriteStatement &deleteSystemPrecompiledHeaderStatement = storage.deleteSystemPrecompiledHeaderStatement;
+    MockSqliteWriteStatement &deleteSystemAndProjectPrecompiledHeaderStatement = storage.deleteSystemAndProjectPrecompiledHeaderStatement;
     MockSqliteReadStatement &fetchSystemPrecompiledHeaderPathStatement = storage.fetchSystemPrecompiledHeaderPathStatement;
     MockSqliteReadStatement &fetchPrecompiledHeaderStatement = storage.fetchPrecompiledHeaderStatement;
     MockSqliteReadStatement &fetchPrecompiledHeadersStatement = storage.fetchPrecompiledHeadersStatement;
@@ -203,6 +204,31 @@ TEST_F(PrecompiledHeaderStorage, DeleteSystemPrecompiledHeadersStatementIsBusy)
     EXPECT_CALL(database, commit());
 
     storage.deleteSystemPrecompiledHeaders({1, 2});
+}
+
+TEST_F(PrecompiledHeaderStorage, DeleteSystemAndProjectPrecompiledHeaders)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, immediateBegin());
+    EXPECT_CALL(deleteSystemAndProjectPrecompiledHeaderStatement, write(TypedEq<int>(1)));
+    EXPECT_CALL(deleteSystemAndProjectPrecompiledHeaderStatement, write(TypedEq<int>(2)));
+    EXPECT_CALL(database, commit());
+
+    storage.deleteSystemAndProjectPrecompiledHeaders({1, 2});
+}
+
+TEST_F(PrecompiledHeaderStorage, DeleteSystemAndProjectPrecompiledHeadersStatementIsBusy)
+{
+    InSequence s;
+
+    EXPECT_CALL(database, immediateBegin()).WillOnce(Throw(Sqlite::StatementIsBusy("busy")));
+    EXPECT_CALL(database, immediateBegin());
+    EXPECT_CALL(deleteSystemAndProjectPrecompiledHeaderStatement, write(TypedEq<int>(1)));
+    EXPECT_CALL(deleteSystemAndProjectPrecompiledHeaderStatement, write(TypedEq<int>(2)));
+    EXPECT_CALL(database, commit());
+
+    storage.deleteSystemAndProjectPrecompiledHeaders({1, 2});
 }
 
 TEST_F(PrecompiledHeaderStorage, CompilePrecompiledHeaderStatements)

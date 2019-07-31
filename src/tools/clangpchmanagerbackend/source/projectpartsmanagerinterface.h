@@ -36,7 +36,8 @@ public:
     {
     public:
         ProjectPartContainers upToDate;
-        ProjectPartContainers notUpToDate;
+        ProjectPartContainers updateSystem;
+        ProjectPartContainers updateProject;
     };
 
     ProjectPartsManagerInterface() = default;
@@ -46,8 +47,9 @@ public:
     virtual UpToDataProjectParts update(ProjectPartContainers &&projectsParts) = 0;
     virtual void remove(const ProjectPartIds &projectPartIds) = 0;
     virtual ProjectPartContainers projects(const ProjectPartIds &projectPartIds) const = 0;
-    virtual void updateDeferred(const ProjectPartContainers &projectsParts) = 0;
-    virtual ProjectPartContainers deferredUpdates() = 0;
+    virtual void updateDeferred(ProjectPartContainers &&system, ProjectPartContainers &&project) = 0;
+    virtual ProjectPartContainers deferredSystemUpdates() = 0;
+    virtual ProjectPartContainers deferredProjectUpdates() = 0;
 
 protected:
     ~ProjectPartsManagerInterface() = default;

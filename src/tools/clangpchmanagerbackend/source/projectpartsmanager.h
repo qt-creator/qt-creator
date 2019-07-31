@@ -35,32 +35,42 @@
 
 namespace ClangBackEnd {
 
+class BuildDependenciesProviderInterface;
+
 inline namespace Pch {
 
 class ProjectPartsManager final : public ProjectPartsManagerInterface
 {
 public:
     ProjectPartsManager(ProjectPartsStorageInterface &projectPartsStorage,
-                        PrecompiledHeaderStorageInterface &precompiledHeaderStorage)
+                        PrecompiledHeaderStorageInterface &precompiledHeaderStorage,
+                        BuildDependenciesProviderInterface &buildDependenciesProvider)
         : m_projectPartsStorage(projectPartsStorage)
         , m_precompiledHeaderStorage(precompiledHeaderStorage)
+        , m_buildDependenciesProvider(buildDependenciesProvider)
     {}
 
     UpToDataProjectParts update(ProjectPartContainers &&projectsParts) override;
     void remove(const ProjectPartIds &projectPartIds) override;
     ProjectPartContainers projects(const ProjectPartIds &projectPartIds) const override;
-    void updateDeferred(const ProjectPartContainers &projectsParts) override;
-    ProjectPartContainers deferredUpdates() override;
+    void updateDeferred(ProjectPartContainers &&system, ProjectPartContainers &&project) override;
+    ProjectPartContainers deferredSystemUpdates() override;
+    ProjectPartContainers deferredProjectUpdates() override;
 
     static ProjectPartContainers filterProjectParts(const ProjectPartContainers &newProjectsParts,
                                                     const ProjectPartContainers &oldProjectParts);
     void mergeProjectParts(const ProjectPartContainers &projectsParts);
     const ProjectPartContainers &projectParts() const;
+    UpToDataProjectParts checkDependeciesAndTime(ProjectPartContainers &&upToDateProjectParts,
+                                                 ProjectPartContainers &&updateSystemProjectParts);
 
 private:
     ProjectPartContainers m_projectParts;
+    ProjectPartContainers m_systemDeferredProjectParts;
+    ProjectPartContainers m_projectDeferredProjectParts;
     ProjectPartsStorageInterface &m_projectPartsStorage;
     PrecompiledHeaderStorageInterface &m_precompiledHeaderStorage;
+    BuildDependenciesProviderInterface &m_buildDependenciesProvider;
 };
 
 } // namespace Pch
