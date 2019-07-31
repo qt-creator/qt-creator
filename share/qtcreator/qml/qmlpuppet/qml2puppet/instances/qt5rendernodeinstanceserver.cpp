@@ -60,8 +60,6 @@
 
 #include <designersupportdelegate.h>
 
-#include <utils/algorithm.h>
-
 namespace QmlDesigner {
 
 Qt5RenderNodeInstanceServer::Qt5RenderNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -96,7 +94,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             clearChangedPropertyList();
 
             if (!m_dirtyInstanceSet.isEmpty()) {
-                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(Utils::toList(m_dirtyInstanceSet)));
+                nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(QtHelpers::toList(m_dirtyInstanceSet)));
                 m_dirtyInstanceSet.clear();
             }
 

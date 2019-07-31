@@ -67,8 +67,6 @@
 #include <tokencommand.h>
 #include <removesharedmemorycommand.h>
 
-#include <utils/algorithm.h>
-
 #include <QDebug>
 #include <QQmlEngine>
 #include <QQmlApplicationEngine>
@@ -460,7 +458,7 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
 
     delete m_importComponent.data();
     delete m_importComponentObject.data();
-    const QStringList importStatementList = Utils::toList(importStatementSet);
+    const QStringList importStatementList = QtHelpers::toList(importStatementSet);
     const QStringList fullImportStatementList(QStringList(qtQuickImport) + importStatementList);
 
     // check possible import statements combinations
