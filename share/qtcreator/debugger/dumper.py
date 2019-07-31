@@ -1994,14 +1994,16 @@ class DumperBase:
                                 with Children(self):
                                     self.putQObjectGutsHelper(0, 0, -1, metaObjectPtr, 'QMetaObject')
 
-                        with SubItem(self, '[connections]'):
+                        if False:
+                          with SubItem(self, '[connections]'):
                             if connectionListsPtr:
                                 typeName = '@QObjectConnectionListVector'
                                 self.putItem(self.createValue(connectionListsPtr, typeName))
                             else:
                                 self.putItemCount(0)
 
-                        with SubItem(self, '[signals]'):
+                        if False:
+                          with SubItem(self, '[signals]'):
                             self.putItemCount(signalCount)
                             if self.isExpanded():
                                 with Children(self):
