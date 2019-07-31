@@ -99,7 +99,7 @@ class QSSH_EXPORT SshConnection : public QObject
 public:
     enum State { Unconnected, Connecting, Connected, Disconnecting };
 
-    explicit SshConnection(const SshConnectionParameters &serverInfo, QObject *parent = 0);
+    explicit SshConnection(const SshConnectionParameters &serverInfo, QObject *parent = nullptr);
 
     void connectToHost();
     void disconnectFromHost();

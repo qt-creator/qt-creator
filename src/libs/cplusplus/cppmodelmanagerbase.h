@@ -40,7 +40,7 @@ class CPLUSPLUS_EXPORT CppModelManagerBase : public QObject
 {
     Q_OBJECT
 public:
-    CppModelManagerBase(QObject *parent = 0);
+    CppModelManagerBase(QObject *parent = nullptr);
     ~CppModelManagerBase();
 
     static CppModelManagerBase *instance();

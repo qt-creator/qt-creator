@@ -60,7 +60,7 @@ public:
     const Imports *imports(const Document *doc) const;
 
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName,
-                                  AST::UiQualifiedId *qmlTypeNameEnd = 0) const;
+                                  AST::UiQualifiedId *qmlTypeNameEnd = nullptr) const;
     const ObjectValue *lookupType(const Document *doc, const QStringList &qmlTypeName) const;
     const Value *lookupReference(const Value *value) const;
 

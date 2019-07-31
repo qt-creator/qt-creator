@@ -116,10 +116,10 @@ public:
     { return this; }
 
     virtual EnumeratorDeclaration *asEnumeratorDeclarator()
-    { return 0; }
+    { return nullptr; }
 
     virtual const EnumeratorDeclaration *asEnumeratorDeclarator() const
-    { return 0; }
+    { return nullptr; }
 
 protected:
     virtual void visitSymbol0(SymbolVisitor *visitor);
@@ -356,7 +356,7 @@ public:
     RefQualifier refQualifier() const;
     void setRefQualifier(RefQualifier refQualifier);
 
-    bool isSignatureEqualTo(const Function *other, Matcher *matcher = 0) const;
+    bool isSignatureEqualTo(const Function *other, Matcher *matcher = nullptr) const;
 
     bool isAmbiguous() const; // internal
     void setAmbiguous(bool isAmbiguous); // internal

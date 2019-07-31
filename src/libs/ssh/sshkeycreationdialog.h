@@ -37,7 +37,7 @@ class QSSH_EXPORT SshKeyCreationDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SshKeyCreationDialog(QWidget *parent = 0);
+    SshKeyCreationDialog(QWidget *parent = nullptr);
     ~SshKeyCreationDialog();
 
     QString privateKeyFilePath() const;

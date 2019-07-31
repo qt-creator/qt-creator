@@ -123,7 +123,7 @@ public:
     PropertyNameList propertyNames() const;
 
 
-    bool hasBindingForProperty(const PropertyName &name, bool *hasChanged = 0) const;
+    bool hasBindingForProperty(const PropertyName &name, bool *hasChanged = nullptr) const;
 
     bool isValid() const;
     void makeInvalid();

@@ -44,7 +44,7 @@ using namespace QmlJS;
 PluginDumper::PluginDumper(ModelManagerInterface *modelManager)
     : QObject(modelManager)
     , m_modelManager(modelManager)
-    , m_pluginWatcher(0)
+    , m_pluginWatcher(nullptr)
 {
     qRegisterMetaType<QmlJS::ModelManagerInterface::ProjectInfo>("QmlJS::ModelManagerInterface::ProjectInfo");
 }
@@ -436,7 +436,7 @@ void PluginDumper::loadDependencies(const QStringList &dependencies,
         visitedPtr->insert(name);
     }
     QStringList newDependencies;
-    loadQmlTypeDescription(dependenciesPaths, errors, warnings, objects, 0, &newDependencies);
+    loadQmlTypeDescription(dependenciesPaths, errors, warnings, objects, nullptr, &newDependencies);
     newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visitedPtr);
     if (!newDependencies.isEmpty())
         loadDependencies(newDependencies, errors, warnings, objects, visitedPtr.take());

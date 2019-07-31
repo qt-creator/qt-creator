@@ -51,52 +51,52 @@ public:
     bool isObjCForwardClassDeclarationType() const;
     bool isObjCForwardProtocolDeclarationType() const;
 
-    virtual const UndefinedType *asUndefinedType() const { return 0; }
-    virtual const VoidType *asVoidType() const { return 0; }
-    virtual const IntegerType *asIntegerType() const { return 0; }
-    virtual const FloatType *asFloatType() const { return 0; }
-    virtual const PointerType *asPointerType() const { return 0; }
-    virtual const PointerToMemberType *asPointerToMemberType() const { return 0; }
-    virtual const ReferenceType *asReferenceType() const { return 0; }
-    virtual const ArrayType *asArrayType() const { return 0; }
-    virtual const NamedType *asNamedType() const { return 0; }
-    virtual const Function *asFunctionType() const { return 0; }
-    virtual const Namespace *asNamespaceType() const { return 0; }
-    virtual const Template *asTemplateType() const { return 0; }
-    virtual const Class *asClassType() const { return 0; }
-    virtual const Enum *asEnumType() const { return 0; }
-    virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const { return 0; }
-    virtual const ObjCClass *asObjCClassType() const { return 0; }
-    virtual const ObjCProtocol *asObjCProtocolType() const { return 0; }
-    virtual const ObjCMethod *asObjCMethodType() const { return 0; }
-    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const { return 0; }
-    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const { return 0; }
+    virtual const UndefinedType *asUndefinedType() const { return nullptr; }
+    virtual const VoidType *asVoidType() const { return nullptr; }
+    virtual const IntegerType *asIntegerType() const { return nullptr; }
+    virtual const FloatType *asFloatType() const { return nullptr; }
+    virtual const PointerType *asPointerType() const { return nullptr; }
+    virtual const PointerToMemberType *asPointerToMemberType() const { return nullptr; }
+    virtual const ReferenceType *asReferenceType() const { return nullptr; }
+    virtual const ArrayType *asArrayType() const { return nullptr; }
+    virtual const NamedType *asNamedType() const { return nullptr; }
+    virtual const Function *asFunctionType() const { return nullptr; }
+    virtual const Namespace *asNamespaceType() const { return nullptr; }
+    virtual const Template *asTemplateType() const { return nullptr; }
+    virtual const Class *asClassType() const { return nullptr; }
+    virtual const Enum *asEnumType() const { return nullptr; }
+    virtual const ForwardClassDeclaration *asForwardClassDeclarationType() const { return nullptr; }
+    virtual const ObjCClass *asObjCClassType() const { return nullptr; }
+    virtual const ObjCProtocol *asObjCProtocolType() const { return nullptr; }
+    virtual const ObjCMethod *asObjCMethodType() const { return nullptr; }
+    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() const { return nullptr; }
+    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() const { return nullptr; }
 
-    virtual UndefinedType *asUndefinedType() { return 0; }
-    virtual VoidType *asVoidType() { return 0; }
-    virtual IntegerType *asIntegerType() { return 0; }
-    virtual FloatType *asFloatType() { return 0; }
-    virtual PointerType *asPointerType() { return 0; }
-    virtual PointerToMemberType *asPointerToMemberType() { return 0; }
-    virtual ReferenceType *asReferenceType() { return 0; }
-    virtual ArrayType *asArrayType() { return 0; }
-    virtual NamedType *asNamedType() { return 0; }
-    virtual Function *asFunctionType() { return 0; }
-    virtual Namespace *asNamespaceType() { return 0; }
-    virtual Template *asTemplateType() { return 0; }
-    virtual Class *asClassType() { return 0; }
-    virtual Enum *asEnumType() { return 0; }
-    virtual ForwardClassDeclaration *asForwardClassDeclarationType() { return 0; }
-    virtual ObjCClass *asObjCClassType() { return 0; }
-    virtual ObjCProtocol *asObjCProtocolType() { return 0; }
-    virtual ObjCMethod *asObjCMethodType() { return 0; }
-    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() { return 0; }
-    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() { return 0; }
+    virtual UndefinedType *asUndefinedType() { return nullptr; }
+    virtual VoidType *asVoidType() { return nullptr; }
+    virtual IntegerType *asIntegerType() { return nullptr; }
+    virtual FloatType *asFloatType() { return nullptr; }
+    virtual PointerType *asPointerType() { return nullptr; }
+    virtual PointerToMemberType *asPointerToMemberType() { return nullptr; }
+    virtual ReferenceType *asReferenceType() { return nullptr; }
+    virtual ArrayType *asArrayType() { return nullptr; }
+    virtual NamedType *asNamedType() { return nullptr; }
+    virtual Function *asFunctionType() { return nullptr; }
+    virtual Namespace *asNamespaceType() { return nullptr; }
+    virtual Template *asTemplateType() { return nullptr; }
+    virtual Class *asClassType() { return nullptr; }
+    virtual Enum *asEnumType() { return nullptr; }
+    virtual ForwardClassDeclaration *asForwardClassDeclarationType() { return nullptr; }
+    virtual ObjCClass *asObjCClassType() { return nullptr; }
+    virtual ObjCProtocol *asObjCProtocolType() { return nullptr; }
+    virtual ObjCMethod *asObjCMethodType() { return nullptr; }
+    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclarationType() { return nullptr; }
+    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclarationType() { return nullptr; }
 
     void accept(TypeVisitor *visitor);
     static void accept(Type *type, TypeVisitor *visitor);
 
-    bool match(const Type *other, Matcher *matcher = 0) const;
+    bool match(const Type *other, Matcher *matcher = nullptr) const;
 
 protected:
     virtual void accept0(TypeVisitor *visitor) = 0;

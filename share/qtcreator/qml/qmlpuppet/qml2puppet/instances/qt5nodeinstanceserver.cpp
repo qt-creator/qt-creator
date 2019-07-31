@@ -77,7 +77,7 @@ void Qt5NodeInstanceServer::initializeView()
 
 QQmlView *Qt5NodeInstanceServer::declarativeView() const
 {
-    return 0;
+    return nullptr;
 }
 
 QQmlEngine *Qt5NodeInstanceServer::engine() const
@@ -85,7 +85,7 @@ QQmlEngine *Qt5NodeInstanceServer::engine() const
     if (quickView())
         return quickView()->engine();
 
-    return 0;
+    return nullptr;
 }
 
 void Qt5NodeInstanceServer::resizeCanvasSizeToRootItemSize()

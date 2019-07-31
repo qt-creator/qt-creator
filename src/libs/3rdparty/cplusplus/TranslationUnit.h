@@ -144,7 +144,7 @@ private:
 
         PPLine(int utf16charOffset = 0,
                int line = 0,
-               const StringLiteral *fileName = 0)
+               const StringLiteral *fileName = nullptr)
             : utf16charOffset(utf16charOffset), line(line), fileName(fileName)
         { }
 

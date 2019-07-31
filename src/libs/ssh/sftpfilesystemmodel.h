@@ -41,7 +41,7 @@ class QSSH_EXPORT SftpFileSystemModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit SftpFileSystemModel(QObject *parent = 0);
+    explicit SftpFileSystemModel(QObject *parent = nullptr);
     ~SftpFileSystemModel();
 
     /*

@@ -53,7 +53,7 @@ void UsingNamespaceDirective::visitSymbol0(SymbolVisitor *visitor)
 
 NamespaceAlias::NamespaceAlias(TranslationUnit *translationUnit,
                                int sourceLocation, const Name *name)
-    : Symbol(translationUnit, sourceLocation, name), _namespaceName(0)
+    : Symbol(translationUnit, sourceLocation, name), _namespaceName(nullptr)
 { }
 
 NamespaceAlias::NamespaceAlias(Clone *clone, Subst *subst, NamespaceAlias *original)
@@ -97,7 +97,7 @@ void UsingDeclaration::visitSymbol0(SymbolVisitor *visitor)
 
 Declaration::Declaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name)
-    , _initializer(0)
+    , _initializer(nullptr)
 { }
 
 Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
@@ -158,7 +158,7 @@ Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
         std::strcmp(enNamespaceNameId, "__cxx11") == 0) {
         if (std::strcmp(enClassNameId, "unique_ptr") == 0) {
             if (std::strcmp(nameId, "pointer") == 0) {
-                newType = clone->type(subst->apply(firstTemplParamName), 0);
+                newType = clone->type(subst->apply(firstTemplParamName), nullptr);
                 newType = FullySpecifiedType(clone->control()->pointerType(newType));
             }
         } else if (std::strcmp(enClassNameId, "list") == 0 ||
@@ -172,12 +172,12 @@ Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
                    std::strcmp(enClassNameId, "array") == 0) {
             if (std::strcmp(nameId, "reference") == 0 ||
                 std::strcmp(nameId, "const_reference") == 0) {
-                newType = clone->type(subst->apply(firstTemplParamName), 0);
+                newType = clone->type(subst->apply(firstTemplParamName), nullptr);
             } else if (std::strcmp(nameId, "iterator") == 0 ||
                        std::strcmp(nameId, "reverse_iterator") == 0 ||
                        std::strcmp(nameId, "const_reverse_iterator") == 0 ||
                        std::strcmp(nameId, "const_iterator") == 0) {
-                newType = clone->type(subst->apply(firstTemplParamName), 0);
+                newType = clone->type(subst->apply(firstTemplParamName), nullptr);
                 newType = FullySpecifiedType(clone->control()->pointerType(newType));
             }
         } else if (std::strcmp(enClassNameId, "_Hash") == 0 ||
@@ -186,12 +186,12 @@ Declaration::Declaration(Clone *clone, Subst *subst, Declaration *original)
                 std::strcmp(nameId, "reverse_iterator") == 0 ||
                 std::strcmp(nameId, "const_reverse_iterator") == 0 ||
                 std::strcmp(nameId, "const_iterator") == 0) {
-                FullySpecifiedType clonedType = clone->type(subst->apply(firstTemplParamName), 0);
+                FullySpecifiedType clonedType = clone->type(subst->apply(firstTemplParamName), nullptr);
                 if (NamedType *namedType = clonedType.type()->asNamedType()) {
                     if (const TemplateNameId * templateNameId =
                             namedType->name()->asTemplateNameId()) {
                         if (templateNameId->templateArgumentCount()) {
-                            newType = clone->type(templateNameId->templateArgumentAt(0), 0);
+                            newType = clone->type(templateNameId->templateArgumentAt(0), nullptr);
                             newType = FullySpecifiedType(clone->control()->pointerType(newType));
                         }
                     }
@@ -228,7 +228,7 @@ void Declaration::visitSymbol0(SymbolVisitor *visitor)
 
 EnumeratorDeclaration::EnumeratorDeclaration(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Declaration(translationUnit, sourceLocation, name)
-    , _constantValue(0)
+    , _constantValue(nullptr)
 {}
 
 EnumeratorDeclaration::~EnumeratorDeclaration()
@@ -242,7 +242,7 @@ void EnumeratorDeclaration::setConstantValue(const StringLiteral *constantValue)
 
 Argument::Argument(TranslationUnit *translationUnit, int sourceLocation, const Name *name)
     : Symbol(translationUnit, sourceLocation, name),
-      _initializer(0)
+      _initializer(nullptr)
 { }
 
 Argument::Argument(Clone *clone, Subst *subst, Argument *original)
@@ -255,7 +255,7 @@ Argument::~Argument()
 { }
 
 bool Argument::hasInitializer() const
-{ return _initializer != 0; }
+{ return _initializer != nullptr; }
 
 const StringLiteral *Argument::initializer() const
 { return _initializer; }
@@ -421,7 +421,7 @@ Symbol *Function::argumentAt(int index) const
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool Function::hasArguments() const
@@ -536,7 +536,7 @@ bool Function::maybeValidPrototype(int actualArgumentCount) const
 
 
 Block::Block(TranslationUnit *translationUnit, int sourceLocation)
-    : Scope(translationUnit, sourceLocation, /*name = */ 0)
+    : Scope(translationUnit, sourceLocation, /*name = */ nullptr)
 { }
 
 Block::Block(Clone *clone, Subst *subst, Block *original)
@@ -617,7 +617,7 @@ Template::~Template()
 
 int Template::templateParameterCount() const
 {
-    if (declaration() != 0)
+    if (declaration() != nullptr)
         return memberCount() - 1;
 
     return 0;
@@ -629,7 +629,7 @@ Symbol *Template::templateParameterAt(int index) const
 Symbol *Template::declaration() const
 {
     if (isEmpty())
-        return 0;
+        return nullptr;
 
     if (Symbol *s = memberAt(memberCount() - 1)) {
         if (s->isClass() || s->isForwardClassDeclaration() ||
@@ -637,7 +637,7 @@ Symbol *Template::declaration() const
             return s;
     }
 
-    return 0;
+    return nullptr;
 }
 
 FullySpecifiedType Template::type() const
@@ -913,15 +913,15 @@ void ObjCBaseProtocol::visitSymbol0(SymbolVisitor *visitor)
 
 ObjCClass::ObjCClass(TranslationUnit *translationUnit, int sourceLocation, const Name *name):
     Scope(translationUnit, sourceLocation, name),
-    _categoryName(0),
-    _baseClass(0),
+    _categoryName(nullptr),
+    _baseClass(nullptr),
     _isInterface(false)
 { }
 
 ObjCClass::ObjCClass(Clone *clone, Subst *subst, ObjCClass *original)
     : Scope(clone, subst, original)
     , _categoryName(clone->name(original->_categoryName, subst))
-    , _baseClass(0)
+    , _baseClass(nullptr)
     , _isInterface(original->_isInterface)
 {
     if (original->_baseClass)
@@ -940,7 +940,7 @@ void ObjCClass::setInterface(bool isInterface)
 { _isInterface = isInterface; }
 
 bool ObjCClass::isCategory() const
-{ return _categoryName != 0; }
+{ return _categoryName != nullptr; }
 
 const Name *ObjCClass::categoryName() const
 { return _categoryName; }
@@ -1175,8 +1175,8 @@ ObjCPropertyDeclaration::ObjCPropertyDeclaration(TranslationUnit *translationUni
                                                  int sourceLocation,
                                                  const Name *name):
     Symbol(translationUnit, sourceLocation, name),
-    _getterName(0),
-    _setterName(0),
+    _getterName(nullptr),
+    _setterName(nullptr),
     _propertyAttributes(None)
 {}
 

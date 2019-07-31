@@ -40,7 +40,7 @@ Utf8String debugId(const FileContainer &fileContainer);
 class CLANGSUPPORT_EXPORT VerboseScopeDurationTimer
 {
 public:
-    VerboseScopeDurationTimer(const char *id = 0);
+    VerboseScopeDurationTimer(const char *id = nullptr);
     ~VerboseScopeDurationTimer();
 
 private:

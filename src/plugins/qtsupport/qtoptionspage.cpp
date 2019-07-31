@@ -142,7 +142,7 @@ public:
     }
 
 private:
-    BaseQtVersion *m_version = 0;
+    BaseQtVersion *m_version = nullptr;
     QIcon m_icon;
     QString m_buildLog;
     bool m_changed = false;
@@ -153,7 +153,7 @@ private:
 ///
 
 QtOptionsPage::QtOptionsPage()
-    : m_widget(0)
+    : m_widget(nullptr)
 {
     setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
     setDisplayName(QCoreApplication::translate("QtSupport", "Qt Versions"));
@@ -190,7 +190,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     , m_infoBrowser(new QTextBrowser)
     , m_invalidVersionIcon(Utils::Icons::CRITICAL.icon())
     , m_warningVersionIcon(Utils::Icons::WARNING.icon())
-    , m_configurationWidget(0)
+    , m_configurationWidget(nullptr)
 {
     QWidget *versionInfoWidget = new QWidget();
     m_versionUi->setupUi(versionInfoWidget);
@@ -277,7 +277,7 @@ BaseQtVersion *QtOptionsPageWidget::currentVersion() const
 {
     QtVersionItem *item = currentItem();
     if (!item)
-        return 0;
+        return nullptr;
     return item->version();
 }
 
@@ -307,7 +307,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
         return;
 
 
-    if (QMessageBox::warning(0, tr("Remove Invalid Qt Versions"),
+    if (QMessageBox::warning(nullptr, tr("Remove Invalid Qt Versions"),
                              tr("Do you want to remove all invalid Qt Versions?<br>"
                                 "<ul><li>%1</li></ul><br>"
                                 "will be removed.").arg(text),
@@ -468,7 +468,7 @@ void QtOptionsPageWidget::updateVersionItem(QtVersionItem *item)
 // Non-modal dialog
 class BuildLogDialog : public QDialog {
 public:
-    explicit BuildLogDialog(QWidget *parent = 0);
+    explicit BuildLogDialog(QWidget *parent = nullptr);
     void setText(const QString &text);
 
 private:
@@ -674,7 +674,7 @@ void QtOptionsPageWidget::userChangedCurrentVersion()
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
     QtVersionItem *item = currentItem();
-    const BaseQtVersion *version = item ? item->version() : 0;
+    const BaseQtVersion *version = item ? item->version() : nullptr;
     const ValidityInfo info = validInformation(version);
     if (info.message.isEmpty()) {
         m_versionUi->errorLabel->setVisible(false);
@@ -707,7 +707,7 @@ void QtOptionsPageWidget::versionChanged(const QModelIndex &current, const QMode
 void QtOptionsPageWidget::updateWidgets()
 {
     delete m_configurationWidget;
-    m_configurationWidget = 0;
+    m_configurationWidget = nullptr;
     BaseQtVersion *version = currentVersion();
     if (version) {
         m_versionUi->nameEdit->setText(version->unexpandedDisplayName());
@@ -724,7 +724,7 @@ void QtOptionsPageWidget::updateWidgets()
         m_versionUi->qmakePath->clear();
     }
 
-    const bool enabled = version != 0;
+    const bool enabled = version != nullptr;
     const bool isAutodetected = enabled && version->isAutodetected();
     m_ui->delButton->setEnabled(enabled && !isAutodetected);
     m_versionUi->nameEdit->setEnabled(enabled);

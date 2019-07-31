@@ -70,7 +70,7 @@ public:
     ~SshConnectionManager()
     {
         foreach (const UnaquiredConnection &connection, m_unacquiredConnections) {
-            disconnect(connection.connection, 0, this, 0);
+            disconnect(connection.connection, nullptr, this, nullptr);
             delete connection.connection;
         }
 
@@ -162,7 +162,7 @@ public:
         }
 
         if (doDelete) {
-            disconnect(connection, 0, this, 0);
+            disconnect(connection, nullptr, this, nullptr);
             m_deprecatedConnections.removeAll(connection);
             connection->deleteLater();
         }
@@ -175,7 +175,7 @@ public:
         for (int i = 0; i < m_unacquiredConnections.count(); ++i) {
             SshConnection * const connection = m_unacquiredConnections.at(i).connection;
             if (connection->connectionParameters() == sshParams) {
-                disconnect(connection, 0, this, 0);
+                disconnect(connection, nullptr, this, nullptr);
                 delete connection;
                 m_unacquiredConnections.removeAt(i);
                 break;
@@ -205,7 +205,7 @@ private:
             return;
 
         if (m_unacquiredConnections.removeOne(UnaquiredConnection(currentConnection))) {
-            disconnect(currentConnection, 0, this, 0);
+            disconnect(currentConnection, nullptr, this, nullptr);
             currentConnection->deleteLater();
         }
     }
@@ -216,7 +216,7 @@ private:
         for (int i = m_unacquiredConnections.count() - 1; i >= 0; --i) {
             UnaquiredConnection &c = m_unacquiredConnections[i];
             if (c.scheduledForRemoval) {
-                disconnect(c.connection, 0, this, 0);
+                disconnect(c.connection, nullptr, this, nullptr);
                 c.connection->deleteLater();
                 m_unacquiredConnections.removeAt(i);
             } else {

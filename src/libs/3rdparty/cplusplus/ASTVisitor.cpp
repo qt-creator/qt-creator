@@ -40,7 +40,7 @@ Control *ASTVisitor::control() const
     if (_translationUnit)
         return _translationUnit->control();
 
-    return 0;
+    return nullptr;
 }
 
 TranslationUnit *ASTVisitor::translationUnit() const

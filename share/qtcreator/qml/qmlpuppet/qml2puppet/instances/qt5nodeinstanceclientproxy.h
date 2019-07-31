@@ -33,7 +33,7 @@ class Qt5NodeInstanceClientProxy : public NodeInstanceClientProxy
 {
     Q_OBJECT
 public:
-    explicit Qt5NodeInstanceClientProxy(QObject *parent = 0);
+    explicit Qt5NodeInstanceClientProxy(QObject *parent = nullptr);
 };
 
 } // namespace QmlDesigner

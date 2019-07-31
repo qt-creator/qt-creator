@@ -195,7 +195,7 @@ void TimelineRenderState::updateExpandedRowHeights(const TimelineModel *model, i
     Q_D(TimelineRenderState);
     int row = 0;
     qreal offset = 0;
-    for (QSGNode *rowNode = d->expandedRowRoot->firstChild(); rowNode != 0;
+    for (QSGNode *rowNode = d->expandedRowRoot->firstChild(); rowNode != nullptr;
          rowNode = rowNode->nextSibling()) {
         qreal rowHeight = model->expandedRowHeight(row++);
         QMatrix4x4 matrix;

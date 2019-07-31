@@ -33,7 +33,7 @@
 #include <QCoreApplication>
 #include <QDir>
 
-Settings *Settings::m_instance = 0;
+Settings *Settings::m_instance = nullptr;
 
 Settings *Settings::instance()
 {
@@ -41,7 +41,7 @@ Settings *Settings::instance()
 }
 
 Settings::Settings() :
-    operation(0)
+    operation(nullptr)
 {
     Q_ASSERT(!m_instance);
     m_instance = this;

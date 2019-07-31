@@ -42,10 +42,10 @@ const int Bind::kMaxDepth(100);
 
 Bind::Bind(TranslationUnit *unit)
     : ASTVisitor(unit),
-      _scope(0),
-      _expression(0),
-      _name(0),
-      _declaratorId(0),
+      _scope(nullptr),
+      _expression(nullptr),
+      _name(nullptr),
+      _declaratorId(nullptr),
       _visibility(Symbol::Public),
       _objcVisibility(Symbol::Public),
       _methodKey(Function::NormalMethod),
@@ -229,7 +229,7 @@ void Bind::declaration(DeclarationAST *ast)
 
 const Name *Bind::name(NameAST *ast)
 {
-    const Name *value = 0;
+    const Name *value = nullptr;
     std::swap(_name, value);
     accept(ast);
     std::swap(_name, value);
@@ -296,7 +296,7 @@ bool Bind::visit(ObjCSelectorArgumentAST *ast)
 const Name *Bind::objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg)
 {
     if (! (ast && ast->name_token))
-        return 0;
+        return nullptr;
 
     if (ast->colon_token)
         *hasArg = true;
@@ -531,7 +531,7 @@ const StringLiteral *valueOfEnumerator(const Enum *e, const Identifier *value) {
             }
         }
     }
-    return 0;
+    return nullptr;
 }
 
 } // anonymous namespace
@@ -556,7 +556,7 @@ void Bind::enumerator(EnumeratorAST *ast, Enum *symbol)
             const int firstToken = expr->firstToken();
             const int lastToken = expr->lastToken();
             const StringLiteral *constantValue = asStringLiteral(expr);
-            const StringLiteral *resolvedValue = 0;
+            const StringLiteral *resolvedValue = nullptr;
             if (lastToken - firstToken == 1) {
                 if (const Identifier *constantId = identifier(firstToken))
                     resolvedValue = valueOfEnumerator(symbol, constantId);
@@ -629,7 +629,7 @@ bool Bind::visit(NestedNameSpecifierAST *ast)
 const Name *Bind::nestedNameSpecifier(NestedNameSpecifierAST *ast)
 {
     if (! ast)
-        return 0;
+        return nullptr;
 
     const Name *class_or_namespace_name = this->name(ast->class_or_namespace_name);
     return class_or_namespace_name;
@@ -1070,7 +1070,7 @@ bool Bind::visit(ObjCMethodPrototypeAST *ast)
 ObjCMethod *Bind::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
 {
     if (! ast)
-        return 0;
+        return nullptr;
 
     // int method_type_token = ast->method_type_token;
     FullySpecifiedType returnType = this->objCTypeName(ast->type_name);
@@ -1180,9 +1180,9 @@ bool Bind::visit(LambdaDeclaratorAST *ast)
 Function *Bind::lambdaDeclarator(LambdaDeclaratorAST *ast)
 {
     if (! ast)
-        return 0;
+        return nullptr;
 
-    Function *fun = control()->newFunction(0, 0);
+    Function *fun = control()->newFunction(0, nullptr);
     fun->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
     fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
 
@@ -1227,14 +1227,14 @@ FullySpecifiedType Bind::trailingReturnType(TrailingReturnTypeAST *ast, const Fu
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
     return type;
 }
 
 const StringLiteral *Bind::asStringLiteral(const ExpressionAST *ast)
 {
-    CPP_ASSERT(ast, return 0);
+    CPP_ASSERT(ast, return nullptr);
     const int firstToken = ast->firstToken();
     const int lastToken = ast->lastToken();
     std::string buffer;
@@ -1250,7 +1250,7 @@ const StringLiteral *Bind::asStringLiteral(const ExpressionAST *ast)
 // StatementAST
 bool Bind::visit(QtMemberDeclarationAST *ast)
 {
-    const Name *name = 0;
+    const Name *name = nullptr;
 
     if (tokenKind(ast->q_token) == T_Q_D)
         name = control()->identifier("d");
@@ -1344,18 +1344,18 @@ bool Bind::visit(ForeachStatementAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
-    const StringLiteral *initializer = 0;
+    const StringLiteral *initializer = nullptr;
     if (type.isAuto() && translationUnit()->languageFeatures().cxx11Enabled) {
         ExpressionTy exprType = this->expression(ast->expression);
 
-        ArrayType* arrayType = 0;
+        ArrayType* arrayType = nullptr;
         arrayType = exprType->asArrayType();
 
-        if (arrayType != 0)
+        if (arrayType != nullptr)
             type = arrayType->elementType();
-        else if (ast->expression != 0) {
+        else if (ast->expression != nullptr) {
             const StringLiteral *sl = asStringLiteral(ast->expression);
             const std::string buff = std::string("*") + sl->chars() + ".begin()";
             initializer = control()->stringLiteral(buff.c_str(), int(buff.size()));
@@ -1392,18 +1392,18 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
-    const StringLiteral *initializer = 0;
+    const StringLiteral *initializer = nullptr;
     if (type.isAuto() && translationUnit()->languageFeatures().cxx11Enabled) {
         ExpressionTy exprType = this->expression(ast->expression);
 
-        ArrayType* arrayType = 0;
+        ArrayType* arrayType = nullptr;
         arrayType = exprType->asArrayType();
 
-        if (arrayType != 0)
+        if (arrayType != nullptr)
             type = arrayType->elementType();
-        else if (ast->expression != 0) {
+        else if (ast->expression != nullptr) {
             const StringLiteral *sl = asStringLiteral(ast->expression);
             const std::string buff = std::string("*") + sl->chars() + ".begin()";
             initializer = control()->stringLiteral(buff.c_str(), int(buff.size()));
@@ -1573,7 +1573,7 @@ bool Bind::visit(ObjCFastEnumerationAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
 
     if (declaratorId && declaratorId->name) {
@@ -1630,7 +1630,7 @@ bool Bind::visit(QtMethodAST *ast)
     // int method_token = ast->method_token;
     // int lparen_token = ast->lparen_token;
     FullySpecifiedType type;
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
     // int rparen_token = ast->rparen_token;
     return false;
@@ -1659,7 +1659,7 @@ bool Bind::visit(ConditionAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
 
     if (declaratorId && declaratorId->name) {
@@ -1824,7 +1824,7 @@ bool Bind::visit(TypeIdAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
     _expression = type;
     return false;
@@ -1929,13 +1929,13 @@ bool Bind::visit(SimpleDeclarationAST *ast)
     List<Symbol *> **symbolTail = &ast->symbols;
 
     if (! ast->declarator_list) {
-        ElaboratedTypeSpecifierAST *elabTypeSpec = 0;
+        ElaboratedTypeSpecifierAST *elabTypeSpec = nullptr;
         for (SpecifierListAST *it = ast->decl_specifier_list; ! elabTypeSpec && it; it = it->next)
             elabTypeSpec = it->value->asElaboratedTypeSpecifier();
 
         if (elabTypeSpec && tokenKind(elabTypeSpec->classkey_token) != T_TYPENAME) {
             int sourceLocation = elabTypeSpec->firstToken();
-            const Name *name = 0;
+            const Name *name = nullptr;
             if (elabTypeSpec->name) {
                 sourceLocation = location(elabTypeSpec->name, sourceLocation);
                 name = elabTypeSpec->name->name;
@@ -1953,10 +1953,10 @@ bool Bind::visit(SimpleDeclarationAST *ast)
     }
 
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
-        DeclaratorIdAST *declaratorId = 0;
+        DeclaratorIdAST *declaratorId = nullptr;
         FullySpecifiedType declTy = this->declarator(it->value, type, &declaratorId);
 
-        const Name *declName = 0;
+        const Name *declName = nullptr;
         int sourceLocation = location(it->value, ast->firstToken());
         if (declaratorId && declaratorId->name)
             declName = declaratorId->name->name;
@@ -2050,7 +2050,7 @@ bool Bind::visit(QtPrivateSlotAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
     // int rparen_token = ast->rparen_token;
     return false;
@@ -2208,10 +2208,10 @@ bool Bind::visit(ExceptionDeclarationAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
 
-    const Name *argName = 0;
+    const Name *argName = nullptr;
     if (declaratorId && declaratorId->name)
         argName = declaratorId->name->name;
     Argument *arg = control()->newArgument(location(declaratorId, ast->firstToken()), argName);
@@ -2233,7 +2233,7 @@ bool Bind::visit(FunctionDefinitionAST *ast)
     for (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next) {
         declSpecifiers = this->specifier(it->value, declSpecifiers);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     FullySpecifiedType type = this->declarator(ast->declarator, declSpecifiers.qualifiedType(), &declaratorId);
 
     Function *fun = type->asFunctionType();
@@ -2296,7 +2296,7 @@ bool Bind::visit(NamespaceAST *ast)
     }
 
     int sourceLocation = ast->firstToken();
-    const Name *namespaceName = 0;
+    const Name *namespaceName = nullptr;
     if (ast->identifier_token) {
         sourceLocation = ast->identifier_token;
         namespaceName = identifier(ast->identifier_token);
@@ -2318,7 +2318,7 @@ bool Bind::visit(NamespaceAST *ast)
 bool Bind::visit(NamespaceAliasDefinitionAST *ast)
 {
     int sourceLocation = ast->firstToken();
-    const Name *name = 0;
+    const Name *name = nullptr;
     if (ast->namespace_name_token) {
         sourceLocation = ast->namespace_name_token;
         name = identifier(ast->namespace_name_token);
@@ -2336,12 +2336,12 @@ bool Bind::visit(ParameterDeclarationAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    DeclaratorIdAST *declaratorId = 0;
+    DeclaratorIdAST *declaratorId = nullptr;
     type = this->declarator(ast->declarator, type, &declaratorId);
     // int equal_token = ast->equal_token;
     ExpressionTy expression = this->expression(ast->expression);
 
-    const Name *argName = 0;
+    const Name *argName = nullptr;
     if (declaratorId && declaratorId->name)
         argName = declaratorId->name->name;
 
@@ -2359,7 +2359,7 @@ bool Bind::visit(ParameterDeclarationAST *ast)
 
 bool Bind::visit(TemplateDeclarationAST *ast)
 {
-    Template *templ = control()->newTemplate(ast->firstToken(), 0);
+    Template *templ = control()->newTemplate(ast->firstToken(), nullptr);
     templ->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
     templ->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     ast->symbol = templ;
@@ -3136,7 +3136,7 @@ bool Bind::visit(EnumSpecifierAST *ast)
 // PtrOperatorAST
 bool Bind::visit(PointerToMemberAST *ast)
 {
-    const Name *memberName = 0;
+    const Name *memberName = nullptr;
 
     for (NestedNameSpecifierListAST *it = ast->nested_name_specifier_list; it; it = it->next) {
         const Name *class_or_namespace_name = this->nestedNameSpecifier(it->value);
@@ -3236,7 +3236,7 @@ bool Bind::visit(NestedDeclaratorAST *ast)
 // PostfixDeclaratorAST
 bool Bind::visit(FunctionDeclaratorAST *ast)
 {
-    Function *fun = control()->newFunction(0, 0);
+    Function *fun = control()->newFunction(0, nullptr);
     fun->setStartOffset(tokenAt(ast->firstToken()).utf16charsBegin());
     fun->setEndOffset(tokenAt(ast->lastToken() - 1).utf16charsEnd());
     if (ast->trailing_return_type)
@@ -3266,7 +3266,7 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
     }
 
     this->exceptionSpecification(ast->exception_specification, type);
-    if (ast->as_cpp_initializer != 0) {
+    if (ast->as_cpp_initializer != nullptr) {
         fun->setAmbiguous(true);
         /*ExpressionTy as_cpp_initializer =*/ this->expression(ast->as_cpp_initializer);
     }

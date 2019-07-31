@@ -92,7 +92,7 @@ void FontSizeSpinBox::onEditingFinished()
 QValidator::State FontSizeSpinBox::validate (QString &input, int &p) const
 {
     QRegExp rx(QLatin1String("\\d+\\s*(px|pt)"));
-    QRegExpValidator v(rx, 0);
+    QRegExpValidator v(rx, nullptr);
     return v.validate(input, p);
 }
 

@@ -68,7 +68,7 @@ private:
 class GLSL_EXPORT Block: public Scope
 {
 public:
-    Block(Scope *enclosingScope = 0);
+    Block(Scope *enclosingScope = nullptr);
 
     QList<Symbol *> members() const override;
     void add(Symbol *symbol) override;

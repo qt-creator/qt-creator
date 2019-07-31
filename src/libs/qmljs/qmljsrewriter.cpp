@@ -67,7 +67,7 @@ Rewriter::Range Rewriter::addBinding(AST::UiObjectInitializer *ast,
     SourceLocation endOfPreviousMember;
     SourceLocation startOfNextMember;
 
-    if (insertAfter == 0 || insertAfter->member == 0) {
+    if (insertAfter == nullptr || insertAfter->member == nullptr) {
         // insert as first member
         endOfPreviousMember = ast->lbraceToken;
 
@@ -88,7 +88,7 @@ Rewriter::Range Rewriter::addBinding(AST::UiObjectInitializer *ast,
     bool needsTrailingSemicolon = false;
 
     if (isOneLiner) {
-        if (insertAfter == 0) { // we're inserting after an lbrace
+        if (insertAfter == nullptr) { // we're inserting after an lbrace
             if (ast->members) { // we're inserting before a member (and not the rbrace)
                 needsTrailingSemicolon = bindingType == ScriptBinding;
             }
@@ -142,8 +142,8 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
 {
     const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString());
 
-    UiObjectMemberList *lastObjectDef = 0;
-    UiObjectMemberList *lastNonObjectDef = 0;
+    UiObjectMemberList *lastObjectDef = nullptr;
+    UiObjectMemberList *lastNonObjectDef = nullptr;
 
     for (UiObjectMemberList *iter = members; iter; iter = iter->next) {
         UiObjectMember *member = iter->member;
@@ -175,8 +175,8 @@ UiArrayMemberList *Rewriter::searchMemberToInsertAfter(UiArrayMemberList *member
 {
     const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString());
 
-    UiArrayMemberList *lastObjectDef = 0;
-    UiArrayMemberList *lastNonObjectDef = 0;
+    UiArrayMemberList *lastObjectDef = nullptr;
+    UiArrayMemberList *lastNonObjectDef = nullptr;
 
     for (UiArrayMemberList *iter = members; iter; iter = iter->next) {
         UiObjectMember *member = iter->member;
@@ -208,7 +208,7 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
                                                         const QStringList &propertyOrder)
 {
     if (!members)
-        return 0; // empty members
+        return nullptr; // empty members
 
     QHash<QString, UiObjectMemberList *> orderedMembers;
 
@@ -236,11 +236,11 @@ UiObjectMemberList *Rewriter::searchMemberToInsertAfter(UiObjectMemberList *memb
     for (; idx > 0; --idx) {
         const QString prop = propertyOrder.at(idx - 1);
         UiObjectMemberList *candidate = orderedMembers.value(prop, 0);
-        if (candidate != 0)
+        if (candidate != nullptr)
             return candidate;
     }
 
-    return 0;
+    return nullptr;
 }
 
 void Rewriter::changeBinding(UiObjectInitializer *ast,
@@ -356,7 +356,7 @@ void Rewriter::insertIntoArray(UiArrayBinding *ast, const QString &newValue)
     if (!ast)
         return;
 
-    UiObjectMember *lastMember = 0;
+    UiObjectMember *lastMember = nullptr;
     for (UiArrayMemberList *iter = ast->members; iter; iter = iter->next) {
         lastMember = iter->member;
     }
@@ -400,7 +400,7 @@ void Rewriter::removeGroupedProperty(UiObjectDefinition *ast,
 
     const QString propName = propertyName.mid(dotIdx + 1);
 
-    UiObjectMember *wanted = 0;
+    UiObjectMember *wanted = nullptr;
     unsigned memberCount = 0;
     for (UiObjectMemberList *it = ast->initializer->members; it; it = it->next) {
         ++memberCount;
@@ -590,7 +590,7 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
 void Rewriter::appendToArrayBinding(UiArrayBinding *arrayBinding,
                                     const QString &content)
 {
-    UiObjectMember *lastMember = 0;
+    UiObjectMember *lastMember = nullptr;
     for (UiArrayMemberList *iter = arrayBinding->members; iter; iter = iter->next)
         if (iter->member)
             lastMember = iter->member;
@@ -671,7 +671,7 @@ void Rewriter::extendToLeadingOrTrailingComma(UiArrayBinding *parentArray,
                                               int &start,
                                               int &end) const
 {
-    UiArrayMemberList *currentMember = 0;
+    UiArrayMemberList *currentMember = nullptr;
     for (UiArrayMemberList *it = parentArray->members; it; it = it->next) {
         if (it->member == member) {
             currentMember = it;

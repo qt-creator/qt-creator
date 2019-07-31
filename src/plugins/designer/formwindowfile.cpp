@@ -286,7 +286,7 @@ void FormWindowFile::slotFormWindowRemoved(QDesignerFormWindowInterface *w)
     // as calls to isDirty() are triggered at arbitrary times
     // while building.
     if (w == m_formWindow)
-        m_formWindow = 0;
+        m_formWindow = nullptr;
 }
 
 } // namespace Internal

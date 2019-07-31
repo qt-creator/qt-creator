@@ -45,7 +45,7 @@ const Identifier *QualifiedNameId::identifier() const
     if (const Name *u = name())
         return u->identifier();
 
-    return 0;
+    return nullptr;
 }
 
 const Name *QualifiedNameId::base() const
@@ -102,9 +102,9 @@ const FullySpecifiedType &TemplateNameId::templateArgumentAt(int index) const
 bool TemplateNameId::Compare::operator()(const TemplateNameId *name,
                                          const TemplateNameId *other) const
 {
-    if (name == 0)
-        return other != 0;
-    if (other == 0)
+    if (name == nullptr)
+        return other != nullptr;
+    if (other == nullptr)
         return false;
     if (name == other)
         return false;
@@ -112,9 +112,9 @@ bool TemplateNameId::Compare::operator()(const TemplateNameId *name,
     const Identifier *id = name->identifier();
     const Identifier *otherId = other->identifier();
 
-    if (id == 0)
-        return otherId != 0;
-    if (otherId == 0)
+    if (id == nullptr)
+        return otherId != nullptr;
+    if (otherId == nullptr)
         return false;
 
     const int c = std::strcmp(id->chars(), otherId->chars());
@@ -154,7 +154,7 @@ OperatorNameId::Kind OperatorNameId::kind() const
 { return _kind; }
 
 const Identifier *OperatorNameId::identifier() const
-{ return 0; }
+{ return nullptr; }
 
 ConversionNameId::ConversionNameId(const FullySpecifiedType &type)
     : _type(type)
@@ -177,7 +177,7 @@ FullySpecifiedType ConversionNameId::type() const
 { return _type; }
 
 const Identifier *ConversionNameId::identifier() const
-{ return 0; }
+{ return nullptr; }
 
 SelectorNameId::~SelectorNameId()
 { }
@@ -195,7 +195,7 @@ bool SelectorNameId::match0(const Name *otherName, Matcher *matcher) const
 const Identifier *SelectorNameId::identifier() const
 {
     if (_names.empty())
-        return 0;
+        return nullptr;
 
     return nameAt(0)->identifier();
 }
@@ -232,4 +232,4 @@ bool AnonymousNameId::match0(const Name *otherName, Matcher *matcher) const
 }
 
 const Identifier *AnonymousNameId::identifier() const
-{ return 0; }
+{ return nullptr; }

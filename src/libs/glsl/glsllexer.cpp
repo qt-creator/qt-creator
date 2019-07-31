@@ -60,9 +60,9 @@ void Lexer::yyinp()
 
 int Lexer::yylex(Token *tk)
 {
-    const char *pos = 0;
+    const char *pos = nullptr;
     int line = 0;
-    _yyval.ptr = 0;
+    _yyval.ptr = nullptr;
     const int kind = yylex_helper(&pos, &line);
     tk->kind = kind;
     tk->position = pos - _source;

@@ -273,7 +273,7 @@ OpaqueColoredPoint2DWithSize *OpaqueColoredPoint2DWithSize::fromVertexData(QSGGe
     return static_cast<OpaqueColoredPoint2DWithSize *>(geometry->vertexData());
 }
 
-TimelineItemsGeometry::TimelineItemsGeometry() : usedVertices(0), node(0)
+TimelineItemsGeometry::TimelineItemsGeometry() : usedVertices(0), node(nullptr)
 {
     initNodes();
 }
@@ -392,7 +392,7 @@ TimelineRenderPass::State *TimelineItemsRenderPass::update(const TimelineAbstrac
                                                            QColor(Qt::blue)).lighter(130);
 
     TimelineItemsRenderPassState *state;
-    if (oldState == 0)
+    if (oldState == nullptr)
         state = new TimelineItemsRenderPassState(model);
     else
         state = static_cast<TimelineItemsRenderPassState *>(oldState);
@@ -472,7 +472,7 @@ void TimelineItemsMaterialShader::updateState(const RenderState &state, QSGMater
 
 char const *const *TimelineItemsMaterialShader::attributeNames() const
 {
-    static const char *const attr[] = {"vertexCoord", "rectSize", "selectionId", "vertexColor", 0};
+    static const char *const attr[] = {"vertexCoord", "rectSize", "selectionId", "vertexColor", nullptr};
     return attr;
 }
 

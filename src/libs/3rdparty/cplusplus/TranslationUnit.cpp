@@ -43,10 +43,10 @@ const Token TranslationUnit::nullToken;
 TranslationUnit::TranslationUnit(Control *control, const StringLiteral *fileId)
     : _control(control),
       _fileId(fileId),
-      _firstSourceChar(0),
-      _lastSourceChar(0),
-      _pool(0),
-      _ast(0),
+      _firstSourceChar(nullptr),
+      _lastSourceChar(nullptr),
+      _pool(nullptr),
+      _ast(nullptr),
       _flags(0)
 {
     _tokens = new std::vector<Token>();
@@ -91,7 +91,7 @@ void TranslationUnit::setSource(const char *source, int size)
 const char *TranslationUnit::spell(int index) const
 {
     if (! index)
-        return 0;
+        return nullptr;
 
     return tokenAt(index).spell();
 }
@@ -198,7 +198,7 @@ recognize:
                                 // Get the total number of generated tokens and specify "null"
                                 // information for them.
                                 unsigned totalGenerated =
-                                        static_cast<int>(strtoul(tk.spell(), 0, 0));
+                                        static_cast<int>(strtoul(tk.spell(), nullptr, 0));
                                 const std::size_t previousSize = lineColumn.size();
                                 lineColumn.resize(previousSize + totalGenerated);
                                 std::fill(lineColumn.begin() + previousSize,
@@ -207,10 +207,10 @@ recognize:
 
                                 lex(&tk);
                             } else if (tk.is(T_NUMERIC_LITERAL)) {
-                                int line = static_cast<int>(strtoul(tk.spell(), 0, 0));
+                                int line = static_cast<int>(strtoul(tk.spell(), nullptr, 0));
                                 lex(&tk);
                                 lex(&tk); // Skip the separating colon
-                                int column = static_cast<int>(strtoul(tk.spell(), 0, 0));
+                                int column = static_cast<int>(strtoul(tk.spell(), nullptr, 0));
 
                                 // Store line and column for this non-generated token.
                                 lineColumn.push_back(std::make_pair(line, column));
@@ -230,7 +230,7 @@ recognize:
                 if (! tk.newline() && tk.is(T_IDENTIFIER) && tk.identifier == lineId)
                     lex(&tk);
                 if (! tk.newline() && tk.is(T_NUMERIC_LITERAL)) {
-                    int line = static_cast<int>(strtol(tk.spell(), 0, 0));
+                    int line = static_cast<int>(strtol(tk.spell(), nullptr, 0));
                     lex(&tk);
                     if (! tk.newline() && tk.is(T_STRING_LITERAL)) {
                         const StringLiteral *fileName =
@@ -302,31 +302,31 @@ bool TranslationUnit::parse(ParseMode mode)
 
     switch (mode) {
     case ParseTranlationUnit: {
-        TranslationUnitAST *node = 0;
+        TranslationUnitAST *node = nullptr;
         parsed = parser.parseTranslationUnit(node);
         _ast = node;
     } break;
 
     case ParseDeclaration: {
-        DeclarationAST *node = 0;
+        DeclarationAST *node = nullptr;
         parsed = parser.parseDeclaration(node);
         _ast = node;
     } break;
 
     case ParseExpression: {
-        ExpressionAST *node = 0;
+        ExpressionAST *node = nullptr;
         parsed = parser.parseExpression(node);
         _ast = node;
     } break;
 
     case ParseDeclarator: {
-        DeclaratorAST *node = 0;
-        parsed = parser.parseDeclarator(node, /*decl_specifier_list =*/ 0);
+        DeclaratorAST *node = nullptr;
+        parsed = parser.parseDeclarator(node, /*decl_specifier_list =*/ nullptr);
         _ast = node;
     } break;
 
     case ParseStatement: {
-        StatementAST *node = 0;
+        StatementAST *node = nullptr;
         parsed = parser.parseStatement(node);
         _ast = node;
     } break;
@@ -399,7 +399,7 @@ void TranslationUnit::getPosition(int utf16charOffset,
 {
     int lineNumber = 0;
     int columnNumber = 0;
-    const StringLiteral *file = 0;
+    const StringLiteral *file = nullptr;
 
     // If this token is expanded we already have the information directly from the expansion
     // section header. Otherwise, we need to calculate it.
@@ -441,7 +441,7 @@ void TranslationUnit::message(DiagnosticClient::Level level, int index, const ch
     index = std::min(index, tokenCount() - 1);
 
     int line = 0, column = 0;
-    const StringLiteral *fileName = 0;
+    const StringLiteral *fileName = nullptr;
     getTokenPosition(index, &line, &column, &fileName);
 
     if (DiagnosticClient *client = control()->diagnosticClient())
@@ -529,16 +529,16 @@ bool TranslationUnit::maybeSplitGreaterGreaterToken(int tokenIndex)
 void TranslationUnit::releaseTokensAndComments()
 {
     delete _tokens;
-    _tokens = 0;
+    _tokens = nullptr;
     delete _comments;
-    _comments = 0;
+    _comments = nullptr;
 }
 
 void TranslationUnit::resetAST()
 {
     delete _pool;
-    _pool = 0;
-    _ast = 0;
+    _pool = nullptr;
+    _ast = nullptr;
 }
 
 void TranslationUnit::release()

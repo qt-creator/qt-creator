@@ -27,11 +27,11 @@
 using namespace CPlusPlus;
 
 MemoryPool::MemoryPool()
-    : _blocks(0),
+    : _blocks(nullptr),
       _allocatedBlocks(0),
       _blockCount(-1),
-      _ptr(0),
-      _end(0)
+      _ptr(nullptr),
+      _end(nullptr)
 { }
 
 MemoryPool::~MemoryPool()
@@ -49,7 +49,7 @@ MemoryPool::~MemoryPool()
 void MemoryPool::reset()
 {
     _blockCount = -1;
-    _ptr = _end = 0;
+    _ptr = _end = nullptr;
 }
 
 void *MemoryPool::allocate_helper(size_t size)
@@ -65,7 +65,7 @@ void *MemoryPool::allocate_helper(size_t size)
         _blocks = (char **) realloc(_blocks, sizeof(char *) * _allocatedBlocks);
 
         for (int index = _blockCount; index < _allocatedBlocks; ++index)
-            _blocks[index] = 0;
+            _blocks[index] = nullptr;
     }
 
     char *&block = _blocks[_blockCount];

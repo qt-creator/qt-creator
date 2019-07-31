@@ -445,7 +445,7 @@ void TypePrettyPrinter::visit(Function *type)
                 if (index + 1 == _overview->markedArgument)
                     const_cast<Overview*>(_overview)->markedArgumentBegin = _text.length();
 
-                const Name *name = 0;
+                const Name *name = nullptr;
 
                 if (_overview->showArgumentNames)
                     name = arg->name();

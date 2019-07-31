@@ -28,7 +28,7 @@
 namespace Timeline {
 
 TimelineAbstractRenderer::TimelineAbstractRendererPrivate::TimelineAbstractRendererPrivate() :
-    selectedItem(-1), selectionLocked(true), model(0), notes(0), zoomer(0), modelDirty(false),
+    selectedItem(-1), selectionLocked(true), model(nullptr), notes(nullptr), zoomer(nullptr), modelDirty(false),
     rowHeightsDirty(false), notesDirty(false)
 {
 }

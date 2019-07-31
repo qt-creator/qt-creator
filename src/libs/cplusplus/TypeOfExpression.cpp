@@ -38,8 +38,8 @@
 using namespace CPlusPlus;
 
 TypeOfExpression::TypeOfExpression():
-    m_ast(0),
-    m_scope(0),
+    m_ast(nullptr),
+    m_scope(nullptr),
     m_expandTemplates(false)
 {
 }
@@ -50,8 +50,8 @@ void TypeOfExpression::init(Document::Ptr thisDocument, const Snapshot &snapshot
 {
     m_thisDocument = thisDocument;
     m_snapshot = snapshot;
-    m_ast = 0;
-    m_scope = 0;
+    m_ast = nullptr;
+    m_scope = nullptr;
     m_lookupContext = LookupContext();
 
     Q_ASSERT(m_bindings.isNull());
@@ -178,7 +178,7 @@ QByteArray TypeOfExpression::preprocessedExpression(const QByteArray &utf8code) 
         m_environment = QSharedPointer<Environment>(env);
     }
 
-    Preprocessor preproc(0, m_environment.data());
+    Preprocessor preproc(nullptr, m_environment.data());
     return preproc.run(QLatin1String("<expression>"), utf8code);
 }
 
@@ -187,7 +187,7 @@ namespace CPlusPlus {
 ExpressionAST *extractExpressionAST(Document::Ptr doc)
 {
     if (! doc->translationUnit()->ast())
-        return 0;
+        return nullptr;
 
     return doc->translationUnit()->ast()->asExpression();
 }

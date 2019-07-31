@@ -48,7 +48,7 @@
 using namespace CPlusPlus;
 
 Macro::Macro()
-    : _next(0),
+    : _next(nullptr),
       _hashcode(0),
       _fileRevision(0),
       _line(0),

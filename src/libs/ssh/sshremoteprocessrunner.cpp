@@ -189,9 +189,9 @@ void SshRemoteProcessRunner::setState(int newState)
             d->m_process.release()->deleteLater();
         }
         if (d->m_connection) {
-            disconnect(d->m_connection, 0, this, 0);
+            disconnect(d->m_connection, nullptr, this, nullptr);
             QSsh::releaseConnection(d->m_connection);
-            d->m_connection = 0;
+            d->m_connection = nullptr;
         }
     }
 }

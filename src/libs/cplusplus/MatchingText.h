@@ -53,7 +53,7 @@ public:
     static bool shouldInsertMatchingText(const QTextCursor &tc);
     static bool shouldInsertMatchingText(QChar lookAhead);
 
-    static bool isInCommentHelper(const QTextCursor &currsor, Token *retToken = 0);
+    static bool isInCommentHelper(const QTextCursor &currsor, Token *retToken = nullptr);
     static CPlusPlus::Kind stringKindAtCursor(const QTextCursor &cursor);
 
     static QString insertMatchingBrace(const QTextCursor &tc, const QString &text,

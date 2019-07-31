@@ -247,7 +247,7 @@ void Token::reset()
     flags = 0;
     byteOffset = 0;
     utf16charOffset = 0;
-    ptr = 0;
+    ptr = nullptr;
 }
 
 const char *Token::name(int kind)

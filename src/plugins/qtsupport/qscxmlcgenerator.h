@@ -38,7 +38,7 @@ class QScxmlcGenerator : public ProjectExplorer::ProcessExtraCompiler
     Q_OBJECT
 public:
     QScxmlcGenerator(const ProjectExplorer::Project *project, const Utils::FilePath &source,
-                     const Utils::FilePathList &targets, QObject *parent = 0);
+                     const Utils::FilePathList &targets, QObject *parent = nullptr);
 
 protected:
     Utils::FilePath command() const override;
@@ -60,7 +60,7 @@ class QScxmlcGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
 {
     Q_OBJECT
 public:
-    QScxmlcGeneratorFactory(QObject *parent = 0) : ExtraCompilerFactory(parent) {}
+    QScxmlcGeneratorFactory(QObject *parent = nullptr) : ExtraCompilerFactory(parent) {}
 
     ProjectExplorer::FileType sourceType() const override;
 

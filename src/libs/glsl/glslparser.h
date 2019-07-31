@@ -91,13 +91,13 @@ public:
     TranslationUnitAST *parse() {
         if (AST *u = parse(T_FEED_GLSL))
             return u->asTranslationUnit();
-        return 0;
+        return nullptr;
     }
 
     ExpressionAST *parseExpression() {
         if (AST *u = parse(T_FEED_EXPRESSION))
             return u->asExpression();
-        return 0;
+        return nullptr;
     }
 
     AST *parse(int startToken);

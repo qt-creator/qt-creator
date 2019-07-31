@@ -67,13 +67,13 @@ class LastVisibleSymbolAt: protected SymbolVisitor
 
 public:
     LastVisibleSymbolAt(Symbol *root)
-        : root(root), line(0), column(0), symbol(0) {}
+        : root(root), line(0), column(0), symbol(nullptr) {}
 
     Symbol *operator()(int line, int column)
     {
         this->line = line;
         this->column = column;
-        this->symbol = 0;
+        this->symbol = nullptr;
         accept(root);
         if (! symbol)
             symbol = root;
@@ -104,7 +104,7 @@ class FindScopeAt: protected SymbolVisitor
 public:
     /** line and column should be 1-based */
     FindScopeAt(TranslationUnit *unit, int line, int column)
-        : _unit(unit), _line(line), _column(column), _scope(0) {}
+        : _unit(unit), _line(line), _column(column), _scope(nullptr) {}
 
     Scope *operator()(Symbol *symbol)
     {
@@ -265,7 +265,7 @@ private:
 
 Document::Document(const QString &fileName)
     : _fileName(QDir::cleanPath(fileName)),
-      _globalNamespace(0),
+      _globalNamespace(nullptr),
       _revision(0),
       _editorRevision(0),
       _checkMode(0)
@@ -284,12 +284,12 @@ Document::Document(const QString &fileName)
 Document::~Document()
 {
     delete _translationUnit;
-    _translationUnit = 0;
+    _translationUnit = nullptr;
     if (_control) {
         delete _control->diagnosticClient();
         delete _control;
     }
-    _control = 0;
+    _control = nullptr;
 }
 
 Control *Document::control() const
@@ -308,7 +308,7 @@ Control *Document::swapControl(Control *newControl)
         _translationUnit = newTranslationUnit;
     } else {
         delete _translationUnit;
-        _translationUnit = 0;
+        _translationUnit = nullptr;
     }
 
     Control *oldControl = _control;
@@ -557,7 +557,7 @@ const Macro *Document::findMacroDefinitionAt(int line) const
         if (macro.line() == line)
             return &macro;
     }
-    return 0;
+    return nullptr;
 }
 
 const Document::MacroUse *Document::findMacroUseAt(int utf16charsOffset) const
@@ -568,7 +568,7 @@ const Document::MacroUse *Document::findMacroUseAt(int utf16charsOffset) const
             return &use;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(int utf16charsOffset) const
@@ -579,7 +579,7 @@ const Document::UndefinedMacroUse *Document::findUndefinedMacroUseAt(int utf16ch
                     + QString::fromUtf8(use.name(), use.name().size()).length()))
             return &use;
     }
-    return 0;
+    return nullptr;
 }
 
 Document::Ptr Document::create(const QString &fileName)

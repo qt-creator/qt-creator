@@ -28,7 +28,7 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT FullySpecifiedType
 {
 public:
-    FullySpecifiedType(Type *type = 0);
+    FullySpecifiedType(Type *type = nullptr);
     ~FullySpecifiedType();
 
     bool isValid() const;
@@ -103,7 +103,7 @@ public:
     bool operator != (const FullySpecifiedType &other) const;
     bool operator < (const FullySpecifiedType &other) const;
 
-    bool match(const FullySpecifiedType &otherTy, Matcher *matcher = 0) const;
+    bool match(const FullySpecifiedType &otherTy, Matcher *matcher = nullptr) const;
 
     FullySpecifiedType simplified() const;
 

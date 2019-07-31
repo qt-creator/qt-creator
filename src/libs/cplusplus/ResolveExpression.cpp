@@ -83,7 +83,7 @@ public:
         // use an "alreadyResolved" container. FIXME: We might overcome this by resolving the
         // template parameters.
         unsigned maxDepth = 15;
-        for (NamedType *namedTy = 0; maxDepth && (namedTy = getNamedType(*type)); --maxDepth) {
+        for (NamedType *namedTy = nullptr; maxDepth && (namedTy = getNamedType(*type)); --maxDepth) {
             QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, _binding);
 
             if (Q_UNLIKELY(debug))
@@ -125,9 +125,9 @@ private:
         QList<LookupItem> results;
         if (!scope)
             return results;
-        Scope *enclosingBlockScope = 0;
+        Scope *enclosingBlockScope = nullptr;
         for (Block *block = scope->asBlock(); block;
-             block = enclosingBlockScope ? enclosingBlockScope->asBlock() : 0) {
+             block = enclosingBlockScope ? enclosingBlockScope->asBlock() : nullptr) {
             const unsigned memberCount = block->memberCount();
             for (unsigned i = 0; i < memberCount; ++i) {
                 Symbol *symbol = block->memberAt(i);
@@ -233,7 +233,7 @@ static int evaluateFunctionArgument(const FullySpecifiedType &actualTy,
 ResolveExpression::ResolveExpression(const LookupContext &context,
                                      const QSet<const Declaration *> &autoDeclarationsBeingResolved)
     : ASTVisitor(context.expressionDocument()->translationUnit()),
-      _scope(0),
+      _scope(nullptr),
       _context(context),
       bind(context.expressionDocument()->translationUnit()),
       _autoDeclarationsBeingResolved(autoDeclarationsBeingResolved),
@@ -314,9 +314,9 @@ bool ResolveExpression::visit(IdExpressionAST *ast)
 
 bool ResolveExpression::visit(BinaryExpressionAST *ast)
 {
-    if (tokenKind(ast->binary_op_token) == T_COMMA && ast->right_expression && ast->right_expression->asQtMethod() != 0) {
+    if (tokenKind(ast->binary_op_token) == T_COMMA && ast->right_expression && ast->right_expression->asQtMethod() != nullptr) {
 
-        if (ast->left_expression && ast->left_expression->asQtMethod() != 0)
+        if (ast->left_expression && ast->left_expression->asQtMethod() != nullptr)
             thisObject();
         else
             accept(ast->left_expression);
@@ -404,7 +404,7 @@ bool ResolveExpression::visit(TypeidExpressionAST *)
 {
     const Name *stdName = control()->identifier("std");
     const Name *tiName = control()->identifier("type_info");
-    const Name *q = control()->qualifiedNameId(control()->qualifiedNameId(/* :: */ 0, stdName), tiName);
+    const Name *q = control()->qualifiedNameId(control()->qualifiedNameId(/* :: */ nullptr, stdName), tiName);
 
     FullySpecifiedType ty(control()->namedType(q));
     addResult(ty, _scope);
@@ -443,7 +443,7 @@ bool ResolveExpression::visit(NumericLiteralAST *ast)
 {
     const Token &tk = tokenAt(ast->literal_token);
 
-    Type *type = 0;
+    Type *type = nullptr;
     bool isUnsigned = false;
 
     if (tk.is(T_CHAR_LITERAL)) {
@@ -591,7 +591,7 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
             LookupItem &p = _results[i];
             FullySpecifiedType ty = p.type();
             NamedType *namedTy = ty->asNamedType();
-            if (namedTy != 0) {
+            if (namedTy != nullptr) {
                 const QList<LookupItem> types = _context.lookup(namedTy->name(), p.scope());
                 if (!types.empty())
                     ty = types.front().type();
@@ -600,7 +600,7 @@ bool ResolveExpression::visit(UnaryExpressionAST *ast)
             if (PointerType *ptrTy = ty->asPointerType()) {
                 p.setType(ptrTy->elementType());
                 added = true;
-            } else if (namedTy != 0) {
+            } else if (namedTy != nullptr) {
                 const Name *starOp = control()->operatorNameId(OperatorNameId::StarOp);
                 if (ClassOrNamespace *b = _context.lookupType(namedTy->name(), p.scope(), p.binding())) {
                     foreach (const LookupItem &r, b->find(starOp)) {
@@ -719,7 +719,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
         if (!item.type()->isUndefinedType())
             continue;
 
-        if (item.declaration() == 0)
+        if (item.declaration() == nullptr)
             continue;
 
         if (item.type().isAuto()) {
@@ -732,7 +732,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
                 continue;
 
             const StringLiteral *initializationString = decl->getInitializer();
-            if (initializationString == 0)
+            if (initializationString == nullptr)
                 continue;
 
             const QByteArray &initializer =
@@ -765,7 +765,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             Clone cloner(_context.bindings()->control().data());
 
             for (int n = 0; n < typeItems.size(); ++ n) {
-                FullySpecifiedType newType = cloner.type(typeItems[n].type(), 0);
+                FullySpecifiedType newType = cloner.type(typeItems[n].type(), nullptr);
                 if (n == 0) {
                     item.setType(newType);
                     item.setScope(typeItems[n].scope());
@@ -1017,7 +1017,7 @@ bool ResolveExpression::visit(MemberAccessAST *ast)
     const QList<LookupItem> baseResults = resolve(ast->base_expression, _scope);
 
     // Evaluate the expression-id that follows the access operator.
-    const Name *memberName = 0;
+    const Name *memberName = nullptr;
     if (ast->member_name)
         memberName = ast->member_name->name;
 
@@ -1034,7 +1034,7 @@ ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &origina
                                                ClassOrNamespace *enclosingBinding) const
 {
     FullySpecifiedType ty = originalTy.simplified();
-    ClassOrNamespace *binding = 0;
+    ClassOrNamespace *binding = nullptr;
 
     if (Class *klass = ty->asClassType()) {
         if (scope->isBlock())
@@ -1113,7 +1113,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                             FullySpecifiedType overloadTy
                                     = instantiate(binding->templateId(), overload);
                             Function *instantiatedFunction = overloadTy->asFunctionType();
-                            Q_ASSERT(instantiatedFunction != 0);
+                            Q_ASSERT(instantiatedFunction != nullptr);
 
                             FullySpecifiedType retTy
                                     = instantiatedFunction->returnType().simplified();
@@ -1162,7 +1162,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 return binding;
             }
 
-            ClassOrNamespace *enclosingBinding = 0;
+            ClassOrNamespace *enclosingBinding = nullptr;
             if (ClassOrNamespace *binding = r.binding()) {
                 if (binding->instantiationOrigin())
                     enclosingBinding = binding;
@@ -1173,7 +1173,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 ClassOrNamespace *ResolveExpression::findClassForTemplateParameterInExpressionScope(
@@ -1191,7 +1191,7 @@ ClassOrNamespace *ResolveExpression::findClassForTemplateParameterInExpressionSc
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 FullySpecifiedType ResolveExpression::instantiate(const Name *className, Symbol *candidate) const
@@ -1213,7 +1213,7 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
 
     foreach (const LookupItem &result, receiverResults) {
         FullySpecifiedType ty = result.type().simplified();
-        ClassOrNamespace *binding = 0;
+        ClassOrNamespace *binding = nullptr;
 
         if (ObjCClass *clazz = ty->asObjCClassType()) {
             // static access, e.g.:

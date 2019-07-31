@@ -43,7 +43,7 @@ QMLJS_EXPORT AST::SourceLocation locationFromRange(const AST::SourceLocation &st
 
 QMLJS_EXPORT AST::SourceLocation fullLocationForQualifiedId(AST::UiQualifiedId *);
 
-QMLJS_EXPORT QString idOfObject(AST::Node *object, AST::UiScriptBinding **idBinding = 0);
+QMLJS_EXPORT QString idOfObject(AST::Node *object, AST::UiScriptBinding **idBinding = nullptr);
 
 QMLJS_EXPORT AST::UiObjectInitializer *initializerOfObject(AST::Node *object);
 

@@ -137,7 +137,7 @@ void ObjectNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNod
 void ObjectNodeInstance::setId(const QString &id)
 {
     if (!m_id.isEmpty() && context()) {
-        context()->engine()->rootContext()->setContextProperty(m_id, 0);
+        context()->engine()->rootContext()->setContextProperty(m_id, nullptr);
     }
 
     if (!id.isEmpty() && context()) {
@@ -324,7 +324,7 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
     }
 
     if (object && object->parent())
-        object->setParent(0);
+        object->setParent(nullptr);
 }
 
 void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const PropertyName &newParentProperty)
@@ -649,14 +649,14 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
 QObject *ObjectNodeInstance::createPrimitiveFromSource(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
     if (typeName.isEmpty())
-        return 0;
+        return nullptr;
 
     QStringList parts = typeName.split("/");
     const QString unqualifiedTypeName = parts.last();
     parts.removeLast();
 
     if (parts.isEmpty())
-        return 0;
+        return nullptr;
 
     QString importString = parts.join(".") + " " + QString::number(majorNumber) + "." + QString::number(minorNumber);
     if (importString == "QtQuick 1.0") /* Workaround for implicit QQml import */
@@ -772,12 +772,12 @@ QObject *ObjectNodeInstance::object() const
 {
         if (!m_object.isNull() && !QmlPrivateGate::objectWasDeleted(m_object.data()))
             return m_object.data();
-        return 0;
+        return nullptr;
 }
 
 QQuickItem *ObjectNodeInstance::contentItem() const
 {
-    return 0;
+    return nullptr;
 }
 
 bool ObjectNodeInstance::hasContent() const
@@ -819,7 +819,7 @@ QQmlContext *ObjectNodeInstance::context() const
         return nodeInstanceServer()->context();
 
     qWarning() << "Error: No NodeInstanceServer";
-    return 0;
+    return nullptr;
 }
 
 QQmlEngine *ObjectNodeInstance::engine() const
@@ -867,7 +867,7 @@ QImage ObjectNodeInstance::renderPreviewImage(const QSize & /*previewImageSize*/
 QObject *ObjectNodeInstance::parent() const
 {
     if (!object())
-        return 0;
+        return nullptr;
 
     return object()->parent();
 }

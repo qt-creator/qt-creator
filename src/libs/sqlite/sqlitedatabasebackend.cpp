@@ -99,7 +99,7 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
     int resultCode = sqlite3_open_v2(databaseFilePath.data(),
                                      &m_databaseHandle,
                                      openMode(mode),
-                                     NULL);
+                                     nullptr);
 
     checkDatabaseCouldBeOpened(resultCode);
 

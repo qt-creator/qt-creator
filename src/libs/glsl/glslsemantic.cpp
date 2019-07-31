@@ -33,9 +33,9 @@
 using namespace GLSL;
 
 Semantic::Semantic()
-    : _engine(0)
-    , _scope(0)
-    , _type(0)
+    : _engine(nullptr)
+    , _scope(nullptr)
+    , _type(nullptr)
 {
 }
 
@@ -118,7 +118,7 @@ Semantic::ExprResult Semantic::functionIdentifier(FunctionIdentifierAST *ast)
     if (ast) {
         if (ast->name) {
             if (Symbol *s = _scope->lookup(*ast->name)) {
-                if (s->asOverloadSet() != 0 || s->asFunction() != 0)
+                if (s->asOverloadSet() != nullptr || s->asFunction() != nullptr)
                     result.type = s->type();
                 else
                     _engine->error(ast->lineno, QString::fromLatin1("`%1' cannot be used as a function").arg(*ast->name));
@@ -308,33 +308,33 @@ bool Semantic::implicitCast(const Type *type, const Type *target) const
         return false;
     } else if (type->isEqualTo(target)) {
         return true;
-    } else if (target->asUIntType() != 0) {
-        return type->asIntType() != 0;
-    } else if (target->asFloatType() != 0) {
-        return type->asIntType() != 0 ||
-                type->asUIntType() != 0;
-    } else if (target->asDoubleType() != 0) {
-        return type->asIntType() != 0 ||
-                type->asUIntType() != 0 ||
-                type->asFloatType() != 0;
+    } else if (target->asUIntType() != nullptr) {
+        return type->asIntType() != nullptr;
+    } else if (target->asFloatType() != nullptr) {
+        return type->asIntType() != nullptr ||
+                type->asUIntType() != nullptr;
+    } else if (target->asDoubleType() != nullptr) {
+        return type->asIntType() != nullptr ||
+                type->asUIntType() != nullptr ||
+                type->asFloatType() != nullptr;
     } else if (const VectorType *targetVecTy = target->asVectorType()) {
         if (const VectorType *vecTy = type->asVectorType()) {
             if (targetVecTy->dimension() == vecTy->dimension()) {
                 const Type *targetElementType = targetVecTy->elementType();
                 const Type *elementType = vecTy->elementType();
 
-                if (targetElementType->asUIntType() != 0) {
+                if (targetElementType->asUIntType() != nullptr) {
                     // uvec* -> ivec*
-                    return elementType->asIntType() != 0;
-                } else if (targetElementType->asFloatType() != 0) {
+                    return elementType->asIntType() != nullptr;
+                } else if (targetElementType->asFloatType() != nullptr) {
                     // vec* -> ivec* | uvec*
-                    return elementType->asIntType() != 0 ||
-                            elementType->asUIntType() != 0;
-                } else if (targetElementType->asDoubleType() != 0) {
+                    return elementType->asIntType() != nullptr ||
+                            elementType->asUIntType() != nullptr;
+                } else if (targetElementType->asDoubleType() != nullptr) {
                     // dvec* -> ivec* | uvec* | fvec*
-                    return elementType->asIntType() != 0 ||
-                            elementType->asUIntType() != 0 ||
-                            elementType->asFloatType() != 0;
+                    return elementType->asIntType() != nullptr ||
+                            elementType->asUIntType() != nullptr ||
+                            elementType->asFloatType() != nullptr;
                 }
             }
         }
@@ -345,9 +345,9 @@ bool Semantic::implicitCast(const Type *type, const Type *target) const
                 const Type *targetElementType = targetMatTy->elementType();
                 const Type *elementType = matTy->elementType();
 
-                if (targetElementType->asDoubleType() != 0) {
+                if (targetElementType->asDoubleType() != nullptr) {
                     // dmat* -> mat*
-                    return elementType->asFloatType() != 0;
+                    return elementType->asFloatType() != nullptr;
                 }
             }
         }

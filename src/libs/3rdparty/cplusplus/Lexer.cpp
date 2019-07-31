@@ -64,8 +64,8 @@ Lexer::Lexer(TranslationUnit *unit)
 }
 
 Lexer::Lexer(const char *firstChar, const char *lastChar)
-    : _translationUnit(0),
-      _control(0),
+    : _translationUnit(nullptr),
+      _control(nullptr),
       _state(0),
       _flags(0),
       _currentLine(1)
@@ -747,7 +747,7 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
     const char *yytext = _currentChar;
 
     int delimLength = -1;
-    const char *closingDelimCandidate = 0;
+    const char *closingDelimCandidate = nullptr;
     bool closed = false;
     while (_yychar) {
         if (_yychar == '(' && delimLength == -1) {
@@ -781,7 +781,7 @@ void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
 
                     // Make sure this continues to be a valid candidate.
                     if (_yychar != *(yytext + (_currentChar - closingDelimCandidate)))
-                        closingDelimCandidate = 0;
+                        closingDelimCandidate = nullptr;
 
                     yyinp();
                 }

@@ -58,7 +58,7 @@ Utils::WizardPage *FormPageFactory::create(ProjectExplorer::JsonWizard *wizard, 
     Q_UNUSED(wizard)
     Q_UNUSED(data)
 
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
     FormTemplateWizardPage *page = new FormTemplateWizardPage;
     return page;

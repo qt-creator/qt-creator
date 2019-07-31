@@ -41,7 +41,7 @@ void dumpBacktrace(int maxdepth)
     if (maxdepth == -1)
         maxdepth = 200;
 #if defined(Q_OS_LINUX)
-    void *bt[200] = {0};
+    void *bt[200] = {nullptr};
     qDebug() << "BACKTRACE:";
     int size = backtrace(bt, sizeof(bt) / sizeof(bt[0]));
     for (int i = 0; i < qMin(size, maxdepth); i++)

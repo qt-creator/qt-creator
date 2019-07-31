@@ -97,8 +97,8 @@ private:
     void flush();
 
     /// \internal
-    ClassOrNamespace *findOrCreateType(const Name *name, ClassOrNamespace *origin = 0,
-                                       Class *clazz = 0);
+    ClassOrNamespace *findOrCreateType(const Name *name, ClassOrNamespace *origin = nullptr,
+                                       Class *clazz = nullptr);
 
     ClassOrNamespace *findOrCreateNestedAnonymousType(const AnonymousNameId *anonymousNameId);
 
@@ -196,9 +196,9 @@ public:
     ClassOrNamespace *globalNamespace() const;
 
     /// Finds the binding associated to the given symbol.
-    ClassOrNamespace *lookupType(Symbol *symbol, ClassOrNamespace *enclosingBinding = 0);
+    ClassOrNamespace *lookupType(Symbol *symbol, ClassOrNamespace *enclosingBinding = nullptr);
     ClassOrNamespace *lookupType(const QList<const Name *> &path,
-                                 ClassOrNamespace *enclosingBinding = 0);
+                                 ClassOrNamespace *enclosingBinding = nullptr);
 
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
@@ -303,11 +303,11 @@ public:
 
     QList<LookupItem> lookup(const Name *name, Scope *scope) const;
     ClassOrNamespace *lookupType(const Name *name, Scope *scope,
-                                 ClassOrNamespace *enclosingBinding = 0,
+                                 ClassOrNamespace *enclosingBinding = nullptr,
                                  QSet<const Declaration *> typedefsBeingResolved
                                     = QSet<const Declaration *>()) const;
     ClassOrNamespace *lookupType(Symbol *symbol,
-                                 ClassOrNamespace *enclosingBinding = 0) const;
+                                 ClassOrNamespace *enclosingBinding = nullptr) const;
     ClassOrNamespace *lookupParent(Symbol *symbol) const;
 
     /// \internal

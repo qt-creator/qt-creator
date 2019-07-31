@@ -73,7 +73,7 @@ WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId, const Q
 {
     Q_UNUSED(wizard)
 
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
     QVariantMap tmp = data.toMap();
 
@@ -89,7 +89,7 @@ WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId, const Q
         } else if (argsVar.type() == QVariant::List) {
             args = Utils::transform(argsVar.toList(), &QVariant::toString);
         } else {
-            return 0;
+            return nullptr;
         }
     }
 

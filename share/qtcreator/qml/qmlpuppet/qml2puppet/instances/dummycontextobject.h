@@ -38,7 +38,7 @@ class DummyContextObject : public QObject
     Q_PROPERTY(bool runningInDesigner READ runningInDesigner FINAL)
 
 public:
-    explicit DummyContextObject(QObject *parent = 0);
+    explicit DummyContextObject(QObject *parent = nullptr);
 
     QObject *parentDummy() const;
     void setParentDummy(QObject *parentDummy);

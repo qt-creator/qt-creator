@@ -202,7 +202,7 @@ public:
         const auto it = _cache.find(key);
         if (it == _cache.end()) {
             *foundInCache = false;
-            return 0;
+            return nullptr;
         } else {
             *foundInCache = true;
             *resultingTokenIndex = it->second.resultingTokenIndex;
@@ -554,7 +554,7 @@ bool Parser::parseTemplateId(NameAST *&node, int template_token)
     }
 
     const bool result = false;
-    _astCache->insert(ASTCache::TemplateId, start, 0, cursor(), result);
+    _astCache->insert(ASTCache::TemplateId, start, nullptr, cursor(), result);
     rewind(start);
     return result;
 }
@@ -564,7 +564,7 @@ bool Parser::parseNestedNameSpecifier(NestedNameSpecifierListAST *&node,
 {
     DEBUG_THIS_RULE();
     NestedNameSpecifierListAST **nested_name_specifier = &node;
-    NameAST *class_or_namespace_name = 0;
+    NameAST *class_or_namespace_name = nullptr;
     if (parseClassOrNamespaceName(class_or_namespace_name) && LA() == T_COLON_COLON) {
         int scope_token = consumeToken();
 
@@ -623,13 +623,13 @@ bool Parser::parseName(NameAST *&node, bool acceptTemplateId)
     if (LA() == T_COLON_COLON)
         global_scope_token = consumeToken();
 
-    NestedNameSpecifierListAST *nested_name_specifier = 0;
+    NestedNameSpecifierListAST *nested_name_specifier = nullptr;
     parseNestedNameSpecifierOpt(nested_name_specifier,
                                 /*acceptTemplateId=*/ true);
 
-    NameAST *unqualified_name = 0;
+    NameAST *unqualified_name = nullptr;
     if (parseUnqualifiedName(unqualified_name,
-                             /*acceptTemplateId=*/ acceptTemplateId || nested_name_specifier != 0)) {
+                             /*acceptTemplateId=*/ acceptTemplateId || nested_name_specifier != nullptr)) {
         if (! global_scope_token && ! nested_name_specifier) {
             node = unqualified_name;
             return true;
@@ -655,7 +655,7 @@ bool Parser::parseTranslationUnit(TranslationUnitAST *&node)
     while (LA()) {
         int start_declaration = cursor();
 
-        DeclarationAST *declaration = 0;
+        DeclarationAST *declaration = nullptr;
 
         if (parseDeclaration(declaration)) {
             *decl = new (_pool) DeclarationListAST;
@@ -731,7 +731,7 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
         consumeToken();
         int lparen_token = 0;
         match(T_LPAREN, &lparen_token);
-        NameAST *name = 0;
+        NameAST *name = nullptr;
         parseName(name);
         int comma_token = 0;
         match(T_COMMA, &comma_token);
@@ -760,7 +760,7 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     default: {
         if (_languageFeatures.objCEnabled && LA() == T___ATTRIBUTE__) {
             const int start = cursor();
-            SpecifierListAST *attributes = 0, **attr = &attributes;
+            SpecifierListAST *attributes = nullptr, **attr = &attributes;
             while (parseGnuAttributeSpecifier(*attr))
                 attr = &(*attr)->next;
             if (LA() == T_AT_INTERFACE)
@@ -818,7 +818,7 @@ bool Parser::parseLinkageBody(DeclarationAST *&node)
                 break;
 
             int start_declaration = cursor();
-            DeclarationAST *declaration = 0;
+            DeclarationAST *declaration = nullptr;
             if (parseDeclaration(declaration)) {
                 *declaration_ptr = new (_pool) DeclarationListAST;
                 (*declaration_ptr)->value = declaration;
@@ -932,7 +932,7 @@ bool Parser::isNestedNamespace() const
 bool Parser::parseNestedNamespace(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
-    DeclarationAST *ast = 0;
+    DeclarationAST *ast = nullptr;
     if (isNestedNamespace() && parseNamespace(ast)) {
         node = ast;
         return true;
@@ -1003,7 +1003,7 @@ bool Parser::parseAliasDeclaration(DeclarationAST *&node)
 
     alias->equal_token = consumeToken();
 
-    ExpressionAST *expr = 0;
+    ExpressionAST *expr = nullptr;
     parseTypeId(expr);
     if (expr)
         alias->typeId = expr->asTypeId();
@@ -1020,10 +1020,10 @@ bool Parser::parseConversionFunctionId(NameAST *&node)
     if (LA() != T_OPERATOR)
         return false;
     int operator_token = consumeToken();
-    SpecifierListAST *type_specifier = 0;
+    SpecifierListAST *type_specifier = nullptr;
     if (! parseTypeSpecifier(type_specifier))
         return false;
-    PtrOperatorListAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
+    PtrOperatorListAST *ptr_operators = nullptr, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
 
@@ -1042,7 +1042,7 @@ bool Parser::parseOperatorFunctionId(NameAST *&node)
         return false;
     int operator_token = consumeToken();
 
-    OperatorAST *op = 0;
+    OperatorAST *op = nullptr;
     if (! parseOperator(op))
         return false;
 
@@ -1059,7 +1059,7 @@ Parser::TemplateArgumentListEntry *Parser::templateArgumentListEntry(int tokenIn
     if (it != _templateArgumentList.end())
         return &it->second;
 
-    return 0;
+    return nullptr;
 }
 
 bool Parser::parseTemplateArgumentList(ExpressionListAST *&node)
@@ -1069,13 +1069,13 @@ bool Parser::parseTemplateArgumentList(ExpressionListAST *&node)
     if (TemplateArgumentListEntry *entry = templateArgumentListEntry(cursor())) {
         rewind(entry->cursor);
         node = entry->ast;
-        return entry->ast != 0;
+        return entry->ast != nullptr;
     }
 
     int start = cursor();
 
     ExpressionListAST **template_argument_ptr = &node;
-    ExpressionAST *template_argument = 0;
+    ExpressionAST *template_argument = nullptr;
     const bool cxx11Enabled = _languageFeatures.cxx11Enabled;
     if (parseTemplateArgument(template_argument)) {
         *template_argument_ptr = new (_pool) ExpressionListAST;
@@ -1103,14 +1103,14 @@ bool Parser::parseTemplateArgumentList(ExpressionListAST *&node)
             ExpressionListAST *template_argument_list = node;
             for (ExpressionListAST *iter = template_argument_list, **ast_iter = &node;
                  iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-                *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
+                *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : nullptr);
         }
 
         _templateArgumentList.insert(std::make_pair(start, TemplateArgumentListEntry(start, cursor(), node)));
         return true;
     }
 
-    _templateArgumentList.insert(std::make_pair(start, TemplateArgumentListEntry(start, cursor(), 0)));
+    _templateArgumentList.insert(std::make_pair(start, TemplateArgumentListEntry(start, cursor(), nullptr)));
     return false;
 }
 
@@ -1193,7 +1193,7 @@ bool Parser::parseAsmOperand()
 
     int lparen_token = 0, rparen_token = 0;
     match(T_LPAREN, &lparen_token);
-    ExpressionAST *expression = 0;
+    ExpressionAST *expression = nullptr;
     parseExpression(expression);
     match(T_RPAREN, &rparen_token);
     return true;
@@ -1238,7 +1238,7 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
     while (LA()) {
         int start_declaration = cursor();
 
-        ast->declaration = 0;
+        ast->declaration = nullptr;
         if (parseDeclaration(ast->declaration))
             break;
 
@@ -1427,7 +1427,7 @@ bool Parser::parsePtrOperator(PtrOperatorListAST *&node)
         if (LA() == T_COLON_COLON)
             global_scope_token = consumeToken();
 
-        NestedNameSpecifierListAST *nested_name_specifiers = 0;
+        NestedNameSpecifierListAST *nested_name_specifiers = nullptr;
         bool has_nested_name_specifier = parseNestedNameSpecifier(nested_name_specifiers, true);
         if (has_nested_name_specifier && LA() == T_STAR) {
             PointerToMemberAST *ast = new (_pool) PointerToMemberAST;
@@ -1482,7 +1482,7 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
 {
     DEBUG_THIS_RULE();
     bool has_type_specifier = false;
-    NameAST *named_type_specifier = 0;
+    NameAST *named_type_specifier = nullptr;
     SpecifierListAST **decl_specifier_seq_ptr = &decl_specifier_seq;
     for (;;) {
         if (! noStorageSpecifiers && ! onlySimpleTypeSpecifiers && lookAtStorageClassSpecifier()) {
@@ -1526,7 +1526,7 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
             break;
     }
 
-    return decl_specifier_seq != 0;
+    return decl_specifier_seq != nullptr;
 }
 
 bool Parser::parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list)
@@ -1547,10 +1547,10 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
 {
     DEBUG_THIS_RULE();
     int start = cursor();
-    SpecifierListAST *attributes = 0;
+    SpecifierListAST *attributes = nullptr;
     parseOptionalAttributeSpecifierSequence(attributes);
 
-    PtrOperatorListAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
+    PtrOperatorListAST *ptr_operators = nullptr, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
 
@@ -1562,7 +1562,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
         if (LA() == T_DOT_DOT_DOT)
             dot_dot_dot_token = consumeToken();
 
-        NameAST *name = 0;
+        NameAST *name = nullptr;
         if (parseName(name)) {
             DeclaratorIdAST *declarator_id = new (_pool) DeclaratorIdAST;
             declarator_id->dot_dot_dot_token = dot_dot_dot_token;
@@ -1579,7 +1579,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             warning(attributes->firstToken(), "unexpected attribtues");
 
         int lparen_token = consumeToken();
-        DeclaratorAST *declarator = 0;
+        DeclaratorAST *declarator = nullptr;
         if (parseDeclarator(declarator, decl_specifier_list) && LA() == T_RPAREN) {
             NestedDeclaratorAST *nested_declarator = new (_pool) NestedDeclaratorAST;
             nested_declarator->lparen_token = lparen_token;
@@ -1628,12 +1628,12 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
         if (LA() == T_LPAREN) {
             if (! declaringClass && LA(2) != T_RPAREN && maybeCppInitializer(node)) {
                 int lparen_token = cursor();
-                ExpressionAST *initializer = 0;
+                ExpressionAST *initializer = nullptr;
 
                 bool blocked = blockErrors(true);
                 if (parseInitializer(initializer, &node->equal_token)) {
                     // maybe the initializer also parses as a FunctionDeclarator?
-                    ExpressionListParenAST *expr = 0;
+                    ExpressionListParenAST *expr = nullptr;
                     if (initializer)
                         expr = initializer->asExpressionListParen();
                     if (expr) {
@@ -1643,7 +1643,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
                             // check for ambiguous declarators.
 
                             consumeToken();
-                            ParameterDeclarationClauseAST *parameter_declaration_clause = 0;
+                            ParameterDeclarationClauseAST *parameter_declaration_clause = nullptr;
                             if (parseParameterDeclarationClause(parameter_declaration_clause) && LA() == T_RPAREN) {
                                 int rparen_token = consumeToken();
 
@@ -1730,7 +1730,7 @@ bool Parser::parseAbstractCoreDeclarator(DeclaratorAST *&node, SpecifierListAST 
 {
     DEBUG_THIS_RULE();
 
-    PtrOperatorListAST *ptr_operators = 0, **ptr_operators_tail = &ptr_operators;
+    PtrOperatorListAST *ptr_operators = nullptr, **ptr_operators_tail = &ptr_operators;
     while (parsePtrOperator(*ptr_operators_tail))
         ptr_operators_tail = &(*ptr_operators_tail)->next;
 
@@ -1738,7 +1738,7 @@ bool Parser::parseAbstractCoreDeclarator(DeclaratorAST *&node, SpecifierListAST 
 
     if (LA() == T_LPAREN && LA(2) != T_RPAREN) {
         int lparen_token = consumeToken();
-        DeclaratorAST *declarator = 0;
+        DeclaratorAST *declarator = nullptr;
         if (parseAbstractDeclarator(declarator, decl_specifier_list) && LA() == T_RPAREN) {
             NestedDeclaratorAST *nested_declarator = new (_pool) NestedDeclaratorAST;
             nested_declarator->lparen_token = lparen_token;
@@ -1768,7 +1768,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *dec
     if (! parseAbstractCoreDeclarator(node, decl_specifier_list))
         return false;
 
-    PostfixDeclaratorListAST *postfix_declarators = 0,
+    PostfixDeclaratorListAST *postfix_declarators = nullptr,
         **postfix_ptr = &postfix_declarators;
 
     for (;;) {
@@ -1879,7 +1879,7 @@ bool Parser::parseTemplateParameterList(DeclarationListAST *&node)
 {
     DEBUG_THIS_RULE();
     DeclarationListAST **template_parameter_ptr = &node;
-    DeclarationAST *declaration = 0;
+    DeclarationAST *declaration = nullptr;
     if (parseTemplateParameter(declaration)) {
         *template_parameter_ptr = new (_pool) DeclarationListAST;
         (*template_parameter_ptr)->value = declaration;
@@ -1888,7 +1888,7 @@ bool Parser::parseTemplateParameterList(DeclarationListAST *&node)
         while (LA() == T_COMMA) {
             consumeToken(); // XXX Store this token somewhere
 
-            declaration = 0;
+            declaration = nullptr;
             if (parseTemplateParameter(declaration)) {
                 *template_parameter_ptr = new (_pool) DeclarationListAST;
                 (*template_parameter_ptr)->value = declaration;
@@ -1906,7 +1906,7 @@ bool Parser::parseTemplateParameter(DeclarationAST *&node)
     if (parseTypeParameter(node))
         return true;
     bool previousTemplateArguments = switchTemplateArguments(true);
-    ParameterDeclarationAST *ast = 0;
+    ParameterDeclarationAST *ast = nullptr;
     bool parsed = parseParameterDeclaration(ast);
     node = ast;
     (void) switchTemplateArguments(previousTemplateArguments);
@@ -2005,7 +2005,7 @@ bool Parser::parseTypeId(ExpressionAST *&node)
     DEBUG_THIS_RULE();
     CHECK_CACHE(ASTCache::TypeId, ExpressionAST);
 
-    SpecifierListAST *type_specifier = 0;
+    SpecifierListAST *type_specifier = nullptr;
     if (parseTypeSpecifier(type_specifier)) {
         TypeIdAST *ast = new (_pool) TypeIdAST;
         ast->type_specifier_list = type_specifier;
@@ -2024,7 +2024,7 @@ bool Parser::parseParameterDeclarationClause(ParameterDeclarationClauseAST *&nod
     CHECK_CACHE(ASTCache::ParameterDeclarationClause, ParameterDeclarationClauseAST);
     const int initialCursor = cursor();
 
-    ParameterDeclarationListAST *parameter_declarations = 0;
+    ParameterDeclarationListAST *parameter_declarations = nullptr;
 
     int dot_dot_dot_token = 0;
     if (LA() == T_DOT_DOT_DOT)
@@ -2059,7 +2059,7 @@ bool Parser::parseParameterDeclarationList(ParameterDeclarationListAST *&node)
         return false; // nothing to do.
 
     ParameterDeclarationListAST **parameter_declaration_ptr = &node;
-    ParameterDeclarationAST *declaration = 0;
+    ParameterDeclarationAST *declaration = nullptr;
     if (parseParameterDeclaration(declaration)) {
         *parameter_declaration_ptr = new (_pool) ParameterDeclarationListAST;
         (*parameter_declaration_ptr)->value = declaration;
@@ -2070,7 +2070,7 @@ bool Parser::parseParameterDeclarationList(ParameterDeclarationListAST *&node)
             if (LA() == T_DOT_DOT_DOT)
                 break;
 
-            declaration = 0;
+            declaration = nullptr;
             if (parseParameterDeclaration(declaration)) {
                 *parameter_declaration_ptr = new (_pool) ParameterDeclarationListAST;
                 (*parameter_declaration_ptr)->value = declaration;
@@ -2085,7 +2085,7 @@ bool Parser::parseParameterDeclarationList(ParameterDeclarationListAST *&node)
 bool Parser::parseParameterDeclaration(ParameterDeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
-    SpecifierListAST *decl_specifier_seq = 0;
+    SpecifierListAST *decl_specifier_seq = nullptr;
     if (parseDeclSpecifierSeq(decl_specifier_seq)) {
         ParameterDeclarationAST *ast = new (_pool) ParameterDeclarationAST;
         ast->type_specifier_list = decl_specifier_seq;
@@ -2107,7 +2107,7 @@ bool Parser::parseParameterDeclaration(ParameterDeclarationAST *&node)
 const Identifier *Parser::className(ClassSpecifierAST *ast) const
 {
   if (! ast)
-    return 0;
+    return nullptr;
 
   return identifier(ast->name);
 }
@@ -2115,7 +2115,7 @@ const Identifier *Parser::className(ClassSpecifierAST *ast) const
 const Identifier *Parser::identifier(NameAST *name) const
 {
   if (! name)
-    return 0;
+    return nullptr;
 
   if (QualifiedNameAST *q = name->asQualifiedName())
     name = q->unqualified_name;
@@ -2127,7 +2127,7 @@ const Identifier *Parser::identifier(NameAST *name) const
       return _translationUnit->identifier(template_id->identifier_token);
   }
 
-  return 0;
+  return nullptr;
 }
 
 bool Parser::parseClassSpecifier(SpecifierListAST *&node)
@@ -2138,7 +2138,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
 
     int classkey_token = consumeToken();
 
-    SpecifierListAST *attributes = 0;
+    SpecifierListAST *attributes = nullptr;
     parseOptionalAttributeSpecifierSequence(attributes);
 
     if (LA(1) == T_IDENTIFIER && LA(2) == T_IDENTIFIER) {
@@ -2150,7 +2150,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
         }
     }
 
-    NameAST *name = 0;
+    NameAST *name = nullptr;
     parseName(name);
 
     bool parsed = false;
@@ -2175,7 +2175,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
             name = ast;
         }
 
-        BaseSpecifierListAST *base_clause_list = 0;
+        BaseSpecifierListAST *base_clause_list = nullptr;
 
         if (LA() == T_COLON) {
             colon_token = cursor();
@@ -2220,7 +2220,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
             }
 
             int start_declaration = cursor();
-            DeclarationAST *declaration = 0;
+            DeclarationAST *declaration = nullptr;
             if (parseMemberSpecification(declaration, ast)) {
                 if (declaration) {  // paranoia check
                     *declaration_ptr = new (_pool) DeclarationListAST;
@@ -2325,7 +2325,7 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
                 node = ast;
                 break;
             } else if (LA() == T_IDENTIFIER) {
-                QtPropertyDeclarationItemAST *item = 0;
+                QtPropertyDeclarationItemAST *item = nullptr;
                 switch (peekAtQtContextKeyword()) {
                 case Token_READ:
                 case Token_WRITE:
@@ -2338,7 +2338,7 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
                 case Token_STORED:
                 case Token_USER: {
                     int item_name_token = consumeToken();
-                    ExpressionAST *expr = 0;
+                    ExpressionAST *expr = nullptr;
                     if (parsePostfixExpression(expr)) {
                         QtPropertyDeclarationItemAST *bItem =
                                 new (_pool) QtPropertyDeclarationItemAST;
@@ -2403,7 +2403,7 @@ bool Parser::parseQtEnumDeclaration(DeclarationAST *&node)
     ast->enum_specifier_token = consumeToken();
     match(T_LPAREN, &ast->lparen_token);
     for (NameListAST **iter = &ast->enumerator_list; LA() && LA() != T_RPAREN; iter = &(*iter)->next) {
-        NameAST *name_ast = 0;
+        NameAST *name_ast = nullptr;
         if (!parseName(name_ast))
             break;
         *iter = new (_pool) NameListAST;
@@ -2436,7 +2436,7 @@ bool Parser::parseQtFlags(DeclarationAST *&node)
     ast->flags_specifier_token = consumeToken();
     match(T_LPAREN, &ast->lparen_token);
     for (NameListAST **iter = &ast->flag_enums_list; LA() && LA() != T_RPAREN; iter = &(*iter)->next) {
-        NameAST *name_ast = 0;
+        NameAST *name_ast = nullptr;
         if (!parseName(name_ast))
             break;
         *iter = new (_pool) NameListAST;
@@ -2486,7 +2486,7 @@ bool Parser::parseQtInterfaces(DeclarationAST *&node)
     ast->interfaces_token = consumeToken();
     match(T_LPAREN, &ast->lparen_token);
     for (QtInterfaceNameListAST **iter = &ast->interface_name_list; LA() && LA() != T_RPAREN; iter = &(*iter)->next) {
-        NameAST *name_ast = 0;
+        NameAST *name_ast = nullptr;
         if (!parseName(name_ast))
             break;
         *iter = new (_pool) QtInterfaceNameListAST;
@@ -2494,7 +2494,7 @@ bool Parser::parseQtInterfaces(DeclarationAST *&node)
         (*iter)->value->interface_name = name_ast;
         for (NameListAST **iter2 = &(*iter)->value->constraint_list; LA() && LA() == T_COLON; iter2 = &(*iter2)->next) {
             /*int colon_token =*/ consumeToken();
-            NameAST *name_ast2 = 0;
+            NameAST *name_ast2 = nullptr;
             if (!parseName(name_ast2))
                 break;
             *iter2 = new (_pool) NameListAST;
@@ -2617,9 +2617,9 @@ bool Parser::parseElaboratedTypeSpecifier(SpecifierListAST *&node)
     if (lookAtClassKey() || LA() == T_ENUM || LA() == T_TYPENAME) {
         int classkey_token = consumeToken();
 
-        SpecifierListAST *attributes = 0;
+        SpecifierListAST *attributes = nullptr;
         parseOptionalAttributeSpecifierSequence(attributes);
-        NameAST *name = 0;
+        NameAST *name = nullptr;
         if (parseName(name)) {
             ElaboratedTypeSpecifierAST *ast = new (_pool) ElaboratedTypeSpecifierAST;
             ast->classkey_token = classkey_token;
@@ -2707,7 +2707,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
     if (declaringClass && LA() == T_COLON
             && (! node || ! node->postfix_declarator_list)) {
         int colon_token = consumeToken();
-        ExpressionAST *expression = 0;
+        ExpressionAST *expression = nullptr;
         if (parseConstantExpression(expression) && (LA() == T_COMMA ||
                                                     LA() == T_SEMICOLON)) {
             // recognized a bitfielddeclarator.
@@ -2835,7 +2835,7 @@ bool Parser::parseInitializerList0x(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
     ExpressionListAST **expression_list_ptr = &node;
-    ExpressionAST *expression = 0;
+    ExpressionAST *expression = nullptr;
 
     _initializerClauseDepth.push(1);
 
@@ -2941,7 +2941,7 @@ bool Parser::parseMemInitializerList(MemInitializerListAST *&node)
 bool Parser::parseMemInitializer(MemInitializerListAST *&node)
 {
     DEBUG_THIS_RULE();
-    NameAST *name = 0;
+    NameAST *name = nullptr;
     if (! parseName(name))
         return false;
 
@@ -2969,7 +2969,7 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
     ExpressionListAST **expression_list_ptr = &node;
-    ExpressionAST *typeId = 0;
+    ExpressionAST *typeId = nullptr;
     if (parseTypeId(typeId)) {
         *expression_list_ptr = new (_pool) ExpressionListAST;
         (*expression_list_ptr)->value = typeId;
@@ -3009,7 +3009,7 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
     }
 
     ExpressionListAST **expression_list_ptr = &node;
-    ExpressionAST *expression = 0;
+    ExpressionAST *expression = nullptr;
     if (parseAssignmentExpression(expression)) {
         *expression_list_ptr = new (_pool) ExpressionListAST;
         (*expression_list_ptr)->value = expression;
@@ -3029,7 +3029,7 @@ bool Parser::parseExpressionList(ExpressionListAST *&node)
     }
 
     const bool result = false;
-    _astCache->insert(ASTCache::ExpressionList, initialCursor, 0, cursor(), result);
+    _astCache->insert(ASTCache::ExpressionList, initialCursor, nullptr, cursor(), result);
     return result;
 }
 
@@ -3071,14 +3071,14 @@ bool Parser::parseInitializerList(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
     ExpressionListAST **initializer_ptr = &node;
-    ExpressionAST *initializer = 0;
+    ExpressionAST *initializer = nullptr;
     if (parseInitializerClause(initializer)) {
         *initializer_ptr = new (_pool) ExpressionListAST;
         (*initializer_ptr)->value = initializer;
         initializer_ptr = &(*initializer_ptr)->next;
         while (LA() == T_COMMA) {
             consumeToken(); // consume T_COMMA
-            initializer = 0;
+            initializer = nullptr;
             parseInitializerClause(initializer);
             *initializer_ptr = new (_pool) ExpressionListAST;
             (*initializer_ptr)->value = initializer;
@@ -3205,7 +3205,7 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
 
     bool parsed = false;
 
-    ExpressionAST *expression = 0;
+    ExpressionAST *expression = nullptr;
     if (parseExpression(expression)) {
         ExpressionStatementAST *ast = new (previousPool) ExpressionStatementAST;
         if (expression)
@@ -3253,7 +3253,7 @@ bool Parser::parseStatement(StatementAST *&node, bool blockLabeledStatement)
         return parseSwitchStatement(node);
 
     case T_TRY:
-        return parseTryBlockStatement(node, 0);
+        return parseTryBlockStatement(node, nullptr);
 
     case T_CASE:
     case T_DEFAULT:
@@ -3314,7 +3314,7 @@ bool Parser::parseStatement(StatementAST *&node, bool blockLabeledStatement)
         // Simply skip the emit token and parse as an expression statement - no strong
         // reason to have an specific ast type.
         consumeToken();
-        ExpressionAST *expression = 0;
+        ExpressionAST *expression = nullptr;
         if (parsePostfixExpression(expression)) {
             ExpressionStatementAST *ast = new (_pool) ExpressionStatementAST;
             ast->expression = expression;
@@ -3403,7 +3403,7 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast, StatementAST 
 
   bool maybeAmbiguous = false;
 
-  StatementAST *stmt = 0;
+  StatementAST *stmt = nullptr;
   if (parseExpressionStatement(stmt)) {
     if (stmt->firstToken() == start && stmt->lastToken() == end) {
       maybeAmbiguous = true;
@@ -3438,7 +3438,7 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
     if (LA() == T_IDENTIFIER || (LA() == T_COLON_COLON && LA(2) == T_IDENTIFIER)) {
         const bool blocked = blockErrors(true);
 
-        ExpressionAST *expression = 0;
+        ExpressionAST *expression = nullptr;
         const bool hasExpression = parseExpression(expression);
         const int afterExpression = cursor();
 
@@ -3467,7 +3467,7 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
                     }
                 }
             } else if (CallAST *call = expression->asCall()) {
-                if (call->base_expression->asIdExpression() != 0) {
+                if (call->base_expression->asIdExpression() != nullptr) {
                     (void) blockErrors(blocked);
                     node = as_expression;
                     match(T_SEMICOLON, &as_expression->semicolon_token);
@@ -3477,14 +3477,14 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 
             rewind(start);
 
-            DeclarationAST *declaration = 0;
+            DeclarationAST *declaration = nullptr;
             if (parseSimpleDeclaration(declaration)) {
                 DeclarationStatementAST *as_declaration = new (_pool) DeclarationStatementAST;
                 as_declaration->declaration = declaration;
 
                 SimpleDeclarationAST *simple = declaration->asSimpleDeclaration();
                 if (! semicolon_token || invalidAssignment || semicolon_token != simple->semicolon_token ||
-                        (simple->decl_specifier_list != 0 && simple->declarator_list != 0)) {
+                        (simple->decl_specifier_list != nullptr && simple->declarator_list != nullptr)) {
                     node = as_declaration;
                     (void) blockErrors(blocked);
                     return true;
@@ -3521,10 +3521,10 @@ bool Parser::parseCondition(ExpressionAST *&node)
     int start = cursor();
 
     bool blocked = blockErrors(true);
-    SpecifierListAST *type_specifier = 0;
+    SpecifierListAST *type_specifier = nullptr;
     if (parseTypeSpecifier(type_specifier)) {
-        DeclaratorAST *declarator = 0;
-        if (parseInitDeclarator(declarator, type_specifier, /*declaringClass=*/ 0)) {
+        DeclaratorAST *declarator = nullptr;
+        if (parseInitDeclarator(declarator, type_specifier, /*declaringClass=*/ nullptr)) {
             if (declarator->initializer && declarator->equal_token) {
                 ConditionAST *ast = new (_pool) ConditionAST;
                 ast->type_specifier_list = type_specifier;
@@ -3590,8 +3590,8 @@ bool Parser::parseForeachStatement(StatementAST *&node)
             parseDeclarator(ast->declarator, ast->type_specifier_list);
 
         if (! ast->type_specifier_list || ! ast->declarator) {
-            ast->type_specifier_list = 0;
-            ast->declarator = 0;
+            ast->type_specifier_list = nullptr;
+            ast->declarator = nullptr;
 
             blockErrors(blocked);
             rewind(startOfTypeSpecifier);
@@ -3634,16 +3634,16 @@ bool Parser::parseForStatement(StatementAST *&node)
 
         if ((ast->type_specifier_list || ast->declarator) && !peekAtObjCContextKeyword(Token_in)) {
             // woops, probably parsed too much: "in" got parsed as a declarator. Let's redo it:
-            ast->type_specifier_list = 0;
-            ast->declarator = 0;
+            ast->type_specifier_list = nullptr;
+            ast->declarator = nullptr;
 
             rewind(startOfTypeSpecifier);
             parseDeclarator(ast->declarator, ast->type_specifier_list);
         }
 
         if (! ast->type_specifier_list || ! ast->declarator) {
-            ast->type_specifier_list = 0;
-            ast->declarator = 0;
+            ast->type_specifier_list = nullptr;
+            ast->declarator = nullptr;
 
             rewind(startOfTypeSpecifier);
             parseAssignmentExpression(ast->initializer);
@@ -3737,7 +3737,7 @@ bool Parser::parseCompoundStatement(StatementAST *&node)
                 break;
 
             int start_statement = cursor();
-            StatementAST *statement = 0;
+            StatementAST *statement = nullptr;
             if (! parseStatement(statement)) {
                 rewind(start_statement + 1);
                 skipUntilStatement();
@@ -3877,7 +3877,7 @@ bool Parser::parseDeclarationStatement(StatementAST *&node)
 {
     DEBUG_THIS_RULE();
     int start = cursor();
-    DeclarationAST *declaration = 0;
+    DeclarationAST *declaration = nullptr;
     if (! parseBlockDeclaration(declaration))
         return false;
 
@@ -4131,8 +4131,8 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
     bool has_type_specifier = false;
     bool has_complex_type_specifier = false;
     int startOfNamedTypeSpecifier = 0;
-    NameAST *named_type_specifier = 0;
-    SpecifierListAST *decl_specifier_seq = 0,
+    NameAST *named_type_specifier = nullptr;
+    SpecifierListAST *decl_specifier_seq = nullptr,
          **decl_specifier_seq_ptr = &decl_specifier_seq;
     for (;;) {
         if (lookAtCVQualifier() || lookAtFunctionSpecifier()
@@ -4216,22 +4216,22 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
             break;
     }
 
-    DeclaratorListAST *declarator_list = 0,
+    DeclaratorListAST *declarator_list = nullptr,
         **declarator_ptr = &declarator_list;
 
-    DeclaratorAST *declarator = 0;
+    DeclaratorAST *declarator = nullptr;
 
     if (LA() != T_SEMICOLON) {
         const bool maybeCtor = (LA() == T_LPAREN && named_type_specifier);
         bool didParseInitDeclarator = parseInitDeclarator(declarator, decl_specifier_seq, declaringClass);
         if ((! didParseInitDeclarator && maybeCtor) || (didParseInitDeclarator && maybeCtor && LA() == T_COLON)){
             rewind(startOfNamedTypeSpecifier);
-            named_type_specifier = 0;
+            named_type_specifier = nullptr;
             // pop the named type specifier from the decl-specifier-seq
             SpecifierListAST **spec_ptr = &decl_specifier_seq;
             for (; *spec_ptr; spec_ptr = &(*spec_ptr)->next) {
                 if (! (*spec_ptr)->next) {
-                    *spec_ptr = 0;
+                    *spec_ptr = nullptr;
                     break;
                 }
             }
@@ -4258,7 +4258,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
         while (LA() == T_COMMA) {
             consumeToken(); // consume T_COMMA
 
-            declarator = 0;
+            declarator = nullptr;
             if (parseInitDeclarator(declarator, decl_specifier_seq, declaringClass)) {
                 *declarator_ptr = new (_pool) DeclaratorListAST;
                 (*declarator_ptr)->value = declarator;
@@ -4282,7 +4282,7 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
             node = ast;
             CACHE_AND_RETURN(cacheKey, true); // recognized a function definition.
         } else {
-            CtorInitializerAST *ctor_initializer = 0;
+            CtorInitializerAST *ctor_initializer = nullptr;
             bool hasCtorInitializer = false;
 
             if (LA() == T_COLON) {
@@ -4339,7 +4339,7 @@ bool Parser::maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq
                     spec->asEnumSpecifier() ||
                     spec->asClassSpecifier()) {
                 for (it = it->next; it; it = it->next)
-                    if (it->value->asAttributeSpecifier() == 0)
+                    if (it->value->asAttributeSpecifier() == nullptr)
                         return false;
                 return true;
             }
@@ -4392,7 +4392,7 @@ bool Parser::parseTryBlockStatement(StatementAST *&node, CtorInitializerAST **pl
         // [ctor-initializer]
         if (LA() == T_COLON) {
             const int colonPos = cursor();
-            CtorInitializerAST *ctor_initializer = 0;
+            CtorInitializerAST *ctor_initializer = nullptr;
             parseCtorInitializer(ctor_initializer);
 
             if (LA() != T_LBRACE) {
@@ -4451,7 +4451,7 @@ bool Parser::parseExceptionDeclaration(ExceptionDeclarationAST *&node)
         return true;
     }
 
-    SpecifierListAST *type_specifier = 0;
+    SpecifierListAST *type_specifier = nullptr;
     if (parseTypeSpecifier(type_specifier)) {
         ExceptionDeclarationAST *ast = new (_pool) ExceptionDeclarationAST;
         ast->type_specifier_list = type_specifier;
@@ -4554,7 +4554,7 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
             // GNU extension: '(' '{' statement-list '}' ')'
             CompoundExpressionAST *ast = new (_pool) CompoundExpressionAST;
             ast->lparen_token = consumeToken();
-            StatementAST *statement = 0;
+            StatementAST *statement = nullptr;
             parseCompoundStatement(statement);
             ast->statement = statement->asCompoundStatement();
             match(T_RPAREN, &ast->rparen_token);
@@ -4589,7 +4589,7 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
         return parseObjCExpression(node);
 
     default: {
-        NameAST *name = 0;
+        NameAST *name = nullptr;
         if (parseNameId(name)) {
             IdExpressionAST *ast = new (_pool) IdExpressionAST;
             ast->name = name;
@@ -4810,9 +4810,9 @@ bool Parser::parseObjCMessageExpression(ExpressionAST *&node)
     int start = cursor();
 
     int lbracket_token = consumeToken();
-    ExpressionAST *receiver_expression = 0;
-    ObjCSelectorAST *selector = 0;
-    ObjCMessageArgumentListAST *argument_list = 0;
+    ExpressionAST *receiver_expression = nullptr;
+    ObjCSelectorAST *selector = nullptr;
+    ObjCMessageArgumentListAST *argument_list = nullptr;
 
     if (parseObjCMessageReceiver(receiver_expression) &&
         parseObjCMessageArguments(selector, argument_list)) {
@@ -4847,8 +4847,8 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
 
     int start = cursor();
 
-    ObjCSelectorArgumentAST *selectorArgument = 0;
-    ObjCMessageArgumentAST *messageArgument = 0;
+    ObjCSelectorArgumentAST *selectorArgument = nullptr;
+    ObjCMessageArgumentAST *messageArgument = nullptr;
 
     if (parseObjCSelectorArg(selectorArgument, messageArgument)) {
         ObjCSelectorArgumentListAST *selAst = new (_pool) ObjCSelectorArgumentListAST;
@@ -4898,7 +4898,7 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
         sel->selector_argument_list->value = new (_pool) ObjCSelectorArgumentAST;
         sel->selector_argument_list->value->name_token = name_token;
         selNode = sel;
-        argNode = 0;
+        argNode = nullptr;
         return true;
     }
 
@@ -4942,7 +4942,7 @@ bool Parser::parseNameId(NameAST *&name)
 
     QualifiedNameAST *qualified_name_id = name->asQualifiedName();
 
-    TemplateIdAST *template_id = 0;
+    TemplateIdAST *template_id = nullptr;
     if (qualified_name_id) {
         if (NameAST *unqualified_name = qualified_name_id->unqualified_name)
             template_id = unqualified_name->asTemplateId();
@@ -4960,7 +4960,7 @@ bool Parser::parseNameId(NameAST *&name)
                     template_arguments->value->asBinaryExpression()) {
 
                 int saved = cursor();
-                ExpressionAST *expr = 0;
+                ExpressionAST *expr = nullptr;
 
                 bool blocked = blockErrors(true);
                 bool lookAtCastExpression = parseCastExpression(expr);
@@ -4972,7 +4972,7 @@ bool Parser::parseNameId(NameAST *&name)
                                 && cast_expression->type_id && cast_expression->expression) {
                             rewind(start);
 
-                            name = 0;
+                            name = nullptr;
                             return parseName(name, false);
                         }
                     }
@@ -5016,7 +5016,7 @@ bool Parser::parseNestedExpression(ExpressionAST *&node)
         int lparen_token = consumeToken();
         bool previousTemplateArguments = switchTemplateArguments(false);
 
-        ExpressionAST *expression = 0;
+        ExpressionAST *expression = nullptr;
         if (parseExpression(expression) && LA() == T_RPAREN) {
             NestedExpressionAST *ast = new (_pool) NestedExpressionAST;
             ast->lparen_token = lparen_token;
@@ -5057,7 +5057,7 @@ bool Parser::parseTypenameCallExpression(ExpressionAST *&node)
     DEBUG_THIS_RULE();
     if (LA() == T_TYPENAME) {
         int typename_token = consumeToken();
-        NameAST *name = 0;
+        NameAST *name = nullptr;
         if (parseName(name)
                 && (LA() == T_LPAREN || (_languageFeatures.cxx11Enabled && LA() == T_LBRACE))) {
             TypenameCallExpressionAST *ast = new (_pool) TypenameCallExpressionAST;
@@ -5116,12 +5116,12 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
 
     default: {
         int start = cursor();
-        SpecifierListAST *type_specifier = 0;
+        SpecifierListAST *type_specifier = nullptr;
         bool blocked = blockErrors(true);
         if (lookAtBuiltinTypeSpecifier() &&
                 parseSimpleTypeSpecifier(type_specifier) &&
                 (LA() == T_LPAREN || (_languageFeatures.cxx11Enabled && LA() == T_LBRACE))) {
-            ExpressionAST *expr = 0;
+            ExpressionAST *expr = nullptr;
             if (LA() == T_LPAREN) {
                 parseExpressionListParen(expr);
             } else { // T_LBRACE
@@ -5139,7 +5139,7 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
         // look for compound literals
         if (LA() == T_LPAREN) {
             int lparen_token = consumeToken();
-            ExpressionAST *type_id = 0;
+            ExpressionAST *type_id = nullptr;
             if (parseTypeId(type_id) && LA() == T_RPAREN) {
                 int rparen_token = consumeToken();
                 if (LA() == T_LBRACE) {
@@ -5281,7 +5281,7 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
         ast->alignof_token = consumeToken();
 
         match(T_LPAREN, &ast->lparen_token);
-        ExpressionAST *temp = 0;
+        ExpressionAST *temp = nullptr;
         parseTypeId(temp);
         if (temp)
             ast->typeId = temp->asTypeId();
@@ -5319,7 +5319,7 @@ bool Parser::parseExpressionListParen(ExpressionAST *&node)
     DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
         int lparen_token = consumeToken();
-        ExpressionListAST *expression_list = 0;
+        ExpressionListAST *expression_list = nullptr;
         if (parseExpressionList(expression_list) && LA() == T_RPAREN) {
             int rparen_token = consumeToken();
             ExpressionListParenAST *ast = new (_pool) ExpressionListParenAST;
@@ -5351,12 +5351,12 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
 
     ast->new_token = consumeToken();
 
-    ExpressionAST *parenExpressionList = 0;
+    ExpressionAST *parenExpressionList = nullptr;
 
     if (parseExpressionListParen(parenExpressionList)) {
         int after_new_placement = cursor();
 
-        NewTypeIdAST *new_type_id = 0;
+        NewTypeIdAST *new_type_id = nullptr;
         if (parseNewTypeId(new_type_id)) {
             ast->new_placement = parenExpressionList->asExpressionListParen();
             ast->new_type_id = new_type_id;
@@ -5369,7 +5369,7 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
         rewind(after_new_placement);
         if (LA() == T_LPAREN) {
             int lparen_token = consumeToken();
-            ExpressionAST *type_id = 0;
+            ExpressionAST *type_id = nullptr;
             if (parseTypeId(type_id) && LA() == T_RPAREN) {
                 ast->new_placement = parenExpressionList->asExpressionListParen();
                 ast->lparen_token = lparen_token;
@@ -5386,7 +5386,7 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
 
     if (LA() == T_LPAREN) {
         int lparen_token = consumeToken();
-        ExpressionAST *type_id = 0;
+        ExpressionAST *type_id = nullptr;
         if (parseTypeId(type_id) && LA() == T_RPAREN) {
             ast->lparen_token = lparen_token;
             ast->type_id = type_id;
@@ -5406,7 +5406,7 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
 bool Parser::parseNewTypeId(NewTypeIdAST *&node)
 {
     DEBUG_THIS_RULE();
-    SpecifierListAST *typeSpec = 0;
+    SpecifierListAST *typeSpec = nullptr;
     if (! parseTypeSpecifier(typeSpec))
         return false;
 
@@ -5481,7 +5481,7 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
     if (LA() == T_LPAREN) {
         int lparen_token = consumeToken();
         int initialCursor = cursor();
-        ExpressionAST *type_id = 0;
+        ExpressionAST *type_id = nullptr;
         if (parseTypeId(type_id) && LA() == T_RPAREN) {
 
             if (TypeIdAST *tid = type_id->asTypeId()) {
@@ -5496,7 +5496,7 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
                             const int rparen_token = consumeToken();
 
                             const bool blocked = blockErrors(true);
-                            ExpressionAST *unary = 0;
+                            ExpressionAST *unary = nullptr;
                             bool followedByUnaryExpression = parseUnaryExpression(unary);
                             blockErrors(blocked);
                             rewind(rparen_token);
@@ -5505,7 +5505,7 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
                                 if (! unary)
                                     followedByUnaryExpression = false;
                                 else if (UnaryExpressionAST *u = unary->asUnaryExpression())
-                                    followedByUnaryExpression = u->expression != 0;
+                                    followedByUnaryExpression = u->expression != nullptr;
                             }
 
                             if (! followedByUnaryExpression)
@@ -5522,7 +5522,7 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
             }
 
             int rparen_token = consumeToken();
-            ExpressionAST *expression = 0;
+            ExpressionAST *expression = nullptr;
             if (parseCastExpression(expression)) {
                 CastExpressionAST *ast = new (_pool) CastExpressionAST;
                 ast->lparen_token = lparen_token;
@@ -5535,7 +5535,7 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
         }
 
 parse_as_unary_expression:
-        _astCache->insert(ASTCache::TypeId, initialCursor, 0, cursor(), false);
+        _astCache->insert(ASTCache::TypeId, initialCursor, nullptr, cursor(), false);
         rewind(lparen_token);
     }
 
@@ -5618,7 +5618,7 @@ bool Parser::parseQtMethod(ExpressionAST *&node)
         QtMethodAST *ast = new (_pool) QtMethodAST;
         ast->method_token = consumeToken();
         match(T_LPAREN, &ast->lparen_token);
-        if (! parseDeclarator(ast->declarator, /*decl_specifier_seq =*/ 0))
+        if (! parseDeclarator(ast->declarator, /*decl_specifier_seq =*/ nullptr))
             error(cursor(), "expected a function declarator before token `%s'", tok().spell());
         match(T_RPAREN, &ast->rparen_token);
         node = ast;
@@ -5664,21 +5664,21 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
         const int operPrecedence = precedence(tok().kind(), _templateArguments);
         const int oper = consumeToken();
 
-        ConditionalExpressionAST *condExpr = 0;
+        ConditionalExpressionAST *condExpr = nullptr;
         if (operPrecedence == Prec::Conditional) {
             condExpr = new (_pool) ConditionalExpressionAST;
             condExpr->question_token = oper;
             if (tok().kind() == T_COLON) {
                 // GNU extension:
                 //   logical-or-expression '?' ':' conditional-expression
-                condExpr->left_expression = 0;
+                condExpr->left_expression = nullptr;
             } else {
                 parseExpression(condExpr->left_expression);
             }
             match(T_COLON, &condExpr->colon_token);
         }
 
-        ExpressionAST *rhs = 0;
+        ExpressionAST *rhs = nullptr;
         const bool isCPlusPlus = true;
         if (operPrecedence <= Prec::Conditional && isCPlusPlus) {
             // in C++ you can put a throw in the right-most expression of a conditional expression,
@@ -5783,7 +5783,7 @@ bool Parser::parseDesignatedInitializer(ExpressionAST *&node)
 
     DesignatedInitializerAST *ast = new (_pool) DesignatedInitializerAST;
     DesignatorListAST **designator_list_ptr = &ast->designator_list;
-    DesignatorAST *designator = 0;
+    DesignatorAST *designator = nullptr;
     const int start = cursor();
     while (parseDesignator(designator)) {
         *designator_list_ptr = new (_pool) DesignatorListAST;
@@ -5931,7 +5931,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         parseObjCProtocolRefs(ast->protocol_refs);
 
         DeclarationListAST **nextMembers = &ast->member_declaration_list;
-        DeclarationAST *declaration = 0;
+        DeclarationAST *declaration = nullptr;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
             (*nextMembers)->value = declaration;
@@ -5962,7 +5962,7 @@ bool Parser::parseObjCInterface(DeclarationAST *&node,
         parseObjClassInstanceVariables(ast->inst_vars_decl);
 
         DeclarationListAST **nextMembers = &ast->member_declaration_list;
-        DeclarationAST *declaration = 0;
+        DeclarationAST *declaration = nullptr;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
             (*nextMembers)->value = declaration;
@@ -6033,7 +6033,7 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         parseObjCProtocolRefs(ast->protocol_refs);
 
         DeclarationListAST **nextMembers = &ast->member_declaration_list;
-        DeclarationAST *declaration = 0;
+        DeclarationAST *declaration = nullptr;
         while (parseObjCInterfaceMemberDeclaration(declaration)) {
             *nextMembers = new (_pool) DeclarationListAST;
             (*nextMembers)->value = declaration;
@@ -6111,7 +6111,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 
     while (LA() && LA() != T_AT_END) {
         int start = cursor();
-        DeclarationAST *declaration = 0;
+        DeclarationAST *declaration = nullptr;
 
         switch (LA()) {
         case T_PLUS:
@@ -6213,7 +6213,7 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
 bool Parser::parseObjCMethodDefinition(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
-    ObjCMethodPrototypeAST *method_prototype = 0;
+    ObjCMethodPrototypeAST *method_prototype = nullptr;
     if (! parseObjCMethodPrototype(method_prototype))
         return false;
 
@@ -6393,7 +6393,7 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierListAS
     if (LA() == T_LPAREN) {
         match(T_LPAREN, &ast->lparen_token);
 
-        ObjCPropertyAttributeAST *property_attribute = 0;
+        ObjCPropertyAttributeAST *property_attribute = nullptr;
         if (parseObjCPropertyAttribute(property_attribute)) {
             ast->property_attribute_list = new (_pool) ObjCPropertyAttributeListAST;
             ast->property_attribute_list->value = property_attribute;
@@ -6439,8 +6439,8 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
     parseObjCTypeName(ast->type_name);
 
     if ((lookAtObjCSelector() && LA(2) == T_COLON) || LA() == T_COLON) {
-        ObjCSelectorArgumentAST *argument = 0;
-        ObjCMessageArgumentDeclarationAST *declaration = 0;
+        ObjCSelectorArgumentAST *argument = nullptr;
+        ObjCMessageArgumentDeclarationAST *declaration = nullptr;
         parseObjCKeywordDeclaration(argument, declaration);
 
         ObjCSelectorAST *sel = new (_pool) ObjCSelectorAST;
@@ -6472,7 +6472,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
             }
 
             // TODO: Is this still valid, and if so, should it be stored in the AST? (EV)
-            ParameterDeclarationAST *parameter_declaration = 0;
+            ParameterDeclarationAST *parameter_declaration = nullptr;
             parseParameterDeclaration(parameter_declaration);
         }
     } else if (lookAtObjCSelector()) {
@@ -6661,7 +6661,7 @@ bool Parser::parseLambdaExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
 
-    LambdaIntroducerAST *lambda_introducer = 0;
+    LambdaIntroducerAST *lambda_introducer = nullptr;
     if (parseLambdaIntroducer(lambda_introducer)) {
         LambdaExpressionAST *ast = new (_pool) LambdaExpressionAST;
         ast->lambda_introducer = lambda_introducer;
@@ -6704,7 +6704,7 @@ bool Parser::parseLambdaCapture(LambdaCaptureAST *&node)
     bool startsWithDefaultCapture = false;
 
     int default_capture = 0;
-    CaptureListAST *capture_list = 0;
+    CaptureListAST *capture_list = nullptr;
 
     if (LA() == T_AMPER || LA() == T_EQUAL) {
         if (LA(2) == T_COMMA || LA(2) == T_RBRACKET) {
@@ -6758,7 +6758,7 @@ bool Parser::parseCaptureList(CaptureListAST *&node)
 {
     DEBUG_THIS_RULE();
 
-    CaptureAST *capture = 0;
+    CaptureAST *capture = nullptr;
 
     if (parseCapture(capture)) {
         node = new (_pool) CaptureListAST;
@@ -6767,7 +6767,7 @@ bool Parser::parseCaptureList(CaptureListAST *&node)
         CaptureListAST **l = &node->next;
         while (LA() == T_COMMA) {
             consumeToken(); // consume `,'
-            CaptureAST *capture = 0;
+            CaptureAST *capture = nullptr;
             parseCapture(capture);
             if (capture) {
                 *l = new (_pool) CaptureListAST;

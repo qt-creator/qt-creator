@@ -62,7 +62,7 @@ public:
     bool isEnabled() const override;
     void requestSourceRangesAndDiagnostics(const QString &queryText, const QString &exampleContent);
     SearchHandle *find(const QString &queryText);
-    void findAll(const QString &queryText, Core::FindFlags findFlags = 0) override;
+    void findAll(const QString &queryText, Core::FindFlags findFlags = nullptr) override;
     bool showSearchTermInput() const override;
     Core::FindFlags supportedFindFlags() const override;
 

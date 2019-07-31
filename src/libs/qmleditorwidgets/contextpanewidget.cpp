@@ -155,7 +155,7 @@ void DragWidget::enterEvent(QEvent *)
         setCursor(Qt::ArrowCursor);
 }
 
-ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_currentWidget(0)
+ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_currentWidget(nullptr)
 {
     QGridLayout *layout = new QGridLayout(this);
     layout->setMargin(0);
@@ -207,7 +207,7 @@ ContextPaneWidget::~ContextPaneWidget()
     //if the pane was never activated the widget is not in a widget tree
     if (!m_bauhausColorDialog.isNull()) {
         delete m_bauhausColorDialog.data();
-        m_bauhausColorDialog = 0;
+        m_bauhausColorDialog = nullptr;
     }
 }
 

@@ -67,8 +67,8 @@ void ScopeBuilder::push(AST::Node *node)
             if (!_scopeChain->qmlScopeObjects().isEmpty()
                     && name.startsWith(QLatin1String("on"))
                     && !script->qualifiedId->next) {
-                const ObjectValue *owner = 0;
-                const Value *value = 0;
+                const ObjectValue *owner = nullptr;
+                const Value *value = nullptr;
                 // try to find the name on the scope objects
                 foreach (const ObjectValue *scope, _scopeChain->qmlScopeObjects()) {
                     value = scope->lookupMember(name, _scopeChain->context(), &owner);
@@ -217,19 +217,19 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
 const Value *ScopeBuilder::scopeObjectLookup(AST::UiQualifiedId *id)
 {
     // do a name lookup on the scope objects
-    const Value *result = 0;
+    const Value *result = nullptr;
     foreach (const ObjectValue *scopeObject, _scopeChain->qmlScopeObjects()) {
         const ObjectValue *object = scopeObject;
         for (UiQualifiedId *it = id; it; it = it->next) {
             if (it->name.isEmpty())
-                return 0;
+                return nullptr;
             result = object->lookupMember(it->name.toString(), _scopeChain->context());
             if (!result)
                 break;
             if (it->next) {
                 object = result->asObjectValue();
                 if (!object) {
-                    result = 0;
+                    result = nullptr;
                     break;
                 }
             }
@@ -255,5 +255,5 @@ const ObjectValue *ScopeBuilder::isPropertyChangesObject(const ContextPtr &conte
                 return prototype;
         }
     }
-    return 0;
+    return nullptr;
 }

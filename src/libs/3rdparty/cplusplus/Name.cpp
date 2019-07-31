@@ -35,28 +35,28 @@ Name::~Name()
 { }
 
 bool Name::isNameId() const
-{ return asNameId() != 0; }
+{ return asNameId() != nullptr; }
 
 bool Name::isAnonymousNameId() const
-{ return asAnonymousNameId() != 0; }
+{ return asAnonymousNameId() != nullptr; }
 
 bool Name::isTemplateNameId() const
-{ return asTemplateNameId() != 0; }
+{ return asTemplateNameId() != nullptr; }
 
 bool Name::isDestructorNameId() const
-{ return asDestructorNameId() != 0; }
+{ return asDestructorNameId() != nullptr; }
 
 bool Name::isOperatorNameId() const
-{ return asOperatorNameId() != 0; }
+{ return asOperatorNameId() != nullptr; }
 
 bool Name::isConversionNameId() const
-{ return asConversionNameId() != 0; }
+{ return asConversionNameId() != nullptr; }
 
 bool Name::isQualifiedNameId() const
-{ return asQualifiedNameId() != 0; }
+{ return asQualifiedNameId() != nullptr; }
 
 bool Name::isSelectorNameId() const
-{ return asSelectorNameId() != 0; }
+{ return asSelectorNameId() != nullptr; }
 
 void Name::accept(NameVisitor *visitor) const
 {
@@ -79,9 +79,9 @@ bool Name::match(const Name *other, Matcher *matcher) const
 
 bool Name::Compare::operator()(const Name *name, const Name *other) const
 {
-    if (name == 0)
-        return other != 0;
-    if (other == 0)
+    if (name == nullptr)
+        return other != nullptr;
+    if (other == nullptr)
         return false;
     if (name == other)
         return false;
@@ -89,9 +89,9 @@ bool Name::Compare::operator()(const Name *name, const Name *other) const
     const Identifier *id = name->identifier();
     const Identifier *otherId = other->identifier();
 
-    if (id == 0)
-        return otherId != 0;
-    if (otherId == 0)
+    if (id == nullptr)
+        return otherId != nullptr;
+    if (otherId == nullptr)
         return false;
 
     return std::strcmp(id->chars(), otherId->chars()) < 0;

@@ -138,8 +138,8 @@ Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const Librar
     d->builtins = builtins;
     d->vContext = vContext;
 
-    d->diagnosticMessages = 0;
-    d->allDiagnosticMessages = 0;
+    d->diagnosticMessages = nullptr;
+    d->allDiagnosticMessages = nullptr;
 
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
     if (modelManager) {
@@ -151,11 +151,11 @@ Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const Librar
         }
 
         // build an object with the context properties from C++
-        ObjectValue *cppContextProperties = d->valueOwner->newObject(/* prototype = */ 0);
+        ObjectValue *cppContextProperties = d->valueOwner->newObject(/* prototype = */ nullptr);
         for (const ModelManagerInterface::CppData &cppData : cppDataHash) {
             for (auto it = cppData.contextProperties.cbegin(), end = cppData.contextProperties.cend();
                     it != end; ++it) {
-                const Value *value = 0;
+                const Value *value = nullptr;
                 const QString cppTypeName = it.value();
                 if (!cppTypeName.isEmpty())
                     value = d->valueOwner->cppQmlTypes().objectByCppName(cppTypeName);
@@ -289,7 +289,7 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
 {
     Import import;
     import.info = importInfo;
-    import.object = 0;
+    import.object = nullptr;
     import.valid = true;
 
     QString path = importInfo.path();
@@ -314,7 +314,7 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
     } else if (importInfo.type() == ImportType::QrcFile) {
         QLocale locale;
         QStringList filePaths = ModelManagerInterface::instance()
-                ->filesAtQrcPath(path, &locale, 0, ModelManagerInterface::ActiveQrcResources);
+                ->filesAtQrcPath(path, &locale, nullptr, ModelManagerInterface::ActiveQrcResources);
         if (filePaths.isEmpty())
             filePaths = ModelManagerInterface::instance()->filesAtQrcPath(path);
         if (!filePaths.isEmpty()) {

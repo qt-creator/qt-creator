@@ -76,7 +76,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileP
     QHash<ProKey, ProString> versionInfo;
     if (!BaseQtVersion::queryQMakeVariables(qmakePath, Utils::Environment::systemEnvironment(),
                                             &versionInfo, error))
-        return 0;
+        return nullptr;
     Utils::FilePath mkspec = BaseQtVersion::mkspecFromVersionInfo(versionInfo);
 
     QMakeVfs vfs;
@@ -118,7 +118,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileP
         *error = QCoreApplication::translate("QtSupport::QtVersionFactory",
                     "No factory found for qmake: \"%1\"").arg(qmakePath.toUserOutput());
     }
-    return 0;
+    return nullptr;
 }
 
 BaseQtVersion *QtVersionFactory::create() const

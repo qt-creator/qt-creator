@@ -42,8 +42,8 @@ public:
     void setTarget(ProjectExplorer::Target *target);
     ProjectExplorer::Target *target() const;
 
-    QString findPath(const QString &filePath, bool *success = 0) const;
-    QUrl findUrl(const QString &filePath, bool *success = 0) const;
+    QString findPath(const QString &filePath, bool *success = nullptr) const;
+    QUrl findUrl(const QString &filePath, bool *success = nullptr) const;
 
 private:
     QPointer<ProjectExplorer::Target> m_target;

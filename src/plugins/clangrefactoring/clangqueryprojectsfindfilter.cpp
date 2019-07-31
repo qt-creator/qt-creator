@@ -119,7 +119,7 @@ bool ClangQueryProjectsFindFilter::showSearchTermInput() const
 
 Core::FindFlags ClangQueryProjectsFindFilter::supportedFindFlags() const
 {
-    return 0;
+    return nullptr;
 }
 
 void ClangQueryProjectsFindFilter::setProjectParts(const std::vector<CppTools::ProjectPart::Ptr> &projectParts)

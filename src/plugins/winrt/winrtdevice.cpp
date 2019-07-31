@@ -359,10 +359,10 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
                                     << internalName << ")";
         }
     }
-    QString message = tr("Found %n Windows Runtime devices.", 0, numFound);
+    QString message = tr("Found %n Windows Runtime devices.", nullptr, numFound);
     if (const int numNew = numFound - numSkipped) {
         message += QLatin1Char(' ');
-        message += tr("%n of them are new.", 0, numNew);
+        message += tr("%n of them are new.", nullptr, numNew);
     }
     MessageManager::write(message);
 }

@@ -36,7 +36,7 @@ class QMLEDITORWIDGETS_EXPORT HueControl : public QWidget
     Q_PROPERTY(qreal hue READ hue WRITE setHue NOTIFY hueChanged)
 
 public:
-    HueControl(QWidget *parent = 0) : QWidget(parent), m_color(Qt::white), m_mousePressed(false)
+    HueControl(QWidget *parent = nullptr) : QWidget(parent), m_color(Qt::white), m_mousePressed(false)
     {
         setFixedWidth(28);
         setFixedHeight(130);

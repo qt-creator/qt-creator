@@ -186,7 +186,7 @@ public:
 class GLSL_EXPORT Struct: public Type, public Scope
 {
 public:
-    Struct(Scope *scope = 0)
+    Struct(Scope *scope = nullptr)
         : Scope(scope) {}
 
     QList<Symbol *> members() const override;
@@ -210,7 +210,7 @@ private:
 class GLSL_EXPORT Function: public Type, public Scope
 {
 public:
-    Function(Scope *scope = 0)
+    Function(Scope *scope = nullptr)
         : Scope(scope) {}
 
     const Type *returnType() const;
@@ -267,7 +267,7 @@ private:
 class GLSL_EXPORT OverloadSet: public Type, public Scope
 {
 public:
-    OverloadSet(Scope *enclosingScope = 0);
+    OverloadSet(Scope *enclosingScope = nullptr);
 
     QVector<Function *> functions() const;
     void addFunction(Function *function);

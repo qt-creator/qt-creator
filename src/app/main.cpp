@@ -129,7 +129,7 @@ static void displayHelpText(const QString &t)
 static void displayError(const QString &t)
 {
     if (Utils::HostOsInfo::isWindowsHost() && qApp)
-        QMessageBox::critical(0, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), t);
+        QMessageBox::critical(nullptr, QLatin1String(Core::Constants::IDE_DISPLAY_NAME), t);
     else
         qCritical("%s", qPrintable(t));
 }
@@ -154,7 +154,7 @@ static void printHelp(const QString &a0)
     displayHelpText(help);
 }
 
-QString applicationDirPath(char *arg = 0)
+QString applicationDirPath(char *arg = nullptr)
 {
     static QString dir;
 
@@ -179,7 +179,7 @@ static inline QString msgCoreLoadFailure(const QString &why)
 
 static inline int askMsgSendFailed()
 {
-    return QMessageBox::question(0, QApplication::translate("Application","Could not send message"),
+    return QMessageBox::question(nullptr, QApplication::translate("Application","Could not send message"),
                 QCoreApplication::translate("Application", "Unable to send command line arguments "
                                             "to the already running instance. It does not appear to "
                                             "be responding. Do you want to start a new instance of "
@@ -549,7 +549,7 @@ int main(int argc, char **argv)
     }
 
     const PluginSpecSet plugins = PluginManager::plugins();
-    PluginSpec *coreplugin = 0;
+    PluginSpec *coreplugin = nullptr;
     foreach (PluginSpec *spec, plugins) {
         if (spec->name() == QLatin1String(corePluginNameC)) {
             coreplugin = spec;

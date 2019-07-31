@@ -117,7 +117,7 @@ TimelineRenderPass::State *TimelineNotesRenderPass::update(const TimelineAbstrac
         return oldState;
 
     TimelineNotesRenderPassState *state;
-    if (oldState == 0) {
+    if (oldState == nullptr) {
         state = new TimelineNotesRenderPassState(model->expandedRowCount());
     } else {
         if (!stateChanged && !renderer->notesDirty())
@@ -253,7 +253,7 @@ void NotesMaterialShader::updateState(const RenderState &state, QSGMaterial *, Q
 
 char const *const *NotesMaterialShader::attributeNames() const
 {
-    static const char *const attr[] = {"vertexCoord", "distanceFromTop", 0};
+    static const char *const attr[] = {"vertexCoord", "distanceFromTop", nullptr};
     return attr;
 }
 

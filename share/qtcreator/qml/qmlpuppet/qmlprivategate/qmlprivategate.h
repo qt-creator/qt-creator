@@ -70,10 +70,10 @@ public:
     bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName);
     PropertyNameList propertyNameListForWritableProperties(QObject *object,
                                                            const PropertyName &baseName = PropertyName(),
-                                                           QObjectList *inspectedObjects = 0);
+                                                           QObjectList *inspectedObjects = nullptr);
     PropertyNameList allPropertyNames(QObject *object,
                                       const PropertyName &baseName = PropertyName(),
-                                      QObjectList *inspectedObjects = 0);
+                                      QObjectList *inspectedObjects = nullptr);
     bool hasFullImplementedListInterface(const QQmlListReference &list);
 
     void registerCustomData(QObject *object);

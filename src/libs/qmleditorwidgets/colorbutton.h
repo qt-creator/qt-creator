@@ -40,7 +40,7 @@ Q_PROPERTY(bool noColor READ noColor WRITE setNoColor)
 Q_PROPERTY(bool showArrow READ showArrow WRITE setShowArrow)
 
 public:
-    ColorButton(QWidget *parent = 0) :
+    ColorButton(QWidget *parent = nullptr) :
         QToolButton (parent),
         m_colorString(QLatin1String("#ffffff")),
         m_noColor(false),

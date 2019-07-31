@@ -46,7 +46,7 @@ public:
     Link(const Snapshot &snapshot, const ViewerContext &vContext, const LibraryInfo &builtins);
 
     // Link all documents in snapshot, collecting all diagnostic messages (if messages != 0)
-    ContextPtr operator()(QHash<QString, QList<DiagnosticMessage> > *messages = 0);
+    ContextPtr operator()(QHash<QString, QList<DiagnosticMessage> > *messages = nullptr);
 
     // Link all documents in snapshot, appending the diagnostic messages
     // for 'doc' in 'messages'

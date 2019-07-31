@@ -31,7 +31,7 @@
 using namespace CPlusPlus;
 
 SymbolNameVisitor::SymbolNameVisitor()
-    : _symbol(0)
+    : _symbol(nullptr)
 {
 }
 

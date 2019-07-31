@@ -36,7 +36,7 @@ class Scope;
 class GLSL_EXPORT Symbol
 {
 public:
-    Symbol(Scope *scope = 0);
+    Symbol(Scope *scope = nullptr);
     virtual ~Symbol();
 
     Scope *scope() const;
@@ -45,14 +45,14 @@ public:
     QString name() const;
     void setName(const QString &name);
 
-    virtual Scope *asScope() { return 0; }
-    virtual Struct *asStruct() { return 0; }
-    virtual Function *asFunction() { return 0; }
-    virtual Argument *asArgument() { return 0; }
-    virtual Block *asBlock() { return 0; }
-    virtual Variable *asVariable() { return 0; }
-    virtual OverloadSet *asOverloadSet() { return 0; }
-    virtual Namespace *asNamespace() { return 0; }
+    virtual Scope *asScope() { return nullptr; }
+    virtual Struct *asStruct() { return nullptr; }
+    virtual Function *asFunction() { return nullptr; }
+    virtual Argument *asArgument() { return nullptr; }
+    virtual Block *asBlock() { return nullptr; }
+    virtual Variable *asVariable() { return nullptr; }
+    virtual OverloadSet *asOverloadSet() { return nullptr; }
+    virtual Namespace *asNamespace() { return nullptr; }
 
     virtual const Type *type() const = 0;
 
@@ -64,7 +64,7 @@ private:
 class GLSL_EXPORT Scope: public Symbol
 {
 public:
-    Scope(Scope *sscope = 0);
+    Scope(Scope *sscope = nullptr);
 
     Symbol *lookup(const QString &name) const;
 

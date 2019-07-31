@@ -240,7 +240,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
             }
         }
         ret += entry.arg(tr("Object:")).arg(func->object());
-        ret += entry.arg(tr("Called:")).arg(tr("%n time(s)", 0, func->called()));
+        ret += entry.arg(tr("Called:")).arg(tr("%n time(s)", nullptr, func->called()));
         ret += "</dl><p/>";
 
         // self/inclusive costs

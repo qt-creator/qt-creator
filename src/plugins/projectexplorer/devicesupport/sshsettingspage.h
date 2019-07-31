@@ -39,7 +39,7 @@ class SshSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    SshSettingsPage(QObject *parent = 0);
+    SshSettingsPage(QObject *parent = nullptr);
 
 private:
     QWidget *widget() override;

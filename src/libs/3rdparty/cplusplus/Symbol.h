@@ -200,57 +200,57 @@ public:
 
     Utils::Link toLink() const;
 
-    virtual const Scope *asScope() const { return 0; }
-    virtual const Enum *asEnum() const { return 0; }
-    virtual const Function *asFunction() const { return 0; }
-    virtual const Namespace *asNamespace() const { return 0; }
-    virtual const Template *asTemplate() const { return 0; }
-    virtual const NamespaceAlias *asNamespaceAlias() const { return 0; }
-    virtual const Class *asClass() const { return 0; }
-    virtual const Block *asBlock() const { return 0; }
-    virtual const UsingNamespaceDirective *asUsingNamespaceDirective() const { return 0; }
-    virtual const UsingDeclaration *asUsingDeclaration() const { return 0; }
-    virtual const Declaration *asDeclaration() const { return 0; }
-    virtual const Argument *asArgument() const { return 0; }
-    virtual const TypenameArgument *asTypenameArgument() const { return 0; }
-    virtual const BaseClass *asBaseClass() const { return 0; }
-    virtual const ForwardClassDeclaration *asForwardClassDeclaration() const { return 0; }
-    virtual const QtPropertyDeclaration *asQtPropertyDeclaration() const { return 0; }
-    virtual const QtEnum *asQtEnum() const { return 0; }
-    virtual const ObjCBaseClass *asObjCBaseClass() const { return 0; }
-    virtual const ObjCBaseProtocol *asObjCBaseProtocol() const { return 0; }
-    virtual const ObjCClass *asObjCClass() const { return 0; }
-    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const { return 0; }
-    virtual const ObjCProtocol *asObjCProtocol() const { return 0; }
-    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const { return 0; }
-    virtual const ObjCMethod *asObjCMethod() const { return 0; }
-    virtual const ObjCPropertyDeclaration *asObjCPropertyDeclaration() const { return 0; }
+    virtual const Scope *asScope() const { return nullptr; }
+    virtual const Enum *asEnum() const { return nullptr; }
+    virtual const Function *asFunction() const { return nullptr; }
+    virtual const Namespace *asNamespace() const { return nullptr; }
+    virtual const Template *asTemplate() const { return nullptr; }
+    virtual const NamespaceAlias *asNamespaceAlias() const { return nullptr; }
+    virtual const Class *asClass() const { return nullptr; }
+    virtual const Block *asBlock() const { return nullptr; }
+    virtual const UsingNamespaceDirective *asUsingNamespaceDirective() const { return nullptr; }
+    virtual const UsingDeclaration *asUsingDeclaration() const { return nullptr; }
+    virtual const Declaration *asDeclaration() const { return nullptr; }
+    virtual const Argument *asArgument() const { return nullptr; }
+    virtual const TypenameArgument *asTypenameArgument() const { return nullptr; }
+    virtual const BaseClass *asBaseClass() const { return nullptr; }
+    virtual const ForwardClassDeclaration *asForwardClassDeclaration() const { return nullptr; }
+    virtual const QtPropertyDeclaration *asQtPropertyDeclaration() const { return nullptr; }
+    virtual const QtEnum *asQtEnum() const { return nullptr; }
+    virtual const ObjCBaseClass *asObjCBaseClass() const { return nullptr; }
+    virtual const ObjCBaseProtocol *asObjCBaseProtocol() const { return nullptr; }
+    virtual const ObjCClass *asObjCClass() const { return nullptr; }
+    virtual const ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() const { return nullptr; }
+    virtual const ObjCProtocol *asObjCProtocol() const { return nullptr; }
+    virtual const ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() const { return nullptr; }
+    virtual const ObjCMethod *asObjCMethod() const { return nullptr; }
+    virtual const ObjCPropertyDeclaration *asObjCPropertyDeclaration() const { return nullptr; }
 
-    virtual Scope *asScope() { return 0; }
-    virtual Enum *asEnum() { return 0; }
-    virtual Function *asFunction() { return 0; }
-    virtual Namespace *asNamespace() { return 0; }
-    virtual Template *asTemplate() { return 0; }
-    virtual NamespaceAlias *asNamespaceAlias() { return 0; }
-    virtual Class *asClass() { return 0; }
-    virtual Block *asBlock() { return 0; }
-    virtual UsingNamespaceDirective *asUsingNamespaceDirective() { return 0; }
-    virtual UsingDeclaration *asUsingDeclaration() { return 0; }
-    virtual Declaration *asDeclaration() { return 0; }
-    virtual Argument *asArgument() { return 0; }
-    virtual TypenameArgument *asTypenameArgument() { return 0; }
-    virtual BaseClass *asBaseClass() { return 0; }
-    virtual ForwardClassDeclaration *asForwardClassDeclaration() { return 0; }
-    virtual QtPropertyDeclaration *asQtPropertyDeclaration() { return 0; }
-    virtual QtEnum *asQtEnum() { return 0; }
-    virtual ObjCBaseClass *asObjCBaseClass() { return 0; }
-    virtual ObjCBaseProtocol *asObjCBaseProtocol() { return 0; }
-    virtual ObjCClass *asObjCClass() { return 0; }
-    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() { return 0; }
-    virtual ObjCProtocol *asObjCProtocol() { return 0; }
-    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() { return 0; }
-    virtual ObjCMethod *asObjCMethod() { return 0; }
-    virtual ObjCPropertyDeclaration *asObjCPropertyDeclaration() { return 0; }
+    virtual Scope *asScope() { return nullptr; }
+    virtual Enum *asEnum() { return nullptr; }
+    virtual Function *asFunction() { return nullptr; }
+    virtual Namespace *asNamespace() { return nullptr; }
+    virtual Template *asTemplate() { return nullptr; }
+    virtual NamespaceAlias *asNamespaceAlias() { return nullptr; }
+    virtual Class *asClass() { return nullptr; }
+    virtual Block *asBlock() { return nullptr; }
+    virtual UsingNamespaceDirective *asUsingNamespaceDirective() { return nullptr; }
+    virtual UsingDeclaration *asUsingDeclaration() { return nullptr; }
+    virtual Declaration *asDeclaration() { return nullptr; }
+    virtual Argument *asArgument() { return nullptr; }
+    virtual TypenameArgument *asTypenameArgument() { return nullptr; }
+    virtual BaseClass *asBaseClass() { return nullptr; }
+    virtual ForwardClassDeclaration *asForwardClassDeclaration() { return nullptr; }
+    virtual QtPropertyDeclaration *asQtPropertyDeclaration() { return nullptr; }
+    virtual QtEnum *asQtEnum() { return nullptr; }
+    virtual ObjCBaseClass *asObjCBaseClass() { return nullptr; }
+    virtual ObjCBaseProtocol *asObjCBaseProtocol() { return nullptr; }
+    virtual ObjCClass *asObjCClass() { return nullptr; }
+    virtual ObjCForwardClassDeclaration *asObjCForwardClassDeclaration() { return nullptr; }
+    virtual ObjCProtocol *asObjCProtocol() { return nullptr; }
+    virtual ObjCForwardProtocolDeclaration *asObjCForwardProtocolDeclaration() { return nullptr; }
+    virtual ObjCMethod *asObjCMethod() { return nullptr; }
+    virtual ObjCPropertyDeclaration *asObjCPropertyDeclaration() { return nullptr; }
 
     /// Returns this Symbol's type.
     virtual FullySpecifiedType type() const = 0;

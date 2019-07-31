@@ -39,7 +39,7 @@ class QMLEDITORWIDGETS_EXPORT GradientLine : public QWidget {
     Q_PROPERTY(QLinearGradient gradient READ gradient WRITE setGradient NOTIFY gradientChanged)
 
 public:
-    GradientLine(QWidget *parent = 0);
+    GradientLine(QWidget *parent = nullptr);
 
     QString gradientName() const { return m_gradientName; }
     void setGradientName(const QString &newName);

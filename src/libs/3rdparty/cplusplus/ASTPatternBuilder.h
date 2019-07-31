@@ -1181,7 +1181,7 @@ public:
         return ast;
     }
 
-    BaseSpecifierListAST *BaseSpecifierList(BaseSpecifierAST *value, BaseSpecifierListAST *next = 0)
+    BaseSpecifierListAST *BaseSpecifierList(BaseSpecifierAST *value, BaseSpecifierListAST *next = nullptr)
     {
         BaseSpecifierListAST *list = new (&pool) BaseSpecifierListAST;
         list->next = next;
@@ -1189,7 +1189,7 @@ public:
         return list;
     }
 
-    CaptureListAST *CaptureList(CaptureAST *value, CaptureListAST *next = 0)
+    CaptureListAST *CaptureList(CaptureAST *value, CaptureListAST *next = nullptr)
     {
         CaptureListAST *list = new (&pool) CaptureListAST;
         list->next = next;
@@ -1197,7 +1197,7 @@ public:
         return list;
     }
 
-    CatchClauseListAST *CatchClauseList(CatchClauseAST *value, CatchClauseListAST *next = 0)
+    CatchClauseListAST *CatchClauseList(CatchClauseAST *value, CatchClauseListAST *next = nullptr)
     {
         CatchClauseListAST *list = new (&pool) CatchClauseListAST;
         list->next = next;
@@ -1205,7 +1205,7 @@ public:
         return list;
     }
 
-    DeclarationListAST *DeclarationList(DeclarationAST *value, DeclarationListAST *next = 0)
+    DeclarationListAST *DeclarationList(DeclarationAST *value, DeclarationListAST *next = nullptr)
     {
         DeclarationListAST *list = new (&pool) DeclarationListAST;
         list->next = next;
@@ -1213,7 +1213,7 @@ public:
         return list;
     }
 
-    DeclaratorListAST *DeclaratorList(DeclaratorAST *value, DeclaratorListAST *next = 0)
+    DeclaratorListAST *DeclaratorList(DeclaratorAST *value, DeclaratorListAST *next = nullptr)
     {
         DeclaratorListAST *list = new (&pool) DeclaratorListAST;
         list->next = next;
@@ -1221,7 +1221,7 @@ public:
         return list;
     }
 
-    DesignatorListAST *DesignatorList(DesignatorAST *value, DesignatorListAST *next = 0)
+    DesignatorListAST *DesignatorList(DesignatorAST *value, DesignatorListAST *next = nullptr)
     {
         DesignatorListAST *list = new (&pool) DesignatorListAST;
         list->next = next;
@@ -1229,7 +1229,7 @@ public:
         return list;
     }
 
-    EnumeratorListAST *EnumeratorList(EnumeratorAST *value, EnumeratorListAST *next = 0)
+    EnumeratorListAST *EnumeratorList(EnumeratorAST *value, EnumeratorListAST *next = nullptr)
     {
         EnumeratorListAST *list = new (&pool) EnumeratorListAST;
         list->next = next;
@@ -1237,7 +1237,7 @@ public:
         return list;
     }
 
-    ExpressionListAST *ExpressionList(ExpressionAST *value, ExpressionListAST *next = 0)
+    ExpressionListAST *ExpressionList(ExpressionAST *value, ExpressionListAST *next = nullptr)
     {
         ExpressionListAST *list = new (&pool) ExpressionListAST;
         list->next = next;
@@ -1245,7 +1245,7 @@ public:
         return list;
     }
 
-    GnuAttributeListAST *GnuAttributeList(GnuAttributeAST *value, GnuAttributeListAST *next = 0)
+    GnuAttributeListAST *GnuAttributeList(GnuAttributeAST *value, GnuAttributeListAST *next = nullptr)
     {
         GnuAttributeListAST *list = new (&pool) GnuAttributeListAST;
         list->next = next;
@@ -1253,7 +1253,7 @@ public:
         return list;
     }
 
-    MemInitializerListAST *MemInitializerList(MemInitializerAST *value, MemInitializerListAST *next = 0)
+    MemInitializerListAST *MemInitializerList(MemInitializerAST *value, MemInitializerListAST *next = nullptr)
     {
         MemInitializerListAST *list = new (&pool) MemInitializerListAST;
         list->next = next;
@@ -1261,7 +1261,7 @@ public:
         return list;
     }
 
-    NameListAST *NameList(NameAST *value, NameListAST *next = 0)
+    NameListAST *NameList(NameAST *value, NameListAST *next = nullptr)
     {
         NameListAST *list = new (&pool) NameListAST;
         list->next = next;
@@ -1269,7 +1269,7 @@ public:
         return list;
     }
 
-    NestedNameSpecifierListAST *NestedNameSpecifierList(NestedNameSpecifierAST *value, NestedNameSpecifierListAST *next = 0)
+    NestedNameSpecifierListAST *NestedNameSpecifierList(NestedNameSpecifierAST *value, NestedNameSpecifierListAST *next = nullptr)
     {
         NestedNameSpecifierListAST *list = new (&pool) NestedNameSpecifierListAST;
         list->next = next;
@@ -1277,7 +1277,7 @@ public:
         return list;
     }
 
-    NewArrayDeclaratorListAST *NewArrayDeclaratorList(NewArrayDeclaratorAST *value, NewArrayDeclaratorListAST *next = 0)
+    NewArrayDeclaratorListAST *NewArrayDeclaratorList(NewArrayDeclaratorAST *value, NewArrayDeclaratorListAST *next = nullptr)
     {
         NewArrayDeclaratorListAST *list = new (&pool) NewArrayDeclaratorListAST;
         list->next = next;
@@ -1285,7 +1285,7 @@ public:
         return list;
     }
 
-    ObjCMessageArgumentDeclarationListAST *ObjCMessageArgumentDeclarationList(ObjCMessageArgumentDeclarationAST *value, ObjCMessageArgumentDeclarationListAST *next = 0)
+    ObjCMessageArgumentDeclarationListAST *ObjCMessageArgumentDeclarationList(ObjCMessageArgumentDeclarationAST *value, ObjCMessageArgumentDeclarationListAST *next = nullptr)
     {
         ObjCMessageArgumentDeclarationListAST *list = new (&pool) ObjCMessageArgumentDeclarationListAST;
         list->next = next;
@@ -1293,7 +1293,7 @@ public:
         return list;
     }
 
-    ObjCMessageArgumentListAST *ObjCMessageArgumentList(ObjCMessageArgumentAST *value, ObjCMessageArgumentListAST *next = 0)
+    ObjCMessageArgumentListAST *ObjCMessageArgumentList(ObjCMessageArgumentAST *value, ObjCMessageArgumentListAST *next = nullptr)
     {
         ObjCMessageArgumentListAST *list = new (&pool) ObjCMessageArgumentListAST;
         list->next = next;
@@ -1301,7 +1301,7 @@ public:
         return list;
     }
 
-    ObjCPropertyAttributeListAST *ObjCPropertyAttributeList(ObjCPropertyAttributeAST *value, ObjCPropertyAttributeListAST *next = 0)
+    ObjCPropertyAttributeListAST *ObjCPropertyAttributeList(ObjCPropertyAttributeAST *value, ObjCPropertyAttributeListAST *next = nullptr)
     {
         ObjCPropertyAttributeListAST *list = new (&pool) ObjCPropertyAttributeListAST;
         list->next = next;
@@ -1309,7 +1309,7 @@ public:
         return list;
     }
 
-    ObjCSelectorArgumentListAST *ObjCSelectorArgumentList(ObjCSelectorArgumentAST *value, ObjCSelectorArgumentListAST *next = 0)
+    ObjCSelectorArgumentListAST *ObjCSelectorArgumentList(ObjCSelectorArgumentAST *value, ObjCSelectorArgumentListAST *next = nullptr)
     {
         ObjCSelectorArgumentListAST *list = new (&pool) ObjCSelectorArgumentListAST;
         list->next = next;
@@ -1317,7 +1317,7 @@ public:
         return list;
     }
 
-    ObjCSynthesizedPropertyListAST *ObjCSynthesizedPropertyList(ObjCSynthesizedPropertyAST *value, ObjCSynthesizedPropertyListAST *next = 0)
+    ObjCSynthesizedPropertyListAST *ObjCSynthesizedPropertyList(ObjCSynthesizedPropertyAST *value, ObjCSynthesizedPropertyListAST *next = nullptr)
     {
         ObjCSynthesizedPropertyListAST *list = new (&pool) ObjCSynthesizedPropertyListAST;
         list->next = next;
@@ -1325,7 +1325,7 @@ public:
         return list;
     }
 
-    ParameterDeclarationListAST *ParameterDeclarationList(ParameterDeclarationAST *value, ParameterDeclarationListAST *next = 0)
+    ParameterDeclarationListAST *ParameterDeclarationList(ParameterDeclarationAST *value, ParameterDeclarationListAST *next = nullptr)
     {
         ParameterDeclarationListAST *list = new (&pool) ParameterDeclarationListAST;
         list->next = next;
@@ -1333,7 +1333,7 @@ public:
         return list;
     }
 
-    PostfixDeclaratorListAST *PostfixDeclaratorList(PostfixDeclaratorAST *value, PostfixDeclaratorListAST *next = 0)
+    PostfixDeclaratorListAST *PostfixDeclaratorList(PostfixDeclaratorAST *value, PostfixDeclaratorListAST *next = nullptr)
     {
         PostfixDeclaratorListAST *list = new (&pool) PostfixDeclaratorListAST;
         list->next = next;
@@ -1341,7 +1341,7 @@ public:
         return list;
     }
 
-    PtrOperatorListAST *PtrOperatorList(PtrOperatorAST *value, PtrOperatorListAST *next = 0)
+    PtrOperatorListAST *PtrOperatorList(PtrOperatorAST *value, PtrOperatorListAST *next = nullptr)
     {
         PtrOperatorListAST *list = new (&pool) PtrOperatorListAST;
         list->next = next;
@@ -1349,7 +1349,7 @@ public:
         return list;
     }
 
-    QtInterfaceNameListAST *QtInterfaceNameList(QtInterfaceNameAST *value, QtInterfaceNameListAST *next = 0)
+    QtInterfaceNameListAST *QtInterfaceNameList(QtInterfaceNameAST *value, QtInterfaceNameListAST *next = nullptr)
     {
         QtInterfaceNameListAST *list = new (&pool) QtInterfaceNameListAST;
         list->next = next;
@@ -1357,7 +1357,7 @@ public:
         return list;
     }
 
-    QtPropertyDeclarationItemListAST *QtPropertyDeclarationItemList(QtPropertyDeclarationItemAST *value, QtPropertyDeclarationItemListAST *next = 0)
+    QtPropertyDeclarationItemListAST *QtPropertyDeclarationItemList(QtPropertyDeclarationItemAST *value, QtPropertyDeclarationItemListAST *next = nullptr)
     {
         QtPropertyDeclarationItemListAST *list = new (&pool) QtPropertyDeclarationItemListAST;
         list->next = next;
@@ -1365,7 +1365,7 @@ public:
         return list;
     }
 
-    SpecifierListAST *SpecifierList(SpecifierAST *value, SpecifierListAST *next = 0)
+    SpecifierListAST *SpecifierList(SpecifierAST *value, SpecifierListAST *next = nullptr)
     {
         SpecifierListAST *list = new (&pool) SpecifierListAST;
         list->next = next;
@@ -1373,7 +1373,7 @@ public:
         return list;
     }
 
-    StatementListAST *StatementList(StatementAST *value, StatementListAST *next = 0)
+    StatementListAST *StatementList(StatementAST *value, StatementListAST *next = nullptr)
     {
         StatementListAST *list = new (&pool) StatementListAST;
         list->next = next;

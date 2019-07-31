@@ -114,7 +114,7 @@ QWidget *QtCreatorIntegration::containerWindow(QWidget * /*widget*/) const
 {
     if (SharedTools::WidgetHost *host = FormEditorW::activeWidgetHost())
         return host->integrationContainer();
-    return 0;
+    return nullptr;
 }
 
 static QList<Document::Ptr> findDocumentsIncluding(const Snapshot &docTable,
@@ -212,7 +212,7 @@ static const Class *findClass(const Namespace *parentNameSpace, const LookupCont
             } // member is namespave
         } // member is no class
     } // for members
-    return 0;
+    return nullptr;
 }
 
 static Function *findDeclaration(const Class *cl, const QString &functionName)
@@ -242,7 +242,7 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
                     return fun;
             }
     }
-    return 0;
+    return nullptr;
 }
 
 // TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this function
@@ -555,7 +555,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     // Find the class definition (ui class defined as member or base class)
     // in the file itself or in the directly included files (order 1).
     QString namespaceName;
-    const Class *cl = 0;
+    const Class *cl = nullptr;
     Document::Ptr doc;
 
     for (const Document::Ptr &d : qAsConst(docMap)) {

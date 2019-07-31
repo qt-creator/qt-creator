@@ -49,7 +49,7 @@ class EasingGraph: public QWidget
     Q_PROPERTY (QColor zeroColor READ zeroColor WRITE setZeroColor NOTIFY zeroColorChanged)
 
 public:
-    EasingGraph(QWidget *parent=0);
+    EasingGraph(QWidget *parent=nullptr);
     ~EasingGraph() override;
 
     QEasingCurve::Type easingType() const;

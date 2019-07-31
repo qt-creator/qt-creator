@@ -45,10 +45,10 @@ private:
     bool advanceCodePoint(bool stopOnNewLine = false);
 
 private:
-    const char * const m_utf8Text = 0;
+    const char * const m_utf8Text = nullptr;
 
-    const char *m_previousByte = 0;
-    const char *m_currentByte = 0;
+    const char *m_previousByte = nullptr;
+    const char *m_currentByte = nullptr;
 };
 
 } // namespace ClangBackEnd

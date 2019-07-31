@@ -49,13 +49,13 @@ public:
 
     ClassOrNamespace *baseExpression(const QList<LookupItem> &baseResults,
                                      int accessOp,
-                                     bool *replacedDotOperator = 0) const;
+                                     bool *replacedDotOperator = nullptr) const;
 
     const LookupContext &context() const;
 
 protected:
     ClassOrNamespace *findClass(const FullySpecifiedType &ty, Scope *scope,
-                                ClassOrNamespace *enclosingBinding = 0) const;
+                                ClassOrNamespace *enclosingBinding = nullptr) const;
 
     QList<LookupItem> expression(ExpressionAST *ast);
 
@@ -66,7 +66,7 @@ protected:
 
     void thisObject();
 
-    void addResult(const FullySpecifiedType &ty, Scope *scope, ClassOrNamespace *binding = 0);
+    void addResult(const FullySpecifiedType &ty, Scope *scope, ClassOrNamespace *binding = nullptr);
     void addResults(const QList<Symbol *> &symbols);
     void addResults(const QList<LookupItem> &items);
 

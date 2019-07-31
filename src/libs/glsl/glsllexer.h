@@ -47,7 +47,7 @@ public:
     };
 
     Token()
-        : kind(0), position(0), length(0), line(0), ptr(0) {}
+        : kind(0), position(0), length(0), line(0), ptr(nullptr) {}
 
     bool is(int k) const { return k == kind; }
     bool isNot(int k) const { return k != kind; }

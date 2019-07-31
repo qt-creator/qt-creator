@@ -52,7 +52,7 @@ class PreviewLabel : public QLabel
     Q_OBJECT
 
 public:
-    PreviewLabel(QWidget *parent = 0);
+    PreviewLabel(QWidget *parent = nullptr);
     void setZoom(int);
     void setIsBorderImage(bool b);
     void setMargins(int left, int top, int right, int bottom);
@@ -91,7 +91,7 @@ class PreviewDialog : public DragWidget
     Q_OBJECT
 
 public:
-    PreviewDialog(QWidget *parent = 0);
+    PreviewDialog(QWidget *parent = nullptr);
     void setPixmap(const QPixmap &p, int zoom = 1);
     void setZoom(int z);
     void setIsBorderImage(bool b);
@@ -118,7 +118,7 @@ class QMLEDITORWIDGETS_EXPORT ContextPaneWidgetImage : public QWidget
     Q_OBJECT
 
 public:
-    explicit ContextPaneWidgetImage(QWidget *parent = 0, bool borderImage = false);
+    explicit ContextPaneWidgetImage(QWidget *parent = nullptr, bool borderImage = false);
     ~ContextPaneWidgetImage();
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setPath(const QString& path);
@@ -161,7 +161,7 @@ class LabelFilter: public QObject {
 
     Q_OBJECT
 public:
-    LabelFilter(QObject* parent =0) : QObject(parent) {}
+    LabelFilter(QObject* parent =nullptr) : QObject(parent) {}
 signals:
     void doubleClicked();
 protected:
@@ -172,7 +172,7 @@ class WheelFilter: public QObject {
 
     Q_OBJECT
 public:
-    WheelFilter(QObject* parent =0) : QObject(parent) {}
+    WheelFilter(QObject* parent =nullptr) : QObject(parent) {}
     void setTarget(QObject *target) { m_target = target; }
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

@@ -197,7 +197,7 @@ void ResourceView::refresh()
 {
     m_qrcModel->refresh();
     QModelIndex idx = currentIndex();
-    setModel(0);
+    setModel(nullptr);
     setModel(m_qrcModel);
     setCurrentIndex(idx);
     expandAll();

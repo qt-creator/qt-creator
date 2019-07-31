@@ -65,7 +65,7 @@ FormEditorStack::~FormEditorStack()
 
 void FormEditorStack::add(const EditorData &data)
 {
-    if (m_designerCore == 0) { // Initialize first time here
+    if (m_designerCore == nullptr) { // Initialize first time here
         m_designerCore = data.widgetHost->formWindow()->core();
         connect(m_designerCore->formWindowManager(), &QDesignerFormWindowManagerInterface::activeFormWindowChanged,
                 this, &FormEditorStack::updateFormWindowSelectionHandles);
@@ -128,7 +128,7 @@ EditorData FormEditorStack::activeEditor() const
 SharedTools::WidgetHost *FormEditorStack::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const
 {
     const int i = indexOfFormWindow(fw);
-    return i != -1 ? m_formEditors[i].widgetHost : static_cast<SharedTools::WidgetHost *>(0);
+    return i != -1 ? m_formEditors[i].widgetHost : static_cast<SharedTools::WidgetHost *>(nullptr);
 }
 
 void FormEditorStack::removeFormWindowEditor(QObject *xmlEditor)
@@ -183,7 +183,7 @@ void FormEditorStack::formSizeChanged(int w, int h)
 SharedTools::WidgetHost *FormEditorStack::formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const
 {
     const int i = indexOfFormEditor(xmlEditor);
-    return i != -1 ? m_formEditors.at(i).widgetHost : static_cast<SharedTools::WidgetHost *>(0);
+    return i != -1 ? m_formEditors.at(i).widgetHost : static_cast<SharedTools::WidgetHost *>(nullptr);
 }
 
 void FormEditorStack::modeAboutToChange(Core::Id mode)

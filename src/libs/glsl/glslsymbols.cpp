@@ -31,7 +31,7 @@ using namespace GLSL;
 
 Argument::Argument(Function *scope)
     : Symbol(scope)
-    , _type(0)
+    , _type(nullptr)
 {
 }
 
@@ -63,7 +63,7 @@ void Block::add(Symbol *symbol)
 const Type *Block::type() const
 {
     // ### assert?
-    return 0;
+    return nullptr;
 }
 
 Symbol *Block::find(const QString &name) const
@@ -73,7 +73,7 @@ Symbol *Block::find(const QString &name) const
 
 Variable::Variable(Scope *scope)
     : Symbol(scope)
-    , _type(0)
+    , _type(nullptr)
     , _qualifiers(0)
 {
 }
@@ -127,7 +127,7 @@ void Namespace::add(Symbol *symbol)
 
 const Type *Namespace::type() const
 {
-    return 0;
+    return nullptr;
 }
 
 Symbol *Namespace::find(const QString &name) const

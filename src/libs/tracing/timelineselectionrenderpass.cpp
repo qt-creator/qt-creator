@@ -74,7 +74,7 @@ TimelineRenderPass::State *TimelineSelectionRenderPass::update(
 
     TimelineSelectionRenderPassState *state;
 
-    if (oldState == 0)
+    if (oldState == nullptr)
         state = new TimelineSelectionRenderPassState;
     else
         state = static_cast<TimelineSelectionRenderPassState *>(oldState);
@@ -153,7 +153,7 @@ TimelineSelectionRenderPass::TimelineSelectionRenderPass()
 }
 
 TimelineSelectionRenderPassState::TimelineSelectionRenderPassState() :
-    m_expandedOverlay(0), m_collapsedOverlay(0)
+    m_expandedOverlay(nullptr), m_collapsedOverlay(nullptr)
 {
     m_expandedOverlay = createSelectionNode(&m_material);
     m_collapsedOverlay = createSelectionNode(&m_material);

@@ -89,9 +89,9 @@ LineInfo::LineInfo()
     */
 
     // shorthands
-    yyLine = 0;
-    yyBraceDepth = 0;
-    yyLeftBraceFollows = 0;
+    yyLine = nullptr;
+    yyBraceDepth = nullptr;
+    yyLeftBraceFollows = nullptr;
 }
 
 LineInfo::~LineInfo()

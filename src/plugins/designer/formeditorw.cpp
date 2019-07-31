@@ -229,7 +229,7 @@ static FormEditorData *d = nullptr;
 static FormEditorW *m_instance = nullptr;
 
 FormEditorData::FormEditorData() :
-    m_formeditor(QDesignerComponents::createFormEditor(0)),
+    m_formeditor(QDesignerComponents::createFormEditor(nullptr)),
     m_initStage(FormEditorW::RegisterPlugins)
 {
     if (Designer::Constants::Internal::debug)
@@ -238,7 +238,7 @@ FormEditorData::FormEditorData() :
     d = this;
 
     std::fill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount,
-              static_cast<QWidget *>(0));
+              static_cast<QWidget *>(nullptr));
 
     m_formeditor->setTopLevel(ICore::mainWindow());
     m_formeditor->setSettingsManager(new SettingsManager());
@@ -352,7 +352,7 @@ void FormEditorData::setupViewActions()
 void FormEditorData::fullInit()
 {
     QTC_ASSERT(m_initStage == FormEditorW::RegisterPlugins, return);
-    QElapsedTimer *initTime = 0;
+    QElapsedTimer *initTime = nullptr;
     if (Designer::Constants::Internal::debug) {
         initTime = new QElapsedTimer;
         initTime->start();
@@ -437,32 +437,32 @@ void FormEditorData::fullInit()
 
 void FormEditorData::initDesignerSubWindows()
 {
-    std::fill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount, static_cast<QWidget*>(0));
+    std::fill(m_designerSubWindows, m_designerSubWindows + DesignerSubWindowCount, static_cast<QWidget*>(nullptr));
 
-    QDesignerWidgetBoxInterface *wb = QDesignerComponents::createWidgetBox(m_formeditor, 0);
+    QDesignerWidgetBoxInterface *wb = QDesignerComponents::createWidgetBox(m_formeditor, nullptr);
     wb->setWindowTitle(tr("Widget Box"));
     wb->setObjectName("WidgetBox");
     m_formeditor->setWidgetBox(wb);
     m_designerSubWindows[WidgetBoxSubWindow] = wb;
 
-    QDesignerObjectInspectorInterface *oi = QDesignerComponents::createObjectInspector(m_formeditor, 0);
+    QDesignerObjectInspectorInterface *oi = QDesignerComponents::createObjectInspector(m_formeditor, nullptr);
     oi->setWindowTitle(tr("Object Inspector"));
     oi->setObjectName("ObjectInspector");
     m_formeditor->setObjectInspector(oi);
     m_designerSubWindows[ObjectInspectorSubWindow] = oi;
 
-    QDesignerPropertyEditorInterface *pe = QDesignerComponents::createPropertyEditor(m_formeditor, 0);
+    QDesignerPropertyEditorInterface *pe = QDesignerComponents::createPropertyEditor(m_formeditor, nullptr);
     pe->setWindowTitle(tr("Property Editor"));
     pe->setObjectName("PropertyEditor");
     m_formeditor->setPropertyEditor(pe);
     m_designerSubWindows[PropertyEditorSubWindow] = pe;
 
-    QWidget *se = QDesignerComponents::createSignalSlotEditor(m_formeditor, 0);
+    QWidget *se = QDesignerComponents::createSignalSlotEditor(m_formeditor, nullptr);
     se->setWindowTitle(tr("Signals && Slots Editor"));
     se->setObjectName("SignalsAndSlotsEditor");
     m_designerSubWindows[SignalSlotEditorSubWindow] = se;
 
-    QDesignerActionEditorInterface *ae = QDesignerComponents::createActionEditor(m_formeditor, 0);
+    QDesignerActionEditorInterface *ae = QDesignerComponents::createActionEditor(m_formeditor, nullptr);
     ae->setWindowTitle(tr("Action Editor"));
     ae->setObjectName("ActionEditor");
     m_formeditor->setActionEditor(ae);
@@ -641,7 +641,7 @@ void FormEditorData::setupActions()
     QObject::connect(m_fwm, &QDesignerFormWindowManagerInterface::activeFormWindowChanged,
         [this] (QDesignerFormWindowInterface *afw) {
             m_fwm->closeAllPreviews();
-            setPreviewMenuEnabled(afw != 0);
+            setPreviewMenuEnabled(afw != nullptr);
         });
 }
 
@@ -770,11 +770,11 @@ IEditor *FormEditorData::createEditor()
         qDebug() << "FormEditorW::createEditor";
     // Create and associate form and text editor.
     m_fwm->closeAllPreviews();
-    QDesignerFormWindowInterface *form = m_fwm->createFormWindow(0);
-    QTC_ASSERT(form, return 0);
+    QDesignerFormWindowInterface *form = m_fwm->createFormWindow(nullptr);
+    QTC_ASSERT(form, return nullptr);
     QObject::connect(form, &QDesignerFormWindowInterface::toolChanged, [this] (int i) { toolChanged(i); });
 
-    SharedTools::WidgetHost *widgetHost = new SharedTools::WidgetHost( /* parent */ 0, form);
+    SharedTools::WidgetHost *widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
 
     m_editorWidget->add(widgetHost, formWindowEditor);
@@ -806,7 +806,7 @@ SharedTools::WidgetHost *FormEditorW::activeWidgetHost()
     ensureInitStage(FullyInitialized);
     if (d->m_editorWidget)
         return d->m_editorWidget->activeEditor().widgetHost;
-    return 0;
+    return nullptr;
 }
 
 FormWindowEditor *FormEditorW::activeEditor()
@@ -814,7 +814,7 @@ FormWindowEditor *FormEditorW::activeEditor()
     ensureInitStage(FullyInitialized);
     if (d->m_editorWidget)
         return d->m_editorWidget->activeEditor().formWindowEditor;
-    return 0;
+    return nullptr;
 }
 
 void FormEditorData::updateShortcut(Command *command)

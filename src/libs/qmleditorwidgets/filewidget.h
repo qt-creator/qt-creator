@@ -52,7 +52,7 @@ class QMLEDITORWIDGETS_EXPORT FileWidget : public QWidget
 
 public:
 
-    FileWidget(QWidget *parent = 0);
+    FileWidget(QWidget *parent = nullptr);
     ~FileWidget() override;
 
     QString fileName() const

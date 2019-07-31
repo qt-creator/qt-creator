@@ -44,7 +44,7 @@ static Q_LOGGING_CATEGORY(iconsLog, "qtc.qmljs.icons", QtWarningMsg)
 
 namespace QmlJS {
 
-Icons *Icons::m_instance = 0;
+Icons *Icons::m_instance = nullptr;
 
 class IconsPrivate
 {
@@ -62,7 +62,7 @@ Icons::Icons()
 
 Icons::~Icons()
 {
-    m_instance = 0;
+    m_instance = nullptr;
     delete d;
 }
 

@@ -36,7 +36,7 @@ class QMLDEBUG_EXPORT QmlOutputParser : public QObject
 {
     Q_OBJECT
 public:
-    QmlOutputParser(QObject *parent = 0);
+    QmlOutputParser(QObject *parent = nullptr);
 
     void setNoOutputText(const QString &text);
     void processOutput(const QString &output);

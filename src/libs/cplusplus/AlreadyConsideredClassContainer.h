@@ -35,7 +35,7 @@ template<typename T>
 class AlreadyConsideredClassContainer
 {
 public:
-    AlreadyConsideredClassContainer() : _class(0) {}
+    AlreadyConsideredClassContainer() : _class(nullptr) {}
     void insert(const T *item)
     {
         if (_container.isEmpty())

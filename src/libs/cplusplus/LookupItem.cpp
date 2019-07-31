@@ -41,7 +41,7 @@ uint CPlusPlus::qHash(const LookupItem &key)
 }
 
 LookupItem::LookupItem()
-    : _scope(0), _declaration(0), _binding(0)
+    : _scope(nullptr), _declaration(nullptr), _binding(nullptr)
 { }
 
 FullySpecifiedType LookupItem::type() const

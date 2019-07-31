@@ -48,7 +48,7 @@ QWidget *SettingsPage::widget()
 {
     m_initialized = true;
     if (!m_widget)
-        m_widget = m_designerPage->createPage(0);
+        m_widget = m_designerPage->createPage(nullptr);
     return m_widget;
 
 }

@@ -42,7 +42,7 @@ using namespace QmlJS::AST;
 using namespace LanguageUtils;
 
 TypeDescriptionReader::TypeDescriptionReader(const QString &fileName, const QString &data)
-    : _fileName (fileName), _source(data), _objects(0)
+    : _fileName (fileName), _source(data), _objects(nullptr)
 {
 }
 

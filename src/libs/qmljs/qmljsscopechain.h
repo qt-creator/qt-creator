@@ -72,7 +72,7 @@ public:
     Document::Ptr document() const;
     const ContextPtr &context() const;
 
-    const Value *lookup(const QString &name, const ObjectValue **foundInScope = 0) const;
+    const Value *lookup(const QString &name, const ObjectValue **foundInScope = nullptr) const;
     const Value *evaluate(AST::Node *node) const;
 
     const ObjectValue *globalScope() const;

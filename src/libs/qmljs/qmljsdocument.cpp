@@ -86,9 +86,9 @@ using namespace QmlJS::AST;
 */
 
 Document::Document(const QString &fileName, Dialect language)
-    : _engine(0)
-    , _ast(0)
-    , _bind(0)
+    : _engine(nullptr)
+    , _ast(nullptr)
+    , _bind(nullptr)
     , _fileName(QDir::cleanPath(fileName))
     , _editorRevision(0)
     , _language(language)
@@ -170,7 +170,7 @@ AST::ExpressionNode *Document::expression() const
     if (_ast)
         return _ast->expressionCast();
 
-    return 0;
+    return nullptr;
 }
 
 AST::Node *Document::ast() const

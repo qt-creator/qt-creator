@@ -72,9 +72,9 @@ namespace QmlDesigner {
 
 NodeInstanceClientProxy::NodeInstanceClientProxy(QObject *parent)
     : QObject(parent),
-      m_inputIoDevice(0),
-      m_outputIoDevice(0),
-      m_nodeInstanceServer(0),
+      m_inputIoDevice(nullptr),
+      m_outputIoDevice(nullptr),
+      m_nodeInstanceServer(nullptr),
       m_writeCommandCounter(0),
       m_synchronizeId(-1)
 {

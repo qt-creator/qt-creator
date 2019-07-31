@@ -60,7 +60,7 @@ class QtOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    QtOptionsPageWidget(QWidget *parent = 0);
+    QtOptionsPageWidget(QWidget *parent = nullptr);
     ~QtOptionsPageWidget();
     void apply();
 

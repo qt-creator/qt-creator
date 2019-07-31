@@ -41,7 +41,7 @@ class QMLEDITORWIDGETS_EXPORT ContextPaneWidgetRectangle : public QWidget
     Q_OBJECT
 
 public:
-    explicit ContextPaneWidgetRectangle(QWidget *parent = 0);
+    explicit ContextPaneWidgetRectangle(QWidget *parent = nullptr);
     ~ContextPaneWidgetRectangle();
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void enabableGradientEditing(bool);

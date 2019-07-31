@@ -113,7 +113,7 @@ void TranslationUnitUpdater::createTranslationUnitIfNeeded()
         UnsavedFilesShallowArguments unsaved = m_in.unsavedFiles.shallowArguments();
 
         m_parseErrorCode = clang_parseTranslationUnit2(m_cxIndex,
-                                                     NULL,
+                                                     nullptr,
                                                      args.data(),
                                                      args.count(),
                                                      unsaved.data(),

@@ -36,61 +36,61 @@ bool Type::isUndefinedType() const
 { return this == UndefinedType::instance(); }
 
 bool Type::isVoidType() const
-{ return asVoidType() != 0; }
+{ return asVoidType() != nullptr; }
 
 bool Type::isIntegerType() const
-{ return asIntegerType() != 0; }
+{ return asIntegerType() != nullptr; }
 
 bool Type::isFloatType() const
-{ return asFloatType() != 0; }
+{ return asFloatType() != nullptr; }
 
 bool Type::isPointerType() const
-{ return asPointerType()  != 0; }
+{ return asPointerType()  != nullptr; }
 
 bool Type::isPointerToMemberType() const
-{ return asPointerToMemberType() != 0; }
+{ return asPointerToMemberType() != nullptr; }
 
 bool Type::isReferenceType() const
-{ return asReferenceType() != 0; }
+{ return asReferenceType() != nullptr; }
 
 bool Type::isArrayType() const
-{ return asArrayType() != 0; }
+{ return asArrayType() != nullptr; }
 
 bool Type::isNamedType() const
-{ return asNamedType() != 0; }
+{ return asNamedType() != nullptr; }
 
 bool Type::isFunctionType() const
-{ return asFunctionType() != 0; }
+{ return asFunctionType() != nullptr; }
 
 bool Type::isNamespaceType() const
-{ return asNamespaceType() != 0; }
+{ return asNamespaceType() != nullptr; }
 
 bool Type::isTemplateType() const
-{ return asTemplateType() != 0; }
+{ return asTemplateType() != nullptr; }
 
 bool Type::isClassType() const
-{ return asClassType() != 0; }
+{ return asClassType() != nullptr; }
 
 bool Type::isEnumType() const
-{ return asEnumType() != 0; }
+{ return asEnumType() != nullptr; }
 
 bool Type::isForwardClassDeclarationType() const
-{ return asForwardClassDeclarationType() != 0; }
+{ return asForwardClassDeclarationType() != nullptr; }
 
 bool Type::isObjCClassType() const
-{ return asObjCClassType() != 0; }
+{ return asObjCClassType() != nullptr; }
 
 bool Type::isObjCProtocolType() const
-{ return asObjCProtocolType() != 0; }
+{ return asObjCProtocolType() != nullptr; }
 
 bool Type::isObjCMethodType() const
-{ return asObjCMethodType() != 0; }
+{ return asObjCMethodType() != nullptr; }
 
 bool Type::isObjCForwardClassDeclarationType() const
-{ return asObjCForwardClassDeclarationType() != 0; }
+{ return asObjCForwardClassDeclarationType() != nullptr; }
 
 bool Type::isObjCForwardProtocolDeclarationType() const
-{ return asObjCForwardProtocolDeclarationType() != 0; }
+{ return asObjCForwardProtocolDeclarationType() != nullptr; }
 
 void Type::accept(TypeVisitor *visitor)
 {

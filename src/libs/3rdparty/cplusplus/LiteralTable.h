@@ -36,8 +36,8 @@ public:
 
 public:
     LiteralTable()
-       : _literals(0),
-         _buckets(0),
+       : _literals(nullptr),
+         _buckets(nullptr),
          _allocatedLiterals(0),
          _literalCount(-1),
          _allocatedBuckets(0)
@@ -59,8 +59,8 @@ public:
         if (_buckets)
             std::free(_buckets);
 
-        _literals = 0;
-        _buckets = 0;
+        _literals = nullptr;
+        _buckets = nullptr;
         _allocatedLiterals = 0;
         _literalCount = -1;
         _allocatedBuckets = 0;
@@ -92,7 +92,7 @@ public:
             }
         }
 
-        return 0;
+        return nullptr;
     }
 
     const Literal *findOrInsertLiteral(const char *chars, int size)

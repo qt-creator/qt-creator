@@ -209,21 +209,21 @@ class Control::Data
 public:
     Data(Control *control)
         : control(control)
-        , translationUnit(0)
-        , diagnosticClient(0)
-        , deprecatedId(0)
-        , unavailableId(0)
-        , objcGetterId(0)
-        , objcSetterId(0)
-        , objcReadwriteId(0)
-        , objcReadonlyId(0)
-        , objcAssignId(0)
-        , objcRetainId(0)
-        , objcCopyId(0)
-        , objcNonatomicId(0)
-        , cpp11Override(0)
-        , cpp11Final(0)
-        , processor(0)
+        , translationUnit(nullptr)
+        , diagnosticClient(nullptr)
+        , deprecatedId(nullptr)
+        , unavailableId(nullptr)
+        , objcGetterId(nullptr)
+        , objcSetterId(nullptr)
+        , objcReadwriteId(nullptr)
+        , objcReadonlyId(nullptr)
+        , objcAssignId(nullptr)
+        , objcRetainId(nullptr)
+        , objcCopyId(nullptr)
+        , objcNonatomicId(nullptr)
+        , cpp11Override(nullptr)
+        , cpp11Final(nullptr)
+        , processor(nullptr)
     {}
 
     ~Data()
@@ -574,7 +574,7 @@ const OperatorNameId *Control::findOperatorNameId(OperatorNameId::Kind operatorI
 {
     Table<OperatorNameId>::const_iterator i = d->operatorNameIds.find(operatorId);
     if (i == d->operatorNameIds.end())
-        return 0;
+        return nullptr;
     else
         return &*i;
 }
@@ -798,7 +798,7 @@ const Identifier *Control::cpp11Final() const
 Symbol **Control::firstSymbol() const
 {
     if (d->symbols.empty())
-        return 0;
+        return nullptr;
 
     return &*d->symbols.begin();
 }
@@ -806,7 +806,7 @@ Symbol **Control::firstSymbol() const
 Symbol **Control::lastSymbol() const
 {
     if (d->symbols.empty())
-        return 0;
+        return nullptr;
 
     return &*d->symbols.begin() + d->symbols.size();
 }

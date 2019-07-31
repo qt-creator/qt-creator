@@ -51,7 +51,7 @@ class QMLEDITORWIDGETS_EXPORT DragWidget : public QFrame
     Q_OBJECT
 
 public:
-    explicit DragWidget(QWidget *parent = 0);
+    explicit DragWidget(QWidget *parent = nullptr);
     void setSecondaryTarget(QWidget* w)
     { m_secondaryTarget = w; }
 
@@ -76,7 +76,7 @@ class QMLEDITORWIDGETS_EXPORT ContextPaneWidget : public DragWidget
     Q_OBJECT
 
 public:
-    explicit ContextPaneWidget(QWidget *parent = 0);
+    explicit ContextPaneWidget(QWidget *parent = nullptr);
     ~ContextPaneWidget() override;
     void activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2, bool pinned);
     void rePosition(const QPoint &pos, const QPoint &alternative , const QPoint &alternative3, bool pinned);

@@ -95,7 +95,7 @@ QTransform QuickItemNodeInstance::transform() const
 QObject *QuickItemNodeInstance::parent() const
 {
     if (!quickItem() || !quickItem()->parentItem())
-        return 0;
+        return nullptr;
 
     return quickItem()->parentItem();
 }
@@ -799,8 +799,8 @@ bool QuickItemNodeInstance::isAnchoredBySibling() const
 
 QQuickItem *QuickItemNodeInstance::quickItem() const
 {
-    if (object() == 0)
-        return 0;
+    if (object() == nullptr)
+        return nullptr;
 
     return static_cast<QQuickItem*>(object());
 }

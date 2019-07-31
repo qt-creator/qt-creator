@@ -345,7 +345,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt)
                 QString what = bkpt["what"].data();
                 if (what.startsWith("*0x")) {
                     type = WatchpointAtAddress;
-                    address = what.midRef(1).toULongLong(0, 0);
+                    address = what.midRef(1).toULongLong(nullptr, 0);
                 } else {
                     type = WatchpointAtExpression;
                     expression = what;

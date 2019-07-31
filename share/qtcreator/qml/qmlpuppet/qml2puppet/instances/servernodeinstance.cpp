@@ -160,7 +160,7 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
 {
     Internal::ObjectNodeInstance::Pointer instance;
 
-    if (objectToBeWrapped == 0)
+    if (objectToBeWrapped == nullptr)
         instance = Internal::DummyNodeInstance::create();
     else if (isSubclassOf(objectToBeWrapped, "Q3DSPresentationItem"))
         instance = Internal::Qt3DPresentationNodeInstance::create(objectToBeWrapped);
@@ -198,28 +198,28 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
     Q_ASSERT(instanceContainer.instanceId() != -1);
     Q_ASSERT(nodeInstanceServer);
 
-    QObject *object = 0;
+    QObject *object = nullptr;
     if (componentWrap == WrapAsComponent) {
         object = Internal::ObjectNodeInstance::createComponentWrap(instanceContainer.nodeSource(), nodeInstanceServer->importCode(), nodeInstanceServer->context());
     } else if (!instanceContainer.nodeSource().isEmpty()) {
         object = Internal::ObjectNodeInstance::createCustomParserObject(instanceContainer.nodeSource(), nodeInstanceServer->importCode(), nodeInstanceServer->context());
-        if (object == 0)
+        if (object == nullptr)
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Custom parser object could not be created."), instanceContainer.instanceId());
     } else if (!instanceContainer.componentPath().isEmpty()) {
         object = Internal::ObjectNodeInstance::createComponent(instanceContainer.componentPath(), nodeInstanceServer->context());
-        if (object == 0)
+        if (object == nullptr)
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QString("Component with path %1 could not be created.").arg(instanceContainer.componentPath()), instanceContainer.instanceId());
     } else {
         object = Internal::ObjectNodeInstance::createPrimitive(QString::fromUtf8(instanceContainer.type()), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
-        if (object == 0)
+        if (object == nullptr)
             nodeInstanceServer->sendDebugOutput(DebugOutputCommand::ErrorType, QLatin1String("Item could not be created."), instanceContainer.instanceId());
     }
 
-    if (object == 0) {
+    if (object == nullptr) {
         if (instanceContainer.metaType() == InstanceContainer::ItemMetaType) { //If we cannot instanciate the object but we know it has to be an Ttem, we create an Item instead.
             object = Internal::ObjectNodeInstance::createPrimitive("QtQuick/Item", 2, 0, nodeInstanceServer->context());
 
-            if (object == 0)
+            if (object == nullptr)
                 object = new QQuickItem;
         } else {
             object = Internal::ObjectNodeInstance::createPrimitive("QtQml/QtObject", 2, 0, nodeInstanceServer->context());
@@ -549,7 +549,7 @@ void ServerNodeInstance::paintUpdate()
 QObject *ServerNodeInstance::internalObject() const
 {
     if (m_nodeInstance.isNull())
-        return 0;
+        return nullptr;
 
     return m_nodeInstance->object();
 }

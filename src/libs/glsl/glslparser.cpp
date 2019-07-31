@@ -104,7 +104,7 @@ AST *Parser::parse(int startToken)
     int action = 0;
     yytoken = -1;
     yyloc = -1;
-    void *yyval = 0; // value of the current token.
+    void *yyval = nullptr; // value of the current token.
 
     _recovered = false;
     _tos = -1;
@@ -204,7 +204,7 @@ AST *Parser::parse(int startToken)
                         else if (*tptr == T_NUMBER || *tptr == T_TYPE_NAME)
                             yyval = (void *) _engine->identifier(QLatin1String("$0"));
                         else
-                            yyval = 0;
+                            yyval = nullptr;
 
                         _symStack[_tos].ptr = yyval;
                         _locationStack[_tos] = yyloc;
@@ -224,7 +224,7 @@ AST *Parser::parse(int startToken)
 
     } while (action);
 
-    return 0;
+    return nullptr;
 }
 
 #line 643 "./glsl.g"
@@ -347,14 +347,14 @@ case 17: {
 
 case 18: {
     sym(1).function.id = sym(1).function_identifier;
-    sym(1).function.arguments = 0;
+    sym(1).function.arguments = nullptr;
 }   break;
 
 #line 788 "./glsl.g"
 
 case 19: {
     sym(1).function.id = sym(1).function_identifier;
-    sym(1).function.arguments = 0;
+    sym(1).function.arguments = nullptr;
 }   break;
 
 #line 796 "./glsl.g"
@@ -815,7 +815,7 @@ case 87: {
 
 case 88: {
     TypeAST *type = makeAstNode<QualifiedTypeAST>
-        (sym(1).type_qualifier.qualifier, (TypeAST *)0,
+        (sym(1).type_qualifier.qualifier, (TypeAST *)nullptr,
          sym(1).type_qualifier.layout_list);
     ast(1) = makeAstNode<TypeDeclarationAST>(type);
 }   break;
@@ -878,7 +878,7 @@ case 97: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (makeAstNode<QualifiedTypeAST>
             (sym(1).qualifier, sym(3).param_declarator.type,
-             (List<LayoutQualifierAST *> *)0),
+             (List<LayoutQualifierAST *> *)nullptr),
          ParameterDeclarationAST::Qualifier(sym(2).qualifier),
          sym(3).param_declarator.name);
 }   break;
@@ -897,9 +897,9 @@ case 98: {
 case 99: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (makeAstNode<QualifiedTypeAST>
-            (sym(1).qualifier, type(3), (List<LayoutQualifierAST *> *)0),
+            (sym(1).qualifier, type(3), (List<LayoutQualifierAST *> *)nullptr),
          ParameterDeclarationAST::Qualifier(sym(2).qualifier),
-         (const QString *)0);
+         (const QString *)nullptr);
 }   break;
 
 #line 1421 "./glsl.g"
@@ -907,7 +907,7 @@ case 99: {
 case 100: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (type(2), ParameterDeclarationAST::Qualifier(sym(1).qualifier),
-         (const QString *)0);
+         (const QString *)nullptr);
 }   break;
 
 #line 1430 "./glsl.g"
@@ -1065,7 +1065,7 @@ case 120: {
 #line 1602 "./glsl.g"
 
 case 121: {
-    ast(1) = makeAstNode<QualifiedTypeAST>(0, type(1), (List<LayoutQualifierAST *> *)0);
+    ast(1) = makeAstNode<QualifiedTypeAST>(0, type(1), (List<LayoutQualifierAST *> *)nullptr);
 }   break;
 
 #line 1609 "./glsl.g"
@@ -1121,7 +1121,7 @@ case 129: {
 #line 1667 "./glsl.g"
 
 case 130: {
-    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)0);
+    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)nullptr);
 }   break;
 
 #line 1674 "./glsl.g"
@@ -1140,7 +1140,7 @@ case 132: {
 
 case 133: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
 #line 1696 "./glsl.g"
@@ -1161,35 +1161,35 @@ case 135: {
 
 case 136: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
 #line 1720 "./glsl.g"
 
 case 137: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
 #line 1728 "./glsl.g"
 
 case 138: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
 #line 1736 "./glsl.g"
 
 case 139: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier | sym(3).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
 #line 1744 "./glsl.g"
 
 case 140: {
     sym(1).type_qualifier.qualifier = QualifiedTypeAST::Invariant;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
 #line 1752 "./glsl.g"
@@ -1905,14 +1905,14 @@ case 257: {
 
 case 258: {
     sym(1).field = makeAstNode<StructTypeAST::Field>
-        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)0));
+        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr));
 }   break;
 
 #line 2586 "./glsl.g"
 
 case 259: {
     sym(1).field = makeAstNode<StructTypeAST::Field>
-        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)0, expression(3)));
+        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr, expression(3)));
 }   break;
 
 #line 2594 "./glsl.g"
@@ -2070,7 +2070,7 @@ case 282: {
 
 case 283: {
     sym(1).ifstmt.thenClause = statement(1);
-    sym(1).ifstmt.elseClause = 0;
+    sym(1).ifstmt.elseClause = nullptr;
 }   break;
 
 #line 2776 "./glsl.g"
@@ -2162,7 +2162,7 @@ case 297: {
 
 case 298: {
     sym(1).forstmt.condition = expression(1);
-    sym(1).forstmt.increment = 0;
+    sym(1).forstmt.increment = nullptr;
 }   break;
 
 #line 2883 "./glsl.g"
@@ -2215,7 +2215,7 @@ case 306: {
         sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
             (sym(1).declaration);
     } else {
-        sym(1).declaration_list = 0;
+        sym(1).declaration_list = nullptr;
     }
 }   break;
 
@@ -2230,7 +2230,7 @@ case 307: {
             sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
                 (sym(2).declaration);
         } else {
-            sym(1).declaration_list = 0;
+            sym(1).declaration_list = nullptr;
         }
     }
 }   break;
@@ -2250,7 +2250,7 @@ case 309: {
 #line 2976 "./glsl.g"
 
 case 310: {
-    ast(1) = 0;
+    ast(1) = nullptr;
 }   break;
 
 #line 2983 "./glsl.g"
@@ -2262,7 +2262,7 @@ case 311: {
 #line 2990 "./glsl.g"
 
 case 312: {
-    ast(1) = 0;
+    ast(1) = nullptr;
 }   break;
 
 #line 2998 "./glsl.g"

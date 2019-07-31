@@ -39,7 +39,7 @@ class QMLEDITORWIDGETS_EXPORT FontSizeSpinBox : public QAbstractSpinBox
      Q_PROPERTY(int value READ value WRITE setValue NOTIFY valueChanged)
 
 public:
-    explicit FontSizeSpinBox(QWidget *parent = 0);
+    explicit FontSizeSpinBox(QWidget *parent = nullptr);
 
      bool isPixelSize() { return !m_isPointSize; }
      bool isPointSize() { return m_isPointSize; }

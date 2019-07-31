@@ -50,7 +50,7 @@ FormWindowEditor::~FormWindowEditor()
 
 QWidget *FormWindowEditor::toolBar()
 {
-    return 0;
+    return nullptr;
 }
 
 QString FormWindowEditor::contents() const

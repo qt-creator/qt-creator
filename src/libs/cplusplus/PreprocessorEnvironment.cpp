@@ -67,10 +67,10 @@ static unsigned hashCode(const char *str, int length)
 Environment::Environment()
     : currentLine(0),
       hideNext(false),
-      _macros(0),
+      _macros(nullptr),
       _allocated_macros(0),
       _macro_count(-1),
-      _hash(0),
+      _hash(nullptr),
       _hash_count(401)
 {
 }
@@ -153,10 +153,10 @@ void Environment::reset()
     if (_hash)
         free(_hash);
 
-    _macros = 0;
+    _macros = nullptr;
     _allocated_macros = 0;
     _macro_count = -1;
-    _hash = 0;
+    _hash = nullptr;
     _hash_count = 401;
 }
 
@@ -230,14 +230,14 @@ Environment::iterator Environment::lastMacro() const
 Macro *Environment::resolve(const ByteArrayRef &name) const
 {
     if (! _macros)
-        return 0;
+        return nullptr;
 
     Macro *it = _hash[hashCode(name.start(), name.size()) % _hash_count];
     for (; it; it = it->_next) {
         if (it->name() != name)
             continue;
         else if (it->isHidden())
-            return 0;
+            return nullptr;
         else break;
     }
     return it;

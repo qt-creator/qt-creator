@@ -43,7 +43,7 @@
 
 namespace Timeline {
 
-TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate() : lastState(0)
+TimelineRenderer::TimelineRendererPrivate::TimelineRendererPrivate() : lastState(nullptr)
 {
     resetCurrentSelection();
 }
@@ -58,7 +58,7 @@ void TimelineRenderer::TimelineRendererPrivate::clear()
     for (auto i = renderStates.begin(); i != renderStates.end(); ++i)
         qDeleteAll(*i);
     renderStates.clear();
-    lastState = 0;
+    lastState = nullptr;
 }
 
 TimelineRenderer::TimelineRenderer(QQuickItem *parent) :
@@ -102,7 +102,7 @@ TimelineRenderState *TimelineRenderer::TimelineRendererPrivate::findRenderState(
     if (renderStates.length() <= level)
         renderStates.resize(level + 1);
     TimelineRenderState *state = renderStates[level][offset];
-    if (state == 0) {
+    if (state == nullptr) {
         state = new TimelineRenderState(start, end, 1.0 / static_cast<qreal>(SafeFloatMax),
                                         renderPasses.size());
         renderStates[level][offset] = state;
@@ -117,7 +117,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
     if (!d->model || d->model->hidden() || d->model->isEmpty() || !d->zoomer ||
             d->zoomer->windowDuration() <= 0) {
         delete node;
-        return 0;
+        return nullptr;
     }
 
     float spacing = static_cast<float>(width() / d->zoomer->windowDuration());
@@ -146,7 +146,7 @@ QSGNode *TimelineRenderer::updatePaintNode(QSGNode *node, UpdatePaintNodeData *u
                                         TimelineModel::defaultRowHeight());
     }
 
-    TimelineAbstractRenderer::updatePaintNode(0, updatePaintNodeData);
+    TimelineAbstractRenderer::updatePaintNode(nullptr, updatePaintNodeData);
     d->lastState = state;
 
     QMatrix4x4 matrix;

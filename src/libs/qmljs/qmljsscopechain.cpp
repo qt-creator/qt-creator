@@ -77,14 +77,14 @@ QList<const QmlComponentChain *> QmlComponentChain::instantiatingComponents() co
 const ObjectValue *QmlComponentChain::idScope() const
 {
     if (!m_document)
-        return 0;
+        return nullptr;
     return m_document->bind()->idEnvironment();
 }
 
 const ObjectValue *QmlComponentChain::rootObjectScope() const
 {
     if (!m_document)
-        return 0;
+        return nullptr;
     return m_document->bind()->rootObjectValue();
 }
 
@@ -97,10 +97,10 @@ void QmlComponentChain::addInstantiatingComponent(const QmlComponentChain *compo
 ScopeChain::ScopeChain(const Document::Ptr &document, const ContextPtr &context)
     : m_document(document)
     , m_context(context)
-    , m_globalScope(0)
-    , m_cppContextProperties(0)
-    , m_qmlTypes(0)
-    , m_jsImports(0)
+    , m_globalScope(nullptr)
+    , m_cppContextProperties(nullptr)
+    , m_qmlTypes(nullptr)
+    , m_jsImports(nullptr)
     , m_modified(false)
 {
     initializeRootScope();
@@ -130,7 +130,7 @@ const Value * ScopeChain::lookup(const QString &name, const ObjectValue **foundI
     }
 
     if (foundInScope)
-        *foundInScope = 0;
+        *foundInScope = nullptr;
 
     // we're confident to implement global lookup correctly, so return 'undefined'
     return m_context->valueOwner()->undefinedValue();
@@ -264,8 +264,8 @@ void ScopeChain::update() const
         }
     }
 
-    ObjectValue *root = 0;
-    ObjectValue *ids = 0;
+    ObjectValue *root = nullptr;
+    ObjectValue *ids = nullptr;
     if (m_qmlComponentScope && m_qmlComponentScope->document()) {
         const Bind *bind = m_qmlComponentScope->document()->bind();
         root = bind->rootObjectValue();

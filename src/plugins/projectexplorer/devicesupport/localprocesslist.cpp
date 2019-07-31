@@ -165,7 +165,7 @@ static QList<DeviceProcessItem> getLocalProcessesUsingPs()
     psProcess.start(QLatin1String("ps"), args);
     if (psProcess.waitForStarted()) {
         QByteArray output;
-        if (Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false)) {
+        if (Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, nullptr, false)) {
             // Split "457 /Users/foo.app arg1 arg2"
             const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
             const int lineCount = lines.size();

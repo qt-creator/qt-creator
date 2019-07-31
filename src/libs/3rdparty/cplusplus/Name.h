@@ -44,19 +44,19 @@ public:
     bool isQualifiedNameId() const;
     bool isSelectorNameId() const;
 
-    virtual const Identifier *asNameId() const { return 0; }
-    virtual const AnonymousNameId *asAnonymousNameId() const { return 0; }
-    virtual const TemplateNameId *asTemplateNameId() const { return 0; }
-    virtual const DestructorNameId *asDestructorNameId() const { return 0; }
-    virtual const OperatorNameId *asOperatorNameId() const { return 0; }
-    virtual const ConversionNameId *asConversionNameId() const { return 0; }
-    virtual const QualifiedNameId *asQualifiedNameId() const { return 0; }
-    virtual const SelectorNameId *asSelectorNameId() const { return 0; }
+    virtual const Identifier *asNameId() const { return nullptr; }
+    virtual const AnonymousNameId *asAnonymousNameId() const { return nullptr; }
+    virtual const TemplateNameId *asTemplateNameId() const { return nullptr; }
+    virtual const DestructorNameId *asDestructorNameId() const { return nullptr; }
+    virtual const OperatorNameId *asOperatorNameId() const { return nullptr; }
+    virtual const ConversionNameId *asConversionNameId() const { return nullptr; }
+    virtual const QualifiedNameId *asQualifiedNameId() const { return nullptr; }
+    virtual const SelectorNameId *asSelectorNameId() const { return nullptr; }
 
     void accept(NameVisitor *visitor) const;
     static void accept(const Name *name, NameVisitor *visitor);
 
-    bool match(const Name *other, Matcher *matcher = 0) const;
+    bool match(const Name *other, Matcher *matcher = nullptr) const;
 
 public:
     struct Compare {

@@ -131,7 +131,7 @@ public:
 
         void visit(Function *type) override
         {
-            Function *funTy = control()->newFunction(0, 0);
+            Function *funTy = control()->newFunction(0, nullptr);
             funTy->copy(type);
             funTy->setConst(type->isConst());
             funTy->setVolatile(type->isVolatile());
@@ -144,7 +144,7 @@ public:
             for (unsigned i = 0, argc = type->argumentCount(); i < argc; ++i) {
                 Symbol *arg = type->argumentAt(i);
 
-                Argument *newArg = control()->newArgument(0, 0);
+                Argument *newArg = control()->newArgument(0, nullptr);
                 newArg->copy(arg);
                 newArg->setName(rewrite->rewriteName(arg->name()));
                 newArg->setType(rewrite->rewriteType(arg->type()));
@@ -225,7 +225,7 @@ public:
         const Identifier *identifier(const Identifier *other) const
         {
             if (! other)
-                return 0;
+                return nullptr;
 
             return control()->identifier(other->chars(), other->size());
         }
@@ -236,7 +236,7 @@ public:
         const Name *operator()(const Name *name)
         {
             if (! name)
-                return 0;
+                return nullptr;
 
             accept(name);
             return (!temps.isEmpty()) ? temps.takeLast() : name;
@@ -296,7 +296,7 @@ public: // attributes
 };
 
 SubstitutionEnvironment::SubstitutionEnvironment()
-    : _scope(0)
+    : _scope(nullptr)
 {
 }
 
@@ -415,7 +415,7 @@ FullySpecifiedType UseMinimalNames::apply(const Name *name, Rewrite *rewrite) co
 
 
 UseQualifiedNames::UseQualifiedNames()
-    : UseMinimalNames(0)
+    : UseMinimalNames(nullptr)
 {
 
 }

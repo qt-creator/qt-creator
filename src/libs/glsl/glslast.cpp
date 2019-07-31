@@ -325,7 +325,7 @@ void StructTypeAST::Field::setInnerType(TypeAST *innerType)
         return;
     TypeAST **parent = &type;
     TypeAST *inner = type;
-    while (inner != 0) {
+    while (inner != nullptr) {
         ArrayTypeAST *array = inner->asArrayType();
         if (!array)
             break;
@@ -388,7 +388,7 @@ void VariableDeclarationAST::accept0(Visitor *visitor)
 TypeAST *VariableDeclarationAST::declarationType(List<DeclarationAST *> *decls)
 {
     VariableDeclarationAST *var = decls->value->asVariableDeclaration();
-    return var ? var->type : 0;
+    return var ? var->type : nullptr;
 }
 
 void TypeDeclarationAST::accept0(Visitor *visitor)

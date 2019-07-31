@@ -41,12 +41,12 @@ const QVector<QSGNode *> &TimelineRenderPass::State::collapsedRows() const
 
 QSGNode *TimelineRenderPass::State::expandedOverlay() const
 {
-    return 0;
+    return nullptr;
 }
 
 QSGNode *TimelineRenderPass::State::collapsedOverlay() const
 {
-    return 0;
+    return nullptr;
 }
 
 TimelineRenderPass::State::~State()

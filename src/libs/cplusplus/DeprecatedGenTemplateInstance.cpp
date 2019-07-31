@@ -291,7 +291,7 @@ private:
 
             }
 
-            return 0;
+            return nullptr;
         }
 
         void visit(const QualifiedNameId *name) override
@@ -362,7 +362,7 @@ FullySpecifiedType ApplySubstitution::apply(const FullySpecifiedType &type)
 
 int ApplySubstitution::findSubstitution(const Identifier *id) const
 {
-    Q_ASSERT(id != 0);
+    Q_ASSERT(id != nullptr);
 
     for (int index = 0; index < substitution.size(); ++index) {
         QPair<const Identifier *, FullySpecifiedType> s = substitution.at(index);

@@ -34,7 +34,7 @@ TimelineOverviewRenderer::TimelineOverviewRenderer(QQuickItem *parent) :
 }
 
 TimelineOverviewRenderer::TimelineOverviewRendererPrivate::TimelineOverviewRendererPrivate() :
-    renderState(0)
+    renderState(nullptr)
 {
 }
 
@@ -50,15 +50,15 @@ QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
 
     if (!d->model || d->model->isEmpty() || !d->zoomer || d->zoomer->traceDuration() <= 0) {
         delete oldNode;
-        return 0;
+        return nullptr;
     }
 
     if (d->modelDirty) {
         delete d->renderState;
-        d->renderState = 0;
+        d->renderState = nullptr;
     }
 
-    if (d->renderState == 0) {
+    if (d->renderState == nullptr) {
         d->renderState = new TimelineRenderState(d->zoomer->traceStart(), d->zoomer->traceEnd(),
                                                  1.0, d->renderPasses.size());
     }
@@ -77,7 +77,7 @@ QSGNode *TimelineOverviewRenderer::updatePaintNode(QSGNode *oldNode,
     if (d->renderState->isEmpty())
         d->renderState->assembleNodeTree(d->model, d->model->height(), 0);
 
-    TimelineAbstractRenderer::updatePaintNode(0, updatePaintNodeData);
+    TimelineAbstractRenderer::updatePaintNode(nullptr, updatePaintNodeData);
 
     QMatrix4x4 matrix;
     matrix.scale(xSpacing, ySpacing, 1);

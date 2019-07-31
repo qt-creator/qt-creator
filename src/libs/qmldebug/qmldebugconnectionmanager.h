@@ -38,7 +38,7 @@ class QMLDEBUG_EXPORT QmlDebugConnectionManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit QmlDebugConnectionManager(QObject *parent = 0);
+    explicit QmlDebugConnectionManager(QObject *parent = nullptr);
     ~QmlDebugConnectionManager() override;
 
     void connectToServer(const QUrl &server);

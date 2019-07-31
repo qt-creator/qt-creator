@@ -449,7 +449,7 @@ void ModelEditor::initDocument()
 qmt::MDiagram *ModelEditor::currentDiagram() const
 {
     if (!d->diagramView->diagramSceneModel())
-        return 0;
+        return nullptr;
     return d->diagramView->diagramSceneModel()->diagram();
 }
 
@@ -1241,7 +1241,7 @@ void ModelEditor::closeCurrentDiagram(bool addToHistory)
             if (addToHistory)
                 addToNavigationHistory(diagram);
             d->diagramStack->setCurrentWidget(d->noDiagramLabel);
-            d->diagramView->setDiagramSceneModel(0);
+            d->diagramView->setDiagramSceneModel(nullptr);
             diagramsManager->unbindDiagramSceneModel(diagram);
         }
     }
@@ -1255,7 +1255,7 @@ void ModelEditor::closeDiagram(const qmt::MDiagram *diagram)
     if (sceneModel && diagram == sceneModel->diagram()) {
         addToNavigationHistory(diagram);
         d->diagramStack->setCurrentWidget(d->noDiagramLabel);
-        d->diagramView->setDiagramSceneModel(0);
+        d->diagramView->setDiagramSceneModel(nullptr);
         diagramsManager->unbindDiagramSceneModel(diagram);
     }
 }

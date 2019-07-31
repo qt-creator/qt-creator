@@ -181,7 +181,7 @@ private:
         /// \param idToken the identifier token that ought to be in the input
         ///        after a #ifndef or a #define .
         inline void updateIncludeGuardState(IncludeGuardStateHint hint,
-                                            PPToken *idToken = 0)
+                                            PPToken *idToken = nullptr)
         {
             // some quick checks for the majority of the uninteresting cases:
             if (m_includeGuardState == IncludeGuardState_NoGuard)
@@ -227,7 +227,7 @@ private:
     void handlePreprocessorDirective(PPToken *tk);
     void handleIncludeDirective(PPToken *tk, bool includeNext);
     void handleDefineDirective(PPToken *tk);
-    QByteArray expand(PPToken *tk, PPToken *lastConditionToken = 0);
+    QByteArray expand(PPToken *tk, PPToken *lastConditionToken = nullptr);
     const Internal::PPToken evalExpression(PPToken *tk, Value &result);
     void handleIfDirective(PPToken *tk);
     void handleElifDirective(PPToken *tk, const PPToken &poundToken);

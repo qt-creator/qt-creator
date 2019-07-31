@@ -44,7 +44,7 @@ class QMLEDITORWIDGETS_EXPORT ContextPaneTextWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ContextPaneTextWidget(QWidget *parent = 0);
+    explicit ContextPaneTextWidget(QWidget *parent = nullptr);
     ~ContextPaneTextWidget();
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setVerticalAlignmentVisible(bool);

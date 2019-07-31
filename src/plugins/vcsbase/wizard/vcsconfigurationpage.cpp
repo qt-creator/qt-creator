@@ -80,11 +80,11 @@ Utils::WizardPage *VcsConfigurationPageFactory::create(JsonWizard *wizard, Id ty
 {
     Q_UNUSED(wizard)
 
-    QTC_ASSERT(canCreate(typeId), return 0);
+    QTC_ASSERT(canCreate(typeId), return nullptr);
 
     QVariantMap tmp = data.toMap();
     const QString vcsId = tmp.value(QLatin1String("vcsId")).toString();
-    QTC_ASSERT(!vcsId.isEmpty(), return 0);
+    QTC_ASSERT(!vcsId.isEmpty(), return nullptr);
 
     auto page = new VcsConfigurationPage;
     page->setVersionControlId(vcsId);
@@ -129,7 +129,7 @@ VcsConfigurationPage::VcsConfigurationPage() : d(new Internal::VcsConfigurationP
 {
     setTitle(tr("Configuration"));
 
-    d->m_versionControl = 0;
+    d->m_versionControl = nullptr;
     d->m_configureButton = new QPushButton(ICore::msgShowOptionsDialog(), this);
     d->m_configureButton->setEnabled(false);
 
@@ -151,7 +151,7 @@ void VcsConfigurationPage::setVersionControl(const IVersionControl *vc)
         d->m_versionControlId = vc->id().toString();
     else
         d->m_versionControlId.clear();
-    d->m_versionControl = 0;
+    d->m_versionControl = nullptr;
 }
 
 void VcsConfigurationPage::setVersionControlId(const QString &id)

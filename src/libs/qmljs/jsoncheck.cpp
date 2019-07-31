@@ -41,7 +41,7 @@ using namespace Utils;
 
 JsonCheck::JsonCheck(Document::Ptr doc)
     : m_doc(doc)
-    , m_schema(0)
+    , m_schema(nullptr)
 {
     QTC_CHECK(m_doc->ast());
 }

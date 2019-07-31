@@ -93,7 +93,7 @@ public:
     FindExportsVisitor(CPlusPlus::Document::Ptr doc)
         : ASTVisitor(doc->translationUnit())
         , _doc(doc)
-        , _compound(0)
+        , _compound(nullptr)
     {}
 
     void operator()()
@@ -142,7 +142,7 @@ protected:
         if (!idExp || !idExp->name)
             return false;
         RegistrationFunction registrationFunction = InvalidRegistrationFunction;
-        TypeIdAST *typeId = 0;
+        TypeIdAST *typeId = nullptr;
         if (TemplateIdAST *templateId = idExp->name->asTemplateId()) {
             if (!templateId->identifier_token)
                 return false;
@@ -216,10 +216,10 @@ protected:
                     || ast->expression_list->next->next->next->next->next)
                 return false;
         }
-        ExpressionAST *uriExp = 0;
-        ExpressionAST *majorVersionExp = 0;
-        ExpressionAST *minorVersionExp = 0;
-        ExpressionAST *nameExp = 0;
+        ExpressionAST *uriExp = nullptr;
+        ExpressionAST *majorVersionExp = nullptr;
+        ExpressionAST *minorVersionExp = nullptr;
+        ExpressionAST *nameExp = nullptr;
         if (registrationFunction == QmlRegisterType5) {
             uriExp = ast->expression_list->next->value;
             majorVersionExp = ast->expression_list->next->next->value;
@@ -241,7 +241,7 @@ protected:
             minorVersionExp = ast->expression_list->next->next->value;
             nameExp = ast->expression_list->next->next->next->value;
         }
-        const StringLiteral *nameLit = 0;
+        const StringLiteral *nameLit = nullptr;
         if (StringLiteralAST *nameAst = skipStringCall(nameExp)->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
@@ -318,8 +318,8 @@ protected:
         }
 
         // version arguments must be integer literals
-        const NumericLiteral *majorLit = 0;
-        const NumericLiteral *minorLit = 0;
+        const NumericLiteral *majorLit = nullptr;
+        const NumericLiteral *minorLit = nullptr;
         if (NumericLiteralAST *majorAst = majorVersionExp->asNumericLiteral())
             majorLit = translationUnit()->numericLiteral(majorAst->literal_token);
         if (NumericLiteralAST *minorAst = minorVersionExp->asNumericLiteral())
@@ -377,7 +377,7 @@ protected:
             return idExp->name;
         if (MemberAccessAST *memberExp = exp->asMemberAccess())
             return memberExp->member_name;
-        return 0;
+        return nullptr;
     }
 
     static ExpressionAST *skipQVariant(ExpressionAST *ast, TranslationUnit *translationUnit)
@@ -479,7 +479,7 @@ protected:
             return false;
 
         // first argument must be a string literal
-        const StringLiteral *nameLit = 0;
+        const StringLiteral *nameLit = nullptr;
         if (StringLiteralAST *nameAst = skipStringCall(ast->expression_list->value)->asStringLiteral())
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
@@ -634,7 +634,7 @@ static QString toQmlType(const FullySpecifiedType &type)
 static Class *lookupClass(const QString &expression, Scope *scope, TypeOfExpression &typeOf)
 {
     QList<LookupItem> results = typeOf(expression.toUtf8(), scope);
-    Class *klass = 0;
+    Class *klass = nullptr;
     foreach (const LookupItem &item, results) {
         if (item.declaration()) {
             klass = item.declaration()->asClass();
@@ -642,7 +642,7 @@ static Class *lookupClass(const QString &expression, Scope *scope, TypeOfExpress
                 return klass;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
@@ -702,7 +702,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
         }
         if (QtEnum *qtEnum = member->asQtEnum()) {
             // find the matching enum
-            Enum *e = 0;
+            Enum *e = nullptr;
             QList<LookupItem> result = typeOf(namePrinter.prettyName(qtEnum->name()).toUtf8(), klass);
             foreach (const LookupItem &item, result) {
                 if (item.declaration()) {
@@ -754,7 +754,7 @@ static void buildExportedQmlObjects(
         return;
 
     foreach (const ExportedQmlType &exportedType, cppExports) {
-        Class *klass = 0;
+        Class *klass = nullptr;
         if (!exportedType.typeExpression.isEmpty())
             klass = lookupClass(exportedType.typeExpression, exportedType.scope, typeOf);
         // TODO: something smarter with exportedType.url

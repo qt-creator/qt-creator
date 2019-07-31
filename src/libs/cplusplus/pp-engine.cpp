@@ -343,7 +343,7 @@ class ExpressionEvaluator
 
 public:
     ExpressionEvaluator(Client *client, Environment *env)
-        : client(client), env(env), _lex(0)
+        : client(client), env(env), _lex(nullptr)
     { }
 
     Value operator()(const Token *firstToken, const Token *lastToken,
@@ -422,7 +422,7 @@ protected:
                                                 (*_lex)->byteOffset,
                                                 (*_lex)->utf16charOffset,
                                                 (*_lex)->lineno, env, client)
-                                != 0);
+                                != nullptr);
                 ++(*_lex);
             } else if ((*_lex)->is(T_LPAREN)) {
                 ++(*_lex);
@@ -432,7 +432,7 @@ protected:
                                                     (*_lex)->utf16charOffset,
                                                     (*_lex)->lineno,
                                                     env, client)
-                                    != 0);
+                                    != nullptr);
                     ++(*_lex);
                     if ((*_lex)->is(T_RPAREN))
                         ++(*_lex);
@@ -600,21 +600,21 @@ private:
 } // end of anonymous namespace
 
 Preprocessor::State::State()
-    : m_lexer(0)
+    : m_lexer(nullptr)
     , m_skipping(MAX_LEVEL)
     , m_trueTest(MAX_LEVEL)
     , m_ifLevel(0)
     , m_tokenBufferDepth(0)
-    , m_tokenBuffer(0)
+    , m_tokenBuffer(nullptr)
     , m_inPreprocessorDirective(false)
     , m_markExpandedTokens(true)
     , m_noLines(false)
     , m_inCondition(false)
     , m_bytesOffsetRef(0)
     , m_utf16charsOffsetRef(0)
-    , m_result(0)
+    , m_result(nullptr)
     , m_lineRef(1)
-    , m_currentExpansion(0)
+    , m_currentExpansion(nullptr)
     , m_includeGuardState(IncludeGuardState_BeforeIfndef)
 {
     m_skipping[m_ifLevel] = false;
@@ -848,7 +848,7 @@ void Preprocessor::handleDefined(PPToken *tk)
 void Preprocessor::pushToken(Preprocessor::PPToken *tk)
 {
     const PPToken currentTokenBuffer[] = {*tk};
-    m_state.pushTokenBuffer(currentTokenBuffer, currentTokenBuffer + 1, 0);
+    m_state.pushTokenBuffer(currentTokenBuffer, currentTokenBuffer + 1, nullptr);
 }
 
 void Preprocessor::lex(PPToken *tk)
@@ -1774,7 +1774,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
     unsigned previousBytesOffset = 0;
     unsigned previousUtf16charsOffset = 0;
     unsigned previousLine = 0;
-    Macro *macroReference = 0;
+    Macro *macroReference = nullptr;
     while (isContinuationToken(*tk)) {
         // Macro tokens are always marked as expanded. However, only for object-like macros
         // we mark them as generated too. For function-like macros we postpone it until the
@@ -1791,7 +1791,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
                 if (!macroReference->isFunctionLike()) {
                     m_client->notifyMacroReference(tk->byteOffset, tk->utf16charOffset,
                                                    tk->lineno, *macroReference);
-                    macroReference = 0;
+                    macroReference = nullptr;
                 }
             }
         } else if (macroReference) {
@@ -1799,7 +1799,7 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
                 m_client->notifyMacroReference(previousBytesOffset, previousUtf16charsOffset,
                                                previousLine, *macroReference);
             }
-            macroReference = 0;
+            macroReference = nullptr;
         }
 
         previousBytesOffset = tk->byteOffset;
@@ -1870,7 +1870,7 @@ QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
 //    qDebug("*** Condition before: [%s]", condition.constData());
     QByteArray result;
     result.reserve(256);
-    preprocess(m_state.m_currentFileName, condition, &result, 0, true, false, true,
+    preprocess(m_state.m_currentFileName, condition, &result, nullptr, true, false, true,
                bytesBegin, utf16charsBegin, line);
     result.squeeze();
 //    qDebug("*** Condition after: [%s]", result.constData());

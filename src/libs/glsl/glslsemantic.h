@@ -37,7 +37,7 @@ public:
     ~Semantic() override;
 
     struct ExprResult {
-        ExprResult(const Type *type = 0, bool isConstant = false)
+        ExprResult(const Type *type = nullptr, bool isConstant = false)
             : type(type), isConstant(isConstant) {}
 
         ~ExprResult() { }
@@ -45,7 +45,7 @@ public:
         bool isValid() const {
             if (! type)
                 return false;
-            else if (type->asUndefinedType() != 0)
+            else if (type->asUndefinedType() != nullptr)
                 return false;
             return true;
         }

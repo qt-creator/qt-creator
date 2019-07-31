@@ -69,7 +69,7 @@ Symbol *Scope::lookup(const QString &name) const
     else if (Scope *s = scope())
         return s->lookup(name);
     else
-        return 0;
+        return nullptr;
 }
 
 QList<Symbol *> Scope::members() const

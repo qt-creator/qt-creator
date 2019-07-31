@@ -140,7 +140,7 @@ BinEditorWidget::BinEditorWidget(QWidget *parent)
     : QAbstractScrollArea(parent), d(new BinEditorWidgetPrivate(this))
 {
     m_bytesPerLine = 16;
-    m_ieditor = 0;
+    m_ieditor = nullptr;
     m_baseAddr = 0;
     m_blockSize = 4096;
     m_size = 0;

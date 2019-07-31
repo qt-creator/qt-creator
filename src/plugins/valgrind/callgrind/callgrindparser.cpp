@@ -224,7 +224,7 @@ void Parser::Private::parse(QIODevice *device)
     // functions that need to accumulate their calees
     QSet<Function *> pendingFunctions;
     foreach (const CallData &callData, pendingCallees) {
-        Function *calledFunction = 0;
+        Function *calledFunction = nullptr;
         QTC_ASSERT(callData.call, continue);
         QTC_ASSERT(callData.call->caller(), continue);
         foreach (const Function *function, functionLookup.value(callData.calledFunction)) {

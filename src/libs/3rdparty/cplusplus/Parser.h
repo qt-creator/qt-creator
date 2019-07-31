@@ -76,10 +76,10 @@ public:
     bool parseOverrideFinalQualifiers(SpecifierListAST *&node);
     bool parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list);
     bool parseDeclaration(DeclarationAST *&node);
-    bool parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *declaringClass = 0);
+    bool parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *declaringClass = nullptr);
     bool parseDeclarationStatement(StatementAST *&node);
     bool parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass);
-    bool parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass = 0);
+    bool parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass = nullptr);
     bool parseDeleteExpression(ExpressionAST *&node);
     bool parseDoStatement(StatementAST *&node);
     bool parseElaboratedTypeSpecifier(SpecifierListAST *&node);
@@ -213,9 +213,9 @@ public:
     bool parseObjCExpression(ExpressionAST *&node);
     bool parseObjCClassForwardDeclaration(DeclarationAST *&node);
     bool parseObjCInterface(DeclarationAST *&node,
-                            SpecifierListAST *attributes = 0);
+                            SpecifierListAST *attributes = nullptr);
     bool parseObjCProtocol(DeclarationAST *&node,
-                           SpecifierListAST *attributes = 0);
+                           SpecifierListAST *attributes = nullptr);
 
     bool parseObjCTryStatement(StatementAST *&node);
     bool parseObjCSynchronizedStatement(StatementAST *&node);
@@ -236,7 +236,7 @@ public:
     bool parseObjCInterfaceMemberDeclaration(DeclarationAST *&node);
     bool parseObjCInstanceVariableDeclaration(DeclarationAST *&node);
     bool parseObjCPropertyDeclaration(DeclarationAST *&node,
-                                      SpecifierListAST *attributes = 0);
+                                      SpecifierListAST *attributes = nullptr);
     bool parseObjCImplementation(DeclarationAST *&node);
     bool parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node);
     bool parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node);
@@ -303,7 +303,7 @@ public:
         int cursor;
         ExpressionListAST *ast;
 
-        TemplateArgumentListEntry(int index = 0, int cursor = 0, ExpressionListAST *ast = 0)
+        TemplateArgumentListEntry(int index = 0, int cursor = 0, ExpressionListAST *ast = nullptr)
             : index(index), cursor(cursor), ast(ast) {}
     };
 
