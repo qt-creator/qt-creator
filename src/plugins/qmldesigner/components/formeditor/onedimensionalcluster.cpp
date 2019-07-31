@@ -93,17 +93,16 @@ QList<OneDimensionalCluster> OneDimensionalCluster::reduceOneDimensionalClusterL
         Utils::sort(workingList);
         reducedList.clear();
         bool clusterMerged = false;
-        QListIterator<OneDimensionalCluster> clusterIterator(workingList);
-        while (clusterIterator.hasNext())
-        {
-            OneDimensionalCluster currentCluster = clusterIterator.next();
-            if (clusterIterator.hasNext())
-            {
-                OneDimensionalCluster nextCluster = clusterIterator.peekNext();
+
+        for (int i = 0, n = workingList.size(); i != n; ) {
+
+            OneDimensionalCluster currentCluster = workingList.at(i);
+            if (i + 1 < n) {
+                OneDimensionalCluster nextCluster = workingList.at(i + 1);
                 if ((nextCluster.mean() - currentCluster.mean()) < maximumDistance)
                 {
                     reducedList.append(currentCluster + nextCluster);
-                    clusterIterator.next();
+                    ++i;
                     clusterMerged = true;
                 }
                 else
