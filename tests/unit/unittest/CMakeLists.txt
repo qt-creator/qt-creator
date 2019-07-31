@@ -29,7 +29,6 @@ add_qtc_test(unittest GTEST
   SOURCES
     builddependenciesprovider-test.cpp
     builddependenciesstorage-test.cpp
-    changedfilepathcompressor-test.cpp
     clangindexingsettingsmanager-test.cpp
     clangpathwatcher-test.cpp
     clangqueryexamplehighlightmarker-test.cpp
