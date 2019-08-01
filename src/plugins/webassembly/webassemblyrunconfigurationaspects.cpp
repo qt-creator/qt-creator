@@ -103,12 +103,5 @@ QString WebBrowserSelectionAspect::currentBrowser() const
     return m_currentBrowser;
 }
 
-EffectiveEmrunCallAspect::EffectiveEmrunCallAspect()
-{
-    setLabelText(tr("Effective emrun call:"));
-    setDisplayStyle(BaseStringAspect::TextEditDisplay);
-    setReadOnly(true);
-}
-
 } // namespace Internal
 } // namespace Webassembly

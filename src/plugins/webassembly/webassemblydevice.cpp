@@ -26,6 +26,12 @@
 #include "webassemblyconstants.h"
 #include "webassemblydevice.h"
 
+#include <projectexplorer/devicesupport/deviceprocess.h>
+#include <projectexplorer/runcontrol.h>
+
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace WebAssembly {
 namespace Internal {
 
@@ -51,15 +57,6 @@ Utils::OsType WebAssemblyDevice::osType() const
     return Utils::OsTypeOther;
 }
 
-ProjectExplorer::IDeviceWidget *WebAssemblyDevice::createWidget()
-{
-    return nullptr;
-}
-
-ProjectExplorer::DeviceProcessSignalOperation::Ptr WebAssemblyDevice::signalOperation() const
-{
-    return {};
-}
 
 WebAssemblyDeviceFactory::WebAssemblyDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::WEBASSEMBLY_DEVICE_TYPE)

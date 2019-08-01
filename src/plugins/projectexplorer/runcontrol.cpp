@@ -55,6 +55,8 @@
 #include <QLoggingCategory>
 #include <QSettings>
 
+#include <devicesupport/desktopdevice.h>
+
 #if defined (WITH_JOURNALD)
 #include "journaldwatcher.h"
 #endif
@@ -1098,8 +1100,7 @@ void SimpleTargetRunner::start()
     m_launcher.disconnect(this);
     m_launcher.setUseTerminal(m_useTerminal);
 
-    const bool isDesktop = m_device.isNull()
-            || m_device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    const bool isDesktop = m_device.isNull() || m_device.dynamicCast<const DesktopDevice>();
     const QString rawDisplayName = m_runnable.displayName();
     const QString displayName = isDesktop
             ? QDir::toNativeSeparators(rawDisplayName)

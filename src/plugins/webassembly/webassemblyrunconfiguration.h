@@ -25,30 +25,22 @@
 
 #pragma once
 
-#include <projectexplorer/customexecutablerunconfiguration.h>
-
-namespace ProjectExplorer {
-class Target;
-}
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 namespace WebAssembly {
 namespace Internal {
-
-// Runs a webassembly application via emscripten's "emrun" tool
-// https://emscripten.org/docs/compiling/Running-html-files-with-emrun.html
-class EmrunRunConfiguration : public ProjectExplorer::CustomExecutableRunConfiguration
-{
-public:
-    EmrunRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-private:
-    void updateConfiguration();
-};
 
 class EmrunRunConfigurationFactory : public ProjectExplorer::FixedRunConfigurationFactory
 {
 public:
     EmrunRunConfigurationFactory();
+};
+
+class EmrunRunWorkerFactory : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    EmrunRunWorkerFactory();
 };
 
 } // namespace Internal

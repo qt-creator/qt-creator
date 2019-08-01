@@ -28,63 +28,103 @@
 #include "webassemblyconstants.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <QDir>
+using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace WebAssembly {
 namespace Internal {
 
-EmrunRunConfiguration::EmrunRunConfiguration(ProjectExplorer::Target *target,
-                                             Core::Id id)
-    : ProjectExplorer::CustomExecutableRunConfiguration(target, id)
+static CommandLine emrunCommand(Target *target, const QString &browser, const QString &port)
 {
-    auto executableAspect = aspect<ProjectExplorer::ExecutableAspect>();
-    executableAspect->setExecutable(
-                target->activeBuildConfiguration()->environment().searchInPath("python"));
-    executableAspect->setVisible(false);
+    BuildConfiguration *bc = target->activeBuildConfiguration();
+    const QFileInfo emrunScript = bc->environment().searchInPath("emrun").toFileInfo();
+    auto html = bc->buildDirectory().pathAppended(target->project()->displayName() + ".html");
 
-    auto workingDirectoryAspect = aspect<ProjectExplorer::WorkingDirectoryAspect>();
-    workingDirectoryAspect->setVisible(false);
-
-    auto terminalAspect = aspect<ProjectExplorer::TerminalAspect>();
-    terminalAspect->setVisible(false);
-
-    auto argumentsAspect = aspect<ProjectExplorer::ArgumentsAspect>();
-    argumentsAspect->setVisible(false);
-
-    auto webBrowserAspect = addAspect<WebBrowserSelectionAspect>(target);
-    connect(webBrowserAspect, &WebBrowserSelectionAspect::changed,
-            this, &EmrunRunConfiguration::updateConfiguration);
-    connect(target->activeBuildConfiguration(),
-            &ProjectExplorer::BuildConfiguration::buildDirectoryChanged,
-            this, &EmrunRunConfiguration::updateConfiguration);
-
-    addAspect<EffectiveEmrunCallAspect>();
-
-    updateConfiguration();
+    return CommandLine(bc->environment().searchInPath("python"), {
+            emrunScript.absolutePath() + "/" + emrunScript.baseName() + ".py",
+            "--browser", browser,
+            "--port", port,
+            "--no_emrun_detect",
+            html.toString()
+        });
 }
 
+// Runs a webassembly application via emscripten's "emrun" tool
+// https://emscripten.org/docs/compiling/Running-html-files-with-emrun.html
+class EmrunRunConfiguration : public ProjectExplorer::RunConfiguration
+{
+public:
+    EmrunRunConfiguration(Target *target, Core::Id id)
+            : RunConfiguration(target, id)
+    {
+        auto webBrowserAspect = addAspect<WebBrowserSelectionAspect>(target);
+
+        auto effectiveEmrunCall = addAspect<BaseStringAspect>();
+        effectiveEmrunCall->setLabelText(tr("Effective emrun call:"));
+        effectiveEmrunCall->setDisplayStyle(BaseStringAspect::TextEditDisplay);
+        effectiveEmrunCall->setReadOnly(true);
+
+        auto updateConfiguration = [target, effectiveEmrunCall, webBrowserAspect] {
+            effectiveEmrunCall->setValue(emrunCommand(target,
+                                                      webBrowserAspect->currentBrowser(),
+                                                      "<port>").toUserOutput());
+        };
+
+        updateConfiguration();
+
+        connect(webBrowserAspect, &WebBrowserSelectionAspect::changed,
+                this, updateConfiguration);
+        connect(target->activeBuildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
+                this, updateConfiguration);
+    }
+};
+
+class EmrunRunWorker : public SimpleTargetRunner
+{
+public:
+    EmrunRunWorker(RunControl *runControl)
+        : SimpleTargetRunner(runControl)
+    {
+        m_portsGatherer = new PortsGatherer(runControl);
+        addStartDependency(m_portsGatherer);
+    }
+
+    void start() final
+    {
+        CommandLine cmd = emrunCommand(runControl()->target(),
+                                       runControl()->aspect<WebBrowserSelectionAspect>()->currentBrowser(),
+                                       m_portsGatherer->findPort().toString());
+        Runnable r;
+        r.setCommandLine(cmd);
+        setRunnable(r);
+
+        SimpleTargetRunner::start();
+    }
+
+    PortsGatherer *m_portsGatherer;
+};
+
+
+// Factories
+
 EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
-    : ProjectExplorer::FixedRunConfigurationFactory(
-          EmrunRunConfiguration::tr("Launch with emrun"))
+    : FixedRunConfigurationFactory(EmrunRunConfiguration::tr("Launch with emrun"))
 {
     registerRunConfiguration<EmrunRunConfiguration>(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
     addSupportedTargetDeviceType(Constants::WEBASSEMBLY_DEVICE_TYPE);
 }
 
-void EmrunRunConfiguration::updateConfiguration()
+EmrunRunWorkerFactory::EmrunRunWorkerFactory()
 {
-    const QFileInfo emrunScript =
-            target()->activeBuildConfiguration()->environment().searchInPath("emrun").toFileInfo();
-    const QString arguments =
-            emrunScript.absolutePath() + "/" + emrunScript.baseName() + ".py "
-            + QString("--browser %1 ").arg(aspect<WebBrowserSelectionAspect>()->currentBrowser())
-            + "--no_emrun_detect "
-            + target()->activeBuildConfiguration()->buildDirectory().toString()
-            + macroExpander()->expandProcessArgs("/%{CurrentProject:Name}.html");
-    aspect<ProjectExplorer::ArgumentsAspect>()->setArguments(arguments);
-    aspect<EffectiveEmrunCallAspect>()->setValue(commandLine().toUserOutput());
+    setProducer([](RunControl *rc) { return new EmrunRunWorker(rc); });
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfiguration(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
 }
 
 } // namespace Internal

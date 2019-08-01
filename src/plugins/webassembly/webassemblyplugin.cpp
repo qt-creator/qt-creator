@@ -36,9 +36,6 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 
-#include <QMenu>
-#include <QMessageBox>
-
 namespace WebAssembly {
 namespace Internal {
 
@@ -49,6 +46,7 @@ public:
     WebAssemblyDeviceFactory deviceFactory;
     WebAssemblyQtVersionFactory qtVersionFactory;
     EmrunRunConfigurationFactory emrunRunConfigurationFactory;
+    EmrunRunWorkerFactory emrunRunWorkerFactory;
 };
 
 static WebAssemblyPluginPrivate *dd = nullptr;

@@ -25,15 +25,14 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
+#include <projectexplorer/devicesupport/desktopdevice.h>
 
 #include <QCoreApplication>
 
 namespace WebAssembly {
 namespace Internal {
 
-class WebAssemblyDevice : public ProjectExplorer::IDevice
+class WebAssemblyDevice : public ProjectExplorer::DesktopDevice
 {
     Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyDevice)
 
@@ -41,9 +40,6 @@ public:
     static ProjectExplorer::IDevice::Ptr create();
 
     Utils::OsType osType() const override;
-
-    ProjectExplorer::IDeviceWidget *createWidget() override;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
 
 private:
     WebAssemblyDevice();
