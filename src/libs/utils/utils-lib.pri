@@ -24,6 +24,7 @@ win32: LIBS += -liphlpapi -lws2_32
 SOURCES += \
     $$PWD/globalfilechangeblocker.cpp \
     $$PWD/benchmarker.cpp \
+    $$PWD/displayname.cpp \
     $$PWD/environment.cpp \
     $$PWD/environmentmodel.cpp \
     $$PWD/environmentdialog.cpp \
@@ -138,6 +139,7 @@ HEADERS += \
     $$PWD/genericconstants.h \
     $$PWD/globalfilechangeblocker.h \
     $$PWD/benchmarker.h \
+    $$PWD/displayname.h \
     $$PWD/environment.h \
     $$PWD/environmentmodel.h \
     $$PWD/environmentdialog.h \

@@ -111,31 +111,15 @@ QString ProjectConfiguration::settingsIdKey()
     return QString(CONFIGURATION_ID_KEY);
 }
 
-QString ProjectConfiguration::displayName() const
-{
-    if (!m_displayName.isEmpty())
-        return m_displayName;
-    return m_defaultDisplayName;
-}
-
 void ProjectConfiguration::setDisplayName(const QString &name)
 {
-    if (displayName() == name)
-        return;
-    if (name == m_defaultDisplayName)
-        m_displayName.clear();
-    else
-        m_displayName = name;
-    emit displayNameChanged();
+    if (m_displayName.setValue(name))
+        emit displayNameChanged();
 }
 
 void ProjectConfiguration::setDefaultDisplayName(const QString &name)
 {
-    if (m_defaultDisplayName == name)
-        return;
-    const QString originalName = displayName();
-    m_defaultDisplayName = name;
-    if (originalName != displayName())
+    if (m_displayName.setDefaultValue(name))
         emit displayNameChanged();
 }
 
@@ -152,17 +136,12 @@ QString ProjectConfiguration::toolTip() const
     return m_toolTip;
 }
 
-bool ProjectConfiguration::usesDefaultDisplayName() const
-{
-    return m_displayName.isEmpty();
-}
-
 QVariantMap ProjectConfiguration::toMap() const
 {
     QTC_CHECK(m_id.isValid());
     QVariantMap map;
     map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
-    map.insert(QLatin1String(DISPLAY_NAME_KEY), m_displayName);
+    m_displayName.toMap(map, DISPLAY_NAME_KEY);
     m_aspects.toMap(map);
     return map;
 }
@@ -180,7 +159,7 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
     // mangle in their build keys.
     QTC_ASSERT(id.toString().startsWith(m_id.toString()), return false);
 
-    m_displayName = map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
+    m_displayName.fromMap(map, DISPLAY_NAME_KEY);
     m_aspects.fromMap(map);
     return true;
 }

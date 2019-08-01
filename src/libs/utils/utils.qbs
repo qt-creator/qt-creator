@@ -80,6 +80,8 @@ Project {
             "detailswidget.h",
             "differ.cpp",
             "differ.h",
+            "displayname.cpp",
+            "displayname.h",
             "dropsupport.cpp",
             "dropsupport.h",
             "elfreader.cpp",

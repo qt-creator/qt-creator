@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include <coreplugin/id.h>
+#include <utils/displayname.h>
 #include <utils/macroexpander.h>
 
 #include <QObject>
@@ -136,9 +137,8 @@ public:
 
     Core::Id id() const;
 
-    QString displayName() const;
-
-    bool usesDefaultDisplayName() const;
+    QString displayName() const { return m_displayName.value(); }
+    bool usesDefaultDisplayName() const { return m_displayName.usesDefaultValue(); }
     void setDisplayName(const QString &name);
     void setDefaultDisplayName(const QString &name);
 
@@ -185,8 +185,7 @@ private:
     friend class Target; // FIXME: Remove
     Target *m_target = nullptr;
     const Core::Id m_id;
-    QString m_displayName;
-    QString m_defaultDisplayName;
+    Utils::DisplayName m_displayName;
     QString m_toolTip;
     Utils::MacroExpander m_macroExpander;
 };
