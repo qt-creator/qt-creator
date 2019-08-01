@@ -70,13 +70,23 @@ public:
 class IdPaths
 {
 public:
-    ProjectChunkId id;
-    FilePathIds filePathIds;
+    IdPaths(ProjectPartId projectPartId, SourceType sourceType, FilePathIds &&filePathIds)
+        : id{projectPartId, sourceType}
+        , filePathIds(std::move(filePathIds))
+    {}
+    IdPaths(ProjectChunkId projectChunkId, FilePathIds &&filePathIds)
+        : id(projectChunkId)
+        , filePathIds(std::move(filePathIds))
+    {}
 
     friend bool operator==(IdPaths first, IdPaths second)
     {
         return first.id == second.id && first.filePathIds == second.filePathIds;
     }
+
+public:
+    ProjectChunkId id;
+    FilePathIds filePathIds;
 };
 
 using ProjectChunkIds = std::vector<ProjectChunkId>;

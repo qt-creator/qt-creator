@@ -190,6 +190,7 @@ struct Data // because we have a cycle dependency
                                      preCompiledHeaderStorage,
                                      buildDependencyProvider,
                                      filePathCache,
+                                     includeWatcher,
                                      generatedFiles};
     PchCreatorManager pchCreatorManager{generatedFiles,
                                         environment,

@@ -36,6 +36,9 @@
 namespace ClangBackEnd {
 
 class BuildDependenciesProviderInterface;
+class FilePathCachingInterface;
+class GeneratedFilesInterface;
+class ClangPathWatcherInterface;
 
 inline namespace Pch {
 
@@ -44,10 +47,16 @@ class ProjectPartsManager final : public ProjectPartsManagerInterface
 public:
     ProjectPartsManager(ProjectPartsStorageInterface &projectPartsStorage,
                         PrecompiledHeaderStorageInterface &precompiledHeaderStorage,
-                        BuildDependenciesProviderInterface &buildDependenciesProvider)
+                        BuildDependenciesProviderInterface &buildDependenciesProvider,
+                        FilePathCachingInterface &filePathCache,
+                        ClangPathWatcherInterface &clangPathwatcher,
+                        GeneratedFilesInterface &generatedFiles)
         : m_projectPartsStorage(projectPartsStorage)
         , m_precompiledHeaderStorage(precompiledHeaderStorage)
         , m_buildDependenciesProvider(buildDependenciesProvider)
+        , m_filePathCache(filePathCache)
+        , m_clangPathwatcher(clangPathwatcher)
+        , m_generatedFiles(generatedFiles)
     {}
 
     UpToDataProjectParts update(ProjectPartContainers &&projectsParts) override;
@@ -71,6 +80,9 @@ private:
     ProjectPartsStorageInterface &m_projectPartsStorage;
     PrecompiledHeaderStorageInterface &m_precompiledHeaderStorage;
     BuildDependenciesProviderInterface &m_buildDependenciesProvider;
+    FilePathCachingInterface &m_filePathCache;
+    ClangPathWatcherInterface &m_clangPathwatcher;
+    GeneratedFilesInterface &m_generatedFiles;
 };
 
 } // namespace Pch

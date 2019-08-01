@@ -26,12 +26,16 @@
 #include "projectpartsmanager.h"
 
 #include <builddependenciesproviderinterface.h>
+#include <clangpathwatcherinterface.h>
 #include <filecontainerv2.h>
 #include <filepathcachinginterface.h>
+#include <generatedfilesinterface.h>
 #include <projectpartcontainer.h>
 #include <set_algorithm.h>
+#include <usedmacrofilter.h>
 
 #include <algorithm>
+#include <utils/algorithm.h>
 
 namespace ClangBackEnd {
 
@@ -71,6 +75,48 @@ Change changedSourceType(const SourceEntries &sources)
     }
 
     return change;
+}
+
+Change changedSourceType(SourceEntry sourceEntry, Change oldChange)
+{
+    switch (sourceEntry.sourceType) {
+    case SourceType::SystemInclude:
+    case SourceType::TopSystemInclude:
+        return Change::System;
+    case SourceType::ProjectInclude:
+    case SourceType::TopProjectInclude:
+        if (oldChange != Change::System)
+            return Change::Project;
+        break;
+    case SourceType::Source:
+    case SourceType::UserInclude:
+        break;
+    }
+
+    return oldChange;
+}
+
+FilePathIds existingSources(const FilePathIds &sources, const FilePathIds &generatedFilePathIds)
+{
+    FilePathIds existingSources;
+    existingSources.reserve(sources.size());
+    std::set_difference(sources.begin(),
+                        sources.end(),
+                        generatedFilePathIds.begin(),
+                        generatedFilePathIds.end(),
+                        std::back_inserter(existingSources));
+
+    return existingSources;
+}
+
+FilePathIds toFilePathIds(const V2::FileContainers &fileContainers,
+                          FilePathCachingInterface &filePathCache)
+{
+    auto filePaths = Utils::transform<std::vector<FilePathView>>(
+        fileContainers,
+        [](const V2::FileContainer &container) { return FilePathView(container.filePath); });
+
+    return filePathCache.filePathIds(filePaths);
 }
 
 } // namespace
@@ -129,6 +175,11 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
 
     auto systemSplit = updateSystemProjectParts.end();
 
+    FilePathIds generatedFiles = toFilePathIds(m_generatedFiles.fileContainers(), m_filePathCache);
+
+    std::vector<IdPaths> watchedIdPaths;
+    watchedIdPaths.reserve(upToDateProjectParts.size() * 4);
+
     for (ProjectPartContainer &projectPart : upToDateProjectParts) {
         auto oldSources = m_buildDependenciesProvider.createSourceEntriesFromStorage(
             projectPart.sourcePathIds, projectPart.projectPartId);
@@ -136,7 +187,7 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
         BuildDependency buildDependency = m_buildDependenciesProvider.create(projectPart,
                                                                              Utils::clone(oldSources));
 
-        auto newSources = buildDependency.sources;
+        const auto &newSources = buildDependency.sources;
 
         SourceEntries updatedSourceTyes;
         updatedSourceTyes.reserve(newSources.size());
@@ -170,17 +221,18 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
             SourceEntries updatedTimeStamps;
             updatedTimeStamps.reserve(newSources.size());
 
-            std::set_difference(newSources.begin(),
-                                newSources.end(),
-                                oldSources.begin(),
-                                oldSources.end(),
-                                std::back_inserter(updatedTimeStamps),
-                                [](SourceEntry first, SourceEntry second) {
-                                    return std::tie(first.sourceId, first.timeStamp)
-                                           < std::tie(second.sourceId, second.timeStamp);
-                                });
-
-            auto change = changedSourceType(updatedTimeStamps);
+            Change change = mismatch_collect(
+                newSources.begin(),
+                newSources.end(),
+                oldSources.begin(),
+                oldSources.end(),
+                Change::No,
+                [](SourceEntry first, SourceEntry second) {
+                    return first.timeStamp > second.timeStamp;
+                },
+                [](SourceEntry first, SourceEntry, Change change) {
+                    return changedSourceType(first, change);
+                });
 
             switch (change) {
             case Change::Project:
@@ -192,10 +244,30 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
                 projectPart.projectPartId = -1;
                 break;
             case Change::No:
+                UsedMacroFilter usedMacroFilter{newSources, {}, {}};
+
+                watchedIdPaths.emplace_back(projectPart.projectPartId,
+                                            SourceType::Source,
+                                            existingSources(usedMacroFilter.sources, generatedFiles));
+                watchedIdPaths.emplace_back(projectPart.projectPartId,
+                                            SourceType::UserInclude,
+                                            existingSources(usedMacroFilter.userIncludes,
+                                                            generatedFiles));
+                watchedIdPaths.emplace_back(projectPart.projectPartId,
+                                            SourceType::ProjectInclude,
+                                            existingSources(usedMacroFilter.projectIncludes,
+                                                            generatedFiles));
+                watchedIdPaths.emplace_back(projectPart.projectPartId,
+                                            SourceType::SystemInclude,
+                                            existingSources(usedMacroFilter.systemIncludes,
+                                                            generatedFiles));
                 break;
             }
         }
     }
+
+    if (watchedIdPaths.size())
+        m_clangPathwatcher.updateIdPaths(watchedIdPaths);
 
     std::inplace_merge(updateSystemProjectParts.begin(), systemSplit, updateSystemProjectParts.end());
     upToDateProjectParts.erase(std::remove_if(upToDateProjectParts.begin(),

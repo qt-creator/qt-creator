@@ -410,7 +410,7 @@ public:
 
         for (WatcherEntry entry : foundEntries) {
             if (idPaths.empty() || idPaths.back().id != entry.id)
-                idPaths.push_back({entry.id, {}});
+                idPaths.emplace_back(entry.id, FilePathIds{});
             idPaths.back().filePathIds.push_back(entry.filePathId);
         }
 

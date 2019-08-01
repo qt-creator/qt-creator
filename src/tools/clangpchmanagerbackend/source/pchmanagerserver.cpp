@@ -27,6 +27,7 @@
 
 #include <builddependenciesstorage.h>
 #include <filepathcachinginterface.h>
+#include <filepathview.h>
 #include <pchmanagerclientinterface.h>
 #include <pchtaskgeneratorinterface.h>
 #include <precompiledheadersupdatedmessage.h>
@@ -55,7 +56,6 @@ PchManagerServer::PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
     , m_projectPartsManager(projectParts)
     , m_generatedFiles(generatedFiles)
     , m_buildDependenciesStorage(buildDependenciesStorage)
-
 {
     m_fileSystemWatcher.setNotifier(this);
 }
@@ -72,6 +72,7 @@ ProjectPartIds toProjectPartIds(const ProjectPartContainers &projectParts)
         return projectPart.projectPartId;
     });
 }
+
 } // namespace
 
 void PchManagerServer::updateProjectParts(UpdateProjectPartsMessage &&message)

@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 #include "mockbuilddependenciesprovider.h"
+#include "mockclangpathwatcher.h"
 #include "mockfilepathcaching.h"
 #include "mockgeneratedfiles.h"
 #include "mockprecompiledheaderstorage.h"
@@ -37,11 +38,27 @@
 namespace {
 
 using ClangBackEnd::FilePathId;
+using ClangBackEnd::FilePathIds;
 using ClangBackEnd::ProjectPartContainer;
 using ClangBackEnd::ProjectPartContainers;
 using UpToDataProjectParts = ClangBackEnd::ProjectPartsManagerInterface::UpToDataProjectParts;
 using ClangBackEnd::SourceEntries;
+using ClangBackEnd::SourceEntry;
 using ClangBackEnd::SourceType;
+
+MATCHER_P3(IsIdPaths,
+           projectPartId,
+           sourceIds,
+           sourceType,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(ClangBackEnd::IdPaths{{projectPartId, sourceType},
+                                                     Utils::clone(sourceIds)}))
+{
+    const ClangBackEnd::IdPaths &idPaths = arg;
+
+    return idPaths.filePathIds == sourceIds && idPaths.id.sourceType == sourceType
+           && idPaths.id.id == projectPartId;
+}
 
 class ProjectPartsManager : public testing::Test
 {
@@ -49,13 +66,20 @@ protected:
     ProjectPartsManager()
     {
         projectPartContainerWithoutPrecompiledHeader1.preCompiledHeaderWasGenerated = false;
+        ON_CALL(mockGeneratedFiles, fileContainers()).WillByDefault(ReturnRef(generatedFiles));
     }
     NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
     NiceMock<MockPrecompiledHeaderStorage> mockPrecompiledHeaderStorage;
     NiceMock<MockBuildDependenciesProvider> mockBuildDependenciesProvider;
+    NiceMock<MockFilePathCaching> mockFilePathCaching;
+    NiceMock<MockGeneratedFiles> mockGeneratedFiles;
+    NiceMock<MockClangPathWatcher> mockClangPathWatcher;
     ClangBackEnd::ProjectPartsManager manager{mockProjectPartsStorage,
                                               mockPrecompiledHeaderStorage,
-                                              mockBuildDependenciesProvider};
+                                              mockBuildDependenciesProvider,
+                                              mockFilePathCaching,
+                                              mockClangPathWatcher,
+                                              mockGeneratedFiles};
     FilePathId firstHeader{1};
     FilePathId secondHeader{2};
     FilePathId firstSource{11};
@@ -649,7 +673,7 @@ TEST_F(ProjectPartsManager, SourcesTimeChanged)
 TEST_F(ProjectPartsManager, SourcesTimeNotChanged)
 {
     SourceEntries oldSources{{1, SourceType::SystemInclude, 100}};
-    SourceEntries newSources{{1, SourceType::SystemInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 99}};
     manager.update({projectPartContainer1});
     ON_CALL(mockBuildDependenciesProvider,
             createSourceEntriesFromStorage(Eq(projectPartContainer1.sourcePathIds),
@@ -830,6 +854,92 @@ TEST_F(ProjectPartsManager, ChangeFromUserIncludeToSource)
     ASSERT_THAT(upToDate.upToDate, ElementsAre(projectPartContainer1));
     ASSERT_THAT(upToDate.updateSystem, IsEmpty());
     ASSERT_THAT(upToDate.updateProject, IsEmpty());
+}
+
+TEST_F(ProjectPartsManager, DontWatchNewSources)
+{
+    EXPECT_CALL(mockClangPathWatcher, updateIdPaths(_)).Times(0);
+
+    manager.update({projectPartContainer1});
+}
+
+TEST_F(ProjectPartsManager, DontWatchUpdatedSources)
+{
+    manager.update({projectPartContainer1});
+
+    EXPECT_CALL(mockClangPathWatcher, updateIdPaths(_)).Times(0);
+
+    manager.update({updatedProjectPartContainer1});
+}
+
+TEST_F(ProjectPartsManager, DontWatchChangedTimeStamps)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100}};
+    SourceEntries newSources{{1, SourceType::SystemInclude, 101}};
+    ON_CALL(mockBuildDependenciesProvider, createSourceEntriesFromStorage(_, _))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(_, _))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    EXPECT_CALL(mockClangPathWatcher, updateIdPaths(_)).Times(0);
+
+    manager.update({projectPartContainer1});
+}
+
+TEST_F(ProjectPartsManager, DontWatchChangedSources)
+{
+    manager.update({projectPartContainer1});
+    SourceEntries oldSources{{1, SourceType::SystemInclude, 100}};
+    SourceEntries newSources{{1, SourceType::ProjectInclude, 100}};
+    ON_CALL(mockBuildDependenciesProvider, createSourceEntriesFromStorage(_, _))
+        .WillByDefault(Return(oldSources));
+    ON_CALL(mockBuildDependenciesProvider, create(_, _))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{newSources, {}, {}, {}, {}}));
+
+    EXPECT_CALL(mockClangPathWatcher, updateIdPaths(_)).Times(0);
+
+    manager.update({projectPartContainer1});
+}
+
+TEST_F(ProjectPartsManager, WatchNoUpdatedSources)
+{
+    manager.update({projectPartContainer1, projectPartContainer2});
+    SourceEntries sources1{{1, SourceType::TopSystemInclude, 100},
+                           {2, SourceType::SystemInclude, 100},
+                           {3, SourceType::TopProjectInclude, 100},
+                           {4, SourceType::ProjectInclude, 100},
+                           {5, SourceType::UserInclude, 100},
+                           {6, SourceType::Source, 100}};
+    SourceEntries sources2{{11, SourceType::TopSystemInclude, 100},
+                           {21, SourceType::SystemInclude, 100},
+                           {31, SourceType::TopProjectInclude, 100},
+                           {41, SourceType::ProjectInclude, 100},
+                           {51, SourceType::UserInclude, 100},
+                           {61, SourceType::Source, 100}};
+    ON_CALL(mockBuildDependenciesProvider, createSourceEntriesFromStorage(_, Eq(1)))
+        .WillByDefault(Return(sources1));
+    ON_CALL(mockBuildDependenciesProvider,
+            create(Field(&ProjectPartContainer::projectPartId, Eq(1)), _))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{sources1, {}, {}, {}, {}}));
+    ON_CALL(mockBuildDependenciesProvider, createSourceEntriesFromStorage(_, Eq(2)))
+        .WillByDefault(Return(sources2));
+    ON_CALL(mockBuildDependenciesProvider,
+            create(Field(&ProjectPartContainer::projectPartId, Eq(2)), _))
+        .WillByDefault(Return(ClangBackEnd::BuildDependency{sources2, {}, {}, {}, {}}));
+
+    EXPECT_CALL(mockClangPathWatcher,
+                updateIdPaths(UnorderedElementsAre(
+                    IsIdPaths(1, FilePathIds{6}, SourceType::Source),
+                    IsIdPaths(2, FilePathIds{61}, SourceType::Source),
+                    IsIdPaths(1, FilePathIds{5}, SourceType::UserInclude),
+                    IsIdPaths(2, FilePathIds{51}, SourceType::UserInclude),
+                    IsIdPaths(1, FilePathIds{3, 4}, SourceType::ProjectInclude),
+                    IsIdPaths(2, FilePathIds{31, 41}, SourceType::ProjectInclude),
+                    IsIdPaths(1, FilePathIds{1, 2}, SourceType::SystemInclude),
+                    IsIdPaths(2, FilePathIds{11, 21}, SourceType::SystemInclude))));
+
+    manager.update({projectPartContainer1, projectPartContainer2});
 }
 
 } // namespace

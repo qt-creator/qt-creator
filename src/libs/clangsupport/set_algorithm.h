@@ -98,4 +98,22 @@ bool set_intersection_compare(
 
     return false;
 }
+
+template<typename InputIt1, typename InputIt2, typename BinaryPredicate, typename Callable, typename Value>
+Value mismatch_collect(InputIt1 first1,
+                       InputIt1 last1,
+                       InputIt2 first2,
+                       InputIt2 last2,
+                       Value value,
+                       BinaryPredicate predicate,
+                       Callable callable)
+{
+    while (first1 != last1 && first2 != last2) {
+        if (predicate(*first1, *first2))
+            value = callable(*first1, *first2, value);
+        ++first1, ++first2;
+    }
+
+    return value;
+}
 } // namespace ClangBackEnd
