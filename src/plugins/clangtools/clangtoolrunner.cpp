@@ -58,16 +58,12 @@ QString finishedWithBadExitCode(const QString &name, int exitCode)
     return ClangToolRunner::tr("%1 finished with exit code: %2.").arg(name).arg(exitCode);
 }
 
-ClangToolRunner::ClangToolRunner(const QString &clangExecutable,
-                                 const QString &clangLogFileDir,
-                                 const Utils::Environment &environment,
-                                 const QString &name,
-                                 QObject *parent)
-    : QObject(parent)
-    , m_clangExecutable(QDir::toNativeSeparators(clangExecutable))
-    , m_clangLogFileDir(clangLogFileDir)
-    , m_name(name)
+void ClangToolRunner::init(const QString &clangExecutable,
+                           const QString &clangLogFileDir,
+                           const Utils::Environment &environment)
 {
+    m_clangExecutable = QDir::toNativeSeparators(clangExecutable);
+    m_clangLogFileDir = clangLogFileDir;
     QTC_CHECK(!m_clangExecutable.isEmpty());
     QTC_CHECK(!m_clangLogFileDir.isEmpty());
 
@@ -97,7 +93,7 @@ bool ClangToolRunner::run(const QString &filePath, const QStringList &compilerOp
 
     m_logFile = createLogFile(filePath);
     QTC_ASSERT(!m_logFile.isEmpty(), return false);
-    const QStringList arguments = constructCommandLineArguments(compilerOptions);
+    const QStringList arguments = m_argsCreator(compilerOptions);
     m_commandLine = Utils::QtcProcess::joinArgs(QStringList(m_clangExecutable) + arguments);
 
     qCDebug(LOG).noquote() << "Starting" << m_commandLine;

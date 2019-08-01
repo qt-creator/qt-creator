@@ -52,11 +52,8 @@ QList<RunnerCreator> ClangTidyClazyRunWorker::runnerCreators()
 
 ClangToolRunner *ClangTidyClazyRunWorker::createRunner()
 {
-    auto runner = new ClangTidyClazyRunner(m_diagnosticConfig,
-                                           m_clangExecutable,
-                                           m_temporaryDir.path(),
-                                           m_environment,
-                                           this);
+    auto runner = new ClangTidyClazyRunner(m_diagnosticConfig, this);
+    runner->init(m_clangExecutable, m_temporaryDir.path(), m_environment);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &ClangTidyClazyRunWorker::onRunnerFinishedWithSuccess);
     connect(runner, &ClangToolRunner::finishedWithFailure,

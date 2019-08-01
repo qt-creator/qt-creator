@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include <QString>
 #include <QProcess>
 
@@ -33,6 +35,8 @@ namespace Utils { class Environment; }
 namespace ClangTools {
 namespace Internal {
 
+using ArgsCreator = std::function<QStringList(const QStringList &baseOptions)>;
+
 QString finishedWithBadExitCode(const QString &name, int exitCode); // exposed for tests
 
 class ClangToolRunner : public QObject
@@ -40,12 +44,14 @@ class ClangToolRunner : public QObject
     Q_OBJECT
 
 public:
-    ClangToolRunner(const QString &clangExecutable,
-                    const QString &clangLogFileDir,
-                    const Utils::Environment &environment,
-                    const QString &name,
-                    QObject *parent = nullptr);
+    ClangToolRunner(QObject *parent = nullptr) : QObject(parent) {}
     ~ClangToolRunner() override;
+
+    void init(const QString &clangExecutable,
+              const QString &clangLogFileDir,
+              const Utils::Environment &environment);
+    void setName(const QString &name) { m_name = name; }
+    void setArgsCreator(const ArgsCreator &argsCreator) { m_argsCreator = argsCreator; }
 
     // compilerOptions is expected to contain everything except:
     //   (1) filePath, that is the file to analyze
@@ -60,12 +66,8 @@ signals:
     void finishedWithSuccess(const QString &filePath);
     void finishedWithFailure(const QString &errorMessage, const QString &errorDetails);
 
-protected:
-    virtual QStringList constructCommandLineArguments(const QStringList &options) = 0;
-
-    virtual void onProcessOutput();
-
 private:
+    virtual void onProcessOutput();
     void onProcessStarted();
     void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void onProcessError(QProcess::ProcessError error);
@@ -81,9 +83,12 @@ protected:
 private:
     QString m_clangExecutable;
     QString m_clangLogFileDir;
+
+    QString m_name;
+    ArgsCreator m_argsCreator;
+
     QString m_filePath;
     QString m_commandLine;
-    const QString m_name;
 };
 
 } // namespace Internal

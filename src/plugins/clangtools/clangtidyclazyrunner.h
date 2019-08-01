@@ -37,17 +37,7 @@ class ClangTidyClazyRunner final : public ClangToolRunner
     Q_OBJECT
 
 public:
-    ClangTidyClazyRunner(const CppTools::ClangDiagnosticConfig &diagnosticConfig,
-                         const QString &clangExecutable,
-                         const QString &clangLogFileDir,
-                         const Utils::Environment &environment,
-                         QObject *parent = nullptr);
-
-protected:
-    QStringList constructCommandLineArguments(const QStringList &options) final;
-
-private:
-    const CppTools::ClangDiagnosticConfig m_diagnosticConfig;
+    ClangTidyClazyRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
 };
 
 } // namespace Internal
