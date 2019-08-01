@@ -405,12 +405,7 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &pr
     setPreferredKitPredicate([](const Kit *) { return false; });
 
     m_kit.reset(KitManager::defaultKit()->clone());
-    connect(this, &CompilationDatabaseProject::parsingFinished, this, [this]() {
-        if (!m_hasTarget) {
-            addTarget(createTarget(m_kit.get()));
-            m_hasTarget = true;
-        }
-    });
+    addTarget(createTarget(m_kit.get()));
 
     connect(this, &CompilationDatabaseProject::rootProjectDirectoryChanged,
             m_parseDelay, QOverload<>::of(&QTimer::start));

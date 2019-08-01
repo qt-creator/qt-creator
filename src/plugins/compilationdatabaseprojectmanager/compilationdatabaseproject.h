@@ -74,7 +74,6 @@ private:
     MimeBinaryCache m_mimeBinaryCache;
     QTimer * const m_parseDelay;
     CompilationDbParser *m_parser = nullptr;
-    bool m_hasTarget = false;
 };
 
 class CompilationDatabaseEditorFactory : public TextEditor::TextEditorFactory
