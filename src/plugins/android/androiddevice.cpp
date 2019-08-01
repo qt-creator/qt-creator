@@ -49,7 +49,8 @@ AndroidDevice::AndroidDevice()
 {
     setupId(IDevice::AutoDetected, Constants::ANDROID_DEVICE_ID);
     setType(Constants::ANDROID_DEVICE_TYPE);
-    setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
+    setDefaultDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice",
+                                                      "Run on Android"));
     setDisplayType(QCoreApplication::translate("Android::Internal::AndroidDevice", "Android"));
     setMachineType(IDevice::Hardware);
     setDeviceState(DeviceReadyToUse);

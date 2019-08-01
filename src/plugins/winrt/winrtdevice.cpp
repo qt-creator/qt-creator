@@ -353,7 +353,7 @@ void WinRtDeviceFactory::parseRunnerOutput(const QByteArray &output) const
             device->setDeviceId(deviceId);
             device->setType(deviceType);
             device->setMachineType(machineType);
-            device->setDisplayName(name);
+            device->setDefaultDisplayName(name);
             deviceManager->addDevice(ProjectExplorer::IDevice::ConstPtr(device));
             qCDebug(winrtDeviceLog) << __FUNCTION__ << "Added device" << name << "(internal name:"
                                     << internalName << ")";

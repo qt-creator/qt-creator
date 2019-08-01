@@ -50,7 +50,8 @@ IosSimulator::IosSimulator(Core::Id id)
     setupId(IDevice::AutoDetected, id);
     setType(Constants::IOS_SIMULATOR_TYPE);
     setMachineType(IDevice::Emulator);
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
+    setDefaultDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator",
+                                                      "iOS Simulator"));
     setDisplayType(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
 }

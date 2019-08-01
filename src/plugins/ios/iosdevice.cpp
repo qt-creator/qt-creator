@@ -83,7 +83,7 @@ IosDevice::IosDevice()
 {
     setupId(IDevice::AutoDetected, Constants::IOS_DEVICE_ID);
     setType(Constants::IOS_DEVICE_TYPE);
-    setDisplayName(IosDevice::name());
+    setDefaultDisplayName(IosDevice::name());
     setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
     setMachineType(IDevice::Hardware);
     setDeviceState(DeviceDisconnected);
@@ -98,7 +98,7 @@ IosDevice::IosDevice(const QString &uid)
 {
     setupId(IDevice::AutoDetected, Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid));
     setType(Constants::IOS_DEVICE_TYPE);
-    setDisplayName(IosDevice::name());
+    setDefaultDisplayName(IosDevice::name());
     setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
     setMachineType(IDevice::Hardware);
     setDeviceState(DeviceDisconnected);

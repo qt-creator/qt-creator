@@ -51,8 +51,6 @@ public:
     QString configurationName() const;
     QString gdbServerProviderId() const;
 
-    virtual QString defaultConfigurationName() const;
-
 private:
     QLineEdit *m_nameLineEdit = nullptr;
     GdbServerProviderChooser *m_gdbServerProviderChooser = nullptr;

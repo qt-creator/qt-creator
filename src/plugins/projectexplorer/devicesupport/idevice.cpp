@@ -34,6 +34,7 @@
 #include "../runconfiguration.h"
 
 #include <ssh/sshconnection.h>
+#include <utils/displayname.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -138,7 +139,7 @@ class IDevicePrivate
 public:
     IDevicePrivate() = default;
 
-    QString displayName;
+    Utils::DisplayName displayName;
     QString displayType;
     Core::Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
@@ -197,12 +198,17 @@ IDevice::~IDevice() = default;
 
 QString IDevice::displayName() const
 {
-    return d->displayName;
+    return d->displayName.value();
 }
 
 void IDevice::setDisplayName(const QString &name)
 {
-    d->displayName = name;
+    d->displayName.setValue(name);
+}
+
+void IDevice::setDefaultDisplayName(const QString &name)
+{
+    d->displayName.setDefaultValue(name);
 }
 
 QString IDevice::displayType() const
@@ -349,7 +355,7 @@ Core::Id IDevice::idFromMap(const QVariantMap &map)
 void IDevice::fromMap(const QVariantMap &map)
 {
     d->type = typeFromMap(map);
-    d->displayName = map.value(QLatin1String(DisplayNameKey)).toString();
+    d->displayName.fromMap(map, DisplayNameKey);
     d->id = Core::Id::fromSetting(map.value(QLatin1String(IdKey)));
     if (!d->id.isValid())
         d->id = newId();
@@ -394,7 +400,7 @@ void IDevice::fromMap(const QVariantMap &map)
 QVariantMap IDevice::toMap() const
 {
     QVariantMap map;
-    map.insert(QLatin1String(DisplayNameKey), d->displayName);
+    d->displayName.toMap(map, DisplayNameKey);
     map.insert(QLatin1String(TypeKey), d->type.toString());
     map.insert(QLatin1String(IdKey), d->id.toSetting());
     map.insert(QLatin1String(OriginKey), d->origin);

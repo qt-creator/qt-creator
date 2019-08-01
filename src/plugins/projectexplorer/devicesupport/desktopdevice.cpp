@@ -54,7 +54,8 @@ DesktopDevice::DesktopDevice()
 {
     setupId(IDevice::AutoDetected, DESKTOP_DEVICE_ID);
     setType(DESKTOP_DEVICE_TYPE);
-    setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Local PC"));
+    setDefaultDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice",
+                                                      "Local PC"));
     setDisplayType(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Desktop"));
 
     setDeviceState(IDevice::DeviceStateUnknown);

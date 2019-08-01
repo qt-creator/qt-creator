@@ -62,7 +62,7 @@ BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardS
 
 void BareMetalDeviceConfigurationWizardSetupPage::initializePage()
 {
-    m_nameLineEdit->setText(defaultConfigurationName());
+    m_nameLineEdit->setText(BareMetalDevice::defaultDisplayName());
 }
 
 bool BareMetalDeviceConfigurationWizardSetupPage::isComplete() const
@@ -78,11 +78,6 @@ QString BareMetalDeviceConfigurationWizardSetupPage::configurationName() const
 QString BareMetalDeviceConfigurationWizardSetupPage::gdbServerProviderId() const
 {
    return m_gdbServerProviderChooser->currentProviderId();
-}
-
-QString BareMetalDeviceConfigurationWizardSetupPage::defaultConfigurationName() const
-{
-    return tr("Bare Metal Device");
 }
 
 } // namespace Internal

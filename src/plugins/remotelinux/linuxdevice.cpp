@@ -186,7 +186,7 @@ Utils::OsType LinuxDevice::osType() const
 LinuxDevice::LinuxDevice()
 {
     setDisplayType(tr("Generic Linux"));
-
+    setDefaultDisplayName(tr("Generic Linux Device"));
     addDeviceAction({tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
         if (auto d = PublicKeyDeploymentDialog::createDialog(device, parent)) {
             d->exec();
