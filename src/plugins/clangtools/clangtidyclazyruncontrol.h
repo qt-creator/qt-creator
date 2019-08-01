@@ -43,8 +43,11 @@ public:
                              const FileInfos &fileInfos);
 
 protected:
-    ClangToolRunner *createRunner() final;
+    QList<RunnerCreator> runnerCreators() final;
     ClangTool *tool() final;
+
+private:
+    ClangToolRunner *createRunner();
 
 private:
     CppTools::ClangDiagnosticConfig m_diagnosticConfig;

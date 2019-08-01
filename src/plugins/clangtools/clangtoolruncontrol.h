@@ -33,6 +33,7 @@
 #include <utils/temporarydirectory.h>
 
 #include <QFutureInterface>
+#include <QSet>
 #include <QStringList>
 
 namespace ClangTools {
@@ -40,7 +41,6 @@ namespace Internal {
 
 class ClangTool;
 class ClangToolRunner;
-class Diagnostic;
 class ProjectBuilder;
 
 struct AnalyzeUnit {
@@ -51,6 +51,14 @@ struct AnalyzeUnit {
     QStringList arguments; // without file itself and "-o somePath"
 };
 using AnalyzeUnits = QList<AnalyzeUnit>;
+
+using RunnerCreator = std::function<ClangToolRunner*()>;
+
+struct QueueItem {
+    AnalyzeUnit unit;
+    RunnerCreator runnerCreator;
+};
+using QueueItems = QList<QueueItem>;
 
 class ClangToolRunControl : public ProjectExplorer::RunWorker
 {
@@ -68,7 +76,7 @@ public:
 protected:
     void init();
 
-    virtual ClangToolRunner *createRunner() = 0;
+    virtual QList<RunnerCreator> runnerCreators() = 0;
 
     void onRunnerFinishedWithSuccess(const QString &filePath);
     void onRunnerFinishedWithFailure(const QString &errorMessage, const QString &errorDetails);
@@ -103,12 +111,12 @@ private:
     Core::Id m_toolChainType;
 
     QFutureInterface<void> m_progress;
-    AnalyzeUnits m_unitsToProcess;
+    QueueItems m_queue;
     QSet<Utils::FilePath> m_projectFiles;
     QSet<ClangToolRunner *> m_runners;
-    int m_initialFilesToProcessSize = 0;
-    int m_filesAnalyzed = 0;
-    int m_filesNotAnalyzed = 0;
+    int m_initialQueueSize = 0;
+    QSet<QString> m_filesAnalyzed;
+    QSet<QString> m_filesNotAnalyzed;
     bool m_success = false;
 };
 

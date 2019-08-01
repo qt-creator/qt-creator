@@ -319,10 +319,15 @@ void ClangToolRunControl::start()
     // Collect files
     const AnalyzeUnits unitsToProcess = unitsToAnalyze();
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
-    m_unitsToProcess = unitsToProcess;
-    m_initialFilesToProcessSize = m_unitsToProcess.count();
-    m_filesAnalyzed = 0;
-    m_filesNotAnalyzed = 0;
+
+    m_queue.clear();
+    for (const AnalyzeUnit &unit : unitsToProcess) {
+        for (auto creator : runnerCreators())
+            m_queue << QueueItem{unit, creator};
+    }
+    m_initialQueueSize = m_queue.count();
+    m_filesAnalyzed.clear();
+    m_filesNotAnalyzed.clear();
 
     // Set up progress information
     using namespace Core;
@@ -333,7 +338,7 @@ void ClangToolRunControl::start()
     futureProgress->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(futureProgress, &FutureProgress::canceled,
             this, &ClangToolRunControl::onProgressCanceled);
-    m_progress.setProgressRange(0, m_initialFilesToProcessSize);
+    m_progress.setProgressRange(0, m_initialQueueSize);
     m_progress.reportStarted();
 
     // Start process(es)
@@ -343,14 +348,14 @@ void ClangToolRunControl::start()
     QTC_ASSERT(parallelRuns >= 1, reportFailure(); return);
     m_success = true;
 
-    if (m_unitsToProcess.isEmpty()) {
+    if (m_queue.isEmpty()) {
         finalize();
         return;
     }
 
     reportStarted();
 
-    while (m_runners.size() < parallelRuns && !m_unitsToProcess.isEmpty())
+    while (m_runners.size() < parallelRuns && !m_queue.isEmpty())
         analyzeNextFile();
 }
 
@@ -362,7 +367,7 @@ void ClangToolRunControl::stop()
     }
     m_projectFiles.clear();
     m_runners.clear();
-    m_unitsToProcess.clear();
+    m_queue.clear();
     m_progress.reportFinished();
 
     reportStopped();
@@ -373,16 +378,17 @@ void ClangToolRunControl::analyzeNextFile()
     if (m_progress.isFinished())
         return; // The previous call already reported that we are finished.
 
-    if (m_unitsToProcess.isEmpty()) {
+    if (m_queue.isEmpty()) {
         if (m_runners.isEmpty())
             finalize();
         return;
     }
 
-    const AnalyzeUnit unit = m_unitsToProcess.takeFirst();
+    const QueueItem queueItem = m_queue.takeFirst();
+    const AnalyzeUnit unit = queueItem.unit;
     qCDebug(LOG) << "analyzeNextFile:" << unit.file;
 
-    ClangToolRunner *runner = createRunner();
+    ClangToolRunner *runner = queueItem.runnerCreator();
     m_runners.insert(runner);
     QTC_ASSERT(runner->run(unit.file, unit.arguments), return);
 
@@ -403,12 +409,15 @@ void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
     QFile::remove(logFilePath); // Clean-up.
 
     if (!errorMessage.isEmpty()) {
+        m_filesAnalyzed.remove(filePath);
+        m_filesNotAnalyzed.insert(filePath);
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
         const QString filePath = qobject_cast<ClangToolRunner *>(sender())->filePath();
         appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage),
                       Utils::StdErrFormat);
     } else {
-        ++m_filesAnalyzed;
+        if (!m_filesNotAnalyzed.contains(filePath))
+            m_filesAnalyzed.insert(filePath);
         if (!diagnostics.isEmpty())
             tool()->onNewDiagnosticsAvailable(diagnostics);
     }
@@ -429,10 +438,11 @@ void ClangToolRunControl::onRunnerFinishedWithFailure(const QString &errorMessag
     // Even in the error case the log file was created, so clean it up here, too.
     QFile::remove(logFilePath);
 
-    const QString message = tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage);
-
-    ++m_filesNotAnalyzed;
+    m_filesAnalyzed.remove(filePath);
+    m_filesNotAnalyzed.insert(filePath);
     m_success = false;
+
+    const QString message = tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage);
     appendMessage(message, Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
     TaskHub::addTask(Task::Error, message, Debugger::Constants::ANALYZERTASK_ID);
@@ -455,7 +465,7 @@ void ClangToolRunControl::onProgressCanceled()
 
 void ClangToolRunControl::updateProgressValue()
 {
-    m_progress.setProgressValue(m_initialFilesToProcessSize - m_unitsToProcess.size());
+    m_progress.setProgressValue(m_initialQueueSize - m_queue.size());
 }
 
 void ClangToolRunControl::finalize()
@@ -463,10 +473,12 @@ void ClangToolRunControl::finalize()
     const QString toolName = tool()->name();
     appendMessage(tr("%1 finished: "
                      "Processed %2 files successfully, %3 failed.")
-                        .arg(toolName).arg(m_filesAnalyzed).arg(m_filesNotAnalyzed),
+                      .arg(toolName)
+                      .arg(m_filesAnalyzed.size())
+                      .arg(m_filesNotAnalyzed.size()),
                   Utils::NormalMessageFormat);
 
-    if (m_filesNotAnalyzed != 0) {
+    if (m_filesNotAnalyzed.size() != 0) {
         QString msg = tr("%1: Not all files could be analyzed.").arg(toolName);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         if (m_target && !m_target->activeBuildConfiguration()->buildDirectory().exists()

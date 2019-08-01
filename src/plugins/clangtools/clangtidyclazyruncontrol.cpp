@@ -45,18 +45,23 @@ ClangTidyClazyRunControl::ClangTidyClazyRunControl(
     init();
 }
 
+QList<RunnerCreator> ClangTidyClazyRunControl::runnerCreators()
+{
+    return {
+        [this]() { return createRunner(); }
+    };
+}
+
 ClangToolRunner *ClangTidyClazyRunControl::createRunner()
 {
-    QTC_ASSERT(!m_clangExecutable.isEmpty(), return nullptr);
-
     auto runner = new ClangTidyClazyRunner(m_diagnosticConfig,
                                            m_clangExecutable,
                                            m_temporaryDir.path(),
                                            m_environment,
                                            this);
-    connect(runner, &ClangTidyClazyRunner::finishedWithSuccess,
+    connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &ClangTidyClazyRunControl::onRunnerFinishedWithSuccess);
-    connect(runner, &ClangTidyClazyRunner::finishedWithFailure,
+    connect(runner, &ClangToolRunner::finishedWithFailure,
             this, &ClangTidyClazyRunControl::onRunnerFinishedWithFailure);
     return runner;
 }
