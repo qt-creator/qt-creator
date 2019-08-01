@@ -33,7 +33,6 @@ using namespace ProjectExplorer;
 
 const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
-const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
 
 // ProjectConfigurationAspect
 
@@ -164,10 +163,7 @@ QVariantMap ProjectConfiguration::toMap() const
     QVariantMap map;
     map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
     map.insert(QLatin1String(DISPLAY_NAME_KEY), m_displayName);
-    map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), m_defaultDisplayName);
-
     m_aspects.toMap(map);
-
     return map;
 }
 
@@ -185,12 +181,7 @@ bool ProjectConfiguration::fromMap(const QVariantMap &map)
     QTC_ASSERT(id.toString().startsWith(m_id.toString()), return false);
 
     m_displayName = map.value(QLatin1String(DISPLAY_NAME_KEY), QString()).toString();
-    m_defaultDisplayName = map.value(QLatin1String(DEFAULT_DISPLAY_NAME_KEY),
-                                     m_defaultDisplayName.isEmpty() ?
-                                         m_displayName : m_defaultDisplayName).toString();
-
     m_aspects.fromMap(map);
-
     return true;
 }
 
