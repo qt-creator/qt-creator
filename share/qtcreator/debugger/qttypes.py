@@ -227,7 +227,9 @@ def qdump__QStandardItemData(d, value):
 
 def qdump__QStandardItem(d, value):
     vtable, dptr = value.split('pp')
-    if d.isMsvcTarget():
+    # There used to be a virtual destructor that got removed in
+    # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
+    if d.qtVersion() >= 0x050900 or d.isMsvcTarget():
         model, parent, values, children, rows, cols, item = d.split('ppPPIIp', dptr)
     else:
         vtable1, model, parent, values, children, rows, cols, item = d.split('pppPPIIp', dptr)
@@ -603,7 +605,16 @@ def qdump__QFile(d, value):
     # 9fc0965 and a373ffcd change the layout of the private structure
     qtVersion = d.qtVersion()
     is32bit = d.ptrSize() == 4
-    if qtVersion >= 0x050700:
+    if qtVersion >= 0x050600 and d.qtTypeInfoVersion() >= 17:
+        # Some QRingBuffer member got removed in 8f92baf5c9
+        if d.isWindowsTarget():
+            if d.isMsvcTarget():
+                offset = 164 if is32bit else 224
+            else:
+               offset = 160 if is32bit else 224
+        else:
+            offset = 156 if is32bit else 224
+    elif qtVersion >= 0x050700:
         if d.isWindowsTarget():
             if d.isMsvcTarget():
                 offset = 176 if is32bit else 248
@@ -1200,7 +1211,8 @@ def qdump__QMetaObject(d, value):
             d.putMembersItem(value)
 
 
-def qdump__QObjectPrivate__ConnectionList(d, value):
+if False:
+  def qdump__QObjectPrivate__ConnectionList(d, value):
     d.putNumChild(1)
     if d.isExpanded():
         i = 0
@@ -1937,7 +1949,8 @@ def qdump__QVector(d, value):
     d.putItemCount(size)
     d.putPlotData(data, size, value.type[0])
 
-def qdump__QObjectConnectionList(d, value):
+if False:
+  def qdump__QObjectConnectionList(d, value):
     dd = d.extractPointer(value)
     data, size, alloc = d.vectorDataHelper(dd)
     d.check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)

@@ -106,7 +106,7 @@ def main():
                 checkIfObjectExists(bldRunQModelIndex, verboseOnFail = True) and
                 checkIfObjectExists(manualQModelIndex, verboseOnFail = True),
                 "Verifying if all folders and bookmarks are present")
-    mouseClick(waitForObject(":Qt Creator_Bookmarks_TreeView"))
+    mouseClick(waitForObject(":Qt Creator_Bookmarks_TreeView"), 5, 5, 0, Qt.LeftButton)
     for _ in range(6):
         type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Right>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Return>")

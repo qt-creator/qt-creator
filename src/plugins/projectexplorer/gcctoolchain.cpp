@@ -526,7 +526,8 @@ QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
             || flag.startsWith("-B") || flag.startsWith("--target=")
             || (flag.startsWith("-isystem") && flag.length() > 8)) {
             arguments << flag;
-        } else if ((flag == "-target" || flag == "-gcc-toolchain" || flag == "-isystem")
+        } else if ((flag == "-target" || flag == "-gcc-toolchain" || flag == "-isystem"
+                    || flag == "-arch")
                    && i < flags.size() - 1) {
             arguments << flag << allFlags.at(i + 1);
             ++i;

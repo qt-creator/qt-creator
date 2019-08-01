@@ -364,7 +364,7 @@ function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;INCLUDES;PUBLIC_INCLUDES;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;SOURCES;EXPLICIT_MOC"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;SOURCES;EXPLICIT_MOC"
     ${ARGN}
   )
 
@@ -501,6 +501,7 @@ function(add_qtc_plugin target_name)
 
   target_compile_definitions(${target_name}
     PRIVATE ${EXPORT_SYMBOL} ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
+    PUBLIC ${_arg_PUBLIC_DEFINES}
   )
 
   add_qtc_depends(${target_name}
@@ -548,7 +549,7 @@ function(extend_qtc_target target_name)
   cmake_parse_arguments(_arg
     ""
     "SOURCES_PREFIX"
-    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC"
+    "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC"
     ${ARGN}
   )
 
@@ -567,7 +568,10 @@ function(extend_qtc_target target_name)
     PRIVATE ${_arg_DEPENDS}
     PUBLIC ${_arg_PUBLIC_DEPENDS}
   )
-  target_compile_definitions(${target_name} PRIVATE ${_arg_DEFINES})
+  target_compile_definitions(${target_name}
+    PRIVATE ${_arg_DEFINES}
+    PUBLIC ${_arg_PUBLIC_DEFINES}
+  )
   target_include_directories(${target_name} PRIVATE ${_arg_INCLUDES})
 
   set_public_includes(${target_name} "${_arg_PUBLIC_INCLUDES}")

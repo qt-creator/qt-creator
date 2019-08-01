@@ -53,6 +53,7 @@ Section {
                 maximumValue: 0xffff
                 minimumValue: -0xffff
                 decimals: 0
+                realDragRange: 5000
             }
 
             Item {
@@ -70,6 +71,7 @@ Section {
                 maximumValue: 0xffff
                 minimumValue: -0xffff
                 decimals: 0
+                realDragRange: 5000
             }
             ExpandingSpacer {
 
@@ -92,6 +94,7 @@ Section {
                 maximumValue: 0xffff
                 minimumValue: 0
                 decimals: 0
+                realDragRange: 5000
             }
 
             Item {
@@ -109,6 +112,7 @@ Section {
                 maximumValue: 0xffff
                 minimumValue: 0
                 decimals: 0
+                realDragRange: 5000
             }
             ExpandingSpacer {
 

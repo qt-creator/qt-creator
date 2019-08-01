@@ -144,6 +144,10 @@ void tst_offsets::offsets()
     QCOMPARE(actual, expect);
 }
 
+QT_BEGIN_NAMESPACE
+extern quintptr Q_CORE_EXPORT qtHookData[];
+QT_END_NAMESPACE
+
 void tst_offsets::offsets_data()
 {
     QTest::addColumn<int>("actual");
@@ -151,8 +155,19 @@ void tst_offsets::offsets_data()
     QTest::addColumn<int>("expected64");
 
     const int qtVersion = QT_VERSION;
+    const quintptr qtTypeVersion = qtHookData[6];
 
-    if (qtVersion >= 0x50700)
+    if (qtVersion > 0x50600 && qtTypeVersion >= 17)
+#ifdef Q_OS_WIN
+#   ifdef Q_CC_MSVC
+        OFFSET_TEST(QFilePrivate, fileName) << 164 << 224;
+#   else // MinGW
+        OFFSET_TEST(QFilePrivate, fileName) << 160 << 224;
+#   endif
+#else
+        OFFSET_TEST(QFilePrivate, fileName) << 156 << 224;
+#endif
+    else if (qtVersion >= 0x50700)
 #ifdef Q_OS_WIN
 #   ifdef Q_CC_MSVC
         OFFSET_TEST(QFilePrivate, fileName) << 176 << 248;

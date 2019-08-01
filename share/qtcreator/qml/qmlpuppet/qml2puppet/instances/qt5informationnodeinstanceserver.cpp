@@ -60,8 +60,6 @@
 
 #include <designersupportdelegate.h>
 
-#include <utils/algorithm.h>
-
 namespace QmlDesigner {
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
@@ -169,13 +167,13 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
             if (!informationChangedInstanceSet.isEmpty())
                 nodeInstanceClient()->informationChanged(
-                    createAllInformationChangedCommand(Utils::toList(informationChangedInstanceSet)));
+                    createAllInformationChangedCommand(QtHelpers::toList(informationChangedInstanceSet)));
 
             if (!propertyChangedList.isEmpty())
                 nodeInstanceClient()->valuesChanged(createValuesChangedCommand(propertyChangedList));
 
             if (!m_parentChangedSet.isEmpty()) {
-                sendChildrenChangedCommand(Utils::toList(m_parentChangedSet));
+                sendChildrenChangedCommand(QtHelpers::toList(m_parentChangedSet));
                 m_parentChangedSet.clear();
             }
 
