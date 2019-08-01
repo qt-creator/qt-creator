@@ -232,7 +232,6 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
                                        const FileInfos &fileInfos)
     : RunWorker(runControl)
     , m_projectBuilder(new ProjectBuilder(runControl, this))
-    , m_clangExecutable(Core::ICore::clangExecutable(CLANG_BINDIR))
     , m_temporaryDir("clangtools-XXXXXX")
     , m_fileInfos(fileInfos)
 {
@@ -276,15 +275,6 @@ void ClangToolRunWorker::start()
     }
 
     const QString &toolName = tool()->name();
-    if (m_clangExecutable.isEmpty()) {
-        const QString errorMessage = tr("%1: Can't find clang executable, stop.").arg(toolName);
-        appendMessage(errorMessage, Utils::ErrorMessageFormat);
-        TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
-        TaskHub::requestPopup();
-        reportFailure();
-        return;
-    }
-
     Project *project = runControl()->project();
     m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
     m_projectFiles = Utils::toSet(project->files(Project::AllFiles));
@@ -397,11 +387,13 @@ void ClangToolRunWorker::analyzeNextFile()
 
 void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
 {
-    const QString logFilePath = qobject_cast<ClangToolRunner *>(sender())->logFilePath();
+    auto runner = qobject_cast<ClangToolRunner *>(sender());
+    const QString logFilePath = runner->logFilePath();
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
 
     QString errorMessage;
-    const Diagnostics diagnostics = tool()->read(logFilePath,
+    const Diagnostics diagnostics = tool()->read(runner->outputFileFormat(),
+                                                 logFilePath,
                                                  filePath,
                                                  m_projectFiles,
                                                  &errorMessage);

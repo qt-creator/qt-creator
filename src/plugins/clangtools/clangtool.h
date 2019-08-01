@@ -27,6 +27,7 @@
 
 #include "clangfileinfo.h"
 #include "clangtoolsdiagnostic.h"
+#include "clangtoolslogfilereader.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
@@ -50,7 +51,8 @@ public:
 
     virtual void startTool(bool askUserForFileSelection) = 0;
 
-    virtual Diagnostics read(const QString &logFilePath,
+    virtual Diagnostics read(OutputFileFormat outputFileFormat,
+                             const QString &logFilePath,
                              const QString &mainFilePath,
                              const QSet<Utils::FilePath> &projectFiles,
                              QString *errorMessage) const = 0;

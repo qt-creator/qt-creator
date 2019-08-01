@@ -47,10 +47,11 @@ QList<RunnerCreator> ClangTidyClazyRunWorker::runnerCreators()
 {
     QList<RunnerCreator> creators;
 
-    if (!m_diagnosticConfig.clazyChecks().isEmpty())
-        creators << [this]() { return createRunner<ClazyRunner>(); };
     if (m_diagnosticConfig.clangTidyMode() != CppTools::ClangDiagnosticConfig::TidyMode::Disabled)
         creators << [this]() { return createRunner<ClangTidyRunner>(); };
+
+    if (!m_diagnosticConfig.clazyChecks().isEmpty())
+        creators << [this]() { return createRunner<ClazyPluginRunner>(); };
 
     return creators;
 }
@@ -59,7 +60,7 @@ template <class T>
 ClangToolRunner *ClangTidyClazyRunWorker::createRunner()
 {
     auto runner = new T(m_diagnosticConfig, this);
-    runner->init(m_clangExecutable, m_temporaryDir.path(), m_environment);
+    runner->init(m_temporaryDir.path(), m_environment);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &ClangTidyClazyRunWorker::onRunnerFinishedWithSuccess);
     connect(runner, &ClangToolRunner::finishedWithFailure,

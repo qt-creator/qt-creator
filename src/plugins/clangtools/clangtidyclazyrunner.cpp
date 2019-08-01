@@ -27,6 +27,8 @@
 
 #include "clangtoolssettings.h"
 
+#include <coreplugin/icore.h>
+
 #include <cpptools/compileroptionsbuilder.h>
 #include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -45,40 +47,13 @@ using namespace CppTools;
 namespace ClangTools {
 namespace Internal {
 
-static QStringList commonArguments(const QStringList &options,
-                                   const QString &logFile,
-                                   const ClangDiagnosticConfig diagnosticConfig)
+static QStringList serializeDiagnosticsArguments(const QStringList &baseOptions,
+                                                 const QString &outputFilePath)
 {
-    QStringList arguments;
-    if (LOG().isDebugEnabled())
-        arguments << QLatin1String("-v");
-
-    const QStringList serializeArgs{"-serialize-diagnostics", logFile};
-    if (options.contains("--driver-mode=cl"))
-        arguments << clangArgsForCl(serializeArgs);
-    else
-        arguments << serializeArgs;
-
-    arguments << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
-              << diagnosticConfig.clangOptions();
-
-    return arguments;
-}
-
-static QStringList tidyPluginArguments(const ClangDiagnosticConfig diagnosticConfig)
-{
-    QStringList arguments;
-
-    const ClangDiagnosticConfig::TidyMode tidyMode = diagnosticConfig.clangTidyMode();
-    if (tidyMode != ClangDiagnosticConfig::TidyMode::Disabled) {
-        arguments << XclangArgs({"-add-plugin", "clang-tidy"});
-        if (tidyMode != ClangDiagnosticConfig::TidyMode::File) {
-            const QString tidyChecks = diagnosticConfig.clangTidyChecks();
-            arguments << XclangArgs({"-plugin-arg-clang-tidy", "-checks=" + tidyChecks});
-        }
-    }
-
-    return arguments;
+    const QStringList serializeArgs{"-serialize-diagnostics", outputFilePath};
+    if (baseOptions.contains("--driver-mode=cl"))
+        return clangArgsForCl(serializeArgs);
+    return serializeArgs;
 }
 
 static QStringList clazyPluginArguments(const ClangDiagnosticConfig diagnosticConfig)
@@ -100,25 +75,64 @@ static QStringList clazyPluginArguments(const ClangDiagnosticConfig diagnosticCo
     return arguments;
 }
 
+static QStringList tidyChecksArguments(const ClangDiagnosticConfig diagnosticConfig)
+{
+    const ClangDiagnosticConfig::TidyMode tidyMode = diagnosticConfig.clangTidyMode();
+    if (tidyMode != ClangDiagnosticConfig::TidyMode::Disabled) {
+        if (tidyMode != ClangDiagnosticConfig::TidyMode::File)
+            return {"-checks=" + diagnosticConfig.clangTidyChecks()};
+    }
+
+    return {};
+}
+
+static QStringList mainToolArguments(const QString &mainFilePath, const QString &outputFilePath)
+{
+    return {
+        "-export-fixes=" + outputFilePath,
+        QDir::toNativeSeparators(mainFilePath),
+    };
+}
+
+static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
+                                  const QStringList &baseOptions)
+{
+    QStringList arguments;
+    arguments << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
+              << diagnosticConfig.clangOptions()
+              << baseOptions;
+
+    if (LOG().isDebugEnabled())
+        arguments << QLatin1String("-v");
+
+    return arguments;
+}
+
 ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *parent)
     : ClangToolRunner(parent)
 {
     setName(tr("Clang-Tidy"));
+    setOutputFileFormat(OutputFileFormat::Yaml);
+    setExecutable(Core::ICore::clangTidyExecutable(CLANG_BINDIR));
     setArgsCreator([this, config](const QStringList &baseOptions) {
-        return commonArguments(baseOptions, m_logFile, config)
-            << tidyPluginArguments(config)
-            << baseOptions
-            << QDir::toNativeSeparators(filePath());
+        return QStringList()
+            << tidyChecksArguments(config)
+            << mainToolArguments(filePath(), m_logFile)
+            << "--"
+            << clangArguments(config, baseOptions);
     });
 }
 
-ClazyRunner::ClazyRunner(const ClangDiagnosticConfig &config, QObject *parent)
+ClazyPluginRunner::ClazyPluginRunner(const ClangDiagnosticConfig &config, QObject *parent)
     : ClangToolRunner(parent)
 {
     setName(tr("Clazy"));
+    setOutputFileFormat(OutputFileFormat::Serialized);
+    setExecutable(Core::ICore::clangExecutable(CLANG_BINDIR));
     setArgsCreator([this, config](const QStringList &baseOptions) {
-        return commonArguments(baseOptions, m_logFile, config)
-            << clazyPluginArguments(config) << baseOptions
+        return serializeDiagnosticsArguments(baseOptions, m_logFile)
+            << clazyPluginArguments(config)
+            << clangArguments(config, baseOptions)
             << QDir::toNativeSeparators(filePath());
     });
 }

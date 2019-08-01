@@ -97,7 +97,6 @@ private:
 protected:
     ProjectBuilder *m_projectBuilder;
     Utils::Environment m_environment;
-    QString m_clangExecutable;
     Utils::TemporaryDirectory m_temporaryDir;
 
 private:

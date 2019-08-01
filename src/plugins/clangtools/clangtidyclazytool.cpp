@@ -516,7 +516,8 @@ void ClangTidyClazyTool::handleStateUpdate()
     Debugger::showPermanentStatusMessage(message);
 }
 
-Diagnostics ClangTidyClazyTool::read(const QString &logFilePath,
+Diagnostics ClangTidyClazyTool::read(OutputFileFormat outputFileFormat,
+                                     const QString &logFilePath,
                                      const QString &mainFilePath,
                                      const QSet<Utils::FilePath> &projectFiles,
                                      QString *errorMessage) const
@@ -525,6 +526,11 @@ Diagnostics ClangTidyClazyTool::read(const QString &logFilePath,
         return projectFiles.contains(filePath);
     };
 
+    if (outputFileFormat == OutputFileFormat::Yaml) {
+        return readExportedDiagnostics(Utils::FilePath::fromString(logFilePath),
+                                       acceptFromFilePath,
+                                       errorMessage);
+    }
     return readSerializedDiagnostics(Utils::FilePath::fromString(logFilePath),
                                      Utils::FilePath::fromString(mainFilePath),
                                      acceptFromFilePath,

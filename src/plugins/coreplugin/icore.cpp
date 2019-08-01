@@ -476,13 +476,23 @@ QString ICore::clangIncludeDirectory(const QString &clangVersion, const QString 
     return QDir::toNativeSeparators(dir.canonicalPath());
 }
 
-QString ICore::clangExecutable(const QString &clangBinDirectory)
+static QString clangBinary(const QString &binaryBaseName, const QString &clangBinDirectory)
 {
     const QString hostExeSuffix(QTC_HOST_EXE_SUFFIX);
-    QFileInfo executable(libexecPath() + "/clang/bin/clang" + hostExeSuffix);
+    QFileInfo executable(ICore::libexecPath() + "/clang/bin/" + binaryBaseName + hostExeSuffix);
     if (!executable.exists())
-        executable = QFileInfo(clangBinDirectory + "/clang" + hostExeSuffix);
+        executable = QFileInfo(clangBinDirectory + "/" + binaryBaseName + hostExeSuffix);
     return QDir::toNativeSeparators(executable.canonicalFilePath());
+}
+
+QString ICore::clangExecutable(const QString &clangBinDirectory)
+{
+    return clangBinary("clang", clangBinDirectory);
+}
+
+QString ICore::clangTidyExecutable(const QString &clangBinDirectory)
+{
+    return clangBinary("clang-tidy", clangBinDirectory);
 }
 
 static QString compilerString()

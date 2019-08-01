@@ -99,6 +99,7 @@ public:
     static QString installerResourcePath();
     static QString libexecPath();
     static QString clangExecutable(const QString &clangBinDirectory);
+    static QString clangTidyExecutable(const QString &clangBinDirectory);
     static QString clangIncludeDirectory(const QString &clangVersion,
                                          const QString &clangResourceDirectory);
 

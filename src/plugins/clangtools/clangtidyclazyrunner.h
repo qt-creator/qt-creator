@@ -40,12 +40,12 @@ public:
     ClangTidyRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
 };
 
-class ClazyRunner final : public ClangToolRunner
+class ClazyPluginRunner final : public ClangToolRunner
 {
     Q_OBJECT
 
 public:
-    ClazyRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
+    ClazyPluginRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
 };
 
 } // namespace Internal

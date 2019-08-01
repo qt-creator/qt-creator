@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "clangtoolslogfilereader.h"
+
 #include <memory>
 
 #include <QString>
@@ -47,11 +49,11 @@ public:
     ClangToolRunner(QObject *parent = nullptr) : QObject(parent) {}
     ~ClangToolRunner() override;
 
-    void init(const QString &clangExecutable,
-              const QString &clangLogFileDir,
-              const Utils::Environment &environment);
+    void init(const QString &clangLogFileDir, const Utils::Environment &environment);
     void setName(const QString &name) { m_name = name; }
+    void setExecutable(const QString &executable) { m_executable = executable; }
     void setArgsCreator(const ArgsCreator &argsCreator) { m_argsCreator = argsCreator; }
+    void setOutputFileFormat(const OutputFileFormat &format) { m_outputFileFormat = format; }
 
     // compilerOptions is expected to contain everything except:
     //   (1) filePath, that is the file to analyze
@@ -59,6 +61,7 @@ public:
     bool run(const QString &filePath, const QStringList &compilerOptions = QStringList());
 
     QString name() const { return m_name; }
+    OutputFileFormat outputFileFormat() const { return m_outputFileFormat; }
     QString filePath() const { return m_filePath; }
     QString logFilePath() const { return m_logFile; }
 
@@ -82,11 +85,12 @@ protected:
     QByteArray m_processOutput;
 
 private:
-    QString m_clangExecutable;
     QString m_clangLogFileDir;
 
     QString m_name;
+    QString m_executable;
     ArgsCreator m_argsCreator;
+    OutputFileFormat m_outputFileFormat = OutputFileFormat::Yaml;
 
     QString m_filePath;
     QString m_commandLine;
