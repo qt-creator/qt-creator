@@ -46,7 +46,7 @@ protected:
     ClangTool *tool() final;
 
 private:
-    ClangToolRunner *createRunner();
+    template <class T> ClangToolRunner *createRunner();
 
 private:
     CppTools::ClangDiagnosticConfig m_diagnosticConfig;

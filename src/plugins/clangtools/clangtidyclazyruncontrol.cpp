@@ -45,14 +45,20 @@ ClangTidyClazyRunWorker::ClangTidyClazyRunWorker(RunControl *runControl,
 
 QList<RunnerCreator> ClangTidyClazyRunWorker::runnerCreators()
 {
-    return {
-        [this]() { return createRunner(); }
-    };
+    QList<RunnerCreator> creators;
+
+    if (!m_diagnosticConfig.clazyChecks().isEmpty())
+        creators << [this]() { return createRunner<ClazyRunner>(); };
+    if (m_diagnosticConfig.clangTidyMode() != CppTools::ClangDiagnosticConfig::TidyMode::Disabled)
+        creators << [this]() { return createRunner<ClangTidyRunner>(); };
+
+    return creators;
 }
 
+template <class T>
 ClangToolRunner *ClangTidyClazyRunWorker::createRunner()
 {
-    auto runner = new ClangTidyClazyRunner(m_diagnosticConfig, this);
+    auto runner = new T(m_diagnosticConfig, this);
     runner->init(m_clangExecutable, m_temporaryDir.path(), m_environment);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &ClangTidyClazyRunWorker::onRunnerFinishedWithSuccess);

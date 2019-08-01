@@ -100,16 +100,25 @@ static QStringList clazyPluginArguments(const ClangDiagnosticConfig diagnosticCo
     return arguments;
 }
 
-ClangTidyClazyRunner::ClangTidyClazyRunner(const ClangDiagnosticConfig &config,
-                                           QObject *parent)
+ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *parent)
     : ClangToolRunner(parent)
 {
-    setName(tr("Clang-Tidy/Clazy"));
+    setName(tr("Clang-Tidy"));
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return commonArguments(baseOptions, m_logFile, config)
             << tidyPluginArguments(config)
-            << clazyPluginArguments(config)
             << baseOptions
+            << QDir::toNativeSeparators(filePath());
+    });
+}
+
+ClazyRunner::ClazyRunner(const ClangDiagnosticConfig &config, QObject *parent)
+    : ClangToolRunner(parent)
+{
+    setName(tr("Clazy"));
+    setArgsCreator([this, config](const QStringList &baseOptions) {
+        return commonArguments(baseOptions, m_logFile, config)
+            << clazyPluginArguments(config) << baseOptions
             << QDir::toNativeSeparators(filePath());
     });
 }

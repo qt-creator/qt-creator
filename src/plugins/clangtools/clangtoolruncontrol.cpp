@@ -390,7 +390,8 @@ void ClangToolRunWorker::analyzeNextFile()
     m_runners.insert(runner);
     QTC_ASSERT(runner->run(unit.file, unit.arguments), return);
 
-    appendMessage(tr("Analyzing \"%1\".").arg(FilePath::fromString(unit.file).toUserOutput()),
+    appendMessage(tr("Analyzing \"%1\" [%2].")
+                      .arg(FilePath::fromString(unit.file).toUserOutput(), runner->name()),
                   Utils::StdOutFormat);
 }
 

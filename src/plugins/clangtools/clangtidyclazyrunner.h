@@ -32,12 +32,20 @@
 namespace ClangTools {
 namespace Internal {
 
-class ClangTidyClazyRunner final : public ClangToolRunner
+class ClangTidyRunner final : public ClangToolRunner
 {
     Q_OBJECT
 
 public:
-    ClangTidyClazyRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
+    ClangTidyRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
+};
+
+class ClazyRunner final : public ClangToolRunner
+{
+    Q_OBJECT
+
+public:
+    ClazyRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
 };
 
 } // namespace Internal

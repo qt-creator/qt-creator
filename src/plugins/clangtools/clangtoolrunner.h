@@ -58,6 +58,7 @@ public:
     //   (2) -o output-file
     bool run(const QString &filePath, const QStringList &compilerOptions = QStringList());
 
+    QString name() const { return m_name; }
     QString filePath() const { return m_filePath; }
     QString logFilePath() const { return m_logFile; }
 
