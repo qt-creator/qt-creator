@@ -793,12 +793,8 @@ bool GccToolChain::fromMap(const QVariantMap &data)
     m_originalTargetTriple = data.value(originalTargetTripleKeyC).toString();
     const QStringList abiList = data.value(supportedAbisKeyC).toStringList();
     m_supportedAbis.clear();
-    for (const QString &a : abiList) {
-        Abi abi = Abi::fromString(a);
-        if (!abi.isValid())
-            continue;
-        m_supportedAbis.append(abi);
-    }
+    for (const QString &a : abiList)
+        m_supportedAbis.append(Abi::fromString(a));
 
     if (targetAbiString.isEmpty())
         resetToolChain(m_compilerCommand);
