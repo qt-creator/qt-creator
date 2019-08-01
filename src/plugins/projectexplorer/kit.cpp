@@ -33,6 +33,7 @@
 #include "projectexplorerconstants.h"
 
 #include <utils/algorithm.h>
+#include <utils/displayname.h>
 #include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/macroexpander.h>
@@ -85,7 +86,8 @@ public:
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
 
-        m_unexpandedDisplayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
+        m_unexpandedDisplayName.setDefaultValue(QCoreApplication::translate("ProjectExplorer::Kit",
+                                                                            "Unnamed"));
 
         m_macroExpander.setDisplayName(tr("Kit"));
         m_macroExpander.setAccumulating(true);
@@ -112,7 +114,7 @@ public:
             false);
     }
 
-    QString m_unexpandedDisplayName;
+    DisplayName m_unexpandedDisplayName;
     QString m_fileSystemFriendlyName;
     QString m_autoDetectionSource;
     Id m_id;
@@ -160,8 +162,7 @@ Kit::Kit(const QVariantMap &data) :
     else
         d->m_sdkProvided = d->m_autodetected;
 
-    d->m_unexpandedDisplayName = data.value(QLatin1String(DISPLAYNAME_KEY),
-                                            d->m_unexpandedDisplayName).toString();
+    d->m_unexpandedDisplayName.fromMap(data, DISPLAYNAME_KEY);
     d->m_fileSystemFriendlyName = data.value(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY)).toString();
     d->m_iconPath = FilePath::fromString(data.value(QLatin1String(ICON_KEY),
                                                     d->m_iconPath.toString()).toString());
@@ -219,7 +220,7 @@ Kit *Kit::clone(bool keepName) const
     if (keepName)
         k->d->m_unexpandedDisplayName = d->m_unexpandedDisplayName;
     else
-        k->d->m_unexpandedDisplayName = newKitName(KitManager::kits());
+        k->d->m_unexpandedDisplayName.setValue(newKitName(KitManager::kits()));
     k->d->m_autodetected = false;
     // Do not clone m_fileSystemFriendlyName, needs to be unique
     k->d->m_hasError = d->m_hasError;  // TODO: Is this intentionally not done for copyFrom()?
@@ -294,21 +295,18 @@ void Kit::upgrade()
 
 QString Kit::unexpandedDisplayName() const
 {
-    return d->m_unexpandedDisplayName;
+    return d->m_unexpandedDisplayName.value();
 }
 
 QString Kit::displayName() const
 {
-    return d->m_macroExpander.expand(d->m_unexpandedDisplayName);
+    return d->m_macroExpander.expand(unexpandedDisplayName());
 }
 
 void Kit::setUnexpandedDisplayName(const QString &name)
 {
-    if (d->m_unexpandedDisplayName == name)
-        return;
-
-    d->m_unexpandedDisplayName = name;
-    kitUpdated();
+    if (d->m_unexpandedDisplayName.setValue(name))
+        kitUpdated();
 }
 
 void Kit::setCustomFileSystemFriendlyName(const QString &fileSystemFriendlyName)
@@ -514,8 +512,8 @@ QVariantMap Kit::toMap() const
     using IdVariantConstIt = QHash<Id, QVariant>::ConstIterator;
 
     QVariantMap data;
+    d->m_unexpandedDisplayName.toMap(data, DISPLAYNAME_KEY);
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
-    data.insert(QLatin1String(DISPLAYNAME_KEY), d->m_unexpandedDisplayName);
     data.insert(QLatin1String(AUTODETECTED_KEY), d->m_autodetected);
     if (!d->m_fileSystemFriendlyName.isEmpty())
         data.insert(QLatin1String(FILESYSTEMFRIENDLYNAME_KEY), d->m_fileSystemFriendlyName);
