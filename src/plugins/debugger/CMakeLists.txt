@@ -64,7 +64,7 @@ add_qtc_plugin(Debugger
     namedemangler/parsetreenodes.cpp namedemangler/parsetreenodes.h
     outputcollector.cpp outputcollector.h
     pdb/pdbengine.cpp pdb/pdbengine.h
-    peripheralregisterhandler.h peripheralregisterhandler.cpp
+    peripheralregisterhandler.cpp peripheralregisterhandler.h
     procinterrupt.cpp procinterrupt.h
     qml/interactiveinterpreter.cpp qml/interactiveinterpreter.h
     #qml/qmlcppengine.cpp qml/qmlcppengine.h
