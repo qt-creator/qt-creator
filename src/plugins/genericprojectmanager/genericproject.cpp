@@ -45,7 +45,6 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitinformation.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
@@ -562,9 +561,8 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
     if (result != RestoreResult::Ok)
         return result;
 
-    Kit *defaultKit = KitManager::defaultKit();
-    if (!activeTarget() && defaultKit)
-        addTarget(createTarget(defaultKit));
+    if (!activeTarget())
+        addTargetForDefaultKit();
 
     // Sanity check: We need both a buildconfiguration and a runconfiguration!
     const QList<Target *> targetList = targets();

@@ -267,6 +267,27 @@ void Project::addTarget(std::unique_ptr<Target> &&t)
         SessionManager::setActiveTarget(this, pointer, SetActive::Cascade);
 }
 
+Target *Project::addTargetForDefaultKit()
+{
+    return addTargetForKit(KitManager::defaultKit());
+}
+
+Target *Project::addTargetForKit(Kit *kit)
+{
+    if (!kit || target(kit))
+        return nullptr;
+
+    auto t = std::make_unique<Target>(this, kit, Target::_constructor_tag{});
+    Target *pointer = t.get();
+
+    if (!setupTarget(pointer))
+        return {};
+
+    addTarget(std::move(t));
+
+    return pointer;
+}
+
 bool Project::removeTarget(Target *target)
 {
     QTC_ASSERT(target && Utils::contains(d->m_targets, target), return false);
@@ -334,17 +355,6 @@ Tasks Project::projectIssues(const Kit *k) const
     if (!k->isValid())
         result.append(createProjectTask(Task::TaskType::Error, tr("Kit is not valid.")));
     return {};
-}
-
-std::unique_ptr<Target> Project::createTarget(Kit *k)
-{
-    if (!k || target(k))
-        return nullptr;
-
-    auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});
-    if (!setupTarget(t.get()))
-        return {};
-    return t;
 }
 
 bool Project::copySteps(Target *sourceTarget, Target *newTarget)

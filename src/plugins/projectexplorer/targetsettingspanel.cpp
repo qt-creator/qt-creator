@@ -407,8 +407,7 @@ public:
             QTC_ASSERT(!data.isValid(), return false);
             if (!isEnabled()) {
                 m_currentChild = DefaultPage;
-                Kit *k = KitManager::kit(m_kitId);
-                m_project->addTarget(m_project->createTarget(k));
+                m_project->addTargetForKit(KitManager::kit(m_kitId));
             } else {
                 // Go to Run page, when on Run previously etc.
                 TargetItem *previousItem = parent()->currentTargetItem();
@@ -450,7 +449,7 @@ public:
         QAction *enableAction = menu->addAction(tr("Enable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));
         enableAction->setEnabled(isSelectable && m_kitId.isValid() && !isEnabled());
         QObject::connect(enableAction, &QAction::triggered, [this, kit] {
-            m_project->addTarget(m_project->createTarget(kit));
+            m_project->addTargetForKit(kit);
         });
 
         QAction *disableAction = menu->addAction(tr("Disable Kit \"%1\" for Project \"%2\"").arg(kitName, projectName));

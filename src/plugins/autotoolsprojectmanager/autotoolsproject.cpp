@@ -34,7 +34,6 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -105,9 +104,8 @@ Project::RestoreResult AutotoolsProject::fromMap(const QVariantMap &map, QString
     // Load the project tree structure.
     loadProjectTree();
 
-    Kit *defaultKit = KitManager::defaultKit();
-    if (!activeTarget() && defaultKit)
-        addTarget(createTarget(defaultKit));
+    if (!activeTarget())
+        addTargetForDefaultKit();
 
     return RestoreResult::Ok;
 }

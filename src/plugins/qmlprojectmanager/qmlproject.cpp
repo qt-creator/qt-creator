@@ -341,8 +341,10 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
         });
 
         if (!kits.isEmpty()) {
-            Kit *kit = kits.contains(KitManager::defaultKit()) ? KitManager::defaultKit() : kits.first();
-            addTarget(createTarget(kit));
+            if (kits.contains(KitManager::defaultKit()))
+                addTargetForDefaultKit();
+            else
+                addTargetForKit(kits.first());
         }
     }
 

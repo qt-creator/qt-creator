@@ -122,7 +122,8 @@ public:
     EditorConfiguration *editorConfiguration() const;
 
     // Target:
-    void addTarget(std::unique_ptr<Target> &&target);
+    Target *addTargetForDefaultKit();
+    Target *addTargetForKit(Kit *kit);
     bool removeTarget(Target *target);
 
     QList<Target *> targets() const;
@@ -132,7 +133,6 @@ public:
     Target *target(Kit *k) const;
     virtual Tasks projectIssues(const Kit *k) const;
 
-    std::unique_ptr<Target> createTarget(Kit *k);
     static bool copySteps(Target *sourceTarget, Target *newTarget);
 
     void saveSettings();
@@ -268,6 +268,8 @@ protected:
     Utils::Environment activeBuildEnvironment() const;
 
 private:
+    void addTarget(std::unique_ptr<Target> &&target);
+
     void handleSubTreeChanged(FolderNode *node);
     void setActiveTarget(Target *target);
     ProjectPrivate *d;

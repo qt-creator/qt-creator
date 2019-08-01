@@ -38,7 +38,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/runconfiguration.h>
@@ -726,9 +725,8 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
     if (res == RestoreResult::Ok) {
         refresh();
 
-        Kit *defaultKit = KitManager::defaultKit();
-        if (!activeTarget() && defaultKit)
-            addTarget(createTarget(defaultKit));
+        if (!activeTarget())
+            addTargetForDefaultKit();
     }
 
     return res;

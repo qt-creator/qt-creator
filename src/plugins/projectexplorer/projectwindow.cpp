@@ -552,12 +552,8 @@ public:
         BuildConfiguration *lastBc = nullptr;
         for (const BuildInfo &info : projectImporter->import(path, false)) {
             Target *target = project->target(info.kitId);
-            if (!target) {
-                std::unique_ptr<Target> newTarget = project->createTarget(KitManager::kit(info.kitId));
-                target = newTarget.get();
-                if (newTarget)
-                    project->addTarget(std::move(newTarget));
-            }
+            if (!target)
+                target = project->addTargetForKit(KitManager::kit(info.kitId));
             if (target) {
                 projectImporter->makePersistent(target->kit());
                 BuildConfiguration *bc = info.factory()->create(target, info);
