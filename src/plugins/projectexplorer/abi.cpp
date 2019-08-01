@@ -787,21 +787,21 @@ Abi Abi::fromString(const QString &abiString)
     if (abiParts.count() >= 3) {
         flavor = osFlavorFromString(abiParts.at(2), os);
         if (abiParts.at(2) != toString(flavor))
-            return Abi(architecture, os, UnknownFlavor, UnknownFormat, 0);;
+            return Abi(architecture, os, UnknownFlavor, UnknownFormat, 0);
     }
 
     Abi::BinaryFormat format = UnknownFormat;
     if (abiParts.count() >= 4) {
         format = binaryFormatFromString(abiParts.at(3));
         if (abiParts.at(3) != toString(format))
-            return Abi(architecture, os, flavor, UnknownFormat, 0);;
+            return Abi(architecture, os, flavor, UnknownFormat, 0);
     }
 
     unsigned char wordWidth = 0;
     if (abiParts.count() >= 5) {
         wordWidth = wordWidthFromString(abiParts.at(4));
         if (abiParts.at(4) != toString(wordWidth))
-            return Abi(architecture, os, flavor, format, 0);;
+            return Abi(architecture, os, flavor, format, 0);
     }
 
     return Abi(architecture, os, flavor, format, wordWidth);
