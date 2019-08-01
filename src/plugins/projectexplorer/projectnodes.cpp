@@ -944,8 +944,7 @@ ProjectNode *ProjectNode::projectNode(const Utils::FilePath &file) const
 
 QVariant ProjectNode::data(Core::Id role) const
 {
-    Q_UNUSED(role)
-    return QVariant();
+    return m_fallbackData.value(role);
 }
 
 bool ProjectNode::setData(Core::Id role, const QVariant &value) const
@@ -953,6 +952,11 @@ bool ProjectNode::setData(Core::Id role, const QVariant &value) const
     Q_UNUSED(role)
     Q_UNUSED(value)
     return false;
+}
+
+void ProjectNode::setFallbackData(Core::Id key, const QVariant &value)
+{
+    m_fallbackData.insert(key, value);
 }
 
 bool FolderNode::isEmpty() const

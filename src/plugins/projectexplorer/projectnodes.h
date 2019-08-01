@@ -388,6 +388,8 @@ public:
     //       "build single file" case.
     virtual void build() {}
 
+    void setFallbackData(Core::Id key, const QVariant &value);
+
 protected:
     void setIsProduct() { m_isProduct = true; }
 
@@ -395,6 +397,7 @@ protected:
 
 private:
     bool m_isProduct = false;
+    QHash<Core::Id, QVariant> m_fallbackData; // Used in data(), unless overridden.
 };
 
 class PROJECTEXPLORER_EXPORT ContainerNode : public FolderNode
