@@ -683,13 +683,22 @@ static bool mergeGradleProperties(const QString &path, GradleProperties properti
 }
 
 
-bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target)
+bool AndroidManager::updateGradleProperties(ProjectExplorer::Target *target, const QString &buildKey)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!version)
         return false;
 
-    const ProjectNode *node = currentProjectNode(target);
+    QString key = buildKey;
+    if (key.isEmpty()) {
+        // FIXME: This case is triggered from AndroidBuildApkWidget::createApplicationGroup
+        // and should be avoided.
+        if (RunConfiguration *rc = target->activeRunConfiguration())
+            key = rc->buildKey();
+    }
+
+    QTC_ASSERT(!key.isEmpty(), return false);
+    const ProjectNode *node = target->project()->findNodeForBuildKey(key);
     if (!node)
         return false;
 

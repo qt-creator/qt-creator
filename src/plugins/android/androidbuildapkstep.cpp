@@ -510,7 +510,6 @@ QString AndroidBuildApkStep::buildTargetSdk() const
 void AndroidBuildApkStep::setBuildTargetSdk(const QString &sdk)
 {
     m_buildTargetSdk = sdk;
-    AndroidManager::updateGradleProperties(target());
 }
 
 QVariant AndroidBuildApkStep::data(Core::Id id) const

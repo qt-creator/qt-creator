@@ -343,7 +343,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                                        nullptr, [this, &addedFiles](QFileInfo src, QFileInfo dst, QString *){return copy(src, dst, &addedFiles);});
         }
 
-        AndroidManager::updateGradleProperties(m_target);
+        AndroidManager::updateGradleProperties(m_target, m_buildKey);
     }
 
 

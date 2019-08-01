@@ -117,7 +117,7 @@ public:
     static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
     static bool checkCertificateExists(const QString &keystorePath, const QString &keystorePasswd,
                                        const QString &alias);
-    static bool updateGradleProperties(ProjectExplorer::Target *target);
+    static bool updateGradleProperties(ProjectExplorer::Target *target, const QString &buildKey);
     static int findApiLevel(const Utils::FilePath &platformPath);
 
     static QProcess *runAdbCommandDetached(const QStringList &args, QString *err = nullptr,

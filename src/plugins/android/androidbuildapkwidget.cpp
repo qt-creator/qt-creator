@@ -104,6 +104,7 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
     connect(targetSDKComboBox, cbActivated, this, [this, targetSDKComboBox](int idx) {
        const QString sdk = targetSDKComboBox->itemText(idx);
        m_step->setBuildTargetSdk(sdk);
+       AndroidManager::updateGradleProperties(step()->target(), QString()); // FIXME: Use real key.
    });
 
     auto hbox = new QHBoxLayout(group);

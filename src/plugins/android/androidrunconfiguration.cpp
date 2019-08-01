@@ -134,6 +134,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
 
     connect(target->project(), &Project::parsingFinished, this, [this] {
         updateTargetInformation();
+        AndroidManager::updateGradleProperties(this->target(), buildKey());
     });
 }
 
