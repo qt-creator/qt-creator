@@ -128,18 +128,6 @@ WebAssemblyToolChain::WebAssemblyToolChain() :
     setTypeDisplayName(typeAndDisplayName);
 }
 
-bool WebAssemblyToolChain::fromMap(const QVariantMap &data)
-{
-    if (!ClangToolChain::fromMap(data))
-        return false;
-
-    // TODO: HACK: GccToolChain::fromMap() filters out abis with UnknownOS. Re-add it, here.
-    if (supportedAbis().isEmpty())
-        setSupportedAbis({toolChainAbi()});
-
-    return true;
-}
-
 WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
 {
     setDisplayName(tr("WebAssembly"));

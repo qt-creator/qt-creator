@@ -35,9 +35,6 @@ class WebAssemblyToolChain final : public ProjectExplorer::ClangToolChain
 public:
     void addToEnvironment(Utils::Environment &env) const override;
 
-protected:
-    bool fromMap(const QVariantMap &data) override;
-
 private:
     WebAssemblyToolChain();
 
