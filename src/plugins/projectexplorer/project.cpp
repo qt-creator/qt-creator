@@ -536,28 +536,6 @@ void Project::handleSubTreeChanged(FolderNode *node)
     emit fileListChanged();
 }
 
-std::unique_ptr<Target> Project::restoreTarget(const QVariantMap &data)
-{
-    Core::Id id = idFromMap(data);
-    if (target(id)) {
-        qWarning("Warning: Duplicated target id found, not restoring second target with id '%s'. Continuing.",
-                 qPrintable(id.toString()));
-        return nullptr;
-    }
-
-    Kit *k = KitManager::kit(id);
-    if (!k) {
-        qWarning("Warning: No kit '%s' found. Continuing.", qPrintable(id.toString()));
-        return nullptr;
-    }
-
-    auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});
-    if (!t->fromMap(data))
-        return {};
-
-    return t;
-}
-
 void Project::saveSettings()
 {
     emit aboutToSaveSettings();
@@ -730,10 +708,27 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
     const QString key = QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(index);
     if (!map.contains(key))
         return;
-    QVariantMap targetMap = map.value(key).toMap();
 
-    std::unique_ptr<Target> t = restoreTarget(targetMap);
-    if (!t || (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty()))
+    const QVariantMap targetMap = map.value(key).toMap();
+
+    Core::Id id = idFromMap(targetMap);
+    if (target(id)) {
+        qWarning("Warning: Duplicated target id found, not restoring second target with id '%s'. Continuing.",
+                 qPrintable(id.toString()));
+        return;
+    }
+
+    Kit *k = KitManager::kit(id);
+    if (!k) {
+        qWarning("Warning: No kit '%s' found. Continuing.", qPrintable(id.toString()));
+        return;
+    }
+
+    auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});
+    if (!t->fromMap(targetMap))
+        return;
+
+    if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty())
         return;
 
     addTarget(std::move(t));

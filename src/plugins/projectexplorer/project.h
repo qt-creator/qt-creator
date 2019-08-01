@@ -134,7 +134,6 @@ public:
 
     std::unique_ptr<Target> createTarget(Kit *k);
     static bool copySteps(Target *sourceTarget, Target *newTarget);
-    std::unique_ptr<Target> restoreTarget(const QVariantMap &data);
 
     void saveSettings();
     enum class RestoreResult { Ok, Error, UserAbort };
