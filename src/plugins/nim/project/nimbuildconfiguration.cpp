@@ -28,7 +28,6 @@
 #include "nimproject.h"
 #include "nimbuildconfiguration.h"
 #include "nimcompilerbuildstep.h"
-#include "nimcompilercleanstep.h"
 #include "nimproject.h"
 
 #include "../nimconstants.h"
@@ -116,7 +115,7 @@ void NimBuildConfiguration::initialize(const BuildInfo &info)
     // Add clean step
     {
         BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-        cleanSteps->appendStep(new NimCompilerCleanStep(cleanSteps));
+        cleanSteps->appendStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
     }
 }
 

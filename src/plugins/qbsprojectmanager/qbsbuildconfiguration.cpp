@@ -124,7 +124,7 @@ void QbsBuildConfiguration::initialize(const BuildInfo &info)
     buildSteps->appendStep(bs);
 
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-    cleanSteps->appendStep(new QbsCleanStep(cleanSteps));
+    cleanSteps->appendStep(Constants::QBS_CLEANSTEP_ID);
 
     emit qbsConfigurationChanged();
 }
