@@ -137,6 +137,7 @@ Utils::FilePath QbsRunConfiguration::executableToRun(const BuildTargetInfo &targ
 void QbsRunConfiguration::updateTargetInformation()
 {
     BuildTargetInfo bti = buildTargetInfo();
+    setDefaultDisplayName(bti.displayName);
     const FilePath executable = executableToRun(bti);
     auto terminalAspect = aspect<TerminalAspect>();
     terminalAspect->setUseTerminalHint(bti.usesTerminal);
