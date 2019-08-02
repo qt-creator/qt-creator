@@ -417,17 +417,12 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(m_makeStep->target(), &Target::kitChanged,
             this, &MakeStepConfigWidget::updateDetails);
 
+    connect(m_makeStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
+            this, &MakeStepConfigWidget::updateDetails);
+    connect(m_makeStep->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
+            this, &MakeStepConfigWidget::updateDetails);
+
     const auto pro = m_makeStep->target()->project();
-    pro->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
-        if (static_cast<BuildConfiguration *>(sender())->isActive()) {
-            updateDetails();
-        }
-    });
-    pro->subscribeSignal(&BuildConfiguration::buildDirectoryChanged, this, [this]() {
-        if (static_cast<BuildConfiguration *>(sender())->isActive()) {
-            updateDetails();
-        }
-    });
     connect(pro, &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
         if (pc && pc->isActive()) {

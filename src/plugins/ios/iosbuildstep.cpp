@@ -119,11 +119,10 @@ public:
         connect(m_buildStep->target(), &Target::kitChanged,
                 this, &IosBuildStepConfigWidget::updateDetails);
 
+        connect(m_buildStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
+                this, &IosBuildStepConfigWidget::updateDetails);
+
         Project *pro = m_buildStep->target()->project();
-        pro->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
-            if (static_cast<BuildConfiguration *>(sender())->isActive())
-                updateDetails();
-        });
         connect(pro, &Project::activeProjectConfigurationChanged,
                 this, [this](ProjectConfiguration *pc) {
             if (pc && pc->isActive())

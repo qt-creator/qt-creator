@@ -246,10 +246,9 @@ IosDsymBuildStepConfigWidget::IosDsymBuildStepConfigWidget(IosDsymBuildStep *bui
             this, &IosDsymBuildStepConfigWidget::updateDetails);
     connect(m_buildStep->target(), &Target::kitChanged,
             this, &IosDsymBuildStepConfigWidget::updateDetails);
-    pro->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
-        if (static_cast<BuildConfiguration *>(sender())->isActive())
-            updateDetails();
-    });
+    connect(m_buildStep->buildConfiguration(), &BuildConfiguration::enabledChanged,
+            this, &IosDsymBuildStepConfigWidget::updateDetails);
+
     connect(pro, &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
         if (pc && pc->isActive())

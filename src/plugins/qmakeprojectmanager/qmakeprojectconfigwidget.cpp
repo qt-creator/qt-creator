@@ -146,10 +146,9 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     connect(shadowBuildDirEdit, &Utils::PathChooser::rawPathChanged,
             this, &QmakeProjectConfigWidget::shadowBuildEdited);
 
-    project->subscribeSignal(&BuildConfiguration::environmentChanged, this, [this]() {
-        if (static_cast<BuildConfiguration *>(sender())->isActive())
-            environmentChanged();
-    });
+    connect(bc, &BuildConfiguration::enabledChanged,
+            this, &QmakeProjectConfigWidget::environmentChanged);
+
     connect(project, &Project::activeProjectConfigurationChanged,
             this, [this](ProjectConfiguration *pc) {
         if (pc && pc->isActive())
