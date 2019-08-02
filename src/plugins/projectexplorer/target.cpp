@@ -245,7 +245,6 @@ bool Target::removeBuildConfiguration(BuildConfiguration *bc)
     if (BuildManager::isBuilding(bc))
         return false;
 
-    project()->aboutToRemoveProjectConfiguration(bc);
     d->m_buildConfigurations.removeOne(bc);
 
     if (activeBuildConfiguration() == bc) {
@@ -316,7 +315,6 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
     if (BuildManager::isBuilding(dc))
         return false;
 
-    project()->aboutToRemoveProjectConfiguration(dc);
     d->m_deployConfigurations.removeOne(dc);
 
     if (activeDeployConfiguration() == dc) {
@@ -428,7 +426,6 @@ void Target::removeRunConfiguration(RunConfiguration *rc)
 {
     QTC_ASSERT(rc && d->m_runConfigurations.contains(rc), return);
 
-    project()->aboutToRemoveProjectConfiguration(rc);
     d->m_runConfigurations.removeOne(rc);
 
     if (activeRunConfiguration() == rc) {

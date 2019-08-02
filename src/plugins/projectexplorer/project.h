@@ -243,7 +243,6 @@ signals:
     // Note: activeTarget can be 0 (if no targets are defined).
     void activeTargetChanged(ProjectExplorer::Target *target);
 
-    void aboutToRemoveProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
     void removedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
     void addedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
 
