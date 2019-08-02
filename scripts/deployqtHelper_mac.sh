@@ -117,6 +117,8 @@ if [ $LLVM_INSTALL_DIR ]; then
         if [ $clanglinktarget ]; then
             cp -Rf "$(dirname "$clangsource")/$clanglinktarget" "$resource_path/clang/bin/$clanglinktarget" || exit 1
         fi
+        clangdsource="$LLVM_INSTALL_DIR"/bin/clangd
+        cp -Rf "$clangdsource" "$resource_path/clang/bin/" || exit 1
     fi
     clangbackendArgument="-executable=$resource_path/clangbackend"
     clangpchmanagerArgument="-executable=$resource_path/clangpchmanagerbackend"
