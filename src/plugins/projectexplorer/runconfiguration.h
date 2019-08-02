@@ -185,7 +185,6 @@ public:
     }
 
 signals:
-    void requestRunActionsUpdate();
     void configurationFinished();
     void enabledChanged();
 

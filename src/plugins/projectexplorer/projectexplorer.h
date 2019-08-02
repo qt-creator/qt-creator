@@ -172,6 +172,8 @@ public:
     static QString buildDirectoryTemplate();
     static QString defaultBuildDirectoryTemplate();
 
+    static void updateActions();
+
 signals:
     void finishedInitialization();
 

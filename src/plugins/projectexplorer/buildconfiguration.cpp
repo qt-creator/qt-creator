@@ -39,6 +39,7 @@
 #include "projectmacroexpander.h"
 #include "projecttree.h"
 #include "target.h"
+#include "session.h"
 
 #include <coreplugin/idocument.h>
 
@@ -103,6 +104,13 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
         m_buildDirectoryAspect->setEnvironment(environment());
         this->target()->buildEnvironmentChanged(this);
+    });
+
+    connect(this, &BuildConfiguration::enabledChanged, this, [this] {
+        if (isActive() && project() == SessionManager::startupProject()) {
+            ProjectExplorerPlugin::updateActions();
+            emit ProjectExplorerPlugin::instance()->updateRunActions();
+        }
     });
 }
 

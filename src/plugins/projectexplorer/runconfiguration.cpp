@@ -25,17 +25,18 @@
 
 #include "runconfiguration.h"
 
-#include "project.h"
-#include "runcontrol.h"
-#include "target.h"
-#include "toolchain.h"
 #include "abi.h"
 #include "buildconfiguration.h"
 #include "environmentaspect.h"
 #include "kitinformation.h"
-#include "runconfigurationaspects.h"
-#include "session.h"
 #include "kitinformation.h"
+#include "project.h"
+#include "projectexplorer.h"
+#include "runconfigurationaspects.h"
+#include "runcontrol.h"
+#include "session.h"
+#include "target.h"
+#include "toolchain.h"
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -172,8 +173,10 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
             updateEnabledState();
     });
 
-    connect(this, &RunConfiguration::enabledChanged,
-            this, &RunConfiguration::requestRunActionsUpdate);
+    connect(this, &RunConfiguration::enabledChanged, this, [this] {
+        if (isActive() && project() == SessionManager::startupProject())
+            emit ProjectExplorerPlugin::instance()->updateRunActions();
+    });
 
     Utils::MacroExpander *expander = macroExpander();
     expander->setDisplayName(tr("Run Settings"));

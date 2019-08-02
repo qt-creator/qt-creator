@@ -357,7 +357,6 @@ public:
 
     void buildQueueFinished(bool success);
 
-    void buildStateChanged(ProjectExplorer::Project * pro);
     void loadAction();
     void handleUnloadProject();
     void unloadProjectContextMenu();
@@ -1390,7 +1389,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     auto buildManager = new BuildManager(this, dd->m_cancelBuildAction);
     connect(buildManager, &BuildManager::buildStateChanged,
-            dd, &ProjectExplorerPluginPrivate::buildStateChanged);
+            dd, &ProjectExplorerPluginPrivate::updateActions);
     connect(buildManager, &BuildManager::buildQueueFinished,
             dd, &ProjectExplorerPluginPrivate::buildQueueFinished, Qt::QueuedConnection);
 
@@ -2254,12 +2253,6 @@ void ProjectExplorerPluginPrivate::restoreSession()
     updateActions();
 }
 
-void ProjectExplorerPluginPrivate::buildStateChanged(Project * pro)
-{
-    Q_UNUSED(pro)
-    updateActions();
-}
-
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Core::Id runMode)
 {
     if (!runConfiguration->isConfigured()) {
@@ -2895,21 +2888,8 @@ QList<QPair<Runnable, Utils::ProcessHandle>> ProjectExplorerPlugin::runningRunCo
 
 void ProjectExplorerPluginPrivate::projectAdded(Project *pro)
 {
+    Q_UNUSED(pro)
     m_projectsMode.setEnabled(true);
-
-    // more specific action en and disabling ?
-    pro->subscribeSignal(&BuildConfiguration::enabledChanged, this, [this]() {
-        auto bc = qobject_cast<BuildConfiguration *>(sender());
-        if (bc && bc->isActive() && bc->project() == SessionManager::startupProject()) {
-            updateActions();
-            emit m_instance->updateRunActions();
-        }
-    });
-    pro->subscribeSignal(&RunConfiguration::requestRunActionsUpdate, this, [this]() {
-        auto rc = qobject_cast<RunConfiguration *>(sender());
-        if (rc && rc->isActive() && rc->project() == SessionManager::startupProject())
-            emit m_instance->updateRunActions();
-    });
 }
 
 void ProjectExplorerPluginPrivate::projectRemoved(Project *pro)
@@ -3936,6 +3916,11 @@ QString ProjectExplorerPlugin::buildDirectoryTemplate()
 QString ProjectExplorerPlugin::defaultBuildDirectoryTemplate()
 {
     return QString(Constants::DEFAULT_BUILD_DIRECTORY_TEMPLATE);
+}
+
+void ProjectExplorerPlugin::updateActions()
+{
+    dd->updateActions();
 }
 
 QList<QPair<QString, QString> > ProjectExplorerPlugin::recentProjects()
