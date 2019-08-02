@@ -318,7 +318,7 @@ QmlEngine::~QmlEngine()
     for (iter = d->sourceEditors.begin(); iter != d->sourceEditors.end(); ++iter) {
         QWeakPointer<BaseTextEditor> textEditPtr = iter.value();
         if (textEditPtr)
-            documentsToClose << textEditPtr.data()->document();
+            documentsToClose << textEditPtr.toStrongRef().data()->document();
     }
     EditorManager::closeDocuments(Utils::toList(documentsToClose));
 
