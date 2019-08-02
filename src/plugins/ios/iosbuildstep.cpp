@@ -123,11 +123,9 @@ public:
                 this, &IosBuildStepConfigWidget::updateDetails);
 
         Project *pro = m_buildStep->target()->project();
-        connect(pro, &Project::activeProjectConfigurationChanged,
-                this, [this](ProjectConfiguration *pc) {
-            if (pc && pc->isActive())
-                updateDetails();
-        });
+        connect(pro, &Project::activeBuildConfigurationChanged,
+                this, &IosBuildStepConfigWidget::updateDetails);
+
         connect(pro, &Project::activeTargetChanged, this, [this](Target *target) {
             if (target && target->isActive())
                 updateDetails();

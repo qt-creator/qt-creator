@@ -149,11 +149,9 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     connect(bc, &BuildConfiguration::enabledChanged,
             this, &QmakeProjectConfigWidget::environmentChanged);
 
-    connect(project, &Project::activeProjectConfigurationChanged,
-            this, [this](ProjectConfiguration *pc) {
-        if (pc && pc->isActive())
-            environmentChanged();
-    });
+    connect(project, &Project::activeBuildConfigurationChanged,
+            this, &QmakeProjectConfigWidget::environmentChanged);
+
     connect(project, &Project::activeTargetChanged, this, [this](Target *target) {
         if (target && target->isActive())
             environmentChanged();

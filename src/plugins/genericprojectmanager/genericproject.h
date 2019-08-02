@@ -72,8 +72,6 @@ private:
     Utils::FilePath findCommonSourceRoot();
     void refreshCppCodeModel();
     void updateDeploymentData();
-    void activeTargetWasChanged();
-    void activeBuildConfigurationWasChanged();
 
     QString m_filesFileName;
     QString m_includesFileName;
@@ -95,7 +93,6 @@ private:
 
     CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
-    ProjectExplorer::Target *m_activeTarget = nullptr;
     Utils::FileSystemWatcher * const m_deployFileWatcher = nullptr;
 };
 

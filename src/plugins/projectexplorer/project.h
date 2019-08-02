@@ -215,10 +215,10 @@ signals:
     void removedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
     void addedProjectConfiguration(ProjectExplorer::ProjectConfiguration *pc);
 
-    // *ANY* active project configuration changed somewhere in the tree. This might not be
+    // *ANY* active build configuration changed somewhere in the tree. This might not be
     // the one that would get started right now, since some part of the tree in between might
     // not be active.
-    void activeProjectConfigurationChanged(ProjectExplorer::ProjectConfiguration *pc);
+    void activeBuildConfigurationChanged(ProjectExplorer::ProjectConfiguration *bc);
 
     void aboutToRemoveTarget(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);

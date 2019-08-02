@@ -146,11 +146,9 @@ QbsProject::QbsProject(const FilePath &fileName) :
         }
         m_qbsProjects.erase(it);
     });
-    auto delayedParsing = [this]() {
-        if (static_cast<ProjectConfiguration *>(sender())->isActive())
-            delayParsing();
-    };
-    subscribeSignal(&Target::activeBuildConfigurationChanged, this, delayedParsing);
+
+    connect(this, &Project::activeBuildConfigurationChanged,
+            this, &QbsProject::delayParsing);
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
 }

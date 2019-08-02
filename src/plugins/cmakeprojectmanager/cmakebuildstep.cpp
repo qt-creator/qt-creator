@@ -451,15 +451,11 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     connect(m_buildStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
             this, &CMakeBuildStepConfigWidget::updateDetails);
 
-    connect(m_buildStep->project(), &Project::activeProjectConfigurationChanged,
-            this, [this](ProjectConfiguration *pc) {
-        if (pc && pc->isActive())
-            updateDetails();
-    });
-    connect(m_buildStep->project(), &Project::activeTargetChanged, this, [this](Target *target) {
-        if (target && target->isActive())
-            updateDetails();
-    });
+    connect(m_buildStep->project(), &Project::activeBuildConfigurationChanged,
+            this, &CMakeBuildStepConfigWidget::updateDetails);
+
+    connect(m_buildStep->project(), &Project::activeTargetChanged,
+            this, &CMakeBuildStepConfigWidget::updateDetails);
 }
 
 void CMakeBuildStepConfigWidget::toolArgumentsEdited()

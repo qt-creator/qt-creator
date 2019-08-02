@@ -279,7 +279,7 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *bc)
         (bc && d->m_buildConfigurations.contains(bc) &&
          bc != d->m_activeBuildConfiguration)) {
         d->m_activeBuildConfiguration = bc;
-        project()->activeProjectConfigurationChanged(d->m_activeBuildConfiguration);
+        project()->activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
         emit activeBuildConfigurationChanged(d->m_activeBuildConfiguration);
     }
 }
@@ -351,7 +351,6 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
         (dc && d->m_deployConfigurations.contains(dc) &&
          dc != d->m_activeDeployConfiguration)) {
         d->m_activeDeployConfiguration = dc;
-        project()->activeProjectConfigurationChanged(d->m_activeDeployConfiguration);
         emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
     }
     updateDeviceState();
@@ -457,7 +456,6 @@ void Target::setActiveRunConfiguration(RunConfiguration *rc)
         (rc && d->m_runConfigurations.contains(rc) &&
          rc != d->m_activeRunConfiguration)) {
         d->m_activeRunConfiguration = rc;
-        project()->activeProjectConfigurationChanged(d->m_activeRunConfiguration);
         emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
     }
     updateDeviceState();

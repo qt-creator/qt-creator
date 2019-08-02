@@ -219,6 +219,10 @@ GenericProject::GenericProject(const Utils::FilePath &fileName) :
 
     connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
             this, &GenericProject::updateDeploymentData);
+
+    connect(this, &Project::activeTargetChanged, this, [this] { refresh(Everything); });
+
+    connect(this, &Project::activeBuildConfigurationChanged, this, [this] { refresh(Everything); });
 }
 
 GenericProject::~GenericProject()
@@ -533,28 +537,6 @@ void GenericProject::updateDeploymentData()
     }
 }
 
-void GenericProject::activeTargetWasChanged()
-{
-    if (m_activeTarget) {
-        disconnect(m_activeTarget, &Target::activeBuildConfigurationChanged,
-                   this, &GenericProject::activeBuildConfigurationWasChanged);
-    }
-
-    m_activeTarget = activeTarget();
-
-    if (!m_activeTarget)
-        return;
-
-    connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
-            this, &GenericProject::activeBuildConfigurationWasChanged);
-    refresh(Everything);
-}
-
-void GenericProject::activeBuildConfigurationWasChanged()
-{
-    refresh(Everything);
-}
-
 Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *errorMessage)
 {
     const RestoreResult result = Project::fromMap(map, errorMessage);
@@ -578,14 +560,6 @@ Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *
             t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
     }
 
-    m_activeTarget = activeTarget();
-    if (m_activeTarget) {
-        connect(m_activeTarget, &Target::activeBuildConfigurationChanged,
-                this, &GenericProject::activeBuildConfigurationWasChanged);
-    }
-
-    connect(this, &Project::activeTargetChanged,
-            this, &GenericProject::activeTargetWasChanged);
     refresh(Everything);
     return RestoreResult::Ok;
 }
