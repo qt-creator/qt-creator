@@ -150,9 +150,6 @@ QbsProject::QbsProject(const FilePath &fileName) :
         if (static_cast<ProjectConfiguration *>(sender())->isActive())
             delayParsing();
     };
-    subscribeSignal(&BuildConfiguration::environmentChanged, this, delayedParsing);
-    subscribeSignal(&BuildConfiguration::buildDirectoryChanged, this, delayedParsing);
-    subscribeSignal(&QbsBuildConfiguration::qbsConfigurationChanged, this, delayedParsing);
     subscribeSignal(&Target::activeBuildConfigurationChanged, this, delayedParsing);
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);

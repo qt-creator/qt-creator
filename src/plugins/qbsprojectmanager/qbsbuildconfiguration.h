@@ -78,6 +78,7 @@ signals:
 
 private:
     bool fromMap(const QVariantMap &map) override;
+    void triggerReparseIfActive();
 
     QStringList m_changedFiles;
     QStringList m_activeFileTags;

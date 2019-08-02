@@ -88,6 +88,13 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
 
     connect(project(), &Project::parsingStarted, this, &BuildConfiguration::enabledChanged);
     connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
+
+    connect(this, &BuildConfiguration::environmentChanged,
+            this, &QbsBuildConfiguration::triggerReparseIfActive);
+    connect(this, &BuildConfiguration::buildDirectoryChanged,
+            this, &QbsBuildConfiguration::triggerReparseIfActive);
+    connect(this, &QbsBuildConfiguration::qbsConfigurationChanged,
+            this, &QbsBuildConfiguration::triggerReparseIfActive);
 }
 
 void QbsBuildConfiguration::initialize(const BuildInfo &info)
@@ -127,6 +134,12 @@ void QbsBuildConfiguration::initialize(const BuildInfo &info)
     cleanSteps->appendStep(Constants::QBS_CLEANSTEP_ID);
 
     emit qbsConfigurationChanged();
+}
+
+void QbsBuildConfiguration::triggerReparseIfActive()
+{
+    if (isActive())
+        qbsProject()->delayParsing();
 }
 
 bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
