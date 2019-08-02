@@ -50,8 +50,12 @@ QList<RunnerCreator> ClangTidyClazyRunWorker::runnerCreators()
     if (m_diagnosticConfig.clangTidyMode() != CppTools::ClangDiagnosticConfig::TidyMode::Disabled)
         creators << [this]() { return createRunner<ClangTidyRunner>(); };
 
-    if (!m_diagnosticConfig.clazyChecks().isEmpty())
-        creators << [this]() { return createRunner<ClazyPluginRunner>(); };
+    if (!m_diagnosticConfig.clazyChecks().isEmpty()) {
+        if (!qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH").isEmpty())
+            creators << [this]() { return createRunner<ClazyStandaloneRunner>(); };
+        else
+            creators << [this]() { return createRunner<ClazyPluginRunner>(); };
+    }
 
     return creators;
 }

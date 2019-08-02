@@ -40,6 +40,14 @@ public:
     ClangTidyRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
 };
 
+class ClazyStandaloneRunner final : public ClangToolRunner
+{
+    Q_OBJECT
+
+public:
+    ClazyStandaloneRunner(const CppTools::ClangDiagnosticConfig &config, QObject *parent = nullptr);
+};
+
 class ClazyPluginRunner final : public ClangToolRunner
 {
     Q_OBJECT

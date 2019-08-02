@@ -86,6 +86,14 @@ static QStringList tidyChecksArguments(const ClangDiagnosticConfig diagnosticCon
     return {};
 }
 
+static QStringList clazyChecksArguments(const ClangDiagnosticConfig diagnosticConfig)
+{
+    const QString clazyChecks = diagnosticConfig.clazyChecks();
+    if (!clazyChecks.isEmpty())
+        return {"-checks=" + diagnosticConfig.clazyChecks()};
+    return {};
+}
+
 static QStringList mainToolArguments(const QString &mainFilePath, const QString &outputFilePath)
 {
     return {
@@ -117,6 +125,21 @@ ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *p
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList()
             << tidyChecksArguments(config)
+            << mainToolArguments(filePath(), m_logFile)
+            << "--"
+            << clangArguments(config, baseOptions);
+    });
+}
+
+ClazyStandaloneRunner::ClazyStandaloneRunner(const ClangDiagnosticConfig &config, QObject *parent)
+    : ClangToolRunner(parent)
+{
+    setName(tr("Clazy"));
+    setOutputFileFormat(OutputFileFormat::Yaml);
+    setExecutable(qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH"));
+    setArgsCreator([this, config](const QStringList &baseOptions) {
+        return QStringList()
+            << clazyChecksArguments(config)
             << mainToolArguments(filePath(), m_logFile)
             << "--"
             << clangArguments(config, baseOptions);
