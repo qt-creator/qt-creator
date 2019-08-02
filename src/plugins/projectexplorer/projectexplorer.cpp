@@ -2181,11 +2181,6 @@ QStringList ProjectExplorerPlugin::projectFileGlobs()
     return result;
 }
 
-void ProjectExplorerPlugin::updateContextMenuActions()
-{
-    dd->updateContextMenuActions();
-}
-
 QThreadPool *ProjectExplorerPlugin::sharedThreadPool()
 {
     return &(dd->m_threadPool);

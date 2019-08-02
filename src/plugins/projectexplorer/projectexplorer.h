@@ -162,8 +162,6 @@ public:
     static QString directoryFor(Node *node);
     static QStringList projectFileGlobs();
 
-    static void updateContextMenuActions();
-
     static QThreadPool *sharedThreadPool();
 
     static void openNewProjectDialog();
