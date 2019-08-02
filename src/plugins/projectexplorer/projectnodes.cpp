@@ -41,6 +41,7 @@
 #include <utils/mimetypes/mimetype.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QFileInfo>
 #include <QDir>
@@ -310,6 +311,43 @@ FileType Node::fileTypeForFileName(const Utils::FilePath &file)
 {
     return fileTypeForMimeType(Utils::mimeTypeForFile(file.toString(),
                                                       Utils::MimeMatchMode::MatchExtension));
+}
+
+QString Node::pathOrDirectory(bool dir) const
+{
+    QString location;
+    const FolderNode *folder = asFolderNode();
+    if (isVirtualFolderType() && folder) {
+        // Virtual Folder case
+        // If there are files directly below or no subfolders, take the folder path
+        if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
+            location = m_filePath.toString();
+        } else {
+            // Otherwise we figure out a commonPath from the subfolders
+            QStringList list;
+            foreach (FolderNode *f, folder->folderNodes())
+                list << f->filePath().toString() + QLatin1Char('/');
+            location = Utils::commonPath(list);
+        }
+
+        QFileInfo fi(location);
+        while ((!fi.exists() || !fi.isDir()) && !fi.isRoot())
+            fi.setFile(fi.absolutePath());
+        location = fi.absoluteFilePath();
+    } else if (!m_filePath.isEmpty()) {
+        QFileInfo fi = m_filePath.toFileInfo();
+        // remove any /suffixes, which e.g. ResourceNode uses
+        // Note this could be removed again by making path() a true path again
+        // That requires changes in both the VirtualFolderNode and ResourceNode
+        while (!fi.exists() && !fi.isRoot())
+            fi.setFile(fi.absolutePath());
+
+        if (dir)
+            location = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+        else
+            location = fi.absoluteFilePath();
+    }
+    return location;
 }
 
 /*!

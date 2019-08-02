@@ -159,7 +159,6 @@ public:
 
     static QString displayNameForStepId(Core::Id stepId);
 
-    static QString directoryFor(Node *node);
     static QStringList projectFileGlobs();
 
     static QThreadPool *sharedThreadPool();

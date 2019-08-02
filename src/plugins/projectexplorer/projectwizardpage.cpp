@@ -27,7 +27,6 @@
 #include "ui_projectwizardpage.h"
 
 #include "project.h"
-#include "projectexplorer.h"
 #include "session.h"
 
 #include <coreplugin/icore.h>
@@ -95,7 +94,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children, const QSt
     m_canAdd(false)
 {
     if (node)
-        m_toolTip = ProjectExplorerPlugin::directoryFor(node);
+        m_toolTip = node->directory();
     foreach (AddNewTree *child, children)
         appendChild(child);
 }
@@ -107,7 +106,7 @@ AddNewTree::AddNewTree(FolderNode *node, QList<AddNewTree *> children,
     m_priority(info.priority)
 {
     if (node)
-        m_toolTip = ProjectExplorerPlugin::directoryFor(node);
+        m_toolTip = node->directory();
     foreach (AddNewTree *child, children)
         appendChild(child);
 }
@@ -180,7 +179,7 @@ void BestNodeSelector::inspect(AddNewTree *tree, bool isContextNode)
     if (m_deploys)
         return;
 
-    const QString projectDirectory = ProjectExplorerPlugin::directoryFor(node);
+    const QString projectDirectory = node->directory();
     const int projectDirectorySize = projectDirectory.size();
     if (m_commonDirectory != projectDirectory
             && !m_commonDirectory.startsWith(projectDirectory + QLatin1Char('/'))

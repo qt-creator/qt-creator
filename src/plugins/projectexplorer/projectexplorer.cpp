@@ -2381,59 +2381,6 @@ QList<QPair<QString, QString> > ProjectExplorerPluginPrivate::recentProjects() c
     });
 }
 
-static QString pathOrDirectoryFor(const Node *node, bool dir)
-{
-    Utils::FilePath path = node->filePath();
-    QString location;
-    const FolderNode *folder = node->asFolderNode();
-    if (node->isVirtualFolderType() && folder) {
-        // Virtual Folder case
-        // If there are files directly below or no subfolders, take the folder path
-        if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
-            location = path.toString();
-        } else {
-            // Otherwise we figure out a commonPath from the subfolders
-            QStringList list;
-            foreach (FolderNode *f, folder->folderNodes())
-                list << f->filePath().toString() + QLatin1Char('/');
-            location = Utils::commonPath(list);
-        }
-
-        QFileInfo fi(location);
-        while ((!fi.exists() || !fi.isDir()) && !fi.isRoot())
-            fi.setFile(fi.absolutePath());
-        location = fi.absoluteFilePath();
-    } else if (!path.isEmpty()) {
-        QFileInfo fi = path.toFileInfo();
-        // remove any /suffixes, which e.g. ResourceNode uses
-        // Note this should be removed again by making node->path() a true path again
-        // That requires changes in both the VirtualFolderNode and ResourceNode
-        while (!fi.exists() && !fi.isRoot())
-            fi.setFile(fi.absolutePath());
-
-        if (dir)
-            location = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
-        else
-            location = fi.absoluteFilePath();
-    }
-    return location;
-}
-
-static QString pathFor(const Node *node)
-{
-    return pathOrDirectoryFor(node, false);
-}
-
-static QString directoryFor(const Node *node)
-{
-    return pathOrDirectoryFor(node, true);
-}
-
-QString ProjectExplorerPlugin::directoryFor(Node *node)
-{
-    return ProjectExplorer::directoryFor(node);
-}
-
 void ProjectExplorerPluginPrivate::updateActions()
 {
     const Project *const project = SessionManager::startupProject();
@@ -3402,7 +3349,7 @@ void ProjectExplorerPluginPrivate::addNewFile()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    QString location = directoryFor(currentNode);
+    QString location = currentNode->directory();
 
     QVariantMap map;
     // store void pointer to avoid QVariant to use qobject_cast, which might core-dump when trying
@@ -3428,7 +3375,7 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
 {
     Node* currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    QString location = directoryFor(currentNode);
+    QString location = currentNode->directory();
 
     if (currentNode->isProjectNodeType()
             && currentNode->supportsAction(AddSubProject, currentNode)) {
@@ -3463,7 +3410,7 @@ void ProjectExplorerPluginPrivate::addExistingProjects()
     if (!projectNode && currentNode->asContainerNode())
         projectNode = currentNode->asContainerNode()->rootProjectNode();
     QTC_ASSERT(projectNode, return);
-    const QString dir = directoryFor(currentNode);
+    const QString dir = currentNode->directory();
     QStringList subProjectFilePaths = QFileDialog::getOpenFileNames(
                 ICore::mainWindow(), tr("Choose Project File"), dir,
                 projectNode->subProjectFileNamePatterns().join(";;"));
@@ -3503,7 +3450,7 @@ void ProjectExplorerPluginPrivate::handleAddExistingFiles()
     QTC_ASSERT(folderNode, return);
 
     QStringList fileNames = QFileDialog::getOpenFileNames(ICore::mainWindow(),
-        tr("Add Existing Files"), directoryFor(node));
+        tr("Add Existing Files"), node->directory());
     if (fileNames.isEmpty())
         return;
 
@@ -3517,7 +3464,7 @@ void ProjectExplorerPluginPrivate::addExistingDirectory()
 
     QTC_ASSERT(folderNode, return);
 
-    SelectableFilesDialogAddDirectory dialog(Utils::FilePath::fromString(directoryFor(node)),
+    SelectableFilesDialogAddDirectory dialog(Utils::FilePath::fromString(node->directory()),
                                              Utils::FilePathList(), ICore::mainWindow());
     dialog.setAddFileFilter({});
 
@@ -3531,7 +3478,7 @@ void ProjectExplorerPlugin::addExistingFiles(FolderNode *folderNode, const QStri
     if (!folderNode || !ProjectTree::hasNode(folderNode))
         return;
 
-    const QString dir = directoryFor(folderNode);
+    const QString dir = folderNode->directory();
     QStringList fileNames = filePaths;
     QStringList notAdded;
     folderNode->addFiles(fileNames, &notAdded);
@@ -3575,14 +3522,14 @@ void ProjectExplorerPluginPrivate::searchOnFileSystem()
 {
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    TextEditor::FindInFiles::findOnFileSystem(pathFor(currentNode));
+    TextEditor::FindInFiles::findOnFileSystem(currentNode->path());
 }
 
 void ProjectExplorerPluginPrivate::showInGraphicalShell()
 {
     Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
-    FileUtils::showInGraphicalShell(ICore::mainWindow(), pathFor(currentNode));
+    FileUtils::showInGraphicalShell(ICore::mainWindow(), currentNode->path());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env)
@@ -3594,7 +3541,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
     if (!environment)
         return;
 
-    FileUtils::openTerminal(directoryFor(currentNode), environment.value());
+    FileUtils::openTerminal(currentNode->directory(), environment.value());
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
@@ -3615,7 +3562,7 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
         device = DeviceKitAspect::device(target->kit());
     QTC_ASSERT(device && device->canOpenTerminal(), return);
     const QString workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE
-            ? directoryFor(currentNode) : runnable.workingDirectory;
+            ? currentNode->directory() : runnable.workingDirectory;
     device->openTerminal(runnable.environment, workingDir);
 }
 
