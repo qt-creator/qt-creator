@@ -227,8 +227,6 @@ IosDsymBuildStepConfigWidget::IosDsymBuildStepConfigWidget(IosDsymBuildStep *bui
     m_ui = new Ui::IosPresetBuildStep;
     m_ui->setupUi(this);
 
-    Project *pro = m_buildStep->target()->project();
-
     m_ui->commandLineEdit->setText(m_buildStep->command().toString());
     m_ui->argumentsTextEdit->setPlainText(Utils::QtcProcess::joinArgs(
                                                    m_buildStep->arguments()));
@@ -248,14 +246,6 @@ IosDsymBuildStepConfigWidget::IosDsymBuildStepConfigWidget(IosDsymBuildStep *bui
             this, &IosDsymBuildStepConfigWidget::updateDetails);
     connect(m_buildStep->buildConfiguration(), &BuildConfiguration::enabledChanged,
             this, &IosDsymBuildStepConfigWidget::updateDetails);
-
-    connect(pro, &Project::activeBuildConfigurationChanged,
-            this, &IosDsymBuildStepConfigWidget::updateDetails);
-
-    connect(pro, &Project::activeTargetChanged, this, [this](Target *target) {
-        if (target && target->isActive())
-            updateDetails();
-    });
 }
 
 IosDsymBuildStepConfigWidget::~IosDsymBuildStepConfigWidget()

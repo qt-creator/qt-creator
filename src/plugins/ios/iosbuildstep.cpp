@@ -121,15 +121,6 @@ public:
 
         connect(m_buildStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
                 this, &IosBuildStepConfigWidget::updateDetails);
-
-        Project *pro = m_buildStep->target()->project();
-        connect(pro, &Project::activeBuildConfigurationChanged,
-                this, &IosBuildStepConfigWidget::updateDetails);
-
-        connect(pro, &Project::activeTargetChanged, this, [this](Target *target) {
-            if (target && target->isActive())
-                updateDetails();
-        });
     }
 
 private:

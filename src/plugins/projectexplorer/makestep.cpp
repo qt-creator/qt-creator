@@ -422,15 +422,6 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(m_makeStep->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
             this, &MakeStepConfigWidget::updateDetails);
 
-    const auto pro = m_makeStep->project();
-    connect(pro, &Project::activeBuildConfigurationChanged,
-            this, &MakeStepConfigWidget::updateDetails);
-
-    connect(pro, &Project::activeTargetChanged, this, [this](Target *target) {
-        if (target && target->isActive())
-            updateDetails();
-    });
-
     Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());
 }
 

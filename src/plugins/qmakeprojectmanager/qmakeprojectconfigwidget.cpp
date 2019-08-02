@@ -149,14 +149,6 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     connect(bc, &BuildConfiguration::enabledChanged,
             this, &QmakeProjectConfigWidget::environmentChanged);
 
-    connect(project, &Project::activeBuildConfigurationChanged,
-            this, &QmakeProjectConfigWidget::environmentChanged);
-
-    connect(project, &Project::activeTargetChanged, this, [this](Target *target) {
-        if (target && target->isActive())
-            environmentChanged();
-    });
-
     auto qmakeProject = static_cast<QmakeProject *>(bc->target()->project());
     connect(qmakeProject, &QmakeProject::buildDirectoryInitialized,
             this, &QmakeProjectConfigWidget::updateProblemLabel);
