@@ -171,9 +171,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
     });
 }
 
-void CMakeBuildConfiguration::initialize(const BuildInfo &info)
+void CMakeBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize(info);
+    BuildConfiguration::initialize();
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     buildSteps->appendStep(Constants::CMAKE_BUILD_STEP_ID);
@@ -212,14 +212,15 @@ void CMakeBuildConfiguration::initialize(const BuildInfo &info)
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     cleanSteps->appendStep(Constants::CMAKE_BUILD_STEP_ID);
 
-    if (info.buildDirectory.isEmpty()) {
+    if (initialBuildDirectory().isEmpty()) {
         auto project = target()->project();
         setBuildDirectory(CMakeBuildConfiguration::shadowBuildDirectory(project->projectFilePath(),
                                                                         target()->kit(),
-                                                                        info.displayName, info.buildType));
+                                                                        initialDisplayName(),
+                                                                        initialBuildType()));
     }
-    auto extraInfo = info.extraInfo.value<CMakeExtraBuildInfo>();
-    setConfigurationForCMake(extraInfo.configuration);
+    auto info = extraInfo().value<CMakeExtraBuildInfo>();
+    setConfigurationForCMake(info.configuration);
 }
 
 QString CMakeBuildConfiguration::disabledReason() const

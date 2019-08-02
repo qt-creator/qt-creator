@@ -39,8 +39,7 @@ class NimBuildConfiguration : public ProjectExplorer::BuildConfiguration
     friend class ProjectExplorer::BuildConfigurationFactory;
     NimBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    void initialize(const ProjectExplorer::BuildInfo &info) override;
-    ProjectExplorer::BuildConfiguration::BuildType buildType() const override;
+    void initialize() override;
 
 public:
     Utils::FilePath cacheDirectory() const;

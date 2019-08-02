@@ -76,9 +76,9 @@ NimBuildConfiguration::NimBuildConfiguration(Target *target, Core::Id id)
     setBuildDirectorySettingsKey("Nim.NimBuildConfiguration.BuildDirectory");
 }
 
-void NimBuildConfiguration::initialize(const BuildInfo &info)
+void NimBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize(info);
+    BuildConfiguration::initialize();
 
     auto project = qobject_cast<NimProject *>(target()->project());
     QTC_ASSERT(project, return);
@@ -86,15 +86,15 @@ void NimBuildConfiguration::initialize(const BuildInfo &info)
     // Create the build configuration and initialize it from build info
     setBuildDirectory(defaultBuildDirectory(target()->kit(),
                                             project->projectFilePath(),
-                                            info.displayName,
-                                            info.buildType));
+                                            displayName(),
+                                            buildType()));
 
     // Add nim compiler build step
     {
         BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         auto nimCompilerBuildStep = new NimCompilerBuildStep(buildSteps);
         NimCompilerBuildStep::DefaultBuildOptions defaultOption;
-        switch (info.buildType) {
+        switch (initialBuildType()) {
         case BuildConfiguration::Release:
             defaultOption = NimCompilerBuildStep::DefaultBuildOptions::Release;
             break;
@@ -117,11 +117,6 @@ void NimBuildConfiguration::initialize(const BuildInfo &info)
         BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
         cleanSteps->appendStep(Constants::C_NIMCOMPILERCLEANSTEP_ID);
     }
-}
-
-BuildConfiguration::BuildType NimBuildConfiguration::buildType() const
-{
-    return BuildConfiguration::Unknown;
 }
 
 FilePath NimBuildConfiguration::cacheDirectory() const

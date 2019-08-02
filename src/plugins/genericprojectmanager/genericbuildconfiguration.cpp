@@ -58,9 +58,9 @@ GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Core::Id id
     updateCacheAndEmitEnvironmentChanged();
 }
 
-void GenericBuildConfiguration::initialize(const BuildInfo &info)
+void GenericBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize(info);
+    BuildConfiguration::initialize();
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     buildSteps->appendStep(Constants::GENERIC_MS_ID);
@@ -99,11 +99,6 @@ QList<BuildInfo> GenericBuildConfigurationFactory::availableBuilds
     }
 
     return {info};
-}
-
-BuildConfiguration::BuildType GenericBuildConfiguration::buildType() const
-{
-    return Unknown;
 }
 
 void GenericBuildConfiguration::addToEnvironment(Utils::Environment &env) const

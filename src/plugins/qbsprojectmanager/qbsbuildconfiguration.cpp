@@ -94,20 +94,21 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
             this, &QbsBuildConfiguration::triggerReparseIfActive);
 }
 
-void QbsBuildConfiguration::initialize(const BuildInfo &info)
+void QbsBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize(info);
+    BuildConfiguration::initialize();
 
-    QVariantMap configData = info.extraInfo.value<QVariantMap>();
+    QVariantMap configData = extraInfo().value<QVariantMap>();
     configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY),
-                      (info.buildType == BuildConfiguration::Debug)
+                      (initialBuildType() == BuildConfiguration::Debug)
                       ? QLatin1String(Constants::QBS_VARIANT_DEBUG)
                       : QLatin1String(Constants::QBS_VARIANT_RELEASE));
 
-    Utils::FilePath buildDir = info.buildDirectory;
+    Utils::FilePath buildDir = initialBuildDirectory();
     if (buildDir.isEmpty())
         buildDir = defaultBuildDirectory(target()->project()->projectFilePath(),
-                                         target()->kit(), info.displayName, info.buildType);
+                                         target()->kit(), initialDisplayName(),
+                                         initialBuildType());
     setBuildDirectory(buildDir);
 
     // Add the build configuration.
@@ -115,14 +116,14 @@ void QbsBuildConfiguration::initialize(const BuildInfo &info)
     QString configName = bd.take("configName").toString();
     if (configName.isEmpty()) {
         configName = "qtc_" + target()->kit()->fileSystemFriendlyName() + '_'
-                + Utils::FileUtils::fileSystemFriendlyName(info.displayName);
+                + Utils::FileUtils::fileSystemFriendlyName(initialDisplayName());
     }
 
     m_configurationName->setValue(configName);
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto bs = new QbsBuildStep(buildSteps);
-    if (info.buildType == Release)
+    if (initialBuildType() == Release)
         bs->setQmlDebuggingEnabled(false);
     bs->setQbsConfiguration(bd);
     buildSteps->appendStep(bs);

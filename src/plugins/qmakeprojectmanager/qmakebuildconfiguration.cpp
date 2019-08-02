@@ -128,9 +128,9 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Core::Id id)
             this, &QmakeBuildConfiguration::qtVersionsChanged);
 }
 
-void QmakeBuildConfiguration::initialize(const BuildInfo &info)
+void QmakeBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize(info);
+    BuildConfiguration::initialize();
 
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     auto qmakeStep = new QMakeStep(buildSteps);
@@ -140,11 +140,11 @@ void QmakeBuildConfiguration::initialize(const BuildInfo &info)
     BuildStepList *cleanSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     cleanSteps->appendStep(Constants::MAKESTEP_BS_ID);
 
-    const QmakeExtraBuildInfo qmakeExtra = info.extraInfo.value<QmakeExtraBuildInfo>();
+    const QmakeExtraBuildInfo qmakeExtra = extraInfo().value<QmakeExtraBuildInfo>();
     BaseQtVersion *version = QtKitAspect::qtVersion(target()->kit());
 
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
-    if (info.buildType == BuildConfiguration::Debug)
+    if (initialBuildType() == BuildConfiguration::Debug)
         config |= BaseQtVersion::DebugBuild;
     else
         config &= ~BaseQtVersion::DebugBuild;
@@ -158,10 +158,11 @@ void QmakeBuildConfiguration::initialize(const BuildInfo &info)
 
     setQMakeBuildConfiguration(config);
 
-    FilePath directory = info.buildDirectory;
+    FilePath directory = initialBuildDirectory();
     if (directory.isEmpty()) {
         directory = defaultBuildDirectory(target()->project()->projectFilePath(),
-                                          target()->kit(), info.displayName, buildType());
+                                          target()->kit(), initialDisplayName(),
+                                          initialBuildType());
     }
 
     setBuildDirectory(directory);

@@ -88,10 +88,9 @@ class CompilationDatabaseBuildConfiguration : public ProjectExplorer::BuildConfi
 public:
     CompilationDatabaseBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     ProjectExplorer::NamedWidget *createConfigWidget() override;
-    BuildType buildType() const override;
 
 protected:
-    void initialize(const ProjectExplorer::BuildInfo &info) override;
+    void initialize() override;
 };
 
 class CompilationDatabaseBuildConfigurationFactory

@@ -84,7 +84,7 @@ private:
     QVariantMap toMap() const override;
     BuildType buildType() const override;
 
-    void initialize(const ProjectExplorer::BuildInfo &info) override;
+    void initialize() override;
     QString disabledReason() const override;
 
     ProjectExplorer::NamedWidget *createConfigWidget() override;

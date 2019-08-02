@@ -169,12 +169,8 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     return named;
 }
 
-void BuildConfiguration::initialize(const BuildInfo &info)
+void BuildConfiguration::initialize()
 {
-    setDisplayName(info.displayName);
-    setDefaultDisplayName(info.displayName);
-    setBuildDirectory(info.buildDirectory);
-
     m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_BUILD));
     m_stepLists.append(new BuildStepList(this, Constants::BUILDSTEPS_CLEAN));
 }
@@ -256,6 +252,11 @@ void BuildConfiguration::emitBuildDirectoryChanged()
         m_lastEmmitedBuildDirectory = buildDirectory();
         emit buildDirectoryChanged();
     }
+}
+
+QString BuildConfiguration::initialDisplayName() const
+{
+    return m_initialDisplayName;
 }
 
 ProjectExplorer::BaseStringAspect *BuildConfiguration::buildDirectoryAspect() const
@@ -505,7 +506,18 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
     BuildConfiguration *bc = m_creator(parent);
     if (!bc)
         return nullptr;
-    bc->initialize(info);
+
+    bc->setDisplayName(info.displayName);
+    bc->setDefaultDisplayName(info.displayName);
+    bc->setBuildDirectory(info.buildDirectory);
+
+    bc->m_initialBuildType = info.buildType;
+    bc->m_initialDisplayName = info.displayName;
+    bc->m_initialBuildDirectory = info.buildDirectory;
+    bc->m_extraInfo = info.extraInfo;
+
+    bc->initialize();
+
     return bc;
 }
 

@@ -502,9 +502,9 @@ CompilationDatabaseBuildConfiguration::CompilationDatabaseBuildConfiguration(
     target->setApplicationTargets({BuildTargetInfo()});
 }
 
-void CompilationDatabaseBuildConfiguration::initialize(const ProjectExplorer::BuildInfo &info)
+void CompilationDatabaseBuildConfiguration::initialize()
 {
-    ProjectExplorer::BuildConfiguration::initialize(info);
+    ProjectExplorer::BuildConfiguration::initialize();
     BuildStepList *buildSteps = stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     buildSteps->appendStep(ProjectExplorer::Constants::PROCESS_STEP_ID);
 }
@@ -512,11 +512,6 @@ void CompilationDatabaseBuildConfiguration::initialize(const ProjectExplorer::Bu
 ProjectExplorer::NamedWidget *CompilationDatabaseBuildConfiguration::createConfigWidget()
 {
     return new ProjectExplorer::NamedWidget();
-}
-
-ProjectExplorer::BuildConfiguration::BuildType CompilationDatabaseBuildConfiguration::buildType() const
-{
-    return ProjectExplorer::BuildConfiguration::Release;
 }
 
 CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurationFactory()

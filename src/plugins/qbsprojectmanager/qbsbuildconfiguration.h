@@ -48,7 +48,7 @@ class QbsBuildConfiguration : public ProjectExplorer::BuildConfiguration
     QbsBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
 public:
-    void initialize(const ProjectExplorer::BuildInfo &info) override;
+    void initialize() override;
 
     QbsBuildStep *qbsStep() const;
     QVariantMap qbsConfiguration() const;

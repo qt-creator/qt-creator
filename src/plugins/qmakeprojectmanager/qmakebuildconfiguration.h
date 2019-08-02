@@ -46,7 +46,7 @@ public:
     QmakeBuildConfiguration(ProjectExplorer::Target *target, Core::Id id);
     ~QmakeBuildConfiguration() override;
 
-    void initialize(const ProjectExplorer::BuildInfo &info) override;
+    void initialize() override;
     ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     void setSubNodeBuild(QmakeProFileNode *node);

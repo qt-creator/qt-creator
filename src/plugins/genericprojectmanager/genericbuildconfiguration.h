@@ -39,8 +39,7 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     friend class ProjectExplorer::BuildConfigurationFactory;
     GenericBuildConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    void initialize(const ProjectExplorer::BuildInfo &info) override;
-    BuildType buildType() const override;
+    void initialize() override;
     void addToEnvironment(Utils::Environment &env) const final;
 };
 

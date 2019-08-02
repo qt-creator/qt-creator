@@ -86,7 +86,12 @@ public:
         Profile,
         Release
     };
-    virtual BuildType buildType() const = 0;
+    virtual BuildType buildType() const { return m_initialBuildType; }
+
+    BuildType initialBuildType() const { return m_initialBuildType; } // FIXME: Remove.
+    Utils::FilePath initialBuildDirectory() const { return m_initialBuildDirectory; } // FIXME: Remove.
+    QString initialDisplayName() const; // FIXME: Remove.
+    QVariant extraInfo() const { return m_extraInfo; } // FIXME: Remove.
 
     static QString buildTypeName(BuildType type);
 
@@ -108,7 +113,7 @@ signals:
     void buildTypeChanged();
 
 protected:
-    virtual void initialize(const BuildInfo &info);
+    virtual void initialize();
 
 private:
     void emitBuildDirectoryChanged();
@@ -121,6 +126,12 @@ private:
     mutable Utils::Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
     bool m_configWidgetHasFrame = false;
+
+    // FIXME: Remove.
+    BuildConfiguration::BuildType m_initialBuildType = BuildConfiguration::Unknown;
+    Utils::FilePath m_initialBuildDirectory;
+    QString m_initialDisplayName;
+    QVariant m_extraInfo;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigurationFactory : public QObject

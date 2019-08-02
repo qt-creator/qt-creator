@@ -60,9 +60,9 @@ AutotoolsBuildConfiguration::AutotoolsBuildConfiguration(Target *parent, Core::I
     setConfigWidgetDisplayName(tr("Autotools Manager"));
 }
 
-void AutotoolsBuildConfiguration::initialize(const BuildInfo &info)
+void AutotoolsBuildConfiguration::initialize()
 {
-    BuildConfiguration::initialize(info);
+    BuildConfiguration::initialize();
 
     BuildStepList *buildSteps = stepList(BUILDSTEPS_BUILD);
 
@@ -109,12 +109,6 @@ QList<BuildInfo> AutotoolsBuildConfigurationFactory::availableBuilds
         info.displayName = tr("Default");
     }
     return {info};
-}
-
-BuildConfiguration::BuildType AutotoolsBuildConfiguration::buildType() const
-{
-    // TODO: Should I return something different from Unknown?
-    return Unknown;
 }
 
 } // Internal
