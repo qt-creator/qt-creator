@@ -52,7 +52,6 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QDebug>
 
 using namespace TextEditor;

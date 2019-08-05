@@ -59,7 +59,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QFileInfo>
 #include <QLabel>
 #include <QScreen>
