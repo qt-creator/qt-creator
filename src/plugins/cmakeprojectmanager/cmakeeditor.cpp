@@ -45,6 +45,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
+#include <utils/textutils.h>
 
 #include <QFileInfo>
 #include <QTextBlock>
@@ -71,7 +72,7 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
             break;
         chr = characterAt(pos);
         if (chr == QLatin1Char('(')) {
-            callback({});
+            BaseTextEditor::contextHelp(callback);
             return;
         }
     } while (chr.unicode() != QChar::ParagraphSeparator);
@@ -97,12 +98,13 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
 
     // Not a command
     if (chr != QLatin1Char('(')) {
-        callback({});
+        BaseTextEditor::contextHelp(callback);
         return;
     }
 
     const QString id = "command/" + textAt(begin, end - begin).toLower();
-    callback(id);
+    callback(
+        {{id, Utils::Text::wordUnderCursor(editorWidget()->textCursor())}, {}, HelpItem::Unknown});
 }
 
 //
