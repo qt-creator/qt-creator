@@ -91,11 +91,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
         if (isActive())
             project()->requestReparse(options);
     });
-    connect(&m_buildDirManager, &BuildDirManager::dataAvailable, this, [this]() {
-        clearError();
-        if (isActive())
-            project()->handleParsingSuccess(this);
-    });
+    connect(&m_buildDirManager,
+            &BuildDirManager::dataAvailable,
+            this,
+            &CMakeBuildConfiguration::handleParsingSucceeded);
     connect(&m_buildDirManager, &BuildDirManager::errorOccured, this, [this](const QString &msg) {
         setError(msg);
         QString errorMessage;
@@ -513,6 +512,62 @@ void CMakeBuildConfiguration::setWarning(const QString &message)
     emit warningOccured(m_warning);
 }
 
+void CMakeBuildConfiguration::handleParsingSucceeded()
+{
+    if (!isActive()) {
+        m_buildDirManager.stopParsingAndClearState();
+        return;
+    }
+
+    clearError();
+
+    QString errorMessage;
+    {
+        const QList<CMakeBuildTarget> buildTargets = m_buildDirManager.takeBuildTargets(
+            errorMessage);
+        checkAndReportError(errorMessage);
+        setBuildTargets(buildTargets);
+    }
+
+    {
+        const CMakeConfig cmakeConfig = m_buildDirManager.takeCMakeConfiguration(errorMessage);
+        checkAndReportError(errorMessage);
+        setConfigurationFromCMake(cmakeConfig);
+    }
+
+    {
+        target()->setApplicationTargets(appTargets());
+        target()->setDeploymentData(deploymentData());
+    }
+
+    project()->handleParsingSuccess(this);
+
+    {
+        m_buildDirManager.resetData();
+    }
+
+    {
+        emitBuildTypeChanged();
+    }
+}
+
+std::unique_ptr<CMakeProjectNode> CMakeBuildConfiguration::generateProjectTree(
+    const QList<const FileNode *> &allFiles)
+{
+    QString errorMessage;
+    auto root = m_buildDirManager.generateProjectTree(allFiles, errorMessage);
+    checkAndReportError(errorMessage);
+    return root;
+}
+
+void CMakeBuildConfiguration::checkAndReportError(QString &errorMessage)
+{
+    if (!errorMessage.isEmpty()) {
+        setError(errorMessage);
+        errorMessage.clear();
+    }
+}
+
 QString CMakeBuildConfiguration::error() const
 {
     return m_error;
@@ -534,13 +589,15 @@ ProjectExplorer::NamedWidget *CMakeBuildConfiguration::createConfigWidget()
 
 CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
 {
-    registerBuildConfiguration<CMakeBuildConfiguration>("CMakeProjectManager.CMakeBuildConfiguration");
+    registerBuildConfiguration<CMakeBuildConfiguration>(
+        "CMakeProjectManager.CMakeBuildConfiguration");
 
     setSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::CMAKEPROJECTMIMETYPE);
 }
 
-CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildTypeFromByteArray(const QByteArray &in)
+CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildTypeFromByteArray(
+    const QByteArray &in)
 {
     const QByteArray bt = in.toLower();
     if (bt == "debug")
@@ -554,7 +611,8 @@ CMakeBuildConfigurationFactory::BuildType CMakeBuildConfigurationFactory::buildT
     return BuildTypeNone;
 }
 
-BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(const CMakeBuildConfigurationFactory::BuildType &in)
+BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(
+    const CMakeBuildConfigurationFactory::BuildType &in)
 {
     // Cover all common CMake build types
     if (in == BuildTypeRelease || in == BuildTypeMinSizeRel)
@@ -567,8 +625,9 @@ BuildConfiguration::BuildType CMakeBuildConfigurationFactory::cmakeBuildTypeToBu
         return BuildConfiguration::Unknown;
 }
 
-QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds
-    (const Kit *k, const FilePath &projectPath, bool forSetup) const
+QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Kit *k,
+                                                                 const FilePath &projectPath,
+                                                                 bool forSetup) const
 {
     QList<BuildInfo> result;
 
@@ -578,9 +637,10 @@ QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds
         BuildInfo info = createBuildInfo(k, path.toString(), BuildType(type));
         if (forSetup) {
             info.displayName = info.typeName;
-            info.buildDirectory
-                    = CMakeBuildConfiguration::shadowBuildDirectory(projectPath, k,
-                                                                    info.displayName, info.buildType);
+            info.buildDirectory = CMakeBuildConfiguration::shadowBuildDirectory(projectPath,
+                                                                                k,
+                                                                                info.displayName,
+                                                                                info.buildType);
         }
         result << info;
     }

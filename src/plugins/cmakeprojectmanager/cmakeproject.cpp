@@ -178,32 +178,15 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     QTC_ASSERT(bc == aBc, return);
     QTC_ASSERT(m_treeScanner.isFinished() && !bc->m_buildDirManager.isParsing(), return );
 
+    CMakeConfig patchedConfig = bc->configurationFromCMake();
     {
-        TraceTimer buildTargetsTimer("    build targets");
-        const QList<CMakeBuildTarget> buildTargets = bc->m_buildDirManager.takeBuildTargets(
-            errorMessage);
-        checkAndReportError(errorMessage);
-        bc->setBuildTargets(buildTargets);
-        qCDebug(cmakeProjectLog) << "Build target data set.";
-    }
-    CMakeConfig patchedConfig;
-    {
-        TraceTimer cacheTimer("    cache data (plus patching)");
-        const CMakeConfig cmakeConfig = bc->m_buildDirManager.takeCMakeConfiguration(errorMessage);
-        checkAndReportError(errorMessage);
-        bc->setConfigurationFromCMake(cmakeConfig);
-        qCDebug(cmakeProjectLog) << "CMake configuration data set.";
-
-        patchedConfig = cmakeConfig;
-        {
-            CMakeConfigItem settingFileItem;
-            settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
-            settingFileItem.value = bc->buildDirectory()
-                                        .pathAppended("android_deployment_settings.json")
-                                        .toString()
-                                        .toUtf8();
-            patchedConfig.append(settingFileItem);
-        }
+        CMakeConfigItem settingFileItem;
+        settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
+        settingFileItem.value = bc->buildDirectory()
+                                    .pathAppended("android_deployment_settings.json")
+                                    .toString()
+                                    .toUtf8();
+        patchedConfig.append(settingFileItem);
     }
     {
         TraceTimer appsTimer("    application data");
@@ -234,7 +217,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     {
         TraceTimer projectTreeTimer("    project tree");
-        auto newRoot = generateProjectTree(m_allFiles);
+        auto newRoot = bc->generateProjectTree(m_allFiles);
         if (newRoot) {
             setRootProjectNode(std::move(newRoot));
             if (rootProjectNode())
@@ -248,13 +231,6 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
                 }
             }
         }
-    }
-
-    {
-        TraceTimer projectTreeTimer("    target updated");
-        Target *t = bc->target();
-        t->setApplicationTargets(bc->appTargets());
-        t->setDeploymentData(bc->deploymentData());
     }
 
     {
@@ -287,28 +263,21 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     }
     {
         TraceTimer qmlCodemodelTimer("    qml codemodel");
-        updateQmlJSCodeModel();
+        updateQmlJSCodeModel(bc);
     }
 
-    {
-        TraceTimer resetTimer("    resetting builddirmanager");
-        bc->m_buildDirManager.resetData();
-    }
+    emit fileListChanged();
 
-    {
-        TraceTimer emitTimer("    emitting signals");
-        emit fileListChanged();
-
-        bc->emitBuildTypeChanged();
-    }
     qCDebug(cmakeProjectLog) << "All CMake project data up to date.";
 }
 
-void CMakeProject::updateQmlJSCodeModel()
+void CMakeProject::updateQmlJSCodeModel(CMakeBuildConfiguration *bc)
 {
+    QTC_ASSERT(bc, return );
+
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
-    if (!modelManager || !activeTarget() || !activeTarget()->activeBuildConfiguration())
+    if (!modelManager)
         return;
 
     QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
@@ -316,36 +285,13 @@ void CMakeProject::updateQmlJSCodeModel()
 
     projectInfo.importPaths.clear();
 
-    QString cmakeImports;
-    auto bc = qobject_cast<const CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
-    if (!bc)
-        return;
-
     const CMakeConfig &cm = bc->configurationFromCMake();
-    foreach (const CMakeConfigItem &di, cm) {
-        if (di.key.contains("QML_IMPORT_PATH")) {
-            cmakeImports = QString::fromUtf8(di.value);
-            break;
-        }
-    }
+    const QString cmakeImports = QString::fromUtf8(CMakeConfigItem::valueOf("QML_IMPORT_PATH", cm));
 
     foreach (const QString &cmakeImport, CMakeConfigItem::cmakeSplitValue(cmakeImports))
         projectInfo.importPaths.maybeInsert(FilePath::fromString(cmakeImport), QmlJS::Dialect::Qml);
 
     modelManager->updateProjectInfo(projectInfo, this);
-}
-
-std::unique_ptr<CMakeProjectNode>
-CMakeProject::generateProjectTree(const QList<const FileNode *> &allFiles) const
-{
-    CMakeBuildConfiguration *bc = activeBc(this);
-    if (bc->m_buildDirManager.isParsing())
-        return nullptr;
-
-    QString errorMessage;
-    auto root = bc->m_buildDirManager.generateProjectTree(allFiles, errorMessage);
-    checkAndReportError(errorMessage);
-    return root;
 }
 
 bool CMakeProject::knowsAllBuildExecutables() const

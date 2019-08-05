@@ -196,10 +196,12 @@ bool BuildDirManager::isParsing() const
 
 void BuildDirManager::stopParsingAndClearState()
 {
-    resetData();
-    if (m_reader)
+    if (m_reader) {
+        disconnect(m_reader.get(), nullptr, this, nullptr);
         m_reader->stop();
+    }
     m_reader.reset();
+    resetData();
 }
 
 void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &parameters,

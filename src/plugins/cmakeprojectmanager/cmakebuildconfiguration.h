@@ -105,6 +105,13 @@ private:
     void setError(const QString &message);
     void setWarning(const QString &message);
 
+    void handleParsingSucceeded();
+
+    std::unique_ptr<CMakeProjectNode> generateProjectTree(
+        const QList<const ProjectExplorer::FileNode *> &allFiles);
+
+    void checkAndReportError(QString &errorMessage);
+
     Internal::BuildDirManager m_buildDirManager;
 
     CMakeConfig m_configurationForCMake;

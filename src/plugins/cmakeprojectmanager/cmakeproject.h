@@ -100,10 +100,7 @@ private:
     void handleParsingError(Internal::CMakeBuildConfiguration *bc);
     void combineScanAndParse(Internal::CMakeBuildConfiguration *bc);
     void updateProjectData(Internal::CMakeBuildConfiguration *bc);
-    void updateQmlJSCodeModel();
-
-    std::unique_ptr<Internal::CMakeProjectNode>
-    generateProjectTree(const QList<const ProjectExplorer::FileNode*> &allFiles) const;
+    void updateQmlJSCodeModel(Internal::CMakeBuildConfiguration *bc);
 
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers() const;
     QStringList filesGeneratedFrom(const QString &sourceFile) const final;
