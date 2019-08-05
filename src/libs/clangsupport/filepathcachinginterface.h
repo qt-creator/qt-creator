@@ -56,6 +56,8 @@ public:
                       std::back_inserter(filePathIds),
                       [&] (const auto &filePath) { return this->filePathId(filePath); });
 
+       std::sort(filePathIds.begin(), filePathIds.end());
+
        return filePathIds;
     }
 
