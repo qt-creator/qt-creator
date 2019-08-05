@@ -227,6 +227,9 @@ private:
     QString m_licenseTextCache;
     QByteArray m_licenseUserInput;
     mutable QReadWriteLock m_licenseInputLock;
+
+public:
+    bool m_packageListingSuccessful = true;
 };
 
 /*!
@@ -370,6 +373,11 @@ void AndroidSdkManager::reloadPackages(bool forceReload)
 bool AndroidSdkManager::isBusy() const
 {
     return m_d->m_activeOperation && !m_d->m_activeOperation->isFinished();
+}
+
+bool AndroidSdkManager::packageListingSuccessful() const
+{
+    return m_d->m_packageListingSuccessful;
 }
 
 QFuture<QString> AndroidSdkManager::availableArguments() const
@@ -806,6 +814,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
 
     if (m_config.sdkToolsVersion() < sdkManagerIntroVersion) {
         // Old Sdk tools.
+        m_packageListingSuccessful = true;
         AndroidToolManager toolManager(m_config);
         auto toAndroidSdkPackages = [](SdkPlatform *p) -> AndroidSdkPackage *{
             return p;
@@ -815,7 +824,8 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         QString packageListing;
         QStringList args({"--list", "--verbose"});
         args << m_config.sdkManagerToolArgs();
-        if (sdkManagerCommand(m_config, args, &packageListing)) {
+        m_packageListingSuccessful = sdkManagerCommand(m_config, args, &packageListing);
+        if (m_packageListingSuccessful) {
             SdkManagerOutputParser parser(m_allPackages);
             parser.parsePackageListing(packageListing);
         }

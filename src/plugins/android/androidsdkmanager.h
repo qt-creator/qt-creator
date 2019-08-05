@@ -78,6 +78,8 @@ public:
     void reloadPackages(bool forceReload = false);
     bool isBusy() const;
 
+    bool packageListingSuccessful() const;
+
     QFuture<QString> availableArguments() const;
     QFuture<OperationOutput> updateAll();
     QFuture<OperationOutput> update(const QStringList &install, const QStringList &uninstall);

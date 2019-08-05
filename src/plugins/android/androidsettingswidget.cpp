@@ -76,6 +76,7 @@ enum AndroidValidation {
     SdkToolsInstalledRow,
     PlatformToolsInstalledRow,
     BuildToolsInstalledRow,
+    SdkManagerSuccessfulRow,
     PlatformSdkInstalledRow,
     NdkPathExistsRow,
     NdkDirStructureRow,
@@ -259,6 +260,8 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     androidValidationPoints[SdkPathWritableRow] = tr("Android SDK path writable.");
     androidValidationPoints[SdkToolsInstalledRow] = tr("SDK tools installed.");
     androidValidationPoints[PlatformToolsInstalledRow] = tr("Platform tools installed.");
+    androidValidationPoints[SdkManagerSuccessfulRow] = tr(
+        "SDK manager runs (requires exactly Java 1.8).");
     androidValidationPoints[BuildToolsInstalledRow] = tr("Build tools installed.");
     androidValidationPoints[PlatformSdkInstalledRow] = tr("Platform SDK installed.");
     androidValidationPoints[NdkPathExistsRow] = tr("Android NDK path exists.");
@@ -425,12 +428,14 @@ void AndroidSettingsWidget::validateSdk()
     summaryWidget->setPointValid(BuildToolsInstalledRow,
                                  !m_androidConfig.buildToolsVersion().isNull());
 
+    summaryWidget->setPointValid(SdkManagerSuccessfulRow, m_sdkManager->packageListingSuccessful());
     // installedSdkPlatforms should not trigger a package reload as validate SDK is only called
     // after AndroidSdkManager::packageReloadFinished.
     summaryWidget->setPointValid(PlatformSdkInstalledRow,
                                  !m_sdkManager->installedSdkPlatforms().isEmpty());
     updateUI();
-    bool sdkToolsOk = summaryWidget->rowsOk({SdkPathExistsRow, SdkPathWritableRow, SdkToolsInstalledRow});
+    bool sdkToolsOk = summaryWidget->rowsOk(
+        {SdkPathExistsRow, SdkPathWritableRow, SdkToolsInstalledRow, SdkManagerSuccessfulRow});
     bool componentsOk = summaryWidget->rowsOk({PlatformToolsInstalledRow,
                                                       BuildToolsInstalledRow,
                                                       PlatformSdkInstalledRow});
