@@ -27,25 +27,27 @@
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
-#include <coreplugin/icore.h>
-#include <utils/environment.h>
 #include <utils/detailswidget.h>
+#include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/treemodel.h>
+#include <utils/utilsicons.h>
 
 #include <QCheckBox>
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTreeView>
-#include <QWidget>
 #include <QUuid>
+#include <QWidget>
 
 using namespace Utils;
 
@@ -91,30 +93,45 @@ class CMakeToolTreeItem : public TreeItem
     Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::CMakeSettingsPage)
 
 public:
-    CMakeToolTreeItem(const CMakeTool *item, bool changed) :
-        m_id(item->id()),
-        m_name(item->displayName()),
-        m_executable(item->cmakeExecutable()),
-        m_isAutoRun(item->isAutoRun()),
-        m_autoCreateBuildDirectory(item->autoCreateBuildDirectory()),
-        m_autodetected(item->isAutoDetected()),
-        m_changed(changed)
+    CMakeToolTreeItem(const CMakeTool *item, bool changed)
+        : m_id(item->id())
+        , m_name(item->displayName())
+        , m_executable(item->cmakeExecutable())
+        , m_isAutoRun(item->isAutoRun())
+        , m_autoCreateBuildDirectory(item->autoCreateBuildDirectory())
+        , m_autodetected(item->isAutoDetected())
+        , m_changed(changed)
     {
+        updateErrorFlags();
         m_tooltip = tr("Version: %1<br>Supports fileApi: %2<br>Supports server-mode: %3")
                         .arg(QString::fromUtf8(item->version().fullVersion))
                         .arg(item->hasFileApi() ? tr("yes") : tr("no"))
                         .arg(item->hasServerMode() ? tr("yes") : tr("no"));
     }
 
-    CMakeToolTreeItem(const QString &name, const Utils::FilePath &executable,
-                      bool autoRun, bool autoCreate, bool autodetected) :
-        m_id(Core::Id::fromString(QUuid::createUuid().toString())),
-        m_name(name),
-        m_executable(executable),
-        m_isAutoRun(autoRun),
-        m_autoCreateBuildDirectory(autoCreate),
-        m_autodetected(autodetected)
-    {}
+    CMakeToolTreeItem(const QString &name,
+                      const Utils::FilePath &executable,
+                      bool autoRun,
+                      bool autoCreate,
+                      bool autodetected)
+        : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
+        , m_name(name)
+        , m_executable(executable)
+        , m_isAutoRun(autoRun)
+        , m_autoCreateBuildDirectory(autoCreate)
+        , m_autodetected(autodetected)
+    {
+        updateErrorFlags();
+    }
+
+    void updateErrorFlags()
+    {
+        const QFileInfo fi = m_executable.toFileInfo();
+        m_pathExists = fi.exists();
+        m_pathIsFile = fi.isFile();
+        m_pathIsExecutable = fi.isExecutable();
+        m_pathIsCanonical = CMakeTool::isCanonicalPath(m_executable);
+    }
 
     CMakeToolTreeItem() = default;
 
@@ -123,7 +140,7 @@ public:
     QVariant data(int column, int role) const override
     {
         switch (role) {
-        case Qt::DisplayRole:
+        case Qt::DisplayRole: {
             switch (column) {
             case 0: {
                 QString name = m_name;
@@ -131,11 +148,12 @@ public:
                     name += tr(" (Default)");
                 return name;
             }
-            case 1:
+            case 1: {
                 return m_executable.toUserOutput();
             }
-            break;
-
+            } // switch (column)
+            return QVariant();
+        }
         case Qt::FontRole: {
             QFont font;
             font.setBold(m_changed);
@@ -143,7 +161,39 @@ public:
             return font;
         }
         case Qt::ToolTipRole: {
-            return m_tooltip;
+            QString result = m_tooltip;
+            QString error;
+            if (!m_pathExists) {
+                error = QCoreApplication::translate(
+                    "CMakeProjectManager::Internal::CMakeToolTreeItem",
+                    "CMake executable path does not exist.");
+            } else if (!m_pathIsFile) {
+                error = QCoreApplication::translate(
+                    "CMakeProjectManager::Internal::CMakeToolTreeItem",
+                    "CMake executable path is not a file.");
+            } else if (!m_pathIsExecutable) {
+                error = QCoreApplication::translate(
+                    "CMakeProjectManager::Internal::CMakeToolTreeItem",
+                    "CMake executable path is not executable.");
+            } else if (!m_pathIsCanonical) {
+                error = CMakeTool::nonCanonicalPathToCMakeExecutableWarningMessage();
+            }
+            if (result.isEmpty() || error.isEmpty())
+                return QString("%1%2").arg(result).arg(error);
+            else
+                return QString("%1<br><br><b>%2</b>").arg(result).arg(error);
+        }
+        case Qt::DecorationRole: {
+            if (column != 0)
+                return QVariant();
+
+            const bool hasError = !m_pathExists || !m_pathIsFile || !m_pathIsExecutable;
+            if (hasError)
+                return Utils::Icons::CRITICAL.icon();
+            const bool hasWarning = !m_pathIsCanonical;
+            if (hasWarning)
+                return Utils::Icons::WARNING.icon();
+            return QVariant();
         }
         }
         return QVariant();
@@ -154,6 +204,10 @@ public:
     QString m_tooltip;
     FilePath m_executable;
     bool m_isAutoRun = true;
+    bool m_pathExists = false;
+    bool m_pathIsFile = false;
+    bool m_pathIsExecutable = false;
+    bool m_pathIsCanonical = false;
     bool m_autoCreateBuildDirectory = false;
     bool m_autodetected = false;
     bool m_changed = true;
@@ -240,8 +294,9 @@ void CMakeToolItemModel::updateCMakeTool(const Core::Id &id, const QString &disp
 
     treeItem->m_name = displayName;
     treeItem->m_executable = executable;
-    treeItem->m_isAutoRun = autoRun;
     treeItem->m_autoCreateBuildDirectory = autoCreate;
+
+    treeItem->updateErrorFlags();
 
     reevaluateChangedFlag(treeItem);
 }

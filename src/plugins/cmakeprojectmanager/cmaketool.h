@@ -112,6 +112,11 @@ public:
 
     ReaderType readerType() const;
 
+    static bool isCanonicalPath(const Utils::FilePath &path);
+    bool isExecutablePathCanonical() const;
+
+    static QString nonCanonicalPathToCMakeExecutableWarningMessage();
+
 private:
     enum class QueryType {
         GENERATORS,

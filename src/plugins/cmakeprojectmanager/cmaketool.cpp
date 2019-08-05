@@ -356,6 +356,25 @@ CMakeTool::ReaderType CMakeTool::readerType() const
     return m_readerType.value();
 }
 
+bool CMakeTool::isCanonicalPath(const Utils::FilePath &path)
+{
+    const QString canonicalPath = path.toFileInfo().canonicalFilePath();
+    return canonicalPath == path.toString();
+}
+
+bool CMakeTool::isExecutablePathCanonical() const
+{
+    return isCanonicalPath(cmakeExecutable());
+}
+
+QString CMakeTool::nonCanonicalPathToCMakeExecutableWarningMessage()
+{
+    return QCoreApplication::translate(
+        "CMakeProjectManager::CMakeTool",
+        "CMake executable path is not canonical and contains \"..\", \".\" "
+        "or a symbolic link. This might trigger bugs in CMake.");
+}
+
 void CMakeTool::readInformation(CMakeTool::QueryType type) const
 {
     if ((type == QueryType::GENERATORS && !m_introspection->m_generators.isEmpty())

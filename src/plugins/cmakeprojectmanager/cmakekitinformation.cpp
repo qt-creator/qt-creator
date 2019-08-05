@@ -46,6 +46,7 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QFileInfo>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -255,6 +256,13 @@ Tasks CMakeKitAspect::validate(const Kit *k) const
             result << Task(Task::Warning, tr("CMake version %1 is unsupported. Please update to "
                                              "version 3.0 or later.").arg(QString::fromUtf8(version.fullVersion)),
                            Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
+        if (!tool->isExecutablePathCanonical()) {
+            result << Task(Task::Warning,
+                           CMakeTool::nonCanonicalPathToCMakeExecutableWarningMessage(),
+                           Utils::FilePath(),
+                           -1,
+                           Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
     }
     return result;
