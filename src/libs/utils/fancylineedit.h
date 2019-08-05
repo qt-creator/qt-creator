@@ -146,7 +146,7 @@ public:
 protected:
     // Custom behaviour can be added here.
     virtual void handleChanged(const QString &) {}
-    void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
 signals:
     void buttonClicked(Utils::FancyLineEdit::Side side);
