@@ -578,7 +578,7 @@ ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildTyp
 
     // Cover all common CMake build types
     const CMakeBuildConfigurationFactory::BuildType cmakeBuildType
-            = CMakeBuildConfigurationFactory::buildTypeFromByteArray(cmakeBuildTypeName);
+        = CMakeBuildConfigurationFactory::buildTypeFromByteArray(cmakeBuildTypeName);
     return CMakeBuildConfigurationFactory::cmakeBuildTypeToBuildType(cmakeBuildType);
 }
 
