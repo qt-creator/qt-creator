@@ -82,13 +82,16 @@ void ProjectConfigurationAspects::toMap(QVariantMap &map) const
 // ProjectConfiguration
 
 ProjectConfiguration::ProjectConfiguration(QObject *parent, Core::Id id)
-    : QObject(parent), m_id(id)
+    : QObject(parent)
+    , m_id(id)
 {
+    QTC_CHECK(parent);
     QTC_CHECK(id.isValid());
     setObjectName(id.toString());
+
     for (QObject *obj = this; obj; obj = obj->parent()) {
         m_target = qobject_cast<Target *>(obj);
-        if (m_target != nullptr)
+        if (m_target)
             break;
     }
     QTC_CHECK(m_target);
@@ -149,7 +152,6 @@ QVariantMap ProjectConfiguration::toMap() const
 Target *ProjectConfiguration::target() const
 {
     return m_target;
-
 }
 
 bool ProjectConfiguration::fromMap(const QVariantMap &map)

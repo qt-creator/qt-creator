@@ -182,7 +182,6 @@ protected:
     ProjectConfigurationAspects m_aspects;
 
 private:
-    friend class Target; // FIXME: Remove
     Target *m_target = nullptr;
     const Core::Id m_id;
     Utils::DisplayName m_displayName;
