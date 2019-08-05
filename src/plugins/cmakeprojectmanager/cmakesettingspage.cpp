@@ -236,7 +236,7 @@ void CMakeToolItemModel::updateCMakeTool(const Core::Id &id, const QString &disp
                                          bool autoCreate)
 {
     CMakeToolTreeItem *treeItem = cmakeToolItem(id);
-    QTC_ASSERT(treeItem, return);
+    QTC_ASSERT(treeItem, return );
 
     treeItem->m_name = displayName;
     treeItem->m_executable = executable;
