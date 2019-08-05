@@ -26,8 +26,10 @@
 #include "autotestplugin.h"
 #include "autotestconstants.h"
 #include "autotesticons.h"
+#include "projectsettingswidget.h"
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"
+#include "testprojectsettings.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testsettingspage.h"
@@ -54,6 +56,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -78,6 +81,7 @@ using namespace Autotest::Internal;
 using namespace Core;
 
 static AutotestPlugin *s_instance = nullptr;
+static QHash<ProjectExplorer::Project *, TestProjectSettings *> s_projectSettings;
 
 AutotestPlugin::AutotestPlugin()
     : m_settings(new TestSettings)
@@ -101,6 +105,15 @@ AutotestPlugin::~AutotestPlugin()
 QSharedPointer<TestSettings> AutotestPlugin::settings()
 {
     return s_instance->m_settings;
+}
+
+TestProjectSettings *AutotestPlugin::projectSettings(ProjectExplorer::Project *project)
+{
+    auto &settings = s_projectSettings[project];
+    if (!settings)
+        settings = new TestProjectSettings(project);
+
+    return settings;
 }
 
 void AutotestPlugin::initializeMenuEntries()
@@ -184,12 +197,26 @@ bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorStri
     m_navigationWidgetFactory = new TestNavigationWidgetFactory;
     m_resultsPane = TestResultsPane::instance();
 
+    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
+    panelFactory->setPriority(666);
+//    panelFactory->setIcon();  // TODO ?
+    panelFactory->setDisplayName(tr("Testing"));
+    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+        return new ProjectTestSettingsWidget(project);
+    });
+    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+
     m_frameworkManager->activateFrameworksFromSettings(m_settings);
-    TestTreeModel::instance()->syncTestFrameworks();
+    TestTreeModel::instance()->scheduleTestFrameworksSync(true);
 
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::startupProjectChanged, this, [this] {
         m_runconfigCache.clear();
+    });
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::aboutToRemoveProject,
+            this, [] (ProjectExplorer::Project *project) {
+        delete s_projectSettings.take(project);
     });
     return true;
 }

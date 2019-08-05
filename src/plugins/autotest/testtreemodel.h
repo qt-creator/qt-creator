@@ -33,6 +33,7 @@
 #include <utils/treemodel.h>
 
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 namespace Autotest {
 namespace Internal {
@@ -58,7 +59,7 @@ public:
     QList<TestConfiguration *> getSelectedTests() const;
     QList<TestConfiguration *> getTestsForFile(const Utils::FilePath &fileName) const;
     QList<TestTreeItem *> testItemsByName(const QString &testName);
-    void syncTestFrameworks();
+    void scheduleTestFrameworksSync(bool immediately);
     void rebuild(const QList<Core::Id> &frameworkIds);
 
 #ifdef WITH_TESTS
@@ -87,6 +88,7 @@ signals:
 
 private:
     void onParseResultReady(const TestParseResultPtr result);
+    void onStartupProjectChanged();
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
     void removeAllTestItems();
     void removeTestRootNodes();
@@ -97,9 +99,12 @@ private:
     explicit TestTreeModel(QObject *parent = nullptr);
     void setupParsingConnections();
     void filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled);
+    void syncTestFrameworks();
+    void syncFrameworks(const QList<Core::Id> &sortedIds);
     QList<TestTreeItem *> testItemsByName(TestTreeItem *root, const QString &testName);
 
     TestCodeParser *m_parser;
+    QTimer m_syncFrameworksTimer;
 };
 
 class TestTreeSortFilterModel : public QSortFilterProxyModel

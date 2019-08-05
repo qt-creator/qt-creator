@@ -47,6 +47,7 @@ const char FRAMEWORK_PREFIX[]           = "AutoTest.Framework.";
 const char SETTINGSPAGE_PREFIX[]        = "A.AutoTest.";
 const char SETTINGSGROUP[]              = "Autotest";
 const char TASK_MARK_ID[]               = "Autotest.TaskMark";
+const char SK_USE_GLOBAL[]              = "AutoTest.UseGlobal";
 } // namespace Constants
 
 namespace Internal {

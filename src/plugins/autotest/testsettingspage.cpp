@@ -165,7 +165,6 @@ void TestSettingsPage::apply()
     if (!m_widget) // page was not shown at all
         return;
     const TestSettings newSettings = m_widget->settings();
-    bool frameworkSyncNecessary = newSettings.frameworks != m_settings->frameworks;
     const QList<Core::Id> changedIds = Utils::filtered(newSettings.frameworksGrouping.keys(),
                                                        [newSettings, this] (const Core::Id &id) {
         return newSettings.frameworksGrouping[id] != m_settings->frameworksGrouping[id];
@@ -174,9 +173,8 @@ void TestSettingsPage::apply()
     m_settings->toSettings(Core::ICore::settings());
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     frameworkManager->activateFrameworksFromSettings(m_settings);
-    if (frameworkSyncNecessary)
-        TestTreeModel::instance()->syncTestFrameworks();
-    else if (!changedIds.isEmpty())
+    TestTreeModel::instance()->scheduleTestFrameworksSync(true);
+    if (!changedIds.isEmpty())
         TestTreeModel::instance()->rebuild(changedIds);
 }
 

@@ -31,13 +31,17 @@
 
 #include <QMap>
 
-namespace ProjectExplorer { class RunConfiguration; }
+namespace ProjectExplorer {
+class Project;
+class RunConfiguration;
+}
 
 namespace Autotest {
 namespace Internal {
 
 class TestFrameworkManager;
 class TestNavigationWidgetFactory;
+class TestProjectSettings;
 class TestResultsPane;
 struct TestSettings;
 class TestSettingsPage;
@@ -67,6 +71,7 @@ public:
     ShutdownFlag aboutToShutdown() override;
 
     static QSharedPointer<TestSettings> settings();
+    static TestProjectSettings *projectSettings(ProjectExplorer::Project *project);
     static void updateMenuItemsEnabledState();
     static void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice);
     static ChoicePair cachedChoiceFor(const QString &buildTargetKey);
