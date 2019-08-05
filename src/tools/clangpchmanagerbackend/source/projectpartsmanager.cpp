@@ -189,20 +189,19 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
 
         const auto &newSources = buildDependency.sources;
 
-        SourceEntries updatedSourceTyes;
-        updatedSourceTyes.reserve(newSources.size());
+        Change change = Change::No;
 
         std::set_symmetric_difference(newSources.begin(),
                                       newSources.end(),
                                       oldSources.begin(),
                                       oldSources.end(),
-                                      std::back_inserter(updatedSourceTyes),
+                                      make_iterator([&](SourceEntry entry) {
+                                          change = changedSourceType(entry, change);
+                                      }),
                                       [](SourceEntry first, SourceEntry second) {
                                           return std::tie(first.sourceId, first.sourceType)
                                                  < std::tie(second.sourceId, second.sourceType);
                                       });
-
-        auto change = changedSourceType(updatedSourceTyes);
 
         switch (change) {
         case Change::Project:
@@ -218,9 +217,6 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
         }
 
         if (change == Change::No) {
-            SourceEntries updatedTimeStamps;
-            updatedTimeStamps.reserve(newSources.size());
-
             Change change = mismatch_collect(
                 newSources.begin(),
                 newSources.end(),
