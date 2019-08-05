@@ -84,6 +84,8 @@ public:
     void checkAndReportError(QString &errorMessage) const;
     void reportError(const QString &errorMessage) const;
 
+    void requestReparse(int reparseParameters);
+
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
     bool setupTarget(ProjectExplorer::Target *t) final;
@@ -115,7 +117,6 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
 
     ProjectExplorer::TreeScanner m_treeScanner;
-    Internal::BuildDirManager m_buildDirManager;
 
     bool m_waitingForScan = false;
     bool m_waitingForParse = false;

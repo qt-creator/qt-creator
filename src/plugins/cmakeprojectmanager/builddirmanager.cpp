@@ -194,6 +194,14 @@ bool BuildDirManager::isParsing() const
     return m_reader && m_reader->isParsing();
 }
 
+void BuildDirManager::stopParsingAndClearState()
+{
+    resetData();
+    if (m_reader)
+        m_reader->stop();
+    m_reader.reset();
+}
+
 void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &parameters,
                                                    int newReaderReparseOptions,
                                                    int existingReaderReparseOptions)
@@ -204,12 +212,10 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
         return;
     }
-    QTC_ASSERT(parameters.isValid(), return);
-
-    if (m_reader)
-        m_reader->stop();
+    QTC_ASSERT(parameters.isValid(), return );
 
     BuildDirReader *old = m_reader.get();
+    stopParsingAndClearState();
 
     m_parameters = parameters;
     m_parameters.workDirectory = workDirectory(parameters);

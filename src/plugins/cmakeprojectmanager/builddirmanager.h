@@ -64,8 +64,11 @@ public:
 
     bool isParsing() const;
 
+    void stopParsingAndClearState();
+
     void setParametersAndRequestParse(const BuildDirParameters &parameters,
-                                      int newReaderReparseOptions, int existingReaderReparseOptions);
+                                      int newReaderReparseOptions,
+                                      int existingReaderReparseOptions);
     // nullptr if the BC is not active anymore!
     CMakeBuildConfiguration *buildConfiguration() const;
     CMakeProject *project() const {return m_project; }

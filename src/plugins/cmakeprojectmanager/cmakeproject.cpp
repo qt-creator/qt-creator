@@ -103,9 +103,9 @@ static CMakeBuildConfiguration *activeBc(const CMakeProject *p)
 /*!
   \class CMakeProject
 */
-CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEMIMETYPE, fileName),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater),
-    m_buildDirManager(this)
+CMakeProject::CMakeProject(const FilePath &fileName)
+    : Project(Constants::CMAKEMIMETYPE, fileName)
+    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -117,126 +117,6 @@ CMakeProject::CMakeProject(const FilePath &fileName) : Project(Constants::CMAKEM
 
     connect(&m_delayedParsingTimer, &QTimer::timeout,
             this, [this]() { startParsing(m_delayedParsingParameters); });
-
-    // BuildDirManager:
-    connect(&m_buildDirManager, &BuildDirManager::requestReparse,
-            this, &CMakeProject::handleReparseRequest);
-    connect(&m_buildDirManager, &BuildDirManager::dataAvailable,
-            this, [this]() {
-        CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
-        if (bc) {
-            bc->clearError();
-            handleParsingSuccess(bc);
-        }
-    });
-    connect(&m_buildDirManager, &BuildDirManager::errorOccured,
-            this, [this](const QString &msg) {
-        reportError(msg);
-        CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
-        if (bc) {
-            QString errorMessage;
-            bc->setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration(errorMessage));
-            // ignore errorMessage here, we already got one.
-            handleParsingError(bc);
-        }
-
-    });
-    connect(&m_buildDirManager, &BuildDirManager::parsingStarted,
-            this, [this]() {
-        CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
-        if (bc)
-            bc->clearError(CMakeBuildConfiguration::ForceEnabledChanged::True);
-    });
-
-    // Kit changed:
-    connect(KitManager::instance(), &KitManager::kitUpdated,
-            this, [this](Kit *k) {
-        CMakeBuildConfiguration *bc = activeBc(this);
-        if (!bc || k != bc->target()->kit())
-            return; // not for us...
-
-        // Build configuration has not changed, but Kit settings might have:
-        // reparse and check the configuration, independent of whether the reader has changed
-        m_buildDirManager.setParametersAndRequestParse(
-                    BuildDirParameters(bc),
-                    BuildDirManager::REPARSE_CHECK_CONFIGURATION,
-                    BuildDirManager::REPARSE_CHECK_CONFIGURATION);
-    });
-
-    // Target switched:
-    connect(this, &Project::activeTargetChanged, this, [this]() {
-        CMakeBuildConfiguration *bc = activeBc(this);
-
-        if (!bc)
-            return;
-
-        // Target has switched, so the kit has changed, too.
-        // * run cmake with configuration arguments if the reader needs to be switched
-        // * run cmake without configuration arguments if the reader stays
-        m_buildDirManager.setParametersAndRequestParse(
-                    BuildDirParameters(bc),
-                    BuildDirManager::REPARSE_CHECK_CONFIGURATION,
-                    BuildDirManager::REPARSE_CHECK_CONFIGURATION);
-    });
-
-    // BuildConfiguration switched:
-    subscribeSignal(&Target::activeBuildConfigurationChanged, this, [this]() {
-        CMakeBuildConfiguration *bc = activeBc(this);
-
-        if (!bc)
-            return;
-
-        // Build configuration has switched:
-        // * Check configuration if reader changes due to it not existing yet:-)
-        // * run cmake without configuration arguments if the reader stays
-        m_buildDirManager.setParametersAndRequestParse(
-                    BuildDirParameters(bc),
-                    BuildDirManager::REPARSE_CHECK_CONFIGURATION,
-                    BuildDirManager::REPARSE_CHECK_CONFIGURATION);
-    });
-
-    // BuildConfiguration changed:
-    subscribeSignal(&CMakeBuildConfiguration::environmentChanged, this, [this]() {
-        auto senderBc = qobject_cast<CMakeBuildConfiguration *>(sender());
-
-        if (senderBc && senderBc->isActive()) {
-            // The environment on our BC has changed:
-            // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
-            // * run cmake without configuration arguments if the reader stays
-            m_buildDirManager.setParametersAndRequestParse(
-                BuildDirParameters(senderBc),
-                BuildDirManager::REPARSE_CHECK_CONFIGURATION, // server-mode might need a restart...
-                BuildDirManager::REPARSE_CHECK_CONFIGURATION);
-        }
-    });
-    subscribeSignal(&CMakeBuildConfiguration::buildDirectoryChanged, this, [this]() {
-        auto senderBc = qobject_cast<CMakeBuildConfiguration *>(sender());
-
-        if (senderBc && senderBc == m_buildDirManager.buildConfiguration()) {
-            // The build directory of our BC has changed:
-            // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
-            // * run cmake without configuration arguments if the reader stays
-            //   If no configuration exists, then the arguments will get added automatically by
-            //   the reader.
-            m_buildDirManager.setParametersAndRequestParse(
-                        BuildDirParameters(senderBc),
-                        BuildDirManager::REPARSE_FAIL,
-                        BuildDirManager::REPARSE_CHECK_CONFIGURATION);
-        }
-    });
-    subscribeSignal(&CMakeBuildConfiguration::configurationForCMakeChanged, this, [this]() {
-        auto senderBc = qobject_cast<CMakeBuildConfiguration *>(sender());
-
-        if (senderBc && senderBc == m_buildDirManager.buildConfiguration()) {
-            // The CMake configuration has changed on our BC:
-            // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
-            // * run cmake with configuration arguments if the reader stays
-            m_buildDirManager.setParametersAndRequestParse(
-                        BuildDirParameters(senderBc),
-                        BuildDirManager::REPARSE_FAIL,
-                        BuildDirManager::REPARSE_FORCE_CONFIGURATION);
-        }
-    });
 
     // TreeScanner:
     connect(&m_treeScanner, &TreeScanner::finished, this, &CMakeProject::handleTreeScanningFinished);
@@ -296,11 +176,11 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     QTC_ASSERT(bc, return);
     QTC_ASSERT(bc == aBc, return);
-    QTC_ASSERT(m_treeScanner.isFinished() && !m_buildDirManager.isParsing(), return);
+    QTC_ASSERT(m_treeScanner.isFinished() && !bc->m_buildDirManager.isParsing(), return );
 
     {
         TraceTimer buildTargetsTimer("    build targets");
-        const QList<CMakeBuildTarget> buildTargets = m_buildDirManager.takeBuildTargets(
+        const QList<CMakeBuildTarget> buildTargets = bc->m_buildDirManager.takeBuildTargets(
             errorMessage);
         checkAndReportError(errorMessage);
         bc->setBuildTargets(buildTargets);
@@ -309,7 +189,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
     CMakeConfig patchedConfig;
     {
         TraceTimer cacheTimer("    cache data (plus patching)");
-        const CMakeConfig cmakeConfig = m_buildDirManager.takeCMakeConfiguration(errorMessage);
+        const CMakeConfig cmakeConfig = bc->m_buildDirManager.takeCMakeConfiguration(errorMessage);
         checkAndReportError(errorMessage);
         bc->setConfigurationFromCMake(cmakeConfig);
         qCDebug(cmakeProjectLog) << "CMake configuration data set.";
@@ -390,7 +270,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     {
         TraceTimer cxxCodemodelTimer("    cxx codemodel");
-        CppTools::RawProjectParts rpps = m_buildDirManager.createRawProjectParts(errorMessage);
+        CppTools::RawProjectParts rpps = bc->m_buildDirManager.createRawProjectParts(errorMessage);
         checkAndReportError(errorMessage);
         qCDebug(cmakeProjectLog) << "Raw project parts created.";
 
@@ -412,7 +292,7 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     {
         TraceTimer resetTimer("    resetting builddirmanager");
-        m_buildDirManager.resetData();
+        bc->m_buildDirManager.resetData();
     }
 
     {
@@ -458,11 +338,12 @@ void CMakeProject::updateQmlJSCodeModel()
 std::unique_ptr<CMakeProjectNode>
 CMakeProject::generateProjectTree(const QList<const FileNode *> &allFiles) const
 {
-    if (m_buildDirManager.isParsing())
+    CMakeBuildConfiguration *bc = activeBc(this);
+    if (bc->m_buildDirManager.isParsing())
         return nullptr;
 
     QString errorMessage;
-    auto root = m_buildDirManager.generateProjectTree(allFiles, errorMessage);
+    auto root = bc->m_buildDirManager.generateProjectTree(allFiles, errorMessage);
     checkAndReportError(errorMessage);
     return root;
 }
@@ -491,11 +372,12 @@ void CMakeProject::runCMake()
         return;
 
     BuildDirParameters parameters(bc);
-    m_buildDirManager.setParametersAndRequestParse(parameters,
-                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION
-                                                       | BuildDirManager::REPARSE_FORCE_CMAKE_RUN,
-                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION
-                                                       | BuildDirManager::REPARSE_FORCE_CMAKE_RUN);
+    bc->m_buildDirManager
+        .setParametersAndRequestParse(parameters,
+                                      BuildDirManager::REPARSE_CHECK_CONFIGURATION
+                                          | BuildDirManager::REPARSE_FORCE_CMAKE_RUN,
+                                      BuildDirManager::REPARSE_CHECK_CONFIGURATION
+                                          | BuildDirManager::REPARSE_FORCE_CMAKE_RUN);
 }
 
 void CMakeProject::runCMakeAndScanProjectTree()
@@ -506,9 +388,11 @@ void CMakeProject::runCMakeAndScanProjectTree()
     QTC_ASSERT(m_treeScanner.isFinished(), return);
 
     BuildDirParameters parameters(bc);
-    m_buildDirManager.setParametersAndRequestParse(parameters,
-                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION | BuildDirManager::REPARSE_SCAN,
-                                                   BuildDirManager::REPARSE_CHECK_CONFIGURATION | BuildDirManager::REPARSE_SCAN);
+    bc->m_buildDirManager.setParametersAndRequestParse(parameters,
+                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION
+                                                           | BuildDirManager::REPARSE_SCAN,
+                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION
+                                                           | BuildDirManager::REPARSE_SCAN);
 }
 
 void CMakeProject::buildCMakeTarget(const QString &buildTarget)
@@ -528,25 +412,20 @@ ProjectImporter *CMakeProject::projectImporter() const
 
 bool CMakeProject::persistCMakeState()
 {
-    return m_buildDirManager.persistCMakeState();
+    CMakeBuildConfiguration *bc = activeBc(this);
+    return bc ? bc->m_buildDirManager.persistCMakeState() : false;
 }
 
 void CMakeProject::clearCMakeCache()
 {
-    m_buildDirManager.clearCache();
+    CMakeBuildConfiguration *bc = activeBc(this);
+    if (bc)
+        bc->m_buildDirManager.clearCache();
 }
 
 void CMakeProject::handleReparseRequest(int reparseParameters)
 {
-    QTC_ASSERT(!(reparseParameters & BuildDirManager::REPARSE_FAIL), return);
-    if (reparseParameters & BuildDirManager::REPARSE_IGNORE)
-        return;
-
-    m_delayedParsingTimer.setInterval((reparseParameters & BuildDirManager::REPARSE_URGENT) ? 0 : 1000);
-    m_delayedParsingTimer.start();
-    m_delayedParsingParameters = m_delayedParsingParameters | reparseParameters;
-    if (m_allFiles.isEmpty())
-        m_delayedParsingParameters |= BuildDirManager::REPARSE_SCAN;
+    requestReparse(reparseParameters);
 }
 
 void CMakeProject::startParsing(int reparseParameters)
@@ -557,7 +436,8 @@ void CMakeProject::startParsing(int reparseParameters)
     if (reparseParameters & BuildDirManager::REPARSE_IGNORE)
         return;
 
-    QTC_ASSERT(activeBc(this), return);
+    CMakeBuildConfiguration *bc = activeBc(this);
+    QTC_ASSERT(bc, return );
 
     emitParsingStarted();
 
@@ -573,7 +453,7 @@ void CMakeProject::startParsing(int reparseParameters)
                                        "CMake.Scan.Tree");
     }
 
-    m_buildDirManager.parse(reparseParameters);
+    bc->m_buildDirManager.parse(reparseParameters);
 }
 
 QStringList CMakeProject::buildTargetTitles() const
@@ -601,9 +481,23 @@ bool CMakeProject::setupTarget(Target *t)
 
 void CMakeProject::reportError(const QString &errorMessage) const
 {
-    CMakeBuildConfiguration *bc = m_buildDirManager.buildConfiguration();
+    CMakeBuildConfiguration *bc = activeBc(this);
     if (bc)
         bc->setError(errorMessage);
+}
+
+void CMakeProject::requestReparse(int reparseParameters)
+{
+    QTC_ASSERT(!(reparseParameters & BuildDirManager::REPARSE_FAIL), return );
+    if (reparseParameters & BuildDirManager::REPARSE_IGNORE)
+        return;
+
+    m_delayedParsingTimer.setInterval((reparseParameters & BuildDirManager::REPARSE_URGENT) ? 0
+                                                                                            : 1000);
+    m_delayedParsingTimer.start();
+    m_delayedParsingParameters = m_delayedParsingParameters | reparseParameters;
+    if (m_allFiles.isEmpty())
+        m_delayedParsingParameters |= BuildDirManager::REPARSE_SCAN;
 }
 
 void CMakeProject::handleTreeScanningFinished()
