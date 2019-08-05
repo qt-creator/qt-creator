@@ -30,8 +30,9 @@
 #include <projectexplorer/runconfiguration.h>
 
 namespace RemoteLinux {
+namespace Internal {
 
-class REMOTELINUX_EXPORT RemoteLinuxRunConfiguration : public ProjectExplorer::RunConfiguration
+class RemoteLinuxRunConfiguration final : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 
@@ -46,10 +47,11 @@ private:
     void updateTargetInformation();
 };
 
-class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+class RemoteLinuxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
 public:
     RemoteLinuxRunConfigurationFactory();
 };
 
+} // namespace Internal
 } // namespace RemoteLinux

@@ -39,7 +39,7 @@ public:
     QtLibPathAspect() = default;
 };
 
-class QnxRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
+class QnxRunConfiguration final : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 
@@ -50,7 +50,7 @@ private:
     ProjectExplorer::Runnable runnable() const override;
 };
 
-class QnxRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+class QnxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
 public:
     QnxRunConfigurationFactory();

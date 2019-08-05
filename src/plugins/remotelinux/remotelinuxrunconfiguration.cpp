@@ -45,6 +45,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {
+namespace Internal {
 
 RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::Id id)
     : RunConfiguration(target, id)
@@ -66,7 +67,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     if (HostOsInfo::isAnyUnixHost())
         addAspect<TerminalAspect>();
     addAspect<RemoteLinuxEnvironmentAspect>(target);
-    if (id == IdPrefix && Utils::HostOsInfo::isAnyUnixHost())
+    if (HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();
 
     setOutputFormatter<QtSupport::QtOutputFormatter>();
@@ -114,4 +115,5 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 
+} // namespace Internal
 } // namespace RemoteLinux
