@@ -118,7 +118,6 @@ class Dumper(DumperBase):
 
         self.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())
         self.reportState('enginesetupok')
-        self.debuggerCommandInProgress = False
 
     def fromNativeFrameValue(self, nativeValue):
         return self.fromNativeValue(nativeValue)
@@ -1321,19 +1320,19 @@ class Dumper(DumperBase):
         flavor = event.GetDataFlavor()
         state = lldb.SBProcess.GetStateFromEvent(event)
         bp = lldb.SBBreakpoint.GetBreakpointFromEvent(event)
-        skipEventReporting = self.debuggerCommandInProgress \
-            and eventType in (lldb.SBProcess.eBroadcastBitSTDOUT, lldb.SBProcess.eBroadcastBitSTDERR)
+        skipEventReporting = eventType in (lldb.SBProcess.eBroadcastBitSTDOUT, lldb.SBProcess.eBroadcastBitSTDERR)
         self.report('event={type="%s",data="%s",msg="%s",flavor="%s",state="%s",bp="%s"}'
             % (eventType, out.GetData(), msg, flavor, self.stateName(state), bp))
-        if state != self.eventState:
-            if not skipEventReporting:
-                self.eventState = state
-            if state == lldb.eStateExited:
-                if not self.isShuttingDown_:
-                    self.reportState("inferiorexited")
-                self.report('exited={status="%s",desc="%s"}'
-                    % (self.process.GetExitStatus(), self.process.GetExitDescription()))
-            elif state == lldb.eStateStopped:
+
+        if state == lldb.eStateExited:
+            self.eventState = state
+            if not self.isShuttingDown_:
+                self.reportState("inferiorexited")
+            self.report('exited={status="%s",desc="%s"}'
+                % (self.process.GetExitStatus(), self.process.GetExitDescription()))
+        elif state != self.eventState and not skipEventReporting:
+            self.eventState = state
+            if state == lldb.eStateStopped:
                 stoppedThread = self.firstStoppedThread()
                 if stoppedThread:
                     #self.report("STOPPED THREAD: %s" % stoppedThread)
@@ -1366,8 +1365,8 @@ class Dumper(DumperBase):
                 else:
                     self.reportState("stopped")
             else:
-                if not skipEventReporting:
-                    self.reportState(self.stateName(state))
+                self.reportState(self.stateName(state))
+
         if eventType == lldb.SBProcess.eBroadcastBitStateChanged: # 1
             state = self.process.GetState()
             if state == lldb.eStateStopped:
@@ -1682,7 +1681,6 @@ class Dumper(DumperBase):
         self.reportResult(self.hexencode(result.GetOutput()), {})
 
     def executeDebuggerCommand(self, args):
-        self.debuggerCommandInProgress = True
         self.reportToken(args)
         result = lldb.SBCommandReturnObject()
         command = args['command']
@@ -1691,7 +1689,6 @@ class Dumper(DumperBase):
         output = result.GetOutput()
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
-        self.debuggerCommandInProgress = False
 
     def fetchDisassembler(self, args):
         functionName = args.get('function', '')
