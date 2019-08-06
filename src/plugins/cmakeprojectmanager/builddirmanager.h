@@ -27,6 +27,7 @@
 
 #include "builddirparameters.h"
 #include "builddirreader.h"
+#include "cmakebuildsystem.h"
 #include "cmakebuildtarget.h"
 #include "cmakeconfigitem.h"
 
@@ -87,16 +88,21 @@ public:
     CMakeConfig takeCMakeConfiguration(QString &errorMessage) const;
 
     static CMakeConfig parseCMakeConfiguration(const Utils::FilePath &cacheFile,
-                                              QString *errorMessage);
+                                               QString *errorMessage);
 
     enum ReparseParameters {
-        REPARSE_DEFAULT = 0,             // use defaults
-        REPARSE_URGENT = 1,              // Do not wait for more requests, start ASAP
-        REPARSE_FORCE_CMAKE_RUN = 2,     // Force cmake to run
-        REPARSE_FORCE_CONFIGURATION = 4, // Force configuration arguments to cmake
-        REPARSE_CHECK_CONFIGURATION = 8, // Check and warn if on-disk config and QtC config differ
-        REPARSE_SCAN = 16,
-        REPARSE_IGNORE = 32, // Do not reparse:-)
+        REPARSE_DEFAULT = BuildSystem::PARAM_DEFAULT, // use defaults
+        REPARSE_URGENT = BuildSystem::PARAM_URGENT,   // Do not wait for more requests, start ASAP
+        REPARSE_IGNORE = BuildSystem::PARAM_IGNORE,
+
+        REPARSE_FORCE_CMAKE_RUN = (1
+                                   << (BuildSystem::PARAM_CUSTOM_OFFSET + 0)), // Force cmake to run
+        REPARSE_FORCE_CONFIGURATION = (1 << (BuildSystem::PARAM_CUSTOM_OFFSET
+                                             + 1)), // Force configuration arguments to cmake
+        REPARSE_CHECK_CONFIGURATION
+        = (1 << (BuildSystem::PARAM_CUSTOM_OFFSET
+                 + 2)), // Check and warn if on-disk config and QtC config differ
+        REPARSE_SCAN = (1 << (BuildSystem::PARAM_CUSTOM_OFFSET + 3)), // Run filesystem scan
     };
 
     static QString flagsString(int reparseFlags);

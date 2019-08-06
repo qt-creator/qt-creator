@@ -91,25 +91,24 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
                                            BuildConfiguration::Unknown));
     connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
 
+    BuildSystem *bs = qobject_cast<CMakeBuildSystem *>(project()->buildSystem());
+
     // BuildDirManager:
-    connect(&m_buildDirManager, &BuildDirManager::requestReparse, this, [this](int options) {
+    connect(&m_buildDirManager, &BuildDirManager::requestReparse, this, [this, bs](int options) {
         if (isActive()) {
             qCDebug(cmakeBuildConfigurationLog)
                 << "Passing on reparse request with flags" << BuildDirManager::flagsString(options);
-            project()->requestReparse(options);
+            bs->requestParse(options);
         }
     });
     connect(&m_buildDirManager,
             &BuildDirManager::dataAvailable,
             this,
             &CMakeBuildConfiguration::handleParsingSucceeded);
-    connect(&m_buildDirManager, &BuildDirManager::errorOccured, this, [this](const QString &msg) {
-        setError(msg);
-        QString errorMessage;
-        setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration(errorMessage));
-        // ignore errorMessage here, we already got one.
-        project()->handleParsingError(this);
-    });
+    connect(&m_buildDirManager,
+            &BuildDirManager::errorOccured,
+            this,
+            &CMakeBuildConfiguration::handleParsingFailed);
     connect(&m_buildDirManager, &BuildDirManager::parsingStarted, this, [this]() {
         clearError(CMakeBuildConfiguration::ForceEnabledChanged::True);
     });
@@ -538,7 +537,18 @@ void CMakeBuildConfiguration::handleParsingSucceeded()
         target()->setDeploymentData(deploymentData());
     }
 
-    project()->handleParsingSuccess(this);
+    static_cast<CMakeBuildSystem *>(project()->buildSystem())->handleParsingSuccess(this);
+}
+
+void CMakeBuildConfiguration::handleParsingFailed(const QString &msg)
+{
+    setError(msg);
+
+    QString errorMessage;
+    setConfigurationFromCMake(m_buildDirManager.takeCMakeConfiguration(errorMessage));
+    // ignore errorMessage here, we already got one.
+
+    static_cast<CMakeBuildSystem *>(project()->buildSystem())->handleParsingError(this);
 }
 
 std::unique_ptr<CMakeProjectNode> CMakeBuildConfiguration::generateProjectTree(

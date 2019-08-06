@@ -67,27 +67,6 @@ using namespace Utils;
 
 namespace CMakeProjectManager {
 
-Q_LOGGING_CATEGORY(cmakeProjectLog, "qtc.cmake.project", QtWarningMsg);
-
-class TraceTimer
-{
-public:
-    TraceTimer(const QString &msg)
-        : m_message(msg)
-    {
-        m_timer.start();
-    }
-
-    ~TraceTimer()
-    {
-        qCInfo(cmakeProjectLog) << QString("%1 (%2ms)").arg(m_message).arg(m_timer.elapsed());
-    }
-
-private:
-    QElapsedTimer m_timer;
-    QString m_message;
-};
-
 using namespace Internal;
 
 static CMakeBuildConfiguration *activeBc(const CMakeProject *p)
@@ -105,200 +84,18 @@ static CMakeBuildConfiguration *activeBc(const CMakeProject *p)
 */
 CMakeProject::CMakeProject(const FilePath &fileName)
     : Project(Constants::CMAKEMIMETYPE, fileName)
-    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
+    m_buildsystem = std::make_unique<CMakeBuildSystem>(this);
+
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
     setKnowsAllBuildExecutables(false);
     setHasMakeInstallEquivalent(true);
-
-    // Timer:
-    m_delayedParsingTimer.setSingleShot(true);
-
-    connect(&m_delayedParsingTimer, &QTimer::timeout,
-            this, [this]() { startParsing(m_delayedParsingParameters); });
-
-    // TreeScanner:
-    connect(&m_treeScanner, &TreeScanner::finished, this, &CMakeProject::handleTreeScanningFinished);
-
-    m_treeScanner.setFilter([this](const Utils::MimeType &mimeType, const Utils::FilePath &fn) {
-        // Mime checks requires more resources, so keep it last in check list
-        auto isIgnored =
-                fn.toString().startsWith(projectFilePath().toString() + ".user") ||
-                TreeScanner::isWellKnownBinary(mimeType, fn);
-
-        // Cache mime check result for speed up
-        if (!isIgnored) {
-            auto it = m_mimeBinaryCache.find(mimeType.name());
-            if (it != m_mimeBinaryCache.end()) {
-                isIgnored = *it;
-            } else {
-                isIgnored = TreeScanner::isMimeBinary(mimeType, fn);
-                m_mimeBinaryCache[mimeType.name()] = isIgnored;
-            }
-        }
-
-        return isIgnored;
-    });
-
-    m_treeScanner.setTypeFactory([](const Utils::MimeType &mimeType, const Utils::FilePath &fn) {
-        auto type = TreeScanner::genericFileType(mimeType, fn);
-        if (type == FileType::Unknown) {
-            if (mimeType.isValid()) {
-                const QString mt = mimeType.name();
-                if (mt == CMakeProjectManager::Constants::CMAKEPROJECTMIMETYPE
-                    || mt == CMakeProjectManager::Constants::CMAKEMIMETYPE)
-                    type = FileType::Project;
-            }
-        }
-        return type;
-    });
 }
 
-CMakeProject::~CMakeProject()
-{
-    if (!m_treeScanner.isFinished()) {
-        auto future = m_treeScanner.future();
-        future.cancel();
-        future.waitForFinished();
-    }
-    delete m_cppCodeModelUpdater;
-    qDeleteAll(m_extraCompilers);
-    qDeleteAll(m_allFiles);
-}
-
-void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
-{
-    TraceTimer updateProjectTotalTimer(Q_FUNC_INFO);
-    qCDebug(cmakeProjectLog) << "Updating CMake project data";
-    const CMakeBuildConfiguration *aBc = activeBc(this);
-    QString errorMessage;
-
-    QTC_ASSERT(bc, return);
-    QTC_ASSERT(bc == aBc, return);
-    QTC_ASSERT(m_treeScanner.isFinished() && !bc->m_buildDirManager.isParsing(), return );
-
-    CMakeConfig patchedConfig = bc->configurationFromCMake();
-    {
-        CMakeConfigItem settingFileItem;
-        settingFileItem.key = "ANDROID_DEPLOYMENT_SETTINGS_FILE";
-        settingFileItem.value = bc->buildDirectory()
-                                    .pathAppended("android_deployment_settings.json")
-                                    .toString()
-                                    .toUtf8();
-        patchedConfig.append(settingFileItem);
-    }
-    {
-        TraceTimer appsTimer("    application data");
-        QSet<QString> res;
-        QStringList apps;
-        for (const auto &target : bc->buildTargets()) {
-            if (target.targetType == CMakeProjectManager::DynamicLibraryType) {
-                res.insert(target.executable.parentDir().toString());
-                apps.push_back(target.executable.toUserOutput());
-            }
-            // ### shall we add also the ExecutableType ?
-        }
-        {
-            CMakeConfigItem paths;
-            paths.key = "ANDROID_SO_LIBS_PATHS";
-            paths.values = Utils::toList(res);
-            patchedConfig.append(paths);
-        }
-
-        apps.sort();
-        {
-            CMakeConfigItem appsPaths;
-            appsPaths.key = "TARGETS_BUILD_PATH";
-            appsPaths.values = apps;
-            patchedConfig.append(appsPaths);
-        }
-    }
-
-    {
-        TraceTimer projectTreeTimer("    project tree");
-        auto newRoot = bc->generateProjectTree(m_allFiles);
-        if (newRoot) {
-            setRootProjectNode(std::move(newRoot));
-            if (rootProjectNode())
-                setDisplayName(rootProjectNode()->displayName());
-
-            for (const CMakeBuildTarget &bt : bc->buildTargets()) {
-                const QString buildKey = bt.title;
-                if (ProjectNode *node = findNodeForBuildKey(buildKey)) {
-                    if (auto targetNode = dynamic_cast<CMakeTargetNode *>(node))
-                        targetNode->setConfig(patchedConfig);
-                }
-            }
-        }
-    }
-
-    {
-        TraceTimer projectTreeTimer("    extra compilers");
-        qDeleteAll(m_extraCompilers);
-        m_extraCompilers = findExtraCompilers();
-        CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
-        qCDebug(cmakeProjectLog) << "Extra compilers updated.";
-    }
-
-    QtSupport::CppKitInfo kitInfo(this);
-    QTC_ASSERT(kitInfo.isValid(), return);
-
-    {
-        TraceTimer cxxCodemodelTimer("    cxx codemodel");
-        CppTools::RawProjectParts rpps = bc->m_buildDirManager.createRawProjectParts(errorMessage);
-        checkAndReportError(errorMessage);
-        qCDebug(cmakeProjectLog) << "Raw project parts created.";
-
-        for (CppTools::RawProjectPart &rpp : rpps) {
-            rpp.setQtVersion(
-                kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
-            if (kitInfo.cxxToolChain)
-                rpp.setFlagsForCxx({kitInfo.cxxToolChain, rpp.flagsForCxx.commandLineFlags});
-            if (kitInfo.cToolChain)
-                rpp.setFlagsForC({kitInfo.cToolChain, rpp.flagsForC.commandLineFlags});
-        }
-
-        m_cppCodeModelUpdater->update({this, kitInfo, activeBuildEnvironment(), rpps});
-    }
-    {
-        TraceTimer qmlCodemodelTimer("    qml codemodel");
-        updateQmlJSCodeModel(bc);
-    }
-
-    emit fileListChanged();
-
-    emit bc->emitBuildTypeChanged();
-
-    bc->m_buildDirManager.resetData(); // Clear remaining data
-
-    qCDebug(cmakeProjectLog) << "All CMake project data up to date.";
-}
-
-void CMakeProject::updateQmlJSCodeModel(CMakeBuildConfiguration *bc)
-{
-    QTC_ASSERT(bc, return );
-
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-
-    if (!modelManager)
-        return;
-
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo =
-            modelManager->defaultProjectInfoForProject(this);
-
-    projectInfo.importPaths.clear();
-
-    const CMakeConfig &cm = bc->configurationFromCMake();
-    const QString cmakeImports = QString::fromUtf8(CMakeConfigItem::valueOf("QML_IMPORT_PATH", cm));
-
-    foreach (const QString &cmakeImport, CMakeConfigItem::cmakeSplitValue(cmakeImports))
-        projectInfo.importPaths.maybeInsert(FilePath::fromString(cmakeImport), QmlJS::Dialect::Qml);
-
-    modelManager->updateProjectInfo(projectInfo, this);
-}
+CMakeProject::~CMakeProject() = default;
 
 Tasks CMakeProject::projectIssues(const Kit *k) const
 {
@@ -330,7 +127,6 @@ void CMakeProject::runCMakeAndScanProjectTree()
     CMakeBuildConfiguration *bc = activeBc(this);
     if (isParsing() || !bc)
         return;
-    QTC_ASSERT(m_treeScanner.isFinished(), return);
 
     BuildDirParameters parameters(bc);
     bc->m_buildDirManager.setParametersAndRequestParse(parameters,
@@ -366,33 +162,6 @@ void CMakeProject::clearCMakeCache()
         bc->m_buildDirManager.clearCache();
 }
 
-void CMakeProject::startParsing(int reparseParameters)
-{
-    m_delayedParsingParameters = BuildDirManager::REPARSE_DEFAULT;
-
-    if (reparseParameters & BuildDirManager::REPARSE_IGNORE)
-        return;
-
-    CMakeBuildConfiguration *bc = activeBc(this);
-    QTC_ASSERT(bc, return );
-
-    m_parseGuard = std::move(guardParsingRun());
-
-    m_waitingForScan = reparseParameters & BuildDirManager::REPARSE_SCAN;
-    m_waitingForParse = true;
-    m_combinedScanAndParseResult = true;
-
-    if (m_waitingForScan) {
-        QTC_CHECK(m_treeScanner.isFinished());
-        m_treeScanner.asyncScanForFiles(projectDirectory());
-        Core::ProgressManager::addTask(m_treeScanner.future(),
-                                       tr("Scan \"%1\" project tree").arg(displayName()),
-                                       "CMake.Scan.Tree");
-    }
-
-    bc->m_buildDirManager.parse(reparseParameters);
-}
-
 bool CMakeProject::setupTarget(Target *t)
 {
     t->updateDefaultBuildConfigurations();
@@ -400,80 +169,6 @@ bool CMakeProject::setupTarget(Target *t)
         return false;
     t->updateDefaultDeployConfigurations();
     return true;
-}
-
-void CMakeProject::reportError(const QString &errorMessage) const
-{
-    CMakeBuildConfiguration *bc = activeBc(this);
-    if (bc)
-        bc->setError(errorMessage);
-}
-
-void CMakeProject::requestReparse(int reparseParameters)
-{
-    if (reparseParameters & BuildDirManager::REPARSE_IGNORE)
-        return;
-
-    m_delayedParsingTimer.setInterval((reparseParameters & BuildDirManager::REPARSE_URGENT) ? 0
-                                                                                            : 1000);
-    m_delayedParsingTimer.start();
-    m_delayedParsingParameters = m_delayedParsingParameters | reparseParameters;
-    if (m_allFiles.isEmpty())
-        m_delayedParsingParameters |= BuildDirManager::REPARSE_SCAN;
-}
-
-void CMakeProject::handleTreeScanningFinished()
-{
-    QTC_CHECK(m_waitingForScan);
-
-    qDeleteAll(m_allFiles);
-    m_allFiles = Utils::transform(m_treeScanner.release(), [](const FileNode *fn) { return fn; });
-
-    CMakeBuildConfiguration *bc = activeBc(this);
-    QTC_ASSERT(bc, return);
-
-    m_combinedScanAndParseResult = m_combinedScanAndParseResult && true;
-    m_waitingForScan = false;
-
-    combineScanAndParse(bc);
-}
-
-void CMakeProject::handleParsingSuccess(CMakeBuildConfiguration *bc)
-{
-    QTC_ASSERT(m_waitingForParse, return);
-
-    m_waitingForParse = false;
-    m_combinedScanAndParseResult = m_combinedScanAndParseResult && true;
-
-    combineScanAndParse(bc);
-}
-
-void CMakeProject::handleParsingError(CMakeBuildConfiguration *bc)
-{
-    QTC_CHECK(m_waitingForParse);
-
-    m_waitingForParse = false;
-    m_combinedScanAndParseResult = false;
-
-    combineScanAndParse(bc);
-}
-
-void CMakeProject::combineScanAndParse(CMakeBuildConfiguration *bc)
-{
-    QTC_ASSERT(bc && bc->isActive(), return);
-
-    if (m_waitingForParse || m_waitingForScan)
-        return;
-
-    if (m_combinedScanAndParseResult) {
-        m_parseGuard.markAsSuccess();
-        updateProjectData(bc);
-    }
-
-    {
-        TraceTimer parsingDoneTimer("    parsing finished signal");
-        m_parseGuard = {};
-    }
 }
 
 QStringList CMakeProject::filesGeneratedFrom(const QString &sourceFile) const
@@ -538,69 +233,9 @@ MakeInstallCommand CMakeProject::makeInstallCommand(const Target *target,
     return cmd;
 }
 
-bool CMakeProject::mustUpdateCMakeStateBeforeBuild()
+bool CMakeProject::mustUpdateCMakeStateBeforeBuild() const
 {
-    return m_delayedParsingTimer.isActive();
-}
-
-void CMakeProject::checkAndReportError(QString &errorMessage) const
-{
-    if (!errorMessage.isEmpty()) {
-        reportError(errorMessage);
-        errorMessage.clear();
-    }
-}
-
-QList<ProjectExplorer::ExtraCompiler *> CMakeProject::findExtraCompilers() const
-{
-    qCDebug(cmakeProjectLog) << "Finding Extra Compilers: start.";
-
-    QList<ProjectExplorer::ExtraCompiler *> extraCompilers;
-    const QList<ExtraCompilerFactory *> factories = ExtraCompilerFactory::extraCompilerFactories();
-
-    qCDebug(cmakeProjectLog) << "Finding Extra Compilers: Got factories.";
-
-    const QSet<QString> fileExtensions = Utils::transform<QSet>(factories,
-                                                                &ExtraCompilerFactory::sourceTag);
-
-    qCDebug(cmakeProjectLog) << "Finding Extra Compilers: Got file extensions:" << fileExtensions;
-
-    // Find all files generated by any of the extra compilers, in a rather crude way.
-    const FilePathList fileList = files([&fileExtensions](const Node *n) {
-        if (!SourceFiles(n))
-            return false;
-        const QString fp = n->filePath().toString();
-        const int pos = fp.lastIndexOf('.');
-        return pos >= 0 && fileExtensions.contains(fp.mid(pos + 1));
-    });
-
-    qCDebug(cmakeProjectLog) << "Finding Extra Compilers: Got list of files to check.";
-
-    // Generate the necessary information:
-    for (const FilePath &file : fileList) {
-        qCDebug(cmakeProjectLog) << "Finding Extra Compilers: Processing" << file.toUserOutput();
-        ExtraCompilerFactory *factory = Utils::findOrDefault(factories,
-                                                             [&file](const ExtraCompilerFactory *f) {
-                                                                 return file.endsWith(
-                                                                     '.' + f->sourceTag());
-                                                             });
-        QTC_ASSERT(factory, continue);
-
-        QStringList generated = filesGeneratedFrom(file.toString());
-        qCDebug(cmakeProjectLog) << "Finding Extra Compilers:     generated files:" << generated;
-        if (generated.isEmpty())
-            continue;
-
-        const FilePathList fileNames
-                = transform(generated,
-                            [](const QString &s) { return FilePath::fromString(s); });
-        extraCompilers.append(factory->create(this, file, fileNames));
-        qCDebug(cmakeProjectLog) << "Finding Extra Compilers:     done with" << file.toUserOutput();
-    }
-
-    qCDebug(cmakeProjectLog) << "Finding Extra Compilers: done.";
-
-    return extraCompilers;
+    return buildSystem()->isWaitingForParse();
 }
 
 } // namespace CMakeProjectManager

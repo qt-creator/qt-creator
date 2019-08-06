@@ -10,6 +10,7 @@ add_qtc_plugin(CMakeProjectManager
     cmakeautocompleter.cpp cmakeautocompleter.h
     cmakebuildconfiguration.cpp cmakebuildconfiguration.h
     cmakebuildsettingswidget.cpp cmakebuildsettingswidget.h
+    cmakebuildsystem.cpp cmakebuildsystem.h
     cmakebuildstep.cpp cmakebuildstep.h
     cmakebuildtarget.h
     cmakecbpparser.cpp cmakecbpparser.h

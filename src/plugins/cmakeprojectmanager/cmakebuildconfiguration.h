@@ -36,6 +36,7 @@
 #include <projectexplorer/deploymentdata.h>
 
 namespace CMakeProjectManager {
+class CMakeBuildSystem;
 class CMakeExtraBuildInfo;
 class CMakeProject;
 
@@ -106,6 +107,7 @@ private:
     void setWarning(const QString &message);
 
     void handleParsingSucceeded();
+    void handleParsingFailed(const QString &msg);
 
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
         const QList<const ProjectExplorer::FileNode *> &allFiles);
@@ -123,6 +125,7 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
 
     friend class CMakeBuildSettingsWidget;
+    friend class CMakeProjectManager::CMakeBuildSystem;
     friend class CMakeProjectManager::CMakeProject;
     friend class BuildDirManager;
 };

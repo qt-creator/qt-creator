@@ -5,6 +5,7 @@ HEADERS = builddirmanager.h \
     builddirparameters.h \
     builddirreader.h \
     cmakebuildstep.h \
+    cmakebuildsystem.h \
     cmakebuildtarget.h \
     cmakeconfigitem.h \
     cmakeprocess.h \
@@ -45,6 +46,7 @@ SOURCES = builddirmanager.cpp \
     builddirparameters.cpp \
     builddirreader.cpp \
     cmakebuildstep.cpp \
+    cmakebuildsystem.cpp \
     cmakeconfigitem.cpp \
     cmakeprocess.cpp \
     cmakeproject.cpp \

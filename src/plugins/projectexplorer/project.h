@@ -249,6 +249,9 @@ public:
         friend class Project;
     };
 
+    // FIXME: Make this private and the BuildSystem a friend
+    ParseGuard guardParsingRun() { return ParseGuard(this); }
+
 signals:
     void displayNameChanged();
     void fileListChanged();
@@ -280,8 +283,6 @@ signals:
     void rootProjectDirectoryChanged();
 
 protected:
-    ParseGuard guardParsingRun() { return ParseGuard(this); }
-
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     void createTargetFromMap(const QVariantMap &map, int index);
     virtual bool setupTarget(Target *t);
@@ -323,6 +324,7 @@ private:
 
     void handleSubTreeChanged(FolderNode *node);
     void setActiveTarget(Target *target);
+
     ProjectPrivate *d;
 
     friend class ContainerNode;
