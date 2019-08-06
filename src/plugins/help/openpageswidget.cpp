@@ -29,6 +29,7 @@
 #include "openpagesmodel.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/stringutils.h>
 
 #include <QAbstractItemModel>
 #include <QApplication>
@@ -86,10 +87,9 @@ void OpenPagesWidget::contextMenuRequested(QPoint pos)
     if (index.column() == 1)
         index = index.sibling(index.row(), 0);
     QMenu contextMenu;
-    QAction *closeEditor = contextMenu.addAction(tr("Close %1").arg(index.data()
-        .toString()));
-    QAction *closeOtherEditors = contextMenu.addAction(tr("Close All Except %1")
-        .arg(index.data().toString()));
+    const QString displayString = Utils::quoteAmpersands(index.data().toString());
+    QAction *closeEditor = contextMenu.addAction(tr("Close %1").arg(displayString));
+    QAction *closeOtherEditors = contextMenu.addAction(tr("Close All Except %1").arg(displayString));
 
     if (model()->rowCount() == 1) {
         closeEditor->setEnabled(false);
