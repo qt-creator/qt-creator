@@ -87,12 +87,9 @@ public:
     void requestReparse(int reparseParameters);
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
     bool setupTarget(ProjectExplorer::Target *t) final;
 
 private:
-    void handleReparseRequest(int reparseParameters);
-
     void startParsing(int reparseParameters);
 
     void handleTreeScanningFinished();

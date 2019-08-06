@@ -369,11 +369,6 @@ void CMakeProject::clearCMakeCache()
         bc->m_buildDirManager.clearCache();
 }
 
-void CMakeProject::handleReparseRequest(int reparseParameters)
-{
-    requestReparse(reparseParameters);
-}
-
 void CMakeProject::startParsing(int reparseParameters)
 {
     m_delayedParsingParameters = BuildDirManager::REPARSE_DEFAULT;
@@ -406,14 +401,6 @@ QStringList CMakeProject::buildTargetTitles() const
 {
     CMakeBuildConfiguration *bc = activeBc(this);
     return bc ? bc->buildTargetTitles() : QStringList();
-}
-
-Project::RestoreResult CMakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
-{
-    RestoreResult result = Project::fromMap(map, errorMessage);
-    if (result != RestoreResult::Ok)
-        return result;
-    return RestoreResult::Ok;
 }
 
 bool CMakeProject::setupTarget(Target *t)
