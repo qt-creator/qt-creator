@@ -557,12 +557,20 @@ void Project::saveSettings()
 
 Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 {
+    BuildConfiguration *oldBc = activeTarget() ? activeTarget()->activeBuildConfiguration()
+                                               : nullptr;
+
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
     QVariantMap map(d->m_accessor->restoreSettings(Core::ICore::mainWindow()));
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();
+
+    BuildConfiguration *bc = activeTarget() ? activeTarget()->activeBuildConfiguration() : nullptr;
+    if (bc != oldBc)
+        emit activeBuildConfigurationChanged(bc);
+
     return result;
 }
 
