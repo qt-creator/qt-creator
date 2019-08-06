@@ -450,17 +450,18 @@ void CompilationDatabaseProject::reparseProject()
     if (m_parser) {
         QTC_CHECK(isParsing());
         m_parser->stop();
-        emitParsingFinished(false);
     }
-    m_parser = new CompilationDbParser(displayName(), projectFilePath(), rootPathFromSettings(),
-                                       m_mimeBinaryCache, this);
+    m_parser = new CompilationDbParser(displayName(),
+                                       projectFilePath(),
+                                       rootPathFromSettings(),
+                                       m_mimeBinaryCache,
+                                       guardParsingRun(),
+                                       this);
     connect(m_parser, &CompilationDbParser::finished, this, [this](bool success) {
         if (success)
             buildTreeAndProjectParts();
         m_parser = nullptr;
-        emitParsingFinished(success);
     });
-    emitParsingStarted();
     m_parser->start();
 }
 

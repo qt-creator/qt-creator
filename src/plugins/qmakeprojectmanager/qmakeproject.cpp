@@ -438,15 +438,15 @@ void QmakeProject::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
     m_asyncUpdateTimer.stop();
     m_asyncUpdateTimer.setInterval(qMin(m_asyncUpdateTimer.interval(),
                                         delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0));
-    if (!isParsing())
-        emitParsingStarted();
+
     m_asyncUpdateTimer.start();
 }
 
 void QmakeProject::incrementPendingEvaluateFutures()
 {
+    if (m_pendingEvaluateFuturesCount == 0)
+        m_guard = guardParsingRun();
     ++m_pendingEvaluateFuturesCount;
-    QTC_ASSERT(isParsing(), emitParsingStarted());
     m_asyncUpdateFutureInterface->setProgressRange(m_asyncUpdateFutureInterface->progressMinimum(),
                                                    m_asyncUpdateFutureInterface->progressMaximum() + 1);
 }
@@ -486,7 +486,8 @@ void QmakeProject::decrementPendingEvaluateFutures()
             updateBuildSystemData();
             if (activeTarget())
                 activeTarget()->updateDefaultDeployConfigurations();
-            emitParsingFinished(true); // Qmake always returns (some) data, even when it failed:-)
+            m_guard.markAsSuccess(); // Qmake always returns (some) data, even when it failed:-)
+            m_guard = {};
         }
     }
 }

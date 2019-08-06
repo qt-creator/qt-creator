@@ -121,6 +121,8 @@ private:
     QTimer m_delayedParsingTimer;
     int m_delayedParsingParameters = 0;
 
+    ParseGuard m_parseGuard;
+
     friend class Internal::CMakeBuildConfiguration;
     friend class Internal::CMakeBuildSettingsWidget;
 };

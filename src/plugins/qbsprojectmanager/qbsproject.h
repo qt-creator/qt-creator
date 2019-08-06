@@ -167,6 +167,8 @@ private:
     bool m_extraCompilersPending = false;
 
     QHash<QString, Utils::Environment> m_envCache;
+
+    ParseGuard m_guard;
 };
 
 } // namespace Internal

@@ -204,6 +204,51 @@ public:
     bool needsInitialExpansion() const;
     void setNeedsInitialExpansion(bool needsInitialExpansion);
 
+    class ParseGuard
+    {
+    public:
+        ParseGuard()
+            : ParseGuard(nullptr)
+        {}
+
+        ~ParseGuard()
+        {
+            if (m_project)
+                m_project->emitParsingFinished(m_success);
+        }
+
+        void markAsSuccess() const { m_success = true; }
+        bool isSuccess() const { return m_success; }
+        bool isNull() const { return !m_project; }
+
+        ParseGuard(const ParseGuard &other) = delete;
+        ParseGuard &operator=(const ParseGuard &other) = delete;
+        ParseGuard(ParseGuard &&other)
+        {
+            std::swap(m_project, other.m_project);
+            std::swap(m_success, other.m_success);
+        }
+        ParseGuard &operator=(ParseGuard &&other)
+        {
+            std::swap(m_project, other.m_project);
+            std::swap(m_success, other.m_success);
+            return *this;
+        }
+
+    private:
+        ParseGuard(Project *p)
+            : m_project(p)
+        {
+            if (m_project)
+                m_project->emitParsingStarted();
+        }
+
+        Project *m_project = nullptr;
+        mutable bool m_success = false;
+
+        friend class Project;
+    };
+
 signals:
     void displayNameChanged();
     void fileListChanged();
@@ -235,15 +280,11 @@ signals:
     void rootProjectDirectoryChanged();
 
 protected:
+    ParseGuard guardParsingRun() { return ParseGuard(this); }
+
     virtual RestoreResult fromMap(const QVariantMap &map, QString *errorMessage);
     void createTargetFromMap(const QVariantMap &map, int index);
     virtual bool setupTarget(Target *t);
-
-    // Helper methods to manage parsing state and signalling
-    // Call in GUI thread before the actual parsing starts
-    void emitParsingStarted();
-    // Call in GUI thread right after the actual parsing is done
-    void emitParsingFinished(bool success);
 
     void setDisplayName(const QString &name);
     // Used to pre-check kits in the TargetSetupPage. RequiredKitPredicate
@@ -270,6 +311,12 @@ protected:
     Utils::Environment activeBuildEnvironment() const;
 
 private:
+    // Helper methods to manage parsing state and signalling
+    // Call in GUI thread before the actual parsing starts
+    void emitParsingStarted();
+    // Call in GUI thread right after the actual parsing is done
+    void emitParsingFinished(bool success);
+
     void addTarget(std::unique_ptr<Target> &&target);
 
     void handleSubTreeChanged(FolderNode *node);

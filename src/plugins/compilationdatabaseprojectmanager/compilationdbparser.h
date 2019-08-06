@@ -27,6 +27,8 @@
 
 #include "compilationdatabaseutils.h"
 
+#include <projectexplorer/project.h>
+
 #include <utils/fileutils.h>
 
 #include <QFutureWatcher>
@@ -48,15 +50,22 @@ class CompilationDbParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit CompilationDbParser(const QString &projectName, const Utils::FilePath &projectPath,
-                                 const Utils::FilePath &rootPath, MimeBinaryCache &mimeBinaryCache,
+    explicit CompilationDbParser(const QString &projectName,
+                                 const Utils::FilePath &projectPath,
+                                 const Utils::FilePath &rootPath,
+                                 MimeBinaryCache &mimeBinaryCache,
+                                 ProjectExplorer::Project::ParseGuard &&guard,
                                  QObject *parent = nullptr);
 
     void start();
     void stop();
 
     QList<ProjectExplorer::FileNode *> scannedFiles() const;
-    DbContents dbContents() const { return m_dbContents; }
+    DbContents dbContents() const
+    {
+        m_guard.markAsSuccess();
+        return m_dbContents;
+    }
 
 signals:
     void finished(bool success);
@@ -72,6 +81,8 @@ private:
     ProjectExplorer::TreeScanner *m_treeScanner = nullptr;
     QFutureWatcher<DbContents> m_parserWatcher;
     DbContents m_dbContents;
+
+    ProjectExplorer::Project::ParseGuard m_guard;
 };
 
 } // namespace Internal

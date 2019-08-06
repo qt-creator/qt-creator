@@ -135,7 +135,7 @@ void NimProject::collectProjectFiles()
 
 void NimProject::updateProject()
 {
-    emitParsingStarted();
+    ParseGuard guard = guardParsingRun();
 
     auto newRoot = std::make_unique<NimProjectNode>(*this, projectDirectory());
 
@@ -147,7 +147,7 @@ void NimProject::updateProject()
     newRoot->setDisplayName(displayName());
     setRootProjectNode(std::move(newRoot));
 
-    emitParsingFinished(true);
+    guard.markAsSuccess();
 }
 
 Tasks NimProject::projectIssues(const Kit *k) const

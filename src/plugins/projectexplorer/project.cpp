@@ -1014,15 +1014,6 @@ public:
         setDisplayName(TEST_PROJECT_DISPLAYNAME);
     }
 
-    void testStartParsing()
-    {
-        emitParsingStarted();
-    }
-
-    void testParsingFinished(bool success) {
-        emitParsingFinished(success);
-    }
-
     bool needsConfiguration() const final { return false; }
 };
 
@@ -1081,14 +1072,17 @@ void ProjectExplorerPlugin::testProject_parsingSuccess()
     QSignalSpy startSpy(&project, &Project::parsingStarted);
     QSignalSpy stopSpy(&project, &Project::parsingFinished);
 
-    project.testStartParsing();
-    QCOMPARE(startSpy.count(), 1);
-    QCOMPARE(stopSpy.count(), 0);
+    {
+        Project::ParseGuard guard = project.guardParsingRun();
+        QCOMPARE(startSpy.count(), 1);
+        QCOMPARE(stopSpy.count(), 0);
 
-    QVERIFY(project.isParsing());
-    QVERIFY(!project.hasParsingData());
+        QVERIFY(project.isParsing());
+        QVERIFY(!project.hasParsingData());
 
-    project.testParsingFinished(true);
+        guard.markAsSuccess();
+    }
+
     QCOMPARE(startSpy.count(), 1);
     QCOMPARE(stopSpy.count(), 1);
     QCOMPARE(stopSpy.at(0), {QVariant(true)});
@@ -1104,14 +1098,15 @@ void ProjectExplorerPlugin::testProject_parsingFail()
     QSignalSpy startSpy(&project, &Project::parsingStarted);
     QSignalSpy stopSpy(&project, &Project::parsingFinished);
 
-    project.testStartParsing();
-    QCOMPARE(startSpy.count(), 1);
-    QCOMPARE(stopSpy.count(), 0);
+    {
+        Project::ParseGuard guard = project.guardParsingRun();
+        QCOMPARE(startSpy.count(), 1);
+        QCOMPARE(stopSpy.count(), 0);
 
-    QVERIFY(project.isParsing());
-    QVERIFY(!project.hasParsingData());
+        QVERIFY(project.isParsing());
+        QVERIFY(!project.hasParsingData());
+    }
 
-    project.testParsingFinished(false);
     QCOMPARE(startSpy.count(), 1);
     QCOMPARE(stopSpy.count(), 1);
     QCOMPARE(stopSpy.at(0), {QVariant(false)});

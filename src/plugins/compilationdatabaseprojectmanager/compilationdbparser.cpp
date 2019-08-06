@@ -43,14 +43,18 @@ using namespace Utils;
 namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
-CompilationDbParser::CompilationDbParser(const QString &projectName, const FilePath &projectPath,
-                                         const FilePath &rootPath, MimeBinaryCache &mimeBinaryCache,
+CompilationDbParser::CompilationDbParser(const QString &projectName,
+                                         const FilePath &projectPath,
+                                         const FilePath &rootPath,
+                                         MimeBinaryCache &mimeBinaryCache,
+                                         ProjectExplorer::Project::ParseGuard &&guard,
                                          QObject *parent)
-    : QObject(parent),
-      m_projectName(projectName),
-      m_projectFilePath(projectPath),
-      m_rootPath(rootPath),
-      m_mimeBinaryCache(mimeBinaryCache)
+    : QObject(parent)
+    , m_projectName(projectName)
+    , m_projectFilePath(projectPath)
+    , m_rootPath(rootPath)
+    , m_mimeBinaryCache(mimeBinaryCache)
+    , m_guard(std::move(guard))
 {
     connect(&m_parserWatcher, &QFutureWatcher<void>::finished, this, [this] {
         m_dbContents = m_parserWatcher.result();
@@ -112,6 +116,7 @@ void CompilationDbParser::stop()
         m_treeScanner->disconnect();
         m_treeScanner->future().cancel();
     }
+    m_guard = {};
     deleteLater();
 }
 

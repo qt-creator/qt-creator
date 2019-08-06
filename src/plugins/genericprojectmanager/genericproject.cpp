@@ -409,7 +409,7 @@ FilePath GenericProject::findCommonSourceRoot()
 
 void GenericProject::refresh(RefreshOptions options)
 {
-    emitParsingStarted();
+    ParseGuard guard = guardParsingRun();
     parseProject(options);
 
     if (options & Files) {
@@ -442,7 +442,7 @@ void GenericProject::refresh(RefreshOptions options)
 
     refreshCppCodeModel();
     updateDeploymentData();
-    emitParsingFinished(true);
+    guard.markAsSuccess();
 }
 
 /**

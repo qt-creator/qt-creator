@@ -179,6 +179,8 @@ private:
 
     ProjectExplorer::Target *m_activeTarget = nullptr;
     mutable ProjectExplorer::ProjectImporter *m_projectImporter = nullptr;
+
+    ParseGuard m_guard;
 };
 
 } // namespace QmakeProjectManager

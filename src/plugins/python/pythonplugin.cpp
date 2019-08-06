@@ -634,7 +634,7 @@ private:
 
 void PythonProject::refresh(Target *target)
 {
-    emitParsingStarted();
+    ParseGuard guard = guardParsingRun();
     parseProject();
 
     const QDir baseDir(projectDirectory().toString());
@@ -661,7 +661,7 @@ void PythonProject::refresh(Target *target)
     if (target)
         target->setApplicationTargets(appTargets);
 
-    emitParsingFinished(true);
+    guard.markAsSuccess();
 }
 
 /**

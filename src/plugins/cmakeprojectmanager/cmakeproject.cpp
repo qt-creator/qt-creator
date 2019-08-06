@@ -371,7 +371,7 @@ void CMakeProject::startParsing(int reparseParameters)
     CMakeBuildConfiguration *bc = activeBc(this);
     QTC_ASSERT(bc, return );
 
-    emitParsingStarted();
+    m_parseGuard = std::move(guardParsingRun());
 
     m_waitingForScan = reparseParameters & BuildDirManager::REPARSE_SCAN;
     m_waitingForParse = true;
@@ -466,12 +466,14 @@ void CMakeProject::combineScanAndParse(CMakeBuildConfiguration *bc)
     if (m_waitingForParse || m_waitingForScan)
         return;
 
-    if (m_combinedScanAndParseResult)
+    if (m_combinedScanAndParseResult) {
+        m_parseGuard.markAsSuccess();
         updateProjectData(bc);
+    }
 
     {
         TraceTimer parsingDoneTimer("    parsing finished signal");
-        emitParsingFinished(m_combinedScanAndParseResult);
+        m_parseGuard = {};
     }
 }
 

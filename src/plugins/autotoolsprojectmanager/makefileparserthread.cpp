@@ -31,7 +31,10 @@
 
 using namespace AutotoolsProjectManager::Internal;
 
-MakefileParserThread::MakefileParserThread(const QString &makefile) : m_parser(makefile)
+MakefileParserThread::MakefileParserThread(const QString &makefile,
+                                           ProjectExplorer::Project::ParseGuard &&guard)
+    : m_parser(makefile)
+    , m_guard(std::move(guard))
 {
     connect(&m_parser, &MakefileParser::status,
             this, &MakefileParserThread::status);
@@ -82,7 +85,7 @@ QStringList MakefileParserThread::cxxflags() const
 bool MakefileParserThread::hasError() const
 {
     QMutexLocker locker(&m_mutex);
-    return m_hasError;
+    return !m_guard.isSuccess();
 }
 
 bool MakefileParserThread::isCanceled() const
@@ -104,7 +107,8 @@ void MakefileParserThread::run()
     // this prevents long locks if the caller reads a value before the signal
     // finished() has been emitted.
     QMutexLocker locker(&m_mutex);
-    m_hasError = !success;
+    if (success)
+        m_guard.markAsSuccess();
     m_executable = m_parser.executable();
     m_sources = m_parser.sources();
     m_makefiles = m_parser.makefiles();

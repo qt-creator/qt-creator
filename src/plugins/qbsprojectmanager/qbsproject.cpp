@@ -463,7 +463,7 @@ bool QbsProject::checkCancelStatus()
     qCDebug(qbsPmLog) << "Cancel request while parsing, starting re-parse";
     m_qbsProjectParser->deleteLater();
     m_qbsProjectParser = nullptr;
-    emitParsingFinished(false);
+    m_guard = {};
     parseCurrentBuildConfiguration();
     return true;
 }
@@ -551,7 +551,8 @@ void QbsProject::handleQbsParsingDone(bool success)
         updateAfterParse();
     else if (envChanged)
         updateCppCodeModel();
-    emitParsingFinished(success);
+    m_guard.markAsSuccess();
+    m_guard = {};
 }
 
 void QbsProject::rebuildProjectTree()
@@ -729,6 +730,8 @@ void QbsProject::configureAsExampleProject()
 void QbsProject::parse(const QVariantMap &config, const Environment &env, const QString &dir,
                        const QString &configName)
 {
+    m_guard = guardParsingRun();
+
     prepareForParsing();
     QTC_ASSERT(!m_qbsProjectParser, return);
 
@@ -736,7 +739,6 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
 
     QbsManager::updateProfileIfNecessary(activeTarget()->kit());
     m_qbsProjectParser->parse(config, env, dir, configName);
-    emitParsingStarted();
 }
 
 void QbsProject::prepareForParsing()
