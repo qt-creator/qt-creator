@@ -25,6 +25,8 @@
 
 #include "proxyaction.h"
 
+#include "stringutils.h"
+
 using namespace Utils;
 
 ProxyAction::ProxyAction(QObject *parent) :
@@ -167,10 +169,9 @@ void ProxyAction::updateToolTipWithKeySequence()
 
 QString ProxyAction::stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut)
 {
-    QString s = str;
-    s.replace(QLatin1String("&&"), QLatin1String("&"));
-    return QString::fromLatin1("%1 <span style=\"color: gray; font-size: small\">%2</span>").
-            arg(s, shortcut.toString(QKeySequence::NativeText));
+    const QString s = stripAccelerator(str);
+    return QString::fromLatin1("%1 <span style=\"color: gray; font-size: small\">%2</span>")
+        .arg(s, shortcut.toString(QKeySequence::NativeText));
 }
 
 ProxyAction *ProxyAction::proxyActionWithIcon(QAction *original, const QIcon &newIcon)

@@ -56,6 +56,7 @@
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QApplication>
@@ -1591,8 +1592,7 @@ static QString removeWatchActionText(QString exp)
         exp.truncate(30);
         exp.append("...");
     }
-    return WatchModel::tr("Remove Expression Evaluator for \"%1\"")
-            .arg(exp.replace('&', "&&"));
+    return WatchModel::tr("Remove Expression Evaluator for \"%1\"").arg(Utils::quoteAmpersands(exp));
 }
 
 static void copyToClipboard(const QString &clipboardText)
