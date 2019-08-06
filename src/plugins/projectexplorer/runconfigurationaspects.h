@@ -29,6 +29,8 @@
 #include "applicationlauncher.h"
 #include "environmentaspect.h"
 
+#include <QPointer>
+
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QPlainTextEdit;

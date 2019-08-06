@@ -30,6 +30,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
+#include <utils/theme/theme.h>
 #include <utils/winutils.h>
 
 #include <coreplugin/coreconstants.h>

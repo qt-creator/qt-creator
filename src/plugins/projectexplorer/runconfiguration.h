@@ -33,13 +33,7 @@
 
 #include <utils/environment.h>
 #include <utils/port.h>
-#include <utils/processhandle.h>
-#include <utils/qtcassert.h>
-#include <utils/icon.h>
 
-#include <QHash>
-#include <QPointer>
-#include <QVariant>
 #include <QWidget>
 
 #include <functional>
@@ -54,15 +48,7 @@ class Runnable;
 class RunConfigurationFactory;
 class RunConfiguration;
 class RunConfigurationCreationInfo;
-class RunControl;
-class RunWorkerFactory;
 class Target;
-
-namespace Internal {
-class RunControlPrivate;
-class RunWorkerPrivate;
-class SimpleRunControlPrivate;
-} // Internal
 
 /**
  * An interface for a hunk of global or per-project

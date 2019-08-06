@@ -37,6 +37,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/icon.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
