@@ -37,8 +37,6 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtoutputformatter.h>
-
 #include <utils/hostosinfo.h>
 
 using namespace ProjectExplorer;
@@ -69,8 +67,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Core::I
     addAspect<RemoteLinuxEnvironmentAspect>(target);
     if (HostOsInfo::isAnyUnixHost())
         addAspect<X11ForwardingAspect>();
-
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     connect(target, &Target::deploymentDataChanged,
             this, &RemoteLinuxRunConfiguration::updateTargetInformation);

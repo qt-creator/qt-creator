@@ -326,11 +326,7 @@ void RunControl::setRunConfiguration(RunConfiguration *runConfig)
     d->runConfiguration = runConfig;
     d->runConfigId = runConfig->id();
     d->runnable = runConfig->runnable();
-    d->displayName  = runConfig->displayName();
-    if (auto outputFormatter = runConfig->createOutputFormatter()) {
-        delete d->outputFormatter;
-        d->outputFormatter = outputFormatter;
-    }
+    d->displayName = runConfig->displayName();
     d->macroExpander = runConfig->macroExpander();
     setTarget(runConfig->target());
 }
@@ -340,6 +336,12 @@ void RunControl::setTarget(Target *target)
     QTC_ASSERT(target, return);
     QTC_CHECK(!d->target);
     d->target = target;
+
+    delete d->outputFormatter;
+    d->outputFormatter = OutputFormatterFactory::createFormatter(target);
+    if (!d->outputFormatter)
+        d->outputFormatter = new OutputFormatter();
+
     setKit(target->kit());
     d->project = target->project();
 }
@@ -1555,6 +1557,39 @@ void Runnable::setCommandLine(const CommandLine &cmdLine)
 {
     executable = cmdLine.executable();
     commandLineArguments = cmdLine.arguments();
+}
+
+// OutputFormatterFactory
+
+static QList<OutputFormatterFactory *> g_outputFormatterFactories;
+
+OutputFormatterFactory::OutputFormatterFactory()
+{
+    // This is a bit cheating: We know that only two formatters exist right now,
+    // and this here gives the second (python) implicit more priority.
+    // For a final solution, probably all matching formatters should be used
+    // in parallel, so there's no need to invent a fancy priority system here.
+    g_outputFormatterFactories.prepend(this);
+}
+
+OutputFormatterFactory::~OutputFormatterFactory()
+{
+    g_outputFormatterFactories.removeOne(this);
+}
+
+OutputFormatter *OutputFormatterFactory::createFormatter(Target *target)
+{
+    for (auto factory : qAsConst(g_outputFormatterFactories)) {
+        if (auto formatter = factory->m_creator(target))
+            return formatter;
+    }
+    return nullptr;
+}
+
+void OutputFormatterFactory::setFormatterCreator
+    (const std::function<OutputFormatter *(Target *)> &creator)
+{
+    m_creator = creator;
 }
 
 } // namespace ProjectExplorer

@@ -31,6 +31,7 @@
 #include "gettingstartedwelcomepage.h"
 #include "qtkitinformation.h"
 #include "qtoptionspage.h"
+#include "qtoutputformatter.h"
 #include "qtsupportconstants.h"
 #include "qtversionfactory.h"
 #include "qtversionmanager.h"
@@ -85,6 +86,8 @@ public:
     ExamplesWelcomePage tutorialPage{false};
 
     QtKitAspect qtKiAspect;
+
+    QtOutputFormatterFactory qtOutputFormatterFactory;
 };
 
 QtSupportPlugin::~QtSupportPlugin()

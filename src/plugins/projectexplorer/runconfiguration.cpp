@@ -406,14 +406,6 @@ Runnable RunConfiguration::runnable() const
     return r;
 }
 
-OutputFormatter *RunConfiguration::createOutputFormatter() const
-{
-    if (m_outputFormatterCreator)
-        return m_outputFormatterCreator(project());
-    return new OutputFormatter();
-}
-
-
 /*!
     \class ProjectExplorer::IRunConfigurationFactory
 

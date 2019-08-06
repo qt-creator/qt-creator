@@ -33,8 +33,6 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtoutputformatter.h>
-
 #include <utils/hostosinfo.h>
 
 using namespace ProjectExplorer;
@@ -68,7 +66,6 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
         addAspect<X11ForwardingAspect>();
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
 }
 
 bool RemoteLinuxCustomRunConfiguration::isConfigured() const

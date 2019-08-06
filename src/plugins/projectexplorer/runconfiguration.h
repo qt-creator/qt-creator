@@ -180,11 +180,6 @@ protected:
     /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
 
-    template<class T> void setOutputFormatter()
-    {
-        m_outputFormatterCreator = [](Project *project) { return new T(project); };
-    }
-
     virtual void updateEnabledState();
     virtual void doAdditionalSetup(const RunConfigurationCreationInfo &) {}
 
@@ -195,7 +190,6 @@ private:
 
     QString m_buildKey;
     bool m_isEnabled = false;
-    std::function<Utils::OutputFormatter *(Project *)> m_outputFormatterCreator;
     CommandLineGetter m_commandLineGetter;
 };
 

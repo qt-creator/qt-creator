@@ -147,7 +147,7 @@ static QTextCharFormat linkFormat(const QTextCharFormat &inputFormat, const QStr
 class PythonOutputFormatter : public OutputFormatter
 {
 public:
-    PythonOutputFormatter(Project *)
+    PythonOutputFormatter()
         // Note that moc dislikes raw string literals.
         : filePattern("^(\\s*)(File \"([^\"]+)\", line (\\d+), .*$)")
     {
@@ -215,6 +215,19 @@ private:
     }
 
     const QRegularExpression filePattern;
+};
+
+class PythonOutputFormatterFactory : public OutputFormatterFactory
+{
+public:
+    PythonOutputFormatterFactory()
+    {
+        setFormatterCreator([](Target *t) -> OutputFormatter * {
+            if (t->project()->mimeType() == Constants::C_PY_MIMETYPE)
+                return new PythonOutputFormatter;
+            return nullptr;
+        });
+    }
 };
 
 ////////////////////////////////////////////////////////////////
@@ -370,7 +383,6 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Core::Id id)
 
     addAspect<TerminalAspect>();
 
-    setOutputFormatter<PythonOutputFormatter>();
     setCommandLineGetter([this, interpreterAspect, argumentsAspect] {
         CommandLine cmd{interpreterAspect->currentInterpreter().command, {mainScript()}};
         cmd.addArgs(argumentsAspect->arguments(macroExpander()), CommandLine::Raw);
@@ -810,7 +822,9 @@ class PythonPluginPrivate
 {
 public:
     PythonEditorFactory editorFactory;
+    PythonOutputFormatterFactory outputFormatterFactory;
     PythonRunConfigurationFactory runConfigFactory;
+
     RunWorkerFactory runWorkerFactory{
         RunWorkerFactory::make<SimpleTargetRunner>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE},

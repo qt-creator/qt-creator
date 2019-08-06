@@ -38,7 +38,6 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
-#include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/desktopqtversion.h>
 
@@ -319,7 +318,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     connect(m_mainQmlFileAspect, &MainQmlFileAspect::changed,
             this, &QmlProjectRunConfiguration::updateEnabledState);
 
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
     connect(target, &Target::kitChanged,
             this, &QmlProjectRunConfiguration::updateEnabledState);
 

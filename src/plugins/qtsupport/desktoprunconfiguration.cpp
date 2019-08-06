@@ -98,8 +98,6 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
 
     }
 
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
-
     connect(target->project(), &Project::parsingFinished,
             this, &DesktopRunConfiguration::updateTargetInformation);
 }

@@ -309,4 +309,21 @@ private:
     bool m_useTerminal = false;
 };
 
+class PROJECTEXPLORER_EXPORT OutputFormatterFactory
+{
+protected:
+    OutputFormatterFactory();
+
+public:
+    virtual ~OutputFormatterFactory();
+
+    static Utils::OutputFormatter *createFormatter(Target *target);
+
+protected:
+    void setFormatterCreator(const std::function<Utils::OutputFormatter *(Target *)> &creator);
+
+private:
+    std::function<Utils::OutputFormatter *(Target *)> m_creator;
+};
+
 } // namespace ProjectExplorer

@@ -68,8 +68,6 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
     libAspect->setLabelText(tr("Path to Qt libraries on device"));
     libAspect->setDisplayStyle(BaseStringAspect::LineEditDisplay);
 
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
-
     auto updateTargetInformation = [this, target, exeAspect, symbolsAspect] {
 
         BuildTargetInfo bti = buildTargetInfo();

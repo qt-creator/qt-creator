@@ -25,13 +25,18 @@
 
 #include "qtoutputformatter.h"
 
+#include "qtkitinformation.h"
+#include "qtsupportconstants.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
 #include <utils/ansiescapecodehandler.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
+#include <utils/outputformatter.h>
 #include <utils/theme/theme.h>
 
 #include <QPlainTextEdit>
@@ -44,13 +49,19 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QtSupport {
-
 namespace Internal {
+
+struct LinkResult
+{
+    int start = -1;
+    int end = -1;
+    QString href;
+};
 
 class QtOutputFormatterPrivate
 {
 public:
-    QtOutputFormatterPrivate(Project *proj)
+    QtOutputFormatterPrivate()
         : qmlError("(" QT_QML_URL_REGEXP  // url
                    ":\\d+"              // colon, line
                    "(?::\\d+)?)"        // colon, column (optional)
@@ -60,11 +71,6 @@ public:
         , qtAssertX(QT_ASSERT_X_REGEXP)
         , qtTestFailUnix(QT_TEST_FAIL_UNIX_REGEXP)
         , qtTestFailWin(QT_TEST_FAIL_WIN_REGEXP)
-        , project(proj)
-    {
-    }
-
-    ~QtOutputFormatterPrivate()
     {
     }
 
@@ -80,16 +86,41 @@ public:
     QTextCursor cursor;
 };
 
-} // namespace Internal
-
-QtOutputFormatter::QtOutputFormatter(Project *project)
-    : d(new Internal::QtOutputFormatterPrivate(project))
+class QtOutputFormatter : public OutputFormatter
 {
-    if (project) {
-        d->projectFinder.setProjectFiles(project->files(Project::SourceFiles));
-        d->projectFinder.setProjectDirectory(project->projectDirectory());
+public:
+    explicit QtOutputFormatter(Target *target);
+    ~QtOutputFormatter() override;
 
-        connect(project,
+    void appendMessage(const QString &text, Utils::OutputFormat format) override;
+    void handleLink(const QString &href) override;
+    void setPlainTextEdit(QPlainTextEdit *plainText) override;
+
+protected:
+    void clearLastLine() override;
+    virtual void openEditor(const QString &fileName, int line, int column = -1);
+
+private:
+    void updateProjectFileList();
+    LinkResult matchLine(const QString &line) const;
+    void appendMessagePart(const QString &txt, const QTextCharFormat &fmt);
+    void appendLine(const LinkResult &lr, const QString &line, Utils::OutputFormat format);
+    void appendLine(const LinkResult &lr, const QString &line, const QTextCharFormat &format);
+    void appendMessage(const QString &text, const QTextCharFormat &format) override;
+
+    QtOutputFormatterPrivate *d;
+    friend class QtSupportPlugin; // for testing
+};
+
+QtOutputFormatter::QtOutputFormatter(Target *target)
+    : d(new QtOutputFormatterPrivate)
+{
+    d->project = target ? target->project() : nullptr;
+    if (d->project) {
+        d->projectFinder.setProjectFiles(d->project->files(Project::SourceFiles));
+        d->projectFinder.setProjectDirectory(d->project->projectDirectory());
+
+        connect(d->project,
                 &Project::fileListChanged,
                 this,
                 &QtOutputFormatter::updateProjectFileList,
@@ -308,6 +339,17 @@ void QtOutputFormatter::updateProjectFileList()
         d->projectFinder.setProjectFiles(d->project->files(Project::SourceFiles));
 }
 
+// QtOutputFormatterFactory
+
+QtOutputFormatterFactory::QtOutputFormatterFactory()
+{
+    setFormatterCreator([](Target *t) -> OutputFormatter * {
+        BaseQtVersion *qt = QtKitAspect::qtVersion(t->kit());
+        return qt ? new QtOutputFormatter(t) : nullptr;
+    });
+}
+
+} // namespace Internal
 } // namespace QtSupport
 
 // Unit tests:

@@ -33,8 +33,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtoutputformatter.h>
-
 #include <remotelinux/remotelinuxenvironmentaspect.h>
 
 using namespace ProjectExplorer;
@@ -86,8 +84,6 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Core::Id id)
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
     addAspect<FullCommandLineAspect>(this);
-
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     connect(target, &Target::deploymentDataChanged,
             this, &QdbRunConfiguration::updateTargetInformation);

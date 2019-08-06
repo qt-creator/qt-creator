@@ -35,7 +35,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/detailswidget.h>
@@ -133,7 +132,6 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *target, Core::Id id)
     postStartShellCmdAspect->setSettingsKey("Android.PostStartShellCmdListKey");
     postStartShellCmdAspect->setLabel(tr("Shell commands to run on Android device after application quits."));
 
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
     connect(target->project(), &Project::parsingFinished, this, [this] {
         updateTargetInformation();
     });

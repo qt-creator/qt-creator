@@ -39,7 +39,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
@@ -114,8 +113,6 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Core::Id id)
     addAspect<ArgumentsAspect>();
 
     m_deviceTypeAspect = addAspect<IosDeviceTypeAspect>(this);
-
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
 }
 
 void IosDeviceTypeAspect::deviceChanges()
