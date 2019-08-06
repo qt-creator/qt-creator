@@ -63,7 +63,8 @@ NimRunConfiguration::NimRunConfiguration(Target *target, Core::Id id)
 void NimRunConfiguration::updateConfiguration()
 {
     auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(activeBuildConfiguration());
-    QTC_ASSERT(buildConfiguration, return);
+    if (!buildConfiguration)
+        return;
     setActiveBuildConfiguration(buildConfiguration);
     const QFileInfo outFileInfo = buildConfiguration->outFilePath().toFileInfo();
     aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(outFileInfo.absoluteFilePath()));
