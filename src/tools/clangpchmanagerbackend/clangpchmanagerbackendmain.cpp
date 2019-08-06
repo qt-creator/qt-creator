@@ -139,13 +139,13 @@ public:
     using Processor = ClangBackEnd::PchCreator;
     PchCreatorManager(const ClangBackEnd::GeneratedFiles &generatedFiles,
                       ClangBackEnd::Environment &environment,
-                      Sqlite::Database &database,
+                      ClangBackEnd::FilePathCaching &filePathCache,
                       PchManagerServer &pchManagerServer,
                       ClangBackEnd::ClangPathWatcherInterface &pathWatcher,
                       ClangBackEnd::BuildDependenciesStorageInterface &buildDependenciesStorage)
         : ProcessorManager(generatedFiles)
         , m_environment(environment)
-        , m_database(database)
+        , m_filePathCache(filePathCache)
         , m_pchManagerServer(pchManagerServer)
         , m_pathWatcher(pathWatcher)
         , m_buildDependenciesStorage(buildDependenciesStorage)
@@ -155,7 +155,7 @@ protected:
     std::unique_ptr<ClangBackEnd::PchCreator> createProcessor() const override
     {
         return std::make_unique<PchCreator>(m_environment,
-                                            m_database,
+                                            m_filePathCache,
                                             *m_pchManagerServer.client(),
                                             m_pathWatcher,
                                             m_buildDependenciesStorage);
@@ -163,7 +163,7 @@ protected:
 
 private:
     ClangBackEnd::Environment &m_environment;
-    Sqlite::Database &m_database;
+    ClangBackEnd::FilePathCaching &m_filePathCache;
     ClangBackEnd::PchManagerServer &m_pchManagerServer;
     ClangBackEnd::ClangPathWatcherInterface &m_pathWatcher;
     ClangBackEnd::BuildDependenciesStorageInterface &m_buildDependenciesStorage;
@@ -194,7 +194,7 @@ struct Data // because we have a cycle dependency
                                      generatedFiles};
     PchCreatorManager pchCreatorManager{generatedFiles,
                                         environment,
-                                        database,
+                                        filePathCache,
                                         clangPchManagerServer,
                                         includeWatcher,
                                         buildDependencyStorage};

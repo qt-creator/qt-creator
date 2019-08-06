@@ -114,8 +114,9 @@ protected:
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     NiceMock<MockClangPathWatcher> mockClangPathWatcher;
     NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
+    ClangBackEnd::FilePathCaching filePathCache{database};
     ClangBackEnd::PchCreator creator{environment,
-                                     database,
+                                     filePathCache,
                                      mockPchManagerClient,
                                      mockClangPathWatcher,
                                      mockBuildDependenciesStorage};

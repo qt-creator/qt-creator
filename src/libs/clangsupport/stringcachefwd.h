@@ -31,12 +31,7 @@ namespace ClangBackEnd {
 
 class NonLockingMutex;
 
-template <typename StringType,
-          typename StringViewType,
-          typename IndexType,
-          typename Mutex,
-          typename Compare,
-          Compare compare>
+template<typename StringType, typename StringViewType, typename IndexType, typename Mutex, typename Compare, Compare compare, typename CacheEntry>
 class StringCache;
 } // namespace ClangBackEnd
 

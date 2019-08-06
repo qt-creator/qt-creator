@@ -103,8 +103,8 @@ std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directo
     return valuesReturnStdVectorDirectory(reserveSize);
 }
 
-template <>
-std::vector<Sources::Source> MockSqliteReadStatement::values<Sources::Source, 2>(std::size_t reserveSize)
+template<>
+std::vector<Sources::Source> MockSqliteReadStatement::values<Sources::Source, 3>(std::size_t reserveSize)
 {
     return valuesReturnStdVectorSource(reserveSize);
 }

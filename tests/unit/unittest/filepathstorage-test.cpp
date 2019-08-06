@@ -56,9 +56,8 @@ protected:
                 .WillByDefault(Return(Utils::optional<int>(5)));
         ON_CALL(mockDatabase, lastInsertedRowId())
                 .WillByDefault(Return(12));
-        ON_CALL(selectAllDirectories,
-                valuesReturnStdVectorDirectory(_))
-                .WillByDefault(Return(std::vector<Directory>{{1, "/path/to"}, {2, "/other/path"}}));
+        ON_CALL(selectAllDirectories, valuesReturnStdVectorDirectory(_))
+            .WillByDefault(Return(std::vector<Directory>{{"/path/to", 1}, {"/other/path", 2}}));
         ON_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(_, _))
                 .WillByDefault(Return(Utils::optional<int>()));
@@ -68,9 +67,8 @@ protected:
         ON_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
                 valueReturnInt32(5, Utils::SmallStringView("file.h")))
                 .WillByDefault(Return(Utils::optional<int>(42)));
-        ON_CALL(selectAllSources,
-                valuesReturnStdVectorSource(_))
-                .WillByDefault(Return(std::vector<Source>{{1, "file.h"}, {4, "file.cpp"}}));
+        ON_CALL(selectAllSources, valuesReturnStdVectorSource(_))
+            .WillByDefault(Return(std::vector<Source>{{"file.h", 1, 1}, {"file.cpp", 2, 4}}));
         ON_CALL(selectDirectoryPathFromDirectoriesByDirectoryId,
                 valueReturnPathString(5))
                 .WillByDefault(Return(Utils::optional<Utils::PathString>("/path/to")));
@@ -407,16 +405,14 @@ TEST_F(FilePathStorage, SelectAllDirectories)
 {
     auto directories = storage.fetchAllDirectories();
 
-    ASSERT_THAT(directories,
-                ElementsAre(Directory{1, "/path/to"}, Directory{2, "/other/path"}));
+    ASSERT_THAT(directories, ElementsAre(Directory{"/path/to", 1}, Directory{"/other/path", 2}));
 }
 
 TEST_F(FilePathStorage, SelectAllSources)
 {
     auto sources = storage.fetchAllSources();
 
-    ASSERT_THAT(sources,
-                ElementsAre(Source{1, "file.h"}, Source{4, "file.cpp"}));
+    ASSERT_THAT(sources, ElementsAre(Source{"file.h", 1, 1}, Source{"file.cpp", 2, 4}));
 }
 
 TEST_F(FilePathStorage, CallSelectAllDirectories)

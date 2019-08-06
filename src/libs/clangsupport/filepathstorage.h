@@ -212,7 +212,7 @@ public:
 
             ReadStatement &statement = m_statementFactory.selectAllSources;
 
-            auto sources =  statement.template values<Sources::Source, 2>(8192);
+            auto sources = statement.template values<Sources::Source, 3>(8192);
 
             transaction.commit();
 

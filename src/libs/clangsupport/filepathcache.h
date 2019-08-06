@@ -29,6 +29,7 @@
 #include "filepath.h"
 #include "filepathexceptions.h"
 #include "filepathid.h"
+#include "filepathstoragesources.h"
 #include "filepathview.h"
 #include "stringcache.h"
 
@@ -39,84 +40,36 @@ namespace ClangBackEnd {
 template <typename FilePathStorage>
 class CLANGSUPPORT_GCCEXPORT FilePathCache
 {
-    class FileNameView
-    {
-    public:
-        friend bool operator==(const FileNameView &first, const FileNameView &second)
-        {
-            return first.directoryId == second.directoryId
-                && first.fileName == second.fileName;
-        }
-
-        static
-        int compare(FileNameView first, FileNameView second) noexcept
-        {
-            int directoryDifference = first.directoryId - second.directoryId;
-
-            if (directoryDifference)
-                return directoryDifference;
-
-            return Utils::compare(first.fileName, second.fileName);
-        }
-
-    public:
-        Utils::SmallStringView fileName;
-        int directoryId;
-    };
-
-    class FileNameEntry
-    {
-    public:
-        FileNameEntry(Utils::SmallStringView fileName, int directoryId)
-            : fileName(fileName),
-              directoryId(directoryId)
-        {}
-
-        FileNameEntry(FileNameView view)
-            : fileName(view.fileName),
-              directoryId(view.directoryId)
-        {}
-
-        friend bool operator==(const FileNameEntry &first, const FileNameEntry &second)
-        {
-            return first.directoryId == second.directoryId
-                && first.fileName == second.fileName;
-        }
-
-        operator FileNameView() const
-        {
-            return {fileName, directoryId};
-        }
-
-        operator Utils::SmallString() &&
-        {
-            return std::move(fileName);
-        }
-
-    public:
-        Utils::SmallString fileName;
-        int directoryId;
-    };
-
     using DirectoryPathCache = StringCache<Utils::PathString,
                                            Utils::SmallStringView,
                                            int,
                                            SharedMutex,
                                            decltype(&Utils::reverseCompare),
-                                           Utils::reverseCompare>;
+                                           Utils::reverseCompare,
+                                           Sources::Directory>;
     using FileNameCache = StringCache<FileNameEntry,
                                       FileNameView,
                                       int,
                                       SharedMutex,
                                       decltype(&FileNameView::compare),
-                                      FileNameView::compare>;
+                                      FileNameView::compare,
+                                      Sources::Source>;
+
+    FilePathCache(const FilePathCache &) = default;
+    FilePathCache &operator=(const FilePathCache &) = default;
+
 public:
     FilePathCache(FilePathStorage &filePathStorage)
         : m_filePathStorage(filePathStorage)
-    {}
+    {
+        m_directoryPathCache.populate(filePathStorage.fetchAllDirectories());
+        m_fileNameCache.populate(filePathStorage.fetchAllSources());
+    }
 
-    FilePathCache(const FilePathCache &) = delete;
-    FilePathCache &operator=(const FilePathCache &) = delete;
+    FilePathCache(FilePathCache &&) = default;
+    FilePathCache &operator=(FilePathCache &&) = default;
+
+    FilePathCache clone() { return *this; }
 
     FilePathId filePathId(FilePathView filePath) const
     {

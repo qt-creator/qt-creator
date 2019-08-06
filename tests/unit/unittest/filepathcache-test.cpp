@@ -57,12 +57,22 @@ protected:
         ON_CALL(mockStorage, fetchDirectoryPath(5))
                 .WillByDefault(Return(Utils::PathString("/path/to")));
         ON_CALL(mockStorage, fetchSourceNameAndDirectoryId(42))
-                .WillByDefault(Return(SourceNameAndDirectoryId("file.cpp", 5)));
+            .WillByDefault(Return(SourceNameAndDirectoryId("file.cpp", 5)));
+        ON_CALL(mockStorageFilled, fetchAllSources())
+            .WillByDefault(Return(std::vector<ClangBackEnd::Sources::Source>({
+                {"file.cpp", 6, 72},
+                {"file2.cpp", 5, 63},
+                {"file.cpp", 5, 42},
+            })));
+        ON_CALL(mockStorageFilled, fetchAllDirectories())
+            .WillByDefault(Return(
+                std::vector<ClangBackEnd::Sources::Directory>({{"/path2/to", 6}, {"/path/to", 5}})));
     }
 
 protected:
     NiceMock<MockFilePathStorage> mockStorage;
     Cache cache{mockStorage};
+    NiceMock<MockFilePathStorage> mockStorageFilled;
 };
 
 TEST_F(FilePathCache, FilePathIdWithOutAnyEntryCallDirectoryId)
@@ -315,5 +325,49 @@ TEST_F(FilePathCache, FetchDirectoryPathIdAfterFetchingFilePathByFilePathId)
     auto directoryId = cache.directoryPathId(42);
 
     ASSERT_THAT(directoryId, Eq(5));
+}
+
+TEST_F(FilePathCache, FetchAllDirectoriesAndSourcesAtCreation)
+{
+    EXPECT_CALL(mockStorage, fetchAllDirectories());
+    EXPECT_CALL(mockStorage, fetchAllSources());
+
+    Cache cache{mockStorage};
+}
+
+TEST_F(FilePathCache, GetFileIdInFilledCache)
+{
+    Cache cacheFilled{mockStorageFilled};
+
+    auto id = cacheFilled.filePathId("/path2/to/file.cpp");
+
+    ASSERT_THAT(id, Eq(72));
+}
+
+TEST_F(FilePathCache, GetDirectoryIdInFilledCache)
+{
+    Cache cacheFilled{mockStorageFilled};
+
+    auto id = cacheFilled.directoryPathId(42);
+
+    ASSERT_THAT(id, Eq(5));
+}
+
+TEST_F(FilePathCache, GetDirectoryPathInFilledCache)
+{
+    Cache cacheFilled{mockStorageFilled};
+
+    auto path = cacheFilled.directoryPath(5);
+
+    ASSERT_THAT(path, Eq("/path/to"));
+}
+
+TEST_F(FilePathCache, GetFilePathInFilledCache)
+{
+    Cache cacheFilled{mockStorageFilled};
+
+    auto path = cacheFilled.filePath(42);
+
+    ASSERT_THAT(path, Eq("/path/to/file.cpp"));
 }
 } // namespace

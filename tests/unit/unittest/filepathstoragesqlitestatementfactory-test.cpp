@@ -73,12 +73,6 @@ TEST_F(FilePathStorageSqliteStatementFactory, SelectSourceNameAndDirectoryIdBySo
                 Eq("SELECT sourceName, directoryId FROM sources WHERE sourceId = ?"));
 }
 
-TEST_F(FilePathStorageSqliteStatementFactory, SelectAllDirectories)
-{
-    ASSERT_THAT(factory.selectAllDirectories.sqlStatement,
-                Eq("SELECT directoryId, directoryPath FROM directories"));
-}
-
 TEST_F(FilePathStorageSqliteStatementFactory, InsertIntoDirectories)
 {
     ASSERT_THAT(factory.insertIntoDirectories.sqlStatement,
@@ -89,12 +83,6 @@ TEST_F(FilePathStorageSqliteStatementFactory, InsertIntoSources)
 {
     ASSERT_THAT(factory.insertIntoSources.sqlStatement,
                 Eq("INSERT INTO sources(directoryId, sourceName) VALUES (?,?)"));
-}
-
-TEST_F(FilePathStorageSqliteStatementFactory, SelectAllSources)
-{
-    ASSERT_THAT(factory.selectAllSources.sqlStatement,
-                Eq("SELECT sourceId, sourceName FROM sources"));
 }
 
 }

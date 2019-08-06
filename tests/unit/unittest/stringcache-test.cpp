@@ -194,9 +194,9 @@ TEST_F(StringCache, PopulateWithEmptyVector)
 TEST_F(StringCache, IsNotEmptyAfterPopulateWithSomeEntries)
 {
     CacheEntries entries{{filePath1.clone(), 0},
-                         {filePath2.clone(), 1},
+                         {filePath2.clone(), 3},
                          {filePath3.clone(), 2},
-                         {filePath4.clone(), 3}};
+                         {filePath4.clone(), 5}};
 
     cache.uncheckedPopulate(std::move(entries));
 
@@ -207,11 +207,11 @@ TEST_F(StringCache, GetEntryAfterPopulateWithSomeEntries)
 {
     CacheEntries entries{{filePath1.clone(), 0},
                          {filePath2.clone(), 1},
-                         {filePath3.clone(), 2},
+                         {filePath3.clone(), 7},
                          {filePath4.clone(), 3}};
     cache.uncheckedPopulate(std::move(entries));
 
-    auto string = cache.string(2);
+    auto string = cache.string(7);
 
     ASSERT_THAT(string, filePath3);
 }
@@ -224,16 +224,6 @@ TEST_F(StringCache, EntriesHaveUniqueIds)
                          {filePath4.clone(), 2}};
 
     ASSERT_THROW(cache.populate(std::move(entries)), StringCacheException);
-}
-
-TEST_F(StringCache, IdsAreHigherLowerEntriesSize)
-{
-    CacheEntries entries{{filePath1.clone(), 0},
-                         {filePath2.clone(), 1},
-                         {filePath3.clone(), 4},
-                         {filePath4.clone(), 3}};
-
-    ASSERT_THROW(cache.populate(std::move(entries)), std::out_of_range);
 }
 
 TEST_F(StringCache, MultipleEntries)

@@ -211,7 +211,7 @@ void PchCreator::doInMainThreadAfterFinished()
     }
 }
 
-const FilePathCaching &PchCreator::filePathCache()
+const FilePathCachingInterface &PchCreator::filePathCache()
 {
     return m_filePathCache;
 }

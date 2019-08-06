@@ -33,41 +33,106 @@
 #include <unordered_map>
 
 namespace ClangBackEnd {
-namespace Sources {
-class Directory
+
+template<typename StringType, typename StringViewType, typename IndexType>
+class StringCacheEntry
 {
 public:
-    Directory(int directoryId, Utils::PathString &&directoryPath)
-        : directoryId(directoryId), directoryPath(std::move(directoryPath))
+    StringCacheEntry(StringViewType string, IndexType id)
+        : string(string)
+        , id(id)
     {}
 
-    friend
-    bool operator==(const Directory &first, const Directory &second)
-    {
-        return first.directoryId == second.directoryId && first.directoryPath == second.directoryPath;
-    }
+    operator StringViewType() const { return string; }
 
 public:
-    int directoryId;
-    Utils::PathString directoryPath;
+    StringType string;
+    IndexType id;
 };
 
-class Source
+class FileNameView
 {
 public:
-    Source(int sourceId, Utils::PathString &&sourceName)
-        : sourceId(sourceId), sourceName(std::move(sourceName))
-    {}
-
-    friend
-    bool operator==(const Source &first, const Source &second)
+    friend bool operator==(const FileNameView &first, const FileNameView &second)
     {
-        return first.sourceId == second.sourceId && first.sourceName == second.sourceName;
+        return first.directoryId == second.directoryId && first.fileName == second.fileName;
+    }
+
+    static int compare(FileNameView first, FileNameView second) noexcept
+    {
+        int directoryDifference = first.directoryId - second.directoryId;
+
+        if (directoryDifference)
+            return directoryDifference;
+
+        return Utils::compare(first.fileName, second.fileName);
     }
 
 public:
-    int sourceId;
-    Utils::PathString sourceName;
+    Utils::SmallStringView fileName;
+    int directoryId;
+};
+
+class FileNameEntry
+{
+public:
+    FileNameEntry(Utils::SmallStringView fileName, int directoryId)
+        : fileName(fileName)
+        , directoryId(directoryId)
+    {}
+
+    FileNameEntry(FileNameView view)
+        : fileName(view.fileName)
+        , directoryId(view.directoryId)
+    {}
+
+    friend bool operator==(const FileNameEntry &first, const FileNameEntry &second)
+    {
+        return first.directoryId == second.directoryId && first.fileName == second.fileName;
+    }
+
+    friend bool operator!=(const FileNameEntry &first, const FileNameEntry &second)
+    {
+        return !(first == second);
+    }
+
+    operator FileNameView() const { return {fileName, directoryId}; }
+
+    operator Utils::SmallString() && { return std::move(fileName); }
+
+public:
+    Utils::SmallString fileName;
+    int directoryId;
+};
+
+namespace Sources {
+class Directory : public StringCacheEntry<Utils::PathString, Utils::SmallStringView, int>
+{
+    using Base = StringCacheEntry<Utils::PathString, Utils::SmallStringView, int>;
+
+public:
+    using Base::Base;
+
+    friend bool operator==(const Directory &first, const Directory &second)
+    {
+        return first.id == second.id && first.string == second.string;
+    }
+};
+
+class Source : public StringCacheEntry<FileNameEntry, FileNameView, int>
+{
+    using Base = StringCacheEntry<FileNameEntry, FileNameView, int>;
+
+public:
+    using Base::Base;
+    Source(Utils::SmallStringView sourceName, int directoryId, int sourceId)
+        : Base{{sourceName, directoryId}, sourceId}
+    {}
+
+    friend bool operator==(const Source &first, const Source &second)
+    {
+        return first.id == second.id && first.string == second.string;
+    }
 };
 
 class SourceNameAndDirectoryId

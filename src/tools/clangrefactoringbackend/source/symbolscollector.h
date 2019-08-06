@@ -42,7 +42,7 @@ namespace ClangBackEnd {
 class SymbolsCollector final : public SymbolsCollectorInterface
 {
 public:
-    SymbolsCollector(Sqlite::Database &database);
+    SymbolsCollector(FilePathCaching &filePathCache);
 
     void addFiles(const FilePathIds &filePathIds,
                   const Utils::SmallStringVector &arguments);
@@ -65,7 +65,7 @@ public:
     bool isClean() const { return m_clangTool.isClean(); }
 
 private:
-    FilePathCaching m_filePathCache;
+    CopyableFilePathCaching m_filePathCache;
     ClangTool m_clangTool;
     SymbolEntries m_symbolEntries;
     SourceLocationEntries m_sourceLocationEntries;

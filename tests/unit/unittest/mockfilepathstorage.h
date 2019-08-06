@@ -40,5 +40,7 @@ public:
                  Utils::PathString (int directoryId));
     MOCK_METHOD1(fetchSourceNameAndDirectoryId,
                  ClangBackEnd::Sources::SourceNameAndDirectoryId (int sourceId));
+    MOCK_METHOD0(fetchAllDirectories, std::vector<ClangBackEnd::Sources::Directory>());
+    MOCK_METHOD0(fetchAllSources, std::vector<ClangBackEnd::Sources::Source>());
 };
 

@@ -40,9 +40,11 @@ namespace ClangBackEnd {
 
 class CLANGSUPPORT_EXPORT FilePathCaching final : public FilePathCachingInterface
 {
+    friend class CopyableFilePathCaching;
     using Factory = FilePathStorageSqliteStatementFactory<Sqlite::Database>;
     using Storage = FilePathStorage<Factory>;
     using Cache = FilePathCache<Storage>;
+
 public:
     FilePathCaching(Sqlite::Database &database)
         : m_factory(database)
@@ -58,6 +60,27 @@ private:
     Factory m_factory;
     Storage m_storage{m_factory};
     Cache m_cache{m_storage};
+};
+
+class CLANGSUPPORT_EXPORT CopyableFilePathCaching final : public FilePathCachingInterface
+{
+    using Factory = FilePathStorageSqliteStatementFactory<Sqlite::Database>;
+    using Storage = FilePathStorage<Factory>;
+    using Cache = FilePathCache<Storage>;
+
+public:
+    CopyableFilePathCaching(FilePathCaching &cache)
+        : m_cache(cache.m_cache.clone())
+    {}
+
+    FilePathId filePathId(FilePathView filePath) const override;
+    FilePath filePath(FilePathId filePathId) const override;
+    DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const override;
+    Utils::PathString directoryPath(DirectoryPathId directoryPathId) const override;
+    DirectoryPathId directoryPathId(FilePathId filePathId) const override;
+
+private:
+    Cache m_cache;
 };
 
 } // namespace ClangBackEnd

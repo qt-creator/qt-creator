@@ -25,9 +25,11 @@
 
 #pragma once
 
+#include "filepathstoragesources.h"
 #include "stringcachealgorithms.h"
 #include "stringcachefwd.h"
 
+#include <utils/algorithm.h>
 #include <utils/optional.h>
 #include <utils/smallstringfwd.h>
 
@@ -90,42 +92,17 @@ private:
     QReadWriteLock m_mutex;
 };
 
-template <typename StringType,
-          typename StringViewType,
-          typename IndexType>
-class StringCacheEntry
-{
-public:
-    StringCacheEntry(StringType &&string, IndexType id)
-        : string(std::move(string)),
-          id(id)
-    {}
-
-    operator StringViewType() const
-    {
-        return string;
-    }
-
-    StringType string;
-    IndexType id;
-};
-
-template <typename StringType,
-          typename StringViewType,
-          typename IndexType>
-using StringCacheEntries = std::vector<StringCacheEntry<StringType, StringViewType, IndexType>>;
-
-template <typename StringType,
-          typename StringViewType,
-          typename IndexType,
-          typename Mutex,
-          typename Compare,
-          Compare compare = Utils::compare>
+template<typename StringType,
+         typename StringViewType,
+         typename IndexType,
+         typename Mutex,
+         typename Compare,
+         Compare compare = Utils::compare,
+         typename CacheEntry = StringCacheEntry<StringType, StringViewType, IndexType>>
 class StringCache
 {
 public:
-    using CacheEntry = StringCacheEntry<StringType, StringViewType, IndexType>;
-    using CacheEntries = StringCacheEntries<StringType, StringViewType, IndexType>;
+    using CacheEntries = std::vector<CacheEntry>;
     using const_iterator = typename CacheEntries::const_iterator;
     using Found = ClangBackEnd::Found<const_iterator>;
 
@@ -135,8 +112,19 @@ public:
         m_indices.reserve(reserveSize);
     }
 
-    StringCache(const StringCache &) = delete;
-    StringCache &operator=(const StringCache &) = delete;
+    StringCache(const StringCache &other)
+        : m_strings(other.m_strings)
+        , m_indices(other.m_indices)
+    {}
+    StringCache &operator=(const StringCache &other)
+    {
+        if (*this != other) {
+            m_strings = other.m_strings;
+            m_indices = other.m_indices;
+        }
+
+        return *this;
+    }
 
     void populate(CacheEntries &&entries)
     {
@@ -154,13 +142,24 @@ public:
         });
 
         m_strings = std::move(entries);
-        m_indices.resize(m_strings.size());
+
+        int max_id = 0;
+
+        auto found = std::max_element(m_strings.begin(),
+                                      m_strings.end(),
+                                      [](const auto &first, const auto &second) {
+                                          return first.id < second.id;
+                                      });
+
+        if (found != m_strings.end())
+            max_id = found->id + 1;
+
+        m_indices.resize(max_id, -1);
 
         auto begin = m_strings.cbegin();
         for (auto current = begin; current != m_strings.end(); ++current)
-            m_indices.at(current->id) = std::distance(begin, current);
+            m_indices[current->id] = std::distance(begin, current);
     }
-
 
     IndexType stringId(StringViewType stringView)
     {
@@ -176,7 +175,7 @@ public:
         found = find(stringView);
         if (!found.wasFound) {
             IndexType index = insertString(found.iterator, stringView, IndexType(m_indices.size()));
-            found.iterator = m_strings.begin() + index;;
+            found.iterator = m_strings.begin() + index;
         }
 
         return found.iterator->id;
@@ -300,7 +299,7 @@ private:
                            StringViewType stringView,
                            IndexType id)
     {
-        auto inserted = m_strings.emplace(beforeIterator, StringType(stringView), id);
+        auto inserted = m_strings.emplace(beforeIterator, stringView, id);
 
         auto newIndex = IndexType(std::distance(m_strings.begin(), inserted));
 

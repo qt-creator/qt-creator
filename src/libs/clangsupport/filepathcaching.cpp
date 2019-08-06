@@ -52,4 +52,29 @@ DirectoryPathId FilePathCaching::directoryPathId(FilePathId filePathId) const
     return m_cache.directoryPathId(filePathId);
 }
 
+FilePathId CopyableFilePathCaching::filePathId(FilePathView filePath) const
+{
+    return m_cache.filePathId(filePath);
+}
+
+FilePath CopyableFilePathCaching::filePath(FilePathId filePathId) const
+{
+    return m_cache.filePath(filePathId);
+}
+
+DirectoryPathId CopyableFilePathCaching::directoryPathId(Utils::SmallStringView directoryPath) const
+{
+    return m_cache.directoryPathId(directoryPath);
+}
+
+Utils::PathString CopyableFilePathCaching::directoryPath(DirectoryPathId directoryPathId) const
+{
+    return m_cache.directoryPath(directoryPathId);
+}
+
+DirectoryPathId CopyableFilePathCaching::directoryPathId(FilePathId filePathId) const
+{
+    return m_cache.directoryPathId(filePathId);
+}
+
 } // namespace ClangBackEnd

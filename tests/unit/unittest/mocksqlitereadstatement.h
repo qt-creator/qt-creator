@@ -223,8 +223,8 @@ FilePathIds MockSqliteReadStatement::values<ClangBackEnd::FilePathId>(std::size_
 template <>
 std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directory, 2>(std::size_t reserveSize);
 
-template <>
-std::vector<Sources::Source> MockSqliteReadStatement::values<Sources::Source, 2>(std::size_t reserveSize);
+template<>
+std::vector<Sources::Source> MockSqliteReadStatement::values<Sources::Source, 3>(std::size_t reserveSize);
 
 template <>
 Utils::optional<int>

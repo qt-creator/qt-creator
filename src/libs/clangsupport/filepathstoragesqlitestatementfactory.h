@@ -50,13 +50,8 @@ public:
         database
     };
     ReadStatement selectDirectoryPathFromDirectoriesByDirectoryId{
-      "SELECT directoryPath FROM directories WHERE directoryId = ?",
-        database
-    };
-    ReadStatement selectAllDirectories{
-      "SELECT directoryId, directoryPath FROM directories",
-        database
-    };
+        "SELECT directoryPath FROM directories WHERE directoryId = ?", database};
+    ReadStatement selectAllDirectories{"SELECT directoryPath, directoryId FROM directories", database};
     WriteStatement insertIntoDirectories{
       "INSERT INTO directories(directoryPath) VALUES (?)",
         database
@@ -75,10 +70,7 @@ public:
       "INSERT INTO sources(directoryId, sourceName) VALUES (?,?)",
         database
     };
-    ReadStatement selectAllSources{
-      "SELECT sourceId, sourceName FROM sources",
-        database
-    };
+    ReadStatement selectAllSources{"SELECT sourceName, directoryId, sourceId  FROM sources", database};
 };
 
 } // namespace ClangBackEnd

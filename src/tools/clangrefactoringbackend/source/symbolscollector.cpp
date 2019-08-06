@@ -31,8 +31,8 @@
 
 namespace ClangBackEnd {
 
-SymbolsCollector::SymbolsCollector(Sqlite::Database &database)
-    : m_filePathCache(database)
+SymbolsCollector::SymbolsCollector(FilePathCaching &filePathCache)
+    : m_filePathCache(filePathCache)
     , m_indexDataConsumer(std::make_shared<IndexDataConsumer>(m_symbolEntries,
                                                               m_sourceLocationEntries,
                                                               m_filePathCache,

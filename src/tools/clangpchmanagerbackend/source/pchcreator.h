@@ -54,14 +54,16 @@ class PchCreator final : public PchCreatorInterface
 {
 public:
     PchCreator(Environment &environment,
-               Sqlite::Database &database,
+               FilePathCaching &filePathCache,
                PchManagerClientInterface &pchManagerClient,
                ClangPathWatcherInterface &clangPathwatcher,
                BuildDependenciesStorageInterface &buildDependenciesStorage)
-        : m_filePathCache(database), m_environment(environment),
-          m_pchManagerClient(pchManagerClient),
-          m_clangPathwatcher(clangPathwatcher),
-          m_buildDependenciesStorage(buildDependenciesStorage) {}
+        : m_filePathCache(filePathCache)
+        , m_environment(environment)
+        , m_pchManagerClient(pchManagerClient)
+        , m_clangPathwatcher(clangPathwatcher)
+        , m_buildDependenciesStorage(buildDependenciesStorage)
+    {}
 
     void generatePch(PchTask &&pchTask) override;
     const ProjectPartPch &projectPartPch() override;
@@ -71,7 +73,7 @@ public:
     void clear() override;
     void doInMainThreadAfterFinished() override;
 
-    const FilePathCaching &filePathCache();
+    const FilePathCachingInterface &filePathCache();
 
     Utils::SmallString generatePchIncludeFileContent(const FilePathIds &includeIds) const;
     bool generatePch(NativeFilePathView path, Utils::SmallStringView content);
@@ -93,7 +95,7 @@ private:
     mutable std::mt19937_64 randomNumberGenator{std::random_device{}()};
     ClangTool m_clangTool;
     ProjectPartPch m_projectPartPch;
-    FilePathCaching m_filePathCache;
+    CopyableFilePathCaching m_filePathCache;
     FilePathIds m_watchedSystemIncludes;
     FilePathIds m_watchedProjectIncludes;
     FilePathIds m_watchedUserIncludes;

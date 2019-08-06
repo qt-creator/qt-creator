@@ -63,19 +63,19 @@ class SymbolsCollectorManager final : public ClangBackEnd::ProcessorManager<Symb
 public:
     using Processor = SymbolsCollector;
     SymbolsCollectorManager(const ClangBackEnd::GeneratedFiles &generatedFiles,
-                            Sqlite::Database &database)
-        : ProcessorManager(generatedFiles),
-          m_database(database)
+                            FilePathCaching &filePathCache)
+        : ProcessorManager(generatedFiles)
+        , m_filePathCache(filePathCache)
     {}
 
 protected:
     std::unique_ptr<SymbolsCollector> createProcessor() const
     {
-        return  std::make_unique<SymbolsCollector>(m_database);
+        return std::make_unique<SymbolsCollector>(m_filePathCache);
     }
 
 private:
-    Sqlite::Database &m_database;
+    FilePathCaching &m_filePathCache;
 };
 
 class SymbolIndexing final : public SymbolIndexingInterface
@@ -84,7 +84,7 @@ public:
     using BuildDependenciesStorage = ClangBackEnd::BuildDependenciesStorage<Sqlite::Database>;
     using SymbolStorage = ClangBackEnd::SymbolStorage<Sqlite::Database>;
     SymbolIndexing(Sqlite::Database &database,
-                   FilePathCachingInterface &filePathCache,
+                   FilePathCaching &filePathCache,
                    const GeneratedFiles &generatedFiles,
                    ProgressCounter::SetProgressCallback &&setProgressCallback,
                    const Environment &environment)
@@ -93,7 +93,7 @@ public:
         , m_precompiledHeaderStorage(database)
         , m_projectPartsStorage(database)
         , m_symbolStorage(database)
-        , m_collectorManger(generatedFiles, database)
+        , m_collectorManger(generatedFiles, filePathCache)
         , m_progressCounter(std::move(setProgressCallback))
         , m_indexer(m_indexerQueue,
                     m_symbolStorage,
