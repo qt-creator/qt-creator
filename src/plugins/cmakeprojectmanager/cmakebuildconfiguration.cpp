@@ -73,7 +73,6 @@ Q_DECLARE_METATYPE(CMakeProjectManager::CMakeExtraBuildInfo)
 namespace CMakeProjectManager {
 namespace Internal {
 
-const char INITIAL_ARGUMENTS[] = "CMakeProjectManager.CMakeBuildConfiguration.InitialArgument"; // Obsolete since QtC 3.7
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
@@ -251,23 +250,7 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
                                                [](const QString &v) { return CMakeConfigItem::fromString(v); }),
                               [](const CMakeConfigItem &c) { return !c.isNull(); });
 
-    // Legacy (pre QtC 3.7):
-    const QStringList args = QtcProcess::splitArgs(map.value(QLatin1String(INITIAL_ARGUMENTS)).toString());
-    CMakeConfig legacyConf;
-    bool nextIsConfig = false;
-    foreach (const QString &a, args) {
-        if (a == QLatin1String("-D")) {
-            nextIsConfig = true;
-            continue;
-        }
-        if (!a.startsWith(QLatin1String("-D")))
-            continue;
-        legacyConf << CMakeConfigItem::fromString(nextIsConfig ? a : a.mid(2));
-        nextIsConfig = false;
-    }
-    // End Legacy
-
-    setConfigurationForCMake(legacyConf + conf);
+    setConfigurationForCMake(conf);
 
     return true;
 }
