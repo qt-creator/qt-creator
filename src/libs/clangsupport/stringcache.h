@@ -101,6 +101,9 @@ template<typename StringType,
          typename CacheEntry = StringCacheEntry<StringType, StringViewType, IndexType>>
 class StringCache
 {
+    template<typename T, typename V, typename I, typename M, typename C, C c, typename CE>
+    friend class StringCache;
+
 public:
     using CacheEntries = std::vector<CacheEntry>;
     using const_iterator = typename CacheEntries::const_iterator;
@@ -116,12 +119,26 @@ public:
         : m_strings(other.m_strings)
         , m_indices(other.m_indices)
     {}
-    StringCache &operator=(const StringCache &other)
+
+    template<typename Cache>
+    Cache clone()
     {
-        if (*this != other) {
-            m_strings = other.m_strings;
-            m_indices = other.m_indices;
-        }
+        Cache cache;
+        cache.m_strings = m_strings;
+        cache.m_indices = m_indices;
+
+        return cache;
+    }
+
+    StringCache(StringCache &&other)
+        : m_strings(std::move(other.m_strings))
+        , m_indices(std::move(other.m_indices))
+    {}
+
+    StringCache &operator=(StringCache &&other)
+    {
+        m_strings = std::move(other.m_strings);
+        m_indices = std::move(other.m_indices);
 
         return *this;
     }

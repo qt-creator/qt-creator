@@ -66,11 +66,11 @@ class CLANGSUPPORT_EXPORT CopyableFilePathCaching final : public FilePathCaching
 {
     using Factory = FilePathStorageSqliteStatementFactory<Sqlite::Database>;
     using Storage = FilePathStorage<Factory>;
-    using Cache = FilePathCache<Storage>;
+    using Cache = FilePathCache<Storage, NonLockingMutex>;
 
 public:
     CopyableFilePathCaching(FilePathCaching &cache)
-        : m_cache(cache.m_cache.clone())
+        : m_cache(cache.m_cache.clone<Cache>())
     {}
 
     FilePathId filePathId(FilePathView filePath) const override;

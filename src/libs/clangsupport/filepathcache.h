@@ -37,28 +37,31 @@
 
 namespace ClangBackEnd {
 
-template <typename FilePathStorage>
+template<typename FilePathStorage, typename Mutex = SharedMutex>
 class CLANGSUPPORT_GCCEXPORT FilePathCache
 {
+    FilePathCache(const FilePathCache &) = default;
+    FilePathCache &operator=(const FilePathCache &) = default;
+
+    template<typename Storage, typename M>
+    friend class FilePathCache;
+
+public:
     using DirectoryPathCache = StringCache<Utils::PathString,
                                            Utils::SmallStringView,
                                            int,
-                                           SharedMutex,
+                                           Mutex,
                                            decltype(&Utils::reverseCompare),
                                            Utils::reverseCompare,
                                            Sources::Directory>;
     using FileNameCache = StringCache<FileNameEntry,
                                       FileNameView,
                                       int,
-                                      SharedMutex,
+                                      Mutex,
                                       decltype(&FileNameView::compare),
                                       FileNameView::compare,
                                       Sources::Source>;
 
-    FilePathCache(const FilePathCache &) = default;
-    FilePathCache &operator=(const FilePathCache &) = default;
-
-public:
     FilePathCache(FilePathStorage &filePathStorage)
         : m_filePathStorage(filePathStorage)
     {
@@ -69,7 +72,17 @@ public:
     FilePathCache(FilePathCache &&) = default;
     FilePathCache &operator=(FilePathCache &&) = default;
 
-    FilePathCache clone() { return *this; }
+    template<typename Cache>
+    Cache clone()
+    {
+        using DirectoryPathCache = typename Cache::DirectoryPathCache;
+        using FileNameCache = typename Cache::FileNameCache;
+        Cache cache{m_filePathStorage};
+        cache.m_directoryPathCache = m_directoryPathCache.template clone<DirectoryPathCache>();
+        cache.m_fileNameCache = m_fileNameCache.template clone<FileNameCache>();
+
+        return cache;
+    }
 
     FilePathId filePathId(FilePathView filePath) const
     {
