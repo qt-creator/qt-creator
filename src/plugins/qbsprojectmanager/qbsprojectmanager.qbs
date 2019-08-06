@@ -103,8 +103,6 @@ QtcPlugin {
         "qbsprojectmanagersettings.h",
         "qbsprojectparser.cpp",
         "qbsprojectparser.h",
-        "qbsrunconfiguration.cpp",
-        "qbsrunconfiguration.h",
     ]
 
     // QML typeinfo stuff

@@ -29,7 +29,6 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagerplugin.h"
-#include "qbsrunconfiguration.h"
 
 #include <android/androidconstants.h>
 #include <coreplugin/fileiconprovider.h>

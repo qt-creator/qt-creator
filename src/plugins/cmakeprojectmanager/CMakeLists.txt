@@ -28,7 +28,6 @@ add_qtc_plugin(CMakeProjectManager
     cmakeprojectmanager.cpp cmakeprojectmanager.h
     cmakeprojectnodes.cpp cmakeprojectnodes.h
     cmakeprojectplugin.cpp cmakeprojectplugin.h
-    cmakerunconfiguration.cpp cmakerunconfiguration.h
     cmakesettingspage.cpp cmakesettingspage.h
     cmakespecificsettings.cpp cmakespecificsettings.h
     cmakespecificsettingspage.cpp cmakespecificsettingspage.h cmakespecificsettingspage.ui

@@ -61,8 +61,6 @@ QtcPlugin {
         "cmakeprojectnodes.h",
         "cmakeprojectplugin.cpp",
         "cmakeprojectplugin.h",
-        "cmakerunconfiguration.cpp",
-        "cmakerunconfiguration.h",
         "cmaketool.cpp",
         "cmaketool.h",
         "cmaketoolmanager.cpp",

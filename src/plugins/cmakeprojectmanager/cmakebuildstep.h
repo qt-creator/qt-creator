@@ -40,13 +40,15 @@ class CommandLine;
 class PathChooser;
 } // Utils
 
-namespace ProjectExplorer { class ToolChain; }
+namespace ProjectExplorer {
+class RunConfiguration;
+class ToolChain;
+} // ProjectManager
 
 namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeBuildConfiguration;
-class CMakeRunConfiguration;
 class CMakeBuildStepFactory;
 
 class CMakeBuildStep : public ProjectExplorer::AbstractProcessStep
@@ -67,7 +69,7 @@ public:
     QString toolArguments() const;
     void setToolArguments(const QString &list);
 
-    Utils::CommandLine cmakeCommand(CMakeRunConfiguration *rc) const;
+    Utils::CommandLine cmakeCommand(ProjectExplorer::RunConfiguration *rc) const;
 
     QVariantMap toMap() const override;
 
@@ -104,7 +106,6 @@ private:
     void handleProjectWasParsed(bool success);
 
     void handleBuildTargetChanges(bool success);
-    CMakeRunConfiguration *targetsActiveRunConfiguration() const;
 
     QMetaObject::Connection m_runTrigger;
 

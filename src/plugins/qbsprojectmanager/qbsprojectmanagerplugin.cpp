@@ -35,7 +35,6 @@
 #include "qbsproject.h"
 #include "qbsprojectmanager.h"
 #include "qbsprojectmanagerconstants.h"
-#include "qbsrunconfiguration.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -91,8 +90,6 @@ public:
     QbsBuildStepFactory buildStepFactory;
     QbsCleanStepFactory cleanStepFactory;
     QbsInstallStepFactory installStepFactory;
-    QbsRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, QbsRunConfiguration> runWorkerFactory;
     QbsProfilesSettingsPage profilesSetttingsPage;
     QbsKitAspect qbsKitAspect;
 };

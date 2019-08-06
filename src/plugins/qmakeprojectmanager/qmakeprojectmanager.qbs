@@ -26,7 +26,6 @@ Project {
             name: "General"
             files: [
                 "addlibrarywizard.cpp", "addlibrarywizard.h",
-                "desktopqmakerunconfiguration.cpp", "desktopqmakerunconfiguration.h",
                 "externaleditors.cpp", "externaleditors.h",
                 "librarydetailscontroller.cpp", "librarydetailscontroller.h",
                 "librarydetailswidget.ui",

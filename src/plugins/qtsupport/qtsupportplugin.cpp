@@ -38,6 +38,7 @@
 #include "qscxmlcgenerator.h"
 
 #include "desktopqtversion.h"
+#include "desktoprunconfiguration.h"
 #include "profilereader.h"
 
 #include <coreplugin/icore.h>
@@ -45,6 +46,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <utils/macroexpander.h>
@@ -53,6 +55,7 @@ const char kHostBins[] = "CurrentProject:QT_HOST_BINS";
 const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";
 
 using namespace Core;
+using namespace ProjectExplorer;
 
 namespace QtSupport {
 namespace Internal {
@@ -65,6 +68,18 @@ public:
 
     CodeGenSettingsPage codeGenSettingsPage;
     QtOptionsPage qtOptionsPage;
+
+    DesktopQmakeRunConfigurationFactory desktopQmakeRunConfigFactory;
+    SimpleRunWorkerFactory<SimpleTargetRunner, DesktopQmakeRunConfiguration>
+        desktopQmakeRunWorkerFactory;
+
+    QbsRunConfigurationFactory desktopQbsRunConfigFactory;
+    SimpleRunWorkerFactory<SimpleTargetRunner, QbsRunConfiguration>
+        desktopQbsRunWorkerFactory;
+
+    CMakeRunConfigurationFactory desktopCMakeRunConfigFactory;
+    SimpleRunWorkerFactory<SimpleTargetRunner, CMakeRunConfiguration>
+        desktopCMakeRunWorkerFactory;
 
     ExamplesWelcomePage examplesPage{true};
     ExamplesWelcomePage tutorialPage{false};

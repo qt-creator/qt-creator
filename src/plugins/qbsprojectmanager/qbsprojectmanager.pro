@@ -37,8 +37,7 @@ HEADERS = \
     qbsprojectmanagerconstants.h \
     qbsprojectmanagerplugin.h \
     qbsprojectmanagersettings.h \
-    qbsprojectparser.h \
-    qbsrunconfiguration.h
+    qbsprojectparser.h
 
 SOURCES = \
     customqbspropertiesdialog.cpp \
@@ -59,8 +58,7 @@ SOURCES = \
     qbsprojectmanager.cpp \
     qbsprojectmanagerplugin.cpp \
     qbsprojectmanagersettings.cpp \
-    qbsprojectparser.cpp \
-    qbsrunconfiguration.cpp
+    qbsprojectparser.cpp
 
 FORMS = \
     customqbspropertiesdialog.ui \

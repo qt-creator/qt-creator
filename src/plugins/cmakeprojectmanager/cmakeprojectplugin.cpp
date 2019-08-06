@@ -32,7 +32,6 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
 #include "cmakebuildconfiguration.h"
-#include "cmakerunconfiguration.h"
 #include "cmakeprojectconstants.h"
 #include "cmakelocatorfilter.h"
 #include "cmakesettingspage.h"
@@ -71,8 +70,6 @@ public:
     static const std::unique_ptr<CMakeSpecificSettings> projectTypeSpecificSettings;
     CMakeManager manager;
     CMakeBuildStepFactory buildStepFactory;
-    CMakeRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, CMakeRunConfiguration> runWorkerFactory;
     CMakeBuildConfigurationFactory buildConfigFactory;
     CMakeEditorFactory editorFactor;
     BuildCMakeTargetLocatorFilter buildCMakeTargetLocatorFilter;

@@ -9,6 +9,7 @@ add_qtc_plugin(QtSupport
     codegensettingspage.cpp codegensettingspage.h
     codegensettingspagewidget.ui
     desktopqtversion.cpp desktopqtversion.h
+    desktoprunconfiguration.cpp desktoprunconfiguration.h
     exampleslistmodel.cpp exampleslistmodel.h
     gettingstartedwelcomepage.cpp gettingstartedwelcomepage.h
     profilereader.cpp profilereader.h

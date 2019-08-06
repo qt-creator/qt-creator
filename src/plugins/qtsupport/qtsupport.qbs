@@ -67,6 +67,8 @@ Project {
             "codegensettingspage.cpp",
             "codegensettingspage.h",
             "codegensettingspagewidget.ui",
+            "desktoprunconfiguration.cpp",
+            "desktoprunconfiguration.h",
             "qtconfigwidget.cpp",
             "qtconfigwidget.h",
             "qtcppkitinfo.cpp",

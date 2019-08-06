@@ -14,7 +14,6 @@ add_qtc_plugin(QmakeProjectManager
     customwidgetwizard/filenamingparameters.h
     customwidgetwizard/plugingenerator.cpp customwidgetwizard/plugingenerator.h
     customwidgetwizard/pluginoptions.h
-    desktopqmakerunconfiguration.cpp desktopqmakerunconfiguration.h
     externaleditors.cpp externaleditors.h
     librarydetailscontroller.cpp librarydetailscontroller.h
     librarydetailswidget.ui

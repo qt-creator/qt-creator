@@ -32,5 +32,4 @@ add_qtc_plugin(QbsProjectManager
     qbsprojectmanagerplugin.cpp qbsprojectmanagerplugin.h
     qbsprojectmanagersettings.cpp qbsprojectmanagersettings.h
     qbsprojectparser.cpp qbsprojectparser.h
-    qbsrunconfiguration.cpp qbsrunconfiguration.h
 )

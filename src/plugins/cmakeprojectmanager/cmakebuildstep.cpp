@@ -30,7 +30,6 @@
 #include "cmakeparser.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
-#include "cmakerunconfiguration.h"
 #include "cmaketool.h"
 
 #include <projectexplorer/buildsteplist.h>
@@ -105,11 +104,6 @@ CMakeBuildConfiguration *CMakeBuildStep::cmakeBuildConfiguration() const
     return static_cast<CMakeBuildConfiguration *>(buildConfiguration());
 }
 
-CMakeRunConfiguration *CMakeBuildStep::targetsActiveRunConfiguration() const
-{
-    return qobject_cast<CMakeRunConfiguration *>(target()->activeRunConfiguration());
-}
-
 void CMakeBuildStep::handleBuildTargetChanges(bool success)
 {
     if (!success)
@@ -169,7 +163,7 @@ bool CMakeBuildStep::init()
         canInit = false;
     }
 
-    CMakeRunConfiguration *rc = targetsActiveRunConfiguration();
+    RunConfiguration *rc =  target()->activeRunConfiguration();
     if (isCurrentExecutableTarget(m_buildTarget) && (!rc || rc->buildKey().isEmpty())) {
         emit addTask(Task(Task::Error,
                           QCoreApplication::translate("ProjectExplorer::Task",
@@ -347,7 +341,7 @@ void CMakeBuildStep::setToolArguments(const QString &list)
     m_toolArguments = list;
 }
 
-Utils::CommandLine CMakeBuildStep::cmakeCommand(CMakeRunConfiguration *rc) const
+Utils::CommandLine CMakeBuildStep::cmakeCommand(RunConfiguration *rc) const
 {
     CMakeTool *tool = CMakeKitAspect::cmakeTool(target()->kit());
 

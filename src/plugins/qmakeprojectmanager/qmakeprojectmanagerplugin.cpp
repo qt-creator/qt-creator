@@ -32,7 +32,6 @@
 #include "qmakestep.h"
 #include "qmakemakestep.h"
 #include "qmakebuildconfiguration.h"
-#include "desktopqmakerunconfiguration.h"
 #include "wizards/simpleprojectwizard.h"
 #include "wizards/subdirsprojectwizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
@@ -98,9 +97,6 @@ public:
     QmakeMakeStepFactory makeStepFactory;
 
     QmakeBuildConfigurationFactory buildConfigFactory;
-    DesktopQmakeRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, DesktopQmakeRunConfiguration>
-        runWorkerFactory;
 
     ProFileEditorFactory profileEditorFactory;
 

@@ -14,7 +14,6 @@ HEADERS = builddirmanager.h \
     cmakeprojectmanager.h \
     cmakeprojectconstants.h \
     cmakeprojectnodes.h \
-    cmakerunconfiguration.h \
     cmakebuildconfiguration.h \
     cmakeeditor.h \
     cmakelocatorfilter.h \
@@ -53,7 +52,6 @@ SOURCES = builddirmanager.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
     cmakeprojectnodes.cpp \
-    cmakerunconfiguration.cpp \
     cmakebuildconfiguration.cpp \
     cmakeeditor.cpp \
     cmakelocatorfilter.cpp \
