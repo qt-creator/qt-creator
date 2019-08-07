@@ -60,6 +60,20 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
     addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
+    auto libAspect = addAspect<UseLibraryPathsAspect>();
+    connect(libAspect, &UseLibraryPathsAspect::changed,
+            envAspect, &EnvironmentAspect::environmentChanged);
+
+    if (HostOsInfo::isMacHost()) {
+        auto dyldAspect = addAspect<UseDyldSuffixAspect>();
+        connect(dyldAspect, &UseLibraryPathsAspect::changed,
+                envAspect, &EnvironmentAspect::environmentChanged);
+        envAspect->addModifier([dyldAspect](Environment &env) {
+            if (dyldAspect->value())
+                env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+        });
+    }
+
     if (m_kind == Qmake) {
 
         envAspect->addModifier([this](Environment &env) {
@@ -67,20 +81,6 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
             if (bti.runEnvModifier)
                 bti.runEnvModifier(env, aspect<UseLibraryPathsAspect>()->value());
         });
-
-        auto libAspect = addAspect<UseLibraryPathsAspect>();
-        connect(libAspect, &UseLibraryPathsAspect::changed,
-                envAspect, &EnvironmentAspect::environmentChanged);
-
-        if (HostOsInfo::isMacHost()) {
-            auto dyldAspect = addAspect<UseDyldSuffixAspect>();
-            connect(dyldAspect, &UseLibraryPathsAspect::changed,
-                    envAspect, &EnvironmentAspect::environmentChanged);
-            envAspect->addModifier([dyldAspect](Environment &env) {
-                if (dyldAspect->value())
-                    env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
-            });
-        }
 
     } else if (kind == Qbs) {
 
@@ -91,19 +91,6 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
             if (bti.runEnvModifier)
                 bti.runEnvModifier(env, usingLibraryPaths);
         });
-
-        auto libAspect = addAspect<UseLibraryPathsAspect>();
-        connect(libAspect, &UseLibraryPathsAspect::changed,
-                envAspect, &EnvironmentAspect::environmentChanged);
-        if (HostOsInfo::isMacHost()) {
-            auto dyldAspect = addAspect<UseDyldSuffixAspect>();
-            connect(dyldAspect, &UseDyldSuffixAspect::changed,
-                    envAspect, &EnvironmentAspect::environmentChanged);
-            envAspect->addModifier([dyldAspect](Environment &env) {
-                if (dyldAspect->value())
-                    env.set("DYLD_IMAGE_SUFFIX", "_debug");
-            });
-        }
 
         connect(project(), &Project::parsingFinished,
                 envAspect, &EnvironmentAspect::environmentChanged);
@@ -117,6 +104,8 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
                 this, &DesktopRunConfiguration::updateTargetInformation);
 
     } else if (m_kind == CMake) {
+
+        libAspect->setVisible(false);
 
         // Workaround for QTCREATORBUG-19354:
         if (HostOsInfo::isWindowsHost()) {
