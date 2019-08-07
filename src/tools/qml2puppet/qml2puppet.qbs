@@ -121,7 +121,6 @@ QtcTool {
             "interfaces/nodeinstanceserverinterface.cpp",
             "interfaces/nodeinstanceserverinterface.h",
             "qmlprivategate/qmlprivategate.h",
-            "types/enumeration.cpp",
             "types/enumeration.h",
         ]
     }

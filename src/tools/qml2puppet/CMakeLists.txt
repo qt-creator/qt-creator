@@ -126,7 +126,7 @@ extend_qtc_executable(qml2puppet
 extend_qtc_executable(qml2puppet
   SOURCES_PREFIX "${SRCDIR}/types"
   SOURCES
-    enumeration.cpp enumeration.h
+    enumeration.h
 )
 
 extend_qtc_executable(qml2puppet

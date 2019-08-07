@@ -192,7 +192,6 @@ Project {
                 "interfaces/nodeinstanceclientinterface.h",
                 "interfaces/nodeinstanceserverinterface.cpp",
                 "interfaces/nodeinstanceserverinterface.h",
-                "types/enumeration.cpp",
                 "types/enumeration.h",
             ]
         }
