@@ -362,7 +362,7 @@ endfunction(add_qtc_library)
 
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
-    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL"
+    "EXPERIMENTAL;SKIP_DEBUG_CMAKE_FILE_CHECK;SKIP_INSTALL;INTERNAL_ONLY"
     "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;SOURCES;EXPLICIT_MOC"
     ${ARGN}
@@ -392,7 +392,11 @@ function(add_qtc_plugin target_name)
   if (DEFINED ENV{QTC_${_build_plugin_var}})
     set(_build_plugin_default "$ENV{QTC_${_build_plugin_var}}")
   endif()
-  set(${_build_plugin_var} "${_build_plugin_default}" CACHE BOOL "Build plugin ${name}.")
+  if (_arg_INTERNAL_ONLY)
+    set(${_build_plugin_var} "${_build_plugin_default}")
+  else()
+    set(${_build_plugin_var} "${_build_plugin_default}" CACHE BOOL "Build plugin ${name}.")
+  endif()
 
   if ((${_arg_CONDITION}) AND ${_build_plugin_var})
     set(_plugin_enabled ON)
@@ -400,7 +404,9 @@ function(add_qtc_plugin target_name)
     set(_plugin_enabled OFF)
   endif()
 
-  add_feature_info("Plugin ${name}" _plugin_enabled "${_extra_text}")
+  if (NOT _arg_INTERNAL_ONLY)
+    add_feature_info("Plugin ${name}" _plugin_enabled "${_extra_text}")
+  endif()
   if (NOT _plugin_enabled)
     return()
   endif()

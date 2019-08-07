@@ -18,6 +18,7 @@ add_qtc_plugin(testplugin
   PROPERTIES
     OUTPUT_NAME ${plugin_output_name}
   SKIP_INSTALL
+  INTERNAL_ONLY
 )
 
 # The empty string gets removed if I put it above
