@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -32,53 +32,52 @@
 namespace QtSupport {
 namespace Internal {
 
-class DesktopQmakeRunConfiguration : public ProjectExplorer::RunConfiguration
+class DesktopRunConfiguration : public ProjectExplorer::RunConfiguration
+{
+    Q_OBJECT
+
+protected:
+    enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
+
+    DesktopRunConfiguration(ProjectExplorer::Target *target, Core::Id id, Kind kind);
+
+private:
+    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
+    bool fromMap(const QVariantMap &map) final;
+    void updateEnabledState() final;
+
+    void updateTargetInformation();
+
+    Utils::FilePath executableToRun(const ProjectExplorer::BuildTargetInfo &targetInfo) const;
+    QString disabledReason() const override;
+
+    bool isBuildTargetValid() const;
+
+    const Kind m_kind;
+};
+
+class DesktopQmakeRunConfiguration : public DesktopRunConfiguration
 {
     Q_OBJECT
 
 public:
     DesktopQmakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-private:
-    void updateTargetInformation();
-    bool fromMap(const QVariantMap &map) final;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
-
-    QString defaultDisplayName();
-    Utils::FilePath proFilePath() const;
 };
 
-class QbsRunConfiguration : public ProjectExplorer::RunConfiguration
+class QbsRunConfiguration : public DesktopRunConfiguration
 {
     Q_OBJECT
 
 public:
     QbsRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-private:
-    Utils::FilePath executableToRun(const ProjectExplorer::BuildTargetInfo &targetInfo) const;
-    QVariantMap toMap() const final;
-    bool fromMap(const QVariantMap &map) final;
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &rci) final;
-
-    void updateTargetInformation();
 };
 
-class CMakeRunConfiguration : public ProjectExplorer::RunConfiguration
+class CMakeRunConfiguration : public DesktopRunConfiguration
 {
     Q_OBJECT
 
 public:
     CMakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-
-private:
-    QString disabledReason() const override;
-
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) override;
-    bool isBuildTargetValid() const;
-    void updateTargetInformation();
-
-    void updateEnabledState() final;
 };
 
 class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

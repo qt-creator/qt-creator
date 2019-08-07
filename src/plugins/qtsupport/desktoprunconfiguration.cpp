@@ -50,158 +50,168 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
-// DesktopQmakeRunConfiguration
-
-DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core::Id id)
-    : RunConfiguration(target, id)
+DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Kind kind)
+    : RunConfiguration(target, id), m_kind(kind)
 {
     auto envAspect = addAspect<LocalEnvironmentAspect>(target);
-    envAspect->addModifier([this](Environment &env) {
-        BuildTargetInfo bti = buildTargetInfo();
-        if (bti.runEnvModifier)
-            bti.runEnvModifier(env, aspect<UseLibraryPathsAspect>()->value());
-    });
 
     addAspect<ExecutableAspect>();
     addAspect<ArgumentsAspect>();
     addAspect<WorkingDirectoryAspect>();
     addAspect<TerminalAspect>();
 
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
+    if (m_kind == Qmake) {
 
-    auto libAspect = addAspect<UseLibraryPathsAspect>();
-    connect(libAspect, &UseLibraryPathsAspect::changed,
-            envAspect, &EnvironmentAspect::environmentChanged);
-
-    if (HostOsInfo::isMacHost()) {
-        auto dyldAspect = addAspect<UseDyldSuffixAspect>();
-        connect(dyldAspect, &UseLibraryPathsAspect::changed,
-                envAspect, &EnvironmentAspect::environmentChanged);
-        envAspect->addModifier([dyldAspect](Environment &env) {
-            if (dyldAspect->value())
-                env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+        envAspect->addModifier([this](Environment &env) {
+            BuildTargetInfo bti = buildTargetInfo();
+            if (bti.runEnvModifier)
+                bti.runEnvModifier(env, aspect<UseLibraryPathsAspect>()->value());
         });
+
+        setOutputFormatter<QtSupport::QtOutputFormatter>();
+
+        auto libAspect = addAspect<UseLibraryPathsAspect>();
+        connect(libAspect, &UseLibraryPathsAspect::changed,
+                envAspect, &EnvironmentAspect::environmentChanged);
+
+        if (HostOsInfo::isMacHost()) {
+            auto dyldAspect = addAspect<UseDyldSuffixAspect>();
+            connect(dyldAspect, &UseLibraryPathsAspect::changed,
+                    envAspect, &EnvironmentAspect::environmentChanged);
+            envAspect->addModifier([dyldAspect](Environment &env) {
+                if (dyldAspect->value())
+                    env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+            });
+        }
+
+    } else if (kind == Qbs) {
+
+        envAspect->addModifier([this](Environment &env) {
+            bool usingLibraryPaths = aspect<UseLibraryPathsAspect>()->value();
+
+            BuildTargetInfo bti = buildTargetInfo();
+            if (bti.runEnvModifier)
+                bti.runEnvModifier(env, usingLibraryPaths);
+        });
+
+        setOutputFormatter<QtSupport::QtOutputFormatter>();
+
+        auto libAspect = addAspect<UseLibraryPathsAspect>();
+        connect(libAspect, &UseLibraryPathsAspect::changed,
+                envAspect, &EnvironmentAspect::environmentChanged);
+        if (HostOsInfo::isMacHost()) {
+            auto dyldAspect = addAspect<UseDyldSuffixAspect>();
+            connect(dyldAspect, &UseDyldSuffixAspect::changed,
+                    envAspect, &EnvironmentAspect::environmentChanged);
+            envAspect->addModifier([dyldAspect](Environment &env) {
+                if (dyldAspect->value())
+                    env.set("DYLD_IMAGE_SUFFIX", "_debug");
+            });
+        }
+
+        connect(project(), &Project::parsingFinished,
+                envAspect, &EnvironmentAspect::environmentChanged);
+
+        connect(target, &Target::deploymentDataChanged,
+                this, &DesktopRunConfiguration::updateTargetInformation);
+        connect(target, &Target::applicationTargetsChanged,
+                this, &DesktopRunConfiguration::updateTargetInformation);
+        // Handles device changes, etc.
+        connect(target, &Target::kitChanged,
+                this, &DesktopRunConfiguration::updateTargetInformation);
+
+    } else if (m_kind == CMake) {
+
+        // Workaround for QTCREATORBUG-19354:
+        if (HostOsInfo::isWindowsHost()) {
+            envAspect->addModifier([target](Environment &env) {
+                const Kit *k = target->kit();
+                if (const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k)) {
+                    const QString installBinPath = qt->qmakeProperty("QT_INSTALL_BINS");
+                    env.prependOrSetPath(installBinPath);
+                }
+            });
+        }
+
+        if (QtSupport::QtKitAspect::qtVersion(target->kit()))
+            setOutputFormatter<QtSupport::QtOutputFormatter>();
+
     }
 
     connect(target->project(), &Project::parsingFinished,
-            this, &DesktopQmakeRunConfiguration::updateTargetInformation);
+            this, &DesktopRunConfiguration::updateTargetInformation);
 }
 
-void DesktopQmakeRunConfiguration::updateTargetInformation()
+void DesktopRunConfiguration::updateTargetInformation()
 {
-    setDefaultDisplayName(defaultDisplayName());
-    aspect<EnvironmentAspect>()->environmentChanged();
-
     BuildTargetInfo bti = buildTargetInfo();
-
-    auto wda = aspect<WorkingDirectoryAspect>();
-    wda->setDefaultWorkingDirectory(bti.workingDirectory);
-    if (wda->pathChooser())
-        wda->pathChooser()->setBaseFileName(target()->project()->projectDirectory());
 
     auto terminalAspect = aspect<TerminalAspect>();
     terminalAspect->setUseTerminalHint(bti.usesTerminal);
 
-    aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-}
+    if (m_kind == Qmake) {
 
-bool DesktopQmakeRunConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!RunConfiguration::fromMap(map))
-        return false;
-    updateTargetInformation();
-    return true;
-}
+        FilePath profile = FilePath::fromString(buildKey());
+        if (profile.isEmpty())
+            setDefaultDisplayName(tr("Qt Run Configuration"));
+        else
+            setDefaultDisplayName(profile.toFileInfo().completeBaseName());
 
-void DesktopQmakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &)
-{
-    updateTargetInformation();
-}
+        aspect<EnvironmentAspect>()->environmentChanged();
 
-FilePath DesktopQmakeRunConfiguration::proFilePath() const
-{
-    return FilePath::fromString(buildKey());
-}
+        auto wda = aspect<WorkingDirectoryAspect>();
+        wda->setDefaultWorkingDirectory(bti.workingDirectory);
+        if (wda->pathChooser())
+            wda->pathChooser()->setBaseFileName(target()->project()->projectDirectory());
 
-QString DesktopQmakeRunConfiguration::defaultDisplayName()
-{
-    FilePath profile = proFilePath();
-    if (!profile.isEmpty())
-        return profile.toFileInfo().completeBaseName();
-    return tr("Qt Run Configuration");
-}
+        aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
 
+    }  else if (m_kind == Qbs) {
 
-// Qbs
+        setDefaultDisplayName(bti.displayName);
+        const FilePath executable = executableToRun(bti);
 
-QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
-    : RunConfiguration(target, id)
-{
-    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
-    envAspect->addModifier([this](Environment &env) {
-        bool usingLibraryPaths = aspect<UseLibraryPathsAspect>()->value();
+        aspect<ExecutableAspect>()->setExecutable(executable);
 
-        BuildTargetInfo bti = buildTargetInfo();
-        if (bti.runEnvModifier)
-            bti.runEnvModifier(env, usingLibraryPaths);
-    });
+        if (!executable.isEmpty()) {
+            QString defaultWorkingDir = QFileInfo(executable.toString()).absolutePath();
+            if (!defaultWorkingDir.isEmpty()) {
+                auto wdAspect = aspect<WorkingDirectoryAspect>();
+                wdAspect->setDefaultWorkingDirectory(FilePath::fromString(defaultWorkingDir));
+            }
+        }
 
-    addAspect<ExecutableAspect>();
-    addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
-    addAspect<TerminalAspect>();
+        emit enabledChanged();
 
-    setOutputFormatter<QtSupport::QtOutputFormatter>();
+    } else if (m_kind == CMake) {
 
-    auto libAspect = addAspect<UseLibraryPathsAspect>();
-    connect(libAspect, &UseLibraryPathsAspect::changed,
-            envAspect, &EnvironmentAspect::environmentChanged);
-    if (HostOsInfo::isMacHost()) {
-        auto dyldAspect = addAspect<UseDyldSuffixAspect>();
-        connect(dyldAspect, &UseDyldSuffixAspect::changed,
-                envAspect, &EnvironmentAspect::environmentChanged);
-        envAspect->addModifier([dyldAspect](Environment &env) {
-            if (dyldAspect->value())
-                env.set("DYLD_IMAGE_SUFFIX", "_debug");
-        });
+        aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+        aspect<LocalEnvironmentAspect>()->environmentChanged();
+
     }
-
-    connect(project(), &Project::parsingFinished,
-            envAspect, &EnvironmentAspect::environmentChanged);
-
-    connect(target, &Target::deploymentDataChanged,
-            this, &QbsRunConfiguration::updateTargetInformation);
-    connect(target, &Target::applicationTargetsChanged,
-            this, &QbsRunConfiguration::updateTargetInformation);
-    // Handles device changes, etc.
-    connect(target, &Target::kitChanged,
-            this, &QbsRunConfiguration::updateTargetInformation);
-
-    connect(target->project(), &Project::parsingFinished,
-            this, &QbsRunConfiguration::updateTargetInformation);
 }
 
-QVariantMap QbsRunConfiguration::toMap() const
-{
-    return RunConfiguration::toMap();
-}
-
-bool QbsRunConfiguration::fromMap(const QVariantMap &map)
+bool DesktopRunConfiguration::fromMap(const QVariantMap &map)
 {
     if (!RunConfiguration::fromMap(map))
         return false;
 
-    updateTargetInformation();
+    if (m_kind == Qmake || m_kind == Qbs)
+        updateTargetInformation();
+
     return true;
 }
 
-void QbsRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
+void DesktopRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
 {
-    setDefaultDisplayName(info.displayName);
+    if (m_kind == Qbs)
+        setDefaultDisplayName(info.displayName);
+
     updateTargetInformation();
 }
 
-Utils::FilePath QbsRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
+Utils::FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
 {
     const FilePath appInBuildDir = targetInfo.targetFilePath;
     if (target()->deploymentData().localInstallRoot().isEmpty())
@@ -215,97 +225,41 @@ Utils::FilePath QbsRunConfiguration::executableToRun(const BuildTargetInfo &targ
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
 }
 
-void QbsRunConfiguration::updateTargetInformation()
-{
-    BuildTargetInfo bti = buildTargetInfo();
-    setDefaultDisplayName(bti.displayName);
-    const FilePath executable = executableToRun(bti);
-    auto terminalAspect = aspect<TerminalAspect>();
-    terminalAspect->setUseTerminalHint(bti.usesTerminal);
-
-    aspect<ExecutableAspect>()->setExecutable(executable);
-
-    if (!executable.isEmpty()) {
-        QString defaultWorkingDir = QFileInfo(executable.toString()).absolutePath();
-        if (!defaultWorkingDir.isEmpty()) {
-            auto wdAspect = aspect<WorkingDirectoryAspect>();
-            wdAspect->setDefaultWorkingDirectory(FilePath::fromString(defaultWorkingDir));
-        }
-    }
-
-    emit enabledChanged();
-}
-
-// CMakeRunConfiguration
-
-CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
-    : RunConfiguration(target, id)
-{
-    auto envAspect = addAspect<LocalEnvironmentAspect>(target);
-
-    // Workaround for QTCREATORBUG-19354:
-    if (HostOsInfo::isWindowsHost()) {
-        envAspect->addModifier([target](Environment &env) {
-            const Kit *k = target->kit();
-            if (const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k)) {
-                const QString installBinPath = qt->qmakeProperty("QT_INSTALL_BINS");
-                env.prependOrSetPath(installBinPath);
-            }
-        });
-    }
-
-    addAspect<ExecutableAspect>();
-    addAspect<ArgumentsAspect>();
-    addAspect<WorkingDirectoryAspect>();
-    addAspect<TerminalAspect>();
-
-    connect(target->project(), &Project::parsingFinished,
-            this, &CMakeRunConfiguration::updateTargetInformation);
-
-    if (QtSupport::QtKitAspect::qtVersion(target->kit()))
-        setOutputFormatter<QtSupport::QtOutputFormatter>();
-}
-
-void CMakeRunConfiguration::doAdditionalSetup(const RunConfigurationCreationInfo &info)
-{
-    Q_UNUSED(info)
-    updateTargetInformation();
-}
-
-bool CMakeRunConfiguration::isBuildTargetValid() const
+bool DesktopRunConfiguration::isBuildTargetValid() const
 {
     return Utils::anyOf(target()->applicationTargets(), [this](const BuildTargetInfo &bti) {
         return bti.buildKey == buildKey();
     });
 }
 
-void CMakeRunConfiguration::updateEnabledState()
+void DesktopRunConfiguration::updateEnabledState()
 {
-    if (!isBuildTargetValid())
+    if (m_kind == CMake && !isBuildTargetValid())
         setEnabled(false);
     else
         RunConfiguration::updateEnabledState();
 }
 
-QString CMakeRunConfiguration::disabledReason() const
+QString DesktopRunConfiguration::disabledReason() const
 {
-    if (!isBuildTargetValid())
+    if (m_kind == CMake && !isBuildTargetValid())
         return tr("The project no longer builds the target associated with this run configuration.");
     return RunConfiguration::disabledReason();
 }
 
-void CMakeRunConfiguration::updateTargetInformation()
-{
-    BuildTargetInfo bti = buildTargetInfo();
-    aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
-    aspect<LocalEnvironmentAspect>()->environmentChanged();
-
-    auto terminalAspect = aspect<TerminalAspect>();
-    terminalAspect->setUseTerminalHint(bti.usesTerminal);
-}
-
 // Factory
+
+DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core::Id id)
+    : DesktopRunConfiguration(target, id, Qmake)
+{}
+
+QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
+    : DesktopRunConfiguration(target, id, Qbs)
+{}
+
+CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
+    : DesktopRunConfiguration(target, id, CMake)
+{}
 
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
