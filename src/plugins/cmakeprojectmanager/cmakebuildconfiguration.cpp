@@ -48,6 +48,8 @@
 #include <projectexplorer/projectmacroexpander.h>
 #include <projectexplorer/target.h>
 
+#include <qtsupport/qtkitinformation.h>
+
 #include <utils/algorithm.h>
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -275,6 +277,18 @@ const QList<BuildTargetInfo> CMakeBuildConfiguration::appTargets() const
             bti.projectFilePath = ct.sourceDirectory.stringAppended("/");
             bti.workingDirectory = ct.workingDirectory;
             bti.buildKey = ct.title;
+
+            // Workaround for QTCREATORBUG-19354:
+            bti.runEnvModifier = [this](Environment &env, bool) {
+                if (HostOsInfo::isWindowsHost()) {
+                    const Kit *k = target()->kit();
+                    if (const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k)) {
+                        const QString installBinPath = qt->qmakeProperty("QT_INSTALL_BINS");
+                        env.prependOrSetPath(installBinPath);
+                    }
+                }
+            };
+
             appTargetList.append(bti);
         }
     }

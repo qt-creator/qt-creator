@@ -25,7 +25,6 @@
 
 #include "desktoprunconfiguration.h"
 
-#include "qtkitinformation.h"
 #include "qtoutputformatter.h"
 
 #include <projectexplorer/localenvironmentaspect.h>
@@ -74,23 +73,13 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
         });
     }
 
-    if (m_kind == Qmake) {
+    envAspect->addModifier([this, libAspect](Environment &env) {
+        BuildTargetInfo bti = buildTargetInfo();
+        if (bti.runEnvModifier)
+            bti.runEnvModifier(env, libAspect->value());
+    });
 
-        envAspect->addModifier([this](Environment &env) {
-            BuildTargetInfo bti = buildTargetInfo();
-            if (bti.runEnvModifier)
-                bti.runEnvModifier(env, aspect<UseLibraryPathsAspect>()->value());
-        });
-
-    } else if (kind == Qbs) {
-
-        envAspect->addModifier([this](Environment &env) {
-            bool usingLibraryPaths = aspect<UseLibraryPathsAspect>()->value();
-
-            BuildTargetInfo bti = buildTargetInfo();
-            if (bti.runEnvModifier)
-                bti.runEnvModifier(env, usingLibraryPaths);
-        });
+    if (kind == Qbs) {
 
         connect(project(), &Project::parsingFinished,
                 envAspect, &EnvironmentAspect::environmentChanged);
@@ -106,17 +95,6 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
     } else if (m_kind == CMake) {
 
         libAspect->setVisible(false);
-
-        // Workaround for QTCREATORBUG-19354:
-        if (HostOsInfo::isWindowsHost()) {
-            envAspect->addModifier([target](Environment &env) {
-                const Kit *k = target->kit();
-                if (const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k)) {
-                    const QString installBinPath = qt->qmakeProperty("QT_INSTALL_BINS");
-                    env.prependOrSetPath(installBinPath);
-                }
-            });
-        }
 
     }
 
