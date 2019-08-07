@@ -28,6 +28,7 @@
 #include "core_global.h"
 #include <coreplugin/id.h>
 
+#include <QFrame>
 #include <QObject>
 #include <QSet>
 
@@ -127,6 +128,9 @@ public:
     InfoBarDisplay(QObject *parent = nullptr);
     void setTarget(QBoxLayout *layout, int index);
     void setInfoBar(InfoBar *infoBar);
+    void setStyle(QFrame::Shadow style);
+
+    InfoBar *infoBar() const;
 
 private:
     void update();
@@ -136,6 +140,7 @@ private:
     QList<QWidget *> m_infoWidgets;
     InfoBar *m_infoBar = nullptr;
     QBoxLayout *m_boxLayout = nullptr;
+    QFrame::Shadow m_style = QFrame::Raised;
     int m_boxIndex = 0;
     bool m_isShowingDetailsWidget = false;
 };

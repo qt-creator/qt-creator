@@ -561,6 +561,11 @@ QStatusBar *ICore::statusBar()
     return m_mainwindow->statusBar();
 }
 
+InfoBar *ICore::infoBar()
+{
+    return m_mainwindow->infoBar();
+}
+
 void ICore::raiseWindow(QWidget *widget)
 {
     if (!widget)

@@ -517,6 +517,9 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     vlayout->addLayout(m_modesStack);
     vlayout->addWidget(m_statusBar);
 
+    m_infoBarDisplay.setTarget(vlayout, 1);
+    m_infoBarDisplay.setStyle(QFrame::Sunken);
+
     auto mainLayout = new QHBoxLayout;
     mainLayout->setMargin(0);
     mainLayout->setSpacing(1);
@@ -609,6 +612,13 @@ int FancyTabWidget::currentIndex() const
 QStatusBar *FancyTabWidget::statusBar() const
 {
     return m_statusBar;
+}
+
+InfoBar *FancyTabWidget::infoBar()
+{
+    if (!m_infoBarDisplay.infoBar())
+        m_infoBarDisplay.setInfoBar(&m_infoBar);
+    return &m_infoBar;
 }
 
 void FancyTabWidget::setCurrentIndex(int index)

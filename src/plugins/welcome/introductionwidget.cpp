@@ -25,6 +25,8 @@
 
 #include "introductionwidget.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/qtcassert.h>
@@ -47,29 +49,24 @@ namespace Internal {
 
 void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *settings)
 {
-    if (!CheckableMessageBox::shouldAskAgain(settings, kTakeTourSetting))
+    // CheckableMessageBox for compatibility with Qt Creator < 4.11
+    if (!CheckableMessageBox::shouldAskAgain(settings, kTakeTourSetting)
+        || !Core::ICore::infoBar()->canInfoBeAdded(kTakeTourSetting))
         return;
-    auto messageBox = new CheckableMessageBox(parent);
-    messageBox->setWindowTitle(tr("Take a UI Tour"));
-    messageBox->setText(
-        tr("Would you like to take a quick UI tour? This tour highlights important user "
-           "interface elements and shows how they are used. To take the tour later, "
-           "select Help > UI Tour."));
-    messageBox->setCheckBoxVisible(true);
-    messageBox->setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
-    messageBox->setChecked(true);
-    messageBox->setStandardButtons(QDialogButtonBox::Cancel);
-    QPushButton *tourButton = messageBox->addButton(tr("Take UI Tour"), QDialogButtonBox::AcceptRole);
-    connect(messageBox, &QDialog::finished, parent, [parent, settings, messageBox, tourButton]() {
-        if (messageBox->isChecked())
-            CheckableMessageBox::doNotAskAgain(settings, kTakeTourSetting);
-        if (messageBox->clickedButton() == tourButton) {
-            auto intro = new IntroductionWidget(parent);
-            intro->show();
-        }
-        messageBox->deleteLater();
+
+    Core::InfoBarEntry
+        info(kTakeTourSetting,
+             tr("Would you like to take a quick UI tour? This tour highlights important user "
+                "interface elements and shows how they are used. To take the tour later, "
+                "select Help > UI Tour."),
+             Core::InfoBarEntry::GlobalSuppressionEnabled);
+    info.setCustomButtonInfo(tr("Take UI Tour"), [parent] {
+        Core::ICore::infoBar()->removeInfo(kTakeTourSetting);
+        Core::ICore::infoBar()->globallySuppressInfo(kTakeTourSetting);
+        auto intro = new IntroductionWidget(parent);
+        intro->show();
     });
-    messageBox->show();
+    Core::ICore::infoBar()->addInfo(info);
 }
 
 IntroductionWidget::IntroductionWidget(QWidget *parent)

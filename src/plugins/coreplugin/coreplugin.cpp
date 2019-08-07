@@ -149,6 +149,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Theme *themeFromArg = ThemeEntry::createTheme(args.themeId);
     setCreatorTheme(themeFromArg ? themeFromArg
                                  : ThemeEntry::createTheme(ThemeEntry::themeSetting()));
+    InfoBar::initialize(ICore::settings(), creatorTheme());
     new ActionManager(this);
     ActionManager::setPresentationModeEnabled(args.presentationMode);
     m_mainWindow = new MainWindow;
@@ -159,7 +160,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_mainWindow->init();
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
-    InfoBar::initialize(ICore::settings(), creatorTheme());
 
     IWizardFactory::initialize();
 

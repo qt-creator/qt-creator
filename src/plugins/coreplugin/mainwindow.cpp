@@ -365,6 +365,11 @@ QStatusBar *MainWindow::statusBar() const
     return m_modeStack->statusBar();
 }
 
+InfoBar *MainWindow::infoBar() const
+{
+    return m_modeStack->infoBar();
+}
+
 void MainWindow::registerDefaultContainers()
 {
     ActionContainer *menubar = ActionManager::createMenuBar(Constants::MENU_BAR);

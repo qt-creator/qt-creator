@@ -30,7 +30,6 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
-#include <QFrame>
 #include <QHBoxLayout>
 #include <QSettings>
 #include <QVBoxLayout>
@@ -207,6 +206,17 @@ void InfoBarDisplay::setInfoBar(InfoBar *infoBar)
     update();
 }
 
+void InfoBarDisplay::setStyle(QFrame::Shadow style)
+{
+    m_style = style;
+    update();
+}
+
+InfoBar *InfoBarDisplay::infoBar() const
+{
+    return m_infoBar;
+}
+
 void InfoBarDisplay::infoBarDestroyed()
 {
     m_infoBar = nullptr;
@@ -236,7 +246,7 @@ void InfoBarDisplay::update()
         }
 
         infoWidget->setPalette(pal);
-        infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
+        infoWidget->setFrameStyle(QFrame::Panel | m_style);
         infoWidget->setLineWidth(1);
         infoWidget->setAutoFillBackground(true);
 

@@ -43,9 +43,10 @@ template <typename T> class QList;
 QT_END_NAMESPACE
 
 namespace Core {
-class IWizardFactory;
 class Context;
 class IContext;
+class InfoBar;
+class IWizardFactory;
 class SettingsDatabase;
 
 namespace Internal { class MainWindow; }
@@ -107,6 +108,8 @@ public:
     static QMainWindow *mainWindow();
     static QWidget *dialogParent();
     static QStatusBar *statusBar();
+    static InfoBar *infoBar();
+
     /* Raises and activates the window for the widget. This contains workarounds for X11. */
     static void raiseWindow(QWidget *widget);
 
