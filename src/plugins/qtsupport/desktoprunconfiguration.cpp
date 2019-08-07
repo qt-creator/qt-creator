@@ -68,8 +68,6 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
                 bti.runEnvModifier(env, aspect<UseLibraryPathsAspect>()->value());
         });
 
-        setOutputFormatter<QtSupport::QtOutputFormatter>();
-
         auto libAspect = addAspect<UseLibraryPathsAspect>();
         connect(libAspect, &UseLibraryPathsAspect::changed,
                 envAspect, &EnvironmentAspect::environmentChanged);
@@ -93,8 +91,6 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
             if (bti.runEnvModifier)
                 bti.runEnvModifier(env, usingLibraryPaths);
         });
-
-        setOutputFormatter<QtSupport::QtOutputFormatter>();
 
         auto libAspect = addAspect<UseLibraryPathsAspect>();
         connect(libAspect, &UseLibraryPathsAspect::changed,
@@ -133,10 +129,9 @@ DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Ki
             });
         }
 
-        if (QtSupport::QtKitAspect::qtVersion(target->kit()))
-            setOutputFormatter<QtSupport::QtOutputFormatter>();
-
     }
+
+    setOutputFormatter<QtSupport::QtOutputFormatter>();
 
     connect(target->project(), &Project::parsingFinished,
             this, &DesktopRunConfiguration::updateTargetInformation);
