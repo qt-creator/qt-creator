@@ -38,9 +38,11 @@ namespace Core { class IEditor; }
 namespace QmlJS { class Editor; }
 
 namespace QmlJSEditor {
-namespace Internal {
 
 class QmlJSEditorWidget;
+
+namespace Internal {
+
 class QmlJSOutlineTreeView;
 
 class QmlJSOutlineFilterModel : public QSortFilterProxyModel

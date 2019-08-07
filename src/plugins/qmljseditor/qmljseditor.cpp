@@ -102,7 +102,6 @@ using namespace QmlJSTools;
 using namespace TextEditor;
 
 namespace QmlJSEditor {
-namespace Internal {
 
 //
 // QmlJSEditorWidget
@@ -132,7 +131,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     textDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
     m_modelManager = ModelManagerInterface::instance();
-    m_contextPane = QmlJSEditorPlugin::quickToolBar();
+    m_contextPane = Internal::QmlJSEditorPlugin::quickToolBar();
 
     m_modelManager->activateScan();
 
@@ -269,12 +268,11 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
         m_outlineCombo->setRootModelIndex(QModelIndex());
     }
 }
-} // namespace Internal
+
 } // namespace QmlJSEditor
 
 
 namespace QmlJSEditor {
-namespace Internal {
 
 void QmlJSEditorWidget::updateContextPane()
 {
@@ -507,7 +505,7 @@ void QmlJSEditorWidget::createToolBar()
 
     auto itemDelegate = new Utils::AnnotatedItemDelegate(this);
     itemDelegate->setDelimiter(QLatin1String(" "));
-    itemDelegate->setAnnotationRole(QmlOutlineModel::AnnotationRole);
+    itemDelegate->setAnnotationRole(Internal::QmlOutlineModel::AnnotationRole);
     treeView->setItemDelegateForColumn(0, itemDelegate);
 
     treeView->header()->hide();
@@ -525,7 +523,7 @@ void QmlJSEditorWidget::createToolBar()
 
     connect(m_outlineCombo, QOverload<int>::of(&QComboBox::activated),
             this, &QmlJSEditorWidget::jumpToOutlineElement);
-    connect(m_qmlJsEditorDocument->outlineModel(), &QmlOutlineModel::updated,
+    connect(m_qmlJsEditorDocument->outlineModel(), &Internal::QmlOutlineModel::updated,
             static_cast<QTreeView *>(m_outlineCombo->view()), &QTreeView::expandAll);
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
@@ -830,7 +828,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);
         if (interface) {
             QScopedPointer<IAssistProcessor> processor(
-                        QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor());
+                        Internal::QmlJSEditorPlugin::quickFixAssistProvider()->createProcessor());
             QScopedPointer<IAssistProposal> proposal(processor->perform(interface));
             if (!proposal.isNull()) {
                 GenericProposalModelPtr model = proposal->model().staticCast<GenericProposalModel>();
@@ -939,7 +937,7 @@ QModelIndex QmlJSEditorWidget::indexForPosition(unsigned cursorPosition, const Q
 {
     QModelIndex lastIndex = rootIndex;
 
-    QmlOutlineModel *model = m_qmlJsEditorDocument->outlineModel();
+    Internal::QmlOutlineModel *model = m_qmlJsEditorDocument->outlineModel();
     const int rowCount = model->rowCount(rootIndex);
     for (int i = 0; i < rowCount; ++i) {
         QModelIndex childIndex = model->index(i, 0, rootIndex);
@@ -979,7 +977,7 @@ AssistInterface *QmlJSEditorWidget::createAssistInterface(
                                                   reason,
                                                   m_qmlJsEditorDocument->semanticInfo());
     } else if (assistKind == QuickFix) {
-        return new QmlJSQuickFixAssistInterface(const_cast<QmlJSEditorWidget *>(this), reason);
+        return new Internal::QmlJSQuickFixAssistInterface(const_cast<QmlJSEditorWidget *>(this), reason);
     }
     return nullptr;
 }
@@ -1043,7 +1041,7 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setDocumentCreator([]() { return new QmlJSEditorDocument; });
     setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });
     setEditorCreator([]() { return new QmlJSEditor; });
-    setAutoCompleterCreator([]() { return new AutoCompleter; });
+    setAutoCompleterCreator([]() { return new Internal::AutoCompleter; });
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
@@ -1060,9 +1058,8 @@ QmlJSEditorFactory::QmlJSEditorFactory()
 void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)
 {
     editor->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter);
-    editor->textDocument()->setIndenter(new Indenter(editor->textDocument()->document()));
-    editor->setAutoCompleter(new AutoCompleter);
+    editor->textDocument()->setIndenter(new Internal::Indenter(editor->textDocument()->document()));
+    editor->setAutoCompleter(new Internal::AutoCompleter);
 }
 
-} // namespace Internal
 } // namespace QmlJSEditor

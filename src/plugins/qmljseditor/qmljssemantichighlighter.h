@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <qmljseditor/qmljseditor_global.h>
 #include <texteditor/semantichighlighter.h>
 #include <QFutureWatcher>
 #include <QTextLayout>
@@ -42,9 +43,7 @@ namespace QmlJSEditor {
 
 class QmlJSEditorDocument;
 
-namespace Internal {
-
-class SemanticHighlighter : public QObject
+class QMLJSEDITOR_EXPORT SemanticHighlighter : public QObject
 {
     Q_OBJECT
 public:
@@ -92,5 +91,4 @@ private:
     QVector<QTextLayout::FormatRange> m_diagnosticRanges;
 };
 
-} // namespace Internal
 } // namespace QmlJSEditor

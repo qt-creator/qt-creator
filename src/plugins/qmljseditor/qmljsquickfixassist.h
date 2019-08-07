@@ -32,9 +32,10 @@
 #include <texteditor/codeassist/iassistprovider.h>
 
 namespace QmlJSEditor {
-namespace Internal {
 
 class QmlJSEditorWidget;
+
+namespace Internal {
 
 class QmlJSQuickFixAssistInterface : public TextEditor::AssistInterface
 {

@@ -54,8 +54,6 @@ using namespace QmlJS::AST;
 
 namespace QmlJSEditor {
 
-using namespace Internal;
-
 namespace {
 
 static bool isIdScope(const ObjectValue *scope, const QList<const QmlComponentChain *> &chain)

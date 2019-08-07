@@ -37,11 +37,12 @@ namespace TextEditor { class TextMark; }
 namespace QmlJSEditor {
 
 class QmlJSEditorDocument;
+class SemanticHighlighter;
 
 namespace Internal {
 
 class QmlOutlineModel;
-class SemanticHighlighter;
+
 class SemanticInfoUpdater;
 
 class QmlJSEditorDocumentPrivate : public QObject
@@ -72,7 +73,7 @@ public:
     SemanticInfoUpdater *m_semanticInfoUpdater;
     QmlJSTools::SemanticInfo m_semanticInfo;
     QVector<QTextLayout::FormatRange> m_diagnosticRanges;
-    Internal::SemanticHighlighter *m_semanticHighlighter = nullptr;
+    SemanticHighlighter *m_semanticHighlighter = nullptr;
     bool m_semanticHighlightingNecessary = false;
     bool m_outlineModelNeedsUpdate = false;
     bool m_firstSementicInfo = true;

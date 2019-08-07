@@ -46,6 +46,7 @@ namespace QmlJS { class Value; }
 namespace QmlJSEditor {
 
 class QmlJSCompletionAssistInterface;
+class QmlJSCompletionAssistProvider;
 
 namespace Internal {
 
@@ -69,19 +70,6 @@ public:
     void filter(const QString &prefix) override;
     void sort(const QString &prefix) override;
     bool keepPerfectMatch(TextEditor::AssistReason reason) const override;
-};
-
-
-class QmlJSCompletionAssistProvider : public TextEditor::CompletionAssistProvider
-{
-    Q_OBJECT
-
-public:
-    TextEditor::IAssistProcessor *createProcessor() const override;
-
-    int activationCharSequenceLength() const override;
-    bool isActivationCharSequence(const QString &sequence) const override;
-    bool isContinuationChar(const QChar &c) const override;
 };
 
 
@@ -130,6 +118,20 @@ public:
 private:
     QmlJSTools::SemanticInfo m_semanticInfo;
 };
+
+
+class QMLJSEDITOR_EXPORT QmlJSCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+{
+    Q_OBJECT
+
+public:
+    TextEditor::IAssistProcessor *createProcessor() const override;
+
+    int activationCharSequenceLength() const override;
+    bool isActivationCharSequence(const QString &sequence) const override;
+    bool isContinuationChar(const QChar &c) const override;
+};
+
 
 QStringList QMLJSEDITOR_EXPORT qmlJSAutoComplete(QTextDocument *textDocument,
                                                  int position,

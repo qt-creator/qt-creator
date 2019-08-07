@@ -52,9 +52,7 @@ class QmlJSEditorDocument;
 class QuickToolBar;
 class FindReferences;
 
-namespace Internal {
-
-class QmlJSEditorWidget : public TextEditor::TextEditorWidget
+class QMLJSEDITOR_EXPORT QmlJSEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
 
@@ -131,7 +129,7 @@ private:
 };
 
 
-class QmlJSEditor : public TextEditor::BaseTextEditor
+class QMLJSEDITOR_EXPORT QmlJSEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
 
@@ -141,7 +139,7 @@ public:
     bool isDesignModePreferred() const override;
 };
 
-class QmlJSEditorFactory : public TextEditor::TextEditorFactory
+class QMLJSEDITOR_EXPORT QmlJSEditorFactory : public TextEditor::TextEditorFactory
 {
     Q_OBJECT
 
@@ -151,5 +149,4 @@ public:
     static void decorateEditor(TextEditor::TextEditorWidget *editor);
 };
 
-} // namespace Internal
 } // namespace QmlJSEditor

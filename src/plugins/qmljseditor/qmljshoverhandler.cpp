@@ -59,7 +59,6 @@ using namespace QmlJS;
 using namespace TextEditor;
 
 namespace QmlJSEditor {
-namespace Internal {
 
 namespace {
 
@@ -517,6 +516,5 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
     return false;
 }
 
-} // namespace Internal
 } // namespace QmlJSEditor
 

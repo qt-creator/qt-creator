@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <qmljseditor/qmljseditor_global.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <texteditor/basehoverhandler.h>
 
@@ -44,11 +45,10 @@ class ObjectValue;
 }
 
 namespace QmlJSEditor {
-namespace Internal {
 
 class QmlJSEditorWidget;
 
-class QmlJSHoverHandler : public TextEditor::BaseHoverHandler
+class QMLJSEDITOR_EXPORT QmlJSHoverHandler : public TextEditor::BaseHoverHandler
 {
     Q_DECLARE_TR_FUNCTIONS(QmlJSHoverHandler)
 
@@ -86,5 +86,4 @@ private:
     QColor m_colorTip;
 };
 
-} // namespace Internal
 } // namespace QmlJSEditor
