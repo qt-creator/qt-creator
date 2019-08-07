@@ -25,6 +25,7 @@
 
 #include "runcontrol.h"
 
+#include "devicesupport/desktopdevice.h"
 #include "project.h"
 #include "target.h"
 #include "toolchain.h"
@@ -54,8 +55,6 @@
 #include <QTimer>
 #include <QLoggingCategory>
 #include <QSettings>
-
-#include <devicesupport/desktopdevice.h>
 
 #if defined (WITH_JOURNALD)
 #include "journaldwatcher.h"
