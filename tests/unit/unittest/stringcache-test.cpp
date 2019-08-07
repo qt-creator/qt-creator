@@ -55,7 +55,21 @@ using CacheEntries = Cache::CacheEntries;
 class StringCache : public testing::Test
 {
 protected:
-    void SetUp();
+    void SetUp()
+    {
+        std::sort(filePaths.begin(), filePaths.end(), [](auto &f, auto &l) {
+            return compare(f, l) < 0;
+        });
+        std::sort(reverseFilePaths.begin(), reverseFilePaths.end(), [](auto &f, auto &l) {
+            return reverseCompare(f, l) < 0;
+        });
+
+        ON_CALL(mockStorage, fetchDirectoryId(Eq("foo"))).WillByDefault(Return(42));
+        ON_CALL(mockStorage, fetchDirectoryId(Eq("bar"))).WillByDefault(Return(43));
+        ON_CALL(mockStorage, fetchDirectoryId(Eq("poo"))).WillByDefault(Return(44));
+        ON_CALL(mockStorage, fetchDirectoryId(Eq("taa"))).WillByDefault(Return(45));
+        ON_CALL(mockStorage, fetchDirectoryPath(41)).WillByDefault(Return(Utils::PathString("bar")));
+    }
 
 protected:
     NiceMock<MockFilePathStorage> mockStorage;
@@ -490,15 +504,57 @@ TEST_F(StringCache, FetchDirectoryPathForUnknownIndex)
     ASSERT_THAT(string, Eq("bar"));
 }
 
-void StringCache::SetUp()
+TEST_F(StringCache, AddStringCalls)
 {
-    std::sort(filePaths.begin(), filePaths.end(), [] (auto &f, auto &l) { return compare(f, l) < 0;});
-    std::sort(reverseFilePaths.begin(), reverseFilePaths.end(), [] (auto &f, auto &l) { return reverseCompare(f, l) < 0;});
+    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("foo")));
+    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("bar")));
+    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("poo")));
 
-    ON_CALL(mockStorage, fetchDirectoryId(Eq("foo")))
-            .WillByDefault(Return(42));
-    ON_CALL(mockStorage, fetchDirectoryPath(41))
-            .WillByDefault(Return(Utils::PathString("bar")));
-}
+    cache.addStrings({"foo", "bar", "poo"}, mockStorageFetchDirectyId);
 }
 
+TEST_F(StringCache, AddStringCallsOnlyForNewStrings)
+{
+    cache.addStrings({"foo", "poo"}, mockStorageFetchDirectyId);
+
+    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("taa")));
+    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("bar")));
+
+    cache.addStrings({"foo", "bar", "poo", "taa"}, mockStorageFetchDirectyId);
+}
+
+TEST_F(StringCache, GetStringIdAfterAddingStrings)
+{
+    cache.addStrings({"foo", "bar", "poo", "taa"}, mockStorageFetchDirectyId);
+
+    ASSERT_THAT(cache.string(cache.stringId("taa")), Eq("taa"));
+}
+
+TEST_F(StringCache, GetStringAfterAddingStrings)
+{
+    cache.addStrings({"foo", "bar", "poo", "taa"}, mockStorageFetchDirectyId);
+
+    ASSERT_THAT(cache.string(cache.stringId("taa")), Eq("taa"));
+}
+
+TEST_F(StringCache, GetStringIdAfterAddingStringsMultipleTimes)
+{
+    cache.addStrings({"foo", "taa"}, mockStorageFetchDirectyId);
+
+    cache.addStrings({"foo", "bar", "poo", "taa"}, mockStorageFetchDirectyId);
+
+    ASSERT_THAT(cache.string(cache.stringId("taa")), Eq("taa"));
+}
+
+TEST_F(StringCache, GetStringIdAfterAddingTheSameStringsMultipleTimes)
+{
+    cache.addStrings({"foo", "taa", "poo", "taa", "bar", "taa"}, mockStorageFetchDirectyId);
+
+    ASSERT_THAT(cache.string(cache.stringId("taa")), Eq("taa"));
+}
+
+TEST_F(StringCache, AddingEmptyStrings)
+{
+    cache.addStrings({}, mockStorageFetchDirectyId);
+}
+} // namespace

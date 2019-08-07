@@ -161,6 +161,27 @@ public:
         return m_fileNameCache.string(filePathId.filePathId, fetchSoureNameAndDirectoryId).directoryId;
     }
 
+    void addFilePaths(FilePathViews &&filePaths)
+    {
+        auto directoryPaths = Utils::transform<std::vector<Utils::SmallStringView>>(
+            filePaths, [](FilePathView filePath) { return filePath.directory(); });
+
+        m_directoryPathCache.addStrings(std::move(directoryPaths),
+                                        [&](Utils::SmallStringView directoryPath) {
+                                            return m_filePathStorage.fetchDirectoryIdUnguarded(
+                                                directoryPath);
+                                        });
+
+        auto sourcePaths = Utils::transform<std::vector<FileNameView>>(filePaths, [&](FilePathView filePath) {
+            return FileNameView{filePath.name(), m_directoryPathCache.stringId(filePath.directory())};
+        });
+
+        m_fileNameCache.addStrings(std::move(sourcePaths), [&](FileNameView fileNameView) {
+            return m_filePathStorage.fetchSourceIdUnguarded(fileNameView.directoryId,
+                                                            fileNameView.fileName);
+        });
+    }
+
 private:
     mutable DirectoryPathCache m_directoryPathCache;
     mutable FileNameCache m_fileNameCache;

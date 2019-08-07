@@ -599,4 +599,75 @@ TEST_F(FilePathStorage, FetchDirectoryIdCallsThrows)
     ASSERT_ANY_THROW(storage.fetchDirectoryId(41));
 }
 
+TEST_F(FilePathStorage, GetTheDirectoryIdBackAfterFetchingANewEntryFromDirectoriesUnguarded)
+{
+    auto directoryId = storage.fetchDirectoryIdUnguarded("/some/not/known/path");
+
+    ASSERT_THAT(directoryId, 12);
+}
+
+TEST_F(FilePathStorage, GetTheSourceIdBackAfterFetchingANewEntryFromSourcesUnguarded)
+{
+    auto sourceId = storage.fetchSourceIdUnguarded(5, "unknownfile.h");
+
+    ASSERT_THAT(sourceId, 12);
+}
+
+TEST_F(FilePathStorage, CallSelectForFetchingDirectoryIdForKnownPathUnguarded)
+{
+    InSequence s;
+
+    EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
+                valueReturnInt32(TypedEq<Utils::SmallStringView>("/path/to")));
+
+    storage.fetchDirectoryIdUnguarded("/path/to");
+}
+
+TEST_F(FilePathStorage, CallSelectForFetchingSourceIdForKnownPathUnguarded)
+{
+    InSequence s;
+
+    EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
+                valueReturnInt32(5, Eq("file.h")));
+
+    storage.fetchSourceIdUnguarded(5, "file.h");
+}
+
+TEST_F(FilePathStorage, CallNotWriteForFetchingDirectoryIdForKnownPathUnguarded)
+{
+    EXPECT_CALL(insertIntoDirectories, write(An<Utils::SmallStringView>())).Times(0);
+
+    storage.fetchDirectoryIdUnguarded("/path/to");
+}
+
+TEST_F(FilePathStorage, CallNotWriteForFetchingSoureIdForKnownEntryUnguarded)
+{
+    EXPECT_CALL(insertIntoSources, write(An<uint>(), An<Utils::SmallStringView>())).Times(0);
+
+    storage.fetchSourceIdUnguarded(5, "file.h");
+}
+
+TEST_F(FilePathStorage, CallSelectAndWriteForFetchingDirectoryIdForUnknownPathUnguarded)
+{
+    InSequence s;
+
+    EXPECT_CALL(selectDirectoryIdFromDirectoriesByDirectoryPath,
+                valueReturnInt32(TypedEq<Utils::SmallStringView>("/some/not/known/path")));
+    EXPECT_CALL(insertIntoDirectories, write(TypedEq<Utils::SmallStringView>("/some/not/known/path")));
+
+    storage.fetchDirectoryIdUnguarded("/some/not/known/path");
+}
+
+TEST_F(FilePathStorage, CallSelectAndWriteForFetchingSourceIdForUnknownEntryUnguarded)
+{
+    InSequence s;
+
+    EXPECT_CALL(selectSourceIdFromSourcesByDirectoryIdAndSourceName,
+                valueReturnInt32(5, Eq("unknownfile.h")));
+    EXPECT_CALL(insertIntoSources,
+                write(TypedEq<int>(5), TypedEq<Utils::SmallStringView>("unknownfile.h")));
+
+    storage.fetchSourceIdUnguarded(5, "unknownfile.h");
+}
+
 } // namespace

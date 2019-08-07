@@ -48,6 +48,16 @@ public:
         : m_statementFactory(statementFactory)
     {}
 
+    int fetchDirectoryIdUnguarded(Utils::SmallStringView directoryPath)
+    {
+        Utils::optional<int> optionalDirectoryId = readDirectoryId(directoryPath);
+
+        if (optionalDirectoryId)
+            return optionalDirectoryId.value();
+
+        return writeDirectoryId(directoryPath);
+    }
+
     int fetchDirectoryId(Utils::SmallStringView directoryPath)
     {
         try {
@@ -125,19 +135,22 @@ public:
         }
     }
 
+    int fetchSourceIdUnguarded(int directoryId, Utils::SmallStringView sourceName)
+    {
+        Utils::optional<int> optionalSourceId = readSourceId(directoryId, sourceName);
+
+        if (optionalSourceId)
+            return optionalSourceId.value();
+
+        return writeSourceId(directoryId, sourceName);
+    }
+
     int fetchSourceId(int directoryId, Utils::SmallStringView sourceName)
     {
         try {
             Sqlite::DeferredTransaction transaction{m_statementFactory.database};
 
-            Utils::optional<int> optionalSourceId = readSourceId(directoryId, sourceName);
-
-            int sourceId = -1;
-
-            if (optionalSourceId)
-                sourceId = optionalSourceId.value();
-            else
-                sourceId = writeSourceId(directoryId, sourceName);
+            int sourceId = fetchSourceIdUnguarded(directoryId, sourceName);
 
             transaction.commit();
 

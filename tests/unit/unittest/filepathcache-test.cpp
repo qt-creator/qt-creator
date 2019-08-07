@@ -54,8 +54,7 @@ protected:
                 .WillByDefault(Return(63));
         ON_CALL(mockStorage, fetchSourceId(6, Eq("file.cpp")))
                 .WillByDefault(Return(72));
-        ON_CALL(mockStorage, fetchDirectoryPath(5))
-                .WillByDefault(Return(Utils::PathString("/path/to")));
+        ON_CALL(mockStorage, fetchDirectoryPath(5)).WillByDefault(Return(Utils::PathString("/path/to")));
         ON_CALL(mockStorage, fetchSourceNameAndDirectoryId(42))
             .WillByDefault(Return(SourceNameAndDirectoryId("file.cpp", 5)));
         ON_CALL(mockStorageFilled, fetchAllSources())
@@ -67,6 +66,10 @@ protected:
         ON_CALL(mockStorageFilled, fetchAllDirectories())
             .WillByDefault(Return(
                 std::vector<ClangBackEnd::Sources::Directory>({{"/path2/to", 6}, {"/path/to", 5}})));
+        ON_CALL(mockStorageFilled, fetchDirectoryIdUnguarded(Eq("/path3/to"))).WillByDefault(Return(7));
+        ON_CALL(mockStorageFilled, fetchSourceIdUnguarded(7, Eq("file.h"))).WillByDefault(Return(101));
+        ON_CALL(mockStorageFilled, fetchSourceIdUnguarded(6, Eq("file2.h"))).WillByDefault(Return(106));
+        ON_CALL(mockStorageFilled, fetchSourceIdUnguarded(5, Eq("file.h"))).WillByDefault(Return(99));
     }
 
 protected:
@@ -370,4 +373,38 @@ TEST_F(FilePathCache, GetFilePathInFilledCache)
 
     ASSERT_THAT(path, Eq("/path/to/file.cpp"));
 }
+
+TEST_F(FilePathCache, GetFileIdAfterAddFilePaths)
+{
+    Cache cacheFilled{mockStorageFilled};
+
+    cacheFilled.addFilePaths(
+        {"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h", "/path/to/file.cpp"});
+
+    ASSERT_THAT(cacheFilled.filePath(101), Eq("/path3/to/file.h"));
+}
+
+TEST_F(FilePathCache, GetFileIdAfterAddFilePathsWhichWasAlreadyAdded)
+{
+    Cache cacheFilled{mockStorageFilled};
+
+    cacheFilled.addFilePaths({"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h"});
+
+    ASSERT_THAT(cacheFilled.filePath(42), Eq("/path/to/file.cpp"));
+}
+
+TEST_F(FilePathCache, AddFilePathsCalls)
+{
+    Cache cacheFilled{mockStorageFilled};
+    InSequence s;
+
+    EXPECT_CALL(mockStorageFilled, fetchDirectoryIdUnguarded(Eq("/path3/to"))).WillOnce(Return(7));
+    EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(5, Eq("file.h"))).WillOnce(Return(99));
+    EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(6, Eq("file2.h"))).WillOnce(Return(106));
+    EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(7, Eq("file.h"))).WillOnce(Return(101));
+
+    cacheFilled.addFilePaths(
+        {"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h", "/path/to/file.cpp"});
+}
+
 } // namespace

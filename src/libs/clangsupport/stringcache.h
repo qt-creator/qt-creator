@@ -26,6 +26,7 @@
 #pragma once
 
 #include "filepathstoragesources.h"
+#include "set_algorithm.h"
 #include "stringcachealgorithms.h"
 #include "stringcachefwd.h"
 
@@ -152,9 +153,7 @@ public:
 
     void uncheckedPopulate(CacheEntries &&entries)
     {
-        std::sort(entries.begin(),
-                  entries.end(),
-                  [] (StringViewType first, StringViewType second) {
+        std::sort(entries.begin(), entries.end(), [](StringViewType first, StringViewType second) {
             return compare(first, second) < 0;
         });
 
@@ -173,9 +172,59 @@ public:
 
         m_indices.resize(max_id, -1);
 
-        auto begin = m_strings.cbegin();
-        for (auto current = begin; current != m_strings.end(); ++current)
-            m_indices[current->id] = std::distance(begin, current);
+        updateIndices();
+    }
+
+    template<typename Function>
+    void addStrings(std::vector<StringViewType> &&strings, Function storageFunction)
+    {
+        auto less = [](StringViewType first, StringViewType second) {
+            return compare(first, second) < 0;
+        };
+
+        std::sort(strings.begin(), strings.end(), less);
+
+        strings.erase(std::unique(strings.begin(), strings.end()), strings.end());
+
+        CacheEntries newCacheEntries;
+        newCacheEntries.reserve(strings.size());
+
+        std::set_difference(strings.begin(),
+                            strings.end(),
+                            m_strings.begin(),
+                            m_strings.end(),
+                            make_iterator([&](StringViewType newString) {
+                                IndexType index = storageFunction(newString);
+                                newCacheEntries.emplace_back(newString, index);
+                            }),
+                            less);
+
+        if (newCacheEntries.size()) {
+            auto found = std::max_element(newCacheEntries.begin(),
+                                          newCacheEntries.end(),
+                                          [](const auto &first, const auto &second) {
+                                              return first.id < second.id;
+                                          });
+
+            int max_id = found->id + 1;
+
+            if (max_id > int(m_indices.size()))
+                m_indices.resize(max_id, -1);
+
+            CacheEntries mergedCacheEntries;
+            mergedCacheEntries.reserve(newCacheEntries.size() + m_strings.size());
+
+            std::merge(std::make_move_iterator(m_strings.begin()),
+                       std::make_move_iterator(m_strings.end()),
+                       std::make_move_iterator(newCacheEntries.begin()),
+                       std::make_move_iterator(newCacheEntries.end()),
+                       std::back_inserter(mergedCacheEntries),
+                       less);
+
+            m_strings = std::move(mergedCacheEntries);
+
+            updateIndices();
+        }
     }
 
     IndexType stringId(StringViewType stringView)
@@ -291,6 +340,13 @@ public:
     }
 
 private:
+    void updateIndices()
+    {
+        auto begin = m_strings.cbegin();
+        for (auto current = begin; current != m_strings.end(); ++current)
+            m_indices[current->id] = std::distance(begin, current);
+    }
+
     Found find(StringViewType stringView)
     {
         return findInSorted(m_strings.cbegin(), m_strings.cend(), stringView, compare);
