@@ -94,6 +94,11 @@ T.TextField {
         myTextEdit: myTextField
     }
 
+    onEditChanged: {
+        if (myTextField.edit)
+            contextMenu.close()
+    }
+
     ActionIndicator {
         id: actionIndicator
         myControl: myTextField
