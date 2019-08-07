@@ -204,7 +204,7 @@ void TestTreeModel::syncTestFrameworks()
     removeTestRootNodes();
 
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    QVector<Core::Id> sortedIds = frameworkManager->sortedActiveFrameworkIds();
+    QList<Core::Id> sortedIds = frameworkManager->sortedActiveFrameworkIds();
     for (const Core::Id &id : sortedIds)
         rootItem()->appendChild(frameworkManager->rootNodeForTestFramework(id));
 

@@ -115,7 +115,7 @@ void TestCodeParser::setState(State state)
     }
 }
 
-void TestCodeParser::syncTestFrameworks(const QVector<Core::Id> &frameworkIds)
+void TestCodeParser::syncTestFrameworks(const QList<Core::Id> &frameworkIds)
 {
     if (m_parserState != Idle) {
         // there's a running parse

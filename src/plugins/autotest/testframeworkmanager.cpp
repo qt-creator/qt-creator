@@ -120,9 +120,9 @@ QList<Core::Id> TestFrameworkManager::sortedRegisteredFrameworkIds() const
     return registered;
 }
 
-QVector<Core::Id> TestFrameworkManager::activeFrameworkIds() const
+QList<Core::Id> TestFrameworkManager::activeFrameworkIds() const
 {
-    QVector<Core::Id> active;
+    QList<Core::Id> active;
     FrameworkIterator it = m_registeredFrameworks.begin();
     FrameworkIterator end = m_registeredFrameworks.end();
     for ( ; it != end; ++it) {
@@ -132,9 +132,9 @@ QVector<Core::Id> TestFrameworkManager::activeFrameworkIds() const
     return active;
 }
 
-QVector<Core::Id> TestFrameworkManager::sortedActiveFrameworkIds() const
+QList<Core::Id> TestFrameworkManager::sortedActiveFrameworkIds() const
 {
-    QVector<Core::Id> active = activeFrameworkIds();
+    QList<Core::Id> active = activeFrameworkIds();
     Utils::sort(active, [this] (const Core::Id &lhs, const Core::Id &rhs) {
         return m_registeredFrameworks[lhs]->priority() < m_registeredFrameworks[rhs]->priority();
     });
@@ -208,6 +208,13 @@ bool TestFrameworkManager::hasActiveFrameworks() const
             return true;
     }
     return false;
+}
+
+unsigned TestFrameworkManager::priority(const Core::Id &frameworkId) const
+{
+    if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
+        return framework->priority();
+    return unsigned(-1);
 }
 
 } // namespace Internal

@@ -58,7 +58,7 @@ public:
     QString frameworkNameForId(const Core::Id &id) const;
     QList<Core::Id> registeredFrameworkIds() const;
     QList<Core::Id> sortedRegisteredFrameworkIds() const;
-    QVector<Core::Id> sortedActiveFrameworkIds() const;
+    QList<Core::Id> sortedActiveFrameworkIds() const;
 
     TestTreeItem *rootNodeForTestFramework(const Core::Id &frameworkId) const;
     ITestParser *testParserForTestFramework(const Core::Id &frameworkId) const;
@@ -69,9 +69,9 @@ public:
     void setGroupingEnabledFor(const Core::Id &frameworkId, bool enabled);
     QString groupingToolTip(const Core::Id &frameworkId) const;
     bool hasActiveFrameworks() const;
-
+    unsigned priority(const Core::Id &frameworkId) const;
 private:
-    QVector<Core::Id> activeFrameworkIds() const;
+    QList<Core::Id> activeFrameworkIds() const;
     explicit TestFrameworkManager();
     QHash<Core::Id, ITestFramework *> m_registeredFrameworks;
     QHash<Core::Id, QSharedPointer<IFrameworkSettings> > m_frameworkSettings;
