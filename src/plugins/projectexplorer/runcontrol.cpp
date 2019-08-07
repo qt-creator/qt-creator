@@ -891,9 +891,14 @@ QString RunControl::buildKey() const
     return d->runConfiguration ? d->runConfiguration->buildKey() : QString();
 }
 
-BuildTargetInfo RunControl::buildTargetInfo() const
+FilePath RunControl::targetFilePath() const
 {
-    return d->runConfiguration->buildTargetInfo();
+    return d->runConfiguration->buildTargetInfo().targetFilePath;
+}
+
+FilePath RunControl::projectFilePath() const
+{
+    return d->runConfiguration->buildTargetInfo().projectFilePath;
 }
 
 /*!

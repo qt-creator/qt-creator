@@ -69,12 +69,11 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
         return;
     }
 
-    const BuildTargetInfo bti = runControl->buildTargetInfo();
-    m_executableFilePath = bti.targetFilePath.toString();
+    m_executableFilePath = runControl->targetFilePath().toString();
 
     if (m_executableFilePath.isEmpty()) {
-        *errorMessage = tr("Cannot determine the executable file path for \"%1\".").arg(
-                    QDir::toNativeSeparators(bti.projectFilePath.toString()));
+        *errorMessage = tr("Cannot determine the executable file path for \"%1\".")
+                .arg(runControl->projectFilePath().toUserOutput());
         return;
     }
 

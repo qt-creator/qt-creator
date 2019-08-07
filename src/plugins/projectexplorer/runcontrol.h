@@ -26,7 +26,6 @@
 #pragma once
 
 #include "applicationlauncher.h"
-#include "buildtargetinfo.h"
 #include "devicesupport/idevice.h"
 #include "projectexplorerconstants.h"
 #include "runconfiguration.h"
@@ -245,7 +244,9 @@ public:
 
     ISettingsAspect *settings(Core::Id id) const;
     QString buildKey() const;
-    BuildTargetInfo buildTargetInfo() const;
+
+    Utils::FilePath targetFilePath() const;
+    Utils::FilePath projectFilePath() const;
 
     Utils::OutputFormatter *outputFormatter() const;
     Core::Id runMode() const;
