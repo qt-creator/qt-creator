@@ -31,16 +31,13 @@
 #include "runconfiguration.h"
 
 #include <utils/environment.h>
-#include <utils/port.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/icon.h>
 
 #include <QHash>
-#include <QPointer>
 #include <QVariant>
-#include <QWidget>
 
 #include <functional>
 #include <memory>
@@ -51,7 +48,6 @@ class OutputFormatter;
 } // Utils
 
 namespace ProjectExplorer {
-class BuildConfiguration;
 class GlobalOrProjectAspect;
 class Node;
 class RunConfigurationFactory;

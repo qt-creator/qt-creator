@@ -33,6 +33,8 @@
 #include <utils/qtcassert.h>
 #include <utils/url.h>
 
+#include <QPointer>
+
 using namespace QSsh;
 using namespace Utils;
 
