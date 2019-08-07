@@ -29,6 +29,8 @@
 
 #include "projectexplorer/runconfigurationaspects.h"
 
+#include <projectexplorer/runcontrol.h>
+
 namespace QtSupport {
 namespace Internal {
 
@@ -56,28 +58,10 @@ private:
     const Kind m_kind;
 };
 
-class DesktopQmakeRunConfiguration : public DesktopRunConfiguration
+class DesktopRunWorkerFactory : public ProjectExplorer::RunWorkerFactory
 {
-    Q_OBJECT
-
 public:
-    DesktopQmakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-};
-
-class QbsRunConfiguration : public DesktopRunConfiguration
-{
-    Q_OBJECT
-
-public:
-    QbsRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-};
-
-class CMakeRunConfiguration : public DesktopRunConfiguration
-{
-    Q_OBJECT
-
-public:
-    CMakeRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    DesktopRunWorkerFactory();
 };
 
 class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory

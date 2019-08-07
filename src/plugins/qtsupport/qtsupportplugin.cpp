@@ -71,17 +71,10 @@ public:
     CodeGenSettingsPage codeGenSettingsPage;
     QtOptionsPage qtOptionsPage;
 
+    DesktopRunWorkerFactory desktopRunWorkerFactory;
     DesktopQmakeRunConfigurationFactory desktopQmakeRunConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, DesktopQmakeRunConfiguration>
-        desktopQmakeRunWorkerFactory;
-
     QbsRunConfigurationFactory desktopQbsRunConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, QbsRunConfiguration>
-        desktopQbsRunWorkerFactory;
-
     CMakeRunConfigurationFactory desktopCMakeRunConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, CMakeRunConfiguration>
-        desktopCMakeRunWorkerFactory;
 
     ExamplesWelcomePage examplesPage{true};
     ExamplesWelcomePage tutorialPage{false};

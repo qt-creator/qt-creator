@@ -233,35 +233,61 @@ QString DesktopRunConfiguration::disabledReason() const
 
 // Factory
 
-DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *target, Core::Id id)
-    : DesktopRunConfiguration(target, id, Qmake)
-{}
+class DesktopQmakeRunConfiguration : public DesktopRunConfiguration
+{
+public:
+    DesktopQmakeRunConfiguration(Target *target, Core::Id id)
+        : DesktopRunConfiguration(target, id, Qmake)
+    {}
+};
 
-QbsRunConfiguration::QbsRunConfiguration(Target *target, Core::Id id)
-    : DesktopRunConfiguration(target, id, Qbs)
-{}
+class QbsRunConfiguration : public DesktopRunConfiguration
+{
+public:
+    QbsRunConfiguration(Target *target, Core::Id id)
+        : DesktopRunConfiguration(target, id, Qbs)
+    {}
+};
 
-CMakeRunConfiguration::CMakeRunConfiguration(Target *target, Core::Id id)
-    : DesktopRunConfiguration(target, id, CMake)
-{}
+class CMakeRunConfiguration : public DesktopRunConfiguration
+{
+public:
+    CMakeRunConfiguration(Target *target, Core::Id id)
+        : DesktopRunConfiguration(target, id, CMake)
+    {}
+};
+
+const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";
+const char QBS_RUNCONFIG_ID[]   = "Qbs.RunConfiguration:";
+const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
+
+DesktopRunWorkerFactory::DesktopRunWorkerFactory()
+{
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfiguration(QMAKE_RUNCONFIG_ID);
+    addSupportedRunConfiguration(QBS_RUNCONFIG_ID);
+    addSupportedRunConfiguration(CMAKE_RUNCONFIG_ID);
+
+    setProducer([](RunControl *runControl) { return new SimpleTargetRunner(runControl); });
+}
 
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
-    registerRunConfiguration<CMakeRunConfiguration>("CMakeProjectManager.CMakeRunConfiguration.");
+    registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RUNCONFIG_ID);
     addSupportedProjectType(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }
 
 QbsRunConfigurationFactory::QbsRunConfigurationFactory()
 {
-    registerRunConfiguration<QbsRunConfiguration>("Qbs.RunConfiguration:");
+    registerRunConfiguration<QbsRunConfiguration>(QBS_RUNCONFIG_ID);
     addSupportedProjectType(QbsProjectManager::Constants::PROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }
 
 DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
 {
-    registerRunConfiguration<DesktopQmakeRunConfiguration>("Qt4ProjectManager.Qt4RunConfiguration:");
+    registerRunConfiguration<DesktopQmakeRunConfiguration>(QMAKE_RUNCONFIG_ID);
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }
