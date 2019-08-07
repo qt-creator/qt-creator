@@ -52,6 +52,8 @@ public:
     QmlProfilerTool();
     ~QmlProfilerTool() override;
 
+    static QmlProfilerTool *instance();
+
     void finalizeRunControl(QmlProfilerRunner *runWorker);
 
     bool prepareTool();

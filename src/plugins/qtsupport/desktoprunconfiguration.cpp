@@ -239,16 +239,6 @@ const char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char QBS_RUNCONFIG_ID[]   = "Qbs.RunConfiguration:";
 const char CMAKE_RUNCONFIG_ID[] = "CMakeProjectManager.CMakeRunConfiguration.";
 
-DesktopRunWorkerFactory::DesktopRunWorkerFactory()
-{
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfiguration(QMAKE_RUNCONFIG_ID);
-    addSupportedRunConfiguration(QBS_RUNCONFIG_ID);
-    addSupportedRunConfiguration(CMAKE_RUNCONFIG_ID);
-
-    setProducer([](RunControl *runControl) { return new SimpleTargetRunner(runControl); });
-}
-
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
 {
     registerRunConfiguration<CMakeRunConfiguration>(CMAKE_RUNCONFIG_ID);

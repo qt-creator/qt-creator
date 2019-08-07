@@ -45,7 +45,6 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::testRunner()
 {
-    QmlProfilerTool tool;
     QPointer<ProjectExplorer::RunControl> runControl;
     QPointer<LocalQmlProfilerSupport> profiler;
     ProjectExplorer::Runnable debuggee;
@@ -66,7 +65,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
-    profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
+    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
 
     auto connectRunner = [&]() {
         connect(runControl, &ProjectExplorer::RunControl::aboutToStart, this, [&]() {
@@ -116,7 +115,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     debuggee.commandLineArguments = QString("-test QmlProfiler,");
     runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
-    profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
+    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
     connectRunner();
     runControl->initiateStart();
 
@@ -135,7 +134,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     serverUrl = Utils::urlFromLocalHostAndFreePort();
     runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
-    profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
+    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
     connectRunner();
     runControl->initiateStart();
 
@@ -160,7 +159,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setRunnable(debuggee);
-    profiler = new LocalQmlProfilerSupport(&tool, runControl, serverUrl);
+    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
     connectRunner();
     runControl->initiateStart();
 

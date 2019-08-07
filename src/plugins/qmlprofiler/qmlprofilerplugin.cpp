@@ -80,34 +80,18 @@ namespace Internal {
 
 Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
 
-bool constraint(RunConfiguration *runConfiguration)
-{
-    Target *target = runConfiguration ? runConfiguration->target() : nullptr;
-    Kit *kit = target ? target->kit() : nullptr;
-    return DeviceTypeKitAspect::deviceTypeId(kit)
-            == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-}
-
-class QmlProfilerRunWorkerFactory : public RunWorkerFactory
-{
-public:
-    QmlProfilerRunWorkerFactory(QmlProfilerTool *tool)
-    {
-        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-        setProducer([tool](RunControl *runControl) {
-            return new LocalQmlProfilerSupport(tool, runControl);
-        });
-        addConstraint(constraint);
-    }
-};
-
 class QmlProfilerPluginPrivate
 {
 public:
     QmlProfilerTool m_profilerTool;
     QmlProfilerOptionsPage m_profilerOptionsPage;
     QmlProfilerActions m_actions;
-    QmlProfilerRunWorkerFactory m_profilerWorkerFactory{&m_profilerTool};
+    RunWorkerFactory m_profilerWorkerFactory{
+        RunWorkerFactory::make<LocalQmlProfilerSupport>(),
+        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
+        {},
+        {ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE}
+    };
 };
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)

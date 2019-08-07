@@ -180,6 +180,36 @@ public:
     QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep>
         m_directUploadStepFactory;
 
+    const QList<Core::Id> supportedRunConfigs {
+        m_runConfigFactory.id(),
+        "QmlProjectManager.QmlRunConfiguration"
+    };
+
+    RunWorkerFactory runWorkerFactory{
+        RunWorkerFactory::make<QdbDeviceRunSupport>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        supportedRunConfigs,
+        {Qdb::Constants::QdbLinuxOsType}
+    };
+    RunWorkerFactory debugWorkerFactory{
+        RunWorkerFactory::make<QdbDeviceDebugSupport>(),
+        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
+        supportedRunConfigs,
+        {Qdb::Constants::QdbLinuxOsType}
+    };
+    RunWorkerFactory qmlProfilerWorkerFactory{
+        RunWorkerFactory::make<QdbDeviceQmlProfilerSupport>(),
+        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
+        supportedRunConfigs,
+        {Qdb::Constants::QdbLinuxOsType}
+    };
+    RunWorkerFactory qmlPreviewWorkerFactory{
+        RunWorkerFactory::make<QdbDeviceQmlPreviewSupport>(),
+        {ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
+        supportedRunConfigs,
+        {Qdb::Constants::QdbLinuxOsType}
+    };
+
     DeviceDetector m_deviceDetector;
 };
 
@@ -194,28 +224,6 @@ bool QdbPlugin::initialize(const QStringList &arguments, QString *errorString)
     Q_UNUSED(errorString)
 
     d = new QdbPluginPrivate;
-
-    auto constraint = [](RunConfiguration *runConfiguration)  {
-        const Core::Id devType = DeviceTypeKitAspect::deviceTypeId(
-                    runConfiguration->target()->kit());
-
-        if (devType != Qdb::Constants::QdbLinuxOsType)
-            return false;
-
-        const Core::Id id = runConfiguration->id();
-        return runConfiguration->isEnabled()
-                && (id.name().startsWith(Constants::QdbRunConfigurationPrefix)
-                    || id.name().startsWith("QmlProjectManager.QmlRunConfiguration"));
-    };
-
-    RunControl::registerWorker<QdbDeviceRunSupport>
-            (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
-    RunControl::registerWorker<QdbDeviceDebugSupport>
-            (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
-    RunControl::registerWorker<QdbDeviceQmlProfilerSupport>
-            (ProjectExplorer::Constants::QML_PROFILER_RUN_MODE, constraint);
-    RunControl::registerWorker<QdbDeviceQmlPreviewSupport>
-            (ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE, constraint);
 
     registerFlashAction(this);
 

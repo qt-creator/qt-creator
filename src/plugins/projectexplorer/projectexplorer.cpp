@@ -565,8 +565,11 @@ public:
     CurrentProjectFind m_curretProjectFind;
 
     CustomExecutableRunConfigurationFactory m_customExecutableRunConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, CustomExecutableRunConfiguration>
-        m_customExecutableRunWorkerFactory;
+    RunWorkerFactory m_customExecutableRunWorkerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {Constants::NORMAL_RUN_MODE},
+        {m_customExecutableRunConfigFactory.id()}
+    };
 
     ProjectFileWizardExtension m_projectFileWizardExtension;
 
@@ -610,8 +613,6 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     delete dd;
     dd = nullptr;
     m_instance = nullptr;
-
-    RunWorkerFactory::destroyRemainingRunWorkerFactories();
 }
 
 ProjectExplorerPlugin *ProjectExplorerPlugin::instance()

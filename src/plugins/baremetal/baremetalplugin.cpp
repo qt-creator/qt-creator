@@ -63,6 +63,12 @@ public:
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
     GdbServerProvidersSettingsPage gdbServerProviderSettinsPage;
     GdbServerProviderManager gdbServerProviderManager;
+
+    RunWorkerFactory runWorkerFactory{
+        RunWorkerFactory::make<BareMetalDebugSupport>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
+        {runConfigurationFactory.id(), customRunConfigurationFactory.id()}
+    };
 };
 
 // BareMetalPlugin
@@ -78,19 +84,6 @@ bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorStr
     Q_UNUSED(errorString)
 
     d = new BareMetalPluginPrivate;
-
-    auto constraint = [](RunConfiguration *runConfig) {
-        const QByteArray idStr = runConfig->id().name();
-        const bool res = idStr.startsWith(BareMetalRunConfiguration::IdPrefix)
-                || idStr == BareMetalCustomRunConfiguration::Id;
-        return res;
-    };
-
-    RunControl::registerWorker<BareMetalDebugSupport>
-            (ProjectExplorer::Constants::NORMAL_RUN_MODE, constraint);
-    RunControl::registerWorker<BareMetalDebugSupport>
-            (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
-
     return true;
 }
 

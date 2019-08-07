@@ -610,6 +610,7 @@ private:
     QHash<unsigned, QString> m_debugInfoTasks;
 };
 
+
 ///////////////////////////////////////////////////////////////////////
 //
 // DebuggerPluginPrivate
@@ -776,6 +777,18 @@ public:
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, tr("Debugger")};
 
     DebuggerKitAspect debuggerKitAspect;
+
+    RunWorkerFactory debuggerWorkerFactory{
+        RunWorkerFactory::make<DebuggerRunTool>(),
+        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
+        {}, // All local run configs?
+        {PE::DESKTOP_DEVICE_TYPE}
+    };
+
+    // FIXME: Needed?
+//            QString mainScript = runConfig->property("mainScript").toString();
+//            const bool isDebuggableScript = mainScript.endsWith(".py"); // Only Python for now.
+//            return isDebuggableScript;
 };
 
 DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin)
@@ -2085,23 +2098,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
             cmd->setAttribute(Command::CA_NonConfigurable);
         }
     }
-
-    auto constraint = [](RunConfiguration *runConfig) {
-        Runnable runnable = runConfig->runnable();
-        if (runnable.device && runnable.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-            return true;
-
-        if (DeviceTypeKitAspect::deviceTypeId(runConfig->target()->kit())
-                    == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-            return true;
-
-        QString mainScript = runConfig->property("mainScript").toString();
-        const bool isDebuggableScript = mainScript.endsWith(".py"); // Only Python for now.
-        return isDebuggableScript;
-    };
-
-    RunControl::registerWorker<DebuggerRunTool>
-        (ProjectExplorer::Constants::DEBUG_RUN_MODE, constraint);
 
     DebuggerMainWindow::ensureMainWindowExists();
 }

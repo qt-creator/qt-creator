@@ -72,8 +72,8 @@ class LocalQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
     Q_OBJECT
 
 public:
-    LocalQmlProfilerSupport(QmlProfilerTool *profilerTool, ProjectExplorer::RunControl *runControl);
-    LocalQmlProfilerSupport(QmlProfilerTool *profilerTool, ProjectExplorer::RunControl *runControl,
+    LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
+    LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl,
                             const QUrl &serverUrl);
 };
 

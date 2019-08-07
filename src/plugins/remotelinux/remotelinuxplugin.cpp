@@ -83,6 +83,37 @@ public:
     GenericDeployStepFactory<RemoteLinuxKillAppStep> remoteLinuxKillAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
     EmbeddedLinuxQtVersionFactory embeddedLinuxQtVersionFactory;
+
+    const QList<Core::Id> supportedRunConfigs {
+        runConfigurationFactory.id(),
+        customRunConfigurationFactory.id(),
+        "QmlProjectManager.QmlRunConfiguration"
+    };
+
+    RunWorkerFactory runnerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        supportedRunConfigs,
+        {Constants::GenericLinuxOsType}
+    };
+    RunWorkerFactory debuggerFactory{
+        RunWorkerFactory::make<LinuxDeviceDebugSupport>(),
+        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
+        supportedRunConfigs,
+        {Constants::GenericLinuxOsType}
+    };
+    RunWorkerFactory qmlProfilerFactory{
+        RunWorkerFactory::make<RemoteLinuxQmlProfilerSupport>(),
+        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
+        supportedRunConfigs,
+        {Constants::GenericLinuxOsType}
+    };
+    RunWorkerFactory qmlPreviewFactory{
+        RunWorkerFactory::make<RemoteLinuxQmlPreviewSupport>(),
+        {ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
+        supportedRunConfigs,
+        {Constants::GenericLinuxOsType}
+    };
 };
 
 static RemoteLinuxPluginPrivate *dd = nullptr;
@@ -103,25 +134,6 @@ bool RemoteLinuxPlugin::initialize(const QStringList &arguments, QString *errorM
     Q_UNUSED(errorMessage)
 
     dd = new RemoteLinuxPluginPrivate;
-
-    auto constraint = [](RunConfiguration *runConfig) {
-        const Core::Id devType = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(
-                    runConfig->target()->kit());
-
-        if (devType != Constants::GenericLinuxOsType)
-            return false;
-
-        const Core::Id id = runConfig->id();
-        return id == RemoteLinuxCustomRunConfiguration::runConfigId()
-            || id.name().startsWith(RemoteLinuxRunConfiguration::IdPrefix)
-            || id.name().startsWith("QmlProjectManager.QmlRunConfiguration");
-    };
-
-    using namespace ProjectExplorer::Constants;
-    RunControl::registerWorker<SimpleTargetRunner>(NORMAL_RUN_MODE, constraint);
-    RunControl::registerWorker<LinuxDeviceDebugSupport>(DEBUG_RUN_MODE, constraint);
-    RunControl::registerWorker<RemoteLinuxQmlProfilerSupport>(QML_PROFILER_RUN_MODE, constraint);
-    RunControl::registerWorker<RemoteLinuxQmlPreviewSupport>(QML_PREVIEW_RUN_MODE, constraint);
 
     return true;
 }

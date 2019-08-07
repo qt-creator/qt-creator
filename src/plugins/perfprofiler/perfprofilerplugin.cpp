@@ -69,11 +69,12 @@ public:
 
         RunControl::registerWorkerCreator(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE,
                        [](RunControl *runControl){ return new PerfProfilerRunner(runControl); });
-
-        auto constraint = [](RunConfiguration *) { return true; };
-        RunControl::registerWorker<PerfProfilerRunner>
-                (ProjectExplorer::Constants::PERFPROFILER_RUN_MODE, constraint);
     }
+
+    RunWorkerFactory profilerWorkerFactory{
+        RunWorkerFactory::make<PerfProfilerRunner>(),
+        {ProjectExplorer::Constants::PERFPROFILER_RUN_MODE}
+    };
 
     PerfOptionsPage optionsPage;
     PerfProfilerTool profilerTool;

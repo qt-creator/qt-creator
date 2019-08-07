@@ -73,7 +73,14 @@ namespace ProjectExplorer {
 
 static QList<RunWorkerFactory *> g_runWorkerFactories;
 
-RunWorkerFactory::RunWorkerFactory()
+RunWorkerFactory::RunWorkerFactory(const WorkerCreator &producer,
+                                   const QList<Core::Id> &runModes,
+                                   const QList<Core::Id> &runConfigs,
+                                   const QList<Core::Id> &deviceTypes)
+        : m_producer(producer),
+          m_supportedRunModes(runModes),
+          m_supportedRunConfigurations(runConfigs),
+          m_supportedDeviceTypes(deviceTypes)
 {
     g_runWorkerFactories.append(this);
 }
@@ -89,51 +96,30 @@ bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMo
         return false;
 
     if (!m_supportedRunConfigurations.isEmpty()) {
-        if (!m_supportedRunConfigurations.contains(runConfiguration->id()))
+        // FIXME: That's to be used after mangled ids are gone.
+        //if (!m_supportedRunConfigurations.contains(runConfiguration->id()))
+        // return false;
+        bool ok = false;
+        const QString rcid = runConfiguration->id().toString();
+        for (const Core::Id &id : m_supportedRunConfigurations) {
+            if (rcid.startsWith(id.toString())) {
+                ok = true;
+                break;
+            }
+        }
+
+        if (!ok)
             return false;
     }
 
-    for (const Constraint &constraint : m_constraints) {
-        if (!constraint(runConfiguration))
-            return false;
+    if (!m_supportedDeviceTypes.isEmpty()) {
+        Target *target = runConfiguration ? runConfiguration->target() : nullptr;
+        Kit *kit = target ? target->kit() : nullptr;
+        const Core::Id devid =  DeviceTypeKitAspect::deviceTypeId(kit);
+        return m_supportedDeviceTypes.contains(devid);
     }
 
     return true;
-}
-
-void RunWorkerFactory::setProducer(const WorkerCreator &producer)
-{
-    m_producer = producer;
-}
-
-void RunWorkerFactory::addConstraint(const Constraint &constraint)
-{
-    // Default constructed Constraints are not worth keeping.
-    // FIXME: Make it a QTC_ASSERT once there is no code path
-    // using this "feature" anymore.
-    if (!constraint)
-        return;
-    m_constraints.append(constraint);
-}
-
-void RunWorkerFactory::addSupportedRunMode(Core::Id runMode)
-{
-    m_supportedRunModes.append(runMode);
-}
-
-void RunWorkerFactory::setSupportedRunConfigurations(const QList<Core::Id> &ids)
-{
-    m_supportedRunConfigurations = ids;
-}
-
-void RunWorkerFactory::addSupportedRunConfiguration(Core::Id id)
-{
-    m_supportedRunConfigurations.append(id);
-}
-
-void RunWorkerFactory::destroyRemainingRunWorkerFactories()
-{
-    qDeleteAll(g_runWorkerFactories);
 }
 
 /*!

@@ -50,11 +50,8 @@ class OutputFormatter;
 namespace ProjectExplorer {
 class GlobalOrProjectAspect;
 class Node;
-class RunConfigurationFactory;
 class RunConfiguration;
-class RunConfigurationCreationInfo;
 class RunControl;
-class RunWorkerFactory;
 class Target;
 
 namespace Internal {
@@ -142,36 +139,32 @@ private:
     const std::unique_ptr<Internal::RunWorkerPrivate> d;
 };
 
-class PROJECTEXPLORER_EXPORT RunWorkerFactory
+class PROJECTEXPLORER_EXPORT RunWorkerFactory final
 {
 public:
     using WorkerCreator = std::function<RunWorker *(RunControl *)>;
-    using Constraint = std::function<bool(RunConfiguration *)>;
 
-    RunWorkerFactory();
-    virtual ~RunWorkerFactory();
+    RunWorkerFactory(const WorkerCreator &producer,
+                     const QList<Core::Id> &runModes,
+                     const QList<Core::Id> &runConfigs = {},
+                     const QList<Core::Id> &deviceTypes = {});
+
+    ~RunWorkerFactory();
 
     bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
-
-    void setProducer(const WorkerCreator &producer);
-    void addConstraint(const Constraint &constraint);
-    void addSupportedRunMode(Core::Id runMode);
-
-    void setSupportedRunConfigurations(const QList<Core::Id> &ids);
-    void addSupportedRunConfiguration(Core::Id id);
-
     WorkerCreator producer() const { return m_producer; }
 
-private:
-    // FIXME: That's temporary until ownership has been transferred to
-    // the individual plugins.
-    friend class ProjectExplorerPlugin;
-    static void destroyRemainingRunWorkerFactories();
+    template <typename Worker>
+    static WorkerCreator make()
+    {
+        return [](RunControl *runControl) { return new Worker(runControl); };
+    }
 
+private:
+    WorkerCreator m_producer;
     QList<Core::Id> m_supportedRunModes;
     QList<Core::Id> m_supportedRunConfigurations;
-    QList<Constraint> m_constraints;
-    WorkerCreator m_producer;
+    QList<Core::Id> m_supportedDeviceTypes;
 };
 
 /**
@@ -258,18 +251,9 @@ public:
     RunWorker *createWorker(Core::Id id);
 
     using WorkerCreator = RunWorkerFactory::WorkerCreator;
-    using Constraint = RunWorkerFactory::Constraint;
+    using Constraint = std::function<bool(RunConfiguration *)>;
 
     static void registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator);
-
-    template <class Worker>
-    static void registerWorker(Core::Id runMode, const Constraint &constraint)
-    {
-        auto factory = new RunWorkerFactory;
-        factory->setProducer([](RunControl *rc) { return new Worker(rc); });
-        factory->addSupportedRunMode(runMode);
-        factory->addConstraint(constraint);
-    }
 
     bool createMainWorker();
     static bool canRun(RunConfiguration *runConfig, Core::Id runMode);
@@ -323,22 +307,6 @@ private:
     IDevice::ConstPtr m_device;
     bool m_stopReported = false;
     bool m_useTerminal = false;
-};
-
-template <class RunWorker, class RunConfig>
-class SimpleRunWorkerFactory : public RunWorkerFactory
-{
-public:
-    SimpleRunWorkerFactory(Core::Id runMode = ProjectExplorer::Constants::NORMAL_RUN_MODE)
-    {
-        addSupportedRunMode(runMode);
-        addConstraint([](RunConfiguration *runConfig) {
-            return qobject_cast<RunConfig *>(runConfig) != nullptr;
-        });
-        setProducer([](RunControl *runControl) {
-            return new RunWorker(runControl);
-        });
-    }
 };
 
 } // namespace ProjectExplorer

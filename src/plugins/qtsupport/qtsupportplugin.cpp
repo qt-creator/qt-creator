@@ -71,10 +71,15 @@ public:
     CodeGenSettingsPage codeGenSettingsPage;
     QtOptionsPage qtOptionsPage;
 
-    DesktopRunWorkerFactory desktopRunWorkerFactory;
-    DesktopQmakeRunConfigurationFactory desktopQmakeRunConfigFactory;
-    QbsRunConfigurationFactory desktopQbsRunConfigFactory;
-    CMakeRunConfigurationFactory desktopCMakeRunConfigFactory;
+    DesktopQmakeRunConfigurationFactory qmakeRunConfigFactory;
+    QbsRunConfigurationFactory qbsRunConfigFactory;
+    CMakeRunConfigurationFactory cmakeRunConfigFactory;
+
+    RunWorkerFactory desktopRunWorkerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {qmakeRunConfigFactory.id(), qbsRunConfigFactory.id(), cmakeRunConfigFactory.id()}
+    };
 
     ExamplesWelcomePage examplesPage{true};
     ExamplesWelcomePage tutorialPage{false};

@@ -218,14 +218,12 @@ static QUrl localServerUrl(RunControl *runControl)
     return serverUrl;
 }
 
-LocalQmlProfilerSupport::LocalQmlProfilerSupport(QmlProfilerTool *profilerTool,
-                                                 RunControl *runControl)
-    : LocalQmlProfilerSupport(profilerTool, runControl, localServerUrl(runControl))
+LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl)
+    : LocalQmlProfilerSupport(runControl, localServerUrl(runControl))
 {
 }
 
-LocalQmlProfilerSupport::LocalQmlProfilerSupport(QmlProfilerTool *profilerTool,
-                                                 RunControl *runControl, const QUrl &serverUrl)
+LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const QUrl &serverUrl)
     : SimpleTargetRunner(runControl)
 {
     setId("LocalQmlProfilerSupport");
@@ -233,7 +231,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(QmlProfilerTool *profilerTool,
     auto profiler = new QmlProfilerRunner(runControl);
     profiler->setServerUrl(serverUrl);
     connect(profiler, &QmlProfilerRunner::starting,
-            profilerTool, &QmlProfilerTool::finalizeRunControl);
+            QmlProfilerTool::instance(), &QmlProfilerTool::finalizeRunControl);
 
     addStopDependency(profiler);
     // We need to open the local server before the application tries to connect.

@@ -219,6 +219,11 @@ public:
     bool m_toolBusy = false;
 
     Perspective m_perspective{"Callgrind.Perspective", CallgrindTool::tr("Callgrind")};
+
+    RunWorkerFactory callgrindRunWorkerFactory{
+        RunWorkerFactory::make<CallgrindToolRunner>(),
+        {CALLGRIND_RUN_MODE}
+    };
 };
 
 CallgrindToolPrivate::CallgrindToolPrivate()
@@ -999,7 +1004,6 @@ void setupCallgrindRunner(CallgrindToolRunner *toolRunner)
 CallgrindTool::CallgrindTool()
 {
     dd = new CallgrindToolPrivate;
-    RunControl::registerWorker<CallgrindToolRunner>(CALLGRIND_RUN_MODE, {});
 }
 
 CallgrindTool::~CallgrindTool()

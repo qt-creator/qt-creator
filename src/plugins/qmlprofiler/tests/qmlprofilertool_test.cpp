@@ -52,7 +52,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     QVERIFY(settings);
     settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), newKit->id().toSetting());
 
-    QmlProfilerTool profilerTool;
+    QmlProfilerTool &profilerTool = *QmlProfilerTool::instance();
 
     QmlProfilerClientManager *clientManager = profilerTool.clientManager();
     clientManager->setRetryInterval(10);
@@ -107,7 +107,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
 void QmlProfilerToolTest::testClearEvents()
 {
-    QmlProfilerTool profilerTool;
+    QmlProfilerTool &profilerTool = *QmlProfilerTool::instance();
     QmlProfilerModelManager *modelManager = profilerTool.modelManager();
     QVERIFY(modelManager);
     QmlProfilerStateManager *stateManager = profilerTool.stateManager();

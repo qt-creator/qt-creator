@@ -67,7 +67,11 @@ public:
     NimEditorFactory editorFactory;
     NimBuildConfigurationFactory buildConfigFactory;
     NimRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, NimRunConfiguration> runWorkerFactory;
+    RunWorkerFactory runWorkerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {runConfigFactory.id()}
+    };
     NimCompilerBuildStepFactory buildStepFactory;
     NimCompilerCleanStepFactory cleanStepFactory;
     NimCodeStyleSettingsPage codeStyleSettingsPage;

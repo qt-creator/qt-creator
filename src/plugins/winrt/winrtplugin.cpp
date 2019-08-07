@@ -56,6 +56,19 @@ public:
     WinRtDeviceFactory localDeviceFactory{Constants::WINRT_DEVICE_TYPE_LOCAL};
     WinRtDeviceFactory phoneDeviceFactory{Constants::WINRT_DEVICE_TYPE_PHONE};
     WinRtDeviceFactory emulatorDeviceFactory{Constants::WINRT_DEVICE_TYPE_EMULATOR};
+
+    RunWorkerFactory runWorkerFactory{
+        RunWorkerFactory::make<WinRtRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {runConfigFactory.id()}
+    };
+
+    RunWorkerFactory debugWorkerFactory{
+        RunWorkerFactory::make<WinRtDebugSupport>(),
+        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
+        {runConfigFactory.id()},
+        {Internal::Constants::WINRT_DEVICE_TYPE_LOCAL}
+    };
 };
 
 WinRtPlugin::~WinRtPlugin()
@@ -69,27 +82,6 @@ bool WinRtPlugin::initialize(const QStringList &arguments, QString *errorMessage
     Q_UNUSED(errorMessage)
 
     d = new WinRtPluginPrivate;
-
-    auto runConstraint = [](RunConfiguration *runConfig) {
-        IDevice::ConstPtr device = DeviceKitAspect::device(runConfig->target()->kit());
-        if (!device)
-            return false;
-        return qobject_cast<WinRtRunConfiguration *>(runConfig) != nullptr;
-    };
-
-    auto debugConstraint = [](RunConfiguration *runConfig) {
-        IDevice::ConstPtr device = DeviceKitAspect::device(runConfig->target()->kit());
-        if (!device)
-            return false;
-        if (device->type() != Internal::Constants::WINRT_DEVICE_TYPE_LOCAL)
-            return false;
-        return qobject_cast<WinRtRunConfiguration *>(runConfig) != nullptr;
-    };
-
-    RunControl::registerWorker<WinRtRunner>
-        (ProjectExplorer::Constants::NORMAL_RUN_MODE, runConstraint);
-    RunControl::registerWorker<WinRtDebugSupport>
-        (ProjectExplorer::Constants::DEBUG_RUN_MODE, debugConstraint);
 
     return true;
 }

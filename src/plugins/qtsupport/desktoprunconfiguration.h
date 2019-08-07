@@ -58,12 +58,6 @@ private:
     const Kind m_kind;
 };
 
-class DesktopRunWorkerFactory : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    DesktopRunWorkerFactory();
-};
-
 class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
 public:

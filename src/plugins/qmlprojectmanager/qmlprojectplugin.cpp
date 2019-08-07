@@ -44,8 +44,11 @@ class QmlProjectPluginPrivate
 {
 public:
     QmlProjectRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, QmlProjectRunConfiguration>
-        runWorkerFactory{ProjectExplorer::Constants::NORMAL_RUN_MODE};
+    RunWorkerFactory runWorkerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {runConfigFactory.id()}
+    };
 };
 
 QmlProjectPlugin::~QmlProjectPlugin()

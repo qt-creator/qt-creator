@@ -108,13 +108,12 @@ bool QmlPreviewPlugin::initialize(const QStringList &arguments, QString *errorSt
     setFileClassifier(&defaultFileClassifier);
     setFpsHandler(&defaultFpsHandler);
 
-    auto constraint = [](RunConfiguration *runConfiguration) {
-        Target *target = runConfiguration ? runConfiguration->target() : nullptr;
-        Kit *kit = target ? target->kit() : nullptr;
-        return DeviceTypeKitAspect::deviceTypeId(kit) == Constants::DESKTOP_DEVICE_TYPE;
-    };
-
-    RunControl::registerWorker<LocalQmlPreviewSupport>(Constants::QML_PREVIEW_RUN_MODE, constraint);
+    m_runWorkerFactory.reset(new RunWorkerFactory{
+                                     RunWorkerFactory::make<LocalQmlPreviewSupport>(),
+                                     {Constants::QML_PREVIEW_RUN_MODE},
+                                     {}, // All runconfig.
+                                     {Constants::DESKTOP_DEVICE_TYPE}
+                             });
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);

@@ -122,6 +122,7 @@ private:
     float m_zoomFactor = -1.0;
     QmlPreview::QmlPreviewFpsHandler m_fpsHandler = nullptr;
     QString m_locale;
+    std::unique_ptr<ProjectExplorer::RunWorkerFactory> m_runWorkerFactory;
 };
 
 } // namespace Internal

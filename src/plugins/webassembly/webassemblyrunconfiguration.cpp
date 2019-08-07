@@ -110,6 +110,10 @@ public:
     PortsGatherer *m_portsGatherer;
 };
 
+RunWorkerFactory::WorkerCreator makeEmrunWorker()
+{
+    return RunWorkerFactory::make<EmrunRunWorker>();
+}
 
 // Factories
 
@@ -118,13 +122,6 @@ EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
 {
     registerRunConfiguration<EmrunRunConfiguration>(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
     addSupportedTargetDeviceType(Constants::WEBASSEMBLY_DEVICE_TYPE);
-}
-
-EmrunRunWorkerFactory::EmrunRunWorkerFactory()
-{
-    setProducer([](RunControl *rc) { return new EmrunRunWorker(rc); });
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfiguration(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
 }
 
 } // namespace Internal

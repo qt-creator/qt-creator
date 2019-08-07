@@ -810,7 +810,11 @@ class PythonPluginPrivate
 public:
     PythonEditorFactory editorFactory;
     PythonRunConfigurationFactory runConfigFactory;
-    SimpleRunWorkerFactory<SimpleTargetRunner, PythonRunConfiguration> runWorkerFactory;
+    RunWorkerFactory runWorkerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {runConfigFactory.id()}
+    };
 };
 
 PythonPlugin::~PythonPlugin()

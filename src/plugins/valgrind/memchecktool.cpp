@@ -437,6 +437,11 @@ private:
 
     QString m_exitMsg;
     Perspective m_perspective{"Memcheck.Perspective", MemcheckTool::tr("Memcheck")};
+
+    RunWorkerFactory memcheckToolRunnerFactory{
+        RunWorkerFactory::make<MemcheckToolRunner>(),
+        {MEMCHECK_RUN_MODE, MEMCHECK_WITH_GDB_RUN_MODE}
+    };
 };
 
 static MemcheckToolPrivate *dd = nullptr;
@@ -1644,9 +1649,6 @@ void HeobData::debugStopped()
 MemcheckTool::MemcheckTool()
 {
     dd = new MemcheckToolPrivate;
-
-    RunControl::registerWorker<MemcheckToolRunner>(MEMCHECK_RUN_MODE, {});
-    RunControl::registerWorker<MemcheckToolRunner>(MEMCHECK_WITH_GDB_RUN_MODE, {});
 }
 
 MemcheckTool::~MemcheckTool()

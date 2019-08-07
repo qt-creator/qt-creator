@@ -227,6 +227,7 @@ public:
     static RunConfiguration *clone(Target *parent, RunConfiguration *source);
     static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 
+    Core::Id id() const { return m_runConfigBaseId; }
     Core::Id runConfigurationBaseId() const { return m_runConfigBaseId; }
 
     static QString decoratedTargetName(const QString &targetName, Target *kit);

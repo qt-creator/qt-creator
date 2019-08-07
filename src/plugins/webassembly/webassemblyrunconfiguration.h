@@ -37,11 +37,7 @@ public:
     EmrunRunConfigurationFactory();
 };
 
-class EmrunRunWorkerFactory : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    EmrunRunWorkerFactory();
-};
+ProjectExplorer::RunWorkerFactory::WorkerCreator makeEmrunWorker();
 
 } // namespace Internal
 } // namespace Webassembly

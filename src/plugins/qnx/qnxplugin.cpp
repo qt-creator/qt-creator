@@ -115,12 +115,21 @@ public:
     QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
 
-    SimpleRunWorkerFactory<SimpleTargetRunner, QnxRunConfiguration>
-        runWorkerFactory{ProjectExplorer::Constants::NORMAL_RUN_MODE};
-    SimpleRunWorkerFactory<QnxDebugSupport, QnxRunConfiguration>
-        debugWorkerFactory{ProjectExplorer::Constants::DEBUG_RUN_MODE};
-    SimpleRunWorkerFactory<QnxQmlProfilerSupport, QnxRunConfiguration>
-        qmlProfilerWorkerFactory;
+    RunWorkerFactory runWorkerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {runConfigFactory.id()}
+    };
+    RunWorkerFactory debugWorkerFactory{
+        RunWorkerFactory::make<QnxDebugSupport>(),
+        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
+        {runConfigFactory.id()}
+    };
+    RunWorkerFactory qmlProfilerWorkerFactory{
+        RunWorkerFactory::make<QnxQmlProfilerSupport>(),
+        {}, // FIXME: Shouldn't this use the run mode id somehow?
+        {runConfigFactory.id()}
+    };
 };
 
 static QnxPluginPrivate *dd = nullptr;

@@ -36,6 +36,8 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 
+using namespace ProjectExplorer;
+
 namespace WebAssembly {
 namespace Internal {
 
@@ -46,7 +48,11 @@ public:
     WebAssemblyDeviceFactory deviceFactory;
     WebAssemblyQtVersionFactory qtVersionFactory;
     EmrunRunConfigurationFactory emrunRunConfigurationFactory;
-    EmrunRunWorkerFactory emrunRunWorkerFactory;
+    RunWorkerFactory emrunRunWorkerFactory{
+        makeEmrunWorker(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN}
+    };
 };
 
 static WebAssemblyPluginPrivate *dd = nullptr;

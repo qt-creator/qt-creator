@@ -88,23 +88,13 @@ public:
     }
 };
 
-class QmlPreviewRunWorkerFactory : public RunWorkerFactory
+class AndroidQmlPreviewWorker : public AndroidQmlToolingSupport
 {
 public:
-    QmlPreviewRunWorkerFactory()
-    {
-        addSupportedRunMode(QML_PREVIEW_RUN_MODE);
-        setProducer([](RunControl *runControl) -> RunWorker * {
-            const Runnable runnable = runControl->runConfiguration()->runnable();
-            return new AndroidQmlToolingSupport(runControl, runnable.executable.toString());
-        });
-        addConstraint([](RunConfiguration *runConfig) {
-            return runConfig->isEnabled()
-                    && runConfig->id().name().startsWith("QmlProjectManager.QmlRunConfiguration")
-                    && DeviceTypeKitAspect::deviceTypeId(runConfig->target()->kit())
-                    == Android::Constants::ANDROID_DEVICE_TYPE;
-        });
-    }
+    AndroidQmlPreviewWorker(RunControl *runControl)
+        : AndroidQmlToolingSupport(runControl,
+            runControl->runConfiguration()->runnable().executable.toString())
+    {}
 };
 
 class AndroidPluginPrivate : public QObject
@@ -151,14 +141,32 @@ public:
     AndroidManifestEditorFactory manifestEditorFactory;
     AndroidRunConfigurationFactory runConfigFactory;
 
-    SimpleRunWorkerFactory<AndroidRunSupport, AndroidRunConfiguration> runWorkerFactory;
-    SimpleRunWorkerFactory<AndroidDebugSupport, AndroidRunConfiguration>
-        debugWorkerFactory{DEBUG_RUN_MODE};
-    SimpleRunWorkerFactory<AndroidQmlToolingSupport, AndroidRunConfiguration>
-        profilerWorkerFactory{QML_PROFILER_RUN_MODE};
-    SimpleRunWorkerFactory<AndroidQmlToolingSupport, AndroidRunConfiguration>
-        qmlPreviewWorkerFactory{QML_PREVIEW_RUN_MODE};
-    QmlPreviewRunWorkerFactory qmlPreviewWorkerFactory2;
+    RunWorkerFactory runWorkerFactory{
+        RunWorkerFactory::make<AndroidRunSupport>(),
+        {NORMAL_RUN_MODE},
+        {runConfigFactory.id()}
+    };
+    RunWorkerFactory debugWorkerFactory{
+        RunWorkerFactory::make<AndroidDebugSupport>(),
+        {DEBUG_RUN_MODE},
+        {runConfigFactory.id()}
+    };
+    RunWorkerFactory profilerWorkerFactory{
+        RunWorkerFactory::make<AndroidQmlToolingSupport>(),
+        {QML_PROFILER_RUN_MODE},
+        {runConfigFactory.id()}
+    };
+    RunWorkerFactory qmlPreviewWorkerFactory{
+        RunWorkerFactory::make<AndroidQmlToolingSupport>(),
+        {QML_PREVIEW_RUN_MODE},
+        {runConfigFactory.id()}
+    };
+    RunWorkerFactory qmlPreviewWorkerFactory2{
+        RunWorkerFactory::make<AndroidQmlPreviewWorker>(),
+        {QML_PREVIEW_RUN_MODE},
+        {"QmlProjectManager.QmlRunConfiguration"},
+        {Android::Constants::ANDROID_DEVICE_TYPE}
+    };
 
     AndroidBuildApkStepFactory buildApkStepFactory;
     AndroidGdbServerKitAspect gdbServerKitAspect;

@@ -96,6 +96,8 @@ using namespace ProjectExplorer;
 namespace QmlProfiler {
 namespace Internal {
 
+static QmlProfilerTool *m_instance = nullptr;
+
 class QmlProfilerTool::QmlProfilerToolPrivate
 {
 public:
@@ -129,6 +131,7 @@ public:
 QmlProfilerTool::QmlProfilerTool()
     : d(new QmlProfilerToolPrivate)
 {
+    m_instance = this;
     setObjectName(QLatin1String("QmlProfilerTool"));
 
     d->m_profilerState = new QmlProfilerStateManager(this);
@@ -279,6 +282,12 @@ QmlProfilerTool::~QmlProfilerTool()
 {
     d->m_profilerModelManager->clearAll();
     delete d;
+    m_instance = nullptr;
+}
+
+QmlProfilerTool *QmlProfilerTool::instance()
+{
+    return m_instance;
 }
 
 void QmlProfilerTool::updateRunActions()
