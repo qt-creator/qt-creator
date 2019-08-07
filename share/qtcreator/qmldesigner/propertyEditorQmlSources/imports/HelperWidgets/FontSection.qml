@@ -196,11 +196,7 @@ Section {
         }
 
         SecondColumnLayout {
-            Label {
-                text: qsTr("Word")
-                tooltip: qsTr("Sets the word spacing for the font.")
-                width: 42
-            }
+
             SpinBox {
                 maximumValue: 500
                 minimumValue: -500
@@ -210,16 +206,17 @@ Section {
                 Layout.minimumWidth: 60
                 stepSize: 0.1
             }
+            Label {
+                text: qsTr("Word")
+                tooltip: qsTr("Sets the word spacing for the font.")
+                width: 42
+            }
             Item {
                 width: 4
                 height: 4
             }
 
-            Label {
-                text: qsTr("Letter")
-                tooltip: qsTr("Sets the letter spacing for the font.")
-                width: 42
-            }
+
             SpinBox {
                 maximumValue: 500
                 minimumValue: -500
@@ -228,6 +225,11 @@ Section {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 60
                 stepSize: 0.1
+            }
+            Label {
+                text: qsTr("Letter")
+                tooltip: qsTr("Sets the letter spacing for the font.")
+                width: 42
             }
         }
 

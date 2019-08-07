@@ -254,7 +254,7 @@ Item {
                 }
                 DoubleSpinBox {
                     id: redSlider
-                    width: 64
+                    width: 68
 
                     stepSize: 1
                     minimumValue: 0
@@ -283,7 +283,7 @@ Item {
                 }
                 DoubleSpinBox {
                     id: greenSlider
-                    width: 64
+                    width: 68
 
                     stepSize: 1
                     minimumValue: 0
@@ -312,7 +312,7 @@ Item {
                 }
                 DoubleSpinBox {
                     id: blueSlider
-                    width: 64
+                    width: 68
 
                     stepSize: 1
                     minimumValue: 0
@@ -341,7 +341,8 @@ Item {
                 }
                 DoubleSpinBox {
                     id: alphaSlider
-                    width: 64
+                    sliderIndicatorVisible: true
+                    width: 68
                     onValueModified: {
                         if (colorButton.alpha !== alphaSlider.value && !colorButton.block) {
                             colorButton.alpha = alphaSlider.value

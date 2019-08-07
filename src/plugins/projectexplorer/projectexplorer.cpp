@@ -3771,7 +3771,9 @@ void ProjectExplorerPluginPrivate::updateSessionMenu()
     for (int i = 0; i < sessions.size(); ++i) {
         const QString &session = sessions[i];
 
-        const QString actionText = ActionManager::withNumberAccelerator(session, i + 1);
+        const QString actionText = ActionManager::withNumberAccelerator(Utils::quoteAmpersands(
+                                                                            session),
+                                                                        i + 1);
         QAction *act = ag->addAction(actionText);
         act->setData(session);
         act->setCheckable(true);

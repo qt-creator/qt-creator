@@ -90,7 +90,7 @@ private:
     ContentNotEditableIndicator m_contentNotEditableIndicator;
     QElapsedTimer m_mousePressTimer;
     QCursor m_cursor;
-    bool m_itemAlreadySelected = false;
+    bool m_itemSelectedAndMovable = false;
 };
 
 } // namespace QmlDesigner

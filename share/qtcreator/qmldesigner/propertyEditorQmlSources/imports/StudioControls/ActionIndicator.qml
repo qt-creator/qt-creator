@@ -32,7 +32,7 @@ Rectangle {
 
     property Item myControl
 
-    property bool showBackground: true
+    property bool showBackground: StudioTheme.Constants.showActionIndicatorBackground
     property alias icon: actionIndicatorIcon
 
     property bool hover: false

@@ -82,7 +82,6 @@ Loader {
                 width: parent.width - 8 - xOffset
                 height: gradientDialogLoader.dialogHeight
 
-                radius: 2
                 color: Theme.qmlDesignerBackgroundColorDarkAlternate()
                 border.color: Theme.qmlDesignerBorderColor()
 

@@ -62,12 +62,18 @@ void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
     if (event->button() == Qt::LeftButton) {
         m_mousePressTimer.start();
         FormEditorItem* formEditorItem = nearestFormEditorItem(event->scenePos(), itemList);
-        if (formEditorItem
+
+        if (formEditorItem)
+            m_itemSelectedAndMovable = toQmlItemNodeList(view()->selectedModelNodes()).contains(formEditorItem->qmlItemNode())
+                    && view()->hasSingleSelectedModelNode() && !formEditorItem->qmlItemNode().isRootNode();
+        else
+            m_itemSelectedAndMovable = false;
+
+        if (formEditorItem && m_itemSelectedAndMovable
                 && formEditorItem->qmlItemNode().isValid()) {
             m_singleSelectionManipulator.begin(event->scenePos());
 
-            m_itemAlreadySelected = toQmlItemNodeList(view()->selectedModelNodes()).contains(formEditorItem->qmlItemNode())
-                    || !view()->hasSingleSelectedModelNode();
+
         } else {
             if (event->modifiers().testFlag(Qt::AltModifier)) {
                 m_singleSelectionManipulator.begin(event->scenePos());
@@ -98,7 +104,7 @@ void SelectionTool::mouseMoveEvent(const QList<QGraphicsItem*> &/*itemList*/,
         if ((mouseMovementVector.toPoint().manhattanLength() > s_startDragDistance)
             && (m_mousePressTimer.elapsed() > s_startDragTime)) {
             m_singleSelectionManipulator.end(event->scenePos());
-            if (m_itemAlreadySelected)
+            if (m_itemSelectedAndMovable)
                 view()->changeToMoveTool(m_singleSelectionManipulator.beginPoint());
             return;
         }

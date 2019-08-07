@@ -78,4 +78,6 @@ QtObject {
                                               })
 
     readonly property color backgroundColor: "#c2c2c2"
+
+    readonly property bool showActionIndicatorBackground: false
 }

@@ -57,23 +57,9 @@ T.CheckBox {
     hoverEnabled: true
     activeFocusOnTab: false
 
-    contentItem: T.Label {
-        id: checkBoxLabel
-        leftPadding: 0
-        rightPadding: 0
-        verticalAlignment: Text.AlignVCenter
-        text: myCheckBox.text
-        font: myCheckBox.font
-        color: StudioTheme.Values.themeTextColor
-        visible: text !== ""
-    }
-
     ActionIndicator {
         id: actionIndicator
         myControl: myCheckBox // TODO global hover issue. Can be solved with extra property in ActionIndicator
-
-        x: checkBoxLabel.visible ? checkBoxLabel.contentWidth + myCheckBox.spacing : 0
-        y: 0
         width: actionIndicator.visible ? __actionIndicatorWidth : 0
         height: actionIndicator.visible ? __actionIndicatorHeight : 0
     }
@@ -111,6 +97,17 @@ T.CheckBox {
             font.pixelSize: StudioTheme.Values.sliderControlSizeMulti
             font.family: StudioTheme.Constants.iconFont.family
         }
+    }
+
+    contentItem: T.Label {
+        id: checkBoxLabel
+        leftPadding: checkBoxBackground.x + checkBoxBackground.width + myCheckBox.spacing
+        rightPadding: 0
+        verticalAlignment: Text.AlignVCenter
+        text: myCheckBox.text
+        font: myCheckBox.font
+        color: StudioTheme.Values.themeTextColor
+        visible: text !== ""
     }
 
     states: [
