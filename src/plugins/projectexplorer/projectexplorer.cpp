@@ -3029,7 +3029,9 @@ bool ProjectExplorerPlugin::canRunStartupProject(Core::Id runMode, QString *whyN
     }
 
     // shouldn't actually be shown to the user...
-    if (!RunControl::canRun(activeRC, runMode)) {
+    if (!RunControl::canRun(runMode,
+                            DeviceTypeKitAspect::deviceTypeId(target->kit()),
+                            activeRC->id())) {
         if (whyNot)
             *whyNot = tr("Cannot run \"%1\".").arg(activeRC->displayName());
         return false;

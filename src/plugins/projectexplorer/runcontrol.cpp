@@ -90,19 +90,20 @@ RunWorkerFactory::~RunWorkerFactory()
     g_runWorkerFactories.removeOne(this);
 }
 
-bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMode) const
+bool RunWorkerFactory::canRun(Core::Id runMode,
+                              Core::Id deviceType,
+                              const QString &runConfigId) const
 {
     if (!m_supportedRunModes.contains(runMode))
         return false;
 
     if (!m_supportedRunConfigurations.isEmpty()) {
         // FIXME: That's to be used after mangled ids are gone.
-        //if (!m_supportedRunConfigurations.contains(runConfiguration->id()))
+        //if (!m_supportedRunConfigurations.contains(runConfigId)
         // return false;
         bool ok = false;
-        const QString rcid = runConfiguration->id().toString();
         for (const Core::Id &id : m_supportedRunConfigurations) {
-            if (rcid.startsWith(id.toString())) {
+            if (runConfigId.startsWith(id.toString())) {
                 ok = true;
                 break;
             }
@@ -112,12 +113,8 @@ bool RunWorkerFactory::canRun(RunConfiguration *runConfiguration, Core::Id runMo
             return false;
     }
 
-    if (!m_supportedDeviceTypes.isEmpty()) {
-        Target *target = runConfiguration ? runConfiguration->target() : nullptr;
-        Kit *kit = target ? target->kit() : nullptr;
-        const Core::Id devid =  DeviceTypeKitAspect::deviceTypeId(kit);
-        return m_supportedDeviceTypes.contains(devid);
-    }
+    if (!m_supportedDeviceTypes.isEmpty())
+        return m_supportedDeviceTypes.contains(deviceType);
 
     return true;
 }
@@ -297,6 +294,7 @@ public:
     Utils::Icon icon;
     MacroExpander *macroExpander;
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
+    Core::Id runConfigId;
     Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
     QPointer<Project> project; // Not owned.
@@ -326,6 +324,7 @@ void RunControl::setRunConfiguration(RunConfiguration *runConfig)
     QTC_ASSERT(runConfig, return);
     QTC_CHECK(!d->runConfiguration);
     d->runConfiguration = runConfig;
+    d->runConfigId = runConfig->id();
     d->runnable = runConfig->runnable();
     d->displayName  = runConfig->displayName();
     if (auto outputFormatter = runConfig->createOutputFormatter()) {
@@ -447,8 +446,12 @@ RunWorker *RunControl::createWorker(Core::Id id)
 
 bool RunControl::createMainWorker()
 {
-    const auto canRun = std::bind(&RunWorkerFactory::canRun, std::placeholders::_1,
-                                  d->runConfiguration, d->runMode);
+    const auto canRun = std::bind(&RunWorkerFactory::canRun,
+                                  std::placeholders::_1,
+                                  d->runMode,
+                                  DeviceTypeKitAspect::deviceTypeId(d->kit),
+                                  d->runConfigId.toString());
+
     const QList<RunWorkerFactory *> candidates = Utils::filtered(g_runWorkerFactories, canRun);
     // There might be combinations that cannot run. But that should have been checked
     // with canRun below.
@@ -460,9 +463,13 @@ bool RunControl::createMainWorker()
     return candidates.front()->producer()(this) != nullptr;
 }
 
-bool RunControl::canRun(RunConfiguration *runConfig, Core::Id runMode)
+bool RunControl::canRun(Core::Id runMode, Core::Id deviceType, Core::Id runConfigId)
 {
-    const auto check = std::bind(&RunWorkerFactory::canRun, std::placeholders::_1, runConfig, runMode);
+    const auto check = std::bind(&RunWorkerFactory::canRun,
+                                 std::placeholders::_1,
+                                 runMode,
+                                 deviceType,
+                                 runConfigId.toString());
     return Utils::contains(g_runWorkerFactories, check);
 }
 

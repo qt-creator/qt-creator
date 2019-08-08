@@ -151,7 +151,7 @@ public:
 
     ~RunWorkerFactory();
 
-    bool canRun(RunConfiguration *runConfiguration, Core::Id runMode) const;
+    bool canRun(Core::Id runMode, Core::Id deviceType, const QString &runConfigId) const;
     WorkerCreator producer() const { return m_producer; }
 
     template <typename Worker>
@@ -256,7 +256,7 @@ public:
     static void registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator);
 
     bool createMainWorker();
-    static bool canRun(RunConfiguration *runConfig, Core::Id runMode);
+    static bool canRun(Core::Id runMode, Core::Id deviceType, Core::Id runConfigId);
 
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
