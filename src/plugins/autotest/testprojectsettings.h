@@ -39,6 +39,8 @@ public:
 
     void setUseGlobalSettings(bool useGlobal);
     bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setRunAfterBuild(bool enabled) {m_runAfterBuild = enabled; }
+    bool runAfterBuild() const { return m_runAfterBuild; }
     void setActiveFrameworks(const QMap<Core::Id, bool> enabledFrameworks)
     { m_activeTestFrameworks = enabledFrameworks; }
     QMap<Core::Id, bool> activeFrameworks() const { return m_activeTestFrameworks; }
@@ -49,6 +51,7 @@ private:
 
     ProjectExplorer::Project *m_project;
     bool m_useGlobalSettings = true;
+    bool m_runAfterBuild = false;
     QMap<Core::Id, bool> m_activeTestFrameworks;
 };
 

@@ -29,6 +29,7 @@
 #include "testprojectsettings.h"
 
 #include <QBoxLayout>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
 #include <QTreeWidget>
@@ -60,6 +61,9 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
     m_activeFrameworks->setRootIsDecorated(false);
     groupBoxLayout->addWidget(new QLabel(tr("Active frameworks:")));
     groupBoxLayout->addWidget(m_activeFrameworks);
+    m_runAfterBuild = new QCheckBox(tr("Automatically run after build"));
+    m_runAfterBuild->setChecked(m_projectSettings->runAfterBuild());
+    groupBoxLayout->addWidget(m_runAfterBuild);
     generalWidget->setLayout(groupBoxLayout);
 
     auto horizontalLayout = new QHBoxLayout;
@@ -85,6 +89,8 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
     });
     connect(m_activeFrameworks, &QTreeWidget::itemChanged,
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);
+    connect(m_runAfterBuild, &QCheckBox::toggled,
+            m_projectSettings, &TestProjectSettings::setRunAfterBuild);
 }
 
 void ProjectTestSettingsWidget::populateFrameworks(const QMap<Core::Id, bool> &frameworks)

@@ -27,6 +27,7 @@
 
 #include "autotestconstants.h"
 #include "autotestplugin.h"
+#include "testprojectsettings.h"
 #include "testresultspane.h"
 #include "testrunconfiguration.h"
 #include "testsettings.h"
@@ -675,6 +676,20 @@ void TestRunner::buildFinished(bool success)
     }
 }
 
+static bool runAfterBuild()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project)
+        return false;
+
+    if (!project->namedSettings(Constants::SK_USE_GLOBAL).isValid())
+        return AutotestPlugin::settings()->runAfterBuild;
+
+    TestProjectSettings *projectSettings = AutotestPlugin::projectSettings(project);
+    return projectSettings->useGlobalSettings() ? AutotestPlugin::settings()->runAfterBuild
+                                                : projectSettings->runAfterBuild();
+}
+
 void TestRunner::onBuildQueueFinished(bool success)
 {
     if (m_executingTests || !m_selectedTests.isEmpty())  // paranoia!
@@ -683,7 +698,7 @@ void TestRunner::onBuildQueueFinished(bool success)
     if (!success || m_runMode != TestRunMode::None)
         return;
 
-    if (!AutotestPlugin::settings()->runAfterBuild)
+    if (!runAfterBuild())
         return;
 
     auto testTreeModel = TestTreeModel::instance();

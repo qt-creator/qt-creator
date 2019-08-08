@@ -34,6 +34,7 @@ namespace Autotest {
 namespace Internal {
 
 static const char SK_ACTIVE_FRAMEWORKS[]        = "AutoTest.ActiveFrameworks";
+static const char SK_RUN_AFTER_BUILD[]          = "AutoTest.RunAfterBuild";
 
 TestProjectSettings::TestProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
@@ -87,6 +88,9 @@ void TestProjectSettings::load()
         for (const Core::Id &id : registered)
             m_activeTestFrameworks.insert(id, frameworkManager->isActive(id));
     }
+
+    const QVariant runAfterBuild = m_project->namedSettings(SK_RUN_AFTER_BUILD);
+    m_runAfterBuild = runAfterBuild.isValid() ? runAfterBuild.toBool() : false;
 }
 
 void TestProjectSettings::save()
@@ -97,6 +101,7 @@ void TestProjectSettings::save()
     for (auto it = m_activeTestFrameworks.cbegin(); it != end; ++it)
         activeFrameworks.insert(it.key().toString(), it.value());
     m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworks);
+    m_project->setNamedSettings(SK_RUN_AFTER_BUILD, m_runAfterBuild);
 }
 
 } // namespace Internal
