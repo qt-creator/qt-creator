@@ -52,6 +52,7 @@ struct TestSettings
     bool popupOnStart = true;
     bool popupOnFinish = true;
     bool popupOnFail = false;
+    bool runAfterBuild = false;
     QHash<Core::Id, bool> frameworks;
     QHash<Core::Id, bool> frameworksGrouping;
 };

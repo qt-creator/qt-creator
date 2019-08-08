@@ -32,6 +32,7 @@
 #include "testsettings.h"
 #include "testoutputreader.h"
 #include "testtreeitem.h"
+#include "testtreemodel.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -95,6 +96,9 @@ TestRunner::TestRunner(QObject *parent) :
         cancelCurrent(UserCanceled);
         reportResult(ResultType::MessageFatal, tr("Test run canceled by user."));
     });
+    connect(ProjectExplorer::BuildManager::instance(),
+            &ProjectExplorer::BuildManager::buildQueueFinished,
+            this, &TestRunner::onBuildQueueFinished);
 }
 
 TestRunner::~TestRunner()
@@ -308,7 +312,8 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     m_runMode = mode;
     ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
         ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
-    if (projectExplorerSettings.buildBeforeDeploy && !projectExplorerSettings.saveBeforeBuild) {
+    if (mode != TestRunMode::RunAfterBuild &&
+            projectExplorerSettings.buildBeforeDeploy && !projectExplorerSettings.saveBeforeBuild) {
         if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
             return;
     }
@@ -340,7 +345,7 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
                               [this]() { cancelCurrent(KitChanged); });
 
     if (!projectExplorerSettings.buildBeforeDeploy || mode == TestRunMode::DebugWithoutDeploy
-            || mode == TestRunMode::RunWithoutDeploy) {
+            || mode == TestRunMode::RunWithoutDeploy || mode == TestRunMode::RunAfterBuild) {
         runOrDebugTests();
         return;
     }
@@ -626,15 +631,18 @@ void TestRunner::runOrDebugTests()
     switch (m_runMode) {
     case TestRunMode::Run:
     case TestRunMode::RunWithoutDeploy:
+    case TestRunMode::RunAfterBuild:
         runTests();
         return;
     case TestRunMode::Debug:
     case TestRunMode::DebugWithoutDeploy:
         debugTests();
         return;
+    default:
+        break;
     }
+    QTC_ASSERT(false, qDebug() << "Unexpected run mode" << int(m_runMode));  // unexpected run mode
     onFinished();
-    QTC_ASSERT(false, return);  // unexpected run mode
 }
 
 void TestRunner::buildProject(ProjectExplorer::Project *project)
@@ -667,6 +675,25 @@ void TestRunner::buildFinished(bool success)
     }
 }
 
+void TestRunner::onBuildQueueFinished(bool success)
+{
+    if (m_executingTests || !m_selectedTests.isEmpty())  // paranoia!
+        return;
+
+    if (!success || m_runMode != TestRunMode::None)
+        return;
+
+    if (!AutotestPlugin::settings()->runAfterBuild)
+        return;
+
+    auto testTreeModel = TestTreeModel::instance();
+    if (!testTreeModel->hasTests())
+        return;
+
+    setSelectedTests(testTreeModel->getAllTestCases());
+    prepareToRunTests(TestRunMode::RunAfterBuild);
+}
+
 void TestRunner::onFinished()
 {
     // if we've been canceled and we still have test configurations queued just throw them away
@@ -676,6 +703,7 @@ void TestRunner::onFinished()
     disconnect(m_stopDebugConnect);
     disconnect(m_targetConnect);
     m_fakeFutureInterface = nullptr;
+    m_runMode = TestRunMode::None;
     m_executingTests = false;
     emit testRunFinished();
 }

@@ -76,6 +76,7 @@ signals:
 private:
     void buildProject(ProjectExplorer::Project *project);
     void buildFinished(bool success);
+    void onBuildQueueFinished(bool success);
     void onFinished();
 
     int precheckTestConfigurations();
@@ -98,7 +99,7 @@ private:
     TestConfiguration *m_currentConfig = nullptr;
     QProcess *m_currentProcess = nullptr;
     TestOutputReader *m_currentOutputReader = nullptr;
-    TestRunMode m_runMode = TestRunMode::Run;
+    TestRunMode m_runMode = TestRunMode::None;
 
     // temporarily used if building before running is necessary
     QMetaObject::Connection m_buildConnect;

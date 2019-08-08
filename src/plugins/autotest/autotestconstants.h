@@ -53,10 +53,12 @@ const char SK_USE_GLOBAL[]              = "AutoTest.UseGlobal";
 namespace Internal {
 enum class TestRunMode
 {
+    None,
     Run,
     RunWithoutDeploy,
     Debug,
-    DebugWithoutDeploy
+    DebugWithoutDeploy,
+    RunAfterBuild
 };
 } // namespace Internal
 } // namespace Autotest

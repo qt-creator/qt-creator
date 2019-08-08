@@ -245,6 +245,8 @@ TestConfiguration *TestTreeItem::asConfiguration(TestRunMode mode) const
     case TestRunMode::Debug:
     case TestRunMode::DebugWithoutDeploy:
         return debugConfiguration();
+    default:
+        break;
     }
     return nullptr;
 }

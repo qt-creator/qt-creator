@@ -145,6 +145,16 @@ Warning: this is an experimental feature and might lead to failing to execute th
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="runAfterBuildCB">
+            <property name="toolTip">
+             <string>Runs all tests automatically if a build succeeded.</string>
+            </property>
+            <property name="text">
+             <string>Automatically run after build</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
             <property name="spacing">
              <number>6</number>
