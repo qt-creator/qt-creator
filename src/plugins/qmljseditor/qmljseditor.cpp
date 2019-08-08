@@ -1041,7 +1041,7 @@ QmlJSEditorFactory::QmlJSEditorFactory()
     setDocumentCreator([]() { return new QmlJSEditorDocument; });
     setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });
     setEditorCreator([]() { return new QmlJSEditor; });
-    setAutoCompleterCreator([]() { return new Internal::AutoCompleter; });
+    setAutoCompleterCreator([]() { return new AutoCompleter; });
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
@@ -1059,7 +1059,7 @@ void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)
 {
     editor->textDocument()->setSyntaxHighlighter(new QmlJSHighlighter);
     editor->textDocument()->setIndenter(new Internal::Indenter(editor->textDocument()->document()));
-    editor->setAutoCompleter(new Internal::AutoCompleter);
+    editor->setAutoCompleter(new AutoCompleter);
 }
 
 } // namespace QmlJSEditor

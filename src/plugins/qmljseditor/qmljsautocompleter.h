@@ -26,11 +26,11 @@
 #pragma once
 
 #include <texteditor/autocompleter.h>
+#include <qmljseditor/qmljseditor_global.h>
 
 namespace QmlJSEditor {
-namespace Internal {
 
-class AutoCompleter : public TextEditor::AutoCompleter
+class QMLJSEDITOR_EXPORT AutoCompleter : public TextEditor::AutoCompleter
 {
 public:
     AutoCompleter();
@@ -55,5 +55,4 @@ public:
     QString insertParagraphSeparator(const QTextCursor &tc) const override;
 };
 
-} // Internal
 } // QmlJSEditor

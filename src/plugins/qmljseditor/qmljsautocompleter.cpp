@@ -34,7 +34,6 @@
 #include <QTextBlock>
 
 using namespace QmlJSEditor;
-using namespace Internal;
 using namespace QmlJS;
 
 static int blockStartState(const QTextBlock &block)
