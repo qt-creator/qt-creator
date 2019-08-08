@@ -371,17 +371,13 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
     double minTime = minimumTime();
     double maxTime = maximumTime();
 
-    double minValue = minimumValue();
-    double maxValue = maximumValue();
-
-
     QRectF canvas = canvasRect();
 
     double xZoomedOut = canvas.width() / (maxTime - minTime);
     double xZoomedIn = m_style.zoomInWidth;
     double scaleX = lerp(clamp(m_zoomX, 0.0, 1.0), xZoomedOut, xZoomedIn);
 
-    double yZoomedOut = canvas.height() / (maxValue - minValue);
+    double yZoomedOut = canvas.height() / maximumValue();
     double yZoomedIn = m_style.zoomInHeight;
     double scaleY = lerp(clamp(m_zoomY, 0.0, 1.0), -yZoomedOut, -yZoomedIn);
 
