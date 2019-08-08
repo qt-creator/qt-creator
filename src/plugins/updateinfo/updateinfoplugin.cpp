@@ -30,6 +30,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/shellcommand.h>
 #include <utils/fileutils.h>
@@ -40,7 +41,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMenu>
-#include <QMessageBox>
 #include <QMetaEnum>
 #include <QPointer>
 #include <QProcessEnvironment>
@@ -55,6 +55,7 @@ namespace {
     static const char LastCheckDateKey[] = "LastCheckDate";
     static const quint32 OneMinute = 60000;
     static const quint32 OneHour = 3600000;
+    static const char InstallUpdates[] = "UpdateInfo.InstallUpdates";
 }
 
 using namespace Core;
@@ -168,11 +169,20 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
     stopCheckForUpdates();
 
     if (!document.isNull() && document.firstChildElement().hasChildNodes()) {
+        // progress details are shown until user interaction for the "no updates" case,
+        // so we can show the "No updates found" text, but if we have updates we don't
+        // want to keep it around
+        if (d->m_progress)
+            d->m_progress->setKeepOnFinish(FutureProgress::HideOnFinish);
         emit newUpdatesAvailable(true);
-        if (QMessageBox::question(ICore::dialogParent(), tr("Qt Updater"),
-                                  tr("New updates are available. Do you want to start the update?"))
-                == QMessageBox::Yes)
+        Core::InfoBarEntry info(InstallUpdates,
+                                tr("New updates are available. Do you want to start the update?"));
+        info.setCustomButtonInfo(tr("Start Update"), [this] {
+            Core::ICore::infoBar()->removeInfo(InstallUpdates);
             startUpdater();
+        });
+        Core::ICore::infoBar()->unsuppressInfo(InstallUpdates);
+        Core::ICore::infoBar()->addInfo(info);
     } else {
         emit newUpdatesAvailable(false);
         if (d->m_progress)
