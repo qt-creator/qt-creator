@@ -25,8 +25,9 @@
 
 #include "googletest.h"
 
-#include "mockmutex.h"
 #include "mockfilepathstorage.h"
+#include "mockmutex.h"
+#include "mocksqlitedatabase.h"
 
 #include <stringcache.h>
 
@@ -72,7 +73,8 @@ protected:
     }
 
 protected:
-    NiceMock<MockFilePathStorage> mockStorage;
+    NiceMock<MockSqliteDatabase> mockDatabase;
+    NiceMock<MockFilePathStorage> mockStorage{mockDatabase};
     StorageIdFunction mockStorageFetchDirectyId = [&] (Utils::SmallStringView string) {
         return mockStorage.fetchDirectoryId(string);
     };

@@ -235,6 +235,8 @@ public:
         }
     }
 
+    Database &database() { return m_statementFactory.database; }
+
 private:
     StatementFactory &m_statementFactory;
 };

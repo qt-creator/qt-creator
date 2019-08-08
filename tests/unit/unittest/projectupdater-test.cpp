@@ -25,6 +25,7 @@
 
 #include "googletest.h"
 
+#include "mockfilepathcaching.h"
 #include "mockpchmanagerclient.h"
 #include "mockpchmanagernotifier.h"
 #include "mockpchmanagerserver.h"
@@ -468,6 +469,22 @@ TEST_F(ProjectUpdater, FetchProjectPartName)
     auto projectPartName = updater.fetchProjectPartName(1);
 
     ASSERT_THAT(projectPartName, Eq(QString{" projectb"}));
+}
+
+TEST_F(ProjectUpdater, AddProjectFilesToFilePathCache)
+{
+    NiceMock<MockFilePathCaching> mockFilePathCaching;
+    ClangPchManager::ProjectUpdater updater{mockPchManagerServer,
+                                            mockFilePathCaching,
+                                            projectPartsStorage};
+
+    EXPECT_CALL(mockFilePathCaching,
+                addFilePaths(UnorderedElementsAre(Eq(headerPaths[0]),
+                                                  Eq(headerPaths[1]),
+                                                  Eq(sourcePaths[0]),
+                                                  Eq(sourcePaths[1]))));
+
+    updater.updateProjectParts({&projectPart}, {});
 }
 
 // test for update many time and get the same id

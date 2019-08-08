@@ -33,6 +33,8 @@
 #include "filepathview.h"
 #include "stringcache.h"
 
+#include <sqlitetransaction.h>
+
 #include <algorithm>
 
 namespace ClangBackEnd {
@@ -161,25 +163,35 @@ public:
         return m_fileNameCache.string(filePathId.filePathId, fetchSoureNameAndDirectoryId).directoryId;
     }
 
-    void addFilePaths(FilePathViews &&filePaths)
+    template<typename Container>
+    void addFilePaths(Container &&filePaths)
     {
         auto directoryPaths = Utils::transform<std::vector<Utils::SmallStringView>>(
             filePaths, [](FilePathView filePath) { return filePath.directory(); });
 
-        m_directoryPathCache.addStrings(std::move(directoryPaths),
-                                        [&](Utils::SmallStringView directoryPath) {
-                                            return m_filePathStorage.fetchDirectoryIdUnguarded(
-                                                directoryPath);
-                                        });
+        std::unique_ptr<Sqlite::DeferredTransaction> transaction;
+
+        m_directoryPathCache.addStrings(std::move(directoryPaths), [&](Utils::SmallStringView directoryPath) {
+            if (!transaction)
+                transaction = std::make_unique<Sqlite::DeferredTransaction>(
+                    m_filePathStorage.database());
+            return m_filePathStorage.fetchDirectoryIdUnguarded(directoryPath);
+        });
 
         auto sourcePaths = Utils::transform<std::vector<FileNameView>>(filePaths, [&](FilePathView filePath) {
             return FileNameView{filePath.name(), m_directoryPathCache.stringId(filePath.directory())};
         });
 
         m_fileNameCache.addStrings(std::move(sourcePaths), [&](FileNameView fileNameView) {
+            if (!transaction)
+                transaction = std::make_unique<Sqlite::DeferredTransaction>(
+                    m_filePathStorage.database());
             return m_filePathStorage.fetchSourceIdUnguarded(fileNameView.directoryId,
                                                             fileNameView.fileName);
         });
+
+        if (transaction)
+            transaction->commit();
     }
 
 private:

@@ -55,6 +55,7 @@ public:
     DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const override;
     Utils::PathString directoryPath(DirectoryPathId directoryPathId) const override;
     DirectoryPathId directoryPathId(FilePathId filePathId) const override;
+    void addFilePaths(const ClangBackEnd::FilePaths &filePaths) override;
 
 private:
     Factory m_factory;
@@ -78,6 +79,7 @@ public:
     DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const override;
     Utils::PathString directoryPath(DirectoryPathId directoryPathId) const override;
     DirectoryPathId directoryPathId(FilePathId filePathId) const override;
+    void addFilePaths(const ClangBackEnd::FilePaths &filePaths) override;
 
 private:
     Cache m_cache;

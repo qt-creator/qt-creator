@@ -67,8 +67,11 @@ public:
 void ProjectUpdater::updateProjectParts(const std::vector<CppTools::ProjectPart *> &projectParts,
                                         Utils::SmallStringVector &&toolChainArguments)
 {
-    m_server.updateProjectParts(ClangBackEnd::UpdateProjectPartsMessage{
-        toProjectPartContainers(projectParts), std::move(toolChainArguments)});
+    addProjectFilesToFilePathCache(projectParts);
+
+    m_server.updateProjectParts(
+        ClangBackEnd::UpdateProjectPartsMessage{toProjectPartContainers(projectParts),
+                                                std::move(toolChainArguments)});
 }
 
 void ProjectUpdater::removeProjectParts(ClangBackEnd::ProjectPartIds projectPartIds)
@@ -430,6 +433,26 @@ ClangBackEnd::ProjectPartIds ProjectUpdater::toProjectPartIds(
                    });
 
     return projectPartIds;
+}
+
+void ProjectUpdater::addProjectFilesToFilePathCache(const std::vector<CppTools::ProjectPart *> &projectParts)
+{
+    std::size_t fileCount = std::accumulate(projectParts.begin(),
+                                            projectParts.end(),
+                                            std::size_t(0),
+                                            [](std::size_t value, CppTools::ProjectPart *projectPart) {
+                                                return value + std::size_t(projectPart->files.size());
+                                            });
+    ClangBackEnd::FilePaths filePaths;
+    filePaths.reserve(fileCount);
+
+    for (CppTools::ProjectPart *projectPart : projectParts) {
+        for (const CppTools::ProjectFile &file : projectPart->files)
+            if (file.active)
+                filePaths.emplace_back(file.path);
+    }
+
+    m_filePathCache.addFilePaths(filePaths);
 }
 
 } // namespace ClangPchManager

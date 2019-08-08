@@ -116,6 +116,9 @@ public:
     ClangBackEnd::ProjectPartIds toProjectPartIds(const QStringList &projectPartNames) const;
 
 private:
+    void addProjectFilesToFilePathCache(const std::vector<CppTools::ProjectPart *> &projectParts);
+
+private:
     ClangBackEnd::GeneratedFiles m_generatedFiles;
     ClangBackEnd::FilePaths m_excludedPaths;
     ClangBackEnd::ProjectManagementServerInterface &m_server;

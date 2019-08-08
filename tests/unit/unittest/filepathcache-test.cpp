@@ -26,6 +26,7 @@
 #include "googletest.h"
 
 #include "mockfilepathstorage.h"
+#include "mocksqlitedatabase.h"
 
 #include <filepathcache.h>
 
@@ -37,6 +38,7 @@ using Cache = ClangBackEnd::FilePathCache<NiceMock<MockFilePathStorage>>;
 using ClangBackEnd::FilePathId;
 using NFP = ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathView;
+using ClangBackEnd::FilePathViews;
 using ClangBackEnd::Sources::SourceNameAndDirectoryId;
 
 class FilePathCache : public testing::Test
@@ -73,9 +75,10 @@ protected:
     }
 
 protected:
-    NiceMock<MockFilePathStorage> mockStorage;
+    NiceMock<MockSqliteDatabase> mockDatabase;
+    NiceMock<MockFilePathStorage> mockStorage{mockDatabase};
     Cache cache{mockStorage};
-    NiceMock<MockFilePathStorage> mockStorageFilled;
+    NiceMock<MockFilePathStorage> mockStorageFilled{mockDatabase};
 };
 
 TEST_F(FilePathCache, FilePathIdWithOutAnyEntryCallDirectoryId)
@@ -379,7 +382,7 @@ TEST_F(FilePathCache, GetFileIdAfterAddFilePaths)
     Cache cacheFilled{mockStorageFilled};
 
     cacheFilled.addFilePaths(
-        {"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h", "/path/to/file.cpp"});
+        FilePathViews{"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h", "/path/to/file.cpp"});
 
     ASSERT_THAT(cacheFilled.filePath(101), Eq("/path3/to/file.h"));
 }
@@ -388,7 +391,7 @@ TEST_F(FilePathCache, GetFileIdAfterAddFilePathsWhichWasAlreadyAdded)
 {
     Cache cacheFilled{mockStorageFilled};
 
-    cacheFilled.addFilePaths({"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h"});
+    cacheFilled.addFilePaths(FilePathViews{"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h"});
 
     ASSERT_THAT(cacheFilled.filePath(42), Eq("/path/to/file.cpp"));
 }
@@ -398,13 +401,42 @@ TEST_F(FilePathCache, AddFilePathsCalls)
     Cache cacheFilled{mockStorageFilled};
     InSequence s;
 
+    EXPECT_CALL(mockDatabase, deferredBegin());
     EXPECT_CALL(mockStorageFilled, fetchDirectoryIdUnguarded(Eq("/path3/to"))).WillOnce(Return(7));
+    EXPECT_CALL(mockStorageFilled, fetchDirectoryIdUnguarded(Eq("/path/to"))).Times(0);
     EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(5, Eq("file.h"))).WillOnce(Return(99));
     EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(6, Eq("file2.h"))).WillOnce(Return(106));
     EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(7, Eq("file.h"))).WillOnce(Return(101));
+    EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(5, Eq("file.cpp"))).Times(0);
+    EXPECT_CALL(mockDatabase, commit());
 
     cacheFilled.addFilePaths(
-        {"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h", "/path/to/file.cpp"});
+        FilePathViews{"/path3/to/file.h", "/path/to/file.h", "/path2/to/file2.h", "/path/to/file.cpp"});
 }
 
+TEST_F(FilePathCache, DontUseTransactionIfNotAddingFilesInAddFilePathsCalls)
+{
+    Cache cacheFilled{mockStorageFilled};
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin()).Times(0);
+    EXPECT_CALL(mockStorageFilled, fetchDirectoryIdUnguarded(Eq("/path/to"))).Times(0);
+    EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(5, Eq("file.cpp"))).Times(0);
+    EXPECT_CALL(mockDatabase, commit()).Times(0);
+
+    cacheFilled.addFilePaths(FilePathViews{"/path/to/file.cpp"});
+}
+
+TEST_F(FilePathCache, UseTransactionIfAddingFilesOnlyInAddFilePathsCalls)
+{
+    Cache cacheFilled{mockStorageFilled};
+    InSequence s;
+
+    EXPECT_CALL(mockDatabase, deferredBegin());
+    EXPECT_CALL(mockStorageFilled, fetchDirectoryIdUnguarded(Eq("/path/to"))).Times(0);
+    EXPECT_CALL(mockStorageFilled, fetchSourceIdUnguarded(5, Eq("file.h")));
+    EXPECT_CALL(mockDatabase, commit());
+
+    cacheFilled.addFilePaths(FilePathViews{"/path/to/file.h"});
+}
 } // namespace

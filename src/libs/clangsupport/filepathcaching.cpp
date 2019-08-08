@@ -52,6 +52,11 @@ DirectoryPathId FilePathCaching::directoryPathId(FilePathId filePathId) const
     return m_cache.directoryPathId(filePathId);
 }
 
+void FilePathCaching::addFilePaths(const FilePaths &filePaths)
+{
+    m_cache.addFilePaths(filePaths);
+}
+
 FilePathId CopyableFilePathCaching::filePathId(FilePathView filePath) const
 {
     return m_cache.filePathId(filePath);
@@ -75,6 +80,11 @@ Utils::PathString CopyableFilePathCaching::directoryPath(DirectoryPathId directo
 DirectoryPathId CopyableFilePathCaching::directoryPathId(FilePathId filePathId) const
 {
     return m_cache.directoryPathId(filePathId);
+}
+
+void CopyableFilePathCaching::addFilePaths(const FilePaths &filePaths)
+{
+    m_cache.addFilePaths(filePaths);
 }
 
 } // namespace ClangBackEnd
