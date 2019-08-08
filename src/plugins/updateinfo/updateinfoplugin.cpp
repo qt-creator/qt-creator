@@ -159,6 +159,23 @@ void UpdateInfoPlugin::collectCheckForUpdatesOutput(const QString &contents)
     d->m_collectedOutput += contents;
 }
 
+static QStringList availableUpdates(const QDomDocument &document)
+{
+    if (document.isNull() || !document.firstChildElement().hasChildNodes())
+        return {};
+    QStringList result;
+    const QDomNodeList updates = document.firstChildElement().elementsByTagName("update");
+    for (int i = 0; i < updates.size(); ++i) {
+        const QDomNode node = updates.item(i);
+        if (node.isElement()) {
+            const QDomElement element = node.toElement();
+            if (element.hasAttribute("name"))
+                result.append(element.attribute("name"));
+        }
+    }
+    return result;
+}
+
 void UpdateInfoPlugin::checkForUpdatesFinished()
 {
     setLastCheckDate(QDate::currentDate());
@@ -180,6 +197,15 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
         info.setCustomButtonInfo(tr("Start Update"), [this] {
             Core::ICore::infoBar()->removeInfo(InstallUpdates);
             startUpdater();
+        });
+        const QStringList updates = availableUpdates(document);
+        info.setDetailsWidgetCreator([updates]() -> QWidget * {
+            const QString updateText = updates.join("</li><li>");
+            auto label = new QLabel;
+            label->setText("<qt><p>" + tr("Available Updates:") + "<ul><li>" + updateText
+                           + "</li></ul></p></qt>");
+            label->setContentsMargins(0, 0, 0, 8);
+            return label;
         });
         Core::ICore::infoBar()->unsuppressInfo(InstallUpdates);
         Core::ICore::infoBar()->addInfo(info);
