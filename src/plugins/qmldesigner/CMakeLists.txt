@@ -149,7 +149,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/types
-  SOURCES enumeration.cpp enumeration.h
+  SOURCES enumeration.h
 )
 
 extend_qtc_plugin(QmlDesigner
