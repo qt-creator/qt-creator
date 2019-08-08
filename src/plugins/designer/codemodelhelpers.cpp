@@ -67,7 +67,7 @@ public:
     bool visit(CPlusPlus::Function * f) override;
 
 private:
-    const int m_length;
+    const uint m_length;
     const char *m_name;
 
     FunctionList m_matches;
@@ -92,7 +92,7 @@ bool SearchFunction::visit(CPlusPlus::Function * f)
 {
     if (const CPlusPlus::Name *name = f->name())
         if (const CPlusPlus::Identifier *id = name->identifier())
-            if (id->size() == m_length)
+            if (static_cast<uint>(id->size()) == m_length)
                 if (!qstrncmp(m_name, id->chars(), m_length))
                     m_matches.push_back(f);
     return true;
