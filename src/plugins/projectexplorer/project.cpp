@@ -166,6 +166,7 @@ public:
     bool m_hasParsingData = false;
     bool m_needsInitialExpansion = false;
     bool m_canBuildProducts = false;
+    bool m_knowsAllBuildExecutables = true;
     std::unique_ptr<Core::IDocument> m_document;
     std::unique_ptr<ProjectNode> m_rootProjectNode;
     std::unique_ptr<ContainerNode> m_containerNode;
@@ -812,6 +813,11 @@ void Project::projectLoaded()
 {
 }
 
+void Project::setKnowsAllBuildExecutables(bool value)
+{
+    d->m_knowsAllBuildExecutables = value;
+}
+
 Task Project::createProjectTask(Task::TaskType type, const QString &description)
 {
     return Task(type, description, Utils::FilePath(), -1, Core::Id());
@@ -864,7 +870,7 @@ void Project::configureAsExampleProject()
 
 bool Project::knowsAllBuildExecutables() const
 {
-    return true;
+    return d->m_knowsAllBuildExecutables;
 }
 
 MakeInstallCommand Project::makeInstallCommand(const Target *target, const QString &installRoot)

@@ -65,8 +65,6 @@ public:
 
     QStringList buildTargetTitles() const;
 
-    bool knowsAllBuildExecutables() const final;
-
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
     void runCMake();

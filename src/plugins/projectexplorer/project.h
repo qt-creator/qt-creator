@@ -167,7 +167,7 @@ public:
 
     // The build system is able to report all executables that can be built, independent
     // of configuration.
-    virtual bool knowsAllBuildExecutables() const;
+    bool knowsAllBuildExecutables() const;
 
     virtual DeploymentKnowledge deploymentKnowledge() const { return DeploymentKnowledge::Bad; }
     virtual bool hasMakeInstallEquivalent() const { return false; }
@@ -261,6 +261,8 @@ protected:
     void removeProjectLanguage(Core::Id id);
     void setProjectLanguage(Core::Id id, bool enabled);
     virtual void projectLoaded(); // Called when the project is fully loaded.
+
+    void setKnowsAllBuildExecutables(bool value);
 
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);

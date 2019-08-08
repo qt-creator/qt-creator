@@ -111,6 +111,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
+    setKnowsAllBuildExecutables(false);
 
     // Timer:
     m_delayedParsingTimer.setSingleShot(true);
@@ -292,11 +293,6 @@ void CMakeProject::updateQmlJSCodeModel(CMakeBuildConfiguration *bc)
         projectInfo.importPaths.maybeInsert(FilePath::fromString(cmakeImport), QmlJS::Dialect::Qml);
 
     modelManager->updateProjectInfo(projectInfo, this);
-}
-
-bool CMakeProject::knowsAllBuildExecutables() const
-{
-    return false;
 }
 
 Tasks CMakeProject::projectIssues(const Kit *k) const
