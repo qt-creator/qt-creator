@@ -28,7 +28,6 @@
 #include "buildconfiguration.h"
 #include "buildinfo.h"
 #include "projectexplorerconstants.h"
-#include "kit.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 
@@ -40,6 +39,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QHBoxLayout>
@@ -69,7 +69,6 @@ TargetSetupWidget::TargetSetupWidget(Kit *k, const FilePath &projectPath) :
     m_detailsWidget->setUseCheckBox(true);
     m_detailsWidget->setChecked(false);
     m_detailsWidget->setSummaryFontBold(true);
-    m_detailsWidget->setToolTip(m_kit->toHtml());
     vboxLayout->addWidget(m_detailsWidget);
 
     auto panel = new Utils::FadingWidget(m_detailsWidget);
@@ -225,6 +224,24 @@ void TargetSetupWidget::setProjectPath(const FilePath &projectPath)
 void TargetSetupWidget::expandWidget()
 {
     m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
+}
+
+void TargetSetupWidget::updateStatus(const Kit::Predicate &predicate)
+{
+    // Kits that we deem invalid get a warning icon, but users can still select them,
+    // e.g. in case we misdetected an ABI mismatch.
+    // Kits that don't fulfill the project predicate are not selectable, because we cannot
+    // guarantee that we can handle the project sensibly (e.g. qmake project without Qt).
+    if (predicate && !predicate(kit())) {
+        setEnabled(false);
+        m_detailsWidget->setToolTip(tr("You cannot use this kit, because it does not fulfill "
+                                       "the project's prerequisites."));
+        return;
+    }
+    if (!kit()->isValid())
+        m_detailsWidget->setIcon(Icons::CRITICAL.icon());
+    setEnabled(true);
+    m_detailsWidget->setToolTip(m_kit->toHtml());
 }
 
 const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const FilePath &projectPath)

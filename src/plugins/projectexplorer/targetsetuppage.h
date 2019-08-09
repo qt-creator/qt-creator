@@ -66,8 +66,8 @@ public:
     void initializePage() override;
 
     // Call these before initializePage!
-    void setRequiredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
-    void setPreferredKitPredicate(const ProjectExplorer::Kit::Predicate &predicate);
+    void setRequiredKitPredicate(const Kit::Predicate &predicate);
+    void setPreferredKitPredicate(const Kit::Predicate &predicate);
     void setProjectPath(const Utils::FilePath &dir);
     void setProjectImporter(ProjectImporter *importer);
     bool importLineEditHasFocus() const;
@@ -91,19 +91,27 @@ public:
     void kitFilterChanged(const QString &filterText);
 
 private:
-    void handleKitAddition(ProjectExplorer::Kit *k);
-    void handleKitRemoval(ProjectExplorer::Kit *k);
-    void handleKitUpdate(ProjectExplorer::Kit *k);
+    void handleKitAddition(Kit *k);
+    void handleKitRemoval(Kit *k);
+    void handleKitUpdate(Kit *k);
     void updateVisibility();
 
+    void reLayout();
+    static bool compareKits(const Kit *k1, const Kit *k2);
+    std::vector<Internal::TargetSetupWidget *> sortedWidgetList() const;
+
     void kitSelectionChanged();
-    static QList<Kit *> sortedKitList(const Kit::Predicate &predicate);
 
     bool isUpdating() const;
     void selectAtLeastOneKit();
     void removeWidget(Kit *k) { removeWidget(widget(k)); }
     void removeWidget(Internal::TargetSetupWidget *w);
     Internal::TargetSetupWidget *addWidget(Kit *k);
+    void addAdditionalWidgets();
+    void removeAdditionalWidgets(QLayout *layout);
+    void removeAdditionalWidgets() { removeAdditionalWidgets(m_baseLayout); }
+    void updateWidget(Internal::TargetSetupWidget *widget);
+    bool isUsable(const Kit *kit) const;
 
     void setupImports();
     void import(const Utils::FilePath &path, bool silent = false);
@@ -116,14 +124,13 @@ private:
     Internal::TargetSetupWidget *widget(const Core::Id kitId,
                                         Internal::TargetSetupWidget *fallback = nullptr) const;
 
-    ProjectExplorer::Kit::Predicate m_requiredPredicate;
-    ProjectExplorer::Kit::Predicate m_preferredPredicate;
+    Kit::Predicate m_requiredPredicate;
+    Kit::Predicate m_preferredPredicate;
     QPointer<ProjectImporter> m_importer;
     QLayout *m_baseLayout = nullptr;
     Utils::FilePath m_projectPath;
     QString m_defaultShadowBuildLocation;
     std::vector<Internal::TargetSetupWidget *> m_widgets;
-    Internal::TargetSetupWidget *m_firstWidget = nullptr;
 
     Internal::TargetSetupPageUi *m_ui;
 

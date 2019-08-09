@@ -28,6 +28,7 @@
 #include "projectexplorer_export.h"
 
 #include "buildinfo.h"
+#include "kit.h"
 #include "task.h"
 
 #include <QWidget>
@@ -48,7 +49,6 @@ class PathChooser;
 
 namespace ProjectExplorer {
 class BuildInfo;
-class Kit;
 
 namespace Internal {
 
@@ -70,6 +70,7 @@ public:
     const QList<BuildInfo> selectedBuildInfoList() const;
     void setProjectPath(const Utils::FilePath &projectPath);
     void expandWidget();
+    void updateStatus(const Kit::Predicate &predicate);
 
 signals:
     void selectedToggled() const;

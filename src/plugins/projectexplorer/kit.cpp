@@ -211,6 +211,7 @@ void Kit::copyKitCommon(Kit *target, const Kit *source)
     target->d->m_sticky = source->d->m_sticky;
     target->d->m_mutable = source->d->m_mutable;
     target->d->m_irrelevantAspects = source->d->m_irrelevantAspects;
+    target->d->m_hasValidityInfo = false;
 }
 
 Kit *Kit::clone(bool keepName) const
