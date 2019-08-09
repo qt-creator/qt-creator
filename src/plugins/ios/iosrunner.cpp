@@ -44,8 +44,6 @@
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
-#include <qtsupport/qtkitinformation.h>
-
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
