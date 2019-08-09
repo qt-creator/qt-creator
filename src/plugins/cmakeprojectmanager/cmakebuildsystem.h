@@ -25,19 +25,11 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/treescanner.h>
-
-#include <QTimer>
+#include <projectexplorer/buildsystem.h>
 
 namespace CppTools {
 class CppProjectUpdater;
 } // namespace CppTools
-
-namespace ProjectExplorer {
-class BuildConfiguration;
-class ExtraCompiler;
-} // namespace ProjectExplorer
 
 namespace CMakeProjectManager {
 
@@ -48,87 +40,10 @@ class CMakeBuildConfiguration;
 } // namespace Internal
 
 // --------------------------------------------------------------------
-// BuildSystem:
-// --------------------------------------------------------------------
-
-class BuildSystem : public QObject
-{
-    Q_OBJECT
-
-public:
-    const static int PARAM_CUSTOM_OFFSET = 3;
-    enum Parameters : int {
-        PARAM_DEFAULT = 0, // use defaults
-
-        PARAM_IGNORE = (1 << (PARAM_CUSTOM_OFFSET - 3)), // Ignore this request without raising a fuss
-        PARAM_ERROR = (1 << (PARAM_CUSTOM_OFFSET - 2)), // Ignore this request and warn
-
-        PARAM_URGENT = (1 << (PARAM_CUSTOM_OFFSET - 1)), // Do not wait for more requests, start ASAP
-    };
-
-    explicit BuildSystem(ProjectExplorer::Project *project);
-    ~BuildSystem() override;
-
-    BuildSystem(const BuildSystem &other) = delete;
-
-    ProjectExplorer::Project *project() const;
-
-    bool isWaitingForParse() const;
-    void requestParse(int reparseParameters); // request a (delayed!) parser run.
-
-protected:
-    class ParsingContext
-    {
-    public:
-        ParsingContext() = default;
-
-        ParsingContext(const ParsingContext &other) = delete;
-        ParsingContext &operator=(const ParsingContext &other) = delete;
-        ParsingContext(ParsingContext &&other) = default;
-        ParsingContext &operator=(ParsingContext &&other) = default;
-
-        ProjectExplorer::Project::ParseGuard guard;
-
-        int parameters = PARAM_DEFAULT;
-        ProjectExplorer::Project *project = nullptr;
-        ProjectExplorer::BuildConfiguration *buildConfiguration = nullptr;
-
-    private:
-        ParsingContext(ProjectExplorer::Project::ParseGuard &&g,
-                       int params,
-                       ProjectExplorer::Project *p,
-                       ProjectExplorer::BuildConfiguration *bc)
-            : guard(std::move(g))
-            , parameters(params)
-            , project(p)
-            , buildConfiguration(bc)
-        {}
-
-        friend class BuildSystem;
-    };
-
-    virtual bool validateParsingContext(const ParsingContext &ctx)
-    {
-        Q_UNUSED(ctx)
-        return true;
-    }
-
-    virtual void parseProject(ParsingContext &&ctx) = 0; // actual code to parse project
-
-private:
-    void triggerParsing();
-
-    ProjectExplorer::Project *m_project;
-
-    QTimer m_delayedParsingTimer;
-    int m_delayedParsingParameters = PARAM_DEFAULT;
-};
-
-// --------------------------------------------------------------------
 // CMakeBuildSystem:
 // --------------------------------------------------------------------
 
-class CMakeBuildSystem : public BuildSystem
+class CMakeBuildSystem : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 

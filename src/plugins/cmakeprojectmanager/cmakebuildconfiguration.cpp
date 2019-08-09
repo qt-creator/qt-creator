@@ -93,12 +93,13 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
     BuildSystem *bs = qobject_cast<CMakeBuildSystem *>(project()->buildSystem());
 
     // BuildDirManager:
-    connect(&m_buildDirManager, &BuildDirManager::requestReparse, this, [this, bs](int options) {
-        if (isActive()) {
-            qCDebug(cmakeBuildConfigurationLog)
-                << "Passing on reparse request with flags" << BuildDirManager::flagsString(options);
-            bs->requestParse(options);
-        }
+    connect(&m_buildDirManager, &BuildDirManager::requestReparse, this, [this, bs]() {
+        if (isActive())
+            bs->requestParse();
+    });
+    connect(&m_buildDirManager, &BuildDirManager::requestDelayedReparse, this, [this, bs]() {
+        if (isActive())
+            bs->requestDelayedParse();
     });
     connect(&m_buildDirManager,
             &BuildDirManager::dataAvailable,

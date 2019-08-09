@@ -32,10 +32,8 @@
 #include "cmakebuildtarget.h"
 #include "cmakeprojectimporter.h"
 
-#include <projectexplorer/extracompiler.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectmacro.h>
-#include <projectexplorer/treescanner.h>
 
 #include <utils/fileutils.h>
 
@@ -50,8 +48,6 @@ namespace ProjectExplorer { class FileNode; }
 
 namespace CMakeProjectManager {
 
-class BuildSystem;
-
 namespace Internal {
 class CMakeBuildConfiguration;
 class CMakeBuildSettingsWidget;
@@ -65,8 +61,6 @@ class CMAKE_EXPORT CMakeProject : public ProjectExplorer::Project
 public:
     explicit CMakeProject(const Utils::FilePath &filename);
     ~CMakeProject() final;
-
-    BuildSystem *buildSystem() const { return m_buildsystem.get(); }
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
@@ -93,11 +87,6 @@ private:
                                                            const QString &installRoot) override;
 
     mutable std::unique_ptr<Internal::CMakeProjectImporter> m_projectImporter;
-
-    std::unique_ptr<CMakeBuildSystem> m_buildsystem;
-
-    // friend class Internal::CMakeBuildConfiguration;
-    // friend class Internal::CMakeBuildSettingsWidget;
 
     friend class CMakeBuildSystem;
 };

@@ -21,6 +21,7 @@ add_qtc_plugin(ProjectExplorer
     buildstep.cpp buildstep.h
     buildsteplist.cpp buildsteplist.h
     buildstepspage.cpp buildstepspage.h
+    buildsystem.cpp buildsystem.h
     buildtargetinfo.h
     clangparser.cpp clangparser.h
     codestylesettingspropertiespage.cpp codestylesettingspropertiespage.h codestylesettingspropertiespage.ui

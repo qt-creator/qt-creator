@@ -30,38 +30,6 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectnodes.h"
 
-#if 0
-#include "cmakebuildstep.h"
-#include "cmakekitinformation.h"
-#include "cmakeprojectmanager.h"
-#include "cmakeprojectnodes.h"
-
-#include <cpptools/cpprawprojectpart.h>
-#include <cpptools/cpptoolsconstants.h>
-
-#include <cpptools/projectinfo.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/headerpath.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/toolchain.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
-
-#include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
-#include <utils/stringutils.h>
-
-#include <QDir>
-#include <QElapsedTimer>
-#include <QSet>
-#endif
-
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/generatedcodemodelsupport.h>
@@ -79,84 +47,11 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace {
-
-CMakeProjectManager::Internal::CMakeBuildConfiguration *activeBc(Project *p)
-{
-    if (!p)
-        return nullptr;
-
-    return qobject_cast<CMakeProjectManager::Internal::CMakeBuildConfiguration *>(
-        p->activeTarget() ? p->activeTarget()->activeBuildConfiguration() : nullptr);
-}
-
-} // namespace
-
 namespace CMakeProjectManager {
 
 using namespace Internal;
 
 Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarningMsg);
-
-// --------------------------------------------------------------------
-// BuildSystem:
-// --------------------------------------------------------------------
-
-BuildSystem::BuildSystem(Project *project)
-    : m_project(project)
-{
-    QTC_CHECK(project);
-
-    // Timer:
-    m_delayedParsingTimer.setSingleShot(true);
-
-    connect(&m_delayedParsingTimer, &QTimer::timeout, this, &BuildSystem::triggerParsing);
-}
-
-BuildSystem::~BuildSystem() = default;
-
-Project *BuildSystem::project() const
-{
-    return m_project;
-}
-
-bool BuildSystem::isWaitingForParse() const
-{
-    return m_delayedParsingTimer.isActive();
-}
-
-void BuildSystem::requestParse(int reparseParameters)
-{
-    QTC_ASSERT(!(reparseParameters & PARAM_ERROR), return );
-    if (reparseParameters & PARAM_IGNORE)
-        return;
-
-    m_delayedParsingTimer.setInterval((reparseParameters & PARAM_URGENT) ? 0 : 1000);
-    m_delayedParsingTimer.start();
-    m_delayedParsingParameters = m_delayedParsingParameters | reparseParameters;
-}
-
-void BuildSystem::triggerParsing()
-{
-    int parameters = m_delayedParsingParameters;
-    m_delayedParsingParameters = BuildSystem::PARAM_DEFAULT;
-
-    QTC_CHECK(!m_project->isParsing());
-    QTC_ASSERT((parameters & BuildSystem::PARAM_ERROR) == 0, return );
-    if (parameters & BuildSystem::PARAM_IGNORE)
-        return;
-
-    // Clear buildsystem specific parameters before passing them on!
-    parameters = parameters
-                 & ~(BuildSystem::PARAM_ERROR | BuildSystem::PARAM_IGNORE
-                     | BuildSystem::PARAM_URGENT);
-
-    {
-        ParsingContext ctx(m_project->guardParsingRun(), parameters, m_project, activeBc(m_project));
-        if (validateParsingContext(ctx))
-            parseProject(std::move(ctx));
-    }
-}
 
 // --------------------------------------------------------------------
 // CMakeBuildSystem:
@@ -227,13 +122,12 @@ void CMakeBuildSystem::parseProject(ParsingContext &&ctx)
     m_currentContext = std::move(ctx);
 
     auto bc = qobject_cast<CMakeBuildConfiguration *>(m_currentContext.buildConfiguration);
-
-    int parameters = m_currentContext.parameters;
+    QTC_ASSERT(bc, return );
 
     if (m_allFiles.isEmpty())
-        parameters |= BuildDirManager::REPARSE_SCAN;
+        bc->m_buildDirManager.requestFilesystemScan();
 
-    m_waitingForScan = parameters & BuildDirManager::REPARSE_SCAN;
+    m_waitingForScan = bc->m_buildDirManager.isFilesystemScanRequested();
     m_waitingForParse = true;
     m_combinedScanAndParseResult = true;
 
@@ -246,7 +140,7 @@ void CMakeBuildSystem::parseProject(ParsingContext &&ctx)
                                        "CMake.Scan.Tree");
     }
 
-    bc->m_buildDirManager.parse(parameters);
+    bc->m_buildDirManager.parse();
 }
 
 void CMakeBuildSystem::handleTreeScanningFinished()

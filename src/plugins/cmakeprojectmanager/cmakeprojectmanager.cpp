@@ -32,12 +32,13 @@
 #include "cmaketoolmanager.h"
 #include "cmakeprojectnodes.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>

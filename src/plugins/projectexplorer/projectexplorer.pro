@@ -13,6 +13,7 @@ HEADERS += projectexplorer.h \
     addrunconfigdialog.h \
     ansifilterparser.h \
     buildinfo.h \
+    buildsystem.h \
     clangparser.h \
     configtaskhandler.h \
     desktoprunconfiguration.h \
@@ -170,6 +171,7 @@ SOURCES += projectexplorer.cpp \
     addrunconfigdialog.cpp \
     ansifilterparser.cpp \
     buildinfo.cpp \
+    buildsystem.cpp \
     clangparser.cpp \
     configtaskhandler.cpp \
     desktoprunconfiguration.cpp \

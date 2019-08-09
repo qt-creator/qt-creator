@@ -50,6 +50,7 @@ class MacroExpander;
 namespace ProjectExplorer {
 
 class BuildInfo;
+class BuildSystem;
 class ContainerNode;
 class EditorConfiguration;
 class FolderNode;
@@ -84,6 +85,8 @@ public:
 
     QString mimeType() const;
     bool canBuildProducts() const;
+
+    BuildSystem *buildSystem() const;
 
     Utils::FilePath projectFilePath() const;
     Utils::FilePath projectDirectory() const;
@@ -234,6 +237,8 @@ public:
     // as the main project file.
     void setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocumentPaths);
 
+    Utils::Environment activeParseEnvironment() const;
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 
@@ -294,7 +299,7 @@ protected:
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);
 
-    Utils::Environment activeParseEnvironment() const;
+    void setBuildSystem(std::unique_ptr<BuildSystem> &&bs); // takes ownership!
 
 private:
     // Helper methods to manage parsing state and signalling

@@ -27,6 +27,7 @@
 
 #include "buildconfiguration.h"
 #include "buildinfo.h"
+#include "buildsystem.h"
 #include "deployconfiguration.h"
 #include "editorconfiguration.h"
 #include "kit.h"
@@ -182,6 +183,7 @@ public:
     bool m_knowsAllBuildExecutables = true;
     bool m_hasMakeInstallEquivalent = false;
     bool m_needsBuildConfigurations = true;
+    std::unique_ptr<BuildSystem> m_buildSystem;
     std::unique_ptr<Core::IDocument> m_document;
     std::vector<std::unique_ptr<Core::IDocument>> m_extraProjectDocuments;
     std::unique_ptr<ProjectNode> m_rootProjectNode;
@@ -251,6 +253,11 @@ QString Project::mimeType() const
 bool Project::canBuildProducts() const
 {
     return d->m_canBuildProducts;
+}
+
+BuildSystem *Project::buildSystem() const
+{
+    return d->m_buildSystem.get();
 }
 
 Utils::FilePath Project::projectFilePath() const
@@ -877,6 +884,12 @@ Utils::Environment Project::activeParseEnvironment() const
     if (t)
         t->kit()->addToEnvironment(result);
     return result;
+}
+
+void Project::setBuildSystem(std::unique_ptr<BuildSystem> &&bs)
+{
+    QTC_ASSERT(!bs->parent(), bs->setParent(nullptr));
+    d->m_buildSystem = std::move(bs);
 }
 
 Core::Context Project::projectContext() const

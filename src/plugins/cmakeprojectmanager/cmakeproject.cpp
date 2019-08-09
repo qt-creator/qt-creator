@@ -85,14 +85,14 @@ static CMakeBuildConfiguration *activeBc(const CMakeProject *p)
 CMakeProject::CMakeProject(const FilePath &fileName)
     : Project(Constants::CMAKEMIMETYPE, fileName)
 {
-    m_buildsystem = std::make_unique<CMakeBuildSystem>(this);
-
     setId(CMakeProjectManager::Constants::CMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
     setKnowsAllBuildExecutables(false);
     setHasMakeInstallEquivalent(true);
+
+    setBuildSystem(std::make_unique<CMakeBuildSystem>(this));
 }
 
 CMakeProject::~CMakeProject() = default;
