@@ -39,6 +39,8 @@
 #include <qmlstate.h>
 #include <qmltimeline.h>
 
+#include <coreplugin/icore.h>
+
 #include <theme.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -372,7 +374,7 @@ void TimelineWidget::openEasingCurveEditor()
         QList<ModelNode> frames;
         for (auto *item : graphicsScene()->selectedKeyframes())
             frames.append(item->frameNode());
-        EasingCurveDialog::runDialog(frames);
+        EasingCurveDialog::runDialog(frames, Core::ICore::dialogParent());
     }
 }
 
