@@ -124,7 +124,7 @@ void FileApiReader::resetData()
 
 void FileApiReader::parse(bool forceCMakeRun, bool forceConfiguration)
 {
-    qCDebug(cmakeFileApiMode) << "\n\nParse: ForceCMakeRun:" << forceCMakeRun
+    qCDebug(cmakeFileApiMode) << "Parse called with arguments: ForceCMakeRun:" << forceCMakeRun
                               << " - forceConfiguration:" << forceConfiguration;
     startState();
 

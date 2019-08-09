@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSet>
@@ -54,6 +55,8 @@ using namespace Utils;
 
 namespace CMakeProjectManager {
 namespace Internal {
+
+Q_LOGGING_CATEGORY(cmakeBuildDirManagerLog, "qtc.cmake.builddirmanager", QtWarningMsg);
 
 // --------------------------------------------------------------------
 // BuildDirManager:
@@ -283,7 +286,10 @@ bool BuildDirManager::persistCMakeState()
 
 void BuildDirManager::parse(int reparseParameters)
 {
-    QTC_ASSERT(m_parameters.isValid(), return);
+    qCDebug(cmakeBuildDirManagerLog)
+        << "Parse called with flags:" << flagsString(reparseParameters);
+
+    QTC_ASSERT(m_parameters.isValid(), return );
     QTC_ASSERT(m_reader, return);
     QTC_ASSERT((reparseParameters & REPARSE_FAIL) == 0, return);
     QTC_ASSERT((reparseParameters & REPARSE_IGNORE) == 0, return);
@@ -294,9 +300,14 @@ void BuildDirManager::parse(int reparseParameters)
 
     if (!m_parameters.workDirectory.toFileInfo().exists("CMakeCache.txt")) {
         reparseParameters |= REPARSE_FORCE_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
+        qCDebug(cmakeBuildDirManagerLog)
+            << "No CMakeCache.txt file found, new flags:" << flagsString(reparseParameters);
     } else if (reparseParameters & REPARSE_CHECK_CONFIGURATION) {
-        if (checkConfiguration())
+        if (checkConfiguration()) {
             reparseParameters |= REPARSE_FORCE_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
+            qCDebug(cmakeBuildDirManagerLog)
+                << "Config check triggered flags change:" << flagsString(reparseParameters);
+        }
     }
 
     m_reader->parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
@@ -404,6 +415,30 @@ CMakeConfig BuildDirManager::parseCMakeConfiguration(const Utils::FilePath &cach
     if (!errorMessage->isEmpty())
         return { };
     return result;
+}
+
+QString BuildDirManager::flagsString(int reparseFlags)
+{
+    QString result;
+    if (reparseFlags == REPARSE_DEFAULT) {
+        result = "<NONE>";
+    } else {
+        if (reparseFlags & REPARSE_URGENT)
+            result += " URGENT";
+        if (reparseFlags & REPARSE_FORCE_CMAKE_RUN)
+            result += " FORCE_CMAKE_RUN";
+        if (reparseFlags & REPARSE_FORCE_CONFIGURATION)
+            result += " FORCE_CONFIG";
+        if (reparseFlags & REPARSE_CHECK_CONFIGURATION)
+            result += " CHECK_CONFIG";
+        if (reparseFlags & REPARSE_SCAN)
+            result += " SCAN";
+        if (reparseFlags & REPARSE_IGNORE)
+            result += " IGNORE";
+        if (reparseFlags & REPARSE_FAIL)
+            result += " FAIL";
+    }
+    return result.trimmed();
 }
 
 bool BuildDirManager::checkConfiguration()

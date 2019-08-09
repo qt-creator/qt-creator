@@ -55,6 +55,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QLoggingCategory>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -75,6 +77,8 @@ Q_DECLARE_METATYPE(CMakeProjectManager::CMakeExtraBuildInfo)
 namespace CMakeProjectManager {
 namespace Internal {
 
+Q_LOGGING_CATEGORY(cmakeBuildConfigurationLog, "qtc.cmake.bc", QtWarningMsg);
+
 const char CONFIGURATION_KEY[] = "CMake.Configuration";
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
@@ -89,8 +93,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
 
     // BuildDirManager:
     connect(&m_buildDirManager, &BuildDirManager::requestReparse, this, [this](int options) {
-        if (isActive())
+        if (isActive()) {
+            qCDebug(cmakeBuildConfigurationLog)
+                << "Passing on reparse request with flags" << BuildDirManager::flagsString(options);
             project()->requestReparse(options);
+        }
     });
     connect(&m_buildDirManager,
             &BuildDirManager::dataAvailable,
@@ -111,7 +118,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
     connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
         if (k != target()->kit())
             return; // not for us...
-
         // Build configuration has not changed, but Kit settings might have:
         // reparse and check the configuration, independent of whether the reader has changed
         m_buildDirManager.setParametersAndRequestParse(BuildDirParameters(this),
