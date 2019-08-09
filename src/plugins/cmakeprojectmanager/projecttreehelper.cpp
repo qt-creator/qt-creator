@@ -177,6 +177,8 @@ void addHeaderNodes(ProjectNode *root,
                     QSet<Utils::FilePath> &seenHeaders,
                     const QList<const FileNode *> &allFiles)
 {
+    QTC_ASSERT(root, return );
+
     if (root->isEmpty())
         return;
 

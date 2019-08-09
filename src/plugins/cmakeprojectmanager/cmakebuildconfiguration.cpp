@@ -539,14 +539,6 @@ void CMakeBuildConfiguration::handleParsingSucceeded()
     }
 
     project()->handleParsingSuccess(this);
-
-    {
-        m_buildDirManager.resetData();
-    }
-
-    {
-        emitBuildTypeChanged();
-    }
 }
 
 std::unique_ptr<CMakeProjectNode> CMakeBuildConfiguration::generateProjectTree(

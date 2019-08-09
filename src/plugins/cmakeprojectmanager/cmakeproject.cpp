@@ -269,6 +269,10 @@ void CMakeProject::updateProjectData(CMakeBuildConfiguration *bc)
 
     emit fileListChanged();
 
+    emit bc->emitBuildTypeChanged();
+
+    bc->m_buildDirManager.resetData(); // Clear remaining data
+
     qCDebug(cmakeProjectLog) << "All CMake project data up to date.";
 }
 
