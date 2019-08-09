@@ -73,5 +73,7 @@
         <file>images/timeline-16px.png</file>
         <file>images/remove_timeline.png</file>
         <file>images/remove_timeline@2x.png</file>
+        <file>images/curveGraphIcon.png</file>
+        <file>images/curveGraphIcon@2x.png</file>
     </qresource>
 </RCC>

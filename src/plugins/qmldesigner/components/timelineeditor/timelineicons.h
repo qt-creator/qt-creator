@@ -83,6 +83,8 @@ const Utils::Icon REMOVE_TIMELINE({
 // Icons on the toolbars
 const Utils::Icon ANIMATION({
         {":/timelineplugin/images/animation.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon CURVE_EDITORDIALOG({
+        {":/timelineplugin/images/curveGraphIcon.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon TO_FIRST_FRAME({
         {":/timelineplugin/images/to_first_frame.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon BACK_ONE_FRAME({

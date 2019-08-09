@@ -251,7 +251,7 @@ void TimelineToolBar::createLeftControls()
     addActionToGroup(settingsAction);
 
     auto *curveEditorAction = createAction(TimelineConstants::C_CURVE_EDITOR,
-                                           TimelineIcons::ANIMATION.icon(),
+                                           TimelineIcons::CURVE_EDITORDIALOG.icon(),
                                            tr("Curve Editor"),
                                            QKeySequence(Qt::Key_C));
 
