@@ -40,7 +40,6 @@
 #include "qscxmlcgenerator.h"
 
 #include "desktopqtversion.h"
-#include "desktoprunconfiguration.h"
 #include "profilereader.h"
 
 #include <coreplugin/icore.h>
@@ -71,16 +70,6 @@ public:
 
     CodeGenSettingsPage codeGenSettingsPage;
     QtOptionsPage qtOptionsPage;
-
-    DesktopQmakeRunConfigurationFactory qmakeRunConfigFactory;
-    QbsRunConfigurationFactory qbsRunConfigFactory;
-    CMakeRunConfigurationFactory cmakeRunConfigFactory;
-
-    RunWorkerFactory desktopRunWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {qmakeRunConfigFactory.id(), qbsRunConfigFactory.id(), cmakeRunConfigFactory.id()}
-    };
 
     ExamplesWelcomePage examplesPage{true};
     ExamplesWelcomePage tutorialPage{false};

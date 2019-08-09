@@ -25,32 +25,29 @@
 
 #pragma once
 
-#include "qtsupport_global.h"
+#include "runconfigurationaspects.h"
+#include "runcontrol.h"
 
-#include "projectexplorer/runconfigurationaspects.h"
-
-#include <projectexplorer/runcontrol.h>
-
-namespace QtSupport {
+namespace ProjectExplorer {
 namespace Internal {
 
-class DesktopRunConfiguration : public ProjectExplorer::RunConfiguration
+class DesktopRunConfiguration : public RunConfiguration
 {
     Q_OBJECT
 
 protected:
     enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
 
-    DesktopRunConfiguration(ProjectExplorer::Target *target, Core::Id id, Kind kind);
+    DesktopRunConfiguration(Target *target, Core::Id id, Kind kind);
 
 private:
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &info) final;
+    void doAdditionalSetup(const RunConfigurationCreationInfo &info) final;
     bool fromMap(const QVariantMap &map) final;
     void updateEnabledState() final;
 
     void updateTargetInformation();
 
-    Utils::FilePath executableToRun(const ProjectExplorer::BuildTargetInfo &targetInfo) const;
+    Utils::FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
     QString disabledReason() const override;
 
     bool isBuildTargetValid() const;
@@ -58,23 +55,23 @@ private:
     const Kind m_kind;
 };
 
-class DesktopQmakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+class DesktopQmakeRunConfigurationFactory : public RunConfigurationFactory
 {
 public:
     DesktopQmakeRunConfigurationFactory();
 };
 
-class QbsRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+class QbsRunConfigurationFactory : public RunConfigurationFactory
 {
 public:
     QbsRunConfigurationFactory();
 };
 
-class CMakeRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+class CMakeRunConfigurationFactory : public RunConfigurationFactory
 {
 public:
     CMakeRunConfigurationFactory();
 };
 
 } // namespace Internal
-} // namespace QtSupport
+} // namespace ProjectExplorer

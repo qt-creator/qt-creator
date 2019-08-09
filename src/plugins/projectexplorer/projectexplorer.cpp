@@ -33,6 +33,7 @@
 #include "customwizard/customwizard.h"
 #include "deployablefile.h"
 #include "deployconfiguration.h"
+#include "desktoprunconfiguration.h"
 #include "extraabi.h"
 #include "gcctoolchainfactories.h"
 #ifdef WITH_JOURNALD
@@ -591,6 +592,17 @@ public:
     ToolChainKitAspect toolChainKitAspect;
     SysRootKitAspect sysRootKitAspect;
     EnvironmentKitAspect environmentKitAspect;
+
+    DesktopQmakeRunConfigurationFactory qmakeRunConfigFactory;
+    QbsRunConfigurationFactory qbsRunConfigFactory;
+    CMakeRunConfigurationFactory cmakeRunConfigFactory;
+
+    RunWorkerFactory desktopRunWorkerFactory{
+        RunWorkerFactory::make<SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
+        {qmakeRunConfigFactory.id(), qbsRunConfigFactory.id(), cmakeRunConfigFactory.id()}
+    };
+
 };
 
 static ProjectExplorerPlugin *m_instance = nullptr;

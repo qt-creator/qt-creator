@@ -62,6 +62,7 @@ Project {
                 "deploymentdataview.ui",
                 "deploymentdatamodel.cpp",
                 "deploymentdatamodel.h",
+                "desktoprunconfiguration.cpp", "desktoprunconfiguration.h",
                 "editorconfiguration.cpp", "editorconfiguration.h",
                 "editorsettingspropertiespage.cpp", "editorsettingspropertiespage.h", "editorsettingspropertiespage.ui",
                 "environmentaspect.cpp", "environmentaspect.h",

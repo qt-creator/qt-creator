@@ -25,12 +25,10 @@
 
 #include "desktoprunconfiguration.h"
 
-#include "qtoutputformatter.h"
-
-#include <projectexplorer/localenvironmentaspect.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/target.h>
+#include "localenvironmentaspect.h"
+#include "project.h"
+#include "runconfigurationaspects.h"
+#include "target.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qbsprojectmanager/qbsprojectmanagerconstants.h>
@@ -43,10 +41,9 @@
 
 #include <QFileInfo>
 
-using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QtSupport {
+namespace ProjectExplorer {
 namespace Internal {
 
 DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Core::Id id, Kind kind)

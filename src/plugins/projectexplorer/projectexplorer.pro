@@ -15,6 +15,7 @@ HEADERS += projectexplorer.h \
     buildinfo.h \
     clangparser.h \
     configtaskhandler.h \
+    desktoprunconfiguration.h \
     environmentaspect.h \
     environmentaspectwidget.h \
     extraabi.h \
@@ -173,6 +174,7 @@ SOURCES += projectexplorer.cpp \
     buildinfo.cpp \
     clangparser.cpp \
     configtaskhandler.cpp \
+    desktoprunconfiguration.cpp \
     environmentaspect.cpp \
     environmentaspectwidget.cpp \
     extraabi.cpp \
