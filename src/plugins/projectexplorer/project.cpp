@@ -595,7 +595,7 @@ Utils::FilePathList Project::files(const Project::NodeMatcher &filter) const
         lastAdded = path;
 
         result.append(path);
-    };
+    }
     return result;
 }
 
