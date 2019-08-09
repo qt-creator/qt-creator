@@ -326,6 +326,8 @@ void Project::setActiveTarget(Target *target)
         (target && Utils::contains(d->m_targets, target))) {
         d->m_activeTarget = target;
         emit activeTargetChanged(d->m_activeTarget);
+        emit activeBuildConfigurationChanged(
+            d->m_activeTarget ? d->m_activeTarget->activeBuildConfiguration() : nullptr);
     }
 }
 
