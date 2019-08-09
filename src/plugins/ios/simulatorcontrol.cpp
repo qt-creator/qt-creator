@@ -60,6 +60,7 @@ const char deviceTypeTag[] = "devicetypes";
 const char devicesTag[] = "devices";
 const char availabilityTag[] = "availability";
 const char unavailabilityToken[] = "unavailable";
+const char availabilityTagNew[] = "isAvailable"; // at least since Xcode 10
 const char identifierTag[] = "identifier";
 const char runtimesTag[] = "runtimes";
 const char nameTag[] = "name";
@@ -116,6 +117,13 @@ static bool launchSimulator(const QString &simUdid) {
     return QProcess::startDetached(simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid});
 }
 
+static bool isAvailable(const QJsonObject &object)
+{
+    return object.contains(availabilityTagNew)
+               ? object.value(availabilityTagNew).toBool()
+               : !object.value(availabilityTag).toString().contains(unavailabilityToken);
+}
+
 static QList<DeviceTypeInfo> getAvailableDeviceTypes()
 {
     QList<DeviceTypeInfo> deviceTypes;
@@ -126,7 +134,7 @@ static QList<DeviceTypeInfo> getAvailableDeviceTypes()
         const QJsonArray runtimesArray = doc.object().value(deviceTypeTag).toArray();
         foreach (const QJsonValue deviceTypeValue, runtimesArray) {
             QJsonObject deviceTypeObject = deviceTypeValue.toObject();
-            if (!deviceTypeObject.value(availabilityTag).toString().contains(unavailabilityToken)) {
+            if (isAvailable(deviceTypeObject)) {
                 DeviceTypeInfo deviceType;
                 deviceType.name = deviceTypeObject.value(nameTag).toString("unknown");
                 deviceType.identifier = deviceTypeObject.value(identifierTag).toString("unknown");
@@ -150,7 +158,7 @@ static QList<RuntimeInfo> getAvailableRuntimes()
         const QJsonArray runtimesArray = doc.object().value(runtimesTag).toArray();
         foreach (const QJsonValue runtimeValue, runtimesArray) {
             QJsonObject runtimeObject = runtimeValue.toObject();
-            if (!runtimeObject.value(availabilityTag).toString().contains(unavailabilityToken)) {
+            if (isAvailable(runtimeObject)) {
                 RuntimeInfo runtime;
                 runtime.name = runtimeObject.value(nameTag).toString("unknown");
                 runtime.build = runtimeObject.value(buildVersionTag).toString("unknown");
@@ -232,8 +240,7 @@ static QList<SimulatorInfo> getAllSimulatorDevices()
                 device.identifier = deviceObject.value(udidTag).toString();
                 device.name = deviceObject.value(nameTag).toString();
                 device.runtimeName = runtime;
-                const QString availableStr = deviceObject.value(availabilityTag).toString();
-                device.available = !availableStr.contains(unavailabilityToken);
+                device.available = isAvailable(deviceObject);
                 device.state = deviceObject.value(stateTag).toString();
                 simulatorDevices.append(device);
             }
