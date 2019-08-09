@@ -289,10 +289,11 @@ void BuildDirManager::parse(int reparseParameters)
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
-    if (!m_parameters.workDirectory.toFileInfo().exists("CMakeCache.txt")) {
+    const QString cache = m_parameters.workDirectory.pathAppended("CMakeCache.txt").toString();
+    if (!QFileInfo::exists(cache)) {
         reparseParameters |= REPARSE_FORCE_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
         qCDebug(cmakeBuildDirManagerLog)
-            << "No CMakeCache.txt file found, new flags:" << flagsString(reparseParameters);
+            << "No" << cache << "file found, new flags:" << flagsString(reparseParameters);
     } else if (reparseParameters & REPARSE_CHECK_CONFIGURATION) {
         if (checkConfiguration()) {
             reparseParameters |= REPARSE_FORCE_CONFIGURATION | REPARSE_FORCE_CMAKE_RUN;
