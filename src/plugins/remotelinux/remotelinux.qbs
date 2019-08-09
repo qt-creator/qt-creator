@@ -14,7 +14,6 @@ Project {
         Depends { name: "Core" }
         Depends { name: "Debugger" }
         Depends { name: "ProjectExplorer" }
-        Depends { name: "QtSupport" }
 
         files: [
             "abstractpackagingstep.cpp",
