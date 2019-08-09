@@ -121,7 +121,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
         // Build configuration has not changed, but Kit settings might have:
         // reparse and check the configuration, independent of whether the reader has changed
         m_buildDirManager.setParametersAndRequestParse(BuildDirParameters(this),
-                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION,
                                                        BuildDirManager::REPARSE_CHECK_CONFIGURATION);
     });
 
@@ -133,7 +132,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
             // * run cmake without configuration arguments if the reader stays
             m_buildDirManager
                 .setParametersAndRequestParse(BuildDirParameters(this),
-                                              BuildDirManager::REPARSE_CHECK_CONFIGURATION,
                                               BuildDirManager::REPARSE_CHECK_CONFIGURATION);
         } else {
             m_buildDirManager.stopParsingAndClearState();
@@ -146,10 +144,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
             // The environment on our BC has changed:
             // * Error out if the reader updates, cannot happen since all BCs share a target/kit.
             // * run cmake without configuration arguments if the reader stays
-            m_buildDirManager.setParametersAndRequestParse(
-                BuildDirParameters(this),
-                BuildDirManager::REPARSE_CHECK_CONFIGURATION, // server-mode might need a restart...
-                BuildDirManager::REPARSE_CHECK_CONFIGURATION);
+            m_buildDirManager
+                .setParametersAndRequestParse(BuildDirParameters(this),
+                                              BuildDirManager::REPARSE_CHECK_CONFIGURATION);
         }
     });
     connect(this, &CMakeBuildConfiguration::buildDirectoryChanged, this, [this]() {
@@ -161,7 +158,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
             //   the reader.
             m_buildDirManager
                 .setParametersAndRequestParse(BuildDirParameters(this),
-                                              BuildDirManager::REPARSE_FAIL,
                                               BuildDirManager::REPARSE_CHECK_CONFIGURATION);
         }
     });
@@ -172,7 +168,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
             // * run cmake with configuration arguments if the reader stays
             m_buildDirManager
                 .setParametersAndRequestParse(BuildDirParameters(this),
-                                              BuildDirManager::REPARSE_FAIL,
                                               BuildDirManager::REPARSE_FORCE_CONFIGURATION);
         }
     });

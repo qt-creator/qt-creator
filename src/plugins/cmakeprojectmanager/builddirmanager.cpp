@@ -208,8 +208,7 @@ void BuildDirManager::stopParsingAndClearState()
 }
 
 void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &parameters,
-                                                   int newReaderReparseOptions,
-                                                   int existingReaderReparseOptions)
+                                                   int reparseOptions)
 {
     if (!parameters.cmakeTool()) {
         TaskHub::addTask(Task::Error,
@@ -219,18 +218,13 @@ void BuildDirManager::setParametersAndRequestParse(const BuildDirParameters &par
     }
     QTC_ASSERT(parameters.isValid(), return );
 
-    BuildDirReader *old = m_reader.get();
     stopParsingAndClearState();
 
     m_parameters = parameters;
     m_parameters.workDirectory = workDirectory(parameters);
 
     updateReaderType(m_parameters,
-                     [this, old, newReaderReparseOptions, existingReaderReparseOptions]() {
-                         int options = (old != m_reader.get()) ? newReaderReparseOptions
-                                                               : existingReaderReparseOptions;
-                         emit requestReparse(options);
-                     });
+                     [this, reparseOptions]() { emit requestReparse(reparseOptions); });
 }
 
 CMakeBuildConfiguration *BuildDirManager::buildConfiguration() const
@@ -277,10 +271,8 @@ bool BuildDirManager::persistCMakeState()
     BuildDirParameters newParameters = m_parameters;
     newParameters.workDirectory.clear();
     setParametersAndRequestParse(newParameters,
-                                 REPARSE_URGENT
-                                 | REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_CONFIGURATION
-                                 | REPARSE_CHECK_CONFIGURATION,
-                                 REPARSE_FAIL);
+                                 REPARSE_URGENT | REPARSE_FORCE_CMAKE_RUN
+                                     | REPARSE_FORCE_CONFIGURATION | REPARSE_CHECK_CONFIGURATION);
     return true;
 }
 
@@ -291,7 +283,6 @@ void BuildDirManager::parse(int reparseParameters)
 
     QTC_ASSERT(m_parameters.isValid(), return );
     QTC_ASSERT(m_reader, return);
-    QTC_ASSERT((reparseParameters & REPARSE_FAIL) == 0, return);
     QTC_ASSERT((reparseParameters & REPARSE_IGNORE) == 0, return);
 
     m_reader->stop();
@@ -435,8 +426,6 @@ QString BuildDirManager::flagsString(int reparseFlags)
             result += " SCAN";
         if (reparseFlags & REPARSE_IGNORE)
             result += " IGNORE";
-        if (reparseFlags & REPARSE_FAIL)
-            result += " FAIL";
     }
     return result.trimmed();
 }

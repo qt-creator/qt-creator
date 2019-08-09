@@ -317,8 +317,6 @@ void CMakeProject::runCMake()
     bc->m_buildDirManager
         .setParametersAndRequestParse(parameters,
                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION
-                                          | BuildDirManager::REPARSE_FORCE_CMAKE_RUN,
-                                      BuildDirManager::REPARSE_CHECK_CONFIGURATION
                                           | BuildDirManager::REPARSE_FORCE_CMAKE_RUN);
 }
 
@@ -331,8 +329,6 @@ void CMakeProject::runCMakeAndScanProjectTree()
 
     BuildDirParameters parameters(bc);
     bc->m_buildDirManager.setParametersAndRequestParse(parameters,
-                                                       BuildDirManager::REPARSE_CHECK_CONFIGURATION
-                                                           | BuildDirManager::REPARSE_SCAN,
                                                        BuildDirManager::REPARSE_CHECK_CONFIGURATION
                                                            | BuildDirManager::REPARSE_SCAN);
 }
@@ -369,7 +365,6 @@ void CMakeProject::startParsing(int reparseParameters)
 {
     m_delayedParsingParameters = BuildDirManager::REPARSE_DEFAULT;
 
-    QTC_ASSERT((reparseParameters & BuildDirManager::REPARSE_FAIL) == 0, return);
     if (reparseParameters & BuildDirManager::REPARSE_IGNORE)
         return;
 
@@ -417,7 +412,6 @@ void CMakeProject::reportError(const QString &errorMessage) const
 
 void CMakeProject::requestReparse(int reparseParameters)
 {
-    QTC_ASSERT(!(reparseParameters & BuildDirManager::REPARSE_FAIL), return );
     if (reparseParameters & BuildDirManager::REPARSE_IGNORE)
         return;
 

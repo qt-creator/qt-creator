@@ -66,9 +66,7 @@ public:
 
     void stopParsingAndClearState();
 
-    void setParametersAndRequestParse(const BuildDirParameters &parameters,
-                                      int newReaderReparseOptions,
-                                      int existingReaderReparseOptions);
+    void setParametersAndRequestParse(const BuildDirParameters &parameters, int reparseOptions);
     // nullptr if the BC is not active anymore!
     CMakeBuildConfiguration *buildConfiguration() const;
     CMakeProject *project() const {return m_project; }
@@ -99,7 +97,6 @@ public:
         REPARSE_CHECK_CONFIGURATION = 8, // Check and warn if on-disk config and QtC config differ
         REPARSE_SCAN = 16,
         REPARSE_IGNORE = 32, // Do not reparse:-)
-        REPARSE_FAIL = 64    // Do not reparse and raise a warning
     };
 
     static QString flagsString(int reparseFlags);
