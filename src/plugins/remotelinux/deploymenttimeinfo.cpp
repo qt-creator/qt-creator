@@ -22,16 +22,16 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "deploymenttimeinfo.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
 
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
 
-#include <QPointer>
 #include <QDateTime>
 #include <QFileInfo>
 
@@ -51,11 +51,7 @@ const char LastDeployedRemoteTimesKey[] = "RemoteLinux.LastDeployedRemoteTimes";
 
 class DeployParameters
 {
-
 public:
-    DeployParameters(const DeployableFile &d, const QString &h, const QString &s)
-        : file(d), host(h), sysroot(s) {}
-
     bool operator==(const DeployParameters &other) const {
         return file == other.file &&  host == other.host &&  sysroot == other.sysroot;
     }
@@ -81,8 +77,8 @@ public:
     };
     QHash<DeployParameters, Timestamps> lastDeployed;
 
-    DeployParameters parameters(const ProjectExplorer::DeployableFile &deployableFile,
-                                const ProjectExplorer::Kit *kit) const
+    DeployParameters parameters(const DeployableFile &deployableFile,
+                                const Kit *kit) const
     {
         QString systemRoot;
         QString host;
@@ -93,7 +89,7 @@ public:
             host = deviceConfiguration->sshParameters().host();
         }
 
-        return DeployParameters(deployableFile, host, systemRoot);
+        return DeployParameters{deployableFile, host, systemRoot};
     }
 };
 
@@ -117,7 +113,7 @@ void DeploymentTimeInfo::saveDeploymentTimeStamp(const DeployableFile &deployabl
 }
 
 bool DeploymentTimeInfo::hasLocalFileChanged(const DeployableFile &deployableFile,
-                                             const ProjectExplorer::Kit *kit) const
+                                             const Kit *kit) const
 {
     const auto &lastDeployed = d->lastDeployed.value(d->parameters(deployableFile, kit));
     const QDateTime lastModified = deployableFile.localFilePath().toFileInfo().lastModified();
@@ -125,7 +121,7 @@ bool DeploymentTimeInfo::hasLocalFileChanged(const DeployableFile &deployableFil
 }
 
 bool DeploymentTimeInfo::hasRemoteFileChanged(const DeployableFile &deployableFile,
-                                              const ProjectExplorer::Kit *kit,
+                                              const Kit *kit,
                                               const QDateTime &remoteTimestamp) const
 {
     const auto &lastDeployed = d->lastDeployed.value(d->parameters(deployableFile, kit));
@@ -185,7 +181,7 @@ void DeploymentTimeInfo::importDeployTimes(const QVariantMap &map)
 
     for (int i = 0; i < elemCount; ++i) {
         const DeployableFile df(fileList.at(i).toString(), remotePathList.at(i).toString());
-        const DeployParameters dp(df, hostList.at(i).toString(), sysrootList.at(i).toString());
+        const DeployParameters dp{df, hostList.at(i).toString(), sysrootList.at(i).toString()};
         d->lastDeployed.insert(dp, { localTimesList.at(i).toDateTime(),
                                      remoteTimesList.length() > i
                                             ? remoteTimesList.at(i).toDateTime()
