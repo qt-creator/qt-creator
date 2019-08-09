@@ -30,7 +30,6 @@ import HelperWidgets 2.0
 import QtQuickDesignerTheme 1.0
 
 Rectangle {
-    z: expressionTextField.visible ? 5 : 0
     border.width: 1
     property bool isBaseState
     property bool isCurrentState
@@ -111,9 +110,10 @@ Rectangle {
             MenuItem {
                 text: qsTr("Set when Condition")
                 onTriggered: {
-                    expressionTextField.text = delegateWhenConditionString
-                    expressionTextField.visible = true
-                    expressionTextField.forceActiveFocus()
+                    var x = whenButton.mapToGlobal(0,0).x + 4
+                    var y = root.mapToGlobal(0,0).y - 32
+                    bindingEditor.showWidget(x, y)
+                    bindingEditor.text = delegateWhenConditionString
                 }
 
             }
@@ -192,19 +192,27 @@ Rectangle {
         }
     }
 
-    ExpressionTextField {
-        id: expressionTextField
+    BindingEditor {
+        property string newWhenCondition
 
-        parent: root
-        visible: false
-        onAccepted: {
-            visible = false
-            statesEditorModel.setWhenCondition(internalNodeId, expressionTextField.text.trim())
+        property Timer timer: Timer {
+            id: timer
+            running: false
+            interval: 50
+            repeat: false
+            onTriggered: statesEditorModel.setWhenCondition(internalNodeId, bindingEditor.newWhenCondition)
         }
 
-        onRejected: visible = false
+        id: bindingEditor
 
-        anchors.fill: parent
+        onRejected: {
+            hideWidget()
+        }
+        onAccepted: {
+            bindingEditor.newWhenCondition = bindingEditor.text.trim()
+            timer.start()
+            hideWidget()
+        }
     }
 
 }

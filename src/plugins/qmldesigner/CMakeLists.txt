@@ -499,6 +499,11 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/bindingeditor
+  SOURCES bindingeditor.cpp bindingeditor.h
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/colortool
   SOURCES colortool.cpp colortool.h
 )

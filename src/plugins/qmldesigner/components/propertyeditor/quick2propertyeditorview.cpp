@@ -31,6 +31,7 @@
 #include "gradientpresetdefaultlistmodel.h"
 #include "gradientpresetcustomlistmodel.h"
 #include "simplecolorpalettemodel.h"
+#include "bindingeditor/bindingeditor.h"
 #include "qmlanchorbindingproxy.h"
 #include "theme.h"
 
@@ -55,6 +56,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         GradientPresetCustomListModel::registerDeclarativeType();
         SimpleColorPaletteModel::registerDeclarativeType();
         Internal::QmlAnchorBindingProxy::registerDeclarativeType();
+        BindingEditor::registerDeclarativeType();
     }
 }
 

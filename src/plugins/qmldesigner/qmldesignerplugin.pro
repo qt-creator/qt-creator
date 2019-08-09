@@ -28,6 +28,7 @@ include(components/pathtool/pathtool.pri)
 include(components/timelineeditor/timelineeditor.pri)
 include(components/connectioneditor/connectioneditor.pri)
 include(components/curveeditor/curveeditor.pri)
+include(components/bindingeditor/bindingeditor.pri)
 
 
 BUILD_PUPPET_IN_CREATOR_BINPATH = $$(BUILD_PUPPET_IN_CREATOR_BINPATH)

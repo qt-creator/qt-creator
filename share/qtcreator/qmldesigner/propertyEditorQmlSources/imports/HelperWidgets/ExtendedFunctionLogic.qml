@@ -27,6 +27,7 @@ import QtQuick 2.1
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import QtQuickDesignerTheme 1.0
+import HelperWidgets 2.0
 
 Item {
     id: extendedFunctionButton
@@ -144,62 +145,27 @@ Item {
         function show() {
             expressionDialogLoader.visible = true
         }
+        sourceComponent: Item {
+            id: bindingEditorParent
 
-        sourceComponent: Component {
-            Item {
-                id: expressionDialog
-                anchors.fill: parent
+            Component.onCompleted: {
+                var x = extendedFunctionButton.mapToGlobal(0,0).x - 200
+                var y = extendedFunctionButton.mapToGlobal(0,0).y - 40
+                bindingEditor.showWidget(x, y)
+                bindingEditor.text = backendValue.expression
+            }
 
-                Component.onCompleted: {
-                    textField.text = backendValue.expression
-                    textField.forceActiveFocus()
+            BindingEditor {
+                id: bindingEditor
+
+                onRejected: {
+                    hideWidget()
+                    expressionDialogLoader.visible = false
                 }
-
-                Rectangle {
-                    anchors.fill: parent
-                    color: Theme.qmlDesignerBackgroundColorDarker()
-                    opacity: 0.6
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onDoubleClicked: expressionDialog.visible = false
-                }
-
-                Rectangle {
-                    x: 4
-                    Component.onCompleted: {
-                        var pos = itemPane.mapFromItem(
-                                    extendedFunctionButton.parent, 0, 0)
-                        y = pos.y + 2
-                    }
-
-                    width: parent.width - 8
-                    height: 260
-
-                    radius: 2
-                    color: Theme.qmlDesignerBackgroundColorDarkAlternate()
-                    border.color: Theme.qmlDesignerBorderColor()
-
-                    Label {
-                        x: 8
-                        y: 6
-                        font.bold: true
-                        text: qsTr("Binding Editor")
-                    }
-                    ExpressionTextField {
-                        id: textField
-                        onRejected: expressionDialogLoader.visible = false
-                        onAccepted: {
-                            backendValue.expression = textField.text.trim()
-                            expressionDialogLoader.visible = false
-                        }
-                        anchors.fill: parent
-                        anchors.leftMargin: 8
-                        anchors.rightMargin: 8
-                        anchors.topMargin: 24
-                        anchors.bottomMargin: 32
-                    }
+                onAccepted: {
+                    backendValue.expression = bindingEditor.text.trim()
+                    hideWidget()
+                    expressionDialogLoader.visible = false
                 }
             }
         }

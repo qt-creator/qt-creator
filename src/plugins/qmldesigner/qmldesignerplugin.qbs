@@ -609,6 +609,8 @@ Project {
             name: "extension"
             prefix: "components/"
             files: [
+                "bindingeditor/bindingeditor.cpp",
+                "bindingeditor/bindingeditor.h",
                 "colortool/colortool.cpp",
                 "colortool/colortool.h",
                 "connectioneditor/addnewbackenddialog.h",
