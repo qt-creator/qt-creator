@@ -67,11 +67,16 @@ namespace Internal {
 
 static const QLatin1String deviceTypeKey("Ios.device_type");
 
+static QString displayName(const SimulatorInfo &device)
+{
+    return QString("%1, %2").arg(device.name).arg(device.runtimeName);
+}
+
 static IosDeviceType toIosDeviceType(const SimulatorInfo &device)
 {
     IosDeviceType iosDeviceType(IosDeviceType::SimulatedDevice,
                                 device.identifier,
-                                QString("%1, %2").arg(device.name).arg(device.runtimeName));
+                                displayName(device));
     return iosDeviceType;
 }
 
@@ -351,8 +356,7 @@ void IosDeviceTypeAspect::updateValues()
     m_deviceTypeComboBox->setVisible(showDeviceSelector);
     if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
         foreach (const SimulatorInfo &device, SimulatorControl::availableSimulators()) {
-            QStandardItem *item = new QStandardItem(QString("%1, %2").arg(device.name)
-                                                    .arg(device.runtimeName));
+            QStandardItem *item = new QStandardItem(Internal::displayName(device));
             QVariant v;
             v.setValue(device);
             item->setData(v);
