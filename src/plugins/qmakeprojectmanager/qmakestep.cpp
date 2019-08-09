@@ -64,8 +64,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace {
-const char QMAKE_BS_ID[] = "QtProjectManager.QMakeBuildStep";
-
 const char QMAKE_ARGUMENTS_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeArguments";
 const char QMAKE_FORCED_KEY[] = "QtProjectManager.QMakeBuildStep.QMakeForced";
 const char QMAKE_USE_QTQUICKCOMPILER[] = "QtProjectManager.QMakeBuildStep.UseQtQuickCompiler";
@@ -74,7 +72,7 @@ const char QMAKE_QMLDEBUGLIBAUTO_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQm
 const char QMAKE_QMLDEBUGLIB_KEY[] = "QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary";
 }
 
-QMakeStep::QMakeStep(BuildStepList *bsl) : AbstractProcessStep(bsl, QMAKE_BS_ID)
+QMakeStep::QMakeStep(BuildStepList *bsl) : AbstractProcessStep(bsl, Constants::QMAKE_BS_ID)
 {
     //: QMakeStep default display name
     setDefaultDisplayName(tr("qmake"));
@@ -826,7 +824,7 @@ void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
 
 QMakeStepFactory::QMakeStepFactory()
 {
-    registerStep<QMakeStep>(QMAKE_BS_ID);
+    registerStep<QMakeStep>(Constants::QMAKE_BS_ID);
     setSupportedConfiguration(Constants::QMAKE_BC_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setDisplayName(QMakeStep::tr("qmake"));
