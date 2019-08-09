@@ -209,6 +209,18 @@ void GraphicsView::reset(const std::vector<CurveItem *> &items)
     viewport()->update();
 }
 
+void GraphicsView::setInterpolation(Keyframe::Interpolation interpol)
+{
+    const auto itemList = items();
+    for (auto *item : itemList) {
+        if (auto *citem = qgraphicsitem_cast<CurveItem *>(item))
+            if (citem->hasSelection())
+                citem->setInterpolation(interpol);
+    }
+
+    viewport()->update();
+}
+
 void GraphicsView::resizeEvent(QResizeEvent *event)
 {
     QGraphicsView::resizeEvent(event);
@@ -220,6 +232,8 @@ void GraphicsView::keyPressEvent(QKeyEvent *event)
     Shortcut shortcut(event->modifiers(), static_cast<Qt::Key>(event->key()));
     if (shortcut == m_style.shortcuts.frameAll)
         applyZoom(0.0, 0.0);
+    else if (shortcut == m_style.shortcuts.deleteKeyframe)
+        deleteSelectedKeyframes();
 }
 
 void GraphicsView::mousePressEvent(QMouseEvent *event)
@@ -228,6 +242,11 @@ void GraphicsView::mousePressEvent(QMouseEvent *event)
         return;
 
     Shortcut shortcut(event);
+    if (shortcut == m_style.shortcuts.insertKeyframe) {
+        insertKeyframe(globalToRaster(event->globalPos()).x());
+        return;
+    }
+
     if (shortcut == Shortcut(Qt::LeftButton)) {
         QPointF pos = mapToScene(event->pos());
         if (timeScaleRect().contains(pos)) {
@@ -352,21 +371,17 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
     double minTime = minimumTime();
     double maxTime = maximumTime();
 
-    double minValue = minimumValue();
-    double maxValue = maximumValue();
-
     QRectF canvas = canvasRect();
 
     double xZoomedOut = canvas.width() / (maxTime - minTime);
     double xZoomedIn = m_style.zoomInWidth;
     double scaleX = lerp(clamp(m_zoomX, 0.0, 1.0), xZoomedOut, xZoomedIn);
 
-    double yZoomedOut = canvas.height() / (maxValue - minValue);
+    double yZoomedOut = canvas.height() / maximumValue();
     double yZoomedIn = m_style.zoomInHeight;
     double scaleY = lerp(clamp(m_zoomY, 0.0, 1.0), -yZoomedOut, -yZoomedIn);
 
     m_transform = QTransform::fromScale(scaleX, scaleY);
-
     m_scene.setComponentTransform(m_transform);
 
     QRectF sr = m_scene.sceneRect().adjusted(
@@ -385,13 +400,32 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
     }
 }
 
+void GraphicsView::insertKeyframe(double time)
+{
+    const auto itemList = items();
+    for (auto *item : itemList) {
+        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
+            if (curveItem->isUnderMouse())
+                curveItem->insertKeyframeByTime(std::round(time));
+        }
+    }
+}
+
+void GraphicsView::deleteSelectedKeyframes()
+{
+    const auto itemList = items();
+    for (auto *item : itemList) {
+        if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item))
+            curveItem->deleteSelectedKeyframes();
+    }
+}
+
 void GraphicsView::drawGrid(QPainter *painter, const QRectF &rect)
 {
-    QRectF gridRect = rect.adjusted(
-        m_style.valueAxisWidth + m_style.canvasMargin,
-        m_style.timeAxisHeight + m_style.canvasMargin,
-        -m_style.canvasMargin,
-        -m_style.canvasMargin);
+    QRectF gridRect = rect.adjusted(m_style.valueAxisWidth + m_style.canvasMargin,
+                                    m_style.timeAxisHeight + m_style.canvasMargin,
+                                    -m_style.canvasMargin,
+                                    -m_style.canvasMargin);
 
     if (!gridRect.isValid())
         return;

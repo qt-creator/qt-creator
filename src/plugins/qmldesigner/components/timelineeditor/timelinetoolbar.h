@@ -25,6 +25,9 @@
 
 #pragma once
 
+#include "animationcurvedialog.h"
+#include "animationcurveeditormodel.h"
+
 #include <QToolBar>
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
@@ -46,7 +49,7 @@ class TimelineToolBar : public QToolBar
 
 signals:
     void settingDialogClicked();
-    //void addTimelineClicked();
+    void curveEditorDialogClicked();
 
     void openEasingCurveEditor();
 
@@ -63,6 +66,8 @@ signals:
     void startFrameChanged(int value);
     void currentFrameChanged(int value);
     void endFrameChanged(int value);
+
+    void curveChanged(DesignTools::PropertyTreeItem *item);
 
 public:
     explicit TimelineToolBar(QWidget *parent = nullptr);
@@ -83,6 +88,10 @@ public:
     void setActionEnabled(const QString &name, bool enabled);
     void removeTimeline(const QmlTimeline &timeline);
 
+    void openAnimationCurveEditor();
+
+    void updateCurve(DesignTools::PropertyTreeItem *item);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -94,6 +103,10 @@ private:
     void setupCurrentFrameValidator();
 
     QList<QObject *> m_grp;
+
+    AnimationCurveDialog m_dialog;
+
+    AnimationCurveEditorModel *m_curveModel = nullptr;
 
     QLabel *m_timelineLabel = nullptr;
     QLabel *m_stateLabel = nullptr;

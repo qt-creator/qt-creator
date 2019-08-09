@@ -31,16 +31,6 @@
 
 namespace DesignTools {
 
-double clamp(double val, double lo, double hi)
-{
-    return val < lo ? lo : (val > hi ? hi : val);
-}
-
-double lerp(double blend, double a, double b)
-{
-    return (1.0 - blend) * a + blend * b;
-}
-
 double scaleX(const QTransform &transform)
 {
     return transform.m11();

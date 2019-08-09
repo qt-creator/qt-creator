@@ -66,6 +66,7 @@ const char C_PLAY[] = "QmlDesigner.Play";
 const char C_NEXT[] = "QmlDesigner.Next";
 const char C_AUTO_KEYFRAME[] = "QmlDesigner.AutoKeyframe";
 const char C_CURVE_PICKER[] = "QmlDesigner.CurvePicker";
+const char C_CURVE_EDITOR[] = "QmlDesigner.CurveEditor";
 const char C_ZOOM_IN[] = "QmlDesigner.ZoomIn";
 const char C_ZOOM_OUT[] = "QmlDesigner.ZoomOut";
 

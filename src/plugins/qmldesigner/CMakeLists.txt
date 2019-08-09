@@ -149,7 +149,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX ../../../share/qtcreator/qml/qmlpuppet/types
-  SOURCES enumeration.cpp enumeration.h
+  SOURCES enumeration.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -537,6 +537,8 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/timelineeditor
   SOURCES
+    animationcurvedialog.cpp animationcurvedialog.h
+    animationcurveeditormodel.cpp animationcurveeditormodel.h
     canvas.cpp canvas.h
     canvasstyledialog.cpp canvasstyledialog.h
     easingcurve.cpp easingcurve.h
@@ -580,12 +582,12 @@ extend_qtc_plugin(QmlDesigner
     curveeditor.cpp curveeditor.h
     curveeditormodel.cpp curveeditormodel.h
     curveeditorstyle.h
+    curvesegment.cpp curvesegment.h
     keyframe.cpp keyframe.h
     treeitem.cpp treeitem.h
     detail/colorcontrol.cpp detail/colorcontrol.h
     detail/curveeditorstyledialog.cpp detail/curveeditorstyledialog.h
     detail/curveitem.cpp detail/curveitem.h
-    detail/curvesegment.cpp detail/curvesegment.h
     detail/graphicsscene.cpp detail/graphicsscene.h
     detail/graphicsview.cpp detail/graphicsview.h
     detail/handleitem.cpp detail/handleitem.h

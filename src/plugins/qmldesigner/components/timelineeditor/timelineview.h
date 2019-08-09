@@ -25,6 +25,10 @@
 
 #pragma once
 
+#include "animationcurvedialog.h"
+#include "animationcurveeditormodel.h"
+#include "treeitem.h"
+
 #include <abstractview.h>
 
 #include <QPointer>

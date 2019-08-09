@@ -34,7 +34,7 @@
 #include <QSharedPointer>
 #include <QWeakPointer>
 
-#include "enumeration.h"
+#include <enumeration.h>
 
 QT_BEGIN_NAMESPACE
 class QQmlContext;

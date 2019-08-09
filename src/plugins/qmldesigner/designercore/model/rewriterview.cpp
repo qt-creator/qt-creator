@@ -1008,6 +1008,9 @@ void RewriterView::writeAuxiliaryData()
     if (startIndex > 0 && endIndex > 0)
         newText.remove(startIndex, endIndex - startIndex + annotationsEnd().length());
 
+    newText = newText.trimmed();
+    newText.append("\n");
+
     QString auxData = auxiliaryDataAsQML();
 
     if (!auxData.isEmpty()) {

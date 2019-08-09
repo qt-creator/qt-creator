@@ -43,6 +43,7 @@
 #include <nodemetainfo.h>
 #include <rewritertransaction.h>
 #include <variantproperty.h>
+#include <viewmanager.h>
 #include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
@@ -50,7 +51,6 @@
 #include <qmlstate.h>
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
-#include <viewmanager.h>
 
 #include <coreplugin/icore.h>
 
@@ -67,6 +67,7 @@ namespace QmlDesigner {
 
 TimelineView::TimelineView(QObject *parent)
     : AbstractView(parent)
+    , m_timelineWidget(nullptr)
 {
     EasingCurve::registerStreamOperators();
 }
@@ -106,7 +107,8 @@ void TimelineView::nodeAboutToBeRemoved(const ModelNode &removedNode)
             if (lastId != currentId)
                 m_timelineWidget->setTimelineId(currentId);
         } else if (removedNode.parentProperty().isValid()
-                   && QmlTimeline::isValidQmlTimeline(removedNode.parentProperty().parentModelNode())) {
+                   && QmlTimeline::isValidQmlTimeline(
+                          removedNode.parentProperty().parentModelNode())) {
             if (removedNode.hasBindingProperty("target")) {
                 const ModelNode target = removedNode.bindingProperty("target").resolveToModelNode();
                 if (target.isValid()) {
@@ -114,7 +116,8 @@ void TimelineView::nodeAboutToBeRemoved(const ModelNode &removedNode)
                     if (timeline.hasKeyframeGroupForTarget(target))
                         QTimer::singleShot(0, [this, target, timeline]() {
                             if (timeline.hasKeyframeGroupForTarget(target))
-                                m_timelineWidget->graphicsScene()->invalidateSectionForTarget(target);
+                                m_timelineWidget->graphicsScene()->invalidateSectionForTarget(
+                                    target);
                             else
                                 m_timelineWidget->graphicsScene()->invalidateScene();
                         });
@@ -186,6 +189,9 @@ void TimelineView::variantPropertiesChanged(const QList<VariantProperty> &proper
             if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(framesNode)) {
                 QmlTimelineKeyframeGroup frames(framesNode);
                 m_timelineWidget->graphicsScene()->invalidateKeyframesForTarget(frames.target());
+
+                QmlTimeline currentTimeline = m_timelineWidget->graphicsScene()->currentTimeline();
+                m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
             }
         }
     }
@@ -264,7 +270,7 @@ const QmlTimeline TimelineView::addNewTimeline()
 
     ModelNode timelineNode;
 
-    executeInTransaction("TimelineView::addNewTimeline", [=, &timelineNode](){
+    executeInTransaction("TimelineView::addNewTimeline", [=, &timelineNode]() {
         bool hasTimelines = getTimelines().isEmpty();
 
         timelineNode = createModelNode(timelineType,
@@ -296,7 +302,7 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
 
     ModelNode animationNode;
 
-    executeInTransaction("TimelineView::addAnimation", [=, &animationNode](){
+    executeInTransaction("TimelineView::addAnimation", [=, &animationNode]() {
         animationNode = createModelNode(animationType,
                                         metaInfo.majorVersion(),
                                         metaInfo.minorVersion());
@@ -380,22 +386,20 @@ void TimelineView::insertKeyframe(const ModelNode &target, const PropertyName &p
     QmlTimeline timeline = widget()->graphicsScene()->currentTimeline();
     ModelNode targetNode = target;
     if (timeline.isValid() && targetNode.isValid()
-            && QmlObjectNode::isValidQmlObjectNode(targetNode)) {
-        executeInTransaction("TimelineView::insertKeyframe", [=, &timeline, &targetNode](){
-
+        && QmlObjectNode::isValidQmlObjectNode(targetNode)) {
+        executeInTransaction("TimelineView::insertKeyframe", [=, &timeline, &targetNode]() {
             targetNode.validId();
 
             QmlTimelineKeyframeGroup timelineFrames(
-                        timeline.keyframeGroup(targetNode, propertyName));
+                timeline.keyframeGroup(targetNode, propertyName));
 
             QTC_ASSERT(timelineFrames.isValid(), return );
 
             const qreal frame
-                    = timeline.modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+                = timeline.modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
             const QVariant value = QmlObjectNode(targetNode).instanceValue(propertyName);
 
             timelineFrames.setValue(value, frame);
-
         });
     }
 }
@@ -408,7 +412,8 @@ QList<QmlTimeline> TimelineView::getTimelines() const
         return timelines;
 
     for (const ModelNode &modelNode : allModelNodes()) {
-        if (QmlTimeline::isValidQmlTimeline(modelNode) && !modelNode.hasAuxiliaryData("removed@Internal")) {
+        if (QmlTimeline::isValidQmlTimeline(modelNode)
+            && !modelNode.hasAuxiliaryData("removed@Internal")) {
             timelines.append(modelNode);
         }
     }
@@ -482,11 +487,10 @@ void TimelineView::registerActions()
 
     SelectionContextPredicate timelineEnabled = [this](const SelectionContext &context) {
         return context.singleNodeIsSelected()
-                && widget()->graphicsScene()->currentTimeline().isValid();
+               && widget()->graphicsScene()->currentTimeline().isValid();
     };
 
-    SelectionContextPredicate timelineHasKeyframes =
-            [this](const SelectionContext &context) {
+    SelectionContextPredicate timelineHasKeyframes = [this](const SelectionContext &context) {
         auto timeline = widget()->graphicsScene()->currentTimeline();
         return !timeline.keyframeGroupsForTarget(context.currentSingleSelectedNode()).isEmpty();
     };
@@ -528,44 +532,44 @@ void TimelineView::registerActions()
                                                     &SelectionContextFunctors::always));
 
     actionManager.addDesignerAction(
-                new ModelNodeContextMenuAction("commandId timeline delete",
-                                               TimelineConstants::timelineDeleteKeyframesDisplayName,
-    {},
-                                               TimelineConstants::timelineCategory,
-                                               QKeySequence(),
-                                               160,
-                                               deleteKeyframes,
-                                               timelineHasKeyframes));
+        new ModelNodeContextMenuAction("commandId timeline delete",
+                                       TimelineConstants::timelineDeleteKeyframesDisplayName,
+                                       {},
+                                       TimelineConstants::timelineCategory,
+                                       QKeySequence(),
+                                       160,
+                                       deleteKeyframes,
+                                       timelineHasKeyframes));
 
     actionManager.addDesignerAction(
-                new ModelNodeContextMenuAction("commandId timeline insert",
-                                               TimelineConstants::timelineInsertKeyframesDisplayName,
-    {},
-                                               TimelineConstants::timelineCategory,
-                                               QKeySequence(),
-                                               140,
-                                               insertKeyframes,
-                                               timelineHasKeyframes));
+        new ModelNodeContextMenuAction("commandId timeline insert",
+                                       TimelineConstants::timelineInsertKeyframesDisplayName,
+                                       {},
+                                       TimelineConstants::timelineCategory,
+                                       QKeySequence(),
+                                       140,
+                                       insertKeyframes,
+                                       timelineHasKeyframes));
 
     actionManager.addDesignerAction(
-                new ModelNodeContextMenuAction("commandId timeline copy",
-                                               TimelineConstants::timelineCopyKeyframesDisplayName,
-    {},
-                                               TimelineConstants::timelineCategory,
-                                               QKeySequence(),
-                                               120,
-                                               copyKeyframes,
-                                               timelineHasKeyframes));
+        new ModelNodeContextMenuAction("commandId timeline copy",
+                                       TimelineConstants::timelineCopyKeyframesDisplayName,
+                                       {},
+                                       TimelineConstants::timelineCategory,
+                                       QKeySequence(),
+                                       120,
+                                       copyKeyframes,
+                                       timelineHasKeyframes));
 
     actionManager.addDesignerAction(
-                new ModelNodeContextMenuAction("commandId timeline paste",
-                                               TimelineConstants::timelinePasteKeyframesDisplayName,
-    {},
-                                               TimelineConstants::timelineCategory,
-                                               QKeySequence(),
-                                               100,
-                                               pasteKeyframes,
-                                               timelineHasClipboard));
+        new ModelNodeContextMenuAction("commandId timeline paste",
+                                       TimelineConstants::timelinePasteKeyframesDisplayName,
+                                       {},
+                                       TimelineConstants::timelineCategory,
+                                       QKeySequence(),
+                                       100,
+                                       pasteKeyframes,
+                                       timelineHasClipboard));
 }
 
 TimelineWidget *TimelineView::createWidget()

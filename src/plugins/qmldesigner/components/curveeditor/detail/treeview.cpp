@@ -42,7 +42,6 @@ TreeView::TreeView(CurveEditorModel *model, QWidget *parent)
     setMouseTracking(true);
     setHeaderHidden(true);
 
-    model->setParent(this);
     setModel(model);
 
     auto expandItems = [this]() { expandAll(); };
@@ -54,7 +53,10 @@ TreeView::TreeView(CurveEditorModel *model, QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, &TreeView::changeSelection);
+    connect(selectionModel(),
+            &QItemSelectionModel::selectionChanged,
+            this,
+            &TreeView::changeSelection);
     setStyle(model->style());
 
     header()->setSectionResizeMode(0, QHeaderView::Stretch);
@@ -83,6 +85,19 @@ void TreeView::setStyle(const CurveEditorStyle &style)
         delegate->setStyle(style);
 }
 
+std::vector<CurveItem *> TreeView::selection()
+{
+    std::vector<DesignTools::CurveItem *> items;
+    for (auto &&index : selectionModel()->selectedRows(0)) {
+        if (index.isValid()) {
+            auto *treeItem = static_cast<TreeItem *>(index.internalPointer());
+            if (auto *propertyItem = treeItem->asPropertyItem())
+                items.push_back(new CurveItem(treeItem->id(), propertyItem->curve()));
+        }
+    }
+    return items;
+}
+
 void TreeView::changeCurve(unsigned int id, const AnimationCurve &curve)
 {
     if (auto *curveModel = qobject_cast<CurveEditorModel *>(model()))
@@ -98,8 +113,12 @@ void TreeView::changeSelection(const QItemSelection &selected, const QItemSelect
     for (auto index : selectedIndexes()) {
         if (index.isValid() && index.column() == 0) {
             auto *treeItem = static_cast<TreeItem *>(index.internalPointer());
-            if (auto *propertyItem = treeItem->asPropertyItem())
-                curves.push_back(new CurveItem(treeItem->id(), propertyItem->curve()));
+            if (auto *propertyItem = treeItem->asPropertyItem()) {
+                auto *citem = new CurveItem(treeItem->id(), propertyItem->curve());
+                citem->setValueType(propertyItem->valueType());
+                citem->setComponent(propertyItem->component());
+                curves.push_back(citem);
+            }
         }
     }
 

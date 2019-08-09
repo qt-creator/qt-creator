@@ -24,6 +24,9 @@
 ****************************************************************************/
 
 #include "timelinewidget.h"
+#include "bindingproperty.h"
+#include "curvesegment.h"
+#include "easingcurve.h"
 #include "easingcurvedialog.h"
 #include "timelineconstants.h"
 #include "timelinegraphicsscene.h"
@@ -203,6 +206,8 @@ void TimelineWidget::connectToolbar()
 
     connect(graphicsScene(), &TimelineGraphicsScene::scroll, this, &TimelineWidget::scroll);
 
+    connect(m_toolbar, &TimelineToolBar::curveChanged, this, &TimelineWidget::updateAnimationCurve);
+
     auto setRulerScaling = [this](int val) { m_graphicsScene->setRulerScaling(val); };
     connect(m_toolbar, &TimelineToolBar::scaleFactorChanged, setRulerScaling);
 
@@ -233,10 +238,7 @@ void TimelineWidget::connectToolbar()
     auto setEndFrame = [this](int end) { graphicsScene()->setEndFrame(end); };
     connect(m_toolbar, &TimelineToolBar::endFrameChanged, setEndFrame);
 
-
-    connect(m_toolbar, &TimelineToolBar::recordToggled,
-            this,
-            &TimelineWidget::setTimelineRecording);
+    connect(m_toolbar, &TimelineToolBar::recordToggled, this, &TimelineWidget::setTimelineRecording);
 
     connect(m_toolbar,
             &TimelineToolBar::openEasingCurveEditor,
@@ -281,6 +283,79 @@ void TimelineWidget::scroll(const TimelineUtils::Side &side)
         m_scrollbar->setValue(m_scrollbar->value() - m_scrollbar->singleStep());
     else if (side == TimelineUtils::Side::Right)
         m_scrollbar->setValue(m_scrollbar->value() + m_scrollbar->singleStep());
+}
+
+ModelNode getTargetNode(DesignTools::PropertyTreeItem *item, const QmlTimeline &timeline)
+{
+    if (const DesignTools::NodeTreeItem *nodeItem = item->parentNodeTreeItem()) {
+        QString targetId = nodeItem->name();
+        if (timeline.isValid()) {
+            for (auto &&target : timeline.allTargets()) {
+                if (target.displayName() == targetId)
+                    return target;
+            }
+        }
+    }
+    return ModelNode();
+}
+
+QmlTimelineKeyframeGroup timelineKeyframeGroup(QmlTimeline &timeline,
+                                               DesignTools::PropertyTreeItem *item)
+{
+    ModelNode node = getTargetNode(item, timeline);
+    if (node.isValid())
+        return timeline.keyframeGroup(node, item->name().toLatin1());
+
+    return QmlTimelineKeyframeGroup();
+}
+
+void attachEasingCurve(double frame,
+                       const QEasingCurve &curve,
+                       const QmlTimelineKeyframeGroup &group)
+{
+    ModelNode frameNode = group.keyframe(frame);
+    if (frameNode.isValid()) {
+        auto expression = EasingCurve(curve).toString();
+        frameNode.bindingProperty("easing.bezierCurve").setExpression(expression);
+    }
+}
+
+void TimelineWidget::updateAnimationCurve(DesignTools::PropertyTreeItem *item)
+{
+    QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
+    QmlTimelineKeyframeGroup group = timelineKeyframeGroup(currentTimeline, item);
+
+    if (group.isValid()) {
+        auto replaceKeyframes = [&group, currentTimeline, item]() {
+            for (auto frame : group.keyframes())
+                frame.destroy();
+
+            DesignTools::Keyframe previous;
+            for (auto &&frame : item->curve().keyframes()) {
+                QPointF pos = frame.position();
+                group.setValue(QVariant(pos.y()), pos.x());
+
+                if (previous.isValid()) {
+                    if (frame.interpolation() == DesignTools::Keyframe::Interpolation::Bezier) {
+                        DesignTools::CurveSegment segment(previous, frame);
+                        attachEasingCurve(pos.x(), segment.easingCurve(), group);
+                    } else if (frame.interpolation()
+                               == DesignTools::Keyframe::Interpolation::Easing) {
+                        QVariant data = frame.data();
+                        if (data.type() == static_cast<int>(QMetaType::QEasingCurve))
+                            attachEasingCurve(pos.x(), data.value<QEasingCurve>(), group);
+                    } else if (frame.interpolation() == DesignTools::Keyframe::Interpolation::Step) {
+                        // Warning: Keyframe::Interpolation::Step not yet implemented
+                    }
+                }
+
+                previous = frame;
+            }
+        };
+
+        timelineView()->executeInTransaction("TimelineWidget::handleKeyframeReplacement",
+                                             replaceKeyframes);
+    }
 }
 
 void TimelineWidget::selectionChanged()

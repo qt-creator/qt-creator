@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 #include "propertyparser.h"
-#include "enumeration.h"
+
+#include <enumeration.h>
 #include <modelnode.h>
 #include <metainfo.h>
 

@@ -65,6 +65,7 @@ struct CurveItemStyleOption
     double width = 1.0;
     QColor color = QColor(0, 200, 0);
     QColor selectionColor = QColor(200, 200, 200);
+    QColor easingCurveColor = QColor(200, 0, 200);
 };
 
 struct PlayheadStyleOption
@@ -84,6 +85,9 @@ struct Shortcuts
     Shortcut zoom = Shortcut(Qt::RightButton, Qt::AltModifier);
     Shortcut pan = Shortcut(Qt::MiddleButton, Qt::AltModifier);
     Shortcut frameAll = Shortcut(Qt::NoModifier, Qt::Key_A);
+
+    Shortcut insertKeyframe = Shortcut(Qt::MiddleButton, Qt::NoModifier);
+    Shortcut deleteKeyframe = Shortcut(Qt::NoModifier, Qt::Key_Delete);
 };
 
 struct CurveEditorStyle

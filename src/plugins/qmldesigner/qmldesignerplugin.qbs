@@ -192,7 +192,6 @@ Project {
                 "interfaces/nodeinstanceclientinterface.h",
                 "interfaces/nodeinstanceserverinterface.cpp",
                 "interfaces/nodeinstanceserverinterface.h",
-                "types/enumeration.cpp",
                 "types/enumeration.h",
             ]
         }
@@ -639,6 +638,8 @@ Project {
                 "curveeditor/curveeditormodel.cpp",
                 "curveeditor/curveeditormodel.h",
                 "curveeditor/curveeditorstyle.h",
+                "curveeditor/curvesegment.cpp",
+                "curveeditor/curvesegment.h",
                 "curveeditor/keyframe.cpp",
                 "curveeditor/keyframe.h",
                 "curveeditor/treeitem.cpp",
@@ -649,8 +650,6 @@ Project {
                 "curveeditor/detail/curveeditorstyledialog.h",
                 "curveeditor/detail/curveitem.cpp",
                 "curveeditor/detail/curveitem.h",
-                "curveeditor/detail/curvesegment.cpp",
-                "curveeditor/detail/curvesegment.h",
                 "curveeditor/detail/graphicsscene.cpp",
                 "curveeditor/detail/graphicsscene.h",
                 "curveeditor/detail/graphicsview.cpp",

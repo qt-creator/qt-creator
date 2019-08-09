@@ -29,7 +29,6 @@
 #include "modelnodepositionstorage.h"
 #include "abstractproperty.h"
 #include "bindingproperty.h"
-#include "enumeration.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
 #include "filemanager/qmlrefactoring.h"
@@ -41,6 +40,8 @@
 #include "propertyparser.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
+
+#include <enumeration.h>
 
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljslink.h>

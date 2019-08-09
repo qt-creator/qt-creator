@@ -423,6 +423,11 @@ void QtSupportPlugin::testQtOutputFormatter_data()
             << 9 << 37 << "../TestProject/test.cpp(123)"
             << "../TestProject/test.cpp" << 123 << -1;
 
+    QTest::newRow("Unix failed QTest link (alternate)")
+            << "   Loc: [/Projects/TestProject/test.cpp:123]"
+            << 9 << 43 << "/Projects/TestProject/test.cpp:123"
+            << "/Projects/TestProject/test.cpp" << 123 << -1;
+
     QTest::newRow("Unix relative file link")
             << "file://../main.cpp:157"
             << 0 << 22 << "file://../main.cpp:157"
@@ -433,6 +438,11 @@ void QtSupportPlugin::testQtOutputFormatter_data()
                 << "..\\TestProject\\test.cpp(123) : failure location"
                 << 0 << 28 << "..\\TestProject\\test.cpp(123)"
                 << "../TestProject/test.cpp" << 123 << -1;
+
+        QTest::newRow("Windows failed QTest link (alternate)")
+                << "   Loc: [c:\\Projects\\TestProject\\test.cpp:123]"
+                << 9 << 45 << "c:\\Projects\\TestProject\\test.cpp:123"
+                << "c:/Projects/TestProject/test.cpp" << 123 << -1;
 
         QTest::newRow("Windows failed QTest link with carriage return")
                 << "..\\TestProject\\test.cpp(123) : failure location\r"

@@ -141,6 +141,10 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     const auto itemList = items();
     for (auto *item : itemList) {
         if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
+
+            // CurveItems might becom invalid after a keyframe-drag operation.
+            curveItem->restore();
+
             if (curveItem->contains(mouseEvent->scenePos()))
                 curveItem->setSelected(true);
 
@@ -201,7 +205,7 @@ QRectF GraphicsScene::limits() const
         const auto itemList = items();
         for (auto *item : itemList) {
             if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
-                auto curve = curveItem->curve();
+                auto curve = curveItem->resolvedCurve();
                 if (min.x() > curve.minimumTime())
                     min.rx() = curve.minimumTime();
 

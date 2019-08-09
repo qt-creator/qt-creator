@@ -29,8 +29,11 @@
 #include "detail/graphicsview.h"
 #include "detail/treeview.h"
 
+#include <QDoubleSpinBox>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QSplitter>
+#include <QVBoxLayout>
 
 namespace DesignTools {
 
@@ -44,7 +47,8 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     splitter->addWidget(m_view);
     splitter->setStretchFactor(1, 2);
 
-    QHBoxLayout *box = new QHBoxLayout;
+    QVBoxLayout *box = new QVBoxLayout;
+    box->addWidget(createToolBar());
     box->addWidget(splitter);
     setLayout(box);
 
@@ -59,6 +63,64 @@ void CurveEditor::zoomX(double zoom)
 void CurveEditor::zoomY(double zoom)
 {
     m_view->setZoomY(zoom);
+}
+
+void CurveEditor::clearCanvas()
+{
+    m_view->reset(m_tree->selection());
+}
+
+QToolBar *CurveEditor::createToolBar()
+{
+    QToolBar *bar = new QToolBar;
+    bar->setFloatable(false);
+
+    QAction *tangentLinearAction = bar->addAction("Linear");
+    QAction *tangentStepAction = bar->addAction("Step");
+    QAction *tangentSplineAction = bar->addAction("Spline");
+    QAction *tangentDefaultAction = bar->addAction("Set Default");
+
+    auto setLinearInterpolation = [this]() {
+        m_view->setInterpolation(Keyframe::Interpolation::Linear);
+    };
+    auto setStepInterpolation = [this]() {
+        m_view->setInterpolation(Keyframe::Interpolation::Step);
+    };
+    auto setSplineInterpolation = [this]() {
+        m_view->setInterpolation(Keyframe::Interpolation::Bezier);
+    };
+
+    connect(tangentLinearAction, &QAction::triggered, setLinearInterpolation);
+    connect(tangentStepAction, &QAction::triggered, setStepInterpolation);
+    connect(tangentSplineAction, &QAction::triggered, setSplineInterpolation);
+
+    Q_UNUSED(tangentLinearAction);
+    Q_UNUSED(tangentSplineAction);
+    Q_UNUSED(tangentStepAction);
+    Q_UNUSED(tangentDefaultAction);
+
+    auto *valueBox = new QHBoxLayout;
+    valueBox->addWidget(new QLabel(tr("Value")));
+    valueBox->addWidget(new QDoubleSpinBox);
+    auto *valueWidget = new QWidget;
+    valueWidget->setLayout(valueBox);
+    bar->addWidget(valueWidget);
+
+    auto *durationBox = new QHBoxLayout;
+    durationBox->addWidget(new QLabel(tr("Duration")));
+    durationBox->addWidget(new QSpinBox);
+    auto *durationWidget = new QWidget;
+    durationWidget->setLayout(durationBox);
+    bar->addWidget(durationWidget);
+
+    auto *positionBox = new QHBoxLayout;
+    positionBox->addWidget(new QLabel(tr("Current Frame")));
+    positionBox->addWidget(new QSpinBox);
+    auto *positionWidget = new QWidget;
+    positionWidget->setLayout(positionBox);
+    bar->addWidget(positionWidget);
+
+    return bar;
 }
 
 } // End namespace DesignTools.

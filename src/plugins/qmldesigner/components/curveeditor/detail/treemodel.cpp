@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "treemodel.h"
-#include "treeitem.h"
 #include "detail/graphicsview.h"
+#include "treeitem.h"
 
 #include <QIcon>
 
