@@ -27,11 +27,13 @@
 #include "deploymenttimeinfo.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
-#include <utils/qtcassert.h>
+
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
+
+#include <utils/qtcassert.h>
 
 #include <QDateTime>
 #include <QFileInfo>

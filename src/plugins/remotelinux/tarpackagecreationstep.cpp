@@ -29,7 +29,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
+
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
 
