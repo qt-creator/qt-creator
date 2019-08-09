@@ -153,6 +153,11 @@ QList<BuildStep *> BuildStepList::steps() const
     return m_steps;
 }
 
+BuildStep *BuildStepList::firstStepWithId(Core::Id id) const
+{
+    return Utils::findOrDefault(m_steps, Utils::equal(&BuildStep::id, id));
+}
+
 void BuildStepList::insertStep(int position, BuildStep *step)
 {
     m_steps.insert(position, step);

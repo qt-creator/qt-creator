@@ -58,6 +58,7 @@ public:
         }
         return nullptr;
     }
+    BuildStep *firstStepWithId(Core::Id id) const;
 
     int count() const;
     bool isEmpty() const;
