@@ -1,5 +1,5 @@
 add_qtc_plugin(PythonEditor
-  PLUGIN_DEPENDS Core QtSupport ProjectExplorer TextEditor
+  PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   SOURCES
     pythoneditor.cpp pythoneditor.h
     pythoneditorconstants.h

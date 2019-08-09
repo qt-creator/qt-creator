@@ -8,7 +8,6 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
-    Depends { name: "QtSupport" }
     Depends { name: "ProjectExplorer" }
 
     Group {
