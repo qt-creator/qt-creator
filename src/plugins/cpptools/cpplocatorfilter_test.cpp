@@ -54,8 +54,6 @@ const bool debug = qEnvironmentVariable("QTC_DEBUG_CPPLOCATORFILTERTESTCASE") ==
 
 QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 
-inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
-
 class CppLocatorFilterTestCase
     : public BasicLocatorFilterTest
     , public CppTools::Tests::TestCase
@@ -172,153 +170,153 @@ void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter_data()
     QTest::newRow("CppFunctionsFilter")
         << testFile
         << cppFunctionsFilter
-        << _("function")
-        << (QList<ResultData>()
-            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedInClass(bool, int)"),
-                          _("MyNamespace::MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedInClass(bool, int)"),
-                          _("<anonymous namespace>::MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedOutSideClass(char)"),
-                          _("MyNamespace::MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedOutSideClass(char)"),
-                          _("<anonymous namespace>::MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
-                          _("MyNamespace::MyClass (file1.cpp)"))
-            << ResultData(_("myFunction(bool, int)"), testFileShort)
-            << ResultData(_("myFunction(bool, int)"), _("MyNamespace (file1.cpp)"))
-            << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace> (file1.cpp)"))
-           );
+        << "function"
+        << ResultDataList{
+               ResultData("functionDefinedInClass(bool, int)", "MyClass (file1.cpp)"),
+               ResultData("functionDefinedInClass(bool, int)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("functionDefinedInClass(bool, int)",
+                          "<anonymous namespace>::MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClass(char)", "MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClass(char)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClass(char)",
+                          "<anonymous namespace>::MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClassAndNamespace(float)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("myFunction(bool, int)", testFileShort),
+               ResultData("myFunction(bool, int)", "MyNamespace (file1.cpp)"),
+               ResultData("myFunction(bool, int)", "<anonymous namespace> (file1.cpp)")
+           };
 
     QTest::newRow("CppFunctionsFilter-Sorting")
         << testFile
         << cppFunctionsFilter
-        << _("pos")
-        << (QList<ResultData>()
-            << ResultData(_("positiveNumber()"), testFileShort)
-            << ResultData(_("somePositionWithin()"), testFileShort)
-            << ResultData(_("pointOfService()"), testFileShort)
-            << ResultData(_("matchArgument(Pos)"), testFileShort)
-           );
+        << "pos"
+        << ResultDataList{
+               ResultData("positiveNumber()", testFileShort),
+               ResultData("somePositionWithin()", testFileShort),
+               ResultData("pointOfService()", testFileShort),
+               ResultData("matchArgument(Pos)", testFileShort)
+           };
 
     QTest::newRow("CppFunctionsFilter-arguments")
-            << testFile
-            << cppFunctionsFilter
-            << _("function*bool")
-            << (QList<ResultData>()
-                << ResultData(_("functionDefinedInClass(bool, int)"),
-                              _("MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedInClass(bool, int)"),
-                              _("MyNamespace::MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedInClass(bool, int)"),
-                              _("<anonymous namespace>::MyClass (file1.cpp)"))
-                << ResultData(_("myFunction(bool, int)"), testFileShort)
-                << ResultData(_("myFunction(bool, int)"), _("MyNamespace (file1.cpp)"))
-                << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace> (file1.cpp)"))
-           );
+        << testFile
+        << cppFunctionsFilter
+        << "function*bool"
+        << ResultDataList{
+               ResultData("functionDefinedInClass(bool, int)",
+                          "MyClass (file1.cpp)"),
+               ResultData("functionDefinedInClass(bool, int)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("functionDefinedInClass(bool, int)",
+                          "<anonymous namespace>::MyClass (file1.cpp)"),
+               ResultData("myFunction(bool, int)", testFileShort),
+               ResultData("myFunction(bool, int)", "MyNamespace (file1.cpp)"),
+               ResultData("myFunction(bool, int)", "<anonymous namespace> (file1.cpp)")
+           };
 
     QTest::newRow("CppFunctionsFilter-WithNamespacePrefix")
         << testFile
         << cppFunctionsFilter
-        << _("mynamespace::")
-        << (QList<ResultData>()
-            << ResultData(_("MyClass()"), _("MyNamespace::MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedInClass(bool, int)"),
-                          _("MyNamespace::MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedOutSideClass(char)"),
-                          _("MyNamespace::MyClass (file1.cpp)"))
-            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
-                          _("MyNamespace::MyClass (file1.cpp)"))
-            << ResultData(_("myFunction(bool, int)"), _("MyNamespace (file1.cpp)"))
-           );
+        << "mynamespace::"
+        << ResultDataList{
+               ResultData("MyClass()", "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("functionDefinedInClass(bool, int)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClass(char)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClassAndNamespace(float)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("myFunction(bool, int)", "MyNamespace (file1.cpp)"),
+           };
 
     QTest::newRow("CppFunctionsFilter-WithClassPrefix")
-            << testFile
-            << cppFunctionsFilter
-            << _("MyClass::func")
-            << (QList<ResultData>()
-                << ResultData(_("functionDefinedInClass(bool, int)"),
-                              _("MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedInClass(bool, int)"),
-                              _("MyNamespace::MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedInClass(bool, int)"),
-                              _("<anonymous namespace>::MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedOutSideClass(char)"),
-                              _("MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedOutSideClass(char)"),
-                              _("MyNamespace::MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedOutSideClass(char)"),
-                              _("<anonymous namespace>::MyClass (file1.cpp)"))
-                << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
-                              _("MyNamespace::MyClass (file1.cpp)"))
-                );
+        << testFile
+        << cppFunctionsFilter
+        << "MyClass::func"
+        << ResultDataList{
+               ResultData("functionDefinedInClass(bool, int)",
+                          "MyClass (file1.cpp)"),
+               ResultData("functionDefinedInClass(bool, int)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("functionDefinedInClass(bool, int)",
+                          "<anonymous namespace>::MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClass(char)",
+                          "MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClass(char)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClass(char)",
+                          "<anonymous namespace>::MyClass (file1.cpp)"),
+               ResultData("functionDefinedOutSideClassAndNamespace(float)",
+                          "MyNamespace::MyClass (file1.cpp)"),
+           };
 
     QTest::newRow("CppClassesFilter")
         << testFile
         << cppClassesFilter
-        << _("myclass")
-        << (QList<ResultData>()
-            << ResultData(_("MyClass"), testFileShort)
-            << ResultData(_("MyClass"), _("MyNamespace"))
-            << ResultData(_("MyClass"), _("<anonymous namespace>"))
-           );
+        << "myclass"
+        << ResultDataList{
+               ResultData("MyClass", testFileShort),
+               ResultData("MyClass", "MyNamespace"),
+               ResultData("MyClass", "<anonymous namespace>")
+           };
 
     QTest::newRow("CppClassesFilter-WithNamespacePrefix")
         << testFile
         << cppClassesFilter
-        << _("mynamespace::")
-        << (QList<ResultData>()
-            << ResultData(_("MyClass"), _("MyNamespace"))
-           );
+        << "mynamespace::"
+        << ResultDataList{
+               ResultData("MyClass", "MyNamespace")
+           };
 
     // all symbols in the left column are expected to be fully qualified.
     QTest::newRow("CppLocatorFilter-filtered")
         << testFile
         << cppLocatorFilter
-        << _("my")
-        << (QList<ResultData>()
-            << ResultData(_("MyClass"), testFileShort)
-            << ResultData(_("MyClass::MyClass"), _("()"))
-            << ResultData(_("MyClass::functionDefinedOutSideClass"), _("(char)"))
-            << ResultData(_("MyEnum"), testFileShort)
-            << ResultData(_("MyNamespace::MyClass"), testFileShort)
-            << ResultData(_("MyNamespace::MyClass::MyClass"), _("()"))
-            << ResultData(_("MyNamespace::MyClass::functionDefinedOutSideClass"),
-                          _("(char)"))
-            << ResultData(_("MyNamespace::MyClass::functionDefinedOutSideClassAndNamespace"),
-                          _("(float)"))
-            << ResultData(_("MyNamespace::MyEnum"), testFileShort)
-            << ResultData(_("MyNamespace::myFunction"), _("(bool, int)"))
-            << ResultData(_("myFunction"), _("(bool, int)"))
-            << ResultData(_("<anonymous namespace>::MyClass"), testFileShort)
-            << ResultData(_("<anonymous namespace>::MyClass::MyClass"), _("()"))
-            << ResultData(_("<anonymous namespace>::MyClass::functionDefinedOutSideClass"),
-                          _("(char)"))
-            << ResultData(_("<anonymous namespace>::MyEnum"), testFileShort)
-            << ResultData(_("<anonymous namespace>::myFunction"), _("(bool, int)"))
-            );
+        << "my"
+        << ResultDataList{
+               ResultData("MyClass", testFileShort),
+               ResultData("MyClass::MyClass", "()"),
+               ResultData("MyClass::functionDefinedOutSideClass", "(char)"),
+               ResultData("MyEnum", testFileShort),
+               ResultData("MyNamespace::MyClass", testFileShort),
+               ResultData("MyNamespace::MyClass::MyClass", "()"),
+               ResultData("MyNamespace::MyClass::functionDefinedOutSideClass",
+                          "(char)"),
+               ResultData("MyNamespace::MyClass::functionDefinedOutSideClassAndNamespace",
+                          "(float)"),
+               ResultData("MyNamespace::MyEnum", testFileShort),
+               ResultData("MyNamespace::myFunction", "(bool, int)"),
+               ResultData("myFunction", "(bool, int)"),
+               ResultData("<anonymous namespace>::MyClass", testFileShort),
+               ResultData("<anonymous namespace>::MyClass::MyClass", "()"),
+               ResultData("<anonymous namespace>::MyClass::functionDefinedOutSideClass",
+                          "(char)"),
+               ResultData("<anonymous namespace>::MyEnum", testFileShort),
+               ResultData("<anonymous namespace>::myFunction", "(bool, int)")
+           };
 
     QTest::newRow("CppClassesFilter-ObjC")
-            << objTestFile
-            << cppClassesFilter
-            << _("M")
-            << (QList<ResultData>()
-                << ResultData(_("MyClass"), objTestFileShort)
-                << ResultData(_("MyClass"), objTestFileShort)
-                << ResultData(_("MyClass"), objTestFileShort)
-                << ResultData(_("MyProtocol"), objTestFileShort)
-                );
+        << objTestFile
+        << cppClassesFilter
+        << "M"
+        << ResultDataList{
+               ResultData("MyClass", objTestFileShort),
+               ResultData("MyClass", objTestFileShort),
+               ResultData("MyClass", objTestFileShort),
+               ResultData("MyProtocol", objTestFileShort),
+           };
 
     QTest::newRow("CppFunctionsFilter-ObjC")
         << objTestFile
         << cppFunctionsFilter
-        << _("M")
-        << (QList<ResultData>()
-            << ResultData(_("anotherMethod"), _("MyClass (file1.mm)"))
-            << ResultData(_("anotherMethod:"), _("MyClass (file1.mm)"))
-            << ResultData(_("someMethod"), _("MyClass (file1.mm)"))
-            );
+        << "M"
+        << ResultDataList{
+               ResultData("anotherMethod", "MyClass (file1.mm)"),
+               ResultData("anotherMethod:", "MyClass (file1.mm)"),
+               ResultData("someMethod", "MyClass (file1.mm)")
+           };
 }
 
 void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
@@ -326,51 +324,51 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
     MyTestDataDir testDirectory("testdata_basic");
     const QString testFile = testDirectory.file("file1.cpp");
 
-    QList<ResultData> expectedResults = QList<ResultData>()
-        << ResultData(_("int myVariable"), _(""))
-        << ResultData(_("myFunction(bool, int)"), _(""))
-        << ResultData(_("Pos"), _(""))
-        << ResultData(_("somePositionWithin()"), _(""))
-        << ResultData(_("pointOfService()"), _(""))
-        << ResultData(_("matchArgument(Pos)"), _(""))
-        << ResultData(_("positiveNumber()"), _(""))
-        << ResultData(_("MyEnum"), _(""))
-        << ResultData(_("int V1"), _("MyEnum"))
-        << ResultData(_("int V2"), _("MyEnum"))
-        << ResultData(_("MyClass"), _(""))
-        << ResultData(_("MyClass()"), _("MyClass"))
-        << ResultData(_("functionDeclaredOnly()"), _("MyClass"))
-        << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass"))
-        << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass"))
-        << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass"))
-        << ResultData(_("int myVariable"), _("MyNamespace"))
-        << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
-        << ResultData(_("MyEnum"), _("MyNamespace"))
-        << ResultData(_("int V1"), _("MyNamespace::MyEnum"))
-        << ResultData(_("int V2"), _("MyNamespace::MyEnum"))
-        << ResultData(_("MyClass"), _("MyNamespace"))
-        << ResultData(_("MyClass()"), _("MyNamespace::MyClass"))
-        << ResultData(_("functionDeclaredOnly()"), _("MyNamespace::MyClass"))
-        << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
-        << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-        << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
-                      _("MyNamespace::MyClass"))
-        << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
-        << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"),
-                      _("MyNamespace::MyClass"))
-        << ResultData(_("int myVariable"), _("<anonymous namespace>"))
-        << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
-        << ResultData(_("MyEnum"), _("<anonymous namespace>"))
-        << ResultData(_("int V1"), _("<anonymous namespace>::MyEnum"))
-        << ResultData(_("int V2"), _("<anonymous namespace>::MyEnum"))
-        << ResultData(_("MyClass"), _("<anonymous namespace>"))
-        << ResultData(_("MyClass()"), _("<anonymous namespace>::MyClass"))
-        << ResultData(_("functionDeclaredOnly()"), _("<anonymous namespace>::MyClass"))
-        << ResultData(_("functionDefinedInClass(bool, int)"), _("<anonymous namespace>::MyClass"))
-        << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
-        << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
-        << ResultData(_("main()"), _(""))
-        ;
+    auto expectedResults = ResultDataList{
+        ResultData("int myVariable", ""),
+        ResultData("myFunction(bool, int)", ""),
+        ResultData("Pos", ""),
+        ResultData("somePositionWithin()", ""),
+        ResultData("pointOfService()", ""),
+        ResultData("matchArgument(Pos)", ""),
+        ResultData("positiveNumber()", ""),
+        ResultData("MyEnum", ""),
+        ResultData("int V1", "MyEnum"),
+        ResultData("int V2", "MyEnum"),
+        ResultData("MyClass", ""),
+        ResultData("MyClass()", "MyClass"),
+        ResultData("functionDeclaredOnly()", "MyClass"),
+        ResultData("functionDefinedInClass(bool, int)", "MyClass"),
+        ResultData("functionDefinedOutSideClass(char)", "MyClass"),
+        ResultData("functionDefinedOutSideClass(char)", "MyClass"),
+        ResultData("int myVariable", "MyNamespace"),
+        ResultData("myFunction(bool, int)", "MyNamespace"),
+        ResultData("MyEnum", "MyNamespace"),
+        ResultData("int V1", "MyNamespace::MyEnum"),
+        ResultData("int V2", "MyNamespace::MyEnum"),
+        ResultData("MyClass", "MyNamespace"),
+        ResultData("MyClass()", "MyNamespace::MyClass"),
+        ResultData("functionDeclaredOnly()", "MyNamespace::MyClass"),
+        ResultData("functionDefinedInClass(bool, int)", "MyNamespace::MyClass"),
+        ResultData("functionDefinedOutSideClass(char)", "MyNamespace::MyClass"),
+        ResultData("functionDefinedOutSideClassAndNamespace(float)",
+                   "MyNamespace::MyClass"),
+        ResultData("functionDefinedOutSideClass(char)", "MyNamespace::MyClass"),
+        ResultData("functionDefinedOutSideClassAndNamespace(float)",
+                   "MyNamespace::MyClass"),
+        ResultData("int myVariable", "<anonymous namespace>"),
+        ResultData("myFunction(bool, int)", "<anonymous namespace>"),
+        ResultData("MyEnum", "<anonymous namespace>"),
+        ResultData("int V1", "<anonymous namespace>::MyEnum"),
+        ResultData("int V2", "<anonymous namespace>::MyEnum"),
+        ResultData("MyClass", "<anonymous namespace>"),
+        ResultData("MyClass()", "<anonymous namespace>::MyClass"),
+        ResultData("functionDeclaredOnly()", "<anonymous namespace>::MyClass"),
+        ResultData("functionDefinedInClass(bool, int)", "<anonymous namespace>::MyClass"),
+        ResultData("functionDefinedOutSideClass(char)", "<anonymous namespace>::MyClass"),
+        ResultData("functionDefinedOutSideClass(char)", "<anonymous namespace>::MyClass"),
+        ResultData("main()", ""),
+    };
 
     CppCurrentDocumentFilterTestCase(testFile, expectedResults);
 }
