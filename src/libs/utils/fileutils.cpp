@@ -768,6 +768,13 @@ bool FilePath::exists() const
     return !isEmpty() && QFileInfo::exists(m_data);
 }
 
+/// \returns a bool indicating whether a path is writable.
+bool FilePath::isWritablePath() const
+{
+    const QFileInfo fi{m_data};
+    return exists() && fi.isDir() && fi.isWritable();
+}
+
 /// Find the parent directory of a given directory.
 
 /// Returns an empty FilePath if the current directory is already

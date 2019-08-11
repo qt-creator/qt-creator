@@ -82,6 +82,7 @@ public:
 
     QString fileName(int pathComponents = 0) const;
     bool exists() const;
+    bool isWritablePath() const;
 
     FilePath parentDir() const;
 

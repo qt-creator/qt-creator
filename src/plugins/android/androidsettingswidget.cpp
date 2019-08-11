@@ -72,6 +72,7 @@ enum JavaValidation {
 
 enum AndroidValidation {
     SdkPathExistsRow,
+    SdkPathWritableRow,
     SdkToolsInstalledRow,
     PlatformToolsInstalledRow,
     BuildToolsInstalledRow,
@@ -255,6 +256,7 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 
     QMap<int, QString> androidValidationPoints;
     androidValidationPoints[SdkPathExistsRow] = tr("Android SDK path exists.");
+    androidValidationPoints[SdkPathWritableRow] = tr("Android SDK path writable.");
     androidValidationPoints[SdkToolsInstalledRow] = tr("SDK tools installed.");
     androidValidationPoints[PlatformToolsInstalledRow] = tr("Platform tools installed.");
     androidValidationPoints[BuildToolsInstalledRow] = tr("Build tools installed.");
@@ -415,6 +417,7 @@ void AndroidSettingsWidget::validateSdk()
 {
     auto summaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
     summaryWidget->setPointValid(SdkPathExistsRow, m_androidConfig.sdkLocation().exists());
+    summaryWidget->setPointValid(SdkPathWritableRow, m_androidConfig.sdkLocation().isWritablePath());
     summaryWidget->setPointValid(SdkToolsInstalledRow,
                                  !m_androidConfig.sdkToolsVersion().isNull());
     summaryWidget->setPointValid(PlatformToolsInstalledRow,
@@ -427,7 +430,7 @@ void AndroidSettingsWidget::validateSdk()
     summaryWidget->setPointValid(PlatformSdkInstalledRow,
                                  !m_sdkManager->installedSdkPlatforms().isEmpty());
     updateUI();
-    bool sdkToolsOk = summaryWidget->rowsOk({SdkPathExistsRow, SdkToolsInstalledRow});
+    bool sdkToolsOk = summaryWidget->rowsOk({SdkPathExistsRow, SdkPathWritableRow, SdkToolsInstalledRow});
     bool componentsOk = summaryWidget->rowsOk({PlatformToolsInstalledRow,
                                                       BuildToolsInstalledRow,
                                                       PlatformSdkInstalledRow});
@@ -528,7 +531,7 @@ void AndroidSettingsWidget::updateUI()
     auto javaSummaryWidget = static_cast<SummaryWidget *>(m_ui->javaDetailsWidget->widget());
     auto androidSummaryWidget = static_cast<SummaryWidget *>(m_ui->androidDetailsWidget->widget());
     bool javaSetupOk = javaSummaryWidget->allRowsOk();
-    bool sdkToolsOk = androidSummaryWidget->rowsOk({SdkPathExistsRow, SdkToolsInstalledRow});
+    bool sdkToolsOk = androidSummaryWidget->rowsOk({SdkPathExistsRow, SdkPathWritableRow, SdkToolsInstalledRow});
     bool androidSetupOk = androidSummaryWidget->allRowsOk();
 
     m_ui->avdManagerTab->setEnabled(javaSetupOk && androidSetupOk);
