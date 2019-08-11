@@ -31,7 +31,6 @@
 #include <QDebug>
 #include <QXmlStreamWriter>
 #include <QFile>
-#include <QMapIterator>
 #include <QScopedArrayPointer>
 #include <QTcpServer>
 #include <QSocketNotifier>
@@ -816,9 +815,7 @@ void IosTool::deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::D
         QMutexLocker l(&m_xmlMutex);
         out.writeTextElement(QLatin1String("device_id"), deviceId);
         out.writeStartElement(QLatin1String("device_info"));
-        QMapIterator<QString,QString> i(devInfo);
-        while (i.hasNext()) {
-            i.next();
+        for (auto i = devInfo.cbegin(); i != devInfo.cend(); ++i) {
             out.writeStartElement(QLatin1String("item"));
             out.writeTextElement(QLatin1String("key"), i.key());
             out.writeTextElement(QLatin1String("value"), i.value());
