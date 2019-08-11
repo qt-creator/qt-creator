@@ -56,21 +56,36 @@ QList<LocatorFilterEntry> BasicLocatorFilterTest::matchesFor(const QString &sear
 
 ResultData::ResultData() = default;
 
-ResultData::ResultData(const QString &textColumn1, const QString &textColumn2)
-    : textColumn1(textColumn1), textColumn2(textColumn2)
+ResultData::ResultData(const QString &textColumn1, const QString &textColumn2,
+                       const QString &highlightPositions)
+    : textColumn1(textColumn1), textColumn2(textColumn2), highlight(highlightPositions)
 {
 }
 
 bool ResultData::operator==(const ResultData &other) const
 {
-    return textColumn1 == other.textColumn1 && textColumn2 == other.textColumn2;
+    const bool highlightEqual = highlight.isEmpty()
+            || other.highlight.isEmpty()
+            || highlight == other.highlight;
+
+    return textColumn1 == other.textColumn1 && textColumn2 == other.textColumn2 && highlightEqual;
 }
 
 ResultData::ResultDataList ResultData::fromFilterEntryList(const QList<LocatorFilterEntry> &entries)
 {
     ResultDataList result;
-    for (const LocatorFilterEntry &entry : entries)
-        result << ResultData(entry.displayName, entry.extraInfo);
+    for (const LocatorFilterEntry &entry : entries) {
+        ResultData data(entry.displayName, entry.extraInfo);
+        data.highlight = QString(entry.displayName.size(), QChar(' '));
+        for (int i = 0; i < entry.highlightInfo.starts.size(); ++i) {
+            const int start = entry.highlightInfo.starts.at(i);
+            const int length = entry.highlightInfo.lengths.at(i);
+            for (int j = 0; j < length; ++j)
+                data.highlight[start + j] = '~';
+        }
+        result << data;
+    }
+
     return result;
 }
 

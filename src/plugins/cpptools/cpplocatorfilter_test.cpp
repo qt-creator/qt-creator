@@ -93,14 +93,15 @@ class CppCurrentDocumentFilterTestCase
 {
 public:
     CppCurrentDocumentFilterTestCase(const QString &fileName,
-                                     const ResultDataList &expectedResults)
+                                     const ResultDataList &expectedResults,
+                                     const QString &searchText = QString())
         : BasicLocatorFilterTest(CppTools::CppModelManager::instance()->currentDocumentFilter())
         , m_fileName(fileName)
     {
         QVERIFY(succeededSoFar());
         QVERIFY(!m_fileName.isEmpty());
 
-        ResultDataList results = ResultData::fromFilterEntryList(matchesFor());
+        ResultDataList results = ResultData::fromFilterEntryList(matchesFor(searchText));
         if (debug) {
             ResultData::printFilterEntries(expectedResults, "Expected:");
             ResultData::printFilterEntries(results, "Results:");
@@ -371,4 +372,54 @@ void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentFilter()
     };
 
     CppCurrentDocumentFilterTestCase(testFile, expectedResults);
+}
+
+void CppToolsPlugin::test_cpplocatorfilters_CppCurrentDocumentHighlighting()
+{
+    MyTestDataDir testDirectory("testdata_basic");
+    const QString testFile = testDirectory.file("file1.cpp");
+
+    const QString searchText = "pos";
+    const ResultDataList expectedResults{
+        ResultData("Pos", "",
+                   "~~~"),
+        ResultData("pointOfService()", "",
+                   "~    ~ ~        "),
+        ResultData("positiveNumber()", "",
+                   "~~~             "),
+        ResultData("somePositionWithin()", "",
+                   "    ~~~             "),
+        ResultData("matchArgument(Pos)", "",
+                   "              ~~~ ")
+       };
+
+    Tests::VerifyCleanCppModelManager verify;
+
+    CppCurrentDocumentFilterTestCase(testFile, expectedResults, searchText);
+}
+
+void CppToolsPlugin::test_cpplocatorfilters_CppFunctionsFilterHighlighting()
+{
+    MyTestDataDir testDirectory("testdata_basic");
+    const QString testFile = testDirectory.file("file1.cpp");
+    const QString testFileShort = FilePath::fromString(testFile).shortNativePath();
+
+    const QString searchText = "pos";
+    const ResultDataList expectedResults{
+        ResultData("positiveNumber()", testFileShort,
+                   "~~~             "),
+        ResultData("somePositionWithin()", testFileShort,
+                   "    ~~~             "),
+        ResultData("pointOfService()", testFileShort,
+                   "~    ~ ~        "),
+        ResultData("matchArgument(Pos)", testFileShort,
+                   "              ~~~ ")
+       };
+
+    CppModelManager *cppModelManager = CppModelManager::instance();
+    ILocatorFilter *filter = cppModelManager->functionsFilter();
+
+    Tests::VerifyCleanCppModelManager verify;
+
+    CppLocatorFilterTestCase(filter, testFile, searchText, expectedResults);
 }

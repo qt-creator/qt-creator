@@ -159,6 +159,8 @@ private slots:
     void test_cpplocatorfilters_CppLocatorFilter();
     void test_cpplocatorfilters_CppLocatorFilter_data();
     void test_cpplocatorfilters_CppCurrentDocumentFilter();
+    void test_cpplocatorfilters_CppCurrentDocumentHighlighting();
+    void test_cpplocatorfilters_CppFunctionsFilterHighlighting();
 
     void test_builtinsymbolsearcher();
     void test_builtinsymbolsearcher_data();

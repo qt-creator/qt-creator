@@ -54,7 +54,8 @@ public:
     using ResultDataList = QList<ResultData>;
 
     ResultData();
-    ResultData(const QString &textColumn1, const QString &textColumn2);
+    ResultData(const QString &textColumn1, const QString &textColumn2,
+               const QString &highlightPositions = QString());
 
     bool operator==(const ResultData &other) const;
 
@@ -65,6 +66,8 @@ public:
 
     QString textColumn1;
     QString textColumn2;
+    QString highlight;
+    LocatorFilterEntry::HighlightInfo::DataType dataType;
 };
 
 using ResultDataList = ResultData::ResultDataList;
@@ -80,7 +83,8 @@ namespace QTest {
 
 template<> inline char *toString(const Core::Tests::ResultData &data)
 {
-    QByteArray ba = "\"" + data.textColumn1.toUtf8() + "\", \"" + data.textColumn2.toUtf8() + "\"";
+    const QByteArray ba = "\n\"" + data.textColumn1.toUtf8() + "\", \"" + data.textColumn2.toUtf8()
+            + "\"\n\"" + data.highlight.toUtf8() + "\"";
     return qstrdup(ba.data());
 }
 
