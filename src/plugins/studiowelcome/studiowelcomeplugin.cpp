@@ -249,10 +249,7 @@ void StudioWelcomePlugin::extensionsInitialized()
             s_view->show();
             s_view->raise();
 
-            QTimer::singleShot(15000, [](){
-                if (s_view)
-                    s_view->close();
-            });
+            QTimer::singleShot(15000, [this](){ closeSplashScreen(); });
         });
     }
 }

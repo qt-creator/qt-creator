@@ -121,9 +121,13 @@ you can check out from the public Git repository. For example:
 ## Debugging
 
 * Added pretty printer for `QMargin`
-* Fixed pretty printer for `std::vector` and `std::basic_string` with custom allocator
-* Fixed pretty printer for `std::map<K,V>::iterator`
+* Fixed pretty printers for `QFile`, `QStandardItem`,
+  `std::vector` and `std::basic_string` with custom allocator, and `std::map<K,V>::iterator`
 * Fixed issues with restoring layout (QTCREATORBUG-21669)
+
+### LLDB
+
+* Fixed running with command line arguments with spaces (QTCREATORBUG-22811)
 
 ### CDB
 
@@ -152,6 +156,7 @@ you can check out from the public Git repository. For example:
 * Added all fonts from project directory to font selector (QDS-100)
 * Updated properties of `Flickable`
 * Improved handling of errors in state editor (QDS-695)
+* Improved selection behavior (QDS-853)
 
 ## Version Control Systems
 
@@ -187,6 +192,10 @@ you can check out from the public Git repository. For example:
 ### Android
 
 * Removed support for MIPS64
+
+### iOS
+
+* Fixed simulator detection with Xcode 11 (QTCREATORBUG-22757)
 
 ### Remote Linux
 

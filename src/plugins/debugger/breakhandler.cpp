@@ -1302,7 +1302,7 @@ void BreakpointItem::setState(BreakpointState state)
     m_state = state;
 
     // FIXME: updateMarker() should recognize the need for icon changes.
-    if (state == BreakpointInserted) {
+    if (state == BreakpointInserted || state == BreakpointInsertionRequested) {
         destroyMarker();
         updateMarker();
     }
