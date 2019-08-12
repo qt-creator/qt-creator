@@ -54,6 +54,8 @@ public:
     void mouseRelease(QMouseEvent *event, GraphicsView *view);
 
 private:
+    bool isOverSelectedKeyframe(const QPointF &pos, GraphicsView *view);
+
     bool select(const SelectionTool &tool, const QPointF &pos, GraphicsView *view);
 
     bool pressSelection(SelectionMode mode, const QPointF &pos, GraphicsView *view);

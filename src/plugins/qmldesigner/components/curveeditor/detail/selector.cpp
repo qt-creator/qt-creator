@@ -58,13 +58,14 @@ void Selector::mousePress(QMouseEvent *event, GraphicsView *view)
     if (view->hasActiveHandle())
         return;
 
-    if (select(SelectionTool::Undefined, view->globalToScene(event->globalPos()), view))
-        applyPreSelection(view);
-
     m_mouseInit = event->globalPos();
     m_mouseCurr = event->globalPos();
 
     QPointF click = view->globalToScene(m_mouseInit);
+
+    if (!isOverSelectedKeyframe(click, view))
+        if (select(SelectionTool::Undefined, click, view))
+            applyPreSelection(view);
 
     m_lasso = QPainterPath(click);
     m_lasso.closeSubpath();
@@ -117,6 +118,19 @@ void Selector::mouseRelease(QMouseEvent *event, GraphicsView *view)
     m_mouseCurr = QPoint();
     m_lasso = QPainterPath();
     m_rect = QRectF();
+}
+
+bool Selector::isOverSelectedKeyframe(const QPointF &pos, GraphicsView *view)
+{
+    const auto itemList = view->items();
+    for (auto *item : itemList) {
+        if (auto *frame = qgraphicsitem_cast<KeyframeItem *>(item)) {
+            QRectF itemRect = frame->mapRectToScene(frame->boundingRect());
+            if (itemRect.contains(pos))
+                return frame->selected();
+        }
+    }
+    return false;
 }
 
 bool Selector::select(const SelectionTool &tool, const QPointF &pos, GraphicsView *view)
