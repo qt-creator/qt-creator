@@ -95,6 +95,7 @@ public:
     void setFilePath(const Utils::FilePath &executable);
     Utils::FilePath filePath() const;
     Utils::FilePath cmakeExecutable() const;
+    static Utils::FilePath cmakeExecutable(const Utils::FilePath &path);
     bool isAutoRun() const;
     bool autoCreateBuildDirectory() const;
     QList<Generator> supportedGenerators() const;

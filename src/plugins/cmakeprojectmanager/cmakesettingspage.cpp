@@ -126,7 +126,7 @@ public:
 
     void updateErrorFlags()
     {
-        const QFileInfo fi = m_executable.toFileInfo();
+        const QFileInfo fi = CMakeTool::cmakeExecutable(m_executable).toFileInfo();
         m_pathExists = fi.exists();
         m_pathIsFile = fi.isFile();
         m_pathIsExecutable = fi.isExecutable();

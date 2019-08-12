@@ -217,7 +217,7 @@ Utils::SynchronousProcessResponse CMakeTool::run(const QStringList &args, bool m
     cmake.setProcessEnvironment(env.toProcessEnvironment());
     cmake.setTimeOutMessageBoxEnabled(false);
 
-    Utils::SynchronousProcessResponse response = cmake.runBlocking({m_executable, args});
+    Utils::SynchronousProcessResponse response = cmake.runBlocking({cmakeExecutable(), args});
     m_introspection->m_didAttemptToRun = true;
     m_introspection->m_didRun = mayFail ? true : (response.result == Utils::SynchronousProcessResponse::Finished);
     return response;
@@ -240,12 +240,27 @@ QVariantMap CMakeTool::toMap() const
 
 Utils::FilePath CMakeTool::cmakeExecutable() const
 {
-    if (Utils::HostOsInfo::isMacHost() && m_executable.endsWith(".app")) {
-        const Utils::FilePath toTest = m_executable.pathAppended("Contents/bin/cmake");
-        if (toTest.exists())
-            return toTest.canonicalPath();
+    return cmakeExecutable(m_executable);
+}
+
+Utils::FilePath CMakeTool::cmakeExecutable(const Utils::FilePath &path)
+{
+    if (Utils::HostOsInfo::isMacHost()) {
+        const QString executableString = path.toString();
+        const int appIndex = executableString.lastIndexOf(".app");
+        const int appCutIndex = appIndex + 4;
+        const bool endsWithApp = appIndex >= 0 && appCutIndex >= executableString.size();
+        const bool containsApp = appIndex >= 0 && !endsWithApp
+                                 && executableString.at(appCutIndex) == '/';
+        if (endsWithApp || containsApp) {
+            const Utils::FilePath toTest = Utils::FilePath::fromString(
+                                               executableString.left(appCutIndex))
+                                               .pathAppended("Contents/bin/cmake");
+            if (toTest.exists())
+                return toTest.canonicalPath();
+        }
     }
-    return m_executable.canonicalPath();
+    return path.canonicalPath();
 }
 
 bool CMakeTool::isAutoRun() const
