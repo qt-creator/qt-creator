@@ -49,7 +49,7 @@ public:
     void fixup(QString &input) const override;
 
 private:
-    const QString &m_toolTipText;
+    const QString m_toolTipText;
     Utils::NameValueModel *m_model;
     QTreeView *m_view;
     QModelIndex m_index;
