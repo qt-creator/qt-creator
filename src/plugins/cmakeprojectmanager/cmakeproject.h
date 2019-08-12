@@ -63,8 +63,6 @@ public:
     explicit CMakeProject(const Utils::FilePath &filename);
     ~CMakeProject() final;
 
-    QStringList buildTargetTitles() const;
-
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
     void runCMake();

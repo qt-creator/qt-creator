@@ -392,12 +392,6 @@ void CMakeProject::startParsing(int reparseParameters)
     bc->m_buildDirManager.parse(reparseParameters);
 }
 
-QStringList CMakeProject::buildTargetTitles() const
-{
-    CMakeBuildConfiguration *bc = activeBc(this);
-    return bc ? bc->buildTargetTitles() : QStringList();
-}
-
 bool CMakeProject::setupTarget(Target *t)
 {
     t->updateDefaultBuildConfigurations();

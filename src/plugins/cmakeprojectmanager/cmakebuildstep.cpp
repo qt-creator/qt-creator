@@ -108,8 +108,7 @@ void CMakeBuildStep::handleBuildTargetChanges(bool success)
 {
     if (!success)
         return; // Do not change when parsing failed.
-    if (!isCurrentExecutableTarget(m_buildTarget)
-        && !static_cast<CMakeProject *>(project())->buildTargetTitles().contains(m_buildTarget)) {
+    if (!isCurrentExecutableTarget(m_buildTarget) && !knownBuildTargets().contains(m_buildTarget)) {
         setBuildTarget(defaultBuildTarget());
     }
     emit buildTargetsChanged();
@@ -374,6 +373,12 @@ Utils::CommandLine CMakeBuildStep::cmakeCommand(RunConfiguration *rc) const
     return cmd;
 }
 
+QStringList CMakeBuildStep::knownBuildTargets()
+{
+    auto bc = qobject_cast<CMakeBuildConfiguration *>(buildConfiguration());
+    return bc ? bc->buildTargetTitles() : QStringList();
+}
+
 QString CMakeBuildStep::cleanTarget()
 {
     return QString("clean");
@@ -472,8 +477,7 @@ void CMakeBuildStepConfigWidget::buildTargetsChanged()
         QSignalBlocker blocker(m_buildTargetsList);
         m_buildTargetsList->clear();
 
-        auto pro = static_cast<CMakeProject *>(m_buildStep->project());
-        QStringList targetList = pro->buildTargetTitles();
+        QStringList targetList = m_buildStep->knownBuildTargets();
         targetList.sort();
 
         QFont italics;

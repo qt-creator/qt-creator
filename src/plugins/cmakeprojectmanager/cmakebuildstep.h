@@ -71,6 +71,8 @@ public:
 
     Utils::CommandLine cmakeCommand(ProjectExplorer::RunConfiguration *rc) const;
 
+    QStringList knownBuildTargets();
+
     QVariantMap toMap() const override;
 
     static QString cleanTarget();
