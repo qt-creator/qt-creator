@@ -27,6 +27,8 @@
 
 #include "detail/shortcut.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QBitmap>
 #include <QBrush>
 #include <QColor>
@@ -87,7 +89,9 @@ struct Shortcuts
     Shortcut frameAll = Shortcut(Qt::NoModifier, Qt::Key_A);
 
     Shortcut insertKeyframe = Shortcut(Qt::MiddleButton, Qt::NoModifier);
-    Shortcut deleteKeyframe = Shortcut(Qt::NoModifier, Qt::Key_Delete);
+
+    Shortcut deleteKeyframe = Utils::HostOsInfo::isMacHost() ?
+            Shortcut(Qt::NoModifier, Qt::Key_Backspace) : Shortcut(Qt::NoModifier, Qt::Key_Delete);
 };
 
 struct CurveEditorStyle
