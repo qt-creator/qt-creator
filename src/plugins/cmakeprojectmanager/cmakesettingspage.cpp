@@ -96,7 +96,7 @@ public:
     CMakeToolTreeItem(const CMakeTool *item, bool changed)
         : m_id(item->id())
         , m_name(item->displayName())
-        , m_executable(item->cmakeExecutable())
+        , m_executable(item->filePath())
         , m_isAutoRun(item->isAutoRun())
         , m_autoCreateBuildDirectory(item->autoCreateBuildDirectory())
         , m_autodetected(item->isAutoDetected())
@@ -130,7 +130,6 @@ public:
         m_pathExists = fi.exists();
         m_pathIsFile = fi.isFile();
         m_pathIsExecutable = fi.isExecutable();
-        m_pathIsCanonical = CMakeTool::isCanonicalPath(m_executable);
     }
 
     CMakeToolTreeItem() = default;
@@ -175,8 +174,6 @@ public:
                 error = QCoreApplication::translate(
                     "CMakeProjectManager::Internal::CMakeToolTreeItem",
                     "CMake executable path is not executable.");
-            } else if (!m_pathIsCanonical) {
-                error = CMakeTool::nonCanonicalPathToCMakeExecutableWarningMessage();
             }
             if (result.isEmpty() || error.isEmpty())
                 return QString("%1%2").arg(result).arg(error);
@@ -190,9 +187,6 @@ public:
             const bool hasError = !m_pathExists || !m_pathIsFile || !m_pathIsExecutable;
             if (hasError)
                 return Utils::Icons::CRITICAL.icon();
-            const bool hasWarning = !m_pathIsCanonical;
-            if (hasWarning)
-                return Utils::Icons::WARNING.icon();
             return QVariant();
         }
         }
@@ -207,7 +201,6 @@ public:
     bool m_pathExists = false;
     bool m_pathIsFile = false;
     bool m_pathIsExecutable = false;
-    bool m_pathIsCanonical = false;
     bool m_autoCreateBuildDirectory = false;
     bool m_autodetected = false;
     bool m_changed = true;
@@ -272,7 +265,7 @@ void CMakeToolItemModel::reevaluateChangedFlag(CMakeToolTreeItem *item) const
 {
     CMakeTool *orig = CMakeToolManager::findById(item->m_id);
     item->m_changed = !orig || orig->displayName() != item->m_name
-            || orig->cmakeExecutable() != item->m_executable;
+                      || orig->filePath() != item->m_executable;
 
     //make sure the item is marked as changed when the default cmake was changed
     CMakeTool *origDefTool = CMakeToolManager::defaultCMakeTool();
@@ -333,7 +326,7 @@ void CMakeToolItemModel::apply()
         item->m_changed = false;
         if (CMakeTool *cmake = CMakeToolManager::findById(item->m_id)) {
             cmake->setDisplayName(item->m_name);
-            cmake->setCMakeExecutable(item->m_executable);
+            cmake->setFilePath(item->m_executable);
             cmake->setAutorun(item->m_isAutoRun);
             cmake->setAutoCreateBuildDirectory(item->m_autoCreateBuildDirectory);
         } else {
@@ -346,7 +339,7 @@ void CMakeToolItemModel::apply()
                                                               : CMakeTool::ManualDetection;
         auto cmake = std::make_unique<CMakeTool>(detection, item->m_id);
         cmake->setDisplayName(item->m_name);
-        cmake->setCMakeExecutable(item->m_executable);
+        cmake->setFilePath(item->m_executable);
         if (!CMakeToolManager::registerCMakeTool(std::move(cmake)))
             item->m_changed = true;
     }

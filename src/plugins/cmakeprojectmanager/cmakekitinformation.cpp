@@ -257,13 +257,6 @@ Tasks CMakeKitAspect::validate(const Kit *k) const
                                              "version 3.0 or later.").arg(QString::fromUtf8(version.fullVersion)),
                            Utils::FilePath(), -1, Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         }
-        if (!tool->isExecutablePathCanonical()) {
-            result << Task(Task::Warning,
-                           CMakeTool::nonCanonicalPathToCMakeExecutableWarningMessage(),
-                           Utils::FilePath(),
-                           -1,
-                           Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-        }
     }
     return result;
 }

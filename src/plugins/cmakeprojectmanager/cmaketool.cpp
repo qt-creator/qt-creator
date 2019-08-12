@@ -145,7 +145,7 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
     if (!fromSdk)
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
 
-    setCMakeExecutable(Utils::FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
+    setFilePath(Utils::FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
 }
 
 CMakeTool::~CMakeTool() = default;
@@ -155,7 +155,7 @@ Core::Id CMakeTool::createId()
     return Core::Id::fromString(QUuid::createUuid().toString());
 }
 
-void CMakeTool::setCMakeExecutable(const Utils::FilePath &executable)
+void CMakeTool::setFilePath(const Utils::FilePath &executable)
 {
     if (m_executable == executable)
         return;
@@ -165,6 +165,11 @@ void CMakeTool::setCMakeExecutable(const Utils::FilePath &executable)
 
     m_executable = executable;
     CMakeToolManager::notifyAboutUpdate(this);
+}
+
+Utils::FilePath CMakeTool::filePath() const
+{
+    return m_executable;
 }
 
 void CMakeTool::setAutorun(bool autoRun)
@@ -238,9 +243,9 @@ Utils::FilePath CMakeTool::cmakeExecutable() const
     if (Utils::HostOsInfo::isMacHost() && m_executable.endsWith(".app")) {
         const Utils::FilePath toTest = m_executable.pathAppended("Contents/bin/cmake");
         if (toTest.exists())
-            return toTest;
+            return toTest.canonicalPath();
     }
-    return m_executable;
+    return m_executable.canonicalPath();
 }
 
 bool CMakeTool::isAutoRun() const
@@ -354,25 +359,6 @@ CMakeTool::ReaderType CMakeTool::readerType() const
         return TeaLeaf;
     }
     return m_readerType.value();
-}
-
-bool CMakeTool::isCanonicalPath(const Utils::FilePath &path)
-{
-    const QString canonicalPath = path.toFileInfo().canonicalFilePath();
-    return canonicalPath == path.toString();
-}
-
-bool CMakeTool::isExecutablePathCanonical() const
-{
-    return isCanonicalPath(cmakeExecutable());
-}
-
-QString CMakeTool::nonCanonicalPathToCMakeExecutableWarningMessage()
-{
-    return QCoreApplication::translate(
-        "CMakeProjectManager::CMakeTool",
-        "CMake executable path is not canonical and contains \"..\", \".\" "
-        "or a symbolic link. This might trigger bugs in CMake.");
 }
 
 void CMakeTool::readInformation(CMakeTool::QueryType type) const
