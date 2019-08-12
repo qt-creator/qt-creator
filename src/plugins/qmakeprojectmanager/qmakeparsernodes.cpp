@@ -1785,11 +1785,30 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
         }
     }
 
+    bool tryUnfixified = false;
     foreach (const ProFileEvaluator::SourceFile &el,
              reader->fixifiedValues(QLatin1String("INCLUDEPATH"), projectDir, buildDir.toString(),
                                     false)) {
-        paths << sysrootify(el.fileName, sysroot.toString(), projectDir, buildDir.toString());
+        const QString sysrootifiedPath = sysrootify(el.fileName, sysroot.toString(), projectDir,
+                                                    buildDir.toString());
+        if (IoUtils::exists(sysrootifiedPath))
+            paths << sysrootifiedPath;
+        else
+            tryUnfixified = true;
     }
+
+    // If sysrootifying a fixified path does not yield a valid path, try again with the
+    // unfixified value. This can be necessary for cross-building; see QTCREATORBUG-21164.
+    if (tryUnfixified) {
+        const QStringList rawValues = reader->values("INCLUDEPATH");
+        for (const QString &p : rawValues) {
+            const QString sysrootifiedPath = sysrootify(QDir::cleanPath(p), sysroot.toString(),
+                                                        projectDir, buildDir.toString());
+            if (IoUtils::exists(sysrootifiedPath))
+                paths << sysrootifiedPath;
+        }
+    }
+
     // paths already contains moc dir and ui dir, due to corrrectly parsing uic.prf and moc.prf
     // except if those directories don't exist at the time of parsing
     // thus we add those directories manually (without checking for existence)
