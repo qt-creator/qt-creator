@@ -39,19 +39,20 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/targetsetuppage.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 
 #include <QCoreApplication>
 #include <QVariant>
 
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
 using namespace QtSupport;
+
+namespace QmakeProjectManager {
+namespace Internal {
 
 // -------------------- QtWizard
 QtWizard::QtWizard()
@@ -91,7 +92,7 @@ bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
     const auto *dialog = qobject_cast<const BaseQmakeProjectWizardDialog *>(w);
 
     // Generate user settings
-    foreach (const Core::GeneratedFile &file, generatedFiles)
+    for (const Core::GeneratedFile &file : generatedFiles)
         if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute) {
             dialog->writeUserFile(file.path());
             break;
@@ -229,7 +230,7 @@ void BaseQmakeProjectWizardDialog::setSelectedModules(const QString &modules, bo
 {
     const QStringList modulesList = modules.split(QLatin1Char(' '));
     if (m_modulesPage) {
-        foreach (const QString &module, modulesList) {
+        for (const QString &module : modulesList) {
             m_modulesPage->setModuleSelected(module, true);
             m_modulesPage->setModuleEnabled(module, !lock);
         }
@@ -247,7 +248,7 @@ void BaseQmakeProjectWizardDialog::setDeselectedModules(const QString &modules)
 {
     const QStringList modulesList = modules.split(QLatin1Char(' '));
     if (m_modulesPage) {
-        foreach (const QString &module, modulesList)
+        for (const QString &module : modulesList)
             m_modulesPage->setModuleSelected(module, false);
     } else {
         m_deselectedModules = modulesList;
@@ -267,25 +268,11 @@ bool BaseQmakeProjectWizardDialog::writeUserFile(const QString &proFileName) con
     return success;
 }
 
-bool BaseQmakeProjectWizardDialog::isQtPlatformSelected(Core::Id platform) const
-{
-    QList<Core::Id> selectedKitList = selectedKits();
-
-    return Utils::contains(KitManager::kits(QtKitAspect::platformPredicate(platform)),
-                           [selectedKitList](const Kit *k) { return selectedKitList.contains(k->id()); });
-}
-
 QList<Core::Id> BaseQmakeProjectWizardDialog::selectedKits() const
 {
     if (!m_targetSetupPage)
         return m_profileIds;
     return m_targetSetupPage->selectedKits();
-}
-
-void BaseQmakeProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
-{
-    foreach (QWizardPage *p,wizardPageList)
-        addPage(p);
 }
 
 void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
@@ -297,3 +284,6 @@ void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name, cons
 
     m_targetSetupPage->setProjectPath(Utils::FilePath::fromString(proFile));
 }
+
+} // Internal
+} // QmakeProjectManager

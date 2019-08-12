@@ -124,10 +124,7 @@ public:
     void setDeselectedModules(const QString &);
 
     bool writeUserFile(const QString &proFileName) const;
-    bool isQtPlatformSelected(Core::Id platform) const;
     QList<Core::Id> selectedKits() const;
-
-    void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 
 private:
     void generateProfileName(const QString &name, const QString &path);
