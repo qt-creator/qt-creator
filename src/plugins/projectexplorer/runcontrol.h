@@ -160,6 +160,9 @@ public:
         return [](RunControl *runControl) { return new Worker(runControl); };
     }
 
+    // For debugging only.
+    static void dumpAll();
+
 private:
     WorkerCreator m_producer;
     QList<Core::Id> m_supportedRunModes;

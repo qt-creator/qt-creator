@@ -73,6 +73,9 @@ namespace ProjectExplorer {
 
 static QList<RunWorkerFactory *> g_runWorkerFactories;
 
+static QSet<Core::Id> g_runModes;
+static QSet<Core::Id> g_runConfigs;
+
 RunWorkerFactory::RunWorkerFactory(const WorkerCreator &producer,
                                    const QList<Core::Id> &runModes,
                                    const QList<Core::Id> &runConfigs,
@@ -83,6 +86,12 @@ RunWorkerFactory::RunWorkerFactory(const WorkerCreator &producer,
           m_supportedDeviceTypes(deviceTypes)
 {
     g_runWorkerFactories.append(this);
+
+    // Debugging only.
+    for (Core::Id runMode : runModes)
+        g_runModes.insert(runMode);
+    for (Core::Id runConfig : runConfigs)
+        g_runConfigs.insert(runConfig);
 }
 
 RunWorkerFactory::~RunWorkerFactory()
@@ -117,6 +126,27 @@ bool RunWorkerFactory::canRun(Core::Id runMode,
         return m_supportedDeviceTypes.contains(deviceType);
 
     return true;
+}
+
+void RunWorkerFactory::dumpAll()
+{
+    const QList<Core::Id> devices =
+            Utils::transform(IDeviceFactory::allDeviceFactories(), &IDeviceFactory::deviceType);
+
+    for (Core::Id runMode : qAsConst(g_runModes)) {
+        qDebug() << "";
+        for (Core::Id device : devices) {
+            for (Core::Id runConfig : qAsConst(g_runConfigs)) {
+                const auto check = std::bind(&RunWorkerFactory::canRun,
+                                             std::placeholders::_1,
+                                             runMode,
+                                             device,
+                                             runConfig.toString());
+                const auto factory = Utils::findOrDefault(g_runWorkerFactories, check);
+                qDebug() << "MODE:" << runMode << device << runConfig << factory;
+            }
+        }
+    }
 }
 
 /*!
