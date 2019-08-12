@@ -124,7 +124,7 @@ protected:
 private:
     void applyZoom(double x, double y, const QPoint &pivot = QPoint());
 
-    void insertKeyframe(double time);
+    void insertKeyframe(double time, bool allVisibleCurves = false);
 
     void deleteSelectedKeyframes();
 

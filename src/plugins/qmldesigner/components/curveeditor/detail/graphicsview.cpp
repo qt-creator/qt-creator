@@ -299,6 +299,13 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
     QAction *openEditorAction = menu.addAction(tr("Open Style Editor"));
     connect(openEditorAction, &QAction::triggered, openStyleEditor);
 
+    menu.addSeparator();
+    auto insertKeyframes = [this, event]() {
+        insertKeyframe(globalToRaster(event->globalPos()).x(), true);
+    };
+    QAction *insertKeyframeAction = menu.addAction(tr("Insert Keyframe"));
+    connect(insertKeyframeAction, &QAction::triggered, insertKeyframes);
+
     menu.exec(event->globalPos());
 }
 
@@ -400,12 +407,14 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
     }
 }
 
-void GraphicsView::insertKeyframe(double time)
+void GraphicsView::insertKeyframe(double time, bool allVisibleCurves)
 {
     const auto itemList = items();
     for (auto *item : itemList) {
         if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
-            if (curveItem->isUnderMouse())
+            if (allVisibleCurves)
+                curveItem->insertKeyframeByTime(std::round(time));
+            else if (curveItem->isUnderMouse())
                 curveItem->insertKeyframeByTime(std::round(time));
         }
     }
