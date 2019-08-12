@@ -86,20 +86,6 @@ QList<CMakeTool *> CMakeToolManager::cmakeTools()
     return Utils::toRawPointer<QList>(d->m_cmakeTools);
 }
 
-Id CMakeToolManager::registerOrFindCMakeTool(const FilePath &command)
-{
-    if (CMakeTool  *cmake = findByCommand(command))
-        return cmake->id();
-
-    auto cmake = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, CMakeTool::createId());
-    cmake->setCMakeExecutable(command);
-    cmake->setDisplayName(tr("CMake at %1").arg(command.toUserOutput()));
-
-    Core::Id id = cmake->id();
-    QTC_ASSERT(registerCMakeTool(std::move(cmake)), return Core::Id());
-    return id;
-}
-
 bool CMakeToolManager::registerCMakeTool(std::unique_ptr<CMakeTool> &&tool)
 {
     if (!tool || Utils::contains(d->m_cmakeTools, tool.get()))
