@@ -62,6 +62,8 @@ using namespace ProjectExplorer::Internal;
 
 namespace ProjectExplorer {
 
+const char BUILD_KEY[] = "ProjectExplorer.RunConfiguration.BuildKey";
+
 ///////////////////////////////////////////////////////////////////////
 //
 // ISettingsAspect
@@ -316,6 +318,8 @@ QVariantMap RunConfiguration::toMap() const
 {
     QVariantMap map = ProjectConfiguration::toMap();
 
+    map.insert(BUILD_KEY, m_buildKey);
+
     // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
     if (!m_buildKey.isEmpty()) {
         const Core::Id mangled = id().withSuffix(m_buildKey);
@@ -345,9 +349,13 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
-    const Core::Id mangledId = Core::Id::fromSetting(map.value(settingsIdKey()));
-    m_buildKey = mangledId.suffixAfter(id());
+    m_buildKey = map.value(BUILD_KEY).toString();
+
+    if (m_buildKey.isEmpty()) {
+        // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
+        const Core::Id mangledId = Core::Id::fromSetting(map.value(settingsIdKey()));
+        m_buildKey = mangledId.suffixAfter(id());
+    }
 
     return  true;
 }
