@@ -287,6 +287,7 @@ void CMakeToolItemModel::updateCMakeTool(const Core::Id &id, const QString &disp
 
     treeItem->m_name = displayName;
     treeItem->m_executable = executable;
+    treeItem->m_isAutoRun = autoRun;
     treeItem->m_autoCreateBuildDirectory = autoCreate;
 
     treeItem->updateErrorFlags();
