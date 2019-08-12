@@ -112,11 +112,14 @@ DesignTools::ValueType typeFrom(const QmlTimelineKeyframeGroup &group)
     if (group.valueType() == TypeName("double") || group.valueType() == TypeName("real"))
         return DesignTools::ValueType::Double;
 
-    if (group.valueType() == TypeName("bool"))
+    if (group.valueType() == TypeName("boolean") || group.valueType() == TypeName("bool"))
         return DesignTools::ValueType::Bool;
 
-    if (group.valueType() == TypeName("integer"))
+    if (group.valueType() == TypeName("integer") || group.valueType() == TypeName("int"))
         return DesignTools::ValueType::Integer;
+
+    // Ignoring types:
+    // QColor / HAlignment / VAlignment
 
     return DesignTools::ValueType::Undefined;
 }
