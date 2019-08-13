@@ -50,10 +50,10 @@ class SpotlightIterator : public BaseFileFilter::Iterator
 {
 public:
     SpotlightIterator(const QString &expression);
-    ~SpotlightIterator();
+    ~SpotlightIterator() override;
 
-    void toFront();
-    bool hasNext() const;
+    void toFront() override;
+    bool hasNext() const override;
     Utils::FilePath next() override;
     Utils::FilePath filePath() const override;
 
