@@ -11,11 +11,11 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "CppTools" }
     Depends { name: "DiffEditor" }
 
     pluginRecommends: [
-        "CodePaster"
+        "CodePaster",
+        "CppTools"
     ]
 
     files: [

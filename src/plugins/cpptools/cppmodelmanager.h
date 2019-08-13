@@ -230,6 +230,9 @@ public:
 
     void renameIncludes(const QString &oldFileName, const QString &newFileName);
 
+    // for VcsBaseSubmitEditor
+    Q_INVOKABLE QSet<QString> symbolsInFiles(const QSet<Utils::FilePath> &files) const;
+
 signals:
     /// Project data might be locked while this is emitted.
     void aboutToRemoveFiles(const QStringList &files);

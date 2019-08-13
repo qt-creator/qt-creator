@@ -52,15 +52,16 @@
 #include "followsymbolinterface.h"
 
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/vcsmanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/textdocument.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/vcsmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/session.h>
+#include <texteditor/textdocument.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -511,6 +512,10 @@ CppModelManager::CppModelManager()
     : CppModelManagerBase(nullptr)
     , d(new CppModelManagerPrivate)
 {
+    // Used for weak dependency in VcsBaseSubmitEditor
+    setObjectName("CppModelManager");
+    ExtensionSystem::PluginManager::addObject(this);
+
     d->m_indexingSupporter = nullptr;
     d->m_enableGC = true;
 
@@ -561,6 +566,8 @@ CppModelManager::CppModelManager()
 
 CppModelManager::~CppModelManager()
 {
+    ExtensionSystem::PluginManager::removeObject(this);
+
     delete d->m_internalIndexingSupport;
     delete d;
 }
@@ -1303,6 +1310,60 @@ void CppModelManager::renameIncludes(const QString &oldFileName, const QString &
             file->apply();
         }
     }
+}
+
+// Return the class name which function belongs to
+static const char *belongingClassName(const Function *function)
+{
+    if (!function)
+        return nullptr;
+
+    if (auto funcName = function->name()) {
+        if (auto qualifiedNameId = funcName->asQualifiedNameId()) {
+            if (const Name *funcBaseName = qualifiedNameId->base()) {
+                if (auto identifier = funcBaseName->identifier())
+                    return identifier->chars();
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+QSet<QString> CppModelManager::symbolsInFiles(const QSet<Utils::FilePath> &files) const
+{
+    QSet<QString> uniqueSymbols;
+    const Snapshot cppSnapShot = snapshot();
+
+    // Iterate over the files and get interesting symbols
+    for (const Utils::FilePath &file : files) {
+        // Add symbols from the C++ code model
+        const CPlusPlus::Document::Ptr doc = cppSnapShot.document(file);
+        if (!doc.isNull() && doc->control()) {
+            const CPlusPlus::Control *ctrl = doc->control();
+            CPlusPlus::Symbol **symPtr = ctrl->firstSymbol(); // Read-only
+            while (symPtr != ctrl->lastSymbol()) {
+                const CPlusPlus::Symbol *sym = *symPtr;
+
+                const CPlusPlus::Identifier *symId = sym->identifier();
+                // Add any class, function or namespace identifiers
+                if ((sym->isClass() || sym->isFunction() || sym->isNamespace()) && symId
+                    && symId->chars()) {
+                    uniqueSymbols.insert(QString::fromUtf8(symId->chars()));
+                }
+
+                // Handle specific case : get "Foo" in "void Foo::function() {}"
+                if (sym->isFunction() && !sym->asFunction()->isDeclaration()) {
+                    const char *className = belongingClassName(sym->asFunction());
+                    if (className)
+                        uniqueSymbols.insert(QString::fromUtf8(className));
+                }
+
+                ++symPtr;
+            }
+        }
+    }
+    return uniqueSymbols;
 }
 
 void CppModelManager::onCoreAboutToClose()

@@ -36,11 +36,13 @@
 #include "vcsplugin.h"
 
 #include <aggregation/aggregate.h>
-#include <cpptools/cppmodelmanager.h>
 
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <extensionsystem/invoker.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -78,30 +80,9 @@ enum { debug = 0 };
 enum { wantToolBar = 0 };
 
 // Return true if word is meaningful and can be added to a completion model
-static bool acceptsWordForCompletion(const char *word)
+static bool acceptsWordForCompletion(const QString &word)
 {
-    if (!word)
-        return false;
-    static const std::size_t minWordLength = 7;
-    return std::strlen(word) >= minWordLength;
-}
-
-// Return the class name which function belongs to
-static const char *belongingClassName(const CPlusPlus::Function *function)
-{
-    if (!function)
-        return nullptr;
-
-    if (auto funcName = function->name()) {
-        if (auto qualifiedNameId =  funcName->asQualifiedNameId()) {
-            if (const CPlusPlus::Name *funcBaseName = qualifiedNameId->base()) {
-                if (auto identifier = funcBaseName->identifier())
-                    return identifier->chars();
-            }
-        }
-    }
-
-    return nullptr;
+    return word.size() >= 7;
 }
 
 /*!
@@ -407,6 +388,17 @@ QStringList VcsBaseSubmitEditor::checkedFiles() const
     return d->m_widget->checkedFiles();
 }
 
+static QSet<FilePath> filesFromModel(SubmitFileModel *model)
+{
+    QSet<FilePath> result;
+    result.reserve(model->rowCount());
+    for (int row = 0; row < model->rowCount(); ++row) {
+        result.insert(FilePath::fromString(
+            QFileInfo(model->repositoryRoot(), model->file(row)).absoluteFilePath()));
+    }
+    return result;
+}
+
 void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
 {
     QTC_ASSERT(model, return);
@@ -421,49 +413,21 @@ void VcsBaseSubmitEditor::setFileModel(SubmitFileModel *model)
     if (!selected.isEmpty())
         d->m_widget->setSelectedRows(selected);
 
-    QSet<QString> uniqueSymbols;
-    const CPlusPlus::Snapshot cppSnapShot = CppTools::CppModelManager::instance()->snapshot();
-
-    // Iterate over the files and get interesting symbols
-    for (int row = 0; row < model->rowCount(); ++row) {
-        const QFileInfo fileInfo(model->repositoryRoot(), model->file(row));
-
-        // Add file name
-        uniqueSymbols.insert(fileInfo.fileName());
-
-        const QString filePath = fileInfo.absoluteFilePath();
-        // Add symbols from the C++ code model
-        const CPlusPlus::Document::Ptr doc = cppSnapShot.document(filePath);
-        if (!doc.isNull() && doc->control()) {
-            const CPlusPlus::Control *ctrl = doc->control();
-            CPlusPlus::Symbol **symPtr = ctrl->firstSymbol(); // Read-only
-            while (symPtr != ctrl->lastSymbol()) {
-                const CPlusPlus::Symbol *sym = *symPtr;
-
-                const CPlusPlus::Identifier *symId = sym->identifier();
-                // Add any class, function or namespace identifiers
-                if ((sym->isClass() || sym->isFunction() || sym->isNamespace())
-                        && (symId && acceptsWordForCompletion(symId->chars())))
-                {
-                    uniqueSymbols.insert(QString::fromUtf8(symId->chars()));
-                }
-
-                // Handle specific case : get "Foo" in "void Foo::function() {}"
-                if (sym->isFunction() && !sym->asFunction()->isDeclaration()) {
-                    const char *className = belongingClassName(sym->asFunction());
-                    if (acceptsWordForCompletion(className))
-                        uniqueSymbols.insert(QString::fromUtf8(className));
-                }
-
-                ++symPtr;
-            }
-        }
+    const QSet<FilePath> files = filesFromModel(model);
+    // add file names to completion
+    QSet<QString> completionItems = Utils::transform(files, &FilePath::fileName);
+    QObject *cppModelManager = ExtensionSystem::PluginManager::getObjectByName("CppModelManager");
+    if (cppModelManager) {
+        const auto symbols = ExtensionSystem::invoke<QSet<QString>>(cppModelManager,
+                                                                    "symbolsInFiles",
+                                                                    files);
+        completionItems += Utils::filtered(symbols, acceptsWordForCompletion);
     }
 
     // Populate completer with symbols
-    if (!uniqueSymbols.isEmpty()) {
+    if (!completionItems.isEmpty()) {
         QCompleter *completer = d->m_widget->descriptionEdit()->completer();
-        QStringList symbolsList = Utils::toList(uniqueSymbols);
+        QStringList symbolsList = Utils::toList(completionItems);
         symbolsList.sort();
         completer->setModel(new QStringListModel(symbolsList, completer));
     }

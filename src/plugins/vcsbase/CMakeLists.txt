@@ -1,6 +1,6 @@
 add_qtc_plugin(VcsBase
-  PLUGIN_DEPENDS Core CppTools DiffEditor ProjectExplorer TextEditor
-  PLUGIN_RECOMMENDS CodePaster
+  PLUGIN_DEPENDS Core DiffEditor ProjectExplorer TextEditor
+  PLUGIN_RECOMMENDS CodePaster CppTools
   SOURCES
     baseannotationhighlighter.cpp baseannotationhighlighter.h
     basevcseditorfactory.cpp basevcseditorfactory.h
