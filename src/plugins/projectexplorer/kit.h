@@ -146,9 +146,8 @@ private:
     static void copyKitCommon(Kit *target, const Kit *source);
     void setSdkProvided(bool sdkProvided);
 
-    // Unimplemented.
-    Kit(const Kit &other);
-    void operator=(const Kit &other);
+    Kit(const Kit &other) = delete;
+    void operator=(const Kit &other) = delete;
 
     void kitUpdated();
 
