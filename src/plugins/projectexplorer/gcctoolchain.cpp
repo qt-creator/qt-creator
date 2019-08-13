@@ -531,7 +531,8 @@ QStringList GccToolChain::gccPrepareArguments(const QStringList &flags,
         const QString &flag = allFlags.at(i);
         if (flag.startsWith("-stdlib=") || flag.startsWith("--gcc-toolchain=")
             || flag.startsWith("-B") || flag.startsWith("--target=")
-            || (flag.startsWith("-isystem") && flag.length() > 8)) {
+            || (flag.startsWith("-isystem") && flag.length() > 8)
+            || flag == "-nostdinc" || flag == "-nostdinc++") {
             arguments << flag;
         } else if ((flag == "-target" || flag == "-gcc-toolchain" || flag == "-isystem"
                     || flag == "-arch")
