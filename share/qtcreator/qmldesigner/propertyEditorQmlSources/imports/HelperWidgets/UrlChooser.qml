@@ -37,7 +37,6 @@ RowLayout {
 
     property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg"
 
-
     FileResourcesModel {
         modelNodeBackendProperty: modelNodeBackend
         filter: urlChooser.filter
@@ -63,15 +62,20 @@ RowLayout {
 
         property bool isComplete: false
 
+        property bool dirty: false
+
+        onEditTextChanged: comboBox.dirty = true
+
         function setCurrentText(text) {
             if (text === "")
                 return
 
-
-            var index = comboBox.find(textValue)
+            var index = comboBox.find(text)
             if (index === -1)
                 currentIndex = -1
-            editText = textValue
+
+            editText = text
+            comboBox.dirty = false
         }
 
         property string textValue: {
@@ -81,9 +85,7 @@ RowLayout {
             return backendValue.valueToString
         }
 
-        onTextValueChanged: {
-            setCurrentText(textValue)
-        }
+        onTextValueChanged: setCurrentText(textValue)
 
         Layout.fillWidth: true
 
@@ -97,25 +99,41 @@ RowLayout {
 
             setCurrentText(textValue)
         }
+
         onAccepted: {
             if (!comboBox.isComplete)
                 return;
 
-            if (backendValue.value !== currentText)
-                backendValue.value = currentText;
+            if (backendValue.value !== editText)
+                backendValue.value = editText;
+
+            comboBox.dirty = false
         }
 
-        onActivated: {
-            var cText = textAt(index)
-            print(cText)
-            if (backendValue === undefined)
+        onFocusChanged: {
+            if (comboBox.dirty)
+               handleActivate(comboBox.currentIndex)
+        }
+
+        onActivated: handleActivate(index)
+
+        function handleActivate(index)
+        {
+            var cText = comboBox.textAt(index)
+
+            if (index === -1)
+                cText = comboBox.editText
+
+            if (urlChooser.backendValue === undefined)
                 return;
 
             if (!comboBox.isComplete)
                 return;
 
-            if (backendValue.value !== cText)
-                backendValue.value = cText;
+            if (urlChooser.backendValue.value !== cText)
+                urlChooser.backendValue.value = cText;
+
+            comboBox.dirty = false
         }
 
         Component.onCompleted: {
