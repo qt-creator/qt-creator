@@ -50,8 +50,6 @@ public:
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
-    bool validProjectFile() const;
-
     enum RefreshOption {
         ProjectFile   = 0x01,
         Files         = 0x02,

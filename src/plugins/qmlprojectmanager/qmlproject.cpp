@@ -213,11 +213,6 @@ Utils::EnvironmentItems QmlProject::environment() const
     return {};
 }
 
-bool QmlProject::validProjectFile() const
-{
-    return !m_projectItem.isNull();
-}
-
 QStringList QmlProject::customImportPaths() const
 {
     if (m_projectItem)
