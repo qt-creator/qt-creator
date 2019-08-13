@@ -58,7 +58,6 @@ public:
     explicit CompilationDatabaseProject(const Utils::FilePath &filename);
     ~CompilationDatabaseProject() override;
     bool needsConfiguration() const override { return false; }
-    bool needsBuildConfigurations() const override { return true; }
 
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;

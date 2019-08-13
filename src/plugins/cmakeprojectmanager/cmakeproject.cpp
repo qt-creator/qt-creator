@@ -112,6 +112,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setDisplayName(projectDirectory().fileName());
     setCanBuildProducts();
     setKnowsAllBuildExecutables(false);
+    setHasMakeInstallEquivalent(true);
 
     // Timer:
     m_delayedParsingTimer.setSingleShot(true);

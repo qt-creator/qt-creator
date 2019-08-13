@@ -75,6 +75,8 @@ AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName) :
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
+
+    setHasMakeInstallEquivalent(true);
 }
 
 AutotoolsProject::~AutotoolsProject()

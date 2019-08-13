@@ -67,6 +67,8 @@ QmlProject::QmlProject(const Utils::FilePath &fileName) :
     setId(QmlProjectManager::Constants::QML_PROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
+
+    setNeedsBuildConfigurations(false);
 }
 
 QmlProject::~QmlProject()
@@ -240,11 +242,6 @@ bool QmlProject::addFiles(const QStringList &filePaths)
 void QmlProject::refreshProjectFile()
 {
     refresh(QmlProject::ProjectFile | Files);
-}
-
-bool QmlProject::needsBuildConfigurations() const
-{
-    return false;
 }
 
 QStringList QmlProject::makeAbsolute(const Utils::FilePath &path, const QStringList &relativePaths)

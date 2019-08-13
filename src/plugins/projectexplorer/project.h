@@ -157,7 +157,7 @@ public:
     void setNamedSettings(const QString &name, const QVariant &value);
 
     virtual bool needsConfiguration() const;
-    virtual bool needsBuildConfigurations() const;
+    bool needsBuildConfigurations() const;
     virtual void configureAsExampleProject();
 
     virtual ProjectImporter *projectImporter() const;
@@ -170,7 +170,7 @@ public:
     bool knowsAllBuildExecutables() const;
 
     virtual DeploymentKnowledge deploymentKnowledge() const { return DeploymentKnowledge::Bad; }
-    virtual bool hasMakeInstallEquivalent() const { return false; }
+    bool hasMakeInstallEquivalent() const;
     virtual MakeInstallCommand makeInstallCommand(const Target *target, const QString &installRoot);
 
     void setup(const QList<BuildInfo> &infoList);
@@ -301,9 +301,11 @@ protected:
     void addProjectLanguage(Core::Id id);
     void removeProjectLanguage(Core::Id id);
     void setProjectLanguage(Core::Id id, bool enabled);
+    void setHasMakeInstallEquivalent(bool enabled);
     virtual void projectLoaded(); // Called when the project is fully loaded.
 
     void setKnowsAllBuildExecutables(bool value);
+    void setNeedsBuildConfigurations(bool value);
 
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);

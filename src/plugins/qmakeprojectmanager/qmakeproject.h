@@ -122,7 +122,6 @@ protected:
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
-    bool hasMakeInstallEquivalent() const override { return true; }
 
     void asyncUpdate();
     void buildFinished(bool success);

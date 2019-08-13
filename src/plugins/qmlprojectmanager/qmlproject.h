@@ -75,8 +75,6 @@ public:
 
     void refreshProjectFile();
 
-    bool needsBuildConfigurations() const final;
-
     static QStringList makeAbsolute(const Utils::FilePath &path, const QStringList &relativePaths);
 
     QVariant additionalData(Core::Id id, const ProjectExplorer::Target *target) const override;

@@ -95,7 +95,6 @@ public:
     void refresh(Target *target = nullptr);
 
     bool needsConfiguration() const final { return false; }
-    bool needsBuildConfigurations() const final { return false; }
 
     bool writePyProjectFile(const QString &fileName, QString &content,
                             const QStringList &rawList, QString *errorMessage);
@@ -408,6 +407,8 @@ PythonProject::PythonProject(const FilePath &fileName) :
     setId(PythonProjectId);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
+
+    setNeedsBuildConfigurations(false);
 }
 
 static QStringList readLines(const Utils::FilePath &projectFile)

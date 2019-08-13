@@ -130,6 +130,7 @@ QmakeProject::QmakeProject(const FilePath &fileName) :
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
     setCanBuildProducts();
+    setHasMakeInstallEquivalent(true);
 
     const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
     m_qmakeVfs->setTextCodec(codec);

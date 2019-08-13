@@ -60,8 +60,6 @@ protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
 private:
-    bool hasMakeInstallEquivalent() const override { return true; }
-
     /**
      *  Loads the project tree by parsing the makefiles.
      */
