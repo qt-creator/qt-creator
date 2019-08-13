@@ -83,13 +83,6 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl) :
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("CMake Build"));
 
-    auto bc = qobject_cast<CMakeBuildConfiguration *>(bsl->parent());
-    if (!bc) {
-        auto t = qobject_cast<Target *>(bsl->parent()->parent());
-        QTC_ASSERT(t, return);
-        bc = qobject_cast<CMakeBuildConfiguration *>(t->activeBuildConfiguration());
-    }
-
     // Set a good default build target:
     if (m_buildTarget.isEmpty())
         setBuildTarget(defaultBuildTarget());
