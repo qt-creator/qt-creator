@@ -61,6 +61,8 @@ class QmlPreviewPlugin : public ExtensionSystem::IPlugin
     Q_PROPERTY(QString locale READ locale WRITE setLocale NOTIFY localeChanged)
 
 public:
+    ~QmlPreviewPlugin() override;
+
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
@@ -101,28 +103,7 @@ signals:
     void localeChanged(const QString &locale);
 
 private:
-    void previewCurrentFile();
-    void onEditorChanged(Core::IEditor *editor);
-    void onEditorAboutToClose(Core::IEditor *editor);
-    void setDirty();
-    void addPreview(ProjectExplorer::RunControl *preview);
-    void removePreview(ProjectExplorer::RunControl *preview);
-    void attachToEditor();
-    void checkEditor();
-    void checkFile(const QString &fileName);
-    void triggerPreview(const QString &changedFile, const QByteArray &contents);
-
-    QThread m_parseThread;
-    QString m_previewedFile;
-    QmlPreviewFileLoader m_fileLoader = nullptr;
-    Core::IEditor *m_lastEditor = nullptr;
-    QmlPreviewRunControlList m_runningPreviews;
-    bool m_dirty = false;
-    QmlPreview::QmlPreviewFileClassifier m_fileClassifer = nullptr;
-    float m_zoomFactor = -1.0;
-    QmlPreview::QmlPreviewFpsHandler m_fpsHandler = nullptr;
-    QString m_locale;
-    std::unique_ptr<ProjectExplorer::RunWorkerFactory> m_runWorkerFactory;
+    class QmlPreviewPluginPrivate *d = nullptr;
 };
 
 } // namespace Internal
