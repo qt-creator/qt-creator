@@ -141,7 +141,6 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     const auto itemList = items();
     for (auto *item : itemList) {
         if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
-
             // CurveItems might become invalid after a keyframe-drag operation.
             curveItem->restore();
 
@@ -155,6 +154,9 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
             }
         }
     }
+
+    if (m_dirty)
+        graphicsView()->setZoomY(0.0);
 }
 
 bool GraphicsScene::hasActiveKeyframe() const

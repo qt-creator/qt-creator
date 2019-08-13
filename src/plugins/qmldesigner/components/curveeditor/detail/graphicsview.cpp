@@ -333,8 +333,6 @@ void GraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
     painter->fillRect(scene()->sceneRect(), m_style.backgroundAlternateBrush);
 
     drawGrid(painter, rect);
-    drawExtremaX(painter, rect);
-    drawExtremaY(painter, rect);
 }
 
 int GraphicsView::mapTimeToX(double time) const
@@ -456,6 +454,7 @@ void GraphicsView::drawGrid(QPainter *painter, const QRectF &rect)
     painter->restore();
 }
 
+#if 0
 void GraphicsView::drawExtremaX(QPainter *painter, const QRectF &rect)
 {
     auto drawVerticalLine = [rect, painter](double position) {
@@ -485,6 +484,7 @@ void GraphicsView::drawExtremaY(QPainter *painter, const QRectF &rect)
 
     painter->restore();
 }
+#endif
 
 void GraphicsView::drawTimeScale(QPainter *painter, const QRectF &rect)
 {

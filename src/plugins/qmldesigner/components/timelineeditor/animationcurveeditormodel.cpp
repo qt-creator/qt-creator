@@ -56,31 +56,35 @@ DesignTools::CurveEditorStyle AnimationCurveEditorModel::style() const
 {
     // Pseudo auto generated. See: CurveEditorStyleDialog
     DesignTools::CurveEditorStyle out;
-    out.backgroundBrush = QBrush(QColor(55, 55, 55));
-    out.backgroundAlternateBrush = QBrush(QColor(0, 0, 50));
+    out.backgroundBrush = QBrush(QColor(21, 21, 21));
+    out.backgroundAlternateBrush = QBrush(QColor(32, 32, 32));
     out.fontColor = QColor(255, 255, 255);
     out.gridColor = QColor(114, 116, 118);
     out.canvasMargin = 15;
     out.zoomInWidth = 99;
     out.zoomInHeight = 99;
-    out.timeAxisHeight = 40;
+    out.timeAxisHeight = 60;
     out.timeOffsetLeft = 10;
     out.timeOffsetRight = 10;
-    out.rangeBarColor = QColor(46, 47, 48);
+    out.rangeBarColor = QColor(50, 50, 255);
     out.rangeBarCapsColor = QColor(50, 50, 255);
     out.valueAxisWidth = 60;
     out.valueOffsetTop = 10;
     out.valueOffsetBottom = 10;
-    out.handleStyle.size = 12;
+    out.handleStyle.size = 10;
     out.handleStyle.lineWidth = 1;
     out.handleStyle.color = QColor(255, 255, 255);
     out.handleStyle.selectionColor = QColor(255, 255, 255);
-    out.keyframeStyle.size = 13;
+    out.keyframeStyle.size = 14;
     out.keyframeStyle.color = QColor(172, 210, 255);
     out.keyframeStyle.selectionColor = QColor(255, 255, 255);
-    out.curveStyle.width = 1;
+    out.curveStyle.width = 2;
     out.curveStyle.color = QColor(0, 200, 0);
     out.curveStyle.selectionColor = QColor(255, 255, 255);
+    out.treeItemStyle.margins = 0;
+    out.playhead.width = 20;
+    out.playhead.radius = 4;
+    out.playhead.color = QColor(200, 200, 0);
     return out;
 }
 

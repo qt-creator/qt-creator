@@ -130,9 +130,11 @@ private:
 
     void drawGrid(QPainter *painter, const QRectF &rect);
 
+#if 0
     void drawExtremaX(QPainter *painter, const QRectF &rect);
 
     void drawExtremaY(QPainter *painter, const QRectF &rect);
+#endif
 
     void drawTimeScale(QPainter *painter, const QRectF &rect);
 
