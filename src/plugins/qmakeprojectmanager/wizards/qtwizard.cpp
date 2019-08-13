@@ -25,8 +25,6 @@
 
 #include "qtwizard.h"
 
-#include "modulespage.h"
-
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanager.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
@@ -124,8 +122,7 @@ CustomQmakeProjectWizard::CustomQmakeProjectWizard() = default;
 Core::BaseFileWizard *CustomQmakeProjectWizard::create(QWidget *parent,
                                           const Core::WizardDialogParameters &parameters) const
 {
-    auto *wizard = new BaseQmakeProjectWizardDialog(this, false, parent,
-                                                                            parameters);
+    auto *wizard = new BaseQmakeProjectWizardDialog(this, parent, parameters);
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         wizard->addTargetSetupPage(targetPageId);
@@ -143,7 +140,6 @@ bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::G
 // ----------------- BaseQmakeProjectWizardDialog
 BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
     const Core::BaseFileWizardFactory *factory,
-    bool showModulesPage,
     QWidget *parent,
     const Core::WizardDialogParameters &parameters)
     : ProjectExplorer::BaseProjectWizardDialog(factory, parent, parameters)
@@ -153,12 +149,12 @@ BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
                                         .toStringList(),
                                     &Core::Id::fromString);
 
-    init(showModulesPage);
+    connect(this, &BaseProjectWizardDialog::projectParametersChanged,
+            this, &BaseQmakeProjectWizardDialog::generateProfileName);
 }
 
 BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
     const Core::BaseFileWizardFactory *factory,
-    bool showModulesPage,
     Utils::ProjectIntroPage *introPage,
     int introId,
     QWidget *parent,
@@ -169,35 +165,14 @@ BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(
                                         .value(ProjectExplorer::Constants::PROJECT_KIT_IDS)
                                         .toStringList(),
                                     &Core::Id::fromString);
-    init(showModulesPage);
+    connect(this, &BaseProjectWizardDialog::projectParametersChanged,
+            this, &BaseQmakeProjectWizardDialog::generateProfileName);
 }
 
 BaseQmakeProjectWizardDialog::~BaseQmakeProjectWizardDialog()
 {
     if (m_targetSetupPage && !m_targetSetupPage->parent())
         delete m_targetSetupPage;
-    if (m_modulesPage && !m_modulesPage->parent())
-        delete m_modulesPage;
-}
-
-void BaseQmakeProjectWizardDialog::init(bool showModulesPage)
-{
-    if (showModulesPage)
-        m_modulesPage = new ModulesPage;
-    connect(this, &BaseProjectWizardDialog::projectParametersChanged,
-            this, &BaseQmakeProjectWizardDialog::generateProfileName);
-}
-
-int BaseQmakeProjectWizardDialog::addModulesPage(int id)
-{
-    if (!m_modulesPage)
-        return -1;
-    if (id >= 0) {
-        setPage(id, m_modulesPage);
-        return id;
-    }
-    const int newId = addPage(m_modulesPage);
-    return newId;
 }
 
 int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
@@ -219,40 +194,6 @@ int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
         id = addPage(m_targetSetupPage);
 
     return id;
-}
-
-QStringList BaseQmakeProjectWizardDialog::selectedModulesList() const
-{
-    return m_modulesPage ? m_modulesPage->selectedModulesList() : m_selectedModules;
-}
-
-void BaseQmakeProjectWizardDialog::setSelectedModules(const QString &modules, bool lock)
-{
-    const QStringList modulesList = modules.split(QLatin1Char(' '));
-    if (m_modulesPage) {
-        for (const QString &module : modulesList) {
-            m_modulesPage->setModuleSelected(module, true);
-            m_modulesPage->setModuleEnabled(module, !lock);
-        }
-    } else {
-        m_selectedModules = modulesList;
-    }
-}
-
-QStringList BaseQmakeProjectWizardDialog::deselectedModulesList() const
-{
-    return m_modulesPage ? m_modulesPage->deselectedModulesList() : m_deselectedModules;
-}
-
-void BaseQmakeProjectWizardDialog::setDeselectedModules(const QString &modules)
-{
-    const QStringList modulesList = modules.split(QLatin1Char(' '));
-    if (m_modulesPage) {
-        for (const QString &module : modulesList)
-            m_modulesPage->setModuleSelected(module, false);
-    } else {
-        m_deselectedModules = modulesList;
-    }
 }
 
 bool BaseQmakeProjectWizardDialog::writeUserFile(const QString &proFileName) const

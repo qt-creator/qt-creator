@@ -40,8 +40,6 @@ class QmakeProject;
 
 namespace Internal {
 
-class ModulesPage;
-
 /* Base class for wizard creating Qt projects using QtProjectParameters.
  * To implement a project wizard, overwrite:
  * - createWizardDialog() to create up the dialog
@@ -104,24 +102,16 @@ class BaseQmakeProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDi
     Q_OBJECT
 protected:
     explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                          bool showModulesPage,
                                           Utils::ProjectIntroPage *introPage,
                                           int introId, QWidget *parent,
                                           const Core::WizardDialogParameters &parameters);
 public:
     explicit BaseQmakeProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
-                                          bool showModulesPage, QWidget *parent,
+                                          QWidget *parent,
                                           const Core::WizardDialogParameters &parameters);
     ~BaseQmakeProjectWizardDialog() override;
 
-    int addModulesPage(int id = -1);
     int addTargetSetupPage(int id = -1);
-
-    QStringList selectedModulesList() const;
-    void setSelectedModules(const QString &, bool lock = false);
-
-    QStringList deselectedModulesList() const;
-    void setDeselectedModules(const QString &);
 
     bool writeUserFile(const QString &proFileName) const;
     QList<Core::Id> selectedKits() const;
@@ -129,12 +119,7 @@ public:
 private:
     void generateProfileName(const QString &name, const QString &path);
 
-    inline void init(bool showModulesPage);
-
-    ModulesPage *m_modulesPage = nullptr;
     ProjectExplorer::TargetSetupPage *m_targetSetupPage = nullptr;
-    QStringList m_selectedModules;
-    QStringList m_deselectedModules;
     QList<Core::Id> m_profileIds;
 };
 

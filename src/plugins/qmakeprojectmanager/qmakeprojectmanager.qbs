@@ -77,7 +77,6 @@ Project {
             prefix: "wizards/"
             files: [
                 "filespage.cpp", "filespage.h",
-                "modulespage.cpp", "modulespage.h",
                 "qtprojectparameters.cpp", "qtprojectparameters.h",
                 "qtwizard.cpp", "qtwizard.h",
                 "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
