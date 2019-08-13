@@ -167,7 +167,7 @@ public:
     static KitManager *instance();
     ~KitManager() override;
 
-    static const QList<Kit *> kits(const Kit::Predicate &predicate = Kit::Predicate());
+    static const QList<Kit *> kits();
     static Kit *kit(const Kit::Predicate &predicate);
     static Kit *kit(Core::Id id);
     static Kit *defaultKit();

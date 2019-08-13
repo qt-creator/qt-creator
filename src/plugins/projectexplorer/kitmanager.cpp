@@ -430,13 +430,10 @@ static KitList restoreKitsHelper(const FilePath &fileName)
     return result;
 }
 
-const QList<Kit *> KitManager::kits(const Kit::Predicate &predicate)
+const QList<Kit *> KitManager::kits()
 {
-    const QList<Kit *> result = Utils::toRawPointer<QList>(d->m_kitList);
-    if (predicate)
-        return Utils::filtered(result, predicate);
-    return result;
- }
+    return Utils::toRawPointer<QList>(d->m_kitList);
+}
 
 Kit *KitManager::kit(Id id)
 {

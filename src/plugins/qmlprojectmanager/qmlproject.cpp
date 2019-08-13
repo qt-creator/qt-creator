@@ -328,7 +328,7 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
 
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
-        const QList<Kit*> kits = KitManager::kits([this](const Kit *k) {
+        const QList<Kit*> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
             return !containsType(projectIssues(k), Task::TaskType::Error);
         });
 

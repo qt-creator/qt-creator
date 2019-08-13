@@ -733,8 +733,10 @@ void ToolChainKitAspect::kitsWereLoaded()
 
 void ToolChainKitAspect::toolChainUpdated(ToolChain *tc)
 {
-    for (Kit *k : KitManager::kits([tc](const Kit *k) { return toolChain(k, tc->language()) == tc; }))
-        notifyAboutUpdate(k);
+    for (Kit *k : KitManager::kits()) {
+        if (toolChain(k, tc->language()) == tc)
+            notifyAboutUpdate(k);
+    }
 }
 
 void ToolChainKitAspect::toolChainRemoved(ToolChain *tc)
