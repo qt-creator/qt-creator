@@ -27,50 +27,30 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
-
-#include <utils/fileutils.h>
+#include <projectexplorer/buildsystem.h>
 
 namespace Utils { class FileSystemWatcher; }
 
 namespace CppTools { class CppProjectUpdater; }
 
 namespace AutotoolsProjectManager {
+
 namespace Internal {
 
 class MakefileParserThread;
 
-/**
- * @brief Implementation of the ProjectExplorer::Project interface.
- *
- * Loads the autotools project and embeds it into the QtCreator project tree.
- * The class AutotoolsProject is the core of the autotools project plugin.
- * It is responsible to parse the Makefile.am files and do trigger project
- * updates if a Makefile.am file or a configure.ac file has been changed.
- */
-class AutotoolsProject : public ProjectExplorer::Project
+class AutotoolsBuildSystem : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
 public:
-    explicit AutotoolsProject(const Utils::FilePath &fileName);
-    ~AutotoolsProject() override;
+    explicit AutotoolsBuildSystem(ProjectExplorer::Project *project);
+    ~AutotoolsBuildSystem() override;
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    void parseProject(ParsingContext &&ctx) final;
 
 private:
-    /**
-     *  Loads the project tree by parsing the makefiles.
-     */
-    void loadProjectTree();
-
-    /**
-     * Is invoked when the makefile parsing by m_makefileParserThread has
-     * been started. Turns the mouse cursor into a busy cursor.
-     */
-    void makefileParsingStarted();
-
     /**
      * Is invoked when the makefile parsing by m_makefileParserThread has
      * been finished. Adds all sources and files into the project tree and

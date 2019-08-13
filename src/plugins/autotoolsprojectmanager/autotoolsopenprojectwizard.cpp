@@ -29,10 +29,9 @@
 
 #include <utils/pathchooser.h>
 
-#include <QVBoxLayout>
+#include <QDir>
 #include <QFormLayout>
 #include <QLabel>
-#include <QDir>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;

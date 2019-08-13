@@ -26,23 +26,16 @@
 ****************************************************************************/
 
 #include "configurestep.h"
-#include "autotoolsproject.h"
+
 #include "autotoolsbuildconfiguration.h"
 #include "autotoolsprojectconstants.h"
 
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/processparameters.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <utils/qtcprocess.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 
-#include <QVariantMap>
 #include <QDateTime>
-#include <QLineEdit>
-#include <QFormLayout>
+#include <QDir>
 
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
@@ -55,7 +48,7 @@ using namespace Utils;
 static QString projectDirRelativeToBuildDir(BuildConfiguration *bc) {
     const QDir buildDir(bc->buildDirectory().toString());
     QString projDirToBuildDir = buildDir.relativeFilePath(
-                bc->target()->project()->projectDirectory().toString());
+        bc->project()->projectDirectory().toString());
     if (projDirToBuildDir.isEmpty())
         return QString("./");
     if (!projDirToBuildDir.endsWith('/'))
@@ -106,7 +99,6 @@ ConfigureStep::ConfigureStep(BuildStepList *bsl)
 
         return param.summaryInWorkdir(displayName());
     });
-
 }
 
 bool ConfigureStep::init()

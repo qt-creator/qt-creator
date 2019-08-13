@@ -30,10 +30,9 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QFile>
 #include <QDir>
-#include <QFileInfoList>
-#include <QMutexLocker>
+#include <QFile>
+#include <QFileInfo>
 
 using namespace AutotoolsProjectManager::Internal;
 
@@ -49,7 +48,7 @@ bool MakefileParser::parse()
 {
     m_mutex.lock();
     m_cancel = false;
-    m_mutex.unlock(),
+    m_mutex.unlock();
 
     m_success = true;
     m_executable.clear();

@@ -25,66 +25,35 @@
 **
 ****************************************************************************/
 
-#include "autotoolsproject.h"
-#include "autotoolsbuildconfiguration.h"
-#include "autotoolsprojectconstants.h"
-#include "autotoolsopenprojectwizard.h"
-#include "makestep.h"
-#include "makefileparserthread.h"
+#include "autotoolsbuildsystem.h"
 
-#include <projectexplorer/abi.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/headerpath.h>
-#include <extensionsystem/pluginmanager.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/projectinfo.h>
+#include "makefileparserthread.h"
+#include "makestep.h"
+
 #include <cpptools/cppprojectupdater.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
-#include <qtsupport/baseqtversion.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/target.h>
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
+
 #include <utils/filesystemwatcher.h>
 
-#include <QFileInfo>
-#include <QTimer>
-#include <QPointer>
-#include <QApplication>
-#include <QCursor>
-#include <QLabel>
-#include <QPushButton>
-#include <QVBoxLayout>
-
-using namespace AutotoolsProjectManager;
-using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName)
-    : Project(Constants::MAKEFILE_MIMETYPE, fileName)
+namespace AutotoolsProjectManager {
+namespace Internal {
+
+AutotoolsBuildSystem::AutotoolsBuildSystem(Project *project)
+    : BuildSystem(project)
     , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
-    setId(Constants::AUTOTOOLS_PROJECT_ID);
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setDisplayName(projectDirectory().fileName());
+    connect(project, &Project::activeBuildConfigurationChanged, this, [this]() { requestParse(); });
 
-    setHasMakeInstallEquivalent(true);
-
-    connect(this, &AutotoolsProject::projectFileIsDirty, this, &AutotoolsProject::loadProjectTree);
+    connect(project, &Project::projectFileIsDirty, this, [this]() { requestParse(); });
 }
 
-AutotoolsProject::~AutotoolsProject()
+AutotoolsBuildSystem::~AutotoolsBuildSystem()
 {
     delete m_cppCodeModelUpdater;
-
-    setRootProjectNode(nullptr);
 
     if (m_makefileParserThread) {
         m_makefileParserThread->wait();
@@ -93,64 +62,41 @@ AutotoolsProject::~AutotoolsProject()
     }
 }
 
-// This function, is called at the very beginning, to
-// restore the settings if there are some stored.
-Project::RestoreResult AutotoolsProject::fromMap(const QVariantMap &map, QString *errorMessage)
-{
-    RestoreResult result = Project::fromMap(map, errorMessage);
-    if (result != RestoreResult::Ok)
-        return result;
-
-    // Load the project tree structure.
-    loadProjectTree();
-
-    if (!activeTarget())
-        addTargetForDefaultKit();
-
-    return RestoreResult::Ok;
-}
-
-void AutotoolsProject::loadProjectTree()
+void AutotoolsBuildSystem::parseProject(BuildSystem::ParsingContext &&ctx)
 {
     if (m_makefileParserThread) {
-        // The thread is still busy parsing a previus configuration.
+        // The thread is still busy parsing a previous configuration.
         // Wait until the thread has been finished and delete it.
         // TODO: Discuss whether blocking is acceptable.
-        disconnect(m_makefileParserThread, &QThread::finished,
-                   this, &AutotoolsProject::makefileParsingFinished);
+        disconnect(m_makefileParserThread,
+                   &QThread::finished,
+                   this,
+                   &AutotoolsBuildSystem::makefileParsingFinished);
         m_makefileParserThread->wait();
         delete m_makefileParserThread;
         m_makefileParserThread = nullptr;
     }
 
     // Parse the makefile asynchronously in a thread
-    m_makefileParserThread = new MakefileParserThread(projectFilePath().toString(),
-                                                      guardParsingRun());
+    m_makefileParserThread = new MakefileParserThread(project()->projectFilePath().toString(),
+                                                      std::move(ctx.guard));
 
-    connect(m_makefileParserThread, &MakefileParserThread::started,
-            this, &AutotoolsProject::makefileParsingStarted);
-
-    connect(m_makefileParserThread, &MakefileParserThread::finished,
-            this, &AutotoolsProject::makefileParsingFinished);
+    connect(m_makefileParserThread,
+            &MakefileParserThread::finished,
+            this,
+            &AutotoolsBuildSystem::makefileParsingFinished);
     m_makefileParserThread->start();
 }
 
-void AutotoolsProject::makefileParsingStarted()
-{
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-}
-
-void AutotoolsProject::makefileParsingFinished()
+void AutotoolsBuildSystem::makefileParsingFinished()
 {
     // The finished() signal is from a previous makefile-parser-thread
     // and can be skipped. This can happen, if the thread has emitted the
-    // finished() signal during the execution of AutotoolsProject::loadProjectTree().
+    // finished() signal during the execution of AutotoolsBuildSystem::loadProjectTree().
     // In this case the signal is in the message queue already and deleting
     // the thread of course does not remove the signal again.
     if (sender() != m_makefileParserThread)
         return;
-
-    QApplication::restoreOverrideCursor();
 
     if (m_makefileParserThread->isCanceled()) {
         // The parsing has been cancelled by the user. Don't show any
@@ -167,8 +113,8 @@ void AutotoolsProject::makefileParsingFinished()
 
     QVector<Utils::FilePath> filesToWatch;
 
-    // Apply sources to m_files, which are returned at AutotoolsProject::files()
-    const QFileInfo fileInfo = projectFilePath().toFileInfo();
+    // Apply sources to m_files, which are returned at AutotoolsBuildSystem::files()
+    const QFileInfo fileInfo = project()->projectFilePath().toFileInfo();
     const QDir dir = fileInfo.absoluteDir();
     const QStringList files = m_makefileParserThread->sources();
     foreach (const QString& file, files)
@@ -195,14 +141,14 @@ void AutotoolsProject::makefileParsingFinished()
         filesToWatch.append(Utils::FilePath::fromString(absConfigureAc));
     }
 
-    auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
+    auto newRoot = std::make_unique<ProjectNode>(project()->projectDirectory());
     for (const QString &f : m_files) {
         const Utils::FilePath path = Utils::FilePath::fromString(f);
         newRoot->addNestedNode(std::make_unique<FileNode>(path,
                                                           FileNode::fileTypeForFileName(path)));
     }
-    setRootProjectNode(std::move(newRoot));
-    setExtraProjectFiles(filesToWatch);
+    project()->setRootProjectNode(std::move(newRoot));
+    project()->setExtraProjectFiles(filesToWatch);
 
     updateCppCodeModel();
 
@@ -228,14 +174,16 @@ static QStringList filterIncludes(const QString &absSrc, const QString &absBuild
     return result;
 }
 
-void AutotoolsProject::updateCppCodeModel()
+void AutotoolsBuildSystem::updateCppCodeModel()
 {
-    QtSupport::CppKitInfo kitInfo(this);
-    QTC_ASSERT(kitInfo.isValid(), return);
+    QtSupport::CppKitInfo kitInfo(project());
+    QTC_ASSERT(kitInfo.isValid(), return );
+
+    const Utils::FilePath projectFilePath = project()->projectFilePath();
 
     CppTools::RawProjectPart rpp;
-    rpp.setDisplayName(displayName());
-    rpp.setProjectFileLocation(projectFilePath().toString());
+    rpp.setDisplayName(project()->displayName());
+    rpp.setProjectFileLocation(projectFilePath.toString());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
     const QStringList cflags = m_makefileParserThread->cflags();
     QStringList cxxflags = m_makefileParserThread->cxxflags();
@@ -244,14 +192,18 @@ void AutotoolsProject::updateCppCodeModel()
     rpp.setFlagsForC({kitInfo.cToolChain, cflags});
     rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxflags});
 
-    const QString absSrc = projectDirectory().toString();
-    const Target *target = activeTarget();
-    const QString absBuild = (target && target->activeBuildConfiguration())
-            ? target->activeBuildConfiguration()->buildDirectory().toString() : QString();
+    const QString absSrc = project()->projectDirectory().toString();
+    const Target *target = project()->activeTarget();
+    BuildConfiguration *bc = target ? target->activeBuildConfiguration() : nullptr;
+
+    const QString absBuild = bc ? bc->buildDirectory().toString() : QString();
 
     rpp.setIncludePaths(filterIncludes(absSrc, absBuild, m_makefileParserThread->includePaths()));
     rpp.setMacros(m_makefileParserThread->macros());
     rpp.setFiles(m_files);
 
-    m_cppCodeModelUpdater->update({this, kitInfo, activeParseEnvironment(), {rpp}});
+    m_cppCodeModelUpdater->update({project(), kitInfo, project()->activeParseEnvironment(), {rpp}});
 }
+
+} // namespace Internal
+} // namespace AutotoolsProjectManager

@@ -4,8 +4,8 @@ add_qtc_plugin(AutotoolsProjectManager
     autogenstep.cpp autogenstep.h
     autoreconfstep.cpp autoreconfstep.h
     autotoolsbuildconfiguration.cpp autotoolsbuildconfiguration.h
+    autotoolsbuildsystem.cpp autotoolsbuildsystem.h
     autotoolsopenprojectwizard.cpp autotoolsopenprojectwizard.h
-    autotoolsproject.cpp autotoolsproject.h
     autotoolsprojectconstants.h
     autotoolsprojectplugin.cpp autotoolsprojectplugin.h
     configurestep.cpp configurestep.h

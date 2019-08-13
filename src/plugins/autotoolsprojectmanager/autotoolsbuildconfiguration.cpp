@@ -27,18 +27,13 @@
 
 #include "autotoolsbuildconfiguration.h"
 
-#include "autotoolsproject.h"
 #include "autotoolsprojectconstants.h"
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <utils/mimetypes/mimedatabase.h>
-#include <utils/qtcassert.h>
 
 using namespace AutotoolsProjectManager::Constants;
 using namespace ProjectExplorer;

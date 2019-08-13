@@ -26,9 +26,7 @@
 ****************************************************************************/
 
 #include "makestep.h"
-#include "autotoolsproject.h"
 #include "autotoolsprojectconstants.h"
-#include "autotoolsbuildconfiguration.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>

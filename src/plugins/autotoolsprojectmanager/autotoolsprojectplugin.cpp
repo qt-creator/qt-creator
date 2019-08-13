@@ -26,18 +26,32 @@
 ****************************************************************************/
 
 #include "autotoolsprojectplugin.h"
-#include "autotoolsproject.h"
-#include "autotoolsprojectconstants.h"
-#include "autotoolsbuildconfiguration.h"
-#include "makestep.h"
+
 #include "autogenstep.h"
 #include "autoreconfstep.h"
+#include "autotoolsbuildconfiguration.h"
+#include "autotoolsbuildsystem.h"
+#include "autotoolsprojectconstants.h"
 #include "configurestep.h"
+#include "makestep.h"
 
+#include <coreplugin/icontext.h>
 #include <projectexplorer/projectmanager.h>
 
 namespace AutotoolsProjectManager {
 namespace Internal {
+
+AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName)
+    : Project(Constants::MAKEFILE_MIMETYPE, fileName)
+{
+    setId(Constants::AUTOTOOLS_PROJECT_ID);
+    setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    setDisplayName(projectDirectory().fileName());
+
+    setHasMakeInstallEquivalent(true);
+
+    setBuildSystem(std::make_unique<AutotoolsBuildSystem>(this));
+}
 
 class AutotoolsProjectPluginPrivate
 {
@@ -69,5 +83,5 @@ bool AutotoolsProjectPlugin::initialize(const QStringList &arguments,
     return true;
 }
 
-} // Internal
+} // namespace Internal
 } // AutotoolsProjectManager

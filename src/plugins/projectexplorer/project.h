@@ -232,6 +232,7 @@ public:
 
     // FIXME: Make this private and the BuildSystem a friend
     ParseGuard guardParsingRun() { return ParseGuard(this); }
+    void setRootProjectNode(std::unique_ptr<ProjectNode> &&root);
 
     // Set project files that will be watched and trigger the same callback
     // as the main project file.
@@ -285,7 +286,6 @@ protected:
     void setCanBuildProducts();
 
     void setId(Core::Id id);
-    void setRootProjectNode(std::unique_ptr<ProjectNode> &&root); // takes ownership!
     void setProjectLanguages(Core::Context language);
     void addProjectLanguage(Core::Id id);
     void removeProjectLanguage(Core::Id id);

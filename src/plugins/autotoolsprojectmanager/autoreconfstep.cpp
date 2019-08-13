@@ -26,14 +26,12 @@
 ****************************************************************************/
 
 #include "autoreconfstep.h"
+
 #include "autotoolsprojectconstants.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/processparameters.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
 using namespace AutotoolsProjectManager;
