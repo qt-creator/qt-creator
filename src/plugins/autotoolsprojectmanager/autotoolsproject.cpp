@@ -220,14 +220,6 @@ void AutotoolsProject::onFileChanged(const QString &file)
     loadProjectTree();
 }
 
-QStringList AutotoolsProject::buildTargets() const
-{
-    QStringList targets;
-    targets.append(QLatin1String("all"));
-    targets.append(QLatin1String("clean"));
-    return targets;
-}
-
 static QStringList filterIncludes(const QString &absSrc, const QString &absBuild,
                                   const QStringList &in)
 {

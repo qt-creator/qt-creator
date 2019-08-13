@@ -56,8 +56,6 @@ public:
     explicit AutotoolsProject(const Utils::FilePath &fileName);
     ~AutotoolsProject() override;
 
-    QStringList buildTargets() const;
-
 protected:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 
