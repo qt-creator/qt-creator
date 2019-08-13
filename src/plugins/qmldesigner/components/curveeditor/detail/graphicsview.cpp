@@ -378,13 +378,16 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
     double minTime = minimumTime();
     double maxTime = maximumTime();
 
+    double minValue = minimumValue();
+    double maxValue = maximumValue();
+
     QRectF canvas = canvasRect();
 
     double xZoomedOut = canvas.width() / (maxTime - minTime);
     double xZoomedIn = m_style.zoomInWidth;
     double scaleX = lerp(clamp(m_zoomX, 0.0, 1.0), xZoomedOut, xZoomedIn);
 
-    double yZoomedOut = canvas.height() / maximumValue();
+    double yZoomedOut = canvas.height() / (maxValue - minValue);
     double yZoomedIn = m_style.zoomInHeight;
     double scaleY = lerp(clamp(m_zoomY, 0.0, 1.0), -yZoomedOut, -yZoomedIn);
 
@@ -479,8 +482,6 @@ void GraphicsView::drawExtremaY(QPainter *painter, const QRectF &rect)
     painter->setPen(Qt::blue);
     drawHorizontalLine(mapValueToY(m_scene.minimumValue()));
     drawHorizontalLine(mapValueToY(m_scene.maximumValue()));
-
-    drawHorizontalLine(mapValueToY(0.0));
 
     painter->restore();
 }

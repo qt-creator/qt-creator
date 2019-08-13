@@ -85,13 +85,19 @@ int CurveItem::type() const
 
 QRectF CurveItem::boundingRect() const
 {
+    if (m_keyframes.empty())
+        return QRectF();
+
     auto bbox = [](QRectF &bounds, const Keyframe &frame) {
         grow(bounds, frame.position());
-        grow(bounds, frame.leftHandle());
-        grow(bounds, frame.rightHandle());
+        if (frame.hasLeftHandle())
+            grow(bounds, frame.leftHandle());
+        if (frame.hasRightHandle())
+            grow(bounds, frame.rightHandle());
     };
 
-    QRectF bounds;
+    QPointF init = m_keyframes[0]->keyframe().position();
+    QRectF bounds(init, init);
     for (auto *item : m_keyframes)
         bbox(bounds, item->keyframe());
 
@@ -213,11 +219,9 @@ std::vector<AnimationCurve> CurveItem::curves() const
                 if (tmp.size() >= 2)
                     out.push_back(AnimationCurve(tmp));
 
-                out.push_back(
-                    AnimationCurve(
-                        current.data().value<QEasingCurve>(),
-                        previous.position(),
-                        current.position()));
+                out.push_back(AnimationCurve(current.data().value<QEasingCurve>(),
+                                             previous.position(),
+                                             current.position()));
 
                 tmp.clear();
                 tmp.push_back(current);

@@ -142,7 +142,7 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     for (auto *item : itemList) {
         if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(item)) {
 
-            // CurveItems might becom invalid after a keyframe-drag operation.
+            // CurveItems might become invalid after a keyframe-drag operation.
             curveItem->restore();
 
             if (curveItem->contains(mouseEvent->scenePos()))
