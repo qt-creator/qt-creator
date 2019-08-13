@@ -97,7 +97,8 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     if (javaHome.exists()) {
         env.set(QLatin1String("JAVA_HOME"), javaHome.toString());
         const FilePath javaBin = javaHome.pathAppended("bin");
-        if (!Utils::contains(env.path(), [&javaBin](const Utils::FilePath &p) { return p == javaBin; }))
+        const FilePath currentJavaFilePath = env.searchInPath("java");
+        if (!currentJavaFilePath.isChildOf(javaBin))
             env.prependOrSetPath(javaBin.toUserOutput());
     }
     env.set(QLatin1String("ANDROID_HOME"),
