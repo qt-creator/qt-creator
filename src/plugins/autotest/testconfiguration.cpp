@@ -85,10 +85,8 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
     if (!target)
         return;
 
-    if (!Utils::findOr(target->runConfigurations(), nullptr,
-                       [&rc] (RunConfiguration *config) { return rc == config; })) {
+    if (!target->runConfigurations().contains(rc))
         return;
-    }
 
     m_runnable = rc->runnable();
     m_displayName = rc->displayName();
