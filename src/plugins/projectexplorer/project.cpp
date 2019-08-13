@@ -249,11 +249,6 @@ Utils::FilePath Project::projectFilePath() const
     return document()->filePath();
 }
 
-bool Project::hasActiveBuildSettings() const
-{
-    return activeTarget() && BuildConfigurationFactory::find(activeTarget());
-}
-
 void Project::addTarget(std::unique_ptr<Target> &&t)
 {
     auto pointer = t.get();

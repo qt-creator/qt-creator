@@ -116,8 +116,6 @@ public:
     virtual ProjectNode *rootProjectNode() const;
     ContainerNode *containerNode() const;
 
-    bool hasActiveBuildSettings() const;
-
     // EditorConfiguration:
     EditorConfiguration *editorConfiguration() const;
 

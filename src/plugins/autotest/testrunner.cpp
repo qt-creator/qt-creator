@@ -37,6 +37,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -65,6 +66,7 @@
 
 #include <utils/algorithm.h>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Autotest {
@@ -340,7 +342,11 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     if (!projectExplorerSettings.buildBeforeDeploy || mode == TestRunMode::DebugWithoutDeploy
             || mode == TestRunMode::RunWithoutDeploy) {
         runOrDebugTests();
-    } else  if (project->hasActiveBuildSettings()) {
+        return;
+    }
+
+    Target *target = project->activeTarget();
+    if (target && BuildConfigurationFactory::find(target)) {
         buildProject(project);
     } else {
         reportResult(ResultType::MessageFatal,
