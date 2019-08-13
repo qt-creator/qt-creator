@@ -167,7 +167,7 @@ public:
     static KitManager *instance();
     ~KitManager() override;
 
-    static QList<Kit *> kits(const Kit::Predicate &predicate = Kit::Predicate());
+    static const QList<Kit *> kits(const Kit::Predicate &predicate = Kit::Predicate());
     static Kit *kit(const Kit::Predicate &predicate);
     static Kit *kit(Core::Id id);
     static Kit *defaultKit();
@@ -179,9 +179,6 @@ public:
     static Kit *registerKit(const std::function<void(Kit *)> &init, Core::Id id = {});
     static void deregisterKit(Kit *k);
     static void setDefaultKit(Kit *k);
-
-    static QSet<Core::Id> supportedPlatforms();
-    static QSet<Core::Id> availableFeatures(Core::Id platformId);
 
     static QList<Kit *> sortKits(const QList<Kit *> &kits); // Avoid sorting whenever possible!
 

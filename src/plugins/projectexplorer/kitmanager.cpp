@@ -359,25 +359,6 @@ void KitManager::deregisterKitAspect(KitAspect *ki)
         d->removeKitAspect(ki);
 }
 
-QSet<Id> KitManager::supportedPlatforms()
-{
-    QSet<Id> platforms;
-    foreach (const Kit *k, kits())
-        platforms.unite(k->supportedPlatforms());
-    return platforms;
-}
-
-QSet<Id> KitManager::availableFeatures(Core::Id platformId)
-{
-    QSet<Id> features;
-    foreach (const Kit *k, kits()) {
-        if (!k->supportedPlatforms().contains(platformId))
-            continue;
-        features.unite(k->availableFeatures());
-    }
-    return features;
-}
-
 QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
 {
     // This method was added to delay the sorting of kits as long as possible.
@@ -449,7 +430,7 @@ static KitList restoreKitsHelper(const FilePath &fileName)
     return result;
 }
 
-QList<Kit *> KitManager::kits(const Kit::Predicate &predicate)
+const QList<Kit *> KitManager::kits(const Kit::Predicate &predicate)
 {
     const QList<Kit *> result = Utils::toRawPointer<QList>(d->m_kitList);
     if (predicate)
@@ -658,12 +639,20 @@ void KitAspectWidget::setStyle(QStyle *s)
 
 QSet<Id> KitFeatureProvider::availableFeatures(Id id) const
 {
-    return KitManager::availableFeatures(id);
+    QSet<Id> features;
+    for (const Kit *k : KitManager::kits()) {
+        if (k->supportedPlatforms().contains(id))
+            features.unite(k->availableFeatures());
+    }
+    return features;
 }
 
 QSet<Id> KitFeatureProvider::availablePlatforms() const
 {
-    return KitManager::supportedPlatforms();
+    QSet<Id> platforms;
+    for (const Kit *k : KitManager::kits())
+        platforms.unite(k->supportedPlatforms());
+    return platforms;
 }
 
 QString KitFeatureProvider::displayNameForPlatform(Id id) const
