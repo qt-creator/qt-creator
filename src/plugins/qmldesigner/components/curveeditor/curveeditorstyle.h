@@ -41,10 +41,10 @@ namespace DesignTools {
 struct TreeItemStyleOption
 {
     double margins;
-    QIcon pinnedIcon = QIcon(":/ICON_PINNED");
-    QIcon unpinnedIcon = QIcon(":/ICON_UNPINNED");
-    QIcon lockedIcon = QIcon(":/ICON_LOCKED");
-    QIcon unlockedIcon = QIcon(":/ICON_UNLOCKED");
+    QIcon pinnedIcon = QIcon(":/curveeditor/images/treeview_pin.png");
+    QIcon unpinnedIcon = QIcon(":/curveeditor/images/treeview_unpin.png");
+    QIcon lockedIcon = QIcon(":/curveeditor/images/treeview_lock.png");
+    QIcon unlockedIcon = QIcon(":/curveeditor/images/treeview_unlock.png");
 };
 
 struct HandleItemStyleOption

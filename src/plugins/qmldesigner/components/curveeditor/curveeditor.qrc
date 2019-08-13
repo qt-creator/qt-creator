@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/curveeditor">
+        <file>images/tangetToolsSplineIcon.png</file>
+        <file>images/tangetToolsSplineIcon@2x.png</file>
+        <file>images/tangetToolsLinearIcon.png</file>
+        <file>images/tangetToolsLinearIcon@2x.png</file>
+        <file>images/tangetToolsStepIcon.png</file>
+        <file>images/tangetToolsStepIcon@2x.png</file>
+        <file>images/treeview_eye.png</file>
+        <file>images/treeview_eye@2x.png</file>
+        <file>images/treeview_pin.png</file>
+        <file>images/treeview_pin@2x.png</file>
+        <file>images/treeview_unpin.png</file>
+        <file>images/treeview_unpin@2x.png</file>
+        <file>images/treeview_unlock@2x.png</file>
+        <file>images/treeview_lock.png</file>
+        <file>images/treeview_lock@2x.png</file>
+        <file>images/treeview_unlock.png</file>
+    </qresource>
+</RCC>

@@ -44,3 +44,6 @@ SOURCES += \
     $$PWD/detail/utils.cpp \
     $$PWD/keyframe.cpp \
     $$PWD/treeitem.cpp
+
+    RESOURCES += \
+        $$PWD/curveeditor.qrc
