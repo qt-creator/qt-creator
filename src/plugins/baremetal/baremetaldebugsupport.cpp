@@ -96,9 +96,6 @@ void BareMetalDebugSupport::start()
         return;
     }
 
-    const Target *target = runControl()->target();
-    QTC_ASSERT(target, reportFailure(); return);
-
     const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
     QTC_ASSERT(dev, reportFailure(); return);
     const GdbServerProvider *p = GdbServerProviderManager::findProvider(dev->gdbServerProviderId());
