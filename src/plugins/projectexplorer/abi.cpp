@@ -492,6 +492,12 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             flavor = GenericFlavor;
             format = ElfFormat;
             width = 16;
+        } else if (p == "msp430") {
+            arch = Msp430Architecture;
+            os = BareMetalOS;
+            flavor = GenericFlavor;
+            format = ElfFormat;
+            width = 16;
         } else if (p.startsWith("mips")) {
             arch = MipsArchitecture;
             width = p.contains("64") ? 64 : 32;
