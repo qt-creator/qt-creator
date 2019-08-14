@@ -60,6 +60,7 @@ public:
         Mcs51Architecture,
         AsmJsArchitecture,
         Stm8Architecture,
+        Msp430Architecture,
         UnknownArchitecture
     };
 
