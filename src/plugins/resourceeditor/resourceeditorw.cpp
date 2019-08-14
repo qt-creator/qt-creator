@@ -229,6 +229,24 @@ void ResourceEditorDocument::setShouldAutoSave(bool save)
     m_shouldAutoSave = save;
 }
 
+QByteArray ResourceEditorW::saveState() const
+{
+    QByteArray bytes;
+    QDataStream stream(&bytes, QIODevice::WriteOnly);
+    stream << m_resourceEditor->saveState();
+    return bytes;
+}
+
+bool ResourceEditorW::restoreState(const QByteArray &state)
+{
+    QDataStream stream(state);
+    QByteArray splitterState;
+    stream >> splitterState;
+    if (!m_resourceEditor->restoreState(splitterState))
+        return false;
+    return true;
+}
+
 QWidget *ResourceEditorW::toolBar()
 {
     return m_toolBar;
