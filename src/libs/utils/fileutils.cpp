@@ -736,7 +736,13 @@ QString FilePath::toUserOutput() const
     return m_url.toString();
 }
 
-QString FilePath::fileName(int pathComponents) const
+QString FilePath::fileName() const
+{
+    const QChar slash = QLatin1Char('/');
+    return m_data.mid(m_data.lastIndexOf(slash) + 1);
+}
+
+QString FilePath::fileNameWithPathComponents(int pathComponents) const
 {
     if (pathComponents < 0)
         return m_data;

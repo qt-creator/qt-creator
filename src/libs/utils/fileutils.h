@@ -80,7 +80,8 @@ public:
     QString toUserOutput() const;
     QString shortNativePath() const;
 
-    QString fileName(int pathComponents = 0) const;
+    QString fileName() const;
+    QString fileNameWithPathComponents(int pathComponents) const;
     bool exists() const;
     bool isWritablePath() const;
 
