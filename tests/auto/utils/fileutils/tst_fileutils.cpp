@@ -161,7 +161,7 @@ void tst_fileutils::fileName()
     QFETCH(QString, path);
     QFETCH(int, components);
     QFETCH(QString, result);
-    QCOMPARE(FilePath::fromString(path).fileName(components), result);
+    QCOMPARE(FilePath::fromString(path).fileNameWithPathComponents(components), result);
 }
 
 QTEST_APPLESS_MAIN(tst_fileutils)
