@@ -169,6 +169,7 @@ void TimelineGraphicsScene::setWidth(int width)
 void TimelineGraphicsScene::invalidateLayout()
 {
     m_layout->invalidate();
+    toolBar()->setCurrentTimeline(currentTimeline());
 }
 
 void TimelineGraphicsScene::setCurrenFrame(const QmlTimeline &timeline, qreal frame)
