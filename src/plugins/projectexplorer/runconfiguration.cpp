@@ -148,7 +148,7 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
     necessary data as the RunControl may continue to exist after the RunConfiguration
     has been destroyed.
 
-    A RunConfiguration disables itself when the project is parsing or has no parsing
+    A RunConfiguration disables itself if the project has no parsing
     data available. The disabledReason() method can be used to get a user-facing string
     describing why the RunConfiguration considers itself unfit for use.
 
@@ -164,8 +164,6 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     : ProjectConfiguration(target, id)
 {
     QTC_CHECK(target && target == this->target());
-    connect(target->project(), &Project::parsingStarted,
-            this, [this]() { updateEnabledState(); });
     connect(target->project(), &Project::parsingFinished,
             this, [this]() { updateEnabledState(); });
 
@@ -235,12 +233,11 @@ void RunConfiguration::setEnabled(bool enabled)
 
 QString RunConfiguration::disabledReason() const
 {
-    if (target()->project()->isParsing())
-        return tr("The Project is currently being parsed.");
-    if (!target()->project()->hasParsingData()) {
-        QString msg = tr("The project could not be fully parsed.");
+    if (!project()->hasParsingData()) {
+        QString msg = project()->isParsing() ? tr("The project is currently being parsed.")
+                                             : tr("The project could not be fully parsed.");
         const FilePath projectFilePath = buildTargetInfo().projectFilePath;
-        if (!projectFilePath.exists())
+        if (!projectFilePath.isEmpty() && !projectFilePath.exists())
             msg += '\n' + tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
         return msg;
     }
@@ -269,9 +266,7 @@ QWidget *RunConfiguration::createConfigurationWidget()
 
 void RunConfiguration::updateEnabledState()
 {
-    Project *p = target()->project();
-
-    setEnabled(!p->isParsing() && p->hasParsingData());
+    setEnabled(project()->hasParsingData());
 }
 
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
