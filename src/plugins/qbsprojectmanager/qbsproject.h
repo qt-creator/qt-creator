@@ -82,7 +82,6 @@ public:
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
     QString profileForTarget(const ProjectExplorer::Target *t) const;
-    bool hasParseResult() const;
     void parseCurrentBuildConfiguration();
     void scheduleParsing() { m_parsingScheduled = true; }
     bool parsingScheduled() const { return m_parsingScheduled; }

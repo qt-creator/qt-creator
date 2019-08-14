@@ -127,8 +127,6 @@ private:
     void buildFinished(bool success);
     void activeTargetWasChanged();
 
-    void setAllBuildConfigurationsEnabled(bool enabled);
-
     QString executableFor(const QmakeProFile *file);
 
     void updateCppCodeModel();

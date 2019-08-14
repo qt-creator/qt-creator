@@ -410,11 +410,6 @@ QString QbsProject::profileForTarget(const Target *t) const
     return QbsManager::profileForKit(t->kit());
 }
 
-bool QbsProject::hasParseResult() const
-{
-    return qbsProject().isValid();
-}
-
 qbs::Project QbsProject::qbsProject() const
 {
     return m_qbsProject;

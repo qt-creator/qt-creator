@@ -82,11 +82,6 @@ public:
 
     QVariantMap toMap() const override;
 
-    bool isEnabled() const override;
-    QString disabledReason() const override;
-    /// \internal For QmakeProject, since that manages the parsing information
-    void setEnabled(bool enabled);
-
     BuildType buildType() const override;
 
     void addToEnvironment(Utils::Environment &env) const override;
@@ -129,7 +124,6 @@ private:
     LastKitState m_lastKitState;
 
     bool m_shadowBuild = true;
-    bool m_isEnabled = true;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;

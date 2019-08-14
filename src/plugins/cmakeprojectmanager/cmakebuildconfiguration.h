@@ -55,8 +55,6 @@ class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     void emitBuildTypeChanged();
 
-    bool isEnabled() const override;
-
     CMakeConfig configurationForCMake() const;
     CMakeConfig configurationFromCMake() const;
 
@@ -92,8 +90,6 @@ private:
     ProjectExplorer::NamedWidget *createConfigWidget() override;
 
     bool fromMap(const QVariantMap &map) override;
-
-    bool isParsing() const;
 
     enum ForceEnabledChanged { False, True };
     void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);

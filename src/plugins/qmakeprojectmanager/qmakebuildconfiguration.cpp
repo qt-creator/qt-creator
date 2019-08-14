@@ -542,26 +542,6 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
     return parsedSpec.toString();
 }
 
-bool QmakeBuildConfiguration::isEnabled() const
-{
-    return m_isEnabled;
-}
-
-QString QmakeBuildConfiguration::disabledReason() const
-{
-    if (!m_isEnabled)
-        return tr("Parsing the .pro file");
-    return QString();
-}
-
-void QmakeBuildConfiguration::setEnabled(bool enabled)
-{
-    if (m_isEnabled == enabled)
-        return;
-    m_isEnabled = enabled;
-    emit enabledChanged();
-}
-
 /*!
   \class QmakeBuildConfigurationFactory
 */

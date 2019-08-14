@@ -55,9 +55,6 @@ public:
 
     Internal::QbsProject *qbsProject() const;
 
-    bool isEnabled() const override;
-    QString disabledReason() const override;
-
     BuildType buildType() const override;
 
     void setChangedFiles(const QStringList &files);

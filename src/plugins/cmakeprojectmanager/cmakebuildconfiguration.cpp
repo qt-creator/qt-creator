@@ -89,7 +89,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
                                            target()->kit(),
                                            displayName(),
                                            BuildConfiguration::Unknown));
-    connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
 
     BuildSystem *bs = qobject_cast<CMakeBuildSystem *>(project()->buildSystem());
 
@@ -223,11 +222,6 @@ void CMakeBuildConfiguration::initialize(const BuildInfo &info)
     setConfigurationForCMake(extraInfo.configuration);
 }
 
-bool CMakeBuildConfiguration::isEnabled() const
-{
-    return m_error.isEmpty() && !isParsing();
-}
-
 QString CMakeBuildConfiguration::disabledReason() const
 {
     return error();
@@ -255,11 +249,6 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     setConfigurationForCMake(conf);
 
     return true;
-}
-
-bool CMakeBuildConfiguration::isParsing() const
-{
-    return project()->isParsing() && isActive();
 }
 
 const QList<BuildTargetInfo> CMakeBuildConfiguration::appTargets() const

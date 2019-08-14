@@ -106,6 +106,9 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
         this->target()->buildEnvironmentChanged(this);
     });
 
+    connect(project(), &Project::parsingStarted, this, &BuildConfiguration::enabledChanged);
+    connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
+
     connect(this, &BuildConfiguration::enabledChanged, this, [this] {
         if (isActive() && project() == SessionManager::startupProject()) {
             ProjectExplorerPlugin::updateActions();
@@ -336,11 +339,15 @@ void BuildConfiguration::setUserEnvironmentChanges(const Utils::EnvironmentItems
 
 bool BuildConfiguration::isEnabled() const
 {
-    return true;
+    return !project()->isParsing() && project()->hasParsingData();
 }
 
 QString BuildConfiguration::disabledReason() const
 {
+    if (project()->isParsing())
+        return (tr("The project is currently being parsed."));
+    if (!project()->hasParsingData())
+        return (tr("The project was not parsed successfully."));
     return QString();
 }
 

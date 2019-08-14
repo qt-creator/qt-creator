@@ -86,9 +86,6 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Core::Id id)
     connect(m_configurationName, &BaseStringAspect::changed,
             this, &BuildConfiguration::buildDirectoryChanged);
 
-    connect(project(), &Project::parsingStarted, this, &BuildConfiguration::enabledChanged);
-    connect(project(), &Project::parsingFinished, this, &BuildConfiguration::enabledChanged);
-
     connect(this, &BuildConfiguration::environmentChanged,
             this, &QbsBuildConfiguration::triggerReparseIfActive);
     connect(this, &BuildConfiguration::buildDirectoryChanged,
@@ -174,20 +171,6 @@ QVariantMap QbsBuildConfiguration::qbsConfiguration() const
 Internal::QbsProject *QbsBuildConfiguration::qbsProject() const
 {
     return qobject_cast<Internal::QbsProject *>(project());
-}
-
-bool QbsBuildConfiguration::isEnabled() const
-{
-    return !project()->isParsing() && qbsProject()->hasParseResult();
-}
-
-QString QbsBuildConfiguration::disabledReason() const
-{
-    if (project()->isParsing())
-        return tr("Parsing the Qbs project.");
-    if (!qbsProject()->hasParseResult())
-        return tr("Parsing of Qbs project has failed.");
-    return QString();
 }
 
 BuildConfiguration::BuildType QbsBuildConfiguration::buildType() const

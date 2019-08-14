@@ -362,7 +362,6 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFile *file, QmakeProFile::AsyncUp
     }
 
     file->setParseInProgressRecursive(true);
-    setAllBuildConfigurationsEnabled(false);
 
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
         // Just postpone
@@ -418,7 +417,6 @@ void QmakeProject::scheduleAsyncUpdate(QmakeProFile::AsyncUpdateDelay delay)
     }
 
     rootProFile()->setParseInProgressRecursive(true);
-    setAllBuildConfigurationsEnabled(false);
 
     if (m_asyncUpdateState == AsyncUpdateInProgress) {
         m_cancelEvaluate = true;
@@ -476,11 +474,9 @@ void QmakeProject::decrementPendingEvaluateFutures()
         if (m_asyncUpdateState == AsyncFullUpdatePending || m_asyncUpdateState == AsyncPartialUpdatePending) {
             // Already parsing!
             rootProFile()->setParseInProgressRecursive(true);
-            setAllBuildConfigurationsEnabled(false);
             startAsyncTimer(QmakeProFile::ParseLater);
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
-            setAllBuildConfigurationsEnabled(true);
 
             m_asyncUpdateState = Base;
             updateCodeModels();
@@ -729,17 +725,6 @@ void QmakeProject::activeTargetWasChanged()
             this, &QmakeProject::scheduleAsyncUpdateLater);
 
     scheduleAsyncUpdate();
-}
-
-void QmakeProject::setAllBuildConfigurationsEnabled(bool enabled)
-{
-    foreach (Target *t, targets()) {
-        foreach (BuildConfiguration *bc, t->buildConfigurations()) {
-            auto qmakeBc = qobject_cast<QmakeBuildConfiguration *>(bc);
-            if (qmakeBc)
-                qmakeBc->setEnabled(enabled);
-        }
-    }
 }
 
 static void notifyChangedHelper(const FilePath &fileName, QmakeProFile *file)

@@ -252,7 +252,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         m_showProgressTimer.start();
     });
 
-    if (m_buildConfiguration->isParsing())
+    if (project->isParsing())
         m_showProgressTimer.start();
     else {
         m_configModel->setConfiguration(m_buildConfiguration->configurationFromCMake());
@@ -363,7 +363,7 @@ void CMakeBuildSettingsWidget::setWarning(const QString &message)
 
 void CMakeBuildSettingsWidget::updateButtonState()
 {
-    const bool isParsing = m_buildConfiguration->isParsing();
+    const bool isParsing = m_buildConfiguration->project()->isParsing();
     const bool hasChanges = m_configModel->hasChanges();
     m_resetButton->setEnabled(hasChanges && !isParsing);
     m_reconfigureButton->setEnabled((hasChanges || m_configModel->hasCMakeChanges()) && !isParsing);
