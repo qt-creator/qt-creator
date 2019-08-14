@@ -68,6 +68,8 @@ Loader {
             MouseArea {
                 anchors.fill: parent
                 onClicked: gradientDialogLoader.visible = false
+                preventStealing: true
+                hoverEnabled: true
             }
             Rectangle {
                 id: background
