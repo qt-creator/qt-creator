@@ -1791,7 +1791,7 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
                                     false)) {
         const QString sysrootifiedPath = sysrootify(el.fileName, sysroot.toString(), projectDir,
                                                     buildDir.toString());
-        if (IoUtils::exists(sysrootifiedPath))
+        if (IoUtils::isAbsolutePath(sysrootifiedPath) && IoUtils::exists(sysrootifiedPath))
             paths << sysrootifiedPath;
         else
             tryUnfixified = true;
@@ -1804,7 +1804,7 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
         for (const QString &p : rawValues) {
             const QString sysrootifiedPath = sysrootify(QDir::cleanPath(p), sysroot.toString(),
                                                         projectDir, buildDir.toString());
-            if (IoUtils::exists(sysrootifiedPath))
+            if (IoUtils::isAbsolutePath(sysrootifiedPath) && IoUtils::exists(sysrootifiedPath))
                 paths << sysrootifiedPath;
         }
     }
