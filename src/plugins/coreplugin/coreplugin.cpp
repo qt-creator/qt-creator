@@ -80,6 +80,8 @@ CorePlugin::CorePlugin()
 {
     qRegisterMetaType<Id>();
     qRegisterMetaType<Core::Search::TextPosition>();
+    qRegisterMetaType<Utils::CommandLine>();
+    qRegisterMetaType<Utils::FilePath>();
     m_instance = this;
 }
 
