@@ -354,8 +354,7 @@ QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
 FilePath VcsBaseClientSettings::binaryPath() const
 {
     if (d->m_binaryFullPath.isEmpty()) {
-        const FilePathList searchPaths
-                = Utils::transform(searchPathList(), [](const QString &s) { return FilePath::fromString(s); });
+        const FilePathList searchPaths = Utils::transform(searchPathList(), &FilePath::fromString);
         d->m_binaryFullPath = Environment::systemEnvironment().searchInPath(
                     stringValue(binaryPathKey), searchPaths);
     }
