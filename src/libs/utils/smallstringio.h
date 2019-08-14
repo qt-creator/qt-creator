@@ -91,7 +91,9 @@ std::ostream &operator<<(std::ostream &out, const BasicSmallString<Size> &string
 inline
 std::ostream &operator<<(std::ostream &out, SmallStringView string)
 {
-    return out << PathString(string);
+    out.write(string.data(), std::streamsize(string.size()));
+
+    return out;
 }
 
 template <typename String>
