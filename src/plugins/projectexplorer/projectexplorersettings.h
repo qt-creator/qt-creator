@@ -34,6 +34,7 @@ namespace ProjectExplorer {
 namespace Internal {
 
 enum class TerminalMode { On, Off, Smart };
+enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
 
 class ProjectExplorerSettings
 {
@@ -83,8 +84,8 @@ inline bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerS
 class AppOutputSettings
 {
 public:
-    bool popUpForRunOutput = true;
-    bool popUpForDebugOutput = false;
+    AppOutputPaneMode runOutputMode = AppOutputPaneMode::PopupOnFirstOutput;
+    AppOutputPaneMode debugOutputMode = AppOutputPaneMode::FlashOnOutput;
     bool cleanOldOutput = false;
     bool mergeChannels = false;
     bool wrapOutput = false;

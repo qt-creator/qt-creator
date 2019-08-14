@@ -2308,9 +2308,12 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     m_outputPane.flash(); // one flash for starting
     m_outputPane.showTabFor(runControl);
     Core::Id runMode = runControl->runMode();
-    bool popup = (runMode == Constants::NORMAL_RUN_MODE && m_outputPane.settings().popUpForRunOutput)
-            || (runMode == Constants::DEBUG_RUN_MODE && m_outputPane.settings().popUpForDebugOutput);
-    m_outputPane.setBehaviorOnOutput(runControl, popup ? AppOutputPane::Popup : AppOutputPane::Flash);
+    const auto popupMode = runMode == Constants::NORMAL_RUN_MODE
+            ? m_outputPane.settings().runOutputMode
+            : runMode == Constants::DEBUG_RUN_MODE
+                ? m_outputPane.settings().debugOutputMode
+                : AppOutputPaneMode::FlashOnOutput;
+    m_outputPane.setBehaviorOnOutput(runControl, popupMode);
     connect(runControl, &QObject::destroyed, this, &ProjectExplorerPluginPrivate::checkForShutdown,
             Qt::QueuedConnection);
     ++m_activeRunControlCount;

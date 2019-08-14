@@ -51,6 +51,8 @@
 
 #include <QAction>
 #include <QCheckBox>
+#include <QComboBox>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLoggingCategory>
@@ -497,10 +499,18 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, Utils::Out
         stringToWrite += out;
         window->appendMessage(stringToWrite, format);
         if (format != Utils::NormalMessageFormat) {
-            if (m_runControlTabs.at(index).behaviorOnOutput == Flash)
+            RunControlTab &tab = m_runControlTabs[index];
+            switch (tab.behaviorOnOutput) {
+            case AppOutputPaneMode::FlashOnOutput:
                 flash();
-            else
+                break;
+            case AppOutputPaneMode::PopupOnFirstOutput:
+                tab.behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
+                Q_FALLTHROUGH();
+            case AppOutputPaneMode::PopupOnOutput:
                 popup(NoModeSwitch);
+                break;
+            }
         }
     }
 }
@@ -515,8 +525,8 @@ void AppOutputPane::setSettings(const AppOutputSettings &settings)
 void AppOutputPane::storeSettings() const
 {
     QSettings * const s = Core::ICore::settings();
-    s->setValue(POP_UP_FOR_RUN_OUTPUT_KEY, m_settings.popUpForRunOutput);
-    s->setValue(POP_UP_FOR_DEBUG_OUTPUT_KEY, m_settings.popUpForDebugOutput);
+    s->setValue(POP_UP_FOR_RUN_OUTPUT_KEY, int(m_settings.runOutputMode));
+    s->setValue(POP_UP_FOR_DEBUG_OUTPUT_KEY, int(m_settings.debugOutputMode));
     s->setValue(CLEAN_OLD_OUTPUT_KEY, m_settings.cleanOldOutput);
     s->setValue(MERGE_CHANNELS_KEY, m_settings.mergeChannels);
     s->setValue(WRAP_OUTPUT_KEY, m_settings.wrapOutput);
@@ -526,8 +536,13 @@ void AppOutputPane::storeSettings() const
 void AppOutputPane::loadSettings()
 {
     QSettings * const s = Core::ICore::settings();
-    m_settings.popUpForRunOutput = s->value(POP_UP_FOR_RUN_OUTPUT_KEY, true).toBool();
-    m_settings.popUpForDebugOutput = s->value(POP_UP_FOR_DEBUG_OUTPUT_KEY, false).toBool();
+    const auto modeFromSettings = [s](const QString key, AppOutputPaneMode defaultValue) {
+        return static_cast<AppOutputPaneMode>(s->value(key, int(defaultValue)).toInt());
+    };
+    m_settings.runOutputMode = modeFromSettings(POP_UP_FOR_RUN_OUTPUT_KEY,
+                                                AppOutputPaneMode::PopupOnFirstOutput);
+    m_settings.debugOutputMode = modeFromSettings(POP_UP_FOR_DEBUG_OUTPUT_KEY,
+                                                  AppOutputPaneMode::FlashOnOutput);
     m_settings.cleanOldOutput = s->value(CLEAN_OLD_OUTPUT_KEY, false).toBool();
     m_settings.mergeChannels = s->value(MERGE_CHANNELS_KEY, false).toBool();
     m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, true).toBool();
@@ -540,7 +555,7 @@ void AppOutputPane::showTabFor(RunControl *rc)
     m_tabWidget->setCurrentIndex(tabWidgetIndexOf(indexOf(rc)));
 }
 
-void AppOutputPane::setBehaviorOnOutput(RunControl *rc, AppOutputPane::BehaviorOnOutput mode)
+void AppOutputPane::setBehaviorOnOutput(RunControl *rc, AppOutputPaneMode mode)
 {
     const int index = indexOf(rc);
     if (index != -1)
@@ -815,18 +830,23 @@ public:
         m_cleanOldOutputCheckBox.setChecked(settings.cleanOldOutput);
         m_mergeChannelsCheckBox.setText(tr("Merge stderr and stdout"));
         m_mergeChannelsCheckBox.setChecked(settings.mergeChannels);
-        m_popUpForRunOutputCheckBox.setText(tr("Open pane on output when running"));
-        m_popUpForRunOutputCheckBox.setChecked(settings.popUpForRunOutput);
-        m_popUpForDebugOutputCheckBox.setText(tr("Open pane on output when debugging"));
-        m_popUpForDebugOutputCheckBox.setChecked(settings.popUpForDebugOutput);
+        for (QComboBox * const modeComboBox
+             : {&m_runOutputModeComboBox, &m_debugOutputModeComboBox}) {
+            modeComboBox->addItem(tr("Always"), int(AppOutputPaneMode::PopupOnOutput));
+            modeComboBox->addItem(tr("Never"), int(AppOutputPaneMode::FlashOnOutput));
+            modeComboBox->addItem(tr("On first output only"),
+                                  int(AppOutputPaneMode::PopupOnFirstOutput));
+        }
+        m_runOutputModeComboBox.setCurrentIndex(m_runOutputModeComboBox
+                                                .findData(int(settings.runOutputMode)));
+        m_debugOutputModeComboBox.setCurrentIndex(m_debugOutputModeComboBox
+                                                  .findData(int(settings.debugOutputMode)));
         m_maxCharsBox.setMaximum(100000000);
         m_maxCharsBox.setValue(settings.maxCharCount);
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_wrapOutputCheckBox);
         layout->addWidget(&m_cleanOldOutputCheckBox);
         layout->addWidget(&m_mergeChannelsCheckBox);
-        layout->addWidget(&m_popUpForRunOutputCheckBox);
-        layout->addWidget(&m_popUpForDebugOutputCheckBox);
         const auto maxCharsLayout = new QHBoxLayout;
         const QString msg = tr("Limit output to %1 characters");
         const QStringList parts = msg.split("%1") << QString() << QString();
@@ -834,6 +854,11 @@ public:
         maxCharsLayout->addWidget(&m_maxCharsBox);
         maxCharsLayout->addWidget(new QLabel(parts.at(1).trimmed()));
         maxCharsLayout->addStretch(1);
+        const auto outputModeLayout = new QFormLayout;
+        outputModeLayout->addRow(tr("Open pane on output when running:"), &m_runOutputModeComboBox);
+        outputModeLayout->addRow(tr("Open pane on output when debugging:"),
+                                 &m_debugOutputModeComboBox);
+        layout->addLayout(outputModeLayout);
         layout->addLayout(maxCharsLayout);
         layout->addStretch(1);
     }
@@ -844,8 +869,10 @@ public:
         s.wrapOutput = m_wrapOutputCheckBox.isChecked();
         s.cleanOldOutput = m_cleanOldOutputCheckBox.isChecked();
         s.mergeChannels = m_mergeChannelsCheckBox.isChecked();
-        s.popUpForRunOutput = m_popUpForRunOutputCheckBox.isChecked();
-        s.popUpForDebugOutput = m_popUpForDebugOutputCheckBox.isChecked();
+        s.runOutputMode = static_cast<AppOutputPaneMode>(
+                    m_runOutputModeComboBox.currentData().toInt());
+        s.debugOutputMode = static_cast<AppOutputPaneMode>(
+                    m_debugOutputModeComboBox.currentData().toInt());
         s.maxCharCount = m_maxCharsBox.value();
         return s;
     }
@@ -854,8 +881,8 @@ private:
     QCheckBox m_wrapOutputCheckBox;
     QCheckBox m_cleanOldOutputCheckBox;
     QCheckBox m_mergeChannelsCheckBox;
-    QCheckBox m_popUpForRunOutputCheckBox;
-    QCheckBox m_popUpForDebugOutputCheckBox;
+    QComboBox m_runOutputModeComboBox;
+    QComboBox m_debugOutputModeComboBox;
     QSpinBox m_maxCharsBox;
 };
 
