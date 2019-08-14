@@ -440,7 +440,6 @@ void ILocatorFilter::setConfigurable(bool configurable)
 
     \sa prepareSearch()
     \sa caseSensitivity()
-    \sa containsWildcard()
 */
 
 /*!
