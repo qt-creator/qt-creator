@@ -1,0 +1,58 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
+    "id": "A.McuSupportApplication",
+    "category": "F.Application",
+    "trDescription": "Creates an Mcu Support application with an empty UI.",
+    "trDisplayName": "Mcu Support Application",
+    "trDisplayCategory": "Application",
+    "icon": "../icon.png",
+    "enabled": true,
+
+    "options":
+    [
+        { "key": "MainQmlFile", "value": "%{ProjectName}.qml" },
+        { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data": {
+                "projectFilePath": "%{CMakeFile}"
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "CMakeLists.txt",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{MainQmlFile}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}

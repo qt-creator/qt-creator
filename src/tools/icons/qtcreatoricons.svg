@@ -586,6 +586,18 @@
          result="composite5"
          id="feComposite4162" />
     </filter>
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Lightness-Contrast"
+       id="filter2749"
+       x="0"
+       y="0"
+       width="1"
+       height="1">
+      <feColorMatrix
+         values="0.66 0 0 0.35 0.0182292 0.02 0.66 0.02 0.35 0.0182292 0.08 0.08 0.66 0.35 0.02 0 0 0 1 0 "
+         id="feColorMatrix2747" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -2842,6 +2854,41 @@
          x="0"
          style="display:inline"
          transform="translate(169,-74)" />
+    </g>
+    <g
+       transform="translate(-245,-78)"
+       id="src/plugins/mcusupport/wizards/icon">
+      <g
+         id="g2653"
+         style="filter:url(#filter2749)">
+        <use
+           style="display:inline"
+           x="0"
+           y="0"
+           xlink:href="#transparentBackgroundRect_60_60"
+           id="use2529"
+           width="100%"
+           height="100%"
+           transform="translate(485,138)" />
+        <use
+           style="stroke-width:0.5"
+           height="100%"
+           width="100%"
+           id="use6254-7"
+           xlink:href="#baremetalchip_big"
+           y="0"
+           x="0"
+           transform="matrix(2,0,0,2,-631,-402)" />
+        <use
+           style="stroke-width:0.5"
+           transform="matrix(2,0,0,2,-514.5,199)"
+           x="0"
+           y="0"
+           xlink:href="#boottoqtscreen"
+           id="use6299-7"
+           width="100%"
+           height="100%" />
+      </g>
     </g>
     <g
        id="src/plugins/coreplugin/images/settingscategory_core"
@@ -9817,52 +9864,55 @@
          id="use5913-0-8-1-5-6-8-1"
          width="100%"
          height="100%" />
-      <path
-         style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-opacity:1"
-         d="m 564.5,351.5 h 13 l 2,2 v 13 l -2,2 h -13 l -2,-2 v -13 z"
-         id="rect5155"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccccccc" />
+      <g
+         id="baremetalchip_big">
+        <path
+           sodipodi:nodetypes="ccccccccc"
+           inkscape:connector-curvature="0"
+           id="rect5155"
+           d="m 564.5,351.5 h 13 l 2,2 v 13 l -2,2 h -13 l -2,-2 v -13 z"
+           style="fill:#808080;stroke:#000000;stroke-width:1" />
+        <g
+           transform="translate(0.5,-4)"
+           id="g5189">
+          <path
+             sodipodi:nodetypes="cccccccccccccccccccc"
+             inkscape:connector-curvature="0"
+             d="m 565.5,352 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z"
+             style="color:#000000"
+             id="path5432-0" />
+        </g>
+        <use
+           height="100%"
+           width="100%"
+           transform="matrix(1,0,0,-1,0,720)"
+           id="use5200"
+           xlink:href="#g5189"
+           y="0"
+           x="0" />
+        <use
+           height="100%"
+           width="100%"
+           transform="rotate(90,571,360)"
+           id="use5202"
+           xlink:href="#g5189"
+           y="0"
+           x="0" />
+        <use
+           height="100%"
+           width="100%"
+           transform="rotate(-90,571,360)"
+           id="use5204"
+           xlink:href="#g5189"
+           y="0"
+           x="0" />
+      </g>
       <circle
          style="fill:#000000"
          id="path5159"
          cx="566"
          cy="365"
          r="1.5" />
-      <g
-         id="g5189"
-         transform="translate(0.5,-4)">
-        <path
-           id="path5432-0"
-           style="color:#000000"
-           d="m 565.5,352 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z m 3,0 h 1 v 3 h -1 z"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="cccccccccccccccccccc" />
-      </g>
-      <use
-         x="0"
-         y="0"
-         xlink:href="#g5189"
-         id="use5200"
-         transform="matrix(1,0,0,-1,0,720)"
-         width="100%"
-         height="100%" />
-      <use
-         x="0"
-         y="0"
-         xlink:href="#g5189"
-         id="use5202"
-         transform="rotate(90,571,360)"
-         width="100%"
-         height="100%" />
-      <use
-         x="0"
-         y="0"
-         xlink:href="#g5189"
-         id="use5204"
-         transform="rotate(-90,571,360)"
-         width="100%"
-         height="100%" />
       <path
          id="rect5208-6-6"
          style="fill:#000000"
@@ -9881,42 +9931,45 @@
          width="100%"
          height="100%"
          transform="translate(586,-73)" />
-      <path
-         style="fill:#999999;fill-opacity:1;stroke:#000000;stroke-width:0.5"
-         d="m 575.5,367.25 h 6 l 1.25,1.25 v 6 l -1.25,1.25 h -6 l -1.25,-1.25 v -6 z"
-         id="rect5492"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccccccc" />
-      <path
-         id="rect5494-5"
-         style="fill:#4d4d4d"
-         d="m 580,365 h 1 v 2 h -1 z m -2,0 h 1 v 2 h -1 z m -2,0 h 1 v 2 h -1 z"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="ccccccccccccscc" />
-      <use
-         x="0"
-         y="0"
-         xlink:href="#rect5494-5"
-         id="use5529"
-         transform="rotate(90,578.5,371.5)"
-         width="100%"
-         height="100%" />
-      <use
-         x="0"
-         y="0"
-         xlink:href="#rect5494-5"
-         id="use5531"
-         transform="matrix(1,0,0,-1,0,743)"
-         width="100%"
-         height="100%" />
-      <use
-         x="0"
-         y="0"
-         xlink:href="#rect5494-5"
-         id="use5533"
-         transform="rotate(-90,578.5,371.5)"
-         width="100%"
-         height="100%" />
+      <g
+         id="baremetalchip_small">
+        <path
+           sodipodi:nodetypes="ccccccccc"
+           inkscape:connector-curvature="0"
+           id="rect5492"
+           d="m 575.5,367.25 h 6 l 1.25,1.25 v 6 l -1.25,1.25 h -6 l -1.25,-1.25 v -6 z"
+           style="fill:#999999;fill-opacity:1;stroke:#000000;stroke-width:0.5" />
+        <path
+           sodipodi:nodetypes="ccccccccccccscc"
+           inkscape:connector-curvature="0"
+           d="m 580,365 h 1 v 2 h -1 z m -2,0 h 1 v 2 h -1 z m -2,0 h 1 v 2 h -1 z"
+           style="fill:#4d4d4d"
+           id="rect5494-5" />
+        <use
+           height="100%"
+           width="100%"
+           transform="rotate(90,578.5,371.5)"
+           id="use5529"
+           xlink:href="#rect5494-5"
+           y="0"
+           x="0" />
+        <use
+           height="100%"
+           width="100%"
+           transform="matrix(1,0,0,-1,0,743)"
+           id="use5531"
+           xlink:href="#rect5494-5"
+           y="0"
+           x="0" />
+        <use
+           height="100%"
+           width="100%"
+           transform="rotate(-90,578.5,371.5)"
+           id="use5533"
+           xlink:href="#rect5494-5"
+           y="0"
+           x="0" />
+      </g>
       <circle
          style="fill:#000000"
          id="path5159-4"
@@ -10366,6 +10419,59 @@
          style="fill:none;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:bevel"
          d="m 579.5,373.5 h 3 m -3,2.5 v -4 l 1.5,-2 1.5,2 v 4 m -9,-6 v 3 l 1,3 1,-4 1,4 1,-3 v -3"
          inkscape:connector-curvature="0" />
+    </g>
+    <g
+       transform="translate(-31.75,310.5)"
+       id="src/plugins/mcusupport/images/mcusupportdevice">
+      <use
+         transform="translate(458.75,5.5)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use6222"
+         width="100%"
+         height="100%" />
+      <use
+         transform="translate(-54.25,-299.5)"
+         x="0"
+         y="0"
+         xlink:href="#baremetalchip_big"
+         id="use6254"
+         width="100%"
+         height="100%" />
+      <use
+         height="100%"
+         width="100%"
+         id="use6299"
+         xlink:href="#boottoqtscreen"
+         y="0"
+         x="0"
+         transform="translate(4,1)" />
+    </g>
+    <g
+       id="src/plugins/mcusupport/images/mcusupportdevicesmall"
+       transform="translate(-102,27)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use6230"
+         width="100%"
+         height="100%"
+         transform="translate(586,-73)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#baremetalchip_small"
+         id="use6282"
+         width="100%"
+         height="100%" />
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:0.89999998"
+         inkscape:connector-curvature="0"
+         d="m 579.5,371.5 h 2.5 m -1.48438,-1.54688 -0.0227,2.94133 c 0.002,0.96521 0.83838,0.77673 1.50706,0.60555 m -3.69064,0 1.19887,1.38951 M 577.5,370.5 c 1,0 1,0.28518 1,1.5 0,1.21481 0,1.5 -1,1.5 -1,0 -1,-0.30273 -1,-1.5 0,-1.19726 0,-1.5 1,-1.5 z"
+         id="path6333" />
     </g>
     <g
        id="src/plugins/winrt/images/winrtdevice"
