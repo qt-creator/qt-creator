@@ -297,6 +297,7 @@ void CMakeBuildSystem::combineScanAndParse()
 
         if (m_combinedScanAndParseResult) {
             updateProjectData(qobject_cast<CMakeProject *>(m_currentContext.project), bc);
+            m_currentContext.guard.markAsSuccess();
         }
     }
 
