@@ -327,6 +327,22 @@ void AnimationCurve::analyze()
 
             if (frame.position().y() > m_maxY)
                 m_maxY = frame.position().y();
+
+            if (frame.hasLeftHandle()) {
+                if (frame.leftHandle().y() < m_minY)
+                    m_minY = frame.leftHandle().y();
+
+                if (frame.leftHandle().y() > m_maxY)
+                    m_maxY = frame.leftHandle().y();
+            }
+
+            if (frame.hasRightHandle()) {
+                if (frame.rightHandle().y() < m_minY)
+                    m_minY = frame.rightHandle().y();
+
+                if (frame.rightHandle().y() > m_maxY)
+                    m_maxY = frame.rightHandle().y();
+            }
         }
     }
 }
