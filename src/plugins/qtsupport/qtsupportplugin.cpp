@@ -27,20 +27,17 @@
 
 #include "codegenerator.h"
 #include "codegensettingspage.h"
-#include "desktopqtversion.h"
 #include "gettingstartedwelcomepage.h"
+#include "profilereader.h"
+#include "qscxmlcgenerator.h"
 #include "qtkitinformation.h"
 #include "qtoptionspage.h"
 #include "qtoutputformatter.h"
 #include "qtsupportconstants.h"
-#include "qtversionfactory.h"
 #include "qtversionmanager.h"
+#include "qtversions.h"
 #include "translationwizardpage.h"
 #include "uicgenerator.h"
-#include "qscxmlcgenerator.h"
-
-#include "desktopqtversion.h"
-#include "profilereader.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
@@ -66,7 +63,9 @@ class QtSupportPluginPrivate
 {
 public:
     QtVersionManager qtVersionManager;
+
     DesktopQtVersionFactory desktopQtVersionFactory;
+    EmbeddedLinuxQtVersionFactory embeddedLinuxQtVersionFactory;
 
     CodeGenSettingsPage codeGenSettingsPage;
     QtOptionsPage qtOptionsPage;

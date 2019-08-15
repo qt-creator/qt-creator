@@ -39,7 +39,7 @@
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/desktopqtversion.h>
+#include <qtsupport/qtversions.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>

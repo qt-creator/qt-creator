@@ -129,7 +129,7 @@ void QtProjectImporter::persistTemporaryQt(Kit *k, const QVariantList &vl)
 } // namespace QtSupport
 
 #include "qtsupportplugin.h"
-#include "desktopqtversion.h"
+#include "qtversions.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>

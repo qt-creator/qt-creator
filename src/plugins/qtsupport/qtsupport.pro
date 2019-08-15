@@ -29,7 +29,7 @@ HEADERS += \
     exampleslistmodel.h \
     screenshotcropper.h \
     qtconfigwidget.h \
-    desktopqtversion.h \
+    qtversions.h \
     uicgenerator.h \
     qscxmlcgenerator.h \
     translationwizardpage.h
@@ -55,7 +55,7 @@ SOURCES += \
     exampleslistmodel.cpp \
     screenshotcropper.cpp \
     qtconfigwidget.cpp \
-    desktopqtversion.cpp \
+    qtversions.cpp \
     uicgenerator.cpp \
     qscxmlcgenerator.cpp \
     translationwizardpage.cpp

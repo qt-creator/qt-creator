@@ -25,7 +25,6 @@
 
 #include "remotelinuxplugin.h"
 
-#include "embeddedlinuxqtversion.h"
 #include "linuxdevice.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxqmltoolingsupport.h"
@@ -82,7 +81,6 @@ public:
         checkForFreeDiskSpaceStepFactory;
     GenericDeployStepFactory<RemoteLinuxKillAppStep> remoteLinuxKillAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
-    EmbeddedLinuxQtVersionFactory embeddedLinuxQtVersionFactory;
 
     const QList<Core::Id> supportedRunConfigs {
         runConfigurationFactory.id(),

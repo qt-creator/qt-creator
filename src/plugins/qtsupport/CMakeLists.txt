@@ -8,7 +8,6 @@ add_qtc_plugin(QtSupport
     codegensettings.cpp codegensettings.h
     codegensettingspage.cpp codegensettingspage.h
     codegensettingspagewidget.ui
-    desktopqtversion.cpp desktopqtversion.h
     exampleslistmodel.cpp exampleslistmodel.h
     gettingstartedwelcomepage.cpp gettingstartedwelcomepage.h
     profilereader.cpp profilereader.h
@@ -29,6 +28,7 @@ add_qtc_plugin(QtSupport
     qtversionfactory.cpp qtversionfactory.h
     qtversioninfo.ui
     qtversionmanager.cpp qtversionmanager.h qtversionmanager.ui
+    qtversions.cpp qtversions.h
     screenshotcropper.cpp screenshotcropper.h
     showbuildlog.ui
     translationwizardpage.cpp translationwizardpage.h

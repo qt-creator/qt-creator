@@ -23,12 +23,14 @@
 **
 ****************************************************************************/
 
-#include "desktopqtversion.h"
+#include "qtversions.h"
 #include "qtsupportconstants.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
 #include <remotelinux/remotelinux_constants.h>
+
 #include <coreplugin/featureprovider.h>
 
 #include <utils/algorithm.h>
@@ -112,6 +114,45 @@ DesktopQtVersionFactory::DesktopQtVersionFactory()
     setSupportedType(QtSupport::Constants::DESKTOPQT);
     setPriority(0); // Lowest of all, we want to be the fallback
     // No further restrictions. We are the fallback :) so we don't care what kind of qt it is.
+}
+
+
+// EmbeddedLinuxQtVersion
+
+const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
+
+class EmbeddedLinuxQtVersion : public BaseQtVersion
+{
+public:
+    EmbeddedLinuxQtVersion() = default;
+
+    QString description() const override
+    {
+        return QCoreApplication::translate("QtVersion", "Embedded Linux",
+                                           "Qt Version is used for embedded Linux development");
+    }
+
+    QSet<Core::Id> targetDeviceTypes() const override
+    {
+        return {RemoteLinux::Constants::GenericLinuxOsType};
+    }
+};
+
+EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
+{
+    setQtVersionCreator([] { return new EmbeddedLinuxQtVersion; });
+    setSupportedType(EMBEDDED_LINUX_QT);
+    setPriority(10);
+
+    setRestrictionChecker([](const SetupData &) {
+        const EmbeddedLinuxQtVersion tempVersion;
+        const ProjectExplorer::Abis abis = tempVersion.qtAbis();
+
+        // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.
+        return  abis.count() == 1
+                && abis.at(0).os() == ProjectExplorer::Abi::LinuxOS
+                && !ProjectExplorer::Abi::hostAbi().isCompatibleWith(abis.at(0));
+    });
 }
 
 } // Internal

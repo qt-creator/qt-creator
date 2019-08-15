@@ -3,7 +3,6 @@ QT += network
 include(../../qtcreatorplugin.pri)
 
 HEADERS += \
-    embeddedlinuxqtversion.h \
     makeinstallstep.h \
     remotelinuxenvironmentaspect.h \
     remotelinuxenvironmentaspectwidget.h \
@@ -47,7 +46,6 @@ HEADERS += \
     deploymenttimeinfo.h
 
 SOURCES += \
-    embeddedlinuxqtversion.cpp \
     makeinstallstep.cpp \
     remotelinuxenvironmentaspect.cpp \
     remotelinuxenvironmentaspectwidget.cpp \

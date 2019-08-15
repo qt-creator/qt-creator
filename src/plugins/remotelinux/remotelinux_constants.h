@@ -30,7 +30,5 @@ namespace Constants {
 
 const char GenericLinuxOsType[] = "GenericLinuxOsType";
 
-const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
-
 } // Constants
 } // RemoteLinux

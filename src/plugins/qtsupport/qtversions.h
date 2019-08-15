@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include <qtsupport/qtversionfactory.h>
-
+#include "qtversionfactory.h"
 #include "baseqtversion.h"
 
 namespace QtSupport {
@@ -57,6 +56,12 @@ class DesktopQtVersionFactory : public QtVersionFactory
 {
 public:
     DesktopQtVersionFactory();
+};
+
+class EmbeddedLinuxQtVersionFactory : public QtSupport::QtVersionFactory
+{
+public:
+    EmbeddedLinuxQtVersionFactory();
 };
 
 } // Internal
