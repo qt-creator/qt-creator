@@ -48,8 +48,8 @@ class DummyProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 public:
-    DummyProject(const Utils::FilePath &file) :
-        ProjectExplorer::Project(QString(), file, {})
+    DummyProject(const Utils::FilePath &file)
+        : ProjectExplorer::Project(QString(), file)
     {
         auto fileNode
                 = std::make_unique<ProjectExplorer::FileNode>(file, ProjectExplorer::FileType::Source);
