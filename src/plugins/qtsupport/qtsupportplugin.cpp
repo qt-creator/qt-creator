@@ -76,6 +76,9 @@ public:
     QtKitAspect qtKiAspect;
 
     QtOutputFormatterFactory qtOutputFormatterFactory;
+
+    UicGeneratorFactory uicGeneratorFactory;
+    QScxmlcGeneratorFactory qscxmlcGeneratorFactory;
 };
 
 QtSupportPlugin::~QtSupportPlugin()
@@ -95,9 +98,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     ProjectExplorer::JsonWizardFactory::registerPageFactory(new TranslationWizardPageFactory);
 
     d = new QtSupportPluginPrivate;
-
-    (void) new UicGeneratorFactory(this);
-    (void) new QScxmlcGeneratorFactory(this);
 
     QtVersionManager::initialized();
 

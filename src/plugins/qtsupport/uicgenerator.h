@@ -50,7 +50,7 @@ class UicGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
 {
     Q_OBJECT
 public:
-    UicGeneratorFactory(QObject *parent = nullptr) : ExtraCompilerFactory(parent) {}
+    UicGeneratorFactory() = default;
 
     ProjectExplorer::FileType sourceType() const override;
 

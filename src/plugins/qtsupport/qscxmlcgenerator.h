@@ -60,7 +60,7 @@ class QScxmlcGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
 {
     Q_OBJECT
 public:
-    QScxmlcGeneratorFactory(QObject *parent = nullptr) : ExtraCompilerFactory(parent) {}
+    QScxmlcGeneratorFactory() = default;
 
     ProjectExplorer::FileType sourceType() const override;
 
