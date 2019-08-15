@@ -69,8 +69,7 @@ void CppLocatorFilter::refresh(QFutureInterface<void> &future)
 QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
         QFutureInterface<Core::LocatorFilterEntry> &future, const QString &entry)
 {
-    enum { Best = 0, Better, Good, Normal, EntryNumber };
-    QList<Core::LocatorFilterEntry> entries[EntryNumber];
+    QList<Core::LocatorFilterEntry> entries[int(MatchLevel::Count)];
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
     const IndexItem::ItemType wanted = matchTypes();
 
@@ -113,13 +112,13 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
                 }
 
                 if (matchInParameterList)
-                    entries[Normal].append(filterEntry);
+                    entries[int(MatchLevel::Normal)].append(filterEntry);
                 else if (filterEntry.displayName.startsWith(entry, caseSensitivityForPrefix))
-                    entries[Best].append(filterEntry);
+                    entries[int(MatchLevel::Best)].append(filterEntry);
                 else if (filterEntry.displayName.contains(entry, caseSensitivityForPrefix))
-                    entries[Better].append(filterEntry);
+                    entries[int(MatchLevel::Better)].append(filterEntry);
                 else
-                    entries[Good].append(filterEntry);
+                    entries[int(MatchLevel::Good)].append(filterEntry);
             }
         }
 

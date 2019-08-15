@@ -40,15 +40,8 @@
 using namespace Core;
 using namespace Core::Internal;
 
-enum class MatchLevel {
-    Best = 0,
-    Better,
-    Good,
-    Normal,
-    Number
-};
-
-static MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText)
+ILocatorFilter::MatchLevel FileSystemFilter::matchLevelFor(const QRegularExpressionMatch &match,
+                                                           const QString &matchText) const
 {
     const int consecutivePos = match.capturedStart(1);
     if (consecutivePos == 0)
@@ -80,7 +73,7 @@ void FileSystemFilter::prepareSearch(const QString &entry)
 QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                        const QString &entry)
 {
-    QList<LocatorFilterEntry> entries[int(MatchLevel::Number)];
+    QList<LocatorFilterEntry> entries[int(MatchLevel::Count)];
     const QFileInfo entryInfo(entry);
     const QString entryFileName = entryInfo.fileName();
     QString directory = entryInfo.path();

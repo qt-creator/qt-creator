@@ -105,6 +105,14 @@ class CORE_EXPORT ILocatorFilter : public QObject
     Q_OBJECT
 
 public:
+    enum class MatchLevel {
+        Best = 0,
+        Better,
+        Good,
+        Normal,
+        Count
+    };
+
     enum Priority {Highest = 0, High = 1, Medium = 2, Low = 3};
 
     ILocatorFilter(QObject *parent = nullptr);

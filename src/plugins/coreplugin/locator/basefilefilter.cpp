@@ -88,24 +88,25 @@ void BaseFileFilter::prepareSearch(const QString &entry)
     d->m_data.forceNewSearchList = false;
 }
 
-static int matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText)
+ILocatorFilter::MatchLevel BaseFileFilter::matchLevelFor(const QRegularExpressionMatch &match,
+                                                         const QString &matchText) const
 {
     const int consecutivePos = match.capturedStart(1);
     if (consecutivePos == 0)
-        return 0;
+        return MatchLevel::Best;
     if (consecutivePos > 0) {
         const QChar prevChar = matchText.at(consecutivePos - 1);
         if (prevChar == '_' || prevChar == '.')
-            return 1;
+            return MatchLevel::Better;
     }
     if (match.capturedStart() == 0)
-        return 2;
-    return 3;
+        return MatchLevel::Good;
+    return MatchLevel::Normal;
 }
 
 QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &origEntry)
 {
-    QList<LocatorFilterEntry> entries[4];
+    QList<LocatorFilterEntry> entries[int(MatchLevel::Count)];
     // If search string contains spaces, treat them as wildcard '*' and search in full path
     const QString entry = QDir::fromNativeSeparators(origEntry).replace(' ', '*');
     const EditorManager::FilePathInfo fp = EditorManager::splitLineAndColumnNumber(entry);
@@ -113,7 +114,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
     const QRegularExpression regexp = createRegExp(fp.filePath);
     if (!regexp.isValid()) {
         d->m_current.clear(); // free memory
-        return entries[0];
+        return {};
     }
     auto containsPathSeparator = [](const QString &candidate) {
         return candidate.contains('/') || candidate.contains('*');
@@ -151,7 +152,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
             filterEntry.fileName = path.toString();
             filterEntry.extraInfo = FilePath::fromFileInfo(fi).shortNativePath();
 
-            const int matchLevel = matchLevelFor(match, matchText);
+            const MatchLevel matchLevel = matchLevelFor(match, matchText);
             if (hasPathSeparator) {
                 match = regexp.match(filterEntry.extraInfo);
                 filterEntry.highlightInfo =
@@ -160,7 +161,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
                 filterEntry.highlightInfo = highlightInfo(match);
             }
 
-            entries[matchLevel].append(filterEntry);
+            entries[int(matchLevel)].append(filterEntry);
             d->m_current.previousResultPaths.append(path);
         }
     }
@@ -180,7 +181,7 @@ QList<LocatorFilterEntry> BaseFileFilter::matchesFor(QFutureInterface<LocatorFil
             Utils::sort(entry, Core::LocatorFilterEntry::compareLexigraphically);
     }
 
-    return entries[0] + entries[1] + entries[2] + entries[3];
+    return std::accumulate(std::begin(entries), std::end(entries), QList<LocatorFilterEntry>());
 }
 
 void BaseFileFilter::accept(LocatorFilterEntry selection,

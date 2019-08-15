@@ -76,6 +76,7 @@ protected:
     QSharedPointer<Iterator> fileIterator();
 
 private:
+    MatchLevel matchLevelFor(const QRegularExpressionMatch &match, const QString &matchText) const;
     void updatePreviousResultData();
 
     Internal::BaseFileFilterPrivate *d = nullptr;

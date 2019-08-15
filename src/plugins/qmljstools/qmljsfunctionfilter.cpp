@@ -58,8 +58,7 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
         QFutureInterface<Core::LocatorFilterEntry> &future,
         const QString &entry)
 {
-    enum { Best = 0, Better, Good, EntryNumber };
-    QList<Core::LocatorFilterEntry> entries[EntryNumber];
+    QList<Core::LocatorFilterEntry> entries[int(MatchLevel::Count)];
     const Qt::CaseSensitivity caseSensitivityForPrefix = caseSensitivity(entry);
 
     const QRegularExpression regexp = createRegExp(entry);
@@ -83,11 +82,11 @@ QList<Core::LocatorFilterEntry> FunctionFilter::matchesFor(
                 filterEntry.highlightInfo = highlightInfo(match);
 
                 if (filterEntry.displayName.startsWith(entry, caseSensitivityForPrefix))
-                    entries[Best].append(filterEntry);
+                    entries[int(MatchLevel::Best)].append(filterEntry);
                 else if (filterEntry.displayName.contains(entry, caseSensitivityForPrefix))
-                    entries[Better].append(filterEntry);
+                    entries[int(MatchLevel::Better)].append(filterEntry);
                 else
-                    entries[Good].append(filterEntry);
+                    entries[int(MatchLevel::Good)].append(filterEntry);
             }
         }
     }
