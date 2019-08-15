@@ -62,6 +62,7 @@ public:
 
     bool isParsing() const final;
 
+    QVector<Utils::FilePath> takeProjectFilesToWatch() final;
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) final;
     CMakeConfig takeParsedConfiguration(QString &errorMessage) final;
     std::unique_ptr<CMakeProjectNode> generateProjectTree(

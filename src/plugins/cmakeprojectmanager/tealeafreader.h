@@ -37,8 +37,6 @@ namespace Utils { class QtcProcess; }
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeFile;
-
 class TeaLeafReader : public BuildDirReader
 {
     Q_OBJECT
@@ -56,6 +54,7 @@ public:
 
     bool isParsing() const final;
 
+    QVector<Utils::FilePath> takeProjectFilesToWatch() final;
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) final;
     CMakeConfig takeParsedConfiguration(QString &errorMessage) final;
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
@@ -80,7 +79,6 @@ private:
     QString m_projectName;
     QList<CMakeBuildTarget> m_buildTargets;
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> m_files;
-    QSet<Internal::CMakeFile *> m_watchedFiles;
 
     // RegExps for function-like macrosses names fixups
     QRegularExpression m_macroFixupRe1;

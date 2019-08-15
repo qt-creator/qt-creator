@@ -54,48 +54,8 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-// --------------------------------------------------------------------
-// Helper:
-// --------------------------------------------------------------------
-
 namespace CMakeProjectManager {
 namespace Internal {
-
-class CMakeFile : public IDocument
-{
-public:
-    CMakeFile(TeaLeafReader *r, const FilePath &fileName);
-
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
-
-private:
-    TeaLeafReader *m_reader;
-};
-
-CMakeFile::CMakeFile(TeaLeafReader *r, const FilePath &fileName) : m_reader(r)
-{
-    setId("Cmake.ProjectFile");
-    setMimeType(Constants::CMAKEPROJECTMIMETYPE);
-    setFilePath(fileName);
-}
-
-IDocument::ReloadBehavior CMakeFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
-{
-    Q_UNUSED(state)
-    Q_UNUSED(type)
-    return BehaviorSilent;
-}
-
-bool CMakeFile::reload(QString *errorString, IDocument::ReloadFlag flag, IDocument::ChangeType type)
-{
-    Q_UNUSED(errorString)
-    Q_UNUSED(flag)
-
-    if (type != TypePermissions)
-        emit m_reader->dirty();
-    return true;
-}
 
 // --------------------------------------------------------------------
 // TeaLeafReader:
@@ -140,9 +100,6 @@ bool TeaLeafReader::isCompatible(const BuildDirParameters &p)
 
 void TeaLeafReader::resetData()
 {
-    qDeleteAll(m_watchedFiles);
-    m_watchedFiles.clear();
-
     m_projectName.clear();
     m_buildTargets.clear();
     m_files.clear();
@@ -202,6 +159,11 @@ bool TeaLeafReader::isParsing() const
     return m_cmakeProcess && m_cmakeProcess->state() != QProcess::NotRunning;
 }
 
+QVector<FilePath> TeaLeafReader::takeProjectFilesToWatch()
+{
+    return transform<QVector>(m_cmakeFiles, [](const FilePath &p) { return p; });
+}
+
 QList<CMakeBuildTarget> TeaLeafReader::takeBuildTargets(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
@@ -243,29 +205,6 @@ std::unique_ptr<CMakeProjectNode> TeaLeafReader::generateProjectTree(
 
     auto root = std::make_unique<CMakeProjectNode>(m_parameters.sourceDirectory);
     root->setDisplayName(m_projectName);
-
-    // Delete no longer necessary file watcher based on m_cmakeFiles:
-    const QSet<FilePath> currentWatched
-            = transform(m_watchedFiles, &CMakeFile::filePath);
-    const QSet<FilePath> toWatch = m_cmakeFiles;
-    QSet<FilePath> toDelete = currentWatched;
-    toDelete.subtract(toWatch);
-    m_watchedFiles = filtered(m_watchedFiles, [&toDelete](Internal::CMakeFile *cmf) {
-            if (toDelete.contains(cmf->filePath())) {
-                delete cmf;
-                return false;
-            }
-            return true;
-        });
-
-    // Add new file watchers:
-    QSet<FilePath> toAdd = toWatch;
-    toAdd.subtract(currentWatched);
-    foreach (const FilePath &fn, toAdd) {
-        auto cm = new CMakeFile(this, fn);
-        DocumentManager::addDocument(cm);
-        m_watchedFiles.insert(cm);
-    }
 
     QSet<FilePath> allIncludePathSet;
     for (const CMakeBuildTarget &bt : m_buildTargets) {

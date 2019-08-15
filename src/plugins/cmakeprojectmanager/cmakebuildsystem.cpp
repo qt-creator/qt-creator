@@ -310,6 +310,8 @@ void CMakeBuildSystem::updateProjectData(CMakeProject *p, CMakeBuildConfiguratio
 
     QTC_ASSERT(m_treeScanner.isFinished() && !bc->m_buildDirManager.isParsing(), return );
 
+    project()->setExtraProjectFiles(bc->m_buildDirManager.takeProjectFilesToWatch());
+
     CMakeConfig patchedConfig = bc->configurationFromCMake();
     {
         CMakeConfigItem settingFileItem;
