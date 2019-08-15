@@ -26,30 +26,8 @@
 #pragma once
 
 #include "qtversionfactory.h"
-#include "baseqtversion.h"
 
 namespace QtSupport {
-
-class QTSUPPORT_EXPORT DesktopQtVersion : public BaseQtVersion
-{
-public:
-    DesktopQtVersion();
-
-    QStringList warningReason() const override;
-
-    QString description() const override;
-
-    QSet<Core::Id> availableFeatures() const override;
-    QSet<Core::Id> targetDeviceTypes() const override;
-
-    void fromMap(const QVariantMap &map) override;
-
-    QString qmlsceneCommand() const;
-
-private:
-    mutable QString m_qmlsceneCommand;
-};
-
 namespace Internal {
 
 class DesktopQtVersionFactory : public QtVersionFactory

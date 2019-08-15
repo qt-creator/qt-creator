@@ -43,7 +43,6 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversions.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -300,7 +299,7 @@ Tasks QmlProject::projectIssues(const Kit *k) const
 
     if (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         if (version->type() == QtSupport::Constants::DESKTOPQT) {
-            if (static_cast<const QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand().isEmpty()) {
+            if (version->qmlsceneCommand().isEmpty()) {
                 result.append(createProjectTask(Task::TaskType::Error,
                                                 tr("Qt version has no qmlscene command.")));
             }

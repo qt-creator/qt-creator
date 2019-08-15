@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "qtversions.h"
+
+#include "baseqtversion.h"
 #include "qtsupportconstants.h"
 
 #include <projectexplorer/abi.h>
@@ -41,12 +43,20 @@
 #include <QFileInfo>
 
 namespace QtSupport {
+namespace Internal {
 
-DesktopQtVersion::DesktopQtVersion()
-    : BaseQtVersion()
+class DesktopQtVersion : public BaseQtVersion
 {
+public:
+    DesktopQtVersion() = default;
 
-}
+    QStringList warningReason() const override;
+
+    QString description() const override;
+
+    QSet<Core::Id> availableFeatures() const override;
+    QSet<Core::Id> targetDeviceTypes() const override;
+};
 
 QStringList DesktopQtVersion::warningReason() const
 {
@@ -78,33 +88,6 @@ QSet<Core::Id> DesktopQtVersion::targetDeviceTypes() const
         result.insert(RemoteLinux::Constants::GenericLinuxOsType);
     return result;
 }
-
-void DesktopQtVersion::fromMap(const QVariantMap &map)
-{
-    BaseQtVersion::fromMap(map);
-    // Clear the cached qmlscene command, it might not match the restored path anymore.
-    m_qmlsceneCommand.clear();
-}
-
-QString DesktopQtVersion::qmlsceneCommand() const
-{
-    if (!isValid())
-        return QString();
-
-    if (!m_qmlsceneCommand.isNull())
-        return m_qmlsceneCommand;
-
-    ensureMkSpecParsed();
-
-    const QString path =
-        qmlBinPath().pathAppended(Utils::HostOsInfo::withExecutableSuffix("qmlscene")).toString();
-
-    m_qmlsceneCommand = QFileInfo(path).isFile() ? path : QString();
-
-    return m_qmlsceneCommand;
-}
-
-namespace Internal {
 
 // Factory
 

@@ -159,6 +159,7 @@ public:
     QString designerCommand() const;
     QString linguistCommand() const;
     QString qscxmlcCommand() const;
+    QString qmlsceneCommand() const;
 
     QString qtVersionString() const;
     QtVersionNumber qtVersion() const;
@@ -331,6 +332,7 @@ private:
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
     mutable QString m_qscxmlcCommand;
+    mutable QString m_qmlsceneCommand;
 
     mutable ProjectExplorer::Abis m_qtAbis;
 

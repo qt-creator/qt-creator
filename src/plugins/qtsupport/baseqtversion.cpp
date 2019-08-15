@@ -547,6 +547,9 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     }
 
     m_qmakeCommand = Utils::FilePath::fromString(string);
+
+    // Clear the cached qmlscene command, it might not match the restored path anymore.
+    m_qmlsceneCommand.clear();
 }
 
 QVariantMap BaseQtVersion::toMap() const
@@ -812,6 +815,24 @@ QString BaseQtVersion::qscxmlcCommand() const
     if (m_qscxmlcCommand.isNull())
         m_qscxmlcCommand = findHostBinary(QScxmlc);
     return m_qscxmlcCommand;
+}
+
+QString BaseQtVersion::qmlsceneCommand() const
+{
+    if (!isValid())
+        return QString();
+
+    if (!m_qmlsceneCommand.isNull())
+        return m_qmlsceneCommand;
+
+    ensureMkSpecParsed();
+
+    const QString path =
+        qmlBinPath().pathAppended(Utils::HostOsInfo::withExecutableSuffix("qmlscene")).toString();
+
+    m_qmlsceneCommand = QFileInfo(path).isFile() ? path : QString();
+
+    return m_qmlsceneCommand;
 }
 
 QString BaseQtVersion::findHostBinary(HostBinaries binary) const

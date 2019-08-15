@@ -39,7 +39,6 @@
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversions.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -362,8 +361,7 @@ QString QmlProjectRunConfiguration::theExecutable() const
     if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // If not given explicitly by Qt Version, try to pick it from $PATH.
         return version->type() == QtSupport::Constants::DESKTOPQT
-                ? static_cast<QtSupport::DesktopQtVersion *>(version)->qmlsceneCommand()
-                : QString("qmlscene");
+                ? version->qmlsceneCommand() : QString("qmlscene");
     }
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(target()->kit());
