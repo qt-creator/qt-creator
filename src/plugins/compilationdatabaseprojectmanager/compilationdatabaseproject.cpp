@@ -407,17 +407,19 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &pr
     m_kit.reset(KitManager::defaultKit()->clone());
     addTargetForKit(m_kit.get());
 
-    connect(this, &CompilationDatabaseProject::rootProjectDirectoryChanged,
-            m_parseDelay, QOverload<>::of(&QTimer::start));
+    connect(this,
+            &CompilationDatabaseProject::rootProjectDirectoryChanged,
+            m_parseDelay,
+            QOverload<>::of(&QTimer::start));
 
-    m_fileSystemWatcher.addFile(projectFile.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
-    m_fileSystemWatcher.addFile(projectFile.toString() + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX,
-                                Utils::FileSystemWatcher::WatchModifiedDate);
-    connect(&m_fileSystemWatcher, &Utils::FileSystemWatcher::fileChanged,
-            m_parseDelay, QOverload<>::of(&QTimer::start));
+    setExtraProjectFiles(
+        {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
     connect(m_parseDelay, &QTimer::timeout, this, &CompilationDatabaseProject::reparseProject);
+
     m_parseDelay->setSingleShot(true);
     m_parseDelay->setInterval(1000);
+
+    connect(this, &Project::projectFileIsDirty, this, &CompilationDatabaseProject::reparseProject);
 }
 
 Utils::FilePath CompilationDatabaseProject::rootPathFromSettings() const

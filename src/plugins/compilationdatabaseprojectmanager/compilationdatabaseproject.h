@@ -69,7 +69,6 @@ private:
     QFutureWatcher<void> m_parserWatcher;
     std::unique_ptr<CppTools::CppProjectUpdater> m_cppCodeModelUpdater;
     std::unique_ptr<ProjectExplorer::Kit> m_kit;
-    Utils::FileSystemWatcher m_fileSystemWatcher;
     MimeBinaryCache m_mimeBinaryCache;
     QTimer * const m_parseDelay;
     CompilationDbParser *m_parser = nullptr;
