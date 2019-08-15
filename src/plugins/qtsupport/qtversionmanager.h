@@ -59,12 +59,8 @@ public:
     // Sorting is potentially expensive since it might require qmake --query to run for each version!
     static QList<BaseQtVersion *> sortVersions(const QList<BaseQtVersion *> &input);
 
-    static BaseQtVersion *qtVersionForQMakeBinary(const Utils::FilePath &qmakePath);
-
     static void addVersion(BaseQtVersion *version);
     static void removeVersion(BaseQtVersion *version);
-
-    static bool isValidId(int id);
 
 signals:
     // content of BaseQtVersion objects with qmake path might have changed

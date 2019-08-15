@@ -503,12 +503,6 @@ QList<BaseQtVersion *> QtVersionManager::sortVersions(const QList<BaseQtVersion 
     return result;
 }
 
-bool QtVersionManager::isValidId(int id)
-{
-    QTC_ASSERT(isLoaded(), return false);
-    return m_versions.contains(id);
-}
-
 BaseQtVersion *QtVersionManager::version(int id)
 {
     QTC_ASSERT(isLoaded(), return nullptr);
@@ -589,11 +583,6 @@ void QtVersionManager::setNewQtVersions(QList<BaseQtVersion *> newVersions)
 
     if (!changedVersions.isEmpty() || !addedVersions.isEmpty() || !removedVersions.isEmpty())
         emit m_instance->qtVersionsChanged(addedVersions, removedVersions, changedVersions);
-}
-
-BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const FilePath &qmakePath)
-{
-    return version(Utils::equal(&BaseQtVersion::qmakeCommand, qmakePath));
 }
 
 } // namespace QtVersion
