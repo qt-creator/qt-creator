@@ -37,47 +37,26 @@
 #include <QStringList>
 #include <QVariantMap>
 
+QT_BEGIN_NAMESPACE
+class ProFileEvaluator;
+class QMakeGlobals;
+QT_END_NAMESPACE
+
 namespace Utils {
 class Environment;
 class FileInProjectFinder;
-}
-namespace Core { class Id; }
+} // Utils
 
 namespace ProjectExplorer {
-class IOutputParser;
 class Kit;
 class ToolChain;
-class HeaderPath;
 class Target;
-} // namespace ProjectExplorer
+} // ProjectExplorer
 
-QT_BEGIN_NAMESPACE
-class ProKey;
-class ProString;
-class ProFileEvaluator;
-class QMakeGlobals;
-class QSettings;
-QT_END_NAMESPACE
+namespace QtSupport {
 
-namespace QtSupport
-{
 class QtConfigWidget;
-
 class BaseQtVersion;
-class QtVersionFactory;
-
-// Wrapper to make the std::unique_ptr<Utils::MacroExpander> "copyable":
-class MacroExpanderWrapper
-{
-public:
-    MacroExpanderWrapper() = default;
-    MacroExpanderWrapper(const MacroExpanderWrapper &other) { Q_UNUSED(other) }
-    MacroExpanderWrapper(MacroExpanderWrapper &&other) = default;
-
-    Utils::MacroExpander *macroExpander(const BaseQtVersion *qtversion) const;
-private:
-    mutable std::unique_ptr<Utils::MacroExpander> m_expander;
-};
 
 class QTSUPPORT_EXPORT QtVersionNumber
 {
@@ -101,13 +80,13 @@ public:
     bool operator ==(const QtVersionNumber &b) const;
 };
 
-namespace Internal { class QtOptionsPageWidget; }
+namespace Internal {
+class QtOptionsPageWidget;
+class BaseQtVersionPrivate;
+}
 
 class QTSUPPORT_EXPORT BaseQtVersion
 {
-    friend class QtVersionFactory;
-    friend class QtVersionManager;
-    friend class QtSupport::Internal::QtOptionsPageWidget;
 public:
     using Predicate = std::function<bool(const BaseQtVersion *)>;
 
@@ -254,90 +233,33 @@ public:
                                       const ProjectExplorer::Target *target);
 
     QSet<Core::Id> features() const;
-    void setIsAutodetected(bool isAutodetected);
+
 
 protected:
-    virtual QSet<Core::Id> availableFeatures() const;
-
     BaseQtVersion();
     BaseQtVersion(const BaseQtVersion &other) = delete;
 
+    virtual QSet<Core::Id> availableFeatures() const;
     virtual ProjectExplorer::Tasks reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
-    Utils::FilePathList qtCorePaths() const;
     static ProjectExplorer::Abis qtAbisFromLibrary(const Utils::FilePathList &coreLibraries);
 
     void ensureMkSpecParsed() const;
     virtual void parseMkSpec(ProFileEvaluator *) const;
 
 private:
-    void setupQmakePathAndId(const Utils::FilePath &path);
-    void setAutoDetectionSource(const QString &autodetectionSource);
-    void updateVersionInfo() const;
-    enum HostBinaries { Designer, Linguist, Uic, QScxmlc };
-    QString findHostBinary(HostBinaries binary) const;
-    void updateMkspec() const;
-    QHash<ProKey, ProString> versionInfo() const;
-    static bool queryQMakeVariables(const Utils::FilePath &binary,
-                                    const Utils::Environment &env,
-                                    QHash<ProKey, ProString> *versionInfo,
-                                    QString *error = nullptr);
-    static QString qmakeProperty(const QHash<ProKey, ProString> &versionInfo,
-                                 const QByteArray &name,
-                                 PropertyVariant variant = PropertyVariantGet);
-    static Utils::FilePath mkspecDirectoryFromVersionInfo(const QHash<ProKey,ProString> &versionInfo);
-    static Utils::FilePath mkspecFromVersionInfo(const QHash<ProKey,ProString> &versionInfo);
-    static Utils::FilePath sourcePath(const QHash<ProKey,ProString> &versionInfo);
-    void setId(int id); // used by the qtversionmanager for legacy restore
-                        // and by the qtoptionspage to replace Qt versions
+    friend class QtVersionFactory;
+    friend class QtVersionManager;
+    friend class Internal::BaseQtVersionPrivate;
+    friend class Internal::QtOptionsPageWidget;
 
-    int m_id = -1;
-    const QtVersionFactory *m_factory = nullptr; // The factory that created us.
+    void setId(int id);
+    BaseQtVersion *clone() const;
 
-    bool m_isAutodetected = false;
-    mutable bool m_hasQmlDump = false;         // controlled by m_versionInfoUpToDate
-    mutable bool m_mkspecUpToDate = false;
-    mutable bool m_mkspecReadUpToDate = false;
-    mutable bool m_defaultConfigIsDebug = true;
-    mutable bool m_defaultConfigIsDebugAndRelease = true;
-    mutable bool m_frameworkBuild = false;
-    mutable bool m_versionInfoUpToDate = false;
-    mutable bool m_installed = true;
-    mutable bool m_hasExamples = false;
-    mutable bool m_hasDemos = false;
-    mutable bool m_hasDocumentation = false;
-    mutable bool m_qmakeIsExecutable = true;
-    mutable bool m_hasQtAbis = false;
-
-    mutable QStringList m_configValues;
-    mutable QStringList m_qtConfigValues;
-
-    QString m_unexpandedDisplayName;
-    QString m_autodetectionSource;
-    QSet<Core::Id> m_overrideFeatures;
-    mutable Utils::FilePath m_sourcePath;
-    mutable Utils::FilePath m_qtSources;
-
-    mutable Utils::FilePath m_mkspec;
-    mutable Utils::FilePath m_mkspecFullPath;
-
-    mutable QHash<QString, QString> m_mkspecValues;
-
-    mutable QHash<ProKey, ProString> m_versionInfo;
-
-    Utils::FilePath m_qmakeCommand;
-    mutable QString m_qtVersionString;
-    mutable QString m_uicCommand;
-    mutable QString m_designerCommand;
-    mutable QString m_linguistCommand;
-    mutable QString m_qscxmlcCommand;
-    mutable QString m_qmlsceneCommand;
-
-    mutable ProjectExplorer::Abis m_qtAbis;
-
-    MacroExpanderWrapper m_expander;
+    Internal::BaseQtVersionPrivate *d = nullptr;
 };
-}
+
+} // QtSupport
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QtSupport::BaseQtVersion::QmakeBuildConfigs)
