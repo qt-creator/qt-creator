@@ -61,24 +61,6 @@ class ProjectNode;
 class ProjectPrivate;
 class Target;
 
-// Auto-registers with the DocumentManager if a callback is set!
-class PROJECTEXPLORER_EXPORT ProjectDocument : public Core::IDocument
-{
-public:
-    using ProjectCallback = std::function<void()>;
-
-    ProjectDocument(const QString &mimeType, const Utils::FilePath &fileName,
-                    const ProjectCallback &callback = {});
-
-    Core::IDocument::ReloadBehavior reloadBehavior(Core::IDocument::ChangeTrigger state,
-                                                   Core::IDocument::ChangeType type) const final;
-    bool reload(QString *errorString, Core::IDocument::ReloadFlag flag,
-                Core::IDocument::ChangeType type) final;
-
-private:
-    ProjectCallback m_callback;
-};
-
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Project : public QObject
 {
@@ -94,8 +76,7 @@ public:
         isParsingRole
     };
 
-    Project(const QString &mimeType, const Utils::FilePath &fileName,
-            const ProjectDocument::ProjectCallback &callback = {});
+    Project(const QString &mimeType, const Utils::FilePath &fileName);
     ~Project() override;
 
     QString displayName() const;

@@ -48,6 +48,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projecttree.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
 #include <utils/pointeralgorithm.h>
@@ -116,11 +117,28 @@ const Project::NodeMatcher Project::GeneratedFiles = [](const Node *node) {
 // ProjectDocument:
 // --------------------------------------------------------------------
 
-ProjectDocument::ProjectDocument(const QString &mimeType, const Utils::FilePath &fileName,
-                                 const ProjectDocument::ProjectCallback &callback) :
-    m_callback(callback)
+class ProjectDocument : public Core::IDocument
 {
-    QTC_CHECK(callback);
+public:
+    ProjectDocument(const QString &mimeType, const Utils::FilePath &fileName, Project *project);
+
+    Core::IDocument::ReloadBehavior reloadBehavior(Core::IDocument::ChangeTrigger state,
+                                                   Core::IDocument::ChangeType type) const final;
+    bool reload(QString *errorString,
+                Core::IDocument::ReloadFlag flag,
+                Core::IDocument::ChangeType type) final;
+
+private:
+    Project *m_project;
+};
+
+ProjectDocument::ProjectDocument(const QString &mimeType,
+                                 const Utils::FilePath &fileName,
+                                 Project *project)
+    : m_project(project)
+{
+    QTC_CHECK(project);
+
     setFilePath(fileName);
     setMimeType(mimeType);
     Core::DocumentManager::addDocument(this);
@@ -142,7 +160,7 @@ bool ProjectDocument::reload(QString *errorString, Core::IDocument::ReloadFlag f
     Q_UNUSED(flag)
     Q_UNUSED(type)
 
-    m_callback();
+    emit m_project->projectFileIsDirty(filePath());
     return true;
 }
 
@@ -190,17 +208,10 @@ ProjectPrivate::~ProjectPrivate()
 }
 
 Project::Project(const QString &mimeType,
-                 const Utils::FilePath &fileName,
-                 const ProjectDocument::ProjectCallback &callback)
+                 const Utils::FilePath &fileName)
     : d(new ProjectPrivate)
 {
-    d->m_document = std::make_unique<ProjectDocument>(mimeType,
-                                                      fileName,
-                                                      [this, fileName, callback]() {
-                                                          emit projectFileIsDirty(fileName);
-                                                          if (callback)
-                                                              callback();
-                                                      });
+    d->m_document = std::make_unique<ProjectDocument>(mimeType, fileName, this);
 
     d->m_macroExpander.setDisplayName(tr("Project"));
     d->m_macroExpander.registerVariable("Project:Name", tr("Project Name"),
@@ -358,9 +369,7 @@ void Project::setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocume
     });
     for (const Utils::FilePath &p : toAdd) {
         d->m_extraProjectDocuments.emplace_back(
-            std::make_unique<ProjectDocument>(d->m_document->mimeType(), p, [this, p]() {
-                emit projectFileIsDirty(p);
-            }));
+            std::make_unique<ProjectDocument>(d->m_document->mimeType(), p, this));
     }
 }
 
