@@ -37,20 +37,22 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/id.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/id.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/vcsmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojectupdater.h>
+#include <cpptools/generatedcodemodelsupport.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
@@ -58,14 +60,13 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/headerpath.h>
-#include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
-#include <cpptools/generatedcodemodelsupport.h>
-#include <qmljstools/qmljsmodelmanager.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
+#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljstools/qmljsmodelmanager.h>
+#include <qtsupport/qtcppkitinfo.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <qbs.h>
 
@@ -121,9 +122,9 @@ private:
 // QbsProject:
 // --------------------------------------------------------------------
 
-QbsProject::QbsProject(const FilePath &fileName) :
-    Project(Constants::MIME_TYPE, fileName, [this] { delayParsing(); }),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
+QbsProject::QbsProject(const FilePath &fileName)
+    : Project(Constants::MIME_TYPE, fileName)
+    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
@@ -151,6 +152,8 @@ QbsProject::QbsProject(const FilePath &fileName) :
             this, &QbsProject::delayParsing);
 
     connect(&m_parsingDelay, &QTimer::timeout, this, &QbsProject::startParsing);
+
+    connect(this, &QbsProject::projectFileIsDirty, this, &QbsProject::delayParsing);
 }
 
 QbsProject::~QbsProject()
@@ -165,8 +168,6 @@ QbsProject::~QbsProject()
         m_qbsUpdateFutureInterface = nullptr;
     }
     qDeleteAll(m_extraCompilers);
-    std::for_each(m_qbsDocuments.cbegin(), m_qbsDocuments.cend(),
-                  [](Core::IDocument *doc) { doc->deleteLater(); });
 }
 
 void QbsProject::projectLoaded()
@@ -215,36 +216,6 @@ bool QbsProject::isProjectEditable() const
     return m_qbsProject.isValid() && !isParsing() && !BuildManager::isBuilding();
 }
 
-class ChangeExpector
-{
-public:
-    ChangeExpector(const QString &filePath, const QSet<IDocument *> &documents)
-        : m_document(nullptr)
-    {
-        foreach (IDocument * const doc, documents) {
-            if (doc->filePath().toString() == filePath) {
-                m_document = doc;
-                break;
-            }
-        }
-        QTC_ASSERT(m_document, return);
-        DocumentManager::expectFileChange(filePath);
-        m_wasInDocumentManager = DocumentManager::removeDocument(m_document);
-        QTC_CHECK(m_wasInDocumentManager);
-    }
-
-    ~ChangeExpector()
-    {
-        QTC_ASSERT(m_document, return);
-        DocumentManager::addDocument(m_document);
-        DocumentManager::unexpectFileChange(m_document->filePath().toString());
-    }
-
-private:
-    IDocument *m_document;
-    bool m_wasInDocumentManager;
-};
-
 bool QbsProject::ensureWriteableQbsFile(const QString &file)
 {
     // Ensure that the file is not read only
@@ -273,7 +244,7 @@ bool QbsProject::addFilesToProduct(const QStringList &filePaths,
     QTC_ASSERT(m_qbsProject.isValid(), return false);
     QStringList allPaths = groupData.allFilePaths();
     const QString productFilePath = productData.location().filePath();
-    ChangeExpector expector(productFilePath, m_qbsDocuments);
+    Core::FileChangeBlocker expector(productFilePath);
     ensureWriteableQbsFile(productFilePath);
     foreach (const QString &path, filePaths) {
         qbs::ErrorInfo err = m_qbsProject.addFiles(productData, groupData, QStringList() << path);
@@ -310,7 +281,7 @@ RemovedFilesFromProject QbsProject::removeFilesFromProduct(const QStringList &fi
         }
     }
     const QString productFilePath = productData.location().filePath();
-    ChangeExpector expector(productFilePath, m_qbsDocuments);
+    Core::FileChangeBlocker expector(productFilePath);
     ensureWriteableQbsFile(productFilePath);
     for (const QString &path : qAsConst(nonWildcardFiles)) {
         const qbs::ErrorInfo err = m_qbsProject.removeFiles(productData, groupData, {path});
@@ -468,20 +439,12 @@ bool QbsProject::checkCancelStatus()
     return true;
 }
 
-static QSet<QString> toQStringSet(const std::set<QString> &src)
-{
-    QSet<QString> result;
-    result.reserve(int(src.size()));
-    std::copy(src.begin(), src.end(), Utils::inserter(result));
-    return result;
-}
-
 void QbsProject::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
     OpTimer opTimer("updateAfterParse");
     updateProjectNodes();
-    updateDocuments(toQStringSet(m_qbsProject.buildSystemFiles()));
+    updateDocuments(m_qbsProject.buildSystemFiles());
     updateBuildTargetData();
     updateCppCodeModel();
     updateQmlJsCodeModel();
@@ -758,40 +721,19 @@ void QbsProject::prepareForParsing()
     m_qbsUpdateFutureInterface->reportStarted();
 }
 
-void QbsProject::updateDocuments(const QSet<QString> &files)
+void QbsProject::updateDocuments(const std::set<QString> &files)
 {
     OpTimer opTimer("updateDocuments");
-    // Update documents:
-    QSet<QString> newFiles = files;
-    QTC_ASSERT(!newFiles.isEmpty(), newFiles << projectFilePath().toString());
-    QSet<QString> oldFiles;
-    foreach (IDocument *doc, m_qbsDocuments)
-        oldFiles.insert(doc->filePath().toString());
 
-    QSet<QString> filesToAdd = newFiles;
-    filesToAdd.subtract(oldFiles);
-    QSet<QString> filesToRemove = oldFiles;
-    filesToRemove.subtract(newFiles);
+    const QVector<FilePath> filePaths = transform<QVector>(files, &FilePath::fromString);
 
-    QSet<IDocument *> currentDocuments = m_qbsDocuments;
-    foreach (IDocument *doc, currentDocuments) {
-        if (filesToRemove.contains(doc->filePath().toString())) {
-            m_qbsDocuments.remove(doc);
-            doc->deleteLater();
-        }
-    }
-    QSet<IDocument *> toAdd;
     const FilePath buildDir = FilePath::fromString(m_projectData.buildDirectory());
-    for (const QString &f : qAsConst(filesToAdd)) {
-        // A changed qbs file (project, module etc) should trigger a re-parse, but not if
-        // the file was generated by qbs itself, in which case that might cause an infinite loop.
-        const FilePath fp = FilePath::fromString(f);
-        static const ProjectDocument::ProjectCallback noOpCallback = []{};
-        const ProjectDocument::ProjectCallback reparseCallback = [this]() { delayParsing(); };
-        toAdd.insert(new ProjectDocument(Constants::MIME_TYPE, fp, fp.isChildOf(buildDir)
-                                         ? noOpCallback : reparseCallback));
-    }
-    m_qbsDocuments.unite(toAdd);
+    const QVector<FilePath> nonBuildDirFilePaths = filtered(filePaths,
+                                                            [buildDir](const FilePath &p) {
+                                                                return p.isChildOf(buildDir);
+                                                            });
+
+    setExtraProjectFiles(nonBuildDirFilePaths);
 }
 
 static CppTools::ProjectFile::Kind cppFileType(const qbs::ArtifactData &sourceFile)

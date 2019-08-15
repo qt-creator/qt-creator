@@ -117,7 +117,7 @@ private:
                const QString &configName);
 
     void prepareForParsing();
-    void updateDocuments(const QSet<QString> &files);
+    void updateDocuments(const std::set<QString> &files);
     void updateCppCodeModel();
     void updateQmlJsCodeModel();
     void updateApplicationTargets();
@@ -145,7 +145,6 @@ private:
     qbs::Project m_qbsProject; // for activeTarget()
     qbs::ProjectData m_projectData; // Cached m_qbsProject.projectData()
     Utils::Environment m_lastParseEnv;
-    QSet<Core::IDocument *> m_qbsDocuments;
 
     QbsProjectParser *m_qbsProjectParser = nullptr;
 
