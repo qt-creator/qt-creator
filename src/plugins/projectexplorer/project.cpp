@@ -120,10 +120,10 @@ ProjectDocument::ProjectDocument(const QString &mimeType, const Utils::FilePath 
                                  const ProjectDocument::ProjectCallback &callback) :
     m_callback(callback)
 {
+    QTC_CHECK(callback);
     setFilePath(fileName);
     setMimeType(mimeType);
-    if (m_callback)
-        Core::DocumentManager::addDocument(this);
+    Core::DocumentManager::addDocument(this);
 }
 
 Core::IDocument::ReloadBehavior
@@ -142,8 +142,7 @@ bool ProjectDocument::reload(QString *errorString, Core::IDocument::ReloadFlag f
     Q_UNUSED(flag)
     Q_UNUSED(type)
 
-    if (m_callback)
-        m_callback();
+    m_callback();
     return true;
 }
 
@@ -153,12 +152,6 @@ bool ProjectDocument::reload(QString *errorString, Core::IDocument::ReloadFlag f
 class ProjectPrivate
 {
 public:
-    ProjectPrivate(const QString &mimeType, const Utils::FilePath &fileName,
-                   const ProjectDocument::ProjectCallback &callback)
-    {
-        m_document = std::make_unique<ProjectDocument>(mimeType, fileName, callback);
-    }
-
     ~ProjectPrivate();
 
     Core::Id m_id;
@@ -170,6 +163,7 @@ public:
     bool m_hasMakeInstallEquivalent = false;
     bool m_needsBuildConfigurations = true;
     std::unique_ptr<Core::IDocument> m_document;
+    std::vector<std::unique_ptr<Core::IDocument>> m_extraProjectDocuments;
     std::unique_ptr<ProjectNode> m_rootProjectNode;
     std::unique_ptr<ContainerNode> m_containerNode;
     std::vector<std::unique_ptr<Target>> m_targets;
@@ -195,10 +189,19 @@ ProjectPrivate::~ProjectPrivate()
     std::unique_ptr<ProjectNode> oldNode = std::move(m_rootProjectNode);
 }
 
-Project::Project(const QString &mimeType, const Utils::FilePath &fileName,
-                 const ProjectDocument::ProjectCallback &callback) :
-    d(new ProjectPrivate(mimeType, fileName, callback))
+Project::Project(const QString &mimeType,
+                 const Utils::FilePath &fileName,
+                 const ProjectDocument::ProjectCallback &callback)
+    : d(new ProjectPrivate)
 {
+    d->m_document = std::make_unique<ProjectDocument>(mimeType,
+                                                      fileName,
+                                                      [this, fileName, callback]() {
+                                                          emit projectFileIsDirty(fileName);
+                                                          if (callback)
+                                                              callback();
+                                                      });
+
     d->m_macroExpander.setDisplayName(tr("Project"));
     d->m_macroExpander.registerVariable("Project:Name", tr("Project Name"),
             [this] { return displayName(); });
@@ -337,6 +340,28 @@ bool Project::needsInitialExpansion() const
 void Project::setNeedsInitialExpansion(bool needsExpansion)
 {
     d->m_needsInitialExpansion = needsExpansion;
+}
+
+void Project::setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocumentPaths)
+{
+    QSet<Utils::FilePath> uniqueNewFiles = Utils::toSet(projectDocumentPaths);
+    uniqueNewFiles.remove(projectFilePath()); // Make sure to never add the main project file!
+
+    QSet<Utils::FilePath> existingWatches = Utils::transform<QSet>(d->m_extraProjectDocuments,
+                                                                   &Core::IDocument::filePath);
+
+    QSet<Utils::FilePath> toAdd = uniqueNewFiles.subtract(existingWatches);
+    QSet<Utils::FilePath> toRemove = existingWatches.subtract(uniqueNewFiles);
+
+    Utils::erase(d->m_extraProjectDocuments, [&toRemove](const std::unique_ptr<Core::IDocument> &d) {
+        return toRemove.contains(d->filePath());
+    });
+    for (const Utils::FilePath &p : toAdd) {
+        d->m_extraProjectDocuments.emplace_back(
+            std::make_unique<ProjectDocument>(d->m_document->mimeType(), p, [this, p]() {
+                emit projectFileIsDirty(p);
+            }));
+    }
 }
 
 Target *Project::target(Core::Id id) const

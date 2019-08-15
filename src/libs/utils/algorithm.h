@@ -1272,7 +1272,21 @@ QSet<T> toSet(const QList<T> &list)
 #endif
 }
 
-template <class T>
+template<class T>
+QSet<T> toSet(const QVector<T> &vec)
+{
+#if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))
+    QSet<T> result;
+    for (const T &p : vec) {
+        result.insert(p);
+    }
+    return result;
+#else
+    return QSet<T>(vec.begin(), vec.end());
+#endif
+}
+
+template<class T>
 QList<T> toList(const QSet<T> &set)
 {
 #if (QT_VERSION < QT_VERSION_CHECK(5, 14, 0))

@@ -250,7 +250,13 @@ public:
     // FIXME: Make this private and the BuildSystem a friend
     ParseGuard guardParsingRun() { return ParseGuard(this); }
 
+    // Set project files that will be watched and trigger the same callback
+    // as the main project file.
+    void setExtraProjectFiles(const QVector<Utils::FilePath> &projectDocumentPaths);
+
 signals:
+    void projectFileIsDirty(const Utils::FilePath &path);
+
     void displayNameChanged();
     void fileListChanged();
 
