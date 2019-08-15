@@ -67,16 +67,17 @@ using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;
 
-AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName) :
-    Project(Constants::MAKEFILE_MIMETYPE, fileName),
-    m_fileWatcher(new Utils::FileSystemWatcher(this)),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
+AutotoolsProject::AutotoolsProject(const Utils::FilePath &fileName)
+    : Project(Constants::MAKEFILE_MIMETYPE, fileName)
+    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
 {
     setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
 
     setHasMakeInstallEquivalent(true);
+
+    connect(this, &AutotoolsProject::projectFileIsDirty, this, &AutotoolsProject::loadProjectTree);
 }
 
 AutotoolsProject::~AutotoolsProject()
@@ -99,9 +100,6 @@ Project::RestoreResult AutotoolsProject::fromMap(const QVariantMap &map, QString
     RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)
         return result;
-
-    connect(m_fileWatcher, &Utils::FileSystemWatcher::fileChanged,
-            this, &AutotoolsProject::onFileChanged);
 
     // Load the project tree structure.
     loadProjectTree();
@@ -165,12 +163,9 @@ void AutotoolsProject::makefileParsingFinished()
     if (m_makefileParserThread->hasError())
         qWarning("Parsing of makefile contained errors.");
 
-    // Remove file watches for the current project state.
-    // The file watches will be added again after the parsing.
-    m_fileWatcher->removeFiles(m_watchedFiles);
-
     m_files.clear();
-    m_watchedFiles.clear();
+
+    QVector<Utils::FilePath> filesToWatch;
 
     // Apply sources to m_files, which are returned at AutotoolsProject::files()
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
@@ -187,8 +182,7 @@ void AutotoolsProject::makefileParsingFinished()
 
         m_files.append(absMakefile);
 
-        m_fileWatcher->addFile(absMakefile, Utils::FileSystemWatcher::WatchAllChanges);
-        m_watchedFiles.append(absMakefile);
+        filesToWatch.append(Utils::FilePath::fromString(absMakefile));
     }
 
     // Add configure.ac file to project and watch for changes.
@@ -198,8 +192,7 @@ void AutotoolsProject::makefileParsingFinished()
         const QString absConfigureAc = dir.absoluteFilePath(configureAc);
         m_files.append(absConfigureAc);
 
-        m_fileWatcher->addFile(absConfigureAc, Utils::FileSystemWatcher::WatchAllChanges);
-        m_watchedFiles.append(absConfigureAc);
+        filesToWatch.append(Utils::FilePath::fromString(absConfigureAc));
     }
 
     auto newRoot = std::make_unique<ProjectNode>(projectDirectory());
@@ -209,17 +202,12 @@ void AutotoolsProject::makefileParsingFinished()
                                                           FileNode::fileTypeForFileName(path)));
     }
     setRootProjectNode(std::move(newRoot));
+    setExtraProjectFiles(filesToWatch);
 
     updateCppCodeModel();
 
     m_makefileParserThread->deleteLater();
     m_makefileParserThread = nullptr;
-}
-
-void AutotoolsProject::onFileChanged(const QString &file)
-{
-    Q_UNUSED(file)
-    loadProjectTree();
 }
 
 static QStringList filterIncludes(const QString &absSrc, const QString &absBuild,

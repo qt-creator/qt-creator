@@ -80,23 +80,12 @@ private:
     void makefileParsingFinished();
 
     /**
-     * Is invoked, if a file of the project tree has been changed by the user.
-     * If a Makefile.am or a configure.ac file has been changed, the project
-     * configuration must be updated.
-     */
-    void onFileChanged(const QString &file);
-
-    /**
      * This function is in charge of the code completion.
      */
     void updateCppCodeModel();
 
     /// Return value for AutotoolsProject::files()
     QStringList m_files;
-
-    /// Watches project files for changes.
-    Utils::FileSystemWatcher *m_fileWatcher;
-    QStringList m_watchedFiles;
 
     /// Responsible for parsing the makefiles asynchronously in a thread
     MakefileParserThread *m_makefileParserThread = nullptr;
