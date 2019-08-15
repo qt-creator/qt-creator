@@ -988,7 +988,7 @@ void GitPlugin::updateVersionWarning()
     infoBar->addInfo(InfoBarEntry(gitVersionWarning,
                         tr("Unsupported version of Git found. Git %1 or later required.")
                         .arg(versionString(minimumRequiredVersion)),
-                        InfoBarEntry::GlobalSuppressionEnabled));
+                        InfoBarEntry::GlobalSuppression::Enabled));
 }
 
 IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)

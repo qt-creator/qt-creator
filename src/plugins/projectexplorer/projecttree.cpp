@@ -321,7 +321,7 @@ void ProjectTree::updateExternalFileWarning()
     }
     infoBar->addInfo(Core::InfoBarEntry(externalFileId,
                                         tr("<b>Warning:</b> This file is outside the project directory."),
-                                        Core::InfoBarEntry::GlobalSuppressionEnabled));
+                                        Core::InfoBarEntry::GlobalSuppression::Enabled));
 }
 
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)

@@ -357,7 +357,7 @@ void CppEditorDocument::showHideInfoBarAboutMultipleParseContexts(bool show)
         Core::InfoBarEntry info(id,
                                 tr("Note: Multiple parse contexts are available for this file. "
                                    "Choose the preferred one from the editor toolbar."),
-                                Core::InfoBarEntry::GlobalSuppressionEnabled);
+                                Core::InfoBarEntry::GlobalSuppression::Enabled);
         info.removeCancelButton();
         if (infoBar()->canInfoBeAdded(id))
             infoBar()->addInfo(info);

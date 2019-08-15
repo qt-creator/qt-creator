@@ -301,7 +301,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
                 InfoBarEntry info(vcsWarning,
                                   tr("%1 repository was detected but %1 is not configured.")
                                   .arg(versionControl->displayName()),
-                                  InfoBarEntry::GlobalSuppressionEnabled);
+                                  InfoBarEntry::GlobalSuppression::Enabled);
                 d->m_unconfiguredVcs = versionControl;
                 info.setCustomButtonInfo(ICore::msgShowOptionsDialog(), []() {
                     QTC_ASSERT(d->m_unconfiguredVcs, return);

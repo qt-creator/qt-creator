@@ -257,7 +257,7 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
             Id undoWarningId = Id("warninglabel/").withSuffix(m_dontAskAgainGroup);
             if (m_infoBar.canInfoBeAdded(undoWarningId)) {
                 InfoBarEntry info(undoWarningId, tr("This change cannot be undone."),
-                                  InfoBarEntry::GlobalSuppressionEnabled);
+                                  InfoBarEntry::GlobalSuppression::Enabled);
                 m_infoBar.addInfo(info);
             }
         }

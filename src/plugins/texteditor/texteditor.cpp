@@ -3101,7 +3101,7 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
         InfoBarEntry info(missing,
                           BaseTextEditor::tr("A highlight definition was not found for this file. "
                                              "Would you like to update highlight definition files?"),
-                          InfoBarEntry::GlobalSuppressionEnabled);
+                          InfoBarEntry::GlobalSuppression::Enabled);
         info.setCustomButtonInfo(BaseTextEditor::tr("Update Definitions"), [missing, this]() {
             m_document->infoBar()->removeInfo(missing);
             Highlighter::updateDefinitions([widget = QPointer<TextEditorWidget>(q)]() {

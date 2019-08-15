@@ -49,13 +49,13 @@ class InfoBarDisplay;
 class CORE_EXPORT InfoBarEntry
 {
 public:
-    enum GlobalSuppressionMode
+    enum class GlobalSuppression
     {
-        GlobalSuppressionDisabled,
-        GlobalSuppressionEnabled
+        Disabled,
+        Enabled
     };
 
-    InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression = GlobalSuppressionDisabled);
+    InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression = GlobalSuppression::Disabled);
 
     using CallBack = std::function<void()>;
     void setCustomButtonInfo(const QString &_buttonText, CallBack callBack);

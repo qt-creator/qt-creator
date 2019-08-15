@@ -47,7 +47,7 @@ QSet<Id> InfoBar::globallySuppressed;
 QSettings *InfoBar::m_settings = nullptr;
 Utils::Theme *InfoBar::m_theme = nullptr;
 
-InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppressionMode _globalSuppression)
+InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression)
     : m_id(_id)
     , m_infoText(_infoText)
     , m_globalSuppression(_globalSuppression)
@@ -307,7 +307,7 @@ void InfoBarDisplay::update()
 
         const Id id = info.m_id;
         QToolButton *infoWidgetSuppressButton = nullptr;
-        if (info.m_globalSuppression == InfoBarEntry::GlobalSuppressionEnabled) {
+        if (info.m_globalSuppression == InfoBarEntry::GlobalSuppression::Enabled) {
             infoWidgetSuppressButton = new QToolButton;
             infoWidgetSuppressButton->setText(tr("Do Not Show Again"));
             connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
