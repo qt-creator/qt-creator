@@ -55,6 +55,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <utils/hostosinfo.h>
+
 #include <QComboBox>
 #include <QGraphicsLinearLayout>
 #include <QGraphicsProxyWidget>
@@ -65,6 +67,14 @@
 #include <cmath>
 
 namespace QmlDesigner {
+
+static int deleteKey()
+{
+        if (Utils::HostOsInfo::isMacHost())
+            return Qt::Key_Backspace;
+
+        return Qt::Key_Delete;
+}
 
 QList<QmlTimelineKeyframeGroup> allTimelineFrames(const QmlTimeline &timeline)
 {
@@ -159,6 +169,7 @@ void TimelineGraphicsScene::setWidth(int width)
 void TimelineGraphicsScene::invalidateLayout()
 {
     m_layout->invalidate();
+    toolBar()->setCurrentTimeline(currentTimeline());
 }
 
 void TimelineGraphicsScene::setCurrenFrame(const QmlTimeline &timeline, qreal frame)
@@ -566,14 +577,8 @@ void TimelineGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
         return;
     }
 
-    switch (keyEvent->key()) {
-    case Qt::Key_Delete:
+    if (deleteKey() == keyEvent->key())
         handleKeyframeDeletion();
-        break;
-
-    default:
-        break;
-    }
 
     QGraphicsScene::keyReleaseEvent(keyEvent);
 }
@@ -706,7 +711,7 @@ bool TimelineGraphicsScene::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ShortcutOverride:
-        if (static_cast<QKeyEvent *>(event)->key() == Qt::Key_Delete) {
+        if (static_cast<QKeyEvent *>(event)->key() == deleteKey()) {
             QGraphicsScene::keyPressEvent(static_cast<QKeyEvent *>(event));
             event->accept();
             return true;

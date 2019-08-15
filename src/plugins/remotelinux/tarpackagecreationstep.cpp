@@ -236,24 +236,35 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
     return true;
 }
 
+static bool setFilePath(TarFileHeader &header, const QByteArray &filePath)
+{
+    if (filePath.length() <= int(sizeof header.fileName)) {
+        std::memcpy(&header.fileName, filePath.data(), filePath.length());
+        return true;
+    }
+    int sepIndex = filePath.indexOf('/');
+    while (sepIndex != -1) {
+        const int fileNamePart = filePath.length() - sepIndex;
+        if (sepIndex <= int(sizeof header.fileNamePrefix)
+                &&  fileNamePart <= int(sizeof header.fileName)) {
+            std::memcpy(&header.fileNamePrefix, filePath.data(), sepIndex);
+            std::memcpy(&header.fileName, filePath.data() + sepIndex + 1, fileNamePart);
+            return true;
+        }
+        sepIndex = filePath.indexOf('/', sepIndex + 1);
+    }
+    return false;
+}
+
 bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileInfo,
     const QString &remoteFilePath)
 {
     TarFileHeader header;
     std::memset(&header, '\0', sizeof header);
-    const QByteArray &filePath = remoteFilePath.toUtf8();
-    const int maxFilePathLength = sizeof header.fileNamePrefix + sizeof header.fileName;
-    if (filePath.count() > maxFilePathLength) {
-        raiseError(tr("Cannot add file \"%1\" to tar-archive: path too long.")
-            .arg(QDir::toNativeSeparators(remoteFilePath)));
+    if (!setFilePath(header, remoteFilePath.toUtf8())) {
+        raiseError(tr("Cannot add file \"%1\" to tar-archive: path too long.").arg(remoteFilePath));
         return false;
     }
-
-    const int fileNameBytesToWrite = qMin<int>(filePath.length(), sizeof header.fileName);
-    const int fileNameOffset = filePath.length() - fileNameBytesToWrite;
-    std::memcpy(&header.fileName, filePath.data() + fileNameOffset, fileNameBytesToWrite);
-    if (fileNameOffset > 0)
-        std::memcpy(&header.fileNamePrefix, filePath.data(), fileNameOffset);
     int permissions = (0400 * fileInfo.permission(QFile::ReadOwner))
         | (0200 * fileInfo.permission(QFile::WriteOwner))
         | (0100 * fileInfo.permission(QFile::ExeOwner))

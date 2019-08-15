@@ -42,12 +42,12 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     , m_tree(new TreeView(model, this))
     , m_view(new GraphicsView(model))
 {
-    QSplitter *splitter = new QSplitter;
+    auto *splitter = new QSplitter;
     splitter->addWidget(m_tree);
     splitter->addWidget(m_view);
     splitter->setStretchFactor(1, 2);
 
-    QVBoxLayout *box = new QVBoxLayout;
+    auto *box = new QVBoxLayout;
     box->addWidget(createToolBar());
     box->addWidget(splitter);
     setLayout(box);
@@ -72,12 +72,12 @@ void CurveEditor::clearCanvas()
 
 QToolBar *CurveEditor::createToolBar()
 {
-    QToolBar *bar = new QToolBar;
+    auto *bar = new QToolBar;
     bar->setFloatable(false);
 
-    QAction *tangentLinearAction = bar->addAction("Linear");
-    QAction *tangentStepAction = bar->addAction("Step");
-    QAction *tangentSplineAction = bar->addAction("Spline");
+    QAction *tangentLinearAction = bar->addAction(QIcon(":/curveeditor/images/tangetToolsLinearIcon.png"), "Linear");
+    QAction *tangentStepAction = bar->addAction(QIcon(":/curveeditor/images/tangetToolsStepIcon.png"), "Step");
+    QAction *tangentSplineAction = bar->addAction(QIcon(":/curveeditor/images/tangetToolsSplineIcon.png"), "Spline");
     QAction *tangentDefaultAction = bar->addAction("Set Default");
 
     auto setLinearInterpolation = [this]() {

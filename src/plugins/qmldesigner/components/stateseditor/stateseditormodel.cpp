@@ -37,6 +37,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#include <QWidget>
+
 enum {
     debug = false
 };
@@ -181,10 +183,11 @@ void StatesEditorModel::renameState(int internalNodeId, const QString &newName)
         return;
 
     if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
-        Core::AsynchronousMessageBox::warning(tr("Invalid state name"),
+        auto w = Core::AsynchronousMessageBox::warning(tr("Invalid state name"),
                                                newName.isEmpty() ?
                                                    tr("The empty string as a name is reserved for the base state.") :
                                                    tr("Name already used in another state"));
+        w->setAttribute(Qt::WA_ShowModal, false);
         reset();
     } else {
         m_statesEditorView->renameState(internalNodeId, newName);

@@ -28,7 +28,7 @@ import QtQuick.Layouts 1.0
 import QtQuickDesignerTheme 1.0
 import StudioControls 1.0 as StudioControls
 
-StudioControls.SpinBox {
+StudioControls.RealSpinBox {
     id: spinBox
     width: 82
     Layout.minimumWidth: 82
@@ -36,9 +36,10 @@ StudioControls.SpinBox {
     property string propertyName
     actionIndicatorVisible: false
 
-    from: -9999
-    to: 9999
-    Component.onCompleted: spinBox.value = gradientLine.model.readGradientProperty(propertyName)
-    onCompressedValueModified:  gradientLine.model.setGradientProperty(propertyName, spinBox.value)
-    stepSize: 1
+    realFrom: -9999
+    realTo: 9999
+    realStepSize: 1
+
+    Component.onCompleted: spinBox.realValue = gradientLine.model.readGradientProperty(propertyName)
+    onCompressedRealValueModified: gradientLine.model.setGradientProperty(propertyName, spinBox.realValue)
 }

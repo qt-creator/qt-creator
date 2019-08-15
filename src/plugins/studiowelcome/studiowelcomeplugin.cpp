@@ -32,6 +32,9 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -127,11 +130,10 @@ ProjectModel::ProjectModel(QObject *parent)
             this,
             &ProjectModel::resetProjects);
 
-#ifdef LICENSECHECKER
+
     if (!Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
-                             Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker"))))
+                              Utils::equal(&ExtensionSystem::PluginSpec::name, QString("LicenseChecker"))))
         m_communityVersion = true;
-#endif
 }
 
 int ProjectModel::rowCount(const QModelIndex &) const

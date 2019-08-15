@@ -20,6 +20,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(WITH_TESTS "Build Tests" OFF)
 option(WITH_DEBUG_CMAKE "Enabled CMake project debugging functionality (e.g. source file disk checking)" OFF)
+option(BUILD_WITH_PCH "Build with precompiled headers" ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -35,7 +36,7 @@ endif()
 
 find_package(Qt5
   COMPONENTS Concurrent Core Network PrintSupport Qml Quick QuickWidgets
-    Sql ${_TEST_QT_COMPONENT}
+    Sql Widgets ${_TEST_QT_COMPONENT}
   REQUIRED
 )
 
