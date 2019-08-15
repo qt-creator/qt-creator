@@ -34,7 +34,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/documentmanager.h>
 
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/kitinformation.h>
@@ -57,9 +56,8 @@ using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
 
-QmlProject::QmlProject(const Utils::FilePath &fileName) :
-    Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName,
-            [this]() { refreshProjectFile(); })
+QmlProject::QmlProject(const Utils::FilePath &fileName)
+    : Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName)
 {
     const QString normalized
             = Utils::FileUtils::normalizePathName(fileName.toFileInfo().canonicalFilePath());
@@ -70,6 +68,8 @@ QmlProject::QmlProject(const Utils::FilePath &fileName) :
     setDisplayName(fileName.toFileInfo().completeBaseName());
 
     setNeedsBuildConfigurations(false);
+
+    connect(this, &QmlProject::projectFileIsDirty, this, &QmlProject::refreshProjectFile);
 }
 
 QmlProject::~QmlProject()
