@@ -171,14 +171,24 @@ static bool writeFile(const QString &filePath, const QString &contents)
     return saver.write(contents.toUtf8()) && saver.finalize();
 }
 
-GenericProject::GenericProject(const Utils::FilePath &fileName) :
-    Project(Constants::GENERICMIMETYPE, fileName, [this]() { refresh(Everything); }),
-    m_cppCodeModelUpdater(new CppTools::CppProjectUpdater),
-    m_deployFileWatcher(new FileSystemWatcher(this))
+GenericProject::GenericProject(const Utils::FilePath &fileName)
+    : Project(Constants::GENERICMIMETYPE, fileName)
+    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
+    , m_deployFileWatcher(new FileSystemWatcher(this))
 {
     setId(Constants::GENERICPROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
+
+    connect(this, &GenericProject::projectFileIsDirty, this, [this](const FilePath &p) {
+        if (p.endsWith(".files"))
+            refresh(Files);
+        else if (p.endsWith(".includes") || p.endsWith(".config") || p.endsWith(".cxxflags")
+                 || p.endsWith(".cflags"))
+            refresh(Configuration);
+        else
+            refresh(Everything);
+    });
 
     const QFileInfo fileInfo = projectFilePath().toFileInfo();
     const QDir dir = fileInfo.dir();
@@ -187,7 +197,7 @@ GenericProject::GenericProject(const Utils::FilePath &fileName) :
 
     m_filesFileName    = QFileInfo(dir, projectName + ".files").absoluteFilePath();
     m_includesFileName = QFileInfo(dir, projectName + ".includes").absoluteFilePath();
-    m_configFileName   = QFileInfo(dir, projectName + ".config").absoluteFilePath();
+    m_configFileName = QFileInfo(dir, projectName + ".config").absoluteFilePath();
 
     const QFileInfo cxxflagsFileInfo(dir, projectName + ".cxxflags");
     m_cxxflagsFileName = cxxflagsFileInfo.absoluteFilePath();
@@ -201,24 +211,16 @@ GenericProject::GenericProject(const Utils::FilePath &fileName) :
         QTC_CHECK(writeFile(m_cflagsFileName, Constants::GENERICPROJECT_CFLAGS_FILE_TEMPLATE));
     }
 
-    m_filesIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_filesFileName),
-                                  [this]() { refresh(Files); });
-    m_includesIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_includesFileName),
-                                  [this]() { refresh(Configuration); });
-    m_configIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_configFileName),
-                                  [this]() { refresh(Configuration); });
-    m_cxxFlagsIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_cxxflagsFileName),
-                                  [this]() { refresh(Configuration); });
-    m_cFlagsIDocument
-            = new ProjectDocument(Constants::GENERICMIMETYPE, FilePath::fromString(m_cflagsFileName),
-                                  [this]() { refresh(Configuration); });
+    setExtraProjectFiles({FilePath::fromString(m_filesFileName),
+                          FilePath::fromString(m_includesFileName),
+                          FilePath::fromString(m_configFileName),
+                          FilePath::fromString(m_cxxflagsFileName),
+                          FilePath::fromString(m_cflagsFileName)});
 
-    connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
-            this, &GenericProject::updateDeploymentData);
+    connect(m_deployFileWatcher,
+            &FileSystemWatcher::fileChanged,
+            this,
+            &GenericProject::updateDeploymentData);
 
     connect(this, &Project::activeTargetChanged, this, [this] { refresh(Everything); });
 
@@ -228,11 +230,6 @@ GenericProject::GenericProject(const Utils::FilePath &fileName) :
 GenericProject::~GenericProject()
 {
     delete m_cppCodeModelUpdater;
-    m_filesIDocument->deleteLater();
-    m_includesIDocument->deleteLater();
-    m_configIDocument->deleteLater();
-    m_cxxFlagsIDocument->deleteLater();
-    m_cFlagsIDocument->deleteLater();
 }
 
 static QStringList readLines(const QString &absoluteFileName)
