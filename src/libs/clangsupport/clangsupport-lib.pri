@@ -118,6 +118,7 @@ HEADERS += \
     $$PWD/projectpartid.h \
     $$PWD/projectpartsstorage.h \
     $$PWD/projectpartsstorageinterface.h \
+    $$PWD/projectpartstoragestructs.h \
     $$PWD/requestcompletionsmessage.h \
     $$PWD/echomessage.h \
     $$PWD/endmessage.h \
