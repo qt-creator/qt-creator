@@ -413,14 +413,16 @@ public:
     }
 };
 
-PythonProject::PythonProject(const FilePath &fileName) :
-    Project(Constants::C_PY_MIMETYPE, fileName, [this]() { refresh(); })
+PythonProject::PythonProject(const FilePath &fileName)
+    : Project(Constants::C_PY_MIMETYPE, fileName)
 {
     setId(PythonProjectId);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
 
     setNeedsBuildConfigurations(false);
+
+    connect(this, &PythonProject::projectFileIsDirty, this, [this]() { refresh(); });
 }
 
 static QStringList readLines(const Utils::FilePath &projectFile)
