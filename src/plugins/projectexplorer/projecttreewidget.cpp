@@ -335,18 +335,20 @@ int ProjectTreeWidget::expandedCount(Node *node)
 
 void ProjectTreeWidget::rowsInserted(const QModelIndex &parent, int start, int end)
 {
+    if (m_delayedRename.isEmpty())
+        return;
     Node *node = m_model->nodeForIndex(parent);
     QTC_ASSERT(node, return);
-    int i = start;
-    while (i <= end) {
+    for (int i = start; i <= end && !m_delayedRename.isEmpty(); ++i) {
         QModelIndex idx = m_model->index(i, 0, parent);
         Node *n = m_model->nodeForIndex(idx);
-        if (n && n->filePath() == m_delayedRename) {
+        if (!n)
+            continue;
+        const int renameIdx = m_delayedRename.indexOf(n->filePath());
+        if (renameIdx != -1) {
             m_view->setCurrentIndex(idx);
-            m_delayedRename.clear();
-            break;
+            m_delayedRename.removeAt(renameIdx);
         }
-        ++i;
     }
 }
 
@@ -467,7 +469,7 @@ void ProjectTreeWidget::renamed(const FilePath &oldPath, const FilePath &newPath
         if (node)
             m_view->setCurrentIndex(m_model->indexForNode(node));
         else
-            m_delayedRename = newPath;
+            m_delayedRename << newPath;
     }
 }
 

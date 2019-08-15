@@ -94,7 +94,7 @@ private:
 
     QString m_modelId;
     bool m_autoSync = true;
-    Utils::FilePath m_delayedRename;
+    QList<Utils::FilePath> m_delayedRename;
 
     static QList<ProjectTreeWidget *> m_projectTreeWidgets;
     friend class ProjectTreeWidgetFactory;
