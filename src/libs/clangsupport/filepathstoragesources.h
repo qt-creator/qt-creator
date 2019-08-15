@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "stringcacheentry.h"
+
 #include <utils/smallstring.h>
 
 #include <cstdint>
@@ -33,22 +35,6 @@
 #include <unordered_map>
 
 namespace ClangBackEnd {
-
-template<typename StringType, typename StringViewType, typename IndexType>
-class StringCacheEntry
-{
-public:
-    StringCacheEntry(StringViewType string, IndexType id)
-        : string(string)
-        , id(id)
-    {}
-
-    operator StringViewType() const { return string; }
-
-public:
-    StringType string;
-    IndexType id;
-};
 
 class FileNameView
 {
