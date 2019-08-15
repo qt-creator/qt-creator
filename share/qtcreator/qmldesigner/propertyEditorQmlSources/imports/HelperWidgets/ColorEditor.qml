@@ -533,6 +533,14 @@ Column {
                     visible: false
 
                     function applyPreset() {
+                        if (!gradientLine.hasGradient)
+                        {
+                            if (colorEditor.shapeGradients)
+                                gradientLine.gradientTypeName = "LinearGradient"
+                            else
+                                gradientLine.gradientTypeName = "Gradient"
+                        }
+
                         if (presetList.gradientData.presetType == 0) {
                             gradientLine.setPresetByID(presetList.gradientData.presetID);
                         }
