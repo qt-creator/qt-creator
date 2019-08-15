@@ -45,14 +45,21 @@ using ClangBackEnd::findInSorted;
 using StorageIdFunction = std::function<int(Utils::SmallStringView)>;
 using StorageStringFunction = std::function<Utils::PathString(int)>;
 
-using Cache = ClangBackEnd::StringCache<Utils::PathString,
-                                        Utils::SmallStringView,
-                                        int,
-                                        NiceMock<MockMutex>,
-                                        decltype(&Utils::reverseCompare),
-                                        Utils::reverseCompare>;
-using CacheEntries = Cache::CacheEntries;
+using CacheWithMockLocking = ClangBackEnd::StringCache<Utils::PathString,
+                                                       Utils::SmallStringView,
+                                                       int,
+                                                       NiceMock<MockMutex>,
+                                                       decltype(&Utils::reverseCompare),
+                                                       Utils::reverseCompare>;
 
+using CacheWithoutLocking = ClangBackEnd::StringCache<Utils::PathString,
+                                                      Utils::SmallStringView,
+                                                      int,
+                                                      NiceMock<MockMutexNonLocking>,
+                                                      decltype(&Utils::reverseCompare),
+                                                      Utils::reverseCompare>;
+
+template<typename Cache>
 class StringCache : public testing::Test
 {
 protected:
@@ -65,24 +72,24 @@ protected:
             return reverseCompare(f, l) < 0;
         });
 
-        ON_CALL(mockStorage, fetchDirectoryId(Eq("foo"))).WillByDefault(Return(42));
-        ON_CALL(mockStorage, fetchDirectoryId(Eq("bar"))).WillByDefault(Return(43));
-        ON_CALL(mockStorage, fetchDirectoryId(Eq("poo"))).WillByDefault(Return(44));
-        ON_CALL(mockStorage, fetchDirectoryId(Eq("taa"))).WillByDefault(Return(45));
-        ON_CALL(mockStorage, fetchDirectoryPath(41)).WillByDefault(Return(Utils::PathString("bar")));
+        ON_CALL(this->mockStorage, fetchDirectoryId(Eq("foo"))).WillByDefault(Return(42));
+        ON_CALL(this->mockStorage, fetchDirectoryId(Eq("bar"))).WillByDefault(Return(43));
+        ON_CALL(this->mockStorage, fetchDirectoryId(Eq("poo"))).WillByDefault(Return(44));
+        ON_CALL(this->mockStorage, fetchDirectoryId(Eq("taa"))).WillByDefault(Return(45));
+        ON_CALL(this->mockStorage, fetchDirectoryPath(41)).WillByDefault(Return(Utils::PathString("bar")));
     }
 
 protected:
     NiceMock<MockSqliteDatabase> mockDatabase;
     NiceMock<MockFilePathStorage> mockStorage{mockDatabase};
-    StorageIdFunction mockStorageFetchDirectyId = [&] (Utils::SmallStringView string) {
+    StorageIdFunction mockStorageFetchDirectyId = [&](Utils::SmallStringView string) {
         return mockStorage.fetchDirectoryId(string);
     };
-    StorageStringFunction mockStorageFetchDirectyPath = [&] (int id) {
+    StorageStringFunction mockStorageFetchDirectyPath = [&](int id) {
         return mockStorage.fetchDirectoryPath(id);
     };
     Cache cache;
-    NiceMock<MockMutex> &mockMutex = cache.mutex();
+    typename Cache::MutexType &mockMutex = cache.mutex();
     Utils::PathString filePath1{"/file/pathOne"};
     Utils::PathString filePath2{"/file/pathTwo"};
     Utils::PathString filePath3{"/file/pathThree"};
@@ -100,463 +107,523 @@ protected:
                                              filePath5};
 };
 
-TEST_F(StringCache, AddFilePath)
+using CacheTypes = ::testing::Types<CacheWithMockLocking, CacheWithoutLocking>;
+TYPED_TEST_SUITE(StringCache, CacheTypes);
+
+TYPED_TEST(StringCache, AddFilePath)
 {
-    auto id = cache.stringId(filePath1);
+    auto id = this->cache.stringId(this->filePath1);
 
     ASSERT_THAT(id, 0);
 }
 
-TEST_F(StringCache, AddSecondFilePath)
+TYPED_TEST(StringCache, AddSecondFilePath)
 {
-    cache.stringId(filePath1);
+    this->cache.stringId(this->filePath1);
 
-    auto id = cache.stringId(filePath2);
+    auto id = this->cache.stringId(this->filePath2);
 
     ASSERT_THAT(id, 1);
 }
 
-TEST_F(StringCache, AddDuplicateFilePath)
+TYPED_TEST(StringCache, AddDuplicateFilePath)
 {
-    cache.stringId(filePath1);
+    this->cache.stringId(this->filePath1);
 
-    auto id = cache.stringId(filePath1);
+    auto id = this->cache.stringId(this->filePath1);
 
     ASSERT_THAT(id, 0);
 }
 
-TEST_F(StringCache, AddDuplicateFilePathBetweenOtherEntries)
+TYPED_TEST(StringCache, AddDuplicateFilePathBetweenOtherEntries)
 {
-    cache.stringId(filePath1);
-    cache.stringId(filePath2);
-    cache.stringId(filePath3);
-    cache.stringId(filePath4);
+    this->cache.stringId(this->filePath1);
+    this->cache.stringId(this->filePath2);
+    this->cache.stringId(this->filePath3);
+    this->cache.stringId(this->filePath4);
 
-    auto id = cache.stringId(filePath3);
+    auto id = this->cache.stringId(this->filePath3);
 
     ASSERT_THAT(id, 2);
 }
 
-TEST_F(StringCache, ThrowForGettingPathForNoEntry)
+TYPED_TEST(StringCache, ThrowForGettingPathForNoEntry)
 {
-    EXPECT_ANY_THROW(cache.string(0));
+    EXPECT_ANY_THROW(this->cache.string(0));
 }
 
-TEST_F(StringCache, GetFilePathForIdWithOneEntry)
+TYPED_TEST(StringCache, GetFilePathForIdWithOneEntry)
 {
-    cache.stringId(filePath1);
+    this->cache.stringId(this->filePath1);
 
-    auto filePath = cache.string(0);
+    auto filePath = this->cache.string(0);
 
-    ASSERT_THAT(filePath, filePath1);
+    ASSERT_THAT(filePath, this->filePath1);
 }
 
-TEST_F(StringCache, GetFilePathForIdWithSomeEntries)
+TYPED_TEST(StringCache, GetFilePathForIdWithSomeEntries)
 {
-    cache.stringId(filePath1);
-    cache.stringId(filePath2);
-    cache.stringId(filePath3);
-    cache.stringId(filePath4);
+    this->cache.stringId(this->filePath1);
+    this->cache.stringId(this->filePath2);
+    this->cache.stringId(this->filePath3);
+    this->cache.stringId(this->filePath4);
 
-    auto filePath = cache.string(2);
+    auto filePath = this->cache.string(2);
 
-    ASSERT_THAT(filePath, filePath3);
+    ASSERT_THAT(filePath, this->filePath3);
 }
 
-TEST_F(StringCache, GetAllFilePaths)
+TYPED_TEST(StringCache, GetAllFilePaths)
 {
-    cache.stringId(filePath1);
-    cache.stringId(filePath2);
-    cache.stringId(filePath3);
-    cache.stringId(filePath4);
+    this->cache.stringId(this->filePath1);
+    this->cache.stringId(this->filePath2);
+    this->cache.stringId(this->filePath3);
+    this->cache.stringId(this->filePath4);
 
-    const auto &filePaths = cache.strings({0, 1, 2, 3});
+    auto filePaths = this->cache.strings({0, 1, 2, 3});
 
-    ASSERT_THAT(filePaths, ElementsAre(filePath1, filePath2, filePath3, filePath4));
+    ASSERT_THAT(filePaths,
+                ElementsAre(this->filePath1, this->filePath2, this->filePath3, this->filePath4));
 }
 
-TEST_F(StringCache, AddFilePaths)
+TYPED_TEST(StringCache, AddFilePaths)
 {
-    auto ids = cache.stringIds({filePath1, filePath2, filePath3, filePath4});
+    auto ids = this->cache.stringIds(
+        {this->filePath1, this->filePath2, this->filePath3, this->filePath4});
 
     ASSERT_THAT(ids, ElementsAre(0, 1, 2, 3));
 }
 
-TEST_F(StringCache, IsEmpty)
+TYPED_TEST(StringCache, AddFilePathsWithStorageFunction)
 {
-    auto isEmpty = cache.isEmpty();
+    auto ids = this->cache.stringIds({"foo", "taa", "poo", "bar"}, this->mockStorageFetchDirectyId);
+
+    ASSERT_THAT(ids, UnorderedElementsAre(42, 43, 44, 45));
+}
+
+TYPED_TEST(StringCache, IsEmpty)
+{
+    auto isEmpty = this->cache.isEmpty();
 
     ASSERT_TRUE(isEmpty);
 }
 
-TEST_F(StringCache, IsNotEmpty)
+TYPED_TEST(StringCache, IsNotEmpty)
 {
-    cache.stringId(filePath1);
+    this->cache.stringId(this->filePath1);
 
-    auto isEmpty = cache.isEmpty();
+    auto isEmpty = this->cache.isEmpty();
 
     ASSERT_FALSE(isEmpty);
 }
 
-TEST_F(StringCache, PopulateWithEmptyVector)
+TYPED_TEST(StringCache, PopulateWithEmptyVector)
 {
-    CacheEntries entries;
+    typename TypeParam::CacheEntries entries;
 
-    cache.uncheckedPopulate(std::move(entries));
+    this->cache.uncheckedPopulate(std::move(entries));
 
-    ASSERT_TRUE(cache.isEmpty());
+    ASSERT_TRUE(this->cache.isEmpty());
 }
 
-TEST_F(StringCache, IsNotEmptyAfterPopulateWithSomeEntries)
+TYPED_TEST(StringCache, IsNotEmptyAfterPopulateWithSomeEntries)
 {
-    CacheEntries entries{{filePath1.clone(), 0},
-                         {filePath2.clone(), 3},
-                         {filePath3.clone(), 2},
-                         {filePath4.clone(), 5}};
+    typename TypeParam::CacheEntries entries{{this->filePath1.clone(), 0},
+                                             {this->filePath2.clone(), 3},
+                                             {this->filePath3.clone(), 2},
+                                             {this->filePath4.clone(), 5}};
 
-    cache.uncheckedPopulate(std::move(entries));
+    this->cache.uncheckedPopulate(std::move(entries));
 
-    ASSERT_TRUE(!cache.isEmpty());
+    ASSERT_TRUE(!this->cache.isEmpty());
 }
 
-TEST_F(StringCache, GetEntryAfterPopulateWithSomeEntries)
+TYPED_TEST(StringCache, GetEntryAfterPopulateWithSomeEntries)
 {
-    CacheEntries entries{{filePath1.clone(), 0},
-                         {filePath2.clone(), 1},
-                         {filePath3.clone(), 7},
-                         {filePath4.clone(), 3}};
-    cache.uncheckedPopulate(std::move(entries));
+    typename TypeParam::CacheEntries entries{{this->filePath1.clone(), 0},
+                                             {this->filePath2.clone(), 1},
+                                             {this->filePath3.clone(), 7},
+                                             {this->filePath4.clone(), 3}};
+    this->cache.uncheckedPopulate(std::move(entries));
 
-    auto string = cache.string(7);
+    auto string = this->cache.string(7);
 
-    ASSERT_THAT(string, filePath3);
+    ASSERT_THAT(string, this->filePath3);
 }
 
-TEST_F(StringCache, EntriesHaveUniqueIds)
+TYPED_TEST(StringCache, EntriesHaveUniqueIds)
 {
-    CacheEntries entries{{filePath1.clone(), 0},
-                         {filePath2.clone(), 1},
-                         {filePath3.clone(), 2},
-                         {filePath4.clone(), 2}};
+    typename TypeParam::CacheEntries entries{{this->filePath1.clone(), 0},
+                                             {this->filePath2.clone(), 1},
+                                             {this->filePath3.clone(), 2},
+                                             {this->filePath4.clone(), 2}};
 
-    ASSERT_THROW(cache.populate(std::move(entries)), StringCacheException);
+    ASSERT_THROW(this->cache.populate(std::move(entries)), StringCacheException);
 }
 
-TEST_F(StringCache, MultipleEntries)
+TYPED_TEST(StringCache, MultipleEntries)
 {
-    CacheEntries entries{{filePath1.clone(), 0},
-                         {filePath1.clone(), 1},
-                         {filePath3.clone(), 2},
-                         {filePath4.clone(), 3}};
+    typename TypeParam::CacheEntries entries{{this->filePath1.clone(), 0},
+                                             {this->filePath1.clone(), 1},
+                                             {this->filePath3.clone(), 2},
+                                             {this->filePath4.clone(), 3}};
 
-    ASSERT_THROW(cache.populate(std::move(entries)), StringCacheException);
+    ASSERT_THROW(this->cache.populate(std::move(entries)), StringCacheException);
 }
 
-TEST_F(StringCache, DontFindInSorted)
+TYPED_TEST(StringCache, DontFindInSorted)
 {
-    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathFoo", compare);
+    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathFoo", compare);
 
     ASSERT_FALSE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedOne)
+TYPED_TEST(StringCache, FindInSortedOne)
 {
-    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathOne", compare);
+    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathOne", compare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedTwo)
+TYPED_TEST(StringCache, FindInSortedTwo)
 {
-    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathTwo", compare);
+    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathTwo", compare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedTree)
+TYPED_TEST(StringCache, FindInSortedTree)
 {
-    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathThree", compare);
+    auto found = findInSorted(this->filePaths.cbegin(),
+                              this->filePaths.cend(),
+                              "/file/pathThree",
+                              compare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedFour)
+TYPED_TEST(StringCache, FindInSortedFour)
 {
-    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathFour", compare);
+    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathFour", compare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedFife)
+TYPED_TEST(StringCache, FindInSortedFife)
 {
-    auto found = findInSorted(filePaths.cbegin(), filePaths.cend(), "/file/pathFife", compare);
+    auto found = findInSorted(this->filePaths.cbegin(), this->filePaths.cend(), "/file/pathFife", compare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, DontFindInSortedReverse)
+TYPED_TEST(StringCache, DontFindInSortedReverse)
 {
-    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathFoo", reverseCompare);
+    auto found = findInSorted(this->reverseFilePaths.cbegin(),
+                              this->reverseFilePaths.cend(),
+                              "/file/pathFoo",
+                              reverseCompare);
 
     ASSERT_FALSE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedOneReverse)
+TYPED_TEST(StringCache, FindInSortedOneReverse)
 {
-    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathOne", reverseCompare);
+    auto found = findInSorted(this->reverseFilePaths.cbegin(),
+                              this->reverseFilePaths.cend(),
+                              "/file/pathOne",
+                              reverseCompare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedTwoReverse)
+TYPED_TEST(StringCache, FindInSortedTwoReverse)
 {
-    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathTwo", reverseCompare);
+    auto found = findInSorted(this->reverseFilePaths.cbegin(),
+                              this->reverseFilePaths.cend(),
+                              "/file/pathTwo",
+                              reverseCompare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedTreeReverse)
+TYPED_TEST(StringCache, FindInSortedTreeReverse)
 {
-    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathThree", reverseCompare);
+    auto found = findInSorted(this->reverseFilePaths.cbegin(),
+                              this->reverseFilePaths.cend(),
+                              "/file/pathThree",
+                              reverseCompare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedFourReverse)
+TYPED_TEST(StringCache, FindInSortedFourReverse)
 {
-    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathFour", reverseCompare);
+    auto found = findInSorted(this->reverseFilePaths.cbegin(),
+                              this->reverseFilePaths.cend(),
+                              "/file/pathFour",
+                              reverseCompare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, FindInSortedFifeReverse)
+TYPED_TEST(StringCache, FindInSortedFifeReverse)
 {
-    auto found = findInSorted(reverseFilePaths.cbegin(), reverseFilePaths.cend(), "/file/pathFife", reverseCompare);
+    auto found = findInSorted(this->reverseFilePaths.cbegin(),
+                              this->reverseFilePaths.cend(),
+                              "/file/pathFife",
+                              reverseCompare);
 
     ASSERT_TRUE(found.wasFound);
 }
 
-TEST_F(StringCache, StringIdIsReadAndWriteLockedForUnknownEntry)
+TYPED_TEST(StringCache, StringIdIsReadAndWriteLockedForUnknownEntry)
 {
     InSequence s;
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock());
+    EXPECT_CALL(this->mockMutex, unlock());
 
-    cache.stringId("foo");
+    this->cache.stringId("foo");
 }
 
-TEST_F(StringCache, StringIdWithStorageFunctionIsReadAndWriteLockedForUnknownEntry)
+TYPED_TEST(StringCache, StringIdWithStorageFunctionIsReadAndWriteLockedForUnknownEntry)
 {
     InSequence s;
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("foo")));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock());
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("foo")));
+    EXPECT_CALL(this->mockMutex, unlock());
 
-    cache.stringId("foo", mockStorageFetchDirectyId);
+    this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 }
 
-TEST_F(StringCache, StringIdWithStorageFunctionIsReadLockedForKnownEntry)
+TYPED_TEST(StringCache, StringIdWithStorageFunctionIsReadLockedForKnownEntry)
 {
     InSequence s;
-    cache.stringId("foo", mockStorageFetchDirectyId);
+    this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock()).Times(0);
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("foo"))).Times(0);
-    EXPECT_CALL(mockMutex, unlock()).Times(0);
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock()).Times(0);
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("foo"))).Times(0);
+    EXPECT_CALL(this->mockMutex, unlock()).Times(0);
 
-    cache.stringId("foo", mockStorageFetchDirectyId);
+    this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 }
 
-TEST_F(StringCache, StringIdIsReadLockedForKnownEntry)
+TYPED_TEST(StringCache, StringIdIsReadLockedForKnownEntry)
 {
-    cache.stringId("foo");
+    this->cache.stringId("foo");
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock()).Times(0);
-    EXPECT_CALL(mockMutex, unlock()).Times(0);
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock()).Times(0);
+    EXPECT_CALL(this->mockMutex, unlock()).Times(0);
 
-    cache.stringId("foo");
+    this->cache.stringId("foo");
 }
 
-TEST_F(StringCache, StringIdsIsLocked)
+TYPED_TEST(StringCache, StringIdsIsLocked)
 {
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
 
-    cache.stringIds({"foo"});
+    this->cache.stringIds({"foo"});
 }
 
-TEST_F(StringCache, StringIsLocked)
+TYPED_TEST(StringCache, StringIdsWithStorageIsLocked)
 {
-    auto id = cache.stringId("foo");
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-
-    cache.string(id);
+    this->cache.stringIds({"foo"}, this->mockStorageFetchDirectyId);
 }
 
-TEST_F(StringCache, StringsIsLocked)
+TYPED_TEST(StringCache, StringIsLocked)
 {
-    auto ids = cache.stringIds({"foo", "bar"});
+    auto id = this->cache.stringId("foo");
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
 
-    cache.strings(ids);
+    this->cache.string(id);
 }
 
-TEST_F(StringCache, StringWithStorageFunctionIsReadAndWriteLockedForUnknownId)
+TYPED_TEST(StringCache, StringsIsLocked)
 {
-    InSequence s;
+    auto ids = this->cache.stringIds({"foo", "bar"});
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock());
-    EXPECT_CALL(mockStorage, fetchDirectoryPath(Eq(41)));
-    EXPECT_CALL(mockMutex, unlock());
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
 
-    cache.string(41, mockStorageFetchDirectyPath);
+    this->cache.strings(ids);
 }
 
-TEST_F(StringCache, StringWithStorageFunctionIsReadLockedForKnownId)
+TYPED_TEST(StringCache, StringWithStorageFunctionIsReadAndWriteLockedForUnknownId)
 {
     InSequence s;
-    cache.string(41, mockStorageFetchDirectyPath);
 
-    EXPECT_CALL(mockMutex, lock_shared());
-    EXPECT_CALL(mockMutex, unlock_shared());
-    EXPECT_CALL(mockMutex, lock()).Times(0);
-    EXPECT_CALL(mockStorage, fetchDirectoryPath(Eq(41))).Times(0);
-    EXPECT_CALL(mockMutex, unlock()).Times(0);
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock());
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPath(Eq(41)));
+    EXPECT_CALL(this->mockMutex, unlock());
 
-    cache.string(41, mockStorageFetchDirectyPath);
+    this->cache.string(41, this->mockStorageFetchDirectyPath);
 }
 
-TEST_F(StringCache, StringIdWithStorageFunctionWhichHasNoEntryIsCallingStorageFunction)
+TYPED_TEST(StringCache, StringWithStorageFunctionIsReadLockedForKnownId)
 {
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("foo")));
+    InSequence s;
+    this->cache.string(41, this->mockStorageFetchDirectyPath);
 
-    cache.stringId("foo", mockStorageFetchDirectyId);
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock()).Times(0);
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPath(Eq(41))).Times(0);
+    EXPECT_CALL(this->mockMutex, unlock()).Times(0);
+
+    this->cache.string(41, this->mockStorageFetchDirectyPath);
 }
 
-TEST_F(StringCache, StringIdWithStorageFunctionWhichHasEntryIsNotCallingStorageFunction)
+TYPED_TEST(StringCache, StringIdWithStorageFunctionWhichHasNoEntryIsCallingStorageFunction)
 {
-    cache.stringId("foo", mockStorageFetchDirectyId);
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("foo")));
 
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("foo"))).Times(0);
-
-    cache.stringId("foo", mockStorageFetchDirectyId);
+    this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 }
 
-TEST_F(StringCache, IndexOfStringIdWithStorageFunctionWhichHasEntry)
+TYPED_TEST(StringCache, StringIdWithStorageFunctionWhichHasEntryIsNotCallingStorageFunction)
 {
-    cache.stringId("foo", mockStorageFetchDirectyId);
+    this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 
-    auto index = cache.stringId("foo", mockStorageFetchDirectyId);
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("foo"))).Times(0);
+
+    this->cache.stringId("foo", this->mockStorageFetchDirectyId);
+}
+
+TYPED_TEST(StringCache, IndexOfStringIdWithStorageFunctionWhichHasEntry)
+{
+    this->cache.stringId("foo", this->mockStorageFetchDirectyId);
+
+    auto index = this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 
     ASSERT_THAT(index, 42);
 }
 
-TEST_F(StringCache, IndexOfStringIdWithStorageFunctionWhichHasNoEntry)
+TYPED_TEST(StringCache, IndexOfStringIdWithStorageFunctionWhichHasNoEntry)
 {
-    auto index = cache.stringId("foo", mockStorageFetchDirectyId);
+    auto index = this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 
     ASSERT_THAT(index, 42);
 }
 
-TEST_F(StringCache, GetEntryByIndexAfterInsertingByCustomIndex)
+TYPED_TEST(StringCache, GetEntryByIndexAfterInsertingByCustomIndex)
 {
-    auto index = cache.stringId("foo", mockStorageFetchDirectyId);
+    auto index = this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 
-    auto string = cache.string(index, mockStorageFetchDirectyPath);
+    auto string = this->cache.string(index, this->mockStorageFetchDirectyPath);
 
     ASSERT_THAT(string, Eq("foo"));
 }
 
-TEST_F(StringCache, CallFetchDirectoryPathForLowerIndex)
+TYPED_TEST(StringCache, CallFetchDirectoryPathForLowerIndex)
 {
-    auto index = cache.stringId("foo", mockStorageFetchDirectyId);
+    auto index = this->cache.stringId("foo", this->mockStorageFetchDirectyId);
 
-    EXPECT_CALL(mockStorage, fetchDirectoryPath(Eq(index - 1)));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPath(Eq(index - 1)));
 
-    cache.string(index - 1, mockStorageFetchDirectyPath);
+    this->cache.string(index - 1, this->mockStorageFetchDirectyPath);
 }
 
-TEST_F(StringCache, CallFetchDirectoryPathForUnknownIndex)
+TYPED_TEST(StringCache, CallFetchDirectoryPathForUnknownIndex)
 {
-    EXPECT_CALL(mockStorage, fetchDirectoryPath(Eq(0)));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPath(Eq(0)));
 
-    cache.string(0, mockStorageFetchDirectyPath);
+    this->cache.string(0, this->mockStorageFetchDirectyPath);
 }
 
-TEST_F(StringCache, FetchDirectoryPathForUnknownIndex)
+TYPED_TEST(StringCache, FetchDirectoryPathForUnknownIndex)
 {
-    auto string = cache.string(41, mockStorageFetchDirectyPath);
+    auto string = this->cache.string(41, this->mockStorageFetchDirectyPath);
 
     ASSERT_THAT(string, Eq("bar"));
 }
 
-TEST_F(StringCache, AddStringCalls)
+TYPED_TEST(StringCache, AddStringCalls)
 {
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("foo")));
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("bar")));
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("poo")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("foo")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("bar")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("poo")));
 
-    cache.addStrings({"foo", "bar", "poo"}, mockStorageFetchDirectyId);
+    this->cache.addStrings({"foo", "bar", "poo"}, this->mockStorageFetchDirectyId);
 }
 
-TEST_F(StringCache, AddStringCallsOnlyForNewStrings)
+TYPED_TEST(StringCache, AddStringCallsOnlyForNewStrings)
 {
-    cache.addStrings({"foo", "poo"}, mockStorageFetchDirectyId);
+    this->cache.addStrings({"foo", "poo"}, this->mockStorageFetchDirectyId);
 
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("taa")));
-    EXPECT_CALL(mockStorage, fetchDirectoryId(Eq("bar")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("taa")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("bar")));
 
-    cache.addStrings({"foo", "bar", "poo", "taa"}, mockStorageFetchDirectyId);
+    this->cache.addStrings({"foo", "bar", "poo", "taa"}, this->mockStorageFetchDirectyId);
 }
 
-TEST_F(StringCache, GetStringIdAfterAddingStrings)
+TYPED_TEST(StringCache, GetStringIdAfterAddingStrings)
 {
-    cache.addStrings({"foo", "bar", "poo", "taa"}, mockStorageFetchDirectyId);
+    this->cache.addStrings({"foo", "bar", "poo", "taa"}, this->mockStorageFetchDirectyId);
 
-    ASSERT_THAT(cache.string(cache.stringId("taa")), Eq("taa"));
+    ASSERT_THAT(this->cache.string(this->cache.stringId("taa")), Eq("taa"));
 }
 
-TEST_F(StringCache, GetStringAfterAddingStrings)
+TYPED_TEST(StringCache, GetStringAfterAddingStrings)
 {
-    cache.addStrings({"foo", "bar", "poo", "taa"}, mockStorageFetchDirectyId);
+    this->cache.addStrings({"foo", "bar", "poo", "taa"}, this->mockStorageFetchDirectyId);
 
-    ASSERT_THAT(cache.string(cache.stringId("taa")), Eq("taa"));
+    ASSERT_THAT(this->cache.string(this->cache.stringId("taa")), Eq("taa"));
 }
 
-TEST_F(StringCache, GetStringIdAfterAddingStringsMultipleTimes)
+TYPED_TEST(StringCache, GetStringIdAfterAddingStringsMultipleTimes)
 {
-    cache.addStrings({"foo", "taa"}, mockStorageFetchDirectyId);
+    this->cache.addStrings({"foo", "taa"}, this->mockStorageFetchDirectyId);
 
-    cache.addStrings({"foo", "bar", "poo", "taa"}, mockStorageFetchDirectyId);
+    this->cache.addStrings({"foo", "bar", "poo", "taa"}, this->mockStorageFetchDirectyId);
 
-    ASSERT_THAT(cache.string(cache.stringId("taa")), Eq("taa"));
+    ASSERT_THAT(this->cache.string(this->cache.stringId("taa")), Eq("taa"));
 }
 
-TEST_F(StringCache, GetStringIdAfterAddingTheSameStringsMultipleTimes)
+TYPED_TEST(StringCache, GetStringIdAfterAddingTheSameStringsMultipleTimes)
 {
-    cache.addStrings({"foo", "taa", "poo", "taa", "bar", "taa"}, mockStorageFetchDirectyId);
+    this->cache.addStrings({"foo", "taa", "poo", "taa", "bar", "taa"},
+                           this->mockStorageFetchDirectyId);
 
-    ASSERT_THAT(cache.string(cache.stringId("taa")), Eq("taa"));
+    ASSERT_THAT(this->cache.string(this->cache.stringId("taa")), Eq("taa"));
 }
 
-TEST_F(StringCache, AddingEmptyStrings)
+TYPED_TEST(StringCache, AddingEmptyStrings)
 {
-    cache.addStrings({}, mockStorageFetchDirectyId);
+    this->cache.addStrings({}, this->mockStorageFetchDirectyId);
+}
+
+TYPED_TEST(StringCache, FetchStringIdsFromStorageCalls)
+{
+    InSequence s;
+
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock());
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("foo")));
+    EXPECT_CALL(this->mockMutex, unlock());
+    EXPECT_CALL(this->mockMutex, lock_shared());
+    EXPECT_CALL(this->mockMutex, unlock_shared());
+    EXPECT_CALL(this->mockMutex, lock());
+    EXPECT_CALL(this->mockStorage, fetchDirectoryId(Eq("bar")));
+    EXPECT_CALL(this->mockMutex, unlock());
+
+    this->cache.stringIds({"foo", "bar"}, this->mockStorageFetchDirectyId);
 }
 } // namespace
