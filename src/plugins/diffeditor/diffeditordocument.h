@@ -60,6 +60,7 @@ public:
                       const QString &startupFile = QString());
     QList<FileData> diffFiles() const;
     QString baseDirectory() const;
+    void setBaseDirectory(const QString &directory);
     QString startupFile() const;
 
     void setDescription(const QString &description);

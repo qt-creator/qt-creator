@@ -48,6 +48,7 @@ public:
     bool isReloading() const;
 
     QString baseDirectory() const;
+    void setBaseDirectory(const QString &directory);
     int contextLineCount() const;
     bool ignoreWhitespace() const;
 

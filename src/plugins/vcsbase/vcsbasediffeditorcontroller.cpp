@@ -236,6 +236,7 @@ VcsBaseDiffEditorController::VcsBaseDiffEditorController(IDocument *document,
     : DiffEditorController(document)
     , d(new VcsBaseDiffEditorControllerPrivate(this, client, workingDirectory))
 {
+    setBaseDirectory(workingDirectory);
 }
 
 VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
