@@ -64,7 +64,6 @@ Rectangle {
             clip: true
             delegate: gradientDelegate
 
-
             property int gridColumns: width / tabBackground.gridCellWidth;
             cellWidth: width / gridColumns
             cellHeight: 180
@@ -78,6 +77,8 @@ Rectangle {
                     clip: false
 
                     property real flexibleWidth: (gradientTable.width - gradientTable.cellWidth * gradientTable.gridColumns) / gradientTable.gridColumns
+                    property bool isSelected: false
+
                     width: gradientTable.cellWidth + flexibleWidth - 8; height: tabBackground.delegateHeight
                     radius: 16
 
@@ -93,7 +94,11 @@ Rectangle {
                             gradientData.presetID = presetID;
                             gradientData.presetType = presetTabView.currentIndex
 
-//                            console.log( "#" + preset + " " + presetName + " Stops: " + stopsPosList + " Colors: " + stopsColorList);
+                            if (gradientData.selectedItem != null)
+                                gradientData.selectedItem.isSelected = false
+
+                            backgroundCard.isSelected = true
+                            gradientData.selectedItem = backgroundCard
                         }
                         onEntered: {
                             if (backgroundCard.state != "CLICKED") {
@@ -107,6 +112,13 @@ Rectangle {
                         }
                     } //mouseArea
 
+                    onIsSelectedChanged: {
+                        if (isSelected)
+                            backgroundCard.state = "CLICKED"
+                        else
+                            backgroundCard.state = "USUAL"
+                    }
+
                     states: [
                         State {
                             name: "HOVER"
@@ -117,6 +129,17 @@ Rectangle {
                                 clip: true
                                 border.width: 1
                                 border.color: "#029de0"
+                            }
+                        },
+                        State {
+                            name: "CLICKED"
+                            PropertyChanges {
+                                target: backgroundCard
+                                color:"#029de0"
+                                z: 4
+                                clip: true
+                                border.width: 1
+                                border.color: "#606060"
                             }
                         },
                         State {

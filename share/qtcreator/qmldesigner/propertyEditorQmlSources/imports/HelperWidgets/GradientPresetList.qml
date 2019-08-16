@@ -48,6 +48,7 @@ Dialog {
         property int stopsCount;
         property int presetID;
         property int presetType; //default(0) or custom(1)
+        property Item selectedItem;
     }
 
     function addGradient(stopsPositions, stopsColors, stopsCount) {
