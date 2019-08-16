@@ -39,8 +39,6 @@ class WebAssemblyDevice : public ProjectExplorer::DesktopDevice
 public:
     static ProjectExplorer::IDevice::Ptr create();
 
-    Utils::OsType osType() const override;
-
 private:
     WebAssemblyDevice();
 };

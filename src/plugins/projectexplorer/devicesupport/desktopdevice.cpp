@@ -60,6 +60,8 @@ DesktopDevice::DesktopDevice()
 
     setDeviceState(IDevice::DeviceStateUnknown);
     setMachineType(IDevice::Hardware);
+    setOsType(HostOsInfo::hostOs());
+
     const QString portRange =
             QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
@@ -171,11 +173,6 @@ QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
     url.setScheme(Utils::urlTcpScheme());
     url.setHost("localhost");
     return url;
-}
-
-Utils::OsType DesktopDevice::osType() const
-{
-    return Utils::HostOsInfo::hostOs();
 }
 
 } // namespace ProjectExplorer

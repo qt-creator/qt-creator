@@ -50,6 +50,7 @@ IosSimulator::IosSimulator(Core::Id id)
     setupId(IDevice::AutoDetected, id);
     setType(Constants::IOS_SIMULATOR_TYPE);
     setMachineType(IDevice::Emulator);
+    setOsType(Utils::OsTypeMac);
     setDefaultDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator",
                                                       "iOS Simulator"));
     setDisplayType(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
@@ -100,11 +101,6 @@ Utils::Port IosSimulator::nextPort() const
 bool IosSimulator::canAutoDetectPorts() const
 {
     return true;
-}
-
-Utils::OsType IosSimulator::osType() const
-{
-    return Utils::OsTypeMac;
 }
 
 // IosDeviceType

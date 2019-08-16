@@ -47,6 +47,8 @@
 #include <limits>
 #include <memory>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -410,6 +412,7 @@ public:
         setupId(AutoDetected, Core::Id::fromString(QUuid::createUuid().toString()));
         setType(testTypeId());
         setMachineType(Hardware);
+        setOsType(HostOsInfo::hostOs());
         setDisplayType("blubb");
     }
 
@@ -420,7 +423,6 @@ private:
     {
         return DeviceProcessSignalOperation::Ptr();
     }
-    Utils::OsType osType() const override { return Utils::HostOsInfo::hostOs(); }
 };
 
 class TestDeviceFactory : public IDeviceFactory

@@ -45,7 +45,6 @@ public:
     static Ptr create() { return Ptr(new LinuxDevice); }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    Utils::OsType osType() const override;
 
     bool canCreateProcess() const override { return true; }
     ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;

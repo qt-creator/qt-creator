@@ -84,15 +84,12 @@ QnxDevice::QnxDevice()
 {
     setDisplayType(tr("QNX"));
     setDefaultDisplayName(tr("QNX Device"));
+    setOsType(OsTypeOtherUnix);
+
     addDeviceAction({tr("Deploy Qt libraries..."), [](const IDevice::Ptr &device, QWidget *parent) {
         QnxDeployQtLibrariesDialog dialog(device, parent);
         dialog.exec();
     }});
-}
-
-OsType QnxDevice::osType() const
-{
-    return OsTypeOtherUnix;
 }
 
 int QnxDevice::qnxVersion() const

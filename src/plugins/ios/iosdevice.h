@@ -59,7 +59,6 @@ public:
     QString osVersion() const;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
-    Utils::OsType osType() const override;
 
     static QString name();
 

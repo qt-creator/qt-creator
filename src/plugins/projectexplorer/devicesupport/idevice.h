@@ -157,6 +157,7 @@ public:
     virtual bool isCompatibleWith(const Kit *k) const;
 
     QString displayType() const;
+    Utils::OsType osType() const;
 
     virtual IDeviceWidget *createWidget() = 0;
 
@@ -175,7 +176,6 @@ public:
     virtual DeviceProcessList *createProcessListModel(QObject *parent = nullptr) const;
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
-    virtual Utils::OsType osType() const;
 
     virtual bool canCreateProcess() const { return false; }
     virtual DeviceProcess *createProcess(QObject *parent) const;
@@ -233,6 +233,7 @@ protected:
     using OpenTerminal = std::function<void(const Utils::Environment &, const QString &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);
+    void setOsType(Utils::OsType osType);
 
 private:
     IDevice(const IDevice &) = delete;

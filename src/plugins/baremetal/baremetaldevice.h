@@ -48,7 +48,6 @@ public:
     static QString defaultDisplayName();
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
-    Utils::OsType osType() const final;
 
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const final;
 

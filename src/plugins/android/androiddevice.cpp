@@ -53,6 +53,8 @@ AndroidDevice::AndroidDevice()
                                                       "Run on Android"));
     setDisplayType(QCoreApplication::translate("Android::Internal::AndroidDevice", "Android"));
     setMachineType(IDevice::Hardware);
+    setOsType(Utils::OsTypeOtherUnix);
+
     setDeviceState(DeviceReadyToUse);
     QString activityPath;
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
@@ -80,11 +82,6 @@ bool AndroidDevice::canAutoDetectPorts() const
 DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
-}
-
-Utils::OsType AndroidDevice::osType() const
-{
-    return Utils::OsTypeOtherUnix;
 }
 
 QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const

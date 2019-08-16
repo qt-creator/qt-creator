@@ -54,6 +54,7 @@ BareMetalDevice::BareMetalDevice()
 {
     setDisplayType(QCoreApplication::translate("BareMetal::Internal::BareMetalDevice", "Bare Metal"));
     setDefaultDisplayName(defaultDisplayName());
+    setOsType(Utils::OsTypeOther);
 }
 
 BareMetalDevice::~BareMetalDevice()
@@ -148,11 +149,6 @@ DeviceProcessSignalOperation::Ptr BareMetalDevice::signalOperation() const
 IDeviceWidget *BareMetalDevice::createWidget()
 {
     return new BareMetalDeviceConfigurationWidget(sharedFromThis());
-}
-
-Utils::OsType BareMetalDevice::osType() const
-{
-    return Utils::OsTypeOther;
 }
 
 DeviceProcess *BareMetalDevice::createProcess(QObject *parent) const

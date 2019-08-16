@@ -61,6 +61,8 @@ Q_LOGGING_CATEGORY(winrtDeviceLog, "qtc.winrt.deviceParser", QtWarningMsg)
 WinRtDevice::WinRtDevice()
 {
     setDisplayType(displayNameForType(type()));
+    setOsType(OsTypeWindows);
+
     Utils::PortList portList;
     portList.addRange(Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_START),
                       Utils::Port(ProjectExplorer::Constants::DESKTOP_PORT_END));
@@ -95,11 +97,6 @@ QVariantMap WinRtDevice::toMap() const
     QVariantMap map = IDevice::toMap();
     map.insert(QStringLiteral("WinRtRunnerDeviceId"), m_deviceId);
     return map;
-}
-
-Utils::OsType WinRtDevice::osType() const
-{
-    return Utils::OsTypeWindows;
 }
 
 QString WinRtDevice::displayNameForType(Core::Id type)

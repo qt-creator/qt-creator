@@ -49,8 +49,6 @@ public:
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     ProjectExplorer::DeviceProcess *createProcess(QObject *parent) const override;
 
-    Utils::OsType osType() const override;
-
     int qnxVersion() const;
 
     void fromMap(const QVariantMap &map) override;

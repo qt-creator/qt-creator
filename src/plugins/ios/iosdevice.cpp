@@ -86,6 +86,7 @@ IosDevice::IosDevice()
     setDefaultDisplayName(IosDevice::name());
     setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
     setMachineType(IDevice::Hardware);
+    setOsType(Utils::OsTypeMac);
     setDeviceState(DeviceDisconnected);
     Utils::PortList ports;
     ports.addRange(Utils::Port(Constants::IOS_DEVICE_PORT_START),
@@ -101,6 +102,7 @@ IosDevice::IosDevice(const QString &uid)
     setDefaultDisplayName(IosDevice::name());
     setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
     setMachineType(IDevice::Hardware);
+    setOsType(Utils::OsTypeMac);
     setDeviceState(DeviceDisconnected);
 }
 
@@ -172,11 +174,6 @@ Utils::Port IosDevice::nextPort() const
 bool IosDevice::canAutoDetectPorts() const
 {
     return true;
-}
-
-Utils::OsType IosDevice::osType() const
-{
-    return Utils::OsTypeMac;
 }
 
 

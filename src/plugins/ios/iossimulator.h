@@ -73,7 +73,6 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     Utils::Port nextPort() const;
     bool canAutoDetectPorts() const override;
-    Utils::OsType osType() const override;
 
 protected:
     friend class IosSimulatorFactory;

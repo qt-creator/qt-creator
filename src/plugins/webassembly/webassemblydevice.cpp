@@ -44,6 +44,7 @@ WebAssemblyDevice::WebAssemblyDevice()
     setDisplayType(displayNameAndType);
     setDeviceState(IDevice::DeviceStateUnknown);
     setMachineType(IDevice::Hardware);
+    setOsType(OsTypeOther);
 }
 
 ProjectExplorer::IDevice::Ptr WebAssemblyDevice::create()
@@ -51,12 +52,6 @@ ProjectExplorer::IDevice::Ptr WebAssemblyDevice::create()
     auto device = new WebAssemblyDevice;
     return ProjectExplorer::IDevice::Ptr(device);
 }
-
-Utils::OsType WebAssemblyDevice::osType() const
-{
-    return Utils::OsTypeOther;
-}
-
 
 WebAssemblyDeviceFactory::WebAssemblyDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::WEBASSEMBLY_DEVICE_TYPE)

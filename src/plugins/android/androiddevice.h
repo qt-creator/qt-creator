@@ -34,7 +34,7 @@ namespace Internal {
 class AndroidDevice : public ProjectExplorer::IDevice
 {
 public:
-    static IDevice::Ptr create() { return IDevice::Ptr(new AndroidDevice); };
+    static IDevice::Ptr create() { return IDevice::Ptr(new AndroidDevice); }
 
 private:
     AndroidDevice();
@@ -44,7 +44,6 @@ private:
     ProjectExplorer::IDeviceWidget *createWidget() override;
     bool canAutoDetectPorts() const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    Utils::OsType osType() const override;
 
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 };

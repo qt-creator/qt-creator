@@ -45,7 +45,6 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     void fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
-    Utils::OsType osType() const override;
 
     static QString displayNameForType(Core::Id type);
     int deviceId() const { return m_deviceId; }

@@ -146,6 +146,7 @@ public:
     Core::Id id;
     IDevice::DeviceState deviceState = IDevice::DeviceStateUnknown;
     IDevice::MachineType machineType = IDevice::Hardware;
+    Utils::OsType osType = Utils::OsTypeOther;
     int version = 0; // This is used by devices that have been added by the SDK.
 
     QSsh::SshConnectionParameters sshParameters;
@@ -219,6 +220,11 @@ QString IDevice::displayType() const
 void IDevice::setDisplayType(const QString &type)
 {
     d->displayType = type;
+}
+
+void IDevice::setOsType(Utils::OsType osType)
+{
+    d->osType = osType;
 }
 
 IDevice::DeviceInfo IDevice::deviceInformation() const
@@ -310,7 +316,7 @@ DeviceTester *IDevice::createDeviceTester() const
 
 Utils::OsType IDevice::osType() const
 {
-    return Utils::OsTypeOther;
+    return d->osType;
 }
 
 DeviceProcess *IDevice::createProcess(QObject * /* parent */) const
@@ -434,6 +440,10 @@ IDevice::Ptr IDevice::clone() const
     device->d->deviceState = d->deviceState;
     device->d->deviceActions = d->deviceActions;
     device->d->deviceIcons = d->deviceIcons;
+    // Os type is only set in the constructor, always to the same value.
+    // But make sure we notice if that changes in the future (which it shouldn't).
+    QTC_CHECK(device->d->osType == d->osType);
+    device->d->osType = d->osType;
     device->fromMap(toMap());
     return device;
 }
