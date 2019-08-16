@@ -40,7 +40,7 @@ def main():
     checkWelcomePage(sessionName, True)
     for project in projects:
         openQmakeProject(project, [Targets.DESKTOP_5_6_1_DEFAULT])
-    progressBarWait(20000)
+    waitForProjectParsing()
     checkNavigator(52, "Verifying whether all projects have been opened.")
     openDocument("animation.Resources.animation\\.qrc./animation.basics.animators\\.qml")
     openDocument("keyinteraction.Sources.main\\.cpp")

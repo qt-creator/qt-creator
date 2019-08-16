@@ -43,7 +43,7 @@ def main():
             # open example project
             openQmakeProject(examplePath)
             # wait for parsing to complete
-            progressBarWait(30000)
+            waitForProjectParsing()
             checkCodeModelSettings(useClang)
             # open .cpp file in editor
             if not openDocument("openglwindow.Sources.main\\.cpp"):
