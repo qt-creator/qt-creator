@@ -193,7 +193,7 @@ bool AndroidDeployQtStep::init()
                            << "Min target API" << minTargetApi;
 
     // Try to re-use user-provided information from an earlier step of the same type.
-    auto bsl = qobject_cast<BuildStepList *>(parent());
+    BuildStepList *bsl = stepList();
     QTC_ASSERT(bsl, return false);
     auto androidDeployQtStep = bsl->firstOfType<AndroidDeployQtStep>();
     QTC_ASSERT(androidDeployQtStep, return false);

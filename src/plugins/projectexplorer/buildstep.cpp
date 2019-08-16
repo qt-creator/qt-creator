@@ -286,6 +286,11 @@ void BuildStep::setEnabled(bool b)
     emit enabledChanged();
 }
 
+BuildStepList *BuildStep::stepList() const
+{
+    return qobject_cast<BuildStepList *>(parent());
+}
+
 bool BuildStep::enabled() const
 {
     return m_enabled;

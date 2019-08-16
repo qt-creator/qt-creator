@@ -80,7 +80,7 @@ bool QmakeMakeStep::init()
 
     // Ignore all but the first make step for a non-top-level build. See QTCREATORBUG-15794.
     m_ignoredNonTopLevelBuild = (bc->fileNodeBuild() || bc->subNodeBuild())
-            && static_cast<BuildStepList *>(parent())->firstOfType<QmakeMakeStep>() != this;
+            && stepList()->firstOfType<QmakeMakeStep>() != this;
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
@@ -173,8 +173,7 @@ bool QmakeMakeStep::init()
 
     // A user doing "make clean" indicates they want a proper rebuild, so make sure to really
     // execute qmake on the next build.
-    if (static_cast<BuildStepList *>(parent())->id()
-            == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+    if (stepList()->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         const auto qmakeStep = bc->qmakeStep();
         if (qmakeStep)
             qmakeStep->setForced(true);

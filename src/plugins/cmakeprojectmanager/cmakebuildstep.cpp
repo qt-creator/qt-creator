@@ -262,8 +262,9 @@ BuildStepConfigWidget *CMakeBuildStep::createConfigWidget()
 
 QString CMakeBuildStep::defaultBuildTarget() const
 {
-    const auto pc = qobject_cast<BuildStepList *>(parent());
-    const Core::Id parentId = pc ? pc->id() : Core::Id();
+    const BuildStepList *const bsl = stepList();
+    QTC_ASSERT(bsl, return {});
+    const Core::Id parentId = bsl->id();
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_CLEAN)
         return cleanTarget();
     if (parentId == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)

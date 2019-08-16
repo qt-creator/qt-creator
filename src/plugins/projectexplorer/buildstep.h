@@ -69,6 +69,8 @@ public:
     bool enabled() const;
     void setEnabled(bool b);
 
+    BuildStepList *stepList() const;
+
     BuildConfiguration *buildConfiguration() const;
     DeployConfiguration *deployConfiguration() const;
     ProjectConfiguration *projectConfiguration() const;
@@ -122,6 +124,8 @@ protected:
     bool isCanceled() const;
 
 private:
+    using ProjectConfiguration::parent;
+
     virtual void doRun() = 0;
     virtual void doCancel();
 
