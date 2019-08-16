@@ -43,8 +43,7 @@ class BareMetalDeviceConfigurationWidget final
     Q_OBJECT
 
 public:
-    explicit BareMetalDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = nullptr);
+    explicit BareMetalDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &deviceConfig);
 
 private:
     void gdbServerProviderChanged();

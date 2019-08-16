@@ -40,7 +40,7 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
 
 public:
     explicit GenericLinuxDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = nullptr);
+        const ProjectExplorer::IDevice::Ptr &deviceConfig);
     ~GenericLinuxDeviceConfigurationWidget() override;
 
 private:

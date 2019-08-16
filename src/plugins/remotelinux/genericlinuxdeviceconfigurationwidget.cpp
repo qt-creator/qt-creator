@@ -39,8 +39,8 @@ using namespace QSsh;
 using namespace Utils;
 
 GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
-        const IDevice::Ptr &deviceConfig, QWidget *parent) :
-    IDeviceWidget(deviceConfig, parent),
+        const IDevice::Ptr &deviceConfig) :
+    IDeviceWidget(deviceConfig),
     m_ui(new Ui::GenericLinuxDeviceConfigurationWidget)
 {
     m_ui->setupUi(this);

@@ -41,8 +41,8 @@ namespace Internal {
 // BareMetalDeviceConfigurationWidget
 
 BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
-        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent)
-    : IDeviceWidget(deviceConfig, parent)
+        const ProjectExplorer::IDevice::Ptr &deviceConfig)
+    : IDeviceWidget(deviceConfig)
 {
     const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
     QTC_ASSERT(dev, return);
