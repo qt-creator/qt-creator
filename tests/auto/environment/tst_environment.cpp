@@ -198,7 +198,7 @@ void tst_Environment::environmentSetNewWindows()
 
     env.set("bar", "baz");
 
-    QCOMPARE(env.toStringList(), QStringList({"Foo=bar", "Hi=HO", "bar=baz"}));
+    QCOMPARE(env.toStringList(), QStringList({"bar=baz", "Foo=bar", "Hi=HO"}));
 }
 
 void tst_Environment::environmentSetNewUnix()

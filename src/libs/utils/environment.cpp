@@ -46,7 +46,7 @@ QProcessEnvironment Environment::toProcessEnvironment() const
     QProcessEnvironment result;
     for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it) {
         if (it.value().second)
-            result.insert(it.key(), expandedValueForKey(key(it)));
+            result.insert(it.key().name, expandedValueForKey(key(it)));
     }
     return result;
 }
@@ -68,7 +68,7 @@ void Environment::appendOrSet(const QString &key, const QString &value, const QS
     QTC_ASSERT(!key.contains('='), return );
     const auto it = findKey(key);
     if (it == m_values.end()) {
-        m_values.insert(key, qMakePair(value, true));
+        m_values.insert(DictKey(key, nameCaseSensitivity()), qMakePair(value, true));
     } else {
         // Append unless it is already there
         const QString toAppend = sep + value;
@@ -82,7 +82,7 @@ void Environment::prependOrSet(const QString &key, const QString &value, const Q
     QTC_ASSERT(!key.contains('='), return );
     const auto it = findKey(key);
     if (it == m_values.end()) {
-        m_values.insert(key, qMakePair(value, true));
+        m_values.insert(DictKey(key, nameCaseSensitivity()), qMakePair(value, true));
     } else {
         // Prepend unless it is already there
         const QString toPrepend = value + sep;
@@ -361,7 +361,7 @@ QString Environment::expandVariables(const QString &input) const
                 }
             } else if (state == BRACEDVARIABLE) {
                 if (c == '}') {
-                    const_iterator it = m_values.constFind(result.mid(vStart, i - 1 - vStart));
+                    const_iterator it = constFind(result.mid(vStart, i - 1 - vStart));
                     if (it != constEnd()) {
                         result.replace(vStart - 2, i - vStart + 2, it->first);
                         i = vStart - 2 + it->first.length();
@@ -370,7 +370,7 @@ QString Environment::expandVariables(const QString &input) const
                 }
             } else if (state == VARIABLE) {
                 if (!c.isLetterOrNumber() && c != '_') {
-                    const_iterator it = m_values.constFind(result.mid(vStart, i - vStart - 1));
+                    const_iterator it = constFind(result.mid(vStart, i - vStart - 1));
                     if (it != constEnd()) {
                         result.replace(vStart - 1, i - vStart, it->first);
                         i = vStart - 1 + it->first.length();
@@ -380,7 +380,7 @@ QString Environment::expandVariables(const QString &input) const
             }
         }
         if (state == VARIABLE) {
-            const_iterator it = m_values.constFind(result.mid(vStart));
+            const_iterator it = constFind(result.mid(vStart));
             if (it != constEnd())
                 result.replace(vStart - 1, result.length() - vStart + 1, it->first);
         }

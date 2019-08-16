@@ -31,9 +31,23 @@
 
 namespace Utils {
 
+class QTCREATOR_UTILS_EXPORT DictKey
+{
+public:
+    DictKey(const QString &name, Qt::CaseSensitivity cs) : name(name), caseSensitivity(cs) {}
+
+    QString name;
+    Qt::CaseSensitivity caseSensitivity;
+};
+inline bool operator<(const DictKey &k1, const DictKey &k2)
+{
+    return k1.name.compare(k2.name, k1.caseSensitivity) < 0;
+}
+inline bool operator>(const DictKey &k1, const DictKey &k2) { return k2 < k1; }
+
 using NameValuePair = std::pair<QString, QString>;
 using NameValuePairs = QVector<NameValuePair>;
-using NameValueMap = QMap<QString, QPair<QString, bool>>;
+using NameValueMap = QMap<DictKey, QPair<QString, bool>>;
 
 class QTCREATOR_UTILS_EXPORT NameValueDictionary
 {
@@ -62,7 +76,7 @@ public:
     void clear();
     int size() const;
 
-    QString key(const_iterator it) const { return it.key(); }
+    QString key(const_iterator it) const { return it.key().name; }
     QString value(const_iterator it) const { return it.value().first; }
     bool isEnabled(const_iterator it) const { return it.value().second; }
 

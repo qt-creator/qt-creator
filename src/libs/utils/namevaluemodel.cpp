@@ -57,8 +57,10 @@ public:
     int findInChanges(const QString &name) const
     {
         for (int i = 0; i < m_items.size(); ++i)
-            if (m_items.at(i).name == name)
+            if (m_items.at(i).name.compare(name,
+                                           m_baseNameValueDictionary.nameCaseSensitivity()) == 0) {
                 return i;
+            }
         return -1;
     }
 
@@ -69,7 +71,7 @@ public:
         for (it = m_resultNameValueDictionary.constBegin();
              it != m_resultNameValueDictionary.constEnd();
              ++it, ++i)
-            if (m_resultNameValueDictionary.key(it) > name)
+            if (it.key() > DictKey(name, m_resultNameValueDictionary.nameCaseSensitivity()))
                 return i;
         return m_resultNameValueDictionary.size();
     }
@@ -81,8 +83,10 @@ public:
         for (it = m_resultNameValueDictionary.constBegin();
              it != m_resultNameValueDictionary.constEnd();
              ++it, ++i)
-            if (m_resultNameValueDictionary.key(it) == name)
+            if (m_resultNameValueDictionary.key(it)
+                    .compare(name, m_resultNameValueDictionary.nameCaseSensitivity()) == 0) {
                 return i;
+            }
         return -1;
     }
 

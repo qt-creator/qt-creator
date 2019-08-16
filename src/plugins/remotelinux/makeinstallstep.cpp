@@ -139,8 +139,10 @@ bool MakeInstallStep::init()
     if (cmd.environment.size() > 0) {
         Environment env = processParameters()->environment();
         for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it) {
-            if (cmd.environment.isEnabled(it))
-                env.set(it.key(), cmd.environment.expandedValueForKey(cmd.environment.key(it)));
+            if (cmd.environment.isEnabled(it)) {
+                const QString key = cmd.environment.key(it);
+                env.set(key, cmd.environment.expandedValueForKey(key));
+            }
         }
         processParameters()->setEnvironment(env);
     }
