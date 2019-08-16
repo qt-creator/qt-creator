@@ -135,7 +135,6 @@ HEADERS += projectexplorer.h \
     devicesupport/sshdeviceprocess.h \
     devicesupport/sshdeviceprocesslist.h \
     devicesupport/sshsettingspage.h \
-    devicesupport/desktopdeviceconfigurationwidget.h \
     devicesupport/desktopprocesssignaloperation.h \
     deploymentdata.h \
     deploymentdatamodel.h \
@@ -283,7 +282,6 @@ SOURCES += projectexplorer.cpp \
     devicesupport/sshdeviceprocess.cpp \
     devicesupport/sshdeviceprocesslist.cpp \
     devicesupport/sshsettingspage.cpp \
-    devicesupport/desktopdeviceconfigurationwidget.cpp \
     devicesupport/desktopprocesssignaloperation.cpp \
     deployablefile.cpp \
     deploymentdata.cpp \
@@ -322,7 +320,6 @@ FORMS += \
     devicesupport/devicefactoryselectiondialog.ui \
     devicesupport/devicesettingswidget.ui \
     devicesupport/devicetestdialog.ui \
-    devicesupport/desktopdeviceconfigurationwidget.ui \
     customparserconfigdialog.ui \
     makestep.ui
 

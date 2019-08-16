@@ -27,7 +27,6 @@
 #include "desktopdeviceprocess.h"
 #include "deviceprocesslist.h"
 #include "localprocesslist.h"
-#include "desktopdeviceconfigurationwidget.h"
 #include "desktopprocesssignaloperation.h"
 
 #include <coreplugin/fileutils.h>
