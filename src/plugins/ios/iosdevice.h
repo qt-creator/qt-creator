@@ -68,6 +68,9 @@ protected:
     IosDevice();
     IosDevice(const QString &uid);
 
+    enum CtorHelper {};
+    IosDevice(CtorHelper);
+
     Dict m_extraInfo;
     bool m_ignoreDevice = false;
     mutable quint16 m_lastPort;

@@ -78,16 +78,22 @@ static QString CFStringRef2QString(CFStringRef s)
 namespace Ios {
 namespace Internal {
 
-IosDevice::IosDevice()
+IosDevice::IosDevice(CtorHelper)
     : m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
-    setupId(IDevice::AutoDetected, Constants::IOS_DEVICE_ID);
     setType(Constants::IOS_DEVICE_TYPE);
     setDefaultDisplayName(IosDevice::name());
     setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeMac);
     setDeviceState(DeviceDisconnected);
+}
+
+IosDevice::IosDevice()
+    : IosDevice(CtorHelper{})
+{
+    setupId(IDevice::AutoDetected, Constants::IOS_DEVICE_ID);
+
     Utils::PortList ports;
     ports.addRange(Utils::Port(Constants::IOS_DEVICE_PORT_START),
                    Utils::Port(Constants::IOS_DEVICE_PORT_END));
@@ -95,17 +101,10 @@ IosDevice::IosDevice()
 }
 
 IosDevice::IosDevice(const QString &uid)
-    : m_lastPort(Constants::IOS_DEVICE_PORT_START)
+    : IosDevice(CtorHelper{})
 {
     setupId(IDevice::AutoDetected, Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid));
-    setType(Constants::IOS_DEVICE_TYPE);
-    setDefaultDisplayName(IosDevice::name());
-    setDisplayType(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS"));
-    setMachineType(IDevice::Hardware);
-    setOsType(Utils::OsTypeMac);
-    setDeviceState(DeviceDisconnected);
 }
-
 
 IDevice::DeviceInfo IosDevice::deviceInformation() const
 {
