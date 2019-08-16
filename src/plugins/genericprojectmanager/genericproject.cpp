@@ -291,7 +291,8 @@ bool GenericProject::addFiles(const QStringList &filePaths)
     for (const QString &filePath : filePaths)
         insertSorted(&newList, baseDir.relativeFilePath(filePath));
 
-    const QSet<QString> includes = Utils::toSet(m_projectIncludePaths);
+    const auto includes = transform<QSet<QString>>(m_projectIncludePaths,
+                                                   [](const HeaderPath &hp) { return hp.path; });
     QSet<QString> toAdd;
 
     for (const QString &filePath : filePaths) {
@@ -375,7 +376,21 @@ void GenericProject::parseProject(RefreshOptions options)
 
     if (options & Configuration) {
         m_rawProjectIncludePaths = readLines(m_includesFileName);
-        m_projectIncludePaths = processEntries(m_rawProjectIncludePaths);
+        QStringList normalPaths;
+        QStringList frameworkPaths;
+        for (const QString &rawPath : m_rawProjectIncludePaths) {
+            if (rawPath.startsWith("-F"))
+                frameworkPaths << rawPath.mid(2);
+            else
+                normalPaths << rawPath;
+        }
+        const auto stringsToHeaderPaths = [this](const QStringList &paths, HeaderPathType type) {
+            return transform<HeaderPaths>(processEntries(paths),
+                                          [type](const QString &p) { return HeaderPath(p, type);
+            });
+        };
+        m_projectIncludePaths = stringsToHeaderPaths(normalPaths, HeaderPathType::User);
+        m_projectIncludePaths << stringsToHeaderPaths(frameworkPaths, HeaderPathType::Framework);
         m_cxxflags = readFlags(m_cxxflagsFileName);
         m_cflags = readFlags(m_cflagsFileName);
 
@@ -499,7 +514,7 @@ void GenericProject::refreshCppCodeModel()
     rpp.setDisplayName(displayName());
     rpp.setProjectFileLocation(projectFilePath().toString());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
-    rpp.setIncludePaths(m_projectIncludePaths);
+    rpp.setHeaderPaths(m_projectIncludePaths);
     rpp.setConfigFileName(m_configFileName);
     rpp.setFlagsForCxx({nullptr, m_cxxflags});
     rpp.setFlagsForC({nullptr, m_cflags});

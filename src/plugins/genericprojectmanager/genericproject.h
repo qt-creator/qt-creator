@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
 #include <utils/fileutils.h>
 
@@ -82,7 +83,7 @@ private:
     QStringList m_files;
     QHash<QString, QString> m_rawListEntries;
     QStringList m_rawProjectIncludePaths;
-    QStringList m_projectIncludePaths;
+    ProjectExplorer::HeaderPaths m_projectIncludePaths;
     QStringList m_cxxflags;
     QStringList m_cflags;
 

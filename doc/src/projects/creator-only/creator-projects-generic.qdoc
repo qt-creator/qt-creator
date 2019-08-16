@@ -65,7 +65,7 @@
 
                \li  \l{Specifying Files}{.files}
 
-               \li  \l{Specifying Include Paths}{.includes}
+               \li  \l{Specifying Include Paths and Framework Paths}{.includes}
 
                \li  \l{Specifying Defines}{.config}
 
@@ -114,11 +114,13 @@
     git ls-files "*.cpp" "*.h" > MyProject.files
     \endcode
 
-    \section1 Specifying Include Paths
+    \section1 Specifying Include Paths and Framework Paths
 
     The include paths are specified in the \tt{.includes} file, one include
     path per line. The paths can be either absolute or relative to the
     \tt{.includes} file.
+
+    Lines starting with "-F" are interpreted as framework paths.
 
     \section1 Specifying Defines
 
