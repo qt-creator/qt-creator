@@ -1773,18 +1773,10 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
         BuildManager::cancel();
     }
 
-    IDocument *document = project->document();
-
-    if (!document || document->filePath().isEmpty()) //nothing to save?
-        return;
-
-    if (!DocumentManager::saveModifiedDocumentSilently(document))
-        return;
-
     if (projectExplorerSettings().closeSourceFilesWithProject && !dd->closeAllFilesInProject(project))
         return;
 
-    dd->addToRecentProjects(document->filePath().toString(), project->displayName());
+    dd->addToRecentProjects(project->projectFilePath().toString(), project->displayName());
 
     SessionManager::removeProject(project);
     dd->updateActions();

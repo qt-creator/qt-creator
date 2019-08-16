@@ -285,9 +285,7 @@ ParserTreeItem::ConstPtr Parser::parse()
     for (const Project *prj : SessionManager::projects()) {
         ParserTreeItem::Ptr item;
         QString prjName(prj->displayName());
-        QString prjType(prjName);
-        if (prj->document())
-            prjType = prj->projectFilePath().toString();
+        QString prjType = prj->projectFilePath().toString();
         SymbolInformation inf(prjName, prjType);
         item = ParserTreeItem::Ptr(new ParserTreeItem());
 

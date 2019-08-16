@@ -1246,19 +1246,13 @@ static QTextCodec *findFileCodec(const QString &source)
 // Find the codec by checking the projects (root dir of project file)
 static QTextCodec *findProjectCodec(const QString &dir)
 {
+    const FilePath dirPath = FilePath::fromString(dir);
     typedef  QList<ProjectExplorer::Project*> ProjectList;
     // Try to find a project under which file tree the file is.
     const ProjectList projects = ProjectExplorer::SessionManager::projects();
-    if (!projects.empty()) {
-        const ProjectList::const_iterator pcend = projects.constEnd();
-        for (ProjectList::const_iterator it = projects.constBegin(); it != pcend; ++it)
-            if (const Core::IDocument *document = (*it)->document())
-                if (document->filePath().toString().startsWith(dir)) {
-                    QTextCodec *codec = (*it)->editorConfiguration()->textCodec();
-                    return codec;
-                }
-    }
-    return nullptr;
+    const ProjectExplorer::Project *p
+        = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
+    return p ? p->editorConfiguration()->textCodec() : nullptr;
 }
 
 QTextCodec *VcsBaseEditor::getCodec(const QString &source)

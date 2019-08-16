@@ -84,7 +84,7 @@ bool QmlProjectNode::renameFile(const QString & filePath, const QString & newFil
         m_project->setMainFile(newFilePath);
 
         // make sure to change it also in the qmlproject file
-        const QString qmlProjectFilePath = m_project->document()->filePath().toString();
+        const QString qmlProjectFilePath = m_project->projectFilePath().toString();
         Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath);
         const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(qmlProjectFilePath);
         TextEditor::TextDocument *document = nullptr;

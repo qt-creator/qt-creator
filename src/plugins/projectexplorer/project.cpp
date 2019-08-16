@@ -243,7 +243,7 @@ Core::Id Project::id() const
 
 QString Project::mimeType() const
 {
-    return document()->mimeType();
+    return d->m_document->mimeType();
 }
 
 bool Project::canBuildProducts() const
@@ -251,16 +251,10 @@ bool Project::canBuildProducts() const
     return d->m_canBuildProducts;
 }
 
-Core::IDocument *Project::document() const
-{
-    QTC_CHECK(d->m_document);
-    return d->m_document.get();
-}
-
 Utils::FilePath Project::projectFilePath() const
 {
-    QTC_ASSERT(document(), return Utils::FilePath());
-    return document()->filePath();
+    QTC_ASSERT(d->m_document, return Utils::FilePath());
+    return d->m_document->filePath();
 }
 
 void Project::addTarget(std::unique_ptr<Target> &&t)
@@ -1073,10 +1067,6 @@ void ProjectExplorerPlugin::testProject_setup()
     QVERIFY(project.containerNode());
 
     QVERIFY(project.macroExpander());
-
-    QVERIFY(project.document());
-    QCOMPARE(project.document()->filePath(), TEST_PROJECT_PATH);
-    QCOMPARE(project.document()->mimeType(), TEST_PROJECT_MIMETYPE);
 
     QCOMPARE(project.mimeType(), TEST_PROJECT_MIMETYPE);
     QCOMPARE(project.projectFilePath(), TEST_PROJECT_PATH);

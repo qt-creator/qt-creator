@@ -85,7 +85,6 @@ public:
     QString mimeType() const;
     bool canBuildProducts() const;
 
-    Core::IDocument *document() const;
     Utils::FilePath projectFilePath() const;
     Utils::FilePath projectDirectory() const;
     static Utils::FilePath projectDirectory(const Utils::FilePath &top);
