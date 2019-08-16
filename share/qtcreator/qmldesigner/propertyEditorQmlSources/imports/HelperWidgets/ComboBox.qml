@@ -62,9 +62,7 @@ StudioControls.ComboBox {
     ColorLogic {
         id: colorLogic
         backendValue: comboBox.backendValue
-        onValueFromBackendChanged: {
-            invalidate();
-        }
+        onValueFromBackendChanged: invalidate()
 
         function invalidate() {
 
@@ -74,9 +72,9 @@ StudioControls.ComboBox {
             block = true
 
             if (manualMapping) {
-                valueFromBackendChanged();
+                comboBox.valueFromBackendChanged()
             } else if (!comboBox.useInteger) {
-                var enumString = comboBox.backendValue.enumeration;
+                var enumString = comboBox.backendValue.enumeration
 
                 if (enumString === "")
                     enumString = comboBox.backendValue.value
@@ -100,24 +98,23 @@ StudioControls.ComboBox {
 
     onActivated: {
         if (!__isCompleted)
-            return;
+            return
 
         if (backendValue === undefined)
-            return;
+            return
 
         if (manualMapping)
-            return;
+            return
 
         if (!comboBox.useInteger) {
-            backendValue.setEnumeration(comboBox.scope, comboBox.currentText);
+            backendValue.setEnumeration(comboBox.scope, comboBox.currentText)
         } else {
-            backendValue.value = comboBox.currentIndex;
+            backendValue.value = comboBox.currentIndex
         }
     }
 
     Component.onCompleted: {
         colorLogic.invalidate()
-        __isCompleted = true;
+        __isCompleted = true
     }
-
 }
