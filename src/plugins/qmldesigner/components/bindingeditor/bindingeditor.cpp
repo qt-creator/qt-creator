@@ -112,7 +112,9 @@ TextEditor::AssistInterface *BindingEditorWidget::createAssistInterface(TextEdit
 class BindingDocument : public QmlJSEditor::QmlJSEditorDocument
 {
 public:
-    BindingDocument() : m_semanticHighlighter(new QmlJSEditor::SemanticHighlighter(this)) {}
+    BindingDocument()
+        : QmlJSEditor::QmlJSEditorDocument(BINDINGEDITOR_CONTEXT_ID)
+        , m_semanticHighlighter(new QmlJSEditor::SemanticHighlighter(this)) {}
     ~BindingDocument() { delete m_semanticHighlighter; }
 
 protected:
