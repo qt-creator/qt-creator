@@ -29,7 +29,6 @@
 #include <utils/theme/theme.h>
 
 namespace Autotest {
-namespace Internal {
 
 TestResult::TestResult(const QString &id, const QString &name)
     : m_id(id)
@@ -189,5 +188,4 @@ TestResult *TestResult::createIntermediateResultFor(const TestResult *other)
     return intermediate;
 }
 
-} // namespace Internal
 } // namespace Autotest

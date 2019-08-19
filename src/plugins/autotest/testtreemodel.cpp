@@ -40,7 +40,8 @@
 #include <utils/qtcassert.h>
 
 namespace Autotest {
-namespace Internal {
+
+using namespace Internal;
 
 TestTreeModel::TestTreeModel(QObject *parent) :
     TreeModel<>(parent),
@@ -720,5 +721,4 @@ bool TestTreeSortFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex 
     }
 }
 
-} // namespace Internal
 } // namespace Autotest

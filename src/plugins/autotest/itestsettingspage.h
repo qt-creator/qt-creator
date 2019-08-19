@@ -31,7 +31,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Autotest {
-namespace Internal {
 
 class IFrameworkSettings;
 
@@ -64,5 +63,4 @@ private:
     }
 };
 
-} // namespace Internal
 } // namespace Autotest

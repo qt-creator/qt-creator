@@ -31,9 +31,11 @@
 #include <QPointer>
 
 namespace Autotest {
-namespace Internal {
 
 class IFrameworkSettings;
+
+namespace Internal {
+
 class BoostTestSettings;
 
 class BoostTestSettingsWidget : public QWidget

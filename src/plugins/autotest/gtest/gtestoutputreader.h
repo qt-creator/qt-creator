@@ -33,7 +33,6 @@ namespace Autotest {
 namespace Internal {
 
 class GTestResult;
-class TestTreeItem;
 
 class GTestOutputReader : public TestOutputReader
 {

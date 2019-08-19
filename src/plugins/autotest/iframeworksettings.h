@@ -30,7 +30,6 @@
 #include <QSettings>
 
 namespace Autotest {
-namespace Internal {
 
 class IFrameworkSettings
 {
@@ -63,5 +62,4 @@ protected:
     virtual void fromFrameworkSettings(const QSettings *s) = 0;
 };
 
-} // namespace Internal
 } // namespace Autotest

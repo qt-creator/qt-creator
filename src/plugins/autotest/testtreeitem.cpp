@@ -37,7 +37,6 @@
 #include <QIcon>
 
 namespace Autotest {
-namespace Internal {
 
 TestTreeItem::TestTreeItem(const QString &name, const QString &filePath, Type type)
     : m_name(name),
@@ -379,5 +378,4 @@ QSet<QString> TestTreeItem::dependingInternalTargets(CppTools::CppModelManager *
     return result;
 }
 
-} // namespace Internal
 } // namespace Autotest

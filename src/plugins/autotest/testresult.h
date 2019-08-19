@@ -33,7 +33,6 @@
 #include <QSharedPointer>
 
 namespace Autotest {
-namespace Internal {
 
 class TestTreeItem;
 
@@ -119,8 +118,7 @@ private:
 
 using TestResultPtr = QSharedPointer<TestResult>;
 
-} // namespace Internal
 } // namespace Autotest
 
-Q_DECLARE_METATYPE(Autotest::Internal::TestResult)
-Q_DECLARE_METATYPE(Autotest::Internal::ResultType)
+Q_DECLARE_METATYPE(Autotest::TestResult)
+Q_DECLARE_METATYPE(Autotest::ResultType)

@@ -47,9 +47,11 @@ class ProgressIndicator;
 }
 
 namespace Autotest {
-namespace Internal {
 
 class TestTreeModel;
+
+namespace Internal {
+
 class TestTreeSortFilterModel;
 class TestTreeView;
 

@@ -45,10 +45,9 @@ namespace CppTools { class CppModelManager; }
 namespace Utils { class FilePath; }
 
 namespace Autotest {
-namespace Internal {
 
-class TestParseResult;
 class TestConfiguration;
+class TestParseResult;
 enum class TestRunMode;
 
 class TestTreeItem : public Utils::TypedTreeItem<TestTreeItem>
@@ -170,8 +169,7 @@ public:
 
 typedef QVector<TestCodeLocationAndType> TestCodeLocationList;
 
-} // namespace Internal
 } // namespace Autotest
 
-Q_DECLARE_METATYPE(Autotest::Internal::TestTreeItem *)
-Q_DECLARE_METATYPE(Autotest::Internal::TestCodeLocationAndType)
+Q_DECLARE_METATYPE(Autotest::TestTreeItem *)
+Q_DECLARE_METATYPE(Autotest::TestCodeLocationAndType)

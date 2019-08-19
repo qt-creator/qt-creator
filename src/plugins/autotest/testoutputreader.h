@@ -33,7 +33,6 @@
 #include <QString>
 
 namespace Autotest {
-namespace Internal {
 
 class TestOutputReader : public QObject
 {
@@ -72,5 +71,4 @@ private:
     bool m_hadValidOutput = false;
 };
 
-} // namespace Internal
 } // namespace Autotest

@@ -39,11 +39,14 @@ namespace Core { class Id; }
 namespace Autotest {
 namespace Internal {
 
+class TestRunner;
+struct TestSettings;
+
+}
+
 class IFrameworkSettings;
 class ITestParser;
 class ITestSettingsPage;
-class TestRunner;
-struct TestSettings;
 class TestTreeItem;
 class TestTreeModel;
 
@@ -54,7 +57,7 @@ public:
     virtual ~TestFrameworkManager();
     bool registerTestFramework(ITestFramework *framework);
 
-    void activateFrameworksFromSettings(QSharedPointer<TestSettings> settings);
+    void activateFrameworksFromSettings(QSharedPointer<Internal::TestSettings> settings);
     QString frameworkNameForId(const Core::Id &id) const;
     QList<Core::Id> registeredFrameworkIds() const;
     QList<Core::Id> sortedRegisteredFrameworkIds() const;
@@ -77,10 +80,9 @@ private:
     QHash<Core::Id, QSharedPointer<IFrameworkSettings> > m_frameworkSettings;
     QVector<ITestSettingsPage *> m_frameworkSettingsPages;
     TestTreeModel *m_testTreeModel;
-    TestRunner *m_testRunner;
+    Internal::TestRunner *m_testRunner;
 
     typedef QHash<Core::Id, ITestFramework *>::ConstIterator FrameworkIterator;
 };
 
-} // namespace Internal
 } // namespace Autotest

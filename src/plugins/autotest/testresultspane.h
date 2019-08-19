@@ -48,11 +48,13 @@ class IContext;
 }
 
 namespace Autotest {
+
+class TestResult;
+
 namespace Internal {
 
 class TestResultModel;
 class TestResultFilterModel;
-class TestResult;
 class TestEditorMark;
 
 class ResultsTreeView : public Utils::TreeView

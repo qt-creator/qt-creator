@@ -34,7 +34,6 @@
 #include <qmljs/qmljsdocument.h>
 
 namespace Autotest {
-namespace Internal {
 
 class TestParseResult
 {
@@ -88,7 +87,6 @@ protected:
     CppTools::WorkingCopy m_workingCopy;
 };
 
-} // namespace Internal
 } // namespace Autotest
 
-Q_DECLARE_METATYPE(Autotest::Internal::TestParseResultPtr)
+Q_DECLARE_METATYPE(Autotest::TestParseResultPtr)

@@ -33,7 +33,6 @@
 #include <QProcess>
 
 namespace Autotest {
-namespace Internal {
 
 TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
                                    QProcess *testApplication, const QString &buildDirectory)
@@ -102,5 +101,4 @@ void TestOutputReader::reportResult(const TestResultPtr &result)
     m_hadValidOutput = true;
 }
 
-} // namespace Internal
 } // namespace Autotest

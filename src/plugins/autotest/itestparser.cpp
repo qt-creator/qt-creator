@@ -30,7 +30,6 @@
 #include <utils/textfileformat.h>
 
 namespace Autotest {
-namespace Internal {
 
 static CppParser *s_parserInstance = nullptr;
 
@@ -83,5 +82,4 @@ CPlusPlus::Document::Ptr CppParser::document(const QString &fileName)
     return selectedForBuilding(fileName) ? m_cppSnapshot.document(fileName) : nullptr;
 }
 
-} // namespace Internal
 } // namespace Autotest

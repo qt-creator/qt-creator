@@ -48,6 +48,9 @@ class Project;
 }
 
 namespace Autotest {
+
+enum class TestRunMode;
+
 namespace Internal {
 
 class AUTOTESTSHARED_EXPORT TestRunner : public QObject

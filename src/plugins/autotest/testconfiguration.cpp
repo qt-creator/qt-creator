@@ -47,7 +47,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Autotest {
-namespace Internal {
 
 TestConfiguration::~TestConfiguration()
 {
@@ -103,7 +102,7 @@ void TestConfiguration::completeTestInformation(ProjectExplorer::RunConfiguratio
             m_buildDir = QFileInfo(buildBase + m_projectFile.mid(projBase.length())).absolutePath();
     }
     if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
-        m_runConfig = new TestRunConfiguration(rc->target(), this);
+        m_runConfig = new Internal::TestRunConfiguration(rc->target(), this);
 }
 
 void TestConfiguration::completeTestInformation(TestRunMode runMode)
@@ -202,7 +201,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             m_runnable.executable = currentExecutable;
             m_displayName = runConfig->displayName();
             if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
-                m_runConfig = new TestRunConfiguration(target, this);
+                m_runConfig = new Internal::TestRunConfiguration(target, this);
             break;
         }
     }
@@ -223,7 +222,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
                 m_deducedConfiguration = true;
                 m_deducedFrom = rc->displayName();
                 if (runMode == TestRunMode::Debug)
-                    m_runConfig = new TestRunConfiguration(rc->target(), this);
+                    m_runConfig = new Internal::TestRunConfiguration(rc->target(), this);
             } else {
                 qCDebug(LOG) << "not using the fallback as the current active run configuration "
                                 "appears to be non-Desktop";
@@ -351,5 +350,4 @@ bool TestConfiguration::hasExecutable() const
     return !m_runnable.executable.isEmpty();
 }
 
-} // namespace Internal
 } // namespace Autotest

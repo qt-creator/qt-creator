@@ -32,9 +32,11 @@
 #include <QPointer>
 
 namespace Autotest {
-namespace Internal {
 
 class IFrameworkSettings;
+
+namespace Internal {
+
 class GTestSettings;
 
 class GTestSettingsWidget : public QWidget

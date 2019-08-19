@@ -50,7 +50,6 @@ const char TASK_MARK_ID[]               = "Autotest.TaskMark";
 const char SK_USE_GLOBAL[]              = "AutoTest.UseGlobal";
 } // namespace Constants
 
-namespace Internal {
 enum class TestRunMode
 {
     None,
@@ -60,5 +59,4 @@ enum class TestRunMode
     DebugWithoutDeploy,
     RunAfterBuild
 };
-} // namespace Internal
 } // namespace Autotest

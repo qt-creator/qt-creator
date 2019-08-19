@@ -313,8 +313,8 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     m_runMode = mode;
     ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
         ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
-    if (mode != TestRunMode::RunAfterBuild &&
-            projectExplorerSettings.buildBeforeDeploy && !projectExplorerSettings.saveBeforeBuild) {
+    if (mode != TestRunMode::RunAfterBuild && projectExplorerSettings.buildBeforeDeploy
+            && !projectExplorerSettings.saveBeforeBuild) {
         if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
             return;
     }

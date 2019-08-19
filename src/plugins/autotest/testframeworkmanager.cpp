@@ -43,14 +43,13 @@
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
 
 namespace Autotest {
-namespace Internal {
 
 static TestFrameworkManager *s_instance = nullptr;
 
 TestFrameworkManager::TestFrameworkManager()
 {
     m_testTreeModel = TestTreeModel::instance();
-    m_testRunner = TestRunner::instance();
+    m_testRunner = Internal::TestRunner::instance();
     s_instance = this;
 }
 
@@ -89,7 +88,7 @@ bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
     return true;
 }
 
-void TestFrameworkManager::activateFrameworksFromSettings(QSharedPointer<TestSettings> settings)
+void TestFrameworkManager::activateFrameworksFromSettings(QSharedPointer<Internal::TestSettings> settings)
 {
     FrameworkIterator it = m_registeredFrameworks.begin();
     FrameworkIterator end = m_registeredFrameworks.end();
@@ -168,7 +167,7 @@ QSharedPointer<IFrameworkSettings> TestFrameworkManager::settingsForTestFramewor
 
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
-    AutotestPlugin::settings()->fromSettings(s);
+    Internal::AutotestPlugin::settings()->fromSettings(s);
     for (const Core::Id &id : m_frameworkSettings.keys()) {
         QSharedPointer<IFrameworkSettings> fSettings = settingsForTestFramework(id);
         if (!fSettings.isNull())
@@ -217,5 +216,4 @@ unsigned TestFrameworkManager::priority(const Core::Id &frameworkId) const
     return unsigned(-1);
 }
 
-} // namespace Internal
 } // namespace Autotest

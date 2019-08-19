@@ -42,10 +42,12 @@ QT_END_NAMESPACE
 
 namespace Autotest {
 namespace Internal {
+class TestRunConfiguration;
+} // namespace Internal
 
 class TestOutputReader;
 class TestResult;
-class TestRunConfiguration;
+enum class TestRunMode;
 
 using TestResultPtr = QSharedPointer<TestResult>;
 
@@ -82,7 +84,7 @@ public:
     ProjectExplorer::Project *project() const { return m_project.data(); }
     QSet<QString> internalTargets() const { return m_buildTargets; }
     ProjectExplorer::RunConfiguration *originalRunConfiguration() const { return m_origRunConfig; }
-    TestRunConfiguration *runConfiguration() const { return m_runConfig; }
+    Internal::TestRunConfiguration *runConfiguration() const { return m_runConfig; }
     bool hasExecutable() const;
     bool isDeduced() const { return m_deducedConfiguration; }
     QString runConfigDisplayName() const { return m_deducedConfiguration ? m_deducedFrom
@@ -102,7 +104,7 @@ private:
     QString m_deducedFrom;
     QPointer<ProjectExplorer::Project> m_project;
     bool m_deducedConfiguration = false;
-    TestRunConfiguration *m_runConfig = nullptr;
+    Internal::TestRunConfiguration *m_runConfig = nullptr;
     QSet<QString> m_buildTargets;
     ProjectExplorer::RunConfiguration *m_origRunConfig = nullptr;
     ProjectExplorer::Runnable m_runnable;
@@ -124,5 +126,4 @@ private:
     bool m_mixedDebugging = false;
 };
 
-} // namespace Internal
 } // namespace Autotest

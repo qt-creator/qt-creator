@@ -30,9 +30,10 @@
 namespace CppTools { namespace Tests { class TemporaryCopiedDir; } }
 
 namespace Autotest {
-namespace Internal {
 
 class TestTreeModel;
+
+namespace Internal {
 
 class AutoTestUnitTests : public QObject
 {

@@ -29,7 +29,6 @@
 #include "itestparser.h"
 
 namespace Autotest {
-namespace Internal {
 
 class IFrameworkSettings;
 class ITestSettingsPage;
@@ -84,5 +83,4 @@ private:
     bool m_grouping = false;
 };
 
-} // namespace Internal
 } // namespace Autotest
