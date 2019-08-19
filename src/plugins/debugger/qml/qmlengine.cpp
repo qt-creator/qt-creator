@@ -218,7 +218,6 @@ public:
     QList<QByteArray> sendBuffer;
 
     QHash<QString, QTextDocument*> sourceDocuments;
-    QHash<QString, QWeakPointer<BaseTextEditor> > sourceEditors;
     InteractiveInterpreter interpreter;
     ApplicationLauncher applicationLauncher;
     QmlInspectorAgent inspectorAgent;
@@ -312,16 +311,6 @@ QmlEngine::QmlEngine()
 QmlEngine::~QmlEngine()
 {
     QObject::disconnect(d->startupMessageFilterConnection);
-    QSet<IDocument *> documentsToClose;
-
-    QHash<QString, QWeakPointer<BaseTextEditor> >::iterator iter;
-    for (iter = d->sourceEditors.begin(); iter != d->sourceEditors.end(); ++iter) {
-        QWeakPointer<BaseTextEditor> textEditPtr = iter.value();
-        if (textEditPtr)
-            documentsToClose << textEditPtr.toStrongRef().data()->document();
-    }
-    EditorManager::closeDocuments(Utils::toList(documentsToClose));
-
     delete d;
 }
 
