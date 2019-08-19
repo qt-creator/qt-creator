@@ -51,6 +51,11 @@ inline Qt::CaseSensitivity fileNameCaseSensitivity(OsType osType)
     return osType == OsTypeWindows || osType == OsTypeMac ? Qt::CaseInsensitive : Qt::CaseSensitive;
 }
 
+inline Qt::CaseSensitivity envVarCaseSensitivity(OsType osType)
+{
+    return fileNameCaseSensitivity(osType);
+}
+
 inline QChar pathListSeparator(OsType osType)
 {
     return QLatin1Char(osType == OsTypeWindows ? ';' : ':');

@@ -55,6 +55,7 @@ public:
     NameValueItems diff(const NameValueDictionary &other, bool checkAppendPrepend = false) const;
     bool hasKey(const QString &key) const;
     OsType osType() const;
+    Qt::CaseSensitivity nameCaseSensitivity() const;
 
     QString userName() const;
 
@@ -80,6 +81,9 @@ public:
     }
 
 protected:
+    NameValueMap::iterator findKey(const QString &key);
+    const_iterator findKey(const QString &key) const;
+
     NameValueMap m_values;
     OsType m_osType;
 };

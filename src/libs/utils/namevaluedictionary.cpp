@@ -31,30 +31,6 @@
 
 namespace Utils {
 
-namespace {
-NameValueMap::iterator findKey(NameValueMap &input, Utils::OsType osType, const QString &key)
-{
-    const Qt::CaseSensitivity casing = (osType == Utils::OsTypeWindows) ? Qt::CaseInsensitive
-                                                                        : Qt::CaseSensitive;
-    for (auto it = input.begin(); it != input.end(); ++it) {
-        if (key.compare(it.key(), casing) == 0)
-            return it;
-    }
-    return input.end();
-}
-
-NameValueMap::const_iterator findKey(const NameValueMap &input, Utils::OsType osType, const QString &key)
-{
-    const Qt::CaseSensitivity casing = (osType == Utils::OsTypeWindows) ? Qt::CaseInsensitive
-                                                                        : Qt::CaseSensitive;
-    for (auto it = input.constBegin(); it != input.constEnd(); ++it) {
-        if (key.compare(it.key(), casing) == 0)
-            return it;
-    }
-    return input.constEnd();
-}
-} // namespace
-
 NameValueDictionary::NameValueDictionary(const QStringList &env, OsType osType)
     : m_osType(osType)
 {
@@ -76,6 +52,24 @@ NameValueDictionary::NameValueDictionary(const NameValuePairs &nameValues)
         set(nameValue.first, nameValue.second);
 }
 
+NameValueMap::iterator NameValueDictionary::findKey(const QString &key)
+{
+    for (auto it = m_values.begin(); it != m_values.end(); ++it) {
+        if (key.compare(it.key(), nameCaseSensitivity()) == 0)
+            return it;
+    }
+    return m_values.end();
+}
+
+NameValueMap::const_iterator NameValueDictionary::findKey(const QString &key) const
+{
+    for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it) {
+        if (key.compare(it.key(), nameCaseSensitivity()) == 0)
+            return it;
+    }
+    return m_values.constEnd();
+}
+
 QStringList NameValueDictionary::toStringList() const
 {
     QStringList result;
@@ -89,7 +83,7 @@ QStringList NameValueDictionary::toStringList() const
 void NameValueDictionary::set(const QString &key, const QString &value, bool enabled)
 {
     QTC_ASSERT(!key.contains('='), return );
-    auto it = findKey(m_values, m_osType, key);
+    const auto it = findKey(key);
     const auto valuePair = qMakePair(value, enabled);
     if (it == m_values.end())
         m_values.insert(key, valuePair);
@@ -100,7 +94,7 @@ void NameValueDictionary::set(const QString &key, const QString &value, bool ena
 void NameValueDictionary::unset(const QString &key)
 {
     QTC_ASSERT(!key.contains('='), return );
-    auto it = findKey(m_values, m_osType, key);
+    const auto it = findKey(key);
     if (it != m_values.end())
         m_values.erase(it);
 }
@@ -112,13 +106,13 @@ void NameValueDictionary::clear()
 
 QString NameValueDictionary::value(const QString &key) const
 {
-    const auto it = findKey(m_values, m_osType, key);
+    const auto it = findKey(key);
     return it != m_values.end() && it.value().second ? it.value().first : QString();
 }
 
 NameValueDictionary::const_iterator NameValueDictionary::constFind(const QString &name) const
 {
-    return findKey(m_values, m_osType, name);
+    return findKey(name);
 }
 
 int NameValueDictionary::size() const
@@ -193,6 +187,11 @@ bool NameValueDictionary::hasKey(const QString &key) const
 OsType NameValueDictionary::osType() const
 {
     return m_osType;
+}
+
+Qt::CaseSensitivity NameValueDictionary::nameCaseSensitivity() const
+{
+    return OsSpecificAspects::envVarCaseSensitivity(osType());
 }
 
 QString NameValueDictionary::userName() const

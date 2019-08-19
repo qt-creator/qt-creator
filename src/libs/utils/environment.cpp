@@ -41,30 +41,6 @@ Q_GLOBAL_STATIC(QVector<Utils::EnvironmentProvider>, environmentProviders)
 
 namespace Utils {
 
-static NameValueMap::iterator findKey(NameValueMap &input, Utils::OsType osType, const QString &key)
-{
-    const Qt::CaseSensitivity casing = (osType == Utils::OsTypeWindows) ? Qt::CaseInsensitive
-                                                                        : Qt::CaseSensitive;
-    for (auto it = input.begin(); it != input.end(); ++it) {
-        if (key.compare(it.key(), casing) == 0)
-            return it;
-    }
-    return input.end();
-}
-
-static NameValueMap::const_iterator findKey(const NameValueMap &input,
-                                            Utils::OsType osType,
-                                            const QString &key)
-{
-    const Qt::CaseSensitivity casing = (osType == Utils::OsTypeWindows) ? Qt::CaseInsensitive
-                                                                        : Qt::CaseSensitive;
-    for (auto it = input.constBegin(); it != input.constEnd(); ++it) {
-        if (key.compare(it.key(), casing) == 0)
-            return it;
-    }
-    return input.constEnd();
-}
-
 QProcessEnvironment Environment::toProcessEnvironment() const
 {
     QProcessEnvironment result;
@@ -90,7 +66,7 @@ void Environment::prependOrSetPath(const QString &value)
 void Environment::appendOrSet(const QString &key, const QString &value, const QString &sep)
 {
     QTC_ASSERT(!key.contains('='), return );
-    auto it = findKey(m_values, m_osType, key);
+    const auto it = findKey(key);
     if (it == m_values.end()) {
         m_values.insert(key, qMakePair(value, true));
     } else {
@@ -104,7 +80,7 @@ void Environment::appendOrSet(const QString &key, const QString &value, const QS
 void Environment::prependOrSet(const QString &key, const QString &value, const QString &sep)
 {
     QTC_ASSERT(!key.contains('='), return );
-    auto it = findKey(m_values, m_osType, key);
+    const auto it = findKey(key);
     if (it == m_values.end()) {
         m_values.insert(key, qMakePair(value, true));
     } else {
@@ -346,7 +322,7 @@ QString Environment::expandVariables(const QString &input) const
         for (int vStart = -1, i = 0; i < result.length(); ) {
             if (result.at(i++) == '%') {
                 if (vStart > 0) {
-                    const_iterator it = findKey(m_values, m_osType, result.mid(vStart, i - vStart - 1));
+                    const auto it = findKey(result.mid(vStart, i - vStart - 1));
                     if (it != m_values.constEnd()) {
                         result.replace(vStart - 1, i - vStart + 1, it->first);
                         i = vStart - 1 + it->first.length();
