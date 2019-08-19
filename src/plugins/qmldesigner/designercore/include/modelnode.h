@@ -44,7 +44,6 @@ namespace Internal {
 
     using InternalNodePointer = QSharedPointer<InternalNode>;
     using InternalPropertyPointer = QSharedPointer<InternalProperty>;
-    using InternalNodeWeakPointer = QWeakPointer<InternalNode>;
 }
 class NodeMetaInfo;
 class AbstractProperty;

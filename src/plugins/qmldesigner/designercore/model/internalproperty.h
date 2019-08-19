@@ -43,13 +43,11 @@ class InternalNodeAbstractProperty;
 class InternalNode;
 
 using InternalNodePointer = QSharedPointer<InternalNode>;
-using InternalNodeWeakPointer = QWeakPointer<InternalNode>;
 
 class QMLDESIGNERCORE_EXPORT InternalProperty
 {
 public:
     using Pointer = QSharedPointer<InternalProperty>;
-    using WeakPointer = QWeakPointer<InternalProperty>;
 
     InternalProperty();
     virtual ~InternalProperty();
@@ -86,10 +84,10 @@ protected: // functions
     void setInternalWeakPointer(const Pointer &pointer);
     void setDynamicTypeName(const TypeName &name);
 private:
-    WeakPointer m_internalPointer;
+    QWeakPointer<InternalProperty> m_internalPointer;
     PropertyName m_name;
     TypeName m_dynamicType;
-    InternalNodeWeakPointer m_propertyOwner;
+    QWeakPointer<InternalNode> m_propertyOwner;
 
 };
 

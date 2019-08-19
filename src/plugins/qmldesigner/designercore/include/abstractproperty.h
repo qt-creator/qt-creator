@@ -40,7 +40,6 @@ namespace QmlDesigner {
 
         using InternalNodePointer = QSharedPointer<InternalNode>;
         using InternalPropertyPointer = QSharedPointer<InternalProperty>;
-        using InternalNodeWeakPointer = QWeakPointer<InternalNode>;
     }
 
 class Model;
