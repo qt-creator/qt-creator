@@ -286,6 +286,14 @@ function(enable_pch target)
   endif()
 endfunction()
 
+function(qtc_output_binary_dir varName)
+  if (QTC_MERGE_BINARY_DIR)
+    set(${varName} ${QtCreator_BINARY_DIR} PARENT_SCOPE)
+  else()
+    set(${varName} ${PROJECT_BINARY_DIR} PARENT_SCOPE)
+  endif()
+endfunction()
+
 #
 # Public API functions
 #
@@ -354,6 +362,7 @@ function(add_qtc_library name)
     set_property(SOURCE ${file} PROPERTY SKIP_AUTOMOC ON)
   endforeach()
 
+  qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${name} PROPERTIES
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     VERSION "${IDE_VERSION}"
@@ -361,9 +370,9 @@ function(add_qtc_library name)
     VISIBILITY_INLINES_HIDDEN ON
     BUILD_RPATH "${_LIB_RPATH}"
     INSTALL_RPATH "${_LIB_RPATH}"
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_BIN_PATH}"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_LIBRARY_PATH}"
-    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_LIBRARY_PATH}"
+    RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_BIN_PATH}"
+    LIBRARY_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_PATH}"
+    ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${IDE_LIBRARY_PATH}"
     ${_arg_PROPERTIES}
   )
   enable_pch(${name})
@@ -551,6 +560,7 @@ function(add_qtc_plugin target_name)
     set(plugin_dir "${_arg_PLUGIN_PATH}")
   endif()
 
+  qtc_output_binary_dir(_output_binary_dir)
   set_target_properties(${target_name} PROPERTIES
     SOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
     CXX_VISIBILITY_PRESET hidden
@@ -559,9 +569,9 @@ function(add_qtc_plugin target_name)
     _arg_VERSION "${_arg_VERSION}"
     BUILD_RPATH "${_PLUGIN_RPATH}"
     INSTALL_RPATH "${_PLUGIN_RPATH}"
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${plugin_dir}"
-    ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${plugin_dir}"
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${plugin_dir}"
+    LIBRARY_OUTPUT_DIRECTORY "${_output_binary_dir}/${plugin_dir}"
+    ARCHIVE_OUTPUT_DIRECTORY "${_output_binary_dir}/${plugin_dir}"
+    RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${plugin_dir}"
     OUTPUT_NAME "${name}"
     ${_arg_PROPERTIES}
   )
@@ -697,10 +707,11 @@ function(add_qtc_executable name)
   target_include_directories("${name}" PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
   target_compile_definitions("${name}" PRIVATE ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES})
   target_link_libraries("${name}" PRIVATE ${_arg_DEPENDS} ${_TEST_DEPENDS})
+  qtc_output_binary_dir(_output_binary_dir)
   set_target_properties("${name}" PROPERTIES
     BUILD_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
     INSTALL_RPATH "${_RPATH_BASE}/${_RELATIVE_LIB_PATH}"
-    RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${_DESTINATION}"
+    RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     ${_arg_PROPERTIES}
   )
   enable_pch(${name})
