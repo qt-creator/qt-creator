@@ -93,7 +93,7 @@ static QPixmap getWavyPixmap(qreal maxRadius, const QPen &pen)
     const QString pixmapKey = QStringLiteral("WaveUnderline-Bauhaus");
 
     QPixmap pixmap;
-    if (QPixmapCache::find(pixmapKey, pixmap))
+    if (QPixmapCache::find(pixmapKey, &pixmap))
         return pixmap;
 
     pixmap = generateWavyPixmap(maxRadius, pen);
