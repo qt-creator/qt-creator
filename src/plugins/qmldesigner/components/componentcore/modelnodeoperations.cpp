@@ -198,9 +198,13 @@ void toFront(const SelectionContext &selectionState)
     try {
         QmlItemNode node = selectionState.firstSelectedModelNode();
         if (node.isValid()) {
-            signed int maximumZ = getMaxZValue(siblingsForNode(node));
-            maximumZ++;
-            node.setVariantProperty("z", maximumZ);
+            ModelNode modelNode = selectionState.currentSingleSelectedNode();
+            NodeListProperty parentProperty = modelNode.parentProperty().toNodeListProperty();
+            const int index = parentProperty.indexOf(modelNode);
+            const int lastIndex = parentProperty.count() - 1;
+
+            if (index != lastIndex)
+                parentProperty.slide(index, lastIndex);
         }
     } catch (const RewritingException &e) { //better save then sorry
         e.showException();
@@ -215,9 +219,12 @@ void toBack(const SelectionContext &selectionState)
     try {
         QmlItemNode node = selectionState.firstSelectedModelNode();
         if (node.isValid()) {
-            signed int minimumZ = getMinZValue(siblingsForNode(node));
-            minimumZ--;
-            node.setVariantProperty("z", minimumZ);
+            ModelNode modelNode = selectionState.currentSingleSelectedNode();
+            NodeListProperty parentProperty = modelNode.parentProperty().toNodeListProperty();
+            const int index = parentProperty.indexOf(modelNode);
+
+            if (index != 0)
+                parentProperty.slide(index, 0);
         }
 
     } catch (const RewritingException &e) { //better save then sorry
