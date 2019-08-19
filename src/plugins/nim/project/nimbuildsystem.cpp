@@ -160,6 +160,8 @@ void NimBuildSystem::updateProject()
 
     QSet<QString> directories;
     for (FileNode *node : m_scanner.release()) {
+        if (!node->path().endsWith(".nim"))
+            node->setEnabled(false); // Disable files that do not end in .nim
         directories.insert(node->directory());
         newRoot->addNestedNode(std::unique_ptr<FileNode>(node));
     }
