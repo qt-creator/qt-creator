@@ -35,6 +35,7 @@
 #include <QTextStream>
 #include <QFileInfo>
 #include <QByteArray>
+#include <QElapsedTimer>
 #include <QSysInfo>
 #include <QString>
 #include <QDir>
@@ -322,7 +323,7 @@ bool startCreatorAsDebugger(bool asClient, QString *errorMessage)
         qDebug() << binary << args;
     QProcess p;
     p.setWorkingDirectory(dir);
-    QTime executionTime;
+    QElapsedTimer executionTime;
     executionTime.start();
     p.start(binary, args, QIODevice::NotOpen);
     if (!p.waitForStarted()) {

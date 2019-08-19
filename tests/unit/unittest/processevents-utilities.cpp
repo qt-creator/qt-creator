@@ -26,8 +26,8 @@
 #include "processevents-utilities.h"
 
 #include <QCoreApplication>
+#include <QElapsedTimer>
 #include <QThread>
-#include <QTime>
 
 #include <QDebug>
 
@@ -38,7 +38,7 @@ bool processEventsUntilTrue(std::function<bool ()> condition, int timeOutInMs)
     if (condition())
         return true;
 
-    QTime time;
+    QElapsedTimer time;
     time.start();
 
     forever {

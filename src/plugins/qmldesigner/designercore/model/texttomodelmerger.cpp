@@ -59,6 +59,7 @@
 #include <QDir>
 #include <QLoggingCategory>
 #include <QRegularExpression>
+#include <QElapsedTimer>
 
 #include <memory>
 
@@ -965,7 +966,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
     const bool justSanityCheck = !differenceHandler.isValidator();
 
-    QTime time;
+    QElapsedTimer time;
     if (rewriterBenchmark().isInfoEnabled())
         time.start();
 
