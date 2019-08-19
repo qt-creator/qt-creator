@@ -969,13 +969,13 @@ void RewriterView::delayedSetup()
 
 static QString annotationsEnd()
 {
-    const static QString end = QString(" %1*/").arg(annotationsEscapeSequence);
+    const static QString end = QString("%1*/").arg(annotationsEscapeSequence);
     return end;
 }
 
 static QString annotationsStart()
 {
-    const static QString start = QString("/*%1 ").arg(annotationsEscapeSequence);
+    const static QString start = QString("/*%1").arg(annotationsEscapeSequence);
     return start;
 }
 
@@ -1000,29 +1000,27 @@ void RewriterView::writeAuxiliaryData()
 
     const QString oldText = m_textModifier->text();
 
-    QString newText = oldText;
-
-    int startIndex = newText.indexOf(annotationsStart());
-    int endIndex = newText.indexOf(annotationsEnd());
-
-    if (startIndex > 0 && endIndex > 0)
-        newText.remove(startIndex, endIndex - startIndex + annotationsEnd().length());
-
-    newText = newText.trimmed();
-    newText.append("\n");
+    const int startIndex = oldText.indexOf(annotationsStart());
+    const int endIndex = oldText.indexOf(annotationsEnd());
 
     QString auxData = auxiliaryDataAsQML();
 
+    const bool replace = startIndex > 0 && endIndex > 0;
+
     if (!auxData.isEmpty()) {
-        auxData.prepend("\n" + annotationsStart());
-        auxData.append(annotationsEnd() + "\n");
-        newText.append(auxData);
+        auxData.prepend("\n");
+        auxData.prepend(annotationsStart());
+        if (!replace)
+            auxData.prepend("\n");
+        auxData.append(annotationsEnd());
+        if (!replace)
+            auxData.append("\n");
     }
 
-    QTextCursor tc(m_textModifier->textDocument());
-    Utils::ChangeSet changeSet;
-    changeSet.replace(0, oldText.length(), newText);
-    changeSet.apply(&tc);
+    if (replace)
+        m_textModifier->replace(startIndex, endIndex - startIndex + annotationsEnd().length(), auxData);
+    else
+        m_textModifier->replace(oldText.length(), 0, auxData);
 }
 
 static void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view);
