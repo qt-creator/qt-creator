@@ -39,13 +39,8 @@ class RunConfiguration;
 namespace Autotest {
 namespace Internal {
 
-class TestFrameworkManager;
-class TestNavigationWidgetFactory;
 class TestProjectSettings;
-class TestResultsPane;
 struct TestSettings;
-class TestSettingsPage;
-enum class TestRunMode;
 
 struct ChoicePair
 {
@@ -79,18 +74,9 @@ public:
     static void popupResultsPane();
 
 private:
-    void initializeMenuEntries();
-    void onRunAllTriggered();
-    void onRunSelectedTriggered();
-    void onRunFileTriggered();
-    void onRunUnderCursorTriggered(TestRunMode mode);
     QVector<QObject *> createTestObjects() const override;
+    class AutotestPluginPrivate *d = nullptr;
     const QSharedPointer<TestSettings> m_settings;
-    TestFrameworkManager *m_frameworkManager = nullptr;
-    TestSettingsPage *m_testSettingPage = nullptr;
-    TestNavigationWidgetFactory *m_navigationWidgetFactory = nullptr;
-    TestResultsPane *m_resultsPane = nullptr;
-    QMap<QString, ChoicePair> m_runconfigCache;
 };
 
 } // namespace Internal
