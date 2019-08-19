@@ -233,7 +233,6 @@ public:
     QmlDebug::QDebugMessageClient *msgClient = nullptr;
 
     QHash<int, QmlCallback> callbackForToken;
-    QMetaObject::Connection startupMessageFilterConnection;
 
 private:
     ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData, QList<int> &seenHandles);
@@ -310,7 +309,6 @@ QmlEngine::QmlEngine()
 
 QmlEngine::~QmlEngine()
 {
-    QObject::disconnect(d->startupMessageFilterConnection);
     delete d;
 }
 
@@ -365,7 +363,6 @@ void QmlEngine::beginConnection()
 
     QTC_ASSERT(state() == EngineRunRequested, return);
 
-    QObject::disconnect(d->startupMessageFilterConnection);
 
     QString host = runParameters().qmlServer.host();
     // Use localhost as default
