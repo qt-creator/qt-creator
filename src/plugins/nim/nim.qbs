@@ -36,6 +36,7 @@ QtcPlugin {
         name: "Project"
         prefix: "project/"
         files: [
+            "nimbuildsystem.cpp", "nimbuildsystem.h",
             "nimbuildconfiguration.h", "nimbuildconfiguration.cpp",
             "nimcompilerbuildstep.h", "nimcompilerbuildstep.cpp",
             "nimcompilerbuildstepconfigwidget.h", "nimcompilerbuildstepconfigwidget.cpp", "nimcompilerbuildstepconfigwidget.ui",

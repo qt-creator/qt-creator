@@ -25,28 +25,45 @@
 
 #pragma once
 
-#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/treescanner.h>
 
-namespace Utils { class FilePath; }
+#include <utils/filesystemwatcher.h>
 
 namespace Nim {
 
-class NimBuildSystem;
-
-class NimProjectNode : public ProjectExplorer::ProjectNode
+class NimBuildSystem : public ProjectExplorer::BuildSystem
 {
-public:
-    NimProjectNode(const Utils::FilePath &projectFilePath);
+    Q_OBJECT
 
-    bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
-    bool addFiles(const QStringList &filePaths, QStringList *) override;
-    ProjectExplorer::RemovedFilesFromProject removeFiles(const QStringList &filePaths,
-                                                         QStringList *) override;
-    bool deleteFiles(const QStringList &) override;
-    bool renameFile(const QString &filePath, const QString &newFilePath) override;
+public:
+    explicit NimBuildSystem(ProjectExplorer::Project *project);
+
+    bool addFiles(const QStringList &filePaths);
+    bool removeFiles(const QStringList &filePaths);
+    bool renameFile(const QString &filePath, const QString &newFilePath);
+
+    void setExcludedFiles(const QStringList &list); // Keep for compatibility with Qt Creator 4.10
+    QStringList excludedFiles(); // Make private when no longer supporting Qt Creator 4.10
+
+    void parseProject(ParsingContext &&ctx) final;
+
+    const Utils::FilePathList nimFiles() const;
 
 private:
-    NimBuildSystem *buildSystem() const;
+    void loadSettings();
+    void saveSettings();
+
+    void collectProjectFiles();
+    void updateProject();
+
+    QStringList m_excludedFiles;
+
+    ProjectExplorer::TreeScanner m_scanner;
+
+    ParsingContext m_currentContext;
+
+    Utils::FileSystemWatcher m_directoryWatcher;
 };
 
-}
+} // namespace Nim

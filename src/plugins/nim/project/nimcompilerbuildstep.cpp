@@ -25,9 +25,9 @@
 
 #include "nimcompilerbuildstep.h"
 #include "nimbuildconfiguration.h"
-#include "nimconstants.h"
+#include "nimbuildsystem.h"
 #include "nimcompilerbuildstepconfigwidget.h"
-#include "nimproject.h"
+#include "nimconstants.h"
 #include "nimtoolchain.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -271,7 +271,8 @@ void NimCompilerBuildStep::updateTargetNimFile()
 {
     if (!m_targetNimFile.isEmpty())
         return;
-    const Utils::FilePathList nimFiles = static_cast<NimProject *>(project())->nimFiles();
+    const Utils::FilePathList nimFiles = static_cast<NimBuildSystem *>(project()->buildSystem())
+                                             ->nimFiles();
     if (!nimFiles.isEmpty())
         setTargetNimFile(nimFiles.at(0));
 }

@@ -24,10 +24,11 @@
 ****************************************************************************/
 
 #include "nimcompilerbuildstepconfigwidget.h"
-#include "ui_nimcompilerbuildstepconfigwidget.h"
 #include "nimbuildconfiguration.h"
+#include "nimbuildsystem.h"
 #include "nimcompilerbuildstep.h"
-#include "nimproject.h"
+
+#include "ui_nimcompilerbuildstepconfigwidget.h"
 
 #include "../nimconstants.h"
 
@@ -52,9 +53,10 @@ NimCompilerBuildStepConfigWidget::NimCompilerBuildStepConfigWidget(NimCompilerBu
     setSummaryText(tr(Constants::C_NIMCOMPILERBUILDSTEPWIDGET_SUMMARY));
 
     // Connect the project signals
-    auto project = static_cast<NimProject *>(m_buildStep->project());
-    connect(project, &NimProject::fileListChanged,
-            this, &NimCompilerBuildStepConfigWidget::updateUi);
+    connect(m_buildStep->project(),
+            &Project::fileListChanged,
+            this,
+            &NimCompilerBuildStepConfigWidget::updateUi);
 
     // Connect build step signals
     connect(m_buildStep, &NimCompilerBuildStep::processParametersChanged,
@@ -112,14 +114,14 @@ void NimCompilerBuildStepConfigWidget::updateCommandLineText()
 
 void NimCompilerBuildStepConfigWidget::updateTargetComboBox()
 {
-    QTC_ASSERT(m_buildStep, return);
+    QTC_ASSERT(m_buildStep, return );
 
-    auto project = qobject_cast<NimProject *>(m_buildStep->project());
-    QTC_ASSERT(project, return);
+    const auto bs = qobject_cast<NimBuildSystem *>(m_buildStep->project()->buildSystem());
+    QTC_ASSERT(bs, return );
 
     // Re enter the files
     m_ui->targetComboBox->clear();
-    foreach (const FilePath &file, project->nimFiles())
+    for (const FilePath &file : bs->nimFiles())
         m_ui->targetComboBox->addItem(file.fileName(), file.toString());
 
     const int index = m_ui->targetComboBox->findData(m_buildStep->targetNimFile().toString());

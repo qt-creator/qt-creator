@@ -34,6 +34,8 @@
 
 namespace Nim {
 
+class NimBuildSystem;
+
 class NimProject : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -42,25 +44,13 @@ public:
     explicit NimProject(const Utils::FilePath &fileName);
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
-    Utils::FilePathList nimFiles() const;
+
+    // Keep for compatibility with Qt Creator 4.10
     QVariantMap toMap() const final;
 
-    bool addFiles(const QStringList &filePaths);
-    bool removeFiles(const QStringList &filePaths);
-    bool renameFile(const QString &filePath, const QString &newFilePath);
-
 protected:
+    // Keep for compatibility with Qt Creator 4.10
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
-
-private:
-    void scheduleProjectScan();
-    void collectProjectFiles();
-    void updateProject();
-
-    QStringList m_excludedFiles;
-    QFutureWatcher<QList<ProjectExplorer::FileNode *>> m_futureWatcher;
-    QElapsedTimer m_lastProjectScan;
-    QTimer m_projectScanTimer;
 };
 
-}
+} // namespace Nim

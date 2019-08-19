@@ -24,17 +24,18 @@
 ****************************************************************************/
 
 #include "nimprojectnode.h"
-#include "nimproject.h"
+
+#include "nimbuildsystem.h"
+
+#include <projectexplorer/projecttree.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Nim {
 
-NimProjectNode::NimProjectNode(NimProject &project,
-                               const FilePath &projectFilePath)
+NimProjectNode::NimProjectNode(const FilePath &projectFilePath)
     : ProjectNode(projectFilePath)
-    , m_project(project)
 {}
 
 bool NimProjectNode::supportsAction(ProjectAction action, const Node *node) const
@@ -53,14 +54,14 @@ bool NimProjectNode::supportsAction(ProjectAction action, const Node *node) cons
 
 bool NimProjectNode::addFiles(const QStringList &filePaths, QStringList *)
 {
-    return m_project.addFiles(filePaths);
+    return buildSystem()->addFiles(filePaths);
 }
 
 RemovedFilesFromProject NimProjectNode::removeFiles(const QStringList &filePaths,
                                                     QStringList *)
 {
-    return m_project.removeFiles(filePaths) ? RemovedFilesFromProject::Ok
-                                            : RemovedFilesFromProject::Error;
+    return buildSystem()->removeFiles(filePaths) ? RemovedFilesFromProject::Ok
+                                                 : RemovedFilesFromProject::Error;
 }
 
 bool NimProjectNode::deleteFiles(const QStringList &)
@@ -70,7 +71,13 @@ bool NimProjectNode::deleteFiles(const QStringList &)
 
 bool NimProjectNode::renameFile(const QString &filePath, const QString &newFilePath)
 {
-    return m_project.renameFile(filePath, newFilePath);
+    return buildSystem()->renameFile(filePath, newFilePath);
 }
 
+NimBuildSystem *NimProjectNode::buildSystem() const
+{
+    return qobject_cast<NimBuildSystem *>(
+        ProjectTree::instance()->projectForNode(this)->buildSystem());
 }
+
+} // namespace Nim
