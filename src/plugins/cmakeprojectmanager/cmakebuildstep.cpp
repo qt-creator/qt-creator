@@ -192,7 +192,7 @@ bool CMakeBuildStep::init()
     pp->setMacroExpander(bc->macroExpander());
     Utils::Environment env = bc->environment();
     Utils::Environment::setupEnglishOutput(&env);
-    if (!env.value("NINJA_STATUS").startsWith(m_ninjaProgressString))
+    if (!env.expandedValueForKey("NINJA_STATUS").startsWith(m_ninjaProgressString))
         env.set("NINJA_STATUS", m_ninjaProgressString + "%o/sec] ");
     pp->setEnvironment(env);
     pp->setWorkingDirectory(bc->buildDirectory());

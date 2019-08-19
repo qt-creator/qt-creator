@@ -700,7 +700,7 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
         if (nextPos == -1)
             break;
         const QString var = in.mid(pos + 1, nextPos - pos - 1);
-        const QString replacement = env.value(var.toUpper());
+        const QString replacement = env.expandedValueForKey(var.toUpper());
         in.replace(pos, nextPos + 1 - pos, replacement);
         pos += replacement.size();
     }

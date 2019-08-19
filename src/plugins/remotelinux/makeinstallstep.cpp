@@ -140,7 +140,7 @@ bool MakeInstallStep::init()
         Environment env = processParameters()->environment();
         for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it) {
             if (cmd.environment.isEnabled(it))
-                env.set(it.key(), cmd.environment.value(it));
+                env.set(it.key(), cmd.environment.expandedValueForKey(cmd.environment.key(it)));
         }
         processParameters()->setEnvironment(env);
     }

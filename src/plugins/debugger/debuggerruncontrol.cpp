@@ -794,7 +794,7 @@ bool DebuggerRunTool::fixupParameters()
     for (const auto &var :
          QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
         if (rp.inferior.environment.hasKey(var))
-            rp.debugger.environment.set(var, rp.inferior.environment.value(var));
+            rp.debugger.environment.set(var, rp.inferior.environment.expandedValueForKey(var));
 
     // validate debugger if C++ debugging is enabled
     if (rp.isCppDebugging() && !rp.validationErrors.isEmpty()) {

@@ -46,7 +46,7 @@ QProcessEnvironment Environment::toProcessEnvironment() const
     QProcessEnvironment result;
     for (auto it = m_values.constBegin(); it != m_values.constEnd(); ++it) {
         if (it.value().second)
-            result.insert(it.key(), it.value().first);
+            result.insert(it.key(), expandedValueForKey(key(it)));
     }
     return result;
 }
@@ -184,7 +184,7 @@ QStringList Environment::appendExeExtensions(const QString &executable) const
         // Check all the executable extensions on windows:
         // PATHEXT is only used if the executable has no extension
         if (fi.suffix().isEmpty()) {
-            const QStringList extensions = value("PATHEXT").split(';');
+            const QStringList extensions = expandedValueForKey("PATHEXT").split(';');
 
             for (const QString &ext : extensions)
                 execs << executable + ext.toLower();
@@ -210,6 +210,11 @@ bool Environment::isSameExecutable(const QString &exe1, const QString &exe2) con
         }
     }
     return false;
+}
+
+QString Environment::expandedValueForKey(const QString &key) const
+{
+    return expandVariables(value(key));
 }
 
 FilePath Environment::searchInPath(const QString &executable,
@@ -297,7 +302,7 @@ FilePathList Environment::path() const
 
 FilePathList Environment::pathListValue(const QString &varName) const
 {
-    const QStringList pathComponents = value(varName)
+    const QStringList pathComponents = expandedValueForKey(varName)
             .split(OsSpecificAspects::pathListSeparator(m_osType), QString::SkipEmptyParts);
     return transform(pathComponents, &FilePath::fromUserInput);
 }

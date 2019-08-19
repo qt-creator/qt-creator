@@ -395,10 +395,10 @@ void CdbEngine::setupEngine()
         debugger.addArgs({"-srcpath", sourcePaths.join(';')});
 
     QStringList symbolPaths = stringListSetting(CdbSymbolPaths);
-    QString symbolPath = sp.inferior.environment.value("_NT_ALT_SYMBOL_PATH");
+    QString symbolPath = sp.inferior.environment.expandedValueForKey("_NT_ALT_SYMBOL_PATH");
     if (!symbolPath.isEmpty())
         symbolPaths += symbolPath;
-    symbolPath = sp.inferior.environment.value("_NT_SYMBOL_PATH");
+    symbolPath = sp.inferior.environment.expandedValueForKey("_NT_SYMBOL_PATH");
     if (!symbolPath.isEmpty())
         symbolPaths += symbolPath;
     debugger.addArgs({"-y", symbolPaths.join(';')});

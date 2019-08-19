@@ -111,7 +111,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
             // Append QML2_IMPORT_PATH if it is defined in build configuration.
             // It enables qmlplugindump to correctly dump custom plugins or other dependent
             // plugins that are not installed in default Qt qml installation directory.
-            projectInfo.qmlDumpEnvironment.appendOrSet("QML2_IMPORT_PATH", bc->environment().value("QML2_IMPORT_PATH"), ":");
+            projectInfo.qmlDumpEnvironment.appendOrSet("QML2_IMPORT_PATH", bc->environment().expandedValueForKey("QML2_IMPORT_PATH"), ":");
         }
     }
     if (!setPreferDump && qtVersion)

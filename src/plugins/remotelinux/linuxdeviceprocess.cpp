@@ -94,7 +94,7 @@ QString LinuxDeviceProcess::fullCommandLine(const Runnable &runnable) const
 
     const Environment &env = runnable.environment;
     for (auto it = env.constBegin(); it != env.constEnd(); ++it)
-        cmd.addArgs(env.key(it) + "='" + env.value(it) + '\'', CommandLine::Raw);
+        cmd.addArgs(env.key(it) + "='" + env.expandedValueForKey(env.key(it)) + '\'', CommandLine::Raw);
 
     if (!runInTerminal())
         cmd.addArg("exec");

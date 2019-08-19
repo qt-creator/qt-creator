@@ -231,7 +231,7 @@ bool MakeStep::makeflagsJobCountMismatch() const
     const Utils::Environment env = environment(buildConfiguration());
     if (!env.hasKey(MAKEFLAGS))
         return false;
-    Utils::optional<int> makeFlagsJobCount = argsJobCount(env.value(MAKEFLAGS));
+    Utils::optional<int> makeFlagsJobCount = argsJobCount(env.expandedValueForKey(MAKEFLAGS));
     return makeFlagsJobCount.has_value() && *makeFlagsJobCount != m_userJobCount;
 }
 
@@ -240,7 +240,7 @@ bool MakeStep::makeflagsContainsJobCount() const
     const Utils::Environment env = environment(buildConfiguration());
     if (!env.hasKey(MAKEFLAGS))
         return false;
-    return argsJobCount(env.value(MAKEFLAGS)).has_value();
+    return argsJobCount(env.expandedValueForKey(MAKEFLAGS)).has_value();
 }
 
 bool MakeStep::userArgsContainsJobCount() const
@@ -258,7 +258,7 @@ Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
         const ToolChain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
         if (tc && tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
-            env.set(MAKEFLAGS, 'L' + env.value(MAKEFLAGS));
+            env.set(MAKEFLAGS, 'L' + env.expandedValueForKey(MAKEFLAGS));
         }
     }
     return env;

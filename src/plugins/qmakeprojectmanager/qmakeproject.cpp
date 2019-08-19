@@ -649,7 +649,7 @@ QtSupport::ProFileReader *QmakeProject::createProFileReader(const QmakeProFile *
 
         Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
         for (; eit != eend; ++eit)
-            m_qmakeGlobals->environment.insert(env.key(eit), env.value(eit));
+            m_qmakeGlobals->environment.insert(env.key(eit), env.expandedValueForKey(env.key(eit)));
 
         m_qmakeGlobals->setCommandLineArguments(rootProFile()->buildDir().toString(), qmakeArgs);
 

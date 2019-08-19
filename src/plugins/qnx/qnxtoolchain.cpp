@@ -113,7 +113,7 @@ std::unique_ptr<ToolChainConfigWidget> QnxToolChain::createConfigurationWidget()
 
 void QnxToolChain::addToEnvironment(Environment &env) const
 {
-    if (env.value("QNX_HOST").isEmpty() || env.value("QNX_TARGET").isEmpty())
+    if (env.expandedValueForKey("QNX_HOST").isEmpty() || env.expandedValueForKey("QNX_TARGET").isEmpty())
         setQnxEnvironment(env, QnxUtils::qnxEnvironment(m_sdpPath));
 
     GccToolChain::addToEnvironment(env);

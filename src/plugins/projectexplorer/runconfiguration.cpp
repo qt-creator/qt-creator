@@ -190,7 +190,7 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
     expander->registerPrefix("CurrentRun:Env", tr("Variables in the current run environment"),
                              [this](const QString &var) {
         const auto envAspect = aspect<EnvironmentAspect>();
-        return envAspect ? envAspect->environment().value(var) : QString();
+        return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
     });
 
     expander->registerVariable(Constants::VAR_CURRENTRUN_WORKINGDIR,

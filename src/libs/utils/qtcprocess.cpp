@@ -94,7 +94,7 @@ static void envExpandWin(QString &args, const Environment *env, const QString *p
         if (prev >= 0) {
             const QString var = args.mid(prev + 1, that - prev - 1).toUpper();
             const QString val = (var == cdName && pwd && !pwd->isEmpty())
-                                    ? QDir::toNativeSeparators(*pwd) : env->value(var);
+                                    ? QDir::toNativeSeparators(*pwd) : env->expandedValueForKey(var);
             if (!val.isEmpty()) { // Empty values are impossible, so this is an existence check
                 args.replace(prev, that - prev + 1, val);
                 off = prev + val.length();
@@ -394,7 +394,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                                 if (abortOnMeta)
                                     goto metaerr; // Assume this is a shell builtin
                             } else {
-                                cret += env->value(vit);
+                                cret += env->expandedValueForKey(env->key(vit));
                             }
                         }
                         if (!braced)
@@ -444,7 +444,7 @@ static QStringList splitArgsUnix(const QString &args, bool abortOnMeta,
                         if (abortOnMeta)
                             goto metaerr; // Assume this is a shell builtin
                     } else {
-                        val = env->value(vit);
+                        val = env->expandedValueForKey(env->key(vit));
                     }
                 }
                 for (int i = 0; i < val.length(); i++) {
@@ -698,7 +698,7 @@ void QtcProcess::start()
                      qPrintable(m_commandLine.executable().toString()));
         env = m_environment;
 
-        QProcess::setEnvironment(env.toStringList());
+        QProcess::setProcessEnvironment(env.toProcessEnvironment());
     } else {
         env = Environment::systemEnvironment();
     }

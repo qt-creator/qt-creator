@@ -1686,7 +1686,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                              BuildConfiguration::tr("Variables in the current build environment"),
                              [](const QString &var) {
                                  if (BuildConfiguration *bc = activeBuildConfiguration())
-                                     return bc->environment().value(var);
+                                     return bc->environment().expandedValueForKey(var);
                                  return QString();
                              });
 

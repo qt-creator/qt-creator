@@ -80,7 +80,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Core::Id id)
 
     expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
                              tr("Variables in the current build environment"),
-                             [this](const QString &var) { return environment().value(var); });
+                             [this](const QString &var) { return environment().expandedValueForKey(var); });
 
     updateCacheAndEmitEnvironmentChanged();
     connect(target, &Target::kitChanged,
