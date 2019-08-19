@@ -600,6 +600,7 @@ void TargetSetupPage::removeAdditionalWidgets(QLayout *layout)
 
 void TargetSetupPage::updateWidget(TargetSetupWidget *widget)
 {
+    QTC_ASSERT(widget, return );
     widget->setKitSelected(widget->isEnabled() && m_preferredPredicate
                            && m_preferredPredicate(widget->kit()));
     widget->updateStatus(m_requiredPredicate);
