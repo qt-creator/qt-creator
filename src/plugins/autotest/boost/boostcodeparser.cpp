@@ -70,7 +70,7 @@ static BoostTestCodeLocationAndType locationAndTypeFromToken(const Token &tkn,
 
 static Tokens tokensForSource(const QByteArray &source, const LanguageFeatures &features)
 {
-    CPlusPlus::SimpleLexer lexer;
+    SimpleLexer lexer;
     lexer.setPreprocessorMode(false); // or true? does not make a difference so far..
     lexer.setLanguageFeatures(features);
     return lexer(QString::fromUtf8(source));

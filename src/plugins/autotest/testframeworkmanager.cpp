@@ -42,6 +42,8 @@
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
 
+using namespace Core;
+
 namespace Autotest {
 
 static TestFrameworkManager *s_instance = nullptr;
@@ -73,7 +75,7 @@ TestFrameworkManager::~TestFrameworkManager()
 bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
 {
     QTC_ASSERT(framework, return false);
-    Core::Id id = Core::Id(Constants::FRAMEWORK_PREFIX).withSuffix(framework->name());
+    Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(framework->name());
     QTC_ASSERT(!m_registeredFrameworks.contains(id), delete framework; return false);
     // TODO check for unique priority before registering
     qCDebug(LOG) << "Registering" << id;
@@ -98,30 +100,30 @@ void TestFrameworkManager::activateFrameworksFromSettings(QSharedPointer<Interna
     }
 }
 
-QString TestFrameworkManager::frameworkNameForId(const Core::Id &id) const
+QString TestFrameworkManager::frameworkNameForId(const Id &id) const
 {
     ITestFramework *framework = m_registeredFrameworks.value(id, nullptr);
     return framework ? QString::fromLatin1(framework->name()) : QString();
 }
 
-QList<Core::Id> TestFrameworkManager::registeredFrameworkIds() const
+QList<Id> TestFrameworkManager::registeredFrameworkIds() const
 {
     return m_registeredFrameworks.keys();
 }
 
-QList<Core::Id> TestFrameworkManager::sortedRegisteredFrameworkIds() const
+QList<Id> TestFrameworkManager::sortedRegisteredFrameworkIds() const
 {
-    QList<Core::Id> registered = m_registeredFrameworks.keys();
-    Utils::sort(registered, [this] (const Core::Id &lhs, const Core::Id &rhs) {
+    QList<Id> registered = m_registeredFrameworks.keys();
+    Utils::sort(registered, [this] (const Id &lhs, const Id &rhs) {
         return m_registeredFrameworks[lhs]->priority() < m_registeredFrameworks[rhs]->priority();
     });
     qCDebug(LOG) << "Registered frameworks sorted by priority" << registered;
     return registered;
 }
 
-QList<Core::Id> TestFrameworkManager::activeFrameworkIds() const
+QList<Id> TestFrameworkManager::activeFrameworkIds() const
 {
-    QList<Core::Id> active;
+    QList<Id> active;
     FrameworkIterator it = m_registeredFrameworks.begin();
     FrameworkIterator end = m_registeredFrameworks.end();
     for ( ; it != end; ++it) {
@@ -131,23 +133,23 @@ QList<Core::Id> TestFrameworkManager::activeFrameworkIds() const
     return active;
 }
 
-QList<Core::Id> TestFrameworkManager::sortedActiveFrameworkIds() const
+QList<Id> TestFrameworkManager::sortedActiveFrameworkIds() const
 {
-    QList<Core::Id> active = activeFrameworkIds();
-    Utils::sort(active, [this] (const Core::Id &lhs, const Core::Id &rhs) {
+    QList<Id> active = activeFrameworkIds();
+    Utils::sort(active, [this] (const Id &lhs, const Id &rhs) {
         return m_registeredFrameworks[lhs]->priority() < m_registeredFrameworks[rhs]->priority();
     });
     qCDebug(LOG) << "Active frameworks sorted by priority" << active;
     return active;
 }
 
-TestTreeItem *TestFrameworkManager::rootNodeForTestFramework(const Core::Id &frameworkId) const
+TestTreeItem *TestFrameworkManager::rootNodeForTestFramework(const Id &frameworkId) const
 {
     ITestFramework *framework = m_registeredFrameworks.value(frameworkId, nullptr);
     return framework ? framework->rootNode() : nullptr;
 }
 
-ITestParser *TestFrameworkManager::testParserForTestFramework(const Core::Id &frameworkId) const
+ITestParser *TestFrameworkManager::testParserForTestFramework(const Id &frameworkId) const
 {
     ITestFramework *framework = m_registeredFrameworks.value(frameworkId, nullptr);
     if (!framework)
@@ -159,7 +161,7 @@ ITestParser *TestFrameworkManager::testParserForTestFramework(const Core::Id &fr
 }
 
 QSharedPointer<IFrameworkSettings> TestFrameworkManager::settingsForTestFramework(
-            const Core::Id &frameworkId) const
+            const Id &frameworkId) const
 {
     return m_frameworkSettings.contains(frameworkId) ? m_frameworkSettings.value(frameworkId)
                                                      : QSharedPointer<IFrameworkSettings>();
@@ -168,32 +170,32 @@ QSharedPointer<IFrameworkSettings> TestFrameworkManager::settingsForTestFramewor
 void TestFrameworkManager::synchronizeSettings(QSettings *s)
 {
     Internal::AutotestPlugin::settings()->fromSettings(s);
-    for (const Core::Id &id : m_frameworkSettings.keys()) {
+    for (const Id &id : m_frameworkSettings.keys()) {
         QSharedPointer<IFrameworkSettings> fSettings = settingsForTestFramework(id);
         if (!fSettings.isNull())
             fSettings->fromSettings(s);
     }
 }
 
-bool TestFrameworkManager::isActive(const Core::Id &frameworkId) const
+bool TestFrameworkManager::isActive(const Id &frameworkId) const
 {
     ITestFramework *framework = m_registeredFrameworks.value(frameworkId);
     return framework ? framework->active() : false;
 }
 
-bool TestFrameworkManager::groupingEnabled(const Core::Id &frameworkId) const
+bool TestFrameworkManager::groupingEnabled(const Id &frameworkId) const
 {
     ITestFramework *framework = m_registeredFrameworks.value(frameworkId);
     return framework ? framework->grouping() : false;
 }
 
-void TestFrameworkManager::setGroupingEnabledFor(const Core::Id &frameworkId, bool enabled)
+void TestFrameworkManager::setGroupingEnabledFor(const Id &frameworkId, bool enabled)
 {
     if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
         framework->setGrouping(enabled);
 }
 
-QString TestFrameworkManager::groupingToolTip(const Core::Id &frameworkId) const
+QString TestFrameworkManager::groupingToolTip(const Id &frameworkId) const
 {
     if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
         return framework->groupingToolTip();
@@ -209,7 +211,7 @@ bool TestFrameworkManager::hasActiveFrameworks() const
     return false;
 }
 
-unsigned TestFrameworkManager::priority(const Core::Id &frameworkId) const
+unsigned TestFrameworkManager::priority(const Id &frameworkId) const
 {
     if (ITestFramework *framework = m_registeredFrameworks.value(frameworkId))
         return framework->priority();

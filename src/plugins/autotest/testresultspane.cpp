@@ -61,6 +61,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Core;
+
 namespace Autotest {
 namespace Internal {
 
@@ -80,8 +82,8 @@ void ResultsTreeView::keyPressEvent(QKeyEvent *event)
 }
 
 TestResultsPane::TestResultsPane(QObject *parent) :
-    Core::IOutputPane(parent),
-    m_context(new Core::IContext(this))
+    IOutputPane(parent),
+    m_context(new IContext(this))
 {
     m_outputWidget = new QStackedWidget;
     QWidget *visualOutputWidget = new QWidget;
@@ -123,7 +125,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     TestResultDelegate *trd = new TestResultDelegate(this);
     m_treeView->setItemDelegate(trd);
 
-    outputLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_treeView));
+    outputLayout->addWidget(ItemViewFind::createSearchableWrapper(m_treeView));
 
     m_textOutput = new QPlainTextEdit;
     m_textOutput->setPalette(pal);
@@ -136,7 +138,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
     auto agg = new Aggregation::Aggregate;
     agg->add(m_textOutput);
-    agg->add(new Core::BaseTextFind(m_textOutput));
+    agg->add(new BaseTextFind(m_textOutput));
 
     createToolButtons();
 
@@ -176,13 +178,13 @@ void TestResultsPane::createToolButtons()
     });
 
     m_runAll = new QToolButton(m_treeView);
-    m_runAll->setDefaultAction(Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action());
+    m_runAll->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action());
 
     m_runSelected = new QToolButton(m_treeView);
-    m_runSelected->setDefaultAction(Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action());
+    m_runSelected->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action());
 
     m_runFile = new QToolButton(m_treeView);
-    m_runFile->setDefaultAction(Core::ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action());
+    m_runFile->setDefaultAction(ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action());
 
     m_stopTestRun = new QToolButton(m_treeView);
     m_stopTestRun->setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
@@ -402,7 +404,7 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
 
     const TestResult *testResult = m_filterModel->testResult(index);
     if (testResult && !testResult->fileName().isEmpty())
-        Core::EditorManager::openEditorAt(testResult->fileName(), testResult->line(), 0);
+        EditorManager::openEditorAt(testResult->fileName(), testResult->line(), 0);
 }
 
 void TestResultsPane::onRunAllTriggered()
@@ -530,7 +532,7 @@ void TestResultsPane::onTestRunFinished()
                this, &TestResultsPane::onScrollBarRangeChanged);
     if (AutotestPlugin::settings()->popupOnFinish
             && (!AutotestPlugin::settings()->popupOnFail || hasFailedTests(m_model))) {
-        popup(Core::IOutputPane::NoModeSwitch);
+        popup(IOutputPane::NoModeSwitch);
     }
     createMarks();
 }
@@ -608,14 +610,14 @@ void TestResultsPane::onCopyWholeTriggered()
 
 void TestResultsPane::onSaveWholeTriggered()
 {
-    const QString fileName = QFileDialog::getSaveFileName(Core::ICore::dialogParent(),
+    const QString fileName = QFileDialog::getSaveFileName(ICore::dialogParent(),
                                                           tr("Save Output To"));
     if (fileName.isEmpty())
         return;
 
     Utils::FileSaver saver(fileName, QIODevice::Text);
     if (!saver.write(getWholeOutput().toUtf8()) || !saver.finalize()) {
-        QMessageBox::critical(Core::ICore::dialogParent(), tr("Error"),
+        QMessageBox::critical(ICore::dialogParent(), tr("Error"),
                               tr("Failed to write \"%1\".\n\n%2").arg(fileName)
                               .arg(saver.errorString()));
     }
@@ -692,7 +694,7 @@ void TestResultsPane::showTestResult(const QModelIndex &index)
 {
     QModelIndex mapped = m_filterModel->mapFromSource(index);
     if (mapped.isValid()) {
-        popup(Core::IOutputPane::NoModeSwitch);
+        popup(IOutputPane::NoModeSwitch);
         m_treeView->setCurrentIndex(mapped);
     }
 }

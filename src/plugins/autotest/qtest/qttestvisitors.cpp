@@ -32,6 +32,8 @@
 #include <cpptools/cppmodelmanager.h>
 #include <utils/qtcassert.h>
 
+using namespace CPlusPlus;
+
 namespace Autotest {
 namespace Internal {
 
@@ -39,21 +41,21 @@ static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", 
 
 /************************** Cpp Test Symbol Visitor ***************************/
 
-TestVisitor::TestVisitor(const QString &fullQualifiedClassName, const CPlusPlus::Snapshot &snapshot)
+TestVisitor::TestVisitor(const QString &fullQualifiedClassName, const Snapshot &snapshot)
     : m_className(fullQualifiedClassName),
       m_snapshot(snapshot)
 {
 }
 
-bool TestVisitor::visit(CPlusPlus::Class *symbol)
+bool TestVisitor::visit(Class *symbol)
 {
-    const CPlusPlus::Overview o;
-    CPlusPlus::LookupContext lc;
+    const Overview o;
+    LookupContext lc;
 
     int count = symbol->memberCount();
     for (int i = 0; i < count; ++i) {
-        CPlusPlus::Symbol *member = symbol->memberAt(i);
-        CPlusPlus::Type *type = member->type().type();
+        Symbol *member = symbol->memberAt(i);
+        Type *type = member->type().type();
 
         const QString className = o.prettyName(lc.fullyQualifiedName(member->enclosingClass()));
         if (className != m_className)
@@ -66,7 +68,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
                 const QString name = o.prettyName(func->name());
                 QtTestCodeLocationAndType locationAndType;
 
-                CPlusPlus::Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
+                Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
                             func, m_snapshot, true);
                 if (functionDefinition && functionDefinition->fileId()) {
                     locationAndType.m_name = QString::fromUtf8(functionDefinition->fileName());
@@ -88,7 +90,7 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
             }
         }
         for (int counter = 0, end = symbol->baseClassCount(); counter < end; ++counter) {
-            if (CPlusPlus::BaseClass *base = symbol->baseClassAt(counter)) {
+            if (BaseClass *base = symbol->baseClassAt(counter)) {
                 const QString &baseClassName = o.prettyName(lc.fullyQualifiedName(base));
                 if (baseClassName != "QObject")
                     m_baseClasses.insert(baseClassName);
@@ -100,14 +102,14 @@ bool TestVisitor::visit(CPlusPlus::Class *symbol)
 
 /**************************** Cpp Test AST Visitor ****************************/
 
-TestAstVisitor::TestAstVisitor(CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot)
+TestAstVisitor::TestAstVisitor(Document::Ptr doc, const Snapshot &snapshot)
     : ASTVisitor(doc->translationUnit()),
       m_currentDoc(doc),
       m_snapshot(snapshot)
 {
 }
 
-bool TestAstVisitor::visit(CPlusPlus::CallAST *ast)
+bool TestAstVisitor::visit(CallAST *ast)
 {
     if (!m_currentScope || m_currentDoc.isNull())
         return false;
@@ -115,15 +117,15 @@ bool TestAstVisitor::visit(CPlusPlus::CallAST *ast)
     if (const auto expressionAST = ast->base_expression) {
         if (const auto idExpressionAST = expressionAST->asIdExpression()) {
             if (const auto qualifiedNameAST = idExpressionAST->name->asQualifiedName()) {
-                const CPlusPlus::Overview o;
+                const Overview o;
                 const QString prettyName = o.prettyName(qualifiedNameAST->name);
                 if (prettyName == "QTest::qExec") {
                     if (const auto expressionListAST = ast->expression_list) {
                         // first argument is the one we need
                         if (const auto argumentExpressionAST = expressionListAST->value) {
-                            CPlusPlus::TypeOfExpression toe;
+                            TypeOfExpression toe;
                             toe.init(m_currentDoc, m_snapshot);
-                            QList<CPlusPlus::LookupItem> toeItems
+                            QList<LookupItem> toeItems
                                     = toe(argumentExpressionAST, m_currentDoc, m_currentScope);
 
                             if (toeItems.size()) {
@@ -139,7 +141,7 @@ bool TestAstVisitor::visit(CPlusPlus::CallAST *ast)
     return false;
 }
 
-bool TestAstVisitor::visit(CPlusPlus::CompoundStatementAST *ast)
+bool TestAstVisitor::visit(CompoundStatementAST *ast)
 {
     if (!ast || !ast->symbol) {
         m_currentScope = nullptr;
@@ -151,13 +153,13 @@ bool TestAstVisitor::visit(CPlusPlus::CompoundStatementAST *ast)
 
 /********************** Test Data Function AST Visitor ************************/
 
-TestDataFunctionVisitor::TestDataFunctionVisitor(CPlusPlus::Document::Ptr doc)
-    : CPlusPlus::ASTVisitor(doc->translationUnit()),
+TestDataFunctionVisitor::TestDataFunctionVisitor(Document::Ptr doc)
+    : ASTVisitor(doc->translationUnit()),
       m_currentDoc(doc)
 {
 }
 
-bool TestDataFunctionVisitor::visit(CPlusPlus::UsingDirectiveAST *ast)
+bool TestDataFunctionVisitor::visit(UsingDirectiveAST *ast)
 {
     if (auto nameAST = ast->name) {
         if (m_overview.prettyName(nameAST->name) == "QTest") {
@@ -169,14 +171,14 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::UsingDirectiveAST *ast)
     return true;
 }
 
-bool TestDataFunctionVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
+bool TestDataFunctionVisitor::visit(FunctionDefinitionAST *ast)
 {
     if (ast->declarator) {
-        CPlusPlus::DeclaratorIdAST *id = ast->declarator->core_declarator->asDeclaratorId();
+        DeclaratorIdAST *id = ast->declarator->core_declarator->asDeclaratorId();
         if (!id || !ast->symbol || ast->symbol->argumentCount() != 0)
             return false;
 
-        CPlusPlus::LookupContext lc;
+        LookupContext lc;
         const QString prettyName = m_overview.prettyName(lc.fullyQualifiedName(ast->symbol));
         // do not handle functions that aren't real test data functions
         if (!prettyName.endsWith("_data"))
@@ -190,7 +192,7 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     return false;
 }
 
-QString TestDataFunctionVisitor::extractNameFromAST(CPlusPlus::StringLiteralAST *ast, bool *ok) const
+QString TestDataFunctionVisitor::extractNameFromAST(StringLiteralAST *ast, bool *ok) const
 {
     auto token = m_currentDoc->translationUnit()->tokenAt(ast->literal_token);
     if (!token.isStringLiteral()) {
@@ -200,7 +202,7 @@ QString TestDataFunctionVisitor::extractNameFromAST(CPlusPlus::StringLiteralAST 
     *ok = true;
     QString name = QString::fromUtf8(token.spell());
     if (ast->next) {
-        CPlusPlus::StringLiteralAST *current = ast;
+        StringLiteralAST *current = ast;
         do {
             auto nextToken = m_currentDoc->translationUnit()->tokenAt(current->next->literal_token);
             name.append(QString::fromUtf8(nextToken.spell()));
@@ -210,7 +212,7 @@ QString TestDataFunctionVisitor::extractNameFromAST(CPlusPlus::StringLiteralAST 
     return name;
 }
 
-bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
+bool TestDataFunctionVisitor::visit(CallAST *ast)
 {
     if (m_currentFunction.isEmpty())
         return true;
@@ -242,13 +244,13 @@ bool TestDataFunctionVisitor::visit(CPlusPlus::CallAST *ast)
     return true;
 }
 
-bool TestDataFunctionVisitor::preVisit(CPlusPlus::AST *)
+bool TestDataFunctionVisitor::preVisit(AST *)
 {
     ++m_currentAstDepth;
     return true;
 }
 
-void TestDataFunctionVisitor::postVisit(CPlusPlus::AST *ast)
+void TestDataFunctionVisitor::postVisit(AST *ast)
 {
     --m_currentAstDepth;
     m_insideUsingQTest &= m_currentAstDepth >= m_insideUsingQTestDepth;
@@ -263,7 +265,7 @@ void TestDataFunctionVisitor::postVisit(CPlusPlus::AST *ast)
     m_currentTags.clear();
 }
 
-bool TestDataFunctionVisitor::newRowCallFound(CPlusPlus::CallAST *ast, unsigned *firstToken) const
+bool TestDataFunctionVisitor::newRowCallFound(CallAST *ast, unsigned *firstToken) const
 {
     QTC_ASSERT(firstToken, return false);
 
@@ -272,7 +274,7 @@ bool TestDataFunctionVisitor::newRowCallFound(CPlusPlus::CallAST *ast, unsigned 
 
     bool found = false;
 
-    if (const CPlusPlus::IdExpressionAST *exp = ast->base_expression->asIdExpression()) {
+    if (const IdExpressionAST *exp = ast->base_expression->asIdExpression()) {
         if (!exp->name)
             return false;
 

@@ -97,8 +97,7 @@ TestRunner::TestRunner(QObject *parent) :
         cancelCurrent(UserCanceled);
         reportResult(ResultType::MessageFatal, tr("Test run canceled by user."));
     });
-    connect(ProjectExplorer::BuildManager::instance(),
-            &ProjectExplorer::BuildManager::buildQueueFinished,
+    connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &TestRunner::onBuildQueueFinished);
 }
 
@@ -312,10 +311,10 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
     QTC_ASSERT(!m_executingTests, return);
     m_runMode = mode;
     ProjectExplorer::Internal::ProjectExplorerSettings projectExplorerSettings =
-        ProjectExplorer::ProjectExplorerPlugin::projectExplorerSettings();
+        ProjectExplorerPlugin::projectExplorerSettings();
     if (mode != TestRunMode::RunAfterBuild && projectExplorerSettings.buildBeforeDeploy
             && !projectExplorerSettings.saveBeforeBuild) {
-        if (!ProjectExplorer::ProjectExplorerPlugin::saveModifiedFiles())
+        if (!ProjectExplorerPlugin::saveModifiedFiles())
             return;
     }
 
@@ -332,7 +331,7 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
         return;
     }
 
-    ProjectExplorer::Project *project = m_selectedTests.at(0)->project();
+    Project *project = m_selectedTests.at(0)->project();
     if (!project) {
         reportResult(ResultType::MessageWarn,
             tr("Project is null. Canceling test run.\n"
@@ -342,7 +341,7 @@ void TestRunner::prepareToRunTests(TestRunMode mode)
         return;
     }
 
-    m_targetConnect = connect(project, &ProjectExplorer::Project::activeTargetChanged,
+    m_targetConnect = connect(project, &Project::activeTargetChanged,
                               [this]() { cancelCurrent(KitChanged); });
 
     if (!projectExplorerSettings.buildBeforeDeploy || mode == TestRunMode::DebugWithoutDeploy
@@ -368,9 +367,8 @@ static QString firstNonEmptyTestCaseTarget(const TestConfiguration *config)
     });
 }
 
-static ProjectExplorer::RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
+static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
 {
-    using namespace ProjectExplorer;
     const Project *project = SessionManager::startupProject();
     if (!project)
         return nullptr;
@@ -556,7 +554,7 @@ void TestRunner::debugTests()
     }
 
     QString errorMessage;
-    auto runControl = new ProjectExplorer::RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->setRunConfiguration(config->runConfiguration());
     if (!runControl) {
         reportResult(ResultType::MessageFatal,
@@ -566,7 +564,7 @@ void TestRunner::debugTests()
     }
 
     QStringList omitted;
-    ProjectExplorer::Runnable inferior = config->runnable();
+    Runnable inferior = config->runnable();
     inferior.executable = FilePath::fromString(commandFilePath);
 
     const QStringList args = config->argumentsForTestRunner(&omitted);
@@ -591,7 +589,7 @@ void TestRunner::debugTests()
     debugger->setRunControlName(config->displayName());
 
     bool useOutputProcessor = true;
-    if (ProjectExplorer::Target *targ = config->project()->activeTarget()) {
+    if (Target *targ = config->project()->activeTarget()) {
         if (Debugger::DebuggerKitAspect::engineType(targ->kit()) == Debugger::CdbEngineType) {
             reportResult(ResultType::MessageWarn,
                          tr("Unable to display test results when using CDB."));
@@ -609,20 +607,20 @@ void TestRunner::debugTests()
         outputreader->setId(inferior.executable.toString());
         connect(outputreader, &TestOutputReader::newOutputAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutput);
-        connect(runControl, &ProjectExplorer::RunControl::appendMessage,
+        connect(runControl, &RunControl::appendMessage,
                 this, [outputreader](const QString &msg, Utils::OutputFormat format) {
             processOutput(outputreader, msg, format);
         });
 
-        connect(runControl, &ProjectExplorer::RunControl::stopped,
+        connect(runControl, &RunControl::stopped,
                 outputreader, &QObject::deleteLater);
     }
 
     m_stopDebugConnect = connect(this, &TestRunner::requestStopTestRun,
-                                 runControl, &ProjectExplorer::RunControl::initiateStop);
+                                 runControl, &RunControl::initiateStop);
 
-    connect(runControl, &ProjectExplorer::RunControl::stopped, this, &TestRunner::onFinished);
-    ProjectExplorer::ProjectExplorerPlugin::startRunControl(runControl);
+    connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
+    ProjectExplorerPlugin::startRunControl(runControl);
     if (useOutputProcessor && AutotestPlugin::settings()->popupOnStart)
         AutotestPlugin::popupResultsPane();
 }
@@ -646,14 +644,14 @@ void TestRunner::runOrDebugTests()
     onFinished();
 }
 
-void TestRunner::buildProject(ProjectExplorer::Project *project)
+void TestRunner::buildProject(Project *project)
 {
-    ProjectExplorer::BuildManager *buildManager = ProjectExplorer::BuildManager::instance();
+    BuildManager *buildManager = BuildManager::instance();
     m_buildConnect = connect(this, &TestRunner::requestStopTestRun,
-                             buildManager, &ProjectExplorer::BuildManager::cancel);
-    connect(buildManager, &ProjectExplorer::BuildManager::buildQueueFinished,
+                             buildManager, &BuildManager::cancel);
+    connect(buildManager, &BuildManager::buildQueueFinished,
             this, &TestRunner::buildFinished);
-    ProjectExplorer::ProjectExplorerPlugin::buildProject(project);
+    ProjectExplorerPlugin::buildProject(project);
     if (!buildManager->isBuilding())
         buildFinished(false);
 }
@@ -661,8 +659,8 @@ void TestRunner::buildProject(ProjectExplorer::Project *project)
 void TestRunner::buildFinished(bool success)
 {
     disconnect(m_buildConnect);
-    ProjectExplorer::BuildManager *buildManager = ProjectExplorer::BuildManager::instance();
-    disconnect(buildManager, &ProjectExplorer::BuildManager::buildQueueFinished,
+    BuildManager *buildManager = BuildManager::instance();
+    disconnect(buildManager, &BuildManager::buildQueueFinished,
                this, &TestRunner::buildFinished);
 
     if (success) {
@@ -678,7 +676,7 @@ void TestRunner::buildFinished(bool success)
 
 static bool runAfterBuild()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    Project *project = SessionManager::startupProject();
     if (!project)
         return false;
 
@@ -805,9 +803,9 @@ void RunConfigurationSelectionDialog::populate()
 {
     m_rcCombo->addItem(QString(), QStringList({QString(), QString(), QString()})); // empty default
 
-    if (auto project = ProjectExplorer::SessionManager::startupProject()) {
+    if (auto project = SessionManager::startupProject()) {
         if (auto target = project->activeTarget()) {
-            for (ProjectExplorer::RunConfiguration *rc : target->runConfigurations()) {
+            for (RunConfiguration *rc : target->runConfigurations()) {
                 auto runnable = rc->runnable();
                 const QStringList rcDetails = { runnable.executable.toString(),
                                                 runnable.commandLineArguments,
