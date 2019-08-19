@@ -87,7 +87,9 @@ public:
         QmlRegisterSingletonTypeUrl,
         // template<typename T> int qmlRegisterUncreatableType(const char *uri, int versionMajor, int versionMinor, const char *qmlName, const QString& reason)
         // or template<typename T, int metaObjectRevision> int qmlRegisterUncreatableType(const char *uri, int versionMajor, int versionMinor, const char *qmlName, const QString& reason)
-        QmlRegisterUncreatableType
+        QmlRegisterUncreatableType,
+        // int qmlRegisterUncreatableMetaObject(const QMetaObject &staticMetaObject, const char *uri, int versionMajor, int versionMinor, const char *qmlName, const QString &reason)
+        QmlRegisterUncreatableMetaObject
     };
 
     FindExportsVisitor(CPlusPlus::Document::Ptr doc)
@@ -189,6 +191,8 @@ protected:
                 registrationFunction = QmlRegisterType5;
             else if (fName == "qmlRegisterSingletonType")
                 registrationFunction = QmlRegisterSingletonTypeCallback2;
+            else if (fName == "qmlRegisterUncreatableMetaObject")
+                registrationFunction = QmlRegisterUncreatableMetaObject;
             else
                 return false;
         } else {
@@ -215,6 +219,12 @@ protected:
                     || !ast->expression_list->next->next->next->next->value
                     || ast->expression_list->next->next->next->next->next)
                 return false;
+            break;
+        case QmlRegisterUncreatableMetaObject:
+            if (!ast->expression_list->next->next->next->next->next
+                    || !ast->expression_list->next->next->next->next->next->value
+                    || ast->expression_list->next->next->next->next->next->next)
+                return false;
         }
         ExpressionAST *uriExp = nullptr;
         ExpressionAST *majorVersionExp = nullptr;
@@ -231,6 +241,11 @@ protected:
             // discriminate between QmlRegisterSingletonTypeCallback2 and QmlRegisterSingletonTypeUrl,
             // this is very rough check, improve?
             registrationFunction = QmlRegisterSingletonTypeUrl;
+            uriExp = ast->expression_list->next->value;
+            majorVersionExp = ast->expression_list->next->next->value;
+            minorVersionExp = ast->expression_list->next->next->next->value;
+            nameExp = ast->expression_list->next->next->next->next->value;
+        } else if (registrationFunction == QmlRegisterUncreatableMetaObject) {
             uriExp = ast->expression_list->next->value;
             majorVersionExp = ast->expression_list->next->next->value;
             minorVersionExp = ast->expression_list->next->next->next->value;
@@ -331,7 +346,8 @@ protected:
                 || registrationFunction == QmlRegisterSingletonTypeCallback2
                 || registrationFunction == QmlRegisterSingletonTypeUrl;
         exportedType.isCreatable = !exportedType.isSingleton
-                && registrationFunction != QmlRegisterUncreatableType;
+                && registrationFunction != QmlRegisterUncreatableType
+                && registrationFunction != QmlRegisterUncreatableMetaObject;
         exportedType.typeName = QString::fromUtf8(nameLit->chars(), nameLit->size());
         exportedType.packageName = packageName;
         if (majorLit && minorLit && majorLit->isInt() && minorLit->isInt()) {
@@ -363,6 +379,8 @@ protected:
                     exportedType.url = QString::fromUtf8(urlLit->chars(), urlLit->size());
                 }
             }
+        } else if (registrationFunction == QmlRegisterUncreatableMetaObject) {
+            // Anything to do here?
         } else {
             qCWarning(QmlJS::qmljsLog()) << "missing template type for registrationFunction " << registrationFunction;
         }
@@ -900,6 +918,7 @@ bool FindExportedCppTypes::maybeExportsTypes(const CPlusPlus::Document::Ptr &doc
     const QByteArray qmlRegisterSingletonTypeToken("qmlRegisterType");
     const QByteArray qmlRegisterTypeToken("qmlRegisterSingletonType");
     const QByteArray qmlRegisterUncreatableTypeToken("qmlRegisterUncreatableType");
+    const QByteArray qmlRegisterUncreatableMetaObjectToken("qmlRegisterUncreatableMetaObject");
     const QByteArray setContextPropertyToken("setContextProperty");
     if (document->control()->findIdentifier(
                 qmlRegisterTypeToken.constData(), qmlRegisterTypeToken.size())) {
@@ -915,6 +934,10 @@ bool FindExportedCppTypes::maybeExportsTypes(const CPlusPlus::Document::Ptr &doc
     }
     if (document->control()->findIdentifier(
                 setContextPropertyToken.constData(), setContextPropertyToken.size())) {
+        return true;
+    }
+    if (document->control()->findIdentifier(
+                qmlRegisterUncreatableMetaObjectToken.constData(), qmlRegisterUncreatableMetaObjectToken.size())) {
         return true;
     }
     return false;
