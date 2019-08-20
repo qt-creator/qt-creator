@@ -137,7 +137,6 @@ HEADERS += projectexplorer.h \
     devicesupport/sshsettingspage.h \
     devicesupport/desktopprocesssignaloperation.h \
     deploymentdata.h \
-    deploymentdatamodel.h \
     deploymentdataview.h \
     buildtargetinfo.h \
     customtoolchain.h \
@@ -285,7 +284,6 @@ SOURCES += projectexplorer.cpp \
     devicesupport/desktopprocesssignaloperation.cpp \
     deployablefile.cpp \
     deploymentdata.cpp \
-    deploymentdatamodel.cpp \
     deploymentdataview.cpp \
     customtoolchain.cpp \
     projectmacroexpander.cpp \
@@ -315,7 +313,6 @@ FORMS += \
     sessiondialog.ui \
     projectwizardpage.ui \
     projectexplorersettingspage.ui \
-    deploymentdataview.ui \
     codestylesettingspropertiespage.ui \
     devicesupport/devicefactoryselectiondialog.ui \
     devicesupport/devicesettingswidget.ui \

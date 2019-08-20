@@ -41,8 +41,7 @@ add_qtc_plugin(ProjectExplorer
     deployablefile.cpp deployablefile.h
     deployconfiguration.cpp deployconfiguration.h
     deploymentdata.cpp deploymentdata.h
-    deploymentdatamodel.cpp deploymentdatamodel.h
-    deploymentdataview.cpp deploymentdataview.h deploymentdataview.ui
+    deploymentdataview.cpp deploymentdataview.h
     desktoprunconfiguration.cpp desktoprunconfiguration.h
     devicesupport/desktopdevice.cpp devicesupport/desktopdevice.h
     devicesupport/desktopdevicefactory.cpp devicesupport/desktopdevicefactory.h

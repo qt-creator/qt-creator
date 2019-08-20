@@ -24,56 +24,75 @@
 ****************************************************************************/
 
 #include "deploymentdataview.h"
-#include "ui_deploymentdataview.h"
 
-#include "deploymentdatamodel.h"
+#include "deploymentdata.h"
 #include "target.h"
+
+#include <utils/treemodel.h>
+
+#include <QAbstractTableModel>
+#include <QLabel>
+#include <QHeaderView>
+#include <QTreeView>
+#include <QVBoxLayout>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
 
-class DeploymentDataViewPrivate
+class DeploymentDataItem : public TreeItem
 {
 public:
-    Ui::DeploymentDataView ui;
-    Target *target;
-    DeploymentDataModel deploymentDataModel;
+    DeploymentDataItem() = default;
+    DeploymentDataItem(const DeployableFile &file) : file(file) {}
+
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::DisplayRole)
+            return column == 0 ? file.localFilePath().toUserOutput() : file.remoteDirectory();
+        return QVariant();
+    }
+    DeployableFile file;
 };
 
-} // namespace Internal
 
-using namespace Internal;
-
-DeploymentDataView::DeploymentDataView(Target *target, QWidget *parent) : NamedWidget(parent),
-    d(std::make_unique<DeploymentDataViewPrivate>())
+DeploymentDataView::DeploymentDataView(Target *target)
 {
-    d->ui.setupUi(this);
-    d->ui.deploymentDataView->setTextElideMode(Qt::ElideMiddle);
-    d->ui.deploymentDataView->setWordWrap(false);
-    d->ui.deploymentDataView->setUniformRowHeights(true);
-    d->ui.deploymentDataView->setModel(&d->deploymentDataModel);
+    auto model = new TreeModel<DeploymentDataItem>(this);
+    model->setHeader({tr("Local File Path"), tr("Remote Directory")});
 
-    d->target = target;
+    auto view = new QTreeView(this);
+    view->setMinimumSize(QSize(100, 100));
+    view->setTextElideMode(Qt::ElideMiddle);
+    view->setWordWrap(false);
+    view->setUniformRowHeights(true);
+    view->setModel(model);
 
-    connect(target, &Target::deploymentDataChanged,
-            this, &DeploymentDataView::updateDeploymentDataModel);
-    updateDeploymentDataModel();
+    auto label = new QLabel(tr("Files to deploy:"), this);
+
+    auto layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(label);
+    layout->addWidget(view);
+
+    auto updatModel = [this, target, model, view] {
+        model->clear();
+        for (const DeployableFile &file : target->deploymentData().allFiles())
+            model->rootItem()->appendChild(new DeploymentDataItem(file));
+
+        QHeaderView *header = view->header();
+        header->setSectionResizeMode(0, QHeaderView::Interactive);
+        header->setSectionResizeMode(1, QHeaderView::Interactive);
+        view->resizeColumnToContents(0);
+        view->resizeColumnToContents(1);
+        if (header->sectionSize(0) + header->sectionSize(1) < header->width())
+            header->setSectionResizeMode(1, QHeaderView::Stretch);
+    };
+
+    connect(target, &Target::deploymentDataChanged, this, updatModel);
+    updatModel();
 }
 
-DeploymentDataView::~DeploymentDataView() = default;
-
-void DeploymentDataView::updateDeploymentDataModel()
-{
-    d->deploymentDataModel.setDeploymentData(d->target->deploymentData());
-    QHeaderView *header = d->ui.deploymentDataView->header();
-    header->setSectionResizeMode(0, QHeaderView::Interactive);
-    header->setSectionResizeMode(1, QHeaderView::Interactive);
-    d->ui.deploymentDataView->resizeColumnToContents(0);
-    d->ui.deploymentDataView->resizeColumnToContents(1);
-    if (header->sectionSize(0) + header->sectionSize(1)
-            < d->ui.deploymentDataView->header()->width()) {
-        d->ui.deploymentDataView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    }
-}
-
-} // namespace ProjectExplorer
+} // Internal
+} // ProjectExplorer

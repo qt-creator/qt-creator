@@ -164,7 +164,7 @@ void DeployConfigurationFactory::setConfigWidgetCreator(const std::function<QWid
 
 void DeployConfigurationFactory::setUseDeploymentDataView()
 {
-    m_configWidgetCreator = [](Target *target) { return new DeploymentDataView(target); };
+    m_configWidgetCreator = [](Target *target) { return new Internal::DeploymentDataView(target); };
 }
 
 void DeployConfigurationFactory::setConfigBaseId(Core::Id deployConfigBaseId)
