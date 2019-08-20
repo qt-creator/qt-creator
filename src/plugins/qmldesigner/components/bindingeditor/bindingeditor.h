@@ -38,9 +38,11 @@
 
 #include <memory>
 
+QT_BEGIN_NAMESPACE
 class QTextEdit;
 class QDialogButtonBox;
 class QVBoxLayout;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
