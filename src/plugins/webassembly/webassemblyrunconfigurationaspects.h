@@ -52,13 +52,5 @@ private:
     QStringList m_availableBrowsers;
 };
 
-class EffectiveEmrunCallAspect : public ProjectExplorer::BaseStringAspect
-{
-    Q_OBJECT
-
-public:
-    EffectiveEmrunCallAspect();
-};
-
 } // namespace Internal
 } // namespace Webassembly
