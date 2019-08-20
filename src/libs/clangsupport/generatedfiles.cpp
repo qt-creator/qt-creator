@@ -53,7 +53,7 @@ void GeneratedFiles::update(const V2::FileContainers &fileContainers)
     V2::FileContainers unionFileContainers;
     unionFileContainers.reserve(m_fileContainers.size() + fileContainers.size());
 
-    auto compare = [] (const V2::FileContainer &first, const V2::FileContainer &second) {
+    auto compare = [](const V2::FileContainer &first, const V2::FileContainer &second) {
         return first.filePath < second.filePath;
     };
 
@@ -69,10 +69,7 @@ void GeneratedFiles::update(const V2::FileContainers &fileContainers)
 
 class Compare {
 public:
-    bool operator()(const FilePath &first, const FilePath &second)
-    {
-        return first < second;
-    }
+    bool operator()(const FilePath &first, const FilePath &second) { return first < second; }
     bool operator()(const V2::FileContainer &first, const V2::FileContainer &second)
     {
         return first.filePath < second.filePath;
@@ -114,6 +111,18 @@ bool GeneratedFiles::isValid() const
 const V2::FileContainers &GeneratedFiles::fileContainers() const
 {
     return m_fileContainers;
+}
+
+FilePathIds GeneratedFiles::filePathIds() const
+{
+    auto ids = Utils::transform<FilePathIds>(m_fileContainers,
+                                             [](const V2::FileContainer &fileContainer) {
+                                                 return fileContainer.filePathId;
+                                             });
+
+    std::sort(ids.begin(), ids.end());
+
+    return ids;
 }
 
 } // namespace ClangBackEnd

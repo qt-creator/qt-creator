@@ -46,8 +46,11 @@
 #include <utils/algorithm.h>
 #include <utils/namevalueitem.h>
 
+#include <QDirIterator>
+
 #include <algorithm>
 #include <functional>
+#include <iostream>
 
 namespace ClangPchManager {
 
@@ -68,6 +71,7 @@ void ProjectUpdater::updateProjectParts(const std::vector<CppTools::ProjectPart 
                                         Utils::SmallStringVector &&toolChainArguments)
 {
     addProjectFilesToFilePathCache(projectParts);
+    fetchProjectPartIds(projectParts);
 
     m_server.updateProjectParts(
         ClangBackEnd::UpdateProjectPartsMessage{toProjectPartContainers(projectParts),
@@ -237,7 +241,7 @@ void updateWithSettings(ClangBackEnd::CompilerMacros &macros,
 } // namespace
 
 ClangBackEnd::CompilerMacros ProjectUpdater::createCompilerMacros(
-    const ProjectExplorer::Macros &projectMacros, Utils::NameValueItems &&settingsMacros) const
+    const ProjectExplorer::Macros &projectMacros, Utils::NameValueItems &&settingsMacros)
 {
     int index = 0;
     auto macros = Utils::transform<ClangBackEnd::CompilerMacros>(
@@ -347,10 +351,10 @@ ClangBackEnd::ProjectPartContainer ProjectUpdater::toProjectPartContainer(
 
     auto includeSearchPaths = createIncludeSearchPaths(*projectPart);
 
-    const QByteArray projectPartName = projectPart->id().toUtf8();
-
-    ClangBackEnd::ProjectPartId projectPartId = m_projectPartsStorage.fetchProjectPartId(
-        projectPartName);
+    ClangBackEnd::ProjectPartId projectPartId = m_projectPartIdCache.stringId(
+        Utils::PathString{projectPart->id()}, [&](Utils::SmallStringView projectPartName) {
+            return m_projectPartsStorage.fetchProjectPartId(projectPartName);
+        });
 
     ClangIndexingProjectSettings *settings = m_settingsManager.settings(projectPart->project);
 
@@ -415,36 +419,31 @@ ClangBackEnd::FilePaths ProjectUpdater::createExcludedPaths(
 
 QString ProjectUpdater::fetchProjectPartName(ClangBackEnd::ProjectPartId projectPartId) const
 {
-    return m_projectPartsStorage.fetchProjectPartName(projectPartId).toQString();
+    return QString(m_projectPartIdCache.string(projectPartId.projectPathId,
+                                               [&](ClangBackEnd::ProjectPartId projectPartId) {
+                                                   return m_projectPartsStorage.fetchProjectPartName(
+                                                       projectPartId);
+                                               }));
 }
 
 ClangBackEnd::ProjectPartIds ProjectUpdater::toProjectPartIds(
-    const QStringList &projectPartNames) const
+    const QStringList &projectPartNamesAsQString) const
 {
     ClangBackEnd::ProjectPartIds projectPartIds;
     projectPartIds.reserve(projectPartIds.size());
 
-    std::transform(projectPartNames.begin(),
-                   projectPartNames.end(),
-                   std::back_inserter(projectPartIds),
-                   [&](const QString &projectPartName) {
-                       return m_projectPartsStorage.fetchProjectPartId(
-                           Utils::SmallString{projectPartName});
-                   });
+    auto projectPartNames = Utils::transform<std::vector<Utils::PathString>>(
+        projectPartNamesAsQString, [&](const QString &projectPartName) { return projectPartName; });
 
-    return projectPartIds;
+    return m_projectPartIdCache.stringIds(projectPartNames, [&](Utils::SmallStringView projectPartName) {
+        return m_projectPartsStorage.fetchProjectPartId(projectPartName);
+    });
 }
 
 void ProjectUpdater::addProjectFilesToFilePathCache(const std::vector<CppTools::ProjectPart *> &projectParts)
 {
-    std::size_t fileCount = std::accumulate(projectParts.begin(),
-                                            projectParts.end(),
-                                            std::size_t(0),
-                                            [](std::size_t value, CppTools::ProjectPart *projectPart) {
-                                                return value + std::size_t(projectPart->files.size());
-                                            });
     ClangBackEnd::FilePaths filePaths;
-    filePaths.reserve(fileCount);
+    filePaths.reserve(10000);
 
     for (CppTools::ProjectPart *projectPart : projectParts) {
         for (const CppTools::ProjectFile &file : projectPart->files)
@@ -454,5 +453,29 @@ void ProjectUpdater::addProjectFilesToFilePathCache(const std::vector<CppTools::
 
     m_filePathCache.addFilePaths(filePaths);
 }
+
+void ProjectUpdater::fetchProjectPartIds(const std::vector<CppTools::ProjectPart *> &projectParts)
+{
+    std::unique_ptr<Sqlite::DeferredTransaction> transaction;
+
+    auto projectPartNames = Utils::transform<std::vector<Utils::PathString>>(
+        projectParts, [](CppTools::ProjectPart *projectPart) { return projectPart->id(); });
+
+    auto projectPartNameViews = Utils::transform<std::vector<Utils::SmallStringView>>(
+        projectPartNames,
+        [](const Utils::PathString &projectPartName) { return projectPartName.toStringView(); });
+
+    m_projectPartIdCache
+        .addStrings(std::move(projectPartNameViews), [&](Utils::SmallStringView projectPartName) {
+            if (!transaction)
+                transaction = std::make_unique<Sqlite::DeferredTransaction>(
+                    m_projectPartsStorage.transactionBackend());
+            return m_projectPartsStorage.fetchProjectPartIdUnguarded(projectPartName);
+        });
+
+    if (transaction)
+        transaction->commit();
+
+} // namespace ClangPchManager
 
 } // namespace ClangPchManager

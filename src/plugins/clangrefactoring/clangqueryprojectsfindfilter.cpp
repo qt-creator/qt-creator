@@ -82,10 +82,9 @@ void ClangQueryProjectsFindFilter::requestSourceRangesAndDiagnostics(const QStri
 {
     const QString filePath = temporaryFile.fileName();
 
-    ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage message(queryText,
-                                                                           {ClangBackEnd::FilePath(filePath),
-                                                                            exampleContent,
-                                                                            {"cc",  "-std=c++1z", toNative(filePath)}});
+    ClangBackEnd::RequestSourceRangesAndDiagnosticsForQueryMessage message(
+        queryText,
+        {ClangBackEnd::FilePath(filePath), 1, exampleContent, {"cc", "-std=c++1z", toNative(filePath)}});
 
     m_server.requestSourceRangesAndDiagnosticsForQueryMessage(std::move(message));
 }
@@ -204,10 +203,9 @@ void appendSource(std::vector<ClangBackEnd::V2::FileContainer> &sources,
 
     if (!unsavedContentContains(sourceFilePath, unsavedContent) && !isCHeader(projectFile.kind)) {
         sources.emplace_back(ClangBackEnd::FilePath(projectFile.path),
+                             -1,
                              "",
-                             createCommandLine(projectPart.data(),
-                                               projectFile.path,
-                                               projectFile.kind));
+                             createCommandLine(projectPart.data(), projectFile.path, projectFile.kind));
     }
 }
 

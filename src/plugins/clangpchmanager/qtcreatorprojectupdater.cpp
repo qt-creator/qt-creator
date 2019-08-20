@@ -29,6 +29,8 @@
 
 #include <projectexplorer/project.h>
 
+#include <filepathcachinginterface.h>
+
 namespace ClangPchManager {
 
 namespace Internal {
@@ -38,16 +40,21 @@ CppTools::CppModelManager *cppModelManager()
     return CppTools::CppModelManager::instance();
 }
 
-std::vector<ClangBackEnd::V2::FileContainer> createGeneratedFiles()
+std::vector<ClangBackEnd::V2::FileContainer> createGeneratedFiles(
+    ClangBackEnd::FilePathCachingInterface &filePathCache)
 {
     auto abstractEditors = CppTools::CppModelManager::instance()->abstractEditorSupports();
     std::vector<ClangBackEnd::V2::FileContainer> generatedFiles;
     generatedFiles.reserve(std::size_t(abstractEditors.size()));
 
-    auto toFileContainer = [] (const CppTools::AbstractEditorSupport *abstractEditor) {
-        return  ClangBackEnd::V2::FileContainer(ClangBackEnd::FilePath(abstractEditor->fileName()),
-                                                Utils::SmallString::fromQByteArray(abstractEditor->contents()),
-                                                {});
+    auto toFileContainer = [&](const CppTools::AbstractEditorSupport *abstractEditor) {
+        ClangBackEnd::FilePath filePath(abstractEditor->fileName());
+        ClangBackEnd::FilePathId filePathId = filePathCache.filePathId(filePath);
+        return ClangBackEnd::V2::FileContainer(std::move(filePath),
+                                               filePathId,
+                                               Utils::SmallString::fromQByteArray(
+                                                   abstractEditor->contents()),
+                                               {});
     };
 
     std::transform(abstractEditors.begin(),

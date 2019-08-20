@@ -117,7 +117,7 @@ TEST_F(PchManagerClientServerInProcess, SendUpdateProjectPartsMessage)
 
 TEST_F(PchManagerClientServerInProcess, SendUpdateGeneratedFilesMessage)
 {
-    FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
+    FileContainer fileContainer{{"/path/to/", "file"}, 1, "content", {}};
     UpdateGeneratedFilesMessage message{{fileContainer}};
 
     EXPECT_CALL(mockPchManagerServer, updateGeneratedFiles(message));

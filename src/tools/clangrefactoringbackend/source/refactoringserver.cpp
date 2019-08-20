@@ -81,6 +81,7 @@ void RefactoringServer::requestSourceRangesForQueryMessage(RequestSourceRangesFo
 
 void RefactoringServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 {
+    m_filePathCache.populateIfEmpty();
     m_symbolIndexing.updateProjectParts(message.takeProjectsParts());
 }
 

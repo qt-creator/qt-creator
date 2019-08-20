@@ -27,6 +27,7 @@
 
 #include "clangsupport_global.h"
 #include "filepath.h"
+#include "filepathid.h"
 
 #include <vector>
 
@@ -39,13 +40,15 @@ public:
     FileContainer() = default;
 
     FileContainer(FilePath &&filePath,
+                  FilePathId filePathId,
                   Utils::SmallString &&unsavedFileContent,
                   Utils::SmallStringVector &&commandLineArguments = {},
                   quint32 documentRevision = 0)
-        : filePath(std::move(filePath)),
-          unsavedFileContent(std::move(unsavedFileContent)),
-          commandLineArguments(std::move(commandLineArguments)),
-          documentRevision(documentRevision)
+        : filePath(std::move(filePath))
+        , filePathId(filePathId)
+        , unsavedFileContent(std::move(unsavedFileContent))
+        , commandLineArguments(std::move(commandLineArguments))
+        , documentRevision(documentRevision)
     {
     }
 
@@ -81,16 +84,11 @@ public:
              < std::tie(second.filePath, second.documentRevision, second.unsavedFileContent, second.commandLineArguments);
     }
 
-    FileContainer clone() const
-    {
-        return FileContainer(filePath.clone(),
-                             unsavedFileContent.clone(),
-                             commandLineArguments.clone(),
-                             documentRevision);
-    }
+    FileContainer clone() const { return *this; }
 
 public:
     FilePath filePath;
+    FilePathId filePathId;
     Utils::SmallString unsavedFileContent;
     Utils::SmallStringVector commandLineArguments;
     quint32 documentRevision = 0;

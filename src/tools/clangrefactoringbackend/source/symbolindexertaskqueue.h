@@ -57,7 +57,7 @@ public:
         , m_database(database)
     {}
 
-    void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks)
+    void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks) override
     {
         auto merge = [] (SymbolIndexerTask &&first, SymbolIndexerTask &&second) {
             first.callable = std::move(second.callable);
@@ -71,7 +71,7 @@ public:
 
         m_progressCounter.addTotal(int(m_tasks.size() - oldSize));
     }
-    void removeTasks(const std::vector<int> &projectPartIds)
+    void removeTasks(const ProjectPartIds &projectPartIds) override
     {
         auto shouldBeRemoved = [&] (const SymbolIndexerTask& task) {
             return std::binary_search(projectPartIds.begin(), projectPartIds.end(), task.projectPartId);
@@ -91,7 +91,7 @@ public:
         return m_tasks;
     }
 
-    void processEntries()
+    void processEntries() override
     {
         auto slotUsage = m_symbolIndexerScheduler.slotUsage();
         uint taskCount = slotUsage.free;

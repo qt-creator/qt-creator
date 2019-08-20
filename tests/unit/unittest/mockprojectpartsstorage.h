@@ -36,7 +36,10 @@ public:
     MOCK_CONST_METHOD1(
         fetchProjectParts,
         ClangBackEnd::ProjectPartContainers(const ClangBackEnd::ProjectPartIds &projectPartIds));
+    MOCK_CONST_METHOD0(fetchAllProjectPartNamesAndIds, ClangBackEnd::Internal::ProjectPartNameIds());
     MOCK_CONST_METHOD1(fetchProjectPartId,
+                       ClangBackEnd::ProjectPartId(Utils::SmallStringView projectPartName));
+    MOCK_CONST_METHOD1(fetchProjectPartIdUnguarded,
                        ClangBackEnd::ProjectPartId(Utils::SmallStringView projectPartName));
     MOCK_CONST_METHOD1(fetchProjectPartName,
                        Utils::PathString(ClangBackEnd::ProjectPartId projectPartId));

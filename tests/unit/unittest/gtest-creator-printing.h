@@ -106,7 +106,7 @@ void PrintTo(Utils::SmallStringView text, ::std::ostream *os);
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
 void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 
-} // namespace ProjectExplorer
+} // namespace Utils
 
 namespace ClangBackEnd {
 class SourceLocationEntry;

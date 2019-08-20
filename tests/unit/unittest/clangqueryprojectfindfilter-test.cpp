@@ -122,9 +122,7 @@ protected:
     QString unsavedDocumentContent{"void f();"};
     std::vector<Utils::SmallStringVector> commandLines;
     std::vector<CppTools::ProjectPart::Ptr> projectsParts;
-    ClangBackEnd::V2::FileContainer unsavedContent{{"/path/to", "unsaved.cpp"},
-                                                  "void f();",
-                                                  {}};
+    ClangBackEnd::V2::FileContainer unsavedContent{{"/path/to", "unsaved.cpp"}, 1, "void f();", {}};
     ProjectExplorer::Project project;
 };
 
@@ -186,17 +184,12 @@ TEST_F(ClangQueryProjectFindFilter, FindAllIsSettingExprectedResultCountInTheRef
 
 TEST_F(ClangQueryProjectFindFilter, FindAllIsCallingRequestSourceRangesAndDiagnosticsForQueryMessage)
 {
-    ClangBackEnd::RequestSourceRangesForQueryMessage message(findDeclQueryText,
-                                                             {{{"/path/to", "file1.h"},
-                                                               "",
-                                                               commandLines[0].clone()},
-                                                              {{"/path/to", "file1.cpp"},
-                                                               "",
-                                                               commandLines[1].clone()},
-                                                              {{"/path/to", "file2.cpp"},
-                                                               "",
-                                                               commandLines[2].clone()}},
-                                                             {unsavedContent.clone()});
+    ClangBackEnd::RequestSourceRangesForQueryMessage message(
+        findDeclQueryText,
+        {{{"/path/to", "file1.h"}, 1, "", commandLines[0].clone()},
+         {{"/path/to", "file1.cpp"}, 2, "", commandLines[1].clone()},
+         {{"/path/to", "file2.cpp"}, 3, "", commandLines[2].clone()}},
+        {unsavedContent.clone()});
 
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesForQueryMessage(message));
 

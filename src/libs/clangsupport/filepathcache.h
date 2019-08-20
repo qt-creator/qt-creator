@@ -67,12 +67,19 @@ public:
     FilePathCache(FilePathStorage &filePathStorage)
         : m_filePathStorage(filePathStorage)
     {
-        m_directoryPathCache.populate(filePathStorage.fetchAllDirectories());
-        m_fileNameCache.populate(filePathStorage.fetchAllSources());
+        populateIfEmpty();
     }
 
     FilePathCache(FilePathCache &&) = default;
     FilePathCache &operator=(FilePathCache &&) = default;
+
+    void populateIfEmpty()
+    {
+        if (m_fileNameCache.isEmpty()) {
+            m_directoryPathCache.populate(m_filePathStorage.fetchAllDirectories());
+            m_fileNameCache.populate(m_filePathStorage.fetchAllSources());
+        }
+    }
 
     template<typename Cache>
     Cache clone()
@@ -126,8 +133,7 @@ public:
             return FileNameEntry{entry.sourceName, entry.directoryId};
         };
 
-        FileNameEntry entry = m_fileNameCache.string(filePathId.filePathId,
-                                                     fetchSoureNameAndDirectoryId);
+        auto entry = m_fileNameCache.string(filePathId.filePathId, fetchSoureNameAndDirectoryId);
 
         auto fetchDirectoryPath = [&] (int id) { return m_filePathStorage.fetchDirectoryPath(id); };
 
@@ -156,9 +162,6 @@ public:
             auto entry = m_filePathStorage.fetchSourceNameAndDirectoryId(id);
             return FileNameEntry{entry.sourceName, entry.directoryId};
         };
-
-        FileNameEntry entry = m_fileNameCache.string(filePathId.filePathId,
-                                                     fetchSoureNameAndDirectoryId);
 
         return m_fileNameCache.string(filePathId.filePathId, fetchSoureNameAndDirectoryId).directoryId;
     }

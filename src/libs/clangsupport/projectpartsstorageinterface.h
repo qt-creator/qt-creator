@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <projectpartcontainer.h>
+#include "projectpartcontainer.h"
+#include "projectpartstoragestructs.h"
 
 #include <sqlitetransaction.h>
 #include <utils/optional.h>
@@ -46,8 +47,10 @@ public:
 
     virtual ProjectPartContainers fetchProjectParts() const = 0;
     virtual ProjectPartContainers fetchProjectParts(const ProjectPartIds &projectPartIds) const = 0;
+    virtual ProjectPartId fetchProjectPartIdUnguarded(Utils::SmallStringView projectPartName) const = 0;
     virtual ProjectPartId fetchProjectPartId(Utils::SmallStringView projectPartName) const = 0;
     virtual Utils::PathString fetchProjectPartName(ProjectPartId projectPartId) const = 0;
+    virtual Internal::ProjectPartNameIds fetchAllProjectPartNamesAndIds() const = 0;
     virtual void updateProjectPart(ProjectPartId projectPartId,
                                    const Utils::SmallStringVector &commandLineArguments,
                                    const CompilerMacros &compilerMacros,

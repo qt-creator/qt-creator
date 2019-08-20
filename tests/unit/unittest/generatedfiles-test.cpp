@@ -35,12 +35,12 @@ using ClangBackEnd::V2::FileContainers;
 class GeneratedFiles : public testing::Test
 {
 protected:
-    FileContainer file1{"/file1", "content1"};
-    FileContainer file1b{"/file1", "content1b"};
-    FileContainer file2{"/file2", "content2"};
-    FileContainer file2b{"/file2", "content2b"};
-    FileContainer file3{"/file3", "content3"};
-    FileContainer file4{"/file4", "content4"};
+    FileContainer file1{"/file1", 1, "content1"};
+    FileContainer file1b{"/file1", 1, "content1b"};
+    FileContainer file2{"/file2", 2, "content2"};
+    FileContainer file2b{"/file2", 2, "content2b"};
+    FileContainer file3{"/file3", 3, "content3"};
+    FileContainer file4{"/file4", 4, "content4"};
     ClangBackEnd::GeneratedFiles generatedFiles;
 };
 
@@ -76,7 +76,7 @@ TEST_F(GeneratedFiles, IsValidForNoGeneratedFiles)
 
 TEST_F(GeneratedFiles, IsNotValidIfFilesWithNotContentExists)
 {
-    generatedFiles.update({{"/file2", ""}});
+    generatedFiles.update({{"/file2", 2, ""}});
 
     ASSERT_FALSE(generatedFiles.isValid());
 }
@@ -86,4 +86,15 @@ TEST_F(GeneratedFiles, IsValidIfAllFilesHasContent)
     generatedFiles.update({file1, file2, file3, file4});
 
     ASSERT_TRUE(generatedFiles.isValid());
-}}
+}
+
+TEST_F(GeneratedFiles, GetFilePathIds)
+{
+    generatedFiles.update({file3, file2, file1, file4});
+
+    auto ids = generatedFiles.filePathIds();
+
+    ASSERT_THAT(ids, ElementsAre(1, 2, 3, 4));
+}
+
+} // namespace

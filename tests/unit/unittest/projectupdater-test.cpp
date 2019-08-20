@@ -66,10 +66,11 @@ using testing::NiceMock;
 using testing::AnyNumber;
 
 using ClangBackEnd::CompilerMacro;
+using ClangBackEnd::FilePath;
 using ClangBackEnd::IncludeSearchPath;
 using ClangBackEnd::IncludeSearchPathType;
-using ClangBackEnd::V2::FileContainer;
 using ClangBackEnd::ProjectPartContainer;
+using ClangBackEnd::V2::FileContainer;
 using CppTools::CompilerOptionsBuilder;
 using ProjectExplorer::HeaderPath;
 
@@ -182,9 +183,18 @@ protected:
     CppTools::ProjectPart nonBuildingProjectPart;
     ProjectPartContainer expectedContainer;
     ProjectPartContainer expectedContainer2;
-    FileContainer generatedFile{{"/path/to", "header1.h"}, "content", {}};
-    FileContainer generatedFile2{{"/path/to2", "header1.h"}, "content", {}};
-    FileContainer generatedFile3{{"/path/to", "header2.h"}, "content", {}};
+    FileContainer generatedFile{{"/path/to", "header1.h"},
+                                filePathCache.filePathId(FilePath{"/path/to", "header1.h"}),
+                                "content",
+                                {}};
+    FileContainer generatedFile2{{"/path/to2", "header1.h"},
+                                 filePathCache.filePathId(FilePath{"/path/to2", "header1.h"}),
+                                 "content",
+                                 {}};
+    FileContainer generatedFile3{{"/path/to", "header2.h"},
+                                 filePathCache.filePathId(FilePath{"/path/to", "header2.h"}),
+                                 "content",
+                                 {}};
 };
 
 TEST_F(ProjectUpdater, CallUpdateProjectParts)
@@ -271,6 +281,7 @@ TEST_F(ProjectUpdater, CallPrecompiledHeaderRemovedInPchManagerProjectUpdater)
 TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainer)
 {
     updater.setExcludedPaths({"/path/to/header1.h"});
+    updater.fetchProjectPartIds({&projectPart});
 
     auto container = updater.toProjectPartContainer(&projectPart);
 
@@ -279,21 +290,23 @@ TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainer)
 
 TEST_F(ProjectUpdater, ConvertProjectPartToProjectPartContainersHaveSameSizeLikeProjectParts)
 {
+    updater.fetchProjectPartIds({&projectPart, &nonBuildingProjectPart});
+
     auto containers = updater.toProjectPartContainers(
         {&projectPart, &projectPart, &nonBuildingProjectPart});
 
     ASSERT_THAT(containers, SizeIs(2));
 }
 
-TEST_F(ProjectUpdater, CallStorageInsideTransaction)
+TEST_F(ProjectUpdater, ProjectPartIdsPrefetchingInsideTransaction)
 {
     InSequence s;
     CppTools::ProjectPart projectPart;
     projectPart.project = &project;
     projectPart.displayName = "project";
     Utils::SmallString projectPartName = projectPart.id();
-    MockSqliteTransactionBackend mockSqliteTransactionBackend;
-    MockProjectPartsStorage mockProjectPartsStorage;
+    NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
+    NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
     ON_CALL(mockProjectPartsStorage, transactionBackend())
         .WillByDefault(ReturnRef(mockSqliteTransactionBackend));
     ClangPchManager::ClangIndexingSettingsManager settingsManager;
@@ -302,9 +315,11 @@ TEST_F(ProjectUpdater, CallStorageInsideTransaction)
                                             mockProjectPartsStorage,
                                             settingsManager};
 
-    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartId(Eq(projectPartName)));
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartIdUnguarded(Eq(projectPartName)));
+    EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
-    updater.toProjectPartContainers({&projectPart});
+    updater.fetchProjectPartIds({&projectPart});
 }
 
 TEST_F(ProjectUpdater, CreateSortedExcludedPaths)
@@ -476,7 +491,8 @@ TEST_F(ProjectUpdater, AddProjectFilesToFilePathCache)
     NiceMock<MockFilePathCaching> mockFilePathCaching;
     ClangPchManager::ProjectUpdater updater{mockPchManagerServer,
                                             mockFilePathCaching,
-                                            projectPartsStorage};
+                                            projectPartsStorage,
+                                            settingsManager};
 
     EXPECT_CALL(mockFilePathCaching,
                 addFilePaths(UnorderedElementsAre(Eq(headerPaths[0]),
@@ -487,6 +503,39 @@ TEST_F(ProjectUpdater, AddProjectFilesToFilePathCache)
     updater.updateProjectParts({&projectPart}, {});
 }
 
-// test for update many time and get the same id
+TEST_F(ProjectUpdater, FillProjectPartIdCacheAtCreation)
+{
+    NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
+
+    EXPECT_CALL(mockProjectPartsStorage, fetchAllProjectPartNamesAndIds());
+
+    ClangPchManager::ProjectUpdater updater{mockPchManagerServer,
+                                            filePathCache,
+                                            mockProjectPartsStorage,
+                                            settingsManager};
+}
+
+TEST_F(ProjectUpdater, DontFetchProjectPartIdFromDatabaseIfItIsInCache)
+{
+    projectPart.files.clear();
+    NiceMock<MockSqliteTransactionBackend> mockSqliteTransactionBackend;
+    NiceMock<MockProjectPartsStorage> mockProjectPartsStorage;
+    ON_CALL(mockProjectPartsStorage, transactionBackend())
+        .WillByDefault(ReturnRef(mockSqliteTransactionBackend));
+    ON_CALL(mockProjectPartsStorage, fetchAllProjectPartNamesAndIds())
+        .WillByDefault(Return(
+            ClangBackEnd::Internal::ProjectPartNameIds{{Utils::PathString(projectPart.id()), 55}}));
+    ClangPchManager::ProjectUpdater updater{mockPchManagerServer,
+                                            filePathCache,
+                                            mockProjectPartsStorage,
+                                            settingsManager};
+
+    EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin()).Times(0);
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartId(_)).Times(0);
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartIdUnguarded(_)).Times(0);
+    EXPECT_CALL(mockSqliteTransactionBackend, commit()).Times(0);
+
+    updater.updateProjectParts({&projectPart}, {});
+}
 
 } // namespace

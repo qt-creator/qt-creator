@@ -57,6 +57,11 @@ void FilePathCaching::addFilePaths(const FilePaths &filePaths)
     m_cache.addFilePaths(filePaths);
 }
 
+void FilePathCaching::populateIfEmpty()
+{
+    m_cache.populateIfEmpty();
+}
+
 FilePathId CopyableFilePathCaching::filePathId(FilePathView filePath) const
 {
     return m_cache.filePathId(filePath);
@@ -85,6 +90,11 @@ DirectoryPathId CopyableFilePathCaching::directoryPathId(FilePathId filePathId) 
 void CopyableFilePathCaching::addFilePaths(const FilePaths &filePaths)
 {
     m_cache.addFilePaths(filePaths);
+}
+
+void CopyableFilePathCaching::populateIfEmpty()
+{
+    m_cache.populateIfEmpty();
 }
 
 } // namespace ClangBackEnd

@@ -56,27 +56,6 @@ namespace {
 
 enum class Change { System, Project, No };
 
-Change changedSourceType(const SourceEntries &sources)
-{
-    Change change = Change::No;
-    for (SourceEntry sourceEntry : sources) {
-        switch (sourceEntry.sourceType) {
-        case SourceType::SystemInclude:
-        case SourceType::TopSystemInclude:
-            return Change::System;
-        case SourceType::ProjectInclude:
-        case SourceType::TopProjectInclude:
-            change = Change::Project;
-            break;
-        case SourceType::Source:
-        case SourceType::UserInclude:
-            break;
-        }
-    }
-
-    return change;
-}
-
 Change changedSourceType(SourceEntry sourceEntry, Change oldChange)
 {
     switch (sourceEntry.sourceType) {
@@ -107,16 +86,6 @@ FilePathIds existingSources(const FilePathIds &sources, const FilePathIds &gener
                         std::back_inserter(existingSources));
 
     return existingSources;
-}
-
-FilePathIds toFilePathIds(const V2::FileContainers &fileContainers,
-                          FilePathCachingInterface &filePathCache)
-{
-    auto filePaths = Utils::transform<std::vector<FilePathView>>(
-        fileContainers,
-        [](const V2::FileContainer &container) { return FilePathView(container.filePath); });
-
-    return filePathCache.filePathIds(filePaths);
 }
 
 } // namespace
@@ -175,7 +144,7 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
 
     auto systemSplit = updateSystemProjectParts.end();
 
-    FilePathIds generatedFiles = toFilePathIds(m_generatedFiles.fileContainers(), m_filePathCache);
+    FilePathIds generatedFiles = m_generatedFiles.filePathIds();
 
     std::vector<IdPaths> watchedIdPaths;
     watchedIdPaths.reserve(upToDateProjectParts.size() * 4);

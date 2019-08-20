@@ -27,6 +27,8 @@
 
 #include <queueinterface.h>
 
+#include <projectpartid.h>
+
 #include <utils/smallstringvector.h>
 
 namespace ClangBackEnd {
@@ -38,8 +40,8 @@ class SymbolIndexerTaskQueueInterface : public QueueInterface
 public:
     virtual void addOrUpdateTasks(std::vector<SymbolIndexerTask> &&tasks) = 0
     /* [[expects: std::is_sorted(tasks)]] */;
-    virtual void removeTasks(const std::vector<int> &projectPartIds) = 0
-    /* [[expects: std::is_sorted(projectPartIds)]] */;
+    virtual void removeTasks(const ProjectPartIds &projectPartIds) = 0
+        /* [[expects: std::is_sorted(projectPartIds)]] */;
 
 protected:
     ~SymbolIndexerTaskQueueInterface() = default;

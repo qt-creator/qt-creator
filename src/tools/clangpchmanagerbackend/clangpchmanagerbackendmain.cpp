@@ -232,9 +232,8 @@ struct Data // because we have a cycle dependency
                                            pchTaskGenerator,
                                            projectParts,
                                            generatedFiles,
-                                           buildDependencyStorage/*,
-                                           buildDependencyProvider,
-                                           filePathCache*/};
+                                           buildDependencyStorage,
+                                           filePathCache};
     TaskScheduler systemTaskScheduler{pchCreatorManager,
                                       pchTaskQueue,
                                       pchCreationProgressCounter,

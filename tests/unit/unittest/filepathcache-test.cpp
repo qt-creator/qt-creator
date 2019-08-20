@@ -79,6 +79,7 @@ protected:
     NiceMock<MockFilePathStorage> mockStorage{mockDatabase};
     Cache cache{mockStorage};
     NiceMock<MockFilePathStorage> mockStorageFilled{mockDatabase};
+    Cache cacheNotFilled{mockStorageFilled};
 };
 
 TEST_F(FilePathCache, FilePathIdWithOutAnyEntryCallDirectoryId)
@@ -439,4 +440,51 @@ TEST_F(FilePathCache, UseTransactionIfAddingFilesOnlyInAddFilePathsCalls)
 
     cacheFilled.addFilePaths(FilePathViews{"/path/to/file.h"});
 }
+
+TEST_F(FilePathCache, GetFileIdInAfterPopulateIfEmpty)
+{
+    cacheNotFilled.populateIfEmpty();
+
+    auto id = cacheNotFilled.filePathId("/path2/to/file.cpp");
+
+    ASSERT_THAT(id, Eq(72));
+}
+
+TEST_F(FilePathCache, DontPopulateIfNotEmpty)
+{
+    cacheNotFilled.filePathId("/path/to/file.cpp");
+    cacheNotFilled.populateIfEmpty();
+
+    auto id = cacheNotFilled.filePathId("/path2/to/file.cpp");
+
+    ASSERT_FALSE(id.isValid());
+}
+
+TEST_F(FilePathCache, GetDirectoryIdAfterPopulateIfEmpty)
+{
+    cacheNotFilled.populateIfEmpty();
+
+    auto id = cacheNotFilled.directoryPathId(42);
+
+    ASSERT_THAT(id, Eq(5));
+}
+
+TEST_F(FilePathCache, GetDirectoryPathAfterPopulateIfEmpty)
+{
+    cacheNotFilled.populateIfEmpty();
+
+    auto path = cacheNotFilled.directoryPath(5);
+
+    ASSERT_THAT(path, Eq("/path/to"));
+}
+
+TEST_F(FilePathCache, GetFilePathAfterPopulateIfEmptye)
+{
+    cacheNotFilled.populateIfEmpty();
+
+    auto path = cacheNotFilled.filePath(42);
+
+    ASSERT_THAT(path, Eq("/path/to/file.cpp"));
+}
+
 } // namespace

@@ -203,6 +203,7 @@ protected:
                                       Utils::LanguageVersion::CXX14,
                                       Utils::LanguageExtension::None};
     FileContainers unsaved{{{TESTDATA_DIR, "query_simplefunction.h"},
+                            filePathId(TESTDATA_DIR "/query_simplefunction.h"),
                             "void f();",
                             {}}};
     SymbolEntries symbolEntries{{1, {"function", "function", SymbolKind::Function}}};

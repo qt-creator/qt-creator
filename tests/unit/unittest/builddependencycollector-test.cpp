@@ -106,6 +106,7 @@ protected:
 
         collector.addUnsavedFiles(
             {{{TESTDATA_DIR, "BuildDependencyCollector/project/generated_file.h"},
+              id(TESTDATA_DIR "/BuildDependencyCollector/project/generated_file.h"),
               "#pragma once",
               {}}});
 
@@ -741,6 +742,7 @@ TEST_F(BuildDependencyCollector, GeneratedFile)
 {
     generatedFiles.update(
         {{TESTDATA_DIR "/builddependencycollector/project/generated/generated_file.h",
+          id(TESTDATA_DIR "/builddependencycollector/project/generated/generated_file.h"),
           "#pragma once"}});
     emptyCollector.addFile(id(TESTDATA_DIR "/builddependencycollector/project/main6.cpp"),
                            {"cc",
@@ -754,9 +756,9 @@ TEST_F(BuildDependencyCollector, GeneratedFile)
 
     emptyCollector.collect();
 
-    ASSERT_THAT(
-        emptyCollector.sourceEntries(),
-        ElementsAre(HasSource(id(TESTDATA_DIR "/builddependencycollector/project/main6.cpp"),
+    ASSERT_THAT(emptyCollector.sourceEntries(),
+                UnorderedElementsAre(
+                    HasSource(id(TESTDATA_DIR "/builddependencycollector/project/main6.cpp"),
                               SourceType::Source),
                     HasSource(id(TESTDATA_DIR
                                  "/builddependencycollector/project/generated/generated_file.h"),
@@ -783,8 +785,9 @@ TEST_F(BuildDependencyCollector, Create)
 {
     using ClangBackEnd::IncludeSearchPathType;
     ClangBackEnd::BuildDependencyCollector collector{filePathCache, generatedFiles, environment};
-    generatedFiles.update(
-        {{TESTDATA_DIR "/builddependencycollector/project/generated_file.h", "#pragma once"}});
+    generatedFiles.update({{TESTDATA_DIR "/builddependencycollector/project/generated_file.h",
+                            id(TESTDATA_DIR "/builddependencycollector/project/generated_file.h"),
+                            "#pragma once"}});
     ClangBackEnd::ProjectPartContainer projectPart{
         1,
         {},

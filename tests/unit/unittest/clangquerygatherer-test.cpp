@@ -59,10 +59,10 @@ using testing::SizeIs;
 using testing::UnorderedElementsAre;
 using testing::_;
 
-using ClangBackEnd::V2::FileContainer;
+using ClangBackEnd::FilePath;
+using ClangBackEnd::SourceRangesContainer;
 using ClangBackEnd::SourceRangesForQueryMessage;
-using ClangBackEnd::SourceRangesContainer;
-using ClangBackEnd::SourceRangesContainer;
+using ClangBackEnd::V2::FileContainer;
 
 MATCHER_P2(Contains, line, column,
            std::string(negation ? "isn't " : "is ")
@@ -86,22 +86,20 @@ protected:
     ClangBackEnd::FilePathCaching filePathCache{database};
     Utils::SmallString sourceContent{"#include \"query_simplefunction.h\"\nvoid f() {}"};
     FileContainer source{{TESTDATA_DIR, "query_simplefunction.cpp"},
+                         filePathCache.filePathId(FilePath{TESTDATA_DIR, "query_simplefunction.cpp"}),
                          sourceContent.clone(),
-                         {"cc",
-                          "-I",
-                          TESTDATA_DIR}};
+                         {"cc", "-I", TESTDATA_DIR}};
     FileContainer source2{{TESTDATA_DIR, "query_simplefunction2.cpp"},
+                          filePathCache.filePathId(FilePath{TESTDATA_DIR, "query_simplefunction2.cpp"}),
                           {},
-                          {"cc",
-                           "-I",
-                           TESTDATA_DIR}};
+                          {"cc", "-I", TESTDATA_DIR}};
     FileContainer source3{{TESTDATA_DIR, "query_simplefunction3.cpp"},
+                          filePathCache.filePathId(FilePath{TESTDATA_DIR, "query_simplefunction3.cpp"}),
                           {},
-                          {"cc",
-                           "-I",
-                           TESTDATA_DIR}};
+                          {"cc", "-I", TESTDATA_DIR}};
     Utils::SmallString unsavedContent{"void f();"};
     FileContainer unsaved{{TESTDATA_DIR, "query_simplefunction.h"},
+                          filePathCache.filePathId(FilePath{TESTDATA_DIR, "query_simplefunction.h"}),
                           unsavedContent.clone(),
                           {}};
     Utils::SmallString query{"functionDecl()"};

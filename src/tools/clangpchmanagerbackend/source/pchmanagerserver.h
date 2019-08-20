@@ -40,6 +40,7 @@ namespace ClangBackEnd {
 class SourceRangesAndDiagnosticsForQueryMessage;
 class PchTaskGeneratorInterface;
 class BuildDependenciesStorageInterface;
+class FilePathCachingInterface;
 
 class PchManagerServer : public PchManagerServerInterface,
                          public ClangPathWatcherNotifier,
@@ -51,7 +52,8 @@ public:
                      PchTaskGeneratorInterface &pchTaskGenerator,
                      ProjectPartsManagerInterface &projectParts,
                      GeneratedFilesInterface &generatedFiles,
-                     BuildDependenciesStorageInterface &buildDependenciesStorage);
+                     BuildDependenciesStorageInterface &buildDependenciesStorage,
+                     FilePathCachingInterface &filePathCache);
 
     void end() override;
     void updateProjectParts(UpdateProjectPartsMessage &&message) override;
@@ -76,6 +78,7 @@ private:
     GeneratedFilesInterface &m_generatedFiles;
     BuildDependenciesStorageInterface &m_buildDependenciesStorage;
     ToolChainsArgumentsCache m_toolChainsArgumentsCache;
+    FilePathCachingInterface &m_filePathCache;
 };
 
 } // namespace ClangBackEnd

@@ -264,8 +264,10 @@ TEST_F(SymbolsCollector, ReferencedSymboldMatchesLocation)
 
 TEST_F(SymbolsCollector, DISABLED_ON_WINDOWS(CollectInUnsavedFile))
 {
-    FileContainers unsaved{
-        {{TESTDATA_DIR, "symbolscollector/generated_file.h"}, "void function();", {}}};
+    FileContainers unsaved{{{TESTDATA_DIR, "symbolscollector/generated_file.h"},
+                            filePathId({TESTDATA_DIR, "symbolscollector/generated_file.h"}),
+                            "void function();",
+                            {}}};
     collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/unsaved.cpp"), {"cc"});
     collector.setUnsavedFiles(std::move(unsaved));
 

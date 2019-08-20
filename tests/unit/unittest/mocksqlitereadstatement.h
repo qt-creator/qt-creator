@@ -34,6 +34,7 @@
 #include <projectpartartefact.h>
 #include <projectpartcontainer.h>
 #include <projectpartpch.h>
+#include <projectpartstoragestructs.h>
 #include <sourceentry.h>
 #include <stringcachefwd.h>
 #include <symbol.h>
@@ -59,6 +60,8 @@ using std::int64_t;
 namespace Sources = ClangBackEnd::Sources;
 using ClangBackEnd::PrecompiledHeaderTimeStamps;
 using ClangBackEnd::UsedMacros;
+using ClangBackEnd::Internal::ProjectPartNameId;
+using ClangBackEnd::Internal::ProjectPartNameIds;
 using ClangRefactoring::Symbol;
 using ClangRefactoring::Symbols;
 
@@ -90,6 +93,8 @@ public:
     MOCK_METHOD2(valuesReturnUsedMacros, UsedMacros(std::size_t, int));
 
     MOCK_METHOD2(valuesReturnFilePathIds, FilePathIds(std::size_t, int));
+
+    MOCK_METHOD1(valuesReturnProjectPartNameIds, ProjectPartNameIds(std::size_t));
 
     MOCK_METHOD1(valueReturnInt32, Utils::optional<int>(Utils::SmallStringView));
 
@@ -226,9 +231,11 @@ std::vector<Sources::Directory> MockSqliteReadStatement::values<Sources::Directo
 template<>
 std::vector<Sources::Source> MockSqliteReadStatement::values<Sources::Source, 3>(std::size_t reserveSize);
 
-template <>
-Utils::optional<int>
-MockSqliteReadStatement::value<int>(const Utils::SmallStringView&);
+template<>
+ProjectPartNameIds MockSqliteReadStatement::values<ProjectPartNameId, 2>(std::size_t reserveSize);
+
+template<>
+Utils::optional<int> MockSqliteReadStatement::value<int>(const Utils::SmallStringView &);
 
 template <>
 Utils::optional<int>

@@ -45,6 +45,7 @@ public:
     virtual DirectoryPathId directoryPathId(FilePathId filePathId) const = 0;
     virtual Utils::PathString directoryPath(DirectoryPathId directoryPathId) const = 0;
     virtual void addFilePaths(const ClangBackEnd::FilePaths &filePaths) = 0;
+    virtual void populateIfEmpty() = 0;
 
     template<typename Container>
     FilePathIds filePathIds(Container &&filePaths) const

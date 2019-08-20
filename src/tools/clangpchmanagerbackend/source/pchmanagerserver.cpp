@@ -41,6 +41,7 @@
 #include <utils/smallstring.h>
 
 #include <QApplication>
+#include <QDirIterator>
 
 #include <algorithm>
 
@@ -50,12 +51,14 @@ PchManagerServer::PchManagerServer(ClangPathWatcherInterface &fileSystemWatcher,
                                    PchTaskGeneratorInterface &pchTaskGenerator,
                                    ProjectPartsManagerInterface &projectParts,
                                    GeneratedFilesInterface &generatedFiles,
-                                   BuildDependenciesStorageInterface &buildDependenciesStorage)
+                                   BuildDependenciesStorageInterface &buildDependenciesStorage,
+                                   FilePathCachingInterface &filePathCache)
     : m_fileSystemWatcher(fileSystemWatcher)
     , m_pchTaskGenerator(pchTaskGenerator)
     , m_projectPartsManager(projectParts)
     , m_generatedFiles(generatedFiles)
     , m_buildDependenciesStorage(buildDependenciesStorage)
+    , m_filePathCache(filePathCache)
 {
     m_fileSystemWatcher.setNotifier(this);
 }
@@ -73,10 +76,43 @@ ProjectPartIds toProjectPartIds(const ProjectPartContainers &projectParts)
     });
 }
 
+FilePaths gatherPathsInIncludePaths(const ProjectPartContainers &projectParts)
+{
+    FilePaths filePaths;
+
+    for (const ProjectPartContainer &projectPart : projectParts) {
+        for (const IncludeSearchPath &searchPath : projectPart.projectIncludeSearchPaths) {
+            QDirIterator directoryIterator(QString{searchPath.path},
+                                           {"*.h", "*.hpp"},
+                                           QDir::Files,
+                                           QDirIterator::FollowSymlinks
+                                               | QDirIterator::Subdirectories);
+            while (directoryIterator.hasNext()) {
+                filePaths.emplace_back(directoryIterator.next());
+            }
+        }
+        for (const IncludeSearchPath &searchPath : projectPart.systemIncludeSearchPaths) {
+            QDirIterator directoryIterator(QString{searchPath.path},
+                                           {"*.h", "*.hpp"},
+                                           QDir::Files,
+                                           QDirIterator::FollowSymlinks);
+            while (directoryIterator.hasNext()) {
+                filePaths.emplace_back(directoryIterator.next());
+            }
+        }
+    }
+
+    return filePaths;
+}
+
 } // namespace
 
 void PchManagerServer::updateProjectParts(UpdateProjectPartsMessage &&message)
 {
+    m_filePathCache.populateIfEmpty();
+
+    m_filePathCache.addFilePaths(gatherPathsInIncludePaths(message.projectsParts));
+
     m_toolChainsArgumentsCache.update(message.projectsParts, message.toolChainArguments);
 
     auto upToDateProjectParts = m_projectPartsManager.update(message.takeProjectsParts());

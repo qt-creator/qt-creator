@@ -38,6 +38,7 @@ public:
     bool isValid() const;
 
     const V2::FileContainers &fileContainers() const;
+    FilePathIds filePathIds() const;
 
 private:
     V2::FileContainers m_fileContainers;

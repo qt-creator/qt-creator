@@ -129,8 +129,8 @@ TEST_F(RefactoringClientServerInProcess, RequestSourceRangesAndDiagnosticsForQue
 {
     RequestSourceRangesForQueryMessage message{
         "functionDecl()",
-        {{{TESTDATA_DIR, "query_simplefunction.cpp"}, "void f();", {"cc"}, 1}},
-        {{{TESTDATA_DIR, "query_simplefunction.h"}, "void f();", {}, 1}}};
+        {{{TESTDATA_DIR, "query_simplefunction.cpp"}, 1, "void f();", {"cc"}, 1}},
+        {{{TESTDATA_DIR, "query_simplefunction.h"}, 2, "void f();", {}, 1}}};
 
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesForQueryMessage(message));
 
@@ -143,12 +143,13 @@ TEST_F(RefactoringClientServerInProcess, RequestSourceRangesForQueryMessage)
     RequestSourceRangesForQueryMessage message{
         "functionDecl()",
         {{{TESTDATA_DIR, "query_simplefunction.cpp"},
+          1,
           "void f();",
           {
               "cc",
           },
           1}},
-        {{{TESTDATA_DIR, "query_simplefunction.h"}, "void f();", {}, 1}}};
+        {{{TESTDATA_DIR, "query_simplefunction.h"}, 2, "void f();", {}, 1}}};
 
     EXPECT_CALL(mockRefactoringServer, requestSourceRangesForQueryMessage(message));
 
@@ -182,7 +183,7 @@ TEST_F(RefactoringClientServerInProcess, SendUpdateProjectPartsMessage)
 
 TEST_F(RefactoringClientServerInProcess, SendUpdateGeneratedFilesMessage)
 {
-    FileContainer fileContainer{{"/path/to/", "file"}, "content", {}};
+    FileContainer fileContainer{{"/path/to/", "file"}, 1, "content", {}};
     UpdateGeneratedFilesMessage message{{fileContainer}};
 
     EXPECT_CALL(mockRefactoringServer, updateGeneratedFiles(message));

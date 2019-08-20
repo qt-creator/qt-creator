@@ -43,4 +43,5 @@ public:
     MOCK_CONST_METHOD1(directoryPathId,
                        ClangBackEnd::DirectoryPathId(ClangBackEnd::FilePathId filePathId));
     MOCK_METHOD1(addFilePaths, void(const ClangBackEnd::FilePaths &filePaths));
+    MOCK_METHOD0(populateIfEmpty, void());
 };

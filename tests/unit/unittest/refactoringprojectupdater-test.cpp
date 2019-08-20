@@ -64,6 +64,10 @@ MATCHER_P(IsProjectPartContainer,
 class RefactoringProjectUpdater : public testing::Test
 {
 protected:
+    RefactoringProjectUpdater()
+    {
+        ON_CALL(mockProjectPartsStorage, transactionBackend()).WillByDefault(ReturnRef(database));
+    }
     ProjectPart::Ptr createProjectPart(const char *name)
     {
         ProjectPart::Ptr projectPart{new ProjectPart};
@@ -115,8 +119,6 @@ TEST_F(RefactoringProjectUpdater, UpdateProjectPart)
         .WillRepeatedly(Return(QString(" project1")));
     EXPECT_CALL(mockCppModelManager, projectPartForId(Eq(QString(" project1"))))
         .WillRepeatedly(Return(createProjectPart("project1")));
-    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartId(Eq(" project1")))
-        .WillOnce(Return(ClangBackEnd::ProjectPartId{3}));
     EXPECT_CALL(mockRefactoringServer,
                 updateProjectParts(Field(&UpdateProjectPartsMessage::projectsParts,
                                          ElementsAre(IsProjectPartContainer(3)))));

@@ -109,6 +109,12 @@ std::vector<Sources::Source> MockSqliteReadStatement::values<Sources::Source, 3>
     return valuesReturnStdVectorSource(reserveSize);
 }
 
+template<>
+ProjectPartNameIds MockSqliteReadStatement::values<ProjectPartNameId, 2>(std::size_t reserveSize)
+{
+    return valuesReturnProjectPartNameIds(reserveSize);
+}
+
 template <>
 Utils::optional<int>
 MockSqliteReadStatement::value<int>(const Utils::SmallStringView &text)

@@ -56,6 +56,7 @@ public:
     Utils::PathString directoryPath(DirectoryPathId directoryPathId) const override;
     DirectoryPathId directoryPathId(FilePathId filePathId) const override;
     void addFilePaths(const ClangBackEnd::FilePaths &filePaths) override;
+    void populateIfEmpty() override;
 
 private:
     Factory m_factory;
@@ -80,6 +81,7 @@ public:
     Utils::PathString directoryPath(DirectoryPathId directoryPathId) const override;
     DirectoryPathId directoryPathId(FilePathId filePathId) const override;
     void addFilePaths(const ClangBackEnd::FilePaths &filePaths) override;
+    void populateIfEmpty() override;
 
 private:
     Cache m_cache;

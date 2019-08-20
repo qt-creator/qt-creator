@@ -40,6 +40,7 @@
 #include <mutex>
 
 using ClangBackEnd::ClangQuery;
+using ClangBackEnd::FilePath;
 using ClangBackEnd::FilePathCaching;
 using ClangBackEnd::RefactoringDatabaseInitializer;
 
@@ -98,7 +99,11 @@ TEST_F(ClangQuerySlowTest, SourceRangeInUnsavedFileDeclarationRange)
                   "#include \"unsaved.h\"",
                   {"cc", "-std=c++14"});
     query.setQuery("functionDecl()");
-    ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "unsaved.h"}, "void unsaved();", {}};
+    ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR, "unsaved.h"},
+                                                filePathCache.filePathId(
+                                                    FilePath{TESTDATA_DIR, "unsaved.h"}),
+                                                "void unsaved();",
+                                                {}};
     query.addUnsavedFiles({unsavedFile});
 
     query.findLocations();
@@ -125,6 +130,8 @@ TEST_F(ClangQuerySlowTest, DISABLED_SourceRangeInUnsavedFileDeclarationRangeOver
     query.addFile({TESTDATA_DIR "/query_simplefunction.cpp"}, "void f() {}", {"cc", "-std=c++14"});
     query.setQuery("functionDecl()");
     ClangBackEnd::V2::FileContainer unsavedFile{{TESTDATA_DIR "/query_simplefunction.cpp"},
+                                                filePathCache.filePathId(
+                                                    FilePath{TESTDATA_DIR, "query_simplefunction.cpp"}),
                                                 "void unsaved();",
                                                 {}};
     query.addUnsavedFiles({unsavedFile});

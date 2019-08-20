@@ -91,7 +91,7 @@ protected:
 
     ClangBackEnd::FilePathId id(ClangBackEnd::FilePathView path)
     {
-        return creator.filePathCache().filePathId(path);
+        return filePathCache.filePathId(path);
     }
 
     FilePathIds sorted(FilePathIds &&filePathIds)
@@ -104,17 +104,17 @@ protected:
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> databaseInitializer{database};
+    ClangBackEnd::FilePathCaching filePathCache{database};
     FilePath main1Path = TESTDATA_DIR "/builddependencycollector/project/main3.cpp";
     FilePath main2Path = TESTDATA_DIR "/builddependencycollector/project/main2.cpp";
     FilePath header1Path = TESTDATA_DIR "/builddependencycollector/project/header1.h";
     FilePath header2Path = TESTDATA_DIR "/builddependencycollector/project/header2.h";
     FilePath generatedFilePath = TESTDATA_DIR "/builddependencycollector/project/generated_file.h";
     TestEnvironment environment;
-    FileContainer generatedFile{generatedFilePath.clone(), "#pragma once", {}};
+    FileContainer generatedFile{generatedFilePath.clone(), id(generatedFilePath), "#pragma once", {}};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     NiceMock<MockClangPathWatcher> mockClangPathWatcher;
     NiceMock<MockBuildDependenciesStorage> mockBuildDependenciesStorage;
-    ClangBackEnd::FilePathCaching filePathCache{database};
     ClangBackEnd::PchCreator creator{environment,
                                      filePathCache,
                                      mockPchManagerClient,

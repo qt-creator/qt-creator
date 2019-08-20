@@ -27,6 +27,7 @@
 
 #include "mockbuilddependenciesstorage.h"
 #include "mockclangpathwatcher.h"
+#include "mockfilepathcaching.h"
 #include "mockgeneratedfiles.h"
 #include "mockpchmanagerclient.h"
 #include "mockpchtaskgenerator.h"
@@ -77,11 +78,13 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ClangBackEnd::RefactoringDatabaseInitializer<Sqlite::Database> initializer{database};
     ClangBackEnd::FilePathCaching filePathCache{database};
+    NiceMock<MockFilePathCaching> mockFilePathCache;
     ClangBackEnd::PchManagerServer server{mockClangPathWatcher,
                                           mockPchTaskGenerator,
                                           mockProjectPartsManager,
                                           mockGeneratedFiles,
-                                          mockBuildDependenciesStorage};
+                                          mockBuildDependenciesStorage,
+                                          mockFilePathCache};
     NiceMock<MockPchManagerClient> mockPchManagerClient;
     ClangBackEnd::ProjectPartId projectPartId1{1};
     ClangBackEnd::ProjectPartId projectPartId2{2};
@@ -98,7 +101,7 @@ protected:
         projectPartId1,
         {"-I", TESTDATA_DIR, "-Wno-pragma-once-outside-header"},
         {{"DEFINE", "1", 1}},
-        {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
+        {{TESTDATA_DIR "/symbolscollector/include", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
         {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
         {id(header1Path)},
         {id(main1Path)},
@@ -110,7 +113,7 @@ protected:
         {"-x", "c++-header", "-Wno-pragma-once-outside-header"},
         {{"DEFINE", "1", 1}},
         {{"/includes", 1, ClangBackEnd::IncludeSearchPathType::BuiltIn}},
-        {{"/project/includes", 1, ClangBackEnd::IncludeSearchPathType::User}},
+        {{TESTDATA_DIR "/builddependencycollector", 1, ClangBackEnd::IncludeSearchPathType::User}},
         {id(header2Path)},
         {id(main2Path)},
         Utils::Language::C,
@@ -165,7 +168,7 @@ protected:
     std::vector<ProjectPartContainer> projectParts2{projectPart2};
     std::vector<ProjectPartContainer> projectParts3{projectPart3};
     std::vector<ProjectPartContainer> projectParts4{projectPart3, projectPart4};
-    FileContainer generatedFile{{"/path/to/", "file"}, "content", {}};
+    FileContainer generatedFile{{"/path/to/", "file"}, id("/path/to/file"), "content", {}};
     ClangBackEnd::UpdateProjectPartsMessage updateProjectPartsMessage{
         Utils::clone(projectParts), {"toolChainArgument"}};
     ClangBackEnd::RemoveProjectPartsMessage removeProjectPartsMessage{
@@ -226,7 +229,8 @@ TEST_F(PchManagerServer, SetPathWatcherNotifier)
                                           mockPchTaskGenerator,
                                           mockProjectPartsManager,
                                           mockGeneratedFiles,
-                                          mockBuildDependenciesStorage};
+                                          mockBuildDependenciesStorage,
+                                          filePathCache};
 }
 
 TEST_F(PchManagerServer, UpdateProjectPartQueueByPathIds)
@@ -416,6 +420,22 @@ TEST_F(PchManagerServer, SentUpToDateProjectPartIdsToClient)
                 precompiledHeadersUpdated(
                     Field(&ClangBackEnd::PrecompiledHeadersUpdatedMessage::projectPartIds,
                           ElementsAre(Eq(projectPart1.projectPartId)))));
+
+    server.updateProjectParts(updateProjectPartsMessage.clone());
+}
+
+TEST_F(PchManagerServer, AddingIncludesToFileCacheForProjectUpdates)
+{
+    InSequence s;
+
+    EXPECT_CALL(mockFilePathCache, populateIfEmpty());
+    EXPECT_CALL(mockFilePathCache,
+                addFilePaths(AllOf(
+                    Contains(Eq(TESTDATA_DIR "/symbolscollector/include/unmodified_header.h")),
+                    Contains(Eq(TESTDATA_DIR "/symbolscollector/include/unmodified_header2.h")),
+                    Contains(Eq(TESTDATA_DIR "/builddependencycollector/project/header2.h")),
+                    Contains(Eq(TESTDATA_DIR "/builddependencycollector/external/external3.h")))));
+    EXPECT_CALL(mockProjectPartsManager, update(_));
 
     server.updateProjectParts(updateProjectPartsMessage.clone());
 }
