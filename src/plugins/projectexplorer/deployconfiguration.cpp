@@ -67,7 +67,7 @@ const BuildStepList *DeployConfiguration::stepList() const
     return &m_stepList;
 }
 
-NamedWidget *DeployConfiguration::createConfigWidget() const
+QWidget *DeployConfiguration::createConfigWidget() const
 {
     if (!m_configWidgetCreator)
         return nullptr;
@@ -157,7 +157,7 @@ bool DeployConfigurationFactory::canHandle(Target *target) const
     return true;
 }
 
-void DeployConfigurationFactory::setConfigWidgetCreator(const std::function<NamedWidget *(Target *)> &configWidgetCreator)
+void DeployConfigurationFactory::setConfigWidgetCreator(const std::function<QWidget *(Target *)> &configWidgetCreator)
 {
     m_configWidgetCreator = configWidgetCreator;
 }

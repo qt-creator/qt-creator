@@ -35,7 +35,6 @@ namespace ProjectExplorer {
 class BuildStepList;
 class Target;
 class DeployConfigurationFactory;
-class NamedWidget;
 
 class PROJECTEXPLORER_EXPORT DeployConfiguration final : public ProjectConfiguration
 {
@@ -51,7 +50,7 @@ public:
     BuildStepList *stepList();
     const BuildStepList *stepList() const;
 
-    NamedWidget *createConfigWidget() const;
+    QWidget *createConfigWidget() const;
 
     bool fromMap(const QVariantMap &map) override;
     QVariantMap toMap() const override;
@@ -60,7 +59,7 @@ public:
 
 private:
     BuildStepList m_stepList;
-    std::function<NamedWidget *(Target *)> m_configWidgetCreator;
+    std::function<QWidget *(Target *)> m_configWidgetCreator;
 };
 
 class PROJECTEXPLORER_EXPORT DeployConfigurationFactory
@@ -91,7 +90,7 @@ public:
 
     bool canHandle(ProjectExplorer::Target *target) const;
 
-    void setConfigWidgetCreator(const std::function<NamedWidget *(Target *)> &configWidgetCreator);
+    void setConfigWidgetCreator(const std::function<QWidget *(Target *)> &configWidgetCreator);
     void setUseDeploymentDataView();
 
     using PostRestore = std::function<void(DeployConfiguration *dc, const QVariantMap &)>;
@@ -109,7 +108,7 @@ private:
     QList<Core::Id> m_supportedTargetDeviceTypes;
     QList<BuildStepList::StepCreationInfo> m_initialSteps;
     QString m_defaultDisplayName;
-    std::function<NamedWidget *(Target *)> m_configWidgetCreator;
+    std::function<QWidget *(Target *)> m_configWidgetCreator;
     PostRestore m_postRestore;
 };
 

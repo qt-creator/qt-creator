@@ -84,7 +84,7 @@ private:
     QWidget *m_runConfigurationWidget = nullptr;
     RunConfiguration *m_runConfiguration = nullptr;
     QVBoxLayout *m_runLayout = nullptr;
-    NamedWidget *m_deployConfigurationWidget = nullptr;
+    QWidget *m_deployConfigurationWidget = nullptr;
     QVBoxLayout *m_deployLayout = nullptr;
     BuildStepListWidget *m_deploySteps = nullptr;
     QMenu *m_addDeployMenu;
