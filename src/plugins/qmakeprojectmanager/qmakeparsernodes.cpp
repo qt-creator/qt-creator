@@ -103,6 +103,7 @@ namespace QmakeProjectManager {
 Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing", QtWarningMsg);
 
 uint qHash(Variable key, uint seed) { return ::qHash(static_cast<int>(key), seed); }
+uint qHash(FileOrigin fo) { return ::qHash(int(fo)); }
 
 namespace Internal {
 
@@ -124,7 +125,8 @@ class QmakePriFileEvalResult
 public:
     QSet<FilePath> folders;
     QSet<FilePath> recursiveEnumerateFiles;
-    QMap<FileType, QSet<FilePath>> foundFiles;
+    QMap<FileType, QSet<FilePath>> foundFilesExact;
+    QMap<FileType, QSet<FilePath>> foundFilesCumulative;
 };
 
 class QmakeIncludedPriFile
@@ -228,14 +230,15 @@ void QmakePriFile::makeEmpty()
     m_children.clear();
 }
 
-QSet<FilePath> QmakePriFile::files(const FileType &type) const
+SourceFiles QmakePriFile::files(const FileType &type) const
 {
     return m_files.value(type);
 }
 
 const QSet<FilePath> QmakePriFile::collectFiles(const FileType &type) const
 {
-    QSet<FilePath> allFiles = files(type);
+    QSet<FilePath> allFiles = transform(files(type),
+                                        [](const SourceFile &sf) { return sf.first; });
     for (const QmakePriFile * const priFile : qAsConst(m_children)) {
         if (!dynamic_cast<const QmakeProFile *>(priFile))
             allFiles.unite(priFile->collectFiles(type));
@@ -308,13 +311,14 @@ static QStringList fileListForVar(
 
 void QmakePriFile::extractSources(
         QHash<int, QmakePriFileEvalResult *> proToResult, QmakePriFileEvalResult *fallback,
-        QVector<ProFileEvaluator::SourceFile> sourceFiles, FileType type)
+        QVector<ProFileEvaluator::SourceFile> sourceFiles, FileType type, bool cumulative)
 {
     foreach (const ProFileEvaluator::SourceFile &source, sourceFiles) {
         auto *result = proToResult.value(source.proFileId);
         if (!result)
             result = fallback;
-        result->foundFiles[type].insert(FilePath::fromString(source.fileName));
+        auto &foundFiles = cumulative ? result->foundFilesCumulative : result->foundFilesExact;
+        foundFiles[type].insert(FilePath::fromString(source.fileName));
     }
 }
 
@@ -356,11 +360,13 @@ void QmakePriFile::processValues(QmakePriFileEvalResult &result)
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         auto type = static_cast<FileType>(i);
-        QSet<FilePath> &foundFiles = result.foundFiles[type];
-        result.recursiveEnumerateFiles.subtract(foundFiles);
-        QSet<FilePath> newFilePaths = filterFilesProVariables(type, foundFiles);
-        newFilePaths += filterFilesRecursiveEnumerata(type, result.recursiveEnumerateFiles);
-        foundFiles = newFilePaths;
+        for (QSet<FilePath> * const foundFiles
+             : {&result.foundFilesExact[type], &result.foundFilesCumulative[type]}) {
+            result.recursiveEnumerateFiles.subtract(*foundFiles);
+            QSet<FilePath> newFilePaths = filterFilesProVariables(type, *foundFiles);
+            newFilePaths += filterFilesRecursiveEnumerata(type, result.recursiveEnumerateFiles);
+            *foundFiles = newFilePaths;
+        }
     }
 }
 
@@ -371,7 +377,15 @@ void QmakePriFile::update(const Internal::QmakePriFileEvalResult &result)
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         const auto type = static_cast<FileType>(i);
-        m_files[type] = result.foundFiles.value(type);
+        SourceFiles &files = m_files[type];
+        files.clear();
+        const QSet<FilePath> exactFps = result.foundFilesExact.value(type);
+        for (const FilePath &exactFp : exactFps)
+            files << qMakePair(exactFp, FileOrigin::ExactParse);
+        for (const FilePath &cumulativeFp : result.foundFilesCumulative.value(type)) {
+            if (!exactFps.contains(cumulativeFp))
+                files << qMakePair(cumulativeFp, FileOrigin::CumulativeParse);
+        }
     }
 }
 
@@ -439,9 +453,18 @@ bool QmakePriFile::folderChanged(const QString &changedFolder, const QSet<FilePa
             qCDebug(qmakeParse()) << "For type" << static_cast<int>(type) <<"\n"
                                   << "added files"  <<  add << "\n"
                                   << "removed files" << remove;
-
-            m_files[type].unite(add);
-            m_files[type].subtract(remove);
+            SourceFiles &currentFiles = m_files[type];
+            for (const FilePath &fp : add) {
+                if (!contains(currentFiles, [&fp](const SourceFile &sf) { return sf.first == fp; }))
+                    currentFiles.insert(qMakePair(fp, FileOrigin::ExactParse));
+            }
+            for (const FilePath &fp : remove) {
+                const auto it = std::find_if(currentFiles.begin(), currentFiles.end(),
+                                             [&fp](const SourceFile &sf) {
+                    return sf.first == fp; });
+                if (it != currentFiles.end())
+                    currentFiles.erase(it);
+            }
         }
     }
     return true;
@@ -1451,14 +1474,14 @@ QmakeEvalResult *QmakeProFile::evaluate(const QmakeEvalInput &input)
                 auto sourceFiles = exactReader->absoluteFileValues(
                             qmakeVariable, input.projectDir, vPathsExact, &handled, result->directoriesWithWildcards);
                 exactSourceFiles[qmakeVariable] = sourceFiles;
-                extractSources(proToResult, &result->includedFiles.result, sourceFiles, type);
+                extractSources(proToResult, &result->includedFiles.result, sourceFiles, type, false);
             }
             const QStringList vPathsCumulative = fullVPaths(
                         baseVPathsCumulative, cumulativeReader, qmakeVariable, input.projectDir);
             auto sourceFiles = cumulativeReader->absoluteFileValues(
                         qmakeVariable, input.projectDir, vPathsCumulative, &handled, result->directoriesWithWildcards);
             cumulativeSourceFiles[qmakeVariable] = sourceFiles;
-            extractSources(proToResult, &result->includedFiles.result, sourceFiles, type);
+            extractSources(proToResult, &result->includedFiles.result, sourceFiles, type, true);
         }
     }
 

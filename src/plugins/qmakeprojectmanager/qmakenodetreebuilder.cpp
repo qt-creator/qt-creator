@@ -145,13 +145,13 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
     const auto proFile = dynamic_cast<const QmakeProFile *>(pri);
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
-        const QSet<FilePath> &newFilePaths = Utils::filtered(pri->files(type), [&toExclude](const Utils::FilePath &fn) {
-            return !Utils::contains(toExclude, [&fn](const Utils::FilePath &ex) { return fn.isChildOf(ex); });
+        const SourceFiles &newFilePaths = Utils::filtered(pri->files(type), [&toExclude](const SourceFile &fn) {
+            return !Utils::contains(toExclude, [&fn](const Utils::FilePath &ex) { return fn.first.isChildOf(ex); });
         });
         if (proFile) {
-            for (const FilePath &fp : newFilePaths) {
+            for (const SourceFile &fp : newFilePaths) {
                 for (const ExtraCompiler *ec : proFile->extraCompilers()) {
-                    if (ec->source() == fp)
+                    if (ec->source() == fp.first)
                         generatedFiles << ec->targets();
                 }
             }
@@ -165,33 +165,36 @@ static void createTree(const QmakePriFile *pri, QmakePriFileNode *node, const Fi
             vfolder->setAddFileFilter(fileTypes.at(i).addFileFilter);
 
             if (type == FileType::Resource) {
-                for (const FilePath &file : newFilePaths) {
+                for (const auto &file : newFilePaths) {
                     auto vfs = pri->project()->qmakeVfs();
                     QString contents;
                     QString errorMessage;
                     // Prefer the cumulative file if it's non-empty, based on the assumption
                     // that it contains more "stuff".
-                    int cid = vfs->idForFileName(file.toString(), QMakeVfs::VfsCumulative);
+                    int cid = vfs->idForFileName(file.first.toString(), QMakeVfs::VfsCumulative);
                     vfs->readFile(cid, &contents, &errorMessage);
                     // If the cumulative evaluation botched the file too much, try the exact one.
                     if (contents.isEmpty()) {
-                        int eid = vfs->idForFileName(file.toString(), QMakeVfs::VfsExact);
+                        int eid = vfs->idForFileName(file.first.toString(), QMakeVfs::VfsExact);
                         vfs->readFile(eid, &contents, &errorMessage);
                     }
                     auto topLevel = std::make_unique<ResourceEditor::ResourceTopLevelNode>
-                                     (file, vfolder->filePath(), contents);
-                    const QString baseName = file.toFileInfo().completeBaseName();
+                                     (file.first, vfolder->filePath(), contents);
+                    topLevel->setEnabled(file.second == FileOrigin::ExactParse);
+                    const QString baseName = file.first.toFileInfo().completeBaseName();
                     topLevel->setIsGenerated(baseName.startsWith("qmake_")
                             || baseName.endsWith("_qmlcache"));
                     vfolder->addNode(std::move(topLevel));
                 }
             } else {
-                for (const FilePath &fn : newFilePaths) {
+                for (const auto &fn : newFilePaths) {
                     // Qmake will flag everything in SOURCES as source, even when the
                     // qt quick compiler moves qrc files into it:-/ Get better data based on
                     // the filename.
-                    type = FileNode::fileTypeForFileName(fn);
-                    vfolder->addNestedNode(std::make_unique<FileNode>(fn, type));
+                    type = FileNode::fileTypeForFileName(fn.first);
+                    auto fileNode = std::make_unique<FileNode>(fn.first, type);
+                    fileNode->setEnabled(fn.second == FileOrigin::ExactParse);
+                    vfolder->addNestedNode(std::move(fileNode));
                 }
                 for (FolderNode *fn : vfolder->folderNodes())
                     fn->compress();
