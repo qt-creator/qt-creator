@@ -26,8 +26,12 @@ CppApplication {
 @if "%{TestFrameWork}" == "GTest"
     property string googletestDir: {
         if (typeof Environment.getEnv("GOOGLETEST_DIR") === 'undefined') {
-            console.warn("Using googletest src dir specified at Qt Creator wizard")
-            console.log("set GOOGLETEST_DIR as environment variable or Qbs property to get rid of this message")
+            if ("%{GTestRepository}" === "" && googleCommon.getGTestDir(qbs, undefined) !== "") {
+                console.warn("Using googletest from system")
+            } else {
+                console.warn("Using googletest src dir specified at Qt Creator wizard")
+                console.log("set GOOGLETEST_DIR as environment variable or Qbs property to get rid of this message")
+            }
             return "%{GTestRepository}"
         } else {
             return Environment.getEnv("GOOGLETEST_DIR")

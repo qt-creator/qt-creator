@@ -149,8 +149,9 @@
                 },
                 {
                     "name": "GTestRepository",
-                    "trDisplayName": "Googletest repository:",
+                    "trDisplayName": "Googletest source directory (optional):",
                     "visible": "%{JS: value('TestFrameWork') === 'GTest'}",
+                    "mandatory": false,
                     "type": "PathChooser",
                     "data": {
                         "kind": "existingDirectory"
@@ -158,7 +159,7 @@
                 },
                 {
                     "name": "BoostIncDir",
-                    "trDisplayName": "Boost include dir (optional):",
+                    "trDisplayName": "Boost include directory (optional):",
                     "visible": "%{JS: value('TestFrameWork') == 'BoostTest'}",
                     "mandatory": false,
                     "type": "PathChooser",

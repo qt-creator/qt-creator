@@ -13,12 +13,13 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 **/
+var File = require("qbs.File")
 var FileInfo = require("qbs.FileInfo")
 
 function getGTestDir(qbs, str) {
     if (!str) {
-        if (qbs.hostOS.contains("linux"))
-            return "/usr/include/gtest";
+        if (qbs.hostOS.contains("linux") && File.exists("/usr/src/gtest"))
+            return "/usr/src/gtest";
     } else {
         return FileInfo.joinPaths(str, "googletest");
     }
@@ -27,8 +28,8 @@ function getGTestDir(qbs, str) {
 
 function getGMockDir(qbs, str) {
     if (!str) {
-        if (qbs.hostOS.contains("linux"))
-            return "/usr/include/gmock";
+        if (qbs.hostOS.contains("linux") && File.exists("/usr/src/gmock"))
+            return "/usr/src/gmock";
     } else {
         return FileInfo.joinPaths(str, "googlemock");
     }
