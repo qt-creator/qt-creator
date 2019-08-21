@@ -51,6 +51,12 @@ public:
             && first.path == second.path;
     }
 
+    friend bool operator<(const Usage &first, const Usage &second)
+    {
+        return std::tie(first.path, first.line, first.column)
+               < std::tie(second.path, second.line, second.column);
+    }
+
 public:
     QString path;
     int line = 0;

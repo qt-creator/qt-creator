@@ -346,18 +346,16 @@ void CppEditorWidget::onShowInfoBarAction(const Id &id, bool show)
     action->setVisible(show);
 }
 
-static QString getDocumentLine(const QTextDocument &document, int line)
+static QString getDocumentLine(QTextDocument *document, int line)
 {
-    return document.findBlockByNumber(line - 1).text();
+    if (document)
+        return document->findBlockByNumber(line - 1).text();
+
+    return {};
 }
 
-static QString getFileLine(const QString &path, int line)
+static std::unique_ptr<QTextDocument> getCurrentDocument(const QString &path)
 {
-    const IDocument *document = DocumentModel::documentForFilePath(path);
-    const auto textDocument = qobject_cast<const TextDocument *>(document);
-    if (textDocument)
-        return getDocumentLine(*textDocument->document(), line);
-
     const QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
     QString contents;
     Utils::TextFileFormat format;
@@ -365,11 +363,10 @@ static QString getFileLine(const QString &path, int line)
     if (Utils::TextFileFormat::readFile(path, defaultCodec, &contents, &format, &error)
             != Utils::TextFileFormat::ReadSuccess) {
         qWarning() << "Error reading file " << path << " : " << error;
-        return QString();
+        return {};
     }
 
-    const QTextDocument tmpDocument{contents};
-    return getDocumentLine(tmpDocument, line);
+    return std::make_unique<QTextDocument>(contents);
 }
 
 static void onReplaceUsagesClicked(const QString &text,
@@ -384,6 +381,43 @@ static void onReplaceUsagesClicked(const QString &text,
     if (!fileNames.isEmpty()) {
         modelManager->updateSourceFiles(Utils::toSet(fileNames));
         SearchResultWindow::instance()->hide();
+    }
+}
+
+static QTextDocument *getOpenDocument(const QString &path)
+{
+    const IDocument *document = DocumentModel::documentForFilePath(path);
+    if (document)
+        return qobject_cast<const TextDocument *>(document)->document();
+
+    return {};
+}
+
+static void addSearchResults(CppTools::Usages usages, SearchResult &search, const QString &text)
+{
+    std::sort(usages.begin(), usages.end());
+
+    std::unique_ptr<QTextDocument> currentDocument;
+    QString lastPath;
+
+    for (const CppTools::Usage &usage : usages) {
+        QTextDocument *document = getOpenDocument(usage.path);
+
+        if (!document) {
+            if (usage.path != lastPath) {
+                currentDocument = getCurrentDocument(usage.path);
+                lastPath = usage.path;
+            }
+            document = currentDocument.get();
+        }
+
+        const QString lineContent = getDocumentLine(document, usage.line);
+
+        if (lineContent.size()) {
+            Search::TextRange range{Search::TextPosition(usage.line, usage.column - 1),
+                                    Search::TextPosition(usage.line, usage.column + text.length() - 1)};
+            search.addResult(usage.path, lineContent, range);
+        }
     }
 }
 
@@ -413,14 +447,9 @@ static void findRenameCallback(CppEditorWidget *widget,
                      [widget, rename, replacement, baseCursor]() {
         rename ? widget->renameUsages(replacement, baseCursor) : widget->findUsages(baseCursor);
     });
-    for (const CppTools::Usage &usage : usages) {
-        const QString lineStr = getFileLine(usage.path, usage.line);
-        if (lineStr.isEmpty())
-            continue;
-        Search::TextRange range{Search::TextPosition(usage.line, usage.column - 1),
-                    Search::TextPosition(usage.line, usage.column + text.length() - 1)};
-        search->addResult(usage.path, lineStr, range);
-    }
+
+    addSearchResults(usages, *search, text);
+
     search->finishSearch(false);
     QObject::connect(search, &SearchResult::activated,
                      [](const Core::SearchResultItem& item) {
