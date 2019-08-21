@@ -27,7 +27,6 @@ import QtQuick 2.1
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
 
-
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
@@ -39,7 +38,6 @@ Section {
     SectionLayout {
         rows: 4
         columns: 2
-
 
         Label {
             visible: textInputSection.isTextInput
@@ -62,7 +60,7 @@ Section {
             Layout.fillWidth: true
             backendValue: backendValues.echoMode
             scope: "TextInput"
-            model:  ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"]
+            model: ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"]
         }
 
         Label {
@@ -85,25 +83,28 @@ Section {
         SecondColumnLayout {
             ColumnLayout {
                 CheckBox {
+                    Layout.fillWidth: true
                     text: qsTr("Read only")
-                    backendValue: backendValues.readOnly;
+                    backendValue: backendValues.readOnly
                 }
 
                 CheckBox {
+                    Layout.fillWidth: true
                     text: qsTr("Cursor visible")
-                    backendValue: backendValues.cursorVisible;
+                    backendValue: backendValues.cursorVisible
                 }
 
                 CheckBox {
+                    Layout.fillWidth: true
                     text: qsTr("Active focus on press")
-                    backendValue:  backendValues.activeFocusOnPress;
+                    backendValue: backendValues.activeFocusOnPress
                 }
 
                 CheckBox {
+                    Layout.fillWidth: true
                     text: qsTr("Auto scroll")
-                    backendValue:  backendValues.autoScroll;
+                    backendValue: backendValues.autoScroll
                 }
-
             }
         }
     }

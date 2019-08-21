@@ -43,13 +43,12 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "Flow"
                     model: ["LeftToRight", "TopToBottom"]
                     backendValue: backendValues.flow
-                    scope: "Flow"
+                    Layout.fillWidth: true
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -59,12 +58,13 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "Qt"
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
                     Layout.fillWidth: true
-                    scope: "Qt"
                 }
-
+                ExpandingSpacer {
+                }
             }
 
             Label {
@@ -78,7 +78,6 @@ Column {
                     maximumValue: 4000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
                 }
             }

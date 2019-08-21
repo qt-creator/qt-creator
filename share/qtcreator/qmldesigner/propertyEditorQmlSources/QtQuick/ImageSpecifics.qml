@@ -43,12 +43,11 @@ Column {
 
             SecondColumnLayout {
                 UrlChooser {
-                     Layout.fillWidth: true
-                     backendValue: backendValues.source
+                    Layout.fillWidth: true
+                    backendValue: backendValues.source
                 }
 
                 ExpandingSpacer {
-
                 }
             }
 
@@ -58,15 +57,14 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "Image"
                     model: ["Stretch", "PreserveAspectFit", "PreserveAspectCrop", "Tile", "TileVertically", "TileHorizontally"]
                     backendValue: backendValues.fillMode
                     implicitWidth: 180
                     Layout.fillWidth: true
-                    scope: "Image"
                 }
 
                 ExpandingSpacer {
-
                 }
             }
 
@@ -87,6 +85,11 @@ Column {
                     decimals: 0
                 }
 
+                Item {
+                    width: 4
+                    height: 4
+                }
+
                 Label {
                     text: "H"
                     width: 12
@@ -100,7 +103,6 @@ Column {
                 }
 
                 ExpandingSpacer {
-
                 }
             }
         }
