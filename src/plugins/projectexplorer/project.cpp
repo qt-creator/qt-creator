@@ -607,13 +607,15 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
  */
 Utils::FilePathList Project::files(const Project::NodeMatcher &filter) const
 {
+    QTC_ASSERT(filter, return {});
+
     Utils::FilePathList result;
     if (d->m_sortedNodeList.empty() && filter(containerNode()))
         result.append(projectFilePath());
 
     Utils::FilePath lastAdded;
     for (const Node *n : qAsConst(d->m_sortedNodeList)) {
-        if (filter && !filter(n))
+        if (!filter(n))
             continue;
 
         // Remove duplicates:
