@@ -77,8 +77,6 @@ public:
     void setInferiorDevice(ProjectExplorer::IDevice::ConstPtr device); // Used by cdbengine
     void setRunControlName(const QString &name);
     void setStartMessage(const QString &msg);
-    void appendInferiorCommandLineArgument(const QString &arg);
-    void prependInferiorCommandLineArgument(const QString &arg);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
 
     void setCrashParameter(const QString &event);

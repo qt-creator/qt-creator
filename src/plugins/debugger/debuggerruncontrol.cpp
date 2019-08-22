@@ -486,20 +486,6 @@ void DebuggerRunTool::setCoreFileName(const QString &coreFile, bool isSnapshot)
     m_runParameters.isSnapshot = isSnapshot;
 }
 
-void DebuggerRunTool::appendInferiorCommandLineArgument(const QString &arg)
-{
-    QtcProcess::addArg(&m_runParameters.inferior.commandLineArguments, arg,
-                       device() ? device()->osType() : HostOsInfo::hostOs());
-}
-
-void DebuggerRunTool::prependInferiorCommandLineArgument(const QString &arg)
-{
-    if (!m_runParameters.inferior.commandLineArguments.isEmpty())
-        m_runParameters.inferior.commandLineArguments.prepend(' ');
-    m_runParameters.inferior.commandLineArguments.prepend(
-                QtcProcess::quoteArg(arg, device() ? device()->osType() : HostOsInfo::hostOs()));
-}
-
 void DebuggerRunTool::addQmlServerInferiorCommandLineArgumentIfNeeded()
 {
     d->addQmlServerInferiorCommandLineArgumentIfNeeded = true;
@@ -531,12 +517,16 @@ void DebuggerRunTool::start()
         if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
                 && m_runParameters.isQmlDebugging
                 && m_runParameters.isCppDebugging()) {
-            using namespace QmlDebug;
+
             int qmlServerPort = m_runParameters.qmlServer.port();
             QTC_ASSERT(qmlServerPort > 0, reportFailure(); return);
             QString mode = QString("port:%1").arg(qmlServerPort);
-            QString qmlServerArg = qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true);
-            prependInferiorCommandLineArgument(qmlServerArg);
+
+            CommandLine cmd{m_runParameters.inferior.executable};
+            cmd.addArg(qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, mode, true));
+            cmd.addArgs(m_runParameters.inferior.commandLineArguments, CommandLine::Raw);
+
+            m_runParameters.inferior.setCommandLine(cmd);
         }
     }
 
