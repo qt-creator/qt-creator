@@ -976,6 +976,9 @@ GccToolChainFactory::GccToolChainFactory()
 
 QList<ToolChain *> GccToolChainFactory::autoDetect(const QList<ToolChain *> &alreadyKnown)
 {
+    // GCC is almost never what you want on macOS, but it is by default found in /usr/bin
+    if (HostOsInfo::isMacHost())
+        return {};
     QList<ToolChain *> tcs;
     QList<ToolChain *> known = alreadyKnown;
     static const auto tcChecker = [](const ToolChain *tc) {
