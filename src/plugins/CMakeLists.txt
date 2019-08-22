@@ -80,7 +80,7 @@ add_subdirectory(perfprofiler)
 add_subdirectory(qbsprojectmanager)
 
 # Level 7:
-#add_subdirectory(boot2qt)
+add_subdirectory(boot2qt)
 add_subdirectory(qmldesigner)
 add_subdirectory(qnx)
 add_subdirectory(webassembly)
