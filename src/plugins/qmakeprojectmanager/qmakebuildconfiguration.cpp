@@ -101,7 +101,6 @@ static FilePath defaultBuildDirectory(const FilePath &projectPath,
                                                                               suffix, type));
 }
 
-const char USE_SHADOW_BUILD_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild";
 const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration";
 
 enum { debug = 0 };
@@ -181,7 +180,6 @@ QmakeBuildConfiguration::~QmakeBuildConfiguration() = default;
 QVariantMap QmakeBuildConfiguration::toMap() const
 {
     QVariantMap map(BuildConfiguration::toMap());
-    map.insert(QLatin1String(USE_SHADOW_BUILD_KEY), m_shadowBuild);
     map.insert(QLatin1String(BUILD_CONFIGURATION_KEY), int(m_qmakeBuildConfiguration));
     return map;
 }
@@ -191,7 +189,6 @@ bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), true).toBool();
     m_qmakeBuildConfiguration = BaseQtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
     m_lastKitState = LastKitState(target()->kit());

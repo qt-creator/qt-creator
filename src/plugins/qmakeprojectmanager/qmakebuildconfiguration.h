@@ -97,7 +97,6 @@ signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
-    void shadowBuildChanged();
 
 protected:
     bool fromMap(const QVariantMap &map) override;
@@ -123,7 +122,6 @@ private:
     };
     LastKitState m_lastKitState;
 
-    bool m_shadowBuild = true;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     QmakeProFileNode *m_subNodeBuild = nullptr;
     ProjectExplorer::FileNode *m_fileNodeBuild = nullptr;
