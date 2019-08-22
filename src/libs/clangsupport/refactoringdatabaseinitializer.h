@@ -82,13 +82,15 @@ public:
         Sqlite::Table table;
         table.setUseIfNotExists(true);
         table.setName("locations");
-        table.addColumn("symbolId", Sqlite::ColumnType::Integer);
+        const Sqlite::Column &symbolIdColumn = table.addColumn("symbolId",
+                                                               Sqlite::ColumnType::Integer);
         const Sqlite::Column &lineColumn = table.addColumn("line", Sqlite::ColumnType::Integer);
         const Sqlite::Column &columnColumn = table.addColumn("column", Sqlite::ColumnType::Integer);
         const Sqlite::Column &sourceIdColumn = table.addColumn("sourceId", Sqlite::ColumnType::Integer);
         const Sqlite::Column &locationKindColumn = table.addColumn("locationKind", Sqlite::ColumnType::Integer);
         table.addUniqueIndex({sourceIdColumn, lineColumn, columnColumn});
         table.addIndex({sourceIdColumn, locationKindColumn});
+        table.addIndex({symbolIdColumn});
 
         table.initialize(database);
     }

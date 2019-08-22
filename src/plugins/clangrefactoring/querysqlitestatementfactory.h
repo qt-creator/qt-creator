@@ -47,7 +47,20 @@ public:
     ReadStatement selectSourceUsagesForSymbolLocation{
         "SELECT directoryPath || '/' || sourceName, line, column "
         "FROM locations NATURAL JOIN sources NATURAL JOIN directories "
-        "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND column=?)",
+        "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND "
+        "column=?)",
+        database};
+    ReadStatement selectSourceUsagesOrderedForSymbolLocation{
+        "SELECT directoryPath || '/' || sourceName, line, column "
+        "FROM locations NATURAL JOIN sources NATURAL JOIN directories "
+        "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND "
+        "column=?) ORDER BY locationKind LIMIT 2",
+        database};
+    ReadStatement selectSourceUsagesByLocationKindForSymbolLocation{
+        "SELECT directoryPath || '/' || sourceName, line, column "
+        "FROM locations NATURAL JOIN sources NATURAL JOIN directories "
+        "WHERE symbolId = (SELECT symbolId FROM locations WHERE sourceId=? AND line=? AND "
+        "column=?) AND locationKind = ?",
         database};
     ReadStatement selectSymbolsForKindAndStartsWith{
         "SELECT symbolId, symbolName, signature FROM symbols WHERE symbolKind = ? AND symbolName LIKE ?",

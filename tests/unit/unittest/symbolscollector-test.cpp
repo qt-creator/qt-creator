@@ -648,4 +648,44 @@ TEST_F(SymbolsCollector, ClearInputFilesAfterCollectingSymbols)
 
     ASSERT_TRUE(collector.isClean());
 }
+
+TEST_F(SymbolsCollector, ClassDeclarations)
+{
+    collector.setFile(filePathId(TESTDATA_DIR "/symbolscollector/class.cpp"), {"cc"});
+
+    collector.collectSymbols();
+
+    ASSERT_THAT(
+        collector.sourceLocations(),
+        AllOf(Contains(IsSourceLocationEntry(symbolId("Class"),
+                                             filePathId(TESTDATA_DIR "/symbolscollector/class.cpp"),
+                                             1,
+                                             7,
+                                             SourceLocationKind::Definition)),
+              Contains(IsSourceLocationEntry(symbolId("bar"),
+                                             filePathId(TESTDATA_DIR "/symbolscollector/class.cpp"),
+                                             8,
+                                             8,
+                                             SourceLocationKind::Definition)),
+              Contains(IsSourceLocationEntry(symbolId("foo"),
+                                             filePathId(TESTDATA_DIR "/symbolscollector/class.cpp"),
+                                             11,
+                                             13,
+                                             SourceLocationKind::Definition)),
+              Contains(IsSourceLocationEntry(symbolId("foo"),
+                                             filePathId(TESTDATA_DIR "/symbolscollector/class.cpp"),
+                                             6,
+                                             8,
+                                             SourceLocationKind::Declaration)),
+              Contains(IsSourceLocationEntry(symbolId("Class"),
+                                             filePathId(TESTDATA_DIR "/symbolscollector/class.cpp"),
+                                             11,
+                                             6,
+                                             SourceLocationKind::DeclarationReference)),
+              Contains(IsSourceLocationEntry(symbolId("bar"),
+                                             filePathId(TESTDATA_DIR "/symbolscollector/class.cpp"),
+                                             13,
+                                             5,
+                                             SourceLocationKind::DeclarationReference))));
+}
 } // namespace

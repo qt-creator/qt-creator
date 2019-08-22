@@ -46,6 +46,16 @@ MockSqliteReadStatement::values<CppTools::Usage, 3>(
     return valuesReturnSourceUsages(reserveSize, sourceId, line, column);
 }
 
+template<>
+CppTools::Usages MockSqliteReadStatement::values<CppTools::Usage, 3>(std::size_t reserveSize,
+                                                                     const int &sourceId,
+                                                                     const int &line,
+                                                                     const int &column,
+                                                                     const int &locationKind)
+{
+    return valuesReturnSourceUsages(reserveSize, sourceId, line, column, locationKind);
+}
+
 template <>
 Symbols
 MockSqliteReadStatement::values<Symbol, 3>(

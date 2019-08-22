@@ -453,11 +453,11 @@ TEST_F(FilePathCache, GetFileIdInAfterPopulateIfEmpty)
 TEST_F(FilePathCache, DontPopulateIfNotEmpty)
 {
     cacheNotFilled.filePathId("/path/to/file.cpp");
+
+    EXPECT_CALL(mockStorageFilled, fetchAllDirectories()).Times(0);
+    EXPECT_CALL(mockStorageFilled, fetchAllSources()).Times(0);
+
     cacheNotFilled.populateIfEmpty();
-
-    auto id = cacheNotFilled.filePathId("/path2/to/file.cpp");
-
-    ASSERT_FALSE(id.isValid());
 }
 
 TEST_F(FilePathCache, GetDirectoryIdAfterPopulateIfEmpty)

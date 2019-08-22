@@ -46,10 +46,17 @@ public:
     virtual CppTools::Usages sourceUsagesAt(ClangBackEnd::FilePathId filePathId,
                                             int line,
                                             int utf8Column) const = 0;
+    virtual CppTools::Usages sourceUsagesAtByLocationKind(ClangBackEnd::FilePathId filePathId,
+                                                          int line,
+                                                          int utf8Column,
+                                                          ClangBackEnd::SourceLocationKind) const = 0;
     virtual Symbols symbols(const ClangBackEnd::SymbolKinds &symbolKinds,
                             Utils::SmallStringView searchTerm) const = 0;
     virtual Utils::optional<SourceLocation> locationForSymbolId(SymbolId symbolId,
                                                                 ClangBackEnd::SourceLocationKind kind) const = 0;
+    virtual CppTools::Usages declarationsAt(ClangBackEnd::FilePathId filePathId,
+                                            int line,
+                                            int utf8Column) const = 0;
 
 protected:
     ~SymbolQueryInterface() = default;

@@ -37,6 +37,9 @@
 #include <clangcodemodelservermessages.h>
 #include <clangpathwatcher.h>
 #include <clangrefactoringmessages.h>
+#include <coreplugin/find/searchresultitem.h>
+#include <coreplugin/locator/ilocatorfilter.h>
+#include <cpptools/usages.h>
 #include <filepath.h>
 #include <filepathcaching.h>
 #include <filepathview.h>
@@ -46,6 +49,8 @@
 #include <pchpaths.h>
 #include <pchtask.h>
 #include <precompiledheadersupdatedmessage.h>
+#include <projectexplorer/headerpath.h>
+#include <projectexplorer/projectmacro.h>
 #include <projectpartartefact.h>
 #include <projectpartentry.h>
 #include <projectpartpch.h>
@@ -58,11 +63,7 @@
 #include <toolchainargumentscache.h>
 #include <tooltipinfo.h>
 #include <usedmacro.h>
-#include <cpptools/usages.h>
-#include <projectexplorer/projectmacro.h>
-#include <projectexplorer/headerpath.h>
-#include <coreplugin/find/searchresultitem.h>
-#include <coreplugin/locator/ilocatorfilter.h>
+#include <utils/link.h>
 
 namespace {
 ClangBackEnd::FilePathCaching *filePathCache = nullptr;
@@ -176,6 +177,12 @@ namespace Utils {
 std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn)
 {
     return out << "(" << lineColumn.line << ", " << lineColumn.column << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const Link &link)
+{
+    return out << "(" << link.targetFileName << ", " << link.targetLine << ", " << link.targetColumn
+               << ", " << link.linkTextStart << ", " << link.linkTextEnd << ")";
 }
 
 const char * toText(Utils::Language language)

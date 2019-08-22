@@ -40,4 +40,11 @@ public:
                        ClangRefactoring::Symbols(const ClangBackEnd::SymbolKinds &symbolKinds, Utils::SmallStringView searchTerm));
     MOCK_CONST_METHOD2(locationForSymbolId,
                        Utils::optional<ClangRefactoring::SourceLocation>(ClangRefactoring::SymbolId symbolId, ClangBackEnd::SourceLocationKind kind));
+    MOCK_CONST_METHOD4(sourceUsagesAtByLocationKind,
+                       CppTools::Usages(ClangBackEnd::FilePathId filePathId,
+                                        int line,
+                                        int utf8Column,
+                                        ClangBackEnd::SourceLocationKind));
+    MOCK_CONST_METHOD3(declarationsAt,
+                       CppTools::Usages(ClangBackEnd::FilePathId filePathId, int line, int utf8Column));
 };

@@ -52,12 +52,12 @@ Utils::SmallString symbolName(const clang::NamedDecl *declaration)
 
 SourceLocationKind sourceLocationKind(clang::index::SymbolRoleSet roles)
 {
-    if (hasSymbolRole(clang::index::SymbolRole::Reference, roles))
-        return SourceLocationKind::DeclarationReference;
+    if (hasSymbolRole(clang::index::SymbolRole::Definition, roles))
+        return SourceLocationKind::Definition;
     else if (hasSymbolRole(clang::index::SymbolRole::Declaration, roles))
         return SourceLocationKind::Declaration;
-    else if (hasSymbolRole(clang::index::SymbolRole::Definition, roles))
-        return SourceLocationKind::Definition;
+    else if (hasSymbolRole(clang::index::SymbolRole::Reference, roles))
+        return SourceLocationKind::DeclarationReference;
 
     return SourceLocationKind::None;
 }

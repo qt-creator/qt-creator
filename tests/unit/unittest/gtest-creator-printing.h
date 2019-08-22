@@ -81,11 +81,13 @@ std::ostream &operator<<(std::ostream &out, const HeaderPath &headerPath);
 namespace Utils {
 class LineColumn;
 class SmallStringView;
+class Link;
 
 std::ostream &operator<<(std::ostream &out, const LineColumn &lineColumn);
 std::ostream &operator<<(std::ostream &out, const Utils::Language &language);
 std::ostream &operator<<(std::ostream &out, const Utils::LanguageVersion &languageVersion);
 std::ostream &operator<<(std::ostream &out, const Utils::LanguageExtension &languageExtension);
+std::ostream &operator<<(std::ostream &out, const Link &link);
 
 template <typename Type>
 std::ostream &operator<<(std::ostream &out, const Utils::optional<Type> &optional)

@@ -201,15 +201,14 @@ struct HighlightingTypes {
     MixinHighlightingTypes mixinHighlightingTypes;
 };
 
-enum class SourceLocationKind : uchar
-{
-    None = 0,
+enum class SourceLocationKind : uchar {
+    Definition = 1,
     Declaration,
     DeclarationReference,
-    Definition,
     MacroDefinition = 128,
+    MacroUndefinition,
     MacroUsage,
-    MacroUndefinition
+    None = 255,
 };
 
 enum class SymbolKind : uchar

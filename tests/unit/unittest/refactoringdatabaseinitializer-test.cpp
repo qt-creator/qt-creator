@@ -60,7 +60,9 @@ TEST_F(RefactoringDatabaseInitializer, AddLocationsTable)
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE TABLE IF NOT EXISTS locations(symbolId INTEGER, line INTEGER, column INTEGER, sourceId INTEGER, locationKind INTEGER)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_locations_sourceId_line_column ON locations(sourceId, line, column)")));
     EXPECT_CALL(mockDatabase, execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId_locationKind ON locations(sourceId, locationKind)")));
-
+    EXPECT_CALL(mockDatabase,
+                execute(Eq(
+                    "CREATE INDEX IF NOT EXISTS index_locations_symbolId ON locations(symbolId)")));
     initializer.createLocationsTable();
 }
 
@@ -220,6 +222,9 @@ TEST_F(RefactoringDatabaseInitializer, CreateInTheContructor)
     EXPECT_CALL(mockDatabase,
                 execute(Eq("CREATE INDEX IF NOT EXISTS index_locations_sourceId_locationKind ON "
                            "locations(sourceId, locationKind)")));
+    EXPECT_CALL(mockDatabase,
+                execute(Eq(
+                    "CREATE INDEX IF NOT EXISTS index_locations_symbolId ON locations(symbolId)")));
     EXPECT_CALL(mockDatabase,
                 execute(Eq("CREATE TABLE IF NOT EXISTS sources(sourceId INTEGER PRIMARY KEY, "
                            "directoryId INTEGER, sourceName TEXT)")));

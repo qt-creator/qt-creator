@@ -74,6 +74,7 @@ public:
 
 private:
     CppTools::Usages locationsAt(const CppTools::CursorInEditor &data) const;
+    CppTools::Usages declarationAt(const CppTools::CursorInEditor &data) const;
 
     ClangBackEnd::RefactoringServerInterface &m_server;
     ClangBackEnd::RefactoringClientInterface &m_client;

@@ -78,8 +78,9 @@ public:
     MOCK_METHOD4(valuesReturnSourceLocations,
                  SourceLocations(std::size_t, int, int, int));
 
-    MOCK_METHOD4(valuesReturnSourceUsages,
-                 CppTools::Usages(std::size_t, int, int, int));
+    MOCK_METHOD4(valuesReturnSourceUsages, CppTools::Usages(std::size_t, int, int, int));
+
+    MOCK_METHOD5(valuesReturnSourceUsages, CppTools::Usages(std::size_t, int, int, int, int));
 
     MOCK_METHOD1(valuesReturnStdVectorDirectory,
                  std::vector<Sources::Directory>(std::size_t));
@@ -190,6 +191,13 @@ MockSqliteReadStatement::values<CppTools::Usage, 3>(
         const int &sourceId,
         const int &line,
         const int &column);
+
+template<>
+CppTools::Usages MockSqliteReadStatement::values<CppTools::Usage, 3>(std::size_t reserveSize,
+                                                                     const int &sourceId,
+                                                                     const int &line,
+                                                                     const int &column,
+                                                                     const int &locationKind);
 
 template <>
 Symbols

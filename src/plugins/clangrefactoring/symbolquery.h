@@ -75,6 +75,36 @@ public:
                                                                       utf8Column);
     }
 
+    CppTools::Usages sourceUsagesAtByLocationKind(ClangBackEnd::FilePathId filePathId,
+                                                  int line,
+                                                  int utf8Column,
+                                                  ClangBackEnd::SourceLocationKind kind) const override
+    {
+        ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesByLocationKindForSymbolLocation;
+
+        const std::size_t reserveSize = 128;
+
+        return locationsStatement.template values<CppTools::Usage, 3>(reserveSize,
+                                                                      filePathId.filePathId,
+                                                                      line,
+                                                                      utf8Column,
+                                                                      int(kind));
+    }
+
+    CppTools::Usages declarationsAt(ClangBackEnd::FilePathId filePathId,
+                                    int line,
+                                    int utf8Column) const override
+    {
+        ReadStatement &locationsStatement = m_statementFactory.selectSourceUsagesOrderedForSymbolLocation;
+
+        const std::size_t reserveSize = 128;
+
+        return locationsStatement.template values<CppTools::Usage, 3>(reserveSize,
+                                                                      filePathId.filePathId,
+                                                                      line,
+                                                                      utf8Column);
+    }
+
     Symbols symbolsWithOneSymbolKinds(ClangBackEnd::SymbolKind symbolKind,
                                       Utils::SmallStringView searchTerm) const
     {
