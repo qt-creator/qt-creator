@@ -176,7 +176,6 @@ public:
     Q_DECLARE_FLAGS(QmakeBuildConfigs, QmakeBuildConfig)
 
     virtual QmakeBuildConfigs defaultBuildConfig() const;
-    virtual void recheckDumper();
 
     /// Check a .pro-file/Qt version combination on possible issues
     /// @return a list of tasks, ordered on severity (errors first, then

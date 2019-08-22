@@ -1571,11 +1571,6 @@ QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
     return QmlDumpTool::toolForQtPaths(qtInstallBins, debugVersion);
 }
 
-void BaseQtVersion::recheckDumper()
-{
-    d->m_versionInfoUpToDate = false;
-}
-
 Tasks BaseQtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
 {
     Q_UNUSED(proFile)
