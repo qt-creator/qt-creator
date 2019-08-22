@@ -55,6 +55,11 @@ QString DiffEditorController::baseDirectory() const
     return m_document->baseDirectory();
 }
 
+void DiffEditorController::setBaseDirectory(const QString &directory)
+{
+    m_document->setBaseDirectory(directory);
+}
+
 int DiffEditorController::contextLineCount() const
 {
     return m_document->contextLineCount();

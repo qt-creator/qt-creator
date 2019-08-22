@@ -671,24 +671,6 @@
 
     \endtable
 
-    \section1 Checking JSON Data Structure
-
-    \QC validates instances of JSON entities against
-    \l{http://tools.ietf.org/html/draft-zyp-json-schema-03}
-    {A JSON Media Type for Describing the Structure and Meaning of JSON Documents}.
-    However, \QC does not understand the entire specification.
-
-    A JSON schema defines the structure of JSON data. It determines what JSON
-    data is required for an application and how to interact with it.
-
-    The specification does not define how to map JSON instances with JSON
-    schemas. \QC looks for a JSON schema file with a name that matches the
-    name of the JSON instance file in the user configuration folder. For
-    example, \c {~/config/QtProject/qtcreator/json} on Linux and \macos and
-    \c {C:\Users\username\AppData\Roaming\QtCreator\qtcreator\json} on
-    Windows. To check JSON data structure, copy the JSON schema file to the
-    above folder.
-
     \section1 Resetting the Code Model
 
     If you change the build and run kit when you have QML files open in the code

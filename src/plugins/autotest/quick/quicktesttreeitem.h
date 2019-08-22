@@ -59,6 +59,8 @@ public:
 private:
     TestTreeItem *findChildByFileNameAndType(const QString &filePath, const QString &name,
                                              Type tType);
+    TestTreeItem *findChildByNameFileAndLine(const QString &name, const QString &filePath,
+                                             unsigned line);
     TestTreeItem *unnamedQuickTests() const;
 };
 

@@ -149,6 +149,11 @@ void TimelineView::nodeReparented(const ModelNode &node,
                newPropertyParent.parentModelNode())) {
         QmlTimelineKeyframeGroup frames(newPropertyParent.parentModelNode());
         m_timelineWidget->graphicsScene()->invalidateSectionForTarget(frames.target());
+
+        QmlTimeline currentTimeline = m_timelineWidget->graphicsScene()->currentTimeline();
+        if (currentTimeline.isValid())
+            m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
+
     } else if (QmlTimelineKeyframeGroup::checkKeyframesType(
                    node)) { /* During copy and paste type info might be incomplete */
         QmlTimelineKeyframeGroup frames(node);

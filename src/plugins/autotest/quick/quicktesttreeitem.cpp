@@ -329,7 +329,8 @@ TestTreeItem *QuickTestTreeItem::find(const TestParseResult *result)
     case GroupNode:
         return findChildByNameAndFile(result->name, result->fileName);
     case TestCase:
-        return name().isEmpty() ? findChildByNameAndFile(result->name, result->fileName)
+        return name().isEmpty() ? findChildByNameFileAndLine(result->name, result->fileName,
+                                                             result->line)
                                 : findChildByName(result->name);
     default:
         return nullptr;
@@ -351,7 +352,8 @@ TestTreeItem *QuickTestTreeItem::findChild(const TestTreeItem *other)
     case TestCase:
         if (otherType != TestFunction && otherType != TestDataFunction && otherType != TestSpecialFunction)
             return nullptr;
-        return name().isEmpty() ? findChildByNameAndFile(other->name(), other->filePath())
+        return name().isEmpty() ? findChildByNameFileAndLine(other->name(), other->filePath(),
+                                                             other->line())
                                 : findChildByName(other->name());
     default:
         return nullptr;
@@ -368,8 +370,7 @@ bool QuickTestTreeItem::modify(const TestParseResult *result)
     case TestFunction:
     case TestDataFunction:
     case TestSpecialFunction:
-        return name().isEmpty() ? modifyLineAndColumn(result)
-                                : modifyTestFunctionContent(result);
+        return modifyTestFunctionContent(result);
     default:
         return false;
     }
@@ -451,6 +452,14 @@ TestTreeItem *QuickTestTreeItem::findChildByFileNameAndType(const QString &fileP
 {
     return findFirstLevelChild([filePath, name, tType](const TestTreeItem *other) {
         return other->type() == tType && other->name() == name && other->filePath() == filePath;
+    });
+}
+
+TestTreeItem *QuickTestTreeItem::findChildByNameFileAndLine(const QString &name,
+                                                            const QString &filePath, unsigned line)
+{
+    return findFirstLevelChild([name, filePath, line](const TestTreeItem *other) {
+        return other->filePath() == filePath && other->line() == line && other->name() == name;
     });
 }
 

@@ -113,7 +113,8 @@ void DiffEditorDocument::setDiffFiles(const QList<FileData> &data, const QString
                                       const QString &startupFile)
 {
     m_diffFiles = data;
-    m_baseDirectory = directory;
+    if (!directory.isEmpty())
+        m_baseDirectory = directory;
     m_startupFile = startupFile;
     emit documentChanged();
 }
@@ -126,6 +127,11 @@ QList<FileData> DiffEditorDocument::diffFiles() const
 QString DiffEditorDocument::baseDirectory() const
 {
     return m_baseDirectory;
+}
+
+void DiffEditorDocument::setBaseDirectory(const QString &directory)
+{
+    m_baseDirectory = directory;
 }
 
 QString DiffEditorDocument::startupFile() const
