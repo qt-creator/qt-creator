@@ -181,6 +181,7 @@ def qdump__Eigen__Matrix(d, value):
 def qdump__NimStringDesc(d, value):
     size, reserved = value.split('pp')
     data = value.address() + 2 * d.ptrSize()
+    d.putBetterType('string')
     d.putCharArrayHelper(data, size, d.createType('char'), 'utf8')
 
 def qdump__NimGenericSequence__(d, value, regex = '^TY[\d]+$'):
