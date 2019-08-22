@@ -77,8 +77,6 @@ TargetSetupWidget::TargetSetupWidget(Kit *k, const FilePath &projectPath) :
     panelLayout->addWidget(m_manageButton);
     m_detailsWidget->setToolWidget(panel);
 
-    handleKitUpdate(m_kit);
-
     auto widget = new QWidget;
     auto layout = new QVBoxLayout;
     widget->setLayout(layout);
@@ -99,9 +97,6 @@ TargetSetupWidget::TargetSetupWidget(Kit *k, const FilePath &projectPath) :
 
     connect(m_detailsWidget, &Utils::DetailsWidget::checked,
             this, &TargetSetupWidget::targetCheckBoxToggled);
-
-    connect(KitManager::instance(), &KitManager::kitUpdated,
-            this, &TargetSetupWidget::handleKitUpdate);
 
     connect(m_manageButton, &QAbstractButton::clicked, this, &TargetSetupWidget::manageKit);
 }
@@ -226,8 +221,10 @@ void TargetSetupWidget::expandWidget()
     m_detailsWidget->setState(Utils::DetailsWidget::Expanded);
 }
 
-void TargetSetupWidget::updateStatus(const Kit::Predicate &predicate)
+void TargetSetupWidget::update(const Kit::Predicate &predicate)
 {
+    m_detailsWidget->setSummaryText(kit()->displayName());
+
     // Kits that we deem invalid get a warning icon, but users can still select them,
     // e.g. in case we misdetected an ABI mismatch.
     // Kits that don't fulfill the project predicate are not selectable, because we cannot
@@ -238,9 +235,8 @@ void TargetSetupWidget::updateStatus(const Kit::Predicate &predicate)
                                        "the project's prerequisites."));
         return;
     }
-    if (!kit()->isValid())
-        m_detailsWidget->setIcon(Icons::CRITICAL.icon());
     setEnabled(true);
+    m_detailsWidget->setIcon(kit()->isValid() ? kit()->icon() : Icons::CRITICAL.icon());
     m_detailsWidget->setToolTip(m_kit->toHtml());
 }
 
@@ -252,15 +248,6 @@ const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const File
     BuildInfo info(nullptr);
     info.kitId = k->id();
     return {info};
-}
-
-void TargetSetupWidget::handleKitUpdate(Kit *k)
-{
-    if (k != m_kit)
-        return;
-
-    m_detailsWidget->setIcon(k->icon());
-    m_detailsWidget->setSummaryText(k->displayName());
 }
 
 const QList<BuildInfo> TargetSetupWidget::selectedBuildInfoList() const

@@ -603,7 +603,7 @@ void TargetSetupPage::updateWidget(TargetSetupWidget *widget)
     QTC_ASSERT(widget, return );
     widget->setKitSelected(widget->isEnabled() && m_preferredPredicate
                            && m_preferredPredicate(widget->kit()));
-    widget->updateStatus(m_requiredPredicate);
+    widget->update(m_requiredPredicate);
 }
 
 bool TargetSetupPage::isUsable(const Kit *kit) const

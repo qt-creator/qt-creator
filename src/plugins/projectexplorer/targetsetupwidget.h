@@ -70,15 +70,13 @@ public:
     const QList<BuildInfo> selectedBuildInfoList() const;
     void setProjectPath(const Utils::FilePath &projectPath);
     void expandWidget();
-    void updateStatus(const Kit::Predicate &predicate);
+    void update(const Kit::Predicate &predicate);
 
 signals:
     void selectedToggled() const;
 
 private:
     static const QList<BuildInfo> buildInfoList(const Kit *k, const Utils::FilePath &projectPath);
-
-    void handleKitUpdate(ProjectExplorer::Kit *k);
 
     void checkBoxToggled(bool b);
     void pathChanged();
