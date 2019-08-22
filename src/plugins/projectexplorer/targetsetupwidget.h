@@ -86,6 +86,7 @@ private:
     void reportIssues(int index);
     QPair<Task::TaskType, QString> findIssues(const BuildInfo &info);
     void clear();
+    void updateDefaultBuildDirectories();
 
     Kit *m_kit;
     Utils::FilePath m_projectPath;
@@ -109,11 +110,12 @@ private:
         Utils::PathChooser *pathChooser = nullptr;
         bool isEnabled = false;
         bool hasIssues = false;
+        bool customBuildDir = false;
     };
     std::vector<BuildInfoStore> m_infoStore;
 
     bool m_ignoreChange = false;
-    int m_selected = 0; // Number of selected "buildconfiguartions"
+    int m_selected = 0; // Number of selected "buildconfigurations"
 };
 
 } // namespace Internal

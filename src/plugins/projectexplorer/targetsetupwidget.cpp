@@ -238,6 +238,7 @@ void TargetSetupWidget::update(const Kit::Predicate &predicate)
     setEnabled(true);
     m_detailsWidget->setIcon(kit()->isValid() ? kit()->icon() : Icons::CRITICAL.icon());
     m_detailsWidget->setToolTip(m_kit->toHtml());
+    updateDefaultBuildDirectories();
 }
 
 const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const FilePath &projectPath)
@@ -268,6 +269,24 @@ void TargetSetupWidget::clear()
     m_haveImported = false;
 
     emit selectedToggled();
+}
+
+void TargetSetupWidget::updateDefaultBuildDirectories()
+{
+    for (const BuildInfo &buildInfo : buildInfoList(m_kit, m_projectPath)) {
+        if (!buildInfo.factory())
+            continue;
+        for (BuildInfoStore &buildInfoStore : m_infoStore) {
+            if (buildInfoStore.buildInfo.buildType == buildInfo.buildType) {
+                if (!buildInfoStore.customBuildDir) {
+                    m_ignoreChange = true;
+                    buildInfoStore.pathChooser->setFileName(buildInfo.buildDirectory);
+                    m_ignoreChange = false;
+                }
+                break;
+            }
+        }
+    }
 }
 
 void TargetSetupWidget::checkBoxToggled(bool b)
@@ -301,6 +320,7 @@ void TargetSetupWidget::pathChanged()
     });
     QTC_ASSERT(it != m_infoStore.end(), return);
     it->buildInfo.buildDirectory = pathChooser->fileName();
+    it->customBuildDir = true;
     reportIssues(static_cast<int>(std::distance(m_infoStore.begin(), it)));
 }
 
