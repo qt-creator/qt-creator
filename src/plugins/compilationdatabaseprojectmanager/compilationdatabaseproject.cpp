@@ -524,13 +524,14 @@ CompilationDatabaseBuildConfigurationFactory::CompilationDatabaseBuildConfigurat
 }
 
 QList<BuildInfo> CompilationDatabaseBuildConfigurationFactory::availableBuilds
-    (const Kit *, const FilePath &, bool) const
+    (const Kit *kit, const FilePath &, bool) const
 {
     const QString name = tr("Release");
     ProjectExplorer::BuildInfo info(this);
     info.typeName = name;
     info.displayName = name;
     info.buildType = BuildConfiguration::Release;
+    info.kitId = kit->id();
     return {info};
 }
 
