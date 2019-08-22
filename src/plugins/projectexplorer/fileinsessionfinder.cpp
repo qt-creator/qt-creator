@@ -72,7 +72,7 @@ FilePathList FileInSessionFinder::doFindFile(const FilePath &filePath)
                                       : FilePath());
         FilePathList allFiles;
         for (const Project * const p : SessionManager::projects())
-            allFiles << p->files(Project::AllFiles);
+            allFiles << p->files(Project::SourceFiles);
         m_finder.setProjectFiles(allFiles);
         m_finderIsUpToDate = true;
     }

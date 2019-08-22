@@ -88,7 +88,8 @@ Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFi
         QTextCodec *projectCodec = config->useGlobalSettings()
             ? Core::EditorManager::defaultTextCodec()
             : config->textCodec();
-        const QStringList filteredFiles = filterFiles(Utils::transform(project->files(Project::AllFiles), &Utils::FilePath::toString));
+        const QStringList filteredFiles = filterFiles(
+            Utils::transform(project->files(Project::SourceFiles), &Utils::FilePath::toString));
         for (const QString &fileName : filteredFiles) {
             QTextCodec *codec = openEditorEncodings.value(fileName);
             if (!codec)

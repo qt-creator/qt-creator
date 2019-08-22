@@ -59,7 +59,7 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
     if (!fileIterator()) {
         Utils::FilePathList paths;
         for (Project *project : SessionManager::projects())
-            paths.append(project->files(Project::AllFiles));
+            paths.append(project->files(Project::SourceFiles));
         Utils::sort(paths);
         setFileIterator(new BaseFileFilter::ListIterator(paths));
     }
