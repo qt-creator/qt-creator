@@ -4,7 +4,6 @@
     \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
     \"Revision\" : \"$$QTC_PLUGIN_REVISION\",
     \"DisabledByDefault\" : true,
-    \"Experimental\" : true,
     \"Vendor\" : \"The Qt Company Ltd\",
     \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
