@@ -67,6 +67,9 @@ RefactorMarker RefactorOverlay::markerAt(const QPoint &pos) const
 
 void RefactorOverlay::paintMarker(const RefactorMarker& marker, QPainter *painter, const QRect &clip)
 {
+    if (!marker.cursor.block().isVisible())
+        return; // block containing marker not visible
+
     const QPointF offset = m_editor->contentOffset();
     const QRectF geometry = m_editor->blockBoundingGeometry(marker.cursor.block()).translated(offset);
 
