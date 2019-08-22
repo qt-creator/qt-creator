@@ -170,7 +170,7 @@ void MainQmlFileAspect::updateFileComboBox()
     m_fileListModel.appendRow(new QStandardItem(QLatin1String(CURRENT_FILE)));
     QModelIndex currentIndex;
 
-    QStringList sortedFiles = Utils::transform(m_project->files(Project::AllFiles),
+    QStringList sortedFiles = Utils::transform(m_project->files(Project::SourceFiles),
                                                &Utils::FilePath::toString);
 
     // make paths relative to project directory
@@ -430,7 +430,7 @@ bool MainQmlFileAspect::isQmlFilePresent()
                 || mainScriptMimeType.matchesName(QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE))) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
-            const auto files = m_project->files(Project::AllFiles);
+            const auto files = m_project->files(Project::SourceFiles);
             for (const Utils::FilePath &filename : files) {
                 const QFileInfo fi = filename.toFileInfo();
 
