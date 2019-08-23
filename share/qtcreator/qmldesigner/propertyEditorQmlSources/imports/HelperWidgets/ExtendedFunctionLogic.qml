@@ -103,7 +103,6 @@ Item {
                     onTriggered: {
                         transaction.start()
                         backendValue.resetValue()
-                        backendValue.resetValue()
                         transaction.end()
                         extendedFunctionButton.reseted()
                     }
