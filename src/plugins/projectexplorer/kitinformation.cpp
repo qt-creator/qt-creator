@@ -1028,31 +1028,9 @@ KitAspect::ItemList DeviceKitAspect::toUserOutput(const Kit *k) const
 void DeviceKitAspect::addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
-    expander->registerVariable("Device:HostAddress", tr("Host address"),
-        [kit]() -> QString {
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? device->sshParameters().host() : QString();
-    });
-    expander->registerVariable("Device:SshPort", tr("SSH port"),
-        [kit]() -> QString {
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? QString::number(device->sshParameters().port()) : QString();
-    });
-    expander->registerVariable("Device:UserName", tr("User name"),
-        [kit]() -> QString {
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? device->sshParameters().userName() : QString();
-    });
-    expander->registerVariable("Device:KeyFile", tr("Private key file"),
-        [kit]() -> QString {
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? device->sshParameters().privateKeyFile : QString();
-    });
-    expander->registerVariable("Device:Name", tr("Device name"),
-        [kit]() -> QString {
-            const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
-            return device ? device->displayName() : QString();
-    });
+    const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+    if (device)
+        device->addToMacroExpander(expander);
 }
 
 Core::Id DeviceKitAspect::id()

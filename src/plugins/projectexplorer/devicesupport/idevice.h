@@ -49,6 +49,7 @@ namespace QSsh { class SshConnectionParameters; }
 namespace Utils {
 class Environment;
 class Icon;
+class MacroExpander;
 class PortList;
 class Port;
 } // Utils
@@ -179,6 +180,8 @@ public:
     virtual DeviceProcess *createProcess(QObject *parent) const;
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const = 0;
     virtual DeviceEnvironmentFetcher::Ptr environmentFetcher() const;
+
+    virtual void addToMacroExpander(Utils::MacroExpander *expander) const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;
