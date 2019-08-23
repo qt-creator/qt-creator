@@ -456,7 +456,7 @@ TestTreeItem *QuickTestTreeItem::findChildByFileNameAndType(const QString &fileP
 }
 
 TestTreeItem *QuickTestTreeItem::findChildByNameFileAndLine(const QString &name,
-                                                            const QString &filePath, unsigned line)
+                                                            const QString &filePath, int line)
 {
     return findFirstLevelChild([name, filePath, line](const TestTreeItem *other) {
         return other->filePath() == filePath && other->line() == line && other->name() == name;
