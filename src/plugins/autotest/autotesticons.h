@@ -32,12 +32,12 @@ namespace Icons {
 
 const Utils::Icon SORT_NATURALLY({
         {":/autotest/images/leafsort.png", Utils::Theme::IconsBaseColor}});
-const Utils::Icon RUN_SELECTED_OVERLAY({
-        {":/autotest/images/runselected_boxes.png", Utils::Theme::BackgroundColorDark},
-        {":/autotest/images/runselected_tickmarks.png", Utils::Theme::IconsBaseColor}});
-const Utils::Icon RUN_FILE_OVERLAY({
-        {":/autotest/images/run_file.png", Utils::Theme::IconsBaseColor}});
 
+const Utils::Icon RUN_SELECTED_OVERLAY({
+        {":/utils/images/runselected_boxes.png", Utils::Theme::BackgroundColorDark},
+        {":/utils/images/runselected_tickmarks.png", Utils::Theme::IconsBaseColor}});
+const Utils::Icon RUN_FILE_OVERLAY({
+        {":/utils/images/run_file.png", Utils::Theme::IconsBaseColor}});
 const Utils::Icon RESULT_PASS({
         {":/utils/images/filledcircle.png", Utils::Theme::OutputPanes_TestPassTextColor}},
         Utils::Icon::Tint);

@@ -66,7 +66,8 @@ class ClangToolRunWorker : public ProjectExplorer::RunWorker
 
 public:
     ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
-                       const FileInfos &fileInfos);
+                       const FileInfos &fileInfos,
+                       bool preventBuild);
 
     bool success() const { return m_success; } // For testing.
 
@@ -95,7 +96,7 @@ private:
     void finalize();
 
 protected:
-    ProjectBuilder *m_projectBuilder;
+    ProjectBuilder *m_projectBuilder = nullptr;
     Utils::Environment m_environment;
     Utils::TemporaryDirectory m_temporaryDir;
 

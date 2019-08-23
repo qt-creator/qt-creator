@@ -51,7 +51,7 @@ public:
 
     static ClangTidyClazyTool *instance();
 
-    void startTool(bool askUserForFileSelection) final;
+    void startTool(FileSelection fileSelection) final;
 
     Diagnostics read(OutputFileFormat outputFileFormat,
                      const QString &logFilePath,

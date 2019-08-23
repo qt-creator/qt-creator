@@ -121,7 +121,7 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
 
     QVERIFY(switchToProjectAndTarget(project, target));
 
-    ClangTidyClazyTool::instance()->startTool(false);
+    ClangTidyClazyTool::instance()->startTool(ClangTidyClazyTool::FileSelection::AllFiles);
     QSignalSpy waitUntilAnalyzerFinished(ClangTidyClazyTool::instance(), SIGNAL(finished(bool)));
     QVERIFY(waitUntilAnalyzerFinished.wait(30000));
     const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();

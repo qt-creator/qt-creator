@@ -49,7 +49,12 @@ public:
     ClangTool(const QString &name);
     ~ClangTool() override;
 
-    virtual void startTool(bool askUserForFileSelection) = 0;
+    enum class FileSelection {
+        AllFiles,
+        CurrentFile,
+        AskUser,
+    };
+    virtual void startTool(FileSelection fileSelection) = 0;
 
     virtual Diagnostics read(OutputFileFormat outputFileFormat,
                              const QString &logFilePath,
@@ -58,7 +63,7 @@ public:
                              QString *errorMessage) const = 0;
 
     FileInfos collectFileInfos(ProjectExplorer::Project *project,
-                               bool askUserForFileSelection) const;
+                               FileSelection fileSelection) const;
 
     // For testing.
     QSet<Diagnostic> diagnostics() const;
@@ -66,6 +71,9 @@ public:
     const QString &name() const;
 
     virtual void onNewDiagnosticsAvailable(const Diagnostics &diagnostics);
+
+    QAction *startAction() const { return m_startAction; }
+    QAction *startOnCurrentFileAction() const { return m_startOnCurrentFileAction; }
 
 signals:
     void finished(bool success); // For testing.
@@ -80,6 +88,7 @@ protected:
     QPointer<Debugger::DetailedErrorView> m_diagnosticView;
 
     QAction *m_startAction = nullptr;
+    QAction *m_startOnCurrentFileAction = nullptr;
     QAction *m_stopAction = nullptr;
     bool m_running = false;
     bool m_toolBusy = false;

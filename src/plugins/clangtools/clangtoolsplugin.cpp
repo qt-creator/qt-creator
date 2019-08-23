@@ -61,12 +61,13 @@
 #include <QMessageBox>
 #include <QMenu>
 
+using namespace Core;
 using namespace ProjectExplorer;
 
 namespace ClangTools {
 namespace Internal {
 
-class ClangToolsOptionsPage : public Core::IOptionsPage
+class ClangToolsOptionsPage : public IOptionsPage
 {
 public:
     ClangToolsOptionsPage()
@@ -120,6 +121,11 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     Q_UNUSED(errorString)
 
     d = new ClangToolsPluginPrivate;
+
+    ActionManager::registerAction(d->clangTidyClazyTool.startAction(),
+                                  Constants::RUN_ON_PROJECT);
+    ActionManager::registerAction(d->clangTidyClazyTool.startOnCurrentFileAction(),
+                                  Constants::RUN_ON_CURRENT_FILE);
 
     auto panelFactory = new ProjectPanelFactory();
     panelFactory->setPriority(100);

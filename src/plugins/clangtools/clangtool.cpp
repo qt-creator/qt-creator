@@ -34,6 +34,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
 #include <cpptools/cppmodelmanager.h>
@@ -97,7 +98,27 @@ ClangTool::ClangTool(const QString &name)
 {
     m_diagnosticModel = new ClangToolsDiagnosticModel(this);
 
-    m_startAction = Debugger::createStartAction();
+    const Utils::Icon RUN_FILE_OVERLAY(
+        {{":/utils/images/run_file.png", Utils::Theme::IconsBaseColor}});
+
+    const Utils::Icon RUN_SELECTED_OVERLAY(
+        {{":/utils/images/runselected_boxes.png", Utils::Theme::BackgroundColorDark},
+         {":/utils/images/runselected_tickmarks.png", Utils::Theme::IconsBaseColor}});
+
+    auto action = new QAction(tr("Analyze Project..."), this);
+    Utils::Icon runSelectedIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
+    for (const Utils::IconMaskAndColor &maskAndColor : RUN_SELECTED_OVERLAY)
+        runSelectedIcon.append(maskAndColor);
+    action->setIcon(runSelectedIcon.icon());
+    m_startAction = action;
+
+    action = new QAction(tr("Analyze Current File"), this);
+    Utils::Icon runFileIcon = Utils::Icons::RUN_SMALL_TOOLBAR;
+    for (const Utils::IconMaskAndColor &maskAndColor : RUN_FILE_OVERLAY)
+        runFileIcon.append(maskAndColor);
+    action->setIcon(runFileIcon.icon());
+    m_startOnCurrentFileAction = action;
+
     m_stopAction = Debugger::createStopAction();
 }
 
@@ -106,21 +127,38 @@ ClangTool::~ClangTool()
     delete m_diagnosticView;
 }
 
-FileInfos ClangTool::collectFileInfos(Project *project, bool askUserForFileSelection) const
+FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection) const
 {
     auto projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return FileInfos());
 
     const FileInfos allFileInfos = sortedFileInfos(projectInfo.projectParts());
 
-    if (askUserForFileSelection) {
+    if (fileSelection == FileSelection::AllFiles)
+        return allFileInfos;
+
+    if (fileSelection == FileSelection::AskUser) {
         SelectableFilesDialog dialog(projectInfo, allFileInfos);
         if (dialog.exec() == QDialog::Rejected)
             return FileInfos();
         return dialog.filteredFileInfos();
-    } else {
-        return allFileInfos;
     }
+
+    if (fileSelection == FileSelection::CurrentFile) {
+        if (const IDocument *document = EditorManager::currentDocument()) {
+            const Utils::FilePath filePath = document->filePath();
+            if (!filePath.isEmpty()) {
+                const FileInfo fileInfo = Utils::findOrDefault(allFileInfos,
+                                                               [&](const FileInfo &fi) {
+                                                                   return fi.file == filePath;
+                                                               });
+                if (!fileInfo.file.isEmpty())
+                    return {fileInfo};
+            }
+        }
+    }
+
+    return {};
 }
 
 const QString &ClangTool::name() const

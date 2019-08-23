@@ -39,7 +39,8 @@ class ClangTidyClazyRunWorker final : public ClangToolRunWorker
 public:
     ClangTidyClazyRunWorker(ProjectExplorer::RunControl *runControl,
                             const CppTools::ClangDiagnosticConfig &diagnosticConfig,
-                            const FileInfos &fileInfos);
+                            const FileInfos &fileInfos,
+                            bool preventBuild);
 
 protected:
     QList<RunnerCreator> runnerCreators() final;

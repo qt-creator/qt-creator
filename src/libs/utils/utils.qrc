@@ -142,8 +142,14 @@
         <file>images/Desktop.png</file>
         <file>images/interrupt_small.png</file>
         <file>images/interrupt_small@2x.png</file>
+        <file>images/run_file.png</file>
+        <file>images/run_file@2x.png</file>
         <file>images/run_small.png</file>
         <file>images/run_small@2x.png</file>
+        <file>images/runselected_boxes.png</file>
+        <file>images/runselected_boxes@2x.png</file>
+        <file>images/runselected_tickmarks.png</file>
+        <file>images/runselected_tickmarks@2x.png</file>
         <file>images/stop_small.png</file>
         <file>images/stop_small@2x.png</file>
         <file>images/boundingrect.png</file>

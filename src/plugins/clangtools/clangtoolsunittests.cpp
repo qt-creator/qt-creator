@@ -131,7 +131,7 @@ void ClangToolsUnitTests::testProject()
     clangToolsSettings->setDiagnosticConfigId(diagnosticConfig.id());
     clangToolsSettings->writeSettings();
 
-    tool->startTool(false);
+    tool->startTool(ClangTidyClazyTool::FileSelection::AllFiles);
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
 

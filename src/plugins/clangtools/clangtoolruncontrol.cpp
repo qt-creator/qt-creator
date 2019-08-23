@@ -229,12 +229,16 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 }
 
 ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
-                                       const FileInfos &fileInfos)
+                                       const FileInfos &fileInfos,
+                                       bool preventBuild)
     : RunWorker(runControl)
-    , m_projectBuilder(new ProjectBuilder(runControl, this))
     , m_temporaryDir("clangtools-XXXXXX")
     , m_fileInfos(fileInfos)
 {
+    if (preventBuild)
+        return;
+
+    m_projectBuilder = new ProjectBuilder(runControl, this);
     addStartDependency(m_projectBuilder);
 
     ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
@@ -267,8 +271,7 @@ void ClangToolRunWorker::start()
     TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
 
     if (ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
-        QTC_ASSERT(m_projectBuilder, return;);
-        if (!m_projectBuilder->success()) {
+        if (m_projectBuilder && !m_projectBuilder->success()) {
             reportFailure();
             return;
         }

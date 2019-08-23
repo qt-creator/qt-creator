@@ -6,18 +6,12 @@
         <file>images/leafsort@2x.png</file>
         <file>images/benchmark.png</file>
         <file>images/benchmark@2x.png</file>
-        <file>images/runselected_boxes.png</file>
-        <file>images/runselected_boxes@2x.png</file>
-        <file>images/runselected_tickmarks.png</file>
-        <file>images/runselected_tickmarks@2x.png</file>
         <file>images/data.png</file>
         <file>images/data@2x.png</file>
         <file>images/text.png</file>
         <file>images/text@2x.png</file>
         <file>images/visual.png</file>
         <file>images/visual@2x.png</file>
-        <file>images/run_file.png</file>
-        <file>images/run_file@2x.png</file>
         <file>images/suite.png</file>
         <file>images/suite@2x.png</file>
     </qresource>

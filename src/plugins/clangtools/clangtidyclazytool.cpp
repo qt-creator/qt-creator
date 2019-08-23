@@ -327,13 +327,20 @@ ClangTidyClazyTool::ClangTidyClazyTool()
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this]() { startTool(true); });
+    QObject::connect(action, &QAction::triggered, this, [this]() {
+        startTool(ClangTidyClazyTool::FileSelection::AskUser);
+    });
     QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
     QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
         action->setEnabled(m_startAction->isEnabled());
     });
 
+    QObject::connect(m_startOnCurrentFileAction, &QAction::triggered, this, [this] {
+       startTool(ClangTidyClazyTool::FileSelection::CurrentFile);
+    });
+
     m_perspective.addToolBarAction(m_startAction);
+    m_perspective.addToolBarAction(m_startOnCurrentFileAction);
     m_perspective.addToolBarAction(m_stopAction);
     m_perspective.addToolBarAction(m_loadExported);
     m_perspective.addToolBarAction(m_clear);
@@ -373,7 +380,7 @@ static ClangDiagnosticConfig getDiagnosticConfig(Project *project)
     return configsModel.configWithId(diagnosticConfigId);
 }
 
-void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
+void ClangTidyClazyTool::startTool(FileSelection fileSelection)
 {
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
@@ -384,13 +391,15 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     runControl->setTarget(project->activeTarget());
 
-    const FileInfos fileInfos = collectFileInfos(project, askUserForFileSelection);
+    const FileInfos fileInfos = collectFileInfos(project, fileSelection);
     if (fileInfos.empty())
         return;
 
+    const bool preventBuild = fileSelection == FileSelection::CurrentFile;
     auto clangTool = new ClangTidyClazyRunWorker(runControl,
                                                  getDiagnosticConfig(project),
-                                                 fileInfos);
+                                                 fileInfos,
+                                                 preventBuild);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {
@@ -424,24 +433,35 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 void ClangTidyClazyTool::updateRunActions()
 {
     if (m_toolBusy) {
-        m_startAction->setEnabled(false);
         QString tooltipText = tr("Clang-Tidy and Clazy are still running.");
+
+        m_startAction->setEnabled(false);
         m_startAction->setToolTip(tooltipText);
+
+        m_startOnCurrentFileAction->setEnabled(false);
+        m_startOnCurrentFileAction->setToolTip(tooltipText);
+
         m_stopAction->setEnabled(true);
         m_loadExported->setEnabled(false);
         m_clear->setEnabled(false);
     } else {
-        QString toolTip = tr("Start Clang-Tidy and Clazy.");
+        QString toolTipStart = m_startAction->text();
+        QString toolTipStartOnCurrentFile = m_startOnCurrentFileAction->text();
+
         Project *project = SessionManager::startupProject();
         Target *target = project ? project->activeTarget() : nullptr;
         const Core::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
         bool canRun = target && project->projectLanguages().contains(cxx)
                 && ToolChainKitAspect::toolChain(target->kit(), cxx);
         if (!canRun)
-            toolTip = tr("This is not a C++ project.");
+            toolTipStart = toolTipStartOnCurrentFile = tr("This is not a C/C++ project.");
 
-        m_startAction->setToolTip(toolTip);
         m_startAction->setEnabled(canRun);
+        m_startAction->setToolTip(toolTipStart);
+
+        m_startOnCurrentFileAction->setEnabled(canRun);
+        m_startOnCurrentFileAction->setToolTip(toolTipStartOnCurrentFile);
+
         m_stopAction->setEnabled(false);
         m_loadExported->setEnabled(true);
         m_clear->setEnabled(m_diagnosticModel->diagnostics().count());
