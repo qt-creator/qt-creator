@@ -100,15 +100,10 @@ public:
         supportedRunConfigs,
         {Constants::GenericLinuxOsType}
     };
-    RunWorkerFactory qmlProfilerFactory{
-        RunWorkerFactory::make<RemoteLinuxQmlProfilerSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
-        supportedRunConfigs,
-        {Constants::GenericLinuxOsType}
-    };
-    RunWorkerFactory qmlPreviewFactory{
-        RunWorkerFactory::make<RemoteLinuxQmlPreviewSupport>(),
-        {ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
+    RunWorkerFactory qmlToolingFactory{
+        RunWorkerFactory::make<RemoteLinuxQmlToolingSupport>(),
+        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
+         ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
         supportedRunConfigs,
         {Constants::GenericLinuxOsType}
     };

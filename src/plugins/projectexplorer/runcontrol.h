@@ -251,12 +251,7 @@ public:
                                        const QString &cancelButtonText = QString(),
                                        bool *prompt = nullptr);
 
-    RunWorker *createWorker(Core::Id id);
-
-    using WorkerCreator = RunWorkerFactory::WorkerCreator;
-    using Constraint = std::function<bool(RunConfiguration *)>;
-
-    static void registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator);
+    RunWorker *createWorker(Core::Id workerId);
 
     bool createMainWorker();
     static bool canRun(Core::Id runMode, Core::Id deviceType, Core::Id runConfigId);

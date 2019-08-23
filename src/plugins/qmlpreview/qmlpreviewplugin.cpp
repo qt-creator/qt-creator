@@ -142,7 +142,40 @@ public:
     float m_zoomFactor = -1.0;
     QmlPreview::QmlPreviewFpsHandler m_fpsHandler = nullptr;
     QString m_locale;
-    std::unique_ptr<ProjectExplorer::RunWorkerFactory> m_runWorkerFactory;
+
+    RunWorkerFactory localRunWorkerFactory{
+        RunWorkerFactory::make<LocalQmlPreviewSupport>(),
+        {Constants::QML_PREVIEW_RUN_MODE},
+        {}, // All runconfig.
+        {Constants::DESKTOP_DEVICE_TYPE}
+    };
+
+    RunWorkerFactory runWorkerFactory{
+        [this](RunControl *runControl) {
+            QmlPreviewRunner *runner = new QmlPreviewRunner(runControl, m_fileLoader, m_fileClassifer,
+                                                            m_fpsHandler, m_zoomFactor, m_locale);
+            connect(q, &QmlPreviewPlugin::updatePreviews,
+                    runner, &QmlPreviewRunner::loadFile);
+            connect(q, &QmlPreviewPlugin::rerunPreviews,
+                    runner, &QmlPreviewRunner::rerun);
+            connect(runner, &QmlPreviewRunner::ready,
+                    this, &QmlPreviewPluginPrivate::previewCurrentFile);
+            connect(q, &QmlPreviewPlugin::zoomFactorChanged,
+                    runner, &QmlPreviewRunner::zoom);
+            connect(q, &QmlPreviewPlugin::localeChanged,
+                    runner, &QmlPreviewRunner::language);
+
+            connect(runner, &RunWorker::started, this, [this, runControl] {
+                addPreview(runControl);
+            });
+            connect(runner, &RunWorker::stopped, this, [this, runControl] {
+                removePreview(runControl);
+            });
+
+            return runner;
+        },
+        {Constants::QML_PREVIEW_RUNNER}
+    };
 };
 
 QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
@@ -151,13 +184,6 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     m_fileLoader = &defaultFileLoader;
     m_fileClassifer = &defaultFileClassifier;
     m_fpsHandler = &defaultFpsHandler;
-
-    m_runWorkerFactory.reset(new RunWorkerFactory{
-                                     RunWorkerFactory::make<LocalQmlPreviewSupport>(),
-                                     {Constants::QML_PREVIEW_RUN_MODE},
-                                     {}, // All runconfig.
-                                     {Constants::DESKTOP_DEVICE_TYPE}
-                             });
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);
@@ -198,31 +224,6 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     connect(q, &QmlPreviewPlugin::checkDocument, parser, &QmlPreviewParser::parse);
     connect(q, &QmlPreviewPlugin::previewedFileChanged, this, &QmlPreviewPluginPrivate::checkFile);
     connect(parser, &QmlPreviewParser::success, this, &QmlPreviewPluginPrivate::triggerPreview);
-
-    RunControl::registerWorkerCreator(Constants::QML_PREVIEW_RUN_MODE,
-                                      [this](RunControl *runControl) {
-        QmlPreviewRunner *runner = new QmlPreviewRunner(runControl, m_fileLoader, m_fileClassifer,
-                                                        m_fpsHandler, m_zoomFactor, m_locale);
-        QObject::connect(q, &QmlPreviewPlugin::updatePreviews,
-                         runner, &QmlPreviewRunner::loadFile);
-        QObject::connect(q, &QmlPreviewPlugin::rerunPreviews,
-                         runner, &QmlPreviewRunner::rerun);
-        QObject::connect(runner, &QmlPreviewRunner::ready,
-                         this, &QmlPreviewPluginPrivate::previewCurrentFile);
-        QObject::connect(q, &QmlPreviewPlugin::zoomFactorChanged,
-                         runner, &QmlPreviewRunner::zoom);
-        QObject::connect(q, &QmlPreviewPlugin::localeChanged,
-                         runner, &QmlPreviewRunner::language);
-
-        QObject::connect(runner, &RunWorker::started, this, [this, runControl]() {
-            addPreview(runControl);
-        });
-        QObject::connect(runner, &RunWorker::stopped, this, [this, runControl]() {
-            removePreview(runControl);
-        });
-
-        return runner;
-    });
 
     attachToEditor();
 }

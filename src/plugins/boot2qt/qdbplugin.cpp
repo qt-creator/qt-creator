@@ -197,16 +197,17 @@ public:
         supportedRunConfigs,
         {Qdb::Constants::QdbLinuxOsType}
     };
-    RunWorkerFactory qmlProfilerWorkerFactory{
-        RunWorkerFactory::make<QdbDeviceQmlProfilerSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
+    RunWorkerFactory qmlToolWorkerFactory{
+        RunWorkerFactory::make<QdbDeviceQmlToolingSupport>(),
+        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
+         ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
         supportedRunConfigs,
         {Qdb::Constants::QdbLinuxOsType}
     };
-    RunWorkerFactory qmlPreviewWorkerFactory{
-        RunWorkerFactory::make<QdbDeviceQmlPreviewSupport>(),
-        {ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
-        supportedRunConfigs,
+    RunWorkerFactory perfRecorderFactory{
+        RunWorkerFactory::make<QdbDevicePerfProfilerSupport>(),
+        {"PerfRecorder"},
+        {},
         {Qdb::Constants::QdbLinuxOsType}
     };
 

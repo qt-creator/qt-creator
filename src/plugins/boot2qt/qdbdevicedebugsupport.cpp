@@ -175,17 +175,17 @@ void QdbDeviceDebugSupport::stop()
 
 // QdbDeviceQmlProfilerSupport
 
-QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl,
-                                                       QmlDebug::QmlDebugServicesPreset services)
+QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
     setId("QdbDeviceQmlToolingSupport");
 
+    QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
     m_runner = new QdbDeviceInferiorRunner(runControl, false, false, true, services);
     addStartDependency(m_runner);
     addStopDependency(m_runner);
 
-    m_worker = runControl->createWorker(runControl->runMode());
+    m_worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
     m_worker->addStartDependency(this);
     addStopDependency(m_worker);
 }

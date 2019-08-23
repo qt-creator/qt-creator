@@ -32,7 +32,7 @@
 #include "perftimelinemodelmanager.h"
 
 #include <debugger/debuggermainwindow.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 #include <tracing/timelinezoomcontrol.h>
 #include <utils/fileinprojectfinder.h>
 

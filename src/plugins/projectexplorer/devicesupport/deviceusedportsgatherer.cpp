@@ -267,8 +267,8 @@ public:
 
         m_portGatherer = qobject_cast<PortsGatherer *>(sharedEndpointGatherer);
         if (m_portGatherer) {
-            if (auto creator = device()->workerCreator("ChannelForwarder")) {
-                m_channelForwarder = qobject_cast<ChannelForwarder *>(creator(runControl));
+            if (auto forwarder = runControl->createWorker("ChannelForwarder")) {
+                m_channelForwarder = qobject_cast<ChannelForwarder *>(forwarder);
                 if (m_channelForwarder) {
                     m_channelForwarder->addStartDependency(m_portGatherer);
                     m_channelForwarder->setFromUrlGetter([this] {
@@ -338,11 +338,9 @@ ChannelProvider::ChannelProvider(RunControl *runControl, int requiredChannels)
 {
     setId("ChannelProvider");
 
-    RunWorker *sharedEndpoints = nullptr;
-    if (auto sharedEndpointGatherer = device()->workerCreator("SharedEndpointGatherer")) {
+    RunWorker *sharedEndpoints = runControl->createWorker("SharedEndpointGatherer");
+    if (!sharedEndpoints) {
         // null is a legit value indicating 'no need to share'.
-        sharedEndpoints = sharedEndpointGatherer(runControl);
-    } else {
         sharedEndpoints = new PortsGatherer(runControl);
     }
 

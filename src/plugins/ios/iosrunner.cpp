@@ -395,7 +395,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     m_runner->setQmlDebugging(QmlDebug::QmlProfilerServices);
     addStartDependency(m_runner);
 
-    m_profiler = runControl->createWorker(runControl->runMode());
+    m_profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
     m_profiler->addStartDependency(this);
 }
 

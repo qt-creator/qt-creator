@@ -27,7 +27,6 @@
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/runconfiguration.h>
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 namespace RemoteLinux {
 namespace Internal {
@@ -35,31 +34,13 @@ namespace Internal {
 class RemoteLinuxQmlToolingSupport : public ProjectExplorer::SimpleTargetRunner
 {
 public:
-    RemoteLinuxQmlToolingSupport(ProjectExplorer::RunControl *runControl,
-                                 QmlDebug::QmlDebugServicesPreset services);
+    explicit RemoteLinuxQmlToolingSupport(ProjectExplorer::RunControl *runControl);
 
 private:
     void start() override;
 
     ProjectExplorer::PortsGatherer *m_portsGatherer;
     ProjectExplorer::RunWorker *m_runworker;
-    QmlDebug::QmlDebugServicesPreset m_services;
-};
-
-class RemoteLinuxQmlProfilerSupport : public RemoteLinuxQmlToolingSupport
-{
-public:
-    RemoteLinuxQmlProfilerSupport(ProjectExplorer::RunControl *runControl) :
-        RemoteLinuxQmlToolingSupport(runControl, QmlDebug::QmlProfilerServices)
-    {}
-};
-
-class RemoteLinuxQmlPreviewSupport : public RemoteLinuxQmlToolingSupport
-{
-public:
-    RemoteLinuxQmlPreviewSupport(ProjectExplorer::RunControl *runControl) :
-        RemoteLinuxQmlToolingSupport(runControl, QmlDebug::QmlPreviewServices)
-    {}
 };
 
 } // namespace Internal

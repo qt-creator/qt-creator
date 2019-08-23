@@ -52,9 +52,6 @@ public:
 
     void setupDefaultNetworkSettings(const QString &host);
 
-    std::function<ProjectExplorer::RunWorker *(ProjectExplorer::RunControl *)>
-        workerCreator(Core::Id id) const override;
-
 private:
     QdbDevice();
 

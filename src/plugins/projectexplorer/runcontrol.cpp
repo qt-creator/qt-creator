@@ -448,32 +448,15 @@ void RunControl::initiateFinish()
     QTimer::singleShot(0, d.get(), &RunControlPrivate::initiateFinish);
 }
 
-using WorkerCreators = QHash<Core::Id, RunControl::WorkerCreator>;
-
-static WorkerCreators &theWorkerCreators()
+RunWorker *RunControl::createWorker(Core::Id workerId)
 {
-    static WorkerCreators creators;
-    return creators;
-}
-
-void RunControl::registerWorkerCreator(Core::Id id, const WorkerCreator &workerCreator)
-{
-    theWorkerCreators().insert(id, workerCreator);
-    auto keys = theWorkerCreators().keys();
-    Q_UNUSED(keys)
-}
-
-RunWorker *RunControl::createWorker(Core::Id id)
-{
-    auto keys = theWorkerCreators().keys();
-    Q_UNUSED(keys)
-    WorkerCreator creator = theWorkerCreators().value(id);
-    if (creator)
-        return creator(this);
-    creator = device()->workerCreator(id);
-    if (creator)
-        return creator(this);
-    return nullptr;
+    const auto check = std::bind(&RunWorkerFactory::canRun,
+                                 std::placeholders::_1,
+                                 workerId,
+                                 DeviceTypeKitAspect::deviceTypeId(d->kit),
+                                 QString{});
+    RunWorkerFactory *factory = Utils::findOrDefault(g_runWorkerFactories, check);
+    return factory ? factory->producer()(this) : nullptr;
 }
 
 bool RunControl::createMainWorker()

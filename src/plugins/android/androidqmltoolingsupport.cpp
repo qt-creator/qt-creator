@@ -40,7 +40,7 @@ AndroidQmlToolingSupport::AndroidQmlToolingSupport(RunControl *runControl,
     auto runner = new AndroidRunner(runControl, intentName);
     addStartDependency(runner);
 
-    auto profiler = runControl->createWorker(runControl->runMode());
+    auto profiler = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
     profiler->addStartDependency(this);
 
     connect(runner, &AndroidRunner::qmlServerReady, this, [this, profiler](const QUrl &server) {

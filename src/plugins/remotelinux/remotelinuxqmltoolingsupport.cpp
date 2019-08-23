@@ -25,9 +25,7 @@
 
 #include "remotelinuxqmltoolingsupport.h"
 
-#include <ssh/sshconnection.h>
-#include <utils/qtcprocess.h>
-#include <utils/url.h>
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -35,11 +33,8 @@ using namespace Utils;
 namespace RemoteLinux {
 namespace Internal {
 
-// RemoteLinuxQmlProfilerSupport
-
-RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(
-        RunControl *runControl, QmlDebug::QmlDebugServicesPreset services)
-    : SimpleTargetRunner(runControl), m_services(services)
+RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(RunControl *runControl)
+    : SimpleTargetRunner(runControl)
 {
     setId("RemoteLinuxQmlToolingSupport");
 
@@ -50,7 +45,7 @@ RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(
     // be started before.
     addStopDependency(m_portsGatherer);
 
-    m_runworker = runControl->createWorker(runControl->runMode());
+    m_runworker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
     m_runworker->addStartDependency(this);
     addStopDependency(m_runworker);
 }
@@ -61,8 +56,11 @@ void RemoteLinuxQmlToolingSupport::start()
 
     m_runworker->recordData("QmlServerUrl", serverUrl);
 
+    QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl()->runMode());
+
     Runnable r = runnable();
-    QtcProcess::addArg(&r.commandLineArguments, QmlDebug::qmlDebugTcpArguments(m_services, serverUrl),
+    QtcProcess::addArg(&r.commandLineArguments,
+                       QmlDebug::qmlDebugTcpArguments(services, serverUrl),
                        device()->osType());
 
     setRunnable(r);

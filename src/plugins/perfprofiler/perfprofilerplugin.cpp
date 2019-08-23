@@ -66,9 +66,6 @@ public:
     PerfProfilerPluginPrivate()
     {
         RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
-
-        RunControl::registerWorkerCreator(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE,
-                       [](RunControl *runControl){ return new PerfProfilerRunner(runControl); });
     }
 
     RunWorkerFactory profilerWorkerFactory{

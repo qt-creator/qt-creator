@@ -59,7 +59,7 @@ QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
     auto slog2InfoRunner = new Slog2InfoRunner(runControl);
     addStartDependency(slog2InfoRunner);
 
-    m_profiler = runControl->createWorker(runControl->runMode());
+    m_profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
     m_profiler->addStartDependency(this);
     addStopDependency(m_profiler);
 }

@@ -86,11 +86,21 @@ public:
     QmlProfilerTool m_profilerTool;
     QmlProfilerOptionsPage m_profilerOptionsPage;
     QmlProfilerActions m_actions;
-    RunWorkerFactory m_profilerWorkerFactory{
+
+    // The full local profiler.
+    RunWorkerFactory localQmlProfilerFactory {
         RunWorkerFactory::make<LocalQmlProfilerSupport>(),
         {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
         {},
         {ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE}
+    };
+
+    // The bits plugged in in remote setups.
+    RunWorkerFactory qmlProfilerWorkerFactory {
+        RunWorkerFactory::make<QmlProfilerRunner>(),
+        {ProjectExplorer::Constants::QML_PROFILER_RUNNER},
+        {},
+        {}
     };
 };
 
@@ -107,14 +117,6 @@ void QmlProfilerPlugin::extensionsInitialized()
     d->m_actions.registerActions();
 
     RunConfiguration::registerAspect<QmlProfilerRunConfigurationAspect>();
-
-    RunControl::registerWorkerCreator(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
-                                      [this](RunControl *runControl) {
-        auto runner = new QmlProfilerRunner(runControl);
-        connect(runner, &QmlProfilerRunner::starting,
-                &d->m_profilerTool, &QmlProfilerTool::finalizeRunControl);
-        return runner;
-    });
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()

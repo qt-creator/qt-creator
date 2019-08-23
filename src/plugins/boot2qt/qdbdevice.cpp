@@ -200,18 +200,6 @@ void QdbDevice::setupDefaultNetworkSettings(const QString &host)
     setSshParameters(parameters);
 }
 
-std::function<ProjectExplorer::RunWorker *(ProjectExplorer::RunControl *)>
-    QdbDevice::workerCreator(Core::Id id) const
-{
-    if (id == "PerfRecorder") {
-        return [](ProjectExplorer::RunControl *runControl) {
-            return new QdbDevicePerfProfilerSupport(runControl);
-        };
-    }
-    return {};
-}
-
-
 // QdbDeviceWizard
 
 class QdbSettingsPage : public QWizardPage

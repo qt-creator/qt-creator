@@ -47,30 +47,13 @@ private:
 class QdbDeviceQmlToolingSupport : public ProjectExplorer::RunWorker
 {
 public:
-    QdbDeviceQmlToolingSupport(ProjectExplorer::RunControl *runControl,
-                               QmlDebug::QmlDebugServicesPreset services);
+    QdbDeviceQmlToolingSupport(ProjectExplorer::RunControl *runControl);
 
 private:
     void start() override;
 
     QdbDeviceInferiorRunner *m_runner = nullptr;
     ProjectExplorer::RunWorker *m_worker = nullptr;
-};
-
-class QdbDeviceQmlProfilerSupport : public QdbDeviceQmlToolingSupport
-{
-public:
-    QdbDeviceQmlProfilerSupport(ProjectExplorer::RunControl *runControl) :
-        QdbDeviceQmlToolingSupport(runControl, QmlDebug::QmlProfilerServices)
-    {}
-};
-
-class QdbDeviceQmlPreviewSupport : public QdbDeviceQmlToolingSupport
-{
-public:
-    QdbDeviceQmlPreviewSupport(ProjectExplorer::RunControl *runControl) :
-        QdbDeviceQmlToolingSupport(runControl, QmlDebug::QmlPreviewServices)
-    {}
 };
 
 class QdbDevicePerfProfilerSupport : public ProjectExplorer::RunWorker
