@@ -118,6 +118,7 @@ private:
 
     void setupWidgets(const QString &filterText = QString());
     void reset();
+    void setInitialCheckState(Internal::TargetSetupWidget *widget);
 
     Internal::TargetSetupWidget *widget(Kit *k, Internal::TargetSetupWidget *fallback = nullptr) const
     { return widget(k->id(), fallback); }

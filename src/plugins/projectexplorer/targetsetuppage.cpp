@@ -267,6 +267,7 @@ void TargetSetupPage::setupWidgets(const QString &filterText)
         if (!filterText.isEmpty() && !k->displayName().contains(filterText, Qt::CaseInsensitive))
             continue;
         const auto widget = new TargetSetupWidget(k, m_projectPath);
+        setInitialCheckState(widget);
         connect(widget, &TargetSetupWidget::selectedToggled,
                 this, &TargetSetupPage::kitSelectionChanged);
         connect(widget, &TargetSetupWidget::selectedToggled, this, &QWizardPage::completeChanged);
@@ -296,6 +297,12 @@ void TargetSetupPage::reset()
     }
 
     m_ui->allKitsCheckBox->setChecked(false);
+}
+
+void TargetSetupPage::setInitialCheckState(TargetSetupWidget *widget)
+{
+    widget->setKitSelected(widget->isEnabled() && m_preferredPredicate
+                           && m_preferredPredicate(widget->kit()));
 }
 
 TargetSetupWidget *TargetSetupPage::widget(const Core::Id kitId,
@@ -559,6 +566,7 @@ void TargetSetupPage::removeWidget(TargetSetupWidget *w)
 TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 {
     const auto widget = new TargetSetupWidget(k, m_projectPath);
+    setInitialCheckState(widget);
     updateWidget(widget);
     connect(widget, &TargetSetupWidget::selectedToggled,
             this, &TargetSetupPage::kitSelectionChanged);
@@ -601,8 +609,6 @@ void TargetSetupPage::removeAdditionalWidgets(QLayout *layout)
 void TargetSetupPage::updateWidget(TargetSetupWidget *widget)
 {
     QTC_ASSERT(widget, return );
-    widget->setKitSelected(widget->isEnabled() && m_preferredPredicate
-                           && m_preferredPredicate(widget->kit()));
     widget->update(m_requiredPredicate);
 }
 
