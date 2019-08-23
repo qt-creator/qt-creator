@@ -60,7 +60,7 @@ private:
     TestTreeItem *findChildByFileNameAndType(const QString &filePath, const QString &name,
                                              Type tType);
     TestTreeItem *findChildByNameFileAndLine(const QString &name, const QString &filePath,
-                                             int line);
+                                             unsigned line);
     TestTreeItem *unnamedQuickTests() const;
 };
 
