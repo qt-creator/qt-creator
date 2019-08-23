@@ -63,8 +63,10 @@ bool AddValueOperation::setArguments(const QStringList &args)
         switch (args.size()) {
         case 0:
             std::cerr << " file,";
+            Q_FALLTHROUGH();
         case 1:
             std::cerr << " key and";
+            Q_FALLTHROUGH();
         case 2:
             std::cerr << " values";
             break;
