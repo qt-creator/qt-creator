@@ -196,6 +196,9 @@ const Icon TOGGLE_PROGRESSDETAILS_TOOLBAR({
     {QLatin1String(":/utils/images/toggleprogressdetails.png"), Theme::IconsBaseColor}});
 const Icon ONLINE_TOOLBAR({
         {QLatin1String(":/utils/images/online.png"), Theme::IconsBaseColor}});
+const Icon DOWNLOAD({
+        {QLatin1String(":/utils/images/download_arrow.png"), Theme::IconsRunColor},
+        {QLatin1String(":/utils/images/download_base.png"), Theme::PanelTextColorDark}}, Icon::Tint);
 
 const Icon WARNING({
         {QLatin1String(":/utils/images/warningfill.png"), Theme::BackgroundColorNormal},

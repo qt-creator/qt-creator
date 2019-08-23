@@ -288,6 +288,11 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
 
     m_ui->downloadOpenJDKToolButton->setVisible(!Utils::HostOsInfo::isLinuxHost());
 
+    const QIcon downloadIcon = Utils::Icons::DOWNLOAD.icon();
+    m_ui->downloadSDKToolButton->setIcon(downloadIcon);
+    m_ui->downloadNDKToolButton->setIcon(downloadIcon);
+    m_ui->downloadOpenJDKToolButton->setIcon(downloadIcon);
+
     connect(&m_virtualDevicesWatcher, &QFutureWatcherBase::finished,
             this, &AndroidSettingsWidget::updateAvds);
     connect(&m_futureWatcher, &QFutureWatcherBase::finished,
