@@ -108,6 +108,10 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
         return QString();
 
     QString declCandidate = cursor.selectedText();
+
+    if (declCandidate.startsWith(QLatin1String("Q_INVOKABLE")))
+        declCandidate = declCandidate.mid(11);
+
     declCandidate.replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
 
     // Let's append a closing brace in the case we got content like 'class MyType {'
