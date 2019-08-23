@@ -31,16 +31,15 @@ import QtQuick.Controls.Styles 1.1
 
 RowLayout {
     id: urlChooser
+
     property variant backendValue
-
     property color textColor: colorLogic.highlight ? colorLogic.textColor : "white"
-
-    property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg"
+    property string filter: "*.png *.gif *.jpg *.bmp *.jpeg *.svg *.pbm *.pgm *.ppm *.xbm *.xpm"
 
     FileResourcesModel {
+        id: fileModel
         modelNodeBackendProperty: modelNodeBackend
         filter: urlChooser.filter
-        id: fileModel
     }
 
     ColorLogic {
@@ -57,35 +56,31 @@ RowLayout {
 
         ExtendedFunctionLogic {
             id: extFuncLogic
-            backendValue: comboBox.backendValue
+            backendValue: urlChooser.backendValue
         }
 
         property bool isComplete: false
-
         property bool dirty: false
 
         onEditTextChanged: comboBox.dirty = true
 
         function setCurrentText(text) {
-            if (text === "")
-                return
-
             var index = comboBox.find(text)
             if (index === -1)
                 currentIndex = -1
 
-            editText = text
+            comboBox.editText = text
             comboBox.dirty = false
         }
 
         property string textValue: {
-            if (backendValue.isBound)
-                return backendValue.expression
+            if (urlChooser.backendValue.isBound)
+                return urlChooser.backendValue.expression
 
-            return backendValue.valueToString
+            return urlChooser.backendValue.valueToString
         }
 
-        onTextValueChanged: setCurrentText(textValue)
+        onTextValueChanged: comboBox.setCurrentText(comboBox.textValue)
 
         Layout.fillWidth: true
 
@@ -95,27 +90,27 @@ RowLayout {
 
         onModelChanged: {
             if (!comboBox.isComplete)
-                return;
+                return
 
-            setCurrentText(textValue)
+            comboBox.setCurrentText(comboBox.textValue)
         }
 
         onAccepted: {
             if (!comboBox.isComplete)
-                return;
+                return
 
-            if (backendValue.value !== editText)
-                backendValue.value = editText;
+            if (comboBox.backendValue.value !== comboBox.editText)
+                comboBox.backendValue.value = comboBox.editText
 
             comboBox.dirty = false
         }
 
         onFocusChanged: {
             if (comboBox.dirty)
-               handleActivate(comboBox.currentIndex)
+               comboBox.handleActivate(comboBox.currentIndex)
         }
 
-        onActivated: handleActivate(index)
+        onActivated: comboBox.handleActivate(index)
 
         function handleActivate(index)
         {
@@ -125,19 +120,19 @@ RowLayout {
                 cText = comboBox.editText
 
             if (urlChooser.backendValue === undefined)
-                return;
+                return
 
             if (!comboBox.isComplete)
-                return;
+                return
 
             if (urlChooser.backendValue.value !== cText)
-                urlChooser.backendValue.value = cText;
+                urlChooser.backendValue.value = cText
 
             comboBox.dirty = false
         }
 
         Component.onCompleted: {
-            //Hack to style the text input
+            // Hack to style the text input
             for (var i = 0; i < comboBox.children.length; i++) {
                 if (comboBox.children[i].text !== undefined) {
                     comboBox.children[i].color = urlChooser.textColor
@@ -145,55 +140,18 @@ RowLayout {
                 }
             }
             comboBox.isComplete = true
-            setCurrentText(textValue)
+            comboBox.setCurrentText(comboBox.textValue)
         }
-
     }
 
-    RoundedPanel {
-        roundLeft: true
-        roundRight: true
-        width: 24
-        height: 18
-
-        RoundedPanel {
-            id: darkPanel
-            roundLeft: true
-            roundRight: true
-
-            anchors.fill: parent
-
-            opacity: 0
-
-            Behavior on opacity {
-                PropertyAnimation {
-                    duration: 100
-                }
-            }
-
-
-            gradient: Gradient {
-                GradientStop {color: '#444' ; position: 0}
-                GradientStop {color: '#333' ; position: 1}
-            }
-        }
-
-        Text {
-            renderType: Text.NativeRendering
-            text: "..."
-            color: urlChooser.textColor
-            anchors.centerIn: parent
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                darkPanel.opacity = 1
-                fileModel.openFileDialog()
-                if (fileModel.fileName != "")
-                    backendValue.value = fileModel.fileName
-                darkPanel.opacity = 0
-            }
+    StudioControls.AbstractButton {
+        buttonIcon: "..."
+        iconFont: StudioTheme.Constants.font.family
+        iconColor: urlChooser.textColor
+        onClicked: {
+            fileModel.openFileDialog()
+            if (fileModel.fileName !== "")
+                urlChooser.backendValue.value = fileModel.fileName
         }
     }
 }
