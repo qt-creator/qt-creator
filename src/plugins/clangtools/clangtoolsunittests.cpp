@@ -87,7 +87,7 @@ static CppTools::ClangDiagnosticConfig configFor(const QString &tidyChecks,
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-Wno-everything")});
     config.setClangTidyMode(CppTools::ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
-    config.setClangTidyChecks(tidyChecks);
+    config.setClangTidyChecks("-*," + tidyChecks);
     config.setClazyChecks(clazyChecks);
     return config;
 }
