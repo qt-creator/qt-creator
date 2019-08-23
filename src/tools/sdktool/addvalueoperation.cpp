@@ -35,7 +35,7 @@
 
 namespace {
 constexpr auto SUCCESS = 0;
-constexpr auto FAILURE = not SUCCESS;
+constexpr auto FAILURE = !SUCCESS;
 } // namespace
 
 QString AddValueOperation::name() const
@@ -78,7 +78,7 @@ bool AddValueOperation::setArguments(const QStringList &args)
     m_key = tempArgs.takeFirst();
     for (const auto &arg : tempArgs) {
         const auto val = Operation::valueFromString(arg);
-        if (not val.isValid() or val.isNull()) {
+        if (!val.isValid() || val.isNull()) {
             std::cerr << "Error: " << std::quoted(arg.toStdString())
                       << " is not a valid QVariant like string Type:Value.\n"
                       << std::endl;
@@ -143,20 +143,20 @@ bool AddValueOperation::test() const
     testMap = AddKeysOperation::addKeys(testMap, testKvpList);
 
     // quick sanity check
-    if (testMap.count() != 3 and testDataList.count() != 2 and testKvpList.count() != 3)
+    if (testMap.count() != 3 && testDataList.count() != 2 && testKvpList.count() != 3)
         return false;
 
     // successful adding of values
     result = appendListToMap(testMap, "test/bar", valueList);
-    if (not result)
+    if (!result)
         return false;
 
     const auto newList = qvariant_cast<QVariantList>(GetOperation::get(testMap, "test/bar"));
     if (newList.count() != (testDataList.count() + valueList.count()))
         return false;
 
-    if (not newList.contains(1860) or not newList.contains(QString("Some String"))
-        or not newList.contains("ELIL") or not newList.contains(-1))
+    if (!newList.contains(1860) || !newList.contains(QString("Some String"))
+        || !newList.contains("ELIL") || !newList.contains(-1))
         return false;
 
     return true;
@@ -169,13 +169,13 @@ bool AddValueOperation::appendListToMap(QVariantMap &map,
 {
     const auto data = GetOperation::get(map, key);
 
-    if (not data.isValid() or data.isNull()) {
+    if (!data.isValid() || data.isNull()) {
         std::cerr << "Error: Could not retrieve value for key " << std::quoted(key.toStdString())
                   << std::endl;
         return false;
     }
 
-    if (not data.canConvert<QVariantList>()) {
+    if (!data.canConvert<QVariantList>()) {
         std::cerr << "Error: Data stored in " << std::quoted(key.toStdString())
                   << " can not be converted into QVariantList." << std::endl;
         return false;
