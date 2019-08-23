@@ -72,16 +72,15 @@ public:
         addStartDependency(m_portsGatherer);
     }
 
-    Port perfPort() const { return m_portsGatherer->gdbServerPort(); }
+    QUrl perfServer() const { return m_portsGatherer->gdbServer(); }
     QUrl gdbServer() const { return m_portsGatherer->gdbServer(); }
-    Port qmlServerPort() const { return m_portsGatherer->qmlServerPort(); }
     QUrl qmlServer() const { return m_portsGatherer->qmlServer(); }
 
     void start() override
     {
-        const int perfPort = m_portsGatherer->gdbServerPort().number();
-        const int gdbServerPort = m_portsGatherer->gdbServerPort().number();
-        const int qmlServerPort = m_portsGatherer->qmlServerPort().number();
+        const int perfPort = m_portsGatherer->gdbServer().port();
+        const int gdbServerPort = m_portsGatherer->gdbServer().port();
+        const int qmlServerPort = m_portsGatherer->qmlServer().port();
 
         int lowerPort = 0;
         int upperPort = 0;
@@ -212,11 +211,7 @@ QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runContro
 
 void QdbDevicePerfProfilerSupport::start()
 {
-    QUrl url;
-    url.setScheme(Utils::urlTcpScheme());
-    url.setHost(device()->sshParameters().host());
-    url.setPort(m_profilee->perfPort().number());
-    runControl()->setProperty("PerfConnection", url);
+    runControl()->setProperty("PerfConnection", m_profilee->perfServer());
     reportStarted();
 }
 

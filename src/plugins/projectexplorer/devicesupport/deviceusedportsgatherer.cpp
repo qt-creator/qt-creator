@@ -197,9 +197,13 @@ void PortsGatherer::start()
     m_portsGatherer.start(device());
 }
 
-Port PortsGatherer::findPort()
+QUrl PortsGatherer::findEndPoint()
 {
-    return m_portsGatherer.getNextFreePort(&m_portList);
+    QUrl result;
+    result.setScheme(urlTcpScheme());
+    result.setHost(device()->sshParameters().host());
+    result.setPort(m_portsGatherer.getNextFreePort(&m_portList).number());
+    return result;
 }
 
 void PortsGatherer::stop()
@@ -268,11 +272,7 @@ public:
                 if (m_channelForwarder) {
                     m_channelForwarder->addStartDependency(m_portGatherer);
                     m_channelForwarder->setFromUrlGetter([this] {
-                        QUrl url;
-                        url.setScheme(urlTcpScheme());
-                        url.setHost(device()->sshParameters().host());
-                        url.setPort(m_portGatherer->findPort().number());
-                        return url;
+                        return m_portGatherer->findEndPoint();
                     });
                     addStartDependency(m_channelForwarder);
                 }
@@ -287,7 +287,7 @@ public:
         if (m_channelForwarder)
             m_channel.setPort(m_channelForwarder->recordedData("LocalPort").toUInt());
         else if (m_portGatherer)
-            m_channel.setPort(m_portGatherer->findPort().number());
+            m_channel.setPort(m_portGatherer->findEndPoint().port());
         reportStarted();
     }
 

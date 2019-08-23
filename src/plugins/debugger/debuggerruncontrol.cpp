@@ -845,7 +845,7 @@ bool DebuggerRunTool::fixupParameters()
         if (rp.startMode != AttachExternal && rp.startMode != AttachCrashedExternal) {
             QString qmlarg = rp.isCppDebugging() && rp.nativeMixedEnabled
                     ? QmlDebug::qmlDebugNativeArguments(service, false)
-                    : QmlDebug::qmlDebugTcpArguments(service, Port(rp.qmlServer.port()));
+                    : QmlDebug::qmlDebugTcpArguments(service, rp.qmlServer);
             QtcProcess::addArg(&rp.inferior.commandLineArguments, qmlarg);
         }
     }
@@ -1047,21 +1047,9 @@ GdbServerPortsGatherer::GdbServerPortsGatherer(RunControl *runControl)
 
 GdbServerPortsGatherer::~GdbServerPortsGatherer() = default;
 
-Port GdbServerPortsGatherer::gdbServerPort() const
-{
-    QUrl url = channel(0);
-    return Port(url.port());
-}
-
 QUrl GdbServerPortsGatherer::gdbServer() const
 {
     return channel(0);
-}
-
-Port GdbServerPortsGatherer::qmlServerPort() const
-{
-    QUrl url = channel(1);
-    return Port(url.port());
 }
 
 QUrl GdbServerPortsGatherer::qmlServer() const
@@ -1111,7 +1099,7 @@ void GdbServerRunner::start()
 
     if (isQmlDebugging) {
         args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                    m_portsGatherer->qmlServerPort()));
+                                                    m_portsGatherer->qmlServer()));
     }
     if (isQmlDebugging && !isCppDebugging) {
         gdbserver.executable = m_runnable.executable; // FIXME: Case should not happen?
@@ -1124,7 +1112,7 @@ void GdbServerRunner::start()
             args.append("--multi");
         if (m_pid.isValid())
             args.append("--attach");
-        args.append(QString(":%1").arg(m_portsGatherer->gdbServerPort().number()));
+        args.append(QString(":%1").arg(m_portsGatherer->gdbServer().port()));
         if (m_pid.isValid())
             args.append(QString::number(m_pid.pid()));
     }

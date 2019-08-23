@@ -108,13 +108,13 @@ private:
         Runnable r = runnable();
         QStringList arguments;
         if (m_portsGatherer->useGdbServer()) {
-            Port pdebugPort = m_portsGatherer->gdbServerPort();
+            int pdebugPort = m_portsGatherer->gdbServer().port();
             r.executable = FilePath::fromString(Constants::QNX_DEBUG_EXECUTABLE);
-            arguments.append(pdebugPort.toString());
+            arguments.append(QString::number(pdebugPort));
         }
         if (m_portsGatherer->useQmlServer()) {
             arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                            m_portsGatherer->qmlServerPort()));
+                                                            m_portsGatherer->qmlServer()));
         }
         arguments.append(QtcProcess::splitArgs(r.commandLineArguments));
         r.commandLineArguments = QtcProcess::joinArgs(arguments);
@@ -206,11 +206,11 @@ public:
 private:
     void start() final
     {
-        Port pdebugPort = m_portsGatherer->gdbServerPort();
+        const int pdebugPort = m_portsGatherer->gdbServer().port();
 
         Runnable r;
         r.executable = FilePath::fromString(Constants::QNX_DEBUG_EXECUTABLE);
-        r.commandLineArguments = pdebugPort.toString();
+        r.commandLineArguments = QString::number(pdebugPort);
         setRunnable(r);
 
         SimpleTargetRunner::start();

@@ -74,7 +74,7 @@ public:
     explicit PortsGatherer(RunControl *runControl);
     ~PortsGatherer() override;
 
-    Utils::Port findPort();
+    QUrl findEndPoint();
 
 protected:
     void start() override;

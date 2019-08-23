@@ -147,12 +147,10 @@ public:
 
     void setUseGdbServer(bool useIt) { m_useGdbServer = useIt; }
     bool useGdbServer() const { return m_useGdbServer; }
-    Utils::Port gdbServerPort() const;
     QUrl gdbServer() const;
 
     void setUseQmlServer(bool useIt) { m_useQmlServer = useIt; }
     bool useQmlServer() const { return m_useQmlServer; }
-    Utils::Port qmlServerPort() const;
     QUrl qmlServer() const;
 
 private:

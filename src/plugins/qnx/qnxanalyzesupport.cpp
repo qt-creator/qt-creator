@@ -66,17 +66,12 @@ QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
 
 void QnxQmlProfilerSupport::start()
 {
-    Port qmlPort = m_portsGatherer->findPort();
-
-    QUrl serverUrl;
-    serverUrl.setHost(device()->sshParameters().host());
-    serverUrl.setPort(qmlPort.number());
-    serverUrl.setScheme("tcp");
+    const QUrl serverUrl = m_portsGatherer->findEndPoint();
     m_profiler->recordData("QmlServerUrl", serverUrl);
 
     Runnable r = runnable();
     QtcProcess::addArg(&r.commandLineArguments,
-                       QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlPort),
+                       QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl),
                        device()->osType());
 
     setRunnable(r);

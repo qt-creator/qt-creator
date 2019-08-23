@@ -199,8 +199,11 @@ void IosRunner::start()
             this, &IosRunner::handleFinished);
 
     QStringList args = QtcProcess::splitArgs(m_arguments, OsTypeMac);
-    if (m_qmlServerPort.isValid())
-        args.append(QmlDebug::qmlDebugTcpArguments(m_qmlDebugServices, m_qmlServerPort));
+    if (m_qmlServerPort.isValid()) {
+        QUrl qmlServer;
+        qmlServer.setPort(m_qmlServerPort.number());
+        args.append(QmlDebug::qmlDebugTcpArguments(m_qmlDebugServices, qmlServer));
+    }
 
     m_toolHandler->requestRunApp(bundlePath(), args, runType(), deviceId());
 }

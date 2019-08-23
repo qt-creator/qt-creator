@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <utils/port.h>
 #include <QString>
 #include <QUrl>
 
@@ -69,9 +68,10 @@ inline QString qmlDebugCommandLineArguments(QmlDebugServicesPreset services,
 }
 
 inline QString qmlDebugTcpArguments(QmlDebugServicesPreset services,
-                                    Utils::Port port, bool block = true)
+                                    const QUrl &server, bool block = true)
 {
-    return qmlDebugCommandLineArguments(services, QString("port:%1").arg(port.number()), block);
+    //  TODO: Also generate host:<host> if applicable.
+    return qmlDebugCommandLineArguments(services, QString("port:%1").arg(server.port()), block);
 }
 
 inline QString qmlDebugNativeArguments(QmlDebugServicesPreset services, bool block = true)

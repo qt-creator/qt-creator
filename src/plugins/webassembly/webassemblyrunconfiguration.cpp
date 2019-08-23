@@ -99,7 +99,7 @@ public:
     {
         CommandLine cmd = emrunCommand(runControl()->target(),
                                        runControl()->aspect<WebBrowserSelectionAspect>()->currentBrowser(),
-                                       m_portsGatherer->findPort().toString());
+                                       QString::number(m_portsGatherer->findEndPoint().port()));
         Runnable r;
         r.setCommandLine(cmd);
         setRunnable(r);

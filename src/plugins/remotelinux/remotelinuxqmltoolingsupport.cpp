@@ -57,16 +57,12 @@ RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(
 
 void RemoteLinuxQmlToolingSupport::start()
 {
-    Port qmlPort = m_portsGatherer->findPort();
+    const QUrl serverUrl = m_portsGatherer->findEndPoint();
 
-    QUrl serverUrl;
-    serverUrl.setScheme(urlTcpScheme());
-    serverUrl.setHost(device()->sshParameters().host());
-    serverUrl.setPort(qmlPort.number());
     m_runworker->recordData("QmlServerUrl", serverUrl);
 
     Runnable r = runnable();
-    QtcProcess::addArg(&r.commandLineArguments, QmlDebug::qmlDebugTcpArguments(m_services, qmlPort),
+    QtcProcess::addArg(&r.commandLineArguments, QmlDebug::qmlDebugTcpArguments(m_services, serverUrl),
                        device()->osType());
 
     setRunnable(r);
