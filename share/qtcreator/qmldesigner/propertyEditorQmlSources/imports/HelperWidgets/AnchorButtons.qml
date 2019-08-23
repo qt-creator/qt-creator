@@ -40,10 +40,10 @@ StudioControls.ButtonRow {
         id: group
     }
 
-    StudioControls.AbstractButton {
+    AbstractButton {
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorTop
-        //tooltip: qsTr("Anchor item to the top.")
+        tooltip: qsTr("Anchor item to the top.")
 
         property bool topAnchored: anchorBackend.topAnchored
         onTopAnchoredChanged: {
@@ -61,10 +61,10 @@ StudioControls.ButtonRow {
         }
     }
 
-    StudioControls.AbstractButton {
+    AbstractButton {
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorBottom
-        //tooltip: qsTr("Anchor item to the bottom.")
+        tooltip: qsTr("Anchor item to the bottom.")
 
         property bool bottomAnchored: anchorBackend.bottomAnchored
         onBottomAnchoredChanged: {
@@ -80,13 +80,12 @@ StudioControls.ButtonRow {
                 anchorBackend.bottomAnchored = false;
             }
         }
-
     }
 
-    StudioControls.AbstractButton {
+    AbstractButton {
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorLeft
-        //tooltip: qsTr("Anchor item to the left.")
+        tooltip: qsTr("Anchor item to the left.")
 
         property bool leftAnchored: anchorBackend.leftAnchored
         onLeftAnchoredChanged: {
@@ -104,10 +103,10 @@ StudioControls.ButtonRow {
         }
     }
 
-    StudioControls.AbstractButton {
+    AbstractButton {
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorRight
-        //tooltip: qsTr("Anchor item to the right.")
+        tooltip: qsTr("Anchor item to the right.")
 
         property bool rightAnchored: anchorBackend.rightAnchored
         onRightAnchoredChanged: {
@@ -125,15 +124,14 @@ StudioControls.ButtonRow {
         }
     }
 
-    StudioControls.AbstractButton {
+    AbstractButton {
         enabled: false
     }
 
-
-    StudioControls.AbstractButton {
+    AbstractButton {
         checkable: true
         buttonIcon: StudioTheme.Constants.anchorFill
-        //tooltip: qsTr("Fill parent item.")
+        tooltip: qsTr("Fill parent item.")
 
         property bool isFilled: anchorBackend.isFilled
         onIsFilledChanged: {
@@ -149,14 +147,14 @@ StudioControls.ButtonRow {
         }
     }
 
-    StudioControls.AbstractButton {
+    AbstractButton {
         enabled: false
     }
 
-    StudioControls.AbstractButton {
+    AbstractButton {
         checkable: true
         buttonIcon: StudioTheme.Constants.centerVertical
-        //tooltip: qsTr("Anchor item vertically.")
+        tooltip: qsTr("Anchor item vertically.")
 
         property bool verticalCentered: anchorBackend.verticalCentered;
         onVerticalCenteredChanged: {
@@ -176,10 +174,10 @@ StudioControls.ButtonRow {
         }
     }
 
-    StudioControls.AbstractButton {
+    AbstractButton {
         checkable: true
         buttonIcon: StudioTheme.Constants.centerHorizontal
-        //tooltip: qsTr("Anchor item horizontally.")
+        tooltip: qsTr("Anchor item horizontally.")
 
         property bool horizontalCentered: anchorBackend.horizontalCentered;
         onHorizontalCenteredChanged: {
