@@ -75,11 +75,11 @@ Item {
             }
         }
 
-        labelColor: edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
+        labelColor: spinBox.edit ? StudioTheme.Values.themeTextColor : colorLogic.textColor
 
         onCompressedRealValueModified: {
-            if (backendValue.value !== realValue)
-                backendValue.value = realValue;
+            if (spinBox.backendValue.value !== spinBox.realValue)
+                spinBox.backendValue.value = spinBox.realValue;
         }
     }
 }
