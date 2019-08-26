@@ -79,6 +79,7 @@ public:
     QString currentTimelineId() const;
 
     void setCurrentState(const QString &name);
+    void setBlockReflection(bool block);
     void setCurrentTimeline(const QmlTimeline &timeline);
     void setStartFrame(qreal frame);
     void setCurrentFrame(qreal frame);
@@ -116,6 +117,7 @@ private:
     QLineEdit *m_lastFrame = nullptr;
 
     QAction *m_recording = nullptr;
+    bool m_blockReflection = false;
 };
 
 } // namespace QmlDesigner

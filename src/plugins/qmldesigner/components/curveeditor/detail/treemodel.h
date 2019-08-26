@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "treeitem.h"
+
 #include <QAbstractItemModel>
 
 #include <vector>
@@ -32,7 +34,7 @@
 namespace DesignTools {
 
 class GraphicsView;
-class TreeItem;
+class TreeView;
 
 class TreeModel : public QAbstractItemModel
 {
@@ -45,7 +47,9 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const override;
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section,
+                        Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
@@ -55,10 +59,16 @@ public:
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+    void setTreeView(TreeView *view);
+
     void setGraphicsView(GraphicsView *view);
 
 protected:
     GraphicsView *graphicsView() const;
+
+    std::vector<TreeItem::Path> selection() const;
+
+    void select(const std::vector<TreeItem::Path> &selection);
 
     void initialize();
 
@@ -66,8 +76,14 @@ protected:
 
     TreeItem *find(unsigned int id);
 
+    QModelIndex findIdx(const QString &name, const QModelIndex &parent) const;
+
+    QModelIndex indexOf(const TreeItem::Path &path) const;
+
 private:
     GraphicsView *m_view;
+
+    TreeView *m_tree;
 
     TreeItem *m_root;
 };

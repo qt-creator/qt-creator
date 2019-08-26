@@ -154,8 +154,16 @@ void TimelineToolBar::setCurrentState(const QString &name)
         m_stateLabel->setText(name);
 }
 
+void TimelineToolBar::setBlockReflection(bool block)
+{
+    m_blockReflection = block;
+}
+
 void TimelineToolBar::setCurrentTimeline(const QmlTimeline &timeline)
 {
+    if (m_blockReflection)
+        return;
+
     if (timeline.isValid()) {
         setStartFrame(timeline.startKeyframe());
         setEndFrame(timeline.endKeyframe());

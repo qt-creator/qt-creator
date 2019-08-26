@@ -61,12 +61,12 @@ AnimationCurve::AnimationCurve(const QEasingCurve &easing, const QPointF &start,
     };
 
     QVector<QPointF> points = easing.toCubicSpline();
-    int numSegments = points.count() / 3;
+    int numSegments = points.size() / 3;
 
     Keyframe current;
     Keyframe tmp(start);
 
-    current.setInterpolation(Keyframe::Interpolation::Bezier);
+    current.setInterpolation(Keyframe::Interpolation::Linear);
     tmp.setInterpolation(Keyframe::Interpolation::Bezier);
 
     for (int i = 0; i < numSegments; i++) {
@@ -79,6 +79,8 @@ AnimationCurve::AnimationCurve(const QEasingCurve &easing, const QPointF &start,
         current.setRightHandle(p1);
 
         m_frames.push_back(current);
+
+        current.setInterpolation(tmp.interpolation());
 
         tmp.setLeftHandle(p2);
         tmp.setPosition(p3);
@@ -187,6 +189,14 @@ QPainterPath AnimationCurve::intersectionPath() const
     QPainterPath reversed = path.toReversed();
     path.connectPath(reversed);
     return path;
+}
+
+Keyframe AnimationCurve::keyframeAt(size_t id) const
+{
+    if (id >= m_frames.size())
+        return Keyframe();
+
+    return m_frames.at(id);
 }
 
 std::vector<Keyframe> AnimationCurve::keyframes() const

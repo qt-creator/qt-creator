@@ -26,6 +26,7 @@
 #include "treemodel.h"
 #include "detail/graphicsview.h"
 #include "treeitem.h"
+#include "treeview.h"
 
 #include <QIcon>
 
@@ -125,6 +126,11 @@ int TreeModel::columnCount(const QModelIndex &parent) const
     return m_root->columnCount();
 }
 
+void TreeModel::setTreeView(TreeView *view)
+{
+    m_tree = view;
+}
+
 void TreeModel::setGraphicsView(GraphicsView *view)
 {
     m_view = view;
@@ -133,6 +139,52 @@ void TreeModel::setGraphicsView(GraphicsView *view)
 GraphicsView *TreeModel::graphicsView() const
 {
     return m_view;
+}
+
+std::vector<TreeItem::Path> TreeModel::selection() const
+{
+    std::vector<TreeItem::Path> out;
+    for (auto &&index : m_tree->selectionModel()->selectedIndexes()) {
+        if (index.column() == 0) {
+            TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
+            out.push_back(item->path());
+        }
+    }
+    return out;
+}
+
+QModelIndex TreeModel::findIdx(const QString &name, const QModelIndex &parent) const
+{
+    for (int i = 0; i < rowCount(parent); ++i) {
+        QModelIndex idx = index(i, 0, parent);
+        if (idx.isValid()) {
+            TreeItem *item = static_cast<TreeItem *>(idx.internalPointer());
+            if (item->name() == name)
+                return idx;
+        }
+    }
+    return QModelIndex();
+}
+
+QModelIndex TreeModel::indexOf(const TreeItem::Path &path) const
+{
+    QModelIndex parent;
+    for (size_t i = 0; i < path.size(); ++i) {
+        QModelIndex idx = findIdx(path[i], parent);
+        if (idx.isValid())
+            parent = idx;
+    }
+
+    return parent;
+}
+
+void TreeModel::select(const std::vector<TreeItem::Path> &selection)
+{
+    for (auto &&sel : selection) {
+        QModelIndex idx = indexOf(sel);
+        if (idx.isValid())
+            m_tree->selectionModel()->select(idx, QItemSelectionModel::Select);
+    }
 }
 
 void TreeModel::initialize()

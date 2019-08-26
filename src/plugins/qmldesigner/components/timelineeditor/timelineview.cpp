@@ -142,7 +142,7 @@ void TimelineView::nodeRemoved(const ModelNode & /*removedNode*/,
 void TimelineView::nodeReparented(const ModelNode &node,
                                   const NodeAbstractProperty &newPropertyParent,
                                   const NodeAbstractProperty & /*oldPropertyParent*/,
-                                  AbstractView::PropertyChangeFlags /*propertyChange*/)
+                                  AbstractView::PropertyChangeFlags propertyChange)
 {
     if (newPropertyParent.isValid()
         && QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(
@@ -151,7 +151,7 @@ void TimelineView::nodeReparented(const ModelNode &node,
         m_timelineWidget->graphicsScene()->invalidateSectionForTarget(frames.target());
 
         QmlTimeline currentTimeline = m_timelineWidget->graphicsScene()->currentTimeline();
-        if (currentTimeline.isValid())
+        if (currentTimeline.isValid() && propertyChange == AbstractView::NoAdditionalChanges)
             m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
 
     } else if (QmlTimelineKeyframeGroup::checkKeyframesType(
@@ -196,8 +196,22 @@ void TimelineView::variantPropertiesChanged(const QList<VariantProperty> &proper
                 m_timelineWidget->graphicsScene()->invalidateKeyframesForTarget(frames.target());
 
                 QmlTimeline currentTimeline = m_timelineWidget->graphicsScene()->currentTimeline();
-                m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
+                if (currentTimeline.isValid())
+                    m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
             }
+        }
+    }
+}
+
+void TimelineView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                            AbstractView::PropertyChangeFlags propertyChange)
+{
+    Q_UNUSED(propertyChange)
+    for (const auto &property : propertyList) {
+        if (property.name() == "easing.bezierCurve") {
+            QmlTimeline currentTimeline = m_timelineWidget->graphicsScene()->currentTimeline();
+            if (currentTimeline.isValid())
+                m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
         }
     }
 }
