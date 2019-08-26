@@ -316,7 +316,7 @@ TEST_F(ProjectUpdater, ProjectPartIdsPrefetchingInsideTransaction)
                                             settingsManager};
 
     EXPECT_CALL(mockSqliteTransactionBackend, deferredBegin());
-    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartIdUnguarded(Eq(projectPartName)));
+    EXPECT_CALL(mockProjectPartsStorage, fetchProjectPartIdUnguarded(Eq(projectPartName))).WillOnce(Return(1));
     EXPECT_CALL(mockSqliteTransactionBackend, commit());
 
     updater.fetchProjectPartIds({&projectPart});
