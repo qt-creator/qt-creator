@@ -324,6 +324,7 @@ public:
     Utils::Icon icon;
     MacroExpander *macroExpander;
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
+    QString buildKey;
     Core::Id runConfigId;
     Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
@@ -358,6 +359,7 @@ void RunControl::setRunConfiguration(RunConfiguration *runConfig)
     d->runnable = runConfig->runnable();
     d->displayName = runConfig->displayName();
     d->macroExpander = runConfig->macroExpander();
+    d->buildKey = runConfig->buildKey();
     setTarget(runConfig->target());
 }
 
@@ -895,17 +897,17 @@ ISettingsAspect *RunControl::settings(Core::Id id) const
 
 QString RunControl::buildKey() const
 {
-    return d->runConfiguration ? d->runConfiguration->buildKey() : QString();
+    return d->buildKey;
 }
 
 FilePath RunControl::targetFilePath() const
 {
-    return d->runConfiguration->buildTargetInfo().targetFilePath;
+    return d->target->buildTarget(d->buildKey).targetFilePath;
 }
 
 FilePath RunControl::projectFilePath() const
 {
-    return d->runConfiguration->buildTargetInfo().projectFilePath;
+    return d->target->buildTarget(d->buildKey).projectFilePath;
 }
 
 /*!
