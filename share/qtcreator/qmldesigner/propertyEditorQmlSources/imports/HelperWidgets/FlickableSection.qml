@@ -50,7 +50,8 @@ Section {
                 Layout.fillWidth: true
                 scope: "Flickable"
             }
-
+            ExpandingSpacer {
+            }
         }
 
         Label {
@@ -65,7 +66,8 @@ Section {
                 Layout.fillWidth: true
                 scope: "Flickable"
             }
-
+            ExpandingSpacer {
+            }
         }
 
 
@@ -81,18 +83,21 @@ Section {
                 Layout.fillWidth: true
                 scope: "Flickable"
             }
-
+            ExpandingSpacer {
+            }
         }
 
         Label {
-            text:qsTr("Interactive")
+            text: qsTr("Interactive")
+            tooltip: qsTr("Describes whether the user can interact with the Flickable. A user cannot drag or flick a Flickable that is not interactive.")
         }
 
         SecondColumnLayout {
             CheckBox {
+                Layout.fillWidth: true
                 backendValue: backendValues.interactive
+                text: backendValues.interactive.valueToString
             }
-
             ExpandingSpacer {
             }
         }
@@ -109,7 +114,6 @@ Section {
                 maximumValue: 8000
                 decimals: 0
             }
-
             ExpandingSpacer {
             }
         }
@@ -126,7 +130,6 @@ Section {
                 maximumValue: 8000
                 decimals: 0
             }
-
             ExpandingSpacer {
             }
         }
@@ -143,21 +146,21 @@ Section {
                 maximumValue: 2000
                 decimals: 0
             }
-
             ExpandingSpacer {
             }
         }
 
         Label {
-            text:qsTr("Pixel aligned")
+            text: qsTr("Pixel aligned")
+            tooltip: qsTr("Sets the alignment of contentX and contentY to pixels (true) or subpixels (false).")
         }
 
         SecondColumnLayout {
             CheckBox {
+                Layout.fillWidth: true
                 backendValue: backendValues.pixelAligned
-                tooltip: qsTr("Sets the alignment of contentX and contentY to pixels (true) or subpixels (false).")
+                text: backendValues.pixelAligned.valueToString
             }
-
             ExpandingSpacer {
             }
         }
@@ -170,7 +173,7 @@ Section {
 
             Label {
                 text: "W"
-                width: 28
+                width: 42
             }
 
             SpinBox {
@@ -178,6 +181,7 @@ Section {
                 minimumValue: 0
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth
+                Layout.fillWidth: true
             }
 
             Item {
@@ -187,7 +191,7 @@ Section {
 
             Label {
                 text: "H"
-                width: 28
+                width: 42
             }
 
             SpinBox {
@@ -195,11 +199,9 @@ Section {
                 minimumValue: 0
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth
-
+                Layout.fillWidth: true
             }
-
             ExpandingSpacer {
-
             }
         }
 
@@ -211,7 +213,7 @@ Section {
 
             Label {
                 text: "X"
-                width: 28
+                width: 42
             }
 
             SpinBox {
@@ -219,6 +221,7 @@ Section {
                 minimumValue: 0
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth
+                Layout.fillWidth: true
             }
 
             Item {
@@ -228,7 +231,7 @@ Section {
 
             Label {
                 text: "Y"
-                width: 28
+                width: 42
             }
 
             SpinBox {
@@ -236,11 +239,9 @@ Section {
                 minimumValue: 0
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth
-
+                Layout.fillWidth: true
             }
-
             ExpandingSpacer {
-
             }
         }
 
@@ -253,7 +254,7 @@ Section {
 
             Label {
                 text: "Top"
-                width: 28
+                width: 42
             }
 
             SpinBox {
@@ -262,6 +263,7 @@ Section {
                 minimumValue: 0
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
+                Layout.fillWidth: true
             }
 
             Item {
@@ -271,7 +273,7 @@ Section {
 
             Label {
                 text: "Bottom"
-                width: 28
+                width: 42
             }
 
             SpinBox {
@@ -280,9 +282,9 @@ Section {
                 minimumValue: 0
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
+                Layout.fillWidth: true
             }
             ExpandingSpacer {
-
             }
         }
 
@@ -295,7 +297,7 @@ Section {
 
             Label {
                 text: "Left"
-                width: 28
+                width: 42
             }
 
             SpinBox {
@@ -304,6 +306,7 @@ Section {
                 minimumValue: 0
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
+                Layout.fillWidth: true
             }
 
             Item {
@@ -313,7 +316,7 @@ Section {
 
             Label {
                 text: "Right"
-                width: 28
+                width: 42
             }
 
             SpinBox {
@@ -322,11 +325,10 @@ Section {
                 minimumValue: 0
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
+                Layout.fillWidth: true
             }
             ExpandingSpacer {
-
             }
         }
-
     }
 }

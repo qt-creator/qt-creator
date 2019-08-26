@@ -46,13 +46,11 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.dragMargin
-                    minimumValue: 0;
-                    maximumValue: 100;
+                    minimumValue: 0
+                    maximumValue: 100
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -63,13 +61,11 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.flickDeceleration
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -80,11 +76,11 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    Layout.fillWidth: true
                     backendValue: backendValues.interactive
+                    text: backendValues.interactive.valueToString
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -96,13 +92,11 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.offset
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -114,13 +108,11 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.pathItemCount
-                    minimumValue: -1;
-                    maximumValue: 1000;
+                    minimumValue: -1
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
         }
@@ -139,17 +131,14 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "PathView"
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
                     Layout.fillWidth: true
-                    scope: "PathView"
                 }
-
                 ExpandingSpacer {
-
                 }
             }
-
 
             Label {
                 text: qsTr("Move duration")
@@ -159,13 +148,11 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.highlightMoveDuration
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -177,13 +164,11 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.preferredHighlightBegin
-                    minimumValue: 0;
-                    maximumValue: 1;
+                    minimumValue: 0
+                    maximumValue: 1
                     decimals: 2
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -195,13 +180,11 @@ Column {
             SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.preferredHighlightEnd
-                    minimumValue: 0;
-                    maximumValue: 1;
+                    minimumValue: 0
+                    maximumValue: 1
                     decimals: 2
                 }
-
                 ExpandingSpacer {
-
                 }
             }
         }

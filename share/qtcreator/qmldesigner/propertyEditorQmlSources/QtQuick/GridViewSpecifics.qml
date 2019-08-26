@@ -51,13 +51,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.cacheBuffer
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -66,36 +64,35 @@ Column {
             }
 
             SecondColumnLayout {
-
                 Label {
                     text: "W"
                     width: 12
                 }
-
                 SpinBox {
                     backendValue: backendValues.cellWidth
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
+                }
+
+                Item {
+                    width: 4
+                    height: 4
                 }
 
                 Label {
                     text: "H"
                     width: 12
                 }
-
                 SpinBox {
                     backendValue: backendValues.cellHeight
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
-
 
             Label {
                 text: qsTr("Flow")
@@ -103,10 +100,12 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "GridView"
                     model: ["FlowLeftToRight", "FlowTopToBottom"]
                     backendValue: backendValues.flow
                     Layout.fillWidth: true
-                    scope: "GridView"
+                }
+                ExpandingSpacer {
                 }
             }
 
@@ -117,11 +116,11 @@ Column {
 
             SectionLayout {
                 CheckBox {
+                    Layout.fillWidth: true
                     backendValue: backendValues.keyNavigationWraps
+                    text: backendValues.keyNavigationWraps.valueToString
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -131,10 +130,12 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "Qt"
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
                     Layout.fillWidth: true
-                    scope: "Qt"
+                }
+                ExpandingSpacer {
                 }
             }
 
@@ -145,10 +146,12 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "GridView"
                     model: ["NoSnap", "SnapToRow", "SnapOneRow"]
                     backendValue: backendValues.snapMode
                     Layout.fillWidth: true
-                    scope: "GridView"
+                }
+                ExpandingSpacer {
                 }
             }
 
@@ -169,13 +172,14 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "GridView"
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
                     Layout.fillWidth: true
-                    scope: "GridView"
+                }
+                ExpandingSpacer {
                 }
             }
-
 
             Label {
                 text: qsTr("Move duration")
@@ -185,13 +189,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.highlightMoveDuration
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -203,13 +205,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.highlightMoveSpeed
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -221,13 +221,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.preferredHighlightBegin
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -239,13 +237,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.preferredHighlightEnd
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -256,11 +252,11 @@ Column {
 
             SectionLayout {
                 CheckBox {
+                    Layout.fillWidth: true
                     backendValue: backendValues.highlightFollowsCurrentItem
+                    text: backendValues.highlightFollowsCurrentItem.valueToString
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 

@@ -122,4 +122,7 @@ QtObject {
     property string themeControlBackgroundInteraction: "#404040" // TODO Name. Right now themeFocusEdit is used for all 'edit' states. Is that correct? Different color!
 
     property string themeTranslationIndicatorBorder: "#7f7f7f"
+
+    // Taken out of Constants.js
+    property string themeChangedStateText: "#99ccff"
 }

@@ -51,13 +51,12 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.cacheBuffer
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
 
                 ExpandingSpacer {
-
                 }
             }
 
@@ -68,11 +67,11 @@ Column {
 
             SectionLayout {
                 CheckBox {
+                    Layout.fillWidth: true
                     backendValue: backendValues.keyNavigationWraps
+                    text: backendValues.keyNavigationWraps.valueToString
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -83,12 +82,13 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "ListView"
                     model: ["Horizontal", "Vertical"]
                     backendValue: backendValues.orientation
                     Layout.fillWidth: true
-                    scope: "ListView"
                 }
-
+                ExpandingSpacer {
+                }
             }
 
             Label {
@@ -97,14 +97,12 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "Qt"
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
-                    scope: "Qt"
                     Layout.fillWidth: true
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -115,14 +113,12 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "ListView"
                     model: ["NoSnap", "SnapToItem", "SnapOneItem"]
                     backendValue: backendValues.snapMode
-                    scope: "ListView"
                     Layout.fillWidth: true
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -134,13 +130,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.spacing
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -161,14 +155,12 @@ Column {
 
             SecondColumnLayout {
                 ComboBox {
+                    scope: "ListView"
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
                     Layout.fillWidth: true
-                    scope: "ListView"
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -181,13 +173,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.highlightMoveDuration
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -199,13 +189,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.highlightMoveSpeed
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -217,13 +205,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.highlightResizeDuration
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -235,13 +221,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.preferredHighlightBegin
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -253,13 +237,11 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.preferredHighlightEnd
-                    minimumValue: 0;
-                    maximumValue: 1000;
+                    minimumValue: 0
+                    maximumValue: 1000
                     decimals: 0
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 
@@ -270,11 +252,11 @@ Column {
 
             SectionLayout {
                 CheckBox {
+                    Layout.fillWidth: true
                     backendValue: backendValues.highlightFollowsCurrentItem
+                    text: backendValues.highlightFollowsCurrentItem.valueToString
                 }
-
                 ExpandingSpacer {
-
                 }
             }
 

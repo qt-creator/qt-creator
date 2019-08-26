@@ -44,11 +44,12 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    Layout.fillWidth: true
                     backendValue: backendValues.enabled
+                    text: backendValues.enabled.valueToString
                 }
 
                 ExpandingSpacer {
-
                 }
             }
 
@@ -59,7 +60,9 @@ Column {
 
             SecondColumnLayout {
                 CheckBox {
+                    Layout.fillWidth: true
                     backendValue: backendValues.hoverEnabled
+                    text: backendValues.hoverEnabled.valueToString
                 }
 
                 ExpandingSpacer {

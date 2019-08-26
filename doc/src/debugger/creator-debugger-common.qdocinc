@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -29,16 +29,7 @@
 
     \section1 Setting Breakpoints
 
-    A breakpoint represents a position or sets of positions in the code that,
-    when executed, interrupts the program being debugged and passes the control
-    to you. You can then examine the state of the interrupted program, or
-    continue execution either line-by-line or continuously.
 
-    \QC shows breakpoints in the \uicontrol Breakpoints view which is enabled
-    by default. The \uicontrol Breakpoints view is also accessible when the
-    debugger and the program being debugged is not running.
-
-    \image qtcreator-debug-breakpoints.png "Breakpoints view"
 
     You can associate breakpoints with:
 
@@ -68,9 +59,48 @@
     The interruption of a program by a breakpoint can be restricted with certain
     conditions.
 
-    You can set and delete breakpoints before the program starts running or
-    while it is running under the debugger's control. Breakpoints are saved
-    together with a session.
+    Breakpoints come in two varieties: \c unclaimed and \c claimed.
+    An unclaimed breakpoint represents a task to interrupt the debugged
+    program and passes the control to you later. I has two states:
+    \c pending and \c implanted.
+
+    Unclaimed breakpoints are stored as a part of a session and exist
+    independently of whether a program is being debugged or not. They
+    are listed in the \uicontrol {Breakpoint Preset} view and in the
+    editor using the \inlineimage qtcreator-unclaimed-breakpoint-icon.png
+    (\uicontrol {Unclaimed Breakpoint}) icon, when they refer to a position
+    in code.
+
+    \image qtcreator-debugger-breakpoint-preset.png "Breakpoint Preset" view
+
+    When a debugger starts, the debugging backend identifies breakpoints
+    from the set of unclaimed breakpoints that might be handled by the
+    debugged program and claims them for its own exclusive use. Claimed
+    breakpoints are listed in the \uicontrol {Breakpoints} view of the
+    running debugger. This view only exists while the debugger is running.
+
+    When a debugger claims a breakpoint, the unclaimed breakpoint disappears
+    from the \uicontrol {Breakpoint Preset} view, to appear as a pending
+    breakpoint in the \uicontrol Breakpoints view.
+
+    At various times, attempts are made to implant pending breakpoints into
+    the debugged process. Succesfull implantation might create one or more
+    implanted breakpoints, each associated with an actual address in
+    the debugged breakpoint. The implantation might also move a breakpoint
+    marker in the editor from an empty line to the next line for which the
+    actual code was generated, for example. Implanted breakpoint icons don't
+    have the hourglass overlay.
+
+    When the debugger ends, its claimed breakpoints, both pending and
+    implanted, will return to the unclaimed state and re-appear in the
+    \uicontrol{Breakpoint Preset} view.
+
+    When an implanted breakpoint is hit during the execution of the
+    debugged program, control is passed back to you.
+    You can then examine the state of the interrupted program, or
+    continue execution either line-by-line or continuously.
+
+    \image qtcreator-debug-breakpoints.png "Breakpoints view"
 
     \section2 Adding Breakpoints
 
@@ -86,12 +116,14 @@
                     (\key F8 for \macos) at a particular line you want the
                     program to stop.
 
-                \li In the \uicontrol Breakpoints view, double-click in the empty
-                    part of the view.
+                \li In the \uicontrol {Breakpoint Preset} view or the
+                    \uicontrol Breakpoints view:
 
-                \li In the \uicontrol Breakpoints view, select
-                    \uicontrol {Add Breakpoint} in the context menu.
-
+                    \list
+                        \li Double-click the empty part of the view.
+                        \li Right-click the view, and select
+                            \uicontrol {Add Breakpoint} in the context menu.
+                    \endlist
             \endlist
 
         \li In the \uicontrol {Breakpoint type} field, select the location in the
@@ -119,7 +151,16 @@
 
     \section2 Moving Breakpoints
 
-    To move the breakpoint, drag and drop a breakpoint marker to another line.
+    To move a breakpoint:
+
+    \list
+        \li Drag and drop a breakpoint marker to another line
+            in the text editor.
+        \li In the \uicontrol {Breakpoint Preset} view or the
+             \uicontrol Breakpoints view, select
+             \uicontrol {Edit Selected Breakpoints}, and set the
+             line number in the \uicontrol {Line number} field.
+    \endlist
 
     \section2 Deleting Breakpoints
 
@@ -129,11 +170,15 @@
 
         \li Click the breakpoint marker in the text editor.
 
-        \li Select the breakpoint in the \uicontrol Breakpoints view and press
-            \key Delete.
-
-        \li Select \uicontrol {Delete Breakpoint} in the context menu in the
-            \uicontrol Breakpoints view.
+        \li In the \uicontrol {Breakpoint Preset} view or the
+            \uicontrol Breakpoints view:
+            \list
+                \li Select the breakpoint and press \key Delete.
+                \li Select \uicontrol {Delete Selected Breakpoints},
+                    \uicontrol {Delete Selected Breakpoints}, or
+                    \uicontrol {Delete Breakpoints of File} in the
+                    context menu.
+            \endlist
 
     \endlist
 
@@ -147,31 +192,17 @@
         \li Right-click the breakpoint marker in the text editor and select
             \uicontrol{Disable Breakpoint}.
 
-        \li Select the breakpoint in the \uicontrol Breakpoints view and press
-            \key Space.
-
-        \li Select \uicontrol {Disabled Breakpoint} in the context menu in the
-            \uicontrol Breakpoints view.
-
+        \li In the \uicontrol {Breakpoint Preset} view or the
+            \uicontrol Breakpoints view:
+            \list
+                \li Select the breakpoint and press \key Space.
+                \li Select \uicontrol {Disable Breakpoint} in the context menu.
+            \endlist
     \endlist
 
-    A disabled breakpoint is marked with a hollow read circle in the
-    text editor and the \uicontrol Breakpoint view.
-
-    To re-enable a temporarily disabled breakpoint:
-
-    \list
-
-        \li Right-click the marker of a disabled breakpoint in the text editor and
-            select \uicontrol{Enable Breakpoint}.
-
-        \li Select a disabled breakpoint in the \uicontrol Breakpoints view and press
-            \key Space.
-
-        \li Select \uicontrol {Disabled Breakpoint} in the context menu in the
-            \uicontrol Breakpoints view.
-
-    \endlist
+    A hollow breakpoint icon in the text editor and the views indicates a
+    disabled breakpoint. To re-enable a breakpoint, use any of the above
+    methods.
 
     With the notable exception of data breakpoints, breakpoints retain their
     enabled or disabled state when the debugged program is restarted.
@@ -185,8 +216,8 @@
 
     \list 1
 
-        \li Right-click in the \uicontrol Breakpoints view to open the context
-            menu, and select \uicontrol {Add Breakpoint}.
+        \li In the \uicontrol {Breakpoint Preset} or \uicontrol Breakpoints
+            view, select \uicontrol {Add Breakpoint} in the context menu.
 
         \li In the \uicontrol {Breakpoint type} field, select
             \uicontrol {Break on data access at fixed address}.

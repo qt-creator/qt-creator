@@ -45,8 +45,8 @@ Section {
                 width: 42
             }
             SpinBox {
-                maximumValue: 9999999
-                minimumValue: -9999999
+                maximumValue: 10000
+                minimumValue: -10000
                 decimals: 0
                 backendValue: backendValues.topPadding
                 Layout.fillWidth: true
@@ -62,8 +62,8 @@ Section {
                 width: 42
             }
             SpinBox {
-                maximumValue: 9999999
-                minimumValue: -9999999
+                maximumValue: 10000
+                minimumValue: -10000
                 decimals: 0
                 backendValue: backendValues.bottomPadding
                 Layout.fillWidth: true
@@ -80,8 +80,8 @@ Section {
                 width: 42
             }
             SpinBox {
-                maximumValue: 9999999
-                minimumValue: -9999999
+                maximumValue: 10000
+                minimumValue: -10000
                 decimals: 0
                 backendValue: backendValues.leftPadding
                 Layout.fillWidth: true
@@ -97,8 +97,8 @@ Section {
                 width: 42
             }
             SpinBox {
-                maximumValue: 9999999
-                minimumValue: -9999999
+                maximumValue: 10000
+                minimumValue: -10000
                 decimals: 0
                 backendValue: backendValues.rightPadding
                 Layout.fillWidth: true
@@ -111,8 +111,8 @@ Section {
         }
         SecondColumnLayout {
             SpinBox {
-                maximumValue: 9999999
-                minimumValue: -9999999
+                maximumValue: 10000
+                minimumValue: -10000
                 decimals: 0
                 backendValue: backendValues.padding
                 Layout.fillWidth: true

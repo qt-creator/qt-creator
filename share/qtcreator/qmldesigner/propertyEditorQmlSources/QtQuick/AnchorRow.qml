@@ -89,7 +89,7 @@ RowLayout {
         }
 
         Label {
-            text: "Margin"
+            text: qsTr("Margin")
             color: __defaultTextColor
             elide: Text.ElideRight
             Layout.minimumWidth: Math.min(60, Layout.preferredWidth + 10)
