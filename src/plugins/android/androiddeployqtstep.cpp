@@ -110,9 +110,6 @@ public:
         auto resetDefaultDevices = new QPushButton(this);
         resetDefaultDevices->setText(AndroidDeployQtStep::tr("Reset Default Devices"));
 
-        auto cleanLibsPushButton = new QPushButton(this);
-        cleanLibsPushButton->setText(AndroidDeployQtStep::tr("Clean Temporary Libraries Directory on Device"));
-
         auto installMinistroButton = new QPushButton(this);
         installMinistroButton->setText(AndroidDeployQtStep::tr("Install Ministro from APK"));
 
@@ -126,10 +123,6 @@ public:
                 AndroidManager::installQASIPackage(step->target(), packagePath);
         });
 
-        connect(cleanLibsPushButton, &QAbstractButton::clicked, this, [step] {
-            AndroidManager::cleanLibsOnDevice(step->target());
-        });
-
         connect(resetDefaultDevices, &QAbstractButton::clicked, this, [step] {
             AndroidConfigurations::clearDefaultDevices(step->project());
         });
@@ -140,7 +133,6 @@ public:
         auto layout = new QVBoxLayout(this);
         layout->addWidget(uninstallPreviousPackage);
         layout->addWidget(resetDefaultDevices);
-        layout->addWidget(cleanLibsPushButton);
         layout->addWidget(installMinistroButton);
     }
 };
@@ -173,8 +165,8 @@ bool AndroidDeployQtStep::init()
 {
     m_androiddeployqtArgs = CommandLine();
 
-    m_targetArch = AndroidManager::targetArch(target());
-    if (m_targetArch.isEmpty()) {
+    m_androidABIs = AndroidManager::applicationAbis(target());
+    if (m_androidABIs.isEmpty()) {
         emit addOutput(tr("No Android arch set by the .pro file."), OutputFormat::Stderr);
         return false;
     }
@@ -189,7 +181,7 @@ bool AndroidDeployQtStep::init()
 
     auto androidBuildApkStep = AndroidBuildApkStep::findInBuild(bc);
     int minTargetApi = AndroidManager::minimumSDK(target());
-    qCDebug(deployStepLog) << "Target architecture:" << m_targetArch
+    qCDebug(deployStepLog) << "Target architecture:" << m_androidABIs
                            << "Min target API" << minTargetApi;
 
     // Try to re-use user-provided information from an earlier step of the same type.
@@ -202,7 +194,7 @@ bool AndroidDeployQtStep::init()
         info = androidDeployQtStep->m_deviceInfo;
 
     if (!info.isValid()) {
-        info = AndroidConfigurations::showDeviceDialog(project(), minTargetApi, m_targetArch);
+        info = AndroidConfigurations::showDeviceDialog(project(), minTargetApi, m_androidABIs);
         m_deviceInfo = info; // Keep around for later steps
     }
 
@@ -218,6 +210,7 @@ bool AndroidDeployQtStep::init()
 
     AndroidManager::setDeviceSerialNumber(target(), m_serialNumber);
     AndroidManager::setDeviceApiLevel(target(), info.sdk);
+    AndroidManager::setDeviceAbis(target(), info.cpuAbi);
 
     emit addOutput(tr("Deploying to %1").arg(m_serialNumber), OutputFormat::Stdout);
 
@@ -516,17 +509,11 @@ void AndroidDeployQtStep::gatherFilesToPull()
 
     QString linkerName("linker");
     QString libDirName("lib");
-    if (m_deviceInfo.cpuAbi.contains(QLatin1String("arm64-v8a")) ||
-            m_deviceInfo.cpuAbi.contains(QLatin1String("x86_64"))) {
-        const Core::Id cxxLanguageId = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
-        ToolChain *tc = ToolChainKitAspect::toolChain(target()->kit(), cxxLanguageId);
-        if (tc && tc->targetAbi().wordWidth() == 64) {
-            m_filesToPull["/system/bin/app_process64"] = buildDir + "app_process";
-            libDirName = "lib64";
-            linkerName = "linker64";
-        } else {
-            m_filesToPull["/system/bin/app_process32"] = buildDir + "app_process";
-        }
+    auto preferreABI = AndroidManager::devicePreferredAbi(target());
+    if (preferreABI == "arm64-v8a" || preferreABI == "x86_64") {
+        m_filesToPull["/system/bin/app_process64"] = buildDir + "app_process";
+        libDirName = "lib64";
+        linkerName = "linker64";
     } else {
         m_filesToPull["/system/bin/app_process32"] = buildDir + "app_process";
         m_filesToPull["/system/bin/app_process"] = buildDir + "app_process";

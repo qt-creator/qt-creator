@@ -24,7 +24,6 @@ HEADERS += \
     javaparser.h \
     androidplugin.h \
     androiddevice.h \
-    androidgdbserverkitinformation.h \
     androidqmltoolingsupport.h \
     androidmanifesteditorfactory.h \
     androidmanifesteditor.h \
@@ -69,7 +68,6 @@ SOURCES += \
     javaparser.cpp \
     androidplugin.cpp \
     androiddevice.cpp \
-    androidgdbserverkitinformation.cpp \
     androidqmltoolingsupport.cpp \
     androidmanifesteditorfactory.cpp \
     androidmanifesteditor.cpp \

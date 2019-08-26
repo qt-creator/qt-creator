@@ -246,11 +246,11 @@ void AndroidRunner::launchAVD()
         return;
 
     int deviceAPILevel = AndroidManager::minimumSDK(m_target);
-    QString targetArch = AndroidManager::targetArch(m_target);
+    QStringList androidAbis = AndroidManager::applicationAbis(m_target);
 
     // Get AVD info.
     AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(
-                m_target->project(), deviceAPILevel, targetArch);
+                m_target->project(), deviceAPILevel, androidAbis);
     AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
     emit androidDeviceInfoChanged(info);
     if (info.isValid()) {

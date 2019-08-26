@@ -102,15 +102,6 @@ static QStringList getExtraLibs(const ProjectNode *node)
     return node->data(Android::Constants::AndroidExtraLibs).toStringList();
 }
 
-static QString toNdkArch(const QString &arch)
-{
-    if (arch == QLatin1String("armeabi-v7a") || arch == QLatin1String("armeabi"))
-        return QLatin1String("arch-arm");
-    if (arch == QLatin1String("arm64-v8a"))
-        return QLatin1String("arch-arm64");
-    return QLatin1String("arch-") + arch;
-}
-
 AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &intentName)
     : Debugger::DebuggerRunTool(runControl)
 {
@@ -155,6 +146,8 @@ void AndroidDebugSupport::start()
         setSymbolFile(target->activeBuildConfiguration()->buildDirectory().pathAppended("app_process"));
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
+        QString devicePreferredAbi = AndroidManager::devicePreferredAbi(target);
+        setAbi(AndroidManager::androidAbi2Abi(devicePreferredAbi));
         QUrl gdbServer;
         gdbServer.setHost(QHostAddress(QHostAddress::LocalHost).toString());
         gdbServer.setPort(m_runner->gdbServerPort().number());
@@ -165,10 +158,13 @@ void AndroidDebugSupport::start()
         const int minimumNdk = qt ? qt->minimumNDK() : 0;
 
         int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
+        // TODO find a way to use the new sysroot layout
+        // instead ~/android/ndk-bundle/platforms/android-29/arch-arm64
+        // use ~/android/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/sysroot
         Utils::FilePath sysRoot = AndroidConfigurations::currentConfig().ndkLocation()
                 .pathAppended("platforms")
                 .pathAppended(QString("android-%1").arg(sdkVersion))
-                .pathAppended(toNdkArch(AndroidManager::targetArch(target)));
+                .pathAppended(devicePreferredAbi);
         setSysRoot(sysRoot);
         qCDebug(androidDebugSupportLog) << "Sysroot: " << sysRoot;
     }

@@ -49,8 +49,6 @@ Project {
             "androiderrormessage.cpp",
             "androidextralibrarylistmodel.cpp",
             "androidextralibrarylistmodel.h",
-            "androidgdbserverkitinformation.cpp",
-            "androidgdbserverkitinformation.h",
             "androidglobal.h",
             "androidmanager.cpp",
             "androidmanager.h",

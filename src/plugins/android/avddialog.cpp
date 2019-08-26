@@ -38,7 +38,7 @@
 using namespace Android;
 using namespace Android::Internal;
 
-AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QString &targetArch,
+AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStringList &abis,
                      QWidget *parent) :
     QDialog(parent),
     m_sdkManager(sdkManager),
@@ -50,11 +50,11 @@ AvdDialog::AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStri
     m_hideTipTimer.setInterval(2000);
     m_hideTipTimer.setSingleShot(true);
 
-    if (targetArch.isEmpty()) {
+    if (abis.isEmpty()) {
         m_avdDialog.abiComboBox->addItems(QStringList({"armeabi-v7a", "armeabi", "x86",
                                                        "arm64-v8a", "x86_64"}));
     } else {
-        m_avdDialog.abiComboBox->addItems(QStringList(targetArch));
+        m_avdDialog.abiComboBox->addItems(abis);
     }
 
     auto v = new QRegExpValidator(m_allowedNameChars, this);
@@ -79,10 +79,10 @@ bool AvdDialog::isValid() const
 }
 
 CreateAvdInfo AvdDialog::gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager *sdkManager,
-                                             int minApiLevel, QString targetArch)
+                                             int minApiLevel, const QStringList &abis)
 {
     CreateAvdInfo result;
-    AvdDialog d(minApiLevel, sdkManager, targetArch, parent);
+    AvdDialog d(minApiLevel, sdkManager, abis, parent);
     if (d.exec() != QDialog::Accepted || !d.isValid())
         return result;
 

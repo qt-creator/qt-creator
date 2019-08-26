@@ -20,7 +20,8 @@ find_package(Qt5 COMPONENTS Core Quick REQUIRED)
 @endif
 
 if(ANDROID)
-    add_library(%{ProjectName} SHARED
+    set(TARGET %{ProjectName}_${ANDROID_ABI})
+    add_library(${TARGET} SHARED
       %{MainCppFileName}
       qml.qrc
 @if %{HasTranslation}
@@ -28,7 +29,8 @@ if(ANDROID)
 @endif
     )
 else()
-    add_executable(%{ProjectName}
+    set(TARGET %{ProjectName})
+    add_executable(${TARGET}
       %{MainCppFileName}
       qml.qrc
 @if %{HasTranslation}
@@ -37,9 +39,9 @@ else()
     )
 endif()
 
-target_compile_definitions(%{ProjectName}
+target_compile_definitions(${TARGET}
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(%{ProjectName}
+target_link_libraries(${TARGET}
   PRIVATE Qt5::Core Qt5::Quick)
 @if %{HasTranslation}
 

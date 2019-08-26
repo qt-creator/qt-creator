@@ -122,6 +122,8 @@ public:
     void setTestCase(int testCase);
     void setOverrideStartScript(const QString &script);
 
+    void setAbi(const ProjectExplorer::Abi &abi);
+
     Internal::TerminalRunner *terminalRunner() const;
 
 private:

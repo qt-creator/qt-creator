@@ -52,7 +52,7 @@ class AndroidDeviceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AndroidDeviceDialog(int apiLevel, const QString &abi,
+    explicit AndroidDeviceDialog(int apiLevel, const QStringList &abis,
                                  const QString &serialNumber, QWidget *parent = nullptr);
     ~AndroidDeviceDialog() override;
 
@@ -74,7 +74,7 @@ private:
     Ui::AndroidDeviceDialog *m_ui;
     Utils::ProgressIndicator *m_progressIndicator;
     int m_apiLevel;
-    QString m_abi;
+    QStringList m_abis;
     QString m_avdNameFromAdd;
     QString m_defaultDevice;
     std::unique_ptr<AndroidAvdManager> m_avdManager;

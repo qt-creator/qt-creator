@@ -105,7 +105,7 @@ public:
     void setSdkManagerToolArgs(const QStringList &args);
 
     Utils::FilePath ndkLocation() const;
-    Utils::FilePath gdbServer(const ProjectExplorer::Abi &abi) const;
+    Utils::FilePath gdbServer(const QString &androidAbi) const;
     QVersionNumber ndkVersion() const;
     void setNdkLocation(const Utils::FilePath &ndkLocation);
 
@@ -132,7 +132,9 @@ public:
     Utils::FilePath avdManagerToolPath() const;
     Utils::FilePath aaptToolPath() const;
 
+    Utils::FilePath toolchainPath() const;
     Utils::FilePath clangPath() const;
+
     Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi) const;
     Utils::FilePath makePath() const;
 
@@ -196,7 +198,7 @@ public:
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();
 
-    static AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi);
+    static AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QStringList &abis);
     static void setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber); // serial number or avd name
     static QString defaultDevice(ProjectExplorer::Project *project, const QString &abi); // serial number or avd name
     static void clearDefaultDevices(ProjectExplorer::Project *project);

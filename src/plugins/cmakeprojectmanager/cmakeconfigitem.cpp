@@ -43,8 +43,9 @@ namespace CMakeProjectManager {
 CMakeConfigItem::CMakeConfigItem() = default;
 
 CMakeConfigItem::CMakeConfigItem(const QByteArray &k, Type t,
-                                 const QByteArray &d, const QByteArray &v) :
-    key(k), type(t), value(v), documentation(d)
+                                 const QByteArray &d, const QByteArray &v,
+                                 const QStringList &s) :
+    key(k), type(t), value(v), documentation(d), values(s)
 { }
 
 CMakeConfigItem::CMakeConfigItem(const QByteArray &k, const QByteArray &v) :

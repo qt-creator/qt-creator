@@ -596,6 +596,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step->qmakeBuildConfiguration(), &QmakeBuildConfiguration::qmakeBuildConfigurationChanged,
             this, &QMakeStepConfigWidget::qmakeBuildConfigChanged);
     connect(step->target(), &Target::kitChanged, this, &QMakeStepConfigWidget::qtVersionChanged);
+    connect(m_ui->abisListWidget, &QListWidget::itemChanged, this, &QMakeStepConfigWidget::abisChanged);
     auto chooser = new Core::VariableChooser(m_ui->qmakeAdditonalArgumentsLineEdit);
     chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
     chooser->addSupportedWidget(m_ui->qmakeAdditonalArgumentsLineEdit);
@@ -660,6 +661,36 @@ void QMakeStepConfigWidget::separateDebugInfoChanged()
 {
     if (m_ignoreChange)
         return;
+
+    updateSummaryLabel();
+    updateEffectiveQMakeCall();
+}
+
+void QMakeStepConfigWidget::abisChanged()
+{
+    if (m_abisParam.isEmpty())
+        return;
+
+    QStringList args = m_step->extraArguments();
+    for (auto it = args.begin(); it != args.end(); ++it) {
+        if (it->startsWith(m_abisParam)) {
+            args.erase(it);
+            break;
+        }
+    }
+
+    QStringList abis;
+    for (int i = 0; i < m_ui->abisListWidget->count(); ++i) {
+        auto item = m_ui->abisListWidget->item(i);
+        if (item->checkState() == Qt::CheckState::Checked)
+            abis << item->text();
+    }
+    if (abis.isEmpty()) {
+        m_ui->abisListWidget->item(m_preferredAbiIndex)->setCheckState(Qt::CheckState::Checked);
+        return;
+    }
+    args << QStringLiteral("%1\"%2\"").arg(m_abisParam, abis.join(' '));
+    m_step->setExtraArguments(args);
 
     updateSummaryLabel();
     updateEffectiveQMakeCall();
@@ -754,6 +785,32 @@ void QMakeStepConfigWidget::updateSummaryLabel()
         setSummaryText(tr("<b>qmake:</b> No Qt version set. Cannot run qmake."));
         return;
     }
+    bool enableAbisSelect = qtVersion->qtAbis().size() > 1;
+    m_ui->abisLabel->setVisible(enableAbisSelect);
+    m_ui->abisListWidget->setVisible(enableAbisSelect);
+    if (enableAbisSelect && m_ui->abisListWidget->count() != qtVersion->qtAbis().size()) {
+        m_ui->abisListWidget->clear();
+        bool isAndroid = true;
+        m_preferredAbiIndex = -1;
+        for (const auto &abi : qtVersion->qtAbis()) {
+            auto item = new QListWidgetItem{abi.param(), m_ui->abisListWidget};
+            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            item->setCheckState(Qt::Unchecked);
+            isAndroid = isAndroid && abi.osFlavor() == Abi::OSFlavor::AndroidLinuxFlavor;
+            if (isAndroid && (item->text() == "arm64-v8a" ||
+                              (m_preferredAbiIndex == -1 && item->text() == "armeabi-v7a"))) {
+                    m_preferredAbiIndex = m_ui->abisListWidget->count() - 1;
+            }
+        }
+        if (isAndroid)
+            m_abisParam = "ANDROID_ABIS=";
+
+        if (m_preferredAbiIndex == -1)
+            m_preferredAbiIndex = 0;
+        m_ui->abisListWidget->item(m_preferredAbiIndex)->setCheckState(Qt::Checked);
+        abisChanged();
+    }
+
     // We don't want the full path to the .pro file
     const QString args = m_step->allArguments(
                 qtVersion,

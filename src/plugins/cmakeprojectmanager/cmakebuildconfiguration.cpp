@@ -196,10 +196,21 @@ void CMakeBuildConfiguration::initialize()
                                                                             CMakeProjectManager::CMakeConfigItem::Type::PATH,
                                                                             "Android CMake toolchain file",
                                                                             ndkLocation.pathAppended("build/cmake/android.toolchain.cmake").toUserOutput().toUtf8()});
+        auto androidAbis = bs->data(Android::Constants::AndroidABIs).toStringList();
+        QString preferredAbi;
+        if (androidAbis.contains("arm64-v8a")) {
+            preferredAbi = "arm64-v8a";
+        } else if (androidAbis.isEmpty() || androidAbis.contains("armeabi-v7a")) {
+            preferredAbi = "armeabi-v7a";
+        } else {
+            preferredAbi = androidAbis.first();
+        }
+        // FIXME: configmodel doesn't care about our androidAbis list...
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_ABI",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::STRING,
                                                                             "Android ABI",
-                                                                            bs->data(Android::Constants::AndroidABI).toString().toUtf8()});
+                                                                            preferredAbi.toLatin1(),
+                                                                            androidAbis});
         m_initialConfiguration.prepend(CMakeProjectManager::CMakeConfigItem{"ANDROID_STL",
                                                                             CMakeProjectManager::CMakeConfigItem::Type::STRING,
                                                                             "Android STL",

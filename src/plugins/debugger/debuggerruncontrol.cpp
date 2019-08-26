@@ -445,6 +445,11 @@ void DebuggerRunTool::setOverrideStartScript(const QString &script)
     m_runParameters.overrideStartScript = script;
 }
 
+void DebuggerRunTool::setAbi(const Abi &abi)
+{
+    m_runParameters.toolChainAbi = abi;
+}
+
 void DebuggerRunTool::setInferior(const Runnable &runnable)
 {
     m_runParameters.inferior = runnable;

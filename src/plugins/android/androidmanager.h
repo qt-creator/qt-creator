@@ -31,6 +31,8 @@
 #include <QObject>
 #include <QVersionNumber>
 
+#include <projectexplorer/abi.h>
+
 QT_BEGIN_NAMESPACE
 class QProcess;
 QT_END_NAMESPACE
@@ -82,6 +84,9 @@ public:
     static QString deviceSerialNumber(ProjectExplorer::Target *target);
     static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
+    static QString devicePreferredAbi(ProjectExplorer::Target *target);
+    static void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbis);
+
     static int deviceApiLevel(ProjectExplorer::Target *target);
     static void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
 
@@ -90,7 +95,7 @@ public:
     static int minimumSDK(ProjectExplorer::Target *target);
     static int minimumSDK(const ProjectExplorer::Kit *kit);
 
-    static QString targetArch(const ProjectExplorer::Target *target);
+    static QStringList applicationAbis(const ProjectExplorer::Target *target);
 
     static Utils::FilePath dirPath(const ProjectExplorer::Target *target);
     static Utils::FilePath manifestPath(ProjectExplorer::Target *target);
@@ -98,11 +103,14 @@ public:
     static Utils::FilePath manifestSourcePath(ProjectExplorer::Target *target);
     static Utils::FilePath defaultPropertiesPath(ProjectExplorer::Target *target);
     static Utils::FilePath apkPath(const ProjectExplorer::Target *target);
+    static Utils::FilePath aabPath(const ProjectExplorer::Target *target);
+    static bool matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis);
+    static QString devicePreferredAbi(const QStringList &deviceAbis, const QStringList &appAbis);
+    static ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
 
     static QPair<int, int> apiLevelRange();
     static QString androidNameForApiLevel(int x);
 
-    static void cleanLibsOnDevice(ProjectExplorer::Target *target);
     static void installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath);
 
     static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);

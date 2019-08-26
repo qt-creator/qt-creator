@@ -29,7 +29,6 @@
 #include "androidconstants.h"
 #include "androidmanager.h"
 #include "androidrunconfiguration.h"
-#include "androidgdbserverkitinformation.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
 
@@ -226,7 +225,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
                                  << "Extra Start Args:" << m_amStartExtraArgs
                                  << "Before Start ADB cmds:" << m_beforeStartAdbCommands
                                  << "After finish ADB cmds:" << m_afterFinishAdbCommands;
-    m_gdbserverPath = AndroidGdbServerKitAspect::gdbServer(target->kit()).toString();
+    m_gdbserverPath = AndroidConfigurations::instance()->currentConfig().gdbServer(AndroidManager::devicePreferredAbi(target)).toString();
     QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QtSupport::QtVersionNumber(5, 12);
 }

@@ -443,8 +443,8 @@ static Abis abiOf(const QByteArray &data)
 // --------------------------------------------------------------------------
 
 Abi::Abi(const Architecture &a, const OS &o,
-         const OSFlavor &of, const BinaryFormat &f, unsigned char w) :
-    m_architecture(a), m_os(o), m_osFlavor(of), m_binaryFormat(f), m_wordWidth(w)
+         const OSFlavor &of, const BinaryFormat &f, unsigned char w, const QString &p) :
+    m_architecture(a), m_os(o), m_osFlavor(of), m_binaryFormat(f), m_wordWidth(w), m_param(p)
 {
     QTC_ASSERT(osSupportsFlavor(o, of), m_osFlavor = UnknownFlavor);
 }
@@ -599,6 +599,13 @@ QString Abi::toString() const
     const QStringList dn = {toString(m_architecture), toString(m_os), toString(m_osFlavor),
                             toString(m_binaryFormat), toString(m_wordWidth)};
     return dn.join('-');
+}
+
+QString Abi::param() const
+{
+    if (m_param.isEmpty())
+        return toString();
+    return m_param;
 }
 
 bool Abi::operator != (const Abi &other) const

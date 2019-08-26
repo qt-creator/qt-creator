@@ -6,26 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>440</width>
-    <height>250</height>
+    <width>738</width>
+    <height>300</height>
    </rect>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::ExpandingFieldsGrow</enum>
-   </property>
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
-    <number>0</number>
-   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="label_0">
      <property name="text">
@@ -274,6 +259,19 @@
       <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
      </property>
     </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="abisLabel">
+     <property name="text">
+      <string>ABIs:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QListWidget" name="abisListWidget"/>
    </item>
   </layout>
  </widget>

@@ -111,7 +111,7 @@ private:
     Utils::FilePath m_apkPath;
     QMap<QString, QString> m_filesToPull;
 
-    QString m_targetArch;
+    QStringList m_androidABIs;
     bool m_uninstallPreviousPackage = false;
     bool m_uninstallPreviousPackageRun = false;
     bool m_useAndroiddeployqt = false;

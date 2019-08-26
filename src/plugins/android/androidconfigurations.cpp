@@ -27,7 +27,6 @@
 #include "androidconstants.h"
 #include "androidtoolchain.h"
 #include "androiddevice.h"
-#include "androidgdbserverkitinformation.h"
 #include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androiddevicedialog.h"
@@ -364,11 +363,9 @@ FilePath AndroidConfig::aaptToolPath() const
     return aaptToolPath.pathAppended(toolPath);
 }
 
-FilePath AndroidConfig::clangPath() const
+FilePath AndroidConfig::toolchainPath() const
 {
-    const FilePath clangPath = m_ndkLocation.pathAppended("toolchains/llvm/prebuilt/");
-    const FilePath oldNdkClangPath = m_ndkLocation.pathAppended("toolchains/llvm-3.6/prebuilt/");
-    const QVector<FilePath> clangSearchPaths{clangPath, oldNdkClangPath};
+    const FilePath toolchainPath = m_ndkLocation.pathAppended("toolchains/llvm/prebuilt/");
 
     // detect toolchain host
     QStringList hostPatterns;
@@ -385,16 +382,21 @@ FilePath AndroidConfig::clangPath() const
     default: /* unknown host */ return FilePath();
     }
 
-    for (const FilePath &path : clangSearchPaths) {
-        QDirIterator iter(path.toString(), hostPatterns, QDir::Dirs);
-        if (iter.hasNext()) {
-            iter.next();
-            return path.pathAppended(iter.fileName())
-                .pathAppended(HostOsInfo::withExecutableSuffix("bin/clang"));
-        }
+    QDirIterator iter(toolchainPath.toString(), hostPatterns, QDir::Dirs);
+    if (iter.hasNext()) {
+        iter.next();
+        return toolchainPath.pathAppended(iter.fileName());
     }
 
     return {};
+}
+
+FilePath AndroidConfig::clangPath() const
+{
+    const FilePath path = toolchainPath();
+    if (path.isEmpty())
+        return {};
+    return path.pathAppended(HostOsInfo::withExecutableSuffix("bin/clang"));
 }
 
 FilePath AndroidConfig::gdbPath(const ProjectExplorer::Abi &abi) const
@@ -733,22 +735,26 @@ FilePath AndroidConfig::ndkLocation() const
     return m_ndkLocation;
 }
 
-static inline QString gdbServerArch(const Abi &abi)
+static inline QString gdbServerArch(const QString &androidAbi)
 {
-    switch (abi.architecture()) {
-    case Abi::X86Architecture:
-        return abi.wordWidth() == 64 ? QString{"x86_64"} : QString{"x86"};
-    case Abi::ArmArchitecture:
-        return abi.wordWidth() == 64 ? QString{"arm64"} : QString{"arm"};
-    default: return {};
-    };
+    if (androidAbi == "arm64-v8a") {
+        return "arm64";
+    } else if (androidAbi == "armeabi-v7a") {
+        return "arm";
+    } else if (androidAbi == "x86_64") {
+        return "x86_64";
+    } else if (androidAbi == "x86") {
+        return "x86";
+    } else {
+        return {};
+    }
 }
 
-FilePath AndroidConfig::gdbServer(const ProjectExplorer::Abi &abi) const
+FilePath AndroidConfig::gdbServer(const QString &androidAbi) const
 {
     const FilePath path = AndroidConfigurations::currentConfig().ndkLocation()
             .pathAppended(QString("prebuilt/android-%1/gdbserver/gdbserver")
-                    .arg(gdbServerArch(abi)));
+                                                .arg(gdbServerArch(androidAbi)));
     if (path.exists())
         return path;
     return {};
@@ -875,16 +881,21 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 }
 
 AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(Project *project,
-                                                          int apiLevel, const QString &abi)
+                                                          int apiLevel, const QStringList &abis)
 {
-    QString serialNumber = defaultDevice(project, abi);
-    AndroidDeviceDialog dialog(apiLevel, abi, serialNumber, Core::ICore::mainWindow());
+    QString serialNumber;
+    for (const QString &abi : abis) {
+        serialNumber = defaultDevice(project, abi);
+        if (!serialNumber.isEmpty())
+            break;
+    }
+    AndroidDeviceDialog dialog(apiLevel, abis, serialNumber, Core::ICore::mainWindow());
     AndroidDeviceInfo info = dialog.device();
     if (dialog.saveDeviceSelection() && info.isValid()) {
         const QString serialNumber = info.type == AndroidDeviceInfo::Hardware ?
                     info.serialNumber : info.avdname;
         if (!serialNumber.isEmpty())
-            AndroidConfigurations::setDefaultDevice(project, abi, serialNumber);
+            AndroidConfigurations::setDefaultDevice(project, AndroidManager::devicePreferredAbi(info.cpuAbi, abis), serialNumber);
     }
     return info;
 }
@@ -1049,10 +1060,9 @@ void AndroidConfigurations::updateAutomaticKitList()
                 QtSupport::QtKitAspect::setQtVersion(k, qt);
                 DeviceKitAspect::setDevice(k, device);
                 Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc));
-                AndroidGdbServerKitAspect::setGdbSever(k, currentConfig().gdbServer(tc->targetAbi()));
                 k->makeSticky();
                 k->setUnexpandedDisplayName(tr("Android for %1 (Clang %2)")
-                                                  .arg(static_cast<const AndroidQtVersion *>(qt)->targetArch())
+                                                  .arg(static_cast<const AndroidQtVersion *>(qt)->androidAbis().join(","))
                                                   .arg(qt->displayName()));
                 k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation().toString());
                 k->setValueSilently(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());

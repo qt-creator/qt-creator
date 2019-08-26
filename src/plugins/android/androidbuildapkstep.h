@@ -61,6 +61,9 @@ public:
     bool signPackage() const;
     void setSignPackage(bool b);
 
+    bool buildAAB() const;
+    void setBuildAAB(bool aab);
+
     bool openPackageLocation() const;
     void setOpenPackageLocation(bool open);
 
@@ -89,6 +92,7 @@ private:
 
     void doRun() override;
 
+    bool m_buildAAB = false;
     bool m_signPackage = false;
     bool m_verbose = false;
     bool m_useMinistro = false;
@@ -101,7 +105,7 @@ private:
     QString m_keystorePasswd;
     QString m_certificateAlias;
     QString m_certificatePasswd;
-    QString m_apkPath;
+    QString m_packagePath;
 
     QString m_command;
     QString m_argumentsPasswordConcealed;

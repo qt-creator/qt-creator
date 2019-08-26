@@ -211,6 +211,7 @@ private:
     void linkQmlDebuggingLibraryChanged();
     void useQtQuickCompilerChanged();
     void separateDebugInfoChanged();
+    void abisChanged();
 
     // slots for dealing with user changes in our UI
     void qmakeArgumentsLineEdited();
@@ -230,6 +231,8 @@ private:
     Internal::Ui::QMakeStep *m_ui = nullptr;
     QMakeStep *m_step = nullptr;
     bool m_ignoreChange = false;
+    int m_preferredAbiIndex = -1;
+    QString m_abisParam;
 };
 
 } // namespace QmakeProjectManager

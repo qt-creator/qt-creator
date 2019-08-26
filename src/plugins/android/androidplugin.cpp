@@ -30,7 +30,6 @@
 #include "androiddebugsupport.h"
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
-#include "androidgdbserverkitinformation.h"
 #include "androidmanager.h"
 #include "androidmanifesteditorfactory.h"
 #include "androidpackageinstallationstep.h"
@@ -168,7 +167,6 @@ public:
     };
 
     AndroidBuildApkStepFactory buildApkStepFactory;
-    AndroidGdbServerKitAspect gdbServerKitAspect;
 };
 
 AndroidPlugin::~AndroidPlugin()

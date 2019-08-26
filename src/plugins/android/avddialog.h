@@ -40,7 +40,7 @@ class AvdDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QString &targetArch,
+    explicit AvdDialog(int minApiLevel, AndroidSdkManager *sdkManager, const QStringList &abis,
                        QWidget *parent = nullptr);
 
     const SdkPlatform *sdkPlatform() const;
@@ -49,7 +49,7 @@ public:
     int sdcardSize() const;
     bool isValid() const;
     static CreateAvdInfo gatherCreateAVDInfo(QWidget *parent, AndroidSdkManager *sdkManager,
-                                             int minApiLevel = 0, QString targetArch = QString());
+                                             int minApiLevel = 0, const QStringList &abis = {});
 
 private:
     void updateApiLevelComboBox();

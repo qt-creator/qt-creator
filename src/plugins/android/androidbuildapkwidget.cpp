@@ -236,6 +236,13 @@ QWidget *AndroidBuildApkWidget::createAdvancedGroup()
             m_step, &AndroidBuildApkStep::setUseMinistro);
 
     auto vbox = new QVBoxLayout(group);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitAspect::qtVersion(step()->target()->kit());
+    if (version && version->qtVersion() >= QtSupport::QtVersionNumber{5,14}) {
+        auto buildAAB = new QCheckBox(tr("Build .aab (Android App Bundle)"), group);
+        buildAAB->setChecked(m_step->buildAAB());
+        connect(buildAAB, &QAbstractButton::toggled, m_step, &AndroidBuildApkStep::setBuildAAB);
+        vbox->addWidget(buildAAB);
+    }
     vbox->addWidget(openPackageLocationCheckBox);
     vbox->addWidget(verboseOutputCheckBox);
     vbox->addWidget(m_addDebuggerCheckBox);

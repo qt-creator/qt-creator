@@ -205,8 +205,9 @@ bool AndroidBuildApkStep::init()
     setOutputParser(parser);
 
     m_openPackageLocationForRun = m_openPackageLocation;
-    m_apkPath = AndroidManager::apkPath(target()).toString();
-    qCDebug(buildapkstepLog) << "APK path:" << m_apkPath;
+    m_packagePath = m_buildAAB ? AndroidManager::aabPath(target()).toString()
+                           : AndroidManager::apkPath(target()).toString();
+    qCDebug(buildapkstepLog) << "Package path:" << m_packagePath;
 
     if (!AbstractProcessStep::init())
         return false;
@@ -245,6 +246,9 @@ bool AndroidBuildApkStep::init()
         arguments << "--verbose";
 
     arguments << "--gradle";
+
+    if (m_buildAAB)
+        arguments << "--aab" <<  "--jarsigner";
 
     if (m_useMinistro)
         arguments << "--deployment" << "ministro";
@@ -286,7 +290,7 @@ bool AndroidBuildApkStep::init()
 
 void AndroidBuildApkStep::showInGraphicalShell()
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_apkPath);
+    Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_packagePath);
 }
 
 ProjectExplorer::BuildStepConfigWidget *AndroidBuildApkStep::createConfigWidget()
@@ -373,14 +377,15 @@ void AndroidBuildApkStep::doRun()
 
     auto setup = [this] {
         auto bc = target()->activeBuildConfiguration();
-        Utils::FilePath androidLibsDir = bc->buildDirectory()
-                .pathAppended("android-build/libs")
-                .pathAppended(AndroidManager::targetArch(target()));
-        if (!androidLibsDir.exists() && !QDir{bc->buildDirectory().toString()}.mkpath(androidLibsDir.toString()))
-            return false;
+        const auto androidAbis = AndroidManager::applicationAbis(target());
+        for (const auto &abi : androidAbis) {
+            Utils::FilePath androidLibsDir = bc->buildDirectory()
+                    .pathAppended("android-build/libs")
+                    .pathAppended(abi);
+            if (!androidLibsDir.exists() && !QDir{bc->buildDirectory().toString()}.mkpath(androidLibsDir.toString()))
+                return false;
+        }
 
-
-        QJsonObject deploySettings = Android::AndroidManager::deploymentSettings(target());
         RunConfiguration *rc = target()->activeRunConfiguration();
         const QString buildKey = rc ? rc->buildKey() : QString();
         const ProjectNode *node = rc ? target()->project()->findNodeForBuildKey(buildKey) : nullptr;
@@ -392,11 +397,40 @@ void AndroidBuildApkStep::doRun()
         if (targets.isEmpty())
             return true; // qmake does this job for us
 
+        QJsonObject deploySettings = Android::AndroidManager::deploymentSettings(target());
+        QJsonObject architectures;
+
         // Copy targets to android build folder
-        for (const auto &target : targets) {
-            if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
-                return false;
+        QString applicationBinary = target()->activeRunConfiguration()->buildTargetInfo().targetFilePath.toFileInfo().fileName();
+        for (const auto &abi : androidAbis) {
+            QString targetSuffix = QString{"_%1.so"}.arg(abi);
+            if (applicationBinary.endsWith(targetSuffix)) {
+                // Keep only TargetName from "lib[TargetName]_abi.so"
+                applicationBinary.remove(0, 3).chop(targetSuffix.size());
+            }
+
+            Utils::FilePath androidLibsDir = bc->buildDirectory()
+                                                 .pathAppended("android-build/libs")
+                                                 .pathAppended(abi);
+            for (const auto &target : targets) {
+                if (target.endsWith(targetSuffix)) {
+                    if (!copyFileIfNewer(target, androidLibsDir.pathAppended(QFileInfo{target}.fileName()).toString()))
+                        return false;
+                    if (abi == "x86") {
+                        architectures[abi] = "i686-linux-android";
+                    } else if (abi == "x86_64") {
+                        architectures[abi] = "x86_64-linux-android";
+                    } else if (abi == "arm64-v8a") {
+                        architectures[abi] = "aarch64-linux-android";
+                    } else {
+                        architectures[abi] = "arm-linux-androideabi";
+                    }
+                }
+            }
         }
+
+        deploySettings["application-binary"] = applicationBinary;
+        deploySettings["architectures"] = architectures;
 
         QString extraLibs = node->data(Android::Constants::AndroidExtraLibs).toString();
         if (!extraLibs.isEmpty())
@@ -485,8 +519,8 @@ QVariant AndroidBuildApkStep::data(Core::Id id) const
         return AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::minimumSDK(target())).mid(8);
     if (id == Constants::NdkLocation)
         return QVariant::fromValue(AndroidConfigurations::currentConfig().ndkLocation());
-    if (id == Constants::AndroidABI)
-        return AndroidManager::targetArch(target());
+    if (id == Constants::AndroidABIs)
+        return AndroidManager::applicationAbis(target());
 
     return AbstractProcessStep::data(id);
 }
@@ -521,6 +555,16 @@ bool AndroidBuildApkStep::signPackage() const
 void AndroidBuildApkStep::setSignPackage(bool b)
 {
     m_signPackage = b;
+}
+
+bool AndroidBuildApkStep::buildAAB() const
+{
+    return m_buildAAB;
+}
+
+void AndroidBuildApkStep::setBuildAAB(bool aab)
+{
+    m_buildAAB = aab;
 }
 
 bool AndroidBuildApkStep::openPackageLocation() const

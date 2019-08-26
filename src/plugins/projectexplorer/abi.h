@@ -123,7 +123,7 @@ public:
 
     Abi(const Architecture &a = UnknownArchitecture, const OS &o = UnknownOS,
         const OSFlavor &so = UnknownFlavor, const BinaryFormat &f = UnknownFormat,
-        unsigned char w = 0);
+        unsigned char w = 0, const QString &p = {});
 
     static Abi abiFromTargetTriplet(const QString &machineTriple);
 
@@ -143,6 +143,7 @@ public:
     unsigned char wordWidth() const { return m_wordWidth; }
 
     QString toString() const;
+    QString param() const;
 
     static QString toString(const Architecture &a);
     static QString toString(const OS &o);
@@ -173,6 +174,7 @@ private:
     OSFlavor m_osFlavor;
     BinaryFormat m_binaryFormat;
     unsigned char m_wordWidth;
+    QString m_param;
 };
 
 inline int qHash(const ProjectExplorer::Abi &abi)
