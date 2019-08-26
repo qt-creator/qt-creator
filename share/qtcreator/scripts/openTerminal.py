@@ -105,7 +105,8 @@ def main():
                     login_script() +
                     'cd ' + quote_shell(os.getcwd()) + '\n' +
                     ' '.join([quote_shell(arg) for arg in sys.argv[1:]]) + '\n' +
-                    'rm ' + quoted_shell_script + '\n'
+                    'rm ' + quoted_shell_script + '\n' +
+                    'exit\n' if len(sys.argv) > 1 else ''
                     )
         shell_script.write(commands)
         shell_script.flush()
