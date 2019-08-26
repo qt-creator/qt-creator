@@ -50,6 +50,7 @@ public:
     void logServiceActivity(const QString &service, const QString &logMessage);
 
     void expressionEvaluated(quint32 queryId, const QVariant &result);
+    QString toFileInProject(const QUrl &fileUrl);
 
 private:
     void disconnected();

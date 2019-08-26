@@ -405,8 +405,6 @@ public:
 
     virtual bool canDisplayTooltip() const;
 
-    QString toFileInProject(const QUrl &fileUrl);
-
     QString expand(const QString &string) const;
     QString nativeStartupCommands() const;
     Utils::Perspective *perspective() const;

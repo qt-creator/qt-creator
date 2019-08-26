@@ -74,7 +74,6 @@
 #include <texteditor/fontsettings.h>
 
 #include <utils/basetreeview.h>
-#include <utils/fileinprojectfinder.h>
 #include <utils/macroexpander.h>
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
@@ -485,7 +484,6 @@ public:
     QScopedPointer<LocationMark> m_locationMark;
     QTimer m_locationTimer;
 
-    Utils::FileInProjectFinder m_fileFinder;
     QString m_qtNamespace;
 
     // Safety net to avoid infinite lookups.
@@ -1862,18 +1860,6 @@ bool DebuggerEngine::isPrimaryEngine() const
 bool DebuggerEngine::canDisplayTooltip() const
 {
     return state() == InferiorStopOk;
-}
-
-QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
-{
-    // make sure file finder is properly initialized
-    const DebuggerRunParameters &rp = runParameters();
-    d->m_fileFinder.setProjectDirectory(rp.projectSourceDirectory);
-    d->m_fileFinder.setProjectFiles(rp.projectSourceFiles);
-    d->m_fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories);
-    d->m_fileFinder.setSysroot(rp.sysRoot);
-
-    return d->m_fileFinder.findFile(fileUrl).first().toString();
 }
 
 QString DebuggerEngine::expand(const QString &string) const

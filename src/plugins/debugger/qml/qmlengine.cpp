@@ -60,6 +60,7 @@
 #include <app/app_version.h>
 #include <utils/treemodel.h>
 #include <utils/basetreeview.h>
+#include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -233,6 +234,8 @@ public:
     QmlDebug::QDebugMessageClient *msgClient = nullptr;
 
     QHash<int, QmlCallback> callbackForToken;
+
+    FileInProjectFinder fileFinder;
 
 private:
     ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData, QList<int> &seenHandles);
@@ -2432,6 +2435,18 @@ void QmlEnginePrivate::flushSendBuffer()
     foreach (const QByteArray &msg, sendBuffer)
         sendMessage(msg);
     sendBuffer.clear();
+}
+
+QString QmlEngine::toFileInProject(const QUrl &fileUrl)
+{
+    // make sure file finder is properly initialized
+    const DebuggerRunParameters &rp = runParameters();
+    d->fileFinder.setProjectDirectory(rp.projectSourceDirectory);
+    d->fileFinder.setProjectFiles(rp.projectSourceFiles);
+    d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories);
+    d->fileFinder.setSysroot(rp.sysRoot);
+
+    return d->fileFinder.findFile(fileUrl).first().toString();
 }
 
 DebuggerEngine *createQmlEngine()
