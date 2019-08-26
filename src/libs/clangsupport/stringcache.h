@@ -368,7 +368,7 @@ private:
     void updateIndices()
     {
         auto begin = m_strings.cbegin();
-        for (auto current = begin; current != m_strings.end(); ++current)
+        for (auto current = begin; current != m_strings.cend(); ++current)
             m_indices[current->id] = std::distance(begin, current);
     }
 
