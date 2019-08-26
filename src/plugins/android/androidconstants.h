@@ -30,14 +30,6 @@
 namespace Android {
 namespace Internal {
 
-enum AndroidQemuStatus {
-    AndroidQemuStarting,
-    AndroidQemuFailedToStart,
-    AndroidQemuFinished,
-    AndroidQemuCrashed,
-    AndroidQemuUserReason
-};
-
 #ifdef Q_OS_WIN32
 #define ANDROID_BAT_SUFFIX ".bat"
 #else
