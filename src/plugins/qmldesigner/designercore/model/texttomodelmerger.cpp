@@ -52,6 +52,7 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsvalueowner.h>
 
+#include <utils/algorithm.h>
 #include <utils/qrcparser.h>
 #include <utils/qtcassert.h>
 
@@ -1122,7 +1123,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     context->enterScope(astNode);
 
-    QSet<PropertyName> modelPropertyNames = QSet<PropertyName>::fromList(modelNode.propertyNames());
+    QSet<PropertyName> modelPropertyNames = Utils::toSet(modelNode.propertyNames());
     if (!modelNode.id().isEmpty())
         modelPropertyNames.insert("id");
     QList<AST::UiObjectMember *> defaultPropertyItems;
