@@ -623,7 +623,7 @@ QList<BuildInfo> CMakeBuildConfigurationFactory::availableBuilds(const Kit *k,
 
     FilePath path = forSetup ? Project::projectDirectory(projectPath) : projectPath;
 
-    for (int type = BuildTypeNone; type != BuildTypeLast; ++type) {
+    for (int type = BuildTypeDebug; type != BuildTypeLast; ++type) {
         BuildInfo info = createBuildInfo(k, path.toString(), BuildType(type));
         if (forSetup) {
             info.displayName = info.typeName;
