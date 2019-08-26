@@ -132,7 +132,7 @@ ProjectPartsManager::UpToDataProjectParts ProjectPartsManager::update(ProjectPar
 }
 
 ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDependeciesAndTime(
-    ProjectPartContainers &&upToDateProjectParts, ProjectPartContainers &&updateSystemProjectParts)
+    ProjectPartContainers &&upToDateProjectParts, ProjectPartContainers &&orignalUpdateSystemProjectParts)
 {
     ProjectPartContainerReferences changeProjectParts;
     changeProjectParts.reserve(upToDateProjectParts.size());
@@ -140,9 +140,8 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
     ProjectPartContainers updateProjectProjectParts;
     updateProjectProjectParts.reserve(upToDateProjectParts.size());
 
-    updateSystemProjectParts.reserve(updateProjectProjectParts.size() + upToDateProjectParts.size());
-
-    auto systemSplit = updateSystemProjectParts.end();
+    ProjectPartContainers addedUpToDateSystemProjectParts;
+    addedUpToDateSystemProjectParts.reserve(upToDateProjectParts.size());
 
     FilePathIds generatedFiles = m_generatedFiles.filePathIds();
 
@@ -178,7 +177,7 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
             projectPart.projectPartId = -1;
             break;
         case Change::System:
-            updateSystemProjectParts.emplace_back(std::move(projectPart));
+            addedUpToDateSystemProjectParts.emplace_back(std::move(projectPart));
             projectPart.projectPartId = -1;
             break;
         case Change::No:
@@ -205,7 +204,7 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
                 projectPart.projectPartId = -1;
                 break;
             case Change::System:
-                updateSystemProjectParts.emplace_back(std::move(projectPart));
+                addedUpToDateSystemProjectParts.emplace_back(std::move(projectPart));
                 projectPart.projectPartId = -1;
                 break;
             case Change::No:
@@ -234,7 +233,15 @@ ProjectPartsManagerInterface::UpToDataProjectParts ProjectPartsManager::checkDep
     if (watchedIdPaths.size())
         m_clangPathwatcher.updateIdPaths(watchedIdPaths);
 
-    std::inplace_merge(updateSystemProjectParts.begin(), systemSplit, updateSystemProjectParts.end());
+    ProjectPartContainers updateSystemProjectParts;
+    updateSystemProjectParts.reserve(orignalUpdateSystemProjectParts.size() + addedUpToDateSystemProjectParts.size());
+
+    std::merge(std::make_move_iterator(orignalUpdateSystemProjectParts.begin()),
+               std::make_move_iterator(orignalUpdateSystemProjectParts.end()),
+               std::make_move_iterator(addedUpToDateSystemProjectParts.begin()),
+               std::make_move_iterator(addedUpToDateSystemProjectParts.end()),
+               std::back_inserter(updateSystemProjectParts));
+
     upToDateProjectParts.erase(std::remove_if(upToDateProjectParts.begin(),
                                               upToDateProjectParts.end(),
                                               [](const ProjectPartContainer &projectPart) {
