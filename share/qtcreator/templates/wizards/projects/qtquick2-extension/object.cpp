@@ -1,7 +1,7 @@
-#include "%ObjectName:l%.%CppHeaderSuffix%"
+#include "%{ObjectHdr}"
 
-%ObjectName%::%ObjectName%(QQuickItem *parent):
-        QQuickItem(parent)
+%{ObjectName}::%{ObjectName}(QQuickItem *parent)
+    : QQuickItem(parent)
 {
     // By default, QQuickItem does not draw anything. If you subclass
     // QQuickItem to create a visual item, you will need to uncomment the
@@ -10,6 +10,6 @@
     // setFlag(ItemHasContents, true);
 }
 
-%ObjectName%::~%ObjectName%()
+%{ObjectName}::~%{ObjectName}()
 {
 }

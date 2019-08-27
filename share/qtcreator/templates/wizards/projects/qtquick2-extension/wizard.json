@@ -1,0 +1,109 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "id": "M.QtQuick2ExtensionPlugin",
+    "category": "G.Library",
+    "trDescription": "Creates a C++ plugin to load Qt Quick extensions dynamically into applications using the QQmlEngine class.",
+    "trDisplayName": "Qt Quick 2 Extension Plugin",
+    "trDisplayCategory": "Library",
+    "icon": "lib.png",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuick", "QtSupport.Wizards.FeatureQtQuick.2" ],
+    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{ProFile}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
+        { "key": "PluginBaseFileName", "value": "%{JS: value('ProjectName') + '_plugin'}" },
+        { "key": "PluginSrc", "value": "%{JS: Cpp.classToFileName(value('PluginBaseFileName'), Util.preferredSuffix('text/x-c++src'))}" },
+        { "key": "PluginHdr", "value": "%{JS: Cpp.classToFileName(value('PluginBaseFileName'), Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "ObjectSrc", "value": "%{JS: Cpp.classToFileName(value('ObjectName'), Util.preferredSuffix('text/x-c++src'))}" },
+        { "key": "ObjectHdr", "value": "%{JS: Cpp.classToFileName(value('ObjectName'), Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "PluginName", "value": "%{JS: value('ProjectName').charAt(0).toUpperCase() + value('ProjectName').slice(1) + 'Plugin' }" },
+        { "key": "PLUGINGUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('PluginBaseFileName'), Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "OBJECTGUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('ObjectName'), Util.preferredSuffix('text/x-c++hdr'))}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Custom Parameters",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ObjectName",
+                    "trDisplayName": "Object class-name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "^[A-Za-z0-9_]+$",
+                        "trText": "MyItem"
+                    }
+                },
+                {
+                    "name": "Uri",
+                    "trDisplayName": "URI:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "^[A-Za-z0-9]+([A-Za-z0-9-]*[A-Za-z0-9]+)?(\.[A-Za-z0-9]+([-A-Za-z0-9]*[A-Za-z0-9]+)?)*$",
+                        "trText": "com.mycompany.qmlcomponents"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "project.pro",
+                    "target": "%{ProFile}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "qmldir",
+                    "target": "qmldir"
+                },
+                {
+                    "source": "plugin.cpp",
+                    "target": "%{PluginSrc}"
+                },
+                {
+                    "source": "plugin.h",
+                    "target": "%{PluginHdr}"
+                },
+                {
+                    "source": "object.cpp",
+                    "target": "%{ObjectSrc}"
+                },
+                {
+                    "source": "object.h",
+                    "target": "%{ObjectHdr}"
+                },
+                {
+                    "source": "../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}
