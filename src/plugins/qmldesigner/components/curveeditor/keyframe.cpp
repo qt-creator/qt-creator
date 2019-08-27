@@ -25,6 +25,8 @@
 
 #include "keyframe.h"
 
+#include <sstream>
+
 namespace DesignTools {
 
 Keyframe::Keyframe()
@@ -99,6 +101,31 @@ QPointF Keyframe::rightHandle() const
 QVariant Keyframe::data() const
 {
     return m_data;
+}
+
+std::string Keyframe::string() const
+{
+    std::stringstream istream;
+    if (m_interpolation == Interpolation::Linear)
+        istream << "L";
+    else if (m_interpolation == Interpolation::Bezier)
+        istream << "B";
+    else if (m_interpolation == Interpolation::Easing)
+        istream << "E";
+
+    std::stringstream sstream;
+    sstream << "[" << istream.str() << (hasData() ? "*" : "") << "Frame P: " << m_position.x()
+            << ", " << m_position.y();
+
+    if (hasLeftHandle())
+        sstream << " L: " << m_leftHandle.x() << ", " << m_leftHandle.y();
+
+    if (hasRightHandle())
+        sstream << " R: " << m_rightHandle.x() << ", " << m_rightHandle.y();
+
+    sstream << "]";
+
+    return sstream.str();
 }
 
 Keyframe::Interpolation Keyframe::interpolation() const

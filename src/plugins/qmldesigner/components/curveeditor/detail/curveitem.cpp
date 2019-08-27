@@ -34,6 +34,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 
 namespace DesignTools {
 
@@ -251,9 +252,8 @@ void CurveItem::restore()
         Keyframe curr = currItem->keyframe();
         CurveSegment segment(prev, curr);
 
-        segment.setInterpolation(segment.interpolation());
-
         prevItem->setRightHandle(segment.left().rightHandle());
+        currItem->setInterpolation(segment.interpolation());
         currItem->setLeftHandle(segment.right().leftHandle());
 
         prevItem = currItem;
@@ -329,12 +329,12 @@ void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
             segment.setInterpolation(interpolation);
             prevItem->setKeyframe(segment.left());
             currItem->setKeyframe(segment.right());
-
-            setDirty(true);
         }
 
         prevItem = currItem;
     }
+    setDirty(false);
+    emit curveChanged(id(), curve());
 }
 
 void CurveItem::connect(GraphicsScene *scene)
@@ -358,6 +358,8 @@ void CurveItem::insertKeyframeByTime(double time)
     AnimationCurve acurve = curve();
     acurve.insert(time);
     setCurve(acurve);
+
+    emit curveChanged(id(), curve());
 }
 
 void CurveItem::deleteSelectedKeyframes()

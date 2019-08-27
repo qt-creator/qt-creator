@@ -31,6 +31,8 @@
 #include <QLineF>
 #include <QPainterPath>
 
+#include <sstream>
+
 namespace DesignTools {
 
 AnimationCurve::AnimationCurve()
@@ -125,6 +127,21 @@ double AnimationCurve::minimumValue() const
 double AnimationCurve::maximumValue() const
 {
     return m_maxY;
+}
+
+std::string AnimationCurve::string() const
+{
+    std::stringstream sstream;
+    sstream << "{ ";
+    for (size_t i = 0; i < m_frames.size(); ++i) {
+        if (i == m_frames.size() - 1)
+            sstream << m_frames[i].string();
+        else
+            sstream << m_frames[i].string() << ", ";
+    }
+    sstream << " }";
+
+    return sstream.str();
 }
 
 CurveSegment AnimationCurve::segment(double time) const

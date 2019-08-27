@@ -33,20 +33,13 @@ namespace DesignTools {
 class Keyframe
 {
 public:
-    enum class Interpolation
-    {
-        Undefined,
-        Step,
-        Linear,
-        Bezier,
-        Easing
-    };
+    enum class Interpolation { Undefined, Step, Linear, Bezier, Easing };
 
     Keyframe();
 
     Keyframe(const QPointF &position);
 
-    Keyframe(const QPointF &position, const QVariant& data);
+    Keyframe(const QPointF &position, const QVariant &data);
 
     Keyframe(const QPointF &position, const QPointF &leftHandle, const QPointF &rightHandle);
 
@@ -66,6 +59,8 @@ public:
 
     QVariant data() const;
 
+    std::string string() const;
+
     Interpolation interpolation() const;
 
     void setPosition(const QPointF &pos);
@@ -74,7 +69,7 @@ public:
 
     void setRightHandle(const QPointF &pos);
 
-    void setData(const QVariant& data);
+    void setData(const QVariant &data);
 
     void setInterpolation(Interpolation interpol);
 
