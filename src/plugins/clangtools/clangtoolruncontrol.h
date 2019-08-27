@@ -66,7 +66,6 @@ class ClangToolRunWorker : public ProjectExplorer::RunWorker
 
 public:
     ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
-                       ProjectExplorer::Target *target,
                        const FileInfos &fileInfos);
 
     bool success() const { return m_success; } // For testing.
@@ -102,7 +101,6 @@ protected:
     Utils::TemporaryDirectory m_temporaryDir;
 
 private:
-    QPointer<ProjectExplorer::Target> m_target;
     FileInfos m_fileInfos;
 
     CppTools::ProjectInfo m_projectInfoBeforeBuild;

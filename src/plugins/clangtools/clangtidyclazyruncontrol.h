@@ -38,7 +38,6 @@ class ClangTidyClazyRunWorker final : public ClangToolRunWorker
 
 public:
     ClangTidyClazyRunWorker(ProjectExplorer::RunControl *runControl,
-                            ProjectExplorer::Target *target,
                             const CppTools::ClangDiagnosticConfig &diagnosticConfig,
                             const FileInfos &fileInfos);
 

@@ -375,21 +375,22 @@ static ClangDiagnosticConfig getDiagnosticConfig(Project *project)
 
 void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
 {
+    Project *project = SessionManager::startupProject();
+    QTC_ASSERT(project, return);
+    QTC_ASSERT(project->activeTarget(), return);
+
     auto runControl = new RunControl(Constants::CLANGTIDYCLAZY_RUN_MODE);
     runControl->setDisplayName(tr("Clang-Tidy and Clazy"));
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
-
-    Project *project = SessionManager::startupProject();
-    QTC_ASSERT(project, return);
+    runControl->setTarget(project->activeTarget());
 
     const FileInfos fileInfos = collectFileInfos(project, askUserForFileSelection);
     if (fileInfos.empty())
         return;
 
     auto clangTool = new ClangTidyClazyRunWorker(runControl,
-                                                  project->activeTarget(),
-                                                  getDiagnosticConfig(project),
-                                                  fileInfos);
+                                                 getDiagnosticConfig(project),
+                                                 fileInfos);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {

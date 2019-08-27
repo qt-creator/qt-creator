@@ -117,8 +117,8 @@ namespace Internal {
 class ProjectBuilder : public RunWorker
 {
 public:
-    ProjectBuilder(RunControl *runControl, Project *project, ClangToolRunWorker *parent)
-        : RunWorker(runControl), m_project(project), m_parent(parent)
+    ProjectBuilder(RunControl *runControl, ClangToolRunWorker *parent)
+        : RunWorker(runControl), m_parent(parent)
     {
         setId("ProjectBuilder");
     }
@@ -136,7 +136,7 @@ private:
             return;
         }
 
-        Target *target = m_project->activeTarget();
+        Target *target = runControl()->target();
         QTC_ASSERT(target, reportFailure(); return);
 
         BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
@@ -169,7 +169,7 @@ private:
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, &ProjectBuilder::onBuildFinished, Qt::QueuedConnection);
 
-        ProjectExplorerPlugin::buildProject(m_project);
+        ProjectExplorerPlugin::buildProject(target->project());
      }
 
      void onBuildFinished(bool success)
@@ -181,7 +181,6 @@ private:
      }
 
 private:
-     QPointer<Project> m_project;
      ClangToolRunWorker *m_parent;
      bool m_enabled = true;
      bool m_success = false;
@@ -230,19 +229,17 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 }
 
 ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
-                                         Target *target,
-                                         const FileInfos &fileInfos)
+                                       const FileInfos &fileInfos)
     : RunWorker(runControl)
-    , m_projectBuilder(new ProjectBuilder(runControl, target->project(), this))
+    , m_projectBuilder(new ProjectBuilder(runControl, this))
     , m_clangExecutable(Core::ICore::clangExecutable(CLANG_BINDIR))
     , m_temporaryDir("clangtools-XXXXXX")
-    , m_target(target)
     , m_fileInfos(fileInfos)
 {
     addStartDependency(m_projectBuilder);
 
     ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
-        target->project());
+        runControl->project());
     if (projectSettings->useGlobalSettings())
         m_projectBuilder->setEnabled(ClangToolsSettings::instance()->savedBuildBeforeAnalysis());
     else
@@ -252,15 +249,15 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
 void ClangToolRunWorker::init()
 {
     setSupportsReRunning(false);
-    m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(
-                m_target->project());
+    Target *target = runControl()->target();
+    m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(target->project());
 
-    BuildConfiguration *buildConfiguration = m_target->activeBuildConfiguration();
+    BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
     QTC_ASSERT(buildConfiguration, return);
     m_environment = buildConfiguration->environment();
 
-    ToolChain *toolChain = ToolChainKitAspect::toolChain(m_target->kit(),
-                                                              ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    ToolChain *toolChain = ToolChainKitAspect::toolChain(target->kit(),
+                                                         ProjectExplorer::Constants::CXX_LANGUAGE_ID);
     QTC_ASSERT(toolChain, return);
     m_targetTriple = toolChain->originalTargetTriple();
     m_toolChainType = toolChain->typeId();
@@ -288,8 +285,9 @@ void ClangToolRunWorker::start()
         return;
     }
 
-    m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(m_target->project());
-    m_projectFiles = Utils::toSet(m_target->project()->files(Project::AllFiles));
+    Project *project = runControl()->project();
+    m_projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
+    m_projectFiles = Utils::toSet(project->files(Project::AllFiles));
 
     // Some projects provides CompilerCallData once a build is finished,
     if (m_projectInfo.configurationOrFilesChanged(m_projectInfoBeforeBuild)) {
@@ -481,8 +479,9 @@ void ClangToolRunWorker::finalize()
     if (m_filesNotAnalyzed.size() != 0) {
         QString msg = tr("%1: Not all files could be analyzed.").arg(toolName);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
-        if (m_target && !m_target->activeBuildConfiguration()->buildDirectory().exists()
-            && !ClangToolsProjectSettingsManager::getSettings(m_target->project())
+        Target *target = runControl()->target();
+        if (target && !target->activeBuildConfiguration()->buildDirectory().exists()
+            && !ClangToolsProjectSettingsManager::getSettings(target->project())
                     ->buildBeforeAnalysis()) {
             msg = tr("%1: You might need to build the project to generate or update source "
                      "files. To build automatically, enable \"Build the project before starting "

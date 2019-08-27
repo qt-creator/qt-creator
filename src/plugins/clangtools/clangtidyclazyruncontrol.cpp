@@ -33,12 +33,10 @@ using namespace ProjectExplorer;
 namespace ClangTools {
 namespace Internal {
 
-ClangTidyClazyRunWorker::ClangTidyClazyRunWorker(
-        RunControl *runControl,
-        Target *target,
+ClangTidyClazyRunWorker::ClangTidyClazyRunWorker(RunControl *runControl,
         const CppTools::ClangDiagnosticConfig &diagnosticConfig,
         const FileInfos &fileInfos)
-    : ClangToolRunWorker(runControl, target, fileInfos)
+    : ClangToolRunWorker(runControl, fileInfos)
     , m_diagnosticConfig(diagnosticConfig)
 {
     setId("ClangTidyClazyRunner");
