@@ -253,5 +253,5 @@ void AutotoolsProject::updateCppCodeModel()
     rpp.setMacros(m_makefileParserThread->macros());
     rpp.setFiles(m_files);
 
-    m_cppCodeModelUpdater->update({this, kitInfo, activeBuildEnvironment(), {rpp}});
+    m_cppCodeModelUpdater->update({this, kitInfo, activeParseEnvironment(), {rpp}});
 }

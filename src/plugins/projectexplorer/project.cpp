@@ -860,7 +860,7 @@ Task Project::createProjectTask(Task::TaskType type, const QString &description)
     return Task(type, description, Utils::FilePath(), -1, Core::Id());
 }
 
-Utils::Environment Project::activeBuildEnvironment() const
+Utils::Environment Project::activeParseEnvironment() const
 {
     const BuildConfiguration * const buildConfiguration = activeTarget()
             ? activeTarget()->activeBuildConfiguration() : nullptr;

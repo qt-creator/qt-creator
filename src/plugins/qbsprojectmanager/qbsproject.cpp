@@ -1023,7 +1023,7 @@ void QbsProject::updateCppCodeModel()
     }
 
     CppTools::GeneratedCodeModelSupport::update(m_extraCompilers);
-    m_cppCodeModelUpdater->update({this, kitInfo, activeBuildEnvironment(), rpps});
+    m_cppCodeModelUpdater->update({this, kitInfo, activeParseEnvironment(), rpps});
 }
 
 void QbsProject::updateQmlJsCodeModel()

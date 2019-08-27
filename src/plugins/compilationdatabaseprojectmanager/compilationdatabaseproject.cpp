@@ -390,7 +390,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
 
     setRootProjectNode(std::move(root));
 
-    m_cppCodeModelUpdater->update({this, kitInfo, activeBuildEnvironment(), rpps});
+    m_cppCodeModelUpdater->update({this, kitInfo, activeParseEnvironment(), rpps});
 }
 
 CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &projectFile)

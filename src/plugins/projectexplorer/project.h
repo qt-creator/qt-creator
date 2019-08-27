@@ -294,7 +294,7 @@ protected:
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);
 
-    Utils::Environment activeBuildEnvironment() const;
+    Utils::Environment activeParseEnvironment() const;
 
 private:
     // Helper methods to manage parsing state and signalling
