@@ -770,6 +770,8 @@ Project {
         }
 
         files: [
+            "generateresource.cpp",
+            "generateresource.h",
             "designersettings.cpp",
             "designersettings.h",
             "designmodecontext.cpp",

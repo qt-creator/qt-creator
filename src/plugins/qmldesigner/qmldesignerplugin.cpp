@@ -30,6 +30,7 @@
 #include "settingspage.h"
 #include "designmodecontext.h"
 #include "openuiqmlfiledialog.h"
+#include "generateresource.h"
 
 #include <metainfo.h>
 #include <connectionview.h>
@@ -202,11 +203,14 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 // INHERITED FROM ExtensionSystem::Plugin
 //
 ////////////////////////////////////////////////////
-bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/) // =0;
+bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
 {
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
     d = new QmlDesignerPluginPrivate;
+    if (DesignerSettings::getValue(DesignerSettingsKey::STANDALONE_MODE).toBool())
+        GenerateResource::generateMenuEntry();
+
     return true;
 }
 
