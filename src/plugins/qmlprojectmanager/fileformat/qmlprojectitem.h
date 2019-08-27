@@ -78,7 +78,7 @@ protected:
     QStringList m_fileSelectors;
     QString m_mainFile;
     Utils::EnvironmentItems m_environment;
-    QList<QmlProjectContentItem *> m_content; // content property
+    QVector<QmlProjectContentItem *> m_content; // content property
 };
 
 } // namespace QmlProjectManager
