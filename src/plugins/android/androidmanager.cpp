@@ -374,7 +374,7 @@ void AndroidManager::setDeviceApiLevel(ProjectExplorer::Target *target, int leve
 
 QPair<int, int> AndroidManager::apiLevelRange()
 {
-    return qMakePair(16, 28);
+    return qMakePair(16, 29);
 }
 
 QString AndroidManager::androidNameForApiLevel(int x)
@@ -430,6 +430,8 @@ QString AndroidManager::androidNameForApiLevel(int x)
         return QLatin1String("Android 8.1");
     case 28:
         return QLatin1String("Android 9");
+    case 29:
+        return QLatin1String("Android 10");
     default:
         return tr("Unknown Android version. API Level: %1").arg(QString::number(x));
     }
