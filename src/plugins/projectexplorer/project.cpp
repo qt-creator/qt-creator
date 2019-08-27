@@ -25,16 +25,18 @@
 
 #include "project.h"
 
-#include "buildinfo.h"
 #include "buildconfiguration.h"
+#include "buildinfo.h"
 #include "deployconfiguration.h"
 #include "editorconfiguration.h"
 #include "kit.h"
 #include "makestep.h"
 #include "projectexplorer.h"
 #include "projectnodes.h"
-#include "target.h"
+#include "runconfiguration.h"
+#include "runcontrol.h"
 #include "session.h"
+#include "target.h"
 #include "userfileaccessor.h"
 
 #include <coreplugin/idocument.h>
@@ -862,10 +864,19 @@ Task Project::createProjectTask(Task::TaskType type, const QString &description)
 
 Utils::Environment Project::activeParseEnvironment() const
 {
-    const BuildConfiguration * const buildConfiguration = activeTarget()
-            ? activeTarget()->activeBuildConfiguration() : nullptr;
-    return buildConfiguration ? buildConfiguration->environment()
-                              : Utils::Environment::systemEnvironment();
+    const Target *const t = activeTarget();
+    const BuildConfiguration *const bc = t ? t->activeBuildConfiguration() : nullptr;
+    if (bc)
+        return bc->environment();
+
+    const RunConfiguration *const rc = t ? t->activeRunConfiguration() : nullptr;
+    if (rc)
+        return rc->runnable().environment;
+
+    Utils::Environment result = Utils::Environment::systemEnvironment();
+    if (t)
+        t->kit()->addToEnvironment(result);
+    return result;
 }
 
 Core::Context Project::projectContext() const
