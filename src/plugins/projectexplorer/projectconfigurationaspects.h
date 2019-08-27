@@ -133,8 +133,8 @@ public:
     void fromMap(const QVariantMap &map) override;
     void toMap(QVariantMap &map) const override;
 
-    Utils::FilePath fileName() const;
-    void setFileName(const Utils::FilePath &val);
+    Utils::FilePath filePath() const;
+    void setFilePath(const Utils::FilePath &val);
 
 private:
     void update();

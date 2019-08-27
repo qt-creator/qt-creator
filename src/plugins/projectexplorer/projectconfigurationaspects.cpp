@@ -153,12 +153,12 @@ void BaseStringAspect::toMap(QVariantMap &map) const
         d->m_checker->toMap(map);
 }
 
-FilePath BaseStringAspect::fileName() const
+FilePath BaseStringAspect::filePath() const
 {
     return FilePath::fromString(d->m_value);
 }
 
-void BaseStringAspect::setFileName(const FilePath &val)
+void BaseStringAspect::setFilePath(const FilePath &val)
 {
     setValue(val.toString());
 }

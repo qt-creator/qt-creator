@@ -445,9 +445,9 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
 FilePath ExecutableAspect::executable() const
 {
     if (m_alternativeExecutable && m_alternativeExecutable->isChecked())
-        return m_alternativeExecutable->fileName();
+        return m_alternativeExecutable->filePath();
 
-    return m_executable.fileName();
+    return m_executable.filePath();
 }
 
 void ExecutableAspect::addToConfigurationLayout(QFormLayout *layout)

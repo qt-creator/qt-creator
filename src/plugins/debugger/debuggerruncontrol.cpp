@@ -911,7 +911,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     m_runParameters.displayName = runControl->displayName();
 
     if (auto symbolsAspect = runControl->aspect<SymbolFileAspect>())
-        m_runParameters.symbolFile = symbolsAspect->fileName();
+        m_runParameters.symbolFile = symbolsAspect->filePath();
     if (auto terminalAspect = runControl->aspect<TerminalAspect>())
         m_runParameters.useTerminal = terminalAspect->useTerminal();
 

@@ -94,7 +94,7 @@ void RemoteLinuxRunConfiguration::updateTargetInformation()
     DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
 
     aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-    aspect<SymbolFileAspect>()->setFileName(localExecutable);
+    aspect<SymbolFileAspect>()->setFilePath(localExecutable);
 
     emit enabledChanged();
 }

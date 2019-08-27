@@ -51,7 +51,7 @@ NimCompilerCleanStep::NimCompilerCleanStep(BuildStepList *parentList)
     workingDirectory->setDisplayStyle(BaseStringAspect::LineEditDisplay);
 
     setSummaryUpdater([this, workingDirectory] {
-        workingDirectory->setFileName(buildConfiguration()->buildDirectory());
+        workingDirectory->setFilePath(buildConfiguration()->buildDirectory());
         return displayName();
     });
 }

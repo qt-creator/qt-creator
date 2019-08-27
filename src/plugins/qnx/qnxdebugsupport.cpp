@@ -261,7 +261,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
     FilePath localExecutable = dlg.localExecutable();
     if (localExecutable.isEmpty()) {
         if (auto aspect = runConfig->aspect<SymbolFileAspect>())
-            localExecutable = aspect->fileName();
+            localExecutable = aspect->filePath();
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);

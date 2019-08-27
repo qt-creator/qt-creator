@@ -117,7 +117,7 @@ void QdbRunConfiguration::updateTargetInformation()
     const DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
 
     aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-    aspect<SymbolFileAspect>()->setFileName(localExecutable);
+    aspect<SymbolFileAspect>()->setFilePath(localExecutable);
 }
 
 QString QdbRunConfiguration::defaultDisplayName() const

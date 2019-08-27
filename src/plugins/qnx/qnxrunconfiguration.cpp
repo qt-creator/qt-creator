@@ -75,7 +75,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
         const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
 
         exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-        symbolsAspect->setFileName(localExecutable);
+        symbolsAspect->setFilePath(localExecutable);
 
         emit enabledChanged();
     };

@@ -105,7 +105,7 @@ void ProcessStep::setupProcessParameters(ProcessParameters *pp)
     pp->setMacroExpander(bc ? bc->macroExpander() : Utils::globalMacroExpander());
     pp->setEnvironment(bc ? bc->environment() : Utils::Environment::systemEnvironment());
     pp->setWorkingDirectory(Utils::FilePath::fromString(workingDirectory));
-    pp->setCommandLine({m_command->fileName(), m_arguments->value(), CommandLine::Raw});
+    pp->setCommandLine({m_command->filePath(), m_arguments->value(), CommandLine::Raw});
     pp->resolveAll();
 }
 

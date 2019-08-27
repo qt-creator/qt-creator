@@ -85,7 +85,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent) : MakeStep(parent, stepI
     commandLineAspect->setLabelText(tr("Full command line:"));
 
     QTemporaryDir tmpDir;
-    installRootAspect->setFileName(FilePath::fromString(tmpDir.path()));
+    installRootAspect->setFilePath(FilePath::fromString(tmpDir.path()));
     const MakeInstallCommand cmd = target()->makeInstallCommand(tmpDir.path());
     QTC_ASSERT(!cmd.command.isEmpty(), return);
     makeAspect->setExecutable(cmd.command);
@@ -188,7 +188,7 @@ void MakeInstallStep::stdError(const QString &line)
 
 FilePath MakeInstallStep::installRoot() const
 {
-    return static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->fileName();
+    return static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->filePath();
 }
 
 bool MakeInstallStep::cleanInstallRoot() const
@@ -205,7 +205,7 @@ void MakeInstallStep::updateCommandFromAspect()
 void MakeInstallStep::updateArgsFromAspect()
 {
     setUserArguments(QtcProcess::joinArgs(target()->makeInstallCommand(
-        static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->fileName().toString())
+        static_cast<BaseStringAspect *>(aspect(InstallRootAspectId))->filePath().toString())
                                           .arguments));
     updateFullCommandLine();
 }

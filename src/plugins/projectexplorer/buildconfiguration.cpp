@@ -126,14 +126,14 @@ Utils::FilePath BuildConfiguration::buildDirectory() const
 
 Utils::FilePath BuildConfiguration::rawBuildDirectory() const
 {
-    return m_buildDirectoryAspect->fileName();
+    return m_buildDirectoryAspect->filePath();
 }
 
 void BuildConfiguration::setBuildDirectory(const Utils::FilePath &dir)
 {
-    if (dir == m_buildDirectoryAspect->fileName())
+    if (dir == m_buildDirectoryAspect->filePath())
         return;
-    m_buildDirectoryAspect->setFileName(dir);
+    m_buildDirectoryAspect->setFilePath(dir);
     emitBuildDirectoryChanged();
 }
 
