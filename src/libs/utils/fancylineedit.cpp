@@ -36,7 +36,9 @@
 #include <QAbstractItemView>
 #include <QDebug>
 #include <QKeyEvent>
+#include <QKeySequence>
 #include <QMenu>
+#include <QShortcut>
 #include <QStylePainter>
 #include <QPropertyAnimation>
 #include <QStyle>
@@ -83,6 +85,29 @@ namespace Utils {
 
 static bool camelCaseNavigation = false;
 
+class CompletionShortcut : public QObject
+{
+    Q_OBJECT
+
+public:
+    void setKeySequence(const QKeySequence &key)
+    {
+        if (m_key != key) {
+            m_key = key;
+            emit keyChanged(key);
+        }
+    }
+    QKeySequence key() const { return m_key; }
+
+signals:
+    void keyChanged(const QKeySequence &key);
+
+private:
+    QKeySequence m_key = Qt::Key_Space + HostOsInfo::controlModifier();
+};
+Q_GLOBAL_STATIC(CompletionShortcut, completionShortcut)
+
+
 // --------- FancyLineEditPrivate
 class FancyLineEditPrivate : public QObject
 {
@@ -94,6 +119,7 @@ public:
     FancyLineEdit *m_lineEdit;
     IconButton *m_iconbutton[2];
     HistoryCompleter *m_historyCompleter = nullptr;
+    QShortcut m_completionShortcut;
     FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
     QString m_oldText;
     QMenu *m_menu[2];
@@ -113,9 +139,14 @@ public:
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     QObject(parent),
-    m_lineEdit(parent)
+    m_lineEdit(parent),
+    m_completionShortcut(completionShortcut()->key(), parent)
 {
     m_okTextColor = parent->palette().color(QPalette::Active, QPalette::Text);
+
+    m_completionShortcut.setContext(Qt::WidgetShortcut);
+    connect(completionShortcut(), &CompletionShortcut::keyChanged,
+            &m_completionShortcut, &QShortcut::setKey);
 
     for (int i = 0; i < 2; ++i) {
         m_iconbutton[i] = new IconButton(parent);
@@ -166,6 +197,12 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     connect(d->m_iconbutton[Left], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
     connect(d->m_iconbutton[Right], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
     connect(this, &QLineEdit::textChanged, this, &FancyLineEdit::validate);
+    connect(&d->m_completionShortcut, &QShortcut::activated, this, [this] {
+        if (!completer())
+            return;
+        completer()->setCompletionPrefix(text().left(cursorPosition()));
+        completer()->complete();
+    });
 }
 
 FancyLineEdit::~FancyLineEdit()
@@ -347,6 +384,11 @@ void FancyLineEdit::keyPressEvent(QKeyEvent *event)
 void FancyLineEdit::setCamelCaseNavigationEnabled(bool enabled)
 {
     camelCaseNavigation = enabled;
+}
+
+void FancyLineEdit::setCompletionShortcut(const QKeySequence &shortcut)
+{
+    completionShortcut()->setKeySequence(shortcut);
 }
 
 void FancyLineEdit::setSpecialCompleter(QCompleter *completer)
@@ -586,3 +628,5 @@ void IconButton::keyReleaseEvent(QKeyEvent *ke)
 }
 
 } // namespace Utils
+
+#include <fancylineedit.moc>

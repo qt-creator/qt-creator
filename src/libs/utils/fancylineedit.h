@@ -34,6 +34,7 @@
 
 QT_BEGIN_NAMESPACE
 class QEvent;
+class QKeySequence;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -142,6 +143,7 @@ public:
     void onEditingFinished();
 
     static void setCamelCaseNavigationEnabled(bool enabled);
+    static void setCompletionShortcut(const QKeySequence &shortcut);
 
 protected:
     // Custom behaviour can be added here.
