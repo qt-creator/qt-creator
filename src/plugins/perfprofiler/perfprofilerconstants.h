@@ -56,6 +56,7 @@ const char PerfCallgraphModeId[]        = "Analyzer.Perf.CallgraphMode";
 const char PerfEventsId[]               = "Analyzer.Perf.Events";
 const char PerfExtraArgumentsId[]       = "Analyzer.Perf.ExtraArguments";
 const char PerfSettingsId[]             = "Analyzer.Perf.Settings";
+const char PerfRecordArgumentsId[]      = "Analyzer.Perf.RecordArguments";
 
 const unsigned int PerfDefaultPeriod    = 250;
 const unsigned int PerfDefaultStackSize = 4096;

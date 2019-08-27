@@ -227,8 +227,9 @@ public:
         return runConfiguration() ? runConfiguration()->aspect<T>() : nullptr;
     }
 
-    ISettingsAspect *settings(Core::Id id) const;
     QString buildKey() const;
+
+    QVariantMap settingsData(Core::Id id) const;
 
     Utils::FilePath targetFilePath() const;
     Utils::FilePath projectFilePath() const;

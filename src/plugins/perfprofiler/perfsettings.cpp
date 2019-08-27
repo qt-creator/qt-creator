@@ -90,6 +90,7 @@ void PerfSettings::toMap(QVariantMap &map) const
     map[QLatin1String(Constants::PerfCallgraphModeId)] = m_callgraphMode;
     map[QLatin1String(Constants::PerfEventsId)] = m_events;
     map[QLatin1String(Constants::PerfExtraArgumentsId)] = m_extraArguments;
+    map[QLatin1String(Constants::PerfRecordArgumentsId)] = perfRecordArguments();
 }
 
 void PerfSettings::fromMap(const QVariantMap &map)

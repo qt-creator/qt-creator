@@ -325,6 +325,7 @@ public:
     MacroExpander *macroExpander;
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
     QString buildKey;
+    QMap<Core::Id, QVariantMap> settingsData;
     Core::Id runConfigId;
     BuildTargetInfo buildTargetInfo;
     Kit *kit = nullptr; // Not owned.
@@ -361,6 +362,8 @@ void RunControl::setRunConfiguration(RunConfiguration *runConfig)
     d->displayName = runConfig->displayName();
     d->macroExpander = runConfig->macroExpander();
     d->buildKey = runConfig->buildKey();
+    d->settingsData = runConfig->aspectData();
+
     setTarget(runConfig->target());
 }
 
@@ -894,9 +897,9 @@ ProjectConfigurationAspect *RunControl::aspect(Core::Id id) const
     return d->runConfiguration ? d->runConfiguration->aspect(id) : nullptr;
 }
 
-ISettingsAspect *RunControl::settings(Core::Id id) const
+QVariantMap RunControl::settingsData(Core::Id id) const
 {
-    return d->runConfiguration ? d->runConfiguration->currentSettings(id) : nullptr;
+    return d->settingsData.value(id);
 }
 
 QString RunControl::buildKey() const

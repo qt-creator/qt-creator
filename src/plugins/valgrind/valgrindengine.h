@@ -26,10 +26,11 @@
 
 #pragma once
 
+#include "valgrindsettings.h"
+
 #include <projectexplorer/runcontrol.h>
 #include <utils/environment.h>
 #include <valgrind/valgrindrunner.h>
-#include <valgrind/valgrindsettings.h>
 
 #include <QFutureInterface>
 #include <QFutureWatcher>
@@ -53,7 +54,7 @@ protected:
     virtual QString progressTitle() const = 0;
     virtual QStringList toolArguments() const = 0;
 
-    ValgrindBaseSettings *m_settings = nullptr;
+    ValgrindProjectSettings m_settings;
     QFutureInterface<void> m_progress;
     ValgrindRunner m_runner;
 

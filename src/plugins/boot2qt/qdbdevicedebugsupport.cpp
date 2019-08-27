@@ -106,14 +106,12 @@ public:
             upperPort = qmlServerPort;
         }
         if (m_usePerf) {
-            if (auto perfSettings = runControl()->settings("Analyzer.Perf.Settings")) {
-                QStringList perfRecordArgs = perfSettings
-                        ->property("perfRecordArguments").toStringList();
-                args.append(QString::fromLatin1(" --profile-perf %1").arg(
-                                Utils::transform(perfRecordArgs, [](QString arg) {
+            QVariantMap settingsData = runControl()->settingsData("Analyzer.Perf.Settings");
+            QVariant perfRecordArgs = settingsData.value("Analyzer.Perf.RecordArguments");
+            QString args =  Utils::transform(perfRecordArgs.toStringList(), [](QString arg) {
                                     return arg.replace(',', ",,");
-                                }).join(',')));
-            }
+                            }).join(',');
+            args.append(QString(" --profile-perf %1").arg(args));
             lowerPort = upperPort = perfPort;
         }
         args.append(QString(" --port-range %1-%2 ").arg(lowerPort).arg(upperPort));

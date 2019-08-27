@@ -77,18 +77,16 @@ QStringList CallgrindToolRunner::toolArguments() const
 {
     QStringList arguments = {"--tool=callgrind"};
 
-    QTC_ASSERT(m_settings, return arguments);
-
-    if (m_settings->enableCacheSim())
+    if (m_settings.enableCacheSim())
         arguments << "--cache-sim=yes";
 
-    if (m_settings->enableBranchSim())
+    if (m_settings.enableBranchSim())
         arguments << "--branch-sim=yes";
 
-    if (m_settings->collectBusEvents())
+    if (m_settings.collectBusEvents())
         arguments << "--collect-bus=yes";
 
-    if (m_settings->collectSystime())
+    if (m_settings.collectSystime())
         arguments << "--collect-systime=yes";
 
     if (m_markAsPaused)

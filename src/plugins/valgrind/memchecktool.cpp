@@ -191,16 +191,14 @@ QStringList MemcheckToolRunner::toolArguments() const
 {
     QStringList arguments = {"--tool=memcheck", "--gen-suppressions=all"};
 
-    QTC_ASSERT(m_settings, return arguments);
-
-    if (m_settings->trackOrigins())
+    if (m_settings.trackOrigins())
         arguments << "--track-origins=yes";
 
-    if (m_settings->showReachable())
+    if (m_settings.showReachable())
         arguments << "--show-reachable=yes";
 
     QString leakCheckValue;
-    switch (m_settings->leakCheckOnFinish()) {
+    switch (m_settings.leakCheckOnFinish()) {
     case ValgrindBaseSettings::LeakCheckOnFinishNo:
         leakCheckValue = "no";
         break;
@@ -214,10 +212,10 @@ QStringList MemcheckToolRunner::toolArguments() const
     }
     arguments << "--leak-check=" + leakCheckValue;
 
-    foreach (const QString &file, m_settings->suppressionFiles())
+    foreach (const QString &file, m_settings.suppressionFiles())
         arguments << QString("--suppressions=%1").arg(file);
 
-    arguments << QString("--num-callers=%1").arg(m_settings->numCallers());
+    arguments << QString("--num-callers=%1").arg(m_settings.numCallers());
 
     if (m_withGdb)
         arguments << "--vgdb=yes" << "--vgdb-error=0";
@@ -227,7 +225,7 @@ QStringList MemcheckToolRunner::toolArguments() const
 
 QStringList MemcheckToolRunner::suppressionFiles() const
 {
-    return m_settings->suppressionFiles();
+    return m_settings.suppressionFiles();
 }
 
 void MemcheckToolRunner::startDebugger(qint64 valgrindPid)

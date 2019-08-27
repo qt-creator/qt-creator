@@ -292,6 +292,14 @@ RunConfiguration *RunConfiguration::startupRunConfiguration()
     return nullptr;
 }
 
+QMap<Core::Id, QVariantMap> RunConfiguration::aspectData() const
+{
+    QMap<Core::Id, QVariantMap> data;
+    for (ProjectConfigurationAspect *aspect : m_aspects)
+        aspect->toMap(data[aspect->id()]);
+    return data;
+}
+
 bool RunConfiguration::isConfigured() const
 {
     return true;

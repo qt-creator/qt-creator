@@ -58,11 +58,7 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     setSupportsReRunning(false);
 
-    m_settings =
-            qobject_cast<ValgrindBaseSettings *>(runControl->settings(ANALYZER_VALGRIND_SETTINGS));
-
-    if (!m_settings)
-        m_settings = ValgrindGlobalSettings::instance();
+    m_settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
 }
 
 void ValgrindToolRunner::start()
@@ -81,7 +77,7 @@ void ValgrindToolRunner::start()
     emit outputReceived(tr("Command line arguments: %1").arg(runnable().debuggeeArgs), DebugFormat);
 #endif
 
-    CommandLine valgrind{m_settings->valgrindExecutable()};
+    CommandLine valgrind{m_settings.valgrindExecutable()};
     valgrind.addArgs(genericToolArguments());
     valgrind.addArgs(toolArguments());
 
@@ -125,9 +121,9 @@ FilePath ValgrindToolRunner::executable() const
 
 QStringList ValgrindToolRunner::genericToolArguments() const
 {
-    QTC_ASSERT(m_settings, return QStringList());
     QString smcCheckValue;
-    switch (m_settings->selfModifyingCodeDetection()) {
+
+    switch (m_settings.selfModifyingCodeDetection()) {
     case ValgrindBaseSettings::DetectSmcNo:
         smcCheckValue = "none";
         break;
@@ -178,7 +174,7 @@ void ValgrindToolRunner::receiveProcessOutput(const QString &output, OutputForma
 void ValgrindToolRunner::receiveProcessError(const QString &message, QProcess::ProcessError error)
 {
     if (error == QProcess::FailedToStart) {
-        const QString valgrind = m_settings->valgrindExecutable();
+        const QString valgrind = m_settings.valgrindExecutable();
         if (!valgrind.isEmpty())
             appendMessage(tr("Error: \"%1\" could not be started: %2").arg(valgrind, message), ErrorMessageFormat);
         else

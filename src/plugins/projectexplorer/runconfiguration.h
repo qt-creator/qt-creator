@@ -171,6 +171,8 @@ public:
         addAspectFactory([](Target *target) { return new T(target); });
     }
 
+    QMap<Core::Id, QVariantMap> aspectData() const;
+
 signals:
     void configurationFinished();
     void enabledChanged();
