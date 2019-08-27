@@ -66,7 +66,7 @@ QString QmlPreviewFileOnTargetFinder::findPath(const QString &filePath, bool *su
         return filePath;
 
     ProjectExplorer::DeployableFile file
-            = m_target->deploymentData().deployableForLocalFile(filePath);
+            = m_target->deploymentData().deployableForLocalFile(Utils::FilePath::fromString(filePath));
     if (file.isValid())
         return file.remoteFilePath();
 

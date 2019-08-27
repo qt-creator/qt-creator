@@ -171,14 +171,16 @@ void DesktopRunConfiguration::doAdditionalSetup(const RunConfigurationCreationIn
 Utils::FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
 {
     const FilePath appInBuildDir = targetInfo.targetFilePath;
-    if (target()->deploymentData().localInstallRoot().isEmpty())
+    const DeploymentData deploymentData = target()->deploymentData();
+    if (deploymentData.localInstallRoot().isEmpty())
         return appInBuildDir;
-    const QString deployedAppFilePath = target()->deploymentData()
-            .deployableForLocalFile(appInBuildDir.toString()).remoteFilePath();
+
+    const QString deployedAppFilePath = deploymentData
+            .deployableForLocalFile(appInBuildDir).remoteFilePath();
     if (deployedAppFilePath.isEmpty())
         return appInBuildDir;
-    const FilePath appInLocalInstallDir = target()->deploymentData().localInstallRoot()
-            + deployedAppFilePath;
+
+    const FilePath appInLocalInstallDir = deploymentData.localInstallRoot() + deployedAppFilePath;
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
 }
 

@@ -60,7 +60,7 @@ public:
 
     int fileCount() const { return m_files.count(); }
     DeployableFile fileAt(int index) const { return m_files.at(index); }
-    DeployableFile deployableForLocalFile(const QString &localFilePath) const;
+    DeployableFile deployableForLocalFile(const Utils::FilePath &localFilePath) const;
 
     bool operator==(const DeploymentData &other) const;
 

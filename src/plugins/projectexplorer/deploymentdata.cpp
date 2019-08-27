@@ -55,11 +55,10 @@ void DeploymentData::addFile(const QString &localFilePath, const QString &remote
     addFile(DeployableFile(localFilePath, remoteDirectory, type));
 }
 
-DeployableFile DeploymentData::deployableForLocalFile(const QString &localFilePath) const
+DeployableFile DeploymentData::deployableForLocalFile(const Utils::FilePath &localFilePath) const
 {
-    return Utils::findOrDefault(m_files, [&localFilePath](const DeployableFile &d) {
-        return d.localFilePath().toString() == localFilePath;
-    });
+    return Utils::findOrDefault(m_files,
+                                Utils::equal(&DeployableFile::localFilePath, localFilePath));
 }
 
 bool DeploymentData::operator==(const DeploymentData &other) const

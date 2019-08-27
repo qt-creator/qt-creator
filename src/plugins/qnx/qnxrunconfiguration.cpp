@@ -70,12 +70,12 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Core::Id id)
 
     auto updateTargetInformation = [this, target, exeAspect, symbolsAspect] {
 
-        BuildTargetInfo bti = buildTargetInfo();
-        QString localExecutable = bti.targetFilePath.toString();
-        DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
+        const BuildTargetInfo bti = buildTargetInfo();
+        const FilePath localExecutable = bti.targetFilePath;
+        const DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
 
         exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-        symbolsAspect->setValue(localExecutable);
+        symbolsAspect->setFileName(localExecutable);
 
         emit enabledChanged();
     };

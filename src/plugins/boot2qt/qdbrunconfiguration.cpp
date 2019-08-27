@@ -112,12 +112,12 @@ ProjectExplorer::RunConfiguration::ConfigurationState QdbRunConfiguration::ensur
 
 void QdbRunConfiguration::updateTargetInformation()
 {
-    BuildTargetInfo bti = buildTargetInfo();
-    QString localExecutable = bti.targetFilePath.toString();
-    DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
+    const BuildTargetInfo bti = buildTargetInfo();
+    const FilePath localExecutable = bti.targetFilePath;
+    const DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
 
     aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-    aspect<SymbolFileAspect>()->setValue(localExecutable);
+    aspect<SymbolFileAspect>()->setFileName(localExecutable);
 }
 
 QString QdbRunConfiguration::defaultDisplayName() const

@@ -171,7 +171,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     // deployment information should get taken into account, but it pretty much seems as if
     // each build system uses it differently
     const DeploymentData &deployData = target->deploymentData();
-    const DeployableFile deploy = deployData.deployableForLocalFile(localExecutable.toString());
+    const DeployableFile deploy = deployData.deployableForLocalFile(localExecutable);
     // we might have a deployable executable
     const FilePath deployedExecutable = ensureExeEnding((deploy.isValid() && deploy.isExecutable())
             ? FilePath::fromString(QDir::cleanPath(deploy.remoteFilePath())) : localExecutable);

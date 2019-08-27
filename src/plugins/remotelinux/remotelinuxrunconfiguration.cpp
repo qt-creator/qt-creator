@@ -90,11 +90,11 @@ Runnable RemoteLinuxRunConfiguration::runnable() const
 void RemoteLinuxRunConfiguration::updateTargetInformation()
 {
     BuildTargetInfo bti = buildTargetInfo();
-    QString localExecutable = bti.targetFilePath.toString();
+    const FilePath localExecutable = bti.targetFilePath;
     DeployableFile depFile = target()->deploymentData().deployableForLocalFile(localExecutable);
 
     aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
-    aspect<SymbolFileAspect>()->setValue(localExecutable);
+    aspect<SymbolFileAspect>()->setFileName(localExecutable);
 
     emit enabledChanged();
 }
