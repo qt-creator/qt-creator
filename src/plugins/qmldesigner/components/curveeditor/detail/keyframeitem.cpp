@@ -203,7 +203,7 @@ void KeyframeItem::updatePosition(bool update)
     if (m_right)
         updateHandle(m_right, false);
 
-    if (update) {
+    if (update && position != oldPosition) {
         emit redrawCurve();
         emit keyframeMoved(this, position - oldPosition);
     }
@@ -307,7 +307,6 @@ QVariant KeyframeItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
 void KeyframeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     SelectableItem::mousePressEvent(event);
-
     if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(parentItem()))
         curveItem->setHandleVisibility(false);
 }

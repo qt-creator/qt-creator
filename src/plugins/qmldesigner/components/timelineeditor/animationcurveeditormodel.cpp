@@ -122,9 +122,7 @@ DesignTools::ValueType typeFrom(const QmlTimelineKeyframeGroup &group)
     if (group.valueType() == TypeName("integer") || group.valueType() == TypeName("int"))
         return DesignTools::ValueType::Integer;
 
-    // Ignoring types:
-    // QColor / HAlignment / VAlignment
-
+    // Ignoring: QColor / HAlignment / VAlignment
     return DesignTools::ValueType::Undefined;
 }
 
@@ -170,48 +168,61 @@ DesignTools::AnimationCurve AnimationCurveEditorModel::createAnimationCurve(
     }
 }
 
+std::vector<DesignTools::Keyframe> createKeyframes(QList<ModelNode> nodes)
+{
+    auto byTime = [](const auto &a, const auto &b) {
+        return a.variantProperty("frame").value().toDouble()
+               < b.variantProperty("frame").value().toDouble();
+    };
+    std::sort(nodes.begin(), nodes.end(), byTime);
+
+    std::vector<DesignTools::Keyframe> frames;
+    for (auto &&node : nodes) {
+        QVariant timeVariant = node.variantProperty("frame").value();
+        QVariant valueVariant = node.variantProperty("value").value();
+        if (!timeVariant.isValid() || !valueVariant.isValid())
+            continue;
+
+        QPointF position(timeVariant.toDouble(), valueVariant.toDouble());
+
+        auto keyframe = DesignTools::Keyframe(position);
+
+        if (node.hasBindingProperty("easing.bezierCurve")) {
+            EasingCurve ecurve;
+            ecurve.fromString(node.bindingProperty("easing.bezierCurve").expression());
+            keyframe.setData(static_cast<QEasingCurve>(ecurve));
+        }
+        frames.push_back(keyframe);
+    }
+    return frames;
+}
+
+std::vector<DesignTools::Keyframe> resolveSmallCurves(
+    const std::vector<DesignTools::Keyframe> &frames)
+{
+    std::vector<DesignTools::Keyframe> out;
+    for (auto &&frame : frames) {
+        if (frame.hasData() && !out.empty()) {
+            QEasingCurve curve = frame.data().toEasingCurve();
+            if (curve.toCubicSpline().count() == 3) {
+                DesignTools::Keyframe &previous = out.back();
+                DesignTools::AnimationCurve acurve(curve, previous.position(), frame.position());
+                previous = acurve.keyframeAt(0);
+                out.push_back(acurve.keyframeAt(1));
+                continue;
+            }
+        }
+        out.push_back(frame);
+    }
+    return out;
+}
+
 DesignTools::AnimationCurve AnimationCurveEditorModel::createDoubleCurve(
     const QmlTimelineKeyframeGroup &group)
 {
-    std::vector<DesignTools::Keyframe> keyframes;
-    for (auto &&frame : group.keyframePositions()) {
-        QVariant timeVariant = frame.variantProperty("frame").value();
-        QVariant valueVariant = frame.variantProperty("value").value();
-
-        if (timeVariant.isValid() && valueVariant.isValid()) {
-            QPointF position(timeVariant.toDouble(), valueFromVariant(valueVariant));
-            auto keyframe = DesignTools::Keyframe(position);
-
-            if (frame.hasBindingProperty("easing.bezierCurve")) {
-                EasingCurve ecurve;
-                ecurve.fromString(frame.bindingProperty("easing.bezierCurve").expression());
-                keyframe.setData(static_cast<QEasingCurve>(ecurve));
-            }
-
-            keyframes.push_back(keyframe);
-        }
-    }
+    std::vector<DesignTools::Keyframe> keyframes = createKeyframes(group.keyframePositions());
+    keyframes = resolveSmallCurves(keyframes);
     return DesignTools::AnimationCurve(keyframes);
-}
-
-double AnimationCurveEditorModel::valueFromVariant(const QVariant &variant)
-{
-    return variant.toDouble();
-}
-
-void AnimationCurveEditorModel::reset(const std::vector<DesignTools::TreeItem *> &items)
-{
-    beginResetModel();
-
-    initialize();
-
-    unsigned int counter = 0;
-    for (auto *item : items) {
-        item->setId(++counter);
-        root()->addChild(item);
-    }
-
-    endResetModel();
 }
 
 } // namespace QmlDesigner

@@ -35,7 +35,6 @@ CurveEditorModel::CurveEditorModel(QObject *parent)
 
 CurveEditorModel::~CurveEditorModel() {}
 
-
 void CurveEditorModel::setCurrentFrame(int frame)
 {
     if (graphicsView())
@@ -54,6 +53,8 @@ void CurveEditorModel::setCurve(unsigned int id, const AnimationCurve &curve)
 
 void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
 {
+    std::vector<TreeItem::Path> sel = selection();
+
     beginResetModel();
 
     initialize();
@@ -65,6 +66,8 @@ void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
     }
 
     endResetModel();
+
+    select(sel);
 }
 
 } // End namespace DesignTools.

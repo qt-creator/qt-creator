@@ -328,7 +328,8 @@ void TimelineWidget::updateAnimationCurve(DesignTools::PropertyTreeItem *item)
     QmlTimelineKeyframeGroup group = timelineKeyframeGroup(currentTimeline, item);
 
     if (group.isValid()) {
-        auto replaceKeyframes = [&group, currentTimeline, item]() {
+        auto replaceKeyframes = [&group, item, this]() {
+            m_toolbar->setBlockReflection(true);
             for (auto frame : group.keyframes())
                 frame.destroy();
 
@@ -353,6 +354,7 @@ void TimelineWidget::updateAnimationCurve(DesignTools::PropertyTreeItem *item)
 
                 previous = frame;
             }
+            m_toolbar->setBlockReflection(false);
         };
 
         timelineView()->executeInTransaction("TimelineWidget::handleKeyframeReplacement",

@@ -67,6 +67,8 @@ double GraphicsScene::maximumValue() const
 void GraphicsScene::addCurveItem(CurveItem *item)
 {
     m_dirty = true;
+    item->setDirty(false);
+
     addItem(item);
     item->connect(this);
 }
@@ -144,13 +146,10 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
             // CurveItems might become invalid after a keyframe-drag operation.
             curveItem->restore();
 
-            if (curveItem->contains(mouseEvent->scenePos()))
-                curveItem->setSelected(true);
-
             if (curveItem->isDirty()) {
-                emit curveChanged(curveItem->id(), curveItem->curve());
-                curveItem->setDirty(false);
                 m_dirty = true;
+                curveItem->setDirty(false);
+                emit curveChanged(curveItem->id(), curveItem->curve());
             }
         }
     }

@@ -46,6 +46,9 @@ class PropertyTreeItem;
 class TreeItem
 {
 public:
+    using Path = std::vector<QString>;
+
+public:
     TreeItem(const QString &name);
 
     virtual ~TreeItem();
@@ -60,11 +63,15 @@ public:
 
     QString name() const;
 
+    Path path() const;
+
     bool hasChildren() const;
 
     bool locked() const;
 
     bool pinned() const;
+
+    bool compare(const std::vector<QString> &path) const;
 
     int row() const;
 

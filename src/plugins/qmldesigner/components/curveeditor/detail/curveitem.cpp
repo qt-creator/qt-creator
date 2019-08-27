@@ -64,11 +64,7 @@ CurveItem::CurveItem(unsigned int id, const AnimationCurve &curve, QGraphicsItem
 
     setFlag(QGraphicsItem::ItemIsMovable, false);
 
-    for (auto frame : curve.keyframes()) {
-        auto *item = new KeyframeItem(frame, this);
-        QObject::connect(item, &KeyframeItem::redrawCurve, this, &CurveItem::emitCurveChanged);
-        m_keyframes.push_back(item);
-    }
+    setCurve(curve);
 }
 
 CurveItem::~CurveItem() {}
@@ -334,7 +330,7 @@ void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
             prevItem->setKeyframe(segment.left());
             currItem->setKeyframe(segment.right());
 
-            m_itemDirty = true;
+            setDirty(true);
         }
 
         prevItem = currItem;
@@ -380,7 +376,7 @@ void CurveItem::deleteSelectedKeyframes()
 
 void CurveItem::emitCurveChanged()
 {
-    m_itemDirty = true;
+    setDirty(true);
     update();
 }
 

@@ -72,6 +72,25 @@ QString TreeItem::name() const
     return m_name;
 }
 
+TreeItem::Path TreeItem::path() const
+{
+    Path fullName;
+    fullName.push_back(name());
+
+    TreeItem *parent = this->parent();
+    while (parent) {
+        if (parent->name() == "Root")
+            break;
+
+        fullName.push_back(parent->name());
+        parent = parent->parent();
+    }
+
+    std::reverse(fullName.begin(), fullName.end());
+
+    return fullName;
+}
+
 bool TreeItem::hasChildren() const
 {
     return !m_children.empty();
@@ -85,6 +104,20 @@ bool TreeItem::locked() const
 bool TreeItem::pinned() const
 {
     return m_pinned;
+}
+
+bool TreeItem::compare(const std::vector<QString> &path) const
+{
+    auto thisPath = this->path();
+    if (thisPath.size() != path.size())
+        return false;
+
+    for (size_t i = 0; i < thisPath.size(); ++i) {
+        if (thisPath[i] != path[i])
+            return false;
+    }
+
+    return true;
 }
 
 int TreeItem::row() const

@@ -60,10 +60,6 @@ private:
 
     DesignTools::AnimationCurve createDoubleCurve(const QmlTimelineKeyframeGroup &group);
 
-    double valueFromVariant(const QVariant &variant);
-
-    void reset(const std::vector<DesignTools::TreeItem *> &items);
-
     double m_minTime;
 
     double m_maxTime;

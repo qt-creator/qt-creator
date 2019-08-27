@@ -66,6 +66,8 @@ public:
 
     QPainterPath intersectionPath() const;
 
+    Keyframe keyframeAt(size_t id) const;
+
     std::vector<Keyframe> keyframes() const;
 
     std::vector<QPointF> extrema() const;

@@ -442,7 +442,7 @@ def qdump__std__set(d, value):
                 d.putSubItem(i, val)
                 if node["_M_right"].pointer() == 0:
                     parent = node["_M_parent"]
-                    while node == parent["_M_right"]:
+                    while node.pointer() == parent["_M_right"].pointer():
                         node = parent
                         parent = parent["_M_parent"]
                     if node["_M_right"] != parent:

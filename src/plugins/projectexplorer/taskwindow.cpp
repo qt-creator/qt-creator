@@ -427,7 +427,7 @@ void TaskWindow::loadSettings()
     if (value.isValid()) {
         bool includeWarnings = value.toBool();
         d->m_filter->setFilterIncludesWarnings(includeWarnings);
-        d->m_filterWarningsButton->setDown(d->m_filter->filterIncludesWarnings());
+        d->m_filterWarningsButton->setChecked(d->m_filter->filterIncludesWarnings());
     }
 }
 

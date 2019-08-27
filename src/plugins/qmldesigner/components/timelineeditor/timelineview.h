@@ -60,6 +60,8 @@ public:
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName>> &propertyList) override;
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                   PropertyChangeFlags propertyChange) override;
+    void bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                  PropertyChangeFlags propertyChange) override;
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 

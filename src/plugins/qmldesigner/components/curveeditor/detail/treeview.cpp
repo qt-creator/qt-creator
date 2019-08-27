@@ -36,6 +36,8 @@ namespace DesignTools {
 TreeView::TreeView(CurveEditorModel *model, QWidget *parent)
     : QTreeView(parent)
 {
+    model->setTreeView(this);
+
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setUniformRowHeights(true);
     setRootIsDecorated(false);

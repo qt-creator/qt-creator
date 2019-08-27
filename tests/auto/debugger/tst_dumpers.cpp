@@ -4692,10 +4692,7 @@ void tst_Dumpers::dumper_data()
                     "std::set<double> s0;\n"
                     "unused(&s0);\n\n"
 
-                    "std::set<int> s1;\n"
-                    "s1.insert(11);\n"
-                    "s1.insert(22);\n"
-                    "s1.insert(33);\n"
+                    "std::set<int> s1{11, 22, 33, 44, 55, 66, 77, 88};\n"
                     "unused(&s1);\n\n"
 
                     "typedef std::set<int> Set;\n"
@@ -4716,9 +4713,13 @@ void tst_Dumpers::dumper_data()
                     "s3.insert(3);\n"
                     "s3.insert(3);\n")
 
+               + Cxx11Profile()
                + Check("s0", "<0 items>", "std::set<double>")
 
-               + Check("s1", "<3 items>", "std::set<int>")
+               + Check("s1", "<8 items>", "std::set<int>")
+               + Check("s1.0", "[0]", "11", "int")
+               + Check("s1.1", "[1]", "22", "int")
+               + Check("s1.5", "[5]", "66", "int")
 
                + Check("s2", "<3 items>", TypeDef("std::set<int>", "Set"))
                + Check("it1.value", "11", "int")
