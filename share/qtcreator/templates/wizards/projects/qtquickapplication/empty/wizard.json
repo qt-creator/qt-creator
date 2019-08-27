@@ -44,6 +44,7 @@
                     "name": "BuildSystem",
                     "trDisplayName": "Build system:",
                     "type": "ComboBox",
+                    "persistenceKey": "BuildSystemType",
                     "data":
                     {
                         "index": 0,
@@ -79,6 +80,7 @@
                     "name": "QtVersion",
                     "trDisplayName": "Minimal required Qt version:",
                     "type": "ComboBox",
+                    "persistenceKey": "QtQuick.minimumQtVersion",
                     "data":
                     {
                         "index": 1,
@@ -163,6 +165,7 @@
                     "name": "UseVirtualKeyboard",
                     "trDisplayName": "Use Qt Virtual Keyboard",
                     "type": "CheckBox",
+                    "persistenceKey": "QtQuick.UseVirtualKeyboard.%{UseVirtualKeyboardByDefault}",
                     "data":
                     {
                         "checked": "%{UseVirtualKeyboardByDefault}"

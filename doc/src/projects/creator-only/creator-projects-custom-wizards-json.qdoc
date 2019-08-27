@@ -683,6 +683,11 @@
         \li \c trIncompleteMessage is shown when the field's \c isComplete was
             evaluated to \c false.
 
+        \li \c persistenceKey makes the user choice persistent. The value is
+            taken to be a settings key. If the user changes the default
+            value of the widget, the user-provided value is stored and will
+            become the new default value the next time the wizard is run.
+
         \li \c data specifies settings for the widget:
 
         \list

@@ -36,6 +36,7 @@
                     "name": "BuildSystem",
                     "trDisplayName": "Build system:",
                     "type": "ComboBox",
+                    "persistenceKey": "BuildSystemType",
                     "data":
                     {
                         "index": 0,

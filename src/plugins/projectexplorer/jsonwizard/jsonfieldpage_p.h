@@ -57,11 +57,13 @@ public:
     QString m_toolTip;
     bool m_isMandatory = false;
     bool m_hasSpan = false;
+    bool m_hasUserChanges = false;
 
     QVariant m_visibleExpression;
     QVariant m_enabledExpression;
     QVariant m_isCompleteExpando;
     QString m_isCompleteExpandoMessage;
+    QString m_persistenceKey;
 
     QLabel *m_label = nullptr;
     QWidget *m_widget = nullptr;
@@ -106,6 +108,9 @@ private:
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
 
+    void fromSettings(const QVariant &value) override;
+    QVariant toSettings() const override;
+
     bool m_isModified = false;
     bool m_isValidating = false;
     bool m_restoreLastHistoryItem = false;
@@ -130,6 +135,9 @@ private:
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
 
+    void fromSettings(const QVariant &value) override;
+    QVariant toSettings() const override;
+
     QString m_defaultText;
     bool m_acceptRichText = false;
     QString m_disabledText;
@@ -149,6 +157,9 @@ private:
 
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
+
+    void fromSettings(const QVariant &value) override;
+    QVariant toSettings() const override;
 
     QString m_path;
     QString m_basePath;
@@ -172,6 +183,8 @@ private:
 
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
+    void fromSettings(const QVariant &value) override;
+    QVariant toSettings() const override;
 
     QString m_checkedValue;
     QString m_uncheckedValue;
@@ -200,13 +213,16 @@ public:
     bool validate(Utils::MacroExpander *expander, QString *message) override;
     void initializeData(Utils::MacroExpander *expander) override;
     QStandardItemModel *itemModel();
-    QItemSelectionModel *selectionModel();
+    QItemSelectionModel *selectionModel() const;
     void setSelectionModel(QItemSelectionModel *selectionModel);
     QSize maxIconSize();
 
 private:
     void addPossibleIconSize(const QIcon &icon);
     void updateIndex();
+
+    void fromSettings(const QVariant &value) override;
+    QVariant toSettings() const override;
 
     std::vector<std::unique_ptr<QStandardItem>> m_itemList;
     QStandardItemModel *m_itemModel = nullptr;

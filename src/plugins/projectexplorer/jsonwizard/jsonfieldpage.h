@@ -83,8 +83,10 @@ public:
         QString name();
         QString displayName();
         QString toolTip();
+        QString persistenceKey() const;
         bool isMandatory();
         bool hasSpan();
+        bool hasUserChanges() const;
 
     protected:
         QWidget *widget() const;
@@ -95,8 +97,12 @@ public:
         { Q_UNUSED(page); Q_UNUSED(name) }
 
         QString type();
+        void setHasUserChanges();
 
     private:
+        virtual void fromSettings(const QVariant &value);
+        virtual QVariant toSettings() const;
+
         void setTexts(const QString &n, const QString &dn, const QString &tt);
         void setIsMandatory(bool b);
         void setHasSpan(bool b);
@@ -104,6 +110,7 @@ public:
         void setVisibleExpression(const QVariant &v);
         void setEnabledExpression(const QVariant &v);
         void setIsCompleteExpando(const QVariant &v, const QString &m);
+        void setPersistenceKey(const QString &key);
 
         friend class JsonFieldPage;
 
@@ -121,6 +128,7 @@ public:
     bool isComplete() const override;
     void initializePage() override;
     void cleanupPage() override;
+    bool validatePage() override;
 
     QFormLayout *layout() const { return m_formLayout; }
 
@@ -135,6 +143,7 @@ private:
     static QHash<QString, FieldFactory> m_factories;
 
     static Field *createFieldData(const QString &type);
+    static QString fullSettingsKey(const QString &fieldKey);
 
     QFormLayout *m_formLayout;
     QLabel *m_errorLabel;
