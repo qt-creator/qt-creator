@@ -33,26 +33,26 @@ using namespace ProjectExplorer;
 namespace ClangTools {
 namespace Internal {
 
-ClangTidyClazyRunControl::ClangTidyClazyRunControl(
-    RunControl *runControl,
-    Target *target,
-    const CppTools::ClangDiagnosticConfig &diagnosticConfig,
-    const FileInfos &fileInfos)
-    : ClangToolRunControl(runControl, target, fileInfos)
+ClangTidyClazyRunWorker::ClangTidyClazyRunWorker(
+        RunControl *runControl,
+        Target *target,
+        const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+        const FileInfos &fileInfos)
+    : ClangToolRunWorker(runControl, target, fileInfos)
     , m_diagnosticConfig(diagnosticConfig)
 {
     setId("ClangTidyClazyRunner");
     init();
 }
 
-QList<RunnerCreator> ClangTidyClazyRunControl::runnerCreators()
+QList<RunnerCreator> ClangTidyClazyRunWorker::runnerCreators()
 {
     return {
         [this]() { return createRunner(); }
     };
 }
 
-ClangToolRunner *ClangTidyClazyRunControl::createRunner()
+ClangToolRunner *ClangTidyClazyRunWorker::createRunner()
 {
     auto runner = new ClangTidyClazyRunner(m_diagnosticConfig,
                                            m_clangExecutable,
@@ -60,13 +60,13 @@ ClangToolRunner *ClangTidyClazyRunControl::createRunner()
                                            m_environment,
                                            this);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
-            this, &ClangTidyClazyRunControl::onRunnerFinishedWithSuccess);
+            this, &ClangTidyClazyRunWorker::onRunnerFinishedWithSuccess);
     connect(runner, &ClangToolRunner::finishedWithFailure,
-            this, &ClangTidyClazyRunControl::onRunnerFinishedWithFailure);
+            this, &ClangTidyClazyRunWorker::onRunnerFinishedWithFailure);
     return runner;
 }
 
-ClangTool *ClangTidyClazyRunControl::tool()
+ClangTool *ClangTidyClazyRunWorker::tool()
 {
     return ClangTidyClazyTool::instance();
 }

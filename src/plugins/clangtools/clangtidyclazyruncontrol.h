@@ -32,15 +32,15 @@
 namespace ClangTools {
 namespace Internal {
 
-class ClangTidyClazyRunControl final : public ClangToolRunControl
+class ClangTidyClazyRunWorker final : public ClangToolRunWorker
 {
     Q_OBJECT
 
 public:
-    ClangTidyClazyRunControl(ProjectExplorer::RunControl *runControl,
-                             ProjectExplorer::Target *target,
-                             const CppTools::ClangDiagnosticConfig &diagnosticConfig,
-                             const FileInfos &fileInfos);
+    ClangTidyClazyRunWorker(ProjectExplorer::RunControl *runControl,
+                            ProjectExplorer::Target *target,
+                            const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+                            const FileInfos &fileInfos);
 
 protected:
     QList<RunnerCreator> runnerCreators() final;

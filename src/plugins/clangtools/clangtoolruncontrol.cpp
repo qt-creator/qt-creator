@@ -117,7 +117,7 @@ namespace Internal {
 class ProjectBuilder : public RunWorker
 {
 public:
-    ProjectBuilder(RunControl *runControl, Project *project, ClangToolRunControl *parent)
+    ProjectBuilder(RunControl *runControl, Project *project, ClangToolRunWorker *parent)
         : RunWorker(runControl), m_project(project), m_parent(parent)
     {
         setId("ProjectBuilder");
@@ -144,14 +144,14 @@ private:
             buildType = buildConfig->buildType();
 
         if (buildType == BuildConfiguration::Release) {
-            const QString wrongMode = ClangToolRunControl::tr("Release");
+            const QString wrongMode = ClangToolRunWorker::tr("Release");
             const QString toolName = m_parent->tool()->name();
-            const QString title = ClangToolRunControl::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
-            const QString problem = ClangToolRunControl::tr(
+            const QString title = ClangToolRunWorker::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
+            const QString problem = ClangToolRunWorker::tr(
                         "You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
                         "designed to be used in Debug mode since enabled assertions can reduce the number of "
                         "false positives.").arg(toolName, wrongMode);
-            const QString question = ClangToolRunControl::tr(
+            const QString question = ClangToolRunWorker::tr(
                         "Do you want to continue and run the tool in %1 mode?").arg(wrongMode);
             const QString message = QString("<html><head/><body>"
                                             "<p>%1</p>"
@@ -182,7 +182,7 @@ private:
 
 private:
      QPointer<Project> m_project;
-     ClangToolRunControl *m_parent;
+     ClangToolRunWorker *m_parent;
      bool m_enabled = true;
      bool m_success = false;
 };
@@ -208,7 +208,7 @@ static AnalyzeUnits toAnalyzeUnits(const FileInfos &fileInfos)
     return unitsToAnalyze;
 }
 
-AnalyzeUnits ClangToolRunControl::unitsToAnalyze()
+AnalyzeUnits ClangToolRunWorker::unitsToAnalyze()
 {
     QTC_ASSERT(m_projectInfo.isValid(), return AnalyzeUnits());
 
@@ -229,7 +229,7 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
-ClangToolRunControl::ClangToolRunControl(RunControl *runControl,
+ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
                                          Target *target,
                                          const FileInfos &fileInfos)
     : RunWorker(runControl)
@@ -249,7 +249,7 @@ ClangToolRunControl::ClangToolRunControl(RunControl *runControl,
         m_projectBuilder->setEnabled(projectSettings->buildBeforeAnalysis());
 }
 
-void ClangToolRunControl::init()
+void ClangToolRunWorker::init()
 {
     setSupportsReRunning(false);
     m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(
@@ -266,7 +266,7 @@ void ClangToolRunControl::init()
     m_toolChainType = toolChain->typeId();
 }
 
-void ClangToolRunControl::start()
+void ClangToolRunWorker::start()
 {
     TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
 
@@ -337,7 +337,7 @@ void ClangToolRunControl::start()
                                    toolName.toStdString().c_str());
     futureProgress->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(futureProgress, &FutureProgress::canceled,
-            this, &ClangToolRunControl::onProgressCanceled);
+            this, &ClangToolRunWorker::onProgressCanceled);
     m_progress.setProgressRange(0, m_initialQueueSize);
     m_progress.reportStarted();
 
@@ -359,7 +359,7 @@ void ClangToolRunControl::start()
         analyzeNextFile();
 }
 
-void ClangToolRunControl::stop()
+void ClangToolRunWorker::stop()
 {
     for (ClangToolRunner *runner : m_runners) {
         QObject::disconnect(runner, nullptr, this, nullptr);
@@ -373,7 +373,7 @@ void ClangToolRunControl::stop()
     reportStopped();
 }
 
-void ClangToolRunControl::analyzeNextFile()
+void ClangToolRunWorker::analyzeNextFile()
 {
     if (m_progress.isFinished())
         return; // The previous call already reported that we are finished.
@@ -396,7 +396,7 @@ void ClangToolRunControl::analyzeNextFile()
                   Utils::StdOutFormat);
 }
 
-void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
+void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
 {
     const QString logFilePath = qobject_cast<ClangToolRunner *>(sender())->logFilePath();
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
@@ -425,7 +425,7 @@ void ClangToolRunControl::onRunnerFinishedWithSuccess(const QString &filePath)
     handleFinished();
 }
 
-void ClangToolRunControl::onRunnerFinishedWithFailure(const QString &errorMessage,
+void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage,
                                                       const QString &errorDetails)
 {
     qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:"
@@ -449,7 +449,7 @@ void ClangToolRunControl::onRunnerFinishedWithFailure(const QString &errorMessag
     handleFinished();
 }
 
-void ClangToolRunControl::handleFinished()
+void ClangToolRunWorker::handleFinished()
 {
     m_runners.remove(qobject_cast<ClangToolRunner *>(sender()));
     updateProgressValue();
@@ -457,18 +457,18 @@ void ClangToolRunControl::handleFinished()
     analyzeNextFile();
 }
 
-void ClangToolRunControl::onProgressCanceled()
+void ClangToolRunWorker::onProgressCanceled()
 {
     m_progress.reportCanceled();
     runControl()->initiateStop();
 }
 
-void ClangToolRunControl::updateProgressValue()
+void ClangToolRunWorker::updateProgressValue()
 {
     m_progress.setProgressValue(m_initialQueueSize - m_queue.size());
 }
 
-void ClangToolRunControl::finalize()
+void ClangToolRunWorker::finalize()
 {
     const QString toolName = tool()->name();
     appendMessage(tr("%1 finished: "

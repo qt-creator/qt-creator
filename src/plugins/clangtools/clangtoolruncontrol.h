@@ -60,14 +60,14 @@ struct QueueItem {
 };
 using QueueItems = QList<QueueItem>;
 
-class ClangToolRunControl : public ProjectExplorer::RunWorker
+class ClangToolRunWorker : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
 
 public:
-    ClangToolRunControl(ProjectExplorer::RunControl *runControl,
-                        ProjectExplorer::Target *target,
-                        const FileInfos &fileInfos);
+    ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
+                       ProjectExplorer::Target *target,
+                       const FileInfos &fileInfos);
 
     bool success() const { return m_success; } // For testing.
 

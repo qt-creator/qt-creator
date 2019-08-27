@@ -386,7 +386,7 @@ void ClangTidyClazyTool::startTool(bool askUserForFileSelection)
     if (fileInfos.empty())
         return;
 
-    auto clangTool = new ClangTidyClazyRunControl(runControl,
+    auto clangTool = new ClangTidyClazyRunWorker(runControl,
                                                   project->activeTarget(),
                                                   getDiagnosticConfig(project),
                                                   fileInfos);
