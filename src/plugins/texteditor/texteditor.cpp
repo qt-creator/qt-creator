@@ -2849,14 +2849,20 @@ bool TextEditorWidget::event(QEvent *e)
     if (e->type() != QEvent::InputMethodQuery)
         d->m_contentsChanged = false;
     switch (e->type()) {
-    case QEvent::ShortcutOverride:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_snippetOverlay->isVisible()) {
+    case QEvent::ShortcutOverride: {
+        auto ke = static_cast<QKeyEvent *>(e);
+        if (ke->key() == Qt::Key_Escape && d->m_snippetOverlay->isVisible()) {
             e->accept();
         } else {
-            e->ignore(); // we are a really nice citizen
+            // hack copied from QInputControl::isCommonTextEditShortcut
+            // Fixes: QTCREATORBUG-22854
+            e->setAccepted((ke->modifiers() == Qt::NoModifier || ke->modifiers() == Qt::ShiftModifier
+                            || ke->modifiers() == Qt::KeypadModifier)
+                           && (ke->key() < Qt::Key_Escape));
             d->m_maybeFakeTooltipEvent = false;
         }
         return true;
+    }
     case QEvent::ApplicationPaletteChange: {
         // slight hack: ignore palette changes
         // at this point the palette has changed already,
