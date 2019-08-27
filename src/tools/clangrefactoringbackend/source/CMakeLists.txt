@@ -18,7 +18,6 @@ add_qtc_library(clangrefactoringbackend_lib STATIC
     collectmacrospreprocessorcallbacks.h
     collectmacrossourcefilecallbacks.cpp collectmacrossourcefilecallbacks.h
     collectsymbolsaction.cpp collectsymbolsaction.h
-    filestatuspreprocessorcallbacks.cpp filestatuspreprocessorcallbacks.h
     indexdataconsumer.cpp indexdataconsumer.h
     locationsourcefilecallbacks.cpp locationsourcefilecallbacks.h
     macropreprocessorcallbacks.cpp macropreprocessorcallbacks.h
