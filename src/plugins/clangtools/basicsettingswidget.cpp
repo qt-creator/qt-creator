@@ -23,27 +23,27 @@
 **
 ****************************************************************************/
 
-#include "clangtoolsbasicsettings.h"
-#include "ui_clangtoolsbasicsettings.h"
+#include "basicsettingswidget.h"
+#include "ui_basicsettingswidget.h"
 
 #include "clangtoolsutils.h"
 
 namespace ClangTools {
 namespace Internal {
 
-ClangToolsBasicSettings::ClangToolsBasicSettings(QWidget *parent)
+BasicSettingsWidget::BasicSettingsWidget(QWidget *parent)
     : QWidget(parent)
-    , m_ui(new Ui::ClangToolsBasicSettings)
+    , m_ui(new Ui::BasicSettingsWidget)
 {
     m_ui->setupUi(this);
 }
 
-ClangToolsBasicSettings::~ClangToolsBasicSettings()
+BasicSettingsWidget::~BasicSettingsWidget()
 {
     delete m_ui;
 }
 
-Ui::ClangToolsBasicSettings *ClangToolsBasicSettings::ui()
+Ui::BasicSettingsWidget *BasicSettingsWidget::ui()
 {
     return m_ui;
 }

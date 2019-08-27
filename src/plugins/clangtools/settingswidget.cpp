@@ -25,7 +25,7 @@
 
 #include "settingswidget.h"
 
-#include "ui_clangtoolsbasicsettings.h"
+#include "ui_basicsettingswidget.h"
 #include "ui_settingswidget.h"
 
 #include "clangtoolsutils.h"
@@ -56,7 +56,7 @@ SettingsWidget::SettingsWidget(
             QOverload<int>::of(&QSpinBox::valueChanged),
             [settings](int count) { settings->setSimultaneousProcesses(count); });
 
-    QCheckBox *buildBeforeAnalysis = m_ui->clangToolsBasicSettings->ui()->buildBeforeAnalysis;
+    QCheckBox *buildBeforeAnalysis = m_ui->basicSettingsWidget->ui()->buildBeforeAnalysis;
     buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
     buildBeforeAnalysis->setCheckState(settings->savedBuildBeforeAnalysis()
                                               ? Qt::Checked : Qt::Unchecked);
@@ -67,7 +67,7 @@ SettingsWidget::SettingsWidget(
     });
 
     CppTools::ClangDiagnosticConfigsSelectionWidget *clangDiagnosticConfigsSelectionWidget
-            = m_ui->clangToolsBasicSettings->ui()->clangDiagnosticConfigsSelectionWidget;
+            = m_ui->basicSettingsWidget->ui()->clangDiagnosticConfigsSelectionWidget;
     clangDiagnosticConfigsSelectionWidget->refresh(settings->savedDiagnosticConfigId());
 
     connect(clangDiagnosticConfigsSelectionWidget,

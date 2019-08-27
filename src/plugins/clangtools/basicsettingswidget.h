@@ -30,21 +30,21 @@
 namespace ClangTools {
 namespace Internal {
 
-namespace Ui { class ClangToolsBasicSettings; }
+namespace Ui { class BasicSettingsWidget; }
 
 class ClangExecutableVersion;
 
-class ClangToolsBasicSettings : public QWidget
+class BasicSettingsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit ClangToolsBasicSettings(QWidget *parent = nullptr);
-    ~ClangToolsBasicSettings() override;
+    explicit BasicSettingsWidget(QWidget *parent = nullptr);
+    ~BasicSettingsWidget() override;
 
-    Ui::ClangToolsBasicSettings *ui();
+    Ui::BasicSettingsWidget *ui();
 private:
-    Ui::ClangToolsBasicSettings *m_ui;
+    Ui::BasicSettingsWidget *m_ui;
 };
 
 } // namespace Internal

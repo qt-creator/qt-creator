@@ -21,7 +21,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="ClangTools::Internal::ClangToolsBasicSettings" name="clangToolsBasicSettings" native="true"/>
+       <widget class="ClangTools::Internal::BasicSettingsWidget" name="basicSettingsWidget" native="true"/>
       </item>
       <item>
        <layout class="QHBoxLayout" name="processesLayout">
@@ -77,9 +77,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ClangTools::Internal::ClangToolsBasicSettings</class>
+   <class>ClangTools::Internal::BasicSettingsWidget</class>
    <extends>QWidget</extends>
-   <header>clangtools/clangtoolsbasicsettings.h</header>
+   <header>clangtools/basicsettingswidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
