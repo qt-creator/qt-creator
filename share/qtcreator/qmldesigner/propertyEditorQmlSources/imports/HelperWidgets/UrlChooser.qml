@@ -110,7 +110,7 @@ RowLayout {
                comboBox.handleActivate(comboBox.currentIndex)
         }
 
-        onActivated: comboBox.handleActivate(index)
+        onCompressedActivated: comboBox.handleActivate(index)
 
         function handleActivate(index)
         {
