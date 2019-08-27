@@ -326,6 +326,7 @@ public:
     QPointer<RunConfiguration> runConfiguration; // Not owned. Avoid use.
     QString buildKey;
     Core::Id runConfigId;
+    BuildTargetInfo buildTargetInfo;
     Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
     QPointer<Project> project; // Not owned.
@@ -368,6 +369,9 @@ void RunControl::setTarget(Target *target)
     QTC_ASSERT(target, return);
     QTC_CHECK(!d->target);
     d->target = target;
+
+    if (!d->buildKey.isEmpty())
+        d->buildTargetInfo = target->buildTarget(d->buildKey);
 
     delete d->outputFormatter;
     d->outputFormatter = OutputFormatterFactory::createFormatter(target);
@@ -902,12 +906,12 @@ QString RunControl::buildKey() const
 
 FilePath RunControl::targetFilePath() const
 {
-    return d->target->buildTarget(d->buildKey).targetFilePath;
+    return d->buildTargetInfo.targetFilePath;
 }
 
 FilePath RunControl::projectFilePath() const
 {
-    return d->target->buildTarget(d->buildKey).projectFilePath;
+    return d->buildTargetInfo.projectFilePath;
 }
 
 /*!
