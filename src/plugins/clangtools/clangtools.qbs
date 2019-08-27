@@ -53,9 +53,6 @@ QtcPlugin {
         "clangtoolsbasicsettings.cpp",
         "clangtoolsbasicsettings.h",
         "clangtoolsbasicsettings.ui",
-        "clangtoolsconfigwidget.cpp",
-        "clangtoolsconfigwidget.h",
-        "clangtoolsconfigwidget.ui",
         "clangtoolsconstants.h",
         "clangtoolsdiagnostic.cpp",
         "clangtoolsdiagnostic.h",
@@ -76,6 +73,9 @@ QtcPlugin {
         "clangtoolsutils.h",
         "clangtoolsplugin.cpp",
         "clangtoolsplugin.h",
+        "settingswidget.cpp",
+        "settingswidget.h",
+        "settingswidget.ui",
     ]
 
     Group {

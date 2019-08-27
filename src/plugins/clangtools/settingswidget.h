@@ -34,19 +34,17 @@
 namespace ClangTools {
 namespace Internal {
 
-namespace Ui { class ClangToolsConfigWidget; }
+namespace Ui { class SettingsWidget; }
 
-class ClangExecutableVersion;
-
-class ClangToolsConfigWidget : public QWidget
+class SettingsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    ClangToolsConfigWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
-    ~ClangToolsConfigWidget() override;
+    SettingsWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
+    ~SettingsWidget() override;
 private:
-    std::unique_ptr<Ui::ClangToolsConfigWidget> m_ui;
+    std::unique_ptr<Ui::SettingsWidget> m_ui;
     ClangToolsSettings *m_settings;
 };
 

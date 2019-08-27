@@ -25,11 +25,11 @@
 
 #include "clangtoolsplugin.h"
 
-#include "clangtoolsconfigwidget.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettingswidget.h"
 #include "clangtidyclazytool.h"
 #include "clangtoolsprojectsettings.h"
+#include "settingswidget.h"
 
 #ifdef WITH_TESTS
 #include "clangtoolspreconfiguredsessiontests.h"
@@ -83,7 +83,7 @@ public:
     QWidget *widget() override
     {
         if (!m_widget)
-            m_widget = new ClangToolsConfigWidget(ClangToolsSettings::instance());
+            m_widget = new SettingsWidget(ClangToolsSettings::instance());
         return m_widget;
     }
 

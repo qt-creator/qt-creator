@@ -34,7 +34,7 @@ SOURCES += \
     clangtoolsprojectsettings.cpp \
     clangtoolssettings.cpp \
     clangtoolsutils.cpp \
-    clangtoolsconfigwidget.cpp
+    settingswidget.cpp \
 
 HEADERS += \
     clangfileinfo.h \
@@ -58,13 +58,12 @@ HEADERS += \
     clangtoolsprojectsettings.h \
     clangtoolssettings.h \
     clangtoolsutils.h \
-    clangtoolsconfigwidget.h
+    settingswidget.h \
 
 FORMS += \
     clangtoolsprojectsettingswidget.ui \
-    clangtoolsconfigwidget.ui \
-    clangselectablefilesdialog.ui \
-    clangtoolsbasicsettings.ui
+    clangtoolsbasicsettings.ui \
+    settingswidget.ui \
 
 equals(TEST, 1) {
     HEADERS += \

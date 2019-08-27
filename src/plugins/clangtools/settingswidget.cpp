@@ -23,9 +23,10 @@
 **
 ****************************************************************************/
 
-#include "clangtoolsconfigwidget.h"
+#include "settingswidget.h"
+
 #include "ui_clangtoolsbasicsettings.h"
-#include "ui_clangtoolsconfigwidget.h"
+#include "ui_settingswidget.h"
 
 #include "clangtoolsutils.h"
 
@@ -39,11 +40,11 @@
 namespace ClangTools {
 namespace Internal {
 
-ClangToolsConfigWidget::ClangToolsConfigWidget(
+SettingsWidget::SettingsWidget(
         ClangToolsSettings *settings,
         QWidget *parent)
     : QWidget(parent)
-    , m_ui(new Ui::ClangToolsConfigWidget)
+    , m_ui(new Ui::SettingsWidget)
     , m_settings(settings)
 {
     m_ui->setupUi(this);
@@ -83,7 +84,7 @@ ClangToolsConfigWidget::ClangToolsConfigWidget(
     });
 }
 
-ClangToolsConfigWidget::~ClangToolsConfigWidget() = default;
+SettingsWidget::~SettingsWidget() = default;
 
 } // namespace Internal
 } // namespace ClangTools

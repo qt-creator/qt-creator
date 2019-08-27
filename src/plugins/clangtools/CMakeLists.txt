@@ -21,7 +21,6 @@ add_qtc_plugin(ClangTools
     clangtoolrunner.cpp clangtoolrunner.h
     clangtools_global.h
     clangtoolsbasicsettings.cpp clangtoolsbasicsettings.h clangtoolsbasicsettings.ui
-    clangtoolsconfigwidget.cpp clangtoolsconfigwidget.h clangtoolsconfigwidget.ui
     clangtoolsconstants.h
     clangtoolsdiagnostic.cpp clangtoolsdiagnostic.h
     clangtoolsdiagnosticmodel.cpp clangtoolsdiagnosticmodel.h
@@ -32,6 +31,7 @@ add_qtc_plugin(ClangTools
     clangtoolsprojectsettingswidget.cpp clangtoolsprojectsettingswidget.h clangtoolsprojectsettingswidget.ui
     clangtoolssettings.cpp clangtoolssettings.h
     clangtoolsutils.cpp clangtoolsutils.h
+    settingswidget.cpp settingswidget.h settingswidget.ui
 )
 
 extend_qtc_plugin(ClangTools
