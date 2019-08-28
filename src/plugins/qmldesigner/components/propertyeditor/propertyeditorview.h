@@ -105,7 +105,8 @@ private: //functions
     void updateSize();
     void setupPanes();
 
-    void select(const ModelNode& node);
+    void select();
+    void setSelelectedModelNode();
 
     void delayedResetView();
     void setupQmlBackend();
