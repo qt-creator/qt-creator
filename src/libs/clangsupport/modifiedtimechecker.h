@@ -44,7 +44,7 @@ public:
         : m_fileSystem(fileSystem)
     {}
 
-    bool isUpToDate(const SourceEntries &sourceEntries) const
+    bool isUpToDate(const SourceEntries &sourceEntries) const override
     {
         if (sourceEntries.empty())
             return false;

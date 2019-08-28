@@ -337,7 +337,7 @@ public:
                                        Utils::SmallString::number(projectPartId.projectPathId));
     }
 
-    Internal::ProjectPartNameIds fetchAllProjectPartNamesAndIds() const
+    Internal::ProjectPartNameIds fetchAllProjectPartNamesAndIds() const override
     {
         try {
             Sqlite::DeferredTransaction transaction{database};
