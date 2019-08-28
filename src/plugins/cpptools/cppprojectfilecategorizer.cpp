@@ -31,10 +31,11 @@ namespace CppTools {
 
 ProjectFileCategorizer::ProjectFileCategorizer(const QString &projectPartName,
                                                const QStringList &filePaths,
-                                               const FileClassifier &fileClassifier)
+                                               const FileIsActive &fileIsActive,
+                                               const GetMimeType &getMimeType)
     : m_partName(projectPartName)
 {
-    const ProjectFiles ambiguousHeaders = classifyFiles(filePaths, fileClassifier);
+    const ProjectFiles ambiguousHeaders = classifyFiles(filePaths, fileIsActive, getMimeType);
     expandSourcesWithAmbiguousHeaders(ambiguousHeaders);
 
     m_partCount = (m_cSources.isEmpty() ? 0 : 1)
@@ -53,14 +54,17 @@ QString ProjectFileCategorizer::partName(const QString &languageName) const
 }
 
 ProjectFiles ProjectFileCategorizer::classifyFiles(const QStringList &filePaths,
-                                                   const FileClassifier &fileClassifier)
+                                                   const FileIsActive &fileIsActive,
+                                                   const GetMimeType &getMimeType)
 {
     ProjectFiles ambiguousHeaders;
 
     foreach (const QString &filePath, filePaths) {
-        const ProjectFile projectFile = fileClassifier
-                ? fileClassifier(filePath)
-                : ProjectFile(filePath, ProjectFile::classify(filePath));
+        const ProjectFile projectFile(filePath,
+                                      getMimeType
+                                          ? ProjectFile::classifyByMimeType(getMimeType(filePath))
+                                          : ProjectFile::classify(filePath),
+                                      fileIsActive ? fileIsActive(filePath) : true);
 
         switch (projectFile.kind) {
         case ProjectFile::AmbiguousHeader:

@@ -50,10 +50,13 @@ void RawProjectPart::setDisplayName(const QString &displayName)
     this->displayName = displayName;
 }
 
-void RawProjectPart::setFiles(const QStringList &files, const FileClassifier &fileClassifier)
+void RawProjectPart::setFiles(const QStringList &files,
+                              const FileIsActive &fileIsActive,
+                              const GetMimeType &getMimeType)
 {
     this->files = files;
-    this->fileClassifier = fileClassifier;
+    this->fileIsActive = fileIsActive;
+    this->getMimeType = getMimeType;
 }
 
 static QString trimTrailingSlashes(const QString &path) {

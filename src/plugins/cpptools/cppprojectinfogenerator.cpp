@@ -87,7 +87,7 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
     QVector<ProjectPart::Ptr> result;
     ProjectFileCategorizer cat(rawProjectPart.displayName,
                                rawProjectPart.files,
-                               rawProjectPart.fileClassifier);
+                               rawProjectPart.fileIsActive);
 
     if (!cat.hasParts())
         return result;

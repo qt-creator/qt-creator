@@ -47,30 +47,36 @@ bool ProjectFile::operator==(const ProjectFile &other) const
         && path == other.path;
 }
 
+ProjectFile::Kind ProjectFile::classifyByMimeType(const QString &mt)
+{
+    if (mt == CppTools::Constants::C_SOURCE_MIMETYPE)
+        return CSource;
+    if (mt == CppTools::Constants::C_HEADER_MIMETYPE)
+        return CHeader;
+    if (mt == CppTools::Constants::CPP_SOURCE_MIMETYPE)
+        return CXXSource;
+    if (mt == CppTools::Constants::CPP_HEADER_MIMETYPE)
+        return CXXHeader;
+    if (mt == CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+        return ObjCSource;
+    if (mt == CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
+        return ObjCXXSource;
+    if (mt == CppTools::Constants::QDOC_MIMETYPE)
+        return CXXSource;
+    if (mt == CppTools::Constants::MOC_MIMETYPE)
+        return CXXSource;
+    if (mt == CppTools::Constants::AMBIGUOUS_HEADER_MIMETYPE)
+        return AmbiguousHeader;
+    return Unsupported;
+}
+
 ProjectFile::Kind ProjectFile::classify(const QString &filePath)
 {
     if (isAmbiguousHeader(filePath))
         return AmbiguousHeader;
 
     const Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
-    const QString mt = mimeType.name();
-    if (mt == QLatin1String(CppTools::Constants::C_SOURCE_MIMETYPE))
-        return CSource;
-    if (mt == QLatin1String(CppTools::Constants::C_HEADER_MIMETYPE))
-        return CHeader;
-    if (mt == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE))
-        return CXXSource;
-    if (mt == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE))
-        return CXXHeader;
-    if (mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
-        return ObjCSource;
-    if (mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
-        return ObjCXXSource;
-    if (mt == QLatin1String(CppTools::Constants::QDOC_MIMETYPE))
-        return CXXSource;
-    if (mt == QLatin1String(CppTools::Constants::MOC_MIMETYPE))
-        return CXXSource;
-    return Unsupported;
+    return classifyByMimeType(mimeType.name());
 }
 
 bool ProjectFile::isAmbiguousHeader(const QString &filePath)

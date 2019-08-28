@@ -50,6 +50,7 @@ public:
         OpenCLSource,
     };
 
+    static Kind classifyByMimeType(const QString &mt);
     static Kind classify(const QString &filePath);
 
     static bool isSource(Kind kind);

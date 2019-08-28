@@ -58,9 +58,12 @@ public:
     void setConfigFileName(const QString &configFileName);
     void setCallGroupId(const QString &id);
 
-    // FileClassifier must be thread-safe.
-    using FileClassifier = std::function<ProjectFile(const QString &filePath)>;
-    void setFiles(const QStringList &files, const FileClassifier &fileClassifier = FileClassifier());
+    // FileIsActive and GetMimeType must be thread-safe.
+    using FileIsActive = std::function<bool(const QString &filePath)>;
+    using GetMimeType = std::function<QString(const QString &filePath)>;
+    void setFiles(const QStringList &files,
+                  const FileIsActive &fileIsActive = {},
+                  const GetMimeType &getMimeType = {});
     static ProjectExplorer::HeaderPath frameworkDetectionHeuristic(const ProjectExplorer::HeaderPath &header);
     void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
@@ -86,7 +89,8 @@ public:
 
     // Files
     QStringList files;
-    FileClassifier fileClassifier;
+    FileIsActive fileIsActive;
+    GetMimeType getMimeType;
     QStringList precompiledHeaders;
     ProjectExplorer::HeaderPaths headerPaths;
     QString projectConfigFile; // Generic Project Manager only

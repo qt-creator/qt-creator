@@ -45,6 +45,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojectupdater.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/generatedcodemodelsupport.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
@@ -731,22 +732,22 @@ void QbsProject::updateDocuments(const std::set<QString> &files)
     setExtraProjectFiles(nonBuildDirFilePaths);
 }
 
-static CppTools::ProjectFile::Kind cppFileType(const qbs::ArtifactData &sourceFile)
+static QString getMimeType(const qbs::ArtifactData &sourceFile)
 {
-    if (sourceFile.fileTags().contains(QLatin1String("hpp"))) {
+    if (sourceFile.fileTags().contains("hpp")) {
         if (CppTools::ProjectFile::isAmbiguousHeader(sourceFile.filePath()))
-            return CppTools::ProjectFile::AmbiguousHeader;
-        return CppTools::ProjectFile::CXXHeader;
+            return CppTools::Constants::AMBIGUOUS_HEADER_MIMETYPE;
+        return CppTools::Constants::CPP_HEADER_MIMETYPE;
     }
-    if (sourceFile.fileTags().contains(QLatin1String("cpp")))
-        return CppTools::ProjectFile::CXXSource;
-    if (sourceFile.fileTags().contains(QLatin1String("c")))
-        return CppTools::ProjectFile::CSource;
-    if (sourceFile.fileTags().contains(QLatin1String("objc")))
-        return CppTools::ProjectFile::ObjCSource;
-    if (sourceFile.fileTags().contains(QLatin1String("objcpp")))
-        return CppTools::ProjectFile::ObjCXXSource;
-    return CppTools::ProjectFile::Unsupported;
+    if (sourceFile.fileTags().contains("cpp"))
+        return CppTools::Constants::CPP_SOURCE_MIMETYPE;
+    if (sourceFile.fileTags().contains("c"))
+        return CppTools::Constants::C_SOURCE_MIMETYPE;
+    if (sourceFile.fileTags().contains("objc"))
+        return CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE;
+    if (sourceFile.fileTags().contains("objcpp"))
+        return CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
+    return {};
 }
 
 static QString groupLocationToCallGroupId(const qbs::CodeLocation &location)
@@ -1011,11 +1012,12 @@ void QbsProject::updateCppCodeModel()
                 qCWarning(qbsPmLog) << "Expect problems with code model";
             }
             rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
-            rpp.setFiles(grp.allFilePaths(), [filePathToSourceArtifact](const QString &filePath) {
-                // Keep this lambda thread-safe!
-                return CppTools::ProjectFile(filePath,
-                                             cppFileType(filePathToSourceArtifact.value(filePath)));
-            });
+            rpp.setFiles(grp.allFilePaths(),
+                         {},
+                         [filePathToSourceArtifact](const QString &filePath) {
+                             // Keep this lambda thread-safe!
+                             return getMimeType(filePathToSourceArtifact.value(filePath));
+                         });
 
             rpps.append(rpp);
 
