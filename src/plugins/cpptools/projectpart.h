@@ -33,6 +33,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer_global.h>
 #include <projectexplorer/projectmacro.h>
+#include <projectexplorer/rawprojectpart.h>
 
 #include <coreplugin/id.h>
 

@@ -27,10 +27,10 @@
 
 #include "cpptools_global.h"
 
-#include "cpprawprojectpart.h"
 #include "projectpart.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/toolchain.h>
 
 #include <QHash>
@@ -70,12 +70,12 @@ public:
     ProjectUpdateInfo(ProjectExplorer::Project *project,
                       const KitInfo &kitInfo,
                       const Utils::Environment &env,
-                      const RawProjectParts &rawProjectParts);
+                      const ProjectExplorer::RawProjectParts &rawProjectParts);
     bool isValid() const { return project && !rawProjectParts.isEmpty(); }
 
 public:
     QPointer<ProjectExplorer::Project> project;
-    QVector<RawProjectPart> rawProjectParts;
+    ProjectExplorer::RawProjectParts rawProjectParts;
 
     const ProjectExplorer::ToolChain *cToolChain = nullptr;
     const ProjectExplorer::ToolChain *cxxToolChain = nullptr;

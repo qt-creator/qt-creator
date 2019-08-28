@@ -128,6 +128,7 @@ Project {
                 "projecttreewidget.cpp", "projecttreewidget.h",
                 "projectwindow.cpp", "projectwindow.h",
                 "projectwizardpage.cpp", "projectwizardpage.h", "projectwizardpage.ui",
+                "rawprojectpart.cpp", "rawprojectpart.h",
                 "removetaskhandler.cpp", "removetaskhandler.h",
                 "runconfiguration.cpp", "runconfiguration.h",
                 "runcontrol.cpp", "runcontrol.h",

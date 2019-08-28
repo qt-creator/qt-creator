@@ -26,7 +26,8 @@
 #pragma once
 
 #include "cppprojectfile.h"
-#include "cpprawprojectpart.h"
+
+#include <projectexplorer/rawprojectpart.h>
 
 #include <QString>
 #include <QVector>
@@ -36,8 +37,8 @@ namespace CppTools {
 class ProjectFileCategorizer
 {
 public:
-    using FileIsActive = RawProjectPart::FileIsActive;
-    using GetMimeType = RawProjectPart::GetMimeType;
+    using FileIsActive = ProjectExplorer::RawProjectPart::FileIsActive;
+    using GetMimeType = ProjectExplorer::RawProjectPart::GetMimeType;
 
 public:
     ProjectFileCategorizer(const QString &projectPartName,

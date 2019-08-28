@@ -57,7 +57,7 @@ ToolChainInfo::ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
 ProjectUpdateInfo::ProjectUpdateInfo(ProjectExplorer::Project *project,
                                      const KitInfo &kitInfo,
                                      const Utils::Environment &env,
-                                     const RawProjectParts &rawProjectParts)
+                                     const ProjectExplorer::RawProjectParts &rawProjectParts)
     : project(project)
     , rawProjectParts(rawProjectParts)
     , cToolChain(kitInfo.cToolChain)

@@ -26,8 +26,8 @@
 #include "fileapiparser.h"
 
 #include <coreplugin/messagemanager.h>
-#include <cpptools/cpprawprojectpart.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/rawprojectpart.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -624,8 +624,9 @@ TargetDetails extractTargetDetails(const QJsonObject &root, QString &errorMessag
                                isSystem ? ProjectExplorer::HeaderPathType::System
                                         : ProjectExplorer::HeaderPathType::User);
 
-                        return IncludeInfo{CppTools::RawProjectPart::frameworkDetectionHeuristic(hp),
-                                           i.value("backtrace").toInt(-1)};
+                        return IncludeInfo{
+                            ProjectExplorer::RawProjectPart::frameworkDetectionHeuristic(hp),
+                            i.value("backtrace").toInt(-1)};
                     }),
                 transform<std::vector>(o.value("defines").toArray(),
                                        [](const QJsonValue &v) {

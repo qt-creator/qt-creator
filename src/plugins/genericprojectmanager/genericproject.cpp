@@ -504,7 +504,7 @@ void GenericProject::refreshCppCodeModel()
     QtSupport::CppKitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
 
-    CppTools::RawProjectPart rpp;
+    RawProjectPart rpp;
     rpp.setDisplayName(displayName());
     rpp.setProjectFileLocation(projectFilePath().toString());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);

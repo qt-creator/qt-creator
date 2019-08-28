@@ -270,10 +270,10 @@ static QStringList splitFragments(const QStringList &fragments)
     return result;
 }
 
-CppTools::RawProjectParts generateRawProjectParts(const PreprocessedData &input,
-                                                  const FilePath &sourceDirectory)
+RawProjectParts generateRawProjectParts(const PreprocessedData &input,
+                                        const FilePath &sourceDirectory)
 {
-    CppTools::RawProjectParts rpps;
+    RawProjectParts rpps;
 
     int counter = 0;
     for (const TargetDetails &t : input.targetDetails) {
@@ -297,18 +297,18 @@ CppTools::RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             }
 
             ++counter;
-            CppTools::RawProjectPart rpp;
+            RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
             rpp.setBuildSystemTarget(t.name);
             rpp.setDisplayName(t.id);
             rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
             rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
 
-            CppTools::RawProjectPartFlags cProjectFlags;
+            RawProjectPartFlags cProjectFlags;
             cProjectFlags.commandLineFlags = splitFragments(ci.fragments);
             rpp.setFlagsForC(cProjectFlags);
 
-            CppTools::RawProjectPartFlags cxxProjectFlags;
+            RawProjectPartFlags cxxProjectFlags;
             cxxProjectFlags.commandLineFlags = cProjectFlags.commandLineFlags;
             rpp.setFlagsForCxx(cxxProjectFlags);
 

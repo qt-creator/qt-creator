@@ -30,7 +30,7 @@
 #include "cmakeconfigitem.h"
 #include "cmaketool.h"
 
-#include <cpptools/cpprawprojectpart.h>
+#include <projectexplorer/rawprojectpart.h>
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -69,7 +69,7 @@ public:
     virtual std::unique_ptr<CMakeProjectNode> generateProjectTree(
         const QList<const ProjectExplorer::FileNode *> &allFiles, QString &errorMessage)
         = 0;
-    virtual CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) = 0;
+    virtual ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage) = 0;
 
 signals:
     void isReadyNow() const;

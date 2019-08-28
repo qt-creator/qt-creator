@@ -46,7 +46,7 @@ ProjectInfo ProjectInfoGenerator::generate()
 {
     ProjectInfo projectInfo(m_projectUpdateInfo.project);
 
-    for (const RawProjectPart &rpp : m_projectUpdateInfo.rawProjectParts) {
+    for (const ProjectExplorer::RawProjectPart &rpp : m_projectUpdateInfo.rawProjectParts) {
         if (m_futureInterface.isCanceled())
             return ProjectInfo();
 
@@ -57,8 +57,8 @@ ProjectInfo ProjectInfoGenerator::generate()
     return projectInfo;
 }
 
-static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawProjectPart,
-                                                      ProjectExplorer::Project *project)
+static ProjectPart::Ptr projectPartFromRawProjectPart(
+    const ProjectExplorer::RawProjectPart &rawProjectPart, ProjectExplorer::Project *project)
 {
     ProjectPart::Ptr part(new ProjectPart);
     part->project = project;
@@ -80,7 +80,8 @@ static ProjectPart::Ptr projectPartFromRawProjectPart(const RawProjectPart &rawP
     return part;
 }
 
-QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProjectPart &rawProjectPart)
+QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(
+    const ProjectExplorer::RawProjectPart &rawProjectPart)
 {
     using Utils::LanguageExtension;
 
@@ -138,14 +139,14 @@ QVector<ProjectPart::Ptr> ProjectInfoGenerator::createProjectParts(const RawProj
 }
 
 ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
-    const RawProjectPart &rawProjectPart,
+    const ProjectExplorer::RawProjectPart &rawProjectPart,
     const ProjectPart::Ptr &templateProjectPart,
     const ProjectFiles &projectFiles,
     const QString &partName,
     Language language,
     Utils::LanguageExtensions languageExtensions)
 {
-    RawProjectPartFlags flags;
+    ProjectExplorer::RawProjectPartFlags flags;
     ToolChainInfo tcInfo;
     if (language == Language::C) {
         flags = rawProjectPart.flagsForC;

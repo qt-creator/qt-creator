@@ -31,7 +31,7 @@
 #include "cmakeprocess.h"
 #include "cmakeprojectnodes.h"
 
-#include <cpptools/cpprawprojectpart.h>
+#include <projectexplorer/rawprojectpart.h>
 
 #include <memory>
 
@@ -45,7 +45,7 @@ public:
     CMakeConfig cache;
     QSet<Utils::FilePath> cmakeFiles;
     QList<CMakeBuildTarget> buildTargets;
-    CppTools::RawProjectParts projectParts;
+    ProjectExplorer::RawProjectParts projectParts;
     std::unique_ptr<CMakeProjectNode> rootProjectNode;
     QSet<Utils::FilePath> knownHeaders;
 };

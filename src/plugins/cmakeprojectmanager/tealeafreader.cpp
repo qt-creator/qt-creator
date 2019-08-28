@@ -260,14 +260,14 @@ static void processCMakeIncludes(const CMakeBuildTarget &cbt, const ToolChain *t
     }
 }
 
-CppTools::RawProjectParts TeaLeafReader::createRawProjectParts(QString &errorMessage)
+RawProjectParts TeaLeafReader::createRawProjectParts(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
     const ToolChain *tcCxx = ToolChainManager::findToolChain(m_parameters.cxxToolChainId);
     const ToolChain *tcC = ToolChainManager::findToolChain(m_parameters.cToolChainId);
     const FilePath sysroot = m_parameters.sysRoot;
 
-    CppTools::RawProjectParts rpps;
+    RawProjectParts rpps;
     QHash<QString, QStringList> targetDataCacheCxx;
     QHash<QString, QStringList> targetDataCacheC;
     foreach (const CMakeBuildTarget &cbt, m_buildTargets) {
@@ -288,16 +288,16 @@ CppTools::RawProjectParts TeaLeafReader::createRawProjectParts(QString &errorMes
             includePaths = transform(cbt.includeFiles, &FilePath::toString);
         }
         includePaths += m_parameters.workDirectory.toString();
-        CppTools::RawProjectPart rpp;
+        RawProjectPart rpp;
         rpp.setProjectFileLocation(cbt.sourceDirectory.toString() + "/CMakeLists.txt");
         rpp.setBuildSystemTarget(cbt.title);
         rpp.setIncludePaths(includePaths);
 
-        CppTools::RawProjectPartFlags cProjectFlags;
+        RawProjectPartFlags cProjectFlags;
         cProjectFlags.commandLineFlags = cflags;
         rpp.setFlagsForC(cProjectFlags);
 
-        CppTools::RawProjectPartFlags cxxProjectFlags;
+        RawProjectPartFlags cxxProjectFlags;
         cxxProjectFlags.commandLineFlags = cxxflags;
         rpp.setFlagsForCxx(cxxProjectFlags);
 

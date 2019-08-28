@@ -33,11 +33,10 @@
 #include "cmakeprojectmanager.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cpprawprojectpart.h>
 #include <cpptools/cppprojectupdater.h>
+#include <cpptools/cpptoolsconstants.h>
 #include <cpptools/generatedcodemodelsupport.h>
 #include <cpptools/projectinfo.h>
-#include <cpptools/cpptoolsconstants.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
@@ -47,10 +46,10 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

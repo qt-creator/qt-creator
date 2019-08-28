@@ -293,10 +293,10 @@ std::unique_ptr<CMakeProjectNode> ServerModeReader::generateProjectTree(const QL
     return root;
 }
 
-CppTools::RawProjectParts ServerModeReader::createRawProjectParts(QString &errorMessage)
+RawProjectParts ServerModeReader::createRawProjectParts(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
-    CppTools::RawProjectParts rpps;
+    RawProjectParts rpps;
 
     int counter = 0;
     for (const FileGroup *fg : qAsConst(m_fileGroups)) {
@@ -317,18 +317,18 @@ CppTools::RawProjectParts ServerModeReader::createRawProjectParts(QString &error
         const QStringList flags = QtcProcess::splitArgs(fg->compileFlags);
         const QStringList includes = transform(fg->includePaths, [](const IncludePath *ip)  { return ip->path.toString(); });
 
-        CppTools::RawProjectPart rpp;
+        RawProjectPart rpp;
         rpp.setProjectFileLocation(fg->target->sourceDirectory.toString() + "/CMakeLists.txt");
         rpp.setBuildSystemTarget(fg->target->name);
         rpp.setDisplayName(fg->target->name + QString::number(counter));
         rpp.setMacros(fg->macros);
         rpp.setIncludePaths(includes);
 
-        CppTools::RawProjectPartFlags cProjectFlags;
+        RawProjectPartFlags cProjectFlags;
         cProjectFlags.commandLineFlags = flags;
         rpp.setFlagsForC(cProjectFlags);
 
-        CppTools::RawProjectPartFlags cxxProjectFlags;
+        RawProjectPartFlags cxxProjectFlags;
         cxxProjectFlags.commandLineFlags = flags;
         rpp.setFlagsForCxx(cxxProjectFlags);
 

@@ -271,12 +271,12 @@ void CMakeBuildSystem::updateProjectData(CMakeProject *p, CMakeBuildConfiguratio
 
     {
         QString errorMessage;
-        CppTools::RawProjectParts rpps = bc->m_buildDirManager.createRawProjectParts(errorMessage);
+        RawProjectParts rpps = bc->m_buildDirManager.createRawProjectParts(errorMessage);
         if (!errorMessage.isEmpty())
             bc->setError(errorMessage);
         qCDebug(cmakeBuildSystemLog) << "Raw project parts created." << errorMessage;
 
-        for (CppTools::RawProjectPart &rpp : rpps) {
+        for (RawProjectPart &rpp : rpps) {
             rpp.setQtVersion(
                 kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
             if (kitInfo.cxxToolChain)

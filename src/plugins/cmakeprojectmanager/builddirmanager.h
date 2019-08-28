@@ -31,7 +31,7 @@
 #include "cmakebuildtarget.h"
 #include "cmakeconfigitem.h"
 
-#include <cpptools/cpprawprojectpart.h>
+#include <projectexplorer/rawprojectpart.h>
 
 #include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
@@ -97,7 +97,7 @@ public:
     QVector<Utils::FilePath> takeProjectFilesToWatch();
     std::unique_ptr<CMakeProjectNode> generateProjectTree(const QList<const ProjectExplorer::FileNode *> &allFiles,
                              QString &errorMessage) const;
-    CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) const;
+    ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage) const;
 
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage) const;
     CMakeConfig takeCMakeConfiguration(QString &errorMessage) const;

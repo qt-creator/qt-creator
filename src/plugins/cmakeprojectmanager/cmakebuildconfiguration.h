@@ -29,8 +29,6 @@
 #include "cmakeproject.h"
 #include "configmodel.h"
 
-#include <cpptools/cpprawprojectpart.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>

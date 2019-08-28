@@ -206,11 +206,11 @@ std::unique_ptr<CMakeProjectNode> FileApiReader::generateProjectTree(
     return std::move(m_rootProjectNode);
 }
 
-CppTools::RawProjectParts FileApiReader::createRawProjectParts(QString &errorMessage)
+RawProjectParts FileApiReader::createRawProjectParts(QString &errorMessage)
 {
     Q_UNUSED(errorMessage)
 
-    CppTools::RawProjectParts result = std::move(m_projectParts);
+    RawProjectParts result = std::move(m_projectParts);
     m_projectParts.clear();
     return result;
 }

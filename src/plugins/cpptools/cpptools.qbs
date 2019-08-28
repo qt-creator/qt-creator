@@ -144,8 +144,6 @@ Project {
             "cppprojectupdater.h",
             "cppqtstyleindenter.cpp",
             "cppqtstyleindenter.h",
-            "cpprawprojectpart.cpp",
-            "cpprawprojectpart.h",
             "cpprefactoringchanges.cpp",
             "cpprefactoringchanges.h",
             "cpprefactoringengine.cpp",

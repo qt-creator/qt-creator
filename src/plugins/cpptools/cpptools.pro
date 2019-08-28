@@ -54,7 +54,6 @@ HEADERS += \
     cppprojectfile.h \
     cppprojectupdater.h \
     cppqtstyleindenter.h \
-    cpprawprojectpart.h \
     cpprefactoringchanges.h \
     cpprefactoringengine.h \
     cppselectionchanger.h \
@@ -155,7 +154,6 @@ SOURCES += \
     cppprojectfile.cpp \
     cppprojectupdater.cpp \
     cppqtstyleindenter.cpp \
-    cpprawprojectpart.cpp \
     cpprefactoringchanges.cpp \
     cpprefactoringengine.cpp \
     cppselectionchanger.cpp \

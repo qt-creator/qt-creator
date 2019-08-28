@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,32 +25,34 @@
 
 #pragma once
 
-#include "cpptools_global.h"
+#include "buildtargettype.h"
+#include "headerpath.h"
+#include "projectexplorer_export.h"
+#include "projectexplorer_global.h"
+#include "projectmacro.h"
 
-#include <projectexplorer/buildtargettype.h>
-#include <projectexplorer/projectexplorer_global.h>
-#include <projectexplorer/toolchain.h>
 #include <utils/cpplanguage_details.h>
 
 #include <functional>
 
-namespace CppTools {
+namespace ProjectExplorer {
 
-class CPPTOOLS_EXPORT RawProjectPartFlags
+class ToolChain;
+
+class PROJECTEXPLORER_EXPORT RawProjectPartFlags
 {
 public:
     RawProjectPartFlags() = default;
-    RawProjectPartFlags(const ProjectExplorer::ToolChain *toolChain,
-                        const QStringList &commandLineFlags);
+    RawProjectPartFlags(const ToolChain *toolChain, const QStringList &commandLineFlags);
 
 public:
     QStringList commandLineFlags;
     // The following are deduced from commandLineFlags.
-    ProjectExplorer::WarningFlags warningFlags = ProjectExplorer::WarningFlags::Default;
+    WarningFlags warningFlags = WarningFlags::Default;
     Utils::LanguageExtensions languageExtensions = Utils::LanguageExtension::None;
 };
 
-class CPPTOOLS_EXPORT RawProjectPart
+class PROJECTEXPLORER_EXPORT RawProjectPart
 {
 public:
     void setDisplayName(const QString &displayName);
@@ -65,19 +67,19 @@ public:
     void setFiles(const QStringList &files,
                   const FileIsActive &fileIsActive = {},
                   const GetMimeType &getMimeType = {});
-    static ProjectExplorer::HeaderPath frameworkDetectionHeuristic(const ProjectExplorer::HeaderPath &header);
-    void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
+    static HeaderPath frameworkDetectionHeuristic(const HeaderPath &header);
+    void setHeaderPaths(const HeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
 
     void setBuildSystemTarget(const QString &target);
-    void setBuildTargetType(ProjectExplorer::BuildTargetType type);
+    void setBuildTargetType(BuildTargetType type);
     void setSelectedForBuilding(bool yesno);
 
     void setFlagsForC(const RawProjectPartFlags &flags);
     void setFlagsForCxx(const RawProjectPartFlags &flags);
 
-    void setMacros(const ProjectExplorer::Macros &macros);
+    void setMacros(const Macros &macros);
     void setQtVersion(Utils::QtVersion qtVersion);
 
 public:
@@ -93,12 +95,12 @@ public:
     FileIsActive fileIsActive;
     GetMimeType getMimeType;
     QStringList precompiledHeaders;
-    ProjectExplorer::HeaderPaths headerPaths;
+    HeaderPaths headerPaths;
     QString projectConfigFile; // Generic Project Manager only
 
     // Build system
     QString buildSystemTarget;
-    ProjectExplorer::BuildTargetType buildTargetType = ProjectExplorer::BuildTargetType::Unknown;
+    BuildTargetType buildTargetType = BuildTargetType::Unknown;
     bool selectedForBuilding = true;
 
     // Flags
@@ -106,10 +108,10 @@ public:
     RawProjectPartFlags flagsForCxx;
 
     // Misc
-    ProjectExplorer::Macros projectMacros;
+    Macros projectMacros;
     Utils::QtVersion qtVersion = Utils::QtVersion::Unknown;
 };
 
 using RawProjectParts = QVector<RawProjectPart>;
 
-} // namespace CppTools
+} // namespace ProjectExplorer

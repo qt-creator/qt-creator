@@ -168,12 +168,12 @@ void addDriverModeFlagIfNeeded(const ToolChain *toolchain,
     }
 }
 
-CppTools::RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
-                                            Kit *kit,
-                                            CppTools::KitInfo &kitInfo,
-                                            const QString &workingDir,
-                                            const Utils::FilePath &fileName,
-                                            QStringList flags)
+RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
+                                  Kit *kit,
+                                  CppTools::KitInfo &kitInfo,
+                                  const QString &workingDir,
+                                  const Utils::FilePath &fileName,
+                                  QStringList flags)
 {
     HeaderPaths headerPaths;
     Macros macros;
@@ -188,7 +188,7 @@ CppTools::RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
                   fileKind,
                   kitInfo.sysRootPath);
 
-    CppTools::RawProjectPart rpp;
+    RawProjectPart rpp;
     rpp.setProjectFileLocation(projectFile.toString());
     rpp.setBuildSystemTarget(workingDir);
     rpp.setDisplayName(fileName.fileName());
@@ -286,13 +286,13 @@ void addChild(FolderNode *root, const Utils::FilePath &fileName)
 
 void createTree(std::unique_ptr<ProjectNode> &root,
                 const Utils::FilePath &rootPath,
-                const CppTools::RawProjectParts &rpps,
+                const RawProjectParts &rpps,
                 const QList<FileNode *> &scannedFiles = QList<FileNode *>())
 {
     root->setAbsoluteFilePathAndLine(rootPath, -1);
     std::unique_ptr<FolderNode> secondRoot;
 
-    for (const CppTools::RawProjectPart &rpp : rpps) {
+    for (const RawProjectPart &rpp : rpps) {
         for (const QString &filePath : rpp.files) {
             Utils::FilePath fileName = Utils::FilePath::fromString(filePath);
             if (!fileName.isChildOf(rootPath)) {
@@ -343,7 +343,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
     // Reset toolchains to pick them based on the database entries.
     kitInfo.cToolChain = nullptr;
     kitInfo.cxxToolChain = nullptr;
-    CppTools::RawProjectParts rpps;
+    RawProjectParts rpps;
 
     QTC_ASSERT(m_parser, return);
     const DbContents dbContents = m_parser->dbContents();
@@ -356,12 +356,12 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
 
         prevEntry = &entry;
 
-        CppTools::RawProjectPart rpp = makeRawProjectPart(projectFilePath(),
-                                                          m_kit.get(),
-                                                          kitInfo,
-                                                          entry.workingDir,
-                                                          entry.fileName,
-                                                          entry.flags);
+        RawProjectPart rpp = makeRawProjectPart(projectFilePath(),
+                                                m_kit.get(),
+                                                kitInfo,
+                                                entry.workingDir,
+                                                entry.fileName,
+                                                entry.flags);
 
         rpps.append(rpp);
     }
@@ -373,7 +373,7 @@ void CompilationDatabaseProject::buildTreeAndProjectParts()
         for (const QString &extra : dbContents.extras)
             extraFiles.append(baseDir.pathAppended(extra).toString());
 
-        CppTools::RawProjectPart rppExtra;
+        RawProjectPart rppExtra;
         rppExtra.setFiles(extraFiles);
         rpps.append(rppExtra);
     }

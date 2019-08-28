@@ -34,16 +34,16 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakebuildconfiguration.h"
 
-#include <utils/algorithm.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <cpptools/cpprawprojectpart.h>
+#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppprojectupdater.h>
 #include <cpptools/projectinfo.h>
 #include <projectexplorer/headerpath.h>
-#include <cpptools/cppprojectupdater.h>
-#include <cpptools/cppmodelmanager.h>
+#include <projectexplorer/rawprojectpart.h>
+#include <utils/algorithm.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <projectexplorer/buildinfo.h>
@@ -228,11 +228,11 @@ void QmakeProject::updateCppCodeModel()
     QTC_ASSERT(kitInfo.isValid(), return);
 
     QList<ProjectExplorer::ExtraCompiler *> generators;
-    CppTools::RawProjectParts rpps;
+    RawProjectParts rpps;
     for (const QmakeProFile *pro : rootProFile()->allProFiles()) {
         warnOnToolChainMismatch(pro);
 
-        CppTools::RawProjectPart rpp;
+        RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
         rpp.setProjectFileLocation(pro->filePath().toString());
         rpp.setBuildSystemTarget(pro->filePath().toString());

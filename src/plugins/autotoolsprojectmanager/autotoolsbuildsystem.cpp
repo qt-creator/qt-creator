@@ -181,7 +181,7 @@ void AutotoolsBuildSystem::updateCppCodeModel()
 
     const Utils::FilePath projectFilePath = project()->projectFilePath();
 
-    CppTools::RawProjectPart rpp;
+    RawProjectPart rpp;
     rpp.setDisplayName(project()->displayName());
     rpp.setProjectFileLocation(projectFilePath.toString());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);

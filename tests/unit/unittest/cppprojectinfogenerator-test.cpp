@@ -37,9 +37,9 @@ using CppTools::ProjectFile;
 using CppTools::ProjectInfo;
 using CppTools::ProjectUpdateInfo;
 using CppTools::ProjectPart;
-using CppTools::RawProjectPart;
 
 using ProjectExplorer::Macros;
+using ProjectExplorer::RawProjectPart;
 using ProjectExplorer::ToolChain;
 
 using testing::Eq;

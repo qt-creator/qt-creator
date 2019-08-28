@@ -874,7 +874,7 @@ void QbsProject::updateCppCodeModel()
     QtSupport::CppKitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
 
-    CppTools::RawProjectParts rpps;
+    RawProjectParts rpps;
     foreach (const qbs::ProductData &prd, m_projectData.allProducts()) {
         QString cPch;
         QString cxxPch;
@@ -904,7 +904,7 @@ void QbsProject::updateCppCodeModel()
                   : Utils::QtVersion::None;
 
         foreach (const qbs::GroupData &grp, prd.groups()) {
-            CppTools::RawProjectPart rpp;
+            RawProjectPart rpp;
             rpp.setQtVersion(qtVersionForPart);
             const qbs::PropertyMap &props = grp.properties();
             rpp.setCallGroupId(groupLocationToCallGroupId(grp.location()));

@@ -164,7 +164,8 @@ HEADERS += projectexplorer.h \
     makestep.h \
     parseissuesdialog.h \
     projectconfigurationaspects.h \
-    treescanner.h
+    treescanner.h \
+    rawprojectpart.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -309,7 +310,8 @@ SOURCES += projectexplorer.cpp \
     makestep.cpp \
     parseissuesdialog.cpp \
     projectconfigurationaspects.cpp \
-    treescanner.cpp
+    treescanner.cpp \
+    rawprojectpart.cpp
 
 FORMS += \
     editorsettingspropertiespage.ui \

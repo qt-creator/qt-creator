@@ -377,7 +377,7 @@ std::unique_ptr<CMakeProjectNode> BuildDirManager::generateProjectTree(
     return m_reader->generateProjectTree(allFiles, errorMessage);
 }
 
-CppTools::RawProjectParts BuildDirManager::createRawProjectParts(QString &errorMessage) const
+RawProjectParts BuildDirManager::createRawProjectParts(QString &errorMessage) const
 {
     QTC_ASSERT(!m_isHandlingError, return {});
     QTC_ASSERT(m_reader, return {});

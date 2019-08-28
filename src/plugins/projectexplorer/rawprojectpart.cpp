@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,17 +23,17 @@
 **
 ****************************************************************************/
 
-#include "cpprawprojectpart.h"
+#include "rawprojectpart.h"
 
-#include <projectexplorer/abi.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kitinformation.h>
+#include "abi.h"
+#include "kitinformation.h"
+#include "projectexplorerconstants.h"
 
 #include <utils/algorithm.h>
 
-namespace CppTools {
+namespace ProjectExplorer {
 
-RawProjectPartFlags::RawProjectPartFlags(const ProjectExplorer::ToolChain *toolChain,
+RawProjectPartFlags::RawProjectPartFlags(const ToolChain *toolChain,
                                          const QStringList &commandLineFlags)
 {
     // Keep the following cheap/non-blocking for the ui thread. Expensive
@@ -67,13 +67,13 @@ static QString trimTrailingSlashes(const QString &path) {
     return p;
 }
 
-ProjectExplorer::HeaderPath RawProjectPart::frameworkDetectionHeuristic(const ProjectExplorer::HeaderPath &header)
+HeaderPath RawProjectPart::frameworkDetectionHeuristic(const HeaderPath &header)
 {
     QString path = trimTrailingSlashes(header.path);
 
     if (path.endsWith(".framework")) {
         path = path.left(path.lastIndexOf(QLatin1Char('/')));
-        return {path, ProjectExplorer::HeaderPathType::Framework};
+        return {path, HeaderPathType::Framework};
     }
     return header;
 }
@@ -105,12 +105,12 @@ void RawProjectPart::setQtVersion(Utils::QtVersion qtVersion)
     this->qtVersion = qtVersion;
 }
 
-void RawProjectPart::setMacros(const ProjectExplorer::Macros &macros)
+void RawProjectPart::setMacros(const Macros &macros)
 {
     this->projectMacros = macros;
 }
 
-void RawProjectPart::setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths)
+void RawProjectPart::setHeaderPaths(const HeaderPaths &headerPaths)
 {
     this->headerPaths = headerPaths;
 }
@@ -118,7 +118,7 @@ void RawProjectPart::setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPa
 void RawProjectPart::setIncludePaths(const QStringList &includePaths)
 {
     this->headerPaths = Utils::transform<QVector>(includePaths, [](const QString &path) {
-        ProjectExplorer::HeaderPath hp(path, ProjectExplorer::HeaderPathType::User);
+        HeaderPath hp(path, HeaderPathType::User);
         return RawProjectPart::frameworkDetectionHeuristic(hp);
     });
 }
@@ -143,9 +143,9 @@ void RawProjectPart::setFlagsForCxx(const RawProjectPartFlags &flags)
     flagsForCxx = flags;
 }
 
-void RawProjectPart::setBuildTargetType(ProjectExplorer::BuildTargetType type)
+void RawProjectPart::setBuildTargetType(BuildTargetType type)
 {
     buildTargetType = type;
 }
 
-} // namespace CppTools
+} // namespace ProjectExplorer

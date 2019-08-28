@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "projectpart.h"
+#include <projectexplorer/rawprojectpart.h>
 
 #include "cpptools_global.h"
 

@@ -60,7 +60,7 @@ public:
     CMakeConfig takeParsedConfiguration(QString &errorMessage) final;
     std::unique_ptr<CMakeProjectNode> generateProjectTree(
         const QList<const ProjectExplorer::FileNode *> &allFiles, QString &errorMessage) final;
-    CppTools::RawProjectParts createRawProjectParts(QString &errorMessage) final;
+    ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage) final;
 
 private:
     void createNewServer();
