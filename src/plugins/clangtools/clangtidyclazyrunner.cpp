@@ -26,6 +26,7 @@
 #include "clangtidyclazyrunner.h"
 
 #include "clangtoolssettings.h"
+#include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
 
@@ -121,7 +122,7 @@ ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *p
 {
     setName(tr("Clang-Tidy"));
     setOutputFileFormat(OutputFileFormat::Yaml);
-    setExecutable(Core::ICore::clangTidyExecutable(CLANG_BINDIR));
+    setExecutable(clangTidyExecutable());
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList()
             << tidyChecksArguments(config)
@@ -136,7 +137,7 @@ ClazyStandaloneRunner::ClazyStandaloneRunner(const ClangDiagnosticConfig &config
 {
     setName(tr("Clazy"));
     setOutputFileFormat(OutputFileFormat::Yaml);
-    setExecutable(qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH"));
+    setExecutable(clazyStandaloneExecutable());
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList()
             << clazyChecksArguments(config)

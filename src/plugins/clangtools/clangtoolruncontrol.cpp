@@ -310,7 +310,7 @@ void ClangToolRunWorker::start()
 
     m_queue.clear();
     for (const AnalyzeUnit &unit : unitsToProcess) {
-        for (auto creator : runnerCreators())
+        for (const RunnerCreator &creator : runnerCreators())
             m_queue << QueueItem{unit, creator};
     }
     m_initialQueueSize = m_queue.count();
@@ -378,6 +378,18 @@ void ClangToolRunWorker::analyzeNextFile()
 
     ClangToolRunner *runner = queueItem.runnerCreator();
     m_runners.insert(runner);
+
+    const QString executable = runner->executable();
+    if (!isFileExecutable(executable)) {
+        const QString errorMessage = tr("%1: Invalid executable \"%2\", stop.")
+                                         .arg(runner->name(), executable);
+        TaskHub::addTask(Task::Error, errorMessage, Debugger::Constants::ANALYZERTASK_ID);
+        TaskHub::requestPopup();
+        reportFailure(errorMessage);
+        stop();
+        return;
+    }
+
     QTC_ASSERT(runner->run(unit.file, unit.arguments), return);
 
     appendMessage(tr("Analyzing \"%1\" [%2].")

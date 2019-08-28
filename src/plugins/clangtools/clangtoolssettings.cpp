@@ -38,6 +38,8 @@
 static const char simultaneousProcessesKey[] = "simultaneousProcesses";
 static const char buildBeforeAnalysisKey[] = "buildBeforeAnalysis";
 static const char diagnosticConfigIdKey[] = "diagnosticConfigId";
+static const char clangTidyExecutableKey[] = "clangTidyExecutable";
+static const char clazyStandaloneExecutableKey[] = "clazyStandaloneExecutable";
 
 namespace ClangTools {
 namespace Internal {
@@ -106,6 +108,36 @@ void ClangToolsSettings::updateSavedBuildBeforeAnalysiIfRequired()
     emit buildBeforeAnalysisChanged(m_savedBuildBeforeAnalysis);
 }
 
+QString ClangToolsSettings::savedClazyStandaloneExecutable() const
+{
+    return m_savedClazyStandaloneExecutable;
+}
+
+QString ClangToolsSettings::savedClangTidyExecutable() const
+{
+    return m_savedClangTidyExecutable;
+}
+
+QString ClangToolsSettings::clazyStandaloneExecutable() const
+{
+    return m_clazyStandaloneExecutable;
+}
+
+void ClangToolsSettings::setClazyStandaloneExecutable(const QString &path)
+{
+    m_clazyStandaloneExecutable = path;
+}
+
+QString ClangToolsSettings::clangTidyExecutable() const
+{
+    return m_clangTidyExecutable;
+}
+
+void ClangToolsSettings::setClangTidyExecutable(const QString &path)
+{
+    m_clangTidyExecutable = path;
+}
+
 void ClangToolsSettings::readSettings()
 {
     QSettings *settings = Core::ICore::settings();
@@ -117,6 +149,11 @@ void ClangToolsSettings::readSettings()
                               defaultSimultaneousProcesses).toInt();
 
     m_buildBeforeAnalysis = settings->value(QString(buildBeforeAnalysisKey), true).toBool();
+
+    m_savedClangTidyExecutable = m_clangTidyExecutable
+        = settings->value(QLatin1String(clangTidyExecutableKey)).toString();
+    m_savedClazyStandaloneExecutable = m_clazyStandaloneExecutable
+        = settings->value(QLatin1String(clazyStandaloneExecutableKey)).toString();
 
     m_diagnosticConfigId = Core::Id::fromSetting(settings->value(QString(diagnosticConfigIdKey)));
     if (!m_diagnosticConfigId.isValid())
@@ -135,10 +172,14 @@ void ClangToolsSettings::writeSettings()
     settings->beginGroup(QString(Constants::SETTINGS_ID));
     settings->setValue(QString(simultaneousProcessesKey), m_simultaneousProcesses);
     settings->setValue(QString(buildBeforeAnalysisKey), m_buildBeforeAnalysis);
+    settings->setValue(QString(clangTidyExecutableKey), m_clangTidyExecutable);
+    settings->setValue(QString(clazyStandaloneExecutableKey), m_clazyStandaloneExecutable);
     settings->setValue(QString(diagnosticConfigIdKey), m_diagnosticConfigId.toSetting());
 
     m_savedSimultaneousProcesses = m_simultaneousProcesses;
     m_savedDiagnosticConfigId = m_diagnosticConfigId;
+    m_savedClangTidyExecutable = m_clangTidyExecutable;
+    m_savedClazyStandaloneExecutable = m_clazyStandaloneExecutable;
     updateSavedBuildBeforeAnalysiIfRequired();
 
     settings->endGroup();

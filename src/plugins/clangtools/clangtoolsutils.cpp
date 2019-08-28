@@ -26,6 +26,7 @@
 #include "clangtoolsutils.h"
 
 #include "clangtool.h"
+#include "clangtoolsconstants.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolssettings.h"
 
@@ -68,6 +69,89 @@ void showHintAboutBuildBeforeAnalysis()
         hintAboutBuildBeforeAnalysis(),
         Core::ICore::settings(),
         "ClangToolsDisablingBuildBeforeAnalysisHint");
+}
+
+bool isFileExecutable(const QString &filePath)
+{
+    if (filePath.isEmpty())
+        return false;
+
+    const QFileInfo fileInfo(filePath);
+    return fileInfo.isFile() && fileInfo.isExecutable();
+}
+
+QString shippedClangTidyExecutable()
+{
+    const QString shippedExecutable = Core::ICore::clangTidyExecutable(CLANG_BINDIR);
+    if (isFileExecutable(shippedExecutable))
+        return shippedExecutable;
+    return {};
+}
+
+QString shippedClazyStandaloneExecutable()
+{
+    const QString shippedExecutable = Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
+    if (isFileExecutable(shippedExecutable))
+        return shippedExecutable;
+    return {};
+}
+
+static QString fullPath(const QString &executable)
+{
+    const QString hostExeSuffix = QLatin1String(QTC_HOST_EXE_SUFFIX);
+    const Qt::CaseSensitivity caseSensitivity = Utils::HostOsInfo::fileNameCaseSensitivity();
+
+    QString candidate = executable;
+    const bool hasSuffix = candidate.endsWith(hostExeSuffix, caseSensitivity);
+
+    const QFileInfo fileInfo = QFileInfo(candidate);
+    if (fileInfo.isAbsolute()) {
+        if (!hasSuffix)
+            candidate.append(hostExeSuffix);
+    } else {
+        const Utils::Environment environment = Utils::Environment::systemEnvironment();
+        const QString expandedPath = environment.searchInPath(candidate).toString();
+        if (!expandedPath.isEmpty())
+            candidate = expandedPath;
+    }
+
+    return candidate;
+}
+
+static QString findValidExecutable(const QStringList &candidates)
+{
+    for (QString candidate : candidates) {
+        const QString expandedPath = fullPath(candidate);
+        if (isFileExecutable(expandedPath))
+            return expandedPath;
+    }
+
+    return {};
+}
+
+QString clangTidyExecutable()
+{
+    const QString fromSettings = ClangToolsSettings::instance()->clangTidyExecutable();
+    if (!fromSettings.isEmpty())
+        return fullPath(fromSettings);
+
+    return findValidExecutable({
+        shippedClangTidyExecutable(),
+        Constants::CLANG_TIDY_EXECUTABLE_NAME,
+    });
+}
+
+QString clazyStandaloneExecutable()
+{
+    const QString fromSettings = ClangToolsSettings::instance()->clazyStandaloneExecutable();
+    if (!fromSettings.isEmpty())
+        return fullPath(fromSettings);
+
+    return findValidExecutable({
+        shippedClazyStandaloneExecutable(),
+        qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH"),
+        Constants::CLAZY_STANDALONE_EXECUTABLE_NAME,
+    });
 }
 
 } // namespace Internal

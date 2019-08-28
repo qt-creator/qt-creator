@@ -495,6 +495,11 @@ QString ICore::clangTidyExecutable(const QString &clangBinDirectory)
     return clangBinary("clang-tidy", clangBinDirectory);
 }
 
+QString ICore::clazyStandaloneExecutable(const QString &clangBinDirectory)
+{
+    return clangBinary("clazy-standalone", clangBinDirectory);
+}
+
 static QString compilerString()
 {
 #if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too

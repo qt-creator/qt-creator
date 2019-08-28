@@ -15,9 +15,38 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Executables</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Clang-Tidy:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="Utils::PathChooser" name="clangTidyPathChooser" native="true"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="clazyStandaloneLabel">
+        <property name="text">
+         <string>Clazy-Standalone:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="clazyStandalonePathChooser" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>General</string>
+      <string>Run Options</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
@@ -80,6 +109,12 @@
    <class>ClangTools::Internal::BasicSettingsWidget</class>
    <extends>QWidget</extends>
    <header>clangtools/basicsettingswidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

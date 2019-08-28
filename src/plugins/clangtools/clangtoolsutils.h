@@ -44,5 +44,13 @@ QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 QString hintAboutBuildBeforeAnalysis();
 void showHintAboutBuildBeforeAnalysis();
 
+bool isFileExecutable(const QString &filePath);
+
+QString shippedClazyStandaloneExecutable();
+QString clazyStandaloneExecutable();
+
+QString shippedClangTidyExecutable();
+QString clangTidyExecutable();
+
 } // namespace Internal
 } // namespace ClangTools

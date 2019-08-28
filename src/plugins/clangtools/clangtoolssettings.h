@@ -33,6 +33,7 @@
 namespace ClangTools {
 namespace Internal {
 
+// TODO: Remove need for "saved* members
 class ClangToolsSettings : public QObject
 {
     Q_OBJECT
@@ -44,6 +45,8 @@ public:
     int savedSimultaneousProcesses() const;
     bool savedBuildBeforeAnalysis() const;
     Core::Id savedDiagnosticConfigId() const;
+    QString savedClangTidyExecutable() const;
+    QString savedClazyStandaloneExecutable() const;
 
     int simultaneousProcesses() const;
     void setSimultaneousProcesses(int processes);
@@ -53,6 +56,12 @@ public:
 
     Core::Id diagnosticConfigId() const;
     void setDiagnosticConfigId(Core::Id id);
+
+    QString clangTidyExecutable() const;
+    void setClangTidyExecutable(const QString &path);
+
+    QString clazyStandaloneExecutable() const;
+    void setClazyStandaloneExecutable(const QString &path);
 
 signals:
     void buildBeforeAnalysisChanged(bool checked) const;
@@ -67,6 +76,10 @@ private:
     int m_savedSimultaneousProcesses = -1;
     bool m_buildBeforeAnalysis = false;
     bool m_savedBuildBeforeAnalysis= false;
+    QString m_clangTidyExecutable;
+    QString m_savedClangTidyExecutable;
+    QString m_clazyStandaloneExecutable;
+    QString m_savedClazyStandaloneExecutable;
     Core::Id m_diagnosticConfigId;
     Core::Id m_savedDiagnosticConfigId;
 };

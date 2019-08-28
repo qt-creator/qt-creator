@@ -28,7 +28,10 @@
 #include "ui_basicsettingswidget.h"
 #include "ui_settingswidget.h"
 
+#include "clangtoolsconstants.h"
 #include "clangtoolsutils.h"
+
+#include <coreplugin/icore.h>
 
 #include <cpptools/clangdiagnosticconfigswidget.h>
 #include <cpptools/cppcodemodelsettings.h>
@@ -37,18 +40,83 @@
 #include <QDir>
 #include <QThread>
 
+#include <memory>
+
 namespace ClangTools {
 namespace Internal {
 
-SettingsWidget::SettingsWidget(
-        ClangToolsSettings *settings,
-        QWidget *parent)
+static void setupPathChooser(Utils::PathChooser *const chooser,
+                             const QString &promptDiaglogTitle,
+                             const QString &placeHolderText,
+                             const QString &pathFromSettings,
+                             const QString &historyCompleterId,
+                             std::function<void(const QString &path)> savePath)
+{
+    chooser->setPromptDialogTitle(promptDiaglogTitle);
+    chooser->lineEdit()->setPlaceholderText(placeHolderText);
+    chooser->setPath(pathFromSettings);
+    chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    chooser->setHistoryCompleter(historyCompleterId);
+    QObject::connect(chooser, &Utils::PathChooser::rawPathChanged, savePath),
+    chooser->setValidationFunction([chooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
+        const QString currentFilePath = chooser->fileName().toString();
+        Utils::PathChooser pc;
+        Utils::PathChooser *helperPathChooser;
+        if (currentFilePath.isEmpty()) {
+            pc.setExpectedKind(chooser->expectedKind());
+            pc.setPath(edit->placeholderText());
+            helperPathChooser = &pc;
+        } else {
+            helperPathChooser = chooser;
+        }
+
+        return chooser->defaultValidationFunction()(helperPathChooser->lineEdit(), errorMessage);
+    });
+}
+
+SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::SettingsWidget)
     , m_settings(settings)
 {
     m_ui->setupUi(this);
 
+    //
+    // Group box "Executables"
+    //
+
+    QString placeHolderText = shippedClangTidyExecutable();
+    QString path = settings->clangTidyExecutable();
+    if (path.isEmpty() && placeHolderText.isEmpty())
+        path = Constants::CLANG_TIDY_EXECUTABLE_NAME;
+    setupPathChooser(m_ui->clangTidyPathChooser,
+                     tr("Clang-Tidy Executable"),
+                     placeHolderText,
+                     path,
+                     "ClangTools.ClangTidyExecutable.History",
+                     [settings](const QString &path) { settings->setClangTidyExecutable(path); });
+
+    if (qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH").isEmpty()) {
+        m_ui->clazyStandalonePathChooser->setVisible(false);
+        m_ui->clazyStandaloneLabel->setVisible(false);
+    } else {
+        placeHolderText = shippedClazyStandaloneExecutable();
+        path = settings->clazyStandaloneExecutable();
+        if (path.isEmpty() && placeHolderText.isEmpty())
+            path = Constants::CLAZY_STANDALONE_EXECUTABLE_NAME;
+        setupPathChooser(m_ui->clazyStandalonePathChooser,
+                         tr("Clazy Executable"),
+                         placeHolderText,
+                         path,
+                         "ClangTools.ClazyStandaloneExecutable.History",
+                         [settings](const QString &path) {
+                             settings->setClazyStandaloneExecutable(path);
+                         });
+    }
+
+    //
+    // Group box "Run Options"
+    //
     m_ui->simultaneousProccessesSpinBox->setValue(settings->savedSimultaneousProcesses());
     m_ui->simultaneousProccessesSpinBox->setMinimum(1);
     m_ui->simultaneousProccessesSpinBox->setMaximum(QThread::idealThreadCount());

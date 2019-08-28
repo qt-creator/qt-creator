@@ -32,5 +32,8 @@ const char SETTINGS_PAGE_ID[] = "Analyzer.ClangTools.Settings";
 const char SETTINGS_ID[] = "ClangTools";
 const char CLANGTIDYCLAZY_RUN_MODE[] = "ClangTidyClazy.RunMode";
 
+const char CLANG_TIDY_EXECUTABLE_NAME[] = "clang-tidy";
+const char CLAZY_STANDALONE_EXECUTABLE_NAME[] = "clazy-standalone";
+
 } // Constants
 } // ClangTools

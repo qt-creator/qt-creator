@@ -62,6 +62,7 @@ public:
 
     QString name() const { return m_name; }
     OutputFileFormat outputFileFormat() const { return m_outputFileFormat; }
+    QString executable() const { return m_executable; }
     QString filePath() const { return m_filePath; }
     QString logFilePath() const { return m_logFile; }
 
