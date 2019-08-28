@@ -36,7 +36,6 @@
 #include <ssh/sshconnection.h>
 #include <utils/displayname.h>
 #include <utils/icon.h>
-#include <utils/macroexpander.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/url.h>
@@ -329,28 +328,6 @@ DeviceProcess *IDevice::createProcess(QObject * /* parent */) const
 DeviceEnvironmentFetcher::Ptr IDevice::environmentFetcher() const
 {
     return DeviceEnvironmentFetcher::Ptr();
-}
-
-void IDevice::addToMacroExpander(Utils::MacroExpander *expander) const
-{
-    expander->registerVariable("Device:HostAddress",
-                               QCoreApplication::translate("ProjectExplorer::IDevice",
-                                                           "Host address"),
-                               [this]() { return sshParameters().host(); });
-    expander->registerVariable("Device:SshPort",
-                               QCoreApplication::translate("ProjectExplorer::IDevice", "SSH port"),
-                               [this]() { return QString::number(sshParameters().port()); });
-    expander->registerVariable("Device:UserName",
-                               QCoreApplication::translate("ProjectExplorer::IDevice", "User name"),
-                               [this]() { return sshParameters().userName(); });
-    expander->registerVariable("Device:KeyFile",
-                               QCoreApplication::translate("ProjectExplorer::IDevice",
-                                                           "Private key file"),
-                               [this]() { return sshParameters().privateKeyFile; });
-    expander->registerVariable("Device:Name",
-                               QCoreApplication::translate("ProjectExplorer::IDevice",
-                                                           "Device name"),
-                               [this]() { return displayName(); });
 }
 
 IDevice::DeviceState IDevice::deviceState() const
