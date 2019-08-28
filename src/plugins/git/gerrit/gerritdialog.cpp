@@ -72,8 +72,6 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     auto completer = new QCompleter(this);
     completer->setModel(m_queryModel);
     m_ui->queryLineEdit->setSpecialCompleter(completer);
-    m_ui->queryLineEdit->setOkColor(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal));
-    m_ui->queryLineEdit->setErrorColor(Utils::creatorTheme()->color(Utils::Theme::TextColorError));
     m_ui->queryLineEdit->setValidationFunction([this](Utils::FancyLineEdit *, QString *) {
                                                return m_model->state() != GerritModel::Error;
                                            });

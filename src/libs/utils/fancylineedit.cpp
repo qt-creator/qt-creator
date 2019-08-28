@@ -134,7 +134,7 @@ public:
     QString m_lastFilterText;
 
     QColor m_okTextColor;
-    QColor m_errorTextColor = Qt::red;
+    QColor m_errorTextColor;
     QString m_errorMessage;
 };
 
@@ -143,7 +143,8 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     m_lineEdit(parent),
     m_completionShortcut(completionShortcut()->key(), parent)
 {
-    m_okTextColor = parent->palette().color(QPalette::Active, QPalette::Text);
+    m_okTextColor = creatorTheme()->color(Theme::TextColorNormal);
+    m_errorTextColor = creatorTheme()->color(Theme::TextColorError);
 
     m_completionShortcut.setContext(Qt::WidgetShortcut);
     connect(completionShortcut(), &CompletionShortcut::keyChanged,
