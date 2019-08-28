@@ -70,15 +70,19 @@ const char BUILD_KEY[] = "ProjectExplorer.RunConfiguration.BuildKey";
 //
 ///////////////////////////////////////////////////////////////////////
 
-ISettingsAspect::ISettingsAspect(const ConfigWidgetCreator &creator)
-    : m_configWidgetCreator(creator)
-{}
+ISettingsAspect::ISettingsAspect() = default;
 
 QWidget *ISettingsAspect::createConfigWidget() const
 {
     QTC_ASSERT(m_configWidgetCreator, return nullptr);
     return m_configWidgetCreator();
 }
+
+void ISettingsAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator)
+{
+    m_configWidgetCreator = configWidgetCreator;
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 //

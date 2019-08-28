@@ -61,14 +61,15 @@ class PROJECTEXPLORER_EXPORT ISettingsAspect : public QObject
     Q_OBJECT
 
 public:
-    /// Create a configuration widget for this settings aspect.
-    using ConfigWidgetCreator = std::function<QWidget *()>;
+    ISettingsAspect();
 
-    explicit ISettingsAspect(const ConfigWidgetCreator &configWidgetCreator);
+    /// Create a configuration widget for this settings aspect.
     QWidget *createConfigWidget() const;
 
 protected:
-    ///
+    using ConfigWidgetCreator = std::function<QWidget *()>;
+    void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
+
     friend class GlobalOrProjectAspect;
     /// Converts current object into map for storage.
     virtual void toMap(QVariantMap &map) const = 0;

@@ -82,9 +82,7 @@ template <typename T> void setIfPresent(const QVariantMap &map, const QString &k
         *val = map.value(key).template value<T>();
 }
 
-ValgrindBaseSettings::ValgrindBaseSettings(const ConfigWidgetCreator &creator)
-    : ISettingsAspect(creator)
-{}
+ValgrindBaseSettings::ValgrindBaseSettings() = default;
 
 void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 {
@@ -304,9 +302,10 @@ void ValgrindBaseSettings::setVisualisationMinimumInclusiveCostRatio(
 static ValgrindGlobalSettings *theGlobalSettings = nullptr;
 
 ValgrindGlobalSettings::ValgrindGlobalSettings()
-    : ValgrindBaseSettings([this] { return new ValgrindConfigWidget(this, true); })
 {
     theGlobalSettings = this;
+
+    setConfigWidgetCreator([this] { return new ValgrindConfigWidget(this, true); });
     readSettings();
 }
 
@@ -494,8 +493,9 @@ void ValgrindGlobalSettings::setShortenTemplates(bool on)
 //////////////////////////////////////////////////////////////////
 
 ValgrindProjectSettings::ValgrindProjectSettings()
-    : ValgrindBaseSettings([this] { return new ValgrindConfigWidget(this, false); })
-{}
+{
+    setConfigWidgetCreator([this] { return new ValgrindConfigWidget(this, false); });
+}
 
 void ValgrindProjectSettings::fromMap(const QVariantMap &map)
 {

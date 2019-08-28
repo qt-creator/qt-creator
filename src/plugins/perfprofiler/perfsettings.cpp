@@ -34,13 +34,14 @@
 namespace PerfProfiler {
 
 PerfSettings::PerfSettings(ProjectExplorer::Target *target)
-    : ISettingsAspect([this, target] {
+{
+    setConfigWidgetCreator([this, target] {
         auto widget = new Internal::PerfConfigWidget(this);
         widget->setTracePointsButtonVisible(target != nullptr);
         widget->setTarget(target);
         return widget;
-    })
-{
+    });
+
     readGlobalSettings();
 }
 
