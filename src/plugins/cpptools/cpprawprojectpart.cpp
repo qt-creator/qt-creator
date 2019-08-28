@@ -100,7 +100,7 @@ void RawProjectPart::setCallGroupId(const QString &id)
     callGroupId = id;
 }
 
-void RawProjectPart::setQtVersion(ProjectPart::QtVersion qtVersion)
+void RawProjectPart::setQtVersion(Utils::QtVersion qtVersion)
 {
     this->qtVersion = qtVersion;
 }
@@ -143,7 +143,7 @@ void RawProjectPart::setFlagsForCxx(const RawProjectPartFlags &flags)
     flagsForCxx = flags;
 }
 
-void RawProjectPart::setBuildTargetType(ProjectPart::BuildTargetType type)
+void RawProjectPart::setBuildTargetType(ProjectExplorer::BuildTargetType type)
 {
     buildTargetType = type;
 }

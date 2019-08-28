@@ -486,7 +486,7 @@ QSet<QString> GTestTreeItem::internalTargets() const
                                 return pf.path == file;
         })) {
             result.insert(projectPart->buildSystemTarget);
-            if (projectPart->buildTargetType != CppTools::ProjectPart::Executable)
+            if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
                 result.unite(TestTreeItem::dependingInternalTargets(cppMM, file));
         }
     }

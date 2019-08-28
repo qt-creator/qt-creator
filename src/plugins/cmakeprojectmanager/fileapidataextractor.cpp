@@ -317,8 +317,8 @@ CppTools::RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             }));
 
             const bool isExecutable = t.type == "EXECUTABLE";
-            rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
-                                                : CppTools::ProjectPart::Library);
+            rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
+                                                : ProjectExplorer::BuildTargetType::Library);
             rpps.append(rpp);
         }
     }

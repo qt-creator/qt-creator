@@ -42,6 +42,7 @@ Project {
                 "buildstepspage.cpp", "buildstepspage.h",
                 "buildsystem.cpp", "buildsystem.h",
                 "buildtargetinfo.h",
+                "buildtargettype.h",
                 "clangparser.cpp", "clangparser.h",
                 "codestylesettingspropertiespage.cpp", "codestylesettingspropertiespage.h", "codestylesettingspropertiespage.ui",
                 "compileoutputwindow.cpp", "compileoutputwindow.h",

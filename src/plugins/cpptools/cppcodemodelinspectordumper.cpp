@@ -148,23 +148,27 @@ QString Utils::toString(::Utils::LanguageExtensions languageExtension)
     return result;
 }
 
-QString Utils::toString(ProjectPart::QtVersion qtVersion)
+QString Utils::toString(::Utils::QtVersion qtVersion)
 {
-#define CASE_QTVERSION(x) case ProjectPart::x: return QLatin1String(#x)
+#define CASE_QTVERSION(x) \
+    case ::Utils::QtVersion::x: \
+        return QLatin1String(#x)
     switch (qtVersion) {
-    CASE_QTVERSION(UnknownQt);
-    CASE_QTVERSION(NoQt);
-    CASE_QTVERSION(Qt4);
-    CASE_QTVERSION(Qt5);
-    // no default to get a compiler warning if anything is added
+        CASE_QTVERSION(Unknown);
+        CASE_QTVERSION(None);
+        CASE_QTVERSION(Qt4);
+        CASE_QTVERSION(Qt5);
+        // no default to get a compiler warning if anything is added
     }
 #undef CASE_QTVERSION
     return QString();
 }
 
-QString Utils::toString(ProjectPart::BuildTargetType buildTargetType)
+QString Utils::toString(ProjectExplorer::BuildTargetType buildTargetType)
 {
-#define CASE_BUILDTARGETTYPE(x) case ProjectPart::x: return QLatin1String(#x)
+#define CASE_BUILDTARGETTYPE(x) \
+    case ProjectExplorer::BuildTargetType::x: \
+        return QLatin1String(#x)
     switch (buildTargetType) {
     CASE_BUILDTARGETTYPE(Unknown);
     CASE_BUILDTARGETTYPE(Executable);

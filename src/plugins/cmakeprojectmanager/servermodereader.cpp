@@ -335,8 +335,8 @@ CppTools::RawProjectParts ServerModeReader::createRawProjectParts(QString &error
         rpp.setFiles(transform(fg->sources, &FilePath::toString));
 
         const bool isExecutable = fg->target->type == "EXECUTABLE";
-        rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
-                                            : CppTools::ProjectPart::Library);
+        rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
+                                            : ProjectExplorer::BuildTargetType::Library);
         rpps.append(rpp);
     }
 

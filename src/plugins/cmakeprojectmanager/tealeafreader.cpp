@@ -306,8 +306,8 @@ CppTools::RawProjectParts TeaLeafReader::createRawProjectParts(QString &errorMes
         rpp.setFiles(transform(cbt.files, &FilePath::toString));
 
         const bool isExecutable = cbt.targetType == ExecutableType;
-        rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
-                                            : CppTools::ProjectPart::Library);
+        rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
+                                            : ProjectExplorer::BuildTargetType::Library);
         rpps.append(rpp);
     }
 

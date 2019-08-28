@@ -243,7 +243,7 @@ CppTools::ProjectPart::Ptr createProjectPart(const QStringList &files,
     projectPart->projectFile = QLatin1String("myproject.project");
     foreach (const QString &file, files)
         projectPart->files.append(ProjectFile(file, ProjectFile::classify(file)));
-    projectPart->qtVersion = ProjectPart::NoQt;
+    projectPart->qtVersion = ::Utils::QtVersion::None;
     projectPart->projectMacros = macros;
 
     return projectPart;

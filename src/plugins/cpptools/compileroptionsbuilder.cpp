@@ -656,7 +656,7 @@ void CompilerOptionsBuilder::addWrappedQtHeadersIncludePath(QStringList &list) c
     static QString wrappedQtHeadersPath = resourcePath + "/cplusplus/wrappedQtHeaders";
     QTC_ASSERT(QDir(wrappedQtHeadersPath).exists(), return;);
 
-    if (m_projectPart.qtVersion != ProjectPart::NoQt) {
+    if (m_projectPart.qtVersion != Utils::QtVersion::None) {
         const QString wrappedQtCoreHeaderPath = wrappedQtHeadersPath + "/QtCore";
         list.append({includeUserPathOption,
                      QDir::toNativeSeparators(wrappedQtHeadersPath),

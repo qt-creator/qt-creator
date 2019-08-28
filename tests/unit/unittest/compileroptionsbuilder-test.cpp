@@ -64,7 +64,7 @@ protected:
                                        ProjectExplorer::Macro{"_MSC_FULL_VER", "1900"},
                                        ProjectExplorer::Macro{"_MSC_VER", "19"}};
         projectPart.projectMacros = {ProjectExplorer::Macro{"projectFoo", "projectBar"}};
-        projectPart.qtVersion = ProjectPart::Qt5;
+        projectPart.qtVersion = Utils::QtVersion::Qt5;
 
         projectPart.headerPaths = {HeaderPath{"/tmp/builtin_path", HeaderPathType::BuiltIn},
                                    HeaderPath{"/tmp/system_path", HeaderPathType::System},

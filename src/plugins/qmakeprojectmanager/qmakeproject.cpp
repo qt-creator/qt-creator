@@ -222,8 +222,6 @@ void QmakeProject::updateCodeModels()
 
 void QmakeProject::updateCppCodeModel()
 {
-    using ProjectPart = CppTools::ProjectPart;
-
     m_toolChainWarnings.clear();
 
     QtSupport::CppKitInfo kitInfo(this);
@@ -239,8 +237,8 @@ void QmakeProject::updateCppCodeModel()
         rpp.setProjectFileLocation(pro->filePath().toString());
         rpp.setBuildSystemTarget(pro->filePath().toString());
         const bool isExecutable = pro->projectType() == ProjectType::ApplicationTemplate;
-        rpp.setBuildTargetType(isExecutable ? CppTools::ProjectPart::Executable
-                                            : CppTools::ProjectPart::Library);
+        rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
+                                            : ProjectExplorer::BuildTargetType::Library);
 
         rpp.setFlagsForCxx({kitInfo.cxxToolChain, pro->variableValue(Variable::CppFlags)});
         rpp.setFlagsForC({kitInfo.cToolChain, pro->variableValue(Variable::CFlags)});
@@ -252,7 +250,7 @@ void QmakeProject::updateCppCodeModel()
         if (pro->variableValue(Variable::Config).contains(QLatin1String("qt")))
             rpp.setQtVersion(kitInfo.projectPartQtVersion);
         else
-            rpp.setQtVersion(ProjectPart::NoQt);
+            rpp.setQtVersion(Utils::QtVersion::None);
 
         // Header paths
         ProjectExplorer::HeaderPaths headerPaths;

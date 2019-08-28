@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,53 +25,8 @@
 
 #pragma once
 
-#include <QFlags>
+namespace ProjectExplorer {
 
-namespace Utils {
+enum class BuildTargetType { Unknown, Executable, Library };
 
-enum class Language : unsigned char { None, C, Cxx };
-
-enum class LanguageVersion : unsigned char {
-    None,
-    C89,
-    C99,
-    C11,
-    C18,
-    LatestC = C18,
-    CXX98 = 32,
-    CXX03,
-    CXX11,
-    CXX14,
-    CXX17,
-    CXX2a,
-    LatestCxx = CXX2a,
-};
-
-enum class LanguageExtension : unsigned char {
-    None = 0,
-
-    Gnu = 1 << 0,
-    Microsoft = 1 << 1,
-    Borland = 1 << 2,
-    OpenMP = 1 << 3,
-    ObjectiveC = 1 << 4,
-
-    All = Gnu | Microsoft | Borland | OpenMP | ObjectiveC
-};
-
-Q_DECLARE_FLAGS(LanguageExtensions, LanguageExtension)
-
-constexpr LanguageExtension operator|(LanguageExtension first, LanguageExtension second)
-{
-    return static_cast<LanguageExtension>(
-        (static_cast<unsigned char>(first) | static_cast<unsigned char>(second)));
-}
-
-constexpr bool operator&&(LanguageExtension first, LanguageExtension second)
-{
-    return static_cast<unsigned char>(first) & static_cast<unsigned char>(second);
-}
-
-enum class QtVersion { Unknown = -1, None, Qt4, Qt5 };
-
-} // namespace Utils
+} // namespace ProjectExplorer

@@ -898,10 +898,10 @@ void QbsProject::updateCppCodeModel()
             std::for_each(sourceArtifacts.cbegin(), sourceArtifacts.cend(), pchFinder);
         }
 
-        const CppTools::ProjectPart::QtVersion qtVersionForPart =
-                 prd.moduleProperties().getModuleProperty("Qt.core", "version").isValid()
-                    ? kitInfo.projectPartQtVersion
-                    : CppTools::ProjectPart::NoQt;
+        const Utils::QtVersion qtVersionForPart
+            = prd.moduleProperties().getModuleProperty("Qt.core", "version").isValid()
+                  ? kitInfo.projectPartQtVersion
+                  : Utils::QtVersion::None;
 
         foreach (const qbs::GroupData &grp, prd.groups()) {
             CppTools::RawProjectPart rpp;
@@ -947,8 +947,8 @@ void QbsProject::updateCppCodeModel()
             rpp.setProjectFileLocation(grp.location().filePath(),
                                        grp.location().line(), grp.location().column());
             rpp.setBuildSystemTarget(uniqueProductName(prd));
-            rpp.setBuildTargetType(prd.isRunnable() ? CppTools::ProjectPart::Executable
-                                                    : CppTools::ProjectPart::Library);
+            rpp.setBuildTargetType(prd.isRunnable() ? ProjectExplorer::BuildTargetType::Executable
+                                                    : ProjectExplorer::BuildTargetType::Library);
 
             QHash<QString, qbs::ArtifactData> filePathToSourceArtifact;
             bool hasCFiles = false;

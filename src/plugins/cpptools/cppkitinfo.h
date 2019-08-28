@@ -48,7 +48,7 @@ public:
     ProjectExplorer::ToolChain *cToolChain = nullptr;
     ProjectExplorer::ToolChain *cxxToolChain = nullptr;
 
-    ProjectPart::QtVersion projectPartQtVersion = ProjectPart::NoQt;
+    Utils::QtVersion projectPartQtVersion = Utils::QtVersion::None;
 
     QString sysRootPath;
 };

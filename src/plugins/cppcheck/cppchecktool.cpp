@@ -169,8 +169,7 @@ QStringList CppcheckTool::additionalArguments(const CppTools::ProjectPart &part)
         break;
     }
 
-    using QtVersion = CppTools::ProjectPart::QtVersion;
-    if (part.qtVersion != QtVersion::NoQt)
+    if (part.qtVersion != Utils::QtVersion::None)
         result.push_back("--library=qt");
 
     return result;

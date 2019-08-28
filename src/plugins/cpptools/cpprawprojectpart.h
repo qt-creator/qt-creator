@@ -26,8 +26,9 @@
 #pragma once
 
 #include "cpptools_global.h"
-#include "projectpart.h"
 
+#include <projectexplorer/buildtargettype.h>
+#include <projectexplorer/projectexplorer_global.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/cpplanguage_details.h>
 
@@ -70,14 +71,14 @@ public:
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
 
     void setBuildSystemTarget(const QString &target);
-    void setBuildTargetType(ProjectPart::BuildTargetType type);
+    void setBuildTargetType(ProjectExplorer::BuildTargetType type);
     void setSelectedForBuilding(bool yesno);
 
     void setFlagsForC(const RawProjectPartFlags &flags);
     void setFlagsForCxx(const RawProjectPartFlags &flags);
 
     void setMacros(const ProjectExplorer::Macros &macros);
-    void setQtVersion(ProjectPart::QtVersion qtVersion);
+    void setQtVersion(Utils::QtVersion qtVersion);
 
 public:
     QString displayName;
@@ -97,7 +98,7 @@ public:
 
     // Build system
     QString buildSystemTarget;
-    ProjectPart::BuildTargetType buildTargetType = ProjectPart::BuildTargetType::Unknown;
+    ProjectExplorer::BuildTargetType buildTargetType = ProjectExplorer::BuildTargetType::Unknown;
     bool selectedForBuilding = true;
 
     // Flags
@@ -106,7 +107,7 @@ public:
 
     // Misc
     ProjectExplorer::Macros projectMacros;
-    ProjectPart::QtVersion qtVersion = ProjectPart::UnknownQt;
+    Utils::QtVersion qtVersion = Utils::QtVersion::Unknown;
 };
 
 using RawProjectParts = QVector<RawProjectPart>;

@@ -317,7 +317,7 @@ QSet<QString> TestTreeItem::internalTargets() const
     QSet<QString> targets;
     for (const CppTools::ProjectPart::Ptr &part : projectParts) {
         targets.insert(part->buildSystemTarget);
-        if (part->buildTargetType != CppTools::ProjectPart::Executable)
+        if (part->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
             targets.unite(TestTreeItem::dependingInternalTargets(cppMM, m_filePath));
     }
     return targets;

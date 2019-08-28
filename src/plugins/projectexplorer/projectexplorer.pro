@@ -14,6 +14,7 @@ HEADERS += projectexplorer.h \
     ansifilterparser.h \
     buildinfo.h \
     buildsystem.h \
+    buildtargettype.h \
     clangparser.h \
     configtaskhandler.h \
     desktoprunconfiguration.h \

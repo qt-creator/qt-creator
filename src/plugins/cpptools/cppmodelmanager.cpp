@@ -1159,7 +1159,7 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart()
     part->languageExtensions &= ~Utils::LanguageExtensions(
         Utils::LanguageExtension::ObjectiveC);
 
-    part->qtVersion = ProjectPart::Qt5;
+    part->qtVersion = Utils::QtVersion::Qt5;
     part->updateLanguageFeatures();
 
     return part;

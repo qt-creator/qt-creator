@@ -36,7 +36,7 @@ namespace CppTools {
 void ProjectPart::updateLanguageFeatures()
 {
     const bool hasCxx = languageVersion >= Utils::LanguageVersion::CXX98;
-    const bool hasQt = hasCxx && qtVersion != NoQt;
+    const bool hasQt = hasCxx && qtVersion != Utils::QtVersion::None;
     languageFeatures.cxx11Enabled = languageVersion >= Utils::LanguageVersion::CXX11;
     languageFeatures.cxx14Enabled = languageVersion >= Utils::LanguageVersion::CXX14;
     languageFeatures.cxxEnabled = hasCxx;
