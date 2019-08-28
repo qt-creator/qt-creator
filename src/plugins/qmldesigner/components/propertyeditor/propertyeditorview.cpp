@@ -789,7 +789,7 @@ void PropertyEditorView::reloadQml()
     }
     m_qmlBackEndForCurrentType = nullptr;
 
-    delayedResetView();
+    resetView();
 }
 
 
