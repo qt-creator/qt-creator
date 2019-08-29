@@ -27,10 +27,10 @@
 
 #include "clangfixitsrefactoringchanges.h"
 #include "clangselectablefilesdialog.h"
+#include "clangtoolruncontrol.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnosticmodel.h"
 #include "clangtoolslogfilereader.h"
-#include "clangtidyclazyruncontrol.h"
 #include "clangtoolsdiagnosticview.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
@@ -396,10 +396,10 @@ void ClangTidyClazyTool::startTool(FileSelection fileSelection)
         return;
 
     const bool preventBuild = fileSelection == FileSelection::CurrentFile;
-    auto clangTool = new ClangTidyClazyRunWorker(runControl,
-                                                 getDiagnosticConfig(project),
-                                                 fileInfos,
-                                                 preventBuild);
+    auto clangTool = new ClangToolRunWorker(runControl,
+                                            getDiagnosticConfig(project),
+                                            fileInfos,
+                                            preventBuild);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {

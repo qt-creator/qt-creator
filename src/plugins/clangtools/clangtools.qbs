@@ -40,8 +40,6 @@ QtcPlugin {
         "clangselectablefilesdialog.cpp",
         "clangselectablefilesdialog.h",
         "clangselectablefilesdialog.ui",
-        "clangtidyclazyruncontrol.cpp",
-        "clangtidyclazyruncontrol.h",
         "clangtidyclazyrunner.cpp",
         "clangtidyclazyrunner.h",
         "clangtidyclazytool.cpp",

@@ -27,8 +27,9 @@
 
 #include "clangfileinfo.h"
 
-#include <projectexplorer/runcontrol.h>
+#include <cpptools/clangdiagnosticconfig.h>
 #include <cpptools/projectinfo.h>
+#include <projectexplorer/runcontrol.h>
 #include <utils/environment.h>
 #include <utils/temporarydirectory.h>
 
@@ -39,7 +40,6 @@
 namespace ClangTools {
 namespace Internal {
 
-class ClangTool;
 class ClangToolRunner;
 class ProjectBuilder;
 
@@ -66,24 +66,22 @@ class ClangToolRunWorker : public ProjectExplorer::RunWorker
 
 public:
     ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
+                       const CppTools::ClangDiagnosticConfig &diagnosticConfig,
                        const FileInfos &fileInfos,
                        bool preventBuild);
 
     bool success() const { return m_success; } // For testing.
 
-    virtual ClangTool *tool() = 0;
-
 protected:
-    void init();
-
-    virtual QList<RunnerCreator> runnerCreators() = 0;
-
     void onRunnerFinishedWithSuccess(const QString &filePath);
     void onRunnerFinishedWithFailure(const QString &errorMessage, const QString &errorDetails);
 
 private:
     void start() final;
     void stop() final;
+
+    QList<RunnerCreator> runnerCreators();
+    template <class T> ClangToolRunner *createRunner();
 
     AnalyzeUnits unitsToAnalyze();
     void analyzeNextFile();
@@ -101,6 +99,7 @@ protected:
     Utils::TemporaryDirectory m_temporaryDir;
 
 private:
+    CppTools::ClangDiagnosticConfig m_diagnosticConfig;
     FileInfos m_fileInfos;
 
     CppTools::ProjectInfo m_projectInfoBeforeBuild;

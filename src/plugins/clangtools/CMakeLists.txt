@@ -14,7 +14,6 @@ add_qtc_plugin(ClangTools
     clangfileinfo.h
     clangfixitsrefactoringchanges.cpp clangfixitsrefactoringchanges.h
     clangselectablefilesdialog.cpp clangselectablefilesdialog.h clangselectablefilesdialog.ui
-    clangtidyclazyruncontrol.cpp clangtidyclazyruncontrol.h
     clangtidyclazyrunner.cpp clangtidyclazyrunner.h
     clangtidyclazytool.cpp clangtidyclazytool.h
     clangtool.cpp clangtool.h

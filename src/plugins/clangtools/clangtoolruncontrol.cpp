@@ -25,12 +25,13 @@
 
 #include "clangtoolruncontrol.h"
 
+#include "clangtidyclazyrunner.h"
+#include "clangtidyclazytool.h"
 #include "clangtool.h"
 #include "clangtoolslogfilereader.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
-#include "clangtoolrunner.h"
 
 #include <debugger/analyzer/analyzerconstants.h>
 
@@ -114,17 +115,21 @@ static QStringList extraClangToolsAppendOptions()
 namespace ClangTools {
 namespace Internal {
 
+static ClangTool *tool()
+{
+    return ClangTidyClazyTool::instance();
+}
+
 class ProjectBuilder : public RunWorker
 {
 public:
-    ProjectBuilder(RunControl *runControl, ClangToolRunWorker *parent)
-        : RunWorker(runControl), m_parent(parent)
+    ProjectBuilder(RunControl *runControl)
+        : RunWorker(runControl)
     {
         setId("ProjectBuilder");
     }
 
     void setEnabled(bool enabled) { m_enabled = enabled; }
-
     bool success() const { return m_success; }
 
 private:
@@ -145,7 +150,7 @@ private:
 
         if (buildType == BuildConfiguration::Release) {
             const QString wrongMode = ClangToolRunWorker::tr("Release");
-            const QString toolName = m_parent->tool()->name();
+            const QString toolName = tool()->name();
             const QString title = ClangToolRunWorker::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
             const QString problem = ClangToolRunWorker::tr(
                         "You are trying to run the tool \"%1\" on an application in %2 mode. The tool is "
@@ -181,7 +186,6 @@ private:
      }
 
 private:
-     ClangToolRunWorker *m_parent;
      bool m_enabled = true;
      bool m_success = false;
 };
@@ -229,30 +233,30 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
 }
 
 ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
+                                       const ClangDiagnosticConfig &diagnosticConfig,
                                        const FileInfos &fileInfos,
                                        bool preventBuild)
     : RunWorker(runControl)
     , m_temporaryDir("clangtools-XXXXXX")
+    , m_diagnosticConfig(diagnosticConfig)
     , m_fileInfos(fileInfos)
 {
-    if (preventBuild)
-        return;
-
-    m_projectBuilder = new ProjectBuilder(runControl, this);
-    addStartDependency(m_projectBuilder);
-
-    ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
-        runControl->project());
-    if (projectSettings->useGlobalSettings())
-        m_projectBuilder->setEnabled(ClangToolsSettings::instance()->savedBuildBeforeAnalysis());
-    else
-        m_projectBuilder->setEnabled(projectSettings->buildBeforeAnalysis());
-}
-
-void ClangToolRunWorker::init()
-{
+    setId("ClangTidyClazyRunner");
     setSupportsReRunning(false);
-    Target *target = runControl()->target();
+
+    if (!preventBuild) {
+        m_projectBuilder = new ProjectBuilder(runControl);
+        addStartDependency(m_projectBuilder);
+
+        ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
+            runControl->project());
+        if (projectSettings->useGlobalSettings())
+            m_projectBuilder->setEnabled(ClangToolsSettings::instance()->savedBuildBeforeAnalysis());
+        else
+            m_projectBuilder->setEnabled(projectSettings->buildBeforeAnalysis());
+    }
+
+    Target *target = runControl->target();
     m_projectInfoBeforeBuild = CppTools::CppModelManager::instance()->projectInfo(target->project());
 
     BuildConfiguration *buildConfiguration = target->activeBuildConfiguration();
@@ -264,6 +268,23 @@ void ClangToolRunWorker::init()
     QTC_ASSERT(toolChain, return);
     m_targetTriple = toolChain->originalTargetTriple();
     m_toolChainType = toolChain->typeId();
+}
+
+QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
+{
+    QList<RunnerCreator> creators;
+
+    if (m_diagnosticConfig.clangTidyMode() != CppTools::ClangDiagnosticConfig::TidyMode::Disabled)
+        creators << [this]() { return createRunner<ClangTidyRunner>(); };
+
+    if (!m_diagnosticConfig.clazyChecks().isEmpty()) {
+        if (!qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH").isEmpty())
+            creators << [this]() { return createRunner<ClazyStandaloneRunner>(); };
+        else
+            creators << [this]() { return createRunner<ClazyPluginRunner>(); };
+    }
+
+    return creators;
 }
 
 void ClangToolRunWorker::start()
@@ -503,6 +524,18 @@ void ClangToolRunWorker::finalize()
 
     m_progress.reportFinished();
     runControl()->initiateStop();
+}
+
+template<class T>
+ClangToolRunner *ClangToolRunWorker::createRunner()
+{
+    auto runner = new T(m_diagnosticConfig, this);
+    runner->init(m_temporaryDir.path(), m_environment);
+    connect(runner, &ClangToolRunner::finishedWithSuccess,
+            this, &ClangToolRunWorker::onRunnerFinishedWithSuccess);
+    connect(runner, &ClangToolRunner::finishedWithFailure,
+            this, &ClangToolRunWorker::onRunnerFinishedWithFailure);
+    return runner;
 }
 
 } // namespace Internal
