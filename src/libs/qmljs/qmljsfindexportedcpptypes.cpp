@@ -737,7 +737,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
                 Symbol *enumMember = e->memberAt(j);
                 if (!enumMember->name())
                     continue;
-                metaEnum.addKey(namePrinter.prettyName(enumMember->name()), 0);
+                metaEnum.addKey(namePrinter.prettyName(enumMember->name()));
             }
             fmo->addEnum(metaEnum);
         }
