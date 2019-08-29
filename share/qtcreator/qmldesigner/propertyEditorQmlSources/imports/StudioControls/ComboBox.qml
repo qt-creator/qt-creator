@@ -1,3 +1,5 @@
+
+
 /****************************************************************************
 **
 ** Copyright (C) 2019 The Qt Company Ltd.
@@ -22,7 +24,6 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Templates 2.12 as T
@@ -37,17 +38,19 @@ T.ComboBox {
     property bool hover: false // This property is used to indicate the global hover state
     property bool edit: myComboBox.activeFocus
 
+    property bool dirty: false // user modification flag
+
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __actionIndicatorHeight: StudioTheme.Values.height
 
-    property string __lastAcceptedText: ""
-    signal compressedActivated
+    signal compressedActivated(int index)
 
     width: StudioTheme.Values.squareComponentWidth * 5
     height: StudioTheme.Values.height
 
-    leftPadding: actionIndicator.width - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
+    leftPadding: actionIndicator.width
+                 - (myComboBox.actionIndicatorVisible ? StudioTheme.Values.border : 0)
     rightPadding: popupIndicator.width - StudioTheme.Values.border
     font.pixelSize: StudioTheme.Values.myFontSize
     wheelEnabled: false
@@ -62,14 +65,24 @@ T.ComboBox {
         myControl: myComboBox
         x: 0
         y: 0
-        width: actionIndicator.visible ? __actionIndicatorWidth : 0
-        height: actionIndicator.visible ? __actionIndicatorHeight : 0
+        width: actionIndicator.visible ? myComboBox.__actionIndicatorWidth : 0
+        height: actionIndicator.visible ? myComboBox.__actionIndicatorHeight : 0
     }
 
     contentItem: ComboBoxInput {
         id: comboBoxInput
         myControl: myComboBox
         text: myComboBox.editText
+
+        onEditingFinished: {
+            // Only trigger the signal, if the value was modified
+            if (myComboBox.dirty) {
+                myTimer.stop()
+                myComboBox.dirty = false
+                myComboBox.compressedActivated(myComboBox.find(myComboBox.editText))
+            }
+        }
+        onTextEdited: myComboBox.dirty = true
     }
 
     indicator: CheckIndicator {
@@ -87,31 +100,25 @@ T.ComboBox {
         color: StudioTheme.Values.themeControlOutline
         border.color: StudioTheme.Values.themeControlOutline
         border.width: StudioTheme.Values.border
-        x: actionIndicator.width - (actionIndicatorVisible ? StudioTheme.Values.border : 0)
+        x: actionIndicator.width
+           - (myComboBox.actionIndicatorVisible ? StudioTheme.Values.border : 0)
         width: myComboBox.width - actionIndicator.width
         height: myComboBox.height
     }
 
-    // Set the initial value for __lastAcceptedText
-    Component.onCompleted: __lastAcceptedText = myComboBox.editText
-
-    onAccepted: {
-        if (myComboBox.editText != __lastAcceptedText) {
-            var pos = find(myComboBox.editText)
-            activated(pos)
-        }
-        __lastAcceptedText = myComboBox.editText
-    }
-
     Timer {
         id: myTimer
+        property int activatedIndex
         repeat: false
         running: false
         interval: 100
-        onTriggered: myComboBox.compressedActivated()
+        onTriggered: myComboBox.compressedActivated(myTimer.activatedIndex)
     }
 
-    onActivated: myTimer.restart()
+    onActivated: {
+        myTimer.activatedIndex = index
+        myTimer.restart()
+    }
 
     delegate: ItemDelegate {
         id: myItemDelegate

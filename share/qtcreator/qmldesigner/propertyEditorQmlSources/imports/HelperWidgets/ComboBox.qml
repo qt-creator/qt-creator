@@ -57,21 +57,21 @@ StudioControls.ComboBox {
     actionIndicator.icon.text: extFuncLogic.glyph
     actionIndicator.onClicked: extFuncLogic.show()
 
-    actionIndicator.visible: showExtendedFunctionButton
+    actionIndicator.visible: comboBox.showExtendedFunctionButton
 
     ColorLogic {
         id: colorLogic
         backendValue: comboBox.backendValue
-        onValueFromBackendChanged: invalidate()
+        onValueFromBackendChanged: colorLogic.invalidate()
 
         function invalidate() {
 
-            if (block)
+            if (comboBox.block)
                 return
 
-            block = true
+            comboBox.block = true
 
-            if (manualMapping) {
+            if (comboBox.manualMapping) {
                 comboBox.valueFromBackendChanged()
             } else if (!comboBox.useInteger) {
                 var enumString = comboBox.backendValue.enumeration
@@ -88,33 +88,33 @@ StudioControls.ComboBox {
                     comboBox.currentIndex = index
 
             } else {
-                if (comboBox.currentIndex !== backendValue.value)
-                    comboBox.currentIndex = backendValue.value
+                if (comboBox.currentIndex !== comboBox.backendValue.value)
+                    comboBox.currentIndex = comboBox.backendValue.value
             }
 
-            block = false
+            comboBox.block = false
         }
     }
 
-    onActivated: {
-        if (!__isCompleted)
+    onCompressedActivated: {
+        if (!comboBox.__isCompleted)
             return
 
-        if (backendValue === undefined)
+        if (comboBox.backendValue === undefined)
             return
 
-        if (manualMapping)
+        if (comboBox.manualMapping)
             return
 
         if (!comboBox.useInteger) {
-            backendValue.setEnumeration(comboBox.scope, comboBox.currentText)
+            comboBox.backendValue.setEnumeration(comboBox.scope, comboBox.currentText)
         } else {
-            backendValue.value = comboBox.currentIndex
+            comboBox.backendValue.value = comboBox.currentIndex
         }
     }
 
     Component.onCompleted: {
         colorLogic.invalidate()
-        __isCompleted = true
+        comboBox.__isCompleted = true
     }
 }

@@ -58,6 +58,8 @@ public:
 
     double maximumValue() const;
 
+    std::string string() const;
+
     CurveSegment segment(double time) const;
 
     std::vector<CurveSegment> segments() const;

@@ -31,6 +31,7 @@
 #include "selectableitem.h"
 #include "treeitem.h"
 
+#include <string>
 #include <QGraphicsObject>
 
 namespace DesignTools {
@@ -42,6 +43,9 @@ class GraphicsScene;
 class CurveItem : public QGraphicsObject
 {
     Q_OBJECT
+
+signals:
+    void curveChanged(unsigned int id, const AnimationCurve &curve);
 
 public:
     CurveItem(QGraphicsItem *parent = nullptr);

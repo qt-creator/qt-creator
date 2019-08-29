@@ -174,6 +174,11 @@ void KeyframeItem::setKeyframe(const Keyframe &keyframe)
     setPos(m_transform.map(m_frame.position()));
 }
 
+void KeyframeItem::setInterpolation(Keyframe::Interpolation interpolation)
+{
+    m_frame.setInterpolation(interpolation);
+}
+
 void KeyframeItem::setLeftHandle(const QPointF &pos)
 {
     m_frame.setLeftHandle(pos);

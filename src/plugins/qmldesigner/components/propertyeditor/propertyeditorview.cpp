@@ -389,6 +389,8 @@ void PropertyEditorView::resetView()
     if (model() == nullptr)
         return;
 
+    setSelelectedModelNode();
+
     m_locked = true;
 
     if (debug)
@@ -526,21 +528,16 @@ void PropertyEditorView::removePropertyFromModel(const PropertyName &propertyNam
     m_locked = false;
 }
 
-void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                                          const QList<ModelNode> &lastSelectedNodeList)
+void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &,
+                                          const QList<ModelNode> &)
 {
-    Q_UNUSED(lastSelectedNodeList)
-
-    if (selectedNodeList.isEmpty())
-        select(ModelNode());
-    else
-        select(selectedNodeList.constFirst());
+    select();
 }
 
 void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (m_selectedNode.isValid() && removedNode.isValid() && m_selectedNode == removedNode)
-        select(m_selectedNode.parentProperty().parentModelNode());
+        select();
 }
 
 void PropertyEditorView::modelAttached(Model *model)
@@ -686,17 +683,27 @@ void PropertyEditorView::nodeIdChanged(const ModelNode& node, const QString& new
     }
 }
 
-void PropertyEditorView::select(const ModelNode &node)
+void PropertyEditorView::select()
 {
     if (m_qmlBackEndForCurrentType)
         m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
 
-    if (QmlObjectNode(node).isValid())
-        m_selectedNode = node;
-    else
-        m_selectedNode = ModelNode();
-
     delayedResetView();
+}
+
+void PropertyEditorView::setSelelectedModelNode()
+{
+    const auto selectedNodeList = selectedModelNodes();
+
+    m_selectedNode = ModelNode();
+
+    if (selectedNodeList.isEmpty())
+        return;
+
+    const ModelNode node = selectedNodeList.constFirst();
+
+    if (QmlObjectNode(node).isValid())
+            m_selectedNode = node;
 }
 
 bool PropertyEditorView::hasWidget() const
@@ -782,7 +789,7 @@ void PropertyEditorView::reloadQml()
     }
     m_qmlBackEndForCurrentType = nullptr;
 
-    delayedResetView();
+    resetView();
 }
 
 

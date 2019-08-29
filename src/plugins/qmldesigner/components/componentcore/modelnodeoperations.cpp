@@ -92,28 +92,6 @@ static inline QList<QmlItemNode> siblingsForNode(const QmlItemNode &itemNode)
     return siblingList;
 }
 
-static signed int getMaxZValue(const QList<QmlItemNode> &siblingList)
-{
-    signed int maximum = INT_MIN;
-    foreach (const QmlItemNode &node, siblingList) {
-        signed int z  = node.instanceValue("z").toInt();
-        if (z > maximum)
-            maximum = z;
-    }
-    return maximum;
-}
-
-static signed int getMinZValue(const QList<QmlItemNode> &siblingList)
-{
-    signed int minimum = INT_MAX;
-    foreach (const QmlItemNode &node, siblingList) {
-        signed int z  = node.instanceValue("z").toInt();
-        if (z < minimum)
-            minimum = z;
-    }
-    return minimum;
-}
-
 static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 {
 
