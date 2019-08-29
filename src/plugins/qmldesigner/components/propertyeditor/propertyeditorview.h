@@ -114,6 +114,8 @@ private: //functions
     void commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value);
     void removePropertyFromModel(const PropertyName &propertyName);
 
+    bool noValidSelection() const;
+
 private: //variables
     ModelNode m_selectedNode;
     QWidget *m_parent;

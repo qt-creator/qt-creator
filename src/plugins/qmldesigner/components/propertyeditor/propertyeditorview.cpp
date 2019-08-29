@@ -44,8 +44,9 @@
 #include <theme.h>
 
 #include <coreplugin/icore.h>
-#include <utils/fileutils.h>
 #include <coreplugin/messagebox.h>
+#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -145,7 +146,7 @@ void PropertyEditorView::changeValue(const QString &name)
     if (propertyName == "className")
         return;
 
-    if (!m_selectedNode.isValid())
+    if (noValidSelection())
         return;
 
     if (propertyName == "id") {
@@ -232,7 +233,7 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
     if (locked())
         return;
 
-    if (!m_selectedNode.isValid())
+    if (noValidSelection())
         return;
 
     executeInTransaction("PropertyEditorView::changeExpression", [this, name](){
@@ -296,7 +297,7 @@ void PropertyEditorView::exportPopertyAsAlias(const QString &name)
     if (locked())
         return;
 
-    if (!m_selectedNode.isValid())
+    if (noValidSelection())
         return;
 
     executeInTransaction("PropertyEditorView::exportPopertyAsAlias", [this, name](){
@@ -324,7 +325,7 @@ void PropertyEditorView::removeAliasExport(const QString &name)
     if (locked())
         return;
 
-    if (!m_selectedNode.isValid())
+    if (noValidSelection())
         return;
 
     executeInTransaction("PropertyEditorView::exportPopertyAsAlias", [this, name](){
@@ -528,6 +529,12 @@ void PropertyEditorView::removePropertyFromModel(const PropertyName &propertyNam
     m_locked = false;
 }
 
+bool PropertyEditorView::noValidSelection() const
+{
+    QTC_ASSERT(m_qmlBackEndForCurrentType, return true);
+    return !QmlObjectNode::isValidQmlObjectNode(m_selectedNode);
+}
+
 void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &,
                                           const QList<ModelNode> &)
 {
@@ -572,10 +579,7 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
 
 void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
-    if (!m_selectedNode.isValid())
-        return;
-
-    if (!QmlObjectNode(m_selectedNode).isValid())
+    if (noValidSelection())
         return;
 
     foreach (const AbstractProperty &property, propertyList) {
@@ -604,11 +608,7 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
 
 void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-
-    if (!m_selectedNode.isValid())
-        return;
-
-    if (!QmlObjectNode(m_selectedNode).isValid())
+    if (noValidSelection())
         return;
 
     foreach (const VariantProperty &property, propertyList) {
@@ -628,10 +628,7 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
 
 void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
-    if (!m_selectedNode.isValid())
-        return;
-
-       if (!QmlObjectNode(m_selectedNode).isValid())
+    if (noValidSelection())
         return;
 
     foreach (const BindingProperty &property, propertyList) {
@@ -654,10 +651,7 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
 
 void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
-    if (!m_selectedNode.isValid())
-        return;
-
-    if (!m_qmlBackEndForCurrentType)
+    if (noValidSelection())
         return;
 
     m_locked = true;
@@ -670,7 +664,7 @@ void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode,
 
 void PropertyEditorView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& /*oldId*/)
 {
-    if (!m_selectedNode.isValid())
+    if (noValidSelection())
         return;
 
     if (!QmlObjectNode(m_selectedNode).isValid())
