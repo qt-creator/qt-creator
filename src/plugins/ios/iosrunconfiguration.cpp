@@ -346,7 +346,7 @@ void IosDeviceTypeAspect::setDeviceTypeIndex(int devIndex)
 
 void IosDeviceTypeAspect::updateValues()
 {
-    bool showDeviceSelector = m_runConfiguration->deviceType().type != IosDeviceType::IosDevice;
+    bool showDeviceSelector = deviceType().type != IosDeviceType::IosDevice;
     m_deviceTypeLabel->setVisible(showDeviceSelector);
     m_deviceTypeComboBox->setVisible(showDeviceSelector);
     if (showDeviceSelector && m_deviceTypeModel.rowCount() == 0) {
@@ -359,7 +359,7 @@ void IosDeviceTypeAspect::updateValues()
         }
     }
 
-    IosDeviceType currentDType = m_runConfiguration->deviceType();
+    IosDeviceType currentDType = deviceType();
     QVariant currentData = m_deviceTypeComboBox->currentData();
     if (currentDType.type == IosDeviceType::SimulatedDevice && !currentDType.identifier.isEmpty()
             && (!currentData.isValid()
