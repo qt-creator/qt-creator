@@ -78,6 +78,7 @@ add_subdirectory(valgrind)
 add_subdirectory(winrt)
 add_subdirectory(perfprofiler)
 add_subdirectory(qbsprojectmanager)
+add_subdirectory(ctfvisualizer)
 
 # Level 7:
 add_subdirectory(boot2qt)
