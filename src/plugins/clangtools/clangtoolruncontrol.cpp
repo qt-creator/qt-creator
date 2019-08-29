@@ -29,7 +29,6 @@
 #include "clangtidyclazytool.h"
 #include "clangtool.h"
 #include "clangtoolslogfilereader.h"
-#include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 
@@ -247,13 +246,7 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
     if (!preventBuild) {
         m_projectBuilder = new ProjectBuilder(runControl);
         addStartDependency(m_projectBuilder);
-
-        ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
-            runControl->project());
-        if (projectSettings->useGlobalSettings())
-            m_projectBuilder->setEnabled(ClangToolsSettings::instance()->savedBuildBeforeAnalysis());
-        else
-            m_projectBuilder->setEnabled(projectSettings->buildBeforeAnalysis());
+        m_projectBuilder->setEnabled(ClangToolsSettings::instance()->savedBuildBeforeAnalysis());
     }
 
     Target *target = runControl->target();
@@ -510,8 +503,7 @@ void ClangToolRunWorker::finalize()
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         Target *target = runControl()->target();
         if (target && !target->activeBuildConfiguration()->buildDirectory().exists()
-            && !ClangToolsProjectSettingsManager::getSettings(target->project())
-                    ->buildBeforeAnalysis()) {
+            && !ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
             msg = tr("%1: You might need to build the project to generate or update source "
                      "files. To build automatically, enable \"Build the project before starting "
                      "analysis\".")

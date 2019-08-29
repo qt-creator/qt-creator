@@ -19,7 +19,7 @@
      <property name="title">
       <string>General</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_5">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -52,7 +52,7 @@
        </layout>
       </item>
       <item>
-       <widget class="ClangTools::Internal::BasicSettingsWidget" name="basicSettingsWidget" native="true"/>
+       <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="diagnosticWidget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -87,9 +87,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ClangTools::Internal::BasicSettingsWidget</class>
+   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
    <extends>QWidget</extends>
-   <header>clangtools/basicsettingswidget.h</header>
+   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

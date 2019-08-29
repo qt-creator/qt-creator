@@ -31,9 +31,6 @@ QtcPlugin {
     cpp.rpaths: base.concat(libclang.llvmLibDir)
 
     files: [
-        "basicsettingswidget.cpp",
-        "basicsettingswidget.h",
-        "basicsettingswidget.ui",
         "clangfileinfo.h",
         "clangfixitsrefactoringchanges.cpp",
         "clangfixitsrefactoringchanges.h",

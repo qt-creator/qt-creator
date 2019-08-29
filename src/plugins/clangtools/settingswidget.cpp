@@ -25,7 +25,6 @@
 
 #include "settingswidget.h"
 
-#include "ui_basicsettingswidget.h"
 #include "ui_settingswidget.h"
 
 #include "clangtoolsconstants.h"
@@ -124,7 +123,7 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
             QOverload<int>::of(&QSpinBox::valueChanged),
             [settings](int count) { settings->setSimultaneousProcesses(count); });
 
-    QCheckBox *buildBeforeAnalysis = m_ui->basicSettingsWidget->ui()->buildBeforeAnalysis;
+    QCheckBox *buildBeforeAnalysis = m_ui->buildBeforeAnalysis;
     buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
     buildBeforeAnalysis->setCheckState(settings->savedBuildBeforeAnalysis()
                                               ? Qt::Checked : Qt::Unchecked);
@@ -134,11 +133,10 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
         settings->setBuildBeforeAnalysis(checked);
     });
 
-    CppTools::ClangDiagnosticConfigsSelectionWidget *clangDiagnosticConfigsSelectionWidget
-            = m_ui->basicSettingsWidget->ui()->clangDiagnosticConfigsSelectionWidget;
-    clangDiagnosticConfigsSelectionWidget->refresh(settings->savedDiagnosticConfigId());
+    CppTools::ClangDiagnosticConfigsSelectionWidget *diagnosticWidget = m_ui->diagnosticWidget;
+    diagnosticWidget->refresh(settings->savedDiagnosticConfigId());
 
-    connect(clangDiagnosticConfigsSelectionWidget,
+    connect(diagnosticWidget,
             &CppTools::ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
             this, [this](const Core::Id &currentConfigId) {
         m_settings->setDiagnosticConfigId(currentConfigId);
@@ -147,7 +145,7 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
     connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
             this, [=]() {
         // Settings were applied so apply also the current selection if possible.
-        clangDiagnosticConfigsSelectionWidget->refresh(m_settings->diagnosticConfigId());
+        diagnosticWidget->refresh(m_settings->diagnosticConfigId());
         m_settings->writeSettings();
     });
 }

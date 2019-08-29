@@ -50,7 +50,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="ClangTools::Internal::BasicSettingsWidget" name="basicSettingsWidget" native="true"/>
+       <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="diagnosticWidget" native="true"/>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="buildBeforeAnalysis">
+        <property name="text">
+         <string>Build the project before analysis</string>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="processesLayout">
@@ -106,9 +113,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ClangTools::Internal::BasicSettingsWidget</class>
+   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
    <extends>QWidget</extends>
-   <header>clangtools/basicsettingswidget.h</header>
+   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
   </customwidget>
   <customwidget>
    <class>Utils::PathChooser</class>

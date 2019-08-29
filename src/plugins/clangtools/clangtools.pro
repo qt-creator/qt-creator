@@ -16,7 +16,6 @@ isEmpty(EXTERNAL_YAML_CPP_FOUND) {
 }
 
 SOURCES += \
-    basicsettingswidget.cpp \
     clangfixitsrefactoringchanges.cpp \
     clangselectablefilesdialog.cpp \
     clangtoolsdiagnosticview.cpp \
@@ -36,7 +35,6 @@ SOURCES += \
     settingswidget.cpp \
 
 HEADERS += \
-    basicsettingswidget.h \
     clangfileinfo.h \
     clangfixitsrefactoringchanges.h \
     clangselectablefilesdialog.h \
@@ -59,7 +57,6 @@ HEADERS += \
     settingswidget.h \
 
 FORMS += \
-    basicsettingswidget.ui \
     clangtoolsprojectsettingswidget.ui \
     settingswidget.ui \
 

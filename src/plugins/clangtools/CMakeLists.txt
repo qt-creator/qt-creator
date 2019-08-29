@@ -10,7 +10,6 @@ add_qtc_plugin(ClangTools
   PLUGIN_DEPENDS Core Debugger CppTools ${TST_COMPONENT}
   INCLUDES ${CLANG_INCLUDE_DIRS}
   SOURCES
-    basicsettingswidget.cpp basicsettingswidget.h basicsettingswidget.ui
     clangfileinfo.h
     clangfixitsrefactoringchanges.cpp clangfixitsrefactoringchanges.h
     clangselectablefilesdialog.cpp clangselectablefilesdialog.h clangselectablefilesdialog.ui
