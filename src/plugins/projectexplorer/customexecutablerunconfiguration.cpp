@@ -101,7 +101,7 @@ CustomExecutableDialog::CustomExecutableDialog(RunConfiguration *rc)
 
     auto layout = new QFormLayout;
     layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     auto detailsContainer = new DetailsWidget(this);
     detailsContainer->setState(DetailsWidget::NoSummary);

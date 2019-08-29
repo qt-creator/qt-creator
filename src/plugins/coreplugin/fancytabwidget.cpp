@@ -479,11 +479,11 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     m_selectionWidget = new QWidget(this);
     auto selectionLayout = new QVBoxLayout;
     selectionLayout->setSpacing(0);
-    selectionLayout->setMargin(0);
+    selectionLayout->setContentsMargins(0, 0, 0, 0);
 
     auto bar = new StyledBar;
     auto layout = new QHBoxLayout(bar);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     auto fancyButton = new FancyColorButton(this);
     connect(fancyButton, &FancyColorButton::clicked, this, &FancyTabWidget::topAreaClicked);
@@ -501,7 +501,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
 
     auto cornerWidgetLayout = new QVBoxLayout;
     cornerWidgetLayout->setSpacing(0);
-    cornerWidgetLayout->setMargin(0);
+    cornerWidgetLayout->setContentsMargins(0, 0, 0, 0);
     cornerWidgetLayout->addStretch();
     m_cornerWidgetContainer->setLayout(cornerWidgetLayout);
 
@@ -512,7 +512,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     m_statusBar->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
 
     auto vlayout = new QVBoxLayout;
-    vlayout->setMargin(0);
+    vlayout->setContentsMargins(0, 0, 0, 0);
     vlayout->setSpacing(0);
     vlayout->addLayout(m_modesStack);
     vlayout->addWidget(m_statusBar);
@@ -521,7 +521,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     m_infoBarDisplay.setStyle(QFrame::Sunken);
 
     auto mainLayout = new QHBoxLayout;
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(1);
     mainLayout->addWidget(m_selectionWidget);
     mainLayout->addLayout(vlayout);

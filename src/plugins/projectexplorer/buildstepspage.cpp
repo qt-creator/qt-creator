@@ -53,7 +53,7 @@ using namespace Utils;
 ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent)
 {
     auto layout = new QHBoxLayout;
-    layout->setMargin(4);
+    layout->setContentsMargins(4, 4, 4, 4);
     layout->setSpacing(4);
     setLayout(layout);
     m_firstWidget = new FadingWidget(this);
@@ -75,7 +75,7 @@ ToolWidget::ToolWidget(QWidget *parent) : FadingPanel(parent)
     m_secondWidget = new FadingWidget(this);
     m_secondWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     hbox = new QHBoxLayout();
-    hbox->setMargin(0);
+    hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(4);
     m_secondWidget->setLayout(hbox);
 

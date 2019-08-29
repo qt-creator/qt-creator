@@ -69,7 +69,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
 
     auto vbox = new QVBoxLayout(this);
-    vbox->setMargin(0);
+    vbox->setContentsMargins(0, 0, 0, 0);
     vbox->addWidget(m_detailsContainer);
 
     auto details = new QWidget(m_detailsContainer);

@@ -137,7 +137,7 @@ EditorManagerPlaceHolder::EditorManagerPlaceHolder(QWidget *parent)
     : QWidget(parent)
 {
     setLayout(new QVBoxLayout);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     setFocusProxy(EditorManagerPrivate::mainEditorArea());
 }
 

@@ -550,7 +550,7 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
                                              QLatin1String(HIDE_FILE_FILTER_DEFAULT)).toString();
 
     auto layout = new QGridLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     m_baseDirLabel->setText(tr("Source directory:"));
     m_baseDirChooser->setHistoryCompleter(QLatin1String("PE.AddToProjectDir.History"));

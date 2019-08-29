@@ -61,7 +61,7 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
 {
     m_editor = new QPlainTextEdit(this);
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_editor);
 }
 

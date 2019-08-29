@@ -128,7 +128,7 @@ FutureProgress::FutureProgress(QWidget *parent) :
     auto layout = new QVBoxLayout;
     setLayout(layout);
     layout->addWidget(d->m_progress);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addLayout(d->m_widgetLayout);
     d->m_widgetLayout->setContentsMargins(7, 0, 7, 2);

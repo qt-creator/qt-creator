@@ -51,7 +51,7 @@ GerritRemoteChooser::GerritRemoteChooser(QWidget *parent) :
     m_remoteComboBox->setMinimumSize(QSize(40, 0));
 
     horizontalLayout->addWidget(m_remoteComboBox);
-    horizontalLayout->setMargin(0);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
 
     m_resetRemoteButton = new QToolButton(this);
     m_resetRemoteButton->setToolTip(tr("Refresh Remote Servers"));

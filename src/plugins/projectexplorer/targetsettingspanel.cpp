@@ -151,7 +151,7 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     hbox->addWidget(box);
 
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     m_setupPageContainer = new QVBoxLayout;
     layout->addLayout(m_setupPageContainer);
     layout->addLayout(hbox);
@@ -268,7 +268,7 @@ void TargetGroupItemPrivate::ensureWidget()
         label->setAlignment(Qt::AlignTop);
 
         auto layout = new QVBoxLayout(m_noKitLabel);
-        layout->setMargin(0);
+        layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
         layout->addWidget(label);
         layout->addStretch(10);
@@ -287,7 +287,7 @@ void TargetGroupItemPrivate::ensureWidget()
         auto widget = new QWidget;
         auto label = new QLabel("This project is already configured.");
         auto layout = new QVBoxLayout(widget);
-        layout->setMargin(0);
+        layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(label);
         layout->addStretch(10);
         m_configuredPage = new PanelsWidget(tr("Configure Project"),

@@ -127,7 +127,7 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
             this, &DebuggerRunConfigWidget::useMultiProcessToggled);
 
     auto qmlLayout = new QHBoxLayout;
-    qmlLayout->setMargin(0);
+    qmlLayout->setContentsMargins(0, 0, 0, 0);
     qmlLayout->addWidget(m_useQmlDebugger);
     qmlLayout->addWidget(m_debugServerPortLabel);
     qmlLayout->addWidget(m_debugServerPort);
@@ -135,7 +135,7 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
     qmlLayout->addStretch();
 
     auto layout = new QVBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_useCppDebugger);
     layout->addLayout(qmlLayout);
     layout->addWidget(m_useMultiProcess);

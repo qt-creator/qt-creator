@@ -61,7 +61,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view) :
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(Utils::FileReader::fetchQrc(QLatin1String(":/qmldesigner/formeditorstylesheet.css")))));
 
     auto fillLayout = new QVBoxLayout(this);
-    fillLayout->setMargin(0);
+    fillLayout->setContentsMargins(0, 0, 0, 0);
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
 

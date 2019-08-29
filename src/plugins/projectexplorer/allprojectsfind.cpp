@@ -128,7 +128,7 @@ QWidget *AllProjectsFind::createConfigWidget()
     if (!m_configWidget) {
         m_configWidget = new QWidget;
         auto gridLayout = new QGridLayout(m_configWidget);
-        gridLayout->setMargin(0);
+        gridLayout->setContentsMargins(0, 0, 0, 0);
         m_configWidget->setLayout(gridLayout);
         const QList<QPair<QWidget *, QWidget *>> patternWidgets = createPatternWidgets();
         int row = 0;

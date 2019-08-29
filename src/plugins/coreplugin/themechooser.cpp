@@ -141,7 +141,7 @@ ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
     overriddenLabel->setText(ThemeChooser::tr("Current theme: %1")
                              .arg(creatorTheme()->displayName()));
     layout->addWidget(overriddenLabel);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     auto horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
     layout->addSpacerItem(horizontalSpacer);
     m_themeComboBox->setModel(m_themeListModel);

@@ -78,7 +78,7 @@ CdbBreakEventWidget::CdbBreakEventWidget(QWidget *parent) : QWidget(parent)
     // 1 column with checkboxes only,
     // further columns with checkbox + parameter
     auto mainLayout = new QHBoxLayout;
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     auto leftLayout = new QVBoxLayout;
     QFormLayout *parameterLayout = nullptr;
     mainLayout->addLayout(leftLayout);
@@ -163,8 +163,9 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent)
     // accommodate all options. This page only shows on
     // Windows, which has large margins by default.
 
-    const int margin = layout()->margin();
-    const QMargins margins(margin, margin / 3, margin, margin / 3);
+    int left, top, right, bottom;
+    layout()->getContentsMargins(&left, &top, &right, &bottom);
+    const QMargins margins(left, top / 3, right, bottom / 3);
 
     m_ui.startupFormLayout->setContentsMargins(margins);
 

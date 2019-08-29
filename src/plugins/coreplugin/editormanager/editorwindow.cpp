@@ -50,7 +50,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
 {
     m_area = new EditorArea;
     auto layout = new QVBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     setLayout(layout);
     layout->addWidget(m_area);

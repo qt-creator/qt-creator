@@ -82,7 +82,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     QWidget(parent)
 {
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     setLayout(layout);
 
@@ -104,13 +104,13 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
 
     auto topFindWidget = new QWidget(topWidget);
     auto topFindLayout = new QHBoxLayout(topFindWidget);
-    topFindLayout->setMargin(0);
+    topFindLayout->setContentsMargins(0, 0, 0, 0);
     topFindWidget->setLayout(topFindLayout);
     topLayout->addWidget(topFindWidget);
 
     m_topReplaceWidget = new QWidget(topWidget);
     auto topReplaceLayout = new QHBoxLayout(m_topReplaceWidget);
-    topReplaceLayout->setMargin(0);
+    topReplaceLayout->setContentsMargins(0, 0, 0, 0);
     m_topReplaceWidget->setLayout(topReplaceLayout);
     topLayout->addWidget(m_topReplaceWidget);
 
@@ -123,7 +123,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     }
     m_messageWidget->setAutoFillBackground(true);
     auto messageLayout = new QHBoxLayout(m_messageWidget);
-    messageLayout->setMargin(2);
+    messageLayout->setContentsMargins(2, 2, 2, 2);
     m_messageWidget->setLayout(messageLayout);
     QLabel *messageLabel = new QLabel(tr("Search was canceled."));
     messageLabel->setPalette(pal);
@@ -146,7 +146,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_descriptionContainer = new QWidget(topFindWidget);
     auto descriptionLayout = new QHBoxLayout(m_descriptionContainer);
     m_descriptionContainer->setLayout(descriptionLayout);
-    descriptionLayout->setMargin(0);
+    descriptionLayout->setContentsMargins(0, 0, 0, 0);
     m_descriptionContainer->setMinimumWidth(200);
     m_descriptionContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     m_label = new QLabel(m_descriptionContainer);

@@ -195,7 +195,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_ui->scrollArea->setWidget(centralWidget);
     centralWidget->setLayout(new QVBoxLayout);
     m_ui->centralWidget->setLayout(new QVBoxLayout);
-    m_ui->centralWidget->layout()->setMargin(0);
+    m_ui->centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
 
     setTitle(tr("Kit Selection"));
 

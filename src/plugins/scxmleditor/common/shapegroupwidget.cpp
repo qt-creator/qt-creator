@@ -76,7 +76,7 @@ void ShapeGroupWidget::createUi()
     m_content->setLayout(new Utils::FlowLayout);
 
     setLayout(new QVBoxLayout);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     layout()->setSpacing(0);
     layout()->addWidget(toolBar);
     layout()->addWidget(m_content);

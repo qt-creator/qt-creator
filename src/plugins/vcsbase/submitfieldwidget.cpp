@@ -80,7 +80,7 @@ struct FieldEntry {
 void FieldEntry::createGui(const QIcon &removeIcon)
 {
     layout = new QHBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout ->setSpacing(spacing);
     combo = new QComboBox;
     layout->addWidget(combo);
@@ -174,7 +174,7 @@ SubmitFieldWidget::SubmitFieldWidget(QWidget *parent) :
         d(new SubmitFieldWidgetPrivate)
 {
     d->layout = new QVBoxLayout;
-    d->layout->setMargin(0);
+    d->layout->setContentsMargins(0, 0, 0, 0);
     d->layout->setSpacing(spacing);
     setLayout(d->layout);
 }

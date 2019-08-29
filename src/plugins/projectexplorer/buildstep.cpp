@@ -150,7 +150,7 @@ BuildStepConfigWidget *BuildStep::createConfigWidget()
     auto widget = new BuildStepConfigWidget(this);
 
     auto formLayout = new QFormLayout(widget);
-    formLayout->setMargin(0);
+    formLayout->setContentsMargins(0, 0, 0, 0);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     for (ProjectConfigurationAspect *aspect : m_aspects) {

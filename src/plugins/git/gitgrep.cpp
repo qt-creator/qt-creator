@@ -240,7 +240,7 @@ GitGrep::GitGrep(QObject *parent)
 {
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     m_treeLineEdit = new FancyLineEdit;
     m_treeLineEdit->setPlaceholderText(tr("Tree (optional)"));
     m_treeLineEdit->setToolTip(tr("Can be HEAD, tag, local or remote branch, or a commit hash.\n"

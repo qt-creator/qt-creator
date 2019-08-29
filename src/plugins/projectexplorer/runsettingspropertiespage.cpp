@@ -121,7 +121,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     // deploy part
     deployWidget->setContentsMargins(0, 10, 0, 25);
     m_deployLayout = new QVBoxLayout(deployWidget);
-    m_deployLayout->setMargin(0);
+    m_deployLayout->setContentsMargins(0, 0, 0, 0);
     m_deployLayout->setSpacing(5);
 
     m_deployConfigurationCombo->setModel(m_target->deployConfigurationModel());
@@ -153,7 +153,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     // run part
     runWidget->setContentsMargins(0, 10, 0, 25);
     m_runLayout = new QVBoxLayout(runWidget);
-    m_runLayout->setMargin(0);
+    m_runLayout->setContentsMargins(0, 0, 0, 0);
     m_runLayout->setSpacing(5);
 
     m_disabledIcon = new QLabel;

@@ -1011,7 +1011,7 @@ void InsertVirtualMethodsDialog::initGui()
 
     auto overrideWidgetsLayout = new QHBoxLayout(this);
     overrideWidgetsLayout->setSpacing(0);
-    overrideWidgetsLayout->setMargin(0);
+    overrideWidgetsLayout->setContentsMargins(0, 0, 0, 0);
     overrideWidgetsLayout->addWidget(m_overrideReplacementCheckBox);
     overrideWidgetsLayout->addWidget(m_overrideReplacementComboBox);
     overrideWidgetsLayout->addWidget(m_clearUserAddedReplacementsButton);

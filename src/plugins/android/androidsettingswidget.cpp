@@ -103,7 +103,7 @@ public:
     {
         QTC_CHECK(m_detailsWidget);
         auto layout = new QGridLayout(this);
-        layout->setMargin(12);
+        layout->setContentsMargins(12, 12, 12, 12);
         int row = 0;
         for (auto itr = validationPoints.cbegin(); itr != validationPoints.cend(); ++itr) {
             RowData data;
@@ -235,7 +235,7 @@ AndroidSettingsWidget::AndroidSettingsWidget(QWidget *parent)
     m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, m_sdkManager.get(),
                                                      m_ui->sdkManagerTab);
     auto sdkMangerLayout = new QVBoxLayout(m_ui->sdkManagerTab);
-    sdkMangerLayout->setMargin(0);
+    sdkMangerLayout->setContentsMargins(0, 0, 0, 0);
     sdkMangerLayout->addWidget(m_sdkManagerWidget);
     connect(m_sdkManagerWidget, &AndroidSdkManagerWidget::updatingSdk, [this]() {
         m_ui->SDKLocationPathChooser->setEnabled(false);

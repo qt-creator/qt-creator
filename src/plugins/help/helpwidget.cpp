@@ -84,12 +84,12 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     m_viewerStack = new QStackedWidget;
 
     auto topLayout = new QVBoxLayout;
-    topLayout->setMargin(0);
+    topLayout->setContentsMargins(0, 0, 0, 0);
     topLayout->setSpacing(0);
     setLayout(topLayout);
 
     auto hLayout = new QHBoxLayout;
-    hLayout->setMargin(0);
+    hLayout->setContentsMargins(0, 0, 0, 0);
     hLayout->setSpacing(0);
     topLayout->addLayout(hLayout, 10);
 
@@ -100,12 +100,12 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     auto toolBar = new Utils::StyledBar();
     auto layout = new QHBoxLayout(toolBar);
     layout->setSpacing(0);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     auto rightSide = new QWidget(this);
     m_sideBarSplitter->insertWidget(1, rightSide);
     auto vLayout = new QVBoxLayout(rightSide);
-    vLayout->setMargin(0);
+    vLayout->setContentsMargins(0, 0, 0, 0);
     vLayout->setSpacing(0);
     vLayout->addWidget(toolBar);
     vLayout->addWidget(m_viewerStack);

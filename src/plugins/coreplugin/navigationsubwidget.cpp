@@ -65,7 +65,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
 
     m_toolBar = new Utils::StyledBar(this);
     auto toolBarLayout = new QHBoxLayout;
-    toolBarLayout->setMargin(0);
+    toolBarLayout->setContentsMargins(0, 0, 0, 0);
     toolBarLayout->setSpacing(0);
     m_toolBar->setLayout(toolBarLayout);
     toolBarLayout->addWidget(m_navigationComboBox);
@@ -87,7 +87,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
     toolBarLayout->addWidget(m_closeButton);
 
     auto lay = new QVBoxLayout();
-    lay->setMargin(0);
+    lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
     setLayout(lay);
     lay->addWidget(m_toolBar);

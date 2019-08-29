@@ -91,7 +91,7 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     setWidget(mainWidget);
 
     auto layout = new QGridLayout(mainWidget);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     auto label = new QLabel;
     label->setText(tr("%1 needs additional settings to enable Android support."
                       " You can configure those settings in the Options dialog.")

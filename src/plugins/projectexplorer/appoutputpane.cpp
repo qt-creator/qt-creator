@@ -230,7 +230,7 @@ AppOutputPane::AppOutputPane() :
     // Spacer (?)
 
     auto *layout = new QVBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);

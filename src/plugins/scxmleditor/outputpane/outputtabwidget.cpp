@@ -178,7 +178,7 @@ void OutputTabWidget::createUi()
 
     setLayout(new QVBoxLayout);
     layout()->setSpacing(0);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     layout()->addWidget(m_toolBar);
     layout()->addWidget(m_stackedWidget);
 }

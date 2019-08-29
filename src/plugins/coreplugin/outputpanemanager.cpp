@@ -346,10 +346,10 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     auto mainlayout = new QVBoxLayout;
     mainlayout->setSpacing(0);
-    mainlayout->setMargin(0);
+    mainlayout->setContentsMargins(0, 0, 0, 0);
     m_toolBar = new StyledBar;
     auto toolLayout = new QHBoxLayout(m_toolBar);
-    toolLayout->setMargin(0);
+    toolLayout->setContentsMargins(0, 0, 0, 0);
     toolLayout->setSpacing(0);
     toolLayout->addWidget(m_titleLabel);
     toolLayout->addWidget(new StyledSeparator);
@@ -451,7 +451,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
         QWidget *toolButtonsContainer = new QWidget(m_opToolBarWidgets);
         auto toolButtonsLayout = new QHBoxLayout;
-        toolButtonsLayout->setMargin(0);
+        toolButtonsLayout->setContentsMargins(0, 0, 0, 0);
         toolButtonsLayout->setSpacing(0);
         foreach (QWidget *toolButton, outPane->toolBarWidgets())
             toolButtonsLayout->addWidget(toolButton);

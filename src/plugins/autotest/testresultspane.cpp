@@ -89,7 +89,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     QWidget *visualOutputWidget = new QWidget;
     m_outputWidget->addWidget(visualOutputWidget);
     QVBoxLayout *outputLayout = new QVBoxLayout;
-    outputLayout->setMargin(0);
+    outputLayout->setContentsMargins(0, 0, 0, 0);
     outputLayout->setSpacing(0);
     visualOutputWidget->setLayout(outputLayout);
 
@@ -102,7 +102,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_summaryWidget->setPalette(pal);
     m_summaryWidget->setAutoFillBackground(true);
     QHBoxLayout *layout = new QHBoxLayout;
-    layout->setMargin(6);
+    layout->setContentsMargins(6, 6, 6, 6);
     m_summaryWidget->setLayout(layout);
     m_summaryLabel = new QLabel;
     m_summaryLabel->setPalette(pal);

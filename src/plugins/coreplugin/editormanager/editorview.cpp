@@ -72,7 +72,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
 {
     auto tl = new QVBoxLayout(this);
     tl->setSpacing(0);
-    tl->setMargin(0);
+    tl->setContentsMargins(0, 0, 0, 0);
     {
         connect(m_toolBar, &EditorToolBar::goBackClicked,
                 this, &EditorView::goBackInNavigationHistory);

@@ -411,7 +411,7 @@ void BookmarkWidget::setup()
     regExp.setCaseSensitivity(Qt::CaseInsensitive);
 
     QLayout *vlayout = new QVBoxLayout(this);
-    vlayout->setMargin(0);
+    vlayout->setContentsMargins(0, 0, 0, 0);
     vlayout->setSpacing(0);
 
     searchField = new Utils::FancyLineEdit(this);
@@ -421,7 +421,7 @@ void BookmarkWidget::setup()
     Utils::StyledBar *toolbar = new Utils::StyledBar(this);
     toolbar->setSingleRow(false);
     QLayout *tbLayout = new QHBoxLayout();
-    tbLayout->setMargin(4);
+    tbLayout->setContentsMargins(4, 4, 4, 4);
     tbLayout->addWidget(searchField);
     toolbar->setLayout(tbLayout);
 

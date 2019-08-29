@@ -91,7 +91,7 @@ DocumentWarningWidget::DocumentWarningWidget(QWidget *parent)
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_headerLabel);
     auto messageLayout = new QVBoxLayout;
-    messageLayout->setMargin(20);
+    messageLayout->setContentsMargins(20, 20, 20, 20);
     messageLayout->setSpacing(5);
     messageLayout->addWidget(m_navigateLabel);
     messageLayout->addWidget(m_messageLabel);

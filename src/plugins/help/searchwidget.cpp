@@ -99,7 +99,7 @@ void SearchWidget::showEvent(QShowEvent *event)
 {
     if (!event->spontaneous() && !searchEngine) {
         auto vLayout = new QVBoxLayout(this);
-        vLayout->setMargin(0);
+        vLayout->setContentsMargins(0, 0, 0, 0);
         vLayout->setSpacing(0);
 
         searchEngine = new QHelpSearchEngine(&LocalHelpManager::helpEngine(), this);
@@ -109,7 +109,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         m_queryWidget = searchEngine->queryWidget();
         QLayout *tbLayout = new QVBoxLayout();
         tbLayout->setSpacing(6);
-        tbLayout->setMargin(4);
+        tbLayout->setContentsMargins(4, 4, 4, 4);
         tbLayout->addWidget(m_queryWidget);
         m_indexingDocumentationLabel = new QLabel(tr("Indexing Documentation"), toolbar);
         m_indexingDocumentationLabel->hide();
@@ -120,7 +120,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         toolbar2->setSingleRow(false);
         tbLayout = new QVBoxLayout();
         tbLayout->setSpacing(0);
-        tbLayout->setMargin(0);
+        tbLayout->setContentsMargins(0, 0, 0, 0);
         tbLayout->addWidget(resultWidget = searchEngine->resultWidget());
         toolbar2->setLayout(tbLayout);
 

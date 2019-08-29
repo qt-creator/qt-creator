@@ -49,11 +49,11 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
 
     setContentsMargins(0, 0, 0, 0);
     auto topLayout = new QVBoxLayout(this);
-    topLayout->setMargin(0);
+    topLayout->setContentsMargins(0, 0, 0, 0);
 
     auto baseEnvironmentWidget = new QWidget;
     auto baseLayout = new QHBoxLayout(baseEnvironmentWidget);
-    baseLayout->setMargin(0);
+    baseLayout->setContentsMargins(0, 0, 0, 0);
     auto label = new QLabel(tr("Base environment for this run configuration:"), this);
     baseLayout->addWidget(label);
 

@@ -49,7 +49,6 @@ ColorPicker::ColorPicker(const QString &key, QWidget *parent)
 
     auto vBoxLayout = new QVBoxLayout;
     vBoxLayout->setContentsMargins(0, 0, 0, 0);
-    vBoxLayout->setMargin(0);
     vBoxLayout->setSpacing(0);
 
     const int buttonRowsCount = 4;
@@ -58,7 +57,6 @@ ColorPicker::ColorPicker(const QString &key, QWidget *parent)
     for (int r = 0; r < buttonRowsCount; ++r) {
         auto hBoxLayout = new QHBoxLayout;
         hBoxLayout->setContentsMargins(0, 0, 0, 0);
-        hBoxLayout->setMargin(0);
         hBoxLayout->setSpacing(0);
 
         for (int c = 0; c < buttonColumnsCount; ++c)

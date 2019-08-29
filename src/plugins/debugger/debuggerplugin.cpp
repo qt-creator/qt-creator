@@ -482,7 +482,7 @@ public:
         DebuggerMainWindow *mainWindow = DebuggerMainWindow::instance();
 
         auto editorHolderLayout = new QVBoxLayout;
-        editorHolderLayout->setMargin(0);
+        editorHolderLayout->setContentsMargins(0, 0, 0, 0);
         editorHolderLayout->setSpacing(0);
 
         auto editorAndFindWidget = new QWidget;
@@ -499,7 +499,7 @@ public:
         auto centralEditorWidget = new QWidget;
         auto centralLayout = new QVBoxLayout(centralEditorWidget);
         centralEditorWidget->setLayout(centralLayout);
-        centralLayout->setMargin(0);
+        centralLayout->setContentsMargins(0, 0, 0, 0);
         centralLayout->setSpacing(0);
         centralLayout->addWidget(documentAndRightPane);
         centralLayout->setStretch(0, 1);

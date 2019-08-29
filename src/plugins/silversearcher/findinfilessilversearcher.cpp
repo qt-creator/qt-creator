@@ -165,7 +165,7 @@ FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
 {
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     m_searchOptionsLineEdit = new QLineEdit;
     m_searchOptionsLineEdit->setPlaceholderText(tr("Search Options (optional)"));
     layout->addWidget(m_searchOptionsLineEdit);

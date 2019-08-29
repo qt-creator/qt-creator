@@ -81,7 +81,7 @@ SideBarWidget::SideBarWidget(SideBar *sideBar, const QString &id)
     m_toolbar->addAction(m_closeAction);
 
     auto lay = new QVBoxLayout();
-    lay->setMargin(0);
+    lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
     setLayout(lay);
     lay->addWidget(m_toolbar);

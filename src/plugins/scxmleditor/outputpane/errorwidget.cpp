@@ -151,7 +151,7 @@ void ErrorWidget::createUi()
     setLayout(new QVBoxLayout);
     layout()->addWidget(toolBar);
     layout()->addWidget(m_errorsTable);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     layout()->setSpacing(0);
 }
 

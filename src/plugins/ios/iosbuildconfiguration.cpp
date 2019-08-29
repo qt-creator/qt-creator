@@ -184,7 +184,7 @@ IosBuildSettingsWidget::IosBuildSettingsWidget(IosBuildConfiguration *bc)
     adjustSize();
 
     auto rootLayout = new QVBoxLayout(this);
-    rootLayout->setMargin(0);
+    rootLayout->setContentsMargins(0, 0, 0, 0);
     rootLayout->addWidget(detailsWidget);
 
     auto gridLayout = new QGridLayout();

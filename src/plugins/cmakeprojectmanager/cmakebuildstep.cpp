@@ -411,7 +411,7 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     setDisplayName(tr("Build", "CMakeProjectManager::CMakeBuildStepConfigWidget display name."));
 
     auto fl = new QFormLayout(this);
-    fl->setMargin(0);
+    fl->setContentsMargins(0, 0, 0, 0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
 
@@ -424,7 +424,7 @@ CMakeBuildStepConfigWidget::CMakeBuildStepConfigWidget(CMakeBuildStep *buildStep
     auto frame = new QFrame(this);
     frame->setFrameStyle(QFrame::StyledPanel);
     auto frameLayout = new QVBoxLayout(frame);
-    frameLayout->setMargin(0);
+    frameLayout->setContentsMargins(0, 0, 0, 0);
     frameLayout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_buildTargetsList,
                                                                        Core::ItemViewFind::LightColored));
 

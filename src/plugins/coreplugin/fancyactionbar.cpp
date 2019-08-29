@@ -359,7 +359,7 @@ FancyActionBar::FancyActionBar(QWidget *parent)
 {
     setObjectName("actionbar");
     m_actionsLayout = new QVBoxLayout;
-    m_actionsLayout->setMargin(0);
+    m_actionsLayout->setContentsMargins(0, 0, 0, 0);
     m_actionsLayout->setSpacing(0);
     setLayout(m_actionsLayout);
     setContentsMargins(0, 2, 0, 8);

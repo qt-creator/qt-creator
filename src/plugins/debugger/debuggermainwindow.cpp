@@ -202,18 +202,18 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     // "Engine switcher" style comboboxes
     auto subPerspectiveSwitcher = new QWidget;
     m_subPerspectiveSwitcherLayout = new QHBoxLayout(subPerspectiveSwitcher);
-    m_subPerspectiveSwitcherLayout->setMargin(0);
+    m_subPerspectiveSwitcherLayout->setContentsMargins(0, 0, 0, 0);
     m_subPerspectiveSwitcherLayout->setSpacing(0);
 
     // All perspective toolbars will get inserted here, but only
     // the current perspective's toolbar is set visible.
     auto innerTools = new QWidget;
     m_innerToolsLayout = new QHBoxLayout(innerTools);
-    m_innerToolsLayout->setMargin(0);
+    m_innerToolsLayout->setContentsMargins(0, 0, 0, 0);
     m_innerToolsLayout->setSpacing(0);
 
     auto hbox = new QHBoxLayout(toolbar);
-    hbox->setMargin(0);
+    hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(0);
     hbox->addWidget(m_perspectiveChooser);
     hbox->addWidget(subPerspectiveSwitcher);
@@ -727,7 +727,7 @@ Perspective::Perspective(const QString &id, const QString &name,
     theMainWindow->d->m_innerToolsLayout->addWidget(d->m_innerToolBar);
 
     d->m_innerToolBarLayout = new QHBoxLayout(d->m_innerToolBar);
-    d->m_innerToolBarLayout->setMargin(0);
+    d->m_innerToolBarLayout->setContentsMargins(0, 0, 0, 0);
     d->m_innerToolBarLayout->setSpacing(0);
 }
 

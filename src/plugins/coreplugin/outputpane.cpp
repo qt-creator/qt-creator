@@ -63,7 +63,7 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
     sp.setVerticalPolicy(QSizePolicy::Preferred);
     sp.setHorizontalStretch(0);
     setSizePolicy(sp);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &OutputPanePlaceHolder::currentModeChanged);
     // if this is part of a lazily created mode widget,

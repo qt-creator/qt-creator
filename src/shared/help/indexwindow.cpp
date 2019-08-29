@@ -69,14 +69,14 @@ IndexWindow::IndexWindow()
     QLabel *l = new QLabel(tr("&Look for:"));
     l->setBuddy(m_searchLineEdit);
     layout->addWidget(l);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
     Utils::StyledBar *toolbar = new Utils::StyledBar(this);
     toolbar->setSingleRow(false);
     QLayout *tbLayout = new QHBoxLayout();
     tbLayout->setSpacing(6);
-    tbLayout->setMargin(4);
+    tbLayout->setContentsMargins(4, 4, 4, 4);
     tbLayout->addWidget(l);
     tbLayout->addWidget(m_searchLineEdit);
     toolbar->setLayout(tbLayout);

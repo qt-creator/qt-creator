@@ -612,7 +612,7 @@ QListWidgetItem *GenericListWidget::itemForProjectConfiguration(QObject *pc)
 KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
     m_layout(new QGridLayout(this))
 {
-    m_layout->setMargin(3);
+    m_layout->setContentsMargins(3, 3, 3, 3);
     setAutoFillBackground(true);
     connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
 }

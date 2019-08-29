@@ -84,7 +84,7 @@ TargetSetupWidget::TargetSetupWidget(Kit *k, const FilePath &projectPath) :
 
     auto w = new QWidget;
     m_newBuildsLayout = new QGridLayout;
-    m_newBuildsLayout->setMargin(0);
+    m_newBuildsLayout->setContentsMargins(0, 0, 0, 0);
     if (Utils::HostOsInfo::isMacHost())
         m_newBuildsLayout->setSpacing(0);
     w->setLayout(m_newBuildsLayout);

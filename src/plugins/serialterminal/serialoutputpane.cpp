@@ -142,7 +142,7 @@ SerialOutputPane::SerialOutputPane(Settings &settings) :
     createToolButtons();
 
     auto layout = new QVBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
     m_tabWidget->setDocumentMode(true);
@@ -157,7 +157,7 @@ SerialOutputPane::SerialOutputPane(Settings &settings) :
             this, &SerialOutputPane::contextMenuRequested);
 
     auto inputLayout = new QHBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(2);
 
     m_inputLine->setPlaceholderText(tr("Type text and hit Enter to send."));

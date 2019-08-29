@@ -49,7 +49,7 @@ RightPanePlaceHolder::RightPanePlaceHolder(Id mode, QWidget *parent)
     :QWidget(parent), m_mode(mode)
 {
     setLayout(new QVBoxLayout);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &RightPanePlaceHolder::currentModeChanged);
 }
@@ -124,7 +124,7 @@ RightPaneWidget::RightPaneWidget()
     m_instance = this;
 
     auto layout = new QVBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 }
 

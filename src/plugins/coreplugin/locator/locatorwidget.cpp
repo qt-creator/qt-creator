@@ -558,7 +558,7 @@ LocatorWidget::LocatorWidget(Locator *locator) :
 
     auto layout = new QHBoxLayout(this);
     setLayout(layout);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_fileLineEdit);
 
     const QIcon icon = Utils::Icons::MAGNIFIER.icon();

@@ -672,7 +672,7 @@ void MainWidget::createUi()
 
     m_mainContentWidget = new QWidget;
     m_mainContentWidget->setLayout(new QVBoxLayout);
-    m_mainContentWidget->layout()->setMargin(0);
+    m_mainContentWidget->layout()->setContentsMargins(0, 0, 0, 0);
     m_mainContentWidget->layout()->addWidget(m_stackedWidget);
     m_mainContentWidget->layout()->addWidget(m_outputPaneWindow);
 
@@ -692,7 +692,7 @@ void MainWidget::createUi()
 
     setLayout(new QVBoxLayout);
     layout()->addWidget(m_horizontalSplitter);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
 }
 
 void MainWidget::showEvent(QShowEvent *e)

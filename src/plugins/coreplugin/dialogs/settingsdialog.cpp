@@ -550,7 +550,7 @@ void SettingsDialog::createGui()
     headerHLayout->addSpacerItem(new QSpacerItem(leftMargin, 0, QSizePolicy::Fixed, QSizePolicy::Ignored));
     headerHLayout->addWidget(m_headerLabel);
 
-    m_stackedLayout->setMargin(0);
+    m_stackedLayout->setContentsMargins(0, 0, 0, 0);
     QWidget *emptyWidget = new QWidget(this);
     m_stackedLayout->addWidget(emptyWidget); // no category selected, for example when filtering
 

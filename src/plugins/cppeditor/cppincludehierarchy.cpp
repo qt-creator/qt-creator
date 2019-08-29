@@ -409,7 +409,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget()
             this, &CppIncludeHierarchyWidget::syncFromEditorManager);
 
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_inspectedFile);
     layout->addWidget(ItemViewFind::createSearchableWrapper(new IncludeFinder(m_treeView, &m_model)));

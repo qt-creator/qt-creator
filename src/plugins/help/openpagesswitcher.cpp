@@ -59,7 +59,7 @@ OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
     m_openPagesWidget->installEventFilter(this);
 
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_openPagesWidget);
 
     connect(m_openPagesWidget, &OpenPagesWidget::closePage,

@@ -95,7 +95,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     inner->setLayout(m_layout);
 
     auto mainLayout = new QGridLayout(this);
-    mainLayout->setMargin(1);
+    mainLayout->setContentsMargins(1, 1, 1, 1);
     mainLayout->addWidget(inner, 0, 0);
 
     label = createLabel(tr("Name:"), tr("Kit name and icon."));

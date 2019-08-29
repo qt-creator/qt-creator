@@ -41,9 +41,8 @@ ColumnIndicatorTextEdit::ColumnIndicatorTextEdit(QWidget *parent) :
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     sizePolicy.setVerticalStretch(3);
     setSizePolicy(sizePolicy);
-    int cmx = 0, cmy = 0, cmw = 0, cmh = 0;
-    getContentsMargins(&cmx, &cmy, &cmw, &cmh);
-    m_columnIndicator = QFontMetrics(font).horizontalAdvance(QLatin1Char('W')) * 100 + cmx + 1;
+    m_columnIndicator = QFontMetrics(font).horizontalAdvance(QLatin1Char('W')) * 100
+            + contentsMargins().left() + 1;
     m_columnIndicatorFont.setFamily(QLatin1String("Times"));
     m_columnIndicatorFont.setPointSizeF(7.0);
 }

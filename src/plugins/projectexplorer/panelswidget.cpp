@@ -128,7 +128,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
 
     // The layout holding the individual panels:
     auto topLayout = new QVBoxLayout(m_root);
-    topLayout->setMargin(0);
+    topLayout->setContentsMargins(0, 0, 0, 0);
     topLayout->setSpacing(0);
 
     m_layout = new QGridLayout;

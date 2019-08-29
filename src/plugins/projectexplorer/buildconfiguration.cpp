@@ -151,14 +151,14 @@ NamedWidget *BuildConfiguration::createConfigWidget()
         container->setWidget(widget);
 
         auto vbox = new QVBoxLayout(named);
-        vbox->setMargin(0);
+        vbox->setContentsMargins(0, 0, 0, 0);
         vbox->addWidget(container);
     } else {
         widget = named;
     }
 
     auto formLayout = new QFormLayout(widget);
-    formLayout->setMargin(0);
+    formLayout->setContentsMargins(0, 0, 0, 0);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     for (ProjectConfigurationAspect *aspect : aspects()) {

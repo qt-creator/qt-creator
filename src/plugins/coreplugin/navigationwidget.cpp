@@ -70,7 +70,7 @@ NavigationWidgetPlaceHolder::NavigationWidgetPlaceHolder(Id mode, Side side, QWi
     :QWidget(parent), m_mode(mode), m_side(side)
 {
     setLayout(new QVBoxLayout);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange,
             this, &NavigationWidgetPlaceHolder::currentModeAboutToChange);
 }

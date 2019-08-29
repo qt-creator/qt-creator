@@ -423,13 +423,13 @@ LogWindow::LogWindow(DebuggerEngine *engine)
     commandBox->addWidget(repeatButton);
     commandBox->addWidget(new QLabel(tr("Command:"), this));
     commandBox->addWidget(m_commandEdit);
-    commandBox->setMargin(2);
+    commandBox->setContentsMargins(2, 2, 2, 2);
     commandBox->setSpacing(6);
 
     auto leftBox = new QVBoxLayout;
     leftBox->addWidget(m_inputText);
     leftBox->addItem(commandBox);
-    leftBox->setMargin(0);
+    leftBox->setContentsMargins(0, 0, 0, 0);
     leftBox->setSpacing(0);
 
     auto leftDummy = new QWidget;
@@ -441,7 +441,7 @@ LogWindow::LogWindow(DebuggerEngine *engine)
     m_splitter->setStretchFactor(1, 3);
 
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_splitter);
     layout->addWidget(new Core::FindToolBarPlaceHolder(this));
@@ -678,7 +678,7 @@ GlobalLogWindow::GlobalLogWindow()
     m_splitter->setStretchFactor(1, 3);
 
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_splitter);
     layout->addWidget(new Core::FindToolBarPlaceHolder(this));

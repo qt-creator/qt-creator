@@ -376,7 +376,7 @@ void DesignModeWidget::setup()
     m_mainSplitter->setSizes({150, 300, 150});
 
     QLayout *mainLayout = new QBoxLayout(QBoxLayout::RightToLeft, this);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
     mainLayout->addWidget(m_mainSplitter);
 
@@ -514,7 +514,7 @@ QWidget *DesignModeWidget::createCenterWidget()
     QWidget *centerWidget = new QWidget;
 
     auto horizontalLayout = new QVBoxLayout(centerWidget);
-    horizontalLayout->setMargin(0);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setSpacing(0);
 
     horizontalLayout->addWidget(m_toolBar);
@@ -537,7 +537,7 @@ QWidget *DesignModeWidget::createCrumbleBarFrame()
     auto frame = new Utils::StyledBar(this);
     frame->setSingleRow(false);
     auto layout = new QHBoxLayout(frame);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_crumbleBar->crumblePath());
 

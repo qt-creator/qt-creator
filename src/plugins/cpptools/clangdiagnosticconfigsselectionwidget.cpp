@@ -45,7 +45,7 @@ ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWi
     , m_selectionComboBox(new QComboBox(this))
 {
     auto *layout = new QHBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
     layout->addWidget(m_label);
     layout->addWidget(m_selectionComboBox, 1);
@@ -108,7 +108,7 @@ void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialo
 {
     connect(button, &QPushButton::clicked, [this]() {
         ClangDiagnosticConfigsWidget *widget = new ClangDiagnosticConfigsWidget(currentConfigId());
-        widget->layout()->setMargin(0);
+        widget->layout()->setContentsMargins(0, 0, 0, 0);
         QDialog dialog;
         dialog.setWindowTitle(ClangDiagnosticConfigsWidget::tr("Diagnostic Configurations"));
         dialog.setLayout(new QVBoxLayout);

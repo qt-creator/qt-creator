@@ -63,7 +63,7 @@ static QWidget *createWidget(QWidget *parent)
     QWidget *w = new QWidget(parent);
     w->setLayout(new QHBoxLayout);
     w->setVisible(true);
-    w->layout()->setMargin(0);
+    w->layout()->setContentsMargins(0, 0, 0, 0);
     return w;
 }
 

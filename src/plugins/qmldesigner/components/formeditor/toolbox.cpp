@@ -43,7 +43,7 @@ ToolBox::ToolBox(QWidget *parentWidget)
     m_leftToolBar->setOrientation(Qt::Horizontal);
 
     auto horizontalLayout = new QHBoxLayout(this);
-    horizontalLayout->setMargin(0);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setSpacing(0);
 
     auto stretchToolbar = new QToolBar(this);

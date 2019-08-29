@@ -110,7 +110,7 @@ PathListEditorPrivate::PathListEditorPrivate()   :
         buttonLayout(new QVBoxLayout),
         edit(new PathListPlainTextEdit)
 {
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(edit);
     layout->addLayout(buttonLayout);
     buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored,

@@ -73,7 +73,7 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     m_editorList->setFrameStyle(QFrame::NoFrame);
 
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_editorList);
 
     connect(m_editorList, &QTreeWidget::itemClicked,

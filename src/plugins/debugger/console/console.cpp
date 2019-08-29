@@ -64,7 +64,7 @@ Console::Console()
     m_consoleWidget->setEnabled(true);
 
     auto vbox = new QVBoxLayout(m_consoleWidget);
-    vbox->setMargin(0);
+    vbox->setContentsMargins(0, 0, 0, 0);
     vbox->setSpacing(0);
 
     m_consoleView = new ConsoleView(m_consoleItemModel, m_consoleWidget);

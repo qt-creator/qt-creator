@@ -546,10 +546,10 @@ TimelineRulerSectionItem *TimelineRulerSectionItem::create(QGraphicsScene *paren
 
     auto layout = new QHBoxLayout(widget);
     layout->addWidget(toolBar);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     layout->addWidget(toolBar);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     QGraphicsProxyWidget *proxy = parentScene->addWidget(widget);
     proxy->setParentItem(item);

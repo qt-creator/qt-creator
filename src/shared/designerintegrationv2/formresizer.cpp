@@ -50,12 +50,13 @@ FormResizer::FormResizer(QWidget *parent) :
     setBackgroundRole(QPalette::Base);
 
     QVBoxLayout *handleLayout = new QVBoxLayout(this);
-    handleLayout->setMargin(SELECTION_MARGIN);
+    handleLayout->setContentsMargins(SELECTION_MARGIN, SELECTION_MARGIN,
+                                     SELECTION_MARGIN, SELECTION_MARGIN);
     handleLayout->addWidget(m_frame);
 
     m_frame->setFrameStyle(QFrame::Panel | QFrame::Raised);
     QVBoxLayout *layout = new QVBoxLayout(m_frame);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     // handles
     m_handles.reserve(SizeHandleRect::Left);
     for (int i = SizeHandleRect::LeftTop; i <= SizeHandleRect::Left; ++i) {

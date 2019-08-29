@@ -251,10 +251,10 @@ void InfoBarDisplay::update()
         infoWidget->setAutoFillBackground(true);
 
         auto hbox = new QHBoxLayout;
-        hbox->setMargin(2);
+        hbox->setContentsMargins(2, 2, 2, 2);
 
         auto vbox = new QVBoxLayout(infoWidget);
-        vbox->setMargin(0);
+        vbox->setContentsMargins(0, 0, 0, 0);
         vbox->addLayout(hbox);
 
         QLabel *infoWidgetLabel = new QLabel(info.m_infoText);

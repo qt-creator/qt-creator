@@ -129,7 +129,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QWidget *lineEditFrame = new QWidget(this);
     lineEditFrame->setObjectName(QStringLiteral("itemLibrarySearchInputFrame"));
     auto lineEditLayout = new QGridLayout(lineEditFrame);
-    lineEditLayout->setMargin(2);
+    lineEditLayout->setContentsMargins(2, 2, 2, 2);
     lineEditLayout->setSpacing(0);
     lineEditLayout->addItem(new QSpacerItem(5, 3, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 0, 1, 3);
     lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 0);
@@ -167,11 +167,11 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     connect(&m_compressionTimer, &QTimer::timeout, this, &ItemLibraryWidget::updateModel);
 
     auto flowLayout = new Utils::FlowLayout(m_importTagsWidget.data());
-    flowLayout->setMargin(4);
+    flowLayout->setContentsMargins(4, 4, 4, 4);
 
     m_addResourcesWidget->setVisible(false);
     flowLayout = new Utils::FlowLayout(m_addResourcesWidget.data());
-    flowLayout->setMargin(4);
+    flowLayout->setContentsMargins(4, 4, 4, 4);
     auto button = new QToolButton(m_addResourcesWidget.data());
     auto font = button->font();
     font.setPixelSize(Theme::instance()->smallFontPixelSize());

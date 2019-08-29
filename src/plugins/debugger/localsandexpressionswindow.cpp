@@ -39,7 +39,7 @@ LocalsAndInspectorWindow::LocalsAndInspectorWindow(QWidget *locals,
       QWidget *inspector, QWidget *returnWidget)
 {
     auto layout = new QVBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
     auto splitter = new Core::MiniSplitter(Qt::Vertical);

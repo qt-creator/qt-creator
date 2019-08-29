@@ -270,7 +270,7 @@ void Structure::createUi()
 
     m_checkboxFrame = new QWidget;
     m_checkboxFrame->setLayout(new QVBoxLayout);
-    m_checkboxFrame->layout()->setMargin(0);
+    m_checkboxFrame->layout()->setContentsMargins(0, 0, 0, 0);
     auto spacer = new QWidget;
     spacer->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 
@@ -279,18 +279,18 @@ void Structure::createUi()
     m_tagVisibilityFrame->layout()->addWidget(m_visibleTagsTitle);
     m_tagVisibilityFrame->layout()->addWidget(m_checkboxFrame);
     m_tagVisibilityFrame->layout()->addWidget(spacer);
-    m_tagVisibilityFrame->layout()->setMargin(0);
+    m_tagVisibilityFrame->layout()->setContentsMargins(0, 0, 0, 0);
 
     auto paneInnerFrame = new QWidget;
     paneInnerFrame->setLayout(new QHBoxLayout);
     paneInnerFrame->layout()->addWidget(m_structureView);
     paneInnerFrame->layout()->addWidget(m_tagVisibilityFrame);
-    paneInnerFrame->layout()->setMargin(0);
+    paneInnerFrame->layout()->setContentsMargins(0, 0, 0, 0);
 
     setLayout(new QVBoxLayout);
     layout()->addWidget(toolBar);
     layout()->addWidget(paneInnerFrame);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     layout()->setSpacing(0);
 }
 

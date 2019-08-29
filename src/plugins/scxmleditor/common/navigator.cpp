@@ -96,7 +96,7 @@ void Navigator::createUi()
 
     setLayout(new QVBoxLayout);
     layout()->setSpacing(0);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     layout()->addWidget(titleToolBar);
     layout()->addWidget(m_navigatorView);
     layout()->addWidget(m_navigatorSlider);

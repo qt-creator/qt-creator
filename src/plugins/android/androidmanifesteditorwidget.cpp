@@ -165,7 +165,7 @@ void AndroidManifestEditorWidget::initializePage()
         m_packageNameWarningIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
         auto warningRow = new QHBoxLayout;
-        warningRow->setMargin(0);
+        warningRow->setContentsMargins(0, 0, 0, 0);
         warningRow->addWidget(m_packageNameWarningIcon);
         warningRow->addWidget(m_packageNameWarning);
 

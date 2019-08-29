@@ -91,7 +91,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     setDisplayName(tr("CMake"));
 
     auto vbox = new QVBoxLayout(this);
-    vbox->setMargin(0);
+    vbox->setContentsMargins(0, 0, 0, 0);
     auto container = new Utils::DetailsWidget;
     container->setState(Utils::DetailsWidget::NoSummary);
     vbox->addWidget(container);
@@ -100,7 +100,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     container->setWidget(details);
 
     auto mainLayout = new QGridLayout(details);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setColumnStretch(1, 10);
 
     auto project = static_cast<CMakeProject *>(bc->project());

@@ -106,7 +106,7 @@ QWidget *CppCodeStylePreferencesFactory::createEditor(TextEditor::ICodeStylePref
     if (!cppPreferences)
         return nullptr;
     auto widget = new Internal::CppCodeStylePreferencesWidget(parent);
-    widget->layout()->setMargin(0);
+    widget->layout()->setContentsMargins(0, 0, 0, 0);
     widget->setCodeStyle(cppPreferences);
     return widget;
 }

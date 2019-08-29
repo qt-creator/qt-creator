@@ -410,7 +410,7 @@ void FormEditorData::fullInit()
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName("DesignerModeWidget");
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_toolBar);
     // Avoid mode switch to 'Edit' mode when the application started by

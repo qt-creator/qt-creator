@@ -59,7 +59,7 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
 
     auto layout = new QVBoxLayout;
     layout->setSpacing(0);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     auto tabBar = new QTabBar(this);
     tabBar->addTab(tr("Navigator"));

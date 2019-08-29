@@ -1070,10 +1070,10 @@ DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::Sty
 
     auto horizontalLayout = new QHBoxLayout(this);
 
-    horizontalLayout->setMargin(0);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setSpacing(0);
 
-    horizontalLayout->setMargin(0);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setSpacing(0);
 
     horizontalLayout->addWidget(m_toolBar);

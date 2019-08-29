@@ -62,8 +62,7 @@ CustomColorDialog::CustomColorDialog(QWidget *parent) : QFrame(parent )
     QVBoxLayout* vBox = new QVBoxLayout(colorFrameWidget);
     colorFrameWidget->setLayout(vBox);
     vBox->setSpacing(0);
-    vBox->setMargin(0);
-    vBox->setContentsMargins(0,5,0,28);
+    vBox->setContentsMargins(0, 5, 0, 28);
 
     m_beforeColorWidget = new QFrame(colorFrameWidget);
     m_beforeColorWidget->setFixedSize(30, 18);
@@ -85,7 +84,7 @@ CustomColorDialog::CustomColorDialog(QWidget *parent) : QFrame(parent )
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->setSpacing(4);
     gridLayout->setVerticalSpacing(4);
-    gridLayout->setMargin(4);
+    gridLayout->setContentsMargins(4, 4, 4, 4);
     setLayout(gridLayout);
 
     gridLayout->addWidget(m_colorBox, 0, 0, 4, 1);

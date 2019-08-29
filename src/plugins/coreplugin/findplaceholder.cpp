@@ -40,7 +40,7 @@ FindToolBarPlaceHolder::FindToolBarPlaceHolder(QWidget *owner, QWidget *parent)
     g_findToolBarPlaceHolders.append(this);
     setLayout(new QVBoxLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
 }
 
 FindToolBarPlaceHolder::~FindToolBarPlaceHolder()

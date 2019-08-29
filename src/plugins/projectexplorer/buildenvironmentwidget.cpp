@@ -39,7 +39,7 @@ BuildEnvironmentWidget::BuildEnvironmentWidget(BuildConfiguration *bc) :
     m_buildConfiguration(nullptr)
 {
     auto vbox = new QVBoxLayout(this);
-    vbox->setMargin(0);
+    vbox->setContentsMargins(0, 0, 0, 0);
     m_clearSystemEnvironmentCheckBox = new QCheckBox(this);
     m_clearSystemEnvironmentCheckBox->setText(tr("Clear system environment"));
 

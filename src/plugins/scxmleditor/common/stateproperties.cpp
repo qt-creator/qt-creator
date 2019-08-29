@@ -154,7 +154,7 @@ void StateProperties::createUi()
     splitter->addWidget(m_contentFrame);
 
     setLayout(new QVBoxLayout);
-    layout()->setMargin(0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     layout()->setSpacing(0);
     layout()->addWidget(propertiesToolBar);
     layout()->addWidget(splitter);

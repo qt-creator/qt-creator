@@ -263,7 +263,7 @@ SymbolsFindFilterConfigWidget::SymbolsFindFilterConfigWidget(SymbolsFindFilter *
 
     auto layout = new QGridLayout(this);
     setLayout(layout);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     auto typeLabel = new QLabel(tr("Types:"));
     layout->addWidget(typeLabel, 0, 0);

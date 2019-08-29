@@ -119,7 +119,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
         Utils::StyledBar(parent), d(new EditorToolBarPrivate(parent, this))
 {
     auto toolBarLayout = new QHBoxLayout(this);
-    toolBarLayout->setMargin(0);
+    toolBarLayout->setContentsMargins(0, 0, 0, 0);
     toolBarLayout->setSpacing(0);
     toolBarLayout->addWidget(d->m_defaultToolBar);
     d->m_toolBarPlaceholder->setLayout(toolBarLayout);
@@ -172,7 +172,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     auto toplayout = new QHBoxLayout(this);
     toplayout->setSpacing(0);
-    toplayout->setMargin(0);
+    toplayout->setContentsMargins(0, 0, 0, 0);
     toplayout->addWidget(d->m_backButton);
     toplayout->addWidget(d->m_forwardButton);
     toplayout->addWidget(d->m_lockButton);

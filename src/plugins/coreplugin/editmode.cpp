@@ -55,7 +55,7 @@ EditMode::EditMode() :
     setId(Constants::MODE_EDIT);
 
     m_rightSplitWidgetLayout->setSpacing(0);
-    m_rightSplitWidgetLayout->setMargin(0);
+    m_rightSplitWidgetLayout->setContentsMargins(0, 0, 0, 0);
     QWidget *rightSplitWidget = new QWidget;
     rightSplitWidget->setLayout(m_rightSplitWidgetLayout);
     auto editorPlaceHolder = new EditorManagerPlaceHolder;

@@ -95,10 +95,10 @@ PreprocessorMacroWidget::PreprocessorMacroWidget(QWidget *parent) : QWidget(pare
     details->setVisible(false);
 
     auto vbox2 = new QVBoxLayout(details);
-    vbox2->setMargin(0);
+    vbox2->setContentsMargins(0, 0, 0, 0);
 
     auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->setMargin(0);
+    horizontalLayout->setContentsMargins(0, 0, 0, 0);
     auto tree = new Utils::TreeView(this);
     connect(tree, &QAbstractItemView::activated, tree, [tree](const QModelIndex &idx) {
         tree->edit(idx);
