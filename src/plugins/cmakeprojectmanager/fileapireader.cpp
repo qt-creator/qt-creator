@@ -177,7 +177,7 @@ bool FileApiReader::isParsing() const
 
 QVector<FilePath> FileApiReader::takeProjectFilesToWatch()
 {
-    return QVector<FilePath>::fromList(m_cmakeFiles.toList());
+    return QVector<FilePath>::fromList(Utils::toList(m_cmakeFiles));
 }
 
 QList<CMakeBuildTarget> FileApiReader::takeBuildTargets(QString &errorMessage){
