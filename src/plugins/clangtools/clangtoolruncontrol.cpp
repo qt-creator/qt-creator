@@ -403,22 +403,22 @@ void ClangToolRunWorker::analyzeNextFile()
 void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
 {
     auto runner = qobject_cast<ClangToolRunner *>(sender());
-    const QString logFilePath = runner->logFilePath();
-    qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << logFilePath;
+    const QString outputFilePath = runner->outputFilePath();
+    qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << outputFilePath;
 
     QString errorMessage;
     const Diagnostics diagnostics = tool()->read(runner->outputFileFormat(),
-                                                 logFilePath,
+                                                 outputFilePath,
                                                  filePath,
                                                  m_projectFiles,
                                                  &errorMessage);
-    QFile::remove(logFilePath); // Clean-up.
+    QFile::remove(outputFilePath); // Clean-up.
 
     if (!errorMessage.isEmpty()) {
         m_filesAnalyzed.remove(filePath);
         m_filesNotAnalyzed.insert(filePath);
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
-        const QString filePath = qobject_cast<ClangToolRunner *>(sender())->filePath();
+        const QString filePath = qobject_cast<ClangToolRunner *>(sender())->fileToAnalyze();
         appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage),
                       Utils::StdErrFormat);
     } else {
@@ -438,17 +438,17 @@ void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage
                            << errorMessage << '\n' << errorDetails;
 
     auto *toolRunner = qobject_cast<ClangToolRunner *>(sender());
-    const QString filePath = toolRunner->filePath();
-    const QString logFilePath = toolRunner->logFilePath();
+    const QString fileToAnalyze = toolRunner->fileToAnalyze();
+    const QString outputFilePath = toolRunner->outputFilePath();
 
     // Even in the error case the log file was created, so clean it up here, too.
-    QFile::remove(logFilePath);
+    QFile::remove(outputFilePath);
 
-    m_filesAnalyzed.remove(filePath);
-    m_filesNotAnalyzed.insert(filePath);
+    m_filesAnalyzed.remove(fileToAnalyze);
+    m_filesNotAnalyzed.insert(fileToAnalyze);
     m_success = false;
 
-    const QString message = tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage);
+    const QString message = tr("Failed to analyze \"%1\": %2").arg(fileToAnalyze, errorMessage);
     appendMessage(message, Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
     TaskHub::addTask(Task::Error, message, Debugger::Constants::ANALYZERTASK_ID);

@@ -126,7 +126,7 @@ ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *p
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList()
             << tidyChecksArguments(config)
-            << mainToolArguments(filePath(), m_logFile)
+            << mainToolArguments(fileToAnalyze(), outputFilePath())
             << "--"
             << clangArguments(config, baseOptions);
     });
@@ -141,7 +141,7 @@ ClazyStandaloneRunner::ClazyStandaloneRunner(const ClangDiagnosticConfig &config
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList()
             << clazyChecksArguments(config)
-            << mainToolArguments(filePath(), m_logFile)
+            << mainToolArguments(fileToAnalyze(), outputFilePath())
             << "--"
             << clangArguments(config, baseOptions);
     });
@@ -154,10 +154,10 @@ ClazyPluginRunner::ClazyPluginRunner(const ClangDiagnosticConfig &config, QObjec
     setOutputFileFormat(OutputFileFormat::Serialized);
     setExecutable(Core::ICore::clangExecutable(CLANG_BINDIR));
     setArgsCreator([this, config](const QStringList &baseOptions) {
-        return serializeDiagnosticsArguments(baseOptions, m_logFile)
+        return serializeDiagnosticsArguments(baseOptions, outputFilePath())
             << clazyPluginArguments(config)
             << clangArguments(config, baseOptions)
-            << QDir::toNativeSeparators(filePath());
+            << QDir::toNativeSeparators(fileToAnalyze());
     });
 }
 

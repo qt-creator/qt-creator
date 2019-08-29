@@ -53,21 +53,20 @@ static QString finishedDueToCrash(const QString &name)
     return ClangToolRunner::tr("%1 crashed.").arg(name);
 }
 
-QString finishedWithBadExitCode(const QString &name, int exitCode)
+static QString finishedWithBadExitCode(const QString &name, int exitCode)
 {
     return ClangToolRunner::tr("%1 finished with exit code: %2.").arg(name).arg(exitCode);
 }
 
-void ClangToolRunner::init(const QString &clangLogFileDir,
+void ClangToolRunner::init(const QString &outputDirPath,
                            const Utils::Environment &environment)
 {
-    m_clangLogFileDir = clangLogFileDir;
-    QTC_CHECK(!m_clangLogFileDir.isEmpty());
+    m_outputDirPath = outputDirPath;
+    QTC_CHECK(!m_outputDirPath.isEmpty());
 
     m_process.setProcessChannelMode(QProcess::MergedChannels);
     m_process.setProcessEnvironment(environment.toProcessEnvironment());
-    m_process.setWorkingDirectory(m_clangLogFileDir); // Current clang-cl puts log file into working dir.
-    connect(&m_process, &QProcess::started, this, &ClangToolRunner::onProcessStarted);
+    m_process.setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
     connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &ClangToolRunner::onProcessFinished);
     connect(&m_process, &QProcess::errorOccurred, this, &ClangToolRunner::onProcessError);
@@ -79,63 +78,10 @@ ClangToolRunner::~ClangToolRunner()
     Utils::SynchronousProcess::stopProcess(m_process);
 }
 
-bool ClangToolRunner::run(const QString &filePath, const QStringList &compilerOptions)
+static QString createOutputFilePath(const QString &dirPath, const QString &fileToAnalyze)
 {
-    QTC_ASSERT(!m_executable.isEmpty(), return false);
-    QTC_CHECK(!compilerOptions.contains(QLatin1String("-o")));
-    QTC_CHECK(!compilerOptions.contains(filePath));
-
-    m_filePath = filePath;
-    m_processOutput.clear();
-
-    m_logFile = createLogFile(filePath);
-    QTC_ASSERT(!m_logFile.isEmpty(), return false);
-    const QStringList arguments = m_argsCreator(compilerOptions);
-    m_commandLine = Utils::QtcProcess::joinArgs(QStringList(m_executable) + arguments);
-
-    qCDebug(LOG).noquote() << "Starting" << m_commandLine;
-    m_process.start(m_executable, arguments);
-    return true;
-}
-
-void ClangToolRunner::onProcessStarted()
-{
-    emit started();
-}
-
-void ClangToolRunner::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
-{
-    if (exitStatus == QProcess::NormalExit) {
-        if (exitCode == 0) {
-            qCDebug(LOG).noquote() << "Output:\n" << Utils::SynchronousProcess::normalizeNewlines(
-                                                        QString::fromLocal8Bit(m_processOutput));
-            emit finishedWithSuccess(m_filePath);
-        } else {
-            emit finishedWithFailure(finishedWithBadExitCode(m_name, exitCode),
-                                     processCommandlineAndOutput());
-        }
-    } else { // == QProcess::CrashExit
-        emit finishedWithFailure(finishedDueToCrash(m_name), processCommandlineAndOutput());
-    }
-}
-
-void ClangToolRunner::onProcessError(QProcess::ProcessError error)
-{
-    if (error == QProcess::Crashed)
-        return; // handled by slot of finished()
-
-    emit finishedWithFailure(generalProcessError(m_name), processCommandlineAndOutput());
-}
-
-void ClangToolRunner::onProcessOutput()
-{
-    m_processOutput.append(m_process.readAll());
-}
-
-QString ClangToolRunner::createLogFile(const QString &filePath) const
-{
-    const QString fileName = QFileInfo(filePath).fileName();
-    const QString fileTemplate = m_clangLogFileDir
+    const QString fileName = QFileInfo(fileToAnalyze).fileName();
+    const QString fileTemplate = dirPath
             + QLatin1String("/report-") + fileName + QLatin1String("-XXXXXX");
 
     Utils::TemporaryFile temporaryFile("clangtools");
@@ -148,15 +94,62 @@ QString ClangToolRunner::createLogFile(const QString &filePath) const
     return QString();
 }
 
-QString ClangToolRunner::processCommandlineAndOutput() const
+bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compilerOptions)
+{
+    QTC_ASSERT(!m_executable.isEmpty(), return false);
+    QTC_CHECK(!compilerOptions.contains(QLatin1String("-o")));
+    QTC_CHECK(!compilerOptions.contains(fileToAnalyze));
+
+    m_fileToAnalyze = fileToAnalyze;
+    m_processOutput.clear();
+
+    m_outputFilePath = createOutputFilePath(m_outputDirPath, fileToAnalyze);
+    QTC_ASSERT(!m_outputFilePath.isEmpty(), return false);
+    const QStringList arguments = m_argsCreator(compilerOptions);
+    m_commandLine = Utils::QtcProcess::joinArgs(QStringList(m_executable) + arguments);
+
+    qCDebug(LOG).noquote() << "Starting" << m_commandLine;
+    m_process.start(m_executable, arguments);
+    return true;
+}
+
+void ClangToolRunner::onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    if (exitStatus == QProcess::NormalExit) {
+        if (exitCode == 0) {
+            qCDebug(LOG).noquote() << "Output:\n" << Utils::SynchronousProcess::normalizeNewlines(
+                                                        QString::fromLocal8Bit(m_processOutput));
+            emit finishedWithSuccess(m_fileToAnalyze);
+        } else {
+            emit finishedWithFailure(finishedWithBadExitCode(m_name, exitCode),
+                                     commandlineAndOutput());
+        }
+    } else { // == QProcess::CrashExit
+        emit finishedWithFailure(finishedDueToCrash(m_name), commandlineAndOutput());
+    }
+}
+
+void ClangToolRunner::onProcessError(QProcess::ProcessError error)
+{
+    if (error == QProcess::Crashed)
+        return; // handled by slot of finished()
+
+    emit finishedWithFailure(generalProcessError(m_name), commandlineAndOutput());
+}
+
+void ClangToolRunner::onProcessOutput()
+{
+    m_processOutput.append(m_process.readAll());
+}
+
+QString ClangToolRunner::commandlineAndOutput() const
 {
     return tr("Command line: %1\n"
-                       "Process Error: %2\n"
-                       "Output:\n%3")
-                            .arg(m_commandLine,
-                                 QString::number(m_process.error()),
-                                 Utils::SynchronousProcess::normalizeNewlines(
-                                     QString::fromLocal8Bit(m_processOutput)));
+              "Process Error: %2\n"
+              "Output:\n%3")
+        .arg(m_commandLine,
+             QString::number(m_process.error()),
+             Utils::SynchronousProcess::normalizeNewlines(QString::fromLocal8Bit(m_processOutput)));
 }
 
 } // namespace Internal
