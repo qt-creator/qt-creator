@@ -224,7 +224,11 @@ void layout(const QList<QGraphicsItem*> &items)
         firstItem = initialItem->outputTransitions().constFirst()->connectedItem(initialItem);
         int index = childItems.indexOf(firstItem);
         if (index > 0)
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
             childItems.swap(index, 0);
+#else
+            childItems.swapItemsAt(index, 0);
+#endif
     }
 
     // Search final-item

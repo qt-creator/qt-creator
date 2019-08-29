@@ -58,7 +58,11 @@ bool GeometryUtilities::intersect(const QPolygonF &polygon, const QLineF &line,
 {
     for (int i = 0; i <= polygon.size() - 2; ++i) {
         QLineF polygonLine(polygon.at(i), polygon.at(i+1));
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
         QLineF::IntersectType intersectionType = polygonLine.intersect(line, intersectionPoint);
+#else
+        QLineF::IntersectType intersectionType = polygonLine.intersects(line, intersectionPoint);
+#endif
         if (intersectionType == QLineF::BoundedIntersection) {
             if (intersectionLine)
                 *intersectionLine = polygonLine;
