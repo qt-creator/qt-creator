@@ -26,6 +26,7 @@
 #pragma once
 
 #include <coreplugin/helpmanager.h>
+#include <utils/optional.h>
 
 #include <QMetaType>
 #include <QMutex>
@@ -33,12 +34,23 @@
 #include <QUrl>
 #include <QStandardItemModel>
 
+#include <functional>
+
 QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 
 class BookmarkManager;
 
 namespace Help {
 namespace Internal {
+
+class HelpViewer;
+
+struct HelpViewerFactory
+{
+    QByteArray id;
+    QString displayName;
+    std::function<HelpViewer *()> create;
+};
 
 class LocalHelpManager : public QObject
 {
@@ -89,6 +101,10 @@ public:
 
     static int lastSelectedTab();
     static void setLastSelectedTab(int index);
+
+    static QByteArray defaultViewerBackend();
+    static QVector<HelpViewerFactory> viewerBackends();
+    static HelpViewerFactory viewerBackend();
 
     static void setupGuiHelpEngine();
     static void setEngineNeedsUpdate();

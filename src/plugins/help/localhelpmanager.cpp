@@ -29,6 +29,17 @@
 #include "helpconstants.h"
 #include "helpmanager.h"
 #include "helpviewer.h"
+#include "textbrowserhelpviewer.h"
+
+#ifdef QTC_WEBENGINE_HELPVIEWER
+#include "webenginehelpviewer.h"
+#endif
+#ifdef QTC_LITEHTML_HELPVIEWER
+#include "litehtmlhelpviewer.h"
+#endif
+#ifdef QTC_MAC_NATIVE_HELPVIEWER
+#include "macwebkithelpviewer.h"
+#endif
 
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
@@ -274,6 +285,46 @@ int LocalHelpManager::lastSelectedTab()
 void LocalHelpManager::setLastSelectedTab(int index)
 {
     Core::ICore::settings()->setValue(kLastSelectedTabKey, index);
+}
+
+QByteArray LocalHelpManager::defaultViewerBackend()
+{
+    const QByteArray backend = qgetenv("QTC_HELPVIEWER_BACKEND");
+    if (Utils::contains(viewerBackends(), Utils::equal(&HelpViewerFactory::id, backend)))
+        return backend;
+    else if (!backend.isEmpty())
+        qWarning("Help viewer backend \"%s\" not found, using default.", backend.constData());
+#ifdef QTC_WEBENGINE_HELPVIEWER
+    return "qtwebengine";
+#else
+    return "textbrowser";
+#endif
+}
+
+QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
+{
+    QVector<HelpViewerFactory> result;
+#ifdef QTC_WEBENGINE_HELPVIEWER
+    result.append({"qtwebengine", tr("QtWebEngine"), []() { return new WebEngineHelpViewer; }});
+#endif
+#ifdef QTC_LITEHTML_HELPVIEWER
+    result.append({"litehtml", tr("litehtml"), []() { return new LiteHtmlHelpViewer; }});
+#endif
+#ifdef QTC_MAC_NATIVE_HELPVIEWER
+    result.append({"native", tr("WebKit"), []() { return new MacWebKitHelpViewer; }});
+#endif
+    result.append({"textbrowser", tr("QTextBrowser"), []() { return new TextBrowserHelpViewer; }});
+    return result;
+}
+
+HelpViewerFactory LocalHelpManager::viewerBackend()
+{
+    const QVector<HelpViewerFactory> factories = viewerBackends();
+    const auto backend = std::find_if(std::begin(factories),
+                                      std::end(factories),
+                                      Utils::equal(&HelpViewerFactory::id, defaultViewerBackend()));
+    QTC_ASSERT(backend != std::end(factories), return {});
+    return *backend;
 }
 
 void LocalHelpManager::setupGuiHelpEngine()

@@ -42,18 +42,7 @@
 #include "remotehelpfilter.h"
 #include "searchwidget.h"
 #include "searchtaskhandler.h"
-#include "textbrowserhelpviewer.h"
 #include "topicchooser.h"
-
-#ifdef QTC_LITEHTML_HELPVIEWER
-#include "litehtmlhelpviewer.h"
-#endif
-#ifdef QTC_MAC_NATIVE_HELPVIEWER
-#include "macwebkithelpviewer.h"
-#endif
-#ifdef QTC_WEBENGINE_HELPVIEWER
-#include "webenginehelpviewer.h"
-#endif
 
 #include <bookmarkmanager.h>
 #include <contentwindow.h>
@@ -452,47 +441,9 @@ HelpViewer *HelpPluginPrivate::externalHelpViewer()
 
 HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
 {
-    // check for backends
-    using ViewerFactory = std::function<HelpViewer *()>;
-    using ViewerFactoryItem = QPair<QByteArray, ViewerFactory>; // id -> factory
-    QVector<ViewerFactoryItem> factories;
-#ifdef QTC_LITEHTML_HELPVIEWER
-    factories.append(qMakePair(QByteArray("litehtml"), [] { return new LiteHtmlHelpViewer(); }));
-#endif
-#ifdef QTC_WEBENGINE_HELPVIEWER
-    factories.append(
-        qMakePair(QByteArray("qtwebengine"), []() { return new WebEngineHelpViewer(); }));
-#endif
-    factories.append(
-        qMakePair(QByteArray("textbrowser"), []() { return new TextBrowserHelpViewer(); }));
-
-#ifdef QTC_MAC_NATIVE_HELPVIEWER
-    // default setting
-#ifdef QTC_MAC_NATIVE_HELPVIEWER_DEFAULT
-     factories.prepend(qMakePair(QByteArray("native"), []() { return new MacWebKitHelpViewer(); }));
-#else
-     factories.append(qMakePair(QByteArray("native"), []() { return new MacWebKitHelpViewer(); }));
-#endif
-#endif
-
-    HelpViewer *viewer = nullptr;
-
-    // check requested backend
-    const QByteArray backend = qgetenv("QTC_HELPVIEWER_BACKEND");
-    if (!backend.isEmpty()) {
-        const int pos = Utils::indexOf(factories, [backend](const ViewerFactoryItem &item) {
-            return backend == item.first;
-        });
-        if (pos == -1) {
-            qWarning("Help viewer backend \"%s\" not found, using default.", backend.constData());
-        } else {
-            viewer  = factories.at(pos).second();
-        }
-    }
-
-    if (!viewer)
-        viewer = factories.first().second();
-    QTC_ASSERT(viewer, return nullptr);
+    const HelpViewerFactory factory = LocalHelpManager::viewerBackend();
+    QTC_ASSERT(factory.create, return nullptr);
+    HelpViewer *viewer = factory.create();
 
     // initialize font
     viewer->setViewerFont(LocalHelpManager::fallbackFont());
