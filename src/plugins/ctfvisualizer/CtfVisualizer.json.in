@@ -1,0 +1,20 @@
+{
+    \"Name\" : \"CtfVisualizer\",
+    \"Version\" : \"$$QTCREATOR_VERSION\",
+    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
+    \"Revision\" : \"$$QTC_PLUGIN_REVISION\",
+    \"Vendor\" : \"KDAB Group, www.kdab.com\",
+    \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com\",
+    \"License\" : [ \"Commercial Usage\",
+                  \"\",
+                  \"Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.\",
+                  \"\",
+                  \"GNU General Public License Usage\",
+                  \"\",
+                  \"Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html.\"
+    ],
+    \"Category\" : \"Code Analyzer\",
+    \"Description\" : \"Chrome Trace Format Visualizer Plugin.\",
+    \"Url\" : \"https://www.kdab.com\",
+    $$dependencyList
+}

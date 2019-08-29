@@ -71,9 +71,9 @@ qtHaveModule(serialport) {
 }
 
 qtHaveModule(quick) {
-    SUBDIRS += qmlprofiler perfprofiler
+    SUBDIRS += qmlprofiler perfprofiler ctfvisualizer
 } else {
-    warning("QmlProfiler and PerfProfiler plugins have been disabled since the Qt Quick module is not available.")
+    warning("QmlProfiler, PerfProfiler and CTF Visualizer plugins have been disabled since the Qt Quick module is not available.")
 }
 
 qtHaveModule(help) {
