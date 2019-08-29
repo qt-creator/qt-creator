@@ -101,4 +101,14 @@ void CppProjectUpdater::onProjectInfoGenerated()
     QTC_CHECK(future != QFuture<void>());
 }
 
+CppProjectUpdaterFactory::CppProjectUpdaterFactory()
+{
+    setObjectName("CppProjectUpdaterFactory");
+}
+
+CppProjectUpdaterInterface *CppProjectUpdaterFactory::create()
+{
+    return new CppProjectUpdater;
+}
+
 } // namespace CppTools

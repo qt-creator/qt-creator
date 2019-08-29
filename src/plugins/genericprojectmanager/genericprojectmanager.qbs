@@ -8,11 +8,14 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
-    Depends { name: "CppTools" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "app_version_header" }
+
+    pluginRecommends: [
+        "CppTools"
+    ]
 
     pluginTestDepends: [
         "CppEditor",
@@ -35,12 +38,4 @@ QtcPlugin {
         "genericprojectwizard.cpp",
         "genericprojectwizard.h",
     ]
-
-    Group {
-        name: "Tests"
-        condition: qtc.testsEnabled
-        files: [ "genericprojectplugin_test.cpp" ]
-
-        cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
-    }
 }

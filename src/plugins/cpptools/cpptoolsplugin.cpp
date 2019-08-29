@@ -23,31 +23,33 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
-#include "cppfilesettingspage.h"
 #include "cppcodemodelsettingspage.h"
 #include "cppcodestylesettingspage.h"
+#include "cppfilesettingspage.h"
 #include "cppmodelmanager.h"
-#include "cpptoolsjsextension.h"
-#include "cpptoolssettings.h"
-#include "cpptoolsreuse.h"
 #include "cppprojectfile.h"
+#include "cppprojectupdater.h"
 #include "cpptoolsbridge.h"
+#include "cpptoolsbridgeqtcreatorimplementation.h"
+#include "cpptoolsconstants.h"
+#include "cpptoolsjsextension.h"
+#include "cpptoolsreuse.h"
+#include "cpptoolssettings.h"
 #include "projectinfo.h"
 #include "stringtable.h"
-#include "cpptoolsbridgeqtcreatorimplementation.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
@@ -97,6 +99,7 @@ public:
         delete m_cppCodeModelSettingsPage;
         if (m_cppCodeStyleSettingsPage)
             delete m_cppCodeStyleSettingsPage;
+        ExtensionSystem::PluginManager::removeObject(&m_cppProjectUpdaterFactory);
     }
 
     QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
@@ -104,6 +107,7 @@ public:
     CppFileSettingsPage *m_cppFileSettingsPage = nullptr;
     CppCodeModelSettingsPage *m_cppCodeModelSettingsPage = nullptr;
     QPointer<CppCodeStyleSettingsPage> m_cppCodeStyleSettingsPage = nullptr;
+    CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
 
 CppToolsPlugin::CppToolsPlugin()
@@ -173,6 +177,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     d = new CppToolsPluginPrivate;
 
     JsExpander::registerGlobalObject<CppToolsJsExtension>("Cpp");
+    ExtensionSystem::PluginManager::addObject(&d->m_cppProjectUpdaterFactory);
 
     // Menus
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);

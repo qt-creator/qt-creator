@@ -38,13 +38,6 @@ class GenericProjectPlugin : public ExtensionSystem::IPlugin
 public:
     ~GenericProjectPlugin() override;
 
-#ifdef WITH_TESTS
-private slots:
-    void test_simple();
-    void test_mixed1();
-    void test_mixed2();
-#endif // WITH_TESTS
-
 private:
     bool initialize(const QStringList &arguments, QString *errorString) override;
     void extensionsInitialized() override { }

@@ -17,9 +17,4 @@ SOURCES = genericproject.cpp \
     genericbuildconfiguration.cpp \
     filesselectionwizardpage.cpp
 
-equals(TEST, 1) {
-    SOURCES += genericprojectplugin_test.cpp
-    DEFINES += SRCDIR=\\\"$$PWD\\\"
-}
-
 RESOURCES += genericprojectmanager.qrc

@@ -29,7 +29,9 @@
 #include <projectexplorer/project.h>
 #include <utils/fileutils.h>
 
-namespace CppTools { class CppProjectUpdater; }
+namespace CppTools {
+class CppProjectUpdaterInterface;
+}
 namespace Utils { class FileSystemWatcher; }
 
 namespace GenericProjectManager {
@@ -87,7 +89,7 @@ private:
     QStringList m_cxxflags;
     QStringList m_cflags;
 
-    CppTools::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    CppTools::CppProjectUpdaterInterface *m_cppCodeModelUpdater = nullptr;
 
     Utils::FileSystemWatcher * const m_deployFileWatcher = nullptr;
 };

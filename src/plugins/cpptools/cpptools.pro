@@ -53,6 +53,7 @@ HEADERS += \
     cpppointerdeclarationformatter.h \
     cppprojectfile.h \
     cppprojectupdater.h \
+    cppprojectupdaterinterface.h \
     cppqtstyleindenter.h \
     cpprefactoringchanges.h \
     cpprefactoringengine.h \

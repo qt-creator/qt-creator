@@ -61,6 +61,7 @@ add_qtc_plugin(CppTools
     cppprojectinfogenerator.cpp cppprojectinfogenerator.h
     cppprojectpartchooser.cpp cppprojectpartchooser.h
     cppprojectupdater.cpp cppprojectupdater.h
+    cppprojectupdaterinterface.h
     cppqtstyleindenter.cpp cppqtstyleindenter.h
     cpprefactoringchanges.cpp cpprefactoringchanges.h
     cpprefactoringengine.cpp cpprefactoringengine.h

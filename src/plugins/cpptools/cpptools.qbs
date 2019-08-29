@@ -140,6 +140,7 @@ Project {
             "cppprojectpartchooser.h",
             "cppprojectupdater.cpp",
             "cppprojectupdater.h",
+            "cppprojectupdaterinterface.h",
             "cppqtstyleindenter.cpp",
             "cppqtstyleindenter.h",
             "cpprefactoringchanges.cpp",

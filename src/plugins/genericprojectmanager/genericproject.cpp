@@ -34,7 +34,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
-#include <cpptools/cppprojectupdater.h>
+#include <cpptools/cppprojectupdaterinterface.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildsteplist.h>
@@ -59,6 +61,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QHash>
+#include <QMetaObject>
 #include <QSet>
 #include <QStringList>
 
@@ -170,12 +173,22 @@ static bool writeFile(const QString &filePath, const QString &contents)
 
 GenericProject::GenericProject(const Utils::FilePath &fileName)
     : Project(Constants::GENERICMIMETYPE, fileName)
-    , m_cppCodeModelUpdater(new CppTools::CppProjectUpdater)
     , m_deployFileWatcher(new FileSystemWatcher(this))
 {
     setId(Constants::GENERICPROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(fileName.toFileInfo().completeBaseName());
+
+    QObject *projectUpdaterFactory = ExtensionSystem::PluginManager::getObjectByName(
+        "CppProjectUpdaterFactory");
+    if (projectUpdaterFactory) {
+        const bool successFullyCreatedProjectUpdater
+            = QMetaObject::invokeMethod(projectUpdaterFactory,
+                                        "create",
+                                        Q_RETURN_ARG(CppTools::CppProjectUpdaterInterface *,
+                                                     m_cppCodeModelUpdater));
+        QTC_CHECK(successFullyCreatedProjectUpdater);
+    }
 
     connect(this, &GenericProject::projectFileIsDirty, this, [this](const FilePath &p) {
         if (p.endsWith(".files"))
@@ -501,6 +514,8 @@ QStringList GenericProject::processEntries(const QStringList &paths,
 
 void GenericProject::refreshCppCodeModel()
 {
+    if (!m_cppCodeModelUpdater)
+        return;
     QtSupport::CppKitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
 
