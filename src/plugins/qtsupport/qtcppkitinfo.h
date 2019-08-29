@@ -27,13 +27,13 @@
 
 #include "qtsupport_global.h"
 
-#include <cpptools/cppkitinfo.h>
+#include <projectexplorer/rawprojectpart.h>
 
 namespace QtSupport {
 
 class BaseQtVersion;
 
-class QTSUPPORT_EXPORT CppKitInfo : public CppTools::KitInfo
+class QTSUPPORT_EXPORT CppKitInfo : public ProjectExplorer::KitInfo
 {
 public:
     CppKitInfo(ProjectExplorer::Project *project);

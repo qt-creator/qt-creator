@@ -48,7 +48,6 @@ add_qtc_plugin(CppTools
     cpphoverhandler.cpp cpphoverhandler.h
     cppincludesfilter.cpp cppincludesfilter.h
     cppindexingsupport.cpp cppindexingsupport.h
-    cppkitinfo.cpp cppkitinfo.h
     cpplocalsymbols.cpp cpplocalsymbols.h
     cpplocatordata.cpp cpplocatordata.h
     cpplocatorfilter.cpp cpplocatorfilter.h

@@ -46,7 +46,7 @@ CppProjectUpdater::~CppProjectUpdater()
     cancelAndWaitForFinished();
 }
 
-void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo)
+void CppProjectUpdater::update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo)
 {
     // Stop previous update.
     cancelAndWaitForFinished();

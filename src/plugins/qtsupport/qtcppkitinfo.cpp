@@ -30,10 +30,8 @@
 
 namespace QtSupport {
 
-using namespace CppTools;
-
 CppKitInfo::CppKitInfo(ProjectExplorer::Project *project)
-    : KitInfo(project)
+    : ProjectExplorer::KitInfo(project)
 {
     if (kit && (qtVersion = QtKitAspect::qtVersion(kit))) {
         if (qtVersion->qtVersion() < QtSupport::QtVersionNumber(5, 0, 0))

@@ -27,7 +27,9 @@
 
 #include "abi.h"
 #include "kitinformation.h"
+#include "project.h"
 #include "projectexplorerconstants.h"
+#include "target.h"
 
 #include <utils/algorithm.h>
 
@@ -146,6 +148,66 @@ void RawProjectPart::setFlagsForCxx(const RawProjectPartFlags &flags)
 void RawProjectPart::setBuildTargetType(BuildTargetType type)
 {
     buildTargetType = type;
+}
+
+KitInfo::KitInfo(Project *project)
+{
+    // Kit
+    if (Target *target = project->activeTarget())
+        kit = target->kit();
+    else
+        kit = KitManager::defaultKit();
+
+    // Toolchains
+    if (kit) {
+        cToolChain = ToolChainKitAspect::toolChain(kit, Constants::C_LANGUAGE_ID);
+        cxxToolChain = ToolChainKitAspect::toolChain(kit, Constants::CXX_LANGUAGE_ID);
+    }
+
+    // Sysroot
+    sysRootPath = SysRootKitAspect::sysRoot(kit).toString();
+}
+
+bool KitInfo::isValid() const
+{
+    return kit;
+}
+
+ToolChainInfo::ToolChainInfo(const ToolChain *toolChain,
+                             const QString &sysRootPath,
+                             const Utils::Environment &env)
+{
+    if (toolChain) {
+        // Keep the following cheap/non-blocking for the ui thread...
+        type = toolChain->typeId();
+        isMsvc2015ToolChain = toolChain->targetAbi().osFlavor() == Abi::WindowsMsvc2015Flavor;
+        wordWidth = toolChain->targetAbi().wordWidth();
+        targetTriple = toolChain->originalTargetTriple();
+        extraCodeModelFlags = toolChain->extraCodeModelFlags();
+
+        // ...and save the potentially expensive operations for later so that
+        // they can be run from a worker thread.
+        this->sysRootPath = sysRootPath;
+        headerPathsRunner = toolChain->createBuiltInHeaderPathsRunner(env);
+        macroInspectionRunner = toolChain->createMacroInspectionRunner();
+    }
+}
+
+ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
+                                     const KitInfo &kitInfo,
+                                     const Utils::Environment &env,
+                                     const RawProjectParts &rawProjectParts)
+    : project(project)
+    , rawProjectParts(rawProjectParts)
+    , cToolChain(kitInfo.cToolChain)
+    , cxxToolChain(kitInfo.cxxToolChain)
+    , cToolChainInfo(ToolChainInfo(cToolChain, kitInfo.sysRootPath, env))
+    , cxxToolChainInfo(ToolChainInfo(cxxToolChain, kitInfo.sysRootPath, env))
+{}
+
+bool ProjectUpdateInfo::isValid() const
+{
+    return project && !rawProjectParts.isEmpty();
 }
 
 } // namespace ProjectExplorer

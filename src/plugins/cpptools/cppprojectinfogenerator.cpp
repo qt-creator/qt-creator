@@ -35,8 +35,9 @@
 namespace CppTools {
 namespace Internal {
 
-ProjectInfoGenerator::ProjectInfoGenerator(const QFutureInterface<void> &futureInterface,
-                                           const ProjectUpdateInfo &projectUpdateInfo)
+ProjectInfoGenerator::ProjectInfoGenerator(
+    const QFutureInterface<void> &futureInterface,
+    const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo)
     : m_futureInterface(futureInterface)
     , m_projectUpdateInfo(projectUpdateInfo)
 {
@@ -147,7 +148,7 @@ ProjectPart::Ptr ProjectInfoGenerator::createProjectPart(
     Utils::LanguageExtensions languageExtensions)
 {
     ProjectExplorer::RawProjectPartFlags flags;
-    ToolChainInfo tcInfo;
+    ProjectExplorer::ToolChainInfo tcInfo;
     if (language == Language::C) {
         flags = rawProjectPart.flagsForC;
         tcInfo = m_projectUpdateInfo.cToolChainInfo;

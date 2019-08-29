@@ -31,13 +31,20 @@
 #include "projectexplorer_global.h"
 #include "projectmacro.h"
 
+// this include style is forced for the cpp unit test mocks
+#include <projectexplorer/toolchain.h>
+
 #include <utils/cpplanguage_details.h>
+#include <utils/environment.h>
+
+#include <QPointer>
 
 #include <functional>
 
 namespace ProjectExplorer {
 
-class ToolChain;
+class Kit;
+class Project;
 
 class PROJECTEXPLORER_EXPORT RawProjectPartFlags
 {
@@ -113,5 +120,64 @@ public:
 };
 
 using RawProjectParts = QVector<RawProjectPart>;
+
+class PROJECTEXPLORER_EXPORT KitInfo
+{
+public:
+    explicit KitInfo(Project *project);
+
+    bool isValid() const;
+
+    Kit *kit = nullptr;
+    ToolChain *cToolChain = nullptr;
+    ToolChain *cxxToolChain = nullptr;
+
+    Utils::QtVersion projectPartQtVersion = Utils::QtVersion::None;
+
+    QString sysRootPath;
+};
+
+class PROJECTEXPLORER_EXPORT ToolChainInfo
+{
+public:
+    ToolChainInfo() = default;
+    ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
+                  const QString &sysRootPath,
+                  const Utils::Environment &env);
+
+    bool isValid() const { return type.isValid(); }
+
+public:
+    Core::Id type;
+    bool isMsvc2015ToolChain = false;
+    unsigned wordWidth = 0;
+    QString targetTriple;
+    QStringList extraCodeModelFlags;
+
+    QString sysRootPath; // For headerPathsRunner.
+    ProjectExplorer::ToolChain::BuiltInHeaderPathsRunner headerPathsRunner;
+    ProjectExplorer::ToolChain::MacroInspectionRunner macroInspectionRunner;
+};
+
+class PROJECTEXPLORER_EXPORT ProjectUpdateInfo
+{
+public:
+    ProjectUpdateInfo() = default;
+    ProjectUpdateInfo(Project *project,
+                      const KitInfo &kitInfo,
+                      const Utils::Environment &env,
+                      const RawProjectParts &rawProjectParts);
+    bool isValid() const;
+
+public:
+    QPointer<Project> project;
+    RawProjectParts rawProjectParts;
+
+    const ToolChain *cToolChain = nullptr;
+    const ToolChain *cxxToolChain = nullptr;
+
+    ToolChainInfo cToolChainInfo;
+    ToolChainInfo cxxToolChainInfo;
+};
 
 } // namespace ProjectExplorer

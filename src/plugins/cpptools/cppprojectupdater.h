@@ -34,7 +34,6 @@
 namespace CppTools {
 
 class ProjectInfo;
-class ProjectUpdateInfo;
 
 class CPPTOOLS_EXPORT CppProjectUpdater : public QObject
 {
@@ -44,7 +43,7 @@ public:
     CppProjectUpdater();
     ~CppProjectUpdater() override;
 
-    void update(const ProjectUpdateInfo &projectUpdateInfo);
+    void update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo);
     void cancel();
 
 private:
@@ -54,7 +53,7 @@ private:
     void onProjectInfoGenerated();
 
 private:
-    ProjectUpdateInfo m_projectUpdateInfo;
+    ProjectExplorer::ProjectUpdateInfo m_projectUpdateInfo;
 
     QFutureInterface<void> m_futureInterface;
     QFutureWatcher<ProjectInfo> m_generateFutureWatcher;

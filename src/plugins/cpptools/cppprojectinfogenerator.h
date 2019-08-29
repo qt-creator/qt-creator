@@ -37,7 +37,7 @@ class ProjectInfoGenerator
 {
 public:
     ProjectInfoGenerator(const QFutureInterface<void> &futureInterface,
-                         const ProjectUpdateInfo &projectUpdateInfo);
+                         const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo);
 
     ProjectInfo generate();
 
@@ -53,7 +53,7 @@ private:
 
 private:
     const QFutureInterface<void> m_futureInterface;
-    const ProjectUpdateInfo &m_projectUpdateInfo;
+    const ProjectExplorer::ProjectUpdateInfo &m_projectUpdateInfo;
 };
 } // namespace Internal
 } // namespace CppTools

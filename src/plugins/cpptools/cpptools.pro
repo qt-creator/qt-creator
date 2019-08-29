@@ -103,7 +103,6 @@ HEADERS += \
     cppmodelmanagerinterface.h \
     cppbuiltinmodelmanagersupport.h \
     headerpathfilter.h \
-    cppkitinfo.h \
     cpptools_clazychecks.h
 
 SOURCES += \
@@ -190,8 +189,7 @@ SOURCES += \
     cppprojectpartchooser.cpp \
     wrappablelineedit.cpp \
     cppbuiltinmodelmanagersupport.cpp \
-    headerpathfilter.cpp \
-    cppkitinfo.cpp
+    headerpathfilter.cpp
 
 FORMS += \
     clangdiagnosticconfigswidget.ui \

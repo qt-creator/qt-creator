@@ -29,7 +29,6 @@
 #include "compilationdbparser.h"
 
 #include <coreplugin/icontext.h>
-#include <cpptools/cppkitinfo.h>
 #include <cpptools/cppprojectupdater.h>
 #include <cpptools/projectinfo.h>
 #include <projectexplorer/buildinfo.h>
@@ -170,7 +169,7 @@ void addDriverModeFlagIfNeeded(const ToolChain *toolchain,
 
 RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
                                   Kit *kit,
-                                  CppTools::KitInfo &kitInfo,
+                                  ProjectExplorer::KitInfo &kitInfo,
                                   const QString &workingDir,
                                   const Utils::FilePath &fileName,
                                   QStringList flags)
@@ -338,7 +337,7 @@ void createTree(std::unique_ptr<ProjectNode> &root,
 
 void CompilationDatabaseProject::buildTreeAndProjectParts()
 {
-    CppTools::KitInfo kitInfo(this);
+    ProjectExplorer::KitInfo kitInfo(this);
     QTC_ASSERT(kitInfo.isValid(), return);
     // Reset toolchains to pick them based on the database entries.
     kitInfo.cToolChain = nullptr;
