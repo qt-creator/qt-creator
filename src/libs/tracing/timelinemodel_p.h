@@ -140,6 +140,7 @@ public:
     QString displayName;
     QString tooltip;
     QColor categoryColor;
+    bool hasMixedTypesInExpandedState;
 
     bool expanded;
     bool hidden;

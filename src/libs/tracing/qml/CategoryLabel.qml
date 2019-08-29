@@ -121,6 +121,8 @@ Item {
                 sourceComponent: RowLabel {
                     label: labels[index];
                     onSelectBySelectionId: {
+                        if (labelContainer.model.hasMixedTypesInExpandedState)
+                            return;
                         if (labelContainer.reverseSelect) {
                             labelContainer.selectPrevBySelectionId(label.id);
                         } else {

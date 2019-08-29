@@ -42,6 +42,7 @@ class TRACING_EXPORT TimelineModel : public QObject
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName NOTIFY displayNameChanged)
     Q_PROPERTY(QString tooltip READ tooltip NOTIFY tooltipChanged)
     Q_PROPERTY(QColor categoryColor READ categoryColor NOTIFY categoryColorChanged)
+    Q_PROPERTY(bool hasMixedTypesInExpandedState READ hasMixedTypesInExpandedState NOTIFY hasMixedTypesInExpandedStateChanged)
     Q_PROPERTY(bool empty READ isEmpty NOTIFY contentChanged)
     Q_PROPERTY(bool hidden READ hidden WRITE setHidden NOTIFY hiddenChanged)
     Q_PROPERTY(bool expanded READ expanded WRITE setExpanded NOTIFY expandedChanged)
@@ -100,6 +101,10 @@ public:
     QColor categoryColor() const;
     void setCategoryColor(const QColor &color);
 
+    // if this is disabled, a click on the row label will select the single type it contains
+    bool hasMixedTypesInExpandedState() const;
+    void setHasMixedTypesInExpandedState(bool value);
+
     // Methods which can optionally be implemented by child models.
     Q_INVOKABLE virtual QRgb color(int index) const;
     virtual QVariantList labels() const;
@@ -135,6 +140,7 @@ signals:
     void displayNameChanged();
     void tooltipChanged();
     void categoryColorChanged();
+    void hasMixedTypesInExpandedStateChanged();
     void labelsChanged();
     void detailsChanged();
 

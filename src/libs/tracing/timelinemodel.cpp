@@ -135,8 +135,8 @@ int TimelineModel::row(int index) const
 }
 
 TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId) :
-    modelId(modelId), categoryColor(Qt::transparent), expanded(false),
-    hidden(false), expandedRowCount(1), collapsedRowCount(1)
+    modelId(modelId), categoryColor(Qt::transparent), hasMixedTypesInExpandedState(false),
+    expanded(false), hidden(false), expandedRowCount(1), collapsedRowCount(1)
 {
 }
 
@@ -534,6 +534,17 @@ void TimelineModel::setCategoryColor(const QColor &color)
 {
     d->categoryColor = color;
     emit categoryColorChanged();
+}
+
+bool TimelineModel::hasMixedTypesInExpandedState() const
+{
+    return d->hasMixedTypesInExpandedState;
+}
+
+void TimelineModel::setHasMixedTypesInExpandedState(bool value)
+{
+    d->hasMixedTypesInExpandedState = value;
+    emit hasMixedTypesInExpandedStateChanged();
 }
 
 QRgb TimelineModel::color(int index) const
