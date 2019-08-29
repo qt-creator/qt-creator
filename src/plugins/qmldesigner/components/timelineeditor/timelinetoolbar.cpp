@@ -40,6 +40,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 
@@ -101,7 +102,7 @@ QAction *createAction(const Core::Id &id,
 TimelineToolBar::TimelineToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_grp()
-    , m_dialog()
+    , m_dialog(Core::ICore::dialogParent())
     , m_curveModel(new AnimationCurveEditorModel(0., 500.))
 {
     m_dialog.setModel(m_curveModel);
@@ -221,7 +222,7 @@ void TimelineToolBar::removeTimeline(const QmlTimeline &timeline)
 
 void TimelineToolBar::openAnimationCurveEditor()
 {
-    m_dialog.open();
+    m_dialog.show();
 }
 
 void TimelineToolBar::updateCurve(DesignTools::PropertyTreeItem *item)
