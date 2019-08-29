@@ -46,16 +46,18 @@ Rectangle {
     color: StudioTheme.Values.themeControlBackground
     border.width: 0
 
-    onEnabledChanged: invalidateEnabled()
+    onEnabledChanged: syncEnabled()
     onRealEnabledChanged: {
-        invalidateEnabled()
-        if (spinBoxIndicator.realEnabled === false)
+        syncEnabled()
+        if (spinBoxIndicator.realEnabled === false) {
             pressAndHoldTimer.stop()
+            spinBoxIndicatorMouseArea.pressedAndHeld = false
+        }
     }
 
     // This function is meant to synchronize enabled with realEnabled to avoid
     // the internal logic messing with the actual state.
-    function invalidateEnabled() {
+    function syncEnabled() {
         spinBoxIndicator.enabled = spinBoxIndicator.realEnabled
     }
 

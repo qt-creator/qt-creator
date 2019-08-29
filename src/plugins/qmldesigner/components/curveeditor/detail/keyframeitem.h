@@ -75,6 +75,8 @@ public:
 
     void setKeyframe(const Keyframe &keyframe);
 
+    void setInterpolation(Keyframe::Interpolation interpolation);
+
     void setLeftHandle(const QPointF &pos);
 
     void setRightHandle(const QPointF &pos);
