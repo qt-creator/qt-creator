@@ -178,7 +178,7 @@ void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
     item.text = index.sibling(row, Constants::OUTPUT_COLUMN_TEXT).data().toString();
     item.file = Utils::FilePath::fromUserInput(index.sibling(row, Constants::OUTPUT_COLUMN_FILE).data().toString());
     item.line = index.sibling(row, Constants::OUTPUT_COLUMN_LINE).data().toInt();
-    item.color = index.data(Qt::TextColorRole).value<QColor>();
+    item.color = index.data(Qt::ForegroundRole).value<QColor>();
     item.iconType = static_cast<IconType>(index.sibling(row, Constants::OUTPUT_COLUMN_TEXT)
                                           .data(Qt::UserRole).toInt());
 

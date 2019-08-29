@@ -175,7 +175,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             result = font;
             break;
         }
-        case Qt::TextColorRole: {
+        case Qt::ForegroundRole: {
             result = node->isEnabled() ? m_enabledTextColor : m_disabledTextColor;
             break;
         }

@@ -140,7 +140,7 @@ CustomColorDialog::CustomColorDialog(QWidget *parent) : QFrame(parent )
 void CustomColorDialog::setupColor(const QColor &color)
 {
     QPalette pal;
-    pal.setColor(QPalette::Background, color);
+    pal.setColor(QPalette::Window, color);
     m_beforeColorWidget->setPalette(pal);
     setColor(color);
 }
@@ -175,7 +175,7 @@ void CustomColorDialog::setupWidgets()
     m_bSpinBox->setValue(m_color.blueF());
     m_colorBox->setColor(m_color);
     QPalette pal;
-    pal.setColor(QPalette::Background, m_color);
+    pal.setColor(QPalette::Window, m_color);
     m_currentColorWidget->setPalette(pal);
     m_blockUpdate = false;
 }

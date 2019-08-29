@@ -284,7 +284,7 @@ protected:
         QPainter p(this);
         QPalette pal = m_editor->extraArea()->palette();
         const QColor fg = pal.color(QPalette::Dark);
-        const QColor bg = pal.color(QPalette::Background);
+        const QColor bg = pal.color(QPalette::Window);
         p.setPen(fg);
 
         // Draw relative line numbers.

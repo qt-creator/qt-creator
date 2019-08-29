@@ -181,7 +181,7 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     QPalette pal;
     pal.setColor(QPalette::Base, tf.background().color());
     pal.setColor(QPalette::Text, tf.foreground().color());
-    pal.setColor(QPalette::Foreground, tf.foreground().color());
+    pal.setColor(QPalette::WindowText, tf.foreground().color());
     if (selectionFormat.background().style() != Qt::NoBrush)
         pal.setColor(QPalette::Highlight, selectionFormat.background().color());
     pal.setBrush(QPalette::HighlightedText, selectionFormat.foreground());

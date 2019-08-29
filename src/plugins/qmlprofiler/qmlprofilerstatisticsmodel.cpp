@@ -219,7 +219,7 @@ QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, 
         return m_rootDuration > 0 ? "+" : "-";
     case TypeIdRole:
         return s_mainEntryTypeId;
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
         return Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
     case SortRole:
         switch (index.column()) {
@@ -296,7 +296,7 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
             auto it = m_notes.constFind(typeIndex);
             return it == m_notes.constEnd() ? QString() : it.value();
         }
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
         return (stats.recursive > 0 || m_notes.contains(typeIndex))
                 ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
                 : Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
@@ -393,7 +393,7 @@ void QmlProfilerStatisticsModel::typeDetailsChanged(int typeIndex)
 
 void QmlProfilerStatisticsModel::notesChanged(int typeIndex)
 {
-    static const QVector<int> noteRoles({Qt::ToolTipRole, Qt::TextColorRole});
+    static const QVector<int> noteRoles({Qt::ToolTipRole, Qt::ForegroundRole});
     const Timeline::TimelineNotesModel *notesModel = m_modelManager->notesModel();
     if (typeIndex == s_invalidTypeId) {
         m_notes.clear();
@@ -564,7 +564,7 @@ QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(qint64 totalDurat
     switch (role) {
     case TypeIdRole:
         return QmlProfilerStatisticsModel::s_mainEntryTypeId;
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
         return Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
     case SortRole:
         if (column == RelativeTotalTime)
@@ -614,7 +614,7 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
         return type.location().column();
     case Qt::ToolTipRole:
         return stats.isRecursive ? tr("called recursively") : QString();
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
         return stats.isRecursive
                 ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
                 : Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);

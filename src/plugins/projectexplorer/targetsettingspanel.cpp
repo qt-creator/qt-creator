@@ -350,7 +350,7 @@ public:
             return k->icon();
         }
 
-        case Qt::TextColorRole: {
+        case Qt::ForegroundRole: {
             if (!isEnabled())
                 return Utils::creatorTheme()->color(Theme::TextColorDisabled);
             break;

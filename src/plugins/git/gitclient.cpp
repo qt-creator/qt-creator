@@ -236,7 +236,7 @@ void DescriptionWidgetDecorator::highlightCurrentContents(
     sel.cursor.select(QTextCursor::LineUnderCursor);
     sel.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
     const QColor textColor = TextEditor::TextEditorSettings::fontSettings().formatFor(TextEditor::C_TEXT).foreground();
-    sel.format.setUnderlineColor(textColor.isValid() ? textColor : textEditor->palette().color(QPalette::Foreground));
+    sel.format.setUnderlineColor(textColor.isValid() ? textColor : textEditor->palette().color(QPalette::WindowText));
     textEditor->setExtraSelections(TextEditor::TextEditorWidget::OtherSelection,
                        QList<QTextEdit::ExtraSelection>() << sel);
 }

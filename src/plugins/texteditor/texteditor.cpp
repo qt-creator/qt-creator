@@ -4092,7 +4092,8 @@ void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainte
         return;
     // Don't use QFontMetricsF::averageCharWidth here, due to it returning
     // a fractional size even when this is not supported by the platform.
-    data.rightMargin = QFontMetricsF(q->font()).width(QLatin1Char('x')) * m_visibleWrapColumn
+    data.rightMargin = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'))
+            * m_visibleWrapColumn
             + data.offset.x() + 4;
     const QRect viewportRect = q->viewport()->rect();
     if (data.rightMargin < viewportRect.width()) {
@@ -4268,7 +4269,7 @@ void TextEditorWidgetPrivate::paintFindScope(const PaintEventData &data, QPainte
                     QTextLayout *layout = block.layout();
                     QString text = block.text();
                     const TabSettings ts = m_document->tabSettings();
-                    qreal spacew = QFontMetricsF(q->font()).width(QLatin1Char(' '));
+                    qreal spacew = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char(' '));
 
                     int offset = 0;
                     int relativePos  =  ts.positionAtColumn(text,
@@ -4358,7 +4359,7 @@ void TextEditorWidgetPrivate::paintBlockSelection(const PaintEventData &data, QP
     QRectF blockBoundingRect = q->blockBoundingRect(data.block).translated(data.offset);
     QString text = data.block.text();
     const TabSettings tabSettings = m_document->tabSettings();
-    const qreal spacew = QFontMetricsF(q->font()).width(QLatin1Char(' '));
+    const qreal spacew = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char(' '));
     const int cursorw = q->overwriteMode() ? QFontMetrics(q->font()).horizontalAdvance(QLatin1Char(' '))
                                            : q->cursorWidth();
 
@@ -4433,14 +4434,14 @@ void TextEditorWidgetPrivate::paintCursorAsBlock(const PaintEventData &data, QPa
         w = line.cursorToX(relativePos + 1) - x;
         if (data.doc->characterAt(data.context.cursorPosition) == QLatin1Char('\t')) {
             doSelection = false;
-            qreal space = fontMetrics.width(QLatin1Char(' '));
+            qreal space = fontMetrics.horizontalAdvance(QLatin1Char(' '));
             if (w > space) {
                 x += w-space;
                 w = space;
             }
         }
     } else
-        w = fontMetrics.width(QLatin1Char(' ')); // in sync with QTextLine::draw()
+        w = fontMetrics.horizontalAdvance(QLatin1Char(' ')); // in sync with QTextLine::draw()
 
     QRectF lineRect = line.rect();
     lineRect.moveTop(lineRect.top() + blockData.boundingRect.top());
@@ -5122,7 +5123,7 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 
     QPainter painter(d->m_extraArea);
 
-    painter.fillRect(e->rect(), data.palette.color(QPalette::Background));
+    painter.fillRect(e->rect(), data.palette.color(QPalette::Window));
 
     data.block = firstVisibleBlock();
     QPointF offset = contentOffset();
@@ -5448,7 +5449,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                     int column = tabSettings.columnAt(
                                 cursor.block().text(), cursor.positionInBlock());
                     if (cursor.positionInBlock() == cursor.block().length()-1)
-                        column += (e->pos().x() - cursorRect().center().x()) / QFontMetricsF(font()).width(QLatin1Char(' '));
+                        column += (e->pos().x() - cursorRect().center().x()) / QFontMetricsF(font()).horizontalAdvance(QLatin1Char(' '));
                     int block = cursor.blockNumber();
                     if (block == blockCount() - 1)
                         block += (e->pos().y() - cursorRect().center().y()) / QFontMetricsF(font()).lineSpacing();
@@ -5461,7 +5462,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
                 int column = tabSettings.columnAt(
                             cursor.block().text(), cursor.positionInBlock());
                 if (cursor.positionInBlock() == cursor.block().length()-1)
-                    column += (e->pos().x() - cursorRect().center().x()) / QFontMetricsF(font()).width(QLatin1Char(' '));
+                    column += (e->pos().x() - cursorRect().center().x()) / QFontMetricsF(font()).horizontalAdvance(QLatin1Char(' '));
 
                 d->m_blockSelection.positionBlock = cursor.blockNumber();
                 d->m_blockSelection.positionColumn = column;
@@ -5499,7 +5500,7 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
             int column = d->m_document->tabSettings().columnAt(
                         cursor.block().text(), cursor.positionInBlock());
             if (cursor.positionInBlock() == cursor.block().length()-1)
-                column += (e->pos().x() - cursorRect(cursor).center().x()) / QFontMetricsF(font()).width(QLatin1Char(' '));
+                column += (e->pos().x() - cursorRect(cursor).center().x()) / QFontMetricsF(font()).horizontalAdvance(QLatin1Char(' '));
             int block = cursor.blockNumber();
             if (block == blockCount() - 1)
                 block += (e->pos().y() - cursorRect(cursor).center().y()) / QFontMetricsF(font()).lineSpacing();
@@ -7254,7 +7255,7 @@ void TextEditorWidget::applyFontSettings()
     const QColor background = textFormat.background().color();
     QPalette p = palette();
     p.setColor(QPalette::Text, foreground);
-    p.setColor(QPalette::Foreground, foreground);
+    p.setColor(QPalette::WindowText, foreground);
     p.setColor(QPalette::Base, background);
     p.setColor(QPalette::Highlight, (selectionFormat.background().style() != Qt::NoBrush) ?
                selectionFormat.background().color() :
@@ -7271,7 +7272,7 @@ void TextEditorWidget::applyFontSettings()
     // Line numbers
     QPalette ep;
     ep.setColor(QPalette::Dark, lineNumberFormat.foreground().color());
-    ep.setColor(QPalette::Background, lineNumberFormat.background().style() != Qt::NoBrush ?
+    ep.setColor(QPalette::Window, lineNumberFormat.background().style() != Qt::NoBrush ?
                 lineNumberFormat.background().color() : background);
     d->m_extraArea->setPalette(ep);
 
@@ -8107,7 +8108,7 @@ void TextEditorWidgetPrivate::updateTabStops()
 {
     // Although the tab stop is stored as qreal the API from QPlainTextEdit only allows it
     // to be set as an int. A work around is to access directly the QTextOption.
-    qreal charWidth = QFontMetricsF(q->font()).width(QLatin1Char(' '));
+    qreal charWidth = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char(' '));
     QTextOption option = q->document()->defaultTextOption();
     option.setTabStopDistance(charWidth * m_document->tabSettings().m_tabSize);
     q->document()->setDefaultTextOption(option);
@@ -8116,7 +8117,7 @@ void TextEditorWidgetPrivate::updateTabStops()
 int TextEditorWidget::columnCount() const
 {
     QFontMetricsF fm(font());
-    return int(viewport()->rect().width() / fm.width(QLatin1Char('x')));
+    return int(viewport()->rect().width() / fm.horizontalAdvance(QLatin1Char('x')));
 }
 
 int TextEditorWidget::rowCount() const

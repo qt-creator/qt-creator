@@ -78,7 +78,7 @@ QVariant TodoItemsModel::data(const QModelIndex &index, int role) const
 
     TodoItem item = m_todoItemsList->at(index.row());
 
-    if (role == Qt::TextColorRole)
+    if (role == Qt::ForegroundRole)
         return item.color;
 
     switch (index.column()) {

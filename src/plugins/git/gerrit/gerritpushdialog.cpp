@@ -216,7 +216,7 @@ void GerritPushDialog::setChangeRange()
     QPalette palette = QApplication::palette();
     if (currentRange > ReasonableDistance) {
         const QColor errorColor = Utils::creatorTheme()->color(Utils::Theme::TextColorError);
-        palette.setColor(QPalette::Foreground, errorColor);
+        palette.setColor(QPalette::WindowText, errorColor);
         palette.setColor(QPalette::ButtonText, errorColor);
         labelText.append("\n" + tr("Are you sure you selected the right target branch?"));
     }

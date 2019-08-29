@@ -88,7 +88,6 @@ static QFont sizedFont(int size, const QWidget *widget, bool underline = false)
 static QPalette lightText()
 {
     QPalette pal;
-    pal.setColor(QPalette::Foreground, themeColor(Theme::Welcome_ForegroundPrimaryColor));
     pal.setColor(QPalette::WindowText, themeColor(Theme::Welcome_ForegroundPrimaryColor));
     return pal;
 }
@@ -199,7 +198,7 @@ public:
     void enterEvent(QEvent *) override
     {
         QPalette pal;
-        pal.setColor(QPalette::Background, themeColor(Theme::Welcome_HoverColor));
+        pal.setColor(QPalette::Window, themeColor(Theme::Welcome_HoverColor));
         setPalette(pal);
         m_label->setFont(sizedFont(11, m_label, true));
         update();
@@ -208,7 +207,7 @@ public:
     void leaveEvent(QEvent *) override
     {
         QPalette pal;
-        pal.setColor(QPalette::Background, themeColor(Theme::Welcome_BackgroundColor));
+        pal.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundColor));
         setPalette(pal);
         m_label->setFont(sizedFont(11, m_label, false));
         update();
@@ -319,7 +318,7 @@ WelcomeMode::WelcomeMode()
     setContext(Context(Constants::C_WELCOME_MODE));
 
     QPalette palette = creatorTheme()->palette();
-    palette.setColor(QPalette::Background, themeColor(Theme::Welcome_BackgroundColor));
+    palette.setColor(QPalette::Window, themeColor(Theme::Welcome_BackgroundColor));
 
     m_modeWidget = new QWidget;
     m_modeWidget->setPalette(palette);

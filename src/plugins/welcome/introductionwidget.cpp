@@ -78,7 +78,7 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
     parent->installEventFilter(this);
 
     QPalette p = palette();
-    p.setColor(QPalette::Foreground, QColor(220, 220, 220));
+    p.setColor(QPalette::WindowText, QColor(220, 220, 220));
     setPalette(p);
 
     m_textWidget = new QWidget(this);

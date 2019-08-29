@@ -70,9 +70,7 @@ QPalette singleColorPalette(const QColor &color)
 {
     QPalette palette;
     palette.setColor(QPalette::Window, color);
-    palette.setColor(QPalette::Background, color);
     palette.setColor(QPalette::WindowText, color);
-    palette.setColor(QPalette::Foreground, color);
     palette.setColor(QPalette::Base, color);
     palette.setColor(QPalette::AlternateBase, color);
     palette.setColor(QPalette::ToolTipBase, color);

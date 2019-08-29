@@ -538,7 +538,7 @@ void GraphicsView::drawValueScale(QPainter *painter, const QRectF &rect)
 double GraphicsView::timeLabelInterval(QPainter *painter, double maxTime)
 {
     QFontMetrics fm(painter->font());
-    int minTextSpacing = fm.width(QString("X%1X").arg(maxTime));
+    int minTextSpacing = fm.horizontalAdvance(QString("X%1X").arg(maxTime));
 
     int deltaTime = 1;
     int nextFactor = 5;

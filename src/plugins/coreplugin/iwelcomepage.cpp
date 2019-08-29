@@ -64,31 +64,28 @@ static QPalette buttonPalette(bool isActive, bool isCursorInside, bool forText)
     Theme *theme = Utils::creatorTheme();
     if (isActive) {
         if (forText) {
-            pal.setColor(QPalette::Background, theme->color(Theme::Welcome_ForegroundPrimaryColor));
-            pal.setColor(QPalette::Foreground, theme->color(Theme::Welcome_ForegroundPrimaryColor));
+            pal.setColor(QPalette::Window, theme->color(Theme::Welcome_ForegroundPrimaryColor));
             pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_BackgroundColor));
         } else {
-            pal.setColor(QPalette::Background, theme->color(Theme::Welcome_ForegroundPrimaryColor));
-            pal.setColor(QPalette::Foreground, theme->color(Theme::Welcome_ForegroundPrimaryColor));
+            pal.setColor(QPalette::Window, theme->color(Theme::Welcome_ForegroundPrimaryColor));
+            pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_ForegroundPrimaryColor));
         }
     } else {
         if (isCursorInside) {
             if (forText) {
-                pal.setColor(QPalette::Background, theme->color(Theme::Welcome_HoverColor));
-                pal.setColor(QPalette::Foreground, theme->color(Theme::Welcome_HoverColor));
+                pal.setColor(QPalette::Window, theme->color(Theme::Welcome_HoverColor));
                 pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_TextColor));
             } else {
-                pal.setColor(QPalette::Background, theme->color(Theme::Welcome_HoverColor));
-                pal.setColor(QPalette::Foreground, theme->color(Theme::Welcome_ForegroundSecondaryColor));
+                pal.setColor(QPalette::Window, theme->color(Theme::Welcome_HoverColor));
+                pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_ForegroundSecondaryColor));
             }
         } else {
             if (forText) {
-                pal.setColor(QPalette::Background, theme->color(Theme::Welcome_ForegroundPrimaryColor));
-                pal.setColor(QPalette::Foreground, theme->color(Theme::Welcome_BackgroundColor));
+                pal.setColor(QPalette::Window, theme->color(Theme::Welcome_ForegroundPrimaryColor));
                 pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_TextColor));
             } else {
-                pal.setColor(QPalette::Background, theme->color(Theme::Welcome_BackgroundColor));
-                pal.setColor(QPalette::Foreground, theme->color(Theme::Welcome_ForegroundSecondaryColor));
+                pal.setColor(QPalette::Window, theme->color(Theme::Welcome_BackgroundColor));
+                pal.setColor(QPalette::WindowText, theme->color(Theme::Welcome_ForegroundSecondaryColor));
             }
         }
     }

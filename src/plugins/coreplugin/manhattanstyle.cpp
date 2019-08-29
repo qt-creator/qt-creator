@@ -246,14 +246,12 @@ QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
     QPalette pal = oldPalette;
     pal.setBrush(QPalette::All, QPalette::WindowText, color);
     pal.setBrush(QPalette::All, QPalette::ButtonText, color);
-    pal.setBrush(QPalette::All, QPalette::Foreground, color);
     if (lightColored)
         color.setAlpha(100);
     else
         color = creatorTheme()->color(Theme::IconsDisabledColor);
     pal.setBrush(QPalette::Disabled, QPalette::WindowText, color);
     pal.setBrush(QPalette::Disabled, QPalette::ButtonText, color);
-    pal.setBrush(QPalette::Disabled, QPalette::Foreground, color);
     return pal;
 }
 
@@ -291,7 +289,7 @@ void ManhattanStyle::polish(QWidget *widget)
             const bool isLightColored = lightColored(widget);
             QPalette palette = panelPalette(widget->palette(), isLightColored);
             if (!isLightColored)
-                palette.setBrush(QPalette::All, QPalette::Foreground,
+                palette.setBrush(QPalette::All, QPalette::WindowText,
                                  creatorTheme()->color(Theme::ComboBoxTextColor));
             widget->setPalette(palette);
             widget->setMaximumHeight(StyleHelper::navigationWidgetHeight() - 2);
@@ -738,7 +736,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
                 }
                 painter->setPen((option->state & State_Enabled)
-                                  ? option->palette.color(QPalette::Foreground)
+                                  ? option->palette.color(QPalette::WindowText)
                                   : creatorTheme()->color(Theme::IconsDisabledColor));
                 painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
 
