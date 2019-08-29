@@ -34,9 +34,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
-#include <cpptools/cpptoolsconstants.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/projectinfo.h>
 #include <cpptools/cppprojectupdater.h>
 
 #include <projectexplorer/abi.h>
@@ -378,7 +375,7 @@ void GenericProject::parseProject(RefreshOptions options)
         m_rawProjectIncludePaths = readLines(m_includesFileName);
         QStringList normalPaths;
         QStringList frameworkPaths;
-        for (const QString &rawPath : m_rawProjectIncludePaths) {
+        for (const QString &rawPath : qAsConst(m_rawProjectIncludePaths)) {
             if (rawPath.startsWith("-F"))
                 frameworkPaths << rawPath.mid(2);
             else
@@ -393,9 +390,6 @@ void GenericProject::parseProject(RefreshOptions options)
         m_projectIncludePaths << stringsToHeaderPaths(frameworkPaths, HeaderPathType::Framework);
         m_cxxflags = readFlags(m_cxxflagsFileName);
         m_cflags = readFlags(m_cflagsFileName);
-
-        // TODO: Possibly load some configuration from the project file
-        //QSettings projectInfo(m_fileName, QSettings::IniFormat);
     }
 }
 
@@ -405,7 +399,7 @@ FilePath GenericProject::findCommonSourceRoot()
         return FilePath::fromFileInfo(QFileInfo(m_filesFileName).absolutePath());
 
     QString root = m_files.front();
-    for (const QString &item : m_files) {
+    for (const QString &item : qAsConst(m_files)) {
         if (root.length() > item.length())
             root.truncate(item.length());
 
@@ -430,7 +424,7 @@ void GenericProject::refresh(RefreshOptions options)
         // find the common base directory of all source files
         Utils::FilePath baseDir = findCommonSourceRoot();
 
-        for (const QString &f : m_files) {
+        for (const QString &f : qAsConst(m_files)) {
             FileType fileType = FileType::Source; // ### FIXME
             if (f.endsWith(".qrc"))
                 fileType = FileType::Resource;
