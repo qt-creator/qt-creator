@@ -227,13 +227,6 @@ public:
         return runConfiguration() ? runConfiguration()->aspect<T>() : nullptr;
     }
 
-    template <typename T>
-    auto aspectData() -> decltype(T::runData(nullptr, this)) {
-        if (T *asp = aspect<T>())
-            return T::runData(asp, this);
-        return {};
-    }
-
     ISettingsAspect *settings(Core::Id id) const;
     QString buildKey() const;
 
