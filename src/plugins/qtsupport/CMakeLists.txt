@@ -1,7 +1,7 @@
 add_qtc_plugin(QtSupport
   DEPENDS Qt5::Xml
   PUBLIC_DEPENDS ProParser
-  PLUGIN_DEPENDS Core CppTools ProjectExplorer ResourceEditor
+  PLUGIN_DEPENDS Core ProjectExplorer ResourceEditor
   SOURCES
     baseqtversion.cpp baseqtversion.h
     codegenerator.cpp codegenerator.h

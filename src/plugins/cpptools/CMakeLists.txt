@@ -69,7 +69,6 @@ add_qtc_plugin(CppTools
     cppsemanticinfoupdater.cpp cppsemanticinfoupdater.h
     cppsourceprocessor.cpp cppsourceprocessor.h
     cppsymbolinfo.h
-    cpptools.qrc
     cpptools_clangtidychecks.h
     cpptools_clazychecks.h
     cpptools_global.h

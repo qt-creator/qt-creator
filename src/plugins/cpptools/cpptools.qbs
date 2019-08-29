@@ -153,7 +153,6 @@ Project {
             "cppsemanticinfoupdater.h",
             "cppsourceprocessor.cpp",
             "cppsourceprocessor.h",
-            "cpptools.qrc",
             "cpptools_clangtidychecks.h",
             "cpptools_clazychecks.h",
             "cpptools_global.h",
