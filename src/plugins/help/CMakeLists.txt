@@ -31,6 +31,7 @@ add_qtc_plugin(Help
 
 extend_qtc_plugin(Help
   CONDITION FWWebKit AND FWAppKit
+  FEATURE_INFO "Native WebKit help viewer"
   DEPENDS ${FWWebKit} ${FWAppKit}
   DEFINES QTC_MAC_NATIVE_HELPVIEWER
   SOURCES
@@ -41,6 +42,7 @@ extend_qtc_plugin(Help
 find_package(Qt5WebEngineWidgets QUIET)
 extend_qtc_plugin(Help
   CONDITION TARGET Qt5::WebEngineWidgets
+  FEATURE_INFO "QtWebEngine help viewer"
   DEPENDS Qt5::WebEngineWidgets
   DEFINES QTC_WEBENGINE_HELPVIEWER
   SOURCES
@@ -51,12 +53,14 @@ extend_qtc_plugin(Help
 find_package(litehtml QUIET)
 if (TARGET litehtml)
   add_subdirectory(qlitehtml)
-  extend_qtc_plugin(Help
-    CONDITION TARGET qlitehtml
-    DEPENDS qlitehtml
-    DEFINES QTC_LITEHTML_HELPVIEWER
-    SOURCES
-      litehtmlhelpviewer.cpp
-      litehtmlhelpviewer.h
-  )
 endif()
+
+extend_qtc_plugin(Help
+  CONDITION TARGET litehtml AND TARGET qlitehtml
+  FEATURE_INFO "litehtml help viewer"
+  DEPENDS qlitehtml
+  DEFINES QTC_LITEHTML_HELPVIEWER
+  SOURCES
+    litehtmlhelpviewer.cpp
+    litehtmlhelpviewer.h
+)

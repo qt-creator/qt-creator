@@ -294,6 +294,15 @@ function(qtc_output_binary_dir varName)
   endif()
 endfunction()
 
+function(condition_info varName condition)
+  if (NOT ${condition})
+    set(${varName} "" PARENT_SCOPE)
+  else()
+    string(REPLACE ";" " " _contents "${${condition}}")
+    set(${varName} "with CONDITION ${_contents}" PARENT_SCOPE)
+  endif()
+endfunction()
+
 #
 # Public API functions
 #
@@ -425,12 +434,9 @@ function(add_qtc_plugin target_name)
     set(name ${_arg_PLUGIN_NAME})
   endif()
 
+  condition_info(_extra_text _arg_CONDITION)
   if (NOT _arg_CONDITION)
     set(_arg_CONDITION ON)
-    set(_extra_text "")
-  else()
-    string(REPLACE ";" " " _contents "${_arg_CONDITION}")
-    set(_extra_text "with CONDITION ${_contents}")
   endif()
 
   string(TOUPPER "BUILD_PLUGIN_${target_name}" _build_plugin_var)
@@ -602,7 +608,7 @@ endfunction()
 function(extend_qtc_target target_name)
   cmake_parse_arguments(_arg
     ""
-    "SOURCES_PREFIX"
+    "SOURCES_PREFIX;FEATURE_INFO"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC"
     ${ARGN}
   )
@@ -611,8 +617,12 @@ function(extend_qtc_target target_name)
     message(FATAL_ERROR "extend_qtc_target had unparsed arguments")
   endif()
 
+  condition_info(_extra_text _arg_CONDITION)
   if (NOT _arg_CONDITION)
     set(_arg_CONDITION ON)
+  endif()
+  if (_arg_FEATURE_INFO)
+    add_feature_info(${_arg_FEATURE_INFO} _arg_CONDITION "${_extra_text}")
   endif()
   if (NOT (${_arg_CONDITION}))
     return()
