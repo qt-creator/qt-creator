@@ -26,6 +26,8 @@
 import QtQuick 2.1
 import QtQuick.Layouts 1.0
 import QtQuickDesignerTheme 1.0
+import QtQuick.Dialogs 1.3
+import StudioControls 1.0 as StudioControls
 
 Column {
     id: colorEditor
@@ -198,6 +200,12 @@ Column {
             ColorCheckButton {
                 id: checkButton
                 buttonColor: colorEditor.color
+
+                onCheckedChanged: {
+                    if (contextMenu.opened)
+                        contextMenu.close()
+                }
+                onRightMouseButtonClicked: contextMenu.popup(checkButton)
             }
 
             LineEdit {
@@ -615,7 +623,13 @@ Column {
 
             sliderMargins: 4
 
-            onClicked: colorEditor.color = colorButton.color
+            onClicked: {
+                colorEditor.color = colorButton.color
+                if (contextMenu.opened)
+                    contextMenu.close()
+            }
+
+            onRightMouseButtonClicked: contextMenu.popup(colorButton)
         }
 
         Item {
@@ -702,13 +716,23 @@ Column {
 
                         clickable: !colorEditor.transparent
 
-                        onSelectedColorChanged: {
-                            colorEditor.color = colorPalette.selectedColor;
-                        }
+                        onSelectedColorChanged: colorEditor.color = colorPalette.selectedColor
+
+
+                        onDialogColorChanged: colorEditor.color = colorPalette.selectedColor
                     }
                 }
 
             }
+        }
+    }
+
+    StudioControls.Menu {
+        id: contextMenu
+
+        StudioControls.MenuItem {
+            text: qsTr("Open Color Dialog")
+            onTriggered: colorPalette.showColorDialog(colorEditor.color)
         }
     }
 }

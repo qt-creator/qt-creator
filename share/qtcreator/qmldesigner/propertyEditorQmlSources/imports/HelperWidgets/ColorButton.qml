@@ -43,6 +43,7 @@ Item {
     property bool block: false
 
     signal clicked
+    signal rightMouseButtonClicked
 
     onAlphaChanged: invalidateColor();
     onSaturationChanged: invalidateColor();
@@ -202,7 +203,7 @@ Item {
             id: mapMouseArea
             anchors.fill: parent
             onPositionChanged: {
-                if (pressed) {
+                if (pressed && mouse.button === Qt.LeftButton) {
                     var xx = Math.max(0, Math.min(mouse.x, parent.width))
                     var yy = Math.max(0, Math.min(mouse.y, parent.height))
 
@@ -210,8 +211,21 @@ Item {
                     colorButton.saturation = xx / parent.width;
                 }
             }
-            onPressed: positionChanged(mouse)
-            onReleased: colorButton.clicked()
+            onPressed: {
+                if (mouse.button === Qt.LeftButton)
+                    positionChanged(mouse)
+            }
+            onReleased: {
+                if (mouse.button === Qt.LeftButton)
+                    colorButton.clicked()
+            }
+
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+            onClicked: {
+                if (mouse.button === Qt.RightButton)
+                    colorButton.rightMouseButtonClicked()
+            }
         }
         Rectangle {
             anchors.fill: parent

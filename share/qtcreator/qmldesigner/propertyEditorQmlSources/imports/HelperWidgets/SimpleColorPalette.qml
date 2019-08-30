@@ -32,7 +32,12 @@ import QtQuick.Controls.Private 1.0 // showing a ToolTip
 Item {
     property color selectedColor
     property bool clickable : true
+    property color oldColor
 
+    function showColorDialog(color) {
+        oldColor = color
+        paletteModel.showDialog(color)
+    }
 
     width: 200
     height: 40
@@ -42,6 +47,8 @@ Item {
     {
         paletteModel.addItem(colorCode)
     }
+
+    signal dialogColorChanged
 
     Component {
         id: colorItemDelegate
@@ -94,7 +101,20 @@ Item {
         }
     }
 
-    SimpleColorPaletteModel { id: paletteModel }
+    SimpleColorPaletteModel {
+
+        id: paletteModel
+
+        onCurrentColorChanged: {
+            selectedColor = color
+            dialogColorChanged()
+
+        }
+        onColorDialogRejected: {
+            selectedColor = oldColor
+            dialogColorChanged()
+        }
+    }
     ListView {
         id: colorPaletteView
         model: paletteModel
