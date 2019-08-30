@@ -89,7 +89,7 @@ void Magnifier::wheelEvent(QWheelEvent *e)
 {
     QWidget::wheelEvent(e);
 
-    if (e->delta() > 0)
+    if (e->angleDelta().y() > 0)
         m_ui.m_graphicsView->scale(1.1, 1.1);
     else
         m_ui.m_graphicsView->scale(1.0 / 1.1, 1.0 / 1.1);

@@ -176,7 +176,7 @@ void HelpViewer::wheelEvent(QWheelEvent *event)
 {
     if (m_scrollWheelZoomingEnabled && event->modifiers() == Qt::ControlModifier) {
         event->accept();
-        event->delta() > 0 ? scaleUp() : scaleDown();
+        event->angleDelta().y() > 0 ? scaleUp() : scaleDown();
     } else {
         QWidget::wheelEvent(event);
     }

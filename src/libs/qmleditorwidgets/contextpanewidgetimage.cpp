@@ -941,7 +941,7 @@ void PreviewDialog::setPixmap(const QPixmap &p, int zoom)
 
 void PreviewDialog::wheelEvent(QWheelEvent* event)
 {
-    int delta = event->delta();
+    const auto delta = event->angleDelta().y();
     event->accept();
     if (delta >  0) {
         if (m_zoom == 1)

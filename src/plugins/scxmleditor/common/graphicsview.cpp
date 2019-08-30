@@ -138,7 +138,7 @@ void GraphicsView::zoomOut()
 void GraphicsView::wheelEvent(QWheelEvent *event)
 {
     if (Qt::ControlModifier & event->modifiers()) {
-        if (event->delta() > 0)
+        if (event->angleDelta().y() > 0)
             zoomIn();
         else
             zoomOut();

@@ -286,7 +286,7 @@ void ImageView::doScale(qreal factor)
 
 void ImageView::wheelEvent(QWheelEvent *event)
 {
-    qreal factor = qPow(Constants::DEFAULT_SCALE_FACTOR, event->delta() / 240.0);
+    qreal factor = qPow(Constants::DEFAULT_SCALE_FACTOR, event->angleDelta().y() / 240.0);
     doScale(factor);
     event->accept();
 }

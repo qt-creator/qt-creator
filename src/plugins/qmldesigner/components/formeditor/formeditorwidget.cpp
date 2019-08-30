@@ -209,7 +209,7 @@ void FormEditorWidget::resetNodeInstanceView()
 void FormEditorWidget::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers().testFlag(Qt::ControlModifier)) {
-        if (event->delta() > 0)
+        if (event->angleDelta().y() > 0)
             zoomAction()->zoomOut();
         else
             zoomAction()->zoomIn();

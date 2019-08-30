@@ -310,7 +310,7 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
             if (d->m_popupFrame && !d->m_popupFrame->isAncestorOf(widget)) {
                 abort();
             } else if (e->type() == QEvent::Wheel) {
-                if (static_cast<QWheelEvent*>(e)->delta() > 0)
+                if (static_cast<QWheelEvent*>(e)->angleDelta().y() > 0)
                     previousPage();
                 else
                     nextPage();
