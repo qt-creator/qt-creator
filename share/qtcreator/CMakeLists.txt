@@ -1,5 +1,5 @@
 set(template_directories cplusplus debugger glsl modeleditor qml qmldesigner
-  qmlicons qml-type-descriptions schemes snippets styles templates themes welcomescreen)
+  qmlicons qml-type-descriptions schemes scripts snippets styles templates themes welcomescreen)
 
 add_custom_target(copy_share_to_builddir ALL
   COMMENT Copy files into build directory
