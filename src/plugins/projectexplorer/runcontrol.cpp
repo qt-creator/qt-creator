@@ -328,6 +328,9 @@ public:
     QMap<Core::Id, QVariantMap> settingsData;
     Core::Id runConfigId;
     BuildTargetInfo buildTargetInfo;
+    BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
+    FilePath buildDirectory;
+    Environment buildEnvironment;
     Kit *kit = nullptr; // Not owned.
     QPointer<Target> target; // Not owned.
     QPointer<Project> project; // Not owned.
@@ -375,6 +378,12 @@ void RunControl::setTarget(Target *target)
 
     if (!d->buildKey.isEmpty())
         d->buildTargetInfo = target->buildTarget(d->buildKey);
+
+    if (auto bc = target->activeBuildConfiguration()) {
+        d->buildType = bc->buildType();
+        d->buildDirectory = bc->buildDirectory();
+        d->buildEnvironment = bc->environment();
+    }
 
     delete d->outputFormatter;
     d->outputFormatter = OutputFormatterFactory::createFormatter(target);
@@ -905,6 +914,21 @@ QVariantMap RunControl::settingsData(Core::Id id) const
 QString RunControl::buildKey() const
 {
     return d->buildKey;
+}
+
+BuildConfiguration::BuildType RunControl::buildType() const
+{
+    return d->buildType;
+}
+
+FilePath RunControl::buildDirectory() const
+{
+    return d->buildDirectory;
+}
+
+Environment RunControl::buildEnvironment() const
+{
+    return d->buildEnvironment;
 }
 
 FilePath RunControl::targetFilePath() const

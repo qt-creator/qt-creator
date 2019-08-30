@@ -35,7 +35,6 @@
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
@@ -139,11 +138,11 @@ void AndroidDebugSupport::start()
         if (qtVersion)
             solibSearchPath.append(qtVersion->qtSoPaths());
         solibSearchPath.append(uniquePaths(extraLibs));
-        solibSearchPath.append(target->activeBuildConfiguration()->buildDirectory().toString());
+        solibSearchPath.append(runControl()->buildDirectory().toString());
         solibSearchPath.removeDuplicates();
         setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog) << "SoLibSearchPath: "<<solibSearchPath;
-        setSymbolFile(target->activeBuildConfiguration()->buildDirectory().pathAppended("app_process"));
+        setSymbolFile(runControl()->buildDirectory().pathAppended("app_process"));
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
         QString devicePreferredAbi = AndroidManager::devicePreferredAbi(target);

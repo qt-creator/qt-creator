@@ -71,7 +71,6 @@ private:
 
     ProjectExplorer::RunWorker *m_worker = nullptr;
     WinRtDevice::ConstPtr m_device;
-    Utils::Environment m_environment;
     QString m_runnerFilePath;
     QString m_executableFilePath;
     QString m_debuggerExecutable;

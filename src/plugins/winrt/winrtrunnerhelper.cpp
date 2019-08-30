@@ -98,9 +98,6 @@ WinRtRunnerHelper::WinRtRunnerHelper(ProjectExplorer::RunWorker *runWorker, QStr
         m_loopbackArguments = QStringList{"--loopbackexempt", "client"};
     else if (loopbackExemptServer)
         m_loopbackArguments = QStringList{"--loopbackexempt", "server"};
-
-    if (BuildConfiguration *bc = runControl->target()->activeBuildConfiguration())
-        m_environment = bc->environment();
 }
 
 void WinRtRunnerHelper::appendMessage(const QString &message, Utils::OutputFormat format)
@@ -224,7 +221,7 @@ void WinRtRunnerHelper::startWinRtRunner(const RunConf &conf)
 
     process->setUseCtrlCStub(true);
     process->setCommand(cmdLine);
-    process->setEnvironment(m_environment);
+    process->setEnvironment(m_worker->runControl()->buildEnvironment());
     process->setWorkingDirectory(QFileInfo(m_executableFilePath).absolutePath());
     process->start();
 }

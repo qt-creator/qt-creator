@@ -26,6 +26,7 @@
 #pragma once
 
 #include "applicationlauncher.h"
+#include "buildconfiguration.h"
 #include "devicesupport/idevice.h"
 #include "projectexplorerconstants.h"
 #include "runconfiguration.h"
@@ -228,6 +229,9 @@ public:
     }
 
     QString buildKey() const;
+    BuildConfiguration::BuildType buildType() const;
+    Utils::FilePath buildDirectory() const;
+    Utils::Environment buildEnvironment() const;
 
     QVariantMap settingsData(Core::Id id) const;
 

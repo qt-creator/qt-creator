@@ -136,11 +136,7 @@ private:
         Target *target = runControl()->target();
         QTC_ASSERT(target, reportFailure(); return);
 
-        BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
-        if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
-            buildType = buildConfig->buildType();
-
-        if (buildType == BuildConfiguration::Release) {
+        if (runControl()->buildType() == BuildConfiguration::Release) {
             const QString wrongMode = ClangToolRunWorker::tr("Release");
             const QString toolName = tool()->name();
             const QString title = ClangToolRunWorker::tr("Run %1 in %2 Mode?").arg(toolName, wrongMode);
