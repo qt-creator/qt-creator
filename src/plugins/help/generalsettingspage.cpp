@@ -37,6 +37,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QCoreApplication>
@@ -122,6 +123,21 @@ QWidget *GeneralSettingsPage::widget()
 
         m_scrollWheelZoomingEnabled = LocalHelpManager::isScrollWheelZoomingEnabled();
         m_ui->scrollWheelZooming->setChecked(m_scrollWheelZoomingEnabled);
+
+        const QString tooltip = tr("Change takes effect after reloading help pages.");
+        m_ui->viewerBackendLabel->setToolTip(tooltip);
+        m_ui->viewerBackend->setToolTip(tooltip);
+        m_ui->viewerBackend->addItem(tr("Default (%1)", "Default viewer backend")
+                                         .arg(LocalHelpManager::defaultViewerBackend().displayName));
+        const QByteArray currentBackend = LocalHelpManager::viewerBackendId();
+        const QVector<HelpViewerFactory> backends = LocalHelpManager::viewerBackends();
+        for (const HelpViewerFactory &f : backends) {
+            m_ui->viewerBackend->addItem(f.displayName, f.id);
+            if (f.id == currentBackend)
+                m_ui->viewerBackend->setCurrentIndex(m_ui->viewerBackend->count() - 1);
+        }
+        if (backends.size() == 1)
+            m_ui->viewerBackend->setEnabled(false);
     }
     return m_widget;
 }
@@ -168,6 +184,9 @@ void GeneralSettingsPage::apply()
         m_scrollWheelZoomingEnabled = zoom;
         LocalHelpManager::setScrollWheelZoomingEnabled(m_scrollWheelZoomingEnabled);
     }
+
+    const QByteArray viewerBackendId = m_ui->viewerBackend->currentData().toByteArray();
+    LocalHelpManager::setViewerBackendId(viewerBackendId);
 }
 
 void GeneralSettingsPage::setCurrentPage()

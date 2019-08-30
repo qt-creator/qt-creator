@@ -114,7 +114,7 @@ signals:
 
 private:
     int indexOf(HelpViewer *viewer) const;
-
+    HelpViewer *insertViewer(int index, const QUrl &url, qreal zoom);
     void updateBackMenu();
     void updateForwardMenu();
     void updateWindowTitle();

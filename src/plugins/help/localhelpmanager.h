@@ -26,7 +26,6 @@
 #pragma once
 
 #include <coreplugin/helpmanager.h>
-#include <utils/optional.h>
 
 #include <QMetaType>
 #include <QMutex>
@@ -102,9 +101,11 @@ public:
     static int lastSelectedTab();
     static void setLastSelectedTab(int index);
 
-    static QByteArray defaultViewerBackend();
+    static HelpViewerFactory defaultViewerBackend();
     static QVector<HelpViewerFactory> viewerBackends();
     static HelpViewerFactory viewerBackend();
+    static void setViewerBackendId(const QByteArray &id);
+    static QByteArray viewerBackendId();
 
     static void setupGuiHelpEngine();
     static void setEngineNeedsUpdate();

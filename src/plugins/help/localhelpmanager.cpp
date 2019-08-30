@@ -45,6 +45,7 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QDesktopServices>
@@ -81,6 +82,10 @@ static const char kUseScrollWheelZooming[] = "Help/UseScrollWheelZooming";
 static const char kLastShownPagesKey[] = "Help/LastShownPages";
 static const char kLastShownPagesZoomKey[] = "Help/LastShownPagesZoom";
 static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
+static const char kViewerBackend[] = "Help/ViewerBackend";
+
+static const char kQtWebEngineBackend[] = "qtwebengine";
+static const char kTextBrowserBackend[] = "textbrowser";
 
 static const int kDefaultFallbackFontSize = 14;
 
@@ -287,25 +292,39 @@ void LocalHelpManager::setLastSelectedTab(int index)
     Core::ICore::settings()->setValue(kLastSelectedTabKey, index);
 }
 
-QByteArray LocalHelpManager::defaultViewerBackend()
+static Utils::optional<HelpViewerFactory> backendForId(const QByteArray &id)
+{
+    const QVector<HelpViewerFactory> factories = LocalHelpManager::viewerBackends();
+    const auto backend = std::find_if(std::begin(factories),
+                                      std::end(factories),
+                                      Utils::equal(&HelpViewerFactory::id, id));
+    if (backend != std::end(factories))
+        return *backend;
+    return {};
+}
+
+HelpViewerFactory LocalHelpManager::defaultViewerBackend()
 {
     const QByteArray backend = qgetenv("QTC_HELPVIEWER_BACKEND");
-    if (Utils::contains(viewerBackends(), Utils::equal(&HelpViewerFactory::id, backend)))
-        return backend;
-    else if (!backend.isEmpty())
+    if (!backend.isEmpty()) {
+        const Utils::optional<HelpViewerFactory> factory = backendForId(backend);
+        if (factory)
+            return *factory;
+    }
+    if (!backend.isEmpty())
         qWarning("Help viewer backend \"%s\" not found, using default.", backend.constData());
-#ifdef QTC_WEBENGINE_HELPVIEWER
-    return "qtwebengine";
-#else
-    return "textbrowser";
-#endif
+    const Utils::optional<HelpViewerFactory> factory = backendForId(kQtWebEngineBackend);
+    if (factory)
+        return *factory;
+    return backendForId(kTextBrowserBackend).value_or(HelpViewerFactory());
 }
 
 QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
 {
     QVector<HelpViewerFactory> result;
 #ifdef QTC_WEBENGINE_HELPVIEWER
-    result.append({"qtwebengine", tr("QtWebEngine"), []() { return new WebEngineHelpViewer; }});
+    result.append(
+        {kQtWebEngineBackend, tr("QtWebEngine"), []() { return new WebEngineHelpViewer; }});
 #endif
 #ifdef QTC_LITEHTML_HELPVIEWER
     result.append({"litehtml", tr("litehtml"), []() { return new LiteHtmlHelpViewer; }});
@@ -313,18 +332,30 @@ QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
 #ifdef QTC_MAC_NATIVE_HELPVIEWER
     result.append({"native", tr("WebKit"), []() { return new MacWebKitHelpViewer; }});
 #endif
-    result.append({"textbrowser", tr("QTextBrowser"), []() { return new TextBrowserHelpViewer; }});
+    result.append(
+        {kTextBrowserBackend, tr("QTextBrowser"), []() { return new TextBrowserHelpViewer; }});
     return result;
 }
 
 HelpViewerFactory LocalHelpManager::viewerBackend()
 {
-    const QVector<HelpViewerFactory> factories = viewerBackends();
-    const auto backend = std::find_if(std::begin(factories),
-                                      std::end(factories),
-                                      Utils::equal(&HelpViewerFactory::id, defaultViewerBackend()));
-    QTC_ASSERT(backend != std::end(factories), return {});
-    return *backend;
+    const QByteArray id = Core::ICore::settings()->value(kViewerBackend).toByteArray();
+    if (!id.isEmpty())
+        return backendForId(id).value_or(defaultViewerBackend());
+    return defaultViewerBackend();
+}
+
+void LocalHelpManager::setViewerBackendId(const QByteArray &id)
+{
+    if (id.isEmpty())
+        Core::ICore::settings()->remove(kViewerBackend);
+    else
+        Core::ICore::settings()->setValue(kViewerBackend, id);
+}
+
+QByteArray LocalHelpManager::viewerBackendId()
+{
+    return Core::ICore::settings()->value(kViewerBackend).toByteArray();
 }
 
 void LocalHelpManager::setupGuiHelpEngine()

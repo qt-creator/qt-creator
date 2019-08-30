@@ -300,13 +300,15 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
+    auto openButton = new QToolButton;
+    openButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
+    openButton->setPopupMode(QToolButton::InstantPopup);
+    openButton->setProperty("noArrow", true);
+    layout->addWidget(openButton);
+    auto openMenu = new QMenu(openButton);
+    openButton->setMenu(openMenu);
+
     if (style != ExternalWindow) {
-        auto openButton = new QToolButton;
-        openButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
-        openButton->setPopupMode(QToolButton::InstantPopup);
-        openButton->setProperty("noArrow", true);
-        layout->addWidget(openButton);
-        auto openMenu = new QMenu(openButton);
         if (m_switchToHelp)
             openMenu->addAction(m_switchToHelp);
         if (style == ModeWidget) {
@@ -324,7 +326,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
                     emit closeButtonClicked();
             }
         });
-        openButton->setMenu(openMenu);
+        openMenu->addSeparator();
 
         const Utils::Icon &icon = style == ModeWidget ? Utils::Icons::CLOSE_TOOLBAR
                                                       : Utils::Icons::CLOSE_SPLIT_RIGHT;
@@ -334,6 +336,15 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         button->setDefaultAction(m_closeAction);
         layout->addWidget(button);
     }
+
+    QAction *reload = openMenu->addAction(tr("Reload"));
+    connect(reload, &QAction::triggered, this, [this]() {
+        const int index = m_viewerStack->currentIndex();
+        HelpViewer *previous = currentViewer();
+        insertViewer(index, previous->source(), previous->scale());
+        removeViewerAt(index + 1);
+        setCurrentIndex(index);
+    });
 
     if (style != ModeWidget) {
         addViewer({});
@@ -516,9 +527,14 @@ void HelpWidget::setCurrentIndex(int index)
 
 HelpViewer *HelpWidget::addViewer(const QUrl &url, qreal zoom)
 {
-    m_model.beginInsertRows(QModelIndex(), viewerCount(), viewerCount());
+    return insertViewer(m_viewerStack->count(), url, zoom);
+}
+
+HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url, qreal zoom)
+{
+    m_model.beginInsertRows({}, index, index);
     HelpViewer *viewer = HelpPlugin::createHelpViewer(zoom);
-    m_viewerStack->addWidget(viewer);
+    m_viewerStack->insertWidget(index, viewer);
     viewer->setFocus(Qt::OtherFocusReason);
     viewer->setActionVisible(HelpViewer::Action::NewPage, m_style == ModeWidget);
     viewer->setActionVisible(HelpViewer::Action::ExternalWindow, m_style != ExternalWindow);
