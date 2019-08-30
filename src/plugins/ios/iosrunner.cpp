@@ -387,14 +387,6 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
 {
     setId("IosQmlProfilerSupport");
 
-    auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
-    Runnable runnable;
-    runnable.executable = iosRunConfig->localExecutable();
-    runnable.commandLineArguments =
-            runControl->aspect<ArgumentsAspect>()->arguments(iosRunConfig->macroExpander());
-    runControl->setDisplayName(iosRunConfig->applicationName());
-    runControl->setRunnable(runnable);
-
     m_runner = new IosRunner(runControl);
     m_runner->setQmlDebugging(QmlDebug::QmlProfilerServices);
     addStartDependency(m_runner);
