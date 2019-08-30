@@ -102,8 +102,6 @@ private:
 
     void updateRunActions();
     void clearDisplay();
-    template<ProfileFeature feature>
-    void updateFeatures(quint64 features);
     bool checkForUnsavedNotes();
     void setButtonsEnabled(bool enable);
     void createInitialTextMarks();

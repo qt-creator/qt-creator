@@ -716,25 +716,6 @@ void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enabledFeatur
     action->setChecked(enabledFeatures & (1ULL << (feature)));
 }
 
-template<ProfileFeature feature>
-void QmlProfilerTool::updateFeatures(quint64 features)
-{
-    if (features & (1ULL << (feature))) {
-        addFeatureToMenu(d->m_recordFeaturesMenu, feature,
-                         d->m_profilerState->requestedFeatures());
-        addFeatureToMenu(d->m_displayFeaturesMenu, feature,
-                         d->m_profilerModelManager->visibleFeatures());
-    }
-    updateFeatures<static_cast<ProfileFeature>(feature + 1)>(features);
-}
-
-template<>
-void QmlProfilerTool::updateFeatures<MaximumProfileFeature>(quint64 features)
-{
-    Q_UNUSED(features)
-    return;
-}
-
 void QmlProfilerTool::setAvailableFeatures(quint64 features)
 {
     if (features != d->m_profilerState->requestedFeatures())
@@ -742,7 +723,14 @@ void QmlProfilerTool::setAvailableFeatures(quint64 features)
     if (d->m_recordFeaturesMenu && d->m_displayFeaturesMenu) {
         d->m_recordFeaturesMenu->clear();
         d->m_displayFeaturesMenu->clear();
-        updateFeatures<static_cast<ProfileFeature>(0)>(features);
+        for (int feature = 0; feature < MaximumProfileFeature; ++feature) {
+            if (features & (1ULL << feature)) {
+                addFeatureToMenu(d->m_recordFeaturesMenu, ProfileFeature(feature),
+                                 d->m_profilerState->requestedFeatures());
+                addFeatureToMenu(d->m_displayFeaturesMenu, ProfileFeature(feature),
+                                 d->m_profilerModelManager->visibleFeatures());
+            }
+        }
     }
 }
 
