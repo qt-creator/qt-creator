@@ -88,6 +88,10 @@ TextInput {
                 // Force focus on the non visible component to receive key events
                 dragModifierWorkaround.forceActiveFocus()
             } else {
+                if (myControl.compressedValueTimer.running) {
+                    myControl.compressedValueTimer.stop()
+                    calcValue(myControl.compressedRealValueModified)
+                }
                 mouseArea.cursorShape = Qt.PointingHandCursor // TODO
                 myControl.drag = false
                 myControl.dragEnded()
@@ -97,15 +101,14 @@ TextInput {
                 myControl.focus = false
             }
         }
-        onTranslationChanged: calcValue()
-        onMultiplierChanged: calcValue()
+        onTranslationChanged: calcValue(myControl.realValueModified)
+        onMultiplierChanged: calcValue(myControl.realValueModified)
 
-        function calcValue() {
+        function calcValue(callback) {
             var tmp = myControl.realDragRange / StudioTheme.Values.dragLength
             var currValue = myControl.realValue
             myControl.setRealValue(dragHandler.initialValue + (tmp * dragHandler.translation.x * dragHandler.multiplier))
-            if (currValue !== myControl.realValue)
-                myControl.realValueModified()
+            callback()
         }
     }
 

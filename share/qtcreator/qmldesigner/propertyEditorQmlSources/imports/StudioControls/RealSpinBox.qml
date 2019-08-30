@@ -71,6 +71,8 @@ T.SpinBox {
     property real __sliderIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __sliderIndicatorHeight: StudioTheme.Values.height
 
+    property alias compressedValueTimer: myTimer
+
     signal realValueModified
     signal compressedRealValueModified
     signal dragStarted
