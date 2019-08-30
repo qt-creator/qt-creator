@@ -1280,6 +1280,29 @@ QString BaseQtVersion::examplesPath() const
     return QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath();
 }
 
+QStringList BaseQtVersion::qtSoPaths() const
+{
+    static const char * const qMakeVariables[] = {
+         "QT_INSTALL_LIBS",
+         "QT_INSTALL_PLUGINS",
+         "QT_INSTALL_QML",
+         "QT_INSTALL_IMPORTS"
+    };
+
+    QSet<QString> paths;
+    for (uint i = 0; i < sizeof qMakeVariables / sizeof qMakeVariables[0]; ++i) {
+        QString path = qmakeProperty(qMakeVariables[i]);
+        if (path.isNull())
+            continue;
+        QDirIterator it(path, QStringList("*.so"), QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            it.next();
+            paths.insert(it.fileInfo().absolutePath());
+        }
+    }
+    return Utils::toList(paths);
+}
+
 QStringList BaseQtVersion::configValues() const
 {
     ensureMkSpecParsed();

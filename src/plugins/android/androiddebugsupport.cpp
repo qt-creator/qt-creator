@@ -60,31 +60,6 @@ using namespace ProjectExplorer;
 namespace Android {
 namespace Internal {
 
-static const char * const qMakeVariables[] = {
-         "QT_INSTALL_LIBS",
-         "QT_INSTALL_PLUGINS",
-         "QT_INSTALL_QML"
-};
-
-static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
-{
-    if (!qtVersion)
-        return QStringList();
-
-    QSet<QString> paths;
-    for (uint i = 0; i < sizeof qMakeVariables / sizeof qMakeVariables[0]; ++i) {
-        QString path = qtVersion->qmakeProperty(qMakeVariables[i]);
-        if (path.isNull())
-            continue;
-        QDirIterator it(path, QStringList("*.so"), QDir::Files, QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            it.next();
-            paths.insert(it.fileInfo().absolutePath());
-        }
-    }
-    return Utils::toList(paths);
-}
-
 static QStringList uniquePaths(const QStringList &files)
 {
     QSet<QString> paths;
@@ -170,7 +145,8 @@ void AndroidDebugSupport::start()
         const ProjectNode *node = target->project()->findNodeForBuildKey(runControl()->buildKey());
         QStringList solibSearchPath = getSoLibSearchPath(node);
         QStringList extraLibs = getExtraLibs(node);
-        solibSearchPath.append(qtSoPaths(qtVersion));
+        if (qtVersion)
+            solibSearchPath.append(qtVersion->qtSoPaths());
         solibSearchPath.append(uniquePaths(extraLibs));
         solibSearchPath.append(target->activeBuildConfiguration()->buildDirectory().toString());
         solibSearchPath.removeDuplicates();

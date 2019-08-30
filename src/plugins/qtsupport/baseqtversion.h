@@ -146,6 +146,8 @@ public:
     bool hasExamples() const;
     QString examplesPath() const;
 
+    QStringList qtSoPaths() const;
+
     bool hasDocumentation() const;
     QString documentationPath() const;
 
