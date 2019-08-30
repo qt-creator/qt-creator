@@ -169,7 +169,7 @@ void NimBuildSystem::updateProject()
     newRoot->setDisplayName(project()->displayName());
     project()->setRootProjectNode(std::move(newRoot));
 
-    m_directoryWatcher.addDirectories(directories.toList(), FileSystemWatcher::WatchAllChanges);
+    m_directoryWatcher.addDirectories(Utils::toList(directories), FileSystemWatcher::WatchAllChanges);
 
     m_currentContext.guard.markAsSuccess();
 
