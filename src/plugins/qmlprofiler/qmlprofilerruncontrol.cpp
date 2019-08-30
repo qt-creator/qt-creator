@@ -89,6 +89,8 @@ QmlProfilerRunner::~QmlProfilerRunner()
 void QmlProfilerRunner::start()
 {
     emit starting(this);
+    if (!d->m_profilerState)
+        QmlProfilerTool::instance()->finalizeRunControl(this);
     QTC_ASSERT(d->m_profilerState, return);
     reportStarted();
 }
