@@ -128,18 +128,11 @@ public:
         setId("ProjectBuilder");
     }
 
-    void setEnabled(bool enabled) { m_enabled = enabled; }
     bool success() const { return m_success; }
 
 private:
     void start() final
     {
-        if (!m_enabled) {
-            ProjectExplorerPlugin::saveModifiedFiles();
-            onBuildFinished(true);
-            return;
-        }
-
         Target *target = runControl()->target();
         QTC_ASSERT(target, reportFailure(); return);
 
@@ -185,7 +178,6 @@ private:
      }
 
 private:
-     bool m_enabled = true;
      bool m_success = false;
 };
 
@@ -243,10 +235,9 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
     setId("ClangTidyClazyRunner");
     setSupportsReRunning(false);
 
-    if (!preventBuild) {
+    if (!preventBuild && ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
         m_projectBuilder = new ProjectBuilder(runControl);
         addStartDependency(m_projectBuilder);
-        m_projectBuilder->setEnabled(ClangToolsSettings::instance()->savedBuildBeforeAnalysis());
     }
 
     Target *target = runControl->target();
@@ -283,6 +274,7 @@ QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
 void ClangToolRunWorker::start()
 {
     TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
+    ProjectExplorerPlugin::saveModifiedFiles();
 
     if (ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
         if (m_projectBuilder && !m_projectBuilder->success()) {
