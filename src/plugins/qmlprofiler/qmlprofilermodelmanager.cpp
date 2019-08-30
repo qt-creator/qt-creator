@@ -126,10 +126,6 @@ QmlProfilerModelManager::QmlProfilerModelManager(QObject *parent) :
             this, &QmlProfilerModelManager::setTypeDetails);
     connect(d->detailsRewriter, &Internal::QmlProfilerDetailsRewriter::eventDetailsChanged,
             this, &QmlProfilerModelManager::typeDetailsFinished);
-
-    quint64 allFeatures = 0;
-    for (quint8 i = 0; i <= MaximumProfileFeature; ++i)
-        allFeatures |= (1ull << i);
 }
 
 QmlProfilerModelManager::~QmlProfilerModelManager()
