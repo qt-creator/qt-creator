@@ -44,7 +44,6 @@ class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 public:
     IosRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
 
-    Utils::FilePath profilePath() const;
     QString applicationName() const;
     Utils::FilePath bundleDirectory() const;
     Utils::FilePath localExecutable() const;
