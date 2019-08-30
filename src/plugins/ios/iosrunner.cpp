@@ -94,6 +94,7 @@ static void stopRunningRunControl(RunControl *runControl)
 IosRunner::IosRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
+    setId("IosRunner");
     stopRunningRunControl(runControl);
     auto runConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     m_bundleDir = runConfig->bundleDirectory().toString();
@@ -353,6 +354,7 @@ Utils::Port IosRunner::qmlServerPort() const
 IosRunSupport::IosRunSupport(RunControl *runControl)
     : IosRunner(runControl)
 {
+    setId("IosRunSuppoer");
     runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
     QString displayName = QString("Run on %1").arg(device().isNull() ? QString() : device()->displayName());
     runControl->setDisplayName(displayName);
@@ -381,7 +383,7 @@ void IosRunSupport::stop()
 IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
-    setId("IosAnalyzeSupport");
+    setId("IosQmlProfilerSupport");
 
     auto iosRunConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     Runnable runnable;
@@ -424,6 +426,8 @@ void IosQmlProfilerSupport::start()
 IosDebugSupport::IosDebugSupport(RunControl *runControl)
     : Debugger::DebuggerRunTool(runControl)
 {
+    setId("IosDebugSupport");
+
     m_runner = new IosRunner(runControl);
     m_runner->setCppDebugging(isCppDebugging());
     m_runner->setQmlDebugging(isQmlDebugging() ? QmlDebug::QmlDebuggerServices : QmlDebug::NoQmlDebugServices);
