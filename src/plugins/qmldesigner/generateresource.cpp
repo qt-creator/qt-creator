@@ -80,12 +80,12 @@ void GenerateResource::generateMenuEntry()
             lastUsedPathes.insert(currentProject->displayName(), lastUsedPath);
         };
         saveLastUsedPath(lastUsedPathes.value(currentProject->displayName(),
-            currentProject->projectFilePath().parentDir().toString()));
+            currentProject->projectFilePath().parentDir().parentDir().toString()));
 
         auto resourceFileName = Core:: DocumentManager::getSaveFileName(
             QT_TRANSLATE_NOOP("GenerateResource", "Save Project As Resource"),
-            lastUsedPathes.value(currentProject->displayName()) + currentProject->displayName() + ".qmlrc",
-            QT_TRANSLATE_NOOP("GenerateResource", "QML Resource File (*.qmlrc"));
+            lastUsedPathes.value(currentProject->displayName()) + "/" + currentProject->displayName() + ".qmlrc",
+            QT_TRANSLATE_NOOP("GenerateResource", "QML Resource File (*.qmlrc)"));
         if (resourceFileName.isEmpty())
             return;
 
