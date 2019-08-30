@@ -354,7 +354,7 @@ Utils::Port IosRunner::qmlServerPort() const
 IosRunSupport::IosRunSupport(RunControl *runControl)
     : IosRunner(runControl)
 {
-    setId("IosRunSuppoer");
+    setId("IosRunSupport");
     runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
     QString displayName = QString("Run on %1").arg(device().isNull() ? QString() : device()->displayName());
     runControl->setDisplayName(displayName);
