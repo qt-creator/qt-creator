@@ -46,7 +46,6 @@ SOURCES += \
     qtoutputformatter.cpp \
     qttestparser.cpp \
     qtversionmanager.cpp \
-    qtversionfactory.cpp \
     baseqtversion.cpp \
     qmldumptool.cpp \
     qtoptionspage.cpp \

@@ -25,7 +25,7 @@ add_qtc_plugin(QtSupport
     qtsupportconstants.h
     qtsupportplugin.cpp qtsupportplugin.h
     qttestparser.cpp qttestparser.h
-    qtversionfactory.cpp qtversionfactory.h
+    qtversionfactory.h
     qtversioninfo.ui
     qtversionmanager.cpp qtversionmanager.h qtversionmanager.ui
     qtversions.cpp qtversions.h

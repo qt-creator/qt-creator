@@ -96,7 +96,6 @@ Project {
             "qtsupportplugin.h",
             "qttestparser.cpp",
             "qttestparser.h",
-            "qtversionfactory.cpp",
             "qtversionfactory.h",
             "qtversioninfo.ui",
             "qtversionmanager.cpp",
