@@ -45,6 +45,7 @@ const QLatin1String GitSettings::logDiffKey("LogDiff");
 const QLatin1String GitSettings::repositoryBrowserCmd("RepositoryBrowserCmd");
 const QLatin1String GitSettings::graphLogKey("GraphLog");
 const QLatin1String GitSettings::firstParentKey("FirstParent");
+const QLatin1String GitSettings::followRenamesKey("FollowRenames");
 const QLatin1String GitSettings::lastResetIndexKey("LastResetIndex");
 
 GitSettings::GitSettings()
@@ -66,6 +67,7 @@ GitSettings::GitSettings()
     declareKey(repositoryBrowserCmd, QString());
     declareKey(graphLogKey, false);
     declareKey(firstParentKey, false);
+    declareKey(followRenamesKey, true);
     declareKey(lastResetIndexKey, 0);
 }
 

@@ -635,6 +635,10 @@ public:
                                                tr("Show textual graph log."));
         mapSetting(graphButton, settings.boolPointer(GitSettings::graphLogKey));
 
+        QAction *followButton = addToggleButton("--follow", tr("Follow"),
+                                               tr("Show log also for previous names of the file."));
+        mapSetting(followButton, settings.boolPointer(GitSettings::followRenamesKey));
+
         addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
     }
 };
@@ -1032,7 +1036,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
     arguments << argWidget->arguments();
 
     if (!fileName.isEmpty())
-        arguments << "--follow" << "--" << fileName;
+        arguments << "--" << fileName;
 
     vcsExec(workingDir, arguments, editor);
 }

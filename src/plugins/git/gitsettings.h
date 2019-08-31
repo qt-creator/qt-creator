@@ -56,6 +56,7 @@ public:
     static const QLatin1String repositoryBrowserCmd;
     static const QLatin1String graphLogKey;
     static const QLatin1String firstParentKey;
+    static const QLatin1String followRenamesKey;
     static const QLatin1String lastResetIndexKey;
 
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
