@@ -36,6 +36,7 @@
 #include <QByteArray>
 #include <QDebug>
 #include <QSettings>
+#include <QTimer>
 
 namespace QmlDesigner {
 
