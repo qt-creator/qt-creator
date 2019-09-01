@@ -37,6 +37,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QTimer>
+#include <QColor>
 
 namespace QmlDesigner {
 
