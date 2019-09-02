@@ -55,8 +55,8 @@
 #include <QCoreApplication>
 #include <QHBoxLayout>
 #include <QMenu>
-#include <QPrinter>
 #include <QPrintDialog>
+#include <QPrinter>
 #include <QStackedWidget>
 #include <QStatusBar>
 #include <QToolButton>
@@ -66,6 +66,39 @@ static const char kModeSideBarSettingsKey[] = "Help/ModeSideBar";
 
 namespace Help {
 namespace Internal {
+
+OpenPagesModel::OpenPagesModel(HelpWidget *parent)
+    : m_parent(parent)
+{}
+
+int OpenPagesModel::rowCount(const QModelIndex &parent) const
+{
+    return parent.isValid() ? 0 : m_parent->viewerCount();
+}
+
+int OpenPagesModel::columnCount(const QModelIndex &parent) const
+{
+    // page title + funky close button
+    return parent.isValid() ? 0 : 2;
+}
+
+QVariant OpenPagesModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() >= rowCount() || index.column() >= columnCount() - 1)
+        return QVariant();
+
+    switch (role) {
+    case Qt::ToolTipRole:
+        return m_parent->viewerAt(index.row())->source().toString();
+    case Qt::DisplayRole: {
+        const QString title = m_parent->viewerAt(index.row())->title();
+        return title.isEmpty() ? HelpWidget::tr("(Untitled)") : title;
+    }
+    default:
+        break;
+    }
+    return QVariant();
+}
 
 static void openUrlInWindow(const QUrl &url)
 {
@@ -77,11 +110,15 @@ static bool isBookmarkable(const QUrl &url)
     return !url.isEmpty() && url != QUrl(Help::Constants::AboutBlank);
 }
 
-HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent) :
-    QWidget(parent),
-    m_style(style)
+HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget *parent)
+    : QWidget(parent)
+    , m_model(this)
+    , m_style(style)
 {
     m_viewerStack = new QStackedWidget;
+
+    if (style == ModeWidget)
+        m_openPagesManager = new OpenPagesManager(this);
 
     auto topLayout = new QVBoxLayout;
     topLayout->setContentsMargins(0, 0, 0, 0);
@@ -299,9 +336,8 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     }
 
     if (style != ModeWidget) {
-        HelpViewer *viewer = HelpPlugin::createHelpViewer(qreal(0.0));
-        addViewer(viewer);
-        setCurrentViewer(viewer);
+        addViewer({});
+        setCurrentIndex(0);
     }
 }
 
@@ -333,6 +369,12 @@ HelpWidget::~HelpWidget()
         Core::ActionManager::unregisterAction(m_scaleDown, TextEditor::Constants::DECREASE_FONT_SIZE);
     if (m_resetScale)
         Core::ActionManager::unregisterAction(m_resetScale, TextEditor::Constants::RESET_FONT_SIZE);
+    delete m_openPagesManager;
+}
+
+QAbstractItemModel *HelpWidget::model()
+{
+    return &m_model;
 }
 
 void HelpWidget::addSideBar()
@@ -469,8 +511,15 @@ int HelpWidget::currentIndex() const
     return m_viewerStack->currentIndex();
 }
 
-void HelpWidget::addViewer(HelpViewer *viewer)
+void HelpWidget::setCurrentIndex(int index)
 {
+    setCurrentViewer(viewerAt(index));
+}
+
+HelpViewer *HelpWidget::addViewer(const QUrl &url, qreal zoom)
+{
+    m_model.beginInsertRows(QModelIndex(), viewerCount(), viewerCount());
+    HelpViewer *viewer = HelpPlugin::createHelpViewer(zoom);
     m_viewerStack->addWidget(viewer);
     viewer->setFocus(Qt::OtherFocusReason);
     viewer->setActionVisible(HelpViewer::Action::NewPage, m_style == ModeWidget);
@@ -490,28 +539,36 @@ void HelpWidget::addViewer(HelpViewer *viewer)
         if (currentViewer() == viewer)
             m_backAction->setEnabled(available);
     });
-    connect(viewer, &HelpViewer::printRequested, this, [viewer, this]() {
-        print(viewer);
-    });
+    connect(viewer, &HelpViewer::printRequested, this, [viewer, this]() { print(viewer); });
     if (m_style == ExternalWindow)
         connect(viewer, &HelpViewer::titleChanged, this, &HelpWidget::updateWindowTitle);
+    connect(viewer, &HelpViewer::titleChanged, &m_model, [this, viewer] {
+        const int i = indexOf(viewer);
+        QTC_ASSERT(i >= 0, return );
+        m_model.dataChanged(m_model.index(i, 0), m_model.index(i, 0));
+    });
 
     connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
     connect(viewer, &HelpViewer::newPageRequested, [](const QUrl &url) {
         OpenPagesManager::instance().createPage(url);
     });
     connect(viewer, &HelpViewer::externalPageRequested, this, &openUrlInWindow);
-
     updateCloseButton();
+    m_model.endInsertRows();
+    if (url.isValid())
+        viewer->setSource(url);
+    return viewer;
 }
 
 void HelpWidget::removeViewerAt(int index)
 {
-    QWidget *viewerWidget = m_viewerStack->widget(index);
+    HelpViewer *viewerWidget = viewerAt(index);
     QTC_ASSERT(viewerWidget, return);
+    m_model.beginRemoveRows(QModelIndex(), index, index);
+    viewerWidget->stop();
     m_viewerStack->removeWidget(viewerWidget);
-    // do not delete, that is done in the model
-    // delete viewerWidget;
+    m_model.endRemoveRows();
+    delete viewerWidget;
     if (m_viewerStack->currentWidget())
         setCurrentViewer(qobject_cast<HelpViewer *>(m_viewerStack->currentWidget()));
     updateCloseButton();
@@ -579,6 +636,14 @@ void HelpWidget::openFromSearch(const QUrl &url, const QStringList &searchTerms,
 void HelpWidget::closeEvent(QCloseEvent *)
 {
     emit aboutToClose();
+}
+
+int HelpWidget::indexOf(HelpViewer *viewer) const
+{
+    for (int i = 0; i < viewerCount(); ++i)
+        if (viewerAt(i) == viewer)
+            return i;
+    return -1;
 }
 
 void HelpWidget::updateBackMenu()

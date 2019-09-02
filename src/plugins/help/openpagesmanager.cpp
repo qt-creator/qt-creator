@@ -25,11 +25,10 @@
 
 #include "openpagesmanager.h"
 
-#include "centralwidget.h"
 #include "helpconstants.h"
 #include "helpviewer.h"
+#include "helpwidget.h"
 #include "localhelpmanager.h"
-#include "openpagesmodel.h"
 #include "openpagesswitcher.h"
 #include "openpageswidget.h"
 
@@ -42,6 +41,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
+#include <utils/qtcassert.h>
 
 using namespace Core;
 using namespace Help::Internal;
@@ -50,23 +50,22 @@ OpenPagesManager *OpenPagesManager::m_instance = nullptr;
 
 // -- OpenPagesManager
 
-OpenPagesManager::OpenPagesManager(QObject *parent)
-    : QObject(parent)
+OpenPagesManager::OpenPagesManager(HelpWidget *helpWidget)
+    : m_helpWidget(helpWidget)
 {
     Q_ASSERT(!m_instance);
 
     m_instance = this;
-    m_model = new OpenPagesModel(this);
 
     m_comboBox = new QComboBox;
-    m_comboBox->setModel(m_model);
+    m_comboBox->setModel(m_helpWidget->model());
     m_comboBox->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_comboBox, QOverload<int>::of(&QComboBox::activated),
             this, &OpenPagesManager::setCurrentPageByRow);
     connect(m_comboBox, &QWidget::customContextMenuRequested, this,
         &OpenPagesManager::openPagesContextMenu);
 
-    m_openPagesSwitcher = new OpenPagesSwitcher(m_model);
+    m_openPagesSwitcher = new OpenPagesSwitcher(m_helpWidget->model());
     connect(m_openPagesSwitcher, &OpenPagesSwitcher::closePage, this,
         &OpenPagesManager::closePage);
     connect(m_openPagesSwitcher, &OpenPagesSwitcher::setCurrentPage,
@@ -88,7 +87,7 @@ OpenPagesManager &OpenPagesManager::instance()
 QWidget *OpenPagesManager::openPagesWidget() const
 {
     if (!m_openPagesWidget) {
-        m_openPagesWidget = new OpenPagesWidget(m_model);
+        m_openPagesWidget = new OpenPagesWidget(m_helpWidget->model());
         connect(m_openPagesWidget, &OpenPagesWidget::setCurrentPage,
                 this, &OpenPagesManager::setCurrentPage);
         connect(m_openPagesWidget, &OpenPagesWidget::closePage,
@@ -118,47 +117,43 @@ void OpenPagesManager::setupInitialPages()
 
     int initialPage = 0;
     switch (option) {
-        case LocalHelpManager::ShowHomePage: {
-            m_model->addPage(homePage);
-        }   break;
+    case LocalHelpManager::ShowHomePage:
+        m_helpWidget->addViewer(homePage);
+        break;
 
-        case LocalHelpManager::ShowBlankPage: {
-            m_model->addPage(QUrl(Help::Constants::AboutBlank));
-        }   break;
+    case LocalHelpManager::ShowBlankPage:
+        m_helpWidget->addViewer(QUrl(Help::Constants::AboutBlank));
+        break;
 
-        case LocalHelpManager::ShowLastPages: {
-            const QStringList &lastShownPageList = LocalHelpManager::lastShownPages();
-            const int pageCount = lastShownPageList.count();
+    case LocalHelpManager::ShowLastPages: {
+        const QStringList &lastShownPageList = LocalHelpManager::lastShownPages();
+        const int pageCount = lastShownPageList.count();
 
-            if (pageCount > 0) {
-                QList<float> zoomFactors = LocalHelpManager::lastShownPagesZoom();
-                while (zoomFactors.count() < pageCount)
-                    zoomFactors.append(0.);
+        if (pageCount > 0) {
+            QList<float> zoomFactors = LocalHelpManager::lastShownPagesZoom();
+            while (zoomFactors.count() < pageCount)
+                zoomFactors.append(0.);
 
-                initialPage = LocalHelpManager::lastSelectedTab();
-                for (int curPage = 0; curPage < pageCount; ++curPage) {
-                    const QString &curFile = lastShownPageList.at(curPage);
-                    if (engine.findFile(curFile).isValid()
-                        || curFile == Help::Constants::AboutBlank) {
-                        m_model->addPage(curFile, zoomFactors.at(curPage));
-                    } else if (curPage <= initialPage && initialPage > 0) {
-                        --initialPage;
-                    }
+            initialPage = LocalHelpManager::lastSelectedTab();
+            for (int curPage = 0; curPage < pageCount; ++curPage) {
+                const QString &curFile = lastShownPageList.at(curPage);
+                if (engine.findFile(curFile).isValid() || curFile == Help::Constants::AboutBlank) {
+                    m_helpWidget->addViewer(curFile, zoomFactors.at(curPage));
+                } else if (curPage <= initialPage && initialPage > 0) {
+                    --initialPage;
                 }
             }
-        }   break;
+        }
+    } break;
 
-        default: break;
+    default:
+        break;
     }
 
-    if (m_model->rowCount() == 0)
-        m_model->addPage(homePage);
+    if (m_helpWidget->viewerCount() == 0)
+        m_helpWidget->addViewer(homePage);
 
-    for (int i = 0; i < m_model->rowCount(); ++i)
-        CentralWidget::instance()->addViewer(m_model->pageAt(i));
-
-    setCurrentPageByRow((initialPage >= m_model->rowCount())
-        ? m_model->rowCount() - 1 : initialPage);
+    setCurrentPageByRow(std::max(initialPage, m_helpWidget->viewerCount() - 1));
     m_openPagesSwitcher->selectCurrentPage();
 }
 
@@ -172,20 +167,15 @@ HelpViewer *OpenPagesManager::createPage(const QUrl &url)
     if (url.isValid() && HelpViewer::launchWithExternalApp(url))
         return nullptr;
 
-    m_model->addPage(url);
-
-    const int index = m_model->rowCount() - 1;
-    HelpViewer * const page = m_model->pageAt(index);
-    CentralWidget::instance()->addViewer(page);
-
-    setCurrentPageByRow(index);
+    HelpViewer *page = m_helpWidget->addViewer(url);
+    setCurrentPageByRow(m_helpWidget->viewerCount() - 1);
 
     return page;
 }
 
 void OpenPagesManager::setCurrentPageByRow(int index)
 {
-    CentralWidget::instance()->setCurrentViewer(m_model->pageAt(index));
+    m_helpWidget->setCurrentIndex(index);
 
     m_comboBox->setCurrentIndex(index);
     if (m_openPagesWidget)
@@ -209,10 +199,10 @@ void OpenPagesManager::closeCurrentPage()
 
     const bool returnOnClose = LocalHelpManager::returnOnClose();
 
-    if (m_model->rowCount() == 1 && returnOnClose) {
+    if (m_helpWidget->viewerCount() == 1 && returnOnClose) {
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
     } else {
-        Q_ASSERT(indexes.count() == 1);
+        QTC_ASSERT(indexes.count() == 1, return );
         removePage(indexes.first().row());
     }
 }
@@ -227,9 +217,9 @@ void OpenPagesManager::closePagesExcept(const QModelIndex &index)
 {
     if (index.isValid()) {
         int i = 0;
-        HelpViewer *viewer = m_model->pageAt(index.row());
-        while (m_model->rowCount() > 1) {
-            if (m_model->pageAt(i) != viewer)
+        HelpViewer *viewer = m_helpWidget->viewerAt(index.row());
+        while (m_helpWidget->viewerCount() > 1) {
+            if (m_helpWidget->viewerAt(i) != viewer)
                 removePage(i);
             else
                 i++;
@@ -263,10 +253,9 @@ void OpenPagesManager::gotoPreviousPage()
 
 void OpenPagesManager::removePage(int index)
 {
-    Q_ASSERT(m_model->rowCount() > 1);
+    QTC_ASSERT(index < m_helpWidget->viewerCount(), return );
 
-    m_model->removePage(index);
-    CentralWidget::instance()->removeViewerAt(index);
+    m_helpWidget->removeViewerAt(index);
 
     if (m_openPagesWidget)
         m_openPagesWidget->selectCurrentPage();
@@ -275,9 +264,9 @@ void OpenPagesManager::removePage(int index)
 void OpenPagesManager::showTwicherOrSelectPage() const
 {
     if (QApplication::keyboardModifiers() != Qt::NoModifier) {
-        const int width = CentralWidget::instance()->width();
-        const int height = CentralWidget::instance()->height();
-        const QPoint p(CentralWidget::instance()->mapToGlobal(QPoint(0, 0)));
+        const int width = m_helpWidget->width();
+        const int height = m_helpWidget->height();
+        const QPoint p(m_helpWidget->mapToGlobal(QPoint(0, 0)));
         m_openPagesSwitcher->move((width - m_openPagesSwitcher->width()) / 2 + p.x(),
             (height - m_openPagesSwitcher->height()) / 2 + p.y());
         m_openPagesSwitcher->setVisible(true);
@@ -288,8 +277,8 @@ void OpenPagesManager::showTwicherOrSelectPage() const
 
 void OpenPagesManager::openPagesContextMenu(const QPoint &point)
 {
-    const QModelIndex &index = m_model->index(m_comboBox->currentIndex(), 0);
-    const QString &fileName = m_model->data(index, Qt::ToolTipRole).toString();
+    const QModelIndex &index = m_helpWidget->model()->index(m_comboBox->currentIndex(), 0);
+    const QString &fileName = m_helpWidget->model()->data(index, Qt::ToolTipRole).toString();
     if (fileName.isEmpty())
         return;
 

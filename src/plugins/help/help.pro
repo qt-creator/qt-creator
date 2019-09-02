@@ -22,7 +22,6 @@ HEADERS += \
     helpplugin.h \
     helpviewer.h \
     openpagesmanager.h \
-    openpagesmodel.h \
     openpagesswitcher.h \
     openpageswidget.h \
     remotehelpfilter.h \
@@ -45,7 +44,6 @@ SOURCES += \
     helpplugin.cpp \
     helpviewer.cpp \
     openpagesmanager.cpp \
-    openpagesmodel.cpp \
     openpagesswitcher.cpp \
     openpageswidget.cpp \
     remotehelpfilter.cpp \

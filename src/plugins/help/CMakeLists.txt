@@ -19,7 +19,6 @@ add_qtc_plugin(Help
     helpwidget.cpp helpwidget.h
     localhelpmanager.cpp localhelpmanager.h
     openpagesmanager.cpp openpagesmanager.h
-    openpagesmodel.cpp openpagesmodel.h
     openpagesswitcher.cpp openpagesswitcher.h
     openpageswidget.cpp openpageswidget.h
     remotehelpfilter.cpp remotehelpfilter.h remotehelpfilter.ui

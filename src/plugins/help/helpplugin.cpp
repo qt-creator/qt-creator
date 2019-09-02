@@ -39,7 +39,6 @@
 #include "helpviewer.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
-#include "openpagesmodel.h"
 #include "remotehelpfilter.h"
 #include "searchwidget.h"
 #include "searchtaskhandler.h"
@@ -166,7 +165,6 @@ public:
 
     bool m_setupNeeded = true;
     LocalHelpManager m_localHelpManager;
-    OpenPagesManager m_openPagesManager;
 
     QPointer<HelpWidget> m_externalWindow;
     QRect m_externalWindowState;
