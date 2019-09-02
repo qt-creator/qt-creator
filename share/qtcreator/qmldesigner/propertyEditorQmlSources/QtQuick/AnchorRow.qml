@@ -62,7 +62,7 @@ RowLayout {
 
     property alias buttonRow: buttonRow
 
-    readonly property color __defaultTextColor: Theme.color(Theme.PanelTextColorLight)
+    readonly property color __defaultTextColor: StudioTheme.Values.themeTextColor
 
     IconLabel {
         id: icon
@@ -135,13 +135,13 @@ RowLayout {
                     id: group
                 }
 
-                StudioControls.AbstractButton {
+                AbstractButton {
                     id: buttonSameEdge
                     buttonIcon: verticalAnchor ? StudioTheme.Constants.anchorTop : StudioTheme.Constants.anchorLeft
                     checkable: true
                     autoExclusive: true
                     StudioControls.ButtonGroup.group: group
-                    //tooltip: verticalAnchor ? qsTr("Anchor to the top of the target.") : qsTr("Anchor to the left of the target.")
+                    tooltip: verticalAnchor ? qsTr("Anchor to the top of the target.") : qsTr("Anchor to the left of the target.")
                     onClicked: {
                         if (!invertRelativeTargets)
                             sameEdgeButtonClicked();
@@ -149,22 +149,22 @@ RowLayout {
                             oppositeEdgeButtonClicked();
                     }
                 }
-                StudioControls.AbstractButton {
+                AbstractButton {
                     id: buttonCenter
                     buttonIcon: verticalAnchor ? StudioTheme.Constants.centerVertical : StudioTheme.Constants.centerHorizontal
                     checkable: true
                     autoExclusive: true
                     StudioControls.ButtonGroup.group: group
-                    //tooltip: verticalAnchor ? qsTr("Anchor to the vertical center of the target.") : qsTr("Anchor to the horizontal center of the target.")
+                    tooltip: verticalAnchor ? qsTr("Anchor to the vertical center of the target.") : qsTr("Anchor to the horizontal center of the target.")
                     onClicked: centerButtonClicked();
                 }
-                StudioControls.AbstractButton {
+                AbstractButton {
                     id: buttonOppositeEdge
                     buttonIcon: verticalAnchor ? StudioTheme.Constants.anchorBottom : StudioTheme.Constants.anchorRight
                     checkable: true
                     autoExclusive: true
                     StudioControls.ButtonGroup.group: group
-                    //tooltip: verticalAnchor ? qsTr("Anchor to the bottom of the target.") : qsTr("Anchor to the right of the target.")
+                    tooltip: verticalAnchor ? qsTr("Anchor to the bottom of the target.") : qsTr("Anchor to the right of the target.")
                     onClicked: {
                         if (!invertRelativeTargets)
                             oppositeEdgeButtonClicked();
