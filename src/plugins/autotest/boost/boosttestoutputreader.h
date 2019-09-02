@@ -31,7 +31,6 @@ namespace Autotest {
 namespace Internal {
 
 class BoostTestResult;
-class TestTreeItem;
 enum class LogLevel;
 enum class ReportLevel;
 
