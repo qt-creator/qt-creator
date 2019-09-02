@@ -28,6 +28,7 @@
 #include <QAbstractListModel>
 #include <QtQml/qqml.h>
 #include <QList>
+#include <QColor>
 
 namespace QmlDesigner {
 
