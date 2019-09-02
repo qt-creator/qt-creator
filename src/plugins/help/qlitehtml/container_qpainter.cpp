@@ -848,11 +848,11 @@ void DocumentContainer::setScrollPosition(const QPoint &pos)
     m_scrollPosition = pos;
 }
 
-void DocumentContainer::setDocument(litehtml::document::ptr document)
+void DocumentContainer::setDocument(const QByteArray &data, litehtml::context *context)
 {
-    m_document = document;
     m_pixmaps.clear();
     m_selection = {};
+    m_document = litehtml::document::createFromUTF8(data.constData(), this, context);
 }
 
 litehtml::document::ptr DocumentContainer::document() const

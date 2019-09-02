@@ -120,9 +120,9 @@ public:
     void get_media_features(litehtml::media_features &media) const override;
     void get_language(litehtml::tstring &language, litehtml::tstring &culture) const override;
 
-    void setScrollPosition(const QPoint &pos);
-    void setDocument(litehtml::document::ptr document);
+    void setDocument(const QByteArray &data, litehtml::context *context);
     litehtml::document::ptr document() const;
+    void setScrollPosition(const QPoint &pos);
     void render(int width, int height);
 
     // these return areas to redraw in document space

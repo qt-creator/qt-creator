@@ -422,10 +422,7 @@ QUrl QLiteHtmlWidget::url() const
 
 void QLiteHtmlWidget::setHtml(const QString &content)
 {
-    litehtml::document::ptr doc = litehtml::document::createFromUTF8(content.toUtf8().constData(),
-                                                                     &d->documentContainer,
-                                                                     &d->context);
-    d->documentContainer.setDocument(doc);
+    d->documentContainer.setDocument(content.toUtf8(), &d->context);
     verticalScrollBar()->setValue(0);
     horizontalScrollBar()->setValue(0);
     render();
