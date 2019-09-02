@@ -123,12 +123,14 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
     addStopDependency(preview);
     addStartDependency(preview);
 
-    ProjectExplorer::Runnable run = runnable();
+    setStarter([this, runControl, serverUrl] {
+        ProjectExplorer::Runnable run = runControl->runnable();
 
-    Utils::QtcProcess::addArg(&run.commandLineArguments,
-                              QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
-                                                               serverUrl.path()));
-    setRunnable(run);
+        Utils::QtcProcess::addArg(&run.commandLineArguments,
+                                  QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices,
+                                                                   serverUrl.path()));
+        doStart(run, {});
+    });
 }
 
 } // namespace QmlPreview

@@ -91,23 +91,18 @@ public:
     EmrunRunWorker(RunControl *runControl)
         : SimpleTargetRunner(runControl)
     {
-        m_portsGatherer = new PortsGatherer(runControl);
-        addStartDependency(m_portsGatherer);
+        auto portsGatherer = new PortsGatherer(runControl);
+        addStartDependency(portsGatherer);
+
+        setStarter([this, runControl, portsGatherer] {
+            CommandLine cmd = emrunCommand(runControl->target(),
+                                           runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser(),
+                                           QString::number(portsGatherer->findEndPoint().port()));
+            Runnable r;
+            r.setCommandLine(cmd);
+            SimpleTargetRunner::doStart(r, {});
+        });
     }
-
-    void start() final
-    {
-        CommandLine cmd = emrunCommand(runControl()->target(),
-                                       runControl()->aspect<WebBrowserSelectionAspect>()->currentBrowser(),
-                                       QString::number(m_portsGatherer->findEndPoint().port()));
-        Runnable r;
-        r.setCommandLine(cmd);
-        setRunnable(r);
-
-        SimpleTargetRunner::start();
-    }
-
-    PortsGatherer *m_portsGatherer;
 };
 
 RunWorkerFactory::WorkerCreator makeEmrunWorker()

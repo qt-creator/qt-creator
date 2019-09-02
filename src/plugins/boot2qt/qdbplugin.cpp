@@ -138,15 +138,13 @@ class QdbDeviceRunSupport : public SimpleTargetRunner
 public:
     QdbDeviceRunSupport(RunControl *runControl)
         : SimpleTargetRunner(runControl)
-    {}
-
-    void start() final
     {
-        Runnable r = runnable();
-        r.commandLineArguments = r.executable.toString() + ' ' + r.commandLineArguments;
-        r.executable = Utils::FilePath::fromString(Constants::AppcontrollerFilepath);
-        setRunnable(r);
-        SimpleTargetRunner::start();
+        setStarter([this, runControl] {
+            Runnable r = runControl->runnable();
+            r.commandLineArguments = r.executable.toString() + ' ' + r.commandLineArguments;
+            r.executable = Utils::FilePath::fromString(Constants::AppcontrollerFilepath);
+            doStart(r, runControl->device());
+        });
     }
 };
 

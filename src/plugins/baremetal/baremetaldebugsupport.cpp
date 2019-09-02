@@ -54,6 +54,18 @@ namespace Internal {
 
 // BareMetalDebugSupport
 
+class BareMetalGdbServer : public SimpleTargetRunner
+{
+public:
+    BareMetalGdbServer(RunControl *runControl, const Runnable &runnable)
+        : SimpleTargetRunner(runControl)
+    {
+        setId("BareMetalGdbServer");
+        // Baremetal's GDB servers are launched on the host, not on the target.
+        setStarter([this, runnable] { doStart(runnable, {}); });
+    }
+};
+
 BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
     : Debugger::DebuggerRunTool(runControl)
 {
@@ -75,9 +87,8 @@ BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
         r.setCommandLine(p->command());
         // Command arguments are in host OS style as the bare metal's GDB servers are launched
         // on the host, not on that target.
-        m_gdbServer = new SimpleTargetRunner(runControl);
-        m_gdbServer->setRunnable(r);
-        addStartDependency(m_gdbServer);
+        auto gdbServer = new BareMetalGdbServer(runControl, r);
+        addStartDependency(gdbServer);
     }
 }
 

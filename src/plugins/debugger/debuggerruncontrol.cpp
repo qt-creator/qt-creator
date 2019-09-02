@@ -1050,19 +1050,52 @@ QUrl GdbServerPortsGatherer::qmlServer() const
 // GdbServerRunner
 
 GdbServerRunner::GdbServerRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
-   : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
+   : SimpleTargetRunner(runControl)
 {
     setId("GdbServerRunner");
-    m_runnable = runControl->runnable();
-    addStartDependency(m_portsGatherer);
+    const Runnable mainRunnable = runControl->runnable();
+    addStartDependency(portsGatherer);
+
+    QTC_ASSERT(portsGatherer, reportFailure(); return);
+
+    setStarter([this, runControl, mainRunnable, portsGatherer] {
+        QTC_ASSERT(portsGatherer, reportFailure(); return);
+
+        Runnable gdbserver;
+        gdbserver.environment = mainRunnable.environment;
+        gdbserver.workingDirectory = mainRunnable.workingDirectory;
+
+        QStringList args = QtcProcess::splitArgs(mainRunnable.commandLineArguments, OsTypeLinux);
+
+        const bool isQmlDebugging = portsGatherer->useQmlServer();
+        const bool isCppDebugging = portsGatherer->useGdbServer();
+
+        if (isQmlDebugging) {
+            args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
+                                                        portsGatherer->qmlServer()));
+        }
+        if (isQmlDebugging && !isCppDebugging) {
+            gdbserver.executable = mainRunnable.executable; // FIXME: Case should not happen?
+        } else {
+            gdbserver.executable = FilePath::fromString(runControl->device()->debugServerPath());
+            if (gdbserver.executable.isEmpty())
+                gdbserver.executable = FilePath::fromString("gdbserver");
+            args.clear();
+            if (m_useMulti)
+                args.append("--multi");
+            if (m_pid.isValid())
+                args.append("--attach");
+            args.append(QString(":%1").arg(portsGatherer->gdbServer().port()));
+            if (m_pid.isValid())
+                args.append(QString::number(m_pid.pid()));
+        }
+        gdbserver.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
+
+        doStart(gdbserver, runControl->device());
+    });
 }
 
 GdbServerRunner::~GdbServerRunner() = default;
-
-void GdbServerRunner::setRunnable(const Runnable &runnable)
-{
-    m_runnable = runnable;
-}
 
 void GdbServerRunner::setUseMulti(bool on)
 {
@@ -1072,44 +1105,6 @@ void GdbServerRunner::setUseMulti(bool on)
 void GdbServerRunner::setAttachPid(ProcessHandle pid)
 {
     m_pid = pid;
-}
-
-void GdbServerRunner::start()
-{
-    QTC_ASSERT(m_portsGatherer, reportFailure(); return);
-
-    Runnable gdbserver;
-    gdbserver.environment = m_runnable.environment;
-    gdbserver.workingDirectory = m_runnable.workingDirectory;
-
-    QStringList args = QtcProcess::splitArgs(m_runnable.commandLineArguments, OsTypeLinux);
-
-    const bool isQmlDebugging = m_portsGatherer->useQmlServer();
-    const bool isCppDebugging = m_portsGatherer->useGdbServer();
-
-    if (isQmlDebugging) {
-        args.prepend(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                    m_portsGatherer->qmlServer()));
-    }
-    if (isQmlDebugging && !isCppDebugging) {
-        gdbserver.executable = m_runnable.executable; // FIXME: Case should not happen?
-    } else {
-        gdbserver.executable = FilePath::fromString(device()->debugServerPath());
-        if (gdbserver.executable.isEmpty())
-            gdbserver.executable = FilePath::fromString("gdbserver");
-        args.clear();
-        if (m_useMulti)
-            args.append("--multi");
-        if (m_pid.isValid())
-            args.append("--attach");
-        args.append(QString(":%1").arg(m_portsGatherer->gdbServer().port()));
-        if (m_pid.isValid())
-            args.append(QString::number(m_pid.pid()));
-    }
-    gdbserver.commandLineArguments = QtcProcess::joinArgs(args, OsTypeLinux);
-
-    SimpleTargetRunner::setRunnable(gdbserver);
-    SimpleTargetRunner::start();
 }
 
 } // namespace Debugger

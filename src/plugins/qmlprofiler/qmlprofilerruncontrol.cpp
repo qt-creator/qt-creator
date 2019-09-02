@@ -229,38 +229,36 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
 {
     setId("LocalQmlProfilerSupport");
 
-    m_profiler = new QmlProfilerRunner(runControl);
-    m_profiler->setServerUrl(serverUrl);
+    auto profiler = new QmlProfilerRunner(runControl);
+    profiler->setServerUrl(serverUrl);
 
-    addStopDependency(m_profiler);
+    addStopDependency(profiler);
     // We need to open the local server before the application tries to connect.
     // In the TCP case, it doesn't hurt either to start the profiler before.
-    addStartDependency(m_profiler);
-}
+    addStartDependency(profiler);
 
-void LocalQmlProfilerSupport::start()
-{
-    Runnable debuggee = runnable();
+    setStarter([this, runControl, profiler, serverUrl] {
+        Runnable debuggee = runControl->runnable();
 
-    QUrl serverUrl = m_profiler->serverUrl();
-    QString code;
-    if (serverUrl.scheme() == Utils::urlSocketScheme())
-        code = QString("file:%1").arg(serverUrl.path());
-    else if (serverUrl.scheme() == Utils::urlTcpScheme())
-        code = QString("port:%1").arg(serverUrl.port());
-    else
-        QTC_CHECK(false);
+        QUrl serverUrl = profiler->serverUrl();
+        QString code;
+        if (serverUrl.scheme() == Utils::urlSocketScheme())
+            code = QString("file:%1").arg(serverUrl.path());
+        else if (serverUrl.scheme() == Utils::urlTcpScheme())
+            code = QString("port:%1").arg(serverUrl.port());
+        else
+            QTC_CHECK(false);
 
-    QString arguments = Utils::QtcProcess::quoteArg(
-                QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, code, true));
+        QString arguments = Utils::QtcProcess::quoteArg(
+                                QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, code, true));
 
-    if (!debuggee.commandLineArguments.isEmpty())
-        arguments += ' ' + debuggee.commandLineArguments;
+        if (!debuggee.commandLineArguments.isEmpty())
+            arguments += ' ' + debuggee.commandLineArguments;
 
-    debuggee.commandLineArguments = arguments;
+        debuggee.commandLineArguments = arguments;
 
-    setRunnable(debuggee);
-    SimpleTargetRunner::start();
+        doStart(debuggee, {});
+    });
 }
 
 } // namespace Internal

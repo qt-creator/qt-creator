@@ -41,8 +41,6 @@ public:
 
 private:
     void start() final;
-
-    ProjectExplorer::SimpleTargetRunner *m_gdbServer = nullptr;
 };
 
 } // namespace Internal

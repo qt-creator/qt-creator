@@ -1656,7 +1656,6 @@ public:
 
         auto gdbServer = new GdbServerRunner(runControl, portsGatherer());
         gdbServer->setUseMulti(false);
-        gdbServer->setDevice(runControl->device());
         gdbServer->setAttachPid(ProcessHandle(pid));
 
         addStartDependency(gdbServer);

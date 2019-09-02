@@ -279,23 +279,19 @@ class PROJECTEXPLORER_EXPORT SimpleTargetRunner : public RunWorker
 public:
     explicit SimpleTargetRunner(RunControl *runControl);
 
-    void setRunnable(const Runnable &runnable);
-
-    void setDevice(const IDevice::ConstPtr &device);
-    IDevice::ConstPtr device() const;
-
 protected:
-    void start() override;
-    void stop() override;
+    void setStarter(const std::function<void()> &starter);
+    void doStart(const Runnable &runnable, const IDevice::ConstPtr &device);
 
 private:
-    void onProcessStarted();
-    void onProcessFinished(int exitCode, QProcess::ExitStatus status);
-    void onProcessError(QProcess::ProcessError error);
+    void start() final;
+    void stop() final;
+
+    const Runnable &runnable() const = delete;
 
     ApplicationLauncher m_launcher;
-    Runnable m_runnable;
-    IDevice::ConstPtr m_device;
+    std::function<void()> m_starter;
+
     bool m_stopReported = false;
     bool m_useTerminal = false;
 };

@@ -1106,42 +1106,76 @@ SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
     setId("SimpleTargetRunner");
-    m_runnable = runControl->runnable(); // Default value. Can be overridden using setRunnable.
-    m_device = runControl->device(); // Default value. Can be overridden using setDevice.
     if (auto terminalAspect = runControl->aspect<TerminalAspect>())
         m_useTerminal = terminalAspect->useTerminal();
 }
 
 void SimpleTargetRunner::start()
 {
+    if (m_starter)
+        m_starter();
+    else
+        doStart(runControl()->runnable(), runControl()->device());
+}
+
+void SimpleTargetRunner::doStart(const Runnable &runnable, const IDevice::ConstPtr &device)
+{
     m_stopReported = false;
     m_launcher.disconnect(this);
     m_launcher.setUseTerminal(m_useTerminal);
 
-    const bool isDesktop = m_device.isNull() || m_device.dynamicCast<const DesktopDevice>();
-    const QString rawDisplayName = m_runnable.displayName();
+    const bool isDesktop = device.isNull() || device.dynamicCast<const DesktopDevice>();
+    const QString rawDisplayName = runnable.displayName();
     const QString displayName = isDesktop
             ? QDir::toNativeSeparators(rawDisplayName)
             : rawDisplayName;
     const QString msg = RunControl::tr("Starting %1 %2...")
-            .arg(displayName).arg(m_runnable.commandLineArguments);
+            .arg(displayName).arg(runnable.commandLineArguments);
     appendMessage(msg, Utils::NormalMessageFormat);
 
     if (isDesktop) {
 
         connect(&m_launcher, &ApplicationLauncher::appendMessage,
                 this, &SimpleTargetRunner::appendMessage);
-        connect(&m_launcher, &ApplicationLauncher::processStarted,
-                this, &SimpleTargetRunner::onProcessStarted);
-        connect(&m_launcher, &ApplicationLauncher::processExited,
-                this, &SimpleTargetRunner::onProcessFinished);
-        connect(&m_launcher, &ApplicationLauncher::error,
-                this, &SimpleTargetRunner::onProcessError);
 
-        if (m_runnable.executable.isEmpty()) {
+        connect(&m_launcher, &ApplicationLauncher::processStarted, this, [this] {
+            // Console processes only know their pid after being started
+            ProcessHandle pid = m_launcher.applicationPID();
+            runControl()->setApplicationProcessHandle(pid);
+            pid.activate();
+            reportStarted();
+        });
+
+        connect(&m_launcher, &ApplicationLauncher::processExited,
+            this, [this, displayName](int exitCode, QProcess::ExitStatus status) {
+            QString msg;
+            if (status == QProcess::CrashExit)
+                msg = tr("%1 crashed.");
+            else
+                msg = tr("%2 exited with code %1").arg(exitCode);
+            appendMessage(msg.arg(displayName), Utils::NormalMessageFormat);
+            if (!m_stopReported) {
+                m_stopReported = true;
+                reportStopped();
+            }
+        });
+
+        connect(&m_launcher, &ApplicationLauncher::error,
+            this, [this, runnable](QProcess::ProcessError error) {
+            if (error == QProcess::Timedout)
+                return; // No actual change on the process side.
+            const QString msg = userMessageForProcessError(error, runnable.executable);
+            appendMessage(msg, Utils::NormalMessageFormat);
+            if (!m_stopReported) {
+                m_stopReported = true;
+                reportStopped();
+            }
+        });
+
+        if (runnable.executable.isEmpty()) {
             reportFailure(RunControl::tr("No executable specified."));
         } else {
-            m_launcher.start(m_runnable);
+            m_launcher.start(runnable);
         }
 
     } else {
@@ -1189,7 +1223,7 @@ void SimpleTargetRunner::start()
                     appendMessage(progressString, Utils::NormalMessageFormat);
                 });
 
-        m_launcher.start(m_runnable, device());
+        m_launcher.start(runnable, device);
     }
 }
 
@@ -1198,55 +1232,11 @@ void SimpleTargetRunner::stop()
     m_launcher.stop();
 }
 
-void SimpleTargetRunner::onProcessStarted()
+void SimpleTargetRunner::setStarter(const std::function<void ()> &starter)
 {
-    // Console processes only know their pid after being started
-    ProcessHandle pid = m_launcher.applicationPID();
-    runControl()->setApplicationProcessHandle(pid);
-    pid.activate();
-    reportStarted();
+    m_starter = starter;
 }
 
-void SimpleTargetRunner::onProcessFinished(int exitCode, QProcess::ExitStatus status)
-{
-    QString msg;
-    if (status == QProcess::CrashExit)
-        msg = tr("%1 crashed.");
-    else
-        msg = tr("%2 exited with code %1").arg(exitCode);
-    appendMessage(msg.arg(m_runnable.displayName()), Utils::NormalMessageFormat);
-    if (!m_stopReported) {
-        m_stopReported = true;
-        reportStopped();
-    }
-}
-
-void SimpleTargetRunner::onProcessError(QProcess::ProcessError error)
-{
-    if (error == QProcess::Timedout)
-        return; // No actual change on the process side.
-    const QString msg = userMessageForProcessError(error, m_runnable.executable);
-    appendMessage(msg, Utils::NormalMessageFormat);
-    if (!m_stopReported) {
-        m_stopReported = true;
-        reportStopped();
-    }
-}
-
-IDevice::ConstPtr SimpleTargetRunner::device() const
-{
-    return m_device;
-}
-
-void SimpleTargetRunner::setRunnable(const Runnable &runnable)
-{
-    m_runnable = runnable;
-}
-
-void SimpleTargetRunner::setDevice(const IDevice::ConstPtr &device)
-{
-    m_device = device;
-}
 
 // RunWorkerPrivate
 

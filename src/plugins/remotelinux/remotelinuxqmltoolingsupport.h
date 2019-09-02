@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 namespace RemoteLinux {
 namespace Internal {
@@ -35,12 +34,6 @@ class RemoteLinuxQmlToolingSupport : public ProjectExplorer::SimpleTargetRunner
 {
 public:
     explicit RemoteLinuxQmlToolingSupport(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() override;
-
-    ProjectExplorer::PortsGatherer *m_portsGatherer;
-    ProjectExplorer::RunWorker *m_runworker;
 };
 
 } // namespace Internal

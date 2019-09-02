@@ -25,6 +25,8 @@
 
 #include "remotelinuxqmltoolingsupport.h"
 
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
@@ -38,34 +40,30 @@ RemoteLinuxQmlToolingSupport::RemoteLinuxQmlToolingSupport(RunControl *runContro
 {
     setId("RemoteLinuxQmlToolingSupport");
 
-    m_portsGatherer = new PortsGatherer(runControl);
-    addStartDependency(m_portsGatherer);
+    auto portsGatherer = new PortsGatherer(runControl);
+    addStartDependency(portsGatherer);
 
     // The ports gatherer can safely be stopped once the process is running, even though it has to
     // be started before.
-    addStopDependency(m_portsGatherer);
+    addStopDependency(portsGatherer);
 
-    m_runworker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
-    m_runworker->addStartDependency(this);
-    addStopDependency(m_runworker);
-}
+    auto runworker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+    runworker->addStartDependency(this);
+    addStopDependency(runworker);
 
-void RemoteLinuxQmlToolingSupport::start()
-{
-    const QUrl serverUrl = m_portsGatherer->findEndPoint();
+    setStarter([this, runControl, portsGatherer, runworker] {
+        const QUrl serverUrl = portsGatherer->findEndPoint();
+        runworker->recordData("QmlServerUrl", serverUrl);
 
-    m_runworker->recordData("QmlServerUrl", serverUrl);
+        QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
 
-    QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl()->runMode());
+        Runnable r = runControl->runnable();
+        QtcProcess::addArg(&r.commandLineArguments,
+                           QmlDebug::qmlDebugTcpArguments(services, serverUrl),
+                           OsTypeLinux);
 
-    Runnable r = runnable();
-    QtcProcess::addArg(&r.commandLineArguments,
-                       QmlDebug::qmlDebugTcpArguments(services, serverUrl),
-                       device()->osType());
-
-    setRunnable(r);
-
-    SimpleTargetRunner::start();
+        doStart(r, runControl->device());
+    });
 }
 
 } // namespace Internal

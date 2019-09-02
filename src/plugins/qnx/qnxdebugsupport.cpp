@@ -97,34 +97,28 @@ class QnxDebuggeeRunner : public ProjectExplorer::SimpleTargetRunner
 {
 public:
     QnxDebuggeeRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
-        : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
+        : SimpleTargetRunner(runControl)
     {
         setId("QnxDebuggeeRunner");
+
+        setStarter([this, runControl, portsGatherer] {
+            Runnable r = runControl->runnable();
+            QStringList arguments;
+            if (portsGatherer->useGdbServer()) {
+                int pdebugPort = portsGatherer->gdbServer().port();
+                r.executable = FilePath::fromString(Constants::QNX_DEBUG_EXECUTABLE);
+                arguments.append(QString::number(pdebugPort));
+            }
+            if (portsGatherer->useQmlServer()) {
+                arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
+                                                                portsGatherer->qmlServer()));
+            }
+            arguments.append(QtcProcess::splitArgs(r.commandLineArguments));
+            r.commandLineArguments = QtcProcess::joinArgs(arguments);
+
+            doStart(r, runControl->device());
+        });
     }
-
-private:
-    void start() final
-    {
-        Runnable r = runnable();
-        QStringList arguments;
-        if (m_portsGatherer->useGdbServer()) {
-            int pdebugPort = m_portsGatherer->gdbServer().port();
-            r.executable = FilePath::fromString(Constants::QNX_DEBUG_EXECUTABLE);
-            arguments.append(QString::number(pdebugPort));
-        }
-        if (m_portsGatherer->useQmlServer()) {
-            arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                            m_portsGatherer->qmlServer()));
-        }
-        arguments.append(QtcProcess::splitArgs(r.commandLineArguments));
-        r.commandLineArguments = QtcProcess::joinArgs(arguments);
-
-        setRunnable(r);
-
-        SimpleTargetRunner::start();
-    }
-
-    GdbServerPortsGatherer *m_portsGatherer;
 };
 
 
@@ -197,26 +191,20 @@ class PDebugRunner : public ProjectExplorer::SimpleTargetRunner
 {
 public:
     PDebugRunner(RunControl *runControl, GdbServerPortsGatherer *portsGatherer)
-        : SimpleTargetRunner(runControl), m_portsGatherer(portsGatherer)
+        : SimpleTargetRunner(runControl)
     {
         setId("PDebugRunner");
-        addStartDependency(m_portsGatherer);
+        addStartDependency(portsGatherer);
+
+        setStarter([this, runControl, portsGatherer] {
+            const int pdebugPort = portsGatherer->gdbServer().port();
+
+            Runnable r;
+            r.executable = FilePath::fromString(Constants::QNX_DEBUG_EXECUTABLE);
+            r.commandLineArguments = QString::number(pdebugPort);
+            doStart(r, runControl->device());
+        });
     }
-
-private:
-    void start() final
-    {
-        const int pdebugPort = m_portsGatherer->gdbServer().port();
-
-        Runnable r;
-        r.executable = FilePath::fromString(Constants::QNX_DEBUG_EXECUTABLE);
-        r.commandLineArguments = QString::number(pdebugPort);
-        setRunnable(r);
-
-        SimpleTargetRunner::start();
-    }
-
-    GdbServerPortsGatherer *m_portsGatherer;
 };
 
 QnxAttachDebugSupport::QnxAttachDebugSupport(RunControl *runControl)
