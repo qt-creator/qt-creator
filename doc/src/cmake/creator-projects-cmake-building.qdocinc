@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -73,7 +73,40 @@
 
     \image qtcreator-cmake-build-steps.png
 
+    \note While the other CMake generators are installed together with Qt,
+    you usually need to install Ninja yourself. For more information, see
+    \l {Using Ninja as a CMake Generator}.
+
 //! [cmake build steps]
+
+
+//! [cmake ninja]
+
+    \section2 Using Ninja as a CMake Generator
+
+    To use \l {https://ninja-build.org/}{Ninja} with CMake, you must install it
+    and select it as the CMake generator in the build and run kit:
+
+    \list 1
+        \li Install Ninja.
+        \li Add the path to the Ninja executable to the value of the PATH system
+            variable.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits, and
+            then select the build and run kit for the project.
+        \li Select \uicontrol Change next to the \uicontrol {CMake generator}
+            field to open the \uicontrol {CMake Generator} dialog.
+            \image qtcreator-build-steps-cmake-ninja.png
+        \li In the \uicontrol Generator field, select \uicontrol Ninja.
+        \li Select \uicontrol OK to return to the \uicontrol Kits tab.
+        \li Select \uicontrol OK or \uicontrol Apply to save your changes.
+    \endlist
+
+    \note To make sure that old build artifacts don't get in the way
+    the first time you build the project after the change, select
+    \uicontrol Build > \uicontrol {Rebuild Project}. This cleans up the
+    build directory and performs a new build.
+
+//! [cmake ninja]
 
 
 //! [cmake clean steps]
