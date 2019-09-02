@@ -55,7 +55,6 @@ public:
     QWidget *openPagesWidget() const;
     QComboBox *openPagesComboBox() const;
 
-    int pageCount() const;
     void setupInitialPages();
 
     HelpViewer *createPage();
@@ -70,9 +69,6 @@ public:
 
     void gotoNextPage();
     void gotoPreviousPage();
-
-signals:
-    void pagesChanged();
 
 private:
     void removePage(int index);

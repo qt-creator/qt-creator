@@ -104,11 +104,6 @@ QComboBox *OpenPagesManager::openPagesComboBox() const
     return m_comboBox;
 }
 
-int OpenPagesManager::pageCount() const
-{
-    return m_model->rowCount();
-}
-
 QStringList splitString(const QVariant &value)
 {
     using namespace Help::Constants;
@@ -162,7 +157,6 @@ void OpenPagesManager::setupInitialPages()
     for (int i = 0; i < m_model->rowCount(); ++i)
         CentralWidget::instance()->addViewer(m_model->pageAt(i));
 
-    emit pagesChanged();
     setCurrentPageByRow((initialPage >= m_model->rowCount())
         ? m_model->rowCount() - 1 : initialPage);
     m_openPagesSwitcher->selectCurrentPage();
@@ -184,7 +178,6 @@ HelpViewer *OpenPagesManager::createPage(const QUrl &url)
     HelpViewer * const page = m_model->pageAt(index);
     CentralWidget::instance()->addViewer(page);
 
-    emit pagesChanged();
     setCurrentPageByRow(index);
 
     return page;
@@ -275,7 +268,6 @@ void OpenPagesManager::removePage(int index)
     m_model->removePage(index);
     CentralWidget::instance()->removeViewerAt(index);
 
-    emit pagesChanged();
     if (m_openPagesWidget)
         m_openPagesWidget->selectCurrentPage();
 }
