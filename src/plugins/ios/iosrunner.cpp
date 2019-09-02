@@ -220,7 +220,8 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const QString &bun
                                      Port qmlPort)
 {
     // Called when debugging on Device.
-    Q_UNUSED(bundlePath); Q_UNUSED(deviceId)
+    Q_UNUSED(bundlePath)
+    Q_UNUSED(deviceId)
 
     if (m_toolHandler != handler)
         return;
@@ -249,7 +250,8 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
                                      const QString &deviceId, qint64 pid)
 {
     // Called when debugging on Simulator.
-    Q_UNUSED(bundlePath); Q_UNUSED(deviceId)
+    Q_UNUSED(bundlePath)
+    Q_UNUSED(deviceId)
 
     if (m_toolHandler != handler)
         return;
