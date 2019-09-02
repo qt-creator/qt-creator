@@ -88,7 +88,6 @@ QmlProfilerRunner::~QmlProfilerRunner()
 
 void QmlProfilerRunner::start()
 {
-    emit starting(this);
     if (!d->m_profilerState)
         QmlProfilerTool::instance()->finalizeRunControl(this);
     QTC_ASSERT(d->m_profilerState, return);
@@ -230,18 +229,20 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
 {
     setId("LocalQmlProfilerSupport");
 
-    auto profiler = new QmlProfilerRunner(runControl);
-    profiler->setServerUrl(serverUrl);
-    connect(profiler, &QmlProfilerRunner::starting,
-            QmlProfilerTool::instance(), &QmlProfilerTool::finalizeRunControl);
+    m_profiler = new QmlProfilerRunner(runControl);
+    m_profiler->setServerUrl(serverUrl);
 
-    addStopDependency(profiler);
+    addStopDependency(m_profiler);
     // We need to open the local server before the application tries to connect.
     // In the TCP case, it doesn't hurt either to start the profiler before.
-    addStartDependency(profiler);
+    addStartDependency(m_profiler);
+}
 
+void LocalQmlProfilerSupport::start()
+{
     Runnable debuggee = runnable();
 
+    QUrl serverUrl = m_profiler->serverUrl();
     QString code;
     if (serverUrl.scheme() == Utils::urlSocketScheme())
         code = QString("file:%1").arg(serverUrl.path());
@@ -259,6 +260,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     debuggee.commandLineArguments = arguments;
 
     setRunnable(debuggee);
+    SimpleTargetRunner::start();
 }
 
 } // namespace Internal

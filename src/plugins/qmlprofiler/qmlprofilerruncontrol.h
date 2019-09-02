@@ -37,7 +37,6 @@
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerTool;
 class QmlProfilerRunner : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
@@ -53,9 +52,6 @@ public:
 
     void cancelProcess();
     void notifyRemoteFinished();
-
-signals:
-    void starting(QmlProfilerRunner *self);
 
 private:
     void start() override;
@@ -75,6 +71,11 @@ public:
     LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
     LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl,
                             const QUrl &serverUrl);
+
+private:
+    void start() override;
+
+    QmlProfilerRunner *m_profiler;
 };
 
 } // namespace Internal

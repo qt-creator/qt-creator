@@ -561,7 +561,6 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
     runControl->setRunConfiguration(RunConfiguration::startupRunConfiguration());
     auto profiler = new QmlProfilerRunner(runControl);
     profiler->setServerUrl(serverUrl);
-    connect(profiler, &QmlProfilerRunner::starting, this, &QmlProfilerTool::finalizeRunControl);
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             runControl, &RunControl::initiateStop);
