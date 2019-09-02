@@ -106,7 +106,6 @@ TextInput {
 
         function calcValue(callback) {
             var tmp = myControl.realDragRange / StudioTheme.Values.dragLength
-            var currValue = myControl.realValue
             myControl.setRealValue(dragHandler.initialValue + (tmp * dragHandler.translation.x * dragHandler.multiplier))
             callback()
         }
@@ -164,12 +163,9 @@ TextInput {
             if (wheel.modifiers & Qt.ShiftModifier)
                 mouseArea.stepSize = myControl.maxStepSize
 
-            var currValue = myControl.realValue
             myControl.valueFromText(textInput.text, myControl.locale)
             myControl.setRealValue(myControl.realValue + (wheel.angleDelta.y / 120.0 * mouseArea.stepSize))
-
-            if (currValue !== myControl.realValue)
-                myControl.realValueModified()
+            myControl.realValueModified()
 
             // Reset stepSize
             mouseArea.stepSize = myControl.realStepSize
