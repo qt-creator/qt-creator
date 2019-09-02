@@ -1,7 +1,7 @@
 add_qtc_plugin(CtfVisualizer
   DEPENDS Tracing Qt5::QuickWidgets
   INCLUDES ${PROJECT_SOURCE_DIR}/src
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
     ctfstatisticsmodel.cpp
     ctfstatisticsview.cpp

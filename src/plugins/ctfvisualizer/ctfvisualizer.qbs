@@ -5,7 +5,6 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "Debugger" }
-    Depends { name: "QtSupport" }
     Depends { name: "Tracing" }
     Depends { name: "Utils" }
 
