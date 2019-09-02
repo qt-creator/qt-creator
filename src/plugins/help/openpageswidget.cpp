@@ -26,7 +26,6 @@
 #include "openpageswidget.h"
 
 #include "centralwidget.h"
-#include "openpagesmodel.h"
 
 #include <coreplugin/coreconstants.h>
 #include <utils/stringutils.h>
@@ -39,7 +38,7 @@ using namespace Help::Internal;
 
 // -- OpenPagesWidget
 
-OpenPagesWidget::OpenPagesWidget(OpenPagesModel *sourceModel, QWidget *parent)
+OpenPagesWidget::OpenPagesWidget(QAbstractItemModel *sourceModel, QWidget *parent)
     : OpenDocumentsTreeView(parent)
     , m_allowContextMenu(true)
 {

@@ -26,7 +26,6 @@
 #include "openpagesswitcher.h"
 
 #include "centralwidget.h"
-#include "openpagesmodel.h"
 #include "openpageswidget.h"
 
 #include <utils/hostosinfo.h>
@@ -41,7 +40,7 @@ using namespace Help::Internal;
 const int gWidth = 300;
 const int gHeight = 200;
 
-OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
+OpenPagesSwitcher::OpenPagesSwitcher(QAbstractItemModel *model)
     : QFrame(nullptr, Qt::Popup)
     , m_openPagesModel(model)
 {
