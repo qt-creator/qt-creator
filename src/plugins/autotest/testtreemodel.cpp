@@ -59,6 +59,7 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::startupProjectChanged,
             this, &TestTreeModel::onStartupProjectChanged);
+    m_syncFrameworksTimer.setSingleShot(true);
     connect(&m_syncFrameworksTimer, &QTimer::timeout, this, &TestTreeModel::syncTestFrameworks);
     setupParsingConnections();
 }
