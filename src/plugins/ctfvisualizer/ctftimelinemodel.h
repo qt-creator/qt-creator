@@ -25,7 +25,7 @@
 ****************************************************************************/
 #pragma once
 
-#include "libs/3rdparty/json/json.hpp"
+#include "json/json.hpp"
 
 #include <tracing/timelinemodel.h>
 
