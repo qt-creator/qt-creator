@@ -37,6 +37,9 @@ QT_END_NAMESPACE
 namespace Core { class Id; }
 
 namespace Autotest {
+
+class TestTreeItem;
+
 namespace Internal {
 
 class TestRunner;
@@ -47,7 +50,6 @@ struct TestSettings;
 class IFrameworkSettings;
 class ITestParser;
 class ITestSettingsPage;
-class TestTreeItem;
 class TestTreeModel;
 
 class TestFrameworkManager
