@@ -54,7 +54,7 @@ private:
 };
 
 bool QTCREATOR_UTILS_EXPORT operator==(const DisplayName &dn1, const DisplayName &dn2);
-inline bool QTCREATOR_UTILS_EXPORT operator!=(const DisplayName &dn1, const DisplayName &dn2)
+inline bool operator!=(const DisplayName &dn1, const DisplayName &dn2)
 {
     return !(dn1 == dn2);
 }
