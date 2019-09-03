@@ -5148,6 +5148,33 @@ void tst_Dumpers::dumper_data()
                + Check("set2.0", "[0]", "42", "int")
                + Check("set2.1", "[1]", "42", "int");
 
+    QTest::newRow("StdInitializerList")
+        << Data("#include <initializer_list>\n",
+                "auto initb = {true, false, false, true};\n"
+                "auto initi = {1, 2, 3};\n"
+                "auto inits = {\"1\", \"2\", \"3\"};\n"
+                "std::initializer_list<int> empty;\n"
+                "unused(&initb, &initi, &inits, &empty);\n")
+
+               + Cxx11Profile()
+
+               + Check("initb", "<4 items>", "std::initializer_list<bool>")
+               + Check("initb.0", "[0]", "1", "bool") // 1 -> true is done on display
+               + Check("initb.1", "[1]", "0", "bool")
+               + Check("initb.2", "[2]", "0", "bool")
+               + Check("initb.3", "[3]", "1", "bool")
+
+               + Check("initi", "<3 items>", "std::initializer_list<int>")
+               + Check("initi.0", "[0]", "1", "int")
+               + Check("initi.1", "[1]", "2", "int")
+               + Check("initi.2", "[2]", "3", "int")
+
+               + Check("inits", "<3 items>", "std::initializer_list<const char *>")
+               + Check("inits.0", "[0]", "\"1\"", "char*")
+               + Check("inits.1", "[1]", "\"2\"", "char*")
+               + Check("inits.2", "[2]", "\"3\"", "char*")
+
+               + Check("empty", "<0 items>", "std::initializer_list<int>");
 
 //    class Goo
 //    {

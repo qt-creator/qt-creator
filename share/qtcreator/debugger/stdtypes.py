@@ -1039,6 +1039,24 @@ def qdump__std____debug__vector(d, value):
     qdump__std__vector(d, value)
 
 
+def qdump__std__initializer_list(d, value):
+    innerType = value.type[0]
+    if d.isMsvcTarget():
+        start = value["_First"].pointer()
+        end = value["_Last"].pointer()
+        size = int((end - start) / innerType.size())
+    else:
+        try:
+            start = value["_M_array"].pointer()
+            size = value["_M_len"].integer()
+        except:
+            start = value["__begin_"].pointer()
+            size = value["__size_"].integer()
+
+    d.putItemCount(size)
+    if d.isExpanded():
+        d.putPlotData(start, size, innerType)
+
 def qedit__std__string(d, value, data):
     d.call('void', value, 'assign', '"%s"' % data.replace('"', '\\"'))
 
