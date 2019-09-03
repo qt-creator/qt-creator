@@ -28,9 +28,6 @@
 #include "../testoutputreader.h"
 
 namespace Autotest {
-
-class TestTreeItem;
-
 namespace Internal {
 
 class BoostTestResult;
