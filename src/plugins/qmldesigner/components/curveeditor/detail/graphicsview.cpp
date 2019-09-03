@@ -296,8 +296,11 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
     auto openStyleEditor = [this]() { m_dialog.show(); };
 
     QMenu menu;
-    QAction *openEditorAction = menu.addAction(tr("Open Style Editor"));
-    connect(openEditorAction, &QAction::triggered, openStyleEditor);
+
+    if (qEnvironmentVariableIsSet("QTC_STYLE_CURVE_EDITOR")) {
+        QAction *openEditorAction = menu.addAction(tr("Open Style Editor"));
+        connect(openEditorAction, &QAction::triggered, openStyleEditor);
+    }
 
     menu.addSeparator();
     auto insertKeyframes = [this, event]() {
