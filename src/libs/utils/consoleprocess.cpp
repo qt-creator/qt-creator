@@ -167,14 +167,15 @@ TerminalCommand ConsoleProcess::defaultTerminalEmulator()
             else
                 defaultTerm = {"/usr/X11/bin/xterm", "", "-e"};
 
-        } else  if (HostOsInfo::isAnyUnixHost()) {
+        } else if (HostOsInfo::isAnyUnixHost()) {
+            defaultTerm = {"xterm", "", "-e"};
             const Environment env = Environment::systemEnvironment();
             for (const TerminalCommand &term : *knownTerminals) {
                 const QString result = env.searchInPath(term.command).toString();
-                if (!result.isEmpty())
+                if (!result.isEmpty()) {
                     defaultTerm = {result, term.openArgs, term.executeArgs};
-                else
-                    defaultTerm = {"xterm", "", "-e"};
+                    break;
+                }
             }
         }
     }
