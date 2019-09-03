@@ -1007,6 +1007,20 @@ QVector<QRect> DocumentContainer::leaveEvent()
     return {};
 }
 
+QUrl DocumentContainer::linkAt(const QPoint &documentPos, const QPoint &viewportPos)
+{
+    if (!m_document)
+        return {};
+    const litehtml::element::ptr element = m_document->root()->get_element_by_point(documentPos.x(),
+                                                                                    documentPos.y(),
+                                                                                    viewportPos.x(),
+                                                                                    viewportPos.y());
+    const char *href = element->get_attr("href");
+    if (href)
+        return resolveUrl(QString::fromUtf8(href), m_baseUrl);
+    return {};
+}
+
 QString DocumentContainer::caption() const
 {
     return m_caption;

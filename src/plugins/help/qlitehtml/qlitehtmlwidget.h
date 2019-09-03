@@ -55,6 +55,7 @@ public:
 
 signals:
     void linkClicked(const QUrl &url);
+    void contextMenuRequested(const QPoint &pos, const QUrl &url);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -64,6 +65,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
     void leaveEvent(QEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
     void render();

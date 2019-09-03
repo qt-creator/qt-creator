@@ -541,6 +541,14 @@ void QLiteHtmlWidget::leaveEvent(QEvent *event)
         viewport()->update(r.translated(-scrollPosition()));
 }
 
+void QLiteHtmlWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    QPoint viewportPos;
+    QPoint pos;
+    htmlPos(event->pos(), &viewportPos, &pos);
+    emit contextMenuRequested(event->pos(), d->documentContainer.linkAt(pos, viewportPos));
+}
+
 void QLiteHtmlWidget::render()
 {
     if (!d->documentContainer.document())

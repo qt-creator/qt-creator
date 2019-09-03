@@ -81,6 +81,7 @@ private:
     void goForward(int count);
     void goBackward(int count);
     void setSourceInternal(const QUrl &url, Utils::optional<int> vscroll = Utils::nullopt);
+    void showContextMenu(const QPoint &pos, const QUrl &url);
 
     struct HistoryItem
     {

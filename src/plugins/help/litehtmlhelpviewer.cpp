@@ -25,6 +25,7 @@
 
 #include "litehtmlhelpviewer.h"
 
+#include "helpconstants.h"
 #include "localhelpmanager.h"
 
 #include <utils/algorithm.h>
@@ -71,6 +72,10 @@ LiteHtmlHelpViewer::LiteHtmlHelpViewer(QWidget *parent)
 {
     m_viewer->setResourceHandler([](const QUrl &url) { return getData(url); });
     connect(m_viewer, &QLiteHtmlWidget::linkClicked, this, &LiteHtmlHelpViewer::setSource);
+    connect(m_viewer,
+            &QLiteHtmlWidget::contextMenuRequested,
+            this,
+            &LiteHtmlHelpViewer::showContextMenu);
     auto layout = new QVBoxLayout;
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -270,45 +275,39 @@ void LiteHtmlHelpViewer::setSourceInternal(const QUrl &url, Utils::optional<int>
     emit titleChanged();
 }
 
+void LiteHtmlHelpViewer::showContextMenu(const QPoint &pos, const QUrl &url)
+{
+    QMenu menu(nullptr);
+
+    QAction *copyAnchorAction = nullptr;
+    if (!url.isEmpty() && url.isValid()) {
+        if (isActionVisible(HelpViewer::Action::NewPage)) {
+            QAction *action = menu.addAction(
+                QCoreApplication::translate("HelpViewer", Constants::TR_OPEN_LINK_AS_NEW_PAGE));
+            connect(action, &QAction::triggered, this, [this, url]() {
+                emit newPageRequested(url);
+            });
+        }
+        if (isActionVisible(HelpViewer::Action::ExternalWindow)) {
+            QAction *action = menu.addAction(
+                QCoreApplication::translate("HelpViewer", Constants::TR_OPEN_LINK_IN_WINDOW));
+            connect(action, &QAction::triggered, this, [this, url]() {
+                emit externalPageRequested(url);
+            });
+        }
+        copyAnchorAction = menu.addAction(tr("Copy Link"));
+    } else if (!m_viewer->selectedText().isEmpty()) {
+        connect(menu.addAction(tr("Copy")), &QAction::triggered, this, &HelpViewer::copy);
+    }
+
+    if (copyAnchorAction == menu.exec(m_viewer->mapToGlobal(pos)))
+        QGuiApplication::clipboard()->setText(url.toString());
+}
+
 LiteHtmlHelpViewer::HistoryItem LiteHtmlHelpViewer::currentHistoryItem() const
 {
     return {m_viewer->url(), m_viewer->title(), m_viewer->verticalScrollBar()->value()};
 }
-
-// -- private
-//void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
-//{
-//    QMenu menu("", nullptr);
-
-//    QAction *copyAnchorAction = nullptr;
-//    const QUrl link(linkAt(event->pos()));
-//    if (!link.isEmpty() && link.isValid()) {
-//        QAction *action = menu.addAction(tr("Open Link"));
-//        connect(action, &QAction::triggered, this, [this, link]() {
-//            setSource(link);
-//        });
-//        if (m_parent->isActionVisible(HelpViewer::Action::NewPage)) {
-//            action = menu.addAction(QCoreApplication::translate("HelpViewer", Constants::TR_OPEN_LINK_AS_NEW_PAGE));
-//            connect(action, &QAction::triggered, this, [this, link]() {
-//                emit m_parent->newPageRequested(link);
-//            });
-//        }
-//        if (m_parent->isActionVisible(HelpViewer::Action::ExternalWindow)) {
-//            action = menu.addAction(QCoreApplication::translate("HelpViewer", Constants::TR_OPEN_LINK_IN_WINDOW));
-//            connect(action, &QAction::triggered, this, [this, link]() {
-//                emit m_parent->externalPageRequested(link);
-//            });
-//        }
-//        copyAnchorAction = menu.addAction(tr("Copy Link"));
-//    } else if (!textCursor().selectedText().isEmpty()) {
-//        connect(menu.addAction(tr("Copy")), &QAction::triggered, this, &QTextEdit::copy);
-//    } else {
-//        connect(menu.addAction(tr("Reload")), &QAction::triggered, this, &QTextBrowser::reload);
-//    }
-
-//    if (copyAnchorAction == menu.exec(event->globalPos()))
-//        QApplication::clipboard()->setText(link.toString());
-//}
 
 //bool TextBrowserHelpWidget::eventFilter(QObject *obj, QEvent *event)
 //{
