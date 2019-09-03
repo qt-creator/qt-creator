@@ -215,7 +215,9 @@ TextFileFormat::ReadResult readTextFile(const QString &fileName, const QTextCode
         return TextFileFormat::ReadMemoryAllocationError;
     }
 
-    *format = TextFileFormat::detect(data);
+    if (!data.isEmpty())
+        *format = TextFileFormat::detect(data);
+
     if (!format->codec)
         format->codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
 

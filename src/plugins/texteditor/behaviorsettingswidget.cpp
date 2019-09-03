@@ -84,6 +84,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         d->m_codecs.prepend(QTextCodec::codecForLocale());
     }
 
+    d->m_ui.defaultLineEndings->addItems(ExtraEncodingSettings::lineTerminationModeNames());
+
     auto currentIndexChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
     connect(d->m_ui.autoIndent, &QAbstractButton::toggled,
             this, &BehaviorSettingsWidget::slotTypingSettingsChanged);
@@ -243,6 +245,16 @@ void BehaviorSettingsWidget::assignedExtraEncodingSettings(
 {
     encodingSettings->m_utf8BomSetting =
         (ExtraEncodingSettings::Utf8BomSetting)d->m_ui.utf8BomBox->currentIndex();
+}
+
+void BehaviorSettingsWidget::setAssignedLineEnding(int lineEnding)
+{
+    d->m_ui.defaultLineEndings->setCurrentIndex(lineEnding);
+}
+
+int BehaviorSettingsWidget::assignedLineEnding() const
+{
+    return d->m_ui.defaultLineEndings->currentIndex();
 }
 
 TabSettingsWidget *BehaviorSettingsWidget::tabSettingsWidget() const

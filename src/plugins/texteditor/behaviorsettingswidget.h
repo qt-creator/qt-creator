@@ -71,6 +71,9 @@ public:
     void setAssignedExtraEncodingSettings(const ExtraEncodingSettings &encodingSettings);
     void assignedExtraEncodingSettings(ExtraEncodingSettings *encodingSettings) const;
 
+    void setAssignedLineEnding(int lineEnding);
+    int assignedLineEnding() const;
+
     TabSettingsWidget *tabSettingsWidget() const;
 
 signals:

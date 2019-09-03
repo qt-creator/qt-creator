@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>801</width>
-    <height>480</height>
+    <height>547</height>
    </rect>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
@@ -319,6 +319,16 @@ Specifies how backspace interacts with indentation.
            <string>UTF-8 BOM:</string>
           </property>
          </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="defaultLineEndingsLabel">
+          <property name="text">
+           <string>Default line endings:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="defaultLineEndings"/>
         </item>
        </layout>
       </widget>

@@ -3167,6 +3167,15 @@ QTextCodec *EditorManager::defaultTextCodec()
     return QTextCodec::codecForLocale();
 }
 
+TextFileFormat::LineTerminationMode EditorManager::defaultLineEnding()
+{
+    QSettings *settings = ICore::settings();
+    const int defaultLineTerminator = settings->value(Constants::SETTINGS_DEFAULT_LINE_TERMINATOR,
+            TextFileFormat::LineTerminationMode::NativeLineTerminator).toInt();
+
+    return static_cast<TextFileFormat::LineTerminationMode>(defaultLineTerminator);
+}
+
 void EditorManager::splitSideBySide()
 {
     EditorManagerPrivate::split(Qt::Horizontal);

@@ -30,6 +30,8 @@
 
 #include "documentmodel.h"
 
+#include "utils/textfileformat.h"
+
 #include <QList>
 #include <QWidget>
 
@@ -153,6 +155,8 @@ public:
     static bool isAutoSaveFile(const QString &fileName);
 
     static QTextCodec *defaultTextCodec();
+
+    static Utils::TextFileFormat::LineTerminationMode defaultLineEnding();
 
     static qint64 maxTextFileSize();
 

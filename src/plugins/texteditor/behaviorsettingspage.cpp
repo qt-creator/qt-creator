@@ -196,6 +196,8 @@ void BehaviorSettingsPage::apply()
     if (s) {
         s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULTTEXTENCODING),
                     d->m_page->behaviorWidget->assignedCodecName());
+        s->setValue(QLatin1String(Core::Constants::SETTINGS_DEFAULT_LINE_TERMINATOR),
+                    d->m_page->behaviorWidget->assignedLineEnding());
     }
 }
 
@@ -217,6 +219,7 @@ void BehaviorSettingsPage::settingsToUI()
     d->m_page->behaviorWidget->setAssignedBehaviorSettings(d->m_behaviorSettings);
     d->m_page->behaviorWidget->setAssignedExtraEncodingSettings(d->m_extraEncodingSettings);
     d->m_page->behaviorWidget->setAssignedCodec(Core::EditorManager::defaultTextCodec());
+    d->m_page->behaviorWidget->setAssignedLineEnding(Core::EditorManager::defaultLineEnding());
 }
 
 void BehaviorSettingsPage::finish()

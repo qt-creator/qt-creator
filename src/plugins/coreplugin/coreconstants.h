@@ -213,6 +213,7 @@ const char SETTINGS_ID_TOOLS[] = "D.ExternalTools";
 const char SETTINGS_ID_MIMETYPES[] = "E.MimeTypes";
 
 const char SETTINGS_DEFAULTTEXTENCODING[] = "General/DefaultFileEncoding";
+const char SETTINGS_DEFAULT_LINE_TERMINATOR[] = "General/DefaultLineTerminator";
 
 const char SETTINGS_THEME[] = "Core/CreatorTheme";
 const char DEFAULT_THEME[] = "flat";
