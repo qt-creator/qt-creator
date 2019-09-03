@@ -3,6 +3,7 @@ import qbs
 QtcPlugin {
     name: "CtfVisualizer"
 
+    Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
     Depends { name: "Tracing" }
