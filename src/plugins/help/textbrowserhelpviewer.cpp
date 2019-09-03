@@ -376,8 +376,6 @@ void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
         copyAnchorAction = menu.addAction(tr("Copy Link"));
     } else if (!textCursor().selectedText().isEmpty()) {
         connect(menu.addAction(tr("Copy")), &QAction::triggered, this, &QTextEdit::copy);
-    } else {
-        connect(menu.addAction(tr("Reload")), &QAction::triggered, this, &QTextBrowser::reload);
     }
 
     if (copyAnchorAction == menu.exec(event->globalPos()))
