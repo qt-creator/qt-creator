@@ -117,7 +117,7 @@ LocalQmlPreviewSupport::LocalQmlPreviewSupport(ProjectExplorer::RunControl *runC
     const QUrl serverUrl = Utils::urlFromLocalSocket();
 
     QmlPreviewRunner *preview = qobject_cast<QmlPreviewRunner *>(
-                runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE));
+                runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER));
     preview->setServerUrl(serverUrl);
 
     addStopDependency(preview);
