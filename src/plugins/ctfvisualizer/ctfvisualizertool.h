@@ -57,9 +57,6 @@ public:
 
     void loadJson();
 
-signals:
-    void viewsCreated();
-
 private:
     void createViews();
 

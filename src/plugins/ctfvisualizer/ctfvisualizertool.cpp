@@ -114,7 +114,6 @@ void CtfVisualizerTool::createViews()
     m_perspective.addWindow(m_statisticsView, Utils::Perspective::AddToTab, m_traceView);
 
     m_perspective.setAboutToActivateCallback(Utils::Perspective::Callback());
-    emit viewsCreated();
 }
 
 Timeline::TimelineModelAggregator *CtfVisualizerTool::modelAggregator() const
