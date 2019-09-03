@@ -25,8 +25,6 @@
 
 #include "openpageswidget.h"
 
-#include "centralwidget.h"
-
 #include <coreplugin/coreconstants.h>
 #include <utils/stringutils.h>
 
@@ -61,12 +59,12 @@ OpenPagesWidget::OpenPagesWidget(QAbstractItemModel *sourceModel, QWidget *paren
 
 OpenPagesWidget::~OpenPagesWidget() = default;
 
-void OpenPagesWidget::selectCurrentPage()
+void OpenPagesWidget::selectCurrentPage(int index)
 {
     QItemSelectionModel * const selModel = selectionModel();
     selModel->clearSelection();
-    selModel->select(model()->index(CentralWidget::instance()->currentIndex(), 0),
-        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    selModel->select(model()->index(index, 0),
+                     QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     scrollTo(currentIndex());
 }
 

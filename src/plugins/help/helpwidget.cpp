@@ -494,18 +494,6 @@ HelpViewer *HelpWidget::currentViewer() const
     return qobject_cast<HelpViewer *>(m_viewerStack->currentWidget());
 }
 
-void HelpWidget::setCurrentViewer(HelpViewer *viewer)
-{
-    m_viewerStack->setCurrentWidget(viewer);
-    m_backAction->setEnabled(viewer->isBackwardAvailable());
-    m_forwardAction->setEnabled(viewer->isForwardAvailable());
-    m_addBookmarkAction->setEnabled(isBookmarkable(viewer->source()));
-    m_openOnlineDocumentationAction->setEnabled(LocalHelpManager::canOpenOnlineHelp(viewer->source()));
-    if (m_style == ExternalWindow)
-        updateWindowTitle();
-    emit sourceChanged(viewer->source());
-}
-
 int HelpWidget::currentIndex() const
 {
     return m_viewerStack->currentIndex();
@@ -513,7 +501,17 @@ int HelpWidget::currentIndex() const
 
 void HelpWidget::setCurrentIndex(int index)
 {
-    setCurrentViewer(viewerAt(index));
+    HelpViewer *viewer = viewerAt(index);
+    m_viewerStack->setCurrentIndex(index);
+    m_backAction->setEnabled(viewer->isBackwardAvailable());
+    m_forwardAction->setEnabled(viewer->isForwardAvailable());
+    m_addBookmarkAction->setEnabled(isBookmarkable(viewer->source()));
+    m_openOnlineDocumentationAction->setEnabled(
+        LocalHelpManager::canOpenOnlineHelp(viewer->source()));
+    if (m_style == ExternalWindow)
+        updateWindowTitle();
+    emit sourceChanged(viewer->source());
+    emit currentIndexChanged(index);
 }
 
 HelpViewer *HelpWidget::addViewer(const QUrl &url, qreal zoom)
@@ -570,7 +568,7 @@ void HelpWidget::removeViewerAt(int index)
     m_model.endRemoveRows();
     delete viewerWidget;
     if (m_viewerStack->currentWidget())
-        setCurrentViewer(qobject_cast<HelpViewer *>(m_viewerStack->currentWidget()));
+        setCurrentIndex(m_viewerStack->currentIndex());
     updateCloseButton();
 }
 

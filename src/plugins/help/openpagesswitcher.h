@@ -49,7 +49,7 @@ public:
     void gotoPreviousPage();
 
     void selectAndHide();
-    void selectCurrentPage();
+    void selectCurrentPage(int index);
 
     void setVisible(bool visible) override;
     void focusInEvent(QFocusEvent *event) override;

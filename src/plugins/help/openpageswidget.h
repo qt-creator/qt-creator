@@ -38,7 +38,7 @@ public:
     explicit OpenPagesWidget(QAbstractItemModel *model, QWidget *parent = nullptr);
     ~OpenPagesWidget() override;
 
-    void selectCurrentPage();
+    void selectCurrentPage(int index);
     void allowContextMenu(bool ok);
 
 signals:

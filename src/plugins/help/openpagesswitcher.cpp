@@ -85,9 +85,9 @@ void OpenPagesSwitcher::selectAndHide()
     emit setCurrentPage(m_openPagesWidget->currentIndex());
 }
 
-void OpenPagesSwitcher::selectCurrentPage()
+void OpenPagesSwitcher::selectCurrentPage(int index)
 {
-    m_openPagesWidget->selectCurrentPage();
+    m_openPagesWidget->selectCurrentPage(index);
 }
 
 void OpenPagesSwitcher::setVisible(bool visible)

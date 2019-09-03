@@ -63,9 +63,6 @@ public:
     HelpViewer *createPage();
     HelpViewer *createPage(const QUrl &url);
 
-    void setCurrentPageByRow(int index);
-    void setCurrentPage(const QModelIndex &index);
-
     void closeCurrentPage();
     void closePage(const QModelIndex &index);
     void closePagesExcept(const QModelIndex &index);

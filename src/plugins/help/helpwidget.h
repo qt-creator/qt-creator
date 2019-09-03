@@ -83,7 +83,6 @@ public:
     QAbstractItemModel *model();
 
     HelpViewer *currentViewer() const;
-    void setCurrentViewer(HelpViewer *viewer);
     int currentIndex() const;
     void setCurrentIndex(int index);
     HelpViewer *addViewer(const QUrl &url, qreal zoom = 0);
@@ -111,6 +110,7 @@ signals:
     void aboutToClose();
     void sourceChanged(const QUrl &url);
     void filterActivated(const QString &name);
+    void currentIndexChanged(int index);
 
 private:
     int indexOf(HelpViewer *viewer) const;
