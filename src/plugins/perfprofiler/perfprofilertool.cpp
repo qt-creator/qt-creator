@@ -355,7 +355,6 @@ void PerfProfilerTool::createViews()
     m_perspective.addToolBarWidget(m_tracePointsButton);
 
     m_perspective.setAboutToActivateCallback(Perspective::Callback());
-    emit viewsCreated();
 }
 
 PerfProfilerTool *PerfProfilerTool::instance()

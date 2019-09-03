@@ -72,7 +72,6 @@ public:
 signals:
     void recordingChanged(bool recording);
     void aggregatedChanged(bool aggregated);
-    void viewsCreated();
 
 private:
     void createViews();
