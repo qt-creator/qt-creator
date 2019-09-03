@@ -57,13 +57,7 @@ static QByteArray getData(const QUrl &url)
         actualUrl.setPath(path);
     }
     const LocalHelpManager::HelpData help = LocalHelpManager::helpData(actualUrl);
-
-    // TODO: this is a hack around for https://github.com/litehtml/litehtml/issues/91
-    QByteArray data = help.data;
-    if (actualUrl.path(QUrl::FullyEncoded).endsWith(".css"))
-        data.replace("inline-table", "inline");
-
-    return data;
+    return help.data;
 }
 
 LiteHtmlHelpViewer::LiteHtmlHelpViewer(QWidget *parent)
