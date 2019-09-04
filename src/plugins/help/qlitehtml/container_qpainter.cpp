@@ -462,8 +462,12 @@ litehtml::uint_ptr DocumentContainer::create_font(const litehtml::tchar_t *faceN
     font->setPixelSize(size);
     font->setWeight(cssWeightToQtWeight(weight));
     font->setStyle(toQFontStyle(italic));
-    // TODO: decoration
-    Q_UNUSED(decoration)
+    if (decoration == litehtml::font_decoration_underline)
+        font->setUnderline(true);
+    if (decoration == litehtml::font_decoration_overline)
+        font->setOverline(true);
+    if (decoration == litehtml::font_decoration_linethrough)
+        font->setStrikeOut(true);
     if (fm) {
         const QFontMetrics metrics(*font);
         fm->height = metrics.height();
