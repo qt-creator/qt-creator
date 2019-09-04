@@ -98,7 +98,6 @@ IosRunner::IosRunner(RunControl *runControl)
     stopRunningRunControl(runControl);
     auto runConfig = qobject_cast<IosRunConfiguration *>(runControl->runConfiguration());
     m_bundleDir = runConfig->bundleDirectory().toString();
-    m_arguments = runControl->aspect<ArgumentsAspect>()->arguments(runConfig->macroExpander());
     m_device = DeviceKitAspect::device(runControl->target()->kit());
     m_deviceType = runConfig->deviceType();
 }
@@ -199,7 +198,8 @@ void IosRunner::start()
     connect(m_toolHandler, &IosToolHandler::finished,
             this, &IosRunner::handleFinished);
 
-    QStringList args = QtcProcess::splitArgs(m_arguments, OsTypeMac);
+    const Runnable runnable = runControl()->runnable();
+    QStringList args = QtcProcess::splitArgs(runnable.commandLineArguments, OsTypeMac);
     if (m_qmlServerPort.isValid()) {
         QUrl qmlServer;
         qmlServer.setPort(m_qmlServerPort.number());

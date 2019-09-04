@@ -83,7 +83,6 @@ private:
 
     IosToolHandler *m_toolHandler = nullptr;
     QString m_bundleDir;
-    QString m_arguments;
     ProjectExplorer::IDevice::ConstPtr m_device;
     IosDeviceType m_deviceType;
     bool m_cppDebug = false;
