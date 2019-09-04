@@ -79,15 +79,18 @@
     subproject.
 
     To remove all build artifacts, select \uicontrol Build > \uicontrol {Clean All} or
-    \uicontrol {Clean Project}. To clean the build directory, run qmake, and
-    then build the project, select \uicontrol Build > \uicontrol {Rebuild All}
-    or \uicontrol {Rebuild Project}.
+    \uicontrol {Clean Project}. To clean the build directory and then build
+    the project, select \uicontrol Build > \uicontrol {Rebuild All} or
+    \uicontrol {Rebuild Project}. If you use qmake, rebuilding also runs qmake
+    to generate new Makefiles between cleaning and building.
 
     To build and clean projects without dependencies, select the
     \uicontrol {Build Without Dependencies},
     \uicontrol {Rebuild Without Dependencies}, and
     \uicontrol {Clean Without Dependencies} options in the context menu in the
     \uicontrol Projects view.
+
+    \section1 Additional qmake Options
 
     To run qmake to generate new Makefiles, select \uicontrol Build >
     \uicontrol qmake. To prevent failures on incremental builds, it might make
