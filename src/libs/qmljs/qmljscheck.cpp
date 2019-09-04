@@ -593,11 +593,7 @@ public:
 class UnsupportedTypesByVisualDesigner : public QStringList
 {
 public:
-    UnsupportedTypesByVisualDesigner() : QStringList({"Transform",
-                                                      "Timer",
-                                                      "Rotation",
-                                                      "Scale",
-                                                      "Translate",
+    UnsupportedTypesByVisualDesigner() : QStringList({"Timer",
                                                       "Package",
                                                       "Particles"})
     {}
