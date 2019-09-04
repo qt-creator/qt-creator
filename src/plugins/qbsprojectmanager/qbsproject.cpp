@@ -736,17 +736,17 @@ static QString getMimeType(const qbs::ArtifactData &sourceFile)
 {
     if (sourceFile.fileTags().contains("hpp")) {
         if (CppTools::ProjectFile::isAmbiguousHeader(sourceFile.filePath()))
-            return CppTools::Constants::AMBIGUOUS_HEADER_MIMETYPE;
-        return CppTools::Constants::CPP_HEADER_MIMETYPE;
+            return QString(CppTools::Constants::AMBIGUOUS_HEADER_MIMETYPE);
+        return QString(CppTools::Constants::CPP_HEADER_MIMETYPE);
     }
     if (sourceFile.fileTags().contains("cpp"))
-        return CppTools::Constants::CPP_SOURCE_MIMETYPE;
+        return QString(CppTools::Constants::CPP_SOURCE_MIMETYPE);
     if (sourceFile.fileTags().contains("c"))
-        return CppTools::Constants::C_SOURCE_MIMETYPE;
+        return QString(CppTools::Constants::C_SOURCE_MIMETYPE);
     if (sourceFile.fileTags().contains("objc"))
-        return CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE;
+        return QString(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE);
     if (sourceFile.fileTags().contains("objcpp"))
-        return CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE;
+        return QString(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
     return {};
 }
 
