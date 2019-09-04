@@ -39,6 +39,8 @@
 
 #include <algorithm>
 
+static constexpr int sizeofQChar = int(sizeof(QChar));
+
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
@@ -248,12 +250,6 @@ public:
 
     {}
 
-    void pragmaLibrary(int line, int column)
-    {
-        isLibrary = true;
-        addLocation(line, column);
-    }
-
     void importFile(const QString &jsfile, const QString &module,
                     int line, int column) override
     {
@@ -306,12 +302,13 @@ bool Document::parse_helper(int startToken)
         _parsedCorrectly = parser.parse();
         break;
     case QmlJSGrammar::T_FEED_JS_SCRIPT:
-    case QmlJSGrammar::T_FEED_JS_MODULE:
+    case QmlJSGrammar::T_FEED_JS_MODULE: {
         _parsedCorrectly = parser.parseProgram();
-        for (const auto &d: directives.locations()) {
+        const QList<SourceLocation> locations = directives.locations();
+        for (const auto &d : locations) {
             _jsdirectives << d;
         }
-        break;
+    } break;
 
     case QmlJSGrammar::T_FEED_JS_EXPRESSION:
         _parsedCorrectly = parser.parseExpression();
@@ -383,10 +380,6 @@ LibraryInfo::LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerpri
         updateFingerprint();
 }
 
-LibraryInfo::~LibraryInfo()
-{
-}
-
 QByteArray LibraryInfo::calculateFingerprint() const
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);
@@ -396,12 +389,14 @@ QByteArray LibraryInfo::calculateFingerprint() const
     foreach (const QmlDirParser::Component &component, _components) {
         len = component.fileName.size();
         hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(component.fileName.constData()), len * sizeof(QChar));
+        hash.addData(reinterpret_cast<const char *>(component.fileName.constData()),
+                     len * sizeofQChar);
         hash.addData(reinterpret_cast<const char *>(&component.majorVersion), sizeof(component.majorVersion));
         hash.addData(reinterpret_cast<const char *>(&component.minorVersion), sizeof(component.minorVersion));
         len = component.typeName.size();
         hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(component.typeName.constData()), component.typeName.size() * sizeof(QChar));
+        hash.addData(reinterpret_cast<const char *>(component.typeName.constData()),
+                     component.typeName.size() * sizeofQChar);
         int flags = (component.singleton ?  (1 << 0) : 0) + (component.internal ? (1 << 1) : 0);
         hash.addData(reinterpret_cast<const char *>(&flags), sizeof(flags));
     }
@@ -410,17 +405,18 @@ QByteArray LibraryInfo::calculateFingerprint() const
     foreach (const QmlDirParser::Plugin &plugin, _plugins) {
         len = plugin.path.size();
         hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(plugin.path.constData()), len * sizeof(QChar));
+        hash.addData(reinterpret_cast<const char *>(plugin.path.constData()), len * sizeofQChar);
         len = plugin.name.size();
         hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(plugin.name.constData()), len * sizeof(QChar));
+        hash.addData(reinterpret_cast<const char *>(plugin.name.constData()), len * sizeofQChar);
     }
     len = _typeinfos.size();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
     foreach (const QmlDirParser::TypeInfo &typeinfo, _typeinfos) {
         len = typeinfo.fileName.size();
         hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-        hash.addData(reinterpret_cast<const char *>(typeinfo.fileName.constData()), len * sizeof(QChar));
+        hash.addData(reinterpret_cast<const char *>(typeinfo.fileName.constData()),
+                     len * sizeofQChar);
     }
     len = _metaObjects.size();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
@@ -433,7 +429,7 @@ QByteArray LibraryInfo::calculateFingerprint() const
     hash.addData(reinterpret_cast<const char *>(&_dumpStatus), sizeof(_dumpStatus));
     len = _dumpError.size(); // localization dependent (avoid?)
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    hash.addData(reinterpret_cast<const char *>(_dumpError.constData()), len * sizeof(QChar));
+    hash.addData(reinterpret_cast<const char *>(_dumpError.constData()), len * sizeofQChar);
 
     len = _moduleApis.size();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
@@ -623,9 +619,9 @@ void ModuleApiInfo::addToHash(QCryptographicHash &hash) const
 {
     int len = uri.length();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    hash.addData(reinterpret_cast<const char *>(uri.constData()), len * sizeof(QChar));
+    hash.addData(reinterpret_cast<const char *>(uri.constData()), len * sizeofQChar);
     version.addToHash(hash);
     len = cppName.length();
     hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    hash.addData(reinterpret_cast<const char *>(cppName.constData()), len * sizeof(QChar));
+    hash.addData(reinterpret_cast<const char *>(cppName.constData()), len * sizeofQChar);
 }

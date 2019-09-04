@@ -388,7 +388,7 @@ protected:
         QTC_ASSERT(_block == 0, _block = 0);
     }
 
-    void postVisit(Node *ast)
+    void postVisit(Node *ast) override
     {
         if (!_seenNonDeclarationStatement && ast->statementCast()
                 && !cast<VariableStatement *>(ast)) {
@@ -396,7 +396,7 @@ protected:
         }
     }
 
-    bool visit(IdentifierExpression *ast)
+    bool visit(IdentifierExpression *ast) override
     {
         if (ast->name.isEmpty())
             return false;
@@ -409,14 +409,14 @@ protected:
         return false;
     }
 
-    bool visit(VariableStatement *ast)
+    bool visit(VariableStatement *ast) override
     {
         if (_seenNonDeclarationStatement)
             addMessage(HintDeclarationsShouldBeAtStartOfFunction, ast->declarationKindToken);
         return true;
     }
 
-    bool visit(PatternElement *ast)
+    bool visit(PatternElement *ast) override
     {
         if (ast->bindingIdentifier.isEmpty() || !ast->isVariableDeclaration())
             return true;
@@ -433,12 +433,13 @@ protected:
             if (_declaredVariables.contains(name)) {
                 addMessage(WarnDuplicateDeclaration, ast->identifierToken, name);
             } else {
-                for (auto k : _declaredBlockVariables.keys()) {
-                    if (k.first == name) {
-                        addMessage(WarnDuplicateDeclaration, ast->identifierToken, name);
-                        break;
-                    }
-                }
+                const auto found = std::find_if(_declaredBlockVariables.keyBegin(),
+                                                _declaredBlockVariables.keyEnd(),
+                                                [name](const auto &key) {
+                                                    return key.first == name;
+                                                });
+                if (found != _declaredBlockVariables.keyEnd())
+                    addMessage(WarnDuplicateDeclaration, ast->identifierToken, name);
             }
         }
 
@@ -456,7 +457,7 @@ protected:
         return true;
     }
 
-    bool visit(FunctionDeclaration *ast)
+    bool visit(FunctionDeclaration *ast) override
     {
         if (_seenNonDeclarationStatement)
             addMessage(HintDeclarationsShouldBeAtStartOfFunction, ast->functionToken);
@@ -464,7 +465,7 @@ protected:
         return visit(static_cast<FunctionExpression *>(ast));
     }
 
-    bool visit(FunctionExpression *ast)
+    bool visit(FunctionExpression *ast) override
     {
         if (ast->name.isEmpty())
             return false;
@@ -879,7 +880,7 @@ static bool checkTopLevelBindingForParentReference(ExpressionStatement *expStmt,
         return false;
 
     SourceLocation location = locationFromRange(expStmt->firstSourceLocation(), expStmt->lastSourceLocation());
-    QString stmtSource = source.mid(location.begin(), location.length);
+    QString stmtSource = source.mid(int(location.begin()), int(location.length));
 
     if (stmtSource.contains(QRegExp("(^|\\W)parent\\.")))
         return true;
@@ -1245,8 +1246,8 @@ bool Check::visit(BinaryExpression *ast)
 
     // check spacing
     SourceLocation op = ast->operatorToken;
-    if ((op.begin() > 0 && !source.at(op.begin() - 1).isSpace())
-            || (int(op.end()) < source.size() && !source.at(op.end()).isSpace())) {
+    if ((op.begin() > 0 && !source.at(int(op.begin()) - 1).isSpace())
+        || (int(op.end()) < source.size() && !source.at(int(op.end())).isSpace())) {
         addMessage(HintBinaryOperatorSpacing, op);
     }
 
@@ -1281,15 +1282,13 @@ bool Check::visit(BinaryExpression *ast)
         }
 
         if (int(op.end()) + 1 < source.size()) {
-            const QChar next = source.at(op.end());
-            if (next.isSpace() && next != newline
-                    && source.at(op.end() + 1) == match)
-                addMessage(msg, SourceLocation(op.begin(), 3, op.startLine, op.startColumn));
+            const QChar next = source.at(int(op.end()));
+            if (next.isSpace() && next != newline && source.at(int(op.end()) + 1) == match)
+                addMessage(msg, SourceLocation((op.begin()), 3, op.startLine, op.startColumn));
         }
         if (op.begin() >= 2) {
-            const QChar prev = source.at(op.begin() - 1);
-            if (prev.isSpace() && prev != newline
-                    && source.at(op.begin() - 2) == match)
+            const QChar prev = source.at(int(op.begin()) - 1);
+            if (prev.isSpace() && prev != newline && source.at(int(op.begin()) - 2) == match)
                 addMessage(msg, SourceLocation(op.begin() - 2, 3, op.startLine, op.startColumn - 2));
         }
     }
@@ -1379,6 +1378,7 @@ bool Check::visit(ExpressionStatement *ast)
             case QSOperator::InplaceURightShift:
             case QSOperator::InplaceXor:
                 ok = true;
+                break;
             default: break;
             }
         }
@@ -1511,8 +1511,9 @@ static bool hasOnlySpaces(const QString &s)
 void Check::addMessage(const Message &message)
 {
     if (message.isValid() && _enabledMessages.contains(message.type)) {
-        if (m_disabledMessageTypesByLine.contains(message.location.startLine)) {
-            QList<MessageTypeAndSuppression> &disabledMessages = m_disabledMessageTypesByLine[message.location.startLine];
+        if (m_disabledMessageTypesByLine.contains(int(message.location.startLine))) {
+            QList<MessageTypeAndSuppression> &disabledMessages
+                = m_disabledMessageTypesByLine[int(message.location.startLine)];
             for (int i = 0; i < disabledMessages.size(); ++i) {
                 if (disabledMessages[i].type == message.type) {
                     disabledMessages[i].wasSuppressed = true;
@@ -1536,7 +1537,7 @@ void Check::scanCommentsForAnnotations()
     QRegExp disableCommentPattern(Message::suppressionPattern());
 
     foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
-        const QString &comment = _doc->source().mid(commentLoc.begin(), commentLoc.length);
+        const QString &comment = _doc->source().mid(int(commentLoc.begin()), int(commentLoc.length));
 
         // enable all checks annotation
         if (comment.contains("@enable-all-checks"))
@@ -1552,25 +1553,26 @@ void Check::scanCommentsForAnnotations()
             MessageTypeAndSuppression entry;
             entry.type = static_cast<StaticAnalysis::Type>(disableCommentPattern.cap(1).toInt());
             entry.wasSuppressed = false;
-            entry.suppressionSource = SourceLocation(commentLoc.offset + lastOffset,
-                                                     disableCommentPattern.matchedLength(),
+            entry.suppressionSource = SourceLocation(commentLoc.offset + quint32(lastOffset),
+                                                     quint32(disableCommentPattern.matchedLength()),
                                                      commentLoc.startLine,
-                                                     commentLoc.startColumn + lastOffset);
+                                                     commentLoc.startColumn + quint32(lastOffset));
             disabledMessageTypes += entry;
         }
         if (!disabledMessageTypes.isEmpty()) {
-            int appliesToLine = commentLoc.startLine;
+            quint32 appliesToLine = commentLoc.startLine;
 
             // if the comment is preceded by spaces only, it applies to the next line
             // note: startColumn is 1-based and *after* the starting // or /*
             if (commentLoc.startColumn >= 3) {
-                const QString &beforeComment = _doc->source().mid(commentLoc.begin() - commentLoc.startColumn + 1,
-                                                                  commentLoc.startColumn - 3);
+                const QString &beforeComment = _doc->source().mid(int(commentLoc.begin()
+                                                                      - commentLoc.startColumn + 1),
+                                                                  int(commentLoc.startColumn) - 3);
                 if (hasOnlySpaces(beforeComment))
                     ++appliesToLine;
             }
 
-            m_disabledMessageTypesByLine[appliesToLine] += disabledMessageTypes;
+            m_disabledMessageTypesByLine[int(appliesToLine)] += disabledMessageTypes;
         }
     }
 }
@@ -1859,7 +1861,8 @@ void Check::checkCaseFallthrough(StatementList *statements, SourceLocation error
                         || comment.end() > nextLoc.begin())
                     continue;
 
-                const QString &commentText = _doc->source().mid(comment.begin(), comment.length);
+                const QString &commentText = _doc->source().mid(int(comment.begin()),
+                                                                int(comment.length));
                 if (commentText.contains("fall through")
                         || commentText.contains("fall-through")
                         || commentText.contains("fallthrough")) {
