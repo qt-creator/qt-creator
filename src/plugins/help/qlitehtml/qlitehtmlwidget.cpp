@@ -422,6 +422,7 @@ QUrl QLiteHtmlWidget::url() const
 
 void QLiteHtmlWidget::setHtml(const QString &content)
 {
+    d->documentContainer.setPaintDevice(viewport());
     d->documentContainer.setDocument(content.toUtf8(), &d->context);
     verticalScrollBar()->setValue(0);
     horizontalScrollBar()->setValue(0);

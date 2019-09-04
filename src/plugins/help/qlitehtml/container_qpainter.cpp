@@ -505,7 +505,8 @@ void DocumentContainer::draw_text(litehtml::uint_ptr hdc,
 
 int DocumentContainer::pt_to_px(int pt)
 {
-    return pt;
+    // magic factor of 11/12 to account for differences to webengine/webkit
+    return m_paintDevice->physicalDpiY() * pt * 11 / m_paintDevice->logicalDpiY() / 12;
 }
 
 int DocumentContainer::get_default_font_size() const
@@ -845,6 +846,11 @@ void DocumentContainer::get_language(litehtml::tstring &language, litehtml::tstr
     qDebug(log) << "get_language";
     Q_UNUSED(language)
     Q_UNUSED(culture)
+}
+
+void DocumentContainer::setPaintDevice(QPaintDevice *paintDevice)
+{
+    m_paintDevice = paintDevice;
 }
 
 void DocumentContainer::setScrollPosition(const QPoint &pos)

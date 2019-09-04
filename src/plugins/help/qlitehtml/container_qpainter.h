@@ -29,6 +29,7 @@
 
 #include <QFont>
 #include <QHash>
+#include <QPaintDevice>
 #include <QPixmap>
 #include <QRect>
 #include <QString>
@@ -120,6 +121,7 @@ public:
     void get_media_features(litehtml::media_features &media) const override;
     void get_language(litehtml::tstring &language, litehtml::tstring &culture) const override;
 
+    void setPaintDevice(QPaintDevice *paintDevice);
     void setDocument(const QByteArray &data, litehtml::context *context);
     litehtml::document::ptr document() const;
     void setScrollPosition(const QPoint &pos);
@@ -166,6 +168,7 @@ private:
     QUrl resolveUrl(const QString &url, const QString &baseUrl) const;
     void drawSelection(QPainter *painter, const QRect &clip) const;
 
+    QPaintDevice *m_paintDevice = nullptr;
     litehtml::document::ptr m_document;
     QString m_baseUrl;
     QRect m_clientRect;
