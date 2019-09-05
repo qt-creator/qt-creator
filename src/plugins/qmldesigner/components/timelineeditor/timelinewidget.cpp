@@ -441,7 +441,6 @@ void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
     if (timelineView() && timelineView()->model()) {
         QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
-            m_toolbar->setCurrentTimeline(timeline);
             graphicsScene()->setTimeline(timeline);
             graphicsScene()->setCurrenFrame(timeline, getcurrentFrame(timeline));
         }

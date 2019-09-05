@@ -106,6 +106,7 @@ void TimelineView::nodeAboutToBeRemoved(const ModelNode &removedNode)
                 m_timelineWidget->graphicsScene()->clearTimeline();
             if (lastId != currentId)
                 m_timelineWidget->setTimelineId(currentId);
+
         } else if (removedNode.parentProperty().isValid()
                    && QmlTimeline::isValidQmlTimeline(
                           removedNode.parentProperty().parentModelNode())) {
@@ -136,6 +137,10 @@ void TimelineView::nodeRemoved(const ModelNode & /*removedNode*/,
                parentProperty.parentModelNode())) {
         QmlTimelineKeyframeGroup frames(parentProperty.parentModelNode());
         m_timelineWidget->graphicsScene()->invalidateSectionForTarget(frames.target());
+        updateAnimationCurveEditor();
+    } else if (parentProperty.isValid()
+               && QmlTimeline::isValidQmlTimeline(parentProperty.parentModelNode())) {
+        updateAnimationCurveEditor();
     }
 }
 
@@ -150,14 +155,14 @@ void TimelineView::nodeReparented(const ModelNode &node,
         QmlTimelineKeyframeGroup frames(newPropertyParent.parentModelNode());
         m_timelineWidget->graphicsScene()->invalidateSectionForTarget(frames.target());
 
-        QmlTimeline currentTimeline = m_timelineWidget->graphicsScene()->currentTimeline();
-        if (currentTimeline.isValid() && propertyChange == AbstractView::NoAdditionalChanges)
-            m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
+        if (propertyChange == AbstractView::NoAdditionalChanges)
+            updateAnimationCurveEditor();
 
     } else if (QmlTimelineKeyframeGroup::checkKeyframesType(
                    node)) { /* During copy and paste type info might be incomplete */
         QmlTimelineKeyframeGroup frames(node);
         m_timelineWidget->graphicsScene()->invalidateSectionForTarget(frames.target());
+        updateAnimationCurveEditor();
     }
 }
 
@@ -194,10 +199,7 @@ void TimelineView::variantPropertiesChanged(const QList<VariantProperty> &proper
             if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(framesNode)) {
                 QmlTimelineKeyframeGroup frames(framesNode);
                 m_timelineWidget->graphicsScene()->invalidateKeyframesForTarget(frames.target());
-
-                QmlTimeline currentTimeline = m_timelineWidget->graphicsScene()->currentTimeline();
-                if (currentTimeline.isValid())
-                    m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
+                updateAnimationCurveEditor();
             }
         }
     }
@@ -209,9 +211,7 @@ void TimelineView::bindingPropertiesChanged(const QList<BindingProperty> &proper
     Q_UNUSED(propertyChange)
     for (const auto &property : propertyList) {
         if (property.name() == "easing.bezierCurve") {
-            QmlTimeline currentTimeline = m_timelineWidget->graphicsScene()->currentTimeline();
-            if (currentTimeline.isValid())
-                m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
+            updateAnimationCurveEditor();
         }
     }
 }
@@ -242,8 +242,10 @@ void TimelineView::propertiesRemoved(const QList<AbstractProperty> &propertyList
                     property.parentModelNode())) {
                 QmlTimelineKeyframeGroup frames(property.parentModelNode());
                 m_timelineWidget->graphicsScene()->invalidateSectionForTarget(frames.target());
+                updateAnimationCurveEditor();
             } else if (QmlTimeline::isValidQmlTimeline(property.parentModelNode())) {
                 m_timelineWidget->graphicsScene()->invalidateScene();
+                updateAnimationCurveEditor();
             }
         }
     }
@@ -628,6 +630,18 @@ void TimelineView::ensureQtQuickTimelineImport()
         Import timelineImport = Import::createLibraryImport("QtQuick.Timeline", "1.0");
         model()->changeImports({timelineImport}, {});
     }
+}
+
+void TimelineView::updateAnimationCurveEditor()
+{
+    if (!m_timelineWidget)
+        return;
+
+    QmlTimeline currentTimeline = timelineForState(currentState());
+    if (currentTimeline.isValid())
+        m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
+    else
+        m_timelineWidget->toolBar()->reset();
 }
 
 } // namespace QmlDesigner

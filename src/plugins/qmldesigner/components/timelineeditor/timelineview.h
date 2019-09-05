@@ -95,6 +95,7 @@ public:
     QmlModelState stateForTimeline(const QmlTimeline &timeline);
 
     void registerActions();
+    void updateAnimationCurveEditor();
 
 private:
     TimelineWidget *createWidget();
