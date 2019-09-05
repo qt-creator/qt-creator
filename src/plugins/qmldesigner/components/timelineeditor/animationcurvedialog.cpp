@@ -33,7 +33,6 @@ AnimationCurveDialog::AnimationCurveDialog(QWidget *parent)
     : QDialog(parent)
     , m_editor(nullptr)
 {
-    setWindowFlag(Qt::WindowStaysOnTopHint, true);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
 }
 
@@ -41,7 +40,6 @@ AnimationCurveDialog::AnimationCurveDialog(DesignTools::CurveEditorModel *model,
     : QDialog(parent)
     , m_editor(nullptr)
 {
-    setWindowFlag(Qt::WindowStaysOnTopHint, true);
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     setModel(model);
 }

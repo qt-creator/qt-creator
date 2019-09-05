@@ -130,8 +130,8 @@ Column {
             SectionLayout {
                 SpinBox {
                     backendValue: backendValues.spacing
-                    minimumValue: 0
-                    maximumValue: 1000
+                    minimumValue: -4000
+                    maximumValue: 4000
                     decimals: 0
                 }
                 ExpandingSpacer {

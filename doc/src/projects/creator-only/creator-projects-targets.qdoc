@@ -194,6 +194,8 @@
     choose the kit to use. To set the selected kit as the default kit,
     select \uicontrol {Make Default}.
 
+    \include creator-projects-cmake-building.qdocinc cmake ninja
+
     \section1 Editing Qbs Profiles
 
     To view the Qbs profile associated with the kit, select \uicontrol Tools >

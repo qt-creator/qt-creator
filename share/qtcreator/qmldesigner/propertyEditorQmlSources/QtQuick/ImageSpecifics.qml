@@ -80,8 +80,8 @@ Column {
 
                 SpinBox {
                     backendValue: backendValues.sourceSize_width
-                    minimumValue: -2000
-                    maximumValue: 2000
+                    minimumValue: 0
+                    maximumValue: 8192
                     decimals: 0
                 }
 
@@ -97,8 +97,8 @@ Column {
 
                 SpinBox {
                     backendValue: backendValues.sourceSize_height
-                    minimumValue: -2000
-                    maximumValue: 2000
+                    minimumValue: 0
+                    maximumValue: 8192
                     decimals: 0
                 }
 

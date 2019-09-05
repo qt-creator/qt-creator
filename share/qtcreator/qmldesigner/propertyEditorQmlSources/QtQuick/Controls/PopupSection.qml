@@ -158,8 +158,8 @@ Section {
         }
         SecondColumnLayout {
             SpinBox {
-                maximumValue: 9999999
-                minimumValue: -9999999
+                minimumValue: -4000
+                maximumValue: 4000
                 decimals: 0
                 backendValue: backendValues.spacing
                 Layout.fillWidth: true

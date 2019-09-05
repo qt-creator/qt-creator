@@ -81,11 +81,8 @@ T.Popup {
         }
 
         onMoved: {
-            var currValue = myControl.value
             myControl.realValue = slider.value
-
-            if (currValue !== myControl.realValue)
-                myControl.realValueModified()
+            myControl.realValueModified()
         }
     }
 }

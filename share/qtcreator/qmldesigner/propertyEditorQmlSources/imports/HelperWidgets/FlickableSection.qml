@@ -34,6 +34,7 @@ Section {
 
     id: root
 
+    property int labelWidth: 42
     property int spinBoxWidth: 96
 
     SectionLayout {
@@ -173,13 +174,13 @@ Section {
 
             Label {
                 text: "W"
-                width: 42
+                width: root.labelWidth
             }
 
             SpinBox {
                 backendValue: backendValues.contentWidth
                 minimumValue: 0
-                maximumValue: 8000
+                maximumValue: 10000
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
             }
@@ -191,13 +192,13 @@ Section {
 
             Label {
                 text: "H"
-                width: 42
+                width: root.labelWidth
             }
 
             SpinBox {
                 backendValue: backendValues.contentHeight
                 minimumValue: 0
-                maximumValue: 8000
+                maximumValue: 10000
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
             }
@@ -213,12 +214,12 @@ Section {
 
             Label {
                 text: "X"
-                width: 42
+                width: root.labelWidth
             }
 
             SpinBox {
                 backendValue: backendValues.contentX
-                minimumValue: 0
+                minimumValue: -8000
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
@@ -231,12 +232,12 @@ Section {
 
             Label {
                 text: "Y"
-                width: 42
+                width: root.labelWidth
             }
 
             SpinBox {
                 backendValue: backendValues.contentY
-                minimumValue: 0
+                minimumValue: -8000
                 maximumValue: 8000
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
@@ -254,13 +255,13 @@ Section {
 
             Label {
                 text: "Top"
-                width: 42
+                width: root.labelWidth
             }
 
             SpinBox {
                 backendValue: backendValues.topMargin
-                maximumValue: 0xffff
-                minimumValue: 0
+                minimumValue: -10000
+                maximumValue: 10000
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
@@ -273,13 +274,13 @@ Section {
 
             Label {
                 text: "Bottom"
-                width: 42
+                width: root.labelWidth
             }
 
             SpinBox {
                 backendValue: backendValues.bottomMargin
-                maximumValue: 0xffff
-                minimumValue: 0
+                minimumValue: -10000
+                maximumValue: 10000
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
@@ -297,13 +298,13 @@ Section {
 
             Label {
                 text: "Left"
-                width: 42
+                width: root.labelWidth
             }
 
             SpinBox {
                 backendValue: backendValues.leftMargin
-                maximumValue: 0xffff
-                minimumValue: 0
+                minimumValue: -10000
+                maximumValue: 10000
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true
@@ -316,13 +317,13 @@ Section {
 
             Label {
                 text: "Right"
-                width: 42
+                width: root.labelWidth
             }
 
             SpinBox {
                 backendValue: backendValues.rightMargin
-                maximumValue: 0xffff
-                minimumValue: 0
+                minimumValue: -10000
+                maximumValue: 10000
                 decimals: 0
                 implicitWidth: root.spinBoxWidth
                 Layout.fillWidth: true

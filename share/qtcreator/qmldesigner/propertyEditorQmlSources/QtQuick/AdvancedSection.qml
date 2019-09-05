@@ -53,8 +53,8 @@ Section {
                 backendValue: backendValues.scale
                 hasSlider: true
                 decimals: 2
-                minimumValue: 0.01
                 stepSize: 0.1
+                minimumValue: -10
                 maximumValue: 10
                 Layout.preferredWidth: 140
             }

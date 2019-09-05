@@ -28,6 +28,7 @@
 #include <QAbstractListModel>
 #include <QtQml/qqml.h>
 #include <QList>
+#include <QColor>
 
 namespace QmlDesigner {
 
@@ -58,6 +59,12 @@ public:
 
     bool read();
     void write();
+
+    Q_INVOKABLE void showDialog(QColor color);
+
+signals:
+    void colorDialogRejected();
+    void currentColorChanged(const QColor &color);
 
 private slots:
     void setPalette();

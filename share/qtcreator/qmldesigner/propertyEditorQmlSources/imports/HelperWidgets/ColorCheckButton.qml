@@ -26,12 +26,13 @@
 import QtQuick 2.1
 
 Item {
-    id: colorCheckButtonRoot
+    id: root
     property bool checked: false
     property alias buttonColor: checkBox.color
     width: 30
     height: 24
 
+    signal rightMouseButtonClicked
 
     Rectangle {
         id: backgroundBox
@@ -63,13 +64,20 @@ Item {
         anchors.right: backgroundBox.left
         anchors.rightMargin: 2
         opacity: colorToolTip.containsMouse ? 1 : 0.8
-        rotation: colorCheckButtonRoot.checked ? 0.0 : 270.0
+        rotation: root.checked ? 0.0 : 270.0
     }
 
     ToolTipArea {
         id: colorToolTip
 
-        onClicked: checked = !checked
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+        onClicked: {
+            if (mouse.button === Qt.RightButton)
+                root.rightMouseButtonClicked()
+            else
+                root.checked = !root.checked
+        }
         hoverEnabled: true
         anchors.fill: parent
         anchors.leftMargin: -arrowImage.width

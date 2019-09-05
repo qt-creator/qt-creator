@@ -123,6 +123,8 @@ QtObject {
 
     property string themeTranslationIndicatorBorder: "#7f7f7f"
 
+    property string themeSectionHeadBackground: "#191919"
+
     // Taken out of Constants.js
     property string themeChangedStateText: "#99ccff"
 }

@@ -245,8 +245,11 @@
     components can appear to pick up speed, slow down, or bounce back at the
     end of the animation. By default, the animations you specify on the
     timeline are \e linear, which means that they move from the beginning to
-    the end at a constant speed. You can use the curve picker to edit the
-    easing curve at a keyframe.
+    the end at a constant speed. You can use the \e {curve picker} to edit the
+    easing curve between two keyframes. You can also use the more advanced
+    \e {curve editor} to edit the curves for the whole animation.
+
+    \section2 Attaching Easing Curves to Keyframes
 
     \image studio-curve-picker.png
 
@@ -256,16 +259,16 @@
     custom curve. For more information about easing curve types, see the
     documentation for \l [QML] {PropertyAnimation}{easing curves}.
 
-    To zoom into and out of the easing curve editor, use the mouse roller. To
-    reset the zoom factor, right-click in the editor and select
+    To zoom into and out of the easing curve picker, use the mouse roller. To
+    reset the zoom factor, right-click in the picker and select
     \uicontrol {Reset Zoom}.
 
-    To select easing curves:
+    To attach easing curves to keyframes:
 
     \list 1
         \li Select a keyframe on the timeline.
         \li Select \uicontrol {Curve Picker (C)} on the toolbar, or press
-            \key C to open the \uicontrol {Easing Curve Editor} dialog.
+            \key C to open the curve picker.
         \li Select an easing curve in the \uicontrol Presets tab.
         \li In the \uicontrol {Duration (ms)} field, select the duration of the
             easing function in milliseconds.
@@ -279,11 +282,13 @@
     to \inlineimage keyframe_manualbezier_inactive.png
     .
 
+    \section2 Customizing Easing Curves
+
     To customize easing curves:
 
     \list 1
-        \li In the \uicontrol {Easing Curve Editor} dialog, select an easing
-            curve in the \uicontrol Presets tab.
+        \li In the curve picker, select an easing curve in the
+            \uicontrol Presets tab.
         \li Drag the curve handlers to modify the curve.
         \li Right-click in the editor, and select \uicontrol {Add Point} to add
             points to the curve.
@@ -298,6 +303,32 @@
 
     To paste easing curve definitions to the curve picker as text, select
     the \uicontrol Text tab.
+
+    \section1 Editing Animation Curves
+
+    In the curve editor, you can view and modify the whole animation curve. You
+    can insert keyframes to the curve and drag them and the point handlers to
+    modify the curve. You can modify the appearance of the curve in the style
+    editor.
+
+    You can also edit easing curves that you added with the curve picker.
+
+    \image studio-curve-editor.png
+
+    To edit animation curves:
+
+    \list 1
+        \li In the \uicontrol Timeline view, insert at least one keyframe.
+        \li Select \inlineimage curveGraphIcon.png
+            (\uicontrol {Curve Editor (C)} on the toolbar or press \key C
+            to open the curve editor.
+        \li Right-click in the curve editor, and select
+            \uicontrol {Insert Keyframe} to add a keyframe.
+        \li Select keyframes to display the easing curves attached to them.
+            To select multiple keyframes, press and hold \key Ctrl.
+    \endlist
+
+    Your changes are automatically saved when you close the editor.
 
     \section1 Rotating Items
 
