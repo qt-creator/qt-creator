@@ -7,8 +7,10 @@
 #
 
 find_package(yaml-cpp 0.5 QUIET NO_MODULE)
-
-if (NOT yaml-cpp_FOUND)
+if (yaml-cpp_FOUND)
+  # target doesn't set include directory for some reason
+  target_include_directories(yaml-cpp INTERFACE ${YAML_CPP_INCLUDE_DIR})
+else()
   set(yaml-cpp_FOUND 1)
   set_package_properties(yaml-cpp PROPERTIES DESCRIPTION "using internal src/libs/3rdparty/yaml-cpp")
   set(YAML_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/libs/3rdparty/yaml-cpp)
