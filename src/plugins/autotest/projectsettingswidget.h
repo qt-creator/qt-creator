@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <QTimer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -55,6 +56,7 @@ private:
     QComboBox *m_useGlobalSettings = nullptr;
     QTreeWidget *m_activeFrameworks = nullptr;
     QCheckBox *m_runAfterBuild = nullptr;
+    QTimer m_syncFrameworksTimer;
 };
 
 } // namespace Internal

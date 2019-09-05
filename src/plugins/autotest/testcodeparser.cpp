@@ -206,6 +206,7 @@ void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 
 void TestCodeParser::onStartupProjectChanged(Project *project)
 {
+    m_model->synchronizeTestFrameworks(); // we might have project settings
     if (m_parserState == FullParse || m_parserState == PartialParse) {
         qCDebug(LOG) << "Canceling scanForTest (startup project changed)";
         Core::ProgressManager::instance()->cancelTasks(Constants::TASK_PARSE);

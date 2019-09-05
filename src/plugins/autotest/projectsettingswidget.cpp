@@ -86,11 +86,15 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
             this, [this, generalWidget](int index) {
         generalWidget->setEnabled(index != 0);
         m_projectSettings->setUseGlobalSettings(index == 0);
+        m_syncFrameworksTimer.start(3000);
     });
     connect(m_activeFrameworks, &QTreeWidget::itemChanged,
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);
     connect(m_runAfterBuild, &QCheckBox::toggled,
             m_projectSettings, &TestProjectSettings::setRunAfterBuild);
+    m_syncFrameworksTimer.setSingleShot(true);
+    connect(&m_syncFrameworksTimer, &QTimer::timeout,
+            TestTreeModel::instance(), &TestTreeModel::synchronizeTestFrameworks);
 }
 
 void ProjectTestSettingsWidget::populateFrameworks(const QMap<Core::Id, bool> &frameworks)
@@ -110,6 +114,7 @@ void ProjectTestSettingsWidget::onActiveFrameworkChanged(QTreeWidgetItem *item, 
 {
     auto id = Core::Id::fromSetting(item->data(column, FrameworkIdRole));
     m_projectSettings->activateFramework(id, item->data(0, Qt::CheckStateRole) == Qt::Checked);
+    m_syncFrameworksTimer.start(3000);
 }
 
 } // namespace Internal

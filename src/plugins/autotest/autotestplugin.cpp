@@ -148,7 +148,7 @@ AutotestPluginPrivate::AutotestPluginPrivate(AutotestPlugin *parent)
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
 
     m_frameworkManager->activateFrameworksFromSettings(q->settings());
-    TestTreeModel::instance()->scheduleTestFrameworksSync(true);
+    TestTreeModel::instance()->synchronizeTestFrameworks();
 
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::startupProjectChanged, this, [this] {

@@ -175,7 +175,7 @@ void TestSettingsPage::apply()
     m_settings->toSettings(Core::ICore::settings());
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     frameworkManager->activateFrameworksFromSettings(m_settings);
-    TestTreeModel::instance()->scheduleTestFrameworksSync(true);
+    TestTreeModel::instance()->synchronizeTestFrameworks();
     if (!changedIds.isEmpty())
         TestTreeModel::instance()->rebuild(changedIds);
 }

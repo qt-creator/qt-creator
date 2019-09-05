@@ -56,11 +56,6 @@ TestTreeModel::TestTreeModel(QObject *parent) :
     connect(m_parser, &TestCodeParser::parsingFailed,
             this, &TestTreeModel::sweep, Qt::QueuedConnection);
 
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
-            this, &TestTreeModel::onStartupProjectChanged);
-    m_syncFrameworksTimer.setSingleShot(true);
-    connect(&m_syncFrameworksTimer, &QTimer::timeout, this, &TestTreeModel::syncTestFrameworks);
     setupParsingConnections();
 }
 
@@ -206,17 +201,15 @@ QList<TestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
     return result;
 }
 
-void TestTreeModel::syncTestFrameworks()
+void TestTreeModel::synchronizeTestFrameworks()
 {
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    if (!project)
-        return;
-
     QList<Core::Id> sortedIds;
-    TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
-    const QVariant useGlobal = project->namedSettings(Constants::SK_USE_GLOBAL);
+    TestFrameworkManager *manager = TestFrameworkManager::instance();
+    const QVariant useGlobal = project ? project->namedSettings(Constants::SK_USE_GLOBAL)
+                                       : QVariant();
     if (!useGlobal.isValid() || AutotestPlugin::projectSettings(project)->useGlobalSettings()) {
-        sortedIds = frameworkManager->sortedActiveFrameworkIds();
+        sortedIds = manager->sortedActiveFrameworkIds();
     } else { // we've got custom project settings
         const TestProjectSettings *settings = AutotestPlugin::projectSettings(project);
         const QMap<Core::Id, bool> active = settings->activeFrameworks();
@@ -225,17 +218,6 @@ void TestTreeModel::syncTestFrameworks()
         });
     }
 
-    syncFrameworks(sortedIds);
-}
-
-void TestTreeModel::scheduleTestFrameworksSync(bool immediately)
-{
-    m_syncFrameworksTimer.start(immediately ? 0 : 3000);
-}
-
-void TestTreeModel::syncFrameworks(const QList<Core::Id> &sortedIds)
-{
-    TestFrameworkManager *manager = TestFrameworkManager::instance();
     // pre-check to avoid further processing when frameworks are unchanged
     Utils::TreeItem *invisibleRoot = rootItem();
     const int count = invisibleRoot->childCount();
@@ -472,12 +454,6 @@ void TestTreeModel::onParseResultReady(const TestParseResultPtr result)
             = TestFrameworkManager::instance()->rootNodeForTestFramework(result->frameworkId);
     QTC_ASSERT(rootNode, return);
     handleParseResult(result.data(), rootNode);
-}
-
-void TestTreeModel::onStartupProjectChanged()
-{
-    m_syncFrameworksTimer.stop();
-    scheduleTestFrameworksSync(true);
 }
 
 void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeItem *parentNode)

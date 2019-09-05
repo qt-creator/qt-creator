@@ -56,14 +56,12 @@ void TestProjectSettings::setUseGlobalSettings(bool useGlobal)
     if (m_useGlobalSettings == useGlobal)
         return;
      m_useGlobalSettings = useGlobal;
-     TestTreeModel::instance()->scheduleTestFrameworksSync(false);
 }
 
 void TestProjectSettings::activateFramework(const Core::Id &id, bool activate)
 {
     if (m_activeTestFrameworks.value(id) != activate) {
         m_activeTestFrameworks[id] = activate;
-        TestTreeModel::instance()->scheduleTestFrameworksSync(false);
     }
 }
 
