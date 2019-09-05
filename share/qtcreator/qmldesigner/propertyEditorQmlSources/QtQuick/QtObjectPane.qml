@@ -104,7 +104,19 @@ Rectangle {
                 anchors.right: parent.right
                 frameVisible: false
 
+                id: tabView
+                height: Math.max(layoutSectionHeight, specficsHeight)
+
+                property int layoutSectionHeight: 400
+                property int specficsOneHeight: 0
+                property int specficsTwoHeight: 0
+
+                property int specficsHeight: Math.max(specficsOneHeight, specficsTwoHeight)
+
+                property int extraHeight: 40
+
                 Tab {
+                    id: tab
                     title: backendValues.className.value
 
                     component: Column {
@@ -125,6 +137,13 @@ Rectangle {
                                 active = false
                                 active = true
                             }
+
+                            property int loaderHeight: specificsTwo.item.height + tabView.extraHeight
+                            onLoaderHeightChanged: tabView.specficsTwoHeight = loaderHeight
+
+                            onLoaded: {
+                                tabView.specficsTwoHeight = loaderHeight
+                            }
                         }
 
                         Loader {
@@ -133,6 +152,13 @@ Rectangle {
 
                             id: specificsOne;
                             source: specificsUrl;
+
+                            property int loaderHeight: specificsOne.item.height + tabView.extraHeight
+                            onLoaderHeightChanged: tabView.specficsHeight = loaderHeight
+
+                            onLoaded: {
+                                tabView.specficsOneHeight = loaderHeight
+                            }
                         }
                     }
                 }
