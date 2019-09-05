@@ -49,7 +49,7 @@ void FileResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
             qobject_cast<const QmlDesigner::QmlModelNodeProxy *>(modelNodeBackendObject);
 
     if (backendObjectCasted)
-        m_path = backendObjectCasted->qmlItemNode().modelNode().model()->fileUrl();
+        m_path = backendObjectCasted->qmlObjectNode().modelNode().model()->fileUrl();
 
     setupModel();
     emit modelNodeBackendChanged();
