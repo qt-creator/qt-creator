@@ -264,9 +264,6 @@ PropertyEditorValue *PropertyEditorQmlBackend::propertyValueForName(const QStrin
 
 void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor)
 {
-    if (!qmlObjectNode.isValid())
-        return;
-
     if (qmlObjectNode.isValid()) {
 
         m_contextObject->setModel(propertyEditor->model());
