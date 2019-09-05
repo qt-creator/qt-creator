@@ -693,4 +693,10 @@ uint qHash(const QmlObjectNode &node)
 {
     return qHash(node.modelNode());
 }
+
+QString QmlObjectNode::simplifiedTypeName() const
+{
+    return modelNode().simplifiedTypeName();
+}
+
 } //QmlDesigner
