@@ -47,6 +47,8 @@ add_qtc_test(tst_debugger_offsets
 
 add_qtc_test(tst_debugger_simplifytypes
   INCLUDES "${DEBUGGERDIR}"
+  DEPENDS Utils
+  DEFINES DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
   SOURCES
     tst_simplifytypes.cpp
     "${DEBUGGERDIR}/simplifytype.cpp" "${DEBUGGERDIR}/simplifytype.h"
