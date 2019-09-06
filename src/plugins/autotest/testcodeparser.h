@@ -57,7 +57,6 @@ public:
     };
 
     explicit TestCodeParser(TestTreeModel *parent = nullptr);
-    virtual ~TestCodeParser();
     void setState(State state);
     State state() const { return m_parserState; }
     bool isParsing() const { return m_parserState == PartialParse || m_parserState == FullParse; }
@@ -77,7 +76,7 @@ signals:
 
 public:
     void emitUpdateTestTree(ITestParser *parser = nullptr);
-    void updateTestTree(ITestParser *parser = nullptr);
+    void updateTestTree(const QSet<Core::Id> &frameworkIds = {});
     void onCppDocumentUpdated(const CPlusPlus::Document::Ptr &document);
     void onQmlDocumentUpdated(const QmlJS::Document::Ptr &document);
     void onStartupProjectChanged(ProjectExplorer::Project *project);
@@ -86,7 +85,8 @@ public:
 
 private:
     bool postponed(const QStringList &fileList);
-    void scanForTests(const QStringList &fileList = QStringList(), ITestParser *parser = nullptr);
+    void scanForTests(const QStringList &fileList = QStringList(),
+                      const QList<Core::Id> &parserIds = {});
 
     // qml files must be handled slightly different
     void onDocumentUpdated(const QString &fileName, bool isQmlFile = false);
@@ -108,9 +108,9 @@ private:
     QSet<QString> m_postponedFiles;
     State m_parserState = Idle;
     QFutureWatcher<TestParseResultPtr> m_futureWatcher;
-    QVector<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
+    QList<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
     QTimer m_reparseTimer;
-    ITestParser *m_updateParser = nullptr;
+    QSet<Core::Id> m_updateParsers;
     QThreadPool *m_threadPool = nullptr;
 };
 
