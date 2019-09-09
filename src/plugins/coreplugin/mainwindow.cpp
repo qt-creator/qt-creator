@@ -149,6 +149,8 @@ MainWindow::MainWindow()
     }
 
     QApplication::setStyle(new ManhattanStyle(baseName));
+    m_generalSettings->setShowShortcutsInContextMenu(
+        m_generalSettings->showShortcutsInContextMenu());
 
     setDockNestingEnabled(true);
 

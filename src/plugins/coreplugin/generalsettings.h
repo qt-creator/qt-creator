@@ -48,6 +48,9 @@ public:
     void apply() override;
     void finish() override;
 
+    bool showShortcutsInContextMenu() const;
+    void setShowShortcutsInContextMenu(bool show);
+
 private:
     void resetInterfaceColor();
     void resetWarnings();
@@ -57,9 +60,11 @@ private:
     void fillLanguageBox() const;
     QString language() const;
     void setLanguage(const QString&);
+
     Ui::GeneralSettings *m_page;
     QPointer<QMessageBox> m_dialog;
     QPointer<QWidget> m_widget;
+    bool m_defaultShowShortcutsInContextMenu;
 };
 
 } // namespace Internal
