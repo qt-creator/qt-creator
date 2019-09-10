@@ -95,13 +95,14 @@ private:
 
 Client::Client(BaseClientInterface *clientInterface)
     : m_id(Core::Id::fromString(QUuid::createUuid().toString()))
-    , m_completionProvider(this)
-    , m_functionHintProvider(this)
-    , m_quickFixProvider(this)
     , m_clientInterface(clientInterface)
     , m_documentSymbolCache(this)
     , m_hoverHandler(this)
 {
+    m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(this);
+    m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(this);
+    m_clientProviders.quickFixAssistProvider = new LanguageClientQuickFixProvider(this);
+
     m_contentHandler.insert(JsonRpcMessageHandler::jsonRpcMimeType(),
                             &JsonRpcMessageHandler::parseContent);
     QTC_ASSERT(clientInterface, return);
@@ -129,12 +130,8 @@ Client::~Client()
     using namespace TextEditor;
     // FIXME: instead of replacing the completion provider in the text document store the
     // completion provider as a prioritised list in the text document
-    for (TextDocument *document : m_resetAssistProvider.keys()) {
-        if (document->completionAssistProvider() == &m_completionProvider)
-            document->setCompletionAssistProvider(m_resetAssistProvider[document]);
-        document->setFunctionHintAssistProvider(nullptr);
-        document->setQuickFixAssistProvider(nullptr);
-    }
+    for (TextDocument *document : m_resetAssistProvider.keys())
+        resetAssistProviders(document);
     for (Core::IEditor * editor : Core::DocumentModel::editorsForOpenedDocuments()) {
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
             TextEditorWidget *widget = textEditor->editorWidget();
@@ -317,31 +314,39 @@ bool Client::openDocument(Core::IDocument *document)
 
     if (textDocument) {
         connect(textDocument,
-                &TextEditor::TextDocument::contentsChangedWithPosition,
+                &TextDocument::contentsChangedWithPosition,
                 this,
                 [this, textDocument](int position, int charsRemoved, int charsAdded) {
                     documentContentsChanged(textDocument, position, charsRemoved, charsAdded);
                 });
-        auto *oldCompletionProvider = qobject_cast<TextEditor::DocumentContentCompletionProvider *>(
-            textDocument->completionAssistProvider());
-        if (oldCompletionProvider || !textDocument->completionAssistProvider()) {
-            // only replace the completion assist provider if it is the default one or null
-            m_completionProvider.setTriggerCharacters(
+
+        if (auto completionProvider = qobject_cast<LanguageClientCompletionAssistProvider *>(
+                m_clientProviders.completionAssistProvider)) {
+            completionProvider->setTriggerCharacters(
                 m_serverCapabilities.completionProvider()
                     .value_or(ServerCapabilities::CompletionOptions())
                     .triggerCharacters()
                     .value_or(QList<QString>()));
-            textDocument->setCompletionAssistProvider(&m_completionProvider);
         }
-        m_resetAssistProvider[textDocument] = oldCompletionProvider;
-        m_functionHintProvider.setTriggerCharacters(
-            m_serverCapabilities.signatureHelpProvider()
-                .value_or(ServerCapabilities::SignatureHelpOptions())
-                .triggerCharacters()
-                .value_or(QList<QString>()));
-        textDocument->setCompletionAssistProvider(&m_completionProvider);
-        textDocument->setFunctionHintAssistProvider(&m_functionHintProvider);
-        textDocument->setQuickFixAssistProvider(&m_quickFixProvider);
+        if (auto functionHintAssistProvider = qobject_cast<FunctionHintAssistProvider *>(
+                m_clientProviders.completionAssistProvider)) {
+            functionHintAssistProvider->setTriggerCharacters(
+                m_serverCapabilities.signatureHelpProvider()
+                    .value_or(ServerCapabilities::SignatureHelpOptions())
+                    .triggerCharacters()
+                    .value_or(QList<QString>()));
+        }
+
+        auto *oldCompletionProvider = qobject_cast<DocumentContentCompletionProvider *>(
+            textDocument->completionAssistProvider());
+        // only replace the completion assist provider if it is the default one or null
+        if (oldCompletionProvider || !textDocument->completionAssistProvider())
+            textDocument->setCompletionAssistProvider(m_clientProviders.completionAssistProvider);
+        m_resetAssistProvider[textDocument] = {oldCompletionProvider,
+                                               textDocument->functionHintAssistProvider(),
+                                               textDocument->quickFixAssistProvider()};
+        textDocument->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
+        textDocument->setQuickFixAssistProvider(m_clientProviders.quickFixAssistProvider);
         connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
             m_resetAssistProvider.remove(textDocument);
         });
@@ -388,10 +393,8 @@ void Client::closeDocument(Core::IDocument *document)
     const DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
     m_highlights[uri].clear();
     sendContent(uri, DidCloseTextDocumentNotification(params));
-    auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-    if (!textDocument)
-        return;
-    textDocument->setCompletionAssistProvider(m_resetAssistProvider.take(textDocument));
+    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
+        resetAssistProviders(textDocument);
 }
 
 bool Client::documentOpen(const Core::IDocument *document) const
@@ -1031,6 +1034,23 @@ void Client::removeDiagnostics(const DocumentUri &uri)
         if (doc)
             doc->removeMark(mark);
         delete mark;
+    }
+}
+
+void Client::resetAssistProviders(TextEditor::TextDocument *document)
+{
+    const AssistProviders providers = m_resetAssistProvider.take(document);
+    if (providers.completionAssistProvider
+            && document->completionAssistProvider() == m_clientProviders.completionAssistProvider) {
+        document->setCompletionAssistProvider(providers.completionAssistProvider);
+    }
+    if (providers.functionHintProvider
+            && document->functionHintAssistProvider() == m_clientProviders.functionHintProvider) {
+        document->setFunctionHintAssistProvider(providers.functionHintProvider);
+    }
+    if (providers.quickFixAssistProvider
+            && document->quickFixAssistProvider() == m_clientProviders.quickFixAssistProvider) {
+        document->setQuickFixAssistProvider(providers.quickFixAssistProvider);
     }
 }
 

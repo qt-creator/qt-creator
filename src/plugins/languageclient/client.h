@@ -193,6 +193,7 @@ private:
 
     void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
     void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
+    void resetAssistProviders(TextEditor::TextDocument *document);
 
     using ContentHandler = std::function<void(const QByteArray &, QTextCodec *, QString &,
                                               LanguageServerProtocol::ResponseHandlers,
@@ -207,10 +208,15 @@ private:
     Core::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;
-    LanguageClientCompletionAssistProvider m_completionProvider;
-    FunctionHintAssistProvider m_functionHintProvider;
-    LanguageClientQuickFixProvider m_quickFixProvider;
-    QMap<TextEditor::TextDocument *, QPointer<TextEditor::CompletionAssistProvider>> m_resetAssistProvider;
+    struct AssistProviders
+    {
+        QPointer<TextEditor::CompletionAssistProvider> completionAssistProvider;
+        QPointer<TextEditor::CompletionAssistProvider> functionHintProvider;
+        QPointer<TextEditor::IAssistProvider> quickFixAssistProvider;
+    };
+
+    AssistProviders m_clientProviders;
+    QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
     QHash<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_highlightRequests;
     int m_restartsLeft = 5;
     QScopedPointer<BaseClientInterface> m_clientInterface;

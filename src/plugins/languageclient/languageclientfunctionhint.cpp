@@ -102,7 +102,8 @@ void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::
 }
 
 FunctionHintAssistProvider::FunctionHintAssistProvider(Client *client)
-    : m_client(client)
+    : CompletionAssistProvider(client)
+    , m_client(client)
 {}
 
 TextEditor::IAssistProcessor *FunctionHintAssistProvider::createProcessor() const

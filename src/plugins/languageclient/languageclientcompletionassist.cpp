@@ -385,7 +385,8 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
 }
 
 LanguageClientCompletionAssistProvider::LanguageClientCompletionAssistProvider(Client *client)
-    : m_client(client)
+    : CompletionAssistProvider(client)
+    , m_client(client)
 { }
 
 IAssistProcessor *LanguageClientCompletionAssistProvider::createProcessor() const

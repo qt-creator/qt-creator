@@ -148,7 +148,9 @@ void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(
     setAsyncProposalAvailable(GenericProposal::createProposal(m_assistInterface.data(), ops));
 }
 
-LanguageClientQuickFixProvider::LanguageClientQuickFixProvider(Client *client) : m_client(client)
+LanguageClientQuickFixProvider::LanguageClientQuickFixProvider(Client *client)
+    : IAssistProvider(client)
+    , m_client(client)
 {
     QTC_CHECK(client);
 }

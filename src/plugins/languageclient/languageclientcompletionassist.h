@@ -33,6 +33,8 @@ class Client;
 
 class LanguageClientCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
+    Q_OBJECT
+
 public:
     LanguageClientCompletionAssistProvider(Client *client);
 

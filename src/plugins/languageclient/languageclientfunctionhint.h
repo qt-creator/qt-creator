@@ -33,6 +33,8 @@ class Client;
 
 class FunctionHintAssistProvider : public TextEditor::CompletionAssistProvider
 {
+    Q_OBJECT
+
 public:
     explicit FunctionHintAssistProvider(Client *client);
 
