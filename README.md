@@ -272,6 +272,16 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
           cmake -G "NMake Makefiles JOM" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_INSTALL_PREFIX=<installation location> ..\llvm-project\llvm
           jom install
 
+### Clang-Format
+
+The ClangFormat plugin depends on the additional patch
+
+    https://code.qt.io/cgit/clang/clang.git/commit/?h=release_80-based&id=f98a155c89df094fb8f419a20629065f25fe599a
+
+While the plugin builds without it, it will be disabled on start with an error message.
+
+Note that the plugin is disabled by default.
+
 ## Third-party Components
 
 Qt Creator includes the following third-party components,
