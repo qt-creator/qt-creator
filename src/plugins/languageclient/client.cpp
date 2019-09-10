@@ -320,23 +320,6 @@ bool Client::openDocument(Core::IDocument *document)
                     documentContentsChanged(textDocument, position, charsRemoved, charsAdded);
                 });
 
-        if (auto completionProvider = qobject_cast<LanguageClientCompletionAssistProvider *>(
-                m_clientProviders.completionAssistProvider)) {
-            completionProvider->setTriggerCharacters(
-                m_serverCapabilities.completionProvider()
-                    .value_or(ServerCapabilities::CompletionOptions())
-                    .triggerCharacters()
-                    .value_or(QList<QString>()));
-        }
-        if (auto functionHintAssistProvider = qobject_cast<FunctionHintAssistProvider *>(
-                m_clientProviders.completionAssistProvider)) {
-            functionHintAssistProvider->setTriggerCharacters(
-                m_serverCapabilities.signatureHelpProvider()
-                    .value_or(ServerCapabilities::SignatureHelpOptions())
-                    .triggerCharacters()
-                    .value_or(QList<QString>()));
-        }
-
         auto *oldCompletionProvider = qobject_cast<DocumentContentCompletionProvider *>(
             textDocument->completionAssistProvider());
         // only replace the completion assist provider if it is the default one or null
@@ -1224,6 +1207,24 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
 
         m_serverCapabilities = result.capabilities().value_or(ServerCapabilities());
     }
+
+    if (auto completionProvider = qobject_cast<LanguageClientCompletionAssistProvider *>(
+            m_clientProviders.completionAssistProvider)) {
+        completionProvider->setTriggerCharacters(
+            m_serverCapabilities.completionProvider()
+                .value_or(ServerCapabilities::CompletionOptions())
+                .triggerCharacters()
+                .value_or(QList<QString>()));
+    }
+    if (auto functionHintAssistProvider = qobject_cast<FunctionHintAssistProvider *>(
+            m_clientProviders.completionAssistProvider)) {
+        functionHintAssistProvider->setTriggerCharacters(
+            m_serverCapabilities.signatureHelpProvider()
+                .value_or(ServerCapabilities::SignatureHelpOptions())
+                .triggerCharacters()
+                .value_or(QList<QString>()));
+    }
+
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Initialized;
     sendContent(InitializeNotification());
