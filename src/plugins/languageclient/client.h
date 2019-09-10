@@ -108,7 +108,6 @@ public:
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
     bool findLinkAt(LanguageServerProtocol::GotoDefinitionRequest &request);
     bool findUsages(LanguageServerProtocol::FindReferencesRequest &request);
-    void requestDocumentSymbols(TextEditor::TextDocument *document);
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
 
     void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,

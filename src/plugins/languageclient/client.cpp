@@ -339,8 +339,6 @@ bool Client::openDocument(Core::IDocument *document)
     }
 
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
-    if (textDocument)
-        requestDocumentSymbols(textDocument);
 
     return true;
 }
@@ -495,7 +493,6 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(textDocument))
             if (TextEditorWidget *widget = editor->editorWidget())
                 widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), id()));
-        requestDocumentSymbols(textDocument);
     }
 }
 
@@ -555,99 +552,6 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
                                           start.character() + 1,
                                           info.name().length(),
                                           info.kind());
-}
-
-void Client::requestDocumentSymbols(TextEditor::TextDocument *document)
-{
-    // TODO: Do not use this information for highlighting but the overview model
-    return;
-    const FilePath &filePath = document->filePath();
-    bool sendMessage = m_dynamicCapabilities.isRegistered(DocumentSymbolsRequest::methodName).value_or(false);
-    if (sendMessage) {
-        const TextDocumentRegistrationOptions option(m_dynamicCapabilities.option(DocumentSymbolsRequest::methodName));
-        if (option.isValid(nullptr))
-            sendMessage = option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()));
-    } else {
-        sendMessage = m_serverCapabilities.documentSymbolProvider().value_or(false);
-    }
-    if (!sendMessage)
-        return;
-    DocumentSymbolsRequest request(
-                DocumentSymbolParams(TextDocumentIdentifier(DocumentUri::fromFileName(filePath))));
-    request.setResponseCallback(
-                [doc = QPointer<TextEditor::TextDocument>(document)]
-                (DocumentSymbolsRequest::Response response){
-        if (!doc)
-            return;
-        const DocumentSymbolsResult result = response.result().value_or(DocumentSymbolsResult());
-        if (!holds_alternative<QList<SymbolInformation>>(result))
-            return;
-        const auto &symbols = get<QList<SymbolInformation>>(result);
-
-        QFutureInterface<TextEditor::HighlightingResult> future;
-        for (const SymbolInformation &symbol : symbols)
-            future.reportResult(createHighlightingResult(symbol));
-
-        const TextEditor::FontSettings &fs = doc->fontSettings();
-        QHash<int, QTextCharFormat> formatMap;
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::File         )]
-                = fs.toTextCharFormat(TextEditor::C_STRING);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Module       )]
-                = fs.toTextCharFormat(TextEditor::C_STRING);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Namespace    )]
-                = fs.toTextCharFormat(TextEditor::C_STRING);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Package      )]
-                = fs.toTextCharFormat(TextEditor::C_STRING);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Class        )]
-                = fs.toTextCharFormat(TextEditor::C_TYPE);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Method       )]
-                = fs.toTextCharFormat(TextEditor::C_FUNCTION);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Property     )]
-                = fs.toTextCharFormat(TextEditor::C_FIELD);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Field        )]
-                = fs.toTextCharFormat(TextEditor::C_FIELD);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Constructor  )]
-                = fs.toTextCharFormat(TextEditor::C_FUNCTION);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Enum         )]
-                = fs.toTextCharFormat(TextEditor::C_TYPE);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Interface    )]
-                = fs.toTextCharFormat(TextEditor::C_TYPE);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Function     )]
-                = fs.toTextCharFormat(TextEditor::C_FUNCTION);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Variable     )]
-                = fs.toTextCharFormat(TextEditor::C_LOCAL);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Constant     )]
-                = fs.toTextCharFormat(TextEditor::C_LOCAL);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::String       )]
-                = fs.toTextCharFormat(TextEditor::C_STRING);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Number       )]
-                = fs.toTextCharFormat(TextEditor::C_NUMBER);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Boolean      )]
-                = fs.toTextCharFormat(TextEditor::C_KEYWORD);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Array        )]
-                = fs.toTextCharFormat(TextEditor::C_STRING);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Object       )]
-                = fs.toTextCharFormat(TextEditor::C_LOCAL);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Key          )]
-                = fs.toTextCharFormat(TextEditor::C_LOCAL);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Null         )]
-                = fs.toTextCharFormat(TextEditor::C_KEYWORD);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::EnumMember   )]
-                = fs.toTextCharFormat(TextEditor::C_ENUMERATION);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Struct       )]
-                = fs.toTextCharFormat(TextEditor::C_TYPE);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Event        )]
-                = fs.toTextCharFormat(TextEditor::C_STRING);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::Operator     )]
-                = fs.toTextCharFormat(TextEditor::C_OPERATOR);
-        formatMap[static_cast<int>(LanguageServerProtocol::SymbolKind::TypeParameter)]
-                = fs.toTextCharFormat(TextEditor::C_LOCAL);
-
-        TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
-                    doc->syntaxHighlighter(), future.future(), 0, future.resultCount() - 1,
-                    formatMap);
-    });
-    sendContent(request);
 }
 
 void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
