@@ -6,6 +6,7 @@ endif()
 
 add_qtc_library(Tracing
   DEPENDS Utils Qt5::Qml Qt5::Quick
+  PUBLIC_DEPENDS Qt5::Widgets
   SOURCES ${TEST_SOURCES}
     flamegraph.cpp flamegraph.h
     flamegraphattached.h

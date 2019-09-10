@@ -13,6 +13,10 @@ list(APPEND DEFAULT_DEFINES
   QT_USE_FAST_CONCATENATION
 )
 
+if (WIN32)
+  list(APPEND DEFAULT_DEFINES UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS)
+endif()
+
 #
 # Setup path handling
 #
@@ -284,11 +288,8 @@ endfunction()
 
 function(enable_pch target)
   if (BUILD_WITH_PCH)
-    get_target_property(target_sources ${target} SOURCES)
-    list(LENGTH target_sources target_sources_number)
-    if (${target_sources_number} GREATER "3")
-      set(PCH_FILE "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_pch.h")
-
+    get_target_property(target_type ${target} TYPE)
+    if (NOT ${target_type} STREQUAL "OBJECT_LIBRARY")
       function(_recursively_collect_dependencies input_target)
         get_target_property(input_type ${input_target} TYPE)
         if (${input_type} STREQUAL "INTERFACE_LIBRARY")
@@ -305,15 +306,38 @@ function(enable_pch target)
       endfunction()
       _recursively_collect_dependencies(${target})
 
-      if ("Qt5::Widgets" IN_LIST dependencies)
-        set(PCH_FILE "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h")
+      function(_add_pch_target pch_target pch_file pch_dependency)
+        if (EXISTS ${pch_file})
+          add_library(${pch_target} STATIC
+            ${CMAKE_BINARY_DIR}/empy_pch.cpp)
+          target_compile_definitions(${pch_target} PRIVATE ${DEFAULT_DEFINES})
+          set_target_properties(${pch_target} PROPERTIES
+            PRECOMPILE_HEADERS ${pch_file})
+          target_link_libraries(${pch_target} PRIVATE ${pch_dependency})
+        endif()
+      endfunction()
+
+      if (NOT TARGET QtCreatorPchGui AND NOT TARGET QtCreatorPchConsole)
+        file(WRITE ${CMAKE_BINARY_DIR}/empy_pch.cpp.in "/*empty file*/")
+        configure_file(
+          ${CMAKE_BINARY_DIR}/empy_pch.cpp.in
+          ${CMAKE_BINARY_DIR}/empy_pch.cpp)
+
+        _add_pch_target(QtCreatorPchGui
+          "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt5::Widgets)
+        _add_pch_target(QtCreatorPchConsole
+          "${PROJECT_SOURCE_DIR}/src/shared/qtcreator_pch.h" Qt5::Core)
       endif()
 
-      if (EXISTS ${PCH_FILE})
-        set_target_properties(${target} PROPERTIES PRECOMPILE_HEADERS ${PCH_FILE})
+      set(PCH_TARGET QtCreatorPchConsole)
+      if ("Qt5::Widgets" IN_LIST dependencies)
+        set(PCH_TARGET QtCreatorPchGui)
       endif()
-    elseif(WITH_DEBUG_CMAKE)
-      message(STATUS "Skipped PCH for ${target}")
+
+      if (TARGET ${PCH_TARGET})
+        set_target_properties(${target} PROPERTIES
+          PRECOMPILE_HEADERS_REUSE_FROM ${PCH_TARGET})
+      endif()
     endif()
   endif()
 endfunction()
