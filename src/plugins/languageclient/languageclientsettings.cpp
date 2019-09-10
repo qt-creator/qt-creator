@@ -72,6 +72,7 @@ constexpr char executableKey[] = "executable";
 constexpr char argumentsKey[] = "arguments";
 constexpr char settingsGroupKey[] = "LanguageClient";
 constexpr char clientsKey[] = "clients";
+constexpr char mimeType[] = "application/language.client.setting";
 
 namespace LanguageClient {
 
@@ -105,7 +106,6 @@ public:
 
 private:
     static constexpr int idRole = Qt::UserRole + 1;
-    static constexpr char mimeType[] = "application/language.client.setting";
     QList<BaseSettings *> m_settings; // owned
     QList<BaseSettings *> m_removed;
 };
