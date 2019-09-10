@@ -35,7 +35,7 @@ if (NOT _designer_location)
 endif()
 get_target_property(_designer_is_framework Qt5::Designer FRAMEWORK)
 find_library(DesignerComponents_LIBRARIES NAMES Qt5DesignerComponents QtDesignerComponents
-  NO_DEFAULT_PATH PATHS "${_designer_location}/.." "${_designer_location}/../..")
+  HINTS "${_designer_location}/.." "${_designer_location}/../..")
 
 if (_designer_is_framework)
   if (DesignerComponents_LIBRARIES)
