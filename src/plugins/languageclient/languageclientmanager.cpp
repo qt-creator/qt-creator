@@ -418,7 +418,7 @@ void LanguageClientManager::documentContentsSaved(Core::IDocument *document)
 void LanguageClientManager::documentWillSave(Core::IDocument *document)
 {
     for (Client *interface : reachableClients())
-        interface->documentContentsSaved(document);
+        interface->documentWillSave(document);
 }
 
 void LanguageClientManager::findLinkAt(const Utils::FilePath &filePath,
