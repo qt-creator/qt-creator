@@ -40,7 +40,6 @@ add_qtc_plugin(QmakeProjectManager
     qmakeprojectmanagerplugin.cpp qmakeprojectmanagerplugin.h
     qmakesettings.cpp qmakesettings.h
     qmakestep.cpp qmakestep.h qmakestep.ui
-    qtmodulesinfo.cpp qtmodulesinfo.h
     wizards/filespage.cpp wizards/filespage.h
     wizards/qtprojectparameters.cpp wizards/qtprojectparameters.h
     wizards/qtwizard.cpp wizards/qtwizard.h

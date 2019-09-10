@@ -52,7 +52,6 @@ Project {
                 "qmakeprojectmanager_global.h",
                 "qmakeprojectmanagerconstants.h",
                 "qmakeprojectmanagerplugin.cpp", "qmakeprojectmanagerplugin.h",
-                "qtmodulesinfo.cpp", "qtmodulesinfo.h",
             ]
         }
 
