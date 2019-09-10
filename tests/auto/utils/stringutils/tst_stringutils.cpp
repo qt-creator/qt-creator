@@ -194,7 +194,7 @@ void tst_StringUtils::testStripAccelerator()
 {
     QFETCH(QString, expected);
 
-    QCOMPARE(Utils::stripAccelerator(QTest::currentDataTag()), expected);
+    QCOMPARE(Utils::stripAccelerator(QString::fromUtf8(QTest::currentDataTag())), expected);
 }
 
 void tst_StringUtils::testStripAccelerator_data()

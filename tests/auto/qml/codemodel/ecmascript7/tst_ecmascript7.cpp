@@ -76,7 +76,7 @@ static TestData testData(const QString &path)
 {
     QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
-    const QString content = QString(file.readAll());
+    const QString content = QString::fromUtf8(file.readAll());
     file.close();
 
     Document::MutablePtr doc = Document::create(path, Dialect::Qml);
@@ -96,7 +96,7 @@ static QStringList readSkipList(const QDir &dir, const QString &filename)
         return QStringList();
 
     while (!f.atEnd()) {
-        const QString s = f.readLine().trimmed();
+        const QString s = QString::fromUtf8(f.readLine().trimmed());
         if (!s.isEmpty())
             result << dir.absoluteFilePath(s);
     }

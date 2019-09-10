@@ -1571,8 +1571,8 @@ void tst_Json::fromBinary()
 void tst_Json::toAndFromBinary_data()
 {
     QTest::addColumn<QString>("filename");
-    QTest::newRow("test.json") << (testDataDir + QLatin1String("/test.json"));
-    QTest::newRow("test2.json") << (testDataDir + QLatin1String("/test2.json"));
+    QTest::newRow("test.json") << QString(testDataDir + QLatin1String("/test.json"));
+    QTest::newRow("test2.json") << QString(testDataDir + QLatin1String("/test2.json"));
 }
 
 void tst_Json::toAndFromBinary()

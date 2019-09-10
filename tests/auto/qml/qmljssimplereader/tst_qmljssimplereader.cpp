@@ -67,7 +67,7 @@ void tst_SimpleReader::testWellFormed()
     SimpleReaderNode::WeakPtr weak02;
     {
         SimpleReader reader;
-        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(QString::fromUtf8(source));
         QVERIFY(reader.errors().isEmpty());
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -130,7 +130,7 @@ void tst_SimpleReader::testIllFormed01()
                     "   propertyBlah: false\n"
                     "}\n";
     SimpleReader reader;
-    SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+    SimpleReaderNode::Ptr rootNode = reader.readFromSource(QString::fromUtf8(source));
 
     QVERIFY(!rootNode);
     QVERIFY(!reader.errors().empty());
@@ -153,7 +153,7 @@ void tst_SimpleReader::testIllFormed02()
                     "}\n";
 
         SimpleReader reader;
-        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(QString::fromUtf8(source));
 
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -188,7 +188,7 @@ void tst_SimpleReader::testArrays()
         const QVariant variant = variantList;
 
         SimpleReader reader;
-        SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+        SimpleReaderNode::Ptr rootNode = reader.readFromSource(QString::fromUtf8(source));
 
         QVERIFY(rootNode);
         QVERIFY(rootNode->isValid());
@@ -239,7 +239,7 @@ void tst_SimpleReader::testBug01()
         "}\n";
 
     SimpleReader reader;
-    SimpleReaderNode::Ptr rootNode = reader.readFromSource(source);
+    SimpleReaderNode::Ptr rootNode = reader.readFromSource(QString::fromUtf8(source));
 
     QVERIFY(rootNode);
     QVERIFY(rootNode->isValid());

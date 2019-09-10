@@ -127,7 +127,7 @@ void tst_SimpleLexer::run(const QByteArray &source,
         languageFeatures.flags |= extraLanguageFeatures.flags;
         lexer.setLanguageFeatures(languageFeatures);
     }
-    const Tokens tokens = lexer(source, preserveState ? _state : 0);
+    const Tokens tokens = lexer(QString::fromUtf8(source), preserveState ? _state : 0);
     if (preserveState)
         _state = lexer.state();
 

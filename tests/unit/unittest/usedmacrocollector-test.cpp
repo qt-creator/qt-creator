@@ -63,7 +63,7 @@ protected:
 
    static std::time_t lastModified(Utils::SmallStringView filePath)
     {
-        return QFileInfo(QString(filePath)).lastModified().toTime_t();
+        return QFileInfo(QString(filePath)).lastModified().toSecsSinceEpoch();
     }
 
     ClangBackEnd::FileStatus fileStatus(Utils::SmallStringView filePath) const

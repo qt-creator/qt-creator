@@ -217,10 +217,8 @@ public:
             dir = QFileInfo(currentFileName).dir();
         const QFileInfo inc(dir, includedFileName);
         if (inc.exists()) {
-            const QString resolved = inc.filePath();
-            return resolved.toUtf8().constData();
+            return inc.filePath();
         } else {
-    //        std::cerr<<"Cannot find " << inc.fileName().toUtf8().constData()<<std::endl;
             return QString();
         }
     }
@@ -418,8 +416,8 @@ QByteArray tst_Preprocessor::simplified(const QByteArray &buf)
     QList<QByteArray> lines = buf.split('\n');
     foreach (const QByteArray &line, lines) {
         if (!line.startsWith('#')) {
-            out.append(' ');
-            out.append(line);
+            out.append(" ");
+            out.append(QString::fromUtf8(line));
         }
     }
 

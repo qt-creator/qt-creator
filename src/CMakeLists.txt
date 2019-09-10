@@ -1,13 +1,3 @@
-# Not in the main CMakeLists.txt file because some tests fail if we have the flags set as default
-list(APPEND DEFAULT_DEFINES
-  QT_CREATOR
-  QT_NO_JAVA_STYLE_ITERATORS
-  QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII
-  QT_DISABLE_DEPRECATED_BEFORE=0x050900
-  QT_USE_FAST_OPERATOR_PLUS
-  QT_USE_FAST_CONCATENATION
-)
-
 add_library(app_version INTERFACE)
 target_include_directories(app_version INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 install(TARGETS app_version EXPORT QtCreator)

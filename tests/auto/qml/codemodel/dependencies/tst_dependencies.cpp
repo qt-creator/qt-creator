@@ -74,7 +74,7 @@ struct TestData
 static TestData testData(const QString &path) {
     QFile file(path);
     file.open(QFile::ReadOnly | QFile::Text);
-    const QString content = QString(file.readAll());
+    const QString content = QString::fromUtf8(file.readAll());
     file.close();
 
     Document::MutablePtr doc = Document::create(path, Dialect::Qml);

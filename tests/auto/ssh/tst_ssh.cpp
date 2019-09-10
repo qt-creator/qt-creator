@@ -89,10 +89,10 @@ static SshConnectionParameters getParameters()
         } \
         if (params.userName().isEmpty()) \
             QSKIP(qPrintable(QString::fromLatin1("No user name provided. Set %1.") \
-                .arg(userVar()))); \
+                .arg(QString::fromUtf8(userVar())))); \
         if (params.privateKeyFile.isEmpty()) \
             QSKIP(qPrintable(QString::fromLatin1("No key file provided. Set %1.") \
-                .arg(keyFileVar()))); \
+                .arg(QString::fromUtf8(keyFileVar())))); \
     } while (false)
 
 class tst_Ssh : public QObject
@@ -234,9 +234,9 @@ void tst_Ssh::remoteProcess()
     connect(&runner, &SshRemoteProcessRunner::readyReadStandardError,
             [&remoteStderr, &runner] { remoteStderr += runner.readAllStandardError(); });
     if (useTerminal)
-        runner.runInTerminal(commandLine, params);
+        runner.runInTerminal(QString::fromUtf8(commandLine), params);
     else
-        runner.run(commandLine, params);
+        runner.run(QString::fromUtf8(commandLine), params);
     QTimer timer;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
     timer.setSingleShot(true);
@@ -254,7 +254,7 @@ void tst_Ssh::remoteProcess()
 
     SshRemoteProcessRunner killer;
     if (isBlocking)
-        killer.run("pkill -f -9 \"" + commandLine + '"', params);
+        killer.run("pkill -f -9 \"" + QString::fromUtf8(commandLine) + '"', params);
 
     timer.start();
     loop.exec();
@@ -285,7 +285,7 @@ void tst_Ssh::remoteProcessChannels()
     QByteArray remoteStderr;
     QByteArray remoteData;
     SshRemoteProcessPtr echoProcess
-            = connection.createRemoteProcess("printf " + testString + " >&2");
+            = connection.createRemoteProcess("printf " + QString::fromUtf8(testString) + " >&2");
     echoProcess->setReadChannel(QProcess::StandardError);
     QEventLoop loop;
     connect(echoProcess.get(), &SshRemoteProcess::done, &loop, &QEventLoop::quit);

@@ -281,7 +281,7 @@ static QString parentIName(const QString &iname)
 struct Value
 {
     Value() : value(noValue) {}
-    Value(const char *str) : value(str) {}
+    Value(const char *str) : value(QString::fromUtf8(str)) {}
     Value(const QString &str) : value(str) {}
 
     bool matches(const QString &actualValue0, const Context &context) const
@@ -595,11 +595,11 @@ struct CheckType : public Check
 {
     CheckType(const QByteArray &iname, const Name &name,
          const Type &type)
-        : Check(iname, name, noValue, type)
+        : Check(QString::fromUtf8(iname), name, noValue, type)
     {}
 
     CheckType(const QByteArray &iname, const Type &type)
-        : Check(iname, noValue, type)
+        : Check(QString::fromUtf8(iname), noValue, type)
     {}
 };
 
@@ -609,19 +609,23 @@ const QtVersion Qt5 = QtVersion(0x50000);
 struct Check4 : Check
 {
     Check4(const QByteArray &iname, const Value &value, const Type &type)
-        : Check(iname, value, type) { qtVersionForCheck = Qt4; }
+        : Check(QString::fromUtf8(iname), value, type)
+    { qtVersionForCheck = Qt4; }
 
     Check4(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : Check(iname, name, value, type) { qtVersionForCheck = Qt4; }
+        : Check(QString::fromUtf8(iname), name, value, type)
+    { qtVersionForCheck = Qt4; }
 };
 
 struct Check5 : Check
 {
     Check5(const QByteArray &iname, const Value &value, const Type &type)
-        : Check(iname, value, type) { qtVersionForCheck = Qt5; }
+        : Check(QString::fromUtf8(iname), value, type)
+    { qtVersionForCheck = Qt5; }
 
     Check5(const QByteArray &iname, const Name &name, const Value &value, const Type &type)
-        : Check(iname, name, value, type) { qtVersionForCheck = Qt5; }
+        : Check(QString::fromUtf8(iname), name, value, type)
+    { qtVersionForCheck = Qt5; }
 
 };
 
@@ -733,8 +737,8 @@ public:
 
     const Data &operator+(const Profile &profile) const
     {
-        profileExtra += profile.contents;
-        includes += profile.includes;
+        profileExtra += QString::fromUtf8(profile.contents);
+        includes += QString::fromUtf8(profile.includes);
         return *this;
     }
 
@@ -1613,7 +1617,7 @@ void tst_Dumpers::dumper()
         contents = output.mid(posDataStart);
         contents.replace("\\\"", "\"");
 
-        actual.fromStringMultiple(contents);
+        actual.fromStringMultiple(QString::fromLocal8Bit(contents));
         context.nameSpace = actual["qtnamespace"].data();
         actual = actual["data"];
         //qDebug() << "FOUND NS: " << context.nameSpace;
@@ -1632,12 +1636,13 @@ void tst_Dumpers::dumper()
         posNameSpaceStart += sizeof("@NS@") - 1;
         int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
         QVERIFY(posNameSpaceEnd != -1);
-        context.nameSpace = output.mid(posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart);
+        context.nameSpace = QString::fromLocal8Bit(output.mid(
+            posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart));
         //qDebug() << "FOUND NS: " << context.nameSpace;
         if (context.nameSpace == "::")
             context.nameSpace.clear();
         contents.replace("\\\"", "\"");
-        actual.fromString(contents);
+        actual.fromString(QString::fromLocal8Bit(contents));
     } else {
         QByteArray localsAnswerStart("<qtcreatorcdbext>|R|42|");
         QByteArray locals("|script|");
@@ -1653,7 +1658,7 @@ void tst_Dumpers::dumper()
             if (localsBeginPos != -1)
                 localsBeginPos = output.indexOf(locals, localsBeginPos);
         } while (localsBeginPos != -1);
-        actual.fromString(contents);
+        actual.fromString(QString::fromLocal8Bit(contents));
         context.nameSpace = actual["result"]["qtnamespace"].data();
         actual = actual["result"]["data"];
     }
