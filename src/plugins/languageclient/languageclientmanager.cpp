@@ -117,9 +117,6 @@ void LanguageClientManager::startClient(Client *client)
             &Client::initialized,
             &managerInstance->m_currentDocumentLocatorFilter,
             &DocumentLocatorFilter::updateCurrentClient);
-    connect(client, &Client::initialized, managerInstance, [client]() {
-        managerInstance->clientInitialized(client);
-    });
 }
 
 Client *LanguageClientManager::startClient(BaseSettings *setting, ProjectExplorer::Project *project)
@@ -301,19 +298,23 @@ Client *LanguageClientManager::clientForDocument(TextEditor::TextDocument *docum
     return document == nullptr ? nullptr : managerInstance->m_clientForDocument[document].data();
 }
 
-bool LanguageClientManager::reOpenDocumentWithClient(TextEditor::TextDocument *document, Client *client)
+Client *LanguageClientManager::clientForFilePath(const Utils::FilePath &filePath)
+{
+    return clientForDocument(TextEditor::TextDocument::textDocumentForFileName(filePath));
+}
+
+Client *LanguageClientManager::clientForUri(const DocumentUri &uri)
+{
+    return clientForFilePath(uri.toFilePath());
+}
+
+void LanguageClientManager::reOpenDocumentWithClient(TextEditor::TextDocument *document, Client *client)
 {
     Utils::ExecuteOnDestruction outlineUpdater(&TextEditor::IOutlineWidgetFactory::updateOutline);
-    if (Client *currentClient = clientForDocument(document)) {
-        currentClient->closeDocument(document);
-        currentClient->hideDiagnostics(document);
-    }
-    managerInstance->m_clientForDocument.remove(document);
-    if (!managerInstance->openDocumentWithClient(document, client))
-        return false;
-
-    client->showDiagnostics(document);
-    return true;
+    if (Client *currentClient = clientForDocument(document))
+        currentClient->deactivateDocument(document);
+    managerInstance->m_clientForDocument[document] = client;
+    client->activateDocument(document);
 }
 
 QVector<Client *> LanguageClientManager::reachableClients()
@@ -330,19 +331,6 @@ static void sendToInterfaces(const IContent &content, const QVector<Client *> &i
 void LanguageClientManager::sendToAllReachableServers(const IContent &content)
 {
     sendToInterfaces(content, reachableClients());
-}
-
-void LanguageClientManager::clientInitialized(Client *client)
-{
-    for (auto document : m_clientForDocument.keys(client)) {
-        if (client->openDocument(document)) {
-            for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
-                updateEditorToolBar(editor);
-                if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
-                    textEditor->editorWidget()->addHoverHandler(client->hoverHandler());
-            }
-        }
-    }
 }
 
 void LanguageClientManager::clientFinished(Client *client)
@@ -372,27 +360,23 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
     if (auto *textEditor = qobject_cast<BaseTextEditor *>(editor)) {
         if (TextEditorWidget *widget = textEditor->editorWidget()) {
             connect(widget, &TextEditorWidget::requestLinkAt, this,
-                    [this, filePath = editor->document()->filePath()]
+                    [this, document = textEditor->textDocument()]
                     (const QTextCursor &cursor, Utils::ProcessLinkCallback &callback) {
-                        findLinkAt(filePath, cursor, callback);
+                        findLinkAt(document, cursor, callback);
                     });
             connect(widget, &TextEditorWidget::requestUsages, this,
-                    [this, filePath = editor->document()->filePath()]
-                    (const QTextCursor &cursor){
-                        findUsages(filePath, cursor);
+                    [this, document = textEditor->textDocument()](const QTextCursor &cursor) {
+                        findUsages(document, cursor);
                     });
-            connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget](){
-                        // TODO This would better be a compressing timer
-                        QTimer::singleShot(50, this,
-                                           [this, widget = QPointer<TextEditorWidget>(widget)]() {
-                            if (widget) {
-                                for (Client *client : this->reachableClients()) {
-                                    if (client->isSupportedDocument(widget->textDocument()))
-                                        client->cursorPositionChanged(widget);
-                                }
-                            }
-                        });
-                    });
+            connect(widget, &TextEditorWidget::cursorPositionChanged, this, [this, widget]() {
+                // TODO This would better be a compressing timer
+                QTimer::singleShot(50, this, [widget = QPointer<TextEditorWidget>(widget)]() {
+                    if (!widget)
+                        return;
+                    if (Client *client = clientForDocument(widget->textDocument()))
+                        client->cursorPositionChanged(widget);
+                });
+            });
             updateEditorToolBar(editor);
             if (TextEditor::TextDocument *document = textEditor->textDocument()) {
                 if (Client *client = m_clientForDocument[document])
@@ -409,7 +393,6 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         return;
 
     // check whether we have to start servers for this document
-    bool opened = false;
     for (BaseSettings *setting : LanguageClientSettings::currentPageSettings()) {
         QVector<Client *> clients = clientForSetting(setting);
         if (setting->isValid() && setting->m_enabled
@@ -434,28 +417,20 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
             } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
                 clients << startClient(setting);
             }
-            if (opened || clients.isEmpty())
-                continue;
-
             for (auto client : clients) {
-                if (openDocumentWithClient(textDocument, client)) {
-                    opened = true;
-                    continue;
-                }
+                openDocumentWithClient(textDocument, client);
+                if (m_clientForDocument.value(textDocument).isNull())
+                    m_clientForDocument[textDocument] = client;
             }
         }
     }
 }
 
-bool LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *document,
+void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *document,
                                                    Client *client)
 {
-    if (!client || client->state() == Client::Error)
-        return false;
-    m_clientForDocument[document] = client;
-    if (client->state() == Client::Initialized)
-        return client->openDocument(document);
-    return true;
+    if (client && client->state() != Client::Error)
+        client->openDocument(document);
 }
 
 void LanguageClientManager::documentClosed(Core::IDocument *document)
@@ -483,14 +458,14 @@ void LanguageClientManager::documentWillSave(Core::IDocument *document)
     }
 }
 
-void LanguageClientManager::findLinkAt(const Utils::FilePath &filePath,
+void LanguageClientManager::findLinkAt(TextEditor::TextDocument *document,
                                        const QTextCursor &cursor,
                                        Utils::ProcessLinkCallback callback)
 {
-    const DocumentUri uri = DocumentUri::fromFilePath(filePath);
-    const TextDocumentIdentifier document(uri);
+    const DocumentUri uri = DocumentUri::fromFilePath(document->filePath());
+    const TextDocumentIdentifier documentId(uri);
     const Position pos(cursor);
-    TextDocumentPositionParams params(document, pos);
+    TextDocumentPositionParams params(documentId, pos);
     GotoDefinitionRequest request(params);
     request.setResponseCallback([callback](const GotoDefinitionRequest::Response &response){
         if (Utils::optional<GotoResult> _result = response.result()) {
@@ -547,14 +522,14 @@ QList<Core::SearchResultItem> generateSearchResultItems(const LanguageClientArra
     return result;
 }
 
-void LanguageClientManager::findUsages(const Utils::FilePath &filePath, const QTextCursor &cursor)
+void LanguageClientManager::findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor)
 {
-    const DocumentUri uri = DocumentUri::fromFilePath(filePath);
-    const TextDocumentIdentifier document(uri);
+    const DocumentUri uri = DocumentUri::fromFilePath(document->filePath());
+    const TextDocumentIdentifier documentId(uri);
     const Position pos(cursor);
     QTextCursor termCursor(cursor);
     termCursor.select(QTextCursor::WordUnderCursor);
-    ReferenceParams params(TextDocumentPositionParams(document, pos));
+    ReferenceParams params(TextDocumentPositionParams(documentId, pos));
     params.setContext(ReferenceParams::ReferenceContext(true));
     FindReferencesRequest request(params);
     auto callback = [this, wordUnderCursor = termCursor.selectedText()]

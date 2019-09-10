@@ -95,8 +95,10 @@ public:
     bool reachable() const { return m_state == Initialized; }
 
     // document synchronization
-    bool openDocument(TextEditor::TextDocument *document);
+    void openDocument(TextEditor::TextDocument *document);
     void closeDocument(TextEditor::TextDocument *document);
+    void activateDocument(TextEditor::TextDocument *document);
+    void deactivateDocument(TextEditor::TextDocument *document);
     bool documentOpen(TextEditor::TextDocument *document) const;
     void documentContentsSaved(TextEditor::TextDocument *document);
     void documentWillSave(Core::IDocument *document);

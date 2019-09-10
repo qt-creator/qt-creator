@@ -77,7 +77,9 @@ public:
     static QVector<Client *> clientForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
     static Client *clientForDocument(TextEditor::TextDocument *document);
-    static bool reOpenDocumentWithClient(TextEditor::TextDocument *document, Client *client);
+    static Client *clientForFilePath(const Utils::FilePath &filePath);
+    static Client *clientForUri(const LanguageServerProtocol::DocumentUri &uri);
+    static void reOpenDocumentWithClient(TextEditor::TextDocument *document, Client *client);
 
 signals:
     void shutdownFinished();
@@ -87,13 +89,13 @@ private:
 
     void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
-    bool openDocumentWithClient(TextEditor::TextDocument *document, Client *client);
+    void openDocumentWithClient(TextEditor::TextDocument *document, Client *client);
     void documentClosed(Core::IDocument *document);
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
-    void findLinkAt(const Utils::FilePath &filePath, const QTextCursor &cursor,
+    void findLinkAt(TextEditor::TextDocument *document, const QTextCursor &cursor,
                     Utils::ProcessLinkCallback callback);
-    void findUsages(const Utils::FilePath &filePath, const QTextCursor &cursor);
+    void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor);
 
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
@@ -101,7 +103,6 @@ private:
     QVector<Client *> reachableClients();
     void sendToAllReachableServers(const LanguageServerProtocol::IContent &content);
 
-    void clientInitialized(Client *client);
     void clientFinished(Client *client);
 
     bool m_shuttingDown = false;

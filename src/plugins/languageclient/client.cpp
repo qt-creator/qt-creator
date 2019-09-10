@@ -278,63 +278,47 @@ Client::State Client::state() const
     return m_state;
 }
 
-bool Client::openDocument(TextEditor::TextDocument *document)
+void Client::openDocument(TextEditor::TextDocument *document)
 {
     using namespace TextEditor;
     if (!isSupportedDocument(document))
-        return false;
+        return;
+
+    m_openedDocument[document] = document->plainText();
+    if (m_state != Initialized)
+        return;
+
     const FilePath &filePath = document->filePath();
     const QString method(DidOpenTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
         if (!registered.value())
-            return false;
+            return;
         const TextDocumentRegistrationOptions option(
             m_dynamicCapabilities.option(method).toObject());
         if (option.isValid(nullptr)
             && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
-            return false;
+            return;
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = m_serverCapabilities.textDocumentSync()) {
         if (auto options = Utils::get_if<TextDocumentSyncOptions>(&_sync.value())) {
             if (!options->openClose().value_or(true))
-                return false;
+                return;
         }
     }
-    auto uri = DocumentUri::fromFilePath(filePath);
-    showDiagnostics(uri);
-
-    connect(document,
-            &TextDocument::contentsChangedWithPosition,
-            this,
+    connect(document, &TextDocument::contentsChangedWithPosition, this,
             [this, document](int position, int charsRemoved, int charsAdded) {
-                documentContentsChanged(document, position, charsRemoved, charsAdded);
-            });
-
-    auto *oldCompletionProvider = qobject_cast<DocumentContentCompletionProvider *>(
-        document->completionAssistProvider());
-    // only replace the completion assist provider if it is the default one or null
-    if (oldCompletionProvider || !document->completionAssistProvider())
-        document->setCompletionAssistProvider(m_clientProviders.completionAssistProvider);
-    m_resetAssistProvider[document] = {oldCompletionProvider,
-                                       document->functionHintAssistProvider(),
-                                       document->quickFixAssistProvider()};
-    document->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
-    document->setQuickFixAssistProvider(m_clientProviders.quickFixAssistProvider);
-    connect(document, &QObject::destroyed, this, [this, document] {
-        m_resetAssistProvider.remove(document);
+        documentContentsChanged(document, position, charsRemoved, charsAdded);
     });
-    const QString &text = document->plainText();
-    m_openedDocument.insert(document, text);
-
     TextDocumentItem item;
     item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(document->mimeType()));
-    item.setUri(uri);
-    item.setText(text);
+    item.setUri(DocumentUri::fromFilePath(filePath));
+    item.setText(document->plainText());
     item.setVersion(document->document()->revision());
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
 
-    return true;
+    if (LanguageClientManager::clientForDocument(document) == this)
+        activateDocument(document);
 }
 
 void Client::sendContent(const IContent &content)
@@ -371,7 +355,38 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     const DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
     m_highlights[uri].clear();
     sendContent(uri, DidCloseTextDocumentNotification(params));
+    deactivateDocument(document);
+}
+
+void Client::activateDocument(TextEditor::TextDocument *document)
+{
+    auto uri = DocumentUri::fromFilePath(document->filePath());
+    showDiagnostics(uri);
+    SemanticHighligtingSupport::applyHighlight(document, m_highlights.value(uri), capabilities());
+    // only replace the assist provider if the completion provider is the default one or null
+    if (!document->completionAssistProvider()
+        || qobject_cast<TextEditor::DocumentContentCompletionProvider *>(
+            document->completionAssistProvider())) {
+        m_resetAssistProvider[document] = {document->completionAssistProvider(),
+                                           document->functionHintAssistProvider(),
+                                           document->quickFixAssistProvider()};
+        document->setCompletionAssistProvider(m_clientProviders.completionAssistProvider);
+        document->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
+        document->setQuickFixAssistProvider(m_clientProviders.quickFixAssistProvider);
+    }
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
+        updateEditorToolBar(editor);
+        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor))
+            textEditor->editorWidget()->addHoverHandler(hoverHandler());
+    }
+}
+
+void Client::deactivateDocument(TextEditor::TextDocument *document)
+{
+    hideDiagnostics(document);
     resetAssistProviders(document);
+    if (TextEditor::SyntaxHighlighter *highlighter = document->syntaxHighlighter())
+        highlighter->clearAllExtraFormats();
 }
 
 bool Client::documentOpen(TextEditor::TextDocument *document) const
@@ -835,6 +850,8 @@ void Client::showDiagnostics(Core::IDocument *doc)
 
 void Client::hideDiagnostics(TextEditor::TextDocument *doc)
 {
+    if (!doc)
+        return;
     DocumentUri uri = DocumentUri::fromFilePath(doc->filePath());
     for (TextMark *mark : m_diagnostics.value(uri))
         doc->removeMark(mark);
@@ -1038,9 +1055,12 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
         Utils::transform(diagnostics, [fileName = uri.toFilePath()](const Diagnostic &diagnostic) {
             return new TextMark(fileName, diagnostic);
     });
-    showDiagnostics(uri);
-
-    requestCodeActions(uri, diagnostics);
+    // TextMarks are already added in the TextEditor::TextMark constructor
+    // so hide them if we are not the active client for this document
+    if (LanguageClientManager::clientForUri(uri) != this)
+        hideDiagnostics(TextEditor::TextDocument::textDocumentForFileName(uri.toFilePath()));
+    else
+        requestCodeActions(uri, diagnostics);
 }
 
 void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
@@ -1051,8 +1071,10 @@ void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
     TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(
         uri.toFilePath());
 
-    if (!doc || (!version.isNull() && doc->document()->revision() != version.value()))
+    if (!doc || LanguageClientManager::clientForDocument(doc) != this
+        || (!version.isNull() && doc->document()->revision() != version.value())) {
         return;
+    }
 
     const TextEditor::HighlightingResults results = SemanticHighligtingSupport::generateResults(
         params.lines());
@@ -1066,8 +1088,10 @@ void Client::rehighlight()
 {
     using namespace TextEditor;
     for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
-        if (TextDocument *doc = TextDocument::textDocumentForFileName(it.key().toFilePath()))
-            SemanticHighligtingSupport::applyHighlight(doc, it.value(), capabilities());
+        if (TextDocument *doc = TextDocument::textDocumentForFileName(it.key().toFilePath())) {
+            if (LanguageClientManager::clientForDocument(doc) == this)
+                SemanticHighligtingSupport::applyHighlight(doc, it.value(), capabilities());
+        }
     }
 }
 
@@ -1131,6 +1155,10 @@ void Client::intializeCallback(const InitializeRequest::Response &initResponse)
             .value_or(capabilities().documentSymbolProvider().value_or(false))) {
         TextEditor::IOutlineWidgetFactory::updateOutline();
     }
+
+    for (TextEditor::TextDocument *document : m_openedDocument.keys())
+        openDocument(document);
+
     emit initialized(m_serverCapabilities);
 }
 
