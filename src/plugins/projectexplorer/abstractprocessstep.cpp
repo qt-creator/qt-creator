@@ -109,6 +109,7 @@ public:
     QByteArray deferredText;
     bool m_ignoreReturnValue = false;
     bool m_skipFlush = false;
+    bool m_lowPriority = false;
 
     void readData(void (AbstractProcessStep::*func)(const QString &), bool isUtf8 = false);
     void processLine(const QByteArray &data,
@@ -227,6 +228,8 @@ void AbstractProcessStep::doRun()
     d->m_process->setWorkingDirectory(wd.absolutePath());
     d->m_process->setEnvironment(d->m_param.environment());
     d->m_process->setCommand(effectiveCommand);
+    if (d->m_lowPriority)
+        d->m_process->setLowPriority();
 
     connect(d->m_process.get(), &QProcess::readyReadStandardOutput,
             this, &AbstractProcessStep::processReadyReadStdOutput);
@@ -244,6 +247,11 @@ void AbstractProcessStep::doRun()
         return;
     }
     processStarted();
+}
+
+void AbstractProcessStep::setLowPriority()
+{
+    d->m_lowPriority = true;
 }
 
 void AbstractProcessStep::doCancel()

@@ -37,6 +37,9 @@
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
+#else
+#include <errno.h>
+#include <unistd.h>
 #endif
 
 
@@ -712,9 +715,17 @@ void QtcProcess::start()
     if (osType == OsTypeWindows) {
         QString args;
         if (m_useCtrlCStub) {
-            args = QtcProcess::quoteArg(QDir::toNativeSeparators(command));
+            if (m_lowPriority)
+                addArg(&args, "-nice");
+            addArg(&args, QDir::toNativeSeparators(command));
             command = QCoreApplication::applicationDirPath()
                     + QLatin1String("/qtcreator_ctrlc_stub.exe");
+        } else if (m_lowPriority) {
+#ifdef Q_OS_WIN
+            setCreateProcessArgumentsModifier([](CreateProcessArguments *args) {
+                args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
+            });
+#endif
         }
         QtcProcess::addArgs(&args, arguments.toWindowsArgs());
 #ifdef Q_OS_WIN
@@ -1206,6 +1217,19 @@ QString QtcProcess::expandMacros(const QString &str, AbstractMacroExpander *mx, 
     QString ret = str;
     expandMacros(&ret, mx, osType);
     return ret;
+}
+
+void QtcProcess::setupChildProcess()
+{
+#if defined Q_OS_UNIX
+    // nice value range is -20 to +19 where -20 is highest, 0 default and +19 is lowest
+    if (m_lowPriority) {
+        errno = 0;
+        if (::nice(5) == -1 && errno != 0)
+            qWarning("Failed to set nice value. Error: %d", errno);
+    }
+#endif
+    QProcess::setupChildProcess();
 }
 
 bool QtcProcess::ArgIterator::next()
