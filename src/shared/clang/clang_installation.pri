@@ -179,6 +179,7 @@ isEmpty(LLVM_VERSION) {
         # clang/Format/Format.h has intentional multiline comments
         QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-comment
     }
+    msvc:QMAKE_CXXFLAGS_WARN_ON += -wd4100 -wd4141 -wd4146 -wd4244 -wd4267 -wd4291
 
     LLVM_LIBDIR = $$quote($$system($$llvm_config --libdir, lines))
     LLVM_BINDIR = $$quote($$system($$llvm_config --bindir, lines))

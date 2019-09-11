@@ -610,7 +610,8 @@ ToolChain::BuiltInHeaderPathsRunner GccToolChain::createBuiltInHeaderPathsRunner
     addToEnvironment(env);
 
     // This runner must be thread-safe!
-    return [env,
+    return [this,
+            env,
             compilerCommand = m_compilerCommand,
             platformCodeGenFlags = m_platformCodeGenFlags,
             reinterpretOptions = m_optionsReinterpreter,
@@ -1382,7 +1383,8 @@ ToolChain::BuiltInHeaderPathsRunner ClangToolChain::createBuiltInHeaderPathsRunn
     addToEnvironment(env);
 
     // This runner must be thread-safe!
-    return [env,
+    return [this,
+            env,
             compilerCommand = m_compilerCommand,
             platformCodeGenFlags = m_platformCodeGenFlags,
             reinterpretOptions = m_optionsReinterpreter,

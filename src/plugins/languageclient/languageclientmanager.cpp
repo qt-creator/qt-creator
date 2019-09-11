@@ -495,7 +495,7 @@ void LanguageClientManager::findUsages(const Utils::FilePath &filePath, const QT
     ReferenceParams params(TextDocumentPositionParams(document, pos));
     params.setContext(ReferenceParams::ReferenceContext(true));
     FindReferencesRequest request(params);
-    auto callback = [wordUnderCursor = termCursor.selectedText()]
+    auto callback = [this, wordUnderCursor = termCursor.selectedText()]
             (const QString &clientName, const FindReferencesRequest::Response &response){
         if (auto result = response.result()) {
             Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(

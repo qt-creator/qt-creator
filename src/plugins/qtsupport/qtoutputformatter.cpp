@@ -243,7 +243,7 @@ void QtOutputFormatter::handleLink(const QString &href)
             const QString filePath = qmlLineMatch.captured(1);
             QUrl fileUrl = QUrl(filePath);
             if (!fileUrl.isValid() && filePath.startsWith(scheme))
-                fileUrl = QUrl::fromLocalFile(filePath.mid(strlen(scheme)));
+                fileUrl = QUrl::fromLocalFile(filePath.mid(int(strlen(scheme))));
             const int line = qmlLineMatch.captured(2).toInt();
             openEditor(getFileToOpen(fileUrl), line);
             return;

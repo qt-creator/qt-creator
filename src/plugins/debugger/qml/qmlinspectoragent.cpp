@@ -436,7 +436,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
         const auto it = m_debugIdToIname.find(objectDebugId);
         if (it != m_debugIdToIname.end()) {
             const QString iname = *it;
-            const int firstIndex = strlen("inspect");
+            const int firstIndex = int(strlen("inspect"));
             const int secondIndex = iname.indexOf('.', firstIndex + 1);
             if (secondIndex != -1)
                 engineId = iname.midRef(firstIndex + 1, secondIndex - firstIndex - 1).toInt();

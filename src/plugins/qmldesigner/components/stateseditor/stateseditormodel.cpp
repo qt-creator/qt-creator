@@ -184,10 +184,11 @@ void StatesEditorModel::renameState(int internalNodeId, const QString &newName)
 
     if (newName.isEmpty() ||! m_statesEditorView->validStateName(newName)) {
         QTimer::singleShot(0, [newName]{
-            auto w = Core::AsynchronousMessageBox::warning(tr("Invalid state name"),
-                                                           newName.isEmpty() ?
-                                                               tr("The empty string as a name is reserved for the base state.") :
-                                                               tr("Name already used in another state"));
+            Core::AsynchronousMessageBox::warning(
+                        tr("Invalid state name"),
+                        newName.isEmpty() ?
+                            tr("The empty string as a name is reserved for the base state.") :
+                            tr("Name already used in another state"));
         });
         reset();
     } else {

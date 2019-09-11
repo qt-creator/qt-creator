@@ -73,7 +73,7 @@ QmlPreviewRunner::QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
     });
 
     connect(&m_connectionManager, &Internal::QmlPreviewConnectionManager::restart,
-            runControl, [runControl]() {
+            runControl, [this, runControl]() {
         if (!runControl->isRunning())
             return;
 
