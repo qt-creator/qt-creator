@@ -530,7 +530,7 @@ HelpViewer *HelpPluginPrivate::helpModeHelpViewer()
     activateHelpMode(); // should trigger an createPage...
     HelpViewer *viewer = m_centralWidget->currentViewer();
     if (!viewer)
-        viewer = OpenPagesManager::instance().createPage();
+        viewer = m_centralWidget->openNewPage(QUrl(Help::Constants::AboutBlank));
     return viewer;
 }
 

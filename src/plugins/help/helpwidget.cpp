@@ -315,7 +315,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
             QAction *openPage = openMenu->addAction(tr("Open in New Page"));
             connect(openPage, &QAction::triggered, this, [this]() {
                 if (HelpViewer *viewer = currentViewer())
-                    OpenPagesManager::instance().createPage(viewer->source());
+                    openNewPage(viewer->source());
             });
         }
         QAction *openExternal = openMenu->addAction(tr("Open in Window"));
@@ -563,9 +563,7 @@ HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url, qreal zoom)
     });
 
     connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
-    connect(viewer, &HelpViewer::newPageRequested, [](const QUrl &url) {
-        OpenPagesManager::instance().createPage(url);
-    });
+    connect(viewer, &HelpViewer::newPageRequested, this, &HelpWidget::openNewPage);
     connect(viewer, &HelpViewer::externalPageRequested, this, &openUrlInWindow);
     updateCloseButton();
     m_model.endInsertRows();
@@ -601,9 +599,19 @@ HelpViewer *HelpWidget::viewerAt(int index) const
 void HelpWidget::open(const QUrl &url, bool newPage)
 {
     if (newPage)
-        OpenPagesManager::instance().createPage(url);
+        openNewPage(url);
     else
         setSource(url);
+}
+
+HelpViewer *HelpWidget::openNewPage(const QUrl &url)
+{
+    if (url.isValid() && HelpViewer::launchWithExternalApp(url))
+        return nullptr;
+
+    HelpViewer *page = addViewer(url);
+    setCurrentIndex(viewerCount() - 1);
+    return page;
 }
 
 void HelpWidget::showLinks(const QMap<QString, QUrl> &links,
@@ -638,7 +646,7 @@ void HelpWidget::openFromSearch(const QUrl &url, const QStringList &searchTerms,
 {
     m_searchTerms = searchTerms;
     if (newPage)
-        OpenPagesManager::instance().createPage(url);
+        openNewPage(url);
     else {
         HelpViewer* viewer = currentViewer();
         QTC_ASSERT(viewer, return);

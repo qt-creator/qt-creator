@@ -173,22 +173,6 @@ void OpenPagesManager::setupInitialPages()
     m_helpWidget->setCurrentIndex(std::max(initialPage, m_helpWidget->viewerCount() - 1));
 }
 
-HelpViewer *OpenPagesManager::createPage()
-{
-    return createPage(QUrl(Help::Constants::AboutBlank));
-}
-
-HelpViewer *OpenPagesManager::createPage(const QUrl &url)
-{
-    if (url.isValid() && HelpViewer::launchWithExternalApp(url))
-        return nullptr;
-
-    HelpViewer *page = m_helpWidget->addViewer(url);
-    m_helpWidget->setCurrentIndex(m_helpWidget->viewerCount() - 1);
-
-    return page;
-}
-
 void OpenPagesManager::closeCurrentPage()
 {
     if (!m_openPagesWidget)
