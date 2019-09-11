@@ -97,7 +97,7 @@ public:
     // document synchronization
     bool openDocument(TextEditor::TextDocument *document);
     void closeDocument(TextEditor::TextDocument *document);
-    bool documentOpen(const Core::IDocument *document) const;
+    bool documentOpen(TextEditor::TextDocument *document) const;
     void documentContentsSaved(TextEditor::TextDocument *document);
     void documentWillSave(Core::IDocument *document);
     void documentContentsChanged(TextEditor::TextDocument *document,
@@ -203,7 +203,7 @@ private:
     QHash<QByteArray, ContentHandler> m_contentHandler;
     QString m_displayName;
     LanguageFilter m_languagFilter;
-    QMap<Utils::FilePath, QString> m_openedDocument;
+    QMap<TextEditor::TextDocument *, QString> m_openedDocument;
     Core::Id m_id;
     LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;

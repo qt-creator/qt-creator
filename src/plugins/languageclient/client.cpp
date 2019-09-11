@@ -115,14 +115,12 @@ Client::Client(BaseClientInterface *clientInterface)
             &Client::rehighlight);
 }
 
-static void updateEditorToolBar(QList<Utils::FilePath> files)
+static void updateEditorToolBar(QList<TextEditor::TextDocument *> documents)
 {
-    QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocuments(
-        Utils::transform(files, [](Utils::FilePath &file) {
-            return Core::DocumentModel::documentForFilePath(file.toString());
-        }));
-    for (auto editor : editors)
-        updateEditorToolBar(editor);
+    for (TextEditor::TextDocument *document : documents) {
+        for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document))
+            updateEditorToolBar(editor);
+    }
 }
 
 Client::~Client()
@@ -327,7 +325,7 @@ bool Client::openDocument(TextEditor::TextDocument *document)
         m_resetAssistProvider.remove(document);
     });
     const QString &text = document->plainText();
-    m_openedDocument.insert(document->filePath(), text);
+    m_openedDocument.insert(document, text);
 
     TextDocumentItem item;
     item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(document->mimeType()));
@@ -352,9 +350,11 @@ void Client::sendContent(const IContent &content)
 
 void Client::sendContent(const DocumentUri &uri, const IContent &content)
 {
-    if (!m_openedDocument.contains(uri.toFileName()))
-        return;
-    sendContent(content);
+    if (!Utils::anyOf(m_openedDocument.keys(), [uri](TextEditor::TextDocument *documnent) {
+            return uri.toFileName() == documnent->filePath();
+        })) {
+        sendContent(content);
+    }
 }
 
 void Client::cancelRequest(const MessageId &id)
@@ -365,7 +365,8 @@ void Client::cancelRequest(const MessageId &id)
 
 void Client::closeDocument(TextEditor::TextDocument *document)
 {
-    m_openedDocument.remove(document->filePath());
+    if (m_openedDocument.remove(document) == 0)
+        return;
     const DocumentUri &uri = DocumentUri::fromFileName(document->filePath());
     const DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
     m_highlights[uri].clear();
@@ -373,14 +374,14 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     resetAssistProviders(document);
 }
 
-bool Client::documentOpen(const Core::IDocument *document) const
+bool Client::documentOpen(TextEditor::TextDocument *document) const
 {
-    return m_openedDocument.contains(document->filePath());
+    return m_openedDocument.contains(document);
 }
 
 void Client::documentContentsSaved(TextEditor::TextDocument *document)
 {
-    if (!m_openedDocument.contains(document->filePath()))
+    if (!m_openedDocument.contains(document))
         return;
     bool sendMessage = true;
     bool includeText = false;
@@ -415,7 +416,8 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
 void Client::documentWillSave(Core::IDocument *document)
 {
     const FilePath &filePath = document->filePath();
-    if (!m_openedDocument.contains(filePath))
+    auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+    if (!m_openedDocument.contains(textDocument))
         return;
     bool sendMessage = true;
     const QString method(WillSaveTextDocumentNotification::methodName);
@@ -436,7 +438,7 @@ void Client::documentWillSave(Core::IDocument *document)
     if (!sendMessage)
         return;
     const WillSaveTextDocumentParams params(
-                TextDocumentIdentifier(DocumentUri::fromFileName(document->filePath())));
+        TextDocumentIdentifier(DocumentUri::fromFileName(filePath)));
     sendContent(WillSaveTextDocumentNotification(params));
 }
 
@@ -445,7 +447,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
                                      int charsRemoved,
                                      int charsAdded)
 {
-    if (!m_openedDocument.contains(document->filePath()))
+    if (!m_openedDocument.contains(document))
         return;
     const QString method(DidChangeTextDocumentNotification::methodName);
     TextDocumentSyncKind syncKind = m_serverCapabilities.textDocumentSyncKindHelper();
@@ -468,7 +470,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         params.setTextDocument(docId);
         if (syncKind == TextDocumentSyncKind::Incremental) {
             DidChangeTextDocumentParams::TextDocumentContentChangeEvent change;
-            QTextDocument oldDoc(m_openedDocument[document->filePath()]);
+            QTextDocument oldDoc(m_openedDocument[document]);
             QTextCursor cursor(&oldDoc);
             cursor.setPosition(position + charsRemoved);
             cursor.setPosition(position, QTextCursor::KeepAnchor);
@@ -479,7 +481,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         } else {
             params.setContentChanges({document->plainText()});
         }
-        m_openedDocument[document->filePath()] = document->plainText();
+        m_openedDocument[document] = document->plainText();
         sendContent(DidChangeTextDocumentNotification(params));
     }
 
