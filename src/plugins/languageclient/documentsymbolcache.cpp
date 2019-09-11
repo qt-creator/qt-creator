@@ -43,7 +43,7 @@ DocumentSymbolCache::DocumentSymbolCache(Client *client)
             this,
             [this](Core::IDocument *document) {
                 connect(document, &Core::IDocument::contentsChanged, this, [this, document]() {
-                    m_cache.remove(DocumentUri::fromFileName(document->filePath()));
+                    m_cache.remove(DocumentUri::fromFilePath(document->filePath()));
                 });
             });
 }

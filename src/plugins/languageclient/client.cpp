@@ -140,7 +140,7 @@ Client::~Client()
     for (const DocumentUri &uri : m_diagnostics.keys())
         removeDiagnostics(uri);
     for (const DocumentUri &uri : m_highlights.keys()) {
-        if (TextDocument *doc = TextDocument::textDocumentForFileName(uri.toFileName())) {
+        if (TextDocument *doc = TextDocument::textDocumentForFileName(uri.toFilePath())) {
             if (TextEditor::SyntaxHighlighter *highlighter = doc->syntaxHighlighter())
                 highlighter->clearAllExtraFormats();
         }
@@ -246,7 +246,7 @@ void Client::initialize()
     auto params = initRequest->params().value_or(InitializeParams());
     params.setCapabilities(generateClientCapabilities());
     if (m_project) {
-        params.setRootUri(DocumentUri::fromFileName(m_project->projectDirectory()));
+        params.setRootUri(DocumentUri::fromFilePath(m_project->projectDirectory()));
         params.setWorkSpaceFolders(Utils::transform(SessionManager::projects(), [](Project *pro){
             return WorkSpaceFolder(pro->projectDirectory().toString(), pro->displayName());
         }));
@@ -301,7 +301,7 @@ bool Client::openDocument(TextEditor::TextDocument *document)
                 return false;
         }
     }
-    auto uri = DocumentUri::fromFileName(filePath);
+    auto uri = DocumentUri::fromFilePath(filePath);
     showDiagnostics(uri);
 
     connect(document,
@@ -351,7 +351,7 @@ void Client::sendContent(const IContent &content)
 void Client::sendContent(const DocumentUri &uri, const IContent &content)
 {
     if (!Utils::anyOf(m_openedDocument.keys(), [uri](TextEditor::TextDocument *documnent) {
-            return uri.toFileName() == documnent->filePath();
+            return uri.toFilePath() == documnent->filePath();
         })) {
         sendContent(content);
     }
@@ -367,7 +367,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
 {
     if (m_openedDocument.remove(document) == 0)
         return;
-    const DocumentUri &uri = DocumentUri::fromFileName(document->filePath());
+    const DocumentUri &uri = DocumentUri::fromFilePath(document->filePath());
     const DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
     m_highlights[uri].clear();
     sendContent(uri, DidCloseTextDocumentNotification(params));
@@ -407,7 +407,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
     if (!sendMessage)
         return;
     DidSaveTextDocumentParams params(
-                TextDocumentIdentifier(DocumentUri::fromFileName(document->filePath())));
+                TextDocumentIdentifier(DocumentUri::fromFilePath(document->filePath())));
     if (includeText)
         params.setText(document->plainText());
     sendContent(DidSaveTextDocumentNotification(params));
@@ -438,7 +438,7 @@ void Client::documentWillSave(Core::IDocument *document)
     if (!sendMessage)
         return;
     const WillSaveTextDocumentParams params(
-        TextDocumentIdentifier(DocumentUri::fromFileName(filePath)));
+        TextDocumentIdentifier(DocumentUri::fromFilePath(filePath)));
     sendContent(WillSaveTextDocumentNotification(params));
 }
 
@@ -461,7 +461,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
     }
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
 
-    const auto uri = DocumentUri::fromFileName(document->filePath());
+    const auto uri = DocumentUri::fromFilePath(document->filePath());
     m_highlights[uri].clear();
     if (syncKind != TextDocumentSyncKind::None) {
         VersionedTextDocumentIdentifier docId(uri);
@@ -553,7 +553,7 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
 
 void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 {
-    const auto uri = DocumentUri::fromFileName(widget->textDocument()->filePath());
+    const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
     if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
         TextDocumentRegistrationOptions option(
                     m_dynamicCapabilities.option(DocumentHighlightsRequest::methodName));
@@ -604,7 +604,7 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 
 void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
 {
-    const Utils::FilePath fileName = uri.toFileName();
+    const Utils::FilePath fileName = uri.toFilePath();
     TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(fileName);
     if (!doc)
         return;
@@ -633,7 +633,7 @@ void Client::requestCodeActions(const CodeActionRequest &request)
         return;
 
     const Utils::FilePath fileName
-        = request.params().value_or(CodeActionParams()).textDocument().uri().toFileName();
+        = request.params().value_or(CodeActionParams()).textDocument().uri().toFilePath();
 
     const QString method(CodeActionRequest::methodName);
     if (Utils::optional<bool> registered = m_dynamicCapabilities.isRegistered(method)) {
@@ -754,8 +754,8 @@ bool Client::isSupportedFile(const Utils::FilePath &filePath, const QString &mim
 
 bool Client::isSupportedUri(const DocumentUri &uri) const
 {
-    return m_languagFilter.isSupported(uri.toFileName(),
-                                       Utils::mimeTypeForFile(uri.toFileName().fileName()).name());
+    return m_languagFilter.isSupported(uri.toFilePath(),
+                                       Utils::mimeTypeForFile(uri.toFilePath().fileName()).name());
 }
 
 bool Client::needsRestart(const BaseSettings *settings) const
@@ -830,12 +830,12 @@ void Client::log(const QString &message, Core::MessageManager::PrintToOutputPane
 
 void Client::showDiagnostics(Core::IDocument *doc)
 {
-    showDiagnostics(DocumentUri::fromFileName(doc->filePath()));
+    showDiagnostics(DocumentUri::fromFilePath(doc->filePath()));
 }
 
 void Client::hideDiagnostics(TextEditor::TextDocument *doc)
 {
-    DocumentUri uri = DocumentUri::fromFileName(doc->filePath());
+    DocumentUri uri = DocumentUri::fromFilePath(doc->filePath());
     for (TextMark *mark : m_diagnostics.value(uri))
         doc->removeMark(mark);
 }
@@ -901,7 +901,7 @@ void Client::showMessageBox(const ShowMessageRequestParams &message, const Messa
 void Client::showDiagnostics(const DocumentUri &uri)
 {
     if (TextEditor::TextDocument *doc
-        = TextEditor::TextDocument::textDocumentForFileName(uri.toFileName())) {
+        = TextEditor::TextDocument::textDocumentForFileName(uri.toFilePath())) {
         for (TextMark *mark : m_diagnostics.value(uri))
             doc->addMark(mark);
     }
@@ -910,7 +910,7 @@ void Client::showDiagnostics(const DocumentUri &uri)
 void Client::removeDiagnostics(const DocumentUri &uri)
 {
     TextEditor::TextDocument *doc
-        = TextEditor::TextDocument::textDocumentForFileName(uri.toFileName());
+        = TextEditor::TextDocument::textDocumentForFileName(uri.toFilePath());
 
     for (TextMark *mark : m_diagnostics.take(uri)) {
         if (doc)
@@ -1035,7 +1035,7 @@ void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
     removeDiagnostics(uri);
     const QList<Diagnostic> &diagnostics = params.diagnostics();
     m_diagnostics[uri] =
-        Utils::transform(diagnostics, [fileName = uri.toFileName()](const Diagnostic &diagnostic) {
+        Utils::transform(diagnostics, [fileName = uri.toFilePath()](const Diagnostic &diagnostic) {
             return new TextMark(fileName, diagnostic);
     });
     showDiagnostics(uri);
@@ -1049,7 +1049,7 @@ void Client::handleSemanticHighlight(const SemanticHighlightingParams &params)
     m_highlights[uri].clear();
     const LanguageClientValue<int> &version = params.textDocument().version();
     TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFileName(
-        uri.toFileName());
+        uri.toFilePath());
 
     if (!doc || (!version.isNull() && doc->document()->revision() != version.value()))
         return;
@@ -1066,7 +1066,7 @@ void Client::rehighlight()
 {
     using namespace TextEditor;
     for (auto it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
-        if (TextDocument *doc = TextDocument::textDocumentForFileName(it.key().toFileName()))
+        if (TextDocument *doc = TextDocument::textDocumentForFileName(it.key().toFilePath()))
             SemanticHighligtingSupport::applyHighlight(doc, it.value(), capabilities());
     }
 }

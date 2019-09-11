@@ -86,7 +86,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     }
 
     m_report = report;
-    auto uri = DocumentUri::fromFileName(editorWidget->textDocument()->filePath());
+    auto uri = DocumentUri::fromFilePath(editorWidget->textDocument()->filePath());
     QTextCursor cursor = editorWidget->textCursor();
     cursor.setPosition(pos);
     TextDocumentPositionParams params(uri, Position(cursor));

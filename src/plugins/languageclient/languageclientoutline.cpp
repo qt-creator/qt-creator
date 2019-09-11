@@ -134,7 +134,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     : m_client(client)
     , m_editor(editor)
     , m_view(this)
-    , m_uri(DocumentUri::fromFileName(editor->textDocument()->filePath()))
+    , m_uri(DocumentUri::fromFilePath(editor->textDocument()->filePath()))
 {
     connect(client->documentSymbolCache(),
             &DocumentSymbolCache::gotSymbols,

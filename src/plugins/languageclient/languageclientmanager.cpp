@@ -487,7 +487,7 @@ void LanguageClientManager::findLinkAt(const Utils::FilePath &filePath,
                                        const QTextCursor &cursor,
                                        Utils::ProcessLinkCallback callback)
 {
-    const DocumentUri uri = DocumentUri::fromFileName(filePath);
+    const DocumentUri uri = DocumentUri::fromFilePath(filePath);
     const TextDocumentIdentifier document(uri);
     const Position pos(cursor);
     TextDocumentPositionParams params(document, pos);
@@ -524,7 +524,7 @@ QList<Core::SearchResultItem> generateSearchResultItems(const LanguageClientArra
         return result;
     QMap<QString, QList<Core::Search::TextRange>> rangesInDocument;
     for (const Location &location : locations.toList())
-        rangesInDocument[location.uri().toFileName().toString()] << convertRange(location.range());
+        rangesInDocument[location.uri().toFilePath().toString()] << convertRange(location.range());
     for (auto it = rangesInDocument.begin(); it != rangesInDocument.end(); ++it) {
         const QString &fileName = it.key();
         QFile file(fileName);
@@ -549,7 +549,7 @@ QList<Core::SearchResultItem> generateSearchResultItems(const LanguageClientArra
 
 void LanguageClientManager::findUsages(const Utils::FilePath &filePath, const QTextCursor &cursor)
 {
-    const DocumentUri uri = DocumentUri::fromFileName(filePath);
+    const DocumentUri uri = DocumentUri::fromFilePath(filePath);
     const TextDocumentIdentifier document(uri);
     const Position pos(cursor);
     QTextCursor termCursor(cursor);

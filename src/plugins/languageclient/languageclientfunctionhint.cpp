@@ -82,7 +82,7 @@ IAssistProposal *FunctionHintProcessor::perform(const AssistInterface *interface
     m_pos = interface->position();
     QTextCursor cursor(interface->textDocument());
     cursor.setPosition(m_pos);
-    auto uri = DocumentUri::fromFileName(Utils::FilePath::fromString(interface->fileName()));
+    auto uri = DocumentUri::fromFilePath(Utils::FilePath::fromString(interface->fileName()));
     SignatureHelpRequest request;
     request.setParams(TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(cursor)));
     request.setResponseCallback([this](auto response) { this->handleSignatureResponse(response); });

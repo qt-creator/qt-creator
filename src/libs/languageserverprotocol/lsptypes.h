@@ -45,10 +45,10 @@ class LANGUAGESERVERPROTOCOL_EXPORT DocumentUri : public QUrl
 {
 public:
     DocumentUri() = default;
-    Utils::FilePath toFileName() const;
+    Utils::FilePath toFilePath() const;
 
     static DocumentUri fromProtocol(const QString &uri) { return DocumentUri(uri); }
-    static DocumentUri fromFileName(const Utils::FilePath &file) { return DocumentUri(file); }
+    static DocumentUri fromFilePath(const Utils::FilePath &file) { return DocumentUri(file); }
 
     operator QJsonValue() const { return QJsonValue(toString()); }
 

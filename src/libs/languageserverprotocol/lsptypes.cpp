@@ -96,7 +96,7 @@ void WorkspaceEdit::setChanges(const Changes &changes)
         QJsonArray edits;
         for (const TextEdit &edit : it.value())
             edits.append(QJsonValue(edit));
-        changesObject.insert(it.key().toFileName().toString(), edits);
+        changesObject.insert(it.key().toFilePath().toString(), edits);
     }
     insert(changesKey, changesObject);
 }
@@ -410,7 +410,7 @@ DocumentUri::DocumentUri(const Utils::FilePath &other)
     : QUrl(QUrl::fromLocalFile(other.toString()))
 { }
 
-Utils::FilePath DocumentUri::toFileName() const
+Utils::FilePath DocumentUri::toFilePath() const
 {
     return isLocalFile() ? Utils::FilePath::fromUserInput(QUrl(*this).toLocalFile())
                          : Utils::FilePath();

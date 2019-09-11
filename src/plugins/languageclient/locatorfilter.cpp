@@ -69,7 +69,7 @@ void DocumentLocatorFilter::updateCurrentClient()
         }
         m_resetSymbolsConnection = connect(document, &Core::IDocument::contentsChanged,
                                            this, &DocumentLocatorFilter::resetSymbols);
-        m_currentUri = DocumentUri::fromFileName(document->filePath());
+        m_currentUri = DocumentUri::fromFilePath(document->filePath());
     } else {
         disconnect(m_updateSymbolsConnection);
         m_symbolCache.clear();
@@ -188,7 +188,7 @@ void DocumentLocatorFilter::accept(Core::LocatorFilterEntry selection,
 {
     if (selection.internalData.canConvert<Utils::LineColumn>()) {
         auto lineColumn = qvariant_cast<Utils::LineColumn>(selection.internalData);
-        Core::EditorManager::openEditorAt(m_currentUri.toFileName().toString(),
+        Core::EditorManager::openEditorAt(m_currentUri.toFilePath().toString(),
                                           lineColumn.line + 1,
                                           lineColumn.column);
     } else if (selection.internalData.canConvert<Utils::Link>()) {

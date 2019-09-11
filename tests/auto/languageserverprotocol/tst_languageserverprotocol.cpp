@@ -610,7 +610,7 @@ void tst_LanguageServerProtocol::documentUri_data()
 
 
     QTest::newRow("home dir")
-            << DocumentUri::fromFileName(Utils::FilePath::fromString(QDir::homePath()))
+            << DocumentUri::fromFilePath(Utils::FilePath::fromString(QDir::homePath()))
             << true
             << Utils::FilePath::fromUserInput(QDir::homePath())
             << QString(filePrefix + QDir::homePath());
@@ -618,7 +618,7 @@ void tst_LanguageServerProtocol::documentUri_data()
     const QString argv0 = QFileInfo(qApp->arguments().first()).absoluteFilePath();
     const auto argv0FileName = Utils::FilePath::fromUserInput(argv0);
     QTest::newRow("argv0 file name")
-            << DocumentUri::fromFileName(argv0FileName)
+            << DocumentUri::fromFilePath(argv0FileName)
             << true
             << argv0FileName
             << QString(filePrefix + QDir::fromNativeSeparators(argv0));
@@ -648,7 +648,7 @@ void tst_LanguageServerProtocol::documentUri()
     QFETCH(QString, string);
 
     QCOMPARE(uri.isValid(), isValid);
-    QCOMPARE(uri.toFileName(), fileName);
+    QCOMPARE(uri.toFilePath(), fileName);
     QCOMPARE(uri.toString(), string);
 }
 
