@@ -19,6 +19,13 @@ qbsstatic.file = qbs/static.pro
 exists(qbs/qbs.pro) {
     isEmpty(QBS_INSTALL_DIR):QBS_INSTALL_DIR = $$(QBS_INSTALL_DIR)
     isEmpty(QBS_INSTALL_DIR):SUBDIRS += $$QBS_DIRS
+
+    include(qbs/src/lib/bundledlibs.pri)
+    qbs_use_bundled_qtscript {
+        qbsscriptenginelib.file = qbs/src/lib/scriptengine/scriptengine.pro
+        qbscorelib.depends = qbsscriptenginelib
+        SUBDIRS += qbsscriptenginelib
+    }
 }
 TR_EXCLUDE = qbs
 
