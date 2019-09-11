@@ -95,10 +95,10 @@ public:
     bool reachable() const { return m_state == Initialized; }
 
     // document synchronization
-    bool openDocument(Core::IDocument *document);
-    void closeDocument(Core::IDocument *document);
+    bool openDocument(TextEditor::TextDocument *document);
+    void closeDocument(TextEditor::TextDocument *document);
     bool documentOpen(const Core::IDocument *document) const;
-    void documentContentsSaved(Core::IDocument *document);
+    void documentContentsSaved(TextEditor::TextDocument *document);
     void documentWillSave(Core::IDocument *document);
     void documentContentsChanged(TextEditor::TextDocument *document,
                                  int position,
@@ -129,7 +129,7 @@ public:
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
 
     void setSupportedLanguage(const LanguageFilter &filter);
-    bool isSupportedDocument(const Core::IDocument *document) const;
+    bool isSupportedDocument(const TextEditor::TextDocument *document) const;
     bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
 
@@ -155,7 +155,7 @@ public:
     { log(responseError.toString(), flag); }
 
     void showDiagnostics(Core::IDocument *doc);
-    void hideDiagnostics(Core::IDocument *doc);
+    void hideDiagnostics(TextEditor::TextDocument *doc);
 
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
     const DynamicCapabilities &dynamicCapabilities() const;

@@ -280,7 +280,7 @@ Client::State Client::state() const
     return m_state;
 }
 
-bool Client::openDocument(Core::IDocument *document)
+bool Client::openDocument(TextEditor::TextDocument *document)
 {
     using namespace TextEditor;
     if (!isSupportedDocument(document))
@@ -291,9 +291,9 @@ bool Client::openDocument(Core::IDocument *document)
         if (!registered.value())
             return false;
         const TextDocumentRegistrationOptions option(
-                    m_dynamicCapabilities.option(method).toObject());
+            m_dynamicCapabilities.option(method).toObject());
         if (option.isValid(nullptr)
-                && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
+            && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
             return false;
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
@@ -305,39 +305,35 @@ bool Client::openDocument(Core::IDocument *document)
     }
     auto uri = DocumentUri::fromFileName(filePath);
     showDiagnostics(uri);
-    auto textDocument = qobject_cast<TextDocument *>(document);
+
+    connect(document,
+            &TextDocument::contentsChangedWithPosition,
+            this,
+            [this, document](int position, int charsRemoved, int charsAdded) {
+                documentContentsChanged(document, position, charsRemoved, charsAdded);
+            });
+
+    auto *oldCompletionProvider = qobject_cast<DocumentContentCompletionProvider *>(
+        document->completionAssistProvider());
+    // only replace the completion assist provider if it is the default one or null
+    if (oldCompletionProvider || !document->completionAssistProvider())
+        document->setCompletionAssistProvider(m_clientProviders.completionAssistProvider);
+    m_resetAssistProvider[document] = {oldCompletionProvider,
+                                       document->functionHintAssistProvider(),
+                                       document->quickFixAssistProvider()};
+    document->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
+    document->setQuickFixAssistProvider(m_clientProviders.quickFixAssistProvider);
+    connect(document, &QObject::destroyed, this, [this, document] {
+        m_resetAssistProvider.remove(document);
+    });
+    const QString &text = document->plainText();
+    m_openedDocument.insert(document->filePath(), text);
+
     TextDocumentItem item;
     item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(document->mimeType()));
     item.setUri(uri);
-    item.setText(QString::fromUtf8(document->contents()));
-    item.setVersion(textDocument ? textDocument->document()->revision() : 0);
-
-    if (textDocument) {
-        connect(textDocument,
-                &TextDocument::contentsChangedWithPosition,
-                this,
-                [this, textDocument](int position, int charsRemoved, int charsAdded) {
-                    documentContentsChanged(textDocument, position, charsRemoved, charsAdded);
-                });
-
-        auto *oldCompletionProvider = qobject_cast<DocumentContentCompletionProvider *>(
-            textDocument->completionAssistProvider());
-        // only replace the completion assist provider if it is the default one or null
-        if (oldCompletionProvider || !textDocument->completionAssistProvider())
-            textDocument->setCompletionAssistProvider(m_clientProviders.completionAssistProvider);
-        m_resetAssistProvider[textDocument] = {oldCompletionProvider,
-                                               textDocument->functionHintAssistProvider(),
-                                               textDocument->quickFixAssistProvider()};
-        textDocument->setFunctionHintAssistProvider(m_clientProviders.functionHintProvider);
-        textDocument->setQuickFixAssistProvider(m_clientProviders.quickFixAssistProvider);
-        connect(textDocument, &QObject::destroyed, this, [this, textDocument]{
-            m_resetAssistProvider.remove(textDocument);
-        });
-        m_openedDocument.insert(document->filePath(), textDocument->plainText());
-    } else {
-        m_openedDocument.insert(document->filePath(), QString());
-    }
-
+    item.setText(text);
+    item.setVersion(document->document()->revision());
     sendContent(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)));
 
     return true;
@@ -367,15 +363,14 @@ void Client::cancelRequest(const MessageId &id)
     sendContent(CancelRequest(CancelParameter(id)));
 }
 
-void Client::closeDocument(Core::IDocument *document)
+void Client::closeDocument(TextEditor::TextDocument *document)
 {
     m_openedDocument.remove(document->filePath());
     const DocumentUri &uri = DocumentUri::fromFileName(document->filePath());
     const DidCloseTextDocumentParams params(TextDocumentIdentifier{uri});
     m_highlights[uri].clear();
     sendContent(uri, DidCloseTextDocumentNotification(params));
-    if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
-        resetAssistProviders(textDocument);
+    resetAssistProviders(document);
 }
 
 bool Client::documentOpen(const Core::IDocument *document) const
@@ -383,7 +378,7 @@ bool Client::documentOpen(const Core::IDocument *document) const
     return m_openedDocument.contains(document->filePath());
 }
 
-void Client::documentContentsSaved(Core::IDocument *document)
+void Client::documentContentsSaved(TextEditor::TextDocument *document)
 {
     if (!m_openedDocument.contains(document->filePath()))
         return;
@@ -413,7 +408,7 @@ void Client::documentContentsSaved(Core::IDocument *document)
     DidSaveTextDocumentParams params(
                 TextDocumentIdentifier(DocumentUri::fromFileName(document->filePath())));
     if (includeText)
-        params.setText(QString::fromUtf8(document->contents()));
+        params.setText(document->plainText());
     sendContent(DidSaveTextDocumentNotification(params));
 }
 
@@ -744,7 +739,7 @@ void Client::setSupportedLanguage(const LanguageFilter &filter)
     m_languagFilter = filter;
 }
 
-bool Client::isSupportedDocument(const Core::IDocument *document) const
+bool Client::isSupportedDocument(const TextEditor::TextDocument *document) const
 {
     QTC_ASSERT(document, return false);
     return m_languagFilter.isSupported(document);
@@ -836,13 +831,11 @@ void Client::showDiagnostics(Core::IDocument *doc)
     showDiagnostics(DocumentUri::fromFileName(doc->filePath()));
 }
 
-void Client::hideDiagnostics(Core::IDocument *doc)
+void Client::hideDiagnostics(TextEditor::TextDocument *doc)
 {
-    if (auto *textDocument = qobject_cast<TextEditor::TextDocument *>(doc)) {
-        DocumentUri uri = DocumentUri::fromFileName(doc->filePath());
-        for (TextMark *mark : m_diagnostics.value(uri))
-                textDocument->removeMark(mark);
-    }
+    DocumentUri uri = DocumentUri::fromFileName(doc->filePath());
+    for (TextMark *mark : m_diagnostics.value(uri))
+        doc->removeMark(mark);
 }
 
 const ServerCapabilities &Client::capabilities() const

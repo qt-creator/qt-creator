@@ -56,10 +56,10 @@ DocumentLocatorFilter::DocumentLocatorFilter()
 
 void DocumentLocatorFilter::updateCurrentClient()
 {
-    Core::IDocument *document = Core::EditorManager::currentDocument();
     resetSymbols();
     disconnect(m_resetSymbolsConnection);
 
+    TextEditor::TextDocument *document = TextEditor::TextDocument::currentTextDocument();
     if (Client *client = LanguageClientManager::clientForDocument(document)) {
         if (m_symbolCache != client->documentSymbolCache()) {
             disconnect(m_updateSymbolsConnection);

@@ -201,8 +201,8 @@ void updateEditorToolBar(Core::IEditor *editor)
     if (!widget)
         return;
 
-    Core::IDocument *document = editor->document();
-    Client *client = LanguageClientManager::clientForDocument(document);
+    TextDocument *document = textEditor->textDocument();
+    Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument());
 
     static QMap<QWidget *, QAction *> actions;
 

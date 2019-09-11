@@ -70,14 +70,14 @@ public:
 
     static LanguageClientManager *instance();
 
-    static QList<Client *> clientsSupportingDocument(const Core::IDocument *doc);
+    static QList<Client *> clientsSupportingDocument(const TextEditor::TextDocument *doc);
 
     static void applySettings();
     static QList<BaseSettings *> currentSettings();
     static QVector<Client *> clientForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
-    static Client *clientForDocument(Core::IDocument *document);
-    static bool reOpenDocumentWithClient(Core::IDocument *document, Client *client);
+    static Client *clientForDocument(TextEditor::TextDocument *document);
+    static bool reOpenDocumentWithClient(TextEditor::TextDocument *document, Client *client);
 
 signals:
     void shutdownFinished();
@@ -87,7 +87,7 @@ private:
 
     void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
-    bool openDocumentWithClient(Core::IDocument *document, Client *client);
+    bool openDocumentWithClient(TextEditor::TextDocument *document, Client *client);
     void documentClosed(Core::IDocument *document);
     void documentContentsSaved(Core::IDocument *document);
     void documentWillSave(Core::IDocument *document);
@@ -108,7 +108,7 @@ private:
     QVector<Client *> m_clients;
     QList<BaseSettings *>  m_currentSettings; // owned
     QMap<QString, QVector<Client *>> m_clientsForSetting;
-    QHash<Core::IDocument *, QPointer<Client>> m_clientForDocument;
+    QHash<TextEditor::TextDocument *, QPointer<Client>> m_clientForDocument;
     QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
     DocumentLocatorFilter m_currentDocumentLocatorFilter;
     WorkspaceLocatorFilter m_workspaceLocatorFilter;
