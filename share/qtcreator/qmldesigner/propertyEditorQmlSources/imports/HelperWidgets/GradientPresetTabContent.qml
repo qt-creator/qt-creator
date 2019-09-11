@@ -31,6 +31,7 @@ import QtQuick.Dialogs 1.3
 
 import HelperWidgets 2.0
 import QtQuickDesignerTheme 1.0
+import QtQuick.Controls.Private 1.0 as PrivateControls
 
 
 Rectangle {
@@ -45,9 +46,9 @@ Rectangle {
     signal presetNameChanged(int id, string name)
     signal deleteButtonClicked(int id)
 
-    property int delegateWidth: 153;
-    property int delegateHeight: 173;
-    property int gridCellWidth: 160;
+    property real delegateWidth: 154;
+    property real delegateHeight: 178;
+    property real gridCellWidth: 160;
 
 
     ScrollView {
@@ -66,7 +67,7 @@ Rectangle {
 
             property int gridColumns: width / tabBackground.gridCellWidth;
             cellWidth: width / gridColumns
-            cellHeight: 180
+            cellHeight: 185
 
             Component {
                 id: gradientDelegate
@@ -74,12 +75,13 @@ Rectangle {
                 Rectangle {
                     id: backgroundCard
                     color: "#404040"
-                    clip: false
+                    clip: true
 
                     property real flexibleWidth: (gradientTable.width - gradientTable.cellWidth * gradientTable.gridColumns) / gradientTable.gridColumns
                     property bool isSelected: false
 
-                    width: gradientTable.cellWidth + flexibleWidth - 8; height: tabBackground.delegateHeight
+                    width: gradientTable.cellWidth + flexibleWidth - 8
+                    height: tabBackground.delegateHeight
                     radius: 16
 
                     MouseArea {
@@ -125,8 +127,6 @@ Rectangle {
                             PropertyChanges {
                                 target: backgroundCard
                                 color: "#606060"
-                                z: 5
-                                clip: true
                                 border.width: 1
                                 border.color: "#029de0"
                             }
@@ -136,8 +136,6 @@ Rectangle {
                             PropertyChanges {
                                 target: backgroundCard
                                 color:"#029de0"
-                                z: 4
-                                clip: true
                                 border.width: 1
                                 border.color: "#606060"
                             }
@@ -148,21 +146,22 @@ Rectangle {
                             {
                                 target: backgroundCard
                                 color: "#404040"
-                                scale: 1.0
                                 border.width: 0
                             }
                         }
                     ] //states
 
                     ColumnLayout {
+                        spacing: 2
                         anchors.fill: parent
 
                         Rectangle {
                             width: 150; height: 150
                             id: gradientRect
                             radius: 16
-                            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter //was top
                             Layout.topMargin: 2
+
                             gradient: Gradient {
                                 id: showGr
                             }
@@ -184,14 +183,13 @@ Rectangle {
                             Rectangle {
                                 id: removeItemRect
                                 anchors.right: parent.right
-                                anchors.rightMargin: 2
+                                anchors.rightMargin: 5
                                 anchors.top: parent.top
-                                anchors.topMargin: 2
+                                anchors.topMargin: 5
                                 height: 16
                                 width: 16
                                 visible: editableName && rectMouseArea.containsMouse
                                 color: "#804682b4"
-
 
                                 MouseArea {
                                     anchors.fill: parent;
@@ -199,39 +197,164 @@ Rectangle {
                                 }
 
                                 Image {
-                                    id: remoreItemImg
                                     source: "image://icons/close"
                                     fillMode: Image.PreserveAspectFit
                                     anchors.fill: parent;
                                     Layout.alignment: Qt.AlignCenter
-                                }
-                            }
+                                } //image remove
+                            } //rectangle remove
                         } //rectangle gradient
 
-                        TextInput {
+                        Item {
                             id: presetNameBox
-                            readOnly: !editableName
-                            text: (presetName)
-                            Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
-                            Layout.preferredWidth: backgroundCard.width
-                            Layout.topMargin: -5
-                            padding: 5.0
-                            topPadding: -2.0
-                            horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.Wrap
-                            color: "#ffffff"
-                            activeFocusOnPress: true
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            Layout.preferredWidth: backgroundCard.width - 2
+                            Layout.preferredHeight: backgroundCard.height - gradientRect.height - 4
+                            Layout.bottomMargin: 4
 
-                            onEditingFinished: tabBackground.presetNameChanged(index, text);
+                            property bool readOnly : true;
 
-                            Keys.onPressed: {
-                                if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-                                    event.accepted = true;
-                                    editingFinished();
-                                    focus = false;
+                            onReadOnlyChanged: {
+                                if (!readOnly) {
+                                    nameInput.visible = true;
+                                    nameInput.forceActiveFocus();
+
+                                    //have to select text like this, otherwise there is an issue with long names
+                                    nameInput.cursorPosition = 0;
+                                    nameInput.cursorPosition = nameInput.length;
+                                    nameInput.selectAll();
                                 }
-                            } //Keys.onPressed
-                        } //textInput
+                            } //onReadOnlyChanged
+
+                            Rectangle {
+                                id: nameBackgroundColor
+                                enabled: tabBackground.editableName
+                                color: "transparent"
+                                radius: 16
+                                visible: true
+                                anchors.fill: parent
+                            } //rectangle
+
+                            MouseArea {
+                                id: nameMouseArea
+                                visible: tabBackground.editableName
+                                hoverEnabled: true
+                                anchors.fill: parent
+
+                                onClicked: presetNameBox.state = "Clicked";
+
+                                onEntered: {
+                                    if (presetNameBox.state != "Clicked")
+                                    {
+                                        presetNameBox.state = "Hover";
+                                    }
+                                }
+
+                                onExited: {
+                                    if (presetNameBox.state != "Clicked")
+                                    {
+                                        presetNameBox.state = "Normal";
+                                    }
+                                    PrivateControls.Tooltip.hideText()
+                                }
+
+                                Timer {
+                                    interval: 1000
+                                    running: nameMouseArea.containsMouse && presetNameBox.readOnly
+                                    onTriggered: PrivateControls.Tooltip.showText(nameMouseArea, Qt.point(nameMouseArea.mouseX, nameMouseArea.mouseY), presetName)
+                                }
+
+                                onCanceled: Tooltip.hideText()
+
+                            } //mouseArea
+
+                            Text {
+                                id: nameText
+                                visible: presetNameBox.readOnly
+                                text: presetName
+                                anchors.fill: parent
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                color: "#ffffff"
+                                elide: Text.ElideMiddle
+                                maximumLineCount: 1
+                            } //text
+
+
+                            TextInput {
+                                id: nameInput
+                                visible: !presetNameBox.readOnly
+                                text: presetName
+                                anchors.fill: parent
+                                anchors.leftMargin: 5
+                                anchors.rightMargin: 5
+                                horizontalAlignment: TextInput.AlignHCenter
+                                verticalAlignment: TextInput.AlignVCenter
+                                color: "#ffffff"
+                                selectionColor: "#029de0"
+                                activeFocusOnPress: true
+                                wrapMode: TextInput.NoWrap
+                                clip: true
+
+                                onEditingFinished: {
+                                    nameText.text = text
+                                    tabBackground.presetNameChanged(index, text);
+                                    presetNameBox.state = "Normal";
+                                }
+
+                                Keys.onPressed: {
+                                    if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+                                        event.accepted = true;
+                                        editingFinished();
+                                        focus = false;
+                                    } //if
+                                } //Keys.onPressed
+                            } //textInput
+
+                            states: [
+                                State {
+                                    name: "Normal"
+                                    PropertyChanges {
+                                        target: nameBackgroundColor
+                                        color: "transparent"
+                                        border.width: 0
+                                    }
+                                    PropertyChanges {
+                                        target: presetNameBox
+                                        readOnly: true
+                                    }
+                                },
+                                State {
+                                    name: "Hover"
+                                    PropertyChanges {
+                                        target: nameBackgroundColor
+                                        color: "#606060"
+                                        border.width: 0
+                                    }
+                                    PropertyChanges {
+                                        target: presetNameBox
+                                        readOnly: true
+                                    }
+                                },
+                                State {
+                                    name: "Clicked"
+                                    PropertyChanges {
+                                        target: nameBackgroundColor
+                                        color: "#606060"
+                                        border.color: "#029de0"
+                                        border.width: 1
+                                    }
+                                    PropertyChanges {
+                                        target: presetNameBox
+                                        readOnly: false
+                                    }
+                                    PropertyChanges {
+                                        target: nameInput
+                                        visible: true
+                                    }
+                                }
+                            ] //states
+                        } //gradient name Item
                     } //columnLayout
                 } //rectangle background
             } //component delegate
