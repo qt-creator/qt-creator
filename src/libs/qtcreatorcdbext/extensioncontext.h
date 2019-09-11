@@ -87,7 +87,7 @@ public:
      * 'X' exception, error. If the message is larger than outputChunkSize,
      * it needs to be split up in chunks, remainingChunks needs to indicate the number
      * of the following chunks (0 for just one chunk). */
-    bool report(char code, int remainingChunks, int token, const char *serviceName, PCSTR Format, ...);
+    bool report(char code, int token, int remainingChunks, const char *serviceName, PCSTR Format, ...);
     // Convenience for reporting potentially long messages in chunks
     bool reportLong(char code, int token, const char *serviceName, const std::string &message);
     ULONG executionStatus() const;
