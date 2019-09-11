@@ -104,8 +104,8 @@
             applications in WebAssembly format, to deploy them, and to
             run them in a web browser.
 
-        \li \l{http://doc.qt.io/qtcreator/creator-overview-qtasam.html}
-            {Qt Application Manager}
+        \li \l{https://doc.qt.io/qtcreator/creator-overview-qtasam.html}
+            {Qt Creator Plugin for Qt Application Manager}
 
             You can use the experimental Qt Application Manager plugin
             (commercial only) to deploy, run, and debug applications on the
