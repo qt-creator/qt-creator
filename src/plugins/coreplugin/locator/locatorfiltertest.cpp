@@ -80,6 +80,8 @@ ResultData::ResultDataList ResultData::fromFilterEntryList(const QList<LocatorFi
         for (int i = 0; i < entry.highlightInfo.starts.size(); ++i) {
             const int start = entry.highlightInfo.starts.at(i);
             const int length = entry.highlightInfo.lengths.at(i);
+            if (start < 0 || start + length > data.highlight.size())
+                break;
             for (int j = 0; j < length; ++j)
                 data.highlight[start + j] = '~';
         }
