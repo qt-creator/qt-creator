@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -46,6 +46,9 @@
     You can connect the device to the development PC using a USB connection.
     Additionally, you can connect Linux-based devices by using a WLAN
     connection.
+
+    The experimental WebAssembly plugin enables you to build your applications
+    in WebAssembly format, to deploy them, and to run them in a web browser.
 
     \list
 
@@ -94,6 +97,12 @@
     \section1 Related Topics
 
     \list
+
+        \li \l{Building Applications for the Web}
+
+            You can use the experimental Qt WebAssembly plugin to build
+            applications in WebAssembly format, to deploy them, and to
+            run them in a web browser.
 
         \li \l{http://doc.qt.io/qtcreator/creator-overview-qtasam.html}
             {Qt Application Manager}

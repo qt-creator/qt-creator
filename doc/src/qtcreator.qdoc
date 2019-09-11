@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -44,6 +44,11 @@
     and \l{Connecting iOS Devices}{iOS}. It is available for Linux, \macos and
     Windows
     operating systems. For more information, see \l{Supported Platforms}.
+
+    In addition, you can use the experimental
+    \l{Building Applications for the Web}{WebAssembly plugin}
+    to build applications in web format and run them in web
+    browsers.
 
     This manual also describes features that are only available if you have the
     appropriate \l{http://qt.io/licensing/}{Qt license}. For more information,

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -36,7 +36,7 @@
     \previouspage creator-developing-generic-linux.html
     \nextpage studio-advanced.html
     \else
-    \previouspage creator-developing-qnx.html
+    \previouspage creator-setup-webassembly.html
     \nextpage creator-testing.html
     \endif
 

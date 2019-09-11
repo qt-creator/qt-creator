@@ -1,0 +1,116 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the Qt Creator documentation.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+**
+****************************************************************************/
+
+    /*!
+    \contentspage index.html
+    \previouspage creator-developing-qnx.html
+    \page creator-setup-webassembly.html
+    \nextpage creator-build-process-customizing.html
+
+    \title Building Applications for the Web
+
+    WebAssembly is a binary format that allows sand-boxed executable code in
+    web pages. This format is nearly as fast as native machine code, and is
+    now supported by all major web browsers.
+
+    \l {Qt for WebAssembly} enables building Qt applications so that they can be
+    integrated into web pages. It doesn't require any client-side installations
+    and reduces the use of server-side resources.
+
+    The experimental WebAssembly plugin enables you to build your applications
+    in WebAssembly format and deploy and run them in the local web browser.
+    You can change the web browser in the project run settings.
+
+    To build applications for the web and run them in a web browser, you need to
+    install Qt for WebAssembly and the tool chain for compiling to WebAssembly,
+    as well as add a build and run kit in \QC.
+
+    \section1 Requirements
+
+    You need the following software to build Qt applications for the web and run
+    them in a browser:
+
+    \list
+        \li Qt for WebAssembly 5.13.1, or later
+        \li On Windows: \l{http://mingw.org/}{MinGW} 7.3.0, or later
+        \li \l{https://emscripten.org/docs/introducing_emscripten/index.html}
+            {emscripten} tool chain for compiling to WebAssembly
+        \li \c sed stream editor
+    \endlist
+
+    \note You need to add the location of the \MinGW and \c sed installation
+    folders to the system path, either globally or for the Qt for WebAssembly
+    kit.
+
+    \section1 Setting Up the Development Environment
+
+    To configure \QC for building Qt apps for the web and running them in a
+    web browser:
+
+    \list 1
+        \li Use the Qt maintenance tool to install Qt for WebAssembly and, on
+            Windows, \MinGW (found in \uicontrol {Developer and Designer Tools}).
+        \li Check out \c emsdk and install and activate \c emscripten, as
+            instructed in \l {Qt for WebAssembly}.
+        \li On Windows, you have to download and install \c sed, as instructed
+            in \l{http://gnuwin32.sourceforge.net/packages/sed.htm}
+            {sed for Windows}, and add its location to the system PATH.
+        \li In \QC, select \uicontrol Help > \uicontrol {About Plugins} >
+            \uicontrol {Device Support} > \uicontrol {WebAssembly} to enable
+            the plugin.
+        \li Restart \QC to be able to use the plugin.
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+            \uicontrol {Qt Versions} > \uicontrol Add to add Qt for WebAssembly
+            (wasm_32).
+        \li Select \uicontrol Tools > \uicontrol Options > \uicontrol Kits >
+            \uicontrol Add to add a kit for building applications for the web:
+            \image qtcreator-kit-webassembly.png "Qt for WebAssembly kit"
+            \list 1
+                \li In the \uicontrol Name field, specify a name for the kit.
+                \li In the \uicontrol {Device type} field, select
+                    \uicontrol {WebAssembly Runtime}.
+                    The value of the \uicontrol Device field is automatically
+                    set to \uicontrol {Web Browser}.
+                \li In the \uicontrol Compiler field, select
+                    \uicontrol {Emscripten Compiler} for both C and C++.
+                \li Select \uicontrol Change next to the \uicontrol Environment
+                    field to append the locations where you installed \MinGW and
+                    \c sed to the PATH variable. For example, on Windows:
+                    \c {PATH=C:\Qt\Tools\mingw730_64\bin;C:\Program Files (x86)\GnuWin32\bin;${PATH}}
+                \li Select \uicontrol Apply to add the kit.
+            \endlist
+        \li Open a project for an application you want to run in a web browser.
+        \li Select \uicontrol Projects > \uicontrol {Build & Run}, and then
+            select the WebAssembly kit as the build and run kit for the project.
+        \li Select \uicontrol Run to specify run settings.
+        \li In the \uicontrol Browser field, select the browser to run the
+            application in.
+            \image qtcreator-settings-run-webassembly.png "Selecting the browser to run in"
+    \endlist
+
+    You can now build Qt applications in WebAssembly format and run them in
+    a web browser as described in \l {Building for Multiple Platforms} and
+    \l{Running on Multiple Platforms}.
+*/

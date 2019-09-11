@@ -46,6 +46,8 @@
 
         \li Universal Windows Platform (UWP)
 
+        \li WebAssembly
+
     \endlist
 
     \section2 Embedded Devices
@@ -103,6 +105,11 @@
             \li UWP
             \li
             \li
+            \li \image ok
+        \row
+            \li WebAssembly
+            \li \image ok
+            \li \image ok
             \li \image ok
     \endtable
 
