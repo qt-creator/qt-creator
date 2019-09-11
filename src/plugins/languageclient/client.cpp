@@ -568,9 +568,9 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
     if (!info.isValid(nullptr))
         return {};
     const Position &start = info.location().range().start();
-    return TextEditor::HighlightingResult(unsigned(start.line() + 1),
-                                          unsigned(start.character() + 1),
-                                          unsigned(info.name().length()),
+    return TextEditor::HighlightingResult(start.line() + 1,
+                                          start.character() + 1,
+                                          info.name().length(),
                                           info.kind());
 }
 
