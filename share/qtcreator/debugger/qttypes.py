@@ -1972,7 +1972,10 @@ def qdump__QWeakPointer(d, value):
     qdump_QWeakPointerHelper(d, value, True)
 
 def qdump__QPointer(d, value):
-    qdump_QWeakPointerHelper(d, value['wp'], True, value.type[0])
+    # actually, we'd use value['wp'] instead of value, but since we
+    # only split() on the result and the (sub-)object address is the
+    # same it does not matter but saves some cycles.
+    qdump_QWeakPointerHelper(d, value, True, value.type[0])
 
 def qdump_QWeakPointerHelper(d, value, isWeak, innerType = None):
     if isWeak:
