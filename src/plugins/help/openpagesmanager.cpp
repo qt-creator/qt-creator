@@ -46,17 +46,11 @@
 using namespace Core;
 using namespace Help::Internal;
 
-OpenPagesManager *OpenPagesManager::m_instance = nullptr;
-
 // -- OpenPagesManager
 
 OpenPagesManager::OpenPagesManager(HelpWidget *helpWidget)
     : m_helpWidget(helpWidget)
 {
-    Q_ASSERT(!m_instance);
-
-    m_instance = this;
-
     m_comboBox = new QComboBox;
     m_comboBox->setModel(m_helpWidget->model());
     m_comboBox->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -85,14 +79,7 @@ OpenPagesManager::OpenPagesManager(HelpWidget *helpWidget)
 
 OpenPagesManager ::~OpenPagesManager()
 {
-    m_instance = nullptr;
     delete m_openPagesSwitcher;
-}
-
-OpenPagesManager &OpenPagesManager::instance()
-{
-    Q_ASSERT(m_instance);
-    return *m_instance;
 }
 
 QWidget *OpenPagesManager::openPagesWidget() const

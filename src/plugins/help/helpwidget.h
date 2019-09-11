@@ -98,6 +98,8 @@ public:
                           bool newPage = false);
     void activateSideBarItem(const QString &id);
 
+    OpenPagesManager *openPagesManager() const;
+
 public:
     void setSource(const QUrl &url);
     void updateCloseButton();

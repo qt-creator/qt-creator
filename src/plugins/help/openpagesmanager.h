@@ -53,8 +53,6 @@ public:
     OpenPagesManager(HelpWidget *helpWidget);
     ~OpenPagesManager() override;
 
-    static OpenPagesManager &instance();
-
     QWidget *openPagesWidget() const;
     QComboBox *openPagesComboBox() const;
 
@@ -76,8 +74,6 @@ private:
     HelpWidget *m_helpWidget = nullptr;
     mutable OpenPagesWidget *m_openPagesWidget = nullptr;
     OpenPagesSwitcher *m_openPagesSwitcher = nullptr;
-
-    static OpenPagesManager *m_instance;
 };
 
 } // namespace Internal

@@ -212,8 +212,10 @@ HelpPluginPrivate::HelpPluginPrivate()
     m_centralWidget = new CentralWidget(Context("Help.CentralHelpWidget"));
     connect(m_centralWidget, &HelpWidget::sourceChanged,
             this, &HelpPluginPrivate::updateSideBarSource);
-    connect(m_centralWidget, &CentralWidget::closeButtonClicked,
-            &OpenPagesManager::instance(), &OpenPagesManager::closeCurrentPage);
+    connect(m_centralWidget,
+            &CentralWidget::closeButtonClicked,
+            m_centralWidget->openPagesManager(),
+            &OpenPagesManager::closeCurrentPage);
 
     connect(LocalHelpManager::instance(), &LocalHelpManager::returnOnCloseChanged,
             m_centralWidget, &CentralWidget::updateCloseButton);
@@ -298,16 +300,20 @@ HelpPluginPrivate::HelpPluginPrivate()
         Command *ctrlTab = ActionManager::registerAction(action, Core::Constants::GOTOPREVINHISTORY,
             modecontext);
         windowMenu->addAction(ctrlTab, Core::Constants::G_WINDOW_NAVIGATE);
-        connect(action, &QAction::triggered, &OpenPagesManager::instance(),
-            &OpenPagesManager::gotoPreviousPage);
+        connect(action,
+                &QAction::triggered,
+                m_centralWidget->openPagesManager(),
+                &OpenPagesManager::gotoPreviousPage);
 
         // Goto Next In History Action
         action = new QAction(this);
         Command *ctrlShiftTab = ActionManager::registerAction(action, Core::Constants::GOTONEXTINHISTORY,
             modecontext);
         windowMenu->addAction(ctrlShiftTab, Core::Constants::G_WINDOW_NAVIGATE);
-        connect(action, &QAction::triggered, &OpenPagesManager::instance(),
-            &OpenPagesManager::gotoNextPage);
+        connect(action,
+                &QAction::triggered,
+                m_centralWidget->openPagesManager(),
+                &OpenPagesManager::gotoNextPage);
     }
 
     connect(&helpIndexFilter, &HelpIndexFilter::linksActivated,
@@ -725,7 +731,7 @@ void HelpPluginPrivate::doSetupIfNeeded()
     if (m_setupNeeded) {
         resetFilter();
         m_setupNeeded = false;
-        OpenPagesManager::instance().setupInitialPages();
+        m_centralWidget->openPagesManager()->setupInitialPages();
         LocalHelpManager::bookmarkManager().setupBookmarkModels();
     }
 }

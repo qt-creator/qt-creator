@@ -252,7 +252,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
     if (style == ModeWidget) {
         layout->addWidget(new Utils::StyledSeparator(toolBar));
-        layout->addWidget(OpenPagesManager::instance().openPagesComboBox(), 10);
+        layout->addWidget(m_openPagesManager->openPagesComboBox(), 10);
     } else {
         layout->addWidget(new QLabel(), 10);
     }
@@ -441,7 +441,7 @@ void HelpWidget::addSideBar()
 
     Core::SideBarItem *openPagesItem = nullptr;
     if (m_style == ModeWidget) {
-        QWidget *openPagesWidget = OpenPagesManager::instance().openPagesWidget();
+        QWidget *openPagesWidget = m_openPagesManager->openPagesWidget();
         openPagesWidget->setWindowTitle(HelpPlugin::tr(Constants::SB_OPENPAGES));
         openPagesItem = new Core::SideBarItem(openPagesWidget, Constants::HELP_OPENPAGES);
         m_openPagesAction = new QAction(tr("Activate Open Help Pages View"), this);
@@ -632,6 +632,11 @@ void HelpWidget::activateSideBarItem(const QString &id)
 {
     QTC_ASSERT(m_sideBar, return);
     m_sideBar->activateItem(id);
+}
+
+OpenPagesManager *HelpWidget::openPagesManager() const
+{
+    return m_openPagesManager;
 }
 
 void HelpWidget::setSource(const QUrl &url)
