@@ -75,7 +75,7 @@ private:
     CallBack m_buttonCallBack;
     QString m_cancelButtonText;
     CallBack m_cancelButtonCallBack;
-    GlobalSuppressionMode m_globalSuppression;
+    GlobalSuppression m_globalSuppression;
     DetailsWidgetCreator m_detailsWidgetCreator;
     bool m_useCancelButton = true;
     ComboCallBack m_comboCallBack;
