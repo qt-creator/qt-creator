@@ -114,6 +114,7 @@ public:
     static  QVariant instanceValue(const ModelNode &modelNode, const PropertyName &name);
 
     static QString generateTranslatableText(const QString& text);
+    QString simplifiedTypeName() const;
 
 protected:
     NodeInstance nodeInstance() const;

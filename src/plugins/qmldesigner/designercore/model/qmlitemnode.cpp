@@ -508,11 +508,6 @@ QList<QmlModelState> QmlModelStateGroup::allStates() const
     return returnList;
 }
 
-QString QmlItemNode::simplifiedTypeName() const
-{
-    return modelNode().simplifiedTypeName();
-}
-
 uint qHash(const QmlItemNode &node)
 {
     return qHash(node.modelNode());

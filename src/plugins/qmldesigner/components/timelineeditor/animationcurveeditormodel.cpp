@@ -207,7 +207,7 @@ std::vector<DesignTools::Keyframe> resolveSmallCurves(
             if (curve.toCubicSpline().count() == 3) {
                 DesignTools::Keyframe &previous = out.back();
                 DesignTools::AnimationCurve acurve(curve, previous.position(), frame.position());
-                previous = acurve.keyframeAt(0);
+                previous.setRightHandle(acurve.keyframeAt(0).rightHandle());
                 out.push_back(acurve.keyframeAt(1));
                 continue;
             }

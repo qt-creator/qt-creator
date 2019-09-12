@@ -123,7 +123,7 @@ bool TreeItem::compare(const std::vector<QString> &path) const
 int TreeItem::row() const
 {
     if (m_parent) {
-        for (size_t i = 0; i < m_parent->m_children.size(); ++i) {
+        for (int i = 0, total = int(m_parent->m_children.size()); i < total; ++i) {
             if (m_parent->m_children[i] == this)
                 return i;
         }
@@ -139,7 +139,7 @@ int TreeItem::column() const
 
 int TreeItem::rowCount() const
 {
-    return m_children.size();
+    return int(m_children.size());
 }
 
 int TreeItem::columnCount() const

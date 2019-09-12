@@ -41,14 +41,14 @@ class QmlModelNodeProxy : public QObject
 public:
     explicit QmlModelNodeProxy(QObject *parent = nullptr);
 
-    void setup(const QmlItemNode &itemNode);
+    void setup(const QmlObjectNode &objectNode);
 
     static void registerDeclarativeType();
 
     void emitSelectionToBeChanged();
     void emitSelectionChanged();
 
-    QmlItemNode qmlItemNode() const;
+    QmlObjectNode qmlObjectNode() const;
 
     ModelNode modelNode() const;
 
@@ -64,7 +64,7 @@ signals:
     void selectionChanged();
 
 private:
-    QmlItemNode m_qmlItemNode;
+    QmlObjectNode m_qmlObjectNode;
 };
 
 } //QmlDesigner
