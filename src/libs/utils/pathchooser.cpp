@@ -450,6 +450,10 @@ void PathChooser::slotBrowse()
         break;
     }
 
+    // work around QTBUG-61004 / QTCREATORBUG-22906
+    window()->raise();
+    window()->activateWindow();
+
     // Delete trailing slashes unless it is "/"|"\\", only
     if (!newPath.isEmpty()) {
         newPath = QDir::toNativeSeparators(newPath);

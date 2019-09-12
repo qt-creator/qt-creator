@@ -79,6 +79,7 @@ public:
     TextEditor::CodeStyleEditorWidget *createCodeStyleEditor(
         TextEditor::ICodeStylePreferences *preferences, QWidget *parent = nullptr) override
     {
+        Q_UNUSED(preferences);
         if (!parent)
             return new ClangFormatConfigWidget;
         return new ClangFormatConfigWidget(SessionManager::startupProject());

@@ -137,9 +137,8 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(ProjectExplorer::Project *proje
             tr("Override Clang Format configuration file with the fallback configuration."));
     }
 
-    connect(m_ui->overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
-        showOrHideWidgets();
-    });
+    connect(m_ui->overrideDefault, &QCheckBox::toggled,
+            this, &ClangFormatConfigWidget::showOrHideWidgets);
     showOrHideWidgets();
 
     fillTable();

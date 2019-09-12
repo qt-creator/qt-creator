@@ -29,12 +29,14 @@
 #include "timelinegraphicsscene.h"
 #include "timelineicons.h"
 
+#include "timelineview.h"
 #include "timelinewidget.h"
 
 #include <designeractionmanager.h>
 #include <nodelistproperty.h>
 #include <theme.h>
 #include <variantproperty.h>
+#include <qmlstate.h>
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
 
@@ -125,6 +127,8 @@ void TimelineToolBar::reset()
 {
     if (recording())
         m_recording->setChecked(false);
+
+    m_curveModel->reset({});
 }
 
 bool TimelineToolBar::recording() const
@@ -222,6 +226,13 @@ void TimelineToolBar::removeTimeline(const QmlTimeline &timeline)
 
 void TimelineToolBar::openAnimationCurveEditor()
 {
+    QmlTimeline timeline;
+    if (auto *tlw = qobject_cast<TimelineWidget *>(parent())) {
+        if (auto *tlv = tlw->timelineView())
+            timeline = tlv->timelineForState(tlv->currentState());
+    }
+
+    m_curveModel->setTimeline(timeline);
     m_dialog.show();
 }
 

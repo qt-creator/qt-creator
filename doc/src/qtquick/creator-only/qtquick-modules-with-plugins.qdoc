@@ -145,7 +145,7 @@
     set the QML import path:
 
     \code
-    {set(QML_IMPORT_PATH ${CMAKE_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/imports CACHE string "" FORCE)}
+    set(QML_IMPORT_PATH ${CMAKE_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/imports CACHE STRING "" FORCE)
     \endcode
 
     The import path affects all the targets built by the CMake project.

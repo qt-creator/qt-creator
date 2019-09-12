@@ -247,8 +247,8 @@ Rectangle {
                                 active = true
                             }
 
-                            property int loaderHeight: specificsOne.item.height + tabView.extraHeight
-                            onLoaderHeightChanged: tabView.specficsOneHeight = loaderHeight
+                            property int loaderHeight: specificsTwo.item.height + tabView.extraHeight
+                            onLoaderHeightChanged: tabView.specficsTwoHeight = loaderHeight
 
                             onLoaded: {
                                 tabView.specficsTwoHeight = loaderHeight
