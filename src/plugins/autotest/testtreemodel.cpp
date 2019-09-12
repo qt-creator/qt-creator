@@ -220,27 +220,26 @@ void TestTreeModel::synchronizeTestFrameworks()
 
     // pre-check to avoid further processing when frameworks are unchanged
     Utils::TreeItem *invisibleRoot = rootItem();
-    const int count = invisibleRoot->childCount();
-    if (count == sortedIds.size()) {
-        bool different = false;
-        QList<Core::Id> registered = manager->sortedRegisteredFrameworkIds();
-        for (int i = 0; i < count; ++i) {
-            if (manager->rootNodeForTestFramework(sortedIds[i]) != invisibleRoot->childAt(i)) {
-                different = true;
-                break;
-            }
-        }
-        if (!different)
-            return;
+    QSet<Core::Id> newlyAdded;
+    QList<Utils::TreeItem *> oldFrameworkRoots;
+    for (Utils::TreeItem *oldFrameworkRoot : *invisibleRoot)
+        oldFrameworkRoots.append(oldFrameworkRoot);
+
+    for (Utils::TreeItem *oldFrameworkRoot : oldFrameworkRoots)
+        takeItem(oldFrameworkRoot);  // do NOT delete the ptr is still held by TestFrameworkManager
+
+    for (const Core::Id &id : sortedIds) {
+        TestTreeItem *frameworkRootNode = manager->rootNodeForTestFramework(id);
+        invisibleRoot->appendChild(frameworkRootNode);
+        if (!oldFrameworkRoots.removeOne(frameworkRootNode))
+            newlyAdded.insert(id);
     }
-
-    // remove all currently registered
-    removeTestRootNodes();
-
-    for (const Core::Id &id : sortedIds)
-        rootItem()->appendChild(manager->rootNodeForTestFramework(id));
+    for (Utils::TreeItem *oldFrameworkRoot : oldFrameworkRoots)
+        oldFrameworkRoot->removeChildren();
 
     m_parser->syncTestFrameworks(sortedIds);
+    if (!newlyAdded.isEmpty())
+        m_parser->updateTestTree(newlyAdded);
     emit updatedActiveFrameworks(sortedIds.size());
 }
 

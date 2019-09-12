@@ -126,7 +126,6 @@ void TestCodeParser::syncTestFrameworks(const QList<Core::Id> &frameworkIds)
         QTC_ASSERT(testParser, continue);
         m_testCodeParsers.append(testParser);
     }
-    updateTestTree();
 }
 
 void TestCodeParser::emitUpdateTestTree(ITestParser *parser)
