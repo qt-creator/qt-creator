@@ -1,5 +1,11 @@
 configure_file(app_version.h.cmakein app_version.h ESCAPE_QUOTES)
 
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/app_version.h
+  DESTINATION include/src/app
+  COMPONENT Devel EXCLUDE_FROM_ALL
+)
+
 add_qtc_executable(qtcreator
   DEFINES IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
   DEPENDS Aggregation ExtensionSystem Qt5::Core Qt5::Widgets Utils shared_qtsingleapplication app_version
