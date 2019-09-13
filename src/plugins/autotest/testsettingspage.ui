@@ -145,14 +145,50 @@ Warning: this is an experimental feature and might lead to failing to execute th
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="runAfterBuildCB">
-            <property name="toolTip">
-             <string>Runs all tests automatically if a build succeeded.</string>
-            </property>
-            <property name="text">
-             <string>Automatically run after build</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Automatically run</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="runAfterBuildCB">
+              <property name="toolTip">
+               <string>Runs chosen tests automatically if a build succeeded.</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>None</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>All</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Selected</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">

@@ -69,7 +69,7 @@ void TestSettingsWidget::setSettings(const TestSettings &settings)
     m_ui.openResultsOnStartCB->setChecked(settings.popupOnStart);
     m_ui.openResultsOnFinishCB->setChecked(settings.popupOnFinish);
     m_ui.openResultsOnFailCB->setChecked(settings.popupOnFail);
-    m_ui.runAfterBuildCB->setChecked(settings.runAfterBuild);
+    m_ui.runAfterBuildCB->setCurrentIndex(int(settings.runAfterBuild));
     populateFrameworksListWidget(settings.frameworks);
 }
 
@@ -86,7 +86,7 @@ TestSettings TestSettingsWidget::settings() const
     result.popupOnStart = m_ui.openResultsOnStartCB->isChecked();
     result.popupOnFinish = m_ui.openResultsOnFinishCB->isChecked();
     result.popupOnFail = m_ui.openResultsOnFailCB->isChecked();
-    result.runAfterBuild = m_ui.runAfterBuildCB->isChecked();
+    result.runAfterBuild = RunAfterBuildMode(m_ui.runAfterBuildCB->currentIndex());
     frameworkSettings(result);
     return result;
 }

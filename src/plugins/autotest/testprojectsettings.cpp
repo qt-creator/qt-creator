@@ -88,7 +88,8 @@ void TestProjectSettings::load()
     }
 
     const QVariant runAfterBuild = m_project->namedSettings(SK_RUN_AFTER_BUILD);
-    m_runAfterBuild = runAfterBuild.isValid() ? runAfterBuild.toBool() : false;
+    m_runAfterBuild = runAfterBuild.isValid() ? RunAfterBuildMode(runAfterBuild.toInt())
+                                              : RunAfterBuildMode::None;
 }
 
 void TestProjectSettings::save()
@@ -99,7 +100,7 @@ void TestProjectSettings::save()
     for (auto it = m_activeTestFrameworks.cbegin(); it != end; ++it)
         activeFrameworks.insert(it.key().toString(), it.value());
     m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworks);
-    m_project->setNamedSettings(SK_RUN_AFTER_BUILD, m_runAfterBuild);
+    m_project->setNamedSettings(SK_RUN_AFTER_BUILD, int(m_runAfterBuild));
 }
 
 } // namespace Internal

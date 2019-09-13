@@ -29,7 +29,6 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QCheckBox;
 class QComboBox;
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -55,7 +54,7 @@ private:
     TestProjectSettings *m_projectSettings;
     QComboBox *m_useGlobalSettings = nullptr;
     QTreeWidget *m_activeFrameworks = nullptr;
-    QCheckBox *m_runAfterBuild = nullptr;
+    QComboBox *m_runAfterBuild = nullptr;
     QTimer m_syncFrameworksTimer;
 };
 

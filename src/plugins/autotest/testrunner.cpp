@@ -674,11 +674,11 @@ void TestRunner::buildFinished(bool success)
     }
 }
 
-static bool runAfterBuild()
+static RunAfterBuildMode runAfterBuild()
 {
     Project *project = SessionManager::startupProject();
     if (!project)
-        return false;
+        return RunAfterBuildMode::None;
 
     if (!project->namedSettings(Constants::SK_USE_GLOBAL).isValid())
         return AutotestPlugin::settings()->runAfterBuild;
@@ -696,14 +696,16 @@ void TestRunner::onBuildQueueFinished(bool success)
     if (!success || m_runMode != TestRunMode::None)
         return;
 
-    if (!runAfterBuild())
+    RunAfterBuildMode mode = runAfterBuild();
+    if (mode == RunAfterBuildMode::None)
         return;
 
     auto testTreeModel = TestTreeModel::instance();
     if (!testTreeModel->hasTests())
         return;
 
-    setSelectedTests(testTreeModel->getAllTestCases());
+    setSelectedTests(mode == RunAfterBuildMode::All ? testTreeModel->getAllTestCases()
+                                                    : testTreeModel->getSelectedTests());
     prepareToRunTests(TestRunMode::RunAfterBuild);
 }
 

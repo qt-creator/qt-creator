@@ -67,7 +67,7 @@ void TestSettings::toSettings(QSettings *s) const
     s->setValue(popupOnStartKey, popupOnStart);
     s->setValue(popupOnFinishKey, popupOnFinish);
     s->setValue(popupOnFailKey, popupOnFail);
-    s->setValue(runAfterBuildKey, runAfterBuild);
+    s->setValue(runAfterBuildKey, int(runAfterBuild));
     // store frameworks and their current active and grouping state
     for (const Core::Id &id : frameworks.keys()) {
         s->setValue(QLatin1String(id.name()), frameworks.value(id));
@@ -89,7 +89,8 @@ void TestSettings::fromSettings(QSettings *s)
     popupOnStart = s->value(popupOnStartKey, true).toBool();
     popupOnFinish = s->value(popupOnFinishKey, true).toBool();
     popupOnFail = s->value(popupOnFailKey, false).toBool();
-    runAfterBuild = s->value(runAfterBuildKey, false).toBool();
+    runAfterBuild = RunAfterBuildMode(s->value(runAfterBuildKey,
+                                               int(RunAfterBuildMode::None)).toInt());
     // try to get settings for registered frameworks
     TestFrameworkManager *frameworkManager = TestFrameworkManager::instance();
     const QList<Core::Id> &registered = frameworkManager->registeredFrameworkIds();

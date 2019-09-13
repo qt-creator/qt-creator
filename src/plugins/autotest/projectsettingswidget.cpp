@@ -29,7 +29,6 @@
 #include "testprojectsettings.h"
 
 #include <QBoxLayout>
-#include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
 #include <QTreeWidget>
@@ -61,12 +60,19 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
     m_activeFrameworks->setRootIsDecorated(false);
     groupBoxLayout->addWidget(new QLabel(tr("Active frameworks:")));
     groupBoxLayout->addWidget(m_activeFrameworks);
-    m_runAfterBuild = new QCheckBox(tr("Automatically run after build"));
-    m_runAfterBuild->setChecked(m_projectSettings->runAfterBuild());
-    groupBoxLayout->addWidget(m_runAfterBuild);
+    auto horizontalLayout = new QHBoxLayout;
+    horizontalLayout->addWidget(new QLabel(tr("Automatically run tests after build")));
+    m_runAfterBuild = new QComboBox;
+    m_runAfterBuild->addItem(tr("None"));
+    m_runAfterBuild->addItem(tr("All"));
+    m_runAfterBuild->addItem(tr("Selected"));
+    m_runAfterBuild->setCurrentIndex(int(m_projectSettings->runAfterBuild()));
+    horizontalLayout->addWidget(m_runAfterBuild);
+    horizontalLayout->addItem(createSpacer(QSizePolicy::Expanding, QSizePolicy::Minimum));
+    groupBoxLayout->addLayout(horizontalLayout);
     generalWidget->setLayout(groupBoxLayout);
 
-    auto horizontalLayout = new QHBoxLayout;
+    horizontalLayout = new QHBoxLayout;
     horizontalLayout->addWidget(m_useGlobalSettings);
     horizontalLayout->addItem(createSpacer(QSizePolicy::Expanding, QSizePolicy::Minimum));
     verticalLayout->addLayout(horizontalLayout);
@@ -90,8 +96,10 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
     });
     connect(m_activeFrameworks, &QTreeWidget::itemChanged,
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);
-    connect(m_runAfterBuild, &QCheckBox::toggled,
-            m_projectSettings, &TestProjectSettings::setRunAfterBuild);
+    connect(m_runAfterBuild, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this](int index) {
+        m_projectSettings->setRunAfterBuild(RunAfterBuildMode(index));
+    });
     m_syncFrameworksTimer.setSingleShot(true);
     connect(&m_syncFrameworksTimer, &QTimer::timeout,
             TestTreeModel::instance(), &TestTreeModel::synchronizeTestFrameworks);

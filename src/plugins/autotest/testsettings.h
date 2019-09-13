@@ -36,6 +36,13 @@ QT_END_NAMESPACE
 namespace Autotest {
 namespace Internal {
 
+enum class RunAfterBuildMode
+{
+    None,
+    All,
+    Selected
+};
+
 struct TestSettings
 {
     TestSettings();
@@ -52,7 +59,7 @@ struct TestSettings
     bool popupOnStart = true;
     bool popupOnFinish = true;
     bool popupOnFail = false;
-    bool runAfterBuild = false;
+    RunAfterBuildMode runAfterBuild = RunAfterBuildMode::None;
     QHash<Core::Id, bool> frameworks;
     QHash<Core::Id, bool> frameworksGrouping;
 };
