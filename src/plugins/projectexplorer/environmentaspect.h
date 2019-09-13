@@ -58,7 +58,7 @@ public:
                                      const std::function<Utils::Environment()> &getter);
 
     // The environment the user chose as base for his modifications.
-    Utils::Environment currentUnmodifiedBaseEnvironment() const;
+    Utils::Environment baseEnvironment() const;
     QString currentDisplayName() const;
 
     const QStringList displayNames() const;

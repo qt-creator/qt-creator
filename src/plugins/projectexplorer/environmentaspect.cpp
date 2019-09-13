@@ -43,7 +43,7 @@ namespace ProjectExplorer {
 
 EnvironmentAspect::EnvironmentAspect()
 {
-    setDisplayName(tr("Run Environment"));
+    setDisplayName(tr("Environment"));
     setId("EnvironmentAspect");
     setConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
 }
@@ -74,9 +74,7 @@ void EnvironmentAspect::setUserEnvironmentChanges(const Utils::EnvironmentItems 
 Utils::Environment EnvironmentAspect::environment() const
 {
     QTC_ASSERT(m_base >= 0 && m_base < m_baseEnvironments.size(), return Environment());
-    Environment env = m_baseEnvironments.at(m_base).unmodifiedBaseEnvironment();
-    for (const EnvironmentModifier &modifier : m_modifiers)
-        modifier(env);
+    Environment env = baseEnvironment();
     env.modify(m_userChanges);
     return env;
 }
@@ -124,10 +122,13 @@ void EnvironmentAspect::toMap(QVariantMap &data) const
     data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userChanges));
 }
 
-Environment EnvironmentAspect::currentUnmodifiedBaseEnvironment() const
+Environment EnvironmentAspect::baseEnvironment() const
 {
     QTC_ASSERT(m_base >= 0 && m_base < m_baseEnvironments.size(), return Environment());
-    return m_baseEnvironments.at(m_base).unmodifiedBaseEnvironment();
+    Environment env = m_baseEnvironments.at(m_base).unmodifiedBaseEnvironment();
+    for (const EnvironmentModifier &modifier : m_modifiers)
+        modifier(env);
+    return env;
 }
 
 QString EnvironmentAspect::currentDisplayName() const
