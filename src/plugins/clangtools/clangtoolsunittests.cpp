@@ -87,7 +87,8 @@ static CppTools::ClangDiagnosticConfig configFor(const QString &tidyChecks,
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-Wno-everything")});
     config.setClangTidyMode(CppTools::ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
-    config.setClangTidyChecks("-*," + tidyChecks);
+    const QString theTidyChecks = tidyChecks.isEmpty() ? tidyChecks : "-*," + tidyChecks;
+    config.setClangTidyChecks(theTidyChecks);
     config.setClazyChecks(clazyChecks);
     return config;
 }
@@ -115,7 +116,7 @@ void ClangToolsUnitTests::testProject()
     ClangToolsSettings *clangToolsSettings = ClangToolsSettings::instance();
     const CppTools::ClangDiagnosticConfigs originalConfigs = cppToolsSettings
                                                                  ->clangCustomDiagnosticConfigs();
-    const Core::Id originalId = clangToolsSettings->diagnosticConfigId();
+    const Core::Id originalId = clangToolsSettings->runSettings().diagnosticConfigId();
 
     CppTools::ClangDiagnosticConfigs modifiedConfigs = originalConfigs;
     modifiedConfigs.push_back(diagnosticConfig);
@@ -123,12 +124,16 @@ void ClangToolsUnitTests::testProject()
     ExecuteOnDestruction executeOnDestruction([=]() {
         // Restore configs
         cppToolsSettings->setClangCustomDiagnosticConfigs(originalConfigs);
-        clangToolsSettings->setDiagnosticConfigId(originalId);
+        RunSettings runSettings = clangToolsSettings->runSettings();
+        runSettings.setDiagnosticConfigId(originalId);
+        clangToolsSettings->setRunSettings(runSettings);
         clangToolsSettings->writeSettings();
     });
 
     cppToolsSettings->setClangCustomDiagnosticConfigs(modifiedConfigs);
-    clangToolsSettings->setDiagnosticConfigId(diagnosticConfig.id());
+    RunSettings runSettings = clangToolsSettings->runSettings();
+    runSettings.setDiagnosticConfigId(diagnosticConfig.id());
+    clangToolsSettings->setRunSettings(runSettings);
     clangToolsSettings->writeSettings();
 
     tool->startTool(ClangTidyClazyTool::FileSelection::AllFiles);

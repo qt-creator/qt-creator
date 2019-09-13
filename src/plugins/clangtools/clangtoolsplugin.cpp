@@ -88,18 +88,11 @@ public:
         return m_widget;
     }
 
-    void apply() override
-    {
-        ClangToolsSettings::instance()->writeSettings();
-    }
-
-    void finish() override
-    {
-        delete m_widget;
-    }
+    void apply() override { m_widget->apply(); }
+    void finish() override { delete m_widget; }
 
 private:
-    QPointer<QWidget> m_widget;
+    QPointer<SettingsWidget> m_widget;
 };
 
 class ClangToolsPluginPrivate

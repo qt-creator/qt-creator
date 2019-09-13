@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <QObject>
+#include "clangtoolssettings.h"
 
 #include <coreplugin/id.h>
 #include <projectexplorer/project.h>
@@ -70,11 +70,11 @@ public:
     ClangToolsProjectSettings(ProjectExplorer::Project *project);
     ~ClangToolsProjectSettings() override;
 
-    bool useGlobalSettings() const;
-    void setUseGlobalSettings(bool useGlobalSettings);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobalSettings) { m_useGlobalSettings = useGlobalSettings; }
 
-    Core::Id diagnosticConfig() const;
-    void setDiagnosticConfig(const Core::Id &diagnosticConfig);
+    RunSettings runSettings() const { return m_runSettings; }
+    void setRunSettings(const RunSettings &settings) { m_runSettings = settings; }
 
     QSet<Utils::FilePath> selectedDirs() const { return m_selectedDirs; }
     void setSelectedDirs(const QSet<Utils::FilePath> &value) { m_selectedDirs = value; }
@@ -95,10 +95,14 @@ private:
     void store();
 
     ProjectExplorer::Project *m_project;
+
     bool m_useGlobalSettings = true;
-    Core::Id m_diagnosticConfig;
+
+    RunSettings m_runSettings;
+
     QSet<Utils::FilePath> m_selectedDirs;
     QSet<Utils::FilePath> m_selectedFiles;
+
     SuppressedDiagnosticsList m_suppressedDiagnostics;
 };
 

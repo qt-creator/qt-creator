@@ -40,11 +40,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <cpptools/clangdiagnosticconfigsmodel.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolsreuse.h>
-
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <projectexplorer/kitinformation.h>
@@ -362,22 +357,17 @@ ClangTidyClazyTool *ClangTidyClazyTool::instance()
     return s_instance;
 }
 
-static ClangDiagnosticConfig getDiagnosticConfig(Project *project)
+void ClangTidyClazyTool::selectPerspective()
 {
-    ClangToolsProjectSettings *projectSettings = ClangToolsProjectSettingsManager::getSettings(
-        project);
+    m_perspective.select();
+}
 
-    Core::Id diagnosticConfigId;
+static RunSettings runSettings(Project *project)
+{
+    auto *projectSettings = ClangToolsProjectSettingsManager::getSettings(project);
     if (projectSettings->useGlobalSettings())
-        diagnosticConfigId = ClangToolsSettings::instance()->savedDiagnosticConfigId();
-    else
-        diagnosticConfigId = projectSettings->diagnosticConfig();
-
-    const ClangDiagnosticConfigsModel configsModel(
-                CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
-
-    QTC_ASSERT(configsModel.hasConfigWithId(diagnosticConfigId), return ClangDiagnosticConfig());
-    return configsModel.configWithId(diagnosticConfigId);
+        return ClangToolsSettings::instance()->runSettings();
+    return projectSettings->runSettings();
 }
 
 void ClangTidyClazyTool::startTool(FileSelection fileSelection)
@@ -397,7 +387,7 @@ void ClangTidyClazyTool::startTool(FileSelection fileSelection)
 
     const bool preventBuild = fileSelection == FileSelection::CurrentFile;
     auto clangTool = new ClangToolRunWorker(runControl,
-                                            getDiagnosticConfig(project),
+                                            runSettings(project),
                                             fileInfos,
                                             preventBuild);
 

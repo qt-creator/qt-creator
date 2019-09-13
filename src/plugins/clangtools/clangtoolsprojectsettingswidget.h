@@ -44,6 +44,8 @@ public:
     ~ProjectSettingsWidget() override;
 
 private:
+    void onGlobalCustomChanged(int index);
+
     void updateButtonStates();
     void updateButtonStateRemoveSelected();
     void updateButtonStateRemoveAll();

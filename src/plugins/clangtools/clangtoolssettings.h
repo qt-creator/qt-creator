@@ -27,61 +27,61 @@
 
 #include <coreplugin/id.h>
 
-#include <QObject>
 #include <QString>
 
 namespace ClangTools {
 namespace Internal {
 
-// TODO: Remove need for "saved* members
-class ClangToolsSettings : public QObject
+const char diagnosticConfigIdKey[] = "DiagnosticConfigId";
+
+class RunSettings
 {
-    Q_OBJECT
+public:
+    RunSettings();
+
+    void fromMap(const QVariantMap &map, const QString &prefix = QString());
+    void toMap(QVariantMap &map, const QString &prefix = QString()) const;
+
+    Core::Id diagnosticConfigId() const { return m_diagnosticConfigId; }
+    void setDiagnosticConfigId(const Core::Id &id) { m_diagnosticConfigId = id; }
+
+    bool buildBeforeAnalysis() const { return m_buildBeforeAnalysis; }
+    void setBuildBeforeAnalysis(bool yesno) { m_buildBeforeAnalysis = yesno; }
+
+    int parallelJobs() const { return m_parallelJobs; }
+    void setParallelJobs(int jobs) { m_parallelJobs = jobs; }
+
+private:
+    Core::Id m_diagnosticConfigId = "Builtin.TidyAndClazy"; // TODO
+    int m_parallelJobs = -1;
+    bool m_buildBeforeAnalysis = true;
+};
+
+class ClangToolsSettings
+{
 public:
     static ClangToolsSettings *instance();
-
     void writeSettings();
 
-    int savedSimultaneousProcesses() const;
-    bool savedBuildBeforeAnalysis() const;
-    Core::Id savedDiagnosticConfigId() const;
-    QString savedClangTidyExecutable() const;
-    QString savedClazyStandaloneExecutable() const;
+    QString clangTidyExecutable() const { return m_clangTidyExecutable; }
+    void setClangTidyExecutable(const QString &path) { m_clangTidyExecutable = path; }
 
-    int simultaneousProcesses() const;
-    void setSimultaneousProcesses(int processes);
+    QString clazyStandaloneExecutable() const { return m_clazyStandaloneExecutable; }
+    void setClazyStandaloneExecutable(const QString &path) { m_clazyStandaloneExecutable = path; }
 
-    bool buildBeforeAnalysis() const;
-    void setBuildBeforeAnalysis(bool build);
-
-    Core::Id diagnosticConfigId() const;
-    void setDiagnosticConfigId(Core::Id id);
-
-    QString clangTidyExecutable() const;
-    void setClangTidyExecutable(const QString &path);
-
-    QString clazyStandaloneExecutable() const;
-    void setClazyStandaloneExecutable(const QString &path);
-
-signals:
-    void buildBeforeAnalysisChanged(bool checked) const;
+    RunSettings runSettings() const { return m_runSettings; }
+    void setRunSettings(const RunSettings &settings) { m_runSettings = settings; }
 
 private:
     ClangToolsSettings();
     void readSettings();
 
-    void updateSavedBuildBeforeAnalysiIfRequired();
-
-    int m_simultaneousProcesses = -1;
-    int m_savedSimultaneousProcesses = -1;
-    bool m_buildBeforeAnalysis = false;
-    bool m_savedBuildBeforeAnalysis= false;
+    // Executables
     QString m_clangTidyExecutable;
-    QString m_savedClangTidyExecutable;
     QString m_clazyStandaloneExecutable;
-    QString m_savedClazyStandaloneExecutable;
-    Core::Id m_diagnosticConfigId;
-    Core::Id m_savedDiagnosticConfigId;
+
+    // Run settings
+    RunSettings m_runSettings;
 };
 
 } // namespace Internal

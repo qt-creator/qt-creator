@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,30 +25,33 @@
 
 #pragma once
 
-#include "clangtoolssettings.h"
-
 #include <QWidget>
-
-#include <memory>
 
 namespace ClangTools {
 namespace Internal {
 
-namespace Ui { class SettingsWidget; }
+class RunSettings;
 
-class SettingsWidget : public QWidget
+namespace Ui {
+class RunSettingsWidget;
+}
+
+class RunSettingsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    SettingsWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
-    ~SettingsWidget() override;
+    explicit RunSettingsWidget(QWidget *parent = nullptr);
+    ~RunSettingsWidget();
 
-    void apply();
+    void fromSettings(const RunSettings &s);
+    RunSettings toSettings() const;
+
+signals:
+    void changed();
 
 private:
-    std::unique_ptr<Ui::SettingsWidget> m_ui;
-    ClangToolsSettings *m_settings;
+    Ui::RunSettingsWidget *m_ui;
 };
 
 } // namespace Internal

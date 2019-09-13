@@ -51,6 +51,8 @@ public:
 
     static ClangTidyClazyTool *instance();
 
+    void selectPerspective();
+
     void startTool(FileSelection fileSelection) final;
 
     Diagnostics read(OutputFileFormat outputFileFormat,
