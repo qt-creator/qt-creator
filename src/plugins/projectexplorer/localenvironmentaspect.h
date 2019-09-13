@@ -34,7 +34,7 @@ class PROJECTEXPLORER_EXPORT LocalEnvironmentAspect : public EnvironmentAspect
     Q_OBJECT
 
 public:
-    explicit LocalEnvironmentAspect(Target *parent);
+    explicit LocalEnvironmentAspect(Target *parent, bool includeBuildEnvironment = true);
 };
 
 } // namespace ProjectExplorer

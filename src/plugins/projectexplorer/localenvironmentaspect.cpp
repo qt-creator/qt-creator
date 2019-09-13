@@ -34,7 +34,7 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target)
+LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target, bool includeBuildEnvironment)
 {
     setIsLocal(true);
     addSupportedBaseEnvironment(tr("Clean Environment"), {});
@@ -43,21 +43,27 @@ LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target)
         return Environment::systemEnvironment();
     });
 
-    addPreferredBaseEnvironment(tr("Build Environment"), [target] {
-        Environment env;
-        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
-            env = bc->environment();
-        } else { // Fallback for targets without buildconfigurations:
-            env = Environment::systemEnvironment();
-            target->kit()->addToEnvironment(env);
-        }
-        return  env;
-    });
+    if (includeBuildEnvironment) {
+        addPreferredBaseEnvironment(tr("Build Environment"), [target] {
+            Environment env;
+            if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+                env = bc->environment();
+            } else { // Fallback for targets without buildconfigurations:
+                env = Environment::systemEnvironment();
+                target->kit()->addToEnvironment(env);
+            }
+            return env;
+        });
 
-    connect(target, &Target::activeBuildConfigurationChanged,
-            this, &EnvironmentAspect::environmentChanged);
-    connect(target, &Target::buildEnvironmentChanged,
-            this, &EnvironmentAspect::environmentChanged);
+        connect(target,
+                &Target::activeBuildConfigurationChanged,
+                this,
+                &EnvironmentAspect::environmentChanged);
+        connect(target,
+                &Target::buildEnvironmentChanged,
+                this,
+                &EnvironmentAspect::environmentChanged);
+    }
 }
 
 } // namespace ProjectExplorer
