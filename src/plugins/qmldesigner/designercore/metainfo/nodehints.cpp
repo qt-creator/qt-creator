@@ -31,6 +31,7 @@
 #include <rewriterview.h>
 #include <propertyparser.h>
 #include <nodeabstractproperty.h>
+#include <nodemetainfo.h>
 
 #include <QDebug>
 
@@ -89,13 +90,30 @@ static QVariant evaluateExpression(const QString &expression, const ModelNode &m
 
 QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
 {
-    if (isValid()) {
-        const ItemLibraryInfo *libraryInfo = model()->metaInfo().itemLibraryInfo();
+    if (!isValid())
+        return;
+
+    const ItemLibraryInfo *libraryInfo = model()->metaInfo().itemLibraryInfo();
+
+    if (!m_modelNode.metaInfo().isValid()) {
+
         QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
                     modelNode().type(), modelNode().majorVersion(), modelNode().minorVersion());
 
         if (!itemLibraryEntryList.isEmpty())
             m_hints = itemLibraryEntryList.constFirst().hints();
+    } else { /* If we have meta information we run the complete type hierarchy and check for hints */
+        const auto classHierarchy = m_modelNode.metaInfo().classHierarchy();
+        for (const NodeMetaInfo &metaInfo : classHierarchy) {
+            QList <ItemLibraryEntry> itemLibraryEntryList = libraryInfo->entriesForType(
+                        metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+
+            if (!itemLibraryEntryList.isEmpty() && !itemLibraryEntryList.constFirst().hints().isEmpty()) {
+                m_hints = itemLibraryEntryList.constFirst().hints();
+                return;
+            }
+
+        }
     }
 }
 
