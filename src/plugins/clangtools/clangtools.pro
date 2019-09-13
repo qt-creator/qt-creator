@@ -57,6 +57,7 @@ HEADERS += \
     settingswidget.h \
 
 FORMS += \
+    clangselectablefilesdialog.ui \
     clangtoolsprojectsettingswidget.ui \
     settingswidget.ui \
 
