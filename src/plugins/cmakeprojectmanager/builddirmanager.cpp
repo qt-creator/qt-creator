@@ -347,25 +347,12 @@ QVector<FilePath> BuildDirManager::takeProjectFilesToWatch()
     Utils::FilePath sourceDir = m_parameters.sourceDirectory;
     Utils::FilePath buildDir = m_parameters.workDirectory;
 
-    const QVector<FilePath> toWatch = Utils::filtered(m_reader->takeProjectFilesToWatch(),
-                                                      [&sourceDir,
-                                                       &buildDir](const Utils::FilePath &p) {
-                                                          return p.isChildOf(sourceDir)
-                                                                 || p.isChildOf(buildDir);
-                                                      });
-
-    if (!toWatch.isEmpty()) {
-        connect(project(), &Project::projectFileIsDirty, this, [this]() {
-            if (m_parameters.cmakeTool() && m_parameters.cmakeTool()->isAutoRun()) {
-                updateReparseParameters(REPARSE_DEFAULT);
-                emit requestReparse();
-            }
-        });
-    } else {
-        disconnect(project(), nullptr, this, nullptr);
-    }
-
-    return toWatch;
+    return Utils::filtered(m_reader->takeProjectFilesToWatch(),
+                           [&sourceDir,
+                           &buildDir](const Utils::FilePath &p) {
+        return p.isChildOf(sourceDir)
+                        || p.isChildOf(buildDir);
+    });
 }
 
 std::unique_ptr<CMakeProjectNode> BuildDirManager::generateProjectTree(

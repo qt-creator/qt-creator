@@ -170,6 +170,14 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *parent, Core::Id id)
                                               BuildDirManager::REPARSE_FORCE_CONFIGURATION);
         }
     });
+
+    connect(parent->project(), &Project::projectFileIsDirty, this, [this]() {
+        if (isActive()) {
+            m_buildDirManager
+                .setParametersAndRequestParse(BuildDirParameters(this),
+                                              BuildDirManager::REPARSE_DEFAULT);
+        }
+    });
 }
 
 void CMakeBuildConfiguration::initialize()
