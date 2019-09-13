@@ -34,6 +34,7 @@
 #include <QBuffer>
 #include <QContextMenuEvent>
 #include <QCoreApplication>
+#include <QDesktopServices>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWebEngineContextMenuData>
@@ -72,10 +73,40 @@ static HelpUrlSchemeHandler *helpUrlSchemeHandler()
     return schemeHandler;
 }
 
+HelpUrlRequestInterceptor::HelpUrlRequestInterceptor(QObject *parent)
+    : QWebEngineUrlRequestInterceptor(parent)
+{}
+
+void HelpUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
+{
+    if (!HelpViewer::isLocalUrl(info.requestUrl())
+        && info.navigationType() != QWebEngineUrlRequestInfo::NavigationTypeLink) {
+        info.block(true);
+    }
+}
+
+static HelpUrlRequestInterceptor *helpurlRequestInterceptor()
+{
+    static HelpUrlRequestInterceptor *interceptor = nullptr;
+    if (!interceptor)
+        interceptor = new HelpUrlRequestInterceptor(LocalHelpManager::instance());
+    return interceptor;
+}
+
 WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
     HelpViewer(parent),
     m_widget(new WebView(this))
 {
+    // some of these should already be that way by default, but better be sure
+    QWebEngineSettings *settings = m_widget->settings();
+    settings->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, false);
+    settings->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, false);
+    settings->setAttribute(QWebEngineSettings::XSSAuditingEnabled, true);
+    settings->setAttribute(QWebEngineSettings::PluginsEnabled, false);
+    settings->setAttribute(QWebEngineSettings::AllowRunningInsecureContent, false);
+    settings->setAttribute(QWebEngineSettings::AllowGeolocationOnInsecureOrigins, false);
+    settings->setAttribute(QWebEngineSettings::AllowWindowActivationFromJavaScript, false);
+
     m_widget->setPage(new WebEngineHelpPage(this));
     auto layout = new QVBoxLayout;
     setLayout(layout);
@@ -121,6 +152,7 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
     QTC_ASSERT(viewProfile, return);
     if (!viewProfile->urlSchemeHandler("qthelp"))
         viewProfile->installUrlSchemeHandler("qthelp", helpUrlSchemeHandler());
+    viewProfile->setUrlRequestInterceptor(helpurlRequestInterceptor());
 }
 
 QFont WebEngineHelpViewer::viewerFont() const
@@ -286,11 +318,22 @@ WebEngineHelpPage::WebEngineHelpPage(QObject *parent)
 {
 }
 
-WebView::WebView(WebEngineHelpViewer *viewer)
-    : QWebEngineView(viewer),
-      m_viewer(viewer)
+bool WebEngineHelpPage::acceptNavigationRequest(const QUrl &url,
+                                                QWebEnginePage::NavigationType type,
+                                                bool isMainFrame)
 {
+    Q_UNUSED(type)
+    Q_UNUSED(isMainFrame)
+    if (HelpViewer::isLocalUrl(url))
+        return true;
+    QDesktopServices::openUrl(url);
+    return false;
 }
+
+WebView::WebView(WebEngineHelpViewer *viewer)
+    : QWebEngineView(viewer)
+    , m_viewer(viewer)
+{}
 
 bool WebView::event(QEvent *ev)
 {

@@ -33,6 +33,7 @@
 
 #ifdef QTC_WEBENGINE_HELPVIEWER
 #include "webenginehelpviewer.h"
+#include <QWebEngineUrlScheme>
 #endif
 #ifdef QTC_LITEHTML_HELPVIEWER
 #include "litehtmlhelpviewer.h"
@@ -323,6 +324,13 @@ QVector<HelpViewerFactory> LocalHelpManager::viewerBackends()
 {
     QVector<HelpViewerFactory> result;
 #ifdef QTC_WEBENGINE_HELPVIEWER
+    static bool schemeRegistered = false;
+    if (!schemeRegistered) {
+        schemeRegistered = true;
+        QWebEngineUrlScheme scheme("qthelp");
+        scheme.setFlags(QWebEngineUrlScheme::LocalScheme | QWebEngineUrlScheme::LocalAccessAllowed);
+        QWebEngineUrlScheme::registerScheme(scheme);
+    }
     result.append(
         {kQtWebEngineBackend, tr("QtWebEngine"), []() { return new WebEngineHelpViewer; }});
 #endif
