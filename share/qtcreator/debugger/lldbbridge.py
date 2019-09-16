@@ -1909,7 +1909,7 @@ class LogMixin:
             localz = frame.f_locals
             instance = str(localz["self"]) + "." if 'self' in localz else ''
             message = "%s%s(%s)%s" % (instance, fn, args, message)
-        print message
+        print(message)
 
     @staticmethod
     def log_fn(arg_str = ''):
@@ -1944,7 +1944,7 @@ class SummaryDumper(Dumper, LogMixin):
 
     @staticmethod
     def warn(message):
-        print "Qt summary warning: %s" % message
+        print("Qt summary warning: %s" % message)
 
     @staticmethod
     def showException(message, exType, exValue, exTraceback):
@@ -1978,9 +1978,9 @@ class SummaryDumper(Dumper, LogMixin):
         try:
             from pygdbmi import gdbmiparser
         except ImportError:
-            print "Qt summary provider requires the pygdbmi module, " \
-                    "please install using 'sudo /usr/bin/easy_install pygdbmi', " \
-                    "and then restart Xcode."
+            print("Qt summary provider requires the pygdbmi module, "
+                    "please install using 'sudo /usr/bin/easy_install pygdbmi', "
+                    "and then restart Xcode.")
             lldb.debugger.HandleCommand('type category delete Qt')
             return None
 
