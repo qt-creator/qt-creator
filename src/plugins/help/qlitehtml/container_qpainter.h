@@ -33,9 +33,11 @@
 #include <QPixmap>
 #include <QRect>
 #include <QString>
+#include <QTextDocument>
 #include <QUrl>
 
 #include <functional>
+#include <unordered_map>
 
 class Selection
 {
@@ -64,12 +66,25 @@ public:
     bool isSelecting = false;
 };
 
+struct Index
+{
+    QString text;
+    // only contains leaf elements
+    std::unordered_map<litehtml::element::ptr, int> elementToIndex;
+
+    using Entry = std::pair<int, litehtml::element::ptr>;
+    std::vector<Entry> indexToElement;
+
+    Entry findElement(int index) const;
+};
+
 class DocumentContainer : public litehtml::document_container
 {
 public:
     DocumentContainer();
     virtual ~DocumentContainer();
 
+public: // document_container API
     litehtml::uint_ptr create_font(const litehtml::tchar_t *faceName,
                                    int size,
                                    int weight,
@@ -121,6 +136,7 @@ public:
     void get_media_features(litehtml::media_features &media) const override;
     void get_language(litehtml::tstring &language, litehtml::tstring &culture) const override;
 
+public: // outside API
     void setPaintDevice(QPaintDevice *paintDevice);
     void setDocument(const QByteArray &data, litehtml::context *context);
     litehtml::document::ptr document() const;
@@ -145,6 +161,14 @@ public:
     QString caption() const;
     QString selectedText() const;
 
+    void findText(const QString &text,
+                  QTextDocument::FindFlags flags,
+                  bool incremental,
+                  bool *wrapped,
+                  bool *success,
+                  QVector<QRect> *oldSelection,
+                  QVector<QRect> *newSelection);
+
     void setDefaultFont(const QFont &font);
     QFont defaultFont() const;
 
@@ -167,9 +191,11 @@ private:
     QString monospaceFont() const;
     QUrl resolveUrl(const QString &url, const QString &baseUrl) const;
     void drawSelection(QPainter *painter, const QRect &clip) const;
+    void buildIndex();
 
     QPaintDevice *m_paintDevice = nullptr;
     litehtml::document::ptr m_document;
+    Index m_index;
     QString m_baseUrl;
     QRect m_clientRect;
     QPoint m_scrollPosition;

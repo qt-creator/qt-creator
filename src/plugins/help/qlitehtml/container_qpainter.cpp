@@ -35,6 +35,7 @@
 #include <QLoggingCategory>
 #include <QPainter>
 #include <QPalette>
+#include <QRegularExpression>
 #include <QScreen>
 #include <QTextLayout>
 #include <QUrl>
@@ -134,6 +135,22 @@ static int findChild(const litehtml::element::ptr &child, const litehtml::elemen
     return -1;
 }
 
+// 1) stops right away if element == stop, otherwise stops whenever stop element is encountered
+// 2) moves down the first children from element until there is none anymore
+static litehtml::element::ptr firstLeaf(const litehtml::element::ptr &element,
+                                        const litehtml::element::ptr &stop)
+{
+    if (element == stop)
+        return element;
+    litehtml::element::ptr current = element;
+    while (current != stop && current->get_children_count() > 0)
+        current = current->get_child(0);
+    return current;
+}
+
+// 1) stops right away if element == stop, otherwise stops whenever stop element is encountered
+// 2) starts at next sibling (up the hierarchy chain) if possible, otherwise root
+// 3) returns first leaf of the element found in 2
 static litehtml::element::ptr nextLeaf(const litehtml::element::ptr &element,
                                        const litehtml::element::ptr &stop)
 {
@@ -152,10 +169,7 @@ static litehtml::element::ptr nextLeaf(const litehtml::element::ptr &element,
             return nextLeaf(parent, stop);
         current = parent->get_child(childIndex + 1);
     }
-    // move down to first leaf
-    while (current != stop && current->get_children_count() > 0)
-        current = current->get_child(0);
-    return current;
+    return firstLeaf(current, stop);
 }
 
 static Selection::Element selectionDetails(const litehtml::element::ptr &element,
@@ -609,6 +623,29 @@ void DocumentContainer::drawSelection(QPainter *painter, const QRect &clip) cons
     painter->restore();
 }
 
+void DocumentContainer::buildIndex()
+{
+    m_index.elementToIndex.clear();
+    m_index.indexToElement.clear();
+    m_index.text.clear();
+
+    int index = 0;
+    litehtml::element::ptr current = firstLeaf(m_document->root(), nullptr);
+    while (current != m_document->root()) {
+        m_index.elementToIndex.insert({current, index});
+        if (current->is_visible()) {
+            litehtml::tstring text;
+            current->get_text(text);
+            if (!text.empty()) {
+                m_index.indexToElement.push_back({index, current});
+                m_index.text += QString::fromStdString(text);
+                index += text.size();
+            }
+        }
+        current = nextLeaf(current, m_document->root());
+    }
+}
+
 void DocumentContainer::draw_background(litehtml::uint_ptr hdc, const litehtml::background_paint &bg)
 {
     // TODO
@@ -877,6 +914,7 @@ void DocumentContainer::setDocument(const QByteArray &data, litehtml::context *c
     m_pixmaps.clear();
     m_selection = {};
     m_document = litehtml::document::createFromUTF8(data.constData(), this, context);
+    buildIndex();
 }
 
 litehtml::document::ptr DocumentContainer::document() const
@@ -1051,6 +1089,100 @@ QString DocumentContainer::selectedText() const
     return m_selection.text;
 }
 
+void DocumentContainer::findText(const QString &text,
+                                 QTextDocument::FindFlags flags,
+                                 bool incremental,
+                                 bool *wrapped,
+                                 bool *success,
+                                 QVector<QRect> *oldSelection,
+                                 QVector<QRect> *newSelection)
+{
+    if (success)
+        *success = false;
+    if (oldSelection)
+        oldSelection->clear();
+    if (newSelection)
+        newSelection->clear();
+    if (!m_document)
+        return;
+    const bool backward = flags & QTextDocument::FindBackward;
+    int startIndex = backward ? -1 : 0;
+    if (m_selection.startElem.element && m_selection.endElem.element) { // selection
+        // poor-man's incremental search starts at beginning of selection,
+        // non-incremental at end (forward search) or beginning (backward search)
+        Selection::Element start;
+        Selection::Element end;
+        std::tie(start, end) = getStartAndEnd(m_selection.startElem, m_selection.endElem);
+        Selection::Element searchStart;
+        if (incremental || backward) {
+            if (start.index < 0) // fully selected
+                searchStart = {firstLeaf(start.element, nullptr), 0, -1};
+            else
+                searchStart = start;
+        } else {
+            if (end.index < 0) // fully selected
+                searchStart = {nextLeaf(end.element, nullptr), 0, -1};
+            else
+                searchStart = end;
+        }
+        const auto findInIndex = m_index.elementToIndex.find(searchStart.element);
+        if (findInIndex == std::end(m_index.elementToIndex)) {
+            qWarning() << "internal error: cannot find litehmtl element in index";
+            return;
+        }
+        startIndex = findInIndex->second + searchStart.index;
+        if (backward)
+            --startIndex;
+    }
+
+    const auto fillXPos = [](const Selection::Element &e) {
+        litehtml::tstring ttext;
+        e.element->get_text(ttext);
+        const QString text = QString::fromStdString(ttext);
+        const QFont &font = toQFont(e.element->get_font());
+        const QFontMetrics fm(font);
+        return Selection::Element{e.element, e.index, fm.size(0, text.left(e.index)).width()};
+    };
+
+    QString term = text;
+    if (flags & QTextDocument::FindWholeWords)
+        term = QString("\\b%1\\b").arg(term);
+    const QRegularExpression::PatternOptions patternOptions
+        = (flags & QTextDocument::FindCaseSensitively) ? QRegularExpression::NoPatternOption
+                                                       : QRegularExpression::CaseInsensitiveOption;
+    const QRegularExpression expression(term, patternOptions);
+
+    int foundIndex = backward ? m_index.text.lastIndexOf(expression, startIndex)
+                              : m_index.text.indexOf(expression, startIndex);
+    if (foundIndex < 0) { // wrap
+        foundIndex = backward ? m_index.text.lastIndexOf(expression)
+                              : m_index.text.indexOf(expression);
+        if (wrapped && foundIndex >= 0)
+            *wrapped = true;
+    }
+    if (foundIndex >= 0) {
+        const Index::Entry startEntry = m_index.findElement(foundIndex);
+        const Index::Entry endEntry = m_index.findElement(foundIndex + text.size());
+        if (!startEntry.second || !endEntry.second) {
+            qWarning() << "internal error: search ended up with nullptr elements";
+            return;
+        }
+        if (oldSelection)
+            *oldSelection = m_selection.selection;
+        m_selection = {};
+        m_selection.startElem = fillXPos({startEntry.second, foundIndex - startEntry.first, -1});
+        m_selection.endElem = fillXPos(
+            {endEntry.second, foundIndex + text.size() - endEntry.first, -1});
+        m_selection.update();
+        if (newSelection)
+            *newSelection = m_selection.selection;
+        if (success)
+            *success = true;
+        return;
+    }
+    return;
+}
+
 void DocumentContainer::setDefaultFont(const QFont &font)
 {
     m_defaultFont = font;
@@ -1121,4 +1253,17 @@ QUrl DocumentContainer::resolveUrl(const QString &url, const QString &baseUrl) c
         return resolvedUrl;
     }
     return qurl;
+}
+
+Index::Entry Index::findElement(int index) const
+{
+    const auto upper = std::upper_bound(std::begin(indexToElement),
+                                        std::end(indexToElement),
+                                        Entry{index, {}},
+                                        [](const Entry &a, const Entry &b) {
+                                            return a.first < b.first;
+                                        });
+    if (upper == std::begin(indexToElement)) // should not happen for index >= 0
+        return {-1, {}};
+    return *(upper - 1);
 }

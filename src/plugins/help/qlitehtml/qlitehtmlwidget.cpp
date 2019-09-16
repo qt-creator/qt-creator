@@ -434,6 +434,34 @@ QString QLiteHtmlWidget::title() const
     return d->documentContainer.caption();
 }
 
+bool QLiteHtmlWidget::findText(const QString &text,
+                               QTextDocument::FindFlags flags,
+                               bool incremental,
+                               bool *wrapped)
+{
+    bool success = false;
+    QVector<QRect> oldSelection;
+    QVector<QRect> newSelection;
+    d->documentContainer
+        .findText(text, flags, incremental, wrapped, &success, &oldSelection, &newSelection);
+    // scroll to search result position and/or redraw as necessary
+    QRect newSelectionCombined;
+    for (const QRect &r : newSelection)
+        newSelectionCombined = newSelectionCombined.united(r);
+    if (success && verticalScrollBar()->value() > newSelectionCombined.top()) {
+        verticalScrollBar()->setValue(newSelectionCombined.top());
+    } else if (success
+               && verticalScrollBar()->value() + viewport()->height()
+                      < newSelectionCombined.bottom()) {
+        verticalScrollBar()->setValue(newSelectionCombined.bottom() - viewport()->height());
+    } else {
+        viewport()->update(newSelectionCombined.translated(-scrollPosition()));
+        for (const QRect &r : oldSelection)
+            viewport()->update(r.translated(-scrollPosition()));
+    }
+    return success;
+}
+
 void QLiteHtmlWidget::setDefaultFont(const QFont &font)
 {
     d->documentContainer.setDefaultFont(font);

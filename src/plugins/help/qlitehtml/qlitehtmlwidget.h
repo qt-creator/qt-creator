@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QAbstractScrollArea>
+#include <QTextDocument>
 
 #include <functional>
 
@@ -42,6 +43,11 @@ public:
     QUrl url() const;
     void setHtml(const QString &content);
     QString title() const;
+
+    bool findText(const QString &text,
+                  QTextDocument::FindFlags flags,
+                  bool incremental,
+                  bool *wrapped = nullptr);
 
     void setDefaultFont(const QFont &font);
     QFont defaultFont() const;
