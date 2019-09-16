@@ -132,14 +132,14 @@ public:
     static QWidget *centralWidgetStack();
     void addSubPerspectiveSwitcher(QWidget *widget);
 
-    static void savePersistentSettings();
-    static void restorePersistentSettings();
-
     static Perspective *currentPerspective();
 
 private:
     DebuggerMainWindow();
     ~DebuggerMainWindow() override;
+
+    void savePersistentSettings() const;
+    void restorePersistentSettings();
 
     void contextMenuEvent(QContextMenuEvent *ev) override;
 
