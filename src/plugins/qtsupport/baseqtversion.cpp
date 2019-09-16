@@ -1947,10 +1947,9 @@ FilePathList BaseQtVersionPrivate::qtCorePaths()
             const FilePath lib = FilePath::fromFileInfo(info);
             dynamicLibs.append(lib.pathAppended(file.left(file.lastIndexOf('.'))));
         } else if (info.isReadable()) {
-            if (file.startsWith("libQtCore")
-                    || file.startsWith("libQt5Core")
-                    || file.startsWith("QtCore")
-                    || file.startsWith("Qt5Core")) {
+            if (file.startsWith("libQtCore") || file.startsWith("QtCore")
+                || file.startsWith("libQt5Core") || file.startsWith("Qt5Core")
+                || file.startsWith("libQt6Core") || file.startsWith("Qt6Core")) {
                 if (file.endsWith(".a") || file.endsWith(".lib"))
                     staticLibs.append(FilePath::fromFileInfo(info));
                 else if (file.endsWith(".dll")
