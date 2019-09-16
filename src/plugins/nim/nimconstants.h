@@ -32,6 +32,7 @@ namespace Nim {
 namespace Constants {
 
 const char C_NIMPROJECT_ID[] = "Nim.NimProject";
+const char C_NIMBLEPROJECT_ID[] = "Nim.NimbleProject";
 const char C_NIMEDITOR_ID[] = "Nim.NimEditor";
 const char C_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Nim Editor");
 
@@ -39,11 +40,28 @@ const char C_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Nim
 const char C_NIMTOOLCHAIN_TYPEID[] = "Nim.NimToolChain";
 const char C_NIMTOOLCHAIN_COMPILER_COMMAND_KEY[] = "Nim.NimToolChain.CompilerCommand";
 
+// NimbleProject
+const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
+const char C_NIMBLEPROJECT_METADATA[] = "Nim.NimbleProject.Metadata";
+
 // NimProject
 const char C_NIMPROJECT_EXCLUDEDFILES[] = "Nim.NimProjectExcludedFiles";
 
 // NimBuildConfiguration
 const char C_NIMBUILDCONFIGURATION_ID[] = "Nim.NimBuildConfiguration";
+const char C_NIMBLEBUILDCONFIGURATION_ID[] = "Nim.NimbleBuildConfiguration";
+const char C_NIMBLEBUILDCONFIGURATION_BUILDTYPE[] = "Nim.NimbleBuildConfiguration.BuildType";
+
+// NimbleBuildStep
+const char C_NIMBLEBUILDSTEP_ID[] = "Nim.NimbleBuildStep";
+const char C_NIMBLEBUILDSTEP_DISPLAY[] = QT_TRANSLATE_NOOP("NimbleBuildStep", "Nimble Build");
+const char C_NIMBLEBUILDSTEP_ARGUMENTS[] = "Nim.NimbleBuildStep.Arguments";
+
+// NimbleTaskStep
+const char C_NIMBLETASKSTEP_ID[] = "Nim.NimbleTaskStep";
+const char C_NIMBLETASKSTEP_DISPLAY[] = QT_TRANSLATE_NOOP("NimbleTaskStep", "Nimble Task");
+const QString C_NIMBLETASKSTEP_TASKNAME = QStringLiteral("Nim.NimbleTaskStep.TaskName");
+const QString C_NIMBLETASKSTEP_TASKARGS = QStringLiteral("Nim.NimbleTaskStep.TaskArgs");
 
 // NimCompilerBuildStep
 const char C_NIMCOMPILERBUILDSTEP_ID[] = "Nim.NimCompilerBuildStep";
@@ -92,6 +110,7 @@ const char C_NIMCODESTYLEPREVIEWSNIPPET[] =
  * MIME type
  ******************************************************************************/
 const char C_NIM_MIMETYPE[] = "text/x-nim";
+const char C_NIMBLE_MIMETYPE[] = "text/x-nimble";
 const char C_NIM_SCRIPT_MIMETYPE[] = "text/x-nim-script";
 const char C_NIM_MIME_ICON[] = "text-x-nim";
 const char C_NIM_PROJECT_MIMETYPE[] = "text/x-nim-project";

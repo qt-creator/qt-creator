@@ -1,0 +1,110 @@
+/****************************************************************************
+**
+** Copyright (C) Filippo Cucchetto <filippocucchetto@gmail.com>
+** Contact: http://www.qt.io/licensing
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+#include "nimblerunconfiguration.h"
+#include "nimconstants.h"
+#include "nimbleproject.h"
+
+#include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runcontrol.h>
+#include <projectexplorer/target.h>
+
+#include <utils/algorithm.h>
+#include <utils/environment.h>
+
+using namespace Nim;
+using namespace ProjectExplorer;
+
+NimbleRunConfiguration::NimbleRunConfiguration(ProjectExplorer::Target *target, Core::Id id)
+    : RunConfiguration(target, id)
+{
+    auto project = dynamic_cast<NimbleProject*>(target->project());
+    QTC_ASSERT(project, return);
+
+    addAspect<LocalEnvironmentAspect>(target);
+    addAspect<ExecutableAspect>();
+    addAspect<ArgumentsAspect>();
+    addAspect<WorkingDirectoryAspect>();
+    addAspect<TerminalAspect>();
+
+    connect(project, &Project::parsingFinished,
+            this, &NimbleRunConfiguration::updateTargetInformation);
+    connect(project, &NimbleProject::metadataChanged,
+            this, &NimbleRunConfiguration::updateTargetInformation);
+    connect(project, &NimbleProject::tasksChanged,
+            this, &NimbleRunConfiguration::updateTargetInformation);
+
+    updateTargetInformation();
+}
+
+NimbleRunConfiguration::~NimbleRunConfiguration()
+{
+
+}
+
+void NimbleRunConfiguration::updateTargetInformation()
+{
+    BuildTargetInfo bti = buildTargetInfo();
+    setDisplayName(bti.displayName);
+    setDefaultDisplayName(bti.displayName);
+    aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
+    aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+}
+
+bool NimbleRunConfiguration::isBuildTargetValid() const
+{
+    return Utils::anyOf(target()->applicationTargets(), [this](const BuildTargetInfo &bti) {
+        return bti.buildKey == buildKey();
+    });
+}
+
+QString NimbleRunConfiguration::disabledReason() const
+{
+    if (!isBuildTargetValid())
+        return tr("The project no longer builds the target associated with this run configuration.");
+    return RunConfiguration::disabledReason();
+}
+
+void NimbleRunConfiguration::updateEnabledState()
+{
+    if (!isBuildTargetValid())
+        setEnabled(false);
+    else
+        RunConfiguration::updateEnabledState();
+}
+
+NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
+    : RunConfigurationFactory()
+{
+    registerRunConfiguration<NimbleRunConfiguration>("Nim.NimbleRunConfiguration");
+    addSupportedProjectType(Constants::C_NIMBLEPROJECT_ID);
+    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+}
+
+QList<RunConfigurationCreationInfo> NimbleRunConfigurationFactory::availableCreators(Target *parent) const
+{
+    return RunConfigurationFactory::availableCreators(parent);
+}

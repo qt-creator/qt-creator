@@ -25,7 +25,7 @@
 
 #include "nimbuildsystem.h"
 
-#include "nimproject.h"
+#include "nimbleproject.h"
 #include "nimprojectnode.h"
 
 #include <utils/algorithm.h>
@@ -51,12 +51,14 @@ NimBuildSystem::NimBuildSystem(Project *project)
     connect(&m_scanner, &TreeScanner::finished, this, &NimBuildSystem::updateProject);
     m_scanner.setFilter([this](const Utils::MimeType &, const Utils::FilePath &fp) {
         const QString path = fp.toString();
-        return excludedFiles().contains(path) || path.endsWith(".nimproject")
-               || path.contains(".nimproject.user");
+        return excludedFiles().contains(path)
+                || path.endsWith(".nimproject")
+                || path.contains(".nimproject.user");
     });
 
-    connect(&m_directoryWatcher, &FileSystemWatcher::directoryChanged, this, [this]() {
-        requestParse();
+    connect(&m_directoryWatcher, &FileSystemWatcher::directoryChanged, this, [this] {
+        if (!isWaitingForParse())
+            requestDelayedParse();
     });
 }
 
@@ -100,14 +102,14 @@ void NimBuildSystem::parseProject(BuildSystem::ParsingContext &&ctx)
     QTC_ASSERT(!m_currentContext.project, return );
     m_currentContext = std::move(ctx);
     QTC_CHECK(m_currentContext.project);
-
     m_scanner.asyncScanForFiles(m_currentContext.project->projectDirectory());
 }
 
 const FilePathList NimBuildSystem::nimFiles() const
 {
-    return project()->files(
-        [](const Node *n) { return Project::AllFiles(n) && n->path().endsWith(".nim"); });
+    return project()->files([](const Node *n) {
+        return Project::AllFiles(n) && n->path().endsWith(".nim");
+    });
 }
 
 void NimBuildSystem::loadSettings()
@@ -128,23 +130,33 @@ void NimBuildSystem::saveSettings()
 
 void NimBuildSystem::updateProject()
 {
-    auto newRoot = std::make_unique<NimProjectNode>(project()->projectDirectory());
-
-    QSet<QString> directories;
+    // Collect scanned nodes
+    std::vector<std::unique_ptr<FileNode>> nodes;
     for (FileNode *node : m_scanner.release()) {
-        if (!node->path().endsWith(".nim"))
+        if (!node->path().endsWith(".nim") && !node->path().endsWith(".nimble"))
             node->setEnabled(false); // Disable files that do not end in .nim
-        directories.insert(node->directory());
-        newRoot->addNestedNode(std::unique_ptr<FileNode>(node));
+        nodes.emplace_back(node);
     }
 
-    newRoot->setDisplayName(project()->displayName());
-    project()->setRootProjectNode(std::move(newRoot));
+    // Sync watched dirs
+    const QSet<QString> fsDirs = Utils::transform<QSet>(nodes, &FileNode::directory);
+    const QSet<QString> projectDirs = m_directoryWatcher.directories().toSet();
+    m_directoryWatcher.addDirectories(Utils::toList(fsDirs - projectDirs), FileSystemWatcher::WatchAllChanges);
+    m_directoryWatcher.removeDirectories(Utils::toList(projectDirs - fsDirs));
 
-    m_directoryWatcher.addDirectories(Utils::toList(directories), FileSystemWatcher::WatchAllChanges);
+    // Sync project files
+    const QSet<FilePath> fsFiles = Utils::transform<QSet>(nodes, &FileNode::filePath);
+    const QSet<FilePath> projectFiles = project()->files([](const Node *n) { return Project::AllFiles(n); }).toSet();
 
+    if (fsFiles != projectFiles) {
+        auto projectNode = std::make_unique<ProjectNode>(project()->projectDirectory());
+        projectNode->setDisplayName(project()->displayName());
+        projectNode->addNestedNodes(std::move(nodes));
+        project()->setRootProjectNode(std::move(projectNode));
+    }
+
+    // Complete scan
     m_currentContext.guard.markAsSuccess();
-
     m_currentContext = {};
 }
 

@@ -1,0 +1,268 @@
+{
+    "version":1,
+    "kind":"project",
+    "id":"Z.NimbleProject",
+    "category":"I.Projects",
+    "trDescription":"Creates a Nim application with Nimble.",
+    "trDisplayName":"Nimble Application",
+    "trDisplayCategory":"Non-Qt Project",
+    "featuresRequired":[
+        "ToolChain.Nim.NimToolChain"
+    ],
+    "icon":"icon.png",
+    "enabled":"%{JS: value('Plugins').indexOf('Nim') >= 0 }",
+    "options":[
+        {
+            "key":"ProjectFile",
+            "value":"%{NimProjectFile}"
+        },
+        {
+            "key":"NimProjectFile",
+            "value":"%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'nimble')}"
+        },
+        {
+            "key":"NimFileName",
+            "value":"main.nim"
+        }
+    ],
+    "pages":[
+        {
+            "trDisplayName":"Project Location",
+            "trShortTitle":"Location",
+            "typeId":"Project"
+        },
+        {
+            "trDisplayName":"Define Project Configuration",
+            "trShortTitle":"Configuration",
+            "typeId":"Fields",
+            "data":[
+                {
+                    "name":"ProjectType",
+                    "trDisplayName":"Type:",
+                    "type":"ComboBox",
+                    "persistenceKey":"ProjectType",
+                    "data":{
+                        "items":[
+                            {
+                                "trKey":"Binary",
+                                "value":"Binary"
+                            },
+                            {
+                                "trKey":"Library",
+                                "value":"Library"
+                            },
+                            {
+                                "trKey":"Hybrid",
+                                "value":"Hybrid"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name":"ProjectAuthor",
+                    "trDisplayName":"Author:",
+                    "type":"LineEdit",
+                    "mandatory":true
+                },
+                {
+                    "name":"ProjectDescription",
+                    "trDisplayName":"Description:",
+                    "type":"LineEdit",
+                    "mandatory":true
+                },
+                {
+                    "name":"ProjectVersion",
+                    "trDisplayName":"Version:",
+                    "type":"LineEdit",
+                    "mandatory":true,
+                    "data":{
+                        "trText":"0.1.0"
+                    }
+                },
+                {
+                    "name":"ProjectLicense",
+                    "trDisplayName":"License:",
+                    "type":"ComboBox",
+                    "persistenceKey":"LicenseType",
+                    "data":{
+                        "index":0,
+                        "items":[
+                            {
+                                "trKey":"MIT",
+                                "value":"MIT"
+                            },
+                            {
+                                "trKey":"GPL-2.0",
+                                "value":"GPL-2.0"
+                            },
+                            {
+                                "trKey":"Apache-2.0",
+                                "value":"Apache-2.0"
+                            },
+                            {
+                                "trKey":"ISC",
+                                "value":"ISC"
+                            },
+                            {
+                                "trKey":"GPL-3.0",
+                                "value":"GPL-3.0"
+                            },
+                            {
+                                "trKey":"BSD-3-Clause",
+                                "value":"BSD-3-Clause"
+                            },
+                            {
+                                "trKey":"LGPL-2.1",
+                                "value":"LGPL-2.1"
+                            },
+                            {
+                                "trKey":"LGPL-3.0",
+                                "value":"LGPL-3.0"
+                            },
+                            {
+                                "trKey":"EPL-2.0",
+                                "value":"EPL-2.0"
+                            },
+                            {
+                                "trKey":"Proprietary",
+                                "value":"Proprietary"
+                            },
+                            {
+                                "trKey":"Other",
+                                "value":"Other"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name":"ProjectBackend",
+                    "trDisplayName":"Backend:",
+                    "type":"ComboBox",
+                    "persistenceKey":"BackendType",
+                    "data":{
+                        "index":0,
+                        "items":[
+                            {
+                                "trKey":"C",
+                                "value":"c"
+                            },
+                            {
+                                "trKey":"Cpp",
+                                "value":"cpp"
+                            },
+                            {
+                                "trKey":"Objective C",
+                                "value":"objc"
+                            },
+                            {
+                                "trKey":"Javascript",
+                                "value":"js"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name":"ProjectNimVersion",
+                    "trDisplayName":"Min Nim Version:",
+                    "type":"LineEdit",
+                    "mandatory":true,
+                    "data":{
+                        "trText":"1.0.0"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName":"Kit Selection",
+            "trShortTitle":"Kits",
+            "typeId":"Kits",
+            "enabled":"%{JS: !value('IsSubproject')}",
+            "data":{
+                "projectFilePath":"%{ProjectFile}"
+            }
+        },
+        {
+            "trDisplayName":"Project Management",
+            "trShortTitle":"Summary",
+            "typeId":"Summary"
+        }
+    ],
+    "generators":[
+        {
+            "typeId":"File",
+            "data":[
+                {
+                    "source":"binary/binary.nimble",
+                    "target":"%{ProjectFile}",
+                    "openAsProject":true,
+                    "condition":"%{JS: value('ProjectType') === 'Binary'}"
+                },
+                {
+                    "source":"binary/src/binary.nim",
+                    "target":"%{ProjectDirectory}/src/%{ProjectName}.nim",
+                    "condition":"%{JS: value('ProjectType') === 'Binary'}",
+                    "openInEditor": true
+                },
+                {
+                    "source":"hybrid/hybrid.nimble",
+                    "target":"%{ProjectFile}",
+                    "openAsProject":true,
+                    "condition":"%{JS: value('ProjectType') === 'Hybrid'}"
+                },
+                {
+                    "source":"hybrid/src/hybrid.nim",
+                    "target":"%{ProjectDirectory}/src/%{ProjectName}.nim",
+                    "condition":"%{JS: value('ProjectType') === 'Hybrid'}",
+                    "openInEditor": true
+                },
+                {
+                    "source":"hybrid/src/hybridpkg/submodule.nim",
+                    "target":"%{ProjectDirectory}/src/%{ProjectName}pkg/submodule.nim",
+                    "condition":"%{JS: value('ProjectType') === 'Hybrid'}"
+                },
+                {
+                    "source":"hybrid/tests/config.nims",
+                    "target":"%{ProjectDirectory}/tests/config.nims",
+                    "condition":"%{JS: value('ProjectType') === 'Hybrid'}"
+                },
+                {
+                    "source":"hybrid/tests/test1.nim",
+                    "target":"%{ProjectDirectory}/tests/test1.nim",
+                    "condition":"%{JS: value('ProjectType') === 'Hybrid'}"
+                },
+                {
+                    "source":"library/library.nimble",
+                    "target":"%{ProjectFile}",
+                    "openAsProject":true,
+                    "condition":"%{JS: value('ProjectType') === 'Library'}"
+                },
+                {
+                    "source":"library/src/library.nim",
+                    "target":"%{ProjectDirectory}/src/%{ProjectName}.nim",
+                    "condition":"%{JS: value('ProjectType') === 'Library'}",
+                    "openInEditor": true
+                },
+                {
+                    "source":"library/src/library/submodule.nim",
+                    "target":"%{ProjectDirectory}/src/%{ProjectName}/submodule.nim",
+                    "condition":"%{JS: value('ProjectType') === 'Library'}"
+                },
+                {
+                    "source":"library/tests/config.nims",
+                    "target":"%{ProjectDirectory}/tests/config.nims",
+                    "condition":"%{JS: value('ProjectType') === 'Library'}"
+                },
+                {
+                    "source":"library/tests/test1.nim",
+                    "target":"%{ProjectDirectory}/tests/test1.nim",
+                    "condition":"%{JS: value('ProjectType') === 'Library'}"
+                },
+                {
+                    "source":"../git.ignore",
+                    "target":"%{ProjectDirectory}/.gitignore",
+                    "condition":"%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}
