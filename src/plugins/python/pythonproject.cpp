@@ -289,16 +289,6 @@ bool PythonProject::removeFiles(const QStringList &filePaths)
     return saveRawFileList(newList);
 }
 
-bool PythonProject::setFiles(const QStringList &filePaths)
-{
-    QStringList newList;
-    const QDir baseDir(projectDirectory().toString());
-    for (const QString &filePath : filePaths)
-        newList.append(baseDir.relativeFilePath(filePath));
-
-    return saveRawFileList(newList);
-}
-
 bool PythonProject::renameFile(const QString &filePath, const QString &newFilePath)
 {
     QStringList newList = m_rawFileList;

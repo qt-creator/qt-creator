@@ -42,7 +42,6 @@ public:
 
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
-    bool setFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
     void refresh(ProjectExplorer::Target *target = nullptr);
 
