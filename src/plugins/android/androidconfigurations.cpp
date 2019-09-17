@@ -738,13 +738,13 @@ FilePath AndroidConfig::ndkLocation() const
 static inline QString gdbServerArch(const QString &androidAbi)
 {
     if (androidAbi == "arm64-v8a") {
-        return "arm64";
+        return QString("arm64");
     } else if (androidAbi == "armeabi-v7a") {
-        return "arm";
+        return QString("arm");
     } else if (androidAbi == "x86_64") {
-        return "x86_64";
+        return QString("x86_64");
     } else if (androidAbi == "x86") {
-        return "x86";
+        return QString("x86");
     } else {
         return {};
     }
