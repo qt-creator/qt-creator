@@ -104,10 +104,8 @@ void TimelineActions::pasteKeyframesToTarget(const ModelNode &targetNode,
 
         pasteModel->detachView(&view);
 
+        targetNode.view()->model()->attachView(&view);
         view.executeInTransaction("TimelineActions::pasteKeyframesToTarget", [=, &view](){
-
-
-            targetNode.view()->model()->attachView(&view);
 
             ModelNode nonConstTargetNode = targetNode;
             nonConstTargetNode.validId();
