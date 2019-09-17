@@ -77,6 +77,8 @@ public:
     void backward() override;
     void print(QPrinter *printer) override;
 
+    bool eventFilter(QObject *src, QEvent *e) override;
+
 private:
     void goForward(int count);
     void goBackward(int count);

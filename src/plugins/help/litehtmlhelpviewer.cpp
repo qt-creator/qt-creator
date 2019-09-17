@@ -65,6 +65,7 @@ LiteHtmlHelpViewer::LiteHtmlHelpViewer(QWidget *parent)
     , m_viewer(new QLiteHtmlWidget)
 {
     m_viewer->setResourceHandler([](const QUrl &url) { return getData(url); });
+    m_viewer->viewport()->installEventFilter(this);
     connect(m_viewer, &QLiteHtmlWidget::linkClicked, this, &LiteHtmlHelpViewer::setSource);
     connect(m_viewer,
             &QLiteHtmlWidget::contextMenuRequested,
@@ -99,28 +100,28 @@ void LiteHtmlHelpViewer::setViewerFont(const QFont &newFont)
 
 void LiteHtmlHelpViewer::scaleUp()
 {
-    // TODO
+    setScale(scale() * 1.1);
 }
 
 void LiteHtmlHelpViewer::scaleDown()
 {
-    // TODO
+    setScale(scale() * .9);
 }
 
 void LiteHtmlHelpViewer::resetScale()
 {
-    // TODO
+    m_viewer->setZoomFactor(1);
 }
 
 qreal LiteHtmlHelpViewer::scale() const
 {
-    // TODO
-    return 1;
+    return m_viewer->zoomFactor();
 }
 
 void LiteHtmlHelpViewer::setScale(qreal scale)
 {
-    // TODO
+    // interpret 0 as "default"
+    m_viewer->setZoomFactor(scale == 0 ? qreal(1) : scale);
 }
 
 QString LiteHtmlHelpViewer::title() const
@@ -251,6 +252,16 @@ void LiteHtmlHelpViewer::goBackward(int count)
 void LiteHtmlHelpViewer::print(QPrinter *printer)
 {
     // TODO
+}
+
+bool LiteHtmlHelpViewer::eventFilter(QObject *src, QEvent *e)
+{
+    if (isScrollWheelZoomingEnabled() && e->type() == QEvent::Wheel) {
+        auto we = static_cast<QWheelEvent *>(e);
+        if (we->modifiers() == Qt::ControlModifier)
+            return true;
+    }
+    return HelpViewer::eventFilter(src, e);
 }
 
 void LiteHtmlHelpViewer::setSourceInternal(const QUrl &url, Utils::optional<int> vscroll)

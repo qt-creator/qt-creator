@@ -44,6 +44,9 @@ public:
     void setHtml(const QString &content);
     QString title() const;
 
+    void setZoomFactor(qreal scale);
+    qreal zoomFactor() const;
+
     bool findText(const QString &text,
                   QTextDocument::FindFlags flags,
                   bool incremental,
@@ -77,6 +80,12 @@ private:
     void render();
     QPoint scrollPosition() const;
     void htmlPos(const QPoint &pos, QPoint *viewportPos, QPoint *htmlPos) const;
+    QPoint toVirtual(const QPoint &p) const;
+    QPoint fromVirtual(const QPoint &p) const;
+    QSize toVirtual(const QSize &s) const;
+    QSize fromVirtual(const QSize &s) const;
+    QRect toVirtual(const QRect &r) const;
+    QRect fromVirtual(const QRect &r) const;
 
     QLiteHtmlWidgetPrivate *d;
 };
