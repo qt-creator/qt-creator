@@ -39,6 +39,9 @@
     \list
         \li \l{Completing Code}{Code completion}
         \li Highlighting the symbol under cursor
+        \li \l{Semantic Highlighting}{Semantic highlighting}, as defined in
+            \l{https://github.com/microsoft/vscode-languageserver-node/pull/367}
+            {Proposal of the semantic highlighting protocol extension}
         \li Navigating in the code by using the \l{Searching with the Locator}
             {locator} or \l{Moving to Symbol Definition or Declaration}
             {moving to the symbol definition}
