@@ -100,7 +100,6 @@ private:
 };
 
 Console *debuggerConsole();
-void destroyDebuggerConsole();
 
 } // namespace Internal
 } // namespace Debugger

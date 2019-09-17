@@ -42,8 +42,6 @@ public:
     DebuggerPlugin();
     ~DebuggerPlugin() override;
 
-    static DebuggerPlugin *instance();
-
 private:
     // IPlugin implementation.
     bool initialize(const QStringList &arguments, QString *errorMessage) override;

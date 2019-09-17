@@ -42,19 +42,15 @@ class QMenu;
 class QAction;
 QT_END_NAMESPACE
 
-namespace CPlusPlus { class Snapshot; }
-
 namespace Utils {
 class BaseTreeView;
 class SavedAction;
 }
 
 namespace Debugger {
-
-class DebuggerRunTool;
-
 namespace Internal {
 
+class Console;
 class Symbol;
 class Section;
 class GlobalDebuggerOptions;
@@ -73,12 +69,11 @@ void showModuleSections(const QString &moduleName, const QVector<Internal::Secti
 
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions();
 
-QVariant configValue(const QString &name);
-void setConfigValue(const QString &name, const QVariant &value);
-
 bool isTestRun();
 
 Utils::SavedAction *action(int code);
+Console *console();
+
 bool boolSetting(int code);
 QString stringSetting(int code);
 QStringList stringListSetting(int code);
