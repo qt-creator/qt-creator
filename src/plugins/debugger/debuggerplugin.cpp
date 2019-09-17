@@ -751,13 +751,6 @@ public:
     QAction m_breakAction{tr("Toggle Breakpoint")};
 
     BreakpointManager m_breakpointManager;
-    QPointer<BaseTreeView> m_breakpointManagerView;
-    QPointer<QWidget> m_breakpointManagerWindow;
-
-    QPointer<BaseTreeView> m_engineManagerView;
-    QPointer<QWidget> m_engineManagerWindow;
-    QPointer<GlobalLogWindow> m_globalLogWindow;
-
     QString m_lastPermanentStatusMessage;
 
     DebuggerPlugin *m_plugin = nullptr;
@@ -1050,34 +1043,51 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
         vbox->insertWidget(0, label);
     };
 
-    m_breakpointManagerView = new BaseTreeView;
-    m_breakpointManagerView->setActivationMode(Utils::DoubleClickActivation);
-    m_breakpointManagerView->setIconSize(QSize(10, 10));
-    m_breakpointManagerView->setWindowIcon(Icons::BREAKPOINTS.icon());
-    m_breakpointManagerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    m_breakpointManagerView->setSettings(settings, "Debugger.BreakWindow");
-    m_breakpointManagerView->setRootIsDecorated(true);
-    m_breakpointManagerView->setModel(BreakpointManager::model());
-    m_breakpointManagerView->setSpanColumn(BreakpointFunctionColumn);
-    m_breakpointManagerWindow = addSearch(m_breakpointManagerView);
-    m_breakpointManagerWindow->setWindowTitle(tr("Breakpoint Preset"));
-    m_breakpointManagerWindow->setObjectName("Debugger.Docks.BreakpointManager");
-    addLabel(m_breakpointManagerWindow, m_breakpointManagerWindow->windowTitle());
+    const auto addFontSizeAdaptation = [](QWidget *widget) {
+        QObject::connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+                [widget](const FontSettings &settings) {
+            if (!boolSetting(FontSizeFollowsEditor))
+                return;
+            qreal size = settings.fontZoom() * settings.fontSize() / 100.;
+            QFont font = widget->font();
+            font.setPointSizeF(size);
+            widget->setFont(font);
+        });
+    };
+
+    auto breakpointManagerView = new BaseTreeView;
+    breakpointManagerView->setActivationMode(Utils::DoubleClickActivation);
+    breakpointManagerView->setIconSize(QSize(10, 10));
+    breakpointManagerView->setWindowIcon(Icons::BREAKPOINTS.icon());
+    breakpointManagerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    breakpointManagerView->setSettings(settings, "Debugger.BreakWindow");
+    breakpointManagerView->setRootIsDecorated(true);
+    breakpointManagerView->setModel(BreakpointManager::model());
+    breakpointManagerView->setSpanColumn(BreakpointFunctionColumn);
+
+    auto breakpointManagerWindow = addSearch(breakpointManagerView);
+    breakpointManagerWindow->setWindowTitle(tr("Breakpoint Preset"));
+    breakpointManagerWindow->setObjectName("Debugger.Docks.BreakpointManager");
+    addLabel(breakpointManagerWindow, breakpointManagerWindow->windowTitle());
+    addFontSizeAdaptation(breakpointManagerWindow);
 
 
     // Snapshot
-    m_engineManagerView = new BaseTreeView;
-    m_engineManagerView->setWindowTitle(tr("Running Debuggers"));
-    m_engineManagerView->setSettings(settings, "Debugger.SnapshotView");
-    m_engineManagerView->setIconSize(QSize(10, 10));
-    m_engineManagerView->setModel(m_engineManager.model());
-    m_engineManagerWindow = addSearch(m_engineManagerView);
-    m_engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));
-    m_engineManagerWindow->setObjectName("Debugger.Docks.Snapshots");
-    addLabel(m_engineManagerWindow, m_engineManagerWindow->windowTitle());
+    auto engineManagerView = new BaseTreeView;
+    engineManagerView->setWindowTitle(tr("Running Debuggers"));
+    engineManagerView->setSettings(settings, "Debugger.SnapshotView");
+    engineManagerView->setIconSize(QSize(10, 10));
+    engineManagerView->setModel(m_engineManager.model());
+
+    auto engineManagerWindow = addSearch(engineManagerView);
+    engineManagerWindow->setWindowTitle(tr("Debugger Perspectives"));
+    engineManagerWindow->setObjectName("Debugger.Docks.Snapshots");
+    addLabel(engineManagerWindow, engineManagerWindow->windowTitle());
+    addFontSizeAdaptation(engineManagerWindow);
 
     // Logging
-    m_globalLogWindow = new GlobalLogWindow;
+    auto globalLogWindow = new GlobalLogWindow;
+    addFontSizeAdaptation(globalLogWindow);
 
     ActionContainer *debugMenu = ActionManager::actionContainer(PE::M_DEBUG);
 
@@ -1402,20 +1412,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &DebuggerPluginPrivate::writeSettings);
 
-    // TextEditor
-    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            [this](const FontSettings &settings) {
-                if (!boolSetting(FontSizeFollowsEditor))
-                    return;
-                qreal size = settings.fontZoom() * settings.fontSize() / 100.;
-                QFont font = m_breakpointManagerWindow->font();
-                font.setPointSizeF(size);
-                m_breakpointManagerWindow->setFont(font);
-                m_globalLogWindow->setFont(font);
-                m_engineManagerWindow->setFont(font);
-            });
-
-
     // ProjectExplorer
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::updateRunActions,
             this, &DebuggerPluginPrivate::updatePresetState);
@@ -1433,9 +1429,9 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     m_perspective.useSubPerspectiveSwitcher(EngineManager::engineChooser());
     m_perspective.addToolBarAction(&m_startAction);
 
-    m_perspective.addWindow(m_engineManagerWindow, Perspective::SplitVertical, nullptr);
-    m_perspective.addWindow(m_breakpointManagerWindow, Perspective::SplitHorizontal, m_engineManagerWindow);
-    m_perspective.addWindow(m_globalLogWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
+    m_perspective.addWindow(engineManagerWindow, Perspective::SplitVertical, nullptr);
+    m_perspective.addWindow(breakpointManagerWindow, Perspective::SplitHorizontal, engineManagerWindow);
+    m_perspective.addWindow(globalLogWindow, Perspective::AddToTab, nullptr, false, Qt::TopDockWidgetArea);
 
     setInitialState();
 
