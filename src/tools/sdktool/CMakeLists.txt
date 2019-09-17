@@ -29,7 +29,7 @@ add_qtc_executable(sdktool
     settings.cpp settings.h
 )
 
-extend_qtc_target(sdktool
+extend_qtc_executable(sdktool
   SOURCES_PREFIX "${UtilsSourcesDir}"
   DEFINES QTCREATOR_UTILS_STATIC_LIB
   SOURCES
@@ -45,7 +45,7 @@ extend_qtc_target(sdktool
     stringutils.cpp stringutils.h
 )
 
-extend_qtc_target(sdktool CONDITION APPLE
+extend_qtc_executable(sdktool CONDITION APPLE
   SOURCES_PREFIX "${UtilsSourcesDir}"
   SOURCES
     fileutils_mac.mm fileutils_mac.h
@@ -53,7 +53,7 @@ extend_qtc_target(sdktool CONDITION APPLE
     ${FWFoundation}
 )
 
-extend_qtc_target(sdktool CONDITION WIN32
+extend_qtc_executable(sdktool CONDITION WIN32
   DEPENDS
     user32 iphlpapi ws2_32 shell32
   DEFINES
