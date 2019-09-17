@@ -69,14 +69,25 @@
 
     While the application is being built, the \uicontrol Build button changes to
     a \uicontrol {Cancel Build} button (3). To cancel the build, select the
-    button or press \key {Alt+Backspace}.
+    button or press \key {Alt+Backspace}. If you selected a build command and
+    decide you would also like to run the application, you can select the
+    \uicontrol Run button to schedule running the project after building is done.
 
     For more information on the options you have, see
     \l{Specifying Build Settings}.
 
+    \section1 Additional Build Commands
+
+    To build all open projects, select \uicontrol Build > \uicontrol {Build All}.
+    If building one application fails, \QC displays an error message and
+    continues building the other applications.
+
     To quickly check the compile output for changes that you made in one file or
     subproject, you can use the \uicontrol Build menu commands to build a file or
     subproject.
+
+    To build the executable that corresponds to the selected run configuration,
+    select \uicontrol Build > \uicontrol {Build for Run Configuration}.
 
     To remove all build artifacts, select \uicontrol Build > \uicontrol {Clean All} or
     \uicontrol {Clean Project}. To clean the build directory and then build
@@ -90,7 +101,7 @@
     \uicontrol {Clean Without Dependencies} options in the context menu in the
     \uicontrol Projects view.
 
-    \section1 Additional qmake Options
+    \section1 Additional qmake Commands
 
     To run qmake to generate new Makefiles, select \uicontrol Build >
     \uicontrol qmake. To prevent failures on incremental builds, it might make
