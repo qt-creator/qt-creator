@@ -128,8 +128,6 @@ class DebuggerMainWindowPrivate : public QObject
 public:
     DebuggerMainWindowPrivate(DebuggerMainWindow *parent);
 
-    void createToolBar();
-
     void selectPerspective(Perspective *perspective);
     void depopulateCurrentPerspective();
     void populateCurrentPerspective();

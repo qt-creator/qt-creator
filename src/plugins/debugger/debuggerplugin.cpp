@@ -980,8 +980,7 @@ void DebuggerPluginPrivate::parseCommandLineArguments()
         QTimer::singleShot(0, this, &DebuggerPluginPrivate::runScheduled);
 }
 
-bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
-    QString *errorMessage)
+bool DebuggerPluginPrivate::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
@@ -1024,12 +1023,8 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     act->setEnabled(false);
     Command *cmd = ActionManager::registerAction(act, Constants::OPEN_MEMORY_EDITOR);
 
-    TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO,
-                         tr("Debug Information"));
-    TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_RUNTIME,
-                         tr("Debugger Runtime"));
-
-    QSettings *settings = ICore::settings();
+    TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_DEBUGINFO, tr("Debug Information"));
+    TaskHub::addCategory(TASK_CATEGORY_DEBUGGER_RUNTIME, tr("Debugger Runtime"));
 
     m_debuggerSettings = new DebuggerSettings;
     m_debuggerSettings->readSettings();
@@ -1060,7 +1055,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     breakpointManagerView->setIconSize(QSize(10, 10));
     breakpointManagerView->setWindowIcon(Icons::BREAKPOINTS.icon());
     breakpointManagerView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    breakpointManagerView->setSettings(settings, "Debugger.BreakWindow");
+    breakpointManagerView->setSettings(ICore::settings(), "Debugger.BreakWindow");
     breakpointManagerView->setRootIsDecorated(true);
     breakpointManagerView->setModel(BreakpointManager::model());
     breakpointManagerView->setSpanColumn(BreakpointFunctionColumn);
@@ -1075,7 +1070,7 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
     // Snapshot
     auto engineManagerView = new BaseTreeView;
     engineManagerView->setWindowTitle(tr("Running Debuggers"));
-    engineManagerView->setSettings(settings, "Debugger.SnapshotView");
+    engineManagerView->setSettings(ICore::settings(), "Debugger.SnapshotView");
     engineManagerView->setIconSize(QSize(10, 10));
     engineManagerView->setModel(m_engineManager.model());
 
