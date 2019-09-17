@@ -30,7 +30,6 @@
 #include "testsettings.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cpptools/cpptoolsconstants.h>
@@ -366,16 +365,7 @@ void TestCodeParser::scanForTests(const QStringList &fileList, const QList<Core:
             m_model->markForRemoval(filePath);
     }
 
-    if (list.isEmpty()) {
-        if (isFullParse) {
-            Core::MessageManager::instance()->write(
-                        tr("AutoTest Plugin WARNING: No files left after filtering test scan "
-                           "folders. Check test filter settings."),
-                        Core::MessageManager::Flash);
-        }
-        onFinished();
-        return;
-    }
+    QTC_ASSERT(!(isFullParse && list.isEmpty()), onFinished(); return);
 
     // use only a single parser or all current active?
     const QList<ITestParser *> codeParsers
