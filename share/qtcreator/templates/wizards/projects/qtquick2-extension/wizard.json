@@ -55,7 +55,7 @@
                     "type": "LineEdit",
                     "data":
                     {
-                        "validator": "^[A-Za-z0-9]+([A-Za-z0-9-]*[A-Za-z0-9]+)?(\.[A-Za-z0-9]+([-A-Za-z0-9]*[A-Za-z0-9]+)?)*$",
+                        "validator": "^[A-Za-z0-9]+([A-Za-z0-9-]*[A-Za-z0-9]+)?(\\.[A-Za-z0-9]+([-A-Za-z0-9]*[A-Za-z0-9]+)?)*$",
                         "trText": "com.mycompany.qmlcomponents"
                     }
                 }
