@@ -76,7 +76,7 @@ osx {
     }
 }
 
-!isEmpty(LITEHTML_INSTALL_DIR) {
+exists($$PWD/qlitehtml/litehtml/CMakeLists.txt)|!isEmpty(LITEHTML_INSTALL_DIR) {
     include(qlitehtml/qlitehtml.pri)
     HEADERS += litehtmlhelpviewer.h
     SOURCES += litehtmlhelpviewer.cpp

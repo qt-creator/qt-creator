@@ -6,3 +6,6 @@
 	path = src/tools/perfparser
 	url = ../perfparser.git
 	ignore = dirty
+[submodule "litehtml"]
+	path = src/plugins/help/qlitehtml/litehtml
+	url = https://github.com/litehtml/litehtml.git

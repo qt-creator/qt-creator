@@ -49,9 +49,13 @@ extend_qtc_plugin(Help
     webenginehelpviewer.h
 )
 
-find_package(litehtml QUIET)
-if (TARGET litehtml)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/qlitehtml/litehtml/CMakeLists.txt)
   add_subdirectory(qlitehtml)
+else()
+  find_package(litehtml QUIET)
+  if (TARGET litehtml)
+    add_subdirectory(qlitehtml)
+  endif()
 endif()
 
 extend_qtc_plugin(Help

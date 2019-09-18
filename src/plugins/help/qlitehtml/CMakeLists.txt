@@ -7,7 +7,19 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_CXX_STANDARD 14)
 
-find_package(litehtml REQUIRED)
+if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/litehtml/CMakeLists.txt)
+    set(ORIG_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+      set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+    else()
+      set(CMAKE_BUILD_TYPE "Release")
+    endif()
+    add_subdirectory(litehtml)
+    set(CMAKE_BUILD_TYPE ${ORIG_CMAKE_BUILD_TYPE})
+else()
+    find_package(litehtml REQUIRED)
+endif()
+
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 add_library(qlitehtml STATIC
