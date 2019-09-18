@@ -27,6 +27,12 @@
 
 #include <QtGlobal>
 
+#if defined(LANGUAGECLIENT_LIBRARY)
+#  define LANGUAGECLIENT_EXPORT Q_DECL_EXPORT
+#else
+#  define LANGUAGECLIENT_EXPORT Q_DECL_IMPORT
+#endif
+
 namespace LanguageClient {
 namespace Constants {
 

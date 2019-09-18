@@ -27,6 +27,7 @@
 
 #include "documentsymbolcache.h"
 #include "dynamiccapabilities.h"
+#include "languageclient_global.h"
 #include "languageclientcompletionassist.h"
 #include "languageclientfunctionhint.h"
 #include "languageclientquickfix.h"
@@ -67,7 +68,7 @@ namespace LanguageClient {
 class BaseClientInterface;
 class TextMark;
 
-class Client : public QObject
+class LANGUAGECLIENT_EXPORT Client : public QObject
 {
     Q_OBJECT
 

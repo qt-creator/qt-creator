@@ -26,6 +26,7 @@
 #pragma once
 
 #include "client.h"
+#include "languageclient_global.h"
 #include "languageclientsettings.h"
 #include "locatorfilter.h"
 
@@ -46,7 +47,7 @@ namespace LanguageClient {
 
 class LanguageClientMark;
 
-class LanguageClientManager : public QObject
+class LANGUAGECLIENT_EXPORT LanguageClientManager : public QObject
 {
     Q_OBJECT
 public:

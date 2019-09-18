@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QAbstractItemModel>
@@ -51,7 +53,7 @@ namespace LanguageClient {
 class Client;
 class BaseClientInterface;
 
-struct LanguageFilter
+struct LANGUAGECLIENT_EXPORT LanguageFilter
 {
     QStringList mimeTypes;
     QStringList filePattern;
@@ -59,7 +61,7 @@ struct LanguageFilter
     bool isSupported(const Core::IDocument *document) const;
 };
 
-class BaseSettings
+class LANGUAGECLIENT_EXPORT BaseSettings
 {
 public:
     BaseSettings() = default;
@@ -100,7 +102,7 @@ private:
     bool canStart(QList<const Core::IDocument *> documents) const;
 };
 
-class StdIOSettings : public BaseSettings
+class LANGUAGECLIENT_EXPORT StdIOSettings : public BaseSettings
 {
 public:
     StdIOSettings() = default;
