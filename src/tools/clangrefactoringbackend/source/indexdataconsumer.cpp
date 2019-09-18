@@ -67,7 +67,7 @@ using SymbolKindAndTags = std::pair<SymbolKind, SymbolTags>;
 class IndexingDeclVisitor : public clang::ConstDeclVisitor<IndexingDeclVisitor, SymbolKindAndTags>
 {
 public:
-    SymbolKindAndTags VisitEnumDecl(const clang::EnumDecl */*declaration*/)
+    SymbolKindAndTags VisitEnumDecl(const clang::EnumDecl * /*declaration*/)
     {
         return {SymbolKind::Enumeration, {}};
     }
