@@ -253,7 +253,7 @@ void Client::initialize()
     }
     initRequest->setParams(params);
     initRequest->setResponseCallback([this](const InitializeRequest::Response &initResponse){
-        intializeCallback(initResponse);
+        initializeCallback(initResponse);
     });
     // directly send data otherwise the state check would fail;
     initRequest->registerResponseHandler(&m_responseHandlers);
@@ -1095,7 +1095,7 @@ void Client::rehighlight()
     }
 }
 
-void Client::intializeCallback(const InitializeRequest::Response &initResponse)
+void Client::initializeCallback(const InitializeRequest::Response &initResponse)
 {
     QTC_ASSERT(m_state == InitializeRequested, return);
     if (optional<ResponseError<InitializeError>> error = initResponse.error()) {

@@ -183,7 +183,7 @@ private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     void handleSemanticHighlight(const LanguageServerProtocol::SemanticHighlightingParams &params);
 
-    void intializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
+    void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
     void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
     bool sendWorkspceFolderChanges() const;
     void log(const LanguageServerProtocol::ShowMessageParams &message,
