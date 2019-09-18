@@ -267,6 +267,17 @@ extend_qtc_plugin(QmlDesigner
     itemlibrarysectionmodel.cpp itemlibrarysectionmodel.h
     itemlibraryview.cpp itemlibraryview.h
     itemlibrarywidget.cpp itemlibrarywidget.h
+    itemlibraryassetimportdialog.cpp itemlibraryassetimportdialog.h
+    itemlibraryassetimportdialog.ui
+    itemlibraryassetimporter.cpp itemlibraryassetimporter.h
+)
+
+find_package(Qt5 COMPONENTS Quick3DAssetImport QUIET)
+extend_qtc_plugin(QmlDesigner
+  CONDITION TARGET Qt5::Quick3DAssetImport
+  FEATURE_INFO "Qt Quick 3D asset import"
+  DEPENDS Qt5::Quick3DAssetImportPrivate
+  DEFINES IMPORT_QUICK3D_ASSETS
 )
 
 extend_qtc_plugin(QmlDesigner

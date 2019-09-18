@@ -114,6 +114,7 @@ public:
 
 signals:
     void entriesChanged();
+    void importTagsChanged();
 
 private: // functions
     ItemLibraryInfo(QObject *parent = nullptr);
