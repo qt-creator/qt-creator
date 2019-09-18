@@ -395,27 +395,41 @@ QList<ToolChain *> SdccToolChainFactory::autoDetect(const QList<ToolChain *> &al
 
     if (Utils::HostOsInfo::isWindowsHost()) {
 
-#ifdef Q_OS_WIN64
-        static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\SDCC";
-#else
-        static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\SDCC";
-#endif
-
-        QSettings registry(kRegistryNode, QSettings::NativeFormat);
-        QString compilerPath = registry.value("Default").toString();
-        if (!compilerPath.isEmpty()) {
+        // Tries to detect the candidate from the 32-bit
+        // or 64-bit system registry format.
+        auto probeCandidate = [](QSettings::Format format) {
+            QSettings registry("HKEY_LOCAL_MACHINE\\SOFTWARE\\SDCC",
+                               format);
+            QString compilerPath = registry.value("Default").toString();
+            if (compilerPath.isEmpty())
+                return Candidate{};
             // Build full compiler path.
             compilerPath += "\\bin\\sdcc.exe";
             const FilePath fn = FilePath::fromString(
                         QFileInfo(compilerPath).absoluteFilePath());
-            if (compilerExists(fn)) {
-                // Build compiler version.
-                const QString version = QString("%1.%2.%3").arg(
-                            registry.value("VersionMajor").toString(),
-                            registry.value("VersionMinor").toString(),
-                            registry.value("VersionRevision").toString());
-                candidates.push_back({fn, version});
-            }
+            if (!compilerExists(fn))
+                return Candidate{};
+            // Build compiler version.
+            const QString version = QString("%1.%2.%3").arg(
+                        registry.value("VersionMajor").toString(),
+                        registry.value("VersionMinor").toString(),
+                        registry.value("VersionRevision").toString());
+            return Candidate{fn, version};
+        };
+
+        const QSettings::Format allowedFormats[] = {
+            QSettings::NativeFormat,
+#ifdef Q_OS_WIN
+            QSettings::Registry32Format,
+            QSettings::Registry64Format
+#endif
+        };
+
+        for (const QSettings::Format format : allowedFormats) {
+            const auto candidate = probeCandidate(format);
+            if (candidate.compilerPath.isEmpty() || candidates.contains(candidate))
+                continue;
+            candidates.push_back(candidate);
         }
     }
 
