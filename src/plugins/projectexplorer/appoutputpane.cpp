@@ -454,9 +454,9 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             tab.window->setFontZoom(fontZoom);
     });
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::fontSettingsChanged,
-            this, updateFontSettings);
+            ow, updateFontSettings);
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
-            this, updateBehaviorSettings);
+            ow, updateBehaviorSettings);
 
     auto *agg = new Aggregation::Aggregate;
     agg->add(ow);
