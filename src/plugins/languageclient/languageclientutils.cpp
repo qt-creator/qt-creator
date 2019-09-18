@@ -218,18 +218,29 @@ void updateEditorToolBar(Core::IEditor *editor)
         const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
                                          Utils::Theme::IconsBaseColor}})
                                .icon();
-        actions[widget] = widget->toolBar()->addAction(icon, client->name(), [document]() {
-            auto menu = new QMenu;
-            for (auto client : LanguageClientManager::clientsSupportingDocument(document))
-                menu->addAction(client->name(), [client = QPointer<Client>(client), document]() {
-                    if (client)
+        actions[widget] = widget->toolBar()->addAction(
+            icon, client->name(), [document]() {
+                auto menu = new QMenu;
+                auto *clientsGroup = new QActionGroup(menu);
+                clientsGroup->setExclusive(true);
+                for (auto client : LanguageClientManager::clientsSupportingDocument(document)) {
+                    auto action = clientsGroup->addAction(client->name());
+                    auto reopen = [action, client = QPointer<Client>(client), document]() {
+                        if (!client)
+                            return;
                         LanguageClientManager::reOpenDocumentWithClient(document, client);
+                        action->setChecked(true);
+                    };
+                    action->setCheckable(true);
+                    action->setChecked(client == LanguageClientManager::clientForDocument(document));
+                    QObject::connect(action, &QAction::triggered, reopen);
+                }
+                menu->addActions(clientsGroup->actions());
+                menu->addAction("Manage...", []() {
+                    Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
                 });
-            menu->addAction("Manage...", []() {
-                Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+                menu->popup(QCursor::pos());
             });
-            menu->popup(QCursor::pos());
-        });
         QObject::connect(widget, &QWidget::destroyed, [widget]() {
             actions.remove(widget);
         });
