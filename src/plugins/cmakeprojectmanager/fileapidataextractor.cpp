@@ -296,6 +296,12 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
                 continue;
             }
 
+            QString ending;
+            if (ci.language == "C")
+                ending = "/cmake_pch.h";
+            else if (ci.language == "CXX")
+                ending = "/cmake_pch.hxx";
+
             ++counter;
             RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
@@ -312,9 +318,16 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             cxxProjectFlags.commandLineFlags = cProjectFlags.commandLineFlags;
             rpp.setFlagsForCxx(cxxProjectFlags);
 
+            const QString precompiled_header
+                = findOrDefault(t.sources, [&ending](const SourceInfo &si) {
+                      return si.path.endsWith(ending);
+                  }).path;
+
             rpp.setFiles(transform<QList>(ci.sources, [&t, &sourceDir](const int si) {
                 return sourceDir.absoluteFilePath(t.sources[static_cast<size_t>(si)].path);
             }));
+            if (!precompiled_header.isEmpty())
+                rpp.setPreCompiledHeaders({precompiled_header});
 
             const bool isExecutable = t.type == "EXECUTABLE";
             rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
