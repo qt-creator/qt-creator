@@ -75,6 +75,7 @@ public:
 
     static void applySettings();
     static QList<BaseSettings *> currentSettings();
+    static void registerClientSettings(BaseSettings *settings);
     static QVector<Client *> clientForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
     static Client *clientForDocument(TextEditor::TextDocument *document);

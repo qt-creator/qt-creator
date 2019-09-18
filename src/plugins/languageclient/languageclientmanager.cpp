@@ -277,6 +277,13 @@ QList<BaseSettings *> LanguageClientManager::currentSettings()
     return managerInstance->m_currentSettings;
 }
 
+void LanguageClientManager::registerClientSettings(BaseSettings *settings)
+{
+    QTC_ASSERT(managerInstance, return);
+    LanguageClientSettings::addSettings(settings);
+    managerInstance->applySettings();
+}
+
 QVector<Client *> LanguageClientManager::clientForSetting(const BaseSettings *setting)
 {
     QTC_ASSERT(managerInstance, return {});

@@ -100,6 +100,7 @@ public:
 
     void reset(const QList<BaseSettings *> &settings);
     QList<BaseSettings *> settings() const { return m_settings; }
+    void insertSettings(BaseSettings *settings);
     QList<BaseSettings *> removed() const { return m_removed; }
     BaseSettings *settingForIndex(const QModelIndex &index) const;
     QModelIndex indexForSetting(BaseSettings *setting) const;
@@ -146,6 +147,7 @@ public:
     void finish() override;
 
     QList<BaseSettings *> settings() const;
+    void addSettings(BaseSettings *settings);
 
 private:
     LanguageClientSettingsModel m_model;
@@ -304,6 +306,11 @@ QList<BaseSettings *> LanguageClientSettingsPage::settings() const
     return m_model.settings();
 }
 
+void LanguageClientSettingsPage::addSettings(BaseSettings *settings)
+{
+    m_model.insertSettings(settings);
+}
+
 LanguageClientSettingsModel::~LanguageClientSettingsModel()
 {
     qDeleteAll(m_settings);
@@ -420,6 +427,14 @@ void LanguageClientSettingsModel::reset(const QList<BaseSettings *> &settings)
     endResetModel();
 }
 
+void LanguageClientSettingsModel::insertSettings(BaseSettings *settings)
+{
+    int row = rowCount();
+    beginInsertRows(QModelIndex(), row, row);
+    m_settings.insert(row, settings);
+    endInsertRows();
+}
+
 BaseSettings *LanguageClientSettingsModel::settingForIndex(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= m_settings.size())
@@ -526,6 +541,11 @@ QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn
 QList<BaseSettings *> LanguageClientSettings::currentPageSettings()
 {
     return settingsPage().settings();
+}
+
+void LanguageClientSettings::addSettings(BaseSettings *settings)
+{
+    settingsPage().addSettings(settings);
 }
 
 void LanguageClientSettings::toSettings(QSettings *settings,

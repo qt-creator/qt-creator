@@ -135,6 +135,7 @@ public:
     static void init();
     static QList<BaseSettings *> fromSettings(QSettings *settings);
     static QList<BaseSettings *> currentPageSettings();
+    static void addSettings(BaseSettings *settings);
     static void toSettings(QSettings *settings, const QList<BaseSettings *> &languageClientSettings);
 };
 
