@@ -201,7 +201,10 @@ function(set_public_includes target includes)
   endforeach()
 endfunction()
 
-function(fix_test_environment test_name)
+function(finalize_test_setup test_name)
+  # Never translate tests:
+  set_tests_properties(${name} PROPERTIES QT_SKIP_TRANSLATION ON)
+
   if (WIN32)
     list(APPEND env_path $ENV{PATH})
     list(APPEND env_path ${CMAKE_BINARY_DIR}/${IDE_PLUGIN_PATH})
@@ -828,11 +831,8 @@ function(add_qtc_test name)
 
   if (NOT _arg_GTEST)
     add_test(NAME ${name} COMMAND ${name})
-    fix_test_environment(${name})
+    finalize_test_setup(${name})
   endif()
-
-  # Never translate tests:
-  set_tests_properties(${name} PROPERTIES QT_SKIP_TRANSLATION ON)
 endfunction()
 
 function(finalize_qtc_gtest test_name)
@@ -841,6 +841,6 @@ function(finalize_qtc_gtest test_name)
   gtest_add_tests(TARGET ${test_name} SOURCES ${test_sources} TEST_LIST test_list)
 
   foreach(test IN LISTS test_list)
-    fix_test_environment(${test})
+    finalize_test_setup(${test})
   endforeach()
 endfunction()
