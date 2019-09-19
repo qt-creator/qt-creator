@@ -63,7 +63,6 @@ DEBUGGER_EXPORT void showCannotStartDialog(const QString &toolName);
 DEBUGGER_EXPORT void enableMainWindow(bool on);
 
 // Convenience functions.
-DEBUGGER_EXPORT void showStatusMessage(const QString &message, int timeoutMS = 10000);
 DEBUGGER_EXPORT void showPermanentStatusMessage(const QString &message);
 
 DEBUGGER_EXPORT QAction *createStartAction();

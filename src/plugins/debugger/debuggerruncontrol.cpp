@@ -23,6 +23,7 @@
 **
 ****************************************************************************/
 
+#include "debuggermainwindow.h"
 #include "debuggerruncontrol.h"
 #include "terminal.h"
 
@@ -701,9 +702,10 @@ void DebuggerRunTool::start()
     QString debuggerName = m_engine->objectName();
     if (m_engine2)
         debuggerName += ' ' + m_engine2->objectName();
+
     const QString message = tr("Starting debugger \"%1\" for ABI \"%2\"...")
             .arg(debuggerName).arg(m_runParameters.toolChainAbi.toString());
-    showStatusMessage(message);
+    DebuggerMainWindow::showStatusMessage(message, 10000);
 
     showMessage(m_engine->formatStartParameters(), LogDebug);
     showMessage(DebuggerSettings::dump(), LogDebug);

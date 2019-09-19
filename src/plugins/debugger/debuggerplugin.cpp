@@ -2406,11 +2406,6 @@ void enableMainWindow(bool on)
     DebuggerMainWindow::instance()->setEnabled(on);
 }
 
-void showStatusMessage(const QString &message, int timeoutMS)
-{
-    DebuggerMainWindow::showStatusMessage(message, timeoutMS);
-}
-
 void showPermanentStatusMessage(const QString &message)
 {
     DebuggerMainWindow::showStatusMessage(message, -1);
