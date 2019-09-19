@@ -279,6 +279,8 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
     for (const TargetDetails &t : input.targetDetails) {
         QDir sourceDir(sourceDirectory.toString());
 
+        bool needPostfix = t.compileGroups.size() > 1;
+        int count = 1;
         for (const CompileInfo &ci : t.compileGroups) {
             if (ci.language != "C" && ci.language != "CXX" && ci.language != "CUDA")
                 continue; // No need to bother the C++ codemodel
@@ -306,7 +308,8 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
             rpp.setBuildSystemTarget(t.name);
-            rpp.setDisplayName(t.id);
+            const QString postfix = needPostfix ? "_cg" + QString::number(count) : QString();
+            rpp.setDisplayName(t.id + postfix);
             rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
             rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
 
@@ -333,6 +336,7 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
             rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
                                                 : ProjectExplorer::BuildTargetType::Library);
             rpps.append(rpp);
+            ++count;
         }
     }
 
