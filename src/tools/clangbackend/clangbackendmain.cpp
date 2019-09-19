@@ -57,7 +57,7 @@ QString processArguments(QCoreApplication &application)
 }
 
 #ifdef Q_OS_WIN
-extern "C" void OutputDebugStringW(const wchar_t* msg);
+extern "C" void __stdcall OutputDebugStringW(const wchar_t* msg);
 static void messageOutput(QtMsgType type, const QMessageLogContext &/*context*/,
                           const QString &msg)
 {
