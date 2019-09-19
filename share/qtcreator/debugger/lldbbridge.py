@@ -841,7 +841,8 @@ class Dumper(DumperBase):
         self.startMode_ = args.get('startmode', 1)
         self.breakOnMain_ = args.get('breakonmain', 0)
         self.useTerminal_ = args.get('useterminal', 0)
-        self.processArgs_ = self.hexdecode(args.get('processargs', '')).split('\0')
+        pargs =  self.hexdecode(args.get('processargs', ''))
+        self.processArgs_ = pargs.split('\0') if len(pargs) else []
         self.environment_ = args.get('environment', [])
         self.environment_ = list(map(lambda x: self.hexdecode(x), self.environment_))
         self.attachPid_ = args.get('attachpid', 0)
