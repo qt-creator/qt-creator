@@ -131,8 +131,10 @@ struct Data // because we have a cycle dependency
 };
 
 #ifdef Q_OS_WIN
+extern "C" void OutputDebugStringW(const wchar_t* msg);
 static void messageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
+    OutputDebugStringW(msg.toStdWString().c_str());
     std::wcout << msg.toStdWString() << std::endl;
     if (type == QtFatalMsg)
         abort();
