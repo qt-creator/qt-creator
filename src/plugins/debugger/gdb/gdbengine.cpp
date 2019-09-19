@@ -103,6 +103,17 @@ static bool isMostlyHarmlessMessage(const QStringRef &msg)
                   "Invalid argument\\n";
 }
 
+static QMessageBox *showMessageBox(QMessageBox::Icon icon,
+                                   const QString &title, const QString &text,
+                                   QMessageBox::StandardButtons buttons)
+{
+    auto mb = new QMessageBox(icon, title, text, buttons, ICore::mainWindow());
+    mb->setAttribute(Qt::WA_DeleteOnClose);
+    mb->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    mb->show();
+    return mb;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // GdbEngine

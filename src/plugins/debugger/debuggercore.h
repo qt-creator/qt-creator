@@ -36,7 +36,6 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QMessageBox;
 class QWidget;
 class QMenu;
 class QAction;
@@ -70,9 +69,6 @@ Utils::SavedAction *action(int code);
 bool boolSetting(int code);
 QString stringSetting(int code);
 QStringList stringListSetting(int code);
-
-QMessageBox *showMessageBox(int icon, const QString &title,
-    const QString &text, int buttons = 0);
 
 QAction *addAction(QMenu *menu, const QString &display, bool on,
                    const std::function<void()> &onTriggered = {});

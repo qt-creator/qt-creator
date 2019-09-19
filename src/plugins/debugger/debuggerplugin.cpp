@@ -2029,17 +2029,6 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
     runScheduled();
 }
 
-QMessageBox *showMessageBox(int icon, const QString &title, const QString &text, int buttons)
-{
-    QMessageBox *mb = new QMessageBox(QMessageBox::Icon(icon),
-        title, text, QMessageBox::StandardButtons(buttons),
-        ICore::mainWindow());
-    mb->setAttribute(Qt::WA_DeleteOnClose);
-    mb->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    mb->show();
-    return mb;
-}
-
 void addDebugInfoTask(unsigned id, const QString &cmd)
 {
     dd->m_debugInfoTaskHandler.addTask(id, cmd);
