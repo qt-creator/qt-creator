@@ -50,9 +50,6 @@ class SavedAction;
 namespace Debugger {
 namespace Internal {
 
-class Console;
-class Symbol;
-class Section;
 class GlobalDebuggerOptions;
 
 enum TestCases
@@ -64,15 +61,11 @@ enum TestCases
 // Some convenience.
 void openTextEditor(const QString &titlePattern, const QString &contents);
 
-void showModuleSymbols(const QString &moduleName, const QVector<Internal::Symbol> &symbols);
-void showModuleSections(const QString &moduleName, const QVector<Internal::Section> &sections);
-
 QSharedPointer<Internal::GlobalDebuggerOptions> globalDebuggerOptions();
 
 bool isTestRun();
 
 Utils::SavedAction *action(int code);
-Console *console();
 
 bool boolSetting(int code);
 QString stringSetting(int code);

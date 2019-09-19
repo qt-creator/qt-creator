@@ -161,7 +161,7 @@ static void blockRecursion(const Overview &overview,
     // Go backwards in case someone has identical variables in the same scope.
     // Fixme: loop variables or similar are currently seen in the outer scope
     for (int s = scope->memberCount() - 1; s >= 0; --s){
-        const Symbol *symbol = scope->memberAt(s);
+        const CPlusPlus::Symbol *symbol = scope->memberAt(s);
         if (symbol->isDeclaration()) {
             // Find out about shadowed symbols by bookkeeping
             // the already seen occurrences in a hash.
@@ -197,7 +197,7 @@ QStringList getUninitializedVariables(const Snapshot &snapshot,
     const Document::Ptr doc = docIt.value();
     // Look at symbol at line and find its function. Either it is the
     // function itself or some expression/variable.
-    const Symbol *symbolAtLine = doc->lastVisibleSymbolAt(line, 0);
+    const CPlusPlus::Symbol *symbolAtLine = doc->lastVisibleSymbolAt(line, 0);
     if (!symbolAtLine)
         return result;
     // First figure out the function to do a safety name check

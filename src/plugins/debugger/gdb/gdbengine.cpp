@@ -2651,7 +2651,7 @@ static void handleShowModuleSymbols(const DebuggerResponse &response,
         }
         file.close();
         file.remove();
-        Internal::showModuleSymbols(modulePath, symbols);
+        DebuggerEngine::showModuleSymbols(modulePath, symbols);
     } else {
         AsynchronousMessageBox::critical(GdbEngine::tr("Cannot Read Symbols"),
             GdbEngine::tr("Cannot read symbols for module \"%1\".").arg(fileName));
@@ -2716,7 +2716,7 @@ void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
             }
         }
         if (!sections.isEmpty())
-            Internal::showModuleSections(moduleName, sections);
+            DebuggerEngine::showModuleSections(moduleName, sections);
     }
 }
 

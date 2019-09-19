@@ -2015,15 +2015,6 @@ void DebuggerPluginPrivate::aboutToShutdown()
     m_shutdownTimer.start();
 }
 
-static void createNewDock(QWidget *widget)
-{
-    auto dockWidget = new QDockWidget;
-    dockWidget->setWidget(widget);
-    dockWidget->setWindowTitle(widget->windowTitle());
-    dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
-    dockWidget->show();
-}
-
 void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
 {
     if (options.isEmpty())
@@ -2115,64 +2106,6 @@ QString stringSetting(int code)
 QStringList stringListSetting(int code)
 {
     return action(code)->value().toStringList();
-}
-
-void showModuleSymbols(const QString &moduleName, const Symbols &symbols)
-{
-    auto w = new QTreeWidget;
-    w->setUniformRowHeights(true);
-    w->setColumnCount(5);
-    w->setRootIsDecorated(false);
-    w->setAlternatingRowColors(true);
-    w->setSortingEnabled(true);
-    w->setObjectName("Symbols." + moduleName);
-    QStringList header;
-    header.append(DebuggerPlugin::tr("Symbol"));
-    header.append(DebuggerPlugin::tr("Address"));
-    header.append(DebuggerPlugin::tr("Code"));
-    header.append(DebuggerPlugin::tr("Section"));
-    header.append(DebuggerPlugin::tr("Name"));
-    w->setHeaderLabels(header);
-    w->setWindowTitle(DebuggerPlugin::tr("Symbols in \"%1\"").arg(moduleName));
-    for (const Symbol &s : symbols) {
-        auto it = new QTreeWidgetItem;
-        it->setData(0, Qt::DisplayRole, s.name);
-        it->setData(1, Qt::DisplayRole, s.address);
-        it->setData(2, Qt::DisplayRole, s.state);
-        it->setData(3, Qt::DisplayRole, s.section);
-        it->setData(4, Qt::DisplayRole, s.demangled);
-        w->addTopLevelItem(it);
-    }
-    createNewDock(w);
-}
-
-void showModuleSections(const QString &moduleName, const Sections &sections)
-{
-    auto w = new QTreeWidget;
-    w->setUniformRowHeights(true);
-    w->setColumnCount(5);
-    w->setRootIsDecorated(false);
-    w->setAlternatingRowColors(true);
-    w->setSortingEnabled(true);
-    w->setObjectName("Sections." + moduleName);
-    QStringList header;
-    header.append(DebuggerPlugin::tr("Name"));
-    header.append(DebuggerPlugin::tr("From"));
-    header.append(DebuggerPlugin::tr("To"));
-    header.append(DebuggerPlugin::tr("Address"));
-    header.append(DebuggerPlugin::tr("Flags"));
-    w->setHeaderLabels(header);
-    w->setWindowTitle(DebuggerPlugin::tr("Sections in \"%1\"").arg(moduleName));
-    for (const Section &s : sections) {
-        auto it = new QTreeWidgetItem;
-        it->setData(0, Qt::DisplayRole, s.name);
-        it->setData(1, Qt::DisplayRole, s.from);
-        it->setData(2, Qt::DisplayRole, s.to);
-        it->setData(3, Qt::DisplayRole, s.address);
-        it->setData(4, Qt::DisplayRole, s.flags);
-        w->addTopLevelItem(it);
-    }
-    createNewDock(w);
 }
 
 void openTextEditor(const QString &titlePattern0, const QString &contents)
