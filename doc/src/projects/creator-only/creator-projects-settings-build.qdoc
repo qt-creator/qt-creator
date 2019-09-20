@@ -281,6 +281,9 @@
     following lines. However, you can remove a value after you have referred to
     it on an earlier line.
 
+    To temporarily disable a variable, add a hash character (#) to the beginning
+    of the line.
+
     \section2 Clearing the System Environment
 
     To build with a clean system environment, select the \uicontrol {Clear system
