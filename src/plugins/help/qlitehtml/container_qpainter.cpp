@@ -1232,19 +1232,19 @@ QPixmap DocumentContainer::getPixmap(const QString &imageUrl, const QString &bas
 QString DocumentContainer::serifFont() const
 {
     // TODO make configurable
-    return "Times New Roman";
+    return {"Times New Roman"};
 }
 
 QString DocumentContainer::sansSerifFont() const
 {
     // TODO make configurable
-    return "Arial";
+    return {"Arial"};
 }
 
 QString DocumentContainer::monospaceFont() const
 {
     // TODO make configurable
-    return "Courier";
+    return {"Courier"};
 }
 
 QUrl DocumentContainer::resolveUrl(const QString &url, const QString &baseUrl) const

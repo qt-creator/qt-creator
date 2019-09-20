@@ -11,10 +11,13 @@ exists($$PWD/litehtml/CMakeLists.txt) {
         system("$$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${LITEHTML_BUILD_PATH}))")
 
         macos: CMAKE_DEPLOYMENT_TARGET = -DCMAKE_OSX_DEPLOYMENT_TARGET=$${QMAKE_MACOSX_DEPLOYMENT_TARGET}
+        win32: LITEHTML_UTF8 = -DLITEHTML_UTF8=ON
         LITEHTML_CMAKE_CMD = \
             "$$QMAKE_CD $$system_quote($$shell_path($${LITEHTML_BUILD_PATH})) && \
              cmake -DCMAKE_BUILD_TYPE=$$BUILD_TYPE \
                    -DCMAKE_INSTALL_PREFIX=$$system_quote($$shell_path($${LITEHTML_INSTALL_PATH})) \
+                   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+                   $$LITEHTML_UTF8 \
                    $$CMAKE_DEPLOYMENT_TARGET \
                    $$system_quote($$shell_path($${LITEHTML_SOURCE_PATH}))"
         message("$${LITEHTML_CMAKE_CMD}")
