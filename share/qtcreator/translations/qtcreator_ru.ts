@@ -131,10 +131,69 @@
     </message>
 </context>
 <context>
+    <name>AnchorButtons</name>
+    <message>
+        <source>Anchor item to the top.</source>
+        <translation>Привязка элемента к верхнему краю.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the bottom.</source>
+        <translation>Привязка элемента к нижнему краю.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the left.</source>
+        <translation>Привязка элемента к левому краю.</translation>
+    </message>
+    <message>
+        <source>Anchor item to the right.</source>
+        <translation>Привязка элемента к правому краю.</translation>
+    </message>
+    <message>
+        <source>Fill parent item.</source>
+        <translation>Заполнить родительский элемент.</translation>
+    </message>
+    <message>
+        <source>Anchor item vertically.</source>
+        <translation>Вертикальная привязка элемента.</translation>
+    </message>
+    <message>
+        <source>Anchor item horizontally.</source>
+        <translation>Горизонтальная привязка элемента.</translation>
+    </message>
+</context>
+<context>
     <name>AnchorRow</name>
     <message>
         <source>Target</source>
         <translation>Цель</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Внешний отступ</translation>
+    </message>
+    <message>
+        <source>Anchor to the top of the target.</source>
+        <translation>Привязка к верхнему краю цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the left of the target.</source>
+        <translation>Привязка к левому краю цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the vertical center of the target.</source>
+        <translation>Привязка к вертикальному центру цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the horizontal center of the target.</source>
+        <translation>Привязка к горизонтальному центру цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the bottom of the target.</source>
+        <translation>Привязка к нижнему краю цели.</translation>
+    </message>
+    <message>
+        <source>Anchor to the right of the target.</source>
+        <translation>Привязка к правому краю цели.</translation>
     </message>
 </context>
 <context>
@@ -1903,7 +1962,7 @@ Install an SDK of at least API version %1.</source>
     </message>
     <message>
         <source>%1 tests passed.</source>
-        <translation>%1 тестов прошли успешно.</translation>
+        <translation>%1 тестов прошло успешно.</translation>
     </message>
     <message>
         <source>No errors detected.</source>
@@ -3241,7 +3300,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
     <message>
         <source>The kit has a Qt version, but no C++ compiler.</source>
-        <translation>У комплекта задан профил Qt, но нет компилятора C++.</translation>
+        <translation>У комплекта задан профиль Qt, но нет компилятора C++.</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -4476,7 +4535,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
     <message>
         <source>A seed of 0 means no randomization. A value of 1 uses the current time any other value is used as random seed generator.</source>
-        <translation>0 отключает случайный порядок. Значение 1 использует текущее время, любой другое используется для генерации случайной последовательности.</translation>
+        <translation>0 отключает случайный порядок. Значение 1 использует текущее время, любое другое используется для генерации случайной последовательности.</translation>
     </message>
     <message>
         <source>Catch or ignore system errors.</source>
@@ -7117,6 +7176,10 @@ p, li { white-space: pre-wrap; }
         <translation>Недавний</translation>
     </message>
     <message>
+        <source>Open Color Dialog</source>
+        <translation>Открыть выбор цвета</translation>
+    </message>
+    <message>
         <source>Defines the start angle for the conical gradient. The value is in degrees (0-360).</source>
         <translation>Определяет начальный угол для конического градиента. Значение в градусах от 0 до 360.</translation>
     </message>
@@ -9120,11 +9183,11 @@ Do you want to kill it?</source>
     </message>
     <message>
         <source>Cycle Mode Selector Styles</source>
-        <translation type="unfinished">Зациклить стили режима выбора</translation>
+        <translation>Зациклить стили режима выбора</translation>
     </message>
     <message>
         <source>Mode Selector Style</source>
-        <translation type="unfinished">Стиль режима выбора</translation>
+        <translation>Стиль режима выбора</translation>
     </message>
     <message>
         <source>Icons and Text</source>
@@ -16270,7 +16333,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
     <message>
         <source>Creation Time in ms</source>
-        <translation>Время создания в мс</translation>
+        <translation>Время создания, мс</translation>
     </message>
     <message>
         <source>&lt;empty&gt;</source>
@@ -17359,7 +17422,7 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>Drag Margin</source>
-        <translation>Поле перетаскивания</translation>
+        <translation>Зона перетаскивания</translation>
     </message>
     <message>
         <source>Defines the distance from the screen edge within which drag actions will open the drawer.</source>
@@ -18418,6 +18481,10 @@ will also disable the following plugins:
         <translation>Определяет, будет ли Flickable создавать ощущение, что края у вида мягкие, а не жесткие физические границы.</translation>
     </message>
     <message>
+        <source>Describes whether the user can interact with the Flickable. A user cannot drag or flick a Flickable that is not interactive.</source>
+        <translation>Определяет, может ли пользователь влиять на Flickable. Пользователь не может перетягивать или сдвигать Flickable, если он не интерактивен.</translation>
+    </message>
+    <message>
         <source>Press delay</source>
         <translation>Задержка нажатия</translation>
     </message>
@@ -18443,7 +18510,7 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Margins</source>
-        <translation>Отступы</translation>
+        <translation>Внешние отступы</translation>
     </message>
     <message>
         <source>Flick direction</source>
@@ -20499,7 +20566,7 @@ Commit now?</source>
     </message>
     <message>
         <source>DCommit</source>
-        <translation type="unfinished">Дельта фиксация (dcommit)</translation>
+        <translation>Дельта фиксация (dcommit)</translation>
     </message>
     <message>
         <source>Manage Remotes...</source>
@@ -23443,7 +23510,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Margins</source>
-        <translation>Отступы</translation>
+        <translation>Внешние отступы</translation>
     </message>
     <message>
         <source>Row span</source>
@@ -23954,7 +24021,7 @@ Error: %5</translation>
     <name>MarginSection</name>
     <message>
         <source>Margin</source>
-        <translation>Поле</translation>
+        <translation>Внешний отступ</translation>
     </message>
     <message>
         <source>Vertical</source>
@@ -23998,7 +24065,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Margins</source>
-        <translation>Отступы</translation>
+        <translation>Внешние отступы</translation>
     </message>
     <message>
         <source>The margins around the item.</source>
@@ -25088,7 +25155,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Drag margin</source>
-        <translation>Перетаскиваемый край</translation>
+        <translation>Зона перетаскивания</translation>
     </message>
     <message>
         <source>Flick deceleration</source>
@@ -25795,12 +25862,12 @@ Error: %5</translation>
     </message>
     <message>
         <source>Self Samples</source>
-        <translation type="unfinished">Собственных семплов</translation>
+        <translation>Собственных семплов</translation>
     </message>
     <message>
         <source>Self in Percent</source>
         <translatorcomment>х.з. как переводить</translatorcomment>
-        <translation type="unfinished">Собственное в процентах</translation>
+        <translation>Собственное в процентах</translation>
     </message>
 </context>
 <context>
@@ -26741,7 +26808,7 @@ Error: %5</translation>
     </message>
     <message>
         <source>Build/Deployment canceled</source>
-        <translation>Сборка/разворачивание отменено</translation>
+        <translation>Сборка/развёртывание отменено</translation>
     </message>
     <message>
         <source>When executing step &quot;%1&quot;</source>
@@ -26754,7 +26821,7 @@ Error: %5</translation>
     <message>
         <source>Deployment</source>
         <comment>Category for deployment issues listed under &apos;Issues&apos;</comment>
-        <translation>Разворачивание</translation>
+        <translation>Развёртывание</translation>
     </message>
     <message>
         <source>Autotests</source>
@@ -26763,11 +26830,11 @@ Error: %5</translation>
     </message>
     <message>
         <source>Canceled build/deployment.</source>
-        <translation>Сборка/разворачивание было отменено.</translation>
+        <translation>Сборка/развёртывание было отменено.</translation>
     </message>
     <message>
         <source>Error while building/deploying project %1 (kit: %2)</source>
-        <translation>Ошибка при сборке/разворачивании проекта %1 (комплект: %2)</translation>
+        <translation>Ошибка при сборке/развёртывании проекта %1 (комплект: %2)</translation>
     </message>
     <message>
         <source>The kit %1 has configuration issues which might be the root cause for this problem.</source>
@@ -27022,21 +27089,21 @@ Error: %5</translation>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Разваорачивание</translation>
+        <translation>Развёртывание</translation>
     </message>
     <message>
         <source>Deploy locally</source>
         <extracomment>Default DeployConfiguration display name</extracomment>
-        <translation>Локальное разворачивание</translation>
+        <translation>Локальное развёртывание</translation>
     </message>
     <message>
         <source>Deploy Configuration</source>
         <extracomment>Display name of the default deploy configuration</extracomment>
-        <translation>Конфигурация разворачивания</translation>
+        <translation>Конфигурация развёртывания</translation>
     </message>
     <message>
         <source>Deploy Settings</source>
-        <translation>Настройки разворачивания</translation>
+        <translation>Настройки развёртывания</translation>
     </message>
 </context>
 <context>
@@ -27054,7 +27121,7 @@ Error: %5</translation>
     <name>ProjectExplorer::DeploymentDataView</name>
     <message>
         <source>Files to deploy:</source>
-        <translation>Разворачиваемые файлы:</translation>
+        <translation>Файлы для развёртывания:</translation>
     </message>
 </context>
 <context>
@@ -27360,11 +27427,11 @@ Error: %5</translation>
     </message>
     <message>
         <source>Append Path...</source>
-        <translation type="unfinished">Добавить после пути...</translation>
+        <translation>Добавить после пути...</translation>
     </message>
     <message>
         <source>Prepend Path...</source>
-        <translation type="unfinished">Добавить перед путём...</translation>
+        <translation>Добавить перед путём...</translation>
     </message>
     <message>
         <source>&amp;Batch Edit...</source>
@@ -27987,7 +28054,7 @@ Excluding: %2
     </message>
     <message>
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
-        <translation>Сихронизировать у проектов текущий комплект и конфигурации сборки и разворачивания.</translation>
+        <translation>Сихронизировать у проектов текущий комплект и конфигурации сборки и развёртывания.</translation>
     </message>
 </context>
 <context>
@@ -28492,7 +28559,7 @@ What should Qt Creator do now?</source>
     </message>
     <message>
         <source>Deploy</source>
-        <translation>Разворачивание</translation>
+        <translation>Развёртывание</translation>
     </message>
     <message>
         <source>Run</source>
@@ -28520,7 +28587,7 @@ What should Qt Creator do now?</source>
     </message>
     <message>
         <source>&lt;b&gt;Deploy:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Разворачивание:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;Развёртывание:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Run:&lt;/b&gt; %1</source>
@@ -28544,7 +28611,7 @@ What should Qt Creator do now?</source>
     </message>
     <message>
         <source>Deploy: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation>Разворачивание: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</translation>
+        <translation>Развёртывание: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Run: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
@@ -28687,11 +28754,11 @@ What should Qt Creator do now?</source>
     </message>
     <message>
         <source>Always build project before deploying it</source>
-        <translation>Всегда собирать проект перед разворачиванием</translation>
+        <translation>Всегда собирать проект перед развёртыванием</translation>
     </message>
     <message>
         <source>Always deploy project before running it</source>
-        <translation>Всегда разворачивать проект перед запуском</translation>
+        <translation>Всегда развёртывать проект перед запуском</translation>
     </message>
     <message>
         <source>Always ask before stopping applications</source>
@@ -29053,7 +29120,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Deployment</source>
-        <translation>Разворачивание</translation>
+        <translation>Развёртывание</translation>
     </message>
     <message>
         <source>Method:</source>
@@ -29082,7 +29149,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
-        <translation>Отменить сборку и удалить конфигурацию разворачивания</translation>
+        <translation>Отменить сборку и удалить конфигурацию развёртывания</translation>
     </message>
     <message>
         <source>Do Not Remove</source>
@@ -29090,27 +29157,27 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
-        <translation>Удаление конфигурации разворачивания %1</translation>
+        <translation>Удаление конфигурации развёртывания %1</translation>
     </message>
     <message>
         <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>В данный момент идёт сборка с использованием конфигурации разворачивания &lt;b&gt;%1&lt;/b&gt;.</translation>
+        <translation>В данный момент идёт сборка с использованием конфигурации развёртывания &lt;b&gt;%1&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
-        <translation>Остановить процесс сборки и удалить конфигурацию разворачивания?</translation>
+        <translation>Остановить процесс сборки и удалить конфигурацию развёртывания?</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration?</source>
-        <translation>Удаление конфигурации разворачивания</translation>
+        <translation>Удаление конфигурации развёртывания</translation>
     </message>
     <message>
         <source>Do you really want to delete deploy configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation>Желаете удалить конфигурацию разворачивания &lt;b&gt;%1&lt;/b&gt;?</translation>
+        <translation>Желаете удалить конфигурацию развёртывания &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
     <message>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation>Новое название конфигурации разворачивания &lt;b&gt;%1&lt;/b&gt;:</translation>
+        <translation>Новое название конфигурации развёртывания &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
 </context>
 <context>
@@ -30027,7 +30094,7 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>QML File (Qt Quick 2)</source>
-        <translation>Файл QML (Qt Quck 2)</translation>
+        <translation>Файл QML (Qt Quick 2)</translation>
     </message>
     <message>
         <source>Creates a scratch buffer using a temporary file.</source>
@@ -31178,7 +31245,7 @@ Please close all running instances of your application before starting a build.<
     </message>
     <message>
         <source>Deploy configurations:</source>
-        <translation>Конфигурации разворачивания:</translation>
+        <translation>Конфигурации развёртывания:</translation>
     </message>
     <message>
         <source>Run configurations:</source>
@@ -31581,7 +31648,7 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>Run Without Deployment</source>
-        <translation>Запустить без разворачивания</translation>
+        <translation>Запустить без развёртывания</translation>
     </message>
     <message>
         <source>New Subproject...</source>
@@ -33828,7 +33895,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Qmake has subtle bugs that can be triggered if source and build directory are not at the same level.</source>
-        <translation>Qmake содержит ошибку, возникающую при нахождении каталогов сборки и исходников на разных уровнях.</translation>
+        <translation>Qmake содержит ошибку, которая может проявляться, если каталоги сборки и исходников находятся на разных уровнях.</translation>
     </message>
     <message>
         <source>Run qmake on every build</source>
@@ -38341,7 +38408,7 @@ Saving failed.</source>
     <name>Qnx::Internal::QnxDeployQtLibrariesDialog</name>
     <message>
         <source>Qt library to deploy:</source>
-        <translation>Разворачиваемая Qt:</translation>
+        <translation>Библиотека Qt для развёртывания:</translation>
     </message>
     <message>
         <source>Deploy</source>
@@ -38764,6 +38831,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Type</source>
         <translation>Тип</translation>
+    </message>
+    <message>
+        <source>Change the type of this item.</source>
+        <translation>Меняет тип этого элемента.</translation>
     </message>
     <message>
         <source>id</source>
@@ -42948,7 +43019,7 @@ Specifies how backspace interacts with indentation.
     </message>
     <message>
         <source>Timeout in ms:</source>
-        <translation>Таймаут в мс:</translation>
+        <translation>Таймаут, мс:</translation>
     </message>
     <message>
         <source>Inserts the common prefix of available completion items.</source>
@@ -47925,7 +47996,7 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Multi-paradigm language for creating highly dynamic applications.</source>
-        <translation>Многопарадигмый язый для создания высокодинамичных приложений.</translation>
+        <translation>Мультипарадигменный язык для создания высокодинамичных приложений.</translation>
     </message>
     <message>
         <source>Run your concepts and prototypes on your final hardware.</source>
