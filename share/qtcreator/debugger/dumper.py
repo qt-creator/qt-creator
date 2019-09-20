@@ -2837,8 +2837,8 @@ class DumperBase:
             return
 
         if typeobj.code == TypeCodeFortranString:
-            data = self.value.data()
-            self.putValue(data, 'latin1', 1)
+            self.putValue(self.hexencode(value.data()), 'latin1')
+            self.putNumChild(0)
             self.putType(typeobj)
 
         if typeName.endswith('[]'):
