@@ -224,6 +224,8 @@ void LanguageClientManager::applySettings()
             documents << managerInstance->m_clientForDocument.keys(client);
             shutdownClient(client);
         }
+        for (auto document : documents)
+            managerInstance->m_clientForDocument.remove(document);
         if (!setting->isValid() || !setting->m_enabled)
             continue;
         switch (setting->m_startBehavior) {
@@ -234,13 +236,19 @@ void LanguageClientManager::applySettings()
             break;
         }
         case BaseSettings::RequiresFile: {
-            if (Utils::anyOf(Core::DocumentModel::openedDocuments(),
-                             [filter = setting->m_languageFilter](Core::IDocument *doc) {
-                                 return filter.isSupported(doc);
-                             })) {
+            for (Core::IDocument *document : Core::DocumentModel::openedDocuments()) {
+                if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document)) {
+                    if (setting->m_languageFilter.isSupported(document))
+                        documents << textDocument;
+                }
+            }
+            if (!documents.isEmpty()) {
                 Client *client = startClient(setting);
-                for (TextEditor::TextDocument *document : documents)
-                    managerInstance->m_clientForDocument[document] = client;
+                for (TextEditor::TextDocument *document : documents) {
+                    if (managerInstance->m_clientForDocument.value(document).isNull())
+                        managerInstance->m_clientForDocument[document] = client;
+                    client->openDocument(document);
+                }
             }
             break;
         }
@@ -295,7 +303,8 @@ const BaseSettings *LanguageClientManager::settingForClient(Client *client)
 Client *LanguageClientManager::clientForDocument(TextEditor::TextDocument *document)
 {
     QTC_ASSERT(managerInstance, return nullptr);
-    return document == nullptr ? nullptr : managerInstance->m_clientForDocument[document].data();
+    return document == nullptr ? nullptr
+                               : managerInstance->m_clientForDocument.value(document).data();
 }
 
 Client *LanguageClientManager::clientForFilePath(const Utils::FilePath &filePath)
@@ -419,7 +428,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
             }
             for (auto client : clients) {
                 openDocumentWithClient(textDocument, client);
-                if (m_clientForDocument.value(textDocument).isNull())
+                if (!m_clientForDocument.contains(textDocument))
                     m_clientForDocument[textDocument] = client;
             }
         }
