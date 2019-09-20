@@ -473,9 +473,15 @@
     {SUBDIRS variable}. It also adds all the necessary files for the subproject.
 
     To create more subprojects, right-click the project name in the
-    \uicontrol Projects pane, and select \uicontrol {New Subproject} in the
-    context menu. To add an existing project as a subproject, select
-    \uicontrol {Add Existing Projects}.
+    \uicontrol Projects pane to open the context menu, and select
+    \uicontrol {New Subproject}. Follow the steps in the
+     \uicontrol {New Subproject} wizard to create a subproject.
+
+    \image qtcreator-new-subproject.png
+
+    To add an existing project as a subproject, select
+    \uicontrol {Add Existing Projects} in the context menu.
+    In the file browser dialog, locate your subproject.
 
     To remove subprojects, right-click the project name in the \uicontrol Projects
     pane, and select \uicontrol {Remove Subproject} in the context menu.
