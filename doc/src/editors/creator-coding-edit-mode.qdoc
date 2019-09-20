@@ -114,6 +114,11 @@
     the new encoding, select \uicontrol {Save with Encoding}.
     \endif
 
+    \section2 Selecting Line Ending Style
+
+    To switch between Windows line endings (CRLF) and Unix line endings (LF),
+    select the ending style on the editor toolbar (6).
+
     \section1 Splitting the Editor View
 
     Split the editor view or open the editor in a new window when you want to
