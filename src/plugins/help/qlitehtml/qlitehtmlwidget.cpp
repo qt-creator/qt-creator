@@ -534,10 +534,42 @@ void QLiteHtmlWidget::paintEvent(QPaintEvent *event)
                                           &clip);
 }
 
+static litehtml::element::ptr elementForY(int y, const litehtml::document::ptr &document)
+{
+    if (!document)
+        return {};
+
+    const std::function<litehtml::element::ptr(int, litehtml::element::ptr)> recursion =
+        [&recursion](int y, const litehtml::element::ptr &element) {
+            litehtml::element::ptr result;
+            const int subY = y - element->get_position().y;
+            if (subY <= 0)
+                return element;
+            for (int i = 0; i < int(element->get_children_count()); ++i) {
+                const litehtml::element::ptr child = element->get_child(i);
+                result = recursion(subY, child);
+                if (result)
+                    return result;
+            }
+            return result;
+        };
+
+    return recursion(y, document->root());
+}
+
 void QLiteHtmlWidget::resizeEvent(QResizeEvent *event)
 {
+    // remember element to which to scroll after re-rendering
+    QPoint viewportPos;
+    QPoint pos;
+    htmlPos({}, &viewportPos, &pos); // top-left
+    const litehtml::element::ptr element = elementForY(pos.y(), d->documentContainer.document());
     QAbstractScrollArea::resizeEvent(event);
     render();
+    if (element) {
+        verticalScrollBar()->setValue(
+            std::min(element->get_placement().y, verticalScrollBar()->maximum()));
+    }
 }
 
 void QLiteHtmlWidget::mouseMoveEvent(QMouseEvent *event)
