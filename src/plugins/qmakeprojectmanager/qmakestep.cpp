@@ -590,6 +590,8 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
     connect(step->project(), &Project::projectLanguagesUpdated,
             this, &QMakeStepConfigWidget::linkQmlDebuggingLibraryChanged);
+    connect(step->project(), &Project::parsingFinished,
+            this, &QMakeStepConfigWidget::updateEffectiveQMakeCall);
     connect(step, &QMakeStep::useQtQuickCompilerChanged,
             this, &QMakeStepConfigWidget::useQtQuickCompilerChanged);
     connect(step, &QMakeStep::separateDebugInfoChanged,
