@@ -91,7 +91,7 @@ private:
 
     QStringList m_buildTargets;
     QStringList m_availableTargets;
-    QString m_makeArguments;
+    QString m_userArguments;
     Utils::FilePath m_makeCommand;
     int m_userJobCount = 4;
     bool m_overrideMakeflags = false;

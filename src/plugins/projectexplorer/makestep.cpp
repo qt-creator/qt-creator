@@ -246,7 +246,7 @@ bool MakeStep::makeflagsContainsJobCount() const
 
 bool MakeStep::userArgsContainsJobCount() const
 {
-    return argsJobCount(m_makeArguments).has_value();
+    return argsJobCount(m_userArguments).has_value();
 }
 
 Utils::Environment MakeStep::environment(BuildConfiguration *bc) const
@@ -275,7 +275,7 @@ QVariantMap MakeStep::toMap() const
     QVariantMap map(AbstractProcessStep::toMap());
 
     map.insert(id().withSuffix(BUILD_TARGETS_SUFFIX).toString(), m_buildTargets);
-    map.insert(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString(), m_makeArguments);
+    map.insert(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString(), m_userArguments);
     map.insert(id().withSuffix(MAKE_COMMAND_SUFFIX).toString(), m_makeCommand.toString());
     map.insert(id().withSuffix(CLEAN_SUFFIX).toString(), m_clean);
     const QString jobCountKey = id().withSuffix(JOBCOUNT_SUFFIX).toString();
@@ -290,7 +290,7 @@ QVariantMap MakeStep::toMap() const
 bool MakeStep::fromMap(const QVariantMap &map)
 {
     m_buildTargets = map.value(id().withSuffix(BUILD_TARGETS_SUFFIX).toString()).toStringList();
-    m_makeArguments = map.value(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString()).toString();
+    m_userArguments = map.value(id().withSuffix(MAKE_ARGUMENTS_SUFFIX).toString()).toString();
     m_makeCommand = FilePath::fromString(
                 map.value(id().withSuffix(MAKE_COMMAND_SUFFIX).toString()).toString());
     m_clean = map.value(id().withSuffix(CLEAN_SUFFIX).toString()).toBool();
@@ -315,12 +315,12 @@ QStringList MakeStep::jobArguments() const
 
 QString MakeStep::userArguments() const
 {
-    return m_makeArguments;
+    return m_userArguments;
 }
 
 void MakeStep::setUserArguments(const QString &args)
 {
-    m_makeArguments = args;
+    m_userArguments = args;
 }
 
 FilePath MakeStep::makeCommand() const
@@ -332,7 +332,7 @@ CommandLine MakeStep::effectiveMakeCommand() const
 {
     CommandLine cmd(m_makeCommand.isEmpty() ? defaultMakeCommand() : m_makeCommand);
 
-    cmd.addArgs(m_makeArguments, CommandLine::Raw);
+    cmd.addArgs(m_userArguments, CommandLine::Raw);
     cmd.addArgs(jobArguments());
     cmd.addArgs(m_buildTargets);
 
