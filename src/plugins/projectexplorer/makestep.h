@@ -83,6 +83,7 @@ public:
 
 protected:
     bool fromMap(const QVariantMap &map) override;
+    virtual QStringList autoArguments() const;
 
 private:
     QVariantMap toMap() const override;

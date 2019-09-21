@@ -53,6 +53,7 @@ private:
     void finish(bool success) override;
     bool init() override;
     void doRun() override;
+    QStringList autoArguments() const override;
 
     bool m_scriptTarget = false;
     QString m_makeFileToCheck;
