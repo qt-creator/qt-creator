@@ -44,6 +44,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/utilsicons.h>
 
@@ -442,7 +443,7 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
     }
 
     bool blocked = blockSelectionChangedSignal(true);
-    setSelectedModelNodes(nodeSet.toList());
+    setSelectedModelNodes(Utils::toList(nodeSet));
     blockSelectionChangedSignal(blocked);
 }
 

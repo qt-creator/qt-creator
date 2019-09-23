@@ -415,7 +415,7 @@ function(add_qtc_library name)
   )
 
   add_qtc_depends(${name}
-    PRIVATE ${_arg_DEPENDS} ${_TEST_DEPENDS}
+    PRIVATE ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
     PUBLIC ${_arg_PUBLIC_DEPENDS}
   )
 
@@ -626,7 +626,7 @@ function(add_qtc_plugin target_name)
   )
 
   add_qtc_depends(${target_name}
-    PRIVATE ${_arg_DEPENDS} ${_DEP_PLUGINS} ${_TEST_DEPENDS}
+    PRIVATE ${_arg_DEPENDS} ${_DEP_PLUGINS} ${IMPLICIT_DEPENDS}
     PUBLIC ${_arg_PUBLIC_DEPENDS}
   )
 
@@ -799,7 +799,7 @@ function(add_qtc_executable name)
   add_executable("${name}" ${_arg_SOURCES})
   target_include_directories("${name}" PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})
   target_compile_definitions("${name}" PRIVATE ${_arg_DEFINES} ${TEST_DEFINES} ${DEFAULT_DEFINES})
-  target_link_libraries("${name}" PRIVATE ${_arg_DEPENDS} ${_TEST_DEPENDS})
+  target_link_libraries("${name}" PRIVATE ${_arg_DEPENDS} ${IMPLICIT_DEPENDS})
 
   set(skip_translation OFF)
   if (_arg_SKIP_TRANSLATION)
@@ -846,7 +846,7 @@ function(add_qtc_test name)
   add_executable(${name} ${_arg_SOURCES})
 
   add_qtc_depends(${name}
-    PRIVATE ${_arg_DEPENDS} ${_TEST_DEPENDS}
+    PRIVATE ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
   )
 
   target_include_directories(${name} PRIVATE "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES})

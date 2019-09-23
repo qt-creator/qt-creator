@@ -30,13 +30,17 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 if (WITH_TESTS)
-  set(_TEST_QT_COMPONENT Test)
-  set(_TEST_DEPENDS Qt5::Test)
+  set(QT_TEST_COMPONENT Test)
+  set(IMPLICIT_DEPENDS Qt5::Test)
+endif()
+
+if (BUILD_WITH_PCH)
+  list(APPEND IMPLICIT_DEPENDS Qt5::Core)
 endif()
 
 find_package(Qt5
-  COMPONENTS Concurrent Core LinguistTools Network PrintSupport Qml Quick
-    QuickWidgets Sql Widgets ${_TEST_QT_COMPONENT}
+  COMPONENTS Concurrent Core Gui LinguistTools Network PrintSupport Qml Quick
+    QuickWidgets Sql Widgets Xml ${QT_TEST_COMPONENT}
   REQUIRED
 )
 

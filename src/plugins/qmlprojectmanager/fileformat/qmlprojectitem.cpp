@@ -80,7 +80,7 @@ QStringList QmlProjectItem::files() const
             }
         }
     }
-    return files.toList();
+    return Utils::toList(files);
 }
 
 /**
