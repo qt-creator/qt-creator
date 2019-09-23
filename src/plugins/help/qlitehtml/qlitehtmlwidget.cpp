@@ -528,6 +528,8 @@ void QLiteHtmlWidget::paintEvent(QPaintEvent *event)
     const litehtml::position clip = {r.x(), r.y(), r.width(), r.height()};
     QPainter p(viewport());
     p.setWorldTransform(QTransform().scale(d->zoomFactor, d->zoomFactor));
+    p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    p.setRenderHint(QPainter::Antialiasing, true);
     d->documentContainer.document()->draw(reinterpret_cast<litehtml::uint_ptr>(&p),
                                           pos.x(),
                                           pos.y(),
