@@ -182,6 +182,9 @@
         \li Execute the \uicontrol Build menu commands.
         \li Create new files. For more information, see
             \l{Adding Files to Projects}.
+        \li Rename or remove existing files. If you change the base name of a
+            file, \QC displays a list of other files with the same base name
+            and offers to rename them as well.
         \if defined(qtcreator)
         \li Add existing files and directories.
         \li Add libraries. For more information, see
@@ -199,9 +202,7 @@
     \endlist
 
     For managing files and directories, the same functions are available as in
-    the \uicontrol {File System} view. In addition, you can remove and rename
-    files, as well as compare the selected file with the currently open file
-    in the diff editor. For more information, see \l{Comparing Files}.
+    the \uicontrol {File System} view.
 
     \section1 Viewing the File System
 
