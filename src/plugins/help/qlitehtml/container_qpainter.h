@@ -30,6 +30,7 @@
 #include <QFont>
 #include <QHash>
 #include <QPaintDevice>
+#include <QPalette>
 #include <QPixmap>
 #include <QRect>
 #include <QString>
