@@ -19,6 +19,7 @@ exists($$PWD/litehtml/CMakeLists.txt) {
                    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
                    $$LITEHTML_UTF8 \
                    $$CMAKE_DEPLOYMENT_TARGET \
+                   -G $$system_quote('NMake Makefiles') \
                    $$system_quote($$shell_path($${LITEHTML_SOURCE_PATH}))"
         message("$${LITEHTML_CMAKE_CMD}")
         system("$${LITEHTML_CMAKE_CMD}")
@@ -49,6 +50,8 @@ SOURCES += \
 
 INCLUDEPATH += $$PWD $$LITEHTML_INCLUDE_DIRS
 LIBS += -L$$LITEHTML_LIB_DIR -llitehtml -lgumbo
+
+DEFINES += LITEHTML_UTF8
 
 win32: PRE_TARGETDEPS += $$LITEHTML_LIB_DIR/litehtml.lib $$LITEHTML_LIB_DIR/gumbo.lib
 else:unix: PRE_TARGETDEPS += $$LITEHTML_LIB_DIR/liblitehtml.a $$LITEHTML_LIB_DIR/libgumbo.a
