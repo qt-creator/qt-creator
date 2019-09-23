@@ -69,8 +69,11 @@ public:
         m_label->setText(text);
         layout()->setSizeConstraint(QLayout::SetFixedSize);
         adjustSize();
-        if (QWidget *parent = parentWidget())
-            move(parent->rect().center() - rect().center());
+        QWidget *parent = parentWidget();
+        QPoint pos = parent ? (parent->rect().center() - rect().center()) : QPoint();
+        if (pixmapIndicator && pixmapIndicator->geometry().intersects(QRect(pos, size())))
+            pos.setY(pixmapIndicator->geometry().bottom() + 1);
+        move(pos);
     }
 
     void setPixmap(const QString &uri)
@@ -79,8 +82,11 @@ public:
         m_pixmap.load(StyleHelper::dpiSpecificImageFile(uri));
         layout()->setSizeConstraint(QLayout::SetNoConstraint);
         resize(m_pixmap.size() / m_pixmap.devicePixelRatio());
-        if (QWidget *parent = parentWidget())
-            move(parent->rect().center() - rect().center());
+        QWidget *parent = parentWidget();
+        QPoint pos = parent ? (parent->rect().center() - rect().center()) : QPoint();
+        if (textIndicator && textIndicator->geometry().intersects(QRect(pos, size())))
+            pos.setY(textIndicator->geometry().bottom() + 1);
+        move(pos);
     }
 
     void run(int ms)
@@ -89,6 +95,9 @@ public:
         raise();
         QTimer::singleShot(ms, this, &FadingIndicatorPrivate::runInternal);
     }
+
+    static QPointer<FadingIndicatorPrivate> textIndicator;
+    static QPointer<FadingIndicatorPrivate> pixmapIndicator;
 
 protected:
     void paintEvent(QPaintEvent *) override
@@ -119,13 +128,17 @@ private:
     QPixmap m_pixmap;
 };
 
+QPointer<FadingIndicatorPrivate> FadingIndicatorPrivate::textIndicator;
+QPointer<FadingIndicatorPrivate> FadingIndicatorPrivate::pixmapIndicator;
+
 } // Internal
 
 namespace FadingIndicator {
 
 void showText(QWidget *parent, const QString &text, TextSize size)
 {
-    static QPointer<Internal::FadingIndicatorPrivate> indicator;
+    QPointer<Internal::FadingIndicatorPrivate> &indicator
+        = Internal::FadingIndicatorPrivate::textIndicator;
     if (indicator)
         delete indicator;
     indicator = new Internal::FadingIndicatorPrivate(parent, size);
@@ -135,7 +148,8 @@ void showText(QWidget *parent, const QString &text, TextSize size)
 
 void showPixmap(QWidget *parent, const QString &pixmap)
 {
-    static QPointer<Internal::FadingIndicatorPrivate> indicator;
+    QPointer<Internal::FadingIndicatorPrivate> &indicator
+        = Internal::FadingIndicatorPrivate::pixmapIndicator;
     if (indicator)
         delete indicator;
     indicator = new Internal::FadingIndicatorPrivate(parent, LargeText);
