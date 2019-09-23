@@ -187,7 +187,7 @@ void TimelineGraphicsScene::setCurrentFrame(int frame)
 
     if (timeline.isValid()) {
         timeline.modelNode().setAuxiliaryData("currentFrame@NodeInstance", frame);
-        m_currentFrameIndicator->setPosition(frame + timeline.startKeyframe());
+        m_currentFrameIndicator->setPosition(frame);
     } else {
         m_currentFrameIndicator->setPosition(0);
     }
