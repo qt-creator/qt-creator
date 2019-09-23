@@ -135,7 +135,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
     const Context projectContext(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
-    Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
+    Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
     d = new QmakeProjectManagerPluginPrivate;
 
@@ -280,7 +280,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
 
     d->m_addLibraryActionContextMenu = new QAction(tr("Add Library..."), this);
     command = ActionManager::registerAction(d->m_addLibraryActionContextMenu,
-        Constants::ADDLIBRARY, projecTreeContext);
+        Constants::ADDLIBRARY, projectTreeContext);
     connect(d->m_addLibraryActionContextMenu, &QAction::triggered,
             &d->qmakeProjectManager, &QmakeManager::addLibraryContextMenu);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
