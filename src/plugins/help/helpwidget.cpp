@@ -332,6 +332,10 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
                                                       : Utils::Icons::CLOSE_SPLIT_RIGHT;
         m_closeAction = new QAction(icon.icon(), QString(), toolBar);
         connect(m_closeAction, &QAction::triggered, this, &HelpWidget::closeButtonClicked);
+        connect(m_closeAction, &QAction::triggered, this, [this] {
+            if (viewerCount() > 1)
+                closeCurrentPage();
+        });
         button = new QToolButton;
         button->setDefaultAction(m_closeAction);
         layout->addWidget(button);
@@ -354,6 +358,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
 
 HelpWidget::~HelpWidget()
 {
+    saveState();
     if (m_sideBar) {
         m_sideBar->saveSettings(Core::ICore::settings(), sideBarSettingsKey());
         Core::ActionManager::unregisterAction(m_contentsAction, Constants::HELP_CONTENTS);
@@ -386,6 +391,11 @@ HelpWidget::~HelpWidget()
 QAbstractItemModel *HelpWidget::model()
 {
     return &m_model;
+}
+
+HelpWidget::WidgetStyle HelpWidget::widgetStyle() const
+{
+    return m_style;
 }
 
 void HelpWidget::addSideBar()
@@ -703,6 +713,32 @@ void HelpWidget::helpModeButtonClicked()
     emit openHelpMode(currentViewer()->source());
     if (m_style == ExternalWindow)
         close();
+}
+
+void HelpWidget::closeCurrentPage()
+{
+    removeViewerAt(currentIndex());
+}
+
+void HelpWidget::saveState() const
+{
+    // TODO generalize
+    if (m_style == ModeWidget) {
+        QList<qreal> zoomFactors;
+        QStringList currentPages;
+        for (int i = 0; i < viewerCount(); ++i) {
+            const HelpViewer *const viewer = viewerAt(i);
+            const QUrl &source = viewer->source();
+            if (source.isValid()) {
+                currentPages.append(source.toString());
+                zoomFactors.append(viewer->scale());
+            }
+        }
+
+        LocalHelpManager::setLastShownPages(currentPages);
+        LocalHelpManager::setLastShownPagesZoom(zoomFactors);
+        LocalHelpManager::setLastSelectedTab(currentIndex());
+    }
 }
 
 void HelpWidget::updateCloseButton()

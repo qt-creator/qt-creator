@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "centralwidget.h"
 #include "helpviewer.h"
 #include "openpagesmanager.h"
 

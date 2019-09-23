@@ -9,7 +9,6 @@ DEFINES += \
     HELP_LIBRARY
 
 HEADERS += \
-    centralwidget.h \
     docsettingspage.h \
     filtersettingspage.h \
     generalsettingspage.h \
@@ -32,7 +31,6 @@ HEADERS += \
     helpwidget.h
 
 SOURCES += \
-    centralwidget.cpp \
     docsettingspage.cpp \
     filtersettingspage.cpp \
     generalsettingspage.cpp \

@@ -25,7 +25,6 @@
 
 #include "openpagesswitcher.h"
 
-#include "centralwidget.h"
 #include "openpageswidget.h"
 
 #include <utils/hostosinfo.h>

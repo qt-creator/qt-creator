@@ -26,7 +26,6 @@
 #include "helpplugin.h"
 
 #include "bookmarkmanager.h"
-#include "centralwidget.h"
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
 #include "generalsettingspage.h"
@@ -37,11 +36,12 @@
 #include "helpmanager.h"
 #include "helpmode.h"
 #include "helpviewer.h"
+#include "helpwidget.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "remotehelpfilter.h"
-#include "searchwidget.h"
 #include "searchtaskhandler.h"
+#include "searchwidget.h"
 #include "topicchooser.h"
 
 #include <bookmarkmanager.h>
@@ -118,7 +118,6 @@ public:
 
     void saveExternalWindowSettings();
     void showLinksInCurrentViewer(const QMap<QString, QUrl> &links, const QString &key);
-    void slotHideRightPane();
 
     void updateSideBarSource(const QUrl &newUrl);
 
@@ -144,8 +143,10 @@ public:
     void doSetupIfNeeded();
 
     HelpMode m_mode;
-    CentralWidget *m_centralWidget = nullptr;
+    HelpWidget *m_centralWidget = nullptr;
     HelpWidget *m_rightPaneSideBarWidget = nullptr;
+    QPointer<HelpWidget> m_externalWindow;
+    QRect m_externalWindowState;
 
     DocSettingsPage m_docSettingsPage;
     FilterSettingsPage m_filterSettingsPage;
@@ -154,9 +155,6 @@ public:
 
     bool m_setupNeeded = true;
     LocalHelpManager m_localHelpManager;
-
-    QPointer<HelpWidget> m_externalWindow;
-    QRect m_externalWindowState;
 
     HelpIndexFilter helpIndexFilter;
     RemoteHelpFilter remoteHelpFilter;
@@ -209,16 +207,9 @@ HelpPluginPrivate::HelpPluginPrivate()
             QCoreApplication::installTranslator(qhelptr);
     }
 
-    m_centralWidget = new CentralWidget(Context("Help.CentralHelpWidget"));
+    m_centralWidget = createHelpWidget(Context("Help.CentralHelpWidget"), HelpWidget::ModeWidget);
     connect(m_centralWidget, &HelpWidget::sourceChanged,
             this, &HelpPluginPrivate::updateSideBarSource);
-    connect(m_centralWidget,
-            &CentralWidget::closeButtonClicked,
-            m_centralWidget->openPagesManager(),
-            &OpenPagesManager::closeCurrentPage);
-
-    connect(LocalHelpManager::instance(), &LocalHelpManager::returnOnCloseChanged,
-            m_centralWidget, &CentralWidget::updateCloseButton);
     connect(HelpManager::instance(), &HelpManager::helpRequested,
             this, &HelpPluginPrivate::showHelpUrl);
     connect(&m_searchTaskHandler, &SearchTaskHandler::search,
@@ -406,13 +397,18 @@ HelpWidget *HelpPluginPrivate::createHelpWidget(const Context &context, HelpWidg
     connect(widget, &HelpWidget::openHelpMode, this, [this](const QUrl &url) {
         showHelpUrl(url, Core::HelpManager::HelpModeAlways);
     });
-    connect(widget, &HelpWidget::closeButtonClicked, this, &HelpPluginPrivate::slotHideRightPane);
+    connect(LocalHelpManager::instance(),
+            &LocalHelpManager::returnOnCloseChanged,
+            widget,
+            &HelpWidget::updateCloseButton);
+    connect(widget, &HelpWidget::closeButtonClicked, this, [this, widget] {
+        if (widget->viewerCount() == 1 && LocalHelpManager::returnOnClose())
+            ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        if (widget->widgetStyle() == HelpWidget::SideBarWidget)
+            RightPaneWidget::instance()->setShown(false);
+    });
     connect(widget, &HelpWidget::aboutToClose,
             this, &HelpPluginPrivate::saveExternalWindowSettings);
-
-    // force setup, as we might have never switched to full help mode
-    // thus the help engine might still run without collection file setup
-    LocalHelpManager::setupGuiHelpEngine();
 
     return widget;
 }
@@ -470,17 +466,17 @@ HelpViewer *HelpPlugin::createHelpViewer(qreal zoom)
     return viewer;
 }
 
+HelpWidget *HelpPlugin::modeHelpWidget()
+{
+    return dd->m_centralWidget;
+}
+
 void HelpPluginPrivate::showLinksInCurrentViewer(const QMap<QString, QUrl> &links, const QString &key)
 {
     if (links.size() < 1)
         return;
     HelpWidget *widget = helpWidgetForWindow(QApplication::activeWindow());
     widget->showLinks(links, key);
-}
-
-void HelpPluginPrivate::slotHideRightPane()
-{
-    RightPaneWidget::instance()->setShown(false);
 }
 
 void HelpPluginPrivate::modeChanged(Core::Id mode, Core::Id old)
@@ -556,6 +552,9 @@ HelpViewer *HelpPluginPrivate::viewerForHelpViewerLocation(
         actualLocation = canShowHelpSideBySide() ? Core::HelpManager::SideBySideAlways
                                                  : Core::HelpManager::HelpModeAlways;
 
+    // force setup, as we might have never switched to full help mode
+    // thus the help engine might still run without collection file setup
+    LocalHelpManager::setupGuiHelpEngine();
     if (actualLocation == Core::HelpManager::ExternalHelpAlways)
         return externalHelpViewer();
 

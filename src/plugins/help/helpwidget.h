@@ -81,6 +81,7 @@ public:
     ~HelpWidget() override;
 
     QAbstractItemModel *model();
+    WidgetStyle widgetStyle() const;
 
     HelpViewer *currentViewer() const;
     int currentIndex() const;
@@ -122,6 +123,8 @@ private:
     void updateForwardMenu();
     void updateWindowTitle();
     void helpModeButtonClicked();
+    void closeCurrentPage();
+    void saveState() const;
 
     void goHome();
     void addBookmark();

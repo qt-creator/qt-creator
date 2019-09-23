@@ -25,9 +25,10 @@
 
 #include "generalsettingspage.h"
 
-#include "centralwidget.h"
 #include "helpconstants.h"
+#include "helpplugin.h"
 #include "helpviewer.h"
+#include "helpwidget.h"
 #include "localhelpmanager.h"
 #include "xbelsupport.h"
 
@@ -105,10 +106,12 @@ QWidget *GeneralSettingsPage::widget()
                 this, &GeneralSettingsPage::setCurrentPage);
         connect(m_ui->blankPageButton, &QPushButton::clicked,
                 this, &GeneralSettingsPage::setBlankPage);
-        connect(m_ui->defaultPageButton, &QPushButton::clicked,
-                this, &GeneralSettingsPage::setDefaultPage);
+        connect(m_ui->defaultPageButton,
+                &QPushButton::clicked,
+                this,
+                &GeneralSettingsPage::setDefaultPage);
 
-        HelpViewer *viewer = CentralWidget::instance()->currentViewer();
+        HelpViewer *viewer = HelpPlugin::modeHelpWidget()->currentViewer();
         if (!viewer)
             m_ui->currentPageButton->setEnabled(false);
 
@@ -191,7 +194,7 @@ void GeneralSettingsPage::apply()
 
 void GeneralSettingsPage::setCurrentPage()
 {
-    HelpViewer *viewer = CentralWidget::instance()->currentViewer();
+    HelpViewer *viewer = HelpPlugin::modeHelpWidget()->currentViewer();
     if (viewer)
         m_ui->homePageLineEdit->setText(viewer->source().toString());
 }

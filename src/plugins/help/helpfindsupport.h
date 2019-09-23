@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "centralwidget.h"
-
 #include <coreplugin/find/ifindsupport.h>
 
 namespace Help {

@@ -25,7 +25,6 @@
 
 #include "helpindexfilter.h"
 
-#include "centralwidget.h"
 #include "helpicons.h"
 #include "helpmanager.h"
 #include "topicchooser.h"

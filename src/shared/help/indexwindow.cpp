@@ -27,7 +27,6 @@
 
 #include "topicchooser.h"
 
-#include <centralwidget.h>
 #include <helpviewer.h>
 #include <localhelpmanager.h>
 #include <openpagesmanager.h>

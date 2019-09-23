@@ -28,7 +28,6 @@ QtcPlugin {
     Group {
         name: "Sources"
         files: [
-            "centralwidget.cpp", "centralwidget.h",
             "docsettingspage.cpp", "docsettingspage.h", "docsettingspage.ui",
             "filtersettingspage.cpp", "filtersettingspage.h", "filtersettingspage.ui",
             "generalsettingspage.cpp", "generalsettingspage.h", "generalsettingspage.ui",
