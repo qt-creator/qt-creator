@@ -612,7 +612,7 @@ class GitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
     Q_OBJECT
 
 public:
-    GitLogArgumentsWidget(VcsBaseClientSettings &settings, QToolBar *toolBar = nullptr) :
+    GitLogArgumentsWidget(VcsBaseClientSettings &settings, bool fileRelated, QToolBar *toolBar) :
         BaseGitDiffArgumentsWidget(settings, toolBar)
     {
         QAction *diffButton = addToggleButton("--patch", tr("Show Diff"),
@@ -635,9 +635,12 @@ public:
                                                tr("Show textual graph log."));
         mapSetting(graphButton, settings.boolPointer(GitSettings::graphLogKey));
 
-        QAction *followButton = addToggleButton("--follow", tr("Follow"),
-                                               tr("Show log also for previous names of the file."));
-        mapSetting(followButton, settings.boolPointer(GitSettings::followRenamesKey));
+        if (fileRelated) {
+            QAction *followButton = addToggleButton(
+                        "--follow", tr("Follow"),
+                        tr("Show log also for previous names of the file."));
+            mapSetting(followButton, settings.boolPointer(GitSettings::followRenamesKey));
+        }
 
         addButton(tr("Reload"), Utils::Icons::RELOAD.icon());
     }
@@ -1019,7 +1022,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
                                                   codecFor(CodecLogOutput), "logTitle", msgArg);
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
-        argWidget = new GitLogArgumentsWidget(settings(), editor->toolBar());
+        argWidget = new GitLogArgumentsWidget(settings(), !fileName.isEmpty(), editor->toolBar());
         argWidget->setBaseArguments(args);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
                 [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
