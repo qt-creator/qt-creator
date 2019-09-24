@@ -641,8 +641,9 @@ void DocumentContainer::buildIndex()
             current->get_text(text);
             if (!text.empty()) {
                 m_index.indexToElement.push_back({index, current});
-                m_index.text += QString::fromStdString(text);
-                index += text.size();
+                const QString str = QString::fromStdString(text);
+                m_index.text += str;
+                index += str.size();
             }
         }
         current = nextLeaf(current, m_document->root());
