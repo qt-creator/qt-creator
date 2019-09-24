@@ -212,14 +212,6 @@ void QmakeMakeStep::finish(bool success)
     MakeStep::finish(success);
 }
 
-QStringList QmakeMakeStep::autoArguments() const
-{
-    const auto bc = static_cast<QmakeBuildConfiguration *>(buildConfiguration());
-    if (bc && !bc->makefile().isEmpty())
-        return {"-f", bc->makefile()};
-    return {};
-}
-
 ///
 // QmakeMakeStepFactory
 ///

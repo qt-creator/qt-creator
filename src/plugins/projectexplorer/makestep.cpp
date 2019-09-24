@@ -323,11 +323,6 @@ void MakeStep::setUserArguments(const QString &args)
     m_userArguments = args;
 }
 
-QStringList MakeStep::autoArguments() const
-{
-    return {};
-}
-
 FilePath MakeStep::makeCommand() const
 {
     return m_makeCommand;
@@ -337,7 +332,6 @@ CommandLine MakeStep::effectiveMakeCommand() const
 {
     CommandLine cmd(m_makeCommand.isEmpty() ? defaultMakeCommand() : m_makeCommand);
 
-    cmd.addArgs(autoArguments());
     cmd.addArgs(m_userArguments, CommandLine::Raw);
     cmd.addArgs(jobArguments());
     cmd.addArgs(m_buildTargets);
@@ -427,8 +421,6 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(m_makeStep->buildConfiguration(), &BuildConfiguration::environmentChanged,
             this, &MakeStepConfigWidget::updateDetails);
     connect(m_makeStep->buildConfiguration(), &BuildConfiguration::buildDirectoryChanged,
-            this, &MakeStepConfigWidget::updateDetails);
-    connect(m_makeStep->project(), &Project::parsingFinished,
             this, &MakeStepConfigWidget::updateDetails);
 
     Core::VariableChooser::addSupportForChildWidgets(this, m_makeStep->macroExpander());
