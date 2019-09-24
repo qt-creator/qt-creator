@@ -99,12 +99,14 @@ void TextBrowserHelpViewer::scaleDown()
 
 void TextBrowserHelpViewer::resetScale()
 {
-    if (m_textBrowser->zoomCount != 0) {
-        m_textBrowser->forceFont = true;
-        m_textBrowser->zoomOut(m_textBrowser->zoomCount);
-        m_textBrowser->forceFont = false;
-    }
-    m_textBrowser->zoomCount = 0;
+    m_textBrowser->withFixedTopPosition([this] {
+        if (m_textBrowser->zoomCount != 0) {
+            m_textBrowser->forceFont = true;
+            m_textBrowser->zoomOut(m_textBrowser->zoomCount);
+            m_textBrowser->forceFont = false;
+        }
+        m_textBrowser->zoomCount = 0;
+    });
 }
 
 qreal TextBrowserHelpViewer::scale() const
@@ -114,18 +116,20 @@ qreal TextBrowserHelpViewer::scale() const
 
 void TextBrowserHelpViewer::setScale(qreal scale)
 {
-    m_textBrowser->forceFont = true;
-    if (scale > 10)
-        scale = 10;
-    else if (scale < -5)
-        scale = -5;
-    int diff = int(scale) - m_textBrowser->zoomCount;
-    if (diff > 0)
-        m_textBrowser->zoomIn(diff);
-    else if (diff < 0)
-        m_textBrowser->zoomOut(-diff);
-    m_textBrowser->zoomCount = int(scale);
-    m_textBrowser->forceFont = false;
+    m_textBrowser->withFixedTopPosition([this, &scale] {
+        m_textBrowser->forceFont = true;
+        if (scale > 10)
+            scale = 10;
+        else if (scale < -5)
+            scale = -5;
+        int diff = int(scale) - m_textBrowser->zoomCount;
+        if (diff > 0)
+            m_textBrowser->zoomIn(diff);
+        else if (diff < 0)
+            m_textBrowser->zoomOut(-diff);
+        m_textBrowser->zoomCount = int(scale);
+        m_textBrowser->forceFont = false;
+    });
 }
 
 QString TextBrowserHelpViewer::title() const
@@ -145,13 +149,11 @@ void TextBrowserHelpViewer::setSource(const QUrl &url)
 
     slotLoadStarted();
     m_textBrowser->setSource(url);
-    QTimer::singleShot(0, this, [this, url]() {
-        if (!url.fragment().isEmpty())
-            m_textBrowser->scrollToAnchor(url.fragment());
-        if (QScrollBar *hScrollBar = m_textBrowser->horizontalScrollBar())
-            hScrollBar->setValue(0);
-        slotLoadFinished();
-    });
+    if (!url.fragment().isEmpty())
+        m_textBrowser->scrollToAnchor(url.fragment());
+    if (QScrollBar *hScrollBar = m_textBrowser->horizontalScrollBar())
+        hScrollBar->setValue(0);
+    slotLoadFinished();
 }
 
 void TextBrowserHelpViewer::setHtml(const QString &html)
@@ -330,24 +332,46 @@ QString TextBrowserHelpWidget::linkAt(const QPoint &pos)
     return anchor;
 }
 
+void TextBrowserHelpWidget::withFixedTopPosition(const std::function<void()> &action)
+{
+    const int topTextPosition = cursorForPosition({width() / 2, 0}).position();
+    action();
+    scrollToTextPosition(topTextPosition);
+}
+
+void TextBrowserHelpWidget::scrollToTextPosition(int position)
+{
+    QTextCursor tc(document());
+    tc.setPosition(position);
+    const int dy = cursorRect(tc).top();
+    if (verticalScrollBar()) {
+        verticalScrollBar()->setValue(
+            std::min(verticalScrollBar()->value() + dy, verticalScrollBar()->maximum()));
+    }
+}
+
 void TextBrowserHelpWidget::scaleUp()
 {
-    if (zoomCount < 10) {
-        zoomCount++;
-        forceFont = true;
-        zoomIn();
-        forceFont = false;
-    }
+    withFixedTopPosition([this] {
+        if (zoomCount < 10) {
+            zoomCount++;
+            forceFont = true;
+            zoomIn();
+            forceFont = false;
+        }
+    });
 }
 
 void TextBrowserHelpWidget::scaleDown()
 {
-    if (zoomCount > -5) {
-        zoomCount--;
-        forceFont = true;
-        zoomOut();
-        forceFont = false;
-    }
+    withFixedTopPosition([this] {
+        if (zoomCount > -5) {
+            zoomCount--;
+            forceFont = true;
+            zoomOut();
+            forceFont = false;
+        }
+    });
 }
 
 void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -427,6 +451,13 @@ void TextBrowserHelpWidget::mouseReleaseEvent(QMouseEvent *e)
     }
 
     QTextBrowser::mouseReleaseEvent(e);
+}
+
+void TextBrowserHelpWidget::resizeEvent(QResizeEvent *e)
+{
+    const int topTextPosition = cursorForPosition({width() / 2, 0}).position();
+    QTextBrowser::resizeEvent(e);
+    scrollToTextPosition(topTextPosition);
 }
 
 void TextBrowserHelpWidget::setSource(const QUrl &name)
