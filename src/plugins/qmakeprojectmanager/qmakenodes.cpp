@@ -230,7 +230,14 @@ FolderNode::AddNewInformation QmakePriFileNode::addNewInformation(const QStringL
 QmakeProFileNode::QmakeProFileNode(QmakeProject *project, const FilePath &filePath, QmakeProFile *pf) :
     QmakePriFileNode(project, this, filePath, pf)
 {
-    setIsProduct();
+    if (projectType() == ProjectType::ApplicationTemplate) {
+        setProductType(ProductType::App);
+    } else if (projectType() == ProjectType::SharedLibraryTemplate
+               || projectType() == ProjectType::StaticLibraryTemplate) {
+        setProductType(ProductType::Lib);
+    } else if (projectType() != ProjectType::SubDirsTemplate) {
+        setProductType(ProductType::Other);
+    }
 }
 
 bool QmakeProFileNode::showInSimpleTree() const

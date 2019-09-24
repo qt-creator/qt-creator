@@ -57,6 +57,8 @@ enum class FileType : quint16 {
     FileTypeSize
 };
 
+enum class ProductType { App, Lib, Other, None };
+
 enum ProjectAction {
     // Special value to indicate that the actions are handled by the parent
     InheritedFromParent,
@@ -357,15 +359,16 @@ public:
     virtual QVariant data(Core::Id role) const;
     virtual bool setData(Core::Id role, const QVariant &value) const;
 
-    bool isProduct() const { return m_isProduct; }
+    bool isProduct() const { return m_productType != ProductType::None; }
+    ProductType productType() const { return m_productType; }
 
 protected:
-    void setIsProduct() { m_isProduct = true; }
+    void setProductType(ProductType type) { m_productType = type; }
 
     QString m_target;
 
 private:
-    bool m_isProduct = false;
+    ProductType m_productType = ProductType::None;
 };
 
 class PROJECTEXPLORER_EXPORT ContainerNode : public FolderNode
