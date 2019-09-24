@@ -32,9 +32,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QByteArray>
-#include <QtCore/qdebug.h>
-
-#include <iostream>
+#include <QDebug>
 
 static QList<QByteArray> splitArgs(QString &argsString)
 {
@@ -121,11 +119,10 @@ static Utf8String maybeQuoted(const char *argumentAsCString)
 
 void CommandLineArguments::print() const
 {
-    using namespace std;
+    auto cerr = qCritical();
     cerr << "Arguments to libclang:";
     for (const auto &argument : m_arguments)
-        cerr << ' ' << maybeQuoted(argument).constData();
-    cerr << endl;
+        cerr.noquote() << maybeQuoted(argument).constData();
 }
 
 } // namespace ClangBackEnd
