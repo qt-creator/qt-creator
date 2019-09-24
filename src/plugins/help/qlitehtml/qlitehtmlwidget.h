@@ -77,6 +77,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
+    void withFixedTextPosition(const std::function<void()> &action);
     void render();
     QPoint scrollPosition() const;
     void htmlPos(const QPoint &pos, QPoint *viewportPos, QPoint *htmlPos) const;

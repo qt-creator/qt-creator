@@ -439,7 +439,7 @@ void QLiteHtmlWidget::setZoomFactor(qreal scale)
 {
     Q_ASSERT(scale != 0);
     d->zoomFactor = scale;
-    render();
+    withFixedTextPosition([this] { render(); });
 }
 
 qreal QLiteHtmlWidget::zoomFactor() const
@@ -559,17 +559,10 @@ static litehtml::element::ptr elementForY(int y, const litehtml::document::ptr &
 
 void QLiteHtmlWidget::resizeEvent(QResizeEvent *event)
 {
-    // remember element to which to scroll after re-rendering
-    QPoint viewportPos;
-    QPoint pos;
-    htmlPos({}, &viewportPos, &pos); // top-left
-    const litehtml::element::ptr element = elementForY(pos.y(), d->documentContainer.document());
-    QAbstractScrollArea::resizeEvent(event);
-    render();
-    if (element) {
-        verticalScrollBar()->setValue(
-            std::min(element->get_placement().y, verticalScrollBar()->maximum()));
-    }
+    withFixedTextPosition([this, event] {
+        QAbstractScrollArea::resizeEvent(event);
+        render();
+    });
 }
 
 void QLiteHtmlWidget::mouseMoveEvent(QMouseEvent *event)
@@ -623,6 +616,20 @@ void QLiteHtmlWidget::contextMenuEvent(QContextMenuEvent *event)
     QPoint pos;
     htmlPos(event->pos(), &viewportPos, &pos);
     emit contextMenuRequested(event->pos(), d->documentContainer.linkAt(pos, viewportPos));
+}
+
+void QLiteHtmlWidget::withFixedTextPosition(const std::function<void()> &action)
+{
+    // remember element to which to scroll after re-rendering
+    QPoint viewportPos;
+    QPoint pos;
+    htmlPos({}, &viewportPos, &pos); // top-left
+    const litehtml::element::ptr element = elementForY(pos.y(), d->documentContainer.document());
+    action();
+    if (element) {
+        verticalScrollBar()->setValue(
+            std::min(element->get_placement().y, verticalScrollBar()->maximum()));
+    }
 }
 
 void QLiteHtmlWidget::render()
