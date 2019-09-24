@@ -80,6 +80,7 @@ private:
     QAction *m_zoomAction;
     QAction *m_closeAction;
     QAction *m_toggleFullScreenAction;
+    Qt::WindowStates m_previousWindowState;
     bool m_shutdown = false;
 };
 
