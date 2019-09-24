@@ -652,11 +652,9 @@ void DocumentContainer::buildIndex()
 
 void DocumentContainer::draw_background(litehtml::uint_ptr hdc, const litehtml::background_paint &bg)
 {
-    // TODO
     auto painter = toQPainter(hdc);
     if (bg.is_root) {
         // TODO ?
-        drawSelection(painter, toQRect(bg.border_box));
         return;
     }
     painter->save();
@@ -933,6 +931,14 @@ void DocumentContainer::render(int width, int height)
         return;
     m_document->render(width);
     m_selection.update();
+}
+
+void DocumentContainer::draw(QPainter *painter, const QRect &clip)
+{
+    drawSelection(painter, clip);
+    const QPoint pos = -m_scrollPosition;
+    const litehtml::position clipRect = {clip.x(), clip.y(), clip.width(), clip.height()};
+    document()->draw(reinterpret_cast<litehtml::uint_ptr>(painter), pos.x(), pos.y(), &clipRect);
 }
 
 QVector<QRect> DocumentContainer::mousePressEvent(const QPoint &documentPos,
