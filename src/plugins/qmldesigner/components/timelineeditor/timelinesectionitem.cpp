@@ -801,10 +801,19 @@ void TimelineBarItem::itemMoved(const QPointF &start, const QPointF &end)
     if (isActiveHandle(Location::Undefined))
         dragInit(rect(), start);
 
-    const qreal min = qreal(TimelineConstants::sectionWidth + TimelineConstants::timelineLeftOffset
-                            - scrollOffset());
-    const qreal max = qreal(timelineScene()->rulerWidth() - TimelineConstants::sectionWidth
-                            + rect().width());
+    qreal min = qreal(TimelineConstants::sectionWidth + TimelineConstants::timelineLeftOffset
+                      - scrollOffset());
+    qreal max = qreal(timelineScene()->rulerWidth() - TimelineConstants::sectionWidth
+                      + rect().width());
+
+    const qreal minFrameX = mapFromFrameToScene(timelineScene()->startFrame());
+    const qreal maxFrameX = mapFromFrameToScene(timelineScene()->endFrame());
+
+    if (min < minFrameX)
+        min = minFrameX;
+
+    if (max > maxFrameX)
+        max = maxFrameX;
 
     if (isActiveHandle(Location::Center))
         dragCenter(rect(), end, min, max);
