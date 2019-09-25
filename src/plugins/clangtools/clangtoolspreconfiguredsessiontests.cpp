@@ -25,8 +25,8 @@
 
 #include "clangtoolspreconfiguredsessiontests.h"
 
+#include "clangtool.h"
 #include "clangtoolsdiagnostic.h"
-#include "clangtidyclazytool.h"
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
@@ -121,13 +121,13 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
 
     QVERIFY(switchToProjectAndTarget(project, target));
 
-    ClangTidyClazyTool::instance()->startTool(ClangTidyClazyTool::FileSelection::AllFiles);
-    QSignalSpy waitUntilAnalyzerFinished(ClangTidyClazyTool::instance(), SIGNAL(finished(bool)));
+    ClangTool::instance()->startTool(ClangTool::FileSelection::AllFiles);
+    QSignalSpy waitUntilAnalyzerFinished(ClangTool::instance(), SIGNAL(finished(bool)));
     QVERIFY(waitUntilAnalyzerFinished.wait(30000));
     const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();
     const bool analyzerFinishedSuccessfully = arguments.first().toBool();
     QVERIFY(analyzerFinishedSuccessfully);
-    QCOMPARE(ClangTidyClazyTool::instance()->diagnostics().count(), 0);
+    QCOMPARE(ClangTool::instance()->diagnostics().count(), 0);
 }
 
 static QList<Project *> validProjects(const QList<Project *> projectsOfSession)

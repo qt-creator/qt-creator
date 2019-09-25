@@ -26,7 +26,7 @@
 #include "clangtoolsprojectsettingswidget.h"
 #include "ui_clangtoolsprojectsettingswidget.h"
 
-#include "clangtidyclazytool.h"
+#include "clangtool.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
 
@@ -90,7 +90,7 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
     });
 
     connect(m_ui->gotoAnalyzerModeLabel, &QLabel::linkActivated, [](const QString &){
-        ClangTidyClazyTool::instance()->selectPerspective();
+        ClangTool::instance()->selectPerspective();
     });
 
     // Run options

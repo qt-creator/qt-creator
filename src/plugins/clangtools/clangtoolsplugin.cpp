@@ -25,10 +25,10 @@
 
 #include "clangtoolsplugin.h"
 
+#include "clangtool.h"
 #include "clangtoolsconstants.h"
-#include "clangtoolsprojectsettingswidget.h"
-#include "clangtidyclazytool.h"
 #include "clangtoolsprojectsettings.h"
+#include "clangtoolsprojectsettingswidget.h"
 #include "settingswidget.h"
 
 #ifdef WITH_TESTS
@@ -98,7 +98,7 @@ private:
 class ClangToolsPluginPrivate
 {
 public:
-    ClangTidyClazyTool clangTidyClazyTool;
+    ClangTool clangTool;
     ClangToolsOptionsPage optionsPage;
     ClangToolsProjectSettingsManager settingsManager;
 };
@@ -115,9 +115,8 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
 
     d = new ClangToolsPluginPrivate;
 
-    ActionManager::registerAction(d->clangTidyClazyTool.startAction(),
-                                  Constants::RUN_ON_PROJECT);
-    ActionManager::registerAction(d->clangTidyClazyTool.startOnCurrentFileAction(),
+    ActionManager::registerAction(d->clangTool.startAction(), Constants::RUN_ON_PROJECT);
+    ActionManager::registerAction(d->clangTool.startOnCurrentFileAction(),
                                   Constants::RUN_ON_CURRENT_FILE);
 
     auto panelFactory = new ProjectPanelFactory();

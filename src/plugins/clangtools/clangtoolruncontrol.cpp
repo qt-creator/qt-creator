@@ -26,7 +26,6 @@
 #include "clangtoolruncontrol.h"
 
 #include "clangtidyclazyrunner.h"
-#include "clangtidyclazytool.h"
 #include "clangtool.h"
 #include "clangtoolslogfilereader.h"
 #include "clangtoolsprojectsettings.h"
@@ -119,7 +118,7 @@ namespace Internal {
 
 static ClangTool *tool()
 {
-    return ClangTidyClazyTool::instance();
+    return ClangTool::instance();
 }
 
 class ProjectBuilder : public RunWorker

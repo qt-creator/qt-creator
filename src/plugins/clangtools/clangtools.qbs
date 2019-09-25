@@ -39,8 +39,6 @@ QtcPlugin {
         "clangselectablefilesdialog.ui",
         "clangtidyclazyrunner.cpp",
         "clangtidyclazyrunner.h",
-        "clangtidyclazytool.cpp",
-        "clangtidyclazytool.h",
         "clangtool.cpp",
         "clangtool.h",
         "clangtoolruncontrol.cpp",

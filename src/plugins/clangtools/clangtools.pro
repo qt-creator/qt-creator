@@ -21,7 +21,6 @@ SOURCES += \
     clangtoolsdiagnosticview.cpp \
     clangtoolsprojectsettingswidget.cpp \
     clangtidyclazyrunner.cpp \
-    clangtidyclazytool.cpp \
     clangtool.cpp \
     clangtoolruncontrol.cpp \
     clangtoolrunner.cpp \
@@ -42,7 +41,6 @@ HEADERS += \
     clangtoolsdiagnosticview.h \
     clangtoolsprojectsettingswidget.h \
     clangtidyclazyrunner.h \
-    clangtidyclazytool.h \
     clangtool.h \
     clangtoolruncontrol.h \
     clangtoolrunner.h \

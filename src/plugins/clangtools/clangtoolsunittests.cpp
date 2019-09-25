@@ -25,7 +25,7 @@
 
 #include "clangtoolsunittests.h"
 
-#include "clangtidyclazytool.h"
+#include "clangtool.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
@@ -109,7 +109,7 @@ void ClangToolsUnitTests::testProject()
     CppTools::Tests::ProjectOpenerAndCloser projectManager;
     const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
-    ClangTool *tool = ClangTidyClazyTool::instance();
+    ClangTool *tool = ClangTool::instance();
 
     // Change configs
     QSharedPointer<CppTools::CppCodeModelSettings> cppToolsSettings = CppTools::codeModelSettings();
@@ -136,7 +136,7 @@ void ClangToolsUnitTests::testProject()
     clangToolsSettings->setRunSettings(runSettings);
     clangToolsSettings->writeSettings();
 
-    tool->startTool(ClangTidyClazyTool::FileSelection::AllFiles);
+    tool->startTool(ClangTool::FileSelection::AllFiles);
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
 
