@@ -30,6 +30,10 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsutils.h"
 
+#include <cpptools/clangdiagnosticconfigsmodel.h>
+
+#include <utils/optional.h>
+
 namespace ClangTools {
 namespace Internal {
 
@@ -101,6 +105,21 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
     //
 
     m_ui->runSettingsWidget->fromSettings(m_settings->runSettings());
+    connect(m_ui->runSettingsWidget,
+            &RunSettingsWidget::diagnosticConfigsEdited,
+            this,
+            [this](const CppTools::ClangDiagnosticConfigs &configs) {
+                const CppTools::ClangDiagnosticConfigsModel configsModel = diagnosticConfigsModel(
+                    configs);
+                RunSettings runSettings = m_settings->runSettings();
+                if (!configsModel.hasConfigWithId(m_settings->runSettings().diagnosticConfigId())) {
+                    runSettings.resetDiagnosticConfigId();
+                    m_settings->setRunSettings(runSettings);
+                }
+                m_settings->setDiagnosticConfigs(configs);
+                m_settings->writeSettings();
+                m_ui->runSettingsWidget->fromSettings(runSettings);
+            });
 }
 
 void SettingsWidget::apply()

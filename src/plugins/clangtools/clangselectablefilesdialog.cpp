@@ -32,7 +32,6 @@
 #include "clangtoolsutils.h"
 
 #include <cpptools/compileroptionsbuilder.h>
-#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolsreuse.h>
 #include <cpptools/projectinfo.h>

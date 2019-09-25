@@ -46,22 +46,29 @@ class CPPTOOLS_EXPORT ClangDiagnosticConfigsSelectionWidget : public QWidget
 public:
     explicit ClangDiagnosticConfigsSelectionWidget(QWidget *parent = nullptr);
 
+    void refresh(const ClangDiagnosticConfigsModel &model,
+                 const Core::Id &configToSelect,
+                 bool showTidyClazyUi);
+
     Core::Id currentConfigId() const;
 
-    void refresh(Core::Id id);
-
 signals:
+    void diagnosticConfigsEdited(const ClangDiagnosticConfigs &configs);
     void currentConfigChanged(const Core::Id &currentConfigId);
 
 private:
-    void connectToClangDiagnosticConfigsDialog(QPushButton *button);
+    void connectToClangDiagnosticConfigsDialog();
     void connectToCurrentIndexChanged();
     void disconnectFromCurrentIndexChanged();
 
+    void refresh(Core::Id id);
+
     QMetaObject::Connection m_currentIndexChangedConnection;
+    bool m_showTidyClazyUi = true;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
 
     QLabel *m_label = nullptr;
+    QPushButton *m_manageButton = nullptr;
     QComboBox *m_selectionComboBox = nullptr;
 };
 

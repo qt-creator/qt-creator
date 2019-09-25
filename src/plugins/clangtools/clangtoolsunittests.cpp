@@ -31,10 +31,10 @@
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
-#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/clangdiagnosticconfig.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpptoolstestcase.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/cpptoolstestcase.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -62,8 +62,8 @@ void ClangToolsUnitTests::initTestCase()
     const QList<Kit *> allKits = KitManager::kits();
     if (allKits.count() != 1)
         QSKIP("This test requires exactly one kit to be present");
-    const ToolChain * const toolchain = ToolChainKitAspect::toolChain(allKits.first(),
-                                                                           Constants::CXX_LANGUAGE_ID);
+    const ToolChain *const toolchain = ToolChainKitAspect::toolChain(allKits.first(),
+                                                                     Constants::CXX_LANGUAGE_ID);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 
@@ -110,25 +110,11 @@ void ClangToolsUnitTests::testProject()
     Tests::ProjectOpenerAndCloser projectManager;
     const ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
+
     ClangTool *tool = ClangTool::instance();
-
-    // Change configs
-    QSharedPointer<CppCodeModelSettings> cppToolsSettings = codeModelSettings();
-    ClangToolsSettings *clangToolsSettings = ClangToolsSettings::instance();
-    const ClangDiagnosticConfigs originalConfigs = cppToolsSettings->clangCustomDiagnosticConfigs();
-
-    ClangDiagnosticConfigs modifiedConfigs = originalConfigs;
-    modifiedConfigs.push_back(diagnosticConfig);
-
-    ExecuteOnDestruction restoreCustomConfigs([=]() {
-        cppToolsSettings->setClangCustomDiagnosticConfigs(originalConfigs);
-    });
-
-    cppToolsSettings->setClangCustomDiagnosticConfigs(modifiedConfigs);
-    RunSettings runSettings = clangToolsSettings->runSettings();
-    runSettings.setDiagnosticConfigId(diagnosticConfig.id());
-
-    tool->startTool(runSettings, ClangTool::FileSelection::AllFiles);
+    tool->startTool(ClangTool::FileSelection::AllFiles,
+                    ClangToolsSettings::instance()->runSettings(),
+                    diagnosticConfig);
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
 

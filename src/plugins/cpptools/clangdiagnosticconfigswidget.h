@@ -58,7 +58,10 @@ class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ClangDiagnosticConfigsWidget(const Core::Id &configToSelect, QWidget *parent = nullptr);
+    explicit ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigsModel &configsModel,
+                                          const Core::Id &configToSelect,
+                                          bool showTidyClazyTabs,
+                                          QWidget *parent = nullptr);
     ~ClangDiagnosticConfigsWidget() override;
 
     ClangDiagnosticConfigs customConfigs() const;
@@ -67,7 +70,7 @@ signals:
     void customConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
 
 private:
-    void setupTabs();
+    void setupTabs(bool showTidyClazyTabs);
 
     void onCurrentConfigChanged(int index);
     void onCopyButtonClicked();

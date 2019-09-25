@@ -44,27 +44,6 @@ static CppCodeModelSettings::PCHUsage initialPchUsage()
 static QString clangDiagnosticConfigKey()
 { return QStringLiteral("ClangDiagnosticConfig"); }
 
-static QString clangDiagnosticConfigsArrayKey()
-{ return QStringLiteral("ClangDiagnosticConfigs"); }
-
-static QString clangDiagnosticConfigsArrayIdKey()
-{ return QLatin1String("id"); }
-
-static QString clangDiagnosticConfigsArrayDisplayNameKey()
-{ return QLatin1String("displayName"); }
-
-static QString clangDiagnosticConfigsArrayWarningsKey()
-{ return QLatin1String("diagnosticOptions"); }
-
-static QString clangDiagnosticConfigsArrayClangTidyChecksKey()
-{ return QLatin1String("clangTidyChecks"); }
-
-static QString clangDiagnosticConfigsArrayClangTidyModeKey()
-{ return QLatin1String("clangTidyMode"); }
-
-static QString clangDiagnosticConfigsArrayClazyChecksKey()
-{ return QLatin1String("clazyChecks"); }
-
 static QString enableLowerClazyLevelsKey()
 { return QLatin1String("enableLowerClazyLevels"); }
 
@@ -80,53 +59,6 @@ static QString skipIndexingBigFilesKey()
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPTOOLS_INDEXER_FILE_SIZE_LIMIT); }
 
-static QString convertToNewClazyChecksFormat(const QString &checks)
-{
-    // Before Qt Creator 4.9 valid values for checks were: "", "levelN".
-    // Starting with Qt Creator 4.9, checks are a comma-separated string of checks: "x,y,z".
-
-    if (checks.isEmpty())
-        return checks;
-
-    if (checks.size() == 6 && checks.startsWith("level")) {
-        bool ok = false;
-        const int level = checks.midRef(5).toInt(&ok);
-        QTC_ASSERT(ok, return QString());
-        return clazyChecksForLevel(level);
-    }
-
-    return checks;
-}
-
-static ClangDiagnosticConfigs customDiagnosticConfigsFromSettings(QSettings *s)
-{
-    QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP),
-               return ClangDiagnosticConfigs());
-
-    ClangDiagnosticConfigs configs;
-
-    const int size = s->beginReadArray(clangDiagnosticConfigsArrayKey());
-    for (int i = 0; i < size; ++i) {
-        s->setArrayIndex(i);
-
-        ClangDiagnosticConfig config;
-        config.setId(Core::Id::fromSetting(s->value(clangDiagnosticConfigsArrayIdKey())));
-        config.setDisplayName(s->value(clangDiagnosticConfigsArrayDisplayNameKey()).toString());
-        config.setClangOptions(s->value(clangDiagnosticConfigsArrayWarningsKey()).toStringList());
-        config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(
-                                    s->value(clangDiagnosticConfigsArrayClangTidyModeKey()).toInt()));
-        config.setClangTidyChecks(
-                    s->value(clangDiagnosticConfigsArrayClangTidyChecksKey()).toString());
-
-        const QString clazyChecks = s->value(clangDiagnosticConfigsArrayClazyChecksKey()).toString();
-        config.setClazyChecks(convertToNewClazyChecksFormat(clazyChecks));
-        configs.append(config);
-    }
-    s->endArray();
-
-    return configs;
-}
-
 static Core::Id clangDiagnosticConfigIdFromSettings(QSettings *s)
 {
     QTC_ASSERT(s->group() == QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP), return Core::Id());
@@ -139,11 +71,12 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
 
-    setClangCustomDiagnosticConfigs(customDiagnosticConfigsFromSettings(s));
+    setClangCustomDiagnosticConfigs(diagnosticConfigsFromSettings(s));
     setClangDiagnosticConfigId(clangDiagnosticConfigIdFromSettings(s));
 
     { // Before Qt Creator 4.8, inconsistent settings might have been written.
-        const ClangDiagnosticConfigsModel model(m_clangCustomDiagnosticConfigs);
+        const ClangDiagnosticConfigsModel model = diagnosticConfigsModel(
+            m_clangCustomDiagnosticConfigs);
         if (!model.hasConfigWithId(m_clangDiagnosticConfigId))
             setClangDiagnosticConfigId(initialClangDiagnosticConfigId());
     }
@@ -171,24 +104,10 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
 void CppCodeModelSettings::toSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
-    const ClangDiagnosticConfigs previousConfigs = customDiagnosticConfigsFromSettings(s);
+    const ClangDiagnosticConfigs previousConfigs = diagnosticConfigsFromSettings(s);
     const Core::Id previousConfigId = clangDiagnosticConfigIdFromSettings(s);
 
-    s->beginWriteArray(clangDiagnosticConfigsArrayKey());
-    for (int i = 0, size = m_clangCustomDiagnosticConfigs.size(); i < size; ++i) {
-        const ClangDiagnosticConfig &config = m_clangCustomDiagnosticConfigs.at(i);
-
-        s->setArrayIndex(i);
-        s->setValue(clangDiagnosticConfigsArrayIdKey(), config.id().toSetting());
-        s->setValue(clangDiagnosticConfigsArrayDisplayNameKey(), config.displayName());
-        s->setValue(clangDiagnosticConfigsArrayWarningsKey(), config.clangOptions());
-        s->setValue(clangDiagnosticConfigsArrayClangTidyModeKey(),
-                    static_cast<int>(config.clangTidyMode()));
-        s->setValue(clangDiagnosticConfigsArrayClangTidyChecksKey(),
-                    config.clangTidyChecks());
-        s->setValue(clangDiagnosticConfigsArrayClazyChecksKey(), config.clazyChecks());
-    }
-    s->endArray();
+    diagnosticConfigsToSettings(s, m_clangCustomDiagnosticConfigs);
 
     s->setValue(clangDiagnosticConfigKey(), clangDiagnosticConfigId().toSetting());
     s->setValue(enableLowerClazyLevelsKey(), enableLowerClazyLevels());
@@ -229,7 +148,8 @@ void CppCodeModelSettings::resetClangDiagnosticConfigId()
 
 const ClangDiagnosticConfig CppCodeModelSettings::clangDiagnosticConfig() const
 {
-    const ClangDiagnosticConfigsModel configsModel(m_clangCustomDiagnosticConfigs);
+    const ClangDiagnosticConfigsModel configsModel = diagnosticConfigsModel(
+        m_clangCustomDiagnosticConfigs);
 
     return configsModel.configWithId(clangDiagnosticConfigId());
 }

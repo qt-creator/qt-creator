@@ -32,8 +32,13 @@
 #include <QStringList>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
+
 namespace CppTools {
 
+// TODO: Split this class as needed for ClangCodeModel and ClangTools
 class CPPTOOLS_EXPORT ClangDiagnosticConfig
 {
 public:
@@ -83,5 +88,9 @@ private:
 };
 
 using ClangDiagnosticConfigs = QVector<ClangDiagnosticConfig>;
+
+ClangDiagnosticConfigs CPPTOOLS_EXPORT diagnosticConfigsFromSettings(QSettings *s);
+void CPPTOOLS_EXPORT diagnosticConfigsToSettings(QSettings *s,
+                                                 const ClangDiagnosticConfigs &configs);
 
 } // namespace CppTools

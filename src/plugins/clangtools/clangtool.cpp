@@ -44,6 +44,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/cppmodelmanager.h>
 
 #include <debugger/analyzer/analyzermanager.h>
@@ -248,6 +249,13 @@ static RunSettings runSettings()
     return projectSettings->runSettings();
 }
 
+static ClangDiagnosticConfig diagnosticConfig(const Core::Id &diagConfigId)
+{
+    const ClangDiagnosticConfigsModel configs = diagnosticConfigsModel();
+    QTC_ASSERT(configs.hasConfigWithId(diagConfigId), return ClangDiagnosticConfig());
+    return configs.configWithId(diagConfigId);
+}
+
 ClangTool *ClangTool::instance()
 {
     return s_instance;
@@ -440,10 +448,13 @@ void ClangTool::selectPerspective()
 
 void ClangTool::startTool(ClangTool::FileSelection fileSelection)
 {
-    startTool(runSettings(), fileSelection);
+    const RunSettings theRunSettings = runSettings();
+    startTool(fileSelection, theRunSettings, diagnosticConfig(theRunSettings.diagnosticConfigId()));
 }
 
-void ClangTool::startTool(const RunSettings &runSettings, ClangTool::FileSelection fileSelection)
+void ClangTool::startTool(ClangTool::FileSelection fileSelection,
+                          const RunSettings &runSettings,
+                          const CppTools::ClangDiagnosticConfig &diagnosticConfig)
 {
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
@@ -459,7 +470,11 @@ void ClangTool::startTool(const RunSettings &runSettings, ClangTool::FileSelecti
         return;
 
     const bool preventBuild = fileSelection == FileSelection::CurrentFile;
-    auto clangTool = new ClangToolRunWorker(runControl, runSettings, fileInfos, preventBuild);
+    auto clangTool = new ClangToolRunWorker(runControl,
+                                            runSettings,
+                                            diagnosticConfig,
+                                            fileInfos,
+                                            preventBuild);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {

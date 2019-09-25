@@ -40,14 +40,6 @@ RunSettingsWidget::RunSettingsWidget(QWidget *parent)
     , m_ui(new Ui::RunSettingsWidget)
 {
     m_ui->setupUi(this);
-
-    connect(m_ui->diagnosticWidget,
-            &CppTools::ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
-            [this](const Core::Id &) { emit changed(); });
-    // m_ui->buildBeforeAnalysis is handled in fromSettings()
-    connect(m_ui->parallelJobsSpinBox,
-            QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int) { emit changed(); });
 }
 
 RunSettingsWidget::~RunSettingsWidget()
@@ -57,7 +49,17 @@ RunSettingsWidget::~RunSettingsWidget()
 
 void RunSettingsWidget::fromSettings(const RunSettings &s)
 {
-    m_ui->diagnosticWidget->refresh(s.diagnosticConfigId());
+    disconnect(m_ui->diagnosticWidget, 0, 0, 0);
+    m_ui->diagnosticWidget->refresh(diagnosticConfigsModel(),
+                                    s.diagnosticConfigId(),
+                                    /*showTidyClazyUi=*/true);
+    connect(m_ui->diagnosticWidget,
+            &CppTools::ClangDiagnosticConfigsSelectionWidget::diagnosticConfigsEdited,
+            this,
+            &RunSettingsWidget::diagnosticConfigsEdited);
+    connect(m_ui->diagnosticWidget,
+            &CppTools::ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
+            [this](const Core::Id &) { emit changed(); });
 
     disconnect(m_ui->buildBeforeAnalysis, 0, 0, 0);
     m_ui->buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
@@ -68,9 +70,13 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
         emit changed();
     });
 
+    disconnect(m_ui->parallelJobsSpinBox, 0, 0, 0);
     m_ui->parallelJobsSpinBox->setValue(s.parallelJobs());
     m_ui->parallelJobsSpinBox->setMinimum(1);
     m_ui->parallelJobsSpinBox->setMaximum(QThread::idealThreadCount());
+    connect(m_ui->parallelJobsSpinBox,
+            QOverload<int>::of(&QSpinBox::valueChanged),
+            [this](int) { emit changed(); });
 }
 
 RunSettings RunSettingsWidget::toSettings() const

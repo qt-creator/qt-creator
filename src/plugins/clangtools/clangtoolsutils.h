@@ -26,6 +26,7 @@
 #pragma once
 
 #include <coreplugin/id.h>
+#include <cpptools/clangdiagnosticconfig.h>
 
 #include <QVersionNumber>
 #include <QtGlobal>
@@ -34,6 +35,7 @@ QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
+namespace CppTools { class ClangDiagnosticConfigsModel; }
 namespace Debugger { class DiagnosticLocation; }
 
 namespace ClangTools {
@@ -51,6 +53,10 @@ QString clazyStandaloneExecutable();
 
 QString shippedClangTidyExecutable();
 QString clangTidyExecutable();
+
+CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel();
+CppTools::ClangDiagnosticConfigsModel diagnosticConfigsModel(
+    const CppTools::ClangDiagnosticConfigs &customConfigs);
 
 } // namespace Internal
 } // namespace ClangTools

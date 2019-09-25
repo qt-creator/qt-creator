@@ -28,6 +28,11 @@
 #include "clangtoolsconstants.h"
 
 #include <coreplugin/icore.h>
+#include <cpptools/clangdiagnosticconfig.h>
+#include <cpptools/cppcodemodelsettings.h>
+#include <cpptools/cpptoolsreuse.h>
+
+#include <utils/algorithm.h>
 
 #include <QThread>
 
@@ -39,11 +44,19 @@ static const char buildBeforeAnalysisKey[] = "BuildBeforeAnalysis";
 
 static const char oldDiagnosticConfigIdKey[] = "diagnosticConfigId";
 
+using namespace CppTools;
+
 namespace ClangTools {
 namespace Internal {
 
+static Core::Id defaultDiagnosticId()
+{
+    return ClangTools::Constants::DIAG_CONFIG_TIDY_AND_CLAZY;
+}
+
 RunSettings::RunSettings()
-    : m_parallelJobs(qMax(0, QThread::idealThreadCount() / 2))
+    : m_diagnosticConfigId(defaultDiagnosticId())
+    , m_parallelJobs(qMax(0, QThread::idealThreadCount() / 2))
 {
 }
 
@@ -59,6 +72,11 @@ void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
     map.insert(prefix + diagnosticConfigIdKey, m_diagnosticConfigId.toSetting());
     map.insert(prefix + parallelJobsKey, m_parallelJobs);
     map.insert(prefix + buildBeforeAnalysisKey, m_buildBeforeAnalysis);
+}
+
+void RunSettings::resetDiagnosticConfigId()
+{
+    m_diagnosticConfigId = defaultDiagnosticId();
 }
 
 ClangToolsSettings::ClangToolsSettings()
@@ -89,14 +107,40 @@ static QVariantMap convertToMapFromVersionBefore410(QSettings *s)
     return map;
 }
 
+ClangDiagnosticConfigs importDiagnosticConfigsFromCodeModel()
+{
+    const ClangDiagnosticConfigs configs = codeModelSettings()->clangCustomDiagnosticConfigs();
+
+    ClangDiagnosticConfigs tidyClazyConfigs;
+    ClangDiagnosticConfigs clangOnlyConfigs;
+    std::tie(tidyClazyConfigs, clangOnlyConfigs)
+        = Utils::partition(configs, [](const ClangDiagnosticConfig &config) {
+              return !config.clazyChecks().isEmpty()
+                     || config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::Disabled;
+          });
+
+    if (!tidyClazyConfigs.isEmpty()) {
+        codeModelSettings()->setClangCustomDiagnosticConfigs(clangOnlyConfigs);
+        codeModelSettings()->toSettings(Core::ICore::settings());
+    }
+
+    return tidyClazyConfigs;
+}
+
 void ClangToolsSettings::readSettings()
 {
+    // Transfer tidy/clazy configs from code model
+    bool write = false;
+    ClangDiagnosticConfigs importedConfigs = importDiagnosticConfigsFromCodeModel();
+    m_diagnosticConfigs.append(importedConfigs);
+    if (!importedConfigs.isEmpty())
+        write = true;
+
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
     m_clangTidyExecutable = s->value(clangTidyExecutableKey).toString();
     m_clazyStandaloneExecutable = s->value(clazyStandaloneExecutableKey).toString();
-
-    bool write = false;
+    m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
     QVariantMap map;
     if (!s->value(oldDiagnosticConfigIdKey).isNull()) {
@@ -128,6 +172,7 @@ void ClangToolsSettings::writeSettings()
 
     s->setValue(clangTidyExecutableKey, m_clangTidyExecutable);
     s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable);
+    diagnosticConfigsToSettings(s, m_diagnosticConfigs);
 
     QVariantMap map;
     m_runSettings.toMap(map);
@@ -135,6 +180,8 @@ void ClangToolsSettings::writeSettings()
         s->setValue(it.key(), it.value());
 
     s->endGroup();
+
+    emit changed();
 }
 
 } // namespace Internal

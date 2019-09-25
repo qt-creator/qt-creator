@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <cpptools/clangdiagnosticconfig.h>
+
 #include <QWidget>
 
 namespace ClangTools {
@@ -48,6 +50,7 @@ public:
     RunSettings toSettings() const;
 
 signals:
+    void diagnosticConfigsEdited(const CppTools::ClangDiagnosticConfigs &configs);
     void changed();
 
 private:

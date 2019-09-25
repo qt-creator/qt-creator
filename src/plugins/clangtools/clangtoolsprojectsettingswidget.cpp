@@ -29,12 +29,15 @@
 #include "clangtool.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
+#include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
 
 #include <QAbstractTableModel>
+
+#include <cpptools/clangdiagnosticconfigsmodel.h>
 
 namespace ClangTools {
 namespace Internal {
@@ -97,6 +100,25 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
     m_ui->runSettingsWidget->fromSettings(m_projectSettings->runSettings());
     connect(m_ui->runSettingsWidget, &RunSettingsWidget::changed, [this]() {
         m_projectSettings->setRunSettings(m_ui->runSettingsWidget->toSettings());
+    });
+    connect(m_ui->runSettingsWidget,
+            &RunSettingsWidget::diagnosticConfigsEdited,
+            this,
+            [this](const CppTools::ClangDiagnosticConfigs &configs) {
+                const CppTools::ClangDiagnosticConfigsModel configsModel = diagnosticConfigsModel(
+                    configs);
+                RunSettings runSettings = m_projectSettings->runSettings();
+                if (!configsModel.hasConfigWithId(runSettings.diagnosticConfigId())) {
+                    runSettings.resetDiagnosticConfigId();
+                    m_projectSettings->setRunSettings(runSettings);
+                }
+                ClangToolsSettings::instance()->setDiagnosticConfigs(configs);
+                ClangToolsSettings::instance()->writeSettings();
+                m_ui->runSettingsWidget->fromSettings(runSettings);
+            });
+    connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
+            this, [this](){
+        m_ui->runSettingsWidget->fromSettings(m_projectSettings->runSettings());
     });
 
     // Suppressed diagnostics

@@ -139,7 +139,7 @@ ClangDiagnosticConfig diagnosticConfig(ClangProjectSettings &projectSettings,
         currentConfigId = globalSettings.clangDiagnosticConfigId();
 
     // Get config
-    ClangDiagnosticConfigsModel configsModel(globalSettings.clangCustomDiagnosticConfigs());
+    ClangDiagnosticConfigsModel configsModel = CppTools::diagnosticConfigsModel();
     QTC_ASSERT(configsModel.hasConfigWithId(currentConfigId), return {});
     return configsModel.configWithId(currentConfigId);
 }
@@ -174,7 +174,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangBackEnd::DiagnosticConta
 
     // Get config
     ClangDiagnosticConfig config = diagnosticConfig(projectSettings, *globalSettings);
-    ClangDiagnosticConfigsModel configsModel(globalSettings->clangCustomDiagnosticConfigs());
+    ClangDiagnosticConfigsModel configsModel = CppTools::diagnosticConfigsModel();
 
     // Create copy if needed
     if (config.isReadOnly()) {

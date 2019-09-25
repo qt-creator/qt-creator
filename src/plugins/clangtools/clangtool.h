@@ -38,6 +38,9 @@ QT_BEGIN_NAMESPACE
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace CppTools {
+class ClangDiagnosticConfig;
+}
 namespace Debugger {
 class DetailedErrorView;
 }
@@ -74,7 +77,9 @@ public:
         AskUser,
     };
     void startTool(FileSelection fileSelection);
-    void startTool(const RunSettings &runSettings, FileSelection fileSelection);
+    void startTool(FileSelection fileSelection,
+                   const RunSettings &runSettings,
+                   const CppTools::ClangDiagnosticConfig &diagnosticConfig);
 
     Diagnostics read(OutputFileFormat outputFileFormat,
                      const QString &logFilePath,
