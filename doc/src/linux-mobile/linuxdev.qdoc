@@ -66,6 +66,10 @@
     authentication. If you do not have an SSH key, you can use the ssh-keygen
     tool to create it in \QC. For more information, see \l {Generating SSH Keys}.
 
+    \note \QC does not store passwords, so if you use password authentication,
+    you may need to enter the password on every connection to the device,
+    or, if caching is enabled, at every \QC restart.
+
     To configure connections between \QC and an embedded Linux device and to
     specify build and run settings for the device:
 
