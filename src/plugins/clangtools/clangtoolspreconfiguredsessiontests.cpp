@@ -27,6 +27,7 @@
 
 #include "clangtool.h"
 #include "clangtoolsdiagnostic.h"
+#include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
@@ -121,7 +122,8 @@ void PreconfiguredSessionTests::testPreconfiguredSession()
 
     QVERIFY(switchToProjectAndTarget(project, target));
 
-    ClangTool::instance()->startTool(ClangTool::FileSelection::AllFiles);
+    ClangTool::instance()->startTool(ClangToolsSettings::instance()->runSettings(),
+                                     ClangTool::FileSelection::AllFiles);
     QSignalSpy waitUntilAnalyzerFinished(ClangTool::instance(), SIGNAL(finished(bool)));
     QVERIFY(waitUntilAnalyzerFinished.wait(30000));
     const QList<QVariant> arguments = waitUntilAnalyzerFinished.takeFirst();

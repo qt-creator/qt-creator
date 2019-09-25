@@ -52,6 +52,7 @@ namespace Internal {
 class ClangToolsDiagnosticModel;
 class Diagnostic;
 class DiagnosticFilterModel;
+class RunSettings;
 
 const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
 
@@ -73,12 +74,13 @@ public:
         AskUser,
     };
     void startTool(FileSelection fileSelection);
+    void startTool(const RunSettings &runSettings, FileSelection fileSelection);
 
     Diagnostics read(OutputFileFormat outputFileFormat,
-                             const QString &logFilePath,
-                             const QString &mainFilePath,
-                             const QSet<Utils::FilePath> &projectFiles,
-                             QString *errorMessage) const;
+                     const QString &logFilePath,
+                     const QString &mainFilePath,
+                     const QSet<Utils::FilePath> &projectFiles,
+                     QString *errorMessage) const;
 
     FileInfos collectFileInfos(ProjectExplorer::Project *project,
                                FileSelection fileSelection) const;

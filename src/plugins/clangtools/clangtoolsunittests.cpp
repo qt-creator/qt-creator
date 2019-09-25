@@ -48,6 +48,7 @@
 #include <QTimer>
 #include <QtTest>
 
+using namespace CppTools;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -69,7 +70,7 @@ void ClangToolsUnitTests::initTestCase()
     if (Core::ICore::clangExecutable(CLANG_BINDIR).isEmpty())
         QSKIP("No clang suitable for analyzing found");
 
-    m_tmpDir = new CppTools::Tests::TemporaryCopiedDir(QLatin1String(":/unit-tests"));
+    m_tmpDir = new Tests::TemporaryCopiedDir(QLatin1String(":/unit-tests"));
     QVERIFY(m_tmpDir->isValid());
 }
 
@@ -78,15 +79,15 @@ void ClangToolsUnitTests::cleanupTestCase()
     delete m_tmpDir;
 }
 
-static CppTools::ClangDiagnosticConfig configFor(const QString &tidyChecks,
+static ClangDiagnosticConfig configFor(const QString &tidyChecks,
                                                  const QString &clazyChecks)
 {
-    CppTools::ClangDiagnosticConfig config;
+    ClangDiagnosticConfig config;
     config.setId("Test.MyTestConfig");
     config.setDisplayName("Test");
     config.setIsReadOnly(true);
     config.setClangOptions(QStringList{QStringLiteral("-Wno-everything")});
-    config.setClangTidyMode(CppTools::ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::ChecksPrefixList);
     const QString theTidyChecks = tidyChecks.isEmpty() ? tidyChecks : "-*," + tidyChecks;
     config.setClangTidyChecks(theTidyChecks);
     config.setClazyChecks(clazyChecks);
@@ -97,46 +98,37 @@ void ClangToolsUnitTests::testProject()
 {
     QFETCH(QString, projectFilePath);
     QFETCH(int, expectedDiagCount);
-    QFETCH(CppTools::ClangDiagnosticConfig, diagnosticConfig);
+    QFETCH(ClangDiagnosticConfig, diagnosticConfig);
     if (projectFilePath.contains("mingw")) {
-        const ToolChain * const toolchain
-                = ToolChainKitAspect::toolChain(KitManager::kits().constFirst(),
-                                                Constants::CXX_LANGUAGE_ID);
+        const ToolChain *const toolchain
+            = ToolChainKitAspect::toolChain(KitManager::kits().constFirst(),
+                                            Constants::CXX_LANGUAGE_ID);
         if (toolchain->typeId() != ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID)
             QSKIP("This test is mingw specific, does not run for other toolchains");
     }
 
-    CppTools::Tests::ProjectOpenerAndCloser projectManager;
-    const CppTools::ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
+    Tests::ProjectOpenerAndCloser projectManager;
+    const ProjectInfo projectInfo = projectManager.open(projectFilePath, true);
     QVERIFY(projectInfo.isValid());
     ClangTool *tool = ClangTool::instance();
 
     // Change configs
-    QSharedPointer<CppTools::CppCodeModelSettings> cppToolsSettings = CppTools::codeModelSettings();
+    QSharedPointer<CppCodeModelSettings> cppToolsSettings = codeModelSettings();
     ClangToolsSettings *clangToolsSettings = ClangToolsSettings::instance();
-    const CppTools::ClangDiagnosticConfigs originalConfigs = cppToolsSettings
-                                                                 ->clangCustomDiagnosticConfigs();
-    const Core::Id originalId = clangToolsSettings->runSettings().diagnosticConfigId();
+    const ClangDiagnosticConfigs originalConfigs = cppToolsSettings->clangCustomDiagnosticConfigs();
 
-    CppTools::ClangDiagnosticConfigs modifiedConfigs = originalConfigs;
+    ClangDiagnosticConfigs modifiedConfigs = originalConfigs;
     modifiedConfigs.push_back(diagnosticConfig);
 
-    ExecuteOnDestruction executeOnDestruction([=]() {
-        // Restore configs
+    ExecuteOnDestruction restoreCustomConfigs([=]() {
         cppToolsSettings->setClangCustomDiagnosticConfigs(originalConfigs);
-        RunSettings runSettings = clangToolsSettings->runSettings();
-        runSettings.setDiagnosticConfigId(originalId);
-        clangToolsSettings->setRunSettings(runSettings);
-        clangToolsSettings->writeSettings();
     });
 
     cppToolsSettings->setClangCustomDiagnosticConfigs(modifiedConfigs);
     RunSettings runSettings = clangToolsSettings->runSettings();
     runSettings.setDiagnosticConfigId(diagnosticConfig.id());
-    clangToolsSettings->setRunSettings(runSettings);
-    clangToolsSettings->writeSettings();
 
-    tool->startTool(ClangTool::FileSelection::AllFiles);
+    tool->startTool(runSettings, ClangTool::FileSelection::AllFiles);
     QSignalSpy waiter(tool, SIGNAL(finished(bool)));
     QVERIFY(waiter.wait(30000));
 
@@ -149,10 +141,10 @@ void ClangToolsUnitTests::testProject_data()
 {
     QTest::addColumn<QString>("projectFilePath");
     QTest::addColumn<int>("expectedDiagCount");
-    QTest::addColumn<CppTools::ClangDiagnosticConfig>("diagnosticConfig");
+    QTest::addColumn<ClangDiagnosticConfig>("diagnosticConfig");
 
     // Test simple C++ project.
-    CppTools::ClangDiagnosticConfig config = configFor("modernize-use-nullptr", QString());
+    ClangDiagnosticConfig config = configFor("modernize-use-nullptr", QString());
     addTestRow("simple/simple.qbs", 1, config);
     addTestRow("simple/simple.pro", 1, config);
 
@@ -186,7 +178,7 @@ void ClangToolsUnitTests::testProject_data()
 
 void ClangToolsUnitTests::addTestRow(const QByteArray &relativeFilePath,
                                      int expectedDiagCount,
-                                     const CppTools::ClangDiagnosticConfig &diagnosticConfig)
+                                     const ClangDiagnosticConfig &diagnosticConfig)
 {
     const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
     const QString fileName = QFileInfo(absoluteFilePath).fileName();

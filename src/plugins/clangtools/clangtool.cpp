@@ -239,8 +239,9 @@ static FileInfos sortedFileInfos(const QVector<CppTools::ProjectPart::Ptr> &proj
     return fileInfos;
 }
 
-static RunSettings runSettings(Project *project)
+static RunSettings runSettings()
 {
+    Project *project = SessionManager::startupProject();
     auto *projectSettings = ClangToolsProjectSettingsManager::getSettings(project);
     if (projectSettings->useGlobalSettings())
         return ClangToolsSettings::instance()->runSettings();
@@ -399,7 +400,7 @@ ClangTool::ClangTool()
     menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this]() {
-        startTool(ClangTool::FileSelection::AskUser);
+        startTool(FileSelection::AskUser);
     });
     QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
     QObject::connect(m_startAction, &QAction::changed, action, [action, this] {
@@ -407,7 +408,7 @@ ClangTool::ClangTool()
     });
 
     QObject::connect(m_startOnCurrentFileAction, &QAction::triggered, this, [this] {
-       startTool(ClangTool::FileSelection::CurrentFile);
+        startTool(FileSelection::CurrentFile);
     });
 
     m_perspective.addToolBarAction(m_startAction);
@@ -439,6 +440,11 @@ void ClangTool::selectPerspective()
 
 void ClangTool::startTool(ClangTool::FileSelection fileSelection)
 {
+    startTool(runSettings(), fileSelection);
+}
+
+void ClangTool::startTool(const RunSettings &runSettings, ClangTool::FileSelection fileSelection)
+{
     Project *project = SessionManager::startupProject();
     QTC_ASSERT(project, return);
     QTC_ASSERT(project->activeTarget(), return);
@@ -453,10 +459,7 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection)
         return;
 
     const bool preventBuild = fileSelection == FileSelection::CurrentFile;
-    auto clangTool = new ClangToolRunWorker(runControl,
-                                            runSettings(project),
-                                            fileInfos,
-                                            preventBuild);
+    auto clangTool = new ClangToolRunWorker(runControl, runSettings, fileInfos, preventBuild);
 
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, [runControl] {
