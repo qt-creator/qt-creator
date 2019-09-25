@@ -555,6 +555,7 @@ void PerspectivePrivate::resetPerspective()
         } else {
             op.setupLayout();
             op.dock->setVisible(op.visibleByDefault);
+            theMainWindow->d->m_persistentChangedDocks.remove(op.name());
             qCDebug(perspectivesLog) << "SETTING " << op.name()
                                      << " TO ACTIVE: " << op.visibleByDefault;
         }
