@@ -63,6 +63,8 @@ public:
 
     void commitPosition(const QPointF &point) override;
 
+    void itemDoubleClicked() override;
+
     TimelineKeyframeItem *asTimelineKeyframeItem() override;
 
 protected:

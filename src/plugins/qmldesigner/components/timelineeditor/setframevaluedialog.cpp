@@ -26,14 +26,24 @@
 #include "setframevaluedialog.h"
 #include "ui_setframevaluedialog.h"
 
+#include <QIntValidator>
+
 namespace QmlDesigner {
 
-SetFrameValueDialog::SetFrameValueDialog(QWidget *parent)
+SetFrameValueDialog::SetFrameValueDialog(qreal frame, const QVariant &value,
+                                         const QString &propertyName, QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::SetFrameValueDialog)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setWindowTitle(tr("Edit Keyframe"));
     ui->setupUi(this);
+
+    ui->lineEditFrame->setValidator(new QIntValidator(0, 99999, this));
+
+    ui->lineEditFrame->setText(QString::number(frame));
+    ui->lineEditValue->setText(value.toString());
+    ui->labelValue->setText(propertyName);
 }
 
 SetFrameValueDialog::~SetFrameValueDialog()
@@ -41,15 +51,14 @@ SetFrameValueDialog::~SetFrameValueDialog()
     delete ui;
 }
 
-QLineEdit *SetFrameValueDialog::lineEdit() const
+qreal SetFrameValueDialog::frame() const
 {
-    return ui->lineEdit;
+    return ui->lineEditFrame->text().toDouble();
 }
 
-void SetFrameValueDialog::setPropertName(const QString &name)
+QVariant SetFrameValueDialog::value() const
 {
-    setWindowTitle(tr("Change %1").arg(name));
-    ui->label->setText(name);
+    return QVariant(ui->lineEditValue->text());
 }
 
 } // namespace QmlDesigner

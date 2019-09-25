@@ -106,31 +106,40 @@ static void setEasingCurve(TimelineGraphicsScene *scene, const QList<ModelNode> 
     EasingCurveDialog::runDialog(keys);
 }
 
-static void editValue(const ModelNode &frame, const QString &propertyName)
+// display and handle the edit keyframe dialog
+static void editValue(const ModelNode &frameNode, const std::pair<qreal, qreal> &timelineRange,
+                      const QString &propertyName)
 {
-    const QVariant value = frame.variantProperty("value").value();
-    auto dialog = new SetFrameValueDialog(Core::ICore::dialogParent());
-
-    dialog->lineEdit()->setText(value.toString());
-    dialog->setPropertName(propertyName);
+    const qreal frame = frameNode.variantProperty("frame").value().toReal();
+    const QVariant value = frameNode.variantProperty("value").value();
+    auto dialog = new SetFrameValueDialog(frame, value, propertyName,
+                                          Core::ICore::dialogParent());
 
     QObject::connect(dialog, &SetFrameValueDialog::rejected, [dialog]() { dialog->deleteLater(); });
 
-    QObject::connect(dialog, &SetFrameValueDialog::accepted, [dialog, frame, value]() {
+    QObject::connect(dialog, &SetFrameValueDialog::accepted, [dialog, frameNode, frame, value,
+                                                              timelineRange]() {
         dialog->deleteLater();
-        int userType = value.userType();
-        const QVariant result = dialog->lineEdit()->text();
 
-        if (result.canConvert(userType)) {
-            QVariant newValue = result;
-            newValue.convert(userType);
-            // canConvert gives true in case if the result is a double but the usertype was interger
-            // try to fix that with a workaround to convert it to double if convertion resulted in isNull
-            if (newValue.isNull()) {
-                newValue = result;
-                newValue.convert(QMetaType::Double);
+        qreal newFrame = qBound(timelineRange.first, dialog->frame(), timelineRange.second);
+        if (newFrame != frame)
+            frameNode.variantProperty("frame").setValue(newFrame);
+
+        int userType = value.userType();
+        QVariant newValue = dialog->value();
+
+        if (newValue.canConvert(userType)) {
+            QVariant newValueConverted = newValue;
+            bool converted = newValueConverted.convert(userType);
+
+            if (!converted) {
+                // convert() fails for int to double, so we try this combination
+                newValueConverted = newValue;
+                converted = newValueConverted.convert(QMetaType::Double);
             }
-            frame.variantProperty("value").setValue(result);
+
+            if (converted)
+                frameNode.variantProperty("value").setValue(newValueConverted);
         }
     });
 
@@ -431,9 +440,12 @@ void TimelinePropertyItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *even
             setEasingCurve(timelineScene(), {currentFrameNode});
         });
 
-        QAction *editValueAction = mainMenu.addAction(tr("Edit Value for Keyframe..."));
+        QAction *editValueAction = mainMenu.addAction(tr("Edit Keyframe..."));
         QObject::connect(editValueAction, &QAction::triggered, [this, currentFrameNode]() {
-            editValue(currentFrameNode, propertyName());
+            std::pair<qreal, qreal> timelineRange
+                    = {timelineScene()->currentTimeline().startKeyframe(),
+                       timelineScene()->currentTimeline().endKeyframe()};
+            editValue(currentFrameNode, timelineRange, propertyName());
         });
 
         const bool hasKeyframe = currentFrameNode.isValid();
@@ -541,6 +553,13 @@ void TimelineKeyframeItem::commitPosition(const QPointF &point)
     enableUpdates();
 }
 
+void TimelineKeyframeItem::itemDoubleClicked()
+{
+    std::pair<qreal, qreal> timelineRange = {timelineScene()->currentTimeline().startKeyframe(),
+                                             timelineScene()->currentTimeline().endKeyframe()};
+    editValue(m_frame, timelineRange, propertyItem()->propertyName());
+}
+
 TimelineKeyframeItem *TimelineKeyframeItem::asTimelineKeyframeItem()
 {
     return this;
@@ -630,9 +649,11 @@ void TimelineKeyframeItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *even
         setEasingCurve(timelineScene(), keys);
     });
 
-    QAction *editValueAction = mainMenu.addAction(tr("Edit Value for Keyframe..."));
+    QAction *editValueAction = mainMenu.addAction(tr("Edit Keyframe..."));
     QObject::connect(editValueAction, &QAction::triggered, [this]() {
-        editValue(m_frame, propertyItem()->propertyName());
+        std::pair<qreal, qreal> timelineRange = {timelineScene()->currentTimeline().startKeyframe(),
+                                                 timelineScene()->currentTimeline().endKeyframe()};
+        editValue(m_frame, timelineRange, propertyItem()->propertyName());
     });
 
     mainMenu.exec(event->screenPos());

@@ -57,6 +57,7 @@ public:
     virtual void setPositionInteractive(const QPointF &point);
     virtual void commitPosition(const QPointF &point);
     virtual void itemMoved(const QPointF &start, const QPointF &end);
+    virtual void itemDoubleClicked();
 
     int xPosScrollOffset(int x) const;
 

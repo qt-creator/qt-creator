@@ -40,12 +40,12 @@ class SetFrameValueDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SetFrameValueDialog(QWidget *parent = nullptr);
+    explicit SetFrameValueDialog(qreal frame, const QVariant &value, const QString &propertyName,
+                                 QWidget *parent = nullptr);
     ~SetFrameValueDialog() override;
 
-    QLineEdit *lineEdit() const;
-
-    void setPropertName(const QString &name);
+    qreal frame() const;
+    QVariant value() const;
 
 private:
     Ui::SetFrameValueDialog *ui;
