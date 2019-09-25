@@ -1799,7 +1799,7 @@ class Dumper(DumperBase):
             expr = self.parseAndEvaluate(expr)
             self.qqEditable[typeName](self, expr, value)
         else:
-            lhs.SetValueFromCString(value, error)
+            self.parseAndEvaluate(expr + '=' + value)
         self.reportResult(self.describeError(error), args)
 
     def watchPoint(self, args):
