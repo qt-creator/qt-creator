@@ -83,6 +83,7 @@ class Dumper(DumperBase):
             #    'communication', 'unwind', 'commands'])
             #self.debugger.EnableLog('lldb', ['all'])
             self.debugger.Initialize()
+            self.debugger.SetAsync(True)
             self.debugger.HandleCommand('settings set auto-confirm on')
 
             # FIXME: warn('DISABLING DEFAULT FORMATTERS')
@@ -863,10 +864,7 @@ class Dumper(DumperBase):
                 pass
             else:
                 if self.useTerminal_:
-                    self.ignoreStops = 2
-        else:
-            if self.useTerminal_:
-                self.ignoreStops = 1
+                    self.ignoreStops = 1
 
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
@@ -895,7 +893,6 @@ class Dumper(DumperBase):
 
     def prepare(self, args):
         error = lldb.SBError()
-        listener = self.debugger.GetListener()
 
         if self.attachPid_ > 0:
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
@@ -948,18 +945,23 @@ class Dumper(DumperBase):
         if self.target is not None:
             broadcaster = self.target.GetBroadcaster()
             listener = self.debugger.GetListener()
+            broadcaster.AddListener(listener, lldb.SBProcess.eBroadcastBitStateChanged)
+            listener.StartListeningForEvents(broadcaster, lldb.SBProcess.eBroadcastBitStateChanged)
             broadcaster.AddListener(listener, lldb.SBTarget.eBroadcastBitBreakpointChanged)
             listener.StartListeningForEvents(broadcaster, lldb.SBTarget.eBroadcastBitBreakpointChanged)
 
 
     def loop(self):
         event = lldb.SBEvent()
+        broadcaster = self.target.GetBroadcaster()
         listener = self.debugger.GetListener()
         while True:
-            if listener.WaitForEvent(10000000, event):
+            sys.stdout.flush() # IMPORTANT! to receive process state changes with lldb 1100
+            while listener.GetNextEvent(event):
                 self.handleEvent(event)
-            else:
-                warn('TIMEOUT')
+            if listener.WaitForEventForBroadcaster(0, broadcaster, event):
+                self.handleEvent(event)
+
 
     def describeError(self, error):
         desc = lldb.SBStream()
@@ -1301,6 +1303,10 @@ class Dumper(DumperBase):
         if lldb.SBBreakpoint.EventIsBreakpointEvent(event):
             self.handleBreakpointEvent(event)
             return
+        if not lldb.SBProcess.EventIsProcessEvent(event):
+            warn("UNEXPECTED event (%s)" % event.GetType())
+            return
+
         out = lldb.SBStream()
         event.GetDescription(out)
         #warn("EVENT: %s" % event)
