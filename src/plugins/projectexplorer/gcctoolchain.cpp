@@ -32,6 +32,7 @@
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -88,10 +89,13 @@ static QByteArray runGcc(const FilePath &gcc, const QStringList &arguments, cons
 
     cpp.setEnvironment(environment);
     cpp.setTimeoutS(10);
-    SynchronousProcessResponse response =  cpp.runBlocking(CommandLine(gcc, arguments));
+    CommandLine cmdLine(gcc, arguments);
+    SynchronousProcessResponse response =  cpp.runBlocking(cmdLine);
     if (response.result != SynchronousProcessResponse::Finished ||
             response.exitCode != 0) {
-        qWarning() << response.exitMessage(gcc.toString(), 10);
+        Core::MessageManager::write("Compiler feature detection failure!");
+        Core::MessageManager::write(response.exitMessage(cmdLine.toUserOutput(), 10));
+        Core::MessageManager::write(QString::fromUtf8(response.allRawOutput()));
         return QByteArray();
     }
 
