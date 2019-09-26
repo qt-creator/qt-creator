@@ -1,0 +1,98 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "PythonProject" ],
+    "id": "F.QtQuickQtForPythonApplicationEmpty",
+    "category": "F.Application",
+    "trDescription": "Creates a Qt Quick application that contains an empty window.",
+    "trDisplayName": "Qt for Python - Qt Quick Application - Empty",
+    "trDisplayCategory": "Application",
+    "icon": "../icons/icon.png",
+    "enabled": "%{JS: value('Plugins').indexOf('Python') >= 0}",
+
+    "options":
+    [
+        { "key": "SrcFileName", "value": "main.py" },
+        { "key": "QmlFileName", "value": "main.qml" },
+        { "key": "PyProjectFile", "value": "main.pyproject" },
+        { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
+        { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "QtVersion",
+                    "trDisplayName": "PySide version:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "PySide 5.13",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.13",
+                                    "QtQuickWindowVersion": "2.13"
+                                }
+                            },
+                            {
+                                "trKey": "PySide 5.12",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.12",
+                                    "QtQuickWindowVersion": "2.12"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "../main_qtquick.py",
+                    "target": "main.py"
+                },
+                {
+                    "source": "main.pyproject",
+                    "target": "main.pyproject",
+                    "openAsProject": true
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "main.qml",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

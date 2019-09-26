@@ -1,14 +1,13 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "PythonProject" ],
-    "id": "U.QtForPythonApplicationEmpty",
+    "id": "F.QtForPythonApplicationEmpty",
     "category": "F.Application",
     "trDescription": "Creates a Qt for Python application that contains only the main code for a QApplication.",
     "trDisplayName": "Qt for Python - Empty",
     "trDisplayCategory": "Application",
     "icon": "icon.png",
     "enabled": "%{JS: value('Plugins').indexOf('Python') >= 0}",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureQt.5.6" ],
 
     "options":
     [
@@ -44,6 +43,11 @@
                     "source": "../main_empty.py",
                     "target": "%{SrcFileName}",
                     "openInEditor": true
+                },
+                {
+                    "source": "../../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
                 }
             ]
         }

@@ -1,18 +1,18 @@
 {
     "version": 1,
     "supportedProjectTypes": [ "PythonProject" ],
-    "id": "F.QtForPythonApplicationWindow",
+    "id": "F.QtForPythonApplicationWindowWidget",
     "category": "F.Application",
-    "trDescription": "Creates a Qt for Python application that contains an empty window.",
-    "trDisplayName": "Qt for Python - Window",
+    "trDescription": "Creates a Qt for Python application that includes a Qt Designer-based widget (ui file)",
+    "trDisplayName": "Qt for Python - Window (UI file)",
     "trDisplayCategory": "Application",
     "icon": "../icons/icon.png",
     "enabled": "%{JS: value('Plugins').indexOf('Python') >= 0}",
 
     "options":
     [
-        { "key": "MainPyFileName", "value": "%{ProjectDirectory}/%{SrcFileName}" },
-        { "key":  "PyProjectFile", "value": "%{ProjectDirectory}/%{ProjectFileName}" }
+        { "key": "SrcFileName", "value": "main.py" },
+        { "key": "PyProjectFile", "value": "main.pyproject" }
     ],
 
     "pages":
@@ -42,8 +42,7 @@
                     "type": "ComboBox",
                     "data":
                     {
-                        "items": [ "QWidget", "QMainWindow",
-                                 { "trKey": "<Custom>", "value": "" } ]
+                        "items": [ "QWidget", "QDialog", "QMainWindow" ]
                     }
                 },
                 {
@@ -75,14 +74,18 @@
             "data":
             [
                 {
-                    "source": "../main.pyproject",
+                    "source": "main.pyproject",
                     "target": "%{PyProjectFile}",
                     "openAsProject": true
                 },
                 {
-                    "source": "../main_mainwindow.py",
-                    "target": "%{MainPyFileName}",
+                    "source": "../main_widget.py",
+                    "target": "%{SrcFileName}",
                     "openInEditor": true
+                },
+                {
+                    "source": "../main_widget.ui",
+                    "target": "form.ui"
                 },
                 {
                     "source": "../../git.ignore",

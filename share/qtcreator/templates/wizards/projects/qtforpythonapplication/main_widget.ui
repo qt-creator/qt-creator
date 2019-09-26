@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>%{Class}</class>
+ <widget class="%{BaseCB}" name="%{Class}">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>%{Class}</string>
+  </property>
+@if '%{BaseCB}' === 'QMainWindow'
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar"/>
+  <widget class="QStatusBar" name="statusbar"/>
+@endif
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
