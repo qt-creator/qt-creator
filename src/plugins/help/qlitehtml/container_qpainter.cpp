@@ -626,6 +626,14 @@ void DocumentContainer::drawSelection(QPainter *painter, const QRect &clip) cons
     painter->restore();
 }
 
+static QString tagName(const litehtml::element::ptr &e)
+{
+    litehtml::element::ptr current = e;
+    while (current && std::strlen(current->get_tagName()) == 0)
+        current = current->parent();
+    return current ? QString::fromUtf8(current->get_tagName()) : QString();
+}
+
 void DocumentContainer::buildIndex()
 {
     m_index.elementToIndex.clear();
@@ -633,10 +641,13 @@ void DocumentContainer::buildIndex()
     m_index.text.clear();
 
     int index = 0;
+    bool inBody = false;
     litehtml::element::ptr current = firstLeaf(m_document->root(), nullptr);
     while (current != m_document->root()) {
         m_index.elementToIndex.insert({current, index});
-        if (current->is_visible()) {
+        if (!inBody)
+            inBody = tagName(current).toLower() == "body";
+        if (inBody && current->is_visible()) {
             litehtml::tstring text;
             current->get_text(text);
             if (!text.empty()) {
