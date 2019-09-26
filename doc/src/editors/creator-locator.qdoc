@@ -150,6 +150,11 @@
 
         \if defined(qtcreator)
         \li Running external tools (\c x)
+        \li Using CMake to build the project for the current run configuration
+            (\c {cm}). For more information, see \l {Setting up CMake}.
+        \li Opening the CMakeLists.txt file for the current run configuration in
+            the editor (\c {cmo}). This is the same build target as when you
+            select \uicontrol Build > \uicontrol {Build for Run Configuration}.
         \endif
 
     \endlist

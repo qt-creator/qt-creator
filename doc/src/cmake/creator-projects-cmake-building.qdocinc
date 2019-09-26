@@ -57,6 +57,10 @@
 
     To reset the changes that you made, select \uicontrol Reset.
 
+    To reconfigure CMake, select \uicontrol Build >
+    \uicontrol {Clear CMake Configuration}, and then
+    select \uicontrol Build > \uicontrol {Rescan Project}.
+
 //! [cmake build configuration]
 
 
@@ -65,7 +69,7 @@
     \section2 CMake Build Steps
 
     \QC builds CMake projects by running \c {cmake . --build}, which then runs
-    run whatever is needed based on how the project was configured: \c make,
+    whatever is needed based on how the project was configured: \c make,
     \c mingw32-make, \c nmake, or \c ninja, for example.
 
     You can add arguments and targets for the build command in

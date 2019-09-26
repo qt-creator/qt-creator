@@ -84,16 +84,18 @@
 
     To quickly check the compile output for changes that you made in one file or
     subproject, you can use the \uicontrol Build menu commands to build a file or
-    subproject.
+    subproject. The available build menu commands depend on the build system
+    you selected for the project: CMake, qmake, or Qbs.
 
-    To build the executable that corresponds to the selected run configuration,
-    select \uicontrol Build > \uicontrol {Build for Run Configuration}.
+    Select \uicontrol Build > \uicontrol {Build for Run Configuration} to
+    build the executable that corresponds to the selected run configuration.
+    You can also use the \c cm filter in the \l {Searching with the Locator}
+    {locator}.
 
     To remove all build artifacts, select \uicontrol Build > \uicontrol {Clean All} or
     \uicontrol {Clean Project}. To clean the build directory and then build
     the project, select \uicontrol Build > \uicontrol {Rebuild All} or
-    \uicontrol {Rebuild Project}. If you use qmake, rebuilding also runs qmake
-    to generate new Makefiles between cleaning and building.
+    \uicontrol {Rebuild Project}.
 
     To build and clean projects without dependencies, select the
     \uicontrol {Build Without Dependencies},
@@ -101,11 +103,22 @@
     \uicontrol {Clean Without Dependencies} options in the context menu in the
     \uicontrol Projects view.
 
-    \section1 Additional qmake Commands
+    To run qmake or CMake to regenerate build system files, select
+    \uicontrol Build > \uicontrol {Run qmake} or \uicontrol {Run CMake}.
 
-    To run qmake to generate new Makefiles, select \uicontrol Build >
-    \uicontrol qmake. To prevent failures on incremental builds, it might make
-    sense to always run qmake before building, even though it means that
+    \section2 Building with CMake
+
+    \QC automatically runs CMake when you make changes to \c {CMakeLists.txt}
+    files. To disable this feature, select \uicontrol Tools >
+    \uicontrol Options > \uicontrol Kits > \uicontrol CMake >
+    \uicontrol {Autorun CMake}.
+
+    For more information, see \l {Setting Up CMake}.
+
+    \section2 Building with qmake
+
+    To prevent failures on incremental builds, it might make sense
+    to always run qmake before building, even though it means that
     building will take more time. To enable this option, select \uicontrol Tools
     > \uicontrol Options > \uicontrol {Build & Run} > \uicontrol qmake >
     \uicontrol {Run qmake on every build}.
