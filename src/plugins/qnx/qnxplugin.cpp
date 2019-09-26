@@ -55,6 +55,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <remotelinux/genericdirectuploadstep.h>
+#include <remotelinux/makeinstallstep.h>
 #include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -90,6 +91,11 @@ public:
         addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
         setUseDeploymentDataView();
 
+        addInitialStep(RemoteLinux::MakeInstallStep::stepId(), [](Target *target) {
+            const Project * const prj = target->project();
+            return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+                    && prj->hasMakeInstallEquivalent();
+        });
         addInitialStep(DeviceCheckBuildStep::stepId());
         addInitialStep(RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
         addInitialStep(RemoteLinux::GenericDirectUploadStep::stepId());
@@ -110,6 +116,7 @@ public:
     QnxDeployConfigurationFactory deployConfigFactory;
     GenericQnxDeployStepFactory<RemoteLinux::GenericDirectUploadStep> directUploadDeployFactory;
     GenericQnxDeployStepFactory<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep> checkForFreeDiskSpaceDeployFactory;
+    GenericQnxDeployStepFactory<RemoteLinux::MakeInstallStep> makeInstallDeployFactory;
     GenericQnxDeployStepFactory<DeviceCheckBuildStep> checkBuildDeployFactory;
     QnxRunConfigurationFactory runConfigFactory;
     QnxSettingsPage settingsPage;

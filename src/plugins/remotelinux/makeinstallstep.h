@@ -25,15 +25,16 @@
 
 #pragma once
 
+#include "remotelinux_export.h"
+
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/makestep.h>
 
 namespace Utils { class FilePath; }
 
 namespace RemoteLinux {
-namespace Internal {
 
-class MakeInstallStep : public ProjectExplorer::MakeStep
+class REMOTELINUX_EXPORT MakeInstallStep : public ProjectExplorer::MakeStep
 {
     Q_OBJECT
 public:
@@ -62,5 +63,4 @@ private:
     bool m_isCmakeProject = false;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux

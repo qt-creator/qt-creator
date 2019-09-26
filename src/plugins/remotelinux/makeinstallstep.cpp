@@ -45,7 +45,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux {
-namespace Internal {
 
 const char MakeAspectId[] = "RemoteLinux.MakeInstall.Make";
 const char InstallRootAspectId[] = "RemoteLinux.MakeInstall.InstallRoot";
@@ -228,5 +227,4 @@ bool MakeInstallStep::fromMap(const QVariantMap &map)
     return true;
 }
 
-} // namespace Internal
 } // namespace RemoteLinux
