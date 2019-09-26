@@ -125,6 +125,7 @@ private:
     void helpModeButtonClicked();
     void closeCurrentPage();
     void saveState() const;
+    bool supportsPages() const;
 
     void goHome();
     void addBookmark();
