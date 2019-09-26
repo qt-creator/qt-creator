@@ -461,13 +461,13 @@ bool QLiteHtmlWidget::findText(const QString &text,
     QRect newSelectionCombined;
     for (const QRect &r : newSelection)
         newSelectionCombined = newSelectionCombined.united(r);
-    if (success && verticalScrollBar()->value() > newSelectionCombined.top()) {
-        verticalScrollBar()->setValue(newSelectionCombined.top());
-    } else if (success
-               && verticalScrollBar()->value() + toVirtual(viewport()->size()).height()
-                      < newSelectionCombined.bottom()) {
-        verticalScrollBar()->setValue(newSelectionCombined.bottom()
-                                      - toVirtual(viewport()->size()).height());
+    QScrollBar *vBar = verticalScrollBar();
+    const int top = newSelectionCombined.top();
+    const int bottom = newSelectionCombined.bottom() - toVirtual(viewport()->size()).height();
+    if (success && top < vBar->value() && vBar->minimum() <= top) {
+        vBar->setValue(top);
+    } else if (success && vBar->value() < bottom && bottom <= vBar->maximum()) {
+        vBar->setValue(bottom);
     } else {
         viewport()->update(fromVirtual(newSelectionCombined.translated(-scrollPosition())));
         for (const QRect &r : oldSelection)
