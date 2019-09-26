@@ -206,7 +206,8 @@ QnxToolChainFactory::QnxToolChainFactory()
 {
     setDisplayName(tr("QCC"));
     setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
-    setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
+                           ProjectExplorer::Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new QnxToolChain; });
     setUserCreatable(true);
 }
