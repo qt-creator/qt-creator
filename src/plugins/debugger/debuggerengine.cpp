@@ -2619,6 +2619,73 @@ QString DebuggerEngine::formatStartParameters() const
     return rc;
 }
 
+static void createNewDock(QWidget *widget)
+{
+    auto dockWidget = new QDockWidget;
+    dockWidget->setWidget(widget);
+    dockWidget->setWindowTitle(widget->windowTitle());
+    dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
+    dockWidget->show();
+}
+
+void DebuggerEngine::showModuleSymbols(const QString &moduleName, const Symbols &symbols)
+{
+    auto w = new QTreeWidget;
+    w->setUniformRowHeights(true);
+    w->setColumnCount(5);
+    w->setRootIsDecorated(false);
+    w->setAlternatingRowColors(true);
+    w->setSortingEnabled(true);
+    w->setObjectName("Symbols." + moduleName);
+    QStringList header;
+    header.append(tr("Symbol"));
+    header.append(tr("Address"));
+    header.append(tr("Code"));
+    header.append(tr("Section"));
+    header.append(tr("Name"));
+    w->setHeaderLabels(header);
+    w->setWindowTitle(tr("Symbols in \"%1\"").arg(moduleName));
+    for (const Symbol &s : symbols) {
+        auto it = new QTreeWidgetItem;
+        it->setData(0, Qt::DisplayRole, s.name);
+        it->setData(1, Qt::DisplayRole, s.address);
+        it->setData(2, Qt::DisplayRole, s.state);
+        it->setData(3, Qt::DisplayRole, s.section);
+        it->setData(4, Qt::DisplayRole, s.demangled);
+        w->addTopLevelItem(it);
+    }
+    createNewDock(w);
+}
+
+void DebuggerEngine::showModuleSections(const QString &moduleName, const Sections &sections)
+{
+    auto w = new QTreeWidget;
+    w->setUniformRowHeights(true);
+    w->setColumnCount(5);
+    w->setRootIsDecorated(false);
+    w->setAlternatingRowColors(true);
+    w->setSortingEnabled(true);
+    w->setObjectName("Sections." + moduleName);
+    QStringList header;
+    header.append(tr("Name"));
+    header.append(tr("From"));
+    header.append(tr("To"));
+    header.append(tr("Address"));
+    header.append(tr("Flags"));
+    w->setHeaderLabels(header);
+    w->setWindowTitle(tr("Sections in \"%1\"").arg(moduleName));
+    for (const Section &s : sections) {
+        auto it = new QTreeWidgetItem;
+        it->setData(0, Qt::DisplayRole, s.name);
+        it->setData(1, Qt::DisplayRole, s.from);
+        it->setData(2, Qt::DisplayRole, s.to);
+        it->setData(3, Qt::DisplayRole, s.address);
+        it->setData(4, Qt::DisplayRole, s.flags);
+        w->addTopLevelItem(it);
+    }
+    createNewDock(w);
+}
+
 // CppDebuggerEngine
 
 Context CppDebuggerEngine::languageContext() const

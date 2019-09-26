@@ -523,17 +523,11 @@ void QLiteHtmlWidget::paintEvent(QPaintEvent *event)
     if (!d->documentContainer.document())
         return;
     d->documentContainer.setScrollPosition(scrollPosition());
-    const QPoint pos = -scrollPosition();
-    const QRect r = toVirtual(event->rect());
-    const litehtml::position clip = {r.x(), r.y(), r.width(), r.height()};
     QPainter p(viewport());
     p.setWorldTransform(QTransform().scale(d->zoomFactor, d->zoomFactor));
     p.setRenderHint(QPainter::SmoothPixmapTransform, true);
     p.setRenderHint(QPainter::Antialiasing, true);
-    d->documentContainer.document()->draw(reinterpret_cast<litehtml::uint_ptr>(&p),
-                                          pos.x(),
-                                          pos.y(),
-                                          &clip);
+    d->documentContainer.draw(&p, toVirtual(event->rect()));
 }
 
 static litehtml::element::ptr elementForY(int y, const litehtml::document::ptr &document)

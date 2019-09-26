@@ -143,6 +143,7 @@ public: // outside API
     litehtml::document::ptr document() const;
     void setScrollPosition(const QPoint &pos);
     void render(int width, int height);
+    void draw(QPainter *painter, const QRect &clip);
 
     // these return areas to redraw in document space
     QVector<QRect> mousePressEvent(const QPoint &documentPos,

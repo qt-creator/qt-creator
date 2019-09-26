@@ -669,7 +669,7 @@ void LldbEngine::requestModuleSymbols(const QString &moduleName)
 {
     DebuggerCommand cmd("fetchSymbols");
     cmd.arg("module", moduleName);
-    cmd.callback = [moduleName](const DebuggerResponse &response) {
+    cmd.callback = [this, moduleName](const DebuggerResponse &response) {
         const GdbMi &symbols = response.data["symbols"];
         QString moduleName = response.data["module"].data();
         Symbols syms;
@@ -682,7 +682,7 @@ void LldbEngine::requestModuleSymbols(const QString &moduleName)
             symbol.demangled = item["demangled"].data();
             syms.append(symbol);
         }
-        Internal::showModuleSymbols(moduleName, syms);
+        showModuleSymbols(moduleName, syms);
     };
     runCommand(cmd);
 }

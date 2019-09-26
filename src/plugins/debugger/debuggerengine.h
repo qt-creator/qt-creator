@@ -102,9 +102,11 @@ class LogWindow;
 class ModulesHandler;
 class RegisterHandler;
 class PeripheralRegisterHandler;
-class StackHandler;
-class StackFrame;
+class Section;
 class SourceFilesHandler;
+class StackFrame;
+class StackHandler;
+class Symbol;
 class WatchHandler;
 class WatchTreeView;
 class DebuggerToolTipContext;
@@ -460,6 +462,9 @@ public:
 
     void openMemoryEditor();
 
+    static void showModuleSymbols(const QString &moduleName, const QVector<Symbol> &symbols);
+    static void showModuleSections(const QString &moduleName, const QVector<Section> &sections);
+
     void handleExecDetach();
     void handleExecContinue();
     void handleExecInterrupt();
@@ -546,7 +551,6 @@ protected:
     bool isNativeMixedActiveFrame() const;
     void startDying() const;
 
-protected:
     ProjectExplorer::IDevice::ConstPtr device() const;
     DebuggerEngine *companionEngine() const;
 

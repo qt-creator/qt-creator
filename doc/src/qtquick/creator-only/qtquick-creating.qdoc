@@ -128,6 +128,16 @@
 
         \li Select \uicontrol Next.
 
+        \li In the \uicontrol Language field, select a language that you plan
+            to \l {Using Qt Linguist}{translate} the application to. You can
+            add other languages later by editing the project file.
+
+        \li In the \uicontrol {Translation file} field, you can edit the
+            name for the translation source file that will be generated
+            for the selected language.
+
+        \li Select \uicontrol Next.
+
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building
             your project, and then click \uicontrol Next.
 

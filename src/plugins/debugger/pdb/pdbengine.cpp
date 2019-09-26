@@ -369,7 +369,7 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
         symbol.name = item["name"].data();
         syms.append(symbol);
     }
-    Internal::showModuleSymbols(moduleName, syms);
+    showModuleSymbols(moduleName, syms);
 }
 
 bool PdbEngine::canHandleToolTip(const DebuggerToolTipContext &) const

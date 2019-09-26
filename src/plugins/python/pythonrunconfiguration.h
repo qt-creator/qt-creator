@@ -42,6 +42,7 @@ class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
 
 public:
     PythonRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
+    QString interpreter() const;
 
 private:
     void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) final;
@@ -49,7 +50,6 @@ private:
     bool supportsDebugger() const;
     QString mainScript() const;
     QString arguments() const;
-    QString interpreter() const;
 
     void updateTargetInformation();
 };
