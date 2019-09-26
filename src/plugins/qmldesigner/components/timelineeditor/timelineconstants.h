@@ -54,7 +54,8 @@ const char timelineInsertKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesigner
 const char timelineDeleteKeyframesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                     "Delete All Keyframes");
 
-const char timelineStatusBarFrameNumber[] = QT_TRANSLATE_NOOP("QmlDesignerTimeline", "Frame %1");
+const char statusBarPlayheadFrame[] = QT_TRANSLATE_NOOP("QmlDesignerTimeline", "Playhead frame %1");
+const char statusBarKeyframe[]      = QT_TRANSLATE_NOOP("QmlDesignerTimeline", "Keyframe %1");
 
 const char C_QMLTIMELINE[] = "QmlDesigner::Timeline";
 const char C_SETTINGS[] = "QmlDesigner.Settings";

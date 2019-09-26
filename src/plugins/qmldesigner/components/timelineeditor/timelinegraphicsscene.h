@@ -160,7 +160,7 @@ private:
     ModelNode timelineModelNode() const;
 
     void emitScrollOffsetChanged();
-    void emitStatusBarFrameMessageChanged(int frame);
+    void emitStatusBarPlayheadFrameChanged(int frame);
 
     QList<QGraphicsItem *> itemsAt(const QPointF &pos);
 

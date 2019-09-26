@@ -100,6 +100,9 @@ void TimelineMoveTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
 
         current->setPosition(sourceFrame + deltaFrame);
 
+        scene()->statusBarMessageChanged(tr(TimelineConstants::statusBarKeyframe)
+                                         .arg(sourceFrame + deltaFrame));
+
         for (auto *keyframe : scene()->selectedKeyframes()) {
             if (keyframe != current) {
                 qreal pos = std::round(current->mapFromSceneToFrame(keyframe->rect().center().x()));
@@ -125,29 +128,36 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
             double start = current->mapFromFrameToScene(scene()->startFrame());
             double end = current->mapFromFrameToScene(scene()->endFrame());
 
-            if (mousePos < start) {
-                scene()->setCurrentFrame(scene()->startFrame());
-                scene()->statusBarMessageChanged(QObject::tr("Frame %1").arg(scene()->startFrame()));
-                return;
-            } else if (mousePos > end) {
-                scene()->setCurrentFrame(scene()->endFrame());
-                scene()->statusBarMessageChanged(QObject::tr("Frame %1").arg(scene()->endFrame()));
+            double limitFrame = -999999.;
+            if (mousePos < start)
+                limitFrame = scene()->startFrame();
+            else if (mousePos > end)
+                limitFrame = scene()->endFrame();
+
+            if (limitFrame > -999999.) {
+                scene()->setCurrentFrame(limitFrame);
+                scene()->statusBarMessageChanged(
+                            tr(TimelineConstants::statusBarPlayheadFrame).arg(limitFrame));
                 return;
             }
         }
 
-        scene()->timelineView()->executeInTransaction("TimelineMoveTool::mouseReleaseEvent", [this, current](){
+        scene()->timelineView()->executeInTransaction("TimelineMoveTool::mouseReleaseEvent",
+                                                      [this, current]() {
             current->commitPosition(mapToItem(current, current->rect().center()));
 
             if (current->asTimelineKeyframeItem()) {
                 double frame = std::round(
                             current->mapFromSceneToFrame(current->rect().center().x()));
 
-                scene()->statusBarMessageChanged(QObject::tr("Frame %1").arg(frame));
+                scene()->statusBarMessageChanged(
+                            tr(TimelineConstants::statusBarKeyframe).arg(frame));
 
-                for (auto keyframe : scene()->selectedKeyframes())
+                const auto selectedKeyframes = scene()->selectedKeyframes();
+                for (auto keyframe : selectedKeyframes) {
                     if (keyframe != current)
                         keyframe->commitPosition(mapToItem(current, keyframe->rect().center()));
+                }
             }
         });
     }

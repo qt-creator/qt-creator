@@ -37,6 +37,8 @@ class TimelineMovableAbstractItem;
 
 class TimelineMoveTool : public TimelineAbstractTool
 {
+    Q_DECLARE_TR_FUNCTIONS(TimelineMoveTool)
+
 public:
     explicit TimelineMoveTool(TimelineGraphicsScene *scene, TimelineToolDelegate *delegate);
     void mousePressEvent(TimelineMovableAbstractItem *item,
