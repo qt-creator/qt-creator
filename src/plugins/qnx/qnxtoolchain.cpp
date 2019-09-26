@@ -74,9 +74,12 @@ static Abis detectTargetAbis(const FilePath &sdpPath)
 
 static void setQnxEnvironment(Environment &env, const EnvironmentItems &qnxEnv)
 {
-    // We only need to set QNX_HOST and QNX_TARGET needed when running qcc
+    // We only need to set QNX_HOST, QNX_TARGET, and QNX_CONFIGURATION_EXCLUSIVE
+    // needed when running qcc
     foreach (const EnvironmentItem &item, qnxEnv) {
-        if (item.name == QLatin1String("QNX_HOST") || item.name == QLatin1String("QNX_TARGET"))
+        if (item.name == QLatin1String("QNX_HOST") ||
+            item.name == QLatin1String("QNX_TARGET") ||
+            item.name == QLatin1String("QNX_CONFIGURATION_EXCLUSIVE"))
             env.set(item.name, item.value);
     }
 }
@@ -113,7 +116,9 @@ std::unique_ptr<ToolChainConfigWidget> QnxToolChain::createConfigurationWidget()
 
 void QnxToolChain::addToEnvironment(Environment &env) const
 {
-    if (env.expandedValueForKey("QNX_HOST").isEmpty() || env.expandedValueForKey("QNX_TARGET").isEmpty())
+    if (env.expandedValueForKey("QNX_HOST").isEmpty() ||
+        env.expandedValueForKey("QNX_TARGET").isEmpty() ||
+        env.expandedValueForKey("QNX_CONFIGURATION_EXCLUSIVE").isEmpty())
         setQnxEnvironment(env, QnxUtils::qnxEnvironment(m_sdpPath));
 
     GccToolChain::addToEnvironment(env);
