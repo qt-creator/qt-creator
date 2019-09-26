@@ -940,12 +940,10 @@ void PerspectivePrivate::restoreLayout()
         qCDebug(perspectivesLog) << "PERSPECTIVE STATE AVAILABLE BY FULL ID.";
     }
 
-    if (state.isEmpty()) {
-        qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORE NOT POSSIBLE, NO STORED STATE";
-    } else {
-        bool result = theMainWindow->restoreState(state);
-        qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORED. SUCCESS: " << result;
-    }
+    // The order is important here: While QMainWindow can restore layouts with
+    // not-existing docks (some placeholders are used internally), later
+    // replacements with restoreDockWidget(dock) trigger a re-layout, resulting
+    // in different sizes. So make sure all docks exist first before restoring state.
 
     qCDebug(perspectivesLog) << "PERSPECTIVE" << m_id << "RESTORING LAYOUT FROM " << settingsId();
     for (DockOperation &op : m_dockOperations) {
@@ -957,6 +955,13 @@ void PerspectivePrivate::restoreLayout()
             qCDebug(perspectivesLog) << "RESTORE DOCK " << op.name() << "ACTIVE: " << active
                                      << (active == op.visibleByDefault ? "DEFAULT USER" : "*** NON-DEFAULT USER");
         }
+    }
+
+    if (state.isEmpty()) {
+        qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORE NOT POSSIBLE, NO STORED STATE";
+    } else {
+        bool result = theMainWindow->restoreState(state);
+        qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORED, SUCCESS: " << result;
     }
 }
 
