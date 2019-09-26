@@ -2260,8 +2260,8 @@ void DebuggerEngine::openDisassemblerView(const Location &location)
 
 void DebuggerEngine::raiseWatchersWindow()
 {
-    if (d->m_watchersView) {
-        if (auto dock = qobject_cast<QDockWidget *>(d->m_watchersView->parentWidget())) {
+    if (d->m_watchersView && d->m_watchersWindow) {
+        if (auto dock = qobject_cast<QDockWidget *>(d->m_watchersWindow->parentWidget())) {
             if (QAction *act = dock->toggleViewAction()) {
                 if (!act->isChecked())
                     QTimer::singleShot(1, act, [act] { act->trigger(); });
