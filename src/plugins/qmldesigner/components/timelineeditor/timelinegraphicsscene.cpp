@@ -501,6 +501,11 @@ QList<QGraphicsItem *> TimelineGraphicsScene::itemsAt(const QPointF &pos)
 void TimelineGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     auto topItem = TimelineMovableAbstractItem::topMoveableItem(itemsAt(event->scenePos()));
+
+    // if pressed the ruler, set topItem to the playhead
+    if (!topItem && rulerView()->rect().contains(event->scenePos().toPoint()))
+        topItem = m_currentFrameIndicator;
+
     m_tools.mousePressEvent(topItem, event);
     QGraphicsScene::mousePressEvent(event);
 }

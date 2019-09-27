@@ -120,11 +120,10 @@ void TimelineMoveTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
                                          QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(item)
-    Q_UNUSED(event)
 
     if (auto *current = currentItem()) {
         if (current->asTimelineFrameHandle()) {
-            double mousePos = event->pos().x();
+            double mousePos = event->scenePos().x();
             double start = current->mapFromFrameToScene(scene()->startFrame());
             double end = current->mapFromFrameToScene(scene()->endFrame());
 
