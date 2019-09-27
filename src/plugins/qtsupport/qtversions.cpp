@@ -127,15 +127,7 @@ EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
     setSupportedType(EMBEDDED_LINUX_QT);
     setPriority(10);
 
-    setRestrictionChecker([](const SetupData &) {
-        const EmbeddedLinuxQtVersion tempVersion;
-        const ProjectExplorer::Abis abis = tempVersion.qtAbis();
-
-        // Note: This fails for e.g. intel/meego cross builds on x86 linux machines.
-        return  abis.count() == 1
-                && abis.at(0).os() == ProjectExplorer::Abi::LinuxOS
-                && !ProjectExplorer::Abi::hostAbi().isCompatibleWith(abis.at(0));
-    });
+    setRestrictionChecker([](const SetupData &) { return false; });
 }
 
 } // Internal
