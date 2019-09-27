@@ -1,29 +1,41 @@
-#todo
-# - handle if there is no debug python lib python35_d
-# - needs to be tested
-
-if (MINGW)
-  message(STATUS "MinGW detected. Removing qtcreatorcdbext from build.")
+if (NOT WIN32 AND NOT MSVC)
   return()
 endif()
 
-include(CheckIncludeFile)
-check_include_file(wdbgexts.h HAVE_WDBGEXTS_H)
-if (NOT HAVE_WDBGEXTS_H)
+find_path(WDbgExtsPath wdbgexts.h
+  HINTS
+    "$ENV{CDB_PATH}"
+    "$ENV{ProgramFiles}/Debugging Tools For Windows/sdk"
+    "$ENV{ProgramFiles}/Debugging Tools For Windows (x86)/sdk"
+    "$ENV{ProgramFiles}/Debugging Tools For Windows (x64)/sdk"
+    "$ENV{ProgramFiles}/Debugging Tools For Windows 64-bit/sdk"
+    "$ENV{ProgramW6432}/Debugging Tools For Windows (x86)/sdk"
+    "$ENV{ProgramW6432}/Debugging Tools For Windows (x64)/sdk"
+    "$ENV{ProgramW6432}/Debugging Tools For Windows 64-bit/sdk"
+    "$ENV{ProgramFiles}/Windows Kits/8.0/Debuggers"
+    "$ENV{ProgramFiles}/Windows Kits/8.1/Debuggers"
+    "$ENV{ProgramFiles}/Windows Kits/10/Debuggers"
+    "$ENV{ProgramFiles\(x86\)}/Windows Kits/8.0/Debuggers/inc"
+    "$ENV{ProgramFiles\(x86\)}/Windows Kits/8.1/Debuggers/inc"
+    "$ENV{ProgramFiles\(x86\)}/Windows Kits/10/Debuggers/inc"
+)
+
+if (NOT WDbgExtsPath)
   message(WARNING "wdbgexts.h not found. Removing qtcreatorcdbext from build.")
   return()
 endif()
 
-find_package(PythonLibs 3.5)
-if (NOT ${PYTHONLIBS_FOUND})
-  message(WARNING "PythonLibs 3.5 not found. Removing qtcreatorcdbext from build.")
-  return()
+find_library(DbgEngLib dbgeng HINTS ${WDbgExtsPath})
+
+set(ArchSuffix 32)
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(ArchSuffix 64)
 endif()
 
 add_qtc_library(qtcreatorcdbext
-  DEPENDS ${PYTHON_LIBRARIES}
-  INCLUDES ${PYTHON_INCLUDE_DIR}
-  DEFINES WITH_PYTHON=1
+  BUILD_BY_DEFAULT
+  DEPENDS ${DbgEngLib}
+  DESTINATION lib/qtcreatorcdbext${ArchSuffix}/
   SOURCES
     common.cpp common.h
     containers.cpp containers.h
@@ -33,14 +45,47 @@ add_qtc_library(qtcreatorcdbext
     iinterfacepointer.h
     knowntype.h
     outputcallback.cpp outputcallback.h
-    pycdbextmodule.cpp pycdbextmodule.h
-    pyfield.cpp pyfield.h
-    pystdoutredirect.cpp pystdoutredirect.h
-    pytype.cpp pytype.h
-    pyvalue.cpp pyvalue.h
+    qtcreatorcdbext.def
     qtcreatorcdbextension.cpp
     stringutils.cpp stringutils.h
     symbolgroup.cpp symbolgroup.h
     symbolgroupnode.cpp symbolgroupnode.h
     symbolgroupvalue.cpp symbolgroupvalue.h
+)
+
+find_package(PythonLibs 3.5)
+if (NOT ${PYTHONLIBS_FOUND})
+  message(WARNING "PythonLibs (at least version 3.5) not found. qtcreatorcdbext will be built without Python support.")
+  return()
+endif()
+
+extend_qtc_target(qtcreatorcdbext
+  DEPENDS "${PYTHON_LIBRARIES}"
+  INCLUDES "${PYTHON_INCLUDE_DIR}"
+  DEFINES WITH_PYTHON=1
+  SOURCES
+    pycdbextmodule.cpp pycdbextmodule.h
+    pyfield.cpp pyfield.h
+    pystdoutredirect.cpp pystdoutredirect.h
+    pytype.cpp pytype.h
+    pyvalue.cpp pyvalue.h
+)
+
+set(PythonRegex "^(.*)/(.*)/(python[0-9]+)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(PythonRegex "^(.*)/(.*)/(python[0-9]+_d)${CMAKE_IMPORT_LIBRARY_SUFFIX}$")
+endif()
+
+foreach(lib IN LISTS PYTHON_LIBRARIES)
+  if (lib MATCHES ${PythonRegex})
+    set(PythonDll "${CMAKE_MATCH_1}/${CMAKE_MATCH_3}${CMAKE_SHARED_LIBRARY_SUFFIX}")
+  endif()
+endforeach()
+
+install(FILES "${PythonDll}" DESTINATION lib/qtcreatorcdbext${ArchSuffix}/)
+
+add_custom_target(copy_python_dll ALL VERBATIM)
+add_custom_command(TARGET copy_python_dll POST_BUILD
+  COMMAND "${CMAKE_COMMAND}" -E copy "${PythonDll}" "${PROJECT_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}/"
+  VERBATIM
 )
