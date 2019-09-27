@@ -28,7 +28,6 @@
 #include <coreplugin/id.h>
 #include <cpptools/clangdiagnosticconfig.h>
 
-#include <QVersionNumber>
 #include <QtGlobal>
 
 QT_BEGIN_NAMESPACE

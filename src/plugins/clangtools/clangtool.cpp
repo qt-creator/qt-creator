@@ -55,6 +55,8 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/textdocument.h>
+
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/fancymainwindow.h>
@@ -505,7 +507,11 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     ProjectExplorerPlugin::startRunControl(runControl);
 }
 
-Diagnostics ClangTool::read(OutputFileFormat outputFileFormat, const QString &logFilePath, const QString &mainFilePath, const QSet<FilePath> &projectFiles, QString *errorMessage) const
+Diagnostics ClangTool::read(OutputFileFormat outputFileFormat,
+                            const QString &logFilePath,
+                            const QString &mainFilePath,
+                            const QSet<FilePath> &projectFiles,
+                            QString *errorMessage) const
 {
     const auto acceptFromFilePath = [projectFiles](const Utils::FilePath &filePath) {
         return projectFiles.contains(filePath);
@@ -522,7 +528,7 @@ Diagnostics ClangTool::read(OutputFileFormat outputFileFormat, const QString &lo
                                      errorMessage);
 }
 
-FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection) const
+FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)
 {
     auto projectInfo = CppTools::CppModelManager::instance()->projectInfo(project);
     QTC_ASSERT(projectInfo.isValid(), return FileInfos());
@@ -533,10 +539,14 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         return allFileInfos;
 
     if (fileSelection == FileSelection::AskUser) {
-        SelectableFilesDialog dialog(projectInfo, allFileInfos);
+        static int initialProviderIndex = 0;
+        SelectableFilesDialog dialog(projectInfo,
+                                     fileInfoProviders(project, allFileInfos),
+                                     initialProviderIndex);
         if (dialog.exec() == QDialog::Rejected)
             return FileInfos();
-        return dialog.filteredFileInfos();
+        initialProviderIndex = dialog.currentProviderIndex();
+        return dialog.fileInfos();
     }
 
     if (fileSelection == FileSelection::CurrentFile) {
@@ -603,6 +613,68 @@ void ClangTool::loadDiagnosticsFromFiles()
     // Show imported
     m_diagnosticModel->clear();
     onNewDiagnosticsAvailable(diagnostics);
+}
+
+using DocumentPredicate = std::function<bool(Core::IDocument *)>;
+
+static FileInfos fileInfosMatchingDocuments(const FileInfos &fileInfos,
+                                            const DocumentPredicate &predicate)
+{
+    QSet<Utils::FilePath> documentPaths;
+    for (const Core::DocumentModel::Entry *e : Core::DocumentModel::entries()) {
+        if (predicate(e->document))
+            documentPaths.insert(e->fileName());
+    }
+
+    return Utils::filtered(fileInfos, [documentPaths](const FileInfo &fileInfo) {
+        return documentPaths.contains(fileInfo.file);
+    });
+}
+
+static FileInfos fileInfosMatchingOpenedDocuments(const FileInfos &fileInfos)
+{
+    // Note that (initially) suspended text documents are still IDocuments, not yet TextDocuments.
+    return fileInfosMatchingDocuments(fileInfos, [](Core::IDocument *) { return true; });
+}
+
+static FileInfos fileInfosMatchingEditedDocuments(const FileInfos &fileInfos)
+{
+    return fileInfosMatchingDocuments(fileInfos, [](Core::IDocument *document) {
+        if (auto textDocument = qobject_cast<TextEditor::TextDocument*>(document))
+            return textDocument->document()->revision() > 1;
+        return false;
+    });
+}
+
+FileInfoProviders ClangTool::fileInfoProviders(ProjectExplorer::Project *project,
+                                               const FileInfos &allFileInfos)
+{
+    ClangToolsProjectSettings *s = ClangToolsProjectSettingsManager::getSettings(project);
+    static FileInfoSelection openedFilesSelection;
+    static FileInfoSelection editeddFilesSelection;
+
+    return {
+        {ClangTool::tr("All Files"),
+         allFileInfos,
+         FileInfoSelection{s->selectedDirs(), s->selectedFiles()},
+         FileInfoProvider::Limited,
+         [s](const FileInfoSelection &selection) {
+             s->setSelectedDirs(selection.dirs);
+             s->setSelectedFiles(selection.files);
+         }},
+
+        {ClangTool::tr("Opened Files"),
+         fileInfosMatchingOpenedDocuments(allFileInfos),
+         openedFilesSelection,
+         FileInfoProvider::All,
+         [](const FileInfoSelection &selection) { openedFilesSelection = selection; }},
+
+        {ClangTool::tr("Edited Files"),
+         fileInfosMatchingEditedDocuments(allFileInfos),
+         editeddFilesSelection,
+         FileInfoProvider::All,
+         [](const FileInfoSelection &selection) { editeddFilesSelection = selection; }},
+    };
 }
 
 QSet<Diagnostic> ClangTool::diagnostics() const

@@ -88,7 +88,7 @@ public:
                      QString *errorMessage) const;
 
     FileInfos collectFileInfos(ProjectExplorer::Project *project,
-                               FileSelection fileSelection) const;
+                               FileSelection fileSelection);
 
     // For testing.
     QSet<Diagnostic> diagnostics() const;
@@ -111,6 +111,9 @@ private:
 
     void initDiagnosticView();
     void loadDiagnosticsFromFiles();
+
+    FileInfoProviders fileInfoProviders(ProjectExplorer::Project *project,
+                                        const FileInfos &allFileInfos);
 
     ClangToolsDiagnosticModel *m_diagnosticModel = nullptr;
     QPointer<Debugger::DetailedErrorView> m_diagnosticView;
