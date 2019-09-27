@@ -35,9 +35,10 @@ SetFrameValueDialog::SetFrameValueDialog(qreal frame, const QVariant &value,
     : QDialog(parent)
     , ui(new Ui::SetFrameValueDialog)
 {
+    ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Edit Keyframe"));
-    ui->setupUi(this);
+    setFixedSize(size());
 
     ui->lineEditFrame->setValidator(new QIntValidator(0, 99999, this));
 
