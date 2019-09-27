@@ -191,8 +191,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
 HelpPluginPrivate::HelpPluginPrivate()
 {
-    Context modecontext(Help::Constants::C_MODE_HELP);
-
     const QString &locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
         auto qtr = new QTranslator(this);
@@ -283,29 +281,6 @@ HelpPluginPrivate::HelpPluginPrivate()
     cmd = ActionManager::registerAction(action, "Help.SystemInformation");
     ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
     connect(action, &QAction::triggered, this, &HelpPluginPrivate::slotSystemInformation);
-
-    if (ActionContainer *windowMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW)) {
-        // reuse EditorManager constants to avoid a second pair of menu actions
-        // Goto Previous In History Action
-        action = new QAction(this);
-        Command *ctrlTab = ActionManager::registerAction(action, Core::Constants::GOTOPREVINHISTORY,
-            modecontext);
-        windowMenu->addAction(ctrlTab, Core::Constants::G_WINDOW_NAVIGATE);
-        connect(action,
-                &QAction::triggered,
-                m_centralWidget->openPagesManager(),
-                &OpenPagesManager::gotoPreviousPage);
-
-        // Goto Next In History Action
-        action = new QAction(this);
-        Command *ctrlShiftTab = ActionManager::registerAction(action, Core::Constants::GOTONEXTINHISTORY,
-            modecontext);
-        windowMenu->addAction(ctrlShiftTab, Core::Constants::G_WINDOW_NAVIGATE);
-        connect(action,
-                &QAction::triggered,
-                m_centralWidget->openPagesManager(),
-                &OpenPagesManager::gotoNextPage);
-    }
 
     connect(&helpIndexFilter, &HelpIndexFilter::linksActivated,
             this, &HelpPluginPrivate::showLinksInCurrentViewer);

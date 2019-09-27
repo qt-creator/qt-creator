@@ -161,6 +161,8 @@ private:
     QAction *m_resetScale = nullptr;
     QAction *m_printAction = nullptr;
     QAction *m_copy = nullptr;
+    QAction *m_gotoPrevious = nullptr;
+    QAction *m_gotoNext = nullptr;
 
     QStackedWidget *m_viewerStack = nullptr;
     QPrinter *m_printer = nullptr;
