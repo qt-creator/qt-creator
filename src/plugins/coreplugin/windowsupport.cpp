@@ -40,6 +40,7 @@
 #include <QEvent>
 #include <QMenu>
 #include <QWidget>
+#include <QWindowStateChangeEvent>
 
 namespace Core {
 namespace Internal {
@@ -111,6 +112,7 @@ bool WindowSupport::eventFilter(QObject *obj, QEvent *event)
             m_minimizeAction->setEnabled(!minimized);
             m_zoomAction->setEnabled(!minimized);
         }
+        m_previousWindowState = static_cast<QWindowStateChangeEvent *>(event)->oldState();
         updateFullScreenAction();
     } else if (event->type() == QEvent::WindowActivate) {
         m_windowList->setActiveWindow(m_window);
@@ -126,7 +128,7 @@ bool WindowSupport::eventFilter(QObject *obj, QEvent *event)
 void WindowSupport::toggleFullScreen()
 {
     if (m_window->isFullScreen()) {
-        m_window->setWindowState(m_window->windowState() & ~Qt::WindowFullScreen);
+        m_window->setWindowState(m_previousWindowState & ~Qt::WindowFullScreen);
     } else {
         m_window->setWindowState(m_window->windowState() | Qt::WindowFullScreen);
     }
