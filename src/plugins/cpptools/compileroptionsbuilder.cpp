@@ -172,6 +172,14 @@ void CompilerOptionsBuilder::addSyntaxOnly()
     isClStyle() ? add("/Zs") : add("-fsyntax-only");
 }
 
+void CompilerOptionsBuilder::remove(const QStringList &args)
+{
+    auto foundPos = std::search(m_options.begin(), m_options.end(),
+                                args.begin(), args.end());
+    if (foundPos != m_options.end())
+        m_options.erase(foundPos, std::next(foundPos, args.size()));
+}
+
 QStringList createLanguageOptionGcc(ProjectFile::Kind fileKind, bool objcExt)
 {
     QStringList options;
@@ -320,11 +328,18 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 
 void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders usePrecompiledHeaders)
 {
-    if (usePrecompiledHeaders == UsePrecompiledHeaders::No)
-        return;
-
     for (const QString &pchFile : m_projectPart.precompiledHeaders) {
-        if (QFile::exists(pchFile)) {
+        // Bail if build system precomiple header artifacts exists
+        // Clang cannot handle foreign PCH files.
+        if (QFile::exists(pchFile + ".gch") || QFile::exists(pchFile + ".pch"))
+            usePrecompiledHeaders = UsePrecompiledHeaders::No;
+
+        if (usePrecompiledHeaders == UsePrecompiledHeaders::No) {
+            // CMake PCH will already have force included the header file in
+            // command line options, remove it if exists.
+            remove({isClStyle() ? QLatin1String(includeFileOptionCl)
+                                : QLatin1String(includeFileOptionGcc), pchFile});
+        } else if (QFile::exists(pchFile)) {
             add({isClStyle() ? QLatin1String(includeFileOptionCl)
                              : QLatin1String(includeFileOptionGcc),
                  QDir::toNativeSeparators(pchFile)});
