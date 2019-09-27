@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -99,8 +99,8 @@
 
     To add or remove files, edit the \tt{.files} file in \QC.
     \QC recreates your project tree when you save the \tt{.files} file.
-    Alternatively, you can add and remove files using the context menu in the
-    project tree.
+    Alternatively, you can add and remove files or directories using the
+    context menu in the project tree.
 
     If you frequently need to update the \tt{.files} file, you can do so
     efficiently by using a script that updates the file for you. If the file
