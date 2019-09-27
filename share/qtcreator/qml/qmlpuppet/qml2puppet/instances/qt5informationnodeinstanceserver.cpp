@@ -60,7 +60,22 @@
 
 #include <designersupportdelegate.h>
 
+#include <QQmlProperty>
+#include <QOpenGLContext>
+#include <QQuickView>
+
 namespace QmlDesigner {
+
+static QVariant objectToVariant(QObject *object)
+{
+    return QVariant::fromValue(object);
+}
+
+static QObject *createEditView3D(QQmlEngine *engine)
+{
+    QQmlComponent component(engine, QUrl("qrc:/qtquickplugin/mockfiles/EditView3D.qml"));
+    return component.create();
+}
 
 Qt5InformationNodeInstanceServer::Qt5InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
@@ -120,6 +135,40 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuick
     }
 
     return false;
+}
+
+void Qt5InformationNodeInstanceServer::setup3DEditView(const QList<ServerNodeInstance> &instanceList)
+{
+    ServerNodeInstance root = rootNodeInstance();
+
+    QObject *node = nullptr;
+    bool showCustomLight = false;
+
+    if (root.isSubclassOf("QQuick3DNode")) {
+        node = root.internalObject();
+        showCustomLight = true; // Pure node scene we should add a custom light
+    } else { // Look for QQuick3DView
+        for (const ServerNodeInstance &instance : instanceList) {
+            if (instance.isSubclassOf("QQuick3DViewport")) {
+                for (const ServerNodeInstance &child : instanceList) { /* Look for scene node */
+                    if (child.isSubclassOf("QQuick3DNode") && child.parent() == instance)
+                        node = child.internalObject();
+                }
+            }
+        }
+    }
+
+    if (node) { // If we found a scene we create the edit view
+        QObject *view = createEditView3D(engine());
+
+        QQmlProperty sceneProperty(view, "scene", context());
+        node->setParent(view);
+        sceneProperty.write(objectToVariant(node));
+        QQmlProperty parentProperty(node, "parent", context());
+        parentProperty.write(objectToVariant(view));
+        QQmlProperty completeSceneProperty(view, "showLight", context());
+        completeSceneProperty.write(showCustomLight);
+    }
 }
 
 void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
@@ -232,6 +281,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     sendChildrenChangedCommand(instanceList);
     nodeInstanceClient()->componentCompleted(createComponentCompletedCommand(instanceList));
 
+    setup3DEditView(instanceList);
 }
 
 void Qt5InformationNodeInstanceServer::sendChildrenChangedCommand(const QList<ServerNodeInstance> &childList)

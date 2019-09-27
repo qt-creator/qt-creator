@@ -51,6 +51,8 @@ protected:
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
 
 private:
+    void setup3DEditView(const QList<ServerNodeInstance> &instanceList);
+
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;
     QList<TokenCommand> m_tokenList;

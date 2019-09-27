@@ -37,6 +37,9 @@
 #include <createscenecommand.h>
 #include <reparentinstancescommand.h>
 
+#include <QDebug>
+#include <QOpenGLContext>
+
 namespace QmlDesigner {
 
 Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient)
@@ -67,6 +70,16 @@ void Qt5NodeInstanceServer::initializeView()
     m_quickView->setFormat(surfaceFormat);
 
     DesignerSupport::createOpenGLContext(m_quickView.data());
+
+    if (QCoreApplication::arguments().at(2) == "editormode") {
+        /* In 'editormode' we do not use the DesignerWindowManager
+         * and since we do not show the QQuickView we have to manually create the OpenGL context */
+        auto context = new QOpenGLContext(m_quickView);
+        context->setFormat(surfaceFormat);
+        context->create();
+        if (!context->makeCurrent(m_quickView))
+            qWarning("QOpenGLContext: makeCurrent() failed...");
+    }
 
     if (qEnvironmentVariableIsSet("QML_FILE_SELECTORS")) {
         QQmlFileSelector *fileSelector = new QQmlFileSelector(engine(), engine());

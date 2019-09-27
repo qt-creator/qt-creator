@@ -67,6 +67,7 @@ class ServerNodeInstance
     friend class NodeInstanceServer;
     friend class Qt4NodeInstanceServer;
     friend class Qt4PreviewNodeInstanceServer;
+    friend class Qt5InformationNodeInstanceServer;
     friend class Qt5NodeInstanceServer;
     friend class Qt5PreviewNodeInstanceServer;
     friend class Qt5TestNodeInstanceServer;
@@ -162,6 +163,8 @@ public:
 
     QList<ServerNodeInstance> stateInstances() const;
 
+    static bool isSubclassOf(QObject *object, const QByteArray &superTypeName);
+
 private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 
@@ -191,8 +194,6 @@ private: // functions
     static QSharedPointer<Internal::ObjectNodeInstance> createInstance(QObject *objectToBeWrapped);
 
     void paintUpdate();
-
-    static bool isSubclassOf(QObject *object, const QByteArray &superTypeName);
 
     void setNodeSource(const QString &source);
 

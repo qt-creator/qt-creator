@@ -7,5 +7,6 @@
         <file>mockfiles/SwipeView.qml</file>
         <file>mockfiles/GenericBackend.qml</file>
         <file>mockfiles/Dialog.qml</file>
+        <file>mockfiles/EditView3D.qml</file>
     </qresource>
 </RCC>
