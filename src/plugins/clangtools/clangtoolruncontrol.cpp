@@ -296,7 +296,10 @@ void ClangToolRunWorker::start()
     }
 
     const Utils::FilePath projectFile = m_projectInfo.project()->projectFilePath();
-    appendMessage(tr("Running %1 on %2").arg(toolName).arg(projectFile.toUserOutput()),
+    appendMessage(tr("Running %1 on %2 with configuration \"%3\".")
+                      .arg(toolName)
+                      .arg(projectFile.toUserOutput())
+                      .arg(m_diagnosticConfig.displayName()),
                   Utils::NormalMessageFormat);
 
     // Create log dir
