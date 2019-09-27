@@ -354,53 +354,22 @@ QString clazyChecksForLevel(int level)
 
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
 {
-    // Pedantic
     ClangDiagnosticConfig config;
-    config.setId("Builtin.Pedantic");
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Pedantic checks"));
-    config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{QStringLiteral("-Wpedantic")});
-    model.appendOrUpdate(config);
 
     // Questionable constructs
     config = ClangDiagnosticConfig();
-    config.setId("Builtin.Questionable");
+    config.setId(Constants::CPP_CLANG_DIAG_CONFIG_QUESTIONABLE);
     config.setDisplayName(QCoreApplication::translate(
                               "ClangDiagnosticConfigsModel",
                               "Checks for questionable constructs"));
     config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{
-        QStringLiteral("-Wall"),
-        QStringLiteral("-Wextra"),
+    config.setClangOptions({
+        "-Wall",
+        "-Wextra",
     });
     model.appendOrUpdate(config);
 
-    // Everything with exceptions
-    config = ClangDiagnosticConfig();
-    config.setId(Constants::CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS);
-    config.setDisplayName(QCoreApplication::translate(
-                              "ClangDiagnosticConfigsModel",
-                              "Checks for almost everything"));
-    config.setIsReadOnly(true);
-    config.setClangOptions(QStringList{
-        QStringLiteral("-Weverything"),
-        QStringLiteral("-Wno-c++98-compat"),
-        QStringLiteral("-Wno-c++98-compat-pedantic"),
-        QStringLiteral("-Wno-unused-macros"),
-        QStringLiteral("-Wno-newline-eof"),
-        QStringLiteral("-Wno-exit-time-destructors"),
-        QStringLiteral("-Wno-global-constructors"),
-        QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"),
-        QStringLiteral("-Wno-documentation"),
-        QStringLiteral("-Wno-shadow"),
-        QStringLiteral("-Wno-switch-enum"),
-        QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
-        QStringLiteral("-Wno-used-but-marked-unused"), // e.g. QTest::qWait
-    });
-    model.appendOrUpdate(config);
-
-    // Build system
+    // Warning flags from build system
     config = ClangDiagnosticConfig();
     config.setId("Builtin.BuildSystem");
     config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",

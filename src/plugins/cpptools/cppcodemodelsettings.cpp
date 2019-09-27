@@ -29,6 +29,7 @@
 #include "cpptoolsconstants.h"
 #include "cpptoolsreuse.h"
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QSettings>
@@ -36,7 +37,7 @@
 using namespace CppTools;
 
 static Core::Id initialClangDiagnosticConfigId()
-{ return {Constants::CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS}; }
+{ return Constants::CPP_CLANG_DIAG_CONFIG_QUESTIONABLE; }
 
 static CppCodeModelSettings::PCHUsage initialPchUsage()
 { return CppCodeModelSettings::PchUse_BuildSystem; }
@@ -67,6 +68,56 @@ static Core::Id clangDiagnosticConfigIdFromSettings(QSettings *s)
         s->value(clangDiagnosticConfigKey(), initialClangDiagnosticConfigId().toSetting()));
 }
 
+// Removed since Qt Creator 4.11
+static ClangDiagnosticConfigs removedBuiltinConfigs()
+{
+    ClangDiagnosticConfigs configs;
+
+    // Pedantic
+    ClangDiagnosticConfig config;
+    config.setId("Builtin.Pedantic");
+    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
+                                                      "Pedantic checks"));
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{QStringLiteral("-Wpedantic")});
+    configs << config;
+
+    // Everything with exceptions
+    config = ClangDiagnosticConfig();
+    config.setId("Builtin.EverythingWithExceptions");
+    config.setDisplayName(QCoreApplication::translate(
+                              "ClangDiagnosticConfigsModel",
+                              "Checks for almost everything"));
+    config.setIsReadOnly(true);
+    config.setClangOptions(QStringList{
+        QStringLiteral("-Weverything"),
+        QStringLiteral("-Wno-c++98-compat"),
+        QStringLiteral("-Wno-c++98-compat-pedantic"),
+        QStringLiteral("-Wno-unused-macros"),
+        QStringLiteral("-Wno-newline-eof"),
+        QStringLiteral("-Wno-exit-time-destructors"),
+        QStringLiteral("-Wno-global-constructors"),
+        QStringLiteral("-Wno-gnu-zero-variadic-macro-arguments"),
+        QStringLiteral("-Wno-documentation"),
+        QStringLiteral("-Wno-shadow"),
+        QStringLiteral("-Wno-switch-enum"),
+        QStringLiteral("-Wno-missing-prototypes"), // Not optimal for C projects.
+        QStringLiteral("-Wno-used-but-marked-unused"), // e.g. QTest::qWait
+    });
+    configs << config;
+
+    return configs;
+}
+
+static ClangDiagnosticConfig convertToCustomConfig(const Core::Id &id)
+{
+    const ClangDiagnosticConfig config
+        = Utils::findOrDefault(removedBuiltinConfigs(), [id](const ClangDiagnosticConfig &config) {
+              return config.id() == id;
+          });
+    return ClangDiagnosticConfigsModel::createCustomConfig(config, config.displayName());
+}
+
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
@@ -74,12 +125,21 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     setClangCustomDiagnosticConfigs(diagnosticConfigsFromSettings(s));
     setClangDiagnosticConfigId(clangDiagnosticConfigIdFromSettings(s));
 
-    { // Before Qt Creator 4.8, inconsistent settings might have been written.
-        const ClangDiagnosticConfigsModel model = diagnosticConfigsModel(
-            m_clangCustomDiagnosticConfigs);
-        if (!model.hasConfigWithId(m_clangDiagnosticConfigId))
-            setClangDiagnosticConfigId(initialClangDiagnosticConfigId());
+    // Qt Creator 4.11 removes some built-in configs.
+    bool write = false;
+    const Core::Id id = m_clangDiagnosticConfigId;
+    if (id == "Builtin.Pedantic" || id == "Builtin.EverythingWithExceptions") {
+        // If one of them was used, continue to use it, but convert it to a custom config.
+        const ClangDiagnosticConfig customConfig = convertToCustomConfig(id);
+        m_clangCustomDiagnosticConfigs.append(customConfig);
+        m_clangDiagnosticConfigId = customConfig.id();
+        write = true;
     }
+
+    // Before Qt Creator 4.8, inconsistent settings might have been written.
+    const ClangDiagnosticConfigsModel model = diagnosticConfigsModel(m_clangCustomDiagnosticConfigs);
+    if (!model.hasConfigWithId(m_clangDiagnosticConfigId))
+        setClangDiagnosticConfigId(initialClangDiagnosticConfigId());
 
     setEnableLowerClazyLevels(s->value(enableLowerClazyLevelsKey(), true).toBool());
 
@@ -97,6 +157,9 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
 
     s->endGroup();
+
+    if (write)
+        toSettings(s);
 
     emit changed();
 }

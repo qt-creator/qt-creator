@@ -58,8 +58,7 @@ const char CPPTOOLS_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]
 const char CPPTOOLS_SKIP_INDEXING_BIG_FILES[] = "SkipIndexingBigFiles";
 const char CPPTOOLS_INDEXER_FILE_SIZE_LIMIT[] = "IndexerFileSizeLimit";
 
-const char CPP_CLANG_BUILTIN_CONFIG_ID_EVERYTHING_WITH_EXCEPTIONS[]
-    = "Builtin.EverythingWithExceptions";
+const char CPP_CLANG_DIAG_CONFIG_QUESTIONABLE[] = "Builtin.Questionable";
 
 const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Cpp.Code Style";
 const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Style");
