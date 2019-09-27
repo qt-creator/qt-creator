@@ -127,9 +127,10 @@ QWidget *GeneralSettingsPage::widget()
         m_scrollWheelZoomingEnabled = LocalHelpManager::isScrollWheelZoomingEnabled();
         m_ui->scrollWheelZooming->setChecked(m_scrollWheelZoomingEnabled);
 
-        const QString tooltip = tr("Change takes effect after reloading help pages.");
-        m_ui->viewerBackendLabel->setToolTip(tooltip);
-        m_ui->viewerBackend->setToolTip(tooltip);
+        const QString description = tr("Change takes effect after reloading help pages.");
+        m_ui->viewerBackendDescription->setText(description);
+        m_ui->viewerBackendLabel->setToolTip(description);
+        m_ui->viewerBackend->setToolTip(description);
         m_ui->viewerBackend->addItem(tr("Default (%1)", "Default viewer backend")
                                          .arg(LocalHelpManager::defaultViewerBackend().displayName));
         const QByteArray currentBackend = LocalHelpManager::viewerBackendId();
