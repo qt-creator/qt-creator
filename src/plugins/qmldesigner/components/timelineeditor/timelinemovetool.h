@@ -27,6 +27,7 @@
 
 #include "timelineabstracttool.h"
 
+#include <QCoreApplication>
 #include <QPointF>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsRectItem)
