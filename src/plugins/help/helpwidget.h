@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icontext.h>
 
 #include <QAbstractTableModel>
@@ -109,10 +110,9 @@ protected:
     void closeEvent(QCloseEvent *) override;
 
 signals:
-    void openHelpMode(const QUrl &url);
+    void requestShowHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
     void closeButtonClicked();
     void aboutToClose();
-    void sourceChanged(const QUrl &url);
     void filterActivated(const QString &name);
     void currentIndexChanged(int index);
 
@@ -122,10 +122,11 @@ private:
     void updateBackMenu();
     void updateForwardMenu();
     void updateWindowTitle();
-    void helpModeButtonClicked();
+    void postRequestShowHelpUrl(Core::HelpManager::HelpViewerLocation location);
     void closeCurrentPage();
     void saveState() const;
     bool supportsPages() const;
+    void closeWindow();
 
     void goHome();
     void addBookmark();

@@ -119,8 +119,6 @@ public:
     void saveExternalWindowSettings();
     void showLinksInCurrentViewer(const QMap<QString, QUrl> &links, const QString &key);
 
-    void updateSideBarSource(const QUrl &newUrl);
-
     void setupHelpEngineIfNeeded();
 
     HelpViewer *showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location);
@@ -206,8 +204,6 @@ HelpPluginPrivate::HelpPluginPrivate()
     }
 
     m_centralWidget = createHelpWidget(Context("Help.CentralHelpWidget"), HelpWidget::ModeWidget);
-    connect(m_centralWidget, &HelpWidget::sourceChanged,
-            this, &HelpPluginPrivate::updateSideBarSource);
     connect(HelpManager::instance(), &HelpManager::helpRequested,
             this, &HelpPluginPrivate::showHelpUrl);
     connect(&m_searchTaskHandler, &SearchTaskHandler::search,
@@ -369,18 +365,16 @@ HelpWidget *HelpPluginPrivate::createHelpWidget(const Context &context, HelpWidg
 {
     auto widget = new HelpWidget(context, style);
 
-    connect(widget, &HelpWidget::openHelpMode, this, [this](const QUrl &url) {
-        showHelpUrl(url, Core::HelpManager::HelpModeAlways);
-    });
+    connect(widget, &HelpWidget::requestShowHelpUrl, this, &HelpPluginPrivate::showHelpUrl);
     connect(LocalHelpManager::instance(),
             &LocalHelpManager::returnOnCloseChanged,
             widget,
             &HelpWidget::updateCloseButton);
     connect(widget, &HelpWidget::closeButtonClicked, this, [this, widget] {
-        if (widget->viewerCount() == 1 && LocalHelpManager::returnOnClose())
-            ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (widget->widgetStyle() == HelpWidget::SideBarWidget)
             RightPaneWidget::instance()->setShown(false);
+        else if (widget->viewerCount() == 1 && LocalHelpManager::returnOnClose())
+            ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
     connect(widget, &HelpWidget::aboutToClose,
             this, &HelpPluginPrivate::saveExternalWindowSettings);
@@ -464,17 +458,6 @@ void HelpPluginPrivate::modeChanged(Core::Id mode, Core::Id old)
     }
 }
 
-void HelpPluginPrivate::updateSideBarSource(const QUrl &newUrl)
-{
-    if (m_rightPaneSideBarWidget) {
-        // This is called when setSource on the central widget is called.
-        // Avoid nested setSource calls (even of different help viewers) by scheduling the
-        // sidebar viewer update on the event loop (QTCREATORBUG-12742)
-        QMetaObject::invokeMethod(m_rightPaneSideBarWidget->currentViewer(), "setSource",
-                                  Qt::QueuedConnection, Q_ARG(QUrl, newUrl));
-    }
-}
-
 void HelpPluginPrivate::setupHelpEngineIfNeeded()
 {
     LocalHelpManager::setEngineNeedsUpdate();
@@ -535,6 +518,7 @@ HelpViewer *HelpPluginPrivate::viewerForHelpViewerLocation(
 
     if (actualLocation == Core::HelpManager::SideBySideAlways) {
         createRightPaneContextViewer();
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
         RightPaneWidget::instance()->setWidget(m_rightPaneSideBarWidget);
         RightPaneWidget::instance()->setShown(true);
         return m_rightPaneSideBarWidget->currentViewer();
