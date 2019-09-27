@@ -26,7 +26,11 @@
 #include "clangtoolsprojectsettingswidget.h"
 #include "ui_clangtoolsprojectsettingswidget.h"
 
+#include "clangtool.h"
+#include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
+
+#include <coreplugin/icore.h>
 
 #include <utils/qtcassert.h>
 
@@ -56,12 +60,46 @@ private:
     SuppressedDiagnosticsList m_diagnostics;
 };
 
+enum { UseGlobalSettings, UseCustomSettings }; // Values in sync with m_ui->globalCustomComboBox
+
 ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui::ProjectSettingsWidget)
   , m_projectSettings(ClangToolsProjectSettingsManager::getSettings(project))
 {
     m_ui->setupUi(this);
+
+    // Use global/custom settings
+    const int globalOrCustomIndex = m_projectSettings->useGlobalSettings() ? UseGlobalSettings
+                                                                           : UseCustomSettings;
+    m_ui->globalCustomComboBox->setCurrentIndex(globalOrCustomIndex);
+    onGlobalCustomChanged(globalOrCustomIndex);
+    connect(m_ui->globalCustomComboBox,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            &ProjectSettingsWidget::onGlobalCustomChanged);
+
+    // Restore global settings
+    connect(m_ui->restoreGlobal, &QPushButton::clicked, this, [this]() {
+        m_ui->runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings());
+    });
+
+    // Links
+    connect(m_ui->gotoGlobalSettingsLabel, &QLabel::linkActivated, [](const QString &){
+        Core::ICore::showOptionsDialog(ClangTools::Constants::SETTINGS_PAGE_ID);
+    });
+
+    connect(m_ui->gotoAnalyzerModeLabel, &QLabel::linkActivated, [](const QString &){
+        ClangTool::instance()->selectPerspective();
+    });
+
+    // Run options
+    m_ui->runSettingsWidget->fromSettings(m_projectSettings->runSettings());
+    connect(m_ui->runSettingsWidget, &RunSettingsWidget::changed, [this]() {
+        m_projectSettings->setRunSettings(m_ui->runSettingsWidget->toSettings());
+    });
+
+    // Suppressed diagnostics
     auto * const model = new SuppressedDiagnosticsModel(this);
     model->setDiagnostics(m_projectSettings->suppressedDiagnostics());
     connect(m_projectSettings, &ClangToolsProjectSettings::suppressedDiagnosticsChanged,
@@ -84,6 +122,14 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
 ProjectSettingsWidget::~ProjectSettingsWidget()
 {
     delete m_ui;
+}
+
+void ProjectSettingsWidget::onGlobalCustomChanged(int index)
+{
+    const bool useGlobal = index == UseGlobalSettings;
+    m_ui->runSettingsWidget->setEnabled(!useGlobal);
+    m_ui->restoreGlobal->setEnabled(!useGlobal);
+    m_projectSettings->setUseGlobalSettings(useGlobal);
 }
 
 void ProjectSettingsWidget::updateButtonStates()

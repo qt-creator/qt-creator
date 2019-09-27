@@ -26,6 +26,7 @@
 #pragma once
 
 #include "clangfileinfo.h"
+#include "clangtoolssettings.h"
 
 #include <cpptools/clangdiagnosticconfig.h>
 #include <cpptools/projectinfo.h>
@@ -66,7 +67,7 @@ class ClangToolRunWorker : public ProjectExplorer::RunWorker
 
 public:
     ClangToolRunWorker(ProjectExplorer::RunControl *runControl,
-                       const CppTools::ClangDiagnosticConfig &diagnosticConfig,
+                       const RunSettings &runSettings,
                        const FileInfos &fileInfos,
                        bool preventBuild);
 
@@ -93,14 +94,14 @@ private:
 
     void finalize();
 
-protected:
+private:
+    RunSettings m_runSettings;
+    CppTools::ClangDiagnosticConfig m_diagnosticConfig;
+    FileInfos m_fileInfos;
+
     ProjectBuilder *m_projectBuilder = nullptr;
     Utils::Environment m_environment;
     Utils::TemporaryDirectory m_temporaryDir;
-
-private:
-    CppTools::ClangDiagnosticConfig m_diagnosticConfig;
-    FileInfos m_fileInfos;
 
     CppTools::ProjectInfo m_projectInfoBeforeBuild;
     CppTools::ProjectInfo m_projectInfo;

@@ -26,9 +26,9 @@
 #include "clangtoolruncontrol.h"
 
 #include "clangtidyclazyrunner.h"
-#include "clangtidyclazytool.h"
 #include "clangtool.h"
 #include "clangtoolslogfilereader.h"
+#include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 
@@ -40,7 +40,9 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <cpptools/clangdiagnosticconfigsmodel.h>
 #include <cpptools/compileroptionsbuilder.h>
+#include <cpptools/cppcodemodelsettings.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cppprojectfile.h>
 #include <cpptools/cpptoolsreuse.h>
@@ -116,7 +118,7 @@ namespace Internal {
 
 static ClangTool *tool()
 {
-    return ClangTidyClazyTool::instance();
+    return ClangTool::instance();
 }
 
 class ProjectBuilder : public RunWorker
@@ -219,19 +221,28 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
+static ClangDiagnosticConfig diagnosticConfig(const Core::Id &diagConfigId)
+{
+    const ClangDiagnosticConfigsModel configsModel(
+                CppTools::codeModelSettings()->clangCustomDiagnosticConfigs());
+
+    QTC_ASSERT(configsModel.hasConfigWithId(diagConfigId), return ClangDiagnosticConfig());
+    return configsModel.configWithId(diagConfigId);
+}
+
 ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
-                                       const ClangDiagnosticConfig &diagnosticConfig,
+                                       const RunSettings &runSettings,
                                        const FileInfos &fileInfos,
                                        bool preventBuild)
     : RunWorker(runControl)
-    , m_temporaryDir("clangtools-XXXXXX")
-    , m_diagnosticConfig(diagnosticConfig)
+    , m_diagnosticConfig(diagnosticConfig(runSettings.diagnosticConfigId()))
     , m_fileInfos(fileInfos)
+    , m_temporaryDir("clangtools-XXXXXX")
 {
     setId("ClangTidyClazyRunner");
     setSupportsReRunning(false);
 
-    if (!preventBuild && ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
+    if (!preventBuild && runSettings.buildBeforeAnalysis()) {
         m_projectBuilder = new ProjectBuilder(runControl);
         addStartDependency(m_projectBuilder);
     }
@@ -272,11 +283,9 @@ void ClangToolRunWorker::start()
     TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
     ProjectExplorerPlugin::saveModifiedFiles();
 
-    if (ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
-        if (m_projectBuilder && !m_projectBuilder->success()) {
-            reportFailure();
-            return;
-        }
+    if (m_projectBuilder && !m_projectBuilder->success()) {
+        reportFailure();
+        return;
     }
 
     const QString &toolName = tool()->name();
@@ -337,7 +346,7 @@ void ClangToolRunWorker::start()
     // Start process(es)
     qCDebug(LOG) << "Environment:" << m_environment;
     m_runners.clear();
-    const int parallelRuns = ClangToolsSettings::instance()->savedSimultaneousProcesses();
+    const int parallelRuns = m_runSettings.parallelJobs();
     QTC_ASSERT(parallelRuns >= 1, reportFailure(); return);
     m_success = true;
 
@@ -491,7 +500,7 @@ void ClangToolRunWorker::finalize()
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         Target *target = runControl()->target();
         if (target && !target->activeBuildConfiguration()->buildDirectory().exists()
-            && !ClangToolsSettings::instance()->savedBuildBeforeAnalysis()) {
+            && !m_runSettings.buildBeforeAnalysis()) {
             msg = tr("%1: You might need to build the project to generate or update source "
                      "files. To build automatically, enable \"Build the project before starting "
                      "analysis\".")

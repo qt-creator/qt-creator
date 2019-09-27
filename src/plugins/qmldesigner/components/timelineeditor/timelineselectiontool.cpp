@@ -98,7 +98,6 @@ void TimelineSelectionTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
                                               QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(item)
-    Q_UNUSED(event)
 
     commitSelection(selectionMode(event));
 
@@ -108,8 +107,10 @@ void TimelineSelectionTool::mouseReleaseEvent(TimelineMovableAbstractItem *item,
 void TimelineSelectionTool::mouseDoubleClickEvent(TimelineMovableAbstractItem *item,
                                                   QGraphicsSceneMouseEvent *event)
 {
-    Q_UNUSED(item)
     Q_UNUSED(event)
+
+    if (item)
+        item->itemDoubleClicked();
 
     reset();
 }

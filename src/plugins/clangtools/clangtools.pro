@@ -21,7 +21,6 @@ SOURCES += \
     clangtoolsdiagnosticview.cpp \
     clangtoolsprojectsettingswidget.cpp \
     clangtidyclazyrunner.cpp \
-    clangtidyclazytool.cpp \
     clangtool.cpp \
     clangtoolruncontrol.cpp \
     clangtoolrunner.cpp \
@@ -32,6 +31,7 @@ SOURCES += \
     clangtoolsprojectsettings.cpp \
     clangtoolssettings.cpp \
     clangtoolsutils.cpp \
+    runsettingswidget.cpp \
     settingswidget.cpp \
 
 HEADERS += \
@@ -41,7 +41,6 @@ HEADERS += \
     clangtoolsdiagnosticview.h \
     clangtoolsprojectsettingswidget.h \
     clangtidyclazyrunner.h \
-    clangtidyclazytool.h \
     clangtool.h \
     clangtoolruncontrol.h \
     clangtoolrunner.h \
@@ -54,11 +53,13 @@ HEADERS += \
     clangtoolsprojectsettings.h \
     clangtoolssettings.h \
     clangtoolsutils.h \
+    runsettingswidget.h \
     settingswidget.h \
 
 FORMS += \
     clangselectablefilesdialog.ui \
     clangtoolsprojectsettingswidget.ui \
+    runsettingswidget.ui \
     settingswidget.ui \
 
 equals(TEST, 1) {

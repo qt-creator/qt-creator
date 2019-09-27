@@ -29,38 +29,56 @@
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolslogfilereader.h"
 
+#include <debugger/debuggermainwindow.h>
+
 #include <projectexplorer/runconfiguration.h>
 #include <cpptools/projectinfo.h>
 
-namespace Debugger { class DetailedErrorView; }
-namespace Utils { class FilePath; }
+QT_BEGIN_NAMESPACE
+class QToolButton;
+QT_END_NAMESPACE
+
+namespace Debugger {
+class DetailedErrorView;
+}
+namespace Utils {
+class FilePath;
+class FancyLineEdit;
+} // namespace Utils
 
 namespace ClangTools {
 namespace Internal {
 
 class ClangToolsDiagnosticModel;
 class Diagnostic;
+class DiagnosticFilterModel;
+
+const char ClangTidyClazyPerspectiveId[] = "ClangTidyClazy.Perspective";
 
 class ClangTool : public QObject
 {
     Q_OBJECT
 
 public:
-    ClangTool(const QString &name);
+    static ClangTool *instance();
+
+    ClangTool();
     ~ClangTool() override;
+
+    void selectPerspective();
 
     enum class FileSelection {
         AllFiles,
         CurrentFile,
         AskUser,
     };
-    virtual void startTool(FileSelection fileSelection) = 0;
+    void startTool(FileSelection fileSelection);
 
-    virtual Diagnostics read(OutputFileFormat outputFileFormat,
+    Diagnostics read(OutputFileFormat outputFileFormat,
                              const QString &logFilePath,
                              const QString &mainFilePath,
                              const QSet<Utils::FilePath> &projectFiles,
-                             QString *errorMessage) const = 0;
+                             QString *errorMessage) const;
 
     FileInfos collectFileInfos(ProjectExplorer::Project *project,
                                FileSelection fileSelection) const;
@@ -70,7 +88,7 @@ public:
 
     const QString &name() const;
 
-    virtual void onNewDiagnosticsAvailable(const Diagnostics &diagnostics);
+    void onNewDiagnosticsAvailable(const Diagnostics &diagnostics);
 
     QAction *startAction() const { return m_startAction; }
     QAction *startOnCurrentFileAction() const { return m_startOnCurrentFileAction; }
@@ -78,11 +96,14 @@ public:
 signals:
     void finished(bool success); // For testing.
 
-protected:
-    virtual void handleStateUpdate() = 0;
+private:
+    void updateRunActions();
+    void handleStateUpdate();
 
     void setToolBusy(bool busy);
+
     void initDiagnosticView();
+    void loadDiagnosticsFromFiles();
 
     ClangToolsDiagnosticModel *m_diagnosticModel = nullptr;
     QPointer<Debugger::DetailedErrorView> m_diagnosticView;
@@ -92,6 +113,19 @@ protected:
     QAction *m_stopAction = nullptr;
     bool m_running = false;
     bool m_toolBusy = false;
+
+    DiagnosticFilterModel *m_diagnosticFilterModel = nullptr;
+
+    Utils::FancyLineEdit *m_filterLineEdit = nullptr;
+    QToolButton *m_applyFixitsButton = nullptr;
+
+    QAction *m_goBack = nullptr;
+    QAction *m_goNext = nullptr;
+    QAction *m_loadExported = nullptr;
+    QAction *m_clear = nullptr;
+    QAction *m_expandCollapse = nullptr;
+
+    Utils::Perspective m_perspective{ClangTidyClazyPerspectiveId, tr("Clang-Tidy and Clazy")};
 
 private:
     const QString m_name;

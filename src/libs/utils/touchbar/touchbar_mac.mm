@@ -177,7 +177,7 @@ static NSImage *iconToTemplateNSImage(const QIcon &icon)
 {
     self = [super init];
     [self setButtonType:NSButtonTypeMomentaryPushIn];
-    self.bezelStyle = NSRoundedBezelStyle;
+    self.bezelStyle = NSBezelStyleRounded;
     self.target = self;
     self.action = @selector(trigger:);
     _qaction = qaction;
@@ -208,7 +208,7 @@ static NSImage *iconToTemplateNSImage(const QIcon &icon)
 {
     self = [super init];
     [self setButtonType:NSButtonTypeMomentaryPushIn];
-    self.bezelStyle = NSRoundedBezelStyle;
+    self.bezelStyle = NSBezelStyleRounded;
     self.target = self;
     self.action = @selector(trigger:);
     _parent = parent;

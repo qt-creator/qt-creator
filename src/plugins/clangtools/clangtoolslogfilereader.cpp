@@ -417,7 +417,7 @@ Diagnostics readExportedDiagnostics(const Utils::FilePath &logFilePath,
     try {
         YAML::Node document = YAML::LoadFile(logFilePath.toString().toStdString());
         for (const auto &diagNode : document["Diagnostics"]) {
-            // clazy omits the "DiagnosticMessage" node.
+            // Since llvm/clang 9.0 the diagnostic items are wrapped in a "DiagnosticMessage" node.
             const auto msgNode = diagNode["DiagnosticMessage"];
             const YAML::Node &node = msgNode ? msgNode : diagNode;
 

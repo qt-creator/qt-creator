@@ -187,14 +187,14 @@ void TimelineGraphicsScene::setCurrentFrame(int frame)
 
     if (timeline.isValid()) {
         timeline.modelNode().setAuxiliaryData("currentFrame@NodeInstance", frame);
-        m_currentFrameIndicator->setPosition(frame + timeline.startKeyframe());
+        m_currentFrameIndicator->setPosition(frame);
     } else {
         m_currentFrameIndicator->setPosition(0);
     }
 
     invalidateCurrentValues();
 
-    emitStatusBarFrameMessageChanged(frame);
+    emitStatusBarPlayheadFrameChanged(frame);
 }
 
 void TimelineGraphicsScene::setStartFrame(int frame)
@@ -318,7 +318,7 @@ void TimelineGraphicsScene::commitCurrentFrame(qreal frame)
         setCurrenFrame(timeline, qRound(frame));
         invalidateCurrentValues();
     }
-    emitStatusBarFrameMessageChanged(int(frame));
+    emitStatusBarPlayheadFrameChanged(int(frame));
 }
 
 QList<TimelineKeyframeItem *> TimelineGraphicsScene::selectedKeyframes() const
@@ -700,10 +700,10 @@ void TimelineGraphicsScene::emitScrollOffsetChanged()
         TimelineMovableAbstractItem::emitScrollOffsetChanged(item);
 }
 
-void TimelineGraphicsScene::emitStatusBarFrameMessageChanged(int frame)
+void TimelineGraphicsScene::emitStatusBarPlayheadFrameChanged(int frame)
 {
     emit statusBarMessageChanged(
-        QString(TimelineConstants::timelineStatusBarFrameNumber).arg(frame));
+        tr(TimelineConstants::statusBarPlayheadFrame).arg(frame));
 }
 
 bool TimelineGraphicsScene::event(QEvent *event)

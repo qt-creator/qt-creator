@@ -11,66 +11,14 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Analyzer Configuration</string>
+   <string>Files to Analyze</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="title">
-      <string>General</string>
+    <widget class="QTreeView" name="filesView">
+     <property name="headerHidden">
+      <bool>true</bool>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QComboBox" name="globalOrCustom">
-          <item>
-           <property name="text">
-            <string>Global Settings</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Custom Settings</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="diagnosticWidget" native="true"/>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>Files to Analyze</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QTreeView" name="filesView">
-        <property name="headerHidden">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>
@@ -85,13 +33,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
-   <extends>QWidget</extends>
-   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,64 +25,34 @@
 
 #pragma once
 
-#include "icontext.h"
+#include <QWidget>
 
-#include <QObject>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-class QWidget;
-QT_END_NAMESPACE
-
-namespace Core {
+namespace ClangTools {
 namespace Internal {
 
-class WindowList
-{
-public:
-    ~WindowList();
+class RunSettings;
 
-    void addWindow(QWidget *window);
-    void removeWindow(QWidget *window);
-    void setActiveWindow(QWidget *window);
-    void setWindowVisible(QWidget *window, bool visible);
+namespace Ui {
+class RunSettingsWidget;
+}
 
-private:
-    void activateWindow(QAction *action);
-    void updateTitle(QWidget *window);
-
-    QMenu *m_dockMenu = nullptr;
-    QList<QWidget *> m_windows;
-    QList<QAction *> m_windowActions;
-    QList<Id> m_windowActionIds;
-};
-
-class WindowSupport : public QObject
+class RunSettingsWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    WindowSupport(QWidget *window, const Context &context);
-    ~WindowSupport() override;
+    explicit RunSettingsWidget(QWidget *parent = nullptr);
+    ~RunSettingsWidget();
 
-    void setCloseActionEnabled(bool enabled);
+    void fromSettings(const RunSettings &s);
+    RunSettings toSettings() const;
 
-protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
+signals:
+    void changed();
 
 private:
-    void toggleFullScreen();
-    void updateFullScreenAction();
-
-    QWidget *m_window;
-    IContext *m_contextObject;
-    QAction *m_minimizeAction;
-    QAction *m_zoomAction;
-    QAction *m_closeAction;
-    QAction *m_toggleFullScreenAction;
-    Qt::WindowStates m_previousWindowState;
-    bool m_shutdown = false;
+    Ui::RunSettingsWidget *m_ui;
 };
 
-} // Internal
-} // Core
+} // namespace Internal
+} // namespace ClangTools

@@ -92,8 +92,10 @@ void TimelineToolDelegate::mouseReleaseEvent(TimelineMovableAbstractItem *item,
 void TimelineToolDelegate::mouseDoubleClickEvent(TimelineMovableAbstractItem *item,
                                                  QGraphicsSceneMouseEvent *event)
 {
-    if (m_currentTool)
+    if (hitCanvas(event)) {
+        m_currentTool = m_selectTool.get();
         m_currentTool->mouseDoubleClickEvent(item, event);
+    }
 
     reset();
 }

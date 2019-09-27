@@ -44,57 +44,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Run Options</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="CppTools::ClangDiagnosticConfigsSelectionWidget" name="diagnosticWidget" native="true"/>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="buildBeforeAnalysis">
-        <property name="text">
-         <string>Build the project before analysis</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="processesLayout">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Simultaneous processes:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="simultaneousProccessesSpinBox">
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>32</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
+    <widget class="ClangTools::Internal::RunSettingsWidget" name="runSettingsWidget" native="true"/>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -113,14 +63,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CppTools::ClangDiagnosticConfigsSelectionWidget</class>
-   <extends>QWidget</extends>
-   <header>cpptools/clangdiagnosticconfigsselectionwidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ClangTools::Internal::RunSettingsWidget</class>
+   <extends>QWidget</extends>
+   <header>clangtools/runsettingswidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

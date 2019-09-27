@@ -405,14 +405,18 @@ void TimelineWidget::contextHelp(const Core::IContext::HelpCallback &callback) c
 void TimelineWidget::init()
 {
     QmlTimeline currentTimeline = m_timelineView->timelineForState(m_timelineView->currentState());
-    if (currentTimeline.isValid())
+    if (currentTimeline.isValid()) {
         setTimelineId(currentTimeline.modelNode().id());
-    else
+        m_statusBar->setText(tr(TimelineConstants::statusBarPlayheadFrame)
+                             .arg(getcurrentFrame(currentTimeline)));
+    } else {
         setTimelineId({});
+        m_statusBar->clear();
+    }
 
-    invalidateTimelineDuration(graphicsScene()->currentTimeline());
+    invalidateTimelineDuration(m_graphicsScene->currentTimeline());
 
-    graphicsScene()->setWidth(m_graphicsView->viewport()->width());
+    m_graphicsScene->setWidth(m_graphicsView->viewport()->width());
 
     // setScaleFactor uses QSignalBlocker.
     m_toolbar->setScaleFactor(0);
@@ -442,7 +446,14 @@ void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
         QmlTimeline currentTimeline = graphicsScene()->currentTimeline();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
             graphicsScene()->setTimeline(timeline);
-            graphicsScene()->setCurrenFrame(timeline, getcurrentFrame(timeline));
+
+            qreal playHeadFrame = getcurrentFrame(timeline);
+            if (playHeadFrame < timeline.startKeyframe())
+                playHeadFrame = timeline.startKeyframe();
+            else if (playHeadFrame > timeline.endKeyframe())
+                playHeadFrame = timeline.endKeyframe();
+
+            graphicsScene()->setCurrentFrame(playHeadFrame);
         }
     }
 }

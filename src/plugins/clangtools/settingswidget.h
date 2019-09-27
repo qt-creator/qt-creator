@@ -43,6 +43,9 @@ class SettingsWidget : public QWidget
 public:
     SettingsWidget(ClangToolsSettings *settings, QWidget *parent = nullptr);
     ~SettingsWidget() override;
+
+    void apply();
+
 private:
     std::unique_ptr<Ui::SettingsWidget> m_ui;
     ClangToolsSettings *m_settings;

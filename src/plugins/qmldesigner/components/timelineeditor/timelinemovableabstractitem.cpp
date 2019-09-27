@@ -46,6 +46,11 @@ void TimelineMovableAbstractItem::itemMoved(const QPointF & /*start*/, const QPo
     setPositionInteractive(end);
 }
 
+void TimelineMovableAbstractItem::itemDoubleClicked()
+{
+    // to be overridden by child classes if needed
+}
+
 int TimelineMovableAbstractItem::scrollOffset() const
 {
     return timelineScene()->scrollOffset();

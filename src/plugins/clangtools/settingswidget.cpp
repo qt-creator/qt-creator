@@ -30,17 +30,6 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsutils.h"
 
-#include <coreplugin/icore.h>
-
-#include <cpptools/clangdiagnosticconfigswidget.h>
-#include <cpptools/cppcodemodelsettings.h>
-#include <cpptools/cpptoolsreuse.h>
-
-#include <QDir>
-#include <QThread>
-
-#include <memory>
-
 namespace ClangTools {
 namespace Internal {
 
@@ -48,15 +37,13 @@ static void setupPathChooser(Utils::PathChooser *const chooser,
                              const QString &promptDiaglogTitle,
                              const QString &placeHolderText,
                              const QString &pathFromSettings,
-                             const QString &historyCompleterId,
-                             std::function<void(const QString &path)> savePath)
+                             const QString &historyCompleterId)
 {
     chooser->setPromptDialogTitle(promptDiaglogTitle);
     chooser->lineEdit()->setPlaceholderText(placeHolderText);
     chooser->setPath(pathFromSettings);
     chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     chooser->setHistoryCompleter(historyCompleterId);
-    QObject::connect(chooser, &Utils::PathChooser::rawPathChanged, savePath),
     chooser->setValidationFunction([chooser](Utils::FancyLineEdit *edit, QString *errorMessage) {
         const QString currentFilePath = chooser->fileName().toString();
         Utils::PathChooser pc;
@@ -92,8 +79,7 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
                      tr("Clang-Tidy Executable"),
                      placeHolderText,
                      path,
-                     "ClangTools.ClangTidyExecutable.History",
-                     [settings](const QString &path) { settings->setClangTidyExecutable(path); });
+                     "ClangTools.ClangTidyExecutable.History");
 
     if (qEnvironmentVariable("QTC_USE_CLAZY_STANDALONE_PATH").isEmpty()) {
         m_ui->clazyStandalonePathChooser->setVisible(false);
@@ -107,47 +93,23 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
                          tr("Clazy Executable"),
                          placeHolderText,
                          path,
-                         "ClangTools.ClazyStandaloneExecutable.History",
-                         [settings](const QString &path) {
-                             settings->setClazyStandaloneExecutable(path);
-                         });
+                         "ClangTools.ClazyStandaloneExecutable.History");
     }
 
     //
     // Group box "Run Options"
     //
-    m_ui->simultaneousProccessesSpinBox->setValue(settings->savedSimultaneousProcesses());
-    m_ui->simultaneousProccessesSpinBox->setMinimum(1);
-    m_ui->simultaneousProccessesSpinBox->setMaximum(QThread::idealThreadCount());
-    connect(m_ui->simultaneousProccessesSpinBox,
-            QOverload<int>::of(&QSpinBox::valueChanged),
-            [settings](int count) { settings->setSimultaneousProcesses(count); });
 
-    QCheckBox *buildBeforeAnalysis = m_ui->buildBeforeAnalysis;
-    buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());
-    buildBeforeAnalysis->setCheckState(settings->savedBuildBeforeAnalysis()
-                                              ? Qt::Checked : Qt::Unchecked);
-    connect(buildBeforeAnalysis, &QCheckBox::toggled, [settings](bool checked) {
-        if (!checked)
-            showHintAboutBuildBeforeAnalysis();
-        settings->setBuildBeforeAnalysis(checked);
-    });
+    m_ui->runSettingsWidget->fromSettings(m_settings->runSettings());
+}
 
-    CppTools::ClangDiagnosticConfigsSelectionWidget *diagnosticWidget = m_ui->diagnosticWidget;
-    diagnosticWidget->refresh(settings->savedDiagnosticConfigId());
+void SettingsWidget::apply()
+{
+    m_settings->setClangTidyExecutable(m_ui->clangTidyPathChooser->rawPath());
+    m_settings->setClazyStandaloneExecutable(m_ui->clazyStandalonePathChooser->rawPath());
+    m_settings->setRunSettings(m_ui->runSettingsWidget->toSettings());
 
-    connect(diagnosticWidget,
-            &CppTools::ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
-            this, [this](const Core::Id &currentConfigId) {
-        m_settings->setDiagnosticConfigId(currentConfigId);
-    });
-
-    connect(CppTools::codeModelSettings().data(), &CppTools::CppCodeModelSettings::changed,
-            this, [=]() {
-        // Settings were applied so apply also the current selection if possible.
-        diagnosticWidget->refresh(m_settings->diagnosticConfigId());
-        m_settings->writeSettings();
-    });
+    m_settings->writeSettings();
 }
 
 SettingsWidget::~SettingsWidget() = default;
