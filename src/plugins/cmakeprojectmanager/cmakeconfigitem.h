@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "cmake_global.h"
+
 #include <utils/optional.h>
 
 #include <QByteArray>
@@ -40,7 +42,7 @@ class MacroExpander;
 
 namespace CMakeProjectManager {
 
-class CMakeConfigItem {
+class CMAKE_EXPORT CMakeConfigItem {
 public:
     enum Type { FILEPATH, PATH, BOOL, STRING, INTERNAL, STATIC };
     CMakeConfigItem();

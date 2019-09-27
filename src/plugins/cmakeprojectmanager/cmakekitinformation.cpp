@@ -58,7 +58,6 @@
 using namespace ProjectExplorer;
 
 namespace CMakeProjectManager {
-namespace Internal {
 // --------------------------------------------------------------------
 // CMakeKitAspect:
 // --------------------------------------------------------------------
@@ -1075,5 +1074,4 @@ KitAspectWidget *CMakeConfigurationKitAspect::createConfigWidget(Kit *k) const
     return new CMakeConfigurationKitAspectWidget(k, this);
 }
 
-} // namespace Internal
 } // namespace CMakeProjectManager
