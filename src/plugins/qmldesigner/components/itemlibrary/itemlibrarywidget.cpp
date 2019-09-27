@@ -429,7 +429,22 @@ void ItemLibraryWidget::addPossibleImport(const QString &name)
     QTC_ASSERT(m_model, return);
     const Import import = m_model->highestPossibleImport(name);
     try {
-        m_model->changeImports({Import::createLibraryImport(name, import.version())}, {});
+        QList<Import> addedImports = {Import::createLibraryImport(name, import.version())};
+        // Special case for adding an import for 3D asset - also add QtQuick3D import
+        const QString asset3DPrefix = QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER + 1)
+                + QLatin1Char('.');
+        if (name.startsWith(asset3DPrefix)) {
+            const QString q3Dlib = QLatin1String(Constants::QT_QUICK_3D_MODULE_NAME);
+            Import q3DImport = m_model->highestPossibleImport(q3Dlib);
+            if (q3DImport.url() == q3Dlib)
+                addedImports.prepend(Import::createLibraryImport(q3Dlib, q3DImport.version()));
+        }
+        RewriterTransaction transaction
+                = m_model->rewriterView()->beginRewriterTransaction(
+                    QByteArrayLiteral("ItemLibraryWidget::addPossibleImport"));
+
+        m_model->changeImports(addedImports, {});
+        transaction.commit();
     }
     catch (const RewritingException &e) {
         e.showException();
