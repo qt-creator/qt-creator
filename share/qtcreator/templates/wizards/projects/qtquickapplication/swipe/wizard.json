@@ -85,9 +85,18 @@
                     "persistenceKey": "QtQuick.minimumQtVersion",
                     "data":
                     {
-                        "index": 1,
+                        "index": 2,
                         "items":
                         [
+                            {
+                                "trKey": "Qt 5.14",
+                                "value":
+                                {
+                                    "QtQuickVersion": "2.14",
+                                    "QtQuickControlsVersion": "2.14",
+                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.14"
+                                }
+                            },
                             {
                                 "trKey": "Qt 5.13",
                                 "value":
