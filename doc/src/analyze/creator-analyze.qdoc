@@ -70,7 +70,7 @@
             You can detect problems in C, C++, and Objective-C programs by
             using Clang-Tidy and Clazy.
 
-        \li \l{Detecting Memory Leaks with Heob}
+        \li \l{Detecting Memory Leaks with Heob}{Heob}
 
             You can use the Heob heap observer on Windows to detect buffer
             overruns and memory leaks.
@@ -81,11 +81,17 @@
             desktop applications with the Performance Analyzer that integrates
             the Linux Perf tool.
 
-        \li \l{Analyzing Code with Cppcheck}
+        \li \l{Analyzing Code with Cppcheck}{Cppcheck}
 
             You can use the experimental Cppcheck plugin to detect undefined
             behavior and dangerous coding constructs.
 
+        \li \l{Visualizing Chrome Trace Events}{Chrome Trace Format Visualizer}
+
+            You can use the Chrome Trace Format (CTF) Visualizer to view
+            Chrome trace events. This is especially useful when viewing
+            large trace files that are difficult to visualize using the
+            built-in trace-viewer (\c{chrome://tracing}).
     \endlist
 
 */
