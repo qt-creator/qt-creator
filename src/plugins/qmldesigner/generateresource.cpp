@@ -98,7 +98,7 @@ void GenerateResource::generateMenuEntry()
             return;
         temp.close();
 
-        auto rccBinary = QtSupport::QtKitAspect::qtVersion(currentProject->activeTarget()->kit())->binPath();
+        auto rccBinary = QtSupport::QtKitAspect::qtVersion(currentProject->activeTarget()->kit())->hostBinPath();
 #ifdef Q_OS_WIN
         rccBinary = rccBinary.pathAppended("rcc.exe");
 #else

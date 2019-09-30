@@ -292,10 +292,8 @@ const QList<BuildTargetInfo> CMakeBuildConfiguration::appTargets() const
             bti.runEnvModifier = [this](Environment &env, bool) {
                 if (HostOsInfo::isWindowsHost()) {
                     const Kit *k = target()->kit();
-                    if (const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k)) {
-                        const QString installBinPath = qt->qmakeProperty("QT_INSTALL_BINS");
-                        env.prependOrSetPath(installBinPath);
-                    }
+                    if (const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(k))
+                        env.prependOrSetPath(qt->binPath().toString());
                 }
             };
 

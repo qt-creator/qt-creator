@@ -234,16 +234,16 @@ QList<DeployableFile> QnxDeployQtLibrariesDialog::gatherFiles()
     QTC_ASSERT(qtVersion, return result);
 
     if (Utils::HostOsInfo::isWindowsHost()) {
-        result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_LIBS"),
-                                  QString(), QStringList() << QLatin1String("*.so.?")));
-        result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_LIBS")
-                                  + QLatin1String("/fonts")));
+        result.append(gatherFiles(qtVersion->libraryPath().toString(),
+                                  QString(),
+                                  QStringList() << QLatin1String("*.so.?")));
+        result.append(gatherFiles(qtVersion->libraryPath().toString() + QLatin1String("/fonts")));
     } else {
-        result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_LIBS")));
+        result.append(gatherFiles(qtVersion->libraryPath().toString()));
     }
 
-    result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_PLUGINS")));
-    result.append(gatherFiles(qtVersion->qmakeProperty("QT_INSTALL_IMPORTS")));
+    result.append(gatherFiles(qtVersion->pluginPath().toString()));
+    result.append(gatherFiles(qtVersion->importsPath().toString()));
     result.append(gatherFiles(qtVersion->qmlPath().toString()));
 
     return result;

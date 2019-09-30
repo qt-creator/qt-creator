@@ -92,7 +92,7 @@ QByteArray PuppetCreator::qtHash() const
 {
     QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_kit);
     if (currentQtVersion) {
-        return QCryptographicHash::hash(currentQtVersion->qmakeProperty("QT_INSTALL_DATA").toUtf8(),
+        return QCryptographicHash::hash(currentQtVersion->dataPath().toString().toUtf8(),
                                         QCryptographicHash::Sha1)
                 .toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
     }
@@ -104,7 +104,7 @@ QDateTime PuppetCreator::qtLastModified() const
 {
     QtSupport::BaseQtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(m_kit);
     if (currentQtVersion)
-        return QFileInfo(currentQtVersion->qmakeProperty("QT_INSTALL_LIBS")).lastModified();
+        return currentQtVersion->libraryPath().toFileInfo().lastModified();
 
     return QDateTime();
 }
@@ -422,7 +422,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
     const QtSupport::BaseQtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_kit);
     if (QTC_GUARD(qt)) { // Kits without a Qt version should not have a puppet!
         // Update PATH to include QT_HOST_BINS
-        const Utils::FilePath qtBinPath = qt->binPath();
+        const Utils::FilePath qtBinPath = qt->hostBinPath();
         environment.prependOrSetPath(qtBinPath.toString());
     }
     environment.set("QML_BAD_GUI_RENDER_LOOP", "true");

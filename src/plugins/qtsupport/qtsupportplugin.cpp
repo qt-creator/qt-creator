@@ -104,30 +104,36 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     return true;
 }
 
-static QString qmakeProperty(const char *propertyName)
+static BaseQtVersion *qtVersion()
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectTree::currentProject();
     if (!project || !project->activeTarget())
-        return QString();
+        return nullptr;
 
-    const BaseQtVersion *qtVersion = QtKitAspect::qtVersion(project->activeTarget()->kit());
-    if (!qtVersion)
-        return QString();
-    return qtVersion->qmakeProperty(propertyName);
+    return QtKitAspect::qtVersion(project->activeTarget()->kit());
 }
 
 void QtSupportPlugin::extensionsInitialized()
 {
     Utils::MacroExpander *expander = Utils::globalMacroExpander();
 
-    expander->registerVariable(kHostBins,
+    expander->registerVariable(
+        kHostBins,
         tr("Full path to the host bin directory of the current project's Qt version."),
-        []() { return qmakeProperty("QT_HOST_BINS"); });
+        []() {
+            BaseQtVersion *qt = qtVersion();
+            return qt ? qt->hostBinPath().toUserOutput() : QString();
+        });
 
-    expander->registerVariable(kInstallBins,
+    expander->registerVariable(
+        kInstallBins,
         tr("Full path to the target bin directory of the current project's Qt version.<br>"
-           "You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)),
-        []() { return qmakeProperty("QT_INSTALL_BINS"); });
+           "You probably want %1 instead.")
+            .arg(QString::fromLatin1(kInstallBins)),
+        []() {
+            BaseQtVersion *qt = qtVersion();
+            return qt ? qt->binPath().toUserOutput() : QString();
+        });
 }
 
 } // Internal

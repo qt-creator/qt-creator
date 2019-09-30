@@ -212,7 +212,7 @@ bool AndroidBuildApkStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    QString command = version->qmakeProperty("QT_HOST_BINS");
+    QString command = version->hostBinPath().toString();
     if (!command.endsWith('/'))
         command += '/';
     command += "androiddeployqt";

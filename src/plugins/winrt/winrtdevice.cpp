@@ -225,7 +225,7 @@ QString WinRtDeviceFactory::findRunnerFilePath() const
     BaseQtVersion *qt = nullptr;
     for (BaseQtVersion *v : winrtVersions) {
         if (!qt || qt->qtVersion() < v->qtVersion()) {
-            QFileInfo fi(v->binPath().toString() + winRtRunnerExe);
+            QFileInfo fi(v->hostBinPath().toString() + winRtRunnerExe);
             if (fi.isFile() && fi.isExecutable()) {
                 qt = v;
                 filePath = fi.absoluteFilePath();

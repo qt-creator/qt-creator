@@ -240,7 +240,7 @@ bool AndroidDeployQtStep::init()
                 emit addOutput(tr("Cannot find the androiddeploy Json file."), OutputFormat::Stderr);
                 return false;
             }
-            m_command = FilePath::fromString(version->qmakeProperty("QT_HOST_BINS"));
+            m_command = version->hostBinPath();
             if (m_command.isEmpty()) {
                 emit addOutput(tr("Cannot find the androiddeployqt tool."), OutputFormat::Stderr);
                 return false;

@@ -119,9 +119,6 @@ public:
     ProjectExplorer::Abis qtAbis() const;
     virtual ProjectExplorer::Abis detectQtAbis() const;
 
-    enum PropertyVariant { PropertyVariantDev, PropertyVariantGet, PropertyVariantSrc };
-    QString qmakeProperty(const QByteArray &name,
-                          PropertyVariant variant = PropertyVariantGet) const;
     void applyProperties(QMakeGlobals *qmakeGlobals) const;
     virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     virtual Utils::Environment qmakeRunEnvironment() const;
@@ -197,15 +194,25 @@ public:
 
     virtual ProjectExplorer::Tasks validateKit(const ProjectExplorer::Kit *k);
 
-    Utils::FilePath headerPath() const;
+    Utils::FilePath prefix() const;
+
+    Utils::FilePath binPath() const;
+    Utils::FilePath configurationPath() const;
+    Utils::FilePath dataPath() const;
     Utils::FilePath demosPath() const;
     Utils::FilePath docsPath() const;
     Utils::FilePath examplesPath() const;
     Utils::FilePath frameworkPath() const;
+    Utils::FilePath headerPath() const;
+    Utils::FilePath importsPath() const;
     Utils::FilePath libraryPath() const;
     Utils::FilePath pluginPath() const;
     Utils::FilePath qmlPath() const;
-    Utils::FilePath binPath() const;
+    Utils::FilePath translationsPath() const;
+
+    Utils::FilePath hostBinPath() const;
+    Utils::FilePath hostDataPath() const;
+
     Utils::FilePath mkspecsPath() const;
     Utils::FilePath qmlBinPath() const;
     Utils::FilePath librarySearchPath() const;
@@ -230,7 +237,6 @@ public:
                                       const ProjectExplorer::Target *target);
 
     QSet<Core::Id> features() const;
-
 
 protected:
     BaseQtVersion();
