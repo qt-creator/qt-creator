@@ -45,5 +45,5 @@ add_subdirectory(qtpromaker)
 # add_subdirectory(screenshotcropper) ## qbs does not build this either
 add_subdirectory(sdktool)
 add_subdirectory(valgrindfake)
-# add_subdirectory(wininterrupt) ## windows only
+add_subdirectory(wininterrupt) ## windows only
 # add_subdirectory(winrtdebughelper) ## windows only
