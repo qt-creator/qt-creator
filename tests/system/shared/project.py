@@ -116,6 +116,11 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
+
+def __createProjectHandleTranslationSelection__():
+    clickButton(":Next_QPushButton")
+
+
 def __handleBuildSystem__(buildSystem):
     combo = "{name='BuildSystem' type='QComboBox' visible='1'}"
     try:
@@ -230,6 +235,7 @@ def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl =
         test.compare(findObject(":formFileLineEdit_Utils::FileNameValidatingLineEdit").text, ui_file)
 
     clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleTranslationSelection__()
     __selectQtVersionDesktop__(checks, available, True)
 
     expectedFiles = []
@@ -253,6 +259,7 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
     available = __createProjectOrFileSelectType__("  Application", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     __handleBuildSystem__(buildSystem)
+    __createProjectHandleTranslationSelection__()
     __selectQtVersionDesktop__(checks, available)
 
     expectedFiles = []
@@ -279,6 +286,7 @@ def createNewQtQuickApplication(workingDir, projectName=None,
     __handleBuildSystem__(buildSystem)
     requiredQt = __createProjectHandleQtQuickSelection__(minimumQtVersion)
     __modifyAvailableTargets__(available, requiredQt)
+    __createProjectHandleTranslationSelection__()
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
     if len(checkedTargets):
@@ -368,6 +376,7 @@ def createNewCPPLib(projectDir, projectName, className, target, isStatic):
                     LibType.getStringForLib(libType))
     __createProjectHandleModuleSelection__("Core")
     className = __createProjectHandleClassInformation__(className)
+    __createProjectHandleTranslationSelection__()
     __chooseTargets__(target, available)
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleLastPage__()
@@ -381,6 +390,7 @@ def createNewQtPlugin(projectDir, projectName, className, target, baseClass="QGe
                                   "window=':New_ProjectExplorer::JsonWizard'}"),
                     LibType.getStringForLib(LibType.QT_PLUGIN))
     className = __createProjectHandleClassInformation__(className, baseClass)
+    __createProjectHandleTranslationSelection__()
     __chooseTargets__(target, available)
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleLastPage__()
