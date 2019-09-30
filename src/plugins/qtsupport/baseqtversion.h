@@ -191,7 +191,7 @@ public:
     virtual QtConfigWidget *createConfigurationWidget() const;
 
     static QString defaultUnexpandedDisplayName(const Utils::FilePath &qmakePath,
-                                      bool fromPath = false);
+                                                bool fromPath = false);
 
     virtual QSet<Core::Id> targetDeviceTypes() const = 0;
 
