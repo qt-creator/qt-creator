@@ -46,6 +46,7 @@
 
 #include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 #include <remotelinux/genericdirectuploadstep.h>
+#include <remotelinux/makeinstallstep.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/fileutils.h>
@@ -175,8 +176,8 @@ public:
 
     QdbDeployStepFactory<RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep>
         m_checkForFreeDiskSpaceStepFactory;
-    QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep>
-        m_directUploadStepFactory;
+    QdbDeployStepFactory<RemoteLinux::GenericDirectUploadStep> m_directUploadStepFactory;
+    QdbDeployStepFactory<RemoteLinux::MakeInstallStep> m_makeInstallStepFactory;
 
     const QList<Core::Id> supportedRunConfigs {
         m_runConfigFactory.id(),

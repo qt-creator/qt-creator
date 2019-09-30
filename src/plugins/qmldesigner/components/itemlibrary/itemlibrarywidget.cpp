@@ -26,6 +26,7 @@
 #include "itemlibrarywidget.h"
 
 #include "customfilesystemmodel.h"
+#include "itemlibraryassetimportdialog.h"
 
 #include <theme.h>
 
@@ -36,6 +37,8 @@
 #include <model.h>
 #include <rewritingexception.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
+#include <designeractionmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/flowlayout.h>
@@ -183,6 +186,43 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     flowLayout->addWidget(button);
     connect(button, &QToolButton::clicked, this, &ItemLibraryWidget::addResources);
 
+#ifdef IMPORT_QUICK3D_ASSETS
+    DesignerActionManager *actionManager =
+             &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
+
+    auto handle3DModel = [](const QStringList &fileNames, const QString &defaultDir) -> bool {
+        auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir);
+        importDlg->show();
+        return true;
+    };
+
+    const QString category = tr("3D Models");
+
+    auto add3DHandler = [&actionManager, &handle3DModel, &category](const char *ext) {
+        const QString filter = QStringLiteral("*.%1").arg(QString::fromLatin1(ext));
+        actionManager->registerAddResourceHandler(
+                    AddResourceHandler(category, filter, handle3DModel, 10));
+    };
+
+    // Skip if 3D model handlers have already been added
+    const QList<AddResourceHandler> handlers = actionManager->addResourceHandler();
+    bool categoryAlreadyAdded = false;
+    for (const auto &handler : handlers) {
+        if (handler.category == category) {
+            categoryAlreadyAdded = true;
+            break;
+        }
+    }
+
+    if (!categoryAlreadyAdded) {
+        add3DHandler(Constants::FbxExtension);
+        add3DHandler(Constants::ColladaExtension);
+        add3DHandler(Constants::ObjExtension);
+        add3DHandler(Constants::BlenderExtension);
+        add3DHandler(Constants::GltfExtension);
+    }
+#endif
+
     // init the first load of the QML UI elements
     reloadQmlSource();
 }
@@ -192,13 +232,19 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     if (m_itemLibraryInfo.data() == itemLibraryInfo)
         return;
 
-    if (m_itemLibraryInfo)
+    if (m_itemLibraryInfo) {
         disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                    this, &ItemLibraryWidget::delayedUpdateModel);
+        disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::importTagsChanged,
+                   this, &ItemLibraryWidget::delayedUpdateModel);
+    }
     m_itemLibraryInfo = itemLibraryInfo;
-    if (itemLibraryInfo)
+    if (itemLibraryInfo) {
         connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                 this, &ItemLibraryWidget::delayedUpdateModel);
+        connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::importTagsChanged,
+                this, &ItemLibraryWidget::delayedUpdateModel);
+    }
     delayedUpdateModel();
 }
 
@@ -383,7 +429,22 @@ void ItemLibraryWidget::addPossibleImport(const QString &name)
     QTC_ASSERT(m_model, return);
     const Import import = m_model->highestPossibleImport(name);
     try {
-        m_model->changeImports({Import::createLibraryImport(name, import.version())}, {});
+        QList<Import> addedImports = {Import::createLibraryImport(name, import.version())};
+        // Special case for adding an import for 3D asset - also add QtQuick3D import
+        const QString asset3DPrefix = QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER + 1)
+                + QLatin1Char('.');
+        if (name.startsWith(asset3DPrefix)) {
+            const QString q3Dlib = QLatin1String(Constants::QT_QUICK_3D_MODULE_NAME);
+            Import q3DImport = m_model->highestPossibleImport(q3Dlib);
+            if (q3DImport.url() == q3Dlib)
+                addedImports.prepend(Import::createLibraryImport(q3Dlib, q3DImport.version()));
+        }
+        RewriterTransaction transaction
+                = m_model->rewriterView()->beginRewriterTransaction(
+                    QByteArrayLiteral("ItemLibraryWidget::addPossibleImport"));
+
+        m_model->changeImports(addedImports, {});
+        transaction.commit();
     }
     catch (const RewritingException &e) {
         e.showException();

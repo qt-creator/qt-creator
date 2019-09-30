@@ -45,11 +45,13 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
 #include <QCoreApplication>
 #include <QRegularExpression>
+#include <QTimer>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -58,6 +60,7 @@ namespace Python {
 namespace Internal {
 
 static constexpr char startPylsInfoBarId[] = "PythonEditor::StartPyls";
+static constexpr char installPylsInfoBarId[] = "PythonEditor::InstallPyls";
 
 struct PythonForProject
 {
@@ -193,6 +196,90 @@ static LanguageClient::Client *registerLanguageServer(const PythonForProject &py
     return LanguageClient::LanguageClientManager::clientForSetting(settings).value(0);
 }
 
+class PythonLSInstallHelper : public QObject
+{
+    Q_OBJECT
+public:
+    PythonLSInstallHelper(const PythonForProject &python, QPointer<TextEditor::TextDocument> document)
+        : m_python(python)
+        , m_document(document)
+    {}
+
+    void run()
+    {
+        auto killTimer = new QTimer(&m_process);
+
+        connect(&m_process,
+                QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+                this,
+                &PythonLSInstallHelper::installFinished);
+        connect(&m_process,
+                &QProcess::readyReadStandardError,
+                this,
+                &PythonLSInstallHelper::errorAvailable);
+        connect(&m_process,
+                &QProcess::readyReadStandardOutput,
+                this,
+                &PythonLSInstallHelper::outputAvailable);
+        connect(killTimer, &QTimer::timeout, [this]() {
+            SynchronousProcess::stopProcess(m_process);
+            Core::MessageManager::write(tr("The Python language server installation timed out."));
+        });
+
+        // on windows the pyls 0.28.3 crashes with pylint so just install the pyflakes linter
+        const QString &pylsVersion = HostOsInfo::isWindowsHost()
+                                        ? QString{"python-language-server[pyflakes]"}
+                                        : QString{"python-language-server[all]"};
+
+        m_process.start(m_python.path.toString(),
+                        {"-m", "pip", "install", pylsVersion});
+
+        Core::MessageManager::write(tr("Running '%1 %2' to install python language server")
+                                        .arg(m_process.program(), m_process.arguments().join(' ')));
+
+        killTimer->start(5 /*minutes*/ * 60 * 1000);
+    }
+
+private:
+    void installFinished(int exitCode, QProcess::ExitStatus exitStatus)
+    {
+        if (exitStatus == QProcess::NormalExit && exitCode == 0) {
+            if (LanguageClient::Client *client = registerLanguageServer(m_python))
+                LanguageClient::LanguageClientManager::reOpenDocumentWithClient(m_document, client);
+        } else {
+            Core::MessageManager::write(
+                tr("Installing the Python language server failed with exit code %1").arg(exitCode));
+        }
+        deleteLater();
+    }
+    void outputAvailable()
+    {
+        const QString &stdOut = QString::fromLocal8Bit(m_process.readAllStandardOutput().trimmed());
+        if (!stdOut.isEmpty())
+            Core::MessageManager::write(stdOut);
+    }
+
+    void errorAvailable()
+    {
+        const QString &stdErr = QString::fromLocal8Bit(m_process.readAllStandardError().trimmed());
+        if (!stdErr.isEmpty())
+            Core::MessageManager::write(stdErr);
+    }
+
+    QProcess m_process;
+    const PythonForProject m_python;
+    QPointer<TextEditor::TextDocument> m_document;
+};
+
+static void installPythonLanguageServer(const PythonForProject &python,
+                                        QPointer<TextEditor::TextDocument> document)
+{
+    document->infoBar()->removeInfo(installPylsInfoBarId);
+
+    auto install = new PythonLSInstallHelper(python, document);
+    install->run();
+}
+
 static void setupPythonLanguageServer(const PythonForProject &python,
                                       QPointer<TextEditor::TextDocument> document)
 {
@@ -206,13 +293,25 @@ static void updateEditorInfoBar(const PythonForProject &python, TextEditor::Text
     const PythonLanguageServerState &lsState = checkPythonLanguageServer(python.path, document);
 
     if (lsState.state == PythonLanguageServerState::CanNotBeInstalled
-        || lsState.state == PythonLanguageServerState::AlreadyConfigured
-        || lsState.state == PythonLanguageServerState::CanBeInstalled /* TODO */) {
+        || lsState.state == PythonLanguageServerState::AlreadyConfigured) {
         return;
     }
 
     Core::InfoBar *infoBar = document->infoBar();
-    if (lsState.state == PythonLanguageServerState::AlreadyInstalled
+    if (lsState.state == PythonLanguageServerState::CanBeInstalled
+        && infoBar->canInfoBeAdded(installPylsInfoBarId)) {
+        auto message
+            = PythonEditorFactory::tr(
+                  "Install and set up Python language server for %1 (%2). "
+                  "The language server provides Python specific completions and annotations.")
+                  .arg(python.name(), python.path.toUserOutput());
+        Core::InfoBarEntry info(installPylsInfoBarId,
+                                message,
+                                Core::InfoBarEntry::GlobalSuppression::Enabled);
+        info.setCustomButtonInfo(TextEditor::BaseTextEditor::tr("Install"),
+                                 [=]() { installPythonLanguageServer(python, document); });
+        infoBar->addInfo(info);
+    } else if (lsState.state == PythonLanguageServerState::AlreadyInstalled
         && infoBar->canInfoBeAdded(startPylsInfoBarId)) {
         auto message = PythonEditorFactory::tr("Found a Python language server for %1 (%2). "
                                                "Should this one be set up for this document?")
@@ -264,3 +363,5 @@ PythonEditorFactory::PythonEditorFactory()
 
 } // namespace Internal
 } // namespace Python
+
+#include "pythoneditor.moc"

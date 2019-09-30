@@ -136,8 +136,6 @@ class PlainDumper:
             printer = self.printer.gen_printer(value.nativeValue)
         except:
             printer = self.printer.invoke(value.nativeValue)
-        lister = getattr(printer, 'children', None)
-        children = [] if lister is None else list(lister())
         d.putType(value.nativeValue.type.name)
         val = printer.to_string()
         if isinstance(val, str):
@@ -149,11 +147,20 @@ class PlainDumper:
             d.putCharArrayValue(val.address, val.length,
                                 val.type.target().sizeof)
 
-        d.putNumChild(len(children))
-        if d.isExpanded():
-            with Children(d):
-                for child in children:
-                    d.putSubItem(child[0], d.fromNativeValue(gdb.Value(child[1])))
+        lister = getattr(printer, 'children', None)
+        if lister is None:
+            d.putNumChild(0)
+        else:
+            if d.isExpanded():
+                children = lister()
+                with Children(d):
+                    i = 0
+                    for (name, child) in children:
+                        d.putSubItem(name, d.fromNativeValue(child))
+                        i += 1
+                        if i > 1000:
+                            break
+            d.putNumChild(1)
 
 def importPlainDumpers(args):
     if args == 'off':

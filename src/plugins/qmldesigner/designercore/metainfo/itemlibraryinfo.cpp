@@ -356,7 +356,10 @@ void ItemLibraryInfo::addBlacklistImports(const QStringList &list)
 
 void ItemLibraryInfo::addShowTagsForImports(const QStringList &list)
 {
-    m_showTagsForImports.append(list);
+    if (!list.isEmpty()) {
+        m_showTagsForImports.append(list);
+        emit importTagsChanged();
+    }
 }
 
 void ItemLibraryInfo::setBaseInfo(ItemLibraryInfo *baseInfo)

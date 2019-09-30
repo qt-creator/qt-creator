@@ -43,7 +43,6 @@ namespace LanguageUtils {
 class LANGUAGEUTILS_EXPORT FakeMetaEnum {
     QString m_name;
     QStringList m_keys;
-    QList<int> m_values;
 
 public:
     FakeMetaEnum();
@@ -54,7 +53,7 @@ public:
     QString name() const;
     void setName(const QString &name);
 
-    void addKey(const QString &key, int value);
+    void addKey(const QString &key);
     QString key(int index) const;
     int keyCount() const;
     QStringList keys() const;

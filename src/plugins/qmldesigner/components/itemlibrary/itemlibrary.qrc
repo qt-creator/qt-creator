@@ -3,5 +3,7 @@
         <file>images/item-default-icon.png</file>
         <file>images/item-invalid-icon.png</file>
         <file>images/item-default-icon@2x.png</file>
+        <file>images/item-3D_model-icon.png</file>
+        <file>images/item-3D_model-icon@2x.png</file>
     </qresource>
 </RCC>

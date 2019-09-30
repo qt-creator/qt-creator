@@ -22,45 +22,50 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
-
 #pragma once
 
-#include "remotelinux_export.h"
+#include "itemlibraryassetimporter.h"
 
-#include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/makestep.h>
+#include <QtWidgets/qdialog.h>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class OutputFormatter;
+}
 
-namespace RemoteLinux {
+namespace QmlDesigner {
+class ItemLibraryAssetImporter;
 
-class REMOTELINUX_EXPORT MakeInstallStep : public ProjectExplorer::MakeStep
+namespace Ui {
+class ItemLibraryAssetImportDialog;
+}
+
+class ItemLibraryAssetImportDialog : public QDialog
 {
     Q_OBJECT
-public:
-    MakeInstallStep(ProjectExplorer::BuildStepList *parent);
 
-    static Core::Id stepId();
-    static QString displayName();
+public:
+    explicit ItemLibraryAssetImportDialog(const QStringList &importFiles,
+                               const QString &defaulTargetDirectory, QWidget *parent = nullptr);
+    ~ItemLibraryAssetImportDialog();
+
+private slots:
+    void addError(const QString &error, const QString &srcPath = {});
+    void addWarning(const QString &warning, const QString &srcPath = {});
+    void addInfo(const QString &info, const QString &srcPath = {});
 
 private:
-    bool fromMap(const QVariantMap &map) override;
-    ProjectExplorer::BuildStepConfigWidget * createConfigWidget() override;
-    bool init() override;
-    void finish(bool success) override;
-    void stdError(const QString &line) override;
-    bool isJobCountSupported() const override { return false; }
+    void setImportUiState(bool importing);
 
-    Utils::FilePath installRoot() const;
-    bool cleanInstallRoot() const;
+    void onImport();
+    void setImportProgress(int value, const QString &text);
+    void onImportFinished();
+    void onClose();
 
-    void updateCommandFromAspect();
-    void updateArgsFromAspect();
-    void updateFullCommandLine();
+    Ui::ItemLibraryAssetImportDialog *ui = nullptr;
+    Utils::OutputFormatter *m_outputFormatter = nullptr;
 
-    ProjectExplorer::DeploymentData m_deploymentData;
-    bool m_noInstallTarget = false;
-    bool m_isCmakeProject = false;
+    QStringList m_quick3DFiles;
+    QString m_quick3DImportPath;
+    ItemLibraryAssetImporter m_importer;
 };
-
-} // namespace RemoteLinux
+}

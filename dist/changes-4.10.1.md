@@ -19,9 +19,13 @@ you can check out from the public Git repository. For example:
 
 * Fixed that text moved around when resizing and zooming (QTCREATORBUG-4756)
 
+## All Projects
+
+* Fixed `Qt Creator Plugin` wizard (QTCREATORBUG-22945)
+
 ## Debugging
 
-* Fixed more layout restoration issues (QTCREATORBUG-22286, QTCREATORBUG-22938)
+* Fixed more layout restoration issues (QTCREATORBUG-22286, QTCREATORBUG-22415, QTCREATORBUG-22938)
 
 ### LLDB
 
@@ -36,7 +40,13 @@ you can check out from the public Git repository. For example:
 
 ### macOS
 
+* Fixed debugging with Xcode 11 (QTCREATORBUG-22955)
 * Fixed window stacking order after closing file dialog (QTCREATORBUG-22906)
+* Fixed window size after exiting fullscreen
+
+### QNX
+
+* Fixed that QNX compiler could not be selected for C
 
 ## Credits for these changes go to:
 
@@ -44,7 +54,9 @@ Aleksei German
 Alexander Akulich  
 Andre Hartmann  
 André Pönitz  
+Christian Kandeler  
 Christian Stenger  
+Cristian Adam  
 David Schulz  
 Eike Ziller  
 Knud Dollereder  
@@ -53,5 +65,5 @@ Lisandro Damián Nicanor Pérez Meyer
 Nikolai Kosjar  
 Orgad Shaneh  
 Richard Weickelt  
+Sergey Belyashov  
 Thomas Hartmann  
-

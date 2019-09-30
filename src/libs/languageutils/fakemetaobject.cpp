@@ -44,8 +44,8 @@ QString FakeMetaEnum::name() const
 void FakeMetaEnum::setName(const QString &name)
 { m_name = name; }
 
-void FakeMetaEnum::addKey(const QString &key, int value)
-{ m_keys.append(key); m_values.append(value); }
+void FakeMetaEnum::addKey(const QString &key)
+{ m_keys.append(key); }
 
 QString FakeMetaEnum::key(int index) const
 { return m_keys.at(index); }
@@ -71,10 +71,6 @@ void FakeMetaEnum::addToHash(QCryptographicHash &hash) const
         hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
         hash.addData(reinterpret_cast<const char *>(key.constData()), len * sizeof(QChar));
     }
-    len = m_values.size();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    foreach (int value, m_values)
-        hash.addData(reinterpret_cast<const char *>(&value), sizeof(value));
 }
 
 QString FakeMetaEnum::describe(int baseIndent) const
@@ -82,16 +78,14 @@ QString FakeMetaEnum::describe(int baseIndent) const
     QString newLine = QString::fromLatin1("\n") + QString::fromLatin1(" ").repeated(baseIndent);
     QString res = QLatin1String("Enum ");
     res += name();
-    res += QLatin1String(":{");
+    res += QLatin1String(": [");
     for (int i = 0; i < keyCount(); ++i) {
         res += newLine;
         res += QLatin1String("  ");
         res += key(i);
-        res += QLatin1String(": ");
-        res += QString::number(m_values.value(i, -1));
     }
     res += newLine;
-    res += QLatin1Char('}');
+    res += QLatin1Char(']');
     return res;
 }
 

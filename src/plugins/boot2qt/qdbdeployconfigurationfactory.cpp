@@ -33,8 +33,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 #include <remotelinux/genericdirectuploadstep.h>
+#include <remotelinux/makeinstallstep.h>
+#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 #include <remotelinux/remotelinuxdeployconfiguration.h>
 
 using namespace ProjectExplorer;
@@ -51,6 +52,11 @@ QdbDeployConfigurationFactory::QdbDeployConfigurationFactory()
                                                       "Deploy to Boot2Qt target"));
     setUseDeploymentDataView();
 
+    addInitialStep(RemoteLinux::MakeInstallStep::stepId(), [](Target *target) {
+        const Project * const prj = target->project();
+        return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+                && prj->hasMakeInstallEquivalent();
+    });
     addInitialStep(RemoteLinuxCheckForFreeDiskSpaceStep::stepId());
     addInitialStep(QdbStopApplicationStep::stepId());
     addInitialStep(GenericDirectUploadStep::stepId());
