@@ -1257,9 +1257,9 @@ bool BaseQtVersion::hasDemos() const
     return d->m_hasDemos;
 }
 
-QString BaseQtVersion::demosPath() const
+FilePath BaseQtVersion::demosPath() const
 {
-    return QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath();
+    return FilePath::fromString(QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath());
 }
 
 QString BaseQtVersion::frameworkInstallPath() const
@@ -1846,7 +1846,7 @@ bool BaseQtVersion::isSubProject(const FilePath &filePath) const
     if (!examples.isEmpty() && filePath.isChildOf(QDir(examples)))
         return true;
 
-    const QString &demos = demosPath();
+    const QString demos = demosPath().toString();
     if (!demos.isEmpty() && filePath.isChildOf(QDir(demos)))
         return true;
 

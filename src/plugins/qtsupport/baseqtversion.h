@@ -147,10 +147,9 @@ public:
 
     bool hasExamples() const;
     bool hasDocumentation() const;
-    QString documentationPath() const;
-
     bool hasDemos() const;
-    QString demosPath() const;
+
+    QString documentationPath() const;
 
     QString frameworkInstallPath() const;
 
@@ -203,6 +202,7 @@ public:
     virtual ProjectExplorer::Tasks validateKit(const ProjectExplorer::Kit *k);
 
     Utils::FilePath headerPath() const;
+    Utils::FilePath demosPath() const;
     Utils::FilePath docsPath() const;
     Utils::FilePath examplesPath() const;
     Utils::FilePath libraryPath() const;

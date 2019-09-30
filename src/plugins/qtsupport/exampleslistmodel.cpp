@@ -579,7 +579,7 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
             if (version->uniqueId() == qtId) {
                 manifestScanPath = version->documentationPath();
                 examplesPath = version->examplesPath().toString();
-                demosPath = version->demosPath();
+                demosPath = version->demosPath().toString();
                 break;
             }
         }
