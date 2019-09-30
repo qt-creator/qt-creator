@@ -175,9 +175,6 @@ public:
     bool m_qmakeIsExecutable = true;
     bool m_hasQtAbis = false;
 
-    QStringList m_configValues;
-    QStringList m_qtConfigValues;
-
     QString m_unexpandedDisplayName;
     QString m_autodetectionSource;
     QSet<Core::Id> m_overrideFeatures;
@@ -1078,11 +1075,10 @@ void BaseQtVersion::ensureMkSpecParsed() const
 
 void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
-    d->m_configValues = evaluator->values("CONFIG");
-    d->m_qtConfigValues = evaluator->values("QT_CONFIG");
+    const QStringList configValues = evaluator->values("CONFIG");
     d->m_defaultConfigIsDebugAndRelease = false;
     d->m_frameworkBuild = false;
-    for (const QString &value : qAsConst(d->m_configValues)) {
+    for (const QString &value : configValues) {
         if (value == "debug")
             d->m_defaultConfigIsDebug = true;
         else if (value == "release")
@@ -1330,18 +1326,6 @@ QStringList BaseQtVersion::qtSoPaths() const
         }
     }
     return Utils::toList(paths);
-}
-
-QStringList BaseQtVersion::configValues() const
-{
-    ensureMkSpecParsed();
-    return d->m_configValues;
-}
-
-QStringList BaseQtVersion::qtConfigValues() const
-{
-    ensureMkSpecParsed();
-    return d->m_qtConfigValues;
 }
 
 MacroExpander *BaseQtVersion::macroExpander() const

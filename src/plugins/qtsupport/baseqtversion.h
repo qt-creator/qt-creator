@@ -226,9 +226,6 @@ public:
     bool hasDebugBuild() const;
     bool hasReleaseBuild() const;
 
-    QStringList configValues() const;
-    QStringList qtConfigValues() const;
-
     Utils::MacroExpander *macroExpander() const; // owned by the Qt version
     static std::unique_ptr<Utils::MacroExpander>
     createMacroExpander(const std::function<const BaseQtVersion *()> &qtVersion);
