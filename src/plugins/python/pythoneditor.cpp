@@ -207,8 +207,6 @@ public:
 
     void run()
     {
-        auto killTimer = new QTimer(&m_process);
-
         connect(&m_process,
                 QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
                 this,
@@ -221,7 +219,7 @@ public:
                 &QProcess::readyReadStandardOutput,
                 this,
                 &PythonLSInstallHelper::outputAvailable);
-        connect(killTimer, &QTimer::timeout, [this]() {
+        connect(&m_killTimer, &QTimer::timeout, [this]() {
             SynchronousProcess::stopProcess(m_process);
             Core::MessageManager::write(tr("The Python language server installation timed out."));
         });
@@ -237,7 +235,7 @@ public:
         Core::MessageManager::write(tr("Running '%1 %2' to install python language server")
                                         .arg(m_process.program(), m_process.arguments().join(' ')));
 
-        killTimer->start(5 /*minutes*/ * 60 * 1000);
+        m_killTimer.start(5 /*minutes*/ * 60 * 1000);
     }
 
 private:
@@ -267,6 +265,7 @@ private:
     }
 
     QProcess m_process;
+    QTimer m_killTimer;
     const PythonForProject m_python;
     QPointer<TextEditor::TextDocument> m_document;
 };
