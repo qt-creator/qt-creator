@@ -149,8 +149,6 @@ public:
     bool hasDocs() const;
     bool hasDemos() const;
 
-    QString frameworkInstallPath() const;
-
     // former local functions
     Utils::FilePath qmakeCommand() const;
 
@@ -203,6 +201,7 @@ public:
     Utils::FilePath demosPath() const;
     Utils::FilePath docsPath() const;
     Utils::FilePath examplesPath() const;
+    Utils::FilePath frameworkPath() const;
     Utils::FilePath libraryPath() const;
     Utils::FilePath pluginPath() const;
     Utils::FilePath qmlPath() const;

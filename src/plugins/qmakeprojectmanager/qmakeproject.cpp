@@ -260,8 +260,9 @@ void QmakeProject::updateCppCodeModel()
                 headerPaths += headerPath;
         }
 
-        if (kitInfo.qtVersion && !kitInfo.qtVersion->frameworkInstallPath().isEmpty())
-            headerPaths += {kitInfo.qtVersion->frameworkInstallPath(), HeaderPathType::Framework};
+        if (kitInfo.qtVersion && !kitInfo.qtVersion->frameworkPath().isEmpty())
+            headerPaths += {kitInfo.qtVersion->frameworkPath().toString(),
+                            HeaderPathType::Framework};
         rpp.setHeaderPaths(headerPaths);
 
         // Files and generators

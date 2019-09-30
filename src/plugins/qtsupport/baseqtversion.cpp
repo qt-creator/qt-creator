@@ -1257,11 +1257,11 @@ FilePath BaseQtVersion::demosPath() const
     return FilePath::fromString(QFileInfo(qmakeProperty("QT_INSTALL_DEMOS")).canonicalFilePath());
 }
 
-QString BaseQtVersion::frameworkInstallPath() const
+FilePath BaseQtVersion::frameworkPath() const
 {
     if (HostOsInfo::isMacHost())
-        return qmakeProperty("QT_INSTALL_LIBS");
-    return QString();
+        return FilePath::fromString(qmakeProperty("QT_INSTALL_LIBS"));
+    return {};
 }
 
 bool BaseQtVersion::hasExamples() const
