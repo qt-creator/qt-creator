@@ -146,10 +146,8 @@ public:
     QStringList qtSoPaths() const;
 
     bool hasExamples() const;
-    bool hasDocumentation() const;
+    bool hasDocs() const;
     bool hasDemos() const;
-
-    QString documentationPath() const;
 
     QString frameworkInstallPath() const;
 

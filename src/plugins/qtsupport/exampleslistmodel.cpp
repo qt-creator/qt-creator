@@ -141,7 +141,7 @@ void ExampleSetModel::recreateModel(const QList<BaseQtVersion *> &qtVersions)
 
     foreach (BaseQtVersion *version, qtVersions) {
         // sanitize away qt versions that have already been added through extra sets
-        if (extraManifestDirs.contains(version->documentationPath())) {
+        if (extraManifestDirs.contains(version->docsPath().toString())) {
             if (debugExamples()) {
                 qWarning() << "Not showing Qt version because manifest path is already added through InstalledExamples settings:"
                            << version->displayName();
@@ -172,7 +172,7 @@ int ExampleSetModel::indexForQtVersion(BaseQtVersion *qtVersion) const
     }
 
     // check for extra set
-    const QString &documentationPath = qtVersion->documentationPath();
+    const QString &documentationPath = qtVersion->docsPath().toString();
     for (int i = 0; i < rowCount(); ++i) {
         if (getType(i) == ExtraExampleSetType
                 && m_extraExampleSets.at(getExtraExampleSetIndex(i)).manifestPath == documentationPath)
@@ -577,7 +577,7 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
         int qtId = getQtId(m_selectedExampleSetIndex);
         foreach (BaseQtVersion *version, QtVersionManager::versions()) {
             if (version->uniqueId() == qtId) {
-                manifestScanPath = version->documentationPath();
+                manifestScanPath = version->docsPath().toString();
                 examplesPath = version->examplesPath().toString();
                 demosPath = version->demosPath().toString();
                 break;

@@ -1240,15 +1240,10 @@ void BaseQtVersion::applyProperties(QMakeGlobals *qmakeGlobals) const
     qmakeGlobals->setProperties(d->versionInfo());
 }
 
-bool BaseQtVersion::hasDocumentation() const
+bool BaseQtVersion::hasDocs() const
 {
     d->updateVersionInfo();
     return d->m_hasDocumentation;
-}
-
-QString BaseQtVersion::documentationPath() const
-{
-    return qmakeProperty("QT_INSTALL_DOCS");
 }
 
 bool BaseQtVersion::hasDemos() const
