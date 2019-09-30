@@ -50,6 +50,7 @@ public:
     uint qmlDebugServerPort = QML_DEFAULT_DEBUG_SERVER_PORT;
 
     bool useMultiProcess = false;
+    QString overrideStartup;
 };
 
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
@@ -70,6 +71,7 @@ public:
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
     bool isQmlDebuggingSpinboxSuppressed() const;
+    QString overrideStartup() const;
 
     int portsUsedByDebugger() const;
 

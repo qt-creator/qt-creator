@@ -44,6 +44,7 @@
 #include <QDebug>
 #include <QFormLayout>
 #include <QLabel>
+#include <QTextEdit>
 
 const char USE_CPP_DEBUGGER_KEY[] = "RunConfiguration.UseCppDebugger";
 const char USE_CPP_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseCppDebuggerAuto";
@@ -51,6 +52,7 @@ const char USE_QML_DEBUGGER_KEY[] = "RunConfiguration.UseQmlDebugger";
 const char USE_QML_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseQmlDebuggerAuto";
 const char QML_DEBUG_SERVER_PORT_KEY[] = "RunConfiguration.QmlDebugServerPort";
 const char USE_MULTIPROCESS_KEY[] = "RunConfiguration.UseMultiProcess";
+const char OVERRIDE_STARTUP_KEY[] = "RunConfiguration.OverrideDebuggerStartup";
 
 using namespace ProjectExplorer;
 
@@ -87,6 +89,8 @@ public:
     QSpinBox *m_debugServerPort;
     QLabel *m_debugServerPortLabel;
     QLabel *m_qmlDebuggerInfoLabel;
+    QLabel *m_overrideStartupLabel;
+    QTextEdit *m_overrideStartupText;
     QCheckBox *m_useMultiProcess;
 };
 
@@ -108,6 +112,9 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
         "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
         "\">What are the prerequisites?</a>"));
 
+    m_overrideStartupLabel = new QLabel(tr("Additional startup commands:"), this);
+    m_overrideStartupText = new QTextEdit(this);
+
     static const QByteArray env = qgetenv("QTC_DEBUGGER_MULTIPROCESS");
     m_useMultiProcess =
         new QCheckBox(tr("Enable Debugging of Subprocesses"), this);
@@ -123,6 +130,8 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
             this, &DebuggerRunConfigWidget::useCppDebuggerClicked);
     connect(m_debugServerPort, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &DebuggerRunConfigWidget::qmlDebugServerPortChanged);
+    connect(m_overrideStartupText, &QTextEdit::textChanged,
+            this, [this] { m_aspect->d.overrideStartup = m_overrideStartupText->toPlainText(); });
     connect(m_useMultiProcess, &QAbstractButton::toggled,
             this, &DebuggerRunConfigWidget::useMultiProcessToggled);
 
@@ -134,11 +143,12 @@ DebuggerRunConfigWidget::DebuggerRunConfigWidget(DebuggerRunConfigurationAspect 
     qmlLayout->addWidget(m_qmlDebuggerInfoLabel);
     qmlLayout->addStretch();
 
-    auto layout = new QVBoxLayout;
+    auto layout = new QFormLayout;
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_useCppDebugger);
-    layout->addLayout(qmlLayout);
-    layout->addWidget(m_useMultiProcess);
+    layout->addRow(m_useCppDebugger);
+    layout->addRow(qmlLayout);
+    layout->addRow(m_overrideStartupLabel, m_overrideStartupText);
+    layout->addRow(m_useMultiProcess);
     setLayout(layout);
 }
 
@@ -166,6 +176,8 @@ void DebuggerRunConfigWidget::update()
 
     m_debugServerPortLabel->setVisible(!m_aspect->isQmlDebuggingSpinboxSuppressed());
     m_debugServerPort->setVisible(!m_aspect->isQmlDebuggingSpinboxSuppressed());
+
+    m_overrideStartupText->setText(m_aspect->overrideStartup());
 }
 
 void DebuggerRunConfigWidget::qmlDebugServerPortChanged(int port)
@@ -279,6 +291,11 @@ bool DebuggerRunConfigurationAspect::isQmlDebuggingSpinboxSuppressed() const
     return dev->canAutoDetectPorts();
 }
 
+QString DebuggerRunConfigurationAspect::overrideStartup() const
+{
+    return d.overrideStartup;
+}
+
 int DebuggerRunConfigurationAspect::portsUsedByDebugger() const
 {
     int ports = 0;
@@ -297,6 +314,7 @@ void DebuggerRunConfigurationAspect::toMap(QVariantMap &map) const
     map.insert(USE_QML_DEBUGGER_AUTO_KEY, d.useQmlDebugger == AutoEnabledLanguage);
     map.insert(QML_DEBUG_SERVER_PORT_KEY, d.qmlDebugServerPort);
     map.insert(USE_MULTIPROCESS_KEY, d.useMultiProcess);
+    map.insert(OVERRIDE_STARTUP_KEY, d.overrideStartup);
 }
 
 void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
@@ -314,6 +332,7 @@ void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
         d.useQmlDebugger = useQml ? EnabledLanguage : DisabledLanguage;
     }
     d.useMultiProcess = map.value(USE_MULTIPROCESS_KEY, false).toBool();
+    d.overrideStartup = map.value(OVERRIDE_STARTUP_KEY).toString();
 }
 
 } // namespace Debugger
