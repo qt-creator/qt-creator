@@ -391,9 +391,9 @@ def getConfiguredKits():
     test.log("Configured kits: %s" % str(result))
     return result
 
-def visibleCheckBoxExists(text):
+def enabledCheckBoxExists(text):
     try:
-        findObject("{type='QCheckBox' text='%s' visible='1'}" % text)
+        waitForObject("{type='QCheckBox' text='%s'}" % text, 100)
         return True
     except:
         return False
