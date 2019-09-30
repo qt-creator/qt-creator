@@ -1381,17 +1381,11 @@ FilePath BaseQtVersion::examplesPath() const // QT_INSTALL_EXAMPLES
 
 QStringList BaseQtVersion::qtSoPaths() const
 {
-    static const char * const qMakeVariables[] = {
-         "QT_INSTALL_LIBS",
-         "QT_INSTALL_PLUGINS",
-         "QT_INSTALL_QML",
-         "QT_INSTALL_IMPORTS"
-    };
-
+    const FilePathList qtPaths = {libraryPath(), pluginPath(), qmlPath(), importsPath()};
     QSet<QString> paths;
-    for (uint i = 0; i < sizeof qMakeVariables / sizeof qMakeVariables[0]; ++i) {
-        QString path = d->qmakeProperty(qMakeVariables[i]);
-        if (path.isNull())
+    for (const FilePath &p : qtPaths) {
+        QString path = p.toString();
+        if (path.isEmpty())
             continue;
         QDirIterator it(path, QStringList("*.so"), QDir::Files, QDirIterator::Subdirectories);
         while (it.hasNext()) {
@@ -1529,33 +1523,32 @@ BaseQtVersion::createMacroExpander(const std::function<const BaseQtVersion *()> 
                                    return version->demosPath().toString();
                                }));
 
-    expander->registerVariable(
-        "Qt:QMAKE_MKSPECS",
-        QtKitAspect::tr("The current Qt version's default mkspecs (Qt 4)."),
-        versionProperty([](const BaseQtVersion *version) {
-            return version->d->qmakeProperty(version->d->m_versionInfo, "QMAKE_MKSPECS");
-        }));
+    expander->registerVariable("Qt:QMAKE_MKSPECS",
+                               QtKitAspect::tr("The current Qt version's default mkspecs (Qt 4)."),
+                               versionProperty([](const BaseQtVersion *version) {
+                                   return version->d->qmakeProperty("QMAKE_MKSPECS");
+                               }));
 
-    expander->registerVariable(
-        "Qt:QMAKE_SPEC",
-        QtKitAspect::tr("The current Qt version's default mkspec (Qt 5; host system)."),
-        versionProperty([](const BaseQtVersion *version) {
-            return version->d->qmakeProperty(version->d->m_versionInfo, "QMAKE_SPEC");
-        }));
+    expander->registerVariable("Qt:QMAKE_SPEC",
+                               QtKitAspect::tr(
+                                   "The current Qt version's default mkspec (Qt 5; host system)."),
+                               versionProperty([](const BaseQtVersion *version) {
+                                   return version->d->qmakeProperty("QMAKE_SPEC");
+                               }));
 
-    expander->registerVariable(
-        "Qt:QMAKE_XSPEC",
-        QtKitAspect::tr("The current Qt version's default mkspec (Qt 5; target system)."),
-        versionProperty([](const BaseQtVersion *version) {
-            return version->d->qmakeProperty(version->d->m_versionInfo, "QMAKE_XSPEC");
-        }));
+    expander
+        ->registerVariable("Qt:QMAKE_XSPEC",
+                           QtKitAspect::tr(
+                               "The current Qt version's default mkspec (Qt 5; target system)."),
+                           versionProperty([](const BaseQtVersion *version) {
+                               return version->d->qmakeProperty("QMAKE_XSPEC");
+                           }));
 
-    expander->registerVariable(
-        "Qt:QMAKE_VERSION",
-        QtKitAspect::tr("The current Qt's qmake version."),
-        versionProperty([](const BaseQtVersion *version) {
-            return version->d->qmakeProperty(version->d->m_versionInfo, "QMAKE_VERSION");
-        }));
+    expander->registerVariable("Qt:QMAKE_VERSION",
+                               QtKitAspect::tr("The current Qt's qmake version."),
+                               versionProperty([](const BaseQtVersion *version) {
+                                   return version->d->qmakeProperty("QMAKE_VERSION");
+                               }));
 
     //    FIXME: Re-enable once we can detect expansion loops.
     //    expander->registerVariable("Qt:Name",
