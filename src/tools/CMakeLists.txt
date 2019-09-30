@@ -36,7 +36,7 @@ if (APPLE)
 endif()
 
 add_subdirectory(qml2puppet)
-# add_subdirectory(qtcdebugger) ## windows only
+add_subdirectory(qtcdebugger) ## windows only
 # add_subdirectory(qtcrashhandler)
 add_subdirectory(qtc-askpass)
 add_subdirectory(qtcreatorcrashhandler)
