@@ -348,6 +348,9 @@ T.SpinBox {
     }
 
     function setRealValue(value) {
+        if (mySpinBox.decimals === 0)
+            value = Math.round(value)
+
         mySpinBox.realValue = mySpinBox.clamp(value,
                                               mySpinBox.validator.bottom,
                                               mySpinBox.validator.top)
