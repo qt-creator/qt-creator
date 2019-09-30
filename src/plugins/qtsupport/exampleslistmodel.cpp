@@ -578,7 +578,7 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
         foreach (BaseQtVersion *version, QtVersionManager::versions()) {
             if (version->uniqueId() == qtId) {
                 manifestScanPath = version->documentationPath();
-                examplesPath = version->examplesPath();
+                examplesPath = version->examplesPath().toString();
                 demosPath = version->demosPath();
                 break;
             }

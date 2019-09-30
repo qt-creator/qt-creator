@@ -1275,9 +1275,9 @@ bool BaseQtVersion::hasExamples() const
     return d->m_hasExamples;
 }
 
-QString BaseQtVersion::examplesPath() const
+FilePath BaseQtVersion::examplesPath() const
 {
-    return QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath();
+    return FilePath::fromString(QFileInfo(qmakeProperty("QT_INSTALL_EXAMPLES")).canonicalFilePath());
 }
 
 QStringList BaseQtVersion::qtSoPaths() const
@@ -1842,7 +1842,7 @@ bool BaseQtVersion::isSubProject(const FilePath &filePath) const
             return true;
     }
 
-    const QString &examples = examplesPath();
+    const QString examples = examplesPath().toString();
     if (!examples.isEmpty() && filePath.isChildOf(QDir(examples)))
         return true;
 

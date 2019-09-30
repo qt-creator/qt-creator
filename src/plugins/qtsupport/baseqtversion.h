@@ -143,11 +143,9 @@ public:
     QString qtVersionString() const;
     QtVersionNumber qtVersion() const;
 
-    bool hasExamples() const;
-    QString examplesPath() const;
-
     QStringList qtSoPaths() const;
 
+    bool hasExamples() const;
     bool hasDocumentation() const;
     QString documentationPath() const;
 
@@ -206,6 +204,7 @@ public:
 
     Utils::FilePath headerPath() const;
     Utils::FilePath docsPath() const;
+    Utils::FilePath examplesPath() const;
     Utils::FilePath libraryPath() const;
     Utils::FilePath pluginPath() const;
     Utils::FilePath qmlPath() const;
