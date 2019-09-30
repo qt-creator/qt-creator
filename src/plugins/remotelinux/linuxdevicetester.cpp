@@ -31,7 +31,7 @@
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <utils/port.h>
 #include <utils/qtcassert.h>
-#include <ssh/sftpsession.h>
+#include <ssh/sftptransfer.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshconnectionmanager.h>
@@ -54,7 +54,7 @@ public:
     SshConnection *connection = nullptr;
     SshRemoteProcessPtr process;
     DeviceUsedPortsGatherer portsGatherer;
-    SftpSessionPtr sftpSession;
+    SftpTransferPtr sftpTransfer;
     SshProcess rsyncProcess;
     State state = Inactive;
     bool sftpWorks = false;
@@ -108,7 +108,7 @@ void GenericLinuxDeviceTester::stopTest()
         d->process->close();
         break;
     case TestingSftp:
-        d->sftpSession->quit();
+        d->sftpTransfer->stop();
         break;
     case TestingRsync:
         d->rsyncProcess.disconnect();
@@ -190,32 +190,30 @@ void GenericLinuxDeviceTester::handlePortListReady()
     }
 
     emit progressMessage(tr("Checking whether an SFTP connection can be set up..."));
-    d->sftpSession = d->connection->createSftpSession();
-    connect(d->sftpSession.get(), &SftpSession::started,
-            this, &GenericLinuxDeviceTester::handleSftpStarted);
-    connect(d->sftpSession.get(), &SftpSession::done,
+    d->sftpTransfer = d->connection->createDownload(FilesToTransfer(),
+                                                    FileTransferErrorHandling::Abort);
+    connect(d->sftpTransfer.get(), &SftpTransfer::done,
             this, &GenericLinuxDeviceTester::handleSftpFinished);
     d->state = TestingSftp;
-    d->sftpSession->start();
+    d->sftpTransfer->start();
 }
 
 void GenericLinuxDeviceTester::handleSftpStarted()
 {
     QTC_ASSERT(d->state == TestingSftp, return);
-    emit progressMessage(tr("SFTP service available.\n"));
-    d->sftpWorks = true;
-    disconnect(d->sftpSession.get(), nullptr, this, nullptr);
-    d->sftpSession->quit();
-    testRsync();
 }
 
 void GenericLinuxDeviceTester::handleSftpFinished(const QString &error)
 {
     QTC_ASSERT(d->state == TestingSftp, return);
-    QString theError;
-    theError = error.isEmpty() ? tr("sftp finished unexpectedly.") : error;
-    d->sftpWorks = false;
-    emit errorMessage(tr("Error setting up SFTP connection: %1\n").arg(theError));
+    if (error.isEmpty()) {
+        d->sftpWorks = true;
+        emit progressMessage(tr("SFTP service available.\n"));
+    } else {
+        d->sftpWorks = false;
+        emit errorMessage(tr("Error setting up SFTP connection: %1\n").arg(error));
+    }
+    disconnect(d->sftpTransfer.get(), nullptr, this, nullptr);
     testRsync();
 }
 
@@ -271,9 +269,9 @@ void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
     disconnect(&d->portsGatherer, nullptr, this, nullptr);
-    if (d->sftpSession) {
-        disconnect(d->sftpSession.get(), nullptr, this, nullptr);
-        d->sftpSession.release()->deleteLater();
+    if (d->sftpTransfer) {
+        disconnect(d->sftpTransfer.get(), nullptr, this, nullptr);
+        d->sftpTransfer.release()->deleteLater();
     }
     if (d->connection) {
         disconnect(d->connection, nullptr, this, nullptr);

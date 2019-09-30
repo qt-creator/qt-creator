@@ -25,6 +25,7 @@
 
 #include "sftptransfer.h"
 
+#include "sshlogging_p.h"
 #include "sshprocess.h"
 #include "sshsettings.h"
 
@@ -48,7 +49,7 @@ struct SftpTransfer::SftpTransferPrivate
     Internal::FileTransferType transferType;
     FileTransferErrorHandling errorHandlingMode;
     QStringList connectionArgs;
-    QTemporaryFile batchFile;
+    QString batchFilePath;
 
     QStringList dirsToCreate() const
     {
@@ -88,6 +89,8 @@ struct SftpTransfer::SftpTransferPrivate
 
 SftpTransfer::~SftpTransfer()
 {
+    if (!d->batchFilePath.isEmpty() && !QFile::remove(d->batchFilePath))
+        qCWarning(Internal::sshLog) << "failed to remove batch file" << d->batchFilePath;
     delete d;
 }
 
@@ -137,15 +140,18 @@ void SftpTransfer::doStart()
         emitError(tr("sftp binary \"%1\" does not exist.").arg(sftpBinary.toUserOutput()));
         return;
     }
-    if (!d->batchFile.isOpen() && !d->batchFile.open()) {
-        emitError(tr("Could not create temporary file: %1").arg(d->batchFile.errorString()));
+    QTemporaryFile batchFile;
+    batchFile.setAutoRemove(false);
+    if (!batchFile.isOpen() && !batchFile.open()) {
+        emitError(tr("Could not create temporary file: %1").arg(batchFile.errorString()));
         return;
     }
-    d->batchFile.resize(0);
+    d->batchFilePath = batchFile.fileName();
+    batchFile.resize(0);
     for (const QString &dir : d->dirsToCreate()) {
         switch (d->transferType) {
         case Internal::FileTransferType::Upload:
-            d->batchFile.write("-mkdir " + QtcProcess::quoteArgUnix(dir).toLocal8Bit() + '\n');
+            batchFile.write("-mkdir " + QtcProcess::quoteArgUnix(dir).toLocal8Bit() + '\n');
             break;
         case Internal::FileTransferType::Download:
             if (!QDir::root().mkdir(dir)) {
@@ -163,20 +169,20 @@ void SftpTransfer::doStart()
             QFileInfo fi(f.sourceFile);
             if (fi.isSymLink()) {
                 link = true;
-                d->batchFile.write("-rm " + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit()
-                                   + '\n');
+                batchFile.write("-rm " + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit()
+                                + '\n');
                 sourceFileOrLinkTarget = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
             } else {
                 sourceFileOrLinkTarget = f.sourceFile;
             }
          }
-         d->batchFile.write(d->transferCommand(link) + ' '
-                            + QtcProcess::quoteArgUnix(sourceFileOrLinkTarget).toLocal8Bit() + ' '
-                            + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit() + '\n');
+         batchFile.write(d->transferCommand(link) + ' '
+                         + QtcProcess::quoteArgUnix(sourceFileOrLinkTarget).toLocal8Bit() + ' '
+                         + QtcProcess::quoteArgUnix(f.targetFile).toLocal8Bit() + '\n');
     }
-    d->batchFile.flush();
     d->sftpProc.start(sftpBinary.toString(),
-                      QStringList{"-b", d->batchFile.fileName()} << d->connectionArgs);
+                      QStringList{"-b", QDir::toNativeSeparators(batchFile.fileName())}
+                          << d->connectionArgs);
     emit started();
 }
 
