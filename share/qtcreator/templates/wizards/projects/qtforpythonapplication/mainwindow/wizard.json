@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "supportedProjectTypes": [ "PythonProject" ],
     "id": "U.QtForPythonApplicationWindow",
     "category": "F.Application",
     "trDescription": "Creates a Qt for Python application that contains an empty window.",
