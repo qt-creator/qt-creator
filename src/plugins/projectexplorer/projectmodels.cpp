@@ -65,10 +65,9 @@
 using namespace Utils;
 
 namespace ProjectExplorer {
+namespace Internal {
 
-using namespace Internal;
-
-static bool sortNodes(const Node *n1, const Node *n2)
+bool compareNodes(const Node *n1, const Node *n2)
 {
     if (n1->priority() > n2->priority())
         return true;
@@ -88,7 +87,7 @@ static bool sortNodes(const Node *n1, const Node *n2)
 
 static bool sortWrapperNodes(const WrapperNode *w1, const WrapperNode *w2)
 {
-    return sortNodes(w1->m_node, w2->m_node);
+    return compareNodes(w1->m_node, w2->m_node);
 }
 
 FlatModel::FlatModel(QObject *parent)
@@ -846,5 +845,6 @@ const QLoggingCategory &FlatModel::logger()
     return logger;
 }
 
+} // namespace Internal
 } // namespace ProjectExplorer
 
