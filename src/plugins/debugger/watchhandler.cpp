@@ -2296,15 +2296,20 @@ void WatchModel::showEditValue(const WatchItem *item)
         QTC_ASSERT(0 < nbytes && nbytes < 10000 * 10000, return);
         QTC_ASSERT(0 < imformat && imformat < 32, return);
         QImage im(width, height, QImage::Format(imformat));
-        std::memcpy(im.bits(), bits, nbytes);
-        auto v = m_separatedView->prepareObject<ImageViewer>(item);
-        v->setInfo(item->address ?
-            tr("%1 Object at %2").arg(item->type, item->hexAddress()) :
-            tr("%1 Object at Unknown Address").arg(item->type) + "    " +
-            ImageViewer::tr("Size: %1x%2, %3 byte, format: %4, depth: %5")
-                .arg(width).arg(height).arg(nbytes).arg(im.format()).arg(im.depth())
-        );
-        v->setImage(im);
+        const qsizetype size = im.sizeInBytes();
+        // If our computation of image size doesn't fit the client's
+        // chances are that we can't properly display it either.
+        if (size == nbytes) {
+            std::memcpy(im.bits(), bits, nbytes);
+            auto v = m_separatedView->prepareObject<ImageViewer>(item);
+            v->setInfo(item->address ?
+                               tr("%1 Object at %2").arg(item->type, item->hexAddress()) :
+                               tr("%1 Object at Unknown Address").arg(item->type) + "    " +
+                               ImageViewer::tr("Size: %1x%2, %3 byte, format: %4, depth: %5")
+                               .arg(width).arg(height).arg(nbytes).arg(im.format()).arg(im.depth())
+                               );
+            v->setImage(im);
+        }
     } else if (format == DisplayLatin1String
             || format == DisplayUtf8String
             || format == DisplayUtf16String
