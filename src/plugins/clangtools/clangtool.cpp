@@ -435,11 +435,13 @@ ClangTool::ClangTool()
     m_perspective.addToolBarAction(m_startOnCurrentFileAction);
     m_perspective.addToolBarAction(m_stopAction);
     m_perspective.addToolBarAction(m_openProjectSettings);
+    m_perspective.addToolbarSeparator();
     m_perspective.addToolBarAction(m_loadExported);
     m_perspective.addToolBarAction(m_clear);
+    m_perspective.addToolBarAction(m_expandCollapse);
+    m_perspective.addToolbarSeparator();
     m_perspective.addToolBarAction(m_goBack);
     m_perspective.addToolBarAction(m_goNext);
-    m_perspective.addToolBarAction(m_expandCollapse);
     m_perspective.addToolBarWidget(m_filterLineEdit);
     m_perspective.addToolBarWidget(m_applyFixitsButton);
 
