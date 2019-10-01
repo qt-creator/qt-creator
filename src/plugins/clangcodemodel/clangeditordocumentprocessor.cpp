@@ -637,7 +637,6 @@ ClangEditorDocumentProcessor::creatorForHeaderErrorDiagnosticWidget(
 
     return [firstHeaderErrorDiagnostic]() {
         auto vbox = new QVBoxLayout;
-        vbox->setMargin(0);
         vbox->setContentsMargins(10, 0, 0, 2);
         vbox->setSpacing(2);
 

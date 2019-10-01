@@ -368,7 +368,6 @@ public:
 
         auto l = new QHBoxLayout;
         auto w = new QWidget;
-        l->setMargin(0);
         l->setContentsMargins(0, 0, 5, 0);
         l->addStretch(1);
         l->addWidget(m_addressEdit);

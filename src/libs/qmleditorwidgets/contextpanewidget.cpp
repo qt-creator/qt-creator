@@ -158,7 +158,6 @@ void DragWidget::enterEvent(QEvent *)
 ContextPaneWidget::ContextPaneWidget(QWidget *parent) : DragWidget(parent), m_currentWidget(0)
 {
     QGridLayout *layout = new QGridLayout(this);
-    layout->setMargin(0);
     layout->setContentsMargins(1, 1, 1, 1);
     layout->setSpacing(0);
     m_toolButton = new QToolButton(this);
