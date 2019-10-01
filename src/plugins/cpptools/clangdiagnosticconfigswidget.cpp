@@ -1074,10 +1074,10 @@ void ClangDiagnosticConfigsWidget::setupTabs(bool showTidyClazyTabs)
     connectClangTidyItemChanged();
     connectClazyItemChanged();
 
-    m_ui->tabWidget->addTab(m_clangBaseChecksWidget, tr("Clang"));
+    m_ui->tabWidget->addTab(m_clangBaseChecksWidget, tr("Clang Warnings"));
     if (showTidyClazyTabs) {
-        m_ui->tabWidget->addTab(m_tidyChecksWidget, tr("Clang-Tidy"));
-        m_ui->tabWidget->addTab(m_clazyChecksWidget, tr("Clazy"));
+        m_ui->tabWidget->addTab(m_tidyChecksWidget, tr("Clang-Tidy Checks"));
+        m_ui->tabWidget->addTab(m_clazyChecksWidget, tr("Clazy Checks"));
     }
     m_ui->tabWidget->setCurrentIndex(0);
 }
