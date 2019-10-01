@@ -287,6 +287,9 @@ Interpreter interpreterForPythonExecutable(const FilePath &python,
         name = defaultName;
     if (windowedSuffix)
         name += " (Windowed)";
+    QDir pythonDir(python.parentDir().toString());
+    if (pythonDir.exists() && pythonDir.exists("activate") && pythonDir.cdUp())
+        name += QString(" (%1 Virtual Environment)").arg(pythonDir.dirName());
     return Interpreter{QUuid::createUuid().toString(), name, python};
 }
 
