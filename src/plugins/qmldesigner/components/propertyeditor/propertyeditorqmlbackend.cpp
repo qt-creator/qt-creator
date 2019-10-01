@@ -133,7 +133,11 @@ void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name
 
 QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &propertyName)
 {
-    QVariant value = qmlObjectNode.modelValue(propertyName);
+    const QVariant value = qmlObjectNode.modelValue("Layout." + propertyName);
+    QVariant marginsValue = qmlObjectNode.modelValue("Layout.margins");
+
+    if (!marginsValue.isValid())
+        marginsValue.setValue(0.0);
 
     if (value.isValid())
         return value;
@@ -153,11 +157,10 @@ QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNod
      if ("columnSpan" == propertyName || "rowSpan" == propertyName)
          return 1;
 
-     if ("topMargin" == propertyName || "bottomMargin" == propertyName)
-         return 0;
-
-     if ("leftMargin" == propertyName || "rightMargin" == propertyName)
-         return 0;
+     if ("topMargin" == propertyName || "bottomMargin" == propertyName ||
+         "leftMargin" == propertyName || "rightMargin" == propertyName ||
+         "margins" == propertyName)
+         return marginsValue;
 
     return QVariant();
 }
@@ -169,9 +172,9 @@ void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode
         static const PropertyNameList propertyNames =
             {"alignment", "column", "columnSpan", "fillHeight", "fillWidth", "maximumHeight", "maximumWidth",
                 "minimumHeight", "minimumWidth", "preferredHeight", "preferredWidth", "row", "rowSpan",
-                "topMargin", "bottomMargin", "leftMargin", "rightMargin"};
+                "topMargin", "bottomMargin", "leftMargin", "rightMargin", "margins"};
 
-        foreach (const PropertyName &propertyName, propertyNames) {
+        for (const PropertyName &propertyName : propertyNames) {
             createPropertyEditorValue(qmlObjectNode, "Layout." + propertyName, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName), propertyEditor);
         }
     }
@@ -629,7 +632,15 @@ void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObje
 {
     PropertyName propertyName = name;
     propertyName.replace("Layout.", "");
-    setValue(qmlObjectNode,  name, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName));
+    setValue(qmlObjectNode, name, properDefaultLayoutAttachedProperties(qmlObjectNode, propertyName));
+
+    if (propertyName == "margins") {
+        const QVariant marginsValue = properDefaultLayoutAttachedProperties(qmlObjectNode, "margins");
+        setValue(qmlObjectNode, "Layout.topMargin", marginsValue);
+        setValue(qmlObjectNode, "Layout.bottomMargin", marginsValue);
+        setValue(qmlObjectNode, "Layout.leftMargin", marginsValue);
+        setValue(qmlObjectNode, "Layout.rightMargin", marginsValue);
+    }
 }
 
 QUrl PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo, TypeName &className)
