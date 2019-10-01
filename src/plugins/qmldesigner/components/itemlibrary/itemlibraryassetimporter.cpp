@@ -313,6 +313,7 @@ void ItemLibraryAssetImporter::parseQuick3DAsset(const QString &file)
 
 void ItemLibraryAssetImporter::copyImportedFiles()
 {
+#ifdef IMPORT_QUICK3D_ASSETS
     if (!m_overwrittenImports.isEmpty()) {
         const QString progressTitle = tr("Removing old overwritten assets.");
         addInfo(progressTitle);
@@ -351,6 +352,7 @@ void ItemLibraryAssetImporter::copyImportedFiles()
         }
         notifyProgress(100, progressTitle);
     }
+#endif
 }
 
 void ItemLibraryAssetImporter::notifyProgress(int value, const QString &text) const
