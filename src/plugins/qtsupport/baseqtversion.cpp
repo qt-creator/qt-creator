@@ -130,9 +130,10 @@ enum HostBinaries { Designer, Linguist, Uic, QScxmlc };
 class BaseQtVersionPrivate
 {
 public:
-    BaseQtVersionPrivate(BaseQtVersion *parent) : q(parent) {}
+    BaseQtVersionPrivate(BaseQtVersion *parent)
+        : q(parent)
+    {}
 
-    void setupQmakePathAndId(const FilePath &path);
     void updateVersionInfo();
 
     QString findHostBinary(HostBinaries binary) const;
@@ -298,13 +299,6 @@ BaseQtVersion::BaseQtVersion()
 BaseQtVersion::~BaseQtVersion()
 {
     delete d;
-}
-
-void BaseQtVersionPrivate::setupQmakePathAndId(const FilePath &qmakeCommand)
-{
-    m_id = QtVersionManager::getUniqueId();
-    QTC_CHECK(m_qmakeCommand.isEmpty()); // Should only be used once.
-    m_qmakeCommand = qmakeCommand;
 }
 
 QString BaseQtVersion::defaultUnexpandedDisplayName() const
@@ -2213,7 +2207,12 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath
         if (!factory->m_restrictionChecker || factory->m_restrictionChecker(setup)) {
             BaseQtVersion *ver = factory->create();
             QTC_ASSERT(ver, continue);
-            ver->d->setupQmakePathAndId(qmakePath);
+            ver->d->m_id = QtVersionManager::getUniqueId();
+            QTC_CHECK(ver->d->m_qmakeCommand.isEmpty()); // Should only be used once.
+            ver->d->m_qmakeCommand = qmakePath;
+            ver->d->m_unexpandedDisplayName = BaseQtVersion::defaultUnexpandedDisplayName(qmakePath,
+                                                                                          false);
+
             ver->d->m_autodetectionSource = autoDetectionSource;
             ver->d->m_isAutodetected = isAutoDetected;
             ver->updateDefaultDisplayName();

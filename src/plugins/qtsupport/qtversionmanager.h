@@ -35,8 +35,9 @@ class QTSUPPORT_EXPORT QtVersionManager : public QObject
     Q_OBJECT
     // for getUniqueId();
     friend class BaseQtVersion;
-    friend class Internal::BaseQtVersionPrivate;
+    friend class QtVersionFactory;
     friend class Internal::QtOptionsPageWidget;
+
 public:
     static QtVersionManager *instance();
     QtVersionManager();
