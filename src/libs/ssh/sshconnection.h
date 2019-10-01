@@ -38,6 +38,8 @@
 
 #include <memory>
 
+namespace Utils { class FilePath; }
+
 namespace QSsh {
 class SshRemoteProcess;
 
@@ -107,7 +109,7 @@ public:
     QString errorString() const;
     SshConnectionParameters connectionParameters() const;
     SshConnectionInfo connectionInfo() const;
-    QStringList connectionOptions() const;
+    QStringList connectionOptions(const Utils::FilePath &binary) const;
     bool sharingEnabled() const;
     ~SshConnection();
 
