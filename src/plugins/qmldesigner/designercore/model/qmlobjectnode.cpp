@@ -442,20 +442,20 @@ QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations() cons
     return returnList;
 }
 
-static QList<QmlItemNode> allQmlItemsRecursive(const QmlItemNode &qmlItemNode)
+static QList<QmlVisualNode> allQmlVisualNodesRecursive(const QmlItemNode &qmlItemNode)
 {
-    QList<QmlItemNode> qmlItemNodeList;
+    QList<QmlVisualNode> qmlVisualNodeList;
 
     if (qmlItemNode.isValid()) {
-        qmlItemNodeList.append(qmlItemNode);
+        qmlVisualNodeList.append(qmlItemNode);
 
         foreach (const ModelNode &modelNode, qmlItemNode.modelNode().directSubModelNodes()) {
-            if (QmlItemNode::isValidQmlItemNode(modelNode))
-                qmlItemNodeList.append(allQmlItemsRecursive(modelNode));
+            if (QmlVisualNode::isValidQmlVisualNode(modelNode))
+                qmlVisualNodeList.append(allQmlVisualNodesRecursive(modelNode));
         }
     }
 
-    return qmlItemNodeList;
+    return qmlVisualNodeList;
 }
 
 QList<QmlModelState> QmlObjectNode::allDefinedStates() const
@@ -465,14 +465,13 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
 
     QList<QmlModelState> returnList;
 
-    QList<QmlItemNode> allQmlItems;
+    QList<QmlVisualNode> allVisualNodes;
 
-    if (QmlItemNode::isValidQmlItemNode(view()->rootModelNode()))
-        allQmlItems.append(allQmlItemsRecursive(view()->rootModelNode()));
+    if (QmlVisualNode::isValidQmlVisualNode(view()->rootModelNode()))
+        allVisualNodes.append(allQmlVisualNodesRecursive(view()->rootModelNode()));
 
-    foreach (const QmlItemNode &item, allQmlItems) {
-        returnList.append(item.states().allStates());
-    }
+    for (const QmlVisualNode &node : qAsConst(allVisualNodes))
+        returnList.append(node.states().allStates());
 
     return returnList;
 }

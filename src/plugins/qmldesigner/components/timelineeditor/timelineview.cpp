@@ -500,7 +500,7 @@ QmlModelState TimelineView::stateForTimeline(const QmlTimeline &timeline)
         return QmlModelState(rootModelNode());
     }
 
-    for (const QmlModelState &state : QmlItemNode(rootModelNode()).states().allStates()) {
+    for (const QmlModelState &state : QmlVisualNode(rootModelNode()).states().allStates()) {
         if (timelineForState(state) == timeline)
             return state;
     }

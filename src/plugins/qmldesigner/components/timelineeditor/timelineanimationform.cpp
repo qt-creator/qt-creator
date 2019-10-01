@@ -238,7 +238,7 @@ void TimelineAnimationForm::populateStateComboBox()
         return;
     QmlObjectNode rootNode = QmlObjectNode(m_animation.view()->rootModelNode());
     if (rootNode.isValid() && rootNode.modelNode().hasId()) {
-        for (const QmlModelState &state : QmlItemNode(rootNode).states().allStates()) {
+        for (const QmlModelState &state : QmlVisualNode(rootNode).states().allStates()) {
             ui->transitionToState
                 ->addItem(state.modelNode().variantProperty("name").value().toString(),
                           QVariant::fromValue<ModelNode>(state.modelNode()));
