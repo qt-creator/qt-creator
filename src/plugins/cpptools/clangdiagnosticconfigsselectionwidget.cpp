@@ -31,27 +31,30 @@
 
 #include <coreplugin/icore.h>
 
-#include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
 
 namespace CppTools {
 
 ClangDiagnosticConfigsSelectionWidget::ClangDiagnosticConfigsSelectionWidget(QWidget *parent)
     : QWidget(parent)
-    , m_label(new QLabel(tr("Diagnostic Configuration:"), this))
-    , m_selectionComboBox(new QComboBox(this))
+    , m_label(new QLabel(tr("Diagnostic Configuration:")))
+    , m_button(new QPushButton)
 {
     auto *layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
     layout->addWidget(m_label);
-    layout->addWidget(m_selectionComboBox, 1);
-    m_manageButton = new QPushButton(tr("Manage..."), this);
-    layout->addWidget(m_manageButton);
+    layout->addWidget(m_button, 1);
     layout->addStretch();
+
+    connect(m_button,
+            &QPushButton::clicked,
+            this,
+            &ClangDiagnosticConfigsSelectionWidget::onButtonClicked);
 }
 
 void ClangDiagnosticConfigsSelectionWidget::refresh(const ClangDiagnosticConfigsModel &model,
@@ -60,82 +63,50 @@ void ClangDiagnosticConfigsSelectionWidget::refresh(const ClangDiagnosticConfigs
 {
     m_showTidyClazyUi = showTidyClazyUi;
     m_diagnosticConfigsModel = model;
+    m_currentConfigId = configToSelect;
 
-    disconnect(m_manageButton, 0, 0, 0);
-    connectToClangDiagnosticConfigsDialog();
-
-    disconnectFromCurrentIndexChanged();
-    refresh(configToSelect);
-    connectToCurrentIndexChanged();
+    const ClangDiagnosticConfig config = m_diagnosticConfigsModel.configWithId(configToSelect);
+    m_button->setText(config.displayName());
 }
 
 Core::Id ClangDiagnosticConfigsSelectionWidget::currentConfigId() const
 {
-    return Core::Id::fromSetting(m_selectionComboBox->currentData());
+    return m_currentConfigId;
 }
 
-void ClangDiagnosticConfigsSelectionWidget::connectToCurrentIndexChanged()
+ClangDiagnosticConfigs ClangDiagnosticConfigsSelectionWidget::customConfigs() const
 {
-    m_currentIndexChangedConnection
-            = connect(m_selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                      this, [this]() { emit currentConfigChanged(currentConfigId()); });
+    return m_diagnosticConfigsModel.customConfigs();
 }
 
-void ClangDiagnosticConfigsSelectionWidget::disconnectFromCurrentIndexChanged()
+void ClangDiagnosticConfigsSelectionWidget::onButtonClicked()
 {
-    disconnect(m_currentIndexChangedConnection);
-}
+    ClangDiagnosticConfigsWidget *widget
+        = new ClangDiagnosticConfigsWidget(m_diagnosticConfigsModel.allConfigs(),
+                                           m_currentConfigId,
+                                           m_showTidyClazyUi);
+    widget->layout()->setContentsMargins(0, 0, 0, 0);
+    QDialog dialog;
+    dialog.setWindowTitle(ClangDiagnosticConfigsWidget::tr("Diagnostic Configurations"));
+    dialog.setLayout(new QVBoxLayout);
+    dialog.layout()->addWidget(widget);
+    auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    dialog.layout()->addWidget(buttonsBox);
 
-void ClangDiagnosticConfigsSelectionWidget::refresh(Core::Id id)
-{
-    disconnectFromCurrentIndexChanged();
+    connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
-    int configToSelectIndex = -1;
-    m_selectionComboBox->clear();
-    const int size = m_diagnosticConfigsModel.size();
-    for (int i = 0; i < size; ++i) {
-        const ClangDiagnosticConfig &config = m_diagnosticConfigsModel.at(i);
-        const QString displayName
-                = ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
-        m_selectionComboBox->addItem(displayName, config.id().toSetting());
+    const bool previousEnableLowerClazyLevels = codeModelSettings()->enableLowerClazyLevels();
+    if (dialog.exec() == QDialog::Accepted) {
+        if (previousEnableLowerClazyLevels != codeModelSettings()->enableLowerClazyLevels())
+            codeModelSettings()->toSettings(Core::ICore::settings());
 
-        if (id == config.id())
-            configToSelectIndex = i;
+        m_diagnosticConfigsModel = ClangDiagnosticConfigsModel(widget->configs());
+        m_currentConfigId = widget->currentConfig().id();
+        m_button->setText(widget->currentConfig().displayName());
+
+        emit changed();
     }
-
-    if (configToSelectIndex != -1)
-        m_selectionComboBox->setCurrentIndex(configToSelectIndex);
-    else
-        emit currentConfigChanged(currentConfigId());
-
-    connectToCurrentIndexChanged();
-}
-
-void ClangDiagnosticConfigsSelectionWidget::connectToClangDiagnosticConfigsDialog()
-{
-    connect(m_manageButton, &QPushButton::clicked, [this]() {
-        ClangDiagnosticConfigsWidget *widget
-            = new ClangDiagnosticConfigsWidget(m_diagnosticConfigsModel,
-                                               currentConfigId(),
-                                               m_showTidyClazyUi);
-        widget->layout()->setContentsMargins(0, 0, 0, 0);
-        QDialog dialog;
-        dialog.setWindowTitle(ClangDiagnosticConfigsWidget::tr("Diagnostic Configurations"));
-        dialog.setLayout(new QVBoxLayout);
-        dialog.layout()->addWidget(widget);
-        auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        dialog.layout()->addWidget(buttonsBox);
-        connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-        connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-
-        const bool previousEnableLowerClazyLevels = codeModelSettings()->enableLowerClazyLevels();
-        connect(&dialog, &QDialog::accepted, [this, widget, previousEnableLowerClazyLevels]() {
-            if (previousEnableLowerClazyLevels != codeModelSettings()->enableLowerClazyLevels())
-                codeModelSettings()->toSettings(Core::ICore::settings());
-            emit diagnosticConfigsEdited(widget->customConfigs());
-        });
-        dialog.exec();
-    });
 }
 
 } // CppTools namespace

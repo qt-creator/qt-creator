@@ -47,6 +47,11 @@ RunSettingsWidget::~RunSettingsWidget()
     delete m_ui;
 }
 
+CppTools::ClangDiagnosticConfigsSelectionWidget *RunSettingsWidget::diagnosticSelectionWidget()
+{
+    return m_ui->diagnosticWidget;
+}
+
 void RunSettingsWidget::fromSettings(const RunSettings &s)
 {
     disconnect(m_ui->diagnosticWidget, 0, 0, 0);
@@ -54,12 +59,9 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
                                     s.diagnosticConfigId(),
                                     /*showTidyClazyUi=*/true);
     connect(m_ui->diagnosticWidget,
-            &CppTools::ClangDiagnosticConfigsSelectionWidget::diagnosticConfigsEdited,
+            &CppTools::ClangDiagnosticConfigsSelectionWidget::changed,
             this,
-            &RunSettingsWidget::diagnosticConfigsEdited);
-    connect(m_ui->diagnosticWidget,
-            &CppTools::ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
-            [this](const Core::Id &) { emit changed(); });
+            &RunSettingsWidget::changed);
 
     disconnect(m_ui->buildBeforeAnalysis, 0, 0, 0);
     m_ui->buildBeforeAnalysis->setToolTip(hintAboutBuildBeforeAnalysis());

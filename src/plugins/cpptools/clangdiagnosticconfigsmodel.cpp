@@ -87,15 +87,6 @@ const ClangDiagnosticConfig &ClangDiagnosticConfigsModel::configWithId(const Cor
     return m_diagnosticConfigs.at(indexOfConfig(id));
 }
 
-QString
-ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(const ClangDiagnosticConfig &config)
-{
-    return config.isReadOnly()
-            ? QCoreApplication::translate("ClangDiagnosticConfigsModel", "%1 [built-in]")
-                .arg(config.displayName())
-            : config.displayName();
-}
-
 QVector<Core::Id> ClangDiagnosticConfigsModel::changedOrRemovedConfigs(
     const ClangDiagnosticConfigs &oldConfigs, const ClangDiagnosticConfigs &newConfigs)
 {

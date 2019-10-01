@@ -196,6 +196,8 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 
 Core::Id CppCodeModelSettings::clangDiagnosticConfigId() const
 {
+    if (!diagnosticConfigsModel().hasConfigWithId(m_clangDiagnosticConfigId))
+        return defaultClangDiagnosticConfigId();
     return m_clangDiagnosticConfigId;
 }
 
@@ -204,9 +206,9 @@ void CppCodeModelSettings::setClangDiagnosticConfigId(const Core::Id &configId)
     m_clangDiagnosticConfigId = configId;
 }
 
-void CppCodeModelSettings::resetClangDiagnosticConfigId()
+Core::Id CppCodeModelSettings::defaultClangDiagnosticConfigId()
 {
-    m_clangDiagnosticConfigId = initialClangDiagnosticConfigId();
+    return initialClangDiagnosticConfigId();
 }
 
 const ClangDiagnosticConfig CppCodeModelSettings::clangDiagnosticConfig() const

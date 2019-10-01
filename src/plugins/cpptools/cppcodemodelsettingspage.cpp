@@ -75,23 +75,6 @@ void CppCodeModelSettingsWidget::setupClangCodeModelWidgets()
                                                          m_settings->clangDiagnosticConfigId(),
                                                          /*showTidyClazyUi=*/false);
 
-    connect(m_ui->clangDiagnosticConfigsSelectionWidget,
-            &ClangDiagnosticConfigsSelectionWidget::diagnosticConfigsEdited,
-            this,
-            [this](const ClangDiagnosticConfigs &configs) {
-            const ClangDiagnosticConfigsModel configsModel = diagnosticConfigsModel(configs);
-            if (!configsModel.hasConfigWithId(m_settings->clangDiagnosticConfigId()))
-                m_settings->resetClangDiagnosticConfigId();
-            m_settings->setClangCustomDiagnosticConfigs(configs);
-            applyClangCodeModelWidgetsToSettings();
-            m_settings->toSettings(Core::ICore::settings());
-
-            m_ui->clangDiagnosticConfigsSelectionWidget
-                ->refresh(configsModel,
-                          m_settings->clangDiagnosticConfigId(),
-                          /*showTidyClazyUi=*/false);
-    });
-
     const bool isClangActive = CppModelManager::instance()->isClangCodeModelActive();
     m_ui->clangCodeModelIsDisabledHint->setVisible(!isClangActive);
     m_ui->clangCodeModelIsEnabledHint->setVisible(isClangActive);
@@ -116,14 +99,24 @@ void CppCodeModelSettingsWidget::setupGeneralWidgets()
 
 bool CppCodeModelSettingsWidget::applyClangCodeModelWidgetsToSettings() const
 {
+    bool changed = false;
+
     const Core::Id oldConfigId = m_settings->clangDiagnosticConfigId();
     const Core::Id currentConfigId = m_ui->clangDiagnosticConfigsSelectionWidget->currentConfigId();
     if (oldConfigId != currentConfigId) {
         m_settings->setClangDiagnosticConfigId(currentConfigId);
-        return true;
+        changed = true;
     }
 
-    return false;
+    const ClangDiagnosticConfigs oldConfigs = m_settings->clangCustomDiagnosticConfigs();
+    const ClangDiagnosticConfigs currentConfigs = m_ui->clangDiagnosticConfigsSelectionWidget
+                                                      ->customConfigs();
+    if (oldConfigs != currentConfigs) {
+        m_settings->setClangCustomDiagnosticConfigs(currentConfigs);
+        changed = true;
+    }
+
+    return changed;
 }
 
 bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const

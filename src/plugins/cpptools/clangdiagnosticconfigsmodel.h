@@ -52,7 +52,6 @@ public:
     const ClangDiagnosticConfig &configWithId(const Core::Id &id) const;
     int indexOfConfig(const Core::Id &id) const;
 
-    static QString displayNameWithBuiltinIndication(const ClangDiagnosticConfig &config);
     static QVector<Core::Id> changedOrRemovedConfigs(const ClangDiagnosticConfigs &oldConfigs,
                                                      const ClangDiagnosticConfigs &newConfigs);
     static ClangDiagnosticConfig createCustomConfig(const ClangDiagnosticConfig &config,

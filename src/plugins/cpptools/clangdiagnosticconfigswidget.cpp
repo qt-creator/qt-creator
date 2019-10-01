@@ -40,6 +40,7 @@
 #include <utils/algorithm.h>
 #include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
 #include <QDebug>
@@ -568,23 +569,124 @@ private:
     QStringList m_topics;
 };
 
-ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(
-    const ClangDiagnosticConfigsModel &configsModel,
-    const Core::Id &configToSelect,
-    bool showTidyClazyTabs,
-    QWidget *parent)
+class ConfigNode : public Utils::TreeItem
+{
+public:
+    ConfigNode(const ClangDiagnosticConfig &config)
+        : config(config)
+    {}
+
+    QVariant data(int, int role) const override
+    {
+        if (role == Qt::DisplayRole)
+            return config.displayName();
+        return QVariant();
+    }
+
+    ClangDiagnosticConfig config;
+};
+
+class GroupNode : public Utils::StaticTreeItem
+{
+public:
+    GroupNode(const QString &text)
+        : Utils::StaticTreeItem(text)
+    {}
+
+    Qt::ItemFlags flags(int) const { return 0; }
+    QVariant data(int column, int role) const
+    {
+        if (role == Qt::ForegroundRole) {
+            // Avoid disabled color.
+            return QApplication::palette().color(QPalette::ColorGroup::Normal,
+                                                 QPalette::ColorRole::Text);
+        }
+        return Utils::StaticTreeItem::data(column, role);
+    }
+};
+
+class ConfigsModel : public Utils::TreeModel<Utils::TreeItem, GroupNode, ConfigNode>
+{
+    Q_OBJECT
+
+public:
+    ConfigsModel(const ClangDiagnosticConfigs &configs)
+    {
+        m_builtinRoot = new GroupNode(tr("Built-in"));
+        m_customRoot = new GroupNode(tr("Custom"));
+        rootItem()->appendChild(m_builtinRoot);
+        rootItem()->appendChild(m_customRoot);
+
+        for (const ClangDiagnosticConfig &config : configs) {
+            Utils::TreeItem *parent = config.isReadOnly() ? m_builtinRoot : m_customRoot;
+            parent->appendChild(new ConfigNode(config));
+        }
+    }
+
+    int customConfigsCount() const { return m_customRoot->childCount(); }
+    QModelIndex fallbackConfigIndex() const { return m_builtinRoot->lastChild()->index(); }
+
+    ClangDiagnosticConfigs configs() const
+    {
+        ClangDiagnosticConfigs configs;
+        forItemsAtLevel<2>([&configs](const ConfigNode *node) {
+            configs << node->config;
+        });
+        return configs;
+    }
+
+    void appendCustomConfig(const ClangDiagnosticConfig &config)
+    {
+        m_customRoot->appendChild(new ConfigNode(config));
+    }
+
+    void removeConfig(const Core::Id &id)
+    {
+       ConfigNode *node = itemForConfigId(id);
+       node->parent()->removeChildAt(node->indexInParent());
+    }
+
+    ConfigNode *itemForConfigId(const Core::Id &id) const
+    {
+        return findItemAtLevel<2>([id](const ConfigNode *node) {
+            return node->config.id() == id;
+        });
+    }
+
+private:
+    Utils::TreeItem *m_builtinRoot = nullptr;
+    Utils::TreeItem *m_customRoot = nullptr;
+};
+
+ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigs &configs,
+                                                           const Core::Id &configToSelect,
+                                                           bool showTidyClazyTabs,
+                                                           QWidget *parent)
     : QWidget(parent)
     , m_ui(new Ui::ClangDiagnosticConfigsWidget)
-    , m_diagnosticConfigsModel(configsModel)
-    , m_clazyTreeModel(new ClazyChecksTreeModel())
-    , m_tidyTreeModel(new TidyChecksTreeModel())
+    , m_configsModel(new ConfigsModel(configs))
+    , m_clazyTreeModel(new ClazyChecksTreeModel)
+    , m_tidyTreeModel(new TidyChecksTreeModel)
 {
     m_ui->setupUi(this);
+    m_ui->configsView->setHeaderHidden(true);
+    m_ui->configsView->setUniformRowHeights(true);
+    m_ui->configsView->setRootIsDecorated(false);
+    m_ui->configsView->setModel(m_configsModel);
+    m_ui->configsView->setCurrentIndex(m_configsModel->itemForConfigId(configToSelect)->index());
+    m_ui->configsView->setItemsExpandable(false);
+    m_ui->configsView->expandAll();
+    connect(m_ui->configsView->selectionModel(),
+            &QItemSelectionModel::currentChanged,
+            this,
+            &ClangDiagnosticConfigsWidget::syncToConfigsView);
+
     setupTabs(showTidyClazyTabs);
 
-    connectConfigChooserCurrentIndex();
     connect(m_ui->copyButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onCopyButtonClicked);
+    connect(m_ui->renameButton, &QPushButton::clicked,
+            this, &ClangDiagnosticConfigsWidget::onRenameButtonClicked);
     connect(m_ui->removeButton, &QPushButton::clicked,
             this, &ClangDiagnosticConfigsWidget::onRemoveButtonClicked);
     connectClangOnlyOptionsChanged();
@@ -596,7 +698,7 @@ ClangDiagnosticConfigsWidget::ClangDiagnosticConfigsWidget(
             &QTreeView::clicked,
             [model = m_clazySortFilterProxyModel](const QModelIndex &index) { openUrl(model, index); });
 
-    syncWidgetsToModel(configToSelect);
+    syncToConfigsView();
 }
 
 ClangDiagnosticConfigsWidget::~ClangDiagnosticConfigsWidget()
@@ -604,55 +706,62 @@ ClangDiagnosticConfigsWidget::~ClangDiagnosticConfigsWidget()
     delete m_ui;
 }
 
-void ClangDiagnosticConfigsWidget::onCurrentConfigChanged(int index)
-{
-    m_selectedConfigIndex = index;
-    syncOtherWidgetsToComboBox();
-}
-
 void ClangDiagnosticConfigsWidget::onCopyButtonClicked()
 {
-    const ClangDiagnosticConfig &config = selectedConfig();
+    const ClangDiagnosticConfig &config = currentConfig();
 
-    bool diaglogAccepted = false;
+    bool dialogAccepted = false;
     const QString newName = QInputDialog::getText(this,
                                                   tr("Copy Diagnostic Configuration"),
                                                   tr("Diagnostic configuration name:"),
                                                   QLineEdit::Normal,
                                                   tr("%1 (Copy)").arg(config.displayName()),
-                                                  &diaglogAccepted);
-    if (diaglogAccepted) {
+                                                  &dialogAccepted);
+    if (dialogAccepted) {
         const ClangDiagnosticConfig customConfig
             = ClangDiagnosticConfigsModel::createCustomConfig(config, newName);
-        m_diagnosticConfigsModel.appendOrUpdate(customConfig);
-        emit customConfigsChanged(customConfigs());
-
-        syncConfigChooserToModel(customConfig.id());
+        m_configsModel->appendCustomConfig(customConfig);
+        m_ui->configsView->setCurrentIndex(m_configsModel->itemForConfigId(customConfig.id())->index());
+        syncToConfigsView();
         m_clangBaseChecks->diagnosticOptionsTextEdit->setFocus();
     }
 }
 
-const ClangDiagnosticConfig &ClangDiagnosticConfigsWidget::selectedConfig() const
+void ClangDiagnosticConfigsWidget::onRenameButtonClicked()
 {
-    return m_diagnosticConfigsModel.at(m_selectedConfigIndex);
+    const ClangDiagnosticConfig &config = currentConfig();
+
+    bool dialogAccepted = false;
+    const QString newName = QInputDialog::getText(this,
+                                                  tr("Rename Diagnostic Configuration"),
+                                                  tr("New Name:"),
+                                                  QLineEdit::Normal,
+                                                  config.displayName(),
+                                                  &dialogAccepted);
+    if (dialogAccepted) {
+        ConfigNode *configNode = m_configsModel->itemForConfigId(config.id());
+        configNode->config.setDisplayName(newName);
+    }
 }
 
-Core::Id ClangDiagnosticConfigsWidget::selectedConfigId() const
+const ClangDiagnosticConfig ClangDiagnosticConfigsWidget::currentConfig() const
 {
-    return selectedConfig().id();
+    Utils::TreeItem *item = m_configsModel->itemForIndex(m_ui->configsView->currentIndex());
+    return static_cast<ConfigNode *>(item)->config;
 }
 
 void ClangDiagnosticConfigsWidget::onRemoveButtonClicked()
 {
-    m_diagnosticConfigsModel.removeConfigWithId(selectedConfigId());
-    emit customConfigsChanged(customConfigs());
-
-    syncConfigChooserToModel();
+    const Core::Id configToRemove = currentConfig().id();
+    if (m_configsModel->customConfigsCount() == 1)
+        m_ui->configsView->setCurrentIndex(m_configsModel->fallbackConfigIndex());
+    m_configsModel->removeConfig(configToRemove);
+    syncToConfigsView();
 }
 
 void ClangDiagnosticConfigsWidget::onClangTidyModeChanged(int index)
 {
-    ClangDiagnosticConfig config = selectedConfig();
+    ClangDiagnosticConfig config = currentConfig();
     config.setClangTidyMode(static_cast<ClangDiagnosticConfig::TidyMode>(index));
     updateConfig(config);
     syncClangTidyWidgets(config);
@@ -660,7 +769,7 @@ void ClangDiagnosticConfigsWidget::onClangTidyModeChanged(int index)
 
 void ClangDiagnosticConfigsWidget::onClangTidyTreeChanged()
 {
-    ClangDiagnosticConfig config = selectedConfig();
+    ClangDiagnosticConfig config = currentConfig();
     config.setClangTidyChecks(m_tidyTreeModel->selectedChecks());
     updateConfig(config);
 }
@@ -669,7 +778,7 @@ void ClangDiagnosticConfigsWidget::onClazyTreeChanged()
 {
     syncClazyChecksGroupBox();
 
-    ClangDiagnosticConfig config = selectedConfig();
+    ClangDiagnosticConfig config = currentConfig();
     config.setClazyChecks(m_clazyTreeModel->enabledChecks().join(","));
     updateConfig(config);
 }
@@ -725,61 +834,30 @@ void ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged()
     updateValidityWidgets(errorMessage);
     if (!errorMessage.isEmpty()) {
         // Remember the entered options in case the user will switch back.
-        m_notAcceptedOptions.insert(selectedConfigId(), diagnosticOptions);
+        m_notAcceptedOptions.insert(currentConfig().id(), diagnosticOptions);
         return;
     }
-    m_notAcceptedOptions.remove(selectedConfigId());
+    m_notAcceptedOptions.remove(currentConfig().id());
 
     // Commit valid changes
-    ClangDiagnosticConfig updatedConfig = selectedConfig();
+    ClangDiagnosticConfig updatedConfig = currentConfig();
     updatedConfig.setClangOptions(normalizedOptions);
     updatedConfig.setUseBuildSystemWarnings(useBuildSystemWarnings);
     updateConfig(updatedConfig);
 }
 
-void ClangDiagnosticConfigsWidget::syncWidgetsToModel(const Core::Id &configToSelect)
+void ClangDiagnosticConfigsWidget::syncToConfigsView()
 {
-    syncConfigChooserToModel(configToSelect);
-    syncOtherWidgetsToComboBox();
-}
-
-void ClangDiagnosticConfigsWidget::syncConfigChooserToModel(const Core::Id &configToSelect)
-{
-    disconnectConfigChooserCurrentIndex();
-
-    m_ui->configChooserList->clear();
-    m_selectedConfigIndex = std::max(std::min(m_selectedConfigIndex,
-                                              m_diagnosticConfigsModel.size() - 1),
-                                     0);
-
-    const int size = m_diagnosticConfigsModel.size();
-    for (int i = 0; i < size; ++i) {
-        const ClangDiagnosticConfig &config = m_diagnosticConfigsModel.at(i);
-        const QString displayName
-                = ClangDiagnosticConfigsModel::displayNameWithBuiltinIndication(config);
-        m_ui->configChooserList->addItem(displayName);
-
-        if (configToSelect == config.id())
-            m_selectedConfigIndex = i;
-    }
-
-    connectConfigChooserCurrentIndex();
-
-    m_ui->configChooserList->setCurrentRow(m_selectedConfigIndex);
-}
-
-void ClangDiagnosticConfigsWidget::syncOtherWidgetsToComboBox()
-{
-    if (isConfigChooserEmpty())
+    if (!m_ui->configsView->currentIndex().isValid())
         return;
 
     disconnectClangOnlyOptionsChanged();
     Utils::ExecuteOnDestruction e([this]() { connectClangOnlyOptionsChanged(); });
 
-    const ClangDiagnosticConfig &config = selectedConfig();
-
     // Update main button row
+    const ClangDiagnosticConfig &config = currentConfig();
     m_ui->removeButton->setEnabled(!config.isReadOnly());
+    m_ui->renameButton->setEnabled(!config.isReadOnly());
 
     // Update check box
     m_clangBaseChecks->useFlagsFromBuildSystemCheckBox->setChecked(config.useBuildSystemWarnings());
@@ -869,13 +947,7 @@ void ClangDiagnosticConfigsWidget::syncClazyChecksGroupBox()
 
 void ClangDiagnosticConfigsWidget::updateConfig(const ClangDiagnosticConfig &config)
 {
-    m_diagnosticConfigsModel.appendOrUpdate(config);
-    emit customConfigsChanged(customConfigs());
-}
-
-bool ClangDiagnosticConfigsWidget::isConfigChooserEmpty() const
-{
-    return m_ui->configChooserList->count() == 0;
+    m_configsModel->itemForConfigId(config.id())->config = config;
 }
 
 void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
@@ -939,18 +1011,6 @@ void ClangDiagnosticConfigsWidget::disconnectClazyItemChanged()
                this, &ClangDiagnosticConfigsWidget::onClazyTreeChanged);
 }
 
-void ClangDiagnosticConfigsWidget::connectConfigChooserCurrentIndex()
-{
-    connect(m_ui->configChooserList, &QListWidget::currentRowChanged,
-            this, &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
-}
-
-void ClangDiagnosticConfigsWidget::disconnectConfigChooserCurrentIndex()
-{
-    disconnect(m_ui->configChooserList, &QListWidget::currentRowChanged,
-               this, &ClangDiagnosticConfigsWidget::onCurrentConfigChanged);
-}
-
 void ClangDiagnosticConfigsWidget::connectClangOnlyOptionsChanged()
 {
     connect(m_clangBaseChecks->useFlagsFromBuildSystemCheckBox,
@@ -975,9 +1035,9 @@ void ClangDiagnosticConfigsWidget::disconnectClangOnlyOptionsChanged()
                &ClangDiagnosticConfigsWidget::onClangOnlyOptionsChanged);
 }
 
-ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::customConfigs() const
+ClangDiagnosticConfigs ClangDiagnosticConfigsWidget::configs() const
 {
-    return m_diagnosticConfigsModel.customConfigs();
+    return m_configsModel->configs();
 }
 
 static void setupTreeView(QTreeView *view, QAbstractItemModel *model, int expandToDepth = 0)
@@ -1038,7 +1098,7 @@ void ClangDiagnosticConfigsWidget::setupTabs(bool showTidyClazyTabs)
     setupTreeView(m_tidyChecks->checksPrefixesTree, m_tidyTreeModel.get());
 
     connect(m_tidyChecks->plainTextEditButton, &QPushButton::clicked, this, [this]() {
-        const bool readOnly = selectedConfig().isReadOnly();
+        const bool readOnly = currentConfig().isReadOnly();
 
         QDialog dialog;
         dialog.setWindowTitle(tr("Checks"));

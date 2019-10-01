@@ -26,6 +26,7 @@
 #include "clangtoolssettings.h"
 
 #include "clangtoolsconstants.h"
+#include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
 #include <cpptools/clangdiagnosticconfig.h>
@@ -74,9 +75,11 @@ void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
     map.insert(prefix + buildBeforeAnalysisKey, m_buildBeforeAnalysis);
 }
 
-void RunSettings::resetDiagnosticConfigId()
+Core::Id RunSettings::diagnosticConfigId() const
 {
-    m_diagnosticConfigId = defaultDiagnosticId();
+    if (!diagnosticConfigsModel().hasConfigWithId(m_diagnosticConfigId))
+        return defaultDiagnosticId();
+    return m_diagnosticConfigId;
 }
 
 ClangToolsSettings::ClangToolsSettings()
@@ -148,7 +151,7 @@ void ClangToolsSettings::readSettings()
         write = true;
     } else {
         QVariantMap defaults;
-        defaults.insert(diagnosticConfigIdKey, m_runSettings.diagnosticConfigId().toSetting());
+        defaults.insert(diagnosticConfigIdKey, defaultDiagnosticId().toSetting());
         defaults.insert(parallelJobsKey, m_runSettings.parallelJobs());
         defaults.insert(buildBeforeAnalysisKey, m_runSettings.buildBeforeAnalysis());
         map = defaults;

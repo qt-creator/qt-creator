@@ -44,6 +44,7 @@ public:
     ~ProjectSettingsWidget() override;
 
 private:
+    void onGlobalCustomChanged();
     void onGlobalCustomChanged(int index);
 
     void updateButtonStates();

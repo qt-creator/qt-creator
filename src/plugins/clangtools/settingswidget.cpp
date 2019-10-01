@@ -31,6 +31,7 @@
 #include "clangtoolsutils.h"
 
 #include <cpptools/clangdiagnosticconfigsmodel.h>
+#include <cpptools/clangdiagnosticconfigsselectionwidget.h>
 
 #include <utils/optional.h>
 
@@ -105,28 +106,21 @@ SettingsWidget::SettingsWidget(ClangToolsSettings *settings, QWidget *parent)
     //
 
     m_ui->runSettingsWidget->fromSettings(m_settings->runSettings());
-    connect(m_ui->runSettingsWidget,
-            &RunSettingsWidget::diagnosticConfigsEdited,
-            this,
-            [this](const CppTools::ClangDiagnosticConfigs &configs) {
-                const CppTools::ClangDiagnosticConfigsModel configsModel = diagnosticConfigsModel(
-                    configs);
-                RunSettings runSettings = m_settings->runSettings();
-                if (!configsModel.hasConfigWithId(m_settings->runSettings().diagnosticConfigId())) {
-                    runSettings.resetDiagnosticConfigId();
-                    m_settings->setRunSettings(runSettings);
-                }
-                m_settings->setDiagnosticConfigs(configs);
-                m_settings->writeSettings();
-                m_ui->runSettingsWidget->fromSettings(runSettings);
-            });
 }
 
 void SettingsWidget::apply()
 {
+    // Executables
     m_settings->setClangTidyExecutable(m_ui->clangTidyPathChooser->rawPath());
     m_settings->setClazyStandaloneExecutable(m_ui->clazyStandalonePathChooser->rawPath());
+
+    // Run options
     m_settings->setRunSettings(m_ui->runSettingsWidget->toSettings());
+
+    // Custom configs
+    const CppTools::ClangDiagnosticConfigs customConfigs
+        = m_ui->runSettingsWidget->diagnosticSelectionWidget()->customConfigs();
+    m_settings->setDiagnosticConfigs(customConfigs);
 
     m_settings->writeSettings();
 }

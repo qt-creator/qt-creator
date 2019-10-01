@@ -28,7 +28,6 @@
 #include "cpptools_global.h"
 
 #include "clangdiagnosticconfig.h"
-#include "clangdiagnosticconfigsmodel.h"
 
 #include <QHash>
 #include <QWidget>
@@ -49,6 +48,7 @@ class ClazyChecks;
 class TidyChecks;
 }
 
+class ConfigsModel;
 class TidyChecksTreeModel;
 class ClazyChecksTreeModel;
 class ClazyChecksSortFilterModel;
@@ -58,22 +58,20 @@ class CPPTOOLS_EXPORT ClangDiagnosticConfigsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigsModel &configsModel,
+    explicit ClangDiagnosticConfigsWidget(const ClangDiagnosticConfigs &configs,
                                           const Core::Id &configToSelect,
                                           bool showTidyClazyTabs,
                                           QWidget *parent = nullptr);
     ~ClangDiagnosticConfigsWidget() override;
 
-    ClangDiagnosticConfigs customConfigs() const;
-
-signals:
-    void customConfigsChanged(const CppTools::ClangDiagnosticConfigs &customConfigs);
+    ClangDiagnosticConfigs configs() const;
+    const ClangDiagnosticConfig currentConfig() const;
 
 private:
     void setupTabs(bool showTidyClazyTabs);
 
-    void onCurrentConfigChanged(int index);
     void onCopyButtonClicked();
+    void onRenameButtonClicked();
     void onRemoveButtonClicked();
     void onClangTidyModeChanged(int index);
     void onClangTidyTreeChanged();
@@ -82,19 +80,13 @@ private:
 
     void onClangOnlyOptionsChanged();
 
-    void syncWidgetsToModel(const Core::Id &configToSelect = Core::Id());
-    void syncConfigChooserToModel(const Core::Id &configToSelect = Core::Id());
-    void syncOtherWidgetsToComboBox();
+    void syncToConfigsView();
     void syncClangTidyWidgets(const ClangDiagnosticConfig &config);
     void syncClazyWidgets(const ClangDiagnosticConfig &config);
     void syncClazyChecksGroupBox();
     void syncTidyChecksToTree(const ClangDiagnosticConfig &config);
 
     void updateConfig(const CppTools::ClangDiagnosticConfig &config);
-
-    bool isConfigChooserEmpty() const;
-    const ClangDiagnosticConfig &selectedConfig() const;
-    Core::Id selectedConfigId() const;
 
     void setDiagnosticOptions(const QString &options);
     void updateValidityWidgets(const QString &errorMessage);
@@ -105,14 +97,12 @@ private:
     void connectClazyItemChanged();
     void disconnectClazyItemChanged();
 
-    void connectConfigChooserCurrentIndex();
-    void disconnectConfigChooserCurrentIndex();
     void connectClangOnlyOptionsChanged();
     void disconnectClangOnlyOptionsChanged();
 
 private:
     Ui::ClangDiagnosticConfigsWidget *m_ui;
-    ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
+    ConfigsModel *m_configsModel = nullptr;
     QHash<Core::Id, QString> m_notAcceptedOptions;
 
     std::unique_ptr<CppTools::Ui::ClangBaseChecks> m_clangBaseChecks;
@@ -126,8 +116,6 @@ private:
     std::unique_ptr<CppTools::Ui::TidyChecks> m_tidyChecks;
     QWidget *m_tidyChecksWidget = nullptr;
     std::unique_ptr<TidyChecksTreeModel> m_tidyTreeModel;
-
-    int m_selectedConfigIndex = 0;
 };
 
 } // CppTools namespace

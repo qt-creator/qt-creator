@@ -44,12 +44,7 @@ static Core::Id configIdForProject(ClangProjectSettings &projectSettings)
 {
     if (projectSettings.useGlobalConfig())
         return CppTools::codeModelSettings()->clangDiagnosticConfigId();
-    Core::Id configId = projectSettings.warningConfigId();
-    if (!configId.isValid()) {
-        configId = CppTools::codeModelSettings()->clangDiagnosticConfigId();
-        projectSettings.setWarningConfigId(configId);
-    }
-    return configId;
+    return projectSettings.warningConfigId();
 }
 
 ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project *project)
@@ -62,19 +57,20 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
     m_ui.delayedTemplateParseCheckBox->setVisible(Utils::HostOsInfo::isWindowsHost());
 
     connect(m_ui.clangDiagnosticConfigsSelectionWidget,
-            &ClangDiagnosticConfigsSelectionWidget::currentConfigChanged,
-            this, &ClangProjectSettingsWidget::onCurrentWarningConfigChanged);
-    connect(m_ui.clangDiagnosticConfigsSelectionWidget,
-            &ClangDiagnosticConfigsSelectionWidget::diagnosticConfigsEdited,
-            this, [this](const ClangDiagnosticConfigs &configs){
-        QSharedPointer<CppCodeModelSettings> cmSettings = CppTools::codeModelSettings();
-        const ClangDiagnosticConfigsModel configsModel = CppTools::diagnosticConfigsModel(configs);
-        if (!configsModel.hasConfigWithId(cmSettings->clangDiagnosticConfigId()))
-            cmSettings->resetClangDiagnosticConfigId();
-        cmSettings->setClangCustomDiagnosticConfigs(configs);
-        cmSettings->toSettings(Core::ICore::settings());
-        refreshDiagnosticConfigsWidgetFromSettings();
-    });
+            &ClangDiagnosticConfigsSelectionWidget::changed,
+            this,
+            [this]() {
+                // Save project's config id
+                const Core::Id currentConfigId = m_ui.clangDiagnosticConfigsSelectionWidget
+                                                     ->currentConfigId();
+                m_projectSettings.setWarningConfigId(currentConfigId);
+
+                // Save global custom configs
+                const ClangDiagnosticConfigs configs = m_ui.clangDiagnosticConfigsSelectionWidget
+                                                           ->customConfigs();
+                CppTools::codeModelSettings()->setClangCustomDiagnosticConfigs(configs);
+                CppTools::codeModelSettings()->toSettings(Core::ICore::settings());
+            });
 
     connect(m_ui.delayedTemplateParseCheckBox, &QCheckBox::toggled,
             this, &ClangProjectSettingsWidget::onDelayedTemplateParseClicked);
@@ -90,14 +86,6 @@ ClangProjectSettingsWidget::ClangProjectSettingsWidget(ProjectExplorer::Project 
             this, &ClangProjectSettingsWidget::syncOtherWidgetsToComboBox);
 
     syncWidgets();
-}
-
-void ClangProjectSettingsWidget::onCurrentWarningConfigChanged(const Core::Id &currentConfigId)
-{
-    // Don't save it when we reset the global config in code
-    if (m_projectSettings.useGlobalConfig())
-        return;
-    m_projectSettings.setWarningConfigId(currentConfigId);
 }
 
 void ClangProjectSettingsWidget::onDelayedTemplateParseClicked(bool checked)
@@ -152,11 +140,6 @@ void ClangProjectSettingsWidget::syncOtherWidgetsToComboBox()
             widget->setEnabled(isCustom);
     }
 
-    refreshDiagnosticConfigsWidgetFromSettings();
-}
-
-void ClangProjectSettingsWidget::refreshDiagnosticConfigsWidgetFromSettings()
-{
     m_ui.clangDiagnosticConfigsSelectionWidget->refresh(CppTools::diagnosticConfigsModel(),
                                                         configIdForProject(m_projectSettings),
                                                         /*showTidyClazyUi=*/false);

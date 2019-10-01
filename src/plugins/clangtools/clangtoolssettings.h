@@ -44,9 +44,8 @@ public:
     void fromMap(const QVariantMap &map, const QString &prefix = QString());
     void toMap(QVariantMap &map, const QString &prefix = QString()) const;
 
-    Core::Id diagnosticConfigId() const { return m_diagnosticConfigId; }
+    Core::Id diagnosticConfigId() const;
     void setDiagnosticConfigId(const Core::Id &id) { m_diagnosticConfigId = id; }
-    void resetDiagnosticConfigId();
 
     bool buildBeforeAnalysis() const { return m_buildBeforeAnalysis; }
     void setBuildBeforeAnalysis(bool yesno) { m_buildBeforeAnalysis = yesno; }

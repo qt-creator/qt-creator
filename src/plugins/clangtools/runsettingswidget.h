@@ -29,6 +29,10 @@
 
 #include <QWidget>
 
+namespace CppTools {
+class ClangDiagnosticConfigsSelectionWidget;
+}
+
 namespace ClangTools {
 namespace Internal {
 
@@ -46,11 +50,12 @@ public:
     explicit RunSettingsWidget(QWidget *parent = nullptr);
     ~RunSettingsWidget();
 
+    CppTools::ClangDiagnosticConfigsSelectionWidget *diagnosticSelectionWidget();
+
     void fromSettings(const RunSettings &s);
     RunSettings toSettings() const;
 
 signals:
-    void diagnosticConfigsEdited(const CppTools::ClangDiagnosticConfigs &configs);
     void changed();
 
 private:

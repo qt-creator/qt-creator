@@ -29,9 +29,11 @@
 #include "clangtool.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
+#include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
+#include <cpptools/clangdiagnosticconfigsselectionwidget.h>
 
 #include <utils/qtcassert.h>
 
@@ -72,7 +74,7 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
 {
     m_ui->setupUi(this);
 
-    // Use global/custom settings
+    // Use global/custom settings combo box
     const int globalOrCustomIndex = m_projectSettings->useGlobalSettings() ? UseGlobalSettings
                                                                            : UseCustomSettings;
     m_ui->globalCustomComboBox->setCurrentIndex(globalOrCustomIndex);
@@ -80,45 +82,36 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project, 
     connect(m_ui->globalCustomComboBox,
             QOverload<int>::of(&QComboBox::currentIndexChanged),
             this,
-            &ProjectSettingsWidget::onGlobalCustomChanged);
+            QOverload<int>::of(&ProjectSettingsWidget::onGlobalCustomChanged));
 
-    // Restore global settings
+    // Global settings
+    connect(ClangToolsSettings::instance(),
+            &ClangToolsSettings::changed,
+            this,
+            QOverload<>::of(&ProjectSettingsWidget::onGlobalCustomChanged));
     connect(m_ui->restoreGlobal, &QPushButton::clicked, this, [this]() {
         m_ui->runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings());
     });
 
     // Links
-    connect(m_ui->gotoGlobalSettingsLabel, &QLabel::linkActivated, [](const QString &){
+    connect(m_ui->gotoGlobalSettingsLabel, &QLabel::linkActivated, [](const QString &) {
         Core::ICore::showOptionsDialog(ClangTools::Constants::SETTINGS_PAGE_ID);
     });
 
-    connect(m_ui->gotoAnalyzerModeLabel, &QLabel::linkActivated, [](const QString &){
+    connect(m_ui->gotoAnalyzerModeLabel, &QLabel::linkActivated, [](const QString &) {
         ClangTool::instance()->selectPerspective();
     });
 
     // Run options
-    m_ui->runSettingsWidget->fromSettings(m_projectSettings->runSettings());
     connect(m_ui->runSettingsWidget, &RunSettingsWidget::changed, [this]() {
+        // Save project run settings
         m_projectSettings->setRunSettings(m_ui->runSettingsWidget->toSettings());
-    });
-    connect(m_ui->runSettingsWidget,
-            &RunSettingsWidget::diagnosticConfigsEdited,
-            this,
-            [this](const CppTools::ClangDiagnosticConfigs &configs) {
-                const CppTools::ClangDiagnosticConfigsModel configsModel = diagnosticConfigsModel(
-                    configs);
-                RunSettings runSettings = m_projectSettings->runSettings();
-                if (!configsModel.hasConfigWithId(runSettings.diagnosticConfigId())) {
-                    runSettings.resetDiagnosticConfigId();
-                    m_projectSettings->setRunSettings(runSettings);
-                }
-                ClangToolsSettings::instance()->setDiagnosticConfigs(configs);
-                ClangToolsSettings::instance()->writeSettings();
-                m_ui->runSettingsWidget->fromSettings(runSettings);
-            });
-    connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
-            this, [this](){
-        m_ui->runSettingsWidget->fromSettings(m_projectSettings->runSettings());
+
+        // Save global custom configs
+        const CppTools::ClangDiagnosticConfigs configs
+            = m_ui->runSettingsWidget->diagnosticSelectionWidget()->customConfigs();
+        ClangToolsSettings::instance()->setDiagnosticConfigs(configs);
+        ClangToolsSettings::instance()->writeSettings();
     });
 
     // Suppressed diagnostics
@@ -146,11 +139,20 @@ ProjectSettingsWidget::~ProjectSettingsWidget()
     delete m_ui;
 }
 
+void ProjectSettingsWidget::onGlobalCustomChanged()
+{
+    onGlobalCustomChanged(m_ui->globalCustomComboBox->currentIndex());
+}
+
 void ProjectSettingsWidget::onGlobalCustomChanged(int index)
 {
     const bool useGlobal = index == UseGlobalSettings;
+    const RunSettings runSettings = useGlobal ? ClangToolsSettings::instance()->runSettings()
+                                              : m_projectSettings->runSettings();
+    m_ui->runSettingsWidget->fromSettings(runSettings);
     m_ui->runSettingsWidget->setEnabled(!useGlobal);
     m_ui->restoreGlobal->setEnabled(!useGlobal);
+
     m_projectSettings->setUseGlobalSettings(useGlobal);
 }
 
@@ -180,7 +182,6 @@ void ProjectSettingsWidget::removeSelected()
             = static_cast<SuppressedDiagnosticsModel *>(m_ui->diagnosticsView->model());
     m_projectSettings->removeSuppressedDiagnostic(model->diagnosticAt(selectedRows.first().row()));
 }
-
 
 void SuppressedDiagnosticsModel::setDiagnostics(const SuppressedDiagnosticsList &diagnostics)
 {

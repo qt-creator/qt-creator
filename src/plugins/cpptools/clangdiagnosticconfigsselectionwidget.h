@@ -32,7 +32,6 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QComboBox;
 class QLabel;
 class QPushButton;
 QT_END_NAMESPACE
@@ -51,25 +50,20 @@ public:
                  bool showTidyClazyUi);
 
     Core::Id currentConfigId() const;
+    ClangDiagnosticConfigs customConfigs() const;
 
 signals:
-    void diagnosticConfigsEdited(const ClangDiagnosticConfigs &configs);
-    void currentConfigChanged(const Core::Id &currentConfigId);
+    void changed();
 
 private:
-    void connectToClangDiagnosticConfigsDialog();
-    void connectToCurrentIndexChanged();
-    void disconnectFromCurrentIndexChanged();
+    void onButtonClicked();
 
-    void refresh(Core::Id id);
-
-    QMetaObject::Connection m_currentIndexChangedConnection;
-    bool m_showTidyClazyUi = true;
     ClangDiagnosticConfigsModel m_diagnosticConfigsModel;
+    Core::Id m_currentConfigId;
+    bool m_showTidyClazyUi = true;
 
     QLabel *m_label = nullptr;
-    QPushButton *m_manageButton = nullptr;
-    QComboBox *m_selectionComboBox = nullptr;
+    QPushButton *m_button = nullptr;
 };
 
 } // CppTools namespace
