@@ -72,6 +72,16 @@
     \QC keyboard shortcut \key F10 (Step Over) does not work on that system.
     \endif
 
+
+    To override the platform default value that determines whether
+    keyboard shortcuts are shown in the labels of context menu items,
+    select \uicontrol Tools > \uicontrol Options > \uicontrol Environment >
+    \uicontrol Interface. The label of the \uicontrol {Show keyboard shortcuts
+    in context menus} check box indicates whether the platform default value
+    is \c on or \c off.
+
+    \image qtcreator-options-environment-interface.png "Interface tab in the Environment options"
+
     \section1 Configuring Keyboard Shortcuts
 
     To customize a keyboard shortcut:
