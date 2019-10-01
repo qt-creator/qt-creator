@@ -190,6 +190,7 @@ private:
     static void addAspectFactory(const AspectFactory &aspectFactory);
 
     friend class RunConfigurationCreationInfo;
+    friend class RunConfigurationFactory;
 
     QString m_buildKey;
     bool m_isEnabled = false;
@@ -249,6 +250,7 @@ protected:
 
 private:
     bool canHandle(Target *target) const;
+    RunConfiguration *create(Target *target) const;
 
     friend class RunConfigurationCreationInfo;
     RunConfigurationCreator m_creator;

@@ -151,7 +151,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
             this, &RunSettingsWidget::activeDeployConfigurationChanged);
 
     // run part
-    runWidget->setContentsMargins(0, 10, 0, 25);
+    runWidget->setContentsMargins(0, 10, 0, 0);
     m_runLayout = new QVBoxLayout(runWidget);
     m_runLayout->setContentsMargins(0, 0, 0, 0);
     m_runLayout->setSpacing(5);

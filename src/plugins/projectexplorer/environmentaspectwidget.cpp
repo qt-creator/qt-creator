@@ -49,7 +49,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect, QWid
 
     setContentsMargins(0, 0, 0, 0);
     auto topLayout = new QVBoxLayout(this);
-    topLayout->setContentsMargins(0, 0, 0, 0);
+    topLayout->setContentsMargins(0, 0, 0, 25);
 
     auto baseEnvironmentWidget = new QWidget;
     auto baseLayout = new QHBoxLayout(baseEnvironmentWidget);

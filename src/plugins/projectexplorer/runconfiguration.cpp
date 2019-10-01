@@ -206,9 +206,6 @@ RunConfiguration::RunConfiguration(Target *target, Core::Id id)
             QCoreApplication::translate("ProjectExplorer", "The currently active run configuration's name."),
             [this] { return displayName(); }, false);
 
-    for (const AspectFactory &factory : theAspectFactories)
-        m_aspects.append(factory(target));
-
     m_commandLineGetter = [this] {
         FilePath executable;
         if (const auto executableAspect = aspect<ExecutableAspect>())
@@ -547,17 +544,29 @@ bool RunConfigurationFactory::canHandle(Target *target) const
     return true;
 }
 
+RunConfiguration *RunConfigurationFactory::create(Target *target) const
+{
+    QTC_ASSERT(m_creator, return nullptr);
+    RunConfiguration *rc = m_creator(target);
+    QTC_ASSERT(rc, return nullptr);
+
+    // Add the universal aspects.
+    for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
+        rc->m_aspects.append(factory(target));
+
+    rc->acquaintAspects();
+    return rc;
+}
+
 RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
 {
     QTC_ASSERT(factory->canHandle(target), return nullptr);
     QTC_ASSERT(id == factory->runConfigurationBaseId(), return nullptr);
-    QTC_ASSERT(factory->m_creator, return nullptr);
 
-    RunConfiguration *rc = factory->m_creator(target);
+    RunConfiguration *rc = factory->create(target);
     if (!rc)
         return nullptr;
 
-    rc->acquaintAspects();
     rc->m_buildKey = buildKey;
     rc->doAdditionalSetup(*this);
     rc->setDisplayName(displayName);
@@ -571,9 +580,7 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
         if (factory->canHandle(parent)) {
             const Core::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigBaseId.name())) {
-                QTC_ASSERT(factory->m_creator, continue);
-                RunConfiguration *rc = factory->m_creator(parent);
-                rc->acquaintAspects();
+                RunConfiguration *rc = factory->create(parent);
                 if (rc->fromMap(map))
                     return rc;
                 delete rc;
