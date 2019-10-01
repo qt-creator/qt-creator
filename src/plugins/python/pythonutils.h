@@ -23,49 +23,21 @@
 **
 ****************************************************************************/
 
+#include <utils/fileutils.h>
+
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runcontrol.h>
+namespace TextEditor { class TextDocument; }
+namespace LanguageClient { class StdIOSettings; }
 
 namespace Python {
 namespace Internal {
 
-class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-    Q_PROPERTY(bool supportsDebugger READ supportsDebugger)
-    Q_PROPERTY(QString interpreter READ interpreter)
-    Q_PROPERTY(QString mainScript READ mainScript)
-    Q_PROPERTY(QString arguments READ arguments)
-
-public:
-    PythonRunConfiguration(ProjectExplorer::Target *target, Core::Id id);
-    QString interpreter() const;
-
-private:
-    void doAdditionalSetup(const ProjectExplorer::RunConfigurationCreationInfo &) final;
-    void updateLanguageServer();
-
-    bool supportsDebugger() const;
-    QString mainScript() const;
-    QString arguments() const;
-
-    void updateTargetInformation();
-};
-
-class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
-{
-public:
-    PythonRunConfigurationFactory();
-};
-
-class PythonOutputFormatterFactory : public ProjectExplorer::OutputFormatterFactory
-{
-public:
-    PythonOutputFormatterFactory();
-};
+QList<const LanguageClient::StdIOSettings *> configuredPythonLanguageServers();
+const LanguageClient::StdIOSettings *languageServerForPython(const Utils::FilePath &python);
+Utils::FilePath detectPython(const Utils::FilePath &NdocumentPath);
+void updateEditorInfoBar(const Utils::FilePath &python, TextEditor::TextDocument *document);
+void resetEditorInfoBar(TextEditor::TextDocument *document);
 
 } // namespace Internal
 } // namespace Python

@@ -611,6 +611,13 @@ QString StdIOSettings::arguments() const
     return Utils::globalMacroExpander()->expand(m_arguments);
 }
 
+Utils::CommandLine StdIOSettings::command() const
+{
+    return Utils::CommandLine(Utils::FilePath::fromUserInput(m_executable),
+                              arguments(),
+                              Utils::CommandLine::Raw);
+}
+
 BaseClientInterface *StdIOSettings::createInterface() const
 {
     return new StdIOClientInterface(m_executable, arguments());

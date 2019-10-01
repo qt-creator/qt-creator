@@ -33,6 +33,8 @@ QtcPlugin {
             "pythonscanner.cpp",
             "pythonsettings.cpp",
             "pythonsettings.h",
+            "pythonutils.cpp",
+            "pythonutils.h",
         ]
     }
 }
