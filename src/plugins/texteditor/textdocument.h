@@ -70,7 +70,7 @@ public:
     static QMap<QString, QString> openedTextDocumentContents();
     static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
     static TextDocument *currentTextDocument();
-    static TextDocument *textDocumentForFileName(const Utils::FilePath &fileName);
+    static TextDocument *textDocumentForFilePath(const Utils::FilePath &filePath);
 
     virtual QString plainText() const;
     virtual QString textAt(int pos, int length) const;

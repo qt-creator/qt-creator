@@ -300,9 +300,9 @@ TextDocument *TextDocument::currentTextDocument()
     return qobject_cast<TextDocument *>(EditorManager::currentDocument());
 }
 
-TextDocument *TextDocument::textDocumentForFileName(const Utils::FilePath &fileName)
+TextDocument *TextDocument::textDocumentForFilePath(const Utils::FilePath &filePath)
 {
-    return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(fileName.toString()));
+    return qobject_cast<TextDocument *>(DocumentModel::documentForFilePath(filePath.toString()));
 }
 
 QString TextDocument::plainText() const
