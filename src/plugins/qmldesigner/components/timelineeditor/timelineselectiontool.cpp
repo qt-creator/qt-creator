@@ -98,7 +98,7 @@ void TimelineSelectionTool::mouseMoveEvent(TimelineMovableAbstractItem *item,
         m_selectionRect->show();
 
         aboutToSelect(selectionMode(event),
-                      scene()->items(m_selectionRect->rect(), Qt::ContainsItemShape));
+                      scene()->items(m_selectionRect->rect(), Qt::IntersectsItemBoundingRect));
     }
 }
 
@@ -164,6 +164,10 @@ void TimelineSelectionTool::aboutToSelect(SelectionMode mode, QList<QGraphicsIte
 
     for (auto *item : items) {
         if (auto *keyframe = TimelineMovableAbstractItem::asTimelineKeyframeItem(item)) {
+            // if keyframe's center isn't inside m_selectionRect, discard it
+            if (!m_selectionRect->rect().contains(keyframe->rect().center() + item->scenePos()))
+                continue;
+
             if (mode == SelectionMode::Remove)
                 keyframe->setHighlighted(false);
             else if (mode == SelectionMode::Toggle)

@@ -112,7 +112,7 @@ TimelineGraphicsScene::TimelineGraphicsScene(TimelineWidget *parent)
         if (auto *rview = rulerView())
             rview->setSceneRect(rect);
 
-        m_currentFrameIndicator->setHeight(m_layout->geometry().height());
+        m_currentFrameIndicator->setHeight(9999); // big enough number (> timeline widget height)
     });
 
     auto moveFrameIndicator = [this](const QPointF &pos) {
