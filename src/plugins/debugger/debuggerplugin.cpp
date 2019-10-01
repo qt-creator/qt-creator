@@ -832,7 +832,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         QTC_ASSERT(vbox, return);
         auto label = new QLabel(widget);
         label->setText(text);
-        label->setMargin(6);
+        label->setContentsMargins(6, 6, 6, 6);
         vbox->insertWidget(0, label);
     };
 

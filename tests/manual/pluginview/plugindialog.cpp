@@ -44,13 +44,13 @@ PluginDialog::PluginDialog()
     : m_view(new ExtensionSystem::PluginView(this))
 {
     QVBoxLayout *vl = new QVBoxLayout(this);
-    vl->setMargin(0);
+    vl->setContentsMargins(0, 0, 0, 0);
     vl->setSpacing(0);
     vl->addWidget(m_view);
 
     QHBoxLayout *hl = new QHBoxLayout;
     vl->addLayout(hl);
-    hl->setMargin(0);
+    hl->setContentsMargins(0, 0, 0, 0);
     hl->setSpacing(6);
     m_detailsButton = new QPushButton(tr("Details"), this);
     m_errorDetailsButton = new QPushButton(tr("Error Details"), this);

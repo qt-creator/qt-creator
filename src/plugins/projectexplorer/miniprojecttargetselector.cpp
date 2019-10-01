@@ -725,7 +725,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_kitAreaWidget = new KitAreaWidget(this);
 
     m_summaryLabel = new QLabel(this);
-    m_summaryLabel->setMargin(3);
+    m_summaryLabel->setContentsMargins(3, 3, 3, 3);
     m_summaryLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     m_summaryLabel->setStyleSheet(QString::fromLatin1("background: %1;")
         .arg(creatorTheme()->color(Theme::MiniProjectTargetSelectorSummaryBackgroundColor).name()));

@@ -40,7 +40,7 @@ BareMetalGdbCommandsDeployStepWidget::BareMetalGdbCommandsDeployStepWidget(BareM
     : BuildStepConfigWidget(&step), m_step(step)
 {
     const auto fl = new QFormLayout(this);
-    fl->setMargin(0);
+    fl->setContentsMargins(0, 0, 0, 0);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     setLayout(fl);
     m_commands = new QPlainTextEdit(this);

@@ -217,7 +217,7 @@ void TargetGroupItemPrivate::ensureWidget()
         f.setPointSizeF(f.pointSizeF() * 1.4);
         f.setBold(true);
         label->setFont(f);
-        label->setMargin(10);
+        label->setContentsMargins(10, 10, 10, 10);
         label->setAlignment(Qt::AlignTop);
 
         auto layout = new QVBoxLayout(m_noKitLabel);
